@@ -1,0 +1,1 @@
+export default 'rc-widget';

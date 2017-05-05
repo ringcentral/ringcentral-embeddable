@@ -1,0 +1,38 @@
+{
+  "extends": "airbnb",
+  "parserOptions": {
+    "ecmaVersion": 7
+  },
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "webextensions": true,
+    "mocha":true,
+    "jest":true
+  },
+  "rules": {
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "no-restricted-syntax": [
+      2,
+      "DebuggerStatement",
+      "LabeledStatement",
+      "WithStatement"
+    ],
+    "no-console": 0,
+    "no-unused-vars": 1,
+    "no-underscore-dangle": 0,
+    "no-empty-function": 1,
+    "comma-dangle": 0,
+    "linebreak-style": "off",
+    "import/no-extraneous-dependencies": 1,
+    "import/prefer-default-export": 0,
+    "import/no-unresolved": 1,
+    "no-param-reassign": 0, // [].reduce are easier with this turned off,
+    "jsx-a11y/label-has-for": 0, // allow implicit label for input implementation
+    "react/jsx-closing-bracket-location": 0,
+    "react/forbid-prop-types": 0,
+    "react/require-default-props": 1,
+    "jsx-a11y/no-static-element-interactions": 0,
+    "no-shadow": 0
+  }
+}
