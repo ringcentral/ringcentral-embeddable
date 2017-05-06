@@ -5,6 +5,6 @@ if (process.env.NODE_ENV === 'production') {
   url = process.env.HOSTING_URL || 'https://embbnux.github.io/ringcentral-widget-demo';
 }
 
-const hostingUrl = `${url}/${version}`;
+const hostingUrl = url;
 
 export default hostingUrl;
