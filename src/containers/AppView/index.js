@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import loginStatus from 'ringcentral-integration/modules/Auth/loginStatus';
@@ -27,6 +28,7 @@ function AppView(props) {
         server={props.server}
         enabled={props.enabled}
         onSetData={props.onSetData}
+        recordingHost={''}
       />
     </div>
   );

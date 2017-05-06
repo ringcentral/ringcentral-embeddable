@@ -1,8 +1,9 @@
 const webpack = require('webpack');
 const path = require('path');
 const autoprefixer = require('autoprefixer');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-const buildPath = path.resolve(__dirname, 'src');
+const buildPath = path.resolve(__dirname, 'release');
 
 const config = {
   entry: {
@@ -12,26 +13,33 @@ const config = {
     proxy: './src/proxy.js',
     redirect: './src/redirect.js',
   },
-  devServer: {
-    contentBase: buildPath,
-    hot: true,
-    inline: true,
-    port: 8080,
-  },
   output: {
     path: buildPath,
     filename: '[name].js',
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('development'),
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        warnings: false,
+      },
+      output: {
+        comments: false,
       },
     }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify('production'),
+      },
+    }),
+    new CopyWebpackPlugin([
+      { from: 'src/assets', to: 'assets' },
+      { from: 'src/adapter.html', to: 'adapter.html' },
+      { from: 'src/app.html', to: 'app.html' },
+      { from: 'src/index.html', to: 'index.html' },
+      { from: 'src/proxy.html', to: 'proxy.html' },
+      { from: 'src/redirect.html', to: 'redirect.html' },
+    ]),
   ],
-  devtool: 'eval',
   module: {
     rules: [
       {
@@ -97,4 +105,3 @@ const config = {
 };
 
 module.exports = config;
-

@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
-import Phone from './Phone';
+import Phone from './modules/Phone';
 import App from './containers/App';
-import apiConfig from './api-config';
-import brandConfig from './brandConfig';
-import version from './version';
-import prefix from './prefix';
+import apiConfig from './config/api';
+import brandConfig from './config/brand';
+import version from './config/version';
+import prefix from './config/prefix';
 
 const phone = new Phone({
   apiConfig,

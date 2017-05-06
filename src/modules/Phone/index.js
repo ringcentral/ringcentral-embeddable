@@ -35,7 +35,6 @@ import Messages from 'ringcentral-integration/modules/Messages';
 import Conversation from 'ringcentral-integration/modules/Conversation';
 import ContactSearch from 'ringcentral-integration/modules/ContactSearch';
 import DateTimeFormat from 'ringcentral-integration/modules/DateTimeFormat';
-import Conference from 'ringcentral-integration/modules/Conference';
 
 import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
 import DetailedPresence from 'ringcentral-integration/modules/DetailedPresence';
@@ -328,13 +327,6 @@ export default class Phone extends RcModule {
       perPage: 20,
       getState: () => this.state.messages,
     }));
-    this.addModule('conference', new Conference({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      regionSettings: this.regionSettings,
-      getState: () => this.state.conference,
-    }));
     this.addModule('router', new RouterInteraction({
       ...options,
       getState: () => this.state.router,
@@ -425,7 +417,6 @@ export default class Phone extends RcModule {
       messageStore: this.messageStore.reducer,
       conversation: this.conversation.reducer,
       messages: this.messages.reducer,
-      conference: this.conference.reducer,
       activeCalls: this.activeCalls.reducer,
       callLog: this.callLog.reducer,
       callMonitor: this.callMonitor.reducer,

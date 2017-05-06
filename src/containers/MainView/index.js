@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import dynamicsFont from 'ringcentral-widget/assets/DynamicsFont/DynamicsFont.scss';
 import TabNavigationView from 'ringcentral-widget/components/TabNavigationView';
@@ -25,12 +26,6 @@ const tabs = [
     activityIcon: <span className={dynamicsFont.historyHover} />,
     label: 'History',
     path: '/history',
-  },
-  {
-    icon: <span className={dynamicsFont.conference} />,
-    activityIcon: <span className={dynamicsFont.conferenceHover} />,
-    label: 'Conference',
-    path: '/conference',
   },
   {
     icon: <span className={dynamicsFont.dial} />,

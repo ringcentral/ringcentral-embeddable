@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import { Router, Route, IndexRoute } from 'react-router';
 import loginStatus from 'ringcentral-integration/modules/Auth/loginStatus';
@@ -166,18 +167,6 @@ export default function App({
                   router={phone.router}
                   onLogCall={async () => { await sleep(1000); }}
                   onViewContact={() => {}}
-                />
-              )} />
-            <Route
-              path="/conference"
-              onEnter={ensureLogin}
-              component={() => (
-                <ConferencePage
-                  conference={phone.conference}
-                  regionSettings={phone.regionSettings}
-                  locale={phone.locale}
-                  composeText={phone.composeText}
-                  router={phone.router}
                 />
               )} />
             <Route
