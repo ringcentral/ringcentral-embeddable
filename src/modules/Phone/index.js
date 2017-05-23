@@ -22,6 +22,7 @@ import Locale from 'ringcentral-integration/modules/Locale';
 import RateLimiter from 'ringcentral-integration/modules/RateLimiter';
 import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
 import Ringout from 'ringcentral-integration/modules/Ringout';
+import Webphone from 'ringcentral-integration/modules/Webphone';
 import RolesAndPermissions from 'ringcentral-integration/modules/RolesAndPermissions';
 import Softphone from 'ringcentral-integration/modules/Softphone';
 import Storage from 'ringcentral-integration/modules/Storage';
@@ -44,6 +45,8 @@ import CallHistory from 'ringcentral-integration/modules/CallHistory';
 import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import CallLogger from 'ringcentral-integration/modules/CallLogger';
+import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
+import ConversationLogger from 'ringcentral-integration/modules/ConversationLogger';
 
 import RouterInteraction from 'ringcentral-widget/modules/RouterInteraction';
 
@@ -210,7 +213,19 @@ export default class Phone extends RcModule {
       storage: this.storage,
       rolesAndPermissions: this.rolesAndPermissions,
       tabManager: this.tabManager,
+      addWebphone: true,
       getState: () => this.state.callingSettings,
+    }));
+    this.addModule('webphone', new Webphone({
+      appKey: apiConfig.appKey,
+      appName: 'RingCentral Widget',
+      appVersion: '0.1.0',
+      alert: this.alert,
+      auth: this.auth,
+      client: this.client,
+      storage: this.storage,
+      rolesAndPermissions: this.rolesAndPermissions,
+      getState: () => this.state.webphone,
     }));
     this.addModule('numberValidate', new NumberValidate({
       ...options,
@@ -229,6 +244,7 @@ export default class Phone extends RcModule {
       callingSettings: this.callingSettings,
       softphone: this.softphone,
       ringout: this.ringout,
+      webphone: this.webphone,
       accountExtension: this.accountExtension,
       numberValidate: this.numberValidate,
       extensionPhoneNumber: this.extensionPhoneNumber,
@@ -324,6 +340,7 @@ export default class Phone extends RcModule {
       ...options,
       alert: this.alert,
       messageStore: this.messageStore,
+      extensionInfo: this.extensionInfo,
       perPage: 20,
       getState: () => this.state.messages,
     }));
@@ -378,7 +395,27 @@ export default class Phone extends RcModule {
       callMonitor: this.callMonitor,
       contactMatcher: this.contactMatcher,
       activityMatcher: this.activityMatcher,
+      logFunction: () => null,
+      readyCheckFunction: () => true,
       getState: () => this.state.callLogger,
+    }));
+    this.addModule('conversationMatcher', new ConversationMatcher({
+      storage: this.storage,
+      getState: () => this.state.conversationMatcher,
+    }));
+    this.addModule('conversationLogger', new ConversationLogger({
+      ...options,
+      storage: this.storage,
+      dateTimeFormat: this.dateTimeFormat,
+      messageStore: this.messageStore,
+      extensionInfo: this.extensionInfo,
+      contactMatcher: this.contactMatcher,
+      conversationMatcher: this.conversationMatcher,
+      rolesAndPermissions: this.rolesAndPermissions,
+      tabManager: this.tabManager,
+      logFunction: async () => {},
+      readyCheckFunction: () => true,
+      getState: () => this.state.conversationLogger,
     }));
     this._reducer = combineReducers({
       accountExtension: this.accountExtension.reducer,
@@ -406,6 +443,7 @@ export default class Phone extends RcModule {
       rolesAndPermissions: this.rolesAndPermissions.reducer,
       regionSettings: this.regionSettings.reducer,
       ringout: this.ringout.reducer,
+      webphone: this.webphone.reducer,
       router: this.router.reducer,
       subscription: this.subscription.reducer,
       tabManager: this.tabManager.reducer,
@@ -416,6 +454,8 @@ export default class Phone extends RcModule {
       composeText: this.composeText.reducer,
       messageStore: this.messageStore.reducer,
       conversation: this.conversation.reducer,
+      conversationMatcher: this.conversationMatcher.reducer,
+      conversationLogger: this.conversationLogger.reducer,
       messages: this.messages.reducer,
       activeCalls: this.activeCalls.reducer,
       callLog: this.callLog.reducer,
