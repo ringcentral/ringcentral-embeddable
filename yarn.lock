@@ -3043,9 +3043,9 @@ loader-utils@^1.0.1, loader-utils@^1.0.2:
     emojis-list "^2.0.0"
     json5 "^0.5.0"
 
-locale-loader@^1.2.2:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/locale-loader/-/locale-loader-1.2.3.tgz#b97c2541f0eb35eee2b4c53242fb76b73ee2f5b8"
+locale-loader@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/locale-loader/-/locale-loader-1.2.4.tgz#19167e066d3e6d9ef3038f31230b1c35263d7ce4"
   dependencies:
     babylon "^6.16.1"
     dedent "^0.6.0"
@@ -4378,9 +4378,9 @@ ringcentral-client@^1.0.0-rc1:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.5.27:
-  version "0.5.27"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.5.27.tgz#64c4b0903249e5f141de32c6893213c7fbb9210a"
+ringcentral-integration@^0.6.9:
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.6.9.tgz#577e5e6fa8101aa995a89776c8df17bcc9b479d2"
   dependencies:
     file-loader "^0.10.1"
     json-mask "^0.3.8"
@@ -4399,15 +4399,15 @@ ringcentral-web-phone@^0.4.1:
   dependencies:
     sip.js "^0.7.7"
 
-ringcentral-widget@^0.2.54:
-  version "0.2.54"
-  resolved "https://registry.yarnpkg.com/ringcentral-widget/-/ringcentral-widget-0.2.54.tgz#5520305c4bbac584f8e6eae0ccf3404625158473"
+ringcentral-widget@^0.3.19:
+  version "0.3.19"
+  resolved "https://registry.yarnpkg.com/ringcentral-widget/-/ringcentral-widget-0.3.19.tgz#3a8f21a03ca980ada943e38884ab32e1994b78b3"
   dependencies:
     classnames "^2.2.5"
     core-js "^2.4.1"
     dedent "^0.7.0"
     font-awesome "^4.7.0"
-    locale-loader "^1.2.2"
+    locale-loader "^1.2.4"
     normalize-css "^2.3.1"
     react-router "^3.0.0"
     react-router-redux "^4.0.7"

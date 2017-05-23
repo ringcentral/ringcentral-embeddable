@@ -12,11 +12,12 @@ import RegionSettingsPage from 'ringcentral-widget/containers/RegionSettingsPage
 import DialerPage from 'ringcentral-widget/containers/DialerPage';
 import ComposeTextPage from 'ringcentral-widget/containers/ComposeTextPage';
 import ConversationPage from 'ringcentral-widget/containers/ConversationPage';
-import ConferencePage from 'ringcentral-widget/containers/ConferencePage';
+// import ConferencePage from 'ringcentral-widget/containers/ConferencePage';
 import MessagesPage from 'ringcentral-widget/containers/MessagesPage';
 import SettingsPage from 'ringcentral-widget/containers/SettingsPage';
 import CallMonitorPage from 'ringcentral-widget/containers/CallMonitorPage';
 import CallHistoryPage from 'ringcentral-widget/containers/CallHistoryPage';
+import ActiveCallPage from 'ringcentral-widget/containers/ActiveCallPage';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -63,6 +64,19 @@ export default function App({
               connectivityMonitor={phone.connectivityMonitor}
               callingSettings={phone.callingSettings}>
               {props.children}
+              <ActiveCallPage
+                locale={phone.locale}
+                webphone={phone.webphone}
+                regionSettings={phone.regionSettings}
+                router={phone.router}
+              >
+                <AlertContainer
+                  locale={phone.locale}
+                  alert={phone.alert}
+                  rateLimiter={phone.rateLimiter}
+                  brand={phone.brand}
+                />
+              </ActiveCallPage>
             </AppView>
           )} >
           <Route
@@ -147,6 +161,7 @@ export default function App({
                   onViewContact={() => {}}
                   router={phone.router}
                   composeText={phone.composeText}
+                  rateLimiter={phone.rateLimiter}
                   rolesAndPermissions={phone.rolesAndPermissions}
                 />
               )} />
@@ -167,6 +182,7 @@ export default function App({
                   router={phone.router}
                   onLogCall={async () => { await sleep(1000); }}
                   onViewContact={() => {}}
+                  rateLimiter={phone.rateLimiter}
                 />
               )} />
             <Route
@@ -183,6 +199,8 @@ export default function App({
                   contactSearch={phone.contactSearch}
                   rolesAndPermissions={phone.rolesAndPermissions}
                   messageSender={phone.messageSender}
+                  connectivityMonitor={phone.connectivityMonitor}
+                  rateLimiter={phone.rateLimiter}
                 />
               )} />
             <Route
@@ -198,6 +216,10 @@ export default function App({
                   messageStore={phone.messageStore}
                   dateTimeFormat={phone.dateTimeFormat}
                   contactMatcher={phone.contactMatcher}
+                  connectivityMonitor={phone.connectivityMonitor}
+                  rateLimiter={phone.rateLimiter}
+                  messages={phone.messages}
+                  conversationLogger={phone.conversationLogger}
                 />
               )} />
             <Route
@@ -213,6 +235,11 @@ export default function App({
                   regionSettings={phone.regionSettings}
                   contactMatcher={phone.contactMatcher}
                   dateTimeFormat={phone.dateTimeFormat}
+                  connectivityMonitor={phone.connectivityMonitor}
+                  rolesAndPermissions={phone.rolesAndPermissions}
+                  rateLimiter={phone.rateLimiter}
+                  router={phone.router}
+                  conversationLogger={phone.conversationLogger}
                 />
               )} />
           </Route>
