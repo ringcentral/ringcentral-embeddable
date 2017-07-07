@@ -26,29 +26,6 @@ import AppView from '../AppView';
 export default function App({
   phone,
 }) {
-  // TODO find a more reason place to do this
-  phone.store.subscribe(() => {
-    if (phone.auth.ready) {
-      if (
-        phone.router.currentPath !== '/welcome' &&
-        phone.auth.loginStatus === loginStatus.notLoggedIn
-      ) {
-        phone.router.history.push('/welcome');
-      } else if (
-        phone.router.currentPath === '/welcome' &&
-        phone.auth.loginStatus === loginStatus.loggedIn
-      ) {
-        phone.router.history.push('/');
-      }
-    }
-  });
-
-  const ensureLogin = async (nextState, replace, cb) => {
-    if (!(await phone.auth.checkIsLoggedIn())) {
-      replace('/welcome');
-    }
-    cb();
-  };
   return (
     <Provider store={phone.store} >
       <Router history={phone.router.history} >
@@ -67,14 +44,25 @@ export default function App({
               <ActiveCallPage
                 locale={phone.locale}
                 webphone={phone.webphone}
+                forwardingNumber={phone.forwardingNumber}
                 regionSettings={phone.regionSettings}
                 router={phone.router}
+                contactMatcher={phone.contactMatcher}
+                getAvatarUrl={
+                  async (contact) => {
+                    const avatarUrl = await phone.contacts.getImageProfile(contact);
+                    return avatarUrl;
+                  }
+                }
               >
                 <AlertContainer
                   locale={phone.locale}
                   alert={phone.alert}
                   rateLimiter={phone.rateLimiter}
                   brand={phone.brand}
+                  router={phone.router}
+                  callingSettingsUrl="/settings/calling"
+                  regionSettingsUrl="/settings/region"
                 />
               </ActiveCallPage>
             </AppView>
@@ -93,11 +81,13 @@ export default function App({
                   alert={phone.alert}
                   rateLimiter={phone.rateLimiter}
                   brand={phone.brand}
+                  router={phone.router}
+                  callingSettingsUrl="/settings/calling"
+                  regionSettingsUrl="/settings/region"
                 />
               </MainView>
             )} >
             <IndexRoute
-              onEnter={ensureLogin}
               component={() => (
                 <DialerPage
                   call={phone.call}
@@ -105,11 +95,12 @@ export default function App({
                   connectivityMonitor={phone.connectivityMonitor}
                   locale={phone.locale}
                   rateLimiter={phone.rateLimiter}
+                  regionSettings={phone.regionSettings}
+                  webphone={phone.webphone}
                 />
               )} />
             <Route
               path="/settings"
-              onEnter={ensureLogin}
               component={() => (
                 <SettingsPage
                   auth={phone.auth}
@@ -121,13 +112,13 @@ export default function App({
                   brand={phone.brand}
                   router={phone.router}
                   rolesAndPermissions={phone.rolesAndPermissions}
+                  presence={phone.detailedPresence}
                   regionSettingsUrl="/settings/region"
                   callingSettingsUrl="/settings/calling"
                 />
               )} />
             <Route
               path="/settings/region"
-              onEnter={ensureLogin}
               component={() => (
                 <RegionSettingsPage
                   regionSettings={phone.regionSettings}
@@ -137,7 +128,6 @@ export default function App({
               )} />
             <Route
               path="/settings/calling"
-              onEnter={ensureLogin}
               component={() => (
                 <CallingSettingsPage
                   brand={phone.brand}
@@ -148,7 +138,6 @@ export default function App({
               )} />
             <Route
               path="/calls"
-              onEnter={ensureLogin}
               component={() => (
                 <CallMonitorPage
                   locale={phone.locale}
@@ -163,11 +152,11 @@ export default function App({
                   composeText={phone.composeText}
                   rateLimiter={phone.rateLimiter}
                   rolesAndPermissions={phone.rolesAndPermissions}
+                  webphone={phone.webphone}
                 />
               )} />
             <Route
               path="/history"
-              onEnter={ensureLogin}
               component={() => (
                 <CallHistoryPage
                   locale={phone.locale}
@@ -180,14 +169,12 @@ export default function App({
                   composeText={phone.composeText}
                   rolesAndPermissions={phone.rolesAndPermissions}
                   router={phone.router}
-                  onLogCall={async () => { await sleep(1000); }}
                   onViewContact={() => {}}
                   rateLimiter={phone.rateLimiter}
                 />
               )} />
             <Route
               path="/composeText"
-              onEnter={ensureLogin}
               component={() => (
                 <ComposeTextPage
                   locale={phone.locale}
@@ -205,7 +192,6 @@ export default function App({
               )} />
             <Route
               path="/conversations/:conversationId"
-              onEnter={ensureLogin}
               component={props => (
                 <ConversationPage
                   locale={phone.locale}
@@ -219,12 +205,11 @@ export default function App({
                   connectivityMonitor={phone.connectivityMonitor}
                   rateLimiter={phone.rateLimiter}
                   messages={phone.messages}
-                  conversationLogger={phone.conversationLogger}
+                  router={phone.router}
                 />
               )} />
             <Route
               path="/messages"
-              onEnter={ensureLogin}
               component={() => (
                 <MessagesPage
                   locale={phone.locale}
@@ -239,20 +224,14 @@ export default function App({
                   rolesAndPermissions={phone.rolesAndPermissions}
                   rateLimiter={phone.rateLimiter}
                   router={phone.router}
-                  conversationLogger={phone.conversationLogger}
                 />
               )} />
           </Route>
           <Route
             path="/welcome"
-            onEnter={async (nextState, replace, cb) => {
-              if (await phone.auth.checkIsLoggedIn()) {
-                replace('/');
-              }
-              cb();
-            }}
             component={() => (
               <WelcomePage
+                version={phone.version}
                 auth={phone.auth}
                 locale={phone.locale}
                 rateLimiter={phone.rateLimiter}
@@ -262,6 +241,9 @@ export default function App({
                   alert={phone.alert}
                   rateLimiter={phone.rateLimiter}
                   brand={phone.brand}
+                  router={phone.router}
+                  callingSettingsUrl="/settings/calling"
+                  regionSettingsUrl="/settings/region"
                 />
               </WelcomePage>
             )}
