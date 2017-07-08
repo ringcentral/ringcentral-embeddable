@@ -32,7 +32,6 @@ const config = {
     }),
     new CopyWebpackPlugin([
       { from: 'src/assets', to: 'assets' },
-      { from: 'src/adapter.html', to: 'adapter.html' },
       { from: 'src/app.html', to: 'app.html' },
       { from: 'src/index.html', to: 'index.html' },
       { from: 'src/proxy.html', to: 'proxy.html' },
