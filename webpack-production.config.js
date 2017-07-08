@@ -7,7 +7,6 @@ const buildPath = path.resolve(__dirname, 'release');
 
 const config = {
   entry: {
-    load: './src/load.js',
     app: './src/app.js',
     adapter: './src/adapter.js',
     proxy: './src/proxy.js',
@@ -59,16 +58,25 @@ const config = {
         ],
       },
       {
+        test: /\.svg/,
+        exclude: /font|src\/assets\/images/,
+        use: [
+          'babel-loader',
+          'react-svg-loader',
+        ],
+      },
+      {
         test: /\.woff|\.woff2|.eot|\.ttf/,
         use: 'url-loader?limit=15000&publicPath=./&name=fonts/[name]_[hash].[ext]',
       },
       {
         test: /\.png|\.jpg|\.gif|\.svg/,
+        exclude: /ringcentral-widget\/assets\/images\/.+\.svg/,
         use: 'url-loader?limit=20000&publicPath=./&name=images/[name]_[hash].[ext]',
       },
       {
         test: /\.ogg$/,
-        use: 'url-loader?publicPath=./&name=audio/[name]_[hash].[ext]',
+        use: 'file-loader?publicPath=./&name=audio/[name]_[hash].[ext]',
       },
       {
         test: /\.sass|\.scss/,

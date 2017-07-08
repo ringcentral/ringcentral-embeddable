@@ -6,7 +6,6 @@ const buildPath = path.resolve(__dirname, 'src');
 
 const config = {
   entry: {
-    load: './src/load.js',
     app: './src/app.js',
     adapter: './src/adapter.js',
     proxy: './src/proxy.js',

@@ -1,6 +1,6 @@
 import classnames from 'classnames';
 import styles from './styles.scss';
-import ribbonStyles from '../RibbonController/styles.scss';
+import ribbonStyles from '!css-loader?{"localIdentName":"[path]_[name]_[local]_[hash:base64:5]","modules":true}!postcss-loader?{}!sass-loader?{"outputStyle":"expanded","includePaths":["src","node_modules"]}!./styles.scss';
 
 class Adapter {
   constructor({
@@ -14,124 +14,125 @@ class Adapter {
   } = {}) {
     this._prefix = prefix;
     this._brand = brand;
-    this.mainEl = window.parent.document.querySelector(`#${prefix}`);
-    this.headerEl = window.parent.document.querySelector(
-      `#${prefix} .${ribbonStyles.header}`
-    );
-    this.logoEl = window.parent.document.querySelector(
-      `#${prefix} .${ribbonStyles.logo}`
-    );
-    this.adapterFrameEl = window.parent.document.querySelector(
-      `#${prefix} .${ribbonStyles.frame}`
-    );
-    this.adapterFrameContainerEl = window.parent.document.querySelector(
-      `#${prefix} .${ribbonStyles.frameContainer}`
-    );
-    this.toggleEl = window.parent.document.querySelector(
-      `#${prefix} .${ribbonStyles.toggle}`
-    );
-    this.closeEl = window.parent.document.querySelector(
-      `#${prefix} .${ribbonStyles.close}`
-    );
-    this.presenceEl = window.parent.document.querySelector(
-      `#${prefix} .${ribbonStyles.presence}`
-    );
-    this.contentFrameEl = document.createElement('iframe');
-    this.contentFrameEl.id = `${prefix}-cti-frame`;
 
-    this.minTranslateX = 0;
-    this.translateX = 0;
-    this.translateY = 0;
-    this.appWidth = 0;
-    this.appHeight = 0;
-    this.dragStartPosition = null;
+    this._root = this._initContentDOM(prefix);
+    this._headerEl = this._root.querySelector(
+      `.${styles.header}`
+    );
+    this._logoEl = this._root.querySelector(
+      `.${styles.logo}`
+    );
+    this._contentFrameEl = this._root.querySelector(
+      `.${styles.contentFrame}`
+    );
+    this._contentFrameContainerEl = this._root.querySelector(
+      `.${styles.frameContainer}`
+    );
+    this._toggleEl = this._root.querySelector(
+      `.${styles.toggle}`
+    );
+    this._closeEl = this._root.querySelector(
+      `.${styles.close}`
+    );
+    this._presenceEl = this._root.querySelector(
+      `.${styles.presence}`
+    );
 
-    this.closed = true;
-    this.minimized = false;
-    this.appFocus = false;
-    this.dragging = false;
-    this.hover = false;
-    this.testMode = testMode;
+    this._minTranslateX = 0;
+    this._translateX = 0;
+    this._translateY = 0;
+    this._appWidth = 0;
+    this._appHeight = 0;
+    this._dragStartPosition = null;
 
-    this.version = version;
-    this.loading = true;
+    this._closed = true;
+    this._minimized = false;
+    this._appFocus = false;
+    this._dragging = false;
+    this._hover = false;
+    this._testMode = testMode;
 
-    // logo
+    this._version = version;
+    this._loading = true;
+
+    // logo_
+    this._logoUrl = logoUrl;
     if (logoUrl) {
-      this.logoEl.src = logoUrl;
+      this._logoEl.src = logoUrl;
     }
-    this.logoEl.addEventListener('dragstart', () => false);
+    this._logoEl.addEventListener('dragstart', () => false);
 
     // content
-    this.contentFrameEl
+    this._contentFrameEl
       .setAttribute('class', `${[styles.contentFrame, className].join(' ')}`);
+    this._appUrl = appUrl;
     if (appUrl) {
-      this.contentFrameEl.src = `${appUrl}?_t=${Date.now()}`;
+      this._contentFrameEl.src = `${appUrl}?_t=${Date.now()}`;
     }
 
     // toggle button
-    this.toggleEl.addEventListener('click', () => {
+    this._toggleEl.addEventListener('click', () => {
       this.toggleMinimized();
     });
 
     // close button
-    this.closeEl.addEventListener('click', () => {
+    this._closeEl.addEventListener('click', () => {
       this.setClosed(true);
     });
 
-    this.presenceEl.addEventListener('click', () => {
+    this._presenceEl.addEventListener('click', () => {
       this.gotoPresence();
     });
 
     this.syncClass();
     this.setPresence({});
-    this.setSize({ width: this.appWidth, height: this.appHeight });
+    this.setSize({ width: this._appWidth, height: this._appHeight });
     this.renderRestrictedPosition();
 
-    document.body.appendChild(this.contentFrameEl);
-    this.headerEl.addEventListener('mousedown', (e) => {
-      this.dragging = true;
-      this.dragStartPosition = {
+    this._headerEl.addEventListener('mousedown', (e) => {
+      this._dragging = true;
+      this._dragStartPosition = {
         x: e.clientX,
         y: e.clientY,
-        translateX: this.translateX,
-        translateY: this.translateY,
-        minTranslateX: this.minTranslateX,
+        translateX: this._translateX,
+        translateY: this._translateY,
+        minTranslateX: this._minTranslateX,
       };
       this.syncClass();
     });
-    this.headerEl.addEventListener('mouseup', () => {
-      this.dragging = false;
+    this._headerEl.addEventListener('mouseup', () => {
+      this._dragging = false;
       this.syncClass();
     });
     window.parent.addEventListener('mousemove', (e) => {
-      if (this.dragging) {
+      if (this._dragging) {
         if (e.buttons === 0) {
-          this.dragging = false;
+          this._dragging = false;
           this.syncClass();
           return;
         }
         const delta = {
-          x: e.clientX - this.dragStartPosition.x,
-          y: e.clientY - this.dragStartPosition.y,
+          x: e.clientX - this._dragStartPosition.x,
+          y: e.clientY - this._dragStartPosition.y,
         };
-        if (this.minimized) {
-          this.minTranslateX = this.dragStartPosition.minTranslateX + delta.x;
+        if (this._minimized) {
+          this._minTranslateX = this._dragStartPosition.minTranslateX + delta.x;
         } else {
-          this.translateX = this.dragStartPosition.translateX + delta.x;
-          this.translateY = this.dragStartPosition.translateY + delta.y;
+          this._translateX = this._dragStartPosition.translateX + delta.x;
+          this._translateY = this._dragStartPosition.translateY + delta.y;
         }
         this.renderRestrictedPosition();
       }
     });
 
-    let [resizeTimeout, resizeTick] = [];
+    this._resizeTimeout = null;
+    this._resizeTick = null;
     window.parent.addEventListener('resize', () => {
-      if (this.dragging) { return; }
-      if (resizeTimeout) { clearTimeout(resizeTimeout); }
-      resizeTimeout = setTimeout(() => this.renderRestrictedPosition(), 100);
-      if (!resizeTick || Date.now() - resizeTick > 50) {
-        resizeTick = Date.now();
+      if (this._dragging) { return; }
+      if (this._resizeTimeout) { clearTimeout(this._resizeTimeout); }
+      this._resizeTimeout = setTimeout(() => this.renderRestrictedPosition(), 100);
+      if (!this._resizeTick || Date.now() - this._resizeTick > 50) {
+        this._resizeTick = Date.now();
         this.renderRestrictedPosition();
       }
     });
@@ -174,38 +175,81 @@ class Adapter {
       }
     });
 
-    this.mainEl.addEventListener('mouseenter', () => {
-      this.hover = true;
+    this._root.addEventListener('mouseenter', () => {
+      this._hover = true;
       this.syncClass();
     });
-    this.mainEl.addEventListener('mouseleave', () => {
-      this.hover = false;
+    this._root.addEventListener('mouseleave', () => {
+      this._hover = false;
       this.syncClass();
     });
   }
 
+  _initContentDOM(prefix) {
+    const topDocument = window.document;
+    let divEl = topDocument.querySelector(`#${prefix}`);
+    if (divEl) return divEl;
+    divEl = this._generateContentDOM(topDocument, prefix);
+    topDocument.body.appendChild(divEl);
+    return divEl;
+  }
+
+  // eslint-disable-next-line
+  _generateContentDOM(topDocument, prefix) {
+    const divEl = topDocument.createElement('div');
+    divEl.id = prefix;
+    divEl.setAttribute('class', classnames(styles.root, styles.loading));
+    divEl.draggable = false;
+
+    divEl.innerHTML = `
+      <style>${ribbonStyles.toString()}</style>
+      <header class="${styles.header}" draggable="false">
+        <div class="${styles.presence}">
+          <div class="${styles.presenceBar}">
+          </div>
+        </div>
+        <div class="${styles.button} ${styles.toggle}">
+          <div class="${styles.minimizeIcon}">
+            <div class="${styles.minimizeIconBar}"></div>
+          </div>
+        </div>
+        <div class="${styles.button} ${styles.close}">
+          <div class="${styles.closeIcon}">
+            <div></div><div></div>
+          </div>
+        </div>
+        <img class="${styles.logo}" draggable="false"></img>
+      </header>
+      <div class="${styles.frameContainer}">
+        <iframe id="${prefix}-adapter-frame" class="${styles.contentFrame}">
+        </iframe>
+      </div>
+    `;
+    return divEl;
+  }
+
   _postMessage(data) {
-    if (this.contentFrameEl.contentWindow) {
-      this.contentFrameEl.contentWindow.postMessage(data, '*');
+    if (this._contentFrameEl.contentWindow) {
+      this._contentFrameEl.contentWindow.postMessage(data, '*');
     }
   }
 
   renderPosition() {
     this._postMessage({
       type: 'rc-adapter-sync-position',
-      translateX: this.translateX,
-      translateY: this.translateY,
-      minTranslateX: this.minTranslateX,
+      translateX: this._translateX,
+      translateY: this._translateY,
+      minTranslateX: this._minTranslateX,
     });
-    if (this.minimized) {
-      this.mainEl.style.transform = `translate( ${this.minTranslateX}px, 0)`;
+    if (this._minimized) {
+      this._root.style.transform = `translate( ${this._minTranslateX}px, 0)`;
     } else {
-      this.mainEl.style.transform = `translate( ${this.translateX}px, ${this.translateY}px)`;
+      this._root.style.transform = `translate( ${this._translateX}px, ${this._translateY}px)`;
     }
   }
 
   renderRestrictedPosition() {
-    const style = document.defaultView.getComputedStyle(this.mainEl, null);
+    const style = document.defaultView.getComputedStyle(this._root, null);
     const paddingX = (parseFloat(style.paddingLeft, 10) || 0) +
       (parseFloat(style.paddingRight, 10) || 0);
     const paddingY = (parseFloat(style.paddingTop, 10) || 0) +
@@ -215,111 +259,111 @@ class Adapter {
     const borderY = (parseFloat(style.borderTopWidth, 10) || 0) +
       (parseFloat(style.borderBottomWidth, 10) || 0);
     const maximumX = window.parent.innerWidth -
-      (this.minimized ? this.headerEl.clientWidth : this.appWidth) - paddingX - borderX;
+      (this._minimized ? this._headerEl.clientWidth : this._appWidth) - paddingX - borderX;
     const maximumY = window.parent.innerHeight -
-      (this.minimized ?
-        this.headerEl.clientHeight :
-        this.headerEl.clientHeight + this.appHeight) - paddingY - borderY;
+      (this._minimized ?
+        this._headerEl.clientHeight :
+        this._headerEl.clientHeight + this._appHeight) - paddingY - borderY;
 
-    if (this.minimized) {
-      let x = this.minTranslateX;
+    if (this._minimized) {
+      let x = this._minTranslateX;
       x = Math.min(x, maximumX);
-      this.minTranslateX = Math.max(x, 0);
+      this._minTranslateX = Math.max(x, 0);
     } else {
-      let x = this.translateX;
-      let y = this.translateY;
+      let x = this._translateX;
+      let y = this._translateY;
       x = Math.min(x, maximumX);
       x = Math.max(x, 0);
       y = Math.min(y, 0);
       y = Math.max(y, -maximumY);
-      this.translateX = x;
-      this.translateY = y;
+      this._translateX = x;
+      this._translateY = y;
     }
     //
     this.renderPosition();
   }
 
   renderAdapterSize() {
-    if (this.minimized) {
-      this.adapterFrameEl.style.width = 0;
-      this.adapterFrameEl.style.height = 0;
-      this.adapterFrameContainerEl.style.width = 0;
-      this.adapterFrameContainerEl.style.height = 0;
+    if (this._minimized) {
+      this._contentFrameEl.style.width = 0;
+      this._contentFrameEl.style.height = 0;
+      this._contentFrameContainerEl.style.width = 0;
+      this._contentFrameContainerEl.style.height = 0;
     } else {
-      this.adapterFrameEl.style.width = `${this.appWidth}px`;
-      this.adapterFrameEl.style.height = `${this.appHeight}px`;
-      this.adapterFrameContainerEl.style.width = `${this.appWidth}px`;
-      this.adapterFrameContainerEl.style.height = `${this.appHeight}px`;
+      this._contentFrameEl.style.width = `${this._appWidth}px`;
+      this._contentFrameEl.style.height = `${this._appHeight}px`;
+      this._contentFrameContainerEl.style.width = `${this._appWidth}px`;
+      this._contentFrameContainerEl.style.height = `${this._appHeight}px`;
     }
   }
 
   syncClass() {
     //  console.debug('this.sparkled>>>', this.sparkled);
-    this.mainEl.setAttribute('class', classnames(
-      ribbonStyles.root,
-      this.closed && ribbonStyles.closed,
-      this.minimized && ribbonStyles.minimized,
-      this.appFocus && ribbonStyles.focus,
-      this.dragging && ribbonStyles.dragging,
-      this.hover && ribbonStyles.hover,
-      this.loading && ribbonStyles.loading,
-      this.ringing && ribbonStyles.ringing,
+    this._root.setAttribute('class', classnames(
+      styles.root,
+      this._closed && styles.closed,
+      this._minimized && styles.minimized,
+      this._appFocus && styles.focus,
+      this._dragging && styles.dragging,
+      this._hover && styles.hover,
+      this._loading && styles.loading,
+      this._ringing && styles.ringing,
     ));
   }
 
   setClosed(closed) {
-    this.closed = !!closed;
+    this._closed = !!closed;
     this.syncClass();
     this._postMessage({
       type: 'rc-adapter-closed',
-      closed: this.closed,
+      closed: this._closed,
     });
   }
 
   toggleClosed() {
-    this.setClosed(!this.closed);
+    this.setClosed(!this._closed);
   }
 
   setMinimized(minimized) {
-    this.minimized = !!minimized;
+    this._minimized = !!minimized;
     this.syncClass();
     this.renderAdapterSize();
     this.renderRestrictedPosition();
     this._postMessage({
       type: 'rc-adapter-minimized',
-      minimized: this.minimized,
+      minimized: this._minimized,
     });
   }
 
   toggleMinimized() {
-    this.setMinimized(!this.minimized);
+    this.setMinimized(!this._minimized);
   }
 
   setRinging(ringing) {
-    this.ringing = !!ringing;
+    this._ringing = !!ringing;
     this.syncClass();
   }
 
   setFocus(focus) {
-    this.appFocus = !!focus;
+    this._appFocus = !!focus;
     this.syncClass();
     this._postMessage({
       type: 'rc-adapter-focus',
-      focus: this.appFocus,
+      focus: this._appFocus,
     });
   }
 
   setSize({ width, height }) {
-    this.appWidth = width;
-    this.appHeight = height;
-    this.contentFrameEl.style.width = `${width}px`;
-    this.contentFrameEl.style.height = `${height}px`;
+    this._appWidth = width;
+    this._appHeight = height;
+    this._contentFrameEl.style.width = `${width}px`;
+    this._contentFrameEl.style.height = `${height}px`;
     this.renderAdapterSize();
     this._postMessage({
       type: 'rc-adapter-size',
       size: {
-        width: this.appWidth,
-        height: this.appHeight,
+        width: this._appWidth,
+        height: this._appHeight,
       },
     });
   }
@@ -327,11 +371,11 @@ class Adapter {
   setPresence(presence) {
     if (presence !== this.presence) {
       this.presence = presence;
-      this.presenceEl.setAttribute('class', classnames(
-        this.minimized && ribbonStyles.minimized,
-        ribbonStyles.presence,
-        ribbonStyles[presence.userStatus],
-        ribbonStyles[presence.dndStatus],
+      this._presenceEl.setAttribute('class', classnames(
+        this._minimized && styles.minimized,
+        styles.presence,
+        styles[presence.userStatus],
+        styles[presence.dndStatus],
       ));
     }
   }
@@ -339,28 +383,28 @@ class Adapter {
   gotoPresence() {
     this._postMessage({
       type: 'rc-adapter-goto-presence',
-      version: this.version,
+      version: this._version,
     });
   }
 
   reportVersion() {
     this._postMessage({
       type: 'rc-version-response',
-      version: this.version,
+      version: this._version,
     });
   }
 
   init({ size, minimized, closed, position: { translateX, translateY, minTranslateX } }) {
     this._postMessage({
       type: 'rc-adapter-mode',
-      testMode: this.testMode,
+      testMode: this._testMode,
     });
-    this.minimized = minimized;
-    this.closed = closed;
-    this.translateX = translateX;
-    this.translateY = translateY;
-    this.minTranslateX = minTranslateX;
-    this.loading = false;
+    this._minimized = minimized;
+    this._closed = closed;
+    this._translateX = translateX;
+    this._translateY = translateY;
+    this._minTranslateX = minTranslateX;
+    this._loading = false;
     this.syncClass();
     this.setSize(size);
     this.renderRestrictedPosition();
