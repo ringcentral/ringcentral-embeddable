@@ -242,7 +242,7 @@ class Adapter {
     if (this._minimized) {
       this._root.setAttribute(
         'style',
-        `transform: translate( ${this._translateX}px, 0)!important;`
+        `transform: translate( ${this._minTranslateX}px, 0)!important;`
       );
     } else {
       this._root.setAttribute(
