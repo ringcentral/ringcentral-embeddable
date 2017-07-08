@@ -1,7 +1,6 @@
 import classnames from 'classnames';
 import styles from './styles.scss';
 import ribbonStyles from '../RibbonController/styles.scss';
-import version from '../../config/version';
 
 class Adapter {
   constructor({
@@ -11,6 +10,7 @@ class Adapter {
     brand,
     className,
     testMode = false,
+    version,
   } = {}) {
     this._prefix = prefix;
     this._brand = brand;
@@ -79,8 +79,12 @@ class Adapter {
       this.setClosed(true);
     });
 
+    this.presenceEl.addEventListener('click', () => {
+      this.gotoPresence();
+    });
+
     this.syncClass();
-    this.setPresence(null);
+    this.setPresence({});
     this.setSize({ width: this.appWidth, height: this.appHeight });
     this.renderRestrictedPosition();
 
@@ -326,9 +330,17 @@ class Adapter {
       this.presenceEl.setAttribute('class', classnames(
         this.minimized && ribbonStyles.minimized,
         ribbonStyles.presence,
-        presence ? styles[presence] : ribbonStyles.NoPresence,
+        ribbonStyles[presence.userStatus],
+        ribbonStyles[presence.dndStatus],
       ));
     }
+  }
+
+  gotoPresence() {
+    this._postMessage({
+      type: 'rc-adapter-goto-presence',
+      version: this.version,
+    });
   }
 
   reportVersion() {

@@ -51,6 +51,7 @@ import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
 
 import RouterInteraction from 'ringcentral-widget/modules/RouterInteraction';
+import Interaction from '../Interaction';
 
 export default class Phone extends RcModule {
   constructor({
@@ -480,7 +481,13 @@ export default class Phone extends RcModule {
       getState: () => this.state.conversationMatcher,
     }));
     reducers.conversationMatcher = this.conversationMatcher.reducer;
-
+    this.addModule('interaction', new Interaction({
+      auth: this.auth,
+      router: this.router,
+      presence: this.detailedPresence,
+      getState: () => this.state.interaction,
+    }));
+    reducers.interaction = this.interaction.reducer;
     this._reducer = combineReducers({
       ...reducers,
       app: (state = {

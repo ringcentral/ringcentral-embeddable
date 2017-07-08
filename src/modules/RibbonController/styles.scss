@@ -68,41 +68,51 @@
   margin-left: -50px;
 }
 
-
-
 .presence {
   @extend .centerStyle;
   left: 20px;
-  height: 16px;
-  width: 16px;
+  height: 14px;
+  width: 14px;
   border-radius: 8px;
-  margin-top: -8px;
+  margin-top: -7px;
+  display: none;
+  cursor: pointer;
 }
 
 .minimized .presence {
   left: 10px;
 }
 
-.NoPresence {
-  display: none;
+.Offline {
+  display: block;
+  background: #cdcdcd;
 }
-.TakeAllCalls {
+
+.Busy {
+  display: block;
+  background: #f95b5c;
+}
+
+.Available {
+  display: block;
   background-color: #32ae31;
 }
-.DoNotAcceptAnyCalls {
-  background-color: #ed1d24;
-}
-.DoNotAcceptDepartmentCalls,
-.TakeDepartmentCallsOnly {
-  background-color: #ff8700;
-}
+
 .presenceBar {
+  display: none;
   position: absolute;
-  background-color: #fff;
-  width: 11px;
+  width: 8px;
   height: 2px;
+  border-radius: 1.5px;
+  background-color: #ffffff;
   transform-origin: 50% 50%;
-  transform: translate(3px, 7px) rotateZ(-45deg);
+  transform: translate(3px, 6px);
+}
+
+.DoNotAcceptAnyCalls {
+  .presenceBar {
+    display: block;
+  }
 }
 
 .button {
@@ -117,12 +127,15 @@
   border-width: 1px;
   border-color: transparent;
 }
+
 .button:hover {
   border-color: #cccccc;
 }
+
 .toggle {
   right: 40px;
 }
+
 .minimized .toggle {
   right: 3px;
 }
