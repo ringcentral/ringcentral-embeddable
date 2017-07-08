@@ -398,6 +398,12 @@ class Adapter {
     });
   }
 
+  setEnvironment() {
+    this._postMessage({
+      type: 'rc-adapter-set-environment',
+    });
+  }
+
   init({ size, minimized, closed, position: { translateX, translateY, minTranslateX } }) {
     this._postMessage({
       type: 'rc-adapter-mode',

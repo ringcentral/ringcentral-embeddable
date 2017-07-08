@@ -15,7 +15,6 @@ import Call from 'ringcentral-integration/modules/Call';
 import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
 import DialingPlan from 'ringcentral-integration/modules/DialingPlan';
-import Environment from 'ringcentral-integration/modules/Environment';
 import ExtensionInfo from 'ringcentral-integration/modules/ExtensionInfo';
 import ExtensionDevice from 'ringcentral-integration/modules/ExtensionDevice';
 import ExtensionPhoneNumber from 'ringcentral-integration/modules/ExtensionPhoneNumber';
@@ -30,7 +29,6 @@ import RolesAndPermissions from 'ringcentral-integration/modules/RolesAndPermiss
 import Softphone from 'ringcentral-integration/modules/Softphone';
 import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
-import TabManager from 'ringcentral-integration/modules/TabManager';
 import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
 import MessageSender from 'ringcentral-integration/modules/MessageSender';
 import ComposeText from 'ringcentral-integration/modules/ComposeText';
@@ -52,6 +50,7 @@ import ConversationMatcher from 'ringcentral-integration/modules/ConversationMat
 
 import RouterInteraction from 'ringcentral-widget/modules/RouterInteraction';
 import Interaction from '../Interaction';
+import Environment from '../Environment';
 
 export default class Phone extends RcModule {
   constructor({
@@ -106,6 +105,8 @@ export default class Phone extends RcModule {
       globalStorage: this.globalStorage,
       sdkConfig: {
         ...apiConfig,
+        cachePrefix,
+        clearCacheOnRefreshError: false,
       },
       getState: () => this.state.environment,
     }));

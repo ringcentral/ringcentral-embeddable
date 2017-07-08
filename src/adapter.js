@@ -7,7 +7,10 @@ import version from './config/version';
 const appUrl = `${hostingUrl}/app.html`;
 
 function init() {
-  const adapter = new Adapter({
+  if (window.RCAdapter) {
+    return;
+  }
+  window.RCAdapter = new Adapter({
     prefix: 'rc-integration',
     logoUrl,
     appUrl,
@@ -15,11 +18,11 @@ function init() {
     version,
   });
   setTimeout(() => {
-    adapter.init({
+    window.RCAdapter.init({
       size: { width: 300, height: 500 },
       minimized: false,
       closed: false,
-      position: { translateX: 20, translateY: 0, minTranslateX: 0 }
+      position: { translateX: 700, translateY: 20, minTranslateX: 0 }
     });
   }, 2000);
 }

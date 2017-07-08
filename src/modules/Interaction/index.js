@@ -89,6 +89,11 @@ export default class Interaction extends RcModule {
         case 'rc-adapter-goto-presence':
           this._router.history.push('/settings?showPresenceSettings=1');
           break;
+        case 'rc-adapter-set-environment':
+          if (window.toggleEnv) {
+            window.toggleEnv();
+          }
+          break;
         default:
           break;
       }

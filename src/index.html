@@ -10,9 +10,43 @@
     content="width=device-width, initial-scale=1, user-scalable=0, maximum-scale=1, minimum-scale=1"
   >
   <link rel="shortcut icon" href="assets/images/favicon.ico">
+  <style>
+    p {
+      padding: 10px;
+    }
+    #setEnvironment {
+      color: #0684bd;
+    }
+  </style>
 </head>
 
 <body>
+  <p>Create App in <a href="https://developer.ringcentral.com/" target="_blank">RingCentral Developer Platform<a> to get appKey, appSecret and appServer.</p>
+  <p>Click <a href="#" id="setEnvironment">here to set this demo's appKey, appSecret and AppServer.</a> Enable and save.</p>
+  <p>Set redirect url in RingCentral Developer Platform as the app show.</p>
+  <p>One Step to add this widget to your website(Add following codes to your website's header):</p>
+  <pre id="widgetCode"></pre>
   <script src="adapter.js"></script>
+  <script>
+    (function() {
+      var setEnvironment = window.document.querySelector('#setEnvironment');
+      setEnvironment.addEventListener('click', function () {
+        if (window.RCAdapter && window.RCAdapter.setEnvironment) {
+          window.RCAdapter.setEnvironment();
+        }
+      });
+      var scriptText =
+        '\<script\>\n' +
+        '  (function() {\n' +
+        '    var rcs = document.createElement("script");\n' +
+        '    rcs.src = "https://embbnux.github.io/ringcentral-widget-demo/adapter.js";\n' +
+        '    var rcs0 = document.getElementsByTagName("script")[0];\n' +
+        '    rcs0.parentNode.insertBefore(rcs, rcs0);\n' +
+        '  })();\n' +
+        '\<\/script\>\n';
+      var widgetCode = window.document.querySelector('#widgetCode');
+      widgetCode.innerText = scriptText;
+    })();
+  </script>
 </body>
 </html>

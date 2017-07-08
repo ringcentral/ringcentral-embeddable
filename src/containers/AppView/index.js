@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import loginStatus from 'ringcentral-integration/modules/Auth/loginStatus';
 import SpinnerOverlay from 'ringcentral-widget/components/SpinnerOverlay';
 import OfflineModeBadge from 'ringcentral-widget/components/OfflineModeBadge';
-import Environment from 'ringcentral-widget/components/Environment';
+import Environment from '../../components/Environment';
 
 import styles from './styles.scss';
 
@@ -27,6 +27,8 @@ function AppView(props) {
       <Environment
         server={props.server}
         enabled={props.enabled}
+        appKey={props.appKey}
+        appSecret={props.appSecret}
         onSetData={props.onSetData}
         recordingHost={''}
       />
@@ -38,6 +40,8 @@ AppView.propTypes = {
   children: PropTypes.node,
   showSpinner: PropTypes.bool.isRequired,
   server: PropTypes.string,
+  appKey: PropTypes.string,
+  appSecret: PropTypes.string,
   enabled: PropTypes.bool,
   onSetData: PropTypes.func,
   currentLocale: PropTypes.string.isRequired,
@@ -48,6 +52,8 @@ AppView.propTypes = {
 AppView.defaultProps = {
   children: null,
   server: null,
+  appSecret: null,
+  appKey: null,
   enabled: false,
   onSetData: undefined,
 };
@@ -68,6 +74,8 @@ export default connect((state, {
       !callingSettings.ready)
   ),
   server: environment.server,
+  appKey: environment.appKey,
+  appSecret: environment.appSecret,
   enabled: environment.enabled,
   offline: (
     !connectivityMonitor.connectivity ||
