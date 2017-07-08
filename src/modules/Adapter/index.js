@@ -1,5 +1,6 @@
 import classnames from 'classnames';
 import styles from './styles.scss';
+// eslint-disable-next-line
 import ribbonStyles from '!css-loader?{"localIdentName":"[path]_[name]_[local]_[hash:base64:5]","modules":true}!postcss-loader?{}!sass-loader?{"outputStyle":"expanded","includePaths":["src","node_modules"]}!./styles.scss';
 
 class Adapter {
@@ -14,8 +15,8 @@ class Adapter {
   } = {}) {
     this._prefix = prefix;
     this._brand = brand;
-
-    this._root = this._initContentDOM(prefix);
+    this._appUrl = appUrl;
+    this._root = this._initContentDOM(prefix, appUrl);
     this._headerEl = this._root.querySelector(
       `.${styles.header}`
     );
@@ -65,10 +66,6 @@ class Adapter {
     // content
     this._contentFrameEl
       .setAttribute('class', `${[styles.contentFrame, className].join(' ')}`);
-    this._appUrl = appUrl;
-    if (appUrl) {
-      this._contentFrameEl.src = `${appUrl}?_t=${Date.now()}`;
-    }
 
     // toggle button
     this._toggleEl.addEventListener('click', () => {
@@ -185,17 +182,18 @@ class Adapter {
     });
   }
 
-  _initContentDOM(prefix) {
+  _initContentDOM(prefix, appUrl) {
     const topDocument = window.document;
     let divEl = topDocument.querySelector(`#${prefix}`);
+    const iframeSrc = `${appUrl}?_t=${Date.now()}`;
     if (divEl) return divEl;
-    divEl = this._generateContentDOM(topDocument, prefix);
+    divEl = this._generateContentDOM(topDocument, prefix, iframeSrc);
     topDocument.body.appendChild(divEl);
     return divEl;
   }
 
   // eslint-disable-next-line
-  _generateContentDOM(topDocument, prefix) {
+  _generateContentDOM(topDocument, prefix, iframeSrc) {
     const divEl = topDocument.createElement('div');
     divEl.id = prefix;
     divEl.setAttribute('class', classnames(styles.root, styles.loading));
@@ -221,7 +219,7 @@ class Adapter {
         <img class="${styles.logo}" draggable="false"></img>
       </header>
       <div class="${styles.frameContainer}">
-        <iframe id="${prefix}-adapter-frame" class="${styles.contentFrame}">
+        <iframe id="${prefix}-adapter-frame" class="${styles.contentFrame}" src="${iframeSrc}">
         </iframe>
       </div>
     `;
@@ -242,9 +240,15 @@ class Adapter {
       minTranslateX: this._minTranslateX,
     });
     if (this._minimized) {
-      this._root.style.transform = `translate( ${this._minTranslateX}px, 0)`;
+      this._root.setAttribute(
+        'style',
+        `transform: translate( ${this._translateX}px, 0)!important;`
+      );
     } else {
-      this._root.style.transform = `translate( ${this._translateX}px, ${this._translateY}px)`;
+      this._root.setAttribute(
+        'style',
+        `transform: translate(${this._translateX}px, ${this._translateY}px)!important;`
+      );
     }
   }
 

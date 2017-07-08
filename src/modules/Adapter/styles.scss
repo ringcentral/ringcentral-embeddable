@@ -2,13 +2,6 @@
 @import 'ringcentral-widget/lib/commonStyles/no-select';
 @import 'ringcentral-widget/lib/commonStyles/colors';
 
-:global body {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
 .centerStyle {
   top: 50%;
   position: absolute;
@@ -26,7 +19,7 @@
   left: 0;
   background-color: #f3f3f3;
   transition: visibility 0.2 0s, opacity 0.2s 0s linear, transform 0.1s 0s ease-in-out;
-  z-index: 1001;
+  z-index: 9999;
   box-shadow: 0px 0px 5px 1px #bec5d0;
 }
 .root.dragging {
@@ -39,11 +32,11 @@
   opacity: 0;
 }
 
-.header {
+.root .header {
   @include no-select;
   position: relative;
-  height: 44px;
-  line-height: 44px;
+  height: 44px!important;
+  line-height: 44px!important;
   min-width: 165px;
   text-align: center;
   cursor: move;
