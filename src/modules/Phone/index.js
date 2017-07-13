@@ -264,6 +264,25 @@ export default class Phone extends RcModule {
       extensionDevice: this.extensionDevice,
       globalStorage: this.globalStorage,
       numberValidate: this.numberValidate,
+      onCallEnd: (session) => {
+        if (this.router.currentPath !== '/calls/active') {
+          return;
+        }
+        const currentSession = this.webphone.activeSession;
+        if (currentSession && session.id !== currentSession.id) {
+          return;
+        }
+        this.router.goBack();
+      },
+      onCallStart: () => {
+        if (this.router.currentPath === '/calls/active') {
+          return;
+        }
+        this.router.push('/calls/active');
+      },
+      onCallRing: () => {
+        console.log('it is ringing');
+      },
       getState: () => this.state.webphone,
     }));
     reducers.webphone = this.webphone.reducer;

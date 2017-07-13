@@ -24,6 +24,9 @@ function getTabs({
       activeIcon: <span className={dynamicsFont.activeHover} />,
       label: 'Calls',
       path: '/calls',
+      isActive: currentPath => (
+        currentPath === '/calls' || currentPath === '/calls/active'
+      ),
     },
     {
       icon: <span className={dynamicsFont.history} />,
