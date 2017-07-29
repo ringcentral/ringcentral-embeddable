@@ -7,6 +7,6 @@ npm-debug.log*
 node_modules
 
 **/.DS_Store
-src/config/api.js
+api.json
 release
 build

@@ -1,10 +1,26 @@
 const webpack = require('webpack');
+const fs = require('fs');
 const path = require('path');
 const autoprefixer = require('autoprefixer');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const packageConfig = require('./package');
 
 const buildPath = path.resolve(__dirname, 'release');
+const apiConfigFile = path.resolve(__dirname, 'api.json');
+let apiConfig;
+if (fs.existsSync(apiConfigFile)) {
+  apiConfig = JSON.parse(fs.readFileSync(apiConfigFile));
+} else {
+  apiConfig = {
+    appKey: process.env.API_KEY,
+    appSecret: process.env.API_SECRET,
+    server: process.env.API_SERVER,
+  };
+}
+const version = packageConfig.version;
 
+const hostingUrl =
+  process.env.HOSTING_URL || 'https://embbnux.github.io/ringcentral-widget-demo';
 const config = {
   entry: {
     app: './src/app.js',
@@ -28,6 +44,9 @@ const config = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production'),
+        API_CONFIG: JSON.stringify(apiConfig),
+        APP_VERSION: JSON.stringify(version),
+        HOSTING_URL: JSON.stringify(hostingUrl),
       },
     }),
     new CopyWebpackPlugin([

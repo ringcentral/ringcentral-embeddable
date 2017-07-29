@@ -9,8 +9,6 @@ import IconLine from 'ringcentral-widget/components/IconLine';
 import TextInput from 'ringcentral-widget/components/TextInput';
 import Switch from 'ringcentral-widget/components/Switch';
 
-import hostingUrl from '../../config/hostingUrl';
-
 /**
  * Environment component for switching api server. Intended only for testing.
  * This component current does not comply to use redux properly.
@@ -156,7 +154,7 @@ class Environment extends Component {
           <Line>
             Redirect Url
             <TextInput
-              value={`${hostingUrl}/redirect.html`}
+              value={`${this.props.hostingUrl}/redirect.html`}
               disabled
             />
           </Line>
@@ -172,11 +170,13 @@ Environment.propTypes = {
   server: PropTypes.string.isRequired,
   enabled: PropTypes.bool.isRequired,
   onSetData: PropTypes.func.isRequired,
+  hostingUrl: PropTypes.string,
 };
 
 Environment.defaultProps = {
   appKey: null,
   appSecret: null,
+  hostingUrl: '',
 };
 
 export default Environment;

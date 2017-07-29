@@ -30,6 +30,7 @@ function AppView(props) {
         appKey={props.appKey}
         appSecret={props.appSecret}
         onSetData={props.onSetData}
+        hostingUrl={props.hostingUrl}
         recordingHost={''}
       />
     </div>
@@ -47,6 +48,7 @@ AppView.propTypes = {
   currentLocale: PropTypes.string.isRequired,
   offline: PropTypes.bool.isRequired,
   showOfflineAlert: PropTypes.func.isRequired,
+  hostingUrl: PropTypes.string,
 };
 
 AppView.defaultProps = {
@@ -56,6 +58,7 @@ AppView.defaultProps = {
   appKey: null,
   enabled: false,
   onSetData: undefined,
+  hostingUrl: '',
 };
 
 export default connect((state, {
@@ -65,6 +68,7 @@ export default connect((state, {
   callingSettings,
   connectivityMonitor,
   rateLimiter,
+  hostingUrl,
 }) => ({
   currentLocale: locale.currentLocale,
   showSpinner: (
@@ -82,6 +86,7 @@ export default connect((state, {
     auth.proxyRetryCount > 0 ||
     rateLimiter.throttling
   ),
+  hostingUrl,
 }), (dispatch, {
   environment,
   connectivityMonitor,

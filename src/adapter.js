@@ -1,10 +1,9 @@
 import logoUrl from './assets/images/VIE_Logo_RC.svg';
 import Adapter from './modules/Adapter';
-import hostingUrl from './config/hostingUrl';
 import brand from './config/brand';
-import version from './config/version';
 
-const appUrl = `${hostingUrl}/app.html`;
+const version = process.env.APP_VERSION;
+const appUrl = `${process.env.HOSTING_URL}/app.html`;
 
 function init() {
   if (window.RCAdapter) {

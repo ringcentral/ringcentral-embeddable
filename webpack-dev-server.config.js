@@ -1,8 +1,23 @@
 const webpack = require('webpack');
+const fs = require('fs');
 const path = require('path');
 const autoprefixer = require('autoprefixer');
+const packageConfig = require('./package');
 
 const buildPath = path.resolve(__dirname, 'src');
+
+const apiConfigFile = path.resolve(__dirname, 'api.json');
+let apiConfig;
+if (fs.existsSync(apiConfigFile)) {
+  apiConfig = JSON.parse(fs.readFileSync(apiConfigFile));
+} else {
+  apiConfig = {
+    appKey: process.env.API_KEY,
+    appSecret: process.env.API_SECRET,
+    server: process.env.API_SERVER,
+  };
+}
+const version = packageConfig.version;
 
 const config = {
   entry: {
@@ -27,6 +42,9 @@ const config = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('development'),
+        API_CONFIG: JSON.stringify(apiConfig),
+        APP_VERSION: JSON.stringify(version),
+        HOSTING_URL: JSON.stringify('http://localhost:8080'),
       },
     }),
   ],

@@ -19,14 +19,14 @@ Build with [RingCentral Commons](https://github.com/ringcentral/ringcentral-js-i
 git clone https://github.com/embbnux/ringcentral-widget-demo.git
 ```
 
-### Create api secret file
+### Create api secret file in project root path
 ```
-# src/config/api.js
-export default {
-  appKey: 'your ringcentral app key',
-  appSecret: 'your ringcentral app sercet',
-  server: 'ringcentral sever url, eg: https://platform.devtest.ringcentral.com',
-};
+# api.json
+{
+  "appKey": "your ringcentral app key",
+  "appSecret": "your ringcentral app sercet",
+  "server": "ringcentral sever url, eg: https://platform.devtest.ringcentral.com"
+}
 ```
 
 ### Start server
@@ -34,4 +34,9 @@ export default {
 yarn
 yarn start
 ```
-open site: 'http://localhost:8080/' on browser 
+open site: 'http://localhost:8080/' on browser
+
+## Online demo
+
+Visit [Demo website](https://embbnux.github.io/ringcentral-widget-demo/) in github pages.
+Set your appKey and appSecret in this online demo, and update redirect_uri in your rc dev account.

@@ -27,6 +27,7 @@ import AppView from '../AppView';
 
 export default function App({
   phone,
+  hostingUrl,
 }) {
   return (
     <Provider store={phone.store} >
@@ -34,6 +35,7 @@ export default function App({
         <Route
           component={routerProps => (
             <AppView
+              hostingUrl={hostingUrl}
               auth={phone.auth}
               alert={phone.alert}
               locale={phone.locale}
