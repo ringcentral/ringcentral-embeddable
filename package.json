@@ -5,6 +5,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
     "start": "npm run dev-server",
     "dev-server": "webpack-dev-server --config webpack-dev-server.config.js --progress --colors --inline",
     "build": "NODE_ENV=production webpack --config webpack-production.config.js --progress --colors"
