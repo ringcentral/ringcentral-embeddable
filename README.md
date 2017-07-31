@@ -1,7 +1,7 @@
-# [RingCentral Js Widget Demo](https://embbnux.github.io/ringcentral-widget-demo/)
+# [RingCentral JS Widget Demo](https://embbnux.github.io/ringcentral-widget-demo/)
 
 ## Introduction
-This is the demo of RingCentral Js Widget.
+This is the demo of RingCentral JS Widget.
 Build with [RingCentral Commons](https://github.com/ringcentral/ringcentral-js-integration-commons/) and [RingCentral Widget](https://github.com/ringcentral/ringcentral-js-widget).
 
 ## Dependences
