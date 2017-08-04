@@ -69,7 +69,7 @@ const config = {
       },
       {
         test: /\.svg/,
-        exclude: /font|src\/assets\/images/,
+        exclude: /font|src(\/|\\)assets(\/|\\)images/,
         use: [
           'babel-loader',
           'react-svg-loader',
@@ -81,7 +81,7 @@ const config = {
       },
       {
         test: /\.png|\.jpg|\.gif|\.svg/,
-        exclude: /ringcentral-widget\/assets\/images\/.+\.svg/,
+        exclude: /ringcentral-widget(\/|\\)assets(\/|\\)images(\/|\\).+\.svg/,
         use: 'url-loader?limit=20000&publicPath=./&name=images/[name]_[hash].[ext]',
       },
       {
