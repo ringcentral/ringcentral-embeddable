@@ -281,7 +281,14 @@ export default class Phone extends RcModule {
         this.router.push('/calls/active');
       },
       onCallRing: () => {
-        console.log('it is ringing');
+        if (
+          this.webphone.ringSessions.length > 1
+        ) {
+          if (this.router.currentPath !== '/calls') {
+            this.router.push('/calls');
+          }
+          this.webphone.toggleMinimized(this.webphone.ringSessionId);
+        }
       },
       getState: () => this.state.webphone,
     }));
@@ -437,11 +444,13 @@ export default class Phone extends RcModule {
     reducers.callLog = this.callLog.reducer;
     this.addModule('callMonitor', new CallMonitor({
       ...options,
+      storage: this.storage,
       accountInfo: this.accountInfo,
       detailedPresence: this.detailedPresence,
       activeCalls: this.activeCalls,
       activityMatcher: this.activityMatcher,
       contactMatcher: this.contactMatcher,
+      webphone: this.webphone,
       onRinging: async () => {
         if (this.webphone._webphone) {
           return;
@@ -527,15 +536,15 @@ export default class Phone extends RcModule {
     this.store.subscribe(() => {
       if (this.auth.ready) {
         if (
-          this.router.currentPath !== '/welcome' &&
+          this.router.currentPath !== '/' &&
           !this.auth.loggedIn
         ) {
-          this.router.push('/welcome');
+          this.router.push('/');
         } else if (
-          this.router.currentPath === '/welcome' &&
+          this.router.currentPath === '/' &&
           this.auth.loggedIn
         ) {
-          this.router.push('/');
+          this.router.push('/dialer');
         }
       }
     });

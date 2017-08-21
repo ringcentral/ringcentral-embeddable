@@ -17,7 +17,7 @@ function getTabs({
       icon: <span className={dynamicsFont.dial} />,
       activeIcon: <span className={dynamicsFont.dialHover} />,
       label: 'Dial Pad',
-      path: '/',
+      path: '/dialer',
     },
     {
       icon: <span className={dynamicsFont.active} />,

@@ -7,6 +7,14 @@
   position: absolute;
 }
 
+body {
+  background: #fff;
+}
+
+input {
+  background-color: transparent;
+}
+
 .root {
   @include full-size;
   background-color: $app-background-color;
