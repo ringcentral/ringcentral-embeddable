@@ -516,6 +516,8 @@ export default class Phone extends RcModule {
       auth: this.auth,
       router: this.router,
       presence: this.detailedPresence,
+      call: this.call,
+      composeText: this.composeText,
       getState: () => this.state.interaction,
     }));
     reducers.interaction = this.interaction.reducer;

@@ -120,7 +120,7 @@ export default function App({
               </MainView>
             )} >
             <Route
-              path="dialer"
+              path="/dialer"
               component={() => (
                 <DialerPage
                   call={phone.call}

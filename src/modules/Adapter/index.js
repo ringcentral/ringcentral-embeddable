@@ -180,6 +180,23 @@ class Adapter {
       this._hover = false;
       this.syncClass();
     });
+
+    const phoneCallTags = window.document.querySelectorAll('a[href^="tel:"]');
+    phoneCallTags.forEach((phoneTag) => {
+      phoneTag.addEventListener('click', () => {
+        const hrefStr = phoneTag.getAttribute('href');
+        const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
+        this.clickToCall(phoneNumber);
+      });
+    });
+    const phoneSMSTags = window.document.querySelectorAll('a[href^="sms:"]');
+    phoneSMSTags.forEach((phoneTag) => {
+      phoneTag.addEventListener('click', () => {
+        const hrefStr = phoneTag.getAttribute('href');
+        const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
+        this.clickToSMS(phoneNumber);
+      });
+    });
   }
 
   _initContentDOM(prefix, appUrl) {
@@ -401,6 +418,21 @@ class Adapter {
   setEnvironment() {
     this._postMessage({
       type: 'rc-adapter-set-environment',
+    });
+  }
+
+  clickToSMS(phoneNumber) {
+    this._postMessage({
+      type: 'rc-adapter-new-sms',
+      phoneNumber,
+    });
+  }
+
+  clickToCall(phoneNumber, toCall = false) {
+    this._postMessage({
+      type: 'rc-adapter-new-call',
+      phoneNumber,
+      toCall,
     });
   }
 

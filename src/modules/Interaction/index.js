@@ -11,6 +11,8 @@ export default class Interaction extends RcModule {
     auth,
     router,
     presence,
+    composeText,
+    call,
     ...options,
   }) {
     super({
@@ -20,6 +22,8 @@ export default class Interaction extends RcModule {
     this._auth = this::ensureExist(auth, 'auth');
     this._router = this::ensureExist(router, 'router');
     this._presence = this::ensureExist(presence, 'presence');
+    this._composeText = this::ensureExist(composeText, 'composeText');
+    this._call = this::ensureExist(call, 'call');
     this._reducer = getReducer(this.actionTypes);
     this._dndStatus = null;
     this._userStatus = null;
@@ -94,10 +98,53 @@ export default class Interaction extends RcModule {
             window.toggleEnv();
           }
           break;
+        case 'rc-adapter-new-sms':
+          this._newSMS(data.phoneNumber);
+          break;
+        case 'rc-adapter-new-call':
+          this._newCall(data.phoneNumber, data.toCall);
+          break;
         default:
           break;
       }
     }
+  }
+
+  _newSMS(phoneNumber) {
+    if (!this._auth.loggedIn) {
+      return;
+    }
+    this._setClosed(false);
+    this._setMinimized(false);
+    this._router.history.push('/composeText');
+    this._composeText.updateTypingToNumber(phoneNumber);
+  }
+
+  _newCall(phoneNumber, toCall = false) {
+    if (!this._auth.loggedIn) {
+      return;
+    }
+    this._setClosed(false);
+    this._setMinimized(false);
+    this._router.history.push('/dialer');
+    this._call.onToNumberChange(phoneNumber);
+    if (toCall) {
+      this._call.onCall();
+    }
+  }
+
+  _setClosed(minimized) {
+    this._postMessage({
+      type: 'rc-set-minimized',
+      minimized,
+    });
+  }
+
+  _setMinimized(closed) {
+    this._postMessage({
+      type: 'rc-set-closed',
+      closed,
+    });
   }
 
   // eslint-disable-next-line

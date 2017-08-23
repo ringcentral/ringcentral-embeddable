@@ -46,7 +46,7 @@
     "redux": "^3.6.0",
     "ringcentral": "^3.1.3",
     "ringcentral-client": "^1.0.0-rc1",
-    "ringcentral-integration": "^0.7.12",
+    "ringcentral-integration": "^0.7.14",
     "ringcentral-widget": "^0.4.15",
     "sass-loader": "^6.0.3",
     "style-loader": "^0.17.0",
