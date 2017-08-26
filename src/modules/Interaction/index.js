@@ -2,7 +2,7 @@ import RcModule from 'ringcentral-integration/lib/RcModule';
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
-import { normalizeSession } from 'ringcentral-integration/modules/webphone/webphoneHelper';
+import { normalizeSession } from 'ringcentral-integration/modules/Webphone/webphoneHelper';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
