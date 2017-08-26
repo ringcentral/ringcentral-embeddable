@@ -265,6 +265,7 @@ export default class Phone extends RcModule {
       globalStorage: this.globalStorage,
       numberValidate: this.numberValidate,
       onCallEnd: (session) => {
+        this.interaction.endCallNotify(session);
         if (this.router.currentPath !== '/calls/active') {
           return;
         }
@@ -280,7 +281,8 @@ export default class Phone extends RcModule {
         }
         this.router.push('/calls/active');
       },
-      onCallRing: () => {
+      onCallRing: (session) => {
+        this.interaction.ringCallNotify(session);
         if (
           this.webphone.ringSessions.length > 1
         ) {

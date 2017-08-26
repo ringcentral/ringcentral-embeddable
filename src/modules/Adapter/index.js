@@ -156,6 +156,14 @@ class Adapter {
           case 'rc-set-presence':
             this.setPresence(data.presence);
             break;
+          case 'rc-call-ring-notify':
+            console.log('new ring call:');
+            console.log(data.call);
+            break;
+          case 'rc-call-end-notify':
+            console.log('new end call:');
+            console.log(data.call);
+            break;
           case 'rc-version':
             this.reportVersion();
             break;

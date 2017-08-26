@@ -2,6 +2,7 @@ import RcModule from 'ringcentral-integration/lib/RcModule';
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
+import { normalizeSession } from 'ringcentral-integration/modules/webphone/webphoneHelper';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
@@ -27,6 +28,7 @@ export default class Interaction extends RcModule {
     this._reducer = getReducer(this.actionTypes);
     this._dndStatus = null;
     this._userStatus = null;
+    this._callSessions = new Map();
   }
 
   _shouldInit() {
@@ -108,6 +110,33 @@ export default class Interaction extends RcModule {
           break;
       }
     }
+  }
+
+  ringCallNotify(session) {
+    if (this._callSessions.has(session.id)) {
+      return;
+    }
+    this._callSessions.set(session.id, true);
+    this._postMessage({
+      type: 'rc-call-ring-notify',
+      call: {
+        ...normalizeSession(session),
+      },
+    });
+  }
+
+  endCallNotify(session) {
+    if (!this._callSessions.has(session.id)) {
+      return;
+    }
+    this._callSessions.delete(session.id);
+    this._postMessage({
+      type: 'rc-call-end-notify',
+      call: {
+        ...normalizeSession(session),
+        endTime: Date.now(),
+      },
+    });
   }
 
   _newSMS(phoneNumber) {
