@@ -2,7 +2,6 @@ import RcModule from 'ringcentral-integration/lib/RcModule';
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
-import { normalizeSession } from 'ringcentral-integration/modules/Webphone/webphoneHelper';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
@@ -120,7 +119,7 @@ export default class Interaction extends RcModule {
     this._postMessage({
       type: 'rc-call-ring-notify',
       call: {
-        ...normalizeSession(session),
+        ...session,
       },
     });
   }
@@ -133,7 +132,7 @@ export default class Interaction extends RcModule {
     this._postMessage({
       type: 'rc-call-end-notify',
       call: {
-        ...normalizeSession(session),
+        ...session,
         endTime: Date.now(),
       },
     });
