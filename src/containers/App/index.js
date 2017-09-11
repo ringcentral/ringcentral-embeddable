@@ -231,6 +231,7 @@ export default function App({
                   router={phone.router}
                   onViewContact={() => {}}
                   rateLimiter={phone.rateLimiter}
+                  brand={phone.brand}
                 />
               )} />
             <Route
@@ -257,6 +258,7 @@ export default function App({
                   locale={phone.locale}
                   auth={phone.auth}
                   params={props.params}
+                  brand={phone.brand}
                   regionSettings={phone.regionSettings}
                   conversation={phone.conversation}
                   messageStore={phone.messageStore}
@@ -275,6 +277,7 @@ export default function App({
                   locale={phone.locale}
                   router={phone.router}
                   messages={phone.messages}
+                  brand={phone.brand}
                   regionSettings={phone.regionSettings}
                   dateTimeFormat={phone.dateTimeFormat}
                   connectivityMonitor={phone.connectivityMonitor}
