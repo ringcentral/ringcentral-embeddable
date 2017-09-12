@@ -232,6 +232,7 @@ export default function App({
                   onViewContact={() => {}}
                   rateLimiter={phone.rateLimiter}
                   brand={phone.brand}
+                  showContactDisplayPlaceholder={false}
                 />
               )} />
             <Route
@@ -268,6 +269,7 @@ export default function App({
                   rateLimiter={phone.rateLimiter}
                   messages={phone.messages}
                   router={phone.router}
+                  showContactDisplayPlaceholder={false}
                 />
               )} />
             <Route
@@ -287,6 +289,7 @@ export default function App({
                   onLogConversation={async () => { await sleep(1000); }}
                   onViewContact={() => { }}
                   onCreateContact={() => { }}
+                  showContactDisplayPlaceholder={false}
                 />
               )} />
           </Route>
