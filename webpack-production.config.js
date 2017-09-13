@@ -40,6 +40,7 @@ const config = {
       output: {
         comments: false,
       },
+      exclude: /[Aa]dapter/
     }),
     new webpack.DefinePlugin({
       'process.env': {
