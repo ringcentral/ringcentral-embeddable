@@ -14,6 +14,14 @@
     p {
       padding: 10px;
     }
+    pre {
+      padding: 5px;
+      overflow: auto;
+      font-size: 85%;
+      line-height: 1.45;
+      background-color: #f7f7f7;
+      border-radius: 3px;
+    }
     #setEnvironment {
       color: #0684bd;
     }
@@ -28,30 +36,28 @@
   <p>Click <a href="#" id="setEnvironment">here to set this demo's appKey, appSecret and AppServer.</a> Enable and save.</p>
   <p>Set redirect url in RingCentral Developer Platform as the app show.</p>
   <p>One Step to add this widget to your website(Add following codes to your website's header):</p>
-  <pre id="widgetCode"></pre>
+  <pre>
+  &lt;script&gt;
+    (function() {
+      var rcs = document.createElement("script");
+      rcs.src = "https://embbnux.github.io/ringcentral-widget-demo/adapter.js";
+      var rcs0 = document.getElementsByTagName("script")[0];
+      rcs0.parentNode.insertBefore(rcs, rcs0);
+    })();
+  &lt;/script&gt;
+  </pre>
   <p>Click to SMS: <a href="sms:+1234567890">+1234567890</a>
   </p>
   <p>Click to Call: <a href="tel:+1234567888">+1234567888</a></p>
   <script src="adapter.js"></script>
   <script>
-    (function() {
+    (function () {
       var setEnvironment = window.document.querySelector('#setEnvironment');
       setEnvironment.addEventListener('click', function () {
         if (window.RCAdapter && window.RCAdapter.setEnvironment) {
           window.RCAdapter.setEnvironment();
         }
       });
-      var scriptText =
-        '\<script\>\n' +
-        '  (function() {\n' +
-        '    var rcs = document.createElement("script");\n' +
-        '    rcs.src = "https://embbnux.github.io/ringcentral-widget-demo/adapter.js";\n' +
-        '    var rcs0 = document.getElementsByTagName("script")[0];\n' +
-        '    rcs0.parentNode.insertBefore(rcs, rcs0);\n' +
-        '  })();\n' +
-        '\<\/script\>\n';
-      var widgetCode = window.document.querySelector('#widgetCode');
-      widgetCode.innerText = scriptText;
     })();
   </script>
 </body>
