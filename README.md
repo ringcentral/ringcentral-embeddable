@@ -29,6 +29,8 @@ git clone https://github.com/embbnux/ringcentral-widget-demo.git
 }
 ```
 
+App Permission required: `Edit Message`, `Edit Presence`, `Faxes`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling`
+
 ### Start server
 ```
 yarn
