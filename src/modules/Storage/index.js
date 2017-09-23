@@ -53,10 +53,12 @@ export default class UserStorage extends Storage {
         if (this._storage) {
           this._storage.destroy();
           storedData = this._storage.getData();
-          for (const key in this._reducers) {
-            if (typeof storedData[key] !== 'undefined') {
-              delete storedData[key];
-              this._storage.removeItem(key);
+          if (this._auth.isImplicit) {
+            for (const key in this._reducers) {
+              if (typeof storedData[key] !== 'undefined') {
+                delete storedData[key];
+                this._storage.removeItem(key);
+              }
             }
           }
           this._storage = null;

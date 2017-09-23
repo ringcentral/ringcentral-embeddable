@@ -5,7 +5,7 @@ import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
 
 function parseCallbackUri(callbackUri) {
   const { query, hash } = url.parse(callbackUri, true);
-  const hashObject = qs.parse(hash.replace(/^#/, ''));
+  const hashObject = hash ? qs.parse(hash.replace(/^#/, '')) : {};
   if (query.error) {
     const error = new Error(query.error);
     for (const key in query) {
@@ -138,7 +138,7 @@ export default class ImplicitAuth extends Auth {
       brandId: this._brand.id,
       state: btoa(Date.now()),
       display: 'page',
-      implicit: this._isImplicit(),
+      implicit: this.isImplicit,
     })}&${extendedQuery}`;
   }
 
@@ -212,7 +212,7 @@ export default class ImplicitAuth extends Auth {
     this.store.dispatch({
       type: this.actionTypes.logout,
     });
-    if (this._isImplicit()) {
+    if (this.isImplicit) {
       this._client.service.platform()._cache.clean();
       this.store.dispatch({
         type: this.actionTypes.logoutSuccess,
@@ -222,7 +222,7 @@ export default class ImplicitAuth extends Auth {
     return this._client.service.platform().logout();
   }
 
-  _isImplicit() {
+  get isImplicit() {
     return !(
       this._client.service.platform()._appSecret &&
       this._client.service.platform()._appSecret.length > 0
