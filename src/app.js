@@ -1,14 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
+
+import parseUri from './lib/parseUri';
 import Phone from './modules/Phone';
 import App from './containers/App';
 import brandConfig from './config/brand';
 import prefix from './config/prefix';
 
-const apiConfig = process.env.API_CONFIG;
+const defaultApiConfig = process.env.API_CONFIG;
 const appVersion = process.env.APP_VERSION;
 const hostingUrl = process.env.HOSTING_URL;
+
+const currentUri = window.location.href;
+const pathParams = parseUri(currentUri);
+const apiConfig = {
+  appKey: pathParams.appKey || defaultApiConfig.appKey,
+  appSecret: (pathParams.appKey ? pathParams.appSecret : defaultApiConfig.appSecret),
+  server: pathParams.appServer || defaultApiConfig.server,
+};
+
 const phone = new Phone({
   apiConfig,
   brandConfig,

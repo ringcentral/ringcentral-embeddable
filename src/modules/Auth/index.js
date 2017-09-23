@@ -1,26 +1,8 @@
-import url from 'url';
 import qs from 'qs';
 import Auth from 'ringcentral-integration/modules/Auth';
 import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
 
-function parseCallbackUri(callbackUri) {
-  const { query, hash } = url.parse(callbackUri, true);
-  const hashObject = hash ? qs.parse(hash.replace(/^#/, '')) : {};
-  if (query.error) {
-    const error = new Error(query.error);
-    for (const key in query) {
-      if (query::Object.prototype.hasOwnProperty(key)) {
-        error[key] = query[key];
-      }
-    }
-    throw error;
-  }
-
-  return {
-    ...query,
-    ...hashObject,
-  };
-}
+import parseCallbackUri from '../../lib/parseUri';
 
 function getImplicitOwnerId() {
   return Math.round(Math.random() * 1e10).toString();
