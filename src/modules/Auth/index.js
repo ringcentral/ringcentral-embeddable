@@ -3,22 +3,9 @@ import qs from 'qs';
 import Auth from 'ringcentral-integration/modules/Auth';
 import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
 
-function parseUrlHash(hash) {
-  const hashObject = qs.parse(hash);
-  const result = {};
-  Object.keys(hashObject).forEach((key) => {
-    const realKey = key.replace('#', '');
-    result[realKey] = hashObject[key];
-  });
-  console.log(result);
-  return result;
-}
-
 function parseCallbackUri(callbackUri) {
   const { query, hash } = url.parse(callbackUri, true);
-  console.log(hash);
-  const hashObject = parseUrlHash(hash);
-  console.log(hashObject);
+  const hashObject = qs.parse(hash.replace(/^#/, ''));
   if (query.error) {
     const error = new Error(query.error);
     for (const key in query) {
@@ -33,6 +20,10 @@ function parseCallbackUri(callbackUri) {
     ...query,
     ...hashObject,
   };
+}
+
+function getImplicitOwnerId() {
+  return Math.round(Math.random() * 1e10).toString();
 }
 
 export default class ImplicitAuth extends Auth {
@@ -130,21 +121,25 @@ export default class ImplicitAuth extends Auth {
 
   openOAuthPage() {
     if (this.proxyLoaded) {
-      const extendedQuery = qs.stringify({
-        force: true,
-        localeId: this._locale.currentLocale,
-        ui_options: 'hide_remember_me hide_tos',
-      });
       this._proxyFrame.contentWindow.postMessage({
-        oAuthUri: `${this.getLoginUrl({
-          redirectUri: this.redirectUri,
-          brandId: this._brand.id,
-          state: btoa(Date.now()),
-          display: 'page',
-          implicit: this._isImplicit(),
-        })}&${extendedQuery}`,
+        oAuthUri: this._getOAuthUri(),
       }, '*');
     }
+  }
+
+  _getOAuthUri() {
+    const extendedQuery = qs.stringify({
+      force: true,
+      localeId: this._locale.currentLocale,
+      ui_options: 'hide_remember_me hide_tos',
+    });
+    return `${this.getLoginUrl({
+      redirectUri: this.redirectUri,
+      brandId: this._brand.id,
+      state: btoa(Date.now()),
+      display: 'page',
+      implicit: this._isImplicit(),
+    })}&${extendedQuery}`;
   }
 
   /**
@@ -184,7 +179,7 @@ export default class ImplicitAuth extends Auth {
       expires_in: expiresIn,
       access_token: accessToken,
       token_type: tokenType,
-      owner_id: this._getImplicitOwnerId(),
+      owner_id: getImplicitOwnerId(),
     });
   }
 
@@ -232,13 +227,5 @@ export default class ImplicitAuth extends Auth {
       this._client.service.platform()._appSecret &&
       this._client.service.platform()._appSecret.length > 0
     );
-  }
-
-  _getImplicitOwnerId() {
-    const cacheOauthData = this._client.service.platform().auth().data();
-    if (cacheOauthData && cacheOauthData.owner_id) {
-      return cacheOauthData.owner_id;
-    }
-    return Math.round(Math.random() * 1e10).toString();
   }
 }

@@ -9,7 +9,6 @@ import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import AccountPhoneNumber from 'ringcentral-integration/modules/AccountPhoneNumber';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import Alert from 'ringcentral-integration/modules/Alert';
-import Auth from 'ringcentral-integration/modules/Auth';
 import Brand from 'ringcentral-integration/modules/Brand';
 import Call from 'ringcentral-integration/modules/Call';
 import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
@@ -27,7 +26,6 @@ import Ringout from 'ringcentral-integration/modules/Ringout';
 import Webphone from 'ringcentral-integration/modules/Webphone';
 import RolesAndPermissions from 'ringcentral-integration/modules/RolesAndPermissions';
 import Softphone from 'ringcentral-integration/modules/Softphone';
-import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
 import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
 import MessageSender from 'ringcentral-integration/modules/MessageSender';
@@ -49,8 +47,11 @@ import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
 
 import RouterInteraction from 'ringcentral-widget/modules/RouterInteraction';
+
+import Auth from '../Auth';
 import Interaction from '../Interaction';
 import Environment from '../Environment';
+import Storage from '../Storage';
 
 export default class Phone extends RcModule {
   constructor({
