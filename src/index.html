@@ -11,8 +11,24 @@
   >
   <link rel="shortcut icon" href="assets/images/favicon.ico">
   <style>
+    body {
+      padding-right: 20px;
+      padding-left: 20px;
+    }
+    h1 {
+      font-size: 18px;
+    }
+    h2 {
+      font-size: 16px;
+    }
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+    }
     p {
-      padding: 10px;
+      margin: 10px 5px;
+      line-height: 25px;
+      font-size: 15px;
     }
     pre {
       padding: 5px;
@@ -32,10 +48,10 @@
 </head>
 
 <body>
-  <p>Create App in <a href="https://developer.ringcentral.com/" target="_blank">RingCentral Developer Platform<a> to get appKey, appSecret and appServer.</p>
-  <p>Click <a href="#" id="setEnvironment">here to set this demo's appKey, appSecret and AppServer.</a> Enable and save.</p>
-  <p>Set redirect url in RingCentral Developer Platform as the app show.</p>
-  <p>1. One Step to add this widget to your website(Add following codes to your website's header):</p>
+  <h1>RingCentral Web Widget</h1>
+  <h2>Two ways to integrate this widget to your web application</h2>
+  <h3>1. Adpater Way:</h3>
+  <p>Just add following the following codes to your website's header. It will create a iframe in your website.</p>
   <pre>
   &lt;script&gt;
     (function() {
@@ -46,11 +62,37 @@
     })();
   &lt;/script&gt;
   </pre>
-  <p>2. Add app by iframe</p>
+  <h3>2. Iframe way</h3>
+  <p>Create a iframe with the following codes</p>
   <pre>
      &lt;iframe width="300" height="500" src="https://ringcentral.github.io/ringcentral-widget-demo/app.html"&gt;
      &lt;/iframe&gt;
   </pre>
+  <h2>Use your own appKey and appSecret</h2>
+  <p>Create a broswer based app in <a href="https://developer.ringcentral.com/" target="_blank">RingCentral Developer Platform<a> to get appKey, appSecret and appServer.</p>
+  <p>You need to add following uri to your redirect url in app setting on developer website</p>
+  <pre>https://ringcentral.github.io/ringcentral-widget-demo/redirect.html</pre>
+  <p>This app support authorization code and implicit grant flows. If you only provider appKey, it will use implicit grant flow. If you provide appKey and appSecret, it will use authorization code. In implicit grant flow, app will not refresh token, so user will log out after 1 hour.</p>
+  <h3>1. Config your appKey in adapter way</h3>
+  <pre>
+  &lt;script&gt;
+    (function() {
+      var rcs = document.createElement("script");
+      rcs.src = "https://ringcentral.github.io/ringcentral-widget-demo/adapter.js?appKey=your_own_app_key";
+      var rcs0 = document.getElementsByTagName("script")[0];
+      rcs0.parentNode.insertBefore(rcs, rcs0);
+    })();
+  &lt;/script&gt;
+  </pre>
+  <h3>2. Config your appKey in iframe way</h3>
+  <pre>
+    &lt;iframe width="300" height="500" src="https://ringcentral.github.io/ringcentral-widget-demo/app.html?appKey=your_own_app_key"&gt;
+    &lt;/iframe&gt;
+  </pre>
+  <h3>3. Config your appKey in Environment</h3>
+  <p>Click <a href="#" id="setEnvironment">here to set this widget's appKey, appSecret and AppServer.</a> Enable and save. If you want to use implicit grant flow, please keep appSecret blank.</p>
+  <p>Set redirect url in RingCentral Developer Platform as the app show.</p>
+  <p>In environment way, appKey and appSecret save in your localstorage, so it will not influence other people.</p>
   <p>Click to SMS: <a href="sms:+1234567890">+1234567890</a>
   </p>
   <p>Click to Call: <a href="tel:+1234567888">+1234567888</a></p>
