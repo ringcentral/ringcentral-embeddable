@@ -210,9 +210,8 @@ class Adapter {
   _initContentDOM(prefix, appUrl) {
     const topDocument = window.document;
     let divEl = topDocument.querySelector(`#${prefix}`);
-    const iframeSrc = `${appUrl}?_t=${Date.now()}`;
     if (divEl) return divEl;
-    divEl = this._generateContentDOM(topDocument, prefix, iframeSrc);
+    divEl = this._generateContentDOM(topDocument, prefix, appUrl);
     topDocument.body.appendChild(divEl);
     return divEl;
   }
