@@ -20,11 +20,14 @@ const apiConfig = {
   server: pathParams.appServer || defaultApiConfig.server,
 };
 
+const redirectUri = pathParams.redirectUri;
+
 const phone = new Phone({
   apiConfig,
   brandConfig,
   prefix,
   appVersion,
+  redirectUri,
 });
 
 const store = createStore(phone.reducer);
