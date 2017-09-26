@@ -6,16 +6,16 @@ export default class RedirectController {
       const callbackUri = window.location.href;
       // RCINT-3477 some devices will have reference to opener, but will throw exception
       // when tring to access opener
-      // try {
-      //   if (window.opener && window.opener.oAuthCallback) {
-      //     window.opener.oAuthCallback(callbackUri);
-      //     window.close();
-      //     return;
-      //   }
-      // } catch (e) {
-      //   console.error(e);
-      //   /* ignore error */
-      // }
+      try {
+        if (window.opener && window.opener.oAuthCallback) {
+          window.opener.oAuthCallback(callbackUri);
+          window.close();
+          return;
+        }
+      } catch (e) {
+        console.error(e);
+        /* ignore error */
+      }
       try {
         if (window.opener && window.opener.postMessage) {
           window.opener.postMessage({
