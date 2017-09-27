@@ -58,6 +58,7 @@ export default class Phone extends RcModule {
     apiConfig,
     brandConfig,
     appVersion,
+    redirectUri,
     ...options,
   }) {
     super();
@@ -120,6 +121,7 @@ export default class Phone extends RcModule {
       environment: this.environment,
       locale: this.locale,
       tabManager: this.tabManager,
+      redirectUri,
       getState: () => this.state.auth,
     }));
     reducers.auth = this.auth.reducer;

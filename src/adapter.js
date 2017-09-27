@@ -14,6 +14,7 @@ const {
   appKey,
   appSecret,
   appServer,
+  redirectUri,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -32,6 +33,7 @@ const appUri = `${appUrl}?${obj2uri({
   appKey,
   appSecret,
   appServer,
+  redirectUri,
   _t: Date.now(),
 })}`;
 

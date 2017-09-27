@@ -148,7 +148,7 @@ class Environment extends Component {
           <Line>
             Redirect Url
             <TextInput
-              value={`${this.props.hostingUrl}/redirect.html`}
+              value={this.props.redirectUri}
               disabled
             />
           </Line>
@@ -173,13 +173,13 @@ Environment.propTypes = {
   server: PropTypes.string.isRequired,
   enabled: PropTypes.bool.isRequired,
   onSetData: PropTypes.func.isRequired,
-  hostingUrl: PropTypes.string,
+  redirectUri: PropTypes.string,
 };
 
 Environment.defaultProps = {
   appKey: null,
   appSecret: null,
-  hostingUrl: '',
+  redirectUri: '',
 };
 
 export default Environment;
