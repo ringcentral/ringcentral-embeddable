@@ -100,6 +100,39 @@ window.addEventListener('message', (e) => {
   }
 });
 ```
+## Customize RedirectUri
+
+In implicit grant flow or authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, `https://ringcentral.github.io/ringcentral-widget-demo/redirect.html`. But it also allow to config redirect uri.
+
+```
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-widget-demo/adapter.js?redirectUri=your_redirect_uri";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+Or
+
+```
+<iframe width="300" height="500" id="rc-widget" src="https://ringcentral.github.io/ringcentral-widget-demo/app.html?redirectUri=your_redirect_uri">
+</iframe>
+```
+
+But in your redirect page, you need to add following codes to pass callback params to this app.
+
+```
+<script>
+  if (window.opener) {
+    window.opener.postMessage({
+      callbackUri: window.location.href,
+    }, '*');
+  }
+</script>
+```
 
 ## How to Develop
 
