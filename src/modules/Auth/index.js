@@ -4,10 +4,6 @@ import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
 
 import parseCallbackUri from '../../lib/parseUri';
 
-function getImplicitOwnerId() {
-  return Math.round(Math.random() * 1e10).toString();
-}
-
 export default class ImplicitAuth extends Auth {
   _createProxyFrame = (onLogin) => {
     this._proxyFrame = document.createElement('iframe');
@@ -150,6 +146,16 @@ export default class ImplicitAuth extends Auth {
     this.store.dispatch({
       type: this.actionTypes.login,
     });
+    let ownerId;
+    if (accessToken) {
+      this._client.service.platform().auth().setData({
+        token_type: tokenType,
+        access_token: accessToken,
+        expires_in: expiresIn,
+      });
+      const extensionData = await this._client.account().extension().get();
+      ownerId = extensionData.id;
+    }
     return this._client.service.platform().login({
       username,
       password,
@@ -161,7 +167,7 @@ export default class ImplicitAuth extends Auth {
       expires_in: expiresIn,
       access_token: accessToken,
       token_type: tokenType,
-      owner_id: getImplicitOwnerId(),
+      owner_id: ownerId,
     });
   }
 
