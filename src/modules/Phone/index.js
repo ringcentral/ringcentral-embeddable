@@ -25,6 +25,7 @@ import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
 import Ringout from 'ringcentral-integration/modules/Ringout';
 import Webphone from 'ringcentral-integration/modules/Webphone';
 import RolesAndPermissions from 'ringcentral-integration/modules/RolesAndPermissions';
+import Storage from 'ringcentral-integration/modules/Storage';
 import Softphone from 'ringcentral-integration/modules/Softphone';
 import Subscription from 'ringcentral-integration/modules/Subscription';
 import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
@@ -51,7 +52,6 @@ import RouterInteraction from 'ringcentral-widget/modules/RouterInteraction';
 import Auth from '../Auth';
 import Interaction from '../Interaction';
 import Environment from '../Environment';
-import Storage from '../Storage';
 
 export default class Phone extends RcModule {
   constructor({
