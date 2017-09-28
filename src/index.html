@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -10,23 +10,18 @@
     content="width=device-width, initial-scale=1, user-scalable=0, maximum-scale=1, minimum-scale=1"
   >
   <link rel="shortcut icon" href="assets/images/favicon.ico">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
   <style>
-    body {
-      padding-right: 20px;
-      padding-left: 20px;
-    }
-    h1 {
-      font-size: 18px;
-    }
     h2 {
-      font-size: 16px;
+      font-size: 18px;
+      margin: 25px 0;
     }
     h3 {
       font-size: 15px;
       font-weight: 600;
     }
     p {
-      margin: 10px 5px;
+      margin: 10px 0;
       line-height: 25px;
       font-size: 15px;
     }
@@ -38,74 +33,151 @@
       background-color: #f7f7f7;
       border-radius: 3px;
     }
-    #setEnvironment {
-      color: #0684bd;
+    a:focus {
+      outline: none!important;
     }
-    #clickToSMS, #clickToCall {
+    a {
       color: #0684bd;
     }
   </style>
 </head>
-
 <body>
-  <h1>RingCentral Web Widget</h1>
-  <h2>Two ways to integrate this widget to your web application</h2>
-  <h3>1. Adapter Way:</h3>
-  <p>Just add following the following codes to your website's header. It will create a iframe in your website.</p>
-  <pre>
-  &lt;script&gt;
-    (function() {
-      var rcs = document.createElement("script");
-      rcs.src = "https://ringcentral.github.io/ringcentral-widget-demo/adapter.js";
-      var rcs0 = document.getElementsByTagName("script")[0];
+</body>
+  <div class="container">
+    <h1>RingCentral Web Widget</h1>
+    <h2>Two ways to integrate this widget to your web application</h2>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="adapter-tab" data-toggle="tab" href="#adapter-way" role="tab" aria-controls="adapter" aria-expanded="true">Adapter Way</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="iframe-tab" data-toggle="tab" href="#iframe-way" role="tab" aria-controls="iframe">Iframe Way</a>
+      </li>
+    </ul>
+    <p>
+      <a class="btn btn-primary dropdown-toggle" data-toggle="collapse" href="#config-params" aria-expanded="false" aria-controls="config-params">
+        Config
+      </a>
+    </p>
+    <div class="collapse" id="config-params">
+      <div class="card card-body">
+        <p>Create a browser based app in <a href="https://developer.ringcentral.com/" target="_blank">RingCentral Developer Platform<a> to get appKey, appSecret and appServer.</p>
+        <form>
+          <div class="form-group row">
+            <label for="appKey" class="col-sm-2 col-form-label">appKey</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="appKey" placeholder="Your app key of RingCentral App">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="appServer" class="col-sm-2 col-form-label">appServer</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="appServer" placeholder="default: https://platform.ringcentral.com">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="redirectUri" class="col-sm-2 col-form-label">redirectUri</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="redirectUri" placeholder="default: https://ringcentral.github.io/ringcentral-widget-demo/redirect.html">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="adapter-way" role="tabpanel" aria-labelledby="adapter-tab">
+        <p>Just add following the following codes to your website's header. It will create a iframe in your website.</p>
+        <pre id="adapter-code">
+&lt;script&gt;
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-widget-demo/adapter.js";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+&lt;/script&gt;
+        </pre>
+      </div>
+      <div class="tab-pane fade" id="iframe-way" role="tabpanel" aria-labelledby="iframe-tab">
+        <p>Create a iframe with the following codes</p>
+        <pre id="iframe-code">
+ &lt;iframe width="300" height="500" src="https://ringcentral.github.io/ringcentral-widget-demo/app.html"&gt;
+ &lt;/iframe&gt;
+        </pre>
+      </div>
+    </div>
+    <p>You need to add following uri to your redirect url in app setting on developer website, if you don't config redirect widget uri.</p>
+    <pre>https://ringcentral.github.io/ringcentral-widget-demo/redirect.html</pre>
+    <h2>Config your appKey in local Environment</h2>
+    <p>1. Click <a href="#" id="setEnvironment">here to set this widget's appKey, appSecret and AppServer</a> in local. Enable and save.</p>
+    <p>2. Set redirect url in RingCentral Developer Platform as the app show.</p>
+    <p>In environment way, appKey and appSecret are saved in your localstorage, so it will not influence other people.</p>
+    <p>This app support authorization code and implicit grant flows. If you only provider appKey, it will use implicit grant flow. If you provide appKey and appSecret, it will use authorization code. In implicit grant flow, app will not refresh token, so user will log out after 1 hour. If you want to use implicit grant flow, please keep appSecret blank.</p>
+    <h2>Some tests</h2>
+    <p>Click to SMS: <a href="sms:+1234567890">+1234567890</a></p>
+    <p>Click to Call: <a href="tel:+1234567888">+1234567888</a></p>
+  </div>
+  <script>
+    (function () {
+      var rcs = document.createElement('script');
+      rcs.src = 'adapter.js';
+      var rcs0 = document.getElementsByTagName('script')[0];
       rcs0.parentNode.insertBefore(rcs, rcs0);
     })();
-  &lt;/script&gt;
-  </pre>
-  <h3>2. Iframe way</h3>
-  <p>Create a iframe with the following codes</p>
-  <pre>
-     &lt;iframe width="300" height="500" src="https://ringcentral.github.io/ringcentral-widget-demo/app.html"&gt;
-     &lt;/iframe&gt;
-  </pre>
-  <h2>Use your own appKey and appSecret</h2>
-  <p>Create a broswer based app in <a href="https://developer.ringcentral.com/" target="_blank">RingCentral Developer Platform<a> to get appKey, appSecret and appServer.</p>
-  <p>You need to add following uri to your redirect url in app setting on developer website</p>
-  <pre>https://ringcentral.github.io/ringcentral-widget-demo/redirect.html</pre>
-  <p>This app support authorization code and implicit grant flows. If you only provider appKey, it will use implicit grant flow. If you provide appKey and appSecret, it will use authorization code. In implicit grant flow, app will not refresh token, so user will log out after 1 hour.</p>
-  <h3>1. Config your appKey in adapter way</h3>
-  <pre>
-  &lt;script&gt;
-    (function() {
-      var rcs = document.createElement("script");
-      rcs.src = "https://ringcentral.github.io/ringcentral-widget-demo/adapter.js?appKey=your_own_app_key";
-      var rcs0 = document.getElementsByTagName("script")[0];
-      rcs0.parentNode.insertBefore(rcs, rcs0);
-    })();
-  &lt;/script&gt;
-  </pre>
-  <h3>2. Config your appKey in iframe way</h3>
-  <pre>
-    &lt;iframe width="300" height="500" src="https://ringcentral.github.io/ringcentral-widget-demo/app.html?appKey=your_own_app_key"&gt;
-    &lt;/iframe&gt;
-  </pre>
-  <h3>3. Config your appKey in Environment</h3>
-  <p>Click <a href="#" id="setEnvironment">here to set this widget's appKey, appSecret and AppServer.</a> Enable and save. If you want to use implicit grant flow, please keep appSecret blank.</p>
-  <p>Set redirect url in RingCentral Developer Platform as the app show.</p>
-  <p>In environment way, appKey and appSecret save in your localstorage, so it will not influence other people.</p>
-  <p>Click to SMS: <a href="sms:+1234567890">+1234567890</a>
-  </p>
-  <p>Click to Call: <a href="tel:+1234567888">+1234567888</a></p>
-  <script src="adapter.js"></script>
+  </script>
   <script>
     (function () {
       var setEnvironment = window.document.querySelector('#setEnvironment');
       setEnvironment.addEventListener('click', function () {
         if (window.RCAdapter && window.RCAdapter.setEnvironment) {
           window.RCAdapter.setEnvironment();
+          window.RCAdapter.setMinimized(false);
         }
       });
     })();
   </script>
+  <script>
+    function getConfigQuery() {
+      var config = {};
+      config.appKey = window.document.querySelector('#appKey').value;
+      config.appServer = window.document.querySelector('#appServer').value;
+      config.redirectUri = window.document.querySelector('#redirectUri').value;
+      var queries = [];
+      Object.keys(config).forEach((key) => {
+        if (config[key] && config[key].length > 0) {
+          queries.push(key + '=' + config[key]);
+        }
+      });
+      return queries.join('&');
+    }
+    function updateCodes() {
+      var adapterElem = window.document.querySelector('#adapter-code');
+      var iframeElem = window.document.querySelector('#iframe-code');
+      var query = getConfigQuery();
+      var adapterCode = adapterElem.innerHTML;
+      var adapterUri = adapterCode.match(/"http\S+"/)[0];
+      var newAdapterUri = adapterUri.replace(/\?\S*"/, '').replace(/"$/, '') + '?' + query + '"';
+      var iframeCode = iframeElem.innerHTML;
+      var iframeSrc = iframeCode.match(/"http\S+"/)[0];
+      var newIframeSrc = iframeSrc.replace(/\?\S*"/, '').replace(/"$/, '') + '?' + query + '"';
+      adapterElem.innerHTML = adapterCode.replace(adapterUri, newAdapterUri);
+      iframeElem.innerHTML = iframeCode.replace(iframeSrc, newIframeSrc);
+    }
+    var inputs = window.document.querySelectorAll('input');
+    inputs.forEach((inputElem) => {
+      inputElem.addEventListener('keyup', function () {
+        updateCodes();
+      });
+      inputElem.addEventListener('paste', function () {
+        updateCodes();
+      });
+      inputElem.addEventListener('blur', function () {
+        updateCodes();
+      });
+    });
+  </script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
 </body>
 </html>

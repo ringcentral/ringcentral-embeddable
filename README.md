@@ -54,6 +54,42 @@ To use you own appKey, just update `src` to following uri:
 https://ringcentral.github.io/ringcentral-widget-demo/app.html?appKey=your_app_key
 ```
 
+You can use the config tool in this [page](https://ringcentral.github.io/ringcentral-widget-demo) to generate codes with config.
+
+## Customize RedirectUri
+
+In implicit grant flow or authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, `https://ringcentral.github.io/ringcentral-widget-demo/redirect.html`. But it also allow to config redirect uri.
+
+```
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-widget-demo/adapter.js?redirectUri=your_redirect_uri";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+Or
+
+```
+<iframe width="300" height="500" id="rc-widget" src="https://ringcentral.github.io/ringcentral-widget-demo/app.html?redirectUri=your_redirect_uri">
+</iframe>
+```
+
+But in your redirect page, you need to add following codes to pass callback params to this app.
+
+```
+<script>
+  if (window.opener) {
+    window.opener.postMessage({
+      callbackUri: window.location.href,
+    }, '*');
+  }
+</script>
+```
+
 ## API to contrl web widget
 
 When widget is installed in a iframe, there are some APIs to control it. Those APIs is based on `postMessage`.
@@ -100,41 +136,8 @@ window.addEventListener('message', (e) => {
   }
 });
 ```
-## Customize RedirectUri
 
-In implicit grant flow or authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, `https://ringcentral.github.io/ringcentral-widget-demo/redirect.html`. But it also allow to config redirect uri.
-
-```
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-widget-demo/adapter.js?redirectUri=your_redirect_uri";
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
-
-Or
-
-```
-<iframe width="300" height="500" id="rc-widget" src="https://ringcentral.github.io/ringcentral-widget-demo/app.html?redirectUri=your_redirect_uri">
-</iframe>
-```
-
-But in your redirect page, you need to add following codes to pass callback params to this app.
-
-```
-<script>
-  if (window.opener) {
-    window.opener.postMessage({
-      callbackUri: window.location.href,
-    }, '*');
-  }
-</script>
-```
-
-## How to Develop
+## How to develop based on this app
 
 ### Clone the code
 ```
@@ -155,9 +158,11 @@ authorization code.
 
 App Permission required: `Edit Message`, `Edit Presence`, `Faxes`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling`
 
-### Start server
+### Start development server
+
 ```
 yarn
 yarn start
 ```
+
 open site: 'http://localhost:8080/' on browser
