@@ -195,7 +195,7 @@ class Adapter {
       phoneTag.addEventListener('click', () => {
         const hrefStr = phoneTag.getAttribute('href');
         const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
-        this.clickToCall(phoneNumber);
+        this.clickToCall(phoneNumber, true);
       });
     });
     const phoneSMSTags = window.document.querySelectorAll('a[href^="sms:"]');
@@ -430,6 +430,8 @@ class Adapter {
   }
 
   clickToSMS(phoneNumber) {
+    this.setMinimized(false);
+    this.setClosed(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
       phoneNumber,
@@ -437,6 +439,8 @@ class Adapter {
   }
 
   clickToCall(phoneNumber, toCall = false) {
+    this.setMinimized(false);
+    this.setClosed(false);
     this._postMessage({
       type: 'rc-adapter-new-call',
       phoneNumber,

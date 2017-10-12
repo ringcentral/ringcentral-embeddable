@@ -84,7 +84,10 @@ export default class Interaction extends RcModule {
 
   initialize() {
     window.addEventListener('message', event => this._messageHandler(event));
-    setTimeout(() => this._setMinimized(false), 1000);
+    setTimeout(() => {
+      this._setClosed(false);
+      this._setMinimized(false);
+    }, 1000);
     this.store.subscribe(() => this._onStateChange());
   }
 
@@ -143,8 +146,6 @@ export default class Interaction extends RcModule {
     if (!this._auth.loggedIn) {
       return;
     }
-    this._setClosed(false);
-    this._setMinimized(false);
     this._router.history.push('/composeText');
     this._composeText.updateTypingToNumber(phoneNumber);
   }
@@ -153,8 +154,6 @@ export default class Interaction extends RcModule {
     if (!this._auth.loggedIn) {
       return;
     }
-    this._setClosed(false);
-    this._setMinimized(false);
     this._router.history.push('/dialer');
     this._call.onToNumberChange(phoneNumber);
     if (toCall) {
