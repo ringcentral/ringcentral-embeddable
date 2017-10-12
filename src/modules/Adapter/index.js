@@ -159,6 +159,7 @@ class Adapter {
           case 'rc-call-ring-notify':
             console.log('new ring call:');
             console.log(data.call);
+            this.setMinimized(false);
             break;
           case 'rc-call-end-notify':
             console.log('new end call:');
