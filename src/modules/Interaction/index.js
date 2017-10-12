@@ -143,8 +143,6 @@ export default class Interaction extends RcModule {
     if (!this._auth.loggedIn) {
       return;
     }
-    this._setClosed(false);
-    this._setMinimized(false);
     this._router.history.push('/composeText');
     this._composeText.updateTypingToNumber(phoneNumber);
   }
@@ -153,8 +151,6 @@ export default class Interaction extends RcModule {
     if (!this._auth.loggedIn) {
       return;
     }
-    this._setClosed(false);
-    this._setMinimized(false);
     this._router.history.push('/dialer');
     this._call.onToNumberChange(phoneNumber);
     if (toCall) {
