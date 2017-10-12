@@ -51,7 +51,7 @@ function init() {
   setTimeout(() => {
     window.RCAdapter.init({
       size: { width: 300, height: 500 },
-      minimized: false,
+      minimized: true,
       closed: false,
       position: { translateX: 700, translateY: 20, minTranslateX: 0 }
     });
