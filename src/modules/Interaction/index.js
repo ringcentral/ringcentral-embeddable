@@ -84,7 +84,10 @@ export default class Interaction extends RcModule {
 
   initialize() {
     window.addEventListener('message', event => this._messageHandler(event));
-    setTimeout(() => this._setMinimized(false), 1000);
+    setTimeout(() => {
+      this._setClosed(false);
+      this._setMinimized(false);
+    }, 1000);
     this.store.subscribe(() => this._onStateChange());
   }
 
