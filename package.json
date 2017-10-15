@@ -1,7 +1,7 @@
 {
-  "name": "ringcentral-widget-demo",
+  "name": "ringcentral-web-widget",
   "version": "0.0.1",
-  "description": "A RingCentral Widget Demo",
+  "description": "A RingCentral Web Widget Application",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
