@@ -26,7 +26,6 @@
   transition: opacity 0.1s 0s linear;
 }
 
-.root.closed,
 .root.loading {
   visibility: hidden;
   opacity: 0;
@@ -134,7 +133,7 @@
 }
 
 .toggle {
-  right: 40px;
+  right: 15px;
 }
 
 .minimized .toggle {

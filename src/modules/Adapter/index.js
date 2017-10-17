@@ -32,9 +32,6 @@ class Adapter {
     this._toggleEl = this._root.querySelector(
       `.${styles.toggle}`
     );
-    this._closeEl = this._root.querySelector(
-      `.${styles.close}`
-    );
     this._presenceEl = this._root.querySelector(
       `.${styles.presence}`
     );
@@ -46,7 +43,6 @@ class Adapter {
     this._appHeight = 0;
     this._dragStartPosition = null;
 
-    this._closed = true;
     this._minimized = false;
     this._appFocus = false;
     this._dragging = false;
@@ -70,11 +66,6 @@ class Adapter {
     // toggle button
     this._toggleEl.addEventListener('click', () => {
       this.toggleMinimized();
-    });
-
-    // close button
-    this._closeEl.addEventListener('click', () => {
-      this.setClosed(true);
     });
 
     this._presenceEl.addEventListener('click', () => {
@@ -138,9 +129,6 @@ class Adapter {
       const data = e.data;
       if (data) {
         switch (data.type) {
-          case 'rc-set-closed':
-            this.setClosed(data.closed);
-            break;
           case 'rc-set-minimized':
             this.setMinimized(data.minimized);
             break;
@@ -172,7 +160,6 @@ class Adapter {
             this.init(data);
             break;
           case 'rc-ribbon-default':
-            this.setClosed(false);
             this.setMinimized(false);
             break;
           default:
@@ -234,11 +221,6 @@ class Adapter {
         <div class="${styles.button} ${styles.toggle}">
           <div class="${styles.minimizeIcon}">
             <div class="${styles.minimizeIconBar}"></div>
-          </div>
-        </div>
-        <div class="${styles.button} ${styles.close}">
-          <div class="${styles.closeIcon}">
-            <div></div><div></div>
           </div>
         </div>
         <img class="${styles.logo}" draggable="false"></img>
@@ -330,7 +312,6 @@ class Adapter {
     //  console.debug('this.sparkled>>>', this.sparkled);
     this._root.setAttribute('class', classnames(
       styles.root,
-      this._closed && styles.closed,
       this._minimized && styles.minimized,
       this._appFocus && styles.focus,
       this._dragging && styles.dragging,
@@ -338,19 +319,6 @@ class Adapter {
       this._loading && styles.loading,
       this._ringing && styles.ringing,
     ));
-  }
-
-  setClosed(closed) {
-    this._closed = !!closed;
-    this.syncClass();
-    this._postMessage({
-      type: 'rc-adapter-closed',
-      closed: this._closed,
-    });
-  }
-
-  toggleClosed() {
-    this.setClosed(!this._closed);
   }
 
   setMinimized(minimized) {
@@ -431,7 +399,6 @@ class Adapter {
 
   clickToSMS(phoneNumber) {
     this.setMinimized(false);
-    this.setClosed(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
       phoneNumber,
@@ -440,7 +407,6 @@ class Adapter {
 
   clickToCall(phoneNumber, toCall = false) {
     this.setMinimized(false);
-    this.setClosed(false);
     this._postMessage({
       type: 'rc-adapter-new-call',
       phoneNumber,
@@ -448,13 +414,12 @@ class Adapter {
     });
   }
 
-  init({ size, minimized, closed, position: { translateX, translateY, minTranslateX } }) {
+  init({ size, minimized, position: { translateX, translateY, minTranslateX } }) {
     this._postMessage({
       type: 'rc-adapter-mode',
       testMode: this._testMode,
     });
     this._minimized = minimized;
-    this._closed = closed;
     this._translateX = translateX;
     this._translateY = translateY;
     this._minTranslateX = minTranslateX;
