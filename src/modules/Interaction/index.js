@@ -85,7 +85,6 @@ export default class Interaction extends RcModule {
   initialize() {
     window.addEventListener('message', event => this._messageHandler(event));
     setTimeout(() => {
-      this._setClosed(false);
       this._setMinimized(false);
     }, 1000);
     this.store.subscribe(() => this._onStateChange());
@@ -165,13 +164,6 @@ export default class Interaction extends RcModule {
     this._postMessage({
       type: 'rc-set-minimized',
       minimized,
-    });
-  }
-
-  _setClosed(closed) {
-    this._postMessage({
-      type: 'rc-set-closed',
-      closed,
     });
   }
 
