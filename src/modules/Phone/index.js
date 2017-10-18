@@ -523,6 +523,8 @@ export default class Phone extends RcModule {
       presence: this.detailedPresence,
       call: this.call,
       composeText: this.composeText,
+      webphone: this.webphone,
+      regionSettings: this.regionSettings,
       getState: () => this.state.interaction,
     }));
     reducers.interaction = this.interaction.reducer;

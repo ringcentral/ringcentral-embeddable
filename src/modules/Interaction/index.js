@@ -2,6 +2,7 @@ import RcModule from 'ringcentral-integration/lib/RcModule';
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
+import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
@@ -13,6 +14,8 @@ export default class Interaction extends RcModule {
     presence,
     composeText,
     call,
+    webphone,
+    regionSettings,
     ...options,
   }) {
     super({
@@ -23,6 +26,8 @@ export default class Interaction extends RcModule {
     this._router = this::ensureExist(router, 'router');
     this._presence = this::ensureExist(presence, 'presence');
     this._composeText = this::ensureExist(composeText, 'composeText');
+    this._webphone = this::ensureExist(webphone, 'webphone');
+    this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');
     this._call = this::ensureExist(call, 'call');
     this._reducer = getReducer(this.actionTypes);
     this._dndStatus = null;
@@ -33,6 +38,9 @@ export default class Interaction extends RcModule {
   _shouldInit() {
     return this.pending &&
       this._auth.loggedIn &&
+      this._composeText.ready &&
+      this._webphone.ready &&
+      this._regionSettings.ready &&
       this._presence.ready;
   }
 
@@ -40,6 +48,9 @@ export default class Interaction extends RcModule {
     return this.ready &&
       (
         !this._auth.loggedIn ||
+        !this._composeText.ready ||
+        !this._webphone.ready ||
+        !this._regionSettings.ready ||
         !this._presence.ready
       );
   }
@@ -153,11 +164,27 @@ export default class Interaction extends RcModule {
     if (!this._auth.loggedIn) {
       return;
     }
+    if (!this._call.isIdle) {
+      return;
+    }
+    const isCall = this._isCallOngoing(phoneNumber);
+    if (isCall) {
+      return;
+    }
     this._router.history.push('/dialer');
     this._call.onToNumberChange(phoneNumber);
     if (toCall) {
       this._call.onCall();
     }
+  }
+
+  _isCallOngoing(phoneNumber) {
+    const countryCode = this._regionSettings.countryCode;
+    const areaCode = this._regionSettings.areaCode;
+    const normalizedNumber = normalizeNumber({ phoneNumber, countryCode, areaCode });
+    return !!this._webphone.sessions.find(
+      session => session.to === normalizedNumber
+    );
   }
 
   _setMinimized(minimized) {
