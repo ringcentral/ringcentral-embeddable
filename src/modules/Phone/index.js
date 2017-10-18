@@ -255,7 +255,7 @@ export default class Phone extends RcModule {
     reducers.numberValidate = this.numberValidate.reducer;
     this.addModule('webphone', new Webphone({
       appKey: apiConfig.appKey,
-      appName: 'RingCentral Widget Demo',
+      appName: brandConfig.appName,
       appVersion,
       alert: this.alert,
       auth: this.auth,
