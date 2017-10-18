@@ -20,7 +20,7 @@ if (fs.existsSync(apiConfigFile)) {
 const version = packageConfig.version;
 
 const hostingUrl =
-  process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-widget-demo';
+  process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-web-widget';
 const config = {
   entry: {
     app: './src/app.js',
