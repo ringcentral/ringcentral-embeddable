@@ -2,6 +2,7 @@ import parseUri from './lib/parseUri';
 import logoUrl from './assets/images/VIE_Logo_RC.svg';
 import Adapter from './modules/Adapter';
 import brand from './config/brand';
+import prefix from './config/prefix';
 
 const version = process.env.APP_VERSION;
 const appUrl = `${process.env.HOSTING_URL}/app.html`;
@@ -42,11 +43,11 @@ function init() {
     return;
   }
   window.RCAdapter = new Adapter({
-    prefix: 'rc-integration',
     logoUrl,
     appUrl: appUri,
     brand,
     version,
+    prefix,
   });
   setTimeout(() => {
     window.RCAdapter.init({

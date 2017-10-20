@@ -44,7 +44,7 @@ https://ringcentral.github.io/ringcentral-web-widget/adapter.js?appKey=your_app_
 Create a iframe with the following codes:
 
 ```
-<iframe width="300" height="500" id="rc-widget" src="https://ringcentral.github.io/ringcentral-web-widget/app.html">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-web-widget/app.html">
 </iframe>
 ```
 

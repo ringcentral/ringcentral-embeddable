@@ -7,7 +7,7 @@ class Adapter {
   constructor({
     logoUrl,
     appUrl,
-    prefix = 'rc-integration',
+    prefix = 'rc-widget',
     brand,
     className,
     testMode = false,
@@ -226,7 +226,7 @@ class Adapter {
         <img class="${styles.logo}" draggable="false"></img>
       </header>
       <div class="${styles.frameContainer}">
-        <iframe id="${prefix}-adapter-frame" class="${styles.contentFrame}" src="${iframeSrc}">
+        <iframe id="${prefix}-adapter-frame" class="${styles.contentFrame}" src="${iframeSrc}" allow="microphone">
         </iframe>
       </div>
     `;
