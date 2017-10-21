@@ -89,7 +89,7 @@ But in your redirect page, you need to add following codes to pass callback para
 </script>
 ```
 
-## API to contrl web widget
+## API to control web widget
 
 When widget is installed in a iframe, there are some APIs to control it. Those APIs is based on `postMessage`.
 
