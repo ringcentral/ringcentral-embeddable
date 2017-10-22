@@ -77,7 +77,7 @@ Or
 </iframe>
 ```
 
-But in your redirect page, you need to add following codes to pass callback params to this app.
+But in your redirect page, you need to add following code to pass callback params to this app.
 
 ```
 <script>
