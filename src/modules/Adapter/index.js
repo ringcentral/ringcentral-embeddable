@@ -178,21 +178,23 @@ class Adapter {
     });
 
     const phoneCallTags = window.document.querySelectorAll('a[href^="tel:"]');
-    phoneCallTags.forEach((phoneTag) => {
+    for (let i = 0; i < phoneCallTags.length; ++i) {
+      const phoneTag = phoneCallTags[i];
       phoneTag.addEventListener('click', () => {
         const hrefStr = phoneTag.getAttribute('href');
         const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
         this.clickToCall(phoneNumber, true);
       });
-    });
+    }
     const phoneSMSTags = window.document.querySelectorAll('a[href^="sms:"]');
-    phoneSMSTags.forEach((phoneTag) => {
+    for (let i = 0; i < phoneSMSTags.length; ++i) {
+      const phoneTag = phoneSMSTags[i];
       phoneTag.addEventListener('click', () => {
         const hrefStr = phoneTag.getAttribute('href');
         const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
         this.clickToSMS(phoneNumber);
       });
-    });
+    }
   }
 
   _initContentDOM(prefix, appUrl) {
