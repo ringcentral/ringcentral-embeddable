@@ -143,7 +143,7 @@
       config.appServer = window.document.querySelector('#appServer').value;
       config.redirectUri = window.document.querySelector('#redirectUri').value;
       var queries = [];
-      Object.keys(config).forEach((key) => {
+      Object.keys(config).forEach(function (key) {
         if (config[key] && config[key].length > 0) {
           queries.push(key + '=' + config[key]);
         }
