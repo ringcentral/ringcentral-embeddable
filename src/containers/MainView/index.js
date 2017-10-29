@@ -1,10 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import dynamicsFont from 'ringcentral-widget/assets/DynamicsFont/DynamicsFont.scss';
 import TabNavigationView from 'ringcentral-widget/components/TabNavigationView';
 import RouterInteraction from 'ringcentral-widget/modules/RouterInteraction';
 
+import DialPadIcon from 'ringcentral-widget/assets/images/DialPadNav.svg';
+import CallsIcon from 'ringcentral-widget/assets/images/Calls.svg';
+import HistoryIcon from 'ringcentral-widget/assets/images/CallHistory.svg';
+import MessageIcon from 'ringcentral-widget/assets/images/Messages.svg';
+import ComposeTextIcon from 'ringcentral-widget/assets/images/ComposeText.svg';
+import ConferenceIcon from 'ringcentral-widget/assets/images/Conference.svg';
+import SettingsIcon from 'ringcentral-widget/assets/images/Settings.svg';
+import MoreMenuIcon from 'ringcentral-widget/assets/images/MoreMenu.svg';
+
+import DialPadHoverIcon from 'ringcentral-widget/assets/images/DialPadHover.svg';
+import CallsHoverIcon from 'ringcentral-widget/assets/images/CallsHover.svg';
+import HistoryHoverIcon from 'ringcentral-widget/assets/images/CallHistoryHover.svg';
+import MessageHoverIcon from 'ringcentral-widget/assets/images/MessagesHover.svg';
+import ComposeTextHoverIcon from 'ringcentral-widget/assets/images/ComposeTextHover.svg';
+import ConferenceHoverIcon from 'ringcentral-widget/assets/images/ConferenceHover.svg';
+import SettingsHoverIcon from 'ringcentral-widget/assets/images/SettingsHover.svg';
+import MoreMenuHoverIcon from 'ringcentral-widget/assets/images/MoreMenuHover.svg';
+
+import ConferenceNavIcon from 'ringcentral-widget/assets/images/ConferenceNavigation.svg';
+import SettingsNavIcon from 'ringcentral-widget/assets/images/SettingsNavigation.svg';
 
 function getTabs({
   showMessages,
@@ -14,14 +33,14 @@ function getTabs({
 }) {
   return [
     {
-      icon: <span className={dynamicsFont.dial} />,
-      activeIcon: <span className={dynamicsFont.dialHover} />,
+      icon: DialPadIcon,
+      activeIcon: DialPadHoverIcon,
       label: 'Dial Pad',
       path: '/dialer',
     },
     {
-      icon: <span className={dynamicsFont.active} />,
-      activeIcon: <span className={dynamicsFont.activeHover} />,
+      icon: CallsIcon,
+      activeIcon: CallsHoverIcon,
       label: 'Calls',
       path: '/calls',
       isActive: currentPath => (
@@ -29,14 +48,14 @@ function getTabs({
       ),
     },
     {
-      icon: <span className={dynamicsFont.history} />,
-      activeIcon: <span className={dynamicsFont.historyHover} />,
+      icon: HistoryIcon,
+      activeIcon: HistoryHoverIcon,
       label: 'History',
       path: '/history',
     },
     showMessages && {
-      icon: <span className={dynamicsFont.message} />,
-      activeIcon: <span className={dynamicsFont.messageHover} />,
+      icon: MessageIcon,
+      activeIcon: MessageHoverIcon,
       label: 'Messages',
       path: '/messages',
       noticeCounts: unreadCounts,
@@ -45,25 +64,49 @@ function getTabs({
       ),
     },
     showComposeText && {
-      icon: <span className={dynamicsFont.composeText} />,
-      activeIcon: <span className={dynamicsFont.composeTextHover} />,
+      icon: ComposeTextIcon,
+      activeIcon: ComposeTextHoverIcon,
       label: 'Compose Text',
       path: '/composeText',
     },
     showConference && {
-      icon: <span className={dynamicsFont.conference} />,
-      activeIcon: <span className={dynamicsFont.conferenceHover} />,
+      icon: ConferenceIcon,
+      activeIcon: ConferenceHoverIcon,
       label: 'Conference',
       path: '/conference',
     },
     {
-      icon: <span className={dynamicsFont.setting} />,
-      activeIcon: <span className={dynamicsFont.settingHover} />,
-      label: 'Settings',
-      path: '/settings',
-      isActive: currentPath => (
-        currentPath.substr(0, 9) === '/settings'
+      icon: ({ currentPath }) => {
+        if (currentPath.substr(0, 9) === '/settings') {
+          return <SettingsNavIcon />;
+        } else if (currentPath === '/conference') {
+          return <ConferenceNavIcon />;
+        }
+        return <MoreMenuIcon />;
+      },
+      activeIcon: MoreMenuHoverIcon,
+      label: 'More Menu',
+      virtualPath: '!moreMenu',
+      isActive: (currentPath, currentVirtualPath) => (
+        currentVirtualPath === '!moreMenu'
       ),
+      childTabs: [
+        showConference && {
+          icon: ConferenceIcon,
+          activeIcon: ConferenceHoverIcon,
+          label: 'Schedule Conference',
+          path: '/conference',
+        },
+        {
+          icon: SettingsIcon,
+          activeIcon: SettingsHoverIcon,
+          label: 'Settings',
+          path: '/settings',
+          isActive: currentPath => (
+            currentPath.substr(0, 9) === '/settings'
+          ),
+        },
+      ].filter(x => !!x),
     },
   ].filter(x => !!x);
 }
@@ -113,7 +156,9 @@ function mapToFunctions(_, {
 }) {
   return {
     goTo: (path) => {
-      router.push(path);
+      if (path) {
+        router.push(path);
+      }
     },
   };
 }

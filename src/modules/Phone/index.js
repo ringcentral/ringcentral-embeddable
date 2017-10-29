@@ -263,7 +263,7 @@ export default class Phone extends RcModule {
       storage: this.storage,
       rolesAndPermissions: this.rolesAndPermissions,
       contactMatcher: this.contactMatcher,
-      webphoneLogLevel: 3,
+      webphoneLogLevel: 2,
       extensionDevice: this.extensionDevice,
       globalStorage: this.globalStorage,
       numberValidate: this.numberValidate,
@@ -500,6 +500,7 @@ export default class Phone extends RcModule {
     this.addModule('contacts', new Contacts({
       ...options,
       client: this.client,
+      alert: this.alert,
       addressBook: this.addressBook,
       accountPhoneNumber: this.accountPhoneNumber,
       accountExtension: this.accountExtension,

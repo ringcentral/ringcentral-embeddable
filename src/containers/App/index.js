@@ -16,9 +16,9 @@ import CallHistoryPage from 'ringcentral-widget/containers/CallHistoryPage';
 import IncomingCallPage from 'ringcentral-widget/containers/IncomingCallPage';
 import CallCtrlPage from 'ringcentral-widget/containers/CallCtrlPage';
 import CallBadgeContainer from 'ringcentral-widget/containers/CallBadgeContainer';
+import WelcomePage from 'ringcentral-widget/containers/WelcomePage';
 
 import AlertContainer from '../AlertContainer';
-import WelcomePage from '../WelcomePage';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -203,6 +203,7 @@ export default function App({
                   webphone={phone.webphone}
                   regionSettings={phone.regionSettings}
                   forwardingNumber={phone.forwardingNumber}
+                  callMonitor={{ calls: [{}, {}] }}
                   onAdd={() => {
                     phone.router.push('/dialer');
                   }}
