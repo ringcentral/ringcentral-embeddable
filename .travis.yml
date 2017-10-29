@@ -8,3 +8,5 @@ deploy:
     skip_cleanup: true
     github_token: $GITHUB_PAGES_TOKEN
     local_dir: ./release
+    email: 'integrations@ringcentral.com'
+    name: 'RingCentral Integrations Team'

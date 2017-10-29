@@ -1,7 +1,7 @@
 import qs from 'qs';
 import Auth from 'ringcentral-integration/modules/Auth';
 import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
-
+import authErrors from './authErrors';
 import parseCallbackUri from '../../lib/parseUri';
 
 export default class ImplicitAuth extends Auth {
@@ -18,7 +18,14 @@ export default class ImplicitAuth extends Auth {
           callbackUri,
           proxyLoaded,
           fromLocalStorage,
+          popWindowError,
         } = data;
+        if (popWindowError) {
+          this._alert.danger({
+            message: authErrors.popWindowError,
+            ttl: 0,
+          });
+        }
         if (
           callbackUri &&
           (
