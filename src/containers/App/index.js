@@ -23,7 +23,6 @@ import AlertContainer from '../AlertContainer';
 import MainView from '../MainView';
 import AppView from '../AppView';
 
-
 export default function App({
   phone,
   hostingUrl,

@@ -1,0 +1,151 @@
+@font-face {
+  font-family: 'GameofThrones';
+  src: url('./assets/fonts/GameofThrones.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+:global nav.NavigationBar_styles_root {
+  background: #000!important;
+}
+
+:global svg.DialerPanel_styles_dialBtn {
+  circle {
+    fill: #333!important;
+  }
+}
+
+:global .DialButton_styles_btnSvgGroup:hover text {
+  fill: #000!important;
+}
+
+:global .DropdownSelect_styles_selected {
+  color: #000!important;
+}
+
+:global .DropdownSelect_styles_dropdownItem:hover {
+  color: #000!important;
+}
+
+:global .CallIdSelect_styles_root label {
+  font-size: 9px;
+}
+
+:global .Message_styles_alert {
+  background: #000 !important;
+  border-color: #000 !important;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+:global .SettingsPanel_styles_eula {
+  color: #000!important;
+}
+
+:global .DropdownNavigationItem_styles_root.DropdownNavigationItem_styles_active {
+  color: #000!important;
+}
+
+:global .DropdownNavigationItem_styles_labelHolder {
+  line-height: 23px!important;
+  color: #000 !important;
+}
+
+:global .ContactDropdownList_styles_contactItem {
+  font-size: 10px!important;
+}
+
+:global .ContactDropdownList_styles_dropdownList li.ContactDropdownList_styles_active {
+  color: #000!important;
+}
+
+:global .ContactDropdownList_styles_dropdownList li.ContactDropdownList_styles_active .ContactDropdownList_styles_name {
+  color: #000!important;
+}
+
+:global .RecipientsInput_styles_selectReceivers .RecipientsInput_styles_extension {
+  background-color: #000!important;
+}
+
+:global .RecipientsInput_styles_selectReceivers .RecipientsInput_styles_phoneNumber {
+  background-color: #000!important;
+}
+
+:global .RecipientsInput_styles_container label {
+  font-size: 13px!important;
+}
+
+:global .ComposeTextPanel_styles_senderSelect label {
+  color: #000!important;
+  font-size: 10px;
+}
+
+:global .ComposeTextPanel_styles_submitButton {
+  background-color: #000!important;
+}
+
+:global .CircleButton_styles_icon g {
+  fill: #000 !important;
+}
+
+:global .CircleButton_styles_icon path {
+  fill: #000 !important;
+}
+
+:global .CircleButton_styles_icon rect {
+  fill: #000 !important;
+}
+
+:global .ActiveCallsPanel_styles_listTitle {
+  font-size: 12px!important;
+}
+
+:global .ActiveCallBadge_styles_phoneBage {
+  font-size: 8px !important;
+  background: #000 !important;
+}
+
+:global .ConversationPanel_styles_submitButton {
+  background: #000 !important;
+}
+
+:global .RegionSettingsPanel_styles_hint {
+  font-size: 12px !important;
+}
+
+:global .RecipientsInput_styles_numberInput::placeholder {
+  font-size: 11px!important;
+}
+
+:global .LoginPanel_styles_loginButton {
+  background-color: #000!important;
+}
+
+:global html {
+  font-family: "GameofThrones", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+:global div {
+  font-family: "GameofThrones", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+:global span {
+  font-family: "GameofThrones", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+:global .Line_styles_root {
+  font-family: "GameofThrones", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-size: 12px;
+}
+
+:global .Header_styles_label {
+  font-family: "GameofThrones", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+:global .TextInput_styles_root input {
+  font-family: "GameofThrones", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+:global .DialButton_styles_btnValue {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}

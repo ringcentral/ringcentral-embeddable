@@ -8,6 +8,9 @@ import App from './containers/App';
 import brandConfig from './config/brand';
 import prefix from './config/prefix';
 
+import styles from './styles.scss';
+import gameFonts from './assets/fonts/GameofThrones.ttf';
+
 const defaultApiConfig = process.env.API_CONFIG;
 const appVersion = process.env.APP_VERSION;
 const hostingUrl = process.env.HOSTING_URL;
