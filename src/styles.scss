@@ -117,6 +117,10 @@
   font-size: 11px!important;
 }
 
+:global .LoginPanel_styles_loginButton {
+  background-color: #000!important;
+}
+
 :global html {
   font-family: "GameofThrones", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
