@@ -59,6 +59,7 @@ export default class Phone extends RcModule {
     brandConfig,
     appVersion,
     redirectUri,
+    stylesUri,
     ...options,
   }) {
     super();
@@ -527,6 +528,7 @@ export default class Phone extends RcModule {
       composeText: this.composeText,
       webphone: this.webphone,
       regionSettings: this.regionSettings,
+      stylesUri,
       getState: () => this.state.interaction,
     }));
     reducers.interaction = this.interaction.reducer;

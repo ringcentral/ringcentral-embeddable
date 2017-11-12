@@ -21,6 +21,7 @@ const apiConfig = {
 };
 
 const redirectUri = pathParams.redirectUri;
+const stylesUri = pathParams.stylesUri;
 
 const phone = new Phone({
   apiConfig,
@@ -28,6 +29,7 @@ const phone = new Phone({
   prefix,
   appVersion,
   redirectUri,
+  stylesUri,
 });
 
 const store = createStore(phone.reducer);

@@ -16,6 +16,7 @@ export default class Interaction extends RcModule {
     call,
     webphone,
     regionSettings,
+    stylesUri,
     ...options,
   }) {
     super({
@@ -33,6 +34,7 @@ export default class Interaction extends RcModule {
     this._dndStatus = null;
     this._userStatus = null;
     this._callSessions = new Map();
+    this._stylesUri = stylesUri;
   }
 
   _shouldInit() {
@@ -98,7 +100,19 @@ export default class Interaction extends RcModule {
     setTimeout(() => {
       this._setMinimized(false);
     }, 2000);
+    this._insertExtendStyle();
     this.store.subscribe(() => this._onStateChange());
+  }
+
+  _insertExtendStyle() {
+    if (!this._stylesUri) {
+      return;
+    }
+    const link = window.document.createElement('link');
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+    link.href = this._stylesUri;
+    window.document.head.appendChild(link);
   }
 
   _messageHandler(e) {
