@@ -91,7 +91,7 @@ const config = {
           {
             loader: 'css-loader',
             options: {
-              localIdentName: '[path]_[name]_[local]_[hash:base64:5]',
+              localIdentName: '[folder]_[local]',
               modules: true,
             }
           },
