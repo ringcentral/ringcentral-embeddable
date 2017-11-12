@@ -278,7 +278,8 @@ export default class Phone extends RcModule {
         }
         this.router.goBack();
       },
-      onCallStart: () => {
+      onCallStart: (session) => {
+        this.interaction.startCallNotify(session);
         if (this.router.currentPath === '/calls/active') {
           return;
         }
