@@ -145,12 +145,16 @@ class Adapter {
             this.setPresence(data.presence);
             break;
           case 'rc-call-ring-notify':
-            console.log('new ring call:');
+            console.log('ring call:');
             console.log(data.call);
             this.setMinimized(false);
             break;
+          case 'rc-call-start-notify':
+            console.log('start call:');
+            console.log(data.call);
+            break;
           case 'rc-call-end-notify':
-            console.log('new end call:');
+            console.log('end call:');
             console.log(data.call);
             break;
           case 'rc-version':
@@ -413,6 +417,14 @@ class Adapter {
       type: 'rc-adapter-new-call',
       phoneNumber,
       toCall,
+    });
+  }
+
+  controlCall(action, id) {
+    this._postMessage({
+      type: 'rc-adapter-control-call',
+      callAction: action,
+      callId: id,
     });
   }
 

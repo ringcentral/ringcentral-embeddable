@@ -7,7 +7,7 @@ This is an out-of-the-box embeddable web application built using the RingCentral
 Built with:
 
 * [RingCentral Commons](https://github.com/ringcentral/ringcentral-js-integration-commons/) and
-* [RingCentral Widget](https://github.com/ringcentral/ringcentral-js-widget)
+* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets)
 
 ## Dependences
 
@@ -136,11 +136,59 @@ window.addEventListener('message', (e) => {
         // get call on call end event
         console.log(data.call);
         break;
+      case 'rc-call-start-notify':
+        // get call on start a outbound call event
+        console.log(data.call);
+        break;
       default:
         break;
     }
   }
 });
+```
+
+### Control the call
+
+#### Answer a ringing call
+
+```js
+document.querySelector("#rc-widget").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'answer',
+  callId: `call id`
+}, '*');
+
+// answer the current ringing call, call id default is current ringing call id.
+document.querySelector("#rc-widget").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'answer',
+}, '*');
+```
+
+#### Reject a ringing call
+
+```js
+document.querySelector("#rc-widget").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'reject',
+  callId: `call id`
+}, '*');
+```
+
+#### Hangup a call
+
+```js
+document.querySelector("#rc-widget").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'hangup',
+  callId: `call id`
+}, '*');
+
+// hangup current active call
+document.querySelector("#rc-widget").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'hangup',
+}, '*');
 ```
 
 ## How to develop based on this app
@@ -162,7 +210,7 @@ $ git clone https://github.com/ringcentral/ringcentral-web-widget.git
 }
 ```
 
-The `appSecret` is optional to enable the authorizatio code flow. If you don't provide `appSecret`, the app will use the implicit grant flow.
+The `appSecret` is optional to enable the authorization code flow. If you don't provide `appSecret`, the app will use the implicit grant flow.
 
 App Permissions required: `Edit Message`, `Edit Presence`, `Faxes`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling`
 
