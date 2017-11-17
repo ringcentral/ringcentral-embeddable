@@ -29,6 +29,7 @@ export default class Interaction extends RcModule {
     call,
     webphone,
     regionSettings,
+    stylesUri,
     ...options,
   }) {
     super({
@@ -46,6 +47,7 @@ export default class Interaction extends RcModule {
     this._dndStatus = null;
     this._userStatus = null;
     this._callSessions = new Map();
+    this._stylesUri = stylesUri;
   }
 
   _shouldInit() {
@@ -110,8 +112,20 @@ export default class Interaction extends RcModule {
     window.addEventListener('message', event => this._messageHandler(event));
     setTimeout(() => {
       this._setMinimized(false);
-    }, 1000);
+    }, 2000);
+    this._insertExtendStyle();
     this.store.subscribe(() => this._onStateChange());
+  }
+
+  _insertExtendStyle() {
+    if (!this._stylesUri) {
+      return;
+    }
+    const link = window.document.createElement('link');
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+    link.href = this._stylesUri;
+    window.document.head.appendChild(link);
   }
 
   _messageHandler(e) {
@@ -132,6 +146,9 @@ export default class Interaction extends RcModule {
         case 'rc-adapter-new-call':
           this._newCall(data.phoneNumber, data.toCall);
           break;
+        case 'rc-adapter-control-call':
+          this._controlCall(data.callAction, data.callId);
+          break;
         default:
           break;
       }
@@ -142,12 +159,23 @@ export default class Interaction extends RcModule {
     if (this._callSessions.has(session.id)) {
       return;
     }
-    this._callSessions.set(session.id, true);
+    const call = { ...session };
+    this._callSessions.set(session.id, call);
     this._postMessage({
       type: 'rc-call-ring-notify',
-      call: {
-        ...session,
-      },
+      call,
+    });
+  }
+
+  startCallNotify(session) {
+    if (this._callSessions.has(session.id)) {
+      return;
+    }
+    const call = { ...session };
+    this._callSessions.set(session.id, call);
+    this._postMessage({
+      type: 'rc-call-start-notify',
+      call,
     });
   }
 
@@ -163,6 +191,25 @@ export default class Interaction extends RcModule {
         endTime: Date.now(),
       },
     });
+  }
+
+  _controlCall(action, id) {
+    if (id && !this._callSessions.has(id)) {
+      return;
+    }
+    switch (action) {
+      case 'answer':
+        this._webphone.answer(id || this._webphone.ringSessionId);
+        break;
+      case 'reject':
+        this._webphone.reject(id || this._webphone.ringSessionId);
+        break;
+      case 'hangup':
+        this._webphone.hangup(id || this._webphone.activeSessionId);
+        break;
+      default:
+        break;
+    }
   }
 
   _newSMS(phoneNumber) {
