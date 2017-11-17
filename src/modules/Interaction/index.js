@@ -3,15 +3,28 @@ import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
 import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
+import { Module } from 'ringcentral-integration/lib/di';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 
+@Module({
+  deps: [
+    'Auth',
+    'Router',
+    'DetailedPresence',
+    'ComposeText',
+    'Call',
+    'Webphone',
+    'RegionSettings',
+    { dep: 'InteractionOptions', optional: true }
+  ]
+})
 export default class Interaction extends RcModule {
   constructor({
     auth,
     router,
-    presence,
+    detailedPresence,
     composeText,
     call,
     webphone,
@@ -25,7 +38,7 @@ export default class Interaction extends RcModule {
     });
     this._auth = this::ensureExist(auth, 'auth');
     this._router = this::ensureExist(router, 'router');
-    this._presence = this::ensureExist(presence, 'presence');
+    this._presence = this::ensureExist(detailedPresence, 'detailedPresence');
     this._composeText = this::ensureExist(composeText, 'composeText');
     this._webphone = this::ensureExist(webphone, 'webphone');
     this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');

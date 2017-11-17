@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
 
 import parseUri from './lib/parseUri';
-import Phone from './modules/Phone';
+import { createPhone } from './modules/Phone/new';
 import App from './containers/App';
 import brandConfig from './config/brand';
 import prefix from './config/prefix';
@@ -23,7 +23,7 @@ const apiConfig = {
 const redirectUri = pathParams.redirectUri;
 const stylesUri = pathParams.stylesUri;
 
-const phone = new Phone({
+const phone = createPhone({
   apiConfig,
   brandConfig,
   prefix,

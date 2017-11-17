@@ -1,12 +1,20 @@
 import SDK from 'ringcentral';
 import Environment from 'ringcentral-integration/modules/Environment';
 import isBlank from 'ringcentral-integration/lib/isBlank';
+import { Module } from 'ringcentral-integration/lib/di';
 
 import {
   getAppKeyReducer,
   getAppSecretReducer,
 } from './getReducer';
 
+@Module({
+  deps: [
+    'Client',
+    'GlobalStorage',
+    { dep: 'EnvironmentOptions', optional: true }
+  ]
+})
 export default class DomoEnvironment extends Environment {
   constructor({
     client,

@@ -1,9 +1,21 @@
 import qs from 'qs';
+import { Module } from 'ringcentral-integration/lib/di';
 import Auth from 'ringcentral-integration/modules/Auth';
 import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
 import authErrors from './authErrors';
 import parseCallbackUri from '../../lib/parseUri';
 
+@Module({
+  deps: [
+    'Client',
+    'Alert',
+    'Brand',
+    'Locale',
+    'TabManager',
+    'Environment',
+    { dep: 'AuthOptions', optional: true }
+  ]
+})
 export default class ImplicitAuth extends Auth {
   _createProxyFrame = (onLogin) => {
     this._proxyFrame = document.createElement('iframe');
