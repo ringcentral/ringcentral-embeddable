@@ -10,7 +10,9 @@ import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import AccountPhoneNumber from 'ringcentral-integration/modules/AccountPhoneNumber';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
+import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import Alert from 'ringcentral-integration/modules/Alert';
+import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Brand from 'ringcentral-integration/modules/Brand';
 import Call from 'ringcentral-integration/modules/Call';
@@ -27,7 +29,6 @@ import ContactSearch from 'ringcentral-integration/modules/ContactSearch';
 import Conversation from 'ringcentral-integration/modules/Conversation';
 import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
 import DateTimeFormat from 'ringcentral-integration/modules/DateTimeFormat';
-import Presence from 'ringcentral-integration/modules/Presence';
 import DetailedPresence from 'ringcentral-integration/modules/DetailedPresence';
 import DialingPlan from 'ringcentral-integration/modules/DialingPlan';
 import ExtensionDevice from 'ringcentral-integration/modules/ExtensionDevice';
@@ -73,6 +74,8 @@ class Router extends RouterInteraction {}
     ConnectivityMonitor,
     Auth,
     Storage,
+    AudioSettings,
+    AccountContacts,
     RateLimiter,
     ExtensionDevice,
     Softphone,
@@ -91,7 +94,6 @@ class Router extends RouterInteraction {}
     NumberValidate,
     Webphone,
     CallingSettings,
-    Presence,
     DetailedPresence,
     CallLog,
     Call,
@@ -129,6 +131,11 @@ class Router extends RouterInteraction {}
         { dep: 'SdkConfig', useParam: true, },
       ],
     },
+    { provide: 'ContactSources',
+      useFactory: ({ addressBook, accountContacts }) =>
+        [addressBook, accountContacts],
+      deps: ['AccountContacts', 'AddressBook']
+    },
   ]
 })
 export default class BasePhone extends RcModule {
@@ -156,7 +163,8 @@ export default class BasePhone extends RcModule {
       }
       router.goBack();
     };
-    webphone._onCallStartFunc = () => {
+    webphone._onCallStartFunc = (session) => {
+      this.interaction.startCallNotify(session);
       if (router.currentPath === '/calls/active') {
         return;
       }
@@ -185,76 +193,45 @@ export default class BasePhone extends RcModule {
 
     // ContactSearch configuration
     contactSearch.addSearchSource({
-      sourceName: 'companyContacts',
+      sourceName: 'contacts',
       searchFn: ({ searchString }) => {
-        const items = contacts.companyContacts;
+        const items = contacts.allContacts;
         if (!searchString) {
           return items;
         }
         const searchText = searchString.toLowerCase();
-        return items.filter((item) => {
-          const name = `${item.firstName} ${item.lastName}`;
-          if (
-            name.toLowerCase().indexOf(searchText) >= 0 ||
-            item.extensionNumber.indexOf(searchText) >= 0 ||
-            item.phoneNumbers.find(x => x.phoneNumber.indexOf(searchText) >= 0)
-          ) {
-            return true;
-          }
-          return false;
+        const result = [];
+        items.forEach((item) => {
+          const name = item.name || `${item.firstName} ${item.lastName}`;
+          item.phoneNumbers.forEach((p) => {
+            if (
+              name.toLowerCase().indexOf(searchText) >= 0 ||
+              p.phoneNumber.indexOf(searchText) >= 0
+            ) {
+              result.push({
+                id: `${item.id}${p.phoneNumber}`,
+                name,
+                type: item.type,
+                phoneNumber: p.phoneNumber,
+                phoneType: p.phoneType.replace('Phone', ''),
+                entityType: 'contact',
+              });
+            }
+          });
         });
+        return result;
       },
-      formatFn: entities => entities.map(entity => ({
-        id: entity.id.toString(),
-        type: entity.type,
-        name: `${entity.firstName} ${entity.lastName}`,
-        hasProfileImage: !!entity.hasProfileImage,
-        phoneNumbers: entity.phoneNumbers,
-        phoneNumber: entity.extensionNumber,
-        phoneType: 'extension',
-        entityType: 'companyContact',
-      })),
-      readyCheckFn: () => contacts.ready,
-    });
-    contactSearch.addSearchSource({
-      sourceName: 'personalContacts',
-      searchFn: ({ searchString }) => {
-        const items = contacts.personalContacts;
-        if (!searchString) {
-          return items;
-        }
-        const searchText = searchString.toLowerCase();
-        return items.filter((item) => {
-          const name = `${item.firstName} ${item.lastName}`;
-          if (
-            name.toLowerCase().indexOf(searchText) >= 0 ||
-            item.phoneNumbers.find(x => x.phoneNumber.indexOf(searchText) >= 0)
-          ) {
-            return true;
-          }
-          return false;
-        });
-      },
-      formatFn: entities => entities.map(entity => ({
-        id: entity.id.toString(),
-        type: entity.type,
-        name: `${entity.firstName} ${entity.lastName}`,
-        hasProfileImage: false,
-        phoneNumbers: entity.phoneNumbers,
-        phoneNumber: entity.phoneNumbers[0] && entity.phoneNumbers[0].phoneNumber,
-        phoneType: entity.phoneNumbers[0] && entity.phoneNumbers[0].phoneType,
-        entityType: 'personalContact',
-      })),
-      readyCheckFn: () => contacts.ready,
+      formatFn: entities => entities,
+      readyCheckFn: () => this.contacts.ready,
     });
 
     // CallMonitor configuration
     callMonitor._onRinging = async () => {
-      if (this.webphone._webphone) {
+      if (webphone._webphone) {
         return;
       }
       // TODO refactor some of these logic into appropriate modules
-      this.router.push('/calls');
+      router.push('/calls');
     };
 
     this._appConfig = appConfig;
@@ -293,6 +270,7 @@ export function createPhone({
   brandConfig,
   appVersion,
   redirectUri,
+  stylesUri,
 }) {
   @ModuleFactory({
     providers: [
@@ -311,6 +289,7 @@ export function createPhone({
       },
       { provide: 'BrandOptions', useValue: brandConfig, spread: true },
       { provide: 'AuthOptions', useValue: { redirectUri }, spread: true },
+      { provide: 'InteractionOptions', useValue: { stylesUri }, spread: true },
       {
         provide: 'WebphoneOptions',
         spread: true,
@@ -320,9 +299,6 @@ export function createPhone({
           appVersion,
           webphoneLogLevel: 1,
         },
-        deps: [
-          { dep: 'SdkConfig' },
-        ],
       },
     ]
   })

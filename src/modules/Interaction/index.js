@@ -12,7 +12,7 @@ import getReducer from './getReducer';
   deps: [
     'Auth',
     'Router',
-    'Presence',
+    'DetailedPresence',
     'ComposeText',
     'Call',
     'Webphone',
@@ -24,7 +24,7 @@ export default class Interaction extends RcModule {
   constructor({
     auth,
     router,
-    presence,
+    detailedPresence,
     composeText,
     call,
     webphone,
@@ -38,7 +38,7 @@ export default class Interaction extends RcModule {
     });
     this._auth = this::ensureExist(auth, 'auth');
     this._router = this::ensureExist(router, 'router');
-    this._presence = this::ensureExist(presence, 'presence');
+    this._presence = this::ensureExist(detailedPresence, 'detailedPresence');
     this._composeText = this::ensureExist(composeText, 'composeText');
     this._webphone = this::ensureExist(webphone, 'webphone');
     this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');
