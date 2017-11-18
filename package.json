@@ -50,7 +50,7 @@
     "ringcentral": "^3.1.3",
     "ringcentral-client": "^1.0.0-rc1",
     "ringcentral-integration": "^0.7.25",
-    "ringcentral-widget": "^0.4.15",
+    "ringcentral-widgets": "^0.5.1",
     "sass-loader": "^6.0.3",
     "style-loader": "^0.17.0",
     "url-loader": "^0.5.8",

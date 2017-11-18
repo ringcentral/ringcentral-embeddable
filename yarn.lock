@@ -4592,27 +4592,27 @@ rc-animate@2.x:
     prop-types "15.x"
 
 rc-tooltip@^3.4.6:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/rc-tooltip/-/rc-tooltip-3.6.0.tgz#560a507882b0cd1579ff5a5cdd2b322e19ddd91e"
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/rc-tooltip/-/rc-tooltip-3.7.0.tgz#3afbf109865f7cdcfe43752f3f3f501f7be37aaa"
   dependencies:
     babel-runtime "6.x"
     prop-types "^15.5.8"
-    rc-trigger "^2.0.1"
+    rc-trigger "^2.2.2"
 
-rc-trigger@^2.0.1:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/rc-trigger/-/rc-trigger-2.1.0.tgz#127027c913acb06dfcd19a6ff02beb44445f4cb8"
+rc-trigger@^2.2.2:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/rc-trigger/-/rc-trigger-2.3.0.tgz#f42cfe4bc17dab4e4cd613a1d4a156738d252728"
   dependencies:
     babel-runtime "6.x"
     create-react-class "15.x"
     prop-types "15.x"
     rc-align "2.x"
     rc-animate "2.x"
-    rc-util "^4.1.0"
+    rc-util "^4.3.0"
 
-rc-util@4.x, rc-util@^4.1.0:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-4.1.1.tgz#9350e9c00368b50cd8fbd91775cc1cf9e2ca72b2"
+rc-util@4.x, rc-util@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-4.3.0.tgz#31c61e747e3e107acfe78049f98b275a8051a398"
   dependencies:
     add-dom-event-listener "1.x"
     babel-runtime "6.x"
@@ -4995,9 +4995,9 @@ ringcentral-web-phone@^0.4.5:
   dependencies:
     sip.js "^0.7.8"
 
-ringcentral-widget@^0.4.15:
-  version "0.4.22"
-  resolved "https://registry.yarnpkg.com/ringcentral-widget/-/ringcentral-widget-0.4.22.tgz#e262b60eb19a73335a81ef801248e21f334f6013"
+ringcentral-widgets@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.5.1.tgz#a490cc828289fe1639be0e443fb60882dabf6db0"
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"

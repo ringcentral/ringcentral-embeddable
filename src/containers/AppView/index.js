@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import OfflineModeBadge from 'ringcentral-widget/components/OfflineModeBadge';
+import withPhone from 'ringcentral-widgets/lib/withPhone';
+import OfflineModeBadge from 'ringcentral-widgets/components/OfflineModeBadge';
 import Environment from '../../components/Environment';
 
 import styles from './styles.scss';
@@ -52,12 +53,14 @@ AppView.defaultProps = {
   onSetData: undefined,
 };
 
-export default connect((state, {
-  locale,
-  auth,
-  environment,
-  connectivityMonitor,
-  rateLimiter,
+export default withPhone(connect((_, {
+  phone: {
+    locale,
+    auth,
+    environment,
+    connectivityMonitor,
+    rateLimiter,
+  }
 }) => ({
   currentLocale: locale.currentLocale,
   server: environment.server,
@@ -70,10 +73,12 @@ export default connect((state, {
     rateLimiter.throttling
   ),
   redirectUri: auth.redirectUri
-}), (dispatch, {
-  environment,
-  connectivityMonitor,
-  rateLimiter,
+}), (_, {
+  phone: {
+    environment,
+    connectivityMonitor,
+    rateLimiter,
+  },
 }) => ({
   onSetData: (options) => {
     environment.setData(options);
@@ -82,4 +87,4 @@ export default connect((state, {
     rateLimiter.showAlert();
     connectivityMonitor.showAlert();
   },
-}))(AppView);
+}))(AppView));
