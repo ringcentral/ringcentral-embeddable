@@ -19,6 +19,8 @@ import CallCtrlPage from 'ringcentral-widgets/containers/CallCtrlPage';
 import CallBadgeContainer from 'ringcentral-widgets/containers/CallBadgeContainer';
 import WelcomePage from 'ringcentral-widgets/containers/WelcomePage';
 import AudioSettingsPage from 'ringcentral-widgets/containers/AudioSettingsPage';
+import ContactsPage from 'ringcentral-widgets/containers/ContactsPage';
+import ContactDetailsPage from 'ringcentral-widgets/containers/ContactDetailsPage';
 
 import AlertContainer from '../AlertContainer';
 
@@ -114,7 +116,7 @@ export default function App({
                 path="/calls"
                 component={() => (
                   <ActiveCallsPage
-                    onCreateContact={() => { }}
+                    onCreateContact={() => { console.log('Sorry, The feature is still on development'); }}
                     onCallsEmpty={() => {
                       if (phone.webphone && phone.webphone._webphone) {
                         phone.routerInteraction.push('/dialer');
@@ -126,7 +128,6 @@ export default function App({
                 path="/calls/active"
                 component={() => (
                   <CallCtrlPage
-                    callMonitor={{ calls: [{}, {}] }}
                     onAdd={() => {
                       phone.routerInteraction.push('/dialer');
                     }}
@@ -148,7 +149,8 @@ export default function App({
                     onViewContact={() => {}}
                     showContactDisplayPlaceholder={false}
                   />
-                )} />
+                )}
+              />
               <Route
                 path="/composeText"
                 component={ComposeTextPage}
@@ -160,16 +162,41 @@ export default function App({
                     params={routerProps.params}
                     showContactDisplayPlaceholder={false}
                   />
-                )} />
+                )}
+              />
               <Route
                 path="/messages"
                 component={() => (
                   <MessagesPage
-                    onLogConversation={async () => { await sleep(1000); }}
-                    onCreateContact={() => { }}
+                    onCreateContact={() => { console.log('Sorry, The feature is still on development'); }}
                     showContactDisplayPlaceholder={false}
                   />
-                )} />
+                )}
+              />
+              <Route
+                path="/contacts"
+                component={() =>
+                  <ContactsPage
+                    onCreateContact={() => { console.log('Sorry, The feature is still on development'); }}
+                    onVisitPage={async () => {
+                      await phone.contacts.sync();
+                    }}
+                  />
+                }
+              />
+              <Route
+                path="/contacts/:contactType/:contactId"
+                component={routerProps => (
+                  <ContactDetailsPage
+                    params={routerProps.params}
+                    onClickMailTo={
+                      (email) => {
+                        window.open(`mailto:${email}`);
+                      }
+                    }
+                  />
+                )}
+              />
             </Route>
           </Route>
         </Router>

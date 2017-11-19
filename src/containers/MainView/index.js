@@ -1,7 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import callingOptions from 'ringcentral-integration/modules/CallingSettings/callingOptions';
 import withPhone from 'ringcentral-widgets/lib/withPhone';
+
 import TabNavigationView from 'ringcentral-widgets/components/TabNavigationView';
 
 import DialPadIcon from 'ringcentral-widgets/assets/images/DialPadNav.svg';
@@ -12,6 +14,7 @@ import ComposeTextIcon from 'ringcentral-widgets/assets/images/ComposeText.svg';
 import ConferenceIcon from 'ringcentral-widgets/assets/images/Conference.svg';
 import SettingsIcon from 'ringcentral-widgets/assets/images/Settings.svg';
 import MoreMenuIcon from 'ringcentral-widgets/assets/images/MoreMenu.svg';
+import ContactIcon from 'ringcentral-widgets/assets/images/Contact.svg';
 
 import DialPadHoverIcon from 'ringcentral-widgets/assets/images/DialPadHover.svg';
 import CallsHoverIcon from 'ringcentral-widgets/assets/images/CallsHover.svg';
@@ -21,15 +24,18 @@ import ComposeTextHoverIcon from 'ringcentral-widgets/assets/images/ComposeTextH
 import ConferenceHoverIcon from 'ringcentral-widgets/assets/images/ConferenceHover.svg';
 import SettingsHoverIcon from 'ringcentral-widgets/assets/images/SettingsHover.svg';
 import MoreMenuHoverIcon from 'ringcentral-widgets/assets/images/MoreMenuHover.svg';
+import ContactHoverIcon from 'ringcentral-widgets/assets/images/ContactHover.svg';
 
 import ConferenceNavIcon from 'ringcentral-widgets/assets/images/ConferenceNavigation.svg';
 import SettingsNavIcon from 'ringcentral-widgets/assets/images/SettingsNavigation.svg';
+import ContactNavIcon from 'ringcentral-widgets/assets/images/ContactsNavigation.svg';
 
 function getTabs({
   showMessages,
   showComposeText,
   unreadCounts,
   showConference,
+  showCalls,
 }) {
   return [
     {
@@ -37,6 +43,15 @@ function getTabs({
       activeIcon: DialPadHoverIcon,
       label: 'Dial Pad',
       path: '/dialer',
+    },
+    showCalls && {
+      icon: CallsIcon,
+      activeIcon: CallsHoverIcon,
+      label: 'Calls',
+      path: '/calls',
+      isActive: currentPath => (
+        currentPath === '/calls' || currentPath === '/calls/active'
+      ),
     },
     {
       icon: HistoryIcon,
@@ -68,20 +83,40 @@ function getTabs({
     },
     {
       icon: ({ currentPath }) => {
-        if (currentPath.substr(0, 9) === '/settings') {
+        if (currentPath.substr(0, 9) === '/contacts') {
+          return <ContactNavIcon />;
+        } else if (currentPath.substr(0, 9) === '/settings') {
           return <SettingsNavIcon />;
         } else if (currentPath === '/conference') {
           return <ConferenceNavIcon />;
         }
         return <MoreMenuIcon />;
       },
-      activeIcon: MoreMenuHoverIcon,
+      activeIcon: ({ currentPath }) => {
+        if (currentPath.substr(0, 9) === '/contacts') {
+          return <ContactNavIcon />;
+        } else if (currentPath === '/settings') {
+          return <SettingsNavIcon />;
+        } else if (currentPath === '/conference') {
+          return <ConferenceNavIcon />;
+        }
+        return <MoreMenuHoverIcon />;
+      },
       label: 'More Menu',
       virtualPath: '!moreMenu',
       isActive: (currentPath, currentVirtualPath) => (
         currentVirtualPath === '!moreMenu'
       ),
       childTabs: [
+        {
+          icon: ContactIcon,
+          activeIcon: ContactHoverIcon,
+          label: 'Contacts',
+          path: '/contacts',
+          isActive: currentPath => (
+            currentPath.substr(0, 9) === '/contacts'
+          ),
+        },
         showConference && {
           icon: ConferenceIcon,
           activeIcon: ConferenceHoverIcon,
@@ -107,6 +142,7 @@ function mapToProps(_, {
     messageStore,
     rolesAndPermissions,
     routerInteraction,
+    callingSettings,
   },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
@@ -132,11 +168,14 @@ function mapToProps(_, {
     )
   );
   const showConference = false;
+  const showCalls = callingSettings.ready &&
+    callingSettings.callWith !== callingOptions.browser;
   const tabs = getTabs({
     unreadCounts,
     showComposeText,
     showMessages,
     showConference,
+    showCalls,
   });
   return {
     tabs,

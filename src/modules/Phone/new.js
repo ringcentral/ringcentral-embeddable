@@ -2,7 +2,7 @@ import 'whatwg-fetch';
 import SDK from 'ringcentral';
 import RingCentralClient from 'ringcentral-client';
 
-import { ModuleFactory, Module } from 'ringcentral-integration/lib/di';
+import { ModuleFactory } from 'ringcentral-integration/lib/di';
 import RcModule from 'ringcentral-integration/lib/RcModule';
 
 import AccountExtension from 'ringcentral-integration/modules/AccountExtension';
@@ -50,6 +50,7 @@ import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
 import TabManager from 'ringcentral-integration/modules/TabManager';
 import Webphone from 'ringcentral-integration/modules/Webphone';
+import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 
@@ -57,13 +58,8 @@ import Auth from '../Auth';
 import Interaction from '../Interaction';
 import Environment from '../Environment';
 
-@Module({
-  deps: [
-    { dep: 'RouterOption', optional: true }
-  ]
-})
-class Router extends RouterInteraction {}
-
+// user Dependency Injection with decorator to create a phone class
+// https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
   providers: [
     { provide: 'Alert', useClass: Alert },
@@ -111,9 +107,10 @@ class Router extends RouterInteraction {}
     { provide: 'AccountPhoneNumber', useClass: AccountPhoneNumber },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'Contacts', useClass: Contacts },
+    { provide: 'ContactDetails', useClass: ContactDetails },
     { provide: 'Messages', useClass: Messages },
     { provide: 'Interaction', useClass: Interaction },
-    { provide: 'RouterInteraction', useClass: Router },
+    { provide: 'RouterInteraction', useClass: RouterInteraction },
     { provide: 'Auth', useClass: Auth },
     { provide: 'Environment', useClass: Environment },
     {
@@ -131,7 +128,8 @@ class Router extends RouterInteraction {}
         { dep: 'SdkConfig', useParam: true, },
       ],
     },
-    { provide: 'ContactSources',
+    {
+      provide: 'ContactSources',
       useFactory: ({ addressBook, accountContacts }) =>
         [addressBook, accountContacts],
       deps: ['AccountContacts', 'AddressBook']
