@@ -2,26 +2,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import Alert from 'ringcentral-integration/modules/Alert';
-import Locale from 'ringcentral-integration/modules/Locale';
-
-import AlertDisplay from 'ringcentral-widget/components/AlertDisplay';
-
-import AuthAlert from 'ringcentral-widget/components/AuthAlert';
-import CallAlert from 'ringcentral-widget/components/CallAlert';
-import CallingSettingsAlert from 'ringcentral-widget/components/CallingSettingsAlert';
-import RegionSettingsAlert from 'ringcentral-widget/components/RegionSettingsAlert';
-import MessageSenderAlert from 'ringcentral-widget/components/MessageSenderAlert';
-import RateExceededAlert from 'ringcentral-widget/components/RateExceededAlert';
-import ConnectivityAlert from 'ringcentral-widget/components/ConnectivityAlert';
-import WebphoneAlert from 'ringcentral-widget/components/WebphoneAlert';
-import RolesAndPermissionsAlert from 'ringcentral-widget/components/RolesAndPermissionsAlert';
+import withPhone from 'ringcentral-widgets/lib/withPhone';
+import AlertDisplay from 'ringcentral-widgets/components/AlertDisplay';
+import AuthAlert from 'ringcentral-widgets/components/AuthAlert';
+import CallAlert from 'ringcentral-widgets/components/CallAlert';
+import CallingSettingsAlert from 'ringcentral-widgets/components/CallingSettingsAlert';
+import RegionSettingsAlert from 'ringcentral-widgets/components/RegionSettingsAlert';
+import MessageSenderAlert from 'ringcentral-widgets/components/MessageSenderAlert';
+import RateExceededAlert from 'ringcentral-widgets/components/RateExceededAlert';
+import ConnectivityAlert from 'ringcentral-widgets/components/ConnectivityAlert';
+import WebphoneAlert from 'ringcentral-widgets/components/WebphoneAlert';
+import RolesAndPermissionsAlert from 'ringcentral-widgets/components/RolesAndPermissionsAlert';
 
 import ErrorAlert from '../../components/ErrorAlert';
 
 function mapToProps(_, {
-  locale,
-  alert,
+  phone: {
+    locale,
+    alert,
+  },
 }) {
   return {
     currentLocale: locale.currentLocale,
@@ -117,16 +116,18 @@ function getDefaultRenderer({
 }
 
 function mapToFunctions(_, {
-  rateLimiter,
-  brand,
-  alert,
-  router,
+  phone: {
+    rateLimiter,
+    brand,
+    alert,
+    routerInteraction,
+  },
   regionSettingsUrl,
   callingSettingsUrl,
   getRenderer = getDefaultRenderer({
     rateLimiter,
     brand,
-    router,
+    routerInteraction,
     regionSettingsUrl,
     callingSettingsUrl,
   }),
@@ -139,15 +140,13 @@ function mapToFunctions(_, {
   };
 }
 
-const AlertContainer = connect(
+const AlertContainer = withPhone(connect(
   mapToProps,
   mapToFunctions
-)(AlertDisplay);
+)(AlertDisplay));
 
 AlertContainer.propTypes = {
-  alert: PropTypes.instanceOf(Alert).isRequired,
   getRenderer: PropTypes.func,
-  locale: PropTypes.instanceOf(Locale).isRequired,
 };
 AlertContainer.defaultProps = {
   getRenderer: undefined,

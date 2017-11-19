@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import styles from 'ringcentral-widget/components/Environment/styles.scss';
+import styles from 'ringcentral-widgets/components/Environment/styles.scss';
 
-import BackHeader from 'ringcentral-widget/components/BackHeader';
-import Panel from 'ringcentral-widget/components/Panel';
-import Line from 'ringcentral-widget/components/Line';
-import IconLine from 'ringcentral-widget/components/IconLine';
-import TextInput from 'ringcentral-widget/components/TextInput';
-import Switch from 'ringcentral-widget/components/Switch';
-import Button from 'ringcentral-widget/components/Button';
+import BackHeader from 'ringcentral-widgets/components/BackHeader';
+import Panel from 'ringcentral-widgets/components/Panel';
+import Line from 'ringcentral-widgets/components/Line';
+import IconLine from 'ringcentral-widgets/components/IconLine';
+import TextInput from 'ringcentral-widgets/components/TextInput';
+import Switch from 'ringcentral-widgets/components/Switch';
+import Button from 'ringcentral-widgets/components/Button';
 
 /**
  * Environment component for switching api server. Intended only for testing.

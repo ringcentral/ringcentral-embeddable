@@ -1,35 +1,41 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import TabNavigationView from 'ringcentral-widget/components/TabNavigationView';
-import RouterInteraction from 'ringcentral-widget/modules/RouterInteraction';
 
-import DialPadIcon from 'ringcentral-widget/assets/images/DialPadNav.svg';
-import CallsIcon from 'ringcentral-widget/assets/images/Calls.svg';
-import HistoryIcon from 'ringcentral-widget/assets/images/CallHistory.svg';
-import MessageIcon from 'ringcentral-widget/assets/images/Messages.svg';
-import ComposeTextIcon from 'ringcentral-widget/assets/images/ComposeText.svg';
-import ConferenceIcon from 'ringcentral-widget/assets/images/Conference.svg';
-import SettingsIcon from 'ringcentral-widget/assets/images/Settings.svg';
-import MoreMenuIcon from 'ringcentral-widget/assets/images/MoreMenu.svg';
+import callingOptions from 'ringcentral-integration/modules/CallingSettings/callingOptions';
+import withPhone from 'ringcentral-widgets/lib/withPhone';
 
-import DialPadHoverIcon from 'ringcentral-widget/assets/images/DialPadHover.svg';
-import CallsHoverIcon from 'ringcentral-widget/assets/images/CallsHover.svg';
-import HistoryHoverIcon from 'ringcentral-widget/assets/images/CallHistoryHover.svg';
-import MessageHoverIcon from 'ringcentral-widget/assets/images/MessagesHover.svg';
-import ComposeTextHoverIcon from 'ringcentral-widget/assets/images/ComposeTextHover.svg';
-import ConferenceHoverIcon from 'ringcentral-widget/assets/images/ConferenceHover.svg';
-import SettingsHoverIcon from 'ringcentral-widget/assets/images/SettingsHover.svg';
-import MoreMenuHoverIcon from 'ringcentral-widget/assets/images/MoreMenuHover.svg';
+import TabNavigationView from 'ringcentral-widgets/components/TabNavigationView';
 
-import ConferenceNavIcon from 'ringcentral-widget/assets/images/ConferenceNavigation.svg';
-import SettingsNavIcon from 'ringcentral-widget/assets/images/SettingsNavigation.svg';
+import DialPadIcon from 'ringcentral-widgets/assets/images/DialPadNav.svg';
+import CallsIcon from 'ringcentral-widgets/assets/images/Calls.svg';
+import HistoryIcon from 'ringcentral-widgets/assets/images/CallHistory.svg';
+import MessageIcon from 'ringcentral-widgets/assets/images/Messages.svg';
+import ComposeTextIcon from 'ringcentral-widgets/assets/images/ComposeText.svg';
+import ConferenceIcon from 'ringcentral-widgets/assets/images/Conference.svg';
+import SettingsIcon from 'ringcentral-widgets/assets/images/Settings.svg';
+import MoreMenuIcon from 'ringcentral-widgets/assets/images/MoreMenu.svg';
+import ContactIcon from 'ringcentral-widgets/assets/images/Contact.svg';
+
+import DialPadHoverIcon from 'ringcentral-widgets/assets/images/DialPadHover.svg';
+import CallsHoverIcon from 'ringcentral-widgets/assets/images/CallsHover.svg';
+import HistoryHoverIcon from 'ringcentral-widgets/assets/images/CallHistoryHover.svg';
+import MessageHoverIcon from 'ringcentral-widgets/assets/images/MessagesHover.svg';
+import ComposeTextHoverIcon from 'ringcentral-widgets/assets/images/ComposeTextHover.svg';
+import ConferenceHoverIcon from 'ringcentral-widgets/assets/images/ConferenceHover.svg';
+import SettingsHoverIcon from 'ringcentral-widgets/assets/images/SettingsHover.svg';
+import MoreMenuHoverIcon from 'ringcentral-widgets/assets/images/MoreMenuHover.svg';
+import ContactHoverIcon from 'ringcentral-widgets/assets/images/ContactHover.svg';
+
+import ConferenceNavIcon from 'ringcentral-widgets/assets/images/ConferenceNavigation.svg';
+import SettingsNavIcon from 'ringcentral-widgets/assets/images/SettingsNavigation.svg';
+import ContactNavIcon from 'ringcentral-widgets/assets/images/ContactsNavigation.svg';
 
 function getTabs({
   showMessages,
   showComposeText,
   unreadCounts,
   showConference,
+  showCalls,
 }) {
   return [
     {
@@ -38,7 +44,7 @@ function getTabs({
       label: 'Dial Pad',
       path: '/dialer',
     },
-    {
+    showCalls && {
       icon: CallsIcon,
       activeIcon: CallsHoverIcon,
       label: 'Calls',
@@ -77,20 +83,40 @@ function getTabs({
     },
     {
       icon: ({ currentPath }) => {
-        if (currentPath.substr(0, 9) === '/settings') {
+        if (currentPath.substr(0, 9) === '/contacts') {
+          return <ContactNavIcon />;
+        } else if (currentPath.substr(0, 9) === '/settings') {
           return <SettingsNavIcon />;
         } else if (currentPath === '/conference') {
           return <ConferenceNavIcon />;
         }
         return <MoreMenuIcon />;
       },
-      activeIcon: MoreMenuHoverIcon,
+      activeIcon: ({ currentPath }) => {
+        if (currentPath.substr(0, 9) === '/contacts') {
+          return <ContactNavIcon />;
+        } else if (currentPath === '/settings') {
+          return <SettingsNavIcon />;
+        } else if (currentPath === '/conference') {
+          return <ConferenceNavIcon />;
+        }
+        return <MoreMenuHoverIcon />;
+      },
       label: 'More Menu',
       virtualPath: '!moreMenu',
       isActive: (currentPath, currentVirtualPath) => (
         currentVirtualPath === '!moreMenu'
       ),
       childTabs: [
+        {
+          icon: ContactIcon,
+          activeIcon: ContactHoverIcon,
+          label: 'Contacts',
+          path: '/contacts',
+          isActive: currentPath => (
+            currentPath.substr(0, 9) === '/contacts'
+          ),
+        },
         showConference && {
           icon: ConferenceIcon,
           activeIcon: ConferenceHoverIcon,
@@ -112,9 +138,12 @@ function getTabs({
 }
 
 function mapToProps(_, {
-  messageStore,
-  rolesAndPermissions,
-  router,
+  phone: {
+    messageStore,
+    rolesAndPermissions,
+    routerInteraction,
+    callingSettings,
+  },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
   const serviceFeatures = rolesAndPermissions.serviceFeatures;
@@ -139,38 +168,38 @@ function mapToProps(_, {
     )
   );
   const showConference = false;
+  const showCalls = callingSettings.ready &&
+    callingSettings.callWith !== callingOptions.browser;
   const tabs = getTabs({
     unreadCounts,
     showComposeText,
     showMessages,
     showConference,
+    showCalls,
   });
   return {
     tabs,
     unreadCounts,
-    currentPath: router.currentPath,
+    currentPath: routerInteraction.currentPath,
   };
 }
 function mapToFunctions(_, {
-  router,
+  phone: {
+    routerInteraction,
+  }
 }) {
   return {
     goTo: (path) => {
       if (path) {
-        router.push(path);
+        routerInteraction.push(path);
       }
     },
   };
 }
 
-const MainView = connect(
+const MainView = withPhone(connect(
   mapToProps,
   mapToFunctions
-)(TabNavigationView);
-
-MainView.propTypes = {
-  router: PropTypes.instanceOf(RouterInteraction).isRequired,
-  tabs: TabNavigationView.propTypes.tabs,
-};
+)(TabNavigationView));
 
 export default MainView;

@@ -47,7 +47,7 @@ import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
 
-import RouterInteraction from 'ringcentral-widget/modules/RouterInteraction';
+import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 
 import Auth from '../Auth';
 import Interaction from '../Interaction';

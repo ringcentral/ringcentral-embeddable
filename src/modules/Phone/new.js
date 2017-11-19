@@ -2,7 +2,7 @@ import 'whatwg-fetch';
 import SDK from 'ringcentral';
 import RingCentralClient from 'ringcentral-client';
 
-import { ModuleFactory, Module } from 'ringcentral-integration/lib/di';
+import { ModuleFactory } from 'ringcentral-integration/lib/di';
 import RcModule from 'ringcentral-integration/lib/RcModule';
 
 import AccountExtension from 'ringcentral-integration/modules/AccountExtension';
@@ -50,20 +50,16 @@ import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
 import TabManager from 'ringcentral-integration/modules/TabManager';
 import Webphone from 'ringcentral-integration/modules/Webphone';
+import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 
-import RouterInteraction from 'ringcentral-widget/modules/RouterInteraction';
+import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 
 import Auth from '../Auth';
 import Interaction from '../Interaction';
 import Environment from '../Environment';
 
-@Module({
-  deps: [
-    { dep: 'RouterOption', optional: true }
-  ]
-})
-class Router extends RouterInteraction {}
-
+// user Dependency Injection with decorator to create a phone class
+// https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
   providers: [
     { provide: 'Alert', useClass: Alert },
@@ -111,9 +107,10 @@ class Router extends RouterInteraction {}
     { provide: 'AccountPhoneNumber', useClass: AccountPhoneNumber },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'Contacts', useClass: Contacts },
+    { provide: 'ContactDetails', useClass: ContactDetails },
     { provide: 'Messages', useClass: Messages },
     { provide: 'Interaction', useClass: Interaction },
-    { provide: 'Router', useClass: Router },
+    { provide: 'RouterInteraction', useClass: RouterInteraction },
     { provide: 'Auth', useClass: Auth },
     { provide: 'Environment', useClass: Environment },
     {
@@ -131,7 +128,8 @@ class Router extends RouterInteraction {}
         { dep: 'SdkConfig', useParam: true, },
       ],
     },
-    { provide: 'ContactSources',
+    {
+      provide: 'ContactSources',
       useFactory: ({ addressBook, accountContacts }) =>
         [addressBook, accountContacts],
       deps: ['AccountContacts', 'AddressBook']
@@ -142,7 +140,7 @@ export default class BasePhone extends RcModule {
   constructor(options) {
     super(options);
     const {
-      router,
+      routerInteraction,
       webphone,
       contactSearch,
       contacts,
@@ -154,29 +152,29 @@ export default class BasePhone extends RcModule {
     // Webphone configuration
     webphone._onCallEndFunc = (session) => {
       interaction.endCallNotify(session);
-      if (router.currentPath !== '/calls/active') {
+      if (routerInteraction.currentPath !== '/calls/active') {
         return;
       }
       const currentSession = webphone.activeSession;
       if (currentSession && session.id !== currentSession.id) {
         return;
       }
-      router.goBack();
+      routerInteraction.goBack();
     };
     webphone._onCallStartFunc = (session) => {
       this.interaction.startCallNotify(session);
-      if (router.currentPath === '/calls/active') {
+      if (routerInteraction.currentPath === '/calls/active') {
         return;
       }
-      router.push('/calls/active');
+      routerInteraction.push('/calls/active');
     };
     webphone._onCallRingFunc = (session) => {
       interaction.ringCallNotify(session);
       if (
         webphone.ringSessions.length > 1
       ) {
-        if (router.currentPath !== '/calls') {
-          router.push('/calls');
+        if (routerInteraction.currentPath !== '/calls') {
+          routerInteraction.push('/calls');
         }
         webphone.ringSessions.forEach((session) => {
           webphone.toggleMinimized(session.id);
@@ -231,7 +229,7 @@ export default class BasePhone extends RcModule {
         return;
       }
       // TODO refactor some of these logic into appropriate modules
-      router.push('/calls');
+      routerInteraction.push('/calls');
     };
 
     this._appConfig = appConfig;
@@ -241,15 +239,15 @@ export default class BasePhone extends RcModule {
     this.store.subscribe(() => {
       if (this.auth.ready) {
         if (
-          this.router.currentPath !== '/' &&
+          this.routerInteraction.currentPath !== '/' &&
           !this.auth.loggedIn
         ) {
-          this.router.push('/');
+          this.routerInteraction.push('/');
         } else if (
-          this.router.currentPath === '/' &&
+          this.routerInteraction.currentPath === '/' &&
           this.auth.loggedIn
         ) {
-          this.router.push('/dialer');
+          this.routerInteraction.push('/dialer');
         }
       }
     });
