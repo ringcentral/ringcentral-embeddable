@@ -1,51 +1,56 @@
+import 'whatwg-fetch';
 import SDK from 'ringcentral';
 import RingCentralClient from 'ringcentral-client';
-import { combineReducers } from 'redux';
 
+import { ModuleFactory } from 'ringcentral-integration/lib/di';
 import RcModule from 'ringcentral-integration/lib/RcModule';
 
 import AccountExtension from 'ringcentral-integration/modules/AccountExtension';
 import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import AccountPhoneNumber from 'ringcentral-integration/modules/AccountPhoneNumber';
+import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
+import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import Alert from 'ringcentral-integration/modules/Alert';
+import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
+import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Brand from 'ringcentral-integration/modules/Brand';
 import Call from 'ringcentral-integration/modules/Call';
+import CallHistory from 'ringcentral-integration/modules/CallHistory';
 import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
+import CallLog from 'ringcentral-integration/modules/CallLog';
+import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
+import ComposeText from 'ringcentral-integration/modules/ComposeText';
+import Conference from 'ringcentral-integration/modules/Conference';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
+import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
+import Contacts from 'ringcentral-integration/modules/Contacts';
+import ContactSearch from 'ringcentral-integration/modules/ContactSearch';
+import Conversation from 'ringcentral-integration/modules/Conversation';
+import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
+import DateTimeFormat from 'ringcentral-integration/modules/DateTimeFormat';
+import DetailedPresence from 'ringcentral-integration/modules/DetailedPresence';
 import DialingPlan from 'ringcentral-integration/modules/DialingPlan';
-import ExtensionInfo from 'ringcentral-integration/modules/ExtensionInfo';
 import ExtensionDevice from 'ringcentral-integration/modules/ExtensionDevice';
+import ExtensionInfo from 'ringcentral-integration/modules/ExtensionInfo';
 import ExtensionPhoneNumber from 'ringcentral-integration/modules/ExtensionPhoneNumber';
 import ForwardingNumber from 'ringcentral-integration/modules/ForwardingNumber';
 import GlobalStorage from 'ringcentral-integration/modules/GlobalStorage';
 import Locale from 'ringcentral-integration/modules/Locale';
+import Messages from 'ringcentral-integration/modules/Messages';
+import MessageSender from 'ringcentral-integration/modules/MessageSender';
+import MessageStore from 'ringcentral-integration/modules/MessageStore';
+import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
 import RateLimiter from 'ringcentral-integration/modules/RateLimiter';
 import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
 import Ringout from 'ringcentral-integration/modules/Ringout';
-import Webphone from 'ringcentral-integration/modules/Webphone';
 import RolesAndPermissions from 'ringcentral-integration/modules/RolesAndPermissions';
-import Storage from 'ringcentral-integration/modules/Storage';
 import Softphone from 'ringcentral-integration/modules/Softphone';
+import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
-import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
-import MessageSender from 'ringcentral-integration/modules/MessageSender';
-import ComposeText from 'ringcentral-integration/modules/ComposeText';
-import MessageStore from 'ringcentral-integration/modules/MessageStore';
-import Messages from 'ringcentral-integration/modules/Messages';
-import Conversation from 'ringcentral-integration/modules/Conversation';
-import Contacts from 'ringcentral-integration/modules/Contacts';
-import ContactSearch from 'ringcentral-integration/modules/ContactSearch';
-import DateTimeFormat from 'ringcentral-integration/modules/DateTimeFormat';
-
-import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
-import DetailedPresence from 'ringcentral-integration/modules/DetailedPresence';
-import CallLog from 'ringcentral-integration/modules/CallLog';
-import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
-import CallHistory from 'ringcentral-integration/modules/CallHistory';
-import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
-import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
-import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
+import TabManager from 'ringcentral-integration/modules/TabManager';
+import Webphone from 'ringcentral-integration/modules/Webphone';
+import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 
@@ -53,521 +58,248 @@ import Auth from '../Auth';
 import Interaction from '../Interaction';
 import Environment from '../Environment';
 
-export default class Phone extends RcModule {
-  constructor({
-    apiConfig,
-    brandConfig,
-    appVersion,
-    redirectUri,
-    stylesUri,
-    ...options,
-  }) {
-    super();
-    const cachePrefix = `sdk${options.prefix ? `-${options.prefix}` : ''}`;
-    const reducers = {};
-    this.addModule('client', new RingCentralClient(new SDK({
-      ...options,
-      ...apiConfig,
-      cachePrefix,
-      clearCacheOnRefreshError: false,
-    })));
-    this.addModule('alert', new Alert({
-      ...options,
-      getState: () => this.state.alert,
-    }));
-    reducers.alert = this.alert.reducer;
-    this.addModule('brand', new Brand({
-      ...options,
-      ...brandConfig,
-      getState: () => this.state.brand,
-    }));
-    reducers.brand = this.brand.reducer;
-    this.addModule('softphone', new Softphone({
-      ...options,
-      brand: this.brand,
-    }));
-    this.addModule('locale', new Locale({
-      ...options,
-      getState: () => this.state.locale,
-    }));
-    reducers.locale = this.locale.reducer;
-    this.addModule('dateTimeFormat', new DateTimeFormat({
-      ...options,
-      locale: this.locale,
-      getState: () => this.state.dateTimeFormat,
-    }));
-    reducers.dateTimeFormat = this.dateTimeFormat.reducer;
-    this.addModule('globalStorage', new GlobalStorage({
-      ...options,
-      getState: () => this.state.globalStorage,
-    }));
-    reducers.globalStorage = this.globalStorage.reducer;
-    this.addModule('environment', new Environment({
-      ...options,
-      client: this.client,
-      globalStorage: this.globalStorage,
-      sdkConfig: {
-        ...apiConfig,
-        cachePrefix,
-        clearCacheOnRefreshError: false,
-      },
-      getState: () => this.state.environment,
-    }));
-    reducers.environment = this.environment.reducer;
-    this.addModule('auth', new Auth({
-      ...options,
-      alert: this.alert,
-      brand: this.brand,
-      client: this.client,
-      environment: this.environment,
-      locale: this.locale,
-      tabManager: this.tabManager,
-      redirectUri,
-      getState: () => this.state.auth,
-    }));
-    reducers.auth = this.auth.reducer;
-    this.addModule('ringout', new Ringout({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      getState: () => this.state.ringout,
-    }));
-    reducers.ringout = this.ringout.reducer;
-    this.addModule('connectivityMonitor', new ConnectivityMonitor({
-      ...options,
-      alert: this.alert,
-      client: this.client,
-      environment: this.environment,
-      getState: () => this.state.connectivityMonitor,
-    }));
-    reducers.connectivityMonitor = this.connectivityMonitor.reducer;
-    this.addModule('rateLimiter', new RateLimiter({
-      ...options,
-      alert: this.alert,
-      client: this.client,
-      environment: this.environment,
-      globalStorage: this.globalStorage,
-      getState: () => this.state.rateLimiter,
-    }));
-    reducers.rateLimiter = this.rateLimiter.reducer;
-    this.addModule('storage', new Storage({
-      ...options,
-      auth: this.auth,
-      getState: () => this.state.storage,
-    }));
-    reducers.storage = this.storage.reducer;
-    this.addModule('accountExtension', new AccountExtension({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      tabManager: this.tabManager,
-      getState: () => this.state.accountExtension,
-    }));
-    reducers.accountExtension = this.accountExtension.reducer;
-    this.addModule('accountInfo', new AccountInfo({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      tabManager: this.tabManager,
-      getState: () => this.state.accountInfo,
-    }));
-    reducers.accountInfo = this.accountInfo.reducer;
-    this.addModule('extensionDevice', new ExtensionDevice({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      tabManager: this.tabManager,
-      getState: () => this.state.extensionDevice,
-    }));
-    reducers.extensionDevice = this.extensionDevice.reducer;
-    this.addModule('extensionInfo', new ExtensionInfo({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      tabManager: this.tabManager,
-      getState: () => this.state.extensionInfo,
-    }));
-    reducers.extensionInfo = this.extensionInfo.reducer;
-    this.addModule('rolesAndPermissions', new RolesAndPermissions({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      extensionInfo: this.extensionInfo,
-      tabManager: this.tabManager,
-      getState: () => this.state.rolesAndPermissions,
-    }));
-    reducers.rolesAndPermissions = this.rolesAndPermissions.reducer;
-    this.addModule('dialingPlan', new DialingPlan({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      tabManager: this.tabManager,
-      getState: () => this.state.dialingPlan,
-    }));
-    reducers.dialingPlan = this.dialingPlan.reducer;
-    this.addModule('extensionPhoneNumber', new ExtensionPhoneNumber({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      tabManager: this.tabManager,
-      getState: () => this.state.extensionPhoneNumber,
-    }));
-    reducers.extensionPhoneNumber = this.extensionPhoneNumber.reducer;
-    this.addModule('forwardingNumber', new ForwardingNumber({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      tabManager: this.tabManager,
-      getState: () => this.state.forwardingNumber,
-    }));
-    reducers.forwardingNumber = this.forwardingNumber.reducer;
-    this.addModule('regionSettings', new RegionSettings({
-      ...options,
-      storage: this.storage,
-      extensionInfo: this.extensionInfo,
-      dialingPlan: this.dialingPlan,
-      alert: this.alert,
-      tabManager: this.tabManager,
-      getState: () => this.state.regionSettings,
-    }));
-    reducers.regionSettings = this.regionSettings.reducer;
-    this.addModule('contactMatcher', new ContactMatcher({
-      ...options,
-      storage: this.storage,
-      getState: () => this.state.contactMatcher,
-    }));
-    reducers.contactMatcher = this.contactMatcher.reducer;
-    this.addModule('numberValidate', new NumberValidate({
-      ...options,
-      client: this.client,
-      accountExtension: this.accountExtension,
-      regionSettings: this.regionSettings,
-      accountInfo: this.accountInfo,
-      getState: () => this.state.numberValidate,
-    }));
-    reducers.numberValidate = this.numberValidate.reducer;
-    this.addModule('webphone', new Webphone({
-      appKey: apiConfig.appKey,
-      appName: brandConfig.appName,
-      appVersion,
-      alert: this.alert,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      rolesAndPermissions: this.rolesAndPermissions,
-      contactMatcher: this.contactMatcher,
-      webphoneLogLevel: 2,
-      extensionDevice: this.extensionDevice,
-      globalStorage: this.globalStorage,
-      numberValidate: this.numberValidate,
-      onCallEnd: (session) => {
-        this.interaction.endCallNotify(session);
-        if (this.router.currentPath !== '/calls/active') {
-          return;
+// user Dependency Injection with decorator to create a phone class
+// https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
+@ModuleFactory({
+  providers: [
+    { provide: 'Alert', useClass: Alert },
+    { provide: 'Brand', useClass: Brand },
+    { provide: 'Locale', useClass: Locale },
+    { provide: 'TabManager', useClass: TabManager },
+    { provide: 'GlobalStorage', useClass: GlobalStorage },
+    { provide: 'ConnectivityMonitor', useClass: ConnectivityMonitor },
+    { provide: 'Auth', useClass: Auth },
+    { provide: 'Storage', useClass: Storage },
+    { provide: 'AudioSettings', useClass: AudioSettings },
+    { provide: 'AccountContacts', useClass: AccountContacts },
+    { provide: 'RateLimiter', useClass: RateLimiter },
+    { provide: 'ExtensionDevice', useClass: ExtensionDevice },
+    { provide: 'Softphone', useClass: Softphone },
+    { provide: 'Ringout', useClass: Ringout },
+    { provide: 'AccountInfo', useClass: AccountInfo },
+    { provide: 'ExtensionInfo', useClass: ExtensionInfo },
+    { provide: 'RolesAndPermissions', useClass: RolesAndPermissions },
+    { provide: 'DialingPlan', useClass: DialingPlan },
+    { provide: 'ExtensionPhoneNumber', useClass: ExtensionPhoneNumber },
+    { provide: 'ForwardingNumber', useClass: ForwardingNumber },
+    { provide: 'BlockedNumber', useClass: BlockedNumber },
+    { provide: 'ContactMatcher', useClass: ContactMatcher },
+    { provide: 'Subscription', useClass: Subscription },
+    { provide: 'RegionSettings', useClass: RegionSettings },
+    { provide: 'AccountExtension', useClass: AccountExtension },
+    { provide: 'NumberValidate', useClass: NumberValidate },
+    { provide: 'Webphone', useClass: Webphone },
+    { provide: 'CallingSettings', useClass: CallingSettings },
+    { provide: 'DetailedPresence', useClass: DetailedPresence },
+    { provide: 'CallLog', useClass: CallLog },
+    { provide: 'Call', useClass: Call },
+    { provide: 'MessageSender', useClass: MessageSender },
+    { provide: 'ComposeText', useClass: ComposeText },
+    { provide: 'CallMonitor', useClass: CallMonitor },
+    { provide: 'CallHistory', useClass: CallHistory },
+    { provide: 'ActivityMatcher', useClass: ActivityMatcher },
+    { provide: 'ConversationMatcher', useClass: ConversationMatcher },
+    { provide: 'ContactSearch', useClass: ContactSearch },
+    { provide: 'MessageStore', useClass: MessageStore },
+    { provide: 'Conversation', useClass: Conversation },
+    { provide: 'DateTimeFormat', useClass: DateTimeFormat },
+    { provide: 'Conference', useClass: Conference },
+    { provide: 'AccountPhoneNumber', useClass: AccountPhoneNumber },
+    { provide: 'AddressBook', useClass: AddressBook },
+    { provide: 'Contacts', useClass: Contacts },
+    { provide: 'ContactDetails', useClass: ContactDetails },
+    { provide: 'Messages', useClass: Messages },
+    { provide: 'Interaction', useClass: Interaction },
+    { provide: 'RouterInteraction', useClass: RouterInteraction },
+    { provide: 'Auth', useClass: Auth },
+    { provide: 'Environment', useClass: Environment },
+    {
+      provide: 'EnvironmentOptions',
+      useFactory: ({ sdkConfig }) => sdkConfig,
+      deps: [
+        { dep: 'SdkConfig' },
+      ],
+    },
+    {
+      provide: 'Client',
+      useFactory: ({ sdkConfig }) =>
+        new RingCentralClient(new SDK(sdkConfig)),
+      deps: [
+        { dep: 'SdkConfig', useParam: true, },
+      ],
+    },
+    {
+      provide: 'ContactSources',
+      useFactory: ({ addressBook, accountContacts }) =>
+        [addressBook, accountContacts],
+      deps: ['AccountContacts', 'AddressBook']
+    },
+  ]
+})
+export default class BasePhone extends RcModule {
+  constructor(options) {
+    super(options);
+    const {
+      routerInteraction,
+      webphone,
+      contactSearch,
+      contacts,
+      callMonitor,
+      contactMatcher,
+      appConfig,
+      interaction,
+    } = options;
+    // Webphone configuration
+    webphone._onCallEndFunc = (session) => {
+      interaction.endCallNotify(session);
+      if (routerInteraction.currentPath !== '/calls/active') {
+        return;
+      }
+      const currentSession = webphone.activeSession;
+      if (currentSession && session.id !== currentSession.id) {
+        return;
+      }
+      routerInteraction.goBack();
+    };
+    webphone._onCallStartFunc = (session) => {
+      this.interaction.startCallNotify(session);
+      if (routerInteraction.currentPath === '/calls/active') {
+        return;
+      }
+      routerInteraction.push('/calls/active');
+    };
+    webphone._onCallRingFunc = (session) => {
+      interaction.ringCallNotify(session);
+      if (
+        webphone.ringSessions.length > 1
+      ) {
+        if (routerInteraction.currentPath !== '/calls') {
+          routerInteraction.push('/calls');
         }
-        const currentSession = this.webphone.activeSession;
-        if (currentSession && session.id !== currentSession.id) {
-          return;
-        }
-        this.router.goBack();
-      },
-      onCallStart: (session) => {
-        this.interaction.startCallNotify(session);
-        if (this.router.currentPath === '/calls/active') {
-          return;
-        }
-        this.router.push('/calls/active');
-      },
-      onCallRing: (session) => {
-        this.interaction.ringCallNotify(session);
-        if (
-          this.webphone.ringSessions.length > 1
-        ) {
-          if (this.router.currentPath !== '/calls') {
-            this.router.push('/calls');
-          }
-          this.webphone.toggleMinimized(this.webphone.ringSessionId);
-        }
-      },
-      getState: () => this.state.webphone,
-    }));
-    reducers.webphone = this.webphone.reducer;
-    this.addModule('callingSettings', new CallingSettings({
-      ...options,
-      alert: this.alert,
-      brand: this.brand,
-      extensionInfo: this.extensionInfo,
-      extensionPhoneNumber: this.extensionPhoneNumber,
-      forwardingNumber: this.forwardingNumber,
-      storage: this.storage,
-      rolesAndPermissions: this.rolesAndPermissions,
-      tabManager: this.tabManager,
-      webphone: true,
-      getState: () => this.state.callingSettings,
-    }));
-    reducers.callingSettings = this.callingSettings.reducer;
-    this.addModule('call', new Call({
-      ...options,
-      alert: this.alert,
-      client: this.client,
-      storage: this.storage,
-      regionSettings: this.regionSettings,
-      callingSettings: this.callingSettings,
-      softphone: this.softphone,
-      ringout: this.ringout,
-      webphone: this.webphone,
-      accountExtension: this.accountExtension,
-      numberValidate: this.numberValidate,
-      extensionPhoneNumber: this.extensionPhoneNumber,
-      getState: () => this.state.call,
-    }));
-    reducers.call = this.call.reducer;
-    this.addModule('subscription', new Subscription({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      tabManager: this.tabManager,
-      getState: () => this.state.subscription,
-    }));
-    reducers.subscription = this.subscription.reducer;
-    this.addModule('activeCalls', new ActiveCalls({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      subscription: this.subscription,
-      getState: () => this.state.activeCalls,
-    }));
-    reducers.activeCalls = this.activeCalls.reducer;
-    this.addModule('detailedPresence', new DetailedPresence({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      subscription: this.subscription,
-      getState: () => this.state.detailedPresence,
-    }));
-    reducers.detailedPresence = this.detailedPresence.reducer;
-    this.addModule('contactSearch', new ContactSearch({
-      ...options,
-      auth: this.auth,
-      storage: this.storage,
-      getState: () => this.state.contactSearch,
-    }));
-    reducers.contactSearch = this.contactSearch.reducer;
-    this.contactSearch.addSearchSource({
-      sourceName: 'extensions',
-      searchFn: ({ searchString }) => {
-        const searchText = searchString.toLowerCase();
-        return this.accountExtension.availableExtensions.filter((extension) => {
-          if (extension.ext.indexOf(searchText) >= 0) {
-            return true;
-          }
-          if (extension.name.toLowerCase().indexOf(searchText) >= 0) {
-            return true;
-          }
-          return false;
+        webphone.ringSessions.forEach((session) => {
+          webphone.toggleMinimized(session.id);
         });
-      },
-      formatFn: entities => entities.map(entity => ({
-        entityType: 'contact',
-        name: entity.name,
-        phoneNumber: entity.ext,
-        phoneType: 'extension',
-      })),
-      readyCheckFn: () => this.accountExtension.ready,
-    });
-    this.addModule('messageSender', new MessageSender({
-      ...options,
-      alert: this.alert,
-      client: this.client,
-      getState: () => this.state.messageSender,
-      extensionPhoneNumber: this.extensionPhoneNumber,
-      extensionInfo: this.extensionInfo,
-      numberValidate: this.numberValidate,
-    }));
-    reducers.messageSender = this.messageSender.reducer;
-    this.addModule('composeText', new ComposeText({
-      ...options,
-      auth: this.auth,
-      alert: this.alert,
-      storage: this.storage,
-      getState: () => this.state.composeText,
-      messageSender: this.messageSender,
-      numberValidate: this.numberValidate,
-    }));
-    reducers.composeText = this.composeText.reducer;
-    this.addModule('messageStore', new MessageStore({
-      ...options,
-      auth: this.auth,
-      storage: this.storage,
-      alert: this.alert,
-      client: this.client,
-      subscription: this.subscription,
-      getState: () => this.state.messageStore,
-    }));
-    reducers.messageStore = this.messageStore.reducer;
-    this.addModule('conversation', new Conversation({
-      ...options,
-      auth: this.auth,
-      alert: this.alert,
-      messageSender: this.messageSender,
-      extensionInfo: this.extensionInfo,
-      messageStore: this.messageStore,
-      getState: () => this.state.conversation,
-    }));
-    reducers.conversation = this.conversation.reducer;
-    this.addModule('messages', new Messages({
-      ...options,
-      alert: this.alert,
-      messageStore: this.messageStore,
-      extensionInfo: this.extensionInfo,
-      contactMatcher: this.contactMatcher,
-      perPage: 20,
-      getState: () => this.state.messages,
-    }));
-    reducers.messages = this.messages.reducer;
-    this.addModule('router', new RouterInteraction({
-      ...options,
-      getState: () => this.state.router,
-    }));
-    reducers.router = this.router.reducer;
-    this.addModule('callLog', new CallLog({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      subscription: this.subscription,
-      storage: this.storage,
-      rolesAndPermissions: this.rolesAndPermissions,
-      getState: () => this.state.callLog,
-    }));
-    reducers.callLog = this.callLog.reducer;
-    this.addModule('callMonitor', new CallMonitor({
-      ...options,
-      storage: this.storage,
-      accountInfo: this.accountInfo,
-      detailedPresence: this.detailedPresence,
-      activeCalls: this.activeCalls,
-      activityMatcher: this.activityMatcher,
-      contactMatcher: this.contactMatcher,
-      webphone: this.webphone,
-      onRinging: async () => {
-        if (this.webphone._webphone) {
-          return;
-        }
-        this.router.history.push('/calls');
-      },
-      getState: () => this.state.callMonitor,
-    }));
-    reducers.callMonitor = this.callMonitor.reducer;
-    this.addModule('callHistory', new CallHistory({
-      ...options,
-      accountInfo: this.accountInfo,
-      callLog: this.callLog,
-      callMonitor: this.callMonitor,
-      activityMatcher: this.activityMatcher,
-      contactMatcher: this.contactMatcher,
-      getState: () => this.state.callHistory,
-    }));
-    reducers.callHistory = this.callHistory.reducer;
-    this.addModule('activityMatcher', new ActivityMatcher({
-      ...options,
-      storage: this.storage,
-      getState: () => this.state.activityMatcher,
-    }));
-    reducers.activityMatcher = this.activityMatcher.reducer;
-    this.addModule('accountPhoneNumber', new AccountPhoneNumber({
-      ...options,
-      auth: this.auth,
-      client: this.client,
-      storage: this.storage,
-      getState: () => this.state.accountPhoneNumber,
-    }));
-    reducers.accountPhoneNumber = this.accountPhoneNumber.reducer;
-    this.addModule('addressBook', new AddressBook({
-      ...options,
-      client: this.client,
-      auth: this.auth,
-      storage: this.storage,
-      getState: () => this.state.addressBook,
-    }));
-    reducers.addressBook = this.addressBook.reducer;
-    this.addModule('contacts', new Contacts({
-      ...options,
-      client: this.client,
-      alert: this.alert,
-      addressBook: this.addressBook,
-      accountPhoneNumber: this.accountPhoneNumber,
-      accountExtension: this.accountExtension,
-      getState: () => this.state.contacts,
-    }));
-    reducers.contacts = this.contacts.reducer;
-    this.contactMatcher.addSearchProvider({
-      ...options,
+      }
+    };
+
+    // ContactMatcher configuration
+    contactMatcher.addSearchProvider({
       name: 'contacts',
       searchFn: async ({ queries }) => this.contacts.matchContacts({ phoneNumbers: queries }),
       readyCheckFn: () => this.contacts.ready,
     });
-    this.addModule('conversationMatcher', new ConversationMatcher({
-      storage: this.storage,
-      getState: () => this.state.conversationMatcher,
-    }));
-    reducers.conversationMatcher = this.conversationMatcher.reducer;
-    this.addModule('interaction', new Interaction({
-      auth: this.auth,
-      router: this.router,
-      presence: this.detailedPresence,
-      call: this.call,
-      composeText: this.composeText,
-      webphone: this.webphone,
-      regionSettings: this.regionSettings,
-      stylesUri,
-      getState: () => this.state.interaction,
-    }));
-    reducers.interaction = this.interaction.reducer;
-    this._reducer = combineReducers({
-      ...reducers,
-      app: (state = {
-        name: brandConfig.appName,
-        version: appVersion,
-      }) => state,
-      lastAction: (state = null, action) => {
-        console.log(action);
-        return action;
+
+    // ContactSearch configuration
+    contactSearch.addSearchSource({
+      sourceName: 'contacts',
+      searchFn: ({ searchString }) => {
+        const items = contacts.allContacts;
+        if (!searchString) {
+          return items;
+        }
+        const searchText = searchString.toLowerCase();
+        const result = [];
+        items.forEach((item) => {
+          const name = item.name || `${item.firstName} ${item.lastName}`;
+          item.phoneNumbers.forEach((p) => {
+            if (
+              name.toLowerCase().indexOf(searchText) >= 0 ||
+              p.phoneNumber.indexOf(searchText) >= 0
+            ) {
+              result.push({
+                id: `${item.id}${p.phoneNumber}`,
+                name,
+                type: item.type,
+                phoneNumber: p.phoneNumber,
+                phoneType: p.phoneType.replace('Phone', ''),
+                entityType: 'contact',
+              });
+            }
+          });
+        });
+        return result;
       },
+      formatFn: entities => entities,
+      readyCheckFn: () => this.contacts.ready,
     });
+
+    // CallMonitor configuration
+    callMonitor._onRinging = async () => {
+      if (webphone._webphone) {
+        return;
+      }
+      // TODO refactor some of these logic into appropriate modules
+      routerInteraction.push('/calls');
+    };
+
+    this._appConfig = appConfig;
   }
 
   initialize() {
     this.store.subscribe(() => {
       if (this.auth.ready) {
         if (
-          this.router.currentPath !== '/' &&
+          this.routerInteraction.currentPath !== '/' &&
           !this.auth.loggedIn
         ) {
-          this.router.push('/');
+          this.routerInteraction.push('/');
         } else if (
-          this.router.currentPath === '/' &&
+          this.routerInteraction.currentPath === '/' &&
           this.auth.loggedIn
         ) {
-          this.router.push('/dialer');
+          this.routerInteraction.push('/dialer');
         }
       }
     });
   }
 
   get name() {
-    return this.state.app.name;
+    return this._appConfig.name;
   }
 
   get version() {
-    return this.state.app.version;
+    return this._appConfig.version;
   }
+}
+
+export function createPhone({
+  prefix,
+  apiConfig,
+  brandConfig,
+  appVersion,
+  redirectUri,
+  stylesUri,
+}) {
+  @ModuleFactory({
+    providers: [
+      { provide: 'ModuleOptions', useValue: { prefix }, spread: true },
+      {
+        provide: 'SdkConfig',
+        useValue: {
+          ...apiConfig,
+          cachePrefix: `sdk-${prefix}`,
+          clearCacheOnRefreshError: false,
+        },
+      },
+      {
+        provide: 'AppConfig',
+        useValue: { name: brandConfig.appName, version: appVersion },
+      },
+      { provide: 'BrandOptions', useValue: brandConfig, spread: true },
+      { provide: 'AuthOptions', useValue: { redirectUri }, spread: true },
+      { provide: 'InteractionOptions', useValue: { stylesUri }, spread: true },
+      {
+        provide: 'WebphoneOptions',
+        spread: true,
+        useValue: {
+          appKey: apiConfig.appKey,
+          appName: brandConfig.appName,
+          appVersion,
+          webphoneLogLevel: 1,
+        },
+      },
+    ]
+  })
+  class Phone extends BasePhone {}
+  return Phone.create();
 }
