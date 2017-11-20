@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
 
 import parseUri from './lib/parseUri';
-import { createPhone } from './modules/Phone/new';
+import { createPhone } from './modules/Phone';
 import App from './containers/App';
 import brandConfig from './config/brand';
 import prefix from './config/prefix';
