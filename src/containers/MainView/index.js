@@ -28,7 +28,8 @@ import ContactHoverIcon from 'ringcentral-widgets/assets/images/ContactHover.svg
 
 import ConferenceNavIcon from 'ringcentral-widgets/assets/images/ConferenceNavigation.svg';
 import SettingsNavIcon from 'ringcentral-widgets/assets/images/SettingsNavigation.svg';
-import ContactNavIcon from 'ringcentral-widgets/assets/images/ContactsNavigation.svg';
+
+import styles from './styles.scss';
 
 function getTabs({
   showMessages,
@@ -75,17 +76,18 @@ function getTabs({
       label: 'Compose Text',
       path: '/composeText',
     },
-    showConference && {
-      icon: ConferenceIcon,
-      activeIcon: ConferenceHoverIcon,
-      label: 'Conference',
-      path: '/conference',
+    {
+      icon: () => <ContactIcon className={styles.contactIcon} />,
+      activeIcon: () => <ContactHoverIcon className={styles.contactHoverIcon} />,
+      label: 'Contacts',
+      path: '/contacts',
+      isActive: currentPath => (
+        currentPath.substr(0, 9) === '/contacts'
+      ),
     },
     {
       icon: ({ currentPath }) => {
-        if (currentPath.substr(0, 9) === '/contacts') {
-          return <ContactNavIcon />;
-        } else if (currentPath.substr(0, 9) === '/settings') {
+        if (currentPath.substr(0, 9) === '/settings') {
           return <SettingsNavIcon />;
         } else if (currentPath === '/conference') {
           return <ConferenceNavIcon />;
@@ -93,9 +95,7 @@ function getTabs({
         return <MoreMenuIcon />;
       },
       activeIcon: ({ currentPath }) => {
-        if (currentPath.substr(0, 9) === '/contacts') {
-          return <ContactNavIcon />;
-        } else if (currentPath === '/settings') {
+        if (currentPath === '/settings') {
           return <SettingsNavIcon />;
         } else if (currentPath === '/conference') {
           return <ConferenceNavIcon />;
@@ -108,15 +108,6 @@ function getTabs({
         currentVirtualPath === '!moreMenu'
       ),
       childTabs: [
-        {
-          icon: ContactIcon,
-          activeIcon: ContactHoverIcon,
-          label: 'Contacts',
-          path: '/contacts',
-          isActive: currentPath => (
-            currentPath.substr(0, 9) === '/contacts'
-          ),
-        },
         showConference && {
           icon: ConferenceIcon,
           activeIcon: ConferenceHoverIcon,
