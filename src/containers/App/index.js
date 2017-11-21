@@ -9,7 +9,6 @@ import RegionSettingsPage from 'ringcentral-widgets/containers/RegionSettingsPag
 import DialerPage from 'ringcentral-widgets/containers/DialerPage';
 import ComposeTextPage from 'ringcentral-widgets/containers/ComposeTextPage';
 import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
-// import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
 import MessagesPage from 'ringcentral-widgets/containers/MessagesPage';
 import SettingsPage from 'ringcentral-widgets/containers/SettingsPage';
 import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';

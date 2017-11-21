@@ -11,7 +11,6 @@ import CallsIcon from 'ringcentral-widgets/assets/images/Calls.svg';
 import HistoryIcon from 'ringcentral-widgets/assets/images/CallHistory.svg';
 import MessageIcon from 'ringcentral-widgets/assets/images/Messages.svg';
 import ComposeTextIcon from 'ringcentral-widgets/assets/images/ComposeText.svg';
-import ConferenceIcon from 'ringcentral-widgets/assets/images/Conference.svg';
 import SettingsIcon from 'ringcentral-widgets/assets/images/Settings.svg';
 import MoreMenuIcon from 'ringcentral-widgets/assets/images/MoreMenu.svg';
 import ContactIcon from 'ringcentral-widgets/assets/images/Contact.svg';
@@ -21,12 +20,10 @@ import CallsHoverIcon from 'ringcentral-widgets/assets/images/CallsHover.svg';
 import HistoryHoverIcon from 'ringcentral-widgets/assets/images/CallHistoryHover.svg';
 import MessageHoverIcon from 'ringcentral-widgets/assets/images/MessagesHover.svg';
 import ComposeTextHoverIcon from 'ringcentral-widgets/assets/images/ComposeTextHover.svg';
-import ConferenceHoverIcon from 'ringcentral-widgets/assets/images/ConferenceHover.svg';
 import SettingsHoverIcon from 'ringcentral-widgets/assets/images/SettingsHover.svg';
 import MoreMenuHoverIcon from 'ringcentral-widgets/assets/images/MoreMenuHover.svg';
 import ContactHoverIcon from 'ringcentral-widgets/assets/images/ContactHover.svg';
 
-import ConferenceNavIcon from 'ringcentral-widgets/assets/images/ConferenceNavigation.svg';
 import SettingsNavIcon from 'ringcentral-widgets/assets/images/SettingsNavigation.svg';
 
 import styles from './styles.scss';
@@ -35,7 +32,6 @@ function getTabs({
   showMessages,
   showComposeText,
   unreadCounts,
-  showConference,
   showCalls,
 }) {
   return [
@@ -89,16 +85,12 @@ function getTabs({
       icon: ({ currentPath }) => {
         if (currentPath.substr(0, 9) === '/settings') {
           return <SettingsNavIcon />;
-        } else if (currentPath === '/conference') {
-          return <ConferenceNavIcon />;
         }
         return <MoreMenuIcon />;
       },
       activeIcon: ({ currentPath }) => {
-        if (currentPath === '/settings') {
+        if (currentPath.substr(0, 9) === '/settings') {
           return <SettingsNavIcon />;
-        } else if (currentPath === '/conference') {
-          return <ConferenceNavIcon />;
         }
         return <MoreMenuHoverIcon />;
       },
@@ -108,12 +100,6 @@ function getTabs({
         currentVirtualPath === '!moreMenu'
       ),
       childTabs: [
-        showConference && {
-          icon: ConferenceIcon,
-          activeIcon: ConferenceHoverIcon,
-          label: 'Schedule Conference',
-          path: '/conference',
-        },
         {
           icon: SettingsIcon,
           activeIcon: SettingsHoverIcon,
@@ -158,14 +144,12 @@ function mapToProps(_, {
       )
     )
   );
-  const showConference = false;
   const showCalls = callingSettings.ready &&
     callingSettings.callWith !== callingOptions.browser;
   const tabs = getTabs({
     unreadCounts,
     showComposeText,
     showMessages,
-    showConference,
     showCalls,
   });
   return {
