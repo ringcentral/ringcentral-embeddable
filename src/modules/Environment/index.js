@@ -47,9 +47,13 @@ export default class DomoEnvironment extends Environment {
     };
     if (enabled) {
       newConfig.server = server;
-      if (!isBlank(appKey) && !isBlank(appSecret)) {
+      if (!isBlank(appKey)) {
         newConfig.appKey = appKey;
-        newConfig.appSecret = appSecret;
+        if (!isBlank(appSecret)) {
+          newConfig.appSecret = appSecret;
+        } else {
+          delete newConfig.appSecret;
+        }
       }
     }
     return newConfig;
