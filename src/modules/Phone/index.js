@@ -103,7 +103,6 @@ import Environment from '../Environment';
     { provide: 'MessageStore', useClass: MessageStore },
     { provide: 'Conversation', useClass: Conversation },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
-    { provide: 'Conference', useClass: Conference },
     { provide: 'AccountPhoneNumber', useClass: AccountPhoneNumber },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'Contacts', useClass: Contacts },
