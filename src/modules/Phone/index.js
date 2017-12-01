@@ -21,7 +21,6 @@ import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
 import CallLog from 'ringcentral-integration/modules/CallLog';
 import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
 import ComposeText from 'ringcentral-integration/modules/ComposeText';
-import Conference from 'ringcentral-integration/modules/Conference';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
 import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
 import Contacts from 'ringcentral-integration/modules/Contacts';
@@ -114,10 +113,7 @@ import Environment from '../Environment';
     { provide: 'Environment', useClass: Environment },
     {
       provide: 'EnvironmentOptions',
-      useFactory: ({ sdkConfig }) => sdkConfig,
-      deps: [
-        { dep: 'SdkConfig' },
-      ],
+      useFactory: () => ({}),
     },
     {
       provide: 'Client',

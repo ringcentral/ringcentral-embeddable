@@ -12,10 +12,11 @@ import {
   deps: [
     'Client',
     'GlobalStorage',
+    'SdkConfig',
     { dep: 'EnvironmentOptions', optional: true }
   ]
 })
-export default class DomoEnvironment extends Environment {
+export default class DemoEnvironment extends Environment {
   constructor({
     client,
     globalStorage,
