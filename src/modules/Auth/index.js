@@ -1,9 +1,6 @@
-import qs from 'qs';
 import { Module } from 'ringcentral-integration/lib/di';
 import Auth from 'ringcentral-integration/modules/Auth';
 import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
-import authErrors from './authErrors';
-import parseCallbackUri from '../../lib/parseUri';
 
 @Module({
   deps: [
@@ -17,86 +14,6 @@ import parseCallbackUri from '../../lib/parseUri';
   ]
 })
 export default class ImplicitAuth extends Auth {
-  _createProxyFrame = (onLogin) => {
-    this._proxyFrame = document.createElement('iframe');
-    this._proxyFrame.src = this.proxyUri;
-    this._proxyFrame.style.display = 'none';
-
-    document.body.appendChild(this._proxyFrame);
-    this._callbackHandler = async ({ origin, data }) => {
-      // TODO origin check
-      if (data) {
-        const {
-          callbackUri,
-          proxyLoaded,
-          fromLocalStorage,
-          popWindowError,
-        } = data;
-        if (popWindowError) {
-          this._alert.danger({
-            message: authErrors.popWindowError,
-            ttl: 0,
-          });
-        }
-        if (
-          callbackUri &&
-          (
-            fromLocalStorage !== true ||
-            (!this._tabManager || this._tabManager.active)
-          )
-        ) {
-          try {
-            const query = parseCallbackUri(callbackUri);
-            if (query.code || query.access_token) {
-              await this.login({
-                code: query.code,
-                accessToken: query.access_token,
-                expiresIn: query.expires_in,
-                endpointId: query.endpoint_id,
-                redirectUri: this.redirectUri,
-                tokenType: query.token_type,
-              });
-              if (typeof onLogin === 'function') {
-                onLogin();
-              }
-            }
-          } catch (error) {
-            let message;
-            switch (error.message) {
-              case 'invalid_request':
-              case 'unauthorized_client':
-              case 'access_denied':
-              case 'unsupported_response_type':
-              case 'invalid_scope':
-                message = authMessages.accessDenied;
-                break;
-              case 'server_error':
-              case 'temporarily_unavailable':
-              default:
-                message = authMessages.internalError;
-                break;
-            }
-
-            this._alert.danger({
-              message,
-              payload: error,
-            });
-          }
-        } else if (proxyLoaded) {
-          clearTimeout(this._retryTimeoutId);
-          this._retryTimeoutId = null;
-          this.store.dispatch({
-            type: this.actionTypes.proxyLoaded,
-          });
-        }
-      }
-    };
-    window.addEventListener('message', this._callbackHandler);
-    this._retryTimeoutId = setTimeout(() => {
-      this._retrySetupProxyFrame(onLogin);
-    }, this._defaultProxyRetry);
-  }
-
   /**
    * @function
    * @param {String} options.redirectUri
@@ -114,29 +31,6 @@ export default class ImplicitAuth extends Auth {
       prompt,
       implicit,
     })}${force ? '&force' : ''}`;
-  }
-
-  openOAuthPage() {
-    if (this.proxyLoaded) {
-      this._proxyFrame.contentWindow.postMessage({
-        oAuthUri: this._getOAuthUri(),
-      }, '*');
-    }
-  }
-
-  _getOAuthUri() {
-    const extendedQuery = qs.stringify({
-      force: true,
-      localeId: this._locale.currentLocale,
-      ui_options: 'hide_remember_me hide_tos',
-    });
-    return `${this.getLoginUrl({
-      redirectUri: this.redirectUri,
-      brandId: this._brand.id,
-      state: btoa(Date.now()),
-      display: 'page',
-      implicit: this.isImplicit,
-    })}&${extendedQuery}`;
   }
 
   /**
