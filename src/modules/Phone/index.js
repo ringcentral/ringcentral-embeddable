@@ -54,6 +54,7 @@ import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 
 import Auth from '../Auth';
+import OAuth from '../ImplicitOAuth';
 import Interaction from '../Interaction';
 import Environment from '../Environment';
 
@@ -68,6 +69,7 @@ import Environment from '../Environment';
     { provide: 'GlobalStorage', useClass: GlobalStorage },
     { provide: 'ConnectivityMonitor', useClass: ConnectivityMonitor },
     { provide: 'Auth', useClass: Auth },
+    { provide: 'OAuth', useClass: OAuth },
     { provide: 'Storage', useClass: Storage },
     { provide: 'AudioSettings', useClass: AudioSettings },
     { provide: 'AccountContacts', useClass: AccountContacts },
@@ -281,7 +283,7 @@ export function createPhone({
         useValue: { name: brandConfig.appName, version: appVersion },
       },
       { provide: 'BrandOptions', useValue: brandConfig, spread: true },
-      { provide: 'AuthOptions', useValue: { redirectUri }, spread: true },
+      { provide: 'ImplicitOAuthOptions', useValue: { redirectUri }, spread: true },
       { provide: 'InteractionOptions', useValue: { stylesUri }, spread: true },
       {
         provide: 'WebphoneOptions',
