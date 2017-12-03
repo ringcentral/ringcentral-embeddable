@@ -55,8 +55,8 @@ import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 
 import Auth from '../Auth';
 import OAuth from '../ImplicitOAuth';
-import Interaction from '../Interaction';
 import Environment from '../Environment';
+import Adapter from '../Adapter';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -109,7 +109,7 @@ import Environment from '../Environment';
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetails', useClass: ContactDetails },
     { provide: 'Messages', useClass: Messages },
-    { provide: 'Interaction', useClass: Interaction },
+    { provide: 'Adapter', useClass: Adapter },
     { provide: 'RouterInteraction', useClass: RouterInteraction },
     { provide: 'Auth', useClass: Auth },
     { provide: 'Environment', useClass: Environment },
@@ -144,11 +144,11 @@ export default class BasePhone extends RcModule {
       callMonitor,
       contactMatcher,
       appConfig,
-      interaction,
+      adapter,
     } = options;
     // Webphone configuration
     webphone._onCallEndFunc = (session) => {
-      interaction.endCallNotify(session);
+      adapter.endCallNotify(session);
       if (routerInteraction.currentPath !== '/calls/active') {
         return;
       }
@@ -159,14 +159,14 @@ export default class BasePhone extends RcModule {
       routerInteraction.goBack();
     };
     webphone._onCallStartFunc = (session) => {
-      this.interaction.startCallNotify(session);
+      adapter.startCallNotify(session);
       if (routerInteraction.currentPath === '/calls/active') {
         return;
       }
       routerInteraction.push('/calls/active');
     };
     webphone._onCallRingFunc = (session) => {
-      interaction.ringCallNotify(session);
+      adapter.ringCallNotify(session);
       if (
         webphone.ringSessions.length > 1
       ) {
@@ -284,7 +284,7 @@ export function createPhone({
       },
       { provide: 'BrandOptions', useValue: brandConfig, spread: true },
       { provide: 'ImplicitOAuthOptions', useValue: { redirectUri }, spread: true },
-      { provide: 'InteractionOptions', useValue: { stylesUri }, spread: true },
+      { provide: 'AdapterOptions', useValue: { stylesUri }, spread: true },
       {
         provide: 'WebphoneOptions',
         spread: true,

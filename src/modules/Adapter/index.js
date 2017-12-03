@@ -1,447 +1,254 @@
-import classnames from 'classnames';
-import styles from './styles.scss';
-// eslint-disable-next-line
-import ribbonStyles from '!css-loader?{"localIdentName":"[path]_[name]_[local]_[hash:base64:5]","modules":true}!postcss-loader?{}!sass-loader?{"outputStyle":"expanded","includePaths":["src","node_modules"]}!./styles.scss';
+import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
+import ensureExist from 'ringcentral-integration/lib/ensureExist';
+import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
+import { Module } from 'ringcentral-integration/lib/di';
 
-class Adapter {
+import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
+
+import messageTypes from '../../lib/Adapter/messageTypes';
+import actionTypes from './actionTypes';
+import getReducer from './getReducer';
+
+@Module({
+  deps: [
+    'Auth',
+    'RouterInteraction',
+    'DetailedPresence',
+    'ComposeText',
+    'Call',
+    'Webphone',
+    'RegionSettings',
+    'GlobalStorage',
+    'Locale',
+    { dep: 'AdapterOptions', optional: true }
+  ]
+})
+export default class Adapter extends AdapterModuleCore {
   constructor({
-    logoUrl,
-    appUrl,
-    prefix = 'rc-widget',
-    brand,
-    className,
-    testMode = false,
-    version,
-  } = {}) {
-    this._prefix = prefix;
-    this._brand = brand;
-    this._appUrl = appUrl;
-    this._root = this._initContentDOM(prefix, appUrl);
-    this._headerEl = this._root.querySelector(
-      `.${styles.header}`
-    );
-    this._logoEl = this._root.querySelector(
-      `.${styles.logo}`
-    );
-    this._contentFrameEl = this._root.querySelector(
-      `.${styles.contentFrame}`
-    );
-    this._contentFrameContainerEl = this._root.querySelector(
-      `.${styles.frameContainer}`
-    );
-    this._toggleEl = this._root.querySelector(
-      `.${styles.toggle}`
-    );
-    this._presenceEl = this._root.querySelector(
-      `.${styles.presence}`
-    );
-
-    this._minTranslateX = 0;
-    this._translateX = 0;
-    this._translateY = 0;
-    this._appWidth = 0;
-    this._appHeight = 0;
-    this._dragStartPosition = null;
-
-    this._minimized = false;
-    this._appFocus = false;
-    this._dragging = false;
-    this._hover = false;
-    this._testMode = testMode;
-
-    this._version = version;
-    this._loading = true;
-
-    // logo_
-    this._logoUrl = logoUrl;
-    if (logoUrl) {
-      this._logoEl.src = logoUrl;
-    }
-    this._logoEl.addEventListener('dragstart', () => false);
-
-    // content
-    this._contentFrameEl
-      .setAttribute('class', `${[styles.contentFrame, className].join(' ')}`);
-
-    // toggle button
-    this._toggleEl.addEventListener('click', () => {
-      this.toggleMinimized();
+    auth,
+    detailedPresence,
+    composeText,
+    call,
+    webphone,
+    regionSettings,
+    stylesUri,
+    prefix,
+    ...options,
+  }) {
+    super({
+      ...options,
+      prefix,
+      actionTypes,
+      messageTypes,
+      presence: detailedPresence,
+      storageKey: 'adapterData',
     });
+    this._messageTypes = messageTypes;
+    this._auth = this::ensureExist(auth, 'auth');
+    this._presence = this::ensureExist(detailedPresence, 'detailedPresence');
+    this._composeText = this::ensureExist(composeText, 'composeText');
+    this._webphone = this::ensureExist(webphone, 'webphone');
+    this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');
+    this._call = this::ensureExist(call, 'call');
+    this._reducer = getReducer(this.actionTypes);
+    this._callSessions = new Map();
+    this._stylesUri = stylesUri;
+  }
 
-    this._presenceEl.addEventListener('click', () => {
-      this.gotoPresence();
-    });
+  initialize() {
+    window.addEventListener('message', event => this._onMessage(event));
+    this._insertExtendStyle();
+    this.store.subscribe(() => this._onStateChange());
+  }
 
-    this.syncClass();
-    this.setPresence({});
-    this.setSize({ width: this._appWidth, height: this._appHeight });
-    this.renderRestrictedPosition();
-
-    this._headerEl.addEventListener('mousedown', (e) => {
-      this._dragging = true;
-      this._dragStartPosition = {
-        x: e.clientX,
-        y: e.clientY,
-        translateX: this._translateX,
-        translateY: this._translateY,
-        minTranslateX: this._minTranslateX,
-      };
-      this.syncClass();
-    });
-    this._headerEl.addEventListener('mouseup', () => {
-      this._dragging = false;
-      this.syncClass();
-    });
-    window.parent.addEventListener('mousemove', (e) => {
-      if (this._dragging) {
-        if (e.buttons === 0) {
-          this._dragging = false;
-          this.syncClass();
-          return;
-        }
-        const delta = {
-          x: e.clientX - this._dragStartPosition.x,
-          y: e.clientY - this._dragStartPosition.y,
-        };
-        if (this._minimized) {
-          this._minTranslateX = this._dragStartPosition.minTranslateX + delta.x;
-        } else {
-          this._translateX = this._dragStartPosition.translateX + delta.x;
-          this._translateY = this._dragStartPosition.translateY + delta.y;
-        }
-        this.renderRestrictedPosition();
-      }
-    });
-
-    this._resizeTimeout = null;
-    this._resizeTick = null;
-    window.parent.addEventListener('resize', () => {
-      if (this._dragging) { return; }
-      if (this._resizeTimeout) { clearTimeout(this._resizeTimeout); }
-      this._resizeTimeout = setTimeout(() => this.renderRestrictedPosition(), 100);
-      if (!this._resizeTick || Date.now() - this._resizeTick > 50) {
-        this._resizeTick = Date.now();
-        this.renderRestrictedPosition();
-      }
-    });
-
-    window.addEventListener('message', (e) => {
-      const data = e.data;
-      if (data) {
-        switch (data.type) {
-          case 'rc-set-minimized':
-            this.setMinimized(data.minimized);
-            break;
-          case 'rc-set-ringing':
-            this.setRinging(data.ringing);
-            break;
-          case 'rc-set-size':
-            this.setSize(data.size);
-            break;
-          case 'rc-set-focus':
-            this.setFocus(data.focus);
-            break;
-          case 'rc-set-presence':
-            this.setPresence(data.presence);
-            break;
-          case 'rc-call-ring-notify':
-            console.log('ring call:');
-            console.log(data.call);
-            this.setMinimized(false);
-            break;
-          case 'rc-call-start-notify':
-            console.log('start call:');
-            console.log(data.call);
-            break;
-          case 'rc-call-end-notify':
-            console.log('end call:');
-            console.log(data.call);
-            break;
-          case 'rc-version':
-            this.reportVersion();
-            break;
-          case 'rc-adapter-init':
-            this.init(data);
-            break;
-          case 'rc-ribbon-default':
-            this.setMinimized(false);
-            break;
-          default:
-            break;
-        }
-      }
-    });
-
-    this._root.addEventListener('mouseenter', () => {
-      this._hover = true;
-      this.syncClass();
-    });
-    this._root.addEventListener('mouseleave', () => {
-      this._hover = false;
-      this.syncClass();
-    });
-
-    const phoneCallTags = window.document.querySelectorAll('a[href^="tel:"]');
-    for (let i = 0; i < phoneCallTags.length; ++i) {
-      const phoneTag = phoneCallTags[i];
-      phoneTag.addEventListener('click', () => {
-        const hrefStr = phoneTag.getAttribute('href');
-        const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
-        this.clickToCall(phoneNumber, true);
+  _onStateChange() {
+    if (this._shouldInit()) {
+      this.store.dispatch({
+        type: this.actionTypes.init,
+      });
+      this._pushAdapterState();
+      this.store.dispatch({
+        type: this.actionTypes.initSuccess,
       });
     }
-    const phoneSMSTags = window.document.querySelectorAll('a[href^="sms:"]');
-    for (let i = 0; i < phoneSMSTags.length; ++i) {
-      const phoneTag = phoneSMSTags[i];
-      phoneTag.addEventListener('click', () => {
-        const hrefStr = phoneTag.getAttribute('href');
-        const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
-        this.clickToSMS(phoneNumber);
+    this._pushPresence();
+    this._pushLocale();
+  }
+
+  _onMessage(event) {
+    const data = event.data;
+    if (data) {
+      switch (data.type) {
+        case 'rc-adapter-set-environment':
+          if (window.toggleEnv) {
+            window.toggleEnv();
+          }
+          break;
+        case 'rc-adapter-new-sms':
+          this._newSMS(data.phoneNumber);
+          break;
+        case 'rc-adapter-new-call':
+          this._newCall(data.phoneNumber, data.toCall);
+          break;
+        case 'rc-adapter-control-call':
+          this._controlCall(data.callAction, data.callId);
+          break;
+        default:
+          super._onMessage(data);
+          break;
+      }
+    }
+  }
+
+  _pushAdapterState() {
+    this._postMessage({
+      type: this._messageTypes.pushAdapterState,
+      size: this.size,
+      minimized: this.minimized,
+      closed: this.closed,
+      position: this.position,
+      telephonyStatus: (this._auth.loggedIn && this._presence.telephonyStatus) || null,
+      userStatus: (this._auth.loggedIn && this._presence.userStatus) || null,
+      dndStatus: (this._auth.loggedIn && this._presence.dndStatus) || null,
+    });
+  }
+
+  _pushPresence() {
+    if (
+      this.ready &&
+      (
+        this._lastDndStatus !== this._presence.dndStatus ||
+        this._lastUserStatus !== this._presence.userStatus ||
+        this._lastTelephonyStatus !== this._presence.telephonyStatus
+      )
+    ) {
+      this._lastDndStatus = this._presence.dndStatus;
+      this._lastUserStatus = this._presence.userStatus;
+      this._lastTelephonyStatus = this._presence.telephonyStatus;
+      this._postMessage({
+        type: this._messageTypes.syncPresence,
+        telephonyStatus: (this._auth.loggedIn && this._presence.telephonyStatus) || null,
+        userStatus: (this._auth.loggedIn && this._presence.userStatus) || null,
+        dndStatus: (this._auth.loggedIn && this._presence.dndStatus) || null,
       });
     }
   }
 
-  _initContentDOM(prefix, appUrl) {
-    const topDocument = window.document;
-    let divEl = topDocument.querySelector(`#${prefix}`);
-    if (divEl) return divEl;
-    divEl = this._generateContentDOM(topDocument, prefix, appUrl);
-    topDocument.body.appendChild(divEl);
-    return divEl;
-  }
-
-  // eslint-disable-next-line
-  _generateContentDOM(topDocument, prefix, iframeSrc) {
-    const divEl = topDocument.createElement('div');
-    divEl.id = prefix;
-    divEl.setAttribute('class', classnames(styles.root, styles.loading));
-    divEl.draggable = false;
-
-    divEl.innerHTML = `
-      <style>${ribbonStyles.toString()}</style>
-      <header class="${styles.header}" draggable="false">
-        <div class="${styles.presence}">
-          <div class="${styles.presenceBar}">
-          </div>
-        </div>
-        <div class="${styles.button} ${styles.toggle}">
-          <div class="${styles.minimizeIcon}">
-            <div class="${styles.minimizeIconBar}"></div>
-          </div>
-        </div>
-        <img class="${styles.logo}" draggable="false"></img>
-      </header>
-      <div class="${styles.frameContainer}">
-        <iframe id="${prefix}-adapter-frame" class="${styles.contentFrame}" src="${iframeSrc}" allow="microphone">
-        </iframe>
-      </div>
-    `;
-    return divEl;
-  }
-
-  _postMessage(data) {
-    if (this._contentFrameEl.contentWindow) {
-      this._contentFrameEl.contentWindow.postMessage(data, '*');
+  _insertExtendStyle() {
+    if (!this._stylesUri) {
+      return;
     }
+    const link = window.document.createElement('link');
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+    link.href = this._stylesUri;
+    window.document.head.appendChild(link);
   }
 
-  renderPosition() {
+  ringCallNotify(session) {
+    if (this._callSessions.has(session.id)) {
+      return;
+    }
+    const call = { ...session };
+    this._callSessions.set(session.id, call);
     this._postMessage({
-      type: 'rc-adapter-sync-position',
-      translateX: this._translateX,
-      translateY: this._translateY,
-      minTranslateX: this._minTranslateX,
-    });
-    if (this._minimized) {
-      this._root.setAttribute(
-        'style',
-        `transform: translate( ${this._minTranslateX}px, 0)!important;`
-      );
-    } else {
-      this._root.setAttribute(
-        'style',
-        `transform: translate(${this._translateX}px, ${this._translateY}px)!important;`
-      );
-    }
-  }
-
-  renderRestrictedPosition() {
-    const style = document.defaultView.getComputedStyle(this._root, null);
-    const paddingX = (parseFloat(style.paddingLeft, 10) || 0) +
-      (parseFloat(style.paddingRight, 10) || 0);
-    const paddingY = (parseFloat(style.paddingTop, 10) || 0) +
-      (parseFloat(style.paddingBottom, 10) || 0);
-    const borderX = (parseFloat(style.borderLeftWidth, 10) || 0) +
-      (parseFloat(style.borderRightWidth, 10) || 0);
-    const borderY = (parseFloat(style.borderTopWidth, 10) || 0) +
-      (parseFloat(style.borderBottomWidth, 10) || 0);
-    const maximumX = window.parent.innerWidth -
-      (this._minimized ? this._headerEl.clientWidth : this._appWidth) - paddingX - borderX;
-    const maximumY = window.parent.innerHeight -
-      (this._minimized ?
-        this._headerEl.clientHeight :
-        this._headerEl.clientHeight + this._appHeight) - paddingY - borderY;
-
-    if (this._minimized) {
-      let x = this._minTranslateX;
-      x = Math.min(x, maximumX);
-      this._minTranslateX = Math.max(x, 0);
-    } else {
-      let x = this._translateX;
-      let y = this._translateY;
-      x = Math.min(x, maximumX);
-      x = Math.max(x, 0);
-      y = Math.min(y, 0);
-      y = Math.max(y, -maximumY);
-      this._translateX = x;
-      this._translateY = y;
-    }
-    //
-    this.renderPosition();
-  }
-
-  renderAdapterSize() {
-    if (this._minimized) {
-      this._contentFrameEl.style.width = 0;
-      this._contentFrameEl.style.height = 0;
-      this._contentFrameContainerEl.style.width = 0;
-      this._contentFrameContainerEl.style.height = 0;
-    } else {
-      this._contentFrameEl.style.width = `${this._appWidth}px`;
-      this._contentFrameEl.style.height = `${this._appHeight}px`;
-      this._contentFrameContainerEl.style.width = `${this._appWidth}px`;
-      this._contentFrameContainerEl.style.height = `${this._appHeight}px`;
-    }
-  }
-
-  syncClass() {
-    //  console.debug('this.sparkled>>>', this.sparkled);
-    this._root.setAttribute('class', classnames(
-      styles.root,
-      this._minimized && styles.minimized,
-      this._appFocus && styles.focus,
-      this._dragging && styles.dragging,
-      this._hover && styles.hover,
-      this._loading && styles.loading,
-      this._ringing && styles.ringing,
-    ));
-  }
-
-  setMinimized(minimized) {
-    this._minimized = !!minimized;
-    this.syncClass();
-    this.renderAdapterSize();
-    this.renderRestrictedPosition();
-    this._postMessage({
-      type: 'rc-adapter-minimized',
-      minimized: this._minimized,
+      type: 'rc-call-ring-notify',
+      call,
     });
   }
 
-  toggleMinimized() {
-    this.setMinimized(!this._minimized);
-  }
-
-  setRinging(ringing) {
-    this._ringing = !!ringing;
-    this.syncClass();
-  }
-
-  setFocus(focus) {
-    this._appFocus = !!focus;
-    this.syncClass();
+  startCallNotify(session) {
+    if (this._callSessions.has(session.id)) {
+      return;
+    }
+    const call = { ...session };
+    this._callSessions.set(session.id, call);
     this._postMessage({
-      type: 'rc-adapter-focus',
-      focus: this._appFocus,
+      type: 'rc-call-start-notify',
+      call,
     });
   }
 
-  setSize({ width, height }) {
-    this._appWidth = width;
-    this._appHeight = height;
-    this._contentFrameEl.style.width = `${width}px`;
-    this._contentFrameEl.style.height = `${height}px`;
-    this.renderAdapterSize();
+  endCallNotify(session) {
+    if (!this._callSessions.has(session.id)) {
+      return;
+    }
+    this._callSessions.delete(session.id);
     this._postMessage({
-      type: 'rc-adapter-size',
-      size: {
-        width: this._appWidth,
-        height: this._appHeight,
+      type: 'rc-call-end-notify',
+      call: {
+        ...session,
+        endTime: Date.now(),
       },
     });
   }
 
-  setPresence(presence) {
-    if (presence !== this.presence) {
-      this.presence = presence;
-      this._presenceEl.setAttribute('class', classnames(
-        this._minimized && styles.minimized,
-        styles.presence,
-        styles[presence.userStatus],
-        styles[presence.dndStatus],
-      ));
+  _controlCall(action, id) {
+    if (id && !this._callSessions.has(id)) {
+      return;
+    }
+    switch (action) {
+      case 'answer':
+        this._webphone.answer(id || this._webphone.ringSessionId);
+        break;
+      case 'reject':
+        this._webphone.reject(id || this._webphone.ringSessionId);
+        break;
+      case 'hangup':
+        this._webphone.hangup(id || this._webphone.activeSessionId);
+        break;
+      default:
+        break;
     }
   }
 
-  gotoPresence() {
-    this._postMessage({
-      type: 'rc-adapter-goto-presence',
-      version: this._version,
-    });
+  _newSMS(phoneNumber) {
+    if (!this._auth.loggedIn) {
+      return;
+    }
+    this._router.history.push('/composeText');
+    this._composeText.updateTypingToNumber(phoneNumber);
   }
 
-  reportVersion() {
-    this._postMessage({
-      type: 'rc-version-response',
-      version: this._version,
-    });
+  _newCall(phoneNumber, toCall = false) {
+    if (!this._auth.loggedIn) {
+      return;
+    }
+    if (!this._call.isIdle) {
+      return;
+    }
+    const isCall = this._isCallOngoing(phoneNumber);
+    if (isCall) {
+      return;
+    }
+    this._router.history.push('/dialer');
+    this._call.onToNumberChange(phoneNumber);
+    if (toCall) {
+      this._call.onCall();
+    }
   }
 
-  setEnvironment() {
-    this._postMessage({
-      type: 'rc-adapter-set-environment',
-    });
+  _isCallOngoing(phoneNumber) {
+    const countryCode = this._regionSettings.countryCode;
+    const areaCode = this._regionSettings.areaCode;
+    const normalizedNumber = normalizeNumber({ phoneNumber, countryCode, areaCode });
+    return !!this._webphone.sessions.find(
+      session => session.to === normalizedNumber
+    );
   }
 
-  clickToSMS(phoneNumber) {
-    this.setMinimized(false);
-    this._postMessage({
-      type: 'rc-adapter-new-sms',
-      phoneNumber,
-    });
+  // eslint-disable-next-line
+  _postMessage(data) {
+    if (window && window.parent) {
+      window.parent.postMessage(data, '*');
+    }
   }
 
-  clickToCall(phoneNumber, toCall = false) {
-    this.setMinimized(false);
-    this._postMessage({
-      type: 'rc-adapter-new-call',
-      phoneNumber,
-      toCall,
-    });
+  get ready() {
+    return this.state.status === moduleStatuses.ready;
   }
 
-  controlCall(action, id) {
-    this._postMessage({
-      type: 'rc-adapter-control-call',
-      callAction: action,
-      callId: id,
-    });
-  }
-
-  init({ size, minimized, position: { translateX, translateY, minTranslateX } }) {
-    this._postMessage({
-      type: 'rc-adapter-mode',
-      testMode: this._testMode,
-    });
-    this._minimized = minimized;
-    this._translateX = translateX;
-    this._translateY = translateY;
-    this._minTranslateX = minTranslateX;
-    this._loading = false;
-    this.syncClass();
-    this.setSize(size);
-    this.renderRestrictedPosition();
+  get pending() {
+    return this.state.status === moduleStatuses.pending;
   }
 }
-
-export default Adapter;

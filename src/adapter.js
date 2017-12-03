@@ -1,7 +1,6 @@
 import parseUri from './lib/parseUri';
 import logoUrl from './assets/images/VIE_Logo_RC.svg';
-import Adapter from './modules/Adapter';
-import brand from './config/brand';
+import Adapter from './lib/Adapter';
 import prefix from './config/prefix';
 
 const version = process.env.APP_VERSION;
@@ -47,18 +46,9 @@ function init() {
   window.RCAdapter = new Adapter({
     logoUrl,
     appUrl: appUri,
-    brand,
     version,
     prefix,
   });
-  setTimeout(() => {
-    window.RCAdapter.init({
-      size: { width: 300, height: 500 },
-      minimized: true,
-      closed: false,
-      position: { translateX: 700, translateY: 20, minTranslateX: 0 }
-    });
-  }, 2000);
 }
 
 if (document.readyState === 'complete') {
