@@ -37,9 +37,6 @@ class Adapter extends AdapterCore {
     }
     this._setAppUrl(appUrl);
     this._setLogoUrl(logoUrl);
-    this._selfObserver = new MutationObserver(mutations => this._onSelfObserverChange(mutations));
-    this._selfObserver.observe(document.head, { childList: true });
-    this._selfObserver.observe(document.body, { childList: true });
 
     this._version = version;
     window.addEventListener('message', (e) => {
