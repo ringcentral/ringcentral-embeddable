@@ -68,7 +68,6 @@ class Adapter extends AdapterCore {
   }
 
   _onMessage(data) {
-    console.log(data);
     if (data) {
       switch (data.type) {
         case 'rc-call-ring-notify':
