@@ -48,7 +48,7 @@ const config = {
       },
     }),
   ],
-  devtool: 'eval',
+  devtool: 'eval-source-map',
   module: {
     rules: [
       {

@@ -1,0 +1,17 @@
+@import 'ringcentral-widgets/lib/AdapterCore/styles';
+
+.hack {
+  background: url('https://{{rc-styles}}');
+}
+
+.root {
+  top: initial!important;
+}
+
+.close {
+  display: none;
+}
+
+.toggle {
+  right: 10px;
+}
