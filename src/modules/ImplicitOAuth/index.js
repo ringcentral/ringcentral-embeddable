@@ -83,6 +83,40 @@ export default class ImplicitOAuth extends ProxyFrameOAuth {
     }
   }
 
+  _createImplicitRefreshIframe() {
+    this._implicitRefreshFrame = document.createElement('iframe');
+    this._implicitRefreshFrame.src = this.implictRefreshOAuthUri;
+    this._implicitRefreshFrame.style.display = 'none';
+    document.body.appendChild(this._implicitRefreshFrame);
+    this._implictitRefreshCallBack = ({ origin, data }) => {
+      const { refreshCallbackUri } = data;
+      if (refreshCallbackUri) {
+        console.log(refreshCallbackUri);
+      }
+    };
+    window.addEventListener('message', this._implictitRefreshCallBack);
+  }
+
+  _clearImplicitRefreshIframe() {
+    if (this._implicitRefreshFrame) {
+      document.body.removeChild(this._implicitRefreshFrame);
+      this._implicitRefreshFrame = null;
+      window.removeEventListener('message', this._implictitRefreshCallBack);
+      this._callbackHandler = null;
+    }
+  }
+
+  get implictRefreshOAuthUri() {
+    return `${this._auth.getLoginUrl({
+      redirectUri: this.redirectUri,
+      brandId: this._brand.id,
+      state: btoa(Date.now()),
+      display: 'page',
+      prompt: 'none',
+      implicit: this._auth.isImplicit,
+    })}`;
+  }
+
   get oAuthUri() {
     const extendedQuery = qs.stringify({
       force: true,

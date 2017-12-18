@@ -27,6 +27,17 @@ export default class RedirectController {
         console.error(e);
         /* ignore error */
       }
+      try {
+        // iframe
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            refreshCallbackUri: callbackUri,
+          }, '*');
+        }
+      } catch (e) {
+        console.error(e);
+        /* ignore error */
+      }
       // fall back to use localStorage as a vessel to avoid opener is null bug
       const key = `${prefix}-redirect-callbackUri`;
       localStorage.removeItem(key);
