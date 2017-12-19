@@ -3705,7 +3705,11 @@ modify-babel-preset@^1.0.0:
   dependencies:
     require-relative "^0.8.7"
 
-moment@^2.19.2, moment@^2.19.3:
+moment@^2.19.2:
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.20.0.tgz#53396358994dd3a551e966a66af715ecb6c30ad0"
+
+moment@^2.19.3:
   version "2.19.3"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.19.3.tgz#bdb99d270d6d7fda78cc0fbace855e27fe7da69f"
 
@@ -4454,8 +4458,8 @@ preserve@^0.2.0:
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
 
 prettier@^1.7.0:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.8.2.tgz#bff83e7fd573933c607875e5ba3abbdffb96aeb8"
+  version "1.9.2"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.9.2.tgz#96bc2132f7a32338e6078aeb29727178c6335827"
 
 private@^0.1.6, private@^0.1.7:
   version "0.1.8"
@@ -5066,9 +5070,9 @@ ringcentral-client@^1.0.0-rc1:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.7.29:
-  version "0.7.29"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.7.29.tgz#a7ffbb26baca38023053dac6e5d4c1061889e43c"
+ringcentral-integration@^0.7.32:
+  version "0.7.32"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.7.32.tgz#fdf3c896889ecd21b2424f14cfe1e140a8bed786"
   dependencies:
     file-loader "^0.11.2"
     json-mask "^0.3.8"
@@ -5089,9 +5093,9 @@ ringcentral-web-phone@^0.4.5:
   dependencies:
     sip.js "^0.7.8"
 
-ringcentral-widgets@^0.5.4:
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.5.4.tgz#5018dc21bf538b4038ca73d3d14c28acc8aa2ddf"
+ringcentral-widgets@^0.5.7:
+  version "0.5.7"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.5.7.tgz#c7d7874d04d85d11ba61ae16e313106a134e9456"
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"

@@ -16,6 +16,7 @@ import getReducer from './getReducer';
     'DetailedPresence',
     'ComposeText',
     'Call',
+    'DialerUI',
     'Webphone',
     'RegionSettings',
     'GlobalStorage',
@@ -29,6 +30,7 @@ export default class Adapter extends AdapterModuleCore {
     detailedPresence,
     composeText,
     call,
+    dialerUI,
     webphone,
     regionSettings,
     stylesUri,
@@ -50,6 +52,7 @@ export default class Adapter extends AdapterModuleCore {
     this._webphone = this::ensureExist(webphone, 'webphone');
     this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');
     this._call = this::ensureExist(call, 'call');
+    this._dialerUI = this::ensureExist(dialerUI, 'dialerUI');
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
@@ -206,7 +209,7 @@ export default class Adapter extends AdapterModuleCore {
     if (!this._auth.loggedIn) {
       return;
     }
-    this._router.history.push('/composeText');
+    this._router.push('/composeText');
     this._composeText.updateTypingToNumber(phoneNumber);
   }
 
@@ -221,10 +224,10 @@ export default class Adapter extends AdapterModuleCore {
     if (isCall) {
       return;
     }
-    this._router.history.push('/dialer');
-    this._call.onToNumberChange(phoneNumber);
+    this._router.push('/dialer');
+    this._dialerUI.setToNumberField(phoneNumber);
     if (toCall) {
-      this._call.onCall();
+      this._dialerUI.call({ phoneNumber });
     }
   }
 
