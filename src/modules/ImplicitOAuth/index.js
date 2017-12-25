@@ -46,18 +46,13 @@ export default class ImplicitOAuth extends ProxyFrameOAuth {
     }
   };
 
-  async _handleCallbackUri(callbackUri) {
+  async _handleCallbackUri(callbackUri, refresh = false) {
     try {
       const query = parseCallbackUri(callbackUri);
-      if (query.code || query.access_token) {
-        await this._auth.login({
-          code: query.code,
-          accessToken: query.access_token,
-          expiresIn: query.expires_in,
-          endpointId: query.endpoint_id,
-          redirectUri: this.redirectUri,
-          tokenType: query.token_type,
-        });
+      if (refresh) {
+        await this._refreshWithCallbackQuery(query);
+      } else {
+        await this._loginWithCallbackQuery(query);
       }
     } catch (error) {
       let message;
@@ -81,17 +76,68 @@ export default class ImplicitOAuth extends ProxyFrameOAuth {
         payload: error,
       });
     }
+    if (this._auth.isImplicit && this._auth.loggedIn) {
+      this._createImplicitRefreshTimeout();
+    }
+  }
+
+  async _loginWithCallbackQuery(query) {
+    if (!(query.code || query.access_token)) {
+      return;
+    }
+    await this._auth.login({
+      code: query.code,
+      accessToken: query.access_token,
+      expiresIn: query.expires_in,
+      endpointId: query.endpoint_id,
+      redirectUri: this.redirectUri,
+      tokenType: query.token_type,
+    });
+  }
+
+  async _refreshWithCallbackQuery(query) {
+    if (!query.access_token) {
+      return;
+    }
+    await this._auth.refreshImplicitToken({
+      tokenType: query.token_type,
+      accessToken: query.access_token,
+      expiresIn: query.expires_in,
+      endpointId: query.endpoint_id,
+    });
+  }
+
+  _createImplicitRefreshTimeout() {
+    if (this._implicitRefreshTimeoutId) {
+      clearTimeout(this._implicitRefreshTimeoutId);
+    }
+    const authData = this._client.service.platform().auth().data();
+    const refreshTokenExpiresIn = authData.refresh_token_expires_in;
+    if (!refreshTokenExpiresIn) {
+      return;
+    }
+    const refreshTokenTimeoutTime = (parseInt(refreshTokenExpiresIn, 10) * 1000) / 3;
+    if (refreshTokenTimeoutTime < 2000) {
+      return;
+    }
+    this._implicitRefreshTimeoutId = setTimeout(() => {
+      this._createImplicitRefreshIframe();
+      this._implicitRefreshTimeoutId = null;
+    }, refreshTokenTimeoutTime);
   }
 
   _createImplicitRefreshIframe() {
+    this._clearImplicitRefreshIframe();
     this._implicitRefreshFrame = document.createElement('iframe');
     this._implicitRefreshFrame.src = this.implictRefreshOAuthUri;
     this._implicitRefreshFrame.style.display = 'none';
     document.body.appendChild(this._implicitRefreshFrame);
     this._implictitRefreshCallBack = ({ origin, data }) => {
       const { refreshCallbackUri } = data;
-      if (refreshCallbackUri) {
-        console.log(refreshCallbackUri);
+      if (refreshCallbackUri && this._auth.loggedIn) {
+        // console.log(refreshCallbackUri);
+        this._handleCallbackUri(refreshCallbackUri, true);
+        this._clearImplicitRefreshIframe();
       }
     };
     window.addEventListener('message', this._implictitRefreshCallBack);
