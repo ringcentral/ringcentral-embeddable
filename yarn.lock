@@ -5093,9 +5093,9 @@ ringcentral-web-phone@^0.4.5:
   dependencies:
     sip.js "^0.7.8"
 
-ringcentral-widgets@^0.5.7:
-  version "0.5.7"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.5.7.tgz#c7d7874d04d85d11ba61ae16e313106a134e9456"
+ringcentral-widgets@^0.5.8:
+  version "0.5.8"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.5.8.tgz#aa89dd8b20cf016556bd09ef8cc11e98d6533e8c"
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
