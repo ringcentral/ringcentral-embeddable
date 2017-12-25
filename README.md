@@ -6,7 +6,7 @@ This is an out-of-the-box embeddable web application built using the RingCentral
 
 Built with:
 
-* [RingCentral Commons](https://github.com/ringcentral/ringcentral-js-integration-commons/) and
+* [RingCentral Commons](https://github.com/ringcentral/ringcentral-js-integration-commons/)
 * [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets)
 
 ## Dependences
@@ -212,7 +212,7 @@ $ git clone https://github.com/ringcentral/ringcentral-web-widget.git
 
 The `appSecret` is optional to enable the authorization code flow. If you don't provide `appSecret`, the app will use the implicit grant flow.
 
-App Permissions required: `Edit Message`, `Edit Presence`, `Faxes`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling`
+App Permissions required: `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling`
 
 ### Start development server
 
