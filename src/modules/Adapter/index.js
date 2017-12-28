@@ -1,6 +1,7 @@
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
 import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
+import { isRing } from 'ringcentral-integration/modules/Webphone/webphoneHelper';
 import { Module } from 'ringcentral-integration/lib/di';
 
 import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
@@ -162,7 +163,10 @@ export default class Adapter extends AdapterModuleCore {
 
   startCallNotify(session) {
     if (this._callSessions.has(session.id)) {
-      return;
+      const lastSession = this._callSessions.get(session.id);
+      if (!isRing(lastSession)) {
+        return;
+      }
     }
     const call = { ...session };
     this._callSessions.set(session.id, call);
