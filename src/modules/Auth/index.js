@@ -65,6 +65,7 @@ export default class ImplicitAuth extends Auth {
         token_type: tokenType,
         access_token: accessToken,
         expires_in: expiresIn,
+        refresh_token_expires_in: expiresIn,
       });
       const extensionData = await this._client.account().extension().get();
       ownerId = extensionData.id;
@@ -82,6 +83,33 @@ export default class ImplicitAuth extends Auth {
       token_type: tokenType,
       owner_id: ownerId,
     });
+  }
+
+  async refreshImplicitToken({
+    tokenType,
+    accessToken,
+    expiresIn,
+    endpointId,
+  }) {
+    try {
+      const extensionData = await this._client.account().extension().get();
+      const ownerId = extensionData.id;
+      if (ownerId !== this.ownerId) {
+        return;
+      }
+      const platform = this._client.service.platform();
+      const newAuthData = {
+        token_type: tokenType,
+        access_token: accessToken,
+        expires_in: expiresIn,
+        refresh_token_expires_in: expiresIn,
+        endpoint_id: endpointId,
+      };
+      platform.auth().setData(newAuthData);
+      platform.emit(platform.events.refreshSuccess, newAuthData);
+    } catch (error) {
+      console.error('refreshImplicitToken error:', error);
+    }
   }
 
   /**
