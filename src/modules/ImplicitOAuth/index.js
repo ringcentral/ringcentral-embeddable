@@ -13,6 +13,28 @@ import parseCallbackUri from '../../lib/parseUri';
   ],
 })
 export default class ImplicitOAuth extends ProxyFrameOAuth {
+  constructor(options) {
+    super(options);
+    this._loggedIn = false;
+  }
+
+  _onStateChange() {
+    super._onStateChange();
+    if (this._auth.loggedIn !== this._loggedIn) {
+      this._loggedIn = this._auth.loggedIn;
+      if (this._loggedIn && this._auth.isImplicit) {
+        console.log('new login, start refresh token timeout');
+        this._createImplicitRefreshTimeout();
+      }
+      if (!this._loggedIn && this._auth.isImplicit) {
+        this._clearImplicitRefreshIframe();
+        if (this._implicitRefreshTimeoutId) {
+          clearTimeout(this._implicitRefreshTimeoutId);
+        }
+      }
+    }
+  }
+
   _callbackHandler = async ({ origin, data }) => {
     // TODO origin check
     if (data) {
@@ -111,16 +133,23 @@ export default class ImplicitOAuth extends ProxyFrameOAuth {
     if (this._implicitRefreshTimeoutId) {
       clearTimeout(this._implicitRefreshTimeoutId);
     }
-    const authData = this._client.service.platform().auth().data();
-    const refreshTokenExpiresIn = authData.refresh_token_expires_in;
-    if (!refreshTokenExpiresIn) {
+    const authData = this._auth.token;
+    const refreshTokenExpiresIn = authData.expiresIn;
+    const expireTime = authData.expireTime;
+    if (!refreshTokenExpiresIn || !expireTime) {
       return;
     }
-    const refreshTokenTimeoutTime = (parseInt(refreshTokenExpiresIn, 10) * 1000) / 3;
-    if (refreshTokenTimeoutTime < 2000) {
-      return;
+    let refreshTokenTimeoutTime = (parseInt(refreshTokenExpiresIn, 10) * 1000) / 3;
+    if (refreshTokenTimeoutTime + Date.now() > expireTime) {
+      refreshTokenTimeoutTime = expireTime - Date.now() - 5000;
+      if (refreshTokenTimeoutTime < 0) {
+        return;
+      }
     }
     this._implicitRefreshTimeoutId = setTimeout(() => {
+      if (!this._auth.loggedIn) {
+        return;
+      }
       this._createImplicitRefreshIframe();
       this._implicitRefreshTimeoutId = null;
     }, refreshTokenTimeoutTime);
@@ -135,7 +164,6 @@ export default class ImplicitOAuth extends ProxyFrameOAuth {
     this._implictitRefreshCallBack = ({ origin, data }) => {
       const { refreshCallbackUri } = data;
       if (refreshCallbackUri && this._auth.loggedIn) {
-        // console.log(refreshCallbackUri);
         this._handleCallbackUri(refreshCallbackUri, true);
         this._clearImplicitRefreshIframe();
       }
