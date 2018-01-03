@@ -18,6 +18,26 @@ export default class ImplicitOAuth extends ProxyFrameOAuth {
     this._loggedIn = false;
   }
 
+  initialize() {
+    this.store.subscribe(() => this._onStateChange());
+    this._checkGrantType();
+  }
+
+  async _checkGrantType() {
+    try {
+      const response = await fetch(this.oAuthUri);
+      if (response.status === 400 && !response.redirected) {
+        console.error(
+`Grant type or redirect uri of this app is invalid, \
+please use appKey with ${this._auth.isImplicit ? 'implicit flow' : 'authorization code'} grant \
+or add '${this.redirectUri}' to your app in RingCentral Platform Wesite.`
+        );
+      }
+    } catch (error) {
+      //
+    }
+  }
+
   _onStateChange() {
     super._onStateChange();
     if (this._auth.loggedIn !== this._loggedIn) {
