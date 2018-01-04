@@ -71,6 +71,17 @@ export default class ImplicitOAuth extends ProxyFrameOAuth {
   async _handleCallbackUri(callbackUri, refresh = false) {
     try {
       const query = parseCallbackUri(callbackUri);
+      if (query.error && query.error_description) {
+        this._alert.danger({
+          message: authErrors.oAuthCallbackError,
+          payload: {
+            error: query.error,
+            description: query.error_description,
+          },
+          ttl: 0,
+        });
+        return;
+      }
       if (refresh) {
         await this._refreshWithCallbackQuery(query);
       } else {

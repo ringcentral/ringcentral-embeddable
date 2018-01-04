@@ -7,7 +7,14 @@ const messages = {
 };
 
 function ErrorAlert(props) {
-  const msg = messages[props.message.message];
+  let msg;
+  if (props.message.message === authErrors.oAuthCallbackError) {
+    msg =
+      props.message.payload &&
+      `${props.message.payload.error}: ${props.message.payload.description}`;
+  } else {
+    msg = messages[props.message.message];
+  }
   return (
     <span>{msg}</span>
   );
@@ -16,11 +23,13 @@ function ErrorAlert(props) {
 ErrorAlert.propTypes = {
   message: PropTypes.shape({
     message: PropTypes.string.isRequired,
+    payload: PropTypes.object,
   }).isRequired,
 };
 
 ErrorAlert.handleMessage = ({ message }) => (
-  message === authErrors.popWindowError
+  message === authErrors.popWindowError ||
+  message === authErrors.oAuthCallbackError
 );
 
 export default function getAlertRenderer() {
