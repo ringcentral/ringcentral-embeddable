@@ -91,6 +91,17 @@ or add '${this.redirectUri}' to your app in RingCentral Platform Wesite.`
   async _handleCallbackUri(callbackUri, refresh = false) {
     try {
       const query = parseCallbackUri(callbackUri);
+      if (query.error && query.error_description) {
+        this._alert.danger({
+          message: authErrors.oAuthCallBackError,
+          payload: {
+            error: query.error,
+            description: query.error_description,
+          },
+          ttl: 0,
+        });
+        return;
+      }
       if (refresh) {
         await this._refreshWithCallbackQuery(query);
       } else {
