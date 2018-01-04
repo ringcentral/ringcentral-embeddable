@@ -8,10 +8,10 @@ const messages = {
 
 function ErrorAlert(props) {
   let msg;
-  if (props.message.message === authErrors.oAuthCallBackError) {
+  if (props.message.message === authErrors.oAuthCallbackError) {
     msg =
       props.message.payload &&
-      `[${props.message.payload.error}] ${props.message.payload.description}`;
+      `${props.message.payload.error}: ${props.message.payload.description}`;
   } else {
     msg = messages[props.message.message];
   }
@@ -29,7 +29,7 @@ ErrorAlert.propTypes = {
 
 ErrorAlert.handleMessage = ({ message }) => (
   message === authErrors.popWindowError ||
-  message === authErrors.oAuthCallBackError
+  message === authErrors.oAuthCallbackError
 );
 
 export default function getAlertRenderer() {

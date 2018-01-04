@@ -73,7 +73,7 @@ export default class ImplicitOAuth extends ProxyFrameOAuth {
       const query = parseCallbackUri(callbackUri);
       if (query.error && query.error_description) {
         this._alert.danger({
-          message: authErrors.oAuthCallBackError,
+          message: authErrors.oAuthCallbackError,
           payload: {
             error: query.error,
             description: query.error_description,
