@@ -80,6 +80,9 @@ class Adapter extends AdapterCore {
           console.log('end call:');
           console.log(data.call);
           break;
+        case 'rc-login-status-notify':
+          console.log('rc-login-status-notify:', data.loggedIn);
+          break;
         default:
           super._onMessage(data);
           break;
