@@ -57,6 +57,7 @@ export default class Adapter extends AdapterModuleCore {
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
+    this._loggedIn = false;
   }
 
   initialize() {
@@ -77,6 +78,7 @@ export default class Adapter extends AdapterModuleCore {
     }
     this._pushPresence();
     this._pushLocale();
+    this._checkLoginStatus();
   }
 
   _onMessage(event) {
@@ -136,6 +138,17 @@ export default class Adapter extends AdapterModuleCore {
         dndStatus: (this._auth.loggedIn && this._presence.dndStatus) || null,
       });
     }
+  }
+
+  _checkLoginStatus() {
+    if (this._loggedIn === this._auth.loggedIn) {
+      return;
+    }
+    this._loggedIn = this._auth.loggedIn;
+    this._postMessage({
+      type: 'rc-login-status-notify',
+      loggedIn: this._loggedIn,
+    });
   }
 
   _insertExtendStyle() {
