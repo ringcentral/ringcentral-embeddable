@@ -146,6 +146,12 @@ class Adapter extends AdapterCore {
       callId: id,
     });
   }
+
+  logoutUser() {
+    this._postMessage({
+      type: 'rc-adapter-logout',
+    });
+  }
 }
 
 export default Adapter;

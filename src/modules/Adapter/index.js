@@ -99,6 +99,11 @@ export default class Adapter extends AdapterModuleCore {
         case 'rc-adapter-control-call':
           this._controlCall(data.callAction, data.callId);
           break;
+        case 'rc-adapter-logout':
+          if (this._auth.loggedIn) {
+            this._auth.logout();
+          }
+          break;
         default:
           super._onMessage(data);
           break;
