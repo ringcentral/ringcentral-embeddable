@@ -1,4 +1,4 @@
-import popWindow from 'ringcentral-integration/lib/popWindow';
+import popWindow from 'ringcentral-widgets/lib/popWindow';
 
 export default class ProxyFrameController {
   constructor({
