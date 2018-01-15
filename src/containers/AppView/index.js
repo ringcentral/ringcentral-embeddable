@@ -56,7 +56,7 @@ AppView.defaultProps = {
 export default withPhone(connect((_, {
   phone: {
     locale,
-    auth,
+    oAuth,
     environment,
     connectivityMonitor,
     rateLimiter,
@@ -69,10 +69,10 @@ export default withPhone(connect((_, {
   enabled: environment.enabled,
   offline: (
     !connectivityMonitor.connectivity ||
-    auth.proxyRetryCount > 0 ||
+    oAuth.proxyRetryCount > 0 ||
     rateLimiter.throttling
   ),
-  redirectUri: auth.redirectUri
+  redirectUri: oAuth.redirectUri
 }), (_, {
   phone: {
     environment,
