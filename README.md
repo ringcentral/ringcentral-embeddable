@@ -147,6 +147,24 @@ window.addEventListener('message', (e) => {
 });
 ```
 
+### Get login status from widget
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-login-status-notify':
+        // get login status from widget
+        console.log('rc-login-status-notify:', data.loggedIn);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
 ### Control the call
 
 #### Answer a ringing call
