@@ -121,7 +121,7 @@ document.querySelector("#rc-widget").contentWindow.postMessage({
 ```
 This feature can be used for `Click to SMS`
 
-### Get new call message from widget
+### Get new web phone call event from widget
 
 ```js
 window.addEventListener('message', (e) => {
@@ -138,6 +138,24 @@ window.addEventListener('message', (e) => {
         break;
       case 'rc-call-start-notify':
         // get call on start a outbound call event
+        console.log(data.call);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
+### Get new active call event from widget (all active calls in current extension)
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-active-call-notify':
+        // get call on active call updated event
         console.log(data.call);
         break;
       default:

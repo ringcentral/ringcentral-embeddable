@@ -1,4 +1,6 @@
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
+import telephonyStatuses from 'ringcentral-integration/enums/telephonyStatuses';
+import terminationTypes from 'ringcentral-integration/enums/terminationTypes';
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
 import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
 import { isRing } from 'ringcentral-integration/modules/Webphone/webphoneHelper';
@@ -20,6 +22,7 @@ import getReducer from './getReducer';
     'DialerUI',
     'Webphone',
     'RegionSettings',
+    'CallingSettings',
     'GlobalStorage',
     'Locale',
     { dep: 'AdapterOptions', optional: true }
@@ -34,6 +37,7 @@ export default class Adapter extends AdapterModuleCore {
     dialerUI,
     webphone,
     regionSettings,
+    callingSettings,
     stylesUri,
     prefix,
     ...options,
@@ -45,6 +49,8 @@ export default class Adapter extends AdapterModuleCore {
       messageTypes,
       presence: detailedPresence,
       storageKey: 'adapterData',
+      webphone,
+      callingSettings,
     });
     this._messageTypes = messageTypes;
     this._auth = this::ensureExist(auth, 'auth');
@@ -52,12 +58,15 @@ export default class Adapter extends AdapterModuleCore {
     this._composeText = this::ensureExist(composeText, 'composeText');
     this._webphone = this::ensureExist(webphone, 'webphone');
     this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');
+    this._callingSettings = this::ensureExist(callingSettings, 'callingSettings');
     this._call = this::ensureExist(call, 'call');
     this._dialerUI = this::ensureExist(dialerUI, 'dialerUI');
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
     this._loggedIn = false;
+    this._lastActiveCalls = [];
+    this._lastEndedActiveCallMap = {};
   }
 
   initialize() {
@@ -79,6 +88,7 @@ export default class Adapter extends AdapterModuleCore {
     this._pushPresence();
     this._pushLocale();
     this._checkLoginStatus();
+    this._pushActiveCall();
   }
 
   _onMessage(event) {
@@ -143,6 +153,58 @@ export default class Adapter extends AdapterModuleCore {
         dndStatus: (this._auth.loggedIn && this._presence.dndStatus) || null,
       });
     }
+  }
+
+  _pushActiveCall() {
+    if (this._lastActiveCalls === this._presence.calls) {
+      return;
+    }
+    const lastActiveCallsMap = {};
+    this._lastActiveCalls.forEach((call) => {
+      lastActiveCallsMap[`${call.sessionId}${call.direction}`] = call;
+    });
+    this._lastActiveCalls = this._presence.calls;
+    const changedCalls = [];
+    // Ended Call is not in this._presence.calls
+    // So if one call existed in last calls and not existed in new calls, it is ended
+    this._presence.calls.forEach((call) => {
+      const oldCall = lastActiveCallsMap[`${call.sessionId}${call.direction}`];
+      if (!oldCall) {
+        changedCalls.push({ ...call });
+        return;
+      }
+      if (
+        oldCall.telephonyStatus !== call.telephonyStatus ||
+        oldCall.terminationType !== call.terminationType
+      ) {
+        changedCalls.push({ ...call });
+      }
+      delete lastActiveCallsMap[`${call.sessionId}${call.direction}`];
+    });
+    const endedActiveCallMap = this._lastEndedActiveCallMap;
+    this._lastEndedActiveCallMap = {};
+    // add ended call
+    Object.keys(lastActiveCallsMap).forEach((callId) => {
+      const endedCall = lastActiveCallsMap[callId];
+      this._lastEndedActiveCallMap[callId] = endedCall;
+      if (endedActiveCallMap[callId]) {
+        return;
+      }
+      const missed = (endedCall.telephonyStatus === telephonyStatuses.ringing);
+      changedCalls.push({
+        ...endedCall,
+        telephonyStatus: telephonyStatuses.noCall,
+        terminationType: terminationTypes.final,
+        missed,
+        endTime: missed ? null : Date.now(),
+      });
+    });
+    changedCalls.forEach(({ sipData, id, ...call }) => {
+      this._postMessage({
+        type: 'rc-active-call-notify',
+        call
+      });
+    });
   }
 
   _checkLoginStatus() {
