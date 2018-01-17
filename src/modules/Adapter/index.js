@@ -22,7 +22,6 @@ import getReducer from './getReducer';
     'DialerUI',
     'Webphone',
     'RegionSettings',
-    'CallingSettings',
     'GlobalStorage',
     'Locale',
     { dep: 'AdapterOptions', optional: true }
@@ -37,7 +36,6 @@ export default class Adapter extends AdapterModuleCore {
     dialerUI,
     webphone,
     regionSettings,
-    callingSettings,
     stylesUri,
     prefix,
     ...options,
@@ -50,7 +48,6 @@ export default class Adapter extends AdapterModuleCore {
       presence: detailedPresence,
       storageKey: 'adapterData',
       webphone,
-      callingSettings,
     });
     this._messageTypes = messageTypes;
     this._auth = this::ensureExist(auth, 'auth');
@@ -58,7 +55,6 @@ export default class Adapter extends AdapterModuleCore {
     this._composeText = this::ensureExist(composeText, 'composeText');
     this._webphone = this::ensureExist(webphone, 'webphone');
     this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');
-    this._callingSettings = this::ensureExist(callingSettings, 'callingSettings');
     this._call = this::ensureExist(call, 'call');
     this._dialerUI = this::ensureExist(dialerUI, 'dialerUI');
     this._reducer = getReducer(this.actionTypes);
