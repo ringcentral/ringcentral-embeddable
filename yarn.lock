@@ -5026,7 +5026,7 @@ require-uncached@^1.0.2:
     caller-path "^0.1.0"
     resolve-from "^1.0.0"
 
-requires-port@1.0.x, requires-port@1.x.x:
+requires-port@1.0.x, requires-port@1.x.x, requires-port@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
 
@@ -5070,9 +5070,9 @@ ringcentral-client@^1.0.0-rc1:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.7.35:
-  version "0.7.35"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.7.35.tgz#a1c77e50d63bd5a1789d3f164d78ba6c0a54707c"
+ringcentral-integration@^0.7.36:
+  version "0.7.36"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.7.36.tgz#d0ee6261d2664fd048622931f4a98858da114a63"
   dependencies:
     file-loader "^0.11.2"
     json-mask "^0.3.8"
@@ -5093,9 +5093,9 @@ ringcentral-web-phone@^0.4.5:
   dependencies:
     sip.js "^0.7.8"
 
-ringcentral-widgets@^0.5.10:
-  version "0.5.10"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.5.10.tgz#cc7df454a9b1d69ec300c267f486feaf8f59c9c0"
+ringcentral-widgets@^0.5.12:
+  version "0.5.12"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.5.12.tgz#826a25a2dac90bd520d4e4522ca7f635020d730c"
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
@@ -5110,6 +5110,7 @@ ringcentral-widgets@^0.5.10:
     react-widgets "^4.1.1"
     react-widgets-moment "^4.0.4"
     through2 "^2.0.3"
+    url-parse "^1.2.0"
     uuid "^3.1.0"
 
 ringcentral@^3.1.3:
@@ -5796,6 +5797,13 @@ url-parse@^1.1.1:
   dependencies:
     querystringify "~1.0.0"
     requires-port "1.0.x"
+
+url-parse@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.2.0.tgz#3a19e8aaa6d023ddd27dcc44cb4fc8f7fec23986"
+  dependencies:
+    querystringify "~1.0.0"
+    requires-port "~1.0.0"
 
 url@^0.11.0:
   version "0.11.0"

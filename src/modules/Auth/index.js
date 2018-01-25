@@ -3,6 +3,7 @@ import Auth from 'ringcentral-integration/modules/Auth';
 import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
 
 @Module({
+  name: 'Auth',
   deps: [
     'Client',
     'Alert',

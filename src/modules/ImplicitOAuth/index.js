@@ -10,12 +10,17 @@ import parseCallbackUri from '../../lib/parseUri';
   name: 'ImplicitOAuth',
   deps: [
     { dep: 'ImplicitOAuthOptions', optional: true },
+    { dep: 'TabManager', optional: true },
   ],
 })
 export default class ImplicitOAuth extends ProxyFrameOAuth {
-  constructor(options) {
+  constructor({
+    tabManager,
+    ...options
+  }) {
     super(options);
     this._loggedIn = false;
+    this._tabManager = tabManager;
   }
 
   _onStateChange() {
@@ -159,6 +164,10 @@ export default class ImplicitOAuth extends ProxyFrameOAuth {
     }
     this._implicitRefreshTimeoutId = setTimeout(() => {
       if (!this._auth.loggedIn) {
+        return;
+      }
+      if (this._tabManager && !this._tabManager.active) {
+        this._createImplicitRefreshTimeout();
         return;
       }
       this._createImplicitRefreshIframe();

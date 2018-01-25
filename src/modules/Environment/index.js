@@ -9,6 +9,7 @@ import {
 } from './getReducer';
 
 @Module({
+  name: 'DemoEnvironment',
   deps: [
     'Client',
     'GlobalStorage',
