@@ -13,6 +13,7 @@ import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 
 @Module({
+  name: 'Adapter',
   deps: [
     'Auth',
     'RouterInteraction',
