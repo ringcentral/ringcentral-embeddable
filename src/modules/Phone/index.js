@@ -51,6 +51,7 @@ import Subscription from 'ringcentral-integration/modules/Subscription';
 import TabManager from 'ringcentral-integration/modules/TabManager';
 import Webphone from 'ringcentral-integration/modules/Webphone';
 import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
+import Feedback from 'ringcentral-integration/modules/Feedback';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
@@ -114,6 +115,7 @@ import Adapter from '../Adapter';
     { provide: 'Adapter', useClass: Adapter },
     { provide: 'RouterInteraction', useClass: RouterInteraction },
     { provide: 'Auth', useClass: Auth },
+    { provide: 'Feedback', useClass: Feedback },
     { provide: 'Environment', useClass: Environment },
     {
       provide: 'EnvironmentOptions',

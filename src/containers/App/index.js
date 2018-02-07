@@ -20,6 +20,7 @@ import WelcomePage from 'ringcentral-widgets/containers/WelcomePage';
 import AudioSettingsPage from 'ringcentral-widgets/containers/AudioSettingsPage';
 import ContactsPage from 'ringcentral-widgets/containers/ContactsPage';
 import ContactDetailsPage from 'ringcentral-widgets/containers/ContactDetailsPage';
+import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
 
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
 
@@ -94,6 +95,7 @@ export default function App({
                 component={routerProps => (
                   <SettingsPage
                     params={routerProps.location.query}
+                    showFeedback={false}
                     regionSettingsUrl="/settings/region"
                     callingSettingsUrl="/settings/calling"
                   />
@@ -110,6 +112,10 @@ export default function App({
               <Route
                 path="/settings/audio"
                 component={AudioSettingsPage}
+              />
+              <Route
+                path="/settings/feedback"
+                component={FeedbackPage}
               />
               <Route
                 path="/calls"
