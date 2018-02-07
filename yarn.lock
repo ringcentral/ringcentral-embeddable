@@ -5063,9 +5063,9 @@ rimraf@2, rimraf@^2.2.8, rimraf@^2.5.1, rimraf@^2.6.1:
   dependencies:
     glob "^7.0.5"
 
-ringcentral-client@^1.0.0-rc1:
-  version "1.0.0-rc1"
-  resolved "https://registry.yarnpkg.com/ringcentral-client/-/ringcentral-client-1.0.0-rc1.tgz#eb7ac9e7ffac5d4de8971fb84eb9d172118a251c"
+ringcentral-client@^1.0.0-beta.1:
+  version "1.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/ringcentral-client/-/ringcentral-client-1.0.0-beta.1.tgz#79837692d788ff75409b36cd153d59f732782591"
   dependencies:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
