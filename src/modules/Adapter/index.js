@@ -196,7 +196,7 @@ export default class Adapter extends AdapterModuleCore {
         endTime: missed ? null : Date.now(),
       });
     });
-    changedCalls.forEach(({ sipData, id, ...call }) => {
+    changedCalls.forEach(({ sipData, ...call }) => {
       this._postMessage({
         type: 'rc-active-call-notify',
         call

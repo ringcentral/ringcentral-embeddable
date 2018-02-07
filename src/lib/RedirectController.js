@@ -1,3 +1,5 @@
+import url from 'url';
+
 export default class RedirectController {
   constructor({
     prefix,
@@ -13,9 +15,9 @@ export default class RedirectController {
           return;
         }
       } catch (e) {
-        console.error(e);
         /* ignore error */
       }
+
       try {
         if (window.opener && window.opener.postMessage) {
           window.opener.postMessage({
@@ -39,7 +41,14 @@ export default class RedirectController {
         /* ignore error */
       }
       // fall back to use localStorage as a vessel to avoid opener is null bug
-      const key = `${prefix}-redirect-callbackUri`;
+
+      const {
+        query: {
+          state,
+        },
+      } = url.parse(callbackUri, true);
+      const uuid = state.split('-').slice(1).join('-');
+      const key = `${prefix}-${uuid}-redirect-callbackUri`;
       localStorage.removeItem(key);
       window.addEventListener('storage', (e) => {
         if (e.key === key && (!e.newValue || e.newValue === '')) {
