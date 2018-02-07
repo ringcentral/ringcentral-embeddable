@@ -22,7 +22,6 @@ import ContactsPage from 'ringcentral-widgets/containers/ContactsPage';
 import ContactDetailsPage from 'ringcentral-widgets/containers/ContactDetailsPage';
 
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
-import getAlertRenderer from '../../components/AlertRenderer';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -60,7 +59,6 @@ export default function App({
                   <AlertContainer
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
-                    getAdditionalRenderer={getAlertRenderer}
                   />
                 </IncomingCallPage>
               </AppView>
@@ -72,7 +70,6 @@ export default function App({
                   <AlertContainer
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
-                    getAdditionalRenderer={getAlertRenderer}
                   />
                 </WelcomePage>
               )}
@@ -85,7 +82,6 @@ export default function App({
                   <AlertContainer
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
-                    getAdditionalRenderer={getAlertRenderer}
                   />
                 </MainView>
               )} >
@@ -149,7 +145,6 @@ export default function App({
                 path="/history"
                 component={() => (
                   <CallHistoryPage
-                    onViewContact={() => {}}
                     showContactDisplayPlaceholder={false}
                   />
                 )}

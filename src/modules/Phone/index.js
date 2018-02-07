@@ -13,6 +13,7 @@ import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import Alert from 'ringcentral-integration/modules/Alert';
 import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
+import Auth from 'ringcentral-integration/modules/Auth';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Brand from 'ringcentral-integration/modules/Brand';
 import Call from 'ringcentral-integration/modules/Call';
@@ -53,9 +54,8 @@ import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
+import OAuth from 'ringcentral-widgets/modules/ProxyFrameOAuth';
 
-import Auth from '../Auth';
-import OAuth from '../ImplicitOAuth';
 import Environment from '../Environment';
 import Adapter from '../Adapter';
 
@@ -285,7 +285,7 @@ export function createPhone({
         useValue: { name: brandConfig.appName, version: appVersion },
       },
       { provide: 'BrandOptions', useValue: brandConfig, spread: true },
-      { provide: 'ImplicitOAuthOptions', useValue: { redirectUri }, spread: true },
+      { provide: 'OAuthOptions', useValue: { redirectUri }, spread: true },
       { provide: 'AdapterOptions', useValue: { stylesUri }, spread: true },
       {
         provide: 'WebphoneOptions',
