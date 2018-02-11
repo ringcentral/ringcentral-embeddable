@@ -121,7 +121,6 @@ export default function App({
                 path="/calls"
                 component={() => (
                   <ActiveCallsPage
-                    onCreateContact={() => { console.log('Sorry, The feature is still on development'); }}
                     onCallsEmpty={() => {
                       if (phone.webphone && phone.webphone._webphone) {
                         phone.routerInteraction.push('/dialer');
