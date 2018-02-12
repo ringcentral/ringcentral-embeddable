@@ -9,6 +9,7 @@ import AccountExtension from 'ringcentral-integration/modules/AccountExtension';
 import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import AccountPhoneNumber from 'ringcentral-integration/modules/AccountPhoneNumber';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
+import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import Alert from 'ringcentral-integration/modules/Alert';
@@ -116,6 +117,7 @@ import Adapter from '../Adapter';
     { provide: 'RouterInteraction', useClass: RouterInteraction },
     { provide: 'Auth', useClass: Auth },
     { provide: 'Feedback', useClass: Feedback },
+    { provide: 'ActiveCalls', useClass: ActiveCalls },
     { provide: 'Environment', useClass: Environment },
     {
       provide: 'EnvironmentOptions',

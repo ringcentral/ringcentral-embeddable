@@ -3,6 +3,7 @@ import telephonyStatuses from 'ringcentral-integration/enums/telephonyStatuses';
 import terminationTypes from 'ringcentral-integration/enums/terminationTypes';
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
 import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
+import sleep from 'ringcentral-integration/lib/sleep';
 import { isRing } from 'ringcentral-integration/modules/Webphone/webphoneHelper';
 import { Module } from 'ringcentral-integration/lib/di';
 
@@ -11,6 +12,8 @@ import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
 import messageTypes from '../../lib/Adapter/messageTypes';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
+
+const CALL_NOTIFY_DELAY = 1500;
 
 @Module({
   name: 'Adapter',
@@ -25,6 +28,7 @@ import getReducer from './getReducer';
     'RegionSettings',
     'GlobalStorage',
     'Locale',
+    'ActiveCalls',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -37,6 +41,7 @@ export default class Adapter extends AdapterModuleCore {
     dialerUI,
     webphone,
     regionSettings,
+    activeCalls,
     stylesUri,
     prefix,
     ...options,
@@ -58,12 +63,15 @@ export default class Adapter extends AdapterModuleCore {
     this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');
     this._call = this::ensureExist(call, 'call');
     this._dialerUI = this::ensureExist(dialerUI, 'dialerUI');
+    this._activeCalls = this::ensureExist(activeCalls, 'activeCalls');
+
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
     this._loggedIn = false;
     this._lastActiveCalls = [];
     this._lastEndedActiveCallMap = {};
+    this._lastActiveCallLogMap = {};
   }
 
   initialize() {
@@ -85,7 +93,7 @@ export default class Adapter extends AdapterModuleCore {
     this._pushPresence();
     this._pushLocale();
     this._checkLoginStatus();
-    this._pushActiveCall();
+    this._pushActiveCalls();
   }
 
   _onMessage(event) {
@@ -152,7 +160,7 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _pushActiveCall() {
+  _pushActiveCalls() {
     if (this._lastActiveCalls === this._presence.calls) {
       return;
     }
@@ -196,11 +204,35 @@ export default class Adapter extends AdapterModuleCore {
         endTime: missed ? null : Date.now(),
       });
     });
-    changedCalls.forEach(({ sipData, ...call }) => {
+    this._sendActiveCallNotification(changedCalls);
+  }
+
+  async _sendActiveCallNotification(activeCalls) {
+    await sleep(CALL_NOTIFY_DELAY);
+    const activeCallLogMap = {};
+    this._activeCalls.calls.forEach((call) => {
+      activeCallLogMap[`${call.sessionId}-${call.direction}`] = call;
+    });
+    activeCalls.forEach(({ sipData, id, ...call }) => {
+      let matchedCallLog = activeCallLogMap[`${call.sessionId}-${call.direction}`];
+      if (!matchedCallLog) {
+        matchedCallLog = this._lastActiveCallLogMap[`${call.sessionId}-${call.direction}`] || {};
+      } else {
+        this._lastActiveCallLogMap[`${call.sessionId}-${call.direction}`] = matchedCallLog;
+      }
       this._postMessage({
         type: 'rc-active-call-notify',
-        call
+        call: {
+          id: matchedCallLog.id,
+          action: matchedCallLog.action,
+          startTime: matchedCallLog.startTime,
+          uri: matchedCallLog.uri,
+          ...call
+        }
       });
+      if (call.telephonyStatus === telephonyStatuses.noCall) {
+        delete this._lastActiveCallLogMap[`${call.sessionId}-${call.direction}`];
+      }
     });
   }
 
