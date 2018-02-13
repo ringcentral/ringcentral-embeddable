@@ -1,10 +1,10 @@
 # Control Widget
 
-The Widget provide some API that allow developer to control it out of widget. It is based on [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) API.
+The Widget provides some API that allow developer to control it out of widget. It is based on [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) API.
 
 ## Go to Dial and start a call
 
-Find the widget iframe, and post message to send command and data:
+Find the widget iframe and use `postMessage` to send command and data:
 
 ```js
 document.querySelector("#rc-widget").contentWindow.postMessage({

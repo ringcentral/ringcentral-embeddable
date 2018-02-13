@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is an out-of-the-box embeddable web application built using the RingCentral JS Widget library.
+This is an out-of-the-box embeddable web application that developers can use to integrate RingCentral services to their web applications with few codes.
 
 Built with:
 

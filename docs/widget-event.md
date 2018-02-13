@@ -1,6 +1,6 @@
 # The Web Widget Event
 
-The Widget provide some events that developer can get data from it. It is based on [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) API.
+The Widget provides some events that developer can get data from it. It is based on [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) API.
 
 ## Web phone call event
 
