@@ -66,8 +66,8 @@ function getTabs({
       ),
     },
     {
-      icon: () => <ContactIcon className={styles.contactIcon} />,
-      activeIcon: () => <ContactHoverIcon className={styles.contactHoverIcon} />,
+      icon: ContactIcon,
+      activeIcon: ContactHoverIcon,
       label: 'Contacts',
       path: '/contacts',
       isActive: currentPath => (

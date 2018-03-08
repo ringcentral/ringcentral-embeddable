@@ -47,6 +47,9 @@ export default class RedirectController {
           state,
         },
       } = url.parse(callbackUri, true);
+      if (!state) {
+        return;
+      }
       const uuid = state.split('-').slice(1).join('-');
       const key = `${prefix}-${uuid}-redirect-callbackUri`;
       localStorage.removeItem(key);
