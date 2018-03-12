@@ -280,6 +280,8 @@ export function createPhone({
         provide: 'SdkConfig',
         useValue: {
           ...apiConfig,
+          appName: brandConfig.appName,
+          appVersion,
           cachePrefix: `sdk-${prefix}`,
           clearCacheOnRefreshError: false,
         },
