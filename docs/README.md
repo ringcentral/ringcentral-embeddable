@@ -1,6 +1,6 @@
-# RingCentral Web Widget
+# RingCentral Embeddable Voice
 
-RingCentral Web Widget is an out-of-the-box embeddable web application built using [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) library. You can use it integrate RingCentral services to your web application with few codes. Get it online in [here](https://ringcentral.github.io/ringcentral-web-widget/).
+RingCentral Embeddable Voice is an out-of-the-box embeddable web application built using [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) library. You can use it integrate RingCentral services to your web application with few codes. Get it online in [here](https://ringcentral.github.io/ringcentral-web-widget/).
 
 ## Table of Contents
 
@@ -8,7 +8,7 @@ RingCentral Web Widget is an out-of-the-box embeddable web application built usi
 * [Use your own app client id and app client secret](config-client-id-and-secret.md)
 * [Customize Redirect Uri](customize-redirect-uri.md)
 * [Customize UI styles](customize-ui-styles.md)
-* [Work with the Web Widget event](widget-event.md)
+* [Work with the web widget event](widget-event.md)
   * [Web phone call event](widget-event.md#web-phone-call-event)
   * [Active Call event](widget-event.md#active-call-event)
   * [Login Status event](widget-event.md#login-status-event)
