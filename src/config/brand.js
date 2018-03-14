@@ -2,6 +2,6 @@ export default {
   id: '1210',
   brandCode: 'rc',
   name: 'RingCentral',
-  appName: 'RingCentral Web Widget',
+  appName: 'RingCentral Embeddable Voice',
   fullName: 'RingCentral',
 };

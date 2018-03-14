@@ -1,4 +1,4 @@
-# [RingCentral Web Widget](https://ringcentral.github.io/ringcentral-web-widget/)
+# [RingCentral Embeddable Voice](https://ringcentral.github.io/ringcentral-web-widget/)
 
 ## Introduction
 
@@ -20,7 +20,7 @@ Built with:
 
 Visit [website](https://ringcentral.github.io/ringcentral-web-widget/) in github pages.
 
-## Use as a web widget
+## Use as a embeddable web widget
 
 ### Get Started
 
@@ -28,7 +28,7 @@ there are two ways to integrate this widget to a web application
 
 #### Adapter JS way
 
-Just add following the following codes to a website's header. It will create a RingCentral Widget in your website.
+Just add following the following codes to a website's header. It will create a RingCentral Embeddable Voice widget in your website.
 
 ```js
 <script>
