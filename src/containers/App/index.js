@@ -173,7 +173,6 @@ export default function App({
                 component={() => (
                   <MessagesPage
                     showGroupNumberName
-                    onCreateContact={() => { console.log('Sorry, The feature is still on development'); }}
                     showContactDisplayPlaceholder={false}
                   />
                 )}
@@ -182,7 +181,6 @@ export default function App({
                 path="/contacts"
                 component={() =>
                   <ContactsPage
-                    onCreateContact={() => { console.log('Sorry, The feature is still on development'); }}
                     onVisitPage={async () => {
                       await phone.contacts.sync();
                     }}
