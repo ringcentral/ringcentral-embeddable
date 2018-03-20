@@ -78,7 +78,7 @@
           <div class="form-group row">
             <label for="redirectUri" class="col-sm-2 col-form-label">redirectUri</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="redirectUri" placeholder="default: https://ringcentral.github.io/ringcentral-web-widget/redirect.html">
+              <input type="text" class="form-control" id="redirectUri" placeholder="default: https://ringcentral.github.io/ringcentral-embeddable-voice/redirect.html">
             </div>
           </div>
         </form>
@@ -91,7 +91,7 @@
 &lt;script&gt;
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-web-widget/adapter.js";
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable-voice/adapter.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -101,13 +101,13 @@
       <div class="tab-pane fade" id="iframe-way" role="tabpanel" aria-labelledby="iframe-tab">
         <p>Create a iframe with the following codes</p>
         <pre id="iframe-code">
- &lt;iframe width="300" height="500" allow="microphone" src="https://ringcentral.github.io/ringcentral-web-widget/app.html"&gt;
+ &lt;iframe width="300" height="500" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable-voice/app.html"&gt;
  &lt;/iframe&gt;
         </pre>
       </div>
     </div>
     <p>You need to add following uri to your redirect url in app setting on developer website, if you don't config redirect widget uri.</p>
-    <pre>https://ringcentral.github.io/ringcentral-web-widget/redirect.html</pre>
+    <pre>https://ringcentral.github.io/ringcentral-embeddable-voice/redirect.html</pre>
     <h2>Config your appKey in local Environment</h2>
     <p>1. Click <a href="#" id="setEnvironment">here to set this widget's appKey, appSecret and AppServer</a> in local. Enable and save.</p>
     <p>2. Set redirect url in RingCentral Developer Platform as the app show.</p>

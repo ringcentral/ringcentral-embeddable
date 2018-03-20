@@ -20,7 +20,7 @@ if (fs.existsSync(apiConfigFile)) {
 const version = packageConfig.version;
 
 const hostingUrl =
-  process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-web-widget';
+  process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable-voice';
 const config = {
   entry: {
     app: './src/app.js',
