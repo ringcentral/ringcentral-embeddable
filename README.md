@@ -1,4 +1,4 @@
-# [RingCentral Embeddable Voice](https://ringcentral.github.io/ringcentral-web-widget/)
+# [RingCentral Embeddable Voice](https://ringcentral.github.io/ringcentral-embeddable-voice/)
 
 ## Introduction
 
@@ -18,7 +18,7 @@ Built with:
 
 ## Visit Online
 
-Visit [website](https://ringcentral.github.io/ringcentral-web-widget/) in github pages.
+Visit [website](https://ringcentral.github.io/ringcentral-embeddable-voice/) in github pages.
 
 ## Use as a embeddable web widget
 
@@ -34,7 +34,7 @@ Just add following the following codes to a website's header. It will create a R
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-web-widget/adapter.js";
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable-voice/adapter.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -46,11 +46,11 @@ Just add following the following codes to a website's header. It will create a R
 Create a iframe with the following codes:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-web-widget/app.html">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable-voice/app.html">
 </iframe>
 ```
 
-You can use the config tool in this [page](https://ringcentral.github.io/ringcentral-web-widget) to generate codes with config.
+You can use the config tool in this [page](https://ringcentral.github.io/ringcentral-embeddable-voice) to generate codes with config.
 
 ### Documents
 
@@ -78,7 +78,7 @@ We provide a online version that developers can use to embed and config in their
 ### Clone the code
 
 ```bash
-$ git clone https://github.com/ringcentral/ringcentral-web-widget.git
+$ git clone https://github.com/ringcentral/ringcentral-embeddable-voice.git
 ```
 
 ### Create API secret file in project root path
