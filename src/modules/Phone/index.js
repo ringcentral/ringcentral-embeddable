@@ -14,7 +14,6 @@ import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import Alert from 'ringcentral-integration/modules/Alert';
 import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
-import Auth from 'ringcentral-integration/modules/Auth';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Brand from 'ringcentral-integration/modules/Brand';
 import Call from 'ringcentral-integration/modules/Call';
@@ -56,8 +55,8 @@ import Feedback from 'ringcentral-integration/modules/Feedback';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
-import OAuth from 'ringcentral-widgets/modules/ProxyFrameOAuth';
-
+import OAuth from '../OAuth';
+import Auth from '../Auth';
 import Environment from '../Environment';
 import Adapter from '../Adapter';
 
@@ -115,7 +114,6 @@ import Adapter from '../Adapter';
     { provide: 'DialerUI', useClass: DialerUI },
     { provide: 'Adapter', useClass: Adapter },
     { provide: 'RouterInteraction', useClass: RouterInteraction },
-    { provide: 'Auth', useClass: Auth },
     { provide: 'Feedback', useClass: Feedback },
     { provide: 'ActiveCalls', useClass: ActiveCalls },
     { provide: 'Environment', useClass: Environment },
