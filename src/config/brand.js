@@ -4,4 +4,5 @@ export default {
   name: 'RingCentral',
   appName: 'RingCentral Embeddable Voice',
   fullName: 'RingCentral',
+  application: 'RingCentral Embeddable Voice'
 };
