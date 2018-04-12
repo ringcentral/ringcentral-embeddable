@@ -11,7 +11,7 @@ function sortByCreationTime(a, b) {
   return (a.creationTime > b.creationTime ? -1 : 1);
 }
 
-export function normalizeRecord(record) {
+function normalizeRecord(record) {
   const newRecord = removeUri(record);
   const conversationId = getConversationId(record);
   delete newRecord.conversation;
@@ -30,7 +30,8 @@ export function getConversationListReducer(types) {
     switch (type) {
       case types.conversationsISyncSuccess:
       case types.conversationsFSyncSuccess:
-        if (type === types.conversationsISyncSuccess) {
+      case types.conversationsFSyncPageSuccess:
+        if (type !== types.conversationsFSyncSuccess) {
           if (!data.records || data.records.length === 0) {
             return state;
           }
@@ -74,10 +75,13 @@ export function getConversationListReducer(types) {
 export function getConversationStoreReducer(types) {
   return (state = {}, { type, data }) => {
     let newState = {};
+    const updatedConversations = {};
     switch (type) {
       case types.conversationsISyncSuccess:
       case types.conversationsFSyncSuccess:
-        if (type === types.conversationsISyncSuccess) {
+      case types.conversationsFSyncPageSuccess:
+      case types.conversationSyncPageSuccess:
+        if (type !== types.conversationsFSyncSuccess) {
           if (!data.records || data.records.length === 0) {
             return state;
           }
@@ -97,7 +101,12 @@ export function getConversationStoreReducer(types) {
           } else {
             newMessages.push(message);
           }
-          newState[conversationId] = newMessages.sort(sortByCreationTime);
+          updatedConversations[conversationId] = 1;
+          newState[conversationId] = newMessages;
+        });
+        Object.keys(updatedConversations).forEach((conversationId) => {
+          const noSorted = newState[conversationId];
+          newState[conversationId] = noSorted.sort(sortByCreationTime);
         });
         return newState;
       case types.resetSuccess:
