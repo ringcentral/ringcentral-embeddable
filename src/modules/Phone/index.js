@@ -59,7 +59,7 @@ import OAuth from '../OAuth';
 import Auth from '../Auth';
 import Environment from '../Environment';
 import Adapter from '../Adapter';
-import Conversations from '../Conversations';
+import NewMessageStore from '../NewMessageStore';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -105,7 +105,7 @@ import Conversations from '../Conversations';
     { provide: 'ConversationMatcher', useClass: ConversationMatcher },
     { provide: 'ContactSearch', useClass: ContactSearch },
     { provide: 'MessageStore', useClass: MessageStore },
-    { provide: 'Conversations', useClass: Conversations },
+    { provide: 'NewMessageStore', useClass: NewMessageStore },
     { provide: 'Conversation', useClass: Conversation },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
     { provide: 'AccountPhoneNumber', useClass: AccountPhoneNumber },

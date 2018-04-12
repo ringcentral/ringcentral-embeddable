@@ -56,7 +56,7 @@ function getSyncParams({ recordCount, conversationPerPage, dateFrom, dateTo, syn
 /**
  * @class
 
- * @description Conversations data managing module
+ * @description Messages data managing module
  * fetch conversations
  * handle new message subscription
  */
@@ -73,7 +73,7 @@ function getSyncParams({ recordCount, conversationPerPage, dateFrom, dateTo, syn
     { dep: 'ConversationsOptions', optional: true }
   ]
 })
-export default class Conversations extends Pollable {
+export default class NewMessageStore extends Pollable {
   constructor({
     auth,
     client,
@@ -101,7 +101,7 @@ export default class Conversations extends Pollable {
       this._storage = storage;
     }
 
-    this._dataStorageKey = 'conversationsData';
+    this._dataStorageKey = 'newMessageStoreData';
 
     this._tabManager = tabManager;
     this._storage = storage;

@@ -11,4 +11,4 @@ export default new Enum([
   'conversationSync',
   'conversationSyncPageSuccess',
   'conversationSyncError'
-], 'conversations');
+], 'newMessageStore');
