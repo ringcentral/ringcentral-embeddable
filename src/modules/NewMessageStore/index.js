@@ -8,10 +8,14 @@ import sleep from 'ringcentral-integration/lib/sleep';
 import proxify from 'ringcentral-integration/lib/proxy/proxify';
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import syncTypes from 'ringcentral-integration/enums/syncTypes';
+import messageTypes from 'ringcentral-integration/enums/messageTypes';
+import * as messageHelper from 'ringcentral-integration/lib/messageHelper';
+import { batchPutApi } from 'ringcentral-integration/lib/batchApiHelper';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 import getDataReducer from './getDataReducer';
+import messageStoreErrors from './errors';
 
 const DEFAULT_PER_PAGE = 20;
 const DEFAULT_CONVERSATION_PER_PAGE = 10;
@@ -30,7 +34,7 @@ function getEarliestTime(records) {
   return (new Date(newTime));
 }
 
-function getSyncParams({ recordCount, conversationPerPage, dateFrom, dateTo, syncToken }) {
+function getSyncParams({ recordCount, conversationPerPage, dateFrom, dateTo, syncToken, type }) {
   if (syncToken) {
     return {
       syncToken,
@@ -50,7 +54,22 @@ function getSyncParams({ recordCount, conversationPerPage, dateFrom, dateTo, syn
   if (dateTo) {
     params.dateTo = dateTo.toISOString();
   }
+  if (type && type !== messageTypes.all) {
+    if (type === messageTypes.text) {
+      params.messageType = [messageTypes.sms, messageTypes.pager];
+    } else {
+      params.messageType = type;
+    }
+  }
   return params;
+}
+
+function messageIsUnread(message) {
+  return (
+    message.direction === 'Inbound' &&
+    message.readStatus !== 'Read' &&
+    !(messageHelper.messageIsDeleted(message))
+  );
 }
 
 /**
@@ -80,6 +99,8 @@ export default class NewMessageStore extends Pollable {
     subscription,
     storage,
     tabManager,
+    rolesAndPermissions,
+    connectivityMonitor,
     ttl = DEFAULT_TTL,
     polling = false,
     disableCache = false,
@@ -96,6 +117,8 @@ export default class NewMessageStore extends Pollable {
     this._auth = this::ensureExist(auth, 'auth');
     this._client = this::ensureExist(client, 'client');
     this._subscription = this::ensureExist(subscription, 'subscription');
+    this._rolesAndPermissions =
+      this::ensureExist(rolesAndPermissions, 'rolesAndPermissions');
 
     if (!disableCache) {
       this._storage = storage;
@@ -104,8 +127,7 @@ export default class NewMessageStore extends Pollable {
     this._dataStorageKey = 'newMessageStoreData';
 
     this._tabManager = tabManager;
-    this._storage = storage;
-
+    this._connectivityMonitor = connectivityMonitor;
     this._ttl = ttl;
     this._timeToRetry = timeToRetry;
     this._polling = polling;
@@ -129,6 +151,13 @@ export default class NewMessageStore extends Pollable {
     this._promise = null;
     this._fetchingNextPage = false;
     this._conversationPageInfos = {};
+    this._hasOlderData = {
+      [messageTypes.all]: true,
+      [messageTypes.text]: true,
+      [messageTypes.fax]: true,
+      [messageTypes.voiceMail]: true,
+    };
+    this._lastSubscriptionMessage = null;
   }
 
   initialize() {
@@ -140,6 +169,9 @@ export default class NewMessageStore extends Pollable {
       this.store.dispatch({
         type: this.actionTypes.init,
       });
+      if (this._connectivityMonitor) {
+        this._connectivity = this._connectivityMonitor.connectivity;
+      }
       await this._init();
     } else if (this._isDataReady()) {
       this.store.dispatch({
@@ -154,6 +186,9 @@ export default class NewMessageStore extends Pollable {
       this.store.dispatch({
         type: this.actionTypes.resetSuccess,
       });
+    } else if (this.ready) {
+      this._subscriptionHandler();
+      this._checkConnectivity();
     }
   }
 
@@ -162,6 +197,9 @@ export default class NewMessageStore extends Pollable {
       this._auth.loggedIn &&
       (!this._storage || this._storage.ready) &&
       (!this._tabManager || this._tabManager.ready) &&
+      (!this._connectivityMonitor || this._connectivityMonitor.ready) &&
+      this._subscription.ready &&
+      this._rolesAndPermissions.ready &&
       this.pending
     );
   }
@@ -171,6 +209,9 @@ export default class NewMessageStore extends Pollable {
       (
         !this._auth.loggedIn ||
         (this._storage && !this._storage.ready) ||
+        !this._subscription.ready ||
+        (!!this._connectivityMonitor && !this._connectivityMonitor.ready) ||
+        !this._rolesAndPermissions.ready ||
         (this._tabManager && !this._tabManager.ready)
       ) &&
       this.ready
@@ -183,6 +224,7 @@ export default class NewMessageStore extends Pollable {
   }
 
   async _init() {
+    if (!this._hasPermission) return;
     if (this._shouldFetch()) {
       try {
         await this.fetchData();
@@ -195,6 +237,7 @@ export default class NewMessageStore extends Pollable {
     } else {
       this._retry();
     }
+    this._subscription.subscribe('/account/~/extension/~/message-store');
   }
 
   _shouldFetch() {
@@ -203,12 +246,44 @@ export default class NewMessageStore extends Pollable {
     );
   }
 
+  _subscriptionHandler() {
+    if (this._storage && this._tabManager && !this._tabManager.active) {
+      return;
+    }
+    const accountExtesionEndPoint = /\/message-store$/;
+    const { message } = this._subscription;
+    if (
+      message &&
+      message !== this._lastSubscriptionMessage &&
+      accountExtesionEndPoint.test(message.event) &&
+      message.body &&
+      message.body.changes
+    ) {
+      this._lastSubscriptionMessage = this._subscription.message;
+      this.fetchData();
+    }
+  }
+
+  _checkConnectivity() {
+    if (
+      this._connectivityMonitor &&
+      this._connectivityMonitor.ready &&
+      this._connectivity !== this._connectivityMonitor.connectivity
+    ) {
+      this._connectivity = this._connectivityMonitor.connectivity;
+      if (this._connectivity) {
+        this.fetchData();
+      }
+    }
+  }
+
   async _syncFunction({
     recordCount,
     conversationPerPage,
     dateFrom,
     dateTo,
     syncToken,
+    type,
     receivedRecordsLength = 0
   }) {
     const params = getSyncParams({
@@ -217,6 +292,7 @@ export default class NewMessageStore extends Pollable {
       dateFrom,
       dateTo,
       syncToken,
+      type,
     });
     const {
       records,
@@ -251,6 +327,7 @@ export default class NewMessageStore extends Pollable {
 
   async _syncData({
     dateTo,
+    type,
     perPage = this._perPage,
     conversationPerPage = this._conversationPerPage
   } = {}) {
@@ -269,14 +346,20 @@ export default class NewMessageStore extends Pollable {
         dateFrom,
         syncToken,
         dateTo,
+        type,
       });
       if (this._auth.ownerId === ownerId) {
+        if (type) {
+          this._hasOlderData[type] = (data.records.length >= recordCount);
+        }
         const actionType = this.getSyncActionType({ dateTo, syncToken });
         this.store.dispatch({
           type: actionType,
           recordCount,
-          data,
+          records: data.records,
+          syncInfo: data.syncInfo,
           timestamp: Date.now(),
+          conversationStore: this.conversationStore,
         });
       }
     } catch (error) {
@@ -344,8 +427,8 @@ export default class NewMessageStore extends Pollable {
   }
 
   @proxify
-  async fetchNextPage() {
-    if (!this.hasOlderData) {
+  async fetchNextPage(type = messageTypes.all) {
+    if (!this._hasOlderData[type]) {
       return;
     }
     if (this._fetchingNextPage) {
@@ -354,8 +437,9 @@ export default class NewMessageStore extends Pollable {
     this._fetchingNextPage = true;
     try {
       await this._syncData({
-        dateTo: this.earliestTime,
+        dateTo: this.earliestTime[type],
         conversationPerPage: 1,
+        type
       });
       this._fetchingNextPage = false;
     } catch (error) {
@@ -364,6 +448,7 @@ export default class NewMessageStore extends Pollable {
     }
   }
 
+  @proxify
   async fetchConversationNextPage({
     conversationId
   }) {
@@ -400,11 +485,156 @@ export default class NewMessageStore extends Pollable {
       };
       this.store.dispatch({
         type: this.actionTypes.conversationSyncPageSuccess,
-        data: { records },
+        records,
       });
     } catch (e) {
       this.store.dispatch({
         type: this.actionTypes.conversationSyncError,
+      });
+    }
+  }
+
+  @proxify
+  async pushMessages(records) {
+    this.store.dispatch({
+      type: this.actionTypes.updateMessages,
+      records,
+    });
+  }
+
+  pushMessage(record) {
+    this.pushMessages([record]);
+  }
+
+  async _updateMessageApi(messageId, status) {
+    const body = {
+      readStatus: status,
+    };
+    const updateRequest = await this._client.account()
+      .extension()
+      .messageStore(messageId)
+      .put(body);
+    return updateRequest;
+  }
+
+  async _deleteMessageApi(messageId) {
+    const response = await this._client.account()
+      .extension()
+      .messageStore(messageId)
+      .delete();
+    return response;
+  }
+
+  async _batchUpdateMessagesApi(messageIds, body) {
+    const ids = decodeURIComponent(messageIds.join(','));
+    const platform = this._client.service.platform();
+    const responses = await batchPutApi({
+      platform,
+      url: `/account/~/extension/~/message-store/${ids}`,
+      body,
+    });
+    return responses;
+  }
+
+  async _updateMessagesApi(messageIds, status) {
+    if (messageIds.length === 1) {
+      const result = await this._updateMessageApi(messageIds[0], status);
+      return [result];
+    }
+    const UPDATE_MESSAGE_ONCE_COUNT = 20;
+    const leftIds = messageIds.slice(0, UPDATE_MESSAGE_ONCE_COUNT);
+    const rightIds = messageIds.slice(UPDATE_MESSAGE_ONCE_COUNT);
+    const body = leftIds.map(() => (
+      { body: { readStatus: status } }
+    ));
+    const responses = await this._batchUpdateMessagesApi(leftIds, body);
+    const results = [];
+    responses.forEach((res) => {
+      if (res.response().status === 200) {
+        results.push(res.json());
+      }
+    });
+    if (rightIds.length > 0) {
+      const rightResults = await this._updateMessagesApi(rightIds, status);
+      if (rightResults.length > 0) {
+        results.concat(rightResults);
+      }
+    }
+    return results;
+  }
+
+  @proxify
+  async readMessages(conversationId) {
+    const messageList = this.conversationStore[conversationId];
+    if (!messageList || messageList.length === 0) {
+      return null;
+    }
+    const unreadMessageIds = messageList.filter(messageIsUnread).map(m => m.id);
+    if (unreadMessageIds.length === 0) {
+      return null;
+    }
+    try {
+      const updatedMessages = await this._updateMessagesApi(unreadMessageIds, 'Read');
+      this.store.dispatch({
+        type: this.actionTypes.updateMessages,
+        records: updatedMessages,
+      });
+    } catch (error) {
+      console.error(error);
+      this._alert.warning({
+        message: messageStoreErrors.readFailed,
+      });
+    }
+    return null;
+  }
+
+  @proxify
+  async unreadMessage(messageId) {
+    //  for track mark message
+    this.store.dispatch({
+      type: this.actionTypes.markMessages,
+    });
+    try {
+      const message = await this._updateMessageApi(messageId, 'Unread');
+      this.store.dispatch({
+        type: this.actionTypes.updateMessages,
+        records: [message],
+      });
+    } catch (error) {
+      console.error(error);
+      this._alert.warning({
+        message: messageStoreErrors.unreadFailed,
+      });
+    }
+  }
+
+  @proxify
+  async onUnmarkMessages() {
+    this.store.dispatch({
+      type: this.actionTypes.markMessages,
+    });
+  }
+
+  @proxify
+  async deleteCoversation(conversationId) {
+    if (!conversationId) {
+      return;
+    }
+    const messageList = this.conversationStore[conversationId];
+    if (!messageList || messageList.length === 0) {
+      return;
+    }
+    const messageId = messageList.map(m => m.id).join(',');
+    try {
+      await this._deleteMessageApi(messageId);
+      this.store.dispatch({
+        type: this.actionTypes.deleteConversation,
+        conversationId,
+      });
+    } catch (error) {
+      console.error(error);
+      this._alert.warning({
+        message: messageStoreErrors.deleteFailed,
       });
     }
   }
@@ -451,17 +681,125 @@ export default class NewMessageStore extends Pollable {
     return this.data.conversationStore;
   }
 
+  get _hasPermission() {
+    return this._rolesAndPermissions.hasReadMessagesPermission;
+  }
+
   @getter
   allConversations = createSelector(
     () => this.data.conversationList,
     () => this.data.conversationStore,
     (conversationList, conversationStore) =>
-      conversationList.map(conversationItem => conversationStore[conversationItem.id][0])
+      conversationList.map(
+        (conversationItem) => {
+          const messageList = conversationStore[conversationItem.id] || [];
+          return {
+            ...messageList[0],
+            unreadCounts: messageList.filter(messageIsUnread).length,
+          };
+        }
+      )
   )
 
   @getter
   earliestTime = createSelector(
-    () => this.allConversations || [],
-    getEarliestTime,
+    () => this.data.conversationList || [],
+    (conversationList) => {
+      const newTime = {
+        [messageTypes.all]: Date.now(),
+        [messageTypes.text]: Date.now(),
+        [messageTypes.fax]: Date.now(),
+        [messageTypes.voiceMail]: Date.now(),
+      };
+      conversationList.forEach((record) => {
+        const creationTime = (new Date(record.creationTime)).getTime();
+        if (creationTime < newTime[messageTypes.all]) {
+          newTime[messageTypes.all] = creationTime;
+        }
+        if (messageHelper.messageIsTextMessage(record)) {
+          if (creationTime < newTime[messageTypes.all]) {
+            newTime[messageTypes.all] = creationTime;
+          }
+          return;
+        }
+        if (creationTime < newTime[record.type]) {
+          newTime[record.type] = creationTime;
+        }
+      });
+      return {
+        [messageTypes.all]: new Date(newTime[messageTypes.all]),
+        [messageTypes.text]: new Date(newTime[messageTypes.text]),
+        [messageTypes.fax]: new Date(newTime[messageTypes.fax]),
+        [messageTypes.voiceMail]: new Date(newTime[messageTypes.fax]),
+      };
+    },
+  )
+
+  @getter
+  textConversations = createSelector(
+    () => this.allConversations,
+    conversations =>
+      conversations.filter(
+        conversation => messageHelper.messageIsTextMessage(conversation)
+      )
+  )
+
+  @getter
+  textUnreadCounts = createSelector(
+    () => this.textConversations,
+    conversations =>
+      conversations.reduce((a, b) => a + b.unreadCounts, 0)
+  )
+
+  @getter
+  faxMessages = createSelector(
+    () => this.allConversations,
+    conversations =>
+      conversations.filter(
+        conversation => messageHelper.messageIsFax(conversation)
+      )
+  )
+
+  @getter
+  faxUnreadCounts = createSelector(
+    () => this.faxMessages,
+    conversations =>
+      conversations.reduce((a, b) => a + b.unreadCounts, 0)
+  )
+
+  @getter
+  voicemailMessages = createSelector(
+    () => this.allConversations,
+    conversations =>
+      conversations.filter(
+        conversation => messageHelper.messageIsVoicemail(conversation)
+      )
+  )
+
+  @getter
+  voiceUnreadCounts = createSelector(
+    () => this.voicemailMessages,
+    conversations =>
+      conversations.reduce((a, b) => a + b.unreadCounts, 0)
+  )
+
+  @getter
+  unreadCounts = createSelector(
+    () => this.voiceUnreadCounts,
+    () => this.textUnreadCounts,
+    () => this.faxUnreadCounts,
+    (voiceUnreadCounts, textUnreadCounts, faxUnreadCounts) => {
+      let unreadCounts = 0;
+      if (this._rolesAndPermissions.readTextPermissions) {
+        unreadCounts += textUnreadCounts;
+      }
+      if (this._rolesAndPermissions.voicemailPermissions) {
+        unreadCounts += voiceUnreadCounts;
+      }
+      if (this._rolesAndPermissions.readFaxPermissions) {
+        unreadCounts += faxUnreadCounts;
+      }
+      return unreadCounts;
+    }
   )
 }

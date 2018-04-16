@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import removeUri from 'ringcentral-integration/lib/removeUri';
+import * as messageHelper from 'ringcentral-integration/lib/messageHelper';
 
 function getConversationId(record) {
   const conversationId = (record.conversation && record.conversation.id) || record.id;
@@ -23,47 +24,81 @@ function normalizeRecord(record) {
   };
 }
 
+function messageIsDeleted(message) {
+  return message.availability === 'Deleted' || message.availability === 'Purged';
+}
+
 export function getConversationListReducer(types) {
-  return (state = [], { type, data }) => {
+  return (state = [], { type, records, conversationId, conversationStore }) => {
     const newState = [];
     const stateMap = {};
     switch (type) {
       case types.conversationsISyncSuccess:
       case types.conversationsFSyncSuccess:
       case types.conversationsFSyncPageSuccess:
+      case types.updateMessages:
         if (type !== types.conversationsFSyncSuccess) {
-          if (!data.records || data.records.length === 0) {
+          if (!records || records.length === 0) {
             return state;
           }
           state.forEach((oldConversation) => {
             newState.push(oldConversation);
             stateMap[oldConversation.id] = {
-              index: newState.length - 1,
-              creationTime: oldConversation.creationTime,
+              index: newState.length - 1
             };
           });
         }
-        data.records.forEach((record) => {
+        records.forEach((record) => {
           const message = normalizeRecord(record);
-          const conversationId = message.conversationId;
+          const id = message.conversationId;
           const newCreationTime = message.creationTime;
-          if (stateMap[conversationId]) {
-            const creationTime = stateMap[conversationId].creationTime;
-            if (creationTime < newCreationTime) {
-              newState[stateMap[conversationId].index] = {
-                id: conversationId,
-                creationTime: newCreationTime
+          const isDeleted = messageIsDeleted(message);
+          if (stateMap[id]) {
+            const oldConversation = newState[stateMap[id].index];
+            const creationTime = oldConversation.creationTime;
+            if (creationTime < newCreationTime && !isDeleted) {
+              newState[stateMap[id].index] = {
+                id,
+                creationTime: newCreationTime,
+                type: message.type,
+                messageId: message.id,
               };
+            }
+            // when user deleted a coversation message
+            if (isDeleted && message.id === oldConversation.messageId) {
+              const oldMessageList = conversationStore[id] || [];
+              const exsitedMessageList = oldMessageList.filter(m => m.id !== message.id);
+              if (exsitedMessageList.length > 0) {
+                newState[stateMap[id].index] = {
+                  id,
+                  creationTime: exsitedMessageList[0].creationTime,
+                  type: exsitedMessageList[0].type,
+                  messageId: exsitedMessageList[0].id,
+                };
+                return;
+              }
+              // when user delete conversation
+              newState[stateMap[id].index] = null;
+              delete stateMap[id];
             }
             return;
           }
-          newState.push({ id: conversationId, creationTime: newCreationTime });
-          stateMap[conversationId] = {
-            index: newState.length - 1,
+          if (isDeleted || !messageHelper.messageIsAcceptable(message)) {
+            return;
+          }
+          newState.push({
+            id,
             creationTime: newCreationTime,
+            type: message.type,
+            messageId: message.id,
+          });
+          stateMap[id] = {
+            index: newState.length - 1
           };
         });
-        return newState.sort(sortByCreationTime);
+        return newState.filter(c => !!c).sort(sortByCreationTime);
+      case types.deleteConversation:
+        return state.filter(c => c.id !== conversationId);
       case types.resetSuccess:
         return [];
       default:
@@ -73,7 +108,7 @@ export function getConversationListReducer(types) {
 }
 
 export function getConversationStoreReducer(types) {
-  return (state = {}, { type, data }) => {
+  return (state = {}, { type, records, conversationId }) => {
     let newState = {};
     const updatedConversations = {};
     switch (type) {
@@ -81,33 +116,45 @@ export function getConversationStoreReducer(types) {
       case types.conversationsFSyncSuccess:
       case types.conversationsFSyncPageSuccess:
       case types.conversationSyncPageSuccess:
+      case types.updateMessages:
         if (type !== types.conversationsFSyncSuccess) {
-          if (!data.records || data.records.length === 0) {
+          if (!records || records.length === 0) {
             return state;
           }
           newState = {
             ...state,
           };
         }
-        data.records.forEach((record) => {
+        records.forEach((record) => {
           const message = normalizeRecord(record);
-          const conversationId = message.conversationId;
-          const newMessages = newState[conversationId] ? [].concat(newState[conversationId]) : [];
+          const id = message.conversationId;
+          const newMessages = newState[id] ? [].concat(newState[id]) : [];
           const oldMessageIndex = newMessages.findIndex(r => r.id === record.id);
+          if (messageIsDeleted(message)) {
+            newState[id] = newMessages.filter(m => m.id !== message.id);
+            if (newState[id].length === 0) {
+              delete newState[id];
+            }
+            return;
+          }
           if (oldMessageIndex > -1) {
             if (newMessages[oldMessageIndex].lastModifiedTime < message.lastModifiedTime) {
               newMessages[oldMessageIndex] = message;
             }
-          } else {
+          } else if (messageHelper.messageIsAcceptable(message)) {
             newMessages.push(message);
           }
-          updatedConversations[conversationId] = 1;
-          newState[conversationId] = newMessages;
+          updatedConversations[id] = 1;
+          newState[id] = newMessages;
         });
-        Object.keys(updatedConversations).forEach((conversationId) => {
-          const noSorted = newState[conversationId];
-          newState[conversationId] = noSorted.sort(sortByCreationTime);
+        Object.keys(updatedConversations).forEach((id) => {
+          const noSorted = newState[id];
+          newState[id] = noSorted.sort(sortByCreationTime);
         });
+        return newState;
+      case types.deleteConversation:
+        newState = { ...state };
+        delete newState[conversationId];
         return newState;
       case types.resetSuccess:
         return {};
@@ -132,11 +179,11 @@ export function getTimestampReducer(types) {
 }
 
 export function getSyncInfoReducer(types) {
-  return (state = null, { type, data }) => {
+  return (state = null, { type, syncInfo }) => {
     switch (type) {
       case types.conversationsFSyncSuccess:
       case types.conversationsISyncSuccess:
-        return data.syncInfo;
+        return syncInfo;
       case types.resetSuccess:
         return null;
       default:
@@ -146,11 +193,11 @@ export function getSyncInfoReducer(types) {
 }
 
 export function getHasOlderDataReducer(types) {
-  return (state = true, { type, data, recordCount }) => {
+  return (state = true, { type, records, recordCount }) => {
     switch (type) {
       case types.conversationsFSyncSuccess:
       case types.conversationsFSyncPageSuccess:
-        if (data.records && data.records.length >= recordCount) {
+        if (records && records.length >= recordCount) {
           return true;
         }
         return false;

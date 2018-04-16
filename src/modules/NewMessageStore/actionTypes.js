@@ -10,5 +10,8 @@ export default new Enum([
   'conversationsSyncError',
   'conversationSync',
   'conversationSyncPageSuccess',
-  'conversationSyncError'
+  'conversationSyncError',
+  'updateMessages',
+  'markMessages',
+  'deleteConversation',
 ], 'newMessageStore');
