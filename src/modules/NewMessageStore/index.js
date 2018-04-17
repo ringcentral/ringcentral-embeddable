@@ -639,6 +639,23 @@ export default class NewMessageStore extends Pollable {
     }
   }
 
+  // for track click to sms in message list
+  @proxify
+  onClickToSMS() {
+    this.store.dispatch({
+      type: this.actionTypes.clickToSMS
+    });
+  }
+
+  // for track click to call in message list
+  @proxify
+  onClickToCall({ fromType = '' }) {
+    this.store.dispatch({
+      type: this.actionTypes.clickToCall,
+      fromType
+    });
+  }
+
   get status() {
     return this.state.status;
   }
