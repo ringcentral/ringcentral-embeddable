@@ -8,7 +8,6 @@ import sleep from 'ringcentral-integration/lib/sleep';
 import proxify from 'ringcentral-integration/lib/proxy/proxify';
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import syncTypes from 'ringcentral-integration/enums/syncTypes';
-import messageTypes from 'ringcentral-integration/enums/messageTypes';
 import * as messageHelper from 'ringcentral-integration/lib/messageHelper';
 import { batchPutApi } from 'ringcentral-integration/lib/batchApiHelper';
 
@@ -17,24 +16,13 @@ import getReducer from './getReducer';
 import getDataReducer from './getDataReducer';
 import messageStoreErrors from './errors';
 
-const DEFAULT_PER_PAGE = 20;
-const DEFAULT_CONVERSATION_PER_PAGE = 10;
+const DEFAULT_CONVERSATIONS_LOAD_LENGTH = 20;
+const DEFAULT_CONVERSATION_LOAD_LENGTH = 10;
 const DEFAULT_TTL = 30 * 60 * 1000;
 const DEFAULT_RETRY = 62 * 1000;
 const DEFAULT_DAYSPAN = 90;
 
-function getEarliestTime(records) {
-  let newTime = Date.now();
-  records.forEach((record) => {
-    const creationTime = (new Date(record.creationTime)).getTime();
-    if (creationTime < newTime) {
-      newTime = creationTime;
-    }
-  });
-  return (new Date(newTime));
-}
-
-function getSyncParams({ recordCount, conversationPerPage, dateFrom, dateTo, syncToken, type }) {
+function getSyncParams({ recordCount, conversationLoadLength, dateFrom, dateTo, syncToken }) {
   if (syncToken) {
     return {
       syncToken,
@@ -42,7 +30,7 @@ function getSyncParams({ recordCount, conversationPerPage, dateFrom, dateTo, syn
     };
   }
   const params = {
-    recordCountPerConversation: conversationPerPage,
+    recordCountPerConversation: conversationLoadLength,
     syncType: syncTypes.fSync,
   };
   if (recordCount) {
@@ -53,13 +41,6 @@ function getSyncParams({ recordCount, conversationPerPage, dateFrom, dateTo, syn
   }
   if (dateTo) {
     params.dateTo = dateTo.toISOString();
-  }
-  if (type && type !== messageTypes.all) {
-    if (type === messageTypes.text) {
-      params.messageType = [messageTypes.sms, messageTypes.pager];
-    } else {
-      params.messageType = type;
-    }
   }
   return params;
 }
@@ -106,8 +87,8 @@ export default class NewMessageStore extends Pollable {
     disableCache = false,
     timeToRetry = DEFAULT_RETRY,
     daySpan = DEFAULT_DAYSPAN,
-    perPage = DEFAULT_PER_PAGE,
-    conversationPerPage = DEFAULT_CONVERSATION_PER_PAGE,
+    conversationsLoadLength = DEFAULT_CONVERSATIONS_LOAD_LENGTH,
+    conversationLoadLength = DEFAULT_CONVERSATION_LOAD_LENGTH,
     ...options
   }) {
     super({
@@ -131,8 +112,8 @@ export default class NewMessageStore extends Pollable {
     this._ttl = ttl;
     this._timeToRetry = timeToRetry;
     this._polling = polling;
-    this._perPage = perPage;
-    this._conversationPerPage = conversationPerPage;
+    this._conversationsLoadLength = conversationsLoadLength;
+    this._conversationLoadLength = conversationLoadLength;
 
     this._daySpan = daySpan;
 
@@ -149,14 +130,6 @@ export default class NewMessageStore extends Pollable {
     }
 
     this._promise = null;
-    this._fetchingNextPage = false;
-    this._conversationPageInfos = {};
-    this._hasOlderData = {
-      [messageTypes.all]: true,
-      [messageTypes.text]: true,
-      [messageTypes.fax]: true,
-      [messageTypes.voiceMail]: true,
-    };
     this._lastSubscriptionMessage = null;
   }
 
@@ -181,8 +154,6 @@ export default class NewMessageStore extends Pollable {
     } else if (this._shouldReset()) {
       this._clearTimeout();
       this._promise = null;
-      this._fetchingNextPage = false;
-      this._conversationPageInfos = {};
       this.store.dispatch({
         type: this.actionTypes.resetSuccess,
       });
@@ -279,20 +250,18 @@ export default class NewMessageStore extends Pollable {
 
   async _syncFunction({
     recordCount,
-    conversationPerPage,
+    conversationLoadLength,
     dateFrom,
     dateTo,
     syncToken,
-    type,
     receivedRecordsLength = 0
   }) {
     const params = getSyncParams({
       recordCount,
-      conversationPerPage,
+      conversationLoadLength,
       dateFrom,
       dateTo,
       syncToken,
-      type,
     });
     const {
       records,
@@ -305,7 +274,7 @@ export default class NewMessageStore extends Pollable {
     await sleep(500);
     const olderDateTo = new Date(records[records.length - 1].creationTime);
     const olderRecordResult = await this._syncFunction({
-      conversationPerPage,
+      conversationLoadLength,
       dateFrom,
       dateTo: olderDateTo,
     });
@@ -316,9 +285,6 @@ export default class NewMessageStore extends Pollable {
   }
 
   getSyncActionType({ dateTo, syncToken }) {
-    if (dateTo) {
-      return this.actionTypes.conversationsFSyncPageSuccess;
-    }
     if (syncToken) {
       return this.actionTypes.conversationsISyncSuccess;
     }
@@ -327,9 +293,8 @@ export default class NewMessageStore extends Pollable {
 
   async _syncData({
     dateTo,
-    type,
-    perPage = this._perPage,
-    conversationPerPage = this._conversationPerPage
+    conversationsLoadLength = this._conversationsLoadLength,
+    conversationLoadLength = this._conversationLoadLength
   } = {}) {
     this.store.dispatch({
       type: this.actionTypes.conversationsSync,
@@ -339,19 +304,15 @@ export default class NewMessageStore extends Pollable {
       const dateFrom = new Date();
       dateFrom.setDate(dateFrom.getDate() - this._daySpan);
       const syncToken = dateTo ? null : this.syncInfo && this.syncInfo.syncToken;
-      const recordCount = perPage * conversationPerPage;
+      const recordCount = conversationsLoadLength * conversationLoadLength;
       const data = await this._syncFunction({
         recordCount,
-        conversationPerPage,
+        conversationLoadLength,
         dateFrom,
         syncToken,
         dateTo,
-        type,
       });
       if (this._auth.ownerId === ownerId) {
-        if (type) {
-          this._hasOlderData[type] = (data.records.length >= recordCount);
-        }
         const actionType = this.getSyncActionType({ dateTo, syncToken });
         this.store.dispatch({
           type: actionType,
@@ -376,14 +337,14 @@ export default class NewMessageStore extends Pollable {
 
   async _fetchData({
     dateTo,
-    perPage,
-    conversationPerPage,
+    conversationsLoadLength,
+    conversationLoadLength,
   } = {}) {
     try {
       await this._syncData({
         dateTo,
-        perPage,
-        conversationPerPage,
+        conversationsLoadLength,
+        conversationLoadLength,
       });
       if (this._polling) {
         this._startPolling();
@@ -424,74 +385,6 @@ export default class NewMessageStore extends Pollable {
       this._promise = this._fetchData();
     }
     await this._promise;
-  }
-
-  @proxify
-  async fetchNextPage(type = messageTypes.all) {
-    if (!this._hasOlderData[type]) {
-      return;
-    }
-    if (this._fetchingNextPage) {
-      return;
-    }
-    this._fetchingNextPage = true;
-    try {
-      await this._syncData({
-        dateTo: this.earliestTime[type],
-        conversationPerPage: 1,
-        type
-      });
-      this._fetchingNextPage = false;
-    } catch (error) {
-      this._fetchingNextPage = false;
-      throw error;
-    }
-  }
-
-  @proxify
-  async fetchConversationNextPage({
-    conversationId
-  }) {
-    if (!this._conversationPageInfos[conversationId]) {
-      this._conversationPageInfos[conversationId] = {
-        hasNextPage: true,
-        fetching: false,
-      };
-    }
-    if (this._conversationPageInfos[conversationId].fetching) {
-      return;
-    }
-    if (!this._conversationPageInfos[conversationId].hasNextPage) {
-      return;
-    }
-    this.store.dispatch({
-      type: this.actionTypes.conversationSync,
-    });
-    const messages = this.conversationStore[conversationId] || [];
-    const earliestTime = getEarliestTime(messages);
-    const dateFrom = new Date();
-    dateFrom.setDate(dateFrom.getDate() - this._daySpan);
-    try {
-      const { records } = await this._client.account().extension().messageStore().list({
-        conversationId,
-        dateFrom: dateFrom.toISOString(),
-        dateTo: earliestTime.toISOString(),
-        perPage: this._conversationPerPage,
-        page: 1,
-      });
-      this._conversationPageInfos[conversationId] = {
-        fetching: false,
-        hasNextPage: (records.length >= this._conversationPerPage),
-      };
-      this.store.dispatch({
-        type: this.actionTypes.conversationSyncPageSuccess,
-        records,
-      });
-    } catch (e) {
-      this.store.dispatch({
-        type: this.actionTypes.conversationSyncError,
-      });
-    }
   }
 
   @proxify
@@ -678,18 +571,6 @@ export default class NewMessageStore extends Pollable {
     return this._ttl;
   }
 
-  get paging() {
-    return this.state.paging;
-  }
-
-  get pageNumber() {
-    return this.paging.page || 1;
-  }
-
-  get hasOlderData() {
-    return this.data.hasOlderData;
-  }
-
   get syncInfo() {
     return this.data.syncInfo;
   }
@@ -716,40 +597,6 @@ export default class NewMessageStore extends Pollable {
           };
         }
       )
-  )
-
-  @getter
-  earliestTime = createSelector(
-    () => this.data.conversationList || [],
-    (conversationList) => {
-      const newTime = {
-        [messageTypes.all]: Date.now(),
-        [messageTypes.text]: Date.now(),
-        [messageTypes.fax]: Date.now(),
-        [messageTypes.voiceMail]: Date.now(),
-      };
-      conversationList.forEach((record) => {
-        const creationTime = (new Date(record.creationTime)).getTime();
-        if (creationTime < newTime[messageTypes.all]) {
-          newTime[messageTypes.all] = creationTime;
-        }
-        if (messageHelper.messageIsTextMessage(record)) {
-          if (creationTime < newTime[messageTypes.all]) {
-            newTime[messageTypes.all] = creationTime;
-          }
-          return;
-        }
-        if (creationTime < newTime[record.type]) {
-          newTime[record.type] = creationTime;
-        }
-      });
-      return {
-        [messageTypes.all]: new Date(newTime[messageTypes.all]),
-        [messageTypes.text]: new Date(newTime[messageTypes.text]),
-        [messageTypes.fax]: new Date(newTime[messageTypes.fax]),
-        [messageTypes.voiceMail]: new Date(newTime[messageTypes.fax]),
-      };
-    },
   )
 
   @getter

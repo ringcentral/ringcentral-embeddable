@@ -1,32 +1,10 @@
 import { combineReducers } from 'redux';
-import removeUri from 'ringcentral-integration/lib/removeUri';
 import * as messageHelper from 'ringcentral-integration/lib/messageHelper';
-
-function getConversationId(record) {
-  const conversationId = (record.conversation && record.conversation.id) || record.id;
-  return conversationId.toString();
-}
-
-function sortByCreationTime(a, b) {
-  if (a.creationTime === b.creationTime) return 0;
-  return (a.creationTime > b.creationTime ? -1 : 1);
-}
-
-function normalizeRecord(record) {
-  const newRecord = removeUri(record);
-  const conversationId = getConversationId(record);
-  delete newRecord.conversation;
-  return {
-    ...newRecord,
-    creationTime: (new Date(record.creationTime)).getTime(),
-    lastModifiedTime: (new Date(record.lastModifiedTime)).getTime(),
-    conversationId,
-  };
-}
-
-function messageIsDeleted(message) {
-  return message.availability === 'Deleted' || message.availability === 'Purged';
-}
+import {
+  sortByCreationTime,
+  normalizeRecord,
+  messageIsDeleted,
+} from '../../lib/messageHelper';
 
 export function getConversationListReducer(types) {
   return (state = [], { type, records, conversationId, conversationStore }) => {
@@ -35,7 +13,6 @@ export function getConversationListReducer(types) {
     switch (type) {
       case types.conversationsISyncSuccess:
       case types.conversationsFSyncSuccess:
-      case types.conversationsFSyncPageSuccess:
       case types.updateMessages:
         if (type !== types.conversationsFSyncSuccess) {
           if (!records || records.length === 0) {
@@ -114,8 +91,6 @@ export function getConversationStoreReducer(types) {
     switch (type) {
       case types.conversationsISyncSuccess:
       case types.conversationsFSyncSuccess:
-      case types.conversationsFSyncPageSuccess:
-      case types.conversationSyncPageSuccess:
       case types.updateMessages:
         if (type !== types.conversationsFSyncSuccess) {
           if (!records || records.length === 0) {
@@ -192,28 +167,10 @@ export function getSyncInfoReducer(types) {
   };
 }
 
-export function getHasOlderDataReducer(types) {
-  return (state = true, { type, records, recordCount }) => {
-    switch (type) {
-      case types.conversationsFSyncSuccess:
-      case types.conversationsFSyncPageSuccess:
-        if (records && records.length >= recordCount) {
-          return true;
-        }
-        return false;
-      case types.resetSuccess:
-        return true;
-      default:
-        return state;
-    }
-  };
-}
-
 export default function getDataReducer(types) {
   return combineReducers({
     conversationList: getConversationListReducer(types),
     conversationStore: getConversationStoreReducer(types),
     syncInfo: getSyncInfoReducer(types),
-    hasOlderData: getHasOlderDataReducer(types),
   });
 }

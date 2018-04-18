@@ -16,15 +16,33 @@ import {
   getVoicemailAttachment,
   getFaxAttachment,
   messageIsFax,
+  getMyNumberFromMessage,
+  getRecipientNumbersFromMessage,
 } from 'ringcentral-integration/lib/messageHelper';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
+import status from './status';
+
+function getEarliestTime(messages) {
+  let newTime = Date.now();
+  messages.forEach((message) => {
+    const creationTime = (new Date(message.creationTime)).getTime();
+    if (creationTime < newTime) {
+      newTime = creationTime;
+    }
+  });
+  return newTime;
+}
+
+const DEFAULT_PER_PAGE = 20;
+const DEFAULT_DAY_SPAN = 90;
 
 @Module({
   deps: [
     'Alert',
     'Auth',
+    'Client',
     'MessageSender',
     'ExtensionInfo',
     'NewMessageStore',
@@ -38,12 +56,15 @@ export default class Conversations extends RcModule {
   constructor({
     alert,
     auth,
+    client,
     messageSender,
     extensionInfo,
     newMessageStore,
     rolesAndPermissions,
     contactMatcher,
     conversationLogger,
+    perPage = DEFAULT_PER_PAGE,
+    daySpan = DEFAULT_DAY_SPAN,
     ...options
   }) {
     super({
@@ -52,6 +73,7 @@ export default class Conversations extends RcModule {
     });
     this._auth = this::ensureExist(auth, 'auth');
     this._alert = this::ensureExist(alert, 'alert');
+    this._client = this::ensureExist(client, 'client');
     this._messageSender = this::ensureExist(messageSender, 'messageSender');
     this._extensionInfo = this::ensureExist(extensionInfo, 'extensionInfo');
     this._messageStore = this::ensureExist(newMessageStore, 'messageStore');
@@ -64,6 +86,10 @@ export default class Conversations extends RcModule {
 
     this._promise = null;
     this._lastProcessedNumbers = null;
+    this._perPage = perPage;
+    this._daySpan = daySpan;
+    this._olderDataExsited = true;
+    this._olderMessagesExsited = true;
 
     if (this._contactMatcher) {
       this._contactMatcher.addQuerySource({
@@ -96,7 +122,7 @@ export default class Conversations extends RcModule {
       this._rolesAndPermissions.ready &&
       (!this._contactMatcher || this._contactMatcher.ready) &&
       (!this._conversationLogger || this._conversationLogger.ready) &&
-      !this.pending
+      this.pending
     );
   }
 
@@ -125,10 +151,15 @@ export default class Conversations extends RcModule {
     this.store.dispatch({
       type: this.actionTypes.initSuccess,
     });
+    if (this.allConversations.length <= this._perPage) {
+      this.fetchOldConversations();
+    }
   }
 
   _reset() {
     this._lastProcessedNumbers = null;
+    this._olderDataExsited = true;
+    this._olderMessagesExsited = true;
     this.store.dispatch({
       type: this.actionTypes.resetSuccess,
     });
@@ -144,15 +175,154 @@ export default class Conversations extends RcModule {
 
   @proxify
   async updateTypeFilter(type) {
+    if (this.typeFilter === type) {
+      return;
+    }
     this.store.dispatch({
       type: this.actionTypes.updateTypeFilter,
       typeFilter: type,
     });
+    this._olderDataExsited = true;
+    this._olderMessagesExsited = true;
+    if (this.allConversations.length <= this._perPage) {
+      this.fetchOldConversations();
+    }
+  }
+
+  @proxify
+  async fetchOldConversations() {
+    if (!this._olderDataExsited) {
+      return;
+    }
+    if (this.fetchConversationsStatus === status.fetching) {
+      return;
+    }
+    this.store.dispatch({
+      type: this.actionTypes.fetchOldConverstaions,
+    });
+    const dateFrom = new Date();
+    dateFrom.setDate(dateFrom.getDate() - this._daySpan);
+    const dateTo = new Date(this.earliestTime);
+    if (dateTo.getTime() < dateFrom.getTime()) {
+      dateFrom.setDate(dateFrom.getDate() - 1);
+    }
+    const typeFilter = this.typeFilter;
+    const currentPage = this.currentPage;
+    const params = {
+      distinctConversations: true,
+      perPage: this._perPage,
+      dateFrom: dateFrom.toISOString(),
+      dateTo: dateTo.toISOString(),
+    };
+    if (typeFilter === messageTypes.text) {
+      params.messageType = [messageTypes.sms, messageTypes.pager];
+    } else if (typeFilter && typeFilter !== '' && typeFilter !== messageTypes.all) {
+      params.messageType = typeFilter;
+    }
+    try {
+      const { records } = await this._client
+        .account()
+        .extension()
+        .messageStore()
+        .list(params);
+      this._olderDataExsited = records.length === this._perPage;
+      if (typeFilter === this.typeFilter && currentPage === this.currentPage) {
+        this.store.dispatch({
+          type: this.actionTypes.fetchOldConverstaionsSuccess,
+          records,
+        });
+      }
+    } catch (e) {
+      if (typeFilter === this.typeFilter && currentPage === this.currentPage) {
+        this.store.dispatch({
+          type: this.actionTypes.fetchOldConverstaionsError
+        });
+      }
+    }
+  }
+
+  @proxify
+  async loadConversation(conversationId) {
+    if (conversationId === this.currentConversationId) {
+      return;
+    }
+    this.store.dispatch({
+      type: this.actionTypes.updateCurrentConversationId,
+      conversationId,
+    });
+    if (this.currentConversation.messages.length <= this._perPage) {
+      this.fetchOldMessages();
+    }
+  }
+
+  @proxify
+  async unloadConversation() {
+    this.store.dispatch({
+      type: this.actionTypes.updateCurrentConversationId,
+      conversationId: null,
+    });
+  }
+
+  async fetchOldMessages() {
+    if (!this._olderMessagesExsited) {
+      return;
+    }
+    if (this.fetcMessagesStatus === status.fetching) {
+      return;
+    }
+    if (!this.currentConversationId) {
+      return;
+    }
+    this.store.dispatch({
+      type: this.actionTypes.fetchOldMessages,
+    });
+    const conversationId = this.currentConversationId;
+    const dateFrom = new Date();
+    dateFrom.setDate(dateFrom.getDate() - this._daySpan);
+    const earliestTime = getEarliestTime(this.currentConversation.messages);
+    const dateTo = new Date(earliestTime);
+    if (dateTo.getTime() < dateFrom.getTime()) {
+      dateFrom.setDate(dateFrom.getDate() - 1);
+    }
+    const params = {
+      conversationId,
+      perPage: this._perPage,
+      dateFrom: dateFrom.toISOString(),
+      dateTo: dateTo.toISOString(),
+    };
+    try {
+      const { records } = await this._client
+        .account()
+        .extension()
+        .messageStore()
+        .list(params);
+      this._olderDataExsited = records.length === this._perPage;
+      if (conversationId === this.currentConversationId) {
+        this.store.dispatch({
+          type: this.actionTypes.fetchOldMessagesSuccess,
+          records,
+        });
+      }
+    } catch (e) {
+      if (conversationId === this.currentConversationId) {
+        this.store.dispatch({
+          type: this.actionTypes.fetchOldMessagesError
+        });
+      }
+    }
   }
 
   @getter
-  uniqueNumbers = createSelector(
+  allConversations = createSelector(
     () => this._messageStore.allConversations,
+    () => this.oldConversations,
+    (conversations, oldConversations) =>
+      [].concat(conversations).concat(oldConversations)
+  )
+
+  @getter
+  uniqueNumbers = createSelector(
+    () => this.allConversations,
     (conversations) => {
       const output = [];
       const numberMap = {};
@@ -192,7 +362,7 @@ export default class Conversations extends RcModule {
 
   @getter
   typeFilteredConversations = createSelector(
-    () => this._messageStore.allConversations,
+    () => this.allConversations,
     () => this.typeFilter,
     (allConversations, typeFilter) => {
       switch (typeFilter) {
@@ -363,6 +533,39 @@ export default class Conversations extends RcModule {
     },
   )
 
+  @getter
+  earliestTime = createSelector(
+    () => this.typeFilteredConversations,
+    getEarliestTime,
+  )
+
+  @getter
+  currentConversation = createSelector(
+    () => this.currentConversationId,
+    () => this.oldMessages,
+    () => this._messageStore.conversationStore,
+    () => this.allConversations,
+    (conversationId, oldMessages, conversationStore, allConversations) => {
+      const conversation = allConversations.find(
+        c => c.conversationId === conversationId
+      );
+      const messages = [].concat(conversationStore[conversationId] || []);
+      const currentConversation = {
+        ...conversation
+      };
+      currentConversation.messages = messages.concat(oldMessages);
+      currentConversation.senderNumber = getMyNumberFromMessage({
+        message: conversation,
+        myExtensionNumber: this._extensionInfo.extensionNumber,
+      });
+      currentConversation.recipients = getRecipientNumbersFromMessage({
+        message: conversation,
+        myNumber: currentConversation.senderNumber,
+      });
+      return currentConversation;
+    }
+  )
+
   get status() {
     return this.state.status;
   }
@@ -373,5 +576,29 @@ export default class Conversations extends RcModule {
 
   get typeFilter() {
     return this.state.typeFilter;
+  }
+
+  get currentPage() {
+    return this.state.currentPage;
+  }
+
+  get oldConversations() {
+    return this.state.oldConversations;
+  }
+
+  get fetchConversationsStatus() {
+    return this.state.fetchConversationsStatus;
+  }
+
+  get currentConversationId() {
+    return this.state.currentConversationId;
+  }
+
+  get fetchMessagesStatus() {
+    return this.state.fetchConversationsStatus;
+  }
+
+  get oldMessages() {
+    return this.state.oldMessages;
   }
 }

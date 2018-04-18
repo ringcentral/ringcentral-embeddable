@@ -3,12 +3,13 @@ import moduleActionTypes from 'ringcentral-integration/enums/moduleActionTypes';
 
 export default new Enum([
   ...Object.keys(moduleActionTypes),
-  'reply',
-  'replySuccess',
-  'replyError',
   'updateCurrentConversationId',
-  'updateMessage',
-  'removeMessage',
   'updateSearchInput',
-  'updateTypeFilter'
+  'updateTypeFilter',
+  'fetchOldConverstaions',
+  'fetchOldConverstaionsSuccess',
+  'fetchOldConverstaionsError',
+  'fetchOldMessagesSuccess',
+  'fetchOldMessagesError',
+  'fetchOldMessages',
 ], 'conversations');
