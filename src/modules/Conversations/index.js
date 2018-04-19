@@ -251,9 +251,6 @@ export default class Conversations extends RcModule {
       type: this.actionTypes.updateCurrentConversationId,
       conversationId,
     });
-    if (this.currentConversation.messages.length <= this._perPage) {
-      this.fetchOldMessages();
-    }
   }
 
   @proxify
@@ -265,7 +262,7 @@ export default class Conversations extends RcModule {
   }
 
   @proxify
-  async fetchOldMessages() {
+  async fetchOldMessages(perPage = this._perPage) {
     if (!this._olderMessagesExsited) {
       return;
     }
@@ -288,7 +285,7 @@ export default class Conversations extends RcModule {
     }
     const params = {
       conversationId,
-      perPage: this._perPage,
+      perPage,
       dateFrom: dateFrom.toISOString(),
       dateTo: dateTo.toISOString(),
     };
@@ -298,7 +295,7 @@ export default class Conversations extends RcModule {
         .extension()
         .messageStore()
         .list(params);
-      this._olderDataExsited = records.length === this._perPage;
+      this._olderDataExsited = records.length === perPage;
       if (conversationId === this.currentConversationId) {
         this.store.dispatch({
           type: this.actionTypes.fetchOldMessagesSuccess,
@@ -333,7 +330,7 @@ export default class Conversations extends RcModule {
       return this._alertWarning(messageSenderMessages.textTooLong);
     }
     return this.store.dispatch({
-      type: this.actionTypes.updateMessages,
+      type: this.actionTypes.updateMessageText,
       text,
       conversationId: this.currentConversationId,
     });
@@ -357,8 +354,8 @@ export default class Conversations extends RcModule {
           type: this.actionTypes.replySuccess,
         });
         this.store.dispatch({
-          type: this.actionTypes.removeMessage,
-          id: this.id,
+          type: this.actionTypes.removeMessageText,
+          conversationId: this.currentConversationId,
         });
         return responses[0];
       }
@@ -371,7 +368,7 @@ export default class Conversations extends RcModule {
   }
 
   _getReplyOnMessageId() {
-    const messageList = this.currentConversation.messages
+    const messageList = this.currentConversation.messages;
     const lastMessage =
       messageList &&
       messageList.length > 0 &&
@@ -383,7 +380,7 @@ export default class Conversations extends RcModule {
   }
 
   _getFromNumber() {
-    const senderNumber = this.currentConversation.senderNumber
+    const senderNumber = this.currentConversation.senderNumber;
     if (!senderNumber) {
       return null;
     }
@@ -629,16 +626,17 @@ export default class Conversations extends RcModule {
     () => this.currentConversationId,
     () => this.oldMessages,
     () => this._messageStore.conversationStore,
-    () => this.allConversations,
-    (conversationId, oldMessages, conversationStore, allConversations) => {
-      const conversation = allConversations.find(
+    () => this.formatedConversations,
+    (conversationId, oldMessages, conversationStore, conversations) => {
+      const conversation = conversations.find(
         c => c.conversationId === conversationId
       );
       const messages = [].concat(conversationStore[conversationId] || []);
       const currentConversation = {
         ...conversation
       };
-      currentConversation.messages = messages.concat(oldMessages);
+      const allMessages = messages.concat(oldMessages).slice();
+      currentConversation.messages = allMessages.reverse();
       currentConversation.senderNumber = getMyNumberFromMessage({
         message: conversation,
         myExtensionNumber: this._extensionInfo.extensionNumber,
@@ -655,9 +653,9 @@ export default class Conversations extends RcModule {
   messageText = createSelector(
     () => this.state.messageTexts,
     () => this.currentConversationId,
-    (messageTexts, id) => {
+    (messageTexts, conversationId) => {
       const res = messageTexts.find(
-        msg => typeof msg === 'object' && msg.id === id,
+        msg => typeof msg === 'object' && msg.conversationId === conversationId,
       );
       return res ? res.text : '';
     },
@@ -697,5 +695,9 @@ export default class Conversations extends RcModule {
 
   get oldMessages() {
     return this.state.oldMessages;
+  }
+
+  get pushing() {
+    return this.state.conversationStatus === status.pushing;
   }
 }

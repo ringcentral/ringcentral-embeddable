@@ -8,8 +8,8 @@ import CallingSettingsPage from 'ringcentral-widgets/containers/CallingSettingsP
 import RegionSettingsPage from 'ringcentral-widgets/containers/RegionSettingsPage';
 import DialerPage from 'ringcentral-widgets/containers/DialerPage';
 import ComposeTextPage from 'ringcentral-widgets/containers/ComposeTextPage';
-import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
-import MessagesPage from 'ringcentral-widgets/containers/MessagesPage';
+// import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
+// import MessagesPage from 'ringcentral-widgets/containers/MessagesPage';
 import SettingsPage from 'ringcentral-widgets/containers/SettingsPage';
 import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import CallHistoryPage from 'ringcentral-widgets/containers/CallHistoryPage';
@@ -26,7 +26,8 @@ import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
-
+import ConversationsPage from '../ConversationsPage';
+import ConversationPage from '../ConversationPage';
 
 export default function App({
   phone,
@@ -172,7 +173,7 @@ export default function App({
               <Route
                 path="/messages"
                 component={() => (
-                  <MessagesPage
+                  <ConversationsPage
                     showGroupNumberName
                     showContactDisplayPlaceholder={false}
                   />

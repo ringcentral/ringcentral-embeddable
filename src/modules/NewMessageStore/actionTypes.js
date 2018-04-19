@@ -11,5 +11,7 @@ export default new Enum([
   'conversationSyncError',
   'updateMessages',
   'markMessages',
+  'clickToSMS',
+  'clickToCall',
   'deleteConversation',
 ], 'newMessageStore');

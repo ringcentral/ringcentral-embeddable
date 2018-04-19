@@ -130,11 +130,11 @@ export function getFetchMessagesStatusReducer(types) {
 export function getMessageTextsReducer(types) {
   return (state = [], { type, text, conversationId }) => {
     switch (type) {
-      case types.updateMessages:
+      case types.updateMessageText:
         return [{ conversationId, text }].concat(
           state.filter(msg => typeof msg === 'object' && msg.conversationId !== conversationId),
         );
-      case types.removeMessage:
+      case types.removeMessageText:
         return state.filter(msg => typeof msg === 'object' && msg.conversationId !== conversationId);
       case types.resetSuccess:
       default:
