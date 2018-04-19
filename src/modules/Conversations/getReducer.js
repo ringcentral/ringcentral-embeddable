@@ -127,6 +127,36 @@ export function getFetchMessagesStatusReducer(types) {
   };
 }
 
+export function getMessageTextsReducer(types) {
+  return (state = [], { type, text, conversationId }) => {
+    switch (type) {
+      case types.updateMessages:
+        return [{ conversationId, text }].concat(
+          state.filter(msg => typeof msg === 'object' && msg.conversationId !== conversationId),
+        );
+      case types.removeMessage:
+        return state.filter(msg => typeof msg === 'object' && msg.conversationId !== conversationId);
+      case types.resetSuccess:
+      default:
+        return state;
+    }
+  };
+}
+
+export function getConversationStatusReducer(types) {
+  return (state = status.idle, { type }) => {
+    switch (type) {
+      case types.reply:
+        return status.pushing;
+      case types.replySuccess:
+      case types.replyError:
+        return status.idle;
+      default:
+        return state;
+    }
+  };
+}
+
 export default function getReducer(types) {
   return combineReducers({
     status: getModuleStatusReducer(types),
@@ -138,5 +168,7 @@ export default function getReducer(types) {
     currentConversationId: getCurrentConversationIdReducer(types),
     oldMessages: getOldMessagesReducer(types),
     fetchMessagesStatus: getFetchMessagesStatusReducer(types),
+    messageTexts: getMessageTextsReducer(types),
+    conversationStatus: getConversationStatusReducer(types),
   });
 }

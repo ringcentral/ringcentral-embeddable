@@ -7,6 +7,7 @@ import ensureExist from 'ringcentral-integration/lib/ensureExist';
 import proxify from 'ringcentral-integration/lib/proxy/proxify';
 import messageTypes from 'ringcentral-integration/enums/messageTypes';
 import cleanNumber from 'ringcentral-integration/lib/cleanNumber';
+import messageSenderMessages from 'ringcentral-integration/modules/MessageSender/messageSenderMessages';
 
 import {
   getNumbersFromMessage,
@@ -263,6 +264,7 @@ export default class Conversations extends RcModule {
     });
   }
 
+  @proxify
   async fetchOldMessages() {
     if (!this._olderMessagesExsited) {
       return;
@@ -310,6 +312,89 @@ export default class Conversations extends RcModule {
         });
       }
     }
+  }
+
+  _alertWarning(message) {
+    if (message) {
+      const ttlConfig =
+        message !== messageSenderMessages.noAreaCode ? { ttl: 0 } : null;
+      this._alert.warning({
+        message,
+        ...ttlConfig,
+      });
+      return true;
+    }
+    return false;
+  }
+
+  @proxify
+  async updateMessageText(text) {
+    if (text.length > 1000) {
+      return this._alertWarning(messageSenderMessages.textTooLong);
+    }
+    return this.store.dispatch({
+      type: this.actionTypes.updateMessages,
+      text,
+      conversationId: this.currentConversationId,
+    });
+  }
+
+  @proxify
+  async replyToReceivers(text) {
+    this.store.dispatch({
+      type: this.actionTypes.reply,
+    });
+    try {
+      const responses = await this._messageSender.send({
+        fromNumber: this._getFromNumber(),
+        toNumbers: this._getToNumbers(),
+        text,
+        replyOnMessageId: this._getReplyOnMessageId(),
+      });
+      if (responses && responses[0]) {
+        this._messageStore.pushMessage(responses[0]);
+        this.store.dispatch({
+          type: this.actionTypes.replySuccess,
+        });
+        this.store.dispatch({
+          type: this.actionTypes.removeMessage,
+          id: this.id,
+        });
+        return responses[0];
+      }
+      this._onReplyError();
+      return null;
+    } catch (error) {
+      this._onReplyError();
+      throw error;
+    }
+  }
+
+  _getReplyOnMessageId() {
+    const messageList = this.currentConversation.messages
+    const lastMessage =
+      messageList &&
+      messageList.length > 0 &&
+      messageList[messageList.length - 1];
+    if (lastMessage && lastMessage.id) {
+      return lastMessage.id;
+    }
+    return null;
+  }
+
+  _getFromNumber() {
+    const senderNumber = this.currentConversation.senderNumber
+    if (!senderNumber) {
+      return null;
+    }
+    return senderNumber.extensionNumber || senderNumber.phoneNumber;
+  }
+
+  _getToNumbers() {
+    const recipients = this.currentConversation.recipients;
+    return recipients.map(
+      recipient => recipient.extensionNumber || recipient.phoneNumber,
+    );
   }
 
   @getter
@@ -565,6 +650,18 @@ export default class Conversations extends RcModule {
       return currentConversation;
     }
   )
+
+  @getter
+  messageText = createSelector(
+    () => this.state.messageTexts,
+    () => this.currentConversationId,
+    (messageTexts, id) => {
+      const res = messageTexts.find(
+        msg => typeof msg === 'object' && msg.id === id,
+      );
+      return res ? res.text : '';
+    },
+  );
 
   get status() {
     return this.state.status;

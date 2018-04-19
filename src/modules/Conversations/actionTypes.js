@@ -12,4 +12,9 @@ export default new Enum([
   'fetchOldMessagesSuccess',
   'fetchOldMessagesError',
   'fetchOldMessages',
+  'updateMessages',
+  'removeMessage',
+  'reply',
+  'replySuccess',
+  'replyError',
 ], 'conversations');
