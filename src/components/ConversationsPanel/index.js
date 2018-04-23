@@ -4,7 +4,6 @@ import classnames from 'classnames';
 import messageTypes from 'ringcentral-integration/enums/messageTypes';
 import Header from 'ringcentral-widgets/components/Header';
 import SpinnerOverlay from 'ringcentral-widgets/components/SpinnerOverlay';
-import MessageList from 'ringcentral-widgets/components/MessageList';
 import MessageTabButton from 'ringcentral-widgets/components/MessageTabButton';
 import NavigationBar from 'ringcentral-widgets/components/NavigationBar';
 import SearchInput from 'ringcentral-widgets/components/SearchInput';
@@ -13,6 +12,9 @@ import NewComposeText from 'ringcentral-widgets/assets/images/NewComposeText.svg
 import NewComposeTextHover from 'ringcentral-widgets/assets/images/NewComposeTextHover.svg';
 import styles from 'ringcentral-widgets/components/MessagesPanel/styles.scss';
 import i18n from 'ringcentral-widgets/components/MessagesPanel/i18n';
+
+import MessageList from '../ConversationList';
+import newStyles from './styles.scss';
 
 function TabTitle({
   type,
@@ -115,7 +117,9 @@ export default class MessagesPanel extends Component {
       typeFilter,
       goToComposeText,
       composeTextPermission,
-      previewFaxMessages
+      previewFaxMessages,
+      loadNextPage,
+      loadingNextPage,
     } = this.props;
     if (showSpinner) {
       return (<SpinnerOverlay />);
@@ -160,7 +164,7 @@ export default class MessagesPanel extends Component {
       >
         {search}
         <MessageList
-          className={onSearchInputChange ? styles.contentWithSearch : null}
+          className={onSearchInputChange ? newStyles.contentWithSearch : null}
           currentLocale={currentLocale}
           perPage={perPage}
           disableLinks={disableLinks}
@@ -187,6 +191,8 @@ export default class MessagesPanel extends Component {
           enableContactFallback={enableContactFallback}
           deleteMessage={deleteMessage}
           previewFaxMessages={previewFaxMessages}
+          loadNextPage={loadNextPage}
+          loadingNextPage={loadingNextPage}
         />
       </div>
     );
@@ -267,6 +273,8 @@ MessagesPanel.propTypes = {
   deleteMessage: PropTypes.func,
   composeTextPermission: PropTypes.bool,
   previewFaxMessages: PropTypes.func,
+  loadNextPage: PropTypes.func.isRequired,
+  loadingNextPage: PropTypes.bool,
 };
 
 MessagesPanel.defaultProps = {
@@ -297,4 +305,5 @@ MessagesPanel.defaultProps = {
   deleteMessage: undefined,
   composeTextPermission: true,
   previewFaxMessages: undefined,
+  loadingNextPage: false,
 };

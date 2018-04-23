@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import withPhone from 'ringcentral-widgets/lib/withPhone';
-import MessagesPanel from 'ringcentral-widgets/components/MessagesPanel';
+import MessagesPanel from '../../components/ConversationsPanel';
 
 function mapToProps(_, {
   phone: {
@@ -80,6 +80,7 @@ function mapToProps(_, {
     readTextPermission: readTextPermissions,
     readVoicemailPermission: voicemailPermissions,
     readFaxPermission: readFaxPermissions,
+    loadingNextPage: conversations.loadingOldConversations,
   });
 }
 
@@ -189,6 +190,9 @@ function mapToFunctions(_, {
         previewFaxMessages(uri);
       }
       messageStore.readMessages(conversationId);
+    },
+    loadNextPage: async () => {
+      await conversations.fetchOldConversations();
     }
   };
 }

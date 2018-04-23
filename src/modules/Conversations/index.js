@@ -195,7 +195,7 @@ export default class Conversations extends RcModule {
     if (!this._olderDataExsited) {
       return;
     }
-    if (this.fetchConversationsStatus === status.fetching) {
+    if (this.loadingOldConversations) {
       return;
     }
     this.store.dispatch({
@@ -259,6 +259,7 @@ export default class Conversations extends RcModule {
       type: this.actionTypes.updateCurrentConversationId,
       conversationId: null,
     });
+    this._olderMessagesExsited = true;
   }
 
   @proxify
@@ -266,7 +267,7 @@ export default class Conversations extends RcModule {
     if (!this._olderMessagesExsited) {
       return;
     }
-    if (this.fetcMessagesStatus === status.fetching) {
+    if (this.loadingOldMessages) {
       return;
     }
     if (!this.currentConversationId) {
@@ -295,7 +296,7 @@ export default class Conversations extends RcModule {
         .extension()
         .messageStore()
         .list(params);
-      this._olderDataExsited = records.length === perPage;
+      this._olderMessagesExsited = records.length === perPage;
       if (conversationId === this.currentConversationId) {
         this.store.dispatch({
           type: this.actionTypes.fetchOldMessagesSuccess,
@@ -690,11 +691,19 @@ export default class Conversations extends RcModule {
   }
 
   get fetchMessagesStatus() {
-    return this.state.fetchConversationsStatus;
+    return this.state.fetchMessagesStatus;
   }
 
   get oldMessages() {
     return this.state.oldMessages;
+  }
+
+  get loadingOldConversations() {
+    return this.fetchConversationsStatus === status.fetching;
+  }
+
+  get loadingOldMessages() {
+    return this.fetchMessagesStatus === status.fetching;
   }
 
   get pushing() {
