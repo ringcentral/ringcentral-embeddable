@@ -73,7 +73,7 @@ function messageIsUnread(message) {
     { dep: 'ConversationsOptions', optional: true }
   ]
 })
-export default class NewMessageStore extends Pollable {
+export default class MessageStore extends Pollable {
   constructor({
     auth,
     client,
@@ -410,7 +410,7 @@ export default class NewMessageStore extends Pollable {
     return updateRequest;
   }
 
-  async _deleteMessageApi(messageId) {
+  async deleteMessageApi(messageId) {
     const response = await this._client.account()
       .extension()
       .messageStore(messageId)
@@ -509,7 +509,7 @@ export default class NewMessageStore extends Pollable {
   }
 
   @proxify
-  async deleteCoversation(conversationId) {
+  async deleteConversationMessages(conversationId) {
     if (!conversationId) {
       return;
     }
@@ -519,7 +519,31 @@ export default class NewMessageStore extends Pollable {
     }
     const messageId = messageList.map(m => m.id).join(',');
     try {
-      await this._deleteMessageApi(messageId);
+      await this.deleteMessageApi(messageId);
+      this.store.dispatch({
+        type: this.actionTypes.deleteConversation,
+        conversationId,
+      });
+    } catch (error) {
+      console.error(error);
+      this._alert.warning({
+        message: messageStoreErrors.deleteFailed,
+      });
+    }
+  }
+
+  @proxify
+  async deleteConversation(conversationId) {
+    if (!conversationId) {
+      return;
+    }
+    try {
+      await this._client.account()
+        .extension()
+        .messageStore()
+        .delete({
+          conversationId
+        });
       this.store.dispatch({
         type: this.actionTypes.deleteConversation,
         conversationId,

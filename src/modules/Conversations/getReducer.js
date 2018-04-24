@@ -34,10 +34,12 @@ export function getTypeFilterReducer(types) {
 }
 
 export function getOldConversationsReducer(types) {
-  return (state = [], { type, records }) => {
+  return (state = [], { type, records, conversationId }) => {
     switch (type) {
       case types.fetchOldConverstaionsSuccess:
         return [].concat(state).concat(records.map(normalizeRecord));
+      case types.deleteConversation:
+        return state.filter(c => c.conversationId !== conversationId);
       case types.cleanOldConversatioans:
       case types.resetSuccess:
       case types.updateTypeFilter:

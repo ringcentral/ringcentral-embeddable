@@ -48,9 +48,9 @@ export default class MessageList extends Component {
       loadingNextPage,
       ...childProps,
     } = this.props;
-
-    const content = (conversations && conversations.length) ?
-      conversations.map(item => (
+    let content;
+    if (conversations && conversations.length) {
+      content = conversations.map(item => (
         <MessageItem
           {...childProps}
           conversation={item}
@@ -58,8 +58,10 @@ export default class MessageList extends Component {
           key={item.id}
           disableLinks={disableLinks}
         />
-      ))
-      : <NoMessages placeholder={placeholder} />;
+      ));
+    } else if (!loadingNextPage) {
+      content = (<NoMessages placeholder={placeholder} />);
+    }
     const loading = loadingNextPage ? (
       <div className={newStyles.loading}>
         Loading...

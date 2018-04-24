@@ -17,4 +17,5 @@ export default new Enum([
   'reply',
   'replySuccess',
   'replyError',
+  'deleteConversation',
 ], 'conversations');

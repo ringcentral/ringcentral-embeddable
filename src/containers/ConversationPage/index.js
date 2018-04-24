@@ -62,7 +62,7 @@ function mapToFunctions(_, {
     conversationLogger,
     regionSettings,
     conversations,
-    newMessageStore: messageStore,
+    messageStore,
   },
   dateTimeFormatter = (...args) => dateTimeFormat.formatDateTime(...args),
   isLoggedContact,

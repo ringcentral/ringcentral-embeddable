@@ -46,7 +46,7 @@ const DEFAULT_DAY_SPAN = 90;
     'Client',
     'MessageSender',
     'ExtensionInfo',
-    'NewMessageStore',
+    'MessageStore',
     'RolesAndPermissions',
     { dep: 'ContactMatcher', optional: true },
     { dep: 'ConversationLogger', optional: true },
@@ -60,7 +60,7 @@ export default class Conversations extends RcModule {
     client,
     messageSender,
     extensionInfo,
-    newMessageStore,
+    messageStore,
     rolesAndPermissions,
     contactMatcher,
     conversationLogger,
@@ -77,7 +77,7 @@ export default class Conversations extends RcModule {
     this._client = this::ensureExist(client, 'client');
     this._messageSender = this::ensureExist(messageSender, 'messageSender');
     this._extensionInfo = this::ensureExist(extensionInfo, 'extensionInfo');
-    this._messageStore = this::ensureExist(newMessageStore, 'messageStore');
+    this._messageStore = this::ensureExist(messageStore, 'messageStore');
     this._rolesAndPermissions =
       this::ensureExist(rolesAndPermissions, 'rolesAndPermissions');
     this._contactMatcher = contactMatcher;
@@ -395,12 +395,54 @@ export default class Conversations extends RcModule {
     );
   }
 
+  @proxify
+  async deleteCoversation(conversationId) {
+    if (!conversationId) {
+      return;
+    }
+    if (this._messageStore.conversationStore[conversationId]) {
+      await this._messageStore.deleteConversationMessages(conversationId);
+      return;
+    }
+    const conversation = this.allConversations.find(
+      c => c.conversationId === conversationId
+    );
+    if (!conversation) {
+      return;
+    }
+    if (messageIsTextMessage(conversation)) {
+      await this._messageStore.deleteCoversation(conversationId);
+      return;
+    }
+    try {
+      await this._messageStore.deleteMessageApi(conversationId);
+      this.store.dispatch({
+        type: this.actionTypes.deleteConversation,
+        conversationId,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   @getter
   allConversations = createSelector(
     () => this._messageStore.allConversations,
     () => this.oldConversations,
-    (conversations, oldConversations) =>
-      [].concat(conversations).concat(oldConversations)
+    (conversations, oldConversations) => {
+      const newConversations = [];
+      const conversationMap = {};
+      const pushConversation = (c) => {
+        if (conversationMap[c.id]) {
+          return;
+        }
+        newConversations.push(c);
+        conversationMap[c.id] = 1;
+      };
+      conversations.forEach(pushConversation);
+      oldConversations.forEach(pushConversation);
+      return newConversations;
+    }
   )
 
   @getter

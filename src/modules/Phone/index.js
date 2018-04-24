@@ -37,9 +37,7 @@ import ExtensionPhoneNumber from 'ringcentral-integration/modules/ExtensionPhone
 import ForwardingNumber from 'ringcentral-integration/modules/ForwardingNumber';
 import GlobalStorage from 'ringcentral-integration/modules/GlobalStorage';
 import Locale from 'ringcentral-integration/modules/Locale';
-import Messages from 'ringcentral-integration/modules/Messages';
 import MessageSender from 'ringcentral-integration/modules/MessageSender';
-import MessageStore from 'ringcentral-integration/modules/MessageStore';
 import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
 import RateLimiter from 'ringcentral-integration/modules/RateLimiter';
 import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
@@ -59,7 +57,7 @@ import OAuth from '../OAuth';
 import Auth from '../Auth';
 import Environment from '../Environment';
 import Adapter from '../Adapter';
-import NewMessageStore from '../NewMessageStore';
+import MessageStore from '../MessageStore';
 import Conversations from '../Conversations';
 
 // user Dependency Injection with decorator to create a phone class
@@ -106,7 +104,6 @@ import Conversations from '../Conversations';
     { provide: 'ConversationMatcher', useClass: ConversationMatcher },
     { provide: 'ContactSearch', useClass: ContactSearch },
     { provide: 'MessageStore', useClass: MessageStore },
-    { provide: 'NewMessageStore', useClass: NewMessageStore },
     { provide: 'Conversations', useClass: Conversations },
     { provide: 'Conversation', useClass: Conversation },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
@@ -114,7 +111,6 @@ import Conversations from '../Conversations';
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetails', useClass: ContactDetails },
-    { provide: 'Messages', useClass: Messages },
     { provide: 'DialerUI', useClass: DialerUI },
     { provide: 'Adapter', useClass: Adapter },
     { provide: 'RouterInteraction', useClass: RouterInteraction },

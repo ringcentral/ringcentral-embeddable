@@ -109,7 +109,7 @@ function getTabs({
 
 function mapToProps(_, {
   phone: {
-    newMessageStore: messageStore,
+    messageStore,
     rolesAndPermissions,
     routerInteraction,
     callingSettings,

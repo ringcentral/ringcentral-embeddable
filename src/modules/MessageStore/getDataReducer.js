@@ -128,6 +128,9 @@ export function getConversationStoreReducer(types) {
         });
         return newState;
       case types.deleteConversation:
+        if (!state[conversationId]) {
+          return state;
+        }
         newState = { ...state };
         delete newState[conversationId];
         return newState;

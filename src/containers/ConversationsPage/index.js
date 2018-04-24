@@ -15,7 +15,7 @@ function mapToProps(_, {
     conversationLogger,
     connectivityMonitor,
     rateLimiter,
-    newMessageStore: messageStore,
+    messageStore,
   },
   showTitle = false,
   enableContactFallback = false,
@@ -88,7 +88,7 @@ function mapToFunctions(_, {
   phone: {
     dateTimeFormat,
     conversations,
-    newMessageStore: messageStore,
+    messageStore,
     conversationLogger,
     contactMatcher,
     call,
@@ -180,8 +180,7 @@ function mapToFunctions(_, {
     goToComposeText: () => routerInteraction.push(composeTextRoute),
     updateTypeFilter: type => conversations.updateTypeFilter(type),
     deleteMessage: (conversationId) => {
-      // TODO: delete old conversation
-      messageStore.deleteCoversation(conversationId);
+      conversations.deleteCoversation(conversationId);
     },
     previewFaxMessages: (uri, conversationId) => {
       if (!previewFaxMessages) {
