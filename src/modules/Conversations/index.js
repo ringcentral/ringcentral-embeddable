@@ -111,6 +111,11 @@ export default class Conversations extends RcModule {
       this._init();
     } else if (this._shouldReset()) {
       this._reset();
+    } else if (this._lastProcessedNumbers !== this.uniqueNumbers) {
+      this._lastProcessedNumbers = this.uniqueNumbers;
+      if (this._contactMatcher) {
+        this._contactMatcher.triggerMatch();
+      }
     }
   }
 

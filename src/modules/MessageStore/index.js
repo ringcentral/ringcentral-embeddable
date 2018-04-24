@@ -16,8 +16,8 @@ import getReducer from './getReducer';
 import getDataReducer from './getDataReducer';
 import messageStoreErrors from './errors';
 
-const DEFAULT_CONVERSATIONS_LOAD_LENGTH = 20;
-const DEFAULT_CONVERSATION_LOAD_LENGTH = 10;
+const DEFAULT_CONVERSATIONS_LOAD_LENGTH = 10;
+const DEFAULT_CONVERSATION_LOAD_LENGTH = 15;
 const DEFAULT_TTL = 30 * 60 * 1000;
 const DEFAULT_RETRY = 62 * 1000;
 const DEFAULT_DAYSPAN = 90;
@@ -105,7 +105,7 @@ export default class MessageStore extends Pollable {
       this._storage = storage;
     }
 
-    this._dataStorageKey = 'newMessageStoreData';
+    this._dataStorageKey = 'messageStoreData';
 
     this._tabManager = tabManager;
     this._connectivityMonitor = connectivityMonitor;
