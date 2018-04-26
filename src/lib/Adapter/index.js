@@ -30,8 +30,13 @@ class Adapter extends AdapterCore {
     this._appWidth = appWidth;
     this._appHeight = appHeight;
     this._generateContentDOM();
-    this.styleEl = Array.from(document.querySelectorAll('style'))
-      .find(el => el.innerHTML.indexOf('https://{{rc-styles}}') > -1);
+    const styleList = document.querySelectorAll('style');
+    for (let i = 0; i < styleList.length; ++i) {
+      const styleEl = styleList[i];
+      if (styleEl.innerHTML.indexOf('https://{{rc-styles}}') > -1) {
+        this.styleEl = styleEl;
+      }
+    }
     if (this.styleEl) {
       this._root.appendChild(this.styleEl.cloneNode(true));
     }
