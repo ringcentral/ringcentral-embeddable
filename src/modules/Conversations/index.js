@@ -190,7 +190,7 @@ export default class Conversations extends RcModule {
     });
     this._olderDataExsited = true;
     this._olderMessagesExsited = true;
-    if (this.allConversations.length <= this._perPage) {
+    if (this.typeFilteredConversations.length <= this._perPage) {
       this.fetchOldConversations();
     }
   }
@@ -497,11 +497,11 @@ export default class Conversations extends RcModule {
     (allConversations, typeFilter) => {
       switch (typeFilter) {
         case messageTypes.text:
-          return this._messageStore.textConversations;
+          return allConversations.filter(messageIsTextMessage);
         case messageTypes.voiceMail:
-          return this._messageStore.voicemailMessages;
+          return allConversations.filter(messageIsVoicemail);
         case messageTypes.fax:
-          return this._messageStore.faxMessages;
+          return allConversations.filter(messageIsFax);
         default:
           return allConversations.filter(
             conversation => (
