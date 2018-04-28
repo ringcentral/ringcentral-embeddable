@@ -21,7 +21,7 @@ const version = packageConfig.version;
 
 const config = {
   entry: {
-    app: './src/app.js',
+    app: ['babel-polyfill', './src/app.js'],
     adapter: './src/adapter.js',
     proxy: './src/proxy.js',
     redirect: './src/redirect.js',
