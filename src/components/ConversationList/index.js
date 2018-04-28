@@ -21,6 +21,15 @@ export default class MessageList extends Component {
     this._scrollTop = 0;
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.typeFilter === prevProps.typeFilter) {
+      return;
+    }
+    if (this.messagesListBody) {
+      this.messagesListBody.scrollTop = 0;
+    }
+  }
+
   onScroll = () => {
     const totalScrollHeight = this.messagesListBody.scrollHeight;
     const { clientHeight } = this.messagesListBody;
@@ -100,6 +109,7 @@ MessageList.propTypes = {
   sourceIcons: PropTypes.object,
   showGroupNumberName: PropTypes.bool,
   placeholder: PropTypes.string,
+  typeFilter: PropTypes.string,
   loadNextPage: PropTypes.func,
   loadingNextPage: PropTypes.bool,
 };
@@ -113,5 +123,6 @@ MessageList.defaultProps = {
   showGroupNumberName: false,
   placeholder: undefined,
   loadNextPage: undefined,
-  loadingNextPage: false
+  loadingNextPage: false,
+  typeFilter: undefined,
 };

@@ -18,4 +18,6 @@ export default new Enum([
   'replySuccess',
   'replyError',
   'deleteConversation',
+  'increaseCurrentPage',
+  'resetCurrentPage',
 ], 'conversations');

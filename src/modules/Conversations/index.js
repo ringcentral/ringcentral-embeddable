@@ -21,6 +21,7 @@ import {
   getRecipientNumbersFromMessage,
 } from 'ringcentral-integration/lib/messageHelper';
 
+import { messageIsUnread } from '../../lib/messageHelper';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 import status from './status';
@@ -245,6 +246,28 @@ export default class Conversations extends RcModule {
         });
       }
     }
+  }
+
+  @proxify
+  async loadNextPage() {
+    const currentPage = this.currentPage;
+    if ((currentPage + 1) * this._perPage <= this.filteredConversations.length) {
+      this.store.dispatch({
+        type: this.actionTypes.increaseCurrentPage,
+      });
+      return;
+    }
+    if (this.effectiveSearchString !== '') {
+      return;
+    }
+    await this.fetchOldConversations();
+  }
+
+  @proxify
+  async resetCurrentPage() {
+    this.store.dispatch({
+      type: this.actionTypes.resetCurrentPage,
+    });
   }
 
   @proxify
@@ -565,8 +588,13 @@ export default class Conversations extends RcModule {
         if (messageIsFax(message)) {
           faxAttachment = getFaxAttachment(message, accessToken);
         }
+        let unreadCounts = message.unreadCounts;
+        if (typeof unreadCounts === 'undefined') {
+          unreadCounts = messageIsUnread(message) ? 1 : 0;
+        }
         return {
           ...message,
+          unreadCounts,
           self,
           selfMatches,
           correspondents,
@@ -661,6 +689,16 @@ export default class Conversations extends RcModule {
       });
       return searchResults.sort(sortSearchResults);
     },
+  )
+
+  @getter
+  pagingConversations = createSelector(
+    () => this.filteredConversations,
+    () => this.currentPage,
+    (conversations, pageNumber) => {
+      const lastIndex = (pageNumber * this._perPage) - 1;
+      return conversations.slice(0, lastIndex);
+    }
   )
 
   @getter

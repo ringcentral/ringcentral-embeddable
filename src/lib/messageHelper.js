@@ -25,3 +25,11 @@ export function normalizeRecord(record) {
 export function messageIsDeleted(message) {
   return message.availability === 'Deleted' || message.availability === 'Purged';
 }
+
+export function messageIsUnread(message) {
+  return (
+    message.direction === 'Inbound' &&
+    message.readStatus !== 'Read' &&
+    !messageIsDeleted(message)
+  );
+}

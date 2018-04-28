@@ -34,7 +34,7 @@ function mapToProps(_, {
     showGroupNumberName,
     brand: brand.fullName,
     currentLocale: locale.currentLocale,
-    conversations: conversations.filteredConversations,
+    conversations: conversations.pagingConversations,
     areaCode: regionSettings.areaCode,
     countryCode: regionSettings.countryCode,
     disableLinks: (
@@ -191,7 +191,12 @@ function mapToFunctions(_, {
       messageStore.readMessages(conversationId);
     },
     loadNextPage: async () => {
-      await conversations.fetchOldConversations();
+      await conversations.loadNextPage();
+    },
+    onUnmount: () => {
+      if (conversations.currentPage > 2) {
+        conversations.resetCurrentPage();
+      }
     }
   };
 }

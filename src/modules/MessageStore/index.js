@@ -11,6 +11,8 @@ import syncTypes from 'ringcentral-integration/enums/syncTypes';
 import * as messageHelper from 'ringcentral-integration/lib/messageHelper';
 import { batchPutApi } from 'ringcentral-integration/lib/batchApiHelper';
 
+import { messageIsUnread } from '../../lib/messageHelper';
+
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 import getDataReducer from './getDataReducer';
@@ -43,14 +45,6 @@ function getSyncParams({ recordCount, conversationLoadLength, dateFrom, dateTo, 
     params.dateTo = dateTo.toISOString();
   }
   return params;
-}
-
-function messageIsUnread(message) {
-  return (
-    message.direction === 'Inbound' &&
-    message.readStatus !== 'Read' &&
-    !(messageHelper.messageIsDeleted(message))
-  );
 }
 
 /**

@@ -13,7 +13,7 @@ import NewComposeTextHover from 'ringcentral-widgets/assets/images/NewComposeTex
 import styles from 'ringcentral-widgets/components/MessagesPanel/styles.scss';
 import i18n from 'ringcentral-widgets/components/MessagesPanel/i18n';
 
-import MessageList from '../ConversationList';
+import ConversationList from '../ConversationList';
 import newStyles from './styles.scss';
 
 function TabTitle({
@@ -41,6 +41,12 @@ export default class MessagesPanel extends Component {
         this.props.updateTypeFilter(type);
       }
     };
+  }
+
+  componentWillUnmount() {
+    if (typeof this.props.onUnmount === 'function') {
+      this.props.onUnmount();
+    }
   }
 
   renderTabs() {
@@ -163,7 +169,7 @@ export default class MessagesPanel extends Component {
         )}
       >
         {search}
-        <MessageList
+        <ConversationList
           className={onSearchInputChange ? newStyles.contentWithSearch : null}
           currentLocale={currentLocale}
           perPage={perPage}
@@ -193,6 +199,7 @@ export default class MessagesPanel extends Component {
           previewFaxMessages={previewFaxMessages}
           loadNextPage={loadNextPage}
           loadingNextPage={loadingNextPage}
+          typeFilter={typeFilter}
         />
       </div>
     );
@@ -275,6 +282,7 @@ MessagesPanel.propTypes = {
   previewFaxMessages: PropTypes.func,
   loadNextPage: PropTypes.func.isRequired,
   loadingNextPage: PropTypes.bool,
+  onUnmount: PropTypes.func,
 };
 
 MessagesPanel.defaultProps = {
@@ -306,4 +314,5 @@ MessagesPanel.defaultProps = {
   composeTextPermission: true,
   previewFaxMessages: undefined,
   loadingNextPage: false,
+  onUnmount: undefined,
 };
