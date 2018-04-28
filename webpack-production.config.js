@@ -23,7 +23,7 @@ const hostingUrl =
   process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable-voice';
 const config = {
   entry: {
-    app: './src/app.js',
+    app: ['babel-polyfill', './src/app.js'],
     adapter: './src/adapter.js',
     proxy: './src/proxy.js',
     redirect: './src/redirect.js',
