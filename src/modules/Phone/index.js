@@ -26,7 +26,6 @@ import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMon
 import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
 import Contacts from 'ringcentral-integration/modules/Contacts';
 import ContactSearch from 'ringcentral-integration/modules/ContactSearch';
-import Conversation from 'ringcentral-integration/modules/Conversation';
 import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
 import DateTimeFormat from 'ringcentral-integration/modules/DateTimeFormat';
 import DetailedPresence from 'ringcentral-integration/modules/DetailedPresence';
@@ -37,9 +36,7 @@ import ExtensionPhoneNumber from 'ringcentral-integration/modules/ExtensionPhone
 import ForwardingNumber from 'ringcentral-integration/modules/ForwardingNumber';
 import GlobalStorage from 'ringcentral-integration/modules/GlobalStorage';
 import Locale from 'ringcentral-integration/modules/Locale';
-import Messages from 'ringcentral-integration/modules/Messages';
 import MessageSender from 'ringcentral-integration/modules/MessageSender';
-import MessageStore from 'ringcentral-integration/modules/MessageStore';
 import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
 import RateLimiter from 'ringcentral-integration/modules/RateLimiter';
 import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
@@ -59,6 +56,8 @@ import OAuth from '../OAuth';
 import Auth from '../Auth';
 import Environment from '../Environment';
 import Adapter from '../Adapter';
+import MessageStore from '../MessageStore';
+import Conversations from '../Conversations';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -104,13 +103,12 @@ import Adapter from '../Adapter';
     { provide: 'ConversationMatcher', useClass: ConversationMatcher },
     { provide: 'ContactSearch', useClass: ContactSearch },
     { provide: 'MessageStore', useClass: MessageStore },
-    { provide: 'Conversation', useClass: Conversation },
+    { provide: 'Conversations', useClass: Conversations },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
     { provide: 'AccountPhoneNumber', useClass: AccountPhoneNumber },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetails', useClass: ContactDetails },
-    { provide: 'Messages', useClass: Messages },
     { provide: 'DialerUI', useClass: DialerUI },
     { provide: 'Adapter', useClass: Adapter },
     { provide: 'RouterInteraction', useClass: RouterInteraction },
