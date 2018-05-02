@@ -26,7 +26,6 @@ import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMon
 import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
 import Contacts from 'ringcentral-integration/modules/Contacts';
 import ContactSearch from 'ringcentral-integration/modules/ContactSearch';
-import Conversation from 'ringcentral-integration/modules/Conversation';
 import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
 import DateTimeFormat from 'ringcentral-integration/modules/DateTimeFormat';
 import DetailedPresence from 'ringcentral-integration/modules/DetailedPresence';
@@ -105,7 +104,6 @@ import Conversations from '../Conversations';
     { provide: 'ContactSearch', useClass: ContactSearch },
     { provide: 'MessageStore', useClass: MessageStore },
     { provide: 'Conversations', useClass: Conversations },
-    { provide: 'Conversation', useClass: Conversation },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
     { provide: 'AccountPhoneNumber', useClass: AccountPhoneNumber },
     { provide: 'AddressBook', useClass: AddressBook },
