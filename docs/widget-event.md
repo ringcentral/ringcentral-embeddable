@@ -29,6 +29,25 @@ window.addEventListener('message', (e) => {
   }
 });
 ```
+## Ringout call event
+
+Get ringout call info from ringout call event:
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-ringout-call-notify':
+        // get call on active call updated event
+        console.log(data.call);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
 
 ## Active Call event
 

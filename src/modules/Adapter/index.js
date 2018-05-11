@@ -6,6 +6,7 @@ import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
 import sleep from 'ringcentral-integration/lib/sleep';
 import { isRing } from 'ringcentral-integration/modules/Webphone/webphoneHelper';
 import { Module } from 'ringcentral-integration/lib/di';
+import callingModes from 'ringcentral-integration/modules/CallingSettings/callingModes';
 
 import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
 
@@ -26,6 +27,7 @@ const CALL_NOTIFY_DELAY = 1500;
     'DialerUI',
     'Webphone',
     'RegionSettings',
+    'CallingSettings',
     'GlobalStorage',
     'Locale',
     'ActiveCalls',
@@ -41,6 +43,7 @@ export default class Adapter extends AdapterModuleCore {
     dialerUI,
     webphone,
     regionSettings,
+    callingSettings,
     activeCalls,
     stylesUri,
     prefix,
@@ -61,6 +64,7 @@ export default class Adapter extends AdapterModuleCore {
     this._composeText = this::ensureExist(composeText, 'composeText');
     this._webphone = this::ensureExist(webphone, 'webphone');
     this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');
+    this._callingSettings = this::ensureExist(callingSettings, 'callingSettings');
     this._call = this::ensureExist(call, 'call');
     this._dialerUI = this::ensureExist(dialerUI, 'dialerUI');
     this._activeCalls = this::ensureExist(activeCalls, 'activeCalls');
@@ -204,6 +208,7 @@ export default class Adapter extends AdapterModuleCore {
         endTime: missed ? null : Date.now(),
       });
     });
+    this._sendRingoutCallNotification(changedCalls);
     this._sendActiveCallNotification(changedCalls);
   }
 
@@ -233,6 +238,18 @@ export default class Adapter extends AdapterModuleCore {
       if (call.telephonyStatus === telephonyStatuses.noCall) {
         delete this._lastActiveCallLogMap[`${call.sessionId}-${call.direction}`];
       }
+    });
+  }
+
+  _sendRingoutCallNotification(calls) {
+    if (this._callingSettings.callingMode != callingModes.ringout) {
+      return;
+    }
+    calls.forEach(({ id, ...call}) => {
+      this._postMessage({
+        type: 'rc-ringout-call-notify',
+        call,
+      });
     });
   }
 
