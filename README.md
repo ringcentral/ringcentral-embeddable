@@ -60,6 +60,7 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
 * [Customize UI styles](docs/customize-ui-styles.md)
 * [Work with the Web Widget event](docs/widget-event.md)
   * [Web phone call event](docs/widget-event.md#web-phone-call-event)
+  * [Ringout call event](docs/widget-event.md#ringout-call-event)
   * [Active Call event](docs/widget-event.md#active-call-event)
   * [Login Status event](docs/widget-event.md#login-status-event)
 * [API to control the Web Widget](docs/control-widget.md)

@@ -91,6 +91,9 @@ class Adapter extends AdapterCore {
         case 'rc-active-call-notify':
           console.log('rc-active-call-notify:', data.call);
           break;
+        case 'rc-ringout-call-notify':
+          console.log('rc-ringout-call-notify:', data.call);
+          break;
         default:
           super._onMessage(data);
           break;
