@@ -16,6 +16,7 @@ const {
   appServer,
   redirectUri,
   stylesUri,
+  notification,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -48,6 +49,7 @@ function init() {
     appUrl: appUri,
     version,
     prefix,
+    enableNotification: !!notification,
   });
 }
 
