@@ -3,6 +3,7 @@ import AdapterCore from 'ringcentral-widgets/lib/AdapterCore';
 import messageTypes from './messageTypes';
 
 import styles from './styles.scss';
+import Notification from '../notification';
 
 class Adapter extends AdapterCore {
   constructor({
@@ -13,6 +14,7 @@ class Adapter extends AdapterCore {
     appWidth = 300,
     appHeight = 500,
     zIndex = 999,
+    enableNotification = false,
   } = {}) {
     const container = document.createElement('div');
     container.id = prefix;
@@ -67,6 +69,9 @@ class Adapter extends AdapterCore {
         this.clickToSMS(phoneNumber);
       });
     }
+    if (enableNotification) {
+      this._notification = new Notification();
+    }
   }
 
   _onMessage(data) {
@@ -76,6 +81,15 @@ class Adapter extends AdapterCore {
           console.log('ring call:');
           console.log(data.call);
           this.setMinimized(false);
+          if (this._notification) {
+            this._notification.notify({
+              title: 'New Call',
+              text: `Incoming Call from ${data.call.fromUserName || data.call.from}`,
+              onClick() {
+                window.focus();
+              }
+            });
+          }
           break;
         case 'rc-call-start-notify':
           console.log('start call:');
