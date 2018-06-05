@@ -49,6 +49,7 @@ import TabManager from 'ringcentral-integration/modules/TabManager';
 import Webphone from 'ringcentral-integration/modules/Webphone';
 import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 import Feedback from 'ringcentral-integration/modules/Feedback';
+import Conference from 'ringcentral-integration/modules/Conference';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
@@ -114,6 +115,7 @@ import Conversations from '../Conversations';
     { provide: 'RouterInteraction', useClass: RouterInteraction },
     { provide: 'Feedback', useClass: Feedback },
     { provide: 'ActiveCalls', useClass: ActiveCalls },
+    { provide: 'Conference', useClass: Conference },
     { provide: 'Environment', useClass: Environment },
     {
       provide: 'EnvironmentOptions',

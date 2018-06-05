@@ -24,12 +24,17 @@ import ContactHoverIcon from 'ringcentral-widgets/assets/images/ContactHover.svg
 
 import SettingsNavIcon from 'ringcentral-widgets/assets/images/SettingsNavigation.svg';
 
+import ConferenceIcon from 'ringcentral-widgets/assets/images/Conference.svg';
+import ConferenceHoverIcon from 'ringcentral-widgets/assets/images/ConferenceHover.svg';
+import ConferenceNavIcon from 'ringcentral-widgets/assets/images/ConferenceNavigation.svg';
+
 import styles from './styles.scss';
 
 function getTabs({
   showMessages,
   unreadCounts,
   showCalls,
+  showConference,
 }) {
   return [
     {
@@ -79,11 +84,17 @@ function getTabs({
         if (currentPath.substr(0, 9) === '/settings') {
           return <SettingsNavIcon />;
         }
+        if (currentPath.substr(0, 11) === '/conference') {
+          return <ConferenceNavIcon />;
+        }
         return <MoreMenuIcon />;
       },
       activeIcon: ({ currentPath }) => {
         if (currentPath.substr(0, 9) === '/settings') {
           return <SettingsNavIcon />;
+        }
+        if (currentPath.substr(0, 11) === '/conference') {
+          return <ConferenceNavIcon />;
         }
         return <MoreMenuHoverIcon />;
       },
@@ -93,6 +104,15 @@ function getTabs({
         currentVirtualPath === '!moreMenu'
       ),
       childTabs: [
+        showConference && {
+          icon: ConferenceIcon,
+          activeIcon: ConferenceHoverIcon,
+          label: 'Schedule Conference',
+          path: '/conference',
+          isActive: currentPath => (
+            currentPath.substr(0, 11) === '/conference'
+          ),
+        },
         {
           icon: SettingsIcon,
           activeIcon: SettingsHoverIcon,
@@ -113,6 +133,7 @@ function mapToProps(_, {
     rolesAndPermissions,
     routerInteraction,
     callingSettings,
+    conference,
   },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
@@ -132,10 +153,17 @@ function mapToProps(_, {
   );
   const showCalls = callingSettings.ready &&
     callingSettings.callWith !== callingOptions.browser;
+
+  const showConference = (
+    rolesAndPermissions.ready &&
+    conference.data &&
+    rolesAndPermissions.permissions.OrganizeConference
+  );
   const tabs = getTabs({
     unreadCounts,
     showMessages,
     showCalls,
+    showConference,
   });
   return {
     tabs,
