@@ -21,7 +21,8 @@ import AudioSettingsPage from 'ringcentral-widgets/containers/AudioSettingsPage'
 import ContactsPage from 'ringcentral-widgets/containers/ContactsPage';
 import ContactDetailsPage from 'ringcentral-widgets/containers/ContactDetailsPage';
 import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
-
+import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
+import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
 
 import MainView from '../MainView';
@@ -200,6 +201,18 @@ export default function App({
                       }
                     }
                   />
+                )}
+              />
+              <Route
+                path="/conference"
+                component={ConferencePage}
+              />
+              <Route
+                path="/conference/commands"
+                component={() => (
+                  <ConferenceCommands
+                    currentLocale={phone.locale.currentLocale}
+                    onBack={() => phone.routerInteraction.goBack()} />
                 )}
               />
             </Route>
