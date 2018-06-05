@@ -84,13 +84,16 @@ function getTabs({
         if (currentPath.substr(0, 9) === '/settings') {
           return <SettingsNavIcon />;
         }
+        if (currentPath.substr(0, 11) === '/conference') {
+          return <ConferenceNavIcon />;
+        }
         return <MoreMenuIcon />;
       },
       activeIcon: ({ currentPath }) => {
         if (currentPath.substr(0, 9) === '/settings') {
           return <SettingsNavIcon />;
         }
-        if (currentPath.substr(0, 10) === '/conference') {
+        if (currentPath.substr(0, 11) === '/conference') {
           return <ConferenceNavIcon />;
         }
         return <MoreMenuHoverIcon />;
@@ -107,7 +110,7 @@ function getTabs({
           label: 'Schedule Conference',
           path: '/conference',
           isActive: currentPath => (
-            currentPath.substr(0, 9) === '/conference'
+            currentPath.substr(0, 11) === '/conference'
           ),
         },
         {
