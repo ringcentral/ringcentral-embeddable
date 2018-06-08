@@ -74,7 +74,7 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
 
 ## Contribution and Development
 
-We provide a online version that developers can use to embed and config in their web application. When you want to get a deep development of this wigets, you can clone codes of this widget and update it.
+We provide a online version that developers can use to embed and config in their web application. When you want to get a deep development of this widget, you can clone codes of this widget, update it and deploy by yourself.
 
 ### Clone the code
 
@@ -105,3 +105,17 @@ $ yarn start
 ```
 
 Open site: 'http://localhost:8080/' on browser
+
+### Deploy on production
+
+If you create pull request to this repo and get merged, CI will deploy it to this repo's github page automatically. But for something that customized, you can deploy it to your own web space, such as your github page.
+
+1. Update `api.json` in production environment
+2. Run command to compile codes and build release
+
+```
+$ HOSTING_URL=your_host_uri yarn build
+```
+Please replace `your_host_uri` with your own web host address, such as `https://ringcentral.github.io/ringcentral-embeddable-voice`.
+
+3. Upload all files in release folder to your web space. And visit it in browser.
