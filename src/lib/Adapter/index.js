@@ -108,6 +108,12 @@ class Adapter extends AdapterCore {
         case 'rc-ringout-call-notify':
           console.log('rc-ringout-call-notify:', data.call);
           break;
+        case 'rc-inbound-message-notify':
+          console.log('rc-inbound-message-notify:', data.message.id);
+          break;
+        case 'rc-message-updated-notify':
+          console.log('rc-message-updated-notify:', data.message.id);
+          break;
         default:
           super._onMessage(data);
           break;

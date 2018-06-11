@@ -88,3 +88,41 @@ window.addEventListener('message', (e) => {
   }
 });
 ```
+
+## Message event
+
+Get all message created or updated event from widget
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-message-updated-notify':
+        // get message from widget event
+        console.log('rc-message-updated-notify:', data.message);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
+Get new inbound message event from widget
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-inbound-message-notify':
+        // get new inbound message from widget event
+        console.log('rc-inbound-message-notify:', data.message);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```

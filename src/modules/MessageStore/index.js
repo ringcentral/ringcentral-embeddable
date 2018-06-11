@@ -126,7 +126,8 @@ export default class MessageStore extends Pollable {
     this._promise = null;
     this._lastSubscriptionMessage = null;
     // setting up event handlers for message
-    this._newMessageNotificationHandlers = [];
+    this._newInboundMessageNotificationHandlers = [];
+    this._messageUpdatedHandlers = [];
     this._dispatchedMessageIds = [];
   }
 
@@ -393,7 +394,13 @@ export default class MessageStore extends Pollable {
 
   onNewInboundMessage(handler) {
     if (typeof handler === 'function') {
-      this._newMessageNotificationHandlers.push(handler);
+      this._newInboundMessageNotificationHandlers.push(handler);
+    }
+  }
+
+  onMessageUpdated(handler) {
+    if (typeof handler === 'function') {
+      this._messageUpdatedHandlers.push(handler);
     }
   }
 
@@ -407,29 +414,40 @@ export default class MessageStore extends Pollable {
     );
     for (const record of records) {
       const {
+        id,
         direction,
         availability,
         messageStatus,
         readStatus,
+        lastModifiedTime,
+        creationTime,
       } = record || {};
       // Notify when new message incoming
+      if (this._messageDispatched(record)) {
+        return;
+      }
+      // Mark last 10 messages that dispatched
+      // To present dispatching same record twice
+      this._dispatchedMessageIds =
+        [{ id, lastModifiedTime }].concat(this._dispatchedMessageIds).slice(0, 20);
+      this._messageUpdatedHandlers.forEach(handler => handler(record));
+      // For new inbound message notification
       if (
         direction === 'Inbound' &&
         readStatus === 'Unread' &&
         messageStatus === 'Received' &&
         availability === 'Alive' &&
-        // To present sync same record twice
-        !this._messageDispatched(record)
+        (new Date(creationTime)).getTime() > (new Date(lastModifiedTime)).getTime() - (600 * 1000)
       ) {
-        // mark last 10 messages that dispatched
-        this._dispatchedMessageIds = [record.id].concat(this._dispatchedMessageIds).slice(0, 10);
-        this._newMessageNotificationHandlers.forEach(handler => handler(record));
+        this._newInboundMessageNotificationHandlers.forEach(handler => handler(record));
       }
     }
   }
 
   _messageDispatched(message) {
-    return this._dispatchedMessageIds.some(id => id === message.id);
+    return this._dispatchedMessageIds.some(
+      m => m.id === message.id && m.lastModifiedTime === message.lastModifiedTime
+    );
   }
 
   @proxify

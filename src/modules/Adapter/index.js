@@ -31,6 +31,7 @@ const CALL_NOTIFY_DELAY = 1500;
     'GlobalStorage',
     'Locale',
     'ActiveCalls',
+    'MessageStore',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -45,6 +46,7 @@ export default class Adapter extends AdapterModuleCore {
     regionSettings,
     callingSettings,
     activeCalls,
+    messageStore,
     stylesUri,
     prefix,
     ...options,
@@ -68,6 +70,7 @@ export default class Adapter extends AdapterModuleCore {
     this._call = this::ensureExist(call, 'call');
     this._dialerUI = this::ensureExist(dialerUI, 'dialerUI');
     this._activeCalls = this::ensureExist(activeCalls, 'activeCalls');
+    this._messageStore = this::ensureExist(messageStore, 'messageStore');
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -76,6 +79,19 @@ export default class Adapter extends AdapterModuleCore {
     this._lastActiveCalls = [];
     this._lastEndedActiveCallMap = {};
     this._lastActiveCallLogMap = {};
+
+    this._messageStore.onNewInboundMessage((message) => {
+      this._postMessage({
+        type: 'rc-inbound-message-notify',
+        message,
+      });
+    });
+    this._messageStore.onMessageUpdated((message) => {
+      this._postMessage({
+        type: 'rc-message-updated-notify',
+        message,
+      });
+    });
   }
 
   initialize() {
