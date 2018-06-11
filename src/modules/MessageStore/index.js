@@ -421,7 +421,8 @@ export default class MessageStore extends Pollable {
         // To present sync same record twice
         !this._messageDispatched(record)
       ) {
-        this._dispatchedMessageIds = [record.id].concat(this._dispatchedMessageIds).slice(0, 5);
+        // mark last 10 messages that dispatched
+        this._dispatchedMessageIds = [record.id].concat(this._dispatchedMessageIds).slice(0, 10);
         this._newMessageNotificationHandlers.forEach(handler => handler(record));
       }
     }
