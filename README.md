@@ -63,6 +63,7 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
   * [Ringout call event](docs/widget-event.md#ringout-call-event)
   * [Active Call event](docs/widget-event.md#active-call-event)
   * [Login Status event](docs/widget-event.md#login-status-event)
+  * [Message event](docs/widget-event.md#message-event)
 * [API to control the Web Widget](docs/control-widget.md)
   * [Go to Dial and start a call](docs/control-widget.md#go-to-dial-and-start-a-call)
   * [Go to SMS](docs/control-widget.md#go-to-sms-page)
