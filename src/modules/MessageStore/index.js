@@ -125,6 +125,9 @@ export default class MessageStore extends Pollable {
 
     this._promise = null;
     this._lastSubscriptionMessage = null;
+    // setting up event handlers for message
+    this._newMessageNotificationHandlers = [];
+    this._dispatchedMessageIds = [];
   }
 
   initialize() {
@@ -225,7 +228,7 @@ export default class MessageStore extends Pollable {
       message.body.changes
     ) {
       this._lastSubscriptionMessage = this._subscription.message;
-      this.fetchData();
+      this.fetchData({ passive: true });
     }
   }
 
@@ -288,7 +291,8 @@ export default class MessageStore extends Pollable {
   async _syncData({
     dateTo,
     conversationsLoadLength = this._conversationsLoadLength,
-    conversationLoadLength = this._conversationLoadLength
+    conversationLoadLength = this._conversationLoadLength,
+    passive = false,
   } = {}) {
     this.store.dispatch({
       type: this.actionTypes.conversationsSync,
@@ -316,6 +320,10 @@ export default class MessageStore extends Pollable {
           timestamp: Date.now(),
           conversationStore: this.conversationStore,
         });
+        // this is only executed in passive sync mode (aka. invoked by subscription)
+        if (passive) {
+          this._dispatchMessageHandlers(data.records);
+        }
       }
     } catch (error) {
       if (this._auth.ownerId === ownerId) {
@@ -333,12 +341,14 @@ export default class MessageStore extends Pollable {
     dateTo,
     conversationsLoadLength,
     conversationLoadLength,
+    passive = false,
   } = {}) {
     try {
       await this._syncData({
         dateTo,
         conversationsLoadLength,
         conversationLoadLength,
+        passive,
       });
       if (this._polling) {
         this._startPolling();
@@ -374,11 +384,52 @@ export default class MessageStore extends Pollable {
   }
 
   @proxify
-  async fetchData() {
+  async fetchData({ passive = false } = {}) {
     if (!this._promise) {
-      this._promise = this._fetchData();
+      this._promise = this._fetchData({ passive });
     }
     await this._promise;
+  }
+
+  onNewInboundMessage(handler) {
+    if (typeof handler === 'function') {
+      this._newMessageNotificationHandlers.push(handler);
+    }
+  }
+
+  /**
+   * Dispatch events to different handlers
+   */
+  _dispatchMessageHandlers(records) {
+    // Sort all records by creation time
+    records = records.slice().sort((a, b) =>
+      (new Date(a.creationTime)).getTime() - (new Date(b.creationTime)).getTime()
+    );
+    for (const record of records) {
+      const {
+        direction,
+        availability,
+        messageStatus,
+        readStatus,
+      } = record || {};
+      // Notify when new message incoming
+      if (
+        direction === 'Inbound' &&
+        readStatus === 'Unread' &&
+        messageStatus === 'Received' &&
+        availability === 'Alive' &&
+        // To present sync same record twice
+        !this._messageDispatched(record)
+      ) {
+        // mark last 10 messages that dispatched
+        this._dispatchedMessageIds = [record.id].concat(this._dispatchedMessageIds).slice(0, 10);
+        this._newMessageNotificationHandlers.forEach(handler => handler(record));
+      }
+    }
+  }
+
+  _messageDispatched(message) {
+    return this._dispatchedMessageIds.some(id => id === message.id);
   }
 
   @proxify

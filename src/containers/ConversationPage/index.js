@@ -22,6 +22,19 @@ function mapToProps(_, {
   showGroupNumberName = false,
   perPage = 20,
 }) {
+  const disableLinks = (
+    rateLimiter.isThrottling ||
+    !connectivityMonitor.connectivity
+  );
+  const showSpinner = !(
+    dateTimeFormat.ready &&
+    (!contactMatcher || contactMatcher.ready) &&
+    regionSettings.ready &&
+    conversations.ready &&
+    rateLimiter.ready &&
+    connectivityMonitor.ready &&
+    (!conversationLogger || conversationLogger.ready)
+  );
   const currentConversation = conversations.currentConversation;
   return ({
     brand: brand.fullName,
@@ -29,25 +42,20 @@ function mapToProps(_, {
     showGroupNumberName,
     currentLocale: locale.currentLocale,
     conversationId: params.conversationId,
-    sendButtonDisabled: conversations.pushing,
+    sendButtonDisabled: (
+      conversations.pushing ||
+      disableLinks ||
+      conversations.messageText.length === 0 ||
+      showSpinner
+    ),
     areaCode: regionSettings.areaCode,
     countryCode: regionSettings.countryCode,
-    showSpinner: !(
-      dateTimeFormat.ready &&
-      (!contactMatcher || contactMatcher.ready) &&
-      regionSettings.ready &&
-      conversations.ready &&
-      rateLimiter.ready &&
-      connectivityMonitor.ready &&
-      (!conversationLogger || conversationLogger.ready)
-    ),
+    showSpinner,
     recipients: currentConversation.recipients,
     messages: currentConversation.messages,
     messageText: conversations.messageText,
     conversation: currentConversation,
-    disableLinks: (
-      rateLimiter.isThrottling || !connectivityMonitor.connectivity
-    ),
+    disableLinks,
     autoLog: !!(conversationLogger && conversationLogger.autoLog),
     perPage,
     loadingNextPage: conversations.loadingOldMessages,

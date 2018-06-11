@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import dynamicsFont from 'ringcentral-widgets/assets/DynamicsFont/DynamicsFont.scss';
 
 import Spinner from 'ringcentral-widgets/components/Spinner';
 import LogButton from 'ringcentral-widgets/components/LogButton';
 import ContactDisplay from 'ringcentral-widgets/components/ContactDisplay';
+import MessageInput from 'ringcentral-widgets/components/MessageInput';
 import styles from 'ringcentral-widgets/components/ConversationPanel/styles.scss';
-import i18n from 'ringcentral-widgets/components/ConversationPanel/i18n';
 
 import ConversationMessageList from '../ConversationMessageList';
 import newStyles from './styles.scss';
@@ -18,21 +19,9 @@ class ConversationPanel extends Component {
       selected: this.getInitialContactIndex(),
       isLogging: false,
       loaded: false,
+      inputHeight: 63,
     };
     this._userSelection = false;
-    this.onTextChange = (e) => {
-      this.props.updateMessageText(e.currentTarget.value);
-    };
-    this.handleSubmit = (e) => {
-      this.props.replyToReceivers(this.props.messageText);
-      e.preventDefault();
-    };
-    this.onTextAreaKeyDown = (e) => {
-      if (e.key === 'Enter') {
-        this.props.replyToReceivers(this.props.messageText);
-        e.preventDefault();
-      }
-    };
   }
 
   componentDidMount() {
@@ -43,6 +32,8 @@ class ConversationPanel extends Component {
   componentWillReceiveProps(nextProps) {
     if (
       !this._userSelection &&
+      this.props.conversation &&
+      nextProps.conversation &&
       (
         nextProps.conversation.conversationMatches !==
         this.props.conversation.conversationMatches ||
@@ -72,6 +63,16 @@ class ConversationPanel extends Component {
     this.props.unloadConversation();
   }
 
+  onSend = () => {
+    this.props.replyToReceivers(this.props.messageText);
+  }
+
+  onInputHeightChange = (value) => {
+    this.setState({
+      inputHeight: value,
+    });
+  }
+
   onSelectContact = (value, idx) => {
     const selected = this.showContactDisplayPlaceholder
       ? parseInt(idx, 10) - 1 : parseInt(idx, 10);
@@ -80,6 +81,8 @@ class ConversationPanel extends Component {
       selected,
     });
     if (
+      this.props.conversation &&
+      this.props.conversation.conversationMatches &&
       this.props.conversation.conversationMatches.length > 0 &&
       this.props.autoLog
     ) {
@@ -87,7 +90,15 @@ class ConversationPanel extends Component {
     }
   }
 
+  getMessageListHeight() {
+    const headerHeight = 41;
+    return `calc(100% - ${this.state.inputHeight + headerHeight}px)`;
+  }
+
   getSelectedContact = (selected = this.state.selected) => {
+    if (!this.props.conversation) {
+      return null;
+    }
     const contactMatches = this.props.conversation.correspondentMatches;
     return (selected > -1 && contactMatches[selected]) ||
       (contactMatches.length === 1 && contactMatches[0]) ||
@@ -109,13 +120,21 @@ class ConversationPanel extends Component {
   }
 
   getPhoneNumber() {
-    const correspondents = this.props.conversation.correspondents;
+    const {
+      conversation: {
+        correspondents = [],
+      } = {},
+    } = this.props;
     return (correspondents.length === 1 &&
       (correspondents[0].phoneNumber || correspondents[0].extensionNumber)) || undefined;
   }
 
   getGroupPhoneNumbers() {
-    const correspondents = this.props.conversation.correspondents;
+    const {
+      conversation: {
+        correspondents = [],
+      } = {},
+    } = this.props;
     const groupNumbers = correspondents.length > 1 ?
       correspondents.map(correspondent =>
         correspondent.extensionNumber || correspondent.phoneNumber || undefined
@@ -125,7 +144,11 @@ class ConversationPanel extends Component {
   }
 
   getFallbackContactName() {
-    const correspondents = this.props.conversation.correspondents;
+    const {
+      conversation: {
+        correspondents = [],
+      } = {},
+    } = this.props;
     return (correspondents.length === 1 &&
       (correspondents[0].name)) || undefined;
   }
@@ -174,6 +197,7 @@ class ConversationPanel extends Component {
     } else {
       conversationBody = (
         <ConversationMessageList
+          height={this.getMessageListHeight()}
           messages={this.props.messages}
           className={newStyles.conversationBody}
           dateTimeFormatter={this.props.dateTimeFormatter}
@@ -212,7 +236,7 @@ class ConversationPanel extends Component {
           <ContactDisplay
             brand={this.props.brand}
             className={styles.contactDisplay}
-            selectClassName={styles.contactDisplaySelect}
+            selectClassName={classnames(styles.contactDisplaySelect, newStyles.contactSelect)}
             contactMatches={correspondentMatches}
             selected={this.state.selected}
             onSelectContact={this.onSelectContact}
@@ -239,32 +263,14 @@ class ConversationPanel extends Component {
           {logButton}
         </div>
         {conversationBody}
-        <div className={styles.messageForm}>
-          <form onSubmit={this.handleSubmit}>
-            <div className={styles.textField}>
-              <textarea
-                placeholder={i18n.getString('typeMessage', this.props.currentLocale)}
-                value={this.props.messageText}
-                maxLength="1000"
-                onChange={this.onTextChange}
-                onKeyPressCapture={this.onTextAreaKeyDown}
-              />
-            </div>
-            <div className={styles.submitField}>
-              <input
-                type="submit"
-                value={i18n.getString('send', this.props.currentLocale)}
-                className={styles.submitButton}
-                disabled={
-                  this.props.disableLinks ||
-                  this.props.sendButtonDisabled ||
-                  loading ||
-                  this.props.messageText.length === 0
-                }
-              />
-            </div>
-          </form>
-        </div>
+        <MessageInput
+          value={this.props.messageText}
+          onChange={this.props.updateMessageText}
+          disabled={this.props.sendButtonDisabled}
+          currentLocale={this.props.currentLocale}
+          onSend={this.onSend}
+          onHeightChange={this.onInputHeightChange}
+        />
       </div>
     );
   }
@@ -315,6 +321,7 @@ ConversationPanel.defaultProps = {
   sourceIcons: undefined,
   showGroupNumberName: false,
   messageText: '',
+  messages: [],
   updateMessageText: () => null,
   messageSubjectRenderer: undefined,
   perPage: undefined,

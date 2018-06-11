@@ -120,6 +120,7 @@ class ConversationMessageList extends Component {
       dateTimeFormatter,
       messages,
       showSender,
+      height,
       messageSubjectRenderer,
       formatPhone,
       loadingNextPage,
@@ -157,6 +158,7 @@ class ConversationMessageList extends Component {
     return (
       <div
         className={classnames(styles.root, className)}
+        style={{ height }}
         ref={(body) => { this._listRef = body; }}
         onScroll={this.onScroll}
       >
@@ -181,6 +183,7 @@ ConversationMessageList.propTypes = {
   formatPhone: PropTypes.func.isRequired,
   loadPreviousMessages: PropTypes.func,
   loadingNextPage: PropTypes.bool,
+  height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
 ConversationMessageList.defaultProps = {
@@ -188,7 +191,8 @@ ConversationMessageList.defaultProps = {
   showSender: false,
   messageSubjectRenderer: undefined,
   loadingNextPage: false,
-  loadPreviousMessages: () => null
+  loadPreviousMessages: () => null,
+  height: '100%',
 };
 
 export default ConversationMessageList;
