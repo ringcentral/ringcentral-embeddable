@@ -50,6 +50,8 @@ import Webphone from 'ringcentral-integration/modules/Webphone';
 import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 import Feedback from 'ringcentral-integration/modules/Feedback';
 import Conference from 'ringcentral-integration/modules/Conference';
+import RecentMessages from 'ringcentral-integration/modules/RecentMessages';
+import RecentCalls from 'ringcentral-integration/modules/RecentCalls';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
@@ -117,6 +119,8 @@ import Conversations from '../Conversations';
     { provide: 'ActiveCalls', useClass: ActiveCalls },
     { provide: 'Conference', useClass: Conference },
     { provide: 'Environment', useClass: Environment },
+    { provide: 'RecentMessages', useClass: RecentMessages },
+    { provide: 'RecentCalls', useClass: RecentCalls },
     {
       provide: 'EnvironmentOptions',
       useFactory: () => ({}),
