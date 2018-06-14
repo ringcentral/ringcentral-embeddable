@@ -30,6 +30,7 @@ import AppView from '../AppView';
 import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
 import RecentActivityContainer from '../RecentActivityContainer';
+import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButton';
 
 export default function App({
   phone,
@@ -214,7 +215,13 @@ export default function App({
               />
               <Route
                 path="/conference"
-                component={ConferencePage}
+                component={
+                  () => (
+                    <ConferencePage
+                      additionalButtons={[ThirdPartyConferenceInviteButton]}
+                    />
+                  )
+                }
               />
               <Route
                 path="/conference/commands"

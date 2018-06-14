@@ -8,4 +8,5 @@ export default new Enum([
   'registerActivities',
   'loadActivitiesSuccess',
   'loadActivities',
+  'registerConferenceInvite',
 ], 'thirdPartyContacts');

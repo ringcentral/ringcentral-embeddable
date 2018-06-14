@@ -79,6 +79,19 @@ export function getContactsReducer(types) {
   };
 }
 
+export function getConferenceInviteTitleReducer(types) {
+  return (state = null, { type, conferenceInviteTitle }) => {
+    switch (type) {
+      case types.registerConferenceInvite:
+        return conferenceInviteTitle;
+      case types.resetSuccess:
+        return null;
+      default:
+        return state;
+    }
+  };
+}
+
 export default function getReducer(types) {
   return combineReducers({
     status: getModuleStatusReducer(types),
@@ -88,5 +101,6 @@ export default function getReducer(types) {
     activitiesRegistered: getActivitiesRegisteredReducer(types),
     activitiesLoaded: getActivitiesLoadedReducer(types),
     activities: getActivitiesReducer(types),
+    conferenceInviteTitle: getConferenceInviteTitleReducer(types),
   });
 }

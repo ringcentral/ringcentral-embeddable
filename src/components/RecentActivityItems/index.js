@@ -6,7 +6,7 @@ import styles from 'ringcentral-widgets/components/RecentActivityMessages/styles
 import i18n from 'ringcentral-widgets/components/RecentActivityMessages/i18n';
 
 function ActivityItem({ item, dateTimeFormatter, openItem }) {
-  const { id, subject, time } = item;
+  const { subject, time } = item;
   const formattedTime = dateTimeFormatter({ utcTimestamp: time });
   return (
     <div

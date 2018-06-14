@@ -90,6 +90,13 @@ export default class ThirdPartyService extends RcModule {
             type: this.actionTypes.registerActivities
           });
         }
+        if (service.conferenceInviteTitle && service.conferenceInvitePath) {
+          this._conferenceInvitePath = service.conferenceInvitePath;
+          this.store.dispatch({
+            type: this.actionTypes.registerConferenceInvite,
+            conferenceInviteTitle: service.conferenceInviteTitle,
+          });
+        }
       }
     });
   }
@@ -169,7 +176,7 @@ export default class ThirdPartyService extends RcModule {
       this.store.dispatch({
         type: this.actionTypes.loadActivities,
       });
-      const response = await requestWithPostMessage(this._activitiesPath, contact);
+      const response = await requestWithPostMessage(this._activitiesPath, { contact });
       const activities = response.data;
       this.store.dispatch({
         type: this.actionTypes.loadActivitiesSuccess,
@@ -185,7 +192,18 @@ export default class ThirdPartyService extends RcModule {
       if (!this._activityPath) {
         return;
       }
-      await requestWithPostMessage(this._activityPath, activity);
+      await requestWithPostMessage(this._activityPath, { activity });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async inviteConference(conference) {
+    try {
+      if (!this._conferenceInvitePath) {
+        return;
+      }
+      await requestWithPostMessage(this._conferenceInvitePath, { conference });
     } catch (e) {
       console.error(e);
     }
@@ -221,5 +239,9 @@ export default class ThirdPartyService extends RcModule {
 
   get activities() {
     return this.state.activities;
+  }
+
+  get conferenceInviteTitle() {
+    return this.state.conferenceInviteTitle;
   }
 }
