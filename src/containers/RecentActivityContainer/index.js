@@ -8,6 +8,10 @@ import RecentActivityMessages from 'ringcentral-widgets/components/RecentActivit
 import RecentActivityCalls from 'ringcentral-widgets/components/RecentActivityCalls';
 import i18n from 'ringcentral-widgets/containers/RecentActivityContainer/i18n';
 
+import RecentActivityItems from '../../components/RecentActivityItems';
+
+import styles from './styles.scss';
+
 function getTabs({
   ready,
   currentLocale,
@@ -16,6 +20,7 @@ function getTabs({
   recentMessages,
   recentCalls,
   currentContact,
+  thirdPartyService,
   sessionId,
 }) {
   if (!ready) return [];
@@ -75,6 +80,27 @@ function getTabs({
       cleanUp: () => recentMessages.cleanUpMessages({ contact: currentContact, sessionId })
     },
   ];
+  if (thirdPartyService.activitiesRegistered) {
+    tabs.push({
+      icon: <span className={styles.title}>{thirdPartyService.serviceName}</span>,
+      label: thirdPartyService.serviceName,
+      path: 'thirdPartyService',
+      isActive: path => path === 'thirdPartyService',
+      view: (
+        <RecentActivityItems
+          openItem={activity => thirdPartyService.openActivity(activity)}
+          isLoaded={thirdPartyService.activitiesLoaded}
+          items={thirdPartyService.activities}
+          currentLocale={currentLocale}
+          dateTimeFormatter={dateTimeFormatter}
+        />
+      ),
+      getData: () => {
+        thirdPartyService.fetchActivities(currentContact);
+      },
+      cleanUp: () => {}
+    });
+  }
   return tabs;
 }
 
@@ -85,6 +111,7 @@ function mapToProps(_, {
     recentMessages,
     recentCalls,
     contactMatcher,
+    thirdPartyService,
   },
   currentLocale = locale.currentLocale,
   navigateTo,
@@ -129,6 +156,7 @@ function mapToProps(_, {
       currentContact,
       recentMessages,
       recentCalls,
+      thirdPartyService,
       sessionId,
     }),
     defaultTab: 'recentCalls',

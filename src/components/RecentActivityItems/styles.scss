@@ -1,0 +1,52 @@
+@import '~ringcentral-widgets/lib/commonStyles/fonts.scss';
+@import '~ringcentral-widgets/lib/commonStyles/colors.scss';
+@import '~ringcentral-widgets/lib/commonStyles/text-ellipsis.scss';
+
+.messages {
+  @include secondary-font;
+}
+
+.messageItem {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 15px;
+}
+
+.localMessageItem {
+  cursor: pointer;
+}
+
+.localMessageItem:hover {
+  background: #fafafa;
+}
+
+.dl {
+  margin: 0;
+}
+
+.messageSubject {
+  float: left;
+  width: 68%;
+  margin-right: 2%;
+  color: $lightblack;
+  text-align: left;
+  @include text-ellipsis;
+}
+
+.messageTime {
+  text-align: right;
+  color: $darkergray;
+  @include text-ellipsis;
+}
+
+.noRecords {
+  color: $darkgray;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 30px;
+}
+.spinner {
+  width: 43px;
+  height: 43px;
+  margin: 30px auto;
+}
