@@ -29,6 +29,8 @@ import MainView from '../MainView';
 import AppView from '../AppView';
 import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
+import RecentActivityContainer from '../RecentActivityContainer';
+import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButton';
 
 export default function App({
   phone,
@@ -200,12 +202,26 @@ export default function App({
                         window.open(`mailto:${email}`);
                       }
                     }
-                  />
+                  >
+                    <RecentActivityContainer
+                      navigateTo={(path) => {
+                        phone.routerInteraction.push(path);
+                      }}
+                      contact={phone.contactDetails.contact}
+                      useContact
+                    />
+                  </ContactDetailsPage>
                 )}
               />
               <Route
                 path="/conference"
-                component={ConferencePage}
+                component={
+                  () => (
+                    <ConferencePage
+                      additionalButtons={[ThirdPartyConferenceInviteButton]}
+                    />
+                  )
+                }
               />
               <Route
                 path="/conference/commands"

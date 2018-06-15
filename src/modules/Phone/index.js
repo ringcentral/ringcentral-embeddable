@@ -50,6 +50,8 @@ import Webphone from 'ringcentral-integration/modules/Webphone';
 import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 import Feedback from 'ringcentral-integration/modules/Feedback';
 import Conference from 'ringcentral-integration/modules/Conference';
+import RecentMessages from 'ringcentral-integration/modules/RecentMessages';
+import RecentCalls from 'ringcentral-integration/modules/RecentCalls';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
@@ -59,6 +61,9 @@ import Environment from '../Environment';
 import Adapter from '../Adapter';
 import MessageStore from '../MessageStore';
 import Conversations from '../Conversations';
+import ThirdPartyService from '../ThirdPartyService';
+
+import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -117,6 +122,9 @@ import Conversations from '../Conversations';
     { provide: 'ActiveCalls', useClass: ActiveCalls },
     { provide: 'Conference', useClass: Conference },
     { provide: 'Environment', useClass: Environment },
+    { provide: 'RecentMessages', useClass: RecentMessages },
+    { provide: 'RecentCalls', useClass: RecentCalls },
+    { provide: 'ThirdPartyService', useClass: ThirdPartyService },
     {
       provide: 'EnvironmentOptions',
       useFactory: () => ({}),
@@ -144,7 +152,6 @@ export default class BasePhone extends RcModule {
       routerInteraction,
       webphone,
       contactSearch,
-      contacts,
       callMonitor,
       contactMatcher,
       appConfig,
@@ -185,45 +192,55 @@ export default class BasePhone extends RcModule {
 
     // ContactMatcher configuration
     contactMatcher.addSearchProvider({
-      name: 'contacts',
-      searchFn: async ({ queries }) => this.contacts.matchContacts({ phoneNumbers: queries }),
-      readyCheckFn: () => this.contacts.ready,
+      name: 'personal',
+      searchFn: ({ queries }) => {
+        const result = {};
+        const phoneNumbers = queries;
+        phoneNumbers.forEach((phoneNumber) => {
+          result[phoneNumber] = this.addressBook.matchPhoneNumber(phoneNumber);
+        });
+        return result;
+      },
+      readyCheckFn: () => this.addressBook.ready,
+    });
+    contactMatcher.addSearchProvider({
+      name: 'company',
+      searchFn: ({ queries }) => {
+        const result = {};
+        const phoneNumbers = queries;
+        phoneNumbers.forEach((phoneNumber) => {
+          result[phoneNumber] = this.accountContacts.matchPhoneNumber(phoneNumber);
+        });
+        return result;
+      },
+      readyCheckFn: () => this.accountContacts.ready,
     });
 
     // ContactSearch configuration
     contactSearch.addSearchSource({
-      sourceName: 'contacts',
+      sourceName: 'personal',
       searchFn: ({ searchString }) => {
-        const items = contacts.allContacts;
+        const items = this.addressBook.contacts;
         if (!searchString) {
           return items;
         }
-        const searchText = searchString.toLowerCase();
-        const result = [];
-        items.forEach((item) => {
-          const name = item.name || `${item.firstName} ${item.lastName}`;
-          item.phoneNumbers.forEach((p) => {
-            if (
-              name.toLowerCase().indexOf(searchText) >= 0 ||
-              p.phoneNumber.indexOf(searchText) >= 0
-            ) {
-              result.push({
-                id: `${item.id}${p.phoneNumber}`,
-                name,
-                type: item.type,
-                phoneNumber: p.phoneNumber,
-                phoneType: p.phoneType.replace('Phone', ''),
-                entityType: 'contact',
-              });
-            }
-          });
-        });
-        return result;
+        return searchContactPhoneNumbers(items, searchString);
       },
       formatFn: entities => entities,
-      readyCheckFn: () => this.contacts.ready,
+      readyCheckFn: () => this.addressBook.ready,
     });
-
+    contactSearch.addSearchSource({
+      sourceName: 'company',
+      searchFn: ({ searchString }) => {
+        const items = this.accountContacts.contacts;
+        if (!searchString) {
+          return items;
+        }
+        return searchContactPhoneNumbers(items, searchString);
+      },
+      formatFn: entities => entities,
+      readyCheckFn: () => this.accountContacts.ready,
+    });
     // CallMonitor configuration
     callMonitor._onRinging = async () => {
       if (webphone._webphone) {
