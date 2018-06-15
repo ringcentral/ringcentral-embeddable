@@ -72,7 +72,7 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
     * Reject a ringing call
     * Hangup a call
   * [Log out user](docs/control-widget.md#log-out-user)
-* [Third Party Service in Widget](third-party-service-in-widget.md)
+* [Third Party Service in Widget](docs/third-party-service-in-widget.md)
   * Register your service
   * Add a conference invite button with your service
   * Show contacts from your application
