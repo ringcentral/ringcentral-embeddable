@@ -24,6 +24,7 @@ import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
 import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
 import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
+import CallsListPage from 'ringcentral-widgets/containers/CallsListPage';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -125,13 +126,7 @@ export default function App({
               <Route
                 path="/calls"
                 component={() => (
-                  <ActiveCallsPage
-                    onCallsEmpty={() => {
-                      if (phone.webphone && phone.webphone._webphone) {
-                        phone.routerInteraction.push('/dialer');
-                      }
-                    }}
-                  />
+                  <CallsListPage />
                 )} />
               <Route
                 path="/calls/active"
@@ -151,14 +146,6 @@ export default function App({
                     }
                   />
                 )} />
-              <Route
-                path="/history"
-                component={() => (
-                  <CallHistoryPage
-                    showContactDisplayPlaceholder={false}
-                  />
-                )}
-              />
               <Route
                 path="/composeText"
                 component={ComposeTextPage}
