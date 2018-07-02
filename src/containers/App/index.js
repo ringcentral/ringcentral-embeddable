@@ -11,8 +11,6 @@ import ComposeTextPage from 'ringcentral-widgets/containers/ComposeTextPage';
 // import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
 // import MessagesPage from 'ringcentral-widgets/containers/MessagesPage';
 import SettingsPage from 'ringcentral-widgets/containers/SettingsPage';
-import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
-import CallHistoryPage from 'ringcentral-widgets/containers/CallHistoryPage';
 import IncomingCallPage from 'ringcentral-widgets/containers/IncomingCallPage';
 import CallCtrlPage from 'ringcentral-widgets/containers/CallCtrlPage';
 import CallBadgeContainer from 'ringcentral-widgets/containers/CallBadgeContainer';
