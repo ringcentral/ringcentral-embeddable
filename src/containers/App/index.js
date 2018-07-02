@@ -11,8 +11,6 @@ import ComposeTextPage from 'ringcentral-widgets/containers/ComposeTextPage';
 // import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
 // import MessagesPage from 'ringcentral-widgets/containers/MessagesPage';
 import SettingsPage from 'ringcentral-widgets/containers/SettingsPage';
-import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
-import CallHistoryPage from 'ringcentral-widgets/containers/CallHistoryPage';
 import IncomingCallPage from 'ringcentral-widgets/containers/IncomingCallPage';
 import CallCtrlPage from 'ringcentral-widgets/containers/CallCtrlPage';
 import CallBadgeContainer from 'ringcentral-widgets/containers/CallBadgeContainer';
@@ -24,6 +22,7 @@ import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
 import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
 import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
+import CallsListPage from 'ringcentral-widgets/containers/CallsListPage';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -125,13 +124,7 @@ export default function App({
               <Route
                 path="/calls"
                 component={() => (
-                  <ActiveCallsPage
-                    onCallsEmpty={() => {
-                      if (phone.webphone && phone.webphone._webphone) {
-                        phone.routerInteraction.push('/dialer');
-                      }
-                    }}
-                  />
+                  <CallsListPage />
                 )} />
               <Route
                 path="/calls/active"
@@ -151,14 +144,6 @@ export default function App({
                     }
                   />
                 )} />
-              <Route
-                path="/history"
-                component={() => (
-                  <CallHistoryPage
-                    showContactDisplayPlaceholder={false}
-                  />
-                )}
-              />
               <Route
                 path="/composeText"
                 component={ComposeTextPage}
