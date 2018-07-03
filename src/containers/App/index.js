@@ -10,7 +10,7 @@ import DialerPage from 'ringcentral-widgets/containers/DialerPage';
 import ComposeTextPage from 'ringcentral-widgets/containers/ComposeTextPage';
 // import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
 // import MessagesPage from 'ringcentral-widgets/containers/MessagesPage';
-import SettingsPage from 'ringcentral-widgets/containers/SettingsPage';
+// import SettingsPage from 'ringcentral-widgets/containers/SettingsPage';
 import IncomingCallPage from 'ringcentral-widgets/containers/IncomingCallPage';
 import CallCtrlPage from 'ringcentral-widgets/containers/CallCtrlPage';
 import CallBadgeContainer from 'ringcentral-widgets/containers/CallBadgeContainer';
@@ -22,7 +22,7 @@ import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
 import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
 import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
-import CallsListPage from 'ringcentral-widgets/containers/CallsListPage';
+import LogIcon from 'ringcentral-widgets/components/LogIcon';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -30,6 +30,8 @@ import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
 import RecentActivityContainer from '../RecentActivityContainer';
 import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButton';
+import SettingsPage from '../SettingsPage';
+import CallsListPage from '../CallsListPage';
 
 export default function App({
   phone,
@@ -124,7 +126,25 @@ export default function App({
               <Route
                 path="/calls"
                 component={() => (
-                  <CallsListPage />
+                  <CallsListPage
+                    renderExtraButton={({
+                      sessionId,
+                      id,
+                      isSaving,
+                      disabled,
+                      isFax
+                    }) => (
+                      <LogIcon
+                        id={id}
+                        sessionId={sessionId}
+                        isSaving={isSaving}
+                        disabled={disabled}
+                        isFax={isFax}
+                        viewTask={(...args) => phone.callLogSection.viewTask(...args)}
+                        currentLocale={phone.locale.currentLocale}
+                      />
+                    )}
+                  />
                 )} />
               <Route
                 path="/calls/active"
