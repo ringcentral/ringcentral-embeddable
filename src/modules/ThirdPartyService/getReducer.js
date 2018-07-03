@@ -53,6 +53,19 @@ export function getActivitiesLoadedReducer(types) {
   };
 }
 
+export function getCallLogerRegisteredReducer(types) {
+  return (state = false, { type }) => {
+    switch (type) {
+      case types.registerCallLogger:
+        return true;
+      case types.resetSuccess:
+        return false;
+      default:
+        return state;
+    }
+  };
+}
+
 export function getActivitiesReducer(types) {
   return (state = [], { type, activities }) => {
     switch (type) {
@@ -102,5 +115,6 @@ export default function getReducer(types) {
     activitiesLoaded: getActivitiesLoadedReducer(types),
     activities: getActivitiesReducer(types),
     conferenceInviteTitle: getConferenceInviteTitleReducer(types),
+    callLoggerRegistered: getCallLogerRegisteredReducer(types),
   });
 }

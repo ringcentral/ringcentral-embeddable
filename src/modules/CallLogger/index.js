@@ -1,19 +1,41 @@
+import { createSelector } from 'reselect';
+import getter from 'ringcentral-integration/lib/getter';
 import { Module } from 'ringcentral-integration/lib/di';
 import CallLoggerBase from 'ringcentral-integration/modules/CallLogger';
 
 @Module({
-  deps: [],
+  deps: ['ThirdPartyService'],
 })
 export default class CallLogger extends CallLoggerBase {
-  constructor(options) {
+  constructor({
+    thirdPartyService,
+    ...options,
+  }) {
     super({
       ...options,
-      readyCheckFunction: () => true,
-      logFunction: async ({ item, ...options }) => { await this._doLog({ item, ...options }); }
+      readyCheckFunction: () => this._thirdPartyService.callLoggerRegistered,
+      logFunction: async (data) => { await this._doLog(data); }
     });
+    this._thirdPartyService = thirdPartyService;
   }
 
   async _doLog({ item, ...options }) {
-    console.log(item);
+    await this._thirdPartyService.logCall({ call: item, ...options });
   }
+
+  @getter
+  allCallMapping = createSelector(
+    () => this._callMonitor.calls,
+    () => this._callHistory.calls,
+    (activeCalls, calls) => {
+      const mapping = {};
+      activeCalls.forEach((call) => {
+        mapping[call.sessionId] = call;
+      });
+      calls.forEach((call) => {
+        mapping[call.sessionId] = call;
+      });
+      return mapping;
+    },
+  );
 }

@@ -1,8 +1,11 @@
+import React from 'react';
 import { connect } from 'react-redux';
 import formatNumber from 'ringcentral-integration/lib/formatNumber';
 import withPhone from 'ringcentral-widgets/lib/withPhone';
+import messageTypes from 'ringcentral-integration/enums/messageTypes';
 
 import CallsListPanel from 'ringcentral-widgets/components/CallsListPanel';
+import LogIcon from '../../components/LogIcon';
 
 function mapToProps(_, {
   phone: {
@@ -56,8 +59,7 @@ function mapToProps(_, {
       connectivityMonitor.ready &&
       (!rolesAndPermissions || rolesAndPermissions.ready) &&
       (!call || call.ready) &&
-      (!composeText || composeText.ready) &&
-      (!callLogger || callLogger.ready)
+      (!composeText || composeText.ready)
     ),
   };
 }
@@ -66,7 +68,6 @@ function mapToFunctions(_, {
   phone: {
     callLogger,
     composeText,
-    contactMatcher,
     contactSearch,
     regionSettings,
     routerInteraction,
@@ -75,6 +76,7 @@ function mapToFunctions(_, {
     call,
     dialerUI,
     callHistory,
+    locale,
   },
   composeTextRoute = '/composeText',
   callCtrlRoute = '/calls/active',
@@ -136,6 +138,32 @@ function mapToFunctions(_, {
         callHistory.onClickToSMS();
       } :
       undefined,
+    renderExtraButton: ({ sessionId }) => {
+      if (!callLogger.ready) {
+        return null;
+      }
+      const call = callLogger.allCallMapping[sessionId];
+      if (!call) {
+        return null;
+      }
+      const isSaving = callLogger.loggingMap[sessionId];
+      const disabled = call.type === messageTypes.fax;
+      const isFax = call.type === messageTypes.fax;
+      const matcher = call.activityMatches && call.activityMatches[0];
+      return (
+        <LogIcon
+          id={matcher ? matcher.id.toString() : null}
+          sessionId={sessionId}
+          isSaving={isSaving}
+          disabled={disabled}
+          isFax={isFax}
+          onClick={() => callLogger.logCall({
+            call,
+          })}
+          currentLocale={locale.currentLocale}
+        />
+      );
+    },
   };
 }
 

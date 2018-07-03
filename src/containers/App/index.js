@@ -22,7 +22,6 @@ import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
 import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
 import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
-import LogIcon from 'ringcentral-widgets/components/LogIcon';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -126,25 +125,7 @@ export default function App({
               <Route
                 path="/calls"
                 component={() => (
-                  <CallsListPage
-                    renderExtraButton={({
-                      sessionId,
-                      id,
-                      isSaving,
-                      disabled,
-                      isFax
-                    }) => (
-                      <LogIcon
-                        id={id}
-                        sessionId={sessionId}
-                        isSaving={isSaving}
-                        disabled={disabled}
-                        isFax={isFax}
-                        viewTask={(...args) => phone.callLogSection.viewTask(...args)}
-                        currentLocale={phone.locale.currentLocale}
-                      />
-                    )}
-                  />
+                  <CallsListPage />
                 )} />
               <Route
                 path="/calls/active"

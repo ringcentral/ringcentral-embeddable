@@ -57,47 +57,73 @@ export default class ThirdPartyService extends RcModule {
           this.fetchContacts();
         }
         if (service.contactSearchPath) {
-          this._contactSearchPath = service.contactSearchPath;
-          this._contactSearch.addSearchSource({
-            sourceName: this.sourceName,
-            searchFn: async ({ searchString }) => {
-              if (!searchString) {
-                return [];
-              }
-              const contacts = await this.searchContacts(searchString);
-              return searchContactPhoneNumbers(contacts, searchString, this.sourceName);
-            },
-            formatFn: entities => entities,
-            readyCheckFn: () => this.sourceReady,
-          });
-          this._contactMatcher.triggerMatch();
+          this._registerContactSearch(service);
         }
         if (service.contactMatchPath) {
-          this._contactMatchPath = service.contactMatchPath;
-          this._contactMatcher.addSearchProvider({
-            name: this.sourceName,
-            searchFn: async ({ queries }) => {
-              const result = await this.matchContacts(queries);
-              return result;
-            },
-            readyCheckFn: () => this.sourceReady,
-          });
+          this._registerContactMatch(service);
         }
         if (service.activitiesPath) {
-          this._activitiesPath = service.activitiesPath;
-          this._activityPath = service.activityPath;
-          this.store.dispatch({
-            type: this.actionTypes.registerActivities
-          });
+          this._registerActivities(service);
         }
         if (service.conferenceInviteTitle && service.conferenceInvitePath) {
-          this._conferenceInvitePath = service.conferenceInvitePath;
-          this.store.dispatch({
-            type: this.actionTypes.registerConferenceInvite,
-            conferenceInviteTitle: service.conferenceInviteTitle,
-          });
+          this._registerConferenceInvite(service);
+        }
+        if (service.callLoggerPath) {
+          this._registerCallLogger(service);
         }
       }
+    });
+  }
+
+  _registerContactSearch(service) {
+    this._contactSearchPath = service.contactSearchPath;
+    this._contactSearch.addSearchSource({
+      sourceName: this.sourceName,
+      searchFn: async ({ searchString }) => {
+        if (!searchString) {
+          return [];
+        }
+        const contacts = await this.searchContacts(searchString);
+        return searchContactPhoneNumbers(contacts, searchString, this.sourceName);
+      },
+      formatFn: entities => entities,
+      readyCheckFn: () => this.sourceReady,
+    });
+    this._contactMatcher.triggerMatch();
+  }
+
+  _registerContactMatch(service) {
+    this._contactMatchPath = service.contactMatchPath;
+    this._contactMatcher.addSearchProvider({
+      name: this.sourceName,
+      searchFn: async ({ queries }) => {
+        const result = await this.matchContacts(queries);
+        return result;
+      },
+      readyCheckFn: () => this.sourceReady,
+    });
+  }
+
+  _registerConferenceInvite(service) {
+    this._conferenceInvitePath = service.conferenceInvitePath;
+    this.store.dispatch({
+      type: this.actionTypes.registerConferenceInvite,
+      conferenceInviteTitle: service.conferenceInviteTitle,
+    });
+  }
+
+  _registerActivities(service) {
+    this._activitiesPath = service.activitiesPath;
+    this._activityPath = service.activityPath;
+    this.store.dispatch({
+      type: this.actionTypes.registerActivities
+    });
+  }
+
+  _registerCallLogger(service) {
+    this._callLoggerPath = service.callLoggerPath;
+    this.store.dispatch({
+      type: this.actionTypes.registerCallLogger
     });
   }
 
@@ -209,6 +235,17 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  async logCall(data) {
+    try {
+      if (!this._callLoggerPath) {
+        return;
+      }
+      await requestWithPostMessage(this._callLoggerPath, data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   get contacts() {
     return this.state.contacts;
   }
@@ -243,5 +280,9 @@ export default class ThirdPartyService extends RcModule {
 
   get conferenceInviteTitle() {
     return this.state.conferenceInviteTitle;
+  }
+
+  get callLoggerRegistered() {
+    return this.state.callLoggerRegistered;
   }
 }
