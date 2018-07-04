@@ -34,6 +34,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 After registered, you can get a `Invite with TestService` in conference invite page.
 
+![image](https://user-images.githubusercontent.com/7036536/42258529-cb5684e8-7f8e-11e8-88e8-0b251a102e0e.png)
+
 Add a message event to response conference invite button event:
 
 ```
@@ -143,6 +145,8 @@ window.addEventListener('message', function (e) {
 
 Data from `contactsPath` will be showed in contacts page in widget. Data from `contactSearchPath` will be showed in contacts search dropdown in dial page. Data from `contactMatchPath` will be showed on messages and call history page in the widget.
 
+![image](https://user-images.githubusercontent.com/7036536/42258572-f6a8050e-7f8e-11e8-8950-bb9efa8e0918.png)
+
 ## Show contact's activities from your application
 
 First you need to pass `activitiesPath` and `activityPath` when you register service.
@@ -195,6 +199,8 @@ window.addEventListener('message', function (e) {
 
 Data from `activitiesPath` will be showed in contact details page in the widget. Event from `activityPath` is triggered when user click activity item in the widget.
 
+![image](https://user-images.githubusercontent.com/7036536/42258605-2ba93d40-7f8f-11e8-8f4c-c14a397d343e.png)
+
 ## Add call logger button in calls page
 
 First you need to pass `callLoggerPath` and `callLoggerTitle` when you register service.
@@ -211,6 +217,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 ```
 
 After registered, you can get a `Log to TestService` in calls page, and `Auto Log` setting in setting page
+
+![image](https://user-images.githubusercontent.com/7036536/42258648-641a6384-7f8f-11e8-9b4b-9ef83edffec6.png)
 
 Add a message event to response call logger button event:
 
