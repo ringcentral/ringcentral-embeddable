@@ -62,6 +62,7 @@ import Adapter from '../Adapter';
 import MessageStore from '../MessageStore';
 import Conversations from '../Conversations';
 import ThirdPartyService from '../ThirdPartyService';
+import CallLogger from '../CallLogger';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
@@ -105,6 +106,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'ComposeText', useClass: ComposeText },
     { provide: 'CallMonitor', useClass: CallMonitor },
     { provide: 'CallHistory', useClass: CallHistory },
+    { provide: 'CallLogger', useClass: CallLogger },
     { provide: 'ActivityMatcher', useClass: ActivityMatcher },
     { provide: 'ConversationMatcher', useClass: ConversationMatcher },
     { provide: 'ContactSearch', useClass: ContactSearch },

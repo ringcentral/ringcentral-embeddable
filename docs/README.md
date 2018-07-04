@@ -25,4 +25,5 @@ RingCentral Embeddable Voice is an out-of-the-box embeddable web application bui
   * Add a conference invite button with your service
   * Show contacts from your application
   * Show contact's activities from your application
+  * Add call logger button in calls page
 

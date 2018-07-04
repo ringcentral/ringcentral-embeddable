@@ -9,4 +9,5 @@ export default new Enum([
   'loadActivitiesSuccess',
   'loadActivities',
   'registerConferenceInvite',
+  'registerCallLogger'
 ], 'thirdPartyContacts');
