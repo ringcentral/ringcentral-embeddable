@@ -194,3 +194,40 @@ window.addEventListener('message', function (e) {
 ```
 
 Data from `activitiesPath` will be showed in contact details page in the widget. Event from `activityPath` is triggered when user click activity item in the widget.
+
+## Add call logger button in calls page
+
+First you need to pass `callLoggerPath` and `callLoggerTitle` when you register service.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    callLoggerPath: '/callLogger',
+    callLoggerTitle: 'Log to TestService'
+  }
+}, '*');
+```
+
+After registered, you can get a `Log to TestService` in calls page, and `Auto Log` setting in setting page
+
+Add a message event to response call logger button event:
+
+```
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/callLogger') {
+      // add your codes here to log call to your service
+      console.log(data);
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+  }
+});
+```

@@ -138,12 +138,12 @@ function mapToFunctions(_, {
         callHistory.onClickToSMS();
       } :
       undefined,
-    renderExtraButton: ({ sessionId }) => {
+    renderExtraButton: ({ sessionId, webphoneSession }) => {
       if (!callLogger.ready) {
         return null;
       }
       const call = callLogger.allCallMapping[sessionId];
-      if (!call) {
+      if (!call || webphoneSession) {
         return null;
       }
       const isSaving = callLogger.loggingMap[sessionId];
@@ -161,6 +161,7 @@ function mapToFunctions(_, {
             call,
           })}
           currentLocale={locale.currentLocale}
+          logTitle={callLogger.logButtonTitle}
         />
       );
     },

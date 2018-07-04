@@ -77,6 +77,7 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
   * Add a conference invite button with your service
   * Show contacts from your application
   * Show contact's activities from your application
+  * Add call logger button in calls page
 
 ## Contribution and Development
 

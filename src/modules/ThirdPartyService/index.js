@@ -123,7 +123,8 @@ export default class ThirdPartyService extends RcModule {
   _registerCallLogger(service) {
     this._callLoggerPath = service.callLoggerPath;
     this.store.dispatch({
-      type: this.actionTypes.registerCallLogger
+      type: this.actionTypes.registerCallLogger,
+      callLoggerTitle: service.callLoggerTitle,
     });
   }
 
@@ -284,5 +285,9 @@ export default class ThirdPartyService extends RcModule {
 
   get callLoggerRegistered() {
     return this.state.callLoggerRegistered;
+  }
+
+  get callLoggerTitle() {
+    return this.state.callLoggerTitle;
   }
 }

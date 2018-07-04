@@ -12,9 +12,10 @@ export default class CallLogger extends CallLoggerBase {
     ...options,
   }) {
     super({
-      ...options,
+      initialState: { autoLog: false },
       readyCheckFunction: () => this._thirdPartyService.callLoggerRegistered,
-      logFunction: async (data) => { await this._doLog(data); }
+      logFunction: async (data) => { await this._doLog(data); },
+      ...options,
     });
     this._thirdPartyService = thirdPartyService;
   }
@@ -38,4 +39,8 @@ export default class CallLogger extends CallLoggerBase {
       return mapping;
     },
   );
+
+  get logButtonTitle() {
+    return this._thirdPartyService.callLoggerTitle;
+  }
 }

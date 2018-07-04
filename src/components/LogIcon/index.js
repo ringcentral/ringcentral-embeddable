@@ -15,12 +15,15 @@ export default function LogIcon({
     currentLocale,
     disabled,
     isFax,
+    logTitle,
 }) {
   const loggedIcon = <LoggedIcon width={23} className={styles.loggedIcon} />;
   const unLoggedIcon = <UnloggedIcon width={23} className={styles.unloggedIcon} />;
   let tooltip = null;
   if (isFax) {
     tooltip = i18n.getString('faxNotSupported', currentLocale);
+  } else if (!id && logTitle) {
+    tooltip = logTitle;
   } else {
     tooltip = i18n.getString(id ? 'logged' : 'unlogged', currentLocale);
   }
@@ -56,6 +59,7 @@ LogIcon.propTypes = {
   isSaving: PropTypes.bool,
   disabled: PropTypes.bool,
   isFax: PropTypes.bool,
+  logTitle: PropTypes.string,
 };
 
 LogIcon.defaultProps = {
@@ -65,4 +69,5 @@ LogIcon.defaultProps = {
   isSaving: false,
   disabled: false,
   isFax: false,
+  logTitle: null
 };
