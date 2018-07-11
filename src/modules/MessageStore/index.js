@@ -302,15 +302,35 @@ export default class MessageStore extends Pollable {
     try {
       const dateFrom = new Date();
       dateFrom.setDate(dateFrom.getDate() - this._daySpan);
-      const syncToken = dateTo ? null : this.syncInfo && this.syncInfo.syncToken;
+      let syncToken = dateTo ? null : this.syncInfo && this.syncInfo.syncToken;
       const recordCount = conversationsLoadLength * conversationLoadLength;
-      const data = await this._syncFunction({
-        recordCount,
-        conversationLoadLength,
-        dateFrom,
-        syncToken,
-        dateTo,
-      });
+      let data;
+      try {
+        data = await this._syncFunction({
+          recordCount,
+          conversationLoadLength,
+          dateFrom,
+          syncToken,
+          dateTo,
+        });
+      } catch (error) {
+        if (
+          error &&
+          error.message === 'Parameter [syncToken] value is invalid'
+        ) {
+          // Fsync when syncToken invalid
+          data = await this._syncFunction({
+            recordCount,
+            conversationLoadLength,
+            dateFrom,
+            syncToken: null,
+            dateTo,
+          });
+          syncToken = null;
+        } else {
+          throw error;
+        }
+      }
       if (this._auth.ownerId === ownerId) {
         const actionType = this.getSyncActionType({ dateTo, syncToken });
         this.store.dispatch({
