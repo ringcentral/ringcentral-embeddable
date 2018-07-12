@@ -175,5 +175,6 @@ export default function getDataReducer(types) {
     conversationList: getConversationListReducer(types),
     conversationStore: getConversationStoreReducer(types),
     syncInfo: getSyncInfoReducer(types),
+    timestamp: getTimestampReducer(types),
   });
 }

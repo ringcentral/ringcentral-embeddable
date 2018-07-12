@@ -667,7 +667,7 @@ export default class MessageStore extends Pollable {
   }
 
   get timestamp() {
-    return this.data.timestamp;
+    return this.data && this.data.timestamp;
   }
 
   get timeToRetry() {
@@ -679,11 +679,11 @@ export default class MessageStore extends Pollable {
   }
 
   get syncInfo() {
-    return this.data.syncInfo;
+    return this.data && this.data.syncInfo;
   }
 
   get conversationStore() {
-    return this.data.conversationStore;
+    return this.data && this.data.conversationStore;
   }
 
   get _hasPermission() {
@@ -692,9 +692,9 @@ export default class MessageStore extends Pollable {
 
   @getter
   allConversations = createSelector(
-    () => this.data.conversationList,
-    () => this.data.conversationStore,
-    (conversationList, conversationStore) =>
+    () => this.data && this.data.conversationList,
+    () => this.conversationStore,
+    (conversationList = [], conversationStore) =>
       conversationList.map(
         (conversationItem) => {
           const messageList = conversationStore[conversationItem.id] || [];
