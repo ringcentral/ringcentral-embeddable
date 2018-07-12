@@ -52,6 +52,7 @@ import Feedback from 'ringcentral-integration/modules/Feedback';
 import Conference from 'ringcentral-integration/modules/Conference';
 import RecentMessages from 'ringcentral-integration/modules/RecentMessages';
 import RecentCalls from 'ringcentral-integration/modules/RecentCalls';
+import LocalForageStorage from 'ringcentral-integration/lib/LocalForageStorage';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
@@ -144,6 +145,14 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
       useFactory: ({ addressBook, accountContacts }) =>
         [addressBook, accountContacts],
       deps: ['AccountContacts', 'AddressBook']
+    },
+    {
+      provide: 'StorageOptions',
+      useValue: {
+        StorageProvider: LocalForageStorage, // IndexedDB
+        disableAllowInactiveTabsWrite: true,
+      },
+      spread: true
     },
   ]
 })
