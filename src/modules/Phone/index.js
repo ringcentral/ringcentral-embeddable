@@ -41,7 +41,6 @@ import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
 import RateLimiter from 'ringcentral-integration/modules/RateLimiter';
 import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
 import Ringout from 'ringcentral-integration/modules/Ringout';
-import RolesAndPermissions from 'ringcentral-integration/modules/RolesAndPermissions';
 import Softphone from 'ringcentral-integration/modules/Softphone';
 import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
@@ -64,6 +63,7 @@ import MessageStore from '../MessageStore';
 import Conversations from '../Conversations';
 import ThirdPartyService from '../ThirdPartyService';
 import CallLogger from '../CallLogger';
+import RolesAndPermissions from '../RolesAndPermissions';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
@@ -274,9 +274,20 @@ export default class BasePhone extends RcModule {
           this.routerInteraction.push('/');
         } else if (
           this.routerInteraction.currentPath === '/' &&
-          this.auth.loggedIn
+          this.auth.loggedIn &&
+          this.rolesAndPermissions.ready
         ) {
-          this.routerInteraction.push('/dialer');
+          if (this.rolesAndPermissions.callingEnabled) {
+            this.routerInteraction.push('/dialer');
+          } else if (this.rolesAndPermissions.messagesEnabled) {
+            this.routerInteraction.push('/messages');
+          } else if (this.rolesAndPermissions.contactsEnabled) {
+            this.routerInteraction.push('/contacts');
+          } else if (this.rolesAndPermissions.organizeConferenceEnabled) {
+            this.routerInteraction.push('/conference');
+          } else {
+            this.routerInteraction.push('/settings');
+          }
         }
       }
     });
@@ -298,6 +309,9 @@ export function createPhone({
   appVersion,
   redirectUri,
   stylesUri,
+  disableCall,
+  disableMessages,
+  disableConferenceInvite
 }) {
   @ModuleFactory({
     providers: [
@@ -327,6 +341,15 @@ export function createPhone({
           appName: brandConfig.appName,
           appVersion,
           webphoneLogLevel: 1,
+        },
+      },
+      {
+        provide: 'RolesAndPermissionsOptions',
+        spread: true,
+        useValue: {
+          disableCall,
+          disableMessages,
+          disableConferenceInvite
         },
       },
     ]

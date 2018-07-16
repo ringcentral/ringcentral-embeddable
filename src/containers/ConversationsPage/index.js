@@ -96,6 +96,7 @@ function mapToFunctions(_, {
     routerInteraction,
     composeText,
     contactSearch,
+    rolesAndPermissions,
   },
   showViewContact = true,
   dateTimeFormatter = (...args) => dateTimeFormat.formatDateTime(...args),
@@ -126,7 +127,7 @@ function mapToFunctions(_, {
         }
       } :
       undefined,
-    onClickToDial: dialerUI ?
+    onClickToDial: dialerUI && rolesAndPermissions.callingEnabled ?
       (recipient) => {
         if (call.isIdle) {
           routerInteraction.push(dialerRoute);

@@ -22,6 +22,9 @@ const apiConfig = {
 
 const redirectUri = pathParams.redirectUri;
 const stylesUri = pathParams.stylesUri;
+const disableCall = typeof pathParams.disableCall !== 'undefined';
+const disableMessages = typeof pathParams.disableMessages !== 'undefined';
+const disableConferenceInvite = typeof pathParams.disableConferenceInvite !== 'undefined';
 
 const phone = createPhone({
   apiConfig,
@@ -30,6 +33,9 @@ const phone = createPhone({
   appVersion,
   redirectUri,
   stylesUri,
+  disableCall,
+  disableMessages,
+  disableConferenceInvite
 });
 
 const store = createStore(phone.reducer);
@@ -45,4 +51,3 @@ ReactDOM.render(
   />,
   document.querySelector('div#viewport'),
 );
-
