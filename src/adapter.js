@@ -17,6 +17,9 @@ const {
   redirectUri,
   stylesUri,
   notification,
+  disableCall,
+  disableMessages,
+  disableConferenceInvite,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -37,6 +40,9 @@ const appUri = `${appUrl}?${obj2uri({
   appServer,
   redirectUri,
   stylesUri,
+  disableCall,
+  disableMessages,
+  disableConferenceInvite,
   _t: Date.now(),
 })}`;
 

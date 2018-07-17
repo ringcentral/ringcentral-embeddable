@@ -26,4 +26,8 @@ RingCentral Embeddable Voice is an out-of-the-box embeddable web application bui
   * Show contacts from your application
   * Show contact's activities from your application
   * Add call logger button in calls page
+* [Disable Features in Widget](docs/disable-features.md)
+  * Disable messages features
+  * Disable Call releated features
+  * Disable Conference invite feature
 

@@ -28,15 +28,17 @@ function getTabs({
   showMessages,
   unreadCounts,
   showConference,
+  showCall,
+  showContacts,
 }) {
-  return [
-    {
+  let tabs = [
+    showCall && {
       icon: DialPadIcon,
       activeIcon: DialPadHoverIcon,
       label: 'Dial Pad',
       path: '/dialer',
     },
-    {
+    showCall && {
       icon: CallsIcon,
       activeIcon: CallsHoverIcon,
       label: 'Calls',
@@ -57,7 +59,7 @@ function getTabs({
         currentPath.indexOf('/conversations/') !== -1
       ),
     },
-    {
+    showContacts && {
       icon: ContactIcon,
       activeIcon: ContactHoverIcon,
       label: 'Contacts',
@@ -66,22 +68,50 @@ function getTabs({
         currentPath.substr(0, 9) === '/contacts'
       ),
     },
+    showConference && {
+      icon: ConferenceIcon,
+      activeIcon: ConferenceHoverIcon,
+      moreMenuIcon: ConferenceNavIcon,
+      label: 'Schedule Conference',
+      path: '/conference',
+      isActive: currentPath => (
+        currentPath.substr(0, 11) === '/conference'
+      ),
+    },
     {
+      icon: SettingsIcon,
+      activeIcon: SettingsHoverIcon,
+      moreMenuIcon: SettingsNavIcon,
+      label: 'Settings',
+      path: '/settings',
+      isActive: currentPath => (
+        currentPath.substr(0, 9) === '/settings'
+      ),
+    }
+  ].filter(x => !!x);
+  if (tabs.length > 5) {
+    const childTabs = tabs.slice(4, tabs.length);
+    tabs = tabs.slice(0, 4);
+    tabs.push({
       icon: ({ currentPath }) => {
-        if (currentPath.substr(0, 9) === '/settings') {
-          return <SettingsNavIcon />;
-        }
-        if (currentPath.substr(0, 11) === '/conference') {
-          return <ConferenceNavIcon />;
+        const childTab = childTabs.filter(childTab => (
+          (currentPath === childTab.path || currentPath.substr(0, 9) === childTab.path)
+            && childTab.moreMenuIcon
+        ));
+        if (childTab.length > 0) {
+          const Icon = childTab[0].moreMenuIcon;
+          return <Icon />;
         }
         return <MoreMenuIcon />;
       },
       activeIcon: ({ currentPath }) => {
-        if (currentPath.substr(0, 9) === '/settings') {
-          return <SettingsNavIcon />;
-        }
-        if (currentPath.substr(0, 11) === '/conference') {
-          return <ConferenceNavIcon />;
+        const childTab = childTabs.filter(childTab => (
+          (currentPath === childTab.path || currentPath.substr(0, 9) === childTab.path)
+            && childTab.moreMenuIcon
+        ));
+        if (childTab.length > 0) {
+          const Icon = childTab[0].moreMenuIcon;
+          return <Icon />;
         }
         return <MoreMenuHoverIcon />;
       },
@@ -90,28 +120,10 @@ function getTabs({
       isActive: (currentPath, currentVirtualPath) => (
         currentVirtualPath === '!moreMenu'
       ),
-      childTabs: [
-        showConference && {
-          icon: ConferenceIcon,
-          activeIcon: ConferenceHoverIcon,
-          label: 'Schedule Conference',
-          path: '/conference',
-          isActive: currentPath => (
-            currentPath.substr(0, 11) === '/conference'
-          ),
-        },
-        {
-          icon: SettingsIcon,
-          activeIcon: SettingsHoverIcon,
-          label: 'Settings',
-          path: '/settings',
-          isActive: currentPath => (
-            currentPath.substr(0, 9) === '/settings'
-          ),
-        },
-      ].filter(x => !!x),
-    },
-  ].filter(x => !!x);
+      childTabs
+    });
+  }
+  return tabs;
 }
 
 function mapToProps(_, {
@@ -123,29 +135,20 @@ function mapToProps(_, {
   },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
-  const serviceFeatures = rolesAndPermissions.serviceFeatures;
-  const showMessages = (
-    rolesAndPermissions.ready &&
-    (
-      (
-        serviceFeatures.PagerReceiving &&
-        serviceFeatures.PagerReceiving.enabled
-      ) ||
-      (
-        serviceFeatures.SMSReceiving &&
-        serviceFeatures.SMSReceiving.enabled
-      )
-    )
-  );
+  const showCall = rolesAndPermissions.ready && rolesAndPermissions.callingEnabled;
+  const showMessages = rolesAndPermissions.ready && rolesAndPermissions.messagesEnabled;
   const showConference = (
     rolesAndPermissions.ready &&
-    conference.data &&
-    rolesAndPermissions.permissions.OrganizeConference
+    rolesAndPermissions.organizeConferenceEnabled &&
+    conference.data
   );
+  const showContacts = rolesAndPermissions.ready && rolesAndPermissions.contactsEnabled
   const tabs = getTabs({
     unreadCounts,
+    showCall,
     showMessages,
     showConference,
+    showContacts,
   });
   return {
     tabs,
