@@ -10,3 +10,16 @@ deploy:
     local_dir: ./release
     email: 'integrations@ringcentral.com'
     name: 'RingCentral Integrations Team'
+  - provider: s3
+    access_key_id: $AWS_S3_ACCESS_KEY_ID
+    secret_access_key: $AWS_S3_SECRET_ACCESS_KEY
+    bucket: $AWS_BUCKET
+    skip_cleanup: true
+    region: $AWS_REGION
+    detect_encoding: true
+    local_dir: ./release
+    upload-dir: releases/$TRAVIS_TAG
+    on:
+      node: '8'
+      tags: true
+      condition: "$TRAVIS_TAG =~ ^[0-9]+.[0-9]+.[0-9]+"
