@@ -22,13 +22,15 @@ import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
 import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
 import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
+import ConversationsPage from 'ringcentral-widgets/containers/ConversationsPage';
+import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
-import ConversationsPage from '../ConversationsPage';
-import ConversationPage from '../ConversationPage';
+
 import RecentActivityContainer from '../RecentActivityContainer';
 import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButton';
+
 import SettingsPage from '../SettingsPage';
 import CallsListPage from '../CallsListPage';
 

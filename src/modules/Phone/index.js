@@ -51,6 +51,9 @@ import Feedback from 'ringcentral-integration/modules/Feedback';
 import Conference from 'ringcentral-integration/modules/Conference';
 import RecentMessages from 'ringcentral-integration/modules/RecentMessages';
 import RecentCalls from 'ringcentral-integration/modules/RecentCalls';
+import MessageStore from 'ringcentral-integration/modules/MessageStore';
+import Conversations from 'ringcentral-integration/modules/Conversations';
+
 import LocalForageStorage from 'ringcentral-integration/lib/LocalForageStorage';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
@@ -59,8 +62,6 @@ import OAuth from '../OAuth';
 import Auth from '../Auth';
 import Environment from '../Environment';
 import Adapter from '../Adapter';
-import MessageStore from '../MessageStore';
-import Conversations from '../Conversations';
 import ThirdPartyService from '../ThirdPartyService';
 import CallLogger from '../CallLogger';
 import RolesAndPermissions from '../RolesAndPermissions';
@@ -151,6 +152,22 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
       useValue: {
         StorageProvider: LocalForageStorage, // IndexedDB
         disableAllowInactiveTabsWrite: true,
+      },
+      spread: true
+    },
+    {
+      provide: 'MessageStoreOptions',
+      useValue: {
+        daySpan: 90,
+        conversationsLoadLength: 10,
+        conversationLoadLength: 15,
+      },
+      spread: true
+    },
+    {
+      provide: 'ConversationsOptions',
+      useValue: {
+        enableLoadOldMessages: true,
       },
       spread: true
     },
