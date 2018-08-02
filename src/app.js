@@ -21,6 +21,7 @@ const apiConfig = {
 };
 
 const redirectUri = pathParams.redirectUri;
+const proxyUri = pathParams.proxyUri;
 const stylesUri = pathParams.stylesUri;
 const disableCall = typeof pathParams.disableCall !== 'undefined';
 const disableMessages = typeof pathParams.disableMessages !== 'undefined';
@@ -33,6 +34,7 @@ const phone = createPhone({
   prefix,
   appVersion,
   redirectUri,
+  proxyUri,
   stylesUri,
   disableCall,
   disableMessages,

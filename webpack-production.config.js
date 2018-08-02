@@ -21,6 +21,10 @@ const version = packageConfig.version;
 
 const hostingUrl =
   process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable';
+const redirectUri =
+  process.env.REDIRECT_URI || 'https://ringcentral.github.io/ringcentral-embeddable/redirect.html';
+const proxyUri =
+  process.env.PROXY_URI || 'https://ringcentral.github.io/ringcentral-embeddable/proxy.html';
 const config = {
   entry: {
     app: ['babel-polyfill', './src/app.js'],
@@ -48,6 +52,8 @@ const config = {
         API_CONFIG: JSON.stringify(apiConfig),
         APP_VERSION: JSON.stringify(version),
         HOSTING_URL: JSON.stringify(hostingUrl),
+        REDIRECT_URI: JSON.stringify(redirectUri),
+        PROXY_URI: JSON.stringify(proxyUri),
       },
     }),
     new CopyWebpackPlugin([
