@@ -340,6 +340,7 @@ export function createPhone({
   brandConfig,
   appVersion,
   redirectUri,
+  proxyUri,
   stylesUri,
   disableCall,
   disableMessages,
@@ -364,7 +365,14 @@ export function createPhone({
         useValue: { name: brandConfig.appName, version: appVersion },
       },
       { provide: 'BrandOptions', useValue: brandConfig, spread: true },
-      { provide: 'OAuthOptions', useValue: { redirectUri }, spread: true },
+      {
+        provide: 'OAuthOptions',
+        useValue: {
+          redirectUri,
+          proxyUri,
+        },
+        spread: true
+      },
       { provide: 'AdapterOptions', useValue: { stylesUri }, spread: true },
       {
         provide: 'WebphoneOptions',
