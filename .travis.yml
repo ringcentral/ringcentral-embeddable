@@ -1,25 +1,48 @@
 language: node_js
 node_js:
   - '8'
-before_deploy:
-  - yarn build
-deploy:
-  - provider: pages
-    skip_cleanup: true
-    github_token: $GITHUB_PAGES_TOKEN
-    local_dir: ./release
-    email: 'integrations@ringcentral.com'
-    name: 'RingCentral Integrations Team'
-  - provider: s3
-    access_key_id: $AWS_S3_ACCESS_KEY_ID
-    secret_access_key: $AWS_S3_SECRET_ACCESS_KEY
-    bucket: $AWS_BUCKET
-    skip_cleanup: true
-    region: $AWS_REGION
-    detect_encoding: true
-    local_dir: ./release
-    upload-dir: releases/$TRAVIS_TAG
-    on:
-      node: '8'
-      tags: true
-      condition: "$TRAVIS_TAG =~ ^[0-9]+.[0-9]+.[0-9]+"
+cache: yarn
+jobs:
+  include:
+    - stage: github release
+      if: branch = master
+      node_js: "8"
+      script: yarn build
+      deploy:
+        - provider: pages
+          skip_cleanup: true
+          github_token: $GITHUB_PAGES_TOKEN
+          local_dir: ./release
+          email: 'integrations@ringcentral.com'
+          name: 'RingCentral Integrations Team'
+    - stage: s3 release
+      if: tag =~ ^[0-9]+.[0-9]+.[0-9]+
+      node_js: "8"
+      script: yarn s3-build
+      deploy:
+        - provider: s3
+          access_key_id: $AWS_S3_ACCESS_KEY_ID
+          secret_access_key: $AWS_S3_SECRET_ACCESS_KEY
+          bucket: $AWS_BUCKET
+          skip_cleanup: true
+          region: $AWS_REGION
+          detect_encoding: true
+          local_dir: ./release
+          upload-dir: releases/$TRAVIS_TAG
+          on:
+            node: '8'
+            tags: true
+            condition: "$TRAVIS_TAG =~ ^[0-9]+.[0-9]+.[0-9]+"
+        - provider: s3
+          access_key_id: $AWS_S3_ACCESS_KEY_ID
+          secret_access_key: $AWS_S3_SECRET_ACCESS_KEY
+          bucket: $AWS_BUCKET
+          skip_cleanup: true
+          region: $AWS_REGION
+          detect_encoding: true
+          local_dir: ./release
+          upload-dir: releases/latest
+          on:
+            node: '8'
+            tags: true
+            condition: "$TRAVIS_TAG =~ ^[0-9]+.[0-9]+.[0-9]+"

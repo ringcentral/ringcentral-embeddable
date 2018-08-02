@@ -10,7 +10,6 @@ import prefix from './config/prefix';
 
 const defaultApiConfig = process.env.API_CONFIG;
 const appVersion = process.env.APP_VERSION;
-const hostingUrl = process.env.HOSTING_URL;
 
 const currentUri = window.location.href;
 const pathParams = parseUri(currentUri);
@@ -20,8 +19,8 @@ const apiConfig = {
   server: pathParams.appServer || defaultApiConfig.server,
 };
 
-const redirectUri = pathParams.redirectUri;
-const proxyUri = pathParams.proxyUri;
+const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
+const proxyUri = pathParams.proxyUri || process.env.PROXY_URI;
 const stylesUri = pathParams.stylesUri;
 const disableCall = typeof pathParams.disableCall !== 'undefined';
 const disableMessages = typeof pathParams.disableMessages !== 'undefined';
@@ -51,7 +50,6 @@ window.phone = phone;
 ReactDOM.render(
   <App
     phone={phone}
-    hostingUrl={hostingUrl}
   />,
   document.querySelector('div#viewport'),
 );

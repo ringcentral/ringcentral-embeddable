@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 0",
     "start": "npm run dev-server",
     "dev-server": "webpack-dev-server --config webpack-dev-server.config.js --progress --colors --inline",
-    "build": "NODE_ENV=production webpack --config webpack-production.config.js --progress --colors"
+    "build": "NODE_ENV=production webpack --config webpack-production.config.js --progress --colors",
+    "s3-build": "NODE_ENV=production DEPLOY_MODE=s3 webpack --config webpack-production.config.js --progress --colors"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
