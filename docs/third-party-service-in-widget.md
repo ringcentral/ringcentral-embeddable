@@ -1,6 +1,6 @@
 # Third Party Service in Widget
 
-After integrate the RingCentral Embeddable Voice to your application, you can also integrate your own service into the widget, such as show contact data from your application or show a button named with your application.
+After integrating the RingCentral Embeddable to your application, you can also integrate your own service into the widget, such as show contact data from your application or show a button named with your application.
 
 This document show how the widget can interact with your application deeply.
 
