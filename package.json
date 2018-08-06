@@ -1,7 +1,7 @@
 {
-  "name": "ringcentral-embeddable-voice",
+  "name": "ringcentral-embeddable",
   "version": "0.0.1",
-  "description": "A RingCentral Embeddable Voice Widget Application",
+  "description": "A RingCentral Embeddable Widget Application",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
