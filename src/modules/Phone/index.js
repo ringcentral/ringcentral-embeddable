@@ -54,6 +54,11 @@ import RecentCalls from 'ringcentral-integration/modules/RecentCalls';
 import MessageStore from 'ringcentral-integration/modules/MessageStore';
 import Conversations from 'ringcentral-integration/modules/Conversations';
 
+import GlipCompany from 'ringcentral-integration/modules/GlipCompany';
+import GlipPersons from 'ringcentral-integration/modules/GlipPersons';
+import GlipGroups from 'ringcentral-integration/modules/GlipGroups';
+import GlipPosts from 'ringcentral-integration/modules/GlipPosts';
+
 import LocalForageStorage from 'ringcentral-integration/lib/LocalForageStorage';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
@@ -170,6 +175,15 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
         enableLoadOldMessages: true,
       },
       spread: true
+    },
+    { provide: 'GlipCompany', useClass: GlipCompany },
+    { provide: 'GlipGroups', useClass: GlipGroups },
+    { provide: 'GlipPosts', useClass: GlipPosts },
+    { provide: 'GlipPersons', useClass: GlipPersons },
+    {
+      provide: 'GlipPersonsOptions',
+      useValue: { batchFetchDelay: 1000 },
+      spread: true,
     },
   ]
 })

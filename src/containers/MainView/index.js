@@ -68,6 +68,17 @@ function getTabs({
         currentPath.substr(0, 9) === '/contacts'
       ),
     },
+    {
+      icon: MessageIcon,
+      activeIcon: MessageHoverIcon,
+      label: 'Glip',
+      path: '/glip',
+      noticeCounts: unreadCounts,
+      isActive: currentPath => (
+        currentPath === '/glip' ||
+        currentPath.indexOf('/glip/') !== -1
+      ),
+    },
     showConference && {
       icon: ConferenceIcon,
       activeIcon: ConferenceHoverIcon,

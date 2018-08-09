@@ -8,9 +8,6 @@ import CallingSettingsPage from 'ringcentral-widgets/containers/CallingSettingsP
 import RegionSettingsPage from 'ringcentral-widgets/containers/RegionSettingsPage';
 import DialerPage from 'ringcentral-widgets/containers/DialerPage';
 import ComposeTextPage from 'ringcentral-widgets/containers/ComposeTextPage';
-// import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
-// import MessagesPage from 'ringcentral-widgets/containers/MessagesPage';
-// import SettingsPage from 'ringcentral-widgets/containers/SettingsPage';
 import IncomingCallPage from 'ringcentral-widgets/containers/IncomingCallPage';
 import CallCtrlPage from 'ringcentral-widgets/containers/CallCtrlPage';
 import CallBadgeContainer from 'ringcentral-widgets/containers/CallBadgeContainer';
@@ -24,6 +21,8 @@ import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommand
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
 import ConversationsPage from 'ringcentral-widgets/containers/ConversationsPage';
 import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
+import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
+import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -218,6 +217,41 @@ export default function App({
                     currentLocale={phone.locale.currentLocale}
                     onBack={() => phone.routerInteraction.goBack()} />
                 )}
+              />
+              <Route
+                path="/glip"
+                component={
+                  () =>
+                    <GlipGroups
+                      hiddenCurrentGroup
+                      onSelectGroup={(id) => {
+                        phone.routerInteraction.push(`/glip/groups/${id}`);
+                      }}
+                    />
+                }
+              />
+              <Route
+                path="/glip/groups/:groupId"
+                component={
+                  routerProps => (
+                    <GlipChat
+                      params={routerProps.params}
+                      onBackClick={() => {
+                        phone.routerInteraction.push('/glip');
+                      }}
+                      onViewPersonProfile={
+                        (id) => {
+                          console.log(id);
+                        }
+                      }
+                      onViewGroup={
+                        (id) => {
+                          phone.routerInteraction.push(`/glip/groups/${id}`);
+                        }
+                      }
+                    />
+                  )
+                }
               />
             </Route>
           </Route>
