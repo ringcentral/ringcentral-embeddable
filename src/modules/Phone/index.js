@@ -107,6 +107,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'Webphone', useClass: Webphone },
     { provide: 'CallingSettings', useClass: CallingSettings },
     { provide: 'DetailedPresence', useClass: DetailedPresence },
+    { provide: 'Presence', useExisting: 'DetailedPresence' },
     { provide: 'CallLog', useClass: CallLog },
     { provide: 'Call', useClass: Call },
     { provide: 'MessageSender', useClass: MessageSender },
