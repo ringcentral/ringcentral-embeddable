@@ -343,7 +343,8 @@ export function createPhone({
   stylesUri,
   disableCall,
   disableMessages,
-  disableConferenceInvite
+  disableConferenceInvite,
+  disableGlip = true,
 }) {
   @ModuleFactory({
     providers: [
@@ -381,7 +382,8 @@ export function createPhone({
         useValue: {
           disableCall,
           disableMessages,
-          disableConferenceInvite
+          disableConferenceInvite,
+          disableGlip,
         },
       },
     ]

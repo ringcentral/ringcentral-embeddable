@@ -21,7 +21,7 @@
 
 "@ringcentral-integration/glip-widgets@https://github.com/embbnux/ringcentral-js-widget#glip-widgets-release":
   version "0.0.1"
-  resolved "https://github.com/embbnux/ringcentral-js-widget#5db6a6b8e3671e6e9126c73e8d674c88f0a6da13"
+  resolved "https://github.com/embbnux/ringcentral-js-widget#adffae8ec5b58a2a5d56479ff1eb43ee555800a5"
   dependencies:
     classnames "^2.2.5"
     core-js "^2.5.6"
@@ -6692,8 +6692,8 @@ ringcentral-client@^1.0.0-beta.1:
     isomorphic-fetch "^2.2.1"
 
 "ringcentral-integration@https://github.com/ringcentral/ringcentral-js-widgets#commons-release":
-  version "0.8.3"
-  resolved "https://github.com/ringcentral/ringcentral-js-widgets#7c1a2a5d174ebc3c9988c6ee04260e68768d9e5b"
+  version "0.9.0"
+  resolved "https://github.com/ringcentral/ringcentral-js-widgets#e0d0b0cf9dc60b744b91cb3be5f0d3af8d37865b"
   dependencies:
     file-loader "^1.1.11"
     json-mask "^0.3.8"
@@ -6715,8 +6715,8 @@ ringcentral-web-phone@^0.4.5:
     sip.js "^0.7.8"
 
 "ringcentral-widgets@https://github.com/ringcentral/ringcentral-js-widgets#widgets-release":
-  version "0.8.3"
-  resolved "https://github.com/ringcentral/ringcentral-js-widgets#edb9cfb05b6b8ac68f483fec0070b0e2d744916e"
+  version "0.9.0"
+  resolved "https://github.com/ringcentral/ringcentral-js-widgets#28847b681ed41b063c2b99256bc2a1a01e36c689"
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
