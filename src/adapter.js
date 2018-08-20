@@ -20,6 +20,7 @@ const {
   disableCall,
   disableMessages,
   disableConferenceInvite,
+  disableGlip,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -43,6 +44,7 @@ const appUri = `${appUrl}?${obj2uri({
   disableCall,
   disableMessages,
   disableConferenceInvite,
+  disableGlip,
   _t: Date.now(),
 })}`;
 

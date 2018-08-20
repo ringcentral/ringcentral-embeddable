@@ -10,6 +10,7 @@ import MessageIcon from 'ringcentral-widgets/assets/images/Messages.svg';
 import SettingsIcon from 'ringcentral-widgets/assets/images/Settings.svg';
 import MoreMenuIcon from 'ringcentral-widgets/assets/images/MoreMenu.svg';
 import ContactIcon from 'ringcentral-widgets/assets/images/Contact.svg';
+import GlipIcon from 'ringcentral-widgets/assets/images/Glip.svg';
 
 import DialPadHoverIcon from 'ringcentral-widgets/assets/images/DialPadHover.svg';
 import CallsHoverIcon from 'ringcentral-widgets/assets/images/CallsHover.svg';
@@ -17,7 +18,7 @@ import MessageHoverIcon from 'ringcentral-widgets/assets/images/MessagesHover.sv
 import SettingsHoverIcon from 'ringcentral-widgets/assets/images/SettingsHover.svg';
 import MoreMenuHoverIcon from 'ringcentral-widgets/assets/images/MoreMenuHover.svg';
 import ContactHoverIcon from 'ringcentral-widgets/assets/images/ContactHover.svg';
-
+import GlipHoverIcon from 'ringcentral-widgets/assets/images/GlipHover.svg';
 import SettingsNavIcon from 'ringcentral-widgets/assets/images/SettingsNavigation.svg';
 
 import ConferenceIcon from 'ringcentral-widgets/assets/images/Conference.svg';
@@ -30,6 +31,8 @@ function getTabs({
   showConference,
   showCall,
   showContacts,
+  showGlip,
+  glipUnreadCounts,
 }) {
   let tabs = [
     showCall && {
@@ -57,6 +60,17 @@ function getTabs({
         currentPath === '/messages' ||
         currentPath === '/composeText' ||
         currentPath.indexOf('/conversations/') !== -1
+      ),
+    },
+    showGlip && {
+      icon: GlipIcon,
+      activeIcon: GlipHoverIcon,
+      label: 'Glip',
+      path: '/glip',
+      noticeCounts: glipUnreadCounts,
+      isActive: currentPath => (
+        currentPath === '/glip' ||
+        currentPath.indexOf('/glip/') !== -1
       ),
     },
     showContacts && {
@@ -132,6 +146,7 @@ function mapToProps(_, {
     rolesAndPermissions,
     routerInteraction,
     conference,
+    glipGroups,
   },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
@@ -142,13 +157,15 @@ function mapToProps(_, {
     rolesAndPermissions.organizeConferenceEnabled &&
     conference.data
   );
-  const showContacts = rolesAndPermissions.ready && rolesAndPermissions.contactsEnabled
+  const showContacts = rolesAndPermissions.ready && rolesAndPermissions.contactsEnabled;
   const tabs = getTabs({
     unreadCounts,
     showCall,
     showMessages,
     showConference,
     showContacts,
+    showGlip: rolesAndPermissions.hasGlipPermission,
+    glipUnreadCounts: glipGroups.unreadCounts,
   });
   return {
     tabs,
