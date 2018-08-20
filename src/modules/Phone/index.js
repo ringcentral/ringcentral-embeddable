@@ -344,7 +344,7 @@ export function createPhone({
   disableCall,
   disableMessages,
   disableConferenceInvite,
-  disableGlip = true,
+  disableGlip,
 }) {
   @ModuleFactory({
     providers: [
