@@ -121,6 +121,10 @@ class Adapter extends AdapterCore {
     }
   }
 
+  _onHeaderClicked() {
+    //
+  }
+
   _setAppUrl(appUrl) {
     this._appUrl = appUrl;
     if (appUrl) {
