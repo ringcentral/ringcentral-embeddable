@@ -201,7 +201,7 @@ export default class BasePhone extends RcModule {
       adapter,
     } = options;
     // Webphone configuration
-    webphone._onCallEndFunc = (session) => {
+    webphone.onCallEnd((session) => {
       adapter.endCallNotify(session);
       if (routerInteraction.currentPath !== '/calls/active') {
         return;
@@ -211,15 +211,15 @@ export default class BasePhone extends RcModule {
         return;
       }
       routerInteraction.goBack();
-    };
-    webphone._onCallStartFunc = (session) => {
+    });
+    webphone.onCallStart((session) => {
       adapter.startCallNotify(session);
       if (routerInteraction.currentPath === '/calls/active') {
         return;
       }
       routerInteraction.push('/calls/active');
-    };
-    webphone._onCallRingFunc = (session) => {
+    });
+    webphone.onCallRing((session) => {
       adapter.ringCallNotify(session);
       if (
         webphone.ringSessions.length > 1
@@ -231,7 +231,7 @@ export default class BasePhone extends RcModule {
           webphone.toggleMinimized(session.id);
         });
       }
-    };
+    });
 
     // ContactMatcher configuration
     contactMatcher.addSearchProvider({
