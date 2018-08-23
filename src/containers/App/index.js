@@ -240,13 +240,29 @@ export default function App({
                         phone.routerInteraction.push('/glip');
                       }}
                       onViewPersonProfile={
-                        (id) => {
-                          console.log(id);
+                        async (personId) => {
+                          if (personId === phone.glipPersons.me.id) {
+                            return;
+                          }
+                          let group = phone.glipGroups.groups.slice(0, 10).find((g) => {
+                            if (g.type !== 'PrivateChat') {
+                              return false;
+                            }
+                            return g.members.indexOf(personId) > -1;
+                          });
+                          if (!group) {
+                            group = await phone.glipGroups.startChat(personId);
+                          }
+                          if (group && group.id !== routerProps.params.groupId) {
+                            phone.routerInteraction.push(`/glip/groups/${group.id}`);
+                          }
                         }
                       }
                       onViewGroup={
                         (id) => {
-                          phone.routerInteraction.push(`/glip/groups/${id}`);
+                          if (id !== routerProps.params.groupId) {
+                            phone.routerInteraction.push(`/glip/groups/${id}`);
+                          }
                         }
                       }
                     />
