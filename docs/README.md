@@ -1,6 +1,6 @@
 # RingCentral Embeddable
 
-RingCentral Embeddable is an out-of-the-box embeddable web application built using [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) library. You can use it to integrate RingCentral services into your web application with few codes. Get it online in [here](https://ringcentral.github.io/ringcentral-embeddable-voice/).
+RingCentral Embeddable is an out-of-the-box embeddable web application built using [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) library. You can use it to integrate RingCentral services into your web application with few codes. Get it online in [here](https://ringcentral.github.io/ringcentral-embeddable/).
 
 ## Table of Contents
 

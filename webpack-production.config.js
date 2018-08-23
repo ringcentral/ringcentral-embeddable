@@ -20,7 +20,7 @@ if (fs.existsSync(apiConfigFile)) {
 const version = packageConfig.version;
 
 const hostingUrl =
-  process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable-voice';
+  process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable';
 const config = {
   entry: {
     app: ['babel-polyfill', './src/app.js'],
