@@ -17,20 +17,10 @@ if (fs.existsSync(apiConfigFile)) {
     server: process.env.API_SERVER,
   };
 }
-let version = packageConfig.version;
-let hostingUrl;
-let redirectUri = process.env.REDIRECT_URI;
-let proxyUri = process.env.PROXY_URI;
-console.log('mode: ', process.env.DEPLOY_MODE);
-if (process.env.DEPLOY_MODE === 's3' && process.env.S3_HOSTING_URL) {
-  version = process.env.TRAVIS_TAG;
-  hostingUrl = `${process.env.S3_HOSTING_URL}/${process.env.TRAVIS_TAG}`;
-} else {
-  hostingUrl = process.env.HOSTING_URL;
-}
-hostingUrl = hostingUrl || 'https://ringcentral.github.io/ringcentral-embeddable';
-redirectUri = redirectUri || 'https://ringcentral.github.io/ringcentral-embeddable/redirect.html';
-proxyUri = proxyUri || 'https://ringcentral.github.io/ringcentral-embeddable/proxy.html';
+const version = process.env.VERSION || packageConfig.version;
+const hostingUrl = process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable';
+const redirectUri = process.env.REDIRECT_URI || 'https://ringcentral.github.io/ringcentral-embeddable/redirect.html';
+const proxyUri = process.env.PROXY_URI || 'https://ringcentral.github.io/ringcentral-embeddable/proxy.html';
 
 const config = getBaseConfig();
 config.output = {
