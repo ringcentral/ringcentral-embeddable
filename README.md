@@ -82,6 +82,7 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
   * Disable Call releated features
   * Disable Conference invite feature
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
+* [SSO Login Mode](sso-login-mode.md)
 
 ## Contribution and Development
 

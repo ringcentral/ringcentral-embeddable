@@ -10,7 +10,7 @@ Style file is defined here: https://embbnux.github.io/ringcentral-web-widget-sty
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-web-widget/adapter.js?stylesUri=https://embbnux.github.io/ringcentral-web-widget-styles/GameofThrones/styles.css";
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?stylesUri=https://embbnux.github.io/ringcentral-web-widget-styles/GameofThrones/styles.css";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -20,8 +20,8 @@ Style file is defined here: https://embbnux.github.io/ringcentral-web-widget-sty
 ## Use iframe way:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-web-widget/app.html?stylesUri=https://embbnux.github.io/ringcentral-web-widget-styles/GameofThrones/styles.css">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?stylesUri=https://embbnux.github.io/ringcentral-web-widget-styles/GameofThrones/styles.css">
 </iframe>
 ```
 
-## Or just visit here: [App](https://ringcentral.github.io/ringcentral-web-widget/app.html?stylesUri=https://embbnux.github.io/ringcentral-web-widget-styles/GameofThrones/styles.css)
+## Or just visit here: [App](https://ringcentral.github.io/ringcentral-embeddable/app.html?stylesUri=https://embbnux.github.io/ringcentral-web-widget-styles/GameofThrones/styles.css)

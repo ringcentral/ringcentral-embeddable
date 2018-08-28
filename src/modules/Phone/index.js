@@ -346,6 +346,7 @@ export function createPhone({
   disableMessages,
   disableConferenceInvite,
   disableGlip,
+  authMode,
 }) {
   @ModuleFactory({
     providers: [
@@ -370,6 +371,7 @@ export function createPhone({
         useValue: {
           redirectUri,
           proxyUri,
+          authMode,
         },
         spread: true
       },

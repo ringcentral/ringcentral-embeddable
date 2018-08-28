@@ -30,11 +30,18 @@ export default class RedirectController {
         /* ignore error */
       }
       try {
-        // iframe
         if (window.parent && window.parent !== window) {
-          window.parent.postMessage({
-            refreshCallbackUri: callbackUri,
-          }, '*');
+          if (window.name === 'SSOIframe') {
+            // SSO iframe
+            window.parent.postMessage({
+              callbackUri,
+            }, '*');
+          } else {
+            // Hidden refresh iframe
+            window.parent.postMessage({
+              refreshCallbackUri: callbackUri,
+            }, '*');
+          }
         }
       } catch (e) {
         console.error(e);
