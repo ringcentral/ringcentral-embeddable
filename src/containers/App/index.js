@@ -24,6 +24,13 @@ import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 
+import ConferenceCallDialerPage from 'ringcentral-widgets/containers/ConferenceCallDialerPage';
+import ConferenceCallMergeCtrlPage from 'ringcentral-widgets/containers/ConferenceCallMergeCtrlPage';
+import CallsOnholdPage from 'ringcentral-widgets/containers/CallsOnholdPage';
+import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAndCallsTabContainer';
+import ConferenceParticipantPage from 'ringcentral-widgets/containers/ConferenceParticipantPage';
+import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
+
 import MainView from '../MainView';
 import AppView from '../AppView';
 
@@ -36,6 +43,10 @@ import CallsListPage from '../CallsListPage';
 export default function App({
   phone,
 }) {
+  const getAvatarUrl = async (contact) => {
+    const avatarUrl = await phone.contacts.getProfileImage(contact, false);
+    return avatarUrl;
+  };
   return (
     <PhoneProvider phone={phone}>
       <Provider store={phone.store} >
@@ -52,12 +63,7 @@ export default function App({
                 />
                 <IncomingCallPage
                   showContactDisplayPlaceholder={false}
-                  getAvatarUrl={
-                    async (contact) => {
-                      const avatarUrl = await phone.contacts.getProfileImage(contact);
-                      return avatarUrl;
-                    }
-                  }
+                  getAvatarUrl={getAvatarUrl}
                 >
                   <AlertContainer
                     callingSettingsUrl="/settings/calling"
@@ -90,7 +96,11 @@ export default function App({
               )} >
               <Route
                 path="/dialer"
-                component={DialerPage}
+                component={() => (
+                  <DialerAndCallsTabContainer>
+                    <DialerPage />
+                  </DialerAndCallsTabContainer>
+                )}
               />
               <Route
                 path="/settings"
@@ -121,9 +131,22 @@ export default function App({
                 component={FeedbackPage}
               />
               <Route
-                path="/calls"
+                path="/history"
                 component={() => (
                   <CallsListPage />
+                )} />
+              <Route
+                path="/calls"
+                component={() => (
+                  <DialerAndCallsTabContainer>
+                    <ActiveCallsPage
+                      onCallsEmpty={() => {
+                        if (phone.webphone && phone.webphone._webphone) {
+                          phone.routerInteraction.push('/dialer');
+                        }
+                      }}
+                    />
+                  </DialerAndCallsTabContainer>
                 )} />
               <Route
                 path="/calls/active"
@@ -265,6 +288,49 @@ export default function App({
                     />
                   )
                 }
+              />
+              <Route
+                path="/conferenceCall/dialer/:fromNumber"
+                component={routerProps => (
+                  <ConferenceCallDialerPage
+                    params={routerProps.params}
+                    onBack={() => {
+                      phone.routerInteraction.push('/calls/active');
+                    }}
+                  />
+                )}
+              />
+              <Route
+                path="/conferenceCall/mergeCtrl"
+                component={() => (
+                  <ConferenceCallMergeCtrlPage
+                    showContactDisplayPlaceholder={false}
+                    getAvatarUrl={getAvatarUrl}
+                    onBackButtonClick={() => {
+                      phone.routerInteraction.push('/calls');
+                    }}
+                    onLastCallEnded={() => {
+                      phone.routerInteraction.push('/calls/active');
+                    }}
+                  />
+                )}
+              />
+              <Route
+                path="/conferenceCall/participants"
+                component={() => (
+                  <ConferenceParticipantPage />
+                )}
+              />
+              <Route
+                path="/conferenceCall/callsOnhold/:fromNumber/:fromSessionId"
+                component={routerProps => (
+                  <CallsOnholdPage
+                    params={routerProps.params}
+                    onCreateContact={() => { }}
+                    onCallsEmpty={() => { }}
+                    getAvatarUrl={getAvatarUrl}
+                  />
+                )}
               />
             </Route>
           </Route>

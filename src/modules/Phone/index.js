@@ -19,6 +19,7 @@ import Brand from 'ringcentral-integration/modules/Brand';
 import Call from 'ringcentral-integration/modules/Call';
 import CallHistory from 'ringcentral-integration/modules/CallHistory';
 import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
+import ConferenceCall from 'ringcentral-integration/modules/ConferenceCall';
 import CallLog from 'ringcentral-integration/modules/CallLog';
 import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
 import ComposeText from 'ringcentral-integration/modules/ComposeText';
@@ -110,6 +111,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'Presence', useExisting: 'DetailedPresence' },
     { provide: 'CallLog', useClass: CallLog },
     { provide: 'Call', useClass: Call },
+    { provide: 'ConferenceCall', useClass: ConferenceCall },
     { provide: 'MessageSender', useClass: MessageSender },
     { provide: 'ComposeText', useClass: ComposeText },
     { provide: 'CallMonitor', useClass: CallMonitor },
@@ -199,25 +201,71 @@ export default class BasePhone extends RcModule {
       contactMatcher,
       appConfig,
       adapter,
+      conferenceCall,
     } = options;
     // Webphone configuration
-    webphone.onCallEnd((session) => {
+    webphone.onCallEnd((session, currentSession) => {
       adapter.endCallNotify(session);
-      if (routerInteraction.currentPath !== '/calls/active') {
+      if (
+        routerInteraction.currentPath === '/conferenceCall/mergeCtrl' &&
+        webphone.cachedSessions.length && (
+          !currentSession ||
+          (webphone.cachedSessions.find(cachedSession => cachedSession.id === currentSession.id))
+        )
+      ) {
         return;
       }
-      const currentSession = webphone.activeSession;
-      if (currentSession && session.id !== currentSession.id) {
-        return;
+
+      if (currentSession && routerInteraction.currentPath === '/conferenceCall/mergeCtrl') {
+        const { fromSessionId } = conferenceCall.mergingPair;
+        if (session.id !== fromSessionId) {
+          routerInteraction.push('/calls/active');
+          return;
+        }
       }
-      routerInteraction.goBack();
+
+      if (
+        !![
+          '/conferenceCall/mergeCtrl',
+          '/conferenceCall/dialer/',
+          '/calls/active'
+        ].find(path => routerInteraction.currentPath.indexOf(path) !== -1) &&
+        (!currentSession || session.id === currentSession.id)
+      ) {
+        if (
+          routerInteraction.currentPath === '/conferenceCall/mergeCtrl' ||
+          routerInteraction.currentPath.indexOf('/conferenceCall/dialer/') === 0 ||
+          !currentSession
+        ) {
+          routerInteraction.push('/dialer');
+          return;
+        }
+        if (routerInteraction.currentPath !== '/calls/active') {
+          routerInteraction.push('/calls/active');
+          return;
+        }
+        routerInteraction.goBack();
+      }
     });
     webphone.onCallStart((session) => {
       adapter.startCallNotify(session);
-      if (routerInteraction.currentPath === '/calls/active') {
+      if (routerInteraction.currentPath.indexOf('/conferenceCall/dialer/') === 0) {
+        routerInteraction.push('/conferenceCall/mergeCtrl');
         return;
       }
-      routerInteraction.push('/calls/active');
+
+      const isConferenceCallSession = (
+        conferenceCall
+        && conferenceCall.isConferenceSession(session.id)
+      );
+
+      if (
+        routerInteraction.currentPath !== '/calls/active' &&
+        routerInteraction.currentPath !== '/conferenceCall/mergeCtrl' &&
+        !(isConferenceCallSession && routerInteraction.currentPath === '/calls')
+      ) {
+        routerInteraction.push('/calls/active');
+      }
     });
     webphone.onCallRing((session) => {
       adapter.ringCallNotify(session);
@@ -228,6 +276,9 @@ export default class BasePhone extends RcModule {
           routerInteraction.push('/calls');
         }
         webphone.ringSessions.forEach((session) => {
+          if (session.minimized) {
+            return;
+          }
           webphone.toggleMinimized(session.id);
         });
       }

@@ -45,9 +45,9 @@ function getTabs({
       icon: CallsIcon,
       activeIcon: CallsHoverIcon,
       label: 'Calls',
-      path: '/calls',
+      path: '/history',
       isActive: currentPath => (
-        currentPath === '/calls' || currentPath === '/calls/active'
+        currentPath === '/history'
       ),
     },
     showMessages && {
