@@ -75,7 +75,7 @@ export default class Adapter extends AdapterModuleCore {
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
-    this._loggedIn = false;
+    this._loggedIn = null;
     this._lastActiveCalls = [];
     this._lastEndedActiveCallMap = {};
     this._lastActiveCallLogMap = {};
@@ -270,6 +270,9 @@ export default class Adapter extends AdapterModuleCore {
   }
 
   _checkLoginStatus() {
+    if (!this._auth.ready) {
+      return;
+    }
     if (this._loggedIn === this._auth.loggedIn) {
       return;
     }
