@@ -48,4 +48,8 @@ export default class NewAuth extends Auth {
       platform.removeListener(platform.events.loginError, onLoginFailed);
     };
   }
+
+  get ownerId() {
+    return super.ownerId && super.ownerId.toString();
+  }
 }
