@@ -1,4 +1,4 @@
-# Disable Features
+# Disable and Enable Features
 
 We provide Call, CallHistory, Messages and ConferenceInvite features in the widget. Sometimes you only need some features. So we allow developers to disable features that unneeded.
 

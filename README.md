@@ -77,12 +77,12 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
   * Show contacts from your application
   * Show contact's activities from your application
   * Add call logger button in calls page
-* [Disable Features in Widget](docs/disable-features.md)
+* [Enable and Disable Features in Widget](docs/disable-features.md)
   * Disable messages features
   * Disable Call releated features
   * Disable Conference invite feature
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
-* [SSO Login Mode](sso-login-mode.md)
+* [SSO Login Mode](docs/sso-login-mode.md)
 
 ## Contribution and Development
 

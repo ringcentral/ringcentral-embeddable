@@ -20,13 +20,13 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
     * Reject a ringing call
     * Hangup a call
   * [Log out user](control-widget.md#log-out-user)
-* [Third Party Service in Widget](docs/third-party-service-in-widget.md)
+* [Third Party Service in Widget](third-party-service-in-widget.md)
   * Register your service
   * Add a conference invite button with your service
   * Show contacts from your application
   * Show contact's activities from your application
   * Add call logger button in calls page
-* [Disable Features in Widget](docs/disable-features.md)
+* [Disable Features in Widget](disable-features.md)
   * Disable messages features
   * Disable Call releated features
   * Disable Conference invite feature
