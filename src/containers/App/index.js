@@ -25,7 +25,6 @@ import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGro
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 
 import ConferenceCallDialerPage from 'ringcentral-widgets/containers/ConferenceCallDialerPage';
-import ConferenceCallMergeCtrlPage from 'ringcentral-widgets/containers/ConferenceCallMergeCtrlPage';
 import CallsOnholdPage from 'ringcentral-widgets/containers/CallsOnholdPage';
 import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAndCallsTabContainer';
 import ConferenceParticipantPage from 'ringcentral-widgets/containers/ConferenceParticipantPage';
@@ -56,7 +55,12 @@ export default function App({
               <AppView>
                 {routerProps.children}
                 <CallBadgeContainer
-                  hidden={routerProps.location.pathname === '/calls/active'}
+                  hidden={(
+                    routerProps.location.pathname && (
+                      routerProps.location.pathname.indexOf('/calls/active') > -1 ||
+                      routerProps.location.pathname.indexOf('/conferenceCall') > -1
+                    )
+                  )}
                   goToCallCtrl={() => {
                     phone.routerInteraction.push('/calls/active');
                   }}
@@ -149,7 +153,7 @@ export default function App({
                   </DialerAndCallsTabContainer>
                 )} />
               <Route
-                path="/calls/active"
+                path="/calls/active(/:sessionId)"
                 component={() => (
                   <CallCtrlPage
                     onAdd={() => {
@@ -290,26 +294,11 @@ export default function App({
                 }
               />
               <Route
-                path="/conferenceCall/dialer/:fromNumber"
+                path="/conferenceCall/dialer/:fromNumber/:fromSessionId"
                 component={routerProps => (
                   <ConferenceCallDialerPage
                     params={routerProps.params}
                     onBack={() => {
-                      phone.routerInteraction.push('/calls/active');
-                    }}
-                  />
-                )}
-              />
-              <Route
-                path="/conferenceCall/mergeCtrl"
-                component={() => (
-                  <ConferenceCallMergeCtrlPage
-                    showContactDisplayPlaceholder={false}
-                    getAvatarUrl={getAvatarUrl}
-                    onBackButtonClick={() => {
-                      phone.routerInteraction.push('/calls');
-                    }}
-                    onLastCallEnded={() => {
                       phone.routerInteraction.push('/calls/active');
                     }}
                   />

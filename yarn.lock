@@ -6691,9 +6691,9 @@ ringcentral-client@^1.0.0-beta.1:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.9.1:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.9.1.tgz#5327189a4f78c5d648c901ad2fef5d66e66fa711"
+ringcentral-integration@^0.9.2:
+  version "0.9.2"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.9.2.tgz#e5b7a22c7165486addfe2f84c56f27a74b33d3de"
   dependencies:
     file-loader "^1.1.11"
     json-mask "^0.3.8"
@@ -6714,9 +6714,9 @@ ringcentral-web-phone@^0.4.5:
   dependencies:
     sip.js "^0.7.8"
 
-ringcentral-widgets@^0.9.1:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.9.1.tgz#d73c72d57b2da492881ef36d3d9de4b5781fb137"
+ringcentral-widgets@^0.9.2:
+  version "0.9.2"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.9.2.tgz#a99d6a8db6ca366373f2384bfee650546ee7698d"
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"

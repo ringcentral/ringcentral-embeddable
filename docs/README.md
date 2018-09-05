@@ -30,4 +30,5 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
   * Disable messages features
   * Disable Call releated features
   * Disable Conference invite feature
+  * [Enable Glip feature](disable-features.md#enable-glip-feature)
 * [SSO Login Mode](sso-login-mode.md)

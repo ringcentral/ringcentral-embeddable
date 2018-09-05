@@ -15,12 +15,14 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     disableMessages,
     disableConferenceInvite,
     disableGlip,
+    disableConferenceCall,
     ...options,
   }) {
     super(options);
     this._disableCall = disableCall;
     this._disableMessages = disableMessages;
     this._disableConferenceInvite = disableConferenceInvite;
+    this._disableConferenceCall = disableConferenceCall;
     this._disableGlip = disableGlip;
   }
 
@@ -71,5 +73,9 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
 
   get hasGlipPermission() {
     return super.hasGlipPermission && !this._disableGlip;
+  }
+
+  get hasConferenceCallPermission() {
+    return super.hasConferenceCallPermission && !this._disableConferenceCall;
   }
 }
