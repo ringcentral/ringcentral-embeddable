@@ -40,14 +40,19 @@ function getTabs({
       activeIcon: DialPadHoverIcon,
       label: 'Dial Pad',
       path: '/dialer',
+      isActive: currentPath => (
+        currentPath === '/dialer' ||
+        currentPath === '/calls' ||
+        currentPath.indexOf('/calls/active') !== -1
+      ),
     },
     showCall && {
       icon: CallsIcon,
       activeIcon: CallsHoverIcon,
       label: 'Calls',
-      path: '/calls',
+      path: '/history',
       isActive: currentPath => (
-        currentPath === '/calls' || currentPath === '/calls/active'
+        currentPath === '/history'
       ),
     },
     showMessages && {

@@ -26,6 +26,7 @@ const disableCall = typeof pathParams.disableCall !== 'undefined';
 const disableMessages = typeof pathParams.disableMessages !== 'undefined';
 const disableConferenceInvite = typeof pathParams.disableConferenceInvite !== 'undefined';
 const disableGlip = typeof pathParams.disableGlip === 'undefined' || pathParams.disableGlip === 'true';
+const disableConferenceCall = typeof pathParams.disableConferenceCall === 'undefined' || pathParams.disableConferenceCall === 'true';
 const authMode = pathParams.authMode;
 
 const phone = createPhone({
@@ -40,6 +41,7 @@ const phone = createPhone({
   disableMessages,
   disableConferenceInvite,
   disableGlip,
+  disableConferenceCall,
   authMode,
 });
 
