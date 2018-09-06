@@ -6,14 +6,7 @@ This is an out-of-the-box embeddable web application that help developers to int
 
 Built with:
 
-* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets)
-
-## Dependences
-
-* yarn
-* webpack 3
-* react
-* redux
+* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) - base on react and redux
 
 ## Visit Online
 
@@ -86,13 +79,13 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
 
 ## Awesome Embeddable examples
 
-* [RingCentral Embeddable with Salesforce Lightning](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/salesforce_lightning/tutorial/)
-* [RingCentral Embeddable with Static CRM](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/static_crm/tutorial/)
-* [RingCentral Embeddable with chrome extension](https://github.com/embbnux/ringcentral-embeddable-voice-extension)
-* [RingCentral Embeddable with Third Party service](https://github.com/embbnux/ringcentral-embeddable-voice-with-third-party)
-* [RingCentral Embeddable with Electron - Support Linux](https://github.com/embbnux/ringcentral-embeddable-voice-app)
-* [RingCentral Embeddable with Game of Thrones theme](https://github.com/embbnux/ringcentral-web-widget-styles)
-* [RingCentral Embeddable with Java app - jxBrowser](https://github.com/tylerlong/jxbrowser-webrtc)
+* RingCentral Embeddable with Salesforce Lightning - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/salesforce_lightning/tutorial/)
+* RingCentral Embeddable with Static CRM - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/static_crm/tutorial/)
+* RingCentral Embeddable with chrome extension - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-extension)
+* RingCentral Embeddable with Third Party service - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-with-third-party)
+* RingCentral Embeddable with Electron - Support Linux - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-app)
+* RingCentral Embeddable with Game of Thrones theme - [repo](https://github.com/embbnux/ringcentral-web-widget-styles)
+* RingCentral Embeddable with Java app - jxBrowser - [repo](https://github.com/tylerlong/jxbrowser-webrtc)
 
 ## Contribution and Development
 
@@ -121,9 +114,11 @@ App Permissions required: `Edit Message`, `Edit Presence`, `Internal Messages`, 
 
 ### Start development server
 
+We assume you have pre-installed node.js > 8 and yarn.
+
 ```bash
-$ yarn
-$ yarn start
+$ yarn       # use yarn to install dependences
+$ yarn start # start a webpack dev server
 ```
 
 Open site: 'http://localhost:8080/' on browser
