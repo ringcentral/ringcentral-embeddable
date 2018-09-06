@@ -84,6 +84,16 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
 * [SSO Login Mode](docs/sso-login-mode.md)
 
+## Awesome Embeddable examples
+
+* [RingCentral Embeddable with Salesforce Lightning](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/salesforce_lightning/tutorial/)
+* [RingCentral Embeddable with Static CRM](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/static_crm/tutorial/)
+* [RingCentral Embeddable with chrome extension](https://github.com/embbnux/ringcentral-embeddable-voice-extension)
+* [RingCentral Embeddable with Third Party service](https://github.com/embbnux/ringcentral-embeddable-voice-with-third-party)
+* [RingCentral Embeddable with Electron - Support Linux](https://github.com/embbnux/ringcentral-embeddable-voice-app)
+* [RingCentral Embeddable with Game of Thrones theme](https://github.com/embbnux/ringcentral-web-widget-styles)
+* [RingCentral Embeddable with Java app - jxBrowser](https://github.com/tylerlong/jxbrowser-webrtc)
+
 ## Contribution and Development
 
 We provide a online version that developers can use to embed and config in their web application. When you want to get a deep development of this widget, you can clone codes of this widget, update it and deploy by yourself.

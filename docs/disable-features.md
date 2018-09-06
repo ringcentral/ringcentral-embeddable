@@ -48,3 +48,22 @@ Glip feature is in beta. It is disabled it by default. To enable it:
   })();
 </script>
 ```
+
+Before we start to use Glip API, need to add `Glip` permission to your app in RingCentral Developer website.
+
+## Enable Conference Call feature
+
+Conference Call (3-way-calling) feature is in beta. It is disabled it by default. To enable it:
+
+```js
+<script>
+(function() {
+var rcs = document.createElement("script");
+rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?disableConferenceCall=false";
+var rcs0 = document.getElementsByTagName("script")[0];
+rcs0.parentNode.insertBefore(rcs, rcs0);
+})();
+</script>
+```
+
+Before we start to use Conference Call feature, need to add `TelephonySessions` permission to your app in RingCentral Developer website. Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add `TelephonySessions` permission.

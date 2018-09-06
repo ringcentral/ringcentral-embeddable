@@ -94,7 +94,8 @@ window.addEventListener('message', function (e) {
         type: 'rc-post-message-response',
         responseId: data.requestId,
         response: {
-          data: contacts
+          data: contacts,
+          nextPage: null
         },
       }, '*');
     }
@@ -144,6 +145,7 @@ window.addEventListener('message', function (e) {
 ```
 
 Data from `contactsPath` will be showed in contacts page in widget. Data from `contactSearchPath` will be showed in contacts search dropdown in dial page. Data from `contactMatchPath` will be showed on messages and call history page in the widget.
+If you provide `nextPage` for `contactsPath` response, widget will repeat request with `page="${nextPage}"`.
 
 ![image](https://user-images.githubusercontent.com/7036536/42258572-f6a8050e-7f8e-11e8-8950-bb9efa8e0918.png)
 
