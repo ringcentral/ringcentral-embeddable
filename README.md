@@ -97,6 +97,13 @@ We provide a online version that developers can use to embed and config in their
 $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 ```
 
+### Create a free RingCentral app
+
+1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
+2. Create a RingCentral app with platform type - "Browser Based"
+3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Glip` and `VoIP Calling` to your app.
+4. Add redirect uri `http://localhost:8080/redirect.html` to your app settings.
+
 ### Create API secret file in project root path
 
 ```js
@@ -109,8 +116,6 @@ $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 ```
 
 The `appSecret` is optional to enable the authorization code flow. If you don't provide `appSecret`, the app will use the implicit grant flow.
-
-App Permissions required: `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling`
 
 ### Start development server
 
