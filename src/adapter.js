@@ -1,7 +1,7 @@
 import parseUri from './lib/parseUri';
 import logoUrl from './assets/images/VIE_Logo_RC.svg';
 import Adapter from './lib/Adapter';
-import prefix from './config/prefix';
+import defaultPrefix from './config/prefix';
 
 const version = process.env.APP_VERSION;
 const appUrl = `${process.env.HOSTING_URL}/app.html`;
@@ -24,6 +24,7 @@ const {
   disableGlip,
   disableConferenceCall,
   authMode,
+  prefix,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -51,6 +52,7 @@ const appUri = `${appUrl}?${obj2uri({
   disableGlip,
   disableConferenceCall,
   authMode,
+  prefix,
   _t: Date.now(),
 })}`;
 
@@ -62,7 +64,7 @@ function init() {
     logoUrl,
     appUrl: appUri,
     version,
-    prefix,
+    prefix: prefix || defaultPrefix,
     enableNotification: !!notification,
   });
 }
