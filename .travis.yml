@@ -10,3 +10,5 @@ deploy:
     local_dir: ./release
     email: 'integrations@ringcentral.com'
     name: 'RingCentral Integrations Team'
+    on:
+      branch: master
