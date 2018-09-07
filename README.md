@@ -6,14 +6,7 @@ This is an out-of-the-box embeddable web application that help developers to int
 
 Built with:
 
-* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets)
-
-## Dependences
-
-* yarn
-* webpack 3
-* react
-* redux
+* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) - base on react and redux
 
 ## Visit Online
 
@@ -84,6 +77,16 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
 * [SSO Login Mode](docs/sso-login-mode.md)
 
+## Awesome Embeddable examples
+
+* RingCentral Embeddable with Salesforce Lightning - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/salesforce_lightning/tutorial/)
+* RingCentral Embeddable with Static CRM - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/static_crm/tutorial/)
+* RingCentral Embeddable with chrome extension - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-extension)
+* RingCentral Embeddable with Third Party service - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-with-third-party)
+* RingCentral Embeddable with Electron - Support Linux - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-app)
+* RingCentral Embeddable with Game of Thrones theme - [repo](https://github.com/embbnux/ringcentral-web-widget-styles)
+* RingCentral Embeddable with Java app - jxBrowser - [repo](https://github.com/tylerlong/jxbrowser-webrtc)
+
 ## Contribution and Development
 
 We provide a online version that developers can use to embed and config in their web application. When you want to get a deep development of this widget, you can clone codes of this widget, update it and deploy by yourself.
@@ -93,6 +96,13 @@ We provide a online version that developers can use to embed and config in their
 ```bash
 $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 ```
+
+### Create a free RingCentral app
+
+1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
+2. Create a RingCentral app with platform type - "Browser Based"
+3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Glip` and `VoIP Calling` to your app.
+4. Add redirect uri `http://localhost:8080/redirect.html` to your app settings.
 
 ### Create API secret file in project root path
 
@@ -107,13 +117,13 @@ $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 
 The `appSecret` is optional to enable the authorization code flow. If you don't provide `appSecret`, the app will use the implicit grant flow.
 
-App Permissions required: `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling`
-
 ### Start development server
 
+We assume you have pre-installed node.js > 8 and yarn.
+
 ```bash
-$ yarn
-$ yarn start
+$ yarn       # use yarn to install dependences
+$ yarn start # start a webpack dev server
 ```
 
 Open site: 'http://localhost:8080/' on browser
