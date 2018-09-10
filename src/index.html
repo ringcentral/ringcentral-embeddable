@@ -120,7 +120,7 @@
   <script>
     (function () {
       var rcs = document.createElement('script');
-      rcs.src = 'adapter.js?notification=1&disableGlip=false&disableConferenceCall=false';
+      rcs.src = './adapter.js?notification=1&disableGlip=false&disableConferenceCall=false';
       var rcs0 = document.getElementsByTagName('script')[0];
       rcs0.parentNode.insertBefore(rcs, rcs0);
     })();
@@ -151,18 +151,35 @@
       return queries.join('&');
     }
     function updateCodes() {
+      var basePath = window.location.href.split('/index.html')[0];
+      if (basePath[basePath.length - 1] === '/') {
+        basePath = basePath.slice(0, basePath.length - 1);
+      }
       var adapterElem = window.document.querySelector('#adapter-code');
       var iframeElem = window.document.querySelector('#iframe-code');
       var query = getConfigQuery();
       var adapterCode = adapterElem.innerHTML;
       var adapterUri = adapterCode.match(/"http\S+"/)[0];
-      var newAdapterUri = adapterUri.replace(/\?\S*"/, '').replace(/"$/, '') + '?' + query + '"';
+      var newAdapterUri = adapterUri.replace(/\?\S*"/, '').replace(/"$/, '');
+      if (query) {
+        newAdapterUri = newAdapterUri + '?' + query + '"';
+      } else {
+        newAdapterUri = newAdapterUri + '"';
+      }
+      newAdapterUri = newAdapterUri.replace('https://ringcentral.github.io/ringcentral-embeddable', basePath);
       var iframeCode = iframeElem.innerHTML;
       var iframeSrc = iframeCode.match(/"http\S+"/)[0];
-      var newIframeSrc = iframeSrc.replace(/\?\S*"/, '').replace(/"$/, '') + '?' + query + '"';
+      var newIframeSrc = iframeSrc.replace(/\?\S*"/, '').replace(/"$/, '');
+      if (query) {
+        newIframeSrc = newIframeSrc + '?' + query + '"';
+      } else {
+        newIframeSrc = newIframeSrc + '"';
+      }
+      newIframeSrc = newIframeSrc.replace('https://ringcentral.github.io/ringcentral-embeddable', basePath);
       adapterElem.innerHTML = adapterCode.replace(adapterUri, newAdapterUri);
       iframeElem.innerHTML = iframeCode.replace(iframeSrc, newIframeSrc);
     }
+    updateCodes();
     var inputs = window.document.querySelectorAll('input');
     for (var i = 0; i < inputs.length; ++i) {
       var inputElem = inputs[i];
