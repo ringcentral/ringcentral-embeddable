@@ -1,6 +1,6 @@
-# Single Sign On mode (Beta)
+# In-page Login (Beta)
 
-RingCentral Embeddable is a whole front-end application, it doesn't need backend server and it saves user data on local browser. But for some developers want to integrate RingCentral service in backend and front-end, RingCentral Embeddable supports to reuse login status from server-side oauth login. 
+RingCentral Embeddable is a whole front-end application, it doesn't need backend server and it saves user data on local browser. But for some developers want to integrate RingCentral service in backend and front-end, RingCentral Embeddable supports to reuse login status from server-side oauth login.
 
 ## Prerequisites
 
