@@ -7,6 +7,7 @@ import sleep from 'ringcentral-integration/lib/sleep';
 import { isRing } from 'ringcentral-integration/modules/Webphone/webphoneHelper';
 import { Module } from 'ringcentral-integration/lib/di';
 import callingModes from 'ringcentral-integration/modules/CallingSettings/callingModes';
+import debounce from 'ringcentral-integration/lib/debounce';
 
 import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
 
@@ -114,6 +115,7 @@ export default class Adapter extends AdapterModuleCore {
     this._pushLocale();
     this._checkLoginStatus();
     this._pushActiveCalls();
+    this._checkRouteChanged();
   }
 
   _onMessage(event) {
@@ -283,6 +285,13 @@ export default class Adapter extends AdapterModuleCore {
     });
   }
 
+  _checkRouteChanged() {
+    if (this._currentRoute !== this._router.currentPath) {
+      this._currentRoute = this._router.currentPath;
+      this.routeChangedNotify(this._currentRoute);
+    }
+  }
+
   _insertExtendStyle() {
     if (!this._stylesUri) {
       return;
@@ -334,6 +343,13 @@ export default class Adapter extends AdapterModuleCore {
       },
     });
   }
+
+  routeChangedNotify = debounce((path) => {
+    this._postMessage({
+      type: 'rc-route-changed-notify',
+      path,
+    });
+  })
 
   _controlCall(action, id) {
     if (id && !this._callSessions.has(id)) {
