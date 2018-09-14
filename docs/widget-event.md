@@ -126,3 +126,23 @@ window.addEventListener('message', (e) => {
   }
 });
 ```
+
+## Route changed event
+
+Get Current page route from widget
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-route-changed-notify':
+        // get current page route from widget
+        console.log('rc-route-changed-notify:', data.path);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```

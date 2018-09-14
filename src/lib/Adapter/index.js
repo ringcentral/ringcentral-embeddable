@@ -114,6 +114,9 @@ class Adapter extends AdapterCore {
         case 'rc-message-updated-notify':
           console.log('rc-message-updated-notify:', data.message.id);
           break;
+        case 'rc-route-changed-notify':
+          console.log('rc-route-changed-notify:', data.path);
+          break;
         default:
           super._onMessage(data);
           break;

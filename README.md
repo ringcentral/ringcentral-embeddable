@@ -64,6 +64,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * [Active Call event](docs/widget-event.md#active-call-event)
   * [Login Status event](docs/widget-event.md#login-status-event)
   * [Message event](docs/widget-event.md#message-event)
+  * [Route event](docs/widget-event.md#route-changed-event)
 * [API to control the Web Widget](docs/control-widget.md)
   * [Go to Dial and start a call](docs/control-widget.md#go-to-dial-and-start-a-call)
   * [Go to SMS](docs/control-widget.md#go-to-sms-page)
