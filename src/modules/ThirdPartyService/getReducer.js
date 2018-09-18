@@ -121,6 +121,40 @@ export function getConferenceInviteTitleReducer(types) {
   };
 }
 
+export function getAuthorizedReducer(types) {
+  return (state = null, { type, authorized }) => {
+    switch (type) {
+      case types.registerAuthorization:
+      case types.updateAuthorizationStatus:
+        return authorized;
+      default:
+        return state;
+    }
+  };
+}
+
+export function getAuthorizedTitleReducer(types) {
+  return (state = null, { type, authorizedTitle }) => {
+    switch (type) {
+      case types.registerAuthorization:
+        return authorizedTitle;
+      default:
+        return state;
+    }
+  };
+}
+
+export function getUnauthorizedTitleReducer(types) {
+  return (state = null, { type, unauthorizedTitle }) => {
+    switch (type) {
+      case types.registerAuthorization:
+        return unauthorizedTitle;
+      default:
+        return state;
+    }
+  };
+}
+
 export default function getReducer(types) {
   return combineReducers({
     status: getModuleStatusReducer(types),
@@ -133,5 +167,8 @@ export default function getReducer(types) {
     conferenceInviteTitle: getConferenceInviteTitleReducer(types),
     callLoggerRegistered: getCallLogerRegisteredReducer(types),
     callLoggerTitle: getCallLogerTitleReducer(types),
+    authorized: getAuthorizedReducer(types),
+    authorizedTitle: getAuthorizedTitleReducer(types),
+    unauthorizedTitle: getUnauthorizedTitleReducer(types),
   });
 }

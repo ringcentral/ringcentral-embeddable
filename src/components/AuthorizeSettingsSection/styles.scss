@@ -1,0 +1,15 @@
+.authorizaButton {
+  display: inline-block;
+  height: 28px;
+  border-radius: 100px;
+  background: #0684bd;
+  border: solid 1px #0684bd;
+  font-size: 11px;
+  color: #ffffff;
+  line-height: 28px;
+  text-align: center;
+  padding: 0 8px;
+  &:hover {
+    color: #ffffff;
+  }
+}

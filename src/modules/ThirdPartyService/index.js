@@ -42,7 +42,10 @@ export default class ThirdPartyService extends RcModule {
       type: this.actionTypes.initSuccess,
     });
     window.addEventListener('message', (e) => {
-      if (e.data && e.data.type === 'rc-adapter-register-third-party-service' && this.serviceName === null) {
+      if (!e.data) {
+        return;
+      }
+      if (e.data.type === 'rc-adapter-register-third-party-service' && this.serviceName === null) {
         const service = e.data.service;
         if (!service || !service.name) {
           return;
@@ -71,6 +74,11 @@ export default class ThirdPartyService extends RcModule {
         if (service.callLoggerPath) {
           this._registerCallLogger(service);
         }
+        if (service.authorizationPath) {
+          this._registerAuthorizationButton(service);
+        }
+      } else if (e.data.type === 'rc-adapter-update-authorization-status') {
+        this._updateAuthorizationStatus(e.data);
       }
     });
   }
@@ -109,6 +117,26 @@ export default class ThirdPartyService extends RcModule {
     this.store.dispatch({
       type: this.actionTypes.registerConferenceInvite,
       conferenceInviteTitle: service.conferenceInviteTitle,
+    });
+  }
+
+  _registerAuthorizationButton(service) {
+    this._authorizationPath = service.authorizationPath;
+    this.store.dispatch({
+      type: this.actionTypes.registerAuthorization,
+      authorized: service.authorized,
+      authorizedTitle: service.authorizedTitle,
+      unauthorizedTitle: service.unauthorizedTitle,
+    });
+  }
+
+  _updateAuthorizationStatus(data) {
+    if (!this.authorizationRegistered) {
+      return;
+    }
+    this.store.dispatch({
+      type: this.actionTypes.updateAuthorizationStatus,
+      authorized: data.authorized,
     });
   }
 
@@ -289,5 +317,21 @@ export default class ThirdPartyService extends RcModule {
 
   get callLoggerTitle() {
     return this.state.callLoggerTitle;
+  }
+
+  get authorizationRegistered() {
+    return this.state.authorized !== null;
+  }
+
+  get authorized() {
+    return this.state.authorized;
+  }
+
+  get authorizedTitle() {
+    return this.state.authorizedTitle;
+  }
+
+  get unauthorizedTitle() {
+    return this.state.unauthorizedTitle;
   }
 }
