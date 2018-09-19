@@ -42,7 +42,10 @@ export default class ThirdPartyService extends RcModule {
       type: this.actionTypes.initSuccess,
     });
     window.addEventListener('message', (e) => {
-      if (e.data && e.data.type === 'rc-adapter-register-third-party-service' && this.serviceName === null) {
+      if (!e.data) {
+        return;
+      }
+      if (e.data.type === 'rc-adapter-register-third-party-service' && this.serviceName === null) {
         const service = e.data.service;
         if (!service || !service.name) {
           return;
@@ -51,10 +54,11 @@ export default class ThirdPartyService extends RcModule {
           type: this.actionTypes.register,
           serviceName: service.name,
         });
+        if (service.authorizationPath) {
+          this._registerAuthorizationButton(service);
+        }
         if (service.contactsPath) {
-          this._contactsPath = service.contactsPath;
-          this._contacts.addSource(this);
-          this.fetchContacts();
+          this._registerContacts(service);
         }
         if (service.contactSearchPath) {
           this._registerContactSearch(service);
@@ -71,8 +75,16 @@ export default class ThirdPartyService extends RcModule {
         if (service.callLoggerPath) {
           this._registerCallLogger(service);
         }
+      } else if (e.data.type === 'rc-adapter-update-authorization-status') {
+        this._updateAuthorizationStatus(e.data);
       }
     });
+  }
+
+  _registerContacts(service) {
+    this._contactsPath = service.contactsPath;
+    this._contacts.addSource(this);
+    this.fetchContacts();
   }
 
   _registerContactSearch(service) {
@@ -83,11 +95,19 @@ export default class ThirdPartyService extends RcModule {
         if (!searchString) {
           return [];
         }
+        if (this.authorizationRegistered && !this.authorized) {
+          return [];
+        }
         const contacts = await this.searchContacts(searchString);
         return searchContactPhoneNumbers(contacts, searchString, this.sourceName);
       },
       formatFn: entities => entities,
-      readyCheckFn: () => this.sourceReady,
+      readyCheckFn: () => {
+        if (this.authorizationRegistered && !this.authorized) {
+          return true;
+        }
+        return this.sourceReady;
+      },
     });
     this._contactMatcher.triggerMatch();
   }
@@ -97,10 +117,18 @@ export default class ThirdPartyService extends RcModule {
     this._contactMatcher.addSearchProvider({
       name: this.sourceName,
       searchFn: async ({ queries }) => {
+        if (this.authorizationRegistered && !this.authorized) {
+          return [];
+        }
         const result = await this.matchContacts(queries);
         return result;
       },
-      readyCheckFn: () => this.sourceReady,
+      readyCheckFn: () => {
+        if (this.authorizationRegistered && !this.authorized) {
+          return true;
+        }
+        return this.sourceReady;
+      },
     });
   }
 
@@ -110,6 +138,30 @@ export default class ThirdPartyService extends RcModule {
       type: this.actionTypes.registerConferenceInvite,
       conferenceInviteTitle: service.conferenceInviteTitle,
     });
+  }
+
+  _registerAuthorizationButton(service) {
+    this._authorizationPath = service.authorizationPath;
+    this.store.dispatch({
+      type: this.actionTypes.registerAuthorization,
+      authorized: service.authorized,
+      authorizedTitle: service.authorizedTitle,
+      unauthorizedTitle: service.unauthorizedTitle,
+    });
+  }
+
+  _updateAuthorizationStatus(data) {
+    if (!this.authorizationRegistered) {
+      return;
+    }
+    const lastAuthorized = this.authorized;
+    this.store.dispatch({
+      type: this.actionTypes.updateAuthorizationStatus,
+      authorized: !!data.authorized,
+    });
+    if (!lastAuthorized && this.authorized) {
+      this.fetchContacts();
+    }
   }
 
   _registerActivities(service) {
@@ -145,7 +197,15 @@ export default class ThirdPartyService extends RcModule {
       if (!this._contactsPath) {
         return;
       }
-      const contacts = await this._fetchContacts();
+      if (this.authorizationRegistered && !this.authorized) {
+        return;
+      }
+      if (this._fetchContactsPromise) {
+        await this._fetchContactsPromise;
+        return;
+      }
+      this._fetchContactsPromise = this._fetchContacts();
+      const contacts = await this._fetchContactsPromise;
       this.store.dispatch({
         type: this.actionTypes.fetchSuccess,
         contacts,
@@ -153,6 +213,7 @@ export default class ThirdPartyService extends RcModule {
     } catch (e) {
       console.error(e);
     }
+    this._fetchContactsPromise = null;
   }
 
   async searchContacts(searchString) {
@@ -247,6 +308,23 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  async authorizeService() {
+    try {
+      if (!this._authorizationPath) {
+        return;
+      }
+      await requestWithPostMessage(this._authorizationPath, {
+        authorized: this.authorized,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async sync() {
+    await this.fetchContacts();
+  }
+
   get contacts() {
     return this.state.contacts;
   }
@@ -264,10 +342,16 @@ export default class ThirdPartyService extends RcModule {
   }
 
   get sourceReady() {
+    if (this.authorizationRegistered && !this.authorized) {
+      return false;
+    }
     return this.state.sourceReady;
   }
 
   get activitiesRegistered() {
+    if (this.authorizationRegistered && !this.authorized) {
+      return false;
+    }
     return this.state.activitiesRegistered;
   }
 
@@ -289,5 +373,21 @@ export default class ThirdPartyService extends RcModule {
 
   get callLoggerTitle() {
     return this.state.callLoggerTitle;
+  }
+
+  get authorizationRegistered() {
+    return this.state.authorized !== null;
+  }
+
+  get authorized() {
+    return this.state.authorized;
+  }
+
+  get authorizedTitle() {
+    return this.state.authorizedTitle;
+  }
+
+  get unauthorizedTitle() {
+    return this.state.unauthorizedTitle;
   }
 }

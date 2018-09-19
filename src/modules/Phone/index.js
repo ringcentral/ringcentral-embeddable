@@ -188,6 +188,14 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
       useValue: { batchFetchDelay: 1000 },
       spread: true,
     },
+    {
+      provide: 'ContactMatcherOptions',
+      useValue: {
+        noMatchTtl: 5 * 60 * 1000,
+        ttl: 120 * 60 * 1000,
+      },
+      spread: true,
+    }
   ]
 })
 export default class BasePhone extends RcModule {
