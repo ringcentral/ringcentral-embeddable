@@ -242,9 +242,9 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-## Register third party authorization button
+## Add third party authorization button
 
-For some CRM API, they requires user to authorize firstly. This feature allow developer to register a third party authorization button and status into widget.
+For some CRM API, they requires user to authorize firstly. This feature allows developer to add a third party authorization button and sync status into widget.
 
 First you need to pass `authorizationPath`, `authorizedTitle`, `unauthorizedTitle` and `authorized` when you register service.
 

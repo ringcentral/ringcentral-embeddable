@@ -79,7 +79,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * Show contacts from your application
   * Show contact's activities from your application
   * Add call logger button in calls page
-  * Register third party authorization button
+  * Add third party authorization button
 * [Enable and Disable Features in Widget](docs/disable-features.md)
   * Disable messages features
   * Disable Call releated features
