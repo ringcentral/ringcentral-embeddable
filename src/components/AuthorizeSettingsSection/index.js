@@ -6,7 +6,7 @@ import Button from 'ringcentral-widgets/components/Button';
 
 import styles from './styles.scss';
 
-export default function AuthorizeSettingsPanel({
+export default function AuthorizeSettingsSection({
   authorized,
   onAuthorize,
   authorizedTitle,
@@ -34,7 +34,7 @@ export default function AuthorizeSettingsPanel({
   );
 }
 
-AuthorizeSettingsPanel.propTypes = {
+AuthorizeSettingsSection.propTypes = {
   serviceName: PropTypes.string.isRequired,
   onAuthorize: PropTypes.func.isRequired,
   authorized: PropTypes.bool.isRequired,
@@ -42,7 +42,7 @@ AuthorizeSettingsPanel.propTypes = {
   unauthorizedTitle: PropTypes.string,
 };
 
-AuthorizeSettingsPanel.defaultProps = {
+AuthorizeSettingsSection.defaultProps = {
   authorizedTitle: 'Unauthorize',
   unauthorizedTitle: 'Authorize'
 };
