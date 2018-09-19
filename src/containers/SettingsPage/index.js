@@ -45,6 +45,7 @@ NewSettingsPanel.propTypes = {
   thirdPartyAuthorized: PropTypes.bool,
   authorizedTitle: PropTypes.string,
   unauthorizedTitle: PropTypes.string,
+  thirdPartyServiceName: PropTypes.string,
 };
 
 NewSettingsPanel.defaultProps = {
@@ -52,7 +53,8 @@ NewSettingsPanel.defaultProps = {
   thirdPartyAuthorized: undefined,
   authorizedTitle: undefined,
   unauthorizedTitle: undefined,
-}
+  thirdPartyServiceName: undefined,
+};
 
 function mapToProps(_, {
   phone,
@@ -93,7 +95,7 @@ function mapToFunctions(_, {
   return {
     ...baseFunctions,
     onAutoLogChange: (autoLog) => { callLogger.setAutoLog(autoLog); },
-    onThirdPartyAuthorize: () => thirdPartyService.authorize(),
+    onThirdPartyAuthorize: () => thirdPartyService.authorizeService(),
   };
 }
 

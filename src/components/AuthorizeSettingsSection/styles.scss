@@ -1,10 +1,14 @@
+.serviceName {
+  color: #0684bd;
+}
+
 .authorizaButton {
   display: inline-block;
   height: 28px;
   border-radius: 100px;
   background: #0684bd;
   border: solid 1px #0684bd;
-  font-size: 11px;
+  font-size: 12px;
   color: #ffffff;
   line-height: 28px;
   text-align: center;
@@ -12,4 +16,13 @@
   &:hover {
     color: #ffffff;
   }
+}
+
+.iconField > [class*='content'] {
+  max-width: calc(100% - 86px);
+  min-width: 131px;
+}
+
+.iconField > [class*='iconHolder'] {
+  min-width: 86px;
 }

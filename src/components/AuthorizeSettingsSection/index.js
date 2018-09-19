@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import IconLine from 'ringcentral-widgets/components/IconLine';
+import Line from 'ringcentral-widgets/components/Line';
+import IconField from 'ringcentral-widgets/components/IconField';
 import Button from 'ringcentral-widgets/components/Button';
 
 import styles from './styles.scss';
@@ -14,18 +15,22 @@ export default function AuthorizeSettingsPanel({
 }) {
   const status = authorized ? authorizedTitle : unauthorizedTitle;
   return (
-    <IconLine
-      icon={
-        <Button
-          className={styles.authorizaButton}
-          onClick={onAuthorize}
-        >
-          {status}
-        </Button>
-      }
+    <Line
     >
-      {serviceName}
-    </IconLine>
+      <IconField
+        className={styles.iconField}
+        icon={
+          <Button
+            className={styles.authorizaButton}
+            onClick={onAuthorize}
+          >
+            {status}
+          </Button>
+        }
+      >
+        <span className={styles.serviceName}>{serviceName}</span>
+      </IconField>
+    </Line>
   );
 }
 

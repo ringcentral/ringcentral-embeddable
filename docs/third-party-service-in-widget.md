@@ -241,3 +241,57 @@ window.addEventListener('message', function (e) {
   }
 });
 ```
+
+## Register third party authorization button
+
+For some CRM API, they requires user to authorize firstly. This feature allow developer to register a third party authorization button and status into widget.
+
+First you need to pass `authorizationPath`, `authorizedTitle`, `unauthorizedTitle` and `authorized` when you register service.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    authorizationPath: '/authorize',
+    authorizedTitle: 'Unauthorize',
+    unauthorizedTitle: 'Authorize',
+    authorized: false
+  }
+}, '*');
+```
+
+After registered, you can get a `TestService authorization button` in setting page:
+
+![image](https://user-images.githubusercontent.com/7036536/45729124-9c684800-bbfd-11e8-97ef-c9e5262d6529.jpg)
+
+Add a message event to response authorization button event:
+
+```
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/authorize') {
+      // add your codes here to handle third party authorization
+      console.log(data);
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+  }
+});
+```
+
+Update authorization status in widget:
+
+```
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-update-authorization-status',
+  authorized: true,
+}, '*');
+```
+
+**Notice:** If you register authorization service into widget, upper contacts related service will works only after status changed to authorized.
