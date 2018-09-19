@@ -263,7 +263,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 After registered, you can get a `TestService authorization button` in setting page:
 
-![image](https://user-images.githubusercontent.com/7036536/45729124-9c684800-bbfd-11e8-97ef-c9e5262d6529.jpg)
+![image](https://user-images.githubusercontent.com/7036536/45734172-13a9d600-bc16-11e8-890f-63d850e017ce.jpg)
 
 Add a message event to response authorization button event:
 
