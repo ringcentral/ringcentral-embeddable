@@ -58,6 +58,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 * [Use your own app client id and app client secret](docs/config-client-id-and-secret.md)
 * [Customize Redirect Uri](docs/customize-redirect-uri.md)
 * [Customize UI styles](docs/customize-ui-styles.md)
+* [Customize prefix](docs/customize-prefix.md)
 * [Work with the Web Widget event](docs/widget-event.md)
   * [Web phone call event](docs/widget-event.md#web-phone-call-event)
   * [Ringout call event](docs/widget-event.md#ringout-call-event)
@@ -85,7 +86,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * Disable Call releated features
   * Disable Conference invite feature
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
-* [SSO Login Mode](docs/sso-login-mode.md)
+* [In-page Login Mode](docs/sso-login-mode.md)
 
 ## Awesome Embeddable examples
 
