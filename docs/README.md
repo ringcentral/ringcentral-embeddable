@@ -8,6 +8,7 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
 * [Use your own app client id and app client secret](config-client-id-and-secret.md)
 * [Customize Redirect Uri](customize-redirect-uri.md)
 * [Customize UI styles](customize-ui-styles.md)
+* [Customize prefix](customize-prefix.md)
 * [Work with the web widget event](widget-event.md)
   * [Web phone call event](widget-event.md#web-phone-call-event)
   * [Active Call event](widget-event.md#active-call-event)
@@ -36,4 +37,4 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
   * Disable Conference invite feature
   * [Enable Glip feature](disable-features.md#enable-glip-feature)
   * [Enable Conference Call feature](disable-features.md#enable-conference-call-feature)
-* [SSO Login Mode](sso-login-mode.md)
+* [In-page Login Mode](sso-login-mode.md)

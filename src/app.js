@@ -6,7 +6,7 @@ import parseUri from './lib/parseUri';
 import { createPhone } from './modules/Phone';
 import App from './containers/App';
 import brandConfig from './config/brand';
-import prefix from './config/prefix';
+import defaultPrefix from './config/prefix';
 
 const defaultApiConfig = process.env.API_CONFIG;
 const appVersion = process.env.APP_VERSION;
@@ -28,6 +28,7 @@ const disableConferenceInvite = typeof pathParams.disableConferenceInvite !== 'u
 const disableGlip = typeof pathParams.disableGlip === 'undefined' || pathParams.disableGlip === 'true';
 const disableConferenceCall = typeof pathParams.disableConferenceCall === 'undefined' || pathParams.disableConferenceCall === 'true';
 const authMode = pathParams.authMode;
+const prefix = pathParams.prefix || defaultPrefix;
 
 const phone = createPhone({
   apiConfig,
