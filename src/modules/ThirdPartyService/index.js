@@ -34,6 +34,8 @@ export default class ThirdPartyService extends RcModule {
     this._contacts = contacts;
     this._contactSearch = contactSearch;
     this._contactMatcher = contactMatcher;
+    this._searchSourceAdded = false;
+    this._matchSourceAdded = false;
   }
 
   initialize() {
@@ -61,10 +63,17 @@ export default class ThirdPartyService extends RcModule {
           this._registerContacts(service);
         }
         if (service.contactSearchPath) {
-          this._registerContactSearch(service);
+          this._contactSearchPath = service.contactSearchPath;
+          if (!this.authorizationRegistered || this.authorized) {
+            this._registerContactSearch(service);
+          }
         }
         if (service.contactMatchPath) {
-          this._registerContactMatch(service);
+          this._contactMatchPath = service.contactMatchPath;
+          if (!this.authorizationRegistered || this.authorized) {
+            this._registerContactMatch();
+            this._contactMatcher.triggerMatch();
+          }
         }
         if (service.activitiesPath) {
           this._registerActivities(service);
@@ -87,48 +96,66 @@ export default class ThirdPartyService extends RcModule {
     this.fetchContacts();
   }
 
-  _registerContactSearch(service) {
-    this._contactSearchPath = service.contactSearchPath;
+  _registerContactSearch() {
+    if (this._searchSourceAdded || !this._contactSearchPath) {
+      return;
+    }
     this._contactSearch.addSearchSource({
       sourceName: this.sourceName,
       searchFn: async ({ searchString }) => {
         if (!searchString) {
           return [];
         }
-        if (this.authorizationRegistered && !this.authorized) {
-          return [];
-        }
         const contacts = await this.searchContacts(searchString);
         return searchContactPhoneNumbers(contacts, searchString, this.sourceName);
       },
       formatFn: entities => entities,
-      readyCheckFn: () => {
-        if (this.authorizationRegistered && !this.authorized) {
-          return true;
-        }
-        return this.sourceReady;
-      },
+      readyCheckFn: () => this.sourceReady,
     });
-    this._contactMatcher.triggerMatch();
+    this._searchSourceAdded = true;
   }
 
-  _registerContactMatch(service) {
-    this._contactMatchPath = service.contactMatchPath;
+  _unregisterContactSearch() {
+    if (!this._searchSourceAdded) {
+      return;
+    }
+    this._contactSearch._searchSources.delete(this.sourceName);
+    this._contactSearch._searchSourcesFormat.delete(this.sourceName);
+    this._contactSearch._searchSourcesCheck.delete(this.sourceName);
+    this._searchSourceAdded = false;
+  }
+
+  _registerContactMatch() {
+    if (this._matchSourceAdded || !this._contactMatchPath) {
+      return;
+    }
     this._contactMatcher.addSearchProvider({
       name: this.sourceName,
       searchFn: async ({ queries }) => {
-        if (this.authorizationRegistered && !this.authorized) {
-          return [];
-        }
         const result = await this.matchContacts(queries);
         return result;
       },
-      readyCheckFn: () => {
-        if (this.authorizationRegistered && !this.authorized) {
-          return true;
-        }
-        return this.sourceReady;
-      },
+      readyCheckFn: () => this.sourceReady,
+    });
+    this._matchSourceAdded = true;
+  }
+
+  _unregisterContactMatch() {
+    if (!this._matchSourceAdded) {
+      return;
+    }
+    this._contactMatcher._searchProviders.delete(this.sourceName);
+    this._matchSourceAdded = false;
+  }
+
+  _refreshContactMatch() {
+    if (!this._matchSourceAdded) {
+      return;
+    }
+    const queries = this._contactMatcher._getQueries();
+    this._contactMatcher.match({
+      queries: queries.slice(0, 30),
+      ignoreCache: true
     });
   }
 
@@ -161,6 +188,14 @@ export default class ThirdPartyService extends RcModule {
     });
     if (!lastAuthorized && this.authorized) {
       this.fetchContacts();
+      this._registerContactSearch();
+      this._registerContactMatch();
+      this._refreshContactMatch();
+      this._contactMatcher.triggerMatch();
+    }
+    if (lastAuthorized && !this.authorized) {
+      this._unregisterContactSearch();
+      this._unregisterContactMatch();
     }
   }
 
