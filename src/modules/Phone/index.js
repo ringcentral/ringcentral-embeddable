@@ -278,6 +278,9 @@ export default class BasePhone extends RcModule {
         routerInteraction.push('/calls/active');
       }
       adapter.startCallNotify(session);
+      if (session.direction === 'Outbound') {
+        contactMatcher.forceMatchNumber({ phoneNumber: session.to });
+      }
     });
     webphone.onCallRing((session) => {
       adapter.ringCallNotify(session);
@@ -289,6 +292,7 @@ export default class BasePhone extends RcModule {
           webphone.toggleMinimized(session.id);
         });
       }
+      contactMatcher.forceMatchNumber({ phoneNumber: session.from });
     });
     webphone.onBeforeCallResume((session) => {
       const sessionId = session && session.id;
