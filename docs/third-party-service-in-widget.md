@@ -25,7 +25,7 @@ First you need to pass `conferenceInvitePath` and `conferenceInviteTitle` when y
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-register-third-party-service',
   service: {
-    name: 'TestService',
+    name: 'TestService', // service name
     conferenceInvitePath: '/conference/invite',
     conferenceInviteTitle: 'Invite with TestService',
   }
@@ -38,7 +38,7 @@ After registered, you can get a `Invite with TestService` in conference invite p
 
 Add a message event to response conference invite button event:
 
-```
+```js
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
@@ -74,22 +74,25 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 Add a message event to response contacts query event:
 
-```
+```js
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/contacts') {
       console.log(data);
       // response to widget
+      // contacts data from third party service
       const contacts = [{
-        id: '123456',
-        name: 'TestService Name',
-        type: 'TestService',
+        id: '123456', // id to identify third party contact
+        name: 'TestService Name', // contact name
+        type: 'TestService', // need to same as service name
         phoneNumbers: [{
           phoneNumber: '+1234567890',
           phoneType: 'directPhone',
-        }]
+        }],
+        emails: ['test@email.com']
       }];
+      // pass nextPage number when there are more than one page data, widget will repeat same request with nextPage increased
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
         type: 'rc-post-message-response',
         responseId: data.requestId,
@@ -102,9 +105,9 @@ window.addEventListener('message', function (e) {
     if (data.path === '/contacts/search') {
       console.log(data);
       const searchedContacts = [{
-        id: '123456',
+        id: '123456', // id to identify third party contact
         name: 'TestService Name',
-        type: 'TestService',
+        type: 'TestService', // need to same as service name
         phoneNumbers: [{
           phoneNumber: '+1234567890',
           phoneType: 'directPhone',
@@ -119,11 +122,12 @@ window.addEventListener('message', function (e) {
       }, '*');
     }
     if (data.path === '/contacts/match') {
-      console.log(data);
+      console.log(data); // include phone number array that need to match
       const matchedContacts = {
         '+12165325078': [
           {
-            entityType: 'TestService',
+            id: '123456', // id to identify third party contact
+            type: 'TestService', // need to same as service name
             name: 'TestService 1',
             phoneNumbers: [{
               phoneNumber: '+12165325078',
@@ -132,6 +136,7 @@ window.addEventListener('message', function (e) {
           }
         ]
       };
+      // return matched contact object with phone number as key
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
         type: 'rc-post-message-response',
         responseId: data.requestId,
@@ -163,9 +168,10 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   }
 }, '*');
 ```
+
 Add a message event to response activities query event:
 
-```
+```js
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
@@ -224,7 +230,7 @@ After registered, you can get a `Log to TestService` in calls page, and `Auto Lo
 
 Add a message event to response call logger button event:
 
-```
+```js
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
@@ -267,7 +273,7 @@ After registered, you can get a `TestService authorization button` in setting pa
 
 Add a message event to response authorization button event:
 
-```
+```js
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
@@ -287,7 +293,7 @@ window.addEventListener('message', function (e) {
 
 Update authorization status in widget:
 
-```
+```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-update-authorization-status',
   authorized: true,
