@@ -5,6 +5,7 @@ import getter from 'ringcentral-integration/lib/getter';
 import isBlank from 'ringcentral-integration/lib/isBlank';
 import { AllContactSourceName } from 'ringcentral-integration/lib/contactHelper';
 
+// TODO: To fix this bug in widgets librrary
 export function filterContacts(contacts, searchFilter) {
   const items = contacts;
   if (!searchFilter || isBlank(searchFilter)) {
