@@ -25,7 +25,7 @@ import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
 import ComposeText from 'ringcentral-integration/modules/ComposeText';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
 import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
-import Contacts from 'ringcentral-integration/modules/Contacts';
+// import Contacts from 'ringcentral-integration/modules/Contacts';
 import ContactSearch from 'ringcentral-integration/modules/ContactSearch';
 import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
 import DateTimeFormat from 'ringcentral-integration/modules/DateTimeFormat';
@@ -71,6 +71,7 @@ import Adapter from '../Adapter';
 import ThirdPartyService from '../ThirdPartyService';
 import CallLogger from '../CallLogger';
 import RolesAndPermissions from '../RolesAndPermissions';
+import Contacts from '../Contacts';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
