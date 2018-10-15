@@ -25,7 +25,7 @@ import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
 import ComposeText from 'ringcentral-integration/modules/ComposeText';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
 import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
-// import Contacts from 'ringcentral-integration/modules/Contacts';
+import Contacts from 'ringcentral-integration/modules/Contacts';
 import ContactSearch from 'ringcentral-integration/modules/ContactSearch';
 import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
 import DateTimeFormat from 'ringcentral-integration/modules/DateTimeFormat';
@@ -71,7 +71,7 @@ import Adapter from '../Adapter';
 import ThirdPartyService from '../ThirdPartyService';
 import CallLogger from '../CallLogger';
 import RolesAndPermissions from '../RolesAndPermissions';
-import Contacts from '../Contacts';
+import ActiveCallControl from '../ActiveCallControl';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
@@ -196,7 +196,8 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
         ttl: 120 * 60 * 1000,
       },
       spread: true,
-    }
+    },
+    { provide: 'ActiveCallControl', useClass: ActiveCallControl },
   ]
 })
 export default class BasePhone extends RcModule {
@@ -213,7 +214,7 @@ export default class BasePhone extends RcModule {
       conferenceCall,
     } = options;
     // Webphone configuration
-    webphone.onCallEnd((session, currentSession) => {
+    webphone.onCallEnd((session, currentSession, ringSession) => {
       adapter.endCallNotify(session);
       const callsOnholdReg = /^\/conferenceCall\/callsOnhold\/(.+)\/(.+)$/;
       const execCallsOnhold = callsOnholdReg.exec(routerInteraction.currentPath);
@@ -230,17 +231,19 @@ export default class BasePhone extends RcModule {
         }
       }
 
+      const withinCallCtrl = !![
+        '/calls/active',
+        '/conferenceCall/dialer/',
+        '/conferenceCall/callsOnhold',
+        '/conferenceCall/participants',
+      ].find(path => routerInteraction.currentPath.indexOf(path) === 0);
+
       if (
-        !![
-          '/conferenceCall/dialer/',
-          '/calls/active',
-          '/conferenceCall/participants',
-        ].find(path => routerInteraction.currentPath.indexOf(path) !== -1)
+        withinCallCtrl
         && (!currentSession || session.id === currentSession.id)
+        && !ringSession
       ) {
-        if (
-          !currentSession
-        ) {
+        if (!currentSession) {
           routerInteraction.replace('/dialer');
           return;
         }
@@ -256,8 +259,17 @@ export default class BasePhone extends RcModule {
         return;
       }
 
-      if (routerInteraction.currentPath.indexOf('/calls/active') === 0) {
-        routerInteraction.replace('/calls/active');
+      if (
+        currentSession
+        && currentSession.id !== session.id
+        && routerInteraction.currentPath === `/calls/active/${session.id}`
+      ) {
+        routerInteraction.replace(`/calls/active/${currentSession.id}`);
+        return;
+      }
+
+      if (!currentSession && ringSession) {
+        routerInteraction.push('/calls');
         return;
       }
 
@@ -273,10 +285,13 @@ export default class BasePhone extends RcModule {
       }
     });
     webphone.onCallStart((session) => {
-      if (
-        routerInteraction.currentPath.indexOf('/calls/active') !== 0
-      ) {
-        routerInteraction.push('/calls/active');
+      const path = `/calls/active/${session.id}`;
+      if (routerInteraction.currentPath !== path) {
+        if (routerInteraction.currentPath.indexOf('/calls/active') === 0) {
+          routerInteraction.replace(path);
+        } else {
+          routerInteraction.push(path);
+        }
       }
       adapter.startCallNotify(session);
       if (session.direction === 'Outbound') {
@@ -290,7 +305,9 @@ export default class BasePhone extends RcModule {
           routerInteraction.push('/calls');
         }
         webphone.ringSessions.forEach((session) => {
-          webphone.toggleMinimized(session.id);
+          if (!session.minimized) {
+            webphone.toggleMinimized(session.id);
+          }
         });
       }
       contactMatcher.forceMatchNumber({ phoneNumber: session.from });
@@ -306,8 +323,10 @@ export default class BasePhone extends RcModule {
 
     webphone.onBeforeCallEnd((session) => {
       const mergingPair = conferenceCall && conferenceCall.mergingPair;
-      if (session && mergingPair &&
-          (Object.values(mergingPair).indexOf(session.id) !== -1)
+      if (
+        session
+        && mergingPair
+        && (Object.values(mergingPair).indexOf(session.id) !== -1)
       ) {
         // close merging pair to close the merge call.
         conferenceCall.closeMergingPair();
@@ -375,7 +394,7 @@ export default class BasePhone extends RcModule {
         return;
       }
       // TODO refactor some of these logic into appropriate modules
-      routerInteraction.push('/history');
+      routerInteraction.push('/calls');
     };
 
     this._appConfig = appConfig;
@@ -432,6 +451,7 @@ export function createPhone({
   disableConferenceInvite,
   disableGlip,
   disableConferenceCall,
+  disableActiveCallControl,
   authMode,
 }) {
   @ModuleFactory({
@@ -481,6 +501,7 @@ export function createPhone({
           disableConferenceInvite,
           disableGlip,
           disableConferenceCall,
+          disableActiveCallControl,
         },
       },
     ]

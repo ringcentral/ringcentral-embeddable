@@ -26,9 +26,9 @@ import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat'
 
 import ConferenceCallDialerPage from 'ringcentral-widgets/containers/ConferenceCallDialerPage';
 import CallsOnholdPage from 'ringcentral-widgets/containers/CallsOnholdPage';
-import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAndCallsTabContainer';
+// import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAndCallsTabContainer';
 import ConferenceParticipantPage from 'ringcentral-widgets/containers/ConferenceParticipantPage';
-import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
+import TransferPage from 'ringcentral-widgets/containers/TransferPage';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -38,12 +38,15 @@ import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButto
 
 import SettingsPage from '../SettingsPage';
 import CallsListPage from '../CallsListPage';
+import ActiveCallsPage from '../ActiveCallsPage';
+import ActiveCallCtrlPage from '../ActiveCallCtrlPage';
+import DialerAndCallsTabContainer from '../DialerAndCallsTabContainer';
 
 export default function App({
   phone,
 }) {
   const getAvatarUrl = async (contact) => {
-    const avatarUrl = await phone.contacts.getProfileImage(contact, false);
+    const avatarUrl = await phone.contacts.getProfileImage(contact, true);
     return avatarUrl;
   };
   return (
@@ -144,30 +147,29 @@ export default function App({
                 component={() => (
                   <DialerAndCallsTabContainer>
                     <ActiveCallsPage
+                      showRingoutCallControl
                       onCallsEmpty={() => {
                         if (phone.webphone && phone.webphone._webphone) {
                           phone.routerInteraction.push('/dialer');
                         }
                       }}
+                      useV2
+                      getAvatarUrl={getAvatarUrl}
                     />
                   </DialerAndCallsTabContainer>
                 )} />
               <Route
                 path="/calls/active(/:sessionId)"
-                component={() => (
+                component={routerProps => (
                   <CallCtrlPage
+                    params={routerProps.params}
                     onAdd={() => {
                       phone.routerInteraction.push('/dialer');
                     }}
                     onBackButtonClick={() => {
                       phone.routerInteraction.push('/calls');
                     }}
-                    getAvatarUrl={
-                      async (contact) => {
-                        const avatarUrl = await phone.contacts.getProfileImage(contact);
-                        return avatarUrl;
-                      }
-                    }
+                    getAvatarUrl={getAvatarUrl}
                   />
                 )} />
               <Route
@@ -319,6 +321,18 @@ export default function App({
                     onCallsEmpty={() => { }}
                     getAvatarUrl={getAvatarUrl}
                   />
+                )}
+              />
+              <Route
+                path="/transfer/:sessionsId"
+                component={() => (
+                  <TransferPage />
+                )}
+              />
+              <Route
+                path="/simplifycallctrl"
+                component={() => (
+                  <ActiveCallCtrlPage currentLocale={phone.locale.currentLocale} />
                 )}
               />
             </Route>

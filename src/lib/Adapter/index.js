@@ -31,6 +31,7 @@ class Adapter extends AdapterCore {
     this._zIndex = zIndex;
     this._appWidth = appWidth;
     this._appHeight = appHeight;
+    this._strings = {};
     this._generateContentDOM();
     const styleList = document.querySelectorAll('style');
     for (let i = 0; i < styleList.length; ++i) {

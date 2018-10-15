@@ -5,7 +5,7 @@ import withPhone from 'ringcentral-widgets/lib/withPhone';
 import TabNavigationView from 'ringcentral-widgets/components/TabNavigationView';
 
 import DialPadIcon from 'ringcentral-widgets/assets/images/DialPadNav.svg';
-import CallsIcon from 'ringcentral-widgets/assets/images/Calls.svg';
+import CallHistoryIcon from 'ringcentral-widgets/assets/images/CallHistory.svg';
 import MessageIcon from 'ringcentral-widgets/assets/images/Messages.svg';
 import SettingsIcon from 'ringcentral-widgets/assets/images/Settings.svg';
 import MoreMenuIcon from 'ringcentral-widgets/assets/images/MoreMenu.svg';
@@ -13,7 +13,7 @@ import ContactIcon from 'ringcentral-widgets/assets/images/Contact.svg';
 import GlipIcon from 'ringcentral-widgets/assets/images/Glip.svg';
 
 import DialPadHoverIcon from 'ringcentral-widgets/assets/images/DialPadHover.svg';
-import CallsHoverIcon from 'ringcentral-widgets/assets/images/CallsHover.svg';
+import CallHistoryHoverIcon from 'ringcentral-widgets/assets/images/CallHistoryHover.svg';
 import MessageHoverIcon from 'ringcentral-widgets/assets/images/MessagesHover.svg';
 import SettingsHoverIcon from 'ringcentral-widgets/assets/images/SettingsHover.svg';
 import MoreMenuHoverIcon from 'ringcentral-widgets/assets/images/MoreMenuHover.svg';
@@ -47,8 +47,8 @@ function getTabs({
       ),
     },
     showCall && {
-      icon: CallsIcon,
-      activeIcon: CallsHoverIcon,
+      icon: CallHistoryIcon,
+      activeIcon: CallHistoryHoverIcon,
       label: 'Calls',
       path: '/history',
       isActive: currentPath => (
