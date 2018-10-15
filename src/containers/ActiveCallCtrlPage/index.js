@@ -141,7 +141,7 @@ class ActiveCallControl extends Component {
 
 ActiveCallControl.propTypes = {
   currentLocale: PropTypes.string,
-  sessionId: PropTypes.string.isRequired,
+  sessionId: PropTypes.string,
   areaCode: PropTypes.string.isRequired,
   countryCode: PropTypes.string.isRequired,
   session: PropTypes.object,
@@ -155,6 +155,7 @@ ActiveCallControl.defaultProps = {
   currentLocale: 'en-US',
   activeCallControl: {},
   session: null,
+  sessionId: null,
   activeCall: {},
   nameMatches: [],
 };

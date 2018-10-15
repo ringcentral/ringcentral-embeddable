@@ -67,3 +67,20 @@ rcs0.parentNode.insertBefore(rcs, rcs0);
 ```
 
 Before we start to use Conference Call feature, need to add `TelephonySessions` permission to your app in RingCentral Developer website. Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add `TelephonySessions` permission.
+
+## Enable Active Call Control feature
+
+Active Call Control feature uses new `TelephonySessions` API to control RingCentral Call. So you can control your calls on other devices in this widget. This feature is in beta. It is disabled it by default. To enable it:
+
+```js
+<script>
+(function() {
+var rcs = document.createElement("script");
+rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?disableActiveCallControl=false";
+var rcs0 = document.getElementsByTagName("script")[0];
+rcs0.parentNode.insertBefore(rcs, rcs0);
+})();
+</script>
+```
+
+Before we start to use Active Call Control feature, need to add `TelephonySessions` permission to your app in RingCentral Developer website. Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add `TelephonySessions` permission.

@@ -149,9 +149,7 @@ export default function App({
                     <ActiveCallsPage
                       showRingoutCallControl
                       onCallsEmpty={() => {
-                        if (phone.webphone && phone.webphone._webphone) {
-                          phone.routerInteraction.push('/dialer');
-                        }
+                        phone.routerInteraction.push('/dialer');
                       }}
                       useV2
                       getAvatarUrl={getAvatarUrl}
