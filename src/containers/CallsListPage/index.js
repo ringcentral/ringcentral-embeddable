@@ -7,11 +7,12 @@ import messageTypes from 'ringcentral-integration/enums/messageTypes';
 import CallsListPanel from 'ringcentral-widgets/components/CallsListPanel';
 import LogIcon from '../../components/LogIcon';
 
+const EMPTY_CALLS = [];
+
 function mapToProps(_, {
   phone: {
     brand,
     callLogger,
-    callMonitor,
     locale,
     regionSettings,
     rolesAndPermissions,
@@ -26,11 +27,12 @@ function mapToProps(_, {
   enableContactFallback = false,
 }) {
   return {
+    onlyHistory: true,
     currentLocale: locale.currentLocale,
-    activeRingCalls: callMonitor.activeRingCalls,
-    activeOnHoldCalls: callMonitor.activeOnHoldCalls,
-    activeCurrentCalls: callMonitor.activeCurrentCalls,
-    otherDeviceCalls: callMonitor.otherDeviceCalls,
+    activeRingCalls: EMPTY_CALLS,
+    activeOnHoldCalls: EMPTY_CALLS,
+    activeCurrentCalls: EMPTY_CALLS,
+    otherDeviceCalls: EMPTY_CALLS,
     areaCode: regionSettings.areaCode,
     countryCode: regionSettings.countryCode,
     outboundSmsPermission: !!(
@@ -61,6 +63,7 @@ function mapToProps(_, {
       (!call || call.ready) &&
       (!composeText || composeText.ready)
     ),
+    readTextPermission: rolesAndPermissions.readTextPermissions,
   };
 }
 
@@ -71,7 +74,6 @@ function mapToFunctions(_, {
     contactSearch,
     regionSettings,
     routerInteraction,
-    webphone,
     dateTimeFormat,
     call,
     dialerUI,
@@ -79,7 +81,6 @@ function mapToFunctions(_, {
     locale,
   },
   composeTextRoute = '/composeText',
-  callCtrlRoute = '/calls/active',
   isLoggedContact,
   onViewContact,
   dateTimeFormatter = ({ utcTimestamp }) => dateTimeFormat.formatDateTime({
@@ -93,19 +94,6 @@ function mapToFunctions(_, {
       areaCode: regionSettings.areaCode,
       countryCode: regionSettings.countryCode,
     }),
-    webphoneAnswer: (...args) => (webphone && webphone.answer(...args)),
-    webphoneToVoicemail: (...args) => (webphone && webphone.toVoiceMail(...args)),
-    webphoneReject: (...args) => (webphone && webphone.reject(...args)),
-    webphoneHangup: (...args) => (webphone && webphone.hangup(...args)),
-    webphoneResume: async (...args) => {
-      if (!webphone) {
-        return;
-      }
-      await webphone.resume(...args);
-      if (routerInteraction.currentPath !== callCtrlRoute) {
-        routerInteraction.push(callCtrlRoute);
-      }
-    },
     isLoggedContact,
     dateTimeFormatter,
     onViewContact: onViewContact || (({ contact: { type, id } }) => {
@@ -138,12 +126,12 @@ function mapToFunctions(_, {
         callHistory.onClickToSMS();
       } :
       undefined,
-    renderExtraButton: ({ sessionId, webphoneSession }) => {
+    renderExtraButton: ({ sessionId }) => {
       if (!callLogger.ready) {
         return null;
       }
       const call = callLogger.allCallMapping[sessionId];
-      if (!call || webphoneSession) {
+      if (!call) {
         return null;
       }
       const isSaving = callLogger.loggingMap[sessionId];
