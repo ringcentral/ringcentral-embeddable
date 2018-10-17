@@ -64,6 +64,8 @@ import LocalForageStorage from 'ringcentral-integration/lib/LocalForageStorage';
 
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
+import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
+
 import OAuth from '../OAuth';
 import Auth from '../Auth';
 import Environment from '../Environment';
@@ -198,6 +200,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
       spread: true,
     },
     { provide: 'ActiveCallControl', useClass: ActiveCallControl },
+    { provide: 'ConferenceDialerUI', useClass: ConferenceDialerUI },
   ]
 })
 export default class BasePhone extends RcModule {

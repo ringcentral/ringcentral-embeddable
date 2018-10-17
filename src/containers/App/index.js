@@ -26,9 +26,10 @@ import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat'
 
 import ConferenceCallDialerPage from 'ringcentral-widgets/containers/ConferenceCallDialerPage';
 import CallsOnholdPage from 'ringcentral-widgets/containers/CallsOnholdPage';
-// import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAndCallsTabContainer';
+import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAndCallsTabContainer';
 import ConferenceParticipantPage from 'ringcentral-widgets/containers/ConferenceParticipantPage';
 import TransferPage from 'ringcentral-widgets/containers/TransferPage';
+import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 
 import MainView from '../MainView';
 import AppView from '../AppView';
@@ -39,8 +40,6 @@ import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButto
 import SettingsPage from '../SettingsPage';
 import CallsListPage from '../CallsListPage';
 import ActiveCallsPage from '../ActiveCallsPage';
-import ActiveCallCtrlPage from '../ActiveCallCtrlPage';
-import DialerAndCallsTabContainer from '../DialerAndCallsTabContainer';
 
 export default function App({
   phone,
