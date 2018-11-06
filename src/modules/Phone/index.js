@@ -57,8 +57,8 @@ import Conversations from 'ringcentral-integration/modules/Conversations';
 
 import GlipCompany from 'ringcentral-integration/modules/GlipCompany';
 import GlipPersons from 'ringcentral-integration/modules/GlipPersons';
-import GlipGroups from 'ringcentral-integration/modules/GlipGroups';
-import GlipPosts from 'ringcentral-integration/modules/GlipPosts';
+// import GlipGroups from 'ringcentral-integration/modules/GlipGroups';
+// import GlipPosts from 'ringcentral-integration/modules/GlipPosts';
 
 import LocalForageStorage from 'ringcentral-integration/lib/LocalForageStorage';
 
@@ -74,6 +74,8 @@ import ThirdPartyService from '../ThirdPartyService';
 import CallLogger from '../CallLogger';
 import RolesAndPermissions from '../RolesAndPermissions';
 import ActiveCallControl from '../ActiveCallControl';
+import GlipGroups from '../GlipGroups';
+import GlipPosts from '../GlipPosts';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
