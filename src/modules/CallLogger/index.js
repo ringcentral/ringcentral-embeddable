@@ -20,8 +20,9 @@ export default class CallLogger extends CallLoggerBase {
     this._thirdPartyService = thirdPartyService;
   }
 
-  async _doLog({ item, ...options }) {
-    await this._thirdPartyService.logCall({ call: item, ...options });
+  async _doLog({ item, ..._options }) {
+    delete item.toNumberEntity;
+    await this._thirdPartyService.logCall({ call: item });
   }
 
   @getter
@@ -42,5 +43,9 @@ export default class CallLogger extends CallLoggerBase {
 
   get logButtonTitle() {
     return this._thirdPartyService.callLoggerTitle;
+  }
+
+  get showLogModal() {
+    return this._thirdPartyService.showLogModal;
   }
 }

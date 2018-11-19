@@ -1,0 +1,30 @@
+.container {
+  top: 45px;
+  height: calc(100% - 45px);
+}
+
+.modal {
+  position: fixed;
+  height: calc(100% - 75px);
+  margin: 15px 20px;
+}
+
+.noteSection {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.noteArea {
+  width: 100%;
+  height: 100px;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  font-size: 12px;
+  resize: none;
+  border: 1px solid #a6a6a6;
+  border-radius: 2px;
+
+  &:focus {
+    outline: 0
+  }
+}

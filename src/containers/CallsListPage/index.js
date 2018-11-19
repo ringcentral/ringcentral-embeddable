@@ -70,6 +70,7 @@ function mapToProps(_, {
 function mapToFunctions(_, {
   phone: {
     callLogger,
+    callLogSection,
     composeText,
     contactSearch,
     regionSettings,
@@ -145,9 +146,15 @@ function mapToFunctions(_, {
           isSaving={isSaving}
           disabled={disabled}
           isFax={isFax}
-          onClick={() => callLogger.logCall({
-            call,
-          })}
+          onClick={() => {
+            if (callLogger.showLogModal) {
+              callLogSection.handleLogSection(call);
+            } else {
+              callLogger.logCall({
+                call,
+              });
+            }
+          }}
           currentLocale={locale.currentLocale}
           logTitle={callLogger.logButtonTitle}
         />

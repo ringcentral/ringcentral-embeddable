@@ -212,6 +212,7 @@ export default class ThirdPartyService extends RcModule {
     this.store.dispatch({
       type: this.actionTypes.registerCallLogger,
       callLoggerTitle: service.callLoggerTitle,
+      showLogModal: !!service.showLogModal,
     });
   }
 
@@ -424,5 +425,9 @@ export default class ThirdPartyService extends RcModule {
 
   get unauthorizedTitle() {
     return this.state.unauthorizedTitle;
+  }
+
+  get showLogModal() {
+    return this.state.showLogModal;
   }
 }

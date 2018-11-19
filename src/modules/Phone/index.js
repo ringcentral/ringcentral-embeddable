@@ -72,6 +72,7 @@ import Environment from '../Environment';
 import Adapter from '../Adapter';
 import ThirdPartyService from '../ThirdPartyService';
 import CallLogger from '../CallLogger';
+import CallLogSection from '../CallLogSection';
 import RolesAndPermissions from '../RolesAndPermissions';
 import ActiveCallControl from '../ActiveCallControl';
 import GlipGroups from '../GlipGroups';
@@ -122,6 +123,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'CallMonitor', useClass: CallMonitor },
     { provide: 'CallHistory', useClass: CallHistory },
     { provide: 'CallLogger', useClass: CallLogger },
+    { provide: 'CallLogSection', useClass: CallLogSection },
     { provide: 'ActivityMatcher', useClass: ActivityMatcher },
     { provide: 'ConversationMatcher', useClass: ConversationMatcher },
     { provide: 'ContactSearch', useClass: ContactSearch },
