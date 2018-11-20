@@ -203,6 +203,14 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
       },
       spread: true,
     },
+    {
+      provide: 'ActivityMatcherOptions',
+      useValue: {
+        noMatchTtl: 120 * 60 * 1000,
+        ttl: 240 * 60 * 1000,
+      },
+      spread: true,
+    },
     { provide: 'ActiveCallControl', useClass: ActiveCallControl },
     { provide: 'ConferenceDialerUI', useClass: ConferenceDialerUI },
   ]

@@ -28,6 +28,7 @@ export default class LogSectionModal extends Component {
       this.setState({
         note: '',
       });
+      this.props.onLoadData(nextProps.currentCall);
     }
   }
 
@@ -103,6 +104,7 @@ LogSectionModal.propTypes = {
   currentCall: PropTypes.object,
   currentLogCall: PropTypes.object,
   onSaveCallLog: PropTypes.func.isRequired,
+  onLoadData: PropTypes.func.isRequired,
 };
 
 LogSectionModal.defaultProps = {

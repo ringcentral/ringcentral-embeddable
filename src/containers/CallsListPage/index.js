@@ -127,12 +127,9 @@ function mapToFunctions(_, {
         callHistory.onClickToSMS();
       } :
       undefined,
-    renderExtraButton: ({ sessionId }) => {
+    renderExtraButton: (call) => {
+      const sessionId = call.sessionId;
       if (!callLogger.ready) {
-        return null;
-      }
-      const call = callLogger.allCallMapping[sessionId];
-      if (!call) {
         return null;
       }
       const isSaving = callLogger.loggingMap[sessionId];

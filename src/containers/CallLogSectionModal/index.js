@@ -26,6 +26,7 @@ function mapToProps(_, {
 function mapToFunctions(_, {
   phone: {
     callLogSection,
+    activityMatcher,
   }
 }) {
   return {
@@ -34,7 +35,13 @@ function mapToFunctions(_, {
     },
     onSaveCallLog({ call, note }) {
       callLogSection.saveCallLog(callLogSection.currentIdentify, call, note);
-    }
+    },
+    onLoadData(call) {
+      activityMatcher.match({
+        queries: [call.sessionId],
+        ignoreCache: true
+      });
+    },
   };
 }
 
