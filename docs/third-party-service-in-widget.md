@@ -58,21 +58,21 @@ window.addEventListener('message', function (e) {
 
 ## Show contacts from your application
 
-First you need to pass `contactsPath`, `contactMatchPath` and `contactSearchPath` when you register service.
+### Show contacts on Contacts page in widget
+
+First you need to pass `contactsPath` when you register service:
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-register-third-party-service',
   service: {
     name: 'TestService',
-    contactsPath: '/contacts',
-    contactSearchPath: '/contacts/search',
-    contactMatchPath: '/contacts/match',
+    contactsPath: '/contacts'
   }
 }, '*');
 ```
 
-Add a message event to response contacts query event:
+Add a message event to response contacts list event:
 
 ```js
 window.addEventListener('message', function (e) {
@@ -102,6 +102,34 @@ window.addEventListener('message', function (e) {
         },
       }, '*');
     }
+  }
+});
+```
+
+Data from `contactsPath` will be showed in contacts page in widget. If you provide `nextPage` for `contactsPath` response, widget will repeat request with `page="${nextPage}"` to get next page contacts data.
+
+![image](https://user-images.githubusercontent.com/7036536/42258572-f6a8050e-7f8e-11e8-8950-bb9efa8e0918.png)
+
+### Show contacts search result on Dialer receiver input
+
+You must want to show related contacts result when user typing in callee input area. First you need to pass `contactSearchPath` when you register service:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    contactSearchPath: '/contacts/search'
+  }
+}, '*');
+```
+
+Add a message event to response contacts search event:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/contacts/search') {
       console.log(data);
       const searchedContacts = [{
@@ -121,6 +149,32 @@ window.addEventListener('message', function (e) {
         },
       }, '*');
     }
+  }
+});
+```
+
+![image](https://user-images.githubusercontent.com/7036536/48828521-ec54be00-edaa-11e8-8b49-d76412e173bd.jpeg)
+
+### Show contacts matcher result on calls history and incoming call page:
+
+In widget, we use contact matcher to match phone number to contact in calls page or incoming page. First you need to pass `contactMatchPath` when you register service:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    contactMatchPath: '/contacts/match'
+  }
+}, '*');
+```
+
+Add a message event to response contacts matcher event:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/contacts/match') {
       console.log(data); // include phone number array that need to match
       const matchedContacts = {
@@ -149,10 +203,8 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-Data from `contactsPath` will be showed in contacts page in widget. Data from `contactSearchPath` will be showed in contacts search dropdown in dial page. Data from `contactMatchPath` will be showed on messages and call history page in the widget.
-If you provide `nextPage` for `contactsPath` response, widget will repeat request with `page="${nextPage}"`.
+![incoming](https://user-images.githubusercontent.com/7036536/48829168-9bde6000-edac-11e8-9cd0-01b0dd65942b.jpeg)
 
-![image](https://user-images.githubusercontent.com/7036536/42258572-f6a8050e-7f8e-11e8-8950-bb9efa8e0918.png)
 
 ## Show contact's activities from your application
 
