@@ -226,7 +226,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 After registered, you can get a `Log to TestService` in calls page, and `Auto Log` setting in setting page
 
-![image](https://user-images.githubusercontent.com/7036536/48825466-6af92d80-eda2-11e8-850c-257d8044218d.png)
+![calllogbutton](https://user-images.githubusercontent.com/7036536/48827686-d1814a00-eda8-11e8-81e4-2b48b1df2bcc.png)
 
 Then add a message event to response call logger button event:
 
@@ -266,7 +266,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-![image](https://user-images.githubusercontent.com/7036536/48825649-fd99cc80-eda2-11e8-85b7-26ec2d01f450.png)
+![image](https://user-images.githubusercontent.com/7036536/48827685-d1814a00-eda8-11e8-8160-0fb92cbb88f5.png)
 
 
 ### Add call log entity matcher
