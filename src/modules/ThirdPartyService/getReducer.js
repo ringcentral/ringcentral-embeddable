@@ -155,6 +155,17 @@ export function getUnauthorizedTitleReducer(types) {
   };
 }
 
+export function getShowLogModalReducer(types) {
+  return (state = false, { type, showLogModal }) => {
+    switch (type) {
+      case types.registerCallLogger:
+        return showLogModal;
+      default:
+        return state;
+    }
+  };
+}
+
 export default function getReducer(types) {
   return combineReducers({
     status: getModuleStatusReducer(types),
@@ -170,5 +181,6 @@ export default function getReducer(types) {
     authorized: getAuthorizedReducer(types),
     authorizedTitle: getAuthorizedTitleReducer(types),
     unauthorizedTitle: getUnauthorizedTitleReducer(types),
+    showLogModal: getShowLogModalReducer(types),
   });
 }

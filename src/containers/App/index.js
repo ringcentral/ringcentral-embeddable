@@ -40,6 +40,7 @@ import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButto
 import SettingsPage from '../SettingsPage';
 import CallsListPage from '../CallsListPage';
 import ActiveCallsPage from '../ActiveCallsPage';
+import CallLogSectionModal from '../CallLogSectionModal';
 
 export default function App({
   phone,
@@ -139,7 +140,10 @@ export default function App({
               <Route
                 path="/history"
                 component={() => (
-                  <CallsListPage />
+                  <div style={{ width: '100%', height: '100%' }}>
+                    <CallsListPage />
+                    <CallLogSectionModal />
+                  </div>
                 )} />
               <Route
                 path="/calls"

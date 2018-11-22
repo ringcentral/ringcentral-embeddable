@@ -12,6 +12,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     'Contacts',
     'ContactSearch',
     'ContactMatcher',
+    'ActivityMatcher',
     { dep: 'ThirdPartyContactsOptions', optional: true, spread: true },
   ],
 })
@@ -20,6 +21,7 @@ export default class ThirdPartyService extends RcModule {
     contacts,
     contactSearch,
     contactMatcher,
+    activityMatcher,
     ...options,
   }) {
     super({
@@ -34,8 +36,10 @@ export default class ThirdPartyService extends RcModule {
     this._contacts = contacts;
     this._contactSearch = contactSearch;
     this._contactMatcher = contactMatcher;
+    this._activityMatcher = activityMatcher;
     this._searchSourceAdded = false;
-    this._matchSourceAdded = false;
+    this._contactMatchSourceAdded = false;
+    this._callLogEntityMatchSourceAdded = false;
   }
 
   initialize() {
@@ -84,6 +88,13 @@ export default class ThirdPartyService extends RcModule {
         if (service.callLoggerPath) {
           this._registerCallLogger(service);
         }
+        if (service.callLogEntityMatcherPath) {
+          this._callLogEntityMatcherPath = service.callLogEntityMatcherPath;
+          if (!this.authorizationRegistered || this.authorized) {
+            this._registerCallLogEntityMatch(service);
+            this._activityMatcher.triggerMatch();
+          }
+        }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
       }
@@ -126,7 +137,7 @@ export default class ThirdPartyService extends RcModule {
   }
 
   _registerContactMatch() {
-    if (this._matchSourceAdded || !this._contactMatchPath) {
+    if (this._contactMatchSourceAdded || !this._contactMatchPath) {
       return;
     }
     this._contactMatcher.addSearchProvider({
@@ -137,19 +148,19 @@ export default class ThirdPartyService extends RcModule {
       },
       readyCheckFn: () => this.sourceReady,
     });
-    this._matchSourceAdded = true;
+    this._contactMatchSourceAdded = true;
   }
 
   _unregisterContactMatch() {
-    if (!this._matchSourceAdded) {
+    if (!this._contactMatchSourceAdded) {
       return;
     }
     this._contactMatcher._searchProviders.delete(this.sourceName);
-    this._matchSourceAdded = false;
+    this._contactMatchSourceAdded = false;
   }
 
   _refreshContactMatch() {
-    if (!this._matchSourceAdded) {
+    if (!this._contactMatchSourceAdded) {
       return;
     }
     const queries = this._contactMatcher._getQueries();
@@ -192,10 +203,14 @@ export default class ThirdPartyService extends RcModule {
       this._registerContactMatch();
       this._refreshContactMatch();
       this._contactMatcher.triggerMatch();
+      this._registerCallLogEntityMatch();
+      this._refreshCallLogEntityMatch();
+      this._activityMatcher.triggerMatch();
     }
     if (lastAuthorized && !this.authorized) {
       this._unregisterContactSearch();
       this._unregisterContactMatch();
+      this._unregisterCallLogEntityMatch();
     }
   }
 
@@ -212,6 +227,41 @@ export default class ThirdPartyService extends RcModule {
     this.store.dispatch({
       type: this.actionTypes.registerCallLogger,
       callLoggerTitle: service.callLoggerTitle,
+      showLogModal: !!service.showLogModal,
+    });
+  }
+
+  _registerCallLogEntityMatch() {
+    if (this._callLogEntityMatchSourceAdded || !this._callLogEntityMatcherPath) {
+      return;
+    }
+    this._activityMatcher.addSearchProvider({
+      name: this.sourceName,
+      searchFn: async ({ queries }) => {
+        const result = await this.matchCallLogEntities(queries);
+        return result;
+      },
+      readyCheckFn: () => this.sourceReady,
+    });
+    this._callLogEntityMatchSourceAdded = true;
+  }
+
+  _unregisterCallLogEntityMatch() {
+    if (!this._callLogEntityMatchSourceAdded) {
+      return;
+    }
+    this._activityMatcher._searchProviders.delete(this.sourceName);
+    this._callLogEntityMatchSourceAdded = false;
+  }
+
+  _refreshCallLogEntityMatch() {
+    if (!this._callLogEntityMatchSourceAdded) {
+      return;
+    }
+    const queries = this._activityMatcher._getQueries();
+    this._activityMatcher.match({
+      queries: queries.slice(0, 30),
+      ignoreCache: true
     });
   }
 
@@ -291,6 +341,30 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  async matchCallLogEntities(sessionIds) {
+    try {
+      const result = {};
+      if (!this._callLogEntityMatcherPath) {
+        return result;
+      }
+      const { data } = await requestWithPostMessage(this._callLogEntityMatcherPath, { sessionIds });
+      if (!data || Object.keys(data).length === 0) {
+        return result;
+      }
+      sessionIds.forEach((sessionId) => {
+        if (data[sessionId] && Array.isArray(data[sessionId])) {
+          result[sessionId] = data[sessionId];
+        } else {
+          result[sessionId] = [];
+        }
+      });
+      return result;
+    } catch (e) {
+      console.error(e);
+      return {};
+    }
+  }
+
   async fetchActivities(contact) {
     try {
       if (!this._activitiesPath) {
@@ -338,6 +412,10 @@ export default class ThirdPartyService extends RcModule {
         return;
       }
       await requestWithPostMessage(this._callLoggerPath, data);
+      this._activityMatcher.match({
+        queries: [data.call.sessionId],
+        ignoreCache: true
+      });
     } catch (e) {
       console.error(e);
     }
@@ -424,5 +502,9 @@ export default class ThirdPartyService extends RcModule {
 
   get unauthorizedTitle() {
     return this.state.unauthorizedTitle;
+  }
+
+  get showLogModal() {
+    return this.state.showLogModal;
   }
 }

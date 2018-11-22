@@ -70,6 +70,7 @@ function mapToProps(_, {
 function mapToFunctions(_, {
   phone: {
     callLogger,
+    callLogSection,
     composeText,
     contactSearch,
     regionSettings,
@@ -126,12 +127,9 @@ function mapToFunctions(_, {
         callHistory.onClickToSMS();
       } :
       undefined,
-    renderExtraButton: ({ sessionId }) => {
+    renderExtraButton: (call) => {
+      const sessionId = call.sessionId;
       if (!callLogger.ready) {
-        return null;
-      }
-      const call = callLogger.allCallMapping[sessionId];
-      if (!call) {
         return null;
       }
       const isSaving = callLogger.loggingMap[sessionId];
@@ -145,9 +143,15 @@ function mapToFunctions(_, {
           isSaving={isSaving}
           disabled={disabled}
           isFax={isFax}
-          onClick={() => callLogger.logCall({
-            call,
-          })}
+          onClick={() => {
+            if (callLogger.showLogModal) {
+              callLogSection.handleLogSection(call);
+            } else {
+              callLogger.logCall({
+                call,
+              });
+            }
+          }}
           currentLocale={locale.currentLocale}
           logTitle={callLogger.logButtonTitle}
         />

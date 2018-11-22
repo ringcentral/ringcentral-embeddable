@@ -278,9 +278,9 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 After registered, you can get a `Log to TestService` in calls page, and `Auto Log` setting in setting page
 
-![image](https://user-images.githubusercontent.com/7036536/42258648-641a6384-7f8f-11e8-9b4b-9ef83edffec6.png)
+![calllogbutton](https://user-images.githubusercontent.com/7036536/48827686-d1814a00-eda8-11e8-81e4-2b48b1df2bcc.png)
 
-Add a message event to response call logger button event:
+Then add a message event to response call logger button event:
 
 ```js
 window.addEventListener('message', function (e) {
@@ -294,6 +294,70 @@ window.addEventListener('message', function (e) {
         type: 'rc-post-message-response',
         responseId: data.requestId,
         response: { data: 'ok' },
+      }, '*');
+    }
+  }
+});
+```
+
+### Add call logger modal
+
+For some developers who want to add note when log a call to their platform, we provide a log modal to support it.
+
+Add `showLogModal` when register service:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    callLoggerPath: '/callLogger',
+    callLoggerTitle: 'Log to TestService',
+    showLogModal: true,
+  }
+}, '*');
+```
+
+![image](https://user-images.githubusercontent.com/7036536/48827685-d1814a00-eda8-11e8-8160-0fb92cbb88f5.png)
+
+
+### Add call log entity matcher
+
+In call logger button, widget need to know if call is logged. To provide `callLogEntityMatcherPath` when register, widget will send match request to get match result of calls history.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    callLoggerPath: '/callLogger',
+    callLoggerTitle: 'Log to TestService',
+    callLogEntityMatcherPath: '/callLogger/match'
+  }
+}, '*');
+```
+
+Then add a message event to response call logger button event:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/callLogger/match') {
+      // add your codes here to reponse match result
+      console.log(data); // get call session id list in here
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: {
+          data: {
+            '214705503020': [{ // call session id from request
+              id: '88888', // call log entity id from your platform
+              note: 'Note', // Note of this call log entity
+            }]
+          }
+        },
       }, '*');
     }
   }
