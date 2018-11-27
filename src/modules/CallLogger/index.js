@@ -20,9 +20,9 @@ export default class CallLogger extends CallLoggerBase {
     this._thirdPartyService = thirdPartyService;
   }
 
-  async _doLog({ item, ..._options }) {
+  async _doLog({ item, ...options }) {
     delete item.toNumberEntity;
-    await this._thirdPartyService.logCall({ call: item });
+    await this._thirdPartyService.logCall({ call: item, ...options });
   }
 
   @getter
