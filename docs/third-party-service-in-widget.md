@@ -95,9 +95,9 @@ window.addEventListener('message', function (e) {
     if (data.path === '/contacts') {
       console.log(data);
       // you can get page and syncTimestamp params from data.body
-      // response to widget
       // query contacts data from third party service with page and syncTimestamp
       // if syncTimestamp existed, please only return updated contacts after syncTimestamp
+      // response to widget:
       const contacts = [{
         id: '123456', // id to identify third party contact
         name: 'TestService Name', // contact name
@@ -125,7 +125,9 @@ window.addEventListener('message', function (e) {
 ```
 
 Data from `contactsPath` will be showed in contacts page in widget. 
+
 The widget will request contacts data when widget is loaded and when user visit contacts page. In first request `syncTimestamp` is blank, so you need to provide full contacts data to widget. Please provide `syncTimestamp` when reponse to widget. In next contacts request widget will send you `syncTimestamp`, so you just need to provide updated contact since `syncTimestamp`.
+
 If you provide `nextPage` for `contactsPath` response, widget will repeat request with `page="${nextPage}"` to get next page contacts data.
 
 ![image](https://user-images.githubusercontent.com/7036536/42258572-f6a8050e-7f8e-11e8-8950-bb9efa8e0918.png)
