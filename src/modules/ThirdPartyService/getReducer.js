@@ -97,11 +97,34 @@ export function getActivitiesReducer(types) {
 
 export function getContactsReducer(types) {
   return (state = [], { type, contacts }) => {
+    const contactsMap = {};
+    let newState = [];
     switch (type) {
-      case types.fetchSuccess:
+      case types.fetchContactsSuccess:
         return contacts;
+      case types.syncContactsSuccess: {
+        contacts.forEach((c) => {
+          contactsMap[c.id] = 1;
+        });
+        newState = state.filter(c => !contactsMap[c.id]);
+        return newState.concat(contacts.filter(c => !c.deleted));
+      }
       case types.resetSuccess:
         return [];
+      default:
+        return state;
+    }
+  };
+}
+
+export function getContactSyncTimestampReducer(types) {
+  return (state = null, { type, syncTimestamp = null }) => {
+    switch (type) {
+      case types.fetchContactsSuccess:
+      case types.syncContactsSuccess:
+        return syncTimestamp;
+      case types.resetSuccess:
+        return null;
       default:
         return state;
     }
@@ -172,6 +195,7 @@ export default function getReducer(types) {
     serviceName: getServiceNameReducer(types),
     sourceReady: getSourceReadyReducer(types),
     contacts: getContactsReducer(types),
+    contactSyncTimestamp: getContactSyncTimestampReducer(types),
     activitiesRegistered: getActivitiesRegisteredReducer(types),
     activitiesLoaded: getActivitiesLoadedReducer(types),
     activities: getActivitiesReducer(types),
