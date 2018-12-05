@@ -25,6 +25,16 @@ document.querySelector("#rc-widget").contentWindow.postMessage({
 }, '*');
 ```
 
+Go to SMS Page with prefill text
+
+```js
+document.querySelector("#rc-widget").contentWindow.postMessage({
+  type: 'rc-adapter-new-sms',
+  phoneNumber: `phone number`,
+  text: `your text`,
+}, '*');
+```
+
 ## Control the web call
 
 ### Answer a ringing call
