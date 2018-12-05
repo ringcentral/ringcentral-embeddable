@@ -4,7 +4,8 @@ import moduleActionTypes from 'ringcentral-integration/enums/moduleActionTypes';
 export default new Enum([
   ...Object.keys(moduleActionTypes),
   'register',
-  'fetchSuccess',
+  'fetchContactsSuccess',
+  'syncContactsSuccess',
   'registerActivities',
   'loadActivitiesSuccess',
   'loadActivities',

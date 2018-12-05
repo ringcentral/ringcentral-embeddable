@@ -4,6 +4,20 @@ After integrating the RingCentral Embeddable to your application, you can also i
 
 This document show how the widget can interact with your application deeply.
 
+## Table of Contents
+
+* [Register your service](#register-your-service)
+* [Add a conference invite button with your service](#add-a-conference-invite-button-with-your-service)
+* [Show contacts from your application](#show-contacts-from-your-application)
+  * [Show contacts on Contacts page in widget](#show-contacts-on-contacts-page-in-widget)
+  * [Show contacts search result on Dialer receiver input](#show-contacts-search-result-on-dialer-receiver-input)
+  * [Show contacts matcher result on calls history and incoming call page](#show-contacts-matcher-result-on-calls-history-and-incoming-call-page)
+* [Show contact's activities from your application](#show-contacts-activities-from-your-application)
+* [Add call logger button in calls page](#add-call-logger-button-in-calls-page)
+  * [Add call logger modal](#add-call-logger-modal)
+  * [Add call log entity matcher](#add-call-log-entity-matcher)
+* [Add third party authorization button](#add-third-party-authorization-button)
+
 ## Register your service
 
 Find the widget iframe and use `postMessage` to register:
@@ -80,8 +94,10 @@ window.addEventListener('message', function (e) {
   if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/contacts') {
       console.log(data);
-      // response to widget
-      // contacts data from third party service
+      // you can get page and syncTimestamp params from data.body
+      // query contacts data from third party service with page and syncTimestamp
+      // if syncTimestamp existed, please only return updated contacts after syncTimestamp
+      // response to widget:
       const contacts = [{
         id: '123456', // id to identify third party contact
         name: 'TestService Name', // contact name
@@ -90,7 +106,8 @@ window.addEventListener('message', function (e) {
           phoneNumber: '+1234567890',
           phoneType: 'directPhone',
         }],
-        emails: ['test@email.com']
+        emails: ['test@email.com'],
+        deleted: false, // set deleted to true if you need to delete it in updated contacts
       }];
       // pass nextPage number when there are more than one page data, widget will repeat same request with nextPage increased
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -98,7 +115,8 @@ window.addEventListener('message', function (e) {
         responseId: data.requestId,
         response: {
           data: contacts,
-          nextPage: null
+          nextPage: null,
+          syncTimestamp: Date.now()
         },
       }, '*');
     }
@@ -106,7 +124,11 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-Data from `contactsPath` will be showed in contacts page in widget. If you provide `nextPage` for `contactsPath` response, widget will repeat request with `page="${nextPage}"` to get next page contacts data.
+Data from `contactsPath` will be showed in contacts page in widget. 
+
+The widget will request contacts data when widget is loaded and when user visit contacts page. In first request `syncTimestamp` is blank, so you need to provide full contacts data to widget. Please provide `syncTimestamp` when reponse to widget. In next contacts request widget will send you `syncTimestamp`, so you just need to provide updated contact since `syncTimestamp`.
+
+If you provide `nextPage` for `contactsPath` response, widget will repeat request with `page="${nextPage}"` to get next page contacts data.
 
 ![image](https://user-images.githubusercontent.com/7036536/42258572-f6a8050e-7f8e-11e8-8950-bb9efa8e0918.png)
 
