@@ -1,5 +1,6 @@
 import classnames from 'classnames';
 import AdapterCore from 'ringcentral-widgets/lib/AdapterCore';
+import parseUri from '../parseUri';
 import messageTypes from './messageTypes';
 
 import styles from './styles.scss';
@@ -66,8 +67,10 @@ class Adapter extends AdapterCore {
       const phoneTag = phoneSMSTags[i];
       phoneTag.addEventListener('click', () => {
         const hrefStr = phoneTag.getAttribute('href');
-        const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
-        this.clickToSMS(phoneNumber);
+        const pathStr = hrefStr.split('?')[0];
+        const { text } = parseUri(hrefStr);
+        const phoneNumber = pathStr.replace(/[^\d+*-]/g, '');
+        this.clickToSMS(phoneNumber, text);
       });
     }
     if (enableNotification) {
@@ -161,11 +164,12 @@ class Adapter extends AdapterCore {
     });
   }
 
-  clickToSMS(phoneNumber) {
+  clickToSMS(phoneNumber, text) {
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
       phoneNumber,
+      text,
     });
   }
 

@@ -128,7 +128,7 @@ export default class Adapter extends AdapterModuleCore {
           }
           break;
         case 'rc-adapter-new-sms':
-          this._newSMS(data.phoneNumber);
+          this._newSMS(data.phoneNumber, data.text);
           break;
         case 'rc-adapter-new-call':
           this._newCall(data.phoneNumber, data.toCall);
@@ -370,12 +370,15 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _newSMS(phoneNumber) {
+  _newSMS(phoneNumber, text) {
     if (!this._auth.loggedIn) {
       return;
     }
     this._router.push('/composeText');
     this._composeText.updateTypingToNumber(phoneNumber);
+    if (text && text.length > 0) {
+      this._composeText.updateMessageText(String(text));
+    }
   }
 
   _newCall(phoneNumber, toCall = false) {
