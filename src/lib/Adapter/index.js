@@ -68,9 +68,9 @@ class Adapter extends AdapterCore {
       phoneTag.addEventListener('click', () => {
         const hrefStr = phoneTag.getAttribute('href');
         const pathStr = hrefStr.split('?')[0];
-        const { text } = parseUri(hrefStr);
+        const { text, body } = parseUri(hrefStr);
         const phoneNumber = pathStr.replace(/[^\d+*-]/g, '');
-        this.clickToSMS(phoneNumber, text);
+        this.clickToSMS(phoneNumber, body || text);
       });
     }
     if (enableNotification) {
