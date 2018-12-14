@@ -17,9 +17,9 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.10.3",
-    "jest": "^23.5.0",
-    "jest-puppeteer": "^3.3.1",
-    "puppeteer": "^1.8.0"
+    "jest": "^23.6.0",
+    "jest-puppeteer": "^3.7.0",
+    "puppeteer": "^1.11.0"
   },
   "dependencies": {
     "@ringcentral-integration/glip-widgets": "https://github.com/embbnux/ringcentral-js-widget#glip-widgets-release",
