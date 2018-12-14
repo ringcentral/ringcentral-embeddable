@@ -36,7 +36,7 @@ export default class OAuth extends ProxyFrameOAuth {
   _createSSOIframe() {
     this._clearSSOIframe();
     this._ssoFrame = document.createElement('iframe');
-    this._ssoFrame.src = this.oAuthUri;
+    this._ssoFrame.src = this.implictRefreshOAuthUri;
     this._ssoFrame.name = 'SSOIframe';
     this._ssoFrame.style.zIndex = 100;
     this._ssoFrame.style.display = 'block';
@@ -87,11 +87,18 @@ export default class OAuth extends ProxyFrameOAuth {
       switch (error.message) {
         case 'invalid_request':
         case 'unauthorized_client':
-        case 'access_denied':
         case 'unsupported_response_type':
         case 'invalid_scope':
           message = authMessages.accessDenied;
           break;
+        case 'access_denied': {
+          if (this.authMode === 'sso' && this._ssoFrame) {
+            this._clearSSOIframe();
+          } else {
+            message = authMessages.accessDenied;
+          }
+          break;
+        }
         case 'server_error':
         case 'temporarily_unavailable':
         default:
