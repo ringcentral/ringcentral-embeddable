@@ -1,4 +1,6 @@
 import ProxyFrameOAuth from 'ringcentral-widgets/modules/ProxyFrameOAuth';
+import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
+import parseCallbackUri from 'ringcentral-widgets/lib/parseCallbackUri';
 import { Module } from 'ringcentral-integration/lib/di';
 import qs from 'qs';
 
@@ -69,5 +71,37 @@ export default class OAuth extends ProxyFrameOAuth {
 
   get authMode() {
     return this._authMode;
+  }
+
+  async _handleCallbackUri(callbackUri, refresh = false) {
+    try {
+      const query = parseCallbackUri(callbackUri);
+      if (refresh) {
+        await this._refreshWithCallbackQuery(query);
+      } else {
+        await this._loginWithCallbackQuery(query);
+      }
+    } catch (error) {
+      console.error('oauth error: ', error);
+      let message;
+      switch (error.message) {
+        case 'invalid_request':
+        case 'unauthorized_client':
+        case 'access_denied':
+        case 'unsupported_response_type':
+        case 'invalid_scope':
+          message = authMessages.accessDenied;
+          break;
+        case 'server_error':
+        case 'temporarily_unavailable':
+        default:
+          message = authMessages.internalError;
+          break;
+      }
+      this._alert.danger({
+        message,
+        payload: error,
+      });
+    }
   }
 }
