@@ -14,7 +14,9 @@
     page: true,
     browser: true,
     jestPuppeteer: true,
-    __HOST_URI__: true
+    __HOST_URI__: true,
+    __USER_NAME__: true,
+    __USER_PASSWORD__: true
   },
   "rules": {
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],

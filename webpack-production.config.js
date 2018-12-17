@@ -2,6 +2,8 @@ const webpack = require('webpack');
 const fs = require('fs');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+require('dotenv').config();
+
 const packageConfig = require('./package');
 const getBaseConfig = require('./getWebpackBaseConfig');
 

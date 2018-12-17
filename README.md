@@ -117,18 +117,21 @@ $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Glip` and `VoIP Calling` to your app.
 4. Add redirect uri `http://localhost:8080/redirect.html` to your app settings.
 
-### Create API secret file in project root path
+### Create environment variables file in project root path
 
-```js
-# api.json
-{
-  "appKey": "your ringcentral app key",
-  "appSecret": "your ringcentral app sercet",
-  "server": "ringcentral sever url, eg: https://platform.devtest.ringcentral.com"
-}
+Create `.env` file in project root path:
+
+```
+API_KEY=your_ringcentral_app_client_id
+API_SECRET=your_ringcentral_app_client_sercet
+API_SERVER=ringcentral sever url, eg: https://platform.devtest.ringcentral.com
+TEST_HOST_URI=http://localhost:8080
+TEST_USER_NAME=your_sandbox_account_phone_number
+TEST_USER_PASSWORD=your_sandbox_account_password
+TEST_HEADLESS=false
 ```
 
-The `appSecret` is optional to enable the authorization code flow. If you don't provide `appSecret`, the app will use the implicit grant flow.
+The `API_SECRET` is optional to enable the authorization code flow. If you don't provide `API_SECRET`, the app will use the implicit grant flow. `TEST_*` variables is optional for automatical test, you can just keep it blank before you run automatical tests.
 
 ### Start development server
 
@@ -140,6 +143,14 @@ $ yarn start # start a webpack dev server
 ```
 
 Open site: 'http://localhost:8080/' on browser
+
+### Run Tests
+
+You need to update `.env` file to add environment variables for test as mentioned in previous section.
+
+```
+yarn test
+```
 
 ### Deploy on production
 

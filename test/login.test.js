@@ -1,17 +1,30 @@
+const {
+  setBrowserPermission,
+  visitIndexPage,
+} = require('./steps/common');
+
+const { IframeWidget } = require('./steps/IframeWidget');
+const { LoginWindow } = require('./steps/LoginWindow');
+
 describe('Widget login test', () => {
-  it('should get SignIn in widget iframe', async () => {
-    await page.goto(__HOST_URI__, {
-      waituntil: 'networkidle0'
-    });
-    await page.waitForSelector('iframe#rc-widget-adapter-frame', { timeout: 45000 });
-    await page.waitFor(2000);
-    const widgetIframe = await page.frames().find(f => f.name() === 'rc-widget-adapter-frame');
-    const loginButton = await widgetIframe.$('button.LoginPanel_loginButton');
-    await loginButton.click();
-    await page.waitFor(2000);
-    const pages = await browser.pages();
-    const popup = pages[pages.length - 1];
-    console.log(popup);
-    debugger;
+  it('should login successfully', async () => {
+    await setBrowserPermission();
+    await visitIndexPage();
+
+    const widgetIframe = new IframeWidget();
+    await widgetIframe.loadElement();
+    await widgetIframe.waitForLoginPage();
+    await page.click('#setEnvironment');
+    await widgetIframe.enableSandboxEnvironment();
+    await widgetIframe.waitForLoginPage();
+
+    const popupPage = await widgetIframe.clickLoginButtonToGetLoginWindow();
+    const popupWindow = new LoginWindow(popupPage);
+    await popupWindow.submitCredential();
+    await popupWindow.authorize();
+    page.waitFor(1000);
+    await widgetIframe.waitForDialPage();
+    const dialButton = await widgetIframe.getDialButton();
+    expect(!!dialButton).toEqual(true);
   }, 100000);
 });
