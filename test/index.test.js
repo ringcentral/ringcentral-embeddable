@@ -14,7 +14,7 @@ describe('Index page test', () => {
 
   it('should display "RingCentral Embeddable" text on page', async () => {
     expect(page).toMatch('RingCentral Embeddable');
-  }, 100000);
+  });
 
   it('should get SignIn in widget iframe', async () => {
     const widgetIframe = new IframeWidget();
@@ -23,7 +23,7 @@ describe('Index page test', () => {
     await page.waitFor(1000);
     const loginText = await widgetIframe.getLoginButtonText();
     expect(loginText).toEqual('Sign In');
-  }, 100000);
+  });
 
   it('should login successfully', async () => {
     const widgetIframe = new IframeWidget();
@@ -41,5 +41,5 @@ describe('Index page test', () => {
     await widgetIframe.waitForDialPage();
     const dialButton = await widgetIframe.getDialButton();
     expect(!!dialButton).toEqual(true);
-  }, 100000);
+  });
 });
