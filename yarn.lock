@@ -9107,10 +9107,10 @@ ringcentral-client@^1.0.0-beta.1:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.9.5:
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.9.5.tgz#43dd7f969454f5dad994a62ab5a1c287a1cba922"
-  integrity sha512-KmfwR6e32hkbpTmM5Glvkec6MTEip+GL3UkuV5vqZVbRdCovuKVuGaI11pQvSy5481EAQUEjyvqtxQAcrxX8Lw==
+ringcentral-integration@^0.9.6:
+  version "0.9.6"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.9.6.tgz#ae91a7aef26537da82c49f270676fead726b15d5"
+  integrity sha512-JbNP1tHUJRyeGDb6HQPNKjiHv0UfM/IuBOULXpEDDbuqZCDq7VLqvwXmIJ8nVAskrzdpMTpzZQ5AGZ9S/RPqeA==
   dependencies:
     file-loader "^1.1.11"
     json-mask "^0.3.8"
@@ -9132,10 +9132,10 @@ ringcentral-web-phone@^0.4.5:
   dependencies:
     sip.js "^0.7.8"
 
-ringcentral-widgets@^0.9.5:
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.9.5.tgz#6d79dc3c7de00f81c39a720f78c78b2e80d8db6b"
-  integrity sha512-N7PyXXl1fIN6UrI4QXO+ZQFdVD79UoS+Ceh5Uf1NLkqnL9OYa+x+rCPUlU2LJ0f92psDlftRoHcN51dpCNE2VA==
+ringcentral-widgets@^0.9.6:
+  version "0.9.6"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.9.6.tgz#b317ff40990f0a3fba53137b2a6581196c370c54"
+  integrity sha512-YrBrSXz9r5R1nwsJvSuau4PzaShMYfZzu8bsbQSW5imGhO3n3Dj2KO9swb4RIgY80WFPttDrhsDchu+rx4Ez8Q==
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"

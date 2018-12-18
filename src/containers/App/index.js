@@ -325,15 +325,15 @@ export default function App({
                 )}
               />
               <Route
-                path="/transfer/:sessionsId"
-                component={() => (
-                  <TransferPage />
+                path="/transfer/:sessionId(/:type)"
+                component={routerProps => (
+                  <TransferPage params={routerProps.params} />
                 )}
               />
               <Route
-                path="/simplifycallctrl"
-                component={() => (
-                  <ActiveCallCtrlPage currentLocale={phone.locale.currentLocale} />
+                path="/simplifycallctrl/:sessionId"
+                component={routerProps => (
+                  <ActiveCallCtrlPage params={routerProps.params} />
                 )}
               />
             </Route>
