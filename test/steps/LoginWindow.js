@@ -10,6 +10,7 @@ export class LoginWindow {
     await this._targetPage.waitFor('input[name="Password"]');
     await this._targetPage.waitFor(1200);
     await this._targetPage.type('input[name="Password"]', __USER_PASSWORD__);
+    await this._targetPage.waitFor(200);
     await this._targetPage.click('button[type="submit"]');
   }
 
