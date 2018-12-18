@@ -1,5 +1,7 @@
 # [RingCentral Embeddable](https://ringcentral.github.io/ringcentral-embeddable/)
 
+[![Build Status](https://travis-ci.org/ringcentral/ringcentral-embeddable.svg?branch=master)](https://travis-ci.org/ringcentral/ringcentral-embeddable)
+
 ## Introduction
 
 This is an out-of-the-box embeddable web application that help developers to integrate RingCentral services to their web applications with few codes.
