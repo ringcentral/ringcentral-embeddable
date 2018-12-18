@@ -26,6 +26,10 @@ describe('Index page test', () => {
   });
 
   it('should login successfully', async () => {
+    if (!__USER_PASSWORD__ || !__USER_NAME__) {
+      console.log('THIS TEST IS SKIPED BECAUSE NO USER LOGIN INFO PROVIDED');
+      return;
+    }
     const widgetIframe = new IframeWidget();
     await widgetIframe.loadElement();
     await widgetIframe.waitForLoginPage();
