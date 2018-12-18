@@ -1,3 +1,3 @@
 require('expect-puppeteer');
 
-jest.setTimeout(100000);
+jest.setTimeout(120000);

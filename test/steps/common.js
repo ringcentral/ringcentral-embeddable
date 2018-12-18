@@ -5,6 +5,7 @@ export async function setBrowserPermission(permissions = ['notifications', 'micr
 
 export async function visitIndexPage() {
   await page.goto(__HOST_URI__, {
-    waituntil: 'networkidle0'
+    waituntil: 'networkidle0',
+    timeout: 120000,
   });
 }
