@@ -5,18 +5,22 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0",
+    "test": "jest",
     "start": "npm run dev-server",
     "dev-server": "webpack-dev-server --config webpack-dev-server.config.js --progress --colors --inline",
     "build": "NODE_ENV=production webpack --config webpack-production.config.js --progress --colors"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
+    "dotenv": "^6.2.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^14.1.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
-    "eslint-plugin-react": "^6.10.3"
+    "eslint-plugin-react": "^6.10.3",
+    "jest": "^23.6.0",
+    "jest-puppeteer": "^3.7.0",
+    "puppeteer": "^1.11.0"
   },
   "dependencies": {
     "@ringcentral-integration/glip-widgets": "https://github.com/embbnux/ringcentral-js-widget#glip-widgets-release",
