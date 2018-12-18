@@ -53,26 +53,22 @@ class Adapter extends AdapterCore {
       this._onMessage(data);
     });
 
-    const phoneCallTags = window.document.querySelectorAll('a[href^="tel:"]');
-    for (let i = 0; i < phoneCallTags.length; ++i) {
-      const phoneTag = phoneCallTags[i];
-      phoneTag.addEventListener('click', () => {
-        const hrefStr = phoneTag.getAttribute('href');
-        const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
-        this.clickToCall(phoneNumber, true);
-      });
-    }
-    const phoneSMSTags = window.document.querySelectorAll('a[href^="sms:"]');
-    for (let i = 0; i < phoneSMSTags.length; ++i) {
-      const phoneTag = phoneSMSTags[i];
-      phoneTag.addEventListener('click', () => {
-        const hrefStr = phoneTag.getAttribute('href');
+    document.addEventListener('click', (event) => {
+      if (event.target.matches('a[href^="sms:"]')) {
+        event.preventDefault();
+        const hrefStr = event.target.href;
         const pathStr = hrefStr.split('?')[0];
         const { text, body } = parseUri(hrefStr);
         const phoneNumber = pathStr.replace(/[^\d+*-]/g, '');
         this.clickToSMS(phoneNumber, body || text);
-      });
-    }
+      } else if (event.target.matches('a[href^="tel:"]')) {
+        event.preventDefault();
+        const hrefStr = event.target.href;
+        const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
+        this.clickToCall(phoneNumber, true);
+      }
+    }, false);
+
     if (enableNotification) {
       this._notification = new Notification();
     }
