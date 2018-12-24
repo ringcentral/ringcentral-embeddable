@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
 
+import './lib/patchGetUserMedia';
 import parseUri from './lib/parseUri';
 import { createPhone } from './modules/Phone';
 import App from './containers/App';

@@ -65,6 +65,8 @@ import LocalForageStorage from 'ringcentral-integration/lib/LocalForageStorage';
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
+import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
+import CallingSettingsUI from 'ringcentral-widgets/modules/CallingSettingsUI';
 
 import OAuth from '../OAuth';
 import Auth from '../Auth';
@@ -94,6 +96,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'OAuth', useClass: OAuth },
     { provide: 'Storage', useClass: Storage },
     { provide: 'AudioSettings', useClass: AudioSettings },
+    { provide: 'AudioSettingsUI', useClass: AudioSettingsUI },
     { provide: 'AccountContacts', useClass: AccountContacts },
     { provide: 'RateLimiter', useClass: RateLimiter },
     { provide: 'ExtensionDevice', useClass: ExtensionDevice },
@@ -113,6 +116,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'NumberValidate', useClass: NumberValidate },
     { provide: 'Webphone', useClass: Webphone },
     { provide: 'CallingSettings', useClass: CallingSettings },
+    { provide: 'CallingSettingsUI', useClass: CallingSettingsUI },
     { provide: 'DetailedPresence', useClass: DetailedPresence },
     { provide: 'Presence', useExisting: 'DetailedPresence' },
     { provide: 'CallLog', useClass: CallLog },
