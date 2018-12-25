@@ -7,6 +7,19 @@ import getReducer from './getReducer';
 import requestWithPostMessage from '../../lib/requestWithPostMessage';
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
+function formatContacts(contacts) {
+  return contacts.map((contact) => {
+    const phoneNumbers = contact.phoneNumbers && contact.phoneNumbers.map(p => ({
+      phoneNumber: p.phoneNumber,
+      phoneType: (p.phoneType && p.phoneType.replace('Phone', '')) || 'direct'
+    }));
+    return {
+      ...contact,
+      phoneNumbers
+    };
+  });
+}
+
 @Module({
   deps: [
     'Contacts',
@@ -274,11 +287,13 @@ export default class ThirdPartyService extends RcModule {
     if (!Array.isArray(data)) {
       return { contacts: [], syncTimestamp };
     }
+    const contacts = formatContacts(data);
     if (!nextPage) {
-      return { contacts: data, syncTimestamp };
+      return { contacts, syncTimestamp };
     }
     const nextPageData = await this._fetchContacts(nextPage);
-    return { contacts: data.concat(nextPageData.contacts), syncTimestamp };
+    const nextPageContacts = formatContacts(nextPageData.contacts);
+    return { contacts: contacts.concat(nextPageContacts), syncTimestamp };
   }
 
   async fetchContacts() {
