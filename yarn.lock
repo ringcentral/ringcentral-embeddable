@@ -74,12 +74,12 @@
     through2 "^2.0.0"
     xml-js "^1.6.2"
 
-"@ringcentral-integration/phone-number@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@ringcentral-integration/phone-number/-/phone-number-1.0.1.tgz#80f9050db401249bc972050f4b543eacf7a66508"
-  integrity sha512-O/1ZZCTUPsFLYND70kn/N3FxJ1C9uSGRLqRnxlX+GRaK1kk16paDak9iOVMcCMAleaRifZfHoXA9bBJrCS3Uaw==
+"@ringcentral-integration/phone-number@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@ringcentral-integration/phone-number/-/phone-number-1.0.2.tgz#820f7763f72343cb27c569e24d12574faa916fde"
+  integrity sha512-uB5lV7W+aILee8PjtJjoZ/bgnV61vJGoIz/Ol+rVMieCgCgtfxhlEjyWp9JK2WzW3oz0BByHdkMtIzF1g3VHrg==
   dependencies:
-    libphonenumber-js "^1.2.11"
+    libphonenumber-js "^1.3.0"
     ramda "^0.25.0"
 
 abab@^2.0.0:
@@ -189,6 +189,11 @@ agentkeepalive@^3.1.0:
   integrity sha512-9yhcpXti2ZQE7bxuCsjjWNIZoQOd9sZ1ZBovHG0YeCRohFv73SLvcm73PC9T3olM4GyozaQb+4MGdQpcD8m7NQ==
   dependencies:
     humanize-ms "^1.2.1"
+
+ajv-errors@^1.0.0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/ajv-errors/-/ajv-errors-1.0.1.tgz#f35986aceb91afadec4102fbd85014950cefa64d"
+  integrity sha512-DCRfO/4nQ+89p/RK43i8Ezd41EqdGIU4ld7nGF8OQ14oc/we5rEntLCUa7+jrn3nn83BosfwZA0wb4pon2o8iQ==
 
 ajv-keywords@^1.0.0:
   version "1.5.1"
@@ -2527,6 +2532,11 @@ crypto-browserify@^3.11.0:
     public-encrypt "^4.0.0"
     randombytes "^2.0.0"
 
+crypto-js@^3.1.9-1:
+  version "3.1.9-1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.1.9-1.tgz#fda19e761fc077e01ffbfdc6e9fdfc59e8806cd8"
+  integrity sha1-/aGedh/Ad+Af+/3G6f38WeiAbNg=
+
 css-animation@^1.3.2:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/css-animation/-/css-animation-1.4.1.tgz#5b8813125de0fbbbb0bbe1b472ae84221469b7a8"
@@ -3806,13 +3816,13 @@ file-loader@^0.11.1:
   dependencies:
     loader-utils "^1.0.2"
 
-file-loader@^1.1.11:
-  version "1.1.11"
-  resolved "https://registry.yarnpkg.com/file-loader/-/file-loader-1.1.11.tgz#6fe886449b0f2a936e43cabaac0cdbfb369506f8"
-  integrity sha512-TGR4HU7HUsGg6GCOPJnFk06RhWgEWFLAGWiT6rcD+GRC2keU3s9RGJ+b3Z6/U73jwwNb2gKLJ7YCrp+jvU4ALg==
+file-loader@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/file-loader/-/file-loader-2.0.0.tgz#39749c82f020b9e85901dcff98e8004e6401cfde"
+  integrity sha512-YCsBfd1ZGCyonOKLxPiKPdu+8ld9HAaMEvJewzz+b2eTF7uL5Zm/HdBF6FjCrpCMRq25Mi0U1gl4pwn2TlH7hQ==
   dependencies:
     loader-utils "^1.0.2"
-    schema-utils "^0.4.5"
+    schema-utils "^1.0.0"
 
 file-uri-to-path@1:
   version "1.0.0"
@@ -6196,10 +6206,10 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-libphonenumber-js@^1.2.11:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.5.1.tgz#eb426ab1e1c4a462bda1b17fe39dc39324c0e228"
-  integrity sha512-+LUvo5Fx45Qdn4zI53KKyFywWkMRYrEYgOXKmEoihVjoxRU67ZtIc2PODx2NZpLtnLHfcsirAMvTaD+Yz7txig==
+libphonenumber-js@^1.3.0:
+  version "1.6.9"
+  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.6.9.tgz#3ac541f29778d8096bef5bcb3e319dd4088ce32e"
+  integrity sha512-PxN3pUzLIhamXd3WOZp0TwPeaJhU30OViP7cLeG9FRz1X68Az9ARHCwN5ydVvrfEC7ifbvNwB72dM+S1IFYiZw==
   dependencies:
     minimist "^1.2.0"
     semver-compare "^1.0.0"
@@ -6865,15 +6875,15 @@ mkdirp@0.5.1, mkdirp@0.5.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdi
   dependencies:
     minimist "0.0.8"
 
-moment@^2.19.2:
-  version "2.20.0"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.20.0.tgz#53396358994dd3a551e966a66af715ecb6c30ad0"
-  integrity sha512-r7aEpLB/mhMUiC5ksahDajF/Jr3wS/qLzUnwOJCZyKWF34ibdvW8saujBKfR7aQlov//JgFA38HXOoIt7lXzcA==
-
 moment@^2.19.3:
   version "2.19.3"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.19.3.tgz#bdb99d270d6d7fda78cc0fbace855e27fe7da69f"
   integrity sha1-vbmdJw1tf9p4zA+6zoVeJ/59pp8=
+
+moment@^2.22.2:
+  version "2.23.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.23.0.tgz#759ea491ac97d54bac5ad776996e2a58cc1bc225"
+  integrity sha512-3IE39bHVqFbWWaPOMHZF98Q9c3LDKGTmypMiTM2QygGXXElkFWIH7GxfmlwmY2vwa+wmNsoYZmG2iusf1ZjJoA==
 
 ms@0.7.1:
   version "0.7.1"
@@ -7392,11 +7402,6 @@ optionator@^0.8.1, optionator@^0.8.2:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
     wordwrap "~1.0.0"
-
-options@>=0.0.5:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/options/-/options-0.0.6.tgz#ec22d312806bb53e731773e7cdaefcf1c643128f"
-  integrity sha1-7CLTEoBrtT5zF3Pnza788cZDEo8=
 
 orchestrator@^0.3.0:
   version "0.3.8"
@@ -8288,6 +8293,11 @@ qs@^6.1.0, qs@~6.4.0:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.4.0.tgz#13e26d28ad6b0ffaa91312cd3bf708ed351e7233"
   integrity sha1-E+JtKK1rD/qpExLNO/cI7TUecjM=
 
+qs@^6.6.0:
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.6.0.tgz#a99c0f69a8d26bf7ef012f871cdabb0aee4424c2"
+  integrity sha512-KIJqT9jQJDQx5h5uAVPimw6yVg2SekOKu959OCtktD3FjzbpvaPr8i4zzg07DOMz+igA4W/aNM7OV8H37pFYfA==
+
 qs@~6.5.2:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
@@ -9107,43 +9117,43 @@ ringcentral-client@^1.0.0-beta.1:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.9.6:
-  version "0.9.6"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.9.6.tgz#ae91a7aef26537da82c49f270676fead726b15d5"
-  integrity sha512-JbNP1tHUJRyeGDb6HQPNKjiHv0UfM/IuBOULXpEDDbuqZCDq7VLqvwXmIJ8nVAskrzdpMTpzZQ5AGZ9S/RPqeA==
+ringcentral-integration@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.0.tgz#d2e049817f4aaf3e7b4a8038e05427a1cdf7503b"
+  integrity sha512-lrD6T9ylgwNqBkuQg9Jr5zWm6p3/jhjdoe4HXmkvbvz7+zPjQZ92Fq6KBR67tXShclogJDm809z05eouHydaeQ==
   dependencies:
-    file-loader "^1.1.11"
+    file-loader "^2.0.0"
     json-mask "^0.3.8"
     localforage "^1.7.2"
-    moment "^2.19.2"
+    moment "^2.22.2"
     prettier "^1.7.0"
     ramda "^0.25.0"
     redux "^3.5.2"
     reselect "^2.5.4"
-    ringcentral-web-phone "^0.4.5"
+    ringcentral-web-phone "^0.6.2"
     url-loader "^1.0.1"
-    uuid "^3.0.1"
+    uuid "^3.3.2"
     yards "^0.1.4"
 
-ringcentral-web-phone@^0.4.5:
-  version "0.4.5"
-  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.4.5.tgz#9c901cbbba8db03218b3b3ebc908f996aae21da6"
-  integrity sha1-nJAcu7qNsDIYs7PryQj5lqriHaY=
+ringcentral-web-phone@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.6.2.tgz#7025572bba7cce6a449067db221911d930b05ea5"
+  integrity sha512-OqGdkQLws2woUeeE5eswlvj7xDgCZcZ9hXoZIRHnYEt1Hqv+Ro4AHIAVCoJfYJ7fafeiFPamOCAGkS8rJKuEGQ==
   dependencies:
-    sip.js "^0.7.8"
+    sip.js "^0.11.6"
 
-ringcentral-widgets@^0.9.6:
-  version "0.9.6"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.9.6.tgz#b317ff40990f0a3fba53137b2a6581196c370c54"
-  integrity sha512-YrBrSXz9r5R1nwsJvSuau4PzaShMYfZzu8bsbQSW5imGhO3n3Dj2KO9swb4RIgY80WFPttDrhsDchu+rx4Ez8Q==
+ringcentral-widgets@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.0.tgz#53ba64bc29f4113eb4fa70c9faec72f759efc3d1"
+  integrity sha512-RbVNEnYXOQJfvkEQgkg6E6fun5z8812hafVeVyfNGU19Vw8J4anDUDb4Ib0hL4TSZLd8Da0ks3vWDnEzs5E4jg==
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
-    core-js "^2.5.6"
+    core-js "^2.5.7"
     dedent "^0.7.0"
     normalize-css "^2.3.1"
     prop-types "^15.5.10"
-    qs "^6.5.1"
+    qs "^6.6.0"
     ramda "^0.25.0"
     rc-tooltip "^3.4.6"
     react-svg-loader "^2.1.0"
@@ -9154,7 +9164,7 @@ ringcentral-widgets@^0.9.6:
     reselect "^2.5.4"
     through2 "^2.0.3"
     url-parse "^1.2.0"
-    uuid "^3.1.0"
+    uuid "^3.3.2"
 
 ringcentral@^3.1.3:
   version "3.1.3"
@@ -9272,12 +9282,21 @@ sax@>=0.6.0, sax@^1.2.4, sax@~1.2.1:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
 
-schema-utils@^0.4.3, schema-utils@^0.4.5:
+schema-utils@^0.4.3:
   version "0.4.5"
   resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-0.4.5.tgz#21836f0608aac17b78f9e3e24daff14a5ca13a3e"
   integrity sha512-yYrjb9TX2k/J1Y5UNy3KYdZq10xhYcF8nMpAW6o3hy6Q8WSIEf9lJHG/ePnOBfziPM3fvQwfOwa13U/Fh8qTfA==
   dependencies:
     ajv "^6.1.0"
+    ajv-keywords "^3.1.0"
+
+schema-utils@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-1.0.0.tgz#0b79a93204d7b600d4b2850d1f66c2a34951c770"
+  integrity sha512-i27Mic4KovM/lnGsy8whRCHhc7VicJajAjTrYg11K9zfZXnYIt4k5F+kZkwjnrhKzLic/HLU4j11mjsz2G/75g==
+  dependencies:
+    ajv "^6.1.0"
+    ajv-errors "^1.0.0"
     ajv-keywords "^3.1.0"
 
 scss-tokenizer@^0.2.1:
@@ -9496,12 +9515,12 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
 
-sip.js@^0.7.8:
-  version "0.7.8"
-  resolved "https://registry.yarnpkg.com/sip.js/-/sip.js-0.7.8.tgz#48709ba13485bcc050869b77a93c21658095b430"
-  integrity sha1-SHCboTSFvMBQhpt3qTwhZYCVtDA=
+sip.js@^0.11.6:
+  version "0.11.6"
+  resolved "https://registry.yarnpkg.com/sip.js/-/sip.js-0.11.6.tgz#a5e748307d2b0f1dd9e8f1365893d771a7e72f8e"
+  integrity sha512-ZxD3h6gpT4LYaG3ihFb5U3gOGGz+ObiNnzDgOlyCyu0zXZTqvzGSnfbXwIsGCES/N0z+K4tG21GhWpdUr2F7Ig==
   dependencies:
-    ws "^1.0.1"
+    crypto-js "^3.1.9-1"
   optionalDependencies:
     promiscuous "^0.6.0"
 
@@ -10361,11 +10380,6 @@ uglifyjs-webpack-plugin@^0.4.6:
     uglify-js "^2.8.29"
     webpack-sources "^1.0.1"
 
-ultron@1.0.x:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/ultron/-/ultron-1.0.2.tgz#ace116ab557cd197386a4e88f4685378c8b2e4fa"
-  integrity sha1-rOEWq1V80Zc4ak6I9GhTeMiy5Po=
-
 unc-path-regex@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
@@ -10599,7 +10613,7 @@ uuid@^3.0.0:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.0.1.tgz#6544bba2dfda8c1cf17e629a3a305e2bb1fee6c1"
   integrity sha1-ZUS7ot/ajBzxfmKaOjBeK7H+5sE=
 
-uuid@^3.0.1, uuid@^3.1.0:
+uuid@^3.0.1:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.1.0.tgz#3dd3d3e790abc24d7b0d3a034ffababe28ebbc04"
   integrity sha512-DIWtzUkw04M4k3bf1IcpS2tngXEL26YUD2M0tMDUpnUrz2hgzUBlD55a4FjdLGPvfHxS6uluGWvaVEqgBcVa+g==
@@ -10995,14 +11009,6 @@ write@^0.2.1:
   integrity sha1-X8A4KOJkzqP+kUVUdvejxWbLB1c=
   dependencies:
     mkdirp "^0.5.1"
-
-ws@^1.0.1:
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-1.1.5.tgz#cbd9e6e75e09fc5d2c90015f21f0c40875e0dd51"
-  integrity sha512-o3KqipXNUdS7wpQzBHSe180lBGO60SoK0yVo3CYJgb2MkobuWuBX6dhkYP5ORCLd55y+SaflMOV5fqAB53ux4w==
-  dependencies:
-    options ">=0.0.5"
-    ultron "1.0.x"
 
 ws@^5.2.0:
   version "5.2.2"
