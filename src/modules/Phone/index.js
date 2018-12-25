@@ -13,7 +13,7 @@ import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import Alert from 'ringcentral-integration/modules/Alert';
-import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
+// import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Brand from 'ringcentral-integration/modules/Brand';
 import Call from 'ringcentral-integration/modules/Call';
@@ -68,6 +68,7 @@ import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
 import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
 import CallingSettingsUI from 'ringcentral-widgets/modules/CallingSettingsUI';
 
+import AudioSettings from '../AudioSettings';
 import OAuth from '../OAuth';
 import Auth from '../Auth';
 import Environment from '../Environment';
