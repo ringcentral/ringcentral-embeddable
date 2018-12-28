@@ -54,16 +54,23 @@ class Adapter extends AdapterCore {
     });
 
     document.addEventListener('click', (event) => {
-      if (event.target.matches('a[href^="sms:"]')) {
+      let target = event.target;
+      if (!target.href) {
+        target = target.parentElement;
+      }
+      if (!target.href) {
+        target = target.parentElement;
+      }
+      if (target.matches('a[href^="sms:"]')) {
         event.preventDefault();
-        const hrefStr = event.target.href;
+        const hrefStr = target.href;
         const pathStr = hrefStr.split('?')[0];
         const { text, body } = parseUri(hrefStr);
         const phoneNumber = pathStr.replace(/[^\d+*-]/g, '');
         this.clickToSMS(phoneNumber, body || text);
-      } else if (event.target.matches('a[href^="tel:"]')) {
+      } else if (target.matches('a[href^="tel:"]')) {
         event.preventDefault();
-        const hrefStr = event.target.href;
+        const hrefStr = target.href;
         const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
         this.clickToCall(phoneNumber, true);
       }
