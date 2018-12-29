@@ -19,3 +19,7 @@ input {
   @include full-size;
   background-color: $app-background-color;
 }
+
+:global .rc-editor-mention-dropdown {
+  z-index: 12!important;
+}
