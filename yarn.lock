@@ -37,12 +37,12 @@
     normalize-path "^2.0.1"
     through2 "^2.0.3"
 
-"@ringcentral-integration/glip-widgets@https://github.com/embbnux/ringcentral-js-widget#glip-widgets-release":
+"@ringcentral-integration/glip-widgets@https://github.com/ringcentral/ringcentral-js-widgets#glip-widgets-release":
   version "0.0.1"
-  resolved "https://github.com/embbnux/ringcentral-js-widget#5915312a825990e00d7e6184a8749a461d047beb"
+  resolved "https://github.com/ringcentral/ringcentral-js-widgets#1109497775cc9b164f5b9fad61622983f6e981e0"
   dependencies:
     classnames "^2.2.5"
-    core-js "^2.5.6"
+    core-js "^2.5.7"
     immutable "^3.7.4"
     prop-types "^15.5.10"
     ramda "^0.25.0"
@@ -2426,7 +2426,7 @@ core-js@^2.4.0, core-js@^2.5.0:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.1.tgz#ae6874dc66937789b80754ff5428df66819ca50b"
   integrity sha1-rmh03GaTd4m4B1T/VCjfZoGcpQs=
 
-core-js@^2.5.6, core-js@^2.5.7:
+core-js@^2.5.7:
   version "2.5.7"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.7.tgz#f972608ff0cead68b841a16a932d0b183791814e"
   integrity sha512-RszJCAxg/PP6uzXVXL6BsxSXx/B05oJAQ2vkJRjyjrEcNVycaqOmNb5OTxZPE3xa5gwZduqza6L9JOCenh/Ecw==
@@ -6875,11 +6875,6 @@ mkdirp@0.5.1, mkdirp@0.5.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdi
   dependencies:
     minimist "0.0.8"
 
-moment@^2.19.3:
-  version "2.19.3"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.19.3.tgz#bdb99d270d6d7fda78cc0fbace855e27fe7da69f"
-  integrity sha1-vbmdJw1tf9p4zA+6zoVeJ/59pp8=
-
 moment@^2.22.2:
   version "2.23.0"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.23.0.tgz#759ea491ac97d54bac5ad776996e2a58cc1bc225"
@@ -9117,10 +9112,10 @@ ringcentral-client@^1.0.0-beta.1:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.0.tgz#d2e049817f4aaf3e7b4a8038e05427a1cdf7503b"
-  integrity sha512-lrD6T9ylgwNqBkuQg9Jr5zWm6p3/jhjdoe4HXmkvbvz7+zPjQZ92Fq6KBR67tXShclogJDm809z05eouHydaeQ==
+ringcentral-integration@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.1.tgz#6bf383b7f15151831ef04972ac1660588dfd9de2"
+  integrity sha512-3+fq0Rh5nTblkKFL7Fmn+G+c8cH8rs52aqrqu0iKQXLvF4NeoQnrSd6oKe94qf/2x5UGfePT0R9nyYzufLJtog==
   dependencies:
     file-loader "^2.0.0"
     json-mask "^0.3.8"
@@ -9142,10 +9137,10 @@ ringcentral-web-phone@^0.6.2:
   dependencies:
     sip.js "^0.11.6"
 
-ringcentral-widgets@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.0.tgz#53ba64bc29f4113eb4fa70c9faec72f759efc3d1"
-  integrity sha512-RbVNEnYXOQJfvkEQgkg6E6fun5z8812hafVeVyfNGU19Vw8J4anDUDb4Ib0hL4TSZLd8Da0ks3vWDnEzs5E4jg==
+ringcentral-widgets@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.1.tgz#240c1172d946113ccf3a7cb0ae75f8f8329965ba"
+  integrity sha512-YqAUdUJv4QyTqbgWuARP/V9RQOYAX1RigrLVIUWWFF9DldcIPb3xc9W4Vtnt9zmeTpYMKXig7Zb7LtvqGE17rQ==
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
