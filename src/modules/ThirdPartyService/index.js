@@ -1,5 +1,6 @@
 import RcModule from 'ringcentral-integration/lib/RcModule';
 import { Module } from 'ringcentral-integration/lib/di';
+import phoneTypes from 'ringcentral-widgets/enums/phoneTypes';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
@@ -7,11 +8,25 @@ import getReducer from './getReducer';
 import requestWithPostMessage from '../../lib/requestWithPostMessage';
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
+function formatPhoneType(phoneType) {
+  if (!phoneType) {
+    return 'unknown';
+  }
+  if (phoneTypes[phoneType]) {
+    return phoneType;
+  }
+  const cleanType = phoneType.replace('Phone', '');
+  if (phoneTypes[cleanType]) {
+    return cleanType;
+  }
+  return 'other';
+}
+
 function formatContacts(contacts) {
   return contacts.map((contact) => {
     const phoneNumbers = contact.phoneNumbers && contact.phoneNumbers.map(p => ({
       phoneNumber: p.phoneNumber,
-      phoneType: (p.phoneType && p.phoneType.replace('Phone', '')) || 'direct'
+      phoneType: formatPhoneType(p.phoneType),
     }));
     return {
       ...contact,

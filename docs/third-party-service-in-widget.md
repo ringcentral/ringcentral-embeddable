@@ -104,7 +104,7 @@ window.addEventListener('message', function (e) {
         type: 'TestService', // need to same as service name
         phoneNumbers: [{
           phoneNumber: '+1234567890',
-          phoneType: 'direct',
+          phoneType: 'direct', // support: business, extension, home, mobile, phone, unknown, company, direct, fax, other
         }],
         emails: ['test@email.com'],
         deleted: false, // set deleted to true if you need to delete it in updated contacts
@@ -160,7 +160,7 @@ window.addEventListener('message', function (e) {
         type: 'TestService', // need to same as service name
         phoneNumbers: [{
           phoneNumber: '+1234567890',
-          phoneType: 'direct',
+          phoneType: 'direct', // support: business, extension, home, mobile, phone, unknown, company, direct, fax, other
         }]
       }];
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -207,7 +207,7 @@ window.addEventListener('message', function (e) {
             name: 'TestService 1',
             phoneNumbers: [{
               phoneNumber: '+12165325078',
-              phoneType: 'direct',
+              phoneType: 'direct', // support: business, extension, home, mobile, phone, unknown, company, direct, fax, other
             }]
           }
         ]
