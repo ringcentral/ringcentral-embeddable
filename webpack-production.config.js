@@ -2,6 +2,8 @@ const webpack = require('webpack');
 const fs = require('fs');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+
 require('dotenv').config();
 
 const packageConfig = require('./package');
@@ -30,15 +32,6 @@ config.output = {
   filename: '[name].js',
 };
 config.plugins = [
-  new webpack.optimize.UglifyJsPlugin({
-    compress: {
-      warnings: false,
-    },
-    output: {
-      comments: false,
-    },
-    exclude: /[Aa]dapter/
-  }),
   new webpack.DefinePlugin({
     'process.env': {
       NODE_ENV: JSON.stringify('production'),
@@ -57,5 +50,20 @@ config.plugins = [
     { from: 'src/redirect.html', to: 'redirect.html' },
   ]),
 ];
-
+config.optimization = {
+  minimizer: [
+    new UglifyJsPlugin({
+      uglifyOptions: {
+        compress: {
+          warnings: false,
+        },
+        output: {
+          comments: false,
+        },
+      },
+      exclude: /[Aa]dapter/
+    })
+  ]
+};
+config.mode = 'production';
 module.exports = config;

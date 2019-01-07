@@ -1,6 +1,6 @@
-@import 'normalize-css/normalize.css';
-@import 'ringcentral-widgets/lib/commonStyles/full-size';
-@import 'ringcentral-widgets/lib/commonStyles/colors';
+@import '~normalize-css/normalize.css';
+@import '~ringcentral-widgets/lib/commonStyles/full-size';
+@import '~ringcentral-widgets/lib/commonStyles/colors';
 
 :global div#viewport {
   @include full-size;

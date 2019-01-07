@@ -45,6 +45,6 @@ config.plugins = [
   }),
 ];
 config.devtool = 'eval-source-map';
-
+config.mode = 'development';
 module.exports = config;
 
