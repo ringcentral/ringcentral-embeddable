@@ -216,7 +216,7 @@ export default class ThirdPartyService extends RcModule {
     });
   }
 
-  _updateAuthorizationStatus(data) {
+  async _updateAuthorizationStatus(data) {
     if (!this.authorizationRegistered) {
       return;
     }
@@ -226,7 +226,7 @@ export default class ThirdPartyService extends RcModule {
       authorized: !!data.authorized,
     });
     if (!lastAuthorized && this.authorized) {
-      this.fetchContacts();
+      await this.fetchContacts();
       this._registerContactSearch();
       this._registerContactMatch();
       this._refreshContactMatch();
@@ -323,6 +323,9 @@ export default class ThirdPartyService extends RcModule {
         await this._fetchContactsPromise;
         return;
       }
+      this.store.dispatch({
+        type: this.actionTypes.syncContacts,
+      });
       this._fetchContactsPromise = this._fetchContacts();
       const { contacts, syncTimestamp } = await this._fetchContactsPromise;
       let fetchType;
@@ -337,6 +340,9 @@ export default class ThirdPartyService extends RcModule {
         syncTimestamp,
       });
     } catch (e) {
+      this.store.dispatch({
+        type: this.actionTypes.syncContactsError,
+      });
       console.error(e);
     }
     this._fetchContactsPromise = null;
@@ -364,7 +370,7 @@ export default class ThirdPartyService extends RcModule {
       if (!this._contactMatchPath) {
         return result;
       }
-      const { data } = await requestWithPostMessage(this._contactMatchPath, { phoneNumbers });
+      const { data } = await requestWithPostMessage(this._contactMatchPath, { phoneNumbers }, 6000);
       if (!data || Object.keys(data).length === 0) {
         return result;
       }
@@ -551,5 +557,9 @@ export default class ThirdPartyService extends RcModule {
 
   get contactSyncTimestamp() {
     return this.state.contactSyncTimestamp;
+  }
+
+  get contactSyncing() {
+    return this.state.contactSyncing;
   }
 }

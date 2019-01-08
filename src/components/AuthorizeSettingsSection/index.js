@@ -12,8 +12,12 @@ export default function AuthorizeSettingsSection({
   authorizedTitle,
   unauthorizedTitle,
   serviceName,
+  contactSyncing
 }) {
-  const status = authorized ? authorizedTitle : unauthorizedTitle;
+  let status = authorized ? authorizedTitle : unauthorizedTitle;
+  if (authorized && contactSyncing) {
+    status = 'Syncing';
+  }
   return (
     <Line
     >
@@ -40,9 +44,11 @@ AuthorizeSettingsSection.propTypes = {
   authorized: PropTypes.bool.isRequired,
   authorizedTitle: PropTypes.string,
   unauthorizedTitle: PropTypes.string,
+  contactSyncing: PropTypes.bool,
 };
 
 AuthorizeSettingsSection.defaultProps = {
   authorizedTitle: 'Unauthorize',
-  unauthorizedTitle: 'Authorize'
+  unauthorizedTitle: 'Authorize',
+  contactSyncing: false,
 };
