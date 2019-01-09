@@ -298,7 +298,7 @@ export default class ThirdPartyService extends RcModule {
       await requestWithPostMessage(this._contactsPath, {
         page,
         syncTimestamp: this.contactSyncTimestamp,
-      }, 6000);
+      }, 8000);
     if (!Array.isArray(data)) {
       return { contacts: [], syncTimestamp };
     }
