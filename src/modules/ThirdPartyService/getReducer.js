@@ -131,6 +131,22 @@ export function getContactSyncTimestampReducer(types) {
   };
 }
 
+export function getContactSyncingReducer(types) {
+  return (state = false, { type }) => {
+    switch (type) {
+      case types.syncContacts:
+        return true;
+      case types.fetchContactsSuccess:
+      case types.syncContactsSuccess:
+      case types.syncContactsError:
+      case types.resetSuccess:
+        return false;
+      default:
+        return state;
+    }
+  };
+}
+
 export function getConferenceInviteTitleReducer(types) {
   return (state = null, { type, conferenceInviteTitle }) => {
     switch (type) {
@@ -196,6 +212,7 @@ export default function getReducer(types) {
     sourceReady: getSourceReadyReducer(types),
     contacts: getContactsReducer(types),
     contactSyncTimestamp: getContactSyncTimestampReducer(types),
+    contactSyncing: getContactSyncingReducer(types),
     activitiesRegistered: getActivitiesRegisteredReducer(types),
     activitiesLoaded: getActivitiesLoadedReducer(types),
     activities: getActivitiesReducer(types),

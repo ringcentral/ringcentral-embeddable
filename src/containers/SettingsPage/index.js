@@ -18,6 +18,7 @@ function NewSettingsPanel(props) {
     authorizedTitle,
     unauthorizedTitle,
     thirdPartyServiceName,
+    thirdPartyContactSyncing,
   } = props;
   let additional = null;
   if (authorizationRegistered) {
@@ -25,6 +26,7 @@ function NewSettingsPanel(props) {
       <AuthorizeSettingsSection
         serviceName={thirdPartyServiceName}
         authorized={thirdPartyAuthorized}
+        contactSyncing={thirdPartyContactSyncing}
         onAuthorize={onThirdPartyAuthorize}
         authorizedTitle={authorizedTitle}
         unauthorizedTitle={unauthorizedTitle}
@@ -46,6 +48,7 @@ NewSettingsPanel.propTypes = {
   authorizedTitle: PropTypes.string,
   unauthorizedTitle: PropTypes.string,
   thirdPartyServiceName: PropTypes.string,
+  thirdPartyContactSyncing: PropTypes.bool,
 };
 
 NewSettingsPanel.defaultProps = {
@@ -54,6 +57,7 @@ NewSettingsPanel.defaultProps = {
   authorizedTitle: undefined,
   unauthorizedTitle: undefined,
   thirdPartyServiceName: undefined,
+  thirdPartyContactSyncing: false,
 };
 
 function mapToProps(_, {
@@ -74,6 +78,7 @@ function mapToProps(_, {
     autoLogEnabled: callLogger.autoLog,
     authorizationRegistered: thirdPartyService.authorizationRegistered,
     thirdPartyAuthorized: thirdPartyService.authorized,
+    thirdPartyContactSyncing: thirdPartyService.contactSyncing,
     authorizedTitle: thirdPartyService.authorizedTitle,
     unauthorizedTitle: thirdPartyService.unauthorizedTitle,
     thirdPartyServiceName: thirdPartyService.serviceName,
