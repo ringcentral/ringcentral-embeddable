@@ -90,17 +90,20 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
 * [In-page Login Mode](docs/sso-login-mode.md)
 
-## Awesome Embeddable examples
+## Awesome Embeddable projects
 
-* Ringcentral Embeddable phone for Hubspot - [repo](https://github.com/zxdong262/hubspot-embeddable-ringcentral-phone)
-* Ringcentral Embeddable phone for Insightly - [repo](https://github.com/zxdong262/insightly-embeddable-ringcentral-phone)
+* RingCentral Embeddable phone for Hubspot CRM - [repo](https://github.com/ringcentral/hubspot-embeddable-ringcentral-phone)
+* RingCentral Embeddable phone for Insightly CRM- [repo](https://github.com/ringcentral/insightly-embeddable-ringcentral-phone)
+* RingCentral Embeddable phone for Pipedrive CRM - [repo](https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa)
 * RingCentral Embeddable with Salesforce Lightning - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/salesforce_lightning/tutorial/)
 * RingCentral Embeddable with Static CRM - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/static_crm/tutorial/)
 * RingCentral Embeddable with chrome extension - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-extension)
+* Ringcentral Embeddable for Google with Firefox add-on - [repo](https://github.com/embbnux/ringcentral-embeddable-for-google-firefox-addon)
 * RingCentral Embeddable with Third Party service - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-with-third-party)
 * RingCentral Embeddable with Electron - Support Linux - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-app)
 * RingCentral Embeddable with Game of Thrones theme - [repo](https://github.com/embbnux/ringcentral-web-widget-styles)
 * RingCentral Embeddable with Java app - jxBrowser - [repo](https://github.com/tylerlong/jxbrowser-webrtc)
+* RingCentral Embeddable extension factory - Extension CLI build tool - [repo](https://github.com/ringcentral/ringcentral-embeddable-extension-factory)
 
 ## Contribution and Development
 
