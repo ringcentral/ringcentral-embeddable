@@ -99,6 +99,7 @@ export default class LogSectionModal extends Component {
         onClose={this.props.onClose}
         containerStyles={styles.container}
         modalStyles={styles.modal}
+        maskStyle={styles.mask}
       >
         <LogSection
           currentLocale={this.props.currentLocale}
