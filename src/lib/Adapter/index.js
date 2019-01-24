@@ -55,11 +55,17 @@ class Adapter extends AdapterCore {
 
     document.addEventListener('click', (event) => {
       let target = event.target;
-      if (!target.href) {
+      if (!target) {
+        return;
+      }
+      if (target && !target.href) {
         target = target.parentElement;
       }
-      if (!target.href) {
+      if (target && !target.href) {
         target = target.parentElement;
+      }
+      if (!target) {
+        return;
       }
       if (target.matches('a[href^="sms:"]')) {
         event.preventDefault();
