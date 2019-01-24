@@ -55,6 +55,9 @@ class Adapter extends AdapterCore {
 
     document.addEventListener('click', (event) => {
       let target = event.target;
+      if (!target) {
+        return;
+      }
       if (!target.href) {
         target = target.parentElement;
       }
