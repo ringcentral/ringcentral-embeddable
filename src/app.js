@@ -31,6 +31,7 @@ const disableConferenceCall = typeof pathParams.disableConferenceCall === 'undef
 const disableActiveCallControl = typeof pathParams.disableActiveCallControl === 'undefined' || pathParams.disableActiveCallControl === 'true';
 const authMode = pathParams.authMode;
 const prefix = pathParams.prefix || defaultPrefix;
+const userAgent = pathParams.userAgent;
 
 const phone = createPhone({
   apiConfig,
@@ -47,6 +48,7 @@ const phone = createPhone({
   disableConferenceCall,
   disableActiveCallControl,
   authMode,
+  userAgent,
 });
 
 const store = createStore(phone.reducer);

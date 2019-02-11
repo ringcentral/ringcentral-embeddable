@@ -26,6 +26,7 @@ const {
   disableActiveCallControl,
   authMode,
   prefix,
+  userAgent,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -55,6 +56,7 @@ const appUri = `${appUrl}?${obj2uri({
   disableActiveCallControl,
   authMode,
   prefix,
+  userAgent,
   _t: Date.now(),
 })}`;
 
