@@ -3,7 +3,7 @@ export default {
   brandCode: 'rc',
   code: 'rc',
   name: 'RingCentral',
-  appName: 'RingCentral Embeddable Voice',
+  appName: 'RingCentral Embeddable',
   fullName: 'RingCentral',
-  application: 'RingCentral Embeddable Voice'
+  application: 'RingCentral Embeddable'
 };

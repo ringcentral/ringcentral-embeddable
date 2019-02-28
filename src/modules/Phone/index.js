@@ -473,7 +473,13 @@ export function createPhone({
   disableConferenceCall,
   disableActiveCallControl,
   authMode,
+  userAgent,
 }) {
+  let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
+  if (userAgent) {
+    appNameForSDK = `${userAgent} ${appNameForSDK}`;
+  }
+
   @ModuleFactory({
     providers: [
       { provide: 'ModuleOptions', useValue: { prefix }, spread: true },
@@ -481,7 +487,7 @@ export function createPhone({
         provide: 'SdkConfig',
         useValue: {
           ...apiConfig,
-          appName: brandConfig.appName,
+          appName: appNameForSDK,
           appVersion,
           cachePrefix: `sdk-${prefix}`,
           clearCacheOnRefreshError: false,
@@ -507,7 +513,7 @@ export function createPhone({
         spread: true,
         useValue: {
           appKey: apiConfig.appKey,
-          appName: brandConfig.appName,
+          appName: appNameForSDK,
           appVersion,
           webphoneLogLevel: 1,
         },
