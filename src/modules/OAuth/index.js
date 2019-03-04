@@ -83,6 +83,9 @@ export default class OAuth extends ProxyFrameOAuth {
       }
     } catch (error) {
       console.error('oauth error: ', error);
+      if (error && error.error_description) {
+        console.error('oauth error description: ', error.error_description);
+      }
       let message;
       switch (error.message) {
         case 'invalid_request':
