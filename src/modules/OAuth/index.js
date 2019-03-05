@@ -62,11 +62,22 @@ export default class OAuth extends ProxyFrameOAuth {
     });
     return `${this._auth.getLoginUrl({
       redirectUri: this.redirectUri,
-      brandId: this._brand.id,
+      // brandId: this._brand.id,
       state: btoa(Date.now()),
       display: 'page',
       implicit: this._auth.isImplicit,
     })}&${extendedQuery}`;
+  }
+
+  get implictRefreshOAuthUri() {
+    return `${this._auth.getLoginUrl({
+      redirectUri: this.redirectUri,
+      // brandId: this._brand.id,
+      state: btoa(Date.now()),
+      display: 'page',
+      prompt: 'none',
+      implicit: this._auth.isImplicit,
+    })}`;
   }
 
   get authMode() {
