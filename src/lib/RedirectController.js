@@ -66,7 +66,6 @@ export default class RedirectController {
         }
       });
       localStorage.setItem(key, callbackUri);
-      window.close();
     });
   }
 }
