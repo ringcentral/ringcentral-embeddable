@@ -5,13 +5,12 @@ import RingCentralClient from 'ringcentral-client';
 import { ModuleFactory } from 'ringcentral-integration/lib/di';
 import RcModule from 'ringcentral-integration/lib/RcModule';
 
-import AccountExtension from 'ringcentral-integration/modules/AccountExtension';
 import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
-import AccountPhoneNumber from 'ringcentral-integration/modules/AccountPhoneNumber';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
+import AccountDirectory from 'ringcentral-integration/modules/AccountDirectory';
 import Alert from 'ringcentral-integration/modules/Alert';
 // import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
@@ -98,6 +97,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'Storage', useClass: Storage },
     { provide: 'AudioSettings', useClass: AudioSettings },
     { provide: 'AudioSettingsUI', useClass: AudioSettingsUI },
+    { provide: 'AccountDirectory', useClass: AccountDirectory },
     { provide: 'AccountContacts', useClass: AccountContacts },
     { provide: 'RateLimiter', useClass: RateLimiter },
     { provide: 'ExtensionDevice', useClass: ExtensionDevice },
@@ -113,7 +113,6 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'ContactMatcher', useClass: ContactMatcher },
     { provide: 'Subscription', useClass: Subscription },
     { provide: 'RegionSettings', useClass: RegionSettings },
-    { provide: 'AccountExtension', useClass: AccountExtension },
     { provide: 'NumberValidate', useClass: NumberValidate },
     { provide: 'Webphone', useClass: Webphone },
     { provide: 'CallingSettings', useClass: CallingSettings },
@@ -135,7 +134,6 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'MessageStore', useClass: MessageStore },
     { provide: 'Conversations', useClass: Conversations },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
-    { provide: 'AccountPhoneNumber', useClass: AccountPhoneNumber },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetails', useClass: ContactDetails },
@@ -160,6 +158,16 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
       deps: [
         { dep: 'SdkConfig', useParam: true, },
       ],
+    },
+    {
+      provide: 'AccountDirectoryOptions',
+      useValue: {
+        polling: true,
+        disableCache: false,
+        needCheckStatus: false,
+        showNotActivated: true,
+      },
+      spread: true,
     },
     {
       provide: 'ContactSources',
