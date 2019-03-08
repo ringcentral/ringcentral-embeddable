@@ -69,5 +69,8 @@
     "ringcentral-widgets": "^0.10.2",
     "uuid": "^3.2.1",
     "whatwg-fetch": "^2.0.3"
+  },
+  "resolutions": {
+    "immutable": "3.7.6"
   }
 }
