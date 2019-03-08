@@ -11,6 +11,11 @@ module.exports = function getBaseConfig() {
     module: {
       rules: [
         {
+          // TODO: there are some es6 codes in web phone sdk. Need to remove it in web phone sdk before released
+          test: /ringcentral-web-phone.js$/, 
+          use: 'babel-loader',
+        },
+        {
           test: /\.js$/,
           use: 'babel-loader',
           exclude: /node_modules/,

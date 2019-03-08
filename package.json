@@ -37,7 +37,7 @@
     "puppeteer": "^1.11.0",
     "sass-loader": "^7.0.3",
     "style-loader": "^0.23.1",
-    "uglifyjs-webpack-plugin": "^2.1.1",
+    "uglifyjs-webpack-plugin": "^2.1.2",
     "url-loader": "^1.1.2",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.2.0",
@@ -69,5 +69,8 @@
     "ringcentral-widgets": "^0.10.2",
     "uuid": "^3.2.1",
     "whatwg-fetch": "^2.0.3"
+  },
+  "resolutions": {
+    "immutable": "3.7.6"
   }
 }
