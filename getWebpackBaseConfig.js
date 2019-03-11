@@ -1,5 +1,21 @@
 const autoprefixer = require('autoprefixer');
-
+const supportedLocales = [
+  'en-US',
+  'en-GB',
+  'en-CA',
+  'en-AU',
+  'fr-FR',
+  'fr-CA',
+  'de-DE',
+  'it-IT',
+  'es-ES',
+  'es-419',
+  'ja-JP',
+  'pt-BR',
+  'zh-CN',
+  'zh-TW',
+  'zh-HK',
+];
 module.exports = function getBaseConfig() {
   return {
     entry: {
@@ -11,14 +27,25 @@ module.exports = function getBaseConfig() {
     module: {
       rules: [
         {
-          // TODO: there are some es6 codes in web phone sdk. Need to remove it in web phone sdk before released
-          test: /ringcentral-web-phone.js$/, 
-          use: 'babel-loader',
+          test: /\.js$/,
+          use: [
+            {
+              loader: 'babel-loader',
+            },
+            {
+              loader: '@ringcentral-integration/locale-loader',
+              options: {
+                supportedLocales
+              }
+            },
+          ],
+          exclude: /node_modules/,
         },
         {
-          test: /\.js$/,
+          // TODO: there are some es6 codes in web phone sdk.
+          //       Need to remove it in web phone sdk before released
+          test: /ringcentral-web-phone.js$/,
           use: 'babel-loader',
-          exclude: /node_modules/,
         },
         {
           test: /\.md$/,

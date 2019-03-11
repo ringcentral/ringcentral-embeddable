@@ -31,6 +31,9 @@ import ConferenceParticipantPage from 'ringcentral-widgets/containers/Conference
 import TransferPage from 'ringcentral-widgets/containers/TransferPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 
+import MeetingPage from 'ringcentral-widgets/containers/MeetingPage';
+import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
+
 import MainView from '../MainView';
 import AppView from '../AppView';
 
@@ -41,6 +44,8 @@ import SettingsPage from '../SettingsPage';
 import CallsListPage from '../CallsListPage';
 import ActiveCallsPage from '../ActiveCallsPage';
 import CallLogSectionModal from '../CallLogSectionModal';
+
+import formatMeetingInfo from '../../lib/formatMeetingInfo';
 
 export default function App({
   phone,
@@ -247,6 +252,22 @@ export default function App({
                   <ConferenceCommands
                     currentLocale={phone.locale.currentLocale}
                     onBack={() => phone.routerInteraction.goBack()} />
+                )}
+              />
+              <Route
+                path="/meeting"
+                component={() => (
+                  <MeetingPage
+                    schedule={async (meetingInfo) => {
+                      const resp = await phone.meeting.schedule(meetingInfo);
+                      if (!resp) {
+                        return;
+                      }
+                      const formatedMeetingInfo = formatMeetingInfo(resp, phone.brandOptions, phone.locale.currentLocale);
+                      await phone.thirdPartyService.inviteMeeting(formatedMeetingInfo);
+                    }}
+                    scheduleButton={MeetingScheduleButton}
+                  />
                 )}
               />
               <Route

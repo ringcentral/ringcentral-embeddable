@@ -69,6 +69,10 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     );
   }
 
+  get organizeMeetingEnabled() {
+    return this.permissions.Meetings;
+  }
+
   get contactsEnabled() {
     return this.callingEnabled || this.hasReadMessagesPermission;
   }

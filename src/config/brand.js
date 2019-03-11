@@ -5,5 +5,6 @@ export default {
   name: 'RingCentral',
   appName: 'RingCentral Embeddable',
   fullName: 'RingCentral',
-  application: 'RingCentral Embeddable'
+  application: 'RingCentral Embeddable',
+  teleconference: 'https://meetings.ringcentral.com/teleconference',
 };

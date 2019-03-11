@@ -113,6 +113,9 @@ export default class ThirdPartyService extends RcModule {
         if (service.conferenceInviteTitle && service.conferenceInvitePath) {
           this._registerConferenceInvite(service);
         }
+        if (service.meetingInviteTitle && service.meetingInvitePath) {
+          this._registerMeetingInvite(service);
+        }
         if (service.callLoggerPath) {
           this._registerCallLogger(service);
         }
@@ -203,6 +206,14 @@ export default class ThirdPartyService extends RcModule {
     this.store.dispatch({
       type: this.actionTypes.registerConferenceInvite,
       conferenceInviteTitle: service.conferenceInviteTitle,
+    });
+  }
+
+  _registerMeetingInvite(service) {
+    this._meetingInvitePath = service.meetingInvitePath;
+    this.store.dispatch({
+      type: this.actionTypes.registerMeetingInvite,
+      meetingInviteTitle: service.meetingInviteTitle,
     });
   }
 
@@ -453,6 +464,17 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  async inviteMeeting(meeting) {
+    try {
+      if (!this._meetingInvitePath) {
+        return;
+      }
+      await requestWithPostMessage(this._meetingInvitePath, { meeting });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   async logCall(data) {
     try {
       if (!this._callLoggerPath) {
@@ -525,6 +547,10 @@ export default class ThirdPartyService extends RcModule {
 
   get conferenceInviteTitle() {
     return this.state.conferenceInviteTitle;
+  }
+
+  get meetingInviteTitle() {
+    return this.state.meetingInviteTitle;
   }
 
   get callLoggerRegistered() {
