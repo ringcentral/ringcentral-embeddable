@@ -70,6 +70,47 @@ window.addEventListener('message', function (e) {
 });
 ```
 
+## Add a meeting schedule feature with your service
+
+First we need to add `Meeting` permission into your app in RingCentral Developer website if you are using your own RingCentral client id.
+
+Then pass `meetingInvitePath` and `meetingInviteTitle` when you register service.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService', // service name
+    meetingInvitePath: '/meeting/invite',
+    meetingInviteTitle: 'Schedule with TestService',
+  }
+}, '*');
+```
+
+After registered, we can get `Schedule Meeting` page in navigator.
+
+![meeting page](https://user-images.githubusercontent.com/7036536/54170074-2bb92e80-44b0-11e9-911b-d2f658e73ab2.jpeg)
+
+Add a message event to response meeting schedule button event:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/meeting/invite') {
+      // add your codes here to handle meeting invite data
+      console.log(data);
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+  }
+});
+```
+
 ## Show contacts from your application
 
 ### Show contacts on Contacts page in widget
