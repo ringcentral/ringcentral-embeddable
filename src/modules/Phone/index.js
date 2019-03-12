@@ -452,6 +452,11 @@ export default class BasePhone extends RcModule {
             this.routerInteraction.push('/contacts');
           } else if (this.rolesAndPermissions.organizeConferenceEnabled) {
             this.routerInteraction.push('/conference');
+          } else if (
+            this.rolesAndPermissions.organizeMeetingEnabled &&
+            !!this.thirdPartyService.meetingInviteTitle
+          ) {
+            this.routerInteraction.push('/meeting');
           } else {
             this.routerInteraction.push('/settings');
           }
