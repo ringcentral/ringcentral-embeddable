@@ -9,7 +9,7 @@ import CallLoggerBase from 'ringcentral-integration/modules/CallLogger';
 export default class CallLogger extends CallLoggerBase {
   constructor({
     thirdPartyService,
-    ...options,
+    ...options
   }) {
     super({
       initialState: { autoLog: false },

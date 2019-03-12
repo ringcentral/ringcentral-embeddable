@@ -50,7 +50,7 @@ export default class ThirdPartyService extends RcModule {
     contactSearch,
     contactMatcher,
     activityMatcher,
-    ...options,
+    ...options
   }) {
     super({
       actionTypes,

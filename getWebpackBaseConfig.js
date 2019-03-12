@@ -19,7 +19,7 @@ const supportedLocales = [
 module.exports = function getBaseConfig() {
   return {
     entry: {
-      app: ['babel-polyfill', './src/app.js'],
+      app: './src/app.js',
       adapter: './src/adapter.js',
       proxy: './src/proxy.js',
       redirect: './src/redirect.js',
@@ -62,8 +62,15 @@ module.exports = function getBaseConfig() {
           test: /\.svg/,
           exclude: /font|src(\/|\\)assets(\/|\\)images/,
           use: [
-            'babel-loader',
-            'react-svg-loader',
+            {
+              loader: 'babel-loader'
+            },
+            {
+              loader: 'react-svg-loader',
+              options: {
+                jsx: true
+              }
+            }
           ],
         },
         {

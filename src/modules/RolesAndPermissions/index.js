@@ -17,7 +17,7 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     disableGlip,
     disableConferenceCall,
     disableActiveCallControl,
-    ...options,
+    ...options
   }) {
     super(options);
     this._disableCall = disableCall;
