@@ -79,6 +79,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 * [Third Party Service in Widget](docs/third-party-service-in-widget.md)
   * Register your service
   * Add a conference invite button with your service
+  * Add meeting schedule with your service
   * Show contacts from your application
   * Show contact's activities from your application
   * Add call logger button in calls page

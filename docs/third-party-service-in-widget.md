@@ -8,6 +8,7 @@ This document show how the widget can interact with your application deeply.
 
 * [Register your service](#register-your-service)
 * [Add a conference invite button with your service](#add-a-conference-invite-button-with-your-service)
+* [Add meeting schedule with your service](#add-meeting-schedule-feature-with-your-service)
 * [Show contacts from your application](#show-contacts-from-your-application)
   * [Show contacts on Contacts page in widget](#show-contacts-on-contacts-page-in-widget)
   * [Show contacts search result on Dialer receiver input](#show-contacts-search-result-on-dialer-receiver-input)
@@ -70,7 +71,7 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-## Add a meeting schedule feature with your service
+## Add meeting schedule feature with your service
 
 First we need to add `Meeting` permission into your app in RingCentral Developer website if you are using your own RingCentral client id.
 
