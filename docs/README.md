@@ -27,6 +27,7 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
 * [Third Party Service in Widget](third-party-service-in-widget.md)
   * Register your service
   * Add a conference invite button with your service
+  * Add meeting schedule with your service
   * Show contacts from your application
   * Show contact's activities from your application
   * Add call logger button in calls page

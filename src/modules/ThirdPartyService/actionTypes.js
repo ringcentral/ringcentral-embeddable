@@ -12,6 +12,7 @@ export default new Enum([
   'loadActivitiesSuccess',
   'loadActivities',
   'registerConferenceInvite',
+  'registerMeetingInvite',
   'registerCallLogger',
   'registerAuthorization',
   'updateAuthorizationStatus',

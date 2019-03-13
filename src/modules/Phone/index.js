@@ -67,6 +67,8 @@ import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
 import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
 import CallingSettingsUI from 'ringcentral-widgets/modules/CallingSettingsUI';
 
+import Meeting from 'ringcentral-integration/modules/Meeting';
+
 import AudioSettings from '../AudioSettings';
 import OAuth from '../OAuth';
 import Auth from '../Auth';
@@ -226,6 +228,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     },
     { provide: 'ActiveCallControl', useClass: ActiveCallControl },
     { provide: 'ConferenceDialerUI', useClass: ConferenceDialerUI },
+    { provide: 'Meeting', useClass: Meeting },
   ]
 })
 export default class BasePhone extends RcModule {
@@ -449,6 +452,11 @@ export default class BasePhone extends RcModule {
             this.routerInteraction.push('/contacts');
           } else if (this.rolesAndPermissions.organizeConferenceEnabled) {
             this.routerInteraction.push('/conference');
+          } else if (
+            this.rolesAndPermissions.organizeMeetingEnabled &&
+            !!this.thirdPartyService.meetingInviteTitle
+          ) {
+            this.routerInteraction.push('/meeting');
           } else {
             this.routerInteraction.push('/settings');
           }

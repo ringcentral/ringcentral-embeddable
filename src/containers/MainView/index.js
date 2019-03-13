@@ -25,10 +25,15 @@ import ConferenceIcon from 'ringcentral-widgets/assets/images/Conference.svg';
 import ConferenceHoverIcon from 'ringcentral-widgets/assets/images/ConferenceHover.svg';
 import ConferenceNavIcon from 'ringcentral-widgets/assets/images/ConferenceNavigation.svg';
 
+import MeetingIcon from 'ringcentral-widgets/assets/images/Meeting.svg';
+import MeetingHoverIcon from 'ringcentral-widgets/assets/images/MeetingHover.svg';
+import MeetingNavIcon from 'ringcentral-widgets/assets/images/MeetingNavigation.svg';
+
 function getTabs({
   showMessages,
   unreadCounts,
   showConference,
+  showMeeting,
   showCall,
   showContacts,
   showGlip,
@@ -97,6 +102,13 @@ function getTabs({
         currentPath.substr(0, 11) === '/conference'
       ),
     },
+    showMeeting && {
+      icon: MeetingIcon,
+      activeIcon: MeetingHoverIcon,
+      moreMenuIcon: MeetingNavIcon,
+      label: 'Schedule Meeting',
+      path: '/meeting',
+    },
     {
       icon: SettingsIcon,
       activeIcon: SettingsHoverIcon,
@@ -152,6 +164,7 @@ function mapToProps(_, {
     routerInteraction,
     conference,
     glipGroups,
+    thirdPartyService,
   },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
@@ -162,12 +175,18 @@ function mapToProps(_, {
     rolesAndPermissions.organizeConferenceEnabled &&
     conference.data
   );
+  const showMeeting = (
+    rolesAndPermissions.ready &&
+    rolesAndPermissions.organizeMeetingEnabled &&
+    !!thirdPartyService.meetingInviteTitle
+  );
   const showContacts = rolesAndPermissions.ready && rolesAndPermissions.contactsEnabled;
   const tabs = getTabs({
     unreadCounts,
     showCall,
     showMessages,
     showConference,
+    showMeeting,
     showContacts,
     showGlip: rolesAndPermissions.hasGlipPermission,
     glipUnreadCounts: glipGroups.unreadCounts,
