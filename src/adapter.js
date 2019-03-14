@@ -3,6 +3,11 @@ import logoUrl from './assets/images/VIE_Logo_RC.svg';
 import Adapter from './lib/Adapter';
 import defaultPrefix from './config/prefix';
 
+// TODO: fix: polyfill NodeList forEach
+if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype.forEach) {
+  NodeList.prototype.forEach = Array.prototype.forEach;
+}
+
 const version = process.env.APP_VERSION;
 const appUrl = `${process.env.HOSTING_URL}/app.html`;
 

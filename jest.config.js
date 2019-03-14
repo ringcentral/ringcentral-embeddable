@@ -4,7 +4,7 @@ module.exports = {
   setupFiles: [
     '<rootDir>/test/setup.js'
   ],
-  setupTestFrameworkScriptFile: '<rootDir>/jest.setup.js',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   preset: 'jest-puppeteer',
   globals: {
     __HOST_URI__: process.env.TEST_HOST_URI,

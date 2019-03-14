@@ -50,7 +50,7 @@ export default class Adapter extends AdapterModuleCore {
     messageStore,
     stylesUri,
     prefix,
-    ...options,
+    ...options
   }) {
     super({
       ...options,
