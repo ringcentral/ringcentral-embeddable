@@ -14,7 +14,7 @@ export function getServiceNameReducer(types) {
   };
 }
 
-export function getSourceReadyReducer(types) {
+export function getServiceReadyReducer(types) {
   return (state = false, { type }) => {
     switch (type) {
       case types.register:
@@ -96,7 +96,7 @@ export function getActivitiesReducer(types) {
 }
 
 export function getContactsReducer(types) {
-  return (state = [], { type, contacts }) => {
+  return (state = null, { type, contacts }) => {
     const contactsMap = {};
     let newState = [];
     switch (type) {
@@ -110,7 +110,7 @@ export function getContactsReducer(types) {
         return newState.concat(contacts.filter(c => !c.deleted));
       }
       case types.resetSuccess:
-        return [];
+        return null;
       default:
         return state;
     }
@@ -222,7 +222,7 @@ export default function getReducer(types) {
   return combineReducers({
     status: getModuleStatusReducer(types),
     serviceName: getServiceNameReducer(types),
-    sourceReady: getSourceReadyReducer(types),
+    serviceReady: getServiceReadyReducer(types),
     contacts: getContactsReducer(types),
     contactSyncTimestamp: getContactSyncTimestampReducer(types),
     contactSyncing: getContactSyncingReducer(types),

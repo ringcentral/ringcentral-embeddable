@@ -8,6 +8,8 @@ import getReducer from './getReducer';
 import requestWithPostMessage from '../../lib/requestWithPostMessage';
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
+const EMPTY_CONTACTS = [];
+
 function formatPhoneType(phoneType) {
   if (!phoneType) {
     return 'unknown';
@@ -152,7 +154,7 @@ export default class ThirdPartyService extends RcModule {
         return searchContactPhoneNumbers(contacts, searchString, this.sourceName);
       },
       formatFn: entities => entities,
-      readyCheckFn: () => this.sourceReady,
+      readyCheckFn: () => this.serviceReady,
     });
     this._searchSourceAdded = true;
   }
@@ -177,7 +179,7 @@ export default class ThirdPartyService extends RcModule {
         const result = await this.matchContacts(queries);
         return result;
       },
-      readyCheckFn: () => this.sourceReady,
+      readyCheckFn: () => this.serviceReady,
     });
     this._contactMatchSourceAdded = true;
   }
@@ -280,7 +282,7 @@ export default class ThirdPartyService extends RcModule {
         const result = await this.matchCallLogEntities(queries);
         return result;
       },
-      readyCheckFn: () => this.sourceReady,
+      readyCheckFn: () => this.serviceReady,
     });
     this._callLogEntityMatchSourceAdded = true;
   }
@@ -508,7 +510,7 @@ export default class ThirdPartyService extends RcModule {
   }
 
   get contacts() {
-    return this.state.contacts;
+    return this.state.contacts || EMPTY_CONTACTS;
   }
 
   get serviceName() {
@@ -523,11 +525,18 @@ export default class ThirdPartyService extends RcModule {
     return this.state.status;
   }
 
-  get sourceReady() {
+  get serviceReady() {
     if (this.authorizationRegistered && !this.authorized) {
       return false;
     }
-    return this.state.sourceReady;
+    return this.state.serviceReady;
+  }
+
+  get sourceReady() {
+    if (this._contactsPath && this.state.contacts === null) {
+      return false;
+    }
+    return this.serviceReady;
   }
 
   get activitiesRegistered() {
