@@ -701,14 +701,6 @@
     "@babel/plugin-transform-react-jsx-self" "^7.0.0"
     "@babel/plugin-transform-react-jsx-source" "^7.0.0"
 
-"@babel/runtime-corejs2@^7.3.4":
-  version "7.3.4"
-  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.3.4.tgz#63f8bbc77622da202e9ea6f8f6e3bf28991832d9"
-  integrity sha512-QwPuQE65kNxjsNKk34Rfgen2R5fk0J2So99SD45uXBp34QOfyz11SqVgJ4xvyCpnCIieSQ0X0hSSc9z/ymlJJw==
-  dependencies:
-    core-js "^2.5.7"
-    regenerator-runtime "^0.12.0"
-
 "@babel/runtime@^7.1.2", "@babel/runtime@^7.3.4":
   version "7.3.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.3.4.tgz#73d12ba819e365fcf7fd152aed56d6df97d21c83"
@@ -8263,10 +8255,10 @@ ringcentral-client@^1.0.0-beta.1:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.10.2:
-  version "0.10.2"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.2.tgz#f8dcc1a8adba53acba9304c1f05bdb9233435bf0"
-  integrity sha512-9KCaTP6MZMBG6P7iGGBUL09uxKyerGjj+dqOBjT98kRCjTZqs0V2bGT9fzqWXTAsSHLkLXePfnMqe60I7lfqaQ==
+ringcentral-integration@^0.10.3:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.3.tgz#bcca4f58a1b2840a51247278e7a2624b67107090"
+  integrity sha512-QwMyv6iUv0VeWlVuNcPZoOdTXgkMjhFMq3mGmQ2z4lZgiKfeEbGUNjjpROCXeCQlfzS+9XpJSJDdBDHLhAlkNQ==
   dependencies:
     file-loader "^2.0.0"
     json-mask "^0.3.8"
@@ -8289,10 +8281,10 @@ ringcentral-web-phone@^0.6.3:
     getstats "^1.2.0"
     sip.js "^0.11.6"
 
-ringcentral-widgets@^0.10.2:
-  version "0.10.2"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.2.tgz#3fa5cb6561ed595c7b90b3de57e54112b2c24bb8"
-  integrity sha512-m2w0OYmdooffQewRrnze7l3diCtX7944hQgyLs0Cp6Z7Of4DY/cQJh29RfTtWbYFSymR3SPgVdv9c/SmFIBjVw==
+ringcentral-widgets@^0.10.3:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.3.tgz#f5bf7ae581e7893b450a76431438c3e174e4103f"
+  integrity sha512-o/1IjXaxQNasRjAbw8YLtDCoQ2fJRt+IN/ctfbyr5GYR47fP4BbSh40773+ojLG0XXrzpDAMh4Ke/9gCezNT6A==
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
