@@ -66,7 +66,9 @@ function mapToProps(_, {
 }) {
   const {
     callLogger,
+    rolesAndPermissions,
     thirdPartyService,
+    audioSettings,
   } = phone;
   const baseProps = mapToBaseProps(_, {
     phone,
@@ -74,6 +76,7 @@ function mapToProps(_, {
   });
   return {
     ...baseProps,
+    showAudio: audioSettings.availableDevices.length > 0 && rolesAndPermissions.callingEnabled,
     showAutoLog: callLogger.ready,
     autoLogEnabled: callLogger.autoLog,
     authorizationRegistered: thirdPartyService.authorizationRegistered,
