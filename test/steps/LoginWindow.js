@@ -1,15 +1,17 @@
 export class LoginWindow {
-  constructor(targetPage) {
+  constructor(targetPage, username, password) {
     this._targetPage = targetPage;
+    this._username = username;
+    this._password = password;
   }
 
   async submitCredential() {
     await this._targetPage.waitFor('button[type="submit"]');
-    await this._targetPage.type('input[name="credential"]', __USER_NAME__);
+    await this._targetPage.type('input[name="credential"]', this._username);
     await this._targetPage.click('button[type="submit"]');
     await this._targetPage.waitFor('input[name="Password"]');
     await this._targetPage.waitFor(1200);
-    await this._targetPage.type('input[name="Password"]', __USER_PASSWORD__);
+    await this._targetPage.type('input[name="Password"]', this._password);
     await this._targetPage.waitFor(200);
     await this._targetPage.click('button[type="submit"]');
   }

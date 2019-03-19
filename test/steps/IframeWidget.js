@@ -41,8 +41,16 @@ export class IframeWidget {
     return popup;
   }
 
-  async waitForDialPage() {
-    await this._widgetIframe.waitForSelector('.DialerPanel_dialBtn', { timeout: 100000 });
+  async waitFor(selector, timeout = 10000) {
+    await this._widgetIframe.waitForSelector(selector, { timeout });
+  }
+
+  async waitForDialButton() {
+    await this.waitFor('.DialerPanel_dialBtn', 100000);
+  }
+
+  async waitForNavigations() {
+    await this.waitFor('nav.NavigationBar_root', 10000);
   }
 
   async getLoginButtonText() {
@@ -53,5 +61,26 @@ export class IframeWidget {
   async getDialButton() {
     const callBtn = await this._widgetIframe.$('.DialerPanel_dialBtn');
     return callBtn;
+  }
+
+  async clickNavigationButton(label) {
+    await this.waitFor('nav.NavigationBar_root', 5000);
+    await this._widgetIframe.click(`div.TabNavigationButton_iconHolder[title="${label}"]`);
+  }
+
+  async getCallItemList() {
+    await this.waitFor('.CallsListPanel_container', 10000);
+    const callItems = await this._widgetIframe.$$('.CallItem_root');
+    return callItems;
+  }
+
+  async getNoCallsText() {
+    await this.waitFor('.CallsListPanel_container', 10000);
+    const noCalls = await this._widgetIframe.$('.CallsListPanel_noCalls');
+    if (!noCalls) {
+      return null;
+    }
+    const noCallsText = await this._widgetIframe.$eval('.CallsListPanel_noCalls', el => el.innerText);
+    return noCallsText;
   }
 }
