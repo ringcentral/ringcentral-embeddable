@@ -83,16 +83,16 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   service: {
     name: 'TestService', // service name
     meetingInvitePath: '/meeting/invite',
-    meetingInviteTitle: 'Schedule with TestService',
+    meetingInviteTitle: 'Invite with TestService',
   }
 }, '*');
 ```
 
-After registered, we can get `Schedule Meeting` page in navigator.
+After registered, we can get `Schedule Meeting` page in navigator, and `Invite` button in meeting page:
 
-![meeting page](https://user-images.githubusercontent.com/7036536/54170074-2bb92e80-44b0-11e9-911b-d2f658e73ab2.jpeg)
+![meeting page](https://user-images.githubusercontent.com/7036536/54572803-37fb3980-4a24-11e9-9edc-ac81cb0fecac.jpeg)
 
-Add a message event to response meeting schedule button event:
+Add a message event to response meeting invite button event:
 
 ```js
 window.addEventListener('message', function (e) {
