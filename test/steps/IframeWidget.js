@@ -41,7 +41,7 @@ export class IframeWidget {
     return popup;
   }
 
-  async waitFor(selector, timeout = 10000) {
+  async waitFor(selector, timeout = 20000) {
     await this._widgetIframe.waitForSelector(selector, { timeout });
   }
 
@@ -50,7 +50,7 @@ export class IframeWidget {
   }
 
   async waitForNavigations() {
-    await this.waitFor('nav.NavigationBar_root', 10000);
+    await this.waitFor('nav.NavigationBar_root');
   }
 
   async getLoginButtonText() {
@@ -64,23 +64,78 @@ export class IframeWidget {
   }
 
   async clickNavigationButton(label) {
-    await this.waitFor('nav.NavigationBar_root', 5000);
-    await this._widgetIframe.click(`div.TabNavigationButton_iconHolder[title="${label}"]`);
+    await this.waitFor('nav.NavigationBar_root');
+    await this._widgetIframe.click(`.TabNavigationButton_iconHolder[title="${label}"]`);
+  }
+
+  async clickDropdownNavigationMenu(label) {
+    await this.waitFor('.DropdownNavigationView_root');
+    await this._widgetIframe.click(`.DropdownNavigationItem_root[title="${label}"]`);
   }
 
   async getCallItemList() {
-    await this.waitFor('.CallsListPanel_container', 10000);
+    await this.waitFor('.CallsListPanel_container');
     const callItems = await this._widgetIframe.$$('.CallItem_root');
     return callItems;
   }
 
   async getNoCallsText() {
-    await this.waitFor('.CallsListPanel_container', 10000);
+    await this.waitFor('.CallsListPanel_container');
     const noCalls = await this._widgetIframe.$('.CallsListPanel_noCalls');
     if (!noCalls) {
       return null;
     }
     const noCallsText = await this._widgetIframe.$eval('.CallsListPanel_noCalls', el => el.innerText);
     return noCallsText;
+  }
+
+  async getMessageAllTabText() {
+    await this.waitFor('.ConversationsPanel_root');
+    const allTabText = await this._widgetIframe.$eval('.MessageTabButton_iconHolder[title="All"]', el => el.innerText);
+    return allTabText;
+  }
+
+  async getContactSearchInput() {
+    await this.waitFor('.ContactsView_root');
+    const searchInput = await this._widgetIframe.$('.ContactsView_searchInput');
+    return searchInput;
+  }
+
+  async getELUAText() {
+    await this.waitFor('.SettingsPanel_root');
+    const elua = await this._widgetIframe.$eval('a.SettingsPanel_eula', el => el.innerText);
+    return elua;
+  }
+
+  async dismissMessages() {
+    await this._widgetIframe.$$eval('.Message_dismiss', async (els) => {
+      await Promise.all(els.map(el => el.click()));
+    });
+  }
+
+  async clickSettingSection(label) {
+    await this.waitFor('.SettingsPanel_root');
+    await this.dismissMessages();
+    await page.waitFor(2000);
+    await this.dismissMessages();
+    await page.waitFor(2000);
+    const textHanlders = await this._widgetIframe.$x(`//div[contains(text(), '${label}')]`);
+    if (textHanlders.length > 0) {
+      await textHanlders[0].click();
+    } else {
+      throw new Error(`click ${label} not found`);
+    }
+  }
+
+  async getHeaderLabel() {
+    await this.waitFor('.Header_root');
+    const text = await this._widgetIframe.$eval('.Header_label', el => el.innerText);
+    return text;
+  }
+
+  async getSMSRecipientNumber() {
+    await this.waitFor('.ComposeTextPanel_root');
+    const value = await this._widgetIframe.$eval('input[name="receiver"]', el => el.value)
+    return value;
   }
 }
