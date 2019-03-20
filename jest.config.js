@@ -13,5 +13,7 @@ module.exports = {
   },
   testMatch: [
     '**/test/**/*.test.js'
-  ]
+  ],
+  reporters: ['default'],
+  maxConcurrency: 1,
 };
