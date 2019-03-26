@@ -93,6 +93,15 @@ export default class Adapter extends AdapterModuleCore {
         message,
       });
     });
+    this._webphone.onCallEnd((session) => {
+      this.endCallNotify(session);
+    });
+    this._webphone.onCallStart((session) => {
+      this.startCallNotify(session);
+    });
+    this._webphone.onCallRing((session) => {
+      this.ringCallNotify(session);
+    });
   }
 
   initialize() {

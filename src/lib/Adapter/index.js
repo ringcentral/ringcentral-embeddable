@@ -85,6 +85,12 @@ class Adapter extends AdapterCore {
     if (enableNotification) {
       this._notification = new Notification();
     }
+    this._widgetCurrentPath = '';
+    this._webphoneCalls = [];
+    this._currentStartTime = 0;
+    this._ringingCallsLength = 0;
+    this._onHoldCallsLength = 0;
+    this._hasActiveCalls = false;
   }
 
   _onMessage(data) {
@@ -103,14 +109,17 @@ class Adapter extends AdapterCore {
               }
             });
           }
+          this._updateWebphoneCalls(data.call);
           break;
         case 'rc-call-start-notify':
           console.log('start call:');
           console.log(data.call);
+          this._updateWebphoneCalls(data.call);
           break;
         case 'rc-call-end-notify':
           console.log('end call:');
           console.log(data.call);
+          this._updateWebphoneCalls(data.call);
           break;
         case 'rc-login-status-notify':
           console.log('rc-login-status-notify:', data.loggedIn);
@@ -128,6 +137,7 @@ class Adapter extends AdapterCore {
           console.log('rc-message-updated-notify:', data.message.id);
           break;
         case 'rc-route-changed-notify':
+          this._updateWidgetCurrentPath(data.path);
           console.log('rc-route-changed-notify:', data.path);
           break;
         default:
@@ -203,6 +213,70 @@ class Adapter extends AdapterCore {
     this._postMessage({
       type: 'rc-adapter-logout',
     });
+  }
+
+  // TODO: remove console.log in parent class
+  _onPushLocale({
+    locale,
+    strings = {},
+  }) {
+    this._locale = locale;
+    this._strings = strings;
+    this._renderString();
+  }
+
+  _updateWidgetCurrentPath(path) {
+    this._widgetCurrentPath = path;
+    this._updateCallBarStatus();
+  }
+
+  _updateWebphoneCalls(webphoneCall) {
+    const cleanCalls = this._webphoneCalls.filter(c => c.id !== webphoneCall.id);
+    // When call is ended
+    if (webphoneCall.endTime) {
+      this._webphoneCalls = cleanCalls;
+    } else {
+      if (webphoneCall.callStatus === 'webphone-session-connected') {
+        this._currentStartTime = webphoneCall.startTime;
+      }
+      this._webphoneCalls = [webphoneCall].concat(cleanCalls);
+    }
+    this._updateCallBarStatus();
+  }
+
+  _updateCallBarStatus() {
+    this._hasActiveCalls = this._webphoneCalls.length > 0;
+    const ringingCalls = this._webphoneCalls.filter(
+      c => c.callStatus === 'webphone-session-connecting' && c.direction === 'Inbound'
+    );
+    this._ringingCallsLength = ringingCalls.length;
+    this.renderCallsBar();
+  }
+
+  _renderRingingCalls() {
+    if (!this._ringingCallsLength || !this._strings) {
+      return;
+    }
+    let ringCallsStrings = this._strings.ringCallsInfo || '';
+    ringCallsStrings = ringCallsStrings.replace('0', String(this._ringingCallsLength));
+    this._ringingCallsEl.innerHTML = ringCallsStrings;
+    this._ringingCallsEl.title = ringCallsStrings;
+  }
+
+  get showCurrentCallBtn() {
+    return this._widgetCurrentPath.indexOf('/calls/active') === -1 && this.showDuration;
+  }
+
+  get showViewCallsBtn() {
+    return this._widgetCurrentPath !== '/calls' && (this.showOnHoldCalls || this.showRingingCalls);
+  }
+
+  get centerDuration() {
+    return this._widgetCurrentPath.indexOf('/calls/active') > -1;
+  }
+
+  get centerCallInfo() {
+    return this._widgetCurrentPath === '/calls';
   }
 }
 

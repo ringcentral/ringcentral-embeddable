@@ -241,12 +241,10 @@ export default class BasePhone extends RcModule {
       callMonitor,
       contactMatcher,
       appConfig,
-      adapter,
       conferenceCall,
     } = options;
     // Webphone configuration
     webphone.onCallEnd((session, currentSession, ringSession) => {
-      adapter.endCallNotify(session);
       const callsOnholdReg = /^\/conferenceCall\/callsOnhold\/(.+)\/(.+)$/;
       const execCallsOnhold = callsOnholdReg.exec(routerInteraction.currentPath);
 
@@ -324,13 +322,11 @@ export default class BasePhone extends RcModule {
           routerInteraction.push(path);
         }
       }
-      adapter.startCallNotify(session);
       if (session.direction === 'Outbound') {
         contactMatcher.forceMatchNumber({ phoneNumber: session.to });
       }
     });
     webphone.onCallRing((session) => {
-      adapter.ringCallNotify(session);
       if (webphone.ringSessions.length > 1) {
         if (routerInteraction.currentPath !== '/calls') {
           routerInteraction.push('/calls');
@@ -420,13 +416,13 @@ export default class BasePhone extends RcModule {
       readyCheckFn: () => this.accountContacts.ready,
     });
     // CallMonitor configuration
-    callMonitor._onRinging = async () => {
+    callMonitor.onRingings(async () => {
       if (webphone._webphone) {
         return;
       }
       // TODO refactor some of these logic into appropriate modules
       routerInteraction.push('/calls');
-    };
+    });
 
     this._appConfig = appConfig;
   }
