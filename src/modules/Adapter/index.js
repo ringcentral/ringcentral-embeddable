@@ -102,6 +102,12 @@ export default class Adapter extends AdapterModuleCore {
     this._webphone.onCallRing((session) => {
       this.ringCallNotify(session);
     });
+    this._webphone.onCallHold((session) => {
+      this.holdCallNotify(session);
+    });
+    this._webphone.onCallResume((session) => {
+      this.resumeCallNotify(session);
+    });
   }
 
   initialize() {
@@ -350,6 +356,25 @@ export default class Adapter extends AdapterModuleCore {
         ...session,
         endTime: Date.now(),
       },
+    });
+  }
+
+  holdCallNotify(session) {
+    this._postMessage({
+      type: 'rc-call-hold-notify',
+      call: session,
+    });
+  }
+
+  resumeCallNotify(session) {
+    // TODO: bug in widgets, not update status when resume
+    const call = {
+      ...session,
+      callStatus: 'webphone-session-connected'
+    };
+    this._postMessage({
+      type: 'rc-call-resume-notify',
+      call,
     });
   }
 
