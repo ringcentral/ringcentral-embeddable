@@ -54,7 +54,6 @@
     "@ringcentral-integration/phone-number": "^1.0.3",
     "classnames": "^2.2.5",
     "core-js": "^2.6.5",
-    "event-emitter": "^0.3.5",
     "format-message": "^5.1.2",
     "isomorphic-fetch": "^2.2.1",
     "moment": "^2.22.2",
@@ -69,8 +68,8 @@
     "redux": "^3.6.0",
     "ringcentral": "^3.2.1",
     "ringcentral-client": "^1.0.0-beta.1",
-    "ringcentral-integration": "^0.10.3",
-    "ringcentral-widgets": "^0.10.3",
+    "ringcentral-integration": "^0.10.4",
+    "ringcentral-widgets": "^0.10.4",
     "uuid": "^3.2.1",
     "whatwg-fetch": "^2.0.3"
   },
