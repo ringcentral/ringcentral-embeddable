@@ -10,7 +10,7 @@ In latest version, we implement a new dock UI:
 
 To switch UI with `newAdapterUI` params:
 
-```
+```js
 <script>
   (function() {
     var rcs = document.createElement("script");

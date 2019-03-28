@@ -90,6 +90,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * Disable Conference invite feature
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
 * [In-page Login Mode](docs/sso-login-mode.md)
+* [New adapter badge UI](docs/new-adapter-ui.md)
 
 ## Awesome Embeddable projects
 
