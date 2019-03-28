@@ -22,7 +22,7 @@ window.addEventListener('message', (e) => {
         console.log(data.call);
         break;
       case 'rc-call-start-notify':
-        // get call when a incomingc call is accept or a outbound call is connected
+        // get call when a incoming call is accepted or a outbound call is connected
         console.log(data.call);
         break;
       case 'rc-call-hold-notify':
