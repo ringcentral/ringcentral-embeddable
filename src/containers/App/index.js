@@ -49,6 +49,7 @@ import formatMeetingInfo from '../../lib/formatMeetingInfo';
 
 export default function App({
   phone,
+  showCallBadge,
 }) {
   const getAvatarUrl = async (contact) => {
     const avatarUrl = await phone.contacts.getProfileImage(contact, true);
@@ -57,13 +58,14 @@ export default function App({
   return (
     <PhoneProvider phone={phone}>
       <Provider store={phone.store} >
-        <Router history={phone.routerInteraction.history} >
+        <Router history={phone.routerInteraction.history}>
           <Route
             component={routerProps => (
               <AppView>
                 {routerProps.children}
                 <CallBadgeContainer
                   hidden={(
+                    (!showCallBadge) ||
                     routerProps.location.pathname && (
                       routerProps.location.pathname.indexOf('/calls/active') > -1 ||
                       routerProps.location.pathname.indexOf('/conferenceCall') > -1
@@ -364,4 +366,5 @@ export default function App({
 
 App.propTypes = {
   phone: PropTypes.object.isRequired,
+  showCallBadge: PropTypes.bool.isRequired,
 };

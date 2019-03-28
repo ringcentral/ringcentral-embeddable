@@ -1,5 +1,6 @@
 import parseUri from './lib/parseUri';
 import logoUrl from './assets/images/VIE_Logo_RC.svg';
+import iconUrl from './assets/images/icon.svg';
 import Adapter from './lib/Adapter';
 import defaultPrefix from './config/prefix';
 
@@ -32,6 +33,7 @@ const {
   authMode,
   prefix,
   userAgent,
+  newAdapterUI,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -62,6 +64,7 @@ const appUri = `${appUrl}?${obj2uri({
   authMode,
   prefix,
   userAgent,
+  fromAdapter: 1,
   _t: Date.now(),
 })}`;
 
@@ -71,10 +74,12 @@ function init() {
   }
   window.RCAdapter = new Adapter({
     logoUrl,
+    iconUrl,
     appUrl: appUri,
     version,
     prefix: prefix || defaultPrefix,
     enableNotification: !!notification,
+    newAdapterUI: !!newAdapterUI,
   });
 }
 

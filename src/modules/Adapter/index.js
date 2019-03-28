@@ -1,10 +1,10 @@
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import telephonyStatuses from 'ringcentral-integration/enums/telephonyStatuses';
 import terminationTypes from 'ringcentral-integration/enums/terminationTypes';
+import sessionStatus from 'ringcentral-integration/modules/Webphone/sessionStatus';
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
 import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
 import sleep from 'ringcentral-integration/lib/sleep';
-import { isRing } from 'ringcentral-integration/modules/Webphone/webphoneHelper';
 import { Module } from 'ringcentral-integration/lib/di';
 import callingModes from 'ringcentral-integration/modules/CallingSettings/callingModes';
 import debounce from 'ringcentral-integration/lib/debounce';
@@ -92,6 +92,24 @@ export default class Adapter extends AdapterModuleCore {
         type: 'rc-message-updated-notify',
         message,
       });
+    });
+    this._webphone.onCallEnd((session) => {
+      this.endCallNotify(session);
+    });
+    this._webphone.onCallInit((session) => {
+      this.initCallNotify(session);
+    });
+    this._webphone.onCallStart((session) => {
+      this.startCallNotify(session);
+    });
+    this._webphone.onCallRing((session) => {
+      this.ringCallNotify(session);
+    });
+    this._webphone.onCallHold((session) => {
+      this.holdCallNotify(session);
+    });
+    this._webphone.onCallResume((session) => {
+      this.resumeCallNotify(session);
     });
   }
 
@@ -304,43 +322,50 @@ export default class Adapter extends AdapterModuleCore {
   }
 
   ringCallNotify(session) {
-    if (this._callSessions.has(session.id)) {
-      return;
-    }
-    const call = { ...session };
-    this._callSessions.set(session.id, call);
     this._postMessage({
       type: 'rc-call-ring-notify',
-      call,
+      call: session,
+    });
+  }
+
+  initCallNotify(session) {
+    this._postMessage({
+      type: 'rc-call-init-notify',
+      call: session,
     });
   }
 
   startCallNotify(session) {
-    if (this._callSessions.has(session.id)) {
-      const lastSession = this._callSessions.get(session.id);
-      if (!isRing(lastSession)) {
-        return;
-      }
-    }
-    const call = { ...session };
-    this._callSessions.set(session.id, call);
     this._postMessage({
       type: 'rc-call-start-notify',
-      call,
+      call: session,
     });
   }
 
   endCallNotify(session) {
-    if (!this._callSessions.has(session.id)) {
-      return;
-    }
-    this._callSessions.delete(session.id);
     this._postMessage({
       type: 'rc-call-end-notify',
       call: {
         ...session,
         endTime: Date.now(),
       },
+    });
+  }
+
+  holdCallNotify(session) {
+    this._postMessage({
+      type: 'rc-call-hold-notify',
+      call: {
+        ...session,
+        callStatus: sessionStatus.onHold,
+      },
+    });
+  }
+
+  resumeCallNotify(session) {
+    this._postMessage({
+      type: 'rc-call-resume-notify',
+      call: session,
     });
   }
 
@@ -352,9 +377,6 @@ export default class Adapter extends AdapterModuleCore {
   })
 
   _controlCall(action, id) {
-    if (id && !this._callSessions.has(id)) {
-      return;
-    }
     switch (action) {
       case 'answer':
         this._webphone.answer(id || this._webphone.ringSessionId);

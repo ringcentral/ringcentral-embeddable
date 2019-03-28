@@ -5,7 +5,38 @@
 }
 
 .root {
+  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.2s 0s ease-in-out, width 0.2s ease-in-out;
+}
+
+.root.dock {
   top: initial!important;
+  width: 300px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.root.dock.minimized {
+  width: 60px;
+}
+
+.root.dock.minimized.noPresence {
+  width: 35px;
+}
+
+.iconTrans {
+  .presence {
+    opacity: 1 !important;
+  }
+  .iconContainer {
+    opacity: 0 !important;
+  }
+  .logo {
+    opacity: 1 !important;
+  }
+}
+
+.iconContainer {
+  display: none;
 }
 
 .close {
@@ -14,4 +45,90 @@
 
 .toggle {
   right: 10px;
+}
+
+.dock.minimized.expandable {
+  width: 140px !important;
+}
+
+.dock {
+  .minimized {
+    &.header {
+      line-height: initial;
+      cursor: pointer;
+    }
+
+    .presence {
+      width: 12px;
+      height: 12px;
+      margin-top: -6px;
+      z-index: 2;
+      transition: .2s;
+    }
+
+    .presenceBar {
+      transform: translate(2px, 5px);
+    }
+
+    .logo {
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    .iconContainer {
+      z-index: 2147483648;
+      top: 7px;
+      position: absolute;
+      left: 30px;
+      height: 22px;
+      width: 22px;
+      display: block;
+      cursor: pointer;
+      opacity: 1;
+      transition: .2s;
+      display: flex;
+      .icon {
+        width: 22px;
+        height: 22px;
+        display: inline-block;
+      }
+    }
+
+    .noPresence {
+      left: 7px !important;
+    }
+  }
+}
+
+.iconContainer.hidden {
+  display: none;
+}
+
+
+.viewCallsBtn {
+  &.visible {
+    margin-left: 20px;
+  }
+
+  &.moveIn {
+    margin-left: 20px;
+  }
+
+  &.moveOut {
+    margin-left: 20px;
+  }
+}
+
+.ringingCalls, .onHoldCalls {
+  &.visible {
+    margin-left: -80px;
+  }
+
+  &.moveIn {
+    margin-left: -80px;
+  }
+
+  &.moveOut {
+    margin-left: -80px;
+  }
 }
