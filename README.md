@@ -8,7 +8,7 @@ This is an out-of-the-box embeddable web application that help developers to int
 
 Built with:
 
-* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) - base on react and redux
+* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) - based on react and redux
 
 ## Visit Online
 
@@ -22,7 +22,7 @@ there are two ways to integrate this widget to a web application
 
 #### Adapter JS way
 
-Just add following the following codes to a website's header. It will create a RingCentral Embeddable widget in your website.
+Just add following codes to a website's header. It will create a RingCentral Embeddable widget in that web page.
 
 ```js
 <script>
