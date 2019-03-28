@@ -32,6 +32,7 @@ const disableActiveCallControl = typeof pathParams.disableActiveCallControl === 
 const authMode = pathParams.authMode;
 const prefix = pathParams.prefix || defaultPrefix;
 const userAgent = pathParams.userAgent;
+const fromAdapter = !!pathParams.fromAdapter;
 
 const phone = createPhone({
   apiConfig,
@@ -60,6 +61,7 @@ window.phone = phone;
 ReactDOM.render(
   <App
     phone={phone}
+    showCallBadge={!fromAdapter}
   />,
   document.querySelector('div#viewport'),
 );

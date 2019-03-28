@@ -4,6 +4,7 @@ import RingCentralClient from 'ringcentral-client';
 
 import { ModuleFactory } from 'ringcentral-integration/lib/di';
 import RcModule from 'ringcentral-integration/lib/RcModule';
+import callDirections from 'ringcentral-integration/enums/callDirections';
 
 import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
@@ -313,7 +314,7 @@ export default class BasePhone extends RcModule {
         routerInteraction.replace('/dialer');
       }
     });
-    webphone.onCallStart((session) => {
+    webphone.onCallInit((session) => {
       const path = `/calls/active/${session.id}`;
       if (routerInteraction.currentPath !== path) {
         if (routerInteraction.currentPath.indexOf('/calls/active') === 0) {
@@ -322,8 +323,19 @@ export default class BasePhone extends RcModule {
           routerInteraction.push(path);
         }
       }
-      if (session.direction === 'Outbound') {
-        contactMatcher.forceMatchNumber({ phoneNumber: session.to });
+      contactMatcher.forceMatchNumber({ phoneNumber: session.to });
+    });
+    webphone.onCallStart((session) => {
+      if (session.direction === callDirections.outbound) {
+        return;
+      }
+      const path = `/calls/active/${session.id}`;
+      if (routerInteraction.currentPath !== path) {
+        if (routerInteraction.currentPath.indexOf('/calls/active') === 0) {
+          routerInteraction.replace(path);
+        } else {
+          routerInteraction.push(path);
+        }
       }
     });
     webphone.onCallRing((session) => {

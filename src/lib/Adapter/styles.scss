@@ -103,3 +103,32 @@
 .iconContainer.hidden {
   display: none;
 }
+
+
+.viewCallsBtn {
+  &.visible {
+    margin-left: 20px;
+  }
+
+  &.moveIn {
+    margin-left: 20px;
+  }
+
+  &.moveOut {
+    margin-left: 20px;
+  }
+}
+
+.ringingCalls, .onHoldCalls {
+  &.visible {
+    margin-left: -80px;
+  }
+
+  &.moveIn {
+    margin-left: -80px;
+  }
+
+  &.moveOut {
+    margin-left: -80px;
+  }
+}

@@ -1,14 +1,11 @@
 import classnames from 'classnames';
 import AdapterCore from 'ringcentral-widgets/lib/AdapterCore';
-import { isRing } from 'ringcentral-integration/modules/Webphone/webphoneHelper';
 
 import parseUri from '../parseUri';
 import messageTypes from './messageTypes';
 
 import styles from './styles.scss';
 import Notification from '../notification';
-
-const CURRENT_CALL = 2;
 
 class Adapter extends AdapterCore {
   constructor({
@@ -117,6 +114,11 @@ class Adapter extends AdapterCore {
               }
             });
           }
+          this._updateWebphoneCalls(data.call);
+          break;
+        case 'rc-call-init-notify':
+          console.log('init call:');
+          console.log(data.call);
           this._updateWebphoneCalls(data.call);
           break;
         case 'rc-call-start-notify':
@@ -353,58 +355,42 @@ class Adapter extends AdapterCore {
     });
   }
 
-  // TODO: remove console.log in parent class
-  _onPushLocale({
-    locale,
-    strings = {},
-  }) {
-    this._locale = locale;
-    this._strings = strings;
-    this._renderString();
-  }
-
   _updateWidgetCurrentPath(path) {
     this._widgetCurrentPath = path;
     this._updateCallBarStatus();
   }
 
   _updateWebphoneCalls(webphoneCall) {
-    let cleanCalls = this._webphoneCalls.filter(c => c.id !== webphoneCall.id);
+    const cleanCalls = this._webphoneCalls.filter(c => c.id !== webphoneCall.id);
     // When call is ended
     if (webphoneCall.endTime) {
-      if (webphoneCall.id === this._currentWebhoneCall && cleanCalls.length > 0) {
-        const currentCall = cleanCalls.find(c => !isRing(c));
+      if (webphoneCall.id === this._currentWebhoneCallId && cleanCalls.length > 0) {
+        const currentCall = cleanCalls.find(c => c.callStatus !== 'webphone-session-connecting');
         this._currentStartTime = (currentCall && currentCall.startTime) || 0;
-        this._currentWebhoneCall = currentCall;
+        this._currentWebhoneCallId = currentCall.id;
+      }
+      if (cleanCalls.length === 0) {
+        this._currentStartTime = 0;
+        this._currentWebhoneCallId = null;
       }
       this._webphoneCalls = cleanCalls;
     } else {
-      if (!isRing(webphoneCall)) {
-        const newCallHolded = webphoneCall.callStatus === 'webphone-session-onHold';
-        if (!this._currentStartTime || !newCallHolded) {
-          this._currentStartTime = webphoneCall.startTime || 0;
-          this._currentWebhoneCall = webphoneCall;
-        }
-        // Only has a connected call
-        cleanCalls = cleanCalls.map((call) => {
-          if (!isRing(call) && !newCallHolded) {
-            return {
-              ...call,
-              callStatus: 'webphone-session-onHold',
-            };
-          }
-          return call;
-        });
-      }
       this._webphoneCalls = [webphoneCall].concat(cleanCalls);
+      if (webphoneCall.callStatus === 'webphone-session-connected') {
+        this._currentWebhoneCallId = webphoneCall.id;
+        this._currentStartTime = webphoneCall.startTime;
+      }
     }
     this._updateCallBarStatus();
   }
 
   _updateCallBarStatus() {
-    this._hasActiveCalls = this._webphoneCalls.length > 0;
+    const activeCalls = this._webphoneCalls.filter(
+      c => c.callStatus !== 'webphone-session-connecting' || c.direction === 'Inbound'
+    )
+    this._hasActiveCalls = activeCalls.length > 0;
     const ringingCalls = this._webphoneCalls.filter(
-      c => isRing(c)
+      c => c.callStatus === 'webphone-session-connecting' && c.direction === 'Inbound'
     );
     this._ringingCallsLength = ringingCalls.length;
     const holdedCalls = this._webphoneCalls.filter(
@@ -424,12 +410,27 @@ class Adapter extends AdapterCore {
     this._ringingCallsEl.title = ringCallsStrings;
   }
 
-  // TODO: fix rotate bug
-  rotateCallInfo() {
-    this.currentState = CURRENT_CALL;
-    this._scrollable = false;
-    this._renderCallDuration();
-    this._renderCallsBar();
+  _renderOnHoldCalls() {
+    if (!this._onHoldCallsLength || !this._strings) {
+      return;
+    }
+    let onHoldCallsInfo = this._strings.onHoldCallsInfo || '';
+    onHoldCallsInfo = onHoldCallsInfo.replace('0', String(this._onHoldCallsLength));
+    this._onHoldCallsEl.innerHTML = onHoldCallsInfo;
+    this._onHoldCallsEl.title = onHoldCallsInfo;
+  }
+
+  _renderCallsBar() {
+    super._renderCallsBar();
+    if (this._minimized) {
+      return;
+    }
+    this._currentCallEl.setAttribute('class', classnames(
+      this._styles.currentCallBtn,
+      this.showCurrentCallBtn && this._styles.visible,
+      (!this.centerDuration) && this.moveOutCurrentCallBtn && this._styles.moveOut,
+      (!this.centerDuration) && this.moveInCurrentCallBtn && this._styles.moveIn,
+    ));
   }
 
   get showCurrentCallBtn() {

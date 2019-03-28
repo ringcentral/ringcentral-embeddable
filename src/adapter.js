@@ -64,6 +64,7 @@ const appUri = `${appUrl}?${obj2uri({
   authMode,
   prefix,
   userAgent,
+  fromAdapter: 1,
   _t: Date.now(),
 })}`;
 
