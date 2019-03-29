@@ -4,7 +4,7 @@ The Widget provides some events that developer can get data from it. It is based
 
 ## Web phone call event
 
-Those events are only fired when calling mode is `Browser`. And user have a call in our widget.
+Those events are only fired when calling mode is `Browser`. And user has a call in our widget.
 
 Get web phone (Browser) call info from web phone call event:
 
@@ -26,11 +26,11 @@ window.addEventListener('message', (e) => {
         console.log(data.call);
         break;
       case 'rc-call-hold-notify':
-        // get call when call is hold
+        // get call when user holds a call
         console.log(data.call);
         break;
       case 'rc-call-resume-notify':
-        // get call when a holded call is unhold
+        // get call when user unholds call
         console.log(data.call);
         break;
       case 'rc-call-end-notify':
@@ -47,17 +47,17 @@ window.addEventListener('message', (e) => {
 * The `rc-call-ring-notify` event is fired when user gets a ringing incoming call
 * The `rc-call-init-notify` event is fired when user create a call from dial pad
 * The `rc-call-start-notify` event is fired when user accepts a ringing call or a outbound call is connected
-* The `rc-call-hold-notify` event is fired when a call is on hold
-* The `rc-call-resume-notify` event is fired when a on hold call unhold.
-* The `rc-call-end-notify` event is fired when a call is ended.
+* The `rc-call-hold-notify` event is fired when user holds a call
+* The `rc-call-resume-notify` event is fired when user unholds a call.
+* The `rc-call-end-notify` event is fired when call is ended.
 
-**Notice:** When user creates a call to a physical phone number, `rc-call-start-notify` is fired when callee accepts call. When user creates a call to a VOIP phone number (such as bettween RingCentral account), `rc-call-start-notify` is fired when call is ringing in callee side.
+**Notice:** When user creates a call to a physical phone number, `rc-call-start-notify` is fired when callee accepts call. When user creates a call to a VOIP phone number (such as bettween RingCentral account), `rc-call-start-notify` is fired when outbound call is ringing in callee side.
 
-## Ringout call event
+## RingOut call event
 
-This event is fired when calling mode is `My RingCentral Phone` or `Custom Phone`.  [Here](https://support.ringcentral.com/articles/en_US/RC_Knowledge_Article/87?r=5&other.SupportCommunityImage.getPictures=1&other.SupportCommunityKnowledge.getKnowledgeInfo=1&ui-comm-runtime-components-aura-components-siteforce-qb.Quarterback.validateRoute=1&ui-communities-components-aura-components-forceCommunity-seoAssistant.SeoAssistant.getSeoData=1) is introduction about Ringout call.
+This event is fired when calling mode is `My RingCentral Phone` or `Custom Phone`. [Here](https://support.ringcentral.com/s/article/85) is introduction about RingCentral RingOut call.
 
-Get ringout call info from ringout call event:
+Get RingOut call info from RingOut call event:
 
 ```js
 window.addEventListener('message', (e) => {
@@ -79,7 +79,7 @@ window.addEventListener('message', (e) => {
 
 This event is fired in `all` calling mode, even call is on another device with same RingCentral account.
 
-Get all active calls in current RingCentral logged user:
+Get all active calls in current RingCentral logged user (extension):
 
 ```js
 window.addEventListener('message', (e) => {
