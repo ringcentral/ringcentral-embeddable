@@ -4,7 +4,7 @@ The Widget provides some events that developer can get data from it. It is based
 
 ## Web phone call event
 
-Those events are only fired when calling mode is `Browser`. And user has a call in our widget.
+These events are only fired when calling mode is `Browser`. And user has a call in our widget.
 
 Get web phone (Browser) call info from web phone call event:
 
