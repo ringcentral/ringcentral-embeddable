@@ -207,6 +207,35 @@ export function getUnauthorizedTitleReducer(types) {
   };
 }
 
+export function getAuthorizationLogoReducer(types) {
+  return (state = null, { type, authorizationLogo }) => {
+    switch (type) {
+      case types.registerAuthorization:
+        if (authorizationLogo) {
+          return authorizationLogo;
+        }
+        return state;
+      default:
+        return state;
+    }
+  };
+}
+
+export function getAuthorizedAccountReducer(types) {
+  return (state = null, { type, authorizedAccount }) => {
+    switch (type) {
+      case types.registerAuthorization:
+      case types.updateAuthorizationStatus:
+        if (authorizedAccount) {
+          return authorizedAccount;
+        }
+        return state;
+      default:
+        return state;
+    }
+  };
+}
+
 export function getShowLogModalReducer(types) {
   return (state = false, { type, showLogModal }) => {
     switch (type) {
@@ -236,6 +265,8 @@ export default function getReducer(types) {
     authorized: getAuthorizedReducer(types),
     authorizedTitle: getAuthorizedTitleReducer(types),
     unauthorizedTitle: getUnauthorizedTitleReducer(types),
+    authorizationLogo: getAuthorizationLogoReducer(types),
+    authorizedAccount: getAuthorizedAccountReducer(types),
     showLogModal: getShowLogModalReducer(types),
   });
 }

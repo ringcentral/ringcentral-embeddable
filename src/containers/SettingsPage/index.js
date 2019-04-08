@@ -19,6 +19,8 @@ function NewSettingsPanel(props) {
     unauthorizedTitle,
     thirdPartyServiceName,
     thirdPartyContactSyncing,
+    authorizationLogo,
+    authorizedAccount,
   } = props;
   let additional = null;
   if (authorizationRegistered) {
@@ -30,6 +32,8 @@ function NewSettingsPanel(props) {
         onAuthorize={onThirdPartyAuthorize}
         authorizedTitle={authorizedTitle}
         unauthorizedTitle={unauthorizedTitle}
+        authorizationLogo={authorizationLogo}
+        authorizedAccount={authorizedAccount}
       />
     );
   }
@@ -49,6 +53,8 @@ NewSettingsPanel.propTypes = {
   unauthorizedTitle: PropTypes.string,
   thirdPartyServiceName: PropTypes.string,
   thirdPartyContactSyncing: PropTypes.bool,
+  authorizationLogo: PropTypes.string,
+  authorizedAccount: PropTypes.string,
 };
 
 NewSettingsPanel.defaultProps = {
@@ -58,6 +64,8 @@ NewSettingsPanel.defaultProps = {
   unauthorizedTitle: undefined,
   thirdPartyServiceName: undefined,
   thirdPartyContactSyncing: false,
+  authorizationLogo: undefined,
+  authorizedAccount: undefined,
 };
 
 function mapToProps(_, {
@@ -85,6 +93,8 @@ function mapToProps(_, {
     authorizedTitle: thirdPartyService.authorizedTitle,
     unauthorizedTitle: thirdPartyService.unauthorizedTitle,
     thirdPartyServiceName: thirdPartyService.serviceName,
+    authorizationLogo: thirdPartyService.authorizationLogo,
+    authorizedAccount: thirdPartyService.authorizedAccount,
   };
 }
 

@@ -219,11 +219,22 @@ export default class ThirdPartyService extends RcModule {
 
   _registerAuthorizationButton(service) {
     this._authorizationPath = service.authorizationPath;
+    let authorizationLogo = null;
+    if (service.authorizationLogo) {
+      const logoUri = String(service.authorizationLogo);
+      if (logoUri.indexOf('data:image') === 0) {
+        authorizationLogo = logoUri;
+      } else if (logoUri.split('?')[0].match(/.(png|jpg|jpeg)$/)){
+        authorizationLogo = logoUri;
+      }
+    }
     this.store.dispatch({
       type: this.actionTypes.registerAuthorization,
       authorized: service.authorized,
       authorizedTitle: service.authorizedTitle,
       unauthorizedTitle: service.unauthorizedTitle,
+      authorizationLogo: authorizationLogo,
+      authorizedAccount: service.authorizedAccount,
     });
   }
 
@@ -235,6 +246,7 @@ export default class ThirdPartyService extends RcModule {
     this.store.dispatch({
       type: this.actionTypes.updateAuthorizationStatus,
       authorized: !!data.authorized,
+      authorizedAccount: data.authorizedAccount,
     });
     if (!lastAuthorized && this.authorized) {
       await this.fetchContacts();
@@ -575,6 +587,14 @@ export default class ThirdPartyService extends RcModule {
 
   get unauthorizedTitle() {
     return this.state.unauthorizedTitle;
+  }
+
+  get authorizationLogo() {
+    return this.state.authorizationLogo;
+  }
+
+  get authorizedAccount() {
+    return this.state.authorizedAccount;
   }
 
   get showLogModal() {
