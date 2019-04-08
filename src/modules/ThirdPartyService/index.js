@@ -269,7 +269,8 @@ export default class ThirdPartyService extends RcModule {
     this._activitiesPath = service.activitiesPath;
     this._activityPath = service.activityPath;
     this.store.dispatch({
-      type: this.actionTypes.registerActivities
+      type: this.actionTypes.registerActivities,
+      activityName: service.activityName,
     });
   }
 
@@ -555,6 +556,10 @@ export default class ThirdPartyService extends RcModule {
 
   get activities() {
     return this.state.activities;
+  }
+
+  get activityName() {
+    return this.state.activityName;
   }
 
   get conferenceInviteTitle() {

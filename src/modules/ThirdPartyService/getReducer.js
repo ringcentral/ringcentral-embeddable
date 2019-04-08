@@ -40,6 +40,22 @@ export function getActivitiesRegisteredReducer(types) {
   };
 }
 
+export function getActivityNameReducer(types) {
+  return (state = null, { type, activityName }) => {
+    switch (type) {
+      case types.registerActivities:
+        if (activityName) {
+          return activityName;
+        }
+        return state;
+      case types.resetSuccess:
+        return null;
+      default:
+        return state;
+    }
+  };
+}
+
 export function getActivitiesLoadedReducer(types) {
   return (state = false, { type }) => {
     switch (type) {
@@ -268,5 +284,6 @@ export default function getReducer(types) {
     authorizationLogo: getAuthorizationLogoReducer(types),
     authorizedAccount: getAuthorizedAccountReducer(types),
     showLogModal: getShowLogModalReducer(types),
+    activityName: getActivityNameReducer(types),
   });
 }
