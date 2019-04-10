@@ -82,8 +82,12 @@ function getTabs({
   ];
   if (thirdPartyService.activitiesRegistered) {
     tabs.push({
-      icon: <span className={styles.title}>{thirdPartyService.serviceName}</span>,
-      label: thirdPartyService.serviceName,
+      icon: (
+        <span className={styles.title}>
+          {thirdPartyService.activityName || thirdPartyService.serviceName}
+        </span>
+      ),
+      label: thirdPartyService.activityName || thirdPartyService.serviceName,
       path: 'thirdPartyService',
       isActive: path => path === 'thirdPartyService',
       view: (

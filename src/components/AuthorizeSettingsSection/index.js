@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Line from 'ringcentral-widgets/components/Line';
-import IconField from 'ringcentral-widgets/components/IconField';
 import Button from 'ringcentral-widgets/components/Button';
 
 import styles from './styles.scss';
@@ -12,28 +11,51 @@ export default function AuthorizeSettingsSection({
   authorizedTitle,
   unauthorizedTitle,
   serviceName,
-  contactSyncing
+  contactSyncing,
+  authorizationLogo,
+  authorizedAccount,
 }) {
   let status = authorized ? authorizedTitle : unauthorizedTitle;
   if (authorized && contactSyncing) {
     status = 'Syncing';
   }
-  return (
-    <Line
+  let icon = null;
+  if (authorizationLogo) {
+    icon = (
+      <div className={styles.iconHolder}>
+        <img src={authorizationLogo} className={styles.icon} alt={serviceName} />
+      </div>
+    );
+  } else {
+    icon = (<span className={styles.serviceName}>{serviceName}</span>);
+  }
+  const authButton = (
+    <Button
+      className={styles.authorizaButton}
+      onClick={onAuthorize}
     >
-      <IconField
-        className={styles.iconField}
-        icon={
-          <Button
-            className={styles.authorizaButton}
-            onClick={onAuthorize}
-          >
-            {status}
-          </Button>
-        }
-      >
-        <span className={styles.serviceName}>{serviceName}</span>
-      </IconField>
+      {status}
+    </Button>
+  );
+  if (authorized && authorizedAccount) {
+    return (
+      <Line>
+        {icon}
+        <div className={styles.accountWrapper}>
+          <div className={styles.mailtip} title={authorizedAccount}>
+            {authorizedAccount}
+          </div>
+          {authButton}
+        </div>
+      </Line>
+    );
+  }
+  return (
+    <Line>
+      <div className={styles.accountWrapper}>
+        {icon}
+        {authButton}
+      </div>
     </Line>
   );
 }
@@ -45,10 +67,14 @@ AuthorizeSettingsSection.propTypes = {
   authorizedTitle: PropTypes.string,
   unauthorizedTitle: PropTypes.string,
   contactSyncing: PropTypes.bool,
+  authorizationLogo: PropTypes.string,
+  authorizedAccount: PropTypes.string,
 };
 
 AuthorizeSettingsSection.defaultProps = {
   authorizedTitle: 'Unauthorize',
   unauthorizedTitle: 'Authorize',
   contactSyncing: false,
+  authorizationLogo: null,
+  authorizedAccount: null,
 };

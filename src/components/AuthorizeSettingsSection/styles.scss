@@ -1,13 +1,17 @@
+@import '~ringcentral-widgets/lib/commonStyles/colors.scss';
+@import '~ringcentral-widgets/lib/commonStyles/fonts.scss';
+@import '~ringcentral-widgets/lib/commonStyles/vertical-align';
+
 .serviceName {
-  color: #0684bd;
+  color: $primary-color;
 }
 
 .authorizaButton {
   display: inline-block;
   height: 28px;
   border-radius: 100px;
-  background: #0684bd;
-  border: solid 1px #0684bd;
+  background: $primary-color;
+  border: solid 1px $primary-color;
   font-size: 12px;
   color: #ffffff;
   line-height: 28px;
@@ -18,11 +22,34 @@
   }
 }
 
-.iconField > [class*='content'] {
-  max-width: calc(100% - 86px);
-  min-width: 131px;
+.accountWrapper {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
-.iconField > [class*='iconHolder'] {
-  min-width: 86px;
+.iconHolder {
+  height: 20px;
+}
+
+.icon {
+  @include vertical-align(middle);
+  height: 20px;
+  max-width: 86px;
+  position: relative;
+  top: 4px;
+  margin-bottom: 7px;
+}
+
+.mailtip {
+  word-break: keep-all;
+  word-wrap: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: calc(100% - 86px);
+  font-size: $tertiary-font-size;
+  font-family: $font-family;
+  padding-right: 10px;
+  color: $ash;
 }

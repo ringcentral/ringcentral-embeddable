@@ -39,6 +39,7 @@ import AppView from '../AppView';
 
 import RecentActivityContainer from '../RecentActivityContainer';
 import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButton';
+import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourceIcon';
 
 import SettingsPage from '../SettingsPage';
 import CallsListPage from '../CallsListPage';
@@ -54,6 +55,20 @@ export default function App({
   const getAvatarUrl = async (contact) => {
     const avatarUrl = await phone.contacts.getProfileImage(contact, true);
     return avatarUrl;
+  };
+  const ContactSourceIcon = ({ sourceType }) => {
+    if (!phone.thirdPartyService.contactIcon) {
+      return null;
+    }
+    if (sourceType !== phone.thirdPartyService.sourceName) {
+      return null;
+    }
+    return (
+      <ThirdPartyContactSourceIcon
+        iconUri={phone.thirdPartyService.contactIcon}
+        sourceName={phone.thirdPartyService.sourceName}
+      />
+    );
   };
   return (
     <PhoneProvider phone={phone}>
@@ -209,19 +224,19 @@ export default function App({
               />
               <Route
                 path="/contacts"
-                component={() =>
+                component={() => (
                   <ContactsPage
-                    onVisitPage={async () => {
-                      await phone.contacts.sync();
-                    }}
+                    onVisitPage={async () => { await phone.contacts.sync(); }}
+                    sourceNodeRenderer={ContactSourceIcon}
                   />
-                }
+                )}
               />
               <Route
                 path="/contacts/:contactType/:contactId"
                 component={routerProps => (
                   <ContactDetailsPage
                     params={routerProps.params}
+                    sourceNodeRenderer={ContactSourceIcon}
                     onClickMailTo={
                       (email) => {
                         window.open(`mailto:${email}`);
@@ -275,13 +290,14 @@ export default function App({
               <Route
                 path="/glip"
                 component={
-                  () =>
+                  () => (
                     <GlipGroups
                       hiddenCurrentGroup
                       onSelectGroup={(id) => {
                         phone.routerInteraction.push(`/glip/groups/${id}`);
                       }}
                     />
+                  )
                 }
               />
               <Route
