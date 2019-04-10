@@ -1,0 +1,7 @@
+@import '~ringcentral-widgets/lib/commonStyles/reset';
+
+.icon {
+  @include reset;
+  width: 100%;
+  height: 100%;
+}

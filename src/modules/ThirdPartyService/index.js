@@ -35,6 +35,20 @@ function formatContacts(contacts) {
   });
 }
 
+function getImageUri(sourceUri) {
+  if (!sourceUri) {
+    return null;
+  }
+  let imageUri = null;
+  const sourceUrl = String(sourceUri);
+  if (sourceUrl.indexOf('data:image') === 0) {
+    imageUri = sourceUrl;
+  } else if (sourceUrl.split('?')[0].match(/.(png|jpg|jpeg)$/)){
+    imageUri = sourceUrl;
+  }
+  return imageUri;
+}
+
 @Module({
   deps: [
     'Contacts',
@@ -134,6 +148,7 @@ export default class ThirdPartyService extends RcModule {
 
   _registerContacts(service) {
     this._contactsPath = service.contactsPath;
+    this._contactIcon = service.contactIcon;
     this._contacts.addSource(this);
     this.fetchContacts();
   }
@@ -219,22 +234,13 @@ export default class ThirdPartyService extends RcModule {
 
   _registerAuthorizationButton(service) {
     this._authorizationPath = service.authorizationPath;
-    let authorizationLogo = null;
-    if (service.authorizationLogo) {
-      const logoUri = String(service.authorizationLogo);
-      if (logoUri.indexOf('data:image') === 0) {
-        authorizationLogo = logoUri;
-      } else if (logoUri.split('?')[0].match(/.(png|jpg|jpeg)$/)){
-        authorizationLogo = logoUri;
-      }
-    }
+    this._authorizationLogo = getImageUri(service.authorizationLogo);
+    this._authorizedAccount = service.authorizedAccount;
     this.store.dispatch({
       type: this.actionTypes.registerAuthorization,
       authorized: service.authorized,
       authorizedTitle: service.authorizedTitle,
       unauthorizedTitle: service.unauthorizedTitle,
-      authorizationLogo: authorizationLogo,
-      authorizedAccount: service.authorizedAccount,
     });
   }
 
@@ -243,10 +249,10 @@ export default class ThirdPartyService extends RcModule {
       return;
     }
     const lastAuthorized = this.authorized;
+    this._authorizedAccount = data.authorizedAccount;
     this.store.dispatch({
       type: this.actionTypes.updateAuthorizationStatus,
       authorized: !!data.authorized,
-      authorizedAccount: data.authorizedAccount,
     });
     if (!lastAuthorized && this.authorized) {
       await this.fetchContacts();
@@ -595,11 +601,11 @@ export default class ThirdPartyService extends RcModule {
   }
 
   get authorizationLogo() {
-    return this.state.authorizationLogo;
+    return this._authorizationLogo;
   }
 
   get authorizedAccount() {
-    return this.state.authorizedAccount;
+    return this._authorizedAccount;
   }
 
   get showLogModal() {
@@ -612,5 +618,9 @@ export default class ThirdPartyService extends RcModule {
 
   get contactSyncing() {
     return this.state.contactSyncing;
+  }
+
+  get contactIcon() {
+    return this._contactIcon;
   }
 }
