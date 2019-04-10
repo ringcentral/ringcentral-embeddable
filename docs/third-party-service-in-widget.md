@@ -123,7 +123,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-register-third-party-service',
   service: {
     name: 'TestService',
-    contactsPath: '/contacts'
+    contactsPath: '/contacts',
+    contactIcon: 'https://set_brand_icon.com/test.png', // optional, show brand icon in the top right of contact avatar 
   }
 }, '*');
 ```
@@ -172,7 +173,7 @@ The widget will request contacts data when widget is loaded and when user visit 
 
 If you provide `nextPage` for `contactsPath` response, widget will repeat request with `page="${nextPage}"` to get next page contacts data.
 
-![image](https://user-images.githubusercontent.com/7036536/42258572-f6a8050e-7f8e-11e8-8950-bb9efa8e0918.png)
+![contacts image](https://user-images.githubusercontent.com/7036536/55848243-d9d2f980-5b7e-11e9-8051-7a48cee50222.jpeg)
 
 ### Show contacts search result on Dialer receiver input
 
@@ -279,6 +280,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-register-third-party-service',
   service: {
     name: 'TestService',
+    activityName: 'TestService', // optional, will use service.name as default
     activitiesPath: '/activities',
     activityPath: '/activity'
   }
@@ -442,14 +444,16 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     authorizationPath: '/authorize',
     authorizedTitle: 'Unauthorize',
     unauthorizedTitle: 'Authorize',
-    authorized: false
+    authorized: false,
+    authorizedAccount: 'test@email.com', // optional, authorized account email or id
+    authorizationLogo: 'https://your_brand_picture/logo.png', // optional, show your brand logo in authorization section, recommeneded: height 20px, width < 85px.
   }
 }, '*');
 ```
 
 After registered, you can get a `TestService authorization button` in setting page:
 
-![image](https://user-images.githubusercontent.com/7036536/45734172-13a9d600-bc16-11e8-890f-63d850e017ce.jpg)
+![authorization image](https://user-images.githubusercontent.com/7036536/55848678-55817600-5b80-11e9-8eb3-a784a56997a8.jpeg)
 
 Add a message event to response authorization button event:
 
