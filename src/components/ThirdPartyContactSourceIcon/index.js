@@ -7,9 +7,6 @@ export default function ThirdPartyContactSourceIcon({
   iconUri,
   sourceName
 }) {
-  if (!iconUri) {
-    return null;
-  }
   return (
     <img src={iconUri} alt={sourceName} className={styles.icon} />
   );
@@ -19,6 +16,7 @@ ThirdPartyContactSourceIcon.propTypes = {
   iconUri: PropTypes.string,
   sourceName: PropTypes.string,
 };
+
 ThirdPartyContactSourceIcon.defaultProps = {
   iconUri: undefined,
   sourceName: undefined
