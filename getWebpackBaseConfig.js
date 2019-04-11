@@ -16,7 +16,11 @@ const supportedLocales = [
   'zh-TW',
   'zh-HK',
 ];
-module.exports = function getBaseConfig() {
+module.exports = function getBaseConfig({ themeFolder } = {}) {
+  const sassLoaderIncludePaths = ['src', 'node_modules'];
+  if (themeFolder) {
+    sassLoaderIncludePaths.push(themeFolder);
+  }
   return {
     entry: {
       app: ['@babel/polyfill', './src/app.js'],
@@ -59,28 +63,25 @@ module.exports = function getBaseConfig() {
           ],
         },
         {
+          test: /\.woff|\.woff2|.eot|\.ttf/,
+          use: 'url-loader?limit=15000&publicPath=./&name=fonts/[name]_[hash].[ext]',
+        },
+        {
           test: /\.svg/,
-          exclude: /font|src(\/|\\)assets(\/|\\)images/,
+          exclude: /font/,
           use: [
-            {
-              loader: 'babel-loader'
-            },
+            'babel-loader',
             {
               loader: 'react-svg-loader',
               options: {
                 jsx: true
               }
             }
-          ],
+          ]
         },
         {
-          test: /\.woff|\.woff2|.eot|\.ttf/,
-          use: 'url-loader?limit=15000&publicPath=./&name=fonts/[name]_[hash].[ext]',
-        },
-        {
-          test: /\.png|\.jpg|\.gif|\.svg/,
-          exclude: /ringcentral-widgets(\/|\\)assets(\/|\\)images(\/|\\).+\.svg/,
-          use: 'url-loader?limit=20000&publicPath=./&name=images/[name]_[hash].[ext]',
+          test: /\.png|\.jpg|\.gif|fonts(\/|\\).*\.svg/,
+          use: 'url-loader?limit=20000&name=images/[name]_[hash].[ext]',
         },
         {
           test: /\.ogg$/,
@@ -111,7 +112,7 @@ module.exports = function getBaseConfig() {
               loader: 'sass-loader',
               options: {
                 outputStyle: 'expanded',
-                includePaths: ['src', 'node_modules'],
+                includePaths: sassLoaderIncludePaths,
               },
             }
           ],

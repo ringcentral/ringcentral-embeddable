@@ -1,5 +1,6 @@
 import RedirectController from './lib/RedirectController';
-import prefix from './config/prefix';
+
+const prefix = process.env.PREFIX;
 
 export default new RedirectController({
   prefix,

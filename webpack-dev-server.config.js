@@ -1,10 +1,16 @@
-const webpack = require('webpack');
 const fs = require('fs');
 const path = require('path');
+const webpack = require('webpack');
 require('dotenv').config();
 
-const packageConfig = require('./package');
+const { version } = require('./package');
 const getBaseConfig = require('./getWebpackBaseConfig');
+
+const brand = process.env.BRAND || 'rc';
+
+const getBrandConfig = require('./getBrandConfig');
+
+const { prefix, brandConfig, brandFolder } = getBrandConfig(brand);
 
 const buildPath = path.resolve(__dirname, 'src');
 
@@ -19,9 +25,8 @@ if (fs.existsSync(apiConfigFile)) {
     server: process.env.API_SERVER,
   };
 }
-const version = packageConfig.version;
 
-const config = getBaseConfig();
+const config = getBaseConfig({ themeFolder: brandFolder });
 config.devServer = {
   contentBase: buildPath,
   hot: true,
@@ -41,10 +46,16 @@ config.plugins = [
       API_CONFIG: JSON.stringify(apiConfig),
       APP_VERSION: JSON.stringify(version),
       HOSTING_URL: JSON.stringify('http://localhost:8080'),
+      PREFIX: JSON.stringify(prefix),
+      BRAND_CONFIG: JSON.stringify(brandConfig),
     },
   }),
 ];
 config.devtool = 'eval-source-map';
 config.mode = 'development';
+config.resolve = {
+  alias: {
+    'brand-logo-path': brandFolder,
+  },
+};
 module.exports = config;
-

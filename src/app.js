@@ -6,9 +6,9 @@ import './lib/patchGetUserMedia';
 import parseUri from './lib/parseUri';
 import { createPhone } from './modules/Phone';
 import App from './containers/App';
-import brandConfig from './config/brand';
-import defaultPrefix from './config/prefix';
 
+const defaultPrefix = process.env.PREFIX;
+const brandConfig = process.env.BRAND_CONFIG;
 const defaultApiConfig = process.env.API_CONFIG;
 const appVersion = process.env.APP_VERSION;
 
