@@ -22,7 +22,7 @@ const CALL_NOTIFY_DELAY = 1500;
   deps: [
     'Auth',
     'RouterInteraction',
-    'DetailedPresence',
+    'Presence',
     'ComposeText',
     'Call',
     'DialerUI',
@@ -39,7 +39,7 @@ const CALL_NOTIFY_DELAY = 1500;
 export default class Adapter extends AdapterModuleCore {
   constructor({
     auth,
-    detailedPresence,
+    presence,
     composeText,
     call,
     dialerUI,
@@ -57,13 +57,13 @@ export default class Adapter extends AdapterModuleCore {
       prefix,
       actionTypes,
       messageTypes,
-      presence: detailedPresence,
+      presence,
       storageKey: 'adapterData',
       webphone,
     });
     this._messageTypes = messageTypes;
     this._auth = this::ensureExist(auth, 'auth');
-    this._presence = this::ensureExist(detailedPresence, 'detailedPresence');
+    this._presence = this::ensureExist(presence, 'presence');
     this._composeText = this::ensureExist(composeText, 'composeText');
     this._webphone = this::ensureExist(webphone, 'webphone');
     this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');

@@ -11,7 +11,7 @@ import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
-import AccountDirectory from 'ringcentral-integration/modules/AccountDirectory';
+import CompanyContacts from 'ringcentral-integration/modules/CompanyContacts';
 import Alert from 'ringcentral-integration/modules/Alert';
 // import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
@@ -29,7 +29,7 @@ import Contacts from 'ringcentral-integration/modules/Contacts';
 import ContactSearch from 'ringcentral-integration/modules/ContactSearch';
 import ConversationMatcher from 'ringcentral-integration/modules/ConversationMatcher';
 import DateTimeFormat from 'ringcentral-integration/modules/DateTimeFormat';
-import DetailedPresence from 'ringcentral-integration/modules/DetailedPresence';
+import Presence from 'ringcentral-integration/modules/Presence';
 import DialingPlan from 'ringcentral-integration/modules/DialingPlan';
 import ExtensionDevice from 'ringcentral-integration/modules/ExtensionDevice';
 import ExtensionInfo from 'ringcentral-integration/modules/ExtensionInfo';
@@ -100,7 +100,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'Storage', useClass: Storage },
     { provide: 'AudioSettings', useClass: AudioSettings },
     { provide: 'AudioSettingsUI', useClass: AudioSettingsUI },
-    { provide: 'AccountDirectory', useClass: AccountDirectory },
+    { provide: 'CompanyContacts', useClass: CompanyContacts },
     { provide: 'AccountContacts', useClass: AccountContacts },
     { provide: 'RateLimiter', useClass: RateLimiter },
     { provide: 'ExtensionDevice', useClass: ExtensionDevice },
@@ -120,8 +120,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'Webphone', useClass: Webphone },
     { provide: 'CallingSettings', useClass: CallingSettings },
     { provide: 'CallingSettingsUI', useClass: CallingSettingsUI },
-    { provide: 'DetailedPresence', useClass: DetailedPresence },
-    { provide: 'Presence', useExisting: 'DetailedPresence' },
+    { provide: 'Presence', useClass: Presence },
     { provide: 'CallLog', useClass: CallLog },
     { provide: 'Call', useClass: Call },
     { provide: 'ConferenceCall', useClass: ConferenceCall },
@@ -163,12 +162,9 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
       ],
     },
     {
-      provide: 'AccountDirectoryOptions',
+      provide: 'CompanyContactsOptions',
       useValue: {
         polling: true,
-        disableCache: false,
-        needCheckStatus: false,
-        showNotActivated: true,
       },
       spread: true,
     },
