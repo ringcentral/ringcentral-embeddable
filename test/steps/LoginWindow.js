@@ -35,6 +35,6 @@ export class LoginWindow {
       'document.querySelector("body").innerText.includes("Access Request");'
     );
     await this._targetPage.click('button.btn-primary');
-    await this.submitEmergencyAddress();
+    // await this.submitEmergencyAddress();
   }
 }
