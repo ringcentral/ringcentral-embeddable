@@ -1,15 +1,25 @@
-const webpack = require('webpack');
 const fs = require('fs');
 const path = require('path');
+const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 require('dotenv').config();
 
-const packageConfig = require('./package');
+const { version } = require('./package');
 const getBaseConfig = require('./getWebpackBaseConfig');
 
-const buildPath = path.resolve(__dirname, 'release');
+const brand = process.env.BRAND || 'rc';
+
+const getBrandConfig = require('./getBrandConfig');
+
+const { prefix, brandConfig, brandFolder } = getBrandConfig(brand);
+
+let buildPath = path.resolve(__dirname, 'release');
+if (process.env.BRAND) {
+  buildPath = path.resolve(buildPath, brand);
+}
+
 const apiConfigFile = path.resolve(__dirname, 'api.json');
 let apiConfig;
 if (fs.existsSync(apiConfigFile)) {
@@ -21,12 +31,12 @@ if (fs.existsSync(apiConfigFile)) {
     server: process.env.API_SERVER,
   };
 }
-const version = process.env.VERSION || packageConfig.version;
+
 const hostingUrl = process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable';
 const redirectUri = process.env.REDIRECT_URI || 'https://ringcentral.github.io/ringcentral-embeddable/redirect.html';
 const proxyUri = process.env.PROXY_URI || 'https://ringcentral.github.io/ringcentral-embeddable/proxy.html';
 
-const config = getBaseConfig();
+const config = getBaseConfig({ themeFolder: brandFolder });
 config.output = {
   path: buildPath,
   filename: '[name].js',
@@ -40,6 +50,8 @@ config.plugins = [
       HOSTING_URL: JSON.stringify(hostingUrl),
       REDIRECT_URI: JSON.stringify(redirectUri),
       PROXY_URI: JSON.stringify(proxyUri),
+      PREFIX: JSON.stringify(prefix),
+      BRAND_CONFIG: JSON.stringify(brandConfig),
     },
   }),
   new CopyWebpackPlugin([
@@ -66,4 +78,9 @@ config.optimization = {
   ]
 };
 config.mode = 'production';
+config.resolve = {
+  alias: {
+    'brand-logo-path': brandFolder,
+  },
+};
 module.exports = config;

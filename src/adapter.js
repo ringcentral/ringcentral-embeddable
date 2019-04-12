@@ -1,9 +1,12 @@
-import parseUri from './lib/parseUri';
-import logoUrl from './assets/images/VIE_Logo_RC.svg';
-import iconUrl from './assets/images/icon.svg';
-import Adapter from './lib/Adapter';
-import defaultPrefix from './config/prefix';
+// eslint-disable-next-line
+import logoUrl from '!url-loader!brand-logo-path/logo.svg';
+// eslint-disable-next-line
+import iconUrl from '!url-loader!brand-logo-path/icon.svg';
 
+import parseUri from './lib/parseUri';
+import Adapter from './lib/Adapter';
+
+const defaultPrefix = process.env.PREFIX;
 // TODO: fix: polyfill NodeList forEach
 if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
