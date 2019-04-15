@@ -258,6 +258,7 @@ export default function App({
                 component={
                   () => (
                     <ConferencePage
+                      enableAutoEnterHostKey
                       additionalButtons={[ThirdPartyConferenceInviteButton]}
                     />
                   )
