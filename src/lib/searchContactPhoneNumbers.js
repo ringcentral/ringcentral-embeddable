@@ -3,10 +3,11 @@ export default function searchContactPhoneNumbers(contacts, searchString, entity
   const result = [];
   contacts.forEach((item) => {
     const name = item.name || `${item.firstName} ${item.lastName}`;
+    const nameSearched = `${item.firstName} ${item.lastName} ${item.name}`.toLowerCase();
     if (item.phoneNumbers) {
       item.phoneNumbers.forEach((p) => {
         if (
-          name.toLowerCase().indexOf(searchText) >= 0 ||
+          nameSearched.indexOf(searchText) >= 0 ||
           (p.phoneNumber && p.phoneNumber.indexOf(searchText) >= 0)
         ) {
           result.push({
