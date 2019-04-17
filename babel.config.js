@@ -18,7 +18,11 @@ module.exports = (api) => {
     presets: [
       ['@babel/preset-env', { useBuiltIns: 'entry', forceAllTransforms: true, modules: 
     'cjs' }],
-      '@babel/preset-react'
+      '@babel/preset-react',
+      ['@babel/preset-typescript', {
+        isTSX: true,
+        allExtensions: true
+      }]
     ],
     plugins: [
       '@babel/plugin-transform-runtime',

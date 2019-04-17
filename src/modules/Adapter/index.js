@@ -1,5 +1,5 @@
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
-import telephonyStatuses from 'ringcentral-integration/enums/telephonyStatuses';
+import telephonyStatus from 'ringcentral-integration/enums/telephonyStatus';
 import terminationTypes from 'ringcentral-integration/enums/terminationTypes';
 import sessionStatus from 'ringcentral-integration/modules/Webphone/sessionStatus';
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
@@ -235,10 +235,10 @@ export default class Adapter extends AdapterModuleCore {
       if (endedActiveCallMap[callId]) {
         return;
       }
-      const missed = (endedCall.telephonyStatus === telephonyStatuses.ringing);
+      const missed = (endedCall.telephonyStatus === telephonyStatus.ringing);
       changedCalls.push({
         ...endedCall,
-        telephonyStatus: telephonyStatuses.noCall,
+        telephonyStatus: telephonyStatus.noCall,
         terminationType: terminationTypes.final,
         missed,
         endTime: missed ? null : Date.now(),
@@ -271,7 +271,7 @@ export default class Adapter extends AdapterModuleCore {
           ...call
         }
       });
-      if (call.telephonyStatus === telephonyStatuses.noCall) {
+      if (call.telephonyStatus === telephonyStatus.noCall) {
         delete this._lastActiveCallLogMap[`${call.sessionId}-${call.direction}`];
       }
     });
