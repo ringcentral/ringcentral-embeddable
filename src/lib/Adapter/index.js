@@ -367,7 +367,7 @@ class Adapter extends AdapterCore {
       if (webphoneCall.id === this._currentWebhoneCallId && cleanCalls.length > 0) {
         const currentCall = cleanCalls.find(c => c.callStatus !== 'webphone-session-connecting');
         this._currentStartTime = (currentCall && currentCall.startTime) || 0;
-        this._currentWebhoneCallId = currentCall.id;
+        this._currentWebhoneCallId = currentCall && currentCall.id;
       }
       if (cleanCalls.length === 0) {
         this._currentStartTime = 0;

@@ -6,6 +6,7 @@ import { ModuleFactory } from 'ringcentral-integration/lib/di';
 import RcModule from 'ringcentral-integration/lib/RcModule';
 import callDirections from 'ringcentral-integration/enums/callDirections';
 
+import AvailabilityMonitor from 'ringcentral-integration/modules/AvailabilityMonitor';
 import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
@@ -155,8 +156,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     },
     {
       provide: 'Client',
-      useFactory: ({ sdkConfig }) =>
-        new RingCentralClient(new SDK(sdkConfig)),
+      useFactory: ({ sdkConfig }) => new RingCentralClient(new SDK(sdkConfig)),
       deps: [
         { dep: 'SdkConfig', useParam: true, },
       ],
@@ -170,9 +170,16 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     },
     {
       provide: 'ContactSources',
-      useFactory: ({ addressBook, accountContacts }) =>
-        [addressBook, accountContacts],
+      useFactory: ({ addressBook, accountContacts }) => [addressBook, accountContacts],
       deps: ['AccountContacts', 'AddressBook']
+    },
+    { provide: 'AvailabilityMonitor', useClass: AvailabilityMonitor },
+    {
+      provide: 'AvailabilityMonitorOptions',
+      useValue: {
+        enabled: true,
+      },
+      spread: true,
     },
     {
       provide: 'StorageOptions',
@@ -536,6 +543,7 @@ export function createPhone({
           appName: appNameForSDK,
           appVersion,
           webphoneLogLevel: 1,
+          // permissionCheck: false, // TODO: for Emmergency support in webRTC
         },
       },
       {
@@ -550,6 +558,21 @@ export function createPhone({
           disableActiveCallControl,
         },
       },
+      // TODO: for Emmergency support in webRTC
+      // {
+      //   provide: 'CallOptions',
+      //   useValue: {
+      //     permissionCheck: false,
+      //   },
+      //   spread: true,
+      // },
+      // {
+      //   provide: 'CallingSettingsOptions',
+      //   useValue: {
+      //     emergencyCallAvailable: true,
+      //   },
+      //   spread: true,
+      // }
     ]
   })
   class Phone extends BasePhone {}
