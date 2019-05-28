@@ -1,6 +1,6 @@
 {
   "name": "ringcentral-embeddable",
-  "version": "0.2.0",
+  "version": "0.2.5",
   "description": "A RingCentral Embeddable Widget Application",
   "main": "index.js",
   "license": "MIT",
@@ -13,7 +13,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",
-    "@babel/register": "^7.3.4",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
     "@babel/plugin-proposal-decorators": "^7.3.0",
     "@babel/plugin-proposal-export-default-from": "^7.2.0",
@@ -22,6 +21,7 @@
     "@babel/preset-env": "^7.3.4",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.1.0",
+    "@babel/register": "^7.3.4",
     "autoprefixer": "^6.7.7",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
@@ -70,8 +70,8 @@
     "redux": "^3.6.0",
     "ringcentral": "^3.2.1",
     "ringcentral-client": "^1.0.0-beta.1",
-    "ringcentral-integration": "^0.10.6",
-    "ringcentral-widgets": "^0.10.6",
+    "ringcentral-integration": "^0.10.7",
+    "ringcentral-widgets": "^0.10.7",
     "uuid": "^3.2.1",
     "whatwg-fetch": "^2.0.3"
   },
@@ -80,5 +80,8 @@
   },
   "engines": {
     "node": ">=8"
+  },
+  "ci": {
+    "ringcentral-embeddable": "**"
   }
 }

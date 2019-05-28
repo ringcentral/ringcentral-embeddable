@@ -2622,7 +2622,7 @@ core-js@^1.0.0:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-1.2.7.tgz#652294c14651db28fa93bd2d5ff2983a4f08c636"
   integrity sha1-ZSKUwUZR2yj6k70tX/KYOk8IxjY=
 
-core-js@^2.4.0, core-js@^2.5.0, core-js@^2.6.5:
+core-js@^2.4.0, core-js@^2.5.0:
   version "2.6.5"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.5.tgz#44bc8d249e7fb2ff5d00e0341a7ffb94fbf67895"
   integrity sha512-klh/kDpwX8hryYL14M9w/xei6vrv6sE8gTHDG7/T/+SEovB/G4ejwcfE/CBzO6Edsu+OETZMZ3wcX/EjUkrl5A==
@@ -2631,6 +2631,11 @@ core-js@^2.5.7:
   version "2.5.7"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.7.tgz#f972608ff0cead68b841a16a932d0b183791814e"
   integrity sha512-RszJCAxg/PP6uzXVXL6BsxSXx/B05oJAQ2vkJRjyjrEcNVycaqOmNb5OTxZPE3xa5gwZduqza6L9JOCenh/Ecw==
+
+core-js@^2.6.5:
+  version "2.6.9"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.9.tgz#6b4b214620c834152e179323727fc19741b084f2"
+  integrity sha512-HOpZf6eXmnl7la+cUdMnLvUxKNqLUzJvgIziQ0DiF3JwSImNphIqdGqzj6hIKyX04MmV0poclQ7+wjWvxQyR2A==
 
 core-js@^3.0.0:
   version "3.0.1"
@@ -4235,7 +4240,7 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-getstats@^1.2.0:
+getstats@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/getstats/-/getstats-1.2.0.tgz#1b104063f75e6b1f8178752877a2eed1c778e345"
   integrity sha512-fdvGnPIaevnfrmL1qB78SeaqW4Pnm2f8j8nhRiWUZS7N1p377fee0ie76PO4uGkIjiuig9hMv4MVhVVBSLGBjA==
@@ -7293,11 +7298,6 @@ progress@^2.0.0, progress@^2.0.1:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-promiscuous@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/promiscuous/-/promiscuous-0.6.0.tgz#54014cd3d62cafe831e3354990c05ff5b78c8892"
-  integrity sha1-VAFM09Ysr+gx4zVJkMBf9beMiJI=
-
 promise-inflight@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
@@ -8249,10 +8249,10 @@ ringcentral-client@^1.0.0-beta.1:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.10.6:
-  version "0.10.6"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.6.tgz#7abe4729101279999b4ed0686d14e11a4d15e583"
-  integrity sha512-07ZdlMMXMnMVOCEGOQDg8rRPxaIsBq/I/alocJNcDWZOLuGzWIDmfOZ2tX7vwlcBYNwACoUIdzz8Oe0RigUbjA==
+ringcentral-integration@^0.10.7:
+  version "0.10.7"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.7.tgz#7c6120e3b0cf77d0fbcac67885740bd49e859e61"
+  integrity sha512-UXnczuI9t42lYXK/BrQvkfR2yfpjIo1qfYOwEz5CTBkQl7/Z33KtmQj4vGII7KzKE9Gnhxu+sOp08lPPZ450Mw==
   dependencies:
     file-loader "^2.0.0"
     json-mask "^0.3.8"
@@ -8262,27 +8262,26 @@ ringcentral-integration@^0.10.6:
     ramda "^0.25.0"
     redux "^3.5.2"
     reselect "^2.5.4"
-    ringcentral-web-phone "^0.6.3"
+    ringcentral-web-phone "^0.7.0"
     url-loader "^1.0.1"
     uuid "^3.3.2"
     yards "^0.1.4"
 
-ringcentral-web-phone@^0.6.3:
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.6.3.tgz#6192b1e7c548343c08d2583268b8aba1c5c4382c"
-  integrity sha512-FMgrVr/eoLUkKxlwW3SmDA/MaT6Zc9upL9xyom4m83wVU2LkMnWNO7Ww/ZNu9ZLYd8+3nH2eGTRZ5FlfrwBNXw==
+ringcentral-web-phone@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.7.0.tgz#44a7d7c37d018fadef4a0c5e16e598a8485b20dc"
+  integrity sha512-XxyJLot5zpGrGYXvTyYk3ykScl3IJyR6pcQlpcdVsm/owbYusosuOFEYQ54Y/n/J81xuxhiZFuDVwTPeuSMHhA==
   dependencies:
-    getstats "^1.2.0"
-    sip.js "^0.11.6"
+    getstats "1.2.0"
+    sip.js "0.13.5"
 
-ringcentral-widgets@^0.10.6:
-  version "0.10.6"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.6.tgz#817f091a1dfd60ff784f970a595a70dd9821e69e"
-  integrity sha512-js2WfHPy/09vr/cufE+hPcW/OCYuwN8uCEeM/oBlzJ6Ksc7Gyq7hhrllrHOeXUsThSmg5mqKAXJ68cY2gE8fbQ==
+ringcentral-widgets@^0.10.7:
+  version "0.10.7"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.7.tgz#39c2c2b67e4976f8353dcbd1ba1829441a838e87"
+  integrity sha512-Q8RcITnCKgMLYJi5X/1EC7grn5t7C+N1ocyZbFtqfg8iJjbnhehnobUUmyjl7EAUDF7c0rKGL9+ceTB2hFev5g==
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
-    core-js "^2.5.7"
     dedent "^0.7.0"
     normalize-css "^2.3.1"
     prop-types "^15.5.10"
@@ -8604,14 +8603,12 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
 
-sip.js@^0.11.6:
-  version "0.11.6"
-  resolved "https://registry.yarnpkg.com/sip.js/-/sip.js-0.11.6.tgz#a5e748307d2b0f1dd9e8f1365893d771a7e72f8e"
-  integrity sha512-ZxD3h6gpT4LYaG3ihFb5U3gOGGz+ObiNnzDgOlyCyu0zXZTqvzGSnfbXwIsGCES/N0z+K4tG21GhWpdUr2F7Ig==
+sip.js@0.13.5:
+  version "0.13.5"
+  resolved "https://registry.yarnpkg.com/sip.js/-/sip.js-0.13.5.tgz#2575afafa1ed4fdc035b769ba6498cf021258065"
+  integrity sha512-n7fd0upax9uaRuXYCCwVdcfhUeFDj2nMjxqsKTs1jxnpNLJ9jBphZ4oJu9CUQsr/rasSNS3KMDLy0yW6VHgk2g==
   dependencies:
     crypto-js "^3.1.9-1"
-  optionalDependencies:
-    promiscuous "^0.6.0"
 
 sisteransi@^1.0.0:
   version "1.0.0"

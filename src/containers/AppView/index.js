@@ -15,6 +15,9 @@ function AppView(props) {
     offline,
     webphoneUnavailable,
     onWebphoneBadgeClicked,
+    currentLocale,
+    showOfflineAlert,
+    survivalModeActivated,
   } = props;
   let badge = null;
   if (offline) {
@@ -23,13 +26,25 @@ function AppView(props) {
         offline={props.offline}
         showOfflineAlert={props.showOfflineAlert}
         currentLocale={props.currentLocale}
-      />);
+      />
+    );
   } else if (webphoneUnavailable) {
     badge = (
       <WebphoneBadge
         currentLocale={props.currentLocale}
         onClick={onWebphoneBadgeClicked}
-      />);
+        isConnecting={props.webphoneConnecting}
+      />
+    );
+  } else if (survivalModeActivated) {
+    badge = (
+      <OfflineModeBadge
+        offline
+        badgeTitle="limitedMode"
+        showOfflineAlert={showOfflineAlert}
+        currentLocale={currentLocale}
+      />
+    );
   }
   return (
     <div className={styles.root}>
@@ -58,9 +73,11 @@ AppView.propTypes = {
   currentLocale: PropTypes.string.isRequired,
   offline: PropTypes.bool.isRequired,
   showOfflineAlert: PropTypes.func.isRequired,
+  redirectUri: PropTypes.string.isRequired,
   webphoneUnavailable: PropTypes.bool.isRequired,
   onWebphoneBadgeClicked: PropTypes.func.isRequired,
-  redirectUri: PropTypes.string.isRequired,
+  webphoneConnecting: PropTypes.bool,
+  survivalModeActivated: PropTypes.bool,
 };
 
 AppView.defaultProps = {
@@ -70,6 +87,8 @@ AppView.defaultProps = {
   appKey: null,
   enabled: false,
   onSetData: undefined,
+  webphoneConnecting: false,
+  survivalModeActivated: false,
 };
 
 export default withPhone(connect((_, {
@@ -81,8 +100,8 @@ export default withPhone(connect((_, {
     webphone,
     environment,
     connectivityMonitor,
-    rateLimiter,
     auth,
+    availabilityMonitor,
   }
 }) => ({
   currentLocale: locale.currentLocale,
@@ -91,23 +110,24 @@ export default withPhone(connect((_, {
   appSecret: environment.appSecret,
   enabled: environment.enabled,
   offline: (
-    !connectivityMonitor.connectivity ||
-    oAuth.proxyRetryCount > 0 ||
-    rateLimiter.throttling
+    !connectivityMonitor.connectivity
+    || oAuth.proxyRetryCount > 0
   ),
   webphoneUnavailable: (
     auth.ready &&
     audioSettings.ready &&
     webphone.ready &&
-    auth.loggedIn && (
-      callingSettings.callingMode === callingModes.webphone &&
-      (
-        !audioSettings.userMedia ||
-        !!webphone.errorCode
-      )
+    auth.loggedIn &&
+    callingSettings.isWebphoneMode &&
+    (
+      !audioSettings.userMedia ||
+      (webphone.reconnecting || webphone.connectError)
     )
   ),
-  redirectUri: oAuth.redirectUri
+  webphoneConnecting: (webphone.ready && webphone.reconnecting),
+  redirectUri: oAuth.redirectUri,
+  survivalModeActivated:
+      !!availabilityMonitor && availabilityMonitor.isLimitedAvailabilityMode,
 }), (_, {
   phone: {
     environment,
@@ -136,8 +156,7 @@ export default withPhone(connect((_, {
     }
     if (webphone && webphone.ready) {
       // Trigger reconnect
-      // webphone.connect();
-      webphone.showAlert();
+      webphone.connect();
     }
   },
 }))(AppView));

@@ -82,3 +82,13 @@ export default function formatMeetingInfo(meetingInfo, brandConfig, currentLocal
     details: getDetailTpl(meetingInfo, brandConfig, currentLocale)
   };
 }
+
+export function getConferenceLocationField({
+  dialInNumber,
+  participantCode
+}) {
+  return formatMessage(i18n.getString('conferenceLocationField'), {
+    participantCode,
+    dialInNumber,
+  });
+}
