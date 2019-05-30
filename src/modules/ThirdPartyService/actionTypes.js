@@ -16,4 +16,5 @@ export default new Enum([
   'registerCallLogger',
   'registerAuthorization',
   'updateAuthorizationStatus',
+  'registerFeedback',
 ], 'thirdPartyService');

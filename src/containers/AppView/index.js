@@ -117,6 +117,7 @@ export default withPhone(connect((_, {
     auth.ready &&
     audioSettings.ready &&
     webphone.ready &&
+    callingSettings.ready &&
     auth.loggedIn &&
     callingSettings.isWebphoneMode &&
     (

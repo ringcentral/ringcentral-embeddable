@@ -140,6 +140,9 @@ export default class ThirdPartyService extends RcModule {
             this._activityMatcher.triggerMatch();
           }
         }
+        if (service.feedbackPath) {
+          this._registerFeedback(service);
+        }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
       }
@@ -229,6 +232,13 @@ export default class ThirdPartyService extends RcModule {
     this.store.dispatch({
       type: this.actionTypes.registerMeetingInvite,
       meetingInviteTitle: service.meetingInviteTitle,
+    });
+  }
+
+  _registerFeedback(service) {
+    this._feedbackPath = service.feedbackPath;
+    this.store.dispatch({
+      type: this.actionTypes.registerFeedback,
     });
   }
 
@@ -522,6 +532,19 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  async onShowFeedback() {
+    try {
+      if (!this._feedbackPath) {
+        return;
+      }
+      await requestWithPostMessage(this._feedbackPath, {
+        show: true,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   async sync() {
     await this.fetchContacts();
   }
@@ -622,5 +645,9 @@ export default class ThirdPartyService extends RcModule {
 
   get contactIcon() {
     return this._contactIcon;
+  }
+
+  get showFeedback() {
+    return this.state.showFeedback;
   }
 }
