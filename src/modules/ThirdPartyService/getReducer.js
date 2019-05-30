@@ -176,6 +176,19 @@ export function getConferenceInviteTitleReducer(types) {
   };
 }
 
+export function getShowFeedbackReducer(types) {
+  return (state = false, { type }) => {
+    switch (type) {
+      case types.registerFeedback:
+        return true;
+      case types.resetSuccess:
+        return false;
+      default:
+        return state;
+    }
+  };
+}
+
 export function getMeetingInviteTitleReducer(types) {
   return (state = null, { type, meetingInviteTitle }) => {
     switch (type) {
@@ -254,5 +267,6 @@ export default function getReducer(types) {
     unauthorizedTitle: getUnauthorizedTitleReducer(types),
     showLogModal: getShowLogModalReducer(types),
     activityName: getActivityNameReducer(types),
+    showFeedback: getShowFeedbackReducer(types),
   });
 }

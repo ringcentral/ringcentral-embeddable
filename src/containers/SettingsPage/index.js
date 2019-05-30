@@ -95,6 +95,7 @@ function mapToProps(_, {
     thirdPartyServiceName: thirdPartyService.serviceName,
     authorizationLogo: thirdPartyService.authorizationLogo,
     authorizedAccount: thirdPartyService.authorizedAccount,
+    showFeedback: thirdPartyService.showFeedback,
   };
 }
 
@@ -112,8 +113,11 @@ function mapToFunctions(_, {
   });
   return {
     ...baseFunctions,
-    onAutoLogChange: (autoLog) => { callLogger.setAutoLog(autoLog); },
+    onAutoLogChange(autoLog) { callLogger.setAutoLog(autoLog); },
     onThirdPartyAuthorize: () => thirdPartyService.authorizeService(),
+    onFeedbackSettingsLinkClick() {
+      thirdPartyService.onShowFeedback();
+    }
   };
 }
 
