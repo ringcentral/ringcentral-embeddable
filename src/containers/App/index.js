@@ -29,6 +29,7 @@ import CallsOnholdPage from 'ringcentral-widgets/containers/CallsOnholdPage';
 import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAndCallsTabContainer';
 import ConferenceParticipantPage from 'ringcentral-widgets/containers/ConferenceParticipantPage';
 import TransferPage from 'ringcentral-widgets/containers/TransferPage';
+import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 
 import MeetingPage from 'ringcentral-widgets/containers/MeetingPage';
@@ -43,7 +44,6 @@ import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourc
 
 import SettingsPage from '../SettingsPage';
 import CallsListPage from '../CallsListPage';
-import ActiveCallsPage from '../ActiveCallsPage';
 import CallLogSectionModal from '../CallLogSectionModal';
 
 import formatMeetingInfo from '../../lib/formatMeetingInfo';
@@ -178,7 +178,9 @@ export default function App({
                 component={() => (
                   <DialerAndCallsTabContainer>
                     <ActiveCallsPage
-                      showRingoutCallControl
+                      showRingoutCallControl={
+                        phone.rolesAndPermissions.hasActiveCallControlPermission
+                      }
                       onCallsEmpty={() => {
                         phone.routerInteraction.push('/dialer');
                       }}
