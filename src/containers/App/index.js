@@ -178,7 +178,9 @@ export default function App({
                 component={() => (
                   <DialerAndCallsTabContainer>
                     <ActiveCallsPage
-                      showRingoutCallControl
+                      showRingoutCallControl={
+                        phone.rolesAndPermissions.hasActiveCallControlPermission
+                      }
                       onCallsEmpty={() => {
                         phone.routerInteraction.push('/dialer');
                       }}

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import formatNumber from 'ringcentral-integration/lib/formatNumber';
 import callDirections from 'ringcentral-integration/enums/callDirections';
-import { isRinging, isRingingInboundCall } from 'ringcentral-integration/lib/callLogHelpers';
+import { isRingingInboundCall } from 'ringcentral-integration/lib/callLogHelpers';
 import callingModes from 'ringcentral-integration/modules/CallingSettings/callingModes';
 import { withPhone } from 'ringcentral-widgets/lib/phoneContext';
 
@@ -19,12 +19,14 @@ function mapToProps(_, {
     callingSettings,
     connectivityMonitor,
     rateLimiter,
+    activeCallControl,
   },
   showContactDisplayPlaceholder = false,
   showRingoutCallControl = false,
   useV2,
 }) {
   const isWebRTC = callingSettings.callingMode === callingModes.webphone;
+  const controlBusy = activeCallControl && activeCallControl.busy || false;
 
   return {
     currentLocale: locale.currentLocale,
@@ -45,14 +47,16 @@ function mapToProps(_, {
     showSpinner: !!(conferenceCall && conferenceCall.isMerging),
     brand: brand.fullName,
     showContactDisplayPlaceholder,
-    showRingoutCallControl:
-      showRingoutCallControl && rolesAndPermissions.hasActiveCallControlPermission,
+    showRingoutCallControl,
     autoLog: !!(callLogger && callLogger.autoLog),
     isWebRTC,
     conferenceCallParties: conferenceCall ? conferenceCall.partyProfiles : null,
     useV2,
-    disableLinks: !connectivityMonitor.connectivity ||
-      rateLimiter.throttling,
+    disableLinks: (
+      !connectivityMonitor.connectivity ||
+      rateLimiter.throttling ||
+      controlBusy
+    ),
   };
 }
 
@@ -136,8 +140,7 @@ function mapToFunctions(_, {
       return (activeCallControl && activeCallControl.hangUp(...args));
     },
     async ringoutTransfer(sessionId) {
-      activeCallControl.setActiveSessionId(sessionId);
-      routerInteraction.push(`/transfer/${sessionId}`);
+      routerInteraction.push(`/transfer/${sessionId}/active`);
     },
     async ringoutReject(sessionId) {
       // user action track
@@ -207,12 +210,11 @@ function mapToFunctions(_, {
         const { sessionId } = call;
         // to track the call item be clicked.
         callMonitor.callItemClickTrack();
-        activeCallControl.setActiveSessionId(sessionId);
-        routerInteraction.push('/simplifycallctrl');
+        routerInteraction.push(`/simplifycallctrl/${sessionId}`);
       } else {
         // For webphone call
         // show the ring call modal when click a ringing call.
-        if (isRinging(call)) {
+        if (isRingingInboundCall(call)) {
           webphone.toggleMinimized(call.webphoneSession.id);
           return;
         }
