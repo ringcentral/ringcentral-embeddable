@@ -91,6 +91,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
 * [In-page Login Mode](docs/sso-login-mode.md)
 * [New adapter badge UI](docs/new-adapter-ui.md)
+* [Enable Analytics](docs/add-analytics.md)
 
 ## Awesome Embeddable projects
 

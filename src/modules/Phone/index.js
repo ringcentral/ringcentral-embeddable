@@ -7,6 +7,7 @@ import RcModule from 'ringcentral-integration/lib/RcModule';
 import callDirections from 'ringcentral-integration/enums/callDirections';
 
 import AvailabilityMonitor from 'ringcentral-integration/modules/AvailabilityMonitor';
+import Analytics from 'ringcentral-integration/modules/Analytics';
 import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
@@ -233,6 +234,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'ActiveCallControl', useClass: ActiveCallControl },
     { provide: 'ConferenceDialerUI', useClass: ConferenceDialerUI },
     { provide: 'Meeting', useClass: Meeting },
+    { provide: 'Analytics', useClass: Analytics },
   ]
 })
 export default class BasePhone extends RcModule {
@@ -501,6 +503,7 @@ export function createPhone({
   disableActiveCallControl,
   authMode,
   userAgent,
+  analyticsKey,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -557,6 +560,16 @@ export function createPhone({
           disableConferenceCall,
           disableActiveCallControl,
         },
+      },
+      {
+        provide: 'AnalyticsOptions',
+        useValue: {
+          analyticsKey,
+          appName: (userAgent ? userAgent.split('/')[0] : brandConfig.appName),
+          appVersion,
+          brandCode: brandConfig.brandCode,
+        },
+        spread: true,
       },
       // TODO: for Emmergency support in webRTC
       // {
