@@ -42,6 +42,8 @@ const hostingUrl = process.env.HOSTING_URL || 'https://ringcentral.github.io/rin
 const redirectUri = process.env.REDIRECT_URI || 'https://ringcentral.github.io/ringcentral-embeddable/redirect.html';
 const proxyUri = process.env.PROXY_URI || 'https://ringcentral.github.io/ringcentral-embeddable/proxy.html';
 
+const errorReportKey = process.env.ERROR_REPORT_KEY;
+
 const config = getBaseConfig({ themeFolder: brandFolder });
 config.output = {
   path: buildPath,
@@ -58,6 +60,7 @@ config.plugins = [
       PROXY_URI: JSON.stringify(proxyUri),
       PREFIX: JSON.stringify(prefix),
       BRAND_CONFIG: JSON.stringify(brandConfig),
+      ERROR_REPORT_KEY: JSON.stringify(errorReportKey),
     },
   }),
   new CopyWebpackPlugin([

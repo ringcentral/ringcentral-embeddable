@@ -73,7 +73,8 @@
     "ringcentral-integration": "^0.10.7",
     "ringcentral-widgets": "^0.10.7",
     "uuid": "^3.2.1",
-    "whatwg-fetch": "^2.0.3"
+    "whatwg-fetch": "^2.0.3",
+    "raven-js": "^3.27.0"
   },
   "resolutions": {
     "immutable": "3.7.6"

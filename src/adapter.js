@@ -38,6 +38,10 @@ const {
   userAgent,
   newAdapterUI,
   analyticsKey,
+  enableErrorReport,
+  errorReportToken,
+  errorReportSampleRate,
+  errorReportProjectId,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -69,6 +73,10 @@ const appUri = `${appUrl}?${obj2uri({
   prefix,
   userAgent,
   analyticsKey,
+  enableErrorReport,
+  errorReportToken,
+  errorReportSampleRate,
+  errorReportProjectId,
   fromAdapter: 1,
   _t: Date.now(),
 })}`;
