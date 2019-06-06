@@ -84,6 +84,7 @@ import RolesAndPermissions from '../RolesAndPermissions';
 import ActiveCallControl from '../ActiveCallControl';
 import GlipGroups from '../GlipGroups';
 import GlipPosts from '../GlipPosts';
+import ErrorLogger from '../ErrorLogger';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
@@ -148,6 +149,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'ActiveCalls', useClass: ActiveCalls },
     { provide: 'Conference', useClass: Conference },
     { provide: 'Environment', useClass: Environment },
+    { provide: 'ErrorLogger', useClass: ErrorLogger },
     { provide: 'RecentMessages', useClass: RecentMessages },
     { provide: 'RecentCalls', useClass: RecentCalls },
     { provide: 'ThirdPartyService', useClass: ThirdPartyService },
@@ -504,6 +506,8 @@ export function createPhone({
   authMode,
   userAgent,
   analyticsKey,
+  errorReportEndpoint,
+  errorReportSampleRate,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -568,6 +572,15 @@ export function createPhone({
           appName: (userAgent ? userAgent.split('/')[0] : brandConfig.appName),
           appVersion,
           brandCode: brandConfig.brandCode,
+        },
+        spread: true,
+      },
+      {
+        provide: 'ErrorLoggerOptions',
+        useValue: {
+          version: appVersion,
+          endpoint: errorReportEndpoint,
+          sampleRate: errorReportSampleRate,
         },
         spread: true,
       },

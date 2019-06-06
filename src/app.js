@@ -26,6 +26,7 @@ const {
   authMode,
   userAgent,
   analyticsKey,
+  enableErrorReport,
 } = pathParams;
 
 const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
@@ -36,8 +37,19 @@ const disableConferenceInvite = typeof pathParams.disableConferenceInvite !== 'u
 const disableGlip = typeof pathParams.disableGlip === 'undefined' || pathParams.disableGlip === 'true';
 const disableConferenceCall = typeof pathParams.disableConferenceCall === 'undefined' || pathParams.disableConferenceCall === 'true';
 const disableActiveCallControl = typeof pathParams.disableActiveCallControl === 'undefined' || pathParams.disableActiveCallControl === 'true';
+
 const prefix = pathParams.prefix || defaultPrefix;
 const fromAdapter = !!pathParams.fromAdapter;
+let _errorReportToken = null;
+if (enableErrorReport) {
+  _errorReportToken = process.env.ERROR_REPORT_KEY;
+}
+if (pathParams.errorReportToken) {
+  _errorReportToken = pathParams.errorReportToken;
+}
+const errorReportSampleRate = pathParams.errorReportSampleRate || '0.1';
+const errorReportProjectId = pathParams.errorReportProjectId || '16';
+const errorReportEndpoint = (_errorReportToken && `http://${_errorReportToken}@ec2-13-124-226-35.ap-northeast-2.compute.amazonaws.com/${errorReportProjectId}`) || null;
 
 const phone = createPhone({
   apiConfig,
@@ -56,6 +68,8 @@ const phone = createPhone({
   authMode,
   userAgent,
   analyticsKey,
+  errorReportEndpoint,
+  errorReportSampleRate,
 });
 
 const store = createStore(phone.reducer);

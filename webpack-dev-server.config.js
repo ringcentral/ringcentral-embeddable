@@ -32,6 +32,8 @@ if (fs.existsSync(apiConfigFile)) {
   };
 }
 
+const errorReportKey = process.env.ERROR_REPORT_KEY;
+
 const config = getBaseConfig({ themeFolder: brandFolder });
 config.devServer = {
   contentBase: buildPath,
@@ -54,6 +56,7 @@ config.plugins = [
       HOSTING_URL: JSON.stringify('http://localhost:8080'),
       PREFIX: JSON.stringify(prefix),
       BRAND_CONFIG: JSON.stringify(brandConfig),
+      ERROR_REPORT_KEY: JSON.stringify(errorReportKey),
     },
   }),
 ];
