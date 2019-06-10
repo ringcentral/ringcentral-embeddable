@@ -49,8 +49,11 @@ function getImageUri(sourceUri) {
   return imageUri;
 }
 
+const RECORDING_LINK = 'http://apps.ringcentral.com/integrations/recording/'
+
 @Module({
   deps: [
+    'Auth',
     'Contacts',
     'ContactSearch',
     'ContactMatcher',
@@ -60,6 +63,7 @@ function getImageUri(sourceUri) {
 })
 export default class ThirdPartyService extends RcModule {
   constructor({
+    auth,
     contacts,
     contactSearch,
     contactMatcher,
@@ -75,6 +79,7 @@ export default class ThirdPartyService extends RcModule {
 
     this._initialized = false;
 
+    this._auth = auth;
     this._contacts = contacts;
     this._contactSearch = contactSearch;
     this._contactMatcher = contactMatcher;
@@ -292,6 +297,7 @@ export default class ThirdPartyService extends RcModule {
 
   _registerCallLogger(service) {
     this._callLoggerPath = service.callLoggerPath;
+    this._callLoggerRecordingWithToken = !!service.recordingWithToken
     this.store.dispatch({
       type: this.actionTypes.registerCallLogger,
       callLoggerTitle: service.callLoggerTitle,
@@ -504,16 +510,30 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
-  async logCall(data) {
+  async logCall({ call, ...options }) {
     try {
       if (!this._callLoggerPath) {
         return;
       }
-      await requestWithPostMessage(this._callLoggerPath, data);
-      this._activityMatcher.match({
-        queries: [data.call.sessionId],
-        ignoreCache: true
-      });
+      const callItem = { ...call };
+      if (call.recording) {
+        let contentUri = call.recording.contentUri;
+        if (this._callLoggerRecordingWithToken) {
+          contentUri = `${contentUri}?access_token=${this._auth.accessToken}`
+        }
+        callItem.recording = {
+          ...call.recording,
+          link: `${RECORDING_LINK}?id=${call.id}&recordingId=${call.recording.id}`,
+          contentUri,
+        }
+      }
+      await requestWithPostMessage(this._callLoggerPath, { call: callItem, ...options });
+      if (this._callLogEntityMatchSourceAdded) {
+        this._activityMatcher.match({
+          queries: [call.sessionId],
+          ignoreCache: true
+        });
+      }
     } catch (e) {
       console.error(e);
     }
