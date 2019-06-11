@@ -508,6 +508,7 @@ export function createPhone({
   analyticsKey,
   errorReportEndpoint,
   errorReportSampleRate,
+  recordingLink,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -584,6 +585,13 @@ export function createPhone({
         },
         spread: true,
       },
+      {
+        provide: 'ThirdPartyContactsOptions',
+        useValue: {
+          recordingLink,
+        },
+        spread: true,
+      }
       // TODO: for Emmergency support in webRTC
       // {
       //   provide: 'CallOptions',

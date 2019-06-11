@@ -49,8 +49,6 @@ function getImageUri(sourceUri) {
   return imageUri;
 }
 
-const RECORDING_LINK = 'http://apps.ringcentral.com/integrations/recording/'
-
 @Module({
   deps: [
     'Auth',
@@ -68,6 +66,7 @@ export default class ThirdPartyService extends RcModule {
     contactSearch,
     contactMatcher,
     activityMatcher,
+    recordingLink,
     ...options
   }) {
     super({
@@ -87,6 +86,7 @@ export default class ThirdPartyService extends RcModule {
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
     this._callLogEntityMatchSourceAdded = false;
+    this._recordingLink = recordingLink;
   }
 
   initialize() {
@@ -519,13 +519,18 @@ export default class ThirdPartyService extends RcModule {
       if (call.recording) {
         let contentUri = call.recording.contentUri;
         if (this._callLoggerRecordingWithToken) {
-          contentUri = `${contentUri}?access_token=${this._auth.accessToken}`
+          contentUri = `${contentUri}?access_token=${this._auth.accessToken}`;
+        }
+        const isSandbox = call.recording.uri.indexOf('platform.devtest') > -1;
+        let recordingLink = this._recordingLink;
+        if (isSandbox) {
+          recordingLink = `${recordingLink}sandbox/`;
         }
         callItem.recording = {
           ...call.recording,
-          link: `${RECORDING_LINK}?id=${call.id}&recordingId=${call.recording.id}`,
+          link: `${recordingLink}?id=${call.id}&recordingId=${call.recording.id}`,
           contentUri,
-        }
+        };
       }
       await requestWithPostMessage(this._callLoggerPath, { call: callItem, ...options });
       if (this._callLogEntityMatchSourceAdded) {
