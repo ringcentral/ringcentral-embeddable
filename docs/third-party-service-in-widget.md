@@ -14,7 +14,8 @@ This document show how the widget can interact with your application deeply.
   * [Show contacts search result on Dialer receiver input](#show-contacts-search-result-on-dialer-receiver-input)
   * [Show contacts matcher result on calls history and incoming call page](#show-contacts-matcher-result-on-calls-history-and-incoming-call-page)
 * [Show contact's activities from your application](#show-contacts-activities-from-your-application)
-* [Add call logger button in calls page](#add-call-logger-button-in-calls-page)
+* [Log call into your service](#log-call-into-your-service)
+  * [Add call logger button in calls page](#add-call-logger-button-in-calls-page)
   * [Add call logger modal](#add-call-logger-modal)
   * [Add call log entity matcher](#add-call-log-entity-matcher)
 * [Add third party authorization button](#add-third-party-authorization-button)
@@ -327,7 +328,7 @@ Data from `activitiesPath` will be showed in contact details page in the widget.
 
 ![image](https://user-images.githubusercontent.com/7036536/42258605-2ba93d40-7f8f-11e8-8f4c-c14a397d343e.png)
 
-## Call logger
+## Log call into your service
 
 ### Add call logger button in calls page
 
