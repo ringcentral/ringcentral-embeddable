@@ -346,7 +346,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-After registered, you can get a `Log to TestService` in calls page, and `Auto Log` setting in setting page
+After registered, you can get a `Log to TestService` in calls page, and `Auto log calls` setting in setting page
 
 ![calllogbutton](https://user-images.githubusercontent.com/7036536/48827686-d1814a00-eda8-11e8-81e4-2b48b1df2bcc.png)
 
@@ -370,7 +370,8 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-This message event is fired when user triggers `Log`. If user enables `Auto Log` in settings, this event will be also fired when a call is finished.
+This message event is fired when user Clicks `Log` button. Or if user enables `Auto log calls` in settings, this event will be also fired when a call is finished.
+
 In this message event, you can get call information in `data.body.call`. When call is recorded and recording file is generated, you can get `recording` data in `data.body.call`:
 
 ```js
