@@ -14,7 +14,8 @@ This document show how the widget can interact with your application deeply.
   * [Show contacts search result on Dialer receiver input](#show-contacts-search-result-on-dialer-receiver-input)
   * [Show contacts matcher result on calls history and incoming call page](#show-contacts-matcher-result-on-calls-history-and-incoming-call-page)
 * [Show contact's activities from your application](#show-contacts-activities-from-your-application)
-* [Add call logger button in calls page](#add-call-logger-button-in-calls-page)
+* [Log call into your service](#log-call-into-your-service)
+  * [Add call logger button in calls page](#add-call-logger-button-in-calls-page)
   * [Add call logger modal](#add-call-logger-modal)
   * [Add call log entity matcher](#add-call-log-entity-matcher)
 * [Add third party authorization button](#add-third-party-authorization-button)
@@ -327,7 +328,9 @@ Data from `activitiesPath` will be showed in contact details page in the widget.
 
 ![image](https://user-images.githubusercontent.com/7036536/42258605-2ba93d40-7f8f-11e8-8f4c-c14a397d343e.png)
 
-## Add call logger button in calls page
+## Log call into your service
+
+### Add call logger button in calls page
 
 First you need to pass `callLoggerPath` and `callLoggerTitle` when you register service.
 
@@ -337,12 +340,13 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   service: {
     name: 'TestService',
     callLoggerPath: '/callLogger',
-    callLoggerTitle: 'Log to TestService'
+    callLoggerTitle: 'Log to TestService',
+    // recordingWithToken: 1
   }
 }, '*');
 ```
 
-After registered, you can get a `Log to TestService` in calls page, and `Auto Log` setting in setting page
+After registered, you can get a `Log to TestService` in calls page, and `Auto log calls` setting in setting page
 
 ![calllogbutton](https://user-images.githubusercontent.com/7036536/48827686-d1814a00-eda8-11e8-81e4-2b48b1df2bcc.png)
 
@@ -364,6 +368,32 @@ window.addEventListener('message', function (e) {
     }
   }
 });
+```
+
+This message event is fired when user clicks `Log` button. Or if user enables `Auto log calls` in settings, this event will be also fired when a call is finished.
+
+In this message event, you can get call information in `data.body.call`. When call is recorded and recording file is generated, you can get `recording` data in `data.body.call`:
+
+```js
+{
+  contentUri: "https://media.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004/content"
+  id: "6469338004"
+  link: "http://apps.ringcentral.com/integrations/recording/sandbox/?id=Ab7937-59r6EzUA&recordingId=6469338004"
+  type: "OnDemand"
+  uri: "https://platform.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004"
+}
+```
+
+The `link` property in `recording` is a link to get and play recording file from RingCentral server. The `contentUri` is a URI which can be used to get `recording` file  with RingCentral access token. If you pass `recordingWithToken` when register service, you can get contentUri with `access_token`. The `access_token` will be expired in minutes, so need to download immediately when get it.
+
+```js
+{
+  contentUri: "https://media.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004/content?access_token=ringcentral_access_token"
+  id: "6469338004"
+  link: "http://apps.ringcentral.com/integrations/recording/sandbox/?id=Ab7937-59r6EzUA&recordingId=6469338004"
+  type: "OnDemand"
+  uri: "https://platform.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004"
+}
 ```
 
 ### Add call logger modal

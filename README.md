@@ -82,7 +82,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * Add meeting schedule with your service
   * Show contacts from your application
   * Show contact's activities from your application
-  * Add call logger button in calls page
+  * [Log call into your service](docs/third-party-service-in-widget.md#log-call-into-your-service)
   * Add third party authorization button
 * [Enable and Disable Features in Widget](docs/disable-features.md)
   * Disable messages features
@@ -92,7 +92,6 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 * [In-page Login Mode](docs/sso-login-mode.md)
 * [New adapter badge UI](docs/new-adapter-ui.md)
 * [Enable Analytics](docs/add-analytics.md)
-* [Enable Error Report](docs/enable-error-report.md)
 
 ## Awesome Embeddable projects
 

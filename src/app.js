@@ -51,6 +51,8 @@ const errorReportSampleRate = pathParams.errorReportSampleRate || '0.1';
 const errorReportProjectId = pathParams.errorReportProjectId || '16';
 const errorReportEndpoint = (_errorReportToken && `http://${_errorReportToken}@ec2-13-124-226-35.ap-northeast-2.compute.amazonaws.com/${errorReportProjectId}`) || null;
 
+const recordingLink = process.env.RECORDING_LINK;
+
 const phone = createPhone({
   apiConfig,
   brandConfig,
@@ -70,6 +72,7 @@ const phone = createPhone({
   analyticsKey,
   errorReportEndpoint,
   errorReportSampleRate,
+  recordingLink,
 });
 
 const store = createStore(phone.reducer);

@@ -43,6 +43,7 @@ const redirectUri = process.env.REDIRECT_URI || 'https://ringcentral.github.io/r
 const proxyUri = process.env.PROXY_URI || 'https://ringcentral.github.io/ringcentral-embeddable/proxy.html';
 
 const errorReportKey = process.env.ERROR_REPORT_KEY;
+const recordingLink = process.env.RECORDING_LINK || 'http://apps.ringcentral.com/integrations/recording/';
 
 const config = getBaseConfig({ themeFolder: brandFolder });
 config.output = {
@@ -61,6 +62,7 @@ config.plugins = [
       PREFIX: JSON.stringify(prefix),
       BRAND_CONFIG: JSON.stringify(brandConfig),
       ERROR_REPORT_KEY: JSON.stringify(errorReportKey),
+      RECORDING_LINK: JSON.stringify(recordingLink),
     },
   }),
   new CopyWebpackPlugin([

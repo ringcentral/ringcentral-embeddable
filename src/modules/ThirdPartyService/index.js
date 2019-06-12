@@ -51,6 +51,7 @@ function getImageUri(sourceUri) {
 
 @Module({
   deps: [
+    'Auth',
     'Contacts',
     'ContactSearch',
     'ContactMatcher',
@@ -60,10 +61,12 @@ function getImageUri(sourceUri) {
 })
 export default class ThirdPartyService extends RcModule {
   constructor({
+    auth,
     contacts,
     contactSearch,
     contactMatcher,
     activityMatcher,
+    recordingLink,
     ...options
   }) {
     super({
@@ -75,6 +78,7 @@ export default class ThirdPartyService extends RcModule {
 
     this._initialized = false;
 
+    this._auth = auth;
     this._contacts = contacts;
     this._contactSearch = contactSearch;
     this._contactMatcher = contactMatcher;
@@ -82,6 +86,7 @@ export default class ThirdPartyService extends RcModule {
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
     this._callLogEntityMatchSourceAdded = false;
+    this._recordingLink = recordingLink;
   }
 
   initialize() {
@@ -292,6 +297,7 @@ export default class ThirdPartyService extends RcModule {
 
   _registerCallLogger(service) {
     this._callLoggerPath = service.callLoggerPath;
+    this._callLoggerRecordingWithToken = !!service.recordingWithToken
     this.store.dispatch({
       type: this.actionTypes.registerCallLogger,
       callLoggerTitle: service.callLoggerTitle,
@@ -504,16 +510,35 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
-  async logCall(data) {
+  async logCall({ call, ...options }) {
     try {
       if (!this._callLoggerPath) {
         return;
       }
-      await requestWithPostMessage(this._callLoggerPath, data);
-      this._activityMatcher.match({
-        queries: [data.call.sessionId],
-        ignoreCache: true
-      });
+      const callItem = { ...call };
+      if (call.recording) {
+        let contentUri = call.recording.contentUri;
+        if (this._callLoggerRecordingWithToken) {
+          contentUri = `${contentUri}?access_token=${this._auth.accessToken}`;
+        }
+        const isSandbox = call.recording.uri.indexOf('platform.devtest') > -1;
+        let recordingLink = this._recordingLink;
+        if (isSandbox) {
+          recordingLink = `${recordingLink}sandbox/`;
+        }
+        callItem.recording = {
+          ...call.recording,
+          link: `${recordingLink}?id=${call.id}&recordingId=${call.recording.id}`,
+          contentUri,
+        };
+      }
+      await requestWithPostMessage(this._callLoggerPath, { call: callItem, ...options });
+      if (this._callLogEntityMatchSourceAdded) {
+        this._activityMatcher.match({
+          queries: [call.sessionId],
+          ignoreCache: true
+        });
+      }
     } catch (e) {
       console.error(e);
     }

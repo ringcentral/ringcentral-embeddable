@@ -30,7 +30,7 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
   * Add meeting schedule with your service
   * Show contacts from your application
   * Show contact's activities from your application
-  * Add call logger button in calls page
+  * [Log call into your service](third-party-service-in-widget.md#log-call-into-your-service)
   * Add third party authorization button
 * [Disable Features in Widget](disable-features.md)
   * Disable messages features
@@ -42,4 +42,3 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
 * [Customize X-User-Agent](customize-x-user-agent.md)
 * [New adapter badge UI](new-adapter-ui.md)
 * [Enable Analytics](add-analytics.md)
-* [Enable Error Report](enable-error-report.md)

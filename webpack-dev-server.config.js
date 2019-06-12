@@ -57,6 +57,7 @@ config.plugins = [
       PREFIX: JSON.stringify(prefix),
       BRAND_CONFIG: JSON.stringify(brandConfig),
       ERROR_REPORT_KEY: JSON.stringify(errorReportKey),
+      RECORDING_LINK: JSON.stringify('http://apps.ringcentral.com/integrations/recording/'),
     },
   }),
 ];
