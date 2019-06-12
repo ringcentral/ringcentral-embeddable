@@ -370,7 +370,7 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-This message event is fired when user Clicks `Log` button. Or if user enables `Auto log calls` in settings, this event will be also fired when a call is finished.
+This message event is fired when user clicks `Log` button. Or if user enables `Auto log calls` in settings, this event will be also fired when a call is finished.
 
 In this message event, you can get call information in `data.body.call`. When call is recorded and recording file is generated, you can get `recording` data in `data.body.call`:
 
