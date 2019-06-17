@@ -9,6 +9,7 @@ import {
 } from 'ringcentral-widgets/containers/SettingsPage';
 
 import AuthorizeSettingsSection from '../../components/AuthorizeSettingsSection';
+import ToggleSettings from '../../components/ToggleSettings';
 
 function NewSettingsPanel(props) {
   const {
@@ -21,10 +22,13 @@ function NewSettingsPanel(props) {
     thirdPartyContactSyncing,
     authorizationLogo,
     authorizedAccount,
+    thirdPartySettings,
+    onSettingToggle,
   } = props;
   let additional = null;
+  let authorization = null;
   if (authorizationRegistered) {
-    additional = (
+    authorization = (
       <AuthorizeSettingsSection
         serviceName={thirdPartyServiceName}
         authorized={thirdPartyAuthorized}
@@ -35,6 +39,17 @@ function NewSettingsPanel(props) {
         authorizationLogo={authorizationLogo}
         authorizedAccount={authorizedAccount}
       />
+    );
+  }
+  if (authorization || thirdPartySettings.length > 0) {
+    additional = (
+      <section>
+        <ToggleSettings
+          settings={thirdPartySettings}
+          onToggle={onSettingToggle}
+        />
+        {authorization}
+      </section>
     );
   }
   return (
@@ -55,6 +70,8 @@ NewSettingsPanel.propTypes = {
   thirdPartyContactSyncing: PropTypes.bool,
   authorizationLogo: PropTypes.string,
   authorizedAccount: PropTypes.string,
+  thirdPartySettings: PropTypes.array,
+  onSettingToggle: PropTypes.func,
 };
 
 NewSettingsPanel.defaultProps = {
@@ -66,6 +83,8 @@ NewSettingsPanel.defaultProps = {
   thirdPartyContactSyncing: false,
   authorizationLogo: undefined,
   authorizedAccount: undefined,
+  thirdPartySettings: [],
+  onSettingToggle: undefined
 };
 
 function mapToProps(_, {
@@ -96,6 +115,7 @@ function mapToProps(_, {
     authorizationLogo: thirdPartyService.authorizationLogo,
     authorizedAccount: thirdPartyService.authorizedAccount,
     showFeedback: thirdPartyService.showFeedback,
+    thirdPartySettings: thirdPartyService.settings,
   };
 }
 
@@ -117,7 +137,8 @@ function mapToFunctions(_, {
     onThirdPartyAuthorize: () => thirdPartyService.authorizeService(),
     onFeedbackSettingsLinkClick() {
       thirdPartyService.onShowFeedback();
-    }
+    },
+    onSettingToggle: setting => thirdPartyService.onSettingToggle(setting),
   };
 }
 

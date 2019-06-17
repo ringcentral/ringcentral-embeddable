@@ -148,6 +148,9 @@ export default class ThirdPartyService extends RcModule {
         if (service.feedbackPath) {
           this._registerFeedback(service);
         }
+        if (service.settingsPath && service.settings && service.settings.length > 0) {
+          this._registerSettings(service);
+        }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
       }
@@ -244,6 +247,23 @@ export default class ThirdPartyService extends RcModule {
     this._feedbackPath = service.feedbackPath;
     this.store.dispatch({
       type: this.actionTypes.registerFeedback,
+    });
+  }
+
+  _registerSettings(service) {
+    this._settingsPath = service.settingsPath;
+    const settings = [];
+    service.settings.forEach((setting) => {
+      if (typeof setting.name === 'string' && typeof setting.value === 'boolean') {
+        settings.push({
+          name: setting.name,
+          value: setting.value,
+        });
+      }
+    });
+    this.store.dispatch({
+      type: this.actionTypes.registerSettings,
+      settings,
     });
   }
 
@@ -570,6 +590,17 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  async onSettingToggle(setting) {
+    const newSettng = { ...setting, value: !setting.value };
+    this.store.dispatch({
+      type: this.actionTypes.updateSetting,
+      setting: newSettng,
+    });
+    await requestWithPostMessage(this._settingsPath, {
+      settings: this.settings,
+    });
+  }
+
   async sync() {
     await this.fetchContacts();
   }
@@ -674,5 +705,9 @@ export default class ThirdPartyService extends RcModule {
 
   get showFeedback() {
     return this.state.showFeedback;
+  }
+
+  get settings() {
+    return this.state.settings;
   }
 }
