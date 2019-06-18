@@ -32,6 +32,7 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
   * Show contact's activities from your application
   * [Log call into your service](third-party-service-in-widget.md#log-call-into-your-service)
   * Add third party authorization button
+  * [Third Party Settings](third-party-service-in-widget.md#third-party-settings)
 * [Disable Features in Widget](disable-features.md)
   * Disable messages features
   * Disable Call releated features
