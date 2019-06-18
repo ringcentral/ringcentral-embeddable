@@ -17,4 +17,6 @@ export default new Enum([
   'registerAuthorization',
   'updateAuthorizationStatus',
   'registerFeedback',
+  'registerSettings',
+  'updateSetting',
 ], 'thirdPartyService');

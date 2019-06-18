@@ -247,6 +247,26 @@ export function getShowLogModalReducer(types) {
   };
 }
 
+export function getSettingsReducer(types) {
+  return (state = [], { type, settings, setting }) => {
+    let newState = [];
+    switch (type) {
+      case types.registerSettings:
+        return settings;
+      case types.updateSetting: {
+        newState = newState.concat(state);
+        const settingIndex = newState.findIndex(s => s.name === setting.name);
+        if (settingIndex > -1) {
+          newState[settingIndex] = setting;
+        }
+        return newState;
+      }
+      default:
+        return state;
+    }
+  };
+}
+
 export default function getReducer(types) {
   return combineReducers({
     status: getModuleStatusReducer(types),
@@ -268,5 +288,6 @@ export default function getReducer(types) {
     showLogModal: getShowLogModalReducer(types),
     activityName: getActivityNameReducer(types),
     showFeedback: getShowFeedbackReducer(types),
+    settings: getSettingsReducer(types),
   });
 }
