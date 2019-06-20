@@ -25,8 +25,8 @@ conditionalDescribe('Index page test', () => {
     expect(!!dialButton).toEqual(true);
   });
 
-  it('should goto calls page successfully', async () => {
-    await widgetIframe.clickNavigationButton('Calls');
+  it('should goto history page successfully', async () => {
+    await widgetIframe.clickNavigationButton('History');
     const callItems = await widgetIframe.getCallItemList();
     const noCallsText = await widgetIframe.getNoCallsText();
     const isNoCalls = noCallsText === 'No results found.';
