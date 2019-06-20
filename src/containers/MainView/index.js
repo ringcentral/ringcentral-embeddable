@@ -29,7 +29,10 @@ import MeetingIcon from 'ringcentral-widgets/assets/images/Meeting.svg';
 import MeetingHoverIcon from 'ringcentral-widgets/assets/images/MeetingHover.svg';
 import MeetingNavIcon from 'ringcentral-widgets/assets/images/MeetingNavigation.svg';
 
+import i18n from './i18n';
+
 function getTabs({
+  currentLocale,
   showMessages,
   unreadCounts,
   showConference,
@@ -43,7 +46,7 @@ function getTabs({
     showCall && {
       icon: DialPadIcon,
       activeIcon: DialPadHoverIcon,
-      label: 'Dial Pad',
+      label: i18n.getString('dialpadLabel', currentLocale),
       path: '/dialer',
       isActive: currentPath => (
         currentPath === '/dialer' ||
@@ -54,7 +57,7 @@ function getTabs({
     showCall && {
       icon: CallHistoryIcon,
       activeIcon: CallHistoryHoverIcon,
-      label: 'Calls',
+      label: i18n.getString('historyLabel', currentLocale),
       path: '/history',
       isActive: currentPath => (
         currentPath === '/history'
@@ -63,7 +66,7 @@ function getTabs({
     showMessages && {
       icon: MessageIcon,
       activeIcon: MessageHoverIcon,
-      label: 'Messages',
+      label: i18n.getString('messagesLabel', currentLocale),
       path: '/messages',
       noticeCounts: unreadCounts,
       isActive: currentPath => (
@@ -75,7 +78,7 @@ function getTabs({
     showGlip && {
       icon: GlipIcon,
       activeIcon: GlipHoverIcon,
-      label: 'Glip',
+      label: i18n.getString('glipLabel', currentLocale),
       path: '/glip',
       noticeCounts: glipUnreadCounts,
       isActive: currentPath => (
@@ -86,7 +89,7 @@ function getTabs({
     showContacts && {
       icon: ContactIcon,
       activeIcon: ContactHoverIcon,
-      label: 'Contacts',
+      label: i18n.getString('contactsLabel', currentLocale),
       path: '/contacts',
       isActive: currentPath => (
         currentPath.substr(0, 9) === '/contacts'
@@ -96,7 +99,7 @@ function getTabs({
       icon: ConferenceIcon,
       activeIcon: ConferenceHoverIcon,
       moreMenuIcon: ConferenceNavIcon,
-      label: 'Schedule Conference',
+      label: i18n.getString('conferenceLabel', currentLocale),
       path: '/conference',
       isActive: currentPath => (
         currentPath.substr(0, 11) === '/conference'
@@ -106,14 +109,14 @@ function getTabs({
       icon: MeetingIcon,
       activeIcon: MeetingHoverIcon,
       moreMenuIcon: MeetingNavIcon,
-      label: 'Schedule Meeting',
+      label: i18n.getString('meetingLabel', currentLocale),
       path: '/meeting',
     },
     {
       icon: SettingsIcon,
       activeIcon: SettingsHoverIcon,
       moreMenuIcon: SettingsNavIcon,
-      label: 'Settings',
+      label: i18n.getString('settingsLabel', currentLocale),
       path: '/settings',
       isActive: currentPath => (
         currentPath.substr(0, 9) === '/settings'
@@ -146,7 +149,7 @@ function getTabs({
         }
         return <MoreMenuHoverIcon />;
       },
-      label: 'More Menu',
+      label: i18n.getString('moreMenuLabel', currentLocale),
       virtualPath: '!moreMenu',
       isActive: (currentPath, currentVirtualPath) => (
         currentVirtualPath === '!moreMenu'
@@ -159,6 +162,7 @@ function getTabs({
 
 function mapToProps(_, {
   phone: {
+    locale,
     messageStore,
     rolesAndPermissions,
     routerInteraction,
@@ -180,8 +184,11 @@ function mapToProps(_, {
     rolesAndPermissions.organizeMeetingEnabled &&
     !!thirdPartyService.meetingInviteTitle
   );
+
+  const { currentLocale } = locale;
   const showContacts = rolesAndPermissions.ready && rolesAndPermissions.contactsEnabled;
   const tabs = getTabs({
+    currentLocale,
     unreadCounts,
     showCall,
     showMessages,
