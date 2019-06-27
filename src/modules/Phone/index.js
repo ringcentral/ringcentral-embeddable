@@ -82,6 +82,7 @@ import Adapter from '../Adapter';
 import ThirdPartyService from '../ThirdPartyService';
 import CallLogger from '../CallLogger';
 import CallLogSection from '../CallLogSection';
+import ConversationLogger from '../ConversationLogger';
 import RolesAndPermissions from '../RolesAndPermissions';
 import ActiveCallControl from '../ActiveCallControl';
 import GlipGroups from '../GlipGroups';
@@ -242,6 +243,8 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'ConferenceUI', useClass: ConferenceUI },
     { provide: 'Meeting', useClass: Meeting },
     { provide: 'Analytics', useClass: Analytics },
+    { provide: 'ConversationLogger', useClass: ConversationLogger },
+    { provide: 'ConversationLoggerOptions', useValue: {}, spread: true }
   ]
 })
 export default class BasePhone extends RcModule {

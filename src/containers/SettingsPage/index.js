@@ -93,6 +93,7 @@ function mapToProps(_, {
 }) {
   const {
     callLogger,
+    conversationLogger,
     rolesAndPermissions,
     thirdPartyService,
     audioSettings,
@@ -106,6 +107,8 @@ function mapToProps(_, {
     showAudio: audioSettings.availableDevices.length > 0 && rolesAndPermissions.callingEnabled,
     showAutoLog: callLogger.ready,
     autoLogEnabled: callLogger.autoLog,
+    showAutoLogSMS: conversationLogger.loggerSourceReady,
+    autoLogSMSEnabled: conversationLogger.autoLog,
     authorizationRegistered: thirdPartyService.authorizationRegistered,
     thirdPartyAuthorized: thirdPartyService.authorized,
     thirdPartyContactSyncing: thirdPartyService.contactSyncing,
@@ -125,6 +128,7 @@ function mapToFunctions(_, {
 }) {
   const {
     callLogger,
+    conversationLogger,
     thirdPartyService,
   } = phone;
   const baseFunctions = mapToBaseFunctions(_, {
@@ -134,6 +138,7 @@ function mapToFunctions(_, {
   return {
     ...baseFunctions,
     onAutoLogChange(autoLog) { callLogger.setAutoLog(autoLog); },
+    onAutoLogSMSChange(autoLog) { conversationLogger.setAutoLog(autoLog); },
     onThirdPartyAuthorize: () => thirdPartyService.authorizeService(),
     onFeedbackSettingsLinkClick() {
       thirdPartyService.onShowFeedback();

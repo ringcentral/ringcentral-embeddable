@@ -69,7 +69,7 @@ export function getActivitiesLoadedReducer(types) {
   };
 }
 
-export function getCallLogerRegisteredReducer(types) {
+export function getCallLoggerRegisteredReducer(types) {
   return (state = false, { type }) => {
     switch (type) {
       case types.registerCallLogger:
@@ -82,12 +82,41 @@ export function getCallLogerRegisteredReducer(types) {
   };
 }
 
-export function getCallLogerTitleReducer(types) {
+export function getCallLoggerTitleReducer(types) {
   return (state = null, { type, callLoggerTitle }) => {
     switch (type) {
       case types.registerCallLogger:
         if (callLoggerTitle) {
           return callLoggerTitle;
+        }
+        return state;
+      case types.resetSuccess:
+        return null;
+      default:
+        return state;
+    }
+  };
+}
+
+export function getMessageLoggerRegisteredReducer(types) {
+  return (state = false, { type }) => {
+    switch (type) {
+      case types.registerMessageLogger:
+        return true;
+      case types.resetSuccess:
+        return false;
+      default:
+        return state;
+    }
+  };
+}
+
+export function getMessageLoggerTitleReducer(types) {
+  return (state = null, { type, messageLoggerTitle }) => {
+    switch (type) {
+      case types.registerMessageLogger:
+        if (messageLoggerTitle) {
+          return messageLoggerTitle;
         }
         return state;
       case types.resetSuccess:
@@ -280,8 +309,10 @@ export default function getReducer(types) {
     activities: getActivitiesReducer(types),
     conferenceInviteTitle: getConferenceInviteTitleReducer(types),
     meetingInviteTitle: getMeetingInviteTitleReducer(types),
-    callLoggerRegistered: getCallLogerRegisteredReducer(types),
-    callLoggerTitle: getCallLogerTitleReducer(types),
+    callLoggerRegistered: getCallLoggerRegisteredReducer(types),
+    callLoggerTitle: getCallLoggerTitleReducer(types),
+    messageLoggerRegistered: getMessageLoggerRegisteredReducer(types),
+    messageLoggerTitle: getMessageLoggerTitleReducer(types),
     authorized: getAuthorizedReducer(types),
     authorizedTitle: getAuthorizedTitleReducer(types),
     unauthorizedTitle: getUnauthorizedTitleReducer(types),

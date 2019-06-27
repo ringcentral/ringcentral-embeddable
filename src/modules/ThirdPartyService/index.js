@@ -145,6 +145,9 @@ export default class ThirdPartyService extends RcModule {
             this._activityMatcher.triggerMatch();
           }
         }
+        if (service.messageLoggerPath) {
+          this._registerMessageLogger(service);
+        }
         if (service.feedbackPath) {
           this._registerFeedback(service);
         }
@@ -359,6 +362,14 @@ export default class ThirdPartyService extends RcModule {
     });
   }
 
+  _registerMessageLogger(service) {
+    this._messageLoggerPath = service.messageLoggerPath;
+    this.store.dispatch({
+      type: this.actionTypes.registerMessageLogger,
+      messageLoggerTitle: service.messageLoggerTitle,
+    });
+  }
+
   async _fetchContacts(page = 1) {
     const { data, nextPage, syncTimestamp } =
       await requestWithPostMessage(this._contactsPath, {
@@ -564,6 +575,17 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  async logConversation({ item, ...options }) {
+    try {
+      if (!this._messageLoggerPath) {
+        return;
+      }
+      await requestWithPostMessage(this._messageLoggerPath, { conversation: item, ...options });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   async authorizeService() {
     try {
       if (!this._authorizationPath) {
@@ -661,6 +683,14 @@ export default class ThirdPartyService extends RcModule {
 
   get callLoggerTitle() {
     return this.state.callLoggerTitle;
+  }
+
+  get messageLoggerRegistered() {
+    return this.state.messageLoggerRegistered;
+  }
+
+  get messageLoggerTitle() {
+    return this.state.messageLoggerTitle;
   }
 
   get authorizationRegistered() {
