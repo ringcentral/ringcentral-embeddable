@@ -509,6 +509,7 @@ export function createPhone({
   errorReportEndpoint,
   errorReportSampleRate,
   recordingLink,
+  authorizationCode,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -539,6 +540,7 @@ export function createPhone({
           redirectUri,
           proxyUri,
           authMode,
+          authorizationCode,
         },
         spread: true
       },
