@@ -13,10 +13,57 @@ import qs from 'qs';
 export default class OAuth extends ProxyFrameOAuth {
   constructor({
     authMode,
+    authorizationCode,
     ...options
   }) {
     super(options);
     this._authMode = authMode;
+    this._authorizationCode = authorizationCode;
+  }
+
+  async _onStateChange() {
+    if (
+      this.pending &&
+      (
+        this._auth.ready &&
+        this._locale.ready &&
+        this._alert.ready &&
+        (!this._tabManager || this._tabManager.ready)
+      )
+    ) {
+      this.store.dispatch({
+        type: this.actionTypes.init,
+      });
+      if (!this._auth.loggedIn && this._authorizationCode) {
+        await this._slientLoginWithCode()
+      }
+      this.store.dispatch({
+        type: this.actionTypes.initSuccess,
+      });
+    }
+    if (this._auth.loggedIn === this._loggedIn) {
+      return;
+    }
+    // For implicit flow
+    this._loggedIn = this._auth.loggedIn;
+    if (this._loggedIn && this._auth.isImplicit) {
+      console.log('new login, start refresh token timeout');
+      this._createImplicitRefreshTimeout();
+    }
+    if (!this._loggedIn && this._auth.isImplicit) {
+      this._clearImplicitRefreshIframe();
+      if (this._implicitRefreshTimeoutId) {
+        clearTimeout(this._implicitRefreshTimeoutId);
+      }
+    }
+  }
+
+  async _slientLoginWithCode() {
+    try {
+      await this._loginWithCallbackQuery({ code: this._authorizationCode });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async setupOAuth() {

@@ -27,6 +27,7 @@ const {
   userAgent,
   analyticsKey,
   enableErrorReport,
+  authorizationCode,
 } = pathParams;
 
 const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
@@ -73,6 +74,7 @@ const phone = createPhone({
   errorReportEndpoint,
   errorReportSampleRate,
   recordingLink,
+  authorizationCode,
 });
 
 const store = createStore(phone.reducer);
