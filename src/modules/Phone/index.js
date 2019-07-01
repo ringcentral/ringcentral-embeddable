@@ -244,7 +244,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'Meeting', useClass: Meeting },
     { provide: 'Analytics', useClass: Analytics },
     { provide: 'ConversationLogger', useClass: ConversationLogger },
-    { provide: 'ConversationLoggerOptions', useValue: {}, spread: true }
+    { provide: 'ConversationLoggerOptions', useValue: {}, spread: true },
   ]
 })
 export default class BasePhone extends RcModule {

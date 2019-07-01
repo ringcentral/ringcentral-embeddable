@@ -21,8 +21,7 @@ export default class ConversationLogger extends ConversationLoggerBase {
   }
 
   async _doLog(conversation) {
-    console.log(conversation);
-    //
+    this._thirdPartyService.logConversation(conversation);
   }
 
   get logButtonTitle() {
