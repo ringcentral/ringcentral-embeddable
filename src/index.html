@@ -151,7 +151,8 @@
       return queries.join('&');
     }
     function updateCodes() {
-      var basePath = window.location.href.split('/index.html')[0];
+      var basePath = window.location.protocol + '//' + window.location.host + window.location.pathname;
+      basePath = basePath.replace('/index.html', '');
       if (basePath[basePath.length - 1] === '/') {
         basePath = basePath.slice(0, basePath.length - 1);
       }
