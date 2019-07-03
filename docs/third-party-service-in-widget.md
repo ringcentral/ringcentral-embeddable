@@ -18,6 +18,9 @@ This document show how the widget can interact with your application deeply.
   * [Add call logger button in calls page](#add-call-logger-button-in-calls-page)
   * [Add call logger modal](#add-call-logger-modal)
   * [Add call log entity matcher](#add-call-log-entity-matcher)
+* [Log messages into your service](#log-messages-into-your-service)
+  * [Add message logger button in messages page](#add-message-logger-button-in-messages-page)
+  * [Add message log entity matcher](#add-message-log-entity-matcher)
 * [Add third party authorization button](#add-third-party-authorization-button)
 * [Third Party Settings](#third-party-settings)
 
@@ -420,7 +423,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 ### Add call log entity matcher
 
-In call logger button, widget need to know if call is logged. To provide `callLogEntityMatcherPath` when register, widget will send match request to get match result of calls history.
+In call logger button, widget needs to know if call is logged. To provide `callLogEntityMatcherPath` when register, widget will send match request to get match result of calls history.
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -434,7 +437,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-Then add a message event to response call logger button event:
+Then add a message event to response call logger matcher event:
 
 ```js
 window.addEventListener('message', function (e) {
@@ -452,6 +455,93 @@ window.addEventListener('message', function (e) {
             '214705503020': [{ // call session id from request
               id: '88888', // call log entity id from your platform
               note: 'Note', // Note of this call log entity
+            }]
+          }
+        },
+      }, '*');
+    }
+  }
+});
+```
+
+## Log messages into your service
+
+### Add message logger button in messages page
+
+First you need to pass `messageLoggerPath` and `messageLoggerTitle` when you register service.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    messageLoggerPath: '/messageLogger',
+    messageLoggerTitle: 'Log to TestService',
+  }
+}, '*');
+```
+
+After registered, you can get a `Log to TestService` in messages page, and `Auto log messages` setting in setting page:
+
+![message log button](https://user-images.githubusercontent.com/7036536/60498444-2c890100-9ce9-11e9-980b-c57d5ed50c2d.jpeg)
+
+Then add a message event to response message logger button event:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/messageLogger') {
+      // add your codes here to log messages to your service
+      console.log(data);
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+  }
+});
+```
+
+This message event is fired when user clicks `Log` button. Or if user enables `Auto log message` in settings, this event will be also fired when a message is created and updated.
+
+In this message event, you can get call information in `data.body.conversation`. Messages are grouped by `conversationId` and `date`. So for a conversation that have messages in different date, you will receive multiple log message event.
+
+### Add message log entity matcher
+
+In message logger, widget needs to know if messages are logged. To provide `messageLogEntityMatcherPath` when register, widget will send match request to get match result of messages history.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    messageLoggerPath: '/callLogger',
+    messageLoggerTitle: 'Log to TestService',
+    messageLogEntityMatcherPath: '/messageLogger/match'
+  }
+}, '*');
+```
+
+Then add a message event to response message logger match event:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/messageLogger/match') {
+      // add your codes here to reponse match result
+      console.log(data); // get message conversation log id list in here
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: {
+          data: {
+            '674035477569017905/7/2/2019': [{ // conversation log id from request
+              id: '88888', // log entity id from your platform
             }]
           }
         },
