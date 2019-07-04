@@ -83,6 +83,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * Show contacts from your application
   * Show contact's activities from your application
   * [Log call into your service](docs/third-party-service-in-widget.md#log-call-into-your-service)
+  * [Log messages into your service](docs/third-party-service-in-widget.md#log-messages-into-your-service)
   * Add third party authorization button
   * [Third Party Settings](docs/third-party-service-in-widget.md#third-party-settings)
 * [Enable and Disable Features in Widget](docs/disable-features.md)

@@ -119,6 +119,7 @@ function mapToProps(_, {
     authorizedAccount: thirdPartyService.authorizedAccount,
     showFeedback: thirdPartyService.showFeedback,
     thirdPartySettings: thirdPartyService.settings,
+    autoLogSMSTitle: 'Auto log messages',
   };
 }
 

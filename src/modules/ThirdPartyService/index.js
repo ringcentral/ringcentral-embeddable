@@ -377,6 +377,7 @@ export default class ThirdPartyService extends RcModule {
 
   _registerMessageLogger(service) {
     this._messageLoggerPath = service.messageLoggerPath;
+    this._messageLoggerAttachmentWithToken = !!service.attachmentWithToken
     this.store.dispatch({
       type: this.actionTypes.registerMessageLogger,
       messageLoggerTitle: service.messageLoggerTitle,
@@ -652,6 +653,18 @@ export default class ThirdPartyService extends RcModule {
     try {
       if (!this._messageLoggerPath) {
         return;
+      }
+      if ((item.type === 'VoiceMail' || item.type === 'Fax') && this._messageLoggerAttachmentWithToken) {
+        const messages = item.messages && item.messages.map((m) => {
+          if (!m.attachments) {
+            return m;
+          }
+          return {
+            ...m,
+            attachments: m.attachments.map(a => ({...a, uri: `${a.uri}?access_token=${this._auth.accessToken}`}))
+          };
+        });
+        item.messages = messages;
       }
       await requestWithPostMessage(this._messageLoggerPath, { conversation: item, ...options });
       if (this._messageLogEntityMatchSourceAdded) {
