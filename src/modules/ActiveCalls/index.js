@@ -10,6 +10,6 @@ export default class NewActiveCalls extends ActiveCalls {
   constructor(options) {
     super(options);
     
-    this.fetchData = debounce(this.fetchData, 5000, false)
+    this.fetchData = debounce(this.fetchData, 5000, false);
   }
 }
