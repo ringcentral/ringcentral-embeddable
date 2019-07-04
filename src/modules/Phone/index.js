@@ -67,8 +67,10 @@ import LocalForageStorage from 'ringcentral-integration/lib/LocalForageStorage';
 import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
+import ConferenceUI from 'ringcentral-widgets/modules/ConferenceUI';
 import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
 import CallingSettingsUI from 'ringcentral-widgets/modules/CallingSettingsUI';
+import ConnectivityManager from 'ringcentral-widgets/modules/ConnectivityManager';
 
 import Meeting from 'ringcentral-integration/modules/Meeting';
 
@@ -99,6 +101,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     { provide: 'TabManager', useClass: TabManager },
     { provide: 'GlobalStorage', useClass: GlobalStorage },
     { provide: 'ConnectivityMonitor', useClass: ConnectivityMonitor },
+    { provide: 'ConnectivityManager', useClass: ConnectivityManager },
     { provide: 'Auth', useClass: Auth },
     { provide: 'OAuth', useClass: OAuth },
     { provide: 'Storage', useClass: Storage },
@@ -236,6 +239,7 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     },
     { provide: 'ActiveCallControl', useClass: ActiveCallControl },
     { provide: 'ConferenceDialerUI', useClass: ConferenceDialerUI },
+    { provide: 'ConferenceUI', useClass: ConferenceUI },
     { provide: 'Meeting', useClass: Meeting },
     { provide: 'Analytics', useClass: Analytics },
   ]

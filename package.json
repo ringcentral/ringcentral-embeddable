@@ -71,8 +71,8 @@
     "redux": "^3.6.0",
     "ringcentral": "^3.2.1",
     "ringcentral-client": "^1.0.0-beta.1",
-    "ringcentral-integration": "^0.10.7",
-    "ringcentral-widgets": "^0.10.7",
+    "ringcentral-integration": "^0.10.8",
+    "ringcentral-widgets": "^0.10.8",
     "uuid": "^3.2.1",
     "whatwg-fetch": "^2.0.3"
   },
