@@ -10,7 +10,7 @@ import AvailabilityMonitor from 'ringcentral-integration/modules/AvailabilityMon
 import Analytics from 'ringcentral-integration/modules/Analytics';
 import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
-import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
+// import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import CompanyContacts from 'ringcentral-integration/modules/CompanyContacts';
@@ -85,6 +85,7 @@ import ActiveCallControl from '../ActiveCallControl';
 import GlipGroups from '../GlipGroups';
 import GlipPosts from '../GlipPosts';
 import ErrorLogger from '../ErrorLogger';
+import ActiveCalls from '../ActiveCalls';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
