@@ -31,6 +31,7 @@ import ConferenceParticipantPage from 'ringcentral-widgets/containers/Conference
 import TransferPage from 'ringcentral-widgets/containers/TransferPage';
 import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
+import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
 
 import MeetingPage from 'ringcentral-widgets/containers/MeetingPage';
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
@@ -86,8 +87,8 @@ export default function App({
                       routerProps.location.pathname.indexOf('/conferenceCall') > -1
                     )
                   )}
-                  goToCallCtrl={() => {
-                    phone.routerInteraction.push('/calls/active');
+                  goToCallCtrl={(sessionId) => {
+                    phone.routerInteraction.push(`/calls/active/${sessionId}`);
                   }}
                 />
                 <IncomingCallPage
@@ -99,6 +100,7 @@ export default function App({
                     regionSettingsUrl="/settings/region"
                   />
                 </IncomingCallPage>
+                <ConnectivityBadgeContainer />
               </AppView>
             )} >
             <Route
