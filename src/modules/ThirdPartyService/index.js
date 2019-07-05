@@ -56,6 +56,7 @@ function getImageUri(sourceUri) {
     'ContactSearch',
     'ContactMatcher',
     'ActivityMatcher',
+    'ConversationMatcher',
     { dep: 'ThirdPartyContactsOptions', optional: true, spread: true },
   ],
 })
@@ -66,6 +67,7 @@ export default class ThirdPartyService extends RcModule {
     contactSearch,
     contactMatcher,
     activityMatcher,
+    conversationMatcher,
     recordingLink,
     ...options
   }) {
@@ -83,6 +85,7 @@ export default class ThirdPartyService extends RcModule {
     this._contactSearch = contactSearch;
     this._contactMatcher = contactMatcher;
     this._activityMatcher = activityMatcher;
+    this._conversationMatcher = conversationMatcher;
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
     this._callLogEntityMatchSourceAdded = false;
@@ -143,6 +146,16 @@ export default class ThirdPartyService extends RcModule {
           if (!this.authorizationRegistered || this.authorized) {
             this._registerCallLogEntityMatch(service);
             this._activityMatcher.triggerMatch();
+          }
+        }
+        if (service.messageLoggerPath) {
+          this._registerMessageLogger(service);
+        }
+        if (service.messageLogEntityMatcherPath) {
+          this._messageLogEntityMatcherPath = service.messageLogEntityMatcherPath;
+          if (!this.authorizationRegistered || this.authorized) {
+            this._registerMessageLogEntityMatch(service);
+            this._conversationMatcher.triggerMatch();
           }
         }
         if (service.feedbackPath) {
@@ -296,13 +309,16 @@ export default class ThirdPartyService extends RcModule {
       this._refreshContactMatch();
       this._contactMatcher.triggerMatch();
       this._registerCallLogEntityMatch();
+      this._registerMessageLogEntityMatch();
       this._refreshCallLogEntityMatch();
+      this._refreshMessageLogEntityMatch();
       this._activityMatcher.triggerMatch();
     }
     if (lastAuthorized && !this.authorized) {
       this._unregisterContactSearch();
       this._unregisterContactMatch();
       this._unregisterCallLogEntityMatch();
+      this._unregisterMessageLogEntityMatch();
     }
   }
 
@@ -354,6 +370,49 @@ export default class ThirdPartyService extends RcModule {
     }
     const queries = this._activityMatcher._getQueries();
     this._activityMatcher.match({
+      queries: queries.slice(0, 30),
+      ignoreCache: true
+    });
+  }
+
+  _registerMessageLogger(service) {
+    this._messageLoggerPath = service.messageLoggerPath;
+    this._messageLoggerAttachmentWithToken = !!service.attachmentWithToken
+    this.store.dispatch({
+      type: this.actionTypes.registerMessageLogger,
+      messageLoggerTitle: service.messageLoggerTitle,
+    });
+  }
+
+  _registerMessageLogEntityMatch() {
+    if (this._messageLogEntityMatchSourceAdded || !this._messageLogEntityMatcherPath) {
+      return;
+    }
+    this._conversationMatcher.addSearchProvider({
+      name: this.sourceName,
+      searchFn: async ({ queries }) => {
+        const result = await this.matchMessageLogEntities(queries);
+        return result;
+      },
+      readyCheckFn: () => this.sourceReady,
+    });
+    this._messageLogEntityMatchSourceAdded = true;
+  }
+
+  _unregisterMessageLogEntityMatch() {
+    if (!this._messageLogEntityMatchSourceAdded) {
+      return;
+    }
+    this._conversationMatcher._searchProviders.delete(this.sourceName);
+    this._messageLogEntityMatchSourceAdded = false;
+  }
+
+  _refreshMessageLogEntityMatch() {
+    if (!this._messageLogEntityMatchSourceAdded) {
+      return;
+    }
+    const queries = this._conversationMatcher._getQueries();
+    this._conversationMatcher.match({
       queries: queries.slice(0, 30),
       ignoreCache: true
     });
@@ -478,6 +537,32 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  async matchMessageLogEntities(conversationLogIds) {
+    try {
+      const result = {};
+      if (!this._messageLogEntityMatcherPath) {
+        return result;
+      }
+      const { data } = await requestWithPostMessage(
+        this._messageLogEntityMatcherPath, { conversationLogIds }
+      );
+      if (!data || Object.keys(data).length === 0) {
+        return result;
+      }
+      conversationLogIds.forEach((conversationLogId) => {
+        if (data[conversationLogId] && Array.isArray(data[conversationLogId])) {
+          result[conversationLogId] = data[conversationLogId];
+        } else {
+          result[conversationLogId] = [];
+        }
+      });
+      return result;
+    } catch (e) {
+      console.error(e);
+      return {};
+    }
+  }
+
   async fetchActivities(contact) {
     try {
       if (!this._activitiesPath) {
@@ -556,6 +641,35 @@ export default class ThirdPartyService extends RcModule {
       if (this._callLogEntityMatchSourceAdded) {
         this._activityMatcher.match({
           queries: [call.sessionId],
+          ignoreCache: true
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async logConversation({ item, ...options }) {
+    try {
+      if (!this._messageLoggerPath) {
+        return;
+      }
+      if ((item.type === 'VoiceMail' || item.type === 'Fax') && this._messageLoggerAttachmentWithToken) {
+        const messages = item.messages && item.messages.map((m) => {
+          if (!m.attachments) {
+            return m;
+          }
+          return {
+            ...m,
+            attachments: m.attachments.map(a => ({...a, uri: `${a.uri}?access_token=${this._auth.accessToken}`}))
+          };
+        });
+        item.messages = messages;
+      }
+      await requestWithPostMessage(this._messageLoggerPath, { conversation: item, ...options });
+      if (this._messageLogEntityMatchSourceAdded) {
+        this._conversationMatcher.match({
+          queries: [item.conversationLogId],
           ignoreCache: true
         });
       }
@@ -661,6 +775,14 @@ export default class ThirdPartyService extends RcModule {
 
   get callLoggerTitle() {
     return this.state.callLoggerTitle;
+  }
+
+  get messageLoggerRegistered() {
+    return this.state.messageLoggerRegistered;
+  }
+
+  get messageLoggerTitle() {
+    return this.state.messageLoggerTitle;
   }
 
   get authorizationRegistered() {

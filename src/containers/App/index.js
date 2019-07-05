@@ -19,8 +19,8 @@ import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
 import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
 import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
-import ConversationsPage from 'ringcentral-widgets/containers/ConversationsPage';
-import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
+// import ConversationsPage from 'ringcentral-widgets/containers/ConversationsPage';
+// import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 
@@ -46,6 +46,8 @@ import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourc
 import SettingsPage from '../SettingsPage';
 import CallsListPage from '../CallsListPage';
 import CallLogSectionModal from '../CallLogSectionModal';
+import ConversationsPage from '../ConversationsPage';
+import ConversationPage from '../ConversationPage';
 
 import formatMeetingInfo from '../../lib/formatMeetingInfo';
 

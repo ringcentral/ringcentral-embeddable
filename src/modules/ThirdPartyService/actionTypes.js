@@ -14,6 +14,7 @@ export default new Enum([
   'registerConferenceInvite',
   'registerMeetingInvite',
   'registerCallLogger',
+  'registerMessageLogger',
   'registerAuthorization',
   'updateAuthorizationStatus',
   'registerFeedback',
