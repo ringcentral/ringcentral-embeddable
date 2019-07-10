@@ -46,12 +46,6 @@ module.exports = function getBaseConfig({ themeFolder } = {}) {
           exclude: /node_modules/,
         },
         {
-          // TODO: there are some es6 codes in web phone sdk.
-          //       Need to remove it in web phone sdk before released
-          test: /ringcentral-web-phone.js$/,
-          use: 'babel-loader',
-        },
-        {
           test: /\.md$/,
           use: 'raw-loader',
         },
