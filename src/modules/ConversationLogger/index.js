@@ -87,4 +87,17 @@ export default class ConversationLogger extends ConversationLoggerBase {
       });
     }
   }
+
+  async _autoLogConversation({ conversation, selfEntity, correspondentEntity }) {
+    await this.log({
+      conversation,
+      selfEntity,
+      correspondentEntity,
+      triggerType: 'auto',
+    });
+  }
+
+  async logConversation(options) {
+    super.logConversation({ ...options, triggerType: 'manual' });
+  }
 }
