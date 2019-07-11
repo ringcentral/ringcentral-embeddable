@@ -144,6 +144,9 @@ class Adapter extends AdapterCore {
         case 'rc-login-status-notify':
           console.log('rc-login-status-notify:', data.loggedIn);
           break;
+        case 'rc-calling-settings-notify':
+          console.log('rc-calling-settings-notify:', data);
+          break;
         case 'rc-active-call-notify':
           console.log('rc-active-call-notify:', data.call);
           break;
@@ -352,6 +355,15 @@ class Adapter extends AdapterCore {
   logoutUser() {
     this._postMessage({
       type: 'rc-adapter-logout',
+    });
+  }
+
+  updateCallingSetting({ callWith, myLocation, ringoutPrompt }) {
+    this._postMessage({
+      type: 'rc-calling-settings-update',
+      callWith,
+      myLocation,
+      ringoutPrompt,
     });
   }
 

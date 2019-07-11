@@ -20,7 +20,7 @@ import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Brand from 'ringcentral-integration/modules/Brand';
 import Call from 'ringcentral-integration/modules/Call';
 import CallHistory from 'ringcentral-integration/modules/CallHistory';
-import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
+// import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
 import ConferenceCall from 'ringcentral-integration/modules/ConferenceCall';
 import CallLog from 'ringcentral-integration/modules/CallLog';
 import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
@@ -89,6 +89,7 @@ import GlipGroups from '../GlipGroups';
 import GlipPosts from '../GlipPosts';
 import ErrorLogger from '../ErrorLogger';
 import ActiveCalls from '../ActiveCalls';
+import CallingSettings from '../CallingSettings';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
@@ -518,6 +519,7 @@ export function createPhone({
   errorReportSampleRate,
   recordingLink,
   authorizationCode,
+  defaultCallWith,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -601,7 +603,7 @@ export function createPhone({
           recordingLink,
         },
         spread: true,
-      }
+      },
       // TODO: for Emmergency support in webRTC
       // {
       //   provide: 'CallOptions',
@@ -610,13 +612,14 @@ export function createPhone({
       //   },
       //   spread: true,
       // },
-      // {
-      //   provide: 'CallingSettingsOptions',
-      //   useValue: {
-      //     emergencyCallAvailable: true,
-      //   },
-      //   spread: true,
-      // }
+      {
+        provide: 'CallingSettingsOptions',
+        useValue: {
+          defaultCallWith,
+          // emergencyCallAvailable: true, // TODO: for Emmergency support in webRTC
+        },
+        spread: true,
+      },
     ]
   })
   class Phone extends BasePhone {}

@@ -28,6 +28,7 @@ const {
   analyticsKey,
   enableErrorReport,
   authorizationCode,
+  defaultCallWith,
 } = pathParams;
 
 const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
@@ -75,6 +76,7 @@ const phone = createPhone({
   errorReportSampleRate,
   recordingLink,
   authorizationCode,
+  defaultCallWith,
 });
 
 const store = createStore(phone.reducer);

@@ -1,6 +1,7 @@
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import telephonyStatus from 'ringcentral-integration/enums/telephonyStatus';
 import terminationTypes from 'ringcentral-integration/enums/terminationTypes';
+import callingOptions from 'ringcentral-integration/modules/CallingSettings/callingOptions';
 import sessionStatus from 'ringcentral-integration/modules/Webphone/sessionStatus';
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
 import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
@@ -80,6 +81,7 @@ export default class Adapter extends AdapterModuleCore {
     this._lastActiveCalls = [];
     this._lastEndedActiveCallMap = {};
     this._lastActiveCallLogMap = {};
+    this._lastCallWith = null;
 
     this._messageStore.onNewInboundMessage((message) => {
       this._postMessage({
@@ -134,6 +136,7 @@ export default class Adapter extends AdapterModuleCore {
     this._checkLoginStatus();
     this._pushActiveCalls();
     this._checkRouteChanged();
+    this._checkCallingModeChanged();
   }
 
   _onMessage(event) {
@@ -159,6 +162,16 @@ export default class Adapter extends AdapterModuleCore {
             this._auth.logout();
           }
           break;
+        case 'rc-calling-settings-update': 
+          if (this._callingSettings.ready) {
+            if (callingOptions[data.callWith]) {
+              this._callingSettings.setData({
+                callWith: callingOptions[data.callWith],
+                myLocation: data.myLocation,
+                ringoutPrompt: data.ringoutPrompt,
+              });
+            }
+          }
         default:
           super._onMessage(data);
           break;
@@ -308,6 +321,22 @@ export default class Adapter extends AdapterModuleCore {
       this._currentRoute = this._router.currentPath;
       this.routeChangedNotify(this._currentRoute);
     }
+  }
+
+  _checkCallingModeChanged() {
+    if (!this._callingSettings.ready) {
+      return;
+    }
+    if (this._lastCallWith === this._callingSettings.callWith) {
+      return;
+    }
+    this._lastCallWith = this._callingSettings.callWith;
+    const callingMode = this._callingSettings.callingMode;
+    this._postMessage({
+      type: 'rc-calling-settings-notify',
+      callWith: this._lastCallWith && this._lastCallWith.replace('callingOptions-', ''),
+      callingMode: callingMode && callingMode.replace('callingModes-', ''),
+    });
   }
 
   _insertExtendStyle() {

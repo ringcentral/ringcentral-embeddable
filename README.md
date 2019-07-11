@@ -76,6 +76,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
     * Reject a ringing call
     * Hangup a call
   * [Log out user](docs/control-widget.md#log-out-user)
+* [Interact with calling settings](docs/interact-with-calling-settings.md)
 * [Third Party Service in Widget](docs/third-party-service-in-widget.md)
   * Register your service
   * Add a conference invite button with your service
@@ -91,6 +92,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * Disable Call releated features
   * Disable Conference invite feature
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
+  * [Enable Active Call Control feature](docs/disable-features.md#enable-active-call-control-feature)
 * [In-page Login Mode](docs/sso-login-mode.md)
 * [New adapter badge UI](docs/new-adapter-ui.md)
 * [Enable Analytics](docs/add-analytics.md)
@@ -124,7 +126,7 @@ $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
 2. Create a RingCentral app with platform type - "Browser Based"
-3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Glip` and `VoIP Calling` to your app.
+3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Glip` and `VoIP Calling` to your app. `Active Call Control` is optional, but recommended for [active call control](docs/disable-features.md#enable-active-call-control-feature)
 4. Add redirect uri `http://localhost:8080/redirect.html` to your app settings.
 
 ### Create environment variables file in project root path
