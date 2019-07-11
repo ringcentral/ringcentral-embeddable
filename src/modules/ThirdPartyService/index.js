@@ -629,11 +629,11 @@ export default class ThirdPartyService extends RcModule {
         const isSandbox = call.recording.uri.indexOf('platform.devtest') > -1;
         let recordingLink = this._recordingLink;
         if (isSandbox) {
-          recordingLink = `${recordingLink}sandbox/`;
+          recordingLink = `${recordingLink}sandbox`;
         }
         callItem.recording = {
           ...call.recording,
-          link: `${recordingLink}?id=${call.id}&recordingId=${call.recording.id}`,
+          link: `${recordingLink}?media=${encodeURIComponent(call.recording.contentUri)}`,
           contentUri,
         };
       }
@@ -654,14 +654,29 @@ export default class ThirdPartyService extends RcModule {
       if (!this._messageLoggerPath) {
         return;
       }
-      if ((item.type === 'VoiceMail' || item.type === 'Fax') && this._messageLoggerAttachmentWithToken) {
+      if ((item.type === 'VoiceMail' || item.type === 'Fax')) {
         const messages = item.messages && item.messages.map((m) => {
           if (!m.attachments) {
             return m;
           }
           return {
             ...m,
-            attachments: m.attachments.map(a => ({...a, uri: `${a.uri}?access_token=${this._auth.accessToken}`}))
+            attachments: m.attachments.map(a => {
+              const isSandbox = a.uri.indexOf('media.devtest') > -1;
+              let attachmentLink = this._recordingLink;
+              if (isSandbox) {
+                attachmentLink = `${attachmentLink}sandbox`;
+              }
+              let uri = a.uri;
+              if (this._messageLoggerAttachmentWithToken) {
+                uri = `${a.uri}?access_token=${this._auth.accessToken}`;
+              }
+              return ({
+                ...a,
+                link: `${attachmentLink}?media=${encodeURIComponent(a.uri)}`,
+                uri,
+              });
+            })
           };
         });
         item.messages = messages;
