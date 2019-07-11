@@ -43,7 +43,7 @@ const redirectUri = process.env.REDIRECT_URI || 'https://ringcentral.github.io/r
 const proxyUri = process.env.PROXY_URI || 'https://ringcentral.github.io/ringcentral-embeddable/proxy.html';
 
 const errorReportKey = process.env.ERROR_REPORT_KEY;
-const recordingLink = process.env.RECORDING_LINK || 'http://apps.ringcentral.com/integrations/recording/';
+const recordingLink = process.env.RECORDING_LINK || 'https://ringcentral.github.io/ringcentral-media-reader/';
 
 const config = getBaseConfig({ themeFolder: brandFolder });
 config.output = {
