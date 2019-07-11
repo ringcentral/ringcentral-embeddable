@@ -4,7 +4,7 @@ Developer can config the Web Widget to use their own RingCentral app client id a
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
 2. Create a RingCentral app with platform type - "Browser Based"
-3. And add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling` to your app.
+3. And add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling` to your app. `Active Call Control` is optional, but recommended for [active call control](docs/disable-features.md#enable-active-call-control-feature)
 4. Add redirect uri `https://ringcentral.github.io/ringcentral-embeddable/redirect.html` to your app settings. But you can also [customize redirect uri](customize-redirect-uri.md)
 
 ## Adapter JS way
