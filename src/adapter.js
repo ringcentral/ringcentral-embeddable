@@ -43,6 +43,7 @@ const {
   errorReportSampleRate,
   errorReportProjectId,
   authorizationCode,
+  defaultCallWith,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -79,6 +80,7 @@ const appUri = `${appUrl}?${obj2uri({
   errorReportSampleRate,
   errorReportProjectId,
   authorizationCode,
+  defaultCallWith,
   fromAdapter: 1,
   _t: Date.now(),
 })}`;
