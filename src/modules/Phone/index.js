@@ -22,7 +22,7 @@ import Call from 'ringcentral-integration/modules/Call';
 import CallHistory from 'ringcentral-integration/modules/CallHistory';
 // import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
 import ConferenceCall from 'ringcentral-integration/modules/ConferenceCall';
-import CallLog from 'ringcentral-integration/modules/CallLog';
+// import CallLog from 'ringcentral-integration/modules/CallLog';
 import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
 import ComposeText from 'ringcentral-integration/modules/ComposeText';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
@@ -90,6 +90,7 @@ import GlipPosts from '../GlipPosts';
 import ErrorLogger from '../ErrorLogger';
 import ActiveCalls from '../ActiveCalls';
 import CallingSettings from '../CallingSettings';
+import CallLog from '../CallLog';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 
