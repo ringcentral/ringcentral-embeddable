@@ -564,7 +564,7 @@ export function createPhone({
           appName: appNameForSDK,
           appVersion,
           webphoneLogLevel: 1,
-          // permissionCheck: false, // TODO: for Emmergency support in webRTC
+          permissionCheck: false,
         },
       },
       {
@@ -605,19 +605,18 @@ export function createPhone({
         },
         spread: true,
       },
-      // TODO: for Emmergency support in webRTC
-      // {
-      //   provide: 'CallOptions',
-      //   useValue: {
-      //     permissionCheck: false,
-      //   },
-      //   spread: true,
-      // },
+      {
+        provide: 'CallOptions',
+        useValue: {
+          permissionCheck: false,
+        },
+        spread: true,
+      },
       {
         provide: 'CallingSettingsOptions',
         useValue: {
           defaultCallWith,
-          // emergencyCallAvailable: true, // TODO: for Emmergency support in webRTC
+          emergencyCallAvailable: true,
         },
         spread: true,
       },
