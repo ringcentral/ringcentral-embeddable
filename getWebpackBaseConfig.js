@@ -68,7 +68,14 @@ module.exports = function getBaseConfig({ themeFolder } = {}) {
             {
               loader: 'react-svg-loader',
               options: {
-                jsx: true
+                jsx: true,
+                svgo: {
+                  plugins: [
+                    {
+                      removeViewBox: false,
+                    },
+                  ],
+                }
               }
             }
           ]
