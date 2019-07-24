@@ -29,6 +29,7 @@ const {
   enableErrorReport,
   authorizationCode,
   defaultCallWith,
+  enableFromNumberSetting,
 } = pathParams;
 
 const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
@@ -77,6 +78,7 @@ const phone = createPhone({
   recordingLink,
   authorizationCode,
   defaultCallWith,
+  enableFromNumberSetting: !!enableFromNumberSetting
 });
 
 const store = createStore(phone.reducer);

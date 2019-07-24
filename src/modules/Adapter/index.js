@@ -51,6 +51,7 @@ export default class Adapter extends AdapterModuleCore {
     messageStore,
     stylesUri,
     prefix,
+    enableFromNumberSetting,
     ...options
   }) {
     super({
@@ -77,11 +78,12 @@ export default class Adapter extends AdapterModuleCore {
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
+    this._enableFromNumberSetting = enableFromNumberSetting;
     this._loggedIn = null;
     this._lastActiveCalls = [];
     this._lastEndedActiveCallMap = {};
     this._lastActiveCallLogMap = {};
-    this._lastCallWith = null;
+    this._callWith = null;
 
     this._messageStore.onNewInboundMessage((message) => {
       this._postMessage({
@@ -136,7 +138,7 @@ export default class Adapter extends AdapterModuleCore {
     this._checkLoginStatus();
     this._pushActiveCalls();
     this._checkRouteChanged();
-    this._checkCallingModeChanged();
+    this._checkCallingSettingsChanged();
   }
 
   _onMessage(event) {
@@ -164,13 +166,7 @@ export default class Adapter extends AdapterModuleCore {
           break;
         case 'rc-calling-settings-update': 
           if (this._callingSettings.ready) {
-            if (callingOptions[data.callWith]) {
-              this._callingSettings.setData({
-                callWith: callingOptions[data.callWith],
-                myLocation: data.myLocation,
-                ringoutPrompt: data.ringoutPrompt,
-              });
-            }
+            this._updateCallingSettings(data);
           }
         default:
           super._onMessage(data);
@@ -323,20 +319,28 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _checkCallingModeChanged() {
+  _checkCallingSettingsChanged() {
     if (!this._callingSettings.ready) {
       return;
     }
-    if (this._lastCallWith === this._callingSettings.callWith) {
+    if (
+      this._callWith === this._callingSettings.callWith &&
+      (!this._enableFromNumberSetting || this._fromNumbers === this._callingSettings.fromNumbers)
+    ) {
       return;
     }
-    this._lastCallWith = this._callingSettings.callWith;
+    this._callWith = this._callingSettings.callWith;
+    this._fromNumbers = this._callingSettings.fromNumbers;
     const callingMode = this._callingSettings.callingMode;
-    this._postMessage({
+    const message = {
       type: 'rc-calling-settings-notify',
-      callWith: this._lastCallWith && this._lastCallWith.replace('callingOptions-', ''),
+      callWith: this._callWith && this._callWith.replace('callingOptions-', ''),
       callingMode: callingMode && callingMode.replace('callingModes-', ''),
-    });
+    };
+    if (this._enableFromNumberSetting && this._callWith === callingOptions.browser) {
+      message.fromNumbers = this._fromNumbers.map(n => ({ phoneNumber: n.phoneNumber, usageType: n.usageType }));
+    }
+    this._postMessage(message);
   }
 
   _insertExtendStyle() {
@@ -457,6 +461,25 @@ export default class Adapter extends AdapterModuleCore {
     return !!this._webphone.sessions.find(
       session => session.to === normalizedNumber
     );
+  }
+
+  _updateCallingSettings(data) {
+    if (data.callWith && callingOptions[data.callWith]) {
+      this._callingSettings.setData({
+        callWith: callingOptions[data.callWith],
+        myLocation: data.myLocation,
+        ringoutPrompt: data.ringoutPrompt,
+      });
+    }
+    if (data.fromNumber) {
+      const isAnonymous = data.fromNumber === 'anonymous';
+      const isValid = this._callingSettings.fromNumbers.find(p => p.phoneNumber === data.fromNumber);
+      if ((isAnonymous || isValid) && data.fromNumber !== this._callingSettings.fromNumber) {
+        this._callingSettings.updateFromNumber({
+          phoneNumber: data.fromNumber,
+        });
+      }
+    }
   }
 
   // eslint-disable-next-line
