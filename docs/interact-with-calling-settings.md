@@ -44,6 +44,30 @@ There are 4 options for `defaultCallWith`:
 
 They are short names of `Browser`, `RingCentral for Desktop`, `My RingCentral Phone` and `Custom Phone`.
 
+## Enable call from number setting
+
+In widget, user can also select `From` number when make a browser call. For developers who also want to set `From` number programatically, we need to enable from number settings:
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enableFromNumberSetting=1";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+###  Iframe way
+
+```html
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?enableFromNumberSetting=1">
+</iframe>
+```
+
+After enabled, we can receive `From` number list in following message event when `callWith` is `browser`.
+
 ## Calling settings updated event
 
 Event fired when user changed `call with` option in calling settings page:
@@ -71,6 +95,16 @@ document.querySelector("#rc-widget").contentWindow.postMessage({
   type: 'rc-calling-settings-update',
   callWith: 'softphone',
   // myLocation: '+1111111111', // required for myphone and customphone
-  // ringoutPrompt: true, // required for myphone and customphone
+  // ringoutPrompt: true, // required for myphone and customphone,
+  // fromNumber: '+1111111111', // set from number when callWith is browser
+}, '*');
+```
+
+For `fromNumber`, the number should be from `fromNumbers` list in calling settings event, or `anonymous` for `Blocked` from number.
+
+```js
+document.querySelector("#rc-widget").contentWindow.postMessage({
+  type: 'rc-calling-settings-update',
+  fromNumber: 'anonymous',
 }, '*');
 ```

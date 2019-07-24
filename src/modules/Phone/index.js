@@ -521,6 +521,7 @@ export function createPhone({
   recordingLink,
   authorizationCode,
   defaultCallWith,
+  enableFromNumberSetting,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -555,7 +556,7 @@ export function createPhone({
         },
         spread: true
       },
-      { provide: 'AdapterOptions', useValue: { stylesUri }, spread: true },
+      { provide: 'AdapterOptions', useValue: { stylesUri, enableFromNumberSetting }, spread: true },
       {
         provide: 'WebphoneOptions',
         spread: true,

@@ -358,12 +358,13 @@ class Adapter extends AdapterCore {
     });
   }
 
-  updateCallingSetting({ callWith, myLocation, ringoutPrompt }) {
+  updateCallingSetting({ callWith, myLocation, ringoutPrompt, fromNumber }) {
     this._postMessage({
       type: 'rc-calling-settings-update',
       callWith,
       myLocation,
       ringoutPrompt,
+      fromNumber,
     });
   }
 
