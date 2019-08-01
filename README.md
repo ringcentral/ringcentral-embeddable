@@ -57,6 +57,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 ### Documents
 
 * [Get Started](docs/get-started.md)
+* [Browser Support](docs/browser-support.md)
 * [Use your own app client id and app client secret](docs/config-client-id-and-secret.md)
 * [Customize Redirect Uri](docs/customize-redirect-uri.md)
 * [Customize Widget UI styles](docs/customize-ui-styles.md)

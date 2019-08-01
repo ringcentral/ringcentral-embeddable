@@ -8,7 +8,7 @@ When calling mode is set into [Browser](interact-with-calling-settings.md), widg
 
 For 5 tab limition, now we support to disconnect webphone connection in inactive tabs. So user can open more than 5 tabs, and not more than 5 active tabs. When user goes to new tabs and new widget's web phone is connected, web phone connection in inactive tabs will be disconnected. When user goes back to inactive tab, widget will reconnect web phone connection.
 
-*Notice*: this feature is in beta, we need more tests and feedback about it.
+**Notice**: this feature is in beta, we need more tests and feedback about it.
 
 To enable this feature:
 

@@ -5,6 +5,7 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
 ## Table of Contents
 
 * [Get Started](get-started.md)
+* [Browser Support](browser-support.md)
 * [Use your own app client id and app client secret](config-client-id-and-secret.md)
 * [Customize Redirect Uri](customize-redirect-uri.md)
 * [Customize Widget UI styles](customize-ui-styles.md)
