@@ -45,6 +45,7 @@ const {
   authorizationCode,
   defaultCallWith,
   enableFromNumberSetting,
+  disconnectInactiveWebphone,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -83,6 +84,7 @@ const appUri = `${appUrl}?${obj2uri({
   authorizationCode,
   defaultCallWith,
   enableFromNumberSetting,
+  disconnectInactiveWebphone,
   fromAdapter: 1,
   _t: Date.now(),
 })}`;

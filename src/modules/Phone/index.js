@@ -522,6 +522,7 @@ export function createPhone({
   authorizationCode,
   defaultCallWith,
   enableFromNumberSetting,
+  disconnectInactiveWebphone,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -566,6 +567,8 @@ export function createPhone({
           appVersion,
           webphoneLogLevel: 1,
           permissionCheck: false,
+          connectDelay: disconnectInactiveWebphone ? 800 : 0,
+          disconnectOnInactive: disconnectInactiveWebphone,
         },
       },
       {
