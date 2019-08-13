@@ -94,6 +94,7 @@ import CallLog from '../CallLog';
 import Webphone from '../Webphone';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
+import hackSend from '../../lib/hackSend';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -167,7 +168,13 @@ import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
     },
     {
       provide: 'Client',
-      useFactory: ({ sdkConfig }) => new RingCentralClient(new SDK(sdkConfig)),
+      useFactory: ({ sdkConfig }) => {
+        if (!!window.ActiveXObject || 'ActiveXObject' in window) {
+          // if the browser is IE , no cache
+          return new RingCentralClient(hackSend(new SDK(sdkConfig)));
+        }
+        return new RingCentralClient(new SDK(sdkConfig));
+      },
       deps: [
         { dep: 'SdkConfig', useParam: true, },
       ],

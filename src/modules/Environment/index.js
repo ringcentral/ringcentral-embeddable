@@ -3,6 +3,8 @@ import Environment from 'ringcentral-integration/modules/Environment';
 import isBlank from 'ringcentral-integration/lib/isBlank';
 import { Module } from 'ringcentral-integration/lib/di';
 
+import hackSend from '../../lib/hackSend';
+
 import {
   getAppKeyReducer,
   getAppSecretReducer,
@@ -71,7 +73,12 @@ export default class DemoEnvironment extends Environment {
           appSecret: this.appSecret
         }
       );
-      this._client.service = new SDK(config);
+      if (!!window.ActiveXObject || 'ActiveXObject' in window) {
+        // if the browser is IE , no cache
+        this._client.service = hackSend(new SDK(config));
+      } else {
+        this._client.service = new SDK(config);
+      }
     }
   }
 
@@ -79,7 +86,12 @@ export default class DemoEnvironment extends Environment {
     const newConfig = this._getSdkConfig(
       { enabled, server, appKey, appSecret }
     );
-    this._client.service = new SDK(newConfig);
+    if (!!window.ActiveXObject || 'ActiveXObject' in window) {
+      // if the browser is IE , no cache
+      this._client.service = hackSend(new SDK(newConfig));
+    } else {
+      this._client.service = new SDK(newConfig);
+    }
   }
 
   async setData({ server, recordingHost, enabled, appKey, appSecret }) {
