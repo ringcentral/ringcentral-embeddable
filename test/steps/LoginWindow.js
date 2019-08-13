@@ -30,11 +30,19 @@ export class LoginWindow {
     await this._targetPage.click('button.btn-primary');
   }
 
+  async confirmEmergencyAddress() {
+    await this._targetPage.waitForFunction(
+      'document.querySelector("body").innerText.includes("Confirm");'
+    );
+    await this._targetPage.click('button.btn-primary');
+  }
+
   async authorize() {
     await this._targetPage.waitForFunction(
       'document.querySelector("body").innerText.includes("Access Request");'
     );
     await this._targetPage.click('button.btn-primary');
-    await this.submitEmergencyAddress();
+    await this._targetPage.waitFor(200);
+    await this.confirmEmergencyAddress();
   }
 }
