@@ -8194,10 +8194,10 @@ ringcentral-widgets@^0.10.10:
     url-parse "^1.2.0"
     uuid "^3.3.2"
 
-ringcentral@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/ringcentral/-/ringcentral-3.2.1.tgz#5f51122ebbd534194a20b975711fb847dfd1c10c"
-  integrity sha512-8MOrucaq5BWV/Css3/zObwNFQEUsbMNqdAFa4hNKOKJylN4xt1iK+WKikXuzuoYsqJFrIUmUc6JxYLWQ93heHQ==
+ringcentral@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/ringcentral/-/ringcentral-3.2.2.tgz#ebafffc9868b9d39f94bf48732853ae32e97523f"
+  integrity sha512-dcwJwVrtzNHiOQXQDXISp2izkxhplN7Wg0OZI3dGIGTksrwmJ5K/MhEj6J1wkO3eGUmrkO/K8aruBbWRdw/HQQ==
   dependencies:
     es6-promise "^4.0.5"
     fetch-ponyfill "^3.0.2"
