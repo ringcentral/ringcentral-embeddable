@@ -172,7 +172,7 @@ export default function App({
               <Route
                 path="/history"
                 component={() => (
-                  <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                  <div style={{ width: '100%', height: '100%' }}>
                     <CallsListPage />
                     <CallLogSectionModal />
                   </div>
