@@ -27,6 +27,7 @@ function mapToProps(_, {
   enableContactFallback = false,
 }) {
   return {
+    useNewList: true,
     onlyHistory: true,
     currentLocale: locale.currentLocale,
     activeRingCalls: EMPTY_CALLS,
@@ -64,6 +65,8 @@ function mapToProps(_, {
       (!composeText || composeText.ready)
     ),
     readTextPermission: rolesAndPermissions.readTextPermissions,
+    width: window.innerWidth || 300,
+    height: window.innerHeight ? (window.innerHeight - 53) : 454,
   };
 }
 
