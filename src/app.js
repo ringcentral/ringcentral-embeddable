@@ -31,6 +31,7 @@ const {
   defaultCallWith,
   enableFromNumberSetting,
   disconnectInactiveWebphone,
+  disableInactiveTabCallEvent,
 } = pathParams;
 
 const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
@@ -79,6 +80,7 @@ const phone = createPhone({
   recordingLink,
   authorizationCode,
   defaultCallWith,
+  disableInactiveTabCallEvent: !!disableInactiveTabCallEvent,
   enableFromNumberSetting: !!enableFromNumberSetting,
   disconnectInactiveWebphone: !!disconnectInactiveWebphone,
 });

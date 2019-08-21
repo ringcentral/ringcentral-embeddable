@@ -34,6 +34,7 @@ const CALL_NOTIFY_DELAY = 1500;
     'Locale',
     'ActiveCalls',
     'MessageStore',
+    'TabManager',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -52,6 +53,8 @@ export default class Adapter extends AdapterModuleCore {
     stylesUri,
     prefix,
     enableFromNumberSetting,
+    disableInactiveTabCallEvent,
+    tabManager,
     ...options
   }) {
     super({
@@ -74,11 +77,13 @@ export default class Adapter extends AdapterModuleCore {
     this._dialerUI = this::ensureExist(dialerUI, 'dialerUI');
     this._activeCalls = this::ensureExist(activeCalls, 'activeCalls');
     this._messageStore = this::ensureExist(messageStore, 'messageStore');
+    this._tabManager = this::ensureExist(tabManager, 'tabManager');
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
     this._enableFromNumberSetting = enableFromNumberSetting;
+    this._disableInactiveTabCallEvent = disableInactiveTabCallEvent;
     this._loggedIn = null;
     this._lastActiveCalls = [];
     this._lastEndedActiveCallMap = {};
@@ -210,6 +215,9 @@ export default class Adapter extends AdapterModuleCore {
   }
 
   _pushActiveCalls() {
+    if (this._disableInactiveTabCallEvent && this._tabManager.ready && (!this._tabManager.active)) {
+      return;
+    }
     if (this._lastActiveCalls === this._presence.calls) {
       return;
     }

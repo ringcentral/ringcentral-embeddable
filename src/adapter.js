@@ -46,6 +46,7 @@ const {
   defaultCallWith,
   enableFromNumberSetting,
   disconnectInactiveWebphone,
+  disableInactiveTabCallEvent,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -85,6 +86,7 @@ const appUri = `${appUrl}?${obj2uri({
   defaultCallWith,
   enableFromNumberSetting,
   disconnectInactiveWebphone,
+  disableInactiveTabCallEvent,
   fromAdapter: 1,
   _t: Date.now(),
 })}`;
