@@ -168,6 +168,7 @@ function mapToProps(_, {
     routerInteraction,
     conference,
     glipGroups,
+    glipCompany,
     thirdPartyService,
   },
 }) {
@@ -195,7 +196,7 @@ function mapToProps(_, {
     showConference,
     showMeeting,
     showContacts,
-    showGlip: rolesAndPermissions.hasGlipPermission,
+    showGlip: (rolesAndPermissions.hasGlipPermission && !!glipCompany.name),
     glipUnreadCounts: glipGroups.unreadCounts,
   });
   return {
