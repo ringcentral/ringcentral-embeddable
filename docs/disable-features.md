@@ -66,7 +66,7 @@ rcs0.parentNode.insertBefore(rcs, rcs0);
 </script>
 ```
 
-Before we start to use Conference Call feature, need to add `TelephonySessions` permission to your app in RingCentral Developer website. Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add `TelephonySessions` permission if you get any problem.
+Before we start to use Conference Call feature, need to add `ActiveCallControl` permission to your app in RingCentral Developer website. Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add `ActiveCallControl` permission if you get any problem.
 
 ## Enable Active Call Control feature
 

@@ -531,6 +531,7 @@ export function createPhone({
   defaultCallWith,
   enableFromNumberSetting,
   disconnectInactiveWebphone,
+  disableInactiveTabCallEvent,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -565,7 +566,15 @@ export function createPhone({
         },
         spread: true
       },
-      { provide: 'AdapterOptions', useValue: { stylesUri, enableFromNumberSetting }, spread: true },
+      {
+        provide: 'AdapterOptions',
+        useValue: {
+          stylesUri,
+          enableFromNumberSetting,
+          disableInactiveTabCallEvent,
+        },
+        spread: true
+      },
       {
         provide: 'WebphoneOptions',
         spread: true,

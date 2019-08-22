@@ -97,6 +97,8 @@ window.addEventListener('message', (e) => {
 });
 ```
 
+If user opens multiple tabs, the event will be fired in every tab. `disableInactiveTabCallEvent` is a option that makes widget only fire active call event in last active tab. Just add `disableInactiveTabCallEvent=1` in widget adapter js uri or iframe src.
+
 ## Login Status event
 
 Get login status from widget
