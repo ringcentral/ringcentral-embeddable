@@ -3,10 +3,6 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import SettingsPanel from 'ringcentral-widgets/components/SettingsPanel';
 import withPhone from 'ringcentral-widgets/lib/withPhone';
-import {
-  mapToFunctions as mapToBaseFunctions,
-  mapToProps as mapToBaseProps,
-} from 'ringcentral-widgets/containers/SettingsPage';
 
 import AuthorizeSettingsSection from '../../components/AuthorizeSettingsSection';
 import ToggleSettings from '../../components/ToggleSettings';
@@ -97,8 +93,9 @@ function mapToProps(_, {
     rolesAndPermissions,
     thirdPartyService,
     audioSettings,
+    settingsPageUI,
   } = phone;
-  const baseProps = mapToBaseProps(_, {
+  const baseProps = settingsPageUI.getUIProps({
     phone,
     ...props,
   });
@@ -131,13 +128,10 @@ function mapToFunctions(_, {
     callLogger,
     conversationLogger,
     thirdPartyService,
+    settingsPageUI,
   } = phone;
-  const baseFunctions = mapToBaseFunctions(_, {
-    phone,
-    ...props,
-  });
   return {
-    ...baseFunctions,
+    ...settingsPageUI.getUIFunctions({ phone, ...props }),
     onAutoLogChange(autoLog) { callLogger.setAutoLog(autoLog); },
     onAutoLogSMSChange(autoLog) { conversationLogger.setAutoLog(autoLog); },
     onThirdPartyAuthorize: () => thirdPartyService.authorizeService(),
