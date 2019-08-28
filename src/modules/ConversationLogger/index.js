@@ -158,10 +158,15 @@ export default class ConversationLogger extends ConversationLoggerBase {
       return null;
     }
     const { conversationId } = message;
-    const date = this._formatDateTime({
-      type: 'date',
-      utcTimestamp: message.creationTime,
-    });
+    let date = null;
+    try {
+      date = this._formatDateTime({
+        type: 'date',
+        utcTimestamp: message.creationTime,
+      });
+    } catch (e) {
+      // ignore error
+    }
     return getLogId({
       conversationId,
       date,
