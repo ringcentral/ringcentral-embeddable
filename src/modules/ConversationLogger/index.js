@@ -1,5 +1,7 @@
 import { Module } from 'ringcentral-integration/lib/di';
-import ConversationLoggerBase from 'ringcentral-integration/modules/ConversationLogger';
+import ConversationLoggerBase, { getLogId } from 'ringcentral-integration/modules/ConversationLogger';
+import { selector } from 'ringcentral-integration/lib/selector';
+import { getNumbersFromMessage, sortByDate } from 'ringcentral-integration/lib/messageHelper';
 
 @Module({
   deps: [
@@ -18,6 +20,15 @@ export default class ConversationLogger extends ConversationLoggerBase {
       ...options,
     });
     this._thirdPartyService = thirdPartyService;
+    this._formatDateTime = (...args) => {
+      try {
+        return this._dateTimeFormat.formatDateTime(...args);
+      } catch (e) {
+        console.error('format date error:');
+        console.error('args');
+        throw e;
+      }
+    };
   }
 
   async _doLog(conversation) {
@@ -99,5 +110,66 @@ export default class ConversationLogger extends ConversationLoggerBase {
 
   async logConversation(options) {
     super.logConversation({ ...options, triggerType: 'manual' });
+  }
+
+  @selector
+  conversationLogMap = [
+    () => this._messageStore.conversationStore,
+    () => this._extensionInfo.extensionNumber,
+    () => this._conversationMatcher.dataMapping,
+    (conversationStore, extensionNumber, conversationLogMapping = {}) => {
+      const messages = Object.values(conversationStore)
+        .reduce((allMessages, messages) => [...allMessages, ...messages], []);
+      const mapping = {};
+      messages.slice().sort(sortByDate)
+        .forEach((message) => {
+          const { conversationId } = message;
+          const date = this._formatDateTime({
+            type: 'date',
+            utcTimestamp: message.creationTime,
+          });
+          if (!mapping[conversationId]) {
+            mapping[conversationId] = {};
+          }
+          if (!mapping[conversationId][date]) {
+            const conversationLogId = getLogId({ conversationId, date });
+            mapping[conversationId][date] = {
+              conversationLogId,
+              conversationId,
+              creationTime: message.creationTime, // for sorting
+              date,
+              type: message.type,
+              messages: [],
+              conversationLogMatches: conversationLogMapping[conversationLogId] || [],
+              ...getNumbersFromMessage({ extensionNumber, message }),
+            };
+          }
+          mapping[conversationId][date].messages.push(message);
+        });
+      return mapping;
+    },
+  ]
+
+  getConversationLogId(message) {
+    if (!message) {
+      return;
+    }
+    if (!message.creationTime) {
+      return null;
+    }
+    const { conversationId } = message;
+    let date = null;
+    try {
+      date = this._formatDateTime({
+        type: 'date',
+        utcTimestamp: message.creationTime,
+      });
+    } catch (e) {
+      // ignore error
+    }
+    return getLogId({
+      conversationId,
+      date,
+    });
   }
 }
