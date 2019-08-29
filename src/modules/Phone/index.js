@@ -48,7 +48,7 @@ import Softphone from 'ringcentral-integration/modules/Softphone';
 import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
 import TabManager from 'ringcentral-integration/modules/TabManager';
-// import Webphone from 'ringcentral-integration/modules/Webphone';
+import Webphone from 'ringcentral-integration/modules/Webphone';
 import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 import Feedback from 'ringcentral-integration/modules/Feedback';
 import Conference from 'ringcentral-integration/modules/Conference';
@@ -70,7 +70,15 @@ import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
 import ConferenceUI from 'ringcentral-widgets/modules/ConferenceUI';
 import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
 import CallingSettingsUI from 'ringcentral-widgets/modules/CallingSettingsUI';
+import SettingsPageUI from 'ringcentral-widgets/modules/SettingsPageUI';
+import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
+import ContactDetailsUI from 'ringcentral-widgets/modules/ContactDetailsUI';
+import ComposeTextUI from 'ringcentral-widgets/modules/ComposeTextUI';
+import AlertUI from 'ringcentral-widgets/modules/AlertUI';
 import ConnectivityManager from 'ringcentral-widgets/modules/ConnectivityManager';
+import ConnectivityBadgeUI from 'ringcentral-widgets/modules/ConnectivityBadgeUI';
+import LoginUI from 'ringcentral-widgets/modules/LoginUI';
+import MeetingUI from 'ringcentral-widgets/modules/MeetingUI';
 
 import Meeting from 'ringcentral-integration/modules/Meeting';
 
@@ -91,7 +99,6 @@ import ErrorLogger from '../ErrorLogger';
 import ActiveCalls from '../ActiveCalls';
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
-import Webphone from '../Webphone';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
@@ -101,12 +108,14 @@ import hackSend from '../../lib/hackSend';
 @ModuleFactory({
   providers: [
     { provide: 'Alert', useClass: Alert },
+    { provide: 'AlertUI', useClass: AlertUI },
     { provide: 'Brand', useClass: Brand },
     { provide: 'Locale', useClass: Locale },
     { provide: 'TabManager', useClass: TabManager },
     { provide: 'GlobalStorage', useClass: GlobalStorage },
     { provide: 'ConnectivityMonitor', useClass: ConnectivityMonitor },
     { provide: 'ConnectivityManager', useClass: ConnectivityManager },
+    { provide: 'ConnectivityBadgeUI', useClass: ConnectivityBadgeUI },
     { provide: 'Auth', useClass: Auth },
     { provide: 'OAuth', useClass: OAuth },
     { provide: 'Storage', useClass: Storage },
@@ -138,6 +147,7 @@ import hackSend from '../../lib/hackSend';
     { provide: 'ConferenceCall', useClass: ConferenceCall },
     { provide: 'MessageSender', useClass: MessageSender },
     { provide: 'ComposeText', useClass: ComposeText },
+    { provide: 'ComposeTextUI', useClass: ComposeTextUI },
     { provide: 'CallMonitor', useClass: CallMonitor },
     { provide: 'CallHistory', useClass: CallHistory },
     { provide: 'CallLogger', useClass: CallLogger },
@@ -151,6 +161,7 @@ import hackSend from '../../lib/hackSend';
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetails', useClass: ContactDetails },
+    { provide: 'ContactDetailsUI', useClass: ContactDetailsUI },
     { provide: 'DialerUI', useClass: DialerUI },
     { provide: 'Adapter', useClass: Adapter },
     { provide: 'RouterInteraction', useClass: RouterInteraction },
@@ -255,6 +266,10 @@ import hackSend from '../../lib/hackSend';
     { provide: 'Analytics', useClass: Analytics },
     { provide: 'ConversationLogger', useClass: ConversationLogger },
     { provide: 'ConversationLoggerOptions', useValue: {}, spread: true },
+    { provide: 'ActiveCallsUI', useClass: ActiveCallsUI },
+    { provide: 'LoginUI', useClass: LoginUI },
+    { provide: 'SettingsPageUI', useClass: SettingsPageUI },
+    { provide: 'MeetingUI', useClass: MeetingUI },
   ]
 })
 export default class BasePhone extends RcModule {

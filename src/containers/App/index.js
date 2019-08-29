@@ -11,7 +11,7 @@ import ComposeTextPage from 'ringcentral-widgets/containers/ComposeTextPage';
 import IncomingCallPage from 'ringcentral-widgets/containers/IncomingCallPage';
 import CallCtrlPage from 'ringcentral-widgets/containers/CallCtrlPage';
 import CallBadgeContainer from 'ringcentral-widgets/containers/CallBadgeContainer';
-import WelcomePage from 'ringcentral-widgets/containers/WelcomePage';
+import LoginPage from 'ringcentral-widgets/containers/LoginPage';
 import AudioSettingsPage from 'ringcentral-widgets/containers/AudioSettingsPage';
 import ContactsPage from 'ringcentral-widgets/containers/ContactsPage';
 import ContactDetailsPage from 'ringcentral-widgets/containers/ContactDetailsPage';
@@ -108,12 +108,12 @@ export default function App({
             <Route
               path="/"
               component={() => (
-                <WelcomePage>
+                <LoginPage>
                   <AlertContainer
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
                   />
-                </WelcomePage>
+                </LoginPage>
               )}
             />
             <Route
@@ -233,6 +233,7 @@ export default function App({
                 component={() => (
                   <ContactsPage
                     onVisitPage={async () => { await phone.contacts.sync(); }}
+                    onRefresh={async () => { await phone.contacts.sync(); }}
                     sourceNodeRenderer={ContactSourceIcon}
                   />
                 )}

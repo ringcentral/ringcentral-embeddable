@@ -1756,6 +1756,11 @@ boolbase@^1.0.0, boolbase@~1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha1-aN/1++YMUes3cl6p4+0xDcwed24=
 
+bowser@^2.5.3:
+  version "2.5.3"
+  resolved "https://registry.yarnpkg.com/bowser/-/bowser-2.5.3.tgz#811b0a24219c566c9a6ab3402bc8a13f35a18a96"
+  integrity sha512-aWCA+CKfKNL/WGzNgjmK+Whp57JMzboZMwJ5gy2jDj2bEIjbMCb3ImGX+V++5wsJftyFiDIbOjRXl60ycniVqg==
+
 brace-expansion@^1.1.7:
   version "1.1.11"
   resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-1.1.11.tgz#3c7fcbf529d87226f3d2f52b966ff5271eb441dd"
@@ -8180,11 +8185,12 @@ ringcentral-client@^1.0.0-beta.2:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.10.10:
-  version "0.10.10"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.10.tgz#731e0d160e6f66934681c723bf3d57b75adb3f87"
-  integrity sha512-6VpHwHUUoys2hGcjMb4IzoQYgcVHqtrOXans6KrG7QCXsyPEkA+NbHRMVn1f4fq3Xw9LQ5caK6xycVQsYJ8ntg==
+ringcentral-integration@^0.10.12:
+  version "0.10.12"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.12.tgz#ab2dfb9dda4c960d246567cdb037602e1c7f519b"
+  integrity sha512-4GxfknSprv6Ff4lgbRIlm+BFIostx/iPR0Qr5HRx3M/1xHOLAwApPTMSVsD3v4I7fAZ2489YYh2PBYimb94rkQ==
   dependencies:
+    bowser "^2.5.3"
     file-loader "^3.0.1"
     json-mask "^0.3.8"
     localforage "^1.7.3"
@@ -8206,10 +8212,10 @@ ringcentral-web-phone@^0.7.2:
     getstats "1.2.0"
     sip.js "0.13.5"
 
-ringcentral-widgets@^0.10.10:
-  version "0.10.10"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.10.tgz#f51872b345fd3cb275a8b597b92ad317b20e2fd7"
-  integrity sha512-9Mae/UDAvhRnKInEXvPqXIsGAF30+YJIU97PIiqnT2uU2kRN0BC3/AEPqPTfiM3AB3TcCYyp6h+LqPReLZy0Rw==
+ringcentral-widgets@^0.10.12:
+  version "0.10.12"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.12.tgz#e98f680f15dc7a323b2bf711a12611902eb65e0e"
+  integrity sha512-o4jBT+0A9hyat7/fjF3RT29G8dFYLcqkJkS6Pl3zvVFFoCWXjClF3cjbA6xzvU4jxlFB0FDkNh8CUGrVP00wAg==
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
