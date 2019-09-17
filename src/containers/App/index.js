@@ -90,7 +90,8 @@ export default function App({
                     )
                   )}
                   goToCallCtrl={(sessionId) => {
-                    phone.routerInteraction.push(`/calls/active/${sessionId}`);
+                    const session = phone.webphone.activeSession || phone.webphone.ringSession || {};
+                    phone.routerInteraction.push(`/calls/active/${sessionId || session.id}`);
                   }}
                 />
                 <IncomingCallPage

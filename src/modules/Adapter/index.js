@@ -490,6 +490,31 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
+  // override
+  async _onNavigateToCurrentCall() {
+    const ACTIVE_CALL_PATH = '/calls/active';
+    const currentSession =
+      this._webphone.sessions.find(s => s.callStatus === sessionStatus.connected) ||
+      this._webphone.activeSession;
+    if (currentSession) {
+      const currentCallPath = `${ACTIVE_CALL_PATH}/${currentSession.id}`;
+      this._router.push(currentCallPath);
+    }
+    if (this._userGuide && this._userGuide.started) {
+      this._userGuide.dismiss();
+    }
+    if (this._quickAccess && this._quickAccess.entered) {
+      this._quickAccess.exit();
+    }
+    if (
+      this._webphone &&
+      this._webphone.ringSession &&
+      !this._webphone.ringSession.minimized
+    ) {
+      this._webphone.toggleMinimized(this._webphone.ringSession.id);
+    }
+  }
+
   // eslint-disable-next-line
   _postMessage(data) {
     if (window && window.parent) {
