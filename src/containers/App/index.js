@@ -234,7 +234,7 @@ export default function App({
                 component={() => (
                   <ContactsPage
                     onVisitPage={async () => { await phone.contacts.sync(); }}
-                    onRefresh={async () => { await phone.contacts.sync(); }}
+                    onRefresh={async () => { await phone.contacts.sync({ type: 'manual'}); }}
                     sourceNodeRenderer={ContactSourceIcon}
                   />
                 )}

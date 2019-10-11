@@ -7450,6 +7450,11 @@ ramda@^0.25.0:
   resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.25.0.tgz#8fdf68231cffa90bc2f9460390a0cb74a29b29a9"
   integrity sha512-GXpfrYVPwx3K7RQ6aYT8KPS8XViSXUVJT1ONhoKPE9VAleW42YE+U+8VEyGWt41EnEQW7gwecYJriTI0pKoecQ==
 
+ramda@^0.26.1:
+  version "0.26.1"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.26.1.tgz#8d41351eb8111c55353617fc3bbffad8e4d35d06"
+  integrity sha512-hLWjpy7EnsDBb0p+Z3B7rPi3GDeRG5ZtiI33kJhTt+ORCd38AbAIjB/9zRIUoeTbE/AVX5ZkU7m6bznsvrf8eQ==
+
 randombytes@^2.0.0, randombytes@^2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/randombytes/-/randombytes-2.0.3.tgz#674c99760901c3c4112771a31e521dc349cc09ec"
@@ -7880,10 +7885,10 @@ redux@^3.6.0:
     loose-envify "^1.1.0"
     symbol-observable "^1.0.3"
 
-redux@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.1.tgz#436cae6cc40fbe4727689d7c8fae44808f1bfef5"
-  integrity sha512-R7bAtSkk7nY6O/OYMVR9RiBI+XghjF9rlbl5806HJbQph0LJVHZrU5oaO4q70eUKiqMRqm4y07KLTlMZ2BlVmg==
+redux@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.4.tgz#4ee1aeb164b63d6a1bcc57ae4aa0b6e6fa7a3796"
+  integrity sha512-vKv4WdiJxOWKxK0yRoaK3Y4pxxB0ilzVx6dszU2W8wLxlb2yikRph4iV/ymtdJ6ZxpBLFbyrxklnT5yBbQSl3Q==
   dependencies:
     loose-envify "^1.4.0"
     symbol-observable "^1.2.0"
@@ -8185,10 +8190,10 @@ ringcentral-client@^1.0.0-beta.2:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.10.12:
-  version "0.10.12"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.12.tgz#ab2dfb9dda4c960d246567cdb037602e1c7f519b"
-  integrity sha512-4GxfknSprv6Ff4lgbRIlm+BFIostx/iPR0Qr5HRx3M/1xHOLAwApPTMSVsD3v4I7fAZ2489YYh2PBYimb94rkQ==
+ringcentral-integration@^0.10.14:
+  version "0.10.14"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.14.tgz#586340736e24bc705d1517208e63b0a5c82f21ec"
+  integrity sha512-l4xmD83aOAL6k6gH5GSjeLWd/b6lWs1wbc5upZWU6o2ufM+rrOtML6J5BA+6BoolzuL8FZnKbM4mLAkq/QJdRg==
   dependencies:
     bowser "^2.5.3"
     file-loader "^3.0.1"
@@ -8196,12 +8201,12 @@ ringcentral-integration@^0.10.12:
     localforage "^1.7.3"
     moment "^2.24.0"
     prettier "^1.7.0"
-    ramda "^0.25.0"
-    redux "^4.0.1"
+    ramda "^0.26.1"
+    redux "^4.0.4"
     reselect "^2.5.4"
     ringcentral-web-phone "^0.7.2"
     url-loader "^1.1.2"
-    uuid "^3.3.2"
+    uuid "^3.3.3"
     yards "^0.1.4"
 
 ringcentral-web-phone@^0.7.2:
@@ -8212,10 +8217,10 @@ ringcentral-web-phone@^0.7.2:
     getstats "1.2.0"
     sip.js "0.13.5"
 
-ringcentral-widgets@^0.10.12:
-  version "0.10.12"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.12.tgz#e98f680f15dc7a323b2bf711a12611902eb65e0e"
-  integrity sha512-o4jBT+0A9hyat7/fjF3RT29G8dFYLcqkJkS6Pl3zvVFFoCWXjClF3cjbA6xzvU4jxlFB0FDkNh8CUGrVP00wAg==
+ringcentral-widgets@^0.10.14:
+  version "0.10.14"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.14.tgz#299ae16a477beaf0d976d34840c055fcbc9a4864"
+  integrity sha512-ml8boyDlgpbAhozZ4ZxFb1IPmAqSsSTrwCn2zK9KGsV1obM9BNwijcKpbO/xXAr+G3WhO66SOmH39bdNfmexkg==
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
@@ -9618,6 +9623,11 @@ uuid@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.2.1.tgz#12c528bb9d58d0b9265d9a2f6f0fe8be17ff1f14"
   integrity sha512-jZnMwlb9Iku/O3smGWvZhauCf6cvvpKi4BKRiliS3cxnI+Gz9j5MEpTz2UFuXiKPJocb7gnsLHwiS05ige5BEA==
+
+uuid@^3.3.3:
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.3.tgz#4568f0216e78760ee1dbf3a4d2cf53e224112866"
+  integrity sha512-pW0No1RGHgzlpHJO1nsVrHKpOEIxkGg1xB+v0ZmdNH5OAeAwzAVrCnI2/6Mtx+Uys6iaylxa+D3g4j63IKKjSQ==
 
 v8-compile-cache@^2.0.2:
   version "2.0.2"
