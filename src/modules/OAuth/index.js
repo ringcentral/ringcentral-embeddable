@@ -150,6 +150,8 @@ export default class OAuth extends ProxyFrameOAuth {
         case 'unauthorized_client':
         case 'unsupported_response_type':
         case 'invalid_scope':
+        case 'interaction_required':
+        case 'login_required':
           message = authMessages.accessDenied;
           break;
         case 'access_denied': {

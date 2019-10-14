@@ -418,11 +418,12 @@ export default class ThirdPartyService extends RcModule {
     });
   }
 
-  async _fetchContacts(page = 1) {
+  async _fetchContacts({ page = 1, type } = {}) {
     const { data, nextPage, syncTimestamp } =
       await requestWithPostMessage(this._contactsPath, {
         page,
         syncTimestamp: this.contactSyncTimestamp,
+        type,
       }, 8000);
     if (!Array.isArray(data)) {
       return { contacts: [], syncTimestamp };
@@ -431,12 +432,12 @@ export default class ThirdPartyService extends RcModule {
     if (!nextPage) {
       return { contacts, syncTimestamp };
     }
-    const nextPageData = await this._fetchContacts(nextPage);
+    const nextPageData = await this._fetchContacts({ page: nextPage, type });
     const nextPageContacts = formatContacts(nextPageData.contacts);
     return { contacts: contacts.concat(nextPageContacts), syncTimestamp };
   }
 
-  async fetchContacts() {
+  async fetchContacts(params = {}) {
     try {
       if (!this._contactsPath) {
         return;
@@ -451,7 +452,7 @@ export default class ThirdPartyService extends RcModule {
       this.store.dispatch({
         type: this.actionTypes.syncContacts,
       });
-      this._fetchContactsPromise = this._fetchContacts();
+      this._fetchContactsPromise = this._fetchContacts(params);
       const { contacts, syncTimestamp } = await this._fetchContactsPromise;
       let fetchType;
       if (this.contactSyncTimestamp && syncTimestamp) {
@@ -730,8 +731,8 @@ export default class ThirdPartyService extends RcModule {
     });
   }
 
-  async sync() {
-    await this.fetchContacts();
+  async sync(params) {
+    await this.fetchContacts(params);
   }
 
   get contacts() {
