@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 require('dotenv').config();
 
@@ -73,10 +73,12 @@ config.plugins = [
     { from: 'src/redirect.html', to: 'redirect.html' },
   ]),
 ];
+config.entry['adapter.min'] = './src/adapter.js';
 config.optimization = {
+  minimize: true,
   minimizer: [
-    new UglifyJsPlugin({
-      uglifyOptions: {
+    new TerserPlugin({
+      terserOptions: {
         compress: {
           warnings: false,
         },
@@ -84,8 +86,8 @@ config.optimization = {
           comments: false,
         },
       },
-      exclude: /[Aa]dapter/
-    })
+      exclude: /adapter\.js$/,
+    }),
   ]
 };
 config.mode = 'production';
