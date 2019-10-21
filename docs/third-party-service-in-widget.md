@@ -180,6 +180,14 @@ If you provide `nextPage` for `contactsPath` response, widget will repeat reques
 
 ![contacts image](https://user-images.githubusercontent.com/7036536/55848243-d9d2f980-5b7e-11e9-8051-7a48cee50222.jpeg)
 
+To trigger contact sync request in widget by api:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-sync-third-party-contacts',
+}, '*');
+```
+
 ### Show contacts search result on Dialer receiver input
 
 You must want to show related contacts result when user typing in callee input area. First you need to pass `contactSearchPath` when you register service:
