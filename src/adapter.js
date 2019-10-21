@@ -104,7 +104,7 @@ function init() {
     prefix: prefix || defaultPrefix,
     enableNotification: !!notification,
     newAdapterUI: !!newAdapterUI,
-    zIndex: zIndex ? parseInt(zIndex, 10) : 999,
+    zIndex: zIndex ? Number.parseInt(zIndex, 10) : 999,
   });
 }
 
