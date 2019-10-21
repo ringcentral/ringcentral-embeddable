@@ -47,6 +47,7 @@ const {
   enableFromNumberSetting,
   disconnectInactiveWebphone,
   disableInactiveTabCallEvent,
+  zIndex,
 } = parseUri((currentScipt && currentScipt.src) || '');
 
 function obj2uri(obj) {
@@ -103,6 +104,7 @@ function init() {
     prefix: prefix || defaultPrefix,
     enableNotification: !!notification,
     newAdapterUI: !!newAdapterUI,
+    zIndex: zIndex ? parseInt(zIndex, 10) : 999,
   });
 }
 
