@@ -166,7 +166,9 @@ export default class ThirdPartyService extends RcModule {
         }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
-      }
+      } else if (e.data.type === 'rc-adapter-sync-third-party-contacts') {
+        this._triggerSyncContacts();
+      } 
     });
   }
 
@@ -472,6 +474,10 @@ export default class ThirdPartyService extends RcModule {
       console.error(e);
     }
     this._fetchContactsPromise = null;
+  }
+
+  async _triggerSyncContacts() {
+    await this.fetchContacts({ type: 'api' });
   }
 
   async searchContacts(searchString) {
