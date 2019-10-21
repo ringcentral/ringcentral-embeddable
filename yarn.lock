@@ -7560,10 +7560,10 @@ qs@^6.5.1:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.1.tgz#349cdf6eef89ec45c12d7d5eb3fc0c870343a6d8"
   integrity sha512-eRzhrN1WSINYCDCbrz796z37LOe3m5tmW7RQf6oBntukAG1nmovJvhnwHHRMAfeoItc1m2Hk02WER2aQ/iqs+A==
 
-qs@^6.6.0:
-  version "6.7.0"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
-  integrity sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==
+qs@^6.8.0:
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.0.tgz#d1297e2a049c53119cb49cca366adbbacc80b409"
+  integrity sha512-27RP4UotQORTpmNQDX8BHPukOnBP3p1uUJY5UnDhaJB+rMt9iMsok724XL+UHU23bEFOHRMQ2ZhI99qOWUMGFA==
 
 query-string@^4.2.2:
   version "4.3.4"
@@ -8359,10 +8359,10 @@ ringcentral-client@^1.0.0-beta.2:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.10.14:
-  version "0.10.14"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.14.tgz#586340736e24bc705d1517208e63b0a5c82f21ec"
-  integrity sha512-l4xmD83aOAL6k6gH5GSjeLWd/b6lWs1wbc5upZWU6o2ufM+rrOtML6J5BA+6BoolzuL8FZnKbM4mLAkq/QJdRg==
+ringcentral-integration@^0.10.15:
+  version "0.10.15"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.15.tgz#f319fa628258d85b4ffba25be5ff19417ca76460"
+  integrity sha512-h7x+KC5kdtDEaqN7X6ZlW4qlzCjf1txsd9mNTrqs3qPs1X8cOh+MiHQSlscq/95lWdGyLAr2xya2OPdQh8U65Q==
   dependencies:
     bowser "^2.5.3"
     file-loader "^3.0.1"
@@ -8386,18 +8386,18 @@ ringcentral-web-phone@^0.7.2:
     getstats "1.2.0"
     sip.js "0.13.5"
 
-ringcentral-widgets@^0.10.14:
-  version "0.10.14"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.14.tgz#299ae16a477beaf0d976d34840c055fcbc9a4864"
-  integrity sha512-ml8boyDlgpbAhozZ4ZxFb1IPmAqSsSTrwCn2zK9KGsV1obM9BNwijcKpbO/xXAr+G3WhO66SOmH39bdNfmexkg==
+ringcentral-widgets@^0.10.15:
+  version "0.10.15"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.15.tgz#36c95f4c784e05f08023b065eb52d3c06aff8bdd"
+  integrity sha512-4PDP7V0SB7V8JnyZ/iwM8JYiYg1drmr3ie7njw6jjiBS0s1vNMYfAjYKkoRL/V5+JO1EMIziADAmhEuAwh8p5g==
   dependencies:
     animate.css "^3.5.2"
     classnames "^2.2.5"
     dedent "^0.7.0"
     normalize-css "^2.3.1"
     prop-types "^15.7.2"
-    qs "^6.6.0"
-    ramda "^0.25.0"
+    qs "^6.8.0"
+    ramda "^0.26.1"
     rc-tooltip "^3.4.6"
     react-svg-loader "^3.0.3"
     react-transition-group "^2.2.1"
@@ -8407,7 +8407,7 @@ ringcentral-widgets@^0.10.14:
     reselect "^2.5.4"
     through2 "^2.0.5"
     url-parse "^1.2.0"
-    uuid "^3.3.2"
+    uuid "^3.3.3"
 
 ringcentral@^3.2.2:
   version "3.2.2"

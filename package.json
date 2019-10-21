@@ -1,6 +1,6 @@
 {
   "name": "ringcentral-embeddable",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A RingCentral Embeddable Widget Application",
   "main": "index.js",
   "license": "MIT",
@@ -72,8 +72,8 @@
     "redux": "^3.6.0",
     "ringcentral": "^3.2.2",
     "ringcentral-client": "^1.0.0-beta.2",
-    "ringcentral-integration": "^0.10.14",
-    "ringcentral-widgets": "^0.10.14",
+    "ringcentral-integration": "^0.10.15",
+    "ringcentral-widgets": "^0.10.15",
     "uuid": "^3.2.1",
     "whatwg-fetch": "^2.0.3"
   },
