@@ -154,6 +154,8 @@ window.addEventListener('message', function (e) {
           phoneNumber: '+1234567890',
           phoneType: 'direct', // support: business, extension, home, mobile, phone, unknown, company, direct, fax, other
         }],
+        company: 'CompanyName',
+        jobTitle: 'Engineer',
         emails: ['test@email.com'],
         deleted: false, // set deleted to true if you need to delete it in updated contacts
       }];

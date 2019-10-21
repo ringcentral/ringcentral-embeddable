@@ -23,3 +23,11 @@ input {
 :global .rc-editor-mention-dropdown {
   z-index: 12!important;
 }
+
+:global .ContactDetails_section .ContactDetails_label {
+  width: 25%;
+}
+
+:global .ContactDetails_section .ContactDetails_content {
+  width: 75%;
+}
