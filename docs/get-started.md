@@ -47,6 +47,6 @@ Example scripts with versioned app:
 </script>
 ```
 
-#### Important
+## Important
 
 **Before going production, you should setup the Widget to use your own RingCentral app client id and client secrect in [here](config-client-id-and-secret.md). And use stable version Embeddable**
