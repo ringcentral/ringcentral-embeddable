@@ -1,6 +1,6 @@
 # Using your own RingCentrall app client id and client secret
 
-Developer can config the Web Widget to use their own RingCentral app client id and client secret.
+Developer should config the Widget to use their own RingCentral app client id and client secret.
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
 2. Create a RingCentral app with platform type - "Browser Based"
@@ -20,7 +20,7 @@ Developer can config the Web Widget to use their own RingCentral app client id a
 </script>
 ```
 
-`appSecret` is optional. If you provide `appSecret` to the Widget, it will use authorization code flow. If not, it will use implicit grant flow to log in.
+`appSecret` is optional. If you provide `appSecret` to the Widget, it will use authorization code flow. If not, it will use implicit grant flow to log in. In implicit flow, if user is inactive in 1 hour, login session will be expired. In authorization code flow, if user is inactive in 7 days, login session will be expired.
 
 ## Iframe way
 

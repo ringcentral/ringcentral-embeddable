@@ -48,7 +48,7 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
 
 #### Stable version
 
-We provide latest RingCentral Embeddable version on github page `https://ringcentral.github.io/ringcentral-embeddable`. It includes latest features and bugfix in RingCentral Embeddable. And it will keep up to date with master codes. But we **recommend** developers to use versioned RingCentral Embeddable. Current latest stable version of RingCentral Embeddable is `0.1.1`. You can get versioned app in this uri `https://apps.ringcentral.com/integration/ringcentral-embeddable/0.1.1`.
+We provide latest RingCentral Embeddable version on github page `https://ringcentral.github.io/ringcentral-embeddable`. It includes latest features and bugfix in RingCentral Embeddable. And it will keep up to date with master codes. But we **recommend** developers to use versioned RingCentral Embeddable. Current latest stable version of RingCentral Embeddable is `1.0.1`. You can get versioned app in this uri `https://apps.ringcentral.com/integration/ringcentral-embeddable/1.0.1`.
 
 Just replace `https://ringcentral.github.io/ringcentral-embeddable` in upper codes to the versioned uri, and you will be using versioned RingCentral Embeddable. The versioned app will not be influenced when new features are added, so it will be more stable than latest version. When you need to update RingCentral Embeddable, you need to update the versioned app uri in your codes manually.
 
