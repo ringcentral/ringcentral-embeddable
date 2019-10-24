@@ -19,6 +19,17 @@ const apiConfig = {
   server: pathParams.appServer || defaultApiConfig.server,
 };
 
+if (apiConfig.appKey && apiConfig.appKey === defaultApiConfig.appKey) {
+  console.warn('Default RingCentral client id is deprecated, it is required to setup your own RingCentral Client Id, Please stop using it soon before it is completely removed. Please follow here to setup your own RingCentral app client id: https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
+}
+if (!apiConfig.appKey) {
+  console.error('From v1.0.2, It is required to setup your own RingCentral Client Id. Please follow here to setup your own RingCentral app client id: https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
+  // don't throw error in PR tests
+  if (window.location.hostname !== 'localhost') {
+    throw new Error('RingCentral App Client Id is required.');
+  }
+}
+
 const appVersion = pathParams.appVersion || process.env.APP_VERSION;
 
 const {
