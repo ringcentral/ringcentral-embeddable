@@ -1,5 +1,6 @@
 import classnames from 'classnames';
 import AdapterCore from 'ringcentral-widgets/lib/AdapterCore';
+import url from 'url';
 
 import parseUri from '../parseUri';
 import messageTypes from './messageTypes';
@@ -292,6 +293,8 @@ class Adapter extends AdapterCore {
 
   _setAppUrl(appUrl) {
     this._appUrl = appUrl;
+    const { protocol, host } = url.parse(appUrl, false);
+    this._appOrigin = `${protocol}//${host}`;
     if (appUrl) {
       this.contentFrameEl.src = appUrl;
       this.contentFrameEl.id = `${this._prefix}-adapter-frame`;
@@ -304,7 +307,7 @@ class Adapter extends AdapterCore {
 
   _postMessage(data) {
     if (this._contentFrameEl.contentWindow) {
-      this._contentFrameEl.contentWindow.postMessage(data, '*');
+      this._contentFrameEl.contentWindow.postMessage(data, this._appOrigin);
     }
   }
 
