@@ -176,3 +176,23 @@ window.addEventListener('message', (e) => {
   }
 });
 ```
+
+## Region settings event
+
+Get Current region settings from widget
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-region-settings-notify':
+        // get region settings from widget
+        console.log('rc-region-settings-notify:', data);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```

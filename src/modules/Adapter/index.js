@@ -85,6 +85,7 @@ export default class Adapter extends AdapterModuleCore {
     this._enableFromNumberSetting = enableFromNumberSetting;
     this._disableInactiveTabCallEvent = disableInactiveTabCallEvent;
     this._loggedIn = null;
+    this._regionCountryCode = null;
     this._lastActiveCalls = [];
     this._lastEndedActiveCallMap = {};
     this._lastActiveCallLogMap = {};
@@ -141,6 +142,7 @@ export default class Adapter extends AdapterModuleCore {
     this._pushPresence();
     this._pushLocale();
     this._checkLoginStatus();
+    this._checkRegionChanged();
     this._pushActiveCalls();
     this._checkRouteChanged();
     this._checkCallingSettingsChanged();
@@ -318,6 +320,28 @@ export default class Adapter extends AdapterModuleCore {
       type: 'rc-login-status-notify',
       loggedIn: this._loggedIn,
     });
+  }
+
+  _checkRegionChanged() {
+    if (!this._regionSettings.ready) {
+      return;
+    }
+
+    const triggerEvent = (
+      this._regionCountryCode !== this._regionSettings.countryCode ||
+      this._regionAreaCode !== this._regionSettings.areaCode
+    );
+
+    if (triggerEvent) {
+      this._regionCountryCode = this._regionSettings.countryCode;
+      this._regionAreaCode = this._regionSettings.areaCode;
+      const showAreaCode = this._regionCountryCode === 'US' || this._regionCountryCode === 'CA'
+      this._postMessage({
+        type: 'rc-region-settings-notify',
+        countryCode: this._regionSettings.countryCode,
+        areaCode: showAreaCode ? this._regionSettings.areaCode : '',
+      });
+    }
   }
 
   _checkRouteChanged() {
