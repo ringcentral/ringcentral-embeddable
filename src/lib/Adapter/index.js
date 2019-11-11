@@ -148,6 +148,9 @@ class Adapter extends AdapterCore {
         case 'rc-calling-settings-notify':
           console.log('rc-calling-settings-notify:', data);
           break;
+        case 'rc-region-settings-notify':
+          console.log('rc-region-settings-notify:', data);
+          break;
         case 'rc-active-call-notify':
           console.log('rc-active-call-notify:', data.call);
           break;
