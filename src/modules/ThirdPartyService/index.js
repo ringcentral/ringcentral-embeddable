@@ -478,6 +478,7 @@ export default class ThirdPartyService extends RcModule {
 
   async _triggerSyncContacts() {
     await this.fetchContacts({ type: 'api' });
+    await this._refreshContactMatch();
   }
 
   async searchContacts(searchString) {
