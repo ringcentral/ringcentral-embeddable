@@ -29,6 +29,7 @@ import CallsOnholdPage from 'ringcentral-widgets/containers/CallsOnholdPage';
 import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAndCallsTabContainer';
 import ConferenceParticipantPage from 'ringcentral-widgets/containers/ConferenceParticipantPage';
 import TransferPage from 'ringcentral-widgets/containers/TransferPage';
+import FlipPage from 'ringcentral-widgets/containers/FlipPage';
 import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
@@ -186,6 +187,7 @@ export default function App({
                       showRingoutCallControl={
                         phone.rolesAndPermissions.hasActiveCallControlPermission
                       }
+                      showSwitchCall
                       onCallsEmpty={() => {
                         phone.routerInteraction.push('/dialer');
                       }}
@@ -373,6 +375,12 @@ export default function App({
                 path="/transfer/:sessionId(/:type)"
                 component={routerProps => (
                   <TransferPage params={routerProps.params} />
+                )}
+              />
+              <Route
+                path="/flip/:sessionId"
+                component={(routerProps) => (
+                  <FlipPage params={routerProps.params} />
                 )}
               />
               <Route

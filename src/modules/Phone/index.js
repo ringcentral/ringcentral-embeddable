@@ -69,6 +69,7 @@ import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
 import ConferenceUI from 'ringcentral-widgets/modules/ConferenceUI';
 import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
+import RegionSettingsUI from 'ringcentral-widgets/modules/RegionSettingsUI';
 import CallingSettingsUI from 'ringcentral-widgets/modules/CallingSettingsUI';
 import SettingsPageUI from 'ringcentral-widgets/modules/SettingsPageUI';
 import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
@@ -79,8 +80,13 @@ import ConnectivityManager from 'ringcentral-widgets/modules/ConnectivityManager
 import ConnectivityBadgeUI from 'ringcentral-widgets/modules/ConnectivityBadgeUI';
 import LoginUI from 'ringcentral-widgets/modules/LoginUI';
 import MeetingUI from 'ringcentral-widgets/modules/MeetingUI';
-
 import Meeting from 'ringcentral-integration/modules/Meeting';
+
+import CallBadgeUI from 'ringcentral-widgets/modules/CallBadgeUI';
+import CallHistoryUI from 'ringcentral-widgets/modules/CallHistoryUI';
+import CallCtrlUI from 'ringcentral-widgets/modules/CallCtrlUI';
+import FlipUI from 'ringcentral-widgets/modules/FlipUI';
+import SettingsUI from 'ringcentral-widgets/modules/SettingsUI';
 
 import AudioSettings from '../AudioSettings';
 import OAuth from '../OAuth';
@@ -270,6 +276,12 @@ import hackSend from '../../lib/hackSend';
     { provide: 'LoginUI', useClass: LoginUI },
     { provide: 'SettingsPageUI', useClass: SettingsPageUI },
     { provide: 'MeetingUI', useClass: MeetingUI },
+    { provide: 'SettingsUI', useClass: SettingsUI },
+    { provide: 'CallBadgeUI', useClass: CallBadgeUI },
+    { provide: 'CallCtrlUI', useClass: CallCtrlUI },
+    { provide: 'CallHistoryUI', useClass: CallHistoryUI },
+    { provide: 'FlipUI', useClass: FlipUI },
+    { provide: 'RegionSettingsUI', useClass: RegionSettingsUI },
   ]
 })
 export default class BasePhone extends RcModule {
