@@ -41,6 +41,22 @@ export default class OAuth extends ProxyFrameOAuth {
         type: this.actionTypes.initSuccess,
       });
     }
+    if (
+      this.ready &&
+      !this._auth.loggedIn &&
+      this._routerInteraction.currentPath === this._loginPath &&
+      !this.oAuthReady &&
+      !this._proxyFrame
+    ) {
+      this.setupOAuth();
+    }
+    if (
+      this._proxyFrame &&
+      (this._auth.loggedIn ||
+        this._routerInteraction.currentPath !== this._loginPath)
+    ) {
+      this.destroyOAuth();
+    }
     if (this._auth.loggedIn === this._loggedIn) {
       return;
     }
