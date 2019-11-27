@@ -149,7 +149,9 @@ The `API_SECRET` is optional to enable the authorization code flow. If you don't
 
 ### Start development server
 
-We assume you have pre-installed node.js > 8 and yarn.
+We assume you have pre-installed node.js > 8 and yarn. 
+
+**It is recommended to use `yarn` instead of `npm`.** We have `yarn.lock` file in source code to lock dependence version. With `yarn`, we can install dependences with correct version that work well with this project.
 
 ```bash
 $ yarn       # use yarn to install dependences
