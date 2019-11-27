@@ -149,7 +149,9 @@ The `API_SECRET` is optional to enable the authorization code flow. If you don't
 
 ### Start development server
 
-We assume you have pre-installed node.js > 8 and yarn.
+We assume you have pre-installed node.js > 8 and yarn. 
+
+**It is recommended to use `yarn` instead of `npm`.** We have `yarn.lock` file in source code to lock dependence version. With `yarn`, we can install dependences with correct version that work well with this project.
 
 ```bash
 $ yarn       # use yarn to install dependences
@@ -170,7 +172,8 @@ yarn test
 
 If you create pull request to this repo and get merged, CI will deploy it to this repo's github page automatically. But for something that customized, you can deploy it to your own web space, such as your github page.
 
-1. Update `api.json` in production environment
+1. Update `api.json` in production environment ([Graduate your RingCentral app to get production app client id](docs/config-client-id-and-secret#graduation-for-your-ringcentral-app))
+
 2. Run command to compile codes and build release
 
 ```
