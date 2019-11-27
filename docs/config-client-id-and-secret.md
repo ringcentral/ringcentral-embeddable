@@ -33,7 +33,7 @@ Developer should config the Widget to use their own RingCentral app client id an
 
 ## Graduation for your RingCentral app
 
-For RingCentral app in RingCentral developer website, the initial environment is `Sandbox` which is used for development test. `Sandbox` environment only works with `Sandbox` account. So before we publish our app into production, we need to graduate app into `production` environment. [Here](https://developers.ringcentral.com/guide/basics/production) is guide for RingCentral app graduation.
+For RingCentral app in RingCentral developer website, the initial environment is `Sandbox` which is used for development and test. `Sandbox` environment only works with `Sandbox` account. So before we publish our app into production, we need to graduate app into `production` environment. [Here](https://developers.ringcentral.com/guide/basics/production) is guide for RingCentral app graduation.
 
 For Embeddable app, we need to have full usages with your sandbox client id for graduation requirements:
 
