@@ -172,7 +172,8 @@ yarn test
 
 If you create pull request to this repo and get merged, CI will deploy it to this repo's github page automatically. But for something that customized, you can deploy it to your own web space, such as your github page.
 
-1. Update `api.json` in production environment
+1. Update `api.json` in production environment ([Graduate your RingCentral app to get production app client id](docs/config-client-id-and-secret#graduation-for-your-ringcentral-app))
+
 2. Run command to compile codes and build release
 
 ```
