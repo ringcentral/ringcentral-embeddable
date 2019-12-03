@@ -94,7 +94,6 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * Disable Conference invite feature
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
   * [Enable Active Call Control feature](docs/disable-features.md#enable-active-call-control-feature)
-* [In-page Login Mode](docs/sso-login-mode.md)
 * [New adapter badge UI](docs/new-adapter-ui.md)
 * [Enable Analytics](docs/add-analytics.md)
 * [Multiple Tabs](docs/multiple-tabs.md)
