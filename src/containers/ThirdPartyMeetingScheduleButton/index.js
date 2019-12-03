@@ -5,7 +5,7 @@ import MeetingScheduleButton from '../../components/MeetingScheduleButton';
 
 class NewMeetingScheduleButton extends MeetingScheduleButton {
   getI18nButtonString() {
-    return this.props.inviteTitle;
+    return this.props.inviteTitle || super.getI18nButtonString();
   }
 }
 

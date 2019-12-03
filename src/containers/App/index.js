@@ -49,6 +49,7 @@ import CallsListPage from '../CallsListPage';
 import CallLogSectionModal from '../CallLogSectionModal';
 import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
+import MeetingInviteModal from '../MeetingInviteModal';
 
 import formatMeetingInfo from '../../lib/formatMeetingInfo';
 
@@ -105,6 +106,7 @@ export default function App({
                   />
                 </IncomingCallPage>
                 <ConnectivityBadgeContainer />
+                <MeetingInviteModal />
               </AppView>
             )} >
             <Route
@@ -292,7 +294,11 @@ export default function App({
                         return;
                       }
                       const formatedMeetingInfo = formatMeetingInfo(resp, phone.brandOptions, phone.locale.currentLocale);
-                      await phone.thirdPartyService.inviteMeeting(formatedMeetingInfo);
+                      if (phone.thirdPartyService.meetingInviteTitle) {
+                        await phone.thirdPartyService.inviteMeeting(formatedMeetingInfo);
+                        return;
+                      }
+                      phone.meetingInviteModalUI.showModal(formatedMeetingInfo);
                     }}
                     scheduleButton={MeetingScheduleButton}
                   />
