@@ -166,10 +166,10 @@ export default class OAuth extends ProxyFrameOAuth {
         case 'unauthorized_client':
         case 'unsupported_response_type':
         case 'invalid_scope':
-        case 'interaction_required':
-        case 'login_required':
           message = authMessages.accessDenied;
           break;
+        case 'login_required':
+        case 'interaction_required':
         case 'access_denied': {
           if (this.authMode === 'sso' && this._ssoFrame) {
             this._clearSSOIframe();
@@ -184,10 +184,12 @@ export default class OAuth extends ProxyFrameOAuth {
           message = authMessages.internalError;
           break;
       }
-      this._alert.danger({
-        message,
-        payload: error,
-      });
+      if (message) {
+        this._alert.danger({
+          message,
+          payload: error,
+        });
+      }
     }
   }
 }
