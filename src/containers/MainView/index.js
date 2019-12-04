@@ -182,8 +182,7 @@ function mapToProps(_, {
   );
   const showMeeting = (
     rolesAndPermissions.ready &&
-    rolesAndPermissions.organizeMeetingEnabled &&
-    !!thirdPartyService.meetingInviteTitle
+    rolesAndPermissions.organizeMeetingEnabled
   );
 
   const { currentLocale } = locale;

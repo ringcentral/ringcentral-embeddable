@@ -105,6 +105,7 @@ import ErrorLogger from '../ErrorLogger';
 import ActiveCalls from '../ActiveCalls';
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
+import MeetingInviteModalUI from '../MeetingInviteModalUI';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
@@ -282,6 +283,7 @@ import hackSend from '../../lib/hackSend';
     { provide: 'CallHistoryUI', useClass: CallHistoryUI },
     { provide: 'FlipUI', useClass: FlipUI },
     { provide: 'RegionSettingsUI', useClass: RegionSettingsUI },
+    { provide: 'MeetingInviteModalUI', useClass: MeetingInviteModalUI },
   ]
 })
 export default class BasePhone extends RcModule {
