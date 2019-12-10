@@ -4,7 +4,7 @@
 
 ## Introduction
 
-This is an out-of-the-box embeddable web application that help developers to integrate RingCentral services to their web applications with few codes.
+This is an out-of-the-box embeddable web application that help developers to integrate RingCentral services to their web applications with few code.
 
 Built with:
 
@@ -22,7 +22,7 @@ there are two ways to integrate this widget to a web application
 
 #### Adapter JS way
 
-Just add following codes to a website's header. It will create a RingCentral Embeddable widget in that web page.
+Just add following code to a website's header. It will create a RingCentral Embeddable widget in that web page.
 
 ```js
 <script>
@@ -37,20 +37,22 @@ Just add following codes to a website's header. It will create a RingCentral Emb
 
 #### Iframe way
 
-Create a iframe with the following codes:
+Create a iframe with the following code:
 
 ```html
 <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html">
 </iframe>
 ```
 
-You can use the config tool in this [page](https://ringcentral.github.io/ringcentral-embeddable) to generate codes with config.
+You can use the config tool in this [page](https://ringcentral.github.io/ringcentral-embeddable) to generate code with config.
 
 #### Stable version
 
-We provide latest RingCentral Embeddable version on github page `https://ringcentral.github.io/ringcentral-embeddable`. It includes latest features and bugfix in RingCentral Embeddable. And it will keep up to date with master codes. But we **recommend** developers to use versioned RingCentral Embeddable. Current latest stable version of RingCentral Embeddable is `1.0.1`. You can get versioned app in this uri `https://apps.ringcentral.com/integration/ringcentral-embeddable/1.0.1`.
+We provide latest RingCentral Embeddable version on github page `https://ringcentral.github.io/ringcentral-embeddable`. It includes latest features and bugfix in RingCentral Embeddable. And it will keep up to date with master code. But we **recommend** developers to use versioned RingCentral Embeddable. Current latest stable version of RingCentral Embeddable is `1.0.3`. You can get versioned app in this uri `https://apps.ringcentral.com/integration/ringcentral-embeddable/1.0.3`.
 
-Just replace `https://ringcentral.github.io/ringcentral-embeddable` in upper codes to the versioned uri, and you will be using versioned RingCentral Embeddable. The versioned app will not be influenced when new features are added, so it will be more stable than latest version. When you need to update RingCentral Embeddable, you need to update the versioned app uri in your codes manually.
+Just replace `https://ringcentral.github.io/ringcentral-embeddable` in upper code to the versioned uri, and you will be using versioned RingCentral Embeddable. The versioned app will not be influenced when new features are added, so it will be more stable than latest version. When you need to update RingCentral Embeddable, you need to update the versioned app uri in your code manually.
+
+For stable version from `1.0.2`, it is required to setup your own RingCentral client id. Please follow [here](docs/config-client-id-and-secret.md) to setup.
 
 To get all versions of RingCentral Embeddable in [here](https://github.com/ringcentral/ringcentral-embeddable/releases).
 
@@ -115,7 +117,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 
 ## Contribution and Development
 
-We provide a online version that developers can use to embed and config in their web application. When you want to get a deep development of this widget, you can clone codes of this widget, update it and deploy by yourself.
+We provide a online version that developers can use to embed and config in their web application. When you want to get a deep development of this widget, you can clone code of this widget, update it and deploy by yourself.
 
 ### Clone the code
 
@@ -173,7 +175,7 @@ If you create pull request to this repo and get merged, CI will deploy it to thi
 
 1. Update `api.json` in production environment ([Graduate your RingCentral app to get production app client id](docs/config-client-id-and-secret.md#graduation-for-your-ringcentral-app))
 
-2. Run command to compile codes and build release
+2. Run command to compile code and build release
 
 ```
 $ HOSTING_URL=your_host_uri yarn build
