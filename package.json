@@ -9,7 +9,9 @@
     "test": "jest",
     "start": "npm run dev-server",
     "dev-server": "webpack-dev-server --config webpack-dev-server.config.js --progress --colors --inline",
-    "build": "NODE_ENV=production webpack --config webpack-production.config.js --progress --colors"
+    "build": "NODE_ENV=production webpack --config webpack-production.config.js --progress --colors",
+    "snyk-protect": "snyk protect",
+    "prepare": "yarn run snyk-protect"
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",
@@ -75,7 +77,8 @@
     "ringcentral-integration": "^0.10.17",
     "ringcentral-widgets": "^0.10.17",
     "uuid": "^3.2.1",
-    "whatwg-fetch": "^2.0.3"
+    "whatwg-fetch": "^2.0.3",
+    "snyk": "^1.258.2"
   },
   "resolutions": {
     "immutable": "3.7.6"
@@ -85,5 +88,6 @@
   },
   "ci": {
     "ringcentral-embeddable": "**"
-  }
+  },
+  "snyk": true
 }

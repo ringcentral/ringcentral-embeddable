@@ -1,0 +1,10 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.14.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-TREEKILL-536781:
+    - jest-puppeteer > jest-environment-puppeteer > jest-dev-server > tree-kill:
+        patched: '2019-12-12T00:19:58.941Z'
+    - jest-puppeteer > jest-environment-puppeteer > jest-dev-server > spawnd > tree-kill:
+        patched: '2019-12-12T00:19:58.941Z'
