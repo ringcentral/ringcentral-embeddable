@@ -87,7 +87,6 @@ export default class Adapter extends AdapterModuleCore {
     this._loggedIn = null;
     this._regionCountryCode = null;
     this._lastActiveCalls = [];
-    this._lastEndedActiveCallMap = {};
     this._lastActiveCallLogMap = {};
     this._callWith = null;
 
@@ -220,18 +219,18 @@ export default class Adapter extends AdapterModuleCore {
     if (this._disableInactiveTabCallEvent && this._tabManager.ready && (!this._tabManager.active)) {
       return;
     }
-    if (this._lastActiveCalls === this._presence.calls) {
+    if (this._lastActiveCalls === this._presence.activeCalls) {
       return;
     }
     const lastActiveCallsMap = {};
     this._lastActiveCalls.forEach((call) => {
       lastActiveCallsMap[`${call.sessionId}${call.direction}`] = call;
     });
-    this._lastActiveCalls = this._presence.calls;
+    this._lastActiveCalls = this._presence.activeCalls;
     const changedCalls = [];
     // Ended Call is not in this._presence.calls
     // So if one call existed in last calls and not existed in new calls, it is ended
-    this._presence.calls.forEach((call) => {
+    this._presence.activeCalls.forEach((call) => {
       const oldCall = lastActiveCallsMap[`${call.sessionId}${call.direction}`];
       if (!oldCall) {
         changedCalls.push({ ...call });
@@ -243,30 +242,13 @@ export default class Adapter extends AdapterModuleCore {
       ) {
         changedCalls.push({ ...call });
       }
-      delete lastActiveCallsMap[`${call.sessionId}${call.direction}`];
-    });
-    const endedActiveCallMap = this._lastEndedActiveCallMap;
-    this._lastEndedActiveCallMap = {};
-    // add ended call
-    Object.keys(lastActiveCallsMap).forEach((callId) => {
-      const endedCall = lastActiveCallsMap[callId];
-      this._lastEndedActiveCallMap[callId] = endedCall;
-      if (endedActiveCallMap[callId]) {
-        return;
-      }
-      const missed = (endedCall.telephonyStatus === telephonyStatus.ringing);
-      changedCalls.push({
-        ...endedCall,
-        telephonyStatus: telephonyStatus.noCall,
-        terminationType: terminationTypes.final,
-        missed,
-        endTime: missed ? null : Date.now(),
-      });
     });
     this._sendRingoutCallNotification(changedCalls);
     this._sendActiveCallNotification(changedCalls);
   }
 
+  // map active call with active call log from this._activeCalls module
+  // active call log has some delay, so wait CALL_NOTIFY_DELAY
   async _sendActiveCallNotification(activeCalls) {
     await sleep(CALL_NOTIFY_DELAY);
     const activeCallLogMap = {};

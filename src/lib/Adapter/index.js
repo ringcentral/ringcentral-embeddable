@@ -406,7 +406,7 @@ class Adapter extends AdapterCore {
   _updateCallBarStatus() {
     const activeCalls = this._webphoneCalls.filter(
       c => c.callStatus !== 'webphone-session-connecting' || c.direction === 'Inbound'
-    )
+    );
     this._hasActiveCalls = activeCalls.length > 0;
     const ringingCalls = this._webphoneCalls.filter(
       c => c.callStatus === 'webphone-session-connecting' && c.direction === 'Inbound'
