@@ -49,7 +49,6 @@ import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
 import TabManager from 'ringcentral-integration/modules/TabManager';
 // import Webphone from 'ringcentral-integration/modules/Webphone';
-import ContactDetails from 'ringcentral-integration/modules/ContactDetails';
 import Feedback from 'ringcentral-integration/modules/Feedback';
 import Conference from 'ringcentral-integration/modules/Conference';
 import RecentMessages from 'ringcentral-integration/modules/RecentMessages';
@@ -73,7 +72,7 @@ import RegionSettingsUI from 'ringcentral-widgets/modules/RegionSettingsUI';
 import CallingSettingsUI from 'ringcentral-widgets/modules/CallingSettingsUI';
 import SettingsPageUI from 'ringcentral-widgets/modules/SettingsPageUI';
 import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
-import ContactDetailsUI from 'ringcentral-widgets/modules/ContactDetailsUI';
+import { ContactDetailsUI } from 'ringcentral-widgets/modules/ContactDetailsUI';
 import ComposeTextUI from 'ringcentral-widgets/modules/ComposeTextUI';
 import AlertUI from 'ringcentral-widgets/modules/AlertUI';
 import ConnectivityManager from 'ringcentral-widgets/modules/ConnectivityManager';
@@ -86,6 +85,7 @@ import CallBadgeUI from 'ringcentral-widgets/modules/CallBadgeUI';
 import CallHistoryUI from 'ringcentral-widgets/modules/CallHistoryUI';
 import CallCtrlUI from 'ringcentral-widgets/modules/CallCtrlUI';
 import FlipUI from 'ringcentral-widgets/modules/FlipUI';
+import TransferUI from 'ringcentral-widgets/modules/TransferUI';
 import SettingsUI from 'ringcentral-widgets/modules/SettingsUI';
 
 import AudioSettings from '../AudioSettings';
@@ -168,7 +168,6 @@ import hackSend from '../../lib/hackSend';
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'Contacts', useClass: Contacts },
-    { provide: 'ContactDetails', useClass: ContactDetails },
     { provide: 'ContactDetailsUI', useClass: ContactDetailsUI },
     { provide: 'DialerUI', useClass: DialerUI },
     { provide: 'Adapter', useClass: Adapter },
@@ -283,6 +282,7 @@ import hackSend from '../../lib/hackSend';
     { provide: 'CallCtrlUI', useClass: CallCtrlUI },
     { provide: 'CallHistoryUI', useClass: CallHistoryUI },
     { provide: 'FlipUI', useClass: FlipUI },
+    { provide: 'TransferUI', useClass: TransferUI },
     { provide: 'RegionSettingsUI', useClass: RegionSettingsUI },
     { provide: 'MeetingInviteModalUI', useClass: MeetingInviteModalUI },
   ]
