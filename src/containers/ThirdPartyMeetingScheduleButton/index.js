@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import withPhone from 'ringcentral-widgets/lib/withPhone';
 
-import MeetingScheduleButton from '../../components/MeetingScheduleButton';
+import MeetingScheduleButton from 'ringcentral-widgets/components/MeetingScheduleButton';
 
 class NewMeetingScheduleButton extends MeetingScheduleButton {
   getI18nButtonString() {

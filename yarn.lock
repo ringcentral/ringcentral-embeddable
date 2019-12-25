@@ -1084,13 +1084,13 @@
     through2 "^2.0.5"
     xml-js "^1.6.2"
 
-"@ringcentral-integration/phone-number@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@ringcentral-integration/phone-number/-/phone-number-1.0.3.tgz#f0d241d3523de328ace4b9c700ca8fe65afdf1b6"
-  integrity sha512-T1W0CYvNXBucHL/jkBm43KNEV4H7Eh1W4hXl662XYkFqZWWFu3ALee2m2Xe4tarYU4VCemNe3jkLfdab4c+Jtw==
+"@ringcentral-integration/phone-number@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@ringcentral-integration/phone-number/-/phone-number-1.0.4.tgz#8dc6cec6fe0644be1e2858d57d5b2c3c4925bc91"
+  integrity sha512-L7e40N5wZ6HuzhuvsqpvGqDUktmYKdrDQOxfMzQqgCsS2Idu6U3d0WTGq8PQYYlVJ4EXRlkXUHpiM5QCl8NhDA==
   dependencies:
-    libphonenumber-js "^1.3.0"
-    ramda "^0.25.0"
+    libphonenumber-js "^1.7.29"
+    ramda "^0.26.1"
 
 "@ringcentral-integration/rcui@*":
   version "0.0.1"
@@ -6093,13 +6093,12 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-libphonenumber-js@^1.3.0:
-  version "1.6.9"
-  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.6.9.tgz#3ac541f29778d8096bef5bcb3e319dd4088ce32e"
-  integrity sha512-PxN3pUzLIhamXd3WOZp0TwPeaJhU30OViP7cLeG9FRz1X68Az9ARHCwN5ydVvrfEC7ifbvNwB72dM+S1IFYiZw==
+libphonenumber-js@^1.7.29:
+  version "1.7.29"
+  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.7.29.tgz#0d9550d8a04b535d7b8b881e33f06a899771adc4"
+  integrity sha512-k0qJpAQ6DZA3b6meri1CZr2Lg1lvC539wqLljFdCWLPK8jAXLFqE433NzGzTdxKfm/EmGE8Zhm5pK8R9N7m1pg==
   dependencies:
     minimist "^1.2.0"
-    semver-compare "^1.0.0"
     xml2js "^0.4.17"
 
 lie@3.1.1:
@@ -7657,10 +7656,10 @@ prelude-ls@~1.1.2:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
   integrity sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
 
-prettier@^1.7.0:
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.9.2.tgz#96bc2132f7a32338e6078aeb29727178c6335827"
-  integrity sha512-piXx9N2WT8hWb7PBbX1glAuJVIkEyUV9F5fMXFINpZ0x3otVOFKKeGmeuiclFJlP/UrgTckyV606VjH2rNK4bw==
+prettier@^1.19.1:
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.19.1.tgz#f7d7f5ff8a9cd872a7be4ca142095956a60797cb"
+  integrity sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
 
 pretty-format@^24.8.0:
   version "24.8.0"
@@ -8727,17 +8726,17 @@ ringcentral-client@^1.0.0-beta.2:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.10.17:
-  version "0.10.17"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.17.tgz#95426593963d639cdeb43e029233e1e28bac7be1"
-  integrity sha512-YglWkTDab/okR55m33RPD5addXJuZRiInq/KsxG7bChU3Dv/yLLxXBrN417Z49ejhIm3KdgyZGAgEEKzebw5mA==
+ringcentral-integration@^0.10.18:
+  version "0.10.18"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.10.18.tgz#43432c381a23e6d5cdf8a1281dc84fe1aac0b286"
+  integrity sha512-vfRO07hRlEh2Aw7kcVhOSyJdJZzFK43w2aWEQWckXQyf9Pe1iqBxc+QPyRoXd1R+g4braVUOE/hjwKv7uN9G5g==
   dependencies:
     bowser "^2.5.3"
     file-loader "^3.0.1"
     json-mask "^0.3.8"
     localforage "^1.7.3"
     moment "^2.24.0"
-    prettier "^1.7.0"
+    prettier "^1.19.1"
     ramda "^0.26.1"
     redux "^4.0.4"
     reselect "^2.5.4"
@@ -8755,10 +8754,10 @@ ringcentral-web-phone@^0.7.2:
     getstats "1.2.0"
     sip.js "0.13.5"
 
-ringcentral-widgets@^0.10.17:
-  version "0.10.17"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.17.tgz#d8af179eeba8450080ebf21a1d67783bc5a8fd4d"
-  integrity sha512-lpOpwHFQVL6PlVuIPRuM368dV/bUTUh7hONgvg6HdMTQDc10vGPJalTstN7yxy6i73jM8ujedxX/AHpnjrp9Eg==
+ringcentral-widgets@^0.10.18:
+  version "0.10.18"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.10.18.tgz#74c22c1c8af171606aebc796d6cbded1f27c12db"
+  integrity sha512-SOBgFFpaD4xPqk/xfmwDCK2v334d5YcF2UealqjfjCLQpSKVxaBH4NwpVlgqQK6HHamizpJba+jaK11uv5W1DA==
   dependencies:
     "@ringcentral-integration/rcui" "*"
     animate.css "^3.5.2"
@@ -8936,11 +8935,6 @@ selfsigned@^1.9.1:
   integrity sha512-9AukTiDmHXGXWtWjembZ5NDmVvP2695EtpgbCsxCa68w3c88B+alqbmZ4O3hZ4VWGXeGWzEVdvqgAJD8DQPCDw==
   dependencies:
     node-forge "0.7.5"
-
-semver-compare@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/semver-compare/-/semver-compare-1.0.0.tgz#0dee216a1c941ab37e9efb1788f6afc5ff5537fc"
-  integrity sha1-De4hahyUGrN+nvsXiPavxf9VN/w=
 
 "semver@2 || 3 || 4 || 5", semver@^5.4.1:
   version "5.7.0"
