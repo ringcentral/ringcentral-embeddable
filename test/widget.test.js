@@ -72,8 +72,8 @@ conditionalDescribe('Index page test', () => {
   it('should goto Compose Text page when click SMS link', async () => {
     await widgetIframe.waitForNavigations();
     await widgetIframe.dismissMessages();
-    await page.click('a[href="sms:+1234567890"]');
+    await page.click('a[href="sms:+12345678901"]');
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
-    expect(recipientNumber).toEqual('+1234567890');
+    expect(recipientNumber).toEqual('+12345678901');
   });
 });
