@@ -16,6 +16,8 @@ document.querySelector("#rc-widget").contentWindow.postMessage({
 
 This feature can be used for `Click to Dial`. If you set `toCall` to ture, it will start the call immediately.
 
+[Here](work-with-ringcentral-c2d.md) is tutorial to use [RingCentral C2D](https://github.com/ringcentral/ringcentral-c2d) library to quick implement `Click to Dial` feature.
+
 ## Go to SMS Page
 
 ```js
