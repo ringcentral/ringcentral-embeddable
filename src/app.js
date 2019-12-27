@@ -30,7 +30,8 @@ if (!apiConfig.appKey) {
   }
 }
 
-const appVersion = pathParams.appVersion || process.env.APP_VERSION;
+const appVersion = process.env.APP_VERSION;
+const externalAppVersion = pathParams.appVersion || appVersion;
 
 const {
   stylesUri,
@@ -106,6 +107,7 @@ ReactDOM.render(
   <App
     phone={phone}
     showCallBadge={!fromAdapter}
+    appVersion={externalAppVersion}
   />,
   document.querySelector('div#viewport'),
 );

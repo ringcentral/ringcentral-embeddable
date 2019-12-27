@@ -56,6 +56,7 @@ import formatMeetingInfo from '../../lib/formatMeetingInfo';
 export default function App({
   phone,
   showCallBadge,
+  appVersion,
 }) {
   const getAvatarUrl = async (contact) => {
     const avatarUrl = await phone.contacts.getProfileImage(contact, true);
@@ -154,6 +155,7 @@ export default function App({
                     showUserGuide={false}
                     regionSettingsUrl="/settings/region"
                     callingSettingsUrl="/settings/calling"
+                    appVersion={appVersion}
                   />
                 )}
               />
