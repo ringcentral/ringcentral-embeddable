@@ -101,6 +101,7 @@ function mapToProps(_, {
   });
   return {
     ...baseProps,
+    version: props.appVersion,
     showAudio: audioSettings.availableDevices.length > 0 && rolesAndPermissions.callingEnabled,
     showAutoLog: callLogger.ready,
     autoLogEnabled: callLogger.autoLog,
