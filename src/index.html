@@ -112,10 +112,10 @@
     <p>2. Set redirect url in RingCentral Developer Platform as the app show.</p>
     <p>In environment way, appKey and appSecret are saved in your localstorage, so it will not influence other people.</p>
     <p>This app support authorization code and implicit grant flows. If you only provider appKey, it will use implicit grant flow. If you provide appKey and appSecret, it will use authorization code. In implicit grant flow, app will not refresh token, so user will log out after 1 hour. If you want to use implicit grant flow, please keep appSecret blank.</p>
-    <h2>Some tests</h2>
-    <p>Click to SMS: <a href="sms:+1234567890">+1234567890</a></p>
-    <p>Click to SMS with Text: <a href="sms:+1234567890?body=test_body">+1234567890</a></p>
-    <p>Click to Call: <a href="tel:+1234567888">+1234567888</a></p>
+    <h2>C2D demo</h2>
+    <p>TEL Link: <a href="tel:+12345678888">+12345678888</a></p>
+    <p>SMS Link: <a href="sms:+12345678901">+12345678901</a></p>
+    <p>Text: +12345678901</p>
   </div>
   <script>
     (function () {
@@ -125,16 +125,24 @@
       rcs0.parentNode.insertBefore(rcs, rcs0);
     })();
   </script>
+  <script src="https://unpkg.com/ringcentral-c2d@1.0.0/build/index.js"></script>
   <script>
-    (function () {
-      var setEnvironment = window.document.querySelector('#setEnvironment');
-      setEnvironment.addEventListener('click', function () {
-        if (window.RCAdapter && window.RCAdapter.setEnvironment) {
-          window.RCAdapter.setEnvironment();
-          window.RCAdapter.setMinimized(false);
-        }
-      });
-    })();
+    // setup c2d
+    var clickToDial = new RingCentralC2D();
+    clickToDial.on(RingCentralC2D.events.call, (phoneNumber) => {
+      RCAdapter.clickToCall(phoneNumber, false);
+    });
+    clickToDial.on(RingCentralC2D.events.text, (phoneNumber) => {
+      RCAdapter.clickToSMS(phoneNumber);
+    });
+    // click button to change env
+    var setEnvironment = window.document.querySelector('#setEnvironment');
+    setEnvironment.addEventListener('click', function () {
+      if (window.RCAdapter && window.RCAdapter.setEnvironment) {
+        window.RCAdapter.setEnvironment();
+        window.RCAdapter.setMinimized(false);
+      }
+    });
   </script>
   <script>
     function getConfigQuery() {

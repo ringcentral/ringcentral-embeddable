@@ -25,6 +25,7 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
     * Reject a ringing call
     * Hangup a call
   * [Log out user](control-widget.md#log-out-user)
+* [Work with RingCentral C2D](work-with-ringcentral-c2d.md)
 * [Interact with calling settings](interact-with-calling-settings.md)
 * [Third Party Service in Widget](third-party-service-in-widget.md)
   * Register your service

@@ -79,6 +79,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
     * Reject a ringing call
     * Hangup a call
   * [Log out user](docs/control-widget.md#log-out-user)
+* [Work with RingCentral C2D](docs/work-with-ringcentral-c2d.md)
 * [Interact with calling settings](docs/interact-with-calling-settings.md)
 * [Third Party Service in Widget](docs/third-party-service-in-widget.md)
   * Register your service
