@@ -1,4 +1,4 @@
-# Using your own RingCentrall app client id and client secret
+# Using your own RingCentral app client id and client secret
 
 Developer should config the Widget to use their own RingCentral app client id and client secret.
 
