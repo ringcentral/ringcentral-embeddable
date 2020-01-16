@@ -113,6 +113,15 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallRing((session) => {
       this.ringCallNotify(session);
+      const rawSession = this._webphone._sessions.get(session.id);
+      if (rawSession) {
+        rawSession.__origial_transfer = rawSession.transfer;
+        rawSession.transfer = async (target, options) => {
+          await (rawSession.localHold ? Promise.resolve(null) : rawSession.hold());
+          await sleep(1000);
+          return rawSession.blindTransfer(target, options);
+        };
+      }
     });
     this._webphone.onCallHold((session) => {
       this.holdCallNotify(session);
@@ -163,7 +172,7 @@ export default class Adapter extends AdapterModuleCore {
           this._newCall(data.phoneNumber, data.toCall);
           break;
         case 'rc-adapter-control-call':
-          this._controlCall(data.callAction, data.callId);
+          this._controlCall(data.callAction, data.callId, data.options);
           break;
         case 'rc-adapter-logout':
           if (this._auth.loggedIn) {
@@ -423,7 +432,7 @@ export default class Adapter extends AdapterModuleCore {
     });
   })
 
-  _controlCall(action, id) {
+  _controlCall(action, id, options) {
     switch (action) {
       case 'answer':
         this._webphone.answer(id || this._webphone.ringSessionId);
@@ -433,6 +442,21 @@ export default class Adapter extends AdapterModuleCore {
         break;
       case 'hangup':
         this._webphone.hangup(id || this._webphone.activeSessionId);
+        break;
+      case 'hold':
+        this._webphone.hold(id || this._webphone.activeSessionId);
+        break;
+      case 'unhold':
+        this._webphone.unhold(id || this._webphone.activeSessionId);
+        break;
+      case 'transfer':
+        this._webphone.transfer(options.transferNumber, id || this._webphone.activeSessionId);
+        break;
+      case 'toVoicemail':
+        this._webphone.toVoiceMail(id || this._webphone.ringSessionId);
+        break;
+      case 'forward':
+        this._webphone.forward(id || this._webphone.ringSessionId, options.forwardNumber);
         break;
       default:
         break;
