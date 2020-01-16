@@ -43,6 +43,8 @@ If you are using Adapter JS way, just you can just call `RCAdapter.clickToSMS('p
 
 ## Control the web call
 
+Following APIs need to work with [Web phone call event](widget-event.md#web-phone-call-event) to get `callId`.
+
 ### Answer a ringing call
 
 ```js
