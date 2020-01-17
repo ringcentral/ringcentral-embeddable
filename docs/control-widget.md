@@ -43,6 +43,8 @@ If you are using Adapter JS way, just you can just call `RCAdapter.clickToSMS('p
 
 ## Control the web call
 
+Following APIs need to work with [Web phone call event](widget-event.md#web-phone-call-event) to get `callId`.
+
 ### Answer a ringing call
 
 ```js
@@ -70,6 +72,29 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+### To voicemail a ringing call
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'toVoicemail',
+  callId: `call id`
+}, '*');
+```
+
+### Forward a ringing call
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'forward',
+  callId: `call id`,
+  options: {
+    forwardNumber: 'forward_number'
+  }
+}, '*');
+```
+
 ### Hangup a call
 
 ```js
@@ -83,6 +108,39 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-control-call',
   callAction: 'hangup',
+}, '*');
+```
+
+### Hold a call
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'hold',
+  callId: `call id`
+}, '*');
+```
+
+### Unhold a call
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'unhold',
+  callId: `call id`
+}, '*');
+```
+
+### Transfer a call
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'transfer',
+  callId: `call id`,
+  options: {
+    transferNumber: 'transfer_number'
+  }
 }, '*');
 ```
 
