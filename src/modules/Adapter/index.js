@@ -114,6 +114,17 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallStart((session) => {
       this.startCallNotify(session);
+      const rawSession = this._webphone._sessions.get(session.id);
+      if (rawSession) {
+        rawSession.on('muted', () => {
+          const newSession = this._webphone.sessions.find(s => s.id === session.id);
+          this.muteCallNotify(newSession, true);
+        });
+        rawSession.on('unmuted', () => {
+          const newSession = this._webphone.sessions.find(s => s.id === session.id);
+          this.muteCallNotify(newSession, false);
+        });
+      }
     });
     this._webphone.onCallRing((session) => {
       this.ringCallNotify(session);
@@ -440,6 +451,16 @@ export default class Adapter extends AdapterModuleCore {
     this._postMessage({
       type: 'rc-call-resume-notify',
       call: session,
+    });
+  }
+
+  muteCallNotify(session, muted) {
+    this._postMessage({
+      type: 'rc-call-mute-notify',
+      call: {
+        ...session,
+        isOnMute: muted,
+      },
     });
   }
 

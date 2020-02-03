@@ -142,6 +142,11 @@ class Adapter extends AdapterCore {
           console.log(data.call);
           this._updateWebphoneCalls(data.call);
           break;
+        case 'rc-call-mute-notify':
+          // get call on call muted or unmuted event
+          console.log('call muted changed:');
+          console.log(data.call);
+          break;
         case 'rc-login-status-notify':
           console.log('rc-login-status-notify:', data.loggedIn);
           break;
