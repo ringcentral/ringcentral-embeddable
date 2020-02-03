@@ -110,7 +110,7 @@ window.addEventListener('message', (e) => {
     switch (data.type) {
       case 'rc-login-status-notify':
         // get login status from widget
-        console.log('rc-login-status-notify:', data.loggedIn);
+        console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber);
         break;
       default:
         break;
