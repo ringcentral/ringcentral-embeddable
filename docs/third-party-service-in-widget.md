@@ -386,6 +386,17 @@ window.addEventListener('message', function (e) {
 
 This message event is fired when user clicks `Log` button. Or if user enables `Auto log calls` in settings, this event will be also fired when a call is started and updated.
 
+Listen to `Auto log calls` setting changed:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-callLogger-auto-log-notify') {
+    console.log('rc-callLogger-auto-log-notify:', data.autoLog);
+  }
+});
+```
+
 In this message event, you can get call information in `data.body.call`. When call is recorded and recording file is generated, you can get `recording` data in `data.body.call`:
 
 ```js

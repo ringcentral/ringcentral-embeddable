@@ -35,6 +35,7 @@ const CALL_NOTIFY_DELAY = 1500;
     'ActiveCalls',
     'MessageStore',
     'TabManager',
+    'CallLogger',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -55,6 +56,7 @@ export default class Adapter extends AdapterModuleCore {
     enableFromNumberSetting,
     disableInactiveTabCallEvent,
     tabManager,
+    callLogger,
     ...options
   }) {
     super({
@@ -78,6 +80,7 @@ export default class Adapter extends AdapterModuleCore {
     this._activeCalls = this::ensureExist(activeCalls, 'activeCalls');
     this._messageStore = this::ensureExist(messageStore, 'messageStore');
     this._tabManager = this::ensureExist(tabManager, 'tabManager');
+    this._callLogger = callLogger;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -89,6 +92,7 @@ export default class Adapter extends AdapterModuleCore {
     this._lastActiveCalls = [];
     this._lastActiveCallLogMap = {};
     this._callWith = null;
+    this._callLoggerAutoLogEnabled = null;
 
     this._messageStore.onNewInboundMessage((message) => {
       this._postMessage({
@@ -154,6 +158,7 @@ export default class Adapter extends AdapterModuleCore {
     this._pushActiveCalls();
     this._checkRouteChanged();
     this._checkCallingSettingsChanged();
+    this._checkAutoCallLoggerChanged();
   }
 
   _onMessage(event) {
@@ -339,6 +344,19 @@ export default class Adapter extends AdapterModuleCore {
     if (this._currentRoute !== this._router.currentPath) {
       this._currentRoute = this._router.currentPath;
       this.routeChangedNotify(this._currentRoute);
+    }
+  }
+
+  _checkAutoCallLoggerChanged() {
+    if (!this._callLogger.ready) {
+      return;
+    }
+    if (this._callLoggerAutoLogEnabled !== this._callLogger.autoLog) {
+      this._callLoggerAutoLogEnabled = this._callLogger.autoLog;
+      this._postMessage({
+        type: 'rc-callLogger-auto-log-notify',
+        autoLog: this._callLogger.autoLog,
+      });
     }
   }
 

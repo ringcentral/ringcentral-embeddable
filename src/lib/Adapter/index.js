@@ -167,6 +167,9 @@ class Adapter extends AdapterCore {
           this._updateWidgetCurrentPath(data.path);
           console.log('rc-route-changed-notify:', data.path);
           break;
+        case 'rc-callLogger-auto-log-notify':
+          console.log('rc-callLogger-auto-log-notify:', data.autoLog);
+          break;
         default:
           super._onMessage(data);
           break;
