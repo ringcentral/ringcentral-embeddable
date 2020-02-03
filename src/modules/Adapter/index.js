@@ -497,6 +497,18 @@ export default class Adapter extends AdapterModuleCore {
       case 'forward':
         this._webphone.forward(id || this._webphone.ringSessionId, options.forwardNumber);
         break;
+      case 'startRecord':
+        this._webphone.startRecord(id || this._webphone.activeSessionId);
+        break;
+      case 'stopRecord':
+        this._webphone.stopRecord(id || this._webphone.activeSessionId);
+        break;
+      case 'mute':
+        this._webphone.mute(id || this._webphone.activeSessionId);
+        break;
+      case 'unmute':
+        this._webphone.unmute(id || this._webphone.activeSessionId);
+        break;
       default:
         break;
     }
