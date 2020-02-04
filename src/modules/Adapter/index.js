@@ -114,6 +114,17 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallStart((session) => {
       this.startCallNotify(session);
+      const rawSession = this._webphone._sessions.get(session.id);
+      if (rawSession) {
+        rawSession.on('muted', () => {
+          const newSession = this._webphone.sessions.find(s => s.id === session.id);
+          this.muteCallNotify(newSession, true);
+        });
+        rawSession.on('unmuted', () => {
+          const newSession = this._webphone.sessions.find(s => s.id === session.id);
+          this.muteCallNotify(newSession, false);
+        });
+      }
     });
     this._webphone.onCallRing((session) => {
       this.ringCallNotify(session);
@@ -443,6 +454,16 @@ export default class Adapter extends AdapterModuleCore {
     });
   }
 
+  muteCallNotify(session, muted) {
+    this._postMessage({
+      type: 'rc-call-mute-notify',
+      call: {
+        ...session,
+        isOnMute: muted,
+      },
+    });
+  }
+
   routeChangedNotify = debounce((path) => {
     this._postMessage({
       type: 'rc-route-changed-notify',
@@ -475,6 +496,18 @@ export default class Adapter extends AdapterModuleCore {
         break;
       case 'forward':
         this._webphone.forward(id || this._webphone.ringSessionId, options.forwardNumber);
+        break;
+      case 'startRecord':
+        this._webphone.startRecord(id || this._webphone.activeSessionId);
+        break;
+      case 'stopRecord':
+        this._webphone.stopRecord(id || this._webphone.activeSessionId);
+        break;
+      case 'mute':
+        this._webphone.mute(id || this._webphone.activeSessionId);
+        break;
+      case 'unmute':
+        this._webphone.unmute(id || this._webphone.activeSessionId);
         break;
       default:
         break;

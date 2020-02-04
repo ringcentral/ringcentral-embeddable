@@ -37,6 +37,10 @@ window.addEventListener('message', (e) => {
         // get call on call end event
         console.log(data.call);
         break;
+      case 'rc-call-mute-notify':
+        // get call on call muted or unmuted event
+        console.log(data.call);
+        break;
       default:
         break;
     }
@@ -50,6 +54,7 @@ window.addEventListener('message', (e) => {
 * The `rc-call-hold-notify` event is fired when user holds a call
 * The `rc-call-resume-notify` event is fired when user unholds a call.
 * The `rc-call-end-notify` event is fired when call is ended.
+* The `rc-call-mute-notify` event is fired when call is muted or unmuted.
 
 **Notice:** When user creates a call to a physical phone number, `rc-call-start-notify` is fired when callee accepts call. When user creates a call to a VOIP phone number (such as bettween RingCentral account), `rc-call-start-notify` is fired when outbound call is ringing in callee side.
 

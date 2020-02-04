@@ -144,6 +144,48 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+### Record a call
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'startRecord',
+  callId: `call id`
+}, '*');
+```
+
+**Notice**: this only works after call [started](widget-event.md#web-phone-call-event) (Inbound call accepted/Oubound call connected)
+
+### Stop record a call
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'stopRecord',
+  callId: `call id`
+}, '*');
+```
+
+### Mute a call
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'mute',
+  callId: `call id`
+}, '*');
+```
+
+### Unmute a call
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'unmute',
+  callId: `call id`
+}, '*');
+```
+
 ## Log out user
 
 ```js
@@ -160,12 +202,14 @@ Minimize:
 
 ```
 RCAdapter.setMinimized(true);
+// RCAdapter.setMinimized(false); // maximize
 ```
 
 Hide:
 
 ```
 RCAdapter.setClosed(true);
+// RCAdapter.setClosed(false); // Show
 ```
 
 Remove:
