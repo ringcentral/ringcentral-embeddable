@@ -148,7 +148,7 @@ class Adapter extends AdapterCore {
           console.log(data.call);
           break;
         case 'rc-login-status-notify':
-          console.log('rc-login-status-notify:', data.loggedIn);
+          console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber);
           break;
         case 'rc-calling-settings-notify':
           console.log('rc-calling-settings-notify:', data);

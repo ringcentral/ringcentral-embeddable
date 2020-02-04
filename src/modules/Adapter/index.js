@@ -22,6 +22,8 @@ const CALL_NOTIFY_DELAY = 1500;
   name: 'Adapter',
   deps: [
     'Auth',
+    'ExtensionInfo',
+    'AccountInfo',
     'RouterInteraction',
     'Presence',
     'ComposeText',
@@ -42,6 +44,8 @@ const CALL_NOTIFY_DELAY = 1500;
 export default class Adapter extends AdapterModuleCore {
   constructor({
     auth,
+    extensionInfo,
+    accountInfo,
     presence,
     composeText,
     call,
@@ -81,6 +85,8 @@ export default class Adapter extends AdapterModuleCore {
     this._messageStore = this::ensureExist(messageStore, 'messageStore');
     this._tabManager = this::ensureExist(tabManager, 'tabManager');
     this._callLogger = callLogger;
+    this._extensionInfo = extensionInfo;
+    this._accountInfo = accountInfo;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -322,10 +328,26 @@ export default class Adapter extends AdapterModuleCore {
     if (this._loggedIn === this._auth.loggedIn) {
       return;
     }
+    if (this._auth.loggedIn && (
+      !this._extensionInfo.ready || !this._extensionInfo.ready
+    )) {
+      return;
+    }
     this._loggedIn = this._auth.loggedIn;
+    let loginNumber;
+    if (this._loggedIn) {
+      const extensionNumber =
+        this._extensionInfo.extensionNumber && this._extensionInfo.extensionNumber !== '0'
+          ? this._extensionInfo.extensionNumber
+          : null;
+      loginNumber = [this._accountInfo.mainCompanyNumber, extensionNumber].join(
+        '*',
+      );
+    }
     this._postMessage({
       type: 'rc-login-status-notify',
       loggedIn: this._loggedIn,
+      loginNumber,
     });
   }
 
