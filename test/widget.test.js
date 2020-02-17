@@ -53,14 +53,6 @@ conditionalDescribe('Index page test', () => {
     expect(eluaText).toEqual('End User License Agreement');
   });
 
-  it('should goto calling setting page successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Settings');
-    await widgetIframe.clickSettingSection('Calling');
-    const headerLabel = await widgetIframe.getHeaderLabel();
-    expect(headerLabel).toEqual('Calling');
-  });
-
   it('should goto region setting page successfully', async () => {
     await widgetIframe.clickNavigationButton('More Menu');
     await widgetIframe.clickDropdownNavigationMenu('Settings');
@@ -75,5 +67,13 @@ conditionalDescribe('Index page test', () => {
     await page.click('a[href="sms:+12345678901"]');
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     expect(recipientNumber).toEqual('+12345678901');
+  });
+
+  it('should goto calling setting page successfully', async () => {
+    await widgetIframe.clickNavigationButton('More Menu');
+    await widgetIframe.clickDropdownNavigationMenu('Settings');
+    await widgetIframe.clickSettingSection('Calling');
+    const headerLabel = await widgetIframe.getHeaderLabel();
+    expect(headerLabel).toEqual('Calling');
   });
 });

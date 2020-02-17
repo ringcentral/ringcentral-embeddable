@@ -8,8 +8,8 @@
   "scripts": {
     "test": "jest",
     "start": "npm run dev-server",
-    "dev-server": "webpack-dev-server --config webpack-dev-server.config.js --progress --colors --inline",
-    "build": "NODE_ENV=production webpack --config webpack-production.config.js --progress --colors"
+    "dev-server": "webpack-dev-server --config webpack-dev-server.config.js --inline",
+    "build": "NODE_ENV=production webpack --config webpack-production.config.js"
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",

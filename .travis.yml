@@ -1,12 +1,13 @@
 language: node_js
+os: linux
 node_js:
   - '8'
 before_deploy:
   - yarn build
 deploy:
   - provider: pages
-    skip_cleanup: true
-    github_token: $GITHUB_PAGES_TOKEN
+    cleanup: true
+    token: $GITHUB_PAGES_TOKEN
     local_dir: ./release
     email: 'integrations@ringcentral.com'
     name: 'RingCentral Integrations Team'
