@@ -130,7 +130,7 @@ $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
 2. Create a RingCentral app with platform type - "Browser Based"
-3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Glip` and `VoIP Calling` to your app. `Active Call Control` is optional, but recommended for [active call control](docs/disable-features.md#enable-active-call-control-feature)
+3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Glip`, `VoIP Calling` and `Call Control` to your app.
 4. Add redirect uri `http://localhost:8080/redirect.html` to your app settings.
 
 ### Create environment variables file in project root path

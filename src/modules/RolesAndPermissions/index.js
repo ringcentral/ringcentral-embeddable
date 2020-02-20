@@ -16,7 +16,6 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     disableConferenceInvite,
     disableGlip,
     disableConferenceCall,
-    disableActiveCallControl,
     ...options
   }) {
     super(options);
@@ -25,7 +24,6 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     this._disableConferenceInvite = disableConferenceInvite;
     this._disableConferenceCall = disableConferenceCall;
     this._disableGlip = disableGlip;
-    this._disableActiveCallControl = disableActiveCallControl;
   }
 
   @getter
@@ -86,6 +84,10 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
   }
 
   get hasActiveCallControlPermission() {
-    return this.ringoutEnabled && !this._disableActiveCallControl;
+    if (!this.ringoutEnabled || !this.ready || !this._auth.token) {
+      return false;
+    }
+    const scope = this._auth.token.scope || '';
+    return scope.indexOf('TelephonySessions') > -1 || scope.indexOf('CallControl') > -1;
   }
 }

@@ -192,4 +192,19 @@ export default class OAuth extends ProxyFrameOAuth {
       }
     }
   }
+
+  async _loginWithCallbackQuery(query) {
+    if (!(query.code || query.access_token)) {
+      return;
+    }
+    await this._auth.login({
+      code: query.code,
+      accessToken: query.access_token,
+      expiresIn: query.expires_in,
+      endpointId: query.endpoint_id,
+      redirectUri: this.redirectUri,
+      tokenType: query.token_type,
+      scope: query.scope,
+    });
+  }
 }
