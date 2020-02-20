@@ -6,7 +6,7 @@ before_deploy:
   - yarn build
 deploy:
   - provider: pages
-    cleanup: false
+    skip_cleanup: true
     token: $GITHUB_PAGES_TOKEN
     local_dir: ./release
     email: 'integrations@ringcentral.com'
