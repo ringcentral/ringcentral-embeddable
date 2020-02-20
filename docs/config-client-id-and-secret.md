@@ -26,13 +26,14 @@ Developer should config the Widget to use their own RingCentral app client id an
 <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?appKey=your_app_client_id&appSecret=your_app_client_secret&appServer=https://platform.devtest.ringcentral.com">
 </iframe>
 ```
-***Notice***:
+
+### Notice
 
 `appSecret` is optional. If you provide `appSecret` to the widget, it will use authorization code flow for login. If not, it will use implicit grant flow to log in. 
 
-In implicit flow, if user is inactive in 1 hour, login session will be expired. The widget are using a hidden iframe and browser session to refresh token. So if user closes browser or the tab, it will be expired.
+In implicit flow, if user is inactive in 1 hour, user will be logged out. The widget are using a hidden iframe and browser session to refresh token. The browser session will be expired if app doesn't renew in half hour. So if user closes browser or the tab more than half hour, user will be logged out.
 
-In authorization code flow, if user is inactive in 7 days, login session will be expired. The widget refreshes token when there are API requests to RingCentral API, so if user is active in 7 days, login session will be kept another 7 days.
+In authorization code flow, if user is inactive in 7 days, user will be logged out. The widget refreshes token when there are API requests to RingCentral API. The refresh token will be expired in 7 days. So if user is active in 7 days, login session will be kept another 7 days. And when it refreshes token, app will get a new refresh token and old refresh token will be expired for security.
 
 [This](https://ringcentral.github.io/ringcentral-embeddable/) is a config tool that can help you to update codes with config.
 
