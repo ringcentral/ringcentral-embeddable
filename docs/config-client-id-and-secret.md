@@ -4,7 +4,7 @@ Developer should config the Widget to use their own RingCentral app client id an
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
 2. Create a RingCentral app with platform type - "Browser Based"
-3. And add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS` and `VoIP Calling` to your app. `Active Call Control` is optional, but recommended for [active call control](disable-features.md#enable-active-call-control-feature)
+3. And add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Call Control` and `VoIP Calling` to your app.
 4. Add redirect uri `https://ringcentral.github.io/ringcentral-embeddable/redirect.html` to your app settings. But you can also [customize redirect uri](customize-redirect-uri.md)
 
 ## Adapter JS way
@@ -50,4 +50,4 @@ For Embeddable app, we need to have full usages with your sandbox client id for 
 * Make 5 outbound web phone (Browser based) calls
 * Make 5 inbound web phone (Browser based) calls
 * Make 5 [Ringout](interact-with-calling-settings.md#interact-with-calling-settings) calls
-* Control(end/hold) Ringout call in widget more then 5 times in widget if enable [active call control](disable-features.md#enable-active-call-control-feature)
+* Control(end/hold) Ringout call in widget more then 5 times in widget

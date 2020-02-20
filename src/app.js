@@ -53,7 +53,6 @@ const disableMessages = typeof pathParams.disableMessages !== 'undefined';
 const disableConferenceInvite = typeof pathParams.disableConferenceInvite !== 'undefined';
 const disableGlip = typeof pathParams.disableGlip === 'undefined' || pathParams.disableGlip === 'true';
 const disableConferenceCall = typeof pathParams.disableConferenceCall === 'undefined' || pathParams.disableConferenceCall === 'true';
-const disableActiveCallControl = typeof pathParams.disableActiveCallControl === 'undefined' || pathParams.disableActiveCallControl === 'true';
 
 const prefix = pathParams.prefix || defaultPrefix;
 const fromAdapter = !!pathParams.fromAdapter;
@@ -83,7 +82,6 @@ const phone = createPhone({
   disableConferenceInvite,
   disableGlip,
   disableConferenceCall,
-  disableActiveCallControl,
   authMode,
   userAgent,
   analyticsKey,
