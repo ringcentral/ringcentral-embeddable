@@ -52,4 +52,53 @@ export default class NewAuth extends Auth {
   get ownerId() {
     return super.ownerId && super.ownerId.toString();
   }
+
+  async login({
+    username,
+    password,
+    extension,
+    remember,
+    code,
+    redirectUri,
+    accessToken,
+    expiresIn,
+    endpointId,
+    tokenType,
+    scope
+  }) {
+    this.store.dispatch({
+      type: this.actionTypes.login,
+    });
+    let ownerId;
+    if (accessToken) {
+      this._client.service
+        .platform()
+        .auth()
+        .setData({
+          token_type: tokenType,
+          access_token: accessToken,
+          expires_in: expiresIn,
+          refresh_token_expires_in: expiresIn,
+          scope,
+        });
+      const extensionData = await this._client
+        .account()
+        .extension()
+        .get();
+      ownerId = extensionData.id;
+    }
+    return this._client.service.platform().login({
+      username,
+      password,
+      extension,
+      remember,
+      code,
+      redirectUri,
+      endpoint_id: endpointId,
+      expires_in: expiresIn,
+      access_token: accessToken,
+      token_type: tokenType,
+      owner_id: ownerId,
+    });
+  }
 }
