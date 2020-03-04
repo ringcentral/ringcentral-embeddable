@@ -17,7 +17,6 @@ import CompanyContacts from 'ringcentral-integration/modules/CompanyContacts';
 import Alert from 'ringcentral-integration/modules/Alert';
 // import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
-import Brand from 'ringcentral-integration/modules/Brand';
 import Call from 'ringcentral-integration/modules/Call';
 import CallHistory from 'ringcentral-integration/modules/CallHistory';
 // import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
@@ -88,6 +87,7 @@ import FlipUI from 'ringcentral-widgets/modules/FlipUI';
 import TransferUI from 'ringcentral-widgets/modules/TransferUI';
 import SettingsUI from 'ringcentral-widgets/modules/SettingsUI';
 
+import Brand from '../Brand';
 import AudioSettings from '../AudioSettings';
 import OAuth from '../OAuth';
 import Auth from '../Auth';

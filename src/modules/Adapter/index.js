@@ -12,6 +12,7 @@ import debounce from 'ringcentral-integration/lib/debounce';
 
 import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
 
+import formatMeetingInfo from '../../lib/formatMeetingInfo';
 import messageTypes from '../../lib/Adapter/messageTypes';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
@@ -25,6 +26,7 @@ const CALL_NOTIFY_DELAY = 1500;
     'ExtensionInfo',
     'AccountInfo',
     'RouterInteraction',
+    'RolesAndPermissions',
     'Presence',
     'ComposeText',
     'Call',
@@ -38,6 +40,8 @@ const CALL_NOTIFY_DELAY = 1500;
     'MessageStore',
     'TabManager',
     'CallLogger',
+    'Meeting',
+    'Brand',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -61,6 +65,9 @@ export default class Adapter extends AdapterModuleCore {
     disableInactiveTabCallEvent,
     tabManager,
     callLogger,
+    meeting,
+    brand,
+    rolesAndPermissions,
     ...options
   }) {
     super({
@@ -87,6 +94,9 @@ export default class Adapter extends AdapterModuleCore {
     this._callLogger = callLogger;
     this._extensionInfo = extensionInfo;
     this._accountInfo = accountInfo;
+    this._meeting = meeting;
+    this._brand = brand;
+    this._rolesAndPermissions = rolesAndPermissions;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -99,6 +109,8 @@ export default class Adapter extends AdapterModuleCore {
     this._lastActiveCallLogMap = {};
     this._callWith = null;
     this._callLoggerAutoLogEnabled = null;
+    this._dialerDisabled = null;
+    this._meetingReady = null;
 
     this._messageStore.onNewInboundMessage((message) => {
       this._postMessage({
@@ -176,6 +188,8 @@ export default class Adapter extends AdapterModuleCore {
     this._checkRouteChanged();
     this._checkCallingSettingsChanged();
     this._checkAutoCallLoggerChanged();
+    this._checkDialUIStatusChanged();
+    this._checkMeetingStatusChanged();
   }
 
   _onMessage(event) {
@@ -205,9 +219,45 @@ export default class Adapter extends AdapterModuleCore {
           if (this._callingSettings.ready) {
             this._updateCallingSettings(data);
           }
+          break;
+        case 'rc-adapter-message-request': {
+          this._handleRCAdapterMessageRequest(data);
+          break;
+        }
+        case 'rc-adapter-navigate-to': {
+          if (data.path && data.path.indexOf('/') === 0) {
+            this._router.push(data.path);
+          }
+          break;
+        }
         default:
           super._onMessage(data);
           break;
+      }
+    }
+  }
+
+  async _handleRCAdapterMessageRequest(data) {
+    if (!data.path) {
+      return;
+    }
+    switch (data.path) {
+      case '/schedule-meeting': {
+        if (this._meeting.ready && this._rolesAndPermissions.organizeMeetingEnabled) {
+          const res = await this._scheduleMeeting(data.body);
+          this._postRCAdapterMessageResponse({
+            responseId: data.requestId,
+            response: res,
+          });
+        }
+        break;
+      }
+      default: {
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: { data: 'no matched path' }
+        });
+        break;
       }
     }
   }
@@ -417,6 +467,32 @@ export default class Adapter extends AdapterModuleCore {
     this._postMessage(message);
   }
 
+  _checkDialUIStatusChanged() {
+    if (this._dialerDisabled === this._dialerUI.isCallButtonDisabled) {
+      return;
+    }
+    this._dialerDisabled = this._dialerUI.isCallButtonDisabled;
+    this._postMessage({
+      type: 'rc-dialer-status-notify',
+      ready: !this._dialerUI.isCallButtonDisabled,
+    });
+  }
+
+  _checkMeetingStatusChanged() {
+    if (this._meetingReady === this._meeting.ready) {
+      return;
+    }
+    this._meetingReady = this._meeting.ready;
+    this._postMessage({
+      type: 'rc-meeting-status-notify',
+      ready: this._meeting.ready,
+      permission: !!(
+        this._rolesAndPermissions.ready &&
+        this._rolesAndPermissions.organizeMeetingEnabled
+      ),
+    });
+  }
+
   _insertExtendStyle() {
     if (!this._stylesUri) {
       return;
@@ -618,11 +694,32 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
+  async _scheduleMeeting(data) {
+    const resp = await phone.meeting.schedule(data);
+    if (!resp) {
+      return {
+        error: 'schedule failed'
+      };
+    }
+    const formatedMeetingInfo = formatMeetingInfo(resp, this._brand, this._locale.currentLocale);
+    return {
+      meeting: formatedMeetingInfo,
+    };
+  }
+
   // eslint-disable-next-line
   _postMessage(data) {
     if (window && window.parent) {
       window.parent.postMessage(data, '*');
     }
+  }
+
+  _postRCAdapterMessageResponse({ responseId, response }) {
+    this._postMessage({
+      type: 'rc-adapter-message-response',
+      responseId,
+      response,
+    });
   }
 
   get ready() {
