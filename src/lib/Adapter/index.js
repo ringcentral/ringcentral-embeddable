@@ -4,6 +4,7 @@ import url from 'url';
 
 import parseUri from '../parseUri';
 import messageTypes from './messageTypes';
+import requestWithPostMessage from '../requestWithPostMessage';
 
 import styles from './styles.scss';
 import Notification from '../notification';
@@ -151,10 +152,10 @@ class Adapter extends AdapterCore {
           console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber);
           break;
         case 'rc-calling-settings-notify':
-          console.log('rc-calling-settings-notify:', data);
+          console.log('rc-calling-settings-notify:', data.callWith, data.callingMode);
           break;
         case 'rc-region-settings-notify':
-          console.log('rc-region-settings-notify:', data);
+          console.log('rc-region-settings-notify:', data.countryCode, data.areaCode);
           break;
         case 'rc-active-call-notify':
           console.log('rc-active-call-notify:', data.call);
@@ -174,6 +175,12 @@ class Adapter extends AdapterCore {
           break;
         case 'rc-callLogger-auto-log-notify':
           console.log('rc-callLogger-auto-log-notify:', data.autoLog);
+          break;
+        case 'rc-dialer-status-notify':
+          console.log('rc-dialer-status-notify:', data.ready);
+          break;
+        case 'rc-meeting-status-notify':
+          console.log('rc-meeting-status-notify:', data.ready, data.permission);
           break;
         default:
           super._onMessage(data);
@@ -322,6 +329,16 @@ class Adapter extends AdapterCore {
     }
   }
 
+  _requestWithPostMessage(path, body) {
+    return requestWithPostMessage(
+      path,
+      body,
+      5000,
+      this._contentFrameEl.contentWindow,
+      'rc-adapter-message'
+    );
+  }
+
   setRinging(ringing) {
     this._ringing = !!ringing;
     this._renderMainClass();
@@ -380,6 +397,17 @@ class Adapter extends AdapterCore {
       ringoutPrompt,
       fromNumber,
     });
+  }
+
+  navigateTo(path) {
+    this._postMessage({
+      type: 'rc-adapter-navigate-to',
+      path,
+    });
+  }
+
+  scheduleMeeting(meetingInfo) {
+    return this._requestWithPostMessage('/schedule-meeting', meetingInfo);
   }
 
   _updateWidgetCurrentPath(path) {

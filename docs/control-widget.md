@@ -217,3 +217,58 @@ Remove:
 ```
 RCAdapter.dispose();
 ```
+
+## Navigate To
+
+Navigate to path:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-navigate-to',
+  path: '/messages', // '/meeting', '/dialer', '//history', '/settings'
+}, '*');
+```
+
+## Schedule a meeting
+
+```js
+// meeting info
+const meetingBody = {
+  topic: "Embbnux Ji's Meeting",
+  meetingType: "Scheduled",
+  password: "",
+  schedule: {
+    startTime: 1583312400368,
+    durationInMinutes: 60,
+    timeZone: {
+      id: "1"
+    }
+  },
+  allowJoinBeforeHost: false,
+  startHostVideo: false,
+  startParticipantsVideo: false,
+  audioOptions: [
+    "Phone",
+    "ComputerAudio"
+  ]
+};
+
+// send a request to schedule meeting
+const requestId = Date.now().toString();
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-message-request',
+  requestId: requestId,
+  path: '/schedule-meeting',
+  body: meetingBody,
+}, '*');
+
+// listen response
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-adapter-message-response') {
+    if (data.responseId === requestId) {
+      console.log(data.response);
+    }
+  }
+});
+```

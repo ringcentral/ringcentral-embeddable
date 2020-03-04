@@ -168,7 +168,7 @@ export default class ThirdPartyService extends RcModule {
         this._updateAuthorizationStatus(e.data);
       } else if (e.data.type === 'rc-adapter-sync-third-party-contacts') {
         this._triggerSyncContacts();
-      } 
+      }
     });
   }
 
