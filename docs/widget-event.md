@@ -201,3 +201,45 @@ window.addEventListener('message', (e) => {
   }
 });
 ```
+
+## Dialer status event
+
+Before we use [GoToDial](control-widget.md#go-to-dial-and-start-a-call) API, we need to check dialer status.
+
+Get dialer status:
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-dialer-status-notify':
+        // get dialer status from widget
+        console.log('rc-dialer-status-notify:', data.ready);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
+## Meeting status event
+
+Get meeting status and permission:
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-meeting-status-notify':
+        // get meeting status and permission from widget
+        console.log('rc-meeting-status-notify:', data.ready, data.permission);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
