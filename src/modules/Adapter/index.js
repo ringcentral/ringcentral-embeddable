@@ -474,7 +474,7 @@ export default class Adapter extends AdapterModuleCore {
     this._dialerDisabled = this._dialerUI.isCallButtonDisabled;
     this._postMessage({
       type: 'rc-dialer-status-notify',
-      ready: !this._dialerUI.isCallButtonDisabled,
+      ready: !this._dialerUI.showSpinner && !this._dialerUI.isCallButtonDisabled,
     });
   }
 
