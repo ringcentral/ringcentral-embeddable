@@ -111,6 +111,11 @@ import Webphone from '../Webphone';
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
 
+import MeetingProvider from '../../internal-features/modules/MeetingProvider';
+import GenericMeetingUI from '../../internal-features/modules/GenericMeetingUI';
+import RcVideo from '../../internal-features/modules/RcV';
+import GenericMeeting from '../../internal-features/modules/GenericMeeting';
+
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
@@ -285,6 +290,10 @@ import hackSend from '../../lib/hackSend';
     { provide: 'TransferUI', useClass: TransferUI },
     { provide: 'RegionSettingsUI', useClass: RegionSettingsUI },
     { provide: 'MeetingInviteModalUI', useClass: MeetingInviteModalUI },
+    { provide: 'MeetingProvider', useClass: MeetingProvider },
+    { provide: 'RcVideo', useClass: RcVideo },
+    { provide: 'GenericMeeting', useClass: GenericMeeting },
+    { provide: 'GenericMeetingUI', useClass: GenericMeetingUI },
   ]
 })
 export default class BasePhone extends RcModule {

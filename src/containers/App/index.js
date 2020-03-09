@@ -51,7 +51,9 @@ import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
 import MeetingInviteModal from '../MeetingInviteModal';
 
-import formatMeetingInfo from '../../lib/formatMeetingInfo';
+import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
+
+import GenericMeetingPage from '../../internal-features/containers/GenericMeetingPage';
 
 export default function App({
   phone,
@@ -292,13 +294,16 @@ export default function App({
               <Route
                 path="/meeting"
                 component={() => (
-                  <MeetingPage
+                  <GenericMeetingPage
                     schedule={async (meetingInfo) => {
-                      const resp = await phone.meeting.schedule(meetingInfo);
+                      const resp = await phone.genericMeeting.schedule(meetingInfo);
                       if (!resp) {
                         return;
                       }
-                      const formatedMeetingInfo = formatMeetingInfo(resp, phone.brandOptions, phone.locale.currentLocale);
+                      console.log(resp);
+                      const formatedMeetingInfo = formatMeetingInfo(
+                        resp, phone.brand, phone.locale.currentLocale, phone.genericMeeting.isRCV
+                      );
                       if (phone.thirdPartyService.meetingInviteTitle) {
                         await phone.thirdPartyService.inviteMeeting(formatedMeetingInfo);
                         return;

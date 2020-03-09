@@ -12,7 +12,7 @@ import debounce from 'ringcentral-integration/lib/debounce';
 
 import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
 
-import formatMeetingInfo from '../../lib/formatMeetingInfo';
+import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import messageTypes from '../../lib/Adapter/messageTypes';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';

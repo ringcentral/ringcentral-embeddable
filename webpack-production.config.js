@@ -92,6 +92,7 @@ config.optimization = {
 };
 config.mode = 'production';
 config.resolve = {
+  ...config.resolve,
   alias: {
     'brand-logo-path': brandFolder,
   },

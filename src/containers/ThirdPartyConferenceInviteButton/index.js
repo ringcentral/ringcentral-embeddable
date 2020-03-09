@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 import withPhone from 'ringcentral-widgets/lib/withPhone';
+import { getConferenceLocationField } from 'ringcentral-widgets/lib/ConferenceCalendarHelper';
 
 import ThirdPartyConferenceInviteButton from '../../components/ThirdPartyConferenceInviteButton';
-import { getConferenceLocationField } from '../../lib/formatMeetingInfo';
 
 function mapToProps(_, {
   phone: {

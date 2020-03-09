@@ -64,6 +64,7 @@ config.plugins = [
 config.devtool = 'eval-source-map';
 config.mode = 'development';
 config.resolve = {
+  ...config.resolve,
   alias: {
     'brand-logo-path': brandFolder,
   },
