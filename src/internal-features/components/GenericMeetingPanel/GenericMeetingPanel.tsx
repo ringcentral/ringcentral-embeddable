@@ -43,6 +43,7 @@ const GenericMeetingPanel: React.ComponentType<GenericMeetingPanelProps> = (
     scheduleButtonLabel,
     appCode,
     schedule,
+    brandName,
   } = props;
 
   if (!isRCM && !isRCV) {
@@ -81,6 +82,7 @@ const GenericMeetingPanel: React.ComponentType<GenericMeetingPanelProps> = (
           init={init}
           datePickerSize={datePickerSize}
           timePickerSize={timePickerSize}
+          brandName={brandName}
         >
           <Topic
             name={meeting.name}

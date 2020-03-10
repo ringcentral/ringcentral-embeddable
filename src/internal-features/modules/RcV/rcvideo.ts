@@ -13,7 +13,7 @@ import getRcVReducer, {
   getLastVideoStorageReducer,
 } from './getRcVReducer';
 
-import { getDefaultVideoSettings } from './videoHelper';
+import { getDefaultVideoSettings, getTopic } from './videoHelper';
 import { RcVMeetingModel } from '../../models/rcv.model';
 
 import createStatus from './createStatus';
@@ -121,7 +121,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
 
   @proxify
   _init() {
-    const topic = `${this.extensionName}'s ${this.brandName} Meeting`;
+    const topic = getTopic(this.extensionName, this.brandName);
     const startTime = getInitializedStartTime();
     const meeting = getDefaultVideoSettings({ topic, startTime });
 
@@ -160,7 +160,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   }
 
   _setMeetingFieldsAsDefaultValue() {
-    const topic = `${this.extensionName}'s ${this.brandName} Meeting`;
+    const topic = getTopic(this.extensionName, this.brandName);
     const startTime = getInitializedStartTime();
     const defaultVideo = getDefaultVideoSettings({ topic, startTime });
     if (this._showSaveAsDefault) {
@@ -350,7 +350,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   }
 
   get defaultVideoSetting() {
-    const topic = `${this.extensionName}'s ${this.brandName} Meeting`;
+    const topic = getTopic(this.extensionName, this.brandName);
     const startTime = getInitializedStartTime();
     return (
       this._storage.getItem(this._defaultVideoSettingKey) ||

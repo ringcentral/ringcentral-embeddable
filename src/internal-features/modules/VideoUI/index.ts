@@ -1,22 +1,25 @@
 import { Module } from 'ringcentral-integration/lib/di';
 import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
+import Brand from 'ringcentral-integration/modules/Brand';
 
 import { RcVideo } from '../RcV/rcvideo';
 
 @Module({
   name: 'VideoUI',
-  deps: ['RcVideo', 'Locale', 'RateLimiter', 'ConnectivityMonitor'],
+  deps: ['RcVideo', 'Locale', 'RateLimiter', 'ConnectivityMonitor', 'Brand'],
 })
 export default class VideoUI extends RcUIModule {
   private _locale: any;
   private _rcVideo: RcVideo;
   private _rateLimiter: any;
   private _connectivityMonitor: any;
+  private _brand: Brand;
   constructor({
     rcVideo,
     locale,
     rateLimiter,
     connectivityMonitor,
+    brand,
     ...options
   }) {
     super({
@@ -26,6 +29,7 @@ export default class VideoUI extends RcUIModule {
     this._locale = locale;
     this._rateLimiter = rateLimiter;
     this._connectivityMonitor = connectivityMonitor;
+    this._brand = brand;
   }
 
   getUIProps({ disabled }) {
@@ -33,6 +37,7 @@ export default class VideoUI extends RcUIModule {
       currentLocale: this._locale.currentLocale,
       meeting: this._rcVideo.meeting,
       showSaveAsDefault: this._rcVideo._saveAsDefaultSetting,
+      brandName: this._brand.name,
       disabled:
         this._rcVideo.isScheduling ||
         disabled ||

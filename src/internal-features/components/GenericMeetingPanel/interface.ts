@@ -79,6 +79,7 @@ export interface GenericMeetingPanelProps
   isRCV: boolean;
   showCustom?: boolean;
   CustomPanel?: React.ReactNode;
+  brandName: string;
 }
 
 export interface GenericMeetingPanelState {}

@@ -25,6 +25,19 @@ function getDefaultVideoSettings({ topic, startTime }) {
     saveAsDefault: false,
   };
 }
+
+function getTopic(extensionName: string, brandName: string) {
+  if (brandName === 'RingCentral') {
+    return `${extensionName}'s ${brandName} Video Meeting`;
+  }
+  return `${extensionName}'s ${brandName} Meeting`;
+}
+
 // TODO: will remove this when google app script could support export seperately
 // export together because google app script not fully support export
-export { meetingProviderTypes, getVideoSettings, getDefaultVideoSettings };
+export {
+  meetingProviderTypes,
+  getVideoSettings,
+  getDefaultVideoSettings,
+  getTopic,
+};

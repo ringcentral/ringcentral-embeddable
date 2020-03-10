@@ -71,9 +71,11 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
     showDuration,
     datePickerSize,
     timePickerSize,
+    brandName,
   } = props;
   const hoursList = getHoursList(HOUR_SCALE);
   const minutesList = getMinutesList(MINUTE_SCALE);
+  const isRCBrand = brandName === 'RingCentral';
   useEffect(() => {
     if (typeof init === 'function') {
       init();
@@ -216,7 +218,10 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
               expandIcon={<RcIconButton variant="round" icon="arrow_down" />}
               data-sign="expansionSummary"
             >
-              {i18n.getString('meetingSettings', currentLocale)}
+              {i18n.getString(
+                isRCBrand ? 'rcMeetingSettings' : 'meetingSettings',
+                currentLocale,
+              )}
             </RcExpansionPanelSummary>
             <RcExpansionPanelDetails
               classes={{
@@ -294,7 +299,7 @@ const InnerTopic: React.FunctionComponent<{
   }, [name]);
   return (
     <RcTextField
-      innerRef={topicRef}
+      ref={topicRef}
       // size="small"
       label={i18n.getString('topic', currentLocale)}
       data-sign="topic"
@@ -338,5 +343,6 @@ interface VideoConfigProps {
   recipientsSection?: React.ReactNode;
   showWhen?: boolean;
   showDuration?: boolean;
+  brandName: string;
   init: () => any;
 }

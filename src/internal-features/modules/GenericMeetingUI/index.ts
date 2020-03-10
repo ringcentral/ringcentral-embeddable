@@ -1,21 +1,30 @@
 import { Module } from 'ringcentral-integration/lib/di';
 import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
+import Brand from 'ringcentral-integration/modules/Brand';
 
 @Module({
   name: 'GenericMeetingUI',
-  deps: ['GenericMeeting', 'Locale', 'RateLimiter', 'ConnectivityMonitor'],
+  deps: [
+    'GenericMeeting',
+    'Locale',
+    'RateLimiter',
+    'ConnectivityMonitor',
+    'Brand',
+  ],
 })
 export default class GenericMeetingUI extends RcUIModule {
   _genericMeeting: any;
   _locale: any;
   _rateLimiter: any;
   _connectivityMonitor: any;
+  _brand: Brand;
 
   constructor({
     genericMeeting,
     locale,
     rateLimiter,
     connectivityMonitor,
+    brand,
     ...options
   }) {
     super({
@@ -25,6 +34,7 @@ export default class GenericMeetingUI extends RcUIModule {
     this._locale = locale;
     this._rateLimiter = rateLimiter;
     this._connectivityMonitor = connectivityMonitor;
+    this._brand = brand;
   }
 
   getUIProps({
@@ -55,6 +65,7 @@ export default class GenericMeetingUI extends RcUIModule {
       isRCM: this._genericMeeting.isRCM,
       isRCV: this._genericMeeting.isRCV,
       scheduleButton,
+      brandName: this._brand.name,
     };
   }
 
