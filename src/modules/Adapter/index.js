@@ -12,7 +12,7 @@ import debounce from 'ringcentral-integration/lib/debounce';
 
 import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
 
-import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
+import { formatMeetingInfo, formatMeetingForm } from '../../lib/formatMeetingInfo';
 import messageTypes from '../../lib/Adapter/messageTypes';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
@@ -40,7 +40,7 @@ const CALL_NOTIFY_DELAY = 1500;
     'MessageStore',
     'TabManager',
     'CallLogger',
-    'Meeting',
+    'GenericMeeting',
     'Brand',
     { dep: 'AdapterOptions', optional: true }
   ]
@@ -65,7 +65,7 @@ export default class Adapter extends AdapterModuleCore {
     disableInactiveTabCallEvent,
     tabManager,
     callLogger,
-    meeting,
+    genericMeeting,
     brand,
     rolesAndPermissions,
     ...options
@@ -94,7 +94,7 @@ export default class Adapter extends AdapterModuleCore {
     this._callLogger = callLogger;
     this._extensionInfo = extensionInfo;
     this._accountInfo = accountInfo;
-    this._meeting = meeting;
+    this._meeting = genericMeeting;
     this._brand = brand;
     this._rolesAndPermissions = rolesAndPermissions;
 
@@ -695,13 +695,16 @@ export default class Adapter extends AdapterModuleCore {
   }
 
   async _scheduleMeeting(data) {
-    const resp = await phone.meeting.schedule(data);
+    const inputs = formatMeetingForm(data, this._meeting.isRCV);
+    const resp = await this._meeting.schedule(inputs);
     if (!resp) {
       return {
         error: 'schedule failed'
       };
     }
-    const formatedMeetingInfo = formatMeetingInfo(resp, this._brand, this._locale.currentLocale);
+    const formatedMeetingInfo = formatMeetingInfo(
+      resp, this._brand, this._locale.currentLocale, this._meeting.isRCV
+    );
     return {
       meeting: formatedMeetingInfo,
     };

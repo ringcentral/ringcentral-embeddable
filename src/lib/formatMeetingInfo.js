@@ -49,3 +49,18 @@ export function formatMeetingInfo(meetingInfo, brand, currentLocale, isRCV = fal
   }
   return formatRCMInfo(meetingInfo, brand, currentLocale)
 }
+
+export function formatMeetingForm(meetingInfo, isRCV) {
+  if (!isRCV) {
+    return meetingInfo;
+  }
+  return {
+    name: meetingInfo.title,
+    startTime: meetingInfo.schedule && meetingInfo.schedule.startTime,
+    duration: meetingInfo.schedule && meetingInfo.schedule.durationInMinutes,
+    allowJoinBeforeHost: meetingInfo.allowJoinBeforeHost,
+    muteAudio: meetingInfo.muteAudio,
+    muteVide: !meetingInfo.startParticipantsVideo,
+    ...meetingInfo,
+  };
+}

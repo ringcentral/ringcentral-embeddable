@@ -300,7 +300,6 @@ export default function App({
                       if (!resp) {
                         return;
                       }
-                      console.log(resp);
                       const formatedMeetingInfo = formatMeetingInfo(
                         resp, phone.brand, phone.locale.currentLocale, phone.genericMeeting.isRCV
                       );
