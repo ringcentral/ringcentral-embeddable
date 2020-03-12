@@ -1,0 +1,80 @@
+.root {
+  display: block;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 20px 0;
+  background-color: rgb(250, 250, 250);
+  border-bottom: 1px solid rgb(245, 246, 251);
+}
+
+.button {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  label {
+    font-size: 14px;
+    line-height: 30px;
+    font-weight: light;
+  }
+
+  .iconButton {
+    min-height: 0px;
+    background-color: rgb(255, 255, 255);
+    min-width: 56px;
+    width: auto;
+    height: 56px;
+    box-shadow: rgba(0, 0, 0, 0.13) 0px 3px 11px 0px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    font-family: Lato, Helvetica, Arial, sans-serif;
+    line-height: 16px;
+  }
+
+  .join {
+    color: rgb(105, 144, 253);
+  }
+
+  .schedule {
+    color: rgb(255, 55, 55);
+  }
+
+  .start {
+    color: rgb(38, 163, 4);
+  }
+
+  &:hover {
+    label {
+      font-weight: bold;
+    }
+
+    .join {
+      background-color: rgb(240, 243, 254);
+    }
+
+    .schedule {
+      background-color: rgb(255, 235, 235);
+    }
+
+    .start {
+      background-color: rgb(233, 245, 229);
+    }
+  }
+}
+
+.noResult {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .noResultImg {
+    margin-bottom: 28px;
+    width: 268px;
+  }
+}

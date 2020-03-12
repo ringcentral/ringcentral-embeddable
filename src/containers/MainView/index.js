@@ -41,6 +41,7 @@ function getTabs({
   showContacts,
   showGlip,
   glipUnreadCounts,
+  isRCV,
 }) {
   let tabs = [
     showCall && {
@@ -110,7 +111,7 @@ function getTabs({
       activeIcon: MeetingHoverIcon,
       moreMenuIcon: MeetingNavIcon,
       label: i18n.getString('meetingLabel', currentLocale),
-      path: '/meeting',
+      path: isRCV ? '/meeting/home' : '/meeting/schedule',
     },
     {
       icon: SettingsIcon,
@@ -169,7 +170,7 @@ function mapToProps(_, {
     conference,
     glipGroups,
     glipCompany,
-    thirdPartyService,
+    genericMeeting,
   },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
@@ -194,6 +195,7 @@ function mapToProps(_, {
     showMessages,
     showConference,
     showMeeting,
+    isRCV: genericMeeting.isRCV,
     showContacts,
     showGlip: (rolesAndPermissions.hasGlipPermission && !!glipCompany.name),
     glipUnreadCounts: glipGroups.unreadCounts,

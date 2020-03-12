@@ -6,9 +6,9 @@ import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
   deps: ['GenericMeeting', 'Locale', 'DateTimeFormat'],
 })
 export default class MeetingListUI extends RcUIModule {
-  _genericMeeting: any;
-  _locale: any;
-  _dateTimeFormat: any;
+  private _genericMeeting: any;
+  private _locale: any;
+  private _dateTimeFormat: any;
 
   constructor({ genericMeeting, locale, dateTimeFormat, ...options }) {
     super({
@@ -27,14 +27,14 @@ export default class MeetingListUI extends RcUIModule {
         this._locale.ready &&
         this._dateTimeFormat.ready
       ),
-      recordings: this._genericMeeting.recordings,
+      meetings: this._genericMeeting.recentMeetings,
     };
   }
 
   getUIFunctions() {
     return {
-      fetchRecordings: () => {
-        return this._genericMeeting.fetchRecordings();
+      fetchMeetings: () => {
+        return this._genericMeeting.fetchRecentMeetings();
       },
       dateTimeFormatter: (startTime) => {
         return this._dateTimeFormat.formatDateTime({
@@ -42,12 +42,12 @@ export default class MeetingListUI extends RcUIModule {
           type: 'long',
         });
       },
-      cleanRecordings: () => {
-        return this._genericMeeting.cleanRecordings();
+      cleanMettings: () => {
+        return this._genericMeeting.cleanRecentMeetings();
       },
-      fetchNextPageRecordings: () => {
-        const pageToken = this._genericMeeting.recordingPageToken;
-        return this._genericMeeting.fetchRecordings(pageToken);
+      fetchNextPageMeetings: () => {
+        const pageToken = this._genericMeeting.recentMeetingPageToken;
+        return this._genericMeeting.fetchRecentMeetings(pageToken);
       },
     };
   }

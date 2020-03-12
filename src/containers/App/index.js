@@ -34,6 +34,8 @@ import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
 
+import icons from '@ringcentral-integration/rcui/icon-symbol';
+
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 
 import MainView from '../MainView';
@@ -56,6 +58,7 @@ import GenericMeetingPage from '../../internal-features/containers/GenericMeetin
 import MeetingTabContainer from '../../internal-features/containers/MeetingTabContainer';
 import MeetingRecordsPage from '../../internal-features/containers/MeetingRecordsPage';
 import MeetingListPage from '../../internal-features/containers/MeetingListPage';
+import MeetingHomePage from '../../internal-features/containers/MeetingHomePage';
 
 export default function App({
   phone,
@@ -81,7 +84,7 @@ export default function App({
     );
   };
   return (
-    <PhoneProvider phone={phone}>
+    <PhoneProvider phone={phone} icons={icons}>
       <Provider store={phone.store} >
         <Router history={phone.routerInteraction.history}>
           <Route
@@ -294,7 +297,7 @@ export default function App({
                 )}
               />
               <Route
-                path="/meeting"
+                path="/meeting/schedule"
                 component={() => {
                   const scheduleFunc = async (meetingInfo) => {
                     let resp;
@@ -336,6 +339,14 @@ export default function App({
                     />
                   );
                 }}
+              />
+              <Route
+                path="/meeting/home"
+                component={() => (
+                  <MeetingTabContainer>
+                    <MeetingHomePage />
+                  </MeetingTabContainer>
+                )}
               />
               <Route
                 path="/meeting/recordings"

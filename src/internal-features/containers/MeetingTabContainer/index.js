@@ -24,10 +24,10 @@ class TabContentView extends Component {
       () => this.props.currentPath,
       (currentLocale, currentPath) => [
         {
-          path: '/meeting',
+          path: '/meeting/home',
           label: i18n.getString('schedule', currentLocale),
           isActive() {
-            return currentPath === '/meeting';
+            return currentPath === '/meeting/home';
           },
         },
         {

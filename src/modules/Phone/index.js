@@ -117,6 +117,7 @@ import RcVideo from '../../internal-features/modules/RcV';
 import GenericMeeting from '../../internal-features/modules/GenericMeeting';
 import MeetingListUI from '../../internal-features/modules/MeetingListUI';
 import MeetingRecordingsUI from '../../internal-features/modules/MeetingRecordingsUI';
+import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -297,6 +298,7 @@ import MeetingRecordingsUI from '../../internal-features/modules/MeetingRecordin
     { provide: 'GenericMeeting', useClass: GenericMeeting },
     { provide: 'GenericMeetingUI', useClass: GenericMeetingUI },
     { provide: 'MeetingListUI', useClass: MeetingListUI },
+    { provide: 'MeetingHomeUI', useClass: MeetingHomeUI },
     { provide: 'MeetingRecordingsUI', useClass: MeetingRecordingsUI },
     {
       provide: 'RcVideoOptions',
