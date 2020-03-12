@@ -40,6 +40,16 @@ export default class MeetingHomeUI extends RcUIModule {
       onStart: () => {
         window.open(this._genericMeeting.personalMeeting.joinUri);
       },
+      onJoin: (meetingID) => {
+        if (!meetingID) {
+          return;
+        }
+        if (meetingID.indexOf('https://')) {
+          window.open(this._genericMeeting.personalMeeting.joinUri);
+          return;
+        }
+        window.open(`https://v.ringcentral.com/join/${meetingID}`);
+      }
     };
   }
 }

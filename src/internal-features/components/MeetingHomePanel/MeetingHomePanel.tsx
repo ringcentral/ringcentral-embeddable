@@ -1,13 +1,17 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { RcFabIconButton } from '@ringcentral-integration/rcui';
 import classnames from 'classnames';
+import Modal from 'ringcentral-widgets/components/Modal';
+import TextInput from 'ringcentral-widgets/components/TextInput';
 
 import noResult from '!url-loader!./noResult.svg';
 import styles from './styles.scss';
 
 const MeetingHomePanel = (props) => {
-  const { gotoSchedule, recents, onStart } = props;
+  const { gotoSchedule, recents, onStart, currentLocale, onJoin } = props;
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [meetingId, setMeetingId] = useState('');
   return (
     <div className={styles.root}>
       <div className={styles.buttons}>
@@ -29,7 +33,7 @@ const MeetingHomePanel = (props) => {
           />
           <label>Start</label>
         </div>
-        <div className={styles.button}>
+        <div className={styles.button} onClick={() => setShowJoinModal(true)}>
           <RcFabIconButton
             icon='join'
             size='medium'
@@ -49,6 +53,23 @@ const MeetingHomePanel = (props) => {
           ) : null
         }
       </div>
+      <Modal
+        currentLocale={currentLocale}
+        title='Join a meeting'
+        show={showJoinModal}
+        onCancel={() => setShowJoinModal(false)}
+        textConfirm="Join"
+        onConfirm={() => {
+          onJoin(meetingId)
+        }}
+      >
+        <TextInput
+          className={styles.meetingInput}
+          placeholder="Enter meeting ID or meeting link"
+          onChange={(e) => { setMeetingId(e.currentTarget.value); }}
+          value={meetingId}
+        />
+      </Modal>
     </div>
   );
 }
