@@ -21,10 +21,13 @@ export default class MeetingProvider extends DataFetcher {
       },
       disableCache: true,
     });
+    this._forceProvider = localStorage.getItem('__meeting_provider');
   }
 
   get provider() {
-    // return 'RCVideo';
+    if (this._forceProvider) {
+      return this._forceProvider;
+    }
     return this.data && this.data.provider;
   }
 

@@ -11,6 +11,7 @@ import actionTypes, { RcVideoActionTypes } from './actionTypes';
 import getRcVReducer, {
   getDefaultVideoSettingReducer,
   getLastVideoStorageReducer,
+  getPersonalMeetingReducer,
 } from './getRcVReducer';
 
 import { getDefaultVideoSettings, getTopic } from './videoHelper';
@@ -35,12 +36,14 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   private _client: Client;
   private _defaultVideoSettingKey: string;
   private _lastVideoSettingKey: string;
+  private _personalMeetingKey: string;
   private _extensionInfo: any;
   private _conference: any;
   private _brand: any;
   private _storage: any;
   private _availabilityMonitor: any;
   private _showSaveAsDefault: boolean;
+  private _fetchPersonMeetingTimeout: any;
   _reducer: any;
 
   constructor({
@@ -70,6 +73,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     this._availabilityMonitor = availabilityMonitor;
     this._defaultVideoSettingKey = 'defaultVideoSetting';
     this._lastVideoSettingKey = 'lastVideoSetting';
+    this._personalMeetingKey = 'personalMeeting';
     if (this._showSaveAsDefault) {
       this._storage.registerReducer({
         key: this._defaultVideoSettingKey,
@@ -81,6 +85,10 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
         reducer: getLastVideoStorageReducer(this.actionTypes),
       });
     }
+    this._storage.registerReducer({
+      key: this._personalMeetingKey,
+      reducer: getPersonalMeetingReducer(this.actionTypes),
+    });
   }
 
   initialize() {
@@ -120,7 +128,10 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   }
 
   @proxify
-  _init() {
+  async _init() {
+    this.store.dispatch({
+      type: this.actionTypes.init,
+    });
     const topic = getTopic(this.extensionName, this.brandName);
     const startTime = getInitializedStartTime();
     const meeting = getDefaultVideoSettings({ topic, startTime });
@@ -128,7 +139,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     const storageSetting = this._showSaveAsDefault
       ? this.defaultVideoSetting
       : this.lastVideoSetting;
-
+    await this._initPersonalMeeting();
     this.store.dispatch({
       type: this.actionTypes.initSuccess,
       meeting: {
@@ -163,6 +174,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     const topic = getTopic(this.extensionName, this.brandName);
     const startTime = getInitializedStartTime();
     const defaultVideo = getDefaultVideoSettings({ topic, startTime });
+
     if (this._showSaveAsDefault) {
       this.store.dispatch({
         type: this.actionTypes.updateMeetingSettings,
@@ -180,6 +192,28 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
           ...this.lastVideoSetting,
         },
       });
+    }
+  }
+
+  async _initPersonalMeeting() {
+    if (this.personalMeeting.shortId) {
+      return;
+    }
+    if (this._fetchPersonMeetingTimeout) {
+      clearTimeout(this._fetchPersonMeetingTimeout);
+    }
+    try {
+      const meeting = await this.fetchPersonalMeeting()
+      this.store.dispatch({
+        type: this.actionTypes.savePersonalMeeting,
+        meeting,
+      });
+    } catch (e) {
+      console.error('fetch default meeting error:', e);
+      console.warn('retry after 10s');
+      this._fetchPersonMeetingTimeout = setTimeout(() => {
+       this._initPersonalMeeting();
+      }, 10000);
     }
   }
 
@@ -270,6 +304,14 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   }
 
   @proxify
+  async fetchPersonalMeeting() {
+    const meetingResult = await this._client.service
+      .platform()
+      .get('/rcvideo/v1/bridges', { default: true });
+    return meetingResult.json();
+  }
+
+  @proxify
   async updateMeeting(meetingId, meeting, { isAlertSuccess = false } = {}) {
     try {
       if (this._showSaveAsDefault && meeting.saveAsDefault) {
@@ -277,7 +319,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
       }
       const meetingResult = await this._client.service.platform().send({
         method: 'PATCH',
-        url: `/rcvideo/v1/bridges/${meeting.id}`,
+        url: `/rcvideo/v1/bridges/${meetingId || meeting.id}`,
         body: meeting,
       });
 
@@ -288,12 +330,18 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
           });
         }, 50);
       }
-
+      const newMeeting = meetingResult.json();
       const meetingResponse = {
         extensionInfo: this._extensionInfo.info,
         dialInNumber: this._conference && this._conference.dialInNumber,
-        meeting: Object.assign({}, meeting, meetingResult.json()),
+        meeting: Object.assign({}, meeting, newMeeting),
       };
+      if (this.personalMeeting && newMeeting.id === this.personalMeeting.id) {
+        this.store.dispatch({
+          type: this.actionTypes.savePersonalMeeting,
+          meeting: newMeeting,
+        });
+      }
       return meetingResponse;
     } catch (errors) {
       this._errorHandle(errors);
@@ -470,5 +518,9 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
 
   get showSaveAsDefault() {
     return !!this._showSaveAsDefault;
+  }
+
+  get personalMeeting() {
+    return this._storage.getItem(this._personalMeetingKey) || {};
   }
 }

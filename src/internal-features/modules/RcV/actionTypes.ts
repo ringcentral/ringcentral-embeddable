@@ -15,6 +15,7 @@ export default createEnum(
     'saveMeetingRecordings',
     'cleanMeetings',
     'cleanMeetingRecordings',
+    'savePersonalMeeting',
   ],
   'RcVideo',
   moduleActionTypes,
@@ -34,4 +35,5 @@ export interface RcVideoActionTypes {
   saveMeetingRecordings: string;
   cleanMeetings: string;
   cleanMeetingRecordings: string;
+  savePersonalMeeting: string;
 }

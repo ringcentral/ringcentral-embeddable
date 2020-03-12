@@ -297,7 +297,15 @@ export default function App({
                 path="/meeting"
                 component={() => {
                   const scheduleFunc = async (meetingInfo) => {
-                    const resp = await phone.genericMeeting.schedule(meetingInfo);
+                    let resp;
+                    if (meetingInfo.usePersonalMeetingId) {
+                      resp = await phone.genericMeeting.updateMeeting(
+                        phone.genericMeeting.personalMeeting && phone.genericMeeting.personalMeeting.id,
+                        meetingInfo
+                      );
+                    } else {
+                      resp = await phone.genericMeeting.schedule(meetingInfo);
+                    }
                     if (!resp) {
                       return;
                     }

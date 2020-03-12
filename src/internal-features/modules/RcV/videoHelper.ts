@@ -25,6 +25,8 @@ function getDefaultVideoSettings({ topic, startTime }) {
     saveAsDefault: false,
     isMeetingSecret: false,
     password: '',
+    usePersonalMeetingId: false,
+    personalMeetingId: ''
   };
 }
 

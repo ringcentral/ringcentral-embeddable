@@ -239,6 +239,20 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                 }}
               >
                 <RcSwitch
+                  data-sign="usePersonalMeetingId"
+                  checked={meeting.usePersonalMeetingId}
+                  onChange={() => {
+                    updateMeetingSettings({
+                      ...meeting,
+                      usePersonalMeetingId: !meeting.usePersonalMeetingId,
+                    });
+                  }}
+                  label={i18n.getString('usePersonalMeetingId', currentLocale)}
+                  formControlLabelProps={{
+                    classes: { root: styles.labelPlacementStart },
+                  }}
+                />
+                <RcSwitch
                   data-sign="allowJoinBeforeHost"
                   checked={meeting.allowJoinBeforeHost}
                   onChange={() => {

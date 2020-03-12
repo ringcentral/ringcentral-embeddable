@@ -8,4 +8,6 @@ export interface RcVMeetingModel {
   isMeetingSecret: boolean;
   meetingPassword: string;
   saveAsDefault: boolean;
+  usePersonalMeetingId: boolean;
+  personalMeetingId: string;
 }

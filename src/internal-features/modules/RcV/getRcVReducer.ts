@@ -42,6 +42,17 @@ export function getDefaultVideoSettingReducer(types: RcVideoActionTypes) {
   };
 }
 
+export function getPersonalMeetingReducer(types: RcVideoActionTypes) {
+  return (state = null, { type, meeting = null }) => {
+    switch (type) {
+      case types.savePersonalMeeting:
+        return { ...state, ...meeting };
+      default:
+        return state;
+    }
+  };
+}
+
 export function getLastVideoStorageReducer(types: RcVideoActionTypes) {
   return (state = {}, { type, meeting = null }) => {
     switch (type) {

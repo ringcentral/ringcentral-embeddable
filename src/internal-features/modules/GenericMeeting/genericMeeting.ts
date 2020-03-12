@@ -254,4 +254,8 @@ export class GenericMeeting extends RcModule implements IGenericMeeting {
   get recordingPageToken() {
     return this._meetingModule && this._meetingModule.recordingPageToken;
   }
+
+  get personalMeeting() {
+    return this._meetingModule && this._meetingModule.personalMeeting;
+  }
 }

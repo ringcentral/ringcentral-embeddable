@@ -11,4 +11,5 @@ export default {
   turnOffCamera: 'Turn off camera for participants',
   requirePassword: 'Require Password',
   password: 'Password',
+  usePersonalMeetingId: 'Use Personal Meeting ID'
 };
