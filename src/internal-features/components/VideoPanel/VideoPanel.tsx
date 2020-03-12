@@ -24,6 +24,7 @@ export const VideoPanel: React.FunctionComponent<VideoPanelProps> = ({
   showWhen,
   showDuration,
   brandName,
+  showHeader = true,
 }) => {
   const [topicRef, setTopicRef] = useState(null);
   return (
@@ -37,6 +38,7 @@ export const VideoPanel: React.FunctionComponent<VideoPanelProps> = ({
         showWhen={showWhen}
         showDuration={showDuration}
         brandName={brandName}
+        showHeader={showHeader}
       >
         <Topic
           name={meeting.name}
@@ -96,4 +98,5 @@ interface VideoPanelProps {
   recipientsSection?: React.ReactNode;
   showWhen?: boolean;
   showDuration?: boolean;
+  showHeader?: boolean;
 }

@@ -55,10 +55,74 @@ export function getLastVideoStorageReducer(types: RcVideoActionTypes) {
   };
 }
 
+export function getRecentMeetingsReducer(types: RcVideoActionTypes) {
+  return (state = [], { type, meetings = [] }) => {
+    switch (type) {
+      case types.saveMeetings: {
+        return [].concat(state).concat(meetings);
+      }
+      case types.cleanMeetings: {
+        return [];
+      }
+      default:
+        return state;
+    }
+  };
+}
+
+export function getRecentMeetingPageTokenReducer(types: RcVideoActionTypes) {
+  return (state = null, { type, nextPageToken }) => {
+    switch (type) {
+      case types.saveMeetings: {
+        return nextPageToken;
+      }
+      case types.cleanMeetings: {
+        return null;
+      }
+      default:
+        return state;
+    }
+  };
+}
+
+export function getRecordingsReducer(types: RcVideoActionTypes) {
+  return (state = [], { type, meetings = [] }) => {
+    switch (type) {
+      case types.saveMeetingRecordings: {
+        return [].concat(state).concat(meetings);
+      }
+      case types.cleanMeetingRecordings: {
+        return [];
+      }
+      default:
+        return state;
+    }
+  };
+}
+
+export function getRecordingPageTokenReducer(types: RcVideoActionTypes) {
+  return (state = null, { type, nextPageToken }) => {
+    switch (type) {
+      case types.saveMeetingRecordings: {
+        return nextPageToken;
+      }
+      case types.cleanMeetingRecordings: {
+        return null;
+      }
+      default:
+        return state;
+    }
+  };
+}
+
 export default (types, reducers) =>
   combineReducers({
     ...reducers,
     meeting: getRcVideoInfoReducer(types),
     status: getModuleStatusReducer(types),
     creatingStatus: getRcVideoCreatingStatusReducer(types),
+    recentMeetings: getRecentMeetingsReducer(types),
+    recordings: getRecordingsReducer(types),
+    recentMeetingPageToken: getRecentMeetingPageTokenReducer(types),
+    recordingPageToken: getRecordingPageTokenReducer(types),
   });

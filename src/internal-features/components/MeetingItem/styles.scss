@@ -1,0 +1,57 @@
+
+@import '~ringcentral-widgets/lib/commonStyles/colors.scss';
+@import '~ringcentral-widgets/lib/commonStyles/fonts.scss';
+
+.root {
+  display: flex;
+  flex-direction: column;
+  background: $snow;
+  align-items: flex-start;
+  border-bottom: 1px solid $silver;
+  color: $ash;
+  @include secondary-font;
+  padding: 15px 10px 15px 10px;
+}
+
+.root:hover {
+  background: $egg;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.item {
+  margin-bottom: 10px;
+  display: block;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.subject {
+  text-decoration: none;
+  color: $night;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  @include primary-font;
+}
+
+.recording {
+  display: flex;
+  line-height: 18px;
+  flex-direction: row;
+}
+
+.duration {
+  margin-left: 5px;
+}
+
+.host {
+
+}
+
+.startTime {
+
+}

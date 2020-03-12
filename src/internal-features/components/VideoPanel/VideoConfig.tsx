@@ -72,6 +72,7 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
     datePickerSize,
     timePickerSize,
     brandName,
+    showHeader,
   } = props;
   const hoursList = getHoursList(HOUR_SCALE);
   const minutesList = getMinutesList(MINUTE_SCALE);
@@ -81,11 +82,14 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
       init();
     }
   }, []);
+  const header = showHeader ? (
+    <div className={styles.title}>
+      <h2>{i18n.getString('schedule', currentLocale)}</h2>
+    </div>
+  ) : null;
   return (
     <div className={styles.videoConfig}>
-      <div className={styles.title}>
-        <h2>{i18n.getString('schedule', currentLocale)}</h2>
-      </div>
+      {header}
       <div className={styles.meetingContent}>
         <div className={styles.meetingSection}>{children}</div>
         {recipientsSection ? (
@@ -276,6 +280,42 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                     classes: { root: styles.labelPlacementStart },
                   }}
                 />
+                <RcSwitch
+                  data-sign="requirePassword"
+                  checked={meeting.isMeetingSecret}
+                  onChange={() => {
+                    updateMeetingSettings({
+                      ...meeting,
+                      isMeetingSecret: !meeting.isMeetingSecret,
+                    });
+                  }}
+                  label={i18n.getString('requirePassword', currentLocale)}
+                  formControlLabelProps={{
+                    classes: { root: styles.labelPlacementStart },
+                  }}
+                />
+                {
+                  meeting.isMeetingSecret ? (
+                    <RcTextField
+                      placeholder={i18n.getString('password', currentLocale)}
+                      data-sign="password"
+                      fullWidth
+                      value={meeting.meetingPassword}
+                      inputProps={{
+                        maxLength: 255,
+                      }}
+                      onChange={(e) => {
+                        updateMeetingSettings({
+                          ...meeting,
+                          meetingPassword: e.target.value,
+                        });
+                      }}
+                      classes={{
+                        root: styles.inputArea,
+                      }}
+                    />
+                  ) : null
+                }
               </RcFormGroup>
             </RcExpansionPanelDetails>
           </RcExpansionPanel>
@@ -345,4 +385,5 @@ interface VideoConfigProps {
   showDuration?: boolean;
   brandName: string;
   init: () => any;
+  showHeader: boolean;
 }

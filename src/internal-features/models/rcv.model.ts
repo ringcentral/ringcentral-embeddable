@@ -5,5 +5,7 @@ export interface RcVMeetingModel {
   allowJoinBeforeHost: boolean;
   muteAudio: boolean;
   muteVideo: boolean;
+  isMeetingSecret: boolean;
+  meetingPassword: string;
   saveAsDefault: boolean;
 }

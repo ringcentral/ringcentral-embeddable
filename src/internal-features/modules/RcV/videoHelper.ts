@@ -23,6 +23,8 @@ function getDefaultVideoSettings({ topic, startTime }) {
     muteAudio: false,
     muteVideo: false,
     saveAsDefault: false,
+    isMeetingSecret: false,
+    password: '',
   };
 }
 

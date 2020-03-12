@@ -11,6 +11,10 @@ export default createEnum(
     'initUpdating',
     'updated',
     'resetUpdating',
+    'saveMeetings',
+    'saveMeetingRecordings',
+    'cleanMeetings',
+    'cleanMeetingRecordings',
   ],
   'RcVideo',
   moduleActionTypes,
@@ -26,4 +30,8 @@ export interface RcVideoActionTypes {
   initUpdating: string;
   updated: string;
   resetUpdating: string;
+  saveMeetings: string;
+  saveMeetingRecordings: string;
+  cleanMeetings: string;
+  cleanMeetingRecordings: string;
 }

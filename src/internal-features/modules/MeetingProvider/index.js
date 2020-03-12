@@ -24,8 +24,8 @@ export default class MeetingProvider extends DataFetcher {
   }
 
   get provider() {
-    return 'RCVideo';
-    // return this.data && this.data.provider;
+    // return 'RCVideo';
+    return this.data && this.data.provider;
   }
 
   get status() {

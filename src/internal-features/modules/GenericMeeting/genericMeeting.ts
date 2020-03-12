@@ -116,6 +116,30 @@ export class GenericMeeting extends RcModule implements IGenericMeeting {
     this._eventEmitter.removeListener(MeetingEvents.afterSchedule, cb);
   }
 
+  @proxify
+  async fetchRecentMeetings(pageToken) {
+    return (
+      this._meetingModule && this._meetingModule.fetchRecentMeetings(pageToken)
+    );
+  }
+
+  @proxify
+  async fetchRecordings(pageToken) {
+    return (
+      this._meetingModule && this._meetingModule.fetchRecordings(pageToken)
+    );
+  }
+
+  @proxify
+  async cleanRecentMeetings() {
+    return this._meetingModule && this._meetingModule.cleanRecentMeetings();
+  }
+
+  @proxify
+  async cleanRecordings() {
+    return this._meetingModule && this._meetingModule.cleanRecordings();
+  }
+
   _onStateChange() {
     if (this._shouldInit()) {
       this._init();
@@ -213,5 +237,21 @@ export class GenericMeeting extends RcModule implements IGenericMeeting {
 
   get status() {
     return this.state.status;
+  }
+
+  get recentMeetings() {
+    return this._meetingModule && this._meetingModule.recentMeetings;
+  }
+
+  get recordings() {
+    return this._meetingModule && this._meetingModule.recordings;
+  }
+
+  get recentMeetingPageToken() {
+    return this._meetingModule && this._meetingModule.recentMeetingPageToken;
+  }
+
+  get recordingPageToken() {
+    return this._meetingModule && this._meetingModule.recordingPageToken;
   }
 }

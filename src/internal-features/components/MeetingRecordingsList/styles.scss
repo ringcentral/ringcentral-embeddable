@@ -1,0 +1,24 @@
+@import '~ringcentral-widgets/lib/commonStyles/colors.scss';
+
+.recordingContainer {
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  padding: 10px 20px;
+}
+
+.noRecordingTip {
+  color: $ash;
+  padding-top: 140px;
+  text-align: center;
+}
+
+.spinnerContainer {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  margin-top: -20px;
+  margin-left: -20px;
+  width: 40px;
+  height: 40px;
+}

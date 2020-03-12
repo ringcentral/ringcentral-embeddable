@@ -34,7 +34,6 @@ import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
 
-import MeetingPage from 'ringcentral-widgets/containers/MeetingPage';
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 
 import MainView from '../MainView';
@@ -54,6 +53,9 @@ import MeetingInviteModal from '../MeetingInviteModal';
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 
 import GenericMeetingPage from '../../internal-features/containers/GenericMeetingPage';
+import MeetingTabContainer from '../../internal-features/containers/MeetingTabContainer';
+import MeetingRecordsPage from '../../internal-features/containers/MeetingRecordsPage';
+import MeetingListPage from '../../internal-features/containers/MeetingListPage';
 
 export default function App({
   phone,
@@ -293,24 +295,54 @@ export default function App({
               />
               <Route
                 path="/meeting"
+                component={() => {
+                  const scheduleFunc = async (meetingInfo) => {
+                    const resp = await phone.genericMeeting.schedule(meetingInfo);
+                    if (!resp) {
+                      return;
+                    }
+                    const formatedMeetingInfo = formatMeetingInfo(
+                      resp, phone.brand, phone.locale.currentLocale, phone.genericMeeting.isRCV
+                    );
+                    if (phone.thirdPartyService.meetingInviteTitle) {
+                      await phone.thirdPartyService.inviteMeeting(formatedMeetingInfo);
+                      return;
+                    }
+                    phone.meetingInviteModalUI.showModal(formatedMeetingInfo);
+                  };
+                  if (phone.genericMeeting.isRCV) {
+                    return (
+                      <MeetingTabContainer>
+                        <GenericMeetingPage
+                          showHeader={false}
+                          schedule={scheduleFunc}
+                          scheduleButton={MeetingScheduleButton}
+                        />
+                      </MeetingTabContainer>
+                    );
+                  }
+                  return (
+                    <GenericMeetingPage
+                      schedule={scheduleFunc}
+                      scheduleButton={MeetingScheduleButton}
+                    />
+                  );
+                }}
+              />
+              <Route
+                path="/meeting/recordings"
                 component={() => (
-                  <GenericMeetingPage
-                    schedule={async (meetingInfo) => {
-                      const resp = await phone.genericMeeting.schedule(meetingInfo);
-                      if (!resp) {
-                        return;
-                      }
-                      const formatedMeetingInfo = formatMeetingInfo(
-                        resp, phone.brand, phone.locale.currentLocale, phone.genericMeeting.isRCV
-                      );
-                      if (phone.thirdPartyService.meetingInviteTitle) {
-                        await phone.thirdPartyService.inviteMeeting(formatedMeetingInfo);
-                        return;
-                      }
-                      phone.meetingInviteModalUI.showModal(formatedMeetingInfo);
-                    }}
-                    scheduleButton={MeetingScheduleButton}
-                  />
+                  <MeetingTabContainer>
+                    <MeetingRecordsPage />
+                  </MeetingTabContainer>
+                )}
+              />
+              <Route
+                path="/meeting/rencents"
+                component={() => (
+                  <MeetingTabContainer>
+                    <MeetingListPage />
+                  </MeetingTabContainer>
                 )}
               />
               <Route

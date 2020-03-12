@@ -333,6 +333,108 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     return null;
   }
 
+  @proxify
+  async fetchRecentMeetings(pageToken) {
+    if (this._fetchingRecentMeetings) {
+      return;
+    }
+    if (pageToken === 'noNext') {
+      return;
+    }
+    this._fetchingRecentMeetings = true;
+    try {
+      const params = { perPage: 10 };
+      if (pageToken) {
+        params.pageToken = pageToken;
+      }
+      const response = await this._client.service
+        .platform()
+        .get('/rcvideo/v1/history/meetings', params);
+      const data = response.json();
+      if (!this._fetchingRecentMeetings) {
+        return;
+      }
+      this.store.dispatch({
+        type: this.actionTypes.saveMeetings,
+        meetings: data.meetings.map((r) => ({
+          ...r,
+          subject: r.displayName,
+        })),
+        nextPageToken: data.paging.nextPageToken || 'noNext',
+      });
+    } catch (e) {
+      console.error(e);
+    }
+    this._fetchingRecentMeetings = false;
+  }
+
+  @proxify
+  async cleanRecentMeetings() {
+    this.store.dispatch({
+      type: this.actionTypes.cleanMeetings,
+    });
+  }
+
+  @proxify
+  async fetchRecordings(pageToken) {
+    if (this._fetchingRecording) {
+      return;
+    }
+    if (pageToken === 'noNext') {
+      return;
+    }
+    this._fetchingRecording = true;
+    try {
+      const dateFrom = new Date();
+      dateFrom.setDate(dateFrom.getDate() - 60);
+      const params = { perPage: 10 };
+      if (pageToken) {
+        params.pageToken = pageToken;
+      }
+      const response = await this._client.service
+        .platform()
+        .get('/rcvideo/v1/account/~/extension/~/recordings', params);
+      const data = response.json();
+      if (!this._fetchingRecording) {
+        return;
+      }
+      this.store.dispatch({
+        type: this.actionTypes.saveMeetingRecordings,
+        meetings: data.recordings.map((r) => ({
+          ...r,
+          subject: r.displayName,
+        })),
+        nextPageToken: data.paging.nextPageToken || 'noNext',
+      });
+    } catch (e) {
+      console.error(e);
+    }
+    this._fetchingRecording = false;
+  }
+
+  @proxify
+  async cleanRecordings() {
+    this.store.dispatch({
+      type: this.actionTypes.cleanMeetingRecordings,
+    });
+  }
+
+  get recentMeetings() {
+    return this.state.recentMeetings;
+  }
+
+  get recordings() {
+    return this.state.recordings;
+  }
+
+  get recentMeetingPageToken() {
+    return this.state.recentMeetingPageToken;
+  }
+
+  get recordingPageToken() {
+    return this.state.recordingPageToken;
+  }
+
   get meeting() {
     return this.state.meeting;
   }
