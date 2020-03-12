@@ -408,6 +408,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
           ...r,
           subject: r.displayName,
         })),
+        pageToken,
         nextPageToken: data.paging.nextPageToken || 'noNext',
       });
     } catch (e) {

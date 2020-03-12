@@ -67,9 +67,12 @@ export function getLastVideoStorageReducer(types: RcVideoActionTypes) {
 }
 
 export function getRecentMeetingsReducer(types: RcVideoActionTypes) {
-  return (state = [], { type, meetings = [] }) => {
+  return (state = [], { type, meetings = [], pageToken }) => {
     switch (type) {
       case types.saveMeetings: {
+        if (!pageToken) {
+          return meetings;
+        }
         return [].concat(state).concat(meetings);
       }
       case types.cleanMeetings: {
@@ -97,9 +100,12 @@ export function getRecentMeetingPageTokenReducer(types: RcVideoActionTypes) {
 }
 
 export function getRecordingsReducer(types: RcVideoActionTypes) {
-  return (state = [], { type, meetings = [] }) => {
+  return (state = [], { type, meetings = [], pageToken }) => {
     switch (type) {
       case types.saveMeetingRecordings: {
+        if (!pageToken) {
+          return meetings;
+        }
         return [].concat(state).concat(meetings);
       }
       case types.cleanMeetingRecordings: {
