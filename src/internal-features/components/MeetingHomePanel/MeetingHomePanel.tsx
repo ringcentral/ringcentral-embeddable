@@ -7,7 +7,7 @@ import noResult from '!url-loader!./noResult.svg';
 import styles from './styles.scss';
 
 const MeetingHomePanel = (props) => {
-  const { gotoSchedule, recents } = props;
+  const { gotoSchedule, recents, onStart } = props;
   return (
     <div className={styles.root}>
       <div className={styles.buttons}>
@@ -20,7 +20,7 @@ const MeetingHomePanel = (props) => {
           />
           <label>Schedule</label>
         </div>
-        <div className={styles.button}>
+        <div className={styles.button} onClick={onStart}>
           <RcFabIconButton
             icon='start'
             size='medium'
