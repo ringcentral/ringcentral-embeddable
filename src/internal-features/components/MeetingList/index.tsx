@@ -108,7 +108,7 @@ export default class MeetingList extends Component<IMeetingListProps, any> {
   };
 
   render() {
-    const { showSpinner, currentLocale } = this.props;
+    const { showSpinner } = this.props;
     const { fetching, loadingNextPage } = this.state;
     const isLoading = showSpinner || fetching;
     if (isLoading) {
