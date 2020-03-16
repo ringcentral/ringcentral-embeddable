@@ -436,23 +436,20 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     try {
       const dateFrom = new Date();
       dateFrom.setDate(dateFrom.getDate() - 60);
-      const params = { perPage: 10 };
+      const params = { perPage: 10, type: 'All' };
       if (pageToken) {
         params.pageToken = pageToken;
       }
       const response = await this._client.service
         .platform()
-        .get('/rcvideo/v1/account/~/extension/~/recordings', params);
+        .get('/rcvideo/v1/history/meetings', params);
       const data = response.json();
       if (!this._fetchingRecording) {
         return;
       }
       this.store.dispatch({
         type: this.actionTypes.saveMeetingRecordings,
-        meetings: data.recordings.map((r) => ({
-          ...r,
-          subject: r.displayName,
-        })),
+        meetings: data.meetings,
         nextPageToken: data.paging.nextPageToken || 'noNext',
       });
     } catch (e) {

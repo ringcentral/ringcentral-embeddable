@@ -2,25 +2,27 @@ import React from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
+import formatDuration from 'ringcentral-widgets/lib/formatDuration';
 import PlayIcon from 'ringcentral-widgets/assets/images/Play.svg';
 
 import styles from './styles.scss';
 import i18n from './i18n';
 
 export default function MeetingItem({
-  subject,
-  isRecording,
-  duration,
+  displayName,
   hostInfo,
   startTime,
   onClick,
   currentLocale,
   dateTimeFormatter,
+  recordings,
+  id,
 }) {
-  const recodingContent = isRecording ? (
+  const recording = recordings && recordings[0]
+  const recodingContent = recording && recording.metadata ? (
     <div className={classnames(styles.item, styles.recording)}>
       <PlayIcon width={18} height={18} />
-      <span className={styles.duration}>{duration}s</span>
+      <span className={styles.duration}>{formatDuration(recording.metadata.duration)}</span>
     </div>
   ) : null;
 
@@ -32,11 +34,13 @@ export default function MeetingItem({
 
   return (
     <div
-      className={classnames(styles.root, onClick ? styles.clickable : '')}
-      onClick={onClick}
+      className={classnames(styles.root, recording && onClick ? styles.clickable : '')}
+      onClick={() => {
+        recording && onClick(id)
+      }}
     >
       <div className={classnames(styles.item, styles.subject)}>
-        {subject}
+        {displayName}
       </div>
       {recodingContent}
       {hostContent}
@@ -48,14 +52,14 @@ export default function MeetingItem({
 }
 
 MeetingItem.propsTypes = {
-  subject: PropTypes.string.isRequired,
-  isRecording: PropTypes.boolean,
+  displayName: PropTypes.string.isRequired,
   hostInfo: PropTypes.object.isRequired,
   startTime: PropTypes.string.isRequired,
   currentLocale: PropTypes.string.isRequired,
-  duration: PropTypes.number,
   onClick: PropTypes.func,
   dateTimeFormatter: PropTypes.func.isRequired,
+  onPlayRecording: PropTypes.func,
+  id: PropTypes.string.isRequired,
 };
 
 MeetingItem.defaultProps = {

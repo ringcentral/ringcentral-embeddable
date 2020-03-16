@@ -110,7 +110,7 @@ function getTabs({
       icon: MeetingIcon,
       activeIcon: MeetingHoverIcon,
       moreMenuIcon: MeetingNavIcon,
-      label: i18n.getString('meetingLabel', currentLocale),
+      label: isRCV ? 'RingCentral Video' : i18n.getString('meetingLabel', currentLocale),
       path: isRCV ? '/meeting/home' : '/meeting/schedule',
     },
     {

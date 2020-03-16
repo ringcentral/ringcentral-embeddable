@@ -27,13 +27,13 @@ export default class MeetingListUI extends RcUIModule {
         this._locale.ready &&
         this._dateTimeFormat.ready
       ),
-      recordings: this._genericMeeting.recordings,
+      meetings: this._genericMeeting.recordings,
     };
   }
 
   getUIFunctions() {
     return {
-      fetchRecordings: () => {
+      fetchMeetings: () => {
         return this._genericMeeting.fetchRecordings();
       },
       dateTimeFormatter: (startTime) => {
@@ -42,13 +42,17 @@ export default class MeetingListUI extends RcUIModule {
           type: 'long',
         });
       },
-      cleanRecordings: () => {
+      cleanMettings: () => {
         return this._genericMeeting.cleanRecordings();
       },
-      fetchNextPageRecordings: () => {
+      fetchNextPageMeetings: () => {
         const pageToken = this._genericMeeting.recordingPageToken;
         return this._genericMeeting.fetchRecordings(pageToken);
       },
+      onClick: (meetingId) => {
+        const host = `https://v.ringcentral.com`;
+        window.open(`${host}/welcome/meetings/recordings/recording/${meetingId}`);
+      }
     };
   }
 }

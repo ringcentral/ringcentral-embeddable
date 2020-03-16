@@ -25,7 +25,7 @@ class TabContentView extends Component {
       (currentLocale, currentPath) => [
         {
           path: '/meeting/home',
-          label: i18n.getString('schedule', currentLocale),
+          label: i18n.getString('home', currentLocale),
           isActive() {
             return currentPath === '/meeting/home';
           },

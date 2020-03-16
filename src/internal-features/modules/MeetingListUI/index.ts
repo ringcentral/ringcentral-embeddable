@@ -49,6 +49,10 @@ export default class MeetingListUI extends RcUIModule {
         const pageToken = this._genericMeeting.recentMeetingPageToken;
         return this._genericMeeting.fetchRecentMeetings(pageToken);
       },
+      onClick: (meetingId) => {
+        const host = `https://v.ringcentral.com`;
+        window.open(`${host}/welcome/meetings/recordings/recording/${meetingId}`);
+      }
     };
   }
 }

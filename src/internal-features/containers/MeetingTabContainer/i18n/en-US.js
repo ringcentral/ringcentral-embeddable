@@ -1,5 +1,6 @@
 export default {
-  schedule: "Schedule",
-  rencents: "Recents",
-  recordings: "Recordings",
+  home: 'Home',
+  schedule: 'Schedule',
+  rencents: 'Recents',
+  recordings: 'Recordings',
 };

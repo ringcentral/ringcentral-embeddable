@@ -13,6 +13,7 @@ interface IMeetingListProps {
   fetchNextPageMeetings: () => any[];
   cleanMettings: () => any[];
   dateTimeFormatter: (startTime: string) => string;
+  onClick: () => void;
 }
 
 export default class MeetingList extends Component<IMeetingListProps, any> {
@@ -21,6 +22,7 @@ export default class MeetingList extends Component<IMeetingListProps, any> {
     fetchMeetings: () => {},
     fetchNextPageMeetings: () => {},
     cleanMettings: () => {},
+    onClick: () => {},
   };
 
   private _mounted: boolean;
@@ -139,19 +141,21 @@ export default class MeetingList extends Component<IMeetingListProps, any> {
 
   private _renderMeetingsContent() {
     const { fetching } = this.state;
-    const { dateTimeFormatter, currentLocale, meetings } = this.props;
+    const { dateTimeFormatter, currentLocale, meetings, onClick } = this.props;
     if (!fetching && meetings.length === 0) {
       return null;
     }
     return meetings.map((meeting) => (
       <MeetingItem
         key={meeting.id}
-        subject={meeting.subject}
-        duration={meeting.duration}
+        displayName={meeting.displayName}
         hostInfo={meeting.hostInfo}
         startTime={meeting.startTime}
         currentLocale={currentLocale}
         dateTimeFormatter={dateTimeFormatter}
+        recordings={meeting.recordings}
+        onClick={onClick}
+        id={meeting.id}
       />
     ));
   }

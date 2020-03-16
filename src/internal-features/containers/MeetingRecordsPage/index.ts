@@ -1,8 +1,8 @@
 import { connectModule } from 'ringcentral-widgets/lib/phoneContext';
-import MeetingRecordingsList from '../../components/MeetingRecordingsList';
+import MeetingList from '../../components/MeetingList';
 
 const MeetingRecordingsListPage = connectModule((phone) => phone.meetingRecordingsUI)(
-  MeetingRecordingsList,
+  MeetingList,
 );
 
 export { MeetingRecordingsListPage as default };
