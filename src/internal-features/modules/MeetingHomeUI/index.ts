@@ -1,8 +1,6 @@
 import { Module } from 'ringcentral-integration/lib/di';
 import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
 
-const recents = [];
-
 @Module({
   name: 'MeetingHomeUI',
   deps: ['GenericMeeting', 'Locale', 'RouterInteraction'],
@@ -28,7 +26,7 @@ export default class MeetingHomeUI extends RcUIModule {
         this._genericMeeting.ready &&
         this._locale.ready
       ),
-      recents: [],
+      upcomingMeetings: this._genericMeeting.upcomingMeetings,
     };
   }
 
@@ -49,7 +47,10 @@ export default class MeetingHomeUI extends RcUIModule {
           return;
         }
         window.open(`https://v.ringcentral.com/join/${meetingID}`);
-      }
+      },
+      fetchUpcomingMeetings: () => {
+        return this._genericMeeting.fetchUpcomingMeetings();
+      },
     };
   }
 }

@@ -140,6 +140,11 @@ export class GenericMeeting extends RcModule implements IGenericMeeting {
     return this._meetingModule && this._meetingModule.cleanRecordings();
   }
 
+  @proxify
+  async fetchUpcomingMeetings() {
+    return this._meetingModule && this._meetingModule.fetchUpcomingMeetings();
+  }
+
   _onStateChange() {
     if (this._shouldInit()) {
       this._init();
@@ -257,5 +262,9 @@ export class GenericMeeting extends RcModule implements IGenericMeeting {
 
   get personalMeeting() {
     return this._meetingModule && this._meetingModule.personalMeeting;
+  }
+
+  get upcomingMeetings() {
+    return this._meetingModule && this._meetingModule.upcomingMeetings;
   }
 }

@@ -44,6 +44,9 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   private _availabilityMonitor: any;
   private _showSaveAsDefault: boolean;
   private _fetchPersonMeetingTimeout: any;
+  private _fetchingRecording: boolean;
+  private _fetchingUpcomingMeetings: boolean;
+
   _reducer: any;
 
   constructor({
@@ -89,6 +92,8 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
       key: this._personalMeetingKey,
       reducer: getPersonalMeetingReducer(this.actionTypes),
     });
+    this._fetchingRecording = false;
+    this._fetchingUpcomingMeetings = false;
   }
 
   initialize() {
@@ -465,6 +470,58 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     });
   }
 
+  @proxify
+  async fetchUpcomingMeetings() {
+    if (this._fetchingUpcomingMeetings) {
+      return;
+    }
+    this._fetchingUpcomingMeetings = true;
+    try {
+      const meetings = await this._fetchUpcomingMeetings();
+      this.store.dispatch({
+        type: this.actionTypes.saveUpcomingMeetings,
+        meetings,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+    this._fetchingUpcomingMeetings = false;
+  }
+
+  @proxify
+  async _fetchUpcomingMeetings() {
+    const platform = this._client.service.platform();
+    const providersRes = await platform.get('/rcvideo/v1/scheduling/providers')
+    const providers = providersRes.json().providers.filter(p => p.isAuthorized);
+    let allEvents = [];
+    await Promise.all(providers.map(async (provider) => {
+      const calendersRes = await platform.get(`/rcvideo/v1/scheduling/providers/${provider.id}/calendars`)
+      const calendars = calendersRes.json().calendars.filter(
+        c => c.isPrimary
+      );
+      const fromDate = new Date();
+      const toDate = new Date();
+      toDate.setDate(toDate.getDate() + 7)
+      await Promise.all(calendars.map(async (calendar) => {
+        const eventsRes = await platform.get(
+          `/rcvideo/v1/scheduling/providers/${provider.id}/calendars/${encodeURIComponent(calendar.id)}/events`,
+          {
+            includeNonRcEvents: true,
+            startTimeFrom: fromDate.toISOString(),
+            startTimeTo: toDate.toISOString(),
+          }
+        )
+        const events = eventsRes.json().events;
+        allEvents = allEvents.concat(events);
+      }));
+    }));
+    return allEvents.sort((a, b) => {
+      const date1 = (new Date(a.startTime)).getTime();
+      const date2 = (new Date(b.startTime)).getTime();
+      return date1 - date2;
+    });
+  }
+
   get recentMeetings() {
     return this.state.recentMeetings;
   }
@@ -520,5 +577,9 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
 
   get personalMeeting() {
     return this._storage.getItem(this._personalMeetingKey) || {};
+  }
+
+  get upcomingMeetings() {
+    return this.state.upcomingMeetings;
   }
 }

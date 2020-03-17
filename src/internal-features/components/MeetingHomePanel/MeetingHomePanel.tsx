@@ -1,17 +1,57 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RcFabIconButton } from '@ringcentral-integration/rcui';
 import classnames from 'classnames';
 import Modal from 'ringcentral-widgets/components/Modal';
 import TextInput from 'ringcentral-widgets/components/TextInput';
+import Spinner from 'ringcentral-widgets/components/Spinner';
+
+import MeetingList from '../UpcomingMeetingList';
 
 import noResult from '!url-loader!./noResult.svg';
 import styles from './styles.scss';
 
 const MeetingHomePanel = (props) => {
-  const { gotoSchedule, recents, onStart, currentLocale, onJoin } = props;
+  const {
+    gotoSchedule,
+    upcomingMeetings,
+    onStart,
+    currentLocale,
+    onJoin,
+    fetchUpcomingMeetings,
+  } = props;
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [meetingId, setMeetingId] = useState('');
+  const [loadingUpcomingMeetings, setLoadingUpcomingMeetings] = useState(true);
+  useEffect(() => {
+    setLoadingUpcomingMeetings(true);
+    fetchUpcomingMeetings().then(() => {
+      setLoadingUpcomingMeetings(false);
+    });
+  }, [])
+  let upcomingMeetingContent;
+  if (loadingUpcomingMeetings) {
+    upcomingMeetingContent = (
+      <div className={styles.spinnerContainer}>
+        <Spinner />
+      </div>
+    );
+  } else if (upcomingMeetings.length > 0) {
+    upcomingMeetingContent = (
+      <MeetingList
+        className={styles.meetingList}
+        meetings={upcomingMeetings}
+        currentLocale={currentLocale}
+      />
+    );
+  } else {
+    upcomingMeetingContent = (
+      <div className={styles.noResult}>
+        <img src={noResult} className={styles.noResultImg} />
+        <div>You have no upcoming meetings</div>
+      </div>
+    );
+  }
   return (
     <div className={styles.root}>
       <div className={styles.buttons}>
@@ -44,14 +84,7 @@ const MeetingHomePanel = (props) => {
         </div>
       </div>
       <div className={styles.content}>
-        {
-          recents.length === 0 ? (
-            <div className={styles.noResult}>
-              <img src={noResult} className={styles.noResultImg} />
-              <div>You have no upcoming meetings</div>
-            </div>
-          ) : null
-        }
+        {upcomingMeetingContent}
       </div>
       <Modal
         currentLocale={currentLocale}

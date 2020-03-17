@@ -132,6 +132,21 @@ export function getRecordingPageTokenReducer(types: RcVideoActionTypes) {
   };
 }
 
+export function getUpcomingMeetingsReducer(types: RcVideoActionTypes) {
+  return (state = [], { type, meetings = [], pageToken }) => {
+    switch (type) {
+      case types.saveUpcomingMeetings: {
+        return meetings;
+      }
+      case types.cleanUpcomingMeetings: {
+        return [];
+      }
+      default:
+        return state;
+    }
+  };
+}
+
 export default (types, reducers) =>
   combineReducers({
     ...reducers,
@@ -142,4 +157,5 @@ export default (types, reducers) =>
     recordings: getRecordingsReducer(types),
     recentMeetingPageToken: getRecentMeetingPageTokenReducer(types),
     recordingPageToken: getRecordingPageTokenReducer(types),
+    upcomingMeetings: getUpcomingMeetingsReducer(types),
   });
