@@ -66,6 +66,10 @@ export default class GenericMeetingUI extends RcUIModule {
       isRCV: this._genericMeeting.isRCV,
       scheduleButton,
       brandName: this._brand.name,
+      personalMeetingId: (
+        this._genericMeeting.personalMeeting &&
+        this._genericMeeting.personalMeeting.shortId
+      ),
     };
   }
 
