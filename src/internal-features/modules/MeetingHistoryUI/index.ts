@@ -53,7 +53,6 @@ export default class MeetingHistoryUI extends RcUIModule {
         const host = `https://v.ringcentral.com`;
         window.open(`${host}/welcome/meetings/recordings/recording/${meetingId}`);
       },
-      onLog: props.onLog,
     };
   }
 }

@@ -231,6 +231,35 @@ export function getMeetingInviteTitleReducer(types) {
   };
 }
 
+export function getMeetingLoggerRegisteredReducer(types) {
+  return (state = false, { type }) => {
+    switch (type) {
+      case types.registerMeetingLogger:
+        return true;
+      case types.resetSuccess:
+        return false;
+      default:
+        return state;
+    }
+  };
+}
+
+export function getMeetingLoggerTitleReducer(types) {
+  return (state = null, { type, meetingLoggerTitle }) => {
+    switch (type) {
+      case types.registerMeetingLogger:
+        if (meetingLoggerTitle) {
+          return meetingLoggerTitle;
+        }
+        return state;
+      case types.resetSuccess:
+        return null;
+      default:
+        return state;
+    }
+  };
+}
+
 export function getAuthorizedReducer(types) {
   return (state = null, { type, authorized }) => {
     switch (type) {
@@ -320,5 +349,7 @@ export default function getReducer(types) {
     activityName: getActivityNameReducer(types),
     showFeedback: getShowFeedbackReducer(types),
     settings: getSettingsReducer(types),
+    meetingLoggerRegistered: getMeetingLoggerRegisteredReducer(types),
+    meetingLoggerTitle: getMeetingLoggerTitleReducer(types),
   });
 }

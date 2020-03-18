@@ -24,7 +24,12 @@ export default function MeetingItem({
 }) {
   const recording = recordings && recordings[0]
   const recodingContent = recording && recording.metadata ? (
-    <div className={classnames(styles.item, styles.recording)}>
+    <div
+      className={classnames(styles.item, styles.recording)}
+      onClick={() => {
+        onClick(id)
+      }}
+    >
       <PlayIcon width={18} height={18} />
       <span className={styles.duration}>{formatDuration(recording.metadata.duration)}</span>
     </div>
@@ -43,12 +48,16 @@ export default function MeetingItem({
   ) :  null;
   return (
     <div
-      className={classnames(styles.root, recording && onClick ? styles.clickable : '')}
-      onClick={() => {
-        recording && onClick(id)
-      }}
+      className={classnames(styles.root)}
     >
-      <div className={classnames(styles.item, styles.subject)}>
+      <div
+        className={
+          classnames(styles.item, styles.subject, recording && onClick ? styles.clickable : '')
+        }
+        onClick={() => {
+          recording && onClick(id)
+        }}
+      >
         {displayName}
       </div>
       <div>

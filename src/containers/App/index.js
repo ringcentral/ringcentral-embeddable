@@ -352,7 +352,14 @@ export default function App({
                 path="/meeting/recordings"
                 component={() => (
                   <MeetingTabContainer>
-                    <MeetingRecordsPage />
+                    <MeetingRecordsPage
+                      onLog={
+                        phone.thirdPartyService.meetingLoggerRegistered ? (
+                          (meeting) => phone.thirdPartyService.logMeeting(meeting)
+                        ) : undefined
+                      }
+                      logTitle={phone.thirdPartyService.meetingLoggerTitle}
+                    />
                   </MeetingTabContainer>
                 )}
               />
@@ -360,7 +367,14 @@ export default function App({
                 path="/meeting/recents"
                 component={() => (
                   <MeetingTabContainer>
-                    <MeetingHistoryPage />
+                    <MeetingHistoryPage
+                      onLog={
+                        phone.thirdPartyService.meetingLoggerRegistered ? (
+                          (meeting) => phone.thirdPartyService.logMeeting(meeting)
+                        ) : undefined
+                      }
+                      logTitle={phone.thirdPartyService.meetingLoggerTitle}
+                    />
                   </MeetingTabContainer>
                 )}
               />
@@ -466,4 +480,5 @@ export default function App({
 App.propTypes = {
   phone: PropTypes.object.isRequired,
   showCallBadge: PropTypes.bool.isRequired,
+  appVersion: PropTypes.string,
 };
