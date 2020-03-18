@@ -2,7 +2,7 @@ import { Module } from 'ringcentral-integration/lib/di';
 import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
 
 @Module({
-  name: 'GenericMeetingUI',
+  name: 'MeetingListUI',
   deps: ['GenericMeeting', 'Locale', 'DateTimeFormat'],
 })
 export default class MeetingListUI extends RcUIModule {

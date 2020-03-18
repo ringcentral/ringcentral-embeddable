@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import formatDuration from 'ringcentral-widgets/lib/formatDuration';
 import PlayIcon from 'ringcentral-widgets/assets/images/Play.svg';
+import LogIcon from 'ringcentral-widgets/assets/images/MessagesLog.svg';
 
 import styles from './styles.scss';
 import i18n from './i18n';
@@ -17,6 +18,9 @@ export default function MeetingItem({
   dateTimeFormatter,
   recordings,
   id,
+  onLog,
+  showLog,
+  logTitle,
 }) {
   const recording = recordings && recordings[0]
   const recodingContent = recording && recording.metadata ? (
@@ -31,7 +35,12 @@ export default function MeetingItem({
       {i18n.getString('host', currentLocale)}: {hostInfo.displayName}
     </div>
   ) : null;
-
+  
+  const logBtn = showLog ? (
+    <div className={styles.logButton} onClick={onLog} title={logTitle}>
+      <LogIcon className={styles.logIcon} />
+    </div>
+  ) :  null;
   return (
     <div
       className={classnames(styles.root, recording && onClick ? styles.clickable : '')}
@@ -42,11 +51,14 @@ export default function MeetingItem({
       <div className={classnames(styles.item, styles.subject)}>
         {displayName}
       </div>
-      {recodingContent}
-      {hostContent}
-      <div className={styles.item}>
-        {dateTimeFormatter(startTime)}
+      <div>
+        {recodingContent}
+        {hostContent}
+        <div className={styles.item}>
+          {dateTimeFormatter(startTime)}
+        </div>
       </div>
+      {logBtn}
     </div>
   );
 }
@@ -60,10 +72,16 @@ MeetingItem.propsTypes = {
   dateTimeFormatter: PropTypes.func.isRequired,
   onPlayRecording: PropTypes.func,
   id: PropTypes.string.isRequired,
+  onLog: PropTypes.func,
+  showLog: PropTypes.bool,
+  logTitle: PropTypes.string,
 };
 
 MeetingItem.defaultProps = {
   isRecording: false,
   duration: undefined,
   onClick: undefined,
+  onLog: undefined,
+  showLog: false,
+  logTitle: ''
 };

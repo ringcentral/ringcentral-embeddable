@@ -2,10 +2,10 @@ import { Module } from 'ringcentral-integration/lib/di';
 import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
 
 @Module({
-  name: 'GenericMeetingUI',
+  name: 'MeetingHistoryUI',
   deps: ['GenericMeeting', 'Locale', 'DateTimeFormat'],
 })
-export default class MeetingListUI extends RcUIModule {
+export default class MeetingHistoryUI extends RcUIModule {
   private _genericMeeting: any;
   private _locale: any;
   private _dateTimeFormat: any;
@@ -19,7 +19,7 @@ export default class MeetingListUI extends RcUIModule {
     this._dateTimeFormat = dateTimeFormat;
   }
 
-  getUIProps() {
+  getUIProps(props) {
     return {
       currentLocale: this._locale.ready && this._locale.currentLocale,
       showSpinner: !(
@@ -31,7 +31,7 @@ export default class MeetingListUI extends RcUIModule {
     };
   }
 
-  getUIFunctions() {
+  getUIFunctions(props) {
     return {
       fetchMeetings: () => {
         return this._genericMeeting.fetchRecentMeetings();
@@ -52,7 +52,8 @@ export default class MeetingListUI extends RcUIModule {
       onClick: (meetingId) => {
         const host = `https://v.ringcentral.com`;
         window.open(`${host}/welcome/meetings/recordings/recording/${meetingId}`);
-      }
+      },
+      onLog: props.onLog,
     };
   }
 }

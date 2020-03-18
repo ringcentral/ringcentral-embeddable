@@ -1,8 +1,8 @@
 import { connectModule } from 'ringcentral-widgets/lib/phoneContext';
 import MeetingList from '../../components/MeetingList';
 
-const MeetingListPage = connectModule((phone) => phone.meetingListUI)(
+const MeetingHistoryPage = connectModule((phone) => phone.meetingHistoryUI)(
   MeetingList,
 );
 
-export { MeetingListPage as default };
+export { MeetingHistoryPage as default };

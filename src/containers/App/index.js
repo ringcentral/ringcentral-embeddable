@@ -57,7 +57,7 @@ import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import GenericMeetingPage from '../../internal-features/containers/GenericMeetingPage';
 import MeetingTabContainer from '../../internal-features/containers/MeetingTabContainer';
 import MeetingRecordsPage from '../../internal-features/containers/MeetingRecordsPage';
-import MeetingListPage from '../../internal-features/containers/MeetingListPage';
+import MeetingHistoryPage from '../../internal-features/containers/MeetingHistoryPage';
 import MeetingHomePage from '../../internal-features/containers/MeetingHomePage';
 
 export default function App({
@@ -357,10 +357,10 @@ export default function App({
                 )}
               />
               <Route
-                path="/meeting/rencents"
+                path="/meeting/recents"
                 component={() => (
                   <MeetingTabContainer>
-                    <MeetingListPage />
+                    <MeetingHistoryPage />
                   </MeetingTabContainer>
                 )}
               />

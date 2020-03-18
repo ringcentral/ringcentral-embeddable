@@ -10,7 +10,8 @@
   border-bottom: 1px solid $silver;
   color: $ash;
   @include secondary-font;
-  padding: 15px 10px 15px 10px;
+  padding: 15px 20px;
+  position: relative;
 }
 
 .root:hover {
@@ -48,10 +49,15 @@
   margin-left: 5px;
 }
 
-.host {
-
+.logIcon {
+  path {
+    stroke: $primary-color;
+  }
 }
 
-.startTime {
-
+.logButton {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  cursor: pointer;
 }

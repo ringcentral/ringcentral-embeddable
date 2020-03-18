@@ -46,6 +46,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   private _fetchPersonMeetingTimeout: any;
   private _fetchingRecording: boolean;
   private _fetchingUpcomingMeetings: boolean;
+  private _fetchingRecentMeetings: boolean;
 
   _reducer: any;
 
@@ -94,6 +95,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     });
     this._fetchingRecording = false;
     this._fetchingUpcomingMeetings = false;
+    this._fetchingRecentMeetings = false;
   }
 
   initialize() {
@@ -409,10 +411,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
       }
       this.store.dispatch({
         type: this.actionTypes.saveMeetings,
-        meetings: data.meetings.map((r) => ({
-          ...r,
-          subject: r.displayName,
-        })),
+        meetings: data.meetings,
         pageToken,
         nextPageToken: data.paging.nextPageToken || 'noNext',
       });

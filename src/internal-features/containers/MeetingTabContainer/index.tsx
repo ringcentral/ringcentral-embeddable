@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 
@@ -9,15 +8,15 @@ import SpinnerOverlay from 'ringcentral-widgets/components/SpinnerOverlay';
 import i18n from './i18n';
 import styles from './styles.scss';
 
-class TabContentView extends Component {
-  static propTypes = {
-    showSpinner: PropTypes.bool.isRequired,
-    currentLocale: PropTypes.string.isRequired,
-    currentPath: PropTypes.string.isRequired,
-    goTo: PropTypes.func.isRequired,
-  };
+interface MeetingTabContentViewProps {
+  showSpinner: boolean,
+  currentLocale: string,
+  currentPath: string,
+  goTo: (args: any) => any,
+}
 
-  constructor(props) {
+class TabContentView extends Component {
+  constructor(props: MeetingTabContentViewProps) {
     super(props);
     this.getTabs = createSelector(
       () => this.props.currentLocale,
@@ -38,10 +37,10 @@ class TabContentView extends Component {
           },
         },
         {
-          path: '/meeting/rencents',
+          path: '/meeting/recents',
           label: i18n.getString('rencents', currentLocale),
           isActive() {
-            return currentPath === '/meeting/rencents';
+            return currentPath === '/meeting/recents';
           },
         },
       ],

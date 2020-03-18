@@ -14,6 +14,8 @@ interface IMeetingListProps {
   cleanMettings: () => any[];
   dateTimeFormatter: (startTime: string) => string;
   onClick: () => void;
+  onLog?: (meeting: any) => void;
+  logTitle?: string;
 }
 
 export default class MeetingList extends Component<IMeetingListProps, any> {
@@ -141,7 +143,14 @@ export default class MeetingList extends Component<IMeetingListProps, any> {
 
   private _renderMeetingsContent() {
     const { fetching } = this.state;
-    const { dateTimeFormatter, currentLocale, meetings, onClick } = this.props;
+    const {
+      dateTimeFormatter,
+      currentLocale,
+      meetings,
+      onClick,
+      onLog,
+      logTitle,
+    } = this.props;
     if (!fetching && meetings.length === 0) {
       return null;
     }
@@ -156,6 +165,11 @@ export default class MeetingList extends Component<IMeetingListProps, any> {
         recordings={meeting.recordings}
         onClick={onClick}
         id={meeting.id}
+        onLog={() => {
+          onLog(meeting);
+        }}
+        showLog={!!onLog}
+        logTitle={logTitle}
       />
     ));
   }

@@ -115,7 +115,7 @@ import MeetingProvider from '../../internal-features/modules/MeetingProvider';
 import GenericMeetingUI from '../../internal-features/modules/GenericMeetingUI';
 import RcVideo from '../../internal-features/modules/RcV';
 import GenericMeeting from '../../internal-features/modules/GenericMeeting';
-import MeetingListUI from '../../internal-features/modules/MeetingListUI';
+import MeetingHistoryUI from '../../internal-features/modules/MeetingHistoryUI';
 import MeetingRecordingsUI from '../../internal-features/modules/MeetingRecordingsUI';
 import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
 
@@ -297,7 +297,7 @@ import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
     { provide: 'RcVideo', useClass: RcVideo },
     { provide: 'GenericMeeting', useClass: GenericMeeting },
     { provide: 'GenericMeetingUI', useClass: GenericMeetingUI },
-    { provide: 'MeetingListUI', useClass: MeetingListUI },
+    { provide: 'MeetingHistoryUI', useClass: MeetingHistoryUI },
     { provide: 'MeetingHomeUI', useClass: MeetingHomeUI },
     { provide: 'MeetingRecordingsUI', useClass: MeetingRecordingsUI },
     {

@@ -43,7 +43,7 @@ export default class MeetingHomeUI extends RcUIModule {
           return;
         }
         if (meetingID.indexOf('https://')) {
-          window.open(this._genericMeeting.personalMeeting.joinUri);
+          window.open(meetingID);
           return;
         }
         window.open(`https://v.ringcentral.com/join/${meetingID}`);
