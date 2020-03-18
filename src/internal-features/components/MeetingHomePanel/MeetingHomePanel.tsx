@@ -24,11 +24,17 @@ const MeetingHomePanel = (props) => {
   const [meetingId, setMeetingId] = useState('');
   const [loadingUpcomingMeetings, setLoadingUpcomingMeetings] = useState(true);
   useEffect(() => {
+    let mounted = true;
     setLoadingUpcomingMeetings(true);
     fetchUpcomingMeetings().then(() => {
-      setLoadingUpcomingMeetings(false);
+      if (mounted) {
+        setLoadingUpcomingMeetings(false);
+      }
     });
-  }, [])
+    return () => {
+      mounted = false;
+    };
+  }, []);
   let upcomingMeetingContent;
   if (loadingUpcomingMeetings) {
     upcomingMeetingContent = (
