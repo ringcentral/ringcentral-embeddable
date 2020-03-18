@@ -1,6 +1,8 @@
 import React from 'react';
 import classnames from 'classnames';
 
+import { RcIconButton, RcButton } from '@ringcentral-integration/rcui';
+
 import i18n from './i18n';
 import styles from './styles.scss';
 
@@ -19,14 +21,45 @@ function formatMeetingTime(time, currentLocale) {
 }
 
 function MeetingItem(props) {
-  const { title, startTime, endTime, currentLocale } = props;
+  const {
+    title,
+    startTime,
+    endTime,
+    currentLocale,
+    onJoin,
+    editEventUrl,
+    meetingIds
+  } = props;
   const startDate = formatMeetingTime(startTime, currentLocale)
   const endDate = formatMeetingTime(endTime, currentLocale)
+  const meetingId = meetingIds[0];
+  const joinBtn = meetingId ? (
+    <RcButton
+      size="small"
+      color="primary"
+      className={styles.button}
+      onClick={() => {
+        onJoin(meetingId)
+      }}
+    >
+      Join
+    </RcButton>
+  ) : null;
   return (
     <div className={styles.meetingItem}>
       <div className={styles.meetingName}>{title}</div>
       <div className={styles.meetingTime}>
         {startDate} - {endDate}
+      </div>
+      <div className={styles.buttons}>
+        <span title="Details" className={styles.iconButton}>
+          <RcIconButton
+            size="small"
+            icon="info"
+            onClick={() => window.open(editEventUrl)}
+          />
+        </span>
+        {joinBtn}
       </div>
     </div>
   );
@@ -59,7 +92,7 @@ function groupMeetings(meetings, currentLocale) {
 }
 
 function UpcomingMeetingList(props) {
-  const { meetings, currentLocale, className } = props;
+  const { meetings, currentLocale, className, onJoin } = props;
   const groupedMeetings = groupMeetings(meetings, currentLocale);
   return (
     <div className={classnames(styles.meetingList, className)}>
@@ -78,6 +111,9 @@ function UpcomingMeetingList(props) {
                         startTime={meeting.startTime}
                         endTime={meeting.endTime}
                         currentLocale={currentLocale}
+                        editEventUrl={meeting.editEventUrl}
+                        onJoin={onJoin}
+                        meetingIds={meeting.meetingIds}
                       />
                     );
                   })

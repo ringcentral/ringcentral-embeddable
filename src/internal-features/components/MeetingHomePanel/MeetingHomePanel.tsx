@@ -6,7 +6,7 @@ import Modal from 'ringcentral-widgets/components/Modal';
 import TextInput from 'ringcentral-widgets/components/TextInput';
 import Spinner from 'ringcentral-widgets/components/Spinner';
 
-import MeetingList from '../UpcomingMeetingList';
+import UpcomingMeetingList from '../UpcomingMeetingList';
 
 import noResult from '!url-loader!./noResult.svg';
 import styles from './styles.scss';
@@ -44,10 +44,11 @@ const MeetingHomePanel = (props) => {
     );
   } else if (upcomingMeetings.length > 0) {
     upcomingMeetingContent = (
-      <MeetingList
+      <UpcomingMeetingList
         className={styles.meetingList}
         meetings={upcomingMeetings}
         currentLocale={currentLocale}
+        onJoin={onJoin}
       />
     );
   } else {
