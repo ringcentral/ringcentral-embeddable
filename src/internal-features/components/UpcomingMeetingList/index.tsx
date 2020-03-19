@@ -28,7 +28,8 @@ function MeetingItem(props) {
     currentLocale,
     onJoin,
     editEventUrl,
-    meetingIds
+    meetingIds,
+    isAllDay,
   } = props;
   const startDate = formatMeetingTime(startTime, currentLocale)
   const endDate = formatMeetingTime(endTime, currentLocale)
@@ -49,7 +50,7 @@ function MeetingItem(props) {
     <div className={styles.meetingItem}>
       <div className={styles.meetingName}>{title}</div>
       <div className={styles.meetingTime}>
-        {startDate} - {endDate}
+        { isAllDay ? 'All day' : `${startDate} - ${endDate}` }
       </div>
       <div className={styles.buttons}>
         <span title="Details" className={styles.iconButton}>
@@ -114,6 +115,7 @@ function UpcomingMeetingList(props) {
                         editEventUrl={meeting.editEventUrl}
                         onJoin={onJoin}
                         meetingIds={meeting.meetingIds}
+                        isAllDay={meeting.isAllDay}
                       />
                     );
                   })
