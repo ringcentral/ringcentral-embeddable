@@ -12,7 +12,7 @@
 
 .meetingItem {
   padding: 10px 10px;
-  border-bottom: solid 1px $silver;
+  border-top: 1px solid rgb(245, 246, 251);
   position: relative;
   box-sizing: border-box;
 
@@ -21,7 +21,7 @@
   }
 
   &:last-child {
-    border-bottom: none;
+    border-bottom: 1px solid rgb(245, 246, 251);
   }
 
   &:hover {
@@ -48,11 +48,12 @@
 
 .dateName {
   @include primary-font;
-  font-size: 16px;
+  font-size: 12px;
   line-height: 30px;
   padding: 5px 10px;
   padding-bottom: 0;
-  font-weight: 500;
+  font-weight: 400;
+  text-align: center;
 }
 
 .buttons {
@@ -67,7 +68,12 @@
 
   .button {
     padding: 0 8px;
-    min-width: 32px;
+    min-width: 56px;
+    height: 28px;
+    font-size: 12px;
+    border-radius: 16px;
+    background-color: $primary-color;
+    color: $snow;
   }
 }
 
