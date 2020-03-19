@@ -24,13 +24,13 @@ But in your redirect page, you need to add following code to pass callback param
 
 ```html
 <script>
-  // the origin is where Embeddable deployed. for cdn version, it should be "https://apps.ringcentral.com"
+  // the origin is used for postMessage
   var origin = 'https://ringcentral.github.io';
   if (window.opener) {
     // For normal popup login window
     window.opener.postMessage({
       callbackUri: window.location.href,
-    }, origin); 
+    }, origin);
   }
   if (window.parent && window.parent !== window) {
     if (window.name === 'SSOIframe') {

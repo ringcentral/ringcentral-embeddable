@@ -40,7 +40,7 @@ if (fs.existsSync(apiConfigFile)) {
 
 const hostingUrl = process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable';
 const redirectUri = process.env.REDIRECT_URI || 'https://ringcentral.github.io/ringcentral-embeddable/redirect.html';
-const proxyUri = process.env.PROXY_URI || `${hostingUrl}/proxy.html`;
+const proxyUri = process.env.PROXY_URI || 'https://ringcentral.github.io/ringcentral-embeddable/proxy.html';
 
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 const recordingLink = process.env.RECORDING_LINK || 'https://ringcentral.github.io/ringcentral-media-reader/';

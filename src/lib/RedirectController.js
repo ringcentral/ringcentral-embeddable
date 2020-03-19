@@ -1,21 +1,13 @@
 import url from 'url';
 
-function getMessageOrigin() {
-  const currentOrigin = window.location.origin;
-  const refererURI = document.referrer;
-  let messageOrigin = currentOrigin;
-  if (refererURI && refererURI.indexOf(currentOrigin) !== 0) {
-    if (refererURI.indexOf('https://apps.ringcentral.com') === 0) {
-      messageOrigin = 'https://apps.ringcentral.com';
-    }
-    if (refererURI.indexOf('https://ringcentral.github.io') === 0) {
-      messageOrigin = 'https://ringcentral.github.io';
-    }
-  }
-  return messageOrigin;
-}
+const origins = [
+  'https://ringcentral.github.io',
+  'https://apps.ringcentral.com',
+];
 
-const messageOrigin = getMessageOrigin();
+if (origins.indexOf(window.location.origin) < 0) {
+  origins.push(window.location.origin);
+}
 
 export default class RedirectController {
   constructor({
@@ -37,9 +29,11 @@ export default class RedirectController {
 
       try {
         if (window.opener && window.opener.postMessage) {
-          window.opener.postMessage({
-            callbackUri
-          }, messageOrigin);
+          origins.forEach((origin) => {
+            window.opener.postMessage({
+              callbackUri
+            }, origin);
+          });
           window.close();
         }
       } catch (e) {
@@ -50,14 +44,18 @@ export default class RedirectController {
         if (window.parent && window.parent !== window) {
           if (window.name === 'SSOIframe') {
             // SSO iframe
-            window.parent.postMessage({
-              callbackUri,
-            }, messageOrigin);
+            origins.forEach((origin) => {
+              window.parent.postMessage({
+                callbackUri,
+              }, origin);
+            });
           } else {
             // Hidden refresh iframe
-            window.parent.postMessage({
-              refreshCallbackUri: callbackUri,
-            }, messageOrigin);
+            origins.forEach((origin) => {
+              window.parent.postMessage({
+                refreshCallbackUri: callbackUri,
+              }, origin);
+            });
           }
         }
       } catch (e) {
