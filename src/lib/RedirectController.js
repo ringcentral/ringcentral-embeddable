@@ -1,5 +1,22 @@
 import url from 'url';
 
+function getMessageOrigin() {
+  const currentOrigin = window.location.origin;
+  const refererURI = document.referrer;
+  let messageOrigin = currentOrigin;
+  if (refererURI && refererURI.indexOf(currentOrigin) !== 0) {
+    if (refererURI.indexOf('https://apps.ringcentral.com') === 0) {
+      messageOrigin = 'https://apps.ringcentral.com';
+    }
+    if (refererURI.indexOf('https://ringcentral.github.io') === 0) {
+      messageOrigin = 'https://ringcentral.github.io';
+    }
+  }
+  return messageOrigin;
+}
+
+const messageOrigin = getMessageOrigin();
+
 export default class RedirectController {
   constructor({
     prefix,
@@ -22,7 +39,7 @@ export default class RedirectController {
         if (window.opener && window.opener.postMessage) {
           window.opener.postMessage({
             callbackUri
-          }, '*');
+          }, messageOrigin);
           window.close();
         }
       } catch (e) {
@@ -35,12 +52,12 @@ export default class RedirectController {
             // SSO iframe
             window.parent.postMessage({
               callbackUri,
-            }, '*');
+            }, messageOrigin);
           } else {
             // Hidden refresh iframe
             window.parent.postMessage({
               refreshCallbackUri: callbackUri,
-            }, '*');
+            }, messageOrigin);
           }
         }
       } catch (e) {
