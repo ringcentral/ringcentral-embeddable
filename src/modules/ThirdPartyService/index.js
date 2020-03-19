@@ -57,6 +57,7 @@ function getImageUri(sourceUri) {
     'ContactMatcher',
     'ActivityMatcher',
     'ConversationMatcher',
+    'GenericMeeting',
     { dep: 'ThirdPartyContactsOptions', optional: true, spread: true },
   ],
 })
@@ -69,6 +70,7 @@ export default class ThirdPartyService extends RcModule {
     activityMatcher,
     conversationMatcher,
     recordingLink,
+    genericMeeting,
     ...options
   }) {
     super({
@@ -86,6 +88,7 @@ export default class ThirdPartyService extends RcModule {
     this._contactMatcher = contactMatcher;
     this._activityMatcher = activityMatcher;
     this._conversationMatcher = conversationMatcher;
+    this._meeting = genericMeeting;
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
     this._callLogEntityMatchSourceAdded = false;
@@ -259,6 +262,28 @@ export default class ThirdPartyService extends RcModule {
       type: this.actionTypes.registerMeetingInvite,
       meetingInviteTitle: service.meetingInviteTitle,
     });
+    if (service.meetingUpcomingPath) {
+      this._meetingUpcomingPath = service.meetingUpcomingPath;
+      this._meeting.addThirdPartyProvider({
+        name: service.name,
+        fetchUpcomingMeetingList: () => this._fetchUpcomingMeetingList()
+      });
+    }
+  }
+
+  async _fetchUpcomingMeetingList() {
+    if (!this._meetingUpcomingPath) {
+      return [];
+    }
+    try {
+      const { data } = await requestWithPostMessage(this._meetingUpcomingPath);
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
   }
 
   _registerMeetingLogger(service) {

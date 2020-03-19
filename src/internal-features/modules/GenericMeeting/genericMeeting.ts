@@ -145,6 +145,10 @@ export class GenericMeeting extends RcModule implements IGenericMeeting {
     return this._meetingModule && this._meetingModule.fetchUpcomingMeetings();
   }
 
+  async addThirdPartyProvider(args) {
+    return this._meetingModule && this._meetingModule.addThirdPartyProvider(args);
+  }
+
   _onStateChange() {
     if (this._shouldInit()) {
       this._init();

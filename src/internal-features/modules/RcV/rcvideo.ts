@@ -47,6 +47,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   private _fetchingRecording: boolean;
   private _fetchingUpcomingMeetings: boolean;
   private _fetchingRecentMeetings: boolean;
+  private _thirdPartyProviders: boolean;
 
   _reducer: any;
 
@@ -96,6 +97,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     this._fetchingRecording = false;
     this._fetchingUpcomingMeetings = false;
     this._fetchingRecentMeetings = false;
+    this._thirdPartyProviders = {};
   }
 
   initialize() {
@@ -514,11 +516,26 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
         allEvents = allEvents.concat(events);
       }));
     }));
+    await Promise.all(Object.keys(this._thirdPartyProviders).map(async (name) => {
+      const fetchFunc = this._thirdPartyProviders[name].fetchUpcomingMeetingList;
+      const events = await fetchFunc();
+      allEvents = allEvents.concat(events);
+    }));
     return allEvents.sort((a, b) => {
       const date1 = (new Date(a.startTime)).getTime();
       const date2 = (new Date(b.startTime)).getTime();
       return date1 - date2;
     });
+  }
+
+  addThirdPartyProvider({ name, fetchUpcomingMeetingList }) {
+    this._thirdPartyProviders[name] = {
+      fetchUpcomingMeetingList: fetchUpcomingMeetingList,
+    };
+  }
+
+  removeThirdPartyProvider({ name }) {
+    delete this._thirdPartyProviders[name];
   }
 
   get recentMeetings() {
