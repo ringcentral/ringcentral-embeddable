@@ -544,11 +544,14 @@ export default class BasePhone extends RcModule {
             this.routerInteraction.push('/contacts');
           } else if (this.rolesAndPermissions.organizeConferenceEnabled) {
             this.routerInteraction.push('/conference');
-          } else if (
-            this.rolesAndPermissions.organizeMeetingEnabled &&
-            !!this.thirdPartyService.meetingInviteTitle
-          ) {
-            this.routerInteraction.push('/meeting');
+          } else if (this.rolesAndPermissions.organizeMeetingEnabled) {
+            if (this.genericMeeting.ready) {
+              if (this.genericMeeting.isRCV) {
+                this.routerInteraction.push('/meeting/home');
+              } else {
+                this.routerInteraction.push('/meeting/schedule');
+              }
+            }
           } else {
             this.routerInteraction.push('/settings');
           }
