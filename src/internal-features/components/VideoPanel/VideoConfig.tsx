@@ -14,7 +14,6 @@ import {
   RcSwitch,
   RcDatePickerSize,
   RcTimePickerSize,
-  RcTooltip,
 } from '@ringcentral-integration/rcui';
 
 import { RcVMeetingModel } from '../../models/rcv.model';
@@ -250,14 +249,12 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                     });
                   }}
                   label={(
-                    <span>
-                      {i18n.getString('usePersonalMeetingId', currentLocale)}
-                      <RcTooltip title={personalMeetingId} placement="top">
-                        <span className={styles.personMeetingInfo}>
-                          <RcIconButton size="small" icon="info" />
-                        </span>
-                      </RcTooltip>
-                    </span>
+                    <div>
+                      <div>{i18n.getString('usePersonalMeetingId', currentLocale)}</div>
+                      <div className={styles.personMeetingInfo}>
+                        {personalMeetingId}
+                      </div>
+                    </div>
                   )}
                   formControlLabelProps={{
                     classes: { root: styles.labelPlacementStart },

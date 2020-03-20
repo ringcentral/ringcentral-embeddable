@@ -103,6 +103,5 @@ div.expansionPanel .inputArea {
 }
 
 .personMeetingInfo {
-  position: relative;
-  top: -1px;
+  @include secondary-font;
 }
