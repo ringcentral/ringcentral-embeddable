@@ -42,7 +42,7 @@ export default class MeetingHomeUI extends RcUIModule {
         if (!meetingID) {
           return;
         }
-        if (meetingID.indexOf('https://')) {
+        if (meetingID.indexOf('https://') === 0) {
           window.open(meetingID);
           return;
         }
