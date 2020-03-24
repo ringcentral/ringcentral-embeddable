@@ -664,7 +664,19 @@ export default class ThirdPartyService extends RcModule {
       if (!this._meetingLoggerPath) {
         return;
       }
-      await requestWithPostMessage(this._meetingLoggerPath, { meeting });
+      const formatedMeeting = {
+        ...meeting,
+      };
+      if (meeting.recordings && meeting.recordings.length > 0) {
+        const meetingHost = `https://v.ringcentral.com`;
+        formatedMeeting.recordings = meeting.recordings.map(({ contentUri, ...recording }) => {
+          return {
+            ...recording,
+            link: `${meetingHost}/welcome/meetings/recordings/recording/${meeting.id}`,
+          };
+        });
+      }
+      await requestWithPostMessage(this._meetingLoggerPath, { meeting: formatedMeeting });
     } catch (e) {
       console.error(e);
     }
