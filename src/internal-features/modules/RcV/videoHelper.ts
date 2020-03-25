@@ -26,7 +26,9 @@ function getDefaultVideoSettings({ topic, startTime }) {
     isMeetingSecret: false,
     password: '',
     usePersonalMeetingId: false,
-    personalMeetingId: ''
+    personalMeetingId: '',
+    type: 0,
+    expiresIn: 31536000,
   };
 }
 

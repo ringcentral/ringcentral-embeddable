@@ -10,4 +10,6 @@ export interface RcVMeetingModel {
   saveAsDefault: boolean;
   usePersonalMeetingId: boolean;
   personalMeetingId: string;
+  expiresIn: number;
+  type: 0 | 1;
 }
