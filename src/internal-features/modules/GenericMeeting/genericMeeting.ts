@@ -117,27 +117,15 @@ export class GenericMeeting extends RcModule implements IGenericMeeting {
   }
 
   @proxify
-  async fetchRecentMeetings(pageToken) {
+  async fetchHistoryMeetings(params) {
     return (
-      this._meetingModule && this._meetingModule.fetchRecentMeetings(pageToken)
+      this._meetingModule && this._meetingModule.fetchHistoryMeetings(params)
     );
   }
 
   @proxify
-  async fetchRecordings(pageToken) {
-    return (
-      this._meetingModule && this._meetingModule.fetchRecordings(pageToken)
-    );
-  }
-
-  @proxify
-  async cleanRecentMeetings() {
-    return this._meetingModule && this._meetingModule.cleanRecentMeetings();
-  }
-
-  @proxify
-  async cleanRecordings() {
-    return this._meetingModule && this._meetingModule.cleanRecordings();
+  async cleanHistoryMeetings() {
+    return this._meetingModule && this._meetingModule.cleanHistoryMeetings();
   }
 
   @proxify
@@ -248,20 +236,8 @@ export class GenericMeeting extends RcModule implements IGenericMeeting {
     return this.state.status;
   }
 
-  get recentMeetings() {
-    return this._meetingModule && this._meetingModule.recentMeetings;
-  }
-
-  get recordings() {
-    return this._meetingModule && this._meetingModule.recordings;
-  }
-
-  get recentMeetingPageToken() {
-    return this._meetingModule && this._meetingModule.recentMeetingPageToken;
-  }
-
-  get recordingPageToken() {
-    return this._meetingModule && this._meetingModule.recordingPageToken;
+  get historyMeetings() {
+    return this._meetingModule && this._meetingModule.historyMeetings;
   }
 
   get personalMeeting() {

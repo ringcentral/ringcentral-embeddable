@@ -1,0 +1,63 @@
+@import '~normalize-css/normalize.css';
+@import '~ringcentral-widgets/lib/commonStyles/full-size';
+@import '~ringcentral-widgets/lib/commonStyles/colors';
+
+.meetingContainer {
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  padding: 10px  0;
+}
+
+.spinnerContainer {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  margin-top: -20px;
+  margin-left: -20px;
+  width: 40px;
+  height: 40px;
+}
+
+.loading {
+  text-align: center;
+  line-height: 40px;
+  font-size: 14px;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  padding: 0 20px;
+  align-items: center;
+
+  .typeSelect {
+    width: 100px;
+    padding-bottom: 4px;
+    
+    > div[class*="root"] {
+      width: 100px;
+    }
+  }
+
+  .input {
+    flex: 1;
+    padding-right: 10px;
+  
+    > div {
+      width: 100%;
+      box-sizing: border-box;
+      height: 32px;
+      padding: 0 8px;
+    }
+
+    span[class*="icon"] {
+      width: 20px;
+    }
+  }
+}
+
+.noFound {
+  margin-top: 50px;
+  text-align: center;
+}

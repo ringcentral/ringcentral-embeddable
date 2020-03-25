@@ -116,7 +116,6 @@ import GenericMeetingUI from '../../internal-features/modules/GenericMeetingUI';
 import RcVideo from '../../internal-features/modules/RcV';
 import GenericMeeting from '../../internal-features/modules/GenericMeeting';
 import MeetingHistoryUI from '../../internal-features/modules/MeetingHistoryUI';
-import MeetingRecordingsUI from '../../internal-features/modules/MeetingRecordingsUI';
 import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
 
 // user Dependency Injection with decorator to create a phone class
@@ -299,7 +298,6 @@ import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
     { provide: 'GenericMeetingUI', useClass: GenericMeetingUI },
     { provide: 'MeetingHistoryUI', useClass: MeetingHistoryUI },
     { provide: 'MeetingHomeUI', useClass: MeetingHomeUI },
-    { provide: 'MeetingRecordingsUI', useClass: MeetingRecordingsUI },
     {
       provide: 'RcVideoOptions',
       useValue: {

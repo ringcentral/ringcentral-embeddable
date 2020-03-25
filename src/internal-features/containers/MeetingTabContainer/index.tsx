@@ -30,17 +30,10 @@ class TabContentView extends Component {
           },
         },
         {
-          path: '/meeting/recordings',
-          label: i18n.getString('recordings', currentLocale),
-          isActive() {
-            return currentPath === '/meeting/recordings';
-          },
-        },
-        {
-          path: '/meeting/recents',
+          path: '/meeting/history',
           label: i18n.getString('rencents', currentLocale),
           isActive() {
-            return currentPath === '/meeting/recents';
+            return currentPath === '/meeting/history';
           },
         },
       ],

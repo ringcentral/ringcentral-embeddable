@@ -56,7 +56,6 @@ import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 
 import GenericMeetingPage from '../../internal-features/containers/GenericMeetingPage';
 import MeetingTabContainer from '../../internal-features/containers/MeetingTabContainer';
-import MeetingRecordsPage from '../../internal-features/containers/MeetingRecordsPage';
 import MeetingHistoryPage from '../../internal-features/containers/MeetingHistoryPage';
 import MeetingHomePage from '../../internal-features/containers/MeetingHomePage';
 
@@ -349,22 +348,7 @@ export default function App({
                 )}
               />
               <Route
-                path="/meeting/recordings"
-                component={() => (
-                  <MeetingTabContainer>
-                    <MeetingRecordsPage
-                      onLog={
-                        phone.thirdPartyService.meetingLoggerRegistered ? (
-                          (meeting) => phone.thirdPartyService.logMeeting(meeting)
-                        ) : undefined
-                      }
-                      logTitle={phone.thirdPartyService.meetingLoggerTitle}
-                    />
-                  </MeetingTabContainer>
-                )}
-              />
-              <Route
-                path="/meeting/recents"
+                path="/meeting/history"
                 component={() => (
                   <MeetingTabContainer>
                     <MeetingHistoryPage

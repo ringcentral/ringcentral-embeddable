@@ -44,9 +44,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   private _availabilityMonitor: any;
   private _showSaveAsDefault: boolean;
   private _fetchPersonMeetingTimeout: any;
-  private _fetchingRecording: boolean;
   private _fetchingUpcomingMeetings: boolean;
-  private _fetchingRecentMeetings: boolean;
   private _thirdPartyProviders: boolean;
 
   _reducer: any;
@@ -94,9 +92,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
       key: this._personalMeetingKey,
       reducer: getPersonalMeetingReducer(this.actionTypes),
     });
-    this._fetchingRecording = false;
     this._fetchingUpcomingMeetings = false;
-    this._fetchingRecentMeetings = false;
     this._thirdPartyProviders = {};
   }
 
@@ -391,83 +387,39 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   }
 
   @proxify
-  async fetchRecentMeetings(pageToken) {
-    if (this._fetchingRecentMeetings) {
-      return;
+  async fetchHistoryMeetings({
+    pageToken, searchText, type
+  } : {
+    pageToken?: undefined,
+    searchText?: undefined,
+    type?: undefined,
+  } = {}) {
+    const params = { perPage: 20 } as any;
+    if (pageToken) {
+      params.pageToken = pageToken;
     }
-    if (pageToken === 'noNext') {
-      return;
+    if (searchText) {
+      params.text = searchText;
     }
-    this._fetchingRecentMeetings = true;
-    try {
-      const params = { perPage: 10 };
-      if (pageToken) {
-        params.pageToken = pageToken;
-      }
-      const response = await this._client.service
-        .platform()
-        .get('/rcvideo/v1/history/meetings', params);
-      const data = response.json();
-      if (!this._fetchingRecentMeetings) {
-        return;
-      }
-      this.store.dispatch({
-        type: this.actionTypes.saveMeetings,
-        meetings: data.meetings,
-        pageToken,
-        nextPageToken: data.paging.nextPageToken || 'noNext',
-      });
-    } catch (e) {
-      console.error(e);
+    if (type === 'recording') {
+      params.type = 'All';
     }
-    this._fetchingRecentMeetings = false;
+    const response = await this._client.service
+      .platform()
+      .get('/rcvideo/v1/history/meetings', params);
+    const data = response.json();
+    this.store.dispatch({
+      type: this.actionTypes.saveMeetings,
+      meetings: data.meetings,
+      pageToken,
+    });
+    return data;
   }
 
   @proxify
-  async cleanRecentMeetings() {
+  async cleanHistoryMeetings() {
     this.store.dispatch({
       type: this.actionTypes.cleanMeetings,
-    });
-  }
-
-  @proxify
-  async fetchRecordings(pageToken) {
-    if (this._fetchingRecording) {
-      return;
-    }
-    if (pageToken === 'noNext') {
-      return;
-    }
-    this._fetchingRecording = true;
-    try {
-      const dateFrom = new Date();
-      dateFrom.setDate(dateFrom.getDate() - 60);
-      const params = { perPage: 10, type: 'All' };
-      if (pageToken) {
-        params.pageToken = pageToken;
-      }
-      const response = await this._client.service
-        .platform()
-        .get('/rcvideo/v1/history/meetings', params);
-      const data = response.json();
-      if (!this._fetchingRecording) {
-        return;
-      }
-      this.store.dispatch({
-        type: this.actionTypes.saveMeetingRecordings,
-        meetings: data.meetings,
-        nextPageToken: data.paging.nextPageToken || 'noNext',
-      });
-    } catch (e) {
-      console.error(e);
-    }
-    this._fetchingRecording = false;
-  }
-
-  @proxify
-  async cleanRecordings() {
-    this.store.dispatch({
-      type: this.actionTypes.cleanMeetingRecordings,
     });
   }
 
@@ -538,20 +490,8 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     delete this._thirdPartyProviders[name];
   }
 
-  get recentMeetings() {
-    return this.state.recentMeetings;
-  }
-
-  get recordings() {
-    return this.state.recordings;
-  }
-
-  get recentMeetingPageToken() {
-    return this.state.recentMeetingPageToken;
-  }
-
-  get recordingPageToken() {
-    return this.state.recordingPageToken;
+  get historyMeetings() {
+    return this.state.historyMeetings;
   }
 
   get meeting() {
