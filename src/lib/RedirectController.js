@@ -1,5 +1,14 @@
 import url from 'url';
 
+const origins = [
+  'https://ringcentral.github.io',
+  'https://apps.ringcentral.com',
+];
+
+if (origins.indexOf(window.location.origin) < 0) {
+  origins.push(window.location.origin);
+}
+
 export default class RedirectController {
   constructor({
     prefix,
@@ -20,9 +29,11 @@ export default class RedirectController {
 
       try {
         if (window.opener && window.opener.postMessage) {
-          window.opener.postMessage({
-            callbackUri
-          }, '*');
+          origins.forEach((origin) => {
+            window.opener.postMessage({
+              callbackUri
+            }, origin);
+          });
           window.close();
         }
       } catch (e) {
@@ -33,14 +44,18 @@ export default class RedirectController {
         if (window.parent && window.parent !== window) {
           if (window.name === 'SSOIframe') {
             // SSO iframe
-            window.parent.postMessage({
-              callbackUri,
-            }, '*');
+            origins.forEach((origin) => {
+              window.parent.postMessage({
+                callbackUri,
+              }, origin);
+            });
           } else {
             // Hidden refresh iframe
-            window.parent.postMessage({
-              refreshCallbackUri: callbackUri,
-            }, '*');
+            origins.forEach((origin) => {
+              window.parent.postMessage({
+                refreshCallbackUri: callbackUri,
+              }, origin);
+            });
           }
         }
       } catch (e) {
