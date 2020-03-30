@@ -3,15 +3,7 @@ import {
   RcTimePickerSize,
 } from '@ringcentral-integration/rcui';
 
-export interface RcVMeetingModel {
-  name: string;
-  startTime: Date;
-  duration: number;
-  allowJoinBeforeHost: boolean;
-  muteAudio: boolean;
-  muteVideo: boolean;
-  saveAsDefault: boolean;
-}
+import { RcVMeetingModel } from '../../models/rcv.model';
 
 export interface RcMMeetingModel {
   name: string;

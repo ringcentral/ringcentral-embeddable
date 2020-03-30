@@ -1,4 +1,5 @@
 import { meetingProviderTypesProps } from '../MeetingProvider/interface';
+import { RcVMeetingModel } from '../../models/rcv.model';
 
 export type ExtensionInfo = {
   contact: object;
@@ -38,17 +39,7 @@ export type MeetingScheduleModel = {
   startTime?: string;
 };
 
-export type RCVideoScheduleModel = {
-  name: string;
-  startTime: Date;
-  duration: number;
-  allowJoinBeforeHost: boolean;
-  muteAudio: boolean;
-  muteVideo: boolean;
-  saveAsDefault: boolean;
-};
-
-export type ScheduleModel = Maybe<MeetingScheduleModel | RCVideoScheduleModel>;
+export type ScheduleModel = Maybe<MeetingScheduleModel | RcVMeetingModel>;
 
 export type Maybe<T> = T | undefined;
 export type Either<T1, T2> = T1 | T2;

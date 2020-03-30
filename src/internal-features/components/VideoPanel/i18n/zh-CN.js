@@ -5,6 +5,7 @@ export default {
   startTime: "开始时间",
   duration: "持续时间",
   meetingSettings: "会议设置",
+  rcMeetingSettings: "视频会议设置",
   joinBeforeHost: "允许在主持人进入会议前加入",
   muteAudio: "参与者音频静音",
   turnOffCamera: "关闭参与者的摄像头"
@@ -16,6 +17,7 @@ export default {
 // @key: @#@"startTime"@#@ @source: @#@"Start time"@#@
 // @key: @#@"duration"@#@ @source: @#@"Duration"@#@
 // @key: @#@"meetingSettings"@#@ @source: @#@"Meeting settings"@#@
+// @key: @#@"rcMeetingSettings"@#@ @source: @#@"Video Meeting settings"@#@
 // @key: @#@"joinBeforeHost"@#@ @source: @#@"Allow join before host"@#@
 // @key: @#@"muteAudio"@#@ @source: @#@"Mute audio for participants"@#@
 // @key: @#@"turnOffCamera"@#@ @source: @#@"Turn off camera for participants"@#@

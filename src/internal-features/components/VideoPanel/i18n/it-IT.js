@@ -5,6 +5,7 @@ export default {
   startTime: "Ora di inizio",
   duration: "Durata",
   meetingSettings: "Impostazioni riunione",
+  rcMeetingSettings: "Impostazioni riunione video",
   joinBeforeHost: "Consenti ingresso prima del moderatore",
   muteAudio: "Disatt. audio partecipanti",
   turnOffCamera: "Spegni la videocamera per i partecipanti"
@@ -16,6 +17,7 @@ export default {
 // @key: @#@"startTime"@#@ @source: @#@"Start time"@#@
 // @key: @#@"duration"@#@ @source: @#@"Duration"@#@
 // @key: @#@"meetingSettings"@#@ @source: @#@"Meeting settings"@#@
+// @key: @#@"rcMeetingSettings"@#@ @source: @#@"Video Meeting settings"@#@
 // @key: @#@"joinBeforeHost"@#@ @source: @#@"Allow join before host"@#@
 // @key: @#@"muteAudio"@#@ @source: @#@"Mute audio for participants"@#@
 // @key: @#@"turnOffCamera"@#@ @source: @#@"Turn off camera for participants"@#@
