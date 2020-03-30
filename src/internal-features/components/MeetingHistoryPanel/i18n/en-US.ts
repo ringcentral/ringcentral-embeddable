@@ -1,5 +1,5 @@
 export default {
   all: 'All',
-  recording: 'Recording',
+  recordings: 'Recordings',
   noFound: 'No records found',
 };

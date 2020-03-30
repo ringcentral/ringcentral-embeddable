@@ -169,7 +169,7 @@ export default class IMeetingHistoryPanel extends Component<IMeetingHistoryPanel
             }}
           >
             <RcMenuItem value="all">{i18n.getString('all', currentLocale)}</RcMenuItem>
-            <RcMenuItem value={'recording'}>{i18n.getString('recording', currentLocale)}</RcMenuItem>
+            <RcMenuItem value={'recordings'}>{i18n.getString('recordings', currentLocale)}</RcMenuItem>
           </RcBoxSelect>
         </div>
         {content}

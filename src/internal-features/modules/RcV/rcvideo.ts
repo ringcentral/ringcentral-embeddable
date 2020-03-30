@@ -401,7 +401,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     if (searchText) {
       params.text = searchText;
     }
-    if (type === 'recording') {
+    if (type === 'recordings') {
       params.type = 'All';
     }
     const response = await this._client.service
