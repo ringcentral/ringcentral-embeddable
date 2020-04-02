@@ -28,6 +28,9 @@ module.exports = function getBaseConfig({ themeFolder } = {}) {
       proxy: './src/proxy.js',
       redirect: './src/redirect.js',
     },
+    resolve: {
+      extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    },
     module: {
       rules: [
         {

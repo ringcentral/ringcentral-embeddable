@@ -9,7 +9,6 @@ import CallHistoryIcon from 'ringcentral-widgets/assets/images/CallHistory.svg';
 import MessageIcon from 'ringcentral-widgets/assets/images/Messages.svg';
 import SettingsIcon from 'ringcentral-widgets/assets/images/Settings.svg';
 import MoreMenuIcon from 'ringcentral-widgets/assets/images/MoreMenu.svg';
-import ContactIcon from 'ringcentral-widgets/assets/images/Contact.svg';
 import GlipIcon from 'ringcentral-widgets/assets/images/Glip.svg';
 
 import DialPadHoverIcon from 'ringcentral-widgets/assets/images/DialPadHover.svg';
@@ -17,9 +16,13 @@ import CallHistoryHoverIcon from 'ringcentral-widgets/assets/images/CallHistoryH
 import MessageHoverIcon from 'ringcentral-widgets/assets/images/MessagesHover.svg';
 import SettingsHoverIcon from 'ringcentral-widgets/assets/images/SettingsHover.svg';
 import MoreMenuHoverIcon from 'ringcentral-widgets/assets/images/MoreMenuHover.svg';
-import ContactHoverIcon from 'ringcentral-widgets/assets/images/ContactHover.svg';
+
 import GlipHoverIcon from 'ringcentral-widgets/assets/images/GlipHover.svg';
 import SettingsNavIcon from 'ringcentral-widgets/assets/images/SettingsNavigation.svg';
+
+import ContactHoverIcon from 'ringcentral-widgets/assets/images/ContactHover.svg';
+import ContactIcon from 'ringcentral-widgets/assets/images/Contact.svg';
+import ContactNavIcon from 'ringcentral-widgets/assets/images/ContactsNavigation.svg';
 
 import ConferenceIcon from 'ringcentral-widgets/assets/images/Conference.svg';
 import ConferenceHoverIcon from 'ringcentral-widgets/assets/images/ConferenceHover.svg';
@@ -41,6 +44,7 @@ function getTabs({
   showContacts,
   showGlip,
   glipUnreadCounts,
+  isRCV,
 }) {
   let tabs = [
     showCall && {
@@ -48,7 +52,7 @@ function getTabs({
       activeIcon: DialPadHoverIcon,
       label: i18n.getString('dialpadLabel', currentLocale),
       path: '/dialer',
-      isActive: currentPath => (
+      isActive: (currentPath) => (
         currentPath === '/dialer' ||
         currentPath === '/calls' ||
         currentPath.indexOf('/calls/active') !== -1
@@ -59,7 +63,7 @@ function getTabs({
       activeIcon: CallHistoryHoverIcon,
       label: i18n.getString('historyLabel', currentLocale),
       path: '/history',
-      isActive: currentPath => (
+      isActive: (currentPath) => (
         currentPath === '/history'
       ),
     },
@@ -69,7 +73,7 @@ function getTabs({
       label: i18n.getString('messagesLabel', currentLocale),
       path: '/messages',
       noticeCounts: unreadCounts,
-      isActive: currentPath => (
+      isActive: (currentPath) => (
         currentPath === '/messages' ||
         currentPath === '/composeText' ||
         currentPath.indexOf('/conversations/') !== -1
@@ -89,9 +93,10 @@ function getTabs({
     showContacts && {
       icon: ContactIcon,
       activeIcon: ContactHoverIcon,
+      moreMenuIcon: ContactNavIcon,
       label: i18n.getString('contactsLabel', currentLocale),
       path: '/contacts',
-      isActive: currentPath => (
+      isActive: (currentPath) => (
         currentPath.substr(0, 9) === '/contacts'
       ),
     },
@@ -101,7 +106,7 @@ function getTabs({
       moreMenuIcon: ConferenceNavIcon,
       label: i18n.getString('conferenceLabel', currentLocale),
       path: '/conference',
-      isActive: currentPath => (
+      isActive: (currentPath) => (
         currentPath.substr(0, 11) === '/conference'
       ),
     },
@@ -109,8 +114,11 @@ function getTabs({
       icon: MeetingIcon,
       activeIcon: MeetingHoverIcon,
       moreMenuIcon: MeetingNavIcon,
-      label: i18n.getString('meetingLabel', currentLocale),
-      path: '/meeting',
+      label: isRCV ? 'RingCentral Video' : i18n.getString('meetingLabel', currentLocale),
+      path: isRCV ? '/meeting/home' : '/meeting/schedule',
+      isActive: (currentPath) => (
+        currentPath.indexOf('/meeting') === 0
+      ),
     },
     {
       icon: SettingsIcon,
@@ -129,7 +137,7 @@ function getTabs({
     tabs.push({
       icon: ({ currentPath }) => {
         const childTab = childTabs.filter(childTab => (
-          (currentPath === childTab.path || currentPath.substr(0, 9) === childTab.path)
+          (currentPath === childTab.path || childTab.isActive(currentPath))
             && childTab.moreMenuIcon
         ));
         if (childTab.length > 0) {
@@ -140,7 +148,7 @@ function getTabs({
       },
       activeIcon: ({ currentPath }) => {
         const childTab = childTabs.filter(childTab => (
-          (currentPath === childTab.path || currentPath.substr(0, 9) === childTab.path)
+          (currentPath === childTab.path || childTab.isActive(currentPath))
             && childTab.moreMenuIcon
         ));
         if (childTab.length > 0) {
@@ -169,7 +177,7 @@ function mapToProps(_, {
     conference,
     glipGroups,
     glipCompany,
-    thirdPartyService,
+    genericMeeting,
   },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
@@ -194,6 +202,7 @@ function mapToProps(_, {
     showMessages,
     showConference,
     showMeeting,
+    isRCV: genericMeeting.isRCV,
     showContacts,
     showGlip: (rolesAndPermissions.hasGlipPermission && !!glipCompany.name),
     glipUnreadCounts: glipGroups.unreadCounts,

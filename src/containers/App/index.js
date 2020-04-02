@@ -34,7 +34,8 @@ import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
 
-import MeetingPage from 'ringcentral-widgets/containers/MeetingPage';
+import icons from '@ringcentral-integration/rcui/icon-symbol';
+
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 
 import MainView from '../MainView';
@@ -51,7 +52,12 @@ import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
 import MeetingInviteModal from '../MeetingInviteModal';
 
-import formatMeetingInfo from '../../lib/formatMeetingInfo';
+import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
+
+import GenericMeetingPage from '../../internal-features/containers/GenericMeetingPage';
+import MeetingTabContainer from '../../internal-features/containers/MeetingTabContainer';
+import MeetingHistoryPage from '../../internal-features/containers/MeetingHistoryPage';
+import MeetingHomePage from '../../internal-features/containers/MeetingHomePage';
 
 export default function App({
   phone,
@@ -77,7 +83,7 @@ export default function App({
     );
   };
   return (
-    <PhoneProvider phone={phone}>
+    <PhoneProvider phone={phone} icons={icons}>
       <Provider store={phone.store} >
         <Router history={phone.routerInteraction.history}>
           <Route
@@ -290,23 +296,70 @@ export default function App({
                 )}
               />
               <Route
-                path="/meeting"
+                path="/meeting/schedule"
+                component={() => {
+                  const scheduleFunc = async (meetingInfo) => {
+                    let resp;
+                    if (meetingInfo.usePersonalMeetingId) {
+                      resp = await phone.genericMeeting.updateMeeting(
+                        phone.genericMeeting.personalMeeting && phone.genericMeeting.personalMeeting.id,
+                        meetingInfo
+                      );
+                    } else {
+                      resp = await phone.genericMeeting.schedule(meetingInfo);
+                    }
+                    if (!resp) {
+                      return;
+                    }
+                    const formatedMeetingInfo = formatMeetingInfo(
+                      resp, phone.brand, phone.locale.currentLocale, phone.genericMeeting.isRCV
+                    );
+                    if (phone.thirdPartyService.meetingInviteTitle) {
+                      await phone.thirdPartyService.inviteMeeting(formatedMeetingInfo);
+                      return;
+                    }
+                    phone.meetingInviteModalUI.showModal(formatedMeetingInfo);
+                  };
+                  if (phone.genericMeeting.isRCV) {
+                    return (
+                      <MeetingTabContainer>
+                        <GenericMeetingPage
+                          showHeader={false}
+                          schedule={scheduleFunc}
+                          scheduleButton={MeetingScheduleButton}
+                        />
+                      </MeetingTabContainer>
+                    );
+                  }
+                  return (
+                    <GenericMeetingPage
+                      schedule={scheduleFunc}
+                      scheduleButton={MeetingScheduleButton}
+                    />
+                  );
+                }}
+              />
+              <Route
+                path="/meeting/home"
                 component={() => (
-                  <MeetingPage
-                    schedule={async (meetingInfo) => {
-                      const resp = await phone.meeting.schedule(meetingInfo);
-                      if (!resp) {
-                        return;
+                  <MeetingTabContainer>
+                    <MeetingHomePage />
+                  </MeetingTabContainer>
+                )}
+              />
+              <Route
+                path="/meeting/history"
+                component={() => (
+                  <MeetingTabContainer>
+                    <MeetingHistoryPage
+                      onLog={
+                        phone.thirdPartyService.meetingLoggerRegistered ? (
+                          (meeting) => phone.thirdPartyService.logMeeting(meeting)
+                        ) : undefined
                       }
-                      const formatedMeetingInfo = formatMeetingInfo(resp, phone.brandOptions, phone.locale.currentLocale);
-                      if (phone.thirdPartyService.meetingInviteTitle) {
-                        await phone.thirdPartyService.inviteMeeting(formatedMeetingInfo);
-                        return;
-                      }
-                      phone.meetingInviteModalUI.showModal(formatedMeetingInfo);
-                    }}
-                    scheduleButton={MeetingScheduleButton}
-                  />
+                      logTitle={phone.thirdPartyService.meetingLoggerTitle}
+                    />
+                  </MeetingTabContainer>
                 )}
               />
               <Route
@@ -411,4 +464,5 @@ export default function App({
 App.propTypes = {
   phone: PropTypes.object.isRequired,
   showCallBadge: PropTypes.bool.isRequired,
+  appVersion: PropTypes.string,
 };

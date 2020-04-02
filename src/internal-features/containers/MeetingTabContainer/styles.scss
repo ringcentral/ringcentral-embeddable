@@ -1,0 +1,11 @@
+@import '~ringcentral-widgets/lib/commonStyles/layout';
+
+$marginBottom:3px;
+
+.nav {
+  margin-bottom: $marginBottom;
+}
+
+.content {
+  height: calc(100% - #{$header-height} - 1px);
+}

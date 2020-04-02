@@ -984,13 +984,6 @@
     prop-types "^15.7.2"
     react-transition-group "^4.3.0"
 
-"@material-ui/icons@4.5.1":
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/@material-ui/icons/-/icons-4.5.1.tgz#6963bad139e938702ece85ca43067688018f04f8"
-  integrity sha512-YZ/BgJbXX4a0gOuKWb30mBaHaoXRqPanlePam83JQPZ/y4kl+3aW0Wv9tlR70hB5EGAkEJGW5m4ktJwMgxQAeA==
-  dependencies:
-    "@babel/runtime" "^7.4.4"
-
 "@material-ui/pickers@3.2.7":
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/@material-ui/pickers/-/pickers-3.2.7.tgz#5ddcd768cdfc9d9bbdace209df75176cd98122e7"
@@ -1093,17 +1086,18 @@
     libphonenumber-js "^1.7.29"
     ramda "^0.26.1"
 
-"@ringcentral-integration/rcui@*":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@ringcentral-integration/rcui/-/rcui-0.0.1.tgz#7c51451064af3834ea601007f22847a5197f200c"
-  integrity sha512-BC8doUQks5poTPMmX1Mi6lRi2GGvpiBj5iSryv7GYZDl6kIOjJwj7HeNlfbFgLZ6moQ/AZtExJVfaAnkRXfU8A==
+"@ringcentral-integration/rcui@*", "@ringcentral-integration/rcui@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@ringcentral-integration/rcui/-/rcui-0.0.2.tgz#16ba5319317e522f5d65093044927d0fa9ffd058"
+  integrity sha512-hf93WBTUVz0XGQeAyeb3RNREOlMrySZV1Z8ylRu07qAC13C33HzaJIIhylEM8eU4yW/4BtvJSCpW9C0Z1HaZ5w==
   dependencies:
     "@date-io/moment" "1.3.9"
     "@material-ui/core" "4.5.2"
-    "@material-ui/icons" "4.5.1"
     "@material-ui/pickers" "3.2.7"
+    animejs "3.1.0"
     deepmerge "4.0.0"
     eventemitter2 "5.0.1"
+    lodash "4.17.15"
     moment "2.24.0"
     resize-observer-polyfill "1.5.1"
     styled-components "4.3.2"
@@ -1523,6 +1517,11 @@ animate.css@^3.5.2:
   version "3.7.2"
   resolved "https://registry.yarnpkg.com/animate.css/-/animate.css-3.7.2.tgz#e73e0d50e92cb1cfef1597d9b38a9481020e08ea"
   integrity sha512-0bE8zYo7C0KvgOYrSVfrzkbYk6IOTVPNqkiHg2cbyF4Pq/PXzilz4BRWA3hwEUBoMp5VBgrC29lQIZyhRWdBTw==
+
+animejs@3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/animejs/-/animejs-3.1.0.tgz#748a90fc1d4bef3efed64508af9a6a82babf5c47"
+  integrity sha512-BjnCroPPQPEAngT0M89pz9TBcOGgOFLnVoq3+jV2upl4rn60k57/AXvESTnuILsNgOEjGuhMEOMp7IlQzk40kA==
 
 ansi-colors@^3.0.0:
   version "3.2.4"
@@ -6311,15 +6310,15 @@ lodash.tail@^4.1.1:
   resolved "https://registry.yarnpkg.com/lodash.tail/-/lodash.tail-4.1.1.tgz#d2333a36d9e7717c8ad2f7cacafec7c32b444664"
   integrity sha1-0jM6NtnncXyK0vfKyv7HwytERmQ=
 
+lodash@4.17.15, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.14, lodash@^4.17.15:
+  version "4.17.15"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
+  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
+
 lodash@^4.0.0, lodash@^4.16.5, lodash@^4.17.10, lodash@^4.2.1, lodash@~4.17.10:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
-
-lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.14, lodash@^4.17.15:
-  version "4.17.15"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
-  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
 
 lodash@^4.17.13:
   version "4.17.14"

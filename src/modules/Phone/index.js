@@ -111,6 +111,13 @@ import Webphone from '../Webphone';
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
 
+import MeetingProvider from '../../internal-features/modules/MeetingProvider';
+import GenericMeetingUI from '../../internal-features/modules/GenericMeetingUI';
+import RcVideo from '../../internal-features/modules/RcV';
+import GenericMeeting from '../../internal-features/modules/GenericMeeting';
+import MeetingHistoryUI from '../../internal-features/modules/MeetingHistoryUI';
+import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
+
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
@@ -285,6 +292,26 @@ import hackSend from '../../lib/hackSend';
     { provide: 'TransferUI', useClass: TransferUI },
     { provide: 'RegionSettingsUI', useClass: RegionSettingsUI },
     { provide: 'MeetingInviteModalUI', useClass: MeetingInviteModalUI },
+    { provide: 'MeetingProvider', useClass: MeetingProvider },
+    { provide: 'RcVideo', useClass: RcVideo },
+    { provide: 'GenericMeeting', useClass: GenericMeeting },
+    { provide: 'GenericMeetingUI', useClass: GenericMeetingUI },
+    { provide: 'MeetingHistoryUI', useClass: MeetingHistoryUI },
+    { provide: 'MeetingHomeUI', useClass: MeetingHomeUI },
+    {
+      provide: 'RcVideoOptions',
+      useValue: {
+        showSaveAsDefault: true,
+      },
+      spread: true,
+    },
+    {
+      provide: 'MeetingOptions',
+      useValue: {
+        showSaveAsDefault: true,
+      },
+      spread: true,
+    },
   ]
 })
 export default class BasePhone extends RcModule {
@@ -515,11 +542,14 @@ export default class BasePhone extends RcModule {
             this.routerInteraction.push('/contacts');
           } else if (this.rolesAndPermissions.organizeConferenceEnabled) {
             this.routerInteraction.push('/conference');
-          } else if (
-            this.rolesAndPermissions.organizeMeetingEnabled &&
-            !!this.thirdPartyService.meetingInviteTitle
-          ) {
-            this.routerInteraction.push('/meeting');
+          } else if (this.rolesAndPermissions.organizeMeetingEnabled) {
+            if (this.genericMeeting.ready) {
+              if (this.genericMeeting.isRCV) {
+                this.routerInteraction.push('/meeting/home');
+              } else {
+                this.routerInteraction.push('/meeting/schedule');
+              }
+            }
           } else {
             this.routerInteraction.push('/settings');
           }

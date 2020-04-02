@@ -55,6 +55,7 @@
     "@ringcentral-integration/i18n": "^2.0.1",
     "@ringcentral-integration/locale-loader": "^2.0.2",
     "@ringcentral-integration/phone-number": "^1.0.4",
+    "@ringcentral-integration/rcui": "^0.0.2",
     "classnames": "^2.2.5",
     "core-js": "^2.6.5",
     "format-message": "^5.1.2",

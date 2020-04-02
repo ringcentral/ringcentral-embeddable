@@ -20,4 +20,5 @@ export default new Enum([
   'registerFeedback',
   'registerSettings',
   'updateSetting',
+  'registerMeetingLogger',
 ], 'thirdPartyService');

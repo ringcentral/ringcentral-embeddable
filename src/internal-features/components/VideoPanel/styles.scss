@@ -1,0 +1,107 @@
+@import '~ringcentral-widgets/lib/commonStyles/colors';
+@import '~ringcentral-widgets/lib/commonStyles/buttons';
+@import '~ringcentral-widgets/lib/commonStyles/fonts';
+
+.videoPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  label[class*='Switch'] {
+    flex-shrink: 0;
+  }
+}
+
+.videoConfig {
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.title {
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.title h2 {
+  font-size: 14px;
+  font-weight: 500;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.71;
+  letter-spacing: normal;
+  color: #212121;
+  text-align: center;
+}
+
+.meetingContent {
+  padding: 4px 0;
+}
+
+.meetingSection {
+  padding: 8px 16px;
+}
+
+.select {
+  flex-grow: 1;
+  width: 50%;
+}
+
+.hourDuration {
+  display: inline-flex;
+  width: calc(50% - 6px);
+}
+
+.minuteDuration {
+  display: inline-flex;
+  width: calc(50% - 6px);
+  margin-left: 12px;
+}
+
+div.videoConfig div.meetingSettings div.expansionPanel {
+  min-height: 48px;
+  background: transparent;
+  margin-top: 15px;
+}
+
+div.videoConfig div.expansionPanelExpanded.expanded {
+  min-height: 44px;
+  background: transparent;
+  margin-top: 15px;
+}
+
+div.videoConfig div.expansionPanel div.expansionPanelSummary {
+  font-weight: 500;
+  height: 44px;
+  font-size: 14px;
+  padding: 0 16px;
+  min-height: 44px;
+}
+
+div.expansionPanelSummaryContent {
+  margin: 0 0;
+}
+
+div.videoConfig div.expansionPanel div.expansionPanelDetails {
+  padding: 0;
+}
+
+.toggleGroup {
+  width: 100%;
+}
+
+div.expansionPanel div.toggleGroup label.labelPlacementStart {
+  margin-left: 0;
+  margin-right: 0;
+  padding: 11px 16px;
+}
+
+// RCTextField
+:global .myinput {
+  font-size: 0.875rem !important;
+}
+
+div.expansionPanel .inputArea {
+  padding: 0 16px 10px 16px;
+}
+
+.personMeetingInfo {
+  @include secondary-font;
+}
