@@ -72,6 +72,7 @@ export interface GenericMeetingPanelProps
   showCustom?: boolean;
   CustomPanel?: React.ReactNode;
   brandName: string;
+  personalMeetingId?: string;
 }
 
 export interface GenericMeetingPanelState {}
