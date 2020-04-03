@@ -277,7 +277,7 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                 {
                   meeting.isMeetingSecret ? (
                     <RcTextField
-                      placeholder={i18n.getString('password', currentLocale)}
+                      placeholder={i18n.getString('setPassword', currentLocale)}
                       data-sign="password"
                       fullWidth
                       value={meeting.meetingPassword}
