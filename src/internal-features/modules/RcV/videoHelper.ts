@@ -12,7 +12,7 @@ const meetingProviderTypes = {
 function getVideoSettings(topic = '', extensionName = '') {
   return {
     name: topic || `${extensionName}'s Meeting`,
-    allowJoinBeforeHost: true,
+    allowJoinBeforeHost: false,
     type: 0,
     expiresIn: 31536000,
   };
@@ -24,12 +24,12 @@ function getDefaultVideoSettings({ topic, startTime }) {
     type: 0,
     startTime,
     duration: 60,
-    allowJoinBeforeHost: true,
+    allowJoinBeforeHost: false,
     muteAudio: false,
     muteVideo: false,
     saveAsDefault: false,
     expiresIn: 31536000,
-    isMeetingSecret: false,
+    isMeetingSecret: true,
     meetingPassword: '',
     usePersonalMeetingId: false,
     personalMeetingId: '',
@@ -38,7 +38,7 @@ function getDefaultVideoSettings({ topic, startTime }) {
 
 function getTopic(extensionName: string, brandName: string) {
   if (brandName === 'RingCentral') {
-    return `${extensionName}'s ${brandName} Video Meeting`;
+    return `${extensionName}'s ${brandName} Video meeting`;
   }
   return `${extensionName}'s ${brandName} Meeting`;
 }

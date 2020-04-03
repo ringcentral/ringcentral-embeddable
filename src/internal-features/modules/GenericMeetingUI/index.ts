@@ -47,6 +47,13 @@ export default class GenericMeetingUI extends RcUIModule {
     datePickerSize,
     timePickerSize,
   }) {
+    const requiredPassowrd =
+      this._genericMeeting.isRCV &&
+      this._genericMeeting.meeting &&
+      (
+        this._genericMeeting.meeting.isMeetingSecret &&
+        !this._genericMeeting.meeting.meetingPassword
+      )
     return {
       datePickerSize,
       timePickerSize,
@@ -56,7 +63,8 @@ export default class GenericMeetingUI extends RcUIModule {
         this._genericMeeting.isScheduling ||
         disabled ||
         !this._connectivityMonitor.connectivity ||
-        (this._rateLimiter && this._rateLimiter.throttling),
+        (this._rateLimiter && this._rateLimiter.throttling) ||
+        requiredPassowrd,
       showWhen,
       showDuration,
       showRecurringMeeting,

@@ -261,6 +261,42 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                   }}
                 />
                 <RcSwitch
+                  data-sign="requirePassword"
+                  checked={meeting.isMeetingSecret}
+                  onChange={() => {
+                    updateMeetingSettings({
+                      ...meeting,
+                      isMeetingSecret: !meeting.isMeetingSecret,
+                    });
+                  }}
+                  label={i18n.getString('requirePassword', currentLocale)}
+                  formControlLabelProps={{
+                    classes: { root: styles.labelPlacementStart },
+                  }}
+                />
+                {
+                  meeting.isMeetingSecret ? (
+                    <RcTextField
+                      placeholder={i18n.getString('password', currentLocale)}
+                      data-sign="password"
+                      fullWidth
+                      value={meeting.meetingPassword}
+                      inputProps={{
+                        maxLength: 255,
+                      }}
+                      onChange={(e) => {
+                        updateMeetingSettings({
+                          ...meeting,
+                          meetingPassword: e.target.value,
+                        });
+                      }}
+                      classes={{
+                        root: styles.inputArea,
+                      }}
+                    />
+                  ) : null
+                }
+                <RcSwitch
                   data-sign="allowJoinBeforeHost"
                   checked={meeting.allowJoinBeforeHost}
                   onChange={() => {
@@ -302,42 +338,6 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                     classes: { root: styles.labelPlacementStart },
                   }}
                 />
-                <RcSwitch
-                  data-sign="requirePassword"
-                  checked={meeting.isMeetingSecret}
-                  onChange={() => {
-                    updateMeetingSettings({
-                      ...meeting,
-                      isMeetingSecret: !meeting.isMeetingSecret,
-                    });
-                  }}
-                  label={i18n.getString('requirePassword', currentLocale)}
-                  formControlLabelProps={{
-                    classes: { root: styles.labelPlacementStart },
-                  }}
-                />
-                {
-                  meeting.isMeetingSecret ? (
-                    <RcTextField
-                      placeholder={i18n.getString('password', currentLocale)}
-                      data-sign="password"
-                      fullWidth
-                      value={meeting.meetingPassword}
-                      inputProps={{
-                        maxLength: 255,
-                      }}
-                      onChange={(e) => {
-                        updateMeetingSettings({
-                          ...meeting,
-                          meetingPassword: e.target.value,
-                        });
-                      }}
-                      classes={{
-                        root: styles.inputArea,
-                      }}
-                    />
-                  ) : null
-                }
               </RcFormGroup>
             </RcExpansionPanelDetails>
           </RcExpansionPanel>
