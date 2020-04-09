@@ -8,6 +8,16 @@ const meetingProviderTypes = {
   video: 'RCVideo',
 };
 
+export function generateRandomPassword(length = 10) {
+  const charset = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789';
+  const charLen = charset.length;
+  let retVal = '';
+  for (let i = 0; i < length; i++) {
+    retVal += charset.charAt(Math.floor(Math.random() * charLen));
+  }
+  return retVal;
+}
+
 // gsuite
 function getVideoSettings(topic = '', extensionName = '') {
   return {
@@ -30,7 +40,7 @@ function getDefaultVideoSettings({ topic, startTime }) {
     saveAsDefault: false,
     expiresIn: 31536000,
     isMeetingSecret: true,
-    meetingPassword: '',
+    meetingPassword: generateRandomPassword(8),
     usePersonalMeetingId: false,
     personalMeetingId: '',
   } as RcVMeetingModel;

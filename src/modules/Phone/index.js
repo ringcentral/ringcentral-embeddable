@@ -113,7 +113,7 @@ import hackSend from '../../lib/hackSend';
 
 import MeetingProvider from '../../internal-features/modules/MeetingProvider';
 import GenericMeetingUI from '../../internal-features/modules/GenericMeetingUI';
-import RcVideo from '../../internal-features/modules/RcV';
+import { RcVideo } from '../../internal-features/modules/RcV';
 import GenericMeeting from '../../internal-features/modules/GenericMeeting';
 import MeetingHistoryUI from '../../internal-features/modules/MeetingHistoryUI';
 import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';

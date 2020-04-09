@@ -7,7 +7,6 @@ import createStatus from './createStatus';
 export function getRcVideoInfoReducer(types: RcVideoActionTypes) {
   return (state = {}, { type, meeting = null }) => {
     switch (type) {
-      case types.initSuccess:
       case types.updateMeetingSettings:
         return { ...state, ...meeting };
       default:
@@ -58,8 +57,20 @@ export function getLastVideoStorageReducer(types: RcVideoActionTypes) {
     switch (type) {
       case types.created:
         // eslint-disable-next-line no-case-declarations
-        const { allowJoinBeforeHost, muteAudio, muteVideo } = meeting;
-        return { allowJoinBeforeHost, muteAudio, muteVideo };
+        const {
+          allowJoinBeforeHost,
+          muteAudio,
+          muteVideo,
+          isMeetingSecret,
+          usePersonalMeetingId,
+        } = meeting;
+        return {
+          allowJoinBeforeHost,
+          muteAudio,
+          muteVideo,
+          isMeetingSecret,
+          usePersonalMeetingId,
+        };
       default:
         return state;
     }

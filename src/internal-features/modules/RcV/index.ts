@@ -1,1 +1,1 @@
-export { RcVideo as default } from './rcvideo';
+export * from './RcVideo';

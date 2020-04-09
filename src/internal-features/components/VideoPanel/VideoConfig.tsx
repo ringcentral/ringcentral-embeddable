@@ -282,7 +282,7 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                       fullWidth
                       value={meeting.meetingPassword}
                       inputProps={{
-                        maxLength: 255,
+                        maxLength: 10,
                       }}
                       onChange={(e) => {
                         updateMeetingSettings({
