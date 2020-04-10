@@ -53,7 +53,7 @@ export default class GenericMeetingUI extends RcUIModule {
       (
         this._genericMeeting.meeting.isMeetingSecret &&
         !this._genericMeeting.meeting.meetingPassword
-      )
+      );
     return {
       datePickerSize,
       timePickerSize,

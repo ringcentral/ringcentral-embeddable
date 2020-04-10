@@ -2,7 +2,7 @@ import { Module } from 'ringcentral-integration/lib/di';
 import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
 import Brand from 'ringcentral-integration/modules/Brand';
 
-import { RcVideo } from '../RcV/rcvideo';
+import { RcVideo } from '../RcVideo';
 
 @Module({
   name: 'VideoUI',
@@ -36,7 +36,7 @@ export default class VideoUI extends RcUIModule {
     return {
       currentLocale: this._locale.currentLocale,
       meeting: this._rcVideo.meeting,
-      showSaveAsDefault: this._rcVideo._saveAsDefaultSetting,
+      showSaveAsDefault: this._rcVideo.showSaveAsDefault,
       brandName: this._brand.name,
       disabled:
         this._rcVideo.isScheduling ||
