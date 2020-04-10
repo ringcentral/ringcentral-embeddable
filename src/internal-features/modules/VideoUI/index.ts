@@ -2,7 +2,7 @@ import { Module } from 'ringcentral-integration/lib/di';
 import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
 import Brand from 'ringcentral-integration/modules/Brand';
 
-import { RcVideo } from '../RcV/RcVideo';
+import { RcVideo } from '../RcVideo';
 
 @Module({
   name: 'VideoUI',
