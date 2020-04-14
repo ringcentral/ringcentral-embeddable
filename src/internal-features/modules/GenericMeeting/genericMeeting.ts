@@ -20,7 +20,7 @@ import MeetingProvider from '../MeetingProvider';
 
 import actionTypes from './actionTypes';
 
-import RcVideo from '../RcVideo';
+import { RcVideo } from '../RcVideo';
 
 import getGenericMeetingReducer from './getGenericMeetingReducer';
 
