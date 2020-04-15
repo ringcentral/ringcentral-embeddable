@@ -21,7 +21,8 @@ const getBrandConfig = require('./getBrandConfig');
 
 const { prefix, brandConfig, brandFolder } = getBrandConfig(brand);
 
-let buildPath = path.resolve(__dirname, 'release');
+const releaseDir = process.env.RELEASE_DIR || 'release';
+let buildPath = path.resolve(__dirname, releaseDir);
 if (process.env.BRAND) {
   buildPath = path.resolve(buildPath, brand);
 }
@@ -38,9 +39,14 @@ if (fs.existsSync(apiConfigFile)) {
   };
 }
 
-const hostingUrl = process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable';
-const redirectUri = process.env.REDIRECT_URI || 'https://ringcentral.github.io/ringcentral-embeddable/redirect.html';
-const proxyUri = process.env.PROXY_URI || 'https://ringcentral.github.io/ringcentral-embeddable/proxy.html';
+let hostingUrl = process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable';
+let redirectUri = process.env.REDIRECT_URI || './redirect.html';
+let proxyUri = process.env.PROXY_URI || './proxy.html';
+
+const localExtensionMode = !!process.env.LOCAL_EXTENSION_MODE;
+if (localExtensionMode) {
+  hostingUrl = null;
+}
 
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 const recordingLink = process.env.RECORDING_LINK || 'https://ringcentral.github.io/ringcentral-media-reader/';
@@ -73,7 +79,10 @@ config.plugins = [
     { from: 'src/redirect.html', to: 'redirect.html' },
   ]),
 ];
-config.entry['adapter.min'] = './src/adapter.js';
+if (!localExtensionMode) {
+  config.entry['adapter.min'] = './src/adapter.js';
+}
+
 config.optimization = {
   minimize: true,
   minimizer: [
@@ -82,6 +91,7 @@ config.optimization = {
         compress: {
           warnings: false,
         },
+        mangle: localExtensionMode ? false : true,
         output: {
           comments: false,
         },

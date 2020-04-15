@@ -181,6 +181,9 @@ If you create pull request to this repo and get merged, CI will deploy it to thi
 ```
 $ HOSTING_URL=your_host_uri yarn build
 ```
+
 Please replace `your_host_uri` with your own web host address, such as `https://ringcentral.github.io/ringcentral-embeddable`.
+
+And set redirect uri `${your_host_uri}/redirect.html` in your app setting on RingCentral Developer website.
 
 3. Upload all files in release folder to your web space. And visit it in browser.
