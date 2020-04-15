@@ -53,7 +53,6 @@ config.plugins = [
       NODE_ENV: JSON.stringify('development'),
       API_CONFIG: JSON.stringify(apiConfig),
       APP_VERSION: JSON.stringify(version),
-      HOSTING_URL: JSON.stringify('http://localhost:8080'),
       PREFIX: JSON.stringify(prefix),
       BRAND_CONFIG: JSON.stringify(brandConfig),
       ERROR_REPORT_KEY: JSON.stringify(errorReportKey),

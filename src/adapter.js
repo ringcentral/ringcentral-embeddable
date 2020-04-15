@@ -1,3 +1,5 @@
+import url from 'url';
+
 // eslint-disable-next-line
 import logoUrl from '!url-loader!brand-logo-path/logo.svg';
 // eslint-disable-next-line
@@ -13,12 +15,16 @@ if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype
 }
 
 const version = process.env.APP_VERSION;
-const appUrl = `${process.env.HOSTING_URL}/app.html`;
 
-let currentScipt = document.currentScript;
-if (!currentScipt) {
-  currentScipt = document.querySelector('script[src*="adapter.js"]');
+let currentScript = document.currentScript;
+if (!currentScript) {
+  currentScript = document.querySelector('script[src*="adapter.js"]');
 }
+
+const appUrl =  process.env.HOSTING_URL ?
+ `${process.env.HOSTING_URL}/app.html` :
+  url.resolve(currentScript.src, './app.html');
+
 const {
   appKey,
   appSecret,
@@ -48,7 +54,7 @@ const {
   disconnectInactiveWebphone,
   disableInactiveTabCallEvent,
   zIndex,
-} = parseUri((currentScipt && currentScipt.src) || '');
+} = parseUri((currentScript && currentScript.src) || '');
 
 function obj2uri(obj) {
   if (!obj) {
