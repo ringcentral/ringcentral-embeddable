@@ -18,7 +18,7 @@ export class LoginWindow {
 
   async submitEmergencyAddress() {
     await this._targetPage.waitForFunction(
-      'document.querySelector("body").innerText.includes("Registered Address");'
+      'document.querySelector("body").innerText.includes("Registered Address")'
     );
     await this._targetPage.waitFor('input[name="name"]');
     await this._targetPage.type('input[name="name"]', 'Test Name');
@@ -32,14 +32,14 @@ export class LoginWindow {
 
   async confirmEmergencyAddress() {
     await this._targetPage.waitForFunction(
-      'document.querySelector("body").innerText.includes("Confirm");'
+      'document.querySelector("body").innerText.includes("Confirm")'
     );
     await this._targetPage.click('button.btn-primary');
   }
 
   async authorize() {
     await this._targetPage.waitForFunction(
-      'document.querySelector("body").innerText.includes("Access Request");'
+      'document.querySelector("body").innerText.includes("Access Request")'
     );
     await this._targetPage.click('button.btn-primary');
     await this._targetPage.waitFor(200);
