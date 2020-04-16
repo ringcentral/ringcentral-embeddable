@@ -26,6 +26,7 @@ import createStatus from './createStatus';
     'ExtensionInfo',
     'Brand',
     'Storage',
+    'MeetingProvider',
     { dep: 'Conference', optional: true },
     { dep: 'RcVideoOptions', optional: true },
     { dep: 'AvailabilityMonitor', optional: true },
@@ -59,6 +60,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     reducers,
     conference,
     availabilityMonitor,
+    meetingProvider,
     ...options
   }) {
     super({
@@ -74,6 +76,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
     this._reducer = getRcVReducer(this.actionTypes, reducers);
     this._showSaveAsDefault = showSaveAsDefault;
     this._availabilityMonitor = availabilityMonitor;
+    this._meetingProvider = meetingProvider;
     this._defaultVideoSettingKey = 'defaultVideoSetting';
     this._lastVideoSettingKey = 'lastVideoSetting';
     this._personalMeetingKey = 'personalMeeting';
@@ -113,6 +116,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
       this.pending &&
       this._extensionInfo.ready &&
       this._storage.ready &&
+      (this._meetingProvider.ready && this._meetingProvider.isRCV) &&
       (!this._availabilityMonitor || this._availabilityMonitor.ready)
     );
   }
@@ -122,6 +126,7 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
       this.ready &&
       !this._extensionInfo.ready &&
       !this._storage.ready &&
+      (!this._meetingProvider.ready || !this._meetingProvider.isRCV) &&
       (this._availabilityMonitor || !this._availabilityMonitor.ready)
     );
   }

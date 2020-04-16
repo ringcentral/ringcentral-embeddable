@@ -3,15 +3,17 @@ import DataFetcher from 'ringcentral-integration/lib/DataFetcher';
 
 import { getMeetingProvider } from './service';
 
+import { meetingProviderTypes } from './interface';
+
 /**
  * @class
  * @description: just check meeting provider from RC PLA
  */
 @Module({
-  deps: ['Auth', 'Client', 'Alert'],
+  deps: ['Auth', 'Client', 'Alert', 'RolesAndPermissions'],
 })
 export default class MeetingProvider extends DataFetcher {
-  constructor({ ...options }) {
+  constructor({ rolesAndPermissions, ...options }) {
     super({
       cleanOnReset: true,
       ...options,
@@ -20,7 +22,9 @@ export default class MeetingProvider extends DataFetcher {
         return data;
       },
       disableCache: true,
+      readyCheckFn: () => this._rolesAndPermissions.ready,
     });
+    this._rolesAndPermissions = rolesAndPermissions;
     this._forceProvider = localStorage.getItem('__meeting_provider');
   }
 
@@ -31,11 +35,19 @@ export default class MeetingProvider extends DataFetcher {
     return this.data && this.data.provider;
   }
 
+  get isRCV() {
+    return this.provider === meetingProviderTypes.video;
+  }
+
   get status() {
     return this.state.status;
   }
 
   get _name() {
     return 'meetingProvider';
+  }
+
+  get _hasPermission() {
+    return !!this._rolesAndPermissions.organizeMeetingEnabled;
   }
 }
