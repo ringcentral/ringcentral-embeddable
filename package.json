@@ -40,7 +40,7 @@
     "jest-puppeteer": "^4.4.0",
     "node-sass": "^4.13.1",
     "postcss-loader": "^3.0.0",
-    "puppeteer": "^2.1.1",
+    "puppeteer": "^1.20.0",
     "sass-loader": "^7.0.3",
     "style-loader": "^0.23.1",
     "terser-webpack-plugin": "^2.3.1",
