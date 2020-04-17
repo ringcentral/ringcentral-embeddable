@@ -11,5 +11,6 @@ module.exports = {
     // TODO: widget will check visible before init app,
     // so in headless mode, widget will keep loadding.
   },
+  browser: 'chromium',
   browserContext: 'incognito',
 };
