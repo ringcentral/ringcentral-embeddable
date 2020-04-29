@@ -48,7 +48,7 @@ You can use the config tool in this [page](https://ringcentral.github.io/ringcen
 
 #### Stable version
 
-We provide latest RingCentral Embeddable version on github page `https://ringcentral.github.io/ringcentral-embeddable`. It includes latest features and bugfix in RingCentral Embeddable. And it will keep up to date with master code. But we **recommend** developers to use versioned RingCentral Embeddable. Current latest stable version of RingCentral Embeddable is `1.0.3`. You can get versioned app in this uri `https://apps.ringcentral.com/integration/ringcentral-embeddable/1.0.3`.
+We provide latest RingCentral Embeddable version on github page `https://ringcentral.github.io/ringcentral-embeddable`. It includes latest features and bugfix in RingCentral Embeddable. And it will keep up to date with master code. But we **recommend** developers to use versioned RingCentral Embeddable. Current latest stable version of RingCentral Embeddable is `1.1.2`. You can get versioned app in this uri `https://apps.ringcentral.com/integration/ringcentral-embeddable/1.1.2`.
 
 Just replace `https://ringcentral.github.io/ringcentral-embeddable` in upper code to the versioned uri, and you will be using versioned RingCentral Embeddable. The versioned app will not be influenced when new features are added, so it will be more stable than latest version. When you need to update RingCentral Embeddable, you need to update the versioned app uri in your code manually.
 
@@ -79,12 +79,17 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
     * Reject a ringing call
     * Hangup a call
   * [Log out user](docs/control-widget.md#log-out-user)
+  * [Minimize and Hide widget](docs/control-widget.md#minimizehideremove-the-widget)
+  * [Navigate to](docs/control-widget.md#navigate-to)
+  * [Schedule a meeting (RingCentral Video/RingCentral Meetings)](docs/control-widget.md#schedule-a-meeting)
 * [Work with RingCentral C2D](docs/work-with-ringcentral-c2d.md)
 * [Interact with calling settings](docs/interact-with-calling-settings.md)
 * [Third Party Service in Widget](docs/third-party-service-in-widget.md)
   * Register your service
   * Add a conference invite button with your service
-  * Add meeting schedule with your service
+  * Add meeting schedule button with your service
+  * Show upcoming meeting list in RingCentral Video page
+  * Log RingCentral Video meeting into your service
   * Show contacts from your application
   * Show contact's activities from your application
   * [Log call into your service](docs/third-party-service-in-widget.md#log-call-into-your-service)
