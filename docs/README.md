@@ -25,12 +25,17 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
     * Reject a ringing call
     * Hangup a call
   * [Log out user](control-widget.md#log-out-user)
+  * [Minimize and Hide widget](control-widget.md#minimizehideremove-the-widget)
+  * [Navigate to](control-widget.md#navigate-to)
+  * [Schedule a meeting (RingCentral Video/RingCentral Meetings)](control-widget.md#schedule-a-meeting)
 * [Work with RingCentral C2D](work-with-ringcentral-c2d.md)
 * [Interact with calling settings](interact-with-calling-settings.md)
 * [Third Party Service in Widget](third-party-service-in-widget.md)
   * Register your service
   * Add a conference invite button with your service
-  * Add meeting schedule with your service
+  * Add meeting schedule button with your service
+  * Show upcoming meeting list in RingCentral Video page
+  * Log RingCentral Video meeting into your service
   * Show contacts from your application
   * Show contact's activities from your application
   * [Log call into your service](third-party-service-in-widget.md#log-call-into-your-service)

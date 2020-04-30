@@ -8,7 +8,9 @@ This document show how the widget can interact with your application deeply.
 
 * [Register your service](#register-your-service)
 * [Add a conference invite button with your service](#add-a-conference-invite-button-with-your-service)
-* [Add meeting schedule with your service](#add-meeting-schedule-feature-with-your-service)
+* [Add meeting schedule button with your service](#add-meeting-schedule-feature-with-your-service)
+  * [Show upcoming meeting list in RingCentral Video page](#show-upcoming-meeting-list-in-ringcentral-video-page)
+  * [Log RingCentral Video meeting into your service](#log-ringcentral-video-meeting-into-your-service)
 * [Show contacts from your application](#show-contacts-from-your-application)
   * [Show contacts on Contacts page in widget](#show-contacts-on-contacts-page-in-widget)
   * [Show contacts search result on Dialer receiver input](#show-contacts-search-result-on-dialer-receiver-input)
@@ -78,7 +80,7 @@ window.addEventListener('message', function (e) {
 
 ## Add meeting schedule feature with your service
 
-First we need to add `Meeting` permission into your app in RingCentral Developer website if you are using your own RingCentral client id.
+First we need to add `Meeting` permission into your app in RingCentral Developer website if you are using your own RingCentral client id. This works on RingCentral Video or RingCentral Meetings service.
 
 Then pass `meetingInvitePath` and `meetingInviteTitle` when you register service.
 
@@ -117,7 +119,9 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-## Show Upcomging Meeting List in Meeting page
+## Show upcoming meeting list in RingCentral Video page
+
+**Notice**: only work on RingCentral Video meeting service.
 
 First you need to pass `meetingUpcomingPath` when you register meeting invite service.
 
@@ -161,7 +165,9 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-## Log meeting into your service
+## Log RingCentral Video meeting into your service
+
+**Notice**: only work on RingCentral Video meeting service.
 
 First you need to pass `meetingLoggerPath` and `meetingLoggerTitle` when you register service.
 
