@@ -35,8 +35,11 @@ export default class MeetingHomeUI extends RcUIModule {
       gotoSchedule: () => {
         this._router.push('/meeting/schedule');
       },
-      onStart: () => {
-        window.open(this._genericMeeting.personalMeeting.joinUri);
+      onStart: async () => {
+        const { meeting } = (await this._genericMeeting.createInstantMeeting()) || {};
+        if (meeting) {
+          window.open(meeting.joinUri);
+        }
       },
       onJoin: (meetingID) => {
         if (!meetingID) {

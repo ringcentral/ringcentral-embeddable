@@ -325,6 +325,12 @@ export class RcVideo extends RcModule<RcVideoActionTypes> {
   }
 
   @proxify
+  async createInstantMeeting() {
+    const meeting = await this.createMeeting({ type: 0 })
+    return meeting;
+  }
+
+  @proxify
   async getMeeting(meetingId: String) {
     const meetingResult = await this._client.service
       .platform()
