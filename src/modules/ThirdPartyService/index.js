@@ -462,7 +462,7 @@ export default class ThirdPartyService extends RcModule {
         page,
         syncTimestamp: this.contactSyncTimestamp,
         type,
-      }, 8000);
+      }, 60000);
     if (!Array.isArray(data)) {
       return { contacts: [], syncTimestamp };
     }
