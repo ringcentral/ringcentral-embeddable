@@ -5176,9 +5176,7 @@ var _styles = _interopRequireDefault(__webpack_require__(4096));
 
 var _notification = _interopRequireDefault(__webpack_require__(4098));
 
-var Adapter =
-/*#__PURE__*/
-function (_AdapterCore) {
+var Adapter = /*#__PURE__*/function (_AdapterCore) {
   (0, _inherits2.default)(Adapter, _AdapterCore);
 
   function Adapter() {
@@ -7028,9 +7026,7 @@ var _classCallCheck2 = _interopRequireDefault(__webpack_require__(74));
 
 var _createClass2 = _interopRequireDefault(__webpack_require__(84));
 
-var Notification =
-/*#__PURE__*/
-function () {
+var Notification = /*#__PURE__*/function () {
   function Notification() {
     (0, _classCallCheck2.default)(this, Notification);
     this._enableNotification = false;
