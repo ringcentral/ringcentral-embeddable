@@ -34,8 +34,6 @@ import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
 
-import icons from '@ringcentral-integration/rcui/icon-symbol';
-
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 
 import MainView from '../MainView';
@@ -83,7 +81,7 @@ export default function App({
     );
   };
   return (
-    <PhoneProvider phone={phone} icons={icons}>
+    <PhoneProvider phone={phone}>
       <Provider store={phone.store} >
         <Router history={phone.routerInteraction.history}>
           <Route
@@ -106,6 +104,7 @@ export default function App({
                 <IncomingCallPage
                   showContactDisplayPlaceholder={false}
                   getAvatarUrl={getAvatarUrl}
+                  showCallQueueName
                 >
                   <AlertContainer
                     callingSettingsUrl="/settings/calling"
@@ -216,6 +215,7 @@ export default function App({
                     }}
                     getAvatarUrl={getAvatarUrl}
                     showContactDisplayPlaceholder={false}
+                    showCallQueueName
                   />
                 )} />
               <Route
@@ -303,7 +303,10 @@ export default function App({
                     if (meetingInfo.usePersonalMeetingId) {
                       resp = await phone.genericMeeting.updateMeeting(
                         phone.genericMeeting.personalMeeting && phone.genericMeeting.personalMeeting.id,
-                        meetingInfo
+                        {
+                          ...meetingInfo,
+                          id: phone.genericMeeting.personalMeeting && phone.genericMeeting.personalMeeting.id,
+                        }
                       );
                     } else {
                       resp = await phone.genericMeeting.schedule(meetingInfo);

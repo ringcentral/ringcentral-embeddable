@@ -36,7 +36,11 @@
 }
 
 .meetingSection {
-  padding: 8px 16px;
+  padding: 0 16px;
+
+  &:first-child {
+    padding-top: 8px;
+  }
 }
 
 .select {
@@ -67,6 +71,11 @@ div.videoConfig div.expansionPanelExpanded.expanded {
   margin-top: 15px;
 }
 
+div.videoConfig div.expansionPanelSummaryDisabled {
+  opacity: inherit;
+  user-select: inherit;
+}
+
 div.videoConfig div.expansionPanel div.expansionPanelSummary {
   font-weight: 500;
   height: 44px;
@@ -88,9 +97,9 @@ div.videoConfig div.expansionPanel div.expansionPanelDetails {
 }
 
 div.expansionPanel div.toggleGroup label.labelPlacementStart {
-  margin-left: 0;
-  margin-right: 0;
+  margin: 0;
   padding: 11px 16px;
+  justify-content: space-between;
 }
 
 // RCTextField

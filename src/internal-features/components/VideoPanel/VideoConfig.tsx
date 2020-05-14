@@ -1,20 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { reduce } from 'ramda';
 import {
-  RcTextField,
-  RcIconButton,
   RcDatePicker,
-  RcTimePicker,
-  RcMenuItem,
-  RcLineSelect,
   RcExpansionPanel,
-  RcExpansionPanelSummary,
   RcExpansionPanelDetails,
+  RcExpansionPanelSummary,
   RcFormGroup,
+  RcIconButton,
+  RcLineSelect,
+  RcMenuItem,
   RcSwitch,
-  RcDatePickerSize,
-  RcTimePickerSize,
+  RcTextField,
+  RcTimePicker,
 } from '@ringcentral-integration/rcui';
+import arrowDownSvg from '@ringcentral-integration/rcui/icons/icon-arrow_down.svg';
+import eventNewSvg from '@ringcentral-integration/rcui/icons/icon-event-new.svg';
+import { reduce } from 'ramda';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useDebounce } from 'ringcentral-widgets/lib/reactHooks';
 
 import { RcVMeetingModel } from '../../models/rcv.model';
 import i18n from './i18n';
@@ -57,6 +58,37 @@ function getHoursList(HOUR_SCALE) {
   );
 }
 
+function getHelperTextForPasswordField(
+  meeting: RcVMeetingModel,
+  currentLocale: string,
+): string {
+  if (!meeting.meetingPassword) {
+    return i18n.getString('passwordEmptyError', currentLocale);
+  }
+  if (!meeting.isMeetingPasswordValid) {
+    return i18n.getString('passwordInvalidError', currentLocale);
+  }
+  return i18n.getString('passwordHintText', currentLocale);
+}
+
+interface VideoConfigProps {
+  currentLocale: string;
+  meeting: RcVMeetingModel;
+
+  updateMeetingSettings: (meeting: RcVMeetingModel) => void;
+  validatePasswordSettings: (password: string, isSecret: boolean) => boolean;
+
+  recipientsSection?: React.ReactNode;
+  showWhen?: boolean;
+  showDuration?: boolean;
+  brandName: string;
+  init: () => any;
+  personalMeetingId?: string;
+  datePickerSize?: string;
+  timePickerSize?: string;
+  showHeader?: boolean;
+}
+
 export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
   props,
 ) => {
@@ -64,22 +96,44 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
     currentLocale,
     meeting,
     updateMeetingSettings,
+    validatePasswordSettings,
     recipientsSection,
     init,
     children,
     showWhen,
     showDuration,
-    datePickerSize,
-    timePickerSize,
     brandName,
     showHeader,
     personalMeetingId,
+    datePickerSize,
+    timePickerSize,
   } = props;
   const hoursList = getHoursList(HOUR_SCALE);
   const minutesList = getMinutesList(MINUTE_SCALE);
   const isRCBrand = brandName === 'RingCentral';
+
+  const [meetingPassword, setMeetingPassword] = useState<string>(
+    meeting.meetingPassword,
+  );
   useEffect(() => {
-    if (typeof init === 'function') {
+    setMeetingPassword(meeting.meetingPassword);
+  }, [meeting.meetingPassword]);
+
+  const debouncedPassword = useDebounce<string>(meetingPassword, 200);
+  useEffect(() => {
+    const isMeetingPasswordValid = validatePasswordSettings(
+      debouncedPassword,
+      meeting.isMeetingSecret,
+    );
+    updateMeetingSettings({
+      ...meeting,
+      meetingPassword: debouncedPassword,
+      isMeetingPasswordValid,
+    });
+  }, [debouncedPassword]);
+
+  useEffect(() => {
+    if (init) {
       init();
     }
   }, []);
@@ -88,6 +142,13 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
       <h2>{i18n.getString('schedule', currentLocale)}</h2>
     </div>
   ) : null;
+
+  const startTime = useMemo(() => {
+    return new Date(meeting.startTime);
+  }, [meeting.startTime]);
+
+  const meetingSettingsPanelExpandable = false;
+
   return (
     <div className={styles.videoConfig}>
       {header}
@@ -101,19 +162,23 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
             <RcDatePicker
               label={i18n.getString('date', currentLocale)}
               data-sign="date"
-              size={datePickerSize}
-              value={meeting.startTime}
+              date={startTime}
               fullWidth
+              size={datePickerSize}
               onChange={(value) => {
                 updateMeetingSettings({
                   ...meeting,
                   startTime: value,
                 });
               }}
-              format="MM/DD/YYYY"
+              formatString="MM/DD/YYYY"
               InputProps={{
                 endAdornment: (
-                  <RcIconButton variant="round" size="small" icon="event-new" />
+                  <RcIconButton
+                    variant="round"
+                    size="small"
+                    symbol={eventNewSvg}
+                  />
                 ),
               }}
             />
@@ -123,19 +188,23 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
           <div className={styles.meetingSection}>
             <RcTimePicker
               fullWidth
+              size={timePickerSize}
               label={i18n.getString('startTime', currentLocale)}
               data-sign="startTime"
-              value={meeting.startTime}
-              size={timePickerSize}
+              value={startTime}
               onChange={(value) => {
                 updateMeetingSettings({
                   ...meeting,
-                  startTime: value,
+                  startTime: new Date(value),
                 });
               }}
               InputProps={{
                 endAdornment: (
-                  <RcIconButton variant="round" size="small" icon="event-new" />
+                  <RcIconButton
+                    variant="round"
+                    size="small"
+                    symbol={eventNewSvg}
+                  />
                 ),
               }}
             />
@@ -145,7 +214,7 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
           <div className={styles.meetingSection}>
             <div className={styles.hourDuration}>
               <RcLineSelect
-                size="small"
+                // size="small"
                 data-sign="durationHour"
                 value={Math.floor(meeting.duration / 60)}
                 onChange={(e) => {
@@ -214,13 +283,21 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
               expanded: styles.expansionPanelExpanded,
             }}
             defaultExpanded
+            disabled={!meetingSettingsPanelExpandable}
           >
             <RcExpansionPanelSummary
               classes={{
                 root: styles.expansionPanelSummary,
                 content: styles.expansionPanelSummaryContent,
+                disabled: meetingSettingsPanelExpandable
+                  ? null
+                  : styles.expansionPanelSummaryDisabled,
               }}
-              expandIcon={<RcIconButton variant="round" icon="arrow_down" />}
+              expandIcon={
+                meetingSettingsPanelExpandable ? (
+                  <RcIconButton variant="round" symbol={arrowDownSvg} />
+                ) : null
+              }
               data-sign="expansionSummary"
             >
               {i18n.getString(
@@ -239,63 +316,76 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                   root: styles.toggleGroup,
                 }}
               >
-                <RcSwitch
-                  data-sign="usePersonalMeetingId"
-                  checked={meeting.usePersonalMeetingId}
-                  onChange={() => {
-                    updateMeetingSettings({
-                      ...meeting,
-                      usePersonalMeetingId: !meeting.usePersonalMeetingId,
-                    });
-                  }}
-                  label={(
-                    <div>
-                      <div>{i18n.getString('usePersonalMeetingId', currentLocale)}</div>
-                      <div className={styles.personMeetingInfo}>
-                        {personalMeetingId}
+                {personalMeetingId ? (
+                  <RcSwitch
+                    data-sign="usePersonalMeetingId"
+                    checked={meeting.usePersonalMeetingId}
+                    onChange={() => {
+                      updateMeetingSettings({
+                        ...meeting,
+                        usePersonalMeetingId: !meeting.usePersonalMeetingId,
+                      });
+                    }}
+                    label={
+                      <div>
+                        <div>
+                          {i18n.getString(
+                            'usePersonalMeetingId',
+                            currentLocale,
+                          )}
+                        </div>
+                        <div className={styles.personMeetingInfo}>
+                          {personalMeetingId}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  formControlLabelProps={{
-                    classes: { root: styles.labelPlacementStart },
-                  }}
-                />
+                    }
+                    formControlLabelProps={{
+                      classes: { root: styles.labelPlacementStart },
+                      labelPlacement: 'start',
+                    }}
+                  />
+                ) : null}
                 <RcSwitch
                   data-sign="requirePassword"
                   checked={meeting.isMeetingSecret}
                   onChange={() => {
+                    const next = !meeting.isMeetingSecret;
                     updateMeetingSettings({
                       ...meeting,
-                      isMeetingSecret: !meeting.isMeetingSecret,
+                      isMeetingSecret: next,
                     });
                   }}
                   label={i18n.getString('requirePassword', currentLocale)}
                   formControlLabelProps={{
                     classes: { root: styles.labelPlacementStart },
+                    labelPlacement: 'start',
                   }}
                 />
-                {
-                  meeting.isMeetingSecret ? (
+                {meeting.isMeetingSecret ? (
+                  <div className={styles.inputArea}>
                     <RcTextField
+                      error={!meeting.isMeetingPasswordValid}
+                      helperText={getHelperTextForPasswordField(
+                        meeting,
+                        currentLocale,
+                      )}
                       placeholder={i18n.getString('setPassword', currentLocale)}
                       data-sign="password"
                       fullWidth
-                      value={meeting.meetingPassword}
+                      clearBtn={false}
+                      value={meetingPassword}
                       inputProps={{
-                        maxLength: 10,
+                        maxLength: 255,
                       }}
                       onChange={(e) => {
-                        updateMeetingSettings({
-                          ...meeting,
-                          meetingPassword: e.target.value,
-                        });
-                      }}
-                      classes={{
-                        root: styles.inputArea,
+                        const password = e.target.value;
+                        if (/^[A-Za-z0-9]{0,10}$/.test(password)) {
+                          setMeetingPassword(password);
+                        }
                       }}
                     />
-                  ) : null
-                }
+                  </div>
+                ) : null}
                 <RcSwitch
                   data-sign="allowJoinBeforeHost"
                   checked={meeting.allowJoinBeforeHost}
@@ -308,6 +398,7 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                   label={i18n.getString('joinBeforeHost', currentLocale)}
                   formControlLabelProps={{
                     classes: { root: styles.labelPlacementStart },
+                    labelPlacement: 'start',
                   }}
                 />
                 <RcSwitch
@@ -322,6 +413,7 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                   label={i18n.getString('muteAudio', currentLocale)}
                   formControlLabelProps={{
                     classes: { root: styles.labelPlacementStart },
+                    labelPlacement: 'start',
                   }}
                 />
                 <RcSwitch
@@ -336,6 +428,7 @@ export const VideoConfig: React.FunctionComponent<VideoConfigProps> = (
                   label={i18n.getString('turnOffCamera', currentLocale)}
                   formControlLabelProps={{
                     classes: { root: styles.labelPlacementStart },
+                    labelPlacement: 'start',
                   }}
                 />
               </RcFormGroup>
@@ -358,14 +451,15 @@ const InnerTopic: React.FunctionComponent<{
   useEffect(() => {
     setTopic(name);
     setTopicRef(topicRef);
-  }, [name]);
+  }, [name, setTopicRef]);
   return (
     <RcTextField
-      ref={topicRef}
+      innerRef={topicRef}
       // size="small"
       label={i18n.getString('topic', currentLocale)}
       data-sign="topic"
       fullWidth
+      clearBtn={false}
       value={topic}
       inputProps={{
         maxLength: 255,
@@ -392,21 +486,8 @@ VideoConfig.defaultProps = {
   recipientsSection: undefined,
   showWhen: true,
   showDuration: true,
-  datePickerSize: 'small',
-  timePickerSize: 'small',
+  personalMeetingId: undefined,
+  datePickerSize: 'medium',
+  timePickerSize: 'medium',
+  showHeader: true,
 };
-
-interface VideoConfigProps {
-  currentLocale: string;
-  datePickerSize?: RcDatePickerSize;
-  timePickerSize?: RcTimePickerSize;
-  meeting: RcVMeetingModel;
-  updateMeetingSettings: any;
-  recipientsSection?: React.ReactNode;
-  showWhen?: boolean;
-  showDuration?: boolean;
-  brandName: string;
-  init: () => any;
-  showHeader: boolean;
-  personalMeetingId?: string;
-}

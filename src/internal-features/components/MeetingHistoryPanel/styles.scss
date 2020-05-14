@@ -33,26 +33,31 @@
 
   .typeSelect {
     width: 100px;
-    padding-bottom: 4px;
+    padding-left: 8px;
     
     > div[class*="root"] {
       width: 100px;
+    }
+
+    svg {
+      color: grey;
     }
   }
 
   .input {
     flex: 1;
-    padding-right: 10px;
+    padding-right: 5px;
   
     > div {
       width: 100%;
       box-sizing: border-box;
       height: 32px;
-      padding: 0 8px;
+      padding: 0;
     }
 
     span[class*="icon"] {
-      width: 20px;
+      width: 16px;
+      margin: 0px 8px 0px 8px;
     }
   }
 }

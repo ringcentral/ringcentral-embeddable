@@ -1,8 +1,7 @@
-import {
-  RcDatePickerSize,
-  RcTimePickerSize,
-} from '@ringcentral-integration/rcui';
-
+// import {
+//   RcDatePickerSize,
+//   RcTimePickerSize,
+// } from '@ringcentral-integration/rcui';
 import { RcVMeetingModel } from '../../models/rcv.model';
 
 export interface RcMMeetingModel {
@@ -43,10 +42,13 @@ export interface CommonProps {
 }
 
 export interface VideoPanelProps extends CommonProps {
-  updateMeetingSettings: (any) => any;
-  datePickerSize?: RcDatePickerSize;
-  timePickerSize?: RcTimePickerSize;
+  // TODO: any is reserved for RcM
+  updateMeetingSettings: (meeting: RcVMeetingModel | any) => void;
+  validatePasswordSettings: (password: string, isSecret: boolean) => boolean;
+  // datePickerSize?: RcDatePickerSize;
+  // timePickerSize?: RcTimePickerSize;
   onClick: () => any;
+  showHeader: boolean;
 }
 
 export interface MeetingPanelProps extends CommonProps {

@@ -11,5 +11,10 @@ export default {
   turnOffCamera: 'Turn off camera for participants',
   requirePassword: 'Require Password',
   setPassword: 'Set password',
+  passwordEmptyError: 'Meeting password required',
+  passwordInvalidError:
+    'Use 1 to 10 characters which include alphabets and numbers but no symbols',
+  passwordHintText:
+    'Password must contain 1 to 10 characters which include alphabets and numbers but no symbols.',
   usePersonalMeetingId: 'Use Personal Meeting ID'
 };

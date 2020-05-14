@@ -26,6 +26,27 @@
   &:hover {
     background: $egg;
   }
+
+  .buttons {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    height: 55px;
+    flex-direction: row;
+    align-items: center;
+    background: $egg;
+    display: none;
+  
+    .button {
+      padding: 0 8px;
+      min-width: 56px;
+      height: 28px;
+      font-size: 12px;
+      border-radius: 16px;
+      background-color: $primary-color;
+      color: $snow;
+    }
+  }
 }
 
 .meetingName {
@@ -55,27 +76,6 @@
   padding: 10px 20px;
   font-weight: 400;
   text-align: center;
-}
-
-.buttons {
-  position: absolute;
-  top: 0;
-  right: 10px;
-  height: 55px;
-  flex-direction: row;
-  align-items: center;
-  background: $egg;
-  display: none;
-
-  .button {
-    padding: 0 8px;
-    min-width: 56px;
-    height: 28px;
-    font-size: 12px;
-    border-radius: 16px;
-    background-color: $primary-color;
-    color: $snow;
-  }
 }
 
 .meetingItem:hover {

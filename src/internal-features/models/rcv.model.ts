@@ -1,5 +1,4 @@
-export interface RcVMeetingModel {
-  // api
+export interface RcVMeetingAPI {
   name: string;
   type: 0 | 1;
   allowJoinBeforeHost: boolean;
@@ -8,10 +7,12 @@ export interface RcVMeetingModel {
   isMeetingSecret: boolean;
   meetingPassword: string;
   expiresIn: number;
-  // custom
+}
+
+export interface RcVMeetingModel extends RcVMeetingAPI {
   startTime: Date;
   duration: number;
   saveAsDefault: boolean;
+  isMeetingPasswordValid: boolean;
   usePersonalMeetingId: boolean;
-  personalMeetingId: string;
 }
