@@ -106,7 +106,7 @@
       </div>
     </div>
     <p>You need to add following uri to your redirect url in app setting on developer website, if you don't config redirect widget uri.</p>
-    <pre>https://ringcentral.github.io/ringcentral-embeddable/redirect.html</pre>
+    <pre id="defaultRedirectUri">https://ringcentral.github.io/ringcentral-embeddable/redirect.html</pre>
     <p>For full document of <a href="https://github.com/ringcentral/ringcentral-embeddable#documents" target="_blank" rel="noopener noreferrer">API and Event</a>, please refer to <a href="https://github.com/ringcentral/ringcentral-embeddable#documents" target="_blank" rel="noopener noreferrer">here</a></p>
     <h2>Config your appKey in local Environment</h2>
     <p>1. Click <a href="#" id="setEnvironment">here to set this widget's appKey, appSecret and AppServer</a> in local. Enable and save.</p>
@@ -159,12 +159,16 @@
       });
       return queries.join('&');
     }
-    function updateCodes() {
+    function getBasePath() {
       var basePath = window.location.protocol + '//' + window.location.host + window.location.pathname;
       basePath = basePath.replace('/index.html', '');
       if (basePath[basePath.length - 1] === '/') {
         basePath = basePath.slice(0, basePath.length - 1);
       }
+      return basePath;
+    }
+    function updateCodes() {
+      var basePath = getBasePath();
       var adapterElem = window.document.querySelector('#adapter-code');
       var iframeElem = window.document.querySelector('#iframe-code');
       var query = getConfigQuery();
@@ -190,6 +194,16 @@
       iframeElem.innerHTML = iframeCode.replace(iframeSrc, newIframeSrc);
     }
     updateCodes();
+    function replaceRedirectUri() {
+      var basePath = getBasePath();
+      var defaultRedirectUriElem = window.document.querySelector('#defaultRedirectUri');
+      var defaultRedirectUri = defaultRedirectUriElem.innerText;
+      defaultRedirectUri = defaultRedirectUri.replace('https://ringcentral.github.io/ringcentral-embeddable', basePath);
+      defaultRedirectUriElem.innerHTML = defaultRedirectUri;
+      var redirectUriInput = window.document.querySelector('#redirectUri');
+      redirectUriInput.setAttribute('placeholder', defaultRedirectUri);
+    }
+    replaceRedirectUri();
     var inputs = window.document.querySelectorAll('input');
     for (var i = 0; i < inputs.length; ++i) {
       var inputElem = inputs[i];

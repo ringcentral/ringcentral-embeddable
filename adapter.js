@@ -5013,7 +5013,7 @@ if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype
   NodeList.prototype.forEach = Array.prototype.forEach;
 }
 
-var version = "1.1.1";
+var version = "1.2.1";
 var currentScript = document.currentScript;
 
 if (!currentScript) {
