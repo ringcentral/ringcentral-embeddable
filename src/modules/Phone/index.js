@@ -245,6 +245,7 @@ import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
       provide: 'ConversationsOptions',
       useValue: {
         enableLoadOldMessages: true,
+        showMMSAttachment: true,
       },
       spread: true
     },
