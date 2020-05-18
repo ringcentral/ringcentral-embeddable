@@ -9,7 +9,7 @@ import Line from 'ringcentral-widgets/components/Line';
 import IconLine from 'ringcentral-widgets/components/IconLine';
 import TextInput from 'ringcentral-widgets/components/TextInput';
 import Switch from 'ringcentral-widgets/components/Switch';
-import Button from 'ringcentral-widgets/components/Button';
+import { Button } from 'ringcentral-widgets/components/Button';
 
 /**
  * Environment component for switching api server. Intended only for testing.

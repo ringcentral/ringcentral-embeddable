@@ -4,6 +4,8 @@ import classnames from 'classnames';
 import Spinner from 'ringcentral-widgets/components/Spinner';
 import { RcOutlineTextField, RcBoxSelect, RcMenuItem } from '@ringcentral-integration/rcui';
 
+import searchSvg from '@ringcentral-integration/rcui/icons/icon-search.svg';
+
 import MeetingItem from '../MeetingItem';
 import styles from './styles.scss';
 
@@ -146,11 +148,11 @@ export default class IMeetingHistoryPanel extends Component<IMeetingHistoryPanel
         <div className={styles.header}>
           <div className={styles.input}>
             <RcOutlineTextField
-              icon="search"
+              iconPosition="left"
+              symbol={searchSvg}
               value={searchText}
-              type="round"
+              radiusType="rounded"
               size="small"
-              iconSize="small"
               onChange={(e) => {
                 updateSearchText(e.target.value);
               }}

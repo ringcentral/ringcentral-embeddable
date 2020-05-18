@@ -2,6 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { RcIconButton, RcButton } from '@ringcentral-integration/rcui';
+import infoSvg from '@ringcentral-integration/rcui/icons/icon-info.svg';
 
 import i18n from './i18n';
 import styles from './styles.scss';
@@ -36,7 +37,7 @@ function MeetingItem(props) {
   const meetingId = meetingIds[0];
   const joinBtn = meetingId ? (
     <RcButton
-      size="small"
+      size="medium"
       color="primary"
       className={styles.button}
       onClick={() => {
@@ -56,7 +57,7 @@ function MeetingItem(props) {
         <span title="Details" className={styles.iconButton}>
           <RcIconButton
             size="small"
-            icon="info"
+            symbol={infoSvg}
             onClick={() => window.open(editEventUrl)}
           />
         </span>

@@ -7,7 +7,7 @@ import RcModule from 'ringcentral-integration/lib/RcModule';
 import callDirections from 'ringcentral-integration/enums/callDirections';
 
 import AvailabilityMonitor from 'ringcentral-integration/modules/AvailabilityMonitor';
-import Analytics from 'ringcentral-integration/modules/Analytics';
+import { Analytics } from 'ringcentral-integration/modules/Analytics';
 import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 // import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
@@ -303,6 +303,7 @@ import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
       provide: 'RcVideoOptions',
       useValue: {
         showSaveAsDefault: true,
+        enablePersonalMeeting: true,
       },
       spread: true,
     },

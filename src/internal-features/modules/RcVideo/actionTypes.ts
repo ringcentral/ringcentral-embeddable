@@ -5,6 +5,7 @@ export default createEnum(
   [
     'updateMeetingSettings',
     'saveAsDefaultSetting',
+    'saveLastVideoSetting',
     'initCreating',
     'created',
     'resetCreating', // for Office...TODO:
@@ -24,6 +25,7 @@ export default createEnum(
 export interface RcVideoActionTypes {
   updateMeetingSettings: string;
   saveAsDefaultSetting: string;
+  saveLastVideoSetting: string;
   initSuccess: string;
   init: string;
   initCreating: string;

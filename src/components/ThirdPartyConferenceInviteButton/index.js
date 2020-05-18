@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Button from 'ringcentral-widgets/components/Button';
+import { Button } from 'ringcentral-widgets/components/Button';
 import styles from 'ringcentral-widgets/components/ConferencePanel/styles.scss';
 import PropTypes from 'prop-types';
 

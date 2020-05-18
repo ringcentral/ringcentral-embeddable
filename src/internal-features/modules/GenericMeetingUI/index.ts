@@ -1,6 +1,7 @@
 import { Module } from 'ringcentral-integration/lib/di';
 import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
 import Brand from 'ringcentral-integration/modules/Brand';
+import { RcVMeetingModel } from '../../models/rcv.model';
 
 @Module({
   name: 'GenericMeetingUI',
@@ -47,24 +48,22 @@ export default class GenericMeetingUI extends RcUIModule {
     datePickerSize,
     timePickerSize,
   }) {
-    const requiredPassowrd =
+    const invalidPassowrd =
       this._genericMeeting.isRCV &&
       this._genericMeeting.meeting &&
-      (
-        this._genericMeeting.meeting.isMeetingSecret &&
-        !this._genericMeeting.meeting.meetingPassword
-      );
+      this._genericMeeting.meeting.isMeetingSecret &&
+      !this._genericMeeting.meeting.isMeetingPasswordValid;
     return {
       datePickerSize,
       timePickerSize,
       meeting: this._genericMeeting.meeting || {},
       currentLocale: this._locale.currentLocale,
       disabled:
-        this._genericMeeting.isScheduling ||
         disabled ||
+        invalidPassowrd ||
+        this._genericMeeting.isScheduling ||
         !this._connectivityMonitor.connectivity ||
-        (this._rateLimiter && this._rateLimiter.throttling) ||
-        requiredPassowrd,
+        (this._rateLimiter && this._rateLimiter.throttling),
       showWhen,
       showDuration,
       showRecurringMeeting,
@@ -74,18 +73,27 @@ export default class GenericMeetingUI extends RcUIModule {
       isRCV: this._genericMeeting.isRCV,
       scheduleButton,
       brandName: this._brand.name,
-      personalMeetingId: (
+      personalMeetingId:
         this._genericMeeting.personalMeeting &&
-        this._genericMeeting.personalMeeting.shortId
-      ),
+        this._genericMeeting.personalMeeting.shortId,
     };
   }
 
   getUIFunctions(props?: any) {
     const { schedule } = props;
     return {
-      updateMeetingSettings: (value) =>
+      // TODO: any is reserved for RcM
+      updateMeetingSettings: (value: RcVMeetingModel | any) =>
         this._genericMeeting.updateMeetingSettings(value),
+      validatePasswordSettings: (
+        password: string,
+        isSecret: boolean,
+      ): boolean => {
+        return this._genericMeeting.validatePasswordSettings(
+          password,
+          isSecret,
+        );
+      },
       schedule: async (meetingInfo, opener) => {
         if (schedule) {
           await schedule(meetingInfo, opener);

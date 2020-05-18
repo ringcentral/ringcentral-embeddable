@@ -34,6 +34,7 @@ const GenericMeetingPanel: React.ComponentType<GenericMeetingPanelProps> = (
     init,
     showSaveAsDefault,
     updateMeetingSettings,
+    validatePasswordSettings,
     isRCM,
     isRCV,
     datePickerSize,
@@ -45,12 +46,15 @@ const GenericMeetingPanel: React.ComponentType<GenericMeetingPanelProps> = (
     schedule,
     brandName,
     personalMeetingId,
+    showHeader,
   } = props;
 
   if (!isRCM && !isRCV) {
     return <SpinnerOverlay />;
   }
 
+  // TODO: fix lint issue here
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [topicRef, setTopicRef] = useState(null);
 
   return (
@@ -77,9 +81,11 @@ const GenericMeetingPanel: React.ComponentType<GenericMeetingPanelProps> = (
           currentLocale={currentLocale}
           meeting={meeting}
           updateMeetingSettings={updateMeetingSettings}
+          validatePasswordSettings={validatePasswordSettings}
           recipientsSection={recipientsSection}
           showWhen={showWhen}
           showDuration={showDuration}
+          showHeader={showHeader}
           init={init}
           datePickerSize={datePickerSize}
           timePickerSize={timePickerSize}
@@ -113,7 +119,7 @@ const GenericMeetingPanel: React.ComponentType<GenericMeetingPanelProps> = (
               //   ? meeting
               //   : {
               //       ...meeting,
-              //       name: topicRef.current.props.value, // TODO: why this?
+              //       name: topicRef.current.props.value,
               //     };
               await schedule(meeting, opener);
             }
@@ -148,6 +154,7 @@ GenericMeetingPanel.defaultProps = {
   appCode: '',
   scheduleButtonLabel: '',
   personalMeetingId: undefined,
+  showHeader: true,
 };
 
 export { GenericMeetingPanel };

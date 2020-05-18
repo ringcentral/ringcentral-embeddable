@@ -116,6 +116,15 @@ export class GenericMeeting extends RcModule implements IGenericMeeting {
     this._eventEmitter.removeListener(MeetingEvents.afterSchedule, cb);
   }
 
+  validatePasswordSettings(password: string, isSecret: boolean): boolean {
+    // TODO: Currently NOT support RCM, use only when RCV
+    return this._rcVideo.validatePasswordSettings(password, isSecret);
+  }
+
+  generateRcvMeetingPassword() {
+    return this._rcVideo.generateRandomPassword();
+  }
+
   @proxify
   async fetchHistoryMeetings(params) {
     return (
