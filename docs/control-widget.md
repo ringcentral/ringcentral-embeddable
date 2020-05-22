@@ -41,6 +41,17 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 If you are using Adapter JS way, just you can just call `RCAdapter.clickToSMS('phonenumber')`.
 
+## Auto populate SMS conversation text
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-auto-populate-conversation',
+  text: `your text`,
+}, '*');
+```
+
+**Notice**: This only works when user is on SMS conversation detail page. It will add `your text` into user's conversation input.
+
 ## Control the web call
 
 Following APIs need to work with [Web phone call event](widget-event.md#web-phone-call-event) to get `callId`.

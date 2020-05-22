@@ -42,6 +42,7 @@ const CALL_NOTIFY_DELAY = 1500;
     'CallLogger',
     'GenericMeeting',
     'Brand',
+    'Conversations',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -68,6 +69,7 @@ export default class Adapter extends AdapterModuleCore {
     genericMeeting,
     brand,
     rolesAndPermissions,
+    conversations,
     ...options
   }) {
     super({
@@ -97,6 +99,7 @@ export default class Adapter extends AdapterModuleCore {
     this._meeting = genericMeeting;
     this._brand = brand;
     this._rolesAndPermissions = rolesAndPermissions;
+    this._conversations = conversations;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -206,6 +209,9 @@ export default class Adapter extends AdapterModuleCore {
           break;
         case 'rc-adapter-new-call':
           this._newCall(data.phoneNumber, data.toCall);
+          break;
+        case 'rc-adapter-auto-populate-conversation':
+          this._autoPopulateConversationText(data.text);
           break;
         case 'rc-adapter-control-call':
           this._controlCall(data.callAction, data.callId, data.options);
@@ -638,6 +644,15 @@ export default class Adapter extends AdapterModuleCore {
     this._dialerUI.setToNumberField(phoneNumber);
     if (toCall) {
       this._dialerUI.call({ phoneNumber });
+    }
+  }
+
+  _autoPopulateConversationText(text) {
+    if (!this._conversations.currentConversationId) {
+      return;
+    }
+    if (typeof text === 'string') {
+      this._conversations.updateMessageText(text);
     }
   }
 
