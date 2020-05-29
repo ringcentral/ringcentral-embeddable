@@ -34,6 +34,10 @@ To pass `disableCall` on adapter.js uri or iframe src uri as upper example.
 
 To pass `disableConferenceInvite` on adapter.js uri or iframe src uri as upper example.
 
+## Disable Meeting feature
+
+To pass `disableMeeting` on adapter.js uri or iframe src uri as upper example.
+
 ## Enable Glip feature
 
 Glip feature is in beta. It is disabled it by default. To enable it:
