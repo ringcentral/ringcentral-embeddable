@@ -582,6 +582,7 @@ export function createPhone({
   disableConferenceInvite,
   disableGlip,
   disableConferenceCall,
+  disableMeeting,
   authMode,
   userAgent,
   analyticsKey,
@@ -658,6 +659,7 @@ export function createPhone({
           disableConferenceInvite,
           disableGlip,
           disableConferenceCall,
+          disableMeeting,
         },
       },
       {
