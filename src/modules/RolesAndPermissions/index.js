@@ -16,6 +16,7 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     disableConferenceInvite,
     disableGlip,
     disableConferenceCall,
+    disableMeeting,
     ...options
   }) {
     super(options);
@@ -24,6 +25,7 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     this._disableConferenceInvite = disableConferenceInvite;
     this._disableConferenceCall = disableConferenceCall;
     this._disableGlip = disableGlip;
+    this._disableMeeting = disableMeeting;
   }
 
   @getter
@@ -69,7 +71,7 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
 
   get organizeMeetingEnabled() {
     const scope = (this._auth.token && this._auth.token.scope) || '';
-    return scope.indexOf('Meeting') > -1 && this.permissions.Meetings;
+    return !this._disableMeeting && scope.indexOf('Meeting') > -1 && this.permissions.Meetings;
   }
 
   get contactsEnabled() {
