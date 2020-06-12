@@ -192,3 +192,18 @@ Please replace `your_host_uri` with your own web host address, such as `https://
 And set redirect uri `${your_host_uri}/redirect.html` in your app setting on RingCentral Developer website.
 
 3. Upload all files in release folder to your web space. And visit it in browser.
+
+### Build for browser extension
+
+For browser extension, we can host all files in browser extension local folder instead CDN.
+
+To build for browser extension local files:
+
+```
+yarn build-extension
+```
+
+After building, we can get compiled files in this project's extension folder. Create a `embeddable` folder in your extension project. Copy all files in extension folder to your extesnion project's `embeddable` folder. 
+
+Then you can load this widget with `${your_extension_uri}/embeddable/adapter.js` or `${your_extension_uri}/embeddable/app.html`.
+
