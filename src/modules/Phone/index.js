@@ -68,7 +68,7 @@ import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
 import ConferenceUI from 'ringcentral-widgets/modules/ConferenceUI';
 import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
 import RegionSettingsUI from 'ringcentral-widgets/modules/RegionSettingsUI';
-import CallingSettingsUI from 'ringcentral-widgets/modules/CallingSettingsUI';
+import { CallingSettingsUI } from 'ringcentral-widgets/modules/CallingSettingsUI';
 import SettingsPageUI from 'ringcentral-widgets/modules/SettingsPageUI';
 import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
 import { ContactDetailsUI } from 'ringcentral-widgets/modules/ContactDetailsUI';
@@ -79,6 +79,7 @@ import ConnectivityBadgeUI from 'ringcentral-widgets/modules/ConnectivityBadgeUI
 import LoginUI from 'ringcentral-widgets/modules/LoginUI';
 import MeetingUI from 'ringcentral-widgets/modules/MeetingUI';
 import Meeting from 'ringcentral-integration/modules/Meeting';
+import { CallerId } from 'ringcentral-integration/modules/CallerId';
 
 import CallBadgeUI from 'ringcentral-widgets/modules/CallBadgeUI';
 import CallHistoryUI from 'ringcentral-widgets/modules/CallHistoryUI';
@@ -154,6 +155,7 @@ import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
     { provide: 'RegionSettings', useClass: RegionSettings },
     { provide: 'NumberValidate', useClass: NumberValidate },
     { provide: 'Webphone', useClass: Webphone },
+    { provide: 'CallerId', useClass: CallerId },
     { provide: 'CallingSettings', useClass: CallingSettings },
     { provide: 'CallingSettingsUI', useClass: CallingSettingsUI },
     { provide: 'Presence', useClass: Presence },

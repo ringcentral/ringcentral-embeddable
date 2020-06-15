@@ -1,6 +1,6 @@
 import sleep from 'ringcentral-integration/lib/sleep';
 import React, { useState } from 'react';
-import SpinnerOverlay from 'ringcentral-widgets/components/SpinnerOverlay';
+import { SpinnerOverlay } from 'ringcentral-widgets/components/SpinnerOverlay';
 import MeetingConfigs from 'ringcentral-widgets/components/MeetingConfigs';
 import isSafari from 'ringcentral-widgets/lib/isSafari';
 
