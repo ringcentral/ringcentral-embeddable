@@ -1194,13 +1194,15 @@
     prop-types "^15.7.2"
     react-is "^16.8.0"
 
-"@ringcentral-integration/core@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@ringcentral-integration/core/-/core-0.11.0.tgz#01912efd0d0766caae128b2fe6fd654f2cccc989"
-  integrity sha512-fQ3R1v+EcJs5/SWi8R+IEYZx5/qyCcLxa/ERw2VZV2NHaF2Mr7TOGBeB1Ofy2JsJQAYdvFK9SeiudUKLuQdGPA==
+"@ringcentral-integration/core@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@ringcentral-integration/core/-/core-0.11.1.tgz#328bfd0fdce3ef67a61161f2686b3535fc004dc6"
+  integrity sha512-xkEgf42SZdCH9olUQo/pxBhtaFJGk+3vsKcWhu6ViIKKsVKzp1S5/xm7UuZbT8fCEX6AzH4UvEPUwGZMAz2/HQ==
   dependencies:
     immer "^3.1.1"
+    ramda "^0.26.1"
     redux "^4.0.4"
+    reselect "^2.5.4"
     usm "^2.0.0"
     usm-redux "^2.0.2"
 
@@ -1248,7 +1250,7 @@
     libphonenumber-js "^1.7.29"
     ramda "^0.26.1"
 
-"@ringcentral-integration/rcui@*", "@ringcentral-integration/rcui@^0.1.0":
+"@ringcentral-integration/rcui@^0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@ringcentral-integration/rcui/-/rcui-0.1.0.tgz#43ac7036e7a6f61a57a9c9c9974ee569f27fb4bb"
   integrity sha512-NvRiQT/OgjtYxFi2qiioEWVUHlWT8nCuKuy/YGxnPjCeoFGa+riPuSf+DWpVyVvXHFgVOYIObtLriuRtydbHjQ==
@@ -8914,10 +8916,10 @@ ringcentral-client@^1.0.0-beta.2:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-ringcentral-integration@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.11.0.tgz#1b11a9c54490b274b1338cdc2c2f3002fa54efa0"
-  integrity sha512-8ikI56stFLLAve4Mz5b+mxwTLODRaZS1xa7FXgHmDUbYyAZ2OkVkFUPE1UdDcfdakMLp19mmFDvnNYTkUxS+kw==
+ringcentral-integration@^0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/ringcentral-integration/-/ringcentral-integration-0.11.1.tgz#3d0a2b0d1230f25b64ed91e9fd1dc2b4d0b80ca9"
+  integrity sha512-eAo4RFICousDyI9jyuYx10DNIQbRlxrTll5e0hePb3ODV9XbZDajmYWkirygk/l7cHVv9vTmTUvDa3JJ5zebog==
   dependencies:
     "@sentry/browser" "^5.11.1"
     bowser "^2.5.3"
@@ -8943,12 +8945,12 @@ ringcentral-web-phone@^0.8.0:
     getstats "1.2.0"
     sip.js "0.13.5"
 
-ringcentral-widgets@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.11.0.tgz#6b69e90a34aa11ae24a740c23535e6825b02fbf4"
-  integrity sha512-y8f8rV1wnh+4ICRAHOq9ggNFcrwV5nZkkBYUqLGg1kQbY6Usu+3F3Y6K9k5X5nt/r/9h1JGXW4SW4MuMcLBkZQ==
+ringcentral-widgets@^0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/ringcentral-widgets/-/ringcentral-widgets-0.11.1.tgz#6a6ff5ce3522aee3124fc56f8cc7ed9f91527dfc"
+  integrity sha512-tKJfmTErtXmhClYPKddNsGO16Tj+Zqp8E4Qq/SXetGeT97q5Ni92yigPbhf4XOhXNiX2F3VxJ8OhRcX2Mb7VkA==
   dependencies:
-    "@ringcentral-integration/rcui" "*"
+    "@ringcentral-integration/rcui" "^0.1.0"
     animate.css "^3.5.2"
     classnames "^2.2.5"
     dedent "^0.7.0"

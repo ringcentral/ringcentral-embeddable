@@ -4,7 +4,7 @@ import { createSelector } from 'reselect';
 
 import withPhone from 'ringcentral-widgets/lib/withPhone';
 import TabContentPanel from 'ringcentral-widgets/components/TabContentPanel';
-import SpinnerOverlay from 'ringcentral-widgets/components/SpinnerOverlay';
+import { SpinnerOverlay } from 'ringcentral-widgets/components/SpinnerOverlay';
 import i18n from './i18n';
 import styles from './styles.scss';
 
