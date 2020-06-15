@@ -65,7 +65,7 @@ export class IframeWidget {
 
   async clickNavigationButton(label) {
     await this.waitFor('nav.NavigationBar_root');
-    await this._widgetIframe.click(`.TabNavigationButton_iconHolder[title="${label}"]`);
+    await this._widgetIframe.click(`.TabNavigationButton_iconHolder[data-sign="${label}"]`);
   }
 
   async clickDropdownNavigationMenu(label) {
