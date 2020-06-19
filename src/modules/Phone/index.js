@@ -69,7 +69,6 @@ import ConferenceUI from 'ringcentral-widgets/modules/ConferenceUI';
 import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
 import RegionSettingsUI from 'ringcentral-widgets/modules/RegionSettingsUI';
 import { CallingSettingsUI } from 'ringcentral-widgets/modules/CallingSettingsUI';
-import SettingsPageUI from 'ringcentral-widgets/modules/SettingsPageUI';
 import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
 import { ContactDetailsUI } from 'ringcentral-widgets/modules/ContactDetailsUI';
 import ComposeTextUI from 'ringcentral-widgets/modules/ComposeTextUI';
@@ -285,7 +284,6 @@ import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
     { provide: 'ConversationLoggerOptions', useValue: {}, spread: true },
     { provide: 'ActiveCallsUI', useClass: ActiveCallsUI },
     { provide: 'LoginUI', useClass: LoginUI },
-    { provide: 'SettingsPageUI', useClass: SettingsPageUI },
     { provide: 'MeetingUI', useClass: MeetingUI },
     { provide: 'SettingsUI', useClass: SettingsUI },
     { provide: 'CallBadgeUI', useClass: CallBadgeUI },
