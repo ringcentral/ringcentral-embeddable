@@ -167,7 +167,7 @@ window.addEventListener('message', function (e) {
 
 ## Add a conference invite button with your service
 
-`Schedule Conference` is disabled by default, follow [here](disable-features##enable-conference-invite-feature) to enable it.
+`Conference Invite` is disabled by default, follow [here](disable-features##enable-conference-invite-feature) to enable it.
 
 First you need to pass `conferenceInvitePath` and `conferenceInviteTitle` when you register service.
 
@@ -184,7 +184,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 After registered, you can get a `Invite with TestService` in conference invite page.
 
-![image](https://user-images.githubusercontent.com/7036536/42258529-cb5684e8-7f8e-11e8-88e8-0b251a102e0e.png)
+![Conference Invite with Third party](https://user-images.githubusercontent.com/7036536/85112457-3aac9600-b248-11ea-828d-050b5535fa60.png)
 
 Add a message event to response conference invite button event:
 
