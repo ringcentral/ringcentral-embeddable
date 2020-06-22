@@ -93,9 +93,9 @@ function mapToProps(_, {
     rolesAndPermissions,
     thirdPartyService,
     audioSettings,
-    settingsPageUI,
+    settingsUI,
   } = phone;
-  const baseProps = settingsPageUI.getUIProps({
+  const baseProps = settingsUI.getUIProps({
     phone,
     ...props,
   });
@@ -129,10 +129,10 @@ function mapToFunctions(_, {
     callLogger,
     conversationLogger,
     thirdPartyService,
-    settingsPageUI,
+    settingsUI,
   } = phone;
   return {
-    ...settingsPageUI.getUIFunctions({ phone, ...props }),
+    ...settingsUI.getUIFunctions({ phone, ...props }),
     onAutoLogChange(autoLog) { callLogger.setAutoLog(autoLog); },
     onAutoLogSMSChange(autoLog) { conversationLogger.setAutoLog(autoLog); },
     onThirdPartyAuthorize: () => thirdPartyService.authorizeService(),
