@@ -28,15 +28,11 @@ Just pass `disableMessages` on adapter.js uri or iframe src uri.
 
 ## Disable Call releated features
 
-To pass `disableCall` on adapter.js uri or iframe src uri as upper example.
-
-## Disable Conference invite feature
-
-To pass `disableConferenceInvite` on adapter.js uri or iframe src uri as upper example.
+To pass `disableCall=true` on adapter.js uri or iframe src uri as upper example.
 
 ## Disable Meeting feature
 
-To pass `disableMeeting` on adapter.js uri or iframe src uri as upper example.
+To pass `disableMeeting=true` on adapter.js uri or iframe src uri as upper example.
 
 ## Enable Glip feature
 
@@ -54,6 +50,12 @@ Glip feature is in beta. It is disabled it by default. To enable it:
 ```
 
 Before we start to use Glip API, need to add `Glip` permission to your app in RingCentral Developer website.
+
+## Enable Conference invite feature
+
+Conference Invite feature will be deprecated in end of 2020. Now it is disabled by default.
+
+To enable it by passing `disableConferenceInvite=false` on adapter.js uri or iframe src uri as upper example.
 
 ## Enable Conference Call feature
 

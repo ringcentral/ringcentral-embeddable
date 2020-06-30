@@ -7,10 +7,10 @@ This document show how the widget can interact with your application deeply.
 ## Table of Contents
 
 * [Register your service](#register-your-service)
-* [Add a conference invite button with your service](#add-a-conference-invite-button-with-your-service)
 * [Add meeting schedule button with your service](#add-meeting-schedule-feature-with-your-service)
   * [Show upcoming meeting list in RingCentral Video page](#show-upcoming-meeting-list-in-ringcentral-video-page)
   * [Log RingCentral Video meeting into your service](#log-ringcentral-video-meeting-into-your-service)
+* [Add a conference invite button with your service](#add-a-conference-invite-button-with-your-service)
 * [Show contacts from your application](#show-contacts-from-your-application)
   * [Show contacts on Contacts page in widget](#show-contacts-on-contacts-page-in-widget)
   * [Show contacts search result on Dialer receiver input](#show-contacts-search-result-on-dialer-receiver-input)
@@ -37,45 +37,6 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     name: 'TestService'
   }
 }, '*');
-```
-
-## Add a conference invite button with your service
-
-First you need to pass `conferenceInvitePath` and `conferenceInviteTitle` when you register service.
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-register-third-party-service',
-  service: {
-    name: 'TestService', // service name
-    conferenceInvitePath: '/conference/invite',
-    conferenceInviteTitle: 'Invite with TestService',
-  }
-}, '*');
-```
-
-After registered, you can get a `Invite with TestService` in conference invite page.
-
-![image](https://user-images.githubusercontent.com/7036536/42258529-cb5684e8-7f8e-11e8-88e8-0b251a102e0e.png)
-
-Add a message event to response conference invite button event:
-
-```js
-window.addEventListener('message', function (e) {
-  var data = e.data;
-  if (data && data.type === 'rc-post-message-request') {
-    if (data.path === '/conference/invite') {
-      // add your codes here to handle conference invite data
-      console.log(data);
-      // response to widget
-      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-        type: 'rc-post-message-response',
-        responseId: data.requestId,
-        response: { data: 'ok' },
-      }, '*');
-    }
-  }
-});
 ```
 
 ## Add meeting schedule feature with your service
@@ -192,6 +153,47 @@ window.addEventListener('message', function (e) {
   if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/meetingLogger') {
       // add your codes here to log meeting to your service
+      console.log(data);
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+  }
+});
+```
+
+## Add a conference invite button with your service
+
+`Conference Invite` is disabled by default, follow [here](disable-features##enable-conference-invite-feature) to enable it.
+
+First you need to pass `conferenceInvitePath` and `conferenceInviteTitle` when you register service.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService', // service name
+    conferenceInvitePath: '/conference/invite',
+    conferenceInviteTitle: 'Invite with TestService',
+  }
+}, '*');
+```
+
+After registered, you can get a `Invite with TestService` in conference invite page.
+
+![Conference Invite with Third party](https://user-images.githubusercontent.com/7036536/85112457-3aac9600-b248-11ea-828d-050b5535fa60.png)
+
+Add a message event to response conference invite button event:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/conference/invite') {
+      // add your codes here to handle conference invite data
       console.log(data);
       // response to widget
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({

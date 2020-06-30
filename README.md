@@ -86,7 +86,6 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 * [Interact with calling settings](docs/interact-with-calling-settings.md)
 * [Third Party Service in Widget](docs/third-party-service-in-widget.md)
   * Register your service
-  * Add a conference invite button with your service
   * Add meeting schedule button with your service
   * Show upcoming meeting list in RingCentral Video page
   * Log RingCentral Video meeting into your service
@@ -99,7 +98,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 * [Enable and Disable Features in Widget](docs/disable-features.md)
   * Disable messages features
   * Disable Call releated features
-  * Disable Conference invite feature
+  * Enable Conference invite feature
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
   * [Enable Active Call Control feature](docs/disable-features.md#enable-active-call-control-feature)
 * [New adapter badge UI](docs/new-adapter-ui.md)

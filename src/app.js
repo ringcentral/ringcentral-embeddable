@@ -50,7 +50,7 @@ const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
 const proxyUri = pathParams.proxyUri || process.env.PROXY_URI;
 const disableCall = typeof pathParams.disableCall !== 'undefined';
 const disableMessages = typeof pathParams.disableMessages !== 'undefined';
-const disableConferenceInvite = typeof pathParams.disableConferenceInvite !== 'undefined';
+const disableConferenceInvite = typeof pathParams.disableConferenceInvite === 'undefined' || pathParams.disableConferenceInvite === 'true';
 const disableGlip = typeof pathParams.disableGlip === 'undefined' || pathParams.disableGlip === 'true';
 const disableConferenceCall = typeof pathParams.disableConferenceCall === 'undefined' || pathParams.disableConferenceCall === 'true';
 const disableMeeting = typeof pathParams.disableMeeting !== 'undefined';
