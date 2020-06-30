@@ -41,7 +41,7 @@ import Locale from 'ringcentral-integration/modules/Locale';
 import MessageSender from 'ringcentral-integration/modules/MessageSender';
 import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
 import RateLimiter from 'ringcentral-integration/modules/RateLimiter';
-import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
+// import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
 import Ringout from 'ringcentral-integration/modules/Ringout';
 import Softphone from 'ringcentral-integration/modules/Softphone';
 import Storage from 'ringcentral-integration/modules/Storage';
@@ -107,6 +107,7 @@ import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
 import Webphone from '../Webphone';
+import RegionSettings from '../RegionSettings';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
