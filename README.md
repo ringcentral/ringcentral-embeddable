@@ -8,11 +8,11 @@ This is an out-of-the-box embeddable web application that help developers to int
 
 Built with:
 
-* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) - based on react and redux
+* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) - based on React and Redux
 
 ## Visit Online
 
-Visit [website](https://ringcentral.github.io/ringcentral-embeddable/) in github pages.
+Visit [website](https://ringcentral.github.io/ringcentral-embeddable/) in GitHub pages.
 
 ## Use as a embeddable web widget
 
