@@ -12,7 +12,7 @@ Built with:
 
 ## Visit Online
 
-Visit [website](https://ringcentral.github.io/ringcentral-embeddable/) in GitHub pages.
+Visit [website](https://ringcentral.github.io/ringcentral-embeddable/) in GitHub Pages.
 
 ## Use as a embeddable web widget
 
