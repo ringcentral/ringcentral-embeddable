@@ -3,7 +3,7 @@
 In RingCentral Embeddable widget, we provide 4 calling options in `Calling Setting` page.
 
 - Browser - make and receive calls using your computer’s microphone and speaker based on browser
-- RingCentral for Desktop - make and receive calls using your RingCentral for Desktop app
+- RingCentral for Desktop - make and receive calls using your RingCentral Phone for Desktop app
 - My RingCentral Phone
 - Custom Phone
 
