@@ -623,7 +623,9 @@ export default class Adapter extends AdapterModuleCore {
       return;
     }
     this._router.push('/composeText');
-    this._composeText.updateTypingToNumber(phoneNumber);
+    if (phoneNumber) {
+      this._composeText.updateTypingToNumber(phoneNumber);
+    }
     if (text && text.length > 0) {
       this._composeText.updateMessageText(String(text));
     }
