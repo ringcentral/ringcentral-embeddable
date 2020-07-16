@@ -41,13 +41,13 @@ import Locale from 'ringcentral-integration/modules/Locale';
 import MessageSender from 'ringcentral-integration/modules/MessageSender';
 import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
 import RateLimiter from 'ringcentral-integration/modules/RateLimiter';
-// import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
+import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
 import Ringout from 'ringcentral-integration/modules/Ringout';
 import Softphone from 'ringcentral-integration/modules/Softphone';
 import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
 import TabManager from 'ringcentral-integration/modules/TabManager';
-// import Webphone from 'ringcentral-integration/modules/Webphone';
+import Webphone from 'ringcentral-integration/modules/Webphone';
 import Feedback from 'ringcentral-integration/modules/Feedback';
 import Conference from 'ringcentral-integration/modules/Conference';
 import RecentMessages from 'ringcentral-integration/modules/RecentMessages';
@@ -106,8 +106,6 @@ import ActiveCalls from '../ActiveCalls';
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
-import Webphone from '../Webphone';
-import RegionSettings from '../RegionSettings';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
@@ -701,6 +699,7 @@ export function createPhone({
         useValue: {
           defaultCallWith,
           emergencyCallAvailable: true,
+          showCallWithJupiter: true,
         },
         spread: true,
       },

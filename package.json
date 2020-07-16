@@ -52,7 +52,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
     "@babel/runtime": "^7.3.4",
-    "@ringcentral-integration/core": "^0.11.1",
+    "@ringcentral-integration/core": "^0.11.2",
     "@ringcentral-integration/glip-widgets": "^0.0.1",
     "@ringcentral-integration/i18n": "^2.0.1",
     "@ringcentral-integration/locale-loader": "^2.0.2",
@@ -75,8 +75,8 @@
     "redux": "^4.0.4",
     "ringcentral": "^3.2.2",
     "ringcentral-client": "^1.0.0-beta.2",
-    "ringcentral-integration": "^0.11.1",
-    "ringcentral-widgets": "^0.11.1",
+    "ringcentral-integration": "^0.11.2",
+    "ringcentral-widgets": "^0.11.2",
     "uuid": "^3.2.1",
     "whatwg-fetch": "^2.0.3"
   },
