@@ -3,13 +3,14 @@
 In RingCentral Embeddable widget, we provide 4 calling options in `Calling Setting` page.
 
 - Browser - make and receive calls using your computer’s microphone and speaker based on browser
-- RingCentral for Desktop - make and receive calls using your RingCentral Phone for Desktop app
+- RingCentral App - make and receive calls using your `RingCentral` desktop app
+- RingCentral Phone - make and receive calls using your `RingCentral Phone` desktop app
 - My RingCentral Phone
 - Custom Phone
 
 For `My RingCentral Phone` and `Custom Phone`, they work with our [Ringout](https://support.ringcentral.com/s/article/85?language=en_US) mode. Users also need to set `My Location` phone number. So when user creates a call, RingCentral will first call user's location phone number, then call correspondent's phone number. If user enables `Prompt me to dial 1 before connecting the call`, RingCentral will only call correspondent's phone number after user dials 1.  Please refer to [here](https://support.ringcentral.com/s/article/85?language=en_US) for more detailed information.
 
-For `RingCentral for Desktop`, `My RingCentral Phone` and `Custom Phone`, calls are on other devices, the widget can only get call event and information. And it is recommended to enable [active call control](disable-features.md#enable-active-call-control-feature), so user can also control the call in widget.
+For `RingCentral App`, `RingCentral Phone`, `My RingCentral Phone` and `Custom Phone`, calls are on other devices, the widget can only get call event and information. And it is recommended to enable [active call control](disable-features.md#enable-active-call-control-feature), so user can also control the call in widget.
 
 ## Default option
 
@@ -38,15 +39,16 @@ To set default `callWith` option:
 There are 4 options for `defaultCallWith`: 
 
 - browser
+- jupiter
 - softphone
 - myphone
 - customphone
 
-They are short names of `Browser`, `RingCentral for Desktop`, `My RingCentral Phone` and `Custom Phone`.
+They are short names of `Browser`, `RingCentral App`, `RingCentral Phone`, `My RingCentral Phone` and `Custom Phone`.
 
 ## Enable call from number setting
 
-In widget, user can also select `From` number when make a browser call. For developers who also want to set `From` number programatically, we need to enable from number settings:
+In widget, user can also select `From` number when make a browser call. For developers who also want to set `From` number programmatically, we need to enable from number settings:
 
 ```js
 <script>
