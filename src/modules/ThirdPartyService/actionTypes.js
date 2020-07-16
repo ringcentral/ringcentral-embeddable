@@ -1,8 +1,8 @@
-import Enum from 'ringcentral-integration/lib/Enum';
+import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import { moduleActionTypes } from 'ringcentral-integration/enums/moduleActionTypes';
 
-export default new Enum([
-  ...Object.keys(moduleActionTypes),
+const actionTypes = ObjectMap.prefixKeys([
+  ...ObjectMap.keys(moduleActionTypes),
   'register',
   'syncContacts',
   'syncContactsError',
@@ -22,3 +22,5 @@ export default new Enum([
   'updateSetting',
   'registerMeetingLogger',
 ], 'thirdPartyService');
+
+export default actionTypes;
