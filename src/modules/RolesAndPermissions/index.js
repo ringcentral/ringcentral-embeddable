@@ -17,6 +17,7 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     disableGlip,
     disableConferenceCall,
     disableMeeting,
+    disableReadText,
     ...options
   }) {
     super(options);
@@ -26,6 +27,7 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     this._disableConferenceCall = disableConferenceCall;
     this._disableGlip = disableGlip;
     this._disableMeeting = disableMeeting;
+    this._disableReadText = disableReadText;
   }
 
   @getter
@@ -92,5 +94,9 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     }
     const scope = this._auth.token.scope || '';
     return scope.indexOf('TelephonySessions') > -1 || scope.indexOf('CallControl') > -1;
+  }
+
+  get readTextPermissions() {
+    return super.readTextPermissions && !this._disableReadText;
   }
 }

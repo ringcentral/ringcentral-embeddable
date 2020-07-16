@@ -578,6 +578,7 @@ export function createPhone({
   stylesUri,
   disableCall,
   disableMessages,
+  disableReadText,
   disableConferenceInvite,
   disableGlip,
   disableConferenceCall,
@@ -659,6 +660,7 @@ export function createPhone({
           disableGlip,
           disableConferenceCall,
           disableMeeting,
+          disableReadText,
         },
       },
       {
