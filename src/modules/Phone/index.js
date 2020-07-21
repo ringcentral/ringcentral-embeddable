@@ -110,7 +110,7 @@ import MeetingInviteModalUI from '../MeetingInviteModalUI';
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
 
-import MeetingProvider from '../../internal-features/modules/MeetingProvider';
+import MeetingProvider from '../MeetingProvider';
 import GenericMeetingUI from '../../internal-features/modules/GenericMeetingUI';
 import { RcVideo } from '../../internal-features/modules/RcVideo';
 import GenericMeeting from '../../internal-features/modules/GenericMeeting';
