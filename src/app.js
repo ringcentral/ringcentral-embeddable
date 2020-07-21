@@ -50,6 +50,7 @@ const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
 const proxyUri = pathParams.proxyUri || process.env.PROXY_URI;
 const disableCall = typeof pathParams.disableCall !== 'undefined';
 const disableMessages = typeof pathParams.disableMessages !== 'undefined';
+const disableReadText = typeof pathParams.disableReadText !== 'undefined';
 const disableConferenceInvite = typeof pathParams.disableConferenceInvite === 'undefined' || pathParams.disableConferenceInvite === 'true';
 const disableGlip = typeof pathParams.disableGlip === 'undefined' || pathParams.disableGlip === 'true';
 const disableConferenceCall = typeof pathParams.disableConferenceCall === 'undefined' || pathParams.disableConferenceCall === 'true';
@@ -80,6 +81,7 @@ const phone = createPhone({
   stylesUri,
   disableCall,
   disableMessages,
+  disableReadText,
   disableConferenceInvite,
   disableGlip,
   disableConferenceCall,
