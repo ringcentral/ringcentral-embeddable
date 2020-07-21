@@ -6,6 +6,10 @@ We provide Call, CallHistory, Messages and ConferenceInvite features in the widg
 
 Just pass `disableMessages` on adapter.js uri or iframe src uri.
 
+## Disable SMS/Text read features
+
+Just pass `disableReadText` on adapter.js uri or iframe src uri.
+
 ### Use adapter way:
 
 ```js
