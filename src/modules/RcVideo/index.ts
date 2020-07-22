@@ -166,4 +166,8 @@ export default class NewRcVideo extends RcVideo {
   get upcomingMeetings() {
     return this.state.upcomingMeetings;
   }
+
+  get personalMeeting() {
+    return this._storage.getItem(this._personalMeetingKey) || {};
+  }
 }

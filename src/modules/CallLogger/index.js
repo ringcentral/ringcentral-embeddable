@@ -3,6 +3,17 @@ import getter from 'ringcentral-integration/lib/getter';
 import { Module } from 'ringcentral-integration/lib/di';
 import CallLoggerBase from 'ringcentral-integration/modules/CallLogger';
 
+function getAutoLogInitialStatus() {
+  let autoLogInitialStatus = false;
+  try {
+    const autoLogInitialStatusSetting = localStorage.getItem('__autoLogInitialStatus__');
+    autoLogInitialStatus = autoLogInitialStatusSetting === 'true';
+  } catch (e) {
+    // ignore
+  }
+  return autoLogInitialStatus;
+}
+
 @Module({
   deps: ['ThirdPartyService'],
 })
@@ -12,7 +23,7 @@ export default class CallLogger extends CallLoggerBase {
     ...options
   }) {
     super({
-      initialState: { autoLog: false },
+      initialState: { autoLog: getAutoLogInitialStatus() },
       readyCheckFunction: () => this._thirdPartyService.callLoggerRegistered,
       logFunction: async (data) => { await this._doLog(data); },
       ...options,

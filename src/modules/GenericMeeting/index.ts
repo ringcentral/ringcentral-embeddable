@@ -35,4 +35,14 @@ export default class NewGenericMeeting extends GenericMeeting {
   get upcomingMeetings() {
     return this._meetingModule && this._meetingModule.upcomingMeetings;
   }
+
+  protected get _meetingModule() {
+    if (this.isRCM) {
+      return this._meeting;
+    }
+    if (this.isRCV) {
+      return this._rcVideo;
+    }
+    return null;
+  }
 }
