@@ -1,5 +1,5 @@
 import { Module } from 'ringcentral-integration/lib/di';
-import { RcVideo } from '../../internal-features/modules/RcVideo';
+import { RcVideo } from '../../internal-features/modules/RcVideo'; // TODO: replace with widgets lib
 
 import {
   getHistoryMeetingsReducer,
