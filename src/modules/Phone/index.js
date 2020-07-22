@@ -87,6 +87,8 @@ import FlipUI from 'ringcentral-widgets/modules/FlipUI';
 import TransferUI from 'ringcentral-widgets/modules/TransferUI';
 import SettingsUI from 'ringcentral-widgets/modules/SettingsUI';
 
+import GenericMeetingUI from 'ringcentral-widgets/modules/GenericMeetingUI';
+
 import Brand from '../Brand';
 import AudioSettings from '../AudioSettings';
 import OAuth from '../OAuth';
@@ -105,17 +107,17 @@ import ErrorLogger from '../ErrorLogger';
 import ActiveCalls from '../ActiveCalls';
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
+
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
+import MeetingProvider from '../MeetingProvider';
+import MeetingHistoryUI from '../MeetingHistoryUI';
+import MeetingHomeUI from '../MeetingHomeUI';
+import RcVideo from '../RcVideo';
+import GenericMeeting from '../GenericMeeting';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
 
-import MeetingProvider from '../../internal-features/modules/MeetingProvider';
-import GenericMeetingUI from '../../internal-features/modules/GenericMeetingUI';
-import { RcVideo } from '../../internal-features/modules/RcVideo';
-import GenericMeeting from '../../internal-features/modules/GenericMeeting';
-import MeetingHistoryUI from '../../internal-features/modules/MeetingHistoryUI';
-import MeetingHomeUI from '../../internal-features/modules/MeetingHomeUI';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md

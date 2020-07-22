@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import withPhone from 'ringcentral-widgets/lib/withPhone';
 
 import MeetingScheduleButton from 'ringcentral-widgets/components/MeetingScheduleButton';
-import RcVScheduleButton from '../../internal-features/components/RcVScheduleButton';
+import RcVScheduleButton from 'ringcentral-widgets/components/RcVScheduleButton';
 
 function MeetingInviteButton(props) {
   const {
