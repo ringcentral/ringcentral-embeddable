@@ -34,6 +34,12 @@ import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
 
+import GenericMeetingPage from 'ringcentral-widgets/containers/GenericMeetingPage';
+
+import MeetingTabContainer from '../MeetingTabContainer';
+import MeetingHistoryPage from '../MeetingHistoryPage';
+import MeetingHomePage from '../MeetingHomePage';
+
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 
 import MainView from '../MainView';
@@ -51,11 +57,6 @@ import ConversationPage from '../ConversationPage';
 import MeetingInviteModal from '../MeetingInviteModal';
 
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
-
-import GenericMeetingPage from '../../internal-features/containers/GenericMeetingPage';
-import MeetingTabContainer from '../../internal-features/containers/MeetingTabContainer';
-import MeetingHistoryPage from '../../internal-features/containers/MeetingHistoryPage';
-import MeetingHomePage from '../../internal-features/containers/MeetingHomePage';
 
 export default function App({
   phone,

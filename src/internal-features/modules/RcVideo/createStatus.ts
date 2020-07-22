@@ -1,6 +1,6 @@
-import { createEnum } from 'ringcentral-integration/lib/Enum';
+import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 
-export default createEnum(
+export default ObjectMap.prefixKeys(
   ['creating', 'created', 'idle'],
   'videoCreatingStatus',
 );

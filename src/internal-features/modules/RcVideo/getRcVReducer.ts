@@ -5,10 +5,16 @@ import { RcVideoActionTypes } from './actionTypes';
 import createStatus from './createStatus';
 
 export function getRcVideoInfoReducer(types: RcVideoActionTypes) {
-  return (state = {}, { type, meeting = null }) => {
+  return (state = {}, { type, meeting = null, patch = true }) => {
     switch (type) {
-      case types.updateMeetingSettings:
-        return { ...state, ...meeting };
+      case types.updateMeetingSettings: {
+        return patch
+          ? {
+              ...state,
+              ...meeting,
+            }
+          : meeting;
+      }
       default:
         return state;
     }
@@ -52,70 +58,34 @@ export function getPersonalMeetingReducer(types: RcVideoActionTypes) {
   };
 }
 
-export function getLastVideoStorageReducer(types: RcVideoActionTypes) {
-  return (state = {}, { type, meeting = null }) => {
+export function getRcVideoPreferencesReducer(types: RcVideoActionTypes) {
+  return (state = {}, { type, preferences }) => {
     switch (type) {
-      case types.created:
-        // eslint-disable-next-line no-case-declarations
-        const {
-          allowJoinBeforeHost,
-          muteAudio,
-          muteVideo,
-          isMeetingSecret,
-          usePersonalMeetingId,
-        } = meeting;
-        return {
-          allowJoinBeforeHost,
-          muteAudio,
-          muteVideo,
-          isMeetingSecret,
-          usePersonalMeetingId,
-        };
+      case types.updateMeetingPreferences:
+        return preferences;
       default:
         return state;
     }
   };
 }
 
-export function getHistoryMeetingsReducer(types: RcVideoActionTypes) {
-  return (state = [], { type, meetings = [], pageToken }) => {
+export function getRcVideoPreferencesStateReducer(types: RcVideoActionTypes) {
+  return (state = false, { type, isPreferencesChanged }): boolean => {
     switch (type) {
-      case types.saveMeetings: {
-        if (!pageToken) {
-          return meetings;
-        }
-        return [].concat(state).concat(meetings);
-      }
-      case types.cleanMeetings: {
-        return [];
-      }
+      case types.saveMeetingPreferencesState:
+        return isPreferencesChanged;
       default:
         return state;
     }
   };
 }
 
-export function getUpcomingMeetingsReducer(types: RcVideoActionTypes) {
-  return (state = [], { type, meetings = [], pageToken }) => {
-    switch (type) {
-      case types.saveUpcomingMeetings: {
-        return meetings;
-      }
-      case types.cleanUpcomingMeetings: {
-        return [];
-      }
-      default:
-        return state;
-    }
-  };
-}
-
-export default (types, reducers) =>
+export default (types: RcVideoActionTypes, reducers) =>
   combineReducers({
     ...reducers,
     meeting: getRcVideoInfoReducer(types),
     status: getModuleStatusReducer(types),
     creatingStatus: getRcVideoCreatingStatusReducer(types),
-    historyMeetings: getHistoryMeetingsReducer(types),
-    upcomingMeetings: getUpcomingMeetingsReducer(types),
+    preferences: getRcVideoPreferencesReducer(types),
+    isPreferencesChanged: getRcVideoPreferencesStateReducer(types),
   });
