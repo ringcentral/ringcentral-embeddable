@@ -100,6 +100,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * Disable Call releated features
   * Enable Conference invite feature
   * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
+  * [Enable Conference(3-way) Calling feature](docs/disable-features.md#enable-conference-call-feature)
   * [Enable Active Call Control feature](docs/disable-features.md#enable-active-call-control-feature)
 * [New adapter badge UI](docs/new-adapter-ui.md)
 * [Enable Analytics](docs/add-analytics.md)
