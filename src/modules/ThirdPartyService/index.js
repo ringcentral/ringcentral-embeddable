@@ -704,7 +704,7 @@ export default class ThirdPartyService extends RcModule {
           contentUri,
         };
       }
-      await requestWithPostMessage(this._callLoggerPath, { call: callItem, ...options });
+      await requestWithPostMessage(this._callLoggerPath, { call: callItem, ...options }, 6000);
       if (this._callLogEntityMatchSourceAdded) {
         this._activityMatcher.match({
           queries: [call.sessionId],
