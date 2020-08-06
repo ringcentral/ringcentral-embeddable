@@ -174,6 +174,8 @@ export default class ThirdPartyService extends RcModule {
         this._updateAuthorizationStatus(e.data);
       } else if (e.data.type === 'rc-adapter-sync-third-party-contacts') {
         this._triggerSyncContacts();
+      } else if (e.data.type === 'rc-adapter-trigger-call-logger-match') {
+        this._triggerCallLoggerMatch(e.data.sessionIds);
       }
     });
   }
@@ -714,6 +716,26 @@ export default class ThirdPartyService extends RcModule {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  _triggerCallLoggerMatch(sessionIds) {
+    if (!Array.isArray(sessionIds)) {
+      return;
+    }
+    const queries = this._activityMatcher._getQueries();
+    const validatedSessionIds = [];
+    sessionIds.forEach((sessionId) => {
+      if (queries.indexOf(sessionId) > -1) {
+        validatedSessionIds.push(sessionId);
+      }
+    });
+    if (validatedSessionIds.length === 0) {
+      return;
+    }
+    this._activityMatcher.match({
+      queries: validatedSessionIds,
+      ignoreCache: true,
+    });
   }
 
   async logConversation({ item, ...options }) {
