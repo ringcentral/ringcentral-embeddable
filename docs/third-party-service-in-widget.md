@@ -574,6 +574,17 @@ window.addEventListener('message', function (e) {
 });
 ```
 
+#### Trigger call logger entity match manually
+
+The widget will trigger call logger entity match after call logged automatically. But you can still trigger it to match manually
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-trigger-call-logger-match',
+  sessionIds: [`call_session_id`],
+}, '*');
+```
+
 ## Log messages into your service
 
 ### Add message logger button in messages page
