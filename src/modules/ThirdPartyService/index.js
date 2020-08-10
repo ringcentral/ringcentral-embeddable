@@ -524,7 +524,11 @@ export default class ThirdPartyService extends RcModule {
       if (!this._contactSearchPath) {
         return [];
       }
-      const { data } = await requestWithPostMessage(this._contactSearchPath, { searchString });
+      const { data } = await requestWithPostMessage(
+        this._contactSearchPath,
+        { searchString },
+        30000
+      );
       if (!Array.isArray(data)) {
         return [];
       }
@@ -541,7 +545,7 @@ export default class ThirdPartyService extends RcModule {
       if (!this._contactMatchPath) {
         return result;
       }
-      const { data } = await requestWithPostMessage(this._contactMatchPath, { phoneNumbers }, 6000);
+      const { data } = await requestWithPostMessage(this._contactMatchPath, { phoneNumbers }, 30000);
       if (!data || Object.keys(data).length === 0) {
         return result;
       }
@@ -565,7 +569,11 @@ export default class ThirdPartyService extends RcModule {
       if (!this._callLogEntityMatcherPath) {
         return result;
       }
-      const { data } = await requestWithPostMessage(this._callLogEntityMatcherPath, { sessionIds });
+      const { data } = await requestWithPostMessage(
+        this._callLogEntityMatcherPath,
+        { sessionIds },
+        30000)
+      ;
       if (!data || Object.keys(data).length === 0) {
         return result;
       }
@@ -590,7 +598,7 @@ export default class ThirdPartyService extends RcModule {
         return result;
       }
       const { data } = await requestWithPostMessage(
-        this._messageLogEntityMatcherPath, { conversationLogIds }
+        this._messageLogEntityMatcherPath, { conversationLogIds }, 30000
       );
       if (!data || Object.keys(data).length === 0) {
         return result;
@@ -678,7 +686,7 @@ export default class ThirdPartyService extends RcModule {
           };
         });
       }
-      await requestWithPostMessage(this._meetingLoggerPath, { meeting: formatedMeeting });
+      await requestWithPostMessage(this._meetingLoggerPath, { meeting: formatedMeeting }, 6000);
     } catch (e) {
       console.error(e);
     }
@@ -770,7 +778,7 @@ export default class ThirdPartyService extends RcModule {
         });
         item.messages = messages;
       }
-      await requestWithPostMessage(this._messageLoggerPath, { conversation: item, ...options });
+      await requestWithPostMessage(this._messageLoggerPath, { conversation: item, ...options }, 6000);
       if (this._messageLogEntityMatchSourceAdded) {
         this._conversationMatcher.match({
           queries: [item.conversationLogId],
