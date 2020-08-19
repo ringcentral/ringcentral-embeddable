@@ -1,6 +1,7 @@
 import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
 import callingOptions from 'ringcentral-integration/modules/CallingSettings/callingOptions';
 import { Module } from 'ringcentral-integration/lib/di';
+import deprecatedCallingOptions from 'ringcentral-integration/modules/CallingSettings/deprecatedCallingOptions';
 
 @Module({
   name: 'NewCallingSettings',
@@ -28,6 +29,7 @@ export default class NewCallingSettings extends CallingSettings {
     if (!this._rolesAndPermissions.callingEnabled) return;
     this._myPhoneNumbers = this.myPhoneNumbers;
     this._otherPhoneNumbers = this.otherPhoneNumbers;
+    this._availableNumbers = this.availableNumbers;
     this._ringoutEnabled = this._rolesAndPermissions.ringoutEnabled;
     this._webphoneEnabled = this._rolesAndPermissions.webphoneEnabled;
     if (!this.timestamp) {
@@ -44,6 +46,18 @@ export default class NewCallingSettings extends CallingSettings {
       if (typeof this._onFirstLogin === 'function') {
         this._onFirstLogin();
       }
+    }
+    if (
+      this.callWith === deprecatedCallingOptions.myphone ||
+      this.callWith === deprecatedCallingOptions.otherphone ||
+      this.callWith === deprecatedCallingOptions.customphone
+    ) {
+      this.store.dispatch({
+        type: this.actionTypes.setData,
+        callWith: callingOptions.ringout,
+        isCustomLocation:
+          this.callWith === deprecatedCallingOptions.customphone,
+      });
     }
     await this._validateSettings();
     await this._initFromNumber();

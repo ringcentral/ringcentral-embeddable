@@ -71,9 +71,9 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     );
   }
 
-  get organizeMeetingEnabled() {
+  get hasMeetingsPermission() {
     const scope = (this._auth.token && this._auth.token.scope) || '';
-    return !this._disableMeeting && scope.indexOf('Meeting') > -1 && this.permissions.Meetings;
+    return !this._disableMeeting && scope.indexOf('Meeting') > -1 && super.hasMeetingsPermission;
   }
 
   get contactsEnabled() {

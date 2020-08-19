@@ -78,6 +78,7 @@ import ConnectivityBadgeUI from 'ringcentral-widgets/modules/ConnectivityBadgeUI
 import LoginUI from 'ringcentral-widgets/modules/LoginUI';
 import MeetingUI from 'ringcentral-widgets/modules/MeetingUI';
 import Meeting from 'ringcentral-integration/modules/Meeting';
+import MeetingProvider from 'ringcentral-integration/modules/MeetingProvider';
 import { CallerId } from 'ringcentral-integration/modules/CallerId';
 
 import CallBadgeUI from 'ringcentral-widgets/modules/CallBadgeUI';
@@ -109,7 +110,6 @@ import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
 
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
-import MeetingProvider from '../MeetingProvider';
 import MeetingHistoryUI from '../MeetingHistoryUI';
 import MeetingHomeUI from '../MeetingHomeUI';
 import RcVideo from '../RcVideo';
@@ -545,7 +545,7 @@ export default class BasePhone extends RcModule {
             this.routerInteraction.push('/contacts');
           } else if (this.rolesAndPermissions.organizeConferenceEnabled) {
             this.routerInteraction.push('/conference');
-          } else if (this.rolesAndPermissions.organizeMeetingEnabled) {
+          } else if (this.rolesAndPermissions.hasMeetingsPermission) {
             if (this.genericMeeting.ready) {
               if (this.genericMeeting.isRCV) {
                 this.routerInteraction.push('/meeting/home');
