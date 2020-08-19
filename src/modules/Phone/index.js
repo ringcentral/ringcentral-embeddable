@@ -1,6 +1,6 @@
 import 'whatwg-fetch';
-import SDK from 'ringcentral';
-import RingCentralClient from 'ringcentral-client';
+import { SDK } from '@ringcentral/sdk';
+import { RingCentralClient } from 'ringcentral-integration/lib/RingCentralClient';
 
 import { ModuleFactory } from 'ringcentral-integration/lib/di';
 import RcModule from 'ringcentral-integration/lib/RcModule';
@@ -609,10 +609,13 @@ export function createPhone({
         provide: 'SdkConfig',
         useValue: {
           ...apiConfig,
+          clientId: apiConfig.appKey,
+          clientSecret: apiConfig.appSecret,
           appName: appNameForSDK,
           appVersion,
           cachePrefix: `sdk-${prefix}`,
           clearCacheOnRefreshError: false,
+          redirectUri: redirectUri,
         },
       },
       {

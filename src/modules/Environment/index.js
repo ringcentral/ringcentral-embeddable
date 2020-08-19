@@ -1,4 +1,4 @@
-import SDK from 'ringcentral';
+import { SDK } from '@ringcentral/sdk';
 import Environment from 'ringcentral-integration/modules/Environment';
 import isBlank from 'ringcentral-integration/lib/isBlank';
 import { Module } from 'ringcentral-integration/lib/di';
@@ -52,11 +52,11 @@ export default class DemoEnvironment extends Environment {
     if (enabled) {
       newConfig.server = server;
       if (!isBlank(appKey)) {
-        newConfig.appKey = appKey;
+        newConfig.clientId = appKey;
         if (!isBlank(appSecret)) {
-          newConfig.appSecret = appSecret;
+          newConfig.clientSecret = appSecret;
         } else {
-          delete newConfig.appSecret;
+          delete newConfig.clientSecret;
         }
       }
     }

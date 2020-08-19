@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import withPhone from 'ringcentral-widgets/lib/withPhone';
 
 import MeetingScheduleButton from 'ringcentral-widgets/components/MeetingScheduleButton';
-import RcVScheduleButton from 'ringcentral-widgets/components/RcVScheduleButton';
+import { RcVideoScheduleButton } from 'ringcentral-widgets/components/RcVideoScheduleButton';
 
 function MeetingInviteButton(props) {
   const {
@@ -12,7 +12,7 @@ function MeetingInviteButton(props) {
   } = props;
   if (isRCV) {
     return (
-      <RcVScheduleButton
+      <RcVideoScheduleButton
         {...props}
         buttonLabel={inviteTitle}
       />

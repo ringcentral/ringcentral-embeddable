@@ -1,5 +1,5 @@
 import { Module } from 'ringcentral-integration/lib/di';
-import { RcVideo } from '../../internal-features/modules/RcVideo'; // TODO: replace with widgets lib
+import { RcVideo } from 'ringcentral-integration/modules/RcVideo/RcVideo'; // TODO: replace with widgets lib
 
 import {
   getHistoryMeetingsReducer,
@@ -113,12 +113,14 @@ export default class NewRcVideo extends RcVideo {
 
   async _fetchUpcomingMeetings() {
     const platform = this._client.service.platform();
-    const providersRes = await platform.get('/rcvideo/v1/scheduling/providers')
-    const providers = providersRes.json().providers.filter(p => p.isAuthorized);
+    const providersRes = await platform.get('/rcvideo/v1/scheduling/providers');
+    const providersData = await providersRes.json();
+    const providers = providersData.providers.filter(p => p.isAuthorized);
     let allEvents = [];
     await Promise.all(providers.map(async (provider) => {
       const calendersRes = await platform.get(`/rcvideo/v1/scheduling/providers/${provider.id}/calendars`)
-      const calendars = calendersRes.json().calendars.filter(
+      const calendersData = await calendersRes.json();
+      const calendars = calendersData.calendars.filter(
         c => c.isPrimary
       );
       const fromDate = new Date();
@@ -133,7 +135,8 @@ export default class NewRcVideo extends RcVideo {
             startTimeTo: toDate.toISOString(),
           }
         )
-        const events = eventsRes.json().events;
+        const eventsData = await eventsRes.json();
+        const events = eventsData.events;
         allEvents = allEvents.concat(events);
       }));
     }));
