@@ -21,7 +21,7 @@ const apiConfig = {
   server: pathParams.appServer || defaultApiConfig.server,
 };
 if (pathParams.appKey) {
-  console.warn('appKey is deprecated, please use change to clientId. https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
+  console.warn('appKey is deprecated, please change to clientId. https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
 }
 if (apiConfig.clientId && apiConfig.clientId === defaultApiConfig.appKey) {
   console.warn('Default RingCentral client id is deprecated, it is required to setup your own RingCentral Client Id, Please stop using it soon before it is completely removed. Please follow here to setup your own RingCentral app client id: https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
