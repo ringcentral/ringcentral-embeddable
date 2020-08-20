@@ -55,14 +55,6 @@ export default class OAuth extends ProxyFrameOAuth {
     ) {
       this.destroyOAuth();
     }
-    if (this._auth.loggedIn === this._loggedIn) {
-      return;
-    }
-    // For implicit flow
-    this._loggedIn = this._auth.loggedIn;
-    if (this._loggedIn && this._auth.usePKCE) {
-      
-    }
   }
 
   async _slientLoginWithCode() {
