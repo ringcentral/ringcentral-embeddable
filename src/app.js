@@ -13,16 +13,20 @@ const defaultApiConfig = process.env.API_CONFIG;
 
 const currentUri = window.location.href;
 const pathParams = parseUri(currentUri);
+const clientIdFromParams = pathParams.clientId || pathParams.appKey;
+const clientSecretFromParams = pathParams.clientSecret || pathParams.appSecret;
 const apiConfig = {
-  appKey: pathParams.appKey || defaultApiConfig.appKey,
-  appSecret: (pathParams.appKey ? pathParams.appSecret : defaultApiConfig.appSecret),
+  clientId: clientIdFromParams || defaultApiConfig.appKey,
+  clientSecret: (clientIdFromParams ? clientSecretFromParams : defaultApiConfig.appSecret),
   server: pathParams.appServer || defaultApiConfig.server,
 };
-
-if (apiConfig.appKey && apiConfig.appKey === defaultApiConfig.appKey) {
+if (pathParams.appKey) {
+  console.warn('appKey is deprecated, please use change to clientId. https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
+}
+if (apiConfig.clientId && apiConfig.clientId === defaultApiConfig.appKey) {
   console.warn('Default RingCentral client id is deprecated, it is required to setup your own RingCentral Client Id, Please stop using it soon before it is completely removed. Please follow here to setup your own RingCentral app client id: https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
 }
-if (!apiConfig.appKey) {
+if (!apiConfig.clientId) {
   console.error('From v1.0.2, It is required to setup your own RingCentral Client Id. Please follow here to setup your own RingCentral app client id: https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
   // don't throw error in PR tests
   if (window.location.hostname !== 'localhost') {

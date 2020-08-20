@@ -27,7 +27,9 @@ const appUrl =  process.env.HOSTING_URL ?
 
 const {
   appKey,
+  clientId,
   appSecret,
+  clientSecret,
   appServer,
   appVersion,
   redirectUri,
@@ -72,7 +74,9 @@ function obj2uri(obj) {
 }
 const appUri = `${appUrl}?${obj2uri({
   appKey,
+  clientId,
   appSecret,
+  clientSecret,
   appServer,
   appVersion,
   redirectUri,

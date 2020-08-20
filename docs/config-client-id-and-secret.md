@@ -1,6 +1,6 @@
-# Using your own RingCentral app client id and client secret
+# Using your own RingCentral app client id
 
-Developer should config the Widget to use their own RingCentral app client id and client secret.
+Developer should config the Widget to use their own RingCentral app client id.
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
 2. Create a RingCentral app with platform type - "Browser Based"
@@ -13,7 +13,7 @@ Developer should config the Widget to use their own RingCentral app client id an
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?appKey=your_app_client_id&appSecret=your_app_client_secret&appServer=https://platform.devtest.ringcentral.com";
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?clientId=your_app_client_id&appServer=https://platform.devtest.ringcentral.com";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -23,17 +23,17 @@ Developer should config the Widget to use their own RingCentral app client id an
 ## Iframe way
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?appKey=your_app_client_id&appSecret=your_app_client_secret&appServer=https://platform.devtest.ringcentral.com">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=your_app_client_id&appServer=https://platform.devtest.ringcentral.com">
 </iframe>
 ```
 
 ### Notice
 
-`appSecret` is optional. If you provide `appSecret` to the widget, it will use authorization code flow for login. If not, it will use implicit grant flow to log in. 
+`appKey` and `appSecret` have been renamed into `clientId` and `clientSecret` since `v1.4.0`.
 
-In implicit flow, if user is inactive in 1 hour, user will be logged out. The widget are using a hidden iframe and browser session to refresh token. The browser session will be expired if app doesn't renew in half hour. So if user closes browser or the tab more than half hour, user will be logged out.
+We are using [Authorization Code with PKCE](https://medium.com/ringcentral-developers/use-authorization-code-pkce-for-ringcentral-api-in-client-app-e9108f04b5f0) grant flow in this widget since `v1.4.0`. But for backward compatibility, we still support Authorization code flow if you provide `clientSecret` in URI. It isn't recommended to use Authorization Code flow.
 
-In authorization code flow, if user is inactive in 7 days, user will be logged out. The widget refreshes token when there are API requests to RingCentral API. The refresh token will be expired in 7 days. So if user is active in 7 days, login session will be kept another 7 days. And when it refreshes token, app will get a new refresh token and old refresh token will be expired for security.
+In authorization code with PKCE grant flow, user token is managed in Browser storage. if user is inactive more than 7 days, user will be logged out. The widget refreshes token when there are API requests to RingCentral API. The refresh token will be expired in 7 days. So if user is active in 7 days, login session will be kept another 7 days. And when it refreshes token, app will get a new refresh token and old refresh token will be expired for security.
 
 [This](https://ringcentral.github.io/ringcentral-embeddable/) is a config tool that can help you to update codes with config.
 

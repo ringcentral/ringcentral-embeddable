@@ -600,7 +600,17 @@ export function createPhone({
   if (userAgent) {
     appNameForSDK = `${userAgent} ${appNameForSDK}`;
   }
-
+  const usePKCE = apiConfig.clientId && !apiConfig.clientSecret;
+  if (usePKCE) {
+    // hack clean old authorization code token if auth flow change to PKCE
+    const rawToken = localStorage.getItem(`sdk-${prefix}platform`);
+    if (rawToken) {
+      const token = JSON.parse(rawToken);
+      if ((token.access_token || token.refresh_token) && !token.code_verifier) {
+        localStorage.removeItem(`sdk-${prefix}platform`);
+      }
+    }
+  }
   @ModuleFactory({
     providers: [
       { provide: 'ModuleOptions', useValue: { prefix }, spread: true },
@@ -608,8 +618,6 @@ export function createPhone({
         provide: 'SdkConfig',
         useValue: {
           ...apiConfig,
-          clientId: apiConfig.appKey,
-          clientSecret: apiConfig.appSecret,
           appName: appNameForSDK,
           appVersion,
           cachePrefix: `sdk-${prefix}`,
@@ -622,6 +630,7 @@ export function createPhone({
         useValue: { name: brandConfig.appName, version: appVersion },
       },
       { provide: 'BrandOptions', useValue: brandConfig, spread: true },
+      { provide: 'AuthOptions', useValue: { usePKCE }, spread: true },
       {
         provide: 'OAuthOptions',
         useValue: {
@@ -645,7 +654,7 @@ export function createPhone({
         provide: 'WebphoneOptions',
         spread: true,
         useValue: {
-          appKey: apiConfig.appKey,
+          appKey: apiConfig.clientId,
           appName: appNameForSDK,
           appVersion,
           webphoneLogLevel: 1,
