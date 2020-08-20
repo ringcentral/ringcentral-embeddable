@@ -40,8 +40,8 @@ if (fs.existsSync(apiConfigFile)) {
 }
 
 let hostingUrl = process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable';
-let redirectUri = process.env.REDIRECT_URI || './redirect.html';
-let proxyUri = process.env.PROXY_URI || './proxy.html';
+let redirectUri = process.env.REDIRECT_URI;
+let proxyUri = process.env.PROXY_URI;
 
 const localExtensionMode = !!process.env.LOCAL_EXTENSION_MODE;
 if (localExtensionMode) {
