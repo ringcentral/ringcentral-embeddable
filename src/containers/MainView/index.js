@@ -190,7 +190,7 @@ function mapToProps(_, {
   );
   const showMeeting = (
     rolesAndPermissions.ready &&
-    rolesAndPermissions.organizeMeetingEnabled
+    rolesAndPermissions.hasMeetingsPermission
   );
 
   const { currentLocale } = locale;

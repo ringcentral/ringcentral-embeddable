@@ -249,7 +249,7 @@ export default class Adapter extends AdapterModuleCore {
     }
     switch (data.path) {
       case '/schedule-meeting': {
-        if (this._meeting.ready && this._rolesAndPermissions.organizeMeetingEnabled) {
+        if (this._meeting.ready && this._rolesAndPermissions.hasMeetingsPermission) {
           const res = await this._scheduleMeeting(data.body);
           this._postRCAdapterMessageResponse({
             responseId: data.requestId,
@@ -494,7 +494,7 @@ export default class Adapter extends AdapterModuleCore {
       ready: this._meeting.ready,
       permission: !!(
         this._rolesAndPermissions.ready &&
-        this._rolesAndPermissions.organizeMeetingEnabled
+        this._rolesAndPermissions.hasMeetingsPermission
       ),
     });
   }

@@ -5,12 +5,11 @@ In RingCentral Embeddable widget, we provide 4 calling options in `Calling Setti
 - Browser - make and receive calls using your computer’s microphone and speaker based on browser
 - RingCentral App - make and receive calls using your `RingCentral` desktop app
 - RingCentral Phone - make and receive calls using your `RingCentral Phone` desktop app
-- My RingCentral Phone
-- Custom Phone
+- RingOut
 
-For `My RingCentral Phone` and `Custom Phone`, they work with our [Ringout](https://support.ringcentral.com/s/article/85?language=en_US) mode. Users also need to set `My Location` phone number. So when user creates a call, RingCentral will first call user's location phone number, then call correspondent's phone number. If user enables `Prompt me to dial 1 before connecting the call`, RingCentral will only call correspondent's phone number after user dials 1.  Please refer to [here](https://support.ringcentral.com/s/article/85?language=en_US) for more detailed information.
+For `RingOut`, You can get full document here [Ringout](https://support.ringcentral.com/s/article/85?language=en_US) mode. Users also need to set `My Location` phone number. So when user creates a call, RingCentral will first call user's location phone number, then call correspondent's phone number. If user enables `Prompt me to dial 1 before connecting the call`, RingCentral will only call correspondent's phone number after user dials 1.  Please refer to [here](https://support.ringcentral.com/s/article/85?language=en_US) for more detailed information.
 
-For `RingCentral App`, `RingCentral Phone`, `My RingCentral Phone` and `Custom Phone`, calls are on other devices, the widget can only get call event and information. And it is recommended to enable [active call control](disable-features.md#enable-active-call-control-feature), so user can also control the call in widget.
+For `RingCentral App`, `RingCentral Phone`, `RingOut`, calls are on other devices, the widget can get call event and information from APIs. And it is recommended to enable [active call control](disable-features.md#enable-active-call-control-feature), so user can also control the call in widget.
 
 ## Default option
 
@@ -41,10 +40,9 @@ There are 4 options for `defaultCallWith`:
 - browser
 - jupiter
 - softphone
-- myphone
-- customphone
+- ringout
 
-They are short names of `Browser`, `RingCentral App`, `RingCentral Phone`, `My RingCentral Phone` and `Custom Phone`.
+They are short names of `Browser`, `RingCentral App`, `RingCentral Phone`, `RingOut`.
 
 ## Enable call from number setting
 
@@ -93,11 +91,11 @@ window.addEventListener('message', (e) => {
 ## Update Calling settings
 
 ```js
-document.querySelector("#rc-widget").contentWindow.postMessage({
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-calling-settings-update',
   callWith: 'softphone',
-  // myLocation: '+1111111111', // required for myphone and customphone
-  // ringoutPrompt: true, // required for myphone and customphone,
+  // myLocation: '+1111111111', // required for ringout
+  // ringoutPrompt: true, // required for ringout
   // fromNumber: '+1111111111', // set from number when callWith is browser
 }, '*');
 ```
@@ -105,7 +103,7 @@ document.querySelector("#rc-widget").contentWindow.postMessage({
 For `fromNumber`, the number should be from `fromNumbers` list in calling settings event, or `anonymous` for `Blocked` from number.
 
 ```js
-document.querySelector("#rc-widget").contentWindow.postMessage({
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-calling-settings-update',
   fromNumber: 'anonymous',
 }, '*');
