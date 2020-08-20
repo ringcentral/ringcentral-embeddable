@@ -221,7 +221,7 @@ export default function App({
                 )} />
               <Route
                 path="/composeText"
-                component={ComposeTextPage}
+                component={() => <ComposeTextPage supportAttachment />}
               />
               <Route
                 path="/conversations/:conversationId"
@@ -230,6 +230,7 @@ export default function App({
                     params={routerProps.params}
                     showContactDisplayPlaceholder={false}
                     showGroupNumberName
+                    supportAttachment
                   />
                 )}
               />

@@ -23,7 +23,6 @@ import CallHistory from 'ringcentral-integration/modules/CallHistory';
 import ConferenceCall from 'ringcentral-integration/modules/ConferenceCall';
 // import CallLog from 'ringcentral-integration/modules/CallLog';
 import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
-import ComposeText from 'ringcentral-integration/modules/ComposeText';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
 import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
 import Contacts from 'ringcentral-integration/modules/Contacts';
@@ -38,7 +37,6 @@ import ExtensionPhoneNumber from 'ringcentral-integration/modules/ExtensionPhone
 import ForwardingNumber from 'ringcentral-integration/modules/ForwardingNumber';
 import GlobalStorage from 'ringcentral-integration/modules/GlobalStorage';
 import Locale from 'ringcentral-integration/modules/Locale';
-import MessageSender from 'ringcentral-integration/modules/MessageSender';
 import NumberValidate from 'ringcentral-integration/modules/NumberValidate';
 import RateLimiter from 'ringcentral-integration/modules/RateLimiter';
 import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
@@ -53,7 +51,9 @@ import Conference from 'ringcentral-integration/modules/Conference';
 import RecentMessages from 'ringcentral-integration/modules/RecentMessages';
 import RecentCalls from 'ringcentral-integration/modules/RecentCalls';
 import MessageStore from 'ringcentral-integration/modules/MessageStore';
-import Conversations from 'ringcentral-integration/modules/Conversations';
+import { ComposeText } from 'ringcentral-integration/modules/ComposeTextV2';
+import { MessageSender } from 'ringcentral-integration/modules/MessageSenderV2';
+import { Conversations } from 'ringcentral-integration/modules/ConversationsV2';
 
 // import GlipCompany from 'ringcentral-integration/modules/GlipCompany';
 import GlipPersons from 'ringcentral-integration/modules/GlipPersons';
@@ -248,8 +248,7 @@ import hackSend from '../../lib/hackSend';
       useValue: {
         enableLoadOldMessages: true,
         showMMSAttachment: true,
-      },
-      spread: true
+      }
     },
     { provide: 'GlipCompany', useClass: GlipCompany },
     { provide: 'GlipGroups', useClass: GlipGroups },
