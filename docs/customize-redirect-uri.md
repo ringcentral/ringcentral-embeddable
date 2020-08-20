@@ -1,6 +1,6 @@
 # Customize Redirect Uri
 
-In implicit grant flow or authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, https://ringcentral.github.io/ringcentral-embeddable/redirect.html. But it also allow to config redirect uri.
+In authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, https://ringcentral.github.io/ringcentral-embeddable/redirect.html. But it also allow to config redirect uri.
 
 ```js
 <script>
