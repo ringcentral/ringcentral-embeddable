@@ -421,7 +421,7 @@ module.exports = function (TYPE, $create) {
 "use strict";
 
 var strong = __webpack_require__(400);
-var validate = __webpack_require__(193);
+var validate = __webpack_require__(192);
 var MAP = 'Map';
 
 // 23.1 Map Objects
@@ -1666,35 +1666,6 @@ module.exports = function (key) {
 
 /***/ }),
 
-/***/ 187:
-/***/ (function(module, exports, __webpack_require__) {
-
-var superPropBase = __webpack_require__(550);
-
-function _get(target, property, receiver) {
-  if (typeof Reflect !== "undefined" && Reflect.get) {
-    module.exports = _get = Reflect.get;
-  } else {
-    module.exports = _get = function _get(target, property, receiver) {
-      var base = superPropBase(target, property);
-      if (!base) return;
-      var desc = Object.getOwnPropertyDescriptor(base, property);
-
-      if (desc.get) {
-        return desc.get.call(receiver);
-      }
-
-      return desc.value;
-    };
-  }
-
-  return _get(target, property, receiver || target);
-}
-
-module.exports = _get;
-
-/***/ }),
-
 /***/ 19:
 /***/ (function(module, exports) {
 
@@ -1708,7 +1679,7 @@ module.exports = _interopRequireDefault;
 
 /***/ }),
 
-/***/ 191:
+/***/ 190:
 /***/ (function(module, exports, __webpack_require__) {
 
 // 7.2.2 IsArray(argument)
@@ -1720,7 +1691,7 @@ module.exports = Array.isArray || function isArray(arg) {
 
 /***/ }),
 
-/***/ 192:
+/***/ 191:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1797,7 +1768,7 @@ if (!$Number(' 0o1') || !$Number('0b1') || $Number('+0x1')) {
 
 /***/ }),
 
-/***/ 193:
+/***/ 192:
 /***/ (function(module, exports, __webpack_require__) {
 
 var isObject = __webpack_require__(67);
@@ -1809,7 +1780,7 @@ module.exports = function (it, TYPE) {
 
 /***/ }),
 
-/***/ 194:
+/***/ 193:
 /***/ (function(module, exports) {
 
 function _assertThisInitialized(self) {
@@ -1821,6 +1792,35 @@ function _assertThisInitialized(self) {
 }
 
 module.exports = _assertThisInitialized;
+
+/***/ }),
+
+/***/ 198:
+/***/ (function(module, exports, __webpack_require__) {
+
+var superPropBase = __webpack_require__(550);
+
+function _get(target, property, receiver) {
+  if (typeof Reflect !== "undefined" && Reflect.get) {
+    module.exports = _get = Reflect.get;
+  } else {
+    module.exports = _get = function _get(target, property, receiver) {
+      var base = superPropBase(target, property);
+      if (!base) return;
+      var desc = Object.getOwnPropertyDescriptor(base, property);
+
+      if (desc.get) {
+        return desc.get.call(receiver);
+      }
+
+      return desc.value;
+    };
+  }
+
+  return _get(target, property, receiver || target);
+}
+
+module.exports = _get;
 
 /***/ }),
 
@@ -2235,7 +2235,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = formatDuration;
 
-__webpack_require__(192);
+__webpack_require__(191);
 
 __webpack_require__(259);
 
@@ -4233,7 +4233,7 @@ module.exports = {
 // 22.1.2.2 / 15.4.3.2 Array.isArray(arg)
 var $export = __webpack_require__(34);
 
-$export($export.S, 'Array', { isArray: __webpack_require__(191) });
+$export($export.S, 'Array', { isArray: __webpack_require__(190) });
 
 
 /***/ }),
@@ -4446,7 +4446,7 @@ module.exports = function (original, length) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var isObject = __webpack_require__(67);
-var isArray = __webpack_require__(191);
+var isArray = __webpack_require__(190);
 var SPECIES = __webpack_require__(58)('species');
 
 module.exports = function (original) {
@@ -4820,7 +4820,7 @@ var step = __webpack_require__(263);
 var setSpecies = __webpack_require__(232);
 var DESCRIPTORS = __webpack_require__(70);
 var fastKey = __webpack_require__(152).fastKey;
-var validate = __webpack_require__(193);
+var validate = __webpack_require__(192);
 var SIZE = DESCRIPTORS ? '_s' : 'size';
 
 var getEntry = function (that, key) {
@@ -5065,7 +5065,9 @@ var appUrl =  false ? undefined : _url.default.resolve(currentScript.src, './app
 
 var _parseUri = (0, _parseUri2.default)(currentScript && currentScript.src || ''),
     appKey = _parseUri.appKey,
+    clientId = _parseUri.clientId,
     appSecret = _parseUri.appSecret,
+    clientSecret = _parseUri.clientSecret,
     appServer = _parseUri.appServer,
     appVersion = _parseUri.appVersion,
     redirectUri = _parseUri.redirectUri,
@@ -5111,7 +5113,9 @@ function obj2uri(obj) {
 
 var appUri = "".concat(appUrl, "?").concat(obj2uri({
   appKey: appKey,
+  clientId: clientId,
   appSecret: appSecret,
+  clientSecret: clientSecret,
   appServer: appServer,
   appVersion: appVersion,
   redirectUri: redirectUri,
@@ -5201,7 +5205,7 @@ var _possibleConstructorReturn2 = _interopRequireDefault(__webpack_require__(82)
 
 var _getPrototypeOf2 = _interopRequireDefault(__webpack_require__(80));
 
-var _get2 = _interopRequireDefault(__webpack_require__(187));
+var _get2 = _interopRequireDefault(__webpack_require__(198));
 
 var _inherits2 = _interopRequireDefault(__webpack_require__(83));
 
@@ -19826,7 +19830,7 @@ var wks = __webpack_require__(58);
 var wksExt = __webpack_require__(207);
 var wksDefine = __webpack_require__(257);
 var enumKeys = __webpack_require__(338);
-var isArray = __webpack_require__(191);
+var isArray = __webpack_require__(190);
 var anObject = __webpack_require__(61);
 var isObject = __webpack_require__(67);
 var toObject = __webpack_require__(97);
@@ -20194,7 +20198,7 @@ module.exports = _getPrototypeOf;
 
 var _typeof = __webpack_require__(253);
 
-var assertThisInitialized = __webpack_require__(194);
+var assertThisInitialized = __webpack_require__(193);
 
 function _possibleConstructorReturn(self, call) {
   if (call && (_typeof(call) === "object" || typeof call === "function")) {
