@@ -152,11 +152,11 @@ TEST_USER_PASSWORD=your_sandbox_account_password
 TEST_HEADLESS=false
 ```
 
-The `API_SECRET` is optional to enable the authorization code flow. If you don't provide `API_SECRET`, the app will use the implicit grant flow. `TEST_*` variables is optional for automatical test, you can just keep it blank before you run automatical tests.
+The `API_SECRET` is optional to enable the authorization code flow. If you don't provide `API_SECRET`, the app will use the implicit grant flow. `TEST_*` variables is optional for automatic test, you can just keep it blank before you run automatic tests.
 
 ### Start development server
 
-We assume you have pre-installed node.js > 8 and yarn. 
+We assume you have pre-installed node.js > 8 and yarn.
 
 **It is recommended to use `yarn` instead of `npm`.** We have `yarn.lock` file in source code to lock dependence version. With `yarn`, we can install dependences with correct version that work well with this project.
 
@@ -203,7 +203,6 @@ To build for browser extension local files:
 yarn build-extension
 ```
 
-After building, we can get compiled files in this project's extension folder. Create a `embeddable` folder in your extension project. Copy all files in extension folder to your extesnion project's `embeddable` folder. 
+After building, we can get compiled files in this project's extension folder. Create a `embeddable` folder in your extension project. Copy all files in extension folder to your extesnion project's `embeddable` folder.
 
 Then you can load this widget with `${your_extension_uri}/embeddable/adapter.js` or `${your_extension_uri}/embeddable/app.html`.
-
