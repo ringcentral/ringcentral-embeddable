@@ -357,12 +357,13 @@ class Adapter extends AdapterCore {
     });
   }
 
-  clickToSMS(phoneNumber, text) {
+  clickToSMS(phoneNumber, text, conversation) {
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
       phoneNumber,
       text,
+      conversation,
     });
   }
 
