@@ -60,7 +60,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 
 * [Get Started](docs/get-started.md)
 * [Browser Support](docs/browser-support.md)
-* [Use your own app client id and app client secret](docs/config-client-id-and-secret.md)
+* [Use your own app client id](docs/config-client-id-and-secret.md)
 * [Customize Redirect Uri](docs/customize-redirect-uri.md)
 * [Customize Widget UI styles](docs/customize-ui-styles.md)
 * [Customize prefix](docs/customize-prefix.md)
@@ -144,7 +144,6 @@ Create `.env` file in project root path:
 
 ```
 API_KEY=your_ringcentral_app_client_id
-API_SECRET=your_ringcentral_app_client_sercet
 API_SERVER=ringcentral sever url, eg: https://platform.devtest.ringcentral.com
 TEST_HOST_URI=http://localhost:8080
 TEST_USER_NAME=your_sandbox_account_phone_number
@@ -152,13 +151,13 @@ TEST_USER_PASSWORD=your_sandbox_account_password
 TEST_HEADLESS=false
 ```
 
-The `API_SECRET` is optional to enable the authorization code flow. If you don't provide `API_SECRET`, the app will use the implicit grant flow. `TEST_*` variables is optional for automatic test, you can just keep it blank before you run automatic tests.
+`TEST_*` variables is optional for automatic test, you can just keep it blank before you run automatic tests.
 
 ### Start development server
 
 We assume you have pre-installed node.js > 8 and yarn.
 
-**It is recommended to use `yarn` instead of `npm`.** We have `yarn.lock` file in source code to lock dependence version. With `yarn`, we can install dependences with correct version that work well with this project.
+**It is recommended to use `yarn` instead of `npm`.** We have `yarn.lock` file in source code to lock dependence version. With `yarn`, we can install dependencies with correct version that work well with this project.
 
 ```bash
 $ yarn       # use yarn to install dependences
@@ -177,7 +176,7 @@ yarn test
 
 ### Deploy on production
 
-If you create pull request to this repo and get merged, CI will deploy it to this repo's github page automatically. But for something that customized, you can deploy it to your own web space, such as your github page.
+If you create pull request to this repo and get merged, CI will deploy it to this repository's Github Page automatically. But for something that customized, you can deploy it to your own web space, such as your github page.
 
 1. Update `.env` file in production environment ([Graduate your RingCentral app to get production app client id](docs/config-client-id-and-secret.md#graduation-for-your-ringcentral-app))
 

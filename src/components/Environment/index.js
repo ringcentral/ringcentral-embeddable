@@ -122,17 +122,19 @@ class Environment extends Component {
             />
           </Line>
           <Line>
-            App Key
+            Client ID
             <TextInput
               value={this.state.appKeyValue}
               onChange={this.onAppKeyChange}
+              placeholder="Optional"
             />
           </Line>
           <Line>
-            App Secret
+            Client Secret
             <TextInput
               value={this.state.appSecretValue}
               onChange={this.onAppSecretChange}
+              placeholder="Optional"
             />
           </Line>
           <IconLine
