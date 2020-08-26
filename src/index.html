@@ -60,12 +60,12 @@
     </p>
     <div class="collapse" id="config-params">
       <div class="card card-body">
-        <p>Create a browser based app in <a href="https://developer.ringcentral.com/" target="_blank" rel="noopener noreferrer">RingCentral Developer Platform<a> to get appKey, appSecret and appServer.</p>
+        <p>Create a browser based app in <a href="https://developer.ringcentral.com/" target="_blank" rel="noopener noreferrer">RingCentral Developer Platform<a> to get clientId, appSecret and appServer.</p>
         <form>
           <div class="form-group row">
-            <label for="appKey" class="col-sm-2 col-form-label">appKey</label>
+            <label for="clientId" class="col-sm-2 col-form-label">clientId</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="appKey" placeholder="Your app key of RingCentral App">
+              <input type="text" class="form-control" id="clientId" placeholder="Your app key of RingCentral App">
             </div>
           </div>
           <div class="form-group row">
@@ -108,11 +108,11 @@
     <p>You need to add following uri to your redirect url in app setting on developer website, if you don't config redirect widget uri.</p>
     <pre id="defaultRedirectUri">https://ringcentral.github.io/ringcentral-embeddable/redirect.html</pre>
     <p>For full document of <a href="https://github.com/ringcentral/ringcentral-embeddable#documents" target="_blank" rel="noopener noreferrer">API and Event</a>, please refer to <a href="https://github.com/ringcentral/ringcentral-embeddable#documents" target="_blank" rel="noopener noreferrer">here</a></p>
-    <h2>Config your appKey in local Environment</h2>
-    <p>1. Click <a href="#" id="setEnvironment">here to set this widget's appKey, appSecret and AppServer</a> in local. Enable and save.</p>
+    <h2>Config your clientId in local Environment</h2>
+    <p>1. Click <a href="#" id="setEnvironment">here to set this widget's client ID and app Server</a> in local. Enable and save.</p>
     <p>2. Set redirect url in RingCentral Developer Platform as the app show.</p>
-    <p>In environment way, appKey and appSecret are saved in your localstorage, so it will not influence other people.</p>
-    <p>This app supports authorization code and implicit grant flows. If you only provide appKey, it will use implicit grant flow. Refer <a href="https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md#notice" target="_blank" rel="noopener noreferrer">here</a> to get more details about authorization flow.</p>
+    <p>In environment way, clientId and server are saved in your local storage, so it will not influence other people.</p>
+    <p>This app supports authorization code and implicit grant flows. If you only provide clientId, it will use implicit grant flow. Refer <a href="https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md#notice" target="_blank" rel="noopener noreferrer">here</a> to get more details about authorization flow.</p>
     <h2>C2D demo</h2>
     <p>TEL Link: <a href="tel:+12345678888">+12345678888</a></p>
     <p>SMS Link: <a href="sms:+12345678901">+12345678901</a></p>
@@ -148,7 +148,7 @@
   <script>
     function getConfigQuery() {
       var config = {};
-      config.appKey = window.document.querySelector('#appKey').value;
+      config.clientId = window.document.querySelector('#clientId').value;
       config.appServer = window.document.querySelector('#appServer').value;
       config.redirectUri = window.document.querySelector('#redirectUri').value;
       var queries = [];
