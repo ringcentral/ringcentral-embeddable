@@ -1,10 +1,11 @@
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import telephonyStatus from 'ringcentral-integration/enums/telephonyStatus';
-import terminationTypes from 'ringcentral-integration/enums/terminationTypes';
 import callingOptions from 'ringcentral-integration/modules/CallingSettings/callingOptions';
 import sessionStatus from 'ringcentral-integration/modules/Webphone/sessionStatus';
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
 import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
+import { messageIsTextMessage } from 'ringcentral-integration/lib/messageHelper';
+
 import sleep from 'ringcentral-integration/lib/sleep';
 import { Module } from 'ringcentral-integration/lib/di';
 import callingModes from 'ringcentral-integration/modules/CallingSettings/callingModes';
@@ -19,6 +20,28 @@ import getReducer from './getReducer';
 
 const CALL_NOTIFY_DELAY = 1500;
 
+function findExistedConversation(conversations, phoneNumber) {
+  return conversations.find((conversation) => {
+    if (!conversation.to || conversation.to.length > 1) {
+      return false;
+    }
+    if (!messageIsTextMessage(conversation)) {
+      return false;
+    }
+    if (conversation.direction === 'Inbound') {
+      return conversation.from && (
+        conversation.from.phoneNumber === phoneNumber ||
+        conversation.from.extensionNumber === phoneNumber
+      );
+    }
+    return conversation.to.find(
+      number => (
+        number.phoneNumber === phoneNumber ||
+        number.extensionNumber === phoneNumber
+      )
+    );
+  });
+}
 @Module({
   name: 'Adapter',
   deps: [
@@ -205,7 +228,7 @@ export default class Adapter extends AdapterModuleCore {
           }
           break;
         case 'rc-adapter-new-sms':
-          this._newSMS(data.phoneNumber, data.text);
+          this._newSMS(data.phoneNumber, data.text, data.conversation);
           break;
         case 'rc-adapter-new-call':
           this._newCall(data.phoneNumber, data.toCall);
@@ -618,8 +641,28 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _newSMS(phoneNumber, text) {
+  _newSMS(phoneNumber, text, conversation) {
     if (!this._auth.loggedIn) {
+      return;
+    }
+    let existedConversation = null;
+    if (conversation) {
+      const normalizedNumber = normalizeNumber({
+        phoneNumber,
+        countryCode: this._regionSettings.countryCode,
+        areaCode: this._regionSettings.areaCode,
+      });
+      existedConversation = findExistedConversation(
+        this._conversations.allConversations,
+        normalizedNumber,
+      );
+    }
+    if (existedConversation) {
+      this._router.push(`/conversations/${existedConversation.conversationId}`);
+      if (text && text.length > 0) {
+        this._conversations.loadConversation(existedConversation.conversationId);
+        this._conversations.updateMessageText(String(text));
+      }
       return;
     }
     this._router.push('/composeText');

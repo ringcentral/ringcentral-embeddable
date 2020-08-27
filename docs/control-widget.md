@@ -29,7 +29,17 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-Go to SMS Page with prefill text
+### Go to Conversation Page
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-new-sms',
+  phoneNumber: `phone number`,
+  conversation: true, // will go to conversation page if conversation existed
+}, '*');
+```
+
+### Go to SMS Page with prefilled text
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -41,7 +51,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 If you are using Adapter JS way, just you can just call `RCAdapter.clickToSMS('phonenumber')`.
 
-## Auto populate SMS conversation text
+### Auto populate SMS conversation text
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
