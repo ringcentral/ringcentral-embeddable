@@ -66,6 +66,7 @@ function findExistedConversation(conversations, phoneNumber) {
     'GenericMeeting',
     'Brand',
     'Conversations',
+    'ActiveCallControl',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -93,6 +94,7 @@ export default class Adapter extends AdapterModuleCore {
     brand,
     rolesAndPermissions,
     conversations,
+    activeCallControl,
     ...options
   }) {
     super({
@@ -123,6 +125,7 @@ export default class Adapter extends AdapterModuleCore {
     this._brand = brand;
     this._rolesAndPermissions = rolesAndPermissions;
     this._conversations = conversations;
+    this._activeCallControl = activeCallControl;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -187,6 +190,9 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallResume((session) => {
       this.resumeCallNotify(session);
+    });
+    this._activeCallControl.onSessionUpdated((session) => {
+      this.telephonySessionNotify(session);
     });
   }
 
@@ -588,6 +594,13 @@ export default class Adapter extends AdapterModuleCore {
         ...session,
         isOnMute: muted,
       },
+    });
+  }
+
+  telephonySessionNotify(session) {
+    this._postMessage({
+      type: 'rc-telephony-session-notify',
+      telephonySession: session,
     });
   }
 

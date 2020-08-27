@@ -104,6 +104,26 @@ window.addEventListener('message', (e) => {
 
 If user opens multiple tabs, the event will be fired in every tab. `disableInactiveTabCallEvent` is a option that makes widget only fire active call event in last active tab. Just add `disableInactiveTabCallEvent=1` in widget adapter js uri or iframe src.
 
+## Telephony Session Event
+
+Telephony Session is active call data from new [Call Control API](https://developers.ringcentral.com/api-reference/Call-Control/readCallSessionStatus). In telephony session, we can get full state of caller and callee. We can use Telephony Session event instead of Active Call event.
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-telephony-session-notify':
+        // get telehony session on telephony session event
+        console.log(data.telephonySession);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
 ## Login Status event
 
 Get login status from widget
