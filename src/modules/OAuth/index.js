@@ -13,10 +13,12 @@ import qs from 'qs';
 export default class OAuth extends ProxyFrameOAuth {
   constructor({
     authorizationCode,
+    disableLoginPopup = false,
     ...options
   }) {
     super(options);
     this._authorizationCode = authorizationCode;
+    this._disableLoginPopup = disableLoginPopup;
   }
 
   async _onStateChange() {
@@ -131,5 +133,16 @@ export default class OAuth extends ProxyFrameOAuth {
       tokenType: query.token_type,
       scope: query.scope,
     });
+  }
+
+  async openOAuthPage() {
+    if (this._disableLoginPopup) {
+      window.parent && window.parent.postMessage({
+        type: 'rc-login-popup-notify',
+        oAuthUri: this.oAuthUri,
+      }, '*');
+      return;
+    }
+    await super.openOAuthPage();
   }
 }
