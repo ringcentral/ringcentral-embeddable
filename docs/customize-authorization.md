@@ -1,12 +1,12 @@
 # Customize Authorization
 
-In widget, we implement RingCentral authorization including authorization code flow and [authorization code with PKCE flow](https://medium.com/ringcentral-developers/use-authorization-code-pkce-for-ringcentral-api-in-client-app-e9108f04b5f0) for user login. But you can also implement the authorization flow out of the widget, and pass authorization code to widget for login.
+In widget, we implement [RingCentral authorization](https://developers.ringcentral.com/api-reference/Authorization) including authorization code flow and [authorization code with PKCE flow](https://medium.com/ringcentral-developers/use-authorization-code-pkce-for-ringcentral-api-in-client-app-e9108f04b5f0) for user login. But you can also implement the authorization flow out of the widget, and pass authorization code to widget for login.
 
 **Prerequisites**: [Customize `clientId` and `clientSecret`](config-client-id-and-secret.md)
 
 To pass existed RingCentral authorization code:
 
-## Adapter JS way
+### Adapter JS way
 
 ```js
 <script>
@@ -19,14 +19,14 @@ To pass existed RingCentral authorization code:
 </script>
 ```
 
-## Iframe way
+### Iframe way
 
 ```html
 <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?authorizationCode=ringcentral_authorization_code&clientId=ringcentral_app_client_id&clientSecret=ringcentral_app_client_secret">
 </iframe>
 ```
 
-## PostMessage way
+### PostMessage way
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -35,7 +35,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-**Notice**
+### Notice
 
 For authorization code flow, `clientId` and `clientSecret` is required with `authorizationCode`. The app needs `clientSecret` to exchange token. The authorization code should be generated with same RingCentral app client id and secret.
 
