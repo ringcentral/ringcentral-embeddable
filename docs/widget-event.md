@@ -144,6 +144,31 @@ window.addEventListener('message', (e) => {
 });
 ```
 
+## Login Popup event
+
+The widget will open a popup window to login when user click login button automatically. For some reason, you may want to popup window by yourself. So you can use login popup event to get login URI for open login window.
+
+For enabling this event, add `disableLoginPopup=1` in widget adapter js uri or iframe src.
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-login-popup-notify':
+        // get login status from widget
+        console.log('rc-login-popup-notify:', data.oAuthUri);
+        //  window.open(data.oAuthUri); // open oauth uri to login
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
+After you get authorization code, please follow [here](customize-authorization.md) to pass it to widget for login.
+
 ## Message event
 
 Get all message created or updated event from widget

@@ -57,6 +57,7 @@ const {
   enableFromNumberSetting,
   disconnectInactiveWebphone,
   disableInactiveTabCallEvent,
+  disableLoginPopup,
   zIndex,
 } = parseUri((currentScript && currentScript.src) || '');
 
@@ -102,6 +103,7 @@ const appUri = `${appUrl}?${obj2uri({
   enableFromNumberSetting,
   disconnectInactiveWebphone,
   disableInactiveTabCallEvent,
+  disableLoginPopup,
   fromAdapter: 1,
   _t: Date.now(),
 })}`;
