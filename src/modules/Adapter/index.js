@@ -46,6 +46,7 @@ function findExistedConversation(conversations, phoneNumber) {
   name: 'Adapter',
   deps: [
     'Auth',
+    'OAuth',
     'ExtensionInfo',
     'AccountInfo',
     'RouterInteraction',
@@ -73,6 +74,7 @@ function findExistedConversation(conversations, phoneNumber) {
 export default class Adapter extends AdapterModuleCore {
   constructor({
     auth,
+    oAuth,
     extensionInfo,
     accountInfo,
     presence,
@@ -126,6 +128,7 @@ export default class Adapter extends AdapterModuleCore {
     this._rolesAndPermissions = rolesAndPermissions;
     this._conversations = conversations;
     this._activeCallControl = activeCallControl;
+    this._oAuth = oAuth;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -248,6 +251,11 @@ export default class Adapter extends AdapterModuleCore {
         case 'rc-adapter-logout':
           if (this._auth.loggedIn) {
             this._auth.logout();
+          }
+          break;
+        case 'rc-adapter-login':
+          if (!this._auth.loggedIn) {
+            this._oAuth.openOAuthPage();
           }
           break;
         case 'rc-calling-settings-update': 
