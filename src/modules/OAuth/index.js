@@ -137,7 +137,7 @@ export default class OAuth extends ProxyFrameOAuth {
 
   async openOAuthPage() {
     if (this._disableLoginPopup) {
-      window.parent && window.parent.postMessage({
+      window.parent.postMessage({
         type: 'rc-login-popup-notify',
         oAuthUri: this.oAuthUri,
       }, '*');

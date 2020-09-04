@@ -215,6 +215,18 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+## Trigger Login button click
+
+App will open login popup window after getting this command. Follow [here](widget-event.md#login-popup-event) to disable popup window, and receive oauth uri.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-login'
+}, '*');
+```
+
+Notice: this command only works when user isn't logged.
+
 ## Minimize/Hide/Remove the widget
 
 Only for Adapter JS way:
