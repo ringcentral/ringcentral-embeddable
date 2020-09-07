@@ -77,7 +77,7 @@ import ConnectivityManager from 'ringcentral-widgets/modules/ConnectivityManager
 import ConnectivityBadgeUI from 'ringcentral-widgets/modules/ConnectivityBadgeUI';
 import LoginUI from 'ringcentral-widgets/modules/LoginUI';
 import MeetingUI from 'ringcentral-widgets/modules/MeetingUI';
-import Meeting from 'ringcentral-integration/modules/Meeting';
+
 import MeetingProvider from 'ringcentral-integration/modules/MeetingProvider';
 import { CallerId } from 'ringcentral-integration/modules/CallerId';
 
@@ -108,6 +108,7 @@ import ErrorLogger from '../ErrorLogger';
 import ActiveCalls from '../ActiveCalls';
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
+import Meeting from '../Meeting';
 
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
 import MeetingHistoryUI from '../MeetingHistoryUI';
@@ -304,6 +305,7 @@ import hackSend from '../../lib/hackSend';
       useValue: {
         showSaveAsDefault: true,
         enablePersonalMeeting: true,
+        showAdminLock: true,
       },
       spread: true,
     },
@@ -311,6 +313,8 @@ import hackSend from '../../lib/hackSend';
       provide: 'MeetingOptions',
       useValue: {
         showSaveAsDefault: true,
+        enableInvitationApi: true,
+        enablePersonalMeeting: false,
       },
       spread: true,
     },
