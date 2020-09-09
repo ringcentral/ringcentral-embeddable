@@ -605,7 +605,7 @@ export function createPhone({
   if (userAgent) {
     appNameForSDK = `${userAgent} ${appNameForSDK}`;
   }
-  const usePKCE = apiConfig.clientId && !apiConfig.clientSecret;
+  const usePKCE = !authProxy && apiConfig.clientId && !apiConfig.clientSecret;
   if (usePKCE) {
     // hack clean old authorization code token if auth flow change to PKCE
     const rawToken = localStorage.getItem(`sdk-${prefix}platform`);
@@ -625,6 +625,7 @@ export function createPhone({
     redirectUri: redirectUri,
   };
   if (authProxy) {
+    sdkConfig.cachePrefix = `sdk-auth-proxy-${prefix}`;
     sdkConfig.authProxy = true;
     sdkConfig.authorizeEndpoint = '/authorize';
     sdkConfig.revokeEndpoint = '/logout';
