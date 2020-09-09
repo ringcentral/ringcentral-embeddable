@@ -588,9 +588,9 @@ export function createPhone({
   disableGlip,
   disableConferenceCall,
   disableMeeting,
-  authMode,
   userAgent,
   analyticsKey,
+  authProxy,
   errorReportEndpoint,
   errorReportSampleRate,
   recordingLink,
@@ -605,7 +605,7 @@ export function createPhone({
   if (userAgent) {
     appNameForSDK = `${userAgent} ${appNameForSDK}`;
   }
-  const usePKCE = apiConfig.clientId && !apiConfig.clientSecret;
+  const usePKCE = !authProxy && apiConfig.clientId && !apiConfig.clientSecret;
   if (usePKCE) {
     // hack clean old authorization code token if auth flow change to PKCE
     const rawToken = localStorage.getItem(`sdk-${prefix}platform`);
@@ -616,32 +616,38 @@ export function createPhone({
       }
     }
   }
+  const sdkConfig = {
+    ...apiConfig,
+    appName: appNameForSDK,
+    appVersion,
+    cachePrefix: `sdk-${prefix}`,
+    clearCacheOnRefreshError: false,
+    redirectUri: redirectUri,
+  };
+  if (authProxy) {
+    sdkConfig.cachePrefix = `sdk-auth-proxy-${prefix}`;
+    sdkConfig.authProxy = true;
+    sdkConfig.authorizeEndpoint = '/authorize';
+    sdkConfig.revokeEndpoint = '/logout';
+  }
   @ModuleFactory({
     providers: [
       { provide: 'ModuleOptions', useValue: { prefix }, spread: true },
       {
         provide: 'SdkConfig',
-        useValue: {
-          ...apiConfig,
-          appName: appNameForSDK,
-          appVersion,
-          cachePrefix: `sdk-${prefix}`,
-          clearCacheOnRefreshError: false,
-          redirectUri: redirectUri,
-        },
+        useValue: sdkConfig,
       },
       {
         provide: 'AppConfig',
         useValue: { name: brandConfig.appName, version: appVersion },
       },
       { provide: 'BrandOptions', useValue: brandConfig, spread: true },
-      { provide: 'AuthOptions', useValue: { usePKCE }, spread: true },
+      { provide: 'AuthOptions', useValue: { usePKCE, authProxy }, spread: true },
       {
         provide: 'OAuthOptions',
         useValue: {
           redirectUri,
           proxyUri,
-          authMode,
           authorizationCode,
           disableLoginPopup,
         },
