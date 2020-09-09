@@ -83,11 +83,11 @@ export default class OAuth extends ProxyFrameOAuth {
 
   async _handleCallbackUri(callbackUri, refresh = false) {
     try {
+      const query = parseCallbackUri(callbackUri);
       if (this._auth.useWAP) {
         await this._auth.wapLogin(callbackUri);
         return;
       }
-      const query = parseCallbackUri(callbackUri);
       if (refresh) {
         await this._refreshWithCallbackQuery(query);
       } else {
