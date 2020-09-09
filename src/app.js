@@ -39,7 +39,7 @@ const externalAppVersion = pathParams.appVersion || appVersion;
 
 const {
   stylesUri,
-  authMode,
+  authProxy,
   userAgent,
   analyticsKey,
   enableErrorReport,
@@ -91,7 +91,7 @@ const phone = createPhone({
   disableGlip,
   disableConferenceCall,
   disableMeeting,
-  authMode,
+  authProxy,
   userAgent,
   analyticsKey,
   errorReportEndpoint,
