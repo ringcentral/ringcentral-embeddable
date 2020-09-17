@@ -10,7 +10,7 @@ if (!hasUserLoginInfo) {
 }
 const conditionalDescribe = !hasUserLoginInfo ? describe.skip : describe;
 
-conditionalDescribe('Index page test', () => {
+conditionalDescribe('widget page test', () => {
   let widgetIframe;
 
   beforeAll(async () => {
@@ -75,5 +75,61 @@ conditionalDescribe('Index page test', () => {
     await widgetIframe.clickSettingSection('Calling');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Calling');
+  });
+
+  it('should register service successfully', async () => {
+    await widgetIframe.clickNavigationButton('More Menu');
+    await widgetIframe.clickDropdownNavigationMenu('Settings');
+    await page.evaluate(() => {
+      const iframe = document.querySelector("#rc-widget-adapter-frame").contentWindow;
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (data && data.type === 'rc-post-message-request') {
+          if (data.path === '/contacts') {
+            const contacts = [{
+              id: '123456',
+              name: 'TestService Name',
+              type: 'TestService',
+              phoneNumbers: [{
+                phoneNumber: '+1234567890',
+                phoneType: 'direct',
+              }],
+              company: 'CompanyName',
+              jobTitle: 'Engineer',
+              emails: ['test@email.com'],
+              deleted: false,
+            }];
+            iframe.postMessage({
+              type: 'rc-post-message-response',
+              responseId: data.requestId,
+              response: {
+                data: contacts,
+                nextPage: null,
+                syncTimestamp: Date.now()
+              },
+            }, '*');
+          }
+        }
+      });
+      iframe.postMessage({
+        type: 'rc-adapter-register-third-party-service',
+        service: {
+          name: 'TestService',
+          authorizationPath: '/authorize',
+          authorizedTitle: 'Unauthorize',
+          unauthorizedTitle: 'Authorize',
+          contactsPath: '/contacts',
+          authorized: true,
+        },
+      }, '*');
+    });
+    const serviceName = await widgetIframe.getServiceNameInAuthorizationSettings();
+    expect(serviceName).toEqual('TestService');
+    await widgetIframe.clickNavigationButton('More Menu');
+    await widgetIframe.clickDropdownNavigationMenu('Contacts');
+    const contactsFilters = await widgetIframe.getContactFilters();
+    expect(contactsFilters).toEqual(expect.stringContaining('TestService'));
+    const contacts = await widgetIframe.getContactNames();
+    expect(contacts).toEqual(expect.arrayContaining(['TestService Name']));
   });
 });
