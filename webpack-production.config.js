@@ -71,13 +71,15 @@ config.plugins = [
       RECORDING_LINK: JSON.stringify(recordingLink),
     },
   }),
-  new CopyWebpackPlugin([
-    { from: 'src/assets', to: 'assets' },
-    { from: 'src/app.html', to: 'app.html' },
-    { from: 'src/index.html', to: 'index.html' },
-    { from: 'src/proxy.html', to: 'proxy.html' },
-    { from: 'src/redirect.html', to: 'redirect.html' },
-  ]),
+  new CopyWebpackPlugin({
+    patterns: [
+      { from: 'src/assets', to: 'assets' },
+      { from: 'src/app.html', to: 'app.html' },
+      { from: 'src/index.html', to: 'index.html' },
+      { from: 'src/proxy.html', to: 'proxy.html' },
+      { from: 'src/redirect.html', to: 'redirect.html' },
+    ]
+  }),
 ];
 if (!localExtensionMode) {
   config.entry['adapter.min'] = './src/adapter.js';
