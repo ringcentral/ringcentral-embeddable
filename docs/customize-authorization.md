@@ -4,7 +4,7 @@ In widget, we implement [RingCentral authorization](https://developers.ringcentr
 
 **Prerequisites**: [Customize `clientId` and `clientSecret`](config-client-id-and-secret.md)
 
-To pass existed RingCentral authorization code:
+Pass RingCentral authorization code:
 
 ### Adapter JS way
 
@@ -31,7 +31,7 @@ To pass existed RingCentral authorization code:
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-authorization-code',
-  callbackUri: "http://localhost:8080/redirect.html?code=U0pDMDFQMDlQQVMwMHxBQURVRHJTaUF1bnltdDF6OWlMcEZhTWtWeldYelhVbmRqbThjaDllRk50NzVReWFxMjVjenpFN3ZJbWZleWJfZnFBT0FaalBGTkM0SXVrc21kTmhZUVJBUDNkV3J0Rzk1aXg3clFVbmR2TDlRRnZWVERBeEEwenJFamxuQ3EtSW1pNGlCSVpqUnAtX0M0QW4tQk9EcXpjeHpXY2JmQjE1cm92aHx1MThGTEF8dDEydzU0bjNQaUI0c196YUVTMEtlUXxBUQ&state=MTU5OTE0MzE5NTQ5OQ%3D%3D"
+  callbackUri: "http://localhost:8080/redirect.html?code=authorization_code&state=MTU5OTE0MzE5NTQ5OQ%3D%3D"
 }, '*');
 ```
 

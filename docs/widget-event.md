@@ -156,7 +156,7 @@ window.addEventListener('message', (e) => {
   if (data) {
     switch (data.type) {
       case 'rc-login-popup-notify':
-        // get login status from widget
+        // get login oAuthUri from widget
         console.log('rc-login-popup-notify:', data.oAuthUri);
         //  window.open(data.oAuthUri); // open oauth uri to login
         break;
