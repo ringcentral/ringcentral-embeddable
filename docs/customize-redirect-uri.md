@@ -1,6 +1,6 @@
 # Customize Redirect Uri
 
-In authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, https://ringcentral.github.io/ringcentral-embeddable/redirect.html. But it also allow to config redirect uri.
+In authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, https://ringcentral.github.io/ringcentral-embeddable/redirect.html. And it also supports to config redirect uri.
 
 ```js
 <script>
@@ -20,30 +20,17 @@ Or
 </iframe>
 ```
 
-But in your redirect page, you need to add following code to pass callback params to this app.
+In your redirect page, you need to add following code to pass auth callback params to this app.
 
 ```html
 <script>
-  // the origin is used for postMessage
-  var origin = 'https://ringcentral.github.io';
+  // Important: the origin is used for postMessage
+  var origin = 'https://ringcentral.github.io'; // origin where the widget is deployed.
   if (window.opener) {
-    // For normal popup login window
+    // pass callbackUri to widget
     window.opener.postMessage({
       callbackUri: window.location.href,
     }, origin);
-  }
-  if (window.parent && window.parent !== window) {
-    if (window.name === 'SSOIframe') {
-      // SSO login iframe
-      window.parent.postMessage({
-        callbackUri,
-      }, origin);
-    } else {
-      // For hidden token refresh iframe
-      window.parent.postMessage({
-        refreshCallbackUri: callbackUri,
-      },origin);
-    }
   }
 </script>
 ```
