@@ -138,4 +138,22 @@ export class IframeWidget {
     const value = await this._widgetIframe.$eval('input[name="receiver"]', (el) => el.value);
     return value;
   }
+
+  async getServiceNameInAuthorizationSettings() {
+    await this.waitFor('.AuthorizeSettingsSection_serviceName');
+    const text = await this._widgetIframe.$eval('.AuthorizeSettingsSection_serviceName', (el) => el.innerText);
+    return text;
+  }
+
+  async getContactFilters() {
+    await this.waitFor('.ContactSourceFilter_filterIconContainer');
+    await this._widgetIframe.click('.ContactSourceFilter_filterIconContainer');
+    const text = await this._widgetIframe.$eval('.ContactSourceFilter_contactSourceList', (el) => el.innerText);
+    return text;
+  }
+
+  async getContactNames() {
+    const texts = await this._widgetIframe.$$eval('.ContactItem_contactName', els => els.map(el => el.textContent));
+    return texts;
+  }
 }
