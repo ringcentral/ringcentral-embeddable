@@ -167,7 +167,7 @@ window.addEventListener('message', function (e) {
 
 ## Add a conference invite button with your service
 
-`Conference Invite` is disabled by default, follow [here](disable-features##enable-conference-invite-feature) to enable it.
+`Conference Invite` is disabled by default, follow [here](disable-features.md##enable-conference-invite-feature) to enable it.
 
 First you need to pass `conferenceInvitePath` and `conferenceInviteTitle` when you register service.
 
