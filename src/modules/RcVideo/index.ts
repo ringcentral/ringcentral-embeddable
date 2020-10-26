@@ -54,6 +54,26 @@ export default class NewRcVideo extends RcVideo {
     );
   }
 
+  // TODO: fix personal meeting cache issue in widgets lib
+  async _initPersonalMeeting() {
+    if (this._fetchPersonMeetingTimeout) {
+      clearTimeout(this._fetchPersonMeetingTimeout);
+    }
+    try {
+      const meeting = await this.initPersonalMeeting();
+      this.store.dispatch({
+        type: this.actionTypes.savePersonalMeeting,
+        meeting,
+      });
+    } catch (e) {
+      console.error('fetch default meeting error:', e);
+      console.warn('retry after 10s');
+      this._fetchPersonMeetingTimeout = setTimeout(() => {
+        this._initPersonalMeeting();
+      }, 10000);
+    }
+  }
+
   async createInstantMeeting() {
     const meeting = await this.createMeeting({ type: 0 })
     return meeting;
