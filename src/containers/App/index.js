@@ -301,29 +301,18 @@ export default function App({
                 path="/meeting/schedule"
                 component={() => {
                   const scheduleFunc = async (meetingInfo) => {
-                    let resp;
-                    if (meetingInfo.usePersonalMeetingId) {
-                      resp = await phone.genericMeeting.updateMeeting(
-                        phone.genericMeeting.personalMeeting && phone.genericMeeting.personalMeeting.id,
-                        {
-                          ...meetingInfo,
-                          id: phone.genericMeeting.personalMeeting && phone.genericMeeting.personalMeeting.id,
-                        }
-                      );
-                    } else {
-                      resp = await phone.genericMeeting.schedule(meetingInfo);
-                    }
+                    const resp = await phone.genericMeeting.schedule(meetingInfo);
                     if (!resp) {
                       return;
                     }
-                    const formatedMeetingInfo = formatMeetingInfo(
+                    const formattedMeetingInfo = formatMeetingInfo(
                       resp, phone.brand, phone.locale.currentLocale, phone.genericMeeting.isRCV
                     );
                     if (phone.thirdPartyService.meetingInviteTitle) {
-                      await phone.thirdPartyService.inviteMeeting(formatedMeetingInfo);
+                      await phone.thirdPartyService.inviteMeeting(formattedMeetingInfo);
                       return;
                     }
-                    phone.meetingInviteModalUI.showModal(formatedMeetingInfo);
+                    phone.meetingInviteModalUI.showModal(formattedMeetingInfo);
                   };
                   if (phone.genericMeeting.isRCV) {
                     return (

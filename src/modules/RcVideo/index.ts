@@ -15,14 +15,10 @@ import additionalActionTypes from './actionTypes';
   ]
 })
 export default class NewRcVideo extends RcVideo {
-  private _meetingProvider: any;
   private _fetchingUpcomingMeetings: boolean;
   private _thirdPartyProviders: any;
 
-  constructor({
-    meetingProvider,
-    ...options
-  }) {
+  constructor(options) {
     super({
       reducers: {
         historyMeetings: getHistoryMeetingsReducer(additionalActionTypes),
@@ -31,48 +27,10 @@ export default class NewRcVideo extends RcVideo {
       enablePersonalMeeting: true,
       ...options,
     });
-    this._meetingProvider = meetingProvider;
     this._fetchingUpcomingMeetings = false;
     this._thirdPartyProviders = {};
   }
 
-  _shouldInit() {
-    return (
-      super._shouldInit() &&
-      (this._meetingProvider.ready && this._meetingProvider.isRCV)
-    );
-  }
-
-  _shouldReset() {
-    return (
-      this.ready & (
-        !this._extensionInfo.ready ||
-        !this._storage.ready ||
-        (!this._meetingProvider.ready || !this._meetingProvider.isRCV) ||
-        (this._availabilityMonitor || !this._availabilityMonitor.ready)
-      )
-    );
-  }
-
-  // TODO: fix personal meeting cache issue in widgets lib
-  async _initPersonalMeeting() {
-    if (this._fetchPersonMeetingTimeout) {
-      clearTimeout(this._fetchPersonMeetingTimeout);
-    }
-    try {
-      const meeting = await this.initPersonalMeeting();
-      this.store.dispatch({
-        type: this.actionTypes.savePersonalMeeting,
-        meeting,
-      });
-    } catch (e) {
-      console.error('fetch default meeting error:', e);
-      console.warn('retry after 10s');
-      this._fetchPersonMeetingTimeout = setTimeout(() => {
-        this._initPersonalMeeting();
-      }, 10000);
-    }
-  }
 
   async createInstantMeeting() {
     const meeting = await this.createMeeting({ type: 0 })
@@ -188,9 +146,5 @@ export default class NewRcVideo extends RcVideo {
 
   get upcomingMeetings() {
     return this.state.upcomingMeetings;
-  }
-
-  get personalMeeting() {
-    return this._storage.getItem(this._personalMeetingKey) || {};
   }
 }

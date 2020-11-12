@@ -52,7 +52,7 @@ import RecentMessages from 'ringcentral-integration/modules/RecentMessages';
 import RecentCalls from 'ringcentral-integration/modules/RecentCalls';
 import MessageStore from 'ringcentral-integration/modules/MessageStore';
 import { ComposeText } from 'ringcentral-integration/modules/ComposeTextV2';
-import { MessageSender } from 'ringcentral-integration/modules/MessageSenderV2';
+// import { MessageSender } from 'ringcentral-integration/modules/MessageSenderV2';
 import { Conversations } from 'ringcentral-integration/modules/ConversationsV2';
 
 // import GlipCompany from 'ringcentral-integration/modules/GlipCompany';
@@ -109,6 +109,7 @@ import ActiveCalls from '../ActiveCalls';
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
 import Meeting from '../Meeting';
+import { MessageSender } from '../MessageSender';
 
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
 import MeetingHistoryUI from '../MeetingHistoryUI';

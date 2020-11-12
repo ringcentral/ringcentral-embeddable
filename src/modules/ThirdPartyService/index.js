@@ -1,6 +1,6 @@
 import RcModule from 'ringcentral-integration/lib/RcModule';
 import { Module } from 'ringcentral-integration/lib/di';
-import phoneTypes from 'ringcentral-widgets/enums/phoneTypes';
+import { phoneTypes } from 'ringcentral-integration/enums/phoneTypes';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
