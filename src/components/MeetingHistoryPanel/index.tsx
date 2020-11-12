@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 
 import Spinner from 'ringcentral-widgets/components/Spinner';
-import { RcOutlineTextField, RcBoxSelect, RcMenuItem } from '@ringcentral-integration/rcui';
+import { RcOutlineTextField, RcBoxSelect, RcMenuItem } from '@ringcentral/juno';
 
-import searchSvg from '@ringcentral-integration/rcui/icons/icon-search.svg';
+import searchSvg from '@ringcentral/juno/icons/icon-search.svg';
 
 import MeetingItem from '../MeetingItem';
 import styles from './styles.scss';

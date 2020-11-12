@@ -1,8 +1,8 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import { RcIconButton, RcButton } from '@ringcentral-integration/rcui';
-import infoSvg from '@ringcentral-integration/rcui/icons/icon-info.svg';
+import { RcIconButton, RcButton } from '@ringcentral/juno';
+import infoSvg from '@ringcentral/juno/icons/icon-info.svg';
 
 import i18n from './i18n';
 import styles from './styles.scss';

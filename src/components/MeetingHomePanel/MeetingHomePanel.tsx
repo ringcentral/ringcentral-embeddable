@@ -1,14 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { RcFabIconButton } from '@ringcentral-integration/rcui';
+import { RcFabIconButton } from '@ringcentral/juno';
 import classnames from 'classnames';
 import Modal from 'ringcentral-widgets/components/Modal';
 import TextInput from 'ringcentral-widgets/components/TextInput';
 import Spinner from 'ringcentral-widgets/components/Spinner';
 
-import scheduleSvg from '@ringcentral-integration/rcui/icons/icon-schedule.svg';
-import startSvg from '@ringcentral-integration/rcui/icons/icon-start.svg';
-import joinSvg from '@ringcentral-integration/rcui/icons/icon-join.svg';
+import scheduleSvg from '@ringcentral/juno/icons/icon-schedule.svg';
+import startSvg from '@ringcentral/juno/icons/icon-start.svg';
+import joinSvg from '@ringcentral/juno/icons/icon-join.svg';
 
 import UpcomingMeetingList from '../UpcomingMeetingList';
 
