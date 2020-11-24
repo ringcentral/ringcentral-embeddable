@@ -190,6 +190,11 @@ class Adapter extends AdapterCore {
   }
 
   _getContentDOM(sanboxAttributeValue, allowAttributeValue) {
+    let sandboxAttributes = sanboxAttributeValue;
+    // TODO: fix in widgets lib
+    if (sandboxAttributes.indexOf('allow-downloads') === -1) {
+      sandboxAttributes = `${sandboxAttributes} allow-downloads`; // For Google Chrome v83
+    }
     return `
       <header class="${this._styles.header}" draggable="false">
         <div class="${this._styles.presence} ${this._styles.NoPresence}">
@@ -237,7 +242,7 @@ class Adapter extends AdapterCore {
         </div>
       </div>
       <div class="${this._styles.frameContainer}">
-        <iframe class="${this._styles.contentFrame}" sandbox="${sanboxAttributeValue}" allow="${allowAttributeValue}" >
+        <iframe class="${this._styles.contentFrame}" sandbox="${sandboxAttributes}" allow="${allowAttributeValue}" >
         </iframe>
       </div>`;
   }
