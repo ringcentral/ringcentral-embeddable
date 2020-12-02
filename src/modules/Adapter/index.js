@@ -15,6 +15,7 @@ import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
 
 import { formatMeetingInfo, formatMeetingForm } from '../../lib/formatMeetingInfo';
 import messageTypes from '../../lib/Adapter/messageTypes';
+import { getWebphoneSessionContactMatch } from '../../lib/contactMatchHelper';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 
@@ -68,6 +69,7 @@ function findExistedConversation(conversations, phoneNumber) {
     'Brand',
     'Conversations',
     'ActiveCallControl',
+    'ContactMatcher',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -97,6 +99,7 @@ export default class Adapter extends AdapterModuleCore {
     rolesAndPermissions,
     conversations,
     activeCallControl,
+    contactMatcher,
     ...options
   }) {
     super({
@@ -129,6 +132,7 @@ export default class Adapter extends AdapterModuleCore {
     this._conversations = conversations;
     this._activeCallControl = activeCallControl;
     this._oAuth = oAuth;
+    this._contactMatcher = contactMatcher;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -550,21 +554,30 @@ export default class Adapter extends AdapterModuleCore {
   ringCallNotify(session) {
     this._postMessage({
       type: 'rc-call-ring-notify',
-      call: session,
+      call: {
+        ...session,
+        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
+      },
     });
   }
 
   initCallNotify(session) {
     this._postMessage({
       type: 'rc-call-init-notify',
-      call: session,
+      call: {
+        ...session,
+        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
+      },
     });
   }
 
   startCallNotify(session) {
     this._postMessage({
       type: 'rc-call-start-notify',
-      call: session,
+      call: {
+        ...session,
+        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
+      },
     });
   }
 
@@ -574,6 +587,7 @@ export default class Adapter extends AdapterModuleCore {
       call: {
         ...session,
         endTime: Date.now(),
+        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
       },
     });
   }
@@ -584,6 +598,7 @@ export default class Adapter extends AdapterModuleCore {
       call: {
         ...session,
         callStatus: sessionStatus.onHold,
+        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
       },
     });
   }
@@ -591,7 +606,10 @@ export default class Adapter extends AdapterModuleCore {
   resumeCallNotify(session) {
     this._postMessage({
       type: 'rc-call-resume-notify',
-      call: session,
+      call: {
+        ...session,
+        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
+      },
     });
   }
 
@@ -601,6 +619,7 @@ export default class Adapter extends AdapterModuleCore {
       call: {
         ...session,
         isOnMute: muted,
+        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
       },
     });
   }
