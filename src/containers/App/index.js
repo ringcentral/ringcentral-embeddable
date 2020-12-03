@@ -214,6 +214,7 @@ export default function App({
                     onBackButtonClick={() => {
                       phone.routerInteraction.push('/calls');
                     }}
+                    showPark
                     getAvatarUrl={getAvatarUrl}
                     showContactDisplayPlaceholder={false}
                     showCallQueueName
