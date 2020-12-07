@@ -7,6 +7,7 @@ import qs from 'qs';
 @Module({
   name: 'OAuth',
   deps: [
+    'Client',
     { dep: 'OAuthOptions', optional: true }
   ]
 })
@@ -14,9 +15,11 @@ export default class OAuth extends ProxyFrameOAuth {
   constructor({
     authorizationCode,
     disableLoginPopup = false,
+    client,
     ...options
   }) {
     super(options);
+    this._client = client;
     this._authorizationCode = authorizationCode;
     this._disableLoginPopup = disableLoginPopup;
   }
@@ -72,13 +75,19 @@ export default class OAuth extends ProxyFrameOAuth {
       localeId: this._locale.currentLocale,
       ui_options: 'hide_remember_me hide_tos',
     });
-    return `${this._auth.getLoginUrl({
+    const query = {
       redirectUri: this.redirectUri,
       // brandId: this._brand.id,
       state: btoa(Date.now()),
       display: 'page',
       implicit: this._auth.isImplicit,
-    })}&${extendedQuery}`;
+    };
+    if (this._client && this._client.service) {
+      if (this._client.service.platform().loginUrl().indexOf('ringcentral.biz') > -1) {
+        query.brandId = 3420;
+      }
+    }
+    return `${this._auth.getLoginUrl(query)}&${extendedQuery}`;
   }
 
   async _handleCallbackUri(callbackUri, refresh = false) {
