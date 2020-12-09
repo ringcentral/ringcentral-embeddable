@@ -62,7 +62,6 @@ import GlipPosts from 'ringcentral-integration/modules/GlipPosts';
 
 import LocalForageStorage from 'ringcentral-integration/lib/LocalForageStorage';
 
-import DialerUI from 'ringcentral-widgets/modules/DialerUI';
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
 import ConferenceUI from 'ringcentral-widgets/modules/ConferenceUI';
@@ -116,6 +115,7 @@ import MeetingHistoryUI from '../MeetingHistoryUI';
 import MeetingHomeUI from '../MeetingHomeUI';
 import RcVideo from '../RcVideo';
 import GenericMeeting from '../GenericMeeting';
+import DialerUI from '../DialerUI';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
