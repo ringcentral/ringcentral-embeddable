@@ -60,7 +60,7 @@ import GlipPersons from 'ringcentral-integration/modules/GlipPersons';
 // import GlipGroups from 'ringcentral-integration/modules/GlipGroups';
 import GlipPosts from 'ringcentral-integration/modules/GlipPosts';
 
-import LocalForageStorage from 'ringcentral-integration/lib/LocalForageStorage';
+import { LocalForageStorage } from 'ringcentral-integration/lib/LocalForageStorage';
 
 import RouterInteraction from 'ringcentral-widgets/modules/RouterInteraction';
 import ConferenceDialerUI from 'ringcentral-widgets/modules/ConferenceDialerUI';
