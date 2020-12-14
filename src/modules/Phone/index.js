@@ -45,7 +45,7 @@ import Softphone from 'ringcentral-integration/modules/Softphone';
 import Storage from 'ringcentral-integration/modules/Storage';
 import Subscription from 'ringcentral-integration/modules/Subscription';
 import TabManager from 'ringcentral-integration/modules/TabManager';
-import Webphone from 'ringcentral-integration/modules/Webphone';
+// import Webphone from 'ringcentral-integration/modules/Webphone';
 import Feedback from 'ringcentral-integration/modules/Feedback';
 import Conference from 'ringcentral-integration/modules/Conference';
 import RecentMessages from 'ringcentral-integration/modules/RecentMessages';
@@ -109,6 +109,7 @@ import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
 import Meeting from '../Meeting';
 import { MessageSender } from '../MessageSender';
+import Webphone from '../Webphone';
 
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
 import MeetingHistoryUI from '../MeetingHistoryUI';
