@@ -675,6 +675,7 @@ export function createPhone({
           permissionCheck: false,
           connectDelay: disconnectInactiveWebphone ? 800 : 0,
           disconnectOnInactive: disconnectInactiveWebphone,
+          onlyAWebphone: true,
         },
       },
       {
