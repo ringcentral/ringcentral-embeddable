@@ -4,9 +4,10 @@ import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import TransportBase from 'ringcentral-integration/lib/TransportBase';
 
 export class MultipleTabsTransport extends TransportBase {
-  constructor({ name, tabId, timeout = 5 * 1000, prefix }) {
+  constructor({ name, tabId, timeout = 5 * 1000, prefix, getMainTabId }) {
     super({ name, timeout, prefix });
     this._tabId = tabId;
+    this._getMainTabId = getMainTabId;
     this._broadcastChannel = `${prefix ? `${prefix}-` : ''}${name}-broadcast`;
     this._requestChannel = `${prefix ? `${prefix}-` : ''}${name}-request`;
     this._responseChannel = `${prefix ? `${prefix}-` : ''}${name}-response`;
@@ -59,6 +60,10 @@ export class MultipleTabsTransport extends TransportBase {
 
   request({ tabId, payload }) {
     const requestId = uuid.v4();
+    let toTabId = tabId;
+    if (!toTabId) {
+      toTabId = this._getMainTabId();
+    }
     let promise = new Promise((resolve, reject) => {
       this._requests.set(requestId, {
         resolve,
@@ -66,7 +71,7 @@ export class MultipleTabsTransport extends TransportBase {
       });
       localStorage.setItem(this._requestChannel, JSON.stringify({
         payload,
-        tabId,
+        tabId: toTabId,
         requestId,
       }));
       localStorage.removeItem(this._requestChannel);

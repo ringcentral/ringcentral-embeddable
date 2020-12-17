@@ -603,6 +603,7 @@ export function createPhone({
   disconnectInactiveWebphone,
   disableInactiveTabCallEvent,
   disableLoginPopup,
+  multipleTabsSupport,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -668,7 +669,7 @@ export function createPhone({
       {
         provide: 'AlertOptions',
         useValue: {
-          multipleTabsSupport: true,
+          multipleTabsSupport,
         },
         spread: true
       },
@@ -683,7 +684,7 @@ export function createPhone({
           permissionCheck: false,
           connectDelay: disconnectInactiveWebphone ? 800 : 0,
           disconnectOnInactive: disconnectInactiveWebphone,
-          multipleTabsSupport: true,
+          multipleTabsSupport,
         },
       },
       {

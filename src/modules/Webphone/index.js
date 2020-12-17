@@ -1,11 +1,11 @@
 
 import WebphoneBase from 'ringcentral-integration/modules/Webphone';
 import { Module } from 'ringcentral-integration/lib/di';
+import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
+import proxyActionTypes from 'ringcentral-integration/lib/proxy/baseActionTypes';
 
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
-
-import { multipleTabsProxify, PROXIFY_FUNCTIONS } from './multipleTabsProxify';
 
 import {
   getWebphoneStateReducer,
@@ -44,7 +44,8 @@ export default class Webphone extends WebphoneBase {
     this._globalStorage = globalStorage;
     this._multipleTabsSupport = multipleTabsSupport;
     this._webphoneStateStorageKey = `${prefix}-webphone-state`;
-    if (multipleTabsSupport) {
+    if (this._multipleTabsSupport) {
+      this._proxyActionTypes = proxyActionTypes;
       this._reducer = getModuleStateReducer(this.actionTypes);
       this._globalStorage.registerReducer({
         key: this._webphoneStateStorageKey,
@@ -55,7 +56,15 @@ export default class Webphone extends WebphoneBase {
         tabId: this._tabManager.id,
         timeout: 10 * 1000,
         prefix,
+        getMainTabId: () => this.activeWebphoneId,
       });
+      if (
+        !this.isWebphoneActiveTab &&
+        this.activeWebphoneId !== '-1' &&
+        this.activeWebphoneId !== null
+      ) {
+        this._enableProxify();
+      }
       this._multipleTabsTransport.on(
         this._multipleTabsTransport.events.request,
         this._onMultipleTabsChannelRequest
@@ -66,34 +75,41 @@ export default class Webphone extends WebphoneBase {
       );
       Array.from(ObjectMap.keys(EVENTS)).forEach((event) => {
         this._eventEmitter.on(event, (...args) => {
-          this._multipleTabsTransport.broadcast({ event, message: args });
+          if (this.isWebphoneActiveTab) {
+            this._multipleTabsTransport.broadcast({ event, message: args });
+          }
         });
       });
     }
   }
 
-  _onMultipleTabsChannelRequest = async (request) => {
-    if (request.payload.type === 'execute') {
-      if (request.payload.funcName === 'connect') {
+  _onMultipleTabsChannelRequest = async ({
+    requestId,
+    payload: { type, functionPath, args },
+  }) => {
+    if (type === this._proxyActionTypes.execute) {
+      const funcPath = functionPath.split('.');
+      const funcName = funcPath[funcPath.length - 1];
+      if (funcName === 'connect') {
         if (!this.connected && !this.connecting) {
-          this.connect(...request.payload.args);
+          this.connect(...args);
         }
         this._multipleTabsTransport.response({
-          requestId: request.requestId,
+          requestId: requestId,
           result: 'ok',
           error: null,
         });
-      } else if (PROXIFY_FUNCTIONS.indexOf(request.payload.funcName) > -1) {
+      } else {
         let result, error;
         try {
-          result = await this[request.payload.funcName](...request.payload.args);
+          result = await this[funcName](...args);
           if (typeof result === 'object') {
             result = {}; // session object can't be stringified
           }
         } catch (e) {
           error = e.message;
         }
-        this._multipleTabsTransport.response({ requestId: request.requestId, result, error });
+        this._multipleTabsTransport.response({ requestId: requestId, result, error });
       }
     }
   }
@@ -194,6 +210,7 @@ export default class Webphone extends WebphoneBase {
       }
       return;
     }
+    this._transport = this._multipleTabsTransport; // enable function proxify
     // clear connectTimeout if current tab is trying to connect
     if (this._connectTimeout) {
       clearTimeout(this._connectTimeout);
@@ -218,8 +235,8 @@ export default class Webphone extends WebphoneBase {
           await this._multipleTabsTransport.request({
             tabId: this.activeWebphoneId,
             payload: {
-              type: 'execute',
-              funcName: 'connect',
+              type: this._proxyActionTypes.execute,
+              functionPath: 'connect',
               args: [newOptions],
             }
           });
@@ -269,6 +286,7 @@ export default class Webphone extends WebphoneBase {
     }
     if (this._tabManager) {
       localStorage.setItem(this._activeWebphoneKey, this._tabManager.id);
+      this._disableProxify();
     }
   }
 
@@ -276,10 +294,12 @@ export default class Webphone extends WebphoneBase {
     if (this._multipleTabsSupport) {
       if (clean) {
         localStorage.removeItem(this._activeWebphoneKey);
+        this._enableProxify();
         return;
       }
       if (this.isWebphoneActiveTab) {
         localStorage.setItem(this._activeWebphoneKey, '-1');
+        this._enableProxify();
       }
       return;
     }
@@ -310,167 +330,27 @@ export default class Webphone extends WebphoneBase {
     super._onWebphoneUnregistered();
   }
 
-  @multipleTabsProxify
-  async makeCall(...args) {
-    return super.makeCall(...args);
-  }
-
-  @multipleTabsProxify
-  async answer(...args) {
-    return super.answer(...args);
-  }
-
-  @multipleTabsProxify
-  async reject(...args) {
-    return super.reject(...args);
-  }
-
-  @multipleTabsProxify
-  async resume(...args) {
-    return super.resume(...args);
-  }
-
-  @multipleTabsProxify
-  async forward(...args) {
-    return super.forward(...args);
-  }
-
-  @multipleTabsProxify
-  async mute(...args) {
-    return super.mute(...args);
-  }
-
-  @multipleTabsProxify
-  async unmute(...args) {
-    return super.unmute(...args);
-  }
-
-  @multipleTabsProxify
-  async hold(...args) {
-    return super.hold(...args);
-  }
-
-  @multipleTabsProxify
-  async unhold(...args) {
-    return super.unhold(...args);
-  }
-
-  @multipleTabsProxify
-  async startRecord(...args) {
-    return super.startRecord(...args);
-  }
-
-  @multipleTabsProxify
-  async stopRecord(...args) {
-    return super.stopRecord(...args);
-  }
-
-  @multipleTabsProxify
-  async park(...args) {
-    return super.park(...args);
-  }
-
-  @multipleTabsProxify
-  async transfer(...args) {
-    return super.transfer(...args);
-  }
-
-  @multipleTabsProxify
-  async transferWarm(...args) {
-    return super.transferWarm(...args);
-  }
-
-  @multipleTabsProxify
-  async flip(...args) {
-    return super.flip(...args);
-  }
-
-  @multipleTabsProxify
-  async sendDTMF(...args) {
-    return super.sendDTMF(...args);
-  }
-
-  @multipleTabsProxify
-  async hangup(...args) {
-    return super.hangup(...args);
-  }
-
-  @multipleTabsProxify
-  async toVoiceMail(...args) {
-    return super.toVoiceMail(...args);
-  }
-
-  @multipleTabsProxify
-  async replyWithMessage(...args) {
-    return super.replyWithMessage(...args);
-  }
-
-  @multipleTabsProxify
-  async switchCall(...args) {
-    return super.switchCall(...args);
-  }
-
-  @multipleTabsProxify
-  async updateSessionMatchedContact(...args) {
-    return super.updateSessionMatchedContact(...args);
-  }
-
-  @multipleTabsProxify
-  setSessionCaching(...args) {
-    return super.updateSessionMatchedContact(...args);
-  }
-
-  @multipleTabsProxify
-  async clearSessionCaching(...args) {
-    return super.clearSessionCaching(...args);
-  }
-
-  @multipleTabsProxify
-  async toggleMinimized(...args) {
-    return super.toggleMinimized(...args);
-  }
-
-  get webphoneState() {
+  get state() {
     if (!this._multipleTabsSupport) {
-      return this.state;
+      return super.state;
     }
     return this._globalStorage.getItem(this._webphoneStateStorageKey);
   }
 
-  get ringSessionId() {
-    return this.webphoneState.ringSessionId;
+  get status() {
+    return super.state.status;
   }
 
-  get activeSessionId() {
-    return this.webphoneState.activeSessionId;
+  get ready() {
+    return super.state.status === moduleStatuses.ready;
   }
 
-  get sessions() {
-    return this.webphoneState.sessions;
+  get pending() {
+    return super.state.status === moduleStatuses.pending;
   }
 
-  get lastEndedSessions() {
-    return this.webphoneState.lastEndedSessions;
-  }
-
-  get connectionStatus() {
-    return this.webphoneState.connectionStatus;
-  }
-
-  get connectRetryCounts() {
-    return this.webphoneState.connectRetryCounts;
-  }
-
-  get errorCode() {
-    return this.webphoneState.errorCode;
-  }
-
-  get statusCode() {
-    return this.webphoneState.statusCode;
-  }
-
-  get device() {
-    return this.webphoneState.device;
+  get videoElementPrepared() {
+    return super.state.videoElementPrepared;
   }
 
   get activeWebphoneId() {
@@ -479,5 +359,13 @@ export default class Webphone extends WebphoneBase {
 
   get isWebphoneActiveTab() {
     return this.activeWebphoneId === this._tabManager.id;
+  }
+
+  _enableProxify() {
+    this._transport = this._multipleTabsTransport;
+  }
+
+  _disableProxify() {
+    this._transport = null;
   }
 }
