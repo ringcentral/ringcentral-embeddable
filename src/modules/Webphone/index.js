@@ -41,10 +41,10 @@ export default class Webphone extends WebphoneBase {
       prefix,
       ...options,
     });
-    this._globalStorage = globalStorage;
     this._multipleTabsSupport = multipleTabsSupport;
     this._webphoneStateStorageKey = `${prefix}-webphone-state`;
     if (this._multipleTabsSupport) {
+      this._globalStorage = globalStorage;
       this._proxyActionTypes = proxyActionTypes;
       this._reducer = getModuleStateReducer(this.actionTypes);
       this._globalStorage.registerReducer({
@@ -87,30 +87,30 @@ export default class Webphone extends WebphoneBase {
     requestId,
     payload: { type, functionPath, args },
   }) => {
-    if (type === this._proxyActionTypes.execute) {
-      const funcPath = functionPath.split('.');
-      const funcName = funcPath[funcPath.length - 1];
-      if (funcName === 'connect') {
-        if (!this.connected && !this.connecting) {
-          this.connect(...args);
-        }
-        this._multipleTabsTransport.response({
-          requestId: requestId,
-          result: 'ok',
-          error: null,
-        });
-      } else {
-        let result, error;
-        try {
-          result = await this[funcName](...args);
-          if (typeof result === 'object') {
-            result = {}; // session object can't be stringified
-          }
-        } catch (e) {
-          error = e.message;
-        }
-        this._multipleTabsTransport.response({ requestId: requestId, result, error });
+    if (type !== this._proxyActionTypes.execute) {
+      return;
+    }
+    if (functionPath.indexOf(this.modulePath) === -1) {
+      return;
+    }
+    const funcName = functionPath.replace(`${this.modulePath}.`, '');
+    if (funcName === 'connect') {
+      if (!this.connected && !this.connecting) {
+        this.connect(...args);
       }
+      this._multipleTabsTransport.response({
+        requestId: requestId,
+        result: 'ok',
+        error: null,
+      });
+    } else {
+      let result, error;
+      try {
+        result = await this[funcName](...args);
+      } catch (e) {
+        error = e.message;
+      }
+      this._multipleTabsTransport.response({ requestId: requestId, result, error });
     }
   }
 
@@ -236,7 +236,7 @@ export default class Webphone extends WebphoneBase {
             tabId: this.activeWebphoneId,
             payload: {
               type: this._proxyActionTypes.execute,
-              functionPath: 'connect',
+              functionPath: `${this.modulePath}.connect`,
               args: [newOptions],
             }
           });
@@ -367,5 +367,13 @@ export default class Webphone extends WebphoneBase {
 
   _disableProxify() {
     this._transport = null;
+  }
+
+  get multipleTabsTransport() {
+    return this._multipleTabsTransport;
+  }
+
+  get proxifyTransport() {
+    return this._transport;
   }
 }

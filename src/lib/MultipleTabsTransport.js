@@ -58,6 +58,23 @@ export class MultipleTabsTransport extends TransportBase {
     }
   }
 
+  _safeStringify(data) {
+    // remove Circular object
+    const seen = new WeakSet();
+    return JSON.stringify(
+      data,
+      (key, value) => {
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) {
+            return;
+          }
+          seen.add(value);
+        }
+        return value;
+      }
+    );
+  }
+
   request({ tabId, payload }) {
     const requestId = uuid.v4();
     let toTabId = tabId;
@@ -69,7 +86,7 @@ export class MultipleTabsTransport extends TransportBase {
         resolve,
         reject,
       });
-      localStorage.setItem(this._requestChannel, JSON.stringify({
+      localStorage.setItem(this._requestChannel, this._safeStringify({
         payload,
         tabId: toTabId,
         requestId,
@@ -95,7 +112,7 @@ export class MultipleTabsTransport extends TransportBase {
   }
 
   response({ requestId, result, error }) {
-    localStorage.setItem(this._responseChannel, JSON.stringify({
+    localStorage.setItem(this._responseChannel, this._safeStringify({
       requestId,
       result,
       error,
@@ -104,7 +121,7 @@ export class MultipleTabsTransport extends TransportBase {
   }
 
   broadcast({ event, message }) {
-    localStorage.setItem(this._broadcastChannel, JSON.stringify({
+    localStorage.setItem(this._broadcastChannel, this._safeStringify({
       event,
       message
     }));

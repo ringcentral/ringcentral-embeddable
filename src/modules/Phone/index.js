@@ -20,7 +20,7 @@ import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Call from 'ringcentral-integration/modules/Call';
 import CallHistory from 'ringcentral-integration/modules/CallHistory';
 // import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
-import ConferenceCall from 'ringcentral-integration/modules/ConferenceCall';
+// import ConferenceCall from 'ringcentral-integration/modules/ConferenceCall';
 // import CallLog from 'ringcentral-integration/modules/CallLog';
 import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
@@ -111,6 +111,7 @@ import CallLog from '../CallLog';
 import Meeting from '../Meeting';
 import { MessageSender } from '../MessageSender';
 import Webphone from '../Webphone';
+import ConferenceCall from '../ConferenceCall';
 
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
 import MeetingHistoryUI from '../MeetingHistoryUI';
@@ -443,6 +444,9 @@ export default class BasePhone extends RcModule {
       contactMatcher.forceMatchNumber({ phoneNumber: session.from });
     });
     webphone.onBeforeCallResume((session) => {
+      if (!webphone._webphone) {
+        return;
+      }
       const sessionId = session && session.id;
       const mergingPair = conferenceCall && conferenceCall.mergingPair;
       if (mergingPair && sessionId !== mergingPair.toSessionId) {
@@ -452,6 +456,9 @@ export default class BasePhone extends RcModule {
     });
 
     webphone.onBeforeCallEnd((session) => {
+      if (!webphone._webphone) {
+        return;
+      }
       const mergingPair = conferenceCall && conferenceCall.mergingPair;
       if (
         session
@@ -684,6 +691,13 @@ export function createPhone({
           permissionCheck: false,
           connectDelay: disconnectInactiveWebphone ? 800 : 0,
           disconnectOnInactive: disconnectInactiveWebphone,
+          multipleTabsSupport,
+        },
+      },
+      {
+        provide: 'ConferenceCallOptions',
+        spread: true,
+        useValue: {
           multipleTabsSupport,
         },
       },
