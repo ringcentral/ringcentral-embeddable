@@ -14,7 +14,7 @@ import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import CompanyContacts from 'ringcentral-integration/modules/CompanyContacts';
-import Alert from 'ringcentral-integration/modules/Alert';
+
 // import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Call from 'ringcentral-integration/modules/Call';
@@ -89,6 +89,7 @@ import SettingsUI from 'ringcentral-widgets/modules/SettingsUI';
 
 import GenericMeetingUI from 'ringcentral-widgets/modules/GenericMeetingUI';
 
+import Alert from '../Alert';
 import Brand from '../Brand';
 import AudioSettings from '../AudioSettings';
 import OAuth from '../OAuth';
@@ -519,7 +520,7 @@ export default class BasePhone extends RcModule {
     });
     // CallMonitor configuration
     callMonitor.onRingings(async () => {
-      if (webphone._webphone) {
+      if (webphone.connected) {
         return;
       }
       // TODO refactor some of these logic into appropriate modules
@@ -665,6 +666,13 @@ export function createPhone({
         spread: true
       },
       {
+        provide: 'AlertOptions',
+        useValue: {
+          multipleTabsSupport: true,
+        },
+        spread: true
+      },
+      {
         provide: 'WebphoneOptions',
         spread: true,
         useValue: {
@@ -675,7 +683,7 @@ export function createPhone({
           permissionCheck: false,
           connectDelay: disconnectInactiveWebphone ? 800 : 0,
           disconnectOnInactive: disconnectInactiveWebphone,
-          onlyAWebphone: true,
+          multipleTabsSupport: true,
         },
       },
       {

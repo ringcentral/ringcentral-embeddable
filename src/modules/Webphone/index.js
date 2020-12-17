@@ -1,13 +1,27 @@
 
 import WebphoneBase from 'ringcentral-integration/modules/Webphone';
 import { Module } from 'ringcentral-integration/lib/di';
+import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 
-import { MultipleTabsChannel } from '../../lib/MultipleTabsChannel';
+import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
+
+import { multipleTabsProxify, PROXIFY_FUNCTIONS } from './multipleTabsProxify';
 
 import {
   getWebphoneStateReducer,
   getModuleStateReducer,
 } from './getReducer';
+
+const EVENTS = ObjectMap.fromKeys([
+  'callRing',
+  'callStart',
+  'callEnd',
+  'callHold',
+  'callResume',
+  'beforeCallResume',
+  'beforeCallEnd',
+  'callInit',
+]);
 
 @Module({
   name: 'Webphone',
@@ -18,7 +32,7 @@ import {
 })
 export default class Webphone extends WebphoneBase {
   constructor({
-    onlyAWebphone = false,
+    multipleTabsSupport = false,
     prefix,
     globalStorage,
     ...options
@@ -28,29 +42,65 @@ export default class Webphone extends WebphoneBase {
       ...options,
     });
     this._globalStorage = globalStorage;
-    this._onlyAWebphone = onlyAWebphone;
+    this._multipleTabsSupport = multipleTabsSupport;
     this._webphoneStateStorageKey = `${prefix}-webphone-state`;
-    if (onlyAWebphone) {
+    if (multipleTabsSupport) {
       this._reducer = getModuleStateReducer(this.actionTypes);
       this._globalStorage.registerReducer({
         key: this._webphoneStateStorageKey,
         reducer: getWebphoneStateReducer(this.actionTypes),
       });
-      this._multipleTabsChannel = new MultipleTabsChannel({
-        name: `${prefix}-webphone-channel`,
-        tabId: this._tabManager.id
+      this._multipleTabsTransport = new MultipleTabsTransport({
+        name: 'webphone-channel',
+        tabId: this._tabManager.id,
+        timeout: 10 * 1000,
+        prefix,
       });
-      this._multipleTabsChannel.on('request', this._onMultipleTabsChannelRequest);
+      this._multipleTabsTransport.on(
+        this._multipleTabsTransport.events.request,
+        this._onMultipleTabsChannelRequest
+      );
+      this._multipleTabsTransport.on(
+        this._multipleTabsTransport.events.broadcast,
+        this._onMultipleTabsChannelBroadcast
+      );
+      Array.from(ObjectMap.keys(EVENTS)).forEach((event) => {
+        this._eventEmitter.on(event, (...args) => {
+          this._multipleTabsTransport.broadcast({ event, message: args });
+        });
+      });
     }
   }
 
-  _onMultipleTabsChannelRequest = (request) => {
-    if (request.message.type === 'connect') {
-      console.log(request);
-      if (!this.connected && !this.connecting) {
-        this.connect(request.message.options);
+  _onMultipleTabsChannelRequest = async (request) => {
+    if (request.payload.type === 'execute') {
+      if (request.payload.funcName === 'connect') {
+        if (!this.connected && !this.connecting) {
+          this.connect(...request.payload.args);
+        }
+        this._multipleTabsTransport.response({
+          requestId: request.requestId,
+          result: 'ok',
+          error: null,
+        });
+      } else if (PROXIFY_FUNCTIONS.indexOf(request.payload.funcName) > -1) {
+        let result, error;
+        try {
+          result = await this[request.payload.funcName](...request.payload.args);
+          if (typeof result === 'object') {
+            result = {}; // session object can't be stringified
+          }
+        } catch (e) {
+          error = e.message;
+        }
+        this._multipleTabsTransport.response({ requestId: request.requestId, result, error });
       }
-      this._multipleTabsChannel.response(request.requestId, { result: 'ok' });
+    }
+  }
+
+  _onMultipleTabsChannelBroadcast = ({ event, message }) => {
+    if (EVENTS[event] && this._tabManager.active) {
+      this._eventEmitter.emit(EVENTS[event], ...message);
     }
   }
 
@@ -75,7 +125,7 @@ export default class Webphone extends WebphoneBase {
             });
           }, 3000);
         }
-        if (this._onlyAWebphone) {
+        if (this._multipleTabsSupport) {
           this._cleanWebphoneInstanceWhenUnload();
         } else {
           this._disconnect();
@@ -103,7 +153,7 @@ export default class Webphone extends WebphoneBase {
   }
 
   _createOtherWebphoneInstanceListener() {
-    if ((!this._onlyAWebphone && !this._disconnectOnInactive) || !this._tabManager) {
+    if ((!this._multipleTabsSupport && !this._disconnectOnInactive) || !this._tabManager) {
       return;
     }
     window.addEventListener('storage', (e) => {
@@ -112,7 +162,7 @@ export default class Webphone extends WebphoneBase {
         if (e.newValue === this._tabManager.id) {
           return;
         }
-        if (this._onlyAWebphone) {
+        if (this._multipleTabsSupport) {
           this._onActiveWebphoneIdChanged(e.newValue);
           return;
         }
@@ -154,11 +204,9 @@ export default class Webphone extends WebphoneBase {
   }
 
   // override
-  async connect(options) {
-    console.log('===============  options');
-    console.log(options);
+  async connect(options = {}) {
     const newOptions = { ...options };
-    if (this._onlyAWebphone) {
+    if (this._multipleTabsSupport) {
       // don't connect if there is connection in other tabs
       newOptions.skipTabActiveCheck = true;
       if (
@@ -167,9 +215,13 @@ export default class Webphone extends WebphoneBase {
         this.activeWebphoneId !== this._tabManager.id
       ) {
         try {
-          await this._multipleTabsChannel.request(this.activeWebphoneId, {
-            type: 'connect',
-            options,
+          await this._multipleTabsTransport.request({
+            tabId: this.activeWebphoneId,
+            payload: {
+              type: 'execute',
+              funcName: 'connect',
+              args: [newOptions],
+            }
           });
           return;
         } catch (e) {
@@ -190,19 +242,19 @@ export default class Webphone extends WebphoneBase {
         this._setCurrentInstanceAsActiveWebphone();
       }
     }
-    return super.connect(options);
+    return super.connect(newOptions);
   }
 
   // override
   async _disconnect() {
-    if (this._onlyAWebphone) {
+    if (this._multipleTabsSupport) {
       if (
         this.activeWebphoneId &&
         this.activeWebphoneId !== this._tabManager.id
       ) {
         return;
       }
-      if (this.activeWebphoneId === this._tabManager.id) {
+      if (this.isWebphoneActiveTab) {
         this._removeCurrentInstanceFromActiveWebphone({ clean: true });
       }
     }
@@ -211,7 +263,7 @@ export default class Webphone extends WebphoneBase {
 
   // override
   _setCurrentInstanceAsActiveWebphone() {
-    if (!this._onlyAWebphone) {
+    if (!this._multipleTabsSupport) {
       super._setCurrentInstanceAsActiveWebphone();
       return;
     }
@@ -221,12 +273,12 @@ export default class Webphone extends WebphoneBase {
   }
 
   _removeCurrentInstanceFromActiveWebphone({ clean = false } = {}) {
-    if (this._onlyAWebphone) {
+    if (this._multipleTabsSupport) {
       if (clean) {
         localStorage.removeItem(this._activeWebphoneKey);
         return;
       }
-      if (this.activeWebphoneId === this._tabManager.id) {
+      if (this.isWebphoneActiveTab) {
         localStorage.setItem(this._activeWebphoneKey, '-1');
       }
       return;
@@ -236,7 +288,7 @@ export default class Webphone extends WebphoneBase {
 
   // override
   _makeWebphoneInactiveOnSessionsEmpty() {
-    if (!this._onlyAWebphone) {
+    if (!this._multipleTabsSupport) {
       super._makeWebphoneInactiveOnSessionsEmpty();
       return;
     }
@@ -245,35 +297,141 @@ export default class Webphone extends WebphoneBase {
 
   // override
   _onTabActive() {
-    if (!this._onlyAWebphone) {
+    if (!this._multipleTabsSupport) {
       super._onTabActive();
       return;
     }
   }
 
   _onWebphoneUnregistered() {
-    if (!this._onlyAWebphone) {
+    if (!this._multipleTabsSupport) {
       this._removeCurrentInstanceFromActiveWebphone();
     }
-    if (
-      this.disconnecting ||
-      this.inactiveDisconnecting ||
-      this.disconnected ||
-      this.inactive ||
-      !!this._stopWebphoneUserAgentPromise
-    ) {
-      // unregister by our app
-      return;
-    }
-    // unavailable, unregistered by some errors
-    this.store.dispatch({
-      type: this.actionTypes.connectError,
-    });
-    this._eventEmitter.emit(EVENTS.webphoneUnregistered);
+    super._onWebphoneUnregistered();
+  }
+
+  @multipleTabsProxify
+  async makeCall(...args) {
+    return super.makeCall(...args);
+  }
+
+  @multipleTabsProxify
+  async answer(...args) {
+    return super.answer(...args);
+  }
+
+  @multipleTabsProxify
+  async reject(...args) {
+    return super.reject(...args);
+  }
+
+  @multipleTabsProxify
+  async resume(...args) {
+    return super.resume(...args);
+  }
+
+  @multipleTabsProxify
+  async forward(...args) {
+    return super.forward(...args);
+  }
+
+  @multipleTabsProxify
+  async mute(...args) {
+    return super.mute(...args);
+  }
+
+  @multipleTabsProxify
+  async unmute(...args) {
+    return super.unmute(...args);
+  }
+
+  @multipleTabsProxify
+  async hold(...args) {
+    return super.hold(...args);
+  }
+
+  @multipleTabsProxify
+  async unhold(...args) {
+    return super.unhold(...args);
+  }
+
+  @multipleTabsProxify
+  async startRecord(...args) {
+    return super.startRecord(...args);
+  }
+
+  @multipleTabsProxify
+  async stopRecord(...args) {
+    return super.stopRecord(...args);
+  }
+
+  @multipleTabsProxify
+  async park(...args) {
+    return super.park(...args);
+  }
+
+  @multipleTabsProxify
+  async transfer(...args) {
+    return super.transfer(...args);
+  }
+
+  @multipleTabsProxify
+  async transferWarm(...args) {
+    return super.transferWarm(...args);
+  }
+
+  @multipleTabsProxify
+  async flip(...args) {
+    return super.flip(...args);
+  }
+
+  @multipleTabsProxify
+  async sendDTMF(...args) {
+    return super.sendDTMF(...args);
+  }
+
+  @multipleTabsProxify
+  async hangup(...args) {
+    return super.hangup(...args);
+  }
+
+  @multipleTabsProxify
+  async toVoiceMail(...args) {
+    return super.toVoiceMail(...args);
+  }
+
+  @multipleTabsProxify
+  async replyWithMessage(...args) {
+    return super.replyWithMessage(...args);
+  }
+
+  @multipleTabsProxify
+  async switchCall(...args) {
+    return super.switchCall(...args);
+  }
+
+  @multipleTabsProxify
+  async updateSessionMatchedContact(...args) {
+    return super.updateSessionMatchedContact(...args);
+  }
+
+  @multipleTabsProxify
+  setSessionCaching(...args) {
+    return super.updateSessionMatchedContact(...args);
+  }
+
+  @multipleTabsProxify
+  async clearSessionCaching(...args) {
+    return super.clearSessionCaching(...args);
+  }
+
+  @multipleTabsProxify
+  async toggleMinimized(...args) {
+    return super.toggleMinimized(...args);
   }
 
   get webphoneState() {
-    if (!this._onlyAWebphone) {
+    if (!this._multipleTabsSupport) {
       return this.state;
     }
     return this._globalStorage.getItem(this._webphoneStateStorageKey);
@@ -317,5 +475,9 @@ export default class Webphone extends WebphoneBase {
 
   get activeWebphoneId() {
     return localStorage.getItem(this._activeWebphoneKey);
+  }
+
+  get isWebphoneActiveTab() {
+    return this.activeWebphoneId === this._tabManager.id;
   }
 }
