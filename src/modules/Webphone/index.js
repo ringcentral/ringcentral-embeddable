@@ -21,6 +21,7 @@ const EVENTS = ObjectMap.fromKeys([
   'beforeCallResume',
   'beforeCallEnd',
   'callInit',
+  'activeWebphoneChanged',
 ]);
 
 @Module({
@@ -287,6 +288,7 @@ export default class Webphone extends WebphoneBase {
     if (this._tabManager) {
       localStorage.setItem(this._activeWebphoneKey, this._tabManager.id);
       this._disableProxify();
+      this._emitActiveWebphoneChangedEvent();
     }
   }
 
@@ -295,11 +297,13 @@ export default class Webphone extends WebphoneBase {
       if (clean) {
         localStorage.removeItem(this._activeWebphoneKey);
         this._enableProxify();
+        this._emitActiveWebphoneChangedEvent();
         return;
       }
       if (this.isWebphoneActiveTab) {
         localStorage.setItem(this._activeWebphoneKey, '-1');
         this._enableProxify();
+        this._emitActiveWebphoneChangedEvent();
       }
       return;
     }
@@ -328,6 +332,22 @@ export default class Webphone extends WebphoneBase {
       this._removeCurrentInstanceFromActiveWebphone();
     }
     super._onWebphoneUnregistered();
+  }
+
+  onActiveWebphoneChanged(handler) {
+    if (typeof handler === 'function') {
+      this._eventEmitter.on(EVENTS.activeWebphoneChanged, handler);
+    }
+  }
+
+  _emitActiveWebphoneChangedEvent() {
+    this._eventEmitter.emit(
+      EVENTS.activeWebphoneChanged,
+      {
+        activeId: this.activeWebphoneId,
+        currentActive: this.isWebphoneActiveTab,
+      },
+    );
   }
 
   get state() {

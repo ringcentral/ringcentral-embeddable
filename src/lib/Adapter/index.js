@@ -98,6 +98,16 @@ class Adapter extends AdapterCore {
     this._onHoldCallsLength = 0;
     this._hasActiveCalls = false;
     this._showDockUI = newAdapterUI;
+
+    this._webphoneActive = false;
+    window.addEventListener('beforeunload', (e) => {
+      if (this._webphoneActive && this._webphoneCalls.length > 0) {
+        e.preventDefault;
+        const message = 'Calls are active on this tab. Are you sure to leave?'
+        e.returnValue = message;
+        return message;
+      }
+    });
   }
 
   _onMessage(data) {
@@ -147,6 +157,9 @@ class Adapter extends AdapterCore {
           // get call on call muted or unmuted event
           console.log('call muted changed:');
           console.log(data.call);
+          break;
+        case 'rc-webphone-active-notify':
+          this._webphoneActive = data.currentActive;
           break;
         case 'rc-login-status-notify':
           console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber);
