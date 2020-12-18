@@ -12,7 +12,7 @@ Core idea:
 
 1. Web phone connection is only connected in first opened tab.
 2. When user has a call in second tab or third tab etc, voice transmission is happened in first tab. Second tab only has web phone UI.
-3. When user controls call in second tab, control command sent to first tab to execute (Maybe we can use call control RESTful API in future).
+3. When user controls call in second tab, control command sent to first tab to execute.
 4. When user closes first tab, second tab becomes first opened tab. Web phone will be connected in this tab.
 5. Web phone states are shared with local storage between different tabs.
 6. Use localStorage as message channel between different tabs.
@@ -43,9 +43,16 @@ To enable this feature:
 
 ## Option to disconnect inactive web phone
 
-For 5 tab limitation, now we support to disconnect webphone connection in inactive tabs. So user can open more than 5 tabs, and not more than 5 active tabs. When user goes to new tabs and new widget's web phone is connected, web phone connection in inactive tabs will be disconnected. When user goes back to inactive tab, widget will reconnect web phone connection.
+**Notice**: this option is `not recommended` since v1.5.0, and will be deprecated. Please use `Enable Web phone multiple tabs support` option.
 
-**Notice**: this option is `not recommended` since v1.5.0. Please use `Enable Web phone multiple tabs support` option.
+For 5 tab limitation, we support to disconnect web phone connection in inactive tabs. So user can open more than 5 tabs, and not more than 5 active tabs. 
+
+Core idea:
+
+1. When user goes to new tab and web phone is connected, web phone connection in inactive tabs will be disconnected.
+2. When user goes back to inactive tab, the tab became active and widget will reconnect web phone connection.
+3. When user has active calls in inactive tabs, web phone connection in inactive tabs will be kept unless all calls ended.
+4. User can control calls from inactive tabs by Call Control RESTful API in active tab. And can switch calls into current active tab.
 
 To enable this feature:
 
