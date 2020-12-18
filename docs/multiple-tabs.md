@@ -4,11 +4,48 @@ For the Embeddable widget, it supports to run in multiple tabs, and will share t
 
 When calling mode is set into [Browser](interact-with-calling-settings.md), widgets will create web phone connection in every widget instance. In our server-side, we have limitation of 5 phone connection. So when user selects `Browser` to make call, we only support to open tabs that no more than 5.
 
+## Enable web phone multiple tabs support
+
+To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this option to make only a web phone connection in multiple tabs.
+
+Core idea:
+
+1. Web phone connection is only connected in first opened tab.
+2. When user has a call in second tab or third tab etc, voice transmission is happened in first tab. Second tab only has web phone UI.
+3. When user controls call in second tab, control command sent to first tab to execute (Maybe we can use call control RESTful API in future).
+4. When user closes first tab, second tab becomes first opened tab. Web phone will be connected in this tab.
+5. Web phone states are shared with local storage between different tabs.
+6. Use localStorage as message channel between different tabs.
+
+**Notice**: this feature is in beta, we need more tests and feedback about it. It only works after v1.5.0.
+
+To enable this feature:
+
+### Adapter JS way
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?multipleTabsSupport=1";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+### Iframe way
+
+```html
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?multipleTabsSupport=1">
+</iframe>
+```
+
 ## Option to disconnect inactive web phone
 
-For 5 tab limition, now we support to disconnect webphone connection in inactive tabs. So user can open more than 5 tabs, and not more than 5 active tabs. When user goes to new tabs and new widget's web phone is connected, web phone connection in inactive tabs will be disconnected. When user goes back to inactive tab, widget will reconnect web phone connection.
+For 5 tab limitation, now we support to disconnect webphone connection in inactive tabs. So user can open more than 5 tabs, and not more than 5 active tabs. When user goes to new tabs and new widget's web phone is connected, web phone connection in inactive tabs will be disconnected. When user goes back to inactive tab, widget will reconnect web phone connection.
 
-**Notice**: this feature is in beta, we need more tests and feedback about it.
+**Notice**: this option is `not recommended` since v1.5.0. Please use `Enable Web phone multiple tabs support` option.
 
 To enable this feature:
 
