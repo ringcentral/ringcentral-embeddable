@@ -1,6 +1,7 @@
 
 import WebphoneBase from 'ringcentral-integration/modules/Webphone';
 import { Module } from 'ringcentral-integration/lib/di';
+import sleep from 'ringcentral-integration/lib/sleep';
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import proxyActionTypes from 'ringcentral-integration/lib/proxy/baseActionTypes';
@@ -199,11 +200,12 @@ export default class Webphone extends WebphoneBase {
     });
   }
 
-  _onActiveWebphoneIdChanged(newId) {
+  async _onActiveWebphoneIdChanged(newId) {
     if (newId === '-1') {
+      await sleep(200); // wait 200ms for tabManager get right first tab
       // connect web phone when active web phone tab is removed and current tab is active
       if (this._tabManager.isFirstTab) {
-        this.connect({
+        await this.connect({
           skipDLCheck: true,
           force: true,
           skipTabActiveCheck: true,
@@ -212,12 +214,12 @@ export default class Webphone extends WebphoneBase {
       return;
     }
     this._transport = this._multipleTabsTransport; // enable function proxify
-    // clear connectTimeout if current tab is trying to connect
+    // clear connectTimeout if current tab is trying to connect and other tab want connect
     if (this._connectTimeout) {
       clearTimeout(this._connectTimeout);
     }
     if (this._webphone) {
-      this._removeWebphone();
+      await this._removeWebphone();
     }
   }
 
@@ -266,15 +268,10 @@ export default class Webphone extends WebphoneBase {
   // override
   async _disconnect() {
     if (this._multipleTabsSupport) {
-      if (
-        this.activeWebphoneId &&
-        this.activeWebphoneId !== this._tabManager.id
-      ) {
+      if (!this.isWebphoneActiveTab) {
         return;
       }
-      if (this.isWebphoneActiveTab) {
-        this._removeCurrentInstanceFromActiveWebphone({ clean: true });
-      }
+      this._removeCurrentInstanceFromActiveWebphone({ clean: true });
     }
     return super._disconnect();
   }
@@ -294,17 +291,18 @@ export default class Webphone extends WebphoneBase {
 
   _removeCurrentInstanceFromActiveWebphone({ clean = false } = {}) {
     if (this._multipleTabsSupport) {
+      if (!this.isWebphoneActiveTab) {
+        return;
+      }
       if (clean) {
         localStorage.removeItem(this._activeWebphoneKey);
         this._enableProxify();
         this._emitActiveWebphoneChangedEvent();
         return;
       }
-      if (this.isWebphoneActiveTab) {
-        localStorage.setItem(this._activeWebphoneKey, '-1');
-        this._enableProxify();
-        this._emitActiveWebphoneChangedEvent();
-      }
+      localStorage.setItem(this._activeWebphoneKey, '-1');
+      this._enableProxify();
+      this._emitActiveWebphoneChangedEvent();
       return;
     }
     super._removeCurrentInstanceFromActiveWebphone();
