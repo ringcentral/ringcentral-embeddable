@@ -1,4 +1,5 @@
 import 'whatwg-fetch';
+import 'ringcentral-integration/lib/TabFreezePrevention';
 import { SDK } from '@ringcentral/sdk';
 import { RingCentralClient } from 'ringcentral-integration/lib/RingCentralClient';
 
