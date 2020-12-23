@@ -4,11 +4,11 @@ For the Embeddable widget, it supports to run in multiple tabs, and will share t
 
 When calling mode is set into [Browser](interact-with-calling-settings.md), widgets will create web phone connection in every widget instance. In our server-side, we have limitation of 5 phone connection. So when user selects `Browser` to make call, we only support to open tabs that no more than 5.
 
-## Enable web phone multiple tabs support
+## Option 1: Have only connection in first opened tab
 
 To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this option to make only a web phone connection in multiple tabs.
 
-Core idea:
+### Core idea:
 
 1. Web phone connection is only connected in first opened tab.
 2. When user has a call in second tab or third tab etc, voice transmission is happened in first tab. Second tab only has web phone UI.
@@ -19,9 +19,14 @@ Core idea:
 
 **Notice**: this feature is in beta, we need more tests and feedback about it. It only works after v1.5.0.
 
-To enable this feature:
+### Known issues:
 
-### Adapter JS way
+* For Safari and Firefox, user need to go back to first opened tab to allow microphone permission for every call.
+* For Chrome, user need to go back to first opened tab to allow microphone permission if user hasn't allowed microphone permission.
+
+### To enable this feature:
+
+#### Adapter JS way
 
 ```js
 <script>
@@ -34,29 +39,33 @@ To enable this feature:
 </script>
 ```
 
-### Iframe way
+#### Iframe way
 
 ```html
 <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?multipleTabsSupport=1">
 </iframe>
 ```
 
-## Option to disconnect inactive web phone
-
-**Notice**: this option is `not recommended` since v1.5.0, and will be deprecated. Please use `Enable Web phone multiple tabs support` option.
+## Option 2: disconnect inactive web phone
 
 For 5 tab limitation, we support to disconnect web phone connection in inactive tabs. So user can open more than 5 tabs, and not more than 5 active tabs. 
 
-Core idea:
+### Core idea:
 
 1. When user goes to new tab and web phone is connected, web phone connection in inactive tabs will be disconnected.
 2. When user goes back to inactive tab, the tab became active and widget will reconnect web phone connection.
 3. When user has active calls in inactive tabs, web phone connection in inactive tabs will be kept unless all calls ended.
 4. User can control calls from inactive tabs by Call Control RESTful API in active tab. And can switch calls into current active tab.
 
-To enable this feature:
+### Known issues:
 
-### Adapter JS way
+* App will show connecting badge a while after user change active tab
+* Performance issue when user change active tab fast
+* At Firefox, app can't disconnect web phone successfully at active page unloaded. So it maybe show too many connection error.
+
+### To enable this feature:
+
+#### Adapter JS way
 
 ```js
 <script>
@@ -69,7 +78,7 @@ To enable this feature:
 </script>
 ```
 
-### Iframe way
+#### Iframe way
 
 ```html
 <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?disconnectInactiveWebphone=1">
