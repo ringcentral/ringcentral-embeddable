@@ -3,14 +3,14 @@ import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 
 import TransportBase from 'ringcentral-integration/lib/TransportBase';
 
+import './BroadcastChannel.polyfill';
+
 export class MultipleTabsTransport extends TransportBase {
   constructor({ name, tabId, timeout = 5 * 1000, prefix, getMainTabId }) {
     super({ name, timeout, prefix });
     this._tabId = tabId;
     this._getMainTabId = getMainTabId;
-    this._broadcastChannel = `${prefix ? `${prefix}-` : ''}${name}-broadcast`;
-    this._requestChannel = `${prefix ? `${prefix}-` : ''}${name}-request`;
-    this._responseChannel = `${prefix ? `${prefix}-` : ''}${name}-response`;
+    this._channel = new BroadcastChannel(`${prefix ? `${prefix}-` : ''}${name}`);
     this._requests = new Map();
     this._events = {
       ...ObjectMap.prefixKeys(
@@ -18,44 +18,38 @@ export class MultipleTabsTransport extends TransportBase {
         `${prefix ? `${prefix}-` : ''}${name}`,
       ),
     };
-    this._initStorageListener();
+    this._channel.addEventListener('message', this._onChannelMessage);
   }
 
-  _initStorageListener() {
-    window.addEventListener('storage', this._onStorageMessage);
-  }
-
-  dispose() {
-    this._requests = new Map();;
-    window.removeEventListener('storage', this._onStorageMessage);
-  }
-
-  _onStorageMessage = (e) => {
-    if (!e.newValue) {
-      return;
-    }
-    if (e.key === this._requestChannel) {
-      const data = JSON.parse(e.newValue);
+  _onChannelMessage = ({ data: { type, data } }) => {
+    if (type === this._events.request) {
       if (data.tabId === this._tabId) {
-        this.emit(this._events.request, data);
+        const payload = JSON.parse(data.payload)
+        this.emit(this._events.request, { requestId: data.requestId, payload });
       }
       return;
     }
-    if (e.key === this._responseChannel) {
-      const data = JSON.parse(e.newValue);
-      if (data.requestId && this._requests.has(data.requestId)) {
-        if (data.error) {
-          this._requests.get(data.requestId).reject(new Error(data.error));
+    if (type === this._events.response) {
+      const requestId = data && data.requestId;
+      if (requestId && this._requests.has(requestId)) {
+        const error = JSON.parse(data.error);
+        if (error) {
+          this._requests.get(requestId).reject(new Error(error));
         } else {
-          this._requests.get(data.requestId).resolve(data.result);
+          this._requests.get(requestId).resolve(JSON.parse(data.result));
         }
       }
       return;
     }
-    if (e.key === this._broadcastChannel) {
-      const data = JSON.parse(e.newValue);
-      this.emit(this._events.broadcast, data);
+    if (type === this._events.broadcast) {
+      this.emit(this._events.broadcast, JSON.parse(data));
     }
+  }
+
+  dispose() {
+    this._requests = new Map();;
+    this._channel.removeEventListener('message', this._onChannelMessage);
+    this._channel.close();
   }
 
   _safeStringify(data) {
@@ -86,12 +80,14 @@ export class MultipleTabsTransport extends TransportBase {
         resolve,
         reject,
       });
-      localStorage.setItem(this._requestChannel, this._safeStringify({
-        payload,
-        tabId: toTabId,
-        requestId,
-      }));
-      localStorage.removeItem(this._requestChannel);
+      this._channel.postMessage({
+        type: this._events.request,
+        data: {
+          tabId: toTabId,
+          payload: this._safeStringify(payload),
+          requestId,
+        },
+      });
     });
     let timeout = setTimeout(() => {
       timeout = null;
@@ -112,20 +108,21 @@ export class MultipleTabsTransport extends TransportBase {
   }
 
   response({ requestId, result, error }) {
-    localStorage.setItem(this._responseChannel, this._safeStringify({
-      requestId,
-      result,
-      error,
-    }));
-    localStorage.removeItem(this._responseChannel);
+    this._channel.postMessage({
+      type: this._events.response,
+      data: {
+        requestId,
+        result: this._safeStringify(result),
+        error: this._safeStringify(error),
+      },
+    });
   }
 
-  broadcast({ event, message }) {
-    localStorage.setItem(this._broadcastChannel, this._safeStringify({
-      event,
-      message
-    }));
-    localStorage.removeItem(this._broadcastChannel);
+  broadcast(data) {
+    this._channel.postMessage({
+      type: this._events.broadcast,
+      data: this._safeStringify(data),
+    });
   }
 
   get events() {
