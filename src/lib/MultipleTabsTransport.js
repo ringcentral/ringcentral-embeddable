@@ -32,11 +32,12 @@ export class MultipleTabsTransport extends TransportBase {
     if (type === this._events.response) {
       const requestId = data && data.requestId;
       if (requestId && this._requests.has(requestId)) {
-        const error = JSON.parse(data.error);
+        const error = data.error && JSON.parse(data.error);
         if (error) {
           this._requests.get(requestId).reject(new Error(error));
         } else {
-          this._requests.get(requestId).resolve(JSON.parse(data.result));
+          const result = data.result && JSON.parse(data.result);
+          this._requests.get(requestId).resolve(result);
         }
       }
       return;
