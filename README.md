@@ -62,7 +62,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 * [Browser Support](docs/browser-support.md)
 * [Use your own app client id](docs/config-client-id-and-secret.md)
 * [Customize Redirect Uri](docs/customize-redirect-uri.md)
-* [Customize Widget UI styles](docs/customize-ui-styles.md)
+* [Enable Multiple Tabs Support](docs/multiple-tabs.md)
 * [Customize prefix](docs/customize-prefix.md)
 * [Work with the Web Widget event](docs/widget-event.md)
   * [Web phone call event](docs/widget-event.md#web-phone-call-event)
@@ -104,7 +104,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
   * [Enable Active Call Control feature](docs/disable-features.md#enable-active-call-control-feature)
 * [New adapter badge UI](docs/new-adapter-ui.md)
 * [Enable Analytics](docs/add-analytics.md)
-* [Multiple Tabs](docs/multiple-tabs.md)
+* [Customize Widget UI styles](docs/customize-ui-styles.md)
 
 ## Awesome Embeddable projects
 

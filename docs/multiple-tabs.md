@@ -23,6 +23,7 @@ To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this 
 
 * For Safari and Firefox, user need to go back to first opened tab to allow microphone permission for every call.
 * For Chrome, user need to go back to first opened tab to allow microphone permission if user hasn't allowed microphone permission.
+* [Web phone call session notification](widget-event.md#web-phone-call-event) happens at first opened tab and current active tab
 
 ### To enable this feature:
 
