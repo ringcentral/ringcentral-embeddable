@@ -57,7 +57,7 @@ import ConversationPage from '../ConversationPage';
 import MeetingInviteModal from '../MeetingInviteModal';
 
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
-
+import { getAlertRenderer } from '../../components/AlertRenderer';
 export default function App({
   phone,
   showCallBadge,
@@ -108,6 +108,7 @@ export default function App({
                   showCallQueueName
                 >
                   <AlertContainer
+                    getAdditionalRenderer={getAlertRenderer}
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
                   />
@@ -133,6 +134,7 @@ export default function App({
                 <MainView>
                   {routerProps.children}
                   <AlertContainer
+                    getAdditionalRenderer={getAlertRenderer}
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
                   />

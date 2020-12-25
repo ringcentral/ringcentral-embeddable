@@ -168,6 +168,7 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallStart((session) => {
       this.startCallNotify(session);
+      // TODO: add mute event in web phone module to make mute work at inactive webphone tab
       const rawSession = this._webphone._sessions.get(session.id);
       if (rawSession) {
         rawSession.on('muted', () => {
@@ -182,21 +183,15 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallRing((session) => {
       this.ringCallNotify(session);
-      const rawSession = this._webphone._sessions.get(session.id);
-      if (rawSession) {
-        rawSession.__origial_transfer = rawSession.transfer;
-        rawSession.transfer = async (target, options) => {
-          await (rawSession.localHold ? Promise.resolve(null) : rawSession.hold());
-          await sleep(1000);
-          return rawSession.blindTransfer(target, options);
-        };
-      }
     });
     this._webphone.onCallHold((session) => {
       this.holdCallNotify(session);
     });
     this._webphone.onCallResume((session) => {
       this.resumeCallNotify(session);
+    });
+    this._webphone.onActiveWebphoneChanged((event) => {
+      this.activeWebphoneNotify(event);
     });
     this._activeCallControl.onSessionUpdated((session) => {
       this.telephonySessionNotify(session);
@@ -621,6 +616,14 @@ export default class Adapter extends AdapterModuleCore {
         isOnMute: muted,
         contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
       },
+    });
+  }
+
+  activeWebphoneNotify({ activeId, currentActive }) {
+    this._postMessage({
+      type: 'rc-webphone-active-notify',
+      activeId,
+      currentActive,
     });
   }
 

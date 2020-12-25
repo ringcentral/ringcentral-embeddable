@@ -4,15 +4,70 @@ For the Embeddable widget, it supports to run in multiple tabs, and will share t
 
 When calling mode is set into [Browser](interact-with-calling-settings.md), widgets will create web phone connection in every widget instance. In our server-side, we have limitation of 5 phone connection. So when user selects `Browser` to make call, we only support to open tabs that no more than 5.
 
-## Option to disconnect inactive web phone
+## Option 1: Have only connection in first opened tab
 
-For 5 tab limition, now we support to disconnect webphone connection in inactive tabs. So user can open more than 5 tabs, and not more than 5 active tabs. When user goes to new tabs and new widget's web phone is connected, web phone connection in inactive tabs will be disconnected. When user goes back to inactive tab, widget will reconnect web phone connection.
+To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this option to make only a web phone connection in multiple tabs.
 
-**Notice**: this feature is in beta, we need more tests and feedback about it.
+### Core idea:
 
-To enable this feature:
+1. Web phone connection is only connected in first opened tab.
+2. When user has a call in second tab or third tab etc, voice transmission is happened in first tab. Second tab only has web phone UI.
+3. When user controls call in second tab, control command sent to first tab to execute.
+4. When user closes first tab, second tab becomes first opened tab. Web phone will be connected in this tab.
+5. Web phone states are shared with local storage between different tabs.
+6. Use localStorage as message channel between different tabs.
 
-### Adapter JS way
+**Notice**: this feature is in beta, we need more tests and feedback about it. It only works after v1.5.0.
+
+### Known issues:
+
+* For Safari and Firefox, user need to go back to first opened tab to allow microphone permission for every call.
+* For Chrome, user need to go back to first opened tab to allow microphone permission if user hasn't allowed microphone permission.
+* [Web phone call session notification](widget-event.md#web-phone-call-event) happens at first opened tab and current active tab
+* Web phone call muted event does not work at no web phone connection tabs. 
+
+### To enable this feature:
+
+#### Adapter JS way
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?multipleTabsSupport=1";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+#### Iframe way
+
+```html
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?multipleTabsSupport=1">
+</iframe>
+```
+
+## Option 2: disconnect inactive web phone
+
+For 5 tab limitation, we support to disconnect web phone connection in inactive tabs. So user can open more than 5 tabs, and not more than 5 active tabs. 
+
+### Core idea:
+
+1. When user goes to new tab and web phone is connected, web phone connection in inactive tabs will be disconnected.
+2. When user goes back to inactive tab, the tab became active and widget will reconnect web phone connection.
+3. When user has active calls in inactive tabs, web phone connection in inactive tabs will be kept unless all calls ended.
+4. User can control calls from inactive tabs by Call Control RESTful API in active tab. And can switch calls into current active tab.
+
+### Known issues:
+
+* App will show connecting badge a while after user change active tab
+* Performance issue when user change active tab fast
+* At Firefox, app can't disconnect web phone successfully at active page unloaded. So it maybe show too many connection error.
+
+### To enable this feature:
+
+#### Adapter JS way
 
 ```js
 <script>
@@ -25,7 +80,7 @@ To enable this feature:
 </script>
 ```
 
-### Iframe way
+#### Iframe way
 
 ```html
 <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?disconnectInactiveWebphone=1">

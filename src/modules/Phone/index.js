@@ -1,4 +1,5 @@
 import 'whatwg-fetch';
+import 'ringcentral-integration/lib/TabFreezePrevention';
 import { SDK } from '@ringcentral/sdk';
 import { RingCentralClient } from 'ringcentral-integration/lib/RingCentralClient';
 
@@ -14,13 +15,13 @@ import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import CompanyContacts from 'ringcentral-integration/modules/CompanyContacts';
-import Alert from 'ringcentral-integration/modules/Alert';
+
 // import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Call from 'ringcentral-integration/modules/Call';
 import CallHistory from 'ringcentral-integration/modules/CallHistory';
 // import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
-import ConferenceCall from 'ringcentral-integration/modules/ConferenceCall';
+// import ConferenceCall from 'ringcentral-integration/modules/ConferenceCall';
 // import CallLog from 'ringcentral-integration/modules/CallLog';
 import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
@@ -89,6 +90,7 @@ import SettingsUI from 'ringcentral-widgets/modules/SettingsUI';
 
 import GenericMeetingUI from 'ringcentral-widgets/modules/GenericMeetingUI';
 
+import Alert from '../Alert';
 import Brand from '../Brand';
 import AudioSettings from '../AudioSettings';
 import OAuth from '../OAuth';
@@ -110,6 +112,7 @@ import CallLog from '../CallLog';
 import Meeting from '../Meeting';
 import { MessageSender } from '../MessageSender';
 import Webphone from '../Webphone';
+import ConferenceCall from '../ConferenceCall';
 
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
 import MeetingHistoryUI from '../MeetingHistoryUI';
@@ -442,6 +445,9 @@ export default class BasePhone extends RcModule {
       contactMatcher.forceMatchNumber({ phoneNumber: session.from });
     });
     webphone.onBeforeCallResume((session) => {
+      if (!webphone._webphone) {
+        return;
+      }
       const sessionId = session && session.id;
       const mergingPair = conferenceCall && conferenceCall.mergingPair;
       if (mergingPair && sessionId !== mergingPair.toSessionId) {
@@ -451,6 +457,9 @@ export default class BasePhone extends RcModule {
     });
 
     webphone.onBeforeCallEnd((session) => {
+      if (!webphone._webphone) {
+        return;
+      }
       const mergingPair = conferenceCall && conferenceCall.mergingPair;
       if (
         session
@@ -519,7 +528,7 @@ export default class BasePhone extends RcModule {
     });
     // CallMonitor configuration
     callMonitor.onRingings(async () => {
-      if (webphone._webphone) {
+      if (webphone.connected) {
         return;
       }
       // TODO refactor some of these logic into appropriate modules
@@ -602,6 +611,7 @@ export function createPhone({
   disconnectInactiveWebphone,
   disableInactiveTabCallEvent,
   disableLoginPopup,
+  multipleTabsSupport,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -665,6 +675,13 @@ export function createPhone({
         spread: true
       },
       {
+        provide: 'AlertOptions',
+        useValue: {
+          multipleTabsSupport,
+        },
+        spread: true
+      },
+      {
         provide: 'WebphoneOptions',
         spread: true,
         useValue: {
@@ -675,6 +692,14 @@ export function createPhone({
           permissionCheck: false,
           connectDelay: disconnectInactiveWebphone ? 800 : 0,
           disconnectOnInactive: disconnectInactiveWebphone,
+          multipleTabsSupport,
+        },
+      },
+      {
+        provide: 'ConferenceCallOptions',
+        spread: true,
+        useValue: {
+          multipleTabsSupport,
         },
       },
       {
