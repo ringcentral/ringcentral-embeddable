@@ -68,4 +68,9 @@ config.resolve = {
     'brand-logo-path': brandFolder,
   },
 };
+if (process.env.CI) {
+  config.watchOptions = {
+    ignored: /node_modules/,
+  };
+}
 module.exports = config;
