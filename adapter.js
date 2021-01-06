@@ -20129,6 +20129,7 @@ var _parseUri = (0, _parseUri2.default)(currentScript && currentScript.src || ''
     multipleTabsSupport = _parseUri.multipleTabsSupport,
     disableInactiveTabCallEvent = _parseUri.disableInactiveTabCallEvent,
     disableLoginPopup = _parseUri.disableLoginPopup,
+    enableWebRTCPlanB = _parseUri.enableWebRTCPlanB,
     zIndex = _parseUri.zIndex;
 
 function obj2uri(obj) {
@@ -20177,6 +20178,7 @@ var appUri = "".concat(appUrl, "?").concat(obj2uri({
   multipleTabsSupport: multipleTabsSupport,
   disableInactiveTabCallEvent: disableInactiveTabCallEvent,
   disableLoginPopup: disableLoginPopup,
+  enableWebRTCPlanB: enableWebRTCPlanB,
   fromAdapter: 1,
   _t: Date.now()
 }));
