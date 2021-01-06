@@ -59,6 +59,7 @@ const {
   multipleTabsSupport,
   disableInactiveTabCallEvent,
   disableLoginPopup,
+  enableWebRTCPlanB,
   zIndex,
 } = parseUri((currentScript && currentScript.src) || '');
 
@@ -106,6 +107,7 @@ const appUri = `${appUrl}?${obj2uri({
   multipleTabsSupport,
   disableInactiveTabCallEvent,
   disableLoginPopup,
+  enableWebRTCPlanB,
   fromAdapter: 1,
   _t: Date.now(),
 })}`;
