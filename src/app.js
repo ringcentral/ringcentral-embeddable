@@ -50,6 +50,7 @@ const {
   disableInactiveTabCallEvent,
   disableLoginPopup,
   multipleTabsSupport,
+  enableWebRTCPlanB,
 } = pathParams;
 
 const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
@@ -105,6 +106,7 @@ const phone = createPhone({
   disconnectInactiveWebphone: !!disconnectInactiveWebphone,
   disableLoginPopup: !!disableLoginPopup,
   multipleTabsSupport: !!multipleTabsSupport,
+  enableWebRTCPlanB,
 });
 
 const store = createStore(phone.reducer);
