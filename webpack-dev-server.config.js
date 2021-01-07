@@ -14,9 +14,9 @@ const getBaseConfig = require('./getWebpackBaseConfig');
 
 const brand = process.env.BRAND || 'rc';
 
-const getBrandConfig = require('./getBrandConfig');
+const { getBrandConfig, brandConfigs } = require('./getBrandConfig');
 
-const { prefix, brandConfig, brandFolder } = getBrandConfig(brand);
+const { prefix, brandFolder } = getBrandConfig(brand);
 
 const buildPath = path.resolve(__dirname, 'src');
 
@@ -54,12 +54,20 @@ config.plugins = [
       API_CONFIG: JSON.stringify(apiConfig),
       APP_VERSION: JSON.stringify(version),
       PREFIX: JSON.stringify(prefix),
-      BRAND_CONFIG: JSON.stringify(brandConfig),
+      BRAND: JSON.stringify(brand),
+      BRAND_CONFIGS: JSON.stringify(brandConfigs),
       ERROR_REPORT_KEY: JSON.stringify(errorReportKey),
       RECORDING_LINK: JSON.stringify('https://ringcentral.github.io/ringcentral-media-reader/'),
+      ADAPTER_NAME: JSON.stringify('adapter.js'),
     },
   }),
 ];
+config.entry = {
+  app: ['@babel/polyfill', './src/app.js'],
+  adapter: './src/adapter.js',
+  proxy: './src/proxy.js',
+  redirect: './src/redirect.js',
+};
 config.devtool = 'eval-source-map';
 config.mode = 'development';
 config.resolve = {

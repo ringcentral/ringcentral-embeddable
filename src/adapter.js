@@ -17,8 +17,17 @@ if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype
 const version = process.env.APP_VERSION;
 
 let currentScript = document.currentScript;
+const adapterName = process.env.ADAPTER_NAME;
 if (!currentScript) {
-  currentScript = document.querySelector('script[src*="adapter.js"]');
+  currentScript = document.querySelector(`script[src*="${adapterName}"]`);
+}
+
+function getBrandFromAdapterName() {
+  const name = adapterName.split('.')[1];
+  if (name === 'js' || name === 'min') {
+    return;
+  }
+  return name;
 }
 
 const appUrl =  process.env.HOSTING_URL ?
@@ -80,6 +89,7 @@ const appUri = `${appUrl}?${obj2uri({
   clientId,
   appSecret,
   clientSecret,
+  brand: getBrandFromAdapterName(),
   appServer,
   appVersion,
   redirectUri,

@@ -8,7 +8,6 @@ import { createPhone } from './modules/Phone';
 import App from './containers/App';
 
 const defaultPrefix = process.env.PREFIX;
-const brandConfig = process.env.BRAND_CONFIG;
 const defaultApiConfig = process.env.API_CONFIG;
 
 const currentUri = window.location.href;
@@ -51,7 +50,11 @@ const {
   disableLoginPopup,
   multipleTabsSupport,
   enableWebRTCPlanB,
+  brand,
 } = pathParams;
+
+const defaultBrand = brand || process.env.BRAND;
+const brandConfig = process.env.BRAND_CONFIGS[defaultBrand];
 
 const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
 const proxyUri = pathParams.proxyUri || process.env.PROXY_URI;
