@@ -1,6 +1,7 @@
 # [RingCentral Embeddable](https://ringcentral.github.io/ringcentral-embeddable/)
 
 [![Build Status](https://github.com/ringcentral/ringcentral-embeddable/workflows/CI%20Pipeline/badge.svg?branch=master)](https://github.com/ringcentral/ringcentral-embeddable/actions)
+[![Community](https://img.shields.io/badge/community-dev_forums-blue)](https://community.ringcentral.com/spaces/144/index.html)
 
 ## Introduction
 
