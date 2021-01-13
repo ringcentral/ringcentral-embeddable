@@ -6,13 +6,14 @@ RingCentral works with a number of [carriers and partners](https://developers.ri
 
 ### Adapter JS way
 
-Use `adapter.att.js` to instead of `adapter.js`:
+* Use `adapter.att.js` to instead of `adapter.js`
+* Set `appServer` to `https://platform.ringcentral.biz`
 
 ```js
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.att.js";
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.att.js?appServer=https://platform.ringcentral.biz";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -21,10 +22,10 @@ Use `adapter.att.js` to instead of `adapter.js`:
 
 ### Iframe way
 
-Add `brand=att` in src query parameter:
+Add `brand=att` and `appServer` in src query parameter:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=att">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=att&appServer=https://platform.ringcentral.biz">
 </iframe>
 ```
 
