@@ -9,7 +9,7 @@ const path = require('path');
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-// const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 require('dotenv').config();
 
@@ -50,9 +50,9 @@ if (localExtensionMode) {
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 const recordingLink = process.env.RECORDING_LINK || 'https://ringcentral.github.io/ringcentral-media-reader/';
 
-function getWebpackConfig({ brand, env = {} }) {
+function getWebpackConfig({ brand, env = {}, styleLoader }) {
   const { prefix, brandFolder } = getBrandConfig(brand);
-  const config = getBaseConfig({ themeFolder: brandFolder });
+  const config = getBaseConfig({ themeFolder: brandFolder, styleLoader });
   config.output = {
     path: buildPath,
     filename: '[name].js',
@@ -76,7 +76,7 @@ function getWebpackConfig({ brand, env = {} }) {
     }),
   ];
   config.optimization = {
-    minimize: true,
+    minimize: process.env.DISABLE_MINIMIZE ? false : true,
     minimizer: [
       new TerserPlugin({
         terserOptions: {
@@ -103,7 +103,11 @@ function getWebpackConfig({ brand, env = {} }) {
 }
 
 function getAppWebpackConfig({ brand }) {
-  const config = getWebpackConfig({ brand, env: { ADAPTER_NAME: JSON.stringify('adapter.js') } });
+  const config = getWebpackConfig({
+    brand,
+    env: { ADAPTER_NAME: JSON.stringify('adapter.js') },
+    styleLoader: MiniCssExtractPlugin.loader,
+  });
   config.plugins = [
     ...config.plugins,
     new CopyWebpackPlugin({
@@ -115,19 +119,10 @@ function getAppWebpackConfig({ brand }) {
         { from: 'src/redirect.html', to: 'redirect.html' },
       ]
     }),
-    // new MiniCssExtractPlugin({
-    //   filename: '[name].css',
-    // }),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+    }),
   ];
-  // config.module.rules.forEach((rule) => {
-  //   if (!rule.use) {
-  //     return;
-  //   }
-  //   const styleIndex = rule.use.indexOf('style-loader');
-  //   if ( styleIndex > -1) {
-  //     rule.use[styleIndex] = MiniCssExtractPlugin.loader;
-  //   }
-  // });
   config.entry = {
     app: ['@babel/polyfill', './src/app.js'],
     proxy: './src/proxy.js',
@@ -142,6 +137,7 @@ function getAdapterWebpackConfig({ brand, adapterName }) {
     env: {
       ADAPTER_NAME: JSON.stringify(`${adapterName}.js`),
     },
+    styleLoader: 'style-loader'
   });
   config.entry = {
     [adapterName]: './src/adapter.js',
@@ -167,11 +163,11 @@ supportedBrands.forEach((brand) => {
     }
     return;
   }
-  const config = getAdapterWebpackConfig({
+  const adapterConfig = getAdapterWebpackConfig({
     brand,
     adapterName: `adapter.${brand}`,
   });
-  configs.push(config);
+  configs.push(adapterConfig);
 });
 
 module.exports = configs;
