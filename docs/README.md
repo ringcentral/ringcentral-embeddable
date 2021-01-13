@@ -10,6 +10,7 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
 * [Customize Redirect Uri](customize-redirect-uri.md)
 * [Customize prefix](customize-prefix.md)
 * [Enable Multiple Tabs](multiple-tabs.md)
+* [Multiple Partner Brand Support](docs/multiple-brands.md)
 * [Work with the web widget event](widget-event.md)
   * [Web phone call event](widget-event.md#web-phone-call-event)
   * [Active Call event](widget-event.md#active-call-event)
