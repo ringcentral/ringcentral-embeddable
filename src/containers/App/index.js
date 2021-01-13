@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { Router, Route } from 'react-router';
 
 import PhoneProvider from 'ringcentral-widgets/lib/PhoneProvider';
+import { getBrandTheme } from 'ringcentral-widgets/lib/phoneContext/theme';
 import CallingSettingsPage from 'ringcentral-widgets/containers/CallingSettingsPage';
 import RegionSettingsPage from 'ringcentral-widgets/containers/RegionSettingsPage';
 import DialerPage from 'ringcentral-widgets/containers/DialerPage';
@@ -82,7 +83,7 @@ export default function App({
     );
   };
   return (
-    <PhoneProvider phone={phone}>
+    <PhoneProvider phone={phone} theme={getBrandTheme(phone.brand.code)}>
       <Provider store={phone.store} >
         <Router history={phone.routerInteraction.history}>
           <Route

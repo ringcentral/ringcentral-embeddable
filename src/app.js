@@ -8,7 +8,6 @@ import { createPhone } from './modules/Phone';
 import App from './containers/App';
 
 const defaultPrefix = process.env.PREFIX;
-const brandConfig = process.env.BRAND_CONFIG;
 const defaultApiConfig = process.env.API_CONFIG;
 
 const currentUri = window.location.href;
@@ -51,7 +50,26 @@ const {
   disableLoginPopup,
   multipleTabsSupport,
   enableWebRTCPlanB,
+  brand,
 } = pathParams;
+
+const defaultBrand = brand || process.env.BRAND;
+const brandConfig = process.env.BRAND_CONFIGS[defaultBrand];
+
+if (process.env.NODE_ENV === 'production') {
+  let styleName = 'app.css';
+  if (brand && brand !== process.env.BRAND) {
+    styleName = `app.${brand}.css`;
+  }
+  const style = document.querySelector(`link[href="${styleName}"]`);
+  if (!style) {
+    const link = document.createElement("link");
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+    link.href = styleName;
+    document.head.appendChild(link);
+  }
+}
 
 const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
 const proxyUri = pathParams.proxyUri || process.env.PROXY_URI;

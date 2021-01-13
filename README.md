@@ -64,6 +64,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 * [Use your own app client id](docs/config-client-id-and-secret.md)
 * [Customize Redirect Uri](docs/customize-redirect-uri.md)
 * [Enable Multiple Tabs Support](docs/multiple-tabs.md)
+* [Multiple Partner Brands Support](docs/multiple-brands.md)
 * [Customize prefix](docs/customize-prefix.md)
 * [Work with the Web Widget event](docs/widget-event.md)
   * [Web phone call event](docs/widget-event.md#web-phone-call-event)

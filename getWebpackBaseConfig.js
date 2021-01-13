@@ -16,7 +16,7 @@ const supportedLocales = [
   'zh-TW',
   'zh-HK',
 ];
-module.exports = function getBaseConfig({ themeFolder } = {}) {
+module.exports = function getBaseConfig({ themeFolder, styleLoader = 'style-loader' } = {}) {
   const sassLoaderIncludePaths = ['src', 'node_modules'];
   if (themeFolder) {
     sassLoaderIncludePaths.push(themeFolder);
@@ -55,7 +55,7 @@ module.exports = function getBaseConfig({ themeFolder } = {}) {
         {
           test: /\.css$/,
           use: [
-            'style-loader',
+            styleLoader,
             'css-loader',
           ],
         },
@@ -94,7 +94,7 @@ module.exports = function getBaseConfig({ themeFolder } = {}) {
         {
           test: /\.sass|\.scss/,
           use: [
-            'style-loader',
+            styleLoader,
             {
               loader: 'css-loader',
               options: {
