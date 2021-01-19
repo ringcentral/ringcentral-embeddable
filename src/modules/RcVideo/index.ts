@@ -31,7 +31,6 @@ export default class NewRcVideo extends RcVideo {
     this._thirdPartyProviders = {};
   }
 
-
   async createInstantMeeting() {
     const meeting = await this.createMeeting({ type: 0 })
     return meeting;
