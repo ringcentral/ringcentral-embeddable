@@ -323,6 +323,13 @@ import hackSend from '../../lib/hackSend';
       },
       spread: true,
     },
+    {
+      provide: 'PresenceOptions',
+      spread: true,
+      useValue: {
+        disableCache: true, // fix: can't get active calls correctly when enable cache
+      },
+    },
   ]
 })
 export default class BasePhone extends RcModule {
