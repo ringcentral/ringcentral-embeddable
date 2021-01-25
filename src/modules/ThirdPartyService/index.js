@@ -2,6 +2,8 @@ import RcModule from 'ringcentral-integration/lib/RcModule';
 import { Module } from 'ringcentral-integration/lib/di';
 import { phoneTypes } from 'ringcentral-integration/enums/phoneTypes';
 
+import { getFilterContacts } from 'ringcentral-integration/lib/contactHelper';
+
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 
@@ -53,6 +55,7 @@ function getImageUri(sourceUri) {
   deps: [
     'Auth',
     'Contacts',
+    'ContactSources',
     'ContactSearch',
     'ContactMatcher',
     'ActivityMatcher',
@@ -65,6 +68,7 @@ export default class ThirdPartyService extends RcModule {
   constructor({
     auth,
     contacts,
+    contactSources,
     contactSearch,
     contactMatcher,
     activityMatcher,
@@ -84,6 +88,7 @@ export default class ThirdPartyService extends RcModule {
 
     this._auth = auth;
     this._contacts = contacts;
+    this._contactSources = contactSources;
     this._contactSearch = contactSearch;
     this._contactMatcher = contactMatcher;
     this._activityMatcher = activityMatcher;
@@ -184,7 +189,15 @@ export default class ThirdPartyService extends RcModule {
     this._contactsPath = service.contactsPath;
     this._contactIcon = service.contactIcon;
     this._contacts.addSource(this);
+    if (this._contactSources.indexOf(this) === -1) {
+      this._contactSources.push(this);
+    }
     this.fetchContacts();
+  }
+
+  // contact source interface
+  filterContacts(searchFilter) {
+    return getFilterContacts(this.contacts, searchFilter);
   }
 
   _registerContactSearch() {
