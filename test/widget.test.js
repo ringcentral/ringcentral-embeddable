@@ -129,6 +129,7 @@ conditionalDescribe('widget page test', () => {
     await widgetIframe.clickDropdownNavigationMenu('Contacts');
     const contactsFilters = await widgetIframe.getContactFilters();
     expect(contactsFilters).toEqual(expect.stringContaining('TestService'));
+    await page.waitFor(1000);
     const contacts = await widgetIframe.getContactNames();
     expect(contacts).toEqual(expect.arrayContaining(['TestService Name']));
   });
