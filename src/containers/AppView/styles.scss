@@ -37,3 +37,8 @@ input {
 :global .VideoPanel_title {
   display: none;  
 }
+
+:global .MeetingConfigs_timePicker .rw-widget {
+  position: absolute;
+  width: 100%;
+}
