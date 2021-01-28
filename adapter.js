@@ -2716,7 +2716,7 @@ if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype
   NodeList.prototype.forEach = Array.prototype.forEach;
 }
 
-var version = "1.5.0";
+var version = "1.5.1";
 var currentScript = document.currentScript;
 var adapterName = "adapter.js";
 
@@ -5049,7 +5049,9 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var SANDBOX_ATTRIBUTE_VALUE = ['allow-same-origin', 'allow-scripts', 'allow-forms', 'allow-popups'].join(' '); // chrome 63 mandate the declaration of this attribute for getUserMedia to work in iframes
+var SANDBOX_ATTRIBUTE_VALUE = ['allow-same-origin', 'allow-scripts', 'allow-forms', 'allow-popups', // For Google Chrome v83 new feature:
+// https://www.chromestatus.com/feature/5706745674465280
+'allow-downloads'].join(' '); // chrome 63 mandate the declaration of this attribute for getUserMedia to work in iframes
 
 var ALLOW_ATTRIBUTE_VALUE = ['microphone' // 'camera',
 ].join(' ');

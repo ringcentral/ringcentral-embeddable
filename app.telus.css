@@ -1,3 +1,1135 @@
+.CallAvatar_callAvatar {
+  width: 100%;
+}
+
+.CallAvatar_callAvatar:not(:root) {
+  overflow: visible;
+}
+
+.CallAvatar_disabledPointerEvents {
+  pointer-events: none;
+}
+
+.CallAvatar_autoPointerEvents {
+  pointer-events: auto;
+}
+
+@font-face {
+  font-family: 'dynamics_icon';
+  src: url(./fonts/dynamics_icon_72e4edacf5ffbbd6f6bc26f1090059ea.eot);
+  src: url(./fonts/dynamics_icon_72e4edacf5ffbbd6f6bc26f1090059ea.eot#iefix) format("embedded-opentype"), url(data:font/woff2;base64,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) format("woff2"), url(./fonts/dynamics_icon_7213f0ba7419d6ff00172ba60b781eda.ttf) format("truetype"), url(./fonts/dynamics_icon_f4a6917c567fe8061147785ba6492b46.woff) format("woff"), url(images/dynamics_icon_45121b9dae6851c6eec3e28471c44ec7.svg#dynamics_icon) format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.DynamicsFont_icon {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'dynamics_icon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.DynamicsFont_groupConversation {
+}
+
+.DynamicsFont_groupConversation:before {
+  content: "\e913";
+}
+
+.DynamicsFont_conferenceHover {
+}
+
+.DynamicsFont_conferenceHover:before {
+  content: "\e90f";
+}
+
+.DynamicsFont_conference {
+}
+
+.DynamicsFont_conference:before {
+  content: "\e910";
+}
+
+.DynamicsFont_menuHover {
+}
+
+.DynamicsFont_menuHover:before {
+  content: "\e911";
+}
+
+.DynamicsFont_menu {
+}
+
+.DynamicsFont_menu:before {
+  content: "\e912";
+}
+
+.DynamicsFont_addEntity {
+}
+
+.DynamicsFont_addEntity:before {
+  content: "\e960";
+}
+
+.DynamicsFont_clear {
+}
+
+.DynamicsFont_clear:before {
+  content: "\e901";
+}
+
+.DynamicsFont_portrait {
+}
+
+.DynamicsFont_portrait:before {
+  content: "\e904";
+}
+
+.DynamicsFont_search {
+}
+
+.DynamicsFont_search:before {
+  content: "\e905";
+}
+
+.DynamicsFont_activeHover {
+}
+
+.DynamicsFont_activeHover:before {
+  content: "\e908";
+}
+
+.DynamicsFont_active {
+}
+
+.DynamicsFont_active:before {
+  content: "\e90c";
+}
+
+.DynamicsFont_composeTextHover {
+}
+
+.DynamicsFont_composeTextHover:before {
+  content: "\e90d";
+}
+
+.DynamicsFont_composeText {
+}
+
+.DynamicsFont_composeText:before {
+  content: "\e941";
+}
+
+.DynamicsFont_message {
+}
+
+.DynamicsFont_message:before {
+  content: "\e95e";
+}
+
+.DynamicsFont_messageHover {
+}
+
+.DynamicsFont_messageHover:before {
+  content: "\e95f";
+}
+
+.DynamicsFont_expand {
+}
+
+.DynamicsFont_expand:before {
+  content: "\e902";
+}
+
+.DynamicsFont_information {
+}
+
+.DynamicsFont_information:before {
+  content: "\e903";
+}
+
+.DynamicsFont_collapse {
+}
+
+.DynamicsFont_collapse:before {
+  content: "\e949";
+}
+
+.DynamicsFont_close {
+}
+
+.DynamicsFont_close:before {
+  content: "\e94a";
+}
+
+.DynamicsFont_outbound {
+}
+
+.DynamicsFont_outbound:before {
+  content: "\e94b";
+}
+
+.DynamicsFont_missed {
+}
+
+.DynamicsFont_missed:before {
+  content: "\e94c";
+}
+
+.DynamicsFont_inbound {
+}
+
+.DynamicsFont_inbound:before {
+  content: "\e94d";
+}
+
+.DynamicsFont_record {
+}
+
+.DynamicsFont_record:before {
+  content: "\e94e";
+}
+
+.DynamicsFont_call {
+}
+
+.DynamicsFont_call:before {
+  content: "\e94f";
+}
+
+.DynamicsFont_add {
+}
+
+.DynamicsFont_add:before {
+  content: "\e950";
+}
+
+.DynamicsFont_arrow {
+}
+
+.DynamicsFont_arrow:before {
+  content: "\e951";
+}
+
+.DynamicsFont_callLog {
+}
+
+.DynamicsFont_callLog:before {
+  content: "\e952";
+}
+
+.DynamicsFont_callHover {
+}
+
+.DynamicsFont_callHover:before {
+  content: "\e953";
+}
+
+.DynamicsFont_dialHover {
+}
+
+.DynamicsFont_dialHover:before {
+  content: "\e954";
+}
+
+.DynamicsFont_dial {
+}
+
+.DynamicsFont_dial:before {
+  content: "\e955";
+}
+
+.DynamicsFont_edit {
+}
+
+.DynamicsFont_edit:before {
+  content: "\e956";
+}
+
+.DynamicsFont_file {
+}
+
+.DynamicsFont_file:before {
+  content: "\e957";
+}
+
+.DynamicsFont_historyHover {
+}
+
+.DynamicsFont_historyHover:before {
+  content: "\e958";
+}
+
+.DynamicsFont_history {
+}
+
+.DynamicsFont_history:before {
+  content: "\e959";
+}
+
+.DynamicsFont_logout {
+}
+
+.DynamicsFont_logout:before {
+  content: "\e95a";
+}
+
+.DynamicsFont_settingHover {
+}
+
+.DynamicsFont_settingHover:before {
+  content: "\e95b";
+}
+
+.DynamicsFont_setting {
+}
+
+.DynamicsFont_setting:before {
+  content: "\e95c";
+}
+
+.DynamicsFont_trash {
+}
+
+.DynamicsFont_trash:before {
+  content: "\e95d";
+}
+
+.DynamicsFont_delete {
+}
+
+.DynamicsFont_delete:before {
+  content: "\e909";
+}
+
+.DynamicsFont_plus {
+}
+
+.DynamicsFont_plus:before {
+  content: "\e90a";
+}
+
+.DynamicsFont_caretDownCircle {
+}
+
+.DynamicsFont_caretDownCircle:before {
+  content: "\e90b";
+}
+
+.DynamicsFont_add2 {
+}
+
+.DynamicsFont_add2:before {
+  content: "\e90e";
+}
+
+.DynamicsFont_arrowLeft {
+}
+
+.DynamicsFont_arrowLeft:before {
+  content: "\e900";
+}
+
+.DynamicsFont_refresh {
+}
+
+.DynamicsFont_refresh:before {
+  content: "\e906";
+}
+
+.DynamicsFont_save {
+}
+
+.DynamicsFont_save:before {
+  content: "\e907";
+}
+
+.CallIcon_callIcon {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  font-size: 22px;
+  color: #666;
+  width: 21px;
+}
+
+@-webkit-keyframes CallIcon_ringing {
+  0% {
+    text-shadow: 0px 0px 1px #23B23D;
+  }
+  100% {
+    color: #2ce44d;
+    text-shadow: 0px 0px 10px #2ce44d;
+  }
+}
+
+@keyframes CallIcon_ringing {
+  0% {
+    text-shadow: 0px 0px 1px #23B23D;
+  }
+  100% {
+    color: #2ce44d;
+    text-shadow: 0px 0px 10px #2ce44d;
+  }
+}
+
+.CallIcon_activeCall.CallIcon_ringing {
+  -webkit-animation-name: CallIcon_ringing;
+          animation-name: CallIcon_ringing;
+  -webkit-animation-direction: alternate;
+          animation-direction: alternate;
+  -webkit-animation-duration: 0.5s;
+          animation-duration: 0.5s;
+  -webkit-animation-iteration-count: infinite;
+          animation-iteration-count: infinite;
+}
+
+.CallIcon_avatar {
+  width: 35px;
+  height: 35px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #57a708;
+  overflow: hidden;
+  flex-basis: 45.5px;
+}
+
+.CallIcon_avatar .CallIcon_icon {
+  display: block;
+  font-size: 35px;
+  opacity: 0.3;
+}
+
+.CallIcon_newCallIcon {
+  width: 21px;
+}
+
+.CallIcon_newCallIcon svg {
+  fill: #6a7186;
+}
+
+@-webkit-keyframes CallIcon_newRinging {
+  from {
+    -webkit-filter: drop-shadow(0 0 1px #23B23D);
+            filter: drop-shadow(0 0 1px #23B23D);
+  }
+  to {
+    fill: #2ce44d;
+    -webkit-filter: drop-shadow(0 0 10px #2ce44d);
+            filter: drop-shadow(0 0 10px #2ce44d);
+  }
+}
+
+@keyframes CallIcon_newRinging {
+  from {
+    -webkit-filter: drop-shadow(0 0 1px #23B23D);
+            filter: drop-shadow(0 0 1px #23B23D);
+  }
+  to {
+    fill: #2ce44d;
+    -webkit-filter: drop-shadow(0 0 10px #2ce44d);
+            filter: drop-shadow(0 0 10px #2ce44d);
+  }
+}
+
+.CallIcon_activeCall.CallIcon_newRinging {
+  -webkit-animation-name: CallIcon_newRinging;
+          animation-name: CallIcon_newRinging;
+  -webkit-animation-direction: alternate;
+          animation-direction: alternate;
+  -webkit-animation-duration: 0.5s;
+          animation-duration: 0.5s;
+  -webkit-animation-iteration-count: infinite;
+          animation-iteration-count: infinite;
+}
+
+.CircleButton_btnSvg {
+  width: 100%;
+}
+
+.CircleButton_circle {
+  fill: transparent;
+  stroke-width: 10;
+  font-weight: 100;
+  stroke: rgba(87, 167, 8, 0.4);
+  opacity: 0.9;
+}
+
+.CircleButton_noBorder {
+  stroke: transparent;
+}
+
+.CircleButton_btnSvgGroup {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  user-drag: none;
+  cursor: pointer;
+}
+
+.CircleButton_btnSvgGroup:hover circle {
+  stroke: #bcdc9c;
+}
+
+.CircleButton_btnSvgGroup:hover .CircleButton_noBorder {
+  stroke: transparent;
+}
+
+.CircleButton_icon g, .CircleButton_icon path, .CircleButton_icon rect {
+  fill: #57a708;
+}
+
+.CircleButton_ripple {
+  position: absolute;
+  fill: rgba(87, 167, 8, 0.3);
+  border-radius: 100%;
+  -webkit-transform: scale(0);
+          transform: scale(0);
+  pointer-events: none;
+  -webkit-animation: CircleButton_ripple 1s ease-out infinite;
+          animation: CircleButton_ripple 1s ease-out infinite;
+  -webkit-transform-origin: center;
+          transform-origin: center;
+}
+
+@-webkit-keyframes CircleButton_ripple {
+  to {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes CircleButton_ripple {
+  to {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.DropdownSelect_root {
+  position: relative;
+  font-size: 13px;
+  border: 1px solid #a6a6a6;
+  border-radius: 2px;
+  color: #797979;
+  padding: 0 10px;
+}
+
+.DropdownSelect_noPadding {
+  padding: 0 0px;
+}
+
+.DropdownSelect_button {
+  position: relative;
+  height: 30px;
+  line-height: 30px;
+  border: 0;
+  padding: 0;
+  width: 100%;
+  outline: medium none !important;
+  cursor: pointer;
+  text-transform: none;
+  background: transparent;
+  text-align: left;
+  overflow: hidden;
+}
+
+.DropdownSelect_button label {
+  float: left;
+  width: 50px;
+  overflow: hidden;
+}
+
+.DropdownSelect_customInput {
+  padding: 0;
+  border: none;
+  width: inherit;
+  line-height: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.DropdownSelect_selectedValue {
+  margin-left: 0;
+  display: block;
+  margin-right: 20px;
+  color: black;
+}
+
+.DropdownSelect_icon {
+  position: absolute;
+  right: 0px;
+  top: 0;
+}
+
+.DropdownSelect_iconUp {
+  -webkit-transform: rotate(-180deg);
+          transform: rotate(-180deg);
+}
+
+.DropdownSelect_selected {
+  color: #57a708;
+}
+
+.DropdownSelect_dropdownItem {
+  display: block;
+  line-height: 15px;
+  padding: 5px 10px;
+}
+
+.DropdownSelect_dropdownItem:hover {
+  color: #57a708;
+  cursor: pointer;
+}
+
+.DropdownSelect_dropdownItem:first-child {
+  padding-top: 10px;
+}
+
+.DropdownSelect_dropdownItem:last-child {
+  padding-bottom: 10px;
+}
+
+.DropdownSelect_left {
+  text-align: left;
+}
+
+.DropdownSelect_right {
+  text-align: right;
+}
+
+.DropdownSelect_center {
+  text-align: center;
+}
+
+.DropdownSelect_dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0px;
+  margin: 0;
+  margin-top: 1px;
+  padding: 0;
+  z-index: 2;
+  width: 100%;
+  border: 1px solid #efefef;
+  border-radius: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.175);
+  background: #fff;
+  max-height: 250px;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.DropdownSelect_dropdown:hover .DropdownSelect_selected {
+  color: inherit;
+}
+
+.DropdownSelect_dropdown:hover .DropdownSelect_selected:hover {
+  color: #57a708;
+}
+
+.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child {
+  color: #303030;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child:hover {
+  color: #303030;
+}
+
+.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child .DropdownSelect_selected {
+  color: #303030;
+}
+
+.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child .DropdownSelect_selected:hover {
+  color: #303030;
+}
+
+.DropdownSelect_open .DropdownSelect_dropdown {
+  display: block;
+}
+
+.DropdownSelect_disabled {
+  color: #777;
+  cursor: not-allowed;
+}
+
+.DropdownSelect_disabled .DropdownSelect_selectedValue {
+  color: #777;
+}
+
+.DropdownSelect_ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[contenteditable]:focus {
+  outline: 0px solid transparent;
+}
+
+.DropdownSelect_optionLabel {
+  -webkit-box-flex: 1;
+          flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 8px;
+}
+
+.DropdownSelect_withLabel {
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+          flex-direction: row;
+}
+
+.DropdownSelect_inputWithLabel {
+  text-align: right;
+  padding-right: 34px;
+  margin-right: 0;
+  padding-left: 39%;
+}
+
+.DropdownSelect_active {
+  padding-left: 0;
+}
+
+.DropdownSelect_selectedOptionLabel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(39% - 8px);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.DropdownSelect_selectedOptionLabelHide {
+  z-index: -1;
+}
+
+.ContactDisplay_root {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: #797979;
+  color: #2F2F2F;
+}
+
+.ContactDisplay_currentName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ContactDisplay_select {
+  border: 0px;
+}
+
+.ContactDisplay_select .ContactDisplay_button {
+  margin: 0px;
+  font-size: 14px;
+  height: auto;
+  line-height: normal;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+          align-items: center;
+}
+
+.ContactDisplay_select .ContactDisplay_icon {
+  position: relative;
+  right: unset;
+}
+
+.ContactDisplay_select .ContactDisplay_selectedValue {
+  margin-right: 10px;
+}
+
+.ContactDisplay_select ul li {
+  line-height: 19px;
+}
+
+.ContactDisplay_select ul li:first-child {
+  padding-top: 7px;
+}
+
+.ContactDisplay_select ul li:last-child {
+  padding-bottom: 7px;
+}
+
+.ContactDisplay_select ul li:hover {
+  background: #f9f9f9;
+}
+
+.ContactDisplay_select:after {
+  line-height: 20px;
+  color: #979797;
+}
+
+.ContactDisplay_typeIcon {
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.ContactDisplay_typeName {
+  vertical-align: middle;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: #797979;
+  color: #2F2F2F;
+}
+
+.MediaObject_media {
+  margin-top: 15px;
+}
+
+.MediaObject_media:first-child {
+  margin-top: 0;
+}
+
+.MediaObject_media.MediaObject_flex {
+  padding: 0;
+  display: -webkit-box;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+          flex-direction: row;
+  flex-wrap: nowrap;
+  -webkit-box-align: center;
+          align-items: center;
+  -webkit-box-pack: start;
+          justify-content: flex-start;
+}
+
+.MediaObject_media.MediaObject_flex .MediaObject_mediaBody {
+  -webkit-box-flex: 1;
+          flex-grow: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.MediaObject_media.MediaObject_flex .MediaObject_mediaRight,
+.MediaObject_media.MediaObject_flex .MediaObject_mediaLeft {
+  flex-shrink: 0;
+}
+
+.MediaObject_media.MediaObject_flex .MediaObject_mediaTop {
+  align-self: flex-start;
+}
+
+.MediaObject_media.MediaObject_flex .MediaObject_mediaBottom {
+  align-self: flex-end;
+}
+
+.MediaObject_media,
+.MediaObject_mediaBody {
+  zoom: 1;
+}
+
+.MediaObject_mediaBody {
+  width: 10000px;
+}
+
+.MediaObject_mediaObject {
+  display: block;
+}
+
+.MediaObject_mediaObject.MediaObject_img-thumbnail {
+  max-width: none;
+}
+
+.MediaObject_mediaRight {
+  padding-left: 10px;
+}
+
+.MediaObject_mediaLeft {
+  padding-right: 10px;
+}
+
+.MediaObject_mediaLeft,
+.MediaObject_mediaRight,
+.MediaObject_mediaBody {
+  display: table-cell;
+  vertical-align: top;
+}
+
+.MediaObject_mediaMiddle {
+  align-self: stretch;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-pack: center;
+          justify-content: center;
+  -webkit-box-align: start;
+          align-items: flex-start;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+          flex-direction: column;
+}
+
+.MediaObject_mediaBottom {
+  vertical-align: bottom;
+}
+
+.MediaObject_mediaHeading {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.MediaObject_mediaList {
+  padding-left: 0;
+  list-style: none;
+}
+
+.ActiveCallItemV2_cursorPointer {
+  cursor: pointer;
+}
+
+.ActiveCallItemV2_cursorPointer * {
+  cursor: pointer;
+}
+
+.ActiveCallItemV2_cursorUnset {
+  cursor: unset;
+}
+
+.ActiveCallItemV2_cursorUnset * {
+  cursor: unset;
+}
+
+.ActiveCallItemV2_strechVertical {
+  align-self: stretch;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-pack: center;
+          justify-content: center;
+  -webkit-box-align: start;
+          align-items: flex-start;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+          flex-direction: column;
+  height: 100%;
+}
+
+.ActiveCallItemV2_callItemContainer {
+  padding: 15px 20px;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper {
+  overflow: visible;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_content {
+  overflow: hidden;
+  flex-shrink: 1;
+  width: calc(100% - 45.5px - 68.5px);
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_actionIconsBox {
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-pack: center;
+          justify-content: center;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_actionIconsBox .ActiveCallItemV2_extraButton {
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+          align-items: center;
+  margin-left: 10px;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton {
+  flex-basis: 68.5px;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton:not(:last-of-type) {
+  margin-right: 10px;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_answerButton,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_rejectButton {
+  width: 24px;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_answerButton g,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_answerButton path,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_rejectButton g,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_rejectButton path {
+  fill: #FFFFFF;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_answerButton circle {
+  fill: #57a708;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton circle {
+  fill: #FFFFFF;
+  stroke: #57a708;
+  stroke-width: 15px;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton g,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton path {
+  fill: #57a708;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_disabled,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_disabled * {
+  cursor: not-allowed;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_disabled circle,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_disabled * circle {
+  fill: #C7C7C7;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_rejectButton circle {
+  fill: #ff4646;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton circle {
+  fill: #FFFFFF;
+  stroke: #57a708;
+  stroke-width: 15px;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton g,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton path {
+  fill: #57a708;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton.ActiveCallItemV2_active circle {
+  fill: #57a708;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton.ActiveCallItemV2_active g,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton.ActiveCallItemV2_active path {
+  fill: #FFFFFF;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButtons {
+  display: -webkit-box;
+  display: flex;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton {
+  height: 24px;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton:not(:last-of-type) {
+  margin-right: 10px;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_switchButton,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_transferButton,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton {
+  width: 24px;
+  height: 24px;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton circle {
+  fill: #f95b5c;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton g,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton path {
+  fill: #FFFFFF;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton.ActiveCallItemV2_disabled circle {
+  fill: #C7C7C7;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_transferButton.ActiveCallItemV2_disabled circle {
+  stroke: #C7C7C7;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_transferButton.ActiveCallItemV2_disabled g,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_transferButton.ActiveCallItemV2_disabled path {
+  fill: #C7C7C7;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_switchButton circle {
+  fill: #5fb95c;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_switchButton.ActiveCallItemV2_disabled circle {
+  fill: #C7C7C7;
+}
+
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_disabled,
+.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_disabled * {
+  cursor: not-allowed;
+}
+
+.ActiveCallItemV2_callDetail {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 5px;
+  color: #979797;
+}
+
+.ActiveCallItemV2_callDetail .ActiveCallItemV2_label {
+  margin-right: 5px;
+}
+
+.ActiveCallItemV2_callDetail .ActiveCallItemV2_split {
+  margin: 0 5px;
+}
+
+.ActiveCallItemV2_contactDisplay,
+.ActiveCallItemV2_contactDisplay * {
+  color: #2F2F2F !important;
+  max-width: 100%;
+}
+
+.ActiveCallItemV2_contactDisplay .ActiveCallItemV2_selectIcon,
+.ActiveCallItemV2_contactDisplay * .ActiveCallItemV2_selectIcon {
+  display: none;
+}
+
+.ActiveCallItemV2_switchDialog .ActiveCallItemV2_RcDialog-paper {
+  margin: 20px;
+}
+
+.ActiveCallItemV2_switchDialogImage {
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-pack: center;
+          justify-content: center;
+  padding: 10px 0;
+}
+
+.ActiveCallItemV2_switchDialogContent {
+  word-break: break-word;
+}
+
+.ActiveCallItemV2_answerHoldButton {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
 .CallAlert_link {
   cursor: pointer;
 }
@@ -442,345 +1574,8 @@
 
 .Button_root.Button_disabled,
 .Button_root.Button_dislabed:hover {
-  color: #999;
+  color: #999 !important;
   cursor: not-allowed;
-}
-
-@font-face {
-  font-family: 'dynamics_icon';
-  src: url(./fonts/dynamics_icon_72e4edacf5ffbbd6f6bc26f1090059ea.eot);
-  src: url(./fonts/dynamics_icon_72e4edacf5ffbbd6f6bc26f1090059ea.eot#iefix) format("embedded-opentype"), url(data:font/woff2;base64,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) format("woff2"), url(./fonts/dynamics_icon_7213f0ba7419d6ff00172ba60b781eda.ttf) format("truetype"), url(./fonts/dynamics_icon_f4a6917c567fe8061147785ba6492b46.woff) format("woff"), url(images/dynamics_icon_45121b9dae6851c6eec3e28471c44ec7.svg#dynamics_icon) format("svg");
-  font-weight: normal;
-  font-style: normal;
-}
-
-.DynamicsFont_icon {
-  /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'dynamics_icon' !important;
-  speak: none;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  /* Better Font Rendering =========== */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.DynamicsFont_groupConversation {
-}
-
-.DynamicsFont_groupConversation:before {
-  content: "\e913";
-}
-
-.DynamicsFont_conferenceHover {
-}
-
-.DynamicsFont_conferenceHover:before {
-  content: "\e90f";
-}
-
-.DynamicsFont_conference {
-}
-
-.DynamicsFont_conference:before {
-  content: "\e910";
-}
-
-.DynamicsFont_menuHover {
-}
-
-.DynamicsFont_menuHover:before {
-  content: "\e911";
-}
-
-.DynamicsFont_menu {
-}
-
-.DynamicsFont_menu:before {
-  content: "\e912";
-}
-
-.DynamicsFont_addEntity {
-}
-
-.DynamicsFont_addEntity:before {
-  content: "\e960";
-}
-
-.DynamicsFont_clear {
-}
-
-.DynamicsFont_clear:before {
-  content: "\e901";
-}
-
-.DynamicsFont_portrait {
-}
-
-.DynamicsFont_portrait:before {
-  content: "\e904";
-}
-
-.DynamicsFont_search {
-}
-
-.DynamicsFont_search:before {
-  content: "\e905";
-}
-
-.DynamicsFont_activeHover {
-}
-
-.DynamicsFont_activeHover:before {
-  content: "\e908";
-}
-
-.DynamicsFont_active {
-}
-
-.DynamicsFont_active:before {
-  content: "\e90c";
-}
-
-.DynamicsFont_composeTextHover {
-}
-
-.DynamicsFont_composeTextHover:before {
-  content: "\e90d";
-}
-
-.DynamicsFont_composeText {
-}
-
-.DynamicsFont_composeText:before {
-  content: "\e941";
-}
-
-.DynamicsFont_message {
-}
-
-.DynamicsFont_message:before {
-  content: "\e95e";
-}
-
-.DynamicsFont_messageHover {
-}
-
-.DynamicsFont_messageHover:before {
-  content: "\e95f";
-}
-
-.DynamicsFont_expand {
-}
-
-.DynamicsFont_expand:before {
-  content: "\e902";
-}
-
-.DynamicsFont_information {
-}
-
-.DynamicsFont_information:before {
-  content: "\e903";
-}
-
-.DynamicsFont_collapse {
-}
-
-.DynamicsFont_collapse:before {
-  content: "\e949";
-}
-
-.DynamicsFont_close {
-}
-
-.DynamicsFont_close:before {
-  content: "\e94a";
-}
-
-.DynamicsFont_outbound {
-}
-
-.DynamicsFont_outbound:before {
-  content: "\e94b";
-}
-
-.DynamicsFont_missed {
-}
-
-.DynamicsFont_missed:before {
-  content: "\e94c";
-}
-
-.DynamicsFont_inbound {
-}
-
-.DynamicsFont_inbound:before {
-  content: "\e94d";
-}
-
-.DynamicsFont_record {
-}
-
-.DynamicsFont_record:before {
-  content: "\e94e";
-}
-
-.DynamicsFont_call {
-}
-
-.DynamicsFont_call:before {
-  content: "\e94f";
-}
-
-.DynamicsFont_add {
-}
-
-.DynamicsFont_add:before {
-  content: "\e950";
-}
-
-.DynamicsFont_arrow {
-}
-
-.DynamicsFont_arrow:before {
-  content: "\e951";
-}
-
-.DynamicsFont_callLog {
-}
-
-.DynamicsFont_callLog:before {
-  content: "\e952";
-}
-
-.DynamicsFont_callHover {
-}
-
-.DynamicsFont_callHover:before {
-  content: "\e953";
-}
-
-.DynamicsFont_dialHover {
-}
-
-.DynamicsFont_dialHover:before {
-  content: "\e954";
-}
-
-.DynamicsFont_dial {
-}
-
-.DynamicsFont_dial:before {
-  content: "\e955";
-}
-
-.DynamicsFont_edit {
-}
-
-.DynamicsFont_edit:before {
-  content: "\e956";
-}
-
-.DynamicsFont_file {
-}
-
-.DynamicsFont_file:before {
-  content: "\e957";
-}
-
-.DynamicsFont_historyHover {
-}
-
-.DynamicsFont_historyHover:before {
-  content: "\e958";
-}
-
-.DynamicsFont_history {
-}
-
-.DynamicsFont_history:before {
-  content: "\e959";
-}
-
-.DynamicsFont_logout {
-}
-
-.DynamicsFont_logout:before {
-  content: "\e95a";
-}
-
-.DynamicsFont_settingHover {
-}
-
-.DynamicsFont_settingHover:before {
-  content: "\e95b";
-}
-
-.DynamicsFont_setting {
-}
-
-.DynamicsFont_setting:before {
-  content: "\e95c";
-}
-
-.DynamicsFont_trash {
-}
-
-.DynamicsFont_trash:before {
-  content: "\e95d";
-}
-
-.DynamicsFont_delete {
-}
-
-.DynamicsFont_delete:before {
-  content: "\e909";
-}
-
-.DynamicsFont_plus {
-}
-
-.DynamicsFont_plus:before {
-  content: "\e90a";
-}
-
-.DynamicsFont_caretDownCircle {
-}
-
-.DynamicsFont_caretDownCircle:before {
-  content: "\e90b";
-}
-
-.DynamicsFont_add2 {
-}
-
-.DynamicsFont_add2:before {
-  content: "\e90e";
-}
-
-.DynamicsFont_arrowLeft {
-}
-
-.DynamicsFont_arrowLeft:before {
-  content: "\e900";
-}
-
-.DynamicsFont_refresh {
-}
-
-.DynamicsFont_refresh:before {
-  content: "\e906";
-}
-
-.DynamicsFont_save {
-}
-
-.DynamicsFont_save:before {
-  content: "\e907";
 }
 
 .Panel_root {
@@ -987,211 +1782,6 @@ input:checked + .Switch_slider:before {
   border-color: red;
 }
 
-.DropdownSelect_root {
-  position: relative;
-  font-size: 13px;
-  border: 1px solid #a6a6a6;
-  border-radius: 2px;
-  color: #797979;
-  padding: 0 10px;
-}
-
-.DropdownSelect_noPadding {
-  padding: 0 0px;
-}
-
-.DropdownSelect_button {
-  position: relative;
-  height: 30px;
-  line-height: 30px;
-  border: 0;
-  padding: 0;
-  width: 100%;
-  outline: medium none !important;
-  cursor: pointer;
-  text-transform: none;
-  background: transparent;
-  text-align: left;
-  overflow: hidden;
-}
-
-.DropdownSelect_button label {
-  float: left;
-  width: 50px;
-  overflow: hidden;
-}
-
-.DropdownSelect_customInput {
-  padding: 0;
-  border: none;
-  width: inherit;
-  line-height: inherit;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.DropdownSelect_selectedValue {
-  margin-left: 0;
-  display: block;
-  margin-right: 20px;
-  color: black;
-}
-
-.DropdownSelect_icon {
-  position: absolute;
-  right: 0px;
-  top: 0;
-}
-
-.DropdownSelect_iconUp {
-  -webkit-transform: rotate(-180deg);
-          transform: rotate(-180deg);
-}
-
-.DropdownSelect_selected {
-  color: #57a708;
-}
-
-.DropdownSelect_dropdownItem {
-  display: block;
-  line-height: 15px;
-  padding: 5px 10px;
-}
-
-.DropdownSelect_dropdownItem:hover {
-  color: #57a708;
-  cursor: pointer;
-}
-
-.DropdownSelect_dropdownItem:first-child {
-  padding-top: 10px;
-}
-
-.DropdownSelect_dropdownItem:last-child {
-  padding-bottom: 10px;
-}
-
-.DropdownSelect_left {
-  text-align: left;
-}
-
-.DropdownSelect_right {
-  text-align: right;
-}
-
-.DropdownSelect_center {
-  text-align: center;
-}
-
-.DropdownSelect_dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0px;
-  margin: 0;
-  margin-top: 1px;
-  padding: 0;
-  z-index: 2;
-  width: 100%;
-  border: 1px solid #efefef;
-  border-radius: 2px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.175);
-  background: #fff;
-  max-height: 250px;
-  overflow: hidden;
-  overflow-y: auto;
-}
-
-.DropdownSelect_dropdown:hover .DropdownSelect_selected {
-  color: inherit;
-}
-
-.DropdownSelect_dropdown:hover .DropdownSelect_selected:hover {
-  color: #57a708;
-}
-
-.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child {
-  color: #303030;
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child:hover {
-  color: #303030;
-}
-
-.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child .DropdownSelect_selected {
-  color: #303030;
-}
-
-.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child .DropdownSelect_selected:hover {
-  color: #303030;
-}
-
-.DropdownSelect_open .DropdownSelect_dropdown {
-  display: block;
-}
-
-.DropdownSelect_disabled {
-  color: #777;
-  cursor: not-allowed;
-}
-
-.DropdownSelect_disabled .DropdownSelect_selectedValue {
-  color: #777;
-}
-
-.DropdownSelect_ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-[contenteditable]:focus {
-  outline: 0px solid transparent;
-}
-
-.DropdownSelect_optionLabel {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 8px;
-}
-
-.DropdownSelect_withLabel {
-  display: -webkit-box;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
-}
-
-.DropdownSelect_inputWithLabel {
-  text-align: right;
-  padding-right: 34px;
-  margin-right: 0;
-  padding-left: 39%;
-}
-
-.DropdownSelect_active {
-  padding-left: 0;
-}
-
-.DropdownSelect_selectedOptionLabel {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: calc(39% - 8px);
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.DropdownSelect_selectedOptionLabelHide {
-  z-index: -1;
-}
-
 .SaveButton_root {
   display: block;
   margin-top: 20px;
@@ -1370,6 +1960,18 @@ input:checked + .Switch_slider:before {
   height: 100%;
 }
 
+.Tooltip_title {
+  display: block;
+}
+
+[sf-lightning] .Tooltip_title {
+  max-width: 250px;
+}
+
+[sf-classic] .Tooltip_title {
+  max-width: 158px;
+}
+
 .ContactDropdownList_dropdownList {
   position: absolute;
   left: 0;
@@ -1444,6 +2046,16 @@ input:checked + .Switch_slider:before {
 
 .ContactDropdownList_clickable {
   cursor: pointer;
+}
+
+.ContactDropdownList_doNotCall {
+  display: inline;
+  color: #6a7186;
+  margin-left: 5px;
+}
+
+.ContactDropdownList_doNotCall span {
+  vertical-align: text-bottom;
 }
 
 @font-face {
@@ -3370,72 +3982,6 @@ input:checked + .Switch_slider:before {
   width: 100%;
 }
 
-.CircleButton_btnSvg {
-  width: 100%;
-}
-
-.CircleButton_circle {
-  fill: transparent;
-  stroke-width: 10;
-  font-weight: 100;
-  stroke: rgba(87, 167, 8, 0.4);
-  opacity: 0.9;
-}
-
-.CircleButton_noBorder {
-  stroke: transparent;
-}
-
-.CircleButton_btnSvgGroup {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-  user-drag: none;
-  cursor: pointer;
-}
-
-.CircleButton_btnSvgGroup:hover circle {
-  stroke: #bcdc9c;
-}
-
-.CircleButton_btnSvgGroup:hover .CircleButton_noBorder {
-  stroke: transparent;
-}
-
-.CircleButton_icon g, .CircleButton_icon path, .CircleButton_icon rect {
-  fill: #57a708;
-}
-
-.CircleButton_ripple {
-  position: absolute;
-  fill: rgba(87, 167, 8, 0.3);
-  border-radius: 100%;
-  -webkit-transform: scale(0);
-          transform: scale(0);
-  pointer-events: none;
-  -webkit-animation: CircleButton_ripple 1s ease-out infinite;
-          animation: CircleButton_ripple 1s ease-out infinite;
-  -webkit-transform-origin: center;
-          transform-origin: center;
-}
-
-@-webkit-keyframes CircleButton_ripple {
-  to {
-    -webkit-transform: scale(1);
-            transform: scale(1);
-    opacity: 0;
-  }
-}
-
-@keyframes CircleButton_ripple {
-  to {
-    -webkit-transform: scale(1);
-            transform: scale(1);
-    opacity: 0;
-  }
-}
-
 .DialerPanel_root {
   position: relative;
   width: 100%;
@@ -4365,93 +4911,6 @@ input:checked + .Switch_slider:before {
 
 .IncomingCallPad_replyWithMessageContainner .rc-tooltip-arrow {
   border-top-color: #e3e3e3;
-}
-
-.ContactDisplay_root {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: #797979;
-  color: #2F2F2F;
-}
-
-.ContactDisplay_currentName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ContactDisplay_select {
-  border: 0px;
-}
-
-.ContactDisplay_select .ContactDisplay_button {
-  margin: 0px;
-  font-size: 14px;
-  height: auto;
-  line-height: normal;
-  display: -webkit-box;
-  display: flex;
-  -webkit-box-align: center;
-          align-items: center;
-}
-
-.ContactDisplay_select .ContactDisplay_icon {
-  position: relative;
-  right: unset;
-}
-
-.ContactDisplay_select .ContactDisplay_selectedValue {
-  margin-right: 10px;
-}
-
-.ContactDisplay_select ul li {
-  line-height: 19px;
-}
-
-.ContactDisplay_select ul li:first-child {
-  padding-top: 7px;
-}
-
-.ContactDisplay_select ul li:last-child {
-  padding-bottom: 7px;
-}
-
-.ContactDisplay_select ul li:hover {
-  background: #f9f9f9;
-}
-
-.ContactDisplay_select:after {
-  line-height: 20px;
-  color: #979797;
-}
-
-.ContactDisplay_typeIcon {
-  margin-right: 10px;
-  vertical-align: middle;
-}
-
-.ContactDisplay_typeName {
-  vertical-align: middle;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: #797979;
-  color: #2F2F2F;
-}
-
-.CallAvatar_callAvatar {
-  width: 100%;
-}
-
-.CallAvatar_callAvatar:not(:root) {
-  overflow: visible;
-}
-
-.CallAvatar_disabledPointerEvents {
-  pointer-events: none;
-}
-
-.CallAvatar_autoPointerEvents {
-  pointer-events: auto;
 }
 
 .IncomingCallPanel_root {
@@ -6079,7 +6538,7 @@ input:checked + .Switch_slider:before {
   padding-bottom: 0;
 }
 
-.ContactList_noContacts {
+.ContactList_placeholder {
   color: #808080;
   font-size: 14px;
   text-align: center;
@@ -6620,6 +7079,13 @@ input:checked + .Switch_slider:before {
 
 .ContactDetailsView_header {
   background: #fff;
+}
+
+.ContactDetailsView_placeholder {
+  color: #808080;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 40px;
 }
 
 .FeedbackPanel_root {
@@ -8685,377 +9151,6 @@ input:checked + .Switch_slider:before {
   margin-left: -1000px;
 }
 
-.CallIcon_callIcon {
-  display: -webkit-inline-box;
-  display: inline-flex;
-  font-size: 22px;
-  color: #666;
-  width: 21px;
-}
-
-@-webkit-keyframes CallIcon_ringing {
-  0% {
-    text-shadow: 0px 0px 1px #23B23D;
-  }
-  100% {
-    color: #2ce44d;
-    text-shadow: 0px 0px 10px #2ce44d;
-  }
-}
-
-@keyframes CallIcon_ringing {
-  0% {
-    text-shadow: 0px 0px 1px #23B23D;
-  }
-  100% {
-    color: #2ce44d;
-    text-shadow: 0px 0px 10px #2ce44d;
-  }
-}
-
-.CallIcon_activeCall.CallIcon_ringing {
-  -webkit-animation-name: CallIcon_ringing;
-          animation-name: CallIcon_ringing;
-  -webkit-animation-direction: alternate;
-          animation-direction: alternate;
-  -webkit-animation-duration: 0.5s;
-          animation-duration: 0.5s;
-  -webkit-animation-iteration-count: infinite;
-          animation-iteration-count: infinite;
-}
-
-.CallIcon_avatar {
-  width: 35px;
-  height: 35px;
-  margin-left: auto;
-  margin-right: auto;
-  color: #57a708;
-  overflow: hidden;
-  flex-basis: 45.5px;
-}
-
-.CallIcon_avatar .CallIcon_icon {
-  display: block;
-  font-size: 35px;
-  opacity: 0.3;
-}
-
-.MediaObject_media {
-  margin-top: 15px;
-}
-
-.MediaObject_media:first-child {
-  margin-top: 0;
-}
-
-.MediaObject_media.MediaObject_flex {
-  padding: 0;
-  display: -webkit-box;
-  display: flex;
-  width: 100%;
-  box-sizing: border-box;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
-  flex-wrap: nowrap;
-  -webkit-box-align: center;
-          align-items: center;
-  -webkit-box-pack: start;
-          justify-content: flex-start;
-}
-
-.MediaObject_media.MediaObject_flex .MediaObject_mediaBody {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.MediaObject_media.MediaObject_flex .MediaObject_mediaRight,
-.MediaObject_media.MediaObject_flex .MediaObject_mediaLeft {
-  flex-shrink: 0;
-}
-
-.MediaObject_media.MediaObject_flex .MediaObject_mediaTop {
-  align-self: flex-start;
-}
-
-.MediaObject_media.MediaObject_flex .MediaObject_mediaBottom {
-  align-self: flex-end;
-}
-
-.MediaObject_media,
-.MediaObject_mediaBody {
-  zoom: 1;
-}
-
-.MediaObject_mediaBody {
-  width: 10000px;
-}
-
-.MediaObject_mediaObject {
-  display: block;
-}
-
-.MediaObject_mediaObject.MediaObject_img-thumbnail {
-  max-width: none;
-}
-
-.MediaObject_mediaRight {
-  padding-left: 10px;
-}
-
-.MediaObject_mediaLeft {
-  padding-right: 10px;
-}
-
-.MediaObject_mediaLeft,
-.MediaObject_mediaRight,
-.MediaObject_mediaBody {
-  display: table-cell;
-  vertical-align: top;
-}
-
-.MediaObject_mediaMiddle {
-  align-self: stretch;
-  display: -webkit-box;
-  display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: start;
-          align-items: flex-start;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
-}
-
-.MediaObject_mediaBottom {
-  vertical-align: bottom;
-}
-
-.MediaObject_mediaHeading {
-  margin-top: 0;
-  margin-bottom: 5px;
-}
-
-.MediaObject_mediaList {
-  padding-left: 0;
-  list-style: none;
-}
-
-.ActiveCallItemV2_cursorPointer {
-  cursor: pointer;
-}
-
-.ActiveCallItemV2_cursorPointer * {
-  cursor: pointer;
-}
-
-.ActiveCallItemV2_cursorUnset {
-  cursor: unset;
-}
-
-.ActiveCallItemV2_cursorUnset * {
-  cursor: unset;
-}
-
-.ActiveCallItemV2_strechVertical {
-  align-self: stretch;
-  display: -webkit-box;
-  display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: start;
-          align-items: flex-start;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
-  height: 100%;
-}
-
-.ActiveCallItemV2_callItemContainer {
-  padding: 15px 20px;
-  border-bottom: 1px solid #e2e2e2;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper {
-  overflow: visible;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_content {
-  flex-shrink: 1;
-  width: calc(100% - 45.5px - 68.5px);
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_actionIconsBox {
-  display: -webkit-box;
-  display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_actionIconsBox .ActiveCallItemV2_extraButton {
-  display: -webkit-box;
-  display: flex;
-  -webkit-box-align: center;
-          align-items: center;
-  margin-left: 10px;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton {
-  flex-basis: 68.5px;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton:not(:last-of-type) {
-  margin-right: 10px;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_answerButton,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_rejectButton {
-  width: 24px;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_answerButton g,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_answerButton path,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_rejectButton g,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_rejectButton path {
-  fill: #FFFFFF;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_answerButton circle {
-  fill: #57a708;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton circle {
-  fill: #FFFFFF;
-  stroke: #57a708;
-  stroke-width: 15px;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton g,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton path {
-  fill: #57a708;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_disabled,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_disabled * {
-  cursor: not-allowed;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_disabled circle,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_disabled * circle {
-  fill: #C7C7C7;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_rejectButton circle {
-  fill: #ff4646;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton circle {
-  fill: #FFFFFF;
-  stroke: #57a708;
-  stroke-width: 15px;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton g,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton path {
-  fill: #57a708;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton.ActiveCallItemV2_active circle {
-  fill: #57a708;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton.ActiveCallItemV2_active g,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton.ActiveCallItemV2_active path {
-  fill: #FFFFFF;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButtons {
-  display: -webkit-box;
-  display: flex;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton {
-  height: 24px;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton:not(:last-of-type) {
-  margin-right: 10px;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_switchButton g,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_switchButton path {
-  fill: #57a708;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_switchButton,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_transferButton,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton {
-  width: 24px;
-  height: 24px;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton circle {
-  fill: #f95b5c;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton g,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton path {
-  fill: #FFFFFF;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_endButton.ActiveCallItemV2_disabled circle {
-  fill: #C7C7C7;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_switchButton.ActiveCallItemV2_disabled circle,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_transferButton.ActiveCallItemV2_disabled circle {
-  stroke: #C7C7C7;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_switchButton.ActiveCallItemV2_disabled g,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_switchButton.ActiveCallItemV2_disabled path,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_transferButton.ActiveCallItemV2_disabled g,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_transferButton.ActiveCallItemV2_disabled path {
-  fill: #C7C7C7;
-}
-
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_disabled,
-.ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButton .ActiveCallItemV2_disabled * {
-  cursor: not-allowed;
-}
-
-.ActiveCallItemV2_callDetail {
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-top: 5px;
-  color: #979797;
-}
-
-.ActiveCallItemV2_callDetail .ActiveCallItemV2_label {
-  margin-right: 5px;
-}
-
-.ActiveCallItemV2_callDetail .ActiveCallItemV2_split {
-  margin: 0 5px;
-}
-
-.ActiveCallItemV2_contactDisplay,
-.ActiveCallItemV2_contactDisplay * {
-  color: #2F2F2F !important;
-  max-width: 100%;
-}
-
-.ActiveCallItemV2_contactDisplay .ActiveCallItemV2_selectIcon,
-.ActiveCallItemV2_contactDisplay * .ActiveCallItemV2_selectIcon {
-  display: none;
-}
-
 .CallsOnholdPanel_root {
   position: relative;
   width: 100%;
@@ -10995,35 +11090,20 @@ input:checked + .Switch_slider:before {
   border-radius: 4px;
 }
 
-.Alert_container {
-  padding: 16px 20px;
-  font-size: 15px;
-  line-height: 22px;
-}
-
-.Alert_info {
-  background: #f0f1f4;
-  color: #212121;
-}
-
-.Alert_error {
-  background: #fbf5f4;
-  color: #d6352a;
-}
-
 div.SettingGroup_expansionPanel {
   box-shadow: none !important;
-  margin: 6px 0 0 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   background-color: transparent !important;
 }
 
 div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelSummary {
   font-weight: bold;
   color: #212121;
-  height: 44px;
-  font-size: 15px;
+  height: 32px;
+  font-size: 14px;
   padding: 0 20px;
-  min-height: 44px;
+  min-height: 32px;
 }
 
 div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelSummary.SettingGroup_expansionPanelSummaryDisabled {
@@ -11050,6 +11130,57 @@ div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelDetails div.Setti
   width: 100%;
 }
 
+/**
+  let user can use this to get both theme color
+  Example:
+  @include with-rc-theme() {
+    .root {
+      color: rc-palette(element, primary);
+    }
+  }
+
+  result will be =>
+
+  [light] .root {
+    color: #4475FD
+  }
+
+  [dark] .root {
+    color: #729AFF
+  }
+*/
+/**
+  let user can use this to get target theme color
+  Example:
+  @include with-theme-type('light') {
+    .root {
+      color: rc-palette(element, primary);
+    }
+  }
+
+  result will be =>
+
+  [light] .root {
+    color: #4475FD
+  }
+*/
+/**
+  generate static style with rc like rc-bg-primary-200
+*/
+/** get opacity from theme token */
+/** get breakpoint from theme token */
+/** get shape from theme token */
+/** append typography style from theme token */
+/** append zIndex style from theme token */
+/** append border-radius style from theme token */
+/** get palette from theme token */
+/** append spacing style from theme token */
+/**
+  default rc utils class
+*/
+/**
+  include all rc class
+*/
 .VideoPanel_videoPanel {
   display: -webkit-box;
   display: flex;
@@ -11070,11 +11201,15 @@ div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelDetails div.Setti
 }
 
 .VideoPanel_meetingContent {
-  padding: 20px 0;
+  padding: 0 0 16px;
 }
 
 .VideoPanel_meetingSection {
   padding: 0 20px;
+}
+
+.VideoPanel_noBottomMargin {
+  margin-bottom: 8px !important;
 }
 
 .VideoPanel_select {
@@ -11102,9 +11237,19 @@ div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelDetails div.Setti
   flex-wrap: wrap;
 }
 
+.VideoPanel_normalFontSize, .VideoPanel_meetingSection input, .VideoPanel_hourDuration div[class*='selectMenu'], .VideoPanel_minuteDuration div[class*='selectMenu'], .VideoPanel_normalLabel, label.VideoPanel_labelPlacementStartRoot .VideoPanel_labelText, label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText, .VideoPanel_passwordInput input, .VideoPanel_boxSelect > div > div {
+  font-size: 14px !important;
+}
+
+.VideoPanel_normalLabel, label.VideoPanel_labelPlacementStartRoot .VideoPanel_labelText, label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
+  font-weight: normal;
+  line-height: 22px;
+  padding: 5px 0;
+}
+
 label.VideoPanel_labelPlacementStartRoot {
   margin: 0;
-  padding: 5px 10px 5px 20px;
+  padding: 0 6px 0 20px;
   display: -webkit-box;
   display: flex;
   -webkit-box-align: start;
@@ -11113,14 +11258,9 @@ label.VideoPanel_labelPlacementStartRoot {
           justify-content: space-between;
 }
 
-label.VideoPanel_labelPlacementStartRoot .VideoPanel_labelText {
-  line-height: normal;
-  padding-top: 11px;
-}
-
 label.VideoPanel_labelPlacementEndRoot {
   margin: 0;
-  padding: 5px 20px 5px 0;
+  padding: 0 20px 0 0;
   display: -webkit-box;
   display: flex;
   -webkit-box-align: start;
@@ -11129,12 +11269,10 @@ label.VideoPanel_labelPlacementEndRoot {
 
 label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
   width: 100%;
-  padding-top: 11px;
   display: -webkit-box;
   display: flex;
   -webkit-box-pack: justify;
           justify-content: space-between;
-  line-height: normal;
 }
 
 .myinput {
@@ -11142,7 +11280,7 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 }
 
 .VideoPanel_passwordInput {
-  padding: 0 20px !important;
+  padding: 4px 20px 8px !important;
 }
 
 .VideoPanel_passwordInput .VideoPanel_passwordLabel {
@@ -11151,12 +11289,16 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
   left: inherit !important;
 }
 
-.VideoPanel_passwordInput input {
-  font-size: 15px !important;
+.VideoPanel_passwordInput input[class*="Mui-disabled"] {
+  -webkit-text-fill-color: #B5B9C5;
+}
+
+.VideoPanel_subPrefixPadding {
+  padding-left: 54px !important;
 }
 
 .VideoPanel_boxSelectWrapper {
-  padding: 5px 20px;
+  padding: 4px 20px 8px;
   box-sizing: border-box;
   width: 100%;
 }
@@ -11171,13 +11313,14 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 
 .VideoPanel_boxSelectMenuItem {
   display: block !important;
+  line-height: 22px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .VideoPanel_checkboxSeparate, .VideoPanel_iconCombine {
-  margin-left: 8px;
+  margin: -4px 0 -4px 10px;
 }
 
 .VideoPanel_iconCombine {
@@ -11203,12 +11346,69 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 
 .VideoPanel_lockButton {
   color: #6c7489;
+  padding-top: 2px;
 }
 
 .VideoPanel_pmiAlertContainer {
   margin: 0 20px;
+  padding: 8px !important;
 }
 
+.VideoPanel_extraSecurityMargin {
+  margin-bottom: 8px;
+}
+
+/**
+  let user can use this to get both theme color
+  Example:
+  @include with-rc-theme() {
+    .root {
+      color: rc-palette(element, primary);
+    }
+  }
+
+  result will be =>
+
+  [light] .root {
+    color: #4475FD
+  }
+
+  [dark] .root {
+    color: #729AFF
+  }
+*/
+/**
+  let user can use this to get target theme color
+  Example:
+  @include with-theme-type('light') {
+    .root {
+      color: rc-palette(element, primary);
+    }
+  }
+
+  result will be =>
+
+  [light] .root {
+    color: #4475FD
+  }
+*/
+/**
+  generate static style with rc like rc-bg-primary-200
+*/
+/** get opacity from theme token */
+/** get breakpoint from theme token */
+/** get shape from theme token */
+/** append typography style from theme token */
+/** append zIndex style from theme token */
+/** append border-radius style from theme token */
+/** get palette from theme token */
+/** append spacing style from theme token */
+/**
+  default rc utils class
+*/
+/**
+  include all rc class
+*/
 .ExtendedTooltip_videoConfig {
   height: 100%;
   overflow-y: auto;
@@ -11216,11 +11416,15 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 }
 
 .ExtendedTooltip_meetingContent {
-  padding: 8px 0 32px;
+  padding: 0 0 10px;
 }
 
 .ExtendedTooltip_meetingSection {
-  padding: 0px 16px;
+  padding: 0px 20px;
+}
+
+.ExtendedTooltip_noBottomMargin {
+  margin-bottom: 0px !important;
 }
 
 .ExtendedTooltip_pmiLabel {
@@ -11229,10 +11433,50 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
   flex-wrap: wrap;
 }
 
+.ExtendedTooltip_normalFontSize, .ExtendedTooltip_meetingSection input, .ExtendedTooltip_hourDuration div[class*='selectMenu'], .ExtendedTooltip_minuteDuration div[class*='selectMenu'], div.ExtendedTooltip_videoConfig div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_expansionPanelSummary, .ExtendedTooltip_passwordField input, .ExtendedTooltip_labelContent, .ExtendedTooltip_scheduleForBoxSelect > div > div {
+  font-size: 14px !important;
+}
+
 div.ExtendedTooltip_videoConfig div.ExtendedTooltip_meetingSettings div.ExtendedTooltip_expansionPanel {
   background: transparent;
   box-shadow: none;
   margin: 0;
+}
+
+div.ExtendedTooltip_meetingSettings div.ExtendedTooltip_meetingDatePicker {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  width: calc(50% - 6px);
+}
+
+div.ExtendedTooltip_meetingSettings div.ExtendedTooltip_meetingTimePicker {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  width: calc(50% - 6px);
+  margin-left: 12px;
+}
+
+.ExtendedTooltip_select {
+  -webkit-box-flex: 1;
+          flex-grow: 1;
+  width: 50%;
+}
+
+.ExtendedTooltip_meetingTitle {
+  margin-top: 12px;
+}
+
+.ExtendedTooltip_hourDuration {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  width: calc(50% - 6px);
+}
+
+.ExtendedTooltip_minuteDuration {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  width: calc(50% - 6px);
+  margin-left: 12px;
 }
 
 div.ExtendedTooltip_videoConfig div.ExtendedTooltip_expansionPanelSummaryDisabled {
@@ -11246,10 +11490,9 @@ div.ExtendedTooltip_videoConfig div.ExtendedTooltip_expansionPanelSummaryDisable
 div.ExtendedTooltip_videoConfig div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_expansionPanelSummary {
   font-weight: bold;
   color: #212121;
-  height: 44px;
-  font-size: 15px;
+  height: 32px;
   padding: 0 20px;
-  min-height: 44px;
+  min-height: 32px;
 }
 
 div.ExtendedTooltip_expansionPanelSummaryContent {
@@ -11278,12 +11521,17 @@ div.ExtendedTooltip_videoConfig div.ExtendedTooltip_expansionPanel div.ExtendedT
           align-items: flex-start;
 }
 
+.ExtendedTooltip_labelPlacement > span[class*='RcCheckbox'], div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.ExtendedTooltip_labelPlacementStart > span[class*='RcCheckbox'], div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.ExtendedTooltip_labelPlacementEnd > span[class*='RcCheckbox'] {
+  margin-top: -4px;
+  margin-bottom: -4px;
+}
+
 div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.ExtendedTooltip_labelPlacementStart {
-  padding: 0 20px 0 10px;
+  padding: 0 6px 0 20px;
 }
 
 div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.ExtendedTooltip_labelPlacementEnd {
-  padding: 0 20px;
+  padding: 0 20px 0 10px;
 }
 
 .ExtendedTooltip_optionLabel {
@@ -11302,14 +11550,22 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
 }
 
 .ExtendedTooltip_sideMargin, .ExtendedTooltip_passwordField {
-  padding: 0 20px;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
 }
 
 .ExtendedTooltip_alertContainer {
-  margin: 0 20px;
+  margin: 4px 20px 0;
+  padding: 8px !important;
+}
+
+.ExtendedTooltip_alertContainer > div[class*='RcAlert-message'] {
+  font-size: 14px !important;
 }
 
 .ExtendedTooltip_selectOption {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -11326,11 +11582,15 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
 }
 
 .ExtendedTooltip_passwordField {
-  margin-top: 11px;
+  padding-top: 4px;
 }
 
 .ExtendedTooltip_passwordField label {
   width: 100% !important;
+}
+
+.ExtendedTooltip_passwordField input[class*="Mui-disabled"] {
+  -webkit-text-fill-color: #B5B9C5;
 }
 
 .ExtendedTooltip_passwordField input::-ms-clear {
@@ -11346,8 +11606,9 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
   display: flex;
   -webkit-box-align: start;
           align-items: flex-start;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding: 5px 0;
+  font-weight: normal;
+  line-height: 22px;
 }
 
 .ExtendedTooltip_labelContent .ExtendedTooltip_placementLeft {
@@ -11358,10 +11619,10 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
 .ExtendedTooltip_labelContent .ExtendedTooltip_placementRight {
   display: -webkit-inline-box;
   display: inline-flex;
-  -webkit-box-align: center;
-          align-items: center;
+  -webkit-box-align: end;
+          align-items: flex-end;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 2px 0;
 }
 
 .ExtendedTooltip_scheduleForBoxSelect > div > div {
@@ -11378,7 +11639,8 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
 }
 
 .ExtendedTooltip_boxSelectWrapper {
-  line-height: 18px;
+  font-size: 14px !important;
+  line-height: 22px;
   display: block !important;
   padding-left: 8px !important;
 }
@@ -11389,7 +11651,20 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
 
 .ExtendedTooltip_lockedIcon {
   color: rgba(0, 0, 0, 0.38);
-  padding: 8px 8px !important;
+  padding: 8px 0 8px 8px !important;
+}
+
+.ExtendedTooltip_subPrefixPadding {
+  padding-left: 54px !important;
+}
+
+.ExtendedTooltip_recurringDescribe {
+  margin: 4px 20px 0 20px !important;
+  font-size: 14px !important;
+  background-color: #f0f1f4;
+  padding: 8px;
+  border-radius: 1px;
+  line-height: 20px !important;
 }
 
 .ExtendedTooltip_tooltip {
@@ -11408,6 +11683,57 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
   margin-right: calc(20px - 5px + 17px);
 }
 
+/**
+  let user can use this to get both theme color
+  Example:
+  @include with-rc-theme() {
+    .root {
+      color: rc-palette(element, primary);
+    }
+  }
+
+  result will be =>
+
+  [light] .root {
+    color: #4475FD
+  }
+
+  [dark] .root {
+    color: #729AFF
+  }
+*/
+/**
+  let user can use this to get target theme color
+  Example:
+  @include with-theme-type('light') {
+    .root {
+      color: rc-palette(element, primary);
+    }
+  }
+
+  result will be =>
+
+  [light] .root {
+    color: #4475FD
+  }
+*/
+/**
+  generate static style with rc like rc-bg-primary-200
+*/
+/** get opacity from theme token */
+/** get breakpoint from theme token */
+/** get shape from theme token */
+/** append typography style from theme token */
+/** append zIndex style from theme token */
+/** append border-radius style from theme token */
+/** get palette from theme token */
+/** append spacing style from theme token */
+/**
+  default rc utils class
+*/
+/**
+  include all rc class
+*/
 .MeetingConfigsV2_videoConfig {
   height: 100%;
   overflow-y: auto;
@@ -11415,11 +11741,15 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
 }
 
 .MeetingConfigsV2_meetingContent {
-  padding: 8px 0 32px;
+  padding: 0 0 10px;
 }
 
 .MeetingConfigsV2_meetingSection {
-  padding: 0px 16px;
+  padding: 0px 20px;
+}
+
+.MeetingConfigsV2_noBottomMargin {
+  margin-bottom: 0px !important;
 }
 
 .MeetingConfigsV2_pmiLabel {
@@ -11428,10 +11758,50 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
   flex-wrap: wrap;
 }
 
+.MeetingConfigsV2_normalFontSize, .MeetingConfigsV2_meetingSection input, .MeetingConfigsV2_hourDuration div[class*='selectMenu'], .MeetingConfigsV2_minuteDuration div[class*='selectMenu'], div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_expansionPanelSummary, .MeetingConfigsV2_passwordField input, .MeetingConfigsV2_labelContent, .MeetingConfigsV2_scheduleForBoxSelect > div > div {
+  font-size: 14px !important;
+}
+
 div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_meetingSettings div.MeetingConfigsV2_expansionPanel {
   background: transparent;
   box-shadow: none;
   margin: 0;
+}
+
+div.MeetingConfigsV2_meetingSettings div.MeetingConfigsV2_meetingDatePicker {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  width: calc(50% - 6px);
+}
+
+div.MeetingConfigsV2_meetingSettings div.MeetingConfigsV2_meetingTimePicker {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  width: calc(50% - 6px);
+  margin-left: 12px;
+}
+
+.MeetingConfigsV2_select {
+  -webkit-box-flex: 1;
+          flex-grow: 1;
+  width: 50%;
+}
+
+.MeetingConfigsV2_meetingTitle {
+  margin-top: 12px;
+}
+
+.MeetingConfigsV2_hourDuration {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  width: calc(50% - 6px);
+}
+
+.MeetingConfigsV2_minuteDuration {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  width: calc(50% - 6px);
+  margin-left: 12px;
 }
 
 div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_expansionPanelSummaryDisabled {
@@ -11445,10 +11815,9 @@ div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_expansionPanelSummaryDisab
 div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_expansionPanelSummary {
   font-weight: bold;
   color: #212121;
-  height: 44px;
-  font-size: 15px;
+  height: 32px;
   padding: 0 20px;
-  min-height: 44px;
+  min-height: 32px;
 }
 
 div.MeetingConfigsV2_expansionPanelSummaryContent {
@@ -11477,12 +11846,17 @@ div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_expansionPanel div.Meeting
           align-items: flex-start;
 }
 
+.MeetingConfigsV2_labelPlacement > span[class*='RcCheckbox'], div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.MeetingConfigsV2_labelPlacementStart > span[class*='RcCheckbox'], div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.MeetingConfigsV2_labelPlacementEnd > span[class*='RcCheckbox'] {
+  margin-top: -4px;
+  margin-bottom: -4px;
+}
+
 div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.MeetingConfigsV2_labelPlacementStart {
-  padding: 0 20px 0 10px;
+  padding: 0 6px 0 20px;
 }
 
 div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.MeetingConfigsV2_labelPlacementEnd {
-  padding: 0 20px;
+  padding: 0 20px 0 10px;
 }
 
 .MeetingConfigsV2_optionLabel {
@@ -11501,14 +11875,22 @@ div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.Meeti
 }
 
 .MeetingConfigsV2_sideMargin, .MeetingConfigsV2_passwordField {
-  padding: 0 20px;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
 }
 
 .MeetingConfigsV2_alertContainer {
-  margin: 0 20px;
+  margin: 4px 20px 0;
+  padding: 8px !important;
+}
+
+.MeetingConfigsV2_alertContainer > div[class*='RcAlert-message'] {
+  font-size: 14px !important;
 }
 
 .MeetingConfigsV2_selectOption {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -11525,11 +11907,15 @@ div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.Meeti
 }
 
 .MeetingConfigsV2_passwordField {
-  margin-top: 11px;
+  padding-top: 4px;
 }
 
 .MeetingConfigsV2_passwordField label {
   width: 100% !important;
+}
+
+.MeetingConfigsV2_passwordField input[class*="Mui-disabled"] {
+  -webkit-text-fill-color: #B5B9C5;
 }
 
 .MeetingConfigsV2_passwordField input::-ms-clear {
@@ -11545,8 +11931,9 @@ div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.Meeti
   display: flex;
   -webkit-box-align: start;
           align-items: flex-start;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding: 5px 0;
+  font-weight: normal;
+  line-height: 22px;
 }
 
 .MeetingConfigsV2_labelContent .MeetingConfigsV2_placementLeft {
@@ -11557,10 +11944,10 @@ div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.Meeti
 .MeetingConfigsV2_labelContent .MeetingConfigsV2_placementRight {
   display: -webkit-inline-box;
   display: inline-flex;
-  -webkit-box-align: center;
-          align-items: center;
+  -webkit-box-align: end;
+          align-items: flex-end;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 2px 0;
 }
 
 .MeetingConfigsV2_scheduleForBoxSelect > div > div {
@@ -11577,7 +11964,8 @@ div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.Meeti
 }
 
 .MeetingConfigsV2_boxSelectWrapper {
-  line-height: 18px;
+  font-size: 14px !important;
+  line-height: 22px;
   display: block !important;
   padding-left: 8px !important;
 }
@@ -11588,7 +11976,20 @@ div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.Meeti
 
 .MeetingConfigsV2_lockedIcon {
   color: rgba(0, 0, 0, 0.38);
-  padding: 8px 8px !important;
+  padding: 8px 0 8px 8px !important;
+}
+
+.MeetingConfigsV2_subPrefixPadding {
+  padding-left: 54px !important;
+}
+
+.MeetingConfigsV2_recurringDescribe {
+  margin: 4px 20px 0 20px !important;
+  font-size: 14px !important;
+  background-color: #f0f1f4;
+  padding: 8px;
+  border-radius: 1px;
+  line-height: 20px !important;
 }
 
 .GenericMeetingPanel_wrapper {
@@ -12369,7 +12770,7 @@ table {
 
 .MeetingScheduleButton_inviteBox {
   flex-shrink: 0;
-  padding: 20px;
+  padding: 3px 20px 20px;
   background-color: transparent;
   box-shadow: none;
 }
@@ -12422,7 +12823,6 @@ table {
   outline: none;
   border: none;
   font-size: 13px;
-  margin: 10px 0 0 0;
   line-height: 36px;
   text-align: center;
   border-radius: 100px;
@@ -12452,6 +12852,14 @@ div.MeetingScheduleButton_isContainedTypeDisabled {
 
 div.MeetingScheduleButton_isContainedTypeDisabled:hover {
   color: #FFFFFF;
+}
+
+.MeetingScheduleButton_saveAsDefault {
+  margin-left: 1px !important;
+}
+
+.MeetingScheduleButton_saveAsDefaultLabel {
+  font-size: 14px !important;
 }
 
 .RcVideoScheduleButton_inviteBox {
@@ -12619,18 +13027,6 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
   background-color: #ffffff;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15);
   z-index: 11;
-}
-
-.Tooltip_title {
-  display: block;
-}
-
-[sf-lightning] .Tooltip_title {
-  max-width: 250px;
-}
-
-[sf-classic] .Tooltip_title {
-  max-width: 158px;
 }
 
 .TabNavigationButton_tab {
@@ -12886,6 +13282,11 @@ input {
 
 .VideoPanel_title {
   display: none;
+}
+
+.MeetingConfigs_timePicker .rw-widget {
+  position: absolute;
+  width: 100%;
 }
 
 .RecentActivityPanel_container {
