@@ -2771,7 +2771,9 @@ var _parseUri = (0, _parseUri2.default)(currentScript && currentScript.src || ''
     disableInactiveTabCallEvent = _parseUri.disableInactiveTabCallEvent,
     disableLoginPopup = _parseUri.disableLoginPopup,
     enableWebRTCPlanB = _parseUri.enableWebRTCPlanB,
-    zIndex = _parseUri.zIndex;
+    zIndex = _parseUri.zIndex,
+    discovery = _parseUri.discovery,
+    discoverAppServer = _parseUri.discoverAppServer;
 
 function obj2uri(obj) {
   if (!obj) {
@@ -2794,6 +2796,8 @@ var appUri = "".concat(appUrl, "?").concat(obj2uri({
   clientSecret: clientSecret,
   brand: getBrandFromAdapterName(),
   appServer: appServer,
+  discovery: discovery,
+  discoverAppServer: discoverAppServer,
   appVersion: appVersion,
   redirectUri: redirectUri,
   proxyUri: proxyUri,
