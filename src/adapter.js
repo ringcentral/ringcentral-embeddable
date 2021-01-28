@@ -70,6 +70,8 @@ const {
   disableLoginPopup,
   enableWebRTCPlanB,
   zIndex,
+  discovery,
+  discoverAppServer,
 } = parseUri((currentScript && currentScript.src) || '');
 
 function obj2uri(obj) {
@@ -91,6 +93,8 @@ const appUri = `${appUrl}?${obj2uri({
   clientSecret,
   brand: getBrandFromAdapterName(),
   appServer,
+  discovery,
+  discoverAppServer,
   appVersion,
   redirectUri,
   proxyUri,

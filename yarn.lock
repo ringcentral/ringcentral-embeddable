@@ -1380,10 +1380,10 @@
     typeface-lato "^0.0.75"
     uuid "^8.3.0"
 
-"@ringcentral/sdk@^4.3.3":
-  version "4.3.3"
-  resolved "https://registry.yarnpkg.com/@ringcentral/sdk/-/sdk-4.3.3.tgz#be747a57a89d6b2f8d36534cfc64fe4e65c0a7e9"
-  integrity sha512-2tvuGr1LizC/4Foo+ep9CN7x/2VXLqmGjwyjidAZ88UI9KLlJU/QzhZpiJsxkhmBpn3koDOUBHSlE2G0YzC3Bw==
+"@ringcentral/sdk@^4.4.0":
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/@ringcentral/sdk/-/sdk-4.4.0.tgz#ea404ac52fbc40463353bd8423493dd7c521bf17"
+  integrity sha512-medCS/Ad50tV1BKCsbG5tlXZ1zO1GoSCgOQBvz+GDVqHqUEh5L310Y7hX9teIqBHgKYC4qf+EFqKbs++Cbx51w==
   dependencies:
     dom-storage "2.1.0"
     is-plain-object "2.0.4"

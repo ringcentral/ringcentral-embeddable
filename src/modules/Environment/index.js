@@ -51,6 +51,9 @@ export default class DemoEnvironment extends Environment {
     };
     if (enabled) {
       newConfig.server = server;
+      if (this._sdkConfig.enableDiscovery) {
+        newConfig.discoveryServer = server;
+      }
       if (!isBlank(appKey)) {
         newConfig.clientId = appKey;
         if (!isBlank(appSecret)) {
