@@ -70,6 +70,7 @@ import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
 import RegionSettingsUI from 'ringcentral-widgets/modules/RegionSettingsUI';
 import { CallingSettingsUI } from 'ringcentral-widgets/modules/CallingSettingsUI';
 import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
+import { ContactListUI } from 'ringcentral-widgets/modules/ContactListUI';
 import { ContactDetailsUI } from 'ringcentral-widgets/modules/ContactDetailsUI';
 import ComposeTextUI from 'ringcentral-widgets/modules/ComposeTextUI';
 import AlertUI from 'ringcentral-widgets/modules/AlertUI';
@@ -184,6 +185,7 @@ import hackSend from '../../lib/hackSend';
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetailsUI', useClass: ContactDetailsUI },
+    { provide: 'ContactListUI', useClass: ContactListUI},
     { provide: 'DialerUI', useClass: DialerUI },
     { provide: 'Adapter', useClass: Adapter },
     { provide: 'RouterInteraction', useClass: RouterInteraction },
@@ -343,6 +345,7 @@ export default class BasePhone extends RcModule {
       contactMatcher,
       appConfig,
       conferenceCall,
+      contacts,
     } = options;
     // Webphone configuration
     webphone.onCallEnd((session, currentSession, ringSession) => {
@@ -484,55 +487,24 @@ export default class BasePhone extends RcModule {
 
     // ContactMatcher configuration
     contactMatcher.addSearchProvider({
-      name: 'personal',
-      searchFn: ({ queries }) => {
-        const result = {};
-        const phoneNumbers = queries;
-        phoneNumbers.forEach((phoneNumber) => {
-          result[phoneNumber] = this.addressBook.matchPhoneNumber(phoneNumber);
-        });
-        return result;
+      name: 'contacts',
+      searchFn: async ({ queries }) => {
+        const items = await contacts.matchContacts({ phoneNumbers: queries });
+        return items;
       },
-      readyCheckFn: () => this.addressBook.ready,
-    });
-    contactMatcher.addSearchProvider({
-      name: 'company',
-      searchFn: ({ queries }) => {
-        const result = {};
-        const phoneNumbers = queries;
-        phoneNumbers.forEach((phoneNumber) => {
-          result[phoneNumber] = this.accountContacts.matchPhoneNumber(phoneNumber);
-        });
-        return result;
-      },
-      readyCheckFn: () => this.accountContacts.ready,
+      readyCheckFn: () => contacts.ready,
     });
 
-    // ContactSearch configuration
     contactSearch.addSearchSource({
-      sourceName: 'personal',
-      searchFn: ({ searchString }) => {
-        const items = this.addressBook.contacts;
-        if (!searchString) {
-          return items;
-        }
-        return searchContactPhoneNumbers(items, searchString);
+      sourceName: 'contacts',
+      searchFn: async ({ searchString }) => {
+        const items = await contacts.searchForPhoneNumbers(searchString);
+        return items;
       },
       formatFn: entities => entities,
-      readyCheckFn: () => this.addressBook.ready,
+      readyCheckFn: () => contacts.ready,
     });
-    contactSearch.addSearchSource({
-      sourceName: 'company',
-      searchFn: ({ searchString }) => {
-        const items = this.accountContacts.contacts;
-        if (!searchString) {
-          return items;
-        }
-        return searchContactPhoneNumbers(items, searchString);
-      },
-      formatFn: entities => entities,
-      readyCheckFn: () => this.accountContacts.ready,
-    });
+
     // CallMonitor configuration
     callMonitor.onRingings(async () => {
       if (webphone.connected) {

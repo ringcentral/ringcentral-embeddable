@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import CopyToClipboard from 'ringcentral-widgets/components/CopyToClipboard';
 import Modal from 'ringcentral-widgets/components/Modal';
 
-import i18n from 'ringcentral-widgets/components/MeetingAlert/i18n';
+import i18n from 'ringcentral-widgets/components/AlertRenderer/MeetingAlert/i18n';
 import meetingStatus from 'ringcentral-integration/modules/Meeting/meetingStatus';
 
 import styles from './styles.scss';
