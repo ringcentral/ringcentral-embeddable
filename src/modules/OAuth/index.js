@@ -22,6 +22,7 @@ export default class OAuth extends ProxyFrameOAuth {
     this._client = client;
     this._authorizationCode = authorizationCode;
     this._disableLoginPopup = disableLoginPopup;
+    this._useDiscovery = options.useDiscovery;
   }
 
   async _onStateChange() {
@@ -155,6 +156,9 @@ export default class OAuth extends ProxyFrameOAuth {
         oAuthUri: this.oAuthUri,
       }, '*');
       return;
+    }
+    if (this._useDiscovery) {
+      await this._client.service.platform().loginUrlWithDiscovery();
     }
     await super.openOAuthPage();
   }

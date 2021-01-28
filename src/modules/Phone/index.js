@@ -608,6 +608,7 @@ export function createPhone({
       }
     }
   }
+  const useDiscovery = apiConfig.enableDiscovery;
   const sdkConfig = {
     ...apiConfig,
     appName: appNameForSDK,
@@ -642,6 +643,7 @@ export function createPhone({
           proxyUri,
           authorizationCode,
           disableLoginPopup,
+          useDiscovery,
         },
         spread: true
       },

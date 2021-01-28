@@ -15,11 +15,17 @@ const pathParams = parseUri(currentUri);
 const clientIdFromParams = pathParams.clientId || pathParams.appKey;
 const clientSecretFromParams = pathParams.clientSecret || pathParams.appSecret;
 const authProxy = pathParams.authProxy;
+const enableDiscovery = !!pathParams.discovery;
+const discoverAppServer = pathParams.discoverAppServer;
 const apiConfig = {
   clientId: clientIdFromParams || defaultApiConfig.appKey,
   clientSecret: (clientIdFromParams ? clientSecretFromParams : defaultApiConfig.appSecret),
   server: pathParams.appServer || defaultApiConfig.server,
 };
+if (enableDiscovery) {
+  apiConfig.enableDiscovery = enableDiscovery;
+  apiConfig.discoveryServer = discoverAppServer || apiConfig.server;
+}
 if (!authProxy && pathParams.appKey) {
   console.warn('appKey is deprecated, please change to clientId. https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
 }
