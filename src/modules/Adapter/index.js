@@ -2,6 +2,7 @@ import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import telephonyStatus from 'ringcentral-integration/enums/telephonyStatus';
 import callingOptions from 'ringcentral-integration/modules/CallingSettings/callingOptions';
 import sessionStatus from 'ringcentral-integration/modules/Webphone/sessionStatus';
+import recordStatus from 'ringcentral-integration/modules/Webphone/recordStatus';
 import ensureExist from 'ringcentral-integration/lib/ensureExist';
 import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
 import { messageIsTextMessage } from 'ringcentral-integration/lib/messageHelper';
@@ -165,11 +166,20 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallInit((session) => {
       this.initCallNotify(session);
+      // TODO: hack to disable record button, need to fix in widgets lib
+      // disable record button before call started
+      const rawSession = this._webphone._sessions.get(session.id);
+      rawSession.__rc_recordStatus = recordStatus.pending;
+      this._webphone._updateSessions();
     });
     this._webphone.onCallStart((session) => {
+      const rawSession = this._webphone._sessions.get(session.id);
+      if (rawSession && rawSession.__rc_recordStatus === recordStatus.pending) {
+        rawSession.__rc_recordStatus = recordStatus.idle;
+        this._webphone._updateSessions();
+      }
       this.startCallNotify(session);
       // TODO: add mute event in web phone module to make mute work at inactive webphone tab
-      const rawSession = this._webphone._sessions.get(session.id);
       if (rawSession) {
         rawSession.on('muted', () => {
           const newSession = this._webphone.sessions.find(s => s.id === session.id);
@@ -668,7 +678,7 @@ export default class Adapter extends AdapterModuleCore {
         this._webphone.forward(id || this._webphone.ringSessionId, options.forwardNumber);
         break;
       case 'startRecord':
-        this._webphone.startRecord(id || this._webphone.activeSessionId);
+        this._startRecord(id);
         break;
       case 'stopRecord':
         this._webphone.stopRecord(id || this._webphone.activeSessionId);
@@ -681,6 +691,31 @@ export default class Adapter extends AdapterModuleCore {
         break;
       default:
         break;
+    }
+  }
+
+  async _startRecord(id) {
+    const sessionId = id || this._webphone.activeSessionId;
+    let session = this._webphone.sessions.find(s => s.id === sessionId);
+    if (session && session.recordStatus !== recordStatus.idle) {
+      this._postMessage({
+        type: 'rc-control-call-error',
+        error: 'RecordError',
+        message: "Can't record at current status",
+        callId: sessionId,
+      });
+      return;
+    }
+    await this._webphone.startRecord(sessionId);
+    session = this._webphone.sessions.find(s => s.id === sessionId);
+    if (session && session.recordStatus !== recordStatus.recording) {
+      this._postMessage({
+        type: 'rc-control-call-error',
+        error: 'RecordError',
+        message: "Record error, please try again",
+        callId: sessionId,
+      });
+      return;
     }
   }
 
