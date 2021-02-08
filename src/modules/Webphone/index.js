@@ -394,4 +394,16 @@ export default class Webphone extends WebphoneBase {
   get proxifyTransport() {
     return this._transport;
   }
+
+  // TODO: fix 603 reconnect issue in widgets lib
+  async _onConnectError(options) {
+    if (options.statusCode === 603) {
+      try {
+        await this._auth.changeEndpointId();
+      } catch (e) {
+        // ignore
+      }
+    }
+    await super._onConnectError(options);
+  }
 }
