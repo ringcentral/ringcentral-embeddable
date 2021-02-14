@@ -273,10 +273,7 @@ export default function App({
                       navigateTo={(path) => {
                         phone.routerInteraction.push(path);
                       }}
-                      contact={phone.contactDetailsUI.getContact({
-                        id: routerProps.params.contactId,
-                        type: routerProps.params.contactType,
-                      })}
+                      contact={phone.contactDetailsUI.currentContact}
                       useContact
                     />
                   </ContactDetailsPage>

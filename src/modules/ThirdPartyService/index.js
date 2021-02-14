@@ -576,6 +576,10 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  findContact(contactId) {
+    return this.contacts.find((x) => x.id === contactId);
+  }
+
   async matchCallLogEntities(sessionIds) {
     try {
       const result = {};
