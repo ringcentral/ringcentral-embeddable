@@ -1,6 +1,7 @@
 
 import WebphoneBase from 'ringcentral-integration/modules/Webphone';
 import { Module } from 'ringcentral-integration/lib/di';
+import proxify from 'ringcentral-integration/lib/proxy/proxify';
 import sleep from 'ringcentral-integration/lib/sleep';
 import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
@@ -405,5 +406,21 @@ export default class Webphone extends WebphoneBase {
       }
     }
     await super._onConnectError(options);
+  }
+
+  // TODO: fix forward active session audio issue in widgets lib
+  @proxify
+  async forward(...arg) {
+    await super.forward(...arg);
+    if (this.activeSession && !this.activeSession.isOnHold) {
+      const rawActiveSession = this._sessions.get(this.activeSession.id);
+      this._addTrack(rawActiveSession);
+    }
+  }
+
+  _addTrack(rawSession) {
+    if (rawSession) {
+      rawSession.addTrack(this._remoteVideo, this._localVideo);
+    }
   }
 }
