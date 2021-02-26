@@ -43,12 +43,13 @@ For RingCentral app in RingCentral developer website, the initial environment is
 
 For Embeddable app, we need to have full usages with your sandbox client id for graduation requirements:
 
-* Send more then 5 SMS messages
-* Send more then 5 internal messages (message to extension number in current account)
-* Read more then 5 unread inbound messages
-* Update presence more then 5 times in setting page
-* Login and logout more then 5 times
+* Send more than 5 SMS messages
+* Send more than 5 internal messages (message to extension number in current account)
+* Read more than 5 unread inbound messages
+* Update presence more than 5 times in setting page
+* Go to Contacts page, and click refresh button more than 5 times
+* Login and logout more than 5 times
 * Make 5 outbound web phone (Browser based) calls
 * Make 5 inbound web phone (Browser based) calls
 * Make 5 [Ringout](interact-with-calling-settings.md#interact-with-calling-settings) calls
-* Control(end/hold) Ringout call in widget more then 5 times in widget
+* Control(end/hold) Ringout call in widget more than 5 times in widget
