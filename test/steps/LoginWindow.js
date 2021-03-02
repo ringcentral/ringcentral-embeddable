@@ -39,7 +39,7 @@ export class LoginWindow {
 
   async authorize() {
     await this._targetPage.waitForFunction(
-      'document.querySelector("body").innerText.includes("Access request")'
+      'document.querySelector("body").innerText.includes("Access Request")'
     );
     await this._targetPage.click('button.btn-primary');
     await this._targetPage.waitFor(200);
