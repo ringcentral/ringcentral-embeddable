@@ -78,7 +78,7 @@ export default class OAuth extends ProxyFrameOAuth {
     });
     const query = {
       redirectUri: this.redirectUri,
-      // brandId: this._brand.id,
+      brandId: this._brand.id,
       state: btoa(Date.now()),
       display: 'page',
       implicit: this._auth.isImplicit,
