@@ -89,6 +89,7 @@ import FlipUI from 'ringcentral-widgets/modules/FlipUI';
 import TransferUI from 'ringcentral-widgets/modules/TransferUI';
 import SettingsUI from 'ringcentral-widgets/modules/SettingsUI';
 
+import { ModalUI } from 'ringcentral-widgets/modules/ModalUIV2';
 import GenericMeetingUI from 'ringcentral-widgets/modules/GenericMeetingUI';
 
 import Alert from '../Alert';
@@ -196,6 +197,7 @@ import hackSend from '../../lib/hackSend';
     { provide: 'ErrorLogger', useClass: ErrorLogger },
     { provide: 'RecentMessages', useClass: RecentMessages },
     { provide: 'RecentCalls', useClass: RecentCalls },
+    { provide: 'ModalUI', useClass: ModalUI },
     { provide: 'ThirdPartyService', useClass: ThirdPartyService },
     {
       provide: 'EnvironmentOptions',

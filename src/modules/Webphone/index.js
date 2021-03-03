@@ -407,20 +407,4 @@ export default class Webphone extends WebphoneBase {
     }
     await super._onConnectError(options);
   }
-
-  // TODO: fix forward active session audio issue in widgets lib
-  @proxify
-  async forward(...arg) {
-    await super.forward(...arg);
-    if (this.activeSession && !this.activeSession.isOnHold) {
-      const rawActiveSession = this._sessions.get(this.activeSession.id);
-      this._addTrack(rawActiveSession);
-    }
-  }
-
-  _addTrack(rawSession) {
-    if (rawSession) {
-      rawSession.addTrack(this._remoteVideo, this._localVideo);
-    }
-  }
 }

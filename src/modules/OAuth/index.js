@@ -72,23 +72,16 @@ export default class OAuth extends ProxyFrameOAuth {
   }
 
   get oAuthUri() {
-    const extendedQuery = qs.stringify({
-      localeId: this._locale.currentLocale,
-      ui_options: 'hide_remember_me hide_tos',
-    });
     const query = {
       redirectUri: this.redirectUri,
       brandId: this._brand.id,
       state: btoa(Date.now()),
       display: 'page',
       implicit: this._auth.isImplicit,
+      localeId: this._locale.currentLocale,
+      uiOptions: ['hide_remember_me', 'hide_tos']
     };
-    if (this._client && this._client.service) {
-      if (this._client.service.platform().loginUrl().indexOf('ringcentral.biz') > -1) {
-        query.brandId = 3420;
-      }
-    }
-    return `${this._auth.getLoginUrl(query)}&${extendedQuery}`;
+    return this._auth.getLoginUrl(query);
   }
 
   async _handleCallbackUri(callbackUri, refresh = false) {

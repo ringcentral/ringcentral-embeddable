@@ -35,7 +35,7 @@ import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
 
-import GenericMeetingPage from 'ringcentral-widgets/containers/GenericMeetingPage';
+// import GenericMeetingPage from 'ringcentral-widgets/containers/GenericMeetingPage';
 
 import MeetingTabContainer from '../MeetingTabContainer';
 import MeetingHistoryPage from '../MeetingHistoryPage';
@@ -56,6 +56,8 @@ import CallLogSectionModal from '../CallLogSectionModal';
 import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
 import MeetingInviteModal from '../MeetingInviteModal';
+
+import GenericMeetingPage from '../GenericMeetingPage';
 
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import { getAlertRenderer } from '../../components/AlertRenderer';
@@ -433,7 +435,7 @@ export default function App({
               <Route
                 path="/transfer/:sessionId(/:type)"
                 component={routerProps => (
-                  <TransferPage params={routerProps.params} />
+                  <TransferPage params={routerProps.params} enableWarmTransfer />
                 )}
               />
               <Route
