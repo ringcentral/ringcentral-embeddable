@@ -20,6 +20,7 @@ import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
 import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
 import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
+import { ModalContainer } from 'ringcentral-widgets/containers/ModalContainer';
 // import ConversationsPage from 'ringcentral-widgets/containers/ConversationsPage';
 // import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
@@ -118,6 +119,7 @@ export default function App({
                 </IncomingCallPage>
                 <ConnectivityBadgeContainer />
                 <MeetingInviteModal />
+                <ModalContainer />
               </AppView>
             )} >
             <Route

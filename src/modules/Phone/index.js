@@ -69,7 +69,7 @@ import ConferenceUI from 'ringcentral-widgets/modules/ConferenceUI';
 import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
 import RegionSettingsUI from 'ringcentral-widgets/modules/RegionSettingsUI';
 import { CallingSettingsUI } from 'ringcentral-widgets/modules/CallingSettingsUI';
-import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
+// import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
 import { ContactListUI } from 'ringcentral-widgets/modules/ContactListUI';
 import { ContactDetailsUI } from 'ringcentral-widgets/modules/ContactDetailsUI';
 import ComposeTextUI from 'ringcentral-widgets/modules/ComposeTextUI';
@@ -122,6 +122,7 @@ import MeetingHomeUI from '../MeetingHomeUI';
 import RcVideo from '../RcVideo';
 import GenericMeeting from '../GenericMeeting';
 import DialerUI from '../DialerUI';
+import ActiveCallsUI from '../ActiveCallsUI';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
