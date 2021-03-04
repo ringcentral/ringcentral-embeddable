@@ -20,6 +20,7 @@ import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
 import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
 import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
 import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
+import { ModalContainer } from 'ringcentral-widgets/containers/ModalContainer';
 // import ConversationsPage from 'ringcentral-widgets/containers/ConversationsPage';
 // import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
@@ -31,11 +32,11 @@ import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAnd
 import ConferenceParticipantPage from 'ringcentral-widgets/containers/ConferenceParticipantPage';
 import TransferPage from 'ringcentral-widgets/containers/TransferPage';
 import FlipPage from 'ringcentral-widgets/containers/FlipPage';
-import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
+// import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
 
-import GenericMeetingPage from 'ringcentral-widgets/containers/GenericMeetingPage';
+// import GenericMeetingPage from 'ringcentral-widgets/containers/GenericMeetingPage';
 
 import MeetingTabContainer from '../MeetingTabContainer';
 import MeetingHistoryPage from '../MeetingHistoryPage';
@@ -56,6 +57,9 @@ import CallLogSectionModal from '../CallLogSectionModal';
 import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
 import MeetingInviteModal from '../MeetingInviteModal';
+
+import GenericMeetingPage from '../GenericMeetingPage';
+import ActiveCallsPage from '../ActiveCallsPage';
 
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import { getAlertRenderer } from '../../components/AlertRenderer';
@@ -116,6 +120,7 @@ export default function App({
                 </IncomingCallPage>
                 <ConnectivityBadgeContainer />
                 <MeetingInviteModal />
+                <ModalContainer />
               </AppView>
             )} >
             <Route
@@ -433,7 +438,10 @@ export default function App({
               <Route
                 path="/transfer/:sessionId(/:type)"
                 component={routerProps => (
-                  <TransferPage params={routerProps.params} />
+                  <TransferPage
+                    params={routerProps.params}
+                    enableWarmTransfer={routerProps.params.type !== 'active'}
+                  />
                 )}
               />
               <Route

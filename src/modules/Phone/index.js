@@ -69,7 +69,7 @@ import ConferenceUI from 'ringcentral-widgets/modules/ConferenceUI';
 import AudioSettingsUI from 'ringcentral-widgets/modules/AudioSettingsUI';
 import RegionSettingsUI from 'ringcentral-widgets/modules/RegionSettingsUI';
 import { CallingSettingsUI } from 'ringcentral-widgets/modules/CallingSettingsUI';
-import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
+// import ActiveCallsUI from 'ringcentral-widgets/modules/ActiveCallsUI';
 import { ContactListUI } from 'ringcentral-widgets/modules/ContactListUI';
 import { ContactDetailsUI } from 'ringcentral-widgets/modules/ContactDetailsUI';
 import ComposeTextUI from 'ringcentral-widgets/modules/ComposeTextUI';
@@ -89,6 +89,7 @@ import FlipUI from 'ringcentral-widgets/modules/FlipUI';
 import TransferUI from 'ringcentral-widgets/modules/TransferUI';
 import SettingsUI from 'ringcentral-widgets/modules/SettingsUI';
 
+import { ModalUI } from 'ringcentral-widgets/modules/ModalUIV2';
 import GenericMeetingUI from 'ringcentral-widgets/modules/GenericMeetingUI';
 
 import Alert from '../Alert';
@@ -121,6 +122,7 @@ import MeetingHomeUI from '../MeetingHomeUI';
 import RcVideo from '../RcVideo';
 import GenericMeeting from '../GenericMeeting';
 import DialerUI from '../DialerUI';
+import ActiveCallsUI from '../ActiveCallsUI';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
@@ -196,6 +198,7 @@ import hackSend from '../../lib/hackSend';
     { provide: 'ErrorLogger', useClass: ErrorLogger },
     { provide: 'RecentMessages', useClass: RecentMessages },
     { provide: 'RecentCalls', useClass: RecentCalls },
+    { provide: 'ModalUI', useClass: ModalUI },
     { provide: 'ThirdPartyService', useClass: ThirdPartyService },
     {
       provide: 'EnvironmentOptions',

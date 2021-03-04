@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 
 import Spinner from 'ringcentral-widgets/components/Spinner';
-import { RcOutlineTextField, RcBoxSelect, RcMenuItem } from '@ringcentral/juno';
+import { RcTextField, RcSelect, RcIcon, RcMenuItem } from '@ringcentral/juno';
 
-import searchSvg from '@ringcentral/juno/icons/icon-search.svg';
+import SearchSvg from '@ringcentral/juno/icons/icon-search.svg';
 
 import MeetingItem from '../MeetingItem';
 import styles from './styles.scss';
@@ -147,20 +147,24 @@ export default class IMeetingHistoryPanel extends Component<IMeetingHistoryPanel
       >
         <div className={styles.header}>
           <div className={styles.input}>
-            <RcOutlineTextField
-              iconPosition="left"
-              symbol={searchSvg}
+            <RcTextField
+              variant="outline"
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <RcIcon symbol={SearchSvg} color="icon.subdued" size="small" />
+                ),
+              }}
               value={searchText}
-              radiusType="rounded"
               size="small"
               onChange={(e) => {
                 updateSearchText(e.target.value);
               }}
             />
           </div>
-          <RcBoxSelect
+          <RcSelect
+            variant="box"
             className={styles.typeSelect}
-            size="default"
             value={type}
             renderValue={(value) => i18n.getString(value, currentLocale)}
             onChange={(e) => {
@@ -172,7 +176,7 @@ export default class IMeetingHistoryPanel extends Component<IMeetingHistoryPanel
           >
             <RcMenuItem value="all">{i18n.getString('all', currentLocale)}</RcMenuItem>
             <RcMenuItem value={'recordings'}>{i18n.getString('recordings', currentLocale)}</RcMenuItem>
-          </RcBoxSelect>
+          </RcSelect>
         </div>
         {content}
         {loadingNextPageTip}

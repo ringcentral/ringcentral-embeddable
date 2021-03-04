@@ -169,8 +169,10 @@ export default class Adapter extends AdapterModuleCore {
       // TODO: hack to disable record button, need to fix in widgets lib
       // disable record button before call started
       const rawSession = this._webphone._sessions.get(session.id);
-      rawSession.__rc_recordStatus = recordStatus.pending;
-      this._webphone._updateSessions();
+      if (rawSession) {
+        rawSession.__rc_recordStatus = recordStatus.pending;
+        this._webphone._updateSessions();
+      }
     });
     this._webphone.onCallStart((session) => {
       const rawSession = this._webphone._sessions.get(session.id);

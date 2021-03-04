@@ -37,6 +37,7 @@
     
     > div[class*="root"] {
       width: 100px;
+      margin-top: 0;
     }
 
     svg {
@@ -53,11 +54,6 @@
       box-sizing: border-box;
       height: 32px;
       padding: 0;
-    }
-
-    span[class*="icon"] {
-      width: 16px;
-      margin: 0px 8px 0px 8px;
     }
   }
 }

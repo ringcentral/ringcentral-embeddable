@@ -38,7 +38,32 @@ input {
   display: none;  
 }
 
+:global .VideoPanel_hourDuration .RcSelectInput-root {
+  width: auto!important;
+}
+
+:global .VideoPanel_minuteDuration .RcSelectInput-root {
+  width: auto!important;
+}
+
 :global .MeetingConfigs_timePicker .rw-widget {
   position: absolute;
   width: 100%;
+}
+
+:global .VideoPanel_videoConfig .VideoPanel_meetingSection {
+  padding: 5px 20px;
+}
+
+div[class*="MuiCircularProgress-indeterminate"] {
+  animation: MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
+}
+
+@keyframes MuiCircularProgress-keyframes-circular-rotate2 {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
