@@ -32,7 +32,7 @@ import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAnd
 import ConferenceParticipantPage from 'ringcentral-widgets/containers/ConferenceParticipantPage';
 import TransferPage from 'ringcentral-widgets/containers/TransferPage';
 import FlipPage from 'ringcentral-widgets/containers/FlipPage';
-import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
+// import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
 import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
 import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
 
@@ -59,9 +59,9 @@ import ConversationPage from '../ConversationPage';
 import MeetingInviteModal from '../MeetingInviteModal';
 
 import GenericMeetingPage from '../GenericMeetingPage';
+import ActiveCallsPage from '../ActiveCallsPage';
 
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
-import { renderContactName } from '../../lib/renderContactName';
 import { getAlertRenderer } from '../../components/AlertRenderer';
 export default function App({
   phone,
@@ -211,7 +211,6 @@ export default function App({
                       }}
                       useV2
                       getAvatarUrl={getAvatarUrl}
-                      renderContactName={renderContactName}
                     />
                   </DialerAndCallsTabContainer>
                 )} />
@@ -439,7 +438,10 @@ export default function App({
               <Route
                 path="/transfer/:sessionId(/:type)"
                 component={routerProps => (
-                  <TransferPage params={routerProps.params} enableWarmTransfer />
+                  <TransferPage
+                    params={routerProps.params}
+                    enableWarmTransfer={routerProps.params.type !== 'active'}
+                  />
                 )}
               />
               <Route

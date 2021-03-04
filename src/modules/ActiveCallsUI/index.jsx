@@ -158,7 +158,13 @@ export default class ActiveCallsUI extends RcUIModule {
       modalConfirm: (props) =>
         this._modalUI &&
         this._modalUI.confirm({ ...props, content: ModalContentRendererID }),
-      modalClose: (id) => this._modalUI && this._modalUI.close(id),
+      modalClose: (id) => {
+        try {
+          this._modalUI && this._modalUI.close(id)
+        } catch (e) {
+          console.log('close modal error', e);
+        }
+      },
       formatPhone: (phoneNumber) =>
         formatNumber({
           phoneNumber,
