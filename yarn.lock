@@ -9580,9 +9580,9 @@ ringcentral-integration@^0.12.6:
     yards "^0.1.4"
 
 ringcentral-web-phone@^0.8.3:
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.8.3.tgz#5d2749817de3c475226371785592e0b60302dfb6"
-  integrity sha512-3bApwwbgnyHoN/qJ2O9JtZjQTB+zs9T7Rh9B2cwllJprDjwKmUujXU5JjIpjsUvpIc5dISx+rdU4zSpfgOculQ==
+  version "0.8.6"
+  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.8.6.tgz#0a052f7b5d70e65c2154d5ead600546d4643f355"
+  integrity sha512-f4uqcZzf3PQu2DWJyhg9/wc8jMzoQqMHMQpOQR8s7xjgOwd+9Kja8WfKGV/hdR+5b+hMafH3Cf5obgUlS2p5Uw==
   dependencies:
     getstats "1.2.0"
     sip.js "0.13.5"
