@@ -61,6 +61,7 @@ import MeetingInviteModal from '../MeetingInviteModal';
 import GenericMeetingPage from '../GenericMeetingPage';
 
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
+import { renderContactName } from '../../lib/renderContactName';
 import { getAlertRenderer } from '../../components/AlertRenderer';
 export default function App({
   phone,
@@ -210,6 +211,7 @@ export default function App({
                       }}
                       useV2
                       getAvatarUrl={getAvatarUrl}
+                      renderContactName={renderContactName}
                     />
                   </DialerAndCallsTabContainer>
                 )} />
