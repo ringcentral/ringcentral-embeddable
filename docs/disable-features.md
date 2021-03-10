@@ -63,25 +63,14 @@ To enable it by passing `disableConferenceInvite=false` on adapter.js uri or ifr
 
 ## Enable Conference Call feature
 
-Conference Call (3-way-calling) feature is in beta. It is disabled it by default. To enable it:
+To enable Conference Call (3-way-calling) feature, please add `CallControl` permission to your app in RingCentral Developer website. Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add it if your app has been graduated into production. After permissions added, you can get the feature after re-login to the widget.
 
-```js
-<script>
-(function() {
-var rcs = document.createElement("script");
-rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?disableConferenceCall=false";
-var rcs0 = document.getElementsByTagName("script")[0];
-rcs0.parentNode.insertBefore(rcs, rcs0);
-})();
-</script>
-```
-
-Before we start to use Conference Call feature, need to add `TelephonySessions` permission to your app in RingCentral Developer website. This feature is in beta. Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add `TelephonySessions` permission if you get any problem.
+![conference call](https://user-images.githubusercontent.com/7036536/110581133-eb770e80-81a4-11eb-9951-fde986a07780.png)
 
 ## Enable Active Call Control feature
 
 Active Call Control feature uses new `CallControl` RESTful API to control RingCentral Call. With this API, users can control their calls on other devices in this widget. 
 
-Before we start to use Active Call Control feature, need to add `CallControl` permission to your app in RingCentral Developer website. After permissions added, you can get the feature after relogin to the widget.
+Before we start to use Active Call Control feature, need to add `CallControl` permission to your app in RingCentral Developer website. After permissions added, you can get the feature after re-login to the widget.
 
 Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add `CallControl` permission if you get any problem.

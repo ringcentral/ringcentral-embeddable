@@ -85,7 +85,7 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
   }
 
   get hasConferenceCallPermission() {
-    return super.hasConferenceCallPermission && !this._disableConferenceCall;
+    return super.hasConferenceCallPermission && this.hasActiveCallControlPermission;
   }
 
   get hasActiveCallControlPermission() {
