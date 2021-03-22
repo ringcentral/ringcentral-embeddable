@@ -2716,7 +2716,7 @@ if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype
   NodeList.prototype.forEach = Array.prototype.forEach;
 }
 
-var version = "1.6.0";
+var version = "1.6.1";
 var currentScript = document.currentScript;
 var adapterName = "adapter.js";
 
