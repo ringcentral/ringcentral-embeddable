@@ -55,6 +55,10 @@ input {
   padding: 5px 20px;
 }
 
+:global .CallItem_wrapper .CallItem_infoWrapper {
+  overflow: visible;
+}
+
 div[class*="MuiCircularProgress-indeterminate"] {
   animation: MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
 }
