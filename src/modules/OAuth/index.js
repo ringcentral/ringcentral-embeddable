@@ -81,6 +81,9 @@ export default class OAuth extends ProxyFrameOAuth {
       localeId: this._locale.currentLocale,
       uiOptions: ['hide_remember_me', 'hide_tos']
     };
+    if (query.brandId === "1210") {
+      delete query.brandId;
+    }
     return this._auth.getLoginUrl(query);
   }
 
