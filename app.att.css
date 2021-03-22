@@ -11160,6 +11160,10 @@ input {
   padding: 5px 20px;
 }
 
+.CallItem_wrapper .CallItem_infoWrapper {
+  overflow: visible;
+}
+
 div[class*="MuiCircularProgress-indeterminate"] {
   -webkit-animation: AppView_MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
           animation: AppView_MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
