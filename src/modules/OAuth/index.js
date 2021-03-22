@@ -82,7 +82,7 @@ export default class OAuth extends ProxyFrameOAuth {
       uiOptions: ['hide_remember_me', 'hide_tos']
     };
     if (query.brandId === "1210") {
-      delete query.brandId;
+      delete query.brandId; // don't remove this, for support private apps from no RC US brand
     }
     return this._auth.getLoginUrl(query);
   }
