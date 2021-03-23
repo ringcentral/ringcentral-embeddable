@@ -204,9 +204,9 @@ class Adapter extends AdapterCore {
 
   _getContentDOM(sanboxAttributeValue, allowAttributeValue) {
     let sandboxAttributes = sanboxAttributeValue;
-    // TODO: fix in widgets lib
-    if (sandboxAttributes.indexOf('allow-downloads') === -1) {
-      sandboxAttributes = `${sandboxAttributes} allow-downloads`; // For Google Chrome v83
+    // TODO: fix in widgets lib for auto play
+    if (allowAttributeValue.indexOf('autoplay') === -1) {
+      allowAttributeValue = `autoplay; ${allowAttributeValue}`; // For Google Chrome v83
     }
     return `
       <header class="${this._styles.header}" draggable="false">
