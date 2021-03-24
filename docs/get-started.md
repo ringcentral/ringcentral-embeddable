@@ -22,7 +22,7 @@ Just add following the following code to a website's header. It will create a if
 Create a iframe with the following code:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html">
+<iframe width="300" height="500" id="rc-widget" allow="autoplay; microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html">
 </iframe>
 ```
 
