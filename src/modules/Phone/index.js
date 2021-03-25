@@ -44,7 +44,7 @@ import RegionSettings from 'ringcentral-integration/modules/RegionSettings';
 import Ringout from 'ringcentral-integration/modules/Ringout';
 import Softphone from 'ringcentral-integration/modules/Softphone';
 import Storage from 'ringcentral-integration/modules/Storage';
-import Subscription from 'ringcentral-integration/modules/Subscription';
+// import Subscription from 'ringcentral-integration/modules/Subscription';
 import TabManager from 'ringcentral-integration/modules/TabManager';
 // import Webphone from 'ringcentral-integration/modules/Webphone';
 import Feedback from 'ringcentral-integration/modules/Feedback';
@@ -115,6 +115,7 @@ import Meeting from '../Meeting';
 import { MessageSender } from '../MessageSender';
 import Webphone from '../Webphone';
 import ConferenceCall from '../ConferenceCall';
+import Subscription from '../Subscription';
 
 import MeetingInviteModalUI from '../MeetingInviteModalUI';
 import MeetingHistoryUI from '../MeetingHistoryUI';
