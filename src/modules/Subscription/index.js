@@ -11,12 +11,12 @@ export default class NewSubscription extends Subscription {
   _detectSleep() {
     const t = Date.now();
     this._sleepTimeout = setTimeout(async () => {
-      if (this.ready && this._subscription && Date.now() - t > 62 * 1000) {
+      if (this.ready && this._subscription && Date.now() - t > 75 * 1000) {
         console.log('==== Sleep Detected =====');
         await this.remove();
         await this._subscribe();
       }
       this._detectSleep();
-    }, 10 * 1000);
+    }, 20 * 1000);
   }
 }
