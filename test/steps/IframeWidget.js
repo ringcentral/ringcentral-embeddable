@@ -139,6 +139,12 @@ export class IframeWidget {
     return value;
   }
 
+  async getSMSText() {
+    await this.waitFor('.ComposeTextPanel_root');
+    const value = await this._widgetIframe.$eval('textarea[data-sign="messageInput"]', (el) => el.value);
+    return value;
+  }
+
   async getServiceNameInAuthorizationSettings() {
     await this.waitFor('.AuthorizeSettingsSection_serviceName');
     const text = await this._widgetIframe.$eval('.AuthorizeSettingsSection_serviceName', (el) => el.innerText);

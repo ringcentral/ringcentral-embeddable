@@ -69,6 +69,16 @@ conditionalDescribe('widget page test', () => {
     expect(recipientNumber).toEqual('+12345678901');
   });
 
+  it('should goto Compose Text page when click SMS link with body', async () => {
+    await widgetIframe.waitForNavigations();
+    await widgetIframe.dismissMessages();
+    await page.click('a[href="sms:+12345678902?body=test_sms"]');
+    const recipientNumber = await widgetIframe.getSMSRecipientNumber();
+    const text = await widgetIframe.getSMSText();
+    expect(recipientNumber).toEqual('+12345678902');
+    expect(text).toEqual('test_sms');
+  });
+
   it('should goto calling setting page successfully', async () => {
     await widgetIframe.clickNavigationButton('More Menu');
     await widgetIframe.clickDropdownNavigationMenu('Settings');
