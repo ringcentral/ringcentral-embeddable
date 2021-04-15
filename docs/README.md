@@ -55,3 +55,4 @@ RingCentral Embeddable is an out-of-the-box embeddable web application built usi
 * [New adapter badge UI](new-adapter-ui.md)
 * [Enable Analytics](add-analytics.md)
 * [Customize Widget UI styles](customize-ui-styles.md)
+* [Popup a standalone widget](popup-window.md)
