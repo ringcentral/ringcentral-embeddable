@@ -64,7 +64,6 @@ export default class Webphone extends WebphoneBase {
         getMainTabId: () => this.activeWebphoneId,
       });
       if (
-        !this._forceCurrentWebphoneActive &&
         !this.isWebphoneActiveTab &&
         this.activeWebphoneId !== '-1' &&
         this.activeWebphoneId !== null
@@ -121,7 +120,7 @@ export default class Webphone extends WebphoneBase {
   }
 
   _onMultipleTabsChannelBroadcast = ({ event, message }) => {
-    if (EVENTS[event] && this._tabManager.active) {
+    if (EVENTS[event]) {
       this._eventEmitter.emit(EVENTS[event], ...message);
     }
   }
@@ -166,6 +165,9 @@ export default class Webphone extends WebphoneBase {
 
   _cleanWebphoneInstanceWhenUnload() {
     if (!this._webphone) {
+      if (this._tabManager && this._tabManager.tabs.length === 1) {
+        this.store.dispatch({ type: this.actionTypes.unregistered });
+      }
       return;
     }
     this.store.dispatch({ type: this.actionTypes.disconnect });
@@ -272,6 +274,11 @@ export default class Webphone extends WebphoneBase {
       if (!this.activeWebphoneId || this.activeWebphoneId === '-1') {
         if (!this._tabManager.isFirstTab) {
           return;
+        }
+        if (this.connected) {
+          this.store.dispatch({
+            type: this.actionTypes.unregistered,
+          });
         }
         this._setCurrentInstanceAsActiveWebphone();
       }

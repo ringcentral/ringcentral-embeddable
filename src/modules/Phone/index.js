@@ -554,12 +554,6 @@ export default class BasePhone extends RcModule {
             this.routerInteraction.push('/settings');
           }
         }
-        if (
-          this.routerInteraction.currentPath.indexOf('/calls/active/') === 0 &&
-          !this.webphone.activeSessionId
-        ) {
-          this.routerInteraction.push('/dialer');
-        }
       }
     });
   }
