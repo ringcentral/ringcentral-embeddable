@@ -36,6 +36,7 @@ const EVENTS = ObjectMap.fromKeys([
 export default class Webphone extends WebphoneBase {
   constructor({
     multipleTabsSupport = false,
+    forceCurrentWebphoneActive = false,
     prefix,
     globalStorage,
     ...options
@@ -45,6 +46,7 @@ export default class Webphone extends WebphoneBase {
       ...options,
     });
     this._multipleTabsSupport = multipleTabsSupport;
+    this._forceCurrentWebphoneActive = forceCurrentWebphoneActive;
     this._webphoneStateStorageKey = `${prefix}-webphone-state`;
     if (this._multipleTabsSupport) {
       this._globalStorage = globalStorage;
@@ -62,6 +64,7 @@ export default class Webphone extends WebphoneBase {
         getMainTabId: () => this.activeWebphoneId,
       });
       if (
+        !this._forceCurrentWebphoneActive &&
         !this.isWebphoneActiveTab &&
         this.activeWebphoneId !== '-1' &&
         this.activeWebphoneId !== null
@@ -228,6 +231,16 @@ export default class Webphone extends WebphoneBase {
   async connect(options = {}) {
     const newOptions = { ...options };
     if (this._multipleTabsSupport) {
+      // Force set current tab as active web phone tab
+      if (
+        this._forceCurrentWebphoneActive &&
+        this.activeWebphoneId !== this._tabManager.id
+      ) {
+        this.store.dispatch({
+          type: this.actionTypes.unregistered,
+        });
+        this._setCurrentInstanceAsActiveWebphone();
+      }
       // don't connect if there is connection in other tabs
       newOptions.skipTabActiveCheck = true;
       if (

@@ -88,6 +88,7 @@ const disableMeeting = typeof pathParams.disableMeeting !== 'undefined';
 
 const prefix = pathParams.prefix || defaultPrefix;
 const fromAdapter = !!pathParams.fromAdapter;
+const fromPopup = !!pathParams.fromPopup;
 let _errorReportToken = null;
 if (enableErrorReport) {
   _errorReportToken = process.env.ERROR_REPORT_KEY;
@@ -127,8 +128,10 @@ const phone = createPhone({
   enableFromNumberSetting: !!enableFromNumberSetting,
   disconnectInactiveWebphone: !!disconnectInactiveWebphone,
   disableLoginPopup: !!disableLoginPopup,
-  multipleTabsSupport: !!multipleTabsSupport,
+  multipleTabsSupport: !!multipleTabsSupport || fromPopup,
   enableWebRTCPlanB,
+  forceCurrentWebphoneActive: fromPopup,
+  fromPopup,
 });
 
 const store = createStore(phone.reducer);

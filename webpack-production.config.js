@@ -117,6 +117,7 @@ function getAppWebpackConfig({ brand }) {
         { from: 'src/index.html', to: 'index.html' },
         { from: 'src/proxy.html', to: 'proxy.html' },
         { from: 'src/redirect.html', to: 'redirect.html' },
+        { from: 'src/popup.html', to: 'popup.html' },
       ]
     }),
     new MiniCssExtractPlugin({

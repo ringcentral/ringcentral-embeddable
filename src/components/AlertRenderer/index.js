@@ -5,6 +5,9 @@ export function getAlertRenderer() {
     if (message.message === 'allowMicrophonePermissionOnInactiveTab') {
       return () => 'Please go to your first opened tab with this widget to allow microphone permission for this call.';
     }
+    if (message.message === 'popupWindowOpened') {
+      return () => 'You have a popup window opened.';
+    }
     return null;
   };
 }

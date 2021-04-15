@@ -34,6 +34,11 @@ const appUrl =  process.env.HOSTING_URL ?
  `${process.env.HOSTING_URL}/app.html` :
   url.resolve(currentScript.src, './app.html');
 
+let paramsUri = (currentScript && currentScript.src) || '';
+const fromPopup = window.__ON_RC_POPUP_WINDOW;
+if (fromPopup) {
+  paramsUri = window.location.href;
+}
 const {
   appKey,
   clientId,
@@ -71,7 +76,8 @@ const {
   zIndex,
   discovery,
   discoverAppServer,
-} = parseUri((currentScript && currentScript.src) || '');
+  enablePopup
+} = parseUri(paramsUri);
 
 function obj2uri(obj) {
   if (!obj) {
@@ -121,6 +127,7 @@ const appUri = `${appUrl}?${obj2uri({
   disableLoginPopup,
   enableWebRTCPlanB,
   fromAdapter: 1,
+  fromPopup,
   _t: Date.now(),
 })}`;
 
@@ -137,6 +144,8 @@ function init() {
     enableNotification: !!notification,
     newAdapterUI: !!newAdapterUI,
     zIndex: zIndex ? Number.parseInt(zIndex, 10) : 999,
+    fromPopup: !!fromPopup,
+    enablePopup,
   });
 }
 

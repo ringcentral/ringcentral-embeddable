@@ -17,6 +17,8 @@ import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
 import { formatMeetingInfo, formatMeetingForm } from '../../lib/formatMeetingInfo';
 import messageTypes from '../../lib/Adapter/messageTypes';
 import { getWebphoneSessionContactMatch } from '../../lib/contactMatchHelper';
+import PopupWindowManager from '../../lib/PopupWindowManager';
+
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 
@@ -48,6 +50,7 @@ function findExistedConversation(conversations, phoneNumber) {
   name: 'Adapter',
   deps: [
     'Auth',
+    'Alert',
     'OAuth',
     'ExtensionInfo',
     'AccountInfo',
@@ -77,6 +80,7 @@ function findExistedConversation(conversations, phoneNumber) {
 export default class Adapter extends AdapterModuleCore {
   constructor({
     auth,
+    alert,
     oAuth,
     extensionInfo,
     accountInfo,
@@ -101,6 +105,7 @@ export default class Adapter extends AdapterModuleCore {
     conversations,
     activeCallControl,
     contactMatcher,
+    fromPopup,
     ...options
   }) {
     super({
@@ -124,6 +129,7 @@ export default class Adapter extends AdapterModuleCore {
     this._activeCalls = this::ensureExist(activeCalls, 'activeCalls');
     this._messageStore = this::ensureExist(messageStore, 'messageStore');
     this._tabManager = this::ensureExist(tabManager, 'tabManager');
+    this._alert = alert;
     this._callLogger = callLogger;
     this._extensionInfo = extensionInfo;
     this._accountInfo = accountInfo;
@@ -148,6 +154,7 @@ export default class Adapter extends AdapterModuleCore {
     this._callLoggerAutoLogEnabled = null;
     this._dialerDisabled = null;
     this._meetingReady = null;
+    this._popupWindowManager = new PopupWindowManager({ prefix, isPopupWindow: fromPopup });
 
     this._messageStore.onNewInboundMessage((message) => {
       this._postMessage({
@@ -303,6 +310,17 @@ export default class Adapter extends AdapterModuleCore {
             responseId: data.requestId,
             response: res,
           });
+        }
+        break;
+      }
+      case '/check-popup-window': {
+        const res = await this._popupWindowManager.checkPopupWindowOpened();
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: res,
+        });
+        if (res) {
+          this._alert.warning({ message: 'popupWindowOpened' });
         }
         break;
       }
