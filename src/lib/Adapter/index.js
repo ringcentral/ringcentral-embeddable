@@ -386,7 +386,6 @@ class Adapter extends AdapterCore {
 
   async _popupWindow() {
     const isWindowPopuped = await this._requestWithPostMessage('/check-popup-window');
-    console.log(isWindowPopuped);
     if (isWindowPopuped) {
       if (this._popupedWindow && this._popupedWindow.focus) {
         this._popupedWindow.focus();
@@ -395,6 +394,17 @@ class Adapter extends AdapterCore {
     }
     const popupUri = this._appUrl.replace('app.html', 'popup.html');
     this._popupedWindow = popWindow(popupUri, 'RCPopupWindow', 300, 535);
+    this.setMinimized(true);
+  }
+
+  _onPushAdapterState(options) {
+    if (!this._fromPopup) {
+      return super._onPushAdapterState(options);
+    }
+    return super._onPushAdapterState({
+      ...options,
+      minimized: false,
+    });
   }
 
   _postMessage(data) {
