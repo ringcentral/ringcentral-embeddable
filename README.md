@@ -107,7 +107,7 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 * [New adapter badge UI](docs/new-adapter-ui.md)
 * [Enable Analytics](docs/add-analytics.md)
 * [Customize Widget UI styles](docs/customize-ui-styles.md)
-
+* [Popup a standalone widget](docs/popup-window.md)
 ## Awesome Embeddable projects
 
 * RingCentral Embeddable phone for Hubspot CRM - [repo](https://github.com/ringcentral/hubspot-embeddable-ringcentral-phone)

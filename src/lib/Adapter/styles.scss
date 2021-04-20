@@ -132,3 +132,25 @@
     margin-left: -80px;
   }
 }
+
+.popup {
+  right: 33px;
+  display: none;
+}
+
+.showPopup .popup{
+  display: block;
+}
+
+.minimized .popup {
+  display: none;
+}
+
+.popupIcon {
+  img {
+    position: absolute;
+    top: 4px;
+    left: 1px;
+    width: 14px;
+  }
+}

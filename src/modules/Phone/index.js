@@ -594,7 +594,9 @@ export function createPhone({
   disableInactiveTabCallEvent,
   disableLoginPopup,
   multipleTabsSupport,
+  forceCurrentWebphoneActive,
   enableWebRTCPlanB,
+  fromPopup,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -656,6 +658,7 @@ export function createPhone({
           stylesUri,
           enableFromNumberSetting,
           disableInactiveTabCallEvent,
+          fromPopup,
         },
         spread: true
       },
@@ -678,6 +681,7 @@ export function createPhone({
           connectDelay: disconnectInactiveWebphone ? 800 : 0,
           disconnectOnInactive: disconnectInactiveWebphone,
           multipleTabsSupport,
+          forceCurrentWebphoneActive,
           webphoneSDKOptions: {
             enablePlanB: enableWebRTCPlanB,
           },

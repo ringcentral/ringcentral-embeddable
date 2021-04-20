@@ -36,6 +36,7 @@ const EVENTS = ObjectMap.fromKeys([
 export default class Webphone extends WebphoneBase {
   constructor({
     multipleTabsSupport = false,
+    forceCurrentWebphoneActive = false,
     prefix,
     globalStorage,
     ...options
@@ -45,6 +46,7 @@ export default class Webphone extends WebphoneBase {
       ...options,
     });
     this._multipleTabsSupport = multipleTabsSupport;
+    this._forceCurrentWebphoneActive = forceCurrentWebphoneActive;
     this._webphoneStateStorageKey = `${prefix}-webphone-state`;
     if (this._multipleTabsSupport) {
       this._globalStorage = globalStorage;
@@ -118,7 +120,7 @@ export default class Webphone extends WebphoneBase {
   }
 
   _onMultipleTabsChannelBroadcast = ({ event, message }) => {
-    if (EVENTS[event] && this._tabManager.active) {
+    if (EVENTS[event]) {
       this._eventEmitter.emit(EVENTS[event], ...message);
     }
   }
@@ -163,6 +165,9 @@ export default class Webphone extends WebphoneBase {
 
   _cleanWebphoneInstanceWhenUnload() {
     if (!this._webphone) {
+      if (this._tabManager && this._tabManager.tabs.length === 1) {
+        this.store.dispatch({ type: this.actionTypes.unregistered });
+      }
       return;
     }
     this.store.dispatch({ type: this.actionTypes.disconnect });
@@ -228,6 +233,16 @@ export default class Webphone extends WebphoneBase {
   async connect(options = {}) {
     const newOptions = { ...options };
     if (this._multipleTabsSupport) {
+      // Force set current tab as active web phone tab
+      if (
+        this._forceCurrentWebphoneActive &&
+        this.activeWebphoneId !== this._tabManager.id
+      ) {
+        this.store.dispatch({
+          type: this.actionTypes.unregistered,
+        });
+        this._setCurrentInstanceAsActiveWebphone();
+      }
       // don't connect if there is connection in other tabs
       newOptions.skipTabActiveCheck = true;
       if (
@@ -259,6 +274,11 @@ export default class Webphone extends WebphoneBase {
       if (!this.activeWebphoneId || this.activeWebphoneId === '-1') {
         if (!this._tabManager.isFirstTab) {
           return;
+        }
+        if (this.connected) {
+          this.store.dispatch({
+            type: this.actionTypes.unregistered,
+          });
         }
         this._setCurrentInstanceAsActiveWebphone();
       }

@@ -56,7 +56,7 @@ export default class ConferenceCall extends ConferenceCallBase {
   }
 
   _onMultipleTabsChannelBroadcast = ({ event, message }) => {
-    if (event === this.actionTypes.mergeSucceeded && this._tabManager.active) {
+    if (event === this.actionTypes.mergeSucceeded) {
       this._eventEmitter.emit(event, ...message);
     }
   }
@@ -94,5 +94,9 @@ export default class ConferenceCall extends ConferenceCallBase {
       return super.state;
     }
     return this._globalStorage.getItem(this._conferenceCallStorageKey);
+  }
+
+  _shouldReset() {
+    return super._shouldReset() && this._webphone.disconnected;
   }
 }

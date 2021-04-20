@@ -1,6 +1,7 @@
 import classnames from 'classnames';
-import AdapterCore from 'ringcentral-widgets/lib/AdapterCore';
 import url from 'url';
+import popWindow from 'ringcentral-widgets/lib/popWindow';
+import AdapterCore from 'ringcentral-widgets/lib/AdapterCore';
 
 import parseUri from '../parseUri';
 import messageTypes from './messageTypes';
@@ -8,6 +9,9 @@ import requestWithPostMessage from '../requestWithPostMessage';
 
 import styles from './styles.scss';
 import Notification from '../notification';
+
+// eslint-disable-next-line
+import popupIconUrl from '!url-loader!../../assets/images/popup.svg';
 
 class Adapter extends AdapterCore {
   constructor({
@@ -21,6 +25,8 @@ class Adapter extends AdapterCore {
     zIndex = 999,
     enableNotification = false,
     newAdapterUI = false,
+    fromPopup = false,
+    enablePopup = false,
   } = {}) {
     const container = document.createElement('div');
     container.id = prefix;
@@ -37,6 +43,8 @@ class Adapter extends AdapterCore {
     this._zIndex = zIndex;
     this._appWidth = appWidth;
     this._appHeight = appHeight;
+    this._fromPopup = fromPopup;
+    this._enablePopup = enablePopup;
     this._strings = {};
     this._generateContentDOM();
     const styleList = document.querySelectorAll('style');
@@ -217,6 +225,11 @@ class Adapter extends AdapterCore {
         <div class="${this._styles.iconContainer}">
           <img class="${this._styles.icon}" draggable="false"></img>
         </div>
+        <div class="${this._styles.button} ${this._styles.popup}">
+          <div class="${this._styles.popupIcon}">
+            <img src="${popupIconUrl}" draggable="false" />
+          </div>
+        </div>
         <div class="${this._styles.button} ${this._styles.toggle}" data-sign="adapterToggle">
           <div class="${this._styles.minimizeIcon}">
             <div class="${this._styles.minimizeIconBar}"></div>
@@ -264,10 +277,17 @@ class Adapter extends AdapterCore {
     this._iconEl = this._root.querySelector(
       `.${this._styles.icon}`
     );
+    this._popupEl = this._root.querySelector(
+      `.${this._styles.popup}`
+    );
     this._iconEl.addEventListener('dragstart', () => false);
     this._iconContainerEl = this._root.querySelector(
       `.${this._styles.iconContainer}`
     );
+    this._popupEl.addEventListener('click', (evt) => {
+      evt.stopPropagation();
+      this._popupWindow();
+    });
   }
 
   _renderMainClass() {
@@ -281,7 +301,8 @@ class Adapter extends AdapterCore {
       this._loading && this._styles.loading,
       this._showDockUI && this._styles.dock,
       this._showDockUI && this._minimized && (this._hoverHeader || this._dragging) && this._styles.expandable,
-      this._showDockUI && (!(this._userStatus || this._dndStatus)) && this._styles.noPresence
+      this._showDockUI && (!(this._userStatus || this._dndStatus)) && this._styles.noPresence,
+      this._enablePopup && this._styles.showPopup,
     ));
     this._headerEl.setAttribute('class', classnames(
       this._styles.header,
@@ -301,6 +322,9 @@ class Adapter extends AdapterCore {
   }
 
   renderPosition() {
+    if (this._fromPopup) {
+      return;
+    }
     const factor = this._calculateFactor();
     if (this._minimized) {
       if (this._showDockUI) {
@@ -322,6 +346,13 @@ class Adapter extends AdapterCore {
     }
   }
 
+  _syncPosition() {
+    if (this._fromPopup) {
+      return;
+    }
+    super._syncPosition();
+  }
+
   _onHeaderClicked() {
     if (!this._minimized) return;
     this.toggleMinimized();
@@ -339,6 +370,41 @@ class Adapter extends AdapterCore {
 
   _setIconUrl(iconUrl) {
     this._iconEl.src = iconUrl;
+  }
+
+  async popupWindow() {
+    if (!this._popupWindowPromise) {
+      this._popupWindowPromise = this._popupWindow();
+    }
+    try {
+      await this._popupWindowPromise;
+    } catch (e) {
+      console.error(e);
+    }
+    this._popupWindowPromise = null;
+  }
+
+  async _popupWindow() {
+    const isWindowPopuped = await this._requestWithPostMessage('/check-popup-window');
+    if (isWindowPopuped) {
+      if (this._popupedWindow && this._popupedWindow.focus) {
+        this._popupedWindow.focus();
+      }
+      return;
+    }
+    const popupUri = this._appUrl.replace('app.html', 'popup.html');
+    this._popupedWindow = popWindow(popupUri, 'RCPopupWindow', 300, 535);
+    this.setMinimized(true);
+  }
+
+  _onPushAdapterState(options) {
+    if (!this._fromPopup) {
+      return super._onPushAdapterState(options);
+    }
+    return super._onPushAdapterState({
+      ...options,
+      minimized: false,
+    });
   }
 
   _postMessage(data) {
