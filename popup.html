@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Cache-Control" content="IE=edge">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="Sat, 01 Jan 2000 00:00:00 GMT">
+  <title>RingCentral Embeddable</title>
+  <meta name="description" content="RingCentral Embeddable">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, user-scalable=0, maximum-scale=1, minimum-scale=1"
+  >
+  <style>
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #appLoading {
+      text-align: center;
+      padding-top: 30px;
+    }
+    .Adapter_root {
+      left: 0!important;
+      top: 0!important;
+    }
+    .Adapter_root .Adapter_header {
+      cursor: default;
+    }
+    .Adapter_header .Adapter_button {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id='viewport'>
+    <p id="appLoading">
+      Loading...
+    </p>
+  </div>
+  <script>
+    window.__ON_RC_POPUP_WINDOW = 1;
+  </script>
+  <script src="./adapter.js"></script>
+</body>
+</html>
