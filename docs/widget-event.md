@@ -124,6 +124,26 @@ window.addEventListener('message', (e) => {
 });
 ```
 
+## Presence sync event
+
+Get current presence status for the login user:
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-adapter-syncPresence':
+        // get dndStatus, telephonyStatus, userStatus defined here https://developers.ringcentral.com/api-reference/Extension-Presence-Event
+        console.log(data);
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
 ## Login Status event
 
 Get login status from widget
