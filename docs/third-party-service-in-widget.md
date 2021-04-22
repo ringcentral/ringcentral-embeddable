@@ -790,7 +790,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-Add a message event to listen settings updated event:
+Add a message event to listen vcard click event:
 
 ```js
 window.addEventListener('message', function (e) {
