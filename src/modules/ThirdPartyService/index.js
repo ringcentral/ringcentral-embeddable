@@ -175,6 +175,9 @@ export default class ThirdPartyService extends RcModule {
         if (service.settingsPath && service.settings && service.settings.length > 0) {
           this._registerSettings(service);
         }
+        if (service.vcardHandlerPath) {
+          this._registerVCardHandler(service);
+        }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
       } else if (e.data.type === 'rc-adapter-sync-third-party-contacts') {
@@ -842,6 +845,18 @@ export default class ThirdPartyService extends RcModule {
     await requestWithPostMessage(this._settingsPath, {
       settings: this.settings,
     });
+  }
+
+  _registerVCardHandler(service) {
+    this._vcardHandlerPath = service.vcardHandlerPath;
+  }
+
+  async onClickVCard(vcardUri, event) {
+    if (!this._vcardHandlerPath) {
+      return;
+    }
+    event.preventDefault();
+    await requestWithPostMessage(this._vcardHandlerPath, { vcardUri });
   }
 
   async sync(params) {
