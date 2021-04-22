@@ -27,6 +27,7 @@ class Adapter extends AdapterCore {
     newAdapterUI = false,
     fromPopup = false,
     enablePopup = false,
+    popupPageUri,
   } = {}) {
     const container = document.createElement('div');
     container.id = prefix;
@@ -45,6 +46,7 @@ class Adapter extends AdapterCore {
     this._appHeight = appHeight;
     this._fromPopup = fromPopup;
     this._enablePopup = enablePopup;
+    this._popupPageUri = popupPageUri;
     this._strings = {};
     this._generateContentDOM();
     const styleList = document.querySelectorAll('style');
@@ -392,7 +394,10 @@ class Adapter extends AdapterCore {
       }
       return;
     }
-    const popupUri = this._appUrl.replace('app.html', 'popup.html');
+    let popupUri = this._appUrl.replace('app.html', 'popup.html');
+    if (this._popupPageUri) {
+      popupUri = `${this._popupPageUri}?${popupUri.split('?')[1]}`; 
+    }
     this._popupedWindow = popWindow(popupUri, 'RCPopupWindow', 300, 535);
     this.setMinimized(true);
   }

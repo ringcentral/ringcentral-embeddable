@@ -76,7 +76,8 @@ const {
   zIndex,
   discovery,
   discoverAppServer,
-  enablePopup
+  enablePopup,
+  popupPageUri,
 } = parseUri(paramsUri);
 
 function obj2uri(obj) {
@@ -146,6 +147,7 @@ function init() {
     zIndex: zIndex ? Number.parseInt(zIndex, 10) : 999,
     fromPopup: !!fromPopup,
     enablePopup,
+    popupPageUri,
   });
 }
 
