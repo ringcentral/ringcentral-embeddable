@@ -240,6 +240,9 @@ export default function App({
                     showContactDisplayPlaceholder={false}
                     showGroupNumberName
                     supportAttachment
+                    onAttachmentDownload={(uri, e) => {
+                      phone.thirdPartyService.onClickVCard(uri, e);
+                    }}
                   />
                 )}
               />
