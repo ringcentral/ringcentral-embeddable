@@ -855,8 +855,14 @@ export default class ThirdPartyService extends RcModule {
     if (!this._vcardHandlerPath) {
       return;
     }
-    event.preventDefault();
-    await requestWithPostMessage(this._vcardHandlerPath, { vcardUri });
+    if (
+      event.currentTarget &&
+      event.currentTarget.download &&
+      event.currentTarget.download.indexOf('.vcard') > 0
+    ) {
+      event.preventDefault();
+      await requestWithPostMessage(this._vcardHandlerPath, { vcardUri });
+    }
   }
 
   async sync(params) {
