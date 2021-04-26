@@ -2806,7 +2806,8 @@ var _parseUri = (0, _parseUri2.default)(paramsUri),
     zIndex = _parseUri.zIndex,
     discovery = _parseUri.discovery,
     discoverAppServer = _parseUri.discoverAppServer,
-    enablePopup = _parseUri.enablePopup;
+    enablePopup = _parseUri.enablePopup,
+    popupPageUri = _parseUri.popupPageUri;
 
 function obj2uri(obj) {
   if (!obj) {
@@ -2877,7 +2878,8 @@ function init() {
     newAdapterUI: !!newAdapterUI,
     zIndex: zIndex ? Number.parseInt(zIndex, 10) : 999,
     fromPopup: !!fromPopup,
-    enablePopup: enablePopup
+    enablePopup: enablePopup,
+    popupPageUri: popupPageUri
   });
 }
 
@@ -4356,7 +4358,8 @@ var Adapter = /*#__PURE__*/function (_AdapterCore) {
         _ref$fromPopup = _ref.fromPopup,
         fromPopup = _ref$fromPopup === void 0 ? false : _ref$fromPopup,
         _ref$enablePopup = _ref.enablePopup,
-        enablePopup = _ref$enablePopup === void 0 ? false : _ref$enablePopup;
+        enablePopup = _ref$enablePopup === void 0 ? false : _ref$enablePopup,
+        popupPageUri = _ref.popupPageUri;
 
     (0, _classCallCheck2.default)(this, Adapter);
     var container = document.createElement('div');
@@ -4376,6 +4379,7 @@ var Adapter = /*#__PURE__*/function (_AdapterCore) {
     _this._appHeight = appHeight;
     _this._fromPopup = fromPopup;
     _this._enablePopup = enablePopup;
+    _this._popupPageUri = popupPageUri;
     _this._strings = {};
 
     _this._generateContentDOM();
@@ -4761,10 +4765,15 @@ var Adapter = /*#__PURE__*/function (_AdapterCore) {
 
               case 6:
                 popupUri = this._appUrl.replace('app.html', 'popup.html');
+
+                if (this._popupPageUri) {
+                  popupUri = "".concat(this._popupPageUri, "?").concat(popupUri.split('?')[1]);
+                }
+
                 this._popupedWindow = (0, _popWindow.default)(popupUri, 'RCPopupWindow', 300, 535);
                 this.setMinimized(true);
 
-              case 9:
+              case 10:
               case "end":
                 return _context2.stop();
             }
