@@ -108,7 +108,7 @@ import ActiveCallControl from '../ActiveCallControl';
 import GlipGroups from '../GlipGroups';
 import GlipCompany from '../GlipCompany';
 import ErrorLogger from '../ErrorLogger';
-import ActiveCalls from '../ActiveCalls';
+
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
 import Meeting from '../Meeting';
@@ -193,7 +193,6 @@ import hackSend from '../../lib/hackSend';
     { provide: 'Adapter', useClass: Adapter },
     { provide: 'RouterInteraction', useClass: RouterInteraction },
     { provide: 'Feedback', useClass: Feedback },
-    { provide: 'ActiveCalls', useClass: ActiveCalls },
     { provide: 'Conference', useClass: Conference },
     { provide: 'Environment', useClass: Environment },
     { provide: 'ErrorLogger', useClass: ErrorLogger },
