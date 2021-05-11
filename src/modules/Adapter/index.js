@@ -65,7 +65,6 @@ function findExistedConversation(conversations, phoneNumber) {
     'CallingSettings',
     'GlobalStorage',
     'Locale',
-    'ActiveCalls',
     'MessageStore',
     'TabManager',
     'CallLogger',
@@ -91,7 +90,6 @@ export default class Adapter extends AdapterModuleCore {
     webphone,
     regionSettings,
     callingSettings,
-    activeCalls,
     messageStore,
     stylesUri,
     prefix,
@@ -126,7 +124,6 @@ export default class Adapter extends AdapterModuleCore {
     this._callingSettings = this::ensureExist(callingSettings, 'callingSettings');
     this._call = this::ensureExist(call, 'call');
     this._dialerUI = this::ensureExist(dialerUI, 'dialerUI');
-    this._activeCalls = this::ensureExist(activeCalls, 'activeCalls');
     this._messageStore = this::ensureExist(messageStore, 'messageStore');
     this._tabManager = this::ensureExist(tabManager, 'tabManager');
     this._alert = alert;
@@ -149,7 +146,6 @@ export default class Adapter extends AdapterModuleCore {
     this._loggedIn = null;
     this._regionCountryCode = null;
     this._lastActiveCalls = [];
-    this._lastActiveCallLogMap = {};
     this._callWith = null;
     this._callLoggerAutoLogEnabled = null;
     this._dialerDisabled = null;
@@ -400,34 +396,12 @@ export default class Adapter extends AdapterModuleCore {
     this._sendActiveCallNotification(changedCalls);
   }
 
-  // map active call with active call log from this._activeCalls module
-  // active call log has some delay, so wait CALL_NOTIFY_DELAY
   async _sendActiveCallNotification(activeCalls) {
-    await sleep(CALL_NOTIFY_DELAY);
-    const activeCallLogMap = {};
-    this._activeCalls.calls.forEach((call) => {
-      activeCallLogMap[`${call.sessionId}-${call.direction}`] = call;
-    });
     activeCalls.forEach(({ sipData, id, ...call }) => {
-      let matchedCallLog = activeCallLogMap[`${call.sessionId}-${call.direction}`];
-      if (!matchedCallLog) {
-        matchedCallLog = this._lastActiveCallLogMap[`${call.sessionId}-${call.direction}`] || {};
-      } else {
-        this._lastActiveCallLogMap[`${call.sessionId}-${call.direction}`] = matchedCallLog;
-      }
       this._postMessage({
         type: 'rc-active-call-notify',
-        call: {
-          id: matchedCallLog.id,
-          action: matchedCallLog.action,
-          startTime: matchedCallLog.startTime,
-          uri: matchedCallLog.uri,
-          ...call
-        }
+        call,
       });
-      if (call.telephonyStatus === telephonyStatus.noCall) {
-        delete this._lastActiveCallLogMap[`${call.sessionId}-${call.direction}`];
-      }
     });
   }
 
