@@ -185,7 +185,7 @@ If you create pull request to this repo and get merged, CI will deploy it to thi
 2. Run command to compile code and build release
 
 ```
-$ HOSTING_URL=your_host_uri yarn build
+$ HOSTING_URL=your_host_uri
 ```
 
 Please replace `your_host_uri` with your own web host address, such as `https://ringcentral.github.io/ringcentral-embeddable`.
