@@ -19,10 +19,6 @@ import CompanyContacts from 'ringcentral-integration/modules/CompanyContacts';
 // import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
 import BlockedNumber from 'ringcentral-integration/modules/BlockedNumber';
 import Call from 'ringcentral-integration/modules/Call';
-import CallHistory from 'ringcentral-integration/modules/CallHistory';
-// import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
-// import ConferenceCall from 'ringcentral-integration/modules/ConferenceCall';
-// import CallLog from 'ringcentral-integration/modules/CallLog';
 import CallMonitor from 'ringcentral-integration/modules/CallMonitor';
 import ConnectivityMonitor from 'ringcentral-integration/modules/ConnectivityMonitor';
 import ContactMatcher from 'ringcentral-integration/modules/ContactMatcher';
@@ -111,6 +107,7 @@ import ErrorLogger from '../ErrorLogger';
 
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
+import CallHistory from '../CallHistory';
 import Meeting from '../Meeting';
 import { MessageSender } from '../MessageSender';
 import Webphone from '../Webphone';
