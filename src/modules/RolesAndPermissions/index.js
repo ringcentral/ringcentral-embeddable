@@ -18,6 +18,7 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     disableConferenceCall,
     disableMeeting,
     disableReadText,
+    enableRingtoneSettings,
     ...options
   }) {
     super(options);
@@ -28,6 +29,7 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
     this._disableGlip = disableGlip;
     this._disableMeeting = disableMeeting;
     this._disableReadText = disableReadText;
+    this._enableRingtoneSettings = enableRingtoneSettings;
   }
 
   @getter
@@ -98,5 +100,9 @@ export default class NewRolesAndPermissions extends RolesAndPermissions {
 
   get readTextPermissions() {
     return super.readTextPermissions && !this._disableReadText;
+  }
+
+  get ringtonePermission() {
+    return !!this._enableRingtoneSettings;
   }
 }

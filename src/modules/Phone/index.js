@@ -593,6 +593,7 @@ export function createPhone({
   forceCurrentWebphoneActive,
   enableWebRTCPlanB,
   fromPopup,
+  enableRingtoneSettings,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -700,6 +701,7 @@ export function createPhone({
           disableGlip,
           disableMeeting,
           disableReadText,
+          enableRingtoneSettings,
         },
       },
       {

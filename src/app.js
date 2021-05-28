@@ -57,6 +57,7 @@ const {
   multipleTabsSupport,
   enableWebRTCPlanB,
   brand,
+  enableRingtoneSettings,
 } = pathParams;
 
 const defaultBrand = brand || process.env.BRAND;
@@ -132,6 +133,7 @@ const phone = createPhone({
   enableWebRTCPlanB,
   forceCurrentWebphoneActive: fromPopup,
   fromPopup,
+  enableRingtoneSettings,
 });
 
 const store = createStore(phone.reducer);

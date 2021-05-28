@@ -21,11 +21,12 @@ function NewSettingsPanel(props) {
     thirdPartySettings,
     onSettingToggle,
     gotoRingtoneSettings,
+    showRingtoneSettings,
   } = props;
   let authorization = null;
   let ringtone = (
     <LinkLineItem
-      show
+      show={showRingtoneSettings}
       customTitle="Ringtone"
       currentLocale={props.currentLocale}
       onClick={gotoRingtoneSettings}
@@ -128,6 +129,7 @@ function mapToProps(_, {
     showFeedback: thirdPartyService.showFeedback,
     thirdPartySettings: thirdPartyService.settings,
     autoLogSMSTitle: 'Auto log messages',
+    showRingtoneSettings: rolesAndPermissions.ringtonePermission,
   };
 }
 
