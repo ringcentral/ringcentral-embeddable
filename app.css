@@ -320,8 +320,7 @@
   left: 50%;
   width: 40px;
   height: 40px;
-  -webkit-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 
 .SpinnerOverlay_mask {
@@ -341,8 +340,7 @@
 }
 
 .BackHeader_iconRotate {
-  -webkit-transform: rotate(90deg);
-          transform: rotate(90deg);
+  transform: rotate(90deg);
   position: absolute;
   top: 5px;
   left: 10px;
@@ -404,7 +402,6 @@
   display: inline;
   vertical-align: middle;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -821,7 +818,6 @@
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  -webkit-transition: .4s;
   transition: .4s;
   border-radius: 20px;
 }
@@ -834,7 +830,6 @@
   left: 1px;
   bottom: 1px;
   background-color: white;
-  -webkit-transition: .4s;
   transition: .4s;
   border-radius: 50%;
 }
@@ -862,17 +857,13 @@ input:focus + .Switch_slider {
 }
 
 input:checked + .Switch_slider:before {
-  -webkit-transform: translateX(18px);
   transform: translateX(18px);
 }
 
 .IconField_wrapper {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
 }
 
@@ -886,7 +877,6 @@ input:checked + .Switch_slider:before {
 
 .IconField_iconHolder {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -903,7 +893,6 @@ input:checked + .Switch_slider:before {
   display: inline;
   vertical-align: middle;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -945,7 +934,6 @@ input:checked + .Switch_slider:before {
 
 .InputField_inputHolder {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -1049,8 +1037,7 @@ input:checked + .Switch_slider:before {
 }
 
 .DropdownSelect_iconUp {
-  -webkit-transform: rotate(-180deg);
-          transform: rotate(-180deg);
+  transform: rotate(-180deg);
 }
 
 .DropdownSelect_selected {
@@ -1157,19 +1144,15 @@ input:checked + .Switch_slider:before {
 }
 
 .DropdownSelect_optionLabel {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 8px;
 }
 
 .DropdownSelect_withLabel {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
+  flex-direction: row;
 }
 
 .DropdownSelect_inputWithLabel {
@@ -1257,21 +1240,10 @@ input:checked + .Switch_slider:before {
 }
 
 .CallIcon_callIcon {
-  display: -webkit-inline-box;
   display: inline-flex;
   font-size: 22px;
   color: #666;
   width: 21px;
-}
-
-@-webkit-keyframes CallIcon_ringing {
-  0% {
-    text-shadow: 0px 0px 1px #23B23D;
-  }
-  100% {
-    color: #2ce44d;
-    text-shadow: 0px 0px 10px #2ce44d;
-  }
 }
 
 @keyframes CallIcon_ringing {
@@ -1285,14 +1257,10 @@ input:checked + .Switch_slider:before {
 }
 
 .CallIcon_activeCall.CallIcon_ringing {
-  -webkit-animation-name: CallIcon_ringing;
-          animation-name: CallIcon_ringing;
-  -webkit-animation-direction: alternate;
-          animation-direction: alternate;
-  -webkit-animation-duration: 0.5s;
-          animation-duration: 0.5s;
-  -webkit-animation-iteration-count: infinite;
-          animation-iteration-count: infinite;
+  animation-name: CallIcon_ringing;
+  animation-direction: alternate;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
 }
 
 .CallIcon_avatar {
@@ -1319,18 +1287,6 @@ input:checked + .Switch_slider:before {
   fill: #6a7186;
 }
 
-@-webkit-keyframes CallIcon_newRinging {
-  from {
-    -webkit-filter: drop-shadow(0 0 1px #23B23D);
-            filter: drop-shadow(0 0 1px #23B23D);
-  }
-  to {
-    fill: #2ce44d;
-    -webkit-filter: drop-shadow(0 0 10px #2ce44d);
-            filter: drop-shadow(0 0 10px #2ce44d);
-  }
-}
-
 @keyframes CallIcon_newRinging {
   from {
     -webkit-filter: drop-shadow(0 0 1px #23B23D);
@@ -1344,14 +1300,10 @@ input:checked + .Switch_slider:before {
 }
 
 .CallIcon_activeCall.CallIcon_newRinging {
-  -webkit-animation-name: CallIcon_newRinging;
-          animation-name: CallIcon_newRinging;
-  -webkit-animation-direction: alternate;
-          animation-direction: alternate;
-  -webkit-animation-duration: 0.5s;
-          animation-duration: 0.5s;
-  -webkit-animation-iteration-count: infinite;
-          animation-iteration-count: infinite;
+  animation-name: CallIcon_newRinging;
+  animation-direction: alternate;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
 }
 
 .CircleButton_btnSvg {
@@ -1372,7 +1324,6 @@ input:checked + .Switch_slider:before {
 
 .CircleButton_btnSvgGroup {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -1395,27 +1346,15 @@ input:checked + .Switch_slider:before {
   position: absolute;
   fill: rgba(6, 132, 189, 0.3);
   border-radius: 100%;
-  -webkit-transform: scale(0);
-          transform: scale(0);
+  transform: scale(0);
   pointer-events: none;
-  -webkit-animation: CircleButton_ripple 1s ease-out infinite;
-          animation: CircleButton_ripple 1s ease-out infinite;
-  -webkit-transform-origin: center;
-          transform-origin: center;
-}
-
-@-webkit-keyframes CircleButton_ripple {
-  to {
-    -webkit-transform: scale(1);
-            transform: scale(1);
-    opacity: 0;
-  }
+  animation: CircleButton_ripple 1s ease-out infinite;
+  transform-origin: center;
 }
 
 @keyframes CircleButton_ripple {
   to {
-    -webkit-transform: scale(1);
-            transform: scale(1);
+    transform: scale(1);
     opacity: 0;
   }
 }
@@ -1442,10 +1381,8 @@ input:checked + .Switch_slider:before {
   font-size: 14px;
   height: auto;
   line-height: normal;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
 }
 
 .ContactDisplay_select .ContactDisplay_icon {
@@ -1501,23 +1438,17 @@ input:checked + .Switch_slider:before {
 
 .MediaObject_media.MediaObject_flex {
   padding: 0;
-  display: -webkit-box;
   display: flex;
   width: 100%;
   box-sizing: border-box;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
+  flex-direction: row;
   flex-wrap: nowrap;
-  -webkit-box-align: center;
-          align-items: center;
-  -webkit-box-pack: start;
-          justify-content: flex-start;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .MediaObject_media.MediaObject_flex .MediaObject_mediaBody {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1569,15 +1500,10 @@ input:checked + .Switch_slider:before {
 
 .MediaObject_mediaMiddle {
   align-self: stretch;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: start;
-          align-items: flex-start;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
 }
 
 .MediaObject_mediaBottom {
@@ -1612,15 +1538,10 @@ input:checked + .Switch_slider:before {
 
 .ActiveCallItemV2_strechVertical {
   align-self: stretch;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: start;
-          align-items: flex-start;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
   height: 100%;
 }
 
@@ -1640,17 +1561,13 @@ input:checked + .Switch_slider:before {
 }
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_actionIconsBox {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
+  justify-content: center;
 }
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_actionIconsBox .ActiveCallItemV2_extraButton {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
   margin-left: 10px;
 }
 
@@ -1726,7 +1643,6 @@ input:checked + .Switch_slider:before {
 }
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_ringoutButtons {
-  display: -webkit-box;
   display: flex;
 }
 
@@ -1813,10 +1729,8 @@ input:checked + .Switch_slider:before {
 }
 
 .ActiveCallItemV2_switchDialogImage {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
+  justify-content: center;
   padding: 10px 0;
 }
 
@@ -1864,8 +1778,7 @@ input:checked + .Switch_slider:before {
 }
 
 .RegionSettingsPanel_iconRotate {
-  -webkit-transform: rotate(-180deg);
-          transform: rotate(-180deg);
+  transform: rotate(-180deg);
   position: absolute;
   top: 5px;
   left: 10px;
@@ -1888,7 +1801,6 @@ input:checked + .Switch_slider:before {
 
 .DialButton_btnSvgGroup {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -1946,7 +1858,6 @@ input:checked + .Switch_slider:before {
   height: 100%;
   overflow: hidden;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -3566,7 +3477,6 @@ input:checked + .Switch_slider:before {
   font-size: 14px;
   color: #2F2F2F;
   position: relative;
-  display: -webkit-box;
   display: flex;
   color: #2F2F2F;
   margin-top: 10px;
@@ -3592,8 +3502,7 @@ input:checked + .Switch_slider:before {
 .RecipientsInput_rightPanel {
   font-size: 15px;
   display: block;
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   overflow: hidden;
 }
 
@@ -3634,17 +3543,7 @@ input:checked + .Switch_slider:before {
   color: #a9a9a9;
 }
 
-.RecipientsInput_numberInput::-moz-placeholder {
-  font-size: 13px;
-  color: #a9a9a9;
-}
-
 .RecipientsInput_numberInput:-ms-input-placeholder {
-  font-size: 13px;
-  color: #a9a9a9;
-}
-
-.RecipientsInput_numberInput::-ms-input-placeholder {
   font-size: 13px;
   color: #a9a9a9;
 }
@@ -3665,7 +3564,6 @@ input:checked + .Switch_slider:before {
 .RecipientsInput_selectReceivers {
   margin: 2px 0;
   padding: 0;
-  display: -webkit-box;
   display: flex;
   flex-wrap: wrap;
 }
@@ -3725,7 +3623,6 @@ input:checked + .Switch_slider:before {
   font-size: 14px;
   color: #2F2F2F;
   position: relative;
-  display: -webkit-box;
   display: flex;
   color: #2F2F2F;
   margin-top: 10px;
@@ -3751,8 +3648,7 @@ input:checked + .Switch_slider:before {
 .RecipientsInputV2_rightPanel {
   font-size: 15px;
   display: block;
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   overflow: hidden;
 }
 
@@ -3793,17 +3689,7 @@ input:checked + .Switch_slider:before {
   color: #a9a9a9;
 }
 
-.RecipientsInputV2_numberInput::-moz-placeholder {
-  font-size: 13px;
-  color: #a9a9a9;
-}
-
 .RecipientsInputV2_numberInput:-ms-input-placeholder {
-  font-size: 13px;
-  color: #a9a9a9;
-}
-
-.RecipientsInputV2_numberInput::-ms-input-placeholder {
   font-size: 13px;
   color: #a9a9a9;
 }
@@ -3824,7 +3710,6 @@ input:checked + .Switch_slider:before {
 .RecipientsInputV2_selectReceivers {
   margin: 2px 0;
   padding: 0;
-  display: -webkit-box;
   display: flex;
   flex-wrap: wrap;
 }
@@ -4119,7 +4004,6 @@ input:checked + .Switch_slider:before {
   margin: 0 0 5px 0;
   padding: 0 20px 1px 20px;
   border-bottom: #e3e3e3 1px solid;
-  -webkit-transition: height 0.5s ease-in;
   transition: height 0.5s ease-in;
   color: #797979;
 }
@@ -4158,15 +4042,7 @@ input:checked + .Switch_slider:before {
   color: #a9a9a9;
 }
 
-.ComposeTextPanel_textField textarea::-moz-placeholder {
-  color: #a9a9a9;
-}
-
 .ComposeTextPanel_textField textarea:-ms-input-placeholder {
-  color: #a9a9a9;
-}
-
-.ComposeTextPanel_textField textarea::-ms-input-placeholder {
   color: #a9a9a9;
 }
 
@@ -4333,15 +4209,7 @@ input:checked + .Switch_slider:before {
   color: #a9a9a9;
 }
 
-.MessageInput_textField textarea::-moz-placeholder {
-  color: #a9a9a9;
-}
-
 .MessageInput_textField textarea:-ms-input-placeholder {
-  color: #a9a9a9;
-}
-
-.MessageInput_textField textarea::-ms-input-placeholder {
   color: #a9a9a9;
 }
 
@@ -4950,8 +4818,7 @@ input:checked + .Switch_slider:before {
   left: 20px;
   font-size: 13px;
   color: #797979;
-  -webkit-transform: rotate(90deg);
-          transform: rotate(90deg);
+  transform: rotate(90deg);
   cursor: pointer;
 }
 
@@ -5058,30 +4925,12 @@ input:checked + .Switch_slider:before {
   opacity: 0.3;
 }
 
-@-webkit-keyframes IncomingCallPanel_ringingOutside {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 0.1;
-  }
-}
-
 @keyframes IncomingCallPanel_ringingOutside {
   0% {
     opacity: 0;
   }
   100% {
     opacity: 0.1;
-  }
-}
-
-@-webkit-keyframes IncomingCallPanel_ringingInner {
-  0% {
-    opacity: 0.05;
-  }
-  100% {
-    opacity: 0.29;
   }
 }
 
@@ -5095,25 +4944,17 @@ input:checked + .Switch_slider:before {
 }
 
 .IncomingCallPanel_ringOutside.IncomingCallPanel_ringing {
-  -webkit-animation-name: IncomingCallPanel_ringingOutside;
-          animation-name: IncomingCallPanel_ringingOutside;
-  -webkit-animation-direction: alternate;
-          animation-direction: alternate;
-  -webkit-animation-duration: 0.8s;
-          animation-duration: 0.8s;
-  -webkit-animation-iteration-count: infinite;
-          animation-iteration-count: infinite;
+  animation-name: IncomingCallPanel_ringingOutside;
+  animation-direction: alternate;
+  animation-duration: 0.8s;
+  animation-iteration-count: infinite;
 }
 
 .IncomingCallPanel_ringInner.IncomingCallPanel_ringing {
-  -webkit-animation-name: IncomingCallPanel_ringingInner;
-          animation-name: IncomingCallPanel_ringingInner;
-  -webkit-animation-direction: alternate;
-          animation-direction: alternate;
-  -webkit-animation-duration: 0.7s;
-          animation-duration: 0.7s;
-  -webkit-animation-iteration-count: infinite;
-          animation-iteration-count: infinite;
+  animation-name: IncomingCallPanel_ringingInner;
+  animation-direction: alternate;
+  animation-duration: 0.7s;
+  animation-iteration-count: infinite;
 }
 
 .IncomingCallPanel_dropdown ul {
@@ -5346,10 +5187,8 @@ input:checked + .Switch_slider:before {
 .ActiveCallPanel_mergeInfo .ActiveCallPanel_merge_item {
   height: 30px;
   opacity: 0.8;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
 }
 
 .ActiveCallPanel_mergeInfo .ActiveCallPanel_merge_item .ActiveCallPanel_callee_avatar {
@@ -5368,8 +5207,7 @@ input:checked + .Switch_slider:before {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   padding-right: 10px;
   text-align: left;
 }
@@ -5398,10 +5236,8 @@ input:checked + .Switch_slider:before {
 
 .ActiveCallPanel_mergeInfo .ActiveCallPanel_merge_item_active {
   height: 45px;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
 }
 
 .ActiveCallPanel_mergeInfo .ActiveCallPanel_merge_item_active .ActiveCallPanel_callee_avatar_active {
@@ -5421,8 +5257,7 @@ input:checked + .Switch_slider:before {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   text-align: left;
   padding-right: 10px;
 }
@@ -5486,8 +5321,7 @@ input:checked + .Switch_slider:before {
 }
 
 .BackButton_backIcon {
-  -webkit-transform: rotate(90deg);
-          transform: rotate(90deg);
+  transform: rotate(90deg);
   position: absolute;
   top: 5px;
   left: 10px;
@@ -5507,14 +5341,9 @@ input:checked + .Switch_slider:before {
 
 .Tooltip_dropdownContainer {
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15);
-  -webkit-transition: opacity ease-in-out 0.2s, -webkit-transform ease-in-out 0.2s;
-  transition: opacity ease-in-out 0.2s, -webkit-transform ease-in-out 0.2s;
   transition: transform ease-in-out 0.2s, opacity ease-in-out 0.2s;
-  transition: transform ease-in-out 0.2s, opacity ease-in-out 0.2s, -webkit-transform ease-in-out 0.2s;
-  -webkit-transform: scale(0);
-          transform: scale(0);
-  -webkit-transform-origin: center bottom;
-          transform-origin: center bottom;
+  transform: scale(0);
+  transform-origin: center bottom;
   opacity: 0;
   display: inline-block;
   position: relative;
@@ -5542,8 +5371,7 @@ input:checked + .Switch_slider:before {
   display: inline-block;
   width: 10px;
   height: 10px;
-  -webkit-transform: rotateZ(45deg);
-          transform: rotateZ(45deg);
+  transform: rotateZ(45deg);
   background: #fff;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15);
   margin: auto;
@@ -5557,14 +5385,12 @@ input:checked + .Switch_slider:before {
 
 .Tooltip_bottom .Tooltip_tail {
   top: -4.5px;
-  -webkit-transform: rotateZ(-45deg);
-          transform: rotateZ(-45deg);
+  transform: rotateZ(-45deg);
   box-shadow: 1px 0px 0px #e2e2e2;
 }
 
 .Tooltip_opened {
-  -webkit-transform: scale(1);
-          transform: scale(1);
+  transform: scale(1);
   opacity: 1;
 }
 
@@ -5684,16 +5510,11 @@ input:checked + .Switch_slider:before {
   font-size: 12px;
   line-height: 12px;
   padding: 10px 20px 10px 0;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
+  flex-direction: row;
   flex-wrap: nowrap;
-  -webkit-box-pack: start;
-          justify-content: flex-start;
-  -webkit-box-align: center;
-          align-items: center;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .ActiveCallPad_buttonPopup .ActiveCallPad_buttonItem .ActiveCallPad_buttonName {
@@ -5781,16 +5602,11 @@ input:checked + .Switch_slider:before {
 
 .ConfirmMergeModal_confirmMergeModal .ConfirmMergeModal_content {
   overflow: hidden;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
+  flex-direction: row;
   flex-wrap: nowrap;
-  -webkit-box-pack: start;
-          justify-content: flex-start;
-  -webkit-box-align: center;
-          align-items: center;
+  justify-content: flex-start;
+  align-items: center;
   margin: 5px 0;
 }
 
@@ -5800,18 +5616,12 @@ input:checked + .Switch_slider:before {
 }
 
 .ConfirmMergeModal_confirmMergeModal .ConfirmMergeModal_content .ConfirmMergeModal_contentText {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
-  display: -webkit-box;
+  flex-grow: 1;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
+  flex-direction: row;
   flex-wrap: nowrap;
-  -webkit-box-pack: start;
-          justify-content: flex-start;
-  -webkit-box-align: center;
-          align-items: center;
+  justify-content: flex-start;
+  align-items: center;
   overflow: hidden;
 }
 
@@ -5851,12 +5661,9 @@ input:checked + .Switch_slider:before {
   left: 0;
   width: 100%;
   height: 100%;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: baseline;
-          align-items: baseline;
+  justify-content: center;
+  align-items: baseline;
   z-index: 10000;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
@@ -5868,12 +5675,9 @@ input:checked + .Switch_slider:before {
   left: 0;
   width: 100%;
   height: 100%;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: baseline;
-          align-items: baseline;
+  justify-content: center;
+  align-items: baseline;
   z-index: -1;
 }
 
@@ -5897,19 +5701,14 @@ input:checked + .Switch_slider:before {
   background-color: #FFFFFF;
   box-sizing: border-box;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 45px, rgba(0, 0, 0, 0.22) 0px 10px 18px;
-  -webkit-transform: translate3d(0, 0, 0);
-          transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
   position: relative;
-  -webkit-transition: opacity 500ms cubic-bezier(0, 0, 0.25, 1), -webkit-transform 500ms cubic-bezier(0, 0, 0.25, 1);
-  transition: opacity 500ms cubic-bezier(0, 0, 0.25, 1), -webkit-transform 500ms cubic-bezier(0, 0, 0.25, 1);
   transition: transform 500ms cubic-bezier(0, 0, 0.25, 1), opacity 500ms cubic-bezier(0, 0, 0.25, 1);
-  transition: transform 500ms cubic-bezier(0, 0, 0.25, 1), opacity 500ms cubic-bezier(0, 0, 0.25, 1), -webkit-transform 500ms cubic-bezier(0, 0, 0.25, 1);
   z-index: 10002;
 }
 
 .createModal_modalHidden {
-  -webkit-transform: translate3d(0, -100px, 0);
-          transform: translate3d(0, -100px, 0);
+  transform: translate3d(0, -100px, 0);
   opacity: 0;
   z-index: -1;
   height: 0;
@@ -5932,11 +5731,8 @@ input:checked + .Switch_slider:before {
 
 .Dialog_dialog .Dialog_header {
   color: #2F2F2F;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-          align-items: center;
-  display: -webkit-box;
+  justify-content: center;
+  align-items: center;
   display: flex;
   background-color: #F9F9F9;
   font-size: 13px;
@@ -5982,10 +5778,8 @@ input:checked + .Switch_slider:before {
   position: relative;
   z-index: 1;
   color: #0684bd;
-  -webkit-transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -webkit-user-select: none;
-  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
   overflow: hidden;
@@ -6094,7 +5888,6 @@ input:checked + .Switch_slider:before {
 
 .LoginPanel_loginButton {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -6128,7 +5921,6 @@ input:checked + .Switch_slider:before {
 
 .LoginPanel_signUpButton {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -6256,7 +6048,6 @@ input:checked + .Switch_slider:before {
 }
 
 .Line_horizontal {
-  display: -webkit-inline-box;
   display: inline-flex;
 }
 
@@ -6303,15 +6094,7 @@ input:checked + .Switch_slider:before {
   color: #C7C7C7;
 }
 
-.SearchInput_input::-moz-placeholder {
-  color: #C7C7C7;
-}
-
 .SearchInput_input:-ms-input-placeholder {
-  color: #C7C7C7;
-}
-
-.SearchInput_input::-ms-input-placeholder {
   color: #C7C7C7;
 }
 
@@ -6353,10 +6136,8 @@ input:checked + .Switch_slider:before {
   height: 2px;
   border-radius: 1.5px;
   background-color: #ffffff;
-  -webkit-transform-origin: 50% 50%;
-          transform-origin: 50% 50%;
-  -webkit-transform: translate(3px, 6px);
-          transform: translate(3px, 6px);
+  transform-origin: 50% 50%;
+  transform: translate(3px, 6px);
 }
 
 .PresenceStatusIcon_DoNotAcceptAnyCalls {
@@ -6657,24 +6438,6 @@ input:checked + .Switch_slider:before {
   top: 1px;
 }
 
-@-webkit-keyframes ContactsView_refreshCirle {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-  25% {
-    -webkit-transform: rotate(90deg);
-  }
-  50% {
-    -webkit-transform: rotate(180deg);
-  }
-  75% {
-    -webkit-transform: rotate(270deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-
 @keyframes ContactsView_refreshCirle {
   0% {
     -webkit-transform: rotate(0deg);
@@ -6698,8 +6461,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ContactsView_refreshingIcon svg {
-  -webkit-animation: ContactsView_refreshCirle 1s linear infinite;
-          animation: ContactsView_refreshCirle 1s linear infinite;
+  animation: ContactsView_refreshCirle 1s linear infinite;
 }
 
 .ContactSourceFilter_contactSourceFilter {
@@ -6825,7 +6587,6 @@ input:checked + .Switch_slider:before {
   white-space: nowrap;
   color: #2F2F2F;
   -webkit-user-select: text;
-     -moz-user-select: text;
       -ms-user-select: text;
           user-select: text;
 }
@@ -6899,32 +6660,27 @@ input:checked + .Switch_slider:before {
   position: relative;
   width: 100%;
   vertical-align: middle;
-  display: -webkit-box;
   display: flex;
 }
 
 .ContactDetails_site {
-  display: -webkit-box;
   display: flex;
   padding-top: 15px;
   font-size: 13px;
 }
 
 .ContactDetails_site .ContactDetails_label {
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   color: #797979;
 }
 
 .ContactDetails_site .ContactDetails_content {
   overflow: hidden;
-  -webkit-box-flex: 4;
-          flex: 4;
+  flex: 4;
   padding-left: 5px;
 }
 
 .ContactDetails_avatar {
-  display: -webkit-box;
   display: flex;
   width: 45px;
   height: 45px;
@@ -6972,7 +6728,6 @@ input:checked + .Switch_slider:before {
   white-space: nowrap;
   font-size: 15px;
   -webkit-user-select: text;
-     -moz-user-select: text;
       -ms-user-select: text;
           user-select: text;
 }
@@ -6983,11 +6738,8 @@ input:checked + .Switch_slider:before {
 
 .ContactDetails_info {
   overflow: hidden;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
   justify-content: space-around;
   padding-left: 5px;
 }
@@ -7039,7 +6791,6 @@ input:checked + .Switch_slider:before {
   vertical-align: middle;
   display: inline-block;
   -webkit-user-select: text;
-     -moz-user-select: text;
       -ms-user-select: text;
           user-select: text;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -7227,8 +6978,7 @@ input:checked + .Switch_slider:before {
 .LinkLine_icon {
   font-size: 14px;
   color: #808080;
-  -webkit-transform: rotate(-90deg);
-          transform: rotate(-90deg);
+  transform: rotate(-90deg);
   position: absolute;
   top: 0px;
   right: -2px;
@@ -7245,15 +6995,12 @@ input:checked + .Switch_slider:before {
   font-size: 13px;
   font-weight: bold;
   color: #2F2F2F;
-  -webkit-box-align: center;
-          align-items: center;
-  display: -webkit-box;
+  align-items: center;
   display: flex;
 }
 
 .MeetingSection_dropDown {
-  -webkit-transform: rotate(180deg);
-          transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .MeetingSection_arrow {
@@ -7266,12 +7013,9 @@ input:checked + .Switch_slider:before {
 }
 
 .MeetingSection_spaceBetween {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
-  -webkit-box-align: center;
-          align-items: center;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .MeetingSection_rcuiStyle.MeetingSection_section {
@@ -7284,17 +7028,13 @@ input:checked + .Switch_slider:before {
   font-size: 0.75rem;
   font-weight: 700;
   color: #757575;
-  -webkit-transform: scale(1);
-          transform: scale(1);
+  transform: scale(1);
 }
 
 .ConferencePanel_container {
   height: 100%;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 13px;
   color: #797979;
@@ -7307,8 +7047,7 @@ input:checked + .Switch_slider:before {
 
 .ConferencePanel_main {
   padding: 15px 20px 0;
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   overflow: auto;
 }
 
@@ -7358,7 +7097,6 @@ input:checked + .Switch_slider:before {
   line-height: 17px;
   height: 17px;
   padding: 9px 0 10px;
-  display: -webkit-box;
   display: flex;
 }
 
@@ -7372,8 +7110,7 @@ input:checked + .Switch_slider:before {
   font-size: 13px;
   color: #797979;
   margin: 0 10px;
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -7412,16 +7149,13 @@ input:checked + .Switch_slider:before {
 
 .ConferencePanel_formGroup {
   padding-bottom: 12px;
-  display: -webkit-box;
   display: flex;
   flex-wrap: wrap;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
 }
 
 .ConferencePanel_formGroup label {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
 }
 
 .ConferencePanel_formGroup .ConferencePanel_field {
@@ -7474,7 +7208,6 @@ input:checked + .Switch_slider:before {
   line-height: 17px;
   height: 17px;
   padding: 9px 0 10px;
-  display: -webkit-box;
   display: flex;
 }
 
@@ -7488,8 +7221,7 @@ input:checked + .Switch_slider:before {
   font-size: 13px;
   color: #797979;
   margin: 0 10px;
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -7511,23 +7243,19 @@ input:checked + .Switch_slider:before {
 }
 
 .ConferencePanel_dialInNumberItem {
-  display: -webkit-box;
   display: flex;
 }
 
 .ConferencePanel_dialInNumberItem .ConferencePanel_region {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   margin-right: 1em;
 }
 
 .CheckBox_item {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
   margin-top: 10px;
 }
 
@@ -7596,7 +7324,6 @@ input:checked + .Switch_slider:before {
   color: #FFFFFF;
   text-align: center;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   background: transparent;
@@ -7878,15 +7605,7 @@ input:checked + .Switch_slider:before {
   color: #bbb;
 }
 
-.GlipTeamCreation_teamName ::-moz-placeholder {
-  color: #bbb;
-}
-
 .GlipTeamCreation_teamName :-ms-input-placeholder {
-  color: #bbb;
-}
-
-.GlipTeamCreation_teamName ::-ms-input-placeholder {
   color: #bbb;
 }
 
@@ -8088,8 +7807,8 @@ input:checked + .Switch_slider:before {
 
 .GlipMarkdown_markdown-body {
   -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-      text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+       text-size-adjust: 100%;
   color: #2F2F2F;
   font-size: 14px;
   line-height: 1.6;
@@ -8257,7 +7976,6 @@ input:checked + .Switch_slider:before {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-user-select: none;
-  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
@@ -9085,15 +8803,7 @@ input:checked + .Switch_slider:before {
   color: #C7C7C7;
 }
 
-.GlipChatForm_root textarea::-moz-placeholder {
-  color: #C7C7C7;
-}
-
 .GlipChatForm_root textarea:-ms-input-placeholder {
-  color: #C7C7C7;
-}
-
-.GlipChatForm_root textarea::-ms-input-placeholder {
   color: #C7C7C7;
 }
 
@@ -9248,11 +8958,8 @@ input:checked + .Switch_slider:before {
 }
 
 .NavigationBar_vertical {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
   height: 100%;
 }
 
@@ -9262,7 +8969,6 @@ input:checked + .Switch_slider:before {
   height: 100%;
   overflow: hidden;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -9273,7 +8979,6 @@ input:checked + .Switch_slider:before {
   height: 100%;
   text-decoration: none;
   cursor: pointer;
-  -webkit-transition: all 0.1s ease;
   transition: all 0.1s ease;
   color: #797979 !important;
   text-decoration: none !important;
@@ -9297,7 +9002,6 @@ input:checked + .Switch_slider:before {
   height: 1px;
   margin: auto;
   z-index: 1;
-  background: -webkit-gradient(linear, left top, right top, color-stop(0, #E2E2E2), color-stop(13.33333%, #E2E2E2), color-stop(13.33333%, #0684bd), color-stop(86.66667%, #0684bd), color-stop(86.66667%, #E2E2E2), color-stop(0, #E2E2E2));
   background: linear-gradient(to right, #E2E2E2 0, #E2E2E2 13.33333%, #0684bd 13.33333%, #0684bd 86.66667%, #E2E2E2 86.66667%, #E2E2E2 0);
   display: block;
   position: absolute;
@@ -9361,15 +9065,10 @@ input:checked + .Switch_slider:before {
   background-color: #f65d60;
   color: #fff;
   font-family: Lato;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-          align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .MessageTabButton_notices {
@@ -9793,24 +9492,6 @@ input:checked + .Switch_slider:before {
   -webkit-animation: ConnectivityBadge_loadingCirle 1s linear infinite;
 }
 
-@-webkit-keyframes ConnectivityBadge_loadingCirle {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-  25% {
-    -webkit-transform: rotate(90deg);
-  }
-  50% {
-    -webkit-transform: rotate(180deg);
-  }
-  75% {
-    -webkit-transform: rotate(270deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-
 .ConnectivityBadge_loading:hover {
   color: #FFFFFF;
   background: #dc0202;
@@ -9829,25 +9510,12 @@ input:checked + .Switch_slider:before {
   height: calc(100% - 38px - 1px);
 }
 
-@-webkit-keyframes Spinner_spin {
-  0% {
-    -webkit-transform: rotateZ(0deg);
-            transform: rotateZ(0deg);
-  }
-  100% {
-    -webkit-transform: rotateZ(360deg);
-            transform: rotateZ(360deg);
-  }
-}
-
 @keyframes Spinner_spin {
   0% {
-    -webkit-transform: rotateZ(0deg);
-            transform: rotateZ(0deg);
+    transform: rotateZ(0deg);
   }
   100% {
-    -webkit-transform: rotateZ(360deg);
-            transform: rotateZ(360deg);
+    transform: rotateZ(360deg);
   }
 }
 
@@ -9872,19 +9540,14 @@ input:checked + .Switch_slider:before {
   border-color: #e07800;
   border-style: solid;
   border-top-color: #0684bd;
-  -webkit-animation: Spinner_spin 0.8s infinite ease-in-out;
-          animation: Spinner_spin 0.8s infinite ease-in-out;
+  animation: Spinner_spin 0.8s infinite ease-in-out;
 }
 
 .MeetingItem_root {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
   background: #FFFFFF;
-  -webkit-box-align: start;
-          align-items: flex-start;
+  align-items: flex-start;
   border-bottom: 1px solid #E2E2E2;
   color: #666666;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -9922,12 +9585,9 @@ input:checked + .Switch_slider:before {
 }
 
 .MeetingItem_recording {
-  display: -webkit-box;
   display: flex;
   line-height: 18px;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
+  flex-direction: row;
   cursor: pointer;
 }
 
@@ -10377,14 +10037,10 @@ table {
 }
 
 .MeetingHistoryPanel_header {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
+  flex-direction: row;
   padding: 0 20px;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
 }
 
 .MeetingHistoryPanel_header .MeetingHistoryPanel_typeSelect {
@@ -10402,8 +10058,7 @@ table {
 }
 
 .MeetingHistoryPanel_header .MeetingHistoryPanel_input {
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   padding-right: 5px;
 }
 
@@ -10453,11 +10108,8 @@ table {
   top: 0;
   right: 10px;
   height: 55px;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
-  -webkit-box-align: center;
-          align-items: center;
+  flex-direction: row;
+  align-items: center;
   background: #F9F9F9;
   display: none;
 }
@@ -10506,7 +10158,6 @@ table {
 }
 
 .UpcomingMeetingList_meetingItem:hover .UpcomingMeetingList_buttons {
-  display: -webkit-box;
   display: flex;
 }
 
@@ -10516,11 +10167,8 @@ table {
 }
 
 .MeetingHomePanel_buttons {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
+  flex-direction: row;
   width: 100%;
   padding: 20px 0;
   background-color: #fafafa;
@@ -10530,16 +10178,11 @@ table {
 }
 
 .MeetingHomePanel_buttons .MeetingHomePanel_button {
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   text-align: center;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
-  -webkit-box-align: center;
-          align-items: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .MeetingHomePanel_buttons .MeetingHomePanel_button label {
@@ -10590,13 +10233,9 @@ table {
 }
 
 .MeetingHomePanel_noResult {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
-  -webkit-box-align: center;
-          align-items: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .MeetingHomePanel_noResult .MeetingHomePanel_noResultImg {
@@ -10622,8 +10261,7 @@ table {
 
 .MeetingHomePanel_content {
   height: calc(100% - 130px);
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   overflow-y: auto;
 }
 
@@ -10641,15 +10279,10 @@ table {
 }
 
 .MeetingScheduleButton_onlyButton {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-          align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   height: 100%;
   margin-top: -20px;
 }
@@ -10739,15 +10372,10 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
 }
 
 .RcVideoScheduleButton_onlyButton {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-          align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   height: 100%;
   margin-top: -20px;
 }
@@ -10847,7 +10475,6 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
   position: absolute;
   top: 50%;
   left: 50%;
-  -webkit-transform: translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
 }
 
@@ -10904,7 +10531,6 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
   height: 100%;
   overflow: hidden;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -10915,7 +10541,6 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
   height: 100%;
   text-decoration: none;
   cursor: pointer;
-  -webkit-transition: all 0.1s ease;
   transition: all 0.1s ease;
   color: #fff !important;
   font-size: 16px;
@@ -10953,7 +10578,6 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
   position: absolute;
   top: 50%;
   left: 50%;
-  -webkit-transform: translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
   overflow: visible !important;
 }
@@ -11048,7 +10672,6 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
 }
 
 .TabNavigationView_vertical {
-  display: -webkit-box;
   display: flex;
 }
 
@@ -11165,29 +10788,15 @@ input {
 }
 
 div[class*="MuiCircularProgress-indeterminate"] {
-  -webkit-animation: AppView_MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
-          animation: AppView_MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
-}
-
-@-webkit-keyframes AppView_MuiCircularProgress-keyframes-circular-rotate2 {
-  0% {
-    -webkit-transform: rotate(0deg);
-            transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-            transform: rotate(360deg);
-  }
+  animation: AppView_MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
 }
 
 @keyframes AppView_MuiCircularProgress-keyframes-circular-rotate2 {
   0% {
-    -webkit-transform: rotate(0deg);
-            transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   100% {
-    -webkit-transform: rotate(360deg);
-            transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 
@@ -11217,8 +10826,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .RecentActivityPanel_foldArrowIcon {
   display: inline-block;
-  -webkit-transform: rotate(180deg);
-          transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .RecentActivityPanel_expandable {
@@ -11228,10 +10836,8 @@ div[class*="MuiCircularProgress-indeterminate"] {
   left: 0;
   bottom: 0;
   width: 100%;
-  -webkit-transition: height 0.2s 0s ease-in-out;
   transition: height 0.2s 0s ease-in-out;
-  -webkit-transform: translateZ(0);
-          transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .RecentActivityView_recentActivityView {
@@ -11255,7 +10861,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
   height: 100%;
   overflow: hidden;
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -11266,7 +10871,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
   height: 100%;
   text-decoration: none;
   cursor: pointer;
-  -webkit-transition: all 0.1s ease;
   transition: all 0.1s ease;
   color: #797979 !important;
   font-size: 16px;
@@ -11547,7 +11151,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .InputLine_inputHolder {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   user-drag: none;
@@ -11628,8 +11231,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .PresenceSettingSection_showDropdown .PresenceSettingSection_dropdownIcon {
-  -webkit-transform: rotate(180deg);
-          transform: rotate(180deg);
+  transform: rotate(180deg);
   color: #0684bd;
 }
 
@@ -11747,12 +11349,9 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .AuthorizeSettingsSection_accountWrapper {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: baseline;
-          align-items: baseline;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
 .AuthorizeSettingsSection_iconHolder {
@@ -11804,12 +11403,10 @@ div[class*="MuiCircularProgress-indeterminate"] {
   overflow: hidden;
   box-sizing: border-box;
   margin-left: 5px;
-  -webkit-transform: translateZ(0);
-          transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .SlideMenu_withAnimation {
-  -webkit-transition: height 0.15s 0s ease-in-out;
   transition: height 0.15s 0s ease-in-out;
 }
 
@@ -11849,14 +11446,12 @@ div[class*="MuiCircularProgress-indeterminate"] {
   border-left: 1px solid #e2e2e2;
   border-bottom: 1px solid #e2e2e2;
   box-sizing: border-box;
-  -webkit-transform: rotate(-45deg);
-          transform: rotate(-45deg);
+  transform: rotate(-45deg);
 }
 
 .SlideMenu_extendIcon .SlideMenu_extended {
   margin-top: -1.5px;
-  -webkit-transform: rotate(135deg);
-          transform: rotate(135deg);
+  transform: rotate(135deg);
 }
 
 .EntityButton_spinnerContainer {
@@ -12036,10 +11631,8 @@ div[class*="MuiCircularProgress-indeterminate"] {
   position: relative;
   padding: 13px 20px 18px;
   box-sizing: border-box;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
   width: 100%;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 13px;
@@ -12047,15 +11640,10 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .ActiveCallItem_infoWrapper {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
   height: 100%;
   max-width: calc(100% - 21px);
   padding-left: 6px;
@@ -12069,16 +11657,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
   color: #23B23D;
 }
 
-@-webkit-keyframes ActiveCallItem_ringing {
-  0% {
-    text-shadow: 0px 0px 1px #23B23D;
-  }
-  100% {
-    color: #2ce44d;
-    text-shadow: 0px 0px 10px #2ce44d;
-  }
-}
-
 @keyframes ActiveCallItem_ringing {
   0% {
     text-shadow: 0px 0px 1px #23B23D;
@@ -12090,14 +11668,10 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .ActiveCallItem_activeCall.ActiveCallItem_ringing {
-  -webkit-animation-name: ActiveCallItem_ringing;
-          animation-name: ActiveCallItem_ringing;
-  -webkit-animation-direction: alternate;
-          animation-direction: alternate;
-  -webkit-animation-duration: 0.5s;
-          animation-duration: 0.5s;
-  -webkit-animation-iteration-count: infinite;
-          animation-iteration-count: infinite;
+  animation-name: ActiveCallItem_ringing;
+  animation-direction: alternate;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
 }
 
 .ActiveCallItem_contactDisplay {
@@ -12219,19 +11793,16 @@ div[class*="MuiCircularProgress-indeterminate"] {
   border-left: 1px solid #e2e2e2;
   border-bottom: 1px solid #e2e2e2;
   box-sizing: border-box;
-  -webkit-transform: rotate(-45deg);
-          transform: rotate(-45deg);
+  transform: rotate(-45deg);
 }
 
 .ActiveCallItem_extendIcon .ActiveCallItem_extended {
   margin-top: -1.5px;
-  -webkit-transform: rotate(135deg);
-          transform: rotate(135deg);
+  transform: rotate(135deg);
 }
 
 .ActiveCallItem_actionMenu {
   height: 0;
-  -webkit-transition: height 1s;
   transition: height 1s;
 }
 
@@ -12254,10 +11825,8 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .CallItem_wrapper {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
   width: 100%;
   padding: 13px 20px 18px;
   box-sizing: border-box;
@@ -12265,15 +11834,10 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .CallItem_infoWrapper {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
   height: 100%;
   max-width: calc(100% - 21px);
   padding-left: 6px;
@@ -12284,7 +11848,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .CallItem_callIcon {
-  display: -webkit-inline-box;
   display: inline-flex;
   font-size: 22px;
   color: #666;
@@ -12293,16 +11856,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .CallItem_activeCall {
   color: #23B23D;
-}
-
-@-webkit-keyframes CallItem_ringing {
-  0% {
-    text-shadow: 0px 0px 1px #23B23D;
-  }
-  100% {
-    color: #2ce44d;
-    text-shadow: 0px 0px 10px #2ce44d;
-  }
 }
 
 @keyframes CallItem_ringing {
@@ -12316,14 +11869,10 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .CallItem_activeCall.CallItem_ringing {
-  -webkit-animation-name: CallItem_ringing;
-          animation-name: CallItem_ringing;
-  -webkit-animation-direction: alternate;
-          animation-direction: alternate;
-  -webkit-animation-duration: 0.5s;
-          animation-duration: 0.5s;
-  -webkit-animation-iteration-count: infinite;
-          animation-iteration-count: infinite;
+  animation-name: CallItem_ringing;
+  animation-direction: alternate;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
 }
 
 .CallItem_details {
@@ -12489,8 +12038,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .LogSection_editSection {
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   max-height: 100%;
   height: 100%;
   width: 100%;
@@ -12512,21 +12060,16 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .LogSection_root {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
   height: 100%;
   width: 100%;
   box-sizing: border-box;
 }
 
 .LogBasicInfo_callInfo {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   min-width: 0;
 }
 
@@ -12538,18 +12081,14 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .LogBasicInfo_callIcon {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-          align-items: center;
+  justify-content: center;
+  align-items: center;
   min-width: 30px;
 }
 
 .LogBasicInfo_callDisplay {
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   max-width: 100%;
   overflow: hidden;
   margin: 0;
@@ -12567,15 +12106,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-@-webkit-keyframes LogBasicInfo_ringing {
-  0% {
-    box-shadow: 1px 1px 10px #2ce44d;
-  }
-  100% {
-    box-shadow: 1px 1px 10px #23B23D;
-  }
 }
 
 @keyframes LogBasicInfo_ringing {
@@ -12596,14 +12126,10 @@ div[class*="MuiCircularProgress-indeterminate"] {
   background: #5fb95c;
   color: #ffffff;
   border-radius: 100%;
-  -webkit-animation-name: LogBasicInfo_ringing;
-          animation-name: LogBasicInfo_ringing;
-  -webkit-animation-direction: alternate;
-          animation-direction: alternate;
-  -webkit-animation-duration: 0.5s;
-          animation-duration: 0.5s;
-  -webkit-animation-iteration-count: infinite;
-          animation-iteration-count: infinite;
+  animation-name: LogBasicInfo_ringing;
+  animation-direction: alternate;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
 }
 
 .LogBasicInfo_ringing:before {
@@ -12637,7 +12163,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .LogBasicInfo_root {
-  display: -webkit-box;
   display: flex;
   padding: 10px 10px;
   overflow: hidden;
@@ -12656,12 +12181,9 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .LogBasicInfo_extra {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-          align-items: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .LogBasicInfo_pointer {
@@ -12690,10 +12212,8 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .LogNotification_basicInfo {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
+  justify-content: space-between;
   padding-right: 10px;
   padding-top: 14px;
   overflow: hidden;
@@ -12791,7 +12311,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .LogNotification_extraButtonBox {
-  display: -webkit-box;
   display: flex;
   margin-top: 12px;
 }
@@ -12909,7 +12428,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .LogIcon_logIcon {
-  display: -webkit-box;
   display: flex;
   cursor: pointer;
 }
@@ -13088,30 +12606,22 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MessageItem_wrapper {
-  display: -webkit-box;
   display: flex;
   padding: 18px 20px 18px 13px;
   box-sizing: border-box;
-  -webkit-box-align: center;
-          align-items: center;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   min-height: 67px;
 }
 
 .MessageItem_infoWrapper {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
-  -webkit-box-pack: center;
-          justify-content: center;
+  flex-direction: column;
+  justify-content: center;
   height: 100%;
   max-height: 31px;
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
   flex-basis: calc(100% - 40px);
   max-width: calc(100% - 40px);
   padding: 0 12px;
@@ -13149,15 +12659,10 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MessageItem_detailsWithTime {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
-  -webkit-box-align: center;
-          align-items: center;
-  -webkit-box-pack: start;
-          justify-content: flex-start;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .MessageItem_embellishInfoWrapper {
@@ -13248,8 +12753,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   overflow: hidden;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-transform: translateZ(0);
-          transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .ConversationList_loading {
@@ -13500,8 +13004,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   left: -10px;
   background: #efefef;
   border-bottom-right-radius: 33px;
-  -webkit-transform: rotate(-3deg);
-          transform: rotate(-3deg);
+  transform: rotate(-3deg);
 }
 
 .ConversationMessageList_messageBody.ConversationMessageList_inbound:after {
@@ -13514,8 +13017,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   left: -24px;
   background: #fff;
   border-bottom-right-radius: 30px;
-  -webkit-transform: rotate(-24deg);
-          transform: rotate(-24deg);
+  transform: rotate(-24deg);
 }
 
 .ConversationMessageList_messageBody.ConversationMessageList_outbound {
@@ -13534,8 +13036,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   right: -11px;
   background: #d5f3fd;
   border-bottom-left-radius: 33px;
-  -webkit-transform: rotate(-6deg);
-          transform: rotate(-6deg);
+  transform: rotate(-6deg);
 }
 
 .ConversationMessageList_messageBody.ConversationMessageList_outbound:after {
@@ -13548,8 +13049,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   right: -23px;
   background: #fff;
   border-bottom-left-radius: 30px;
-  -webkit-transform: rotate(43deg);
-          transform: rotate(43deg);
+  transform: rotate(43deg);
 }
 
 .ConversationMessageList_messageBody.ConversationMessageList_big {
@@ -13582,22 +13082,16 @@ div[class*="MuiCircularProgress-indeterminate"] {
   max-width: 200px;
   border-radius: 4px;
   background: #FFFFFF;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-direction: row;
-  -webkit-box-pack: start;
-          justify-content: flex-start;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-start;
   margin-bottom: 5px;
 }
 
 .ConversationMessageList_fileName {
   margin: 0 5px;
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 
 .ConversationMessageList_download {
@@ -13633,8 +13127,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   font-size: 13px;
   color: #666;
   text-decoration: none;
-  -webkit-transform: rotate(90deg);
-          transform: rotate(90deg);
+  transform: rotate(90deg);
   cursor: pointer;
 }
 
@@ -13658,12 +13151,9 @@ div[class*="MuiCircularProgress-indeterminate"] {
 .ConversationPanel_contactDisplay {
   height: 40px;
   width: 100%;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-          align-items: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .ConversationPanel_contactDisplaySelect {
@@ -13719,8 +13209,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MeetingInviteModal_copiedText {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   color: #666666;
   overflow-x: hidden;
   overflow-y: auto;
@@ -13833,9 +13322,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   font-size: 13px;
   font-weight: bold;
   color: #2F2F2F;
-  -webkit-box-align: center;
-          align-items: center;
-  display: -webkit-box;
+  align-items: center;
   display: flex;
 }
 
@@ -13844,29 +13331,20 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MeetingConfigs_spaceBetween {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
-  -webkit-box-align: center;
-          align-items: center;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .MeetingConfigs_recurringGroup {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: start;
-          justify-content: flex-start;
+  justify-content: flex-start;
 }
 
 .MeetingConfigs_inline {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-          flex-flow: row nowrap;
-  -webkit-box-pack: start;
-          justify-content: flex-start;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
   line-height: 16px;
 }
 
@@ -13892,7 +13370,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MeetingConfigs_labelDark {
-  display: -webkit-box;
   display: flex;
   font-size: 14px;
   font-weight: normal;
@@ -13904,14 +13381,11 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MeetingConfigs_dropDown {
-  -webkit-transform: rotate(180deg);
-          transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .MeetingConfigs_passwordBox {
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
 }
 
 .MeetingConfigs_password {
@@ -13952,7 +13426,6 @@ div[class*="MuiCircularProgress-indeterminate"] {
   font-size: 13px;
   position: relative;
   color: #0684bd;
-  display: -webkit-box;
   display: flex;
   background-color: transparent;
 }
@@ -13963,13 +13436,11 @@ div[class*="MuiCircularProgress-indeterminate"] {
   top: 5px;
   height: 17px;
   color: #0684bd;
-  display: -webkit-box;
   display: flex;
   background-color: transparent;
 }
 
 .MeetingConfigs_timePicker {
-  display: -webkit-box;
   display: flex;
   width: 63px;
   margin-left: -5px;
@@ -14019,23 +13490,19 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .MeetingConfigs_dateIcon {
   height: 17.4px;
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 
 .MeetingConfigs_timeIcon {
   height: 17.7px;
   margin-left: -5px;
   position: relative;
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 
 .MeetingConfigs_dateTimeBox {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
   margin-top: 10px;
   height: 24px;
 }
@@ -14045,11 +13512,9 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MeetingConfigs_list {
-  display: -webkit-box;
   display: flex;
   width: 50%;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
   position: relative;
   height: 24px;
 }
@@ -14117,7 +13582,6 @@ div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelSummary {
 div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelSummary.SettingGroup_expansionPanelSummaryDisabled {
   opacity: inherit;
   -webkit-user-select: inherit;
-     -moz-user-select: inherit;
       -ms-user-select: inherit;
           user-select: inherit;
 }
@@ -14129,9 +13593,7 @@ div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelSummary div.Setti
 div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelDetails {
   padding: 0;
   border: 0;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
 }
 
 div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelDetails div.SettingGroup_toggleGroup {
@@ -14190,11 +13652,8 @@ div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelDetails div.Setti
   include all rc class
 */
 .VideoPanel_videoPanel {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
   height: 100%;
 }
 
@@ -14221,26 +13680,22 @@ div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelDetails div.Setti
 }
 
 .VideoPanel_select {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   width: 50%;
 }
 
 .VideoPanel_hourDuration {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
 }
 
 .VideoPanel_minuteDuration {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
   margin-left: 12px;
 }
 
 .VideoPanel_pmiLabel {
-  display: -webkit-box;
   display: flex;
   flex-wrap: wrap;
 }
@@ -14258,29 +13713,22 @@ div.SettingGroup_expansionPanel div.SettingGroup_expansionPanelDetails div.Setti
 label.VideoPanel_labelPlacementStartRoot {
   margin: 0;
   padding: 0 6px 0 20px;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: start;
-          align-items: flex-start;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
 label.VideoPanel_labelPlacementEndRoot {
   margin: 0;
   padding: 0 20px 0 0;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: start;
-          align-items: flex-start;
+  align-items: flex-start;
 }
 
 label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
   width: 100%;
-  display: -webkit-box;
   display: flex;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
+  justify-content: space-between;
 }
 
 .myinput {
@@ -14332,10 +13780,8 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 }
 
 .VideoPanel_iconCombine {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: center;
-          align-items: center;
+  align-items: center;
 }
 
 .VideoPanel_tooltip {
@@ -14440,7 +13886,6 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 }
 
 .ExtendedTooltip_pmiLabel {
-  display: -webkit-box;
   display: flex;
   flex-wrap: wrap;
 }
@@ -14456,21 +13901,18 @@ div.ExtendedTooltip_videoConfig div.ExtendedTooltip_meetingSettings div.Extended
 }
 
 div.ExtendedTooltip_meetingSettings div.ExtendedTooltip_meetingDatePicker {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
 }
 
 div.ExtendedTooltip_meetingSettings div.ExtendedTooltip_meetingTimePicker {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
   margin-left: 12px;
 }
 
 .ExtendedTooltip_select {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   width: 50%;
 }
 
@@ -14479,13 +13921,11 @@ div.ExtendedTooltip_meetingSettings div.ExtendedTooltip_meetingTimePicker {
 }
 
 .ExtendedTooltip_hourDuration {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
 }
 
 .ExtendedTooltip_minuteDuration {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
   margin-left: 12px;
@@ -14494,7 +13934,6 @@ div.ExtendedTooltip_meetingSettings div.ExtendedTooltip_meetingTimePicker {
 div.ExtendedTooltip_videoConfig div.ExtendedTooltip_expansionPanelSummaryDisabled {
   opacity: inherit;
   -webkit-user-select: inherit;
-     -moz-user-select: inherit;
       -ms-user-select: inherit;
           user-select: inherit;
 }
@@ -14514,9 +13953,7 @@ div.ExtendedTooltip_expansionPanelSummaryContent {
 div.ExtendedTooltip_videoConfig div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_expansionPanelDetails {
   padding: 0;
   border: 0;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
 }
 
 .ExtendedTooltip_toggleGroup {
@@ -14525,12 +13962,9 @@ div.ExtendedTooltip_videoConfig div.ExtendedTooltip_expansionPanel div.ExtendedT
 
 .ExtendedTooltip_labelPlacement, div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.ExtendedTooltip_labelPlacementStart, div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.ExtendedTooltip_labelPlacementEnd {
   margin: 0;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
-  display: -webkit-box;
+  justify-content: space-between;
   display: flex;
-  -webkit-box-align: start;
-          align-items: flex-start;
+  align-items: flex-start;
 }
 
 .ExtendedTooltip_labelPlacement > span[class*='RcCheckbox'], div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.ExtendedTooltip_labelPlacementStart > span[class*='RcCheckbox'], div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.ExtendedTooltip_labelPlacementEnd > span[class*='RcCheckbox'] {
@@ -14610,25 +14044,20 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
 }
 
 .ExtendedTooltip_labelContent {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: start;
-          align-items: flex-start;
+  align-items: flex-start;
   padding: 5px 0;
   font-weight: normal;
   line-height: 22px;
 }
 
 .ExtendedTooltip_labelContent .ExtendedTooltip_placementLeft {
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 
 .ExtendedTooltip_labelContent .ExtendedTooltip_placementRight {
-  display: -webkit-inline-box;
   display: inline-flex;
-  -webkit-box-align: end;
-          align-items: flex-end;
+  align-items: flex-end;
   cursor: pointer;
   padding: 2px 0;
 }
@@ -14766,7 +14195,6 @@ div.ExtendedTooltip_expansionPanel div.ExtendedTooltip_toggleGroup label.Extende
 }
 
 .MeetingConfigsV2_pmiLabel {
-  display: -webkit-box;
   display: flex;
   flex-wrap: wrap;
 }
@@ -14782,21 +14210,18 @@ div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_meetingSettings div.Meetin
 }
 
 div.MeetingConfigsV2_meetingSettings div.MeetingConfigsV2_meetingDatePicker {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
 }
 
 div.MeetingConfigsV2_meetingSettings div.MeetingConfigsV2_meetingTimePicker {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
   margin-left: 12px;
 }
 
 .MeetingConfigsV2_select {
-  -webkit-box-flex: 1;
-          flex-grow: 1;
+  flex-grow: 1;
   width: 50%;
 }
 
@@ -14805,13 +14230,11 @@ div.MeetingConfigsV2_meetingSettings div.MeetingConfigsV2_meetingTimePicker {
 }
 
 .MeetingConfigsV2_hourDuration {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
 }
 
 .MeetingConfigsV2_minuteDuration {
-  display: -webkit-inline-box;
   display: inline-flex;
   width: calc(50% - 6px);
   margin-left: 12px;
@@ -14820,7 +14243,6 @@ div.MeetingConfigsV2_meetingSettings div.MeetingConfigsV2_meetingTimePicker {
 div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_expansionPanelSummaryDisabled {
   opacity: inherit;
   -webkit-user-select: inherit;
-     -moz-user-select: inherit;
       -ms-user-select: inherit;
           user-select: inherit;
 }
@@ -14840,9 +14262,7 @@ div.MeetingConfigsV2_expansionPanelSummaryContent {
 div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_expansionPanelDetails {
   padding: 0;
   border: 0;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
 }
 
 .MeetingConfigsV2_toggleGroup {
@@ -14851,12 +14271,9 @@ div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_expansionPanel div.Meeting
 
 .MeetingConfigsV2_labelPlacement, div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.MeetingConfigsV2_labelPlacementStart, div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.MeetingConfigsV2_labelPlacementEnd {
   margin: 0;
-  -webkit-box-pack: justify;
-          justify-content: space-between;
-  display: -webkit-box;
+  justify-content: space-between;
   display: flex;
-  -webkit-box-align: start;
-          align-items: flex-start;
+  align-items: flex-start;
 }
 
 .MeetingConfigsV2_labelPlacement > span[class*='RcCheckbox'], div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.MeetingConfigsV2_labelPlacementStart > span[class*='RcCheckbox'], div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.MeetingConfigsV2_labelPlacementEnd > span[class*='RcCheckbox'] {
@@ -14936,25 +14353,20 @@ div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.Meeti
 }
 
 .MeetingConfigsV2_labelContent {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-align: start;
-          align-items: flex-start;
+  align-items: flex-start;
   padding: 5px 0;
   font-weight: normal;
   line-height: 22px;
 }
 
 .MeetingConfigsV2_labelContent .MeetingConfigsV2_placementLeft {
-  -webkit-box-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 
 .MeetingConfigsV2_labelContent .MeetingConfigsV2_placementRight {
-  display: -webkit-inline-box;
   display: inline-flex;
-  -webkit-box-align: end;
-          align-items: flex-end;
+  align-items: flex-end;
   cursor: pointer;
   padding: 2px 0;
 }
@@ -15007,11 +14419,8 @@ div.MeetingConfigsV2_expansionPanel div.MeetingConfigsV2_toggleGroup label.Meeti
 }
 
 .GenericMeetingPanel_wrapper {
-  display: -webkit-box;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-          flex-direction: column;
+  flex-direction: column;
   height: 100%;
 }
 
