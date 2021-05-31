@@ -78,6 +78,7 @@ const {
   discoverAppServer,
   enablePopup,
   popupPageUri,
+  enableRingtoneSettings,
 } = parseUri(paramsUri);
 
 function obj2uri(obj) {
@@ -129,6 +130,7 @@ const appUri = `${appUrl}?${obj2uri({
   enableWebRTCPlanB,
   fromAdapter: 1,
   fromPopup,
+  enableRingtoneSettings,
   _t: Date.now(),
 })}`;
 

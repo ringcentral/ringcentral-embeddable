@@ -74,3 +74,23 @@ Active Call Control feature uses new `CallControl` RESTful API to control RingCe
 Before we start to use Active Call Control feature, need to add `CallControl` permission to your app in RingCentral Developer website. After permissions added, you can get the feature after re-login to the widget.
 
 Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add `CallControl` permission if you get any problem.
+
+## Enable Ringtone Settings feature
+
+For when call is ringing, app will play default ringtone. But we also support to customize ringtone.
+
+Ringtone settings is disabled by default. To enable it:
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enableRingtoneSettings=1";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+By enabled, user can get ringtone settings at settings page.
+**Notice**: supported after v1.6.3

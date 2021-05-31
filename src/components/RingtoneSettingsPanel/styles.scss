@@ -1,0 +1,23 @@
+@import '~ringcentral-widgets/lib/commonStyles/full-size.scss';
+
+.root {
+  @include full-size;
+}
+
+.content {
+  padding: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: row;
+}
+
+.fileName {
+  display: flex;
+  align-items: center;
+}

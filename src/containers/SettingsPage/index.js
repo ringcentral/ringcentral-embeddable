@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import SettingsPanel from 'ringcentral-widgets/components/SettingsPanel';
 import withPhone from 'ringcentral-widgets/lib/withPhone';
-
+import { LinkLineItem } from 'ringcentral-widgets/components/SettingsPanel/SettingItems/LinkLineItem';
 import AuthorizeSettingsSection from '../../components/AuthorizeSettingsSection';
 import ToggleSettings from '../../components/ToggleSettings';
 
@@ -20,9 +20,19 @@ function NewSettingsPanel(props) {
     authorizedAccount,
     thirdPartySettings,
     onSettingToggle,
+    gotoRingtoneSettings,
+    showRingtoneSettings,
   } = props;
-  let additional = null;
   let authorization = null;
+  let ringtone = (
+    <LinkLineItem
+      show={showRingtoneSettings}
+      customTitle="Ringtone"
+      currentLocale={props.currentLocale}
+      onClick={gotoRingtoneSettings}
+    />
+  );
+  let additional = ringtone;
   if (authorizationRegistered) {
     authorization = (
       <AuthorizeSettingsSection
@@ -40,6 +50,7 @@ function NewSettingsPanel(props) {
   if (authorization || thirdPartySettings.length > 0) {
     additional = (
       <section>
+        ringtone
         <ToggleSettings
           settings={thirdPartySettings}
           onToggle={onSettingToggle}
@@ -118,6 +129,7 @@ function mapToProps(_, {
     showFeedback: thirdPartyService.showFeedback,
     thirdPartySettings: thirdPartyService.settings,
     autoLogSMSTitle: 'Auto log messages',
+    showRingtoneSettings: rolesAndPermissions.ringtonePermission,
   };
 }
 
@@ -130,6 +142,7 @@ function mapToFunctions(_, {
     conversationLogger,
     thirdPartyService,
     settingsUI,
+    routerInteraction,
   } = phone;
   return {
     ...settingsUI.getUIFunctions({ phone, ...props }),
@@ -140,6 +153,7 @@ function mapToFunctions(_, {
       thirdPartyService.onShowFeedback();
     },
     onSettingToggle: setting => thirdPartyService.onSettingToggle(setting),
+    gotoRingtoneSettings: () => routerInteraction.push('/settings/ringtone'),
   };
 }
 

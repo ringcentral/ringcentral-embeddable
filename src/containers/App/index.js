@@ -52,6 +52,7 @@ import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButto
 import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourceIcon';
 
 import SettingsPage from '../SettingsPage';
+import RingtoneSettingsPage from '../RingtoneSettingsPage';
 import CallsListPage from '../CallsListPage';
 import CallLogSectionModal from '../CallLogSectionModal';
 import ConversationsPage from '../ConversationsPage';
@@ -184,6 +185,10 @@ export default function App({
               <Route
                 path="/settings/audio"
                 component={AudioSettingsPage}
+              />
+              <Route
+                path="/settings/ringtone"
+                component={RingtoneSettingsPage}
               />
               <Route
                 path="/settings/feedback"
