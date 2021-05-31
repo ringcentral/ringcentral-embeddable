@@ -9,6 +9,7 @@ import proxyActionTypes from 'ringcentral-integration/lib/proxy/baseActionTypes'
 
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
 
+import { normalizeSession } from './helper';
 import {
   getWebphoneStateReducer,
   getModuleStateReducer,
@@ -426,5 +427,22 @@ export default class Webphone extends WebphoneBase {
       }
     }
     await super._onConnectError(options);
+  }
+
+  // override normalizeSession for call queue name
+  @proxify
+  clearSessionCaching() {
+    this.store.dispatch({
+      type: this.actionTypes.clearSessionCaching,
+      sessions: [...this._sessions.values()].map(normalizeSession),
+    });
+  }
+
+  // override normalizeSession for call queue name
+  _updateSessions() {
+    this.store.dispatch({
+      type: this.actionTypes.updateSessions,
+      sessions: [...this._sessions.values()].map(normalizeSession),
+    });
   }
 }
