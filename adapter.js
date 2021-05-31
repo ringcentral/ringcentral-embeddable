@@ -2807,7 +2807,8 @@ var _parseUri = (0, _parseUri2.default)(paramsUri),
     discovery = _parseUri.discovery,
     discoverAppServer = _parseUri.discoverAppServer,
     enablePopup = _parseUri.enablePopup,
-    popupPageUri = _parseUri.popupPageUri;
+    popupPageUri = _parseUri.popupPageUri,
+    enableRingtoneSettings = _parseUri.enableRingtoneSettings;
 
 function obj2uri(obj) {
   if (!obj) {
@@ -2860,6 +2861,7 @@ var appUri = "".concat(appUrl, "?").concat(obj2uri({
   enableWebRTCPlanB: enableWebRTCPlanB,
   fromAdapter: 1,
   fromPopup: fromPopup,
+  enableRingtoneSettings: enableRingtoneSettings,
   _t: Date.now()
 }));
 
