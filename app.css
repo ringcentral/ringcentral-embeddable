@@ -422,7 +422,7 @@
 }
 
 .Header_root .Header_button:hover {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .Header_root .Header_disabled,
@@ -432,7 +432,7 @@
 }
 
 .Button_root {
-  color: #0684bd;
+  color: #2559E4;
   cursor: pointer;
   text-overflow: ellipsis;
   outline: none;
@@ -841,7 +841,7 @@
 }
 
 .Switch_disable input:checked + .Switch_slider {
-  background-color: #0684bd;
+  background-color: #2559E4;
 }
 
 .Switch_disable input:focus + .Switch_slider {
@@ -849,11 +849,11 @@
 }
 
 input:checked + .Switch_slider {
-  background-color: #0684bd;
+  background-color: #2559E4;
 }
 
 input:focus + .Switch_slider {
-  box-shadow: 0 0 1px #0684bd;
+  box-shadow: 0 0 1px #2559E4;
 }
 
 input:checked + .Switch_slider:before {
@@ -1041,7 +1041,7 @@ input:checked + .Switch_slider:before {
 }
 
 .DropdownSelect_selected {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .DropdownSelect_dropdownItem {
@@ -1051,7 +1051,7 @@ input:checked + .Switch_slider:before {
 }
 
 .DropdownSelect_dropdownItem:hover {
-  color: #0684bd;
+  color: #2559E4;
   cursor: pointer;
 }
 
@@ -1099,7 +1099,7 @@ input:checked + .Switch_slider:before {
 }
 
 .DropdownSelect_dropdown:hover .DropdownSelect_selected:hover {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .DropdownSelect_dropdown .DropdownSelect_placeholder:first-child {
@@ -1189,7 +1189,7 @@ input:checked + .Switch_slider:before {
   width: 100%;
   height: 36px;
   border-radius: 100px;
-  background: #0684bd;
+  background: #2559E4;
   line-height: 36px;
   color: #ffffff !important;
   text-align: center;
@@ -1202,7 +1202,7 @@ input:checked + .Switch_slider:before {
   width: 100%;
   height: 36px;
   border-radius: 100px;
-  background: #0684bd;
+  background: #2559E4;
   line-height: 36px;
   color: #ffffff !important;
   text-align: center;
@@ -1268,7 +1268,7 @@ input:checked + .Switch_slider:before {
   height: 35px;
   margin-left: auto;
   margin-right: auto;
-  color: #0684bd;
+  color: #2559E4;
   overflow: hidden;
   flex-basis: 45.5px;
 }
@@ -1339,12 +1339,12 @@ input:checked + .Switch_slider:before {
 }
 
 .CircleButton_icon g, .CircleButton_icon path, .CircleButton_icon rect {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .CircleButton_ripple {
   position: absolute;
-  fill: rgba(6, 132, 189, 0.3);
+  fill: rgba(37, 89, 228, 0.3);
   border-radius: 100%;
   transform: scale(0);
   pointer-events: none;
@@ -1599,13 +1599,13 @@ input:checked + .Switch_slider:before {
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton circle {
   fill: #FFFFFF;
-  stroke: #0684bd;
+  stroke: #2559E4;
   stroke-width: 15px;
 }
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton g,
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_mergeButton path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_disabled,
@@ -1624,17 +1624,17 @@ input:checked + .Switch_slider:before {
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton circle {
   fill: #FFFFFF;
-  stroke: #0684bd;
+  stroke: #2559E4;
   stroke-width: 15px;
 }
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton g,
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton.ActiveCallItemV2_active circle {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ActiveCallItemV2_callItemContainer .ActiveCallItemV2_wrapper .ActiveCallItemV2_webphoneButton .ActiveCallItemV2_holdButton.ActiveCallItemV2_active g,
@@ -1815,13 +1815,13 @@ input:checked + .Switch_slider:before {
 }
 
 .DialButton_btnSvgGroup:hover .DialButton_circle {
-  stroke: #0684bd;
+  stroke: #2559E4;
   /*fill: rgba(6, 132, 189, 0.1);*/
 }
 
 .DialButton_btnSvgGroup:hover .DialButton_btnValue,
 .DialButton_btnSvgGroup:hover .DialButton_btnText {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 /*.pressed .circle,
@@ -1921,11 +1921,11 @@ input:checked + .Switch_slider:before {
 }
 
 .ContactDropdownList_dropdownList li.ContactDropdownList_active {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .ContactDropdownList_dropdownList li.ContactDropdownList_active .ContactDropdownList_name {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .ContactDropdownList_contactItem {
@@ -3588,7 +3588,7 @@ input:checked + .Switch_slider:before {
 }
 
 .RecipientsInput_selectReceivers .RecipientsInput_phoneNumber {
-  background-color: #0684bd;
+  background-color: #2559E4;
   opacity: 0.6;
 }
 
@@ -3734,7 +3734,7 @@ input:checked + .Switch_slider:before {
 }
 
 .RecipientsInputV2_selectReceivers .RecipientsInputV2_phoneNumber {
-  background-color: #0684bd;
+  background-color: #2559E4;
   opacity: 0.6;
 }
 
@@ -3797,11 +3797,11 @@ input:checked + .Switch_slider:before {
 }
 
 .RecipientsInputV2_dropdownList li.RecipientsInputV2_active {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .RecipientsInputV2_dropdownList li.RecipientsInputV2_active .RecipientsInputV2_name {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .RecipientsInputV2_contactItem {
@@ -4071,7 +4071,7 @@ input:checked + .Switch_slider:before {
   border-radius: 18px;
   outline: medium none !important;
   color: #fff;
-  background-color: #0684bd;
+  background-color: #2559E4;
   border-style: none;
 }
 
@@ -4238,7 +4238,7 @@ input:checked + .Switch_slider:before {
   border-radius: 18px;
   outline: medium none !important;
   color: #fff;
-  background-color: #0684bd;
+  background-color: #2559E4;
   border-style: none;
 }
 
@@ -4328,7 +4328,7 @@ input:checked + .Switch_slider:before {
 
 .ForwardForm_cancelButton {
   font-size: 12px;
-  color: #0684bd;
+  color: #2559E4;
   display: inline-block;
   width: 65px;
   height: 28px;
@@ -4341,7 +4341,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ForwardForm_cancelButton:hover {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .ForwardForm_forwardButton {
@@ -4349,8 +4349,8 @@ input:checked + .Switch_slider:before {
   width: 65px;
   height: 28px;
   border-radius: 100px;
-  background: #0684bd;
-  border: solid 1px #0684bd;
+  background: #2559E4;
+  border: solid 1px #2559E4;
   font-size: 12px;
   color: #ffffff;
   line-height: 28px;
@@ -4398,7 +4398,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ForwardForm_custromNumber.ForwardForm_active .ForwardForm_customLabel {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .ForwardForm_custromNumber.ForwardForm_active .ForwardForm_customInput {
@@ -4406,7 +4406,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ForwardForm_active {
-  color: #0684bd;
+  color: #2559E4;
   background-color: #f9f9f9;
 }
 
@@ -4469,7 +4469,7 @@ input:checked + .Switch_slider:before {
 
 .ReplyWithMessage_cancelButton {
   font-size: 12px;
-  color: #0684bd;
+  color: #2559E4;
   display: inline-block;
   width: 65px;
   height: 28px;
@@ -4482,7 +4482,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ReplyWithMessage_cancelButton:hover {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .ReplyWithMessage_replyButton {
@@ -4490,12 +4490,12 @@ input:checked + .Switch_slider:before {
   width: 65px;
   height: 28px;
   border-radius: 100px;
-  background: #0684bd;
+  background: #2559E4;
   font-size: 12px;
   color: #ffffff;
   line-height: 28px;
   text-align: center;
-  border: solid 1px #0684bd;
+  border: solid 1px #2559E4;
 }
 
 .ReplyWithMessage_replyButton:hover {
@@ -4551,7 +4551,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ReplyWithMessage_messages .ReplyWithMessage_messageItem.ReplyWithMessage_active {
-  color: #0684bd;
+  color: #2559E4;
   background: #f5f5f5;
 }
 
@@ -4573,7 +4573,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ReplyWithMessage_timeInput .ReplyWithMessage_timeUnitSelected {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .ReplyWithMessage_timeValue {
@@ -4614,8 +4614,8 @@ input:checked + .Switch_slider:before {
 }
 
 .ActiveCallButton_buttonActive circle {
-  fill: #0684bd;
-  stroke: #0684bd;
+  fill: #2559E4;
+  stroke: #2559E4;
 }
 
 .ActiveCallButton_buttonActive path {
@@ -4870,7 +4870,7 @@ input:checked + .Switch_slider:before {
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 10px;
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .IncomingCallPanel_ringOutside {
@@ -4883,7 +4883,7 @@ input:checked + .Switch_slider:before {
   height: 100px;
   border-radius: 50px;
   opacity: 0.1;
-  border: solid 1px #0684bd;
+  border: solid 1px #2559E4;
   z-index: 1;
 }
 
@@ -4897,7 +4897,7 @@ input:checked + .Switch_slider:before {
   height: 84px;
   border-radius: 50px;
   opacity: 0.29;
-  border: solid 1px #0684bd;
+  border: solid 1px #2559E4;
   z-index: 2;
 }
 
@@ -5065,7 +5065,7 @@ input:checked + .Switch_slider:before {
   height: 65px;
   margin-left: auto;
   margin-right: auto;
-  color: #0684bd;
+  color: #2559E4;
   margin-bottom: 5px;
   overflow: hidden;
 }
@@ -5526,12 +5526,12 @@ input:checked + .Switch_slider:before {
 }
 
 .ActiveCallPad_buttonPopup .ActiveCallPad_buttonItem .ActiveCallPad_buttonActive circle {
-  fill: #0684bd;
-  stroke: #0684bd;
+  fill: #2559E4;
+  stroke: #2559E4;
 }
 
 .ActiveCallPad_buttonPopup .ActiveCallPad_buttonItem .ActiveCallPad_buttonActive path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ActiveCallPad_buttonPopup .ActiveCallPad_buttonItem .ActiveCallPad_buttonDisabled circle {
@@ -5642,13 +5642,13 @@ input:checked + .Switch_slider:before {
 
 .ConfirmMergeModal_confirmMergeModal .ConfirmMergeModal_content .ConfirmMergeModal_webphoneButton .ConfirmMergeModal_mergeButton circle {
   fill: #FFFFFF;
-  stroke: #0684bd;
+  stroke: #2559E4;
   stroke-width: 15px;
 }
 
 .ConfirmMergeModal_confirmMergeModal .ConfirmMergeModal_content .ConfirmMergeModal_webphoneButton .ConfirmMergeModal_mergeButton g,
 .ConfirmMergeModal_confirmMergeModal .ConfirmMergeModal_content .ConfirmMergeModal_webphoneButton .ConfirmMergeModal_mergeButton path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ConfirmMergeModal_confirmMergeModal .ConfirmMergeModal_content::after {
@@ -5767,7 +5767,7 @@ input:checked + .Switch_slider:before {
 .Dialog_flatBtn {
   font-size: 12px;
   border-radius: 25px;
-  border: 1px solid #0684bd;
+  border: 1px solid #2559E4;
   box-sizing: border-box;
   display: inline-block;
   cursor: pointer;
@@ -5777,7 +5777,7 @@ input:checked + .Switch_slider:before {
   outline: none;
   position: relative;
   z-index: 1;
-  color: #0684bd;
+  color: #2559E4;
   transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   -webkit-user-select: none;
   -ms-user-select: none;
@@ -5800,7 +5800,7 @@ input:checked + .Switch_slider:before {
 }
 
 .Dialog_confirmBtn {
-  background-color: #0684bd;
+  background-color: #2559E4;
   color: #FFFFFF;
 }
 
@@ -5809,12 +5809,12 @@ input:checked + .Switch_slider:before {
 }
 
 .Dialog_cancelBtn {
-  color: #0684bd;
+  color: #2559E4;
   background: #FFFFFF;
 }
 
 .Dialog_cancelBtn:hover {
-  background-color: #0684bd;
+  background-color: #2559E4;
   color: #FFFFFF;
 }
 
@@ -5894,7 +5894,7 @@ input:checked + .Switch_slider:before {
   position: absolute;
   border: none;
   outline: 0;
-  background-color: #0684bd;
+  background-color: #2559E4;
   color: #fff;
   border-radius: 3px;
   width: 80%;
@@ -5926,10 +5926,10 @@ input:checked + .Switch_slider:before {
   user-drag: none;
   position: absolute;
   outline: 0;
-  color: #0684bd;
+  color: #2559E4;
   background-color: #fff;
   border-radius: 3px;
-  border: solid 1px #0684bd;
+  border: solid 1px #2559E4;
   width: 80%;
   height: 32px;
   line-height: 30px;
@@ -6431,7 +6431,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ContactsView_iconContainer .ContactsView_iconNode path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ContactsView_refreshIcon {
@@ -6489,13 +6489,13 @@ input:checked + .Switch_slider:before {
 }
 
 .ContactSourceFilter_contactSourceFilter .ContactSourceFilter_filterIconContainer .ContactSourceFilter_filterIconNode path {
-  fill: #0684bd;
-  stroke: #0684bd;
+  fill: #2559E4;
+  stroke: #2559E4;
 }
 
 .ContactSourceFilter_contactSourceFilter .ContactSourceFilter_filterIconContainer .ContactSourceFilter_iconNoneFill path {
   fill: none;
-  stroke: #0684bd;
+  stroke: #2559E4;
 }
 
 .ContactSourceFilter_contactSourceList {
@@ -6520,7 +6520,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ContactSourceFilter_contactSourceList .ContactSourceFilter_contactSourceItem.ContactSourceFilter_selected {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .ContactSourceFilter_contactSourceList .ContactSourceFilter_contactSourceItem:hover {
@@ -6615,11 +6615,11 @@ input:checked + .Switch_slider:before {
 }
 
 .ContactDetails_contacts .ContactDetails_menu button:hover i, .ContactDetails_contacts .ContactDetails_menu button:focus i, .ContactDetails_contacts .ContactDetails_menu button:active i {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .ContactDetails_contacts .ContactDetails_menu button:hover path, .ContactDetails_contacts .ContactDetails_menu button:focus path, .ContactDetails_contacts .ContactDetails_menu button:active path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled {
@@ -6805,7 +6805,7 @@ input:checked + .Switch_slider:before {
 .ContactDetails_email li a:hover,
 .ContactDetails_email li a:visited,
 .ContactDetails_email li a:focus {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .ContactDetails_email .ContactDetails_underline:hover {
@@ -6956,7 +6956,7 @@ input:checked + .Switch_slider:before {
   width: 100%;
   height: 36px;
   border-radius: 100px;
-  background: #0684bd;
+  background: #2559E4;
   line-height: 36px;
   color: #ffffff !important;
   text-align: center;
@@ -6967,7 +6967,7 @@ input:checked + .Switch_slider:before {
   outline: 0;
   cursor: pointer;
   text-decoration: none;
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .LinkLine_link:hover {
@@ -7184,7 +7184,7 @@ input:checked + .Switch_slider:before {
 }
 
 .ConferencePanel_primaryButton {
-  background-color: #0684bd;
+  background-color: #2559E4;
   color: #FFFFFF;
 }
 
@@ -7286,7 +7286,7 @@ input:checked + .Switch_slider:before {
 }
 
 .CheckBox_selectedCheckButton:before {
-  border-color: #0684bd;
+  border-color: #2559E4;
 }
 
 .CheckBox_selectedCheckButton:after {
@@ -7296,7 +7296,7 @@ input:checked + .Switch_slider:before {
   height: 8px;
   width: 8px;
   border-radius: 4px;
-  background-color: #0684bd;
+  background-color: #2559E4;
   content: '';
 }
 
@@ -7333,8 +7333,8 @@ input:checked + .Switch_slider:before {
 }
 
 .CheckBox_checkboxWrapper .CheckBox_checkbox.CheckBox_checked {
-  background: #0684bd;
-  border-color: #0684bd;
+  background: #2559E4;
+  border-color: #2559E4;
 }
 
 .CheckBox_checkboxWrapper .CheckBox_checkbox.CheckBox_checkboxDisabled {
@@ -7381,7 +7381,7 @@ input:checked + .Switch_slider:before {
   line-height: 28px;
   text-align: center;
   display: inline-block;
-  border: 1px solid #0684bd;
+  border: 1px solid #2559E4;
   margin-right: 10px;
   background-color: #FFFFFF;
 }
@@ -7783,7 +7783,7 @@ input:checked + .Switch_slider:before {
 
 .GlipPostItem_title a {
   text-decoration: none;
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .GlipPostItem_time {
@@ -8454,7 +8454,7 @@ input:checked + .Switch_slider:before {
   cursor: pointer;
   display: inline-block;
   clear: both;
-  color: #0684bd;
+  color: #2559E4;
   text-decoration: none;
 }
 
@@ -8936,7 +8936,7 @@ input:checked + .Switch_slider:before {
 }
 
 .CallsOnholdPanel_root .CallsOnholdPanel_addBtn .CallsOnholdPanel_addBtnIcon circle {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .CallsOnholdPanel_noCalls {
@@ -8953,7 +8953,7 @@ input:checked + .Switch_slider:before {
   overflow: hidden;
   height: 46px;
   box-sizing: border-box;
-  background-color: #0684bd;
+  background-color: #2559E4;
   overflow: visible;
 }
 
@@ -8987,7 +8987,7 @@ input:checked + .Switch_slider:before {
 }
 
 .MessageTabButton_navigationButton.MessageTabButton_active {
-  border-bottom: 1px solid #0684bd;
+  border-bottom: 1px solid #2559E4;
 }
 
 .MessageTabButton_navigationButton.MessageTabButton_active.MessageTabButton_linearBorder {
@@ -9002,7 +9002,7 @@ input:checked + .Switch_slider:before {
   height: 1px;
   margin: auto;
   z-index: 1;
-  background: linear-gradient(to right, #E2E2E2 0, #E2E2E2 13.33333%, #0684bd 13.33333%, #0684bd 86.66667%, #E2E2E2 86.66667%, #E2E2E2 0);
+  background: linear-gradient(to right, #E2E2E2 0, #E2E2E2 13.33333%, #2559E4 13.33333%, #2559E4 86.66667%, #E2E2E2 86.66667%, #E2E2E2 0);
   display: block;
   position: absolute;
 }
@@ -9120,7 +9120,7 @@ input:checked + .Switch_slider:before {
 }
 
 .TabContentPanel_active {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .DialerAndCallsTabContainer_nav {
@@ -9326,7 +9326,7 @@ input:checked + .Switch_slider:before {
 }
 
 .RadioBtnGroup_radioOption .RadioBtnGroup_radioBtn.RadioBtnGroup_active {
-  border: 1px solid #0684bd;
+  border: 1px solid #2559E4;
 }
 
 .RadioBtnGroup_radioOption .RadioBtnGroup_radioBtn.RadioBtnGroup_active:before {
@@ -9337,9 +9337,9 @@ input:checked + .Switch_slider:before {
   left: 4px;
   width: 5px;
   height: 5px;
-  border: 1px solid #0684bd;
+  border: 1px solid #2559E4;
   border-radius: 100%;
-  background: #0684bd;
+  background: #2559E4;
 }
 
 .RadioBtnGroup_radioOption .RadioBtnGroup_optionNumber {
@@ -9399,7 +9399,7 @@ input:checked + .Switch_slider:before {
 }
 
 .FlipPanel_buttonGroup .FlipPanel_flipButton circle {
-  stroke: #0684bd;
+  stroke: #2559E4;
   opacity: 0.3;
 }
 
@@ -9408,7 +9408,7 @@ input:checked + .Switch_slider:before {
 }
 
 .FlipPanel_buttonGroup .FlipPanel_flipButton path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .FlipPanel_buttonGroup .FlipPanel_flipButton.FlipPanel_disabled g {
@@ -9425,8 +9425,8 @@ input:checked + .Switch_slider:before {
 }
 
 .FlipPanel_buttonGroup .FlipPanel_completeButton circle {
-  stroke: #0684bd;
-  fill: #0684bd;
+  stroke: #2559E4;
+  fill: #2559E4;
   opacity: 1;
 }
 
@@ -9539,7 +9539,7 @@ input:checked + .Switch_slider:before {
   height: 100%;
   border-color: #e07800;
   border-style: solid;
-  border-top-color: #0684bd;
+  border-top-color: #2559E4;
   animation: Spinner_spin 0.8s infinite ease-in-out;
 }
 
@@ -9596,7 +9596,7 @@ input:checked + .Switch_slider:before {
 }
 
 .MeetingItem_logIcon path {
-  stroke: #0684bd;
+  stroke: #2559E4;
 }
 
 .MeetingItem_logButton {
@@ -10120,7 +10120,7 @@ table {
   height: 28px;
   font-size: 12px;
   border-radius: 16px;
-  background-color: #0684bd;
+  background-color: #2559E4;
   color: #FFFFFF;
 }
 
@@ -10326,8 +10326,8 @@ div.MeetingScheduleButton_isOutlineType {
 }
 
 div.MeetingScheduleButton_isContainedType {
-  border: solid 1px #0684bd;
-  background-color: #0684bd;
+  border: solid 1px #2559E4;
+  background-color: #2559E4;
   color: #FFFFFF;
 }
 
@@ -10383,7 +10383,7 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
 .RcVideoScheduleButton_button {
   outline: none;
   border: none;
-  background-color: #0684bd;
+  background-color: #2559E4;
   width: 100%;
   height: 35px;
   line-height: 35px;
@@ -10450,11 +10450,11 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
 
 .DropdownNavigationItem_root.DropdownNavigationItem_active {
   opacity: 1;
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .DropdownNavigationItem_iconStyles svg path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .DropdownNavigationItem_iconHolder {
@@ -10503,7 +10503,7 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
 }
 
 .DropdownNavigationItem_active {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .DropdownNavigationView_root {
@@ -10701,7 +10701,7 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
   width: 100%;
   height: 36px;
   border-radius: 100px;
-  background: #0684bd;
+  background: #2559E4;
   line-height: 36px;
   color: #ffffff !important;
   text-align: center;
@@ -10714,7 +10714,7 @@ div.MeetingScheduleButton_isContainedTypeDisabled:hover {
   width: 100%;
   height: 36px;
   border-radius: 100px;
-  background: #0684bd;
+  background: #2559E4;
   line-height: 36px;
   color: #ffffff !important;
   text-align: center;
@@ -10881,24 +10881,24 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .RecentActivityNavigationButton_navigationButton:hover span,
 .RecentActivityNavigationButton_navigationButton:focus span {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .RecentActivityNavigationButton_navigationButton:hover .RecentActivityNavigationButton_icon > svg path,
 .RecentActivityNavigationButton_navigationButton:focus .RecentActivityNavigationButton_icon > svg path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .RecentActivityNavigationButton_navigationButton.RecentActivityNavigationButton_active {
-  border-bottom: 1px solid #0684bd;
+  border-bottom: 1px solid #2559E4;
 }
 
 .RecentActivityNavigationButton_navigationButton.RecentActivityNavigationButton_active span {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .RecentActivityNavigationButton_navigationButton.RecentActivityNavigationButton_active .RecentActivityNavigationButton_icon > svg path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .RecentActivityNavigationButton_iconHolder {
@@ -11036,7 +11036,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .RecentActivityMessages_unread {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .RecentActivityMessages_noRecords {
@@ -11170,7 +11170,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .PresenceItem_selected {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .PresenceItem_statusIcon {
@@ -11223,7 +11223,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .PresenceSettingSection_showDropdown .PresenceSettingSection_title {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .PresenceSettingSection_showDropdown .PresenceSettingSection_presenceList {
@@ -11232,7 +11232,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .PresenceSettingSection_showDropdown .PresenceSettingSection_dropdownIcon {
   transform: rotate(180deg);
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .popover-content {
@@ -11300,7 +11300,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   margin-left: 6px;
   margin-right: 6px;
   position: relative;
-  color: #0684bd;
+  color: #2559E4;
   font-size: 16px !important;
 }
 
@@ -11328,15 +11328,15 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .AuthorizeSettingsSection_serviceName {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .AuthorizeSettingsSection_authorizaButton {
   display: inline-block;
   height: 28px;
   border-radius: 100px;
-  background: #0684bd;
-  border: solid 1px #0684bd;
+  background: #2559E4;
+  border: solid 1px #2559E4;
   font-size: 12px;
   color: #ffffff;
   line-height: 28px;
@@ -11534,7 +11534,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   left: 1px;
   content: " ";
   display: block;
-  background: #0684bd;
+  background: #2559E4;
   z-index: 2;
   box-sizing: initial;
 }
@@ -11548,7 +11548,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   left: -1px;
   content: " ";
   display: block;
-  background: #0684bd;
+  background: #2559E4;
   z-index: 1;
   box-sizing: initial;
 }
@@ -11585,7 +11585,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 .ActionMenuList_confirmDeleteModal .ActionMenuList_cancelBtn {
   width: 70px;
   border-radius: 100px;
-  border: solid 1px #0684bd;
+  border: solid 1px #2559E4;
 }
 
 .ActionMenuList_button {
@@ -11612,7 +11612,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .ActionMenuList_svgFillIcon path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ActionMenuList_svgFillIcon:hover path {
@@ -11628,7 +11628,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .ActionMenuList_unmarked path {
-  stroke: #0684bd;
+  stroke: #2559E4;
 }
 
 .ActionMenuList_unmarked:hover path {
@@ -12041,7 +12041,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .LogSection_primaryButton {
   margin: 0;
-  background-color: #0684bd;
+  background-color: #2559E4;
   color: #FFFFFF;
 }
 
@@ -12250,9 +12250,9 @@ div[class*="MuiCircularProgress-indeterminate"] {
   padding: 0 15px;
   height: 26px;
   line-height: 26px;
-  border: solid 1px #0684bd;
+  border: solid 1px #2559E4;
   border-radius: 100px;
-  color: #0684bd;
+  color: #2559E4;
   margin-top: 12px;
   font-size: 12px;
 }
@@ -12262,9 +12262,9 @@ div[class*="MuiCircularProgress-indeterminate"] {
   width: 24px;
   text-align: center;
   line-height: 22px;
-  border: solid 1px #0684bd;
+  border: solid 1px #2559E4;
   border-radius: 50%;
-  color: #0684bd;
+  color: #2559E4;
   font-size: 11px;
   margin-left: 5px;
   overflow: hidden;
@@ -12305,7 +12305,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .LogNotification_selected {
   color: #ffffff;
-  background-color: #0684bd;
+  background-color: #2559E4;
   margin: 8px 0;
 }
 
@@ -12445,11 +12445,11 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .LogIcon_loggedIcon path {
-  stroke: #0684bd;
+  stroke: #2559E4;
 }
 
 .LogIcon_unloggedIcon path {
-  stroke: #0684bd;
+  stroke: #2559E4;
 }
 
 .LogIcon_logIcon {
@@ -12525,11 +12525,11 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .VoicemailPlayer_play svg path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .VoicemailPlayer_play svg rect {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .VoicemailPlayer_play.VoicemailPlayer_disabled svg path {
@@ -12562,7 +12562,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .VoicemailPlayer_download svg path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .VoicemailPlayer_download.VoicemailPlayer_disabled {
@@ -12591,7 +12591,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .VoicemailPlayer_done {
   display: block;
-  background: #0684bd;
+  background: #2559E4;
   position: relative;
   width: 10%;
   height: 2px;
@@ -12605,7 +12605,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   left: 10%;
   height: 9px;
   width: 2px;
-  background: #0684bd;
+  background: #2559E4;
 }
 
 .MessageItem_root {
@@ -12733,37 +12733,37 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MessageItem_unread .MessageItem_selectedValue {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .MessageItem_unread .MessageItem_separatrix {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .MessageItem_unread .MessageItem_contactDisplay {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .MessageItem_unread .MessageItem_contactDisplay button {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .MessageItem_unread .MessageItem_conversationIcon {
-  color: #0684bd;
+  color: #2559E4;
   min-width: 23px;
   text-align: center;
 }
 
 .MessageItem_unread .MessageItem_icon path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .MessageItem_unread .MessageItem_details {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .MessageItem_unread .MessageItem_creationTime {
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .MessageItem_dropdownSelect ul {
@@ -12812,7 +12812,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .Search_textIcon path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .Search_textIcon .Search_hoverTextSVGIcon {
@@ -12873,7 +12873,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .ConversationsPanel_composeText path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ConversationsPanel_tabBar {
@@ -12906,7 +12906,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .ConversationsPanel_textIcon path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .ConversationsPanel_textIcon .ConversationsPanel_hoverTextSVGIcon {
@@ -12950,7 +12950,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MessagesLogIcon_logIcon path {
-  stroke: #0684bd;
+  stroke: #2559E4;
 }
 
 .ConversationMessageList_root {
@@ -13216,7 +13216,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .CopyToClipboard_primaryButton {
-  background-color: #0684bd;
+  background-color: #2559E4;
   color: #FFFFFF;
 }
 
@@ -13313,19 +13313,19 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .rw-dropdown-list-input {
   padding-left: 0;
-  color: #0684bd;
+  color: #2559E4;
 }
 
 .rw-cell.rw-state-selected,
 .rw-cell.rw-state-selected:hover {
-  background-color: #0684bd;
-  border: 1px solid #0684bd;
+  background-color: #2559E4;
+  border: 1px solid #2559E4;
 }
 
 .rw-list-option.rw-state-selected,
 .rw-list-option.rw-state-selected:hover {
-  background-color: #0684bd;
-  border-color: #0684bd;
+  background-color: #2559E4;
+  border-color: #2559E4;
 }
 
 .MeetingConfigs_scroll {
@@ -13439,7 +13439,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MeetingConfigs_icon path {
-  fill: #0684bd;
+  fill: #2559E4;
 }
 
 .MeetingConfigs_datePicker {
@@ -13450,7 +13450,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   display: none;
   font-size: 13px;
   position: relative;
-  color: #0684bd;
+  color: #2559E4;
   display: flex;
   background-color: transparent;
 }
@@ -13460,7 +13460,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   position: absolute;
   top: 5px;
   height: 17px;
-  color: #0684bd;
+  color: #2559E4;
   display: flex;
   background-color: transparent;
 }
@@ -13482,7 +13482,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
   border: none;
   outline: none;
   padding: 0 5px;
-  color: #0684bd;
+  color: #2559E4;
   box-sizing: content-box;
 }
 
@@ -13509,7 +13509,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 }
 
 .MeetingConfigs_colon {
-  color: #0684bd;
+  color: #2559E4;
   font-size: 13px;
 }
 
@@ -13554,7 +13554,7 @@ div[class*="MuiCircularProgress-indeterminate"] {
 
 .MeetingConfigs_recurringDescribe {
   margin-top: 10px;
-  color: #0684bd;
+  color: #2559E4;
   font-size: 13px;
 }
 
