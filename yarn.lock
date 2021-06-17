@@ -1453,19 +1453,19 @@
     tinycolor2 "^1.4.1"
     typeface-lato "^0.0.75"
 
-"@ringcentral/sdk@^4.4.2":
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/@ringcentral/sdk/-/sdk-4.4.2.tgz#6467558589c2f5a55a0161da5de75db710306e89"
-  integrity sha512-fcnVYuB1U/zExx0xpJ5I8mhnEgAjSSPGlnwdWDqKYJzxgS/m6v/zbJqPDuSSdqB4YqT4tUpClrewizRK2x4ZUg==
+"@ringcentral/sdk@^4.5.1":
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/@ringcentral/sdk/-/sdk-4.5.1.tgz#940d31baf64a6ddab630e895eb64e5c729244e1a"
+  integrity sha512-aiUxqcrYJGW/gBqKLnu59LAAv0rr2LdKgg1B8D/+ZQMcLkwvT3DNQfLrGRK2MdJrxcUg6ajucStwkHQZeHrQIQ==
   dependencies:
     dom-storage "2.1.0"
     is-plain-object "2.0.4"
     node-fetch "2.6.1"
 
-"@ringcentral/subscriptions@^4.4.2":
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/@ringcentral/subscriptions/-/subscriptions-4.4.2.tgz#717931dff673e71c6c5b9a88064615f3563e601b"
-  integrity sha512-RCjFt9+SiGjPH0w3/8rZEATgTq7WoxV+P0ngThvs4MaOloj4uY++JTrdv0kq80X3r2bmmzY/hHxsP/KaStjB5A==
+"@ringcentral/subscriptions@^4.5.1":
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/@ringcentral/subscriptions/-/subscriptions-4.5.1.tgz#96e05b00253d91bf4ec5f5eadf3f86cbcec29aa0"
+  integrity sha512-dNNXNDEXLWqGyYWmwjY610RMk2ok96tT4WekQVvdY+EfoBLg7SEkb7MSlCjaVHJoFBYiB37ETnq9DM7hkK959Q==
   dependencies:
     pubnub "^4.29.11"
 
