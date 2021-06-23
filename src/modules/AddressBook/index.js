@@ -26,7 +26,7 @@ function getSyncParams(syncToken, pageId) {
   deps: []
 })
 export default class NewAddressBook extends AddressBook {
-  // sync function to fix rate limit issue when contacts count > 2500
+  // override to fix rate limit issue when contacts count > 2500
   async _sync(syncToken, pageId, pageNum = 0) {
     const params = getSyncParams(syncToken, pageId);
     const response = await this._syncAddressBookApi(params);
