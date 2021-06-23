@@ -32,12 +32,20 @@ This document show how the widget can interact with your application deeply.
 Find the widget iframe and use `postMessage` to register:
 
 ```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-register-third-party-service',
-  service: {
-    name: 'TestService'
+var registered = false;
+window.addEventListener('message', function (e) {
+  const data = e.data;
+  // Register when widget is loaded
+  if (data && data.type === 'rc-login-status-notify' && registered === false) {
+    registered = true;
+    document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+      type: 'rc-adapter-register-third-party-service',
+      service: {
+        name: 'TestService'
+      }
+    }, '*');
   }
-}, '*');
+});
 ```
 
 ## Add meeting schedule feature with your service
