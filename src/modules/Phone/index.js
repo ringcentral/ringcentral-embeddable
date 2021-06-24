@@ -12,7 +12,7 @@ import { Analytics } from 'ringcentral-integration/modules/Analytics';
 import AccountInfo from 'ringcentral-integration/modules/AccountInfo';
 import ActivityMatcher from 'ringcentral-integration/modules/ActivityMatcher';
 // import ActiveCalls from 'ringcentral-integration/modules/ActiveCalls';
-import AddressBook from 'ringcentral-integration/modules/AddressBook';
+// import AddressBook from 'ringcentral-integration/modules/AddressBook';
 import AccountContacts from 'ringcentral-integration/modules/AccountContacts';
 import CompanyContacts from 'ringcentral-integration/modules/CompanyContacts';
 
@@ -104,6 +104,7 @@ import ActiveCallControl from '../ActiveCallControl';
 import GlipGroups from '../GlipGroups';
 import GlipCompany from '../GlipCompany';
 import ErrorLogger from '../ErrorLogger';
+import AddressBook from '../AddressBook';
 
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
