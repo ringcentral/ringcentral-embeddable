@@ -63,7 +63,7 @@ To enable it by passing `disableConferenceInvite=false` on adapter.js uri or ifr
 
 ## Enable Conference Call feature
 
-To enable Conference Call (3-way-calling) feature, please add `CallControl` permission to your app in RingCentral Developer website. Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add it if your app has been graduated into production. After permissions added, you can get the feature after re-login to the widget.
+To enable Conference Call (3-way-calling) feature, please add `CallControl` permission to your app via the RingCentral Developer console. If your app has already been graduated and you need help, please [submit a help ticket](https://developers.ringcentral.com/support/create-case) and we can assist. After the permission is added you can obtain the feature after you re-login to the widget.
 
 ![conference call](https://user-images.githubusercontent.com/7036536/110581133-eb770e80-81a4-11eb-9951-fde986a07780.png)
 
@@ -73,7 +73,7 @@ Active Call Control feature uses new `CallControl` RESTful API to control RingCe
 
 Before we start to use Active Call Control feature, need to add `CallControl` permission to your app in RingCentral Developer website. After permissions added, you can get the feature after re-login to the widget.
 
-Please send email to [devsupport](mailto:devsupport@ringcentral.com) to add `CallControl` permission if you get any problem.
+Please [submit a help ticket](https://developers.ringcentral.com/support/create-case) to add `CallControl` permission if you get any problem.
 
 ## Enable Ringtone Settings feature
 
