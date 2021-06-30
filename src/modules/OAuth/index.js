@@ -142,6 +142,8 @@ export default class OAuth extends ProxyFrameOAuth {
       redirectUri: this.redirectUri,
       tokenType: query.token_type,
       scope: query.scope,
+      tokenUri: query.token_uri,
+      discoveryUri: query.discovery_uri,
     });
   }
 

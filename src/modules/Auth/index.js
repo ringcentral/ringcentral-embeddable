@@ -144,6 +144,54 @@ export default class NewAuth extends Auth {
     }
   }
 
+  // TODO: override to fix discovery issue
+  async login({
+    username,
+    password,
+    extension,
+    remember,
+    code,
+    redirectUri,
+    accessToken,
+    expiresIn,
+    endpointId,
+    tokenType,
+    scope,
+    tokenUri,
+    discoveryUri,
+  }) {
+    this.store.dispatch({
+      type: this.actionTypes.login,
+    });
+    let ownerId;
+    if (accessToken) {
+      await this._client.service.platform().auth().setData({
+        token_type: tokenType,
+        access_token: accessToken,
+        expires_in: expiresIn,
+        refresh_token_expires_in: expiresIn,
+        scope,
+      });
+      const extensionData = await this._client.account().extension().get();
+      ownerId = extensionData.id;
+    }
+    return this._client.service.platform().login({
+      username,
+      password,
+      extension,
+      remember,
+      code,
+      redirectUri,
+      endpoint_id: endpointId,
+      expires_in: expiresIn,
+      access_token: accessToken,
+      token_type: tokenType,
+      owner_id: ownerId,
+      token_uri: tokenUri,
+      discovery_uri: discoveryUri,
+    });
+  }
+
   get ownerId() {
     return super.ownerId && super.ownerId.toString();
   }
