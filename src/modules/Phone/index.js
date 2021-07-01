@@ -507,13 +507,24 @@ export default class BasePhone extends RcModule {
     });
 
     // CallMonitor configuration
-    callMonitor.onRingings(async () => {
+    callMonitor.onRingings(() => {
       if (webphone.connected) {
         return;
       }
       // TODO refactor some of these logic into appropriate modules
       routerInteraction.push('/calls');
     });
+
+    // TODO: use onCallUpdated API at CallMonitorV2
+    callMonitor._onCallUpdated = (call) => {
+      if (
+        call.telephonyStatus === 'CallConnected' &&
+        webphone.connected &&
+        webphone.sessions.length === 0
+      ) {
+        routerInteraction.push('/calls');
+      }
+    };
 
     this._appConfig = appConfig;
   }
