@@ -1,4 +1,5 @@
 
+import * as uuid from 'uuid';
 import WebphoneBase from 'ringcentral-integration/modules/Webphone';
 import { Module } from 'ringcentral-integration/lib/di';
 import proxify from 'ringcentral-integration/lib/proxy/proxify';
@@ -49,6 +50,7 @@ export default class Webphone extends WebphoneBase {
     this._multipleTabsSupport = multipleTabsSupport;
     this._forceCurrentWebphoneActive = forceCurrentWebphoneActive;
     this._webphoneStateStorageKey = `${prefix}-webphone-state`;
+    this._webphoneSDKOptions.instanceId = uuid.v4();
     if (this._multipleTabsSupport) {
       this._globalStorage = globalStorage;
       this._proxyActionTypes = proxyActionTypes;
@@ -159,6 +161,7 @@ export default class Webphone extends WebphoneBase {
     }
     this.store.subscribe(() => this._onStateChange());
     this._auth.addBeforeLogoutHandler(async () => {
+      this._webphoneSDKOptions.instanceId = uuid.v4();
       await this._disconnect();
     });
     this._createOtherWebphoneInstanceListener();
