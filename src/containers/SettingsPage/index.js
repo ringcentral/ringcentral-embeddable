@@ -50,7 +50,7 @@ function NewSettingsPanel(props) {
   if (authorization || thirdPartySettings.length > 0) {
     additional = (
       <section>
-        ringtone
+        {ringtone}
         <ToggleSettings
           settings={thirdPartySettings}
           onToggle={onSettingToggle}
