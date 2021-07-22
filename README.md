@@ -136,7 +136,7 @@ $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 ### Create a free RingCentral app
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
-2. Create a RingCentral app with platform type - "Browser Based"
+2. Create a RingCentral app with app type - "**Web browser (Javascript)**"
 3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Glip`, `VoIP Calling` and `Call Control` to your app.
 4. Add redirect uri `http://localhost:8080/redirect.html` to your app settings.
 
