@@ -58,6 +58,7 @@ function getWebpackConfig({ brand, env = {}, styleLoader }) {
     filename: '[name].js',
   };
   config.plugins = [
+    ...config.plugins,
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production'),

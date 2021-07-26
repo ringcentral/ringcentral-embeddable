@@ -46,6 +46,7 @@ function getWebpackConfig({ brand, styleLoader }) {
     filename: '[name].js',
   };
   config.plugins = [
+    ...config.plugins,
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin({
