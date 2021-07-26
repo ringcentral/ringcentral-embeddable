@@ -1,4 +1,6 @@
+const path = require('path');
 const autoprefixer = require('autoprefixer');
+const webpack = require('webpack');
 const supportedLocales = [
   'en-US',
   'en-GB',
@@ -31,6 +33,12 @@ module.exports = function getBaseConfig({ themeFolder, styleLoader = 'style-load
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
+    plugins: [
+      new webpack.NormalModuleReplacementPlugin(
+        /ringcentral-widgets\/components\/DialButton\/DialButton.js/,
+        path.resolve(__dirname, './vendors/widgets/DialButton/DialButton.js'),
+      )
+    ],
     module: {
       rules: [
         {
