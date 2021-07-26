@@ -301,6 +301,13 @@ export default class Webphone extends WebphoneBase {
     return super._disconnect();
   }
 
+  async _removeWebphone() {
+    if (this._webphone && this._webphone.userAgent) {
+      this._webphone.userAgent.audioHelper.loadAudio({});
+    }
+    await super._removeWebphone();
+  }
+
   // override
   _setCurrentInstanceAsActiveWebphone() {
     if (!this._multipleTabsSupport) {
