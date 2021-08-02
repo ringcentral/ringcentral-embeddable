@@ -10,7 +10,7 @@ Support to open the widget in a popup window, so the widget is opened at a stand
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enablePopup=1";
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enablePopup=1&multipleTabsSupport=1";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -21,7 +21,7 @@ After enabled, user will get a popup button at header:
 
 ![Popup window button](https://user-images.githubusercontent.com/7036536/114856037-32e26180-9e19-11eb-9e41-46d40ff50c2d.png)
 
-The feature is based on [Webphone Multiple Tabs solution 1](multiple-tabs.md#option-1-have-only-connection-in-first-opened-tab), so `multipleTabsSupport` will be automatically enabled after you enable `enablePopup`. Before user open popup window, web phone connection is built at first opened tab. After user open popup window, web phone connection is built at popup window.
+The feature is based on [Webphone Multiple Tabs solution 1](multiple-tabs.md#option-1-have-only-connection-in-first-opened-tab), so `multipleTabsSupport` need to be  enabled. If you have enable `disconnectInactiveWebphone`, please remove it. Before user open popup window, web phone connection is built at first opened tab. After user open popup window, web phone connection is built at popup window.
 
 ### Known issues:
 
