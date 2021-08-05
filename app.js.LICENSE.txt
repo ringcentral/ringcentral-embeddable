@@ -52,7 +52,7 @@ object-assign
  * Licensed under the MIT License.
  */
 
-/*! 4.29.11 / Consumer  */
+/*! 4.32.1 / Consumer  */
 
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 
