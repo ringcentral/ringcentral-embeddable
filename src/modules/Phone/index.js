@@ -612,7 +612,8 @@ export function createPhone({
     appNameForSDK = `${userAgent} ${appNameForSDK}`;
   }
   const usePKCE = !authProxy && apiConfig.clientId && !apiConfig.clientSecret;
-  if (usePKCE) {
+  const pkceEnabled = localStorage.getItem(`${prefix}-pkce-enabled`);
+  if (usePKCE && !pkceEnabled) {
     // hack clean old authorization code token if auth flow change to PKCE
     const rawToken = localStorage.getItem(`sdk-${prefix}platform`);
     if (rawToken) {
@@ -621,6 +622,10 @@ export function createPhone({
         localStorage.removeItem(`sdk-${prefix}platform`);
       }
     }
+    localStorage.setItem(`${prefix}-pkce-enabled`, '1');
+  }
+  if (!usePKCE && pkceEnabled) {
+    localStorage.removeItem(`${prefix}-pkce-enabled`);
   }
   const useDiscovery = apiConfig.enableDiscovery;
   const sdkConfig = {
