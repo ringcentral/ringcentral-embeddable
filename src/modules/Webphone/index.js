@@ -51,6 +51,7 @@ export default class Webphone extends WebphoneBase {
     this._forceCurrentWebphoneActive = forceCurrentWebphoneActive;
     this._webphoneStateStorageKey = `${prefix}-webphone-state`;
     this._webphoneSDKOptions.instanceId = uuid.v4();
+    this._removedWebphoneAtBeforeUnload = false;
     if (this._multipleTabsSupport) {
       this._globalStorage = globalStorage;
       this._proxyActionTypes = proxyActionTypes;
@@ -139,23 +140,35 @@ export default class Webphone extends WebphoneBase {
         this._prepareVideoElement();
       }
       window.addEventListener('beforeunload', () => {
-        if (this._webphone) {
+        if (this.sessions.length === 0) {
+          this._removedWebphoneAtBeforeUnload = true;
+          if (this._multipleTabsSupport) {
+            this._cleanWebphoneInstanceWhenUnload();
+          } else {
+            this._disconnect();
+          }
+        }
+        if (this._webphone && this._removedWebphoneAtBeforeUnload) {
           // set timeout to reconnect web phone is before unload cancel
           setTimeout(() => {
+            this._removedWebphoneAtBeforeUnload = false;
             this.connect({
               force: true,
               skipConnectDelay: true,
               skipDLCheck: true,
             });
-          }, 3000);
-        }
-        if (this._multipleTabsSupport) {
-          this._cleanWebphoneInstanceWhenUnload();
-        } else {
-          this._disconnect();
+          }, 4000);
         }
       });
       window.addEventListener('unload', () => {
+        // disconnect if web phone is not disconnected at beforeunload
+        if (!this._removedWebphoneAtBeforeUnload) {
+          if (this._multipleTabsSupport) {
+            this._cleanWebphoneInstanceWhenUnload();
+          } else {
+            this._disconnect();
+          }
+        }
         this._removeCurrentInstanceFromActiveWebphone();
       });
     }
