@@ -36,7 +36,11 @@ module.exports = function getBaseConfig({ themeFolder, styleLoader = 'style-load
     plugins: [
       new webpack.NormalModuleReplacementPlugin(
         /ringcentral-widgets\/components\/DialButton\/DialButton.js/,
-        path.resolve(__dirname, './vendors/widgets/DialButton/DialButton.js'),
+        path.resolve(__dirname, './vendors/widgets/DialButton/DialButton.js'),  // TODO: update with new widget lib to fix this
+      ),
+      new webpack.NormalModuleReplacementPlugin(
+        /ringcentral-integration\/lib\/validateIsOffline.js/,
+        path.resolve(__dirname, './vendors/commons/lib/validateIsOffline.js'), // TODO: update with new widget lib to fix this
       )
     ],
     module: {

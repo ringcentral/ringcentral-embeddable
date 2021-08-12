@@ -18,6 +18,7 @@
     __USER_NAME__: true,
     __USER_PASSWORD__: true
   },
+  "ignorePatterns": ["vendors/**/*.js"],
   "rules": {
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "no-restricted-syntax": [
