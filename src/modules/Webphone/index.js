@@ -1,5 +1,4 @@
 
-import * as uuid from 'uuid';
 import WebphoneBase from 'ringcentral-integration/modules/Webphone';
 import { Module } from 'ringcentral-integration/lib/di';
 import proxify from 'ringcentral-integration/lib/proxy/proxify';
@@ -9,6 +8,7 @@ import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import proxyActionTypes from 'ringcentral-integration/lib/proxy/baseActionTypes';
 
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
+import { SipInstanceManager } from '../../lib/SipInstanceManager';
 
 import { normalizeSession } from './helper';
 import {
@@ -50,7 +50,6 @@ export default class Webphone extends WebphoneBase {
     this._multipleTabsSupport = multipleTabsSupport;
     this._forceCurrentWebphoneActive = forceCurrentWebphoneActive;
     this._webphoneStateStorageKey = `${prefix}-webphone-state`;
-    this._webphoneSDKOptions.instanceId = uuid.v4();
     this._removedWebphoneAtBeforeUnload = false;
     if (this._multipleTabsSupport) {
       this._globalStorage = globalStorage;
@@ -90,6 +89,9 @@ export default class Webphone extends WebphoneBase {
         });
       });
     }
+    this._sipInstanceManager = new SipInstanceManager(
+      `${prefix}-webphone-inactive-sip-instance`,
+    );
   }
 
   _onMultipleTabsChannelRequest = async ({
@@ -162,6 +164,13 @@ export default class Webphone extends WebphoneBase {
       });
       window.addEventListener('unload', () => {
         // disconnect if web phone is not disconnected at beforeunload
+        if (this._webphoneSDKOptions.instanceId) {
+          this._sipInstanceManager.setInstanceInactive(
+            this._webphoneSDKOptions.instanceId,
+            this._auth.endpointId,
+          );
+          this._webphoneSDKOptions.instanceId = null;
+        }
         if (!this._removedWebphoneAtBeforeUnload) {
           if (this._multipleTabsSupport) {
             this._cleanWebphoneInstanceWhenUnload();
@@ -174,7 +183,7 @@ export default class Webphone extends WebphoneBase {
     }
     this.store.subscribe(() => this._onStateChange());
     this._auth.addBeforeLogoutHandler(async () => {
-      this._webphoneSDKOptions.instanceId = uuid.v4();
+      this._webphoneSDKOptions.instanceId = null;
       await this._disconnect();
     });
     this._createOtherWebphoneInstanceListener();
@@ -314,6 +323,15 @@ export default class Webphone extends WebphoneBase {
     return super._disconnect();
   }
 
+  async _createWebphone(params) {
+    if (!this._webphoneSDKOptions.instanceId) {
+      this._webphoneSDKOptions.instanceId = this._sipInstanceManager.getInstanceId(
+        this._auth.endpointId,
+      );
+    }
+    return super._createWebphone(params)
+  }
+
   async _removeWebphone() {
     if (this._webphone && this._webphone.userAgent) {
       this._webphone.userAgent.audioHelper.loadAudio({});
@@ -440,14 +458,9 @@ export default class Webphone extends WebphoneBase {
     return this._transport;
   }
 
-  // TODO: fix 603 reconnect issue in widgets lib
   async _onConnectError(options) {
-    if (options.statusCode === 603) {
-      try {
-        await this._auth.changeEndpointId();
-      } catch (e) {
-        // ignore
-      }
+    if (options.statusCode === 403 && this._webphoneSDKOptions.instanceId) {
+      this._webphoneSDKOptions.instanceId = null;
     }
     await super._onConnectError(options);
   }

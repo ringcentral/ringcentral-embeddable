@@ -14,7 +14,6 @@ export default class NewAuth extends Auth {
   constructor(options) {
     super(options);
     this._useWAP = !!options.authProxy;
-    this._endpointIdKey = `${this.prefix}-auth-endpointId`
   }
 
   _bindEvents() {
@@ -126,7 +125,6 @@ export default class NewAuth extends Auth {
         }
       };
     }
-    localStorage.removeItem(this._endpointIdKey);
     return super.logout(options);
   }
 
@@ -198,17 +196,5 @@ export default class NewAuth extends Auth {
 
   get useWAP() {
     return this._useWAP;
-  }
-
-  get endpointId() {
-    const cachedEndpointId = localStorage.getItem(this._endpointIdKey);
-    if (cachedEndpointId) {
-      return cachedEndpointId;
-    }
-    return super.endpointId;
-  }
-
-  changeEndpointId() {
-    return localStorage.setItem(this._endpointIdKey, uuid.v4());
   }
 }
