@@ -6,10 +6,13 @@
 
 .root {
   transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.2s 0s ease-in-out, width 0.2s ease-in-out;
+  background-color: #fff;
+  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);
 }
 
 .root.dock {
   top: initial!important;
+  border-radius: 0 !important;
   width: 300px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -24,10 +27,14 @@
 }
 
 .root .logo {
-  height: 18px;
-  width: 84px;
-  margin-top: -9px;
-  margin-left: -42px;
+  width: $header-logo-width;
+  height: $header-logo-height;
+  margin-top: -($header-logo-height / 2);
+  margin-left: -($header-logo-width / 2);
+}
+
+.root .button {
+  margin-top: -10px;
 }
 
 .iconTrans {
