@@ -32,7 +32,10 @@ export class LoginWindow {
 
   async confirmEmergencyAddress() {
     await this._targetPage.waitForFunction(
-      'document.querySelector("body").innerText.includes("Confirm")'
+      'document.querySelector("body").innerText.includes("Emergency Response Location")'
+    );
+    await this._targetPage.waitForFunction(
+      `!!document.querySelector('select[name="state"]')`
     );
     await this._targetPage.click('button.btn-primary');
   }
