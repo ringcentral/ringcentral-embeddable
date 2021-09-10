@@ -25,7 +25,7 @@ export class IframeWidget {
   }
 
   async waitForLoginPage() {
-    await this._widgetIframe.waitForSelector('button.LoginPanel_loginButton:not([disabled])');
+    await this._widgetIframe.waitForSelector('button[data-sign="loginButton"]:not([disabled])');
   }
 
   async enableSandboxEnvironment() {
@@ -36,7 +36,7 @@ export class IframeWidget {
 
   async clickLoginButtonToGetLoginWindow() {
     const newWindowPromise = getNewWindowPromise();
-    await this._widgetIframe.click('button.LoginPanel_loginButton:not([disabled])');
+    await this._widgetIframe.click('button[data-sign="loginButton"]:not([disabled])');
     const popup = await newWindowPromise;
     return popup;
   }
@@ -46,7 +46,7 @@ export class IframeWidget {
   }
 
   async waitForDialButton() {
-    await this.waitFor('.DialerPanel_dialBtn', 100000);
+    await this.waitFor('svg[data-sign="callButton"]', 100000);
   }
 
   async waitForNavigations() {
@@ -54,12 +54,12 @@ export class IframeWidget {
   }
 
   async getLoginButtonText() {
-    const loginText = await this._widgetIframe.$eval('button.LoginPanel_loginButton', (el) => el.innerText);
+    const loginText = await this._widgetIframe.$eval('button[data-sign="loginButton"]', (el) => el.innerText);
     return loginText;
   }
 
   async getDialButton() {
-    const callBtn = await this._widgetIframe.$('.DialerPanel_dialBtn');
+    const callBtn = await this._widgetIframe.$('svg[data-sign="callButton"]');
     return callBtn;
   }
 
@@ -90,20 +90,20 @@ export class IframeWidget {
   }
 
   async getMessageAllTabText() {
-    await this.waitFor('.ConversationsPanel_root');
-    const allTabText = await this._widgetIframe.$eval('.MessageTabButton_iconHolder[title="All"]', (el) => el.innerText);
+    await this.waitFor('div[data-sign="ConversationsPanel"]');
+    const allTabText = await this._widgetIframe.$eval('div[data-sign="All"]', (el) => el.innerText);
     return allTabText;
   }
 
   async getContactSearchInput() {
-    await this.waitFor('.ContactsView_root');
-    const searchInput = await this._widgetIframe.$('.ContactsView_searchInput');
+    await this.waitFor('div[data-sign="contactList"]');
+    const searchInput = await this._widgetIframe.$('input[data-sign="contactsSearchInput"]');
     return searchInput;
   }
 
   async getELUAText() {
     await this.waitFor('.SettingsPanel_root');
-    const elua = await this._widgetIframe.$eval('a.SettingsPanel_eula', (el) => el.innerText);
+    const elua = await this._widgetIframe.$eval('a[data-sign="eula"]', (el) => el.innerText);
     return elua;
   }
 
@@ -116,9 +116,9 @@ export class IframeWidget {
   async clickSettingSection(label) {
     await this.dismissMessages();
     await this.waitFor('.SettingsPanel_root');
-    await page.waitFor(2000);
+    await page.waitForTimeout(2000);
     await this.dismissMessages();
-    await page.waitFor(2000);
+    await page.waitForTimeout(2000);
     const textHanlders = await this._widgetIframe.$x(`//div[contains(text(), '${label}')]`);
     if (textHanlders.length > 0) {
       await textHanlders[0].click();
@@ -139,6 +139,33 @@ export class IframeWidget {
     return value;
   }
 
+  async getSMSRecipientInputPlaceholder() {
+    await this.waitFor('.ComposeTextPanel_root');
+    const value = await this._widgetIframe.$eval('input[name="receiver"]', (el) => el.placeholder);
+    return value;
+  }
+
+  async clickComposeTextIcon() {
+    await this._widgetIframe.click('span[title="Compose Text"]');
+  }
+
+  async typeSMSRecipientAndText({ recipientNumber, text}) {
+    await this._widgetIframe.type('input[name="receiver"]', recipientNumber);
+    await this._widgetIframe.type('textarea[data-sign="messageInput"]', text);
+  }
+
+  async clickSMSSendButton() {
+    await this.waitFor('input[data-sign="messageButton"]:not([disabled])');
+    await this._widgetIframe.click('input[data-sign="messageButton"]');
+  }
+
+  async getLastTextAtConversation() {
+    await this.waitFor('div[data-sign="conversationPanel"]');
+    await page.waitForTimeout(200);
+    const messages = await this._widgetIframe.$$eval('div[data-sign="message"]', (els) => els.map(el => el.innerText));
+    return messages[messages.length - 1];
+  }
+
   async getSMSText() {
     await this.waitFor('.ComposeTextPanel_root');
     const value = await this._widgetIframe.$eval('textarea[data-sign="messageInput"]', (el) => el.value);
@@ -152,9 +179,9 @@ export class IframeWidget {
   }
 
   async getContactFilters() {
-    await this.waitFor('.ContactSourceFilter_filterIconContainer');
-    await this._widgetIframe.click('.ContactSourceFilter_filterIconContainer');
-    const text = await this._widgetIframe.$eval('.ContactSourceFilter_contactSourceList', (el) => el.innerText);
+    await this.waitFor('div[data-sign="filterIconContainer"]');
+    await this._widgetIframe.click('div[data-sign="filterIconContainer"]');
+    const text = await this._widgetIframe.$eval('div[data-sign="contactSourceList"]', (el) => el.innerText);
     return text;
   }
 

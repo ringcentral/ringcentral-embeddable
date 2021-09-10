@@ -25,6 +25,6 @@ export async function getLoginedWidget(username, password) {
   const popupWindow = new LoginWindow(popupPage, username, password);
   await popupWindow.submitCredential();
   await popupWindow.authorize();
-  await page.waitFor(1000);
+  await page.waitForTimeout(1000);
   return widgetIframe;
 }
