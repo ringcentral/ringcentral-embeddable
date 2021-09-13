@@ -25,6 +25,12 @@ conditionalDescribe('widget page test', () => {
     expect(!!dialButton).toEqual(true);
   });
 
+  it('should have dial button enabled', async () => {
+    const dialButton = await widgetIframe.waitDialButtonEnabled();
+    const noTimeout = true;
+    expect(noTimeout).toEqual(true);
+  });
+
   it('should goto history page successfully', async () => {
     await widgetIframe.clickNavigationButton('History');
     const callItems = await widgetIframe.getCallItemList();
@@ -37,6 +43,17 @@ conditionalDescribe('widget page test', () => {
     await widgetIframe.clickNavigationButton('Messages');
     const allTabText = await widgetIframe.getMessageAllTabText();
     expect(allTabText).toEqual('All');
+  });
+
+  it('should goto Compose Text page successfully', async () => {
+    await widgetIframe.clickComposeTextIcon();
+    const recipientPlaceholder = await widgetIframe.getSMSRecipientInputPlaceholder();
+    expect(recipientPlaceholder).toEqual('Enter Name or Number');
+    const text = `text ${Date.now()}`;
+    await widgetIframe.typeSMSRecipientAndText({ recipientNumber: '101', text });
+    await widgetIframe.clickSMSSendButton();
+    const lastTextInConversation = await widgetIframe.getLastTextAtConversation();
+    expect(lastTextInConversation).toEqual(text);
   });
 
   it('should goto contacts page successfully', async () => {
@@ -139,7 +156,7 @@ conditionalDescribe('widget page test', () => {
     await widgetIframe.clickDropdownNavigationMenu('Contacts');
     const contactsFilters = await widgetIframe.getContactFilters();
     expect(contactsFilters).toEqual(expect.stringContaining('TestService'));
-    await page.waitFor(1000);
+    await page.waitForTimeout(1500);
     const contacts = await widgetIframe.getContactNames();
     expect(contacts).toEqual(expect.arrayContaining(['TestService Name']));
   });

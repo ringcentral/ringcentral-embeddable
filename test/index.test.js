@@ -19,7 +19,7 @@ describe('Index page test', () => {
     const widgetIframe = new IframeWidget();
     await widgetIframe.loadElement();
     await widgetIframe.waitForLoginPage();
-    await page.waitFor(1000);
+    await page.waitForTimeout(1000);
     const loginText = await widgetIframe.getLoginButtonText();
     expect(loginText).toEqual('Sign In');
   });
