@@ -1,6 +1,7 @@
 # [RingCentral Embeddable](https://ringcentral.github.io/ringcentral-embeddable/)
 
 [![Build Status](https://github.com/ringcentral/ringcentral-embeddable/workflows/CI%20Pipeline/badge.svg?branch=master)](https://github.com/ringcentral/ringcentral-embeddable/actions)
+[![Latest release](https://img.shields.io/github/v/release/ringcentral/ringcentral-embeddable)](https://github.com/ringcentral/ringcentral-embeddable/releases)
 
 ## Introduction
 
