@@ -25,6 +25,12 @@ conditionalDescribe('widget page test', () => {
     expect(!!dialButton).toEqual(true);
   });
 
+  it('should have dial button enabled', async () => {
+    const dialButton = await widgetIframe.waitDialButtonEnabled();
+    const noTimeout = true;
+    expect(noTimeout).toEqual(true);
+  });
+
   it('should goto history page successfully', async () => {
     await widgetIframe.clickNavigationButton('History');
     const callItems = await widgetIframe.getCallItemList();

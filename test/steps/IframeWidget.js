@@ -63,6 +63,13 @@ export class IframeWidget {
     return callBtn;
   }
 
+  async waitDialButtonEnabled() {
+    await this._widgetIframe.waitForSelector('div[data-sign="spinnerOverlay"]', { hidden: true });
+    await this.waitFor('svg[data-sign="callButton"]:not(.DialerPanel_disabled)', 100000);
+    const callBtn = await this._widgetIframe.$('svg[data-sign="callButton"]:not(.DialerPanel_disabled)');
+    return callBtn;
+  }
+
   async clickNavigationButton(label) {
     await this.waitFor('nav.NavigationBar_root');
     await this._widgetIframe.click(`.TabNavigationButton_iconHolder[data-sign="${label}"]`);
@@ -161,8 +168,7 @@ export class IframeWidget {
 
   async getLastTextAtConversation() {
     await this.waitFor('div[data-sign="conversationPanel"]');
-    await page.waitForTimeout(200);
-    const messages = await this._widgetIframe.$$eval('div[data-sign="message"]', (els) => els.map(el => el.innerText));
+    const messages = await this._widgetIframe.$$eval('div[data-sign="OutboundText"]', (els) => els.map(el => el.innerText));
     return messages[messages.length - 1];
   }
 
