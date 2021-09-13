@@ -14,7 +14,7 @@ export class IframeWidget {
       throw new Error('Load Element error');
     }
     await this._targetPage.waitForSelector('iframe#rc-widget-adapter-frame');
-    await this._targetPage.waitFor(200);
+    await this._targetPage.waitForTimeout(200);
     const iframes = await this._targetPage.frames();
     this._widgetIframe = iframes.find((f) => f.name() === 'rc-widget-adapter-frame');
     if (!this._widgetIframe) {
