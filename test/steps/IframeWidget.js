@@ -121,11 +121,7 @@ export class IframeWidget {
   }
 
   async clickSettingSection(label) {
-    await this.dismissMessages();
     await this.waitFor('.SettingsPanel_root');
-    await page.waitForTimeout(2000);
-    await this.dismissMessages();
-    await page.waitForTimeout(2000);
     const textHanlders = await this._widgetIframe.$x(`//div[contains(text(), '${label}')]`);
     if (textHanlders.length > 0) {
       await textHanlders[0].click();
