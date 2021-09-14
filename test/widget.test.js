@@ -26,7 +26,8 @@ conditionalDescribe('widget page test', () => {
   });
 
   it('should have dial button enabled', async () => {
-    const dialButton = await widgetIframe.waitDialButtonEnabled();
+    await widgetIframe.waitDialButtonEnabled();
+    await widgetIframe.dismissMessages();
     const noTimeout = true;
     expect(noTimeout).toEqual(true);
   });
