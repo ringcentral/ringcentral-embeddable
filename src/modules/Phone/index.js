@@ -682,7 +682,6 @@ export function createPhone({
           proxyUri,
           authorizationCode,
           disableLoginPopup,
-          useDiscovery,
         },
         spread: true
       },

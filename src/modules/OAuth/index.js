@@ -1,4 +1,4 @@
-import ProxyFrameOAuth from '@ringcentral-integration/widgets/modules/ProxyFrameOAuth';
+import OAuthBase from '@ringcentral-integration/widgets/modules/OAuth';
 import authMessages from '@ringcentral-integration/commons/modules/Auth/authMessages';
 import parseCallbackUri from '@ringcentral-integration/widgets/lib/parseCallbackUri';
 import { Module } from '@ringcentral-integration/commons/lib/di';
@@ -11,18 +11,15 @@ import qs from 'qs';
     { dep: 'OAuthOptions', optional: true }
   ]
 })
-export default class OAuth extends ProxyFrameOAuth {
+export default class OAuth extends OAuthBase {
   constructor({
     authorizationCode,
     disableLoginPopup = false,
-    client,
     ...options
   }) {
     super(options);
-    this._client = client;
     this._authorizationCode = authorizationCode;
     this._disableLoginPopup = disableLoginPopup;
-    this._useDiscovery = options.useDiscovery;
   }
 
   async _onStateChange() {
@@ -49,15 +46,13 @@ export default class OAuth extends ProxyFrameOAuth {
       this.ready &&
       !this._auth.loggedIn &&
       this._routerInteraction.currentPath === this._loginPath &&
-      !this.oAuthReady &&
-      !this._proxyFrame
+      !this.oAuthReady
     ) {
       this.setupOAuth();
     }
     if (
-      this._proxyFrame &&
-      (this._auth.loggedIn ||
-        this._routerInteraction.currentPath !== this._loginPath)
+      this._auth.loggedIn ||
+      this._routerInteraction.currentPath !== this._loginPath
     ) {
       this.destroyOAuth();
     }
@@ -75,7 +70,7 @@ export default class OAuth extends ProxyFrameOAuth {
     const query = {
       redirectUri: this.redirectUri,
       brandId: this._brand.id,
-      state: btoa(Date.now()),
+      state: this.authState,
       display: 'page',
       implicit: this._auth.isImplicit,
       localeId: this._locale.currentLocale,
@@ -130,33 +125,16 @@ export default class OAuth extends ProxyFrameOAuth {
     }
   }
 
-  async _loginWithCallbackQuery(query) {
-    if (!(query.code || query.access_token)) {
-      return;
-    }
-    await this._auth.login({
-      code: query.code,
-      accessToken: query.access_token,
-      expiresIn: query.expires_in,
-      endpointId: query.endpoint_id,
-      redirectUri: this.redirectUri,
-      tokenType: query.token_type,
-      scope: query.scope,
-      tokenUri: query.token_uri,
-      discoveryUri: query.discovery_uri,
-    });
-  }
-
   async openOAuthPage() {
     if (this._disableLoginPopup) {
+      if (this._client.service.platform().discovery()) {
+        await this._client.service.platform().loginUrlWithDiscovery();
+      }
       window.parent.postMessage({
         type: 'rc-login-popup-notify',
         oAuthUri: this.oAuthUri,
       }, '*');
       return;
-    }
-    if (this._useDiscovery) {
-      await this._client.service.platform().loginUrlWithDiscovery();
     }
     await super.openOAuthPage();
   }
