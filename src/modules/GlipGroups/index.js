@@ -1,5 +1,5 @@
-import GlipGroups from 'ringcentral-integration/modules/GlipGroups';
-import { Module } from 'ringcentral-integration/lib/di';
+import GlipGroups from '@ringcentral-integration/commons/modules/GlipGroups';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 const glipGroupRegExp = /glip\/groups$/;
 

@@ -1,8 +1,8 @@
 import {
   normalizeSession as normalizeSessionBase
-} from 'ringcentral-integration/modules/Webphone/webphoneHelper';
+} from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
 
-import callDirections from 'ringcentral-integration/enums/callDirections';
+import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 
 function getCallQueueName({ direction, headers }) {
   if (

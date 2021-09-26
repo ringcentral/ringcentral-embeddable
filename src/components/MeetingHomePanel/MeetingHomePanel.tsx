@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { RcFabIconButton } from '@ringcentral/juno';
+import { RcIconButton } from '@ringcentral/juno';
 import classnames from 'classnames';
-import Modal from 'ringcentral-widgets/components/Modal';
-import TextInput from 'ringcentral-widgets/components/TextInput';
-import Spinner from 'ringcentral-widgets/components/Spinner';
+import Modal from '@ringcentral-integration/widgets/components/Modal';
+import TextInput from '@ringcentral-integration/widgets/components/TextInput';
+import Spinner from '@ringcentral-integration/widgets/components/Spinner';
 
 import scheduleSvg from '@ringcentral/juno/icons/icon-schedule.svg';
 import startSvg from '@ringcentral/juno/icons/icon-start.svg';
@@ -67,28 +67,28 @@ const MeetingHomePanel = (props) => {
     <div className={styles.root}>
       <div className={styles.buttons}>
         <div className={styles.button} onClick={gotoSchedule}>
-          <RcFabIconButton
+          <RcIconButton
             symbol={scheduleSvg}
             size='medium'
-            color={['accent', 'tomato']}
+            color='label.red01'
             className={classnames(styles.iconButton, styles.schedule)}
           />
           <label>Schedule</label>
         </div>
         <div className={styles.button} onClick={onStart}>
-          <RcFabIconButton
+          <RcIconButton
             symbol={startSvg}
             size='medium'
-            color={['semantic', 'positive']}
+            color='label.green01'
             className={classnames(styles.iconButton, styles.start)}
           />
           <label>Start</label>
         </div>
         <div className={styles.button} onClick={() => setShowJoinModal(true)}>
-          <RcFabIconButton
+          <RcIconButton
             symbol={joinSvg}
             size='medium'
-            color={['primary', 'light']}
+            color='label.blue01'
             className={classnames(styles.iconButton, styles.join)}
           />
           <label>Join</label>

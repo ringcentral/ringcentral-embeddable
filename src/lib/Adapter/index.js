@@ -1,7 +1,7 @@
 import classnames from 'classnames';
 import url from 'url';
-import popWindow from 'ringcentral-widgets/lib/popWindow';
-import AdapterCore from 'ringcentral-widgets/lib/AdapterCore';
+import popWindow from '@ringcentral-integration/widgets/lib/popWindow';
+import AdapterCore from '@ringcentral-integration/widgets/lib/AdapterCore';
 
 import parseUri from '../parseUri';
 import messageTypes from './messageTypes';

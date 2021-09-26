@@ -1,4 +1,4 @@
-import ProxyFrameController from 'ringcentral-widgets/lib/ProxyFrameController';
+import ProxyFrameController from '@ringcentral-integration/widgets/lib/ProxyFrameController';
 
 export default class NewProxyFrameController extends ProxyFrameController {
   constructor(options) {

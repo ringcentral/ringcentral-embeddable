@@ -1,5 +1,5 @@
-import GlipCompany from 'ringcentral-integration/modules/GlipCompany';
-import { Module } from 'ringcentral-integration/lib/di';
+import GlipCompany from '@ringcentral-integration/commons/modules/GlipCompany';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   deps: [],

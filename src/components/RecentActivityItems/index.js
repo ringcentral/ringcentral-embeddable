@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import Spinner from 'ringcentral-widgets/components/Spinner';
-import styles from 'ringcentral-widgets/components/RecentActivityMessages/styles.scss';
-import i18n from 'ringcentral-widgets/components/RecentActivityMessages/i18n';
+import Spinner from '@ringcentral-integration/widgets/components/Spinner';
+import styles from '@ringcentral-integration/widgets/components/RecentActivityMessages/styles.scss';
+import i18n from '@ringcentral-integration/widgets/components/RecentActivityMessages/i18n';
 
 function ActivityItem({ item, dateTimeFormatter, openItem }) {
   const { subject, time } = item;

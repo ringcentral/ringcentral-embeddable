@@ -1,18 +1,18 @@
-import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
-import telephonyStatus from 'ringcentral-integration/enums/telephonyStatus';
-import callingOptions from 'ringcentral-integration/modules/CallingSettings/callingOptions';
-import sessionStatus from 'ringcentral-integration/modules/Webphone/sessionStatus';
-import recordStatus from 'ringcentral-integration/modules/Webphone/recordStatus';
-import ensureExist from 'ringcentral-integration/lib/ensureExist';
-import normalizeNumber from 'ringcentral-integration/lib/normalizeNumber';
-import { messageIsTextMessage } from 'ringcentral-integration/lib/messageHelper';
+import moduleStatuses from '@ringcentral-integration/commons/enums/moduleStatuses';
+import telephonyStatus from '@ringcentral-integration/commons/enums/telephonyStatus';
+import callingOptions from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
+import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
+import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
+import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
+import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumber';
+import { messageIsTextMessage } from '@ringcentral-integration/commons/lib/messageHelper';
 
-import sleep from 'ringcentral-integration/lib/sleep';
-import { Module } from 'ringcentral-integration/lib/di';
-import callingModes from 'ringcentral-integration/modules/CallingSettings/callingModes';
-import debounce from 'ringcentral-integration/lib/debounce';
+import sleep from '@ringcentral-integration/commons/lib/sleep';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import callingModes from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
+import debounce from '@ringcentral-integration/commons/lib/debounce';
 
-import AdapterModuleCore from 'ringcentral-widgets/lib/AdapterModuleCore';
+import AdapterModuleCore from '@ringcentral-integration/widgets/lib/AdapterModuleCore';
 
 import { formatMeetingInfo, formatMeetingForm } from '../../lib/formatMeetingInfo';
 import messageTypes from '../../lib/Adapter/messageTypes';
@@ -55,7 +55,7 @@ function findExistedConversation(conversations, phoneNumber) {
     'ExtensionInfo',
     'AccountInfo',
     'RouterInteraction',
-    'RolesAndPermissions',
+    'AppFeatures',
     'Presence',
     'ComposeText',
     'Call',
@@ -99,7 +99,7 @@ export default class Adapter extends AdapterModuleCore {
     callLogger,
     genericMeeting,
     brand,
-    rolesAndPermissions,
+    appFeatures,
     conversations,
     activeCallControl,
     contactMatcher,
@@ -132,7 +132,7 @@ export default class Adapter extends AdapterModuleCore {
     this._accountInfo = accountInfo;
     this._meeting = genericMeeting;
     this._brand = brand;
-    this._rolesAndPermissions = rolesAndPermissions;
+    this._appFeatures = appFeatures;
     this._conversations = conversations;
     this._activeCallControl = activeCallControl;
     this._oAuth = oAuth;
@@ -289,7 +289,7 @@ export default class Adapter extends AdapterModuleCore {
     }
     switch (data.path) {
       case '/schedule-meeting': {
-        if (this._meeting.ready && this._rolesAndPermissions.hasMeetingsPermission) {
+        if (this._meeting.ready && this._appFeatures.hasMeetingsPermission) {
           const res = await this._scheduleMeeting(data.body);
           this._postRCAdapterMessageResponse({
             responseId: data.requestId,
@@ -526,8 +526,8 @@ export default class Adapter extends AdapterModuleCore {
       type: 'rc-meeting-status-notify',
       ready: this._meeting.ready,
       permission: !!(
-        this._rolesAndPermissions.ready &&
-        this._rolesAndPermissions.hasMeetingsPermission
+        this._appFeatures.ready &&
+        this._appFeatures.hasMeetingsPermission
       ),
     });
   }

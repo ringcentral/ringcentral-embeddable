@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { getRcmEventTpl, getRcvEventTpl } from 'ringcentral-widgets/lib/MeetingCalendarHelper';
+import { getRcmEventTpl, getRcvEventTpl } from '@ringcentral-integration/widgets/lib/MeetingCalendarHelper';
 
 export function formatRCMInfo(meetingInfo, brand, currentLocale) {
   const { schedule, meetingType } = meetingInfo.meeting;

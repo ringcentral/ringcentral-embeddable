@@ -1,5 +1,5 @@
-import CallHistory from 'ringcentral-integration/modules/CallHistory';
-import { Module } from 'ringcentral-integration/lib/di';
+import CallHistory from '@ringcentral-integration/commons/modules/CallHistory';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   name: 'NewCallHistory',

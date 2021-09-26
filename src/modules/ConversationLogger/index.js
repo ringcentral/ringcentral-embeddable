@@ -1,7 +1,7 @@
-import { Module } from 'ringcentral-integration/lib/di';
-import ConversationLoggerBase, { getLogId } from 'ringcentral-integration/modules/ConversationLogger';
-import { selector } from 'ringcentral-integration/lib/selector';
-import { getNumbersFromMessage, sortByDate } from 'ringcentral-integration/lib/messageHelper';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import ConversationLoggerBase, { getLogId } from '@ringcentral-integration/commons/modules/ConversationLogger';
+import { selector } from '@ringcentral-integration/commons/lib/selector';
+import { getNumbersFromMessage, sortByDate } from '@ringcentral-integration/commons/lib/messageHelper';
 
 @Module({
   deps: [

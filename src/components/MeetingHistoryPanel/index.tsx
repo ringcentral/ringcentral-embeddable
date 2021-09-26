@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 
-import Spinner from 'ringcentral-widgets/components/Spinner';
+import Spinner from '@ringcentral-integration/widgets/components/Spinner';
 import { RcTextField, RcSelect, RcIcon, RcMenuItem } from '@ringcentral/juno';
 
 import SearchSvg from '@ringcentral/juno/icons/icon-search.svg';

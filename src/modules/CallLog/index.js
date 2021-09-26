@@ -1,6 +1,6 @@
-import CallLog from 'ringcentral-integration/modules/CallLog';
-import { Module } from 'ringcentral-integration/lib/di';
-import debounce from 'ringcentral-integration/lib/debounce';
+import CallLog from '@ringcentral-integration/commons/modules/CallLog';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import debounce from '@ringcentral-integration/commons/lib/debounce';
 
 @Module({
   name: 'NewCallLog',

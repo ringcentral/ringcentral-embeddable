@@ -1,6 +1,6 @@
-import GenericMeeting from 'ringcentral-integration/modules/GenericMeeting';
-import { Module } from 'ringcentral-integration/lib/di';
-import { selector } from 'ringcentral-integration/lib/selector';
+import GenericMeeting from '@ringcentral-integration/commons/modules/GenericMeeting';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import { selector } from '@ringcentral-integration/commons/lib/selector';
 
 @Module({
   name: 'NewGenericMeeting',
@@ -47,24 +47,24 @@ export default class NewGenericMeeting extends GenericMeeting {
     return null;
   }
 
-  // TODO: fix password validate bug in widgets lib
-  @selector
-  meeting: any = [
-    () => this.meetingProviderType,
-    () => this._meetingModule && this._meetingModule.meeting,
-    () => {
-      if (!this._meetingModule) {
-        return {};
-      }
-      if (this.isRCM) {
-        return this._meetingModule.meeting;
-      }
-      if (this.isRCV) {
-        return {
-          ...this._meetingModule.meeting,
-          password: this._meetingModule.meeting.meetingPassword,
-        }
-      }
-    },
-  ];
+  // // TODO: fix password validate bug in widgets lib
+  // @selector
+  // meeting: any = [
+  //   () => this.meetingProviderType,
+  //   () => this._meetingModule && this._meetingModule.meeting,
+  //   () => {
+  //     if (!this._meetingModule) {
+  //       return {};
+  //     }
+  //     if (this.isRCM) {
+  //       return this._meetingModule.meeting;
+  //     }
+  //     if (this.isRCV) {
+  //       return {
+  //         ...this._meetingModule.meeting,
+  //         password: this._meetingModule.meeting.meetingPassword,
+  //       }
+  //     }
+  //   },
+  // ];
 }

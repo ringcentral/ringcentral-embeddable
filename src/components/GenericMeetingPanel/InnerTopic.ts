@@ -6,8 +6,8 @@ import React, {
   useImperativeHandle,
 } from 'react';
 import { RcTextField } from '@ringcentral/juno';
-import i18n from 'ringcentral-widgets/components/InnerTopic/i18n';
-import styles from 'ringcentral-widgets/components/InnerTopic/styles.scss';
+import i18n from '@ringcentral-integration/widgets/components/InnerTopic/i18n';
+import styles from '@ringcentral-integration/widgets/components/InnerTopic/styles.scss';
 
 type TopicProps = {
   name: string;

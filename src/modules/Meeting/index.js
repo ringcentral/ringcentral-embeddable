@@ -1,5 +1,5 @@
-import Meeting from 'ringcentral-integration/modules/Meeting';
-import { Module } from 'ringcentral-integration/lib/di';
+import Meeting from '@ringcentral-integration/commons/modules/Meeting';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   name: 'NewMeeting',

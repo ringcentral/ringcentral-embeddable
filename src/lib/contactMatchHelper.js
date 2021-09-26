@@ -1,4 +1,4 @@
-import callDirections from 'ringcentral-integration/enums/callDirections';
+import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 
 export function getWebphoneSessionContactMatch(session, contactMapping) {
   if (session.contactMatch) {

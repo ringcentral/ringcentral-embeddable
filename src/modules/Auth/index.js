@@ -1,8 +1,8 @@
 import uuid from 'uuid';
-import Auth from 'ringcentral-integration/modules/Auth';
-import { Module } from 'ringcentral-integration/lib/di';
-import loginStatus from 'ringcentral-integration/modules/Auth/loginStatus';
-import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
+import Auth from '@ringcentral-integration/commons/modules/Auth';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import loginStatus from '@ringcentral-integration/commons/modules/Auth/loginStatus';
+import moduleStatuses from '@ringcentral-integration/commons/enums/moduleStatuses';
 
 const LoginStatusChangeEvent = 'loginStatusChange';
 

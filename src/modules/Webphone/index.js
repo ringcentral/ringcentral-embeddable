@@ -1,14 +1,13 @@
 
-import WebphoneBase from 'ringcentral-integration/modules/Webphone';
-import { Module } from 'ringcentral-integration/lib/di';
-import proxify from 'ringcentral-integration/lib/proxy/proxify';
-import sleep from 'ringcentral-integration/lib/sleep';
-import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
+import WebphoneBase from '@ringcentral-integration/commons/modules/Webphone';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import proxify from '@ringcentral-integration/commons/lib/proxy/proxify';
+import sleep from '@ringcentral-integration/commons/lib/sleep';
+import moduleStatuses from '@ringcentral-integration/commons/enums/moduleStatuses';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
-import proxyActionTypes from 'ringcentral-integration/lib/proxy/baseActionTypes';
+import proxyActionTypes from '@ringcentral-integration/commons/lib/proxy/baseActionTypes';
 
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
-import { SipInstanceManager } from '../../lib/SipInstanceManager';
 
 import { normalizeSession } from './helper';
 import {
@@ -89,9 +88,6 @@ export default class Webphone extends WebphoneBase {
         });
       });
     }
-    this._sipInstanceManager = new SipInstanceManager(
-      `${prefix}-webphone-inactive-sip-instance`,
-    );
   }
 
   _onMultipleTabsChannelRequest = async ({
@@ -163,13 +159,13 @@ export default class Webphone extends WebphoneBase {
         }
       });
       window.addEventListener('unload', () => {
-        // disconnect if web phone is not disconnected at beforeunload
-        if (this._webphoneSDKOptions.instanceId) {
+        // mark current instance id as inactive, so app can reuse it after refresh
+        if (this._sipInstanceId) {
           this._sipInstanceManager.setInstanceInactive(
-            this._webphoneSDKOptions.instanceId,
+            this._sipInstanceId,
             this._auth.endpointId,
           );
-          this._webphoneSDKOptions.instanceId = null;
+          this._sipInstanceId = null;
         }
         if (!this._removedWebphoneAtBeforeUnload) {
           if (this._multipleTabsSupport) {
@@ -321,22 +317,6 @@ export default class Webphone extends WebphoneBase {
       this._removeCurrentInstanceFromActiveWebphone({ clean: true });
     }
     return super._disconnect();
-  }
-
-  async _createWebphone(params) {
-    if (!this._webphoneSDKOptions.instanceId) {
-      this._webphoneSDKOptions.instanceId = this._sipInstanceManager.getInstanceId(
-        this._auth.endpointId,
-      );
-    }
-    return super._createWebphone(params)
-  }
-
-  async _removeWebphone() {
-    if (this._webphone && this._webphone.userAgent) {
-      this._webphone.userAgent.audioHelper.loadAudio({});
-    }
-    await super._removeWebphone();
   }
 
   // override

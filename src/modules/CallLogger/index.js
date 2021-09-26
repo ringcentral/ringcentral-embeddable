@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
-import getter from 'ringcentral-integration/lib/getter';
-import { Module } from 'ringcentral-integration/lib/di';
-import CallLoggerBase from 'ringcentral-integration/modules/CallLogger';
+import getter from '@ringcentral-integration/commons/lib/getter';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import CallLoggerBase from '@ringcentral-integration/commons/modules/CallLogger';
 
 function getAutoLogInitialStatus() {
   let autoLogInitialStatus = false;

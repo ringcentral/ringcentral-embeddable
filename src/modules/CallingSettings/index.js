@@ -1,7 +1,5 @@
-import CallingSettings from 'ringcentral-integration/modules/CallingSettings';
-import callingOptions from 'ringcentral-integration/modules/CallingSettings/callingOptions';
-import { Module } from 'ringcentral-integration/lib/di';
-import deprecatedCallingOptions from 'ringcentral-integration/modules/CallingSettings/deprecatedCallingOptions';
+import { CallingSettings } from '@ringcentral-integration/commons/modules/CallingSettingsV2';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   name: 'NewCallingSettings',
@@ -10,9 +8,9 @@ import deprecatedCallingOptions from 'ringcentral-integration/modules/CallingSet
   ]
 })
 export default class NewCallingSettings extends CallingSettings {
-  constructor({ defaultCallWith, ...options }) {
-    super(options);
-    this._defaultCallWith = callingOptions[defaultCallWith];
+  constructor(deps) {
+    super(deps);
+    this._defaultCallWith = deps.callingSettingsOptions.defaultCallWith;
   }
 
   _getDefaultCallWith() {
@@ -25,21 +23,11 @@ export default class NewCallingSettings extends CallingSettings {
     return this.callWithOptions && this.callWithOptions[0];
   }
 
-  async _init() {
-    if (!this._rolesAndPermissions.callingEnabled) return;
-    this._myPhoneNumbers = this.myPhoneNumbers;
-    this._otherPhoneNumbers = this.otherPhoneNumbers;
-    this._availableNumbers = this.availableNumbers;
-    this._ringoutEnabled = this._rolesAndPermissions.ringoutEnabled;
-    this._webphoneEnabled = this._rolesAndPermissions.webphoneEnabled;
+  _handleFirstTimeLogin() {
     if (!this.timestamp) {
       // first time login
       const defaultCallWith = this._getDefaultCallWith();
-      this.store.dispatch({
-        type: this.actionTypes.setData,
-        callWith: defaultCallWith,
-        timestamp: Date.now(),
-      });
+      this.setDataAction({ callWith: defaultCallWith, timestamp: Date.now() });
       if (!this._emergencyCallAvailable) {
         this._warningEmergencyCallingNotAvailable();
       }
@@ -47,19 +35,5 @@ export default class NewCallingSettings extends CallingSettings {
         this._onFirstLogin();
       }
     }
-    if (
-      this.callWith === deprecatedCallingOptions.myphone ||
-      this.callWith === deprecatedCallingOptions.otherphone ||
-      this.callWith === deprecatedCallingOptions.customphone
-    ) {
-      this.store.dispatch({
-        type: this.actionTypes.setData,
-        callWith: callingOptions.ringout,
-        isCustomLocation:
-          this.callWith === deprecatedCallingOptions.customphone,
-      });
-    }
-    await this._validateSettings();
-    await this._initFromNumber();
   }
 }

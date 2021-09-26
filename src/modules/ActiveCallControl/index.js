@@ -1,5 +1,5 @@
-import ActiveCallControl from 'ringcentral-integration/modules/ActiveCallControl';
-import { Module } from 'ringcentral-integration/lib/di';
+import ActiveCallControl from '@ringcentral-integration/commons/modules/ActiveCallControl';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   name: 'NewActiveCallControl',
@@ -9,10 +9,6 @@ export default class NewActiveCallControl extends ActiveCallControl {
   constructor(options) {
     super(options);
     this._onSessionUpdateHandlers = [];
-  }
-
-  get _hasPermission() {
-    return this._rolesAndPermissions.hasActiveCallControlPermission;
   }
 
   onSessionUpdated(handler) {

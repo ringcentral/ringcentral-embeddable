@@ -1,17 +1,17 @@
 // TODO: fix schedule issue in widgets
 import React, { useRef } from 'react';
-import sleep from 'ringcentral-integration/lib/sleep';
-import { RcMMeetingModel } from 'ringcentral-integration/modules/MeetingV2';
-import { RcVMeetingModel } from 'ringcentral-integration/interfaces/Rcv.model';
-import { SpinnerOverlay } from 'ringcentral-widgets/components/SpinnerOverlay';
-import MeetingConfigs from 'ringcentral-widgets/components/MeetingConfigs';
-import isSafari from 'ringcentral-widgets/lib/isSafari';
+import sleep from '@ringcentral-integration/commons/lib/sleep';
+import { RcMMeetingModel } from '@ringcentral-integration/commons/modules/MeetingV2';
+import { RcVMeetingModel } from '@ringcentral-integration/commons/interfaces/Rcv.model';
+import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
+import MeetingConfigs from '@ringcentral-integration/widgets/components/MeetingConfigs';
+import isSafari from '@ringcentral-integration/widgets/lib/isSafari';
 
-import { VideoConfig } from 'ringcentral-widgets/components/VideoPanel/VideoConfig';
-import { MeetingConfigs as MeetingConfigsV2 } from 'ringcentral-widgets/components/MeetingConfigsV2';
+import { VideoConfig } from '@ringcentral-integration/widgets/components/VideoPanel/VideoConfig';
+import { MeetingConfigs as MeetingConfigsV2 } from '@ringcentral-integration/widgets/components/MeetingConfigsV2';
 
-import { GenericMeetingPanelProps } from 'ringcentral-widgets/components/GenericMeetingPanel/interface';
-import styles from 'ringcentral-widgets/components/GenericMeetingPanel/styles.scss';
+import { GenericMeetingPanelProps } from '@ringcentral-integration/widgets/components/GenericMeetingPanel/interface';
+import styles from '@ringcentral-integration/widgets/components/GenericMeetingPanel/styles.scss';
 
 import { Topic, TopicRef } from './InnerTopic';
 

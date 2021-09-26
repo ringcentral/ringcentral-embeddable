@@ -1,12 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import withPhone from 'ringcentral-widgets/lib/withPhone';
-import callDirections from 'ringcentral-integration/enums/callDirections';
-import RecentActivityPanel from 'ringcentral-widgets/components/RecentActivityPanel';
-import dynamicsFont from 'ringcentral-widgets/assets/DynamicsFont/DynamicsFont.scss';
-import RecentActivityMessages from 'ringcentral-widgets/components/RecentActivityMessages';
-import RecentActivityCalls from 'ringcentral-widgets/components/RecentActivityCalls';
-import i18n from 'ringcentral-widgets/containers/RecentActivityContainer/i18n';
+import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
+import callDirections from '@ringcentral-integration/commons/enums/callDirections';
+import RecentActivityPanel from '@ringcentral-integration/widgets/components/RecentActivityPanel';
+import dynamicsFont from '@ringcentral-integration/widgets/assets/DynamicsFont/DynamicsFont.scss';
+import RecentActivityMessages from '@ringcentral-integration/widgets/components/RecentActivityMessages';
+import RecentActivityCalls from '@ringcentral-integration/widgets/components/RecentActivityCalls';
+import i18n from '@ringcentral-integration/widgets/modules/RecentActivityUI/i18n';
 
 import RecentActivityItems from '../../components/RecentActivityItems';
 

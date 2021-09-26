@@ -1,7 +1,7 @@
 import { SDK } from '@ringcentral/sdk';
-import Environment from 'ringcentral-integration/modules/Environment';
-import isBlank from 'ringcentral-integration/lib/isBlank';
-import { Module } from 'ringcentral-integration/lib/di';
+import Environment from '@ringcentral-integration/commons/modules/Environment';
+import isBlank from '@ringcentral-integration/commons/lib/isBlank';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 import hackSend from '../../lib/hackSend';
 

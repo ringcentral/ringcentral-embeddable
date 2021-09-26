@@ -1,5 +1,5 @@
-import AudioSettings from 'ringcentral-integration/modules/AudioSettings';
-import { Module } from 'ringcentral-integration/lib/di';
+import AudioSettings from '@ringcentral-integration/commons/modules/AudioSettings';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   name: 'NewAudioSettings',

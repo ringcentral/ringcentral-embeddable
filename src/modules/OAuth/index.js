@@ -1,7 +1,7 @@
-import ProxyFrameOAuth from 'ringcentral-widgets/modules/ProxyFrameOAuth';
-import authMessages from 'ringcentral-integration/modules/Auth/authMessages';
-import parseCallbackUri from 'ringcentral-widgets/lib/parseCallbackUri';
-import { Module } from 'ringcentral-integration/lib/di';
+import ProxyFrameOAuth from '@ringcentral-integration/widgets/modules/ProxyFrameOAuth';
+import authMessages from '@ringcentral-integration/commons/modules/Auth/authMessages';
+import parseCallbackUri from '@ringcentral-integration/widgets/lib/parseCallbackUri';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 import qs from 'qs';
 
 @Module({

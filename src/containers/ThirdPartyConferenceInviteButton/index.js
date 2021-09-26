@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import withPhone from 'ringcentral-widgets/lib/withPhone';
-import { getConferenceLocationField } from 'ringcentral-widgets/lib/ConferenceCalendarHelper';
+import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
+import { getConferenceLocationField } from '@ringcentral-integration/widgets/lib/ConferenceCalendarHelper';
 
 import ThirdPartyConferenceInviteButton from '../../components/ThirdPartyConferenceInviteButton';
 

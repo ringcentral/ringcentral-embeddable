@@ -3,40 +3,39 @@ import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import { Router, Route } from 'react-router';
 
-import PhoneProvider from 'ringcentral-widgets/lib/PhoneProvider';
-import { getBrandTheme } from 'ringcentral-widgets/lib/phoneContext/theme';
-import CallingSettingsPage from 'ringcentral-widgets/containers/CallingSettingsPage';
-import RegionSettingsPage from 'ringcentral-widgets/containers/RegionSettingsPage';
-import DialerPage from 'ringcentral-widgets/containers/DialerPage';
-import ComposeTextPage from 'ringcentral-widgets/containers/ComposeTextPage';
-import IncomingCallPage from 'ringcentral-widgets/containers/IncomingCallPage';
-import CallCtrlPage from 'ringcentral-widgets/containers/CallCtrlPage';
-import CallBadgeContainer from 'ringcentral-widgets/containers/CallBadgeContainer';
-import LoginPage from 'ringcentral-widgets/containers/LoginPage';
-import AudioSettingsPage from 'ringcentral-widgets/containers/AudioSettingsPage';
-import ContactsPage from 'ringcentral-widgets/containers/ContactsPage';
-import ContactDetailsPage from 'ringcentral-widgets/containers/ContactDetailsPage';
-import FeedbackPage from 'ringcentral-widgets/containers/FeedbackPage';
-import ConferencePage from 'ringcentral-widgets/containers/ConferencePage';
-import ConferenceCommands from 'ringcentral-widgets/components/ConferenceCommands';
-import AlertContainer from 'ringcentral-widgets/containers/AlertContainer';
-import { ModalContainer } from 'ringcentral-widgets/containers/ModalContainer';
-// import ConversationsPage from 'ringcentral-widgets/containers/ConversationsPage';
-// import ConversationPage from 'ringcentral-widgets/containers/ConversationPage';
+import PhoneProvider from '@ringcentral-integration/widgets/lib/PhoneProvider';
+import CallingSettingsPage from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
+import RegionSettingsPage from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
+import DialerPage from '@ringcentral-integration/widgets/containers/DialerPage';
+import ComposeTextPage from '@ringcentral-integration/widgets/containers/ComposeTextPage';
+import { IncomingCallContainer } from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
+import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
+import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
+import LoginPage from '@ringcentral-integration/widgets/containers/LoginPage';
+import AudioSettingsPage from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
+import ContactsPage from '@ringcentral-integration/widgets/containers/ContactsPage';
+import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
+import FeedbackPage from '@ringcentral-integration/widgets/containers/FeedbackPage';
+import ConferencePage from '@ringcentral-integration/widgets/containers/ConferencePage';
+import ConferenceCommands from '@ringcentral-integration/widgets/components/ConferenceCommands';
+import AlertContainer from '@ringcentral-integration/widgets/containers/AlertContainer';
+import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
+import ConversationsPage from '@ringcentral-integration/widgets/containers/ConversationsPage';
+import ConversationPage from '@ringcentral-integration/widgets/containers/ConversationPage';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 
-import ConferenceCallDialerPage from 'ringcentral-widgets/containers/ConferenceCallDialerPage';
-import CallsOnholdPage from 'ringcentral-widgets/containers/CallsOnholdPage';
-import DialerAndCallsTabContainer from 'ringcentral-widgets/containers/DialerAndCallsTabContainer';
-import ConferenceParticipantPage from 'ringcentral-widgets/containers/ConferenceParticipantPage';
-import TransferPage from 'ringcentral-widgets/containers/TransferPage';
-import FlipPage from 'ringcentral-widgets/containers/FlipPage';
-// import ActiveCallsPage from 'ringcentral-widgets/containers/ActiveCallsPage';
-import ActiveCallCtrlPage from 'ringcentral-widgets/containers/SimpleActiveCallCtrlPage';
-import ConnectivityBadgeContainer from 'ringcentral-widgets/containers/ConnectivityBadgeContainer';
+import ConferenceCallDialerPage from '@ringcentral-integration/widgets/containers/ConferenceCallDialerPage';
+import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
+import { DialerAndCallsTabContainer } from '@ringcentral-integration/widgets/containers/DialerAndCallsTabContainer';
+import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
+import TransferPage from '@ringcentral-integration/widgets/containers/TransferPage';
+import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
+import ActiveCallsPage from '@ringcentral-integration/widgets/containers/ActiveCallsPage';
+import { SimpleCallControlPage } from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
+import ConnectivityBadgeContainer from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
 
-// import GenericMeetingPage from 'ringcentral-widgets/containers/GenericMeetingPage';
+// import GenericMeetingPage from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
 
 import MeetingTabContainer from '../MeetingTabContainer';
 import MeetingHistoryPage from '../MeetingHistoryPage';
@@ -47,6 +46,8 @@ import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 import MainView from '../MainView';
 import AppView from '../AppView';
 
+import { getBrandTheme } from '../../lib/themes';
+
 import RecentActivityContainer from '../RecentActivityContainer';
 import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButton';
 import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourceIcon';
@@ -55,12 +56,9 @@ import SettingsPage from '../SettingsPage';
 import RingtoneSettingsPage from '../RingtoneSettingsPage';
 import CallsListPage from '../CallsListPage';
 import CallLogSectionModal from '../CallLogSectionModal';
-import ConversationsPage from '../ConversationsPage';
-import ConversationPage from '../ConversationPage';
 import MeetingInviteModal from '../MeetingInviteModal';
 
 import GenericMeetingPage from '../GenericMeetingPage';
-import ActiveCallsPage from '../ActiveCallsPage';
 
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import { getAlertRenderer } from '../../components/AlertRenderer';
@@ -108,7 +106,7 @@ export default function App({
                     phone.routerInteraction.push(`/calls/active/${sessionId || session.id}`);
                   }}
                 />
-                <IncomingCallPage
+                <IncomingCallContainer
                   showContactDisplayPlaceholder={false}
                   getAvatarUrl={getAvatarUrl}
                   showCallQueueName
@@ -118,7 +116,7 @@ export default function App({
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
                   />
-                </IncomingCallPage>
+                </IncomingCallContainer>
                 <ConnectivityBadgeContainer />
                 <MeetingInviteModal />
                 <ModalContainer />
@@ -208,7 +206,7 @@ export default function App({
                   <DialerAndCallsTabContainer>
                     <ActiveCallsPage
                       showRingoutCallControl={
-                        phone.rolesAndPermissions.hasActiveCallControlPermission
+                        phone.appFeatures.hasCallControl
                       }
                       showSwitchCall
                       onCallsEmpty={() => {
@@ -461,7 +459,7 @@ export default function App({
               <Route
                 path="/simplifycallctrl/:sessionId"
                 component={routerProps => (
-                  <ActiveCallCtrlPage params={routerProps.params} />
+                  <SimpleCallControlPage params={routerProps.params} />
                 )}
               />
             </Route>
