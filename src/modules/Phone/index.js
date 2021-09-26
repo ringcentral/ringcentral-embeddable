@@ -32,7 +32,7 @@ import DialingPlan from '@ringcentral-integration/commons/modules/DialingPlan';
 import { DataFetcherV2 } from '@ringcentral-integration/commons/modules/DataFetcherV2';
 import ExtensionDevice from '@ringcentral-integration/commons/modules/ExtensionDevice';
 import { ExtensionFeatures } from '@ringcentral-integration/commons/modules/ExtensionFeatures';
-import ExtensionInfo from '@ringcentral-integration/commons/modules/ExtensionInfo';
+import { ExtensionInfo } from '@ringcentral-integration/commons/modules/ExtensionInfoV2';
 import ExtensionPhoneNumber from '@ringcentral-integration/commons/modules/ExtensionPhoneNumber';
 import ForwardingNumber from '@ringcentral-integration/commons/modules/ForwardingNumber';
 import GlobalStorage from '@ringcentral-integration/commons/modules/GlobalStorage';

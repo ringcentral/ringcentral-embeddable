@@ -2,7 +2,6 @@ import OAuthBase from '@ringcentral-integration/widgets/modules/OAuth';
 import authMessages from '@ringcentral-integration/commons/modules/Auth/authMessages';
 import parseCallbackUri from '@ringcentral-integration/widgets/lib/parseCallbackUri';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import qs from 'qs';
 
 @Module({
   name: 'OAuth',
