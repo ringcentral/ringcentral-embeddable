@@ -74,7 +74,7 @@ class Environment extends Component {
       window.toggleEnv = this.toggleEnv;
     }
   }
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.server !== this.props.server) {
       this.setState({
         serverValue: nextProps.server,

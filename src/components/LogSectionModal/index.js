@@ -18,7 +18,7 @@ export default class LogSectionModal extends Component {
     this._lastCallId = this.props.currentCall && this.props.currentCall.id;
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (!nextProps.currentCall) {
       return;
     }
