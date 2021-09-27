@@ -60,7 +60,7 @@ export default class Webphone extends WebphoneBase {
       });
       this._multipleTabsTransport = new MultipleTabsTransport({
         name: 'webphone-channel',
-        tabId: this._tabManager.id,
+        tabId: this._tabManager.tabbie.id,
         timeout: 10 * 1000,
         prefix,
         getMainTabId: () => this.activeWebphoneId,
@@ -205,7 +205,7 @@ export default class Webphone extends WebphoneBase {
     window.addEventListener('storage', (e) => {
       // disconnect to inactive when other tabs' web phone connected
       if (e.key === this._activeWebphoneKey) {
-        if (e.newValue === this._tabManager.id) {
+        if (e.newValue === this._tabManager.tabbie.id) {
           return;
         }
         if (this._multipleTabsSupport) {
@@ -258,7 +258,7 @@ export default class Webphone extends WebphoneBase {
       // Force set current tab as active web phone tab
       if (
         this._forceCurrentWebphoneActive &&
-        this.activeWebphoneId !== this._tabManager.id
+        this.activeWebphoneId !== this._tabManager.tabbie.id
       ) {
         this.store.dispatch({
           type: this.actionTypes.unregistered,
@@ -270,7 +270,7 @@ export default class Webphone extends WebphoneBase {
       if (
         this.activeWebphoneId &&
         this.activeWebphoneId !== '-1' &&
-        this.activeWebphoneId !== this._tabManager.id
+        this.activeWebphoneId !== this._tabManager.tabbie.id
       ) {
         try {
           await this._multipleTabsTransport.request({
@@ -326,7 +326,7 @@ export default class Webphone extends WebphoneBase {
       return;
     }
     if (this._tabManager) {
-      localStorage.setItem(this._activeWebphoneKey, this._tabManager.id);
+      localStorage.setItem(this._activeWebphoneKey, this._tabManager.tabbie.id);
       this._disableProxify();
       this._emitActiveWebphoneChangedEvent();
     }
@@ -419,7 +419,7 @@ export default class Webphone extends WebphoneBase {
   }
 
   get isWebphoneActiveTab() {
-    return this.activeWebphoneId === this._tabManager.id;
+    return this.activeWebphoneId === this._tabManager.tabbie.id;
   }
 
   _enableProxify() {
