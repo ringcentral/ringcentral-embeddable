@@ -1,7 +1,10 @@
 {
   "extends": "airbnb",
   "parserOptions": {
-    "ecmaVersion": 7
+    "ecmaVersion": 7,
+    "ecmaFeatures": {
+      "legacyDecorators": true
+    }
   },
   "parser": "babel-eslint",
   "env": {
@@ -10,17 +13,18 @@
     "mocha":true,
     "jest":true
   },
-  globals: {
-    page: true,
-    browser: true,
-    jestPuppeteer: true,
-    __HOST_URI__: true,
-    __USER_NAME__: true,
-    __USER_PASSWORD__: true
+  "plugins": ["import"],
+  "globals": {
+    "page": true,
+    "browser": true,
+    "jestPuppeteer": true,
+    "_HOST_URI__": true,
+    "__USER_NAME__": true,
+    "__USER_PASSWORD__": true
   },
   "ignorePatterns": ["vendors/**/*.js"],
   "rules": {
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
     "no-restricted-syntax": [
       2,
       "DebuggerStatement",
