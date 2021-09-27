@@ -1,9 +1,9 @@
 import url from 'url';
 
-// eslint-disable-next-line
-import logoUrl from '!url-loader!brand-logo-path/logo.svg';
-// eslint-disable-next-line
-import iconUrl from '!url-loader!brand-logo-path/icon.svg';
+// // eslint-disable-next-line
+// import logoUrl from '!url-loader!brand-logo-path/logo.svg';
+// // eslint-disable-next-line
+// import iconUrl from '!url-loader!brand-logo-path/icon.svg';
 
 import parseUri from './lib/parseUri';
 import Adapter from './lib/Adapter';
@@ -139,8 +139,8 @@ function init() {
     return;
   }
   window.RCAdapter = new Adapter({
-    logoUrl,
-    iconUrl,
+    // logoUrl,
+    // iconUrl,
     appUrl: appUri,
     version,
     prefix: prefix || defaultPrefix,

@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   prefix: 'rc-widget',
   brandConfig: {
@@ -21,6 +23,11 @@ module.exports = {
     rcvProductName: '',
     rcvTeleconference: 'https://video.businessconnect.telus.com/teleconference',
     teleconference: 'https://meetings.businessconnect.telus.com/teleconference',
+    assets: {
+      logo: '/assets/telus/logo.svg',
+      icon: '/assets/telus/icon.svg',
+    }
   },
   brandFolder: __dirname,
+  assetsFolder: path.resolve(__dirname, '../../src/assets/telus'),
 };

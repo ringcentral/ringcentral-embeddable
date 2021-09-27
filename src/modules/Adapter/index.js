@@ -150,6 +150,7 @@ export default class Adapter extends AdapterModuleCore {
     this._callLoggerAutoLogEnabled = null;
     this._dialerDisabled = null;
     this._meetingReady = null;
+    this._brandConfig = null;
     this._popupWindowManager = new PopupWindowManager({ prefix, isPopupWindow: fromPopup });
 
     this._messageStore.onNewInboundMessage((message) => {
@@ -228,6 +229,7 @@ export default class Adapter extends AdapterModuleCore {
     this._checkAutoCallLoggerChanged();
     this._checkDialUIStatusChanged();
     this._checkMeetingStatusChanged();
+    this._checkBrandConfigChanged();
   }
 
   _onMessage(event) {
@@ -529,6 +531,18 @@ export default class Adapter extends AdapterModuleCore {
         this._appFeatures.ready &&
         this._appFeatures.hasMeetingsPermission
       ),
+    });
+  }
+
+  _checkBrandConfigChanged() {
+    if (this._brandConfig === this._brand.brandConfig) {
+      return;
+    }
+    this._brandConfig = this._brand.brandConfig;
+    this._postMessage({
+      type: 'rc-brand-assets-notify',
+      logoUri: this._brandConfig.assets && this._brandConfig.assets.logo,
+      iconUri: this._brandConfig.assets && this._brandConfig.assets.icon,
     });
   }
 

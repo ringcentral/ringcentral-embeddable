@@ -134,6 +134,7 @@ const phone = createPhone({
   forceCurrentWebphoneActive: fromPopup,
   fromPopup,
   enableRingtoneSettings,
+  hostingUrl: process.env.HOSTING_URL,
 });
 
 const store = createStore(phone.reducer);

@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   prefix: 'rc-widget',
   brandConfig: {
@@ -20,6 +22,11 @@ module.exports = {
     rcvProductName: 'AT&T Office@Hand Meetings',
     rcvTeleconference: 'https://meetings.officeathand.att.com/teleconference',
     teleconference: 'https://meetings-officeathand.att.com/teleconference',
+    assets: {
+      logo: '/assets/att/logo.svg',
+      icon: '/assets/att/icon.svg',
+    }
   },
   brandFolder: __dirname,
+  assetsFolder: path.resolve(__dirname, '../../src/assets/att'),
 };

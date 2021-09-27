@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   prefix: 'rc-widget',
   brandConfig: {
@@ -21,6 +23,11 @@ module.exports = {
     rcvProductName: '',
     rcvTeleconference: 'https://video.cloudwork.bt.com/teleconference',
     teleconference: 'https://meetings.btcloudphone.bt.com/teleconference',
+    assets: {
+      logo: '/assets/bt/logo.svg',
+      icon: '/assets/bt/icon.svg',
+    },
   },
   brandFolder: __dirname,
+  assetsFolder: path.resolve(__dirname, '../../src/assets/bt'),
 };

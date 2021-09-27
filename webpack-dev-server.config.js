@@ -17,6 +17,7 @@ const defaultBrand = process.env.BRAND || 'rc';
 const { getBrandConfig, brandConfigs } = require('./getBrandConfig');
 
 const buildPath = path.resolve(__dirname, 'src');
+const dynamicThemePath = path.resolve(__dirname, 'getBrandConfig');
 
 const apiConfigFile = path.resolve(__dirname, 'api.json');
 let apiConfig;
@@ -32,9 +33,8 @@ if (fs.existsSync(apiConfigFile)) {
 
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 
-function getWebpackConfig({ brand, styleLoader }) {
-  const { prefix, brandFolder } = getBrandConfig(brand);
-  const config = getBaseConfig({ themeFolder: brandFolder, styleLoader });
+function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null, brandFolder }) {
+  const config = getBaseConfig({ themeFolder: themeFolder, styleLoader });
   config.devServer = {
     contentBase: buildPath,
     hot: true,
@@ -54,6 +54,7 @@ function getWebpackConfig({ brand, styleLoader }) {
         NODE_ENV: JSON.stringify('development'),
         API_CONFIG: JSON.stringify(apiConfig),
         APP_VERSION: JSON.stringify(version),
+        HOSTING_URL: JSON.stringify('http://localhost:8080'),
         PREFIX: JSON.stringify(prefix),
         BRAND: JSON.stringify(brand),
         BRAND_CONFIGS: JSON.stringify(brandConfigs),
@@ -80,7 +81,14 @@ function getWebpackConfig({ brand, styleLoader }) {
 }
 
 function getAppWebpackConfig({ brand }) {
-  const config = getWebpackConfig({ brand, styleLoader: 'style-loader' });
+  const { prefix, brandFolder } = getBrandConfig(brand);
+  const config = getWebpackConfig({
+    prefix,
+    brand,
+    styleLoader: 'style-loader',
+    brandFolder,
+    themeFolder: dynamicThemePath,
+  });
   config.entry = {
     app: ['@babel/polyfill', './src/app.js'],
     proxy: './src/proxy.js',
@@ -90,7 +98,14 @@ function getAppWebpackConfig({ brand }) {
 }
 
 function getAdapterWebpackConfig({ brand }) {
-  const config = getWebpackConfig({ brand, styleLoader: 'style-loader' });
+  const { prefix, brandFolder } = getBrandConfig(brand);
+  const config = getWebpackConfig({
+    prefix,
+    brand,
+    styleLoader: 'style-loader',
+    themeFolder: brandFolder,
+    brandFolder,
+  });
   config.entry = {
     'adapter': './src/adapter.js',
   };
@@ -98,6 +113,6 @@ function getAdapterWebpackConfig({ brand }) {
 }
 
 module.exports = [
-  getAppWebpackConfig({ brand: defaultBrand}),
+  getAppWebpackConfig({ brand: defaultBrand }),
   getAdapterWebpackConfig({ brand: defaultBrand })
 ];

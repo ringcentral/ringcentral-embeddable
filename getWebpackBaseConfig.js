@@ -18,7 +18,7 @@ const supportedLocales = [
   'zh-TW',
   'zh-HK',
 ];
-module.exports = function getBaseConfig({ themeFolder, styleLoader = 'style-loader' } = {}) {
+module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'style-loader' } = {}) {
   const sassLoaderIncludePaths = ['src', 'node_modules'];
   if (themeFolder) {
     sassLoaderIncludePaths.push(themeFolder);

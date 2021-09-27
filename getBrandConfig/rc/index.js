@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   prefix: 'rc-widget',
   brandConfig: {
@@ -14,7 +16,7 @@ module.exports = {
       default: {
         link: 'https://app.ringcentral.com/',
         protocol: 'rcapp://',
-        name: 'RingCentral',
+        name: 'RingCentral App',
       },
     },
     spartanProtocol: 'rcmobile://',
@@ -22,6 +24,11 @@ module.exports = {
     rcvProductName: 'RingCentral Video',
     teleconference: 'https://meetings.ringcentral.com/teleconference',
     rcvTeleconference: 'https://v.ringcentral.com/teleconference/',
+    assets: {
+      logo: '/assets/rc/logo.svg',
+      icon: '/assets/rc/icon.svg',
+    }
   },
   brandFolder: __dirname,
+  assetsFolder: path.resolve(__dirname, '../../src/assets/rc'),
 };

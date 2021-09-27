@@ -9,13 +9,15 @@ import callDirections from '@ringcentral-integration/commons/enums/callDirection
 
 import AvailabilityMonitor from '@ringcentral-integration/commons/modules/AvailabilityMonitor';
 import { Analytics } from '@ringcentral-integration/commons/modules/Analytics';
-import AccountInfo from '@ringcentral-integration/commons/modules/AccountInfo';
+import { AccountInfo } from '@ringcentral-integration/commons/modules/AccountInfoV2';
 import ActivityMatcher from '@ringcentral-integration/commons/modules/ActivityMatcher';
 // import ActiveCalls from '@ringcentral-integration/commons/modules/ActiveCalls';
 // import AddressBook from '@ringcentral-integration/commons/modules/AddressBook';
 import AccountContacts from '@ringcentral-integration/commons/modules/AccountContacts';
 import CompanyContacts from '@ringcentral-integration/commons/modules/CompanyContacts';
 import { Brand } from '@ringcentral-integration/commons/modules/Brand';
+import { Theme } from '@ringcentral-integration/commons/modules/Theme';
+import { ThemeUI } from '@ringcentral-integration/widgets/modules/ThemeUI';
 
 // import AudioSettings from '@ringcentral-integration/commons/modules/AudioSettings';
 import BlockedNumber from '@ringcentral-integration/commons/modules/BlockedNumber';
@@ -100,6 +102,7 @@ import { SleepDetector } from '@ringcentral-integration/commons/modules/SleepDet
 import Alert from '../Alert';
 import AudioSettings from '../AudioSettings';
 import { SettingsUI } from '../SettingsUI';
+import { DynamicBrand } from '../DynamicBrand';
 import OAuth from '../OAuth';
 import Auth from '../Auth';
 import Environment from '../Environment';
@@ -142,6 +145,9 @@ import hackSend from '../../lib/hackSend';
     { provide: 'AlertUI', useClass: AlertUI },
     { provide: 'AppFeatures', useClass: AppFeatures },
     { provide: 'Brand', useClass: Brand },
+    { provide: 'DynamicBrand', useClass: DynamicBrand },
+    { provide: 'Theme', useClass: Theme },
+    { provide: 'ThemeUI', useClass: ThemeUI },
     { provide: 'Locale', useClass: Locale },
     { provide: 'TabManager', useClass: TabManager },
     { provide: 'GlobalStorage', useClass: GlobalStorage },
@@ -623,6 +629,7 @@ export function createPhone({
   enableWebRTCPlanB,
   fromPopup,
   enableRingtoneSettings,
+  hostingUrl,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -785,6 +792,13 @@ export function createPhone({
           showCallWithJupiter: true,
         },
       },
+      {
+        provide: 'DynamicBrandOptions',
+        useValue: {
+          enableIDB: true,
+          baseUrl: hostingUrl,
+        },
+      }
     ]
   })
   class Phone extends BasePhone {}

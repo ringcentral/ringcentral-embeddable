@@ -25,6 +25,7 @@ let buildPath = path.resolve(__dirname, releaseDir);
 if (process.env.BRAND) {
   buildPath = path.resolve(buildPath, process.env.BRAND);
 }
+const dynamicThemePath = path.resolve(__dirname, 'getBrandConfig');
 
 const apiConfigFile = path.resolve(__dirname, 'api.json');
 let apiConfig;
@@ -50,9 +51,8 @@ if (localExtensionMode) {
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 const recordingLink = process.env.RECORDING_LINK || 'https://ringcentral.github.io/ringcentral-media-reader/';
 
-function getWebpackConfig({ brand, env = {}, styleLoader }) {
-  const { prefix, brandFolder } = getBrandConfig(brand);
-  const config = getBaseConfig({ themeFolder: brandFolder, styleLoader });
+function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = null, brandFolder }) {
+  const config = getBaseConfig({ themeFolder, styleLoader });
   config.output = {
     path: buildPath,
     filename: '[name].js',
@@ -104,10 +104,14 @@ function getWebpackConfig({ brand, env = {}, styleLoader }) {
 }
 
 function getAppWebpackConfig({ brand }) {
+  const { prefix, brandFolder } = getBrandConfig(brand);
   const config = getWebpackConfig({
+    prefix,
     brand,
     env: { ADAPTER_NAME: JSON.stringify('adapter.js') },
     styleLoader: MiniCssExtractPlugin.loader,
+    brandFolder,
+    themeFolder: dynamicThemePath,
   });
   config.plugins = [
     ...config.plugins,
@@ -134,12 +138,16 @@ function getAppWebpackConfig({ brand }) {
 }
 
 function getAdapterWebpackConfig({ brand, adapterName }) {
+  const { prefix, brandFolder } = getBrandConfig(brand);
   const config = getWebpackConfig({
+    prefix,
     brand,
     env: {
       ADAPTER_NAME: JSON.stringify(`${adapterName}.js`),
     },
-    styleLoader: 'style-loader'
+    styleLoader: 'style-loader',
+    brandFolder,
+    themeFolder: brandFolder,
   });
   config.entry = {
     [adapterName]: './src/adapter.js',

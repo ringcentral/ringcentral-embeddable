@@ -35,6 +35,7 @@
 
 .root .header {
   border-bottom: 1px solid #e8e9ed;
+  min-width: 165px;;
 }
 
 .root .button {
@@ -61,8 +62,16 @@
   display: none;
 }
 
-.toggle {
+.root .toggle {
   right: 10px;
+}
+
+.root.minimized .toggle {
+  right: 10px;
+}
+
+.root.dock.minimized .toggle {
+  right: -10px;
 }
 
 .dock.minimized.expandable {
