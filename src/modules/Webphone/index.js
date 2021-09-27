@@ -179,7 +179,7 @@ export default class Webphone extends WebphoneBase {
     }
     this.store.subscribe(() => this._onStateChange());
     this._auth.addBeforeLogoutHandler(async () => {
-      this._webphoneSDKOptions.instanceId = null;
+      this._sipInstanceId = null;
       await this._disconnect();
     });
     this._createOtherWebphoneInstanceListener();
@@ -436,13 +436,6 @@ export default class Webphone extends WebphoneBase {
 
   get proxifyTransport() {
     return this._transport;
-  }
-
-  async _onConnectError(options) {
-    if (options.statusCode === 403 && this._webphoneSDKOptions.instanceId) {
-      this._webphoneSDKOptions.instanceId = null;
-    }
-    await super._onConnectError(options);
   }
 
   // override normalizeSession for call queue name
