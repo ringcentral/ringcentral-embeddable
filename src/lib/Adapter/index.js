@@ -214,10 +214,6 @@ class Adapter extends AdapterCore {
 
   _getContentDOM(sanboxAttributeValue, allowAttributeValue) {
     let sandboxAttributes = sanboxAttributeValue;
-    // TODO: fix in widgets lib for auto play
-    if (allowAttributeValue.indexOf('autoplay') === -1) {
-      allowAttributeValue = `autoplay; ${allowAttributeValue}`; // For Google Chrome v83
-    }
     return `
       <header class="${this._styles.header}" draggable="false">
         <div class="${this._styles.presence} ${this._styles.NoPresence}">
