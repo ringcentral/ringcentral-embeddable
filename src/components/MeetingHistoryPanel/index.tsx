@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 
-import Spinner from '@ringcentral-integration/widgets/components/Spinner';
-import { RcTextField, RcSelect, RcIcon, RcMenuItem } from '@ringcentral/juno';
+import { RcTextField, RcSelect, RcIcon, RcMenuItem, RcCircularProgress } from '@ringcentral/juno';
 
 import Search from '@ringcentral/juno/icon/Search';
 
@@ -117,7 +116,7 @@ export default class IMeetingHistoryPanel extends Component<IMeetingHistoryPanel
     if (showSpinner) {
       content = (
         <div className={styles.spinnerContainer}>
-          <Spinner />
+          <RcCircularProgress size={35} />
         </div>
       );
     } else {

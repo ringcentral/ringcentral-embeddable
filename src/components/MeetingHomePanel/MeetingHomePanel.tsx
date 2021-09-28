@@ -1,10 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { RcIconButton } from '@ringcentral/juno';
+import { RcIconButton, RcCircularProgress } from '@ringcentral/juno';
 import classnames from 'classnames';
 import Modal from '@ringcentral-integration/widgets/components/Modal';
 import TextInput from '@ringcentral-integration/widgets/components/TextInput';
-import Spinner from '@ringcentral-integration/widgets/components/Spinner';
 
 import Schedule from '@ringcentral/juno/icon/Schedule';
 import Start from '@ringcentral/juno/icon/Start';
@@ -43,7 +42,7 @@ const MeetingHomePanel = (props) => {
   if (loadingUpcomingMeetings) {
     upcomingMeetingContent = (
       <div className={styles.spinnerContainer}>
-        <Spinner />
+        <RcCircularProgress size={35} />
       </div>
     );
   } else if (upcomingMeetings.length > 0) {
