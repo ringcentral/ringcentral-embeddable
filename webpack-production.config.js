@@ -1,15 +1,10 @@
-require('@babel/register')({
-  extensions: ['.js', '.jsx', '.ts', '.tsx', '.mjs'],
-  ignore: [/node_modules/],
-  rootMode: 'upward',
-});
-
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 require('dotenv').config();
 
@@ -121,6 +116,7 @@ function getAppWebpackConfig({ brand }) {
     new MiniCssExtractPlugin({
       filename: '[name].css',
     }),
+    // new BundleAnalyzerPlugin({ analyzerMode: 'static' }),
   ];
   config.entry = {
     app: ['@babel/polyfill', './src/app.js'],

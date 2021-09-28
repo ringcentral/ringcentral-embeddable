@@ -1,8 +1,8 @@
-require('@babel/register')({
-  extensions: ['.js', '.jsx', '.ts', '.tsx', '.mjs'],
-  ignore: [/node_modules/],
-  rootMode: 'upward',
-});
+// require('@babel/register')({
+//   extensions: ['.js', '.jsx', '.ts', '.tsx', '.mjs'],
+//   ignore: [/node_modules/],
+//   rootMode: 'upward',
+// });
 
 const fs = require('fs');
 const path = require('path');
