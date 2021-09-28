@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { RcIconButton, RcButton } from '@ringcentral/juno';
-import { Info } from '@ringcentral/juno/icon';
+import Info from '@ringcentral/juno/icon/Info';
 
 import i18n from './i18n';
 import styles from './styles.scss';

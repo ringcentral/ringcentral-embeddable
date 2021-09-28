@@ -7,7 +7,10 @@ import {
   RcIconButton,
   RcGrid,
 } from '@ringcentral/juno';
-import { Play, Attachment, Delete, Pause } from '@ringcentral/juno/icon';
+import Play from '@ringcentral/juno/icon/Play';
+import Attachment from '@ringcentral/juno/icon/Attachment';
+import Delete from '@ringcentral/juno/icon/Delete';
+import Pause from '@ringcentral/juno/icon/Pause';
 
 import i18n from '@ringcentral-integration/widgets/components/Ringtone/i18n';
 

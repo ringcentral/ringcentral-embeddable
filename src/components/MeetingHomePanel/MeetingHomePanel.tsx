@@ -6,7 +6,9 @@ import Modal from '@ringcentral-integration/widgets/components/Modal';
 import TextInput from '@ringcentral-integration/widgets/components/TextInput';
 import Spinner from '@ringcentral-integration/widgets/components/Spinner';
 
-import { Schedule, Start, Join } from '@ringcentral/juno/icon';
+import Schedule from '@ringcentral/juno/icon/Schedule';
+import Start from '@ringcentral/juno/icon/Start';
+import Join from '@ringcentral/juno/icon/Join';
 
 import UpcomingMeetingList from '../UpcomingMeetingList';
 

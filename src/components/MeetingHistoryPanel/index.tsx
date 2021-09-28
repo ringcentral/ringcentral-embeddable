@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import Spinner from '@ringcentral-integration/widgets/components/Spinner';
 import { RcTextField, RcSelect, RcIcon, RcMenuItem } from '@ringcentral/juno';
 
-import { Search } from '@ringcentral/juno/icon';
+import Search from '@ringcentral/juno/icon/Search';
 
 import MeetingItem from '../MeetingItem';
 import styles from './styles.scss';
