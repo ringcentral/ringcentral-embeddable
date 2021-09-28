@@ -33,7 +33,7 @@ if (fs.existsSync(apiConfigFile)) {
 
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 
-function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null, brandFolder }) {
+function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
   const config = getBaseConfig({ themeFolder: themeFolder, styleLoader });
   config.devServer = {
     contentBase: buildPath,
@@ -66,12 +66,6 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null, bran
   ];
   config.devtool = 'eval-source-map';
   config.mode = 'development';
-  config.resolve = {
-    ...config.resolve,
-    alias: {
-      'brand-logo-path': brandFolder,
-    },
-  };
   if (process.env.CI) {
     config.watchOptions = {
       ignored: /node_modules/,
@@ -81,12 +75,11 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null, bran
 }
 
 function getAppWebpackConfig({ brand }) {
-  const { prefix, brandFolder } = getBrandConfig(brand);
+  const { prefix } = getBrandConfig(brand);
   const config = getWebpackConfig({
     prefix,
     brand,
     styleLoader: 'style-loader',
-    brandFolder,
     themeFolder: dynamicThemePath,
   });
   config.entry = {
@@ -104,7 +97,6 @@ function getAdapterWebpackConfig({ brand }) {
     brand,
     styleLoader: 'style-loader',
     themeFolder: brandFolder,
-    brandFolder,
   });
   config.entry = {
     'adapter': './src/adapter.js',

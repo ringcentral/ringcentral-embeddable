@@ -51,7 +51,7 @@ if (localExtensionMode) {
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 const recordingLink = process.env.RECORDING_LINK || 'https://ringcentral.github.io/ringcentral-media-reader/';
 
-function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = null, brandFolder }) {
+function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = null }) {
   const config = getBaseConfig({ themeFolder, styleLoader });
   config.output = {
     path: buildPath,
@@ -94,23 +94,16 @@ function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = 
     ]
   };
   config.mode = 'production';
-  config.resolve = {
-    ...config.resolve,
-    alias: {
-      'brand-logo-path': brandFolder,
-    },
-  };
   return config;
 }
 
 function getAppWebpackConfig({ brand }) {
-  const { prefix, brandFolder } = getBrandConfig(brand);
+  const { prefix } = getBrandConfig(brand);
   const config = getWebpackConfig({
     prefix,
     brand,
     env: { ADAPTER_NAME: JSON.stringify('adapter.js') },
     styleLoader: MiniCssExtractPlugin.loader,
-    brandFolder,
     themeFolder: dynamicThemePath,
   });
   config.plugins = [
@@ -146,7 +139,6 @@ function getAdapterWebpackConfig({ brand, adapterName }) {
       ADAPTER_NAME: JSON.stringify(`${adapterName}.js`),
     },
     styleLoader: 'style-loader',
-    brandFolder,
     themeFolder: brandFolder,
   });
   config.entry = {
