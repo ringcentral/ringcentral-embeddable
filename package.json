@@ -62,7 +62,7 @@
     "@ringcentral-integration/i18n": "^2.0.1",
     "@ringcentral-integration/locale-loader": "^2.0.2",
     "@ringcentral-integration/phone-number": "^1.0.7",
-    "@ringcentral/juno": "^1.11.2",
+    "@ringcentral/juno": "^1.11.4",
     "@ringcentral/sdk": "^4.6.0",
     "@ringcentral/subscriptions": "^4.6.0",
     "classnames": "^2.2.5",

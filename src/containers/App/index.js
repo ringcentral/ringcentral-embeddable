@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import { Router, Route } from 'react-router';
 
-import PhoneProvider from '@ringcentral-integration/widgets/lib/PhoneProvider';
+import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
 import { ThemeContainer } from '@ringcentral-integration/widgets/containers/ThemeContainer';
 import CallingSettingsPage from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
 import RegionSettingsPage from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
@@ -36,7 +36,7 @@ import ActiveCallsPage from '@ringcentral-integration/widgets/containers/ActiveC
 import { SimpleCallControlPage } from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
 import ConnectivityBadgeContainer from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
 
-// import GenericMeetingPage from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
+import GenericMeetingPage from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
 
 import MeetingTabContainer from '../MeetingTabContainer';
 import MeetingHistoryPage from '../MeetingHistoryPage';
@@ -59,7 +59,7 @@ import CallsListPage from '../CallsListPage';
 import CallLogSectionModal from '../CallLogSectionModal';
 import MeetingInviteModal from '../MeetingInviteModal';
 
-import GenericMeetingPage from '../GenericMeetingPage';
+// import GenericMeetingPage from '../GenericMeetingPage';
 
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import { getAlertRenderer } from '../../components/AlertRenderer';
@@ -87,7 +87,7 @@ export default function App({
     );
   };
   return (
-    <PhoneProvider phone={phone} theme={getBrandTheme(phone.brand.code)}>
+    <PhoneContext.Provider value={phone}>
       <Provider store={phone.store} >
         <ThemeContainer theme={getBrandTheme(phone.brand.code)}>
           <Router history={phone.routerInteraction.history}>
@@ -335,12 +335,14 @@ export default function App({
                             showHeader={false}
                             schedule={scheduleFunc}
                             scheduleButton={MeetingScheduleButton}
+                            showRcvAdminLock
                           />
                         </MeetingTabContainer>
                       );
                     }
                     return (
                       <GenericMeetingPage
+                        useRcmV2
                         schedule={scheduleFunc}
                         scheduleButton={MeetingScheduleButton}
                       />
@@ -469,7 +471,7 @@ export default function App({
           </Router>
         </ThemeContainer>
       </Provider>
-    </PhoneProvider>
+    </PhoneContext.Provider>
   );
 }
 
