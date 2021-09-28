@@ -15,6 +15,7 @@ import { getBrandTheme, getBrandVariable } from '../../lib/themes';
   deps: [
     'Brand',
     'AccountInfo',
+    'GlobalStorage',
     {
       dep: 'DynamicBrandOptions',
       optional: true,
@@ -35,18 +36,9 @@ export class DynamicBrand extends RcModuleV2 {
   @state
   _cache = {};
 
-  @globalStorage
-  @state
-  brandId = null;
-
   @action
   _setCacheConfig(config) {
     this._cache[config.id] = config;
-  }
-
-  @action
-  _setBrandId(id) {
-    this.brandId = id;
   }
 
   get enabled() {
@@ -74,9 +66,6 @@ export class DynamicBrand extends RcModuleV2 {
       this._deps.accountInfo.info.serviceInfo.brand.id
     ) {
       return this._deps.accountInfo.info.serviceInfo.brand.id;
-    }
-    if (this.brandId) {
-      return this.brandId;
     }
     return this._deps.brand.defaultConfig.id;
   }
@@ -117,7 +106,6 @@ export class DynamicBrand extends RcModuleV2 {
       brandConfig.assets = this._getAssetsLink(brandConfig.assets);
     }
     this._setCacheConfig(brandConfig);
-    this._setBrandId(brandId);
     this._deps.brand.setDynamicConfig(brandConfig);
   }
 
