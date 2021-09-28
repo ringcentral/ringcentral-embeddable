@@ -6,9 +6,7 @@ import Modal from '@ringcentral-integration/widgets/components/Modal';
 import TextInput from '@ringcentral-integration/widgets/components/TextInput';
 import Spinner from '@ringcentral-integration/widgets/components/Spinner';
 
-import scheduleSvg from '@ringcentral/juno/icons/icon-schedule.svg';
-import startSvg from '@ringcentral/juno/icons/icon-start.svg';
-import joinSvg from '@ringcentral/juno/icons/icon-join.svg';
+import { Schedule, Start, Join } from '@ringcentral/juno/icon';
 
 import UpcomingMeetingList from '../UpcomingMeetingList';
 
@@ -68,7 +66,7 @@ const MeetingHomePanel = (props) => {
       <div className={styles.buttons}>
         <div className={styles.button} onClick={gotoSchedule}>
           <RcIconButton
-            symbol={scheduleSvg}
+            symbol={Schedule}
             size='medium'
             color='label.red01'
             className={classnames(styles.iconButton, styles.schedule)}
@@ -77,7 +75,7 @@ const MeetingHomePanel = (props) => {
         </div>
         <div className={styles.button} onClick={onStart}>
           <RcIconButton
-            symbol={startSvg}
+            symbol={Start}
             size='medium'
             color='label.green01'
             className={classnames(styles.iconButton, styles.start)}
@@ -86,7 +84,7 @@ const MeetingHomePanel = (props) => {
         </div>
         <div className={styles.button} onClick={() => setShowJoinModal(true)}>
           <RcIconButton
-            symbol={joinSvg}
+            symbol={Join}
             size='medium'
             color='label.blue01'
             className={classnames(styles.iconButton, styles.join)}

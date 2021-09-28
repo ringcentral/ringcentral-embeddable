@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import Spinner from '@ringcentral-integration/widgets/components/Spinner';
 import { RcTextField, RcSelect, RcIcon, RcMenuItem } from '@ringcentral/juno';
 
-import SearchSvg from '@ringcentral/juno/icons/icon-search.svg';
+import { Search } from '@ringcentral/juno/icon';
 
 import MeetingItem from '../MeetingItem';
 import styles from './styles.scss';
@@ -152,7 +152,7 @@ export default class IMeetingHistoryPanel extends Component<IMeetingHistoryPanel
               fullWidth
               InputProps={{
                 startAdornment: (
-                  <RcIcon symbol={SearchSvg} color="icon.subdued" size="small" />
+                  <RcIcon symbol={Search} color="icon.subdued" size="small" />
                 ),
               }}
               value={searchText}
