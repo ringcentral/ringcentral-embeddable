@@ -29,7 +29,7 @@ const innerGetBrandTheme = (
 };
 
 export const getBrandTheme = (brand: BrandTheme = 'rc'): RcThemeInput => {
-  return innerGetBrandTheme(brand, brandThemeMapping.rcBlue);
+  return innerGetBrandTheme(brand, brandThemeMapping.jupiterBlue);
 };
 
 export const getBrandThemeWithJupiterBlue = (
