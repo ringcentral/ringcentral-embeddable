@@ -4,7 +4,7 @@
   "description": "A RingCentral Embeddable Widget Application",
   "main": "index.js",
   "license": "MIT",
-  "browserslist": "> 0.25%, ie > 10",
+  "browserslist": "defaults",
   "scripts": {
     "test": "jest --maxWorkers=2",
     "start": "npm run dev-server",
