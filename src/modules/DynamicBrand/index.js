@@ -16,6 +16,7 @@ import { getBrandTheme, getBrandVariable } from '../../lib/themes';
     'Brand',
     'AccountInfo',
     'GlobalStorage',
+    'Auth',
     {
       dep: 'DynamicBrandOptions',
       optional: true,
@@ -30,15 +31,28 @@ export class DynamicBrand extends RcModuleV2 {
       enableGlobalCache: true,
     });
     this._ignoreModuleReadiness(deps.accountInfo);
+    this._ignoreModuleReadiness(deps.auth);
+    this._deps.auth.addBeforeLogoutHandler(() => {
+      this._setCachedAccountBrandId(null);
+    });
   }
 
   @globalStorage
   @state
   _cache = {};
 
+  @globalStorage
+  @state
+  cachedAccountBrandId = null;
+
   @action
   _setCacheConfig(config) {
     this._cache[config.id] = config;
+  }
+
+  @action
+  _setCachedAccountBrandId(id) {
+    this.cachedAccountBrandId = id;
   }
 
   get enabled() {
@@ -58,16 +72,19 @@ export class DynamicBrand extends RcModuleV2 {
 
   get _currentBrandId() {
     if (
-      this._deps.dynamicBrandOptions &&
-      this._deps.dynamicBrandOptions.enableIDB &&
-      this._deps.accountInfo.info &&
-      this._deps.accountInfo.info.serviceInfo &&
-      this._deps.accountInfo.info.serviceInfo.brand && 
-      this._deps.accountInfo.info.serviceInfo.brand.id
+      this._deps.dynamicBrandOptions?.enableIDB &&
+      this._accountBrandId
     ) {
-      return this._deps.accountInfo.info.serviceInfo.brand.id;
+      return this._accountBrandId;
+    }
+    if (this.cachedAccountBrandId) {
+      return this.cachedAccountBrandId;
     }
     return this._deps.brand.defaultConfig.id;
+  }
+
+  get _accountBrandId() {
+    return this._deps.accountInfo.info?.serviceInfo?.brand?.id;
   }
 
   onInitOnce() {
@@ -106,6 +123,9 @@ export class DynamicBrand extends RcModuleV2 {
       brandConfig.assets = this._getAssetsLink(brandConfig.assets);
     }
     this._setCacheConfig(brandConfig);
+    if (this._accountBrandId) {
+      this._setCachedAccountBrandId(this._accountBrandId);
+    }
     this._deps.brand.setDynamicConfig(brandConfig);
   }
 
