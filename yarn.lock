@@ -9164,9 +9164,9 @@ ringcentral-integration@^0.12.6:
     yards "^0.1.4"
 
 ringcentral-web-phone@^0.8.3:
-  version "0.8.6"
-  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.8.6.tgz#0a052f7b5d70e65c2154d5ead600546d4643f355"
-  integrity sha512-f4uqcZzf3PQu2DWJyhg9/wc8jMzoQqMHMQpOQR8s7xjgOwd+9Kja8WfKGV/hdR+5b+hMafH3Cf5obgUlS2p5Uw==
+  version "0.8.8"
+  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.8.8.tgz#a7cfda4a1dfd490c6fd7be90fe8cad81a432648c"
+  integrity sha512-U3uS1CseWX0RM+DEgrUjTSvqvEY8F/hXnmcpixcR6MW1nfaZAR2h7v+E987CIrdNnjkK7sIDaxpAnyWartv2cQ==
   dependencies:
     getstats "1.2.0"
     sip.js "0.13.5"
