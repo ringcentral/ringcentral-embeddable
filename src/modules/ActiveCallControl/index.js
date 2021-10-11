@@ -20,7 +20,7 @@ export default class NewActiveCallControl extends ActiveCallControl {
     this.store.dispatch({
       type: this.actionTypes.updateActiveSessions,
       timestamp: Date.now(),
-      sessionDatas: this._rcCallControl.sessions.map((s) => s.data),
+      sessionData: this._rcCallControl.sessions.map((s) => s.data),
     });
     this._onSessionUpdateHandlers.forEach((handler) => {
       handler(session && session.data);
