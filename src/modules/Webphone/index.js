@@ -481,4 +481,13 @@ export default class Webphone extends WebphoneBase {
       sessions: [...this._sessions.values()].map(normalizeSession),
     });
   }
+
+  updateRecordStatus(sessionId, status) {
+    const session = this._sessions.get(sessionId);
+    if (!session) {
+      return;
+    }
+    session.__rc_recordStatus = status;
+    this._updateSessions();
+  }
 }

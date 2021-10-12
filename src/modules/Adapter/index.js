@@ -169,20 +169,9 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallInit((session) => {
       this.initCallNotify(session);
-      // TODO: hack to disable record button, need to fix in widgets lib
-      // disable record button before call started
-      const rawSession = this._webphone._sessions.get(session.id);
-      if (rawSession) {
-        rawSession.__rc_recordStatus = recordStatus.pending;
-        this._webphone._updateSessions();
-      }
     });
     this._webphone.onCallStart((session) => {
       const rawSession = this._webphone._sessions.get(session.id);
-      if (rawSession && rawSession.__rc_recordStatus === recordStatus.pending) {
-        rawSession.__rc_recordStatus = recordStatus.idle;
-        this._webphone._updateSessions();
-      }
       this.startCallNotify(session);
       // TODO: add mute event in web phone module to make mute work at inactive webphone tab
       if (rawSession) {

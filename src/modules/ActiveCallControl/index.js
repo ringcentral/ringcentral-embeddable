@@ -46,4 +46,20 @@ export default class NewActiveCallControl extends ActiveCallControl {
     session.on('muted', updateSessionsHandler);
     session.on('recordings', updateSessionsHandler);
   }
+
+  async startRecord(telephonySessionId) {
+    try {
+      const session = this._rcCallControl.sessions.find(
+        (s) => s.id === telephonySessionId,
+      );
+      const recordingId = this.getRecordingId(session);
+      if (recordingId) {
+        await session.resumeRecord(recordingId);
+      } else {
+        await session.createRecord(recordingId);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 }
