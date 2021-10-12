@@ -88,7 +88,6 @@ import { CallBadgeUI } from '@ringcentral-integration/widgets/modules/CallBadgeU
 import { CallHistoryUI } from '@ringcentral-integration/widgets/modules/CallHistoryUI';
 import { CallsOnholdUI } from '@ringcentral-integration/widgets/modules/CallsOnholdUI';
 import { DialerAndCallsTabUI } from '@ringcentral-integration/widgets/modules/DialerAndCallsTabUI';
-import { CallControlUI } from '@ringcentral-integration/widgets/modules/CallControlUI';
 import { SimpleCallControlUI } from '@ringcentral-integration/widgets/modules/SimpleCallControlUI';
 import { IncomingCallUI } from '@ringcentral-integration/widgets/modules/IncomingCallUI';
 import FlipUI from '@ringcentral-integration/widgets/modules/FlipUI';
@@ -134,6 +133,7 @@ import MeetingHomeUI from '../MeetingHomeUI';
 import RcVideo from '../RcVideo';
 import GenericMeeting from '../GenericMeeting';
 import DialerUI from '../DialerUI';
+import CallControlUI from '../CallControlUI';
 
 import hackSend from '../../lib/hackSend';
 
