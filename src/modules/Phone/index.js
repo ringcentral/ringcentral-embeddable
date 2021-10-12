@@ -80,7 +80,7 @@ import { CallerId } from 'ringcentral-integration/modules/CallerId';
 
 import CallBadgeUI from 'ringcentral-widgets/modules/CallBadgeUI';
 import CallHistoryUI from 'ringcentral-widgets/modules/CallHistoryUI';
-import CallCtrlUI from 'ringcentral-widgets/modules/CallCtrlUI';
+// import CallCtrlUI from 'ringcentral-widgets/modules/CallCtrlUI';
 import FlipUI from 'ringcentral-widgets/modules/FlipUI';
 import TransferUI from 'ringcentral-widgets/modules/TransferUI';
 import SettingsUI from 'ringcentral-widgets/modules/SettingsUI';
@@ -122,6 +122,7 @@ import RcVideo from '../RcVideo';
 import GenericMeeting from '../GenericMeeting';
 import DialerUI from '../DialerUI';
 import ActiveCallsUI from '../ActiveCallsUI';
+import CallCtrlUI from '../CallCtrlUI';
 
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
 import hackSend from '../../lib/hackSend';
