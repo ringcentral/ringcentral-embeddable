@@ -234,9 +234,9 @@ export default class Webphone extends WebphoneBase {
 
   async _onActiveWebphoneIdChanged(newId) {
     if (newId === '-1') {
-      await sleep(200); // wait 200ms for tabManager get right first tab
+      await sleep(200); // wait 200ms for tabManager get right active tab
       // connect web phone when active web phone tab is removed and current tab is active
-      if (this._tabManager.isFirstTab) {
+      if (this._tabManager.active) {
         await this.connect({
           skipDLCheck: true,
           force: true,
@@ -288,7 +288,7 @@ export default class Webphone extends WebphoneBase {
           return;
         } catch (e) {
           console.error(new Error('multipleTabs no response'));
-          if (!this._tabManager.isFirstTab) {
+          if (!this._tabManager.active) {
             return;
           }
           this.store.dispatch({
@@ -298,7 +298,7 @@ export default class Webphone extends WebphoneBase {
         }
       }
       if (!this.activeWebphoneId || this.activeWebphoneId === '-1') {
-        if (!this._tabManager.isFirstTab) {
+        if (!this._tabManager.active) {
           return;
         }
         if (this.connected) {

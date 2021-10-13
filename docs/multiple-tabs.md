@@ -4,13 +4,13 @@ For the Embeddable widget, it supports to run in multiple tabs, and will share t
 
 When calling mode is set into [Browser](interact-with-calling-settings.md), widgets will create web phone connection in every widget instance. In our server-side, we have limitation of 5 phone connection. So when user selects `Browser` to make call, we only support to open tabs that no more than 5.
 
-## Option 1: Have only connection in first opened tab
+## Option 1: Have only connection in first connected tab
 
 To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this option to make only a web phone connection in multiple tabs.
 
 ### Core idea:
 
-1. Web phone connection is only connected in first opened tab.
+1. Web phone connection is only connected in first connected tab. (Before v1.7.2, it is first opened tab. From v1.7.2, it is latest active tab).
 2. When user has a call in second tab or third tab etc, voice transmission is happened in first tab. Second tab only has web phone UI.
 3. When user controls call in second tab, control command sent to first tab to execute.
 4. When user closes first tab, second tab becomes first opened tab. Web phone will be connected in this tab.
@@ -21,10 +21,11 @@ To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this 
 
 ### Known issues:
 
-* For Safari and Firefox, user need to go back to first opened tab to allow microphone permission for every call.
+* For Safari and Firefox, users need to go back to first opened tab to allow microphone permission for every call.
 * For Chrome, user need to go back to first opened tab to allow microphone permission if user hasn't allowed microphone permission.
 * [Web phone call session notification](widget-event.md#web-phone-call-event) happens at all tabs with the widget.
 * Web phone call muted event does not work at no web phone connection tabs. 
+* For Chrome and Firefox, browser may throttle or unload inactive (5 mins) tabs to make this feature broken.
 
 ### To enable this feature:
 
