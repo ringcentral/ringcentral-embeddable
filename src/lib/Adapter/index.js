@@ -288,7 +288,7 @@ class Adapter extends AdapterCore {
     );
     this._popupEl.addEventListener('click', (evt) => {
       evt.stopPropagation();
-      this._popupWindow();
+      this.popupWindow();
     });
   }
 
