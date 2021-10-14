@@ -46,7 +46,7 @@ In this case, we can config the popup button to open your own popup HTML file UR
 </script>
 ```
 
-The HTML file need to be based on code of this [file](https://github.com/ringcentral/ringcentral-embeddable/blob/master/src/popup.html). Then update the `adapter.js` src into absulote address in the file:
+The HTML file need to be based on code of this [file](https://github.com/ringcentral/ringcentral-embeddable/blob/master/src/popup.html). Then update the `adapter.js` src into absolute address in the file:
 
 ```html
 <script src="https://ringcentral.github.io/ringcentral-embeddable/adapter.js"></script>

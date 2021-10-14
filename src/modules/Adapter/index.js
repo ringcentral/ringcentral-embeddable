@@ -299,14 +299,18 @@ export default class Adapter extends AdapterModuleCore {
         break;
       }
       case '/check-popup-window': {
-        const res = await this._popupWindowManager.checkPopupWindowOpened();
+        let res = await this._popupWindowManager.checkPopupWindowOpened();
+        if (res) {
+          this._alert.warning({ message: 'popupWindowOpened' });
+        }
+        if (!res && this._webphone.sessions.length > 0) {
+          res = true;
+          this._alert.warning({ message: 'cannotPopupWindowWithCall' });
+        }
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
           response: res,
         });
-        if (res) {
-          this._alert.warning({ message: 'popupWindowOpened' });
-        }
         break;
       }
       default: {
