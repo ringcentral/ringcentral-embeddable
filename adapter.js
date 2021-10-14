@@ -4637,7 +4637,7 @@ var Adapter = /*#__PURE__*/function (_AdapterCore) {
       this._popupEl.addEventListener('click', function (evt) {
         evt.stopPropagation();
 
-        _this2._popupWindow();
+        _this2.popupWindow();
       });
     }
   }, {
