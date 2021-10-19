@@ -191,7 +191,7 @@ export default class Webphone extends WebphoneBase {
 
   _cleanWebphoneInstanceWhenUnload() {
     if (!this._webphone) {
-      if (this._tabManager && this._tabManager.tabs.length === 1) {
+      if (this.isWebphoneActiveTab) {
         this.store.dispatch({ type: this.actionTypes.unregistered });
       }
       return;
