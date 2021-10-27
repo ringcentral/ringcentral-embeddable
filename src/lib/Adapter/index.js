@@ -13,6 +13,15 @@ import Notification from '../notification';
 // eslint-disable-next-line
 import popupIconUrl from '!url-loader!../../assets/images/popup.svg';
 
+function checkValidImageUri(uri) {
+  return (
+    uri && (
+      uri.indexOf('https://') === 0 ||
+      uri.indexOf('http://') === 0 ||
+      uri.indexOf('data:image') === 0
+    )
+  );
+}
 class Adapter extends AdapterCore {
   constructor({
     logoUrl,
@@ -378,7 +387,17 @@ class Adapter extends AdapterCore {
   }
 
   _setIconUrl(iconUrl) {
+    if (!checkValidImageUri(iconUrl)) {
+      return;
+    }
     this._iconEl.src = iconUrl;
+  }
+
+  _setLogoUrl(logoUri) {
+    if (!checkValidImageUri(logoUri)) {
+      return;
+    }
+    super._setLogoUrl(logoUri);
   }
 
   async popupWindow() {
