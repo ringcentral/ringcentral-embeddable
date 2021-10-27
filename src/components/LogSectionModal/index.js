@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import callDirections from 'ringcentral-integration/enums/callDirections';
+import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 
-import InsideModal from 'ringcentral-widgets/components/InsideModal';
-import LogSection from 'ringcentral-widgets/components/LogSection';
-import InputField from 'ringcentral-widgets/components/InputField';
+import InsideModal from '@ringcentral-integration/widgets/components/InsideModal';
+import LogSection from '@ringcentral-integration/widgets/components/LogSection';
+import InputField from '@ringcentral-integration/widgets/components/InputField';
 
 import styles from './styles.scss';
 
@@ -18,7 +18,7 @@ export default class LogSectionModal extends Component {
     this._lastCallId = this.props.currentCall && this.props.currentCall.id;
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (!nextProps.currentCall) {
       return;
     }

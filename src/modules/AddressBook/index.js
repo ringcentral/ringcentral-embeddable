@@ -1,7 +1,7 @@
-import AddressBook from 'ringcentral-integration/modules/AddressBook';
-import { Module } from 'ringcentral-integration/lib/di';
-import sleep from 'ringcentral-integration/lib/sleep';
-import syncTypes from 'ringcentral-integration/enums/syncTypes';
+import AddressBook from '@ringcentral-integration/commons/modules/AddressBook';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import sleep from '@ringcentral-integration/commons/lib/sleep';
+import syncTypes from '@ringcentral-integration/commons/enums/syncTypes';
 
 const CONTACTS_PER_PAGE = 250;
 

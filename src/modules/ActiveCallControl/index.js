@@ -1,5 +1,5 @@
-import ActiveCallControl from 'ringcentral-integration/modules/ActiveCallControl';
-import { Module } from 'ringcentral-integration/lib/di';
+import ActiveCallControl from '@ringcentral-integration/commons/modules/ActiveCallControl';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   name: 'NewActiveCallControl',
@@ -11,10 +11,6 @@ export default class NewActiveCallControl extends ActiveCallControl {
     this._onSessionUpdateHandlers = [];
   }
 
-  get _hasPermission() {
-    return this._rolesAndPermissions.hasActiveCallControlPermission;
-  }
-
   onSessionUpdated(handler) {
     this._onSessionUpdateHandlers.push(handler);
   }
@@ -24,7 +20,7 @@ export default class NewActiveCallControl extends ActiveCallControl {
     this.store.dispatch({
       type: this.actionTypes.updateActiveSessions,
       timestamp: Date.now(),
-      sessionDatas: this._rcCallControl.sessions.map((s) => s.data),
+      sessionData: this._rcCallControl.sessions.map((s) => s.data),
     });
     this._onSessionUpdateHandlers.forEach((handler) => {
       handler(session && session.data);

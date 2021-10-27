@@ -1,8 +1,8 @@
-import { Module } from 'ringcentral-integration/lib/di';
-import proxyActionTypes from 'ringcentral-integration/lib/proxy/baseActionTypes';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import proxyActionTypes from '@ringcentral-integration/commons/lib/proxy/baseActionTypes';
 
-import ConferenceCallBase from 'ringcentral-integration/modules/ConferenceCall';
-import getConferenceCallReducer from 'ringcentral-integration/modules/ConferenceCall/getConferenceCallReducer';
+import ConferenceCallBase from '@ringcentral-integration/commons/modules/ConferenceCall';
+import getConferenceCallReducer from '@ringcentral-integration/commons/modules/ConferenceCall/getConferenceCallReducer';
 
 @Module({
   name: 'ConferenceCall',

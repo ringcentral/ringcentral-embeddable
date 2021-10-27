@@ -1,5 +1,5 @@
-import { Module } from 'ringcentral-integration/lib/di';
-import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import RcUIModule from '@ringcentral-integration/widgets/lib/RcUIModule';
 
 @Module({
   name: 'MeetingHomeUI',

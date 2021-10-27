@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import MessagesLog from 'ringcentral-widgets/assets/images/MessagesLog.svg';
-import i18n from 'ringcentral-widgets/components/MessagesLogIcon/i18n';
-import styles from 'ringcentral-widgets/components/MessagesLogIcon/styles.scss';
+import MessagesLog from '@ringcentral-integration/widgets/assets/images/MessagesLog.svg';
+import i18n from '@ringcentral-integration/widgets/components/MessagesLogIcon/i18n';
+import styles from '@ringcentral-integration/widgets/components/MessagesLogIcon/styles.scss';
 
 export default function MessagesLogIcon({
   disabled,

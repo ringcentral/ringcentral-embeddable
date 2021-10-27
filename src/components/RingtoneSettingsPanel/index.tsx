@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import BackHeader from 'ringcentral-widgets/components/BackHeader';
-import Panel from 'ringcentral-widgets/components/Panel';
-import SaveButton from 'ringcentral-widgets/components/SaveButton';
+import BackHeader from '@ringcentral-integration/widgets/components/BackHeader';
+import Panel from '@ringcentral-integration/widgets/components/Panel';
+import SaveButton from '@ringcentral-integration/widgets/components/SaveButton';
 
 import { Ringtone } from './Ringtone';
 

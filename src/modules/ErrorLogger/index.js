@@ -1,6 +1,6 @@
 import Raven from 'raven-js';
-import { Module } from 'ringcentral-integration/lib/di';
-import RcModule from 'ringcentral-integration/lib/RcModule';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import RcModule from '@ringcentral-integration/commons/lib/RcModule';
 
 /**
  * Error Logger based on Raven.js

@@ -1,5 +1,5 @@
-import CallLogSectionModule from 'ringcentral-widgets/modules/CallLogSection';
-import { Module } from 'ringcentral-integration/lib/di';
+import CallLogSectionModule from '@ringcentral-integration/widgets/modules/CallLogSection';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
 /**
  * @class CallLogSection

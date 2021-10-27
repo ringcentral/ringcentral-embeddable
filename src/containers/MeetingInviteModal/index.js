@@ -1,4 +1,4 @@
-import { connectModule } from 'ringcentral-widgets/lib/phoneContext';
+import { connectModule } from '@ringcentral-integration/widgets/lib/phoneContext';
 
 import MeetingInviteModal from '../../components/MeetingInviteModal';
 

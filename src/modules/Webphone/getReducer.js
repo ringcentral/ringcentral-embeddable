@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 
-import getModuleStatusReducer from 'ringcentral-integration/lib/getModuleStatusReducer';
+import getModuleStatusReducer from '@ringcentral-integration/commons/lib/getModuleStatusReducer';
 
 import {
   getVideoElementPreparedReducer,
@@ -13,7 +13,7 @@ import {
   getSessionsReducer,
   getLastEndedSessionsReducer,
   getWebphoneDeviceReducer,
-} from 'ringcentral-integration/modules/Webphone/getWebphoneReducer';
+} from '@ringcentral-integration/commons/modules/Webphone/getWebphoneReducer';
 
 export function getModuleStateReducer(types) {
   return combineReducers({

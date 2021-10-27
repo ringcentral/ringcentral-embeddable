@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import withPhone from 'ringcentral-widgets/lib/withPhone';
+import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
 
 import LogSectionModal from '../../components/LogSectionModal';
 

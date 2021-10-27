@@ -18,7 +18,7 @@ const supportedLocales = [
   'zh-TW',
   'zh-HK',
 ];
-module.exports = function getBaseConfig({ themeFolder, styleLoader = 'style-loader' } = {}) {
+module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'style-loader' } = {}) {
   const sassLoaderIncludePaths = ['src', 'node_modules'];
   if (themeFolder) {
     sassLoaderIncludePaths.push(themeFolder);
@@ -33,16 +33,7 @@ module.exports = function getBaseConfig({ themeFolder, styleLoader = 'style-load
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
-    plugins: [
-      new webpack.NormalModuleReplacementPlugin(
-        /ringcentral-widgets\/components\/DialButton\/DialButton.js/,
-        path.resolve(__dirname, './vendors/widgets/DialButton/DialButton.js'),  // TODO: update with new widget lib to fix this
-      ),
-      new webpack.NormalModuleReplacementPlugin(
-        /ringcentral-integration\/lib\/validateIsOffline.js/,
-        path.resolve(__dirname, './vendors/commons/lib/validateIsOffline.js'), // TODO: update with new widget lib to fix this
-      )
-    ],
+    plugins: [],
     module: {
       rules: [
         {

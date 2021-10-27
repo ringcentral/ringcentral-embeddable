@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [14.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -26,22 +26,20 @@ jobs:
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
           API_KEY: ${{ secrets.API_KEY }}
           API_SERVER: ${{ secrets.API_SERVER }}
+          TEST_THIRD_PARTY_URI: https://ringcentral-tutorials.github.io/ringcentral-embeddable-demos/
   build:
     needs: test
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           persist-credentials: false
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 14.x
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 14.x
       - run: yarn
       - run: yarn build
         env:
@@ -60,18 +58,15 @@ jobs:
     needs: test
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           persist-credentials: false
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 14.x
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 14.x
       - run: yarn
       - run: yarn build-extension
         env:

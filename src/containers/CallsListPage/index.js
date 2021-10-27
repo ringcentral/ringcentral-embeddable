@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import formatNumber from 'ringcentral-integration/lib/formatNumber';
-import withPhone from 'ringcentral-widgets/lib/withPhone';
-import messageTypes from 'ringcentral-integration/enums/messageTypes';
+import formatNumber from '@ringcentral-integration/commons/lib/formatNumber';
+import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
+import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 
-import CallsListPanel from 'ringcentral-widgets/components/CallsListPanel';
+import CallsListPanel from '@ringcentral-integration/widgets/components/CallsListPanel';
 import LogIcon from '../../components/LogIcon';
 
 const EMPTY_CALLS = [];
@@ -15,7 +15,7 @@ function mapToProps(_, {
     callLogger,
     locale,
     regionSettings,
-    rolesAndPermissions,
+    appFeatures,
     callHistory,
     connectivityMonitor,
     rateLimiter,
@@ -36,14 +36,8 @@ function mapToProps(_, {
     otherDeviceCalls: EMPTY_CALLS,
     areaCode: regionSettings.areaCode,
     countryCode: regionSettings.countryCode,
-    outboundSmsPermission: !!(
-      rolesAndPermissions.permissions &&
-      rolesAndPermissions.permissions.OutboundSMS
-    ),
-    internalSmsPermission: !!(
-      rolesAndPermissions.permissions &&
-      rolesAndPermissions.permissions.InternalSMS
-    ),
+    outboundSmsPermission: appFeatures.hasOutboundSMSPermission,
+    internalSmsPermission: appFeatures.hasInternalSMSPermission,
     // showSpinner: false,
     brand: brand.fullName,
     showContactDisplayPlaceholder,
@@ -60,11 +54,11 @@ function mapToProps(_, {
       regionSettings.ready &&
       dateTimeFormat.ready &&
       connectivityMonitor.ready &&
-      (!rolesAndPermissions || rolesAndPermissions.ready) &&
+      appFeatures.ready &&
       (!call || call.ready) &&
       (!composeText || composeText.ready)
     ),
-    readTextPermission: rolesAndPermissions.readTextPermissions,
+    readTextPermission: appFeatures.hasReadTextPermissions,
     width: window.innerWidth || 300,
     height: window.innerHeight ? (window.innerHeight - 53) : 454,
   };

@@ -1,8 +1,8 @@
-import RcModule from 'ringcentral-integration/lib/RcModule';
-import { Module } from 'ringcentral-integration/lib/di';
-import { phoneTypes } from 'ringcentral-integration/enums/phoneTypes';
+import RcModule from '@ringcentral-integration/commons/lib/RcModule';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import { phoneTypes } from '@ringcentral-integration/commons/enums/phoneTypes';
 
-import { getFilterContacts } from 'ringcentral-integration/lib/contactHelper';
+import { getFilterContacts } from '@ringcentral-integration/commons/lib/contactHelper';
 
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';

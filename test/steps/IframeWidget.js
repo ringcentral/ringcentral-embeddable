@@ -9,12 +9,12 @@ export class IframeWidget {
     this._loadRetryCount = 0;
   }
 
-  async loadElement() {
+  async loadElement(timeout = 200) {
     if (this._loadRetryCount > 6) {
       throw new Error('Load Element error');
     }
     await this._targetPage.waitForSelector('iframe#rc-widget-adapter-frame');
-    await this._targetPage.waitForTimeout(200);
+    await this._targetPage.waitForTimeout(timeout);
     const iframes = await this._targetPage.frames();
     this._widgetIframe = iframes.find((f) => f.name() === 'rc-widget-adapter-frame');
     if (!this._widgetIframe) {

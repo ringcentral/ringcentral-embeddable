@@ -1,14 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { RcFabIconButton } from '@ringcentral/juno';
+import { RcIconButton, RcCircularProgress } from '@ringcentral/juno';
 import classnames from 'classnames';
-import Modal from 'ringcentral-widgets/components/Modal';
-import TextInput from 'ringcentral-widgets/components/TextInput';
-import Spinner from 'ringcentral-widgets/components/Spinner';
+import Modal from '@ringcentral-integration/widgets/components/Modal';
+import TextInput from '@ringcentral-integration/widgets/components/TextInput';
 
-import scheduleSvg from '@ringcentral/juno/icons/icon-schedule.svg';
-import startSvg from '@ringcentral/juno/icons/icon-start.svg';
-import joinSvg from '@ringcentral/juno/icons/icon-join.svg';
+import Schedule from '@ringcentral/juno/icon/Schedule';
+import Start from '@ringcentral/juno/icon/Start';
+import Join from '@ringcentral/juno/icon/Join';
 
 import UpcomingMeetingList from '../UpcomingMeetingList';
 
@@ -43,7 +42,7 @@ const MeetingHomePanel = (props) => {
   if (loadingUpcomingMeetings) {
     upcomingMeetingContent = (
       <div className={styles.spinnerContainer}>
-        <Spinner />
+        <RcCircularProgress size={35} />
       </div>
     );
   } else if (upcomingMeetings.length > 0) {
@@ -67,28 +66,28 @@ const MeetingHomePanel = (props) => {
     <div className={styles.root}>
       <div className={styles.buttons}>
         <div className={styles.button} onClick={gotoSchedule}>
-          <RcFabIconButton
-            symbol={scheduleSvg}
+          <RcIconButton
+            symbol={Schedule}
             size='medium'
-            color={['accent', 'tomato']}
+            color='label.red01'
             className={classnames(styles.iconButton, styles.schedule)}
           />
           <label>Schedule</label>
         </div>
         <div className={styles.button} onClick={onStart}>
-          <RcFabIconButton
-            symbol={startSvg}
+          <RcIconButton
+            symbol={Start}
             size='medium'
-            color={['semantic', 'positive']}
+            color='label.green01'
             className={classnames(styles.iconButton, styles.start)}
           />
           <label>Start</label>
         </div>
         <div className={styles.button} onClick={() => setShowJoinModal(true)}>
-          <RcFabIconButton
-            symbol={joinSvg}
+          <RcIconButton
+            symbol={Join}
             size='medium'
-            color={['primary', 'light']}
+            color='label.blue01'
             className={classnames(styles.iconButton, styles.join)}
           />
           <label>Join</label>

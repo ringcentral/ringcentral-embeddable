@@ -1,14 +1,13 @@
 
-import WebphoneBase from 'ringcentral-integration/modules/Webphone';
-import { Module } from 'ringcentral-integration/lib/di';
-import proxify from 'ringcentral-integration/lib/proxy/proxify';
-import sleep from 'ringcentral-integration/lib/sleep';
-import moduleStatuses from 'ringcentral-integration/enums/moduleStatuses';
+import WebphoneBase from '@ringcentral-integration/commons/modules/Webphone';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import proxify from '@ringcentral-integration/commons/lib/proxy/proxify';
+import sleep from '@ringcentral-integration/commons/lib/sleep';
+import moduleStatuses from '@ringcentral-integration/commons/enums/moduleStatuses';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
-import proxyActionTypes from 'ringcentral-integration/lib/proxy/baseActionTypes';
+import proxyActionTypes from '@ringcentral-integration/commons/lib/proxy/baseActionTypes';
 
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
-import { SipInstanceManager } from '../../lib/SipInstanceManager';
 
 import { normalizeSession } from './helper';
 import {
@@ -61,7 +60,7 @@ export default class Webphone extends WebphoneBase {
       });
       this._multipleTabsTransport = new MultipleTabsTransport({
         name: 'webphone-channel',
-        tabId: this._tabManager.id,
+        tabId: this._tabManager.tabbie.id,
         timeout: 10 * 1000,
         prefix,
         getMainTabId: () => this.activeWebphoneId,
@@ -89,9 +88,6 @@ export default class Webphone extends WebphoneBase {
         });
       });
     }
-    this._sipInstanceManager = new SipInstanceManager(
-      `${prefix}-webphone-inactive-sip-instance`,
-    );
   }
 
   _onMultipleTabsChannelRequest = async ({
@@ -163,13 +159,13 @@ export default class Webphone extends WebphoneBase {
         }
       });
       window.addEventListener('unload', () => {
-        // disconnect if web phone is not disconnected at beforeunload
-        if (this._webphoneSDKOptions.instanceId) {
+        // mark current instance id as inactive, so app can reuse it after refresh
+        if (this._sipInstanceId) {
           this._sipInstanceManager.setInstanceInactive(
-            this._webphoneSDKOptions.instanceId,
+            this._sipInstanceId,
             this._auth.endpointId,
           );
-          this._webphoneSDKOptions.instanceId = null;
+          this._sipInstanceId = null;
         }
         if (!this._removedWebphoneAtBeforeUnload) {
           if (this._multipleTabsSupport) {
@@ -183,7 +179,7 @@ export default class Webphone extends WebphoneBase {
     }
     this.store.subscribe(() => this._onStateChange());
     this._auth.addBeforeLogoutHandler(async () => {
-      this._webphoneSDKOptions.instanceId = null;
+      this._sipInstanceId = null;
       await this._disconnect();
     });
     this._createOtherWebphoneInstanceListener();
@@ -209,7 +205,7 @@ export default class Webphone extends WebphoneBase {
     window.addEventListener('storage', (e) => {
       // disconnect to inactive when other tabs' web phone connected
       if (e.key === this._activeWebphoneKey) {
-        if (e.newValue === this._tabManager.id) {
+        if (e.newValue === this._tabManager.tabbie.id) {
           return;
         }
         if (this._multipleTabsSupport) {
@@ -262,7 +258,7 @@ export default class Webphone extends WebphoneBase {
       // Force set current tab as active web phone tab
       if (
         this._forceCurrentWebphoneActive &&
-        this.activeWebphoneId !== this._tabManager.id
+        this.activeWebphoneId !== this._tabManager.tabbie.id
       ) {
         this.store.dispatch({
           type: this.actionTypes.unregistered,
@@ -274,7 +270,7 @@ export default class Webphone extends WebphoneBase {
       if (
         this.activeWebphoneId &&
         this.activeWebphoneId !== '-1' &&
-        this.activeWebphoneId !== this._tabManager.id
+        this.activeWebphoneId !== this._tabManager.tabbie.id
       ) {
         try {
           await this._multipleTabsTransport.request({
@@ -323,22 +319,6 @@ export default class Webphone extends WebphoneBase {
     return super._disconnect();
   }
 
-  async _createWebphone(params) {
-    if (!this._webphoneSDKOptions.instanceId) {
-      this._webphoneSDKOptions.instanceId = this._sipInstanceManager.getInstanceId(
-        this._auth.endpointId,
-      );
-    }
-    return super._createWebphone(params)
-  }
-
-  async _removeWebphone() {
-    if (this._webphone && this._webphone.userAgent) {
-      this._webphone.userAgent.audioHelper.loadAudio({});
-    }
-    await super._removeWebphone();
-  }
-
   // override
   _setCurrentInstanceAsActiveWebphone() {
     if (!this._multipleTabsSupport) {
@@ -346,7 +326,7 @@ export default class Webphone extends WebphoneBase {
       return;
     }
     if (this._tabManager) {
-      localStorage.setItem(this._activeWebphoneKey, this._tabManager.id);
+      localStorage.setItem(this._activeWebphoneKey, this._tabManager.tabbie.id);
       this._disableProxify();
       this._emitActiveWebphoneChangedEvent();
     }
@@ -439,7 +419,7 @@ export default class Webphone extends WebphoneBase {
   }
 
   get isWebphoneActiveTab() {
-    return this.activeWebphoneId === this._tabManager.id;
+    return this.activeWebphoneId === this._tabManager.tabbie.id;
   }
 
   _enableProxify() {
@@ -456,13 +436,6 @@ export default class Webphone extends WebphoneBase {
 
   get proxifyTransport() {
     return this._transport;
-  }
-
-  async _onConnectError(options) {
-    if (options.statusCode === 403 && this._webphoneSDKOptions.instanceId) {
-      this._webphoneSDKOptions.instanceId = null;
-    }
-    await super._onConnectError(options);
   }
 
   // override normalizeSession for call queue name

@@ -1,7 +1,7 @@
-import AlertBase from 'ringcentral-integration/modules/Alert';
-import { Module } from 'ringcentral-integration/lib/di';
+import AlertBase from '@ringcentral-integration/commons/modules/Alert';
+import { Module } from '@ringcentral-integration/commons/lib/di';
 
-import getAlertReducer from 'ringcentral-integration/modules/Alert/getAlertReducer';
+import getAlertReducer from '@ringcentral-integration/commons/modules/Alert/getAlertReducer';
 
 @Module({
   name: 'Alert',

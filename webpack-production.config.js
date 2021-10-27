@@ -1,15 +1,10 @@
-require('@babel/register')({
-  extensions: ['.js', '.jsx', '.ts', '.tsx', '.mjs'],
-  ignore: [/node_modules/],
-  rootMode: 'upward',
-});
-
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 require('dotenv').config();
 
@@ -25,6 +20,7 @@ let buildPath = path.resolve(__dirname, releaseDir);
 if (process.env.BRAND) {
   buildPath = path.resolve(buildPath, process.env.BRAND);
 }
+const dynamicThemePath = path.resolve(__dirname, 'getBrandConfig');
 
 const apiConfigFile = path.resolve(__dirname, 'api.json');
 let apiConfig;
@@ -50,9 +46,8 @@ if (localExtensionMode) {
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 const recordingLink = process.env.RECORDING_LINK || 'https://ringcentral.github.io/ringcentral-media-reader/';
 
-function getWebpackConfig({ brand, env = {}, styleLoader }) {
-  const { prefix, brandFolder } = getBrandConfig(brand);
-  const config = getBaseConfig({ themeFolder: brandFolder, styleLoader });
+function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = null }) {
+  const config = getBaseConfig({ themeFolder, styleLoader });
   config.output = {
     path: buildPath,
     filename: '[name].js',
@@ -94,20 +89,17 @@ function getWebpackConfig({ brand, env = {}, styleLoader }) {
     ]
   };
   config.mode = 'production';
-  config.resolve = {
-    ...config.resolve,
-    alias: {
-      'brand-logo-path': brandFolder,
-    },
-  };
   return config;
 }
 
 function getAppWebpackConfig({ brand }) {
+  const { prefix } = getBrandConfig(brand);
   const config = getWebpackConfig({
+    prefix,
     brand,
     env: { ADAPTER_NAME: JSON.stringify('adapter.js') },
     styleLoader: MiniCssExtractPlugin.loader,
+    themeFolder: dynamicThemePath,
   });
   config.plugins = [
     ...config.plugins,
@@ -124,6 +116,7 @@ function getAppWebpackConfig({ brand }) {
     new MiniCssExtractPlugin({
       filename: '[name].css',
     }),
+    // new BundleAnalyzerPlugin({ analyzerMode: 'static' }),
   ];
   config.entry = {
     app: ['@babel/polyfill', './src/app.js'],
@@ -134,12 +127,15 @@ function getAppWebpackConfig({ brand }) {
 }
 
 function getAdapterWebpackConfig({ brand, adapterName }) {
+  const { prefix, brandFolder } = getBrandConfig(brand);
   const config = getWebpackConfig({
+    prefix,
     brand,
     env: {
       ADAPTER_NAME: JSON.stringify(`${adapterName}.js`),
     },
-    styleLoader: 'style-loader'
+    styleLoader: 'style-loader',
+    themeFolder: brandFolder,
   });
   config.entry = {
     [adapterName]: './src/adapter.js',

@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { RcIconButton, RcButton } from '@ringcentral/juno';
-import infoSvg from '@ringcentral/juno/icons/icon-info.svg';
+import Info from '@ringcentral/juno/icon/Info';
 
 import i18n from './i18n';
 import styles from './styles.scss';
@@ -57,7 +57,7 @@ function MeetingItem(props) {
         <span title="Details" className={styles.iconButton}>
           <RcIconButton
             size="small"
-            symbol={infoSvg}
+            symbol={Info}
             onClick={() => window.open(editEventUrl)}
           />
         </span>

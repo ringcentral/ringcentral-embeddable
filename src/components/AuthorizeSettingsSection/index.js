@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Line from 'ringcentral-widgets/components/Line';
-import { Button } from 'ringcentral-widgets/components/Button';
+import Line from '@ringcentral-integration/widgets/components/Line';
+import { Button } from '@ringcentral-integration/widgets/components/Button';
 
 import styles from './styles.scss';
 

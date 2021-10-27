@@ -27,7 +27,6 @@ conditionalDescribe('widget page test', () => {
 
   it('should have dial button enabled', async () => {
     await widgetIframe.waitDialButtonEnabled();
-    await widgetIframe.dismissMessages();
     const noTimeout = true;
     expect(noTimeout).toEqual(true);
   });
@@ -81,7 +80,6 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto Compose Text page when click SMS link', async () => {
     await widgetIframe.waitForNavigations();
-    await widgetIframe.dismissMessages();
     await page.click('a[href="sms:+12345678901"]');
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     expect(recipientNumber).toEqual('+12345678901');
@@ -89,7 +87,6 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto Compose Text page when click SMS link with body', async () => {
     await widgetIframe.waitForNavigations();
-    await widgetIframe.dismissMessages();
     await page.click('a[href="sms:+12345678902?body=test_sms"]');
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     const text = await widgetIframe.getSMSText();

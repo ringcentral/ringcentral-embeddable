@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import IconLine from 'ringcentral-widgets/components/IconLine';
-import Switch from 'ringcentral-widgets/components/Switch';
+import IconLine from '@ringcentral-integration/widgets/components/IconLine';
+import Switch from '@ringcentral-integration/widgets/components/Switch';
 
 export default function ToggleSettings({ settings, onToggle }) {
   const settingNodes = settings.map(setting => (

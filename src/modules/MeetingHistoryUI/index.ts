@@ -1,6 +1,6 @@
-import { Module } from 'ringcentral-integration/lib/di';
-import debounce from 'ringcentral-integration/lib/debounce';
-import RcUIModule from 'ringcentral-widgets/lib/RcUIModule';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import debounce from '@ringcentral-integration/commons/lib/debounce';
+import RcUIModule from '@ringcentral-integration/widgets/lib/RcUIModule';
 
 import getReducer from './getReducer';
 import actionTypes from './actionTypes';

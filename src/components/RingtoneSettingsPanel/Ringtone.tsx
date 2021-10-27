@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState, useEffect, useRef } from 'react';
-import { useIsMounted } from 'ringcentral-widgets/react-hooks/useIsMounted';
+import { useIsMounted } from '@ringcentral-integration/widgets/react-hooks/useIsMounted';
 import {
   RcCard,
   RcCardContent,
@@ -7,11 +7,14 @@ import {
   RcIconButton,
   RcGrid,
 } from '@ringcentral/juno';
-import { Play, Attachment, Delete, Pause } from '@ringcentral/juno/icon';
+import Play from '@ringcentral/juno/icon/Play';
+import Attachment from '@ringcentral/juno/icon/Attachment';
+import Delete from '@ringcentral/juno/icon/Delete';
+import Pause from '@ringcentral/juno/icon/Pause';
 
-import i18n from 'ringcentral-widgets/components/Ringtone/i18n';
+import i18n from '@ringcentral-integration/widgets/components/Ringtone/i18n';
 
-import { AudioFileReaderProps, RingtoneProps } from 'ringcentral-widgets/components/Ringtone/Ringtone.interface';
+import { AudioFileReaderProps, RingtoneProps } from '@ringcentral-integration/widgets/components/Ringtone/Ringtone.interface';
 
 import styles from './styles.scss';
 

@@ -1,7 +1,7 @@
 import classnames from 'classnames';
 import url from 'url';
-import popWindow from 'ringcentral-widgets/lib/popWindow';
-import AdapterCore from 'ringcentral-widgets/lib/AdapterCore';
+import popWindow from '@ringcentral-integration/widgets/lib/popWindow';
+import AdapterCore from '@ringcentral-integration/widgets/lib/AdapterCore';
 
 import parseUri from '../parseUri';
 import messageTypes from './messageTypes';
@@ -13,6 +13,15 @@ import Notification from '../notification';
 // eslint-disable-next-line
 import popupIconUrl from '!url-loader!../../assets/images/popup.svg';
 
+function checkValidImageUri(uri) {
+  return (
+    uri && (
+      uri.indexOf('https://') === 0 ||
+      uri.indexOf('http://') === 0 ||
+      uri.indexOf('data:image') === 0
+    )
+  );
+}
 class Adapter extends AdapterCore {
   constructor({
     logoUrl,
@@ -60,9 +69,12 @@ class Adapter extends AdapterCore {
       this._root.appendChild(this.styleEl.cloneNode(true));
     }
     this._setAppUrl(appUrl);
-    this._setLogoUrl(logoUrl);
-    this._setIconUrl(iconUrl);
-
+    if (logoUrl) {
+      this._setLogoUrl(logoUrl);
+    }
+    if (iconUrl) {
+      this._setIconUrl(iconUrl);
+    }
     this._version = version;
     window.addEventListener('message', (e) => {
       const data = e.data;
@@ -205,6 +217,14 @@ class Adapter extends AdapterCore {
         case 'rc-meeting-status-notify':
           console.log('rc-meeting-status-notify:', data.ready, data.permission);
           break;
+        case 'rc-brand-assets-notify':
+          if (data.logoUri) {
+            this._setLogoUrl(data.logoUri);
+          }
+          if (data.iconUri) {
+            this._setIconUrl(data.iconUri);
+          }
+          break;
         default:
           super._onMessage(data);
           break;
@@ -214,10 +234,6 @@ class Adapter extends AdapterCore {
 
   _getContentDOM(sanboxAttributeValue, allowAttributeValue) {
     let sandboxAttributes = sanboxAttributeValue;
-    // TODO: fix in widgets lib for auto play
-    if (allowAttributeValue.indexOf('autoplay') === -1) {
-      allowAttributeValue = `autoplay; ${allowAttributeValue}`; // For Google Chrome v83
-    }
     return `
       <header class="${this._styles.header}" draggable="false">
         <div class="${this._styles.presence} ${this._styles.NoPresence}">
@@ -371,7 +387,17 @@ class Adapter extends AdapterCore {
   }
 
   _setIconUrl(iconUrl) {
+    if (!checkValidImageUri(iconUrl)) {
+      return;
+    }
     this._iconEl.src = iconUrl;
+  }
+
+  _setLogoUrl(logoUri) {
+    if (!checkValidImageUri(logoUri)) {
+      return;
+    }
+    super._setLogoUrl(logoUri);
   }
 
   async popupWindow() {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import withPhone from 'ringcentral-widgets/lib/withPhone';
+import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
 
-import MeetingScheduleButton from 'ringcentral-widgets/components/MeetingScheduleButton';
-import { RcVideoScheduleButton } from 'ringcentral-widgets/components/RcVideoScheduleButton';
+import MeetingScheduleButton from '@ringcentral-integration/widgets/components/MeetingScheduleButton';
+import { RcVideoScheduleButton } from '@ringcentral-integration/widgets/components/RcVideoScheduleButton';
 
 function MeetingInviteButton(props) {
   const {

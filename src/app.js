@@ -64,10 +64,7 @@ const defaultBrand = brand || process.env.BRAND;
 const brandConfig = process.env.BRAND_CONFIGS[defaultBrand];
 
 if (process.env.NODE_ENV === 'production') {
-  let styleName = 'app.css';
-  if (brand && brand !== process.env.BRAND) {
-    styleName = `app.${brand}.css`;
-  }
+  const styleName = 'app.css';
   const style = document.querySelector(`link[href="${styleName}"]`);
   if (!style) {
     const link = document.createElement("link");
@@ -134,6 +131,7 @@ const phone = createPhone({
   forceCurrentWebphoneActive: fromPopup,
   fromPopup,
   enableRingtoneSettings,
+  hostingUrl: process.env.HOSTING_URL,
 });
 
 const store = createStore(phone.reducer);

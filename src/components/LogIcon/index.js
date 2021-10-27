@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import UnloggedIcon from 'ringcentral-widgets/assets/images/UnloggedIcon.svg';
-import LoggedIcon from 'ringcentral-widgets/assets/images/LoggedIcon.svg';
-import i18n from 'ringcentral-widgets/components/LogIcon/i18n';
-import styles from 'ringcentral-widgets/components/LogIcon/styles.scss';
+import UnloggedIcon from '@ringcentral-integration/widgets/assets/images/UnloggedIcon.svg';
+import LoggedIcon from '@ringcentral-integration/widgets/assets/images/LoggedIcon.svg';
+import i18n from '@ringcentral-integration/widgets/components/LogIcon/i18n';
+import styles from '@ringcentral-integration/widgets/components/LogIcon/styles.scss';
 
 
 export default function LogIcon({

@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import CopyToClipboard from 'ringcentral-widgets/components/CopyToClipboard';
-import Modal from 'ringcentral-widgets/components/Modal';
+import CopyToClipboard from '@ringcentral-integration/widgets/components/CopyToClipboard';
+import Modal from '@ringcentral-integration/widgets/components/Modal';
 
-import i18n from 'ringcentral-widgets/components/AlertRenderer/MeetingAlert/i18n';
-import meetingStatus from 'ringcentral-integration/modules/Meeting/meetingStatus';
+import i18n from '@ringcentral-integration/widgets/components/AlertRenderer/MeetingAlert/i18n';
+import meetingStatus from '@ringcentral-integration/commons/modules/Meeting/meetingStatus';
 
 import styles from './styles.scss';
 

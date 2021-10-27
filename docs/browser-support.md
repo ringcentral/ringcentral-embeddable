@@ -1,8 +1,8 @@
 # Browser support
 
-RingCentral Embeddable is full tested on Chrome and Firefox desktop browser. It may has some issues in other browsers such as IE.
+RingCentral Embeddable is full tested on Chrome, Edge(Chromium) and Firefox desktop browser. It doesn't support `IE`. It may has some issues in other browsers.
 
-In [Browser](interact-with-calling-settings.md) calling mode, our web phone feature (WebRTC call) is only supported in Chrome/Chromium based browser and Firefox. So in other browsers, widget will show web phone unavailable warning. If you want to use our widget in other browsers, please change default calling mode to [others](interact-with-calling-settings.md), such as `Call with RingCentral Desktop app` or `Ringout`. 
+In [Browser](interact-with-calling-settings.md) calling mode, our web phone feature (WebRTC call) is only supported in Chrome/Chromium based browser, Firefox and other browsers which support WebRTC protocol. So in no-WebRTC browsers, the widget will show web phone unavailable warning. If you want to use our widget in other browsers, please change default calling mode to [others](interact-with-calling-settings.md), such as `Call with RingCentral Desktop app` or `Ringout`.
 
 Our widget also needs to require `userMedia` from browser to get microphone and speaker for making web phone call. 
 
