@@ -2743,7 +2743,7 @@ if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype
   NodeList.prototype.forEach = Array.prototype.forEach;
 }
 
-var version = "1.7.2";
+var version = "1.7.3";
 var currentScript = document.currentScript;
 var adapterName = "adapter.js";
 
