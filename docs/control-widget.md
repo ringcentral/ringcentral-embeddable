@@ -233,22 +233,30 @@ Only for Adapter JS way:
 
 Minimize:
 
-```
+```js
 RCAdapter.setMinimized(true);
 // RCAdapter.setMinimized(false); // maximize
 ```
 
 Hide:
 
-```
+```js
 RCAdapter.setClosed(true);
 // RCAdapter.setClosed(false); // Show
 ```
 
 Remove:
 
-```
+```js
 RCAdapter.dispose();
+```
+
+## Popup the widget
+
+Only for Adapter JS way and [popup window feature](popup-window.md) enabled:
+
+```js
+RCAdapter.popupWindow();  // popup the widget in a standalone window
 ```
 
 ## Navigate To
