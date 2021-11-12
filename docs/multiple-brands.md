@@ -77,6 +77,84 @@ Add `brand=telus` in src query parameter:
 </iframe>
 ```
 
+## Atos Unify Office
+
+> From v1.8.0
+
+Use `adapter.atos.js` to instead of `adapter.js`:
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.atos.js";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+### Iframe way
+
+Add `brand=atos` in src query parameter:
+
+```html
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=atos">
+</iframe>
+```
+
+## Avaya Cloud Office
+
+> From v1.8.0
+
+Use `adapter.avaya.js` to instead of `adapter.js`:
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.avaya.js";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+### Iframe way
+
+Add `brand=avaya` in src query parameter:
+
+```html
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=avaya">
+</iframe>
+```
+
+## Rainbow Office
+
+> From v1.8.0
+
+Use `adapter.rainbow.js` to instead of `adapter.js`:
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.rainbow.js";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+### Iframe way
+
+Add `brand=rainbow` in src query parameter:
+
+```html
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=rainbow">
+</iframe>
+```
+
 ## Other Brands
 
 For other brands, we are still customizing styles for them. Those users can use with default brand.
