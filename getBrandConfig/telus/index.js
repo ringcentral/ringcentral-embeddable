@@ -9,7 +9,6 @@ module.exports = {
     appName: 'TELUS Business Connect Embeddable',
     fullName: 'TELUS Business Connect',
     application: 'TELUS Business Connect Embeddable',
-    allowRegionSetting: true,
     allowJupiterUniversalLink: true,
     callWithJupiter: {
       default: {
@@ -20,9 +19,10 @@ module.exports = {
     },
     spartanProtocol: 'rctelus://',
     rcmProductName: 'TELUS Business Connect Meetings',
-    rcvProductName: '',
+    rcvProductName: 'Business Connect Video Meeting',
     rcvTeleconference: 'https://video.businessconnect.telus.com/teleconference',
     teleconference: 'https://meetings.businessconnect.telus.com/teleconference',
+    eulaLink: 'http://telus.com/BusinessConnect/ServiceTerms',
     assets: {
       logo: '/assets/telus/logo.svg',
       icon: '/assets/telus/icon.svg',

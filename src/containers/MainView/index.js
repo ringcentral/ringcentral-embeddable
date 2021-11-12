@@ -13,6 +13,7 @@ function mapToProps(_, {
     glipGroups,
     glipCompany,
     genericMeeting,
+    brand,
   },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
@@ -43,6 +44,7 @@ function mapToProps(_, {
     showGlip: (appFeatures.hasGlipPermission && !!glipCompany.name),
     glipUnreadCounts: glipGroups.unreadCounts,
     currentPath: routerInteraction.currentPath,
+    rcvProductName: brand.rcvProductName,
   };
 }
 function mapToFunctions(_, {

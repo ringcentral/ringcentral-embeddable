@@ -44,6 +44,7 @@ export const MainViewPanel = (props) => {
     showGlip,
     glipUnreadCounts,
     isRCV,
+    rcvProductName,
   } = props;
   const tabList = [
     showCall && {
@@ -113,7 +114,7 @@ export const MainViewPanel = (props) => {
       icon: MeetingIcon,
       activeIcon: MeetingHoverIcon,
       moreMenuIcon: MeetingNavIcon,
-      label: isRCV ? 'RingCentral Video' : i18n.getString('meetingLabel', currentLocale),
+      label: isRCV ? rcvProductName : i18n.getString('meetingLabel', currentLocale),
       path: isRCV ? '/meeting/home' : '/meeting/schedule',
       isActive: (currentPath) => (
         currentPath.indexOf('/meeting') === 0
