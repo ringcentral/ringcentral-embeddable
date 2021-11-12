@@ -9,7 +9,6 @@ module.exports = {
     appName: 'BT Cloud Work Embeddable',
     fullName: 'BT Cloud Work',
     application: 'BT Cloud Work Embeddable',
-    allowRegionSetting: true,
     allowJupiterUniversalLink: true,
     callWithJupiter: {
       default: {
@@ -20,9 +19,10 @@ module.exports = {
     },
     spartanProtocol: 'rcbtmobile://',
     rcmProductName: 'BT Cloud Work Meetings',
-    rcvProductName: '',
+    rcvProductName: 'BT Cloud Work Video',
     rcvTeleconference: 'https://video.cloudwork.bt.com/teleconference',
     teleconference: 'https://meetings.btcloudphone.bt.com/teleconference',
+    eulaLink: 'https://www.bt.com/products/static/terms/terms-of-use.html',
     assets: {
       logo: '/assets/bt/logo.svg',
       icon: '/assets/bt/icon.svg',

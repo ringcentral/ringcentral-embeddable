@@ -10,6 +10,8 @@ import {
 
 import { getBrandTheme, getBrandVariable } from '../../lib/themes';
 
+window.brandConfigs = process.env.BRAND_CONFIGS;
+
 @Module({
   name: 'DynamicBrand',
   deps: [

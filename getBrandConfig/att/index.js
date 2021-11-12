@@ -22,6 +22,7 @@ module.exports = {
     rcvProductName: 'AT&T Office@Hand Meetings',
     rcvTeleconference: 'https://meetings.officeathand.att.com/teleconference',
     teleconference: 'https://meetings-officeathand.att.com/teleconference',
+    eulaLink: 'http://www.att.com/officeathandpolicy',
     assets: {
       logo: '/assets/att/logo.svg',
       icon: '/assets/att/icon.svg',

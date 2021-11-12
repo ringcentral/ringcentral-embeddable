@@ -5,6 +5,9 @@ import btRich from './btRich';
 import rcBlue from './rcBlue';
 import rcJupiterBlue from './rcJupiterBlue';
 import telusRich from './telusRich';
+import avayaCustomized from './avayaCustomized';
+import atosRich from './atosRich';
+import rainbowRich from './rainbowRich';
 
 // TODO: temporary import all, wait dynamic load way implement
 export const brandThemeMapping = {
@@ -13,6 +16,9 @@ export const brandThemeMapping = {
   att: attRich as RcThemeInput,
   telus: telusRich as RcThemeInput,
   bt: btRich as RcThemeInput,
+  avaya: avayaCustomized as RcThemeInput,
+  atos: atosRich as RcThemeInput,
+  rainbow: rainbowRich as RcThemeInput,
 } as const;
 
 export type BrandTheme = keyof typeof brandThemeMapping | 'rc';
