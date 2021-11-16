@@ -509,13 +509,14 @@ export default class Adapter extends AdapterModuleCore {
   }
 
   _checkDialUIStatusChanged() {
-    if (this._dialerDisabled === this._dialerUI.isCallButtonDisabled) {
+    const dialerDisabled = this._dialerUI.showSpinner || this._dialerUI.isCallButtonDisabled;
+    if (this._dialerDisabled === dialerDisabled) {
       return;
     }
-    this._dialerDisabled = this._dialerUI.isCallButtonDisabled;
+    this._dialerDisabled = dialerDisabled;
     this._postMessage({
       type: 'rc-dialer-status-notify',
-      ready: !this._dialerUI.showSpinner && !this._dialerUI.isCallButtonDisabled,
+      ready: !dialerDisabled,
     });
   }
 
