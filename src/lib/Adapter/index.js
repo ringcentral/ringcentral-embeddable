@@ -2,6 +2,7 @@ import classnames from 'classnames';
 import url from 'url';
 import popWindow from '@ringcentral-integration/widgets/lib/popWindow';
 import AdapterCore from '@ringcentral-integration/widgets/lib/AdapterCore';
+import isSafari from '@ringcentral-integration/widgets/lib/isSafari';
 
 import parseUri from '../parseUri';
 import messageTypes from './messageTypes';
@@ -234,6 +235,9 @@ class Adapter extends AdapterCore {
 
   _getContentDOM(sanboxAttributeValue, allowAttributeValue) {
     let sandboxAttributes = sanboxAttributeValue;
+    if (isSafari()) {
+      sandboxAttributes = sandboxAttributes.replace(' allow-downloads', '');
+    }
     return `
       <header class="${this._styles.header}" draggable="false">
         <div class="${this._styles.presence} ${this._styles.NoPresence}">
