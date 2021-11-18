@@ -51,6 +51,7 @@ const {
   disableConferenceInvite,
   disableGlip,
   disableMeeting,
+  disableMinimize,
   authProxy,
   prefix,
   userAgent,
@@ -141,6 +142,7 @@ function init() {
     newAdapterUI: !!newAdapterUI,
     zIndex: zIndex ? Number.parseInt(zIndex, 10) : 999,
     fromPopup: !!fromPopup,
+    disableMinimize,
     enablePopup,
     popupPageUri,
   });

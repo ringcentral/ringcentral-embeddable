@@ -181,3 +181,13 @@
     width: 14px;
   }
 }
+
+.hideToggleButton {
+  .toggle {
+    display: none;
+  }
+
+  .popup {
+    right: 10px;
+  }
+}

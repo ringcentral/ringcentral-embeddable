@@ -36,6 +36,7 @@ class Adapter extends AdapterCore {
     newAdapterUI = false,
     fromPopup = false,
     enablePopup = false,
+    disableMinimize = false,
     popupPageUri,
   } = {}) {
     const container = document.createElement('div');
@@ -56,6 +57,7 @@ class Adapter extends AdapterCore {
     this._fromPopup = fromPopup;
     this._enablePopup = enablePopup;
     this._popupPageUri = popupPageUri;
+    this._disableMinimize = disableMinimize;
     this._strings = {};
     this._generateContentDOM();
     const styleList = document.querySelectorAll('style');
@@ -321,6 +323,7 @@ class Adapter extends AdapterCore {
       this._showDockUI && this._minimized && (this._hoverHeader || this._dragging) && this._styles.expandable,
       this._showDockUI && (!(this._userStatus || this._dndStatus)) && this._styles.noPresence,
       this._enablePopup && this._styles.showPopup,
+      this._disableMinimize && this._styles.hideToggleButton,
     ));
     this._headerEl.setAttribute('class', classnames(
       this._styles.header,

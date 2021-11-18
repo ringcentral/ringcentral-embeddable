@@ -237,6 +237,7 @@ Minimize:
 RCAdapter.setMinimized(true);
 // RCAdapter.setMinimized(false); // maximize
 ```
+> You can also disable `Minimize` feature by following [here](disable-features.md#disable-the-widget-minimized).
 
 Hide:
 

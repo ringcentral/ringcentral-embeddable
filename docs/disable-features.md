@@ -94,3 +94,18 @@ Ringtone settings is disabled by default. To enable it:
 
 By enabled, user can get ringtone settings at settings page.
 **Notice**: supported after v1.6.3
+
+## Disable the widget minimized
+
+By default, we provide Minimize button at app header to minimize the widget. To disable it:
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?disableMinimize=1";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
