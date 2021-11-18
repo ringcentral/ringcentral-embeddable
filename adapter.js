@@ -25414,18 +25414,20 @@ var Adapter_Adapter = /*#__PURE__*/function (_AdapterCore) {
     key: "_popupWindow",
     value: function () {
       var _popupWindow3 = asyncToGenerator_default()( /*#__PURE__*/regenerator_default.a.mark(function _callee2() {
-        var isWindowPopuped, popupUri;
+        var isWindowPoppedUp, popupUri;
         return regenerator_default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return this._requestWithPostMessage('/check-popup-window');
+                return this.isWindowPoppedUp({
+                  alert: true
+                });
 
               case 2:
-                isWindowPopuped = _context2.sent;
+                isWindowPoppedUp = _context2.sent;
 
-                if (!isWindowPopuped) {
+                if (!isWindowPoppedUp) {
                   _context2.next = 6;
                   break;
                 }
@@ -25460,6 +25462,17 @@ var Adapter_Adapter = /*#__PURE__*/function (_AdapterCore) {
 
       return _popupWindow;
     }()
+  }, {
+    key: "isWindowPoppedUp",
+    value: function isWindowPoppedUp() {
+      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref2$alert = _ref2.alert,
+          alert = _ref2$alert === void 0 ? false : _ref2$alert;
+
+      return this._requestWithPostMessage('/check-popup-window', {
+        alert: alert
+      });
+    }
   }, {
     key: "_onPushAdapterState",
     value: function _onPushAdapterState(options) {
@@ -25547,11 +25560,11 @@ var Adapter_Adapter = /*#__PURE__*/function (_AdapterCore) {
     }
   }, {
     key: "updateCallingSetting",
-    value: function updateCallingSetting(_ref2) {
-      var callWith = _ref2.callWith,
-          myLocation = _ref2.myLocation,
-          ringoutPrompt = _ref2.ringoutPrompt,
-          fromNumber = _ref2.fromNumber;
+    value: function updateCallingSetting(_ref3) {
+      var callWith = _ref3.callWith,
+          myLocation = _ref3.myLocation,
+          ringoutPrompt = _ref3.ringoutPrompt,
+          fromNumber = _ref3.fromNumber;
 
       this._postMessage({
         type: 'rc-calling-settings-update',
