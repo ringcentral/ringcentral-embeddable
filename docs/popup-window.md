@@ -23,6 +23,14 @@ After enabled, user will get a popup button at header:
 
 The feature is based on [Webphone Multiple Tabs solution 1](multiple-tabs.md#option-1-have-only-connection-in-first-opened-tab), so `multipleTabsSupport` need to be  enabled. If you have enable `disconnectInactiveWebphone`, please remove it. Before user open popup window, web phone connection is built at first opened tab. After user open popup window, web phone connection is built at popup window.
 
+#### To check if popup window opened
+
+From v1.8.0:
+
+```js
+RCAdapter.isWindowPoppedUp().then((opened) => {...})
+```
+
 ### Known issues:
 
 * App can't make a opened popup window into desktop top (Browser limitation)
