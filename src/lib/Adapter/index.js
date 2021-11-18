@@ -420,8 +420,8 @@ class Adapter extends AdapterCore {
   }
 
   async _popupWindow() {
-    const isWindowPopuped = await this._requestWithPostMessage('/check-popup-window');
-    if (isWindowPopuped) {
+    const isWindowPoppedUp = await this.isWindowPoppedUp({ alert: true });
+    if (isWindowPoppedUp) {
       if (this._popupedWindow && this._popupedWindow.focus) {
         this._popupedWindow.focus();
       }
@@ -433,6 +433,10 @@ class Adapter extends AdapterCore {
     }
     this._popupedWindow = popWindow(popupUri, 'RCPopupWindow', 300, 535);
     this.setMinimized(true);
+  }
+
+  isWindowPoppedUp({ alert = false } = {}) {
+    return this._requestWithPostMessage('/check-popup-window', { alert });
   }
 
   _onPushAdapterState(options) {
