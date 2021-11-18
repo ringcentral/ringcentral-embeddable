@@ -302,12 +302,14 @@ export default class Adapter extends AdapterModuleCore {
       }
       case '/check-popup-window': {
         let res = await this._popupWindowManager.checkPopupWindowOpened();
-        if (res) {
+        if (res && data.body.alert) {
           this._alert.warning({ message: 'popupWindowOpened' });
         }
         if (!res && this._webphone.sessions.length > 0) {
           res = true;
-          this._alert.warning({ message: 'cannotPopupWindowWithCall' });
+          if (data.body.alert) {
+            this._alert.warning({ message: 'cannotPopupWindowWithCall' });
+          }
         }
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
