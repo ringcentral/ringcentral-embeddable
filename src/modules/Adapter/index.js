@@ -422,7 +422,7 @@ export default class Adapter extends AdapterModuleCore {
       return;
     }
     if (this._auth.loggedIn && (
-      !this._extensionInfo.ready || !this._extensionInfo.ready
+      !this._extensionInfo.ready || !this._accountInfo.ready
     )) {
       return;
     }
