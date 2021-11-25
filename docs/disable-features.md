@@ -53,7 +53,7 @@ Glip feature is in beta. It is disabled it by default. To enable it:
 </script>
 ```
 
-Before we start to use Glip API, need to add `Glip` permission to your app in RingCentral Developer website.
+Before we start to use Glip API, need to add `Glip` or `Team Messaging` permission to your app in RingCentral Developer website.
 
 ## Enable Conference invite feature
 
