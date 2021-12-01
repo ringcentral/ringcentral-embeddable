@@ -2,7 +2,6 @@
 
 Support to open the widget in a popup window, so the widget is opened at a standalone window. User can close web page that embed the widget, and call will not be ended, and still active at popup window.
 
-**Notice**: this feature is in beta, we need more tests and feedback about it. It only works after v1.6.3.
 
 ### To enable this feature:
 
