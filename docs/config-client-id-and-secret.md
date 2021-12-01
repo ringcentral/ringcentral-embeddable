@@ -53,3 +53,5 @@ For Embeddable app, we need to have full usages with your sandbox client id for 
 * Make 5 inbound web phone (Browser based) calls
 * Make 5 [Ringout](interact-with-calling-settings.md#interact-with-calling-settings) calls
 * Control(end/hold) Ringout call in widget more than 5 times in widget
+
+**Notice**: Please create developer support ticket [here](https://developers.ringcentral.com/support/create-case) if you got any issues at app graduation.
