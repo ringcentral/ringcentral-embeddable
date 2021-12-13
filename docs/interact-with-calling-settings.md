@@ -95,7 +95,7 @@ In widget, user can also select `From` number when make a browser call. For deve
 
 After enabled, we can receive `From` number list in [calling settings updated](#calling-settings-updated-event) event when `callWith` is `browser`.
 
-## Enable my location numbers
+## Show my location numbers
 
 > Supported after v1.8.1
 
