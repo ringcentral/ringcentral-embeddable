@@ -44,6 +44,33 @@ There are 4 options for `defaultCallWith`:
 
 They are short names of `Browser`, `RingCentral App`, `RingCentral Phone`, `RingOut`.
 
+## Calling settings updated event
+
+Event fired when user changed `call with` option in calling settings page:
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-calling-settings-notify':
+        // get calling setting in here
+        console.log(data);
+        // {
+        //   type: 'rc-calling-settings-notify',
+        //   callWith: 'ringout',
+        //   fromNumbers: [], // show after enableFromNumberSetting flag set
+        //   myLocation: '+11111111', // show after showMyLocationNumbers flag set
+        //   myLocationNumbers: [], // show after showMyLocationNumbers flag set
+        // }
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
 ## Enable call from number setting
 
 In widget, user can also select `From` number when make a browser call. For developers who also want to set `From` number programmatically, we need to enable from number settings:
@@ -66,27 +93,33 @@ In widget, user can also select `From` number when make a browser call. For deve
 </iframe>
 ```
 
-After enabled, we can receive `From` number list in following message event when `callWith` is `browser`.
+After enabled, we can receive `From` number list in [calling settings updated](#calling-settings-updated-event) event when `callWith` is `browser`.
 
-## Calling settings updated event
+## Enable my location numbers
 
-Event fired when user changed `call with` option in calling settings page:
+> Supported after v1.8.1
+
+In `RingOut` mode, user need to set `My Location` number to receive first-leg call. For developers who also want to get user's known location numbers programmatically, we need to set `showMyLocationNumbers` flag firstly:
 
 ```js
-window.addEventListener('message', (e) => {
-  const data = e.data;
-  if (data) {
-    switch (data.type) {
-      case 'rc-calling-settings-notify':
-        // get calling setting in here
-        console.log(data);
-        break;
-      default:
-        break;
-    }
-  }
-});
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?showMyLocationNumbers=1";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
 ```
+
+###  Iframe way
+
+```html
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?showMyLocationNumbers=1">
+</iframe>
+```
+
+After enabled, we can receive `myLocation` and `myLocationNumbers` in [calling settings updated](#calling-settings-updated-event) event.
 
 ## Update Calling settings
 

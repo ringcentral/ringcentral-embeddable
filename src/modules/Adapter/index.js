@@ -94,6 +94,7 @@ export default class Adapter extends AdapterModuleCore {
     stylesUri,
     prefix,
     enableFromNumberSetting,
+    showMyLocationNumbers,
     disableInactiveTabCallEvent,
     tabManager,
     callLogger,
@@ -142,11 +143,13 @@ export default class Adapter extends AdapterModuleCore {
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
     this._enableFromNumberSetting = enableFromNumberSetting;
+    this._showMyLocationNumbers = showMyLocationNumbers;
     this._disableInactiveTabCallEvent = disableInactiveTabCallEvent;
     this._loggedIn = null;
     this._regionCountryCode = null;
     this._lastActiveCalls = [];
     this._callWith = null;
+    this._ringoutMyLocation = null;
     this._callLoggerAutoLogEnabled = null;
     this._dialerDisabled = null;
     this._meetingReady = null;
@@ -492,11 +495,13 @@ export default class Adapter extends AdapterModuleCore {
     }
     if (
       this._callWith === this._callingSettings.callWith &&
+      this._ringoutMyLocation === this._callingSettings.myLocation &&
       (!this._enableFromNumberSetting || this._fromNumbers === this._callingSettings.fromNumbers)
     ) {
       return;
     }
     this._callWith = this._callingSettings.callWith;
+    this._ringoutMyLocation = this._callingSettings.myLocation;
     this._fromNumbers = this._callingSettings.fromNumbers;
     const callingMode = this._callingSettings.callingMode;
     const message = {
@@ -506,6 +511,10 @@ export default class Adapter extends AdapterModuleCore {
     };
     if (this._enableFromNumberSetting && this._callWith === callingOptions.browser) {
       message.fromNumbers = this._fromNumbers.map(n => ({ phoneNumber: n.phoneNumber, usageType: n.usageType }));
+    }
+    if (this._showMyLocationNumbers) {
+      message.myLocation = this._callingSettings.myLocation;
+      message.myLocationNumbers = this._callingSettings.availableNumbersWithLabel;
     }
     this._postMessage(message);
   }
