@@ -24969,7 +24969,7 @@ var popup_default = /*#__PURE__*/__webpack_require__.n(popup);
 
 
 function checkValidImageUri(uri) {
-  return uri && (uri.indexOf('https://') === 0 || uri.indexOf('http://') === 0 || uri.indexOf('data:image') === 0);
+  return uri && (uri.indexOf('https://') === 0 || uri.indexOf('http://') === 0 || uri.indexOf('chrome-extension://') === 0 || uri.indexOf('data:image') === 0);
 }
 
 var Adapter_Adapter = /*#__PURE__*/function (_AdapterCore) {
