@@ -19,6 +19,7 @@ function checkValidImageUri(uri) {
     uri && (
       uri.indexOf('https://') === 0 ||
       uri.indexOf('http://') === 0 ||
+      uri.indexOf('chrome-extension://') === 0 ||
       uri.indexOf('data:image') === 0
     )
   );
