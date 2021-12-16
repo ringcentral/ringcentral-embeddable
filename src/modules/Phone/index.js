@@ -634,7 +634,7 @@ export function createPhone({
   enableWebRTCPlanB,
   fromPopup,
   enableRingtoneSettings,
-  hostingUrl,
+  brandBaseUrl,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -801,7 +801,7 @@ export function createPhone({
         provide: 'DynamicBrandOptions',
         useValue: {
           enableIDB: true,
-          baseUrl: hostingUrl,
+          baseUrl: brandBaseUrl,
         },
       }
     ]
