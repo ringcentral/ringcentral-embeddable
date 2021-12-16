@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
+import url from 'url';
 
 import './lib/patchGetUserMedia';
 import parseUri from './lib/parseUri';
@@ -131,7 +132,7 @@ const phone = createPhone({
   forceCurrentWebphoneActive: fromPopup,
   fromPopup,
   enableRingtoneSettings,
-  hostingUrl: process.env.HOSTING_URL,
+  brandBaseUrl: process.env.HOSTING_URL ? process.env.HOSTING_URL : url.resolve(window.location.href, './'),
 });
 
 const store = createStore(phone.reducer);
