@@ -9216,9 +9216,9 @@ ringcentral-client@^1.0.0-beta.2:
     isomorphic-fetch "^2.2.1"
 
 ringcentral-web-phone@^0.8.6:
-  version "0.8.8"
-  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.8.8.tgz#a7cfda4a1dfd490c6fd7be90fe8cad81a432648c"
-  integrity sha512-U3uS1CseWX0RM+DEgrUjTSvqvEY8F/hXnmcpixcR6MW1nfaZAR2h7v+E987CIrdNnjkK7sIDaxpAnyWartv2cQ==
+  version "0.8.9"
+  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.8.9.tgz#56a3fc9c9be38932b38e31a5e9a143e2ba70e505"
+  integrity sha512-sBTclm2D6f2AwWxuAJpZfEvWnIDpL0oQc/7ehy8BGmG46cvNct46Gxuka0Dpeqk6woPxPz7k5qQ+v2vCTqoatQ==
   dependencies:
     getstats "1.2.0"
     sip.js "0.13.5"
