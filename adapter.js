@@ -25729,7 +25729,7 @@ if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype
   NodeList.prototype.forEach = Array.prototype.forEach;
 }
 
-var adapter_version = "1.8.0";
+var adapter_version = "1.8.1";
 var currentScript = document.currentScript;
 var adapterName = "adapter.js";
 
@@ -25785,6 +25785,7 @@ var adapter_parseUri = parseCallbackUri(paramsUri),
     authorizationCode = adapter_parseUri.authorizationCode,
     defaultCallWith = adapter_parseUri.defaultCallWith,
     enableFromNumberSetting = adapter_parseUri.enableFromNumberSetting,
+    showMyLocationNumbers = adapter_parseUri.showMyLocationNumbers,
     disconnectInactiveWebphone = adapter_parseUri.disconnectInactiveWebphone,
     multipleTabsSupport = adapter_parseUri.multipleTabsSupport,
     disableInactiveTabCallEvent = adapter_parseUri.disableInactiveTabCallEvent,
@@ -25841,6 +25842,7 @@ var appUri = "".concat(adapter_appUrl, "?").concat(obj2uri({
   authorizationCode: authorizationCode,
   defaultCallWith: defaultCallWith,
   enableFromNumberSetting: enableFromNumberSetting,
+  showMyLocationNumbers: showMyLocationNumbers,
   disconnectInactiveWebphone: disconnectInactiveWebphone,
   multipleTabsSupport: multipleTabsSupport,
   disableInactiveTabCallEvent: disableInactiveTabCallEvent,
