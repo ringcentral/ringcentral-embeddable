@@ -626,6 +626,7 @@ export function createPhone({
   authorizationCode,
   defaultCallWith,
   enableFromNumberSetting,
+  showMyLocationNumbers,
   disconnectInactiveWebphone,
   disableInactiveTabCallEvent,
   disableLoginPopup,
@@ -703,6 +704,7 @@ export function createPhone({
           stylesUri,
           enableFromNumberSetting,
           disableInactiveTabCallEvent,
+          showMyLocationNumbers,
           fromPopup,
         },
         spread: true
