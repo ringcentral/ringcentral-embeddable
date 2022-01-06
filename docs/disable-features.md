@@ -55,6 +55,8 @@ Glip feature is in beta. It is disabled it by default. To enable it:
 
 Before we start to use Glip API, need to add `Glip` or `Team Messaging` permission to your app in RingCentral Developer website.
 
+Also, for testing with a sandbox user, user needs to first login to https://app.devtest.ringcentral.com
+
 ## Enable Conference invite feature
 
 Conference Invite feature will be deprecated in end of 2020. Now it is disabled by default.
