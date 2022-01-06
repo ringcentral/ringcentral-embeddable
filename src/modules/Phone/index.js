@@ -624,6 +624,7 @@ export function createPhone({
   errorReportSampleRate,
   recordingLink,
   authorizationCode,
+  authorizationCodeVerifier,
   defaultCallWith,
   enableFromNumberSetting,
   showMyLocationNumbers,
@@ -657,7 +658,6 @@ export function createPhone({
   if (!usePKCE && pkceEnabled) {
     localStorage.removeItem(`${prefix}-pkce-enabled`);
   }
-  const useDiscovery = apiConfig.enableDiscovery;
   const sdkConfig = {
     ...apiConfig,
     appName: appNameForSDK,
@@ -694,6 +694,7 @@ export function createPhone({
           redirectUri,
           proxyUri,
           authorizationCode,
+          authorizationCodeVerifier,
           disableLoginPopup,
         },
         spread: true

@@ -13,11 +13,13 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 export default class OAuth extends OAuthBase {
   constructor({
     authorizationCode,
+    authorizationCodeVerifier,
     disableLoginPopup = false,
     ...options
   }) {
     super(options);
     this._authorizationCode = authorizationCode;
+    this._authorizationCodeVerifier = authorizationCodeVerifier;
     this._disableLoginPopup = disableLoginPopup;
   }
 
@@ -35,7 +37,7 @@ export default class OAuth extends OAuthBase {
         type: this.actionTypes.init,
       });
       if (!this._auth.loggedIn && this._authorizationCode) {
-        await this._slientLoginWithCode()
+        await this._silentLoginWithCode()
       }
       this.store.dispatch({
         type: this.actionTypes.initSuccess,
@@ -57,9 +59,16 @@ export default class OAuth extends OAuthBase {
     }
   }
 
-  async _slientLoginWithCode() {
+  async _silentLoginWithCode() {
     try {
-      await this._loginWithCallbackQuery({ code: this._authorizationCode });
+      if (this._authorizationCodeVerifier) {
+        // TODO: remove this when we have a better way to handle the code verifier
+        this._client.service.platform()._codeVerifier = this._authorizationCodeVerifier;
+      }
+      await this._loginWithCallbackQuery({
+        code: this._authorizationCode,
+        code_verifier: this._authorizationCodeVerifier
+      });
     } catch (e) {
       console.error(e);
     }
@@ -87,6 +96,10 @@ export default class OAuth extends OAuthBase {
       if (this._auth.useWAP) {
         await this._auth.wapLogin(callbackUri);
         return;
+      }
+      if (query.code_verifier) {
+        // TODO: remove this when we have a better way to handle the code verifier
+        this._client.service.platform()._codeVerifier = query.code_verifier;
       }
       if (refresh) {
         await this._refreshWithCallbackQuery(query);
