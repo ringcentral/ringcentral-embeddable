@@ -72,7 +72,6 @@ import { AudioSettingsUI } from '@ringcentral-integration/widgets/modules/AudioS
 import RegionSettingsUI from '@ringcentral-integration/widgets/modules/RegionSettingsUI';
 import { CallingSettingsUI } from '@ringcentral-integration/widgets/modules/CallingSettingsUI';
 import { ActiveCallsUI } from '@ringcentral-integration/widgets/modules/ActiveCallsUI';
-import { ContactListUI } from '@ringcentral-integration/widgets/modules/ContactListUI';
 import { ContactDetailsUI } from '@ringcentral-integration/widgets/modules/ContactDetailsUI';
 import { ComposeTextUI } from '@ringcentral-integration/widgets/modules/ComposeTextUI';
 import { AlertUI } from '@ringcentral-integration/widgets/modules/AlertUI';
@@ -118,6 +117,7 @@ import GlipGroups from '../GlipGroups';
 import GlipCompany from '../GlipCompany';
 import ErrorLogger from '../ErrorLogger';
 import AddressBook from '../AddressBook';
+import { ContactListUI } from '../ContactListUI';
 
 import CallingSettings from '../CallingSettings';
 import CallLog from '../CallLog';
