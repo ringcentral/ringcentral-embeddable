@@ -9,7 +9,6 @@ module.exports = {
     shortName: 'Unify Office',
     appName: 'Unify Office Embeddable',
     fullName: 'Unify Office',
-    allowJupiterUniversalLink: true,
     callWithJupiter: {
       default: {
         link: 'https://app.unifyoffice.com/',

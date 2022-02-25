@@ -9,7 +9,6 @@ module.exports = {
     appName: 'TELUS Business Connect Embeddable',
     fullName: 'TELUS Business Connect',
     application: 'TELUS Business Connect Embeddable',
-    allowJupiterUniversalLink: true,
     callWithJupiter: {
       default: {
         link: 'https://app.businessconnect.telus.com/',

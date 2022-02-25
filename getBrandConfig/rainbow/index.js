@@ -9,7 +9,6 @@ module.exports = {
     shortName: 'Rainbow Office',
     appName: 'Rainbow Office Embeddable',
     fullName: 'Rainbow Office',
-    allowJupiterUniversalLink: true,
     callWithJupiter: {
       default: {
         link: 'https://app.rainbowoffice.com/',

@@ -12,7 +12,6 @@ module.exports = {
     allowRegionSetting: true,
     signupUrl: 'https://www.ringcentral.com/office/plansandpricing.html',
     eulaLink: 'https://www.ringcentral.com/legal/eulatos.html',
-    allowJupiterUniversalLink: true,
     callWithJupiter: {
       default: {
         link: 'https://app.ringcentral.com/',

@@ -9,7 +9,6 @@ module.exports = {
     appName: 'BT Cloud Work Embeddable',
     fullName: 'BT Cloud Work',
     application: 'BT Cloud Work Embeddable',
-    allowJupiterUniversalLink: true,
     callWithJupiter: {
       default: {
         link: 'http://app.cloudwork.bt.com/',
