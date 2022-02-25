@@ -144,6 +144,8 @@ window.addEventListener('message', (e) => {
 });
 ```
 
+To set presence by refer [here](control-widget.md#set-presense).
+
 ## Login Status event
 
 Get login status from widget
