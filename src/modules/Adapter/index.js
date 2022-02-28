@@ -1,5 +1,7 @@
+import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import moduleStatuses from '@ringcentral-integration/commons/enums/moduleStatuses';
-import telephonyStatus from '@ringcentral-integration/commons/enums/telephonyStatus';
+import { presenceStatus as presenceStatusEnum } from '@ringcentral-integration/commons/enums/presenceStatus.enum';
+import { dndStatus as dndStatusEnum } from '@ringcentral-integration/commons/modules/Presence/dndStatus';
 import callingOptions from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
 import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
@@ -7,7 +9,6 @@ import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
 import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumber';
 import { messageIsTextMessage } from '@ringcentral-integration/commons/lib/messageHelper';
 
-import sleep from '@ringcentral-integration/commons/lib/sleep';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import callingModes from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
@@ -279,6 +280,10 @@ export default class Adapter extends AdapterModuleCore {
           if (data.path && data.path.indexOf('/') === 0) {
             this._router.push(data.path);
           }
+          break;
+        }
+        case 'rc-adapter-set-presence': {
+          this._setPresence(data);
           break;
         }
         default:
@@ -859,6 +864,23 @@ export default class Adapter extends AdapterModuleCore {
     return {
       meeting: formatedMeetingInfo,
     };
+  }
+
+  async _setPresence({ dndStatus, userStatus }) {
+    if (!this._presence.ready) {
+      return;
+    }
+    if (dndStatus && !ObjectMap.hasValue(dndStatusEnum, dndStatus)) {
+      return;
+    }
+    if (userStatus && !ObjectMap.hasValue(presenceStatusEnum, userStatus)) {
+      return;
+    }
+    // TODO: add public function in widget presence module
+    await this._presence._update({
+      dndStatus: dndStatus ? dndStatus: this._presence.dndStatus,
+      userStatus: userStatus ? userStatus : this._presence.userStatus,
+    });
   }
 
   // eslint-disable-next-line

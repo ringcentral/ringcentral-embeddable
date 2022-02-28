@@ -314,3 +314,15 @@ window.addEventListener('message', function (e) {
   }
 });
 ```
+
+## Set presence
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-set-presence',
+  userStatus: 'Available', // Offline, Busy, Available
+  dndStatus: 'TakeAllCalls', // TakeAllCalls, DoNotAcceptAnyCalls, DoNotAcceptDepartmentCalls, TakeDepartmentCallsOnly
+}, '*');
+```
+
+To get current presence status please refer this [event](widget-event.md#presence-sync-event).
