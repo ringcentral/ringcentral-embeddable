@@ -9,7 +9,6 @@ module.exports = {
     shortName: 'Avaya Cloud Office',
     appName: 'Avaya Cloud Office Embeddable',
     fullName: 'Avaya Cloud Office',
-    allowJupiterUniversalLink: true,
     callWithJupiter: {
       default: {
         link: 'https://app.cloudoffice.avaya.com/',

@@ -9,7 +9,6 @@ module.exports = {
     appName: 'Office@Hand Embeddable',
     fullName: 'Office@Hand',
     application: 'Office@Hand Embeddable',
-    allowJupiterUniversalLink: true,
     callWithJupiter: {
       default: {
         link: 'https://app.officeathand.att.com/',
