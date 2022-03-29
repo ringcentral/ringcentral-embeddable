@@ -58,6 +58,61 @@ window.addEventListener('message', (e) => {
 
 **Notice:** When user creates a call to a physical phone number, `rc-call-start-notify` is fired when callee accepts call. When user creates a call to a VOIP phone number (such as bettween RingCentral account), `rc-call-start-notify` is fired when outbound call is ringing in callee side.
 
+## Web phone connection status event
+
+> supported after `v1.8.3`
+
+The widget's web phone ((Browser Calling) only works after having a connection with SIP server successfully.
+To get web phone is connected:
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-webphone-connection-status-notify':
+        // get call on active call updated event
+        console.log(data.connectionStatus); // connectionStatus-connected, connectionStatus-disconnected
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
+## Web phone sessions sync event
+
+> supported after `v1.8.3`
+
+For some scenario, you may want to get current active web phone calls.
+
+First step: send sync trigger to the widget
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-webphone-sessions-sync',
+}, '*');
+```
+**Notice**: You should send this trigger only after getting upper web phone connected event.
+
+Receive active web phone calls at message event:
+
+```js
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data) {
+    switch (data.type) {
+      case 'rc-webphone-sessions-sync':
+        console.log(data.calls); 
+        break;
+      default:
+        break;
+    }
+  }
+});
+```
+
 ## RingOut call event
 
 This event is fired when calling mode is `My RingCentral Phone` or `Custom Phone`. [Here](https://support.ringcentral.com/s/article/85) is introduction about RingCentral RingOut call.

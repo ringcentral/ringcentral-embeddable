@@ -317,6 +317,8 @@ window.addEventListener('message', function (e) {
 
 ## Set presence
 
+> supported after `v1.8.2`
+
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-set-presence',
