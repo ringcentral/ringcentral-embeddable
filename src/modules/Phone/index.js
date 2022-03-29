@@ -625,6 +625,7 @@ export function createPhone({
   recordingLink,
   authorizationCode,
   authorizationCodeVerifier,
+  jwt,
   defaultCallWith,
   enableFromNumberSetting,
   showMyLocationNumbers,
@@ -696,6 +697,7 @@ export function createPhone({
           authorizationCode,
           authorizationCodeVerifier,
           disableLoginPopup,
+          jwt,
         },
         spread: true
       },

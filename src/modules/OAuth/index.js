@@ -15,12 +15,14 @@ export default class OAuth extends OAuthBase {
     authorizationCode,
     authorizationCodeVerifier,
     disableLoginPopup = false,
+    jwt,
     ...options
   }) {
     super(options);
     this._authorizationCode = authorizationCode;
     this._authorizationCodeVerifier = authorizationCodeVerifier;
     this._disableLoginPopup = disableLoginPopup;
+    this._jwt = jwt;
   }
 
   async _onStateChange() {
@@ -38,6 +40,9 @@ export default class OAuth extends OAuthBase {
       });
       if (!this._auth.loggedIn && this._authorizationCode) {
         await this._silentLoginWithCode()
+      }
+      if (!this._auth.loggedIn && this._jwt) {
+        await this._auth.jwtLogin(this._jwt);
       }
       this.store.dispatch({
         type: this.actionTypes.initSuccess,

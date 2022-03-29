@@ -142,6 +142,15 @@ export default class NewAuth extends Auth {
     }
   }
 
+  async jwtLogin(jwt) {
+    this.store.dispatch({
+      type: this.actionTypes.login,
+    });
+    return this._client.service.platform().login({
+      jwt,
+    });
+  }
+
   get ownerId() {
     return super.ownerId && super.ownerId.toString();
   }
