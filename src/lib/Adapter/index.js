@@ -187,6 +187,12 @@ class Adapter extends AdapterCore {
         case 'rc-webphone-active-notify':
           this._webphoneActive = data.currentActive;
           break;
+        case 'rc-webphone-connection-status-notify':
+          console.log('rc-webphone-connection-status-notify: ', data.connectionStatus);
+          break;
+        case 'rc-webphone-sessions-sync':
+          console.log(data.calls); 
+          break;
         case 'rc-login-status-notify':
           console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber);
           break;

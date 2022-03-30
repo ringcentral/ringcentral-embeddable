@@ -23,8 +23,6 @@ import PopupWindowManager from '../../lib/PopupWindowManager';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 
-const CALL_NOTIFY_DELAY = 1500;
-
 function findExistedConversation(conversations, phoneNumber) {
   return conversations.find((conversation) => {
     if (!conversation.to || conversation.to.length > 1) {
@@ -205,6 +203,7 @@ export default class Adapter extends AdapterModuleCore {
     this._activeCallControl.onSessionUpdated((session) => {
       this.telephonySessionNotify(session);
     });
+    this._webphoneConnectionStatus = null;
   }
 
   initialize() {
@@ -234,6 +233,7 @@ export default class Adapter extends AdapterModuleCore {
     this._checkDialUIStatusChanged();
     this._checkMeetingStatusChanged();
     this._checkBrandConfigChanged();
+    this._checkWebphoneStatus();
   }
 
   _onMessage(event) {
@@ -284,6 +284,10 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-set-presence': {
           this._setPresence(data);
+          break;
+        }
+        case 'rc-adapter-webphone-sessions-sync': {
+          this._syncWebphoneSessions();
           break;
         }
         default:
@@ -560,6 +564,31 @@ export default class Adapter extends AdapterModuleCore {
       type: 'rc-brand-assets-notify',
       logoUri: this._brandConfig.assets && this._brandConfig.assets.logo,
       iconUri: this._brandConfig.assets && this._brandConfig.assets.icon,
+    });
+  }
+
+  _checkWebphoneStatus() {
+    if (this._webphoneConnectionStatus !== this._webphone.connectionStatus) {
+      this._webphoneConnectionStatus = this._webphone.connectionStatus;
+      this._postMessage({
+        type: 'rc-webphone-connection-status-notify',
+        connectionStatus: this._webphoneConnectionStatus,
+        deviceId: this._webphone.device && this._webphone.device.id,
+      });
+    }
+  }
+
+  _syncWebphoneSessions() {
+    if (!this._webphone.ready) {
+      return;
+    }
+    const sessions = this._webphone.sessions.map(session => ({
+      ...session,
+      contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
+    }));
+    this._postMessage({
+      type: 'rc-webphone-sessions-sync',
+      calls: sessions,
     });
   }
 
