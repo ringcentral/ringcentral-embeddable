@@ -25196,6 +25196,14 @@ var Adapter_Adapter = /*#__PURE__*/function (_AdapterCore) {
             this._webphoneActive = data.currentActive;
             break;
 
+          case 'rc-webphone-connection-status-notify':
+            console.log('rc-webphone-connection-status-notify: ', data.connectionStatus);
+            break;
+
+          case 'rc-webphone-sessions-sync':
+            console.log(data.calls);
+            break;
+
           case 'rc-login-status-notify':
             console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber);
             break;
@@ -25729,7 +25737,7 @@ if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype
   NodeList.prototype.forEach = Array.prototype.forEach;
 }
 
-var adapter_version = "1.8.1";
+var adapter_version = "1.8.3";
 var currentScript = document.currentScript;
 var adapterName = "adapter.js";
 
