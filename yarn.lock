@@ -1467,19 +1467,19 @@
     resize-observer-polyfill "^1.5.1"
     typeface-lato "^0.0.75"
 
-"@ringcentral/sdk@^4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@ringcentral/sdk/-/sdk-4.6.0.tgz#ee3f6a9725494cdd8bac8f3059b6fb12295bf7d1"
-  integrity sha512-Cwwqfd5MFIJeATnTponkDrWbshzeWujWwdigQhXVG6oaKCt20GNdWx5lT4jRpEzfNlIVgxd16Nqv0yOepWwRtg==
+"@ringcentral/sdk@^4.7.1":
+  version "4.7.1"
+  resolved "https://registry.yarnpkg.com/@ringcentral/sdk/-/sdk-4.7.1.tgz#d06b568110af0d4a346cb6cd373fa6c5b8f28d8b"
+  integrity sha512-LLofANbpiapSZYFinfdXttDCzH95ob7JTG/dzAOhMzRnsYw0sdKwdH/4qKzrAMTX2KUtcPjZifezML8R/2OcrQ==
   dependencies:
     dom-storage "2.1.0"
     is-plain-object "2.0.4"
     node-fetch "2.6.1"
 
-"@ringcentral/subscriptions@^4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@ringcentral/subscriptions/-/subscriptions-4.6.0.tgz#70c1263d13d201b332629ec45bf544a2075dd5e9"
-  integrity sha512-Pv/YR9lfPRZaLiAu9c3yWpzUXOksyHkQqBTY8p/vQQ2xYNWgwP8+NZrFw953Rpp108zjqgQNzigS8sYvt2N35w==
+"@ringcentral/subscriptions@^4.7.1":
+  version "4.7.1"
+  resolved "https://registry.yarnpkg.com/@ringcentral/subscriptions/-/subscriptions-4.7.1.tgz#703550c87409438512b35209e684a791f3797954"
+  integrity sha512-/kF9Gz/WrpQ7WtvQDyW3qDdZYy7LIolJKKMJXD1bec63V5guCMgay+MqhY/utnQf+9Zx0icMfCA7Ep+oO6UWag==
   dependencies:
     pubnub "^4.29.11"
 
