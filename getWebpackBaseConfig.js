@@ -33,7 +33,12 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
-    plugins: [],
+    plugins: [
+      new webpack.NormalModuleReplacementPlugin(
+        /@ringcentral-integration\/commons\/lib\/Tabbie.js/,
+        path.resolve(__dirname, './vendors/commons/lib/Tabbie.js'), // TODO: update with new widget lib to fix this
+      ),
+    ],
     module: {
       rules: [
         {
