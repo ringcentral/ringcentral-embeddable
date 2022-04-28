@@ -58,7 +58,7 @@ import { ComposeText } from '@ringcentral-integration/commons/modules/ComposeTex
 import { Conversations } from '@ringcentral-integration/commons/modules/ConversationsV2';
 
 // import GlipCompany from '@ringcentral-integration/commons/modules/GlipCompany';
-import GlipPersons from '@ringcentral-integration/commons/modules/GlipPersons';
+// import GlipPersons from '@ringcentral-integration/commons/modules/GlipPersons';
 // import GlipGroups from '@ringcentral-integration/commons/modules/GlipGroups';
 import GlipPosts from '@ringcentral-integration/commons/modules/GlipPosts';
 
@@ -115,6 +115,7 @@ import AppFeatures from '../AppFeatures';
 import ActiveCallControl from '../ActiveCallControl';
 import GlipGroups from '../GlipGroups';
 import GlipCompany from '../GlipCompany';
+import GlipPersons from '../GlipPersons';
 import ErrorLogger from '../ErrorLogger';
 import AddressBook from '../AddressBook';
 import { ContactListUI } from '../ContactListUI';

@@ -25,4 +25,13 @@ export default class NewAppFeatures extends AppFeatures {
       this._deps.auth.token.scope
     ) || '';
   }
+
+  get hasGlipPermission() {
+    return (
+      super.hasGlipPermission && (
+        this.appScopes.indexOf('Glip') > -1 ||
+        this.appScopes.indexOf('TeamMessaging') > -1
+      )
+    );
+  }
 }
