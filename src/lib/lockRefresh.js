@@ -5,7 +5,7 @@ export default function lockRefresh(sdk) {
   const platform = sdk.platform();
   platform._$$refresh = platform._refresh;
   const refreshWithLock = () => {
-    return navigator.locks.request('my_resource', {mode: 'exclusive'}, async lock => {
+    return navigator.locks.request('token_refresh', {mode: 'exclusive'}, async lock => {
       const isRefreshed = await platform._auth.accessTokenValid()
       if (isRefreshed) {
         const authData = await platform._auth.data();
