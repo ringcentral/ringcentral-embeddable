@@ -137,6 +137,7 @@ import DialerUI from '../DialerUI';
 import CallControlUI from '../CallControlUI';
 
 import hackSend from '../../lib/hackSend';
+import lockRefresh from '../../lib/lockRefresh';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -228,7 +229,7 @@ import hackSend from '../../lib/hackSend';
           // if the browser is IE , no cache
           return new RingCentralClient(hackSend(new SDK(sdkConfig)));
         }
-        return new RingCentralClient(new SDK(sdkConfig));
+        return new RingCentralClient(lockRefresh(new SDK(sdkConfig)));
       },
       deps: [
         { dep: 'SdkConfig', useParam: true, },
