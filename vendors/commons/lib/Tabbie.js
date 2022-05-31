@@ -382,10 +382,9 @@ var Tabbie = /*#__PURE__*/function () {
         clearInterval(_this4._gcIntervalId);
         clearInterval(_this4._heartBeatIntervalId);
         localStorage.removeItem(_this4._heartBeatKey);
-
         // TODO: fix this at widgets lib
-        if (_this3.isMainTab) {
-          localStorage.removeItem(_this3._mainTabKey);
+        if (_this4.isMainTab) {
+          localStorage.removeItem(_this4._mainTabKey);
         }
       });
     }
