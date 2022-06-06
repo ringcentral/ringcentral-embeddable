@@ -45,7 +45,6 @@ import RegionSettings from '@ringcentral-integration/commons/modules/RegionSetti
 import Ringout from '@ringcentral-integration/commons/modules/Ringout';
 import { Softphone } from '@ringcentral-integration/commons/modules/Softphone';
 import Storage from '@ringcentral-integration/commons/modules/Storage';
-import Subscription from '@ringcentral-integration/commons/modules/Subscription';
 import { TabManager } from '@ringcentral-integration/commons/modules/TabManager';
 // import Webphone from '@ringcentral-integration/commons/modules/Webphone';
 import Feedback from '@ringcentral-integration/commons/modules/Feedback';
@@ -101,6 +100,7 @@ import Alert from '../Alert';
 import AudioSettings from '../AudioSettings';
 import { SettingsUI } from '../SettingsUI';
 import { DynamicBrand } from '../DynamicBrand';
+import { Subscription } from '../Subscription';
 import OAuth from '../OAuth';
 import Auth from '../Auth';
 import Environment from '../Environment';
@@ -728,7 +728,7 @@ export function createPhone({
           appKey: apiConfig.clientId,
           appName: appNameForSDK,
           appVersion,
-          webphoneLogLevel: 1,
+          webphoneLogLevel: 2,
           permissionCheck: false,
           connectDelay: disconnectInactiveWebphone ? 800 : 0,
           disconnectOnInactive: disconnectInactiveWebphone,
