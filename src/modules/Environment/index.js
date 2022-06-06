@@ -4,6 +4,7 @@ import isBlank from '@ringcentral-integration/commons/lib/isBlank';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 
 import hackSend from '../../lib/hackSend';
+import lockRefresh from '../../lib/lockRefresh';
 
 import {
   getAppKeyReducer,
@@ -80,7 +81,7 @@ export default class DemoEnvironment extends Environment {
         // if the browser is IE , no cache
         this._client.service = hackSend(new SDK(config));
       } else {
-        this._client.service = new SDK(config);
+        this._client.service = lockRefresh(new SDK(config));
       }
     }
   }
@@ -93,7 +94,7 @@ export default class DemoEnvironment extends Environment {
       // if the browser is IE , no cache
       this._client.service = hackSend(new SDK(newConfig));
     } else {
-      this._client.service = new SDK(newConfig);
+      this._client.service = lockRefresh(new SDK(newConfig));
     }
   }
 
