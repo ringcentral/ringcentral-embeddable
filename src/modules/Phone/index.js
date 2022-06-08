@@ -728,7 +728,7 @@ export function createPhone({
           appKey: apiConfig.clientId,
           appName: appNameForSDK,
           appVersion,
-          webphoneLogLevel: 2,
+          webphoneLogLevel: 1,
           permissionCheck: false,
           connectDelay: disconnectInactiveWebphone ? 800 : 0,
           disconnectOnInactive: disconnectInactiveWebphone,
