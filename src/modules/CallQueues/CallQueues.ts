@@ -39,7 +39,7 @@ export class CallQueues extends DataFetcherV2Consumer<
       fetchFunction: async (): Promise<CallQueuesList> => {
         const response = await this._deps.client.service
           .platform()
-          .get('/restapi/v1.0/account/~/call-queues');
+          .get('/restapi/v1.0/account/~/call-queues?perPage=500');
         return response.json();
       },
     });
