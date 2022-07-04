@@ -13,8 +13,8 @@ import { AccountInfo } from '@ringcentral-integration/commons/modules/AccountInf
 import ActivityMatcher from '@ringcentral-integration/commons/modules/ActivityMatcher';
 // import ActiveCalls from '@ringcentral-integration/commons/modules/ActiveCalls';
 // import AddressBook from '@ringcentral-integration/commons/modules/AddressBook';
-import AccountContacts from '@ringcentral-integration/commons/modules/AccountContacts';
-import CompanyContacts from '@ringcentral-integration/commons/modules/CompanyContacts';
+import { AccountContacts } from '@ringcentral-integration/commons/modules/AccountContactsV2';
+import { CompanyContacts } from '@ringcentral-integration/commons/modules/CompanyContactsV2';
 import { Brand } from '@ringcentral-integration/commons/modules/Brand';
 import { Theme } from '@ringcentral-integration/commons/modules/Theme';
 import { ThemeUI } from '@ringcentral-integration/widgets/modules/ThemeUI';
@@ -242,7 +242,6 @@ import lockRefresh from '../../lib/lockRefresh';
       useValue: {
         polling: true,
       },
-      spread: true,
     },
     {
       provide: 'ContactSources',
@@ -763,6 +762,7 @@ export function createPhone({
           Glip: !disableGlip,
           Meetings: !disableMeeting,
           RingtoneSettings: enableRingtoneSettings,
+          CDC: true, // CompanyDirectoryControl
         },
       },
       {
