@@ -118,6 +118,7 @@ import GlipCompany from '../GlipCompany';
 import GlipPersons from '../GlipPersons';
 import ErrorLogger from '../ErrorLogger';
 import AddressBook from '../AddressBook';
+import { CallQueues } from '../CallQueues';
 import { ContactListUI } from '../ContactListUI';
 
 import CallingSettings from '../CallingSettings';
@@ -204,6 +205,7 @@ import lockRefresh from '../../lib/lockRefresh';
     { provide: 'Conversations', useClass: Conversations },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
     { provide: 'AddressBook', useClass: AddressBook },
+    { provide: 'CallQueues', useClass: CallQueues },
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetailsUI', useClass: ContactDetailsUI },
     { provide: 'ContactListUI', useClass: ContactListUI},
@@ -244,8 +246,8 @@ import lockRefresh from '../../lib/lockRefresh';
     },
     {
       provide: 'ContactSources',
-      useFactory: ({ addressBook, accountContacts }) => [addressBook, accountContacts],
-      deps: ['AccountContacts', 'AddressBook']
+      useFactory: ({ addressBook, accountContacts, callQueues }) => [addressBook, accountContacts, callQueues],
+      deps: ['AccountContacts', 'AddressBook', 'CallQueues']
     },
     { provide: 'AvailabilityMonitor', useClass: AvailabilityMonitor },
     {
