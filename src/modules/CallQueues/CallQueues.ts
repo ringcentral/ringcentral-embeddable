@@ -34,12 +34,11 @@ export class CallQueues extends DataFetcherV2Consumer<
       key: 'callerId',
       cleanOnReset: true,
       permissionCheckFunction: () =>
-        this._deps.extensionFeatures.features?.ReadExtensions
-          ?.available ?? false,
+        this._hasPermission,
       fetchFunction: async (): Promise<CallQueuesList> => {
         const response = await this._deps.client.service
           .platform()
-          .get('/restapi/v1.0/account/~/call-queues?perPage=500');
+          .get('/restapi/v1.0/account/~/call-queues?perPage=1000');
         return response.json();
       },
     });
@@ -56,6 +55,12 @@ export class CallQueues extends DataFetcherV2Consumer<
     return 'Call queues';
   }
 
+  get _hasPermission() {
+    return this._deps.extensionFeatures.features?.ReadExtensions
+          ?.available ?? false;
+  }
+
+  // interface of ContactSource
   @computed(({ queues }: CallQueues) => [queues])
   get contacts() {
     return this.queues.map((queue) => {
@@ -72,9 +77,10 @@ export class CallQueues extends DataFetcherV2Consumer<
 
   // interface of ContactSource
   get sourceReady() {
-    return this.ready;
+    return this.ready && this._hasPermission;
   }
 
+  // interface of ContactSource
   get rawContacts() {
     return this.queues;
   }
@@ -111,7 +117,14 @@ export class CallQueues extends DataFetcherV2Consumer<
     });
   }
 
-  async sync() {
-    await this._deps.dataFetcherV2.fetchData(this._source);
+  // interface of ContactSource
+  async sync(options = {}) {
+    if (!this._hasPermission) {
+      return;
+    }
+    if (options.type === 'manual' || this.data == null) {
+      // only trigger sync when user manually refresh the data
+      await this._deps.dataFetcherV2.fetchData(this._source);
+    }
   }
 }
