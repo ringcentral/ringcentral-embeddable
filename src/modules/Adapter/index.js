@@ -45,6 +45,29 @@ function findExistedConversation(conversations, phoneNumber) {
     );
   });
 }
+
+function setOutputDeviceWhenCall(webphone, audioSettings) {
+  if (webphone._webphone) {
+    if (webphone._remoteVideo && webphone._remoteVideo.setSinkId) {
+      if (audioSettings.outputDeviceId === 'default') {
+        const defaultDevice = audioSettings.outputDevice;
+        const defaultDeviceLabel = defaultDevice.label;
+        const deviceLabel = defaultDeviceLabel.split(' - ')[1];
+        if (deviceLabel) {
+          const device = audioSettings.availableOutputDevices.find(
+            (device) => device.label === deviceLabel
+          );
+          if (device) {
+            webphone._remoteVideo.setSinkId(device.deviceId);
+          }
+        }
+      } else {
+        webphone._remoteVideo.setSinkId(audioSettings.outputDeviceId);
+      }
+    }
+  }
+}
+
 @Module({
   name: 'Adapter',
   deps: [
@@ -72,6 +95,7 @@ function findExistedConversation(conversations, phoneNumber) {
     'Conversations',
     'ActiveCallControl',
     'ContactMatcher',
+    'AudioSettings',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -103,6 +127,7 @@ export default class Adapter extends AdapterModuleCore {
     conversations,
     activeCallControl,
     contactMatcher,
+    audioSettings,
     fromPopup,
     ...options
   }) {
@@ -137,6 +162,7 @@ export default class Adapter extends AdapterModuleCore {
     this._activeCallControl = activeCallControl;
     this._oAuth = oAuth;
     this._contactMatcher = contactMatcher;
+    this._audioSettings = audioSettings;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -172,6 +198,8 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallInit((session) => {
       this.initCallNotify(session);
+      // TODO: HACK to fix not audio issue when user change output device id
+      setOutputDeviceWhenCall(this._webphone, this._audioSettings);
     });
     this._webphone.onCallStart((session) => {
       const rawSession = this._webphone._sessions.get(session.id);
@@ -190,6 +218,7 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallRing((session) => {
       this.ringCallNotify(session);
+      setOutputDeviceWhenCall(this._webphone, this._audioSettings);
     });
     this._webphone.onCallHold((session) => {
       this.holdCallNotify(session);
