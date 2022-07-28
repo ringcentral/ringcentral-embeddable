@@ -463,4 +463,33 @@ export default class Webphone extends WebphoneBase {
     session.__rc_recordStatus = status;
     this._updateSessions();
   }
+
+  async _removeWebphone() {
+    this._stopAudio();
+    await super._removeWebphone();
+  }
+
+  async _createWebphone(data) {
+    await super._createWebphone(data);
+    this._webphone.userAgent.transport.on('closed', () => {
+      this._stopAudio();
+    });
+    this._webphone.userAgent.transport.on('transportError', () => {
+      this._stopAudio();
+    });
+    this._webphone.userAgent.transport.on('wsConnectionError', () => {
+      this._stopAudio();
+    });
+  }
+
+  _stopAudio() {
+    if (
+      this._webphone &&
+      this._webphone.userAgent &&
+      this._webphone.userAgent.audioHelper
+    ) {
+      this._webphone.userAgent.audioHelper.playOutgoing(false);
+      this._webphone.userAgent.audioHelper.playIncoming(false);
+    }
+  }
 }
