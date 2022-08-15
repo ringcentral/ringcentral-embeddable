@@ -154,8 +154,19 @@ function init() {
   });
 }
 
-if (document.readyState === 'complete') {
-  init();
-} else {
-  window.addEventListener('load', init);
+if (!window.RC_EMBEDDABLE_ADAPTER_MANUAL_INIT) {
+  if (document.readyState === 'complete') {
+    init();
+  } else {
+    window.addEventListener('load', init);
+  }
 }
+
+window.RCAdapterInit = init;
+window.RCAdapterDispose = () => {
+  if (!window.RCAdapter) {
+    return;
+  }
+  window.RCAdapter.dispose();
+  window.RCAdapter = null;
+};
