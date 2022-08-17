@@ -1,5 +1,7 @@
 ## Adapter Init
 
+> supported from v1.8.5
+
 By default, the adapter script will auto init and start the widget. 
 To init the widget manually:
 
