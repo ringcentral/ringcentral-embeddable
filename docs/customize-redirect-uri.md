@@ -31,6 +31,7 @@ In your redirect page, you need to add following code to pass auth callback para
     window.opener.postMessage({
       callbackUri: window.location.href,
     }, origin);
+    window.close(); // close the login popup window
   }
 </script>
 ```
