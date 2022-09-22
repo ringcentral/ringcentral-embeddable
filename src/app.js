@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
 import url from 'url';
 
+import './lib/TabFreezePrevention';
 import './lib/patchGetUserMedia';
 import parseUri from './lib/parseUri';
 import { createPhone } from './modules/Phone';
