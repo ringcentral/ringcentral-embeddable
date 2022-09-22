@@ -6,26 +6,29 @@ This document show how the widget can interact with your application deeply.
 
 ## Table of Contents
 
-* [Register your service](#register-your-service)
-* [Add meeting schedule button with your service](#add-meeting-schedule-feature-with-your-service)
-  * [Show upcoming meeting list in RingCentral Video page](#show-upcoming-meeting-list-in-ringcentral-video-page)
-  * [Log RingCentral Video meeting into your service](#log-ringcentral-video-meeting-into-your-service)
-* [Add a conference invite button with your service](#add-a-conference-invite-button-with-your-service)
-* [Show contacts from your application](#show-contacts-from-your-application)
-  * [Show contacts on Contacts page in widget](#show-contacts-on-contacts-page-in-widget)
-  * [Show contacts search result on Dialer receiver input](#show-contacts-search-result-on-dialer-receiver-input)
-  * [Show contacts matcher result on calls history and incoming call page](#show-contacts-matcher-result-on-calls-history-and-incoming-call-page)
-* [Show contact's activities from your application](#show-contacts-activities-from-your-application)
-* [Log call into your service](#log-call-into-your-service)
-  * [Add call logger button in calls page](#add-call-logger-button-in-calls-page)
-  * [Add call logger modal](#add-call-logger-modal)
-  * [Add call log entity matcher](#add-call-log-entity-matcher)
-* [Log messages into your service](#log-messages-into-your-service)
-  * [Add message logger button in messages page](#add-message-logger-button-in-messages-page)
-  * [Add message log entity matcher](#add-message-log-entity-matcher)
-* [Add third party authorization button](#add-third-party-authorization-button)
-* [Third Party Settings](#third-party-settings)
-* [VCard Click handler](#vcard-click-handler)
+- [Third Party Service in Widget](#third-party-service-in-widget)
+  - [Table of Contents](#table-of-contents)
+  - [Register your service](#register-your-service)
+  - [Add meeting schedule feature with your service](#add-meeting-schedule-feature-with-your-service)
+  - [Show upcoming meeting list in RingCentral Video page](#show-upcoming-meeting-list-in-ringcentral-video-page)
+  - [Log RingCentral Video meeting into your service](#log-ringcentral-video-meeting-into-your-service)
+  - [Add a conference invite button with your service](#add-a-conference-invite-button-with-your-service)
+  - [Show contacts from your application](#show-contacts-from-your-application)
+    - [Show contacts on Contacts page in widget](#show-contacts-on-contacts-page-in-widget)
+    - [Show contacts search result on Dialer receiver input](#show-contacts-search-result-on-dialer-receiver-input)
+    - [Show contacts matcher result on calls history and incoming call page:](#show-contacts-matcher-result-on-calls-history-and-incoming-call-page)
+  - [Show contact's activities from your application](#show-contacts-activities-from-your-application)
+  - [Log call into your service](#log-call-into-your-service)
+    - [Add call logger button in calls page](#add-call-logger-button-in-calls-page)
+    - [Add call logger modal](#add-call-logger-modal)
+    - [Add call log entity matcher](#add-call-log-entity-matcher)
+      - [Trigger call logger entity match manually](#trigger-call-logger-entity-match-manually)
+  - [Log messages into your service](#log-messages-into-your-service)
+    - [Add message logger button in messages page](#add-message-logger-button-in-messages-page)
+    - [Add message log entity matcher](#add-message-log-entity-matcher)
+  - [Add third party authorization button](#add-third-party-authorization-button)
+  - [Third Party Settings](#third-party-settings)
+  - [VCard Click handler](#vcard-click-handler)
 
 ## Register your service
 
@@ -543,6 +546,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 ### Add call log entity matcher
 
 In call logger button, widget needs to know if call is logged. To provide `callLogEntityMatcherPath` when register, widget will send match request to get match result of calls history.
+
+Note: If you have [third party auth](#add-third-party-authorization-button) configured, call log entity matcher only works when `authorized` is `true`.
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
