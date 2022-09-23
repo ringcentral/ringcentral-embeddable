@@ -1,5 +1,7 @@
+import { isFirefox } from "./isFirefox";
+
 export default function lockRefresh(sdk) {
-  if (!navigator.locks) {
+  if (!navigator.locks || isFirefox()) {
     return sdk;
   }
   const platform = sdk.platform();

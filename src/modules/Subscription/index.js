@@ -1,6 +1,10 @@
 import { Subscription as SubscriptionBase } from '@ringcentral-integration/commons/modules/SubscriptionV2';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 
+import { isFirefox } from '../../lib/isFirefox';
+
+const SUBSCRIPTION_LOCK_KEY = 'subscription-creating-lock';
+
 @Module({
   name: 'Subscription',
   deps: [],
@@ -8,7 +12,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 export class Subscription extends SubscriptionBase {
   async _createSubscription() {
     await super._createSubscription();
-    if (!navigator.locks || !this._subscription) {
+    if (!navigator.locks || isFirefox() || !this._subscription) {
       return;
     }
     if (this._subscription._$$automaticRenewHandler) {
@@ -29,5 +33,16 @@ export class Subscription extends SubscriptionBase {
         return result;
       });
     };
+  }
+
+  // TODO: remove this after sdk fixed, fix lock issue at firefox
+  async _createSubscriptionWithLock() {
+    if (!navigator?.locks?.request || isFirefox()) {
+      await this._createSubscription();
+    } else {
+      await navigator.locks.request(SUBSCRIPTION_LOCK_KEY, () =>
+        this._createSubscription(),
+      );
+    }
   }
 }
