@@ -141,16 +141,16 @@ export default class Adapter extends AdapterModuleCore {
       webphone,
     });
     this._messageTypes = messageTypes;
-    this._auth = this::ensureExist(auth, 'auth');
-    this._presence = this::ensureExist(presence, 'presence');
-    this._composeText = this::ensureExist(composeText, 'composeText');
-    this._webphone = this::ensureExist(webphone, 'webphone');
-    this._regionSettings = this::ensureExist(regionSettings, 'regionSettings');
-    this._callingSettings = this::ensureExist(callingSettings, 'callingSettings');
-    this._call = this::ensureExist(call, 'call');
-    this._dialerUI = this::ensureExist(dialerUI, 'dialerUI');
-    this._messageStore = this::ensureExist(messageStore, 'messageStore');
-    this._tabManager = this::ensureExist(tabManager, 'tabManager');
+    this._auth = this:: ensureExist(auth, 'auth');
+    this._presence = this:: ensureExist(presence, 'presence');
+    this._composeText = this:: ensureExist(composeText, 'composeText');
+    this._webphone = this:: ensureExist(webphone, 'webphone');
+    this._regionSettings = this:: ensureExist(regionSettings, 'regionSettings');
+    this._callingSettings = this:: ensureExist(callingSettings, 'callingSettings');
+    this._call = this:: ensureExist(call, 'call');
+    this._dialerUI = this:: ensureExist(dialerUI, 'dialerUI');
+    this._messageStore = this:: ensureExist(messageStore, 'messageStore');
+    this._tabManager = this:: ensureExist(tabManager, 'tabManager');
     this._alert = alert;
     this._callLogger = callLogger;
     this._extensionInfo = extensionInfo;
@@ -296,7 +296,7 @@ export default class Adapter extends AdapterModuleCore {
             this._oAuth.openOAuthPage();
           }
           break;
-        case 'rc-calling-settings-update': 
+        case 'rc-calling-settings-update':
           if (this._callingSettings.ready) {
             this._updateCallingSettings(data);
           }
@@ -358,6 +358,11 @@ export default class Adapter extends AdapterModuleCore {
         });
         break;
       }
+      case '/custom-alert-message':
+        if (data.alertMessage) {
+          this._alert.warning({ message: `showCustomAlertMessage:${data.alertMessage}` });
+        }
+        break;
       default: {
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
@@ -447,7 +452,7 @@ export default class Adapter extends AdapterModuleCore {
     if (this._callingSettings.callingMode != callingModes.ringout) {
       return;
     }
-    calls.forEach(({ id, ...call}) => {
+    calls.forEach(({ id, ...call }) => {
       this._postMessage({
         type: 'rc-ringout-call-notify',
         call,
@@ -936,7 +941,7 @@ export default class Adapter extends AdapterModuleCore {
     }
     // TODO: add public function in widget presence module
     await this._presence._update({
-      dndStatus: dndStatus ? dndStatus: this._presence.dndStatus,
+      dndStatus: dndStatus ? dndStatus : this._presence.dndStatus,
       userStatus: userStatus ? userStatus : this._presence.userStatus,
     });
   }
