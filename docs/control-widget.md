@@ -328,3 +328,20 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 ```
 
 To get current presence status please refer this [event](widget-event.md#presence-sync-event).
+
+## Show Custom Alert Message
+
+> supported after `v1.8.6`
+
+```js
+const requestId = Date.now().toString();
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-message-request',
+  requestId: requestId,
+  path: '/custom-alert-message',
+  alertMessage: 'Test info message',
+  alertLevel: 'info'
+}, '*');
+```
+
+Note: `alertLevel` can be `info`, `warning` or `danger`.
