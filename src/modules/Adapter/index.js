@@ -359,32 +359,13 @@ export default class Adapter extends AdapterModuleCore {
         break;
       }
       case '/custom-alert-message':
-        switch (data.alertLevel) {
-          case 'info':
-            this._alert.info({
-              message: 'showCustomAlertMessage',
-              payload: {
-                alertMessage: data.alertMessage
-              }
-            });
-            break;
-          case 'warning':
-            this._alert.warning({
-              message: 'showCustomAlertMessage',
-              payload: {
-                alertMessage: data.alertMessage
-              }
-            });
-            break;
-          case 'danger':
-            this._alert.danger({
-              message: 'showCustomAlertMessage',
-              payload: {
-                alertMessage: data.alertMessage
-              }
-            });
-            break;
-        }
+        this._alert.alert({
+          level: data.alertLevel,
+          message: 'showCustomAlertMessage',
+          payload: {
+            alertMessage: data.alertMessage
+          }
+        });
         break;
       default: {
         this._postRCAdapterMessageResponse({
