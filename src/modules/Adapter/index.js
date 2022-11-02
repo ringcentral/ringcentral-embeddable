@@ -359,8 +359,31 @@ export default class Adapter extends AdapterModuleCore {
         break;
       }
       case '/custom-alert-message':
-        if (data.alertMessage) {
-          this._alert.warning({ message: `showCustomAlertMessage:${data.alertMessage}` });
+        switch (data.alertLevel) {
+          case 'info':
+            this._alert.info({
+              message: 'showCustomAlertMessage',
+              payload: {
+                alertMessage: data.alertMessage
+              }
+            });
+            break;
+          case 'warning':
+            this._alert.warning({
+              message: 'showCustomAlertMessage',
+              payload: {
+                alertMessage: data.alertMessage
+              }
+            });
+            break;
+          case 'danger':
+            this._alert.danger({
+              message: 'showCustomAlertMessage',
+              payload: {
+                alertMessage: data.alertMessage
+              }
+            });
+            break;
         }
         break;
       default: {

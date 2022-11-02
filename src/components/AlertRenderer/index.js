@@ -14,8 +14,8 @@ export function getAlertRenderer() {
     if (message.message === 'stopRecordDisabled') {
       return () => 'Sorry, stopping recording is not supported for this call.';
     }
-    if (message.message.startsWith('showCustomAlertMessage')) {
-      return () => message.message.split(':')[1];
+    if (message.message === 'showCustomAlertMessage') {
+      return () => message.payload.alertMessage;
     }
     return null;
   };
