@@ -340,7 +340,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   requestId: requestId,
   path: '/custom-alert-message',
   alertMessage: 'Test info message',
-  alertLevel: 'info'
+  alertLevel: 'info',
+  ttl: 5000 //5000ms => 5s
 }, '*');
 ```
 

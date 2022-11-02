@@ -361,6 +361,7 @@ export default class Adapter extends AdapterModuleCore {
       case '/custom-alert-message':
         this._alert.alert({
           level: data.alertLevel,
+          ttl: data.ttl,
           message: 'showCustomAlertMessage',
           payload: {
             alertMessage: data.alertMessage
