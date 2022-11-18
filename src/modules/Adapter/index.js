@@ -488,6 +488,7 @@ export default class Adapter extends AdapterModuleCore {
     }
     this._loggedIn = this._auth.loggedIn;
     let loginNumber;
+    let contractedCountryCode;
     if (this._loggedIn) {
       const extensionNumber =
         this._extensionInfo.extensionNumber && this._extensionInfo.extensionNumber !== '0'
@@ -496,11 +497,16 @@ export default class Adapter extends AdapterModuleCore {
       loginNumber = [this._accountInfo.mainCompanyNumber, extensionNumber].join(
         '*',
       );
+      contractedCountryCode =
+        this._accountInfo.serviceInfo &&
+        this._accountInfo.serviceInfo.contractedCountry &&
+        this._accountInfo.serviceInfo.contractedCountry.isoCode;
     }
     this._postMessage({
       type: 'rc-login-status-notify',
       loggedIn: this._loggedIn,
       loginNumber,
+      contractedCountryCode,
     });
   }
 
