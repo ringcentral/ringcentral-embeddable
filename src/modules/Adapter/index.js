@@ -5,6 +5,7 @@ import { dndStatus as dndStatusEnum } from '@ringcentral-integration/commons/mod
 import callingOptions from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
 import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
+import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
 import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
 import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumber';
 import { messageIsTextMessage } from '@ringcentral-integration/commons/lib/messageHelper';
@@ -219,6 +220,14 @@ export default class Adapter extends AdapterModuleCore {
     this._webphone.onCallRing((session) => {
       this.ringCallNotify(session);
       setOutputDeviceWhenCall(this._webphone, this._audioSettings);
+      // TODO: this will be support in new widgets lib
+      if (
+        this._webphone._webphone &&
+        this._webphone.activeSession &&
+        !isOnHold(this._webphone.activeSession)
+      ) {
+        this._webphone._webphone.userAgent.audioHelper.playIncoming(false);
+      }
     });
     this._webphone.onCallHold((session) => {
       this.holdCallNotify(session);
