@@ -25205,7 +25205,7 @@ var Adapter_Adapter = /*#__PURE__*/function (_AdapterCore) {
             break;
 
           case 'rc-login-status-notify':
-            console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber);
+            console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber, data.contractedCountryCode);
             break;
 
           case 'rc-calling-settings-notify':
