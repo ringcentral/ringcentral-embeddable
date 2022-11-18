@@ -220,7 +220,7 @@ export default class Adapter extends AdapterModuleCore {
     this._webphone.onCallRing((session) => {
       this.ringCallNotify(session);
       setOutputDeviceWhenCall(this._webphone, this._audioSettings);
-      // TODO: this will ne support in new widgets lib
+      // TODO: this will be support in new widgets lib
       if (
         this._webphone._webphone &&
         this._webphone.activeSession &&
