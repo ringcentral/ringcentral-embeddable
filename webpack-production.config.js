@@ -123,6 +123,9 @@ function getAppWebpackConfig({ brand }) {
     proxy: './src/proxy.js',
     redirect: './src/redirect.js',
   };
+  if (!process.env.LOCAL_EXTENSION_MODE) {
+    config.devtool = 'source-map';
+  }
   return config;
 }
 
