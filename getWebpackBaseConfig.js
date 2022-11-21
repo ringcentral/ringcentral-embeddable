@@ -25,15 +25,29 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
   }
   return {
     entry: {
-      app: ['@babel/polyfill', './src/app.js'],
+      app: './src/app.js',
       adapter: './src/adapter.js',
       proxy: './src/proxy.js',
       redirect: './src/redirect.js',
     },
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      fallback: {
+        crypto: require.resolve('crypto-browserify'),
+        stream: require.resolve('stream-browserify'),
+        vm: require.resolve('vm-browserify'),
+        process: require.resolve('process/browser'),
+        buffer: require.resolve('buffer'),
+        events: require.resolve('events'),
+        path: require.resolve('path-browserify'),
+        querystring: require.resolve('querystring-es3'),
+      },
     },
     plugins: [
+      new webpack.ProvidePlugin({
+        process: 'process/browser.js',
+        Buffer: ['buffer', 'Buffer'],
+      }),
       new webpack.NormalModuleReplacementPlugin(
         /@ringcentral-integration\/commons\/lib\/Tabbie.js/,
         path.resolve(__dirname, './vendors/commons/lib/Tabbie.js'), // TODO: update with new widget lib to fix this
@@ -69,7 +83,15 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
         },
         {
           test: /\.woff|\.woff2|.eot|\.ttf/,
-          use: 'url-loader?limit=15000&publicPath=./&name=fonts/[name]_[hash].[ext]',
+          use: {
+            loader: 'url-loader',
+            options: {
+              limit: 15000,
+              name: 'fonts/[name]_[hash].[ext]',
+              // TODO: it should be upgrade css-loader and update config
+              esModule: false,
+            },
+          },
         },
         {
           test: /\.svg/,
@@ -113,11 +135,9 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
             {
               loader: 'postcss-loader',
               options: {
-                plugins: function () {
-                  return [
-                    autoprefixer
-                  ];
-                }
+                plugins() {
+                  return [autoprefixer];
+                },
               },
             },
             {

@@ -119,7 +119,7 @@ function getAppWebpackConfig({ brand }) {
     // new BundleAnalyzerPlugin({ analyzerMode: 'static' }),
   ];
   config.entry = {
-    app: ['@babel/polyfill', './src/app.js'],
+    app: './src/app.js',
     proxy: './src/proxy.js',
     redirect: './src/redirect.js',
   };

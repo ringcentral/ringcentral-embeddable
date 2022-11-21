@@ -158,7 +158,7 @@ TEST_HEADLESS=false
 
 ### Start development server
 
-We assume you have pre-installed node.js > 8 and yarn.
+We assume you have pre-installed node.js >= 14 and yarn.
 
 **It is recommended to use `yarn` instead of `npm`.** We have `yarn.lock` file in source code to lock dependence version. With `yarn`, we can install dependencies with correct version that work well with this project.
 
