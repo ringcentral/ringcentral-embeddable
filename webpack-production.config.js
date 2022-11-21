@@ -119,10 +119,13 @@ function getAppWebpackConfig({ brand }) {
     // new BundleAnalyzerPlugin({ analyzerMode: 'static' }),
   ];
   config.entry = {
-    app: ['@babel/polyfill', './src/app.js'],
+    app: './src/app.js',
     proxy: './src/proxy.js',
     redirect: './src/redirect.js',
   };
+  if (!process.env.LOCAL_EXTENSION_MODE) {
+    config.devtool = 'source-map';
+  }
   return config;
 }
 

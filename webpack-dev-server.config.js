@@ -36,9 +36,8 @@ const errorReportKey = process.env.ERROR_REPORT_KEY;
 function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
   const config = getBaseConfig({ themeFolder: themeFolder, styleLoader });
   config.devServer = {
-    contentBase: buildPath,
+    static: buildPath,
     hot: true,
-    inline: true,
     port: 8080,
   };
   config.output = {
@@ -47,7 +46,6 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
   };
   config.plugins = [
     ...config.plugins,
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
@@ -83,7 +81,7 @@ function getAppWebpackConfig({ brand }) {
     themeFolder: dynamicThemePath,
   });
   config.entry = {
-    app: ['@babel/polyfill', './src/app.js'],
+    app: './src/app.js',
     proxy: './src/proxy.js',
     redirect: './src/redirect.js',
   };
@@ -101,6 +99,7 @@ function getAdapterWebpackConfig({ brand }) {
   config.entry = {
     'adapter': './src/adapter.js',
   };
+  delete config.devServer;
   return config;
 }
 
