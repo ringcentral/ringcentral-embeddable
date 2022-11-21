@@ -28,7 +28,6 @@
     "autoprefixer": "^9.6.1",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.2.2",
-    "browserify": "^14.4.0",
     "buffer": "^6.0.3",
     "copy-webpack-plugin": "^9.0.1",
     "cross-env": "^7.0.3",
@@ -50,6 +49,7 @@
     "postcss-loader": "^3.0.0",
     "process": "^0.11.10",
     "puppeteer": "^9.1.1",
+    "querystring-es3": "^0.2.1",
     "sass": "^1.43.4",
     "sass-loader": "^7.3.1",
     "stream-browserify": "^3.0.0",
@@ -92,13 +92,11 @@
     "react-router-redux": "^4.0.7",
     "redux": "^4.0.5",
     "ringcentral-client": "^1.0.0-beta.2",
-    "styled-components": "^5.3.0",
     "setimmediate": "^1.0.5",
+    "styled-components": "^5.3.0",
     "uuid": "^3.2.1",
+    "url": "^0.11.0",
     "whatwg-fetch": "^2.0.3"
-  },
-  "resolutions": {
-    "immutable": "3.7.6"
   },
   "engines": {
     "node": ">=14"

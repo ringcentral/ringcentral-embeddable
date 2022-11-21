@@ -46,7 +46,6 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
   };
   config.plugins = [
     ...config.plugins,
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
