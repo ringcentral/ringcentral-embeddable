@@ -40,6 +40,7 @@ export const MainViewPanel = (props) => {
     showConference,
     showMeeting,
     showCall,
+    showHistory,
     showContacts,
     showGlip,
     glipUnreadCounts,
@@ -58,7 +59,7 @@ export const MainViewPanel = (props) => {
         currentPath.indexOf('/calls/active') !== -1
       ),
     },
-    showCall && {
+    showCall && showHistory && {
       icon: CallHistoryIcon,
       activeIcon: CallHistoryHoverIcon,
       label: i18n.getString('historyLabel', currentLocale),

@@ -619,6 +619,8 @@ export function createPhone({
   disableConferenceInvite,
   disableGlip,
   disableMeeting,
+  disableContacts,
+  disableCallHistory,
   userAgent,
   analyticsKey,
   authProxy,
@@ -749,7 +751,7 @@ export function createPhone({
       {
         provide: 'FeatureConfiguration',
         useValue: {
-          CallLog: !disableCall,
+          CallLog: !disableCall && !disableCallHistory,
           RingOut: !disableCall,
           Softphone: !disableCall,
           WebPhone: !disableCall,
@@ -761,6 +763,7 @@ export function createPhone({
           Glip: !disableGlip,
           Meetings: !disableMeeting,
           RingtoneSettings: enableRingtoneSettings,
+          Contacts: !disableContacts,
           CDC: true, // CompanyDirectoryControl
         },
       },

@@ -31,11 +31,13 @@ function mapToProps(_, {
 
   const { currentLocale } = locale;
   const showContacts = appFeatures.ready && appFeatures.isContactsEnabled;
+  const showHistory = appFeatures.ready && appFeatures.hasReadExtensionCallLog;
 
   return {
     currentLocale,
     unreadCounts,
     showCall,
+    showHistory,
     showMessages,
     showConference,
     showMeeting,
