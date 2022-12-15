@@ -34,4 +34,22 @@ export default class NewAppFeatures extends AppFeatures {
       )
     );
   }
+
+  get hasPersonalContactsPermission() {
+    return (
+      this.config.Contacts && (
+        this.appScopes.indexOf('Contacts') > -1 ||
+        this.appScopes.indexOf('ReadContacts') > -1
+      )
+    );
+  }
+
+  get hasReadExtensionCallLog() {
+    return !!(
+      super.hasReadExtensionCallLog && (
+        this.appScopes.indexOf('ReadCallLog') > -1 ||
+        this.appScopes.indexOf('ReadCallRecording') > -1
+      )
+    );
+  }
 }

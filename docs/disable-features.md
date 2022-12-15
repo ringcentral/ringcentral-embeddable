@@ -30,9 +30,18 @@ Just pass `disableReadText` on adapter.js uri or iframe src uri.
 </iframe>
 ```
 
-## Disable Call releated features
+## Disable Call related features
 
 To pass `disableCall=true` on adapter.js uri or iframe src uri as upper example.
+
+## Disable Call history features
+
+To pass `disableCallHistory=true` on adapter.js uri or iframe src uri as upper example.
+
+## Disable Contacts features
+
+To pass `disableContacts=true` on adapter.js uri or iframe src uri as upper example.
+
 
 ## Disable Meeting feature
 

@@ -23,9 +23,13 @@ function getSyncParams(syncToken, pageId) {
 
 @Module({
   name: 'NewAddressBook',
-  deps: []
+  deps: ['AppFeatures'],
 })
 export default class NewAddressBook extends AddressBook {
+  constructor(options) {
+    super(options);
+    this._appFeatures = options.appFeatures;
+  }
   // override to fix rate limit issue when contacts count > 2500
   async _sync(syncToken, pageId, pageNum = 0) {
     const params = getSyncParams(syncToken, pageId);
@@ -44,5 +48,19 @@ export default class NewAddressBook extends AddressBook {
       ...lastResponse,
       records: response.records.concat(lastResponse.records),
     };
+  }
+
+  get _hasPermission() {
+    return (
+      super._hasPermission &&
+      this._appFeatures.hasPersonalContactsPermission
+    );
+  }
+
+  sync() {
+    if (!this._hasPermission) {
+      return;
+    }
+    return super.sync();
   }
 }
