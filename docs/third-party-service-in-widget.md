@@ -806,7 +806,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 After registering, you can get feedback link in settings page:
 
-![feedback](https://user-images.githubusercontent.com/7036536/218914115-43cc29ac-bbc0-43d8-bc5b-ae7d537e4295.png)
+![feedback](https://user-images.githubusercontent.com/7036536/218915001-89425b0f-9276-42cc-9d85-a810f69939c0.png)
 
 Add a message event to listen feedback link click event and handle that:
 
