@@ -32,7 +32,13 @@ if (enableDiscovery) {
 if (!authProxy && pathParams.appKey) {
   console.warn('appKey is deprecated, please change to clientId. https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
 }
-if (!authProxy && apiConfig.clientId && apiConfig.clientId === defaultApiConfig.appKey) {
+if (
+  !authProxy &&
+  apiConfig.clientId &&
+  apiConfig.clientId === defaultApiConfig.appKey &&
+  window.location.hostname === 'ringcentral.github.io'
+) {
+  // only show warning in github page build
   console.warn('Default RingCentral client id is deprecated, it is required to setup your own RingCentral Client Id, Please stop using it soon before it is completely removed. Please follow here to setup your own RingCentral app client id: https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
 }
 if (!authProxy && !apiConfig.clientId) {
