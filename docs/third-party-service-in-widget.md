@@ -28,6 +28,7 @@ This document show how the widget can interact with your application deeply.
     - [Add message log entity matcher](#add-message-log-entity-matcher)
   - [Add third party authorization button](#add-third-party-authorization-button)
   - [Third Party Settings](#third-party-settings)
+  - [Add feedback in settings](#add-feedback-in-settings)
   - [VCard Click handler](#vcard-click-handler)
 
 ## Register your service
@@ -782,6 +783,47 @@ window.addEventListener('message', function (e) {
         responseId: data.requestId,
         response: { data: 'ok' },
       }, '*');
+    }
+  }
+});
+```
+
+## Add feedback in settings
+
+For developer who want to add feedback feature, the app provides a API to show a feed link in settings page:
+
+First, register service with `feedbackPath`:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    feedbackPath: '/feedback',
+  }
+}, '*');
+```
+
+After registering, you can get feedback link in settings page:
+
+![feedback](https://user-images.githubusercontent.com/7036536/218914115-43cc29ac-bbc0-43d8-bc5b-ae7d537e4295.png)
+
+Add a message event to listen feedback link click event and handle that:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/feedback') {
+      
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+      // add your codes here to show your feedback form
+      console.log(data);
     }
   }
 });
