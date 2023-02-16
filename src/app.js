@@ -55,7 +55,7 @@ const externalAppVersion = pathParams.appVersion || appVersion;
 const {
   stylesUri,
   userAgent,
-  analyticsKey,
+  enableAnalytics,
   enableErrorReport,
   authorizationCode,
   authorizationCodeVerifier,
@@ -132,7 +132,7 @@ const phone = createPhone({
   disableCallHistory,
   authProxy,
   userAgent,
-  analyticsKey,
+  enableAnalytics,
   errorReportEndpoint,
   errorReportSampleRate,
   recordingLink,

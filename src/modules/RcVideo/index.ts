@@ -32,7 +32,7 @@ export default class NewRcVideo extends RcVideo {
   }
 
   async createInstantMeeting() {
-    const meeting = await this.createMeeting({ type: 0 })
+    const meeting = await this.createMeeting({ type: 0 });
     return meeting;
   }
 

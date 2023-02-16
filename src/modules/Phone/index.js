@@ -7,7 +7,6 @@ import RcModule from '@ringcentral-integration/commons/lib/RcModule';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 
 import AvailabilityMonitor from '@ringcentral-integration/commons/modules/AvailabilityMonitor';
-import { Analytics } from '@ringcentral-integration/commons/modules/Analytics';
 import { AccountInfo } from '@ringcentral-integration/commons/modules/AccountInfoV2';
 import ActivityMatcher from '@ringcentral-integration/commons/modules/ActivityMatcher';
 // import ActiveCalls from '@ringcentral-integration/commons/modules/ActiveCalls';
@@ -20,7 +19,7 @@ import { ThemeUI } from '@ringcentral-integration/widgets/modules/ThemeUI';
 
 // import AudioSettings from '@ringcentral-integration/commons/modules/AudioSettings';
 import BlockedNumber from '@ringcentral-integration/commons/modules/BlockedNumber';
-import Call from '@ringcentral-integration/commons/modules/Call';
+import { Call } from '@ringcentral-integration/commons/modules/CallV2';
 import CallMonitor from '@ringcentral-integration/commons/modules/CallMonitor';
 import ConnectivityMonitor from '@ringcentral-integration/commons/modules/ConnectivityMonitor';
 import ContactMatcher from '@ringcentral-integration/commons/modules/ContactMatcher';
@@ -135,6 +134,8 @@ import RcVideo from '../RcVideo';
 import GenericMeeting from '../GenericMeeting';
 import DialerUI from '../DialerUI';
 import CallControlUI from '../CallControlUI';
+
+import { Analytics } from '../Analytics';
 
 import hackSend from '../../lib/hackSend';
 import lockRefresh from '../../lib/lockRefresh';
@@ -622,7 +623,7 @@ export function createPhone({
   disableContacts,
   disableCallHistory,
   userAgent,
-  analyticsKey,
+  enableAnalytics,
   authProxy,
   errorReportEndpoint,
   errorReportSampleRate,
@@ -770,12 +771,11 @@ export function createPhone({
       {
         provide: 'AnalyticsOptions',
         useValue: {
-          analyticsKey,
+          enableAnalytics: !!enableAnalytics,
           appName: (userAgent ? userAgent.split('/')[0] : brandConfig.appName),
           appVersion,
           brandCode: brandConfig.brandCode,
         },
-        spread: true,
       },
       {
         provide: 'ErrorLoggerOptions',
@@ -798,7 +798,6 @@ export function createPhone({
         useValue: {
           permissionCheck: false,
         },
-        spread: true,
       },
       {
         provide: 'CallingSettingsOptions',

@@ -322,6 +322,7 @@ export default function App({
                       const formattedMeetingInfo = formatMeetingInfo(
                         resp, phone.brand, phone.locale.currentLocale, phone.genericMeeting.isRCV
                       );
+                      phone.analytics.track('Meeting Scheduled');
                       if (phone.thirdPartyService.meetingInviteTitle) {
                         await phone.thirdPartyService.inviteMeeting(formattedMeetingInfo);
                         return;
