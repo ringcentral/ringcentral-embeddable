@@ -40,12 +40,22 @@ export class LoginWindow {
     await this._targetPage.click('button.btn-primary');
   }
 
+  async confirmEmergencyDigitalLine() {
+    await this._targetPage.waitForFunction(
+      'document.querySelector("body").innerText.includes("Registered Address")'
+    );
+    await this._targetPage.waitForFunction(
+      `!!document.querySelector('div[data-test-automation-id="multiSelect"]')`
+    );
+    await this._targetPage.click('button[data-test-automation-id="buttonAccept"]');
+  }
+
   async authorize() {
     await this._targetPage.waitForFunction(
       'document.querySelector("body").innerText.includes("Access Request")'
     );
     await this._targetPage.click('button.btn-primary');
     await this._targetPage.waitForTimeout(200);
-    await this.confirmEmergencyAddress();
+    await this.confirmEmergencyDigitalLine();
   }
 }

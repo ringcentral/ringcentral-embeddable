@@ -12,7 +12,9 @@ describe('Index page test', () => {
   });
 
   it('should display "RingCentral Embeddable" text on page', async () => {
-    expect(page).toMatch('RingCentral Embeddable');
+    const title = await page.$eval('h1', (el) => el.innerText);
+    expect(title).toContain('RingCentral Embeddable');
+    await page.waitForTimeout(100000);
   });
 
   it('should get SignIn in widget iframe', async () => {
