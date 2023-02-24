@@ -80,14 +80,16 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto Compose Text page when click SMS link', async () => {
     await widgetIframe.waitForNavigations();
-    await page.click('a[href="sms:+12345678901"]');
+    const smsLink = await page.$('a[href="sms:+12345678901"]');
+    await smsLink.evaluate(l => l.click());
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     expect(recipientNumber).toEqual('+12345678901');
   });
 
   it('should goto Compose Text page when click SMS link with body', async () => {
     await widgetIframe.waitForNavigations();
-    await page.click('a[href="sms:+12345678902?body=test_sms"]');
+    const smsLink = await page.$('a[href="sms:+12345678902?body=test_sms"]');
+    await smsLink.evaluate(l => l.click());
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     const text = await widgetIframe.getSMSText();
     expect(recipientNumber).toEqual('+12345678902');

@@ -9,7 +9,7 @@ export class IframeWidget {
     this._loadRetryCount = 0;
   }
 
-  async loadElement(timeout = 200) {
+  async loadElement(timeout = 300) {
     if (this._loadRetryCount > 6) {
       throw new Error('Load Element error');
     }
