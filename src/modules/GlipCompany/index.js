@@ -10,6 +10,10 @@ export default class NewGlipCompany extends GlipCompany {
   constructor({ appFeatures, ...options }) {
     super(options);
     this._appFeatures = appFeatures;
+    this._fetchFunction = async () => {
+      const response = await this._client.service.platform().get('/team-messaging/v1/companies/~');
+      return response;
+    };
   }
 
   // TODO: update permission check in widgets lib
