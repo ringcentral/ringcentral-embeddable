@@ -21,7 +21,7 @@ describe('Embeddable', () => {
       })();
     });
     const widgetIframe = new IframeWidget();
-    await widgetIframe.loadElement(2000);
+    await widgetIframe.loadElement();
     await widgetIframe.waitForLoginPage();
     await page.waitForTimeout(1000);
     const loginText = await widgetIframe.getLoginButtonText();

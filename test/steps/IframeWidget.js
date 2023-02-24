@@ -9,19 +9,11 @@ export class IframeWidget {
     this._loadRetryCount = 0;
   }
 
-  async loadElement(timeout = 300) {
-    if (this._loadRetryCount > 6) {
-      throw new Error('Load Element error');
-    }
-    await this._targetPage.waitForSelector('iframe#rc-widget-adapter-frame');
-    await this._targetPage.waitForTimeout(timeout);
+  async loadElement() {
+    await this._targetPage.waitForSelector('iframe#rc-widget-adapter-frame', { timeout: 300000 });
+    await this._targetPage.waitForTimeout(3000);
     const iframes = await this._targetPage.frames();
     this._widgetIframe = iframes.find((f) => f.name() === 'rc-widget-adapter-frame');
-    if (!this._widgetIframe) {
-      this._loadRetryCount += 1;
-      await this.loadElement();
-    }
-    this._loadRetryCount = 0;
   }
 
   async waitForLoginPage() {
