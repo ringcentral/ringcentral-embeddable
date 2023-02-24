@@ -12,7 +12,7 @@ export default class NewGlipCompany extends GlipCompany {
     this._appFeatures = appFeatures;
     this._fetchFunction = async () => {
       const response = await this._client.service.platform().get('/team-messaging/v1/companies/~');
-      return response;
+      return response.json();
     };
   }
 
