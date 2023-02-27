@@ -7,6 +7,7 @@ module.exports = {
   launch: {
     product: 'chrome',
     dumpio: true,
+    ignoreHTTPSErrors: true,
     args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--disable-features=IsolateOrigins,site-per-process'],
     headless: process.env.TEST_HEADLESS === 'true'
   },

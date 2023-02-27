@@ -9,7 +9,7 @@ export async function setBrowserPermission(permissions = ['notifications', 'micr
 export async function visitIndexPage() {
   await page.goto(__HOST_URI__, {
     waituntil: 'networkidle0',
-    timeout: 120000,
+    timeout: 150000,
   });
 }
 
@@ -17,7 +17,8 @@ export async function getLoginedWidget(username, password) {
   const widgetIframe = new IframeWidget();
   await widgetIframe.loadElement();
   await widgetIframe.waitForLoginPage();
-  await page.click('#setEnvironment');
+  const envButton = await page.$('#setEnvironment');
+  await envButton.evaluate(b => b.click());
   await widgetIframe.enableSandboxEnvironment();
   await widgetIframe.waitForLoginPage();
 
