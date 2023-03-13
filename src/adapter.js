@@ -80,6 +80,7 @@ const {
   enablePopup,
   popupPageUri,
   enableRingtoneSettings,
+  showSignUpButton
 } = parseUri(paramsUri);
 
 function obj2uri(obj) {
@@ -137,6 +138,7 @@ const appUri = `${appUrl}?${obj2uri({
   fromAdapter: 1,
   fromPopup,
   enableRingtoneSettings,
+  showSignUpButton,
   _t: Date.now(),
 })}`;
 

@@ -52,4 +52,8 @@ export default class NewAppFeatures extends AppFeatures {
       )
     );
   }
+
+  get showSignUpButton(){
+    return !!this.config.SignUpButton;
+  }
 }

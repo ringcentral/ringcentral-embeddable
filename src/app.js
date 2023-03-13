@@ -70,6 +70,7 @@ const {
   enableWebRTCPlanB,
   brand,
   enableRingtoneSettings,
+  showSignUpButton
 } = pathParams;
 
 const defaultBrand = brand || process.env.BRAND;
@@ -151,6 +152,7 @@ const phone = createPhone({
   fromPopup,
   enableRingtoneSettings,
   brandBaseUrl: process.env.HOSTING_URL ? process.env.HOSTING_URL : url.resolve(window.location.href, './'),
+  showSignUpButton,
 });
 
 const store = createStore(phone.reducer);
