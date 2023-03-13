@@ -643,6 +643,7 @@ export function createPhone({
   fromPopup,
   enableRingtoneSettings,
   brandBaseUrl,
+  showSignUpButton,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -765,7 +766,8 @@ export function createPhone({
           Meetings: !disableMeeting,
           RingtoneSettings: enableRingtoneSettings,
           Contacts: !disableContacts,
-          CDC: true, // CompanyDirectoryControl
+          CDC: true, // CompanyDirectoryControl,
+          SignUpButton: showSignUpButton
         },
       },
       {

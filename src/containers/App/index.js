@@ -127,7 +127,7 @@ export default function App({
               <Route
                 path="/"
                 component={() => (
-                  <LoginPage>
+                  <LoginPage showSignUp={phone.appFeatures.showSignUpButton}>
                     <AlertContainer
                       callingSettingsUrl="/settings/calling"
                       regionSettingsUrl="/settings/region"
