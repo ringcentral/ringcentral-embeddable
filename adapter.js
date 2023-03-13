@@ -25289,7 +25289,8 @@ var _parseUri = parseCallbackUri(paramsUri),
     discoverAppServer = _parseUri.discoverAppServer,
     enablePopup = _parseUri.enablePopup,
     popupPageUri = _parseUri.popupPageUri,
-    enableRingtoneSettings = _parseUri.enableRingtoneSettings;
+    enableRingtoneSettings = _parseUri.enableRingtoneSettings,
+    showSignUpButton = _parseUri.showSignUpButton;
 
 function obj2uri(obj) {
   if (!obj) {
@@ -25348,6 +25349,7 @@ var appUri = "".concat(appUrl, "?").concat(obj2uri({
   fromAdapter: 1,
   fromPopup: fromPopup,
   enableRingtoneSettings: enableRingtoneSettings,
+  showSignUpButton: showSignUpButton,
   _t: Date.now()
 }));
 
