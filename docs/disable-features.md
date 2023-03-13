@@ -120,3 +120,7 @@ By default, we provide Minimize button at app header to minimize the widget. To 
   })();
 </script>
 ```
+
+## Enable sign up button on login page
+
+Just pass `showSignUpButton` on adapter.js uri or iframe src uri.
