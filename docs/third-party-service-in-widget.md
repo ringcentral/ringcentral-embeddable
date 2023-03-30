@@ -249,7 +249,7 @@ window.addEventListener('message', function (e) {
       // if syncTimestamp existed, please only return updated contacts after syncTimestamp
       // response to widget:
       const contacts = [{
-        id: '123456', // id to identify third party contact
+        id: '123456', // id to identify third party contact, need to be string
         name: 'TestService Name', // contact name
         type: 'TestService', // need to same as service name
         phoneNumbers: [{
