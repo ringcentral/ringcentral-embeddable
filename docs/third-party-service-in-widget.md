@@ -259,6 +259,7 @@ window.addEventListener('message', function (e) {
         company: 'CompanyName',
         jobTitle: 'Engineer',
         emails: ['test@email.com'],
+        profileImageUrl: 'https://avatar_uri', // optional, show avatar in Contacts page
         deleted: false, // set deleted to true if you need to delete it in updated contacts
       }];
       // pass nextPage number when there are more than one page data, widget will repeat same request with nextPage increased
