@@ -10,7 +10,7 @@ import RegionSettingsPage from '@ringcentral-integration/widgets/containers/Regi
 import DialerPage from '@ringcentral-integration/widgets/containers/DialerPage';
 import ComposeTextPage from '@ringcentral-integration/widgets/containers/ComposeTextPage';
 import { IncomingCallContainer } from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
-import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
+// import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
 import LoginPage from '@ringcentral-integration/widgets/containers/LoginPage';
 import AudioSettingsPage from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
@@ -38,6 +38,7 @@ import ConnectivityBadgeContainer from '@ringcentral-integration/widgets/contain
 
 import GenericMeetingPage from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
 
+import CallCtrlPage from '../CallCtrlPage';
 import MeetingTabContainer from '../MeetingTabContainer';
 import MeetingHistoryPage from '../MeetingHistoryPage';
 import MeetingHomePage from '../MeetingHomePage';

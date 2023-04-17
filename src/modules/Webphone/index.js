@@ -455,6 +455,22 @@ export default class Webphone extends WebphoneBase {
     });
   }
 
+  // TODO: overide to fix warm transfer host call ended issue, wait fixed in widgets lib
+  _onCallEnd(session) {
+    const transferSession = this.sessions.find((s) => {
+      return (
+        s.warmTransferSessionId === session.id
+      );
+    });
+    if (transferSession) {
+      const originalTransferSession = this._sessions.get(transferSession.id);
+      if (originalTransferSession) {
+        delete originalTransferSession.__rc_transferSessionId;
+      }
+    }
+    super._onCallEnd(session);
+  }
+
   updateRecordStatus(sessionId, status) {
     const session = this._sessions.get(sessionId);
     if (!session) {
