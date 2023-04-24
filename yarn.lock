@@ -8210,9 +8210,9 @@ ringcentral-client@^1.0.0-beta.2:
     isomorphic-fetch "^2.2.1"
 
 ringcentral-web-phone@^0.8.6:
-  version "0.8.13"
-  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.8.13.tgz#f62745700dfbfad19fb8f03a5212847564c22be6"
-  integrity sha512-l9lfVDo6w9tCtBbKZDz8vOY8QRLufR8ltA5pTN0BJAHNQogGz5QyCUOhVDs3vasak4doGbl7vGb0E0B8CwdItw==
+  version "0.8.14"
+  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.8.14.tgz#134265e1f03656605682a470a2ce037e77851f8c"
+  integrity sha512-IxE8vYegFwb2WMirAObNs7/m7oxomfHhtsBnJyj46sx8rnj5VnSB6VJbKUmBUTluATGlWg+gnhT5iGlBYWW3BA==
   dependencies:
     sip.js "0.13.5"
 
