@@ -6,6 +6,7 @@ import callingOptions from '@ringcentral-integration/commons/modules/CallingSett
 import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
+import webphoneErrors from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
 import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
 import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumber';
 import { messageIsTextMessage } from '@ringcentral-integration/commons/lib/messageHelper';
@@ -806,7 +807,7 @@ export default class Adapter extends AdapterModuleCore {
         this._startRecord(id);
         break;
       case 'stopRecord':
-        this._webphone.stopRecord(id || this._webphone.activeSessionId);
+        this._stopRecord(id);
         break;
       case 'mute':
         this._webphone.mute(id || this._webphone.activeSessionId);
@@ -820,27 +821,82 @@ export default class Adapter extends AdapterModuleCore {
   }
 
   async _startRecord(id) {
-    const sessionId = id || this._webphone.activeSessionId;
-    let session = this._webphone.sessions.find(s => s.id === sessionId);
-    if (session && session.recordStatus !== recordStatus.idle) {
+    const webphoneSessionId = id || this._webphone.activeSessionId;
+    let webphoneSession = this._webphone.sessions.find(s => s.id === webphoneSessionId);
+    if (!webphoneSession) {
+      return;
+    }
+    const telephonySessionId = webphoneSession.partyData && webphoneSession.partyData.sessionId;
+    const telephonySession = this._activeCallControl.getActiveSession(telephonySessionId);
+    const currentRecordStatus = telephonySession ? telephonySession.recordStatus : webphoneSession.recordStatus;
+    if (currentRecordStatus !== recordStatus.idle) {
       this._postMessage({
         type: 'rc-control-call-error',
         error: 'RecordError',
         message: "Can't record at current status",
-        callId: sessionId,
+        callId: webphoneSessionId,
       });
       return;
     }
-    await this._webphone.startRecord(sessionId);
-    session = this._webphone.sessions.find(s => s.id === sessionId);
-    if (session && session.recordStatus !== recordStatus.recording) {
+    if (!telephonySession) {
+      await this._webphone.stopRecord(webphoneSessionId);
+      return;
+    }
+    try {
+      this._webphone.updateRecordStatus(webphoneSessionId, recordStatus.pending);
+      await this._activeCallControl.startRecord(telephonySessionId);
+      this._webphone.updateRecordStatus(webphoneSessionId, recordStatus.recording);
+    } catch (e) {
+      this._alert.danger({
+        message: webphoneErrors.recordError,
+        payload: {
+          errorCode: e.message,
+        },
+      });
+      this._webphone.updateRecordStatus(webphoneSessionId, recordStatus.idle);
+    }
+  }
+
+  async _stopRecord(id) {
+    const webphoneSessionId = id || this._webphone.activeSessionId;
+    let webphoneSession = this._webphone.sessions.find(s => s.id === webphoneSessionId);
+    if (!webphoneSession) {
+      return;
+    }
+    const telephonySessionId = webphoneSession.partyData && webphoneSession.partyData.sessionId;
+    const telephonySession = this._activeCallControl.getActiveSession(telephonySessionId);
+    const currentRecordStatus = telephonySession ? telephonySession.recordStatus : webphoneSession.recordStatus;
+    if (currentRecordStatus !== recordStatus.recording) {
       this._postMessage({
         type: 'rc-control-call-error',
         error: 'RecordError',
-        message: "Record error, please try again",
-        callId: sessionId,
+        message: "Can't stop record at current status",
+        callId: webphoneSessionId,
       });
       return;
+    }
+    if (!telephonySession) {
+      await this._webphone.stopRecord(webphoneSessionId);
+      return;
+    }
+    try {
+      this._webphone.updateRecordStatus(webphoneSessionId, recordStatus.pending);
+      await this._activeCallControl.stopRecord(telephonySessionId);
+      this._webphone.updateRecordStatus(webphoneSessionId, recordStatus.idle);
+    } catch (e) {
+      if (e.response && e.response.status === 403) {
+        this._alert.danger({
+          message: 'stopRecordDisabled',
+        });
+      } else {
+        this._alert.danger({
+          message: webphoneErrors.recordError,
+          payload: {
+            errorCode: e.message,
+          },
+        });
+      }
+      this._webphone.updateRecordStatus(webphoneSessionId, recordStatus.recording);
     }
   }
 

@@ -12,7 +12,7 @@ export function getAlertRenderer() {
       return () => 'Sorry, app can\'t open popup window when there are active calls.';
     }
     if (message.message === 'stopRecordDisabled') {
-      return () => 'Sorry, stopping recording is not supported for this call.';
+      return () => 'Sorry, stopping recording is not supported for this call. Please contact your account administrator to enable "Allow mute in auto recording".';
     }
     if (message.message === 'showCustomAlertMessage') {
       return () => message.payload.alertMessage;
