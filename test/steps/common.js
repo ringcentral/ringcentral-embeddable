@@ -1,5 +1,4 @@
 const { IframeWidget } = require('./IframeWidget');
-const { LoginWindow } = require('./LoginWindow');
 
 export async function setBrowserPermission(permissions = ['notifications', 'microphone']) {
   const context = browser.defaultBrowserContext();
@@ -13,7 +12,7 @@ export async function visitIndexPage() {
   });
 }
 
-export async function getLoginedWidget(username, password) {
+export async function getLoginedWidget(jwtToken) {
   const widgetIframe = new IframeWidget();
   await widgetIframe.loadElement();
   await widgetIframe.waitForLoginPage();
@@ -21,11 +20,7 @@ export async function getLoginedWidget(username, password) {
   await envButton.evaluate(b => b.click());
   await widgetIframe.enableSandboxEnvironment();
   await widgetIframe.waitForLoginPage();
-
-  const popupPage = await widgetIframe.clickLoginButtonToGetLoginWindow();
-  const popupWindow = new LoginWindow(popupPage, username, password);
-  await popupWindow.submitCredential();
-  await popupWindow.authorize();
+  await widgetIframe.loginWithCallbackUri(`${__HOST_URI__}/redirect.html?jwt=${jwtToken}`);
   await page.waitForTimeout(1000);
   return widgetIframe;
 }

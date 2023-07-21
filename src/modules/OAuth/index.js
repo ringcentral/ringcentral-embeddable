@@ -102,6 +102,10 @@ export default class OAuth extends OAuthBase {
         await this._auth.wapLogin(callbackUri);
         return;
       }
+      if (query.jwt) {
+        await this._auth.jwtLogin(query.jwt);
+        return;
+      }
       if (query.code_verifier) {
         // TODO: remove this when we have a better way to handle the code verifier
         this._client.service.platform()._codeVerifier = query.code_verifier;
