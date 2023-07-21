@@ -4,7 +4,7 @@ const {
   getLoginedWidget,
 } = require('./steps/common');
 
-const hasUserLoginInfo = global.__USER_PASSWORD__ && global.__USER_NAME__;
+const hasUserLoginInfo = global.__JWT_TOKEN__;
 if (!hasUserLoginInfo) {
   console.log('THOSE TESTS ARE SKIPED BECAUSE NO USER LOGIN INFO PROVIDED');
 }
@@ -16,7 +16,7 @@ conditionalDescribe('widget page test', () => {
   beforeAll(async () => {
     await setBrowserPermission();
     await visitIndexPage();
-    widgetIframe = await getLoginedWidget(__USER_NAME__, __USER_PASSWORD__);
+    widgetIframe = await getLoginedWidget(__JWT_TOKEN__);
   });
 
   it('should login successfully', async () => {

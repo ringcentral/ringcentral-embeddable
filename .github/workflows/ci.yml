@@ -22,11 +22,11 @@ jobs:
         env:
           TEST_HEADLESS: true
           TEST_HOST_URI: http://localhost:8080
-          TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
-          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-          API_KEY: ${{ secrets.API_KEY }}
-          API_SERVER: ${{ secrets.API_SERVER }}
+          TEST_JWT_TOKEN: ${{ secrets.TEST_JWT_TOKEN }}
           TEST_THIRD_PARTY_URI: https://ringcentral-tutorials.github.io/ringcentral-embeddable-demos/
+          API_KEY: ${{ secrets.TEST_API_KEY }}
+          API_SECRET: ${{ secrets.TEST_API_SECRET }}
+          API_SERVER: ${{ secrets.API_SERVER }}
   build:
     needs: test
     if: ${{ github.ref == 'refs/heads/master' }}

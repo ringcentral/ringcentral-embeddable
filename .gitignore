@@ -11,4 +11,5 @@ api.json
 release
 build
 .env
+.env.test
 extension

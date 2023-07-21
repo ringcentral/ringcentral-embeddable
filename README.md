@@ -139,7 +139,7 @@ $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
 2. Create a RingCentral app with app type - "**Web browser (Javascript)**"
-3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Glip`, `VoIP Calling` and `Call Control` to your app.
+3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `TeamMessaging`, `VoIP Calling` and `Call Control` to your app.
 4. Add redirect uri `http://localhost:8080/redirect.html` to your app settings.
 
 ### Create environment variables file in project root path
@@ -149,13 +149,7 @@ Create `.env` file in project root path:
 ```
 API_KEY=your_ringcentral_app_client_id
 API_SERVER=ringcentral sever url, eg: https://platform.devtest.ringcentral.com
-TEST_HOST_URI=http://localhost:8080
-TEST_USER_NAME=your_sandbox_account_phone_number
-TEST_USER_PASSWORD=your_sandbox_account_password
-TEST_HEADLESS=false
 ```
-
-`TEST_*` variables is optional for automatic test, you can just keep it blank before you run automatic tests.
 
 ### Start development server
 
@@ -172,7 +166,16 @@ Open site: 'http://localhost:8080/' on browser
 
 ### Run Tests
 
-You need to update `.env` file to add environment variables for test as mentioned in previous section.
+You need to create `.env.test` file based on `.env.test.default`. The client id should support JWT grant authorization. And create [JWT token](https://developers.ringcentral.com/guide/authentication/jwt/quick-start) for your test user and the client id.
+
+```
+API_KEY=your_ringcentral_test_app_client_id
+API_SECRET=your_ringcentral_test_app_client_secret
+API_SERVER=ringcentral sever url, eg: https://platform.devtest.ringcentral.com
+TEST_JWT_TOKEN=JWT_TOKEN_for_test_account_and_test_app_client_id
+TEST_HOST_URI=http://localhost:8080
+TEST_HEADLESS=false
+```
 
 ```
 yarn test

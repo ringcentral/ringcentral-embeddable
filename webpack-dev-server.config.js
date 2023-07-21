@@ -7,7 +7,10 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-require('dotenv').config();
+const envFile = process.env.ON_TEST ? '.env.test' : '.env';
+require('dotenv').config({
+  path: path.resolve(__dirname, envFile),
+});
 
 const { version } = require('./package');
 const getBaseConfig = require('./getWebpackBaseConfig');

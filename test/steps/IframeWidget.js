@@ -12,12 +12,22 @@ export class IframeWidget {
   async loadElement() {
     await this._targetPage.waitForSelector('iframe#rc-widget-adapter-frame', { timeout: 300000 });
     await this._targetPage.waitForTimeout(3000);
-    const iframes = await this._targetPage.frames();
-    this._widgetIframe = iframes.find((f) => f.name() === 'rc-widget-adapter-frame');
+    const iframeElement = await this._targetPage.$('iframe#rc-widget-adapter-frame');
+    this._widgetIframe = await iframeElement.contentFrame();
   }
 
   async waitForLoginPage() {
     await this._widgetIframe.waitForSelector('button[data-sign="loginButton"]:not([disabled])');
+  }
+
+  async loginWithCallbackUri(callbackUri) {
+    await page.evaluate((callbackUri) => {
+      const iframe = document.querySelector("#rc-widget-adapter-frame").contentWindow;
+      iframe.postMessage({
+        type: 'rc-adapter-authorization-code',
+        callbackUri,
+      }, '*');
+    }, callbackUri);
   }
 
   async enableSandboxEnvironment() {

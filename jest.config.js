@@ -1,4 +1,8 @@
-require('dotenv').config();
+const path = require('path');
+
+require('dotenv').config({
+  path: path.resolve(__dirname, '.env.test'),
+});
 
 module.exports = {
   setupFiles: [
@@ -8,8 +12,7 @@ module.exports = {
   preset: 'jest-puppeteer',
   globals: {
     __HOST_URI__: process.env.TEST_HOST_URI,
-    __USER_NAME__: process.env.TEST_USER_NAME,
-    __USER_PASSWORD__: process.env.TEST_USER_PASSWORD,
+    __JWT_TOKEN__: process.env.TEST_JWT_TOKEN,
     __THIRD_PARTY_URI__: process.env.TEST_THIRD_PARTY_URI,
   },
   testMatch: [
