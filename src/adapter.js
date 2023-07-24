@@ -80,7 +80,8 @@ const {
   enablePopup,
   popupPageUri,
   enableRingtoneSettings,
-  showSignUpButton
+  showSignUpButton,
+  defaultDirection,
 } = parseUri(paramsUri);
 
 function obj2uri(obj) {
@@ -157,6 +158,7 @@ function init() {
     disableMinimize,
     enablePopup,
     popupPageUri,
+    defaultDirection,
   });
 }
 

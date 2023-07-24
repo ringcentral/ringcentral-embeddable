@@ -1,4 +1,4 @@
-# New adapter UI
+# Adapter/Widget UI
 
 In adapter JS way, our codes will generate a `RingCentral Badge` in web page by default:
 
@@ -15,6 +15,21 @@ To switch UI with `newAdapterUI` params:
   (function() {
     var rcs = document.createElement("script");
     rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?newAdapterUI=1";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+## Default direction
+
+The widget is showed at right bottom by default. To change it into left bottom:
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?defaultDirection=left";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
