@@ -24484,7 +24484,9 @@ var Adapter = /*#__PURE__*/function (_AdapterCore) {
         enablePopup = _ref$enablePopup === void 0 ? false : _ref$enablePopup,
         _ref$disableMinimize = _ref.disableMinimize,
         disableMinimize = _ref$disableMinimize === void 0 ? false : _ref$disableMinimize,
-        popupPageUri = _ref.popupPageUri;
+        popupPageUri = _ref.popupPageUri,
+        _ref$defaultDirection = _ref.defaultDirection,
+        defaultDirection = _ref$defaultDirection === void 0 ? 'right' : _ref$defaultDirection;
 
     _classCallCheck(this, Adapter);
 
@@ -24497,7 +24499,7 @@ var Adapter = /*#__PURE__*/function (_AdapterCore) {
       container: container,
       styles: (styles_default()),
       messageTypes: Adapter_messageTypes,
-      defaultDirection: 'right'
+      defaultDirection: defaultDirection
     }));
     _this._messageTypes = Adapter_messageTypes;
     _this._zIndex = zIndex;
@@ -25290,7 +25292,8 @@ var _parseUri = parseCallbackUri(paramsUri),
     enablePopup = _parseUri.enablePopup,
     popupPageUri = _parseUri.popupPageUri,
     enableRingtoneSettings = _parseUri.enableRingtoneSettings,
-    showSignUpButton = _parseUri.showSignUpButton;
+    showSignUpButton = _parseUri.showSignUpButton,
+    defaultDirection = _parseUri.defaultDirection;
 
 function obj2uri(obj) {
   if (!obj) {
@@ -25368,7 +25371,8 @@ function init() {
     fromPopup: !!fromPopup,
     disableMinimize: disableMinimize,
     enablePopup: enablePopup,
-    popupPageUri: popupPageUri
+    popupPageUri: popupPageUri,
+    defaultDirection: defaultDirection
   });
 }
 
