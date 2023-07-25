@@ -40,6 +40,7 @@ class Adapter extends AdapterCore {
     enablePopup = false,
     disableMinimize = false,
     popupPageUri,
+    defaultDirection = 'right',
   } = {}) {
     const container = document.createElement('div');
     container.id = prefix;
@@ -50,7 +51,7 @@ class Adapter extends AdapterCore {
       container,
       styles,
       messageTypes,
-      defaultDirection: 'right',
+      defaultDirection,
     });
     this._messageTypes = messageTypes;
     this._zIndex = zIndex;
