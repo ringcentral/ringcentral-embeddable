@@ -3,7 +3,7 @@
 Developer should config the Widget to use their own RingCentral app client id.
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
-2. Create a RingCentral app with app type - "**Web browser (Javascript)**"
+2. Register a RingCentral REST API app with Auth type - "**3-legged OAuth Client-side web app**"
 3. And add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Call Control` and `VoIP Calling` to your app.
 4. Add redirect uri `https://ringcentral.github.io/ringcentral-embeddable/redirect.html` to your app settings. You can also [customize redirect uri](customize-redirect-uri.md)
 
@@ -44,7 +44,7 @@ For RingCentral app in RingCentral developer website, the initial environment is
 For Embeddable app, we need to have full usages with your sandbox client id for graduation requirements:
 
 * Send more than 5 SMS messages
-* Send more than 5 internal messages (message to extension number in current account)
+* Send more than 5 internal messages (SMS message to extension number in current account)
 * Read more than 5 unread inbound messages
 * Update presence more than 5 times in setting page
 * Go to Contacts page, and click refresh button more than 5 times
