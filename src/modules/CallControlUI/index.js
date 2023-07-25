@@ -47,10 +47,11 @@ export default class CallControlUI extends CallControlUIBase {
     if (telephonySessionId && appFeatures.hasCallControl) {
       const telephonySession = activeCallControl.getActiveSession(telephonySessionId);
       if (telephonySession) {
-        return telephonySessionId;
+        const isConferenceCall = telephonySession.to === 'conference';
+        return [telephonySessionId, isConferenceCall];
       }
     }
-    return null;
+    return [null, false];
   }
 
   getUIFunctions(options) {
@@ -63,8 +64,8 @@ export default class CallControlUI extends CallControlUIBase {
           activeCallControl,
           webphone
         } = this._deps;
-        const telephonySessionId = this._getTelephonySessionId(sessionId);
-        if (telephonySessionId) {
+        const [telephonySessionId, isConferenceCall] = this._getTelephonySessionId(sessionId);
+        if (telephonySessionId && !isConferenceCall) {
           try {
             webphone.updateRecordStatus(sessionId, recordStatus.pending);
             await activeCallControl.startRecord(telephonySessionId);
@@ -88,8 +89,8 @@ export default class CallControlUI extends CallControlUIBase {
           activeCallControl,
           webphone
         } = this._deps;
-        const telephonySessionId = this._getTelephonySessionId(sessionId);
-        if (telephonySessionId) {
+        const [telephonySessionId, isConferenceCall] = this._getTelephonySessionId(sessionId);
+        if (telephonySessionId && !isConferenceCall) {
           try {
             webphone.updateRecordStatus(sessionId, recordStatus.pending);
             await activeCallControl.stopRecord(telephonySessionId);

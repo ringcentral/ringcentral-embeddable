@@ -838,8 +838,8 @@ export default class Adapter extends AdapterModuleCore {
       });
       return;
     }
-    if (!telephonySession) {
-      await this._webphone.stopRecord(webphoneSessionId);
+    if (!telephonySession || telephonySession.to === 'conference') {
+      await this._webphone.startRecord(webphoneSessionId);
       return;
     }
     try {
@@ -875,7 +875,7 @@ export default class Adapter extends AdapterModuleCore {
       });
       return;
     }
-    if (!telephonySession) {
+    if (!telephonySession || telephonySession.to === 'conference') {
       await this._webphone.stopRecord(webphoneSessionId);
       return;
     }
