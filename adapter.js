@@ -25220,7 +25220,7 @@ if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype
   NodeList.prototype.forEach = Array.prototype.forEach;
 }
 
-var version = "1.8.7";
+var version = "1.8.8";
 var currentScript = document.currentScript;
 var adapterName = "adapter.js";
 
