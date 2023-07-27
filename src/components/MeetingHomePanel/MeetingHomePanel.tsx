@@ -5,9 +5,7 @@ import classnames from 'classnames';
 import Modal from '@ringcentral-integration/widgets/components/Modal';
 import TextInput from '@ringcentral-integration/widgets/components/TextInput';
 
-import Schedule from '@ringcentral/juno/icon/Schedule';
-import Start from '@ringcentral/juno/icon/Start';
-import Join from '@ringcentral/juno/icon/Join';
+import { Schedule, Start, Join } from '@ringcentral/juno-icon';
 
 import UpcomingMeetingList from '../UpcomingMeetingList';
 
@@ -71,6 +69,9 @@ const MeetingHomePanel = (props) => {
             size='medium'
             color='label.red01'
             className={classnames(styles.iconButton, styles.schedule)}
+            IconProps={{
+              size: 'medium',
+            }}
           />
           <label>Schedule</label>
         </div>
@@ -80,6 +81,9 @@ const MeetingHomePanel = (props) => {
             size='medium'
             color='label.green01'
             className={classnames(styles.iconButton, styles.start)}
+            IconProps={{
+              size: 'medium',
+            }}
           />
           <label>Start</label>
         </div>
@@ -89,6 +93,9 @@ const MeetingHomePanel = (props) => {
             size='medium'
             color='label.blue01'
             className={classnames(styles.iconButton, styles.join)}
+            IconProps={{
+              size: 'medium',
+            }}
           />
           <label>Join</label>
         </div>

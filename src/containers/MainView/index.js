@@ -9,7 +9,6 @@ function mapToProps(_, {
     messageStore,
     appFeatures,
     routerInteraction,
-    conference,
     glipGroups,
     glipCompany,
     genericMeeting,
@@ -19,11 +18,6 @@ function mapToProps(_, {
   const unreadCounts = messageStore.unreadCounts || 0;
   const showCall = appFeatures.ready && appFeatures.isCallingEnabled;
   const showMessages = appFeatures.ready && appFeatures.hasReadMessagesPermission;
-  const showConference = (
-    appFeatures.ready &&
-    appFeatures.hasConferencing &&
-    conference.data
-  );
   const showMeeting = (
     appFeatures.ready &&
     appFeatures.hasMeetingsPermission
@@ -39,7 +33,6 @@ function mapToProps(_, {
     showCall,
     showHistory,
     showMessages,
-    showConference,
     showMeeting,
     isRCV: genericMeeting.isRCV,
     showContacts,

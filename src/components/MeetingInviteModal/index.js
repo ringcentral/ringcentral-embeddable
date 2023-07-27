@@ -5,7 +5,7 @@ import CopyToClipboard from '@ringcentral-integration/widgets/components/CopyToC
 import Modal from '@ringcentral-integration/widgets/components/Modal';
 
 import i18n from '@ringcentral-integration/widgets/components/AlertRenderer/MeetingAlert/i18n';
-import meetingStatus from '@ringcentral-integration/commons/modules/Meeting/meetingStatus';
+import { meetingStatus } from '@ringcentral-integration/commons/modules/Meeting/meetingStatus';
 
 import styles from './styles.scss';
 

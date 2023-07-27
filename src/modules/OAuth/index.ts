@@ -1,78 +1,59 @@
-import OAuthBase from '@ringcentral-integration/widgets/modules/OAuth';
-import authMessages from '@ringcentral-integration/commons/modules/Auth/authMessages';
+import { OAuth as OAuthBase } from '@ringcentral-integration/widgets/modules/OAuth';
+import { authMessages } from '@ringcentral-integration/commons/modules/Auth/authMessages';
 import parseCallbackUri from '@ringcentral-integration/widgets/lib/parseCallbackUri';
 import { Module } from '@ringcentral-integration/commons/lib/di';
+import { watch } from '@ringcentral-integration/core';
 
 @Module({
   name: 'OAuth',
-  deps: [
-    'Client',
-    { dep: 'OAuthOptions', optional: true }
-  ]
+  deps: []
 })
-export default class OAuth extends OAuthBase {
-  constructor({
-    authorizationCode,
-    authorizationCodeVerifier,
-    disableLoginPopup = false,
-    jwt,
-    ...options
-  }) {
-    super(options);
-    this._authorizationCode = authorizationCode;
-    this._authorizationCodeVerifier = authorizationCodeVerifier;
-    this._disableLoginPopup = disableLoginPopup;
-    this._jwt = jwt;
+export class OAuth extends OAuthBase {
+  protected _authorizationCode?: string;
+  protected _authorizationCodeVerifier?: string;
+  protected _disableLoginPopup?: boolean;
+  protected _jwt?: string;
+
+  constructor(deps) {
+    super(deps);
+    this._authorizationCode = deps.oAuthOptions.authorizationCode;
+    this._authorizationCodeVerifier = deps.oAuthOptions.authorizationCodeVerifier;
+    this._disableLoginPopup = deps.oAuthOptions.disableLoginPopup;
+    this._jwt = deps.oAuthOptions.jwt;
   }
 
-  async _onStateChange() {
-    if (
-      this.pending &&
-      (
-        this._auth.ready &&
-        this._locale.ready &&
-        this._alert.ready &&
-        (!this._tabManager || this._tabManager.ready)
-      )
-    ) {
-      this.store.dispatch({
-        type: this.actionTypes.init,
-      });
-      if (!this._auth.loggedIn && this._authorizationCode) {
-        await this._silentLoginWithCode()
-      }
-      if (!this._auth.loggedIn && this._jwt) {
-        await this._auth.jwtLogin(this._jwt);
-      }
-      this.store.dispatch({
-        type: this.actionTypes.initSuccess,
-      });
-    }
-    if (
-      this.ready &&
-      !this._auth.loggedIn &&
-      this._routerInteraction.currentPath === this._loginPath &&
-      !this.oAuthReady
-    ) {
-      this.setupOAuth();
-    }
-    if (
-      this._auth.loggedIn ||
-      this._routerInteraction.currentPath !== this._loginPath
-    ) {
-      this.destroyOAuth();
-    }
+  override onInitOnce() {
+    super.onInitOnce();
+    watch(
+      this,
+      () => this.ready,
+      async () => {
+        if (!this.ready) {
+          return;
+        }
+        if (this._deps.auth.loggedIn) {
+          return;
+        }
+        if (this._authorizationCode) {
+          await this._silentLoginWithCode();
+          return;
+        }
+        if (this._jwt) {
+          await this._deps.auth.jwtLogin(this._jwt);
+        }
+      },
+    );
   }
 
   async _silentLoginWithCode() {
     try {
       if (this._authorizationCodeVerifier) {
         // TODO: remove this when we have a better way to handle the code verifier
-        this._client.service.platform()._codeVerifier = this._authorizationCodeVerifier;
+        this._deps.client.service.platform()._codeVerifier = this._authorizationCodeVerifier;
       }
       await this._loginWithCallbackQuery({
         code: this._authorizationCode,
-        code_verifier: this._authorizationCodeVerifier
+        // code_verifier: this._authorizationCodeVerifier
       });
     } catch (e) {
       console.error(e);
@@ -82,33 +63,33 @@ export default class OAuth extends OAuthBase {
   get oAuthUri() {
     const query = {
       redirectUri: this.redirectUri,
-      brandId: this._brand.id,
+      brandId: this._deps.brand.id,
       state: this.authState,
       display: 'page',
-      implicit: this._auth.isImplicit,
-      localeId: this._locale.currentLocale,
+      implicit: this._deps.auth.isImplicit,
+      localeId: this._deps.locale.currentLocale,
       uiOptions: ['hide_remember_me', 'hide_tos']
     };
     if (query.brandId === "1210") {
       delete query.brandId; // don't remove this, for support private apps from no RC US brand
     }
-    return this._auth.getLoginUrl(query);
+    return this._deps.auth.getLoginUrl(query);
   }
 
   async _handleCallbackUri(callbackUri, refresh = false) {
     try {
       const query = parseCallbackUri(callbackUri);
-      if (this._auth.useWAP) {
-        await this._auth.wapLogin(callbackUri);
+      if (this._deps.auth.useWAP) {
+        await this._deps.auth.wapLogin(callbackUri);
         return;
       }
       if (query.jwt) {
-        await this._auth.jwtLogin(query.jwt);
+        await this._deps.auth.jwtLogin(query.jwt);
         return;
       }
       if (query.code_verifier) {
         // TODO: remove this when we have a better way to handle the code verifier
-        this._client.service.platform()._codeVerifier = query.code_verifier;
+        this._deps.client.service.platform()._codeVerifier = query.code_verifier;
       }
       if (refresh) {
         await this._refreshWithCallbackQuery(query);
@@ -138,7 +119,7 @@ export default class OAuth extends OAuthBase {
           break;
       }
       if (message) {
-        this._alert.danger({
+        this._deps.alert.danger({
           message,
           payload: error,
         });
@@ -148,8 +129,8 @@ export default class OAuth extends OAuthBase {
 
   async openOAuthPage() {
     if (this._disableLoginPopup) {
-      if (this._client.service.platform().discovery()) {
-        await this._client.service.platform().loginUrlWithDiscovery();
+      if (this._deps.client.service.platform().discovery()) {
+        await this._deps.client.service.platform().loginUrlWithDiscovery();
       }
       window.parent.postMessage({
         type: 'rc-login-popup-notify',

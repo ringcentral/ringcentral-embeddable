@@ -2,7 +2,7 @@ import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import moduleStatuses from '@ringcentral-integration/commons/enums/moduleStatuses';
 import { presenceStatus as presenceStatusEnum } from '@ringcentral-integration/commons/enums/presenceStatus.enum';
 import { dndStatus as dndStatusEnum } from '@ringcentral-integration/commons/modules/Presence/dndStatus';
-import callingOptions from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
+import { callingOptions } from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
 import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
@@ -12,7 +12,7 @@ import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumbe
 import { messageIsTextMessage } from '@ringcentral-integration/commons/lib/messageHelper';
 
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import callingModes from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
+import { callingModes } from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 
 import AdapterModuleCore from '@ringcentral-integration/widgets/lib/AdapterModuleCore';
@@ -260,12 +260,13 @@ export default class Adapter extends AdapterModuleCore {
     this._webphone.onCallResume((session) => {
       this.resumeCallNotify(session);
     });
-    this._webphone.onActiveWebphoneChanged((event) => {
-      this.activeWebphoneNotify(event);
-    });
-    this._activeCallControl.onSessionUpdated((session) => {
-      this.telephonySessionNotify(session);
-    });
+    // TODO: xxx
+    // this._webphone.onActiveWebphoneChanged((event) => {
+    //   this.activeWebphoneNotify(event);
+    // });
+    // this._activeCallControl.onSessionUpdated((session) => {
+    //   this.telephonySessionNotify(session);
+    // });
     this._webphoneConnectionStatus = null;
   }
 

@@ -1,59 +1,57 @@
-import AddressBook from '@ringcentral-integration/commons/modules/AddressBook';
+import { AddressBook as AddressBookBase } from '@ringcentral-integration/commons/modules/AddressBook';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import sleep from '@ringcentral-integration/commons/lib/sleep';
-import syncTypes from '@ringcentral-integration/commons/enums/syncTypes';
+import { sleep } from '@ringcentral-integration/utils';
 
-const CONTACTS_PER_PAGE = 250;
-
-function getSyncParams(syncToken, pageId) {
-  const query = {
-    perPage: CONTACTS_PER_PAGE,
-  };
-  if (syncToken) {
-    query.syncToken = syncToken;
-    query.syncType = syncTypes.iSync;
-  } else {
-    query.syncType = syncTypes.fSync;
-  }
-  if (pageId) {
-    query.pageId = pageId;
-  }
-  return query;
-}
 
 @Module({
   name: 'NewAddressBook',
   deps: ['AppFeatures'],
 })
-export default class NewAddressBook extends AddressBook {
-  constructor(options) {
-    super(options);
-    this._appFeatures = options.appFeatures;
+export class AddressBook extends AddressBookBase {
+  constructor(deps) {
+    super(deps);
+    this._source._props.permissionCheckFunction = () => this._hasPermission;
   }
+
   // override to fix rate limit issue when contacts count > 2500
-  async _sync(syncToken, pageId, pageNum = 0) {
-    const params = getSyncParams(syncToken, pageId);
-    const response = await this._syncAddressBookApi(params);
-    if (!response.nextPageId) {
-      return response;
+  async _sync() {
+    try {
+      const syncToken = this.syncToken;
+      const perPage = this._perPage;
+      let records = [];
+      // @ts-expect-error
+      let response = await this._fetch(perPage, syncToken);
+      records = records.concat(response.records ?? []);
+      let pageNum = 0;
+      while (response.nextPageId) {
+        const fetchInterval = pageNum > 3 ? 6000 : 2000; 
+        await sleep(fetchInterval);
+        // @ts-expect-error
+        response = await this._fetch(perPage, syncToken, response.nextPageId);
+        records = records.concat(response.records ?? []);
+        pageNum += 1;
+      }
+      if (response.syncInfo!.syncType === 'ISync') {
+        // @ts-expect-error
+        records = this._processISyncData(records);
+      }
+      return {
+        syncToken: response.syncInfo!.syncToken,
+        records,
+      };
+    } catch (error) {
+      if (error?.response?.status === 403) {
+        return {};
+      }
+      throw error;
     }
-    const nextPage = pageNum + 1;
-    if (nextPage > 3) {
-      await sleep(6000);
-    } else {
-      await sleep(2000);
-    }
-    const lastResponse = await this._sync(syncToken, response.nextPageId, nextPage);
-    return {
-      ...lastResponse,
-      records: response.records.concat(lastResponse.records),
-    };
   }
 
   get _hasPermission() {
+    const hasFeature = this._deps.extensionFeatures.features?.ReadPersonalContacts?.available ?? false;
     return (
-      super._hasPermission &&
-      this._appFeatures.hasPersonalContactsPermission
+      hasFeature &&
+      this._deps.appFeatures.hasPersonalContactsPermission
     );
   }
 

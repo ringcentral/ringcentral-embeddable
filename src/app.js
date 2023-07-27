@@ -102,16 +102,6 @@ const disableCallHistory = typeof pathParams.disableCallHistory !== 'undefined';
 const prefix = pathParams.prefix || defaultPrefix;
 const fromAdapter = !!pathParams.fromAdapter;
 const fromPopup = !!pathParams.fromPopup;
-let _errorReportToken = null;
-if (enableErrorReport) {
-  _errorReportToken = process.env.ERROR_REPORT_KEY;
-}
-if (pathParams.errorReportToken) {
-  _errorReportToken = pathParams.errorReportToken;
-}
-const errorReportSampleRate = pathParams.errorReportSampleRate || '0.1';
-const errorReportProjectId = pathParams.errorReportProjectId || '16';
-const errorReportEndpoint = (_errorReportToken && `http://${_errorReportToken}@ec2-13-124-226-35.ap-northeast-2.compute.amazonaws.com/${errorReportProjectId}`) || null;
 
 const recordingLink = process.env.RECORDING_LINK;
 
@@ -134,8 +124,6 @@ const phone = createPhone({
   authProxy,
   userAgent,
   enableAnalytics,
-  errorReportEndpoint,
-  errorReportSampleRate,
   recordingLink,
   authorizationCode,
   jwt,

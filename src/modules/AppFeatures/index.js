@@ -1,13 +1,11 @@
-import { AppFeatures } from '@ringcentral-integration/commons/modules/AppFeatures';
+import { AppFeatures as AppFeaturesBase } from '@ringcentral-integration/commons/modules/AppFeatures';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   name: 'AppFeatures',
-  deps: [
-    { dep: 'RolesAndPermissionsOptions', optional: true }
-  ]
+  deps: []
 })
-export default class NewAppFeatures extends AppFeatures {
+export class AppFeatures extends AppFeaturesBase {
   get ringtonePermission() {
     return !!this.config.RingtoneSettings;
   }

@@ -1,35 +1,27 @@
-import GlipCompany from '@ringcentral-integration/commons/modules/GlipCompany';
+import { GlipCompany as GlipCompanyBase } from '@ringcentral-integration/commons/modules/GlipCompany';
 import { Module } from '@ringcentral-integration/commons/lib/di';
+import { t } from '@ringcentral-integration/widgets/components/RegionSettingsPanel/i18n';
 
 @Module({
-  deps: [
-    'AppFeatures',
-  ],
+  deps: [],
 })
-export default class NewGlipCompany extends GlipCompany {
-  constructor({ appFeatures, ...options }) {
-    super(options);
-    this._appFeatures = appFeatures;
-  }
-
-  // TODO: update permission check in widgets lib
-  get _hasPermission() {
-    return !!this._appFeatures.hasGlipPermission;
-  }
-
-  // TODO: hack for 400 error (Company associated with RC account is not found)
-  async _fetchWithForbiddenCheck() {
-    try {
-      const data = await super._fetchWithForbiddenCheck();
-      return data;
-    } catch (error) {
-      if (
-        error &&
-        error.message === 'Company associated with RC account is not found'
-      ) {
-        return {};
+export class GlipCompany extends GlipCompanyBase {
+  constructor(deps) {
+    super(deps);
+    // TODO: remove this when handled in widget lib
+    this._source._props.fetchFunction = async () => {
+      try {
+        const response = await deps.client.glip().companies('~').get();
+        return response;
+      } catch (error) {
+        if (
+          error &&
+          error.message === 'Company associated with RC account is not found'
+        ) {
+          return {};
+        }
+        throw error;
       }
-      throw error;
-    }
+    };
   }
 }

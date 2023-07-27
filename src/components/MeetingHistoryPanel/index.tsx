@@ -3,7 +3,7 @@ import classnames from 'classnames';
 
 import { RcTextField, RcSelect, RcIcon, RcMenuItem, RcCircularProgress } from '@ringcentral/juno';
 
-import Search from '@ringcentral/juno/icon/Search';
+import { Search } from '@ringcentral/juno-icon';
 
 import MeetingItem from '../MeetingItem';
 import styles from './styles.scss';

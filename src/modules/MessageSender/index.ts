@@ -3,7 +3,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
   MessageSender as MessageSenderBase,
   messageSenderStatus,
-} from '@ringcentral-integration/commons/modules/MessageSenderV2';
+} from '@ringcentral-integration/commons/modules/MessageSender';
 
 @Module({
   name: 'MessageSender',

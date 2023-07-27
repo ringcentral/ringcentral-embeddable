@@ -1,42 +1,35 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import RcUIModule from '@ringcentral-integration/widgets/lib/RcUIModule';
+import { RcUIModuleV2 } from '@ringcentral-integration/core';
 
 @Module({
   name: 'MeetingHomeUI',
   deps: ['GenericMeeting', 'Locale', 'RouterInteraction'],
 })
-export default class MeetingHomeUI extends RcUIModule {
-  private _genericMeeting: any;
-  private _locale: any;
-  private _router: any;
-
-  constructor({ genericMeeting, locale, routerInteraction, ...options }) {
+export class MeetingHomeUI extends RcUIModuleV2 {
+  constructor(deps) {
     super({
-      ...options,
+      deps,
     });
-    this._genericMeeting = genericMeeting;
-    this._locale = locale;
-    this._router = routerInteraction;
   }
 
   getUIProps() {
     return {
-      currentLocale: this._locale.ready && this._locale.currentLocale,
+      currentLocale: this._deps.locale.ready && this._deps.locale.currentLocale,
       showSpinner: !(
-        this._genericMeeting.ready &&
-        this._locale.ready
+        this._deps.genericMeeting.ready &&
+        this._deps.locale.ready
       ),
-      upcomingMeetings: this._genericMeeting.upcomingMeetings,
+      upcomingMeetings: this._deps.genericMeeting.upcomingMeetings,
     };
   }
 
   getUIFunctions() {
     return {
       gotoSchedule: () => {
-        this._router.push('/meeting/schedule');
+        this._deps.routerInteraction.push('/meeting/schedule');
       },
       onStart: async () => {
-        const { meeting } = (await this._genericMeeting.createInstantMeeting()) || {};
+        const { meeting } = (await this._deps.genericMeeting.createInstantMeeting()) || {};
         if (meeting) {
           window.open(meeting.joinUri);
         }
@@ -52,7 +45,7 @@ export default class MeetingHomeUI extends RcUIModule {
         window.open(`https://v.ringcentral.com/join/${meetingID}`);
       },
       fetchUpcomingMeetings: () => {
-        return this._genericMeeting.fetchUpcomingMeetings();
+        return this._deps.genericMeeting.fetchUpcomingMeetings();
       },
     };
   }

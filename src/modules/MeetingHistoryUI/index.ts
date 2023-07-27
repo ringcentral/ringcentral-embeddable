@@ -1,42 +1,44 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
-import RcUIModule from '@ringcentral-integration/widgets/lib/RcUIModule';
-
-import getReducer from './getReducer';
-import actionTypes from './actionTypes';
+import {
+  RcUIModuleV2,
+  state,
+  action,
+} from '@ringcentral-integration/core';
 
 @Module({
   name: 'MeetingHistoryUI',
   deps: ['GenericMeeting', 'Locale', 'DateTimeFormat'],
 })
-export default class MeetingHistoryUI extends RcUIModule {
-  private _genericMeeting: any;
-  private _locale: any;
-  private _dateTimeFormat: any;
-  
-  _reducer: any;
-
-  constructor({ genericMeeting, locale, dateTimeFormat, ...options }) {
+export class MeetingHistoryUI extends RcUIModuleV2 {
+  constructor(deps) {
     super({
-      ...options,
-      actionTypes: actionTypes,
+      deps,
     });
-    this._reducer = getReducer(this.actionTypes);
-    this._genericMeeting = genericMeeting;
-    this._locale = locale;
-    this._dateTimeFormat = dateTimeFormat;
   }
+
+  @state
+  fetching = false;
+
+  @state
+  pageToken = null;
+
+  @state
+  type = 'all';
+
+  @state
+  searchText = '';
 
   getUIProps() {
     return {
-      currentLocale: this._locale.ready && this._locale.currentLocale,
+      currentLocale: this._deps.locale.ready && this._deps.locale.currentLocale,
       showSpinner: !(
-        this._genericMeeting.ready &&
-        this._locale.ready &&
-        this._dateTimeFormat.ready
+        this._deps.genericMeeting.ready &&
+        this._deps.locale.ready &&
+        this._deps.dateTimeFormat.ready
       ) || (this.fetching && !this.pageToken),
       fetchingNextPage: (this.fetching && this.pageToken),
-      meetings: this._genericMeeting.historyMeetings,
+      meetings: this._deps.genericMeeting.historyMeetings,
       searchText: this.searchText,
       type: this.type,
     };
@@ -48,7 +50,7 @@ export default class MeetingHistoryUI extends RcUIModule {
         return this.fetchHistoryMeeting();
       },
       dateTimeFormatter: (startTime) => {
-        return this._dateTimeFormat.formatDateTime({
+        return this._deps.dateTimeFormat.formatDateTime({
           utcTimestamp: new Date(startTime).getTime(),
           type: 'long',
         });
@@ -62,20 +64,43 @@ export default class MeetingHistoryUI extends RcUIModule {
         window.open(`${host}/welcome/meetings/recordings/recording/${meetingId}`);
       },
       updateType: (type) => {
-        this.store.dispatch({
-          type: this.actionTypes.updateType,
-          meetingType: type,
-        });
+        this._updateType(type);
         this.fetchHistoryMeeting();
       },
       updateSearchText: (text) => {
-        this.store.dispatch({
-          type: this.actionTypes.updateSearchText,
-          searchText: text,
-        });
+        this._updateSearchText(text);
         this.onSearch();
       },
     };
+  }
+
+  @action
+  private _updateType(type) {
+    this.type = type;
+    this.pageToken = null;
+  }
+
+  @action
+  private _updateSearchText(text) {
+    this.searchText = text;
+    this.pageToken = null;
+  }
+
+  @action
+  private _onFetchMeetings(pageToken) {
+    this.fetching = true;
+    this.pageToken = pageToken || null;
+  }
+
+  @action
+  private _onFetchMeetingsSuccess(nextPageToken) {
+    this.fetching = false;
+    this.pageToken = nextPageToken;
+  }
+
+  @action
+  private _onFetchMeetingsError() {
+    this.fetching = false;
   }
 
   onSearch = debounce(this.fetchHistoryMeeting, 300, false)
@@ -87,41 +112,17 @@ export default class MeetingHistoryUI extends RcUIModule {
     if (pageToken === 'noNext') {
       return;
     }
-    this.store.dispatch({
-      type: this.actionTypes.fetchMeetings,
-      pageToken,
-    });
+    this._onFetchMeetings(pageToken);
     try {
-      const result = await this._genericMeeting.fetchHistoryMeetings({
+      const result = await this._deps.genericMeeting.fetchHistoryMeetings({
         pageToken,
         searchText: this.searchText,
         type: this.type,
       });
-      this.store.dispatch({
-        type: this.actionTypes.fetchMeetingsSuccess,
-        nextPageToken: result.paging.nextPageToken || 'noNext',
-      });
+      this._onFetchMeetingsSuccess(result.paging.nextPageToken || 'noNext');
     } catch (e) {
       console.error(e);
-      this.store.dispatch({
-        type: this.actionTypes.fetchMeetingsError,
-      });
+      this._onFetchMeetingsError();
     }
-  }
-
-  get fetching() {
-    return this.state.fetching;
-  }
-
-  get pageToken() {
-    return this.state.pageToken;
-  }
-
-  get searchText() {
-    return this.state.searchText;
-  }
-
-  get type() {
-    return this.state.type;
   }
 }

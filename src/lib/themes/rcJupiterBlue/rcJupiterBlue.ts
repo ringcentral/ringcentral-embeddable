@@ -65,9 +65,9 @@ const rcJupiterBlue = {
       textHint: 'rgba(255,255,255,0.88)',
     },
     disabled: {
-      b01: '#B5B9C5',
-      f01: '#FFFFFF',
-      f02: '#B5B9C5',
+      b01: '#E8E9ED',
+      f01: '#8D93A5',
+      f02: '#CED1D9',
     },
     error: {
       main: '#D63E39',
@@ -196,6 +196,10 @@ const rcJupiterBlue = {
       bg: '#656C80',
       mentioned: '#FF8800',
       text: '#FFFFFF',
+    },
+    umiteam: {
+      bg: '#2559E4',
+      mentioned: '#2559E4',
     },
     vDanger: {
       f01: '#DD6057',

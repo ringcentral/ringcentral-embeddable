@@ -1,6 +1,7 @@
-@import '~normalize-css/normalize.css';
+@import '~@ringcentral-integration/widgets/lib/commonStyles/normalize';
 @import '~@ringcentral-integration/widgets/lib/commonStyles/full-size';
 @import '~@ringcentral-integration/widgets/lib/commonStyles/colors';
+@import '~@ringcentral-integration/widgets/lib/commonStyles/font-lato';
 @import '~@ringcentral-integration/widgets/lib/commonStyles/fonts';
 
 :global div#viewport {
@@ -10,7 +11,7 @@
 
 body {
   background: #fff;
-  @include primary-font;
+  font-family: $font-family;
 }
 
 input {

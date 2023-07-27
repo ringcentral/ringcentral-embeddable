@@ -1,55 +1,42 @@
-import CallLogSectionModule from '@ringcentral-integration/widgets/modules/CallLogSection';
+import { CallLogSection as CallLogSectionBase } from '@ringcentral-integration/widgets/modules/CallLogSection';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 
 /**
  * @class CallLogSection
- * @extends {CallLogSectionModule}
+ * @extends {CallLogSectionBase}
  * @description Call log section popup managing module
  */
 @Module({
   deps: ['ThirdPartyService'],
 })
-export default class CallLogSection extends CallLogSectionModule {
-  constructor({
-    thirdPartyService,
-    ...options
-  }) {
-    super({
-      ...options
+export class CallLogSection extends CallLogSectionBase {
+  constructor(deps) {
+    super(deps);
+    this.addLogHandler({
+      logFunction: async (_identify, call, note) => {
+        try {
+          await this._deps.thirdPartyService.logCall({ call, note });
+          return true;
+        } catch (e) {
+          return false;
+        }
+      },
+      readyCheckFunction: () => this._deps.thirdPartyService.callLoggerRegistered,
+      onSuccess: () => this.closeLogSection(),
+      onError: () => null,
+      onUpdate: () => null, // TODO: update log section
     });
-    this._thirdPartyService = thirdPartyService;
   }
 
-  _readyCheckFunction() {
-    return this._thirdPartyService.callLoggerRegistered;
-  }
-
-  _onSuccess() {
-    this.closeLogSection();
-  }
-
-  _onError() {
-    return null;
-  }
-
-  async _logFunction(_identify, call, note) {
-    try {
-      await this._thirdPartyService.logCall({ call, note });
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  _showLogSection(identify, call) {
-    if (!this.show || identify !== this.currentIdentify) {
-      this.store.dispatch({
-        type: this.actionTypes.showLogSection,
-        identify,
-        call,
-      });
-    }
-  }
+  // _showLogSection(identify, call) {
+  //   if (!this.show || identify !== this.currentIdentify) {
+  //     this.store.dispatch({
+  //       type: this.actionTypes.showLogSection,
+  //       identify,
+  //       call,
+  //     });
+  //   }
+  // }
 
   async handleLogSection(call) {
     const { sessionId } = call;

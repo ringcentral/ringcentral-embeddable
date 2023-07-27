@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import SettingsPanel from '@ringcentral-integration/widgets/components/SettingsPanel';
-import { LinkLineItem } from '@ringcentral-integration/widgets/components/SettingsPanel/SettingItems/LinkLineItem';
+import { SettingsPanel } from '@ringcentral-integration/widgets/components/SettingsPanel';
+import { LinkLineItem } from '@ringcentral-integration/widgets/components/SettingsPanel/LinkLineItem';
 import AuthorizeSettingsSection from '../../components/AuthorizeSettingsSection';
 import ToggleSettings from '../../components/ToggleSettings';
 

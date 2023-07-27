@@ -1,5 +1,5 @@
 import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayouts';
-import CallCtrlContainerBase from '@ringcentral-integration/widgets/containers/CallCtrlPage/CallCtrlContainer';
+import { CallCtrlContainer as CallCtrlContainerBase } from '@ringcentral-integration/widgets/components/CallCtrlContainer';
 
 export default class CallCtrlContainer extends CallCtrlContainerBase {
   // TODO: override to fix page no re-render after warm transfer host call ended

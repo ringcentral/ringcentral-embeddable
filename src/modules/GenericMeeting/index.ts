@@ -1,12 +1,11 @@
-import GenericMeeting from '@ringcentral-integration/commons/modules/GenericMeeting';
+import { GenericMeeting as GenericMeetingBase } from '@ringcentral-integration/commons/modules/GenericMeeting';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { selector } from '@ringcentral-integration/commons/lib/selector';
 
 @Module({
   name: 'NewGenericMeeting',
   deps: []
 })
-export default class NewGenericMeeting extends GenericMeeting {
+export class GenericMeeting extends GenericMeetingBase {
   async fetchHistoryMeetings(params) {
     return (
       this._meetingModule && this._meetingModule.fetchHistoryMeetings(params)
@@ -22,7 +21,7 @@ export default class NewGenericMeeting extends GenericMeeting {
   }
 
   async addThirdPartyProvider(args) {
-    return this._rcVideo.addThirdPartyProvider(args);
+    return this._deps.rcVideo.addThirdPartyProvider(args);
   }
 
   async createInstantMeeting() {
@@ -39,32 +38,11 @@ export default class NewGenericMeeting extends GenericMeeting {
 
   protected get _meetingModule() {
     if (this.isRCM) {
-      return this._meeting;
+      return this._deps.meeting;
     }
     if (this.isRCV) {
-      return this._rcVideo;
+      return this._deps.rcVideo;
     }
     return null;
   }
-
-  // // TODO: fix password validate bug in widgets lib
-  // @selector
-  // meeting: any = [
-  //   () => this.meetingProviderType,
-  //   () => this._meetingModule && this._meetingModule.meeting,
-  //   () => {
-  //     if (!this._meetingModule) {
-  //       return {};
-  //     }
-  //     if (this.isRCM) {
-  //       return this._meetingModule.meeting;
-  //     }
-  //     if (this.isRCV) {
-  //       return {
-  //         ...this._meetingModule.meeting,
-  //         password: this._meetingModule.meeting.meetingPassword,
-  //       }
-  //     }
-  //   },
-  // ];
 }
