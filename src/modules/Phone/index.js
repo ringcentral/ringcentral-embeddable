@@ -26,7 +26,6 @@ import { Locale } from '@ringcentral-integration/commons/modules/Locale';
 import { NumberValidate } from '@ringcentral-integration/commons/modules/NumberValidate';
 import { SleepDetector } from '@ringcentral-integration/commons/modules/SleepDetector';
 import { Feedback } from '@ringcentral-integration/commons/modules/Feedback';
-import { Subscription } from '@ringcentral-integration/commons/modules/Subscription';
 
 // Base info modules
 import { AccountInfo } from '@ringcentral-integration/commons/modules/AccountInfo';
@@ -57,7 +56,6 @@ import { ConferenceCall } from '@ringcentral-integration/commons/modules/Confere
 import { Call } from '@ringcentral-integration/commons/modules/Call';
 import { CallMonitor } from '@ringcentral-integration/commons/modules/CallMonitor';
 import { RecentCalls } from '@ringcentral-integration/commons/modules/RecentCalls';
-import { ActiveCallControl } from '@ringcentral-integration/commons/modules/ActiveCallControl';
 
 // SMS related modules
 import { MessageStore } from '@ringcentral-integration/commons/modules/MessageStore';
@@ -102,8 +100,7 @@ import { Auth } from '../Auth';
 import { OAuth } from '../OAuth';
 import { DynamicBrand } from '../DynamicBrand';
 import { AppFeatures } from '../AppFeatures';
-
-// import { Subscription } from '../Subscription';  // TODO:
+import { Subscription } from '../Subscription';  // TODO: wsg subscription
 
 import { Environment } from '../Environment';
 import Adapter from '../Adapter';
@@ -115,7 +112,7 @@ import { SettingsUI } from '../SettingsUI';
 import { ConversationUI } from '../ConversationUI';
 import { ConversationsUI } from '../ConversationsUI';
 
-// import ActiveCallControl from '../ActiveCallControl'; // TODO:
+import { ActiveCallControl } from '../ActiveCallControl'; // TODO:
 import GlipGroups from '../GlipGroups';
 import { GlipCompany } from '../GlipCompany';
 import GlipPersons from '../GlipPersons';

@@ -264,9 +264,9 @@ export default class Adapter extends AdapterModuleCore {
     // this._webphone.onActiveWebphoneChanged((event) => {
     //   this.activeWebphoneNotify(event);
     // });
-    // this._activeCallControl.onSessionUpdated((session) => {
-    //   this.telephonySessionNotify(session);
-    // });
+    this._activeCallControl.onTelephonySessionUpdated((session) => {
+      this.telephonySessionNotify(session);
+    });
     this._webphoneConnectionStatus = null;
   }
 

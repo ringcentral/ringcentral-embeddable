@@ -1,4 +1,4 @@
-import { Subscription as SubscriptionBase } from '@ringcentral-integration/commons/modules/SubscriptionV2';
+import { Subscription as SubscriptionBase } from '@ringcentral-integration/commons/modules/Subscription';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 
 import { isFirefox } from '../../lib/isFirefox';
