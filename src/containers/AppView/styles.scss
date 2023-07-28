@@ -60,6 +60,14 @@ input {
   overflow: visible;
 }
 
+:global .ActiveCallPad_callCtrlButtonGroup {
+  height: 65%;
+}
+
+:global .ActiveCallPad_stopButtonGroup {
+  height: 35%;
+}
+
 div[class*="MuiCircularProgress-indeterminate"] {
   animation: MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
 }
