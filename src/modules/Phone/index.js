@@ -51,8 +51,6 @@ import { ContactSearch } from '@ringcentral-integration/commons/modules/ContactS
 // Call related modules
 import { Ringout } from '@ringcentral-integration/commons/modules/Ringout';
 import { Softphone } from '@ringcentral-integration/commons/modules/Softphone';
-import { Webphone } from '@ringcentral-integration/commons/modules/Webphone';
-import { ConferenceCall } from '@ringcentral-integration/commons/modules/ConferenceCall';
 import { Call } from '@ringcentral-integration/commons/modules/Call';
 import { CallMonitor } from '@ringcentral-integration/commons/modules/CallMonitor';
 import { RecentCalls } from '@ringcentral-integration/commons/modules/RecentCalls';
@@ -112,7 +110,7 @@ import { SettingsUI } from '../SettingsUI';
 import { ConversationUI } from '../ConversationUI';
 import { ConversationsUI } from '../ConversationsUI';
 
-import { ActiveCallControl } from '../ActiveCallControl'; // TODO:
+import { ActiveCallControl } from '../ActiveCallControl';
 import GlipGroups from '../GlipGroups';
 import { GlipCompany } from '../GlipCompany';
 import GlipPersons from '../GlipPersons';
@@ -125,8 +123,8 @@ import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
 import { CallHistory } from '../CallHistory';
 import { MessageSender } from '../MessageSender';
-// import Webphone from '../Webphone';  // TODO:
-// import ConferenceCall from '../ConferenceCall'; // TODO:
+import { Webphone } from '../Webphone';
+import { ConferenceCall } from '../ConferenceCall';
 
 import { MeetingInviteUI } from '../MeetingInviteModalUI';
 import { MeetingHistoryUI } from '../MeetingHistoryUI';
@@ -358,7 +356,6 @@ import lockRefresh from '../../lib/lockRefresh';
     },
     {
       provide: 'PresenceOptions',
-      spread: true,
       useValue: {
         disableCache: true, // fix: can't get active calls correctly when enable cache
       },
