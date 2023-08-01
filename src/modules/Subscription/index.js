@@ -1,6 +1,6 @@
 import { Subscription as SubscriptionBase } from '@ringcentral-integration/commons/modules/Subscription';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-
+import { debounce } from '@ringcentral-integration/commons/lib/debounce-throttle';
 import { isFirefox } from '../../lib/isFirefox';
 
 const SUBSCRIPTION_LOCK_KEY = 'subscription-creating-lock';
@@ -10,6 +10,21 @@ const SUBSCRIPTION_LOCK_KEY = 'subscription-creating-lock';
   deps: [],
 })
 export class Subscription extends SubscriptionBase {
+  constructor(deps) {
+    super(deps);
+
+    this._createSubscriptionWithLock = debounce({
+      fn: this._createSubscriptionWithLockWithDebounced,
+      threshold: 2000,
+      maxThreshold: 2000,
+    });
+    this._retry = debounce({
+      fn: this._createSubscriptionWithLockWithDebounced,
+      threshold: this._timeToRetry,
+      maxThreshold: this._timeToRetry,
+    });
+  }
+
   async _createSubscription() {
     await super._createSubscription();
     if (!navigator.locks || isFirefox() || !this._subscription) {
@@ -35,14 +50,16 @@ export class Subscription extends SubscriptionBase {
     };
   }
 
-  // TODO: remove this after sdk fixed, fix lock issue at firefox
-  async _createSubscriptionWithLock() {
+  // TODO: remove this after sdk fixed, fix lock issue at firefox and long delay issue
+  async _createSubscriptionWithLockWithDebounced() {
     if (!navigator?.locks?.request || isFirefox()) {
       await this._createSubscription();
     } else {
-      await navigator.locks.request(SUBSCRIPTION_LOCK_KEY, () =>
-        this._createSubscription(),
-      );
+      await navigator.locks.request(SUBSCRIPTION_LOCK_KEY, () => this._createSubscription());
     }
+  }
+
+  get _registerDelay() {
+    return 0; // no need to wait for register as we will wait for lock
   }
 }
