@@ -26,6 +26,7 @@ import { Locale } from '@ringcentral-integration/commons/modules/Locale';
 import { NumberValidate } from '@ringcentral-integration/commons/modules/NumberValidate';
 import { SleepDetector } from '@ringcentral-integration/commons/modules/SleepDetector';
 import { Feedback } from '@ringcentral-integration/commons/modules/Feedback';
+import { WebSocketSubscription } from '@ringcentral-integration/commons/modules/WebSocketSubscription';
 
 // Base info modules
 import { AccountInfo } from '@ringcentral-integration/commons/modules/AccountInfo';
@@ -98,7 +99,11 @@ import { Auth } from '../Auth';
 import { OAuth } from '../OAuth';
 import { DynamicBrand } from '../DynamicBrand';
 import { AppFeatures } from '../AppFeatures';
-import { Subscription } from '../Subscription';  // TODO: wsg subscription
+import { GenericSubscription as Subscription } from '../Subscription';  // TODO: wsg subscription
+import { RingCentralExtensions } from '../Subscription/RingCentralExtensions';
+import { PubnubReadyController } from '../Subscription/PubnubReadyController';
+import { WebSocketReadyController } from '../Subscription/WebSocketReadyController';
+import { PubnubSubscription } from '../Subscription/PubnubSubscription';
 
 import { Environment } from '../Environment';
 import Adapter from '../Adapter';
@@ -176,6 +181,11 @@ import lockRefresh from '../../lib/lockRefresh';
     { provide: 'ForwardingNumber', useClass: ForwardingNumber },
     { provide: 'ContactMatcher', useClass: ContactMatcher },
     { provide: 'Subscription', useClass: Subscription },
+    { provide: 'RingCentralExtensions', useClass: RingCentralExtensions },
+    { provide: 'PubnubReadyController', useClass: PubnubReadyController },
+    { provide: 'WebSocketReadyController', useClass: WebSocketReadyController },
+    { provide: 'PubnubSubscription', useClass: PubnubSubscription },
+    { provide: 'WebSocketSubscription', useClass: WebSocketSubscription },
     { provide: 'RegionSettings', useClass: RegionSettings },
     { provide: 'NumberValidate', useClass: NumberValidate },
     { provide: 'Webphone', useClass: Webphone },
@@ -358,6 +368,12 @@ import lockRefresh from '../../lib/lockRefresh';
       provide: 'PresenceOptions',
       useValue: {
         disableCache: true, // fix: can't get active calls correctly when enable cache
+      },
+    },
+    {
+      provide: 'RingCentralExtensionsOptions',
+      useValue: {
+        disconnectOnInactive: true,
       },
     },
   ]

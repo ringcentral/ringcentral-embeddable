@@ -7,9 +7,9 @@ const SUBSCRIPTION_LOCK_KEY = 'subscription-creating-lock';
 
 @Module({
   name: 'Subscription',
-  deps: [],
+  deps: ['PubnubReadyController'],
 })
-export class Subscription extends SubscriptionBase {
+export class PubnubSubscription extends SubscriptionBase {
   constructor(deps) {
     super(deps);
 
