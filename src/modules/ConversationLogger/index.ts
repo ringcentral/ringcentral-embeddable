@@ -11,7 +11,7 @@ import {
 export class ConversationLogger extends ConversationLoggerBase {
   constructor(deps) {
     super(deps);
-    deps.conversationLoggerOptions.logFunction = async (data) => {
+    this._logFunction = async (data) => {
       await this._doLog(data);
     };
   }
@@ -99,8 +99,11 @@ export class ConversationLogger extends ConversationLoggerBase {
     });
   }
 
-  async logConversation(options) {
-    super.logConversation({ ...options, triggerType: 'manual' });
+  async logConversation({
+    triggerType = 'auto',
+    ...options
+  } = {}) {
+    super.logConversation({ ...options, triggerType });
   }
 
   // @selector
