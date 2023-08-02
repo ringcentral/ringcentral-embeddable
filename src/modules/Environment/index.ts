@@ -16,40 +16,6 @@ import lockRefresh from '../../lib/lockRefresh';
   ]
 })
 export class Environment extends EnvironmentBase {
-  constructor(deps) {
-    super(deps);
-
-    this._migrateOldEnvironmentData();
-  }
-
-  _migrateOldEnvironmentData() {
-    try {
-      const prefix = this._deps.globalStorage.prefix;
-      const oldEnabledData = localStorage.getItem(`${prefix}-GlobalStorage-environmentEnabled`);
-      if (oldEnabledData) {
-        localStorage.removeItem(`${prefix}-GlobalStorage-environmentServer`);
-        const oldEnabled = JSON.parse(oldEnabledData).value;
-        if (oldEnabled) {
-          const oldServerData = localStorage.getItem(`${prefix}-GlobalStorage-environmentServer`) || '';
-          const oldServer = JSON.parse(oldServerData).value;
-          const oldClientIdData = localStorage.getItem(`${prefix}-GlobalStorage-environmentAppKey`) || '';
-          const oldClientId = JSON.parse(oldClientIdData).value;
-          const oldClientSecretData = localStorage.getItem(`${prefix}-GlobalStorage-environmentAppSecret`) || '';
-          const oldClientSecret = JSON.parse(oldClientSecretData).value;
-          this.setEnvData({
-            server: oldServer,
-            enabled: oldEnabled,
-            clientId: oldClientId,
-            clientSecret: oldClientSecret,
-            recordingHost: '',
-          });
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
   @globalStorage
   @state
   clientId = '';

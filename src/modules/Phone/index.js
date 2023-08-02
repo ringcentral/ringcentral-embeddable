@@ -13,8 +13,6 @@ import { Theme } from '@ringcentral-integration/commons/modules/Theme';
 import { ThemeUI } from '@ringcentral-integration/widgets/modules/ThemeUI';
 import { TabManager } from '@ringcentral-integration/commons/modules/TabManager';
 import { LocalForageStorage } from '@ringcentral-integration/commons/lib/LocalForageStorage';
-import { GlobalStorage } from '@ringcentral-integration/commons/modules/GlobalStorage';
-import { Storage } from '@ringcentral-integration/commons/modules/Storage';
 import { RouterInteraction } from '@ringcentral-integration/widgets/modules/RouterInteraction';
 import { DataFetcherV2 } from '@ringcentral-integration/commons/modules/DataFetcherV2';
 import { DateTimeFormat } from '@ringcentral-integration/commons/modules/DateTimeFormat';
@@ -97,6 +95,8 @@ import { GenericMeetingUI } from '@ringcentral-integration/widgets/modules/Gener
 
 import { Auth } from '../Auth';
 import { OAuth } from '../OAuth';
+import { GlobalStorage } from '../GlobalStorage';
+import { Storage } from '../Storage';
 import { DynamicBrand } from '../DynamicBrand';
 import { AppFeatures } from '../AppFeatures';
 import { GenericSubscription as Subscription } from '../Subscription';  // TODO: wsg subscription
@@ -104,18 +104,25 @@ import { RingCentralExtensions } from '../Subscription/RingCentralExtensions';
 import { PubnubReadyController } from '../Subscription/PubnubReadyController';
 import { WebSocketReadyController } from '../Subscription/WebSocketReadyController';
 import { PubnubSubscription } from '../Subscription/PubnubSubscription';
-
 import { Environment } from '../Environment';
-import Adapter from '../Adapter';
-import ThirdPartyService from '../ThirdPartyService';
+import { Analytics } from '../Analytics';
+import { SettingsUI } from '../SettingsUI';
+
+import { CallingSettings } from '../CallingSettings';
+import { CallLog } from '../CallLog';
+import { CallHistory } from '../CallHistory';
 import { CallLogger } from '../CallLogger';
 import { CallLogSection } from '../CallLogSection';
+import { Webphone } from '../Webphone';
+import { ConferenceCall } from '../ConferenceCall';
+import { ActiveCallControl } from '../ActiveCallControl';
+import { CallControlUI } from '../CallControlUI';
+
+import { MessageSender } from '../MessageSender';
 import { ConversationLogger } from '../ConversationLogger';
-import { SettingsUI } from '../SettingsUI';
 import { ConversationUI } from '../ConversationUI';
 import { ConversationsUI } from '../ConversationsUI';
 
-import { ActiveCallControl } from '../ActiveCallControl';
 import GlipGroups from '../GlipGroups';
 import { GlipCompany } from '../GlipCompany';
 import GlipPersons from '../GlipPersons';
@@ -123,22 +130,14 @@ import GlipPersons from '../GlipPersons';
 import { AddressBook } from '../AddressBook';
 import { CallQueues } from '../CallQueues';
 
-import { CallingSettings } from '../CallingSettings';
-
-import { CallLog } from '../CallLog';
-import { CallHistory } from '../CallHistory';
-import { MessageSender } from '../MessageSender';
-import { Webphone } from '../Webphone';
-import { ConferenceCall } from '../ConferenceCall';
-
 import { MeetingInviteUI } from '../MeetingInviteModalUI';
 import { MeetingHistoryUI } from '../MeetingHistoryUI';
 import { MeetingHomeUI } from '../MeetingHomeUI';
 import { RcVideo } from '../RcVideo';
 import { GenericMeeting } from '../GenericMeeting';
-import { CallControlUI } from '../CallControlUI';
 
-import { Analytics } from '../Analytics';
+import Adapter from '../Adapter';
+import ThirdPartyService from '../ThirdPartyService';
 
 import hackSend from '../../lib/hackSend';
 import lockRefresh from '../../lib/lockRefresh';
@@ -271,7 +270,7 @@ import lockRefresh from '../../lib/lockRefresh';
       provide: 'StorageOptions',
       useValue: {
         StorageProvider: LocalForageStorage, // IndexedDB
-        disableAllowInactiveTabsWrite: true,
+        disableInactiveTabsWrite: true,
       },
     },
     {

@@ -1,6 +1,5 @@
 import { GlipCompany as GlipCompanyBase } from '@ringcentral-integration/commons/modules/GlipCompany';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { t } from '@ringcentral-integration/widgets/components/RegionSettingsPanel/i18n';
 
 @Module({
   deps: [],
