@@ -354,9 +354,7 @@ export class Webphone extends WebphoneBase {
         if (!this._deps.tabManager.active) {
           return;
         }
-        if (this.connected) {
-          this._setStateOnUnregistered();
-        }
+        this._setStateOnUnregistered();
         this._setCurrentInstanceAsActiveWebphone();
       }
     }
