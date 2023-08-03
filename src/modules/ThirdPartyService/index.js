@@ -140,9 +140,6 @@ export default class ThirdPartyService extends RcModule {
         if (service.activitiesPath) {
           this._registerActivities(service);
         }
-        if (service.conferenceInviteTitle && service.conferenceInvitePath) {
-          this._registerConferenceInvite(service);
-        }
         if (service.meetingInviteTitle && service.meetingInvitePath) {
           this._registerMeetingInvite(service);
         }
@@ -263,14 +260,6 @@ export default class ThirdPartyService extends RcModule {
     this._contactMatcher.match({
       queries: queries.slice(0, 30),
       ignoreCache: true
-    });
-  }
-
-  _registerConferenceInvite(service) {
-    this._conferenceInvitePath = service.conferenceInvitePath;
-    this.store.dispatch({
-      type: this.actionTypes.registerConferenceInvite,
-      conferenceInviteTitle: service.conferenceInviteTitle,
     });
   }
 
@@ -662,17 +651,6 @@ export default class ThirdPartyService extends RcModule {
         return;
       }
       await requestWithPostMessage(this._activityPath, { activity });
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  async inviteConference(conference) {
-    try {
-      if (!this._conferenceInvitePath) {
-        return;
-      }
-      await requestWithPostMessage(this._conferenceInvitePath, { conference });
     } catch (e) {
       console.error(e);
     }
