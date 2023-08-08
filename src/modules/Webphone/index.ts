@@ -276,7 +276,11 @@ export class Webphone extends WebphoneBase {
 
   async _onActiveWebphoneIdChanged(newId) {
     if (newId === '-1') {
-      await sleep(1000); // wait 1s for tabManager get right active tab
+      let waitTime = 0;
+      while (!this._deps.tabManager.active && waitTime <= 1000) {
+        await sleep(200); // wait for active tab changed
+        waitTime += 200;
+      }
       // connect web phone when active web phone tab is removed and current tab is active
       if (this._deps.tabManager.active) {
         await this.connect({
@@ -285,6 +289,9 @@ export class Webphone extends WebphoneBase {
           skipTabActiveCheck: true,
         });
       }
+      return;
+    }
+    if (!newId) {
       return;
     }
     this._transport = this._multipleTabsTransport; // enable function proxify
@@ -391,6 +398,7 @@ export class Webphone extends WebphoneBase {
         return;
       }
       localStorage.setItem(this._activeWebphoneKey, '-1');
+      localStorage.removeItem(this._activeWebphoneKey);
       this._enableProxify();
       this._emitActiveWebphoneChangedEvent();
       return;
