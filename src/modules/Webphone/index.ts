@@ -90,7 +90,9 @@ export class Webphone extends WebphoneBase {
   override onInitOnce() {
     super.onInitOnce();
     if (this._multipleTabsSupport) {
-      this._syncStateFromStorage();
+      if (!this.isWebphoneActiveTab) {
+        this._syncStateFromStorage();
+      }
       this._initMultipleTabsStateSyncing();
       watch(
         this,
@@ -274,7 +276,7 @@ export class Webphone extends WebphoneBase {
 
   async _onActiveWebphoneIdChanged(newId) {
     if (newId === '-1') {
-      await sleep(200); // wait 200ms for tabManager get right active tab
+      await sleep(1000); // wait 1s for tabManager get right active tab
       // connect web phone when active web phone tab is removed and current tab is active
       if (this._deps.tabManager.active) {
         await this.connect({
@@ -431,7 +433,19 @@ export class Webphone extends WebphoneBase {
     if (!this._multipleTabsSupport) {
       this._removeCurrentInstanceFromActiveWebphone();
     }
-    super._onWebphoneUnregistered();
+    if (
+      this.disconnecting ||
+      this.inactiveDisconnecting ||
+      this.disconnected ||
+      this.inactive ||
+      !!this._stopWebphoneUserAgentPromise
+    ) {
+      // unregister by our app
+      return;
+    }
+    // unavailable, unregistered by some errors
+    this._setStateOnConnectError();
+    this._eventEmitter.emit(EVENTS.webphoneUnregistered);
   }
 
   // override
