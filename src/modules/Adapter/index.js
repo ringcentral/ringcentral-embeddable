@@ -70,27 +70,6 @@ function setOutputDeviceWhenCall(webphone, audioSettings) {
   }
 }
 
-// TODO: clear audio at web phone sdk
-function clearRingAudio(webphoneSdk) {
-  if (!webphoneSdk || !webphoneSdk.userAgent.audioHelper) {
-    return;
-  }
-  const audioHelper = webphoneSdk.userAgent.audioHelper;
-  const incomingAudio = audioHelper._audio[audioHelper._incoming];
-  const outgoingAudio = audioHelper._audio[audioHelper._outgoing];
-  // clear audio
-  if (!incomingAudio && !outgoingAudio) {
-    return;
-  }
-  if (incomingAudio) {
-    incomingAudio.src = '';
-  }
-  if (outgoingAudio) {
-    outgoingAudio.src = '';
-  }
-  audioHelper._audio = {};
-}
-
 @Module({
   name: 'Adapter',
   deps: [
@@ -218,7 +197,6 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallEnd((session) => {
       this.endCallNotify(session);
-      clearRingAudio(this._webphone._webphone);
     });
     this._webphone.onCallInit((session) => {
       this.initCallNotify(session);
@@ -238,7 +216,6 @@ export default class Adapter extends AdapterModuleCore {
           const newSession = this._webphone.sessions.find(s => s.id === session.id);
           this.muteCallNotify(newSession, false);
         });
-        clearRingAudio(this._webphone._webphone);
       }
     });
     this._webphone.onCallRing((session) => {
@@ -251,7 +228,6 @@ export default class Adapter extends AdapterModuleCore {
         !isOnHold(this._webphone.activeSession)
       ) {
         this._webphone._webphone.userAgent.audioHelper.playIncoming(false);
-        clearRingAudio(this._webphone._webphone);
       }
     });
     this._webphone.onCallHold((session) => {

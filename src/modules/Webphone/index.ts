@@ -13,6 +13,7 @@ import type { ObjectMapValue } from '@ringcentral-integration/core/lib/ObjectMap
 
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
 import { normalizeSession } from './helper';
+import { patchAudioHelper } from './patchAudioHelper';
 
 const EVENTS = ObjectMap.fromKeys([
   ...ObjectMap.keys(EVENTS_BASE),
@@ -491,5 +492,15 @@ export class Webphone extends WebphoneBase {
   async _removeWebphone() {
     this.stopAudio();
     await super._removeWebphone();
+  }
+
+  override loadAudio() {
+    if (this._webphone?.userAgent?.audioHelper) {
+      patchAudioHelper(this._webphone.userAgent.audioHelper);
+      this._webphone.userAgent.audioHelper.loadAudio({
+        incoming: this.incomingAudio,
+        outgoing: this.outgoingAudio,
+      });
+    }
   }
 }
