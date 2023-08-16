@@ -12,6 +12,7 @@ import { trackRouters } from './trackRouters';
 const FILTERED_EVENTS = [
   'WebRTC registration',
   'Meeting: Click Schedule/Meeting schedule page',
+  'Call: Outbound RingOut Call connected',
 ];
 
 function getHashId(id) {
@@ -157,6 +158,7 @@ export class Analytics extends AnalyticsBase {
       appName: 'RingCentral Embeddable',
       appVersion: this._deps.analyticsOptions.appVersion,
       brand: this._deps.brand.defaultConfig.code,
+      osPlatform: navigator.platform,
     };
   }
 
