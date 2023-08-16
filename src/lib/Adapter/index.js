@@ -154,7 +154,7 @@ class Adapter extends AdapterCore {
               onClick() {
                 window.focus();
               },
-              icon: null,
+              icon: this._iconEl && this._iconEl.src,
             });
           }
           break;
