@@ -107,6 +107,7 @@ import { PubnubSubscription } from '../Subscription/PubnubSubscription';
 import { Environment } from '../Environment';
 import { Analytics } from '../Analytics';
 import { SettingsUI } from '../SettingsUI';
+import { RingtoneSettingsUI } from '../RingtoneSettingsUI';
 
 import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
@@ -336,6 +337,7 @@ import lockRefresh from '../../lib/lockRefresh';
     { provide: 'FlipUI', useClass: FlipUI },
     { provide: 'TransferUI', useClass: TransferUI },
     { provide: 'RegionSettingsUI', useClass: RegionSettingsUI },
+    { provide: 'RingtoneSettingsUI', useClass: RingtoneSettingsUI },
     { provide: 'MeetingInviteUI', useClass: MeetingInviteUI },
     { provide: 'VideoConfiguration', useClass: VideoConfiguration },
     { provide: 'RcVideo', useClass: RcVideo },
@@ -776,10 +778,10 @@ export function createPhone({
       {
         provide: 'AnalyticsOptions',
         useValue: {
-          enableAnalytics: !!enableAnalytics,
-          appName: (userAgent ? userAgent.split('/')[0] : brandConfig.appName),
+          enableExternalAnalytics: !!enableAnalytics,
           appVersion,
-          brandCode: brandConfig.brandCode,
+          analyticsKey: process.env.SEGMENT_KEY,
+          analyticsSecretKey: process.env.ANALYTICS_SECRET_KEY,
         },
       },
       {
