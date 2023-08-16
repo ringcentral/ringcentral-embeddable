@@ -1,7 +1,7 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcVideo as RcVideoBase } from '@ringcentral-integration/commons/modules/RcVideo';
 
-import { action, state } from '@ringcentral-integration/core';
+import { action, state, track } from '@ringcentral-integration/core';
 
 @Module({
   name: 'NewRcVideo',
@@ -42,6 +42,7 @@ export class RcVideo extends RcVideoBase {
     this.upcomingMeetings = meetings;
   }
 
+  @track(() => ['Create instant meeting'])
   async createInstantMeeting() {
     const meeting = await this.createMeeting({ type: 0 });
     return meeting;

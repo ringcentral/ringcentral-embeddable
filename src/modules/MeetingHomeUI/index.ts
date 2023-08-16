@@ -1,5 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { RcUIModuleV2 } from '@ringcentral-integration/core';
+import { RcUIModuleV2, track } from '@ringcentral-integration/core';
 
 @Module({
   name: 'MeetingHomeUI',
@@ -38,15 +38,20 @@ export class MeetingHomeUI extends RcUIModuleV2 {
         if (!meetingID) {
           return;
         }
-        if (meetingID.indexOf('https://') === 0) {
-          window.open(meetingID);
-          return;
-        }
-        window.open(`https://v.ringcentral.com/join/${meetingID}`);
+        this._onJoinMeeting(meetingID);
       },
       fetchUpcomingMeetings: () => {
         return this._deps.genericMeeting.fetchUpcomingMeetings();
       },
     };
+  }
+
+  @track(() => ['Join Meeting'])
+  _onJoinMeeting(meetingID) {
+    if (meetingID.indexOf('https://') === 0) {
+      window.open(meetingID);
+      return;
+    }
+    window.open(`https://v.ringcentral.com/join/${meetingID}`);
   }
 }

@@ -90,6 +90,7 @@
     "@ringcentral/juno-icon": "^1.43.0",
     "@ringcentral/sdk": "^4.7.2",
     "@ringcentral/subscriptions": "^4.7.2",
+    "@segment/analytics-next": "^1.53.3",
     "dayjs": "^1.11.7",
     "classnames": "^2.2.5",
     "core-js": "^3.9.1",
