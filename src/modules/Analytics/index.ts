@@ -81,6 +81,9 @@ export class Analytics extends AnalyticsBase {
   }
 
   track(event, properties = {}) {
+    if (FILTERED_EVENTS.indexOf(event) !== -1) {
+      return;
+    }
     if (this._enableExternalAnalytics && window && window.parent) {
       window.parent.postMessage({
         type: 'rc-analytics-track',
@@ -89,9 +92,6 @@ export class Analytics extends AnalyticsBase {
       }, '*');
     }
     if (!this.analytics) {
-      return;
-    }
-    if (FILTERED_EVENTS.indexOf(event) !== -1) {
       return;
     }
     const trackProps = {
