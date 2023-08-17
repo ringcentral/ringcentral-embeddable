@@ -159,6 +159,7 @@ export class Analytics extends AnalyticsBase {
       appVersion: this._deps.analyticsOptions.appVersion,
       brand: this._deps.brand.defaultConfig.code,
       osPlatform: navigator.platform,
+      externalAppName: this._deps.analyticsOptions.externalAppName,
     };
   }
 

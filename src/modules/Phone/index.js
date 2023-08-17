@@ -782,6 +782,7 @@ export function createPhone({
           appVersion,
           analyticsKey: process.env.SEGMENT_KEY,
           analyticsSecretKey: process.env.ANALYTICS_SECRET_KEY,
+          externalAppName: userAgent ? userAgent.split('/')[0] : undefined,
         },
       },
       {
