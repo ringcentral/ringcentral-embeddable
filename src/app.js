@@ -56,7 +56,6 @@ const {
   stylesUri,
   userAgent,
   enableAnalytics,
-  enableErrorReport,
   authorizationCode,
   authorizationCodeVerifier,
   jwt,

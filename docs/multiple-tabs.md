@@ -10,7 +10,7 @@ To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this 
 
 ### Core idea:
 
-1. Web phone connection is only connected in first connected tab. (Before v1.7.2, it is first opened tab. From v1.7.2, it is latest active tab).
+1. Web phone connection is only connected in first connected tab.
 2. When user has a call in second tab or third tab etc, voice transmission is happened in first tab. Second tab only has web phone UI.
 3. When user controls call in second tab, control command sent to first tab to execute.
 4. When user closes first tab, second tab becomes first opened tab. Web phone will be connected in this tab.
