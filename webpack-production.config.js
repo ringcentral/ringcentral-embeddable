@@ -67,6 +67,8 @@ function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = 
         BRAND_CONFIGS: JSON.stringify(brandConfigs),
         ERROR_REPORT_KEY: JSON.stringify(errorReportKey),
         RECORDING_LINK: JSON.stringify(recordingLink),
+        SEGMENT_KEY: JSON.stringify(process.env.SEGMENT_KEY),
+        ANALYTICS_SECRET_KEY: JSON.stringify(process.env.ANALYTICS_SECRET_KEY),
         ...env,
       },
     }),

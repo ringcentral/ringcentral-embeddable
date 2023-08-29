@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
-import Environment from '../../components/Environment';
+import { withPhone } from '@ringcentral-integration/widgets/lib/phoneContext';
+import { EnvironmentPanel } from '../../components/EnvironmentPanel';
 
 import styles from './styles.scss';
 
@@ -11,11 +11,11 @@ function AppView(props) {
   return (
     <div className={styles.root}>
       {props.children}
-      <Environment
+      <EnvironmentPanel
         server={props.server}
         enabled={props.enabled}
-        appKey={props.appKey}
-        appSecret={props.appSecret}
+        clientId={props.clientId}
+        clientSecret={props.clientSecret}
         onSetData={props.onSetData}
         redirectUri={props.redirectUri}
         recordingHost={''}
@@ -52,8 +52,8 @@ export default withPhone(connect((_, {
 }) => ({
   currentLocale: locale.currentLocale,
   server: environment.server,
-  appKey: environment.appKey,
-  appSecret: environment.appSecret,
+  clientId: environment.clientId,
+  clientSecret: environment.clientSecret,
   enabled: environment.enabled,
   redirectUri: oAuth.redirectUri,
 }), (_, {

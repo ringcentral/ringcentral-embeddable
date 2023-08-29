@@ -14,6 +14,13 @@ export class ConversationsUI extends BaseConversationsUI {
     const { locale, conversationLogger, connectivityMonitor } = this._deps;
     return {
       ...super.getUIFunctions(options),
+      onLogConversation: async ({ redirect = true, ...options }) => {
+        await this._deps.conversationLogger.logConversation({
+          ...options,
+          redirect,
+          triggerType: 'manual'
+        });
+      },
       renderExtraButton: (
         conversation = {},
         {

@@ -1,4 +1,4 @@
-import CallLog from '@ringcentral-integration/commons/modules/CallLog';
+import { CallLog as CallLogBase } from '@ringcentral-integration/commons/modules/CallLog';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 
@@ -6,7 +6,7 @@ import debounce from '@ringcentral-integration/commons/lib/debounce';
   name: 'NewCallLog',
   deps: []
 })
-export default class NewCallLog extends CallLog {
+export class CallLog extends CallLogBase {
   constructor(options) {
     super(options);
 

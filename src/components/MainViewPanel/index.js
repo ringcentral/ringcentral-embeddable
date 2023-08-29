@@ -22,10 +22,6 @@ import ContactHoverIcon from '@ringcentral-integration/widgets/assets/images/Con
 import ContactIcon from '@ringcentral-integration/widgets/assets/images/Contact.svg';
 import ContactNavIcon from '@ringcentral-integration/widgets/assets/images/ContactsNavigation.svg';
 
-import ConferenceIcon from '@ringcentral-integration/widgets/assets/images/Conference.svg';
-import ConferenceHoverIcon from '@ringcentral-integration/widgets/assets/images/ConferenceHover.svg';
-import ConferenceNavIcon from '@ringcentral-integration/widgets/assets/images/ConferenceNavigation.svg';
-
 import MeetingIcon from '@ringcentral-integration/widgets/assets/images/Meeting.svg';
 import MeetingHoverIcon from '@ringcentral-integration/widgets/assets/images/MeetingHover.svg';
 import MeetingNavIcon from '@ringcentral-integration/widgets/assets/images/MeetingNavigation.svg';
@@ -37,7 +33,6 @@ export const MainViewPanel = (props) => {
     currentLocale,
     showMessages,
     unreadCounts,
-    showConference,
     showMeeting,
     showCall,
     showHistory,
@@ -99,16 +94,6 @@ export const MainViewPanel = (props) => {
       path: '/contacts',
       isActive: (currentPath) => (
         currentPath.substr(0, 9) === '/contacts'
-      ),
-    },
-    showConference && {
-      icon: ConferenceIcon,
-      activeIcon: ConferenceHoverIcon,
-      moreMenuIcon: ConferenceNavIcon,
-      label: i18n.getString('conferenceLabel', currentLocale),
-      path: '/conference',
-      isActive: (currentPath) => (
-        currentPath.substr(0, 11) === '/conference'
       ),
     },
     showMeeting && {

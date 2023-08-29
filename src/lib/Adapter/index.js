@@ -2,7 +2,7 @@ import classnames from 'classnames';
 import url from 'url';
 import popWindow from '@ringcentral-integration/widgets/lib/popWindow';
 import AdapterCore from '@ringcentral-integration/widgets/lib/AdapterCore';
-import isSafari from '@ringcentral-integration/widgets/lib/isSafari';
+import { isSafari } from '@ringcentral-integration/utils';
 
 import parseUri from '../parseUri';
 import messageTypes from './messageTypes';
@@ -124,6 +124,8 @@ class Adapter extends AdapterCore {
     this._ringingCallsLength = 0;
     this._onHoldCallsLength = 0;
     this._hasActiveCalls = false;
+    this._otherDeviceCallsLength = 0;
+
     this._showDockUI = newAdapterUI;
 
     this._webphoneActive = false;
@@ -144,16 +146,17 @@ class Adapter extends AdapterCore {
           console.log('ring call:');
           console.log(data.call);
           this.setMinimized(false);
+          this._updateWebphoneCalls(data.call);
           if (this._notification) {
             this._notification.notify({
               title: 'New Call',
               text: `Incoming Call from ${data.call.fromUserName || data.call.from}`,
               onClick() {
                 window.focus();
-              }
+              },
+              icon: this._iconEl && this._iconEl.src,
             });
           }
-          this._updateWebphoneCalls(data.call);
           break;
         case 'rc-call-init-notify':
           console.log('init call:');
@@ -565,7 +568,9 @@ class Adapter extends AdapterCore {
       }
       this._webphoneCalls = cleanCalls;
     } else {
-      this._webphoneCalls = [webphoneCall].concat(cleanCalls);
+      if (webphoneCall.callStatus !== 'webphone-session-setup') {
+        this._webphoneCalls = [webphoneCall].concat(cleanCalls);
+      }
       if (webphoneCall.callStatus === 'webphone-session-connected') {
         this._currentWebhoneCallId = webphoneCall.id;
         this._currentStartTime = webphoneCall.startTime;

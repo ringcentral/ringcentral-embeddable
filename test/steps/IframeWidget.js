@@ -31,9 +31,9 @@ export class IframeWidget {
   }
 
   async enableSandboxEnvironment() {
-    await this._widgetIframe.waitForSelector('.Environment_saveButton');
-    await this._widgetIframe.click('label.Switch_switch');
-    await this._widgetIframe.click('.Environment_saveButton');
+    await this._widgetIframe.waitForSelector('div[data-sign="envSave"]');
+    await this._widgetIframe.click('label[data-sign="envToggle"]');
+    await this._widgetIframe.click('div[data-sign="envSave"]');
   }
 
   async clickLoginButtonToGetLoginWindow() {
@@ -185,7 +185,7 @@ export class IframeWidget {
   async getContactFilters() {
     await this.waitFor('div[data-sign="filterIconContainer"]');
     await this._widgetIframe.click('div[data-sign="filterIconContainer"]');
-    const text = await this._widgetIframe.$eval('div[data-sign="contactSourceList"]', (el) => el.innerText);
+    const text = await this._widgetIframe.$eval('ul[data-sign="contactSourceList"]', (el) => el.innerText);
     return text;
   }
 

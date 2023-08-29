@@ -1,3 +1,4 @@
+@use 'sass:math';
 @import '@ringcentral-integration/widgets/lib/AdapterCore/styles.scss';
 
 .hack {
@@ -29,8 +30,8 @@
 .root .logo {
   width: $header-logo-width;
   height: $header-logo-height;
-  margin-top: -($header-logo-height / 2);
-  margin-left: -($header-logo-width / 2);
+  margin-top: - math.div($header-logo-height, 2);
+  margin-left: - math.div($header-logo-width, 2);
 }
 
 .root .header {

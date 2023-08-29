@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-import formatDuration from '@ringcentral-integration/widgets/lib/formatDuration';
+import { formatDuration } from '@ringcentral-integration/commons/lib/formatDuration';
 import PlayIcon from '@ringcentral-integration/widgets/assets/images/Play.svg';
 import LogIcon from '@ringcentral-integration/widgets/assets/images/MessagesLog.svg';
 

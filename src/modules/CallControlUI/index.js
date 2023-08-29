@@ -11,7 +11,7 @@ import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/ses
     'ActiveCallControl',
   ],
 })
-export default class CallControlUI extends CallControlUIBase {
+export class CallControlUI extends CallControlUIBase {
   getUIProps(options) {
     const props = super.getUIProps(options);
     const session = { ...props.session };

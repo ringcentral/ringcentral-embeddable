@@ -49,10 +49,10 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
         process: 'process/browser.js',
         Buffer: ['buffer', 'Buffer'],
       }),
-      new webpack.NormalModuleReplacementPlugin(
-        /@ringcentral-integration\/commons\/lib\/Tabbie.js/,
-        path.resolve(__dirname, './vendors/commons/lib/Tabbie.js'), // TODO: update with new widget lib to fix this
-      ),
+      // new webpack.NormalModuleReplacementPlugin(
+      //   /@ringcentral-integration\/commons\/lib\/Tabbie.js/,
+      //   path.resolve(__dirname, './vendors/commons/lib/Tabbie.js'),
+      // ),
     ],
     module: {
       rules: [

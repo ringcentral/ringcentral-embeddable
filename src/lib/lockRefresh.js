@@ -11,7 +11,7 @@ export default function lockRefresh(sdk) {
       const isRefreshed = await platform._auth.accessTokenValid()
       if (isRefreshed) {
         const authData = await platform._auth.data();
-        return new Response(authData, {
+        return new Response(JSON.stringify(authData), {
           status: 200,
         });
       };

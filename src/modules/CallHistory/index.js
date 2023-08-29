@@ -1,24 +1,22 @@
-import CallHistory from '@ringcentral-integration/commons/modules/CallHistory';
+import { CallHistory as CallHistoryBase } from '@ringcentral-integration/commons/modules/CallHistory';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   name: 'NewCallHistory',
   deps: []
 })
-export default class NewCallHistory extends CallHistory {
+export class CallHistory extends CallHistoryBase {
   // override to fix rate limit issue at multiple tabs
   _addEndedCalls(endedCalls) {
-    endedCalls.map((call) => {
+    endedCalls.forEach((call) => {
+      // TODO: refactor with immutable data update
       call.result = 'Disconnected';
-      return call;
+      call.isRecording = false;
+      call.warmTransferInfo = undefined;
     });
-    this.store.dispatch({
-      type: this.actionTypes.addEndedCalls,
-      endedCalls,
-      timestamp: Date.now(),
-    });
-    if (!this._storage || !this._tabManager || this._tabManager.active) {
-      this._callLog.sync();
+    this.setEndedCalls(endedCalls, Date.now());
+    if (!this._deps.storage || !this._deps.tabManager || this._deps.tabManager.active) {
+      this._deps.callLog.sync();
     }
   }
 }

@@ -65,9 +65,9 @@ const rcBlue = {
       textHint: 'rgba(255,255,255,0.88)',
     },
     disabled: {
-      b01: '#B9B9B9',
-      f01: '#FFFFFF',
-      f02: '#B9B9B9',
+      b01: '#E5E5E5',
+      f01: '#939393',
+      f02: '#C7C7C7',
     },
     error: {
       main: '#D63E39',
@@ -196,6 +196,10 @@ const rcBlue = {
       bg: '#666666',
       mentioned: '#FF8800',
       text: '#FFFFFF',
+    },
+    umiteam: {
+      bg: '#066FAC',
+      mentioned: '#066FAC',
     },
     vDanger: {
       f01: '#DD6057',

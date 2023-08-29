@@ -2,7 +2,7 @@ import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import moduleStatuses from '@ringcentral-integration/commons/enums/moduleStatuses';
 import { presenceStatus as presenceStatusEnum } from '@ringcentral-integration/commons/enums/presenceStatus.enum';
 import { dndStatus as dndStatusEnum } from '@ringcentral-integration/commons/modules/Presence/dndStatus';
-import callingOptions from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
+import { callingOptions } from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
 import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
@@ -12,7 +12,7 @@ import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumbe
 import { messageIsTextMessage } from '@ringcentral-integration/commons/lib/messageHelper';
 
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import callingModes from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
+import { callingModes } from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 
 import AdapterModuleCore from '@ringcentral-integration/widgets/lib/AdapterModuleCore';
@@ -68,27 +68,6 @@ function setOutputDeviceWhenCall(webphone, audioSettings) {
       }
     }
   }
-}
-
-// TODO: clear audio at web phone sdk
-function clearRingAudio(webphoneSdk) {
-  if (!webphoneSdk || !webphoneSdk.userAgent.audioHelper) {
-    return;
-  }
-  const audioHelper = webphoneSdk.userAgent.audioHelper;
-  const incomingAudio = audioHelper._audio[audioHelper._incoming];
-  const outgoingAudio = audioHelper._audio[audioHelper._outgoing];
-  // clear audio
-  if (!incomingAudio && !outgoingAudio) {
-    return;
-  }
-  if (incomingAudio) {
-    incomingAudio.src = '';
-  }
-  if (outgoingAudio) {
-    outgoingAudio.src = '';
-  }
-  audioHelper._audio = {};
 }
 
 @Module({
@@ -218,7 +197,6 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallEnd((session) => {
       this.endCallNotify(session);
-      clearRingAudio(this._webphone._webphone);
     });
     this._webphone.onCallInit((session) => {
       this.initCallNotify(session);
@@ -238,7 +216,6 @@ export default class Adapter extends AdapterModuleCore {
           const newSession = this._webphone.sessions.find(s => s.id === session.id);
           this.muteCallNotify(newSession, false);
         });
-        clearRingAudio(this._webphone._webphone);
       }
     });
     this._webphone.onCallRing((session) => {
@@ -251,7 +228,6 @@ export default class Adapter extends AdapterModuleCore {
         !isOnHold(this._webphone.activeSession)
       ) {
         this._webphone._webphone.userAgent.audioHelper.playIncoming(false);
-        clearRingAudio(this._webphone._webphone);
       }
     });
     this._webphone.onCallHold((session) => {
@@ -263,7 +239,7 @@ export default class Adapter extends AdapterModuleCore {
     this._webphone.onActiveWebphoneChanged((event) => {
       this.activeWebphoneNotify(event);
     });
-    this._activeCallControl.onSessionUpdated((session) => {
+    this._activeCallControl.onTelephonySessionUpdated((session) => {
       this.telephonySessionNotify(session);
     });
     this._webphoneConnectionStatus = null;

@@ -48,7 +48,7 @@ conditionalDescribe('widget page test', () => {
   it('should goto Compose Text page successfully', async () => {
     await widgetIframe.clickComposeTextIcon();
     const recipientPlaceholder = await widgetIframe.getSMSRecipientInputPlaceholder();
-    expect(recipientPlaceholder).toEqual('Enter Name or Number');
+    expect(recipientPlaceholder).toEqual('Enter name or number');
     const text = `text ${Date.now()}`;
     await widgetIframe.typeSMSRecipientAndText({ recipientNumber: '101', text });
     await widgetIframe.clickSMSSendButton();

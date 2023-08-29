@@ -12,13 +12,11 @@ import ComposeTextPage from '@ringcentral-integration/widgets/containers/Compose
 import { IncomingCallContainer } from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
 // import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
-import LoginPage from '@ringcentral-integration/widgets/containers/LoginPage';
+import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
 import AudioSettingsPage from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
 import ContactsPage from '@ringcentral-integration/widgets/containers/ContactsPage';
 import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
-import FeedbackPage from '@ringcentral-integration/widgets/containers/FeedbackPage';
-import ConferencePage from '@ringcentral-integration/widgets/containers/ConferencePage';
-import ConferenceCommands from '@ringcentral-integration/widgets/components/ConferenceCommands';
+import { FeedbackPage } from '@ringcentral-integration/widgets/containers/FeedbackPage';
 import AlertContainer from '@ringcentral-integration/widgets/containers/AlertContainer';
 import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
 import ConversationsPage from '@ringcentral-integration/widgets/containers/ConversationsPage';
@@ -34,7 +32,7 @@ import TransferPage from '@ringcentral-integration/widgets/containers/TransferPa
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
 import ActiveCallsPage from '@ringcentral-integration/widgets/containers/ActiveCallsPage';
 import { SimpleCallControlPage } from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
-import ConnectivityBadgeContainer from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
+import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
 
 import GenericMeetingPage from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
 
@@ -48,10 +46,7 @@ import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 import MainView from '../MainView';
 import AppView from '../AppView';
 
-import { getBrandTheme } from '../../lib/themes';
-
 import RecentActivityContainer from '../RecentActivityContainer';
-import ThirdPartyConferenceInviteButton from '../ThirdPartyConferenceInviteButton';
 import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourceIcon';
 
 import SettingsPage from '../SettingsPage';
@@ -90,7 +85,7 @@ export default function App({
   return (
     <PhoneContext.Provider value={phone}>
       <Provider store={phone.store} >
-        <ThemeContainer theme={getBrandTheme(phone.brand.code)}>
+        <ThemeContainer>
           <Router history={phone.routerInteraction.history}>
             <Route
               component={routerProps => (
@@ -294,25 +289,6 @@ export default function App({
                   )}
                 />
                 <Route
-                  path="/conference"
-                  component={
-                    () => (
-                      <ConferencePage
-                        enableAutoEnterHostKey
-                        additionalButtons={[ThirdPartyConferenceInviteButton]}
-                      />
-                    )
-                  }
-                />
-                <Route
-                  path="/conference/commands"
-                  component={() => (
-                    <ConferenceCommands
-                      currentLocale={phone.locale.currentLocale}
-                      onBack={() => phone.routerInteraction.goBack()} />
-                  )}
-                />
-                <Route
                   path="/meeting/schedule"
                   component={() => {
                     const scheduleFunc = async (meetingInfo) => {
@@ -328,7 +304,7 @@ export default function App({
                         await phone.thirdPartyService.inviteMeeting(formattedMeetingInfo);
                         return;
                       }
-                      phone.meetingInviteModalUI.showModal(formattedMeetingInfo);
+                      phone.meetingInviteUI.showModal(formattedMeetingInfo);
                     };
                     if (phone.genericMeeting.isRCV) {
                       return (

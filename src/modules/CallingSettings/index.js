@@ -1,4 +1,4 @@
-import { CallingSettings } from '@ringcentral-integration/commons/modules/CallingSettingsV2';
+import { CallingSettings as CallingSettingsBase } from '@ringcentral-integration/commons/modules/CallingSettings';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
@@ -7,7 +7,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
     { dep: 'CallingSettingsOptions', optional: true }
   ]
 })
-export default class NewCallingSettings extends CallingSettings {
+export class CallingSettings extends CallingSettingsBase {
   constructor(deps) {
     super(deps);
     this._defaultCallWith = deps.callingSettingsOptions.defaultCallWith;

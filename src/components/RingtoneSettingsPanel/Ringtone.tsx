@@ -1,16 +1,14 @@
 import React, { FunctionComponent, useState, useEffect, useRef } from 'react';
-import { useIsMounted } from '@ringcentral-integration/widgets/react-hooks/useIsMounted';
 import {
   RcCard,
   RcCardContent,
   RcText,
   RcIconButton,
   RcGrid,
+  useMountState,
+  useAudio,
 } from '@ringcentral/juno';
-import Play from '@ringcentral/juno/icon/Play';
-import Attachment from '@ringcentral/juno/icon/Attachment';
-import Delete from '@ringcentral/juno/icon/Delete';
-import Pause from '@ringcentral/juno/icon/Pause';
+import { Play, Attachment, Delete, Pause } from '@ringcentral/juno-icon';
 
 import i18n from '@ringcentral-integration/widgets/components/Ringtone/i18n';
 
@@ -27,16 +25,28 @@ const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
   onChange,
   onReset,
 }) => {
-  const isMountedRef = useIsMounted();
-  const audioElRef = useRef(null);
+  const isMountedRef = useMountState();
   const inputElRef = useRef(null);
-  const [playState, setPlayState] = useState(false);
+  const [playing, setPlaying] = useState(false);
+
+  const audio = useAudio((audio) => {
+    audio.onplay = () => setPlaying(true);
+    audio.onpause = () => setPlaying(false);
+
+    if (dataUrl) {
+      audio.src = dataUrl;
+    }
+  });
 
   useEffect(() => {
-    audioElRef.current.pause();
-    audioElRef.current.currentTime = 0;
-    setPlayState(false);
-  }, [dataUrl]);
+    audio.pause();
+    audio.currentTime = 0;
+    setPlaying(false);
+
+    if (dataUrl) {
+      audio.src = dataUrl;
+    }
+  }, [audio, dataUrl]);
 
   const resetButton =
     fileName !== defaultFileName || dataUrl !== defaultDataUrl ? (
@@ -57,27 +67,25 @@ const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
       <RcGrid item xs={4}>
         <div className={styles.buttonGroup}>
           <RcIconButton
-            symbol={playState ? Pause : Play}
+            symbol={playing ? Pause : Play}
             onClick={async () => {
-              if (audioElRef.current) {
-                if (playState) {
-                  audioElRef.current.pause();
-                } else {
-                  try {
-                    audioElRef.current.currentTime = 0;
-                    await audioElRef.current.play();
-                  } catch (err) {
-                    if (isMountedRef.current) {
-                      console.log(err);
-                      console.log(
-                        'Failed to play audio, please select a different file',
-                      );
-                    }
+              if (playing) {
+                audio.pause();
+              } else {
+                try {
+                  audio.currentTime = 0;
+                  await audio.play();
+                } catch (err) {
+                  if (isMountedRef.current) {
+                    console.log(err);
+                    console.log(
+                      'Failed to play audio, please select a different file',
+                    );
                   }
                 }
               }
             }}
-            title={playState
+            title={playing
               ? i18n.getString('stop', currentLocale)
               : i18n.getString('play', currentLocale)
             }
@@ -120,17 +128,6 @@ const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
             };
             reader.readAsDataURL(file);
           }
-        }}
-      />
-      <audio
-        ref={audioElRef}
-        className={styles.hidden}
-        src={dataUrl}
-        onPlay={() => {
-          setPlayState(true);
-        }}
-        onPause={() => {
-          setPlayState(false);
         }}
       />
     </RcGrid>
