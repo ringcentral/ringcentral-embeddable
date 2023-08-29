@@ -31,6 +31,8 @@ jobs:
     needs: test
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -60,6 +62,8 @@ jobs:
     needs: test
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v2
