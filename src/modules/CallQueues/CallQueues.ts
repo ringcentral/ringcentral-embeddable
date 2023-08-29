@@ -31,7 +31,7 @@ export class CallQueues extends DataFetcherV2Consumer<
     });
     this._source = new DataSource({
       ...deps.callQueuesOptions,
-      key: 'callerId',
+      key: 'callQueues',
       cleanOnReset: true,
       permissionCheckFunction: () =>
         this._hasPermission,
