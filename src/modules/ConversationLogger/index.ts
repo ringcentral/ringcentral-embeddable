@@ -3,6 +3,23 @@ import {
   ConversationLogger as ConversationLoggerBase,
 } from '@ringcentral-integration/commons/modules/ConversationLogger';
 
+const getCurrentDateTimeStamp = () => {
+  let today = new Date();
+  let dd = today.getDate();
+  let mm = today.getMonth() + 1;
+  const yyyy = today.getFullYear();
+  let ddString = dd.toString();
+  let mmString = mm.toString();
+  if (dd < 10) {
+    ddString = `0${dd}`;
+  }
+  if (mm < 10) {
+    mmString = `0${mm}`;
+  }
+  const todayString = `${mmString}/${ddString}/${yyyy}`;
+  return new Date(todayString).getTime();
+};
+
 @Module({
   deps: [
     'ThirdPartyService'
@@ -13,6 +30,12 @@ export class ConversationLogger extends ConversationLoggerBase {
     super(deps);
     this._logFunction = async (data) => {
       await this._doLog(data);
+    };
+    this._accordWithLogRequirement = (conversation) => {
+      const { date } = conversation;
+      const dateTimeStamp = new Date(date).getTime();
+      const currentDateTimeStamp = getCurrentDateTimeStamp();
+      return currentDateTimeStamp === dateTimeStamp;
     };
   }
 
@@ -48,7 +71,7 @@ export class ConversationLogger extends ConversationLoggerBase {
       await this._autoLogConversation({
         conversation,
       });
-    } else if (this.autoLog) {
+    } else if (this.autoLog) { // override here for voicemail and fax support
       // new entry
       const numbers: string[] = [];
       const numberMap: Record<string, boolean> = {};
