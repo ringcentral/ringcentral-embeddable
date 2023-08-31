@@ -168,6 +168,7 @@ export class Analytics extends AnalyticsBase {
       brand: this._deps.brand.defaultConfig.code,
       osPlatform: navigator.platform,
       externalAppName: this._deps.analyticsOptions.externalAppName,
+      externalClientId: this._deps.analyticsOptions.externalClientId,
       rcAccountId: this._hashedAccountId,
     };
   }
