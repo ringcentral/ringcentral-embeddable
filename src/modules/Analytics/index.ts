@@ -16,6 +16,9 @@ const FILTERED_EVENTS = [
 ];
 
 function getHashId(id) {
+  if (!id) {
+    return null;
+  }
   const secretKey = process.env.ANALYTICS_SECRET_KEY;
   return crypto.createHash('sha256').update(
     `${id}:${secretKey}`
@@ -32,6 +35,7 @@ export class Analytics extends AnalyticsBase {
   protected _trackRouters: TrackRouter[];
   protected _enableExternalAnalytics: boolean;
   protected _segment: AnalyticsBrowser;
+  protected _hashedAccountId: string | null;
 
   constructor(deps) {
     super(deps);
@@ -40,6 +44,7 @@ export class Analytics extends AnalyticsBase {
     }
     this._trackRouters = trackRouters;
     this._enableExternalAnalytics = !!deps.analyticsOptions.enableExternalAnalytics;
+    this._hashedAccountId = null;
   }
 
   override onInitOnce() {
@@ -73,12 +78,15 @@ export class Analytics extends AnalyticsBase {
       userId: options.userId,
       rcAccountId: hashedAccountId,
     });
-    this.analytics?.group(hashedAccountId, {}, {
-      integrations: {
-        All: true,
-        Mixpanel: true,
-      },
-    });
+    if (options.accountId) {
+      this._hashedAccountId = hashedAccountId;
+      this.analytics?.group(hashedAccountId, {}, {
+        integrations: {
+          All: true,
+          Mixpanel: true,
+        },
+      });
+    }
   }
 
   track(event, properties = {}) {
@@ -160,6 +168,7 @@ export class Analytics extends AnalyticsBase {
       brand: this._deps.brand.defaultConfig.code,
       osPlatform: navigator.platform,
       externalAppName: this._deps.analyticsOptions.externalAppName,
+      rcAccountId: this._hashedAccountId,
     };
   }
 
