@@ -139,7 +139,7 @@ $ git clone https://github.com/ringcentral/ringcentral-embeddable.git
 
 1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
 2. Register a RingCentral REST API app with Auth type - "**3-legged OAuth Client-side web app**"
-3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `TeamMessaging`, `VoIP Calling`, `WebSocketSubscription` and `Call Control` to your app.
+3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Call Control`, `VoIP Calling`, `WebSocketSubscription`, `TeamMessaging` (optional) and `Video` (optional) to your app.
 4. Add redirect uri `http://localhost:8080/redirect.html` to your app settings.
 
 ### Create environment variables file in project root path
