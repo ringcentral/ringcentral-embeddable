@@ -273,6 +273,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 ## Schedule a meeting
 
+**Notice**: need to have `Meeting` permission in your RingCentral client id.
+
 ```js
 // meeting info
 const meetingBody = {

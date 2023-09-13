@@ -12,9 +12,11 @@ export class AppFeatures extends AppFeaturesBase {
 
   get hasMeetingsPermission() {
     return (
-      super.hasMeetingsPermission &&
-      this.appScopes.indexOf('Meetings') > -1
-    )
+      super.hasMeetingsPermission && (
+        this.appScopes.indexOf('Meetings') > -1 ||
+        this.appScopes.indexOf('Video') > -1
+      )
+    );
   }
 
   get appScopes() {
