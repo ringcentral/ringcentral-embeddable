@@ -813,6 +813,15 @@ export function createPhone({
           enableIDB: true,
           baseUrl: brandBaseUrl,
         },
+      },
+      {
+        provide: 'ConnectivityMonitorOptions',
+        useValue: {
+          checkConnectionFunc: () => {
+            const t = Date.now();
+            return fetch(`${process.env.HOSTING_URL}/assets/images/favicon.ico?=${t}`);
+          },
+        },
       }
     ]
   })
