@@ -11,7 +11,7 @@ RingCentral Embeddable is a fully functional, embeddable phone and dialer that i
 * receive, view, and send faxes
 * access the contacts in your address book
 
-For developers, RingCentral Embeddable is also a framework that allows them to customize the display and behavior of the embedded phone. This can be done via simple CSS, and by listening for events emitted by Embeddable to engage custom functionality. For example, developers can listen for an event that is triggered when a call ends to surface a dialog to collect call notes. 
+For developers, RingCentral Embeddable is also a framework that allows them to customize the display and behavior of the embedded phone. This can be done via simple CSS, and by listening for events emitted by Embeddable to engage custom functionality via Javascript. For example, developers can listen for an event that is triggered when a call ends to surface a dialog to collect call notes. 
 
 RingCentral Embeddable is React and Redux wrapper around [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets).
 
@@ -100,9 +100,9 @@ https://apps.ringcentral.com/integration/ringcentral-embeddable/1.4.1
 
 Use this versioned URL in place of the URLs above in the adapter examples. 
 
-*Be advised, however, referencing Embeddable in this way means that you will need to perform all upgrades manually.*
+*Be advised, however, that referencing Embeddable in this way means that you will need to perform all upgrades manually.*
 
-*Developers are urged to use version 1.9 or greater. Developers using older version of RingCentral Embeddable will cease to function in March 2024 when PubNub support is discontinued.*
+*Developers are urged to use version 1.9 or greater. Developers using older versions of RingCentral Embeddable will cease to function in March 2024 when PubNub support is discontinued.*
 
 ## Customizing RingCentral Embeddable
 
