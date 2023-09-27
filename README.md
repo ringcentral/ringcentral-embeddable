@@ -3,27 +3,35 @@
 [![Build Status](https://github.com/ringcentral/ringcentral-embeddable/workflows/CI%20Pipeline/badge.svg?branch=master)](https://github.com/ringcentral/ringcentral-embeddable/actions)
 [![Latest release](https://img.shields.io/github/v/release/ringcentral/ringcentral-embeddable)](https://github.com/ringcentral/ringcentral-embeddable/releases)
 
-## Introduction
+RingCentral Embeddable is a fully functional, embeddable phone and dialer that is ready to use right out of the box. Using RingCentral Embeddable developers can embed a phone onto any web page to do the following:
 
-This is an out-of-the-box embeddable web application that help developers to integrate RingCentral services to their web applications with few code.
+* make and receive phone calls
+* send and receive SMS messages
+* access voicemail
+* receive, view, and send faxes
+* access the contacts in your address book
 
-Built with:
+For developers, RingCentral Embeddable is also a framework that allows them to customize the display and behavior of the embedded phone. This can be done via simple CSS, and by listening for events emitted by Embeddable to engage custom functionality. For example, developers can listen for an event that is triggered when a call ends to surface a dialog to collect call notes. 
 
-* [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets) - based on React and Redux
+RingCentral Embeddable is React and Redux wrapper around [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets).
 
-## Visit Online
+## Important notice
 
-Visit [website](https://ringcentral.github.io/ringcentral-embeddable/) in GitHub Pages.
+All developers are advised to upgrade to RingCentral Embeddable 1.9 or greater. Applications who do not upgrade by March 31, 2024 will cease to function. Learn more about our plan to [end-of-life support for PubNub](https://community.ringcentral.com/articles/116312/end-of-life-for-pubnub-event-delivery-scheduled-fo.html) in our developer community.
 
-## Use as a embeddable web widget
+## Additional RingCentral Embeddable resources
 
-### Get Started
+* [Free online demo and configuration tool](https://ringcentral.github.io/ringcentral-embeddable/)
+* [Watch a video on our website](https://developers.ringcentral.com/embeddable-voice)
+* [List of all Embeddable releases](https://github.com/ringcentral/ringcentral-embeddable/releases)
 
-there are two ways to integrate this widget to a web application
+## Getting started
 
-#### Adapter JS way
+RingCentral Embeddable can be integrate into a web page in two primary ways. 
 
-Just add following code to a website's header. It will create a RingCentral Embeddable widget in that web page.
+### Embed via a `<script>` tag, a.k.a. "Adapter" method
+
+Add the code below to any web page's header to embed a RingCentral phone in a matter of minutes.
 
 ```js
 <script>
@@ -36,36 +44,74 @@ Just add following code to a website's header. It will create a RingCentral Embe
 </script>
 ```
 
-#### Iframe way
+### Embed via an iframe
 
-Create a iframe with the following code:
+Insert the following HTML into any webpage to embed a RingCentral phone into that page. 
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="autoplay; microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html">
+<iframe width="300" height="500" id="rc-widget" allow="autoplay; microphone"
+        src="https://ringcentral.github.io/ringcentral-embeddable/app.html">
 </iframe>
 ```
 
-You can use the config tool in this [page](https://ringcentral.github.io/ringcentral-embeddable) to generate code with config.
+### Specifying your own Client ID
 
-#### Stable version
+We recommend developers [register an application](https://developers.ringcentral.com/guide/getting-started/register-app) through which they can manage and monitor all API traffic generated via RingCentral Embeddable. Once the application has been registered, you will need to specify your app's client ID when Embeddable is loaded. The client ID can be specified by appending it to the URL used to load it. For example:
 
-We provide latest RingCentral Embeddable version on github page `https://ringcentral.github.io/ringcentral-embeddable`. It includes latest features and bugfix in RingCentral Embeddable. And it will keep up to date with master code. But we **recommend** developers to use versioned RingCentral Embeddable. You can get current latest stable version of RingCentral Embeddable from [here](https://github.com/ringcentral/ringcentral-embeddable/releases). Such as `1.4.1`, you can get versioned app in this uri `https://apps.ringcentral.com/integration/ringcentral-embeddable/1.4.1`.
+**Via a script tag**
+```
+https://ringcentral.github.io/ringcentral-embeddable/adapter.js?clientId=<YOUR CLIENT ID>
+```
 
-Just replace `https://ringcentral.github.io/ringcentral-embeddable` in [upper code](#adapter-js-way) to the versioned uri, and you will be using versioned RingCentral Embeddable. The versioned app will not be influenced when new features are added, so it will be more stable than latest version. When you need to update RingCentral Embeddable, you need to update the versioned app uri in your code manually.
+**Via an iframe**
+```
+https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=<YOUR CLIENT ID>
+```
 
-For stable version from `1.0.2`, it is required to setup your own RingCentral client id. Please follow [here](docs/config-client-id-and-secret.md) to setup, or it will throw error with client id required.
-For stable version from `1.2.0`, authorization redirect uri will change with version as `https://apps.ringcentral.com/integration/ringcentral-embeddable/1.4.1/redirect.html`, but you can make a fixed redirect URI with this [docs](docs/customize-redirect-uri.md).
+### Running Embeddable in sandbox
 
-To get all versions of RingCentral Embeddable in [here](https://github.com/ringcentral/ringcentral-embeddable/releases).
+To run RingCentral Embeddable in our [developer sandbox environment](https://developers.ringcentral.com/guide/getting-started/using-sandbox), pass the sandbox URL to Embeddable via the `appServer` query string parameter. For example:
 
-### Documents
+**Via a script tag**
+```
+https://ringcentral.github.io/ringcentral-embeddable/adapter.js?appServer=https://platform.devtest.ringcentral.com
+```
 
-* [Get Started](docs/get-started.md)
-* [Browser Support](docs/browser-support.md)
+**Via an iframe**
+```
+https://ringcentral.github.io/ringcentral-embeddable/app.html?appServer=https://platform.devtest.ringcentral.com
+```
+
+### Use our configuration helper
+
+Use our [RingCentral Embeddable configuration helper](https://ringcentral.github.io/ringcentral-embeddable) to generate the HTML or Javascript that you can easily copy and paste into your web page or application.
+
+## Using the latest version of Embeddable
+
+We make the [most recent version of RingCentral Embeddable](https://ringcentral.github.io/ringcentral-embeddable) available via Github. Referencing this build of Embeddable ensures that your application will always have access to the latest features, enhancements, and bug fixes.
+
+### Access a specific version of Embeddable
+
+To better manage risk developers may wish to reference a specific version of RingCentral Embeddable. Doing so ensures that changes RingCentral introduces to Embeddable will not disrupt your existing product. Browse our list of [stable RingCentral Embeddable releases](https://github.com/ringcentral/ringcentral-embeddable/releases), select the version you wish to use, and reference it by its version number. For example:
+
+```
+https://apps.ringcentral.com/integration/ringcentral-embeddable/1.4.1
+```
+
+Use this versioned URL in place of the URLs above in the adapter examples. 
+
+*Be advised, however, referencing Embeddable in this way means that you will need to perform all upgrades manually.*
+
+*Developers are urged to use version 1.9 or greater. Developers using older version of RingCentral Embeddable will cease to function in March 2024 when PubNub support is discontinued.*
+
+## Customizing RingCentral Embeddable
+
+* [Get started](docs/get-started.md)
+* [Browser support](docs/browser-support.md)
 * [Use your own app client id](docs/config-client-id-and-secret.md)
-* [Customize Redirect Uri](docs/customize-redirect-uri.md)
-* [Enable Multiple Tabs Support](docs/multiple-tabs.md)
-* [Multiple Partner Brands Support](docs/multiple-brands.md)
+* [Customize redirect Uri](docs/customize-redirect-uri.md)
+* [Enable multiple tabs support](docs/multiple-tabs.md)
+* [Multiple partner brands support](docs/multiple-brands.md)
 * [Customize prefix](docs/customize-prefix.md)
 * [Work with the Web Widget event](docs/widget-event.md)
   * [Web phone call event](docs/widget-event.md#web-phone-call-event)
@@ -110,105 +156,17 @@ To get all versions of RingCentral Embeddable in [here](https://github.com/ringc
 * [Enable Analytics](docs/add-analytics.md)
 * [Customize Widget UI styles](docs/customize-ui-styles.md)
 * [Popup a standalone widget](docs/popup-window.md)
-## Awesome Embeddable projects
 
-* RingCentral Embeddable phone for Hubspot CRM - [repo](https://github.com/ringcentral/hubspot-embeddable-ringcentral-phone)
-* RingCentral Embeddable phone for Insightly CRM- [repo](https://github.com/ringcentral/insightly-embeddable-ringcentral-phone)
-* RingCentral Embeddable phone for Pipedrive CRM - [repo](https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa)
-* RingCentral Embeddable with Salesforce Lightning - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/salesforce_lightning/tutorial/)
-* RingCentral Embeddable with Static CRM - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/static_crm/tutorial/)
-* RingCentral Embeddable with chrome extension - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-extension)
-* Ringcentral Embeddable for Google with Firefox add-on - [repo](https://github.com/embbnux/ringcentral-embeddable-for-google-firefox-addon)
-* RingCentral Embeddable with Third Party service - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-with-third-party)
-* RingCentral Embeddable with Electron - Support Linux - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-app)
-* RingCentral Embeddable with Game of Thrones theme - [repo](https://github.com/embbnux/ringcentral-web-widget-styles)
-* RingCentral Embeddable with Java app - jxBrowser - [repo](https://github.com/tylerlong/jxbrowser-webrtc)
-* RingCentral Embeddable extension factory - Extension CLI build tool - [repo](https://github.com/ringcentral/ringcentral-embeddable-extension-factory)
+## See RingCentral Embeddable in action
 
-## Contribution and Development
+The following projects are all examples of RingCentral Embeddable being used on the web.
 
-We provide a online version that developers can use to embed and config in their web application. When you want to get a deep development of this widget, you can clone code of this widget, update it and deploy by yourself.
-
-### Clone the code
-
-```bash
-$ git clone https://github.com/ringcentral/ringcentral-embeddable.git
-```
-
-### Create a free RingCentral app
-
-1. Create a [RingCentral developer free account](https://developer.ringcentral.com)
-2. Register a RingCentral REST API app with Auth type - "**3-legged OAuth Client-side web app**"
-3. Add permissions `Edit Message`, `Edit Presence`, `Internal Messages`, `Read Accounts`, `Read Call Log`, `Read Contacts`, `Read Messages`, `Read Presence`, `RingOut`, `SMS`, `Call Control`, `VoIP Calling`, `WebSocketSubscription`, `TeamMessaging` (optional) and `Video` (optional) to your app.
-4. Add redirect uri `http://localhost:8080/redirect.html` to your app settings.
-
-### Create environment variables file in project root path
-
-Create `.env` file in project root path:
-
-```
-API_KEY=your_ringcentral_app_client_id
-API_SERVER=ringcentral sever url, eg: https://platform.devtest.ringcentral.com
-```
-
-### Start development server
-
-We assume you have pre-installed node.js >= 14 and yarn.
-
-**It is recommended to use `yarn` instead of `npm`.** We have `yarn.lock` file in source code to lock dependence version. With `yarn`, we can install dependencies with correct version that work well with this project.
-
-```bash
-$ yarn       # use yarn to install dependences
-$ yarn start # start a webpack dev server
-```
-
-Open site: 'http://localhost:8080/' on browser
-
-### Run Tests
-
-You need to create `.env.test` file based on `.env.test.default`. The client id should support JWT grant authorization. And create [JWT token](https://developers.ringcentral.com/guide/authentication/jwt/quick-start) for your test user and the client id.
-
-```
-API_KEY=your_ringcentral_test_app_client_id
-API_SECRET=your_ringcentral_test_app_client_secret
-API_SERVER=ringcentral sever url, eg: https://platform.devtest.ringcentral.com
-TEST_JWT_TOKEN=JWT_TOKEN_for_test_account_and_test_app_client_id
-TEST_HOST_URI=http://localhost:8080
-TEST_HEADLESS=false
-```
-
-```
-yarn test
-```
-
-### Deploy on production
-
-If you create pull request to this repo and get merged, CI will deploy it to this repository's Github Page automatically. But for something that customized, you can deploy it to your own web space, such as your github page.
-
-1. Update `.env` file in production environment ([Graduate your RingCentral app to get production app client id](docs/config-client-id-and-secret.md#graduation-for-your-ringcentral-app))
-
-2. Run command to compile code and build release
-
-```
-$ HOSTING_URL=your_host_uri yarn build
-```
-
-Please replace `your_host_uri` with your own web host address, such as `https://ringcentral.github.io/ringcentral-embeddable`.
-
-And set redirect uri `${your_host_uri}/redirect.html` in your app setting on RingCentral Developer website.
-
-3. Upload all files in release folder to your web space. And visit it in browser.
-
-### Build for browser extension
-
-For browser extension, we can host all files in browser extension local folder instead CDN.
-
-To build for browser extension local files:
-
-```
-yarn build-extension
-```
-
-After building, we can get compiled files in this project's extension folder. Create a `embeddable` folder in your extension project. Copy all files in extension folder to your extesnion project's `embeddable` folder.
-
-Then you can load this widget with `${your_extension_uri}/embeddable/adapter.js` or `${your_extension_uri}/embeddable/app.html`.
+* Salesforce Lightning - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/salesforce_lightning/tutorial/)
+* Static CRM - [tutorial](https://ringcentral-web-widget-demos.readthedocs.io/en/latest/static_crm/tutorial/)
+* Chrome extension - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-extension)
+* Google with Firefox add-on - [repo](https://github.com/embbnux/ringcentral-embeddable-for-google-firefox-addon)
+* Third-party service - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-with-third-party)
+* Electron - Support Linux - [repo](https://github.com/embbnux/ringcentral-embeddable-voice-app)
+* Game of Thrones theme - [repo](https://github.com/embbnux/ringcentral-web-widget-styles)
+* Java app - jxBrowser - [repo](https://github.com/tylerlong/jxbrowser-webrtc)
+* Extension factory CLI tool - [repo](https://github.com/ringcentral/ringcentral-embeddable-extension-factory)
