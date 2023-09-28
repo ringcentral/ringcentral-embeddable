@@ -8,7 +8,7 @@ RingCentral Embeddable is a fully functional, embeddable phone and dialer that i
 * make and receive phone calls
 * send and receive SMS messages
 * access voicemail
-* receive, view, and send faxes
+* receive and view faxes
 * access the contacts in your address book
 
 For developers, RingCentral Embeddable is also a framework that allows them to customize the display and behavior of the embedded phone. This can be done via simple CSS, and by listening for events emitted by Embeddable to engage custom functionality via Javascript. For example, developers can listen for an event that is triggered when a call ends to surface a dialog to collect call notes. 
