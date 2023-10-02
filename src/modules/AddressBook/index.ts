@@ -24,11 +24,13 @@ export class AddressBook extends AddressBookBase {
     let records = [];
     let response = await this._fetch(perPage, syncToken);
     records = records.concat(response.records ?? []);
+    let pageNum = 0;
     while (response.nextPageId) {
       const fetchInterval = pageNum > 3 ? 6000 : 2000; 
       await sleep(fetchInterval);
       response = await this._fetch(perPage, syncToken, response.nextPageId);
       records = records.concat(response.records ?? []);
+      pageNum += 1;
     }
     if (response.syncInfo!.syncType === 'ISync') {
       // @ts-expect-error
