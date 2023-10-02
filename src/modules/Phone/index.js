@@ -913,7 +913,8 @@ export function createPhone({
         useValue: {
           checkConnectionFunc: () => {
             const t = Date.now();
-            return fetch(`${process.env.HOSTING_URL}/assets/images/favicon.ico?=${t}`);
+            const host = process.env.HOSTING_URL || 'https://ringcentral.github.io/ringcentral-embeddable';
+            return fetch(`${host}/assets/images/favicon.ico?t=${t}`);
           },
         },
       }
