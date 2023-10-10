@@ -902,6 +902,12 @@ export function createPhone({
         },
       },
       {
+        provide: 'BrandConfigOptions',
+        useValue: {
+          assetOrigin: brandBaseUrl,
+        }
+      },
+      {
         provide: 'DynamicBrandOptions',
         useValue: {
           enableIDB: true,
