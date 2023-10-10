@@ -1,5 +1,7 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-
+import {
+  processAssets,
+} from '@ringcentral-integration/commons/modules/Brand/helpers';
 import {
   action,
   globalStorage,
@@ -8,7 +10,10 @@ import {
   watch,
 } from '@ringcentral-integration/core';
 
-import { getBrandTheme, getBrandVariable } from '../../lib/themes';
+import {
+  getBrandTheme,
+  getBrandVariable,
+} from '../../lib/themes';
 
 window.brandConfigs = process.env.BRAND_CONFIGS;
 
@@ -122,36 +127,15 @@ export class DynamicBrand extends RcModuleV2 {
       variable: getBrandVariable(brandConfig.code),
     };
     if (brandConfig.assets) {
-      brandConfig.assets = this._getAssetsLink(brandConfig.assets);
+      brandConfig.assets = processAssets(
+        brandConfig.assets,
+        this.brandUrl || window.location.origin,
+      );
     }
     this._setCacheConfig(brandConfig);
     if (this._accountBrandId) {
       this._setCachedAccountBrandId(this._accountBrandId);
     }
     this._deps.brand.setDynamicConfig(brandConfig);
-  }
-
-  _getUrl(url) {
-    return `${this.brandUrl}${url}`;
-  }
-
-  /** combine base use with config relative path to actual url */
-  _getAssetsLink(assets) {
-    return Object.entries(assets).reduce(
-      (acc, [key, url]) => {
-        if (!url) {
-          return acc;
-        }
-
-        if (url instanceof Array) {
-          acc[key] = url.map((x) => this._getUrl(x));
-        } else {
-          acc[key] = this._getUrl(url);
-        }
-
-        return acc;
-      },
-      {},
-    );
   }
 }
