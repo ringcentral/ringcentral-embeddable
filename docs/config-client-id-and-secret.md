@@ -1,4 +1,4 @@
-# Using a custom client ID with RingCentral Emebeddable 
+# Using a custom client ID with RingCentral Embeddable 
 
 It is strongly recommended that developers register their own applications when deploying and using RingCentral Embeddable in a production context. Doing so has the following benefits:
 
