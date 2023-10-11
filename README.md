@@ -33,7 +33,7 @@ RingCentral Embeddable can be integrate into a web page in two primary ways.
 
 For those who want to get up and running as quickly as possible, the instructions below allow you to embed a phone into a web page in under a minute. This is perfect for a quick demo or proof of concept. 
 
-**Please note: this quick start mode has all developers share the same client ID and secret. It is NOT recommended for production use as the actions of other users may result in the app being rate-limited, or even suspended - causing disruption to your integration. Once you have successfully demo'ed Embeddable, please [register your own app](https://developers.ringcentral.com/guide/getting-started/register-app) with RingCentral, and insert your own Client ID into your embed tag.**
+**Please note: this quick start mode has all developers share the same client ID and secret. It is NOT recommended for production use as the actions of other users may result in the app being rate-limited, or even suspended - causing disruption to your integration. Once you have successfully demo'ed Embeddable, please [register your own app](docs/config-client-id-and-secret.md) with RingCentral, being careful to configure it properly, and insert your own Client ID into your embed tag.**
 
 #### Embed via a `<script>` tag, a.k.a. "Adapter" method
 
