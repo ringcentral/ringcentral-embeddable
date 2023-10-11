@@ -2,6 +2,7 @@
 
 Support to open the widget in a popup window, so the widget is opened at a standalone window. User can close web page that embed the widget, and call will not be ended, and still active at popup window.
 
+> For `Chrome (from 117)`, Safari and Firefox, iframe inside different domain is isolated. As default popup window's domain is different as the page embedded, need to [host the popup window](popup-window.md#host-the-popup-window) in same domain origin as the page embedded to have this feature work.
 
 ### To enable this feature:
 
