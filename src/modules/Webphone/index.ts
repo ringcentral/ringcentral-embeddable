@@ -1,15 +1,29 @@
-import { Webphone as WebphoneBase } from '@ringcentral-integration/commons/modules/Webphone';
-import { connectionStatus } from '@ringcentral-integration/commons/modules/Webphone/connectionStatus';
+import {
+  trackEvents,
+} from '@ringcentral-integration/commons/enums/trackEvents';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { action, watch, track } from '@ringcentral-integration/core';
-import { sleep } from '@ringcentral-integration/utils';
+import proxyActionTypes
+  from '@ringcentral-integration/commons/lib/proxy/baseActionTypes';
 import { proxify } from '@ringcentral-integration/commons/lib/proxy/proxify';
-import { trackEvents } from '@ringcentral-integration/commons/enums/trackEvents';
-import proxyActionTypes from '@ringcentral-integration/commons/lib/proxy/baseActionTypes';
-import { EVENTS as EVENTS_BASE } from '@ringcentral-integration/commons/modules/Webphone/events';
+import {
+  Webphone as WebphoneBase,
+} from '@ringcentral-integration/commons/modules/Webphone';
+import {
+  connectionStatus,
+} from '@ringcentral-integration/commons/modules/Webphone/connectionStatus';
+import {
+  EVENTS as EVENTS_BASE,
+} from '@ringcentral-integration/commons/modules/Webphone/events';
+import {
+  action,
+  track,
+  watch,
+} from '@ringcentral-integration/core';
+import type {
+  ObjectMapValue,
+} from '@ringcentral-integration/core/lib/ObjectMap';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
-
-import type { ObjectMapValue } from '@ringcentral-integration/core/lib/ObjectMap';
+import { sleep } from '@ringcentral-integration/utils';
 
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
 import { normalizeSession } from './helper';
@@ -511,5 +525,26 @@ export class Webphone extends WebphoneBase {
     }
     session.__rc_recordStatus = status;
     this._updateSessions();
+  }
+
+  override _isAvailableToConnect({ force }: { force: boolean }) {
+    if (!this.enabled || !this._deps.auth.loggedIn) {
+      return false;
+    }
+    // do not connect if it is connecting
+    // do not reconnect when user disconnected
+    if (
+      this.connecting ||
+      this.disconnecting ||
+      this.inactiveDisconnecting ||
+      this.reconnecting
+    ) {
+      return false;
+    }
+    // do not connect when connected unless force
+    if (!force && this.connected) {
+      return false;
+    }
+    return true;
   }
 }
