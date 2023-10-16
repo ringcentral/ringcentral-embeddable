@@ -1,7 +1,9 @@
 import React from 'react';
+
 import PropTypes from 'prop-types';
+
 import Line from '@ringcentral-integration/widgets/components/Line';
-import { Button } from '@ringcentral-integration/widgets/components/Button';
+import { RcButton } from '@ringcentral/juno';
 
 import styles from './styles.scss';
 
@@ -30,12 +32,13 @@ export default function AuthorizeSettingsSection({
     icon = (<span className={styles.serviceName}>{serviceName}</span>);
   }
   const authButton = (
-    <Button
-      className={styles.authorizaButton}
+    <RcButton
+      size="small"
       onClick={onAuthorize}
+      color={(authorized && !contactSyncing) ? 'danger.b04' : 'action.primary'}
     >
       {status}
-    </Button>
+    </RcButton>
   );
   if (authorized && authorizedAccount) {
     return (

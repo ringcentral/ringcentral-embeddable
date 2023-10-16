@@ -11,7 +11,7 @@ import {
 } from '@ringcentral-integration/core';
 
 import {
-  getBrandTheme,
+  getBrandThemeWithJupiterBlue,
   getBrandVariable,
 } from '../../lib/themes';
 
@@ -122,7 +122,7 @@ export class DynamicBrand extends RcModuleV2 {
     brandConfig.theme = {
       defaultTheme: 'light',
       themeMap: {
-        light: getBrandTheme(brandConfig.code),
+        light: getBrandThemeWithJupiterBlue(brandConfig.code),
       },
       variable: getBrandVariable(brandConfig.code),
     };
