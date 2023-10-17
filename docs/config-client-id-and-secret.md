@@ -10,7 +10,7 @@ Specifying your own client ID is relatively straight-forward using the steps bel
 
 ## Register an application
 
-1. Login to the [Developer Console]([https://developers.ringcentral.com/](https://developers.ringcentral.com/login.html), creating an account as necessary.
+1. Login to the [Developer Console](https://developers.ringcentral.com/login.html), creating an account as necessary.
 2. Click "Register app"
 3. Select the "REST API App" app type
 4. Select "3-legged OAuth flow authorization code" auth type and "Client-side web app, e.g. SPA, Javascript"
