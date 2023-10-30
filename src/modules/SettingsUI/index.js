@@ -1,5 +1,7 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { SettingsUI as BaseSettingsUI } from '@ringcentral-integration/widgets/modules/SettingsUI';
+import {
+  SettingsUI as BaseSettingsUI,
+} from '@ringcentral-integration/widgets/modules/SettingsUI';
 
 @Module({
   name: 'SettingsUI',
@@ -8,6 +10,8 @@ import { SettingsUI as BaseSettingsUI } from '@ringcentral-integration/widgets/m
     'ConversationLogger',
     'ThirdPartyService',
     'AudioSettings',
+    'NoiseReduction',
+    'Webphone',
   ]
 })
 export class SettingsUI extends BaseSettingsUI {
@@ -19,6 +23,8 @@ export class SettingsUI extends BaseSettingsUI {
       appFeatures,
       thirdPartyService,
       audioSettings,
+      noiseReduction,
+      webphone,
     } = this._deps;
     return {
       ...baseProps,
@@ -40,6 +46,9 @@ export class SettingsUI extends BaseSettingsUI {
       thirdPartySettings: thirdPartyService.settings,
       autoLogSMSTitle: 'Auto log messages',
       showRingtoneSettings: appFeatures.ringtonePermission,
+      noiseReductionEnabled: noiseReduction.enabled,
+      showNoiseReductionSetting: appFeatures.showNoiseReductionSetting,
+      disableNoiseReductionSetting: webphone.sessions.length > 0,
     }
   }
 
@@ -61,6 +70,9 @@ export class SettingsUI extends BaseSettingsUI {
       },
       onSettingToggle: setting => thirdPartyService.onSettingToggle(setting),
       gotoRingtoneSettings: () => routerInteraction.push('/settings/ringtone'),
+      onNoiseReductionChange: () => {
+        this._deps.noiseReduction.setEnabled(!this._deps.noiseReduction.enabled);
+      },
     }
   }
 }

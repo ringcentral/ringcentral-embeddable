@@ -219,6 +219,7 @@ import { MeetingHomeUI } from '../MeetingHomeUI';
 import { MeetingInviteUI } from '../MeetingInviteModalUI';
 import { MessageSender } from '../MessageSender';
 import { MessageStore } from '../MessageStore';
+import { NoiseReduction } from '../NoiseReduction';
 import { OAuth } from '../OAuth';
 import { RcVideo } from '../RcVideo';
 import { RingtoneSettingsUI } from '../RingtoneSettingsUI';
@@ -282,6 +283,7 @@ import { Webphone } from '../Webphone';
     { provide: 'WebSocketSubscription', useClass: WebSocketSubscription },
     { provide: 'RegionSettings', useClass: RegionSettings },
     { provide: 'NumberValidate', useClass: NumberValidate },
+    { provide: 'NoiseReduction', useClass: NoiseReduction },
     { provide: 'Webphone', useClass: Webphone },
     { provide: 'CallerId', useClass: CallerId },
     { provide: 'CallingSettings', useClass: CallingSettings },
@@ -745,6 +747,7 @@ export function createPhone({
   enableWebRTCPlanB,
   fromPopup,
   enableRingtoneSettings,
+  enableNoiseReductionSetting,
   brandBaseUrl,
   showSignUpButton,
 }) {
@@ -866,7 +869,8 @@ export function createPhone({
           RingtoneSettings: enableRingtoneSettings,
           Contacts: !disableContacts,
           CDC: true, // CompanyDirectoryControl,
-          SignUpButton: showSignUpButton
+          SignUpButton: showSignUpButton,
+          NoiseReduction: enableNoiseReductionSetting,
         },
       },
       {

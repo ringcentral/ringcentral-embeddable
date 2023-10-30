@@ -1,9 +1,20 @@
 import React from 'react';
+
 import PropTypes from 'prop-types';
-import { SettingsPanel } from '@ringcentral-integration/widgets/components/SettingsPanel';
-import { LinkLineItem } from '@ringcentral-integration/widgets/components/SettingsPanel/LinkLineItem';
-import AuthorizeSettingsSection from '../../components/AuthorizeSettingsSection';
-import ToggleSettings from '../../components/ToggleSettings';
+
+import {
+  SettingsPanel,
+} from '@ringcentral-integration/widgets/components/SettingsPanel';
+import {
+  LinkLineItem,
+} from '@ringcentral-integration/widgets/components/SettingsPanel/LinkLineItem';
+
+import AuthorizeSettingsSection
+  from '../../components/AuthorizeSettingsSection';
+import {
+  ToggleSetting,
+  ToggleSettings,
+} from '../../components/ToggleSettings';
 
 function NewSettingsPanel(props) {
   const {
@@ -20,9 +31,13 @@ function NewSettingsPanel(props) {
     onSettingToggle,
     gotoRingtoneSettings,
     showRingtoneSettings,
+    disableNoiseReductionSetting,
+    noiseReductionEnabled,
+    showNoiseReductionSetting,
+    onNoiseReductionChange,
   } = props;
   let authorization = null;
-  let ringtone = (
+  const ringtone = (
     <LinkLineItem
       show={showRingtoneSettings}
       customTitle="Ringtone"
@@ -45,10 +60,22 @@ function NewSettingsPanel(props) {
       />
     );
   }
-  if (authorization || thirdPartySettings.length > 0) {
+  let noiseReduction = null;
+  if (showNoiseReductionSetting) {
+    noiseReduction = (
+      <ToggleSetting
+        name="Remove my background noise (Beta)"
+        value={noiseReductionEnabled}
+        onChange={onNoiseReductionChange}
+        disabled={disableNoiseReductionSetting}
+      />
+    );
+  }
+  if (authorization || noiseReduction || thirdPartySettings.length > 0) {
     additional = (
       <section>
         {ringtone}
+        {noiseReduction}
         <ToggleSettings
           settings={thirdPartySettings}
           onToggle={onSettingToggle}
