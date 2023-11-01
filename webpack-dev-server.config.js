@@ -64,6 +64,7 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
         ADAPTER_NAME: JSON.stringify('adapter.js'),
         SEGMENT_KEY: JSON.stringify(process.env.SEGMENT_KEY),
         ANALYTICS_SECRET_KEY: JSON.stringify(process.env.ANALYTICS_SECRET_KEY),
+        NOISE_REDUCTION_SDK_URL: JSON.stringify('https://cdn.krisp.ai/scripts/jssdk/v1.0.0/krispsdk.js'),
       },
     }),
   ];

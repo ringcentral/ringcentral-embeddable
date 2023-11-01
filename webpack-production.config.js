@@ -45,7 +45,7 @@ if (localExtensionMode) {
 
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 const recordingLink = process.env.RECORDING_LINK || 'https://ringcentral.github.io/ringcentral-media-reader/';
-
+const noiseReductionSDKUrl = localExtensionMode ? '/noiseReduction/index.js' : 'https://cdn.krisp.ai/scripts/jssdk/v1.0.0/krispsdk.js';
 function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = null }) {
   const config = getBaseConfig({ themeFolder, styleLoader });
   config.output = {
@@ -53,7 +53,9 @@ function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = 
     filename: '[name].js',
   };
   config.plugins = [
+    // @ts-ignore
     ...config.plugins,
+    // @ts-ignore
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production'),
@@ -69,6 +71,7 @@ function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = 
         RECORDING_LINK: JSON.stringify(recordingLink),
         SEGMENT_KEY: JSON.stringify(process.env.SEGMENT_KEY),
         ANALYTICS_SECRET_KEY: JSON.stringify(process.env.ANALYTICS_SECRET_KEY),
+        NOISE_REDUCTION_SDK_URL: JSON.stringify(noiseReductionSDKUrl),
         ...env,
       },
     }),

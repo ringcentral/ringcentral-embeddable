@@ -24,9 +24,9 @@ export class NoiseReduction extends RcModuleV2 {
       enableCache: true,
     });
     this._originalTrackMap = new Map();
-    if (deps.appFeatures.showNoiseReductionSetting && process.env.NOISE_REDUCTION_LIB_URL) {
+    if (deps.appFeatures.showNoiseReductionSetting && process.env.NOISE_REDUCTION_SDK_URL) {
       const script = document.createElement('script');
-      script.src = process.env.NOISE_REDUCTION_LIB_URL;
+      script.src = process.env.NOISE_REDUCTION_SDK_URL;
       script.async = true;
       document.body.appendChild(script);
     }
