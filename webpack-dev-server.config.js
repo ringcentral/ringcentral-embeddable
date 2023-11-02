@@ -49,7 +49,9 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
   };
   config.plugins = [
     ...config.plugins,
+    // @ts-ignore
     new webpack.NoEmitOnErrorsPlugin(),
+    // @ts-ignore
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('development'),
@@ -64,7 +66,7 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
         ADAPTER_NAME: JSON.stringify('adapter.js'),
         SEGMENT_KEY: JSON.stringify(process.env.SEGMENT_KEY),
         ANALYTICS_SECRET_KEY: JSON.stringify(process.env.ANALYTICS_SECRET_KEY),
-        NOISE_REDUCTION_SDK_URL: JSON.stringify('https://cdn.krisp.ai/scripts/jssdk/v1.0.0/krispsdk.js'),
+        NOISE_REDUCTION_SDK_URL: JSON.stringify('http://localhost:8080/krispsdk'),
       },
     }),
   ];

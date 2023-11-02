@@ -557,11 +557,12 @@ export class Webphone extends WebphoneBase {
     webphoneSession.on('SessionDescriptionHandler-created', () => {
       // @ts-ignore
       webphoneSession.sessionDescriptionHandler.on('userMedia', (stream) => {
+        console.log('=== on get user media ====');
         this._deps.noiseReduction.denoiser(webphoneSession.id, stream);
       });
     });
     webphoneSession.on('terminated', () => {
-      this._deps.noiseReduction.clean(webphoneSession.id);
+      this._deps.noiseReduction.reset(webphoneSession.id);
     });
   }
 }

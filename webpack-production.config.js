@@ -45,7 +45,7 @@ if (localExtensionMode) {
 
 const errorReportKey = process.env.ERROR_REPORT_KEY;
 const recordingLink = process.env.RECORDING_LINK || 'https://ringcentral.github.io/ringcentral-media-reader/';
-const noiseReductionSDKUrl = localExtensionMode ? '/noiseReduction/index.js' : 'https://cdn.krisp.ai/scripts/jssdk/v1.0.0/krispsdk.js';
+const noiseReductionSDKUrl = localExtensionMode ? '/noiseReduction' : 'https://apps.ringcentral.com/integration/ringcentral-embeddable/noiseReduction/1.0.13';
 function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = null }) {
   const config = getBaseConfig({ themeFolder, styleLoader });
   config.output = {
