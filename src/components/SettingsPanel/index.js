@@ -64,7 +64,7 @@ function NewSettingsPanel(props) {
   if (showNoiseReductionSetting) {
     noiseReduction = (
       <ToggleSetting
-        name="Remove my background noise (Beta)"
+        name="Enable noise reduction (Beta)"
         value={noiseReductionEnabled}
         onChange={onNoiseReductionChange}
         disabled={disableNoiseReductionSetting}
