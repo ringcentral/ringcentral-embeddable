@@ -35,7 +35,7 @@ module.exports = {
       protocol: 'officeathand://',
       name: 'Office@Hand App',
     },
-    isDisableSpartan: false,
+    isDisableSpartan: true,
     allowJupiterUniversalLink: true,
     callWithSoftphone: {
       protocol: 'attvr20://',

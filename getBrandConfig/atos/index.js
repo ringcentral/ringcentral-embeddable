@@ -38,7 +38,7 @@ module.exports = {
       protocol: 'rcmobile://',
       name: 'Unify Office Phone',
     },
-    isDisableSpartan: false,
+    isDisableSpartan: true,
     allowRegionSettings: true,
     allowJupiterUniversalLink: false,
     rcvTeleconference: 'https://video.unifyoffice.com/teleconference',
