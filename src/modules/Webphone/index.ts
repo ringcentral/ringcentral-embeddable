@@ -38,7 +38,9 @@ const WEBPHONE_STATE_SYNC_KEY = 'webphone-state-sync';
 
 @Module({
   name: 'NewWebphone',
-  deps: []
+  deps: [
+    'NoiseReduction',
+  ]
 })
 export class Webphone extends WebphoneBase {
   protected _multipleTabsSupport?: boolean;
@@ -49,6 +51,7 @@ export class Webphone extends WebphoneBase {
 
   constructor(deps) {
     super(deps);
+    this._ignoreModuleReadiness(deps.noiseReduction);
     this._multipleTabsSupport = deps.webphoneOptions.multipleTabsSupport;
     this._forceCurrentWebphoneActive = deps.webphoneOptions.forceCurrentWebphoneActive;
     if (deps.webphoneOptions.multipleTabsSupport) {
@@ -546,5 +549,18 @@ export class Webphone extends WebphoneBase {
       return false;
     }
     return true;
+  }
+
+  override _onAccepted(webphoneSession) {
+    super._onAccepted(webphoneSession);
+    webphoneSession.on('SessionDescriptionHandler-created', () => {
+      // @ts-ignore
+      webphoneSession.sessionDescriptionHandler.on('userMedia', (stream) => {
+        this._deps.noiseReduction.denoiser(webphoneSession.id, stream);
+      });
+    });
+    webphoneSession.on('terminated', () => {
+      this._deps.noiseReduction.reset(webphoneSession.id);
+    });
   }
 }

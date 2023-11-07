@@ -1,7 +1,7 @@
 import url from 'url';
 
-import parseUri from './lib/parseUri';
 import Adapter from './lib/Adapter';
+import parseUri from './lib/parseUri';
 
 const defaultPrefix = process.env.PREFIX;
 // TODO: fix: polyfill NodeList forEach
@@ -80,6 +80,7 @@ const {
   enablePopup,
   popupPageUri,
   enableRingtoneSettings,
+  enableNoiseReductionSetting,
   showSignUpButton,
   defaultDirection,
 } = parseUri(paramsUri);
@@ -139,6 +140,7 @@ const appUri = `${appUrl}?${obj2uri({
   fromAdapter: 1,
   fromPopup,
   enableRingtoneSettings,
+  enableNoiseReductionSetting,
   showSignUpButton,
   _t: Date.now(),
 })}`;

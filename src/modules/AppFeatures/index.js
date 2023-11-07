@@ -1,5 +1,7 @@
-import { AppFeatures as AppFeaturesBase } from '@ringcentral-integration/commons/modules/AppFeatures';
 import { Module } from '@ringcentral-integration/commons/lib/di';
+import {
+  AppFeatures as AppFeaturesBase,
+} from '@ringcentral-integration/commons/modules/AppFeatures';
 
 @Module({
   name: 'AppFeatures',
@@ -53,7 +55,11 @@ export class AppFeatures extends AppFeaturesBase {
     );
   }
 
-  get showSignUpButton(){
+  get showSignUpButton() {
     return !!this.config.SignUpButton;
+  }
+
+  get showNoiseReductionSetting() {
+    return !!this.config.NoiseReduction;
   }
 }

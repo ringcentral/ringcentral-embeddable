@@ -1,26 +1,43 @@
 import React from 'react';
+
 import PropTypes from 'prop-types';
+
 import IconLine from '@ringcentral-integration/widgets/components/IconLine';
 import Switch from '@ringcentral-integration/widgets/components/Switch';
 
-export default function ToggleSettings({ settings, onToggle }) {
-  const settingNodes = settings.map(setting => (
+export function ToggleSetting({
+  name,
+  value,
+  onChange,
+  disabled,
+}) {
+  return (
     <IconLine
-      key={setting.name}
       icon={(
         <Switch
-          disable={false}
-          checked={setting.value}
-          onChange={() => {
-            onToggle(setting);
-          }}
+          disable={disabled}
+          checked={value}
+          onChange={onChange}
         />
       )}
     >
-      <span title={setting.name}>
-        {setting.name}
+      <span title={name}>
+        {name}
       </span>
     </IconLine>
+  );
+}
+export function ToggleSettings({ settings, onToggle }) {
+  const settingNodes = settings.map(setting => (
+    <ToggleSetting
+      key={setting.name}
+      name={setting.name}
+      value={setting.value}
+      disabled={false}
+      onChange={() => {
+        onToggle(setting);
+      }}
+    />
   ));
   return (
     <>

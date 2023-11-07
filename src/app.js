@@ -1,14 +1,16 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
-import url from 'url';
-
 import 'setimmediate';
 import './lib/TabFreezePrevention';
 import './lib/patchGetUserMedia';
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import { createStore } from 'redux';
+import url from 'url';
+
+import App from './containers/App';
 import parseUri from './lib/parseUri';
 import { createPhone } from './modules/Phone';
-import App from './containers/App';
 
 const defaultPrefix = process.env.PREFIX;
 const defaultApiConfig = process.env.API_CONFIG;
@@ -69,6 +71,7 @@ const {
   enableWebRTCPlanB,
   brand,
   enableRingtoneSettings,
+  enableNoiseReductionSetting,
   showSignUpButton
 } = pathParams;
 
@@ -138,6 +141,7 @@ const phone = createPhone({
   forceCurrentWebphoneActive: fromPopup,
   fromPopup,
   enableRingtoneSettings,
+  enableNoiseReductionSetting,
   brandBaseUrl: process.env.HOSTING_URL ? process.env.HOSTING_URL : url.resolve(window.location.href, './'),
   showSignUpButton,
 });
