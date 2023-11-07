@@ -121,7 +121,7 @@ export class NoiseReduction extends RcModuleV2 {
   }
 
   override _shouldInit() {
-    return !!(super._shouldInit() && this._deps.auth.loggedIn);
+    return !!(super._shouldInit() && this._deps.auth.loggedIn && this._deps.appFeatures.showNoiseReductionSetting);
   }
 
   override async onInit() {
