@@ -508,7 +508,6 @@ export class Webphone extends WebphoneBase {
 
   async _removeWebphone() {
     this.stopAudio();
-    this._deps.noiseReduction.reset();
     await super._removeWebphone();
   }
 
@@ -557,7 +556,6 @@ export class Webphone extends WebphoneBase {
     webphoneSession.on('SessionDescriptionHandler-created', () => {
       // @ts-ignore
       webphoneSession.sessionDescriptionHandler.on('userMedia', (stream) => {
-        console.log('=== on get user media ====');
         this._deps.noiseReduction.denoiser(webphoneSession.id, stream);
       });
     });
