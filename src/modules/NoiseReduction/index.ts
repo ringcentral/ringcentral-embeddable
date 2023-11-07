@@ -8,6 +8,15 @@ import {
 
 import { Denoiser } from './Denoiser';
 
+function isSameOrigin(uri) {
+  if (uri.indexOf('http') !== 0) {
+    return true;
+  }
+  const { protocol, host } = window.location;
+  const url = new URL(uri);
+  return protocol === url.protocol && host === url.host;
+}
+
 @Module({
   name: 'NoiseReduction',
   deps: [
@@ -30,7 +39,11 @@ export class NoiseReduction extends RcModuleV2 {
       enableCache: true,
     });
     this._isSDKInitialized = false;
-    if (deps.appFeatures.showNoiseReductionSetting && process.env.NOISE_REDUCTION_SDK_URL) {
+    if (
+      deps.appFeatures.showNoiseReductionSetting &&
+      process.env.NOISE_REDUCTION_SDK_URL &&
+      isSameOrigin(process.env.NOISE_REDUCTION_SDK_URL)
+    ) {
       const script = document.createElement('script');
       script.src = `${process.env.NOISE_REDUCTION_SDK_URL}/krispsdk.es5.js`;
       document.body.appendChild(script);
@@ -114,6 +127,9 @@ export class NoiseReduction extends RcModuleV2 {
   override async onInit() {
     if (this.enabled) {
       await this._initKrisp();
+      if (!window.KrispSDK || !window.KrispSDK.isSupported()) {
+        this.setEnabled(false);
+      }
     }
   }
 
