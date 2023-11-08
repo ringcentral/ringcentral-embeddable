@@ -42,6 +42,7 @@ export class SettingsUI extends BaseSettingsUI {
       thirdPartyServiceName: thirdPartyService.serviceName,
       authorizationLogo: thirdPartyService.authorizationLogo,
       authorizedAccount: thirdPartyService.authorizedAccount,
+      showAuthRedDot: thirdPartyService.showAuthRedDot,
       showFeedback: thirdPartyService.showFeedback,
       thirdPartySettings: thirdPartyService.settings,
       autoLogSMSTitle: 'Auto log messages',

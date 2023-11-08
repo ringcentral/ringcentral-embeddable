@@ -16,6 +16,7 @@ export default function AuthorizeSettingsSection({
   contactSyncing,
   authorizationLogo,
   authorizedAccount,
+  showAuthRedDot,
 }) {
   let status = authorized ? authorizedTitle : unauthorizedTitle;
   if (authorized && contactSyncing) {
@@ -40,6 +41,10 @@ export default function AuthorizeSettingsSection({
       {status}
     </RcButton>
   );
+  let redDot = null;
+  if (showAuthRedDot) {
+    redDot = (<div className={styles.redDot} />);
+  }
   if (authorized && authorizedAccount) {
     return (
       <Line>
@@ -57,7 +62,10 @@ export default function AuthorizeSettingsSection({
     <Line>
       <div className={styles.accountWrapper}>
         {icon}
-        {authButton}
+        <span className='authButtonWrapper'>
+          {authButton}
+          {redDot}
+        </span>
       </div>
     </Line>
   );

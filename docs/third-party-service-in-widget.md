@@ -708,6 +708,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     authorized: false,
     authorizedAccount: 'test@email.com', // optional, authorized account email or id
     authorizationLogo: 'https://your_brand_picture/logo.png', // optional, show your brand logo in authorization section, recommeneded: height 20px, width < 85px.
+    // showAuthRedDot: true, // optional, this will show red dot at settings page when need to auth
   }
 }, '*');
 ```

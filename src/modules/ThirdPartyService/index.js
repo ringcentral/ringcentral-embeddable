@@ -1,14 +1,14 @@
-import RcModule from '@ringcentral-integration/commons/lib/RcModule';
-import { Module } from '@ringcentral-integration/commons/lib/di';
 import { phoneTypes } from '@ringcentral-integration/commons/enums/phoneTypes';
-
-import { getFilterContacts } from '@ringcentral-integration/commons/lib/contactHelper';
-
-import actionTypes from './actionTypes';
-import getReducer from './getReducer';
+import {
+  getFilterContacts,
+} from '@ringcentral-integration/commons/lib/contactHelper';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import RcModule from '@ringcentral-integration/commons/lib/RcModule';
 
 import requestWithPostMessage from '../../lib/requestWithPostMessage';
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
+import actionTypes from './actionTypes';
+import getReducer from './getReducer';
 
 function formatPhoneType(phoneType) {
   if (!phoneType) {
@@ -334,6 +334,7 @@ export default class ThirdPartyService extends RcModule {
       authorized: service.authorized,
       authorizedTitle: service.authorizedTitle,
       unauthorizedTitle: service.unauthorizedTitle,
+      showAuthRedDot: service.showAuthRedDot || false,
     });
   }
 
@@ -931,6 +932,14 @@ export default class ThirdPartyService extends RcModule {
 
   get authorizationLogo() {
     return this._authorizationLogo;
+  }
+
+  get showAuthRedDot() {
+    return (
+      this.authorizationRegistered &&
+      this.state.showAuthRedDot &&
+      !this.authorized
+    );
   }
 
   get authorizedAccount() {
