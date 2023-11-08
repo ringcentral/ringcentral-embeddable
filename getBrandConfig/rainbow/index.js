@@ -39,7 +39,7 @@ module.exports = {
       protocol: 'rcmobile://',
       name: 'Rainbow Office Phone',
     },
-    isDisableSpartan: false,
+    isDisableSpartan: true,
     allowRegionSettings: true,
     allowJupiterUniversalLink: false,
     rcvTeleconference: 'https://video.rainbowoffice.com/teleconference',

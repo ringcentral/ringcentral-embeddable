@@ -38,7 +38,7 @@ module.exports = {
       'nl-NL',
       'ko-KR',
     ],
-    isDisableSpartan: false,
+    isDisableSpartan: true,
     allowRegionSettings: true,
     allowJupiterUniversalLink: false,
     rcmProductName: 'BT Cloud Work Meetings',

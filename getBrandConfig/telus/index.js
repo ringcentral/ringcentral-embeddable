@@ -39,7 +39,7 @@ module.exports = {
       name: 'TELUS Business Connect Phone',
     },
     allowRegionSettings: true,
-    isDisableSpartan: false,
+    isDisableSpartan: true,
     allowJupiterUniversalLink: true,
     rcmProductName: 'TELUS Business Connect Meetings',
     rcvProductName: 'Business Connect Video Meeting',

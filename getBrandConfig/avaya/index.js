@@ -38,7 +38,7 @@ module.exports = {
       protocol: 'rcmobile://',
       name: 'Avaya Cloud Office Phone',
     },
-    isDisableSpartan: false,
+    isDisableSpartan: true,
     allowJupiterUniversalLink: true,
     allowRegionSettings: true,
     signupUrl: 'https://www.avaya.com/en/products/ucaas/cloud-office-pricing/',

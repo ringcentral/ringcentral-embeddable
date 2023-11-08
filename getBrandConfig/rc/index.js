@@ -37,7 +37,7 @@ module.exports = {
       protocol: 'rcapp://',
       name: 'RingCentral App',
     },
-    isDisableSpartan: false,
+    isDisableSpartan: true,
     allowJupiterUniversalLink: false,
     callWithSoftphone: {
       protocol: 'rcmobile://',
