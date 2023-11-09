@@ -384,6 +384,7 @@ export default class ThirdPartyService extends RcModule {
       type: this.actionTypes.registerCallLogger,
       callLoggerTitle: service.callLoggerTitle,
       showLogModal: !!service.showLogModal,
+      callLoggerAutoSettingLabel: service.callLoggerAutoSettingLabel,
     });
   }
 
@@ -427,6 +428,7 @@ export default class ThirdPartyService extends RcModule {
     this.store.dispatch({
       type: this.actionTypes.registerMessageLogger,
       messageLoggerTitle: service.messageLoggerTitle,
+      messageLoggerAutoSettingLabel: service.messageLoggerAutoSettingLabel,
     });
   }
 
@@ -906,12 +908,20 @@ export default class ThirdPartyService extends RcModule {
     return this.state.callLoggerTitle;
   }
 
+  get callLoggerAutoSettingLabel() {
+    return this.state.callLoggerAutoSettingLabel;
+  }
+
   get messageLoggerRegistered() {
     return this.state.messageLoggerRegistered;
   }
 
   get messageLoggerTitle() {
     return this.state.messageLoggerTitle;
+  }
+
+  get messageLoggerAutoSettingLabel() {
+    return this.state.messageLoggerAutoSettingLabel;
   }
 
   get authorizationRegistered() {

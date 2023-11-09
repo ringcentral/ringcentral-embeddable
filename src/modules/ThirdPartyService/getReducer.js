@@ -100,6 +100,22 @@ export function getCallLoggerTitleReducer(types) {
   };
 }
 
+export function getCallLoggerAutoSettingLabelReducer(types) {
+  return (state = null, { type, callLoggerAutoSettingLabel }) => {
+    switch (type) {
+      case types.registerCallLogger:
+        if (callLoggerAutoSettingLabel) {
+          return callLoggerAutoSettingLabel;
+        }
+        return state;
+      case types.resetSuccess:
+        return null;
+      default:
+        return state;
+    }
+  };
+}
+
 export function getMessageLoggerRegisteredReducer(types) {
   return (state = false, { type }) => {
     switch (type) {
@@ -119,6 +135,22 @@ export function getMessageLoggerTitleReducer(types) {
       case types.registerMessageLogger:
         if (messageLoggerTitle) {
           return messageLoggerTitle;
+        }
+        return state;
+      case types.resetSuccess:
+        return null;
+      default:
+        return state;
+    }
+  };
+}
+
+export function getMessageLoggerAutoSettingLabelReducer(types) {
+  return (state = null, { type, messageLoggerAutoSettingLabel }) => {
+    switch (type) {
+      case types.registerMessageLogger:
+        if (messageLoggerAutoSettingLabel) {
+          return messageLoggerAutoSettingLabel;
         }
         return state;
       case types.resetSuccess:
@@ -353,8 +385,10 @@ export default function getReducer(types) {
     meetingInviteTitle: getMeetingInviteTitleReducer(types),
     callLoggerRegistered: getCallLoggerRegisteredReducer(types),
     callLoggerTitle: getCallLoggerTitleReducer(types),
+    callLoggerAutoSettingLabel: getCallLoggerAutoSettingLabelReducer(types),
     messageLoggerRegistered: getMessageLoggerRegisteredReducer(types),
     messageLoggerTitle: getMessageLoggerTitleReducer(types),
+    messageLoggerAutoSettingLabel: getMessageLoggerAutoSettingLabelReducer(types),
     authorized: getAuthorizedReducer(types),
     authorizedTitle: getAuthorizedTitleReducer(types),
     unauthorizedTitle: getUnauthorizedTitleReducer(types),

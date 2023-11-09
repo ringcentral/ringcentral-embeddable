@@ -106,7 +106,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     name: 'TestService', // service name
     meetingInvitePath: '/meeting/invite',
     meetingInviteTitle: 'Invite with TestService',
-    meetingUpcomingPath: '/meetingUpcomingList
+    meetingUpcomingPath: '/meetingUpcomingList'
   }
 }, '*');
 ```
@@ -458,6 +458,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     name: 'TestService',
     callLoggerPath: '/callLogger',
     callLoggerTitle: 'Log to TestService',
+    // callLoggerAutoSettingLabel: 'Auto log calls', // optional, customized the auto log setting label
     // recordingWithToken: 1
   }
 }, '*');
@@ -614,6 +615,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     name: 'TestService',
     messageLoggerPath: '/messageLogger',
     messageLoggerTitle: 'Log to TestService',
+    // messageLoggerAutoSettingLabel: 'Auto log messages', // optional, customize the auto log setting label
     // attachmentWithToken: true,
   }
 }, '*');
