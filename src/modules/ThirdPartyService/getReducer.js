@@ -1,5 +1,7 @@
 import { combineReducers } from 'redux';
-import getModuleStatusReducer from '@ringcentral-integration/commons/lib/getModuleStatusReducer';
+
+import getModuleStatusReducer
+  from '@ringcentral-integration/commons/lib/getModuleStatusReducer';
 
 export function getServiceNameReducer(types) {
   return (state = null, { type, serviceName }) => {
@@ -294,6 +296,17 @@ export function getUnauthorizedTitleReducer(types) {
   };
 }
 
+export function getShowAuthRedDotReducer(types) {
+  return (state = false, { type, showAuthRedDot }) => {
+    switch (type) {
+      case types.registerAuthorization:
+        return showAuthRedDot;
+      default:
+        return state;
+    }
+  };
+}
+
 export function getShowLogModalReducer(types) {
   return (state = false, { type, showLogModal }) => {
     switch (type) {
@@ -345,6 +358,7 @@ export default function getReducer(types) {
     authorized: getAuthorizedReducer(types),
     authorizedTitle: getAuthorizedTitleReducer(types),
     unauthorizedTitle: getUnauthorizedTitleReducer(types),
+    showAuthRedDot: getShowAuthRedDotReducer(types),
     showLogModal: getShowLogModalReducer(types),
     activityName: getActivityNameReducer(types),
     showFeedback: getShowFeedbackReducer(types),

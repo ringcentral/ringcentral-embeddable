@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+
 import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
 
 import { MainViewPanel } from '../../components/MainViewPanel';
@@ -13,6 +14,7 @@ function mapToProps(_, {
     glipCompany,
     genericMeeting,
     brand,
+    thirdPartyService,
   },
 }) {
   const unreadCounts = messageStore.unreadCounts || 0;
@@ -26,7 +28,7 @@ function mapToProps(_, {
   const { currentLocale } = locale;
   const showContacts = appFeatures.ready && appFeatures.isContactsEnabled;
   const showHistory = appFeatures.ready && appFeatures.hasReadExtensionCallLog;
-
+  const settingsUnreadCount = thirdPartyService.showAuthRedDot ? 1 : 0;
   return {
     currentLocale,
     unreadCounts,
@@ -40,6 +42,7 @@ function mapToProps(_, {
     glipUnreadCounts: glipGroups.unreadCounts,
     currentPath: routerInteraction.currentPath,
     rcvProductName: brand.rcvProductName,
+    settingsUnreadCount,
   };
 }
 function mapToFunctions(_, {

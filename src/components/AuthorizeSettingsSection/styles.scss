@@ -53,3 +53,17 @@
   padding-right: 10px;
   color: $ash;
 }
+
+.authButtonWrapper {
+  display: relative;
+}
+
+.redDot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 100%;
+  background-color: #f65d60;
+  top: 9px;
+  right: 15px;
+}

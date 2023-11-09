@@ -27,6 +27,7 @@ function NewSettingsPanel(props) {
     thirdPartyContactSyncing,
     authorizationLogo,
     authorizedAccount,
+    showAuthRedDot,
     thirdPartySettings,
     onSettingToggle,
     gotoRingtoneSettings,
@@ -57,6 +58,7 @@ function NewSettingsPanel(props) {
         unauthorizedTitle={unauthorizedTitle}
         authorizationLogo={authorizationLogo}
         authorizedAccount={authorizedAccount}
+        showAuthRedDot={showAuthRedDot}
       />
     );
   }

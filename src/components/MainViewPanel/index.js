@@ -1,30 +1,44 @@
 import React from 'react';
 
-import TabNavigationView from '@ringcentral-integration/widgets/components/TabNavigationView';
-
-import DialPadIcon from '@ringcentral-integration/widgets/assets/images/DialPadNav.svg';
-import CallHistoryIcon from '@ringcentral-integration/widgets/assets/images/CallHistory.svg';
-import MessageIcon from '@ringcentral-integration/widgets/assets/images/Messages.svg';
-import SettingsIcon from '@ringcentral-integration/widgets/assets/images/Settings.svg';
-import MoreMenuIcon from '@ringcentral-integration/widgets/assets/images/MoreMenu.svg';
+import CallHistoryIcon
+  from '@ringcentral-integration/widgets/assets/images/CallHistory.svg';
+import CallHistoryHoverIcon
+  from '@ringcentral-integration/widgets/assets/images/CallHistoryHover.svg';
+import ContactIcon
+  from '@ringcentral-integration/widgets/assets/images/Contact.svg';
+import ContactHoverIcon
+  from '@ringcentral-integration/widgets/assets/images/ContactHover.svg';
+import ContactNavIcon
+  from '@ringcentral-integration/widgets/assets/images/ContactsNavigation.svg';
+import DialPadHoverIcon
+  from '@ringcentral-integration/widgets/assets/images/DialPadHover.svg';
+import DialPadIcon
+  from '@ringcentral-integration/widgets/assets/images/DialPadNav.svg';
 import GlipIcon from '@ringcentral-integration/widgets/assets/images/Glip.svg';
-
-import DialPadHoverIcon from '@ringcentral-integration/widgets/assets/images/DialPadHover.svg';
-import CallHistoryHoverIcon from '@ringcentral-integration/widgets/assets/images/CallHistoryHover.svg';
-import MessageHoverIcon from '@ringcentral-integration/widgets/assets/images/MessagesHover.svg';
-import SettingsHoverIcon from '@ringcentral-integration/widgets/assets/images/SettingsHover.svg';
-import MoreMenuHoverIcon from '@ringcentral-integration/widgets/assets/images/MoreMenuHover.svg';
-
-import GlipHoverIcon from '@ringcentral-integration/widgets/assets/images/GlipHover.svg';
-import SettingsNavIcon from '@ringcentral-integration/widgets/assets/images/SettingsNavigation.svg';
-
-import ContactHoverIcon from '@ringcentral-integration/widgets/assets/images/ContactHover.svg';
-import ContactIcon from '@ringcentral-integration/widgets/assets/images/Contact.svg';
-import ContactNavIcon from '@ringcentral-integration/widgets/assets/images/ContactsNavigation.svg';
-
-import MeetingIcon from '@ringcentral-integration/widgets/assets/images/Meeting.svg';
-import MeetingHoverIcon from '@ringcentral-integration/widgets/assets/images/MeetingHover.svg';
-import MeetingNavIcon from '@ringcentral-integration/widgets/assets/images/MeetingNavigation.svg';
+import GlipHoverIcon
+  from '@ringcentral-integration/widgets/assets/images/GlipHover.svg';
+import MeetingIcon
+  from '@ringcentral-integration/widgets/assets/images/Meeting.svg';
+import MeetingHoverIcon
+  from '@ringcentral-integration/widgets/assets/images/MeetingHover.svg';
+import MeetingNavIcon
+  from '@ringcentral-integration/widgets/assets/images/MeetingNavigation.svg';
+import MessageIcon
+  from '@ringcentral-integration/widgets/assets/images/Messages.svg';
+import MessageHoverIcon
+  from '@ringcentral-integration/widgets/assets/images/MessagesHover.svg';
+import MoreMenuIcon
+  from '@ringcentral-integration/widgets/assets/images/MoreMenu.svg';
+import MoreMenuHoverIcon
+  from '@ringcentral-integration/widgets/assets/images/MoreMenuHover.svg';
+import SettingsIcon
+  from '@ringcentral-integration/widgets/assets/images/Settings.svg';
+import SettingsHoverIcon
+  from '@ringcentral-integration/widgets/assets/images/SettingsHover.svg';
+import SettingsNavIcon
+  from '@ringcentral-integration/widgets/assets/images/SettingsNavigation.svg';
+import TabNavigationView
+  from '@ringcentral-integration/widgets/components/TabNavigationView';
 
 import i18n from './i18n';
 
@@ -41,6 +55,7 @@ export const MainViewPanel = (props) => {
     glipUnreadCounts,
     isRCV,
     rcvProductName,
+    settingsUnreadCount,
   } = props;
   const tabList = [
     showCall && {
@@ -112,6 +127,7 @@ export const MainViewPanel = (props) => {
       moreMenuIcon: SettingsNavIcon,
       label: i18n.getString('settingsLabel', currentLocale),
       path: '/settings',
+      noticeCounts: settingsUnreadCount,
       isActive: currentPath => (
         currentPath.substr(0, 9) === '/settings'
       ),
@@ -149,7 +165,13 @@ export const MainViewPanel = (props) => {
       isActive: (currentPath, currentVirtualPath) => (
         currentVirtualPath === '!moreMenu'
       ),
-      childTabs
+      childTabs,
+      noticeCounts: childTabs.reduce((acc, childTab) => {
+        if (childTab.noticeCounts) {
+          acc += childTab.noticeCounts;
+        }
+        return acc;
+      }, 0),
     });
   }
   return <TabNavigationView {...props} tabs={tabs} />;

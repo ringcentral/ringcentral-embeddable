@@ -80,3 +80,12 @@ div[class*="MuiCircularProgress-indeterminate"] {
     transform: rotate(360deg);
   }
 }
+
+:global .DropdownNavigationItem_root .DropdownNavigationItem_notice {
+  width: 1.4em;
+  height: 1.4em;
+  line-height: 1.4em;
+  font-size: 0.7em;
+  top: 0.2em;
+  left: 3.2em;
+}
