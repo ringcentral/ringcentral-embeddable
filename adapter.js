@@ -57358,7 +57358,9 @@ const {
   enableRingtoneSettings,
   enableNoiseReductionSetting,
   showSignUpButton,
-  defaultDirection
+  defaultDirection,
+  defaultAutoLogCallEnabled,
+  defaultAutoLogMessageEnabled
 } = parseCallbackUri(paramsUri);
 function obj2uri(obj) {
   if (!obj) {
@@ -57417,6 +57419,8 @@ const appUri = `${appUrl}?${obj2uri({
   enableRingtoneSettings,
   enableNoiseReductionSetting,
   showSignUpButton,
+  defaultAutoLogCallEnabled,
+  defaultAutoLogMessageEnabled,
   _t: Date.now()
 })}`;
 function init() {
