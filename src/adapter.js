@@ -83,6 +83,8 @@ const {
   enableNoiseReductionSetting,
   showSignUpButton,
   defaultDirection,
+  defaultAutoLogCallEnabled,
+  defaultAutoLogMessageEnabled,
 } = parseUri(paramsUri);
 
 function obj2uri(obj) {
@@ -142,6 +144,8 @@ const appUri = `${appUrl}?${obj2uri({
   enableRingtoneSettings,
   enableNoiseReductionSetting,
   showSignUpButton,
+  defaultAutoLogCallEnabled,
+  defaultAutoLogMessageEnabled,
   _t: Date.now(),
 })}`;
 

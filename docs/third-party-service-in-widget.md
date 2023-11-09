@@ -20,11 +20,13 @@ This document show how the widget can interact with your application deeply.
   - [Show contact's activities from your application](#show-contacts-activities-from-your-application)
   - [Log call into your service](#log-call-into-your-service)
     - [Add call logger button in calls page](#add-call-logger-button-in-calls-page)
+    - [Auto log calls setting](#auto-log-calls-setting)
     - [Add call logger modal](#add-call-logger-modal)
     - [Add call log entity matcher](#add-call-log-entity-matcher)
       - [Trigger call logger entity match manually](#trigger-call-logger-entity-match-manually)
   - [Log messages into your service](#log-messages-into-your-service)
     - [Add message logger button in messages page](#add-message-logger-button-in-messages-page)
+    - [Auto log messages settings](#auto-log-messages-settings)
     - [Add message log entity matcher](#add-message-log-entity-matcher)
   - [Add third party authorization button](#add-third-party-authorization-button)
   - [Third Party Settings](#third-party-settings)
@@ -106,7 +108,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     name: 'TestService', // service name
     meetingInvitePath: '/meeting/invite',
     meetingInviteTitle: 'Invite with TestService',
-    meetingUpcomingPath: '/meetingUpcomingList
+    meetingUpcomingPath: '/meetingUpcomingList'
   }
 }, '*');
 ```
@@ -458,6 +460,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     name: 'TestService',
     callLoggerPath: '/callLogger',
     callLoggerTitle: 'Log to TestService',
+    // callLoggerAutoSettingLabel: 'Auto log calls', // optional, customized the auto log setting label
     // recordingWithToken: 1
   }
 }, '*');
@@ -489,17 +492,6 @@ window.addEventListener('message', function (e) {
 
 This message event is fired when user clicks `Log` button. Or if user enables `Auto log calls` in settings, this event will be also fired when a call is started and updated.
 
-Listen to `Auto log calls` setting changed:
-
-```js
-window.addEventListener('message', function (e) {
-  var data = e.data;
-  if (data && data.type === 'rc-callLogger-auto-log-notify') {
-    console.log('rc-callLogger-auto-log-notify:', data.autoLog);
-  }
-});
-```
-
 In this message event, you can get call information in `data.body.call`. When call is recorded and recording file is generated, you can get `recording` data in `data.body.call`:
 
 ```js
@@ -522,6 +514,34 @@ The `link` property in `recording` is a link to get and play recording file from
   type: "OnDemand"
   uri: "https://platform.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004"
 }
+```
+
+### Auto log calls setting
+
+User can enable/disable auto log in settings page. To set default `Auto log calls` enabled:
+
+Add `defaultAutoLogCallEnabled` into the `adapter.js` URI:
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?defaultAutoLogCallEnabled=1";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+Listen to `Auto log calls` setting changed:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-callLogger-auto-log-notify') {
+    console.log('rc-callLogger-auto-log-notify:', data.autoLog);
+  }
+});
 ```
 
 ### Add call logger modal
@@ -614,6 +634,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     name: 'TestService',
     messageLoggerPath: '/messageLogger',
     messageLoggerTitle: 'Log to TestService',
+    // messageLoggerAutoSettingLabel: 'Auto log messages', // optional, customize the auto log setting label
     // attachmentWithToken: true,
   }
 }, '*');
@@ -643,11 +664,28 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-This message event is fired when user clicks `Log` button. Or if user enables `Auto log message` in settings, this event will be also fired when a message is created and updated.
+This message event is fired when user clicks `Log` button. Or if user enables `Auto log messages` in settings, this event will be also fired when a message is created and updated.
 
 In this message event, you can get call information in `data.body.conversation`. Messages are grouped by `conversationId` and `date`. So for a conversation that have messages in different date, you will receive multiple log message event.
 
 For Voicemail and Fax, you can get `attachment` data in message. The `attachment.link` is a link used to get voicemail file from RingCentral server with Browser. The `attachment.uri` is a URI which can be used to get attachment file  with RingCentral access token. If you pass `attachmentWithToken` when register service, you can get `attachment.uri` with `access_token`. The `access_token` will be expired in minutes, so need to download immediately when get it. 
+
+### Auto log messages settings
+
+User can enable/disable auto log in settings page. To set default `Auto log messages` enabled:
+
+Add `defaultAutoLogMessageEnabled` into the `adapter.js` URI:
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?defaultAutoLogMessageEnabled=1";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
 
 ### Add message log entity matcher
 

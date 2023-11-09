@@ -72,7 +72,9 @@ const {
   brand,
   enableRingtoneSettings,
   enableNoiseReductionSetting,
-  showSignUpButton
+  showSignUpButton,
+  defaultAutoLogCallEnabled,
+  defaultAutoLogMessageEnabled,
 } = pathParams;
 
 const defaultBrand = brand || process.env.BRAND;
@@ -144,6 +146,8 @@ const phone = createPhone({
   enableNoiseReductionSetting,
   brandBaseUrl: process.env.HOSTING_URL ? process.env.HOSTING_URL : url.resolve(window.location.href, './'),
   showSignUpButton,
+  defaultAutoLogCallEnabled,
+  defaultAutoLogMessageEnabled,
 });
 
 const store = createStore(phone.reducer);
