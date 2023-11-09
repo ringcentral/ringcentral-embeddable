@@ -10780,6 +10780,14 @@ div[class*=MuiCircularProgress-indeterminate] {
     transform: rotate(360deg);
   }
 }
+.DropdownNavigationItem_root .DropdownNavigationItem_notice {
+  width: 1.4em;
+  height: 1.4em;
+  line-height: 1.4em;
+  font-size: 0.7em;
+  top: 0.2em;
+  left: 3.2em;
+}
 .RecentActivityNavigationButton_navigationButton {
   position: relative;
   width: 100%;
@@ -11286,6 +11294,20 @@ div[class*=MuiCircularProgress-indeterminate] {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   padding-right: 10px;
   color: var(--ash);
+}
+
+.AuthorizeSettingsSection_authButtonWrapper {
+  display: relative;
+}
+
+.AuthorizeSettingsSection_redDot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 100%;
+  background-color: #f65d60;
+  top: 9px;
+  right: 15px;
 }
 .RingtoneSettingsPanel_root {
   position: relative;
