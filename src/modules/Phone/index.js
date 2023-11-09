@@ -300,13 +300,6 @@ import { Webphone } from '../Webphone';
     { provide: 'CallMonitor', useClass: CallMonitor },
     { provide: 'CallHistory', useClass: CallHistory },
     { provide: 'CallLogger', useClass: CallLogger },
-    {
-      provide: 'CallLoggerOptions',
-      useValue: {
-        readyCheckFunction: () => true,
-        autoLog: false,
-      },
-    },
     { provide: 'CallLogSection', useClass: CallLogSection },
     { provide: 'ActivityMatcher', useClass: ActivityMatcher },
     { provide: 'ConversationMatcher', useClass: ConversationMatcher },
@@ -415,12 +408,6 @@ import { Webphone } from '../Webphone';
     { provide: 'Meeting', useClass: Meeting },
     { provide: 'Analytics', useClass: Analytics },
     { provide: 'ConversationLogger', useClass: ConversationLogger },
-    {
-      provide: 'ConversationLoggerOptions',
-      useValue: {
-        readyCheckFunction: () => true,
-      },
-    },
     { provide: 'ActiveCallsUI', useClass: ActiveCallsUI },
     { provide: 'LoginUI', useClass: LoginUI },
     { provide: 'SettingsUI', useClass: SettingsUI },
@@ -750,6 +737,8 @@ export function createPhone({
   enableNoiseReductionSetting,
   brandBaseUrl,
   showSignUpButton,
+  defaultAutoLogCallEnabled,
+  defaultAutoLogMessageEnabled,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -927,7 +916,21 @@ export function createPhone({
             return fetch(`${host}/assets/images/favicon.ico?t=${t}`);
           },
         },
-      }
+      },
+      {
+        provide: 'CallLoggerOptions',
+        useValue: {
+          readyCheckFunction: () => true,
+          autoLog: !!defaultAutoLogCallEnabled,
+        },
+      },
+      {
+        provide: 'ConversationLoggerOptions',
+        useValue: {
+          readyCheckFunction: () => true,
+          autoLog: !!defaultAutoLogMessageEnabled,
+        },
+      },
     ]
   })
   class Phone extends BasePhone {}

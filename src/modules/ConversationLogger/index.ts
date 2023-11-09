@@ -28,6 +28,9 @@ const getCurrentDateTimeStamp = () => {
 export class ConversationLogger extends ConversationLoggerBase {
   constructor(deps) {
     super(deps);
+    if (this._deps.conversationLoggerOptions.autoLog) {
+      this._autoLog = true;
+    }
     this._logFunction = async (data) => {
       await this._doLog(data);
     };
