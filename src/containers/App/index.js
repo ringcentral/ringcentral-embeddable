@@ -1,64 +1,98 @@
 import React from 'react';
+
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import { Router, Route } from 'react-router';
+import {
+  Route,
+  Router,
+} from 'react-router';
 
-import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
-import { ThemeContainer } from '@ringcentral-integration/widgets/containers/ThemeContainer';
-import CallingSettingsPage from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
-import RegionSettingsPage from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
-import DialerPage from '@ringcentral-integration/widgets/containers/DialerPage';
-import ComposeTextPage from '@ringcentral-integration/widgets/containers/ComposeTextPage';
-import { IncomingCallContainer } from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
+import GlipChat
+  from '@ringcentral-integration/glip-widgets/containers/GlipChat';
+import GlipGroups
+  from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
+import ActiveCallsPage
+  from '@ringcentral-integration/widgets/containers/ActiveCallsPage';
+import AlertContainer
+  from '@ringcentral-integration/widgets/containers/AlertContainer';
+import AudioSettingsPage
+  from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
 // import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
-import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
-import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
-import AudioSettingsPage from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
-import ContactsPage from '@ringcentral-integration/widgets/containers/ContactsPage';
-import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
-import { FeedbackPage } from '@ringcentral-integration/widgets/containers/FeedbackPage';
-import AlertContainer from '@ringcentral-integration/widgets/containers/AlertContainer';
-import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
-import ConversationsPage from '@ringcentral-integration/widgets/containers/ConversationsPage';
-import ConversationPage from '@ringcentral-integration/widgets/containers/ConversationPage';
-import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
-import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
-
-import ConferenceCallDialerPage from '@ringcentral-integration/widgets/containers/ConferenceCallDialerPage';
-import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
-import { DialerAndCallsTabContainer } from '@ringcentral-integration/widgets/containers/DialerAndCallsTabContainer';
-import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
-import TransferPage from '@ringcentral-integration/widgets/containers/TransferPage';
+import CallBadgeContainer
+  from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
+import CallingSettingsPage
+  from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
+import {
+  CallsOnholdPage,
+} from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
+import ConferenceCallDialerPage
+  from '@ringcentral-integration/widgets/containers/ConferenceCallDialerPage';
+import {
+  ConferenceParticipantPage,
+} from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
+import {
+  ConnectivityBadgeContainer,
+} from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
+import ContactDetailsPage
+  from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
+import ContactsPage
+  from '@ringcentral-integration/widgets/containers/ContactsPage';
+import ConversationsPage
+  from '@ringcentral-integration/widgets/containers/ConversationsPage';
+import {
+  DialerAndCallsTabContainer,
+} from '@ringcentral-integration/widgets/containers/DialerAndCallsTabContainer';
+import DialerPage from '@ringcentral-integration/widgets/containers/DialerPage';
+import {
+  FeedbackPage,
+} from '@ringcentral-integration/widgets/containers/FeedbackPage';
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
-import ActiveCallsPage from '@ringcentral-integration/widgets/containers/ActiveCallsPage';
-import { SimpleCallControlPage } from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
-import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
+import GenericMeetingPage
+  from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
+import {
+  IncomingCallContainer,
+} from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
+import {
+  LoginPage,
+} from '@ringcentral-integration/widgets/containers/LoginPage';
+import {
+  ModalContainer,
+} from '@ringcentral-integration/widgets/containers/ModalContainer';
+import RegionSettingsPage
+  from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
+import {
+  SimpleCallControlPage,
+} from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
+import {
+  ThemeContainer,
+} from '@ringcentral-integration/widgets/containers/ThemeContainer';
+import TransferPage
+  from '@ringcentral-integration/widgets/containers/TransferPage';
+import {
+  PhoneContext,
+} from '@ringcentral-integration/widgets/lib/phoneContext';
 
-import GenericMeetingPage from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
-
+import { getAlertRenderer } from '../../components/AlertRenderer';
+import ThirdPartyContactSourceIcon
+  from '../../components/ThirdPartyContactSourceIcon';
+// import GenericMeetingPage from '../GenericMeetingPage';
+import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
+import AppView from '../AppView';
 import CallCtrlPage from '../CallCtrlPage';
-import MeetingTabContainer from '../MeetingTabContainer';
+import CallLogSectionModal from '../CallLogSectionModal';
+import CallsListPage from '../CallsListPage';
+import ComposeTextPage from '../ComposeTextPage';
+import ConversationPage from '../ConversationPage';
+import MainView from '../MainView';
 import MeetingHistoryPage from '../MeetingHistoryPage';
 import MeetingHomePage from '../MeetingHomePage';
-
+import MeetingInviteModal from '../MeetingInviteModal';
+import MeetingTabContainer from '../MeetingTabContainer';
+import RecentActivityContainer from '../RecentActivityContainer';
+import RingtoneSettingsPage from '../RingtoneSettingsPage';
+import SettingsPage from '../SettingsPage';
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 
-import MainView from '../MainView';
-import AppView from '../AppView';
-
-import RecentActivityContainer from '../RecentActivityContainer';
-import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourceIcon';
-
-import SettingsPage from '../SettingsPage';
-import RingtoneSettingsPage from '../RingtoneSettingsPage';
-import CallsListPage from '../CallsListPage';
-import CallLogSectionModal from '../CallLogSectionModal';
-import MeetingInviteModal from '../MeetingInviteModal';
-
-// import GenericMeetingPage from '../GenericMeetingPage';
-
-import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
-import { getAlertRenderer } from '../../components/AlertRenderer';
 export default function App({
   phone,
   showCallBadge,
