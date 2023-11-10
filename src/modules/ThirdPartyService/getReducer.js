@@ -370,6 +370,17 @@ export function getSettingsReducer(types) {
   };
 }
 
+export function getAdditionalButtons(types) {
+  return (state = [], { type, additionalButtons }) => {
+    switch (type) {
+      case types.registerAdditionalButtons:
+        return additionalButtons;
+      default:
+        return state;
+    }
+  };
+}
+
 export default function getReducer(types) {
   return combineReducers({
     status: getModuleStatusReducer(types),
@@ -399,5 +410,6 @@ export default function getReducer(types) {
     settings: getSettingsReducer(types),
     meetingLoggerRegistered: getMeetingLoggerRegisteredReducer(types),
     meetingLoggerTitle: getMeetingLoggerTitleReducer(types),
+    additionalButtons: getAdditionalButtons(types),
   });
 }

@@ -175,6 +175,9 @@ export default class ThirdPartyService extends RcModule {
         if (service.vcardHandlerPath) {
           this._registerVCardHandler(service);
         }
+        if (service.buttons) {
+          this._registerButtons(service);
+        }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
       } else if (e.data.type === 'rc-adapter-sync-third-party-contacts') {
@@ -453,6 +456,35 @@ export default class ThirdPartyService extends RcModule {
     }
     this._conversationMatcher._searchProviders.delete(this.sourceName);
     this._messageLogEntityMatchSourceAdded = false;
+  }
+
+  _registerButtons(service) {
+    if (!Array.isArray(service.buttons)) {
+      return;
+    }
+    this._additionalButtonPath = service.buttonEventPath;
+    const additionalButtons = [];
+    service.buttons.forEach((button) => {
+      if (
+        typeof button.id === 'string' &&
+        typeof button.type === 'string' &&
+        typeof button.label === 'string' &&
+        typeof button.icon === 'string'
+      ) {
+        additionalButtons.push({
+          id: button.id,
+          type: button.type,
+          icon: button.icon,
+          label: button.label,
+        });
+      }
+    });
+    if (additionalButtons.length > 0) {
+      this.store.dispatch({
+        type: this.actionTypes.registerAdditionalButtons,
+        additionalButtons,
+      });
+    }
   }
 
   _refreshMessageLogEntityMatch() {
@@ -846,6 +878,19 @@ export default class ThirdPartyService extends RcModule {
     }
   }
 
+  async onClickAdditionalButton(buttonId) {
+    const button = this.additionalButtons.find(x => x.id === buttonId);
+    if (button) {
+      await requestWithPostMessage(this._additionalButtonPath, {
+        button: {
+          id: button.id,
+          type: button.type,
+          label: button.label,
+        },
+      });
+    }
+  }
+
   async sync(params) {
     await this.fetchContacts(params);
   }
@@ -986,5 +1031,13 @@ export default class ThirdPartyService extends RcModule {
 
   get meetingLoggerTitle() {
     return this.state.meetingLoggerTitle;
+  }
+
+  get additionalButtons() {
+    return this.state.additionalButtons
+  }
+
+  get additionalSMSToolbarButtons() {
+    return this.additionalButtons.filter(x => x.type === 'smsToolbar');
   }
 }

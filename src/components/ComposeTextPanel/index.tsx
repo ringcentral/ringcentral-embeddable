@@ -67,6 +67,8 @@ export interface ComposeTextPanelProps {
   addAttachment?: (...args: any[]) => any;
   removeAttachment?: (...args: any[]) => any;
   useRecipientsInputV2?: boolean;
+  additionalToolbarButtons: any[];
+  onClickAdditionalToolbarButton: (...args: any[]) => any;
 }
 type ComposeTextPanelState = {
   messageText: any;
@@ -89,6 +91,7 @@ class ComposeTextPanel extends Component<
     showSpinner: false;
     autoFocus: false;
     supportAttachment: false;
+    additionalToolbarButtons: [],
   };
   constructor(props: ComposeTextPanelProps | Readonly<ComposeTextPanelProps>) {
     super(props);
@@ -182,6 +185,8 @@ class ComposeTextPanel extends Component<
       phoneSourceNameRenderer,
       recipientsContactInfoRenderer,
       recipientsContactPhoneRenderer,
+      additionalToolbarButtons,
+      onClickAdditionalToolbarButton,
     } = this.props;
     const filteredSearchContactList =
       useRecipientsInputV2 && typingToNumber.length >= 3
@@ -259,6 +264,8 @@ class ComposeTextPanel extends Component<
           supportAttachment={supportAttachment}
           addAttachment={addAttachment}
           removeAttachment={removeAttachment}
+          additionalToolbarButtons={additionalToolbarButtons}
+          onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
         />
       </div>
     );

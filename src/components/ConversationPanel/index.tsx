@@ -468,6 +468,8 @@ class ConversationPanel extends Component {
             addAttachment={this.props.addAttachment}
             // @ts-expect-error TS(2339): Property 'removeAttachment' does not exist on type... Remove this comment to see the full error message
             removeAttachment={this.props.removeAttachment}
+            additionalToolbarButtons={this.props.additionalToolbarButtons}
+            onClickAdditionalToolbarButton={this.props.onClickAdditionalToolbarButton}
           />
         )}
       </div>
@@ -541,6 +543,8 @@ ConversationPanel.propTypes = {
   isMultipleSiteEnabled: PropTypes.bool,
   currentSiteCode: PropTypes.string,
   maxExtensionNumberLength: PropTypes.number,
+  additionalToolbarButtons: PropTypes.arrayOf(PropTypes.object),
+  onClickAdditionalToolbarButton: PropTypes.func,
 };
 // @ts-expect-error TS(2339): Property 'defaultProps' does not exist on type 'ty... Remove this comment to see the full error message
 ConversationPanel.defaultProps = {

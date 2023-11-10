@@ -18,6 +18,7 @@ import {
   SendFilled as sentSvg,
 } from '@ringcentral/juno-icon';
 
+import { AdditionalToolbarButton } from '../AdditionalToolbarButton';
 import styles from './styles.scss';
 
 const UIHeightOffset = 65;
@@ -40,6 +41,8 @@ class MessageInput extends Component {
     attachments: PropTypes.array,
     addAttachment: PropTypes.func,
     removeAttachment: PropTypes.func,
+    additionalToolbarButtons: PropTypes.arrayOf(PropTypes.object),
+    onClickAdditionalToolbarButton: PropTypes.func,
   };
 
   static defaultProps = {
@@ -56,6 +59,7 @@ class MessageInput extends Component {
     attachments: [],
     addAttachment: undefined,
     removeAttachment: undefined,
+    additionalToolbarButtons: [],
   };
 
   _fileInputRef: any;
@@ -239,6 +243,8 @@ class MessageInput extends Component {
       attachments,
       // @ts-expect-error TS(2339): Property 'removeAttachment' does not exist on type... Remove this comment to see the full error message
       removeAttachment,
+      additionalToolbarButtons,
+      onClickAdditionalToolbarButton,
     } = this.props;
     // @ts-expect-error TS(2339): Property 'value' does not exist on type 'Readonly<... Remove this comment to see the full error message
     const { value, height } = this.state;
@@ -257,6 +263,7 @@ class MessageInput extends Component {
             symbol={attachmentSvg}
             onClick={this.onAttachmentIconClick}
             disabled={disabled}
+            title="Attach file"
           />
           <input
             type="file"
@@ -266,6 +273,20 @@ class MessageInput extends Component {
             onChange={this.onSelectAttachment}
             disabled={disabled}
           />
+          {
+            additionalToolbarButtons.map((button) => {
+              return (
+                <AdditionalToolbarButton
+                  key={button.id}
+                  label={button.label}
+                  icon={button.icon}
+                  onClick={() => {
+                    onClickAdditionalToolbarButton(button.id)
+                  }}
+                />
+              );
+            })
+          }
           {
             value && value.length > 0 && (
               <div className={styles.inputTip}>
