@@ -1,5 +1,7 @@
+import {
+  moduleActionTypes,
+} from '@ringcentral-integration/commons/enums/moduleActionTypes';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
-import { moduleActionTypes } from '@ringcentral-integration/commons/enums/moduleActionTypes';
 
 const actionTypes = ObjectMap.prefixKeys([
   ...ObjectMap.keys(moduleActionTypes),
@@ -21,6 +23,7 @@ const actionTypes = ObjectMap.prefixKeys([
   'registerSettings',
   'updateSetting',
   'registerMeetingLogger',
+  'registerAdditionalButtons',
 ], 'thirdPartyService');
 
 export default actionTypes;

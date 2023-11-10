@@ -139,9 +139,6 @@ import {
   CallsOnholdUI,
 } from '@ringcentral-integration/widgets/modules/CallsOnholdUI';
 import {
-  ComposeTextUI,
-} from '@ringcentral-integration/widgets/modules/ComposeTextUI';
-import {
   ConferenceDialerUI,
 } from '@ringcentral-integration/widgets/modules/ConferenceDialerUI';
 import {
@@ -203,6 +200,7 @@ import { CallLog } from '../CallLog';
 import { CallLogger } from '../CallLogger';
 import { CallLogSection } from '../CallLogSection';
 import { CallQueues } from '../CallQueues';
+import { ComposeTextUI } from '../ComposeTextUI';
 import { ConferenceCall } from '../ConferenceCall';
 import { ConversationLogger } from '../ConversationLogger';
 import { ConversationsUI } from '../ConversationsUI';

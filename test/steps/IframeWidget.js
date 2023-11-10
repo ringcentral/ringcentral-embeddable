@@ -160,8 +160,8 @@ export class IframeWidget {
   }
 
   async clickSMSSendButton() {
-    await this.waitFor('input[data-sign="messageButton"]:not([disabled])');
-    await this._widgetIframe.click('input[data-sign="messageButton"]');
+    await this.waitFor('button[data-sign="messageButton"]:not([disabled])');
+    await this._widgetIframe.click('button[data-sign="messageButton"]');
   }
 
   async getLastTextAtConversation() {
