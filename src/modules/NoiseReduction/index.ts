@@ -78,6 +78,8 @@ export class NoiseReduction extends RcModuleV2 {
             model16: `${process.env.NOISE_REDUCTION_SDK_URL}/models/model_16.kw`,
             model32: `${process.env.NOISE_REDUCTION_SDK_URL}/models/model_32.kw`,
           },
+          workerUrl: `${process.env.NOISE_REDUCTION_SDK_URL}/worker.es5.js`,
+          workletUrl: `${process.env.NOISE_REDUCTION_SDK_URL}/worklet.es5.js`,
         },
       });
       try {
