@@ -1,12 +1,16 @@
 # Using a custom client ID with RingCentral Embeddable 
 
-It is strongly recommended that developers register their own applications when deploying and using RingCentral Embeddable in a production context. Doing so has the following benefits:
+## About the "FOR DEMO PURPOSES ONLY" banner
+
+Some users of RingCentral Embeddable may observe a banner that appears above the dialer that reads, "FOR DEMO PURPOSES ONLY." This banner appears when a Developer uses the default client ID and secret that comes bundled with the RingCentral Embeddable library. This default client ID and secret are intended to make trying out Embeddable easy by eliminating the step of having to pre-register an application. 
+
+While nothing prevents a developer from using the default client ID and secret, it is strongly recommended that developers register their own application when deploying and using RingCentral Embeddable in a production context. In addition to removing the banner, doing so has the following benefits:
 
 * You are less likely to be impacted by users of other instances of Emebeddable
 * You will have visibility into the analytics of your user's use of your app/integration
 * You will be able to better customize your instance of Embeddable
 
-Specifying your own client ID is relatively straight-forward using the steps below. 
+To specify your own client ID, use the steps below. 
 
 ## Register an application
 
@@ -91,3 +95,5 @@ Sandbox is used by developers when building and testing applications. In order t
 Once you have successfully graduated your app, you will need to update the clientID and serverUrl your instance of Embeddable points to in order to run successfully in production. 
 
 **Notice**: Please create developer support ticket [here](https://developers.ringcentral.com/support/create-case) if you got any issues at app graduation.
+
+
