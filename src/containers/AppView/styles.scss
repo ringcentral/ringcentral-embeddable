@@ -23,6 +23,12 @@ input {
   background-color: $lightgray;
 }
 
+.demoWarning {
+  :global .TabNavigationView_root{
+    max-height: calc(100% - 47px);
+  }
+}
+
 :global .rc-editor-mention-dropdown {
   z-index: 12!important;
 }

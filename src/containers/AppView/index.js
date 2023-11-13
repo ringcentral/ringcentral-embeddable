@@ -1,5 +1,6 @@
 import React from 'react';
 
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -19,22 +20,37 @@ const DemoOnlyWarning = styled(RcAlert)`
   .RcAlert-message {
     font-size: 12px !important;
     line-height: 1.3;
+
+    a {
+      font-size: 12px !important;
+      line-height: 1.3;
+    }
   }
 `;
 
 function AppView(props) {
   return (
-    <div className={styles.root}>
-      <DemoOnlyWarning
-        severity="warning"
-        action={
-          
-        }
-      >
-        This app is using demo only client ID, please refer
-        <RcLink href="/test" target='_blank'>here</RcLink>
-        for details.
-      </DemoOnlyWarning>
+    <div
+      className={classnames(styles.root, props.showDemoWarning ? styles.demoWarning : null)}
+    >
+      {
+        props.showDemoWarning ? (
+          <DemoOnlyWarning
+            severity="warning"
+            onClose={() => {
+              props.dismissDemoWarning();
+            }}
+          >
+            This app is using demo only client ID, please contact developer for &nbsp;
+            <RcLink
+              href="https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md"
+              target='_blank'
+            >
+              specified client ID
+            </RcLink>
+          </DemoOnlyWarning>
+        ) : null
+      }
       {props.children}
       <EnvironmentPanel
         server={props.server}
@@ -73,7 +89,8 @@ export default withPhone(connect((_, {
     locale,
     oAuth,
     environment,
-  }
+    adapter,
+  },
 }) => ({
   currentLocale: locale.currentLocale,
   server: environment.server,
@@ -81,12 +98,17 @@ export default withPhone(connect((_, {
   clientSecret: environment.clientSecret,
   enabled: environment.enabled,
   redirectUri: oAuth.redirectUri,
+  showDemoWarning: adapter.showDemoWarning,
 }), (_, {
   phone: {
     environment,
+    adapter,
   },
 }) => ({
   onSetData: (options) => {
     environment.setData(options);
+  },
+  dismissDemoWarning: () => {
+    adapter.dismissDemoWarning();
   },
 }))(AppView));
