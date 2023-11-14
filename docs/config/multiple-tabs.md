@@ -2,7 +2,7 @@
 
 For the Embeddable widget, it supports to run in multiple tabs, and will share the same storage and login status. But widgets in different tabs are still different instances. 
 
-When calling mode is set into [Browser](interact-with-calling-settings.md), widgets will create web phone connection in every widget instance. In our server-side, we have limitation of 5 phone connection. So when user selects `Browser` to make call, we only support to open tabs that no more than 5.
+When calling mode is set into [Browser](call-settings.md), widgets will create web phone connection in every widget instance. In our server-side, we have limitation of 5 phone connection. So when user selects `Browser` to make call, we only support to open tabs that no more than 5.
 
 ## Option 1: Have only connection in first connected tab
 
@@ -23,7 +23,7 @@ To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this 
 
 * For Safari and Firefox, users need to go back to first opened tab to allow microphone permission for every call.
 * For Chrome, user need to go back to first opened tab to allow microphone permission if user hasn't allowed microphone permission.
-* [Web phone call session notification](widget-event.md#web-phone-call-event) happens at all tabs with the widget.
+* [Web phone call session notification](../integration/events.md#web-phone-call-event) happens at all tabs with the widget.
 * Web phone call muted event does not work at no web phone connection tabs. 
 * For Chrome and Firefox, browser may throttle or unload inactive (5 mins) tabs to make this feature broken.
 

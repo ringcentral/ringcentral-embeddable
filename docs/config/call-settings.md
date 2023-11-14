@@ -9,7 +9,7 @@ In RingCentral Embeddable widget, we provide 4 calling options in `Calling Setti
 
 For `RingOut`, You can get full document here [Ringout](https://support.ringcentral.com/s/article/85?language=en_US) mode. Users also need to set `My Location` phone number. So when user creates a call, RingCentral will first call user's location phone number, then call correspondent's phone number. If user enables `Prompt me to dial 1 before connecting the call`, RingCentral will only call correspondent's phone number after user dials 1.  Please refer to [here](https://support.ringcentral.com/s/article/85?language=en_US) for more detailed information.
 
-For `RingCentral App`, `RingCentral Phone`, `RingOut`, calls are on other devices, the widget can get call event and information from APIs. And it is recommended to enable [active call control](disable-features.md#enable-active-call-control-feature), so user can also control the call in widget.
+For `RingCentral App`, `RingCentral Phone`, `RingOut`, calls are on other devices, the widget can get call event and information from APIs. And it is recommended to enable [active call control](../support.md#enabling-active-call-control-features), so user can also control the call in widget.
 
 ## Default option
 

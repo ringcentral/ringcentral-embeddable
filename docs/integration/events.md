@@ -199,7 +199,7 @@ window.addEventListener('message', (e) => {
 });
 ```
 
-To set presence by refer [here](control-widget.md#set-presense).
+To set presence by refer [here](api.md#set-presense).
 
 ## Login Status event
 
@@ -244,7 +244,7 @@ window.addEventListener('message', (e) => {
 });
 ```
 
-After you get authorization code, please follow [here](customize-authorization.md) to pass it to widget for login.
+After you get authorization code, please follow [here](authorization.md) to pass it to widget for login.
 
 ## Message event
 
@@ -326,7 +326,7 @@ window.addEventListener('message', (e) => {
 
 ## Dialer status event
 
-Before we use [GoToDial](control-widget.md#go-to-dial-and-start-a-call) API, we need to check dialer status.
+Before we use [GoToDial](api.md#go-to-dial-and-start-a-call) API, we need to check dialer status.
 
 Get dialer status:
 

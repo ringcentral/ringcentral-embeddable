@@ -1,4 +1,4 @@
-# Customize UI styles
+# Customize look and feel through CSS
 
 This is a online [demo](https://embbnux.github.io/ringcentral-web-widget-styles/) built with Game of Thrones Styles.
 

@@ -26,4 +26,4 @@ Some developers wants to customize the prefix, so the widget can support to have
 
 After that the widget iframe id will changed to `your_prefix-adapter-frame`. And user data will be storaged at `you_prefix` namespace.
 
-For implicit grant flow, we use cookie to refresh the token, so it don't support different accounts in same browser in different tabs. If you want to support different accounts in different tabs or domains in same browser, you need to use [authrization code flow](config-client-id-and-secret.md).
+For implicit grant flow, we use cookie to refresh the token, so it don't support different accounts in same browser in different tabs. If you want to support different accounts in different tabs or domains in same browser, you need to use [authrization code flow](client-id.md).

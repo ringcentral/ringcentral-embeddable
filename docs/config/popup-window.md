@@ -34,7 +34,7 @@ RCAdapter.isWindowPoppedUp().then((opened) => {...})
 ### Known issues:
 
 * App can't make a opened popup window into desktop top (Browser limitation)
-* App will send [Web phone call session notification](widget-event.md#web-phone-call-event) at every tabs
+* App will send [Web phone call session notification](../integration/events.md#web-phone-call-event) at every tabs
 * User need to focus at popup window when start or answer a call at popup window for microphone permission at Firefox
 
 ## Host the popup window

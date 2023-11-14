@@ -20,12 +20,15 @@ Or
 </iframe>
 ```
 
+## Hosting a custom `redirect.html` file 
+
 In your redirect page, you need to add following code to pass auth callback params to this app.
 
 ```html
 <script>
   // Important: the origin is used for postMessage
-  var origin = 'https://ringcentral.github.io'; // origin where the widget is deployed.
+  // Set "origin" to the same domain as the Embeddable library
+  var origin = 'https://ringcentral.github.io'; 
   if (window.opener) {
     // pass callbackUri to widget
     window.opener.postMessage({
@@ -35,3 +38,6 @@ In your redirect page, you need to add following code to pass auth callback para
   }
 </script>
 ```
+
+!!! warning "Be sure to host your redirect.html and Embeddable library from the same domain"
+    To comply with browser security policies meant to prevent XSS vulnerabilities, both your `redirect.html` file and the RingCentral Embeddable javascript file must be hosted from the same domain. If not, users will be unable to authenticate.

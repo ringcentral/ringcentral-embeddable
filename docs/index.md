@@ -1,0 +1,36 @@
+---
+hide:
+  - navigation
+---
+
+# Embed a phone into any webpage with RingCentral Embeddable
+
+RingCentral Embeddable provides a ready-to-use, fully-functional web phone that can be embedded into any web site. Embeddable is a javascript wrapper around the foundational [RingCentral Widgets Library](https://github.com/ringcentral/ringcentral-js-widgets). By adding a few lines of javascript, anyone can embed a phone into any web page in seconds. 
+
+## Quick start
+
+Add following code to any website's header to embed a RingCentral phone into that page. 
+
+```js
+<script>
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+</script>
+```
+
+!!! info "Removing the "FOR DEMO PURPOSES ONLY" banner"
+    You may observe that a banner appears when running the sample code above. To remove this banner, please register your own application and [use the client ID](config/client-id.md) associated with that application. 
+
+### Prerequisites
+
+* A [RingCentral MVP](https://ringcentral.com/pricing/) account
+* A supported browser, incuding:
+    - Chrome
+    - Microsoft Edge
+    - Firefox
+
+!!! info "When loading RingCentral Embeddable for the first time, users will need to grant access to their microphone and speaker."

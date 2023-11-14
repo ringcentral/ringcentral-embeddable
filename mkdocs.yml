@@ -1,0 +1,94 @@
+# Project information
+site_name: RingCentral Embeddable
+site_url: https://github.com/ringcentral/ringcentral-embeddable
+
+# Repository
+repo_url: https://github.com/ringcentral/ringcentral-embeddable
+repo_name: ringcentral/ringcentral-embeddable
+edit_uri: tree/main/docs
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+      - navigation.path
+#      - navigation.sections
+      - navigation.tabs
+      - navigation.top
+      - navigation.expand
+      - navigation.sections
+      - search.sharing
+      - search.highlight
+      - content.code.copy
+      - content.action.edit
+      - content.action.view
+      - content.code.annotate
+
+plugins:
+  - exclude:
+      regex:
+        - '^\.#.*'
+
+extra_css:
+  - extra.css
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - mdx_include
+  - admonition
+  - tables
+
+copyright: "2023 RingCentral, Inc. All rights reserved."
+
+nav:
+- 'Home': index.md
+
+- 'Getting started':
+  - 'Registering your application': app-registration.md
+  - 'Develop and graduate your app': app-development.md
+  - 'Initialization':
+     - 'Javascript vs iframes': initialization.md
+     - 'Version control': versions.md
+     - 'Self-hosting': self-hosting.md
+
+- 'Configuration':
+  - 'All parameters': config/index.md
+  - 'Setting parameters': config/setting-params.md
+  - 'Advanced parameters':
+    - 'Custom X-User-Agent': config/user-agent.md
+    - 'Custom Client ID': config/client-id.md
+    - 'Custom look and feel through CSS': config/styles.md
+    - 'Custom redirect Uri': config/redirect-uri.md
+    - 'Custom prefix': config/prefix.md
+    - 'Default call settings': config/call-settings.md
+    - 'Multiple Partner Brand Support': multiple-brands.md
+    - 'Openning in a separate window': config/popup-window.md
+    - 'Running in multiple tabs': config/multiple-tabs.md
+    - 'Setting your environment': config/environment.md
+    - 'Quick access badge': config/badge.md
+
+- 'Developer guide':
+  - 'Events': integration/events.md
+  - 'API': integration/api.md
+  - 'Authorization': integration/authorization.md
+  - 'Service registration': integration/index.md
+  - 'Recipes':
+    - 'Address book integration': integration/address-book.md
+    - 'Analytics integration': integration/analytics.md
+    - 'Click-to-dial enablement': integration/click-to-dial.md
+    - 'Conference call invites': integration/add-conference-invite.md
+    - 'Contact activities': integration/contact-activities.md
+    - 'Custom settings': integration/custom-settings.md
+    - 'Feedback prompt': integration/feedback-prompt.md
+    - 'Log calls': integration/call-logging.md
+    - 'Log meetings': integration/log-video-meeting.md
+    - 'Log messages': integration/message-logging.md
+    - 'Schedule meetings': integration/meeting-schedule.md
+    - 'Third-party auth': integration/third-party-auth.md
+    - 'View upcoming meetings': integration/upcoming-meetings.md
+    - 'VCard click handling': integration/vcard-clicks.md
+
+- 'Troubleshooting': support.md
+
+- 'Changelog': https://github.com/ringcentral/ringcentral-embeddable/releases

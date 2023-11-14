@@ -18,7 +18,7 @@ This feature can be used for `Click to Dial`. If you set `toCall` to ture, it wi
 
 If you are using Adapter JS way, just you can just call `RCAdapter.clickToCall('phonenumber')`.
 
-[Here](work-with-ringcentral-c2d.md) is tutorial to use [RingCentral C2D](https://github.com/ringcentral/ringcentral-c2d) library to quick implement `Click to Dial` feature.
+[Here](click-to-dial.md) is tutorial to use [RingCentral C2D](https://github.com/ringcentral/ringcentral-c2d) library to quick implement `Click to Dial` feature.
 
 ## Go to SMS Page
 
@@ -64,7 +64,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 ## Control the web call
 
-Following APIs need to work with [Web phone call event](widget-event.md#web-phone-call-event) to get `callId`.
+Following APIs need to work with [Web phone call event](events.md#web-phone-call-event) to get `callId`.
 
 ### Answer a ringing call
 
@@ -175,7 +175,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-**Notice**: this only works after call [started](widget-event.md#web-phone-call-event) (Inbound call accepted/Oubound call connected)
+**Notice**: this only works after call [started](events.md#web-phone-call-event) (Inbound call accepted/Oubound call connected)
 
 ### Stop record a call
 
@@ -217,7 +217,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 ## Trigger Login button click
 
-App will open login popup window after getting this command. Follow [here](widget-event.md#login-popup-event) to disable popup window, and receive oauth uri.
+App will open login popup window after getting this command. Follow [here](events.md#login-popup-event) to disable popup window, and receive oauth uri.
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -237,7 +237,7 @@ Minimize:
 RCAdapter.setMinimized(true);
 // RCAdapter.setMinimized(false); // maximize
 ```
-> You can also disable `Minimize` feature by following [here](disable-features.md#disable-the-widget-minimized).
+> You can also disable `Minimize` feature by following [here](../config/badge.md#disable-the-widget-minimized).
 
 Hide:
 
@@ -254,7 +254,7 @@ RCAdapter.dispose();
 
 ## Popup the widget
 
-Only for Adapter JS way and [popup window feature](popup-window.md) enabled:
+Only for Adapter JS way and [popup window feature](../config/popup-window.md) enabled:
 
 ```js
 RCAdapter.popupWindow();  // popup the widget in a standalone window
@@ -329,7 +329,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-To get current presence status please refer this [event](widget-event.md#presence-sync-event).
+To get current presence status please refer this [event](events.md#presence-sync-event).
 
 ## Show Custom Alert Message
 
