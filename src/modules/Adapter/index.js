@@ -1086,7 +1086,7 @@ export default class Adapter extends AdapterModuleCore {
     return this.state.showDemoWarning;
   }
 
-  dismissDemoWarning() {
+  dismissDemoWarning = () => {
     localStorage.setItem('rc-widget-demo-warning-dismissed', `${Date.now()}`);
     this.store.dispatch({
       type: this.actionTypes.setShowDemoWarning,
