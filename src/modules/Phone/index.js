@@ -876,7 +876,6 @@ export function createPhone({
         useValue: {
           recordingLink,
         },
-        spread: true,
       },
       {
         provide: 'CallOptions',

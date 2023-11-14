@@ -3,12 +3,14 @@ import {
   getFilterContacts,
 } from '@ringcentral-integration/commons/lib/contactHelper';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import RcModule from '@ringcentral-integration/commons/lib/RcModule';
+import {
+  action,
+  RcModuleV2,
+  state,
+} from '@ringcentral-integration/core';
 
 import requestWithPostMessage from '../../lib/requestWithPostMessage';
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
-import actionTypes from './actionTypes';
-import getReducer from './getReducer';
 
 function formatPhoneType(phoneType) {
   if (!phoneType) {
@@ -52,6 +54,7 @@ function getImageUri(sourceUri) {
 }
 
 @Module({
+  name: 'ThirdPartyService',
   deps: [
     'Auth',
     'Contacts',
@@ -61,50 +64,35 @@ function getImageUri(sourceUri) {
     'ActivityMatcher',
     'ConversationMatcher',
     'GenericMeeting',
-    { dep: 'ThirdPartyContactsOptions', optional: true, spread: true },
+    { dep: 'ThirdPartyContactsOptions', optional: true },
   ],
 })
-export default class ThirdPartyService extends RcModule {
-  constructor({
-    auth,
-    contacts,
-    contactSources,
-    contactSearch,
-    contactMatcher,
-    activityMatcher,
-    conversationMatcher,
-    recordingLink,
-    genericMeeting,
-    ...options
-  }) {
+export default class ThirdPartyService extends RcModuleV2 {
+  constructor(deps) {
     super({
-      actionTypes,
-      ...options,
+      deps,
+      storageKey: 'thirdPartyService',
+      enableGlobalCache: false,
     });
 
-    this._reducer = getReducer(this.actionTypes);
-
+    this._ignoreModuleReadiness(deps.auth);
+    this._ignoreModuleReadiness(deps.contacts);
+    this._ignoreModuleReadiness(deps.contactSources);
+    this._ignoreModuleReadiness(deps.contactSearch);
+    this._ignoreModuleReadiness(deps.contactMatcher);
+    this._ignoreModuleReadiness(deps.activityMatcher);
+    this._ignoreModuleReadiness(deps.conversationMatcher);
+    this._ignoreModuleReadiness(deps.genericMeeting);
     this._initialized = false;
 
-    this._auth = auth;
-    this._contacts = contacts;
-    this._contactSources = contactSources;
-    this._contactSearch = contactSearch;
-    this._contactMatcher = contactMatcher;
-    this._activityMatcher = activityMatcher;
-    this._conversationMatcher = conversationMatcher;
-    this._meeting = genericMeeting;
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
     this._callLogEntityMatchSourceAdded = false;
-    this._recordingLink = recordingLink;
+    this._recordingLink = deps.thirdPartyContactsOptions.recordingLink;
   }
 
-  initialize() {
+  onInitOnce() {
     this._initialized = true;
-    this.store.dispatch({
-      type: this.actionTypes.initSuccess,
-    });
     window.addEventListener('message', (e) => {
       if (!e.data) {
         return;
@@ -114,8 +102,7 @@ export default class ThirdPartyService extends RcModule {
         if (!service || !service.name) {
           return;
         }
-        this.store.dispatch({
-          type: this.actionTypes.register,
+        this._registerService({
           serviceName: service.name,
         });
         if (service.authorizationPath) {
@@ -134,7 +121,7 @@ export default class ThirdPartyService extends RcModule {
           this._contactMatchPath = service.contactMatchPath;
           if (!this.authorizationRegistered || this.authorized) {
             this._registerContactMatch();
-            this._contactMatcher.triggerMatch();
+            this._deps.contactMatcher.triggerMatch();
           }
         }
         if (service.activitiesPath) {
@@ -153,7 +140,7 @@ export default class ThirdPartyService extends RcModule {
           this._callLogEntityMatcherPath = service.callLogEntityMatcherPath;
           if (!this.authorizationRegistered || this.authorized) {
             this._registerCallLogEntityMatch(service);
-            this._activityMatcher.triggerMatch();
+            this._deps.activityMatcher.triggerMatch();
           }
         }
         if (service.messageLoggerPath) {
@@ -163,7 +150,7 @@ export default class ThirdPartyService extends RcModule {
           this._messageLogEntityMatcherPath = service.messageLogEntityMatcherPath;
           if (!this.authorizationRegistered || this.authorized) {
             this._registerMessageLogEntityMatch(service);
-            this._conversationMatcher.triggerMatch();
+            this._deps.conversationMatcher.triggerMatch();
           }
         }
         if (service.feedbackPath) {
@@ -191,9 +178,9 @@ export default class ThirdPartyService extends RcModule {
   _registerContacts(service) {
     this._contactsPath = service.contactsPath;
     this._contactIcon = service.contactIcon;
-    this._contacts.addSource(this);
-    if (this._contactSources.indexOf(this) === -1) {
-      this._contactSources.push(this);
+    this._deps.contacts.addSource(this);
+    if (this._deps.contactSources.indexOf(this) === -1) {
+      this._deps.contactSources.push(this);
     }
     this.fetchContacts();
   }
@@ -207,7 +194,7 @@ export default class ThirdPartyService extends RcModule {
     if (this._searchSourceAdded || !this._contactSearchPath) {
       return;
     }
-    this._contactSearch.addSearchSource({
+    this._deps.contactSearch.addSearchSource({
       sourceName: this.sourceName,
       searchFn: async ({ searchString }) => {
         if (!searchString) {
@@ -226,9 +213,9 @@ export default class ThirdPartyService extends RcModule {
     if (!this._searchSourceAdded) {
       return;
     }
-    this._contactSearch._searchSources.delete(this.sourceName);
-    this._contactSearch._searchSourcesFormat.delete(this.sourceName);
-    this._contactSearch._searchSourcesCheck.delete(this.sourceName);
+    this._deps.contactSearch._searchSources.delete(this.sourceName);
+    this._deps.contactSearch._searchSourcesFormat.delete(this.sourceName);
+    this._deps.contactSearch._searchSourcesCheck.delete(this.sourceName);
     this._searchSourceAdded = false;
   }
 
@@ -236,7 +223,7 @@ export default class ThirdPartyService extends RcModule {
     if (this._contactMatchSourceAdded || !this._contactMatchPath) {
       return;
     }
-    this._contactMatcher.addSearchProvider({
+    this._deps.contactMatcher.addSearchProvider({
       name: this.sourceName,
       searchFn: async ({ queries }) => {
         const result = await this.matchContacts(queries);
@@ -251,7 +238,7 @@ export default class ThirdPartyService extends RcModule {
     if (!this._contactMatchSourceAdded) {
       return;
     }
-    this._contactMatcher._searchProviders.delete(this.sourceName);
+    this._deps.contactMatcher._searchProviders.delete(this.sourceName);
     this._contactMatchSourceAdded = false;
   }
 
@@ -259,8 +246,8 @@ export default class ThirdPartyService extends RcModule {
     if (!this._contactMatchSourceAdded) {
       return;
     }
-    const queries = this._contactMatcher._getQueries();
-    this._contactMatcher.match({
+    const queries = this._deps.contactMatcher._getQueries();
+    this._deps.contactMatcher.match({
       queries: queries.slice(0, 30),
       ignoreCache: true
     });
@@ -268,13 +255,12 @@ export default class ThirdPartyService extends RcModule {
 
   _registerMeetingInvite(service) {
     this._meetingInvitePath = service.meetingInvitePath;
-    this.store.dispatch({
-      type: this.actionTypes.registerMeetingInvite,
+    this._onRegisterMeetingInvite({
       meetingInviteTitle: service.meetingInviteTitle,
     });
     if (service.meetingUpcomingPath) {
       this._meetingUpcomingPath = service.meetingUpcomingPath;
-      this._meeting.addThirdPartyProvider({
+      this._deps.meeting.addThirdPartyProvider({
         name: service.name,
         fetchUpcomingMeetingList: () => this._fetchUpcomingMeetingList()
       });
@@ -298,17 +284,14 @@ export default class ThirdPartyService extends RcModule {
 
   _registerMeetingLogger(service) {
     this._meetingLoggerPath = service.meetingLoggerPath;
-    this.store.dispatch({
-      type: this.actionTypes.registerMeetingLogger,
+    this._onRegisterMeetingLogger({
       meetingLoggerTitle: service.meetingLoggerTitle,
     });
   }
 
   _registerFeedback(service) {
     this._feedbackPath = service.feedbackPath;
-    this.store.dispatch({
-      type: this.actionTypes.registerFeedback,
-    });
+    this._onRegisterFeedback();
   }
 
   _registerSettings(service) {
@@ -322,18 +305,14 @@ export default class ThirdPartyService extends RcModule {
         });
       }
     });
-    this.store.dispatch({
-      type: this.actionTypes.registerSettings,
-      settings,
-    });
+    this._onRegisterSettings({ settings });
   }
 
   _registerAuthorizationButton(service) {
     this._authorizationPath = service.authorizationPath;
     this._authorizationLogo = getImageUri(service.authorizationLogo);
     this._authorizedAccount = service.authorizedAccount;
-    this.store.dispatch({
-      type: this.actionTypes.registerAuthorization,
+    this._onRegisterAuthorization({
       authorized: service.authorized,
       authorizedTitle: service.authorizedTitle,
       unauthorizedTitle: service.unauthorizedTitle,
@@ -347,21 +326,18 @@ export default class ThirdPartyService extends RcModule {
     }
     const lastAuthorized = this.authorized;
     this._authorizedAccount = data.authorizedAccount;
-    this.store.dispatch({
-      type: this.actionTypes.updateAuthorizationStatus,
-      authorized: !!data.authorized,
-    });
+    this.setAuthorized(!!data.authorized)
     if (!lastAuthorized && this.authorized) {
       await this.fetchContacts();
       this._registerContactSearch();
       this._registerContactMatch();
       this._refreshContactMatch();
-      this._contactMatcher.triggerMatch();
+      this._deps.contactMatcher.triggerMatch();
       this._registerCallLogEntityMatch();
       this._registerMessageLogEntityMatch();
       this._refreshCallLogEntityMatch();
       this._refreshMessageLogEntityMatch();
-      this._activityMatcher.triggerMatch();
+      this._deps.activityMatcher.triggerMatch();
     }
     if (lastAuthorized && !this.authorized) {
       this._unregisterContactSearch();
@@ -374,8 +350,7 @@ export default class ThirdPartyService extends RcModule {
   _registerActivities(service) {
     this._activitiesPath = service.activitiesPath;
     this._activityPath = service.activityPath;
-    this.store.dispatch({
-      type: this.actionTypes.registerActivities,
+    this._onRegisterActivities({
       activityName: service.activityName,
     });
   }
@@ -383,8 +358,7 @@ export default class ThirdPartyService extends RcModule {
   _registerCallLogger(service) {
     this._callLoggerPath = service.callLoggerPath;
     this._callLoggerRecordingWithToken = !!service.recordingWithToken;
-    this.store.dispatch({
-      type: this.actionTypes.registerCallLogger,
+    this._onRegisterCallLogger({
       callLoggerTitle: service.callLoggerTitle,
       showLogModal: !!service.showLogModal,
       callLoggerAutoSettingLabel: service.callLoggerAutoSettingLabel,
@@ -395,7 +369,7 @@ export default class ThirdPartyService extends RcModule {
     if (this._callLogEntityMatchSourceAdded || !this._callLogEntityMatcherPath) {
       return;
     }
-    this._activityMatcher.addSearchProvider({
+    this._deps.activityMatcher.addSearchProvider({
       name: this.sourceName,
       searchFn: async ({ queries }) => {
         const result = await this.matchCallLogEntities(queries);
@@ -410,7 +384,7 @@ export default class ThirdPartyService extends RcModule {
     if (!this._callLogEntityMatchSourceAdded) {
       return;
     }
-    this._activityMatcher._searchProviders.delete(this.sourceName);
+    this._deps.activityMatcher._searchProviders.delete(this.sourceName);
     this._callLogEntityMatchSourceAdded = false;
   }
 
@@ -418,8 +392,8 @@ export default class ThirdPartyService extends RcModule {
     if (!this._callLogEntityMatchSourceAdded) {
       return;
     }
-    const queries = this._activityMatcher._getQueries();
-    this._activityMatcher.match({
+    const queries = this._deps.activityMatcher._getQueries();
+    this._deps.activityMatcher.match({
       queries: queries.slice(0, 30),
       ignoreCache: true
     });
@@ -428,8 +402,7 @@ export default class ThirdPartyService extends RcModule {
   _registerMessageLogger(service) {
     this._messageLoggerPath = service.messageLoggerPath;
     this._messageLoggerAttachmentWithToken = !!service.attachmentWithToken
-    this.store.dispatch({
-      type: this.actionTypes.registerMessageLogger,
+    this._onRegisterMessageLogger({
       messageLoggerTitle: service.messageLoggerTitle,
       messageLoggerAutoSettingLabel: service.messageLoggerAutoSettingLabel,
     });
@@ -439,7 +412,7 @@ export default class ThirdPartyService extends RcModule {
     if (this._messageLogEntityMatchSourceAdded || !this._messageLogEntityMatcherPath) {
       return;
     }
-    this._conversationMatcher.addSearchProvider({
+    this._deps.conversationMatcher.addSearchProvider({
       name: this.sourceName,
       searchFn: async ({ queries }) => {
         const result = await this.matchMessageLogEntities(queries);
@@ -454,7 +427,7 @@ export default class ThirdPartyService extends RcModule {
     if (!this._messageLogEntityMatchSourceAdded) {
       return;
     }
-    this._conversationMatcher._searchProviders.delete(this.sourceName);
+    this._deps.conversationMatcher._searchProviders.delete(this.sourceName);
     this._messageLogEntityMatchSourceAdded = false;
   }
 
@@ -480,8 +453,7 @@ export default class ThirdPartyService extends RcModule {
       }
     });
     if (additionalButtons.length > 0) {
-      this.store.dispatch({
-        type: this.actionTypes.registerAdditionalButtons,
+      this._onRegisterAdditionalButtons({
         additionalButtons,
       });
     }
@@ -491,8 +463,8 @@ export default class ThirdPartyService extends RcModule {
     if (!this._messageLogEntityMatchSourceAdded) {
       return;
     }
-    const queries = this._conversationMatcher._getQueries();
-    this._conversationMatcher.match({
+    const queries = this._deps.conversationMatcher._getQueries();
+    this._deps.conversationMatcher.match({
       queries: queries.slice(0, 30),
       ignoreCache: true
     });
@@ -529,26 +501,16 @@ export default class ThirdPartyService extends RcModule {
         await this._fetchContactsPromise;
         return;
       }
-      this.store.dispatch({
-        type: this.actionTypes.syncContacts,
-      });
+      this._setContactSyncing(true);
       this._fetchContactsPromise = this._fetchContacts(params);
       const { contacts, syncTimestamp } = await this._fetchContactsPromise;
-      let fetchType;
       if (this.contactSyncTimestamp && syncTimestamp) {
-        fetchType = this.actionTypes.syncContactsSuccess;
+        this._syncContactsSuccess({ contacts, syncTimestamp });
       } else {
-        fetchType = this.actionTypes.fetchContactsSuccess;
+        this._fetchContactsSuccess({ contacts, syncTimestamp });
       }
-      this.store.dispatch({
-        type: fetchType,
-        contacts,
-        syncTimestamp,
-      });
     } catch (e) {
-      this.store.dispatch({
-        type: this.actionTypes.syncContactsError,
-      });
+      this._setContactSyncing(false);
       console.error(e);
     }
     this._fetchContactsPromise = null;
@@ -666,13 +628,10 @@ export default class ThirdPartyService extends RcModule {
       if (!this._activitiesPath) {
         return;
       }
-      this.store.dispatch({
-        type: this.actionTypes.loadActivities,
-      });
+      this._onLoadActivities();
       const response = await requestWithPostMessage(this._activitiesPath, { contact });
       const activities = response.data;
-      this.store.dispatch({
-        type: this.actionTypes.loadActivitiesSuccess,
+      this._onLoadActivitiesSuccess({
         activities,
       });
     } catch (e) {
@@ -707,19 +666,19 @@ export default class ThirdPartyService extends RcModule {
       if (!this._meetingLoggerPath) {
         return;
       }
-      const formatedMeeting = {
+      const formattedMeeting = {
         ...meeting,
       };
       if (meeting.recordings && meeting.recordings.length > 0) {
         const meetingHost = `https://v.ringcentral.com`;
-        formatedMeeting.recordings = meeting.recordings.map(({ contentUri, ...recording }) => {
+        formattedMeeting.recordings = meeting.recordings.map(({ contentUri, ...recording }) => {
           return {
             ...recording,
             link: `${meetingHost}/welcome/meetings/recordings/recording/${meeting.id}`,
           };
         });
       }
-      await requestWithPostMessage(this._meetingLoggerPath, { meeting: formatedMeeting }, 6000);
+      await requestWithPostMessage(this._meetingLoggerPath, { meeting: formattedMeeting }, 6000);
     } catch (e) {
       console.error(e);
     }
@@ -734,7 +693,7 @@ export default class ThirdPartyService extends RcModule {
       if (call.recording) {
         let contentUri = call.recording.contentUri;
         if (this._callLoggerRecordingWithToken) {
-          contentUri = `${contentUri}?access_token=${this._auth.accessToken}`;
+          contentUri = `${contentUri}?access_token=${this._deps.auth.accessToken}`;
         }
         const isSandbox = call.recording.uri.indexOf('platform.devtest') > -1;
         let recordingLink = this._recordingLink;
@@ -749,7 +708,7 @@ export default class ThirdPartyService extends RcModule {
       }
       await requestWithPostMessage(this._callLoggerPath, { call: callItem, ...options }, 6000);
       if (this._callLogEntityMatchSourceAdded) {
-        this._activityMatcher.match({
+        this._deps.activityMatcher.match({
           queries: [call.sessionId],
           ignoreCache: true
         });
@@ -763,7 +722,7 @@ export default class ThirdPartyService extends RcModule {
     if (!Array.isArray(sessionIds)) {
       return;
     }
-    const queries = this._activityMatcher._getQueries();
+    const queries = this._deps.activityMatcher._getQueries();
     const validatedSessionIds = [];
     sessionIds.forEach((sessionId) => {
       if (queries.indexOf(sessionId) > -1) {
@@ -773,7 +732,7 @@ export default class ThirdPartyService extends RcModule {
     if (validatedSessionIds.length === 0) {
       return;
     }
-    this._activityMatcher.match({
+    this._deps.activityMatcher.match({
       queries: validatedSessionIds,
       ignoreCache: true,
     });
@@ -799,7 +758,7 @@ export default class ThirdPartyService extends RcModule {
               }
               let uri = a.uri;
               if (this._messageLoggerAttachmentWithToken) {
-                uri = `${a.uri}?access_token=${this._auth.accessToken}`;
+                uri = `${a.uri}?access_token=${this._deps.auth.accessToken}`;
               }
               return ({
                 ...a,
@@ -813,7 +772,7 @@ export default class ThirdPartyService extends RcModule {
       }
       await requestWithPostMessage(this._messageLoggerPath, { conversation: item, ...options }, 6000);
       if (this._messageLogEntityMatchSourceAdded) {
-        this._conversationMatcher.match({
+        this._deps.conversationMatcher.match({
           queries: [item.conversationLogId],
           ignoreCache: true
         });
@@ -850,11 +809,8 @@ export default class ThirdPartyService extends RcModule {
   }
 
   async onSettingToggle(setting) {
-    const newSettng = { ...setting, value: !setting.value };
-    this.store.dispatch({
-      type: this.actionTypes.updateSetting,
-      setting: newSettng,
-    });
+    const newSetting = { ...setting, value: !setting.value };
+    this._onUpdateSettings({ setting: newSetting });
     await requestWithPostMessage(this._settingsPath, {
       settings: this.settings,
     });
@@ -895,94 +851,200 @@ export default class ThirdPartyService extends RcModule {
     await this.fetchContacts(params);
   }
 
-  get contacts() {
-    return this.state.contacts;
+  @state
+  contacts = [];
+
+  @state
+  contactSyncTimestamp = null;
+
+  @state
+  contactSyncing = false;
+
+  @action
+  _fetchContactsSuccess({ contacts, syncTimestamp = null }) {
+    this.contacts = contacts;
+    this.contactSyncTimestamp = syncTimestamp;
+    this.contactSyncing = false; 
   }
 
-  get serviceName() {
-    return this.state.serviceName;
+  @action
+  _syncContactsSuccess({ contacts, syncTimestamp = null }) {
+    const contactsMap = {};
+    let newContacts = [];
+    contacts.forEach((c) => {
+      contactsMap[c.id] = 1;
+    });
+    newContacts = this.contacts.filter(c => !contactsMap[c.id]);
+    this.contacts = newContacts.concat(contacts.filter(c => !c.deleted));
+    this.contactSyncTimestamp = syncTimestamp;
+    this.contactSyncing = false;
+  }
+
+  @action
+  _setContactSyncing(value) {
+    this.contactSyncing = value;
+  }
+
+  @state
+  serviceName = null;
+
+  @state
+  _sourceReady = false;
+
+  @action
+  _registerService({
+    serviceName,
+  }) {
+    this.serviceName = serviceName;
+    this._sourceReady = true;
   }
 
   get sourceName() {
     return this.serviceName;
   }
 
-  get status() {
-    return this.state.status;
-  }
-
   get sourceReady() {
     if (this.authorizationRegistered && !this.authorized) {
       return false;
     }
-    return this.state.sourceReady;
+    return this._sourceReady;
+  }
+
+  @state
+  _activitiesRegistered = false;
+
+  @state
+  activityName = null;
+
+  @state
+  activitiesLoaded = false;
+
+  @state
+  activities = [];
+
+  @action
+  _onRegisterActivities({
+    activityName,
+  }) {
+    this._activitiesRegistered = true;
+    if (activityName) {
+      this.activityName = activityName;
+    }
+  }
+
+  @action
+  _onLoadActivities() {
+    this.activitiesLoaded = false;
+    this.activities = [];
+  };
+
+  @action
+  _onLoadActivitiesSuccess({
+    activities
+  }) {
+    this.activitiesLoaded = true;
+    this.activities = activities;
   }
 
   get activitiesRegistered() {
     if (this.authorizationRegistered && !this.authorized) {
       return false;
     }
-    return this.state.activitiesRegistered;
+    return this._activitiesRegistered;
   }
 
-  get activitiesLoaded() {
-    return this.state.activitiesLoaded;
+  @state
+  meetingInviteTitle = null;
+
+  @action
+  _onRegisterMeetingInvite({
+    meetingInviteTitle,
+  }) {
+    this.meetingInviteTitle = meetingInviteTitle;
   }
 
-  get activities() {
-    return this.state.activities;
+  @state
+  callLoggerRegistered = false;
+
+  @state
+  callLoggerTitle = null;
+
+  @state
+  callLoggerAutoSettingLabel = null;
+
+  @state
+  showLogModal = false;
+
+  @action
+  _onRegisterCallLogger({
+    callLoggerTitle,
+    callLoggerAutoSettingLabel,
+    showLogModal,
+  }) {
+    this.callLoggerRegistered = true;
+    if (callLoggerTitle) {
+      this.callLoggerTitle = callLoggerTitle;
+    }
+    if (callLoggerAutoSettingLabel) {
+      this.callLoggerAutoSettingLabel = callLoggerAutoSettingLabel;
+    }
+    this.showLogModal = showLogModal;
   }
 
-  get activityName() {
-    return this.state.activityName;
+  @state
+  messageLoggerRegistered = false;
+
+  @state
+  messageLoggerTitle = null;
+
+  @state
+  messageLoggerAutoSettingLabel = null;
+
+  _onRegisterMessageLogger({
+    messageLoggerTitle,
+    messageLoggerAutoSettingLabel,
+  }) {
+    this.messageLoggerRegistered = true;
+    if (messageLoggerTitle) {
+      this.messageLoggerTitle = messageLoggerTitle;
+    }
+    if (messageLoggerAutoSettingLabel) {
+      this.messageLoggerAutoSettingLabel = messageLoggerAutoSettingLabel;
+    }
   }
 
-  get conferenceInviteTitle() {
-    return this.state.conferenceInviteTitle;
+  @state
+  authorized = null;
+
+  @state
+  authorizedTitle = null;
+
+  @state
+  unauthorizedTitle = null;
+
+  @state
+  _showAuthRedDot = false;
+
+  @action
+  _onRegisterAuthorization({
+    authorized,
+    authorizedTitle,
+    unauthorizedTitle,
+    showAuthRedDot,
+  }) {
+    this.authorized = authorized;
+    this.authorizedTitle = authorizedTitle;
+    this.unauthorizedTitle = unauthorizedTitle;
+    this._showAuthRedDot = showAuthRedDot;
   }
 
-  get meetingInviteTitle() {
-    return this.state.meetingInviteTitle;
-  }
-
-  get callLoggerRegistered() {
-    return this.state.callLoggerRegistered;
-  }
-
-  get callLoggerTitle() {
-    return this.state.callLoggerTitle;
-  }
-
-  get callLoggerAutoSettingLabel() {
-    return this.state.callLoggerAutoSettingLabel;
-  }
-
-  get messageLoggerRegistered() {
-    return this.state.messageLoggerRegistered;
-  }
-
-  get messageLoggerTitle() {
-    return this.state.messageLoggerTitle;
-  }
-
-  get messageLoggerAutoSettingLabel() {
-    return this.state.messageLoggerAutoSettingLabel;
+  @action
+  setAuthorized(value) {
+    this.authorized = value;
   }
 
   get authorizationRegistered() {
-    return this.state.authorized !== null;
-  }
-
-  get authorized() {
-    return this.state.authorized;
-  }
-
-  get authorizedTitle() {
-    return this.state.authorizedTitle;
-  }
-
-  get unauthorizedTitle() {
-    return this.state.unauthorizedTitle;
+    return this.authorized !== null;
   }
 
   get authorizationLogo() {
@@ -992,7 +1054,7 @@ export default class ThirdPartyService extends RcModule {
   get showAuthRedDot() {
     return (
       this.authorizationRegistered &&
-      this.state.showAuthRedDot &&
+      this._showAuthRedDot &&
       !this.authorized
     );
   }
@@ -1001,41 +1063,64 @@ export default class ThirdPartyService extends RcModule {
     return this._authorizedAccount;
   }
 
-  get showLogModal() {
-    return this.state.showLogModal;
-  }
-
-  get contactSyncTimestamp() {
-    return this.state.contactSyncTimestamp;
-  }
-
-  get contactSyncing() {
-    return this.state.contactSyncing;
-  }
-
   get contactIcon() {
     return this._contactIcon;
   }
 
-  get showFeedback() {
-    return this.state.showFeedback;
+  @state
+  showFeedback = false;
+
+  @action
+  _onRegisterFeedback() {
+    this.showFeedback = true;
   }
 
-  get settings() {
-    return this.state.settings;
+  @state
+  settings = [];
+
+  @action
+  _onRegisterSettings({
+    settings,
+  }) {
+    this.settings = settings;
   }
 
-  get meetingLoggerRegistered() {
-    return this.state.meetingLoggerRegistered;
+  _onUpdateSettings({
+    setting,
+  }) {
+    let newSettings = [];
+    newSettings = newSettings.concat(this.settings);
+    const settingIndex = newSettings.findIndex(s => s.name === setting.name);
+    if (settingIndex > -1) {
+      newSettings[settingIndex] = setting;
+    }
+    this.settings = newSettings;
   }
 
-  get meetingLoggerTitle() {
-    return this.state.meetingLoggerTitle;
+  @state
+  meetingLoggerRegistered = false;
+
+  @state
+  meetingLoggerTitle = null;
+
+  @action
+  _onRegisterMeetingLogger({
+    meetingLoggerTitle,
+  }) {
+    this.meetingLoggerRegistered = true;
+    if (meetingLoggerTitle) {
+      this.meetingLoggerTitle = meetingLoggerTitle;
+    }
   }
 
-  get additionalButtons() {
-    return this.state.additionalButtons
-  }
+  @state
+  additionalButtons = [];
+
+  _onRegisterAdditionalButtons({
+    additionalButtons,
+  }) {
+    this.additionalButtons = additionalButtons;
+  };
 
   get additionalSMSToolbarButtons() {
     return this.additionalButtons.filter(x => x.type === 'smsToolbar');
