@@ -34,7 +34,7 @@ if (enableDiscovery) {
 if (!authProxy && pathParams.appKey) {
   console.warn('appKey is deprecated, please change to clientId. https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
 }
-let isUsingDefaultClientId = true;
+let isUsingDefaultClientId = false;
 if (
   !authProxy &&
   apiConfig.clientId &&
