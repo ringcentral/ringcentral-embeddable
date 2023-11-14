@@ -1,6 +1,6 @@
-## Log call into your service
+# Log call into your service
 
-### Add call logger button in calls page
+## Add call log button/icon in call history tab
 
 First you need to pass `callLoggerPath` and `callLoggerTitle` when you register service.
 
@@ -67,7 +67,7 @@ The `link` property in `recording` is a link to get and play recording file from
 }
 ```
 
-### Auto log calls setting
+## Auto log calls setting
 
 User can enable/disable auto log in settings page. To set default `Auto log calls` enabled:
 
@@ -95,7 +95,7 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-### Add call logger modal
+## Add call logger modal
 
 For some developers who want to add note when log a call to their platform, we provide a log modal to support it.
 
@@ -116,7 +116,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 ![image](https://user-images.githubusercontent.com/7036536/48827685-d1814a00-eda8-11e8-8160-0fb92cbb88f5.png)
 
 
-### Add call log entity matcher
+## Add call log entity matcher
 
 In call logger button, widget needs to know if call is logged. To provide `callLogEntityMatcherPath` when register, widget will send match request to get match result of calls history.
 
@@ -161,7 +161,7 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-#### Trigger call logger entity match manually
+### Trigger call logger entity match manually
 
 The widget will trigger call logger entity match after call logged automatically. But you can still trigger it to match manually
 

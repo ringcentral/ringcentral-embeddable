@@ -1,4 +1,4 @@
-## Third Party Settings
+# Custom third-party settings and preferences
 
 For some features that support user to enable or disable, widget supports to add settings into widget's setting page. Now this only supports toggles.
 

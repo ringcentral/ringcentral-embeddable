@@ -1,4 +1,4 @@
-## Add third party authorization button
+# Add third-party authorization button
 
 For some CRM API, they requires user to authorize firstly. This feature allows developer to add a third party authorization button and sync status into widget.
 
@@ -53,4 +53,4 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-**Notice:** If you register authorization service into widget, upper contacts related service will works only after status changed to authorized.
+!!! info "If you register an authorization service into Embeddable, the contacts-related service above will work only after the user's status has changed to authorized."

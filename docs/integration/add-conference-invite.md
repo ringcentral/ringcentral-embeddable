@@ -1,4 +1,4 @@
-## Add a conference invite button with your service
+# Add a conference invite button with your service
 
 `Conference Invite` is disabled by default, follow [here](../support.md#enabling-the-conference-calling-feature) to enable it.
 

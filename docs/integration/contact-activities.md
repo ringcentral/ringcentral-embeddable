@@ -1,4 +1,4 @@
-## Show contact's activities from your application
+# Show contact's activities from your application
 
 First you need to pass `activitiesPath` and `activityPath` when you register service.
 

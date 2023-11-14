@@ -1,7 +1,8 @@
+# Integration contacts in your system into Embeddable
 
-## Show contacts from your application
+!!! info "Be sure to [register your app as a service](index.md) in Embeddable."
 
-### Show contacts on Contacts page in widget
+## Show contacts on Embeddable's contacts tab
 
 First you need to pass `contactsPath` when you register service:
 
@@ -16,7 +17,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-Add a message event to response contacts list event:
+Add a message event to respond to a contacts list event:
 
 ```js
 window.addEventListener('message', function (e) {
@@ -57,15 +58,15 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-Data from `contactsPath` will be showed in contacts page in widget. 
+Data from `contactsPath` will be displayed in the contacts tab inside Embeddable.
 
-The widget will request contacts data when widget is loaded and when user visit contacts page. In first request `syncTimestamp` is blank, so you need to provide full contacts data to widget. Please provide `syncTimestamp` when reponse to widget. In next contacts request widget will send you `syncTimestamp`, so you just need to provide updated contact since `syncTimestamp`.
+Embeddable will request contacts data when widget is loaded and when user visit contacts page. In first request `syncTimestamp` is blank, so you need to provide full contacts data to widget. Please provide `syncTimestamp` when reponse to widget. In next contacts request widget will send you `syncTimestamp`, so you just need to provide updated contact since `syncTimestamp`.
 
 If you provide `nextPage` for `contactsPath` response, widget will repeat request with `page="${nextPage}"` to get next page contacts data.
 
 ![contacts image](https://user-images.githubusercontent.com/7036536/55848243-d9d2f980-5b7e-11e9-8051-7a48cee50222.jpeg)
 
-To trigger contact sync request in widget by api:
+To trigger contact sync request in widget using the API:
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -73,7 +74,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-### Show contacts search result on Dialer receiver input
+## Show contacts search result in the dialer's receiver input
 
 You must want to show related contacts result when user typing in callee input area. First you need to pass `contactSearchPath` when you register service:
 
@@ -118,7 +119,7 @@ window.addEventListener('message', function (e) {
 
 ![image](https://user-images.githubusercontent.com/7036536/48828521-ec54be00-edaa-11e8-8b49-d76412e173bd.jpeg)
 
-### Show contacts matcher result on calls history and incoming call page:
+## Show matched contact in the call history or incoming call page
 
 In widget, we use contact matcher to match phone number to contact in calls page or incoming page. First you need to pass `contactMatchPath` when you register service:
 

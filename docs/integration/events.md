@@ -49,7 +49,7 @@ window.addEventListener('message', (e) => {
 
 Embeddable will open a popup window in order to login a user when that user clicks the login button. For some reason, you may want to popup window by yourself. So you can use login popup event to get login URI for open login window.
 
-For enabling this event, set the [`disableLoginPopup=1`](../config/popup-window/) configuration parameter.
+For enabling this event, set the [`disableLoginPopup=1`](../config/popup-window.md) configuration parameter.
 
 ```js
 window.addEventListener('message', (e) => {

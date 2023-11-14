@@ -1,12 +1,10 @@
-# Third Party Service in Widget
+# Registering your app as a service in Embeddable
 
-After integrating the RingCentral Embeddable to your application, you can also integrate your own service into the widget, such as show contact data from your application or show a button named with your application.
-
-This document show how the widget can interact with your application deeply.
+After integrating the RingCentral Embeddable library into your web application, you can also integrate your own custom service into the CTI as well. This will allow you to associate an icon with [contacts you synchronize](address-book.md) into Embeddable via its API, or display a button to [facilitate authorization](third-party-auth.md) with your service. 
 
 ## Register your service
 
-Find the widget iframe and use `postMessage` to register:
+Find Embeddable's iframe and use `postMessage` to register your service.
 
 ```js
 var registered = false;

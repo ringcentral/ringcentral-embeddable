@@ -1,6 +1,6 @@
-## Log RingCentral Video meeting into your service
+# Log RingCentral video meeting into your service
 
-**Notice**: only work on RingCentral Video meeting service.
+!!! info "This is only relevant for customers who use RingCentral Video"
 
 First you need to pass `meetingLoggerPath` and `meetingLoggerTitle` when you register service.
 

@@ -1,4 +1,4 @@
-## Add feedback in settings
+# Add feedback prompt in Settings tab
 
 For developer who want to add feedback feature, the app provides a API to show a feed link in settings page:
 

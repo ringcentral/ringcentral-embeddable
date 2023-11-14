@@ -1,28 +1,8 @@
-# Enable Analytics
+# Enable analytics
 
-In widget, we support to export some user behavior events (make call/send sms/schedule meeting) for tracking. It is disabled by default. To enable it, please pass `enableAnalytics`:
+Developers can implement their own custom event tracking with internal or third-party analytics systems using Embeddable's API. This feature is disabled by default. To enable analytics tracking, enable the [`enableAnalytics`](../config/index.md) configuration parameter.
 
-## Use adapter JS way:
-
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enableAnalytics=1";
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
-
-## Use iframe way:
-
-```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?enableAnalytics=1">
-</iframe>
-```
-
-## Listen to track event
+## Listen for the track event
 
 ```js
 window.addEventListener('message', (e) => {

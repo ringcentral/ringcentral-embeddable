@@ -22,6 +22,7 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `disableGlip` | True | Before we start to use Glip API, need to add `Glip` or `Team Messaging` permission to your app in RingCentral Developer website. Also, for testing with a sandbox user, user needs to first login to https://app.devtest.ringcentral.com |
 | `disableMinimize` | True | By default, we provide Minimize button at app header to minimize the widget. |
 | `disconnectInactiveWebphone` | Foo | See [Working with multuple tabs](multiple-tabs.md). |
+| `enableAnalytics` | False | See [Custom analytics](../integrations/analytics.md). |
 | `enablePopup` | Foo | See [Customize pop-up window](popup-window.md). |
 | `enableRingtoneSettings` | Foo | For when call is ringing, app will play default ringtone. But we also support to customize ringtone. By enabled, user can get ringtone settings at settings page. Supported after v1.6.3 |
 | `jwt` | None | See [Alternative auth methods](../integration/authorization.md). |

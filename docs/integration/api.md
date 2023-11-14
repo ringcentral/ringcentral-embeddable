@@ -2,67 +2,7 @@
 
 Embeddable provides an API that allows developers to control the UI and flow of the application via the embedded CTI. It is based on the [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) API.
 
-## Open the dialer and start a call
-
-Find the widget iframe and use `postMessage` to send command and data:
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-new-call',
-  phoneNumber: `phone number`,
-  toCall: true,
-}, '*');
-```
-
-This feature can be used for `Click to Dial`. If you set `toCall` to ture, it will start the call immediately.
-
-If you are using Adapter JS way, just you can just call `RCAdapter.clickToCall('phonenumber')`.
-
-[Here](click-to-dial.md) is tutorial to use [RingCentral C2D](https://github.com/ringcentral/ringcentral-c2d) library to quick implement `Click to Dial` feature.
-
-## Go to SMS Page
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-new-sms',
-  phoneNumber: `phone number`,
-}, '*');
-```
-
-### Go to Conversation Page
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-new-sms',
-  phoneNumber: `phone number`,
-  conversation: true, // will go to conversation page if conversation existed
-}, '*');
-```
-
-### Go to SMS Page with prefilled text
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-new-sms',
-  phoneNumber: `phone number`,
-  text: `your text`,
-}, '*');
-```
-
-If you are using Adapter JS way, just you can just call `RCAdapter.clickToSMS('phonenumber')`.
-
-### Auto populate SMS conversation text
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-auto-populate-conversation',
-  text: `your text`,
-}, '*');
-```
-
-**Notice**: This only works when user is on SMS conversation detail page. It will add `your text` into user's conversation input.
-
-## Control the web call
+## Active call control
 
 Following APIs need to work with [Web phone call event](events.md#web-phone-call-event) to get `callId`.
 
@@ -175,7 +115,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-**Notice**: this only works after call [started](events.md#web-phone-call-event) (Inbound call accepted/Oubound call connected)
+!!! info "This will only work after the [call has already started](events.md#web-phone-call-event) (Inbound call accepted/Oubound call connected)"
 
 ### Stop record a call
 
@@ -207,27 +147,27 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-## Log out user
+## Embeddable widget
+
+### Show custom alert message
+
+> supported after `v1.8.6`
 
 ```js
+const requestId = Date.now().toString();
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-logout'
+  type: 'rc-adapter-message-request',
+  requestId: requestId,
+  path: '/custom-alert-message',
+  alertMessage: 'Test info message',
+  alertLevel: 'info',
+  ttl: 5000 //5000ms => 5s
 }, '*');
 ```
 
-## Trigger Login button click
+Note: `alertLevel` can be `info`, `warning` or `danger`.
 
-App will open login popup window after getting this command. Follow [here](events.md#login-popup-event) to disable popup window, and receive oauth uri.
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-login'
-}, '*');
-```
-
-Notice: this command only works when user isn't logged.
-
-## Minimize/Hide/Remove the widget
+### Minimize/Hide/Remove the widget
 
 Only for Adapter JS way:
 
@@ -252,7 +192,7 @@ Remove:
 RCAdapter.dispose();
 ```
 
-## Popup the widget
+### Popup the widget
 
 Only for Adapter JS way and [popup window feature](../config/popup-window.md) enabled:
 
@@ -260,7 +200,49 @@ Only for Adapter JS way and [popup window feature](../config/popup-window.md) en
 RCAdapter.popupWindow();  // popup the widget in a standalone window
 ```
 
-## Navigate To
+## Login and authorization
+
+### Log out user
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-logout'
+}, '*');
+```
+
+### Trigger Login button click
+
+App will open login popup window after getting this command. Follow [here](events.md#login-popup-event) to disable popup window, and receive oauth uri.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-login'
+}, '*');
+```
+
+!!! info "This command only works when user is not logged in"
+
+## Navigation
+
+### Open the dialer and start a call
+
+Find the widget iframe and use `postMessage` to send command and data:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-new-call',
+  phoneNumber: `phone number`,
+  toCall: true,
+}, '*');
+```
+
+This feature can be used for `Click to Dial`. If you set `toCall` to ture, it will start the call immediately.
+
+If you are using Adapter JS way, just you can just call `RCAdapter.clickToCall('phonenumber')`.
+
+[Here](click-to-dial.md) is tutorial to use [RingCentral C2D](https://github.com/ringcentral/ringcentral-c2d) library to quick implement `Click to Dial` feature.
+
+### Navigate to arbitrary path
 
 Navigate to path:
 
@@ -271,9 +253,51 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+### Go to the SMS tab
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-new-sms',
+  phoneNumber: `phone number`,
+}, '*');
+```
+
+### Go to SMS conversation for specific phone number
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-new-sms',
+  phoneNumber: `phone number`,
+  conversation: true, // will go to conversation page if conversation existed
+}, '*');
+```
+
+### Go to SMS page with prefilled text
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-new-sms',
+  phoneNumber: `phone number`,
+  text: `your text`,
+}, '*');
+```
+
+If you are using Adapter JS way, just you can just call `RCAdapter.clickToSMS('phonenumber')`.
+
+### Auto-populate SMS conversation text
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-auto-populate-conversation',
+  text: `your text`,
+}, '*');
+```
+
+!!! info "This only works when user is already on the SMS conversation detail page. It will add the specified text into user's conversation input."
+
 ## Schedule a meeting
 
-**Notice**: need to have `Meeting` permission in your RingCentral client id.
+!!! info "Your applicaton needs to have the "Meeting" application scope for this to work."
 
 ```js
 // meeting info
@@ -331,20 +355,3 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 To get current presence status please refer this [event](events.md#presence-sync-event).
 
-## Show Custom Alert Message
-
-> supported after `v1.8.6`
-
-```js
-const requestId = Date.now().toString();
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-message-request',
-  requestId: requestId,
-  path: '/custom-alert-message',
-  alertMessage: 'Test info message',
-  alertLevel: 'info',
-  ttl: 5000 //5000ms => 5s
-}, '*');
-```
-
-Note: `alertLevel` can be `info`, `warning` or `danger`.

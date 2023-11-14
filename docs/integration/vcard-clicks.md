@@ -1,5 +1,4 @@
-
-## VCard Click handler
+# VCard click handler
 
 In SMS messages, user can receive vcard (contact) file with MMS. We allow third party to handle the vard attachment download event. For example, when user click vcard file download button, your service will receive the vcard URI, and save the contact into your service.
 

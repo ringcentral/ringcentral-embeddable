@@ -1,6 +1,6 @@
-## Show upcoming meeting list in RingCentral Video page
+# Show upcoming meeting list in RingCentral Video page
 
-**Notice**: only work on RingCentral Video meeting service.
+!!! info "This only works on RingCentral Video meeting service."
 
 First you need to pass `meetingUpcomingPath` when you register meeting invite service.
 

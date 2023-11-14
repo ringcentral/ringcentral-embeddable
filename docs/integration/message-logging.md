@@ -1,6 +1,6 @@
-## Log messages into your service
+# Log messages into your service
 
-### Add message logger button in messages page
+## Add message logger button in messages page
 
 First you need to pass `messageLoggerPath` and `messageLoggerTitle` when you register service.
 
@@ -47,7 +47,7 @@ In this message event, you can get call information in `data.body.conversation`.
 
 For Voicemail and Fax, you can get `attachment` data in message. The `attachment.link` is a link used to get voicemail file from RingCentral server with Browser. The `attachment.uri` is a URI which can be used to get attachment file  with RingCentral access token. If you pass `attachmentWithToken` when register service, you can get `attachment.uri` with `access_token`. The `access_token` will be expired in minutes, so need to download immediately when get it. 
 
-### Auto log messages settings
+## Auto log messages settings
 
 User can enable/disable auto log in settings page. To set default `Auto log messages` enabled:
 
@@ -64,7 +64,7 @@ Add `defaultAutoLogMessageEnabled` into the `adapter.js` URI:
 </script>
 ```
 
-### Add message log entity matcher
+## Add message log entity matcher
 
 In message logger, widget needs to know if messages are logged. To provide `messageLogEntityMatcherPath` when register, widget will send match request to get match result of messages history.
 
