@@ -1,8 +1,8 @@
-# Control Widget
+# Embeddable API for controlling and manipulating the UI
 
-The Widget provides some API that allow developer to control it out of widget. It is based on [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) API.
+Embeddable provides an API that allows developers to control the UI and flow of the application via the embedded CTI. It is based on the [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) API.
 
-## Go to Dial and start a call
+## Open the dialer and start a call
 
 Find the widget iframe and use `postMessage` to send command and data:
 
