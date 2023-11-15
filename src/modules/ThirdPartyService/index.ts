@@ -1,4 +1,3 @@
-import { phoneTypes } from '@ringcentral-integration/commons/enums/phoneTypes';
 import {
   getFilterContacts,
 } from '@ringcentral-integration/commons/lib/contactHelper';
@@ -11,47 +10,11 @@ import {
 
 import requestWithPostMessage from '../../lib/requestWithPostMessage';
 import searchContactPhoneNumbers from '../../lib/searchContactPhoneNumbers';
-
-function formatPhoneType(phoneType) {
-  if (!phoneType) {
-    return 'unknown';
-  }
-  if (phoneTypes[phoneType]) {
-    return phoneType;
-  }
-  const cleanType = phoneType.replace('Phone', '');
-  if (phoneTypes[cleanType]) {
-    return cleanType;
-  }
-  return 'other';
-}
-
-function formatContacts(contacts) {
-  return contacts.map((contact) => {
-    const phoneNumbers = contact.phoneNumbers && contact.phoneNumbers.map(p => ({
-      phoneNumber: p.phoneNumber,
-      phoneType: formatPhoneType(p.phoneType),
-    }));
-    return {
-      ...contact,
-      phoneNumbers
-    };
-  });
-}
-
-function getImageUri(sourceUri) {
-  if (!sourceUri) {
-    return null;
-  }
-  let imageUri = null;
-  const sourceUrl = String(sourceUri);
-  if (sourceUrl.indexOf('data:image') === 0) {
-    imageUri = sourceUrl;
-  } else if (sourceUrl.split('?')[0].match(/.(png|jpg|jpeg)$/)){
-    imageUri = sourceUrl;
-  }
-  return imageUri;
-}
+import {
+  checkThirdPartySettings,
+  formatContacts,
+  getImageUri,
+} from './helper';
 
 @Module({
   name: 'ThirdPartyService',
@@ -321,16 +284,9 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   _registerSettings(service) {
     this._settingsPath = service.settingsPath;
-    const settings = [];
-    service.settings.forEach((setting) => {
-      if (typeof setting.name === 'string' && typeof setting.value === 'boolean') {
-        settings.push({
-          name: setting.name,
-          value: setting.value,
-        });
-      }
+    this._onRegisterSettings({
+      settings: checkThirdPartySettings(service.settings),
     });
-    this._onRegisterSettings({ settings });
   }
 
   _registerAuthorizationButton(service) {
@@ -833,9 +789,8 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
   }
 
-  async onSettingToggle(setting) {
-    const newSetting = { ...setting, value: !setting.value };
-    this._onUpdateSettings({ setting: newSetting });
+  async onUpdateSetting(setting) {
+    this._onUpdateSettings({ setting });
     await requestWithPostMessage(this._settingsPath, {
       settings: this.settings,
     });
@@ -1110,16 +1065,14 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.settings = settings;
   }
 
+  @action
   _onUpdateSettings({
     setting,
   }) {
-    let newSettings = [];
-    newSettings = newSettings.concat(this.settings);
-    const settingIndex = newSettings.findIndex(s => s.name === setting.name);
+    const settingIndex = this.settings.findIndex(s => s.id === setting.id);
     if (settingIndex > -1) {
-      newSettings[settingIndex] = setting;
+      this.settings[settingIndex] = setting;
     }
-    this.settings = newSettings;
   }
 
   @state
