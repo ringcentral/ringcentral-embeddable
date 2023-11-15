@@ -92,6 +92,7 @@ import RecentActivityContainer from '../RecentActivityContainer';
 import RingtoneSettingsPage from '../RingtoneSettingsPage';
 import SettingsPage from '../SettingsPage';
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
+import ThirdPartySettingSectionPage from '../ThirdPartySettingSectionPage';
 
 export default function App({
   phone,
@@ -223,6 +224,14 @@ export default function App({
                 <Route
                   path="/settings/feedback"
                   component={FeedbackPage}
+                />
+                <Route
+                  path="/settings/thirdParty/:sectionId"
+                  component={routerProps => (
+                    <ThirdPartySettingSectionPage
+                      params={routerProps.params}
+                    />
+                  )}
                 />
                 <Route
                   path="/history"

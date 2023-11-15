@@ -68,6 +68,33 @@ function getImageUri(sourceUri) {
   ],
 })
 export default class ThirdPartyService extends RcModuleV2 {
+  private _searchSourceAdded: boolean;
+  private _contactMatchSourceAdded: boolean;
+  private _callLogEntityMatchSourceAdded: boolean;
+  private _contactsPath?: string;
+  private _contactSearchPath?: string;
+  private _contactMatchPath?: string;
+  private _activitiesPath?: string;
+  private _activityPath?: string;
+  private _meetingInvitePath?: string;
+  private _meetingUpcomingPath?: string;
+  private _meetingLoggerPath?: string;
+  private _callLoggerPath?: string;
+  private _callLogEntityMatcherPath?: string;
+  private _messageLoggerPath?: string;
+  private _messageLogEntityMatcherPath?: string;
+  private _feedbackPath?: string;
+  private _settingsPath?: string;
+  private _authorizationPath?: string;
+  private _authorizationLogo?: string;
+  private _authorizedAccount?: string;
+  private _contactIcon?: string;
+  private _recordingLink?: string;
+  private _callLoggerRecordingWithToken?: boolean;
+  private _messageLoggerAttachmentWithToken?: boolean;
+  private _additionalButtonPath?: string;
+  private _vcardHandlerPath?: string;
+
   constructor(deps) {
     super({
       deps,
@@ -83,7 +110,6 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._ignoreModuleReadiness(deps.activityMatcher);
     this._ignoreModuleReadiness(deps.conversationMatcher);
     this._ignoreModuleReadiness(deps.genericMeeting);
-    this._initialized = false;
 
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
@@ -92,7 +118,6 @@ export default class ThirdPartyService extends RcModuleV2 {
   }
 
   onInitOnce() {
-    this._initialized = true;
     window.addEventListener('message', (e) => {
       if (!e.data) {
         return;

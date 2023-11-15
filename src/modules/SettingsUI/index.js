@@ -75,6 +75,9 @@ export class SettingsUI extends BaseSettingsUI {
       onNoiseReductionChange: () => {
         this._deps.noiseReduction.setEnabled(!this._deps.noiseReduction.enabled);
       },
+      gotoThirdPartySection: (sectionId) => {
+        routerInteraction.push(`/settings/thirdParty/${sectionId}`);
+      },
     }
   }
 }
