@@ -34,8 +34,9 @@ RingCentral Embeddable provides a ready-to-use, fully-functional web phone that 
     </iframe>
     ```
 
-!!! info "Removing the "FOR DEMO PURPOSES ONLY" banner"
-    You may observe that a banner appears when running the sample code above. To remove this banner, please register your own application and [use the client ID](config/client-id.md) associated with that application. 
+Or access our [RingCentral Embeddable configuration tool](https://ringcentral.github.io/ringcentral-embeddable/) for a live demo. 
+
+!!! info "When loading RingCentral Embeddable for the first time, users will need to grant access to their microphone and speaker."
 
 ### Prerequisites
 
@@ -45,4 +46,6 @@ RingCentral Embeddable provides a ready-to-use, fully-functional web phone that 
     - Microsoft Edge
     - Firefox
 
-!!! info "When loading RingCentral Embeddable for the first time, users will need to grant access to their microphone and speaker."
+!!! hint "Removing the "FOR DEMO PURPOSES ONLY" banner"
+    You may observe that a banner appears when running the sample code above. To remove this banner, please register your own application and [use the client ID](config/client-id.md) associated with that application. 
+
