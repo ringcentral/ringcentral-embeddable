@@ -40,6 +40,9 @@ markdown_extensions:
   - mdx_include
   - admonition
   - tables
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
 
 copyright: "2023 RingCentral, Inc. All rights reserved."
 
@@ -60,7 +63,7 @@ nav:
   - 'Advanced parameters':
     - 'Custom X-User-Agent': config/user-agent.md
     - 'Custom Client ID': config/client-id.md
-    - 'Custom look and feel through CSS': config/styles.md
+    - 'Custom styles through CSS': config/styles.md
     - 'Custom redirect Uri': config/redirect-uri.md
     - 'Custom prefix': config/prefix.md
     - 'Default call settings': config/call-settings.md

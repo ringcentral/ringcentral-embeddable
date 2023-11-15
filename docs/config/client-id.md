@@ -6,29 +6,28 @@ Upon successfully [registering your application](../app-registration.md) you wil
 
 Before you can deploy your newly created application to production and remove the FOR DEMO PURPOSES ONLY banner, you will need to point RingCentral Embeddable at [RingCentral's Developer sandbox environment](https://developers.ringcentral.com/guide/getting-started/using-sandbox). 
 
-### Using a `<script>` tag 
+=== "Javascript"
 
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        var clientId = "YOUR CLIENT ID";
+	    var appServer = "https://platform.devtest.ringcentral.com"
+        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?clientId="+clientId+"&=appServer="+appServer;
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    var clientId = "YOUR CLIENT ID";
-	var appServer = "https://platform.devtest.ringcentral.com"
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?clientId="+clientId+"&=appServer="+appServer;
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+=== "iframe"
 
-### Using an Iframe
-
-```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone"
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone"
         src="https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=your_app_client_id&appServer=https://platform.devtest.ringcentral.com">
-</iframe>
-```
+    </iframe>
+    ```
 
 !!! warning "`appKey` and `appSecret` have been renamed"
     Starting in version `v1.4.0`, `appKey` has been renamed to `clientId` and `appSecret` has been renamed to `clientSecret`.

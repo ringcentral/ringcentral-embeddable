@@ -15,25 +15,25 @@ For `RingCentral App`, `RingCentral Phone`, `RingOut`, calls are on other device
 
 To set default `callWith` option:
 
-### Adapter JS way
+=== "Javascript"
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?defaultCallWith=browser";
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?defaultCallWith=browser";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
-###  Iframe way
+=== "iframe"
 
-```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?defaultCallWith=browser">
-</iframe>
-```
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?defaultCallWith=browser">
+    </iframe>
+    ```
 
 There are 4 options for `defaultCallWith`: 
 
@@ -75,23 +75,25 @@ window.addEventListener('message', (e) => {
 
 In widget, user can also select `From` number when make a browser call. For developers who also want to set `From` number programmatically, we need to enable from number settings:
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enableFromNumberSetting=1";
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+=== "Javascript"
 
-###  Iframe way
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enableFromNumberSetting=1";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
-```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?enableFromNumberSetting=1">
-</iframe>
-```
+=== "iframe"
+
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?enableFromNumberSetting=1">
+    </iframe>
+    ```
 
 After enabled, we can receive `From` number list in [calling settings updated](#calling-settings-updated-event) event when `callWith` is `browser`.
 
@@ -101,23 +103,25 @@ After enabled, we can receive `From` number list in [calling settings updated](#
 
 In `RingOut` mode, user need to set `My Location` number to receive first-leg call. For developers who also want to get user's known location numbers programmatically, we need to set `showMyLocationNumbers` flag firstly:
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?showMyLocationNumbers=1";
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+=== "Javascript"
 
-###  Iframe way
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?showMyLocationNumbers=1";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
-```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?showMyLocationNumbers=1">
-</iframe>
-```
+=== "iframe"
+
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?showMyLocationNumbers=1">
+    </iframe>
+    ```
 
 After enabled, we can receive `myLocation` and `myLocationNumbers` in [calling settings updated](#calling-settings-updated-event) event.
 

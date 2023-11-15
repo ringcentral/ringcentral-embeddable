@@ -4,18 +4,18 @@ Support to open the widget in a popup window, so the widget is opened at a stand
 
 > For `Chrome (from 117)`, Safari and Firefox, iframe inside different domain is isolated. As default popup window's domain is different as the page embedded, need to [host the popup window](popup-window.md#host-the-popup-window) in same domain origin as the page embedded to have this feature work.
 
-### To enable this feature:
+=== "Javascript"
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enablePopup=1&multipleTabsSupport=1";
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enablePopup=1&multipleTabsSupport=1";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
 After enabled, user will get a popup button at header:
 
@@ -31,11 +31,10 @@ From v1.8.0:
 RCAdapter.isWindowPoppedUp().then((opened) => {...})
 ```
 
-### Known issues:
-
-* App can't make a opened popup window into desktop top (Browser limitation)
-* App will send [Web phone call session notification](../integration/events.md#web-phone-call-event) at every tabs
-* User need to focus at popup window when start or answer a call at popup window for microphone permission at Firefox
+!!! note "Known issues"
+    * App can't make a opened popup window into desktop top (Browser limitation)
+    * App will send [Web phone call session notification](../integration/events.md#web-phone-call-event) at every tabs
+    * User need to focus at popup window when start or answer a call at popup window for microphone permission at Firefox
 
 ## Host the popup window
 
@@ -43,16 +42,18 @@ For some reason, developers need to host [the popup HTML file](https://github.co
 
 In this case, we can config the popup button to open your own popup HTML file URI:
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enablePopup=1&popupPageUri=your_popup_html_file_uri";
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+=== "Javascript"
+
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enablePopup=1&popupPageUri=your_popup_html_file_uri";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
 The HTML file need to be based on code of this [file](https://github.com/ringcentral/ringcentral-embeddable/blob/master/src/popup.html). Then update the `adapter.js` src into absolute address in the file:
 

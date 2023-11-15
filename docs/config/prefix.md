@@ -4,25 +4,25 @@ We provide default prefix `rc-widget` in the widget. It will used at iframe id p
 
 Some developers wants to customize the prefix, so the widget can support to have different user storage data. We provide prefix param to support this feature:
 
-## Adapter JS way
+=== "Javascript"
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?prefix=your_prefix";
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?prefix=your_prefix";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
-## Iframe way
+=== "iframe"
 
-```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?prefix=your_prefix">
-</iframe>
-```
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?prefix=your_prefix">
+    </iframe>
+    ```
 
 After that the widget iframe id will changed to `your_prefix-adapter-frame`. And user data will be storaged at `you_prefix` namespace.
 

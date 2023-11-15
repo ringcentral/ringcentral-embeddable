@@ -14,30 +14,30 @@ Developers can login to RingCentral Embeddable using the [JWT auth flow](https:/
 	
 	JWT also requires you to expose your client secret, which if exposed publicly could expose you to some security risks. 
 
-### Via Javascript
+=== "Javascript"
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-	var clientId = "<YOUR CLIENT ID>";
-	var clientSecret = "<YOUR CLIENT SECRET>";
-	var jwt = "<YOUR JWT TOKEN>";
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?"+
-	    "clientId="+clientId+"&clientSecret="+clientSecret+"&jwt="+jwt;
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+    	var clientId = "<YOUR CLIENT ID>";
+    	var clientSecret = "<YOUR CLIENT SECRET>";
+    	var jwt = "<YOUR JWT TOKEN>";
+        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?"+
+    	    "clientId="+clientId+"&clientSecret="+clientSecret+"&jwt="+jwt;
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
-### Via iframe
+=== "iframe"
 
-```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" 
-    src="https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=ringcentral_app_client_id&clientSecret=ringcentral_app_client_secret&jwt=your_jwt_token">
-</iframe>
-```
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" 
+        src="https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=ringcentral_app_client_id&clientSecret=ringcentral_app_client_secret&jwt=your_jwt_token">
+    </iframe>
+    ```
 
 ## Authorization code flow
 
@@ -48,30 +48,30 @@ Developers can login to RingCentral Embeddable using the [JWT auth flow](https:/
 
 Pass RingCentral authorization code and code verifier:
 
-### Adapter JS way
+=== "Javascript"
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-	var clientId = "<YOUR CLIENT ID>";
-	var clientSecret = "<YOUR CLIENT SECRET>";
-	var authCode = "<AUTH CODE>";
-	var authCodeVerifier = "<AUTH CODE VERIFIER>";
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?"+
-	   "clientId="+clientId+"&authorizationCode="+authCode+"&authorizationCodeVerifier="+authCodeVerifier;
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+    	var clientId = "<YOUR CLIENT ID>";
+    	var clientSecret = "<YOUR CLIENT SECRET>";
+    	var authCode = "<AUTH CODE>";
+    	var authCodeVerifier = "<AUTH CODE VERIFIER>";
+        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?"+
+    	   "clientId="+clientId+"&authorizationCode="+authCode+"&authorizationCodeVerifier="+authCodeVerifier;
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
-### Iframe way
+=== "iframe"
 
-```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=ringcentral_app_client_id&authorizationCode=ringcentral_authorization_code&authorizationCodeVerifier=code_verifier_for_the_code">
-</iframe>
-```
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=ringcentral_app_client_id&authorizationCode=ringcentral_authorization_code&authorizationCodeVerifier=code_verifier_for_the_code">
+    </iframe>
+    ```
 
 ### PostMessage way
 
