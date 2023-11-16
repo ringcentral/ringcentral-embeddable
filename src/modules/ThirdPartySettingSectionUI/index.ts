@@ -37,7 +37,7 @@ export class ThirdPartySettingSectionUI extends RcUIModuleV2 {
     } = this._deps;
     return {
       onSave: (newSection) => {
-        this._onSave(newSection);
+        return this._onSave(newSection);
       },
       onBackButtonClick: () => routerInteraction.goBack(),
     };
@@ -45,6 +45,6 @@ export class ThirdPartySettingSectionUI extends RcUIModuleV2 {
 
   @track(() => ['Save Third Party Setting Section'])
   _onSave(newSection) {
-    console.log('newSection', newSection);
+    return this._deps.thirdPartyService.onUpdateSetting(newSection);
   }
 }
