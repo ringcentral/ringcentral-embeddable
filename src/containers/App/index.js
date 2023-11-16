@@ -325,7 +325,6 @@ export default function App({
                         navigateTo={(path) => {
                           phone.routerInteraction.push(path);
                         }}
-                        contact={phone.contactDetailsUI.currentContact}
                         useContact
                       />
                     </ContactDetailsPage>
