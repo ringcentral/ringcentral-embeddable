@@ -248,7 +248,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     });
     if (service.meetingUpcomingPath) {
       this._meetingUpcomingPath = service.meetingUpcomingPath;
-      this._deps.meeting.addThirdPartyProvider({
+      this._deps.genericMeeting.addThirdPartyProvider({
         name: service.name,
         fetchUpcomingMeetingList: () => this._fetchUpcomingMeetingList()
       });
