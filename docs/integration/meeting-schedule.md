@@ -1,5 +1,7 @@
 # Add meeting schedule feature with your service
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 !!! warning "Deprecated. This is only relevant for customers who use RingCentral Meetings"
 
 First we need to add `Meeting` permission into your app in RingCentral Developer website if you are using your own RingCentral client id. This works on RingCentral Video or RingCentral Meetings service.

@@ -1,5 +1,7 @@
 # Add a conference invite button with your service
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 `Conference Invite` is disabled by default, follow [here](../support.md#enabling-the-conference-calling-feature) to enable it.
 
 First you need to pass `conferenceInvitePath` and `conferenceInviteTitle` when you register service.

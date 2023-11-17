@@ -1,6 +1,6 @@
 # Integration contacts in your system into Embeddable
 
-!!! info "Be sure to [register your app as a service](index.md) in Embeddable."
+!!! info "This feature requires you to [register your app as a service](index.md) first."
 
 ## Show contacts on Embeddable's contacts tab
 

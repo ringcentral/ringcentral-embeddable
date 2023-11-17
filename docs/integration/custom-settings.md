@@ -1,5 +1,7 @@
 # Custom third-party settings and preferences
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 For some features that support user to enable or disable, widget supports to add settings into widget's setting page. Now this only supports toggles.
 
 First, register service with `settings` and `settingsPath`:

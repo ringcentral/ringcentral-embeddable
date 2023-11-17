@@ -77,11 +77,9 @@ nav:
   - 'Events': integration/events.md
   - 'API': integration/api.md
   - 'Authorization': integration/authorization.md
-  - 'Service registration': integration/index.md
-  - 'Recipes':
+  - 'Service features':
+    - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md
-    - 'Analytics integration': integration/analytics.md
-    - 'Click-to-dial enablement': integration/click-to-dial.md
     - 'Conference call invites': integration/add-conference-invite.md
     - 'Contact activities': integration/contact-activities.md
     - 'Custom settings': integration/custom-settings.md
@@ -93,6 +91,9 @@ nav:
     - 'Third-party auth': integration/third-party-auth.md
     - 'View upcoming meetings': integration/upcoming-meetings.md
     - 'VCard click handling': integration/vcard-clicks.md
+  - 'Recipes':
+    - 'Analytics integration': integration/analytics.md
+    - 'Click-to-dial enablement': integration/click-to-dial.md
 
 - 'Troubleshooting': support.md
 

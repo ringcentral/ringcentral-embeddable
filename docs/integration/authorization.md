@@ -1,5 +1,7 @@
 # Alternative authorization methods
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 RingCentral Embeddable supports the [Authorization code with PKCE](https://developers.ringcentral.com/guide/authentication/auth-code-pkce-flow) grant type to facilitate user's logging into RingCentral. This is the recommended authorization method for applications like those built on top of RingCentral Embeddable. Therefore, no changes are necessary to enable authorization and usage of RingCentral Embeddable. However, some developers in specific and rare circumstances may wish to utilize a different method of authorization. This guide will instruct developers on how to do so. 
 
 !!! info "Access tokens are stored in a browser's local storage"

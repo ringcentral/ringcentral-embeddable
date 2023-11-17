@@ -1,5 +1,7 @@
 # Show contact's activities from your application
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 First you need to pass `activitiesPath` and `activityPath` when you register service.
 
 ```js

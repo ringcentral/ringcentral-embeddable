@@ -1,5 +1,7 @@
 # Add feedback prompt in Settings tab
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 For developer who want to add feedback feature, the app provides a API to show a feed link in settings page:
 
 First, register service with `feedbackPath`:

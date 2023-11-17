@@ -1,5 +1,7 @@
 # Log call into your service
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 ## Add call log button/icon in call history tab
 
 First you need to pass `callLoggerPath` and `callLoggerTitle` when you register service.

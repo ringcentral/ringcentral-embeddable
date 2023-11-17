@@ -1,5 +1,7 @@
 # Show upcoming meeting list in RingCentral Video page
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 !!! info "This only works on RingCentral Video meeting service."
 
 First you need to pass `meetingUpcomingPath` when you register meeting invite service.

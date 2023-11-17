@@ -1,5 +1,7 @@
 # VCard click handler
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 In SMS messages, user can receive vcard (contact) file with MMS. We allow third party to handle the vard attachment download event. For example, when user click vcard file download button, your service will receive the vcard URI, and save the contact into your service.
 
 First, register service with `vcardHandlerPath`:

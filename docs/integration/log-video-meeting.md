@@ -1,5 +1,7 @@
 # Log RingCentral video meeting into your service
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 !!! info "This is only relevant for customers who use RingCentral Video"
 
 First you need to pass `meetingLoggerPath` and `meetingLoggerTitle` when you register service.

@@ -1,5 +1,7 @@
 # Log messages into your service
 
+!!! info "This feature requires you to [register your app as a service](index.md) first."
+
 ## Add message logger button in messages page
 
 First you need to pass `messageLoggerPath` and `messageLoggerTitle` when you register service.
