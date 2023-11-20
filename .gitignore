@@ -14,3 +14,4 @@ build
 .env.test
 extension
 src/noise-reduction
+site

@@ -17,6 +17,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
       - run: yarn
       - run: yarn test
         env:
@@ -51,6 +54,10 @@ jobs:
           SEGMENT_KEY: ${{ secrets.SEGMENT_KEY }}
           ANALYTICS_SECRET_KEY: ${{ secrets.ANALYTICS_SECRET_KEY }}
       - run: ./build_brand_themes.sh
+      - run: pip install mkdocs
+      - run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - run: mkdocs build
+      - run: mv site release/docs
       - name: Github Pages
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:

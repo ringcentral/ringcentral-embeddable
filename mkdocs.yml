@@ -1,6 +1,6 @@
 # Project information
 site_name: RingCentral Embeddable
-site_url: https://github.com/ringcentral/ringcentral-embeddable
+site_url: https://embbnux.github.io/ringcentral-embeddable-voice/docs
 
 # Repository
 repo_url: https://github.com/ringcentral/ringcentral-embeddable
@@ -33,6 +33,9 @@ plugins:
 
 extra_css:
   - extra.css
+
+extra_javascript:
+  - extra.js
 
 markdown_extensions:
   - attr_list
