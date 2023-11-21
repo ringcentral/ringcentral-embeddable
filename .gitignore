@@ -2,7 +2,7 @@
 logs
 *.log
 npm-debug.log*
-
+*~
 # Dependency directory
 node_modules
 
@@ -14,3 +14,4 @@ build
 .env.test
 extension
 src/noise-reduction
+site

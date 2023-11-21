@@ -1,4 +1,4 @@
-# Work with RingCentral C2D
+# Working with RingCentral's click-to-dial library
 
 This is document that show how to implement `Click To Dial` feature with RingCentral C2D library. RingCentral C2D is a library that help developers to implement `Click To Dial` and `Click To SMS` feature, it will scan phone numbers in web page. When users hover on phone number, it will show C2D widget for `Click to Call`.
 
