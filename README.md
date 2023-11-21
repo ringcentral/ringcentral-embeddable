@@ -21,6 +21,7 @@ All developers are advised to upgrade to RingCentral Embeddable 1.9 or greater. 
 
 ## Additional RingCentral Embeddable resources
 
+* [Document and guide website](https://ringcentral.github.io/ringcentral-embeddable/docs)
 * [Free online demo and configuration tool](https://ringcentral.github.io/ringcentral-embeddable/)
 * [Watch a video on our website](https://developers.ringcentral.com/embeddable-voice)
 * [List of all Embeddable releases](https://github.com/ringcentral/ringcentral-embeddable/releases)
@@ -112,58 +113,10 @@ Use this versioned URL in place of the URLs above in the adapter examples.
 
 *Developers are urged to use version 1.9 or greater. Developers using older versions of RingCentral Embeddable will cease to function in March 2024 when PubNub support is discontinued.*
 
-## Customizing RingCentral Embeddable
+## Document and guide
 
-* [Get started](docs/get-started.md)
-* [Browser support](docs/browser-support.md)
-* [Use your own app client id](docs/config-client-id-and-secret.md)
-* [Customize redirect Uri](docs/customize-redirect-uri.md)
-* [Enable multiple tabs support](docs/multiple-tabs.md)
-* [Multiple partner brands support](docs/multiple-brands.md)
-* [Customize prefix](docs/customize-prefix.md)
-* [Work with the Web Widget event](docs/widget-event.md)
-  * [Web phone call event](docs/widget-event.md#web-phone-call-event)
-  * [Ringout call event](docs/widget-event.md#ringout-call-event)
-  * [Active Call event](docs/widget-event.md#active-call-event)
-  * [Login Status event](docs/widget-event.md#login-status-event)
-  * [Message event](docs/widget-event.md#message-event)
-  * [Route event](docs/widget-event.md#route-changed-event)
-* [API to control the Web Widget](docs/control-widget.md)
-  * [Go to Dial and start a call](docs/control-widget.md#go-to-dial-and-start-a-call)
-  * [Go to SMS](docs/control-widget.md#go-to-sms-page)
-  * [Control the web call](docs/control-widget.md#control-the-web-call)
-    * Answer a ringing call
-    * Reject a ringing call
-    * Hangup a call
-  * [Log out user](docs/control-widget.md#log-out-user)
-  * [Minimize and Hide widget](docs/control-widget.md#minimizehideremove-the-widget)
-  * [Navigate to](docs/control-widget.md#navigate-to)
-  * [Schedule a meeting (RingCentral Video/RingCentral Meetings)](docs/control-widget.md#schedule-a-meeting)
-* [Work with RingCentral C2D](docs/work-with-ringcentral-c2d.md)
-* [Interact with calling settings](docs/interact-with-calling-settings.md)
-* [Third Party Service in Widget](docs/third-party-service-in-widget.md)
-  * Register your service
-  * Add meeting schedule button with your service
-  * Show upcoming meeting list in RingCentral Video page
-  * Log RingCentral Video meeting into your service
-  * Show contacts from your application
-  * Show contact's activities from your application
-  * [Log call into your service](docs/third-party-service-in-widget.md#log-call-into-your-service)
-  * [Log messages into your service](docs/third-party-service-in-widget.md#log-messages-into-your-service)
-  * Add third party authorization button
-  * [Third Party Settings](docs/third-party-service-in-widget.md#third-party-settings)
-* [Enable and Disable Features in Widget](docs/disable-features.md)
-  * Disable messages features
-  * Disable Call releated features
-  * Enable Conference invite feature
-  * Add sign up button on login page
-  * [Enable Glip feature](docs/disable-features.md#enable-glip-feature)
-  * [Enable Conference(3-way) Calling feature](docs/disable-features.md#enable-conference-call-feature)
-  * [Enable Active Call Control feature](docs/disable-features.md#enable-active-call-control-feature)
-* [Adapter/Widget badge UI](docs/new-adapter-ui.md)
-* [Enable Analytics](docs/add-analytics.md)
-* [Customize Widget UI styles](docs/customize-ui-styles.md)
-* [Popup a standalone widget](docs/popup-window.md)
+Please refer to [docs website](https://ringcentral.github.io/ringcentral-embeddable/docs)
+
 
 ## See RingCentral Embeddable in action
 

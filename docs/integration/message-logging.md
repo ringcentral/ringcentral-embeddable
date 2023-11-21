@@ -51,6 +51,8 @@ For Voicemail and Fax, you can get `attachment` data in message. The `attachment
 
 ## Auto log messages settings
 
+> Supported from v1.10.0
+
 User can enable/disable auto log in settings page. To set default `Auto log messages` enabled:
 
 Add `defaultAutoLogMessageEnabled` into the `adapter.js` URI:

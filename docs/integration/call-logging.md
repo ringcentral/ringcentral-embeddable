@@ -71,6 +71,8 @@ The `link` property in `recording` is a link to get and play recording file from
 
 ## Auto log calls setting
 
+> Supported from v1.10.0
+
 User can enable/disable auto log in settings page. To set default `Auto log calls` enabled:
 
 Add `defaultAutoLogCallEnabled` into the `adapter.js` URI:

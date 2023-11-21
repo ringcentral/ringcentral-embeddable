@@ -1,6 +1,6 @@
 # Project information
 site_name: RingCentral Embeddable
-site_url: https://embbnux.github.io/ringcentral-embeddable-voice/docs
+site_url: https://ringcentral.github.io/ringcentral-embeddable/docs
 
 # Repository
 repo_url: https://github.com/ringcentral/ringcentral-embeddable
@@ -94,6 +94,7 @@ nav:
     - 'Third-party auth': integration/third-party-auth.md
     - 'View upcoming meetings': integration/upcoming-meetings.md
     - 'VCard click handling': integration/vcard-clicks.md
+    - 'SMS toolbar button': 'integration/sms-toolbar-button.md'
   - 'Recipes':
     - 'Analytics integration': integration/analytics.md
     - 'Click-to-dial enablement': integration/click-to-dial.md
