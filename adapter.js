@@ -57034,6 +57034,15 @@ class Adapter extends AdapterCore/* default */.Z {
     this._headerEl.setAttribute('class', classnames_default()(this._styles.header, this._minimized && this._styles.minimized, this._ringing && this._styles.ringing, this._showDockUI && this._minimized && (this._hoverHeader || this._dragging) && this._styles.iconTrans));
     this._iconContainerEl.setAttribute('class', classnames_default()(this._styles.iconContainer, !(this._userStatus || this._dndStatus) && this._styles.noPresence, !this._showDockUI && this._styles.hidden));
   }
+  renderAdapterSize() {
+    super.renderAdapterSize();
+    if (this._fromPopup) {
+      this._contentFrameContainerEl.style.width = '100%';
+      this._contentFrameContainerEl.style.height = 'calc(100% - 36px)';
+      this._contentFrameEl.style.width = '100%';
+      this._contentFrameEl.style.height = '100%';
+    }
+  }
   renderPosition() {
     if (this._fromPopup) {
       return;
