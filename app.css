@@ -11040,6 +11040,132 @@ div[class*=MuiCircularProgress-indeterminate] {
 .MeetingTabContainer_content {
   height: calc(100% - 38px - 1px);
 }
+.RecentActivityCalls_calls {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--night);
+}
+
+.RecentActivityCalls_callItem {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 15px;
+}
+
+.RecentActivityCalls_iconWrapper {
+  display: inline-block;
+  width: 20px;
+}
+
+.RecentActivityCalls_callIcon {
+  font-size: 19px;
+}
+
+.RecentActivityCalls_dl {
+  margin: 0;
+}
+
+.RecentActivityCalls_status {
+  float: left;
+  width: 68%;
+  margin-right: 2%;
+  font-size: 14px;
+  color: var(--darkergray);
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RecentActivityCalls_duration {
+  margin-left: 10px;
+  font-size: 12px;
+  color: var(--grey-light);
+}
+
+.RecentActivityCalls_time {
+  text-align: right;
+  color: var(--grey-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RecentActivityCalls_noRecords {
+  color: var(--darkgray);
+  font-size: 14px;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.RecentActivityCalls_missedCall * {
+  color: #f95b5c;
+}
+
+.RecentActivityCalls_spinner {
+  width: 43px;
+  height: 43px;
+  margin: 30px auto;
+}
+.RecentActivityMessages_messages {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+}
+
+.RecentActivityMessages_messageItem {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 15px;
+}
+
+.RecentActivityMessages_localMessageItem {
+  cursor: pointer;
+}
+
+.RecentActivityMessages_localMessageItem:hover {
+  background: #fafafa;
+}
+
+.RecentActivityMessages_dl {
+  margin: 0;
+}
+
+.RecentActivityMessages_messageSubject {
+  float: left;
+  width: 68%;
+  margin-right: 2%;
+  color: var(--night);
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RecentActivityMessages_messageTime {
+  text-align: right;
+  color: var(--darkergray);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RecentActivityMessages_unread {
+  color: var(--primary-color);
+}
+
+.RecentActivityMessages_noRecords {
+  color: var(--darkgray);
+  font-size: 14px;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.RecentActivityMessages_spinner {
+  width: 43px;
+  height: 43px;
+  margin: 30px auto;
+}
 .RecentActivityNavigationButton_navigationButton {
   position: relative;
   width: 100%;
@@ -11203,132 +11329,6 @@ div[class*=MuiCircularProgress-indeterminate] {
   width: 100%;
   transition: height 0.2s 0s ease-in-out;
   transform: translateZ(0);
-}
-.RecentActivityMessages_messages {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-}
-
-.RecentActivityMessages_messageItem {
-  height: 30px;
-  line-height: 30px;
-  padding: 0 15px;
-}
-
-.RecentActivityMessages_localMessageItem {
-  cursor: pointer;
-}
-
-.RecentActivityMessages_localMessageItem:hover {
-  background: #fafafa;
-}
-
-.RecentActivityMessages_dl {
-  margin: 0;
-}
-
-.RecentActivityMessages_messageSubject {
-  float: left;
-  width: 68%;
-  margin-right: 2%;
-  color: var(--night);
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.RecentActivityMessages_messageTime {
-  text-align: right;
-  color: var(--darkergray);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.RecentActivityMessages_unread {
-  color: var(--primary-color);
-}
-
-.RecentActivityMessages_noRecords {
-  color: var(--darkgray);
-  font-size: 14px;
-  text-align: center;
-  margin-top: 30px;
-}
-
-.RecentActivityMessages_spinner {
-  width: 43px;
-  height: 43px;
-  margin: 30px auto;
-}
-.RecentActivityCalls_calls {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-}
-
-.RecentActivityCalls_callItem {
-  height: 30px;
-  line-height: 30px;
-  padding: 0 15px;
-}
-
-.RecentActivityCalls_iconWrapper {
-  display: inline-block;
-  width: 20px;
-}
-
-.RecentActivityCalls_callIcon {
-  font-size: 19px;
-}
-
-.RecentActivityCalls_dl {
-  margin: 0;
-}
-
-.RecentActivityCalls_status {
-  float: left;
-  width: 68%;
-  margin-right: 2%;
-  font-size: 14px;
-  color: var(--darkergray);
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.RecentActivityCalls_duration {
-  margin-left: 10px;
-  font-size: 12px;
-  color: var(--grey-light);
-}
-
-.RecentActivityCalls_time {
-  text-align: right;
-  color: var(--grey-light);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.RecentActivityCalls_noRecords {
-  color: var(--darkgray);
-  font-size: 14px;
-  text-align: center;
-  margin-top: 30px;
-}
-
-.RecentActivityCalls_missedCall * {
-  color: #f95b5c;
-}
-
-.RecentActivityCalls_spinner {
-  width: 43px;
-  height: 43px;
-  margin: 30px auto;
 }
 .RecentActivityContainer_title {
   font-size: 15px;
