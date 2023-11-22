@@ -70,10 +70,16 @@ export class SettingsUI extends BaseSettingsUI {
       onFeedbackSettingsLinkClick() {
         thirdPartyService.onShowFeedback();
       },
-      onSettingToggle: setting => thirdPartyService.onSettingToggle(setting),
+      onSettingToggle: setting => thirdPartyService.onUpdateSetting({
+        ...setting,
+        value: !setting.value,
+      }),
       gotoRingtoneSettings: () => routerInteraction.push('/settings/ringtone'),
       onNoiseReductionChange: () => {
         this._deps.noiseReduction.setEnabled(!this._deps.noiseReduction.enabled);
+      },
+      gotoThirdPartySection: (sectionId) => {
+        routerInteraction.push(`/settings/thirdParty/${sectionId}`);
       },
     }
   }

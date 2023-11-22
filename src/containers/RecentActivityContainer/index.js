@@ -1,15 +1,22 @@
 import React from 'react';
+
 import { connect } from 'react-redux';
+
+import callDirections
+  from '@ringcentral-integration/commons/enums/callDirections';
+import dynamicsFont
+  from '@ringcentral-integration/widgets/assets/DynamicsFont/DynamicsFont.scss';
+import RecentActivityCalls
+  from '@ringcentral-integration/widgets/components/RecentActivityCalls';
+import RecentActivityMessages
+  from '@ringcentral-integration/widgets/components/RecentActivityMessages';
+import RecentActivityPanel
+  from '@ringcentral-integration/widgets/components/RecentActivityPanel';
 import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
-import callDirections from '@ringcentral-integration/commons/enums/callDirections';
-import RecentActivityPanel from '@ringcentral-integration/widgets/components/RecentActivityPanel';
-import dynamicsFont from '@ringcentral-integration/widgets/assets/DynamicsFont/DynamicsFont.scss';
-import RecentActivityMessages from '@ringcentral-integration/widgets/components/RecentActivityMessages';
-import RecentActivityCalls from '@ringcentral-integration/widgets/components/RecentActivityCalls';
-import i18n from '@ringcentral-integration/widgets/modules/RecentActivityUI/i18n';
+import i18n
+  from '@ringcentral-integration/widgets/modules/RecentActivityUI/i18n';
 
 import RecentActivityItems from '../../components/RecentActivityItems';
-
 import styles from './styles.scss';
 
 function getTabs({
@@ -116,6 +123,7 @@ function mapToProps(_, {
     recentCalls,
     contactMatcher,
     thirdPartyService,
+    contactDetailsUI,
   },
   currentLocale = locale.currentLocale,
   navigateTo,
@@ -125,7 +133,7 @@ function mapToProps(_, {
   useContact = false,
 }) {
   let sessionId = null;
-  let currentContact = contact;
+  let currentContact = contactDetailsUI.currentContact;
   let ready =
     dateTimeFormat.ready &&
     locale.ready &&

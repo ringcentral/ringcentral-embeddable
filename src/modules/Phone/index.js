@@ -234,6 +234,7 @@ import {
 } from '../Subscription/WebSocketReadyController';
 import { TabManager } from '../TabManager';
 import ThirdPartyService from '../ThirdPartyService';
+import { ThirdPartySettingSectionUI } from '../ThirdPartySettingSectionUI';
 import { Webphone } from '../Webphone';
 
 // user Dependency Injection with decorator to create a phone class
@@ -458,6 +459,7 @@ import { Webphone } from '../Webphone';
         disconnectOnInactive: true,
       },
     },
+    { provide: 'ThirdPartySettingSectionUI', useClass: ThirdPartySettingSectionUI},
   ]
 })
 export default class BasePhone extends RcModule {
@@ -876,7 +878,6 @@ export function createPhone({
         useValue: {
           recordingLink,
         },
-        spread: true,
       },
       {
         provide: 'CallOptions',

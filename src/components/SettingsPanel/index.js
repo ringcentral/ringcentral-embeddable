@@ -8,13 +8,13 @@ import {
 import {
   LinkLineItem,
 } from '@ringcentral-integration/widgets/components/SettingsPanel/LinkLineItem';
+import {
+  SwitchLineItem,
+} from '@ringcentral-integration/widgets/components/SettingsPanel/SwitchLineItem';
 
 import AuthorizeSettingsSection
   from '../../components/AuthorizeSettingsSection';
-import {
-  ToggleSetting,
-  ToggleSettings,
-} from '../../components/ToggleSettings';
+import { ThirdPartySettings } from '../../components/ThirdPartySettings';
 
 function NewSettingsPanel(props) {
   const {
@@ -36,6 +36,7 @@ function NewSettingsPanel(props) {
     noiseReductionEnabled,
     showNoiseReductionSetting,
     onNoiseReductionChange,
+    gotoThirdPartySection,
   } = props;
   let authorization = null;
   const ringtone = (
@@ -46,7 +47,6 @@ function NewSettingsPanel(props) {
       onClick={gotoRingtoneSettings}
     />
   );
-  let additional = ringtone;
   if (authorizationRegistered) {
     authorization = (
       <AuthorizeSettingsSection
@@ -62,30 +62,29 @@ function NewSettingsPanel(props) {
       />
     );
   }
-  let noiseReduction = null;
-  if (showNoiseReductionSetting) {
-    noiseReduction = (
-      <ToggleSetting
-        name="Enable noise reduction (Beta)"
-        value={noiseReductionEnabled}
-        onChange={onNoiseReductionChange}
-        disabled={disableNoiseReductionSetting}
+  const noiseReduction = (
+    <SwitchLineItem
+      customTitle="Enable noise reduction (Beta)"
+      checked={noiseReductionEnabled}
+      show={showNoiseReductionSetting}
+      onChange={onNoiseReductionChange}
+      disabled={disableNoiseReductionSetting}
+    />
+  );
+  const additional = (
+    <section>
+      {ringtone}
+      {noiseReduction}
+      {authorization}
+      <ThirdPartySettings
+        settings={thirdPartySettings}
+        onToggle={onSettingToggle}
+        goToSettingSection={(sectionId) => {
+          gotoThirdPartySection(sectionId);
+        }}
       />
-    );
-  }
-  if (authorization || noiseReduction || thirdPartySettings.length > 0) {
-    additional = (
-      <section>
-        {ringtone}
-        {noiseReduction}
-        <ToggleSettings
-          settings={thirdPartySettings}
-          onToggle={onSettingToggle}
-        />
-        {authorization}
-      </section>
-    );
-  }
+    </section>
+  );
   return (
     <SettingsPanel
       {...props}
@@ -106,6 +105,7 @@ NewSettingsPanel.propTypes = {
   authorizedAccount: PropTypes.string,
   thirdPartySettings: PropTypes.array,
   onSettingToggle: PropTypes.func,
+  gotoThirdPartySection: PropTypes.func.isRequired,
 };
 
 NewSettingsPanel.defaultProps = {

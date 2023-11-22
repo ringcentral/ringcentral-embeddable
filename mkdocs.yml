@@ -83,7 +83,6 @@ nav:
   - 'Service features':
     - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md
-    - 'Conference call invites': integration/add-conference-invite.md
     - 'Contact activities': integration/contact-activities.md
     - 'Custom settings': integration/custom-settings.md
     - 'Feedback prompt': integration/feedback-prompt.md
