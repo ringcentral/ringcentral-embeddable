@@ -361,7 +361,7 @@ class Adapter extends AdapterCore {
     super.renderAdapterSize();
     if (this._fromPopup) {
       this._contentFrameContainerEl.style.width = `100%`;
-      this._contentFrameContainerEl.style.height = `calc(100% - ${this._headerEl.offsetHeight}px)`;
+      this._contentFrameContainerEl.style.height = `calc(100% - 36px)`;
       this._contentFrameEl.style.width = `100%`;
       this._contentFrameEl.style.height = `100%`;
     }
