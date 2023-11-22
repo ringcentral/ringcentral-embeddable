@@ -1,92 +1,354 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="no-js">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>RingCentral Embeddable</title>
+  <link rel="next" href="docs/">
   <meta name="description" content="RingCentral Embeddable">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, user-scalable=0, maximum-scale=1, minimum-scale=1"
-  >
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="shortcut icon" href="assets/images/favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <link rel="stylesheet"
+    href="https://ringcentral.github.io/ringcentral-embeddable/docs/assets/stylesheets/main.fad675c6.min.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
   <style>
-    h2 {
-      font-size: 18px;
-      margin: 25px 0;
+    :root {
+      --md-text-font: "Roboto";
+      --md-code-font: "Roboto Mono"
     }
-    h3 {
-      font-size: 15px;
-      font-weight: 600;
-    }
+
     p {
-      margin: 10px 0;
-      line-height: 25px;
-      font-size: 15px;
+      font-size: 0.8rem;
+      line-height: 1.6;
     }
+
     pre {
       padding: 5px;
       overflow: auto;
-      font-size: 85%;
-      line-height: 1.45;
+      font-size: 0.65rem;
+      line-height: 1.6;
       background-color: #f7f7f7;
       border-radius: 3px;
     }
-    a:focus {
-      outline: none!important;
+
+    .md-content a:focus {
+      outline: none !important;
     }
-    a {
+
+    .md-content a {
       color: #0684bd;
     }
+
+    .config-tool {
+      margin-top: 20px;
+    }
+
+    .config-tool .config-button {
+      padding: 10px 15px;
+      border-radius: 5px;
+    }
+
+    .config-button::after {
+      display: inline-block;
+      margin-left: 0.255em;
+      vertical-align: 0.255em;
+      content: "";
+      border-top: 0.3em solid;
+      border-right: 0.3em solid transparent;
+      border-bottom: 0;
+      border-left: 0.3em solid transparent;
+    }
+
+    .collapse {
+      display: none;
+      transition: height 0.3s ease;
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      word-wrap: break-word;
+      background-color: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.175);
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-top: 20px;
+    }
+
+    .card-description {
+      margin: 10px 0;
+      margin-top: 0;
+    }
+
+    .card .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .card .col-form-label {
+      padding-top: calc(0.375rem + 1px);
+      padding-bottom: calc(0.375rem + 1px);
+      margin-bottom: 0;
+      font-size: inherit;
+      line-height: 1.5;
+      flex: 0 0 auto;
+      width: 16.66666667%;
+    }
+
+    .card .col-sm-10 {
+      flex: 0 0 auto;
+      width: 83.33333333%;
+    }
+
+    .card .form-control {
+      display: block;
+      width: 100%;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #212529;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #ced4da;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      border-radius: 0.375rem;
+      transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
   </style>
+  <script>__md_scope = new URL(".", location), __md_hash = e => [...e].reduce((e, _) => (e << 5) - e + _.charCodeAt(0), 0), __md_get = (e, _ = localStorage, t = __md_scope) => JSON.parse(_.getItem(t.pathname + "." + e)), __md_set = (e, _, t = localStorage, a = __md_scope) => { try { t.setItem(a.pathname + "." + e, JSON.stringify(_)) } catch (e) { } }</script>
 </head>
-<body>
-  <div class="container">
-    <h1>RingCentral Embeddable</h1>
-    <h2>Two ways to integrate this widget to your web application</h2>
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button type="button" class="nav-link active" id="adapter-tab" data-bs-toggle="tab" role="tab" data-bs-target="#adapter-way" aria-controls="adapter-way" aria-selected="true">Adapter JS Way</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button type="button" class="nav-link" id="iframe-tab" data-bs-toggle="tab" role="tab" data-bs-target="#iframe-way" aria-controls="iframe-way">Iframe Way</button>
-      </li>
-    </ul>
-    <p>
-      <a class="btn btn-primary dropdown-toggle" data-bs-toggle="collapse" href="#config-params" aria-expanded="false" aria-controls="config-params" role="button">
-        Config
+
+<body dir="ltr">
+  <script>var palette = __md_get("__palette"); if (palette && "object" == typeof palette.color) for (var key of Object.keys(palette.color)) document.body.setAttribute("data-md-color-" + key, palette.color[key])</script>
+  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+  <label class="md-overlay" for="__drawer"></label>
+  <header class="md-header" data-md-component="header">
+    <nav class="md-header__inner md-grid" aria-label="Header">
+      <a href="." title="RingCentral Embeddable" class="md-header__button md-logo" aria-label="RingCentral Embeddable"
+        data-md-component="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z" />
+        </svg>
       </a>
-    </p>
-    <div class="collapse" id="config-params">
-      <div class="card card-body">
-        <p>Create a browser based app in <a href="https://developer.ringcentral.com/" target="_blank" rel="noopener noreferrer">RingCentral Developer Platform<a> to get clientId, appSecret and appServer.</p>
-        <form>
-          <div class="mb-3 row">
-            <label for="clientId" class="col-sm-2 col-form-label">clientId</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" id="clientId" placeholder="Your app key of RingCentral App">
-            </div>
+      <label class="md-header__button md-icon" for="__drawer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z" />
+        </svg>
+      </label>
+      <div class="md-header__title" data-md-component="header-title">
+        <div class="md-header__ellipsis">
+          <div class="md-header__topic">
+            <span class="md-ellipsis">
+              RingCentral Embeddable
+            </span>
           </div>
-          <div class="mb-3 row">
-            <label for="appServer" class="col-sm-2 col-form-label">appServer</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" id="appServer" placeholder="default: https://platform.ringcentral.com">
-            </div>
+          <div class="md-header__topic" data-md-component="header-topic">
+            <span class="md-ellipsis">
+              Home
+            </span>
           </div>
-          <div class="mb-3 row">
-            <label for="redirectUri" class="col-sm-2 col-form-label">redirectUri</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" id="redirectUri" placeholder="default: https://ringcentral.github.io/ringcentral-embeddable/redirect.html">
-            </div>
-          </div>
-        </form>
+        </div>
       </div>
-    </div>
-    <div class="tab-content" id="myTabContent">
-      <div class="tab-pane fade show active" id="adapter-way" role="tabpanel" aria-labelledby="adapter-tab" tabindex="0">
-        <p>Just add following the following codes to your website's header. It will create a iframe in your website.</p>
-        <pre id="adapter-code">
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z" />
+        </svg>
+      </label>
+      <div class="md-header__source">
+        <a href="https://github.com/ringcentral/ringcentral-embeddable" title="Go to repository" class="md-source"
+          data-md-component="source">
+          <div class="md-source__icon md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.-->
+              <path
+                d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z" />
+            </svg>
+          </div>
+          <div class="md-source__repository">
+            ringcentral/ringcentral-embeddable
+          </div>
+        </a>
+      </div>
+    </nav>
+  </header>
+  <div class="md-container" data-md-component="container">
+    <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+      <div class="md-grid">
+        <ul class="md-tabs__list">
+          <li class="md-tabs__item">
+            <a href="docs/" class="md-tabs__link">
+              Home
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="docs/app-registration/" class="md-tabs__link">
+              Getting started
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="docs/config/" class="md-tabs__link">
+              Configuration
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="docs/integration/events/" class="md-tabs__link">
+              Developer guide
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="docs/support/" class="md-tabs__link">
+              Troubleshooting
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="https://github.com/ringcentral/ringcentral-embeddable/releases" class="md-tabs__link">
+              Changelog
+            </a>
+          </li>
+          <li class="md-tabs__item md-tabs__item--active">
+            <a href="." class="md-tabs__link">
+              Configuration tool
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main class="md-main" data-md-component="main">
+      <div class="md-main__inner md-grid">
+        <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+          <div class="md-sidebar__scrollwrap">
+            <div class="md-sidebar__inner">
+              <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+                <label class="md-nav__title" for="__drawer">
+                  <a href="." title="RingCentral Embeddable" class="md-nav__button md-logo"
+                    aria-label="RingCentral Embeddable" data-md-component="logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path
+                        d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z" />
+                    </svg>
+                  </a>
+                  RingCentral Embeddable
+                </label>
+                <ul class="md-nav__list" data-md-scrollfix>
+                  <li class="md-nav__item">
+                    <a href="/docs/" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Home
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="/docs/app-registration/" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Getting started
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="/docs/config/" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Configuration
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="/docs/integration/events/" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Developer guide
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="/docs/support/" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Troubleshooting
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="https://github.com/ringcentral/ringcentral-embeddable/releases" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Changelog
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item md-nav__item--active">
+                    <a href="." class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Configuration tool
+                      </span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+        <div class="md-content" data-md-component="content">
+          <article class="md-content__inner md-typeset">
+            <h1 id="embed-a-phone-into-any-webpage-with-ringcentral-embeddable">Embed a phone into any webpage with
+              RingCentral Embeddable</h1>
+            <div class="tabbed-set tabbed-alternate" data-tabs="1:2">
+              <input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" />
+              <input id="__tabbed_1_2" name="__tabbed_1" type="radio" />
+              <div class="tabbed-labels">
+                <label for="__tabbed_1_1">Javascript</label>
+                <label for="__tabbed_1_2">iframe</label>
+              </div>
+              <div class="config-tool">
+                <button class="md-button md-button--primary config-button" id="config-button">
+                  Config
+                </button>
+                <div class="collapse" id="config-params">
+                  <div class="card card-body">
+                    <p class="card-description">
+                      Create a browser based app in <a href="https://developer.ringcentral.com/" target="_blank"
+                        rel="noopener noreferrer">RingCentral Developer Platform</a> to get clientId, appSecret and
+                      appServer.
+                    </p>
+                    <form>
+                      <div class="mb-3 row">
+                        <label for="clientId" class="col-sm-2 col-form-label">clientId</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="clientId"
+                            placeholder="Your app key of RingCentral App">
+                        </div>
+                      </div>
+                      <div class="mb-3 row">
+                        <label for="appServer" class="col-sm-2 col-form-label">appServer</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="appServer"
+                            placeholder="default: https://platform.ringcentral.com">
+                        </div>
+                      </div>
+                      <div class="mb-3 row">
+                        <label for="redirectUri" class="col-sm-2 col-form-label">redirectUri</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="redirectUri"
+                            placeholder="default: https://ringcentral.github.io/ringcentral-embeddable/redirect.html">
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="tabbed-content">
+                <div class="tabbed-block">
+                  <p>Just add following the following codes to your website's header. It will create a iframe in your
+                    website.
+                  </p>
+                  <pre id="adapter-code">
 &lt;script&gt;
   (function() {
     var rcs = document.createElement("script");
@@ -95,40 +357,93 @@
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
 &lt;/script&gt;
-        </pre>
+                </pre>
+                </div>
+                <div class="tabbed-block">
+                  <p>Create a iframe with the following codes</p>
+                  <pre id="iframe-code">
+  &lt;iframe width="300" height="500" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html"&gt;
+  &lt;/iframe&gt;
+                </pre>
+                </div>
+              </div>
+            </div>
+
+            <p>You need to add following uri to your redirect url in app setting on developer website, if you don't
+              config
+              redirect widget uri.</p>
+            <pre id="defaultRedirectUri">https://ringcentral.github.io/ringcentral-embeddable/redirect.html</pre>
+            <p>For full document of <a href="docs/integration/events/" target="_blank" rel="noopener noreferrer">API and
+                Event</a>, please refer to <a href="docs/integration/events/" target="_blank"
+                rel="noopener noreferrer">here</a></p>
+            <h2>Config your clientId in local Environment</h2>
+            <p>1. Click <a href="#" id="setEnvironment">here to set this widget's client ID and app Server</a> in local.
+              Enable
+              and save.</p>
+            <p>2. Set redirect url in RingCentral Developer Platform as the app show.</p>
+            <p>In environment way, clientId and server are saved in your local storage, so it will not influence other
+              people.
+            </p>
+            <p>This app supports authorization code and implicit grant flows. If you only provide clientId, it will use
+              implicit
+              grant flow. Refer <a
+                href="https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md#notice"
+                target="_blank" rel="noopener noreferrer">here</a> to get more details about authorization flow.</p>
+            <h2>C2D demo</h2>
+            <p>TEL Link: <a href="tel:+12345678888">+12345678888</a></p>
+            <p>SMS Link: <a href="sms:+12345678901">+12345678901</a></p>
+            <p>SMS Link with Text: <a href="sms:+12345678902?body=test_sms">+12345678902</a></p>
+            <p>Text: +12345678901</p>
+          </article>
+        </div>
       </div>
-      <div class="tab-pane fade" id="iframe-way" role="tabpanel" aria-labelledby="iframe-tab" tabindex="0">
-        <p>Create a iframe with the following codes</p>
-        <pre id="iframe-code">
- &lt;iframe width="300" height="500" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html"&gt;
- &lt;/iframe&gt;
-        </pre>
+      <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z" />
+        </svg>
+        Back to top
+      </button>
+    </main>
+    <footer class="md-footer">
+      <div class="md-footer-meta md-typeset">
+        <div class="md-footer-meta__inner md-grid">
+          <div class="md-copyright">
+            <div class="md-copyright__highlight">
+              2023 RingCentral, Inc. All rights reserved.
+            </div>
+            Made with
+            <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+              Material for MkDocs
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
-    <p>You need to add following uri to your redirect url in app setting on developer website, if you don't config redirect widget uri.</p>
-    <pre id="defaultRedirectUri">https://ringcentral.github.io/ringcentral-embeddable/redirect.html</pre>
-    <p>For full document of <a href="https://github.com/ringcentral/ringcentral-embeddable#documents" target="_blank" rel="noopener noreferrer">API and Event</a>, please refer to <a href="https://github.com/ringcentral/ringcentral-embeddable#documents" target="_blank" rel="noopener noreferrer">here</a></p>
-    <h2>Config your clientId in local Environment</h2>
-    <p>1. Click <a href="#" id="setEnvironment">here to set this widget's client ID and app Server</a> in local. Enable and save.</p>
-    <p>2. Set redirect url in RingCentral Developer Platform as the app show.</p>
-    <p>In environment way, clientId and server are saved in your local storage, so it will not influence other people.</p>
-    <p>This app supports authorization code and implicit grant flows. If you only provide clientId, it will use implicit grant flow. Refer <a href="https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md#notice" target="_blank" rel="noopener noreferrer">here</a> to get more details about authorization flow.</p>
-    <h2>C2D demo</h2>
-    <p>TEL Link: <a href="tel:+12345678888">+12345678888</a></p>
-    <p>SMS Link: <a href="sms:+12345678901">+12345678901</a></p>
-    <p>SMS Link with Text: <a href="sms:+12345678902?body=test_sms">+12345678902</a></p>
-    <p>Text: +12345678901</p>
+    </footer>
+  </div>
+  <div class="md-dialog" data-md-component="dialog">
+    <div class="md-dialog__inner md-typeset"></div>
   </div>
   <script>
-    (function () {
-      var rcs = document.createElement('script');
-      rcs.src = './adapter.js?notification=1&disableGlip=false&multipleTabsSupport=1&enablePopup=1&enableRingtoneSettings=1';
-      var rcs0 = document.getElementsByTagName('script')[0];
-      rcs0.parentNode.insertBefore(rcs, rcs0);
-    })();
+      (function () {
+        var rcs = document.createElement('script');
+        rcs.src = './adapter.js?notification=1&disableGlip=false&multipleTabsSupport=1&enablePopup=1&enableRingtoneSettings=1';
+        var rcs0 = document.getElementsByTagName('script')[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
   </script>
   <script src="https://unpkg.com/ringcentral-c2d@1.0.0/build/index.js"></script>
   <script>
+    var configButton = window.document.querySelector('#config-button');
+    var configToolOpened = false;
+    configButton.addEventListener('click', function () {
+      configToolOpened = !configToolOpened;
+      var configParams = window.document.querySelector('#config-params');
+      if (configToolOpened) {
+        configParams.style.display = 'block';
+      } else {
+        configParams.style.display = 'none';
+      }
+    });
     // setup c2d
     var clickToDial = new RingCentralC2D();
     clickToDial.on(RingCentralC2D.events.call, (phoneNumber) => {
@@ -219,7 +534,9 @@
       });
     }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+  <script id="__config"
+    type="application/json">{"base": ".", "features": ["navigation.path", "navigation.tabs", "navigation.top", "navigation.expand", "navigation.sections", "search.sharing", "search.highlight", "content.code.copy", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "https://ringcentral.github.io/ringcentral-embeddable/docs/assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+  <script
+    src="https://ringcentral.github.io/ringcentral-embeddable/docs/assets/javascripts/bundle.6c14ae12.min.js"></script>
 </body>
 </html>
