@@ -44,7 +44,7 @@ export function DemoOnlyBanner({
     >
       FOR DEMO PURPOSES ONLY &nbsp;
       <RcLink
-        href="https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md"
+        href="https://ringcentral.github.io/ringcentral-embeddable/docs/app-registration/"
         target='_blank'
       >
         <RcIcon

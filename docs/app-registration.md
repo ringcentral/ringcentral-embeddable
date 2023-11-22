@@ -9,6 +9,11 @@ Before you begin development, you will first need to register your application v
 * You will be able to better customize your instance of Embeddable
 * The "FOR DEMO PURPOSES ONLY" banner will be removed from your application
 
+!!! info "About the "FOR DEMO PURPOSES ONLY" banner" 
+    Some users of RingCentral Embeddable may observe a banner that appears above the dialer that reads, "FOR DEMO PURPOSES ONLY." This banner appears when a Developer uses the default client ID and secret that comes bundled with the RingCentral Embeddable library. This default client ID and secret are intended to make trying out Embeddable easy by eliminating the step of having to pre-register an application. 
+
+    While nothing prevents a developer from using the default client ID and secret, it is strongly recommended that developers register their own application when deploying and using RingCentral Embeddable in a production context.
+
 ## Steps in registering an application
 
 1. Login to the [Developer Console](https://developers.ringcentral.com/login.html), creating an account as necessary.
