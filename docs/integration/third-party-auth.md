@@ -50,6 +50,7 @@ Update authorization status in widget:
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-update-authorization-status',
   authorized: true,
+  authorizedAccount: 'test@email.com', // optional, authorized account email or id
 }, '*');
 ```
 

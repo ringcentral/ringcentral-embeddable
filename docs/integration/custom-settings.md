@@ -67,7 +67,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-!!! info "In settings root items, it only supports `boolean` and `section` type. In section's items, it supports `boolean`, `string`, `option` and `text` type."
+!!! info "In settings root items, it only supports `boolean` and `section` type. `section` type is supported from `v1.10.0`. In section's items, it supports `boolean`, `string`, `option` and `text` type."
 
 After registering, you can get your setting in settings page:
 
