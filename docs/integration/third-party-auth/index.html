@@ -833,7 +833,7 @@
         
   
   <span class="md-ellipsis">
-    Openning in a separate window
+    Opening in a separate window
   </span>
   
 
@@ -1580,6 +1580,7 @@
 <div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-authorization-status&#39;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">authorized</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorizedAccount</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;test@email.com&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, authorized account email or id</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
 <div class="admonition info">
