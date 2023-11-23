@@ -22,7 +22,7 @@ Before you begin development, you will first need to register your application v
 	* Select "Client-side web app, e.g. SPA, Javascript"
     * Set "OAuth Redirect URI" to:
 	  
-	     `https://ringcentral.github.io/ringcentral-embeddable/redirect.html`
+	     `https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/redirect.html`
 
 5. Under the Security section, add the following "Application scopes:"
     * `Call Control`

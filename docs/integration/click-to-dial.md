@@ -12,7 +12,7 @@ To implement with RingCentral Embeddable:
 // Inject Embeddable
 (function() {
   var rcs = document.createElement("script");
-  rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js";
+  rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js";
   var rcs0 = document.getElementsByTagName("script")[0];
   rcs0.parentNode.insertBefore(rcs, rcs0);
 })();

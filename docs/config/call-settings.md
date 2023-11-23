@@ -21,7 +21,7 @@ To set default `callWith` option:
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?defaultCallWith=browser";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?defaultCallWith=browser";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -31,7 +31,7 @@ To set default `callWith` option:
 === "iframe"
 
     ```html
-    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?defaultCallWith=browser">
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?defaultCallWith=browser">
     </iframe>
     ```
 
@@ -81,7 +81,7 @@ In widget, user can also select `From` number when make a browser call. For deve
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enableFromNumberSetting=1";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableFromNumberSetting=1";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -91,7 +91,7 @@ In widget, user can also select `From` number when make a browser call. For deve
 === "iframe"
 
     ```html
-    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?enableFromNumberSetting=1">
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableFromNumberSetting=1">
     </iframe>
     ```
 
@@ -109,7 +109,7 @@ In `RingOut` mode, user need to set `My Location` number to receive first-leg ca
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?showMyLocationNumbers=1";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?showMyLocationNumbers=1";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -119,7 +119,7 @@ In `RingOut` mode, user need to set `My Location` number to receive first-leg ca
 === "iframe"
 
     ```html
-    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?showMyLocationNumbers=1">
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?showMyLocationNumbers=1">
     </iframe>
     ```
 

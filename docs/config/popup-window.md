@@ -10,7 +10,7 @@ Support to open the widget in a popup window, so the widget is opened at a stand
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enablePopup=1&multipleTabsSupport=1";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enablePopup=1&multipleTabsSupport=1";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -48,7 +48,7 @@ In this case, we can config the popup button to open your own popup HTML file UR
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?enablePopup=1&popupPageUri=your_popup_html_file_uri";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enablePopup=1&popupPageUri=your_popup_html_file_uri";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -58,7 +58,7 @@ In this case, we can config the popup button to open your own popup HTML file UR
 The HTML file need to be based on code of this [file](https://github.com/ringcentral/ringcentral-embeddable/blob/master/src/popup.html). Then update the `adapter.js` src into absolute address in the file:
 
 ```html
-<script src="https://ringcentral.github.io/ringcentral-embeddable/adapter.js"></script>
+<script src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js"></script>
 ```
 
 Then add your own script in the file.

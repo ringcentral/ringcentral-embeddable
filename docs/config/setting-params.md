@@ -8,7 +8,7 @@ RingCentral Embeddable supports a number of different configuration parameters t
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?parameterName=VALUE";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?parameterName=VALUE";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -19,7 +19,7 @@ RingCentral Embeddable supports a number of different configuration parameters t
 
 ```html
 <iframe width="300" height="500" id="rc-widget" allow="microphone" 
-  src="https://ringcentral.github.io/ringcentral-embeddable/app.html?parameterName=VALUE">
+  src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?parameterName=VALUE">
 </iframe>
 ```
 
