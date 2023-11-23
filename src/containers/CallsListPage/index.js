@@ -61,6 +61,7 @@ function mapToProps(_, {
     readTextPermission: appFeatures.hasReadTextPermissions,
     width: window.innerWidth || 300,
     height: window.innerHeight ? (window.innerHeight - 53) : 454,
+    adaptive: true,
   };
 }
 
