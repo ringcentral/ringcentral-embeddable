@@ -75,7 +75,6 @@ function NewSettingsPanel(props) {
     <section>
       {ringtone}
       {noiseReduction}
-      {authorization}
       <ThirdPartySettings
         settings={thirdPartySettings}
         onToggle={onSettingToggle}
@@ -83,6 +82,7 @@ function NewSettingsPanel(props) {
           gotoThirdPartySection(sectionId);
         }}
       />
+      {authorization}
     </section>
   );
   return (
