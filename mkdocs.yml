@@ -71,7 +71,7 @@ nav:
     - 'Custom prefix': config/prefix.md
     - 'Default call settings': config/call-settings.md
     - 'Multiple Partner Brand Support': multiple-brands.md
-    - 'Openning in a separate window': config/popup-window.md
+    - 'Opening in a separate window': config/popup-window.md
     - 'Running in multiple tabs': config/multiple-tabs.md
     - 'Setting your environment': config/environment.md
     - 'Quick access badge': config/badge.md
