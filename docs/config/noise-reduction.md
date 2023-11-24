@@ -9,25 +9,29 @@ Noise reduction is a self-descriptive feature that when enabled, filters out bac
 !!! info "Noise reduction is only supported when loading Embeddable from `apps.ringcentral.com`"
     Noise reduction is not supported if you are loading the Embeddable library from a Github domain. The embeddable library must be loaded from `https://apps.ringcentral.com` domain. Please check your source code and migrate to a more [new recent build hosted at ringcentral.com](../integration/new-latest-uri.md)."
 
-While in beta, the noise reduction feature is hidden by default. To make it available, developers need to add `enableNoiseReductionSetting=1` to the widget's `src` or `href` query parameters.
+From `v1.10.1`, noise reduction feature is enabled by default for supported browsers. User can disable it manually in settings page. If you want to disable and remove the feature, please check [How to remove noise reduction feature](#how-to-remove-noise-reduction-feature).
 
-=== Javascript
+## How to remove noise reduction feature
+
+Noise reduction settings will be showed in settings page automatically from `v1.10.1`. If you don't want to use noise reduction feature, you can remove it by setting `disableNoiseReduction` at query parameters.
+
+=== "Javascript"
 
     ```js
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableNoiseReductionSetting=1";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?disableNoiseReduction=1";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
     </script>
     ```
 
-=== iframe
+=== "iframe"
 
     ```html
     <iframe width="300" height="500" id="rc-widget" allow="microphone" 
-      src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableNoiseReductionSetting=1">
+      src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?disableNoiseReduction=1">
     </iframe>
     ```
