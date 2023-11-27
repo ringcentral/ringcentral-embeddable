@@ -40,3 +40,17 @@ window.addEventListener('message', function (e) {
   }
 });
 ```
+
+## Add feedback button at header
+
+You can also add a feedback button at header, this way doesn't require to register service:
+
+Only supported from v1.10.0 at script js way
+
+```js
+RCAdapter.showFeedback({
+  onFeedback: function () {
+    // add your codes here to show your feedback form
+  },
+});
+```

@@ -63,13 +63,13 @@
   display: none;
 }
 
-.root .toggle {
-  right: 10px;
-}
+// .root .toggle {
+//   right: 10px;
+// }
 
-.root.minimized .toggle {
-  right: 10px;
-}
+// .root.minimized .toggle {
+//   right: 10px;
+// }
 
 .root.dock.minimized .toggle {
   right: -10px;
@@ -191,4 +191,43 @@
   .popup {
     right: 10px;
   }
+}
+
+.feedback {
+  width: 22px;
+  height: 22px;
+  display: none;
+}
+
+.feedbackIcon {
+  width: 22px;
+  height: 22px;
+}
+
+.showFeedback .feedback {
+  display: block;
+}
+
+.minimized .feedback {
+  display: none;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  right: 10px;
+  height: 100%;
+}
+
+.root .button {
+  margin-left: 3px;
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  margin-top: 0;
 }
