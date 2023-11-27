@@ -13,6 +13,8 @@ import Notification from '../notification';
 
 // eslint-disable-next-line
 import popupIconUrl from '!url-loader!../../assets/images/popup.svg';
+import feedbackIconUrl from '!url-loader!../../assets/images/feedback.svg';
+import { type } from 'os';
 
 function checkValidImageUri(uri) {
   return (
@@ -61,6 +63,7 @@ class Adapter extends AdapterCore {
     this._enablePopup = enablePopup;
     this._popupPageUri = popupPageUri;
     this._disableMinimize = disableMinimize;
+    this._showFeedbackAtHead = false;
     this._strings = {};
     this._generateContentDOM();
     const styleList = document.querySelectorAll('style');
@@ -260,14 +263,21 @@ class Adapter extends AdapterCore {
         <div class="${this._styles.iconContainer}">
           <img class="${this._styles.icon}" draggable="false"></img>
         </div>
-        <div class="${this._styles.button} ${this._styles.popup}">
-          <div class="${this._styles.popupIcon}">
-            <img src="${popupIconUrl}" draggable="false" />
+        <div class="${this._styles.buttons}">
+          <div class="${this._styles.button} ${this._styles.feedback}">
+            <div class="${this._styles.feedbackIcon}" title="Feedback">
+              <img src="${feedbackIconUrl}" draggable="false" />
+            </div>
           </div>
-        </div>
-        <div class="${this._styles.button} ${this._styles.toggle}" data-sign="adapterToggle">
-          <div class="${this._styles.minimizeIcon}">
-            <div class="${this._styles.minimizeIconBar}"></div>
+          <div class="${this._styles.button} ${this._styles.popup}">
+            <div class="${this._styles.popupIcon}">
+              <img src="${popupIconUrl}" draggable="false" />
+            </div>
+          </div>
+          <div class="${this._styles.button} ${this._styles.toggle}" data-sign="adapterToggle">
+            <div class="${this._styles.minimizeIcon}">
+              <div class="${this._styles.minimizeIconBar}"></div>
+            </div>
           </div>
         </div>
         <img class="${this._styles.logo}" draggable="false"></img>
@@ -339,6 +349,7 @@ class Adapter extends AdapterCore {
       this._showDockUI && (!(this._userStatus || this._dndStatus)) && this._styles.noPresence,
       this._enablePopup && this._styles.showPopup,
       this._disableMinimize && this._styles.hideToggleButton,
+      this._showFeedbackAtHead && this._styles.showFeedback,
     ));
     this._headerEl.setAttribute('class', classnames(
       this._styles.header,
@@ -636,6 +647,23 @@ class Adapter extends AdapterCore {
       (!this.centerDuration) && this.moveOutCurrentCallBtn && this._styles.moveOut,
       (!this.centerDuration) && this.moveInCurrentCallBtn && this._styles.moveIn,
     ));
+  }
+
+  showFeedback({
+    onFeedback
+  }) {
+    if (typeof onFeedback !== 'function') {
+      throw new Error('onFeedback function is required.');
+    }
+    this._showFeedbackAtHead = true;
+    this._renderMainClass();
+    this._feedbackEl = this._root.querySelector(
+      `.${this._styles.feedback}`
+    );
+    this._feedbackEl.addEventListener('click', (evt) => {
+      evt.stopPropagation();
+      onFeedback();
+    });
   }
 
   get showCurrentCallBtn() {
