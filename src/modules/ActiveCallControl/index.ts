@@ -32,15 +32,6 @@ export class ActiveCallControl extends ActiveCallControlBase {
     this._onTelephonySessionUpdateHandlers = [];
   }
 
-  // override
-  _initRcCall() {
-    const rcCall = super._initRcCall();
-    if (rcCall) {
-      rcCall.callControl.on('new', this._newTelephonySessionHandler)
-    }
-    return rcCall
-  }
-
   onTelephonySessionUpdated(handler) {
     this._onTelephonySessionUpdateHandlers.push(handler);
   }
@@ -110,10 +101,10 @@ export class ActiveCallControl extends ActiveCallControlBase {
     // TODO: workaround of bug:
     // WebRTC outbound call with wrong sequences of telephony sessions then call log section will not show
     // @ts-ignore
-    rcCall._callControl?.on('new', (session: Session) =>
-      this._onNewCall(session),
-    );
-
+    rcCall._callControl?.on('new', (session: Session) => {
+      this._onNewCall(session);
+      this._newTelephonySessionHandler(session); // for telephony session notification
+    });
     return rcCall;
   }
 
