@@ -50,7 +50,7 @@ markdown_extensions:
 copyright: "2023 RingCentral, Inc. All rights reserved."
 
 nav:
-- 'Home': index.md
+- 'Home': https://ringcentral.github.io/ringcentral-embeddable/
 
 - 'Getting started':
   - 'Registering your application': app-registration.md
@@ -101,5 +101,3 @@ nav:
 - 'Troubleshooting': support.md
 
 - 'Changelog': https://github.com/ringcentral/ringcentral-embeddable/releases
-
-- 'Configuration tool': https://ringcentral.github.io/ringcentral-embeddable/
