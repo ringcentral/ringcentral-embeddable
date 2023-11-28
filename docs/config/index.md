@@ -20,21 +20,21 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `disableContacts` | False | Disable contacts feature. |
 | `disableMeeting` | False | Disable meeting feature. |
 | `disableGlip` | True | Before we start to use Glip API, need to add `Glip` or `Team Messaging` permission to your app in RingCentral Developer website. Also, for testing with a sandbox user, user needs to first login to https://app.devtest.ringcentral.com |
-| `disableMinimize` | True | By default, we provide Minimize button at app header to minimize the widget. |
-| `disconnectInactiveWebphone` | Foo | See [Working with multuple tabs](multiple-tabs.md). |
+| `disableMinimize` | False | By default, we provide Minimize button at app header to minimize the widget. |
+| `disconnectInactiveWebphone` | False | See [Working with multiple tabs](multiple-tabs.md). |
 | `enableAnalytics` | False | See [Custom analytics](../integrations/analytics.md). |
-| `enableNoiseReduction` | False | See [Noise reduction](noise-reduction.md). |
-| `enablePopup` | Foo | See [Customize pop-up window](popup-window.md). |
-| `enableRingtoneSettings` | Foo | For when call is ringing, app will play default ringtone. But we also support to customize ringtone. By enabled, user can get ringtone settings at settings page. Supported after v1.6.3 |
+| `enableNoiseReductionSetting` | False | See [Noise reduction](noise-reduction.md). |
+| `enablePopup` | False | See [Customize pop-up window](popup-window.md). |
+| `enableRingtoneSettings` | False | For when call is ringing, app will play default ringtone. But we also support to customize ringtone. By enabled, user can get ringtone settings at settings page. Supported after v1.6.3 |
 | `jwt` | None | See [Alternative auth methods](../integration/authorization.md). |
-| `multipleTabsSupport` | Foo | See [Working with multuple tabs](multiple-tabs.md). |
-| `newAdapterUI` | Foo | See [Embeddable Badge](badge.md). |
-| `popupPageUri` | Foo | See [Customize pop-up window](popup-window.md). |
-| `prefix` | Foo | See [Customize prefix](prefix.md). |
-| `redirectUri` | Foo | See [Customize redirectUri](redirect-uri.md). |
+| `multipleTabsSupport` | False | See [Working with multiple tabs](multiple-tabs.md). |
+| `newAdapterUI` | False | See [Embeddable Badge](badge.md). |
+| `popupPageUri` | *null* | See [Customize pop-up window](popup-window.md). |
+| `prefix` | *null* | See [Customize prefix](prefix.md). |
+| `redirectUri` | *null* | See [Customize redirectUri](redirect-uri.md). |
 | `showSignUpButton` | False |  |
 | `stylesUri` | *null* | See [Customize look and feel through CSS](styles.md). |
-| `userAgent` |  | See [Customize X-User-Agent](user-agent.md). |
+| `userAgent` | *null* | See [Customize X-User-Agent](user-agent.md). |
 
 </div>
 
