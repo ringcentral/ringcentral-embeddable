@@ -1,15 +1,24 @@
 import React from 'react';
+
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { withPhone } from '@ringcentral-integration/widgets/lib/phoneContext';
-import { EnvironmentPanel } from '../../components/EnvironmentPanel';
 
+import { DemoOnlyBanner } from '../../components/DemoOnlyBanner';
+import { EnvironmentPanel } from '../../components/EnvironmentPanel';
 import styles from './styles.scss';
 
 function AppView(props) {
   return (
-    <div className={styles.root}>
+    <div
+      className={classnames(styles.root, props.showDemoWarning ? styles.demoWarning : null)}
+    >
+      <DemoOnlyBanner
+        show={props.showDemoWarning}
+        onClose={props.dismissDemoWarning}
+      />
       {props.children}
       <EnvironmentPanel
         server={props.server}
@@ -48,7 +57,8 @@ export default withPhone(connect((_, {
     locale,
     oAuth,
     environment,
-  }
+    adapter,
+  },
 }) => ({
   currentLocale: locale.currentLocale,
   server: environment.server,
@@ -56,12 +66,17 @@ export default withPhone(connect((_, {
   clientSecret: environment.clientSecret,
   enabled: environment.enabled,
   redirectUri: oAuth.redirectUri,
+  showDemoWarning: adapter.showDemoWarning,
 }), (_, {
   phone: {
     environment,
+    adapter,
   },
 }) => ({
   onSetData: (options) => {
     environment.setData(options);
+  },
+  dismissDemoWarning: () => {
+    adapter.dismissDemoWarning();
   },
 }))(AppView));

@@ -739,6 +739,7 @@ export function createPhone({
   showSignUpButton,
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
+  isUsingDefaultClientId,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -809,6 +810,7 @@ export function createPhone({
           disableInactiveTabCallEvent,
           showMyLocationNumbers,
           fromPopup,
+          isUsingDefaultClientId,
         },
         spread: true
       },

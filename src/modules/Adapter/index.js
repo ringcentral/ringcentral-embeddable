@@ -1,27 +1,45 @@
-import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
-import moduleStatuses from '@ringcentral-integration/commons/enums/moduleStatuses';
-import { presenceStatus as presenceStatusEnum } from '@ringcentral-integration/commons/enums/presenceStatus.enum';
-import { dndStatus as dndStatusEnum } from '@ringcentral-integration/commons/modules/Presence/dndStatus';
-import { callingOptions } from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
-import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
-import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
-import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
-import webphoneErrors from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
-import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
-import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumber';
-import { messageIsTextMessage } from '@ringcentral-integration/commons/lib/messageHelper';
-
-import { Module } from '@ringcentral-integration/commons/lib/di';
-import { callingModes } from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
+import moduleStatuses
+  from '@ringcentral-integration/commons/enums/moduleStatuses';
+import {
+  presenceStatus as presenceStatusEnum,
+} from '@ringcentral-integration/commons/enums/presenceStatus.enum';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
+import { Module } from '@ringcentral-integration/commons/lib/di';
+import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
+import {
+  messageIsTextMessage,
+} from '@ringcentral-integration/commons/lib/messageHelper';
+import normalizeNumber
+  from '@ringcentral-integration/commons/lib/normalizeNumber';
+import {
+  callingModes,
+} from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
+import {
+  callingOptions,
+} from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
+import {
+  dndStatus as dndStatusEnum,
+} from '@ringcentral-integration/commons/modules/Presence/dndStatus';
+import recordStatus
+  from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
+import sessionStatus
+  from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
+import webphoneErrors
+  from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
+import {
+  isOnHold,
+} from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
+import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
+import AdapterModuleCore
+  from '@ringcentral-integration/widgets/lib/AdapterModuleCore';
 
-import AdapterModuleCore from '@ringcentral-integration/widgets/lib/AdapterModuleCore';
-
-import { formatMeetingInfo, formatMeetingForm } from '../../lib/formatMeetingInfo';
 import messageTypes from '../../lib/Adapter/messageTypes';
 import { getWebphoneSessionContactMatch } from '../../lib/contactMatchHelper';
+import {
+  formatMeetingForm,
+  formatMeetingInfo,
+} from '../../lib/formatMeetingInfo';
 import PopupWindowManager from '../../lib/PopupWindowManager';
-
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 
@@ -131,6 +149,7 @@ export default class Adapter extends AdapterModuleCore {
     contactMatcher,
     audioSettings,
     fromPopup,
+    isUsingDefaultClientId,
     ...options
   }) {
     super({
@@ -172,6 +191,7 @@ export default class Adapter extends AdapterModuleCore {
     this._enableFromNumberSetting = enableFromNumberSetting;
     this._showMyLocationNumbers = showMyLocationNumbers;
     this._disableInactiveTabCallEvent = disableInactiveTabCallEvent;
+    this._isUsingDefaultClientId = isUsingDefaultClientId;
     this._loggedIn = null;
     this._regionCountryCode = null;
     this._lastActiveCalls = [];
@@ -257,6 +277,7 @@ export default class Adapter extends AdapterModuleCore {
         type: this.actionTypes.init,
       });
       this._pushAdapterState();
+      this._checkIfShowDemoWarning();
       this.store.dispatch({
         type: this.actionTypes.initSuccess,
       });
@@ -1043,5 +1064,33 @@ export default class Adapter extends AdapterModuleCore {
 
   get pending() {
     return this.state.status === moduleStatuses.pending;
+  }
+
+  _checkIfShowDemoWarning() {
+    if (!this._isUsingDefaultClientId) {
+      return;
+    }
+    const dismissedTime = localStorage.getItem('rc-widget-demo-warning-dismissed');
+    if (
+      !dismissedTime ||
+      Date.now() - Number.parseInt(dismissedTime, 10) > 24 * 60 * 60 * 1000
+    ) {
+      this.store.dispatch({
+        type: this.actionTypes.setShowDemoWarning,
+        show: true,
+      });
+    }
+  }
+
+  get showDemoWarning() {
+    return this.state.showDemoWarning;
+  }
+
+  dismissDemoWarning = () => {
+    localStorage.setItem('rc-widget-demo-warning-dismissed', `${Date.now()}`);
+    this.store.dispatch({
+      type: this.actionTypes.setShowDemoWarning,
+      show: false,
+    });
   }
 }
