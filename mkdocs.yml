@@ -75,6 +75,7 @@ nav:
     - 'Running in multiple tabs': config/multiple-tabs.md
     - 'Setting your environment': config/environment.md
     - 'Quick access badge': config/badge.md
+    - 'Noise reduction': config/noise-reduction.md
 
 - 'Developer guide':
   - 'Events': integration/events.md
