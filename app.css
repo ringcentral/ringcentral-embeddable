@@ -9714,6 +9714,10 @@ input {
   background-color: var(--lightgray);
 }
 
+.AppView_demoWarning .TabNavigationView_root {
+  max-height: calc(100% - 30px);
+}
+
 .rc-editor-mention-dropdown {
   z-index: 12 !important;
 }
