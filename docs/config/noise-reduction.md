@@ -1,32 +1,33 @@
 # Noise reduction
 
-> Supported from version `1.10.0`. It is in Beta now
+> Added in version `1.10.0`. Currently in beta.
 
-Noise reduction is a feature that can be enabled to reduce user's background noise sent to the other party. It is supported at the moment for Chrome and Edge browsers.
+Noise reduction is a self-descriptive feature that when enabled, filters out background noise present in the user's environment to create a clearer, easier-to-hear audio stream for people on the other end of a call. Noise reduction is currently only supported within the Google Chrome and Microsoft Edge browsers.
 
 ## How to enable noise reduction
 
-!!! info "It is not supported when the widget is loaded from Github Page build. The widget should be loaded from `https://apps.ringcentral.com` domain. Please follow here to migrate it to [new latest build](../integration/new-latest-uri.md) firstly."
+!!! info "Noise reduction is only supported when loading Embeddable from `apps.ringcentral.com`"
+    Noise reduction is not supported if you are loading the Embeddable library from a Github domain. The embeddable library must be loaded from `https://apps.ringcentral.com` domain. Please check your source code and migrate to a more [new recent build hosted at ringcentral.com](../integration/new-latest-uri.md)."
 
-It is hidden by default. To make it available, developers need to add `enableNoiseReductionSetting=1` to the widget's `src` or `href` query parameters.
+While in beta, the noise reduction feature is hidden by default. To make it available, developers need to add `enableNoiseReductionSetting=1` to the widget's `src` or `href` query parameters.
 
-### Via script tag's `src` attribute
+=== Javascript
 
-```js
-<script>
-  (function() {
-    var rcs = document.createElement("script");
-    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableNoiseReductionSetting=1";
-    var rcs0 = document.getElementsByTagName("script")[0];
-    rcs0.parentNode.insertBefore(rcs, rcs0);
-  })();
-</script>
-```
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableNoiseReductionSetting=1";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
 
-### Via iframe's `href` attribute
+=== iframe
 
-```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" 
-  src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableNoiseReductionSetting=1">
-</iframe>
-```
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" 
+      src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableNoiseReductionSetting=1">
+    </iframe>
+    ```
