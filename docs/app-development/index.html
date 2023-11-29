@@ -181,7 +181,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="https://ringcentral.github.io/ringcentral-embeddable/" class="md-tabs__link">
+      <a href="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/" class="md-tabs__link">
         
   
     
@@ -335,7 +335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://ringcentral.github.io/ringcentral-embeddable/" class="md-nav__link">
+      <a href="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1535,6 +1535,77 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Migration
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            Migration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/new-latest-uri/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Migrating from Github Page build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1721,7 +1792,7 @@
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">clientId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;YOUR CLIENT ID&quot;</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">appServer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://platform.devtest.ringcentral.com&quot;</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://ringcentral.github.io/ringcentral-embeddable/adapter.js?clientId=&quot;</span><span class="o">+</span><span class="nx">clientId</span><span class="o">+</span><span class="s2">&quot;&amp;appServer=&quot;</span><span class="o">+</span><span class="nx">appServer</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?clientId=&quot;</span><span class="o">+</span><span class="nx">clientId</span><span class="o">+</span><span class="s2">&quot;&amp;appServer=&quot;</span><span class="o">+</span><span class="nx">appServer</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
@@ -1729,7 +1800,7 @@
 </code></pre></div>
 <h3 id="example-using-an-iframe">Example using an iframe</h3>
 <div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span>
-        <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=your_app_client_id&amp;appServer=https://platform.devtest.ringcentral.com&quot;</span><span class="p">&gt;</span>
+        <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?clientId=your_app_client_id&amp;appServer=https://platform.devtest.ringcentral.com&quot;</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 </code></pre></div>
 <h2 id="graduate-your-app-to-production">Graduate your app to production</h2>

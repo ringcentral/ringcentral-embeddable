@@ -330,7 +330,7 @@
 &lt;script&gt;
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -340,7 +340,7 @@
                 <div class="tabbed-block">
                   <p>Create a iframe with the following codes</p>
                   <pre id="iframe-code">
-  &lt;iframe width="300" height="500" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html"&gt;
+  &lt;iframe width="300" height="500" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html"&gt;
   &lt;/iframe&gt;
                 </pre>
                 </div>
@@ -350,7 +350,7 @@
             <p>You need to add following uri to your redirect url in app setting on developer website, if you don't
               config
               redirect widget uri.</p>
-            <pre id="defaultRedirectUri">https://ringcentral.github.io/ringcentral-embeddable/redirect.html</pre>
+            <pre id="defaultRedirectUri">https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/redirect.html</pre>
             <p>For full document of <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/events/" target="_blank" rel="noopener noreferrer">API and
                 Event</a>, please refer to <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/events/" target="_blank"
                 rel="noopener noreferrer">here</a></p>
@@ -473,6 +473,9 @@
       if (basePath[basePath.length - 1] === '/') {
         basePath = basePath.slice(0, basePath.length - 1);
       }
+      if (basePath === 'https://ringcentral.github.io/ringcentral-embeddable') {
+        basePath = 'https://apps.ringcentral.com/integration/ringcentral-embeddable/latest';
+      }
       return basePath;
     }
     function updateCodes() {
@@ -488,7 +491,7 @@
       } else {
         newAdapterUri = newAdapterUri + '"';
       }
-      newAdapterUri = newAdapterUri.replace('https://ringcentral.github.io/ringcentral-embeddable', basePath);
+      newAdapterUri = newAdapterUri.replace('https://apps.ringcentral.com/integration/ringcentral-embeddable/latest', basePath);
       var iframeCode = iframeElem.innerHTML;
       var iframeSrc = iframeCode.match(/"http\S+"/)[0];
       var newIframeSrc = iframeSrc.replace(/\?\S*"/, '').replace(/"$/, '');
@@ -497,7 +500,7 @@
       } else {
         newIframeSrc = newIframeSrc + '"';
       }
-      newIframeSrc = newIframeSrc.replace('https://ringcentral.github.io/ringcentral-embeddable', basePath);
+      newIframeSrc = newIframeSrc.replace('https://apps.ringcentral.com/integration/ringcentral-embeddable/latest', basePath);
       adapterElem.innerHTML = adapterCode.replace(adapterUri, newAdapterUri);
       iframeElem.innerHTML = iframeCode.replace(iframeSrc, newIframeSrc);
     }
@@ -506,7 +509,7 @@
       var basePath = getBasePath();
       var defaultRedirectUriElem = window.document.querySelector('#defaultRedirectUri');
       var defaultRedirectUri = defaultRedirectUriElem.innerText;
-      defaultRedirectUri = defaultRedirectUri.replace('https://ringcentral.github.io/ringcentral-embeddable', basePath);
+      defaultRedirectUri = defaultRedirectUri.replace('https://apps.ringcentral.com/integration/ringcentral-embeddable/latest', basePath);
       defaultRedirectUriElem.innerHTML = defaultRedirectUri;
       var redirectUriInput = window.document.querySelector('#redirectUri');
       redirectUriInput.setAttribute('placeholder', defaultRedirectUri);

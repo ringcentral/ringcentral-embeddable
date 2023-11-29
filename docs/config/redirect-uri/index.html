@@ -181,7 +181,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="https://ringcentral.github.io/ringcentral-embeddable/" class="md-tabs__link">
+      <a href="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/" class="md-tabs__link">
         
   
     
@@ -335,7 +335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="https://ringcentral.github.io/ringcentral-embeddable/" class="md-nav__link">
+      <a href="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1493,6 +1493,77 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Migration
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            Migration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/new-latest-uri/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Migrating from Github Page build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1607,14 +1678,14 @@
 
 
 <h1 id="customize-redirect-uri">Customize Redirect Uri</h1>
-<p>In authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, https://ringcentral.github.io/ringcentral-embeddable/redirect.html. And it also supports to config redirect uri.</p>
+<p>In authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, <code>https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/redirect.html</code>. And it also supports to config redirect uri.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Javascript</label><label for="__tabbed_1_2">iframe</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://ringcentral.github.io/ringcentral-embeddable/adapter.js?redirectUri=your_redirect_uri&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?redirectUri=your_redirect_uri&quot;</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
@@ -1622,7 +1693,7 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://ringcentral.github.io/ringcentral-embeddable/app.html?redirectUri=your_redirect_uri&quot;</span><span class="p">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?redirectUri=your_redirect_uri&quot;</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 </code></pre></div>
 </div>
@@ -1633,7 +1704,7 @@
 <div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
 <span class="w">  </span><span class="c1">// Important: the origin is used for postMessage</span>
 <span class="w">  </span><span class="c1">// Set &quot;origin&quot; to the same domain as the Embeddable library</span>
-<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">origin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;https://ringcentral.github.io&#39;</span><span class="p">;</span><span class="w"> </span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">origin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;https://apps.ringcentral.com&#39;</span><span class="p">;</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">opener</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// pass callbackUri to widget</span>
 <span class="w">    </span><span class="nb">window</span><span class="p">.</span><span class="nx">opener</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
