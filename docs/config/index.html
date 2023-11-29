@@ -842,6 +842,27 @@
   
   
     <li class="md-nav__item">
+      <a href="noise-reduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Noise reduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="popup-window/" class="md-nav__link">
         
   
@@ -1705,13 +1726,13 @@
 </tr>
 <tr>
 <td><code>disableMinimize</code></td>
-<td>True</td>
+<td>False</td>
 <td>By default, we provide Minimize button at app header to minimize the widget.</td>
 </tr>
 <tr>
 <td><code>disconnectInactiveWebphone</code></td>
-<td>Foo</td>
-<td>See <a href="multiple-tabs/">Working with multuple tabs</a>.</td>
+<td>False</td>
+<td>See <a href="multiple-tabs/">Working with multiple tabs</a>.</td>
 </tr>
 <tr>
 <td><code>enableAnalytics</code></td>
@@ -1719,13 +1740,18 @@
 <td>See <a href="../integrations/analytics.md">Custom analytics</a>.</td>
 </tr>
 <tr>
+<td><code>enableNoiseReductionSetting</code></td>
+<td>False</td>
+<td>See <a href="noise-reduction/">Noise reduction</a>.</td>
+</tr>
+<tr>
 <td><code>enablePopup</code></td>
-<td>Foo</td>
+<td>False</td>
 <td>See <a href="popup-window/">Customize pop-up window</a>.</td>
 </tr>
 <tr>
 <td><code>enableRingtoneSettings</code></td>
-<td>Foo</td>
+<td>False</td>
 <td>For when call is ringing, app will play default ringtone. But we also support to customize ringtone. By enabled, user can get ringtone settings at settings page. Supported after v1.6.3</td>
 </tr>
 <tr>
@@ -1735,27 +1761,27 @@
 </tr>
 <tr>
 <td><code>multipleTabsSupport</code></td>
-<td>Foo</td>
-<td>See <a href="multiple-tabs/">Working with multuple tabs</a>.</td>
+<td>False</td>
+<td>See <a href="multiple-tabs/">Working with multiple tabs</a>.</td>
 </tr>
 <tr>
 <td><code>newAdapterUI</code></td>
-<td>Foo</td>
+<td>False</td>
 <td>See <a href="badge/">Embeddable Badge</a>.</td>
 </tr>
 <tr>
 <td><code>popupPageUri</code></td>
-<td>Foo</td>
+<td><em>null</em></td>
 <td>See <a href="popup-window/">Customize pop-up window</a>.</td>
 </tr>
 <tr>
 <td><code>prefix</code></td>
-<td>Foo</td>
+<td><em>null</em></td>
 <td>See <a href="prefix/">Customize prefix</a>.</td>
 </tr>
 <tr>
 <td><code>redirectUri</code></td>
-<td>Foo</td>
+<td><em>null</em></td>
 <td>See <a href="redirect-uri/">Customize redirectUri</a>.</td>
 </tr>
 <tr>
@@ -1770,7 +1796,7 @@
 </tr>
 <tr>
 <td><code>userAgent</code></td>
-<td></td>
+<td><em>null</em></td>
 <td>See <a href="user-agent/">Customize X-User-Agent</a>.</td>
 </tr>
 </tbody>
