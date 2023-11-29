@@ -515,13 +515,14 @@ class Adapter extends AdapterCore {
     });
   }
 
-  clickToSMS(phoneNumber, text, conversation) {
+  clickToSMS(phoneNumber, text, conversation, attachments = undefined) {
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
       phoneNumber,
       text,
       conversation,
+      attachments,
     });
   }
 
