@@ -19,7 +19,7 @@ RingCentral Embeddable is React and Redux wrapper around [RingCentral Widgets](h
 
 All developers are advised to upgrade to RingCentral Embeddable 1.9 or greater. Applications who do not upgrade by March 31, 2024 will cease to function. Learn more about our plan to [end-of-life support for PubNub](https://community.ringcentral.com/articles/116312/end-of-life-for-pubnub-event-delivery-scheduled-fo.html) in our developer community.
 
-New latest build URI changed to `https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/`. See [Migrating from Github Page latest URI](https://ringcentral.github.io/ringcentral-embeddable/docs/integration/new-latest-uri.md) for more details.
+New latest build URI changed to `https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/`. See [Migrating from Github Page latest URI](https://ringcentral.github.io/ringcentral-embeddable/docs/integration/new-latest-uri/) for more details.
 
 ## Additional RingCentral Embeddable resources
 
