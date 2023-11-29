@@ -10,7 +10,7 @@ Some developers wants to customize the prefix, so the widget can support to have
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?prefix=your_prefix";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?prefix=your_prefix";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -20,7 +20,7 @@ Some developers wants to customize the prefix, so the widget can support to have
 === "iframe"
 
     ```html
-    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?prefix=your_prefix">
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?prefix=your_prefix">
     </iframe>
     ```
 

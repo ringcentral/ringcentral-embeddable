@@ -13,7 +13,7 @@ Add following the following code to the `<head>` section of a website. This meth
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -23,7 +23,7 @@ Add following the following code to the `<head>` section of a website. This meth
 You may also load RingCentral Embeddable directly as follows:
 
 ```html
-<script src="https://ringcentral.github.io/ringcentral-embeddable/adapter.js">
+<script src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js">
 </script>
 ```
 
@@ -40,7 +40,7 @@ Starting in `v1.8.5`, one can initialize Embeddable manually using the code belo
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -65,7 +65,7 @@ Some developers may prefer to load Embeddable directly via an iframe for [securi
 
 ```html
 <iframe width="300" height="500" id="rc-widget" allow="autoplay; microphone" 
-        src="https://ringcentral.github.io/ringcentral-embeddable/app.html">
+        src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html">
 </iframe>
 ```
 

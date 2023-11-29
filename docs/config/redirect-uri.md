@@ -1,6 +1,6 @@
 # Customize Redirect Uri
 
-In authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, https://ringcentral.github.io/ringcentral-embeddable/redirect.html. And it also supports to config redirect uri.
+In authorization code flow, it will require a valid redirect uri that developer set in developers account. This app offers a default redirect uri option that you can use, `https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/redirect.html`. And it also supports to config redirect uri.
 
 === "Javascript"
 
@@ -8,7 +8,7 @@ In authorization code flow, it will require a valid redirect uri that developer 
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?redirectUri=your_redirect_uri";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?redirectUri=your_redirect_uri";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -18,7 +18,7 @@ In authorization code flow, it will require a valid redirect uri that developer 
 === "iframe"
 
     ```html
-    <iframe width="300" height="500" id="rc-widget" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?redirectUri=your_redirect_uri">
+    <iframe width="300" height="500" id="rc-widget" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?redirectUri=your_redirect_uri">
     </iframe>
     ```
 
@@ -30,7 +30,7 @@ In your redirect page, you need to add following code to pass auth callback para
 <script>
   // Important: the origin is used for postMessage
   // Set "origin" to the same domain as the Embeddable library
-  var origin = 'https://ringcentral.github.io'; 
+  var origin = 'https://apps.ringcentral.com';
   if (window.opener) {
     // pass callbackUri to widget
     window.opener.postMessage({

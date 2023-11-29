@@ -2,7 +2,7 @@
 
 ## Using the latest build
 
-We prefer developers to load the latest version of RingCentral Embeddable. This is the default behavior when you load Embeddable via a CDN and do not reference a specific version number, or if you use the [RingCentral Embeddable embed tool](https://ringcentral.github.io/ringcentral-embeddable) to generate your embed code. Using the latest build ensures that your application will automatically receive updates along with any new bug fixes. 
+We prefer developers to load the latest version of RingCentral Embeddable. This is the default behavior when you load Embeddable via a CDN and do not reference a specific version number, or if you use the [RingCentral Embeddable embed tool](https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/) to generate your embed code. Using the latest build ensures that your application will automatically receive updates along with any new bug fixes. 
 
 ## Loading older versions
 

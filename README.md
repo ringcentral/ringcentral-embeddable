@@ -1,4 +1,4 @@
-# [RingCentral Embeddable](https://ringcentral.github.io/ringcentral-embeddable/)
+# [RingCentral Embeddable](https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/)
 
 [![Build Status](https://github.com/ringcentral/ringcentral-embeddable/workflows/CI%20Pipeline/badge.svg?branch=master)](https://github.com/ringcentral/ringcentral-embeddable/actions)
 [![Latest release](https://img.shields.io/github/v/release/ringcentral/ringcentral-embeddable)](https://github.com/ringcentral/ringcentral-embeddable/releases)
@@ -19,10 +19,12 @@ RingCentral Embeddable is React and Redux wrapper around [RingCentral Widgets](h
 
 All developers are advised to upgrade to RingCentral Embeddable 1.9 or greater. Applications who do not upgrade by March 31, 2024 will cease to function. Learn more about our plan to [end-of-life support for PubNub](https://community.ringcentral.com/articles/116312/end-of-life-for-pubnub-event-delivery-scheduled-fo.html) in our developer community.
 
+New latest build URI changed to `https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/`. See [Migrating from Github Page latest URI](https://ringcentral.github.io/ringcentral-embeddable/docs/integration/new-latest-uri.md) for more details.
+
 ## Additional RingCentral Embeddable resources
 
 * [Document and guide website](https://ringcentral.github.io/ringcentral-embeddable/docs)
-* [Free online demo and configuration tool](https://ringcentral.github.io/ringcentral-embeddable/)
+* [Free online demo and configuration tool](https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/)
 * [Watch a video on our website](https://developers.ringcentral.com/embeddable-voice)
 * [List of all Embeddable releases](https://github.com/ringcentral/ringcentral-embeddable/releases)
 
@@ -44,7 +46,7 @@ Add the code below to any web page's header to embed a RingCentral phone in a ma
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -57,7 +59,7 @@ Insert the following HTML into any webpage to embed a RingCentral phone into tha
 
 ```html
 <iframe width="300" height="500" id="rc-widget" allow="autoplay; microphone"
-        src="https://ringcentral.github.io/ringcentral-embeddable/app.html">
+        src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html">
 </iframe>
 ```
 
@@ -69,12 +71,12 @@ We recommend developers [register an application](https://developers.ringcentral
 
 **Via a script tag**
 ```
-https://ringcentral.github.io/ringcentral-embeddable/adapter.js?clientId=<YOUR CLIENT ID>
+https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?clientId=<YOUR CLIENT ID>
 ```
 
 **Via an iframe**
 ```
-https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=<YOUR CLIENT ID>
+https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?clientId=<YOUR CLIENT ID>
 ```
 
 ### Running Embeddable in sandbox
@@ -83,21 +85,21 @@ To run RingCentral Embeddable in our [developer sandbox environment](https://dev
 
 **Via a script tag**
 ```
-https://ringcentral.github.io/ringcentral-embeddable/adapter.js?appServer=https://platform.devtest.ringcentral.com
+https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?appServer=https://platform.devtest.ringcentral.com
 ```
 
 **Via an iframe**
 ```
-https://ringcentral.github.io/ringcentral-embeddable/app.html?appServer=https://platform.devtest.ringcentral.com
+https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?appServer=https://platform.devtest.ringcentral.com
 ```
 
 ### Use our configuration helper
 
-Use our [RingCentral Embeddable configuration helper](https://ringcentral.github.io/ringcentral-embeddable) to generate the HTML or Javascript that you can easily copy and paste into your web page or application.
+Use our [RingCentral Embeddable configuration helper](https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/) to generate the HTML or Javascript that you can easily copy and paste into your web page or application.
 
 ## Using the latest version of Embeddable
 
-We make the [most recent version of RingCentral Embeddable](https://ringcentral.github.io/ringcentral-embeddable) available via Github. Referencing this build of Embeddable ensures that your application will always have access to the latest features, enhancements, and bug fixes.
+We make the [most recent version of RingCentral Embeddable](https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/) available via CDN. Referencing this build of Embeddable ensures that your application will always have access to the latest features, enhancements, and bug fixes.
 
 ### Access a specific version of Embeddable
 

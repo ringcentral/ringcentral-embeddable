@@ -17,7 +17,7 @@ RingCentral Embeddable provides a ready-to-use, fully-functional web phone that 
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -30,11 +30,11 @@ RingCentral Embeddable provides a ready-to-use, fully-functional web phone that 
 
     ```html
     <iframe width="300" height="500" allow="microphone" 
-      src="https://ringcentral.github.io/ringcentral-embeddable/app.html">
+      src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html">
     </iframe>
     ```
 
-Or access our [RingCentral Embeddable configuration tool](https://ringcentral.github.io/ringcentral-embeddable/) for a live demo. 
+Or access our [RingCentral Embeddable configuration tool](https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/) for a live demo.
 
 !!! info "When loading RingCentral Embeddable for the first time, users will need to grant access to their microphone and speaker."
 
@@ -48,4 +48,3 @@ Or access our [RingCentral Embeddable configuration tool](https://ringcentral.gi
 
 !!! hint "Removing the "FOR DEMO PURPOSES ONLY" banner"
     You may observe that a banner appears when running the sample code above. To remove this banner, please register your own application and [use the client ID](config/client-id.md) associated with that application. 
-

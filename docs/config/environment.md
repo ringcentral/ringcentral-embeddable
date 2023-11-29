@@ -15,7 +15,7 @@ By default, RingCentral Embeddable's `appServer` configuration parameter points 
         var rcs = document.createElement("script");
         var clientId = "YOUR CLIENT ID";
     	var appServer = "https://platform.devtest.ringcentral.com"
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?clientId="+clientId+"&=appServer="+appServer;
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?clientId="+clientId+"&=appServer="+appServer;
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -26,7 +26,7 @@ By default, RingCentral Embeddable's `appServer` configuration parameter points 
 
     ```html
     <iframe width="300" height="500" id="rc-widget" allow="microphone"
-            src="https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=your_app_client_id&appServer=https://platform.devtest.ringcentral.com">
+            src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?clientId=your_app_client_id&appServer=https://platform.devtest.ringcentral.com">
     </iframe>
     ```
 

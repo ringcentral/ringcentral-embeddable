@@ -25,7 +25,7 @@ To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this 
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?multipleTabsSupport=1";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?multipleTabsSupport=1";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -35,7 +35,7 @@ To resolve 5 tab limitation issue for multiple tabs (more than 5), we have this 
 === "iframe"
 
     ```html
-    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?multipleTabsSupport=1">
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?multipleTabsSupport=1">
     </iframe>
     ```
 
@@ -63,7 +63,7 @@ For 5 tab limitation, we support to disconnect web phone connection in inactive 
     <script>
       (function() {
         var rcs = document.createElement("script");
-        rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js?disconnectInactiveWebphone=1";
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?disconnectInactiveWebphone=1";
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
       })();
@@ -73,7 +73,7 @@ For 5 tab limitation, we support to disconnect web phone connection in inactive 
 === "iframe"
 
     ```html
-    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?disconnectInactiveWebphone=1">
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?disconnectInactiveWebphone=1">
     </iframe>
     ```
 

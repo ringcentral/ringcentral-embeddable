@@ -50,7 +50,7 @@ markdown_extensions:
 copyright: "2023 RingCentral, Inc. All rights reserved."
 
 nav:
-- 'Home': https://ringcentral.github.io/ringcentral-embeddable/
+- 'Home': https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/
 
 - 'Getting started':
   - 'Registering your application': app-registration.md
@@ -97,6 +97,8 @@ nav:
   - 'Recipes':
     - 'Analytics integration': integration/analytics.md
     - 'Click-to-dial enablement': integration/click-to-dial.md
+  - 'Migration':
+    - 'Migrating from Github Page build': integration/new-latest-uri.md
 
 - 'Troubleshooting': support.md
 

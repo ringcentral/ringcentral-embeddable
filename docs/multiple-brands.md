@@ -13,7 +13,7 @@ RingCentral works with a number of [carriers and partners](https://developers.ri
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.att.js?appServer=https://platform.ringcentral.biz";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.att.js?appServer=https://platform.ringcentral.biz";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -25,7 +25,7 @@ RingCentral works with a number of [carriers and partners](https://developers.ri
 Add `brand=att` and `appServer` in src query parameter:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=att&appServer=https://platform.ringcentral.biz">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?brand=att&appServer=https://platform.ringcentral.biz">
 </iframe>
 ```
 
@@ -37,7 +37,7 @@ Use `adapter.bt.js` to instead of `adapter.js`:
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.bt.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.bt.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -49,7 +49,7 @@ Use `adapter.bt.js` to instead of `adapter.js`:
 Add `brand=bt` in src query parameter:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=bt">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?brand=bt">
 </iframe>
 ```
 
@@ -61,7 +61,7 @@ Use `adapter.telus.js` to instead of `adapter.js`:
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.telus.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.telus.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -73,7 +73,7 @@ Use `adapter.telus.js` to instead of `adapter.js`:
 Add `brand=telus` in src query parameter:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=telus">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?brand=telus">
 </iframe>
 ```
 
@@ -87,7 +87,7 @@ Use `adapter.atos.js` to instead of `adapter.js`:
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.atos.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.atos.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -99,7 +99,7 @@ Use `adapter.atos.js` to instead of `adapter.js`:
 Add `brand=atos` in src query parameter:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=atos">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?brand=atos">
 </iframe>
 ```
 
@@ -113,7 +113,7 @@ Use `adapter.avaya.js` to instead of `adapter.js`:
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.avaya.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.avaya.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -125,7 +125,7 @@ Use `adapter.avaya.js` to instead of `adapter.js`:
 Add `brand=avaya` in src query parameter:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=avaya">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?brand=avaya">
 </iframe>
 ```
 
@@ -139,7 +139,7 @@ Use `adapter.rainbow.js` to instead of `adapter.js`:
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.rainbow.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.rainbow.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -151,7 +151,7 @@ Use `adapter.rainbow.js` to instead of `adapter.js`:
 Add `brand=rainbow` in src query parameter:
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html?brand=rainbow">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?brand=rainbow">
 </iframe>
 ```
 
@@ -165,7 +165,7 @@ For other brands, we are still customizing styles for them. Those users can use 
 <script>
   (function() {
     var rcs = document.createElement("script");
-    rcs.src = "https://ringcentral.github.io/ringcentral-embeddable/adapter.js";
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js";
     var rcs0 = document.getElementsByTagName("script")[0];
     rcs0.parentNode.insertBefore(rcs, rcs0);
   })();
@@ -175,6 +175,6 @@ For other brands, we are still customizing styles for them. Those users can use 
 ### Iframe way
 
 ```html
-<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://ringcentral.github.io/ringcentral-embeddable/app.html">
+<iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html">
 </iframe>
 ```
