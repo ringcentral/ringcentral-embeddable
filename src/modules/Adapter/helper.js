@@ -71,14 +71,6 @@ export function getValidAttachments(attachments = []) {
     if (typeof attachment.name !== 'string') {
       return;
     }
-    if (attachment.file instanceof Blob) {
-      validAttachments.push({
-        name: attachment.name,
-        file: attachment.file,
-        size: attachment.file.size,
-      });
-      return;
-    }
     if (typeof attachment.file !== 'string') {
       return;
     }

@@ -269,7 +269,7 @@ export default class Adapter extends AdapterModuleCore {
           this._newCall(data.phoneNumber, data.toCall);
           break;
         case 'rc-adapter-auto-populate-conversation':
-          this._autoPopulateConversationText(data.text);
+          this._autoPopulateConversationText(data.text, data.attachments);
           break;
         case 'rc-adapter-control-call':
           this._controlCall(data.callAction, data.callId, data.options);
@@ -916,12 +916,18 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _autoPopulateConversationText(text) {
+  _autoPopulateConversationText(text, attachments) {
     if (!this._conversations.currentConversationId) {
       return;
     }
     if (typeof text === 'string') {
       this._conversations.updateMessageText(text);
+    }
+    const validAttachments = getValidAttachments(attachments);
+    if (validAttachments.length > 0) {
+      validAttachments.forEach((attachment) => {
+        this._conversations.addAttachment(attachment);
+      });
     }
   }
 
