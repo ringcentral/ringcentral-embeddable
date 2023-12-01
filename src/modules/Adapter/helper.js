@@ -65,21 +65,21 @@ export function getValidAttachments(attachments = []) {
   }
   const validAttachments = [];
   attachments.forEach((attachment) => {
-    if (!attachment || !attachment.name || !attachment.file) {
+    if (!attachment || !attachment.name || !attachment.content) {
       return;
     }
     if (typeof attachment.name !== 'string') {
       return;
     }
-    if (typeof attachment.file !== 'string') {
+    if (typeof attachment.content !== 'string') {
       return;
     }
     // if is base64 url
     if (
-      attachment.file.startsWith('data:') &&
-      attachment.file.indexOf(';base64,') !== -1
+      attachment.content.startsWith('data:') &&
+      attachment.content.indexOf(';base64,') !== -1
     ) {
-      const blob = dataURLtoBlob(attachment.file);
+      const blob = dataURLtoBlob(attachment.content);
       validAttachments.push({
         name: attachment.name,
         file: blob,
