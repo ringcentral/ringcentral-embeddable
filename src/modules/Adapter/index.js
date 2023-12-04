@@ -6,9 +6,6 @@ import {
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
-import {
-  messageIsTextMessage,
-} from '@ringcentral-integration/commons/lib/messageHelper';
 import normalizeNumber
   from '@ringcentral-integration/commons/lib/normalizeNumber';
 import {
@@ -42,51 +39,11 @@ import {
 import PopupWindowManager from '../../lib/PopupWindowManager';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
-
-function findExistedConversation(conversations, phoneNumber) {
-  return conversations.find((conversation) => {
-    if (!conversation.to || conversation.to.length > 1) {
-      return false;
-    }
-    if (!messageIsTextMessage(conversation)) {
-      return false;
-    }
-    if (conversation.direction === 'Inbound') {
-      return conversation.from && (
-        conversation.from.phoneNumber === phoneNumber ||
-        conversation.from.extensionNumber === phoneNumber
-      );
-    }
-    return conversation.to.find(
-      number => (
-        number.phoneNumber === phoneNumber ||
-        number.extensionNumber === phoneNumber
-      )
-    );
-  });
-}
-
-function setOutputDeviceWhenCall(webphone, audioSettings) {
-  if (webphone._webphone) {
-    if (webphone._remoteVideo && webphone._remoteVideo.setSinkId) {
-      if (audioSettings.outputDeviceId === 'default') {
-        const defaultDevice = audioSettings.outputDevice;
-        const defaultDeviceLabel = defaultDevice.label;
-        const deviceLabel = defaultDeviceLabel.split(' - ')[1];
-        if (deviceLabel) {
-          const device = audioSettings.availableOutputDevices.find(
-            (device) => device.label === deviceLabel
-          );
-          if (device) {
-            webphone._remoteVideo.setSinkId(device.deviceId);
-          }
-        }
-      } else {
-        webphone._remoteVideo.setSinkId(audioSettings.outputDeviceId);
-      }
-    }
-  }
-}
+import {
+  findExistedConversation,
+  setOutputDeviceWhenCall,
+  getValidAttachments,
+} from './helper';
 
 @Module({
   name: 'Adapter',
@@ -306,13 +263,13 @@ export default class Adapter extends AdapterModuleCore {
           }
           break;
         case 'rc-adapter-new-sms':
-          this._newSMS(data.phoneNumber, data.text, data.conversation);
+          this._newSMS(data.phoneNumber, data.text, data.conversation, data.attachments);
           break;
         case 'rc-adapter-new-call':
           this._newCall(data.phoneNumber, data.toCall);
           break;
         case 'rc-adapter-auto-populate-conversation':
-          this._autoPopulateConversationText(data.text);
+          this._autoPopulateConversationText(data.text, data.attachments);
           break;
         case 'rc-adapter-control-call':
           this._controlCall(data.callAction, data.callId, data.options);
@@ -897,7 +854,7 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _newSMS(phoneNumber, text, conversation) {
+  _newSMS(phoneNumber, text, conversation, attachments = null) {
     if (!this._auth.loggedIn) {
       return;
     }
@@ -913,11 +870,17 @@ export default class Adapter extends AdapterModuleCore {
         normalizedNumber,
       );
     }
+    const validAttachments = getValidAttachments(attachments);
     if (existedConversation) {
       this._router.push(`/conversations/${existedConversation.conversationId}`);
       if (text && text.length > 0) {
         this._conversations.loadConversation(existedConversation.conversationId);
         this._conversations.updateMessageText(String(text));
+      }
+      if (validAttachments.length > 0) {
+        validAttachments.forEach((attachment) => {
+          this._conversations.addAttachment(attachment);
+        })
       }
       return;
     }
@@ -927,6 +890,11 @@ export default class Adapter extends AdapterModuleCore {
     }
     if (text && text.length > 0) {
       this._composeText.updateMessageText(String(text));
+    }
+    if (validAttachments.length > 0) {
+      validAttachments.forEach((attachment) => {
+        this._composeText.addAttachment(attachment);
+      });
     }
   }
 
@@ -948,12 +916,18 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _autoPopulateConversationText(text) {
+  _autoPopulateConversationText(text, attachments) {
     if (!this._conversations.currentConversationId) {
       return;
     }
     if (typeof text === 'string') {
       this._conversations.updateMessageText(text);
+    }
+    const validAttachments = getValidAttachments(attachments);
+    if (validAttachments.length > 0) {
+      validAttachments.forEach((attachment) => {
+        this._conversations.addAttachment(attachment);
+      });
     }
   }
 
