@@ -57176,12 +57176,14 @@ class Adapter extends AdapterCore/* default */.Z {
     });
   }
   clickToSMS(phoneNumber, text, conversation) {
+    let attachments = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : undefined;
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
       phoneNumber,
       text,
-      conversation
+      conversation,
+      attachments
     });
   }
   clickToCall(phoneNumber) {
