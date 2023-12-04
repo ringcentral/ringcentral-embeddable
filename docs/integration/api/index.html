@@ -2448,13 +2448,22 @@
 <span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-new-sms&#39;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">phoneNumber</span><span class="o">:</span><span class="w"> </span><span class="sb">`phone number`</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="sb">`your text`</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// attachments: [{</span>
+<span class="w">  </span><span class="c1">//   name: &#39;test.txt&#39;,</span>
+<span class="w">  </span><span class="c1">//   content: &#39;data:text/plain;base64,SGVsbG8sIFdvcmxkIQ%3D%3D&#39;, // base64 encoded data URI</span>
+<span class="w">  </span><span class="c1">// }], // optional for sending MMS message with attachments</span>
+<span class="w">  </span><span class="p">}]</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
-<p>If you are using Adapter JS way, just you can just call <code>RCAdapter.clickToSMS('phonenumber')</code>.</p>
+<p>If you are using Adapter JS way, just you can just call <code>RCAdapter.clickToSMS('phonenumber', 'text')</code>.</p>
 <h3 id="auto-populate-sms-conversation-text">Auto-populate SMS conversation text</h3>
 <div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-auto-populate-conversation&#39;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="sb">`your text`</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// attachments: [{</span>
+<span class="w">  </span><span class="c1">//   name: &#39;test.png&#39;,</span>
+<span class="w">  </span><span class="c1">//   content: &#39;data:image/png;base64,SGVsbG8sIFdvcmxkIQ%3D%3D&#39;, // base64 encoded data URI. Limitation: https://developers.ringcentral.com/guide/messaging/sms/sending-images</span>
+<span class="w">  </span><span class="c1">// }], // optional for sending MMS message with attachments, supported from v1.10.0.</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
 <div class="admonition info">
