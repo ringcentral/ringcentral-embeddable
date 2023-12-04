@@ -47,9 +47,31 @@ export function setOutputDeviceWhenCall(webphone, audioSettings) {
   }
 }
 
+const SUPPORTED_MIME = [
+  'image/jpeg',
+  'image/png',
+  'image/bmp',
+  'image/gif',
+  'image/tiff',
+  'image/svg+xml',
+  'video/3gpp',
+  'video/mp4',
+  'video/mpeg',
+  'video/msvideo',
+  'audio/mpeg',
+  'text/vcard',
+  'application/zip',
+  'application/gzip',
+  'application/rtf'
+];
+
 function dataURLtoBlob(dataUrl) {
   const arr = dataUrl.split(',');
   const mime = arr[0].match(/:(.*?);/)[1];
+  if (!SUPPORTED_MIME.includes(mime)) {
+    console.warn('Unsupported mime type:', mime);
+    return null;
+  }
   const bStr = atob(arr[1]);
   let n = bStr.length;
   const u8arr = new Uint8Array(n);
@@ -66,26 +88,31 @@ export function getValidAttachments(attachments = []) {
   const validAttachments = [];
   attachments.forEach((attachment) => {
     if (!attachment || !attachment.name || !attachment.content) {
+      console.warn('Invalid attachment:', attachment);
       return;
     }
     if (typeof attachment.name !== 'string') {
+      console.warn('Invalid attachment name:', attachment.name);
       return;
     }
-    if (typeof attachment.content !== 'string') {
-      return;
-    }
-    // if is base64 url
+    // only support base64 url
     if (
-      attachment.content.startsWith('data:') &&
-      attachment.content.indexOf(';base64,') !== -1
+      typeof attachment.content !== 'string' ||
+      attachment.content.indexOf('data:') !== 0 ||
+      attachment.content.indexOf(';base64,') === -1
     ) {
-      const blob = dataURLtoBlob(attachment.content);
-      validAttachments.push({
-        name: attachment.name,
-        file: blob,
-        size: blob.size,
-      });
+      console.warn('Invalid attachment content:', attachment.content);
+      return;
     }
+    const blob = dataURLtoBlob(attachment.content);
+    if (!blob) {
+      return;
+    }
+    validAttachments.push({
+      name: attachment.name,
+      file: blob,
+      size: blob.size,
+    });
   });
   return validAttachments;
 }
