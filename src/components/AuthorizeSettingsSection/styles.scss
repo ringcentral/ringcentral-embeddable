@@ -6,22 +6,6 @@
   color: $primary-color;
 }
 
-.authorizaButton {
-  display: inline-block;
-  height: 28px;
-  border-radius: 100px;
-  background: $primary-color;
-  border: solid 1px $primary-color;
-  font-size: 12px;
-  color: #ffffff;
-  line-height: 28px;
-  text-align: center;
-  padding: 0 8px;
-  &:hover {
-    color: #ffffff;
-  }
-}
-
 .accountWrapper {
   display: flex;
   align-items: baseline;
@@ -55,7 +39,7 @@
 }
 
 .authButtonWrapper {
-  display: relative;
+  position: relative;
 }
 
 .redDot {
@@ -64,6 +48,6 @@
   height: 16px;
   border-radius: 100%;
   background-color: #f65d60;
-  top: 9px;
-  right: 15px;
+  top: -6px;
+  right: -6px;
 }

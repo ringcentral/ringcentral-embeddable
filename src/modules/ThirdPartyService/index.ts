@@ -150,7 +150,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         if (service.vcardHandlerPath) {
           this._registerVCardHandler(service);
         }
-        if (service.buttons) {
+        if (service.buttonEventPath) {
           this._registerButtons(service);
         }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
@@ -413,10 +413,10 @@ export default class ThirdPartyService extends RcModuleV2 {
   }
 
   _registerButtons(service) {
+    this._additionalButtonPath = service.buttonEventPath;
     if (!Array.isArray(service.buttons)) {
       return;
     }
-    this._additionalButtonPath = service.buttonEventPath;
     const additionalButtons = [];
     service.buttons.forEach((button) => {
       if (
@@ -822,6 +822,24 @@ export default class ThirdPartyService extends RcModuleV2 {
           id: button.id,
           type: button.type,
           label: button.label,
+        },
+      });
+    }
+  }
+
+  async onClickSettingButton(buttonId) {
+    const setting = this.settings.find(x => x.id === buttonId);
+    if (setting) {
+      if (!this._additionalButtonPath) {
+        console.error('additionalButtonPath is not registered');
+        return;
+      }
+      await requestWithPostMessage(this._additionalButtonPath, {
+        button: {
+          id: setting.id,
+          type: 'setting',
+          label: setting.buttonLabel,
+          name: setting.name,
         },
       });
     }

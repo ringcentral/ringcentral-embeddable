@@ -19,6 +19,8 @@ const Container = styled.div`
 
 const StyledPanel = styled(Panel)`
   padding: 20px;
+  height: calc(100% - 46px);
+  overflow-y: auto;
 `;
 
 const StyledParamInput = styled(SettingParamInput)`

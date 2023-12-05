@@ -38,6 +38,13 @@ export function checkThirdPartySettings(settings: any[]) {
       inValidSettings.push(setting);
       return;
     }
+    if (
+      typeof setting.order !== 'undefined' &&
+      typeof setting.order !== 'number'
+    ) {
+      inValidSettings.push(setting);
+      return;
+    }
     if (!setting.id || !setting.type) {
       if (typeof setting.value === 'boolean') {
         // For backward compatibility, we will add id for boolean type setting
@@ -57,6 +64,17 @@ export function checkThirdPartySettings(settings: any[]) {
         validSettings.push(setting);
       } else {
         inValidSettings.push(setting);
+      }
+      return;
+    }
+    if (setting.type === 'button') {
+      if (
+        !setting.buttonLabel ||
+        typeof setting.buttonLabel !== 'string'
+      ) {
+        inValidSettings.push(setting);
+      } else {
+        validSettings.push(setting);
       }
       return;
     }
