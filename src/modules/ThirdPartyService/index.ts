@@ -159,6 +159,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._triggerSyncContacts();
       } else if (e.data.type === 'rc-adapter-trigger-call-logger-match') {
         this._triggerCallLoggerMatch(e.data.sessionIds);
+      } else if (e.data.type === 'rc-adapter-update-third-party-settings') {
+        this._updateSettings(e.data.settings);
       }
     });
   }
@@ -286,6 +288,12 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._settingsPath = service.settingsPath;
     this._onRegisterSettings({
       settings: checkThirdPartySettings(service.settings),
+    });
+  }
+
+  _updateSettings(settings = []) {
+    this._onRegisterSettings({
+      settings: checkThirdPartySettings(settings),
     });
   }
 
