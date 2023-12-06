@@ -62,7 +62,7 @@ export default function AuthorizeSettingsSection({
     <Line>
       <div className={styles.accountWrapper}>
         {icon}
-        <span className='authButtonWrapper'>
+        <span className={styles.authButtonWrapper}>
           {authButton}
           {redDot}
         </span>

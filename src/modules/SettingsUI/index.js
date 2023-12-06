@@ -81,6 +81,9 @@ export class SettingsUI extends BaseSettingsUI {
       gotoThirdPartySection: (sectionId) => {
         routerInteraction.push(`/settings/thirdParty/${sectionId}`);
       },
+      onThirdPartyButtonClick: (buttonId) => {
+        thirdPartyService.onClickSettingButton(buttonId);
+      },
     }
   }
 }
