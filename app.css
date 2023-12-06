@@ -11509,22 +11509,6 @@ div[class*=MuiCircularProgress-indeterminate] {
   color: var(--primary-color);
 }
 
-.AuthorizeSettingsSection_authorizaButton {
-  display: inline-block;
-  height: 28px;
-  border-radius: 100px;
-  background: var(--primary-color);
-  border: solid 1px var(--primary-color);
-  font-size: 12px;
-  color: #ffffff;
-  line-height: 28px;
-  text-align: center;
-  padding: 0 8px;
-}
-.AuthorizeSettingsSection_authorizaButton:hover {
-  color: #ffffff;
-}
-
 .AuthorizeSettingsSection_accountWrapper {
   display: flex;
   align-items: baseline;
@@ -11568,7 +11552,7 @@ div[class*=MuiCircularProgress-indeterminate] {
 }
 
 .AuthorizeSettingsSection_authButtonWrapper {
-  display: relative;
+  position: relative;
 }
 
 .AuthorizeSettingsSection_redDot {
@@ -11577,8 +11561,8 @@ div[class*=MuiCircularProgress-indeterminate] {
   height: 16px;
   border-radius: 100%;
   background-color: #f65d60;
-  top: 9px;
-  right: 15px;
+  top: -6px;
+  right: -6px;
 }
 .MeetingScheduleButton_actionPrompt {
   color: #212121;
