@@ -76,7 +76,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-!!! info "In settings root items, it only supports `boolean`, `button` and `section` type. `section` type is supported from `v1.10.0`. `button` type is supported from `v1.10.1`. In section's items, it supports `boolean`, `string`, `option` and `text` type."
+!!! info "In settings root items, it only supports `boolean`, `button` and `section` type. `section` type is supported from `v1.10.0`. `button` type is supported from `v2.0.0-alpha`. In section's items, it supports `boolean`, `string`, `option` and `text` type."
 
 After registering, you can get your setting in settings page:
 
@@ -116,7 +116,7 @@ window.addEventListener('message', function (e) {
 
 ## Set settings item order
 
-!!! info "Supported from `v1.10.1`"
+!!! info "Supported from `v2.0.0-alpha`"
 
 You can set settings item order by adding `order` field in settings item:
 
@@ -161,7 +161,7 @@ Order value is a number, the smaller the number, the higher the priority.
 
 ## Update settings
 
-!!! info "Supported from `v1.10.1`"
+!!! info "Supported from `v2.0.0-alpha`"
 
 You can update settings by sending `rc-adapter-update-third-party-settings` message:
 
