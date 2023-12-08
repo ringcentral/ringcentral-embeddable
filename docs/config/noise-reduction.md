@@ -9,11 +9,34 @@ Noise reduction is a self-descriptive feature that when enabled, filters out bac
 !!! info "Noise reduction is only supported when loading Embeddable from `apps.ringcentral.com`"
     Noise reduction is not supported if you are loading the Embeddable library from a Github domain. The embeddable library must be loaded from `https://apps.ringcentral.com` domain. Please check your source code and migrate to a more [new recent build hosted at ringcentral.com](../integration/new-latest-uri.md)."
 
-From `v1.10.1`, noise reduction feature is enabled by default for supported browsers. User can disable it manually in settings page. If you want to disable and remove the feature, please check [How to remove noise reduction feature](#how-to-remove-noise-reduction-feature).
+At version `1.10.x`, noise reduction is disabled by default. To enable noise reduction, developer need to pass `enableNoiseReductionSetting` at query parameters.
+
+=== "Javascript"
+
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableNoiseReductionSetting=1";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
+
+=== "iframe"
+
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" 
+      src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableNoiseReductionSetting=1">
+    </iframe>
+    ```
+
+From `v2.0.0`, noise reduction feature is enabled by default for supported browsers. User can disable it manually in settings page. If you want to disable and remove the feature, please check [How to remove noise reduction feature](#how-to-remove-noise-reduction-feature).
 
 ## How to remove noise reduction feature
 
-Noise reduction settings will be showed in settings page automatically from `v1.10.1`. If you don't want to use noise reduction feature, you can remove it by setting `disableNoiseReduction` at query parameters.
+Noise reduction settings will be showed in settings page automatically from `v2.0.0`. If you don't want to use noise reduction feature, you can remove it by setting `disableNoiseReduction` at query parameters.
 
 === "Javascript"
 
