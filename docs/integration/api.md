@@ -278,11 +278,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-new-sms',
   phoneNumber: `phone number`,
-  text: `your text`,
-  // attachments: [{
-  //   name: 'test.txt',
-  //   content: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ%3D%3D', // base64 encoded data URI
-  // }], // optional for sending MMS message with attachments
+  text: `your text`
   }]
 }, '*');
 ```
@@ -294,11 +290,23 @@ If you are using Adapter JS way, just you can just call `RCAdapter.clickToSMS('p
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-auto-populate-conversation',
-  text: `your text`,
-  // attachments: [{
-  //   name: 'test.png',
-  //   content: 'data:image/png;base64,SGVsbG8sIFdvcmxkIQ%3D%3D', // base64 encoded data URI. Limitation: https://developers.ringcentral.com/guide/messaging/sms/sending-images
-  // }], // optional for sending MMS message with attachments, supported from v1.10.0.
+  text: `your text`
+}, '*');
+```
+
+!!! info "This only works when user is already on the SMS conversation detail page. It will add the specified text into user's conversation input."
+
+### Go to SMS page with prefilled image/attachment
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-new-sms',
+  phoneNumber: `phone number`,
+  attachments: [{
+    name: 'test.txt',
+    content: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ%3D%3D', // base64 encoded data URI
+    }], // optional for sending MMS message with attachments
+  }]
 }, '*');
 ```
 
