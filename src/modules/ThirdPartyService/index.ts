@@ -159,6 +159,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._triggerSyncContacts();
       } else if (e.data.type === 'rc-adapter-trigger-call-logger-match') {
         this._triggerCallLoggerMatch(e.data.sessionIds);
+      } else if (e.data.type === 'rc-adapter-trigger-contact-match') {
+        this._triggerContactMatch(e.data.phoneNumbers);
       } else if (e.data.type === 'rc-adapter-update-third-party-settings') {
         this._updateSettings(e.data.settings);
       }
@@ -723,6 +725,26 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
     this._deps.activityMatcher.match({
       queries: validatedSessionIds,
+      ignoreCache: true,
+    });
+  }
+
+  _triggerContactMatch(phoneNumbers) {
+    if (!Array.isArray(phoneNumbers)) {
+      return;
+    }
+    const queries = this._deps.contactMatcher._getQueries();
+    const validatedPhoneNumbers = [];
+    phoneNumbers.forEach((phoneNumber) => {
+      if (queries.indexOf(phoneNumber) > -1) {
+        validatedPhoneNumbers.push(phoneNumber);
+      }
+    });
+    if (validatedPhoneNumbers.length === 0) {
+      return;
+    }
+    this._deps.contactMatcher.match({
+      queries: validatedPhoneNumbers,
       ignoreCache: true,
     });
   }
