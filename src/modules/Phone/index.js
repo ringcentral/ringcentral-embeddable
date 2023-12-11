@@ -734,7 +734,7 @@ export function createPhone({
   enableWebRTCPlanB,
   fromPopup,
   enableRingtoneSettings,
-  enableNoiseReductionSetting,
+  disableNoiseReduction,
   brandBaseUrl,
   showSignUpButton,
   defaultAutoLogCallEnabled,
@@ -861,7 +861,7 @@ export function createPhone({
           Contacts: !disableContacts,
           CDC: true, // CompanyDirectoryControl,
           SignUpButton: showSignUpButton,
-          NoiseReduction: enableNoiseReductionSetting,
+          NoiseReduction: !disableNoiseReduction,
         },
       },
       {

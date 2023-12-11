@@ -23,6 +23,7 @@ function isSameOrigin(uri) {
     'Auth',
     'Storage',
     'AppFeatures',
+    'Alert',
   ],
 })
 export class NoiseReduction extends RcModuleV2 {
@@ -55,13 +56,28 @@ export class NoiseReduction extends RcModuleV2 {
   enabled = true;
 
   @action
-  setEnabled(enabled) {
+  _setEnabled(enabled) {
     this.enabled = enabled;
+  }
+
+  setEnabled(enabled) {
+    if (enabled && (!window.KrispSDK || !window.KrispSDK.isSupported())) {
+      this._showNotSupportAlert();
+      return;
+    }
+    this._setEnabled(enabled);
     if (enabled) {
       this._initKrisp();
     } else {
       this._disableKrisp();
     }
+  }
+
+  _showNotSupportAlert() {
+    this._deps.alert.warning({
+      message: 'showNoiseReductionNotSupported',
+      ttl: 0,
+    });
   }
 
   async _initKrisp() {
@@ -128,9 +144,10 @@ export class NoiseReduction extends RcModuleV2 {
 
   override async onInit() {
     if (this.enabled) {
-      await this._initKrisp();
       if (!window.KrispSDK || !window.KrispSDK.isSupported()) {
-        this.setEnabled(false);
+        this._setEnabled(false);
+      } else {
+        await this._initKrisp();
       }
     }
   }

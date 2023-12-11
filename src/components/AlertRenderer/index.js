@@ -1,5 +1,13 @@
 import React from 'react';
 
+import FormattedMessage from '@ringcentral-integration/widgets/components/FormattedMessage';
+import { RcLink } from '@ringcentral/juno';
+import { styled } from '@ringcentral/juno/foundation';
+
+const StyledLink = styled(RcLink)`
+  font-size: 13px;
+`;
+
 export function getAlertRenderer() {
   return (message) => {
     if (message.message === 'allowMicrophonePermissionOnInactiveTab') {
@@ -16,6 +24,23 @@ export function getAlertRenderer() {
     }
     if (message.message === 'showCustomAlertMessage') {
       return () => message.payload.alertMessage;
+    }
+    if (message.message === 'showNoiseReductionNotSupported') {
+      return () => (
+        <FormattedMessage
+          message="Sorry, noise reduction isn't supported for current version. Check {link} for more details."
+          values={{
+            link: (
+              <StyledLink
+                href="https://ringcentral.github.io/ringcentral-embeddable/docs/config/noise-reduction/"
+                target='_blank'
+              >
+                here
+              </StyledLink>
+            )
+          }}
+        />
+      );
     }
     return null;
   };
