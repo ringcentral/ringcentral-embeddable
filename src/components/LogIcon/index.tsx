@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
-import UnloggedIcon from '@ringcentral-integration/widgets/assets/images/UnloggedIcon.svg';
-import LoggedIcon from '@ringcentral-integration/widgets/assets/images/LoggedIcon.svg';
 import i18n from '@ringcentral-integration/widgets/components/LogIcon/i18n';
-import styles from '@ringcentral-integration/widgets/components/LogIcon/styles.scss';
 
+import { RcIconButton } from '@ringcentral/juno';
+import { NewAction } from '@ringcentral/juno-icon';
+import { ViewLogBorder } from '@ringcentral/juno-icon';
 
 export default function LogIcon({
     sessionId,
@@ -17,9 +16,7 @@ export default function LogIcon({
     isFax,
     logTitle,
 }) {
-  const loggedIcon = <LoggedIcon width={23} className={styles.loggedIcon} />;
-  const unLoggedIcon = <UnloggedIcon width={23} className={styles.unloggedIcon} />;
-  let tooltip = null;
+  let tooltip = '';
   if (isFax) {
     tooltip = i18n.getString('faxNotSupported', currentLocale);
   } else if (!id && logTitle) {
@@ -27,27 +24,38 @@ export default function LogIcon({
   } else {
     tooltip = i18n.getString(id ? 'logged' : 'unlogged', currentLocale);
   }
-  const logIconClassName = classnames(
-    styles.logIcon,
-    isSaving ? styles.isSaving : null,
-    disabled ? styles.disabled : null,
-  );
+  const onIconClick = (e) => {
+    e.stopPropagation();
+    if (disabled) {
+      return;
+    }
+    onClick({
+      sessionId,
+      id
+    });
+  };
+  if (!id) {
+    return (
+      <RcIconButton
+        symbol={NewAction}
+        title={tooltip}
+        onClick={onIconClick}
+        disabled={disabled || isSaving}
+        color="action.primary"
+        variant="plain"
+        data-sign="createLogBtn"
+      />
+    );
+  }
   return (
-    <div
-      className={logIconClassName}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (disabled) {
-          return;
-        }
-        onClick({
-          sessionId,
-          id
-        });
-      }}
-      title={tooltip}>
-      {id ? loggedIcon : unLoggedIcon}
-    </div>
+    <RcIconButton
+      symbol={ViewLogBorder}
+      title="View log details"
+      onClick={onIconClick}
+      color="action.primary"
+      variant="plain"
+      data-sign="viewLogBtn"
+    />
   );
 }
 
