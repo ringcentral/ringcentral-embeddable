@@ -2317,13 +2317,6 @@ div[class*=MuiCircularProgress-indeterminate] {
   z-index: 1;
   box-sizing: initial;
 }
-.LogButton_spinner {
-  margin-right: 0;
-  bottom: -5px;
-  right: 13px;
-  width: 11px;
-  height: 11px;
-}
 .ActionMenuList_root {
   display: block;
   margin: 0 20px 15px 42px;
@@ -10009,27 +10002,6 @@ div[class*=MuiCircularProgress-indeterminate] {
 
 .CallsListPanel_maskStyle {
   top: calc(-20% + 84px);
-}
-.LogIcon_loggedIcon path {
-  stroke: var(--primary-color);
-}
-
-.LogIcon_unloggedIcon path {
-  stroke: var(--primary-color);
-}
-
-.LogIcon_logIcon {
-  display: flex;
-  cursor: pointer;
-}
-.LogIcon_logIcon.LogIcon_disabled {
-  cursor: not-allowed;
-}
-.LogIcon_logIcon.LogIcon_disabled rect {
-  fill: var(--coin);
-}
-.LogIcon_logIcon.LogIcon_disabled path {
-  stroke: var(--coin);
 }
 .MessageSenderAlert_link {
   cursor: pointer;
