@@ -47,7 +47,10 @@ var LogButton = function LogButton(_ref) {
     symbol: _junoIcon.ViewLogBorder,
     disabled: disableLinks || isLogging,
     title: "View log details",
-    onClick: onLog,
+    onClick: function onClick(e) {
+      e.stopPropagation();
+      onLog();
+    },
     color: "action.primary",
     variant: "plain",
     size: "small"
@@ -55,7 +58,9 @@ var LogButton = function LogButton(_ref) {
 };
 LogButton.defaultProps = {
   className: undefined,
-  onLog: undefined,
+  onLog: function onLog() {
+    return null;
+  },
   isLogged: false,
   disableLinks: false,
   isLogging: false
