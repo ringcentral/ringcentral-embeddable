@@ -80,7 +80,7 @@ import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import AppView from '../AppView';
 import CallCtrlPage from '../CallCtrlPage';
 import CallLogSectionModal from '../CallLogSectionModal';
-import CallsListPage from '../CallsListPage';
+import { CallsListPage } from '../CallsListPage';
 import ComposeTextPage from '../ComposeTextPage';
 import ConversationPage from '../ConversationPage';
 import MainView from '../MainView';

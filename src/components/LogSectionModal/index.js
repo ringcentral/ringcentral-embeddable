@@ -27,8 +27,12 @@ export default class LogSectionModal extends Component {
     ) {
       this._lastCallId = nextProps.currentCall.id;
       this.props.onLoadData(nextProps.currentCall);
+      const matchedActivity =
+        nextProps.currentCall.activityMatches &&
+        nextProps.currentCall.activityMatches[0];
+      console.log(nextProps.currentCall);
       this.setState({
-        note: '',
+        note: matchedActivity && matchedActivity.note ? matchedActivity.note : '',
       });
     }
     const nextMatcher = this.getLogMatcher(nextProps);

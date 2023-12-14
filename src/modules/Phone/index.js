@@ -195,6 +195,7 @@ import { AppFeatures } from '../AppFeatures';
 import { Auth } from '../Auth';
 import { CallControlUI } from '../CallControlUI';
 import { CallHistory } from '../CallHistory';
+import { CallsListUI } from '../CallsListUI';
 import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
 import { CallLogger } from '../CallLogger';
@@ -298,6 +299,7 @@ import { Webphone } from '../Webphone';
     { provide: 'ConversationUI', useClass: ConversationUI },
     { provide: 'CallMonitor', useClass: CallMonitor },
     { provide: 'CallHistory', useClass: CallHistory },
+    { provide: 'CallsListUI', useClass: CallsListUI },
     { provide: 'CallLogger', useClass: CallLogger },
     { provide: 'CallLogSection', useClass: CallLogSection },
     { provide: 'ActivityMatcher', useClass: ActivityMatcher },
