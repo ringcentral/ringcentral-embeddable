@@ -1,12 +1,11 @@
 import crypto from 'crypto';
-import { AnalyticsBrowser } from '@segment/analytics-next';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { watch } from '@ringcentral-integration/core';
 import {
   Analytics as AnalyticsBase,
 } from '@ringcentral-integration/commons/modules/AnalyticsV2';
 import type { TrackRouter } from '@ringcentral-integration/commons/modules/AnalyticsV2/Analytics.interface';
-
+import { AnalyticsBrowser } from './AnalyticsBrowser';
 import { trackRouters } from './trackRouters';
 
 const FILTERED_EVENTS = [
@@ -41,7 +40,7 @@ export class Analytics extends AnalyticsBase {
   constructor(deps) {
     super(deps);
     if (deps.analyticsOptions.analyticsKey) {
-      this._segment = new AnalyticsBrowser();
+      this._segment = new AnalyticsBrowser(deps.analyticsOptions.analyticsKey);
     }
     this._trackRouters = trackRouters;
     this._enableExternalAnalytics = !!deps.analyticsOptions.enableExternalAnalytics;
@@ -50,15 +49,7 @@ export class Analytics extends AnalyticsBase {
 
   override onInitOnce() {
     if (this._deps.analyticsOptions.analyticsKey) {
-      this._segment.load(
-        { writeKey: this._deps.analyticsOptions.analyticsKey },
-        {
-          integrations: {
-            All: true,
-            Mixpanel: true,
-          },
-        }
-      );
+      this._segment.load(); // load segment
     }
     if (this._deps.routerInteraction) {
       // make sure that track if refresh app
@@ -82,12 +73,7 @@ export class Analytics extends AnalyticsBase {
     });
     if (options.accountId) {
       this._hashedAccountId = hashedAccountId;
-      this.analytics?.group(hashedAccountId, {}, {
-        integrations: {
-          All: true,
-          Mixpanel: true,
-        },
-      });
+      this.analytics?.group(hashedAccountId);
     }
   }
 
@@ -111,22 +97,12 @@ export class Analytics extends AnalyticsBase {
       ...this.extendedProps.get(event),
     };
 
-    this.analytics.track(event, trackProps, {
-      integrations: {
-        All: true,
-        Mixpanel: true,
-      },
-    });
+    this.analytics.track(event, trackProps);
   }
 
   protected _identify({ userId, ...props }) {
     const hashedUserId = getHashId(userId);
-    this.analytics?.identify(hashedUserId, props, {
-      integrations: {
-        All: true,
-        Mixpanel: true,
-      },
-    });
+    this.analytics?.identify(hashedUserId, props);
   }
 
   trackRouter(currentPath = this._deps.routerInteraction?.currentPath) {
