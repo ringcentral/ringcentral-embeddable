@@ -28,6 +28,7 @@ function getHashId(id) {
 @Module({
   name: 'Analytics',
   deps: [
+    'Environment',
     { dep: 'AnalyticsOptions', optional: true }
   ]
 })
@@ -77,6 +78,7 @@ export class Analytics extends AnalyticsBase {
     this._identify({
       userId: options.userId,
       rcAccountId: hashedAccountId,
+      environment: this._deps.environment.environmentName,
     });
     if (options.accountId) {
       this._hashedAccountId = hashedAccountId;
@@ -170,6 +172,7 @@ export class Analytics extends AnalyticsBase {
       externalAppName: this._deps.analyticsOptions.externalAppName,
       externalClientId: this._deps.analyticsOptions.externalClientId,
       rcAccountId: this._hashedAccountId,
+      environment: this._deps.environment.environmentName,
     };
   }
 
