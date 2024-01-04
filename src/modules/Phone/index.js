@@ -869,7 +869,7 @@ export function createPhone({
         useValue: {
           enableExternalAnalytics: !!enableAnalytics,
           appVersion,
-          analyticsKey: process.env.SEGMENT_KEY,
+          analyticsKey: process.env.MIXPANEL_KEY,
           analyticsSecretKey: process.env.ANALYTICS_SECRET_KEY,
           externalAppName: userAgent ? userAgent.split('/')[0] : undefined,
           externalClientId: apiConfig.clientId,
