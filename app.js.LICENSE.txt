@@ -65,8 +65,6 @@ object-assign
 
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
-/*! js-cookie v3.0.1 | MIT */
-
 /*! lil-uuid - v0.1 - MIT License - https://github.com/lil-js/uuid */
 
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
