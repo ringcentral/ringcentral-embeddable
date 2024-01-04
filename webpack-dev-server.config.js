@@ -64,7 +64,7 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
         ERROR_REPORT_KEY: JSON.stringify(errorReportKey),
         RECORDING_LINK: JSON.stringify('https://ringcentral.github.io/ringcentral-media-reader/'),
         ADAPTER_NAME: JSON.stringify('adapter.js'),
-        SEGMENT_KEY: JSON.stringify(process.env.SEGMENT_KEY),
+        MIXPANEL_KEY: JSON.stringify(process.env.MIXPANEL_KEY),
         ANALYTICS_SECRET_KEY: JSON.stringify(process.env.ANALYTICS_SECRET_KEY),
         NOISE_REDUCTION_SDK_URL: JSON.stringify('/noise-reduction'),
       },
