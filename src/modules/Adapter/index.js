@@ -402,6 +402,7 @@ export default class Adapter extends AdapterModuleCore {
 
   _pushActiveCalls() {
     if (this._disableInactiveTabCallEvent && this._tabManager.ready && (!this._tabManager.active)) {
+      this._lastActiveCalls = this._presence.activeCalls;
       return;
     }
     if (this._lastActiveCalls === this._presence.activeCalls) {
