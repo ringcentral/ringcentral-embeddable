@@ -158,7 +158,13 @@ export default function App({
               <Route
                 path="/"
                 component={() => (
-                  <LoginPage showSignUp={phone.appFeatures.showSignUpButton}>
+                  <LoginPage
+                    showSignUp={phone.appFeatures.showSignUpButton}
+                    onSignUpButtonClick={() => {
+                      const signupUrl = phone.brand.brandConfig.signupUrl;
+                      window.open(signupUrl, '_blank');
+                    }}
+                  >
                     <AlertContainer
                       callingSettingsUrl="/settings/calling"
                       regionSettingsUrl="/settings/region"
