@@ -27,7 +27,7 @@ API_SERVER=https://platform.ringcentral.com
 
 ### Start development server
 
-We assume you have pre-installed node.js >= 14 and yarn.
+We assume you have pre-installed node.js >= 16 and yarn.
 
 **We recommended `yarn` instead of `npm`.** We have `yarn.lock` file in source code to lock dependence version. With `yarn`, we can install dependencies with correct version that work well with this project.
 
