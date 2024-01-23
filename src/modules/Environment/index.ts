@@ -88,4 +88,12 @@ export class Environment extends EnvironmentBase {
       this.updateChangeCounter();
     }
   }
+
+  get environmentName() {
+    const sdkConfig = this.getSdkConfig();
+    if (sdkConfig.server && sdkConfig.server.indexOf('devtest') > -1) {
+      return 'Sandbox';
+    }
+    return 'Production';
+  }
 }
