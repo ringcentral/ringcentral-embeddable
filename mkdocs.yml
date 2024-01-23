@@ -23,6 +23,22 @@ theme:
       - content.action.edit
       - content.action.view
       - content.code.annotate
+  palette:
+    - scheme: default
+      primary: custom
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
 
 plugins:
   - search:
@@ -31,9 +47,14 @@ plugins:
       regex:
         - '^\.#.*'
 
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ringcentral
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/ringcentraldevs
 extra_css:
   - extra.css
-
 extra_javascript:
   - extra.js
 
