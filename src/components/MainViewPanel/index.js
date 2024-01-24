@@ -54,7 +54,7 @@ export const MainViewPanel = (props) => {
     showCall && {
       icon: getIconRenderer({ Icon: PhoneBorder }),
       activeIcon: getIconRenderer({ Icon: Phone }),
-      label: i18n.getString('dialpadLabel', currentLocale),
+      label: i18n.getString('phoneLabel', currentLocale),
       path: '/dialer',
       isActive: (currentPath) => (
         currentPath === '/dialer' ||
@@ -74,7 +74,7 @@ export const MainViewPanel = (props) => {
     showMessages && {
       icon: getIconRenderer({ Icon: PhoneInboxBorder }),
       activeIcon: getIconRenderer({ Icon: PhoneInbox }),
-      label: i18n.getString('messagesLabel', currentLocale),
+      label: i18n.getString('inboxLabel', currentLocale),
       path: '/messages',
       noticeCounts: unreadCounts,
       isActive: (currentPath) => (
@@ -108,7 +108,7 @@ export const MainViewPanel = (props) => {
       icon: getIconRenderer({ Icon: VideocamBorder }),
       activeIcon: getIconRenderer({ Icon: Videocam }),
       moreMenuIcon: getIconRenderer({ Icon: MoreHoriz }),
-      label: isRCV ? rcvProductName : i18n.getString('meetingLabel', currentLocale),
+      label: i18n.getString('meetingLabel', currentLocale),
       path: isRCV ? '/meeting/home' : '/meeting/schedule',
       isActive: (currentPath) => (
         currentPath.indexOf('/meeting') === 0
