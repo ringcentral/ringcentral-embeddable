@@ -67,6 +67,7 @@ import {
     'MessageStore',
     'TabManager',
     'CallLogger',
+    'ConversationLogger',
     'GenericMeeting',
     'Brand',
     'Conversations',
@@ -98,6 +99,7 @@ export default class Adapter extends AdapterModuleCore {
     disableInactiveTabCallEvent,
     tabManager,
     callLogger,
+    conversationLogger,
     genericMeeting,
     brand,
     appFeatures,
@@ -131,6 +133,7 @@ export default class Adapter extends AdapterModuleCore {
     this._tabManager = this:: ensureExist(tabManager, 'tabManager');
     this._alert = alert;
     this._callLogger = callLogger;
+    this._conversationLogger = conversationLogger;
     this._extensionInfo = extensionInfo;
     this._accountInfo = accountInfo;
     this._meeting = genericMeeting;
@@ -155,6 +158,7 @@ export default class Adapter extends AdapterModuleCore {
     this._callWith = null;
     this._ringoutMyLocation = null;
     this._callLoggerAutoLogEnabled = null;
+    this._conversationLoggerAutoLogEnabled = null;
     this._dialerDisabled = null;
     this._meetingReady = null;
     this._brandConfig = null;
@@ -247,6 +251,7 @@ export default class Adapter extends AdapterModuleCore {
     this._checkRouteChanged();
     this._checkCallingSettingsChanged();
     this._checkAutoCallLoggerChanged();
+    this._checkAutoConversationLoggerChanged();
     this._checkDialUIStatusChanged();
     this._checkMeetingStatusChanged();
     this._checkBrandConfigChanged();
@@ -528,6 +533,19 @@ export default class Adapter extends AdapterModuleCore {
       this._postMessage({
         type: 'rc-callLogger-auto-log-notify',
         autoLog: this._callLogger.autoLog,
+      });
+    }
+  }
+
+  _checkAutoConversationLoggerChanged() {
+    if (!this._conversationLogger.ready) {
+      return;
+    }
+    if (this._conversationLoggerAutoLogEnabled !== this._conversationLogger.autoLog) {
+      this._conversationLoggerAutoLogEnabled = this._conversationLogger.autoLog;
+      this._postMessage({
+        type: 'rc-messageLogger-auto-log-notify',
+        autoLog: this._conversationLogger.autoLog,
       });
     }
   }
