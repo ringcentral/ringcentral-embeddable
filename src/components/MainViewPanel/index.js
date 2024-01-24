@@ -60,6 +60,12 @@ export const MainViewPanel = (props) => {
         currentPath === '/calls' ||
         currentPath.indexOf('/calls/active') !== -1
       ),
+      showHeader: (currentPath) => {
+        return (
+          currentPath === '/calls' ||
+          currentPath === '/dialer'
+        );
+      },
     },
     showCall && showHistory && {
       icon: getIconRenderer({ Icon: CallsBorder }),
@@ -69,6 +75,11 @@ export const MainViewPanel = (props) => {
       isActive: (currentPath) => (
         currentPath === '/history'
       ),
+      showHeader: (currentPath) => {
+        return (
+          currentPath === '/history'
+        );
+      }
     },
     showMessages && {
       icon: getIconRenderer({ Icon: PhoneInboxBorder }),
@@ -81,6 +92,11 @@ export const MainViewPanel = (props) => {
         currentPath === '/composeText' ||
         currentPath.indexOf('/conversations/') !== -1
       ),
+      showHeader: (currentPath) => {
+        return (
+          currentPath === '/messages'
+        );
+      },
     },
     showGlip && {
       icon: getIconRenderer({ Icon: BubbleLinesBorder }),
@@ -92,6 +108,11 @@ export const MainViewPanel = (props) => {
         currentPath === '/glip' ||
         currentPath.indexOf('/glip/') !== -1
       ),
+      showHeader: (currentPath) => {
+        return (
+          currentPath === '/glip'
+        );
+      },
     },
     showContacts && {
       icon: getIconRenderer({ Icon: ContactsBorder }),
@@ -102,6 +123,11 @@ export const MainViewPanel = (props) => {
       isActive: (currentPath) => (
         currentPath.substr(0, 9) === '/contacts'
       ),
+      showHeader: (currentPath) => {
+        return (
+          currentPath === '/contacts'
+        );
+      },
     },
     showMeeting && {
       icon: getIconRenderer({ Icon: VideocamBorder }),
@@ -112,6 +138,13 @@ export const MainViewPanel = (props) => {
       isActive: (currentPath) => (
         currentPath.indexOf('/meeting') === 0
       ),
+      showHeader: (currentPath) => {
+        return (
+          currentPath === '/meeting/home' ||
+          currentPath === '/meeting/schedule' ||
+          currentPath === '/meeting/history'
+        );
+      },
     },
     {
       icon: getIconRenderer({ Icon: SettingsBorder }),
@@ -123,6 +156,11 @@ export const MainViewPanel = (props) => {
       isActive: currentPath => (
         currentPath.substr(0, 9) === '/settings'
       ),
+      showHeader: (currentPath) => {
+        return (
+          currentPath === '/settings'
+        );
+      },
     }
   ];
   let tabs = tabList.filter((x) => !!x);
@@ -162,13 +200,15 @@ export const MainViewPanel = (props) => {
             size="medium"
             color="nav.iconSelected"
           />
-        )
+        );
       },
       label: i18n.getString('moreMenuLabel', currentLocale),
-      virtualPath: '!moreMenu',
-      isActive: (currentPath, currentVirtualPath) => (
-        currentVirtualPath === '!moreMenu'
-      ),
+      path: '!moreMenu',
+      isActive: (currentPath) => {
+        return childTabs.some(childTab => (
+          childTab.isActive(currentPath)
+        ))
+      },
       childTabs,
       noticeCounts: childTabs.reduce((acc, childTab) => {
         if (childTab.noticeCounts) {
@@ -176,6 +216,9 @@ export const MainViewPanel = (props) => {
         }
         return acc;
       }, 0),
+      showHeader: () => {
+        return false;
+      }
     });
   }
   return <TabNavigationView {...props} tabs={tabs} />;

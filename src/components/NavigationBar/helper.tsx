@@ -8,19 +8,10 @@ import type {
 export function getTabInfo({
   tab,
   currentPath,
-  currentVirtualPath,
-}: Pick<NavigationBarProps, 'currentPath' | 'currentVirtualPath'> & {
+}: Pick<NavigationBarProps, 'currentPath'> & {
   tab: NavigationBarProps['tabs'][number];
 }) {
-  const active =
-    tab.isActive?.(currentPath, currentVirtualPath) ||
-    (tab.path && tab.path === currentPath) ||
-    (tab.virtualPath && tab.virtualPath === currentVirtualPath) ||
-    tab.childTabs?.some(
-      (childTab) =>
-        childTab.path === currentPath ||
-        childTab.path === currentPath.slice(0, 9),
-    );
+  const active = tab.isActive?.(currentPath)
 
   const activeAttr = active ? 'true' : '';
 
