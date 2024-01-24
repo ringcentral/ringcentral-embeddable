@@ -82,10 +82,14 @@ const StyledIcon = styled(RcListItemIcon)`
 const StyledListItemText = styled(RcListItemText)`
   margin: 0px;
   flex: 1 1 auto;
+  width: 100%;
 
   .RcListItemText-primary {
     font-weight: 400;
     font-size: 0.75rem;
+    word-break: break-word;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   &::after {
