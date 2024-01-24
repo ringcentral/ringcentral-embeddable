@@ -237,7 +237,7 @@ import { TabManager } from '../TabManager';
 import ThirdPartyService from '../ThirdPartyService';
 import { ThirdPartySettingSectionUI } from '../ThirdPartySettingSectionUI';
 import { Webphone } from '../Webphone';
-
+import { MainViewUI } from '../MainViewUI';
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
@@ -249,6 +249,7 @@ import { Webphone } from '../Webphone';
     { provide: 'DynamicBrand', useClass: DynamicBrand },
     { provide: 'Theme', useClass: Theme },
     { provide: 'ThemeUI', useClass: ThemeUI },
+    { provide: 'MainViewUI', useClass: MainViewUI },
     { provide: 'Locale', useClass: Locale },
     { provide: 'TabManager', useClass: TabManager },
     { provide: 'GlobalStorage', useClass: GlobalStorage },
