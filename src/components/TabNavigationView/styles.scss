@@ -1,0 +1,27 @@
+@import '~@ringcentral-integration/widgets/lib/commonStyles/full-size';
+@import '~@ringcentral-integration/widgets/lib/commonStyles/layout';
+
+$navigation-bar-height: 60px;
+
+.root {
+  @include full-size;
+}
+.tabContainer {
+  position: relative;
+  z-index: 11;
+}
+.main {
+  @include full-size;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+.hasMaxHeight {
+  max-height: calc(100% - #{$navigation-bar-height});
+}
+
+.vertical {
+  display: flex;
+}

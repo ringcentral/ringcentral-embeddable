@@ -3,7 +3,7 @@ export default {
   callsLabel: 'Calls',
   historyLabel: 'History',
   messagesLabel: 'Messages',
-  moreMenuLabel: 'More Menu',
+  moreMenuLabel: 'More',
   contactsLabel: 'Contacts',
   meetingLabel: 'Schedule Meeting',
   conferenceLabel: 'Schedule Conference',
