@@ -68,6 +68,17 @@ Add `defaultAutoLogMessageEnabled` into the `adapter.js` URI:
 </script>
 ```
 
+Listen to `Auto log messages` setting changed:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-messageLogger-auto-log-notify') {
+    console.log('rc-messageLogger-auto-log-notify:', data.autoLog);
+  }
+});
+```
+
 ## Add message log entity matcher
 
 In message logger, widget needs to know if messages are logged. To provide `messageLogEntityMatcherPath` when register, widget will send match request to get match result of messages history.
