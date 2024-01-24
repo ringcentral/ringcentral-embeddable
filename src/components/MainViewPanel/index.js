@@ -1,46 +1,39 @@
 import React from 'react';
 
-import CallHistoryIcon
-  from '@ringcentral-integration/widgets/assets/images/CallHistory.svg';
-import CallHistoryHoverIcon
-  from '@ringcentral-integration/widgets/assets/images/CallHistoryHover.svg';
-import ContactIcon
-  from '@ringcentral-integration/widgets/assets/images/Contact.svg';
-import ContactHoverIcon
-  from '@ringcentral-integration/widgets/assets/images/ContactHover.svg';
-import ContactNavIcon
-  from '@ringcentral-integration/widgets/assets/images/ContactsNavigation.svg';
-import DialPadHoverIcon
-  from '@ringcentral-integration/widgets/assets/images/DialPadHover.svg';
-import DialPadIcon
-  from '@ringcentral-integration/widgets/assets/images/DialPadNav.svg';
-import GlipIcon from '@ringcentral-integration/widgets/assets/images/Glip.svg';
-import GlipHoverIcon
-  from '@ringcentral-integration/widgets/assets/images/GlipHover.svg';
-import MeetingIcon
-  from '@ringcentral-integration/widgets/assets/images/Meeting.svg';
-import MeetingHoverIcon
-  from '@ringcentral-integration/widgets/assets/images/MeetingHover.svg';
-import MeetingNavIcon
-  from '@ringcentral-integration/widgets/assets/images/MeetingNavigation.svg';
-import MessageIcon
-  from '@ringcentral-integration/widgets/assets/images/Messages.svg';
-import MessageHoverIcon
-  from '@ringcentral-integration/widgets/assets/images/MessagesHover.svg';
-import MoreMenuIcon
-  from '@ringcentral-integration/widgets/assets/images/MoreMenu.svg';
-import MoreMenuHoverIcon
-  from '@ringcentral-integration/widgets/assets/images/MoreMenuHover.svg';
-import SettingsIcon
-  from '@ringcentral-integration/widgets/assets/images/Settings.svg';
-import SettingsHoverIcon
-  from '@ringcentral-integration/widgets/assets/images/SettingsHover.svg';
-import SettingsNavIcon
-  from '@ringcentral-integration/widgets/assets/images/SettingsNavigation.svg';
-import TabNavigationView
-  from '@ringcentral-integration/widgets/components/TabNavigationView';
+import {
+  Phone,
+  PhoneBorder,
+  Calls,
+  CallsBorder,
+  PhoneInbox,
+  PhoneInboxBorder,
+  BubbleLines,
+  BubbleLinesBorder,
+  Contacts,
+  ContactsBorder,
+  Videocam,
+  VideocamBorder,
+  MoreHoriz,
+  Settings,
+  SettingsBorder,
+} from '@ringcentral/juno-icon';
+import { RcIcon } from '@ringcentral/juno';
+import TabNavigationView from '../TabNavigationView';
 
 import i18n from './i18n';
+
+const getIconRenderer = ({ Icon }) => {
+  return ({ active }) => {
+    const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
+    return (
+      <RcIcon
+        symbol={Icon}
+        size="medium"
+        color={color}
+      />
+    )
+  }
+}
 
 export const MainViewPanel = (props) => {
   const {
@@ -59,8 +52,8 @@ export const MainViewPanel = (props) => {
   } = props;
   const tabList = [
     showCall && {
-      icon: DialPadIcon,
-      activeIcon: DialPadHoverIcon,
+      icon: getIconRenderer({ Icon: PhoneBorder }),
+      activeIcon: getIconRenderer({ Icon: Phone }),
       label: i18n.getString('dialpadLabel', currentLocale),
       path: '/dialer',
       isActive: (currentPath) => (
@@ -70,8 +63,8 @@ export const MainViewPanel = (props) => {
       ),
     },
     showCall && showHistory && {
-      icon: CallHistoryIcon,
-      activeIcon: CallHistoryHoverIcon,
+      icon: getIconRenderer({ Icon: CallsBorder }),
+      activeIcon: getIconRenderer({ Icon: Calls }),
       label: i18n.getString('historyLabel', currentLocale),
       path: '/history',
       isActive: (currentPath) => (
@@ -79,8 +72,8 @@ export const MainViewPanel = (props) => {
       ),
     },
     showMessages && {
-      icon: MessageIcon,
-      activeIcon: MessageHoverIcon,
+      icon: getIconRenderer({ Icon: PhoneInboxBorder }),
+      activeIcon: getIconRenderer({ Icon: PhoneInbox }),
       label: i18n.getString('messagesLabel', currentLocale),
       path: '/messages',
       noticeCounts: unreadCounts,
@@ -91,8 +84,8 @@ export const MainViewPanel = (props) => {
       ),
     },
     showGlip && {
-      icon: GlipIcon,
-      activeIcon: GlipHoverIcon,
+      icon: getIconRenderer({ Icon: BubbleLinesBorder }),
+      activeIcon: getIconRenderer({ Icon: BubbleLines }),
       label: i18n.getString('glipLabel', currentLocale),
       path: '/glip',
       noticeCounts: glipUnreadCounts,
@@ -102,9 +95,9 @@ export const MainViewPanel = (props) => {
       ),
     },
     showContacts && {
-      icon: ContactIcon,
-      activeIcon: ContactHoverIcon,
-      moreMenuIcon: ContactNavIcon,
+      icon: getIconRenderer({ Icon: ContactsBorder }),
+      activeIcon: getIconRenderer({ Icon: Contacts }),
+      moreMenuIcon: getIconRenderer({ Icon: MoreHoriz }),
       label: i18n.getString('contactsLabel', currentLocale),
       path: '/contacts',
       isActive: (currentPath) => (
@@ -112,9 +105,9 @@ export const MainViewPanel = (props) => {
       ),
     },
     showMeeting && {
-      icon: MeetingIcon,
-      activeIcon: MeetingHoverIcon,
-      moreMenuIcon: MeetingNavIcon,
+      icon: getIconRenderer({ Icon: VideocamBorder }),
+      activeIcon: getIconRenderer({ Icon: Videocam }),
+      moreMenuIcon: getIconRenderer({ Icon: MoreHoriz }),
       label: isRCV ? rcvProductName : i18n.getString('meetingLabel', currentLocale),
       path: isRCV ? '/meeting/home' : '/meeting/schedule',
       isActive: (currentPath) => (
@@ -122,9 +115,9 @@ export const MainViewPanel = (props) => {
       ),
     },
     {
-      icon: SettingsIcon,
-      activeIcon: SettingsHoverIcon,
-      moreMenuIcon: SettingsNavIcon,
+      icon: getIconRenderer({ Icon: SettingsBorder }),
+      activeIcon: getIconRenderer({ Icon: Settings }),
+      moreMenuIcon: getIconRenderer({ Icon: MoreHoriz }),
       label: i18n.getString('settingsLabel', currentLocale),
       path: '/settings',
       noticeCounts: settingsUnreadCount,
@@ -138,27 +131,39 @@ export const MainViewPanel = (props) => {
     const childTabs = tabs.slice(4, tabs.length);
     tabs = tabs.slice(0, 4);
     tabs.push({
-      icon: ({ currentPath }) => {
+      icon: ({ currentPath, active }) => {
         const childTab = childTabs.filter(childTab => (
           (currentPath === childTab.path || childTab.isActive(currentPath))
             && childTab.moreMenuIcon
         ));
         if (childTab.length > 0) {
           const Icon = childTab[0].moreMenuIcon;
-          return <Icon />;
+          return <Icon active={active} />;
         }
-        return <MoreMenuIcon />;
+        return (
+          <RcIcon
+            symbol={MoreHoriz}
+            size="medium"
+            color="nav.iconDefault"
+          />
+        )
       },
-      activeIcon: ({ currentPath }) => {
+      activeIcon: ({ currentPath, active }) => {
         const childTab = childTabs.filter(childTab => (
           (currentPath === childTab.path || childTab.isActive(currentPath))
             && childTab.moreMenuIcon
         ));
         if (childTab.length > 0) {
           const Icon = childTab[0].moreMenuIcon;
-          return <Icon />;
+          return <Icon active={active} />;
         }
-        return <MoreMenuHoverIcon />;
+        return (
+          <RcIcon
+            symbol={MoreHoriz}
+            size="medium"
+            color="nav.iconSelected"
+          />
+        )
       },
       label: i18n.getString('moreMenuLabel', currentLocale),
       virtualPath: '!moreMenu',

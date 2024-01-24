@@ -175,7 +175,7 @@ export default function App({
               <Route
                 path="/"
                 component={routerProps => (
-                  <MainView>
+                  <MainView navigationPosition="bottom">
                     {routerProps.children}
                     <AlertContainer
                       getAdditionalRenderer={getAlertRenderer}
