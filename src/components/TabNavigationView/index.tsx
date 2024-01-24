@@ -1,16 +1,11 @@
 import type { FunctionComponent, ReactNode } from 'react';
 import React from 'react';
 
-import classnames from 'classnames';
-
-import DropdownNavigationView from '@ringcentral-integration/widgets/components/DropdownNavigationView';
 import type { NavigationBarProps } from '@ringcentral-integration/widgets/components/NavigationBar';
-
+import { styled } from '@ringcentral/juno/foundation';
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 
 import { NavigationBar } from '../NavigationBar';
-import TabNavigationButton from '../TabNavigationButton';
-import styles from './styles.scss';
 
 export interface TabNavigationViewProps {
   children?: ReactNode;
@@ -30,21 +25,32 @@ export interface TabNavigationViewProps {
   tooltipForceHide?: boolean;
 }
 
-const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
-  navigationPosition,
-  navBarClassName,
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+`;
+
+const ContentView = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  max-height: calc(100% - 60px);
+`;
+
+export const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
   onLoading,
-  brandIcon,
   holdReady,
-  className,
   tabs,
   goTo,
-  tabWidth,
-  tabHeight,
   currentPath,
   currentVirtualPath,
-  tabNavigationViewClassName,
-  tooltipForceHide,
   children,
 }) => {
   if (onLoading) {
@@ -53,63 +59,29 @@ const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
 
   if (holdReady) return null;
 
-  const isVertical = navigationPosition === 'left';
-
   const navBar = (
     <NavigationBar
-      button={TabNavigationButton}
-      tooltipForceHide={tooltipForceHide}
-      // @ts-expect-error TS(2322): Type 'FunctionComponent<DropdownNavigationViewProp... Remove this comment to see the full error message
-      childNavigationView={DropdownNavigationView}
       tabs={tabs}
       goTo={goTo}
-      tabWidth={tabWidth}
-      tabHeight={tabHeight}
       currentPath={currentPath}
-      direction={isVertical ? 'vertical' : undefined}
       currentVirtualPath={currentVirtualPath}
-      className={navBarClassName}
-      role="tablist"
     />
   );
 
   return (
-    <div
-      className={classnames(
-        styles.root,
-        className,
-        navigationPosition === 'left' && styles.vertical,
-      )}
-    >
-      <div className={styles.tabContainer}>
-        {navigationPosition === 'top' || navigationPosition === 'left' ? (
-          <>
-            {navBar}
-            {navigationPosition === 'left' ? brandIcon : null}
-          </>
-        ) : null}
-      </div>
-      <div
+    <Container>
+      <ContentView
         data-sign="tabNavigationView"
-        className={classnames(
-          styles.main,
-          tabNavigationViewClassName,
-          !isVertical && styles.hasMaxHeight,
-        )}
       >
         {children}
-      </div>
-      {navigationPosition === 'bottom' ? <>{navBar}</> : null}
-    </div>
+      </ContentView>
+      {navBar}
+    </Container>
   );
 };
 
 TabNavigationView.defaultProps = {
   children: null,
-  navigationPosition: 'top',
-  brandIcon: null,
   holdReady: false,
   onLoading: false,
 };
-
-export default TabNavigationView;

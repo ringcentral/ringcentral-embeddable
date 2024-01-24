@@ -1,15 +1,14 @@
-import type { FunctionComponent } from 'react';
 import React, { useEffect, useState, useRef } from 'react';
 
-import { styled, palette2, shadows, focusVisible } from '@ringcentral/juno/foundation';
-import { RcList, RcMenuItem, RcListItemText } from '@ringcentral/juno';
+import { styled, palette2, shadows } from '@ringcentral/juno/foundation';
+import { RcList } from '@ringcentral/juno';
 import { useEventCallback, useMountState } from '@ringcentral/juno';
 
 import type {
-  NavigationBarProps,
   TabPropTypes,
 } from '@ringcentral-integration/widgets/components/NavigationBar/NavigationBar.interface';
 import { MoreMenu } from './MoreMenu';
+import { NavigationButton } from '../NavigationButton';
 import { getTabInfo } from './helper';
 
 const StyledRcList = styled(RcList)`
@@ -30,31 +29,12 @@ const StyledRcList = styled(RcList)`
   z-index: 10;
 `;
 
-const StyledMoreMenuText = styled(RcListItemText)`
-  .RcListItemText-primary {
-    font-size: 0.875rem;
-  }
-`;
-
-const StyledMoreMenuItem = styled(RcMenuItem)`
-  :hover,
-  ${focusVisible} {
-    background-color: ${palette2('nav', 'menuBg', 0.08)};
-  }
-
-  ${focusVisible} {
-    box-shadow: inset 0px 0px 0px 1px ${palette2('action', 'primary')};
-  }
-`;
-
-export const NavigationBar: FunctionComponent<NavigationBarProps> = (props) => {
-  const {
-    tabs = [],
-    currentVirtualPath: currentVirtualPathProp,
-    goTo: goToProp,
-    button: NavigationButton,
-    currentPath,
-  } = props;
+export const NavigationBar = ({
+  tabs = [],
+  currentVirtualPath: currentVirtualPathProp,
+  goTo: goToProp,
+  currentPath,
+}) => {
   const [currentVirtualPath, setCurrentVirtualPath] = useState(
     currentVirtualPathProp,
   );

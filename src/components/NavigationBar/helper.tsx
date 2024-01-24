@@ -36,7 +36,11 @@ export function getTabInfo({
 
     const Icon = icon;
 
-    return tab.childTabs ? <Icon currentPath={currentPath} active={active} /> : <Icon active={active} />;
+    return tab.childTabs ? (
+      <Icon currentPath={currentPath} active={active} />
+    ) : (
+      <Icon active={active} />
+    );
   }
 
   const { icon, activeIcon } = tab;

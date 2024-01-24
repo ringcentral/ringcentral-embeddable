@@ -1,7 +1,6 @@
 import type {
   ComponentType,
   DOMAttributes,
-  FunctionComponent,
   ReactElement,
 } from 'react';
 import React from 'react';
@@ -105,16 +104,24 @@ const StyledListItemText = styled(RcListItemText)`
 `;
 
 
-  export const NavigationButton: FunctionComponent<NavigationButtonProps> = ({
+  export const NavigationButton = ({
     active,
     activeIcon,
     icon,
     label,
     noticeCounts,
     onClick,
-    id,
     dataSign,
     innerRef,
+  }: {
+    active: boolean;
+    activeIcon: NavigationButtonIcon;
+    icon: NavigationButtonIcon;
+    label: string;
+    noticeCounts?: number;
+    onClick: DOMAttributes<HTMLDivElement>['onClick'];
+    dataSign?: string;
+    innerRef?: React.RefObject<HTMLDivElement>;
   }) => {
     const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
     let currentIcon = active ? activeIcon : icon;
@@ -133,7 +140,6 @@ const StyledListItemText = styled(RcListItemText)`
         aria-selected={active}
         color={color}
         innerRef={innerRef}
-        id={id}
         data-sign={dataSign ?? label}
       >
         {
