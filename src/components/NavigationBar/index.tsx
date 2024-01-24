@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
+import type { FunctionComponent } from 'react';
+import React, { useState, useRef } from 'react';
 
 import { styled, palette2, shadows } from '@ringcentral/juno/foundation';
 import { RcList } from '@ringcentral/juno';
-import { useEventCallback, useMountState } from '@ringcentral/juno';
 
-import type {
-  TabPropTypes,
-} from '@ringcentral-integration/widgets/components/NavigationBar/NavigationBar.interface';
+import type { TabPropTypes, NavigationBarProps } from './interface.ts';
 import { MoreMenu } from './MoreMenu';
 import { NavigationButton } from '../NavigationButton';
 import { getTabInfo } from './helper';
@@ -14,11 +12,9 @@ import { getTabInfo } from './helper';
 const StyledRcList = styled(RcList)`
   display: flex;
   flex-direction: row;
-  flex-grow: 10000;
   flex-shrink: 1;
   align-items: center;
   justify-content: space-around;
-  height: 60px;
   overflow: hidden;
   gap: 0px;
   padding: 0px 2px;
@@ -26,47 +22,26 @@ const StyledRcList = styled(RcList)`
   box-sizing: border-box;
   box-shadow: ${shadows('3')};
   width: 100%;
+  height: 60px;
   z-index: 10;
 `;
 
-export const NavigationBar = ({
+export const NavigationBar: FunctionComponent<NavigationBarProps> = ({
   tabs = [],
-  currentVirtualPath: currentVirtualPathProp,
   goTo: goToProp,
   currentPath,
 }) => {
-  const [currentVirtualPath, setCurrentVirtualPath] = useState(
-    currentVirtualPathProp,
-  );
-  const isMounted = useMountState();
-
-  const setCurrentRouteState = useEventCallback((path: string) => {
-    if (isMounted.current) {
-      setCurrentVirtualPath(path);
-    }
-  });
-
   const goTo = async (tab: TabPropTypes) => {
-    await goToProp?.(tab.path, tab.virtualPath);
-
-    // @ts-expect-error TS(2345): Argument of type 'string | undefined' is not assig... Remove this comment to see the full error message
-    setCurrentRouteState(tab.virtualPath);
+    await goToProp?.(tab.path);
   };
 
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreTabRef = useRef<HTMLDivElement>(null);
-  const moreTab = tabs.find((tab) => tab.virtualPath === '!moreMenu');
+  const moreTab = tabs.find((tab) => tab.path === '!moreMenu');
   let moreTabInfo = moreTab ? getTabInfo({
     tab: moreTab,
     currentPath,
-    currentVirtualPath,
   }) : null;
-
-  useEffect(() => {
-    if (currentVirtualPath) {
-      setCurrentRouteState(currentVirtualPath);
-    }
-  }, [currentVirtualPath, setCurrentRouteState]);
 
   return (
     <StyledRcList
@@ -74,12 +49,11 @@ export const NavigationBar = ({
     >
       {
         tabs.filter(tab => {
-          return tab.virtualPath !== '!moreMenu'
+          return tab.path !== '!moreMenu'
         }).map((tab, index) => {
           const { active, icon, activeIcon } = getTabInfo({
             tab,
             currentPath,
-            currentVirtualPath,
           });
           return (
             <NavigationButton
@@ -119,7 +93,6 @@ export const NavigationBar = ({
               tabs={moreTab.childTabs}
               goTo={goTo}
               currentPath={currentPath}
-              currentVirtualPath={currentVirtualPath}
             />
           </>
         ) : null

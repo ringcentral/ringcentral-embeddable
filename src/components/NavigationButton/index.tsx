@@ -2,7 +2,9 @@ import type {
   ComponentType,
   DOMAttributes,
   ReactElement,
+  FunctionComponent,
 } from 'react';
+
 import React from 'react';
 
 import { styled, focusVisible, palette2 } from '@ringcentral/juno/foundation';
@@ -28,15 +30,8 @@ export interface NavigationButtonProps {
   active?: boolean;
   label: string;
   noticeCounts?: number;
-  width: number | string;
-  height: number | string;
   onClick: DOMAttributes<HTMLDivElement>['onClick'];
-  keepStyle: boolean;
-  activeClassName: string;
-  inActiveClassName: string;
-  className?: string;
   id?: string;
-  tooltipForceHide?: boolean;
   dataSign?: string;
   innerRef?: React.RefObject<HTMLDivElement>;
 }
@@ -104,7 +99,7 @@ const StyledListItemText = styled(RcListItemText)`
 `;
 
 
-  export const NavigationButton = ({
+  export const NavigationButton: FunctionComponent<NavigationButtonProps> = ({
     active,
     activeIcon,
     icon,
@@ -113,15 +108,6 @@ const StyledListItemText = styled(RcListItemText)`
     onClick,
     dataSign,
     innerRef,
-  }: {
-    active: boolean;
-    activeIcon: NavigationButtonIcon;
-    icon: NavigationButtonIcon;
-    label: string;
-    noticeCounts?: number;
-    onClick: DOMAttributes<HTMLDivElement>['onClick'];
-    dataSign?: string;
-    innerRef?: React.RefObject<HTMLDivElement>;
   }) => {
     const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
     let currentIcon = active ? activeIcon : icon;

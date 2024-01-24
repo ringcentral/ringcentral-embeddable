@@ -1,17 +1,16 @@
 import type { FunctionComponent, ReactNode } from 'react';
 import React from 'react';
 
-import type { NavigationBarProps } from '@ringcentral-integration/widgets/components/NavigationBar';
 import { styled } from '@ringcentral/juno/foundation';
+
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
-
+import type { NavigationBarProps } from '../NavigationBar/interface';
 import { NavigationBar } from '../NavigationBar';
-
+import { NavigationHeader } from '../NavigationHeader';
 export interface TabNavigationViewProps {
   children?: ReactNode;
   className?: string;
   currentPath: string;
-  currentVirtualPath?: string;
   goTo: NavigationBarProps['goTo'];
   navigationPosition?: 'top' | 'bottom' | 'left';
   brandIcon?: ReactNode;
@@ -30,19 +29,35 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ContentView = styled.div`
   position: relative;
   width: 100%;
-  height: 100%;
   overflow: hidden;
   z-index: 10;
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  max-height: calc(100% - 60px);
+  flex: 1;
 `;
+
+function getCurrentTab(
+  tabs: NavigationBarProps['tabs'],
+  currentPath: string,
+) {
+  let tab = tabs.find((tab) => {
+    return tab.isActive(currentPath)
+  });
+  if (tab && tab.childTabs) {
+    return tab.childTabs.find((childTab) => {
+      return childTab.isActive(currentPath)
+    });
+  }
+  return tab;
+}
 
 export const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
   onLoading,
@@ -50,7 +65,6 @@ export const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
   tabs,
   goTo,
   currentPath,
-  currentVirtualPath,
   children,
 }) => {
   if (onLoading) {
@@ -64,12 +78,19 @@ export const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
       tabs={tabs}
       goTo={goTo}
       currentPath={currentPath}
-      currentVirtualPath={currentVirtualPath}
     />
   );
-
+  const currentTab = getCurrentTab(tabs, currentPath);
+  const showHeader = currentTab ? currentTab.showHeader(currentPath) : false;
   return (
     <Container>
+      {
+        showHeader ? (
+          <NavigationHeader
+            title={currentTab.label}
+          />
+        ) : null
+      }
       <ContentView
         data-sign="tabNavigationView"
       >

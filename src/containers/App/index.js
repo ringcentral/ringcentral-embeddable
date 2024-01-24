@@ -283,20 +283,6 @@ export default function App({
                   component={() => <ComposeTextPage supportAttachment />}
                 />
                 <Route
-                  path="/conversations/:conversationId"
-                  component={routerProps => (
-                    <ConversationPage
-                      params={routerProps.params}
-                      showContactDisplayPlaceholder={false}
-                      showGroupNumberName
-                      supportAttachment
-                      onAttachmentDownload={(uri, e) => {
-                        phone.thirdPartyService.onClickVCard(uri, e);
-                      }}
-                    />
-                  )}
-                />
-                <Route
                   path="/messages"
                   component={() => (
                     <ConversationsPage
@@ -493,6 +479,20 @@ export default function App({
                   )}
                 />
               </Route>
+              <Route
+                path="/conversations/:conversationId"
+                component={routerProps => (
+                  <ConversationPage
+                    params={routerProps.params}
+                    showContactDisplayPlaceholder={false}
+                    showGroupNumberName
+                    supportAttachment
+                    onAttachmentDownload={(uri, e) => {
+                      phone.thirdPartyService.onClickVCard(uri, e);
+                    }}
+                  />
+                )}
+              />
             </Route>
           </Router>
         </ThemeContainer>
