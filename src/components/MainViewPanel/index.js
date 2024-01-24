@@ -18,7 +18,7 @@ import {
   SettingsBorder,
 } from '@ringcentral/juno-icon';
 import { RcIcon } from '@ringcentral/juno';
-import TabNavigationView from '../TabNavigationView';
+import { TabNavigationView } from '../TabNavigationView';
 
 import i18n from './i18n';
 
@@ -47,7 +47,6 @@ export const MainViewPanel = (props) => {
     showGlip,
     glipUnreadCounts,
     isRCV,
-    rcvProductName,
     settingsUnreadCount,
   } = props;
   const tabList = [
