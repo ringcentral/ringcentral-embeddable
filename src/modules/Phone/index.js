@@ -58,9 +58,6 @@ import {
   ConversationMatcher,
 } from '@ringcentral-integration/commons/modules/ConversationMatcher';
 import {
-  Conversations,
-} from '@ringcentral-integration/commons/modules/Conversations';
-import {
   DataFetcherV2,
 } from '@ringcentral-integration/commons/modules/DataFetcherV2';
 import {
@@ -204,6 +201,7 @@ import { CallQueues } from '../CallQueues';
 import { ComposeTextUI } from '../ComposeTextUI';
 import { ConferenceCall } from '../ConferenceCall';
 import { ConversationLogger } from '../ConversationLogger';
+import { Conversations } from '../Conversations';
 import { ConversationsUI } from '../ConversationsUI';
 import { ConversationUI } from '../ConversationUI';
 import { DynamicBrand } from '../DynamicBrand';
