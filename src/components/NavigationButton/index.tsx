@@ -119,8 +119,6 @@ const StyledListItemText = styled(RcListItemText)`
         disableGutters
         disableTouchRipple
         onClick={onClick}
-        useRcTooltip
-        title={label}
         selected={active}
         aria-label={label}
         aria-selected={active}

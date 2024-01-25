@@ -16,6 +16,7 @@ import {
   MoreHoriz,
   Settings,
   SettingsBorder,
+  SmsInviteBorder,
 } from '@ringcentral/juno-icon';
 import { RcIcon } from '@ringcentral/juno';
 import { TabNavigationView } from '../TabNavigationView';
@@ -48,6 +49,7 @@ export const MainViewPanel = (props) => {
     glipUnreadCounts,
     isRCV,
     settingsUnreadCount,
+    showNewComposeText,
   } = props;
   const tabList = [
     showCall && {
@@ -97,6 +99,13 @@ export const MainViewPanel = (props) => {
           currentPath === '/messages'
         );
       },
+      actionsInHeaderRight: showNewComposeText ? [{
+        icon: SmsInviteBorder,
+        title: i18n.getString('composeText', currentLocale),
+        onClick: () => {
+          props.goTo('/composeText');
+        },
+      }] : [],
     },
     showGlip && {
       icon: getIconRenderer({ Icon: BubbleLinesBorder }),
@@ -161,6 +170,7 @@ export const MainViewPanel = (props) => {
           currentPath === '/settings'
         );
       },
+      showHeaderBorder: true,
     }
   ];
   let tabs = tabList.filter((x) => !!x);

@@ -51,6 +51,7 @@ export class MainViewUI extends RcUIModuleV2 {
       showCall,
       showHistory,
       showMessages,
+      showNewComposeText: appFeatures.hasComposeTextPermission,
       showMeeting,
       isRCV: genericMeeting.isRCV,
       showContacts,

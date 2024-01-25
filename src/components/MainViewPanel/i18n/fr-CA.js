@@ -11,7 +11,8 @@ export default {
   conferenceLabel: "Planifier une téléconférence",
   hangoutsLabel: "Démarrer Hangouts",
   hangoutsTitle: "Démarrer Hangouts avec la téléconférence",
-  settingsLabel: "Paramètres"
+  settingsLabel: "Paramètres",
+  composeText: "Rédiger le texto",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

@@ -11,7 +11,8 @@ export default {
   conferenceLabel: "Programma conferenza",
   hangoutsLabel: "Avvia Hangouts",
   hangoutsTitle: "Avvia Hangouts con il servizio di conferenza",
-  settingsLabel: "Impostazioni"
+  settingsLabel: "Impostazioni",
+  composeText: "Componi SMS",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

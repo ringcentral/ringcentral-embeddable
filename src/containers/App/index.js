@@ -37,8 +37,6 @@ import ContactDetailsPage
   from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
 import ContactsPage
   from '@ringcentral-integration/widgets/containers/ContactsPage';
-import ConversationsPage
-  from '@ringcentral-integration/widgets/containers/ConversationsPage';
 import {
   DialerAndCallsTabContainer,
 } from '@ringcentral-integration/widgets/containers/DialerAndCallsTabContainer';
@@ -82,6 +80,7 @@ import CallCtrlPage from '../CallCtrlPage';
 import CallLogSectionModal from '../CallLogSectionModal';
 import { CallsListPage } from '../CallsListPage';
 import ComposeTextPage from '../ComposeTextPage';
+import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
 import MainView from '../MainView';
 import MeetingHistoryPage from '../MeetingHistoryPage';
@@ -398,45 +397,6 @@ export default function App({
                   }
                 />
                 <Route
-                  path="/glip/groups/:groupId"
-                  component={
-                    routerProps => (
-                      <GlipChat
-                        params={routerProps.params}
-                        onBackClick={() => {
-                          phone.routerInteraction.push('/glip');
-                        }}
-                        onViewPersonProfile={
-                          async (personId) => {
-                            if (personId === phone.glipPersons.me.id) {
-                              return;
-                            }
-                            let group = phone.glipGroups.groups.slice(0, 10).find((g) => {
-                              if (g.type !== 'PrivateChat') {
-                                return false;
-                              }
-                              return g.members.indexOf(personId) > -1;
-                            });
-                            if (!group) {
-                              group = await phone.glipGroups.startChat(personId);
-                            }
-                            if (group && group.id !== routerProps.params.groupId) {
-                              phone.routerInteraction.push(`/glip/groups/${group.id}`);
-                            }
-                          }
-                        }
-                        onViewGroup={
-                          (id) => {
-                            if (id !== routerProps.params.groupId) {
-                              phone.routerInteraction.push(`/glip/groups/${id}`);
-                            }
-                          }
-                        }
-                      />
-                    )
-                  }
-                />
-                <Route
                   path="/conferenceCall/dialer/:fromNumber/:fromSessionId"
                   component={ConferenceCallDialerPage}
                 />
@@ -492,6 +452,45 @@ export default function App({
                     }}
                   />
                 )}
+              />
+              <Route
+                path="/glip/groups/:groupId"
+                component={
+                  routerProps => (
+                    <GlipChat
+                      params={routerProps.params}
+                      onBackClick={() => {
+                        phone.routerInteraction.push('/glip');
+                      }}
+                      onViewPersonProfile={
+                        async (personId) => {
+                          if (personId === phone.glipPersons.me.id) {
+                            return;
+                          }
+                          let group = phone.glipGroups.groups.slice(0, 10).find((g) => {
+                            if (g.type !== 'PrivateChat') {
+                              return false;
+                            }
+                            return g.members.indexOf(personId) > -1;
+                          });
+                          if (!group) {
+                            group = await phone.glipGroups.startChat(personId);
+                          }
+                          if (group && group.id !== routerProps.params.groupId) {
+                            phone.routerInteraction.push(`/glip/groups/${group.id}`);
+                          }
+                        }
+                      }
+                      onViewGroup={
+                        (id) => {
+                          if (id !== routerProps.params.groupId) {
+                            phone.routerInteraction.push(`/glip/groups/${id}`);
+                          }
+                        }
+                      }
+                    />
+                  )
+                }
               />
             </Route>
           </Router>
