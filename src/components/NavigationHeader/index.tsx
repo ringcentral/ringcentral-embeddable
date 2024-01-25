@@ -11,7 +11,7 @@ const StyledHeader = styled.div<HeaderProps>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 6px 0 16px;
   background-color: ${palette2('neutral', 'b01')};
   height: 40px;
   ${(props) => props.$bottomLine && css`
