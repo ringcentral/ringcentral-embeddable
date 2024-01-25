@@ -11,7 +11,8 @@ export default {
   conferenceLabel: "安排电话会议",
   hangoutsLabel: "开始聚会",
   hangoutsTitle: "通过召开会议开始聚会",
-  settingsLabel: "设置"
+  settingsLabel: "设置",
+  composeText: "编辑短信",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

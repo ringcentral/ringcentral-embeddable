@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { styled, palette2, css } from '@ringcentral/juno/foundation';
-import { RcTypography } from '@ringcentral/juno';
+import { RcIconButton, RcTypography } from '@ringcentral/juno';
 
 interface HeaderProps {
   $bottomLine?: boolean;
@@ -26,13 +26,27 @@ const StyledTitle = styled(RcTypography)`
 
 export function NavigationHeader({
   title,
-  showHeaderBorder = true,
+  showHeaderBorder = false,
+  actionsInHeaderRight = [],
 }) {
   return (
     <StyledHeader $bottomLine={showHeaderBorder}>
       <StyledTitle variant="title2" color="neutral.f06" title={title}>
         {title}
       </StyledTitle>
+      {
+        actionsInHeaderRight.map((action, index) => {
+          return (
+            <RcIconButton
+              key={index}
+              title={action.title}
+              symbol={action.icon}
+              onClick={action.onClick}
+              useRcTooltip
+            />
+          );
+        })
+      }
     </StyledHeader>
   );
 }

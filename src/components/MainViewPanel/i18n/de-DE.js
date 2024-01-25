@@ -11,7 +11,8 @@ export default {
   conferenceLabel: "Konferenz planen",
   hangoutsLabel: "Hangouts starten",
   hangoutsTitle: "Hangouts mit Konferenzfunktion starten",
-  settingsLabel: "Einstellungen"
+  settingsLabel: "Einstellungen",
+  composeText: "Text erstellen",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

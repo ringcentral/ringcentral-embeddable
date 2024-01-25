@@ -11,7 +11,8 @@ export default {
   conferenceLabel: "Agendar conferência",
   hangoutsLabel: "Iniciar Hangouts",
   hangoutsTitle: "Iniciar Hangouts com sistema de conferência",
-  settingsLabel: "Configurações"
+  settingsLabel: "Configurações",
+  composeText: "Criar texto",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

@@ -11,7 +11,8 @@ export default {
   conferenceLabel: "排程電話會議",
   hangoutsLabel: "啟動 Hangouts",
   hangoutsTitle: "以會議啟動 Hangouts",
-  settingsLabel: "設定"
+  settingsLabel: "設定",
+  composeText: "撰寫簡訊",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

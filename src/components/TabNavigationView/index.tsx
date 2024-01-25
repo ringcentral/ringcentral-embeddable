@@ -88,6 +88,8 @@ export const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
         showHeader ? (
           <NavigationHeader
             title={currentTab.label}
+            showHeaderBorder={currentTab.showHeaderBorder}
+            actionsInHeaderRight={currentTab.actionsInHeaderRight}
           />
         ) : null
       }
