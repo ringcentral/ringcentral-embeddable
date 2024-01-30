@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 
 import { styled, palette2, ellipsis } from '@ringcentral/juno/foundation';
 import {
@@ -8,16 +8,10 @@ import {
   RcIconButton,
   RcTypography,
   RcButton,
-  RcMenu,
-  RcMenuItem,
-  RcListItemText,
-  RcListItemIcon,
-  RcIcon,
 } from '@ringcentral/juno';
 import {
   Previous,
   ViewBorder,
-  MoreVert,
   Download,
   Read,
   Unread,
@@ -79,10 +73,6 @@ const SectionTitle = styled(RcTypography)`
   margin-bottom: 5px;
 `;
 
-const DownloadLink = styled.a`
-  display: none;
-`;
-
 const StyledAudioPlayer = styled(AudioPlayer)`
   flex: 1;
 `;
@@ -127,11 +117,9 @@ export function DetailDialog({
   disableClickToDial,
   isLogging,
   isLogged,
-  isCreating
+  isCreating,
+  onDownload,
 }) {
-  const [moreMoreOpen, setMoreMenuOpen] = useState(false);
-  const moreButtonRef = useRef(null);
-  const downloadRef = useRef(null);
   let downloadUri = null;
   if (faxAttachment) {
     downloadUri = faxAttachment.uri;
@@ -167,7 +155,9 @@ export function DetailDialog({
     actions.push({
       icon: AddMemberBorder,
       title: i18n.getString('addEntity', currentLocale),
-      onClick: onCreateEntity,
+      onClick: () => {
+        onCreateEntity();
+      },
       disabled: disableLinks,
     });
   }
@@ -193,24 +183,14 @@ export function DetailDialog({
       subActions.push({
         icon: unread ? Unread : Read,
         title: i18n.getString(unread ? 'unmark' : 'mark', currentLocale),
-        onClick: () => {
-          if (unread) {
-            onUnmarkMessage();
-          } else {
-            onMarkMessage();
-          }
-          setMoreMenuOpen(false);
-        },
+        onClick: unread ? onUnmarkMessage : onMarkMessage,
         disabled: disableLinks,
       });
     }
     subActions.push({
       icon: Download,
       title: i18n.getString('download', currentLocale),
-      onClick: () => {
-        downloadRef.current.click();
-        setMoreMenuOpen(false);
-      },
+      onClick: onDownload,
       disabled: disableLinks || !faxAttachment || !faxAttachment.uri,
     });
   }
@@ -218,23 +198,13 @@ export function DetailDialog({
     subActions.push({
       icon: Download,
       title: i18n.getString('download', currentLocale),
-      onClick: () => {
-        downloadRef.current.click();
-        setMoreMenuOpen(false);
-      },
+      onClick: onDownload,
       disabled: disableLinks || !voicemailAttachment || !voicemailAttachment.uri,
     });
     subActions.push({
       icon: unread ? Unread : Read,
       title: i18n.getString(unread ? 'unmark' : 'mark', currentLocale),
-      onClick: () => {
-        if (unread) {
-          onUnmarkMessage();
-        } else {
-          onMarkMessage();
-        }
-        setMoreMenuOpen(false);
-      },
+      onClick: unread ? onUnmarkMessage : onMarkMessage,
       disabled: disableLinks,
     });
   }
@@ -337,16 +307,10 @@ export function DetailDialog({
           color="danger.f02"
           fullWidth
           onClick={onDelete}
+          disabled={disableLinks}
         >
           {i18n.getString('delete', currentLocale)}
         </RcButton>
-        <DownloadLink
-          target="_blank"
-          download
-          title={i18n.getString('download', currentLocale)}
-          ref={downloadRef}
-          href={`${downloadUri}&contentDisposition=Attachment`}
-        ></DownloadLink>
       </StyledDialogContent>
     </RcDialog>
   )

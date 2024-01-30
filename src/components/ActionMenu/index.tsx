@@ -28,13 +28,18 @@ export function ActionMenu({
   className = undefined,
   maxActions = 3,
   size = undefined,
+  iconVariant = undefined,
+  color = undefined,
+  onClick = undefined,
+  onMoreMenuOpen = undefined,
 }) {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreButtonRef = useRef<HTMLDivElement>(null);
   const currentActions = actions.length > maxActions ? actions.slice(0, maxActions - 1) : actions;
   const moreActions = actions.length > maxActions ? actions.slice(maxActions - 1) : [];
+
   return (
-    <Container className={className}>
+    <Container className={className} onClick={onClick}>
       {
         currentActions.map((action, index) => {
           return (
@@ -45,6 +50,8 @@ export function ActionMenu({
               size={size}
               disabled={action.disabled}
               title={action.title}
+              variant={iconVariant}
+              color={color}
             />
           );
         })
@@ -56,8 +63,11 @@ export function ActionMenu({
             symbol={MoreVert}
             onClick={() => {
               setMoreMenuOpen(true);
+              onMoreMenuOpen?.(true);
             }}
             size={size}
+            variant={iconVariant}
+            color={color}
           />
         )
       }
@@ -67,8 +77,12 @@ export function ActionMenu({
             open={moreMenuOpen}
             onClose={() => {
               setMoreMenuOpen(false);
+              onMoreMenuOpen?.(false);
             }}
             anchorEl={moreButtonRef.current}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             {
               moreActions.map((action, index) => {
@@ -78,6 +92,7 @@ export function ActionMenu({
                     onClick={() => {
                       action.onClick();
                       setMoreMenuOpen(false);
+                      onMoreMenuOpen?.(false);
                     }}
                     disabled={action.disabled}
                   >

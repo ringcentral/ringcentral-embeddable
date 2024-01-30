@@ -14,12 +14,14 @@ export function ConfirmDialog({
   onConfirm,
   title,
   keepMounted,
+  onClick = undefined,
 }) {
   return (
     <RcDialog
       open={open}
       onClose={onClose}
       keepMounted={keepMounted}
+      onClick={onClick}
     >
       <RcDialogContent>
         <RcTypography>{title}</RcTypography>
