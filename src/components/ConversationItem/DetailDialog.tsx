@@ -32,6 +32,7 @@ import i18n from '@ringcentral-integration/widgets/components/MessageItem/i18n';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
 
+import { ActionMenu } from '../ActionMenu';
 import { ConversationIcon } from './ConversationIcon';
 import { AudioPlayer } from './AudioPlayer';
 
@@ -45,14 +46,6 @@ const StyledDialogContent = styled(RcDialogContent)`
   align-items: center;
   padding-left: 16px;
   padding-right: 16px;
-`;
-
-const StyledActionArea = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
 `;
 
 const StyleSection = styled.div`
@@ -90,14 +83,15 @@ const DownloadLink = styled.a`
   display: none;
 `;
 
-const StyledMoreMenu = styled(RcMenu)`
-  .RcListItemText-primary {
-    font-size: 0.875rem;
-  }
-`;
-
 const StyledAudioPlayer = styled(AudioPlayer)`
   flex: 1;
+`;
+
+const StyledActionButtons = styled(ActionMenu)`
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
 `;
 
 export function DetailDialog({
@@ -144,6 +138,106 @@ export function DetailDialog({
   } else if (voicemailAttachment) {
     downloadUri = voicemailAttachment.uri;
   }
+  const actions = [];
+  if (onClickToDial) {
+    actions.push({
+      icon: PhoneBorder,
+      title: i18n.getString('call', currentLocale),
+      onClick: onClickToDial,
+      disabled: disableLinks || disableCallButton || disableClickToDial || !phoneNumber,
+    });
+  }
+  if (onClickToSms) {
+    actions.push({
+      icon: SmsBorder,
+      title: i18n.getString('text', currentLocale),
+      onClick: onClickToSms,
+      disabled: disableLinks || disableClickToSms || !phoneNumber,
+    });
+  }
+  if (!shouldHideEntityButton && hasEntity) {
+    actions.push({
+      icon: People,
+      title: i18n.getString('viewDetails', currentLocale),
+      onClick: onViewEntity,
+      disabled: disableLinks,
+    });
+  }
+  if (!hasEntity && onCreateEntity) {
+    actions.push({
+      icon: AddMemberBorder,
+      title: i18n.getString('addEntity', currentLocale),
+      onClick: onCreateEntity,
+      disabled: disableLinks,
+    });
+  }
+  if (onLog) {
+    actions.push({
+      icon: isLogged ? ViewLogBorder : NewAction,
+      title: i18n.getString(isLogged ? 'editLog' : 'addLog', currentLocale),
+      onClick: onLog,
+      disabled: disableLinks || isLogging || isCreating,
+    });
+  }
+  const subActions = [];
+  if (type === messageTypes.fax) {
+    subActions.push({
+      icon: ViewBorder,
+      title: i18n.getString('view', currentLocale),
+      onClick: () => {
+        onPreviewFax(faxAttachment.uri);
+      },
+      disabled: disableLinks || !faxAttachment || !faxAttachment.uri,
+    });
+    if (direction === messageDirection.inbound) {
+      subActions.push({
+        icon: unread ? Unread : Read,
+        title: i18n.getString(unread ? 'unmark' : 'mark', currentLocale),
+        onClick: () => {
+          if (unread) {
+            onUnmarkMessage();
+          } else {
+            onMarkMessage();
+          }
+          setMoreMenuOpen(false);
+        },
+        disabled: disableLinks,
+      });
+    }
+    subActions.push({
+      icon: Download,
+      title: i18n.getString('download', currentLocale),
+      onClick: () => {
+        downloadRef.current.click();
+        setMoreMenuOpen(false);
+      },
+      disabled: disableLinks || !faxAttachment || !faxAttachment.uri,
+    });
+  }
+  if (type === messageTypes.voiceMail) {
+    subActions.push({
+      icon: Download,
+      title: i18n.getString('download', currentLocale),
+      onClick: () => {
+        downloadRef.current.click();
+        setMoreMenuOpen(false);
+      },
+      disabled: disableLinks || !voicemailAttachment || !voicemailAttachment.uri,
+    });
+    subActions.push({
+      icon: unread ? Unread : Read,
+      title: i18n.getString(unread ? 'unmark' : 'mark', currentLocale),
+      onClick: () => {
+        if (unread) {
+          onUnmarkMessage();
+        } else {
+          onMarkMessage();
+        }
+        setMoreMenuOpen(false);
+      },
+      disabled: disableLinks,
+    });
+  }
   return (
     <RcDialog
       open={open}
@@ -168,72 +262,10 @@ export function DetailDialog({
         />
         <br />
         {contactDisplay}
-        <br />
-        <StyledActionArea>
-          {
-            onClickToDial ? (
-              <RcIconButton
-                symbol={PhoneBorder}
-                disabled={
-                  disableLinks ||
-                  disableCallButton ||
-                  disableClickToDial ||
-                  !phoneNumber
-                }
-                title={i18n.getString('call', currentLocale)}
-                onClick={onClickToDial}
-              />
-            ) : null
-          }
-          {
-            onClickToSms ? (
-              <RcIconButton
-                symbol={SmsBorder}
-                disabled={
-                  disableLinks ||
-                  disableClickToSms ||
-                  !phoneNumber
-                }
-                title={i18n.getString('text', currentLocale)}
-                onClick={onClickToSms}
-              />
-            ) : null
-          }
-          {
-            (
-              !shouldHideEntityButton &&
-              hasEntity
-            ) ? (
-              <RcIconButton
-                symbol={People}
-                disabled={disableLinks}
-                onClick={onViewEntity}
-                title={i18n.getString('viewDetails', currentLocale)}
-              />
-            ) : null
-          }
-          {
-            !hasEntity && onCreateEntity ? (
-              <RcIconButton
-                symbol={AddMemberBorder}
-                disabled={disableLinks}
-                onClick={onCreateEntity}
-                title={i18n.getString('addEntity', currentLocale)}
-              />
-            ) : null
-          }
-          {
-            onLog ? (
-              <RcIconButton
-                symbol={isLogged ? ViewLogBorder : NewAction}
-                disabled={disableLinks || isLogging || isCreating}
-                onClick={onLog}
-                title={i18n.getString(isLogged ? 'editLog' : 'addLog', currentLocale)}
-              />
-            ) : null
-          }
-        </StyledActionArea>
-        <br />
+        <StyledActionButtons
+          actions={actions}
+          maxActions={4}
+        />
         {
           type === messageTypes.fax ? (
             <DetailSection>
@@ -249,67 +281,11 @@ export function DetailDialog({
                 </RcTypography>
               </SectionLeftArea>
               <SectionRightArea>
-                <RcIconButton
-                  symbol={ViewBorder}
-                  disabled={!faxAttachment || !faxAttachment.uri || disableLinks}
-                  onClick={() => {
-                    onPreviewFax(faxAttachment.uri);
-                  }}
-                  title={i18n.getString('view', currentLocale)}
+                <ActionMenu
+                  actions={subActions}
+                  maxActions={2}
+                  size={undefined}
                 />
-                <RcIconButton
-                  symbol={MoreVert}
-                  onClick={() => {
-                    setMoreMenuOpen(true);
-                  }}
-                  innerRef={moreButtonRef}
-                />
-                <StyledMoreMenu
-                  open={moreMoreOpen}
-                  anchorEl={moreButtonRef.current}
-                  onClose={() => {
-                    setMoreMenuOpen(false);
-                  }}
-                >
-                  {
-                    direction === messageDirection.inbound ? (
-                      <RcMenuItem disabled={disableLinks}>
-                        <RcListItemIcon>
-                          <RcIcon
-                            symbol={unread ? Unread : Read }
-                            size="small"
-                          />
-                        </RcListItemIcon>
-                        <RcListItemText
-                          primary={i18n.getString(unread ? 'unmark' : 'mark', currentLocale)}
-                          onClick={() => {
-                            if (unread) {
-                              onUnmarkMessage();
-                            } else {
-                              onMarkMessage();
-                            }
-                            setMoreMenuOpen(false);
-                          }}
-                        />
-                      </RcMenuItem>
-                    ) : null
-                  }
-                  <RcMenuItem disabled={disableLinks}>
-                    <RcListItemIcon>
-                      <RcIcon
-                        symbol={Download}
-                        size="small"
-                      />
-                    </RcListItemIcon>
-                    <RcListItemText
-                      primary={i18n.getString('download', currentLocale)}
-                      onClick={() => {
-                        downloadRef.current.click();
-                        setMoreMenuOpen(false);
-                      }}
-                    />
-                  </RcMenuItem>
-                </StyledMoreMenu>
               </SectionRightArea>
             </DetailSection>
           ) : null
@@ -331,55 +307,10 @@ export function DetailDialog({
                   currentLocale={currentLocale}
                   onPlay={onPlayVoicemail}
                 />
-                <RcIconButton
-                  symbol={MoreVert}
-                  onClick={() => {
-                    setMoreMenuOpen(true);
-                  }}
-                  innerRef={moreButtonRef}
+                <ActionMenu
+                  actions={subActions}
+                  maxActions={1}
                 />
-                <StyledMoreMenu
-                  open={moreMoreOpen}
-                  anchorEl={moreButtonRef.current}
-                  onClose={() => {
-                    setMoreMenuOpen(false);
-                  }}
-                >
-                  <RcMenuItem disabled={disableLinks}>
-                    <RcListItemIcon>
-                      <RcIcon
-                        symbol={Download}
-                        size="small"
-                      />
-                    </RcListItemIcon>
-                    <RcListItemText
-                      primary={i18n.getString('download', currentLocale)}
-                      onClick={() => {
-                        downloadRef.current.click();
-                        setMoreMenuOpen(false);
-                      }}
-                    />
-                  </RcMenuItem>
-                  <RcMenuItem disabled={disableLinks}>
-                    <RcListItemIcon>
-                      <RcIcon
-                        symbol={unread ? Unread : Read }
-                        size="small"
-                      />
-                    </RcListItemIcon>
-                    <RcListItemText
-                      primary={i18n.getString(unread ? 'unmark' : 'mark', currentLocale)}
-                      onClick={() => {
-                        if (unread) {
-                          onUnmarkMessage();
-                        } else {
-                          onMarkMessage();
-                        }
-                        setMoreMenuOpen(false);
-                      }}
-                    />
-                  </RcMenuItem>
-                </StyledMoreMenu>
               </SectionRightArea>
             </StyleSection>
           ) : null

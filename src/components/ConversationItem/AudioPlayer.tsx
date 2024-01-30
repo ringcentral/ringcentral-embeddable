@@ -30,7 +30,7 @@ export function AudioPlayer({
   disabled,
   currentLocale,
   onPlay,
-  className,
+  className = undefined,
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
