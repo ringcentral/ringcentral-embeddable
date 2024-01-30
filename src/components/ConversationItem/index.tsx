@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 
 import classnames from 'classnames';
 import { styled, ellipsis } from '@ringcentral/juno/foundation';
@@ -8,6 +8,19 @@ import {
   RcListItemText,
   RcListItemIcon,
 } from '@ringcentral/juno';
+import {
+  ViewBorder,
+  Download,
+  Read,
+  Unread,
+  PhoneBorder,
+  SmsBorder,
+  People,
+  AddMemberBorder,
+  Delete,
+  NewAction,
+  ViewLogBorder,
+} from '@ringcentral/juno-icon';
 import { extensionTypes } from '@ringcentral-integration/commons/enums/extensionTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
@@ -32,6 +45,8 @@ import styles from '@ringcentral-integration/widgets/components/MessageItem/styl
 import { ConversationIcon } from './ConversationIcon';
 import { DetailDialog } from './DetailDialog';
 import { ConfirmDialog } from '../ConfirmDialog';
+import { ActionMenu } from '../ActionMenu';
+
 export type MessageItemProps = {
   conversation: Message;
   areaCode: string;
@@ -89,10 +104,35 @@ type MessageItemState = {
   isCreating: boolean;
   detailOpen: boolean;
   deleteConfirmOpen: boolean;
+  hoverOnMoreMenu: boolean;
 };
 
 const StyledListItem = styled(RcListItem)`
   padding: 6px 16px;
+
+  .conversation-item-action-menu {
+    display: none;
+  }
+
+  &:hover {
+    .conversation-item-time {
+      display: none;
+    }
+    .conversation-item-action-menu {
+      display: flex;
+    }
+  }
+
+  ${({ $hoverOnMoreMenu }) =>
+    $hoverOnMoreMenu &&
+    `
+    .conversation-item-time {
+      display: none;
+    }
+    .conversation-item-action-menu {
+      display: flex;
+    }
+  `}
 `;
 
 const StyledItemIcon = styled(RcListItemIcon)`
@@ -113,9 +153,25 @@ const DetailArea = styled.span`
   ${ellipsis()}
 `;
 
+const StyledActionMenu = styled(ActionMenu)`
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  margin-top: -16px;
+
+  .RcIconButton-root {
+    margin-left: 6px;
+  }
+`;
+
+const DownloadLink = styled.a`
+  display: none;
+`;
+
 class MessageItem extends Component<MessageItemProps, MessageItemState> {
   _userSelection = false;
   contactDisplay: any;
+  downloadRef: any;
   private _mounted = false;
 
   static defaultProps: Partial<MessageItemProps> = {
@@ -146,7 +202,9 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       isCreating: false,
       detailOpen: false,
       deleteConfirmOpen: false,
+      hoverOnMoreMenu: false,
     };
+    this.downloadRef = createRef();
 
     /* [RCINT-4301] onSelection would trigger some state changes that would push new
      * properties before the state has been changed. Which would reset the selected value.
@@ -182,11 +240,9 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     this._mounted = false;
   }
 
-  preventEventPropagating: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    if (e.target !== e.currentTarget) {
-      e.stopPropagation();
-    }
-  };
+  stopPropagation = (e) => {
+    e.stopPropagation();
+  }
 
   onSelectContact = (value: any, idx: string) => {
     const {
@@ -273,7 +329,8 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     return (correspondents.length === 1 && correspondents[0].name) || undefined;
   }
 
-  viewSelectedContact = () => {
+  viewSelectedContact = (e) => {
+    e.stopPropagation();
     if (typeof this.props.onViewContact === 'function') {
       this.props.onViewContact({
         contact: this.getSelectedContact(),
@@ -371,12 +428,6 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
           phoneNumber,
         });
       }
-    }
-  };
-
-  onClickItem: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    if (this.contactDisplay && this.contactDisplay.contains(e.target)) {
-      return;
     }
   };
 
@@ -596,6 +647,117 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     );
   }
 
+  onDownload = (e) => {
+    this.downloadRef.current?.click();
+  }
+
+  openDeleteDialog = () => {
+    this.setState({
+      deleteConfirmOpen: true,
+    });
+  }
+
+  getActions({
+    disableLinks,
+    phoneNumber,
+    disableClickToSms,
+    isContactMatchesHidden,
+    hasEntity,
+    downloadUri,
+  }) {
+    const {
+      conversation: {
+        type,
+        faxAttachment,
+        direction,
+        unreadCounts,
+      },
+      onClickToDial,
+      disableCallButton,
+      disableClickToDial,
+      onClickToSms,
+      currentLocale,
+      onCreateContact,
+    } = this.props;
+    const actions = [];
+    if (type !== messageTypes.fax && onClickToDial) {
+      actions.push({
+        icon: PhoneBorder,
+        title: i18n.getString('call', currentLocale),
+        onClick: this.clickToDial,
+        disabled: disableLinks || disableCallButton || disableClickToDial || !phoneNumber,
+      });
+    }
+    if (type === messageTypes.voiceMail && onClickToSms) {
+      actions.push({
+        icon: SmsBorder,
+        title: i18n.getString('text', currentLocale),
+        onClick: this.onClickToSms,
+        disabled: disableLinks || disableClickToSms || !phoneNumber,
+      });
+    }
+    if (
+      type === messageTypes.voiceMail ||
+      (type === messageTypes.fax && direction === messageDirection.inbound)
+    ) {
+      // mark/unmark
+      actions.push({
+        icon: unreadCounts > 0 ? Unread : Read,
+        title: i18n.getString(
+          unreadCounts > 0 ? 'unmark' : 'mark',
+          currentLocale,
+        ),
+        onClick: unreadCounts > 0 ? this.onUnmarkMessage : this.onMarkMessage,
+        disabled: disableLinks,
+      });
+    }
+    if (type === messageTypes.fax) {
+      actions.push({
+        icon: ViewBorder,
+        title: i18n.getString('view', currentLocale),
+        onClick: (e) => {
+          this.onPreviewFax(faxAttachment.uri)
+        },
+        disabled: disableLinks || !faxAttachment,
+      });
+    }
+    if (downloadUri) {
+      actions.push({
+        icon: Download,
+        title: i18n.getString('download', currentLocale),
+        onClick: this.onDownload,
+        disabled: disableLinks,
+      });
+    }
+    if (!isContactMatchesHidden || hasEntity) {
+      actions.push({
+        icon: People,
+        title: i18n.getString('viewDetails', currentLocale),
+        onClick: this.viewSelectedContact,
+        disabled: disableLinks,
+      });
+    }
+    if (!hasEntity && phoneNumber && onCreateContact) {
+      actions.push({
+        icon: AddMemberBorder,
+        title: i18n.getString('addEntity', currentLocale),
+        onClick: () => {
+          this.createSelectedContact(undefined);
+        },
+        disabled: disableLinks,
+      });
+    }
+    if (type === messageTypes.fax || type === messageTypes.voiceMail) {
+      actions.push({
+        icon: Delete,
+        title: i18n.getString('delete', currentLocale),
+        onClick: this.openDeleteDialog,
+        disabled: disableLinks,
+      });
+    }
+    return actions;
+  }
+
   override render() {
     const {
       currentLocale,
@@ -640,16 +802,35 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       enableCDC && checkShouldHideContactUser(correspondentMatches);
     const detail = this.getDetail();
     const disableClickToSms = this.getDisableClickToSms();
-    const extraButton = renderExtraButton
-      ? renderExtraButton(conversation, {
-          logConversation: this.logConversation,
-          isLogging: isLogging || this.state.isLogging,
-        })
-      : null;
+    // const extraButton = renderExtraButton
+    //   ? renderExtraButton(conversation, {
+    //       logConversation: this.logConversation,
+    //       isLogging: isLogging || this.state.isLogging,
+    //     })
+    //   : null;
     const msgItem = `${type}MessageItem`;
     const defaultContactDisplayWithUnread = this.getDefaultContactDisplay();
     const defaultContactDisplayWithoutUnread = this.getDefaultContactDisplay({
       showUnreadStatus: false,
+    });
+    const hasEntity = (
+      correspondents.length === 1 &&
+      !!correspondentMatches.length &&
+      (this.getSelectedContact()?.type ?? '') !== extensionTypes.ivrMenu
+    );
+    let downloadUri = null;
+    if (faxAttachment) {
+      downloadUri = faxAttachment.uri;
+    } else if (voicemailAttachment) {
+      downloadUri = voicemailAttachment.uri;
+    }
+    const actions = this.getActions({
+      disableLinks,
+      phoneNumber,
+      disableClickToSms,
+      isContactMatchesHidden,
+      hasEntity,
+      downloadUri
     });
     return (
       <StyledListItem
@@ -657,6 +838,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
         data-id={conversationId}
         className={styles.root}
         onClick={this.onClickWrapper}
+        $hoverOnMoreMenu={this.state.hoverOnMoreMenu}
       >
         <StyledItemIcon>
           <ConversationIcon
@@ -683,11 +865,25 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
               <DetailArea>
                 {detail}
               </DetailArea>
-              <span>
+              <span className="conversation-item-time">
                 {this.dateTimeFormatter(creationTime)}
               </span>
             </StyledSecondary>
           }
+        />
+        <StyledActionMenu
+          actions={actions}
+          size="small"
+          maxActions={3}
+          className="conversation-item-action-menu"
+          iconVariant="contained"
+          color="neutral.b01"
+          onClick={this.stopPropagation}
+          onMoreMenuOpen={(open) => {
+            this.setState({
+              hoverOnMoreMenu: open,
+            });
+          }}
         />
         {
           type !== messageTypes.text ? (
@@ -711,11 +907,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
               direction={direction}
               voicemailAttachment={voicemailAttachment}
               faxAttachment={faxAttachment}
-              onDelete={() => {
-                this.setState({
-                  deleteConfirmOpen: true,
-                });
-              }}
+              onDelete={this.openDeleteDialog}
               time={this.dateTimeFormatter(creationTime, 'datetime')}
               detail={detail}
               onPreviewFax={this.onPreviewFax}
@@ -732,11 +924,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
               }
               onViewEntity={onViewContact && this.viewSelectedContact}
               onCreateEntity={onCreateContact && this.createSelectedContact}
-              hasEntity={
-                correspondents.length === 1 &&
-                !!correspondentMatches.length &&
-                (this.getSelectedContact()?.type ?? '') !== extensionTypes.ivrMenu
-              }
+              hasEntity={hasEntity}
               onClickToDial={
                 !isFax ? onClickToDial && this.clickToDial : undefined
               }
@@ -750,6 +938,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
               isLogging={isLogging || this.state.isLogging}
               isLogged={conversationMatches.length > 0}
               isCreating={this.state.isCreating}
+              onDownload={this.onDownload}
             />
           ) : null
         }
@@ -763,6 +952,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
                     deleteConfirmOpen: false,
                   })
                 }}
+                onClick={this.stopPropagation}
                 onConfirm={this.onDeleteMessage}
                 keepMounted={false}
                 title={actionI18n.getString(
@@ -771,6 +961,17 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
                 )}
               />
             ) : null
+        }
+        {
+          downloadUri ? (
+            <DownloadLink
+              target="_blank"
+              download
+              title={i18n.getString('download', currentLocale)}
+              ref={this.downloadRef}
+              href={`${downloadUri}&contentDisposition=Attachment`}
+            ></DownloadLink>
+          ) : null
         }
       </StyledListItem>
     );
