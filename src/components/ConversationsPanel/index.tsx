@@ -3,13 +3,13 @@ import React, { useEffect } from 'react';
 
 import { styled, palette2 } from '@ringcentral/juno/foundation';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
-import type { ConversationListProps } from '@ringcentral-integration/widgets/components/ConversationList';
-import ConversationList from '@ringcentral-integration/widgets/components/ConversationList';
+
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 import i18n from '@ringcentral-integration/widgets/components/ConversationsPanel/i18n';
 import NoMessage from '@ringcentral-integration/widgets/components/ConversationsPanel/widgets/NoMessage';
 
-import styles from '@ringcentral-integration/widgets/components/ConversationsPanel/styles.scss';
+import type { ConversationListProps } from '../ConversationList';
+import ConversationList from '../ConversationList';
 import { Search } from './Search';
 import { ConversationTypeTabs } from './ConversationTypeTabs';
 
@@ -92,12 +92,19 @@ const StyledContainer = styled.div`
   background: ${palette2('neutral', 'b01')};
 `;
 
-const StyledMessageList = styled.div`
+const StyledContentArea = styled.div`
   position: relative;
   width: 100%;
   overflow: hidden;
   box-sizing: border-box;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledConversationListArea = styled.div`
+  flex: 1;
+  overflow: hidden;
 `;
 
 export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
@@ -193,7 +200,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
       {showSpinner ? (
         <SpinnerOverlay />
       ) : (
-        <StyledMessageList
+        <StyledContentArea
           data-sign="messageList"
         >
           <Search
@@ -202,70 +209,69 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
             currentLocale={currentLocale}
             disableLinks={disableLinks}
           />
-          {conversations.length ? (
-            <ConversationList
-              formatPhone={formatPhone}
-              className={
-                onSearchInputChange ? styles.contentWithSearch : undefined
-              }
-              currentLocale={currentLocale}
-              currentSiteCode={currentSiteCode}
-              isMultipleSiteEnabled={isMultipleSiteEnabled}
-              perPage={perPage}
-              disableLinks={disableLinks}
-              disableCallButton={disableCallButton}
-              conversations={conversations}
-              brand={brand}
-              showConversationDetail={showConversationDetail}
-              readMessage={readMessage}
-              markMessage={markMessage}
-              dateTimeFormatter={dateTimeFormatter}
-              contactPlaceholder={contactPlaceholder}
-              showContactDisplayPlaceholder={showContactDisplayPlaceholder}
-              sourceIcons={sourceIcons}
-              phoneTypeRenderer={phoneTypeRenderer}
-              phoneSourceNameRenderer={phoneSourceNameRenderer}
-              showGroupNumberName={showGroupNumberName}
-              placeholder={placeholder}
-              areaCode={areaCode}
-              countryCode={countryCode}
-              onLogConversation={onLogConversation}
-              onViewContact={onViewContact}
-              onCreateContact={onCreateContact}
-              createEntityTypes={createEntityTypes}
-              onClickToDial={onClickToDial}
-              onClickToSms={onClickToSms}
-              disableClickToDial={disableClickToDial}
-              unmarkMessage={unmarkMessage}
-              autoLog={autoLog}
-              enableContactFallback={enableContactFallback}
-              deleteMessage={deleteMessage}
-              previewFaxMessages={previewFaxMessages}
-              loadNextPage={loadNextPage}
-              loadingNextPage={loadingNextPage}
-              typeFilter={typeFilter}
-              renderExtraButton={renderExtraButton}
-              outboundSmsPermission={outboundSmsPermission}
-              internalSmsPermission={internalSmsPermission}
-              updateTypeFilter={updateTypeFilter}
-              onFaxDownload={onFaxDownload}
-              showChooseEntityModal={showChooseEntityModal}
-              shouldLogSelectRecord={shouldLogSelectRecord}
-              onSelectContact={onSelectContact}
-              renderContactList={renderContactList}
-              dropdownClassName={dropdownClassName}
-              enableCDC={enableCDC}
-              maxExtensionNumberLength={maxExtensionNumberLength}
-              renderContactName={renderContactName}
-              externalHasEntity={externalHasEntity}
-              externalViewEntity={externalViewEntity}
-              renderActionMenuExtraButton={renderActionMenuExtraButton}
-            />
-          ) : (
-            !loadingNextPage &&
-            (renderNoMessage?.() ?? <NoMessage placeholder={placeholder} />)
-          )}
-        </StyledMessageList>
+          <StyledConversationListArea>
+            {conversations.length ? (
+              <ConversationList
+                formatPhone={formatPhone}
+                currentLocale={currentLocale}
+                currentSiteCode={currentSiteCode}
+                isMultipleSiteEnabled={isMultipleSiteEnabled}
+                perPage={perPage}
+                disableLinks={disableLinks}
+                disableCallButton={disableCallButton}
+                conversations={conversations}
+                brand={brand}
+                showConversationDetail={showConversationDetail}
+                readMessage={readMessage}
+                markMessage={markMessage}
+                dateTimeFormatter={dateTimeFormatter}
+                contactPlaceholder={contactPlaceholder}
+                showContactDisplayPlaceholder={showContactDisplayPlaceholder}
+                sourceIcons={sourceIcons}
+                phoneTypeRenderer={phoneTypeRenderer}
+                phoneSourceNameRenderer={phoneSourceNameRenderer}
+                showGroupNumberName={showGroupNumberName}
+                placeholder={placeholder}
+                areaCode={areaCode}
+                countryCode={countryCode}
+                onLogConversation={onLogConversation}
+                onViewContact={onViewContact}
+                onCreateContact={onCreateContact}
+                createEntityTypes={createEntityTypes}
+                onClickToDial={onClickToDial}
+                onClickToSms={onClickToSms}
+                disableClickToDial={disableClickToDial}
+                unmarkMessage={unmarkMessage}
+                autoLog={autoLog}
+                enableContactFallback={enableContactFallback}
+                deleteMessage={deleteMessage}
+                previewFaxMessages={previewFaxMessages}
+                loadNextPage={loadNextPage}
+                loadingNextPage={loadingNextPage}
+                typeFilter={typeFilter}
+                renderExtraButton={renderExtraButton}
+                outboundSmsPermission={outboundSmsPermission}
+                internalSmsPermission={internalSmsPermission}
+                updateTypeFilter={updateTypeFilter}
+                onFaxDownload={onFaxDownload}
+                showChooseEntityModal={showChooseEntityModal}
+                shouldLogSelectRecord={shouldLogSelectRecord}
+                onSelectContact={onSelectContact}
+                renderContactList={renderContactList}
+                dropdownClassName={dropdownClassName}
+                enableCDC={enableCDC}
+                maxExtensionNumberLength={maxExtensionNumberLength}
+                renderContactName={renderContactName}
+                externalHasEntity={externalHasEntity}
+                externalViewEntity={externalViewEntity}
+                renderActionMenuExtraButton={renderActionMenuExtraButton}
+              />
+            ) : (
+              !loadingNextPage &&
+              (renderNoMessage?.() ?? <NoMessage placeholder={placeholder} />)
+            )}
+          </StyledConversationListArea>
+        </StyledContentArea>
       )}
     </StyledContainer>
   );
