@@ -10,17 +10,21 @@ import NoSenderAlert
 import styles
   from '@ringcentral-integration/widgets/components/ComposeTextPanel/styles.scss';
 import FromField from '@ringcentral-integration/widgets/components/FromField';
-import RecipientsInput
-  from '@ringcentral-integration/widgets/components/RecipientsInput';
+import RecipientsInput from '@ringcentral-integration/widgets/components/RecipientsInput';
 import {
   RecipientsInputV2,
 } from '@ringcentral-integration/widgets/components/RecipientsInputV2';
 import {
   SpinnerOverlay,
 } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
+import { RcTypography, styled } from '@ringcentral/juno';
+import i18n from '@ringcentral-integration/widgets/components/ConversationsPanel/i18n';
+import { BackHeader } from '../BackHeader';
+import MessageInput from '../MessageInput'; // TODO: temporary solution, wait for new component ready
 
-import MessageInput
-  from '../MessageInput'; // TODO: temporary solution, wait for new component ready
+const Title = styled(RcTypography)`
+  line-height: 40px;
+`;
 
 export interface ComposeTextPanelProps {
   brand?: string;
@@ -69,7 +73,9 @@ export interface ComposeTextPanelProps {
   useRecipientsInputV2?: boolean;
   additionalToolbarButtons: any[];
   onClickAdditionalToolbarButton: (...args: any[]) => any;
+  goBack: (...args: any[]) => any;
 }
+
 type ComposeTextPanelState = {
   messageText: any;
 };
@@ -187,6 +193,7 @@ class ComposeTextPanel extends Component<
       recipientsContactPhoneRenderer,
       additionalToolbarButtons,
       onClickAdditionalToolbarButton,
+      goBack,
     } = this.props;
     const filteredSearchContactList =
       useRecipientsInputV2 && typingToNumber.length >= 3
@@ -195,6 +202,13 @@ class ComposeTextPanel extends Component<
     return (
       <div className={classnames(styles.root, className)}>
         {showSpinner ? <SpinnerOverlay /> : null}
+        <BackHeader
+          onBack={goBack}
+        >
+          <Title variant="body1">
+            {i18n.getString('composeText', currentLocale)}
+          </Title>
+        </BackHeader>
         <NoSenderAlert
           currentLocale={currentLocale}
           showAlert={this.showAlert()}
