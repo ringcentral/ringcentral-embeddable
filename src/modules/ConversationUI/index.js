@@ -1,11 +1,7 @@
-import React from 'react';
-
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
   ConversationUI as BaseConversationUI,
 } from '@ringcentral-integration/widgets/modules/ConversationUI';
-
-import MessagesLogIcon from '../../components/MessagesLogIcon';
 
 @Module({
   name: 'ConversationUI',
@@ -16,9 +12,12 @@ export class ConversationUI extends BaseConversationUI {
     const baseProps = super.getUIProps(props);
     const {
       thirdPartyService,
+      conversationLogger,
     } = this._deps;
     return {
       ...baseProps,
+      showLogButton: conversationLogger.loggerSourceReady,
+      logButtonTitle: conversationLogger.logButtonTitle,
       additionalToolbarButtons: thirdPartyService.additionalSMSToolbarButtons,
     };
   }
@@ -27,39 +26,17 @@ export class ConversationUI extends BaseConversationUI {
     options,
   ) {
     const {
-      locale,
       conversationLogger,
-      connectivityMonitor,
       thirdPartyService,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
       onLogConversation: async ({ redirect = true, ...options }) => {
-        await this._deps.conversationLogger.logConversation({
+        await conversationLogger.logConversation({
           ...options,
           redirect,
           triggerType: 'manual'
         });
-      },
-      renderExtraButton: (
-        conversation = {},
-        {
-          logConversation,
-          isLogging
-        }
-      ) => {
-        if (!conversationLogger.loggerSourceReady) {
-          return null;
-        }
-        return (
-          <MessagesLogIcon
-            title={conversationLogger.logButtonTitle}
-            disabled={isLogging || !connectivityMonitor.connectivity}
-            conversationId={conversation.id}
-            currentLocale={locale.currentLocale}
-            onClick={logConversation}
-          />
-        );
       },
       onClickAdditionalToolbarButton: (buttonId) => {
         thirdPartyService.onClickAdditionalButton(buttonId);
