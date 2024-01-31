@@ -35,10 +35,11 @@ export type ConversationListProps = {
   typeFilter?: string;
   loadNextPage?: (...args: any[]) => any;
   loadingNextPage?: boolean;
-  renderExtraButton?: (...args: any[]) => any;
   enableCDC?: boolean;
   maxExtensionNumberLength: number;
   formatPhone?: (formatPhone: string) => string | undefined;
+  showLogButton?: boolean;
+  logButtonTitle?: string;
 } & Omit<MessageItemProps, 'conversation'>;
 
 const Loading = styled.div`
@@ -69,9 +70,10 @@ function ConversationList({
   placeholder,
   loadingNextPage,
   formatPhone,
-  renderActionMenuExtraButton,
   typeFilter,
   loadNextPage,
+  showLogButton = false,
+  logButtonTitle = '',
   ...childProps
 }): FunctionComponent<ConversationListProps> {
   const scrollTopRef = useRef(0);
@@ -99,7 +101,8 @@ function ConversationList({
               key={item.id}
               disableLinks={disableLinks}
               disableCallButton={disableCallButton}
-              renderActionMenuExtraButton={renderActionMenuExtraButton}
+              showLogButton={showLogButton}
+              logButtonTitle={logButtonTitle}
             />
           ))
         }
@@ -156,7 +159,6 @@ ConversationList.defaultProps = {
   loadNextPage: undefined,
   loadingNextPage: false,
   typeFilter: undefined,
-  renderExtraButton: undefined,
   enableCDC: false,
 };
 export default ConversationList;

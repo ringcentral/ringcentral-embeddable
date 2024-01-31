@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
 import ConversationMessageList from '@ringcentral-integration/widgets/components/ConversationMessageList';
 import i18n from '@ringcentral-integration/widgets/components/ConversationPanel/i18n';
-import logButtonI18n from '@ringcentral-integration/widgets/components/MessagesLogIcon/i18n';
+import messageItemI18n from '@ringcentral-integration/widgets/components/MessageItem/i18n';
 import styles from '@ringcentral-integration/widgets/components/ConversationPanel/styles.scss';
 import {
   SpinnerOverlay,
@@ -412,7 +412,13 @@ class ConversationPanel extends Component<ConversationProps, ConversationPanelSt
         <LogButton
           onClick={this.logConversation}
           disabled={this.props.disableLinks || isLogging || this.state.isLogging}
-          title={this.props.logButtonTitle || logButtonI18n.getString('log', this.props.currentLocale)}
+          title={
+            this.props.logButtonTitle ||
+            messageItemI18n.getString(
+              conversationMatches.length > 0 ? 'editLog' : 'addLog',
+              this.props.currentLocale
+            )
+          }
           data-sign="logButton"
           symbol={AddTextLog}
         />

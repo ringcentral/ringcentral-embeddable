@@ -19,8 +19,7 @@ import {
   SmsBorder,
   People,
   AddMemberBorder,
-  NewAction,
-  ViewLogBorder,
+  AddTextLog,
 } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/MessageItem/i18n';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
@@ -119,6 +118,8 @@ export function DetailDialog({
   isLogged,
   isCreating,
   onDownload,
+  showLogButton,
+  logButtonTitle,
 }) {
   let downloadUri = null;
   if (faxAttachment) {
@@ -133,6 +134,14 @@ export function DetailDialog({
       title: i18n.getString('call', currentLocale),
       onClick: onClickToDial,
       disabled: disableLinks || disableCallButton || disableClickToDial || !phoneNumber,
+    });
+  }
+  if (showLogButton) {
+    actions.push({
+      icon: AddTextLog,
+      title: logButtonTitle || i18n.getString(isLogged ? 'editLog' : 'addLog', currentLocale),
+      onClick: onLog,
+      disabled: disableLinks || isLogging || isCreating,
     });
   }
   if (onClickToSms) {
@@ -161,19 +170,11 @@ export function DetailDialog({
       disabled: disableLinks,
     });
   }
-  if (onLog) {
-    actions.push({
-      icon: isLogged ? ViewLogBorder : NewAction,
-      title: i18n.getString(isLogged ? 'editLog' : 'addLog', currentLocale),
-      onClick: onLog,
-      disabled: disableLinks || isLogging || isCreating,
-    });
-  }
   const subActions = [];
   if (type === messageTypes.fax) {
     subActions.push({
       icon: ViewBorder,
-      title: i18n.getString('view', currentLocale),
+      title: i18n.getString('preview', currentLocale),
       onClick: () => {
         onPreviewFax(faxAttachment.uri);
       },
