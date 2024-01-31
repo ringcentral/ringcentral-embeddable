@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 
 import PropTypes from 'prop-types';
 
-import dynamicsFont
-  from '@ringcentral-integration/widgets/assets/DynamicsFont/DynamicsFont.scss';
 import ContactDisplay
   from '@ringcentral-integration/widgets/components/ContactDisplay';
 import ConversationMessageList
@@ -20,8 +18,8 @@ import {
   checkShouldHidePhoneNumber,
 } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
 import { RcAlert } from '@ringcentral/juno';
-
 import MessageInput from '../MessageInput';
+import { BackHeader } from '../BackHeader';
 
 class ConversationPanel extends Component {
   _mounted: any;
@@ -410,7 +408,10 @@ class ConversationPanel extends Component {
     );
     return (
       <div className={styles.root}>
-        <div data-sign="conversationPanel" className={styles.header}>
+        <BackHeader
+          data-sign="conversationPanel"
+          onBack={this.props.goBack}
+        >
           {/* @ts-expect-error TS(2339): Property 'renderConversationTitle' does */}
           {this.props.renderConversationTitle?.({
             // @ts-expect-error TS(2339): Property 'conversation' does not exist on type 'Re... Remove this comment to see the full error message
@@ -418,17 +419,9 @@ class ConversationPanel extends Component {
             phoneNumber,
             defaultContactDisplay,
           }) || defaultContactDisplay}
-          <a
-            // @ts-expect-error TS(2339): Property 'goBack' does not exist on type 'Readonly... Remove this comment to see the full error message
-            onClick={() => this.props.goBack()}
-            data-sign="backButton"
-            className={styles.backButton}
-          >
-            <span className={dynamicsFont.arrow} />
-          </a>
           {extraButton && <div className={styles.logButton}>{extraButton}</div>}
           {logButton}
-        </div>
+        </BackHeader>
         {/* @ts-expect-error TS(2339): Property 'renderLogInfoSection' does not */}
         {this.props.renderLogInfoSection?.(this.props.conversation) || null}
         {conversationBody}

@@ -7,6 +7,7 @@ import {
   name: 'ComposeTextUI',
   deps: [
     'ThirdPartyService',
+    'RouterInteraction',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -30,6 +31,9 @@ export class ComposeTextUI extends ComposeTextUIBase {
       ...baseFuncs,
       onClickAdditionalToolbarButton: (buttonId) => {
         thirdPartyService.onClickAdditionalButton(buttonId);
+      },
+      goBack: () => {
+        this._deps.routerInteraction.goBack();
       },
     };
   }

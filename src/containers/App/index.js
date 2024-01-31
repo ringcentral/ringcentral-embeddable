@@ -278,10 +278,6 @@ export default function App({
                     />
                   )} />
                 <Route
-                  path="/composeText"
-                  component={() => <ComposeTextPage supportAttachment />}
-                />
-                <Route
                   path="/messages"
                   component={() => (
                     <ConversationsPage
@@ -298,27 +294,6 @@ export default function App({
                       onRefresh={async () => { await phone.contacts.sync({ type: 'manual' }); }}
                       sourceNodeRenderer={ContactSourceIcon}
                     />
-                  )}
-                />
-                <Route
-                  path="/contacts/:contactType/:contactId"
-                  component={routerProps => (
-                    <ContactDetailsPage
-                      params={routerProps.params}
-                      sourceNodeRenderer={ContactSourceIcon}
-                      onClickMailTo={
-                        (email) => {
-                          window.open(`mailto:${email}`);
-                        }
-                      }
-                    >
-                      <RecentActivityContainer
-                        navigateTo={(path) => {
-                          phone.routerInteraction.push(path);
-                        }}
-                        useContact
-                      />
-                    </ContactDetailsPage>
                   )}
                 />
                 <Route
@@ -440,6 +415,10 @@ export default function App({
                 />
               </Route>
               <Route
+                path="/composeText"
+                component={() => <ComposeTextPage supportAttachment />}
+              />
+              <Route
                 path="/conversations/:conversationId"
                 component={routerProps => (
                   <ConversationPage
@@ -451,6 +430,27 @@ export default function App({
                       phone.thirdPartyService.onClickVCard(uri, e);
                     }}
                   />
+                )}
+              />
+              <Route
+                path="/contacts/:contactType/:contactId"
+                component={routerProps => (
+                  <ContactDetailsPage
+                    params={routerProps.params}
+                    sourceNodeRenderer={ContactSourceIcon}
+                    onClickMailTo={
+                      (email) => {
+                        window.open(`mailto:${email}`);
+                      }
+                    }
+                  >
+                    <RecentActivityContainer
+                      navigateTo={(path) => {
+                        phone.routerInteraction.push(path);
+                      }}
+                      useContact
+                    />
+                  </ContactDetailsPage>
                 )}
               />
               <Route
