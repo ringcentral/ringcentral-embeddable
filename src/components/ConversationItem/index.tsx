@@ -18,8 +18,7 @@ import {
   People,
   AddMemberBorder,
   Delete,
-  NewAction,
-  ViewLogBorder,
+  AddTextLog,
 } from '@ringcentral/juno-icon';
 import { extensionTypes } from '@ringcentral-integration/commons/enums/extensionTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
@@ -79,7 +78,6 @@ export type MessageItemProps = {
   showGroupNumberName?: boolean;
   deleteMessage?: (...args: any[]) => any;
   previewFaxMessages?: (...args: any[]) => any;
-  renderExtraButton?: (...args: any[]) => any;
   internalSmsPermission?: boolean;
   outboundSmsPermission?: boolean;
   updateTypeFilter?: (...args: any[]) => any;
@@ -95,7 +93,8 @@ export type MessageItemProps = {
   externalViewEntity?: (conversation: Message) => any;
   externalHasEntity?: (conversation: Message) => boolean;
   formatPhone: (phoneNumber: string) => string | undefined;
-  renderActionMenuExtraButton: (conversation: Message) => ReactNode;
+  showLogButton?: boolean;
+  logButtonTitle?: string;
 };
 
 type MessageItemState = {
@@ -192,6 +191,8 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     dropdownClassName: null,
     enableCDC: false,
     maxExtensionNumberLength: 6,
+    showLogButton: false,
+    logButtonTitle: '',
   };
 
   constructor(props: MessageItemProps) {
@@ -671,6 +672,8 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
         faxAttachment,
         direction,
         unreadCounts,
+        conversationMatches,
+        isLogging,
       },
       onClickToDial,
       disableCallButton,
@@ -678,8 +681,19 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       onClickToSms,
       currentLocale,
       onCreateContact,
+      showLogButton,
+      logButtonTitle,
     } = this.props;
     const actions = [];
+    if (showLogButton) {
+      const isLogged = conversationMatches.length > 0;
+      actions.push({
+        icon: AddTextLog,
+        title: logButtonTitle || i18n.getString(isLogged ? 'editLog' : 'addLog', currentLocale),
+        onClick: this.logConversation,
+        disabled: disableLinks || isLogging || this.state.isLogging,
+      });
+    }
     if (type !== messageTypes.fax && onClickToDial) {
       actions.push({
         icon: PhoneBorder,
@@ -714,7 +728,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     if (type === messageTypes.fax) {
       actions.push({
         icon: ViewBorder,
-        title: i18n.getString('view', currentLocale),
+        title: i18n.getString('preview', currentLocale),
         onClick: (e) => {
           this.onPreviewFax(faxAttachment.uri)
         },
@@ -780,13 +794,13 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       disableClickToDial,
       onClickToDial,
       onClickToSms,
-      onLogConversation,
       onViewContact,
       onCreateContact,
-      renderExtraButton,
       enableCDC,
       renderContactName,
       conversation,
+      showLogButton,
+      logButtonTitle,
     } = this.props;
     let disableLinks = parentDisableLinks;
     const isVoicemail = type === messageTypes.voiceMail;
@@ -802,12 +816,6 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       enableCDC && checkShouldHideContactUser(correspondentMatches);
     const detail = this.getDetail();
     const disableClickToSms = this.getDisableClickToSms();
-    // const extraButton = renderExtraButton
-    //   ? renderExtraButton(conversation, {
-    //       logConversation: this.logConversation,
-    //       isLogging: isLogging || this.state.isLogging,
-    //     })
-    //   : null;
     const msgItem = `${type}MessageItem`;
     const defaultContactDisplayWithUnread = this.getDefaultContactDisplay();
     const defaultContactDisplayWithoutUnread = this.getDefaultContactDisplay({
@@ -917,11 +925,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
               onUnmarkMessage={this.onUnmarkMessage}
               onPlayVoicemail={this.onPlayVoicemail}
               shouldHideEntityButton={isContactMatchesHidden}
-              onLog={
-                onLogConversation
-                  ? undefined
-                  : this.logConversation
-              }
+              onLog={this.logConversation}
               onViewEntity={onViewContact && this.viewSelectedContact}
               onCreateEntity={onCreateContact && this.createSelectedContact}
               hasEntity={hasEntity}
@@ -935,6 +939,8 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
               phoneNumber={phoneNumber}
               disableCallButton={disableCallButton}
               disableClickToDial={disableClickToDial}
+              showLogButton={showLogButton}
+              logButtonTitle={logButtonTitle}
               isLogging={isLogging || this.state.isLogging}
               isLogged={conversationMatches.length > 0}
               isCreating={this.state.isCreating}

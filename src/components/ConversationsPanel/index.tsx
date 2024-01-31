@@ -66,7 +66,6 @@ type ConversationsPanelProps = {
   loadNextPage: (...args: any[]) => any;
   loadingNextPage?: boolean;
   onUnmount?: (...args: any[]) => any;
-  renderExtraButton?: (...args: any[]) => any;
   renderSearchTip?: (...args: any[]) => any;
   renderNoMessage?: (...args: any[]) => any;
   onFaxDownload?: (...args: any[]) => any;
@@ -80,6 +79,8 @@ type ConversationsPanelProps = {
   renderContactName?: (...args: any[]) => any;
   externalHasEntity: (...args: any[]) => boolean;
   externalViewEntity: (...args: any[]) => void;
+  showLogButton?: boolean;
+  logButtonTitle?: string;
 } & Omit<ConversationListProps, 'conversation'>;
 
 const StyledContainer = styled.div`
@@ -156,7 +157,6 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     deleteMessage,
     previewFaxMessages,
     loadNextPage,
-    renderExtraButton,
     updateTypeFilter,
     renderNoMessage,
     onFaxDownload,
@@ -167,11 +167,12 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     externalHasEntity,
     externalViewEntity,
     formatPhone,
-    renderActionMenuExtraButton,
     onUnmount,
     faxUnreadCounts,
     textUnreadCounts,
     voiceUnreadCounts,
+    showLogButton = false,
+    logButtonTitle = '',
   } = props;
 
   useEffect(() => {
@@ -249,7 +250,6 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
                 loadNextPage={loadNextPage}
                 loadingNextPage={loadingNextPage}
                 typeFilter={typeFilter}
-                renderExtraButton={renderExtraButton}
                 outboundSmsPermission={outboundSmsPermission}
                 internalSmsPermission={internalSmsPermission}
                 updateTypeFilter={updateTypeFilter}
@@ -264,7 +264,8 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
                 renderContactName={renderContactName}
                 externalHasEntity={externalHasEntity}
                 externalViewEntity={externalViewEntity}
-                renderActionMenuExtraButton={renderActionMenuExtraButton}
+                showLogButton={showLogButton}
+                logButtonTitle={logButtonTitle}
               />
             ) : (
               !loadingNextPage &&
