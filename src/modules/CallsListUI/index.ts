@@ -14,7 +14,17 @@ import { renderExtraCallLogButton } from '../../components/LogIcon/render';
 })
 export class CallsListUI extends BaseCallsListUI {
   getUIProps({ ...props }) {
-    const { callHistory, call, appFeatures, callLogTasks } = this._deps;
+    const {
+      callHistory,
+      locale,
+      callLogger,
+      call,
+      appFeatures,
+      regionSettings,
+      connectivityMonitor,
+      dateTimeFormat,
+      composeText,
+    } = this._deps;
     return {
       ...super.getUIProps({ ...props }),
       width: window.innerWidth || 300,
@@ -26,15 +36,17 @@ export class CallsListUI extends BaseCallsListUI {
       disableClickToDial:
         !(call && call.isIdle) || !appFeatures.isCallingEnabled,
       showSpinner: !(
-        this._deps.callHistory.ready &&
-        this._deps.locale.ready &&
-        this._deps.regionSettings.ready &&
-        this._deps.dateTimeFormat.ready &&
-        this._deps.connectivityMonitor.ready &&
-        this._deps.appFeatures.ready &&
-        (!this._deps.call || this._deps.call.ready) &&
-        (!this._deps.composeText || this._deps.composeText.ready)
+        callHistory.ready &&
+        locale.ready &&
+        regionSettings.ready &&
+        dateTimeFormat.ready &&
+        connectivityMonitor.ready &&
+        appFeatures.ready &&
+        (!call || call.ready) &&
+        (!composeText || composeText.ready)
       ),
+      showLogButton: callLogger.ready,
+      logButtonTitle: callLogger.logButtonTitle,
     };
   }
 

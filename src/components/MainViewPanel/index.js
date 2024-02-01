@@ -81,7 +81,8 @@ export const MainViewPanel = (props) => {
         return (
           currentPath === '/history'
         );
-      }
+      },
+      showHeaderBorder: true,
     },
     showMessages && {
       icon: getIconRenderer({ Icon: PhoneInboxBorder }),
