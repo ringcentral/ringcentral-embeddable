@@ -119,6 +119,7 @@ nav:
   - 'Recipes':
     - 'Analytics integration': integration/analytics.md
     - 'Click-to-dial enablement': integration/click-to-dial.md
+    - 'Call pop': integration/call-pop.md
   - 'Migration':
     - 'Migrating from Github Page build': integration/new-latest-uri.md
 
