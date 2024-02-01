@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import React, { Component, createRef } from 'react';
 
 import classnames from 'classnames';
-import { styled, ellipsis } from '@ringcentral/juno/foundation';
+import { styled, ellipsis, palette2 } from '@ringcentral/juno/foundation';
 import {
   RcListItem,
   RcListItemText,
@@ -108,6 +108,8 @@ type MessageItemState = {
 
 const StyledListItem = styled(RcListItem)`
   padding: 6px 16px;
+  border-bottom: 1px solid ${palette2('neutral', 'l02')};
+  background-color: ${palette2('neutral', 'b01')};
 
   .conversation-item-action-menu {
     display: none;
@@ -136,7 +138,7 @@ const StyledListItem = styled(RcListItem)`
 
 const StyledItemIcon = styled(RcListItemIcon)`
   .icon {
-    font-size: 28px;
+    font-size: 26px;
   }
 `;
 
@@ -844,7 +846,6 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       <StyledListItem
         data-sign={msgItem}
         data-id={conversationId}
-        className={styles.root}
         onClick={this.onClickWrapper}
         $hoverOnMoreMenu={this.state.hoverOnMoreMenu}
       >
