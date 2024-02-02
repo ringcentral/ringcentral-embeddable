@@ -1,5 +1,6 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, action, state } from '@ringcentral-integration/core';
+import i18n from '../../components/MainViewPanel/i18n';
 
 @Module({
   name: 'DialerAndCallsTabUI',
@@ -28,11 +29,21 @@ export class PhoneTabsUI extends RcUIModuleV2 {
     this.currentPath = path;
   }
 
-  getUIProps(props) {
+  getUIProps() {
+    const {
+      routerInteraction,
+      currentLocale,
+    } = this._deps;
     return {
-      currentPath: this._deps.routerInteraction.currentPath,
-      currentLocale: this._deps.locale.currentLocale,
+      currentPath: routerInteraction.currentPath,
       // disableHistory: !this._deps.appFeatures.ready || !this._deps.appFeatures.hasReadExtensionCallLog,
+      tabs: [{
+        value: '/dialer',
+        label: i18n.getString('dialpadLabel', currentLocale),
+      }, {
+        value: '/history',
+        label: i18n.getString('callsLabel', currentLocale),
+      }],
     };
   }
 
