@@ -532,20 +532,20 @@ export default class BasePhone extends RcModule {
       }
 
       if (!currentSession && ringSession) {
-        routerInteraction.push('/calls');
+        routerInteraction.push('/history');
         return;
       }
 
-      if (
-        routerInteraction.currentPath === '/calls'
-        && !callMonitor.activeRingCalls.length
-        && !callMonitor.activeOnHoldCalls.length
-        && !callMonitor.activeCurrentCalls.length
-        && !conferenceCall.isMerging
-        // && callMonitor.otherDeviceCalls.length === 0
-      ) {
-        routerInteraction.replace('/dialer');
-      }
+      // if (
+      //   routerInteraction.currentPath === '/history'
+      //   && !callMonitor.activeRingCalls.length
+      //   && !callMonitor.activeOnHoldCalls.length
+      //   && !callMonitor.activeCurrentCalls.length
+      //   && !conferenceCall.isMerging
+      //   // && callMonitor.otherDeviceCalls.length === 0
+      // ) {
+      //   routerInteraction.replace('/dialer');
+      // }
     });
     webphone.onCallInit((session) => {
       const path = `/calls/active/${session.id}`;
@@ -573,8 +573,8 @@ export default class BasePhone extends RcModule {
     });
     webphone.onCallRing((session) => {
       if (webphone.ringSessions.length > 1) {
-        if (routerInteraction.currentPath !== '/calls') {
-          routerInteraction.push('/calls');
+        if (routerInteraction.currentPath !== '/history') {
+          routerInteraction.push('/history');
         }
         webphone.ringSessions.forEach((session) => {
           if (!session.minimized) {
@@ -640,7 +640,7 @@ export default class BasePhone extends RcModule {
       if (webphone.connected) {
         return;
       }
-      routerInteraction.push('/calls');
+      routerInteraction.push('/history');
     });
 
     callMonitor.onCallUpdated((call) => {
@@ -649,7 +649,7 @@ export default class BasePhone extends RcModule {
         webphone.connected &&
         webphone.sessions.length === 0
       ) {
-        routerInteraction.push('/calls');
+        routerInteraction.push('/history');
       }
     });
 

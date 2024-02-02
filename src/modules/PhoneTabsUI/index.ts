@@ -1,8 +1,6 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, action, state } from '@ringcentral-integration/core';
 
-import { hasActiveCalls } from '@ringcentral-integration/widgets/lib/hasActiveCalls';
-
 @Module({
   name: 'DialerAndCallsTabUI',
   deps: [
@@ -32,20 +30,9 @@ export class PhoneTabsUI extends RcUIModuleV2 {
 
   getUIProps(props) {
     return {
-      showActiveCalls: props.hasActiveCalls
-        ? props.hasActiveCalls({
-            callingSettings: this._deps.callingSettings,
-            webphone: this._deps.webphone,
-            callMonitor: this._deps.callMonitor,
-          })
-        : hasActiveCalls({
-            callingSettings: this._deps.callingSettings,
-            webphone: this._deps.webphone,
-            callMonitor: this._deps.callMonitor,
-          }),
       currentPath: this._deps.routerInteraction.currentPath,
       currentLocale: this._deps.locale.currentLocale,
-      disableHistory: !this._deps.appFeatures.ready || !this._deps.appFeatures.hasReadExtensionCallLog,
+      // disableHistory: !this._deps.appFeatures.ready || !this._deps.appFeatures.hasReadExtensionCallLog,
     };
   }
 
@@ -53,9 +40,7 @@ export class PhoneTabsUI extends RcUIModuleV2 {
     return {
       goTo: (path) => {
         this._deps.routerInteraction.push(path);
-        if (path !== '/calls') {
-          this.setCurrentPath(path);
-        }
+        this.setCurrentPath(path);
       },
     };
   }
