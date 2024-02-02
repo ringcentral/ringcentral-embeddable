@@ -3,8 +3,6 @@ import React from 'react';
 import {
   Phone,
   PhoneBorder,
-  Calls,
-  CallsBorder,
   PhoneInbox,
   PhoneInboxBorder,
   BubbleLines,
@@ -43,46 +41,40 @@ export const MainViewPanel = (props) => {
     unreadCounts,
     showMeeting,
     showCall,
-    showHistory,
     showContacts,
     showGlip,
     glipUnreadCounts,
     isRCV,
     settingsUnreadCount,
     showNewComposeText,
+    phoneTabPath,
   } = props;
   const tabList = [
     showCall && {
       icon: getIconRenderer({ Icon: PhoneBorder }),
       activeIcon: getIconRenderer({ Icon: Phone }),
       label: i18n.getString('phoneLabel', currentLocale),
-      path: '/dialer',
+      path: phoneTabPath,
       isActive: (currentPath) => (
         currentPath === '/dialer' ||
         currentPath === '/calls' ||
+        currentPath === '/history' ||
         currentPath.indexOf('/calls/active') !== -1
       ),
       showHeader: (currentPath) => {
         return (
           currentPath === '/calls' ||
+          currentPath === '/history' ||
           currentPath === '/dialer'
         );
       },
-    },
-    showCall && showHistory && {
-      icon: getIconRenderer({ Icon: CallsBorder }),
-      activeIcon: getIconRenderer({ Icon: Calls }),
-      label: i18n.getString('historyLabel', currentLocale),
-      path: '/history',
-      isActive: (currentPath) => (
-        currentPath === '/history'
-      ),
-      showHeader: (currentPath) => {
-        return (
-          currentPath === '/history'
-        );
-      },
-      showHeaderBorder: true,
+      actionsInHeaderRight: [{
+        icon: SettingsBorder,
+        title: i18n.getString('settingsLabel', currentLocale),
+        onClick: () => {
+          props.goTo('/settings');
+        },
+      }]
     },
     showMessages && {
       icon: getIconRenderer({ Icon: PhoneInboxBorder }),

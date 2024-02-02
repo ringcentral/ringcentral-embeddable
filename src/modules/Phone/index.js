@@ -190,6 +190,7 @@ import { AddressBook } from '../AddressBook';
 import { Analytics } from '../Analytics';
 import { AppFeatures } from '../AppFeatures';
 import { Auth } from '../Auth';
+import { PhoneTabsUI } from '../PhoneTabsUI';
 import { CallControlUI } from '../CallControlUI';
 import { CallHistory } from '../CallHistory';
 import { CallsListUI } from '../CallsListUI';
@@ -415,7 +416,7 @@ import { MainViewUI } from '../MainViewUI';
     { provide: 'CallControlUI', useClass: CallControlUI },
     { provide: 'CallHistoryUI', useClass: CallHistoryUI },
     { provide: 'CallsOnholdUI', useClass: CallsOnholdUI },
-    { provide: 'DialerAndCallsTabUI', useClass: DialerAndCallsTabUI },
+    { provide: 'PhoneTabsUI', useClass: PhoneTabsUI },
     { provide: 'IncomingCallUI', useClass: IncomingCallUI },
     { provide: 'FlipUI', useClass: FlipUI },
     { provide: 'TransferUI', useClass: TransferUI },
