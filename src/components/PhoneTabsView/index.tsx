@@ -18,25 +18,16 @@ const Content = styled.div`
 export function PhoneTabsView({
   currentLocale,
   currentPath,
-  showActiveCalls,
   goTo,
   children,
-  disableHistory,
 }) {
   const tabs = [{
     value: '/dialer',
     label: i18n.getString('dialpadLabel', currentLocale),
   }];
-  if (showActiveCalls) {
-    tabs.push({
-      value: '/calls',
-      label: i18n.getString('callsLabel', currentLocale),
-    });
-  }
   tabs.push({
     value: '/history',
-    label: i18n.getString('historyLabel', currentLocale),
-    disabled: disableHistory,
+    label: i18n.getString('callsLabel', currentLocale),
   });
   return (
     <Container>

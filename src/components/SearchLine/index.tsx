@@ -3,12 +3,11 @@ import React from 'react';
 import { styled, palette2 } from '@ringcentral/juno/foundation';
 import { RcIcon, RcTextField } from '@ringcentral/juno';
 import { Search as SearchIcon } from '@ringcentral/juno-icon';
-import i18n from '@ringcentral-integration/widgets/components/ConversationsPanel/i18n';
 
 type SearchProps = {
   onSearchInputChange?: (...args: any[]) => any;
   searchInput?: string;
-  currentLocale: string;
+  placeholder?: string;
   disableLinks?: boolean;
 };
 
@@ -43,11 +42,11 @@ const StyledTextField = styled(RcTextField)`
 const StyledSearchIcon = styled(RcIcon)`
   margin-right: 6px;
 `;
-export const Search: React.FC<SearchProps> = ({
+export const SearchLine: React.FC<SearchProps> = ({
   onSearchInputChange,
   searchInput,
-  currentLocale,
   disableLinks,
+  placeholder = undefined,
 }) => {
   if (!onSearchInputChange) {
     return null;
@@ -67,13 +66,13 @@ export const Search: React.FC<SearchProps> = ({
           startAdornment: <StyledSearchIcon symbol={SearchIcon} size="small" />,
         }}
         disabled={disableLinks}
-        placeholder={i18n.getString('search', currentLocale)}
+        placeholder={placeholder}
         clearBtn
       />
     </Container>
   );
 };
-Search.defaultProps = {
+SearchLine.defaultProps = {
   onSearchInputChange: undefined,
   searchInput: '',
   disableLinks: false,

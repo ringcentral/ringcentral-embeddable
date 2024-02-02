@@ -9,7 +9,6 @@ import {
 
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
-import ActiveCallsPage from '@ringcentral-integration/widgets/containers/ActiveCallsPage';
 import AlertContainer from '@ringcentral-integration/widgets/containers/AlertContainer';
 import AudioSettingsPage from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
 // import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
@@ -156,23 +155,6 @@ export default function App({
                     </PhoneTabsContainer>
                   )} />
                 <Route
-                  path="/calls"
-                  component={() => (
-                    <PhoneTabsContainer>
-                      <ActiveCallsPage
-                        showRingoutCallControl={
-                          phone.appFeatures.hasCallControl
-                        }
-                        showSwitchCall
-                        onCallsEmpty={() => {
-                          phone.routerInteraction.push('/dialer');
-                        }}
-                        useV2
-                        getAvatarUrl={getAvatarUrl}
-                      />
-                    </PhoneTabsContainer>
-                  )} />
-                <Route
                   path="/settings"
                   component={routerProps => (
                     <SettingsPage
@@ -304,7 +286,7 @@ export default function App({
                   <CallCtrlPage
                     params={routerProps.params}
                     onBackButtonClick={() => {
-                      phone.routerInteraction.push('/calls');
+                      phone.routerInteraction.push('/history');
                     }}
                     showPark
                     getAvatarUrl={getAvatarUrl}

@@ -672,7 +672,7 @@ class Adapter extends AdapterCore {
   }
 
   get showViewCallsBtn() {
-    return this._widgetCurrentPath !== '/calls' && (this.showOnHoldCalls || this.showRingingCalls);
+    return this._widgetCurrentPath !== '/history' && (this.showOnHoldCalls || this.showRingingCalls);
   }
 
   get centerDuration() {
@@ -680,7 +680,7 @@ class Adapter extends AdapterCore {
   }
 
   get centerCallInfo() {
-    return this._widgetCurrentPath === '/calls';
+    return this._widgetCurrentPath === '/history';
   }
 }
 

@@ -10,7 +10,7 @@ import NoMessage from '@ringcentral-integration/widgets/components/Conversations
 
 import type { ConversationListProps } from '../ConversationList';
 import ConversationList from '../ConversationList';
-import { Search } from './Search';
+import { SearchLine } from '../SearchLine';
 import { ConversationTypeTabs } from './ConversationTypeTabs';
 
 type ConversationsPanelProps = {
@@ -204,11 +204,12 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
         <StyledContentArea
           data-sign="messageList"
         >
-          <Search
+          <SearchLine
             onSearchInputChange={onSearchInputChange}
             searchInput={searchInput}
             currentLocale={currentLocale}
             disableLinks={disableLinks}
+            placeholder={i18n.getString('search', currentLocale)}
           />
           <StyledConversationListArea>
             {conversations.length ? (
