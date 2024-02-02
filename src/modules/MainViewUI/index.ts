@@ -1,5 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { RcUIModuleV2, state, action } from '@ringcentral-integration/core';
+import { RcUIModuleV2 } from '@ringcentral-integration/core';
 
 @Module({
   name: 'MainViewUI',
@@ -13,6 +13,7 @@ import { RcUIModuleV2, state, action } from '@ringcentral-integration/core';
     'GenericMeeting',
     'ThirdPartyService',
     'Brand',
+    'PhoneTabsUI',
   ],
 })
 export class MainViewUI extends RcUIModuleV2 {
@@ -60,6 +61,7 @@ export class MainViewUI extends RcUIModuleV2 {
       currentPath: routerInteraction.currentPath,
       rcvProductName: brand.rcvProductName,
       settingsUnreadCount,
+      phoneTabPath: this._deps.phoneTabsUI.currentPath,
     };
   }
   

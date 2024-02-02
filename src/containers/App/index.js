@@ -7,68 +7,32 @@ import {
   Router,
 } from 'react-router';
 
-import GlipChat
-  from '@ringcentral-integration/glip-widgets/containers/GlipChat';
-import GlipGroups
-  from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
-import ActiveCallsPage
-  from '@ringcentral-integration/widgets/containers/ActiveCallsPage';
-import AlertContainer
-  from '@ringcentral-integration/widgets/containers/AlertContainer';
-import AudioSettingsPage
-  from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
+import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
+import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
+import ActiveCallsPage from '@ringcentral-integration/widgets/containers/ActiveCallsPage';
+import AlertContainer from '@ringcentral-integration/widgets/containers/AlertContainer';
+import AudioSettingsPage from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
 // import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
-import CallBadgeContainer
-  from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
-import CallingSettingsPage
-  from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
-import {
-  CallsOnholdPage,
-} from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
-import ConferenceCallDialerPage
-  from '@ringcentral-integration/widgets/containers/ConferenceCallDialerPage';
-import {
-  ConferenceParticipantPage,
-} from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
-import {
-  ConnectivityBadgeContainer,
-} from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
-import ContactDetailsPage
-  from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
-import ContactsPage
-  from '@ringcentral-integration/widgets/containers/ContactsPage';
-import {
-  DialerAndCallsTabContainer,
-} from '@ringcentral-integration/widgets/containers/DialerAndCallsTabContainer';
+import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
+import CallingSettingsPage from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
+import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
+import ConferenceCallDialerPage from '@ringcentral-integration/widgets/containers/ConferenceCallDialerPage';
+import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
+import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
+import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
+import ContactsPage from '@ringcentral-integration/widgets/containers/ContactsPage';
 import DialerPage from '@ringcentral-integration/widgets/containers/DialerPage';
-import {
-  FeedbackPage,
-} from '@ringcentral-integration/widgets/containers/FeedbackPage';
+import { FeedbackPage } from '@ringcentral-integration/widgets/containers/FeedbackPage';
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
-import GenericMeetingPage
-  from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
-import {
-  IncomingCallContainer,
-} from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
-import {
-  LoginPage,
-} from '@ringcentral-integration/widgets/containers/LoginPage';
-import {
-  ModalContainer,
-} from '@ringcentral-integration/widgets/containers/ModalContainer';
-import RegionSettingsPage
-  from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
-import {
-  SimpleCallControlPage,
-} from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
-import {
-  ThemeContainer,
-} from '@ringcentral-integration/widgets/containers/ThemeContainer';
-import TransferPage
-  from '@ringcentral-integration/widgets/containers/TransferPage';
-import {
-  PhoneContext,
-} from '@ringcentral-integration/widgets/lib/phoneContext';
+import GenericMeetingPage from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
+import { IncomingCallContainer } from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
+import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
+import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
+import RegionSettingsPage from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
+import { SimpleCallControlPage } from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
+import { ThemeContainer } from '@ringcentral-integration/widgets/containers/ThemeContainer';
+import TransferPage from '@ringcentral-integration/widgets/containers/TransferPage';
+import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
 
 import { getAlertRenderer } from '../../components/AlertRenderer';
 import ThirdPartyContactSourceIcon
@@ -76,6 +40,7 @@ import ThirdPartyContactSourceIcon
 // import GenericMeetingPage from '../GenericMeetingPage';
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import AppView from '../AppView';
+import { PhoneTabsContainer } from '../PhoneTabsContainer';
 import CallCtrlPage from '../CallCtrlPage';
 import CallLogSectionModal from '../CallLogSectionModal';
 import { CallsListPage } from '../CallsListPage';
@@ -142,16 +107,15 @@ export default function App({
                     showContactDisplayPlaceholder={false}
                     getAvatarUrl={getAvatarUrl}
                     showCallQueueName
-                  >
-                    <AlertContainer
-                      getAdditionalRenderer={getAlertRenderer}
-                      callingSettingsUrl="/settings/calling"
-                      regionSettingsUrl="/settings/region"
-                    />
-                  </IncomingCallContainer>
+                  />
                   <ConnectivityBadgeContainer />
                   <MeetingInviteModal />
                   <ModalContainer />
+                  <AlertContainer
+                    getAdditionalRenderer={getAlertRenderer}
+                    callingSettingsUrl="/settings/calling"
+                    regionSettingsUrl="/settings/region"
+                  />
                 </AppView>
               )} >
               <Route
@@ -163,12 +127,7 @@ export default function App({
                       const signupUrl = phone.brand.brandConfig.signupUrl;
                       window.open(signupUrl, '_blank');
                     }}
-                  >
-                    <AlertContainer
-                      callingSettingsUrl="/settings/calling"
-                      regionSettingsUrl="/settings/region"
-                    />
-                  </LoginPage>
+                  />
                 )}
               />
               <Route
@@ -176,27 +135,43 @@ export default function App({
                 component={routerProps => (
                   <MainView navigationPosition="bottom">
                     {routerProps.children}
-                    <AlertContainer
-                      getAdditionalRenderer={getAlertRenderer}
-                      callingSettingsUrl="/settings/calling"
-                      regionSettingsUrl="/settings/region"
-                    />
                   </MainView>
                 )} >
                 <Route
                   path="/dialer"
                   component={() => (
-                    <DialerAndCallsTabContainer>
-                      {
-                        ({ showTabs }) => (
-                          <DialerPage
-                            withTabs={showTabs}
-                          />
-                        )
-                      }
-                    </DialerAndCallsTabContainer>
+                    <PhoneTabsContainer>
+                      <DialerPage
+                        withTabs={true}
+                      />
+                    </PhoneTabsContainer>
                   )}
                 />
+                <Route
+                  path="/history"
+                  component={() => (
+                    <PhoneTabsContainer>
+                      <CallsListPage />
+                      <CallLogSectionModal />
+                    </PhoneTabsContainer>
+                  )} />
+                <Route
+                  path="/calls"
+                  component={() => (
+                    <PhoneTabsContainer>
+                      <ActiveCallsPage
+                        showRingoutCallControl={
+                          phone.appFeatures.hasCallControl
+                        }
+                        showSwitchCall
+                        onCallsEmpty={() => {
+                          phone.routerInteraction.push('/dialer');
+                        }}
+                        useV2
+                        getAvatarUrl={getAvatarUrl}
+                      />
+                    </PhoneTabsContainer>
+                  )} />
                 <Route
                   path="/settings"
                   component={routerProps => (
@@ -210,73 +185,6 @@ export default function App({
                     />
                   )}
                 />
-                <Route
-                  path="/settings/region"
-                  component={RegionSettingsPage}
-                />
-                <Route
-                  path="/settings/calling"
-                  component={CallingSettingsPage}
-                />
-                <Route
-                  path="/settings/audio"
-                  component={AudioSettingsPage}
-                />
-                <Route
-                  path="/settings/ringtone"
-                  component={RingtoneSettingsPage}
-                />
-                <Route
-                  path="/settings/feedback"
-                  component={FeedbackPage}
-                />
-                <Route
-                  path="/settings/thirdParty/:sectionId"
-                  component={routerProps => (
-                    <ThirdPartySettingSectionPage
-                      params={routerProps.params}
-                    />
-                  )}
-                />
-                <Route
-                  path="/history"
-                  component={() => (
-                    <div style={{ width: '100%', height: '100%' }}>
-                      <CallsListPage />
-                      <CallLogSectionModal />
-                    </div>
-                  )} />
-                <Route
-                  path="/calls"
-                  component={() => (
-                    <DialerAndCallsTabContainer>
-                      <ActiveCallsPage
-                        showRingoutCallControl={
-                          phone.appFeatures.hasCallControl
-                        }
-                        showSwitchCall
-                        onCallsEmpty={() => {
-                          phone.routerInteraction.push('/dialer');
-                        }}
-                        useV2
-                        getAvatarUrl={getAvatarUrl}
-                      />
-                    </DialerAndCallsTabContainer>
-                  )} />
-                <Route
-                  path="/calls/active(/:sessionId)"
-                  component={routerProps => (
-                    <CallCtrlPage
-                      params={routerProps.params}
-                      onBackButtonClick={() => {
-                        phone.routerInteraction.push('/calls');
-                      }}
-                      showPark
-                      getAvatarUrl={getAvatarUrl}
-                      showContactDisplayPlaceholder={false}
-                      showCallQueueName
-                    />
-                  )} />
                 <Route
                   path="/messages"
                   component={() => (
@@ -371,48 +279,6 @@ export default function App({
                     )
                   }
                 />
-                <Route
-                  path="/conferenceCall/dialer/:fromNumber/:fromSessionId"
-                  component={ConferenceCallDialerPage}
-                />
-                <Route
-                  path="/conferenceCall/participants"
-                  component={() => (
-                    <ConferenceParticipantPage />
-                  )}
-                />
-                <Route
-                  path="/conferenceCall/callsOnhold/:fromNumber/:fromSessionId"
-                  component={routerProps => (
-                    <CallsOnholdPage
-                      params={routerProps.params}
-                      onCreateContact={() => { }}
-                      onCallsEmpty={() => { }}
-                      getAvatarUrl={getAvatarUrl}
-                    />
-                  )}
-                />
-                <Route
-                  path="/transfer/:sessionId(/:type)"
-                  component={routerProps => (
-                    <TransferPage
-                      params={routerProps.params}
-                      enableWarmTransfer={routerProps.params.type !== 'active'}
-                    />
-                  )}
-                />
-                <Route
-                  path="/flip/:sessionId"
-                  component={(routerProps) => (
-                    <FlipPage params={routerProps.params} />
-                  )}
-                />
-                <Route
-                  path="/simplifycallctrl/:sessionId"
-                  component={routerProps => (
-                    <SimpleCallControlPage params={routerProps.params} />
-                  )}
-                />
               </Route>
               <Route
                 path="/composeText"
@@ -430,6 +296,62 @@ export default function App({
                       phone.thirdPartyService.onClickVCard(uri, e);
                     }}
                   />
+                )}
+              />
+              <Route
+                path="/calls/active(/:sessionId)"
+                component={routerProps => (
+                  <CallCtrlPage
+                    params={routerProps.params}
+                    onBackButtonClick={() => {
+                      phone.routerInteraction.push('/calls');
+                    }}
+                    showPark
+                    getAvatarUrl={getAvatarUrl}
+                    showContactDisplayPlaceholder={false}
+                    showCallQueueName
+                  />
+                )} />
+              <Route
+                path="/conferenceCall/dialer/:fromNumber/:fromSessionId"
+                component={ConferenceCallDialerPage}
+              />
+              <Route
+                path="/conferenceCall/participants"
+                component={() => (
+                  <ConferenceParticipantPage />
+                )}
+              />
+              <Route
+                path="/conferenceCall/callsOnhold/:fromNumber/:fromSessionId"
+                component={routerProps => (
+                  <CallsOnholdPage
+                    params={routerProps.params}
+                    onCreateContact={() => { }}
+                    onCallsEmpty={() => { }}
+                    getAvatarUrl={getAvatarUrl}
+                  />
+                )}
+              />
+              <Route
+                path="/transfer/:sessionId(/:type)"
+                component={routerProps => (
+                  <TransferPage
+                    params={routerProps.params}
+                    enableWarmTransfer={routerProps.params.type !== 'active'}
+                  />
+                )}
+              />
+              <Route
+                path="/flip/:sessionId"
+                component={(routerProps) => (
+                  <FlipPage params={routerProps.params} />
+                )}
+              />
+              <Route
+                path="/simplifycallctrl/:sessionId"
+                component={routerProps => (
+                  <SimpleCallControlPage params={routerProps.params} />
                 )}
               />
               <Route
@@ -491,6 +413,34 @@ export default function App({
                     />
                   )
                 }
+              />
+              <Route
+                path="/settings/region"
+                component={RegionSettingsPage}
+              />
+              <Route
+                path="/settings/calling"
+                component={CallingSettingsPage}
+              />
+              <Route
+                path="/settings/audio"
+                component={AudioSettingsPage}
+              />
+              <Route
+                path="/settings/ringtone"
+                component={RingtoneSettingsPage}
+              />
+              <Route
+                path="/settings/feedback"
+                component={FeedbackPage}
+              />
+              <Route
+                path="/settings/thirdParty/:sectionId"
+                component={routerProps => (
+                  <ThirdPartySettingSectionPage
+                    params={routerProps.params}
+                  />
+                )}
               />
             </Route>
           </Router>
