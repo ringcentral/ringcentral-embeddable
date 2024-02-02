@@ -1,7 +1,6 @@
-import React from 'react';
 import { connect } from 'react-redux';
 import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
-
+import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
 import LogSectionModal from '../../components/LogSectionModal';
 
 function mapToProps(_, {
@@ -16,7 +15,7 @@ function mapToProps(_, {
     currentCall = callLogger.allCallMapping[callLogSection.currentIdentify];
   }
   return {
-    show: callLogSection.show,
+    open: callLogSection.show,
     currentCall,
     currentLogCall: callLogSection.callsMapping[callLogSection.currentIdentify],
     currentLocale: locale.currentLocale,
@@ -27,6 +26,10 @@ function mapToFunctions(_, {
   phone: {
     callLogSection,
     activityMatcher,
+    regionSettings,
+    accountInfo,
+    extensionInfo,
+    dateTimeFormat,
   }
 }) {
   return {
@@ -42,6 +45,19 @@ function mapToFunctions(_, {
         ignoreCache: true
       });
     },
+    formatPhone: (phoneNumber) =>
+      formatNumber({
+        phoneNumber,
+        areaCode: regionSettings.areaCode,
+        countryCode: regionSettings.countryCode,
+        maxExtensionLength: accountInfo.maxExtensionNumberLength,
+        isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+        siteCode: extensionInfo.site?.code,
+      }),
+    dateTimeFormatter: (({ utcTimestamp }) =>
+      dateTimeFormat.formatDateTime({
+        utcTimestamp,
+      })),
   };
 }
 

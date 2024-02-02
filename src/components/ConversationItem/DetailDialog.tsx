@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { styled, palette2, ellipsis } from '@ringcentral/juno/foundation';
 import {

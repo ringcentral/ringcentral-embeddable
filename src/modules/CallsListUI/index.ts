@@ -60,7 +60,7 @@ export class CallsListUI extends BaseCallsListUI {
         ...props,
       }),
       onLogCall: (async ({ call, contact, type, redirect }) => {
-        if (callLogger.showLogModal) {
+        if (callLogger.showLogModal && type !== 'viewLog') {
           callLogSection.handleLogSection(call);
           return;
         }
