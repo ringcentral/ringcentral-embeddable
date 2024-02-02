@@ -1,9 +1,9 @@
 
 import { connectModule } from '@ringcentral-integration/widgets/lib/phoneContext';
-import { PhoneTabsView } from '../../components/PhoneTabsView';
+import { SubTabsView } from '../../components/SubTabsView';
 
 const PhoneTabsContainer = connectModule(
   (phone) => phone.phoneTabsUI,
-)(PhoneTabsView);
+)(SubTabsView);
 
 export { PhoneTabsContainer };
