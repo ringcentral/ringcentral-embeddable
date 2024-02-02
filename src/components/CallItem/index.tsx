@@ -29,6 +29,7 @@ import {
   AddMemberBorder,
   NewAction,
   ViewLogBorder,
+  Edit,
 } from '@ringcentral/juno-icon';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
@@ -236,7 +237,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     userSelectionRef.current = true;
     setSelected(selected);
     if (autoLog) {
-      logCall(false, selected);
+      logCall(false, selected, 'contactUpdated');
     }
   };
 
@@ -265,7 +266,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     return isInbound(call) ? call.from!.name : call.to?.name;
   };
 
-  const logCall = async (redirect = true, isSelected = selected) => {
+  const logCall = async (redirect = true, isSelected = selected, type) => {
     if (typeof onLogCall === 'function' && !isLogging) {
       setIsLogging(true);
       await mounted(
@@ -273,9 +274,9 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
           contact: getSelectedContact(isSelected),
           call: call,
           redirect,
+          type,
         }),
       );
-
       setIsLogging(false);
     }
   };
@@ -429,9 +430,9 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   const isLogged = activityMatches.length > 0;
   if (showLogButton) {
     actions.push({
-      icon: isLogged ? ViewLogBorder : NewAction,
-      title: (isLogged ? 'View log details' : logButtonTitle) || i18n.getString('addLog', currentLocale),
-      onClick: () => logCall(),
+      icon: isLogged ? Edit : NewAction,
+      title: (isLogged ? i18n.getString('editLog', currentLocale) : logButtonTitle) || i18n.getString('logCall', currentLocale),
+      onClick: () => logCall(true, undefined, isLogged ? 'editLog' : 'createLog'),
       disabled: disableLinks || isLogging,
     });
   }
@@ -466,6 +467,14 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
       title: i18n.getString('addEntity', currentLocale),
       onClick: () => createSelectedContact(undefined),
       disabled: disableLinks,
+    });
+  }
+  if (showLogButton && isLogged) {
+    actions.push({
+      icon: ViewLogBorder,
+      title: 'View log details',
+      onClick: () => logCall(true, undefined, 'viewLog'),
+      disabled: disableLinks || isLogging,
     });
   }
   return (

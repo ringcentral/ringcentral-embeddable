@@ -1,6 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { CallsListUI as BaseCallsListUI } from '@ringcentral-integration/widgets/modules/CallsListUI';
-import { renderExtraCallLogButton } from '../../components/LogIcon/render';
 
 @Module({
   name: 'CallsListUI',
@@ -54,32 +53,24 @@ export class CallsListUI extends BaseCallsListUI {
     const {
       callLogSection,
       routerInteraction,
-      locale,
       callLogger,
     } = this._deps;
-    let onLogCall = null; // hide default log button
-    if (callLogger.ready) {
-      onLogCall = (async ({ call }) => {
+    return {
+      ...super.getUIFunctions({
+        ...props,
+      }),
+      onLogCall: (async ({ call, contact, type, redirect }) => {
         if (callLogger.showLogModal) {
           callLogSection.handleLogSection(call);
           return;
         }
         await callLogger.logCall({
           call,
+          contact,
+          type,
+          redirect,
         });
-      });
-    }
-    return {
-      ...super.getUIFunctions({
-        ...props,
       }),
-      onLogCall,
-      renderExtraButton: renderExtraCallLogButton({
-        callLogSection,
-        callLogger,
-        locale,
-      }),
-
       // hide default log & view contact button
       onViewContact: props.onViewContact || (({ contact: { type, id } }) => {
         routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
