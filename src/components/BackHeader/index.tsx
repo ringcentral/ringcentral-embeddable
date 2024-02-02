@@ -22,7 +22,7 @@ const Header = styled.div`
 
 export function BackHeader({
   onBack,
-  children,
+  children = undefined,
 }) {
   return (
     <Header>

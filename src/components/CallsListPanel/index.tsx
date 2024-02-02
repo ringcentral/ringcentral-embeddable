@@ -5,9 +5,6 @@ import PropTypes from 'prop-types';
 
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 
-import InsideModal from '@ringcentral-integration/widgets/components/InsideModal';
-import LogNotification from '@ringcentral-integration/widgets/components/LogNotification';
-import LogSection from '@ringcentral-integration/widgets/components/LogSection';
 import { SearchInput } from '@ringcentral-integration/widgets/components/SearchInput';
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 import i18n from '@ringcentral-integration/widgets/components/CallsListPanel/i18n';
@@ -120,108 +117,6 @@ class CallsListPanel extends React.PureComponent {
       props.otherDeviceCalls.length > 0 ||
       // @ts-expect-error TS(2339): Property 'calls' does not exist on type 'Readonly<... Remove this comment to see the full error message
       props.calls.length > 0
-    );
-  }
-
-  renderLogSection() {
-    // @ts-expect-error TS(2339): Property 'currentLog' does not exist on type 'Read... Remove this comment to see the full error message
-    if (!this.props.currentLog) return null;
-
-    const {
-      // @ts-expect-error TS(2339): Property 'formatPhone' does not exist on type 'Rea... Remove this comment to see the full error message
-      formatPhone,
-      // @ts-expect-error TS(2339): Property 'currentLocale' does not exist on type 'R... Remove this comment to see the full error message
-      currentLocale,
-      // @ts-expect-error TS(2339): Property 'currentLog' does not exist on type 'Read... Remove this comment to see the full error message
-      currentLog,
-      // - styles
-      // @ts-expect-error TS(2339): Property 'sectionContainerStyles' does not exist o... Remove this comment to see the full error message
-      sectionContainerStyles,
-      // @ts-expect-error TS(2339): Property 'sectionModalStyles' does not exist on ty... Remove this comment to see the full error message
-      sectionModalStyles,
-      // - aditional
-      // @ts-expect-error TS(2339): Property 'additionalInfo' does not exist on type '... Remove this comment to see the full error message
-      additionalInfo,
-      // @ts-expect-error TS(2339): Property 'showSaveLogBtn' does not exist on type '... Remove this comment to see the full error message
-      showSaveLogBtn,
-      // @ts-expect-error TS(2339): Property 'renderEditLogSection' does not exist on ... Remove this comment to see the full error message
-      renderEditLogSection,
-      // @ts-expect-error TS(2339): Property 'renderSaveLogButton' does not exist on t... Remove this comment to see the full error message
-      renderSaveLogButton,
-      // @ts-expect-error TS(2339): Property 'onSaveCallLog' does not exist on type 'R... Remove this comment to see the full error message
-      onSaveCallLog,
-      // @ts-expect-error TS(2339): Property 'onUpdateCallLog' does not exist on type ... Remove this comment to see the full error message
-      onUpdateCallLog,
-      // @ts-expect-error TS(2339): Property 'onCloseLogSection' does not exist on typ... Remove this comment to see the full error message
-      onCloseLogSection,
-      // notification
-      // @ts-expect-error TS(2339): Property 'logNotification' does not exist on type ... Remove this comment to see the full error message
-      logNotification,
-      // @ts-expect-error TS(2339): Property 'showNotiLogButton' does not exist on typ... Remove this comment to see the full error message
-      showNotiLogButton,
-      // @ts-expect-error TS(2339): Property 'onCloseNotification' does not exist on t... Remove this comment to see the full error message
-      onCloseNotification,
-      // @ts-expect-error TS(2339): Property 'onSaveNotification' does not exist on ty... Remove this comment to see the full error message
-      onSaveNotification,
-      // @ts-expect-error TS(2339): Property 'onExpandNotification' does not exist on ... Remove this comment to see the full error message
-      onExpandNotification,
-      // @ts-expect-error TS(2339): Property 'onDiscardNotification' does not exist on... Remove this comment to see the full error message
-      onDiscardNotification,
-      // @ts-expect-error TS(2339): Property 'notificationContainerStyles' does not ex... Remove this comment to see the full error message
-      notificationContainerStyles,
-    } = this.props;
-    return (
-      <div>
-        <InsideModal
-          title={currentLog.title}
-          show={currentLog.showLog}
-          onClose={onCloseLogSection}
-          clickOutToClose={false}
-          containerStyles={sectionContainerStyles}
-          modalStyles={sectionModalStyles}
-          maskStyle={styles.maskStyle}
-        >
-          <LogSection
-            currentLocale={currentLocale}
-            currentLog={currentLog}
-            additionalInfo={additionalInfo}
-            isInnerMask={
-              logNotification && logNotification.notificationIsExpand
-            }
-            renderEditLogSection={renderEditLogSection}
-            renderSaveLogButton={renderSaveLogButton}
-            formatPhone={formatPhone}
-            onUpdateCallLog={onUpdateCallLog}
-            onSaveCallLog={onSaveCallLog}
-            showSaveLogBtn={showSaveLogBtn}
-          />
-        </InsideModal>
-        {logNotification ? (
-          <InsideModal
-            show={logNotification.showNotification}
-            showTitle={false}
-            containerStyles={classnames(
-              styles.notificationContainer,
-              notificationContainerStyles,
-            )}
-            modalStyles={styles.notificationModal}
-            contentStyle={styles.notificationContent}
-            onClose={onCloseNotification}
-          >
-            <LogNotification
-              showLogButton={showNotiLogButton}
-              currentLocale={currentLocale}
-              formatPhone={formatPhone}
-              currentLog={logNotification}
-              isExpand={logNotification.notificationIsExpand}
-              onSave={onSaveNotification}
-              onExpand={onExpandNotification}
-              onDiscard={onDiscardNotification}
-              onStay={onCloseNotification}
-            />
-          </InsideModal>
-        ) : null}
-      </div>
     );
   }
 
@@ -546,7 +441,6 @@ class CallsListPanel extends React.PureComponent {
             )}
           {calls.length > 0 ? historyCall : noCalls}
         </div>
-        {this.renderLogSection()}
       </div>
     );
   }
