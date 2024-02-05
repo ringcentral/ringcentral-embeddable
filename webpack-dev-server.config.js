@@ -42,6 +42,7 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
     static: buildPath,
     hot: true,
     port: 8080,
+    // webSocketServer: false,
   };
   config.output = {
     path: buildPath,
