@@ -15,12 +15,7 @@ import { parseNumber } from '@ringcentral-integration/commons/lib/parseNumber';
 import {
   useEventCallback,
   usePrevious,
-  styled,
-  palette2,
-  ellipsis,
-  RcListItem,
   RcListItemText,
-  RcListItemIcon,
 } from '@ringcentral/juno';
 import {
   PhoneBorder,
@@ -41,70 +36,13 @@ import i18n from '@ringcentral-integration/widgets/components/CallItem/i18n';
 import styles from '@ringcentral-integration/widgets/components/CallItem/styles.scss';
 
 import { CallIcon } from './CallIcon';
-import { ActionMenu } from '../ActionMenu';
-import { on } from 'process';
-
-const StyledListItem = styled(RcListItem)`
-  padding: 6px 16px;
-  border-bottom: 1px solid ${palette2('neutral', 'l02')};
-  background-color: ${palette2('neutral', 'b01')};
-  height: 60px;
-  box-sizing: border-box;
-
-  .call-item-action-menu {
-    display: none;
-  }
-
-  &:hover {
-    .call-item-time {
-      display: none;
-    }
-    .call-item-action-menu {
-      display: flex;
-    }
-  }
-
-  ${({ $hoverOnMoreMenu }) =>
-    $hoverOnMoreMenu &&
-    `
-    .call-item-time {
-      display: none;
-    }
-    .call-item-action-menu {
-      display: flex;
-    }
-  `}
-`;
-
-const StyledItemIcon = styled(RcListItemIcon)`
-  .icon {
-    font-size: 26px;
-  }
-`;
-
-const StyledSecondary = styled.span`
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-`;
-
-const DetailArea = styled.span`
-  flex: 1;
-  overflow: hidden;
-  ${ellipsis()}
-`;
-
-
-const StyledActionMenu = styled(ActionMenu)`
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  margin-top: -16px;
-
-  .RcIconButton-root {
-    margin-left: 6px;
-  }
-`;
+import {
+  StyledListItem,
+  StyledItemIcon,
+  StyledSecondary,
+  DetailArea,
+  StyledActionMenu,
+} from './styled';
 
 type CallItemProps = {
   renderIndex?: number;
@@ -426,7 +364,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   // const extraButton = renderExtraButton?.(call);
 
   // const selectedMatchContactType = getSelectedContact()?.type ?? '';
-  const actions = [];
+  const actions: any[] = [];
   const isLogged = activityMatches.length > 0;
   if (showLogButton) {
     actions.push({
