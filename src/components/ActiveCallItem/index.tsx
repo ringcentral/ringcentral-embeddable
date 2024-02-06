@@ -20,7 +20,7 @@ import type {
   ActiveCallItemProps,
   WebphoneButtonsProps,
 } from '@ringcentral-integration/widgets/components/ActiveCallItemV2/ActiveCallItem.interface';
-import { styled, RcListItemText, RcListItemAvatar } from '@ringcentral/juno';
+import { RcListItemText, RcListItemAvatar } from '@ringcentral/juno';
 import {
   Phone,
   PhoneOff,
@@ -528,14 +528,15 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       }
     }
   };
-
   return (
     <StyledListItem
       data-sign="callItem"
       $hoverOnMoreMenu={hoverOnMoreMenu}
       $cursorPointer={cursorPointer}
     >
-      <RcListItemAvatar onClick={hasCallControl && onClick ? onClick : undefined}>
+      <RcListItemAvatar
+        onClick={hasCallControl && onClick ? onClick : undefined}
+      >
         <CallIcon
           isOnConferenceCall={isOnConferenceCall}
           avatarUrl={avatarUrl}
