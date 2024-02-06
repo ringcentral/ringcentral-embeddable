@@ -110,6 +110,7 @@ const StyledListItem = styled(RcListItem)`
   padding: 6px 16px;
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   background-color: ${palette2('neutral', 'b01')};
+  cursor: pointer;
 
   .conversation-item-action-menu {
     display: none;
@@ -171,7 +172,6 @@ const DownloadLink = styled.a`
 
 class MessageItem extends Component<MessageItemProps, MessageItemState> {
   _userSelection = false;
-  contactDisplay: any;
   downloadRef: any;
   private _mounted = false;
 
@@ -241,10 +241,6 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
 
   componentWillUnmount() {
     this._mounted = false;
-  }
-
-  stopPropagation = (e) => {
-    e.stopPropagation();
   }
 
   onSelectContact = (value: any, idx: string) => {
@@ -435,9 +431,6 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
   };
 
   onClickWrapper: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    if (this.contactDisplay && this.contactDisplay.contains(e.target)) {
-      return;
-    }
     if (messageIsTextMessage(this.props.conversation)) {
       this.props.showConversationDetail(this.props.conversation.conversationId);
     } else {
@@ -611,9 +604,6 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     return (
       <ContactDisplay
         formatPhone={formatPhone}
-        reference={(ref) => {
-          this.contactDisplay = ref;
-        }}
         className={classnames(
           styles.contactDisplay,
           showUnreadStatus && unreadCounts && styles.unread,
@@ -846,10 +836,9 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       <StyledListItem
         data-sign={msgItem}
         data-id={conversationId}
-        onClick={this.onClickWrapper}
         $hoverOnMoreMenu={this.state.hoverOnMoreMenu}
       >
-        <StyledItemIcon>
+        <StyledItemIcon onClick={this.onClickWrapper}>
           <ConversationIcon
             group={correspondents && correspondents.length > 1}
             type={type}
@@ -859,6 +848,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
           />
         </StyledItemIcon>
         <RcListItemText
+          onClick={this.onClickWrapper}
           primary={
             renderContactName
               ? renderContactName({
@@ -887,7 +877,6 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
           className="conversation-item-action-menu"
           iconVariant="contained"
           color="neutral.b01"
-          onClick={this.stopPropagation}
           onMoreMenuOpen={(open) => {
             this.setState({
               hoverOnMoreMenu: open,
@@ -959,7 +948,6 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
                     deleteConfirmOpen: false,
                   })
                 }}
-                onClick={this.stopPropagation}
                 onConfirm={this.onDeleteMessage}
                 keepMounted={false}
                 title={actionI18n.getString(

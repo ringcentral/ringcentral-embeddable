@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import type { Call } from '@ringcentral-integration/widgets/components/ActiveCallItemV2';
 import i18n from '@ringcentral-integration/widgets/components/ActiveCallList/i18n';
 import styles from '@ringcentral-integration/widgets/components/ActiveCallList/styles.scss';
-
+import { RcList } from '@ringcentral/juno';
 import { ActiveCallItem } from '../ActiveCallItem';
 
 function isConferenceCall(normalizedCall: any) {
@@ -145,6 +145,8 @@ const ActiveCallList: React.SFC<ActiveCallListProps> = ({
   showMultipleMatch,
   isWide,
   allCalls,
+  showLogButton = false,
+  logButtonTitle = '',
 }) => {
   if (!calls.length) {
     return null;
@@ -162,115 +164,119 @@ const ActiveCallList: React.SFC<ActiveCallListProps> = ({
       >
         {title}
       </div>
-      {calls.map((call) => {
-        const isOnConferenceCall =
-          call.isConferenceCall ??
-          (call.webphoneSession
-            ? // @ts-expect-error TS(2722): Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
-              isSessionAConferenceCall(call.webphoneSession.id)
-            : isConferenceCall(call)); // in case it's an other device call
+      <RcList>
+        {calls.map((call) => {
+          const isOnConferenceCall =
+            call.isConferenceCall ??
+            (call.webphoneSession
+              ? // @ts-expect-error TS(2722): Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
+                isSessionAConferenceCall(call.webphoneSession.id)
+              : isConferenceCall(call)); // in case it's an other device call
 
-        const { warmTransferInfo } = call;
-        let warmTransferRole;
-        let originalCall: any;
+          const { warmTransferInfo } = call;
+          let warmTransferRole;
+          let originalCall: any;
 
-        if (warmTransferInfo) {
-          warmTransferRole = warmTransferInfo.isOriginal
-            ? ` (${i18n.getString('callerCall', currentLocale)})`
-            : ` (${i18n.getString('transferCall', currentLocale)})`;
+          if (warmTransferInfo) {
+            warmTransferRole = warmTransferInfo.isOriginal
+              ? ` (${i18n.getString('callerCall', currentLocale)})`
+              : ` (${i18n.getString('transferCall', currentLocale)})`;
 
-          if (!call.warmTransferInfo.isOriginal) {
-            originalCall = allCalls?.find(
-              (s: any) =>
-                s.telephonySessionId ===
-                call.warmTransferInfo?.relatedTelephonySessionId,
-            );
+            if (!call.warmTransferInfo.isOriginal) {
+              originalCall = allCalls?.find(
+                (s: any) =>
+                  s.telephonySessionId ===
+                  call.warmTransferInfo?.relatedTelephonySessionId,
+              );
+            }
           }
-        }
 
-        return (
-          <ActiveCallItem
-            warmTransferRole={warmTransferRole}
-            call={call}
-            key={call.id ?? call.telephonySessionId}
-            isOnConferenceCall={isOnConferenceCall}
-            currentLocale={currentLocale}
-            areaCode={areaCode}
-            countryCode={countryCode}
-            brand={brand}
-            showContactDisplayPlaceholder={showContactDisplayPlaceholder}
-            formatPhone={formatPhone}
-            onClickToSms={onClickToSms}
-            internalSmsPermission={internalSmsPermission}
-            outboundSmsPermission={outboundSmsPermission}
-            isLoggedContact={isLoggedContact}
-            onLogCall={onLogCall}
-            onViewContact={onViewContact}
-            onCreateContact={onCreateContact}
-            loggingMap={loggingMap}
-            showMergeCall={showMergeCall}
-            onMergeCall={onMergeCall}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            webphoneAnswer={webphoneAnswer}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            webphoneReject={webphoneReject}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            webphoneHangup={webphoneHangup}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            webphoneResume={webphoneResume}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            webphoneToVoicemail={webphoneToVoicemail}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            webphoneSwitchCall={webphoneSwitchCall}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            modalConfirm={modalConfirm}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            modalClose={modalClose}
-            enableContactFallback={enableContactFallback}
-            autoLog={autoLog}
-            sourceIcons={sourceIcons}
-            phoneTypeRenderer={phoneTypeRenderer}
-            phoneSourceNameRenderer={phoneSourceNameRenderer}
-            hasActionMenu={!isOnConferenceCall}
-            // @ts-expect-error TS(2722): Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
-            onClick={() => onCallItemClick(originalCall || call)}
-            showAvatar={showAvatar}
-            getAvatarUrl={getAvatarUrl}
-            // @ts-expect-error TS(2322): Type 'object[] | undefined' is not assignable to t... Remove this comment to see the full error message
-            conferenceCallParties={conferenceCallParties}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            webphoneHold={webphoneHold}
-            showCallDetail={showCallDetail}
-            updateSessionMatchedContact={updateSessionMatchedContact}
-            renderExtraButton={renderExtraButton}
-            renderContactName={renderContactName}
-            renderSubContactName={renderSubContactName}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            ringoutHangup={ringoutHangup}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            ringoutTransfer={ringoutTransfer}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            ringoutReject={ringoutReject}
-            disableLinks={disableLinks}
-            showRingoutCallControl={showRingoutCallControl}
-            showMultipleMatch={!showRingoutCallControl && showMultipleMatch} // disabled for salesforce
-            showSwitchCall={showSwitchCall}
-            showTransferCall={showTransferCall}
-            showHoldOnOtherDevice={showHoldOnOtherDevice}
-            isOnHold={isOnHold}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            webphoneIgnore={webphoneIgnore}
-            showIgnoreBtn={showIgnoreBtn}
-            showHoldAnswerBtn={showHoldAnswerBtn}
-            useCallDetailV2={useCallDetailV2}
-            // @ts-expect-error TS(2322): Type 'boolean | undefined' is not assignable to ty... Remove this comment to see the full error message
-            newCallIcon={newCallIcon}
-            clickSwitchTrack={clickSwitchTrack}
-            onSwitchCall={onSwitchCall}
-            isWide={isWide}
-          />
-        );
-      })}
+          return (
+            <ActiveCallItem
+              warmTransferRole={warmTransferRole}
+              call={call}
+              key={call.id ?? call.telephonySessionId}
+              isOnConferenceCall={isOnConferenceCall}
+              currentLocale={currentLocale}
+              areaCode={areaCode}
+              countryCode={countryCode}
+              brand={brand}
+              showContactDisplayPlaceholder={showContactDisplayPlaceholder}
+              formatPhone={formatPhone}
+              onClickToSms={onClickToSms}
+              internalSmsPermission={internalSmsPermission}
+              outboundSmsPermission={outboundSmsPermission}
+              isLoggedContact={isLoggedContact}
+              onLogCall={onLogCall}
+              onViewContact={onViewContact}
+              onCreateContact={onCreateContact}
+              loggingMap={loggingMap}
+              showMergeCall={showMergeCall}
+              onMergeCall={onMergeCall}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              webphoneAnswer={webphoneAnswer}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              webphoneReject={webphoneReject}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              webphoneHangup={webphoneHangup}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              webphoneResume={webphoneResume}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              webphoneToVoicemail={webphoneToVoicemail}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              webphoneSwitchCall={webphoneSwitchCall}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              modalConfirm={modalConfirm}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              modalClose={modalClose}
+              enableContactFallback={enableContactFallback}
+              autoLog={autoLog}
+              sourceIcons={sourceIcons}
+              phoneTypeRenderer={phoneTypeRenderer}
+              phoneSourceNameRenderer={phoneSourceNameRenderer}
+              hasActionMenu={!isOnConferenceCall}
+              // @ts-expect-error TS(2722): Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
+              onClick={() => onCallItemClick(originalCall || call)}
+              showAvatar={showAvatar}
+              getAvatarUrl={getAvatarUrl}
+              // @ts-expect-error TS(2322): Type 'object[] | undefined' is not assignable to t... Remove this comment to see the full error message
+              conferenceCallParties={conferenceCallParties}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              webphoneHold={webphoneHold}
+              showCallDetail={showCallDetail}
+              updateSessionMatchedContact={updateSessionMatchedContact}
+              renderExtraButton={renderExtraButton}
+              renderContactName={renderContactName}
+              renderSubContactName={renderSubContactName}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              ringoutHangup={ringoutHangup}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              ringoutTransfer={ringoutTransfer}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              ringoutReject={ringoutReject}
+              disableLinks={disableLinks}
+              showRingoutCallControl={showRingoutCallControl}
+              showMultipleMatch={!showRingoutCallControl && showMultipleMatch} // disabled for salesforce
+              showSwitchCall={showSwitchCall}
+              showTransferCall={showTransferCall}
+              showHoldOnOtherDevice={showHoldOnOtherDevice}
+              isOnHold={isOnHold}
+              // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+              webphoneIgnore={webphoneIgnore}
+              showIgnoreBtn={showIgnoreBtn}
+              showHoldAnswerBtn={showHoldAnswerBtn}
+              useCallDetailV2={useCallDetailV2}
+              // @ts-expect-error TS(2322): Type 'boolean | undefined' is not assignable to ty... Remove this comment to see the full error message
+              newCallIcon={newCallIcon}
+              clickSwitchTrack={clickSwitchTrack}
+              onSwitchCall={onSwitchCall}
+              isWide={isWide}
+              showLogButton={showLogButton}
+              logButtonTitle={logButtonTitle}
+            />
+          );
+        })}
+      </RcList>
     </div>
   );
 };

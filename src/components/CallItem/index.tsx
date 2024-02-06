@@ -207,15 +207,20 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   const logCall = async (redirect = true, isSelected = selected, type) => {
     if (typeof onLogCall === 'function' && !isLogging) {
       setIsLogging(true);
-      await mounted(
-        onLogCall({
-          contact: getSelectedContact(isSelected),
-          call: call,
-          redirect,
-          type,
-        }),
-      );
-      setIsLogging(false);
+      try {
+        await mounted(
+          onLogCall({
+            contact: getSelectedContact(isSelected),
+            call: call,
+            redirect,
+            triggerType: type,
+          }),
+        );
+        setIsLogging(false);
+      } catch (e) {
+        setIsLogging(false);
+        throw e;
+      }
     }
   };
 

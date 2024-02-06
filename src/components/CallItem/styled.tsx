@@ -38,6 +38,14 @@ export const StyledListItem = styled(RcListItem)`
       display: flex;
     }
   `}
+
+  ${({ $cursorPointer }) => {
+    if ($cursorPointer) {
+      return `
+      cursor: pointer;
+    `;
+    }
+  }}
 `;
 
 export const StyledItemIcon = styled(RcListItemIcon)`

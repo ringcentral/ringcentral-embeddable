@@ -110,7 +110,7 @@ export class CallsListUI extends BaseCallsListUI {
         callCtrlRoute,
         ...props,
       }),
-      onLogCall: (async ({ call, contact, type, redirect }) => {
+      onLogCall: (async ({ call, contact, triggerType, redirect }) => {
         if (callLogger.showLogModal && type !== 'viewLog') {
           callLogSection.handleLogSection(call);
           return;
@@ -118,7 +118,7 @@ export class CallsListUI extends BaseCallsListUI {
         await callLogger.logCall({
           call,
           contact,
-          type,
+          triggerType,
           redirect,
         });
       }),

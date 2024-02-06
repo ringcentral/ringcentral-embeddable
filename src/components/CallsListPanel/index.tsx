@@ -281,6 +281,8 @@ export function CallsListPanel({
       onSwitchCall={onSwitchCall}
       isWide={isWide}
       allCalls={allCalls}
+      showLogButton={showLogButton}
+      logButtonTitle={logButtonTitle}
     />
   );
 

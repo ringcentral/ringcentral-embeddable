@@ -121,6 +121,9 @@ export function DetailDialog({
   showLogButton,
   logButtonTitle,
 }) {
+  if (!open) {
+    return null;
+  }
   let downloadUri = null;
   if (faxAttachment) {
     downloadUri = faxAttachment.uri;

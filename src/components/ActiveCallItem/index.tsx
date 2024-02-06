@@ -1,5 +1,5 @@
 import type { FunctionComponent } from 'react';
-import React, { Component, useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 import classnames from 'classnames';
 
@@ -31,6 +31,8 @@ import {
   Swap,
   TransferCall,
   Voicemail,
+  NewAction,
+  Edit,
 } from '@ringcentral/juno-icon'
 import styles from '@ringcentral-integration/widgets/components/ActiveCallItemV2/styles.scss';
 
@@ -63,6 +65,11 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
   showIgnoreBtn,
   isConnecting = false,
   onMoreMenuOpen = () => {},
+  showLogButton = false,
+  logButtonTitle = '',
+  isLogged = false,
+  isLogging = false,
+  logCall = () => {},
 }) => {
   if (!session) {
     return null;
@@ -70,12 +77,21 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
 
   const actions: any[] = [];
   const isRinging = isInbound(session) && session.callStatus === sessionStatus.connecting;
+  if (showLogButton) {
+    actions.push({
+      icon: isLogged ? Edit : NewAction,
+      title: (isLogged ? i18n.getString('editLog', currentLocale) : logButtonTitle) || i18n.getString('logCall', currentLocale),
+      onClick: () => {
+        logCall(true, undefined, isLogged ? 'editLog' : 'createLog');
+      },
+      disabled: disableLinks || isLogging,
+    });
+  }
   if (isRinging) {
     actions.push({
       icon: Voicemail,
       title: i18n.getString('toVoicemail', currentLocale),
-      onClick: (e) => {
-        e.stopPropagation();
+      onClick: () => {
         webphoneReject(session.id, telephonySessionId);
       },
       disabled: disableLinks,
@@ -85,8 +101,7 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
       actions.push({
         icon: Ignore,
         title: i18n.getString('ignore', currentLocale),
-        onClick: (e) => {
-          e.stopPropagation();
+        onClick: () => {
           webphoneIgnore && webphoneIgnore(telephonySessionId);
         },
         disabled: disableLinks,
@@ -96,8 +111,7 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
     actions.push({
       icon: showHoldAnswerBtn ? HoldAnswer : Phone,
       title: i18n.getString(showHoldAnswerBtn ? 'holdAndAnswer' : 'accept', currentLocale),
-      onClick: (e) => {
-        e.stopPropagation();
+      onClick: () => {
         webphoneAnswer(session.id, telephonySessionId, showHoldAnswerBtn);
       },
       disabled: disableLinks,
@@ -109,8 +123,7 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
         actions.push({
           icon: Hold,
           title: i18n.getString('unhold', currentLocale),
-          onClick: (e) => {
-            e.stopPropagation();
+          onClick: () => {
             webphoneResume(session.id, telephonySessionId);
           },
           disabled: disableLinks || isConnecting,
@@ -120,8 +133,7 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
         actions.push({
           icon: Hold,
           title: i18n.getString('hold', currentLocale),
-          onClick: (e) => {
-            e.stopPropagation();
+          onClick: () => {
             webphoneHold(session.id, telephonySessionId);
           },
           disabled: disableLinks || isConnecting,
@@ -132,8 +144,7 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
       actions.push({
         icon: Merge,
         title: i18n.getString('mergeToConference', currentLocale),
-        onClick: (e) => {
-          e.stopPropagation();
+        onClick: () => {
           onMergeCall(session.id, telephonySessionId);
         },
         disabled: disableMerge || disableLinks,
@@ -142,8 +153,7 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
     actions.push({
       icon: PhoneOff,
       title: i18n.getString('hangup', currentLocale),
-      onClick: (e) => {
-        e.stopPropagation();
+      onClick: () => {
         webphoneHangup(session.id, telephonySessionId);
       },
       disabled: disableLinks,
@@ -186,10 +196,25 @@ const ActiveCallControlButtons: FunctionComponent<
   isConnecting = false,
   clickSwitchTrack = () => {},
   onMoreMenuOpen = () => {},
+  showLogButton = false,
+  logButtonTitle = '',
+  isLogged = false,
+  isLogging = false,
+  logCall = () => {},
 }) => {
   if (!showRingoutCallControl && !showSwitchCall) return null;
   const actions: any[] = [];
   const incomingCall = inbound && ringing;
+  if (showLogButton) {
+    actions.push({
+      icon: isLogged ? Edit : NewAction,
+      title: (isLogged ? i18n.getString('editLog', currentLocale) : logButtonTitle) || i18n.getString('logCall', currentLocale),
+      onClick: () => {
+        logCall(true, undefined, isLogged ? 'editLog' : 'createLog');
+      },
+      disabled: disableLinks || isLogging,
+    });
+  }
   if (showRingoutCallControl) {
     if (!incomingCall) {
       const disabled = disableLinks || isConnecting || ringing;
@@ -198,8 +223,7 @@ const ActiveCallControlButtons: FunctionComponent<
           actions.push({
             icon: Hold,
             title: i18n.getString('unhold', currentLocale),
-            onClick: (e) => {
-              e.stopPropagation();
+            onClick: () => {
               webphoneResume && webphoneResume('', telephonySessionId);
             },
             disabled,
@@ -209,8 +233,7 @@ const ActiveCallControlButtons: FunctionComponent<
           actions.push({
             icon: Hold,
             title: i18n.getString('hold', currentLocale),
-            onClick: (e) => {
-              e.stopPropagation();
+            onClick: () => {
               webphoneHold && webphoneHold('', telephonySessionId);
             },
             disabled,
@@ -221,8 +244,7 @@ const ActiveCallControlButtons: FunctionComponent<
         actions.push({
           icon: TransferCall,
           title: i18n.getString('transfer', currentLocale),
-          onClick: (e) => {
-            e.stopPropagation();
+          onClick: () => {
             ringoutTransfer(telephonySessionId);
           },
           disabled,
@@ -235,8 +257,7 @@ const ActiveCallControlButtons: FunctionComponent<
     actions.push({
       icon: Swap,
       title: i18n.getString('switchCall', currentLocale),
-      onClick: (e) => {
-        e.stopPropagation();
+      onClick: () => {
         clickSwitchTrack();
         onClickSwitchBtn && onClickSwitchBtn();
       },
@@ -251,8 +272,7 @@ const ActiveCallControlButtons: FunctionComponent<
       actions.push({
         icon: PhoneOff,
         title: i18n.getString('reject', currentLocale),
-        onClick: (e) => {
-          e.stopPropagation();
+        onClick: () => {
           ringoutReject(telephonySessionId);
         },
         disabled: disableLinks,
@@ -262,8 +282,7 @@ const ActiveCallControlButtons: FunctionComponent<
       actions.push({
         icon: Phone,
         title: i18n.getString('hangup', currentLocale),
-        onClick: (e) => {
-          e.stopPropagation();
+        onClick: () => {
           ringoutHangup(telephonySessionId);
         },
         disabled: disableLinks,
@@ -369,7 +388,6 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
   showHoldOnOtherDevice = false,
   showMultipleMatch = false,
   isOnHold = isOnHoldDefault,
-  newCallIcon,
   webphoneIgnore,
   showHoldAnswerBtn,
   showIgnoreBtn,
@@ -377,6 +395,9 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
   formatPhone,
   onSwitchCall = undefined,
   updateSessionMatchedContact = (id: string, value: any) => id,
+  showLogButton = false,
+  logButtonTitle = '',
+  onLogCall,
 }) => {
   const {
     direction,
@@ -386,10 +407,12 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
     telephonyStatus,
     startTime,
     offset,
+    activityMatches,
   } = call;
   const [selected, setSelected] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [extraNum, setExtraNum] = useState(0);
+  const [isLoggingState, setIsLoggingState] = useState(isLogging);
   const [switchDialogOpen, setSwitchDialogOpen] = useState(false);
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
   const userSelectionRef = useRef(false);
@@ -407,6 +430,10 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       }
     };
   }, []);
+
+  useEffect(() => {
+    setIsLoggingState(isLogging);
+  }, [isLogging]);
 
   const onSelectContact = useCallback((value, idx) => {
     if (!value || typeof getAvatarUrl !== 'function') {
@@ -483,8 +510,31 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
     telephonySession?.otherParties[0]?.status?.code ===
     telephonySessionStatus.proceeding;
 
+  const isLogged = activityMatches && activityMatches.length > 0;
+  const logCall = async (redirect = true, isSelected = selected, type) => {
+    if (typeof onLogCall === 'function' && !isLogging) {
+      setIsLoggingState(true);
+      try {
+        await onLogCall({
+          contact: getSessionContact(call, isSelected),
+          call: call,
+          redirect,
+          triggerType: type,
+        });
+        setIsLoggingState(false);
+      } catch (e) {
+        setIsLoggingState(false);
+        throw e;
+      }
+    }
+  };
+
   return (
-    <StyledListItem data-sign="callItem" $hoverOnMoreMenu={hoverOnMoreMenu}>
+    <StyledListItem
+      data-sign="callItem"
+      $hoverOnMoreMenu={hoverOnMoreMenu}
+      $cursorPointer={cursorPointer}
+    >
       <RcListItemAvatar onClick={hasCallControl && onClick ? onClick : undefined}>
         <CallIcon
           isOnConferenceCall={isOnConferenceCall}
@@ -513,6 +563,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
             isLogging={isLogging}
             fallBackName={fallbackContactName}
             enableContactFallback={enableContactFallback}
+            stopPropagation={false}
             areaCode={areaCode}
             countryCode={countryCode}
             phoneNumber={phoneNumber}
@@ -564,6 +615,11 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
           showIgnoreBtn={showIgnoreBtn}
           showHoldAnswerBtn={showHoldAnswerBtn}
           disableLinks={disableLinks}
+          showLogButton={showLogButton}
+          logButtonTitle={logButtonTitle}
+          isLogged={isLogged}
+          isLogging={isLoggingState || isLogging}
+          logCall={logCall}
           onMoreMenuOpen={(open) => {
             setHoverOnMoreMenu(open);
           }}
@@ -588,6 +644,11 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
           webphoneHold={webphoneHold}
           isConnecting={isConnecting}
           clickSwitchTrack={clickSwitchTrack}
+          showLogButton={showLogButton}
+          logButtonTitle={logButtonTitle}
+          isLogged={isLogged}
+          isLogging={isLoggingState || isLogging}
+          logCall={logCall}
           onMoreMenuOpen={(open) => {
             setHoverOnMoreMenu(open);
           }}
