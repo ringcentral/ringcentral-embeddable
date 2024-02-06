@@ -1,11 +1,9 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { CallsListUI as BaseCallsListUI } from '@ringcentral-integration/widgets/modules/CallsListUI';
-import { ModalContent } from '@ringcentral-integration/widgets/components/ActiveCallItemV2';
 import { callingModes } from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { isRingingInboundCall } from '@ringcentral-integration/commons/lib/callLogHelpers';
 import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
-const ModalContentRendererID = 'ActiveCallsUI.ModalContentRenderer';
 
 @Module({
   name: 'CallsListUI',
@@ -16,21 +14,11 @@ const ModalContentRendererID = 'ActiveCallsUI.ModalContentRenderer';
     'ActivityMatcher',
     'CallingSettings',
     { dep: 'ActiveCallControl', optional: true },
-    { dep: 'ModalUI', optional: true },
     { dep: 'ConferenceCall', optional: true },
     { dep: 'CallsListUIOptions', optional: true },
   ],
 })
 export class CallsListUI extends BaseCallsListUI {
-  constructor(deps) {
-    super(deps);
-    this._deps.modalUI?.registerRenderer(
-      ModalContentRendererID,
-      ({ currentLocale, contactName }) => (
-        <ModalContent currentLocale={currentLocale} contactName={contactName} />
-      ),
-    );
-  }
   getUIProps({
     showRingoutCallControl = false,
     showSwitchCall = false,
@@ -116,8 +104,6 @@ export class CallsListUI extends BaseCallsListUI {
       webphone,
       regionSettings,
       conferenceCall,
-      modalUI,
-      callMonitor,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -148,12 +134,6 @@ export class CallsListUI extends BaseCallsListUI {
           activity.contact.id === contact.id
         );
       },
-      modalConfirm: (props) =>
-        modalUI?.confirm({
-          ...props,
-          content: ModalContentRendererID,
-        }),
-      modalClose: (id) => modalUI?.close(id),
       onMergeCall: undefined,
       webphoneAnswer: (sessionId: string) => {
         if (!webphone) {

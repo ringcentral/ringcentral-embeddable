@@ -51,7 +51,7 @@ export function ActionMenu({
               disabled={action.disabled}
               title={action.title}
               variant={iconVariant}
-              color={color}
+              color={action.color || color}
             />
           );
         })

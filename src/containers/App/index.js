@@ -150,7 +150,13 @@ export default function App({
                   path="/history"
                   component={() => (
                     <PhoneTabsContainer>
-                      <CallsListPage />
+                      <CallsListPage
+                        showRingoutCallControl={
+                          phone.appFeatures.hasCallControl
+                        }
+                        showSwitchCall
+                        getAvatarUrl={getAvatarUrl}
+                      />
                       <CallLogSectionModal />
                     </PhoneTabsContainer>
                   )} />

@@ -1,11 +1,11 @@
 import React from 'react';
 
 import classnames from 'classnames';
-
-import { ActiveCallItem } from '@ringcentral-integration/widgets/components/ActiveCallItemV2';
 import type { Call } from '@ringcentral-integration/widgets/components/ActiveCallItemV2';
 import i18n from '@ringcentral-integration/widgets/components/ActiveCallList/i18n';
 import styles from '@ringcentral-integration/widgets/components/ActiveCallList/styles.scss';
+
+import { ActiveCallItem } from '../ActiveCallItem';
 
 function isConferenceCall(normalizedCall: any) {
   return (
