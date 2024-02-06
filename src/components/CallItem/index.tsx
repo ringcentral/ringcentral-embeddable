@@ -391,8 +391,8 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     actions.push({
       icon: SmsBorder,
       title: i18n.getString('text', currentLocale),
-      onClick: clickToSms,
-      disabled: disableLinks || disableClickToSms || !phoneNumber,
+      onClick: () => clickToSms({ countryCode, areaCode }),
+      disabled: disableLinks || disableClickToSms || !phoneNumber || !readTextPermission,
     });
   }
   const hasEntity = !!contactMatches.length;
