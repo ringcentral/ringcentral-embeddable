@@ -48,11 +48,11 @@ export class IframeWidget {
   }
 
   async waitForDialButton() {
-    await this.waitFor('svg[data-sign="callButton"]', 100000);
+    await this.waitFor('button[data-sign="callButton"]', 100000);
   }
 
-  async waitForNavigations() {
-    await this.waitFor('nav.NavigationBar_root');
+  async waitForNavigation() {
+    await this.waitFor('ul[data-sign="navigationBar"]');
   }
 
   async getLoginButtonText() {
@@ -61,30 +61,55 @@ export class IframeWidget {
   }
 
   async getDialButton() {
-    const callBtn = await this._widgetIframe.$('svg[data-sign="callButton"]');
+    const callBtn = await this._widgetIframe.$('button[data-sign="callButton"]');
     return callBtn;
   }
 
   async waitDialButtonEnabled() {
     await this._widgetIframe.waitForSelector('div[data-sign="spinnerOverlay"]', { hidden: true });
-    await this.waitFor('svg[data-sign="callButton"]:not(.DialerPanel_disabled)', 100000);
-    const callBtn = await this._widgetIframe.$('svg[data-sign="callButton"]:not(.DialerPanel_disabled)');
+    await this.waitFor('button[data-sign="callButton"]:not([disabled])', 100000);
+    const callBtn = await this._widgetIframe.$('button[data-sign="callButton"]:not([disabled])');
     return callBtn;
   }
 
   async clickNavigationButton(label) {
-    await this.waitFor('nav.NavigationBar_root');
-    await this._widgetIframe.click(`.TabNavigationButton_iconHolder[data-sign="${label}"]`);
+    await this.waitFor('ul[data-sign="navigationBar"]');
+    await this._widgetIframe.click(`.MuiListItem-root[role="tab"][data-sign="${label}"]`);
   }
 
-  async clickDropdownNavigationMenu(label) {
-    await this.waitFor('.DropdownNavigationView_root');
-    await this._widgetIframe.click(`.DropdownNavigationItem_root[title="${label}"]`);
+  async moreButtonExist() {
+    const moreButton = await this._widgetIframe.$('button[data-sign="More"]');
+    return !!moreButton;
+  }
+
+  async clickSubTab(label) {
+    await this.waitFor('.MuiTabs-flexContainer');
+    await this._widgetIframe.click(`.MuiTab-root[data-sign="${label}"]`);
+  }
+
+  async clickBackButton() {
+    await this._widgetIframe.click('[data-sign="backButton"]');
+  }
+
+  async clickNavigationSubMenu(label) {
+    await this.waitFor('.MuiList-root[role="menu"]');
+    await this._widgetIframe.click(`.MuiMenuItem-root[data-sign="${label}"]`);
+  }
+
+  async gotoSettingsPage() {
+    const moreButtonExist = await this.moreButtonExist();
+    if (!moreButtonExist) {
+      await this.clickNavigationButton('Settings');
+    } else {
+      await this.clickNavigationButton('More');
+      await this.clickNavigationSubMenu('Settings');
+    }
   }
 
   async getCallItemList() {
     await this.waitFor('.CallsListPanel_container');
-    const callItems = await this._widgetIframe.$$('.CallItem_root');
+    await this._widgetIframe.waitForTimeout(500); // for render
+    const callItems = await this._widgetIframe.$$('.MuiListItem-root[data-sign="calls_item_root"]');
     return callItems;
   }
 
@@ -100,7 +125,7 @@ export class IframeWidget {
 
   async getMessageAllTabText() {
     await this.waitFor('div[data-sign="ConversationsPanel"]');
-    const allTabText = await this._widgetIframe.$eval('div[data-sign="All"]', (el) => el.innerText);
+    const allTabText = await this._widgetIframe.$eval('button[data-sign="All"]', (el) => el.innerText);
     return allTabText;
   }
 
@@ -151,7 +176,7 @@ export class IframeWidget {
   }
 
   async clickComposeTextIcon() {
-    await this._widgetIframe.click('span[title="Compose Text"]');
+    await this._widgetIframe.click('button[title="Compose Text"]');
   }
 
   async typeSMSRecipientAndText({ recipientNumber, text}) {

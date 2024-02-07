@@ -31,18 +31,18 @@ conditionalDescribe('widget page test', () => {
     expect(noTimeout).toEqual(true);
   });
 
-  it('should goto history page successfully', async () => {
-    await widgetIframe.clickNavigationButton('History');
+  it('should goto calls page successfully', async () => {
+    await widgetIframe.clickSubTab('Calls');
     const callItems = await widgetIframe.getCallItemList();
     const noCallsText = await widgetIframe.getNoCallsText();
     const isNoCalls = noCallsText === 'No results found.';
     expect(callItems.length > 0 || isNoCalls).toEqual(true);
   });
 
-  it('should goto messages page successfully', async () => {
-    await widgetIframe.clickNavigationButton('Messages');
+  it('should goto inbox page successfully', async () => {
+    await widgetIframe.clickNavigationButton('Inbox');
     const allTabText = await widgetIframe.getMessageAllTabText();
-    expect(allTabText).toEqual('All');
+    expect(allTabText).toContain('All');
   });
 
   it('should goto Compose Text page successfully', async () => {
@@ -54,59 +54,59 @@ conditionalDescribe('widget page test', () => {
     await widgetIframe.clickSMSSendButton();
     const lastTextInConversation = await widgetIframe.getLastTextAtConversation();
     expect(lastTextInConversation).toEqual(text);
+    await widgetIframe.clickBackButton();
   });
 
   it('should goto contacts page successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Contacts');
+    await widgetIframe.clickNavigationButton('Contacts');
     const contactSearchInput = await widgetIframe.getContactSearchInput();
     expect(!!contactSearchInput).toEqual(true);
   });
 
   it('should goto settings page successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Settings');
+    await widgetIframe.gotoSettingsPage();
     const eluaText = await widgetIframe.getELUAText();
     expect(eluaText).toEqual('End User License Agreement');
   });
 
   it('should goto region setting page successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Settings');
+    await widgetIframe.gotoSettingsPage();
     await widgetIframe.clickSettingSection('Region');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Region');
+    await widgetIframe.clickBackButton();
   });
 
   it('should goto Compose Text page when click SMS link', async () => {
-    await widgetIframe.waitForNavigations();
+    await widgetIframe.waitForNavigation();
     const smsLink = await page.$('a[href="sms:+12345678901"]');
     await smsLink.evaluate(l => l.click());
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     expect(recipientNumber).toEqual('+12345678901');
+    await widgetIframe.clickBackButton();
   });
 
   it('should goto Compose Text page when click SMS link with body', async () => {
-    await widgetIframe.waitForNavigations();
+    await widgetIframe.waitForNavigation();
     const smsLink = await page.$('a[href="sms:+12345678902?body=test_sms"]');
     await smsLink.evaluate(l => l.click());
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     const text = await widgetIframe.getSMSText();
     expect(recipientNumber).toEqual('+12345678902');
     expect(text).toEqual('test_sms');
+    await widgetIframe.clickBackButton();
   });
 
   it('should goto calling setting page successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Settings');
+    await widgetIframe.gotoSettingsPage();
     await widgetIframe.clickSettingSection('Calling');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Calling');
+    await widgetIframe.clickBackButton();
   });
 
   it('should register service successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Settings');
+    await widgetIframe.gotoSettingsPage();
     await page.evaluate(() => {
       const iframe = document.querySelector("#rc-widget-adapter-frame").contentWindow;
       window.addEventListener('message', function (e) {
@@ -152,8 +152,7 @@ conditionalDescribe('widget page test', () => {
     });
     const serviceName = await widgetIframe.getServiceNameInAuthorizationSettings();
     expect(serviceName).toEqual('TestService');
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Contacts');
+    await widgetIframe.clickNavigationButton('Contacts');
     const contactsFilters = await widgetIframe.getContactFilters();
     expect(contactsFilters).toEqual(expect.stringContaining('TestService'));
     await page.waitForTimeout(1500);
