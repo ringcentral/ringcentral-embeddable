@@ -456,9 +456,8 @@ class ConversationPanel extends Component<ConversationProps, ConversationPanelSt
       />
     );
     return (
-      <div className={styles.root}>
+      <div className={styles.root} data-sign="conversationPanel">
         <BackHeader
-          data-sign="conversationPanel"
           onBack={this.props.goBack}
         >
           {this.props.renderConversationTitle?.({

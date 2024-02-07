@@ -87,6 +87,7 @@ export function SubTabs({
             value={tab.value}
             key={tab.value}
             disabled={tab.disabled}
+            data-sign={tab.dataSign || tab.label}
           />
         ))
       }
