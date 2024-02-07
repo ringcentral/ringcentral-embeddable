@@ -15,7 +15,6 @@ import AudioSettingsPage from '@ringcentral-integration/widgets/containers/Audio
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
 import CallingSettingsPage from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
 import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
-import ConferenceCallDialerPage from '@ringcentral-integration/widgets/containers/ConferenceCallDialerPage';
 import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
 import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
 import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
@@ -43,6 +42,7 @@ import DialerPage from '../DialerPage';
 import CallCtrlPage from '../CallCtrlPage';
 import CallLogSectionModal from '../CallLogSectionModal';
 import { CallsListPage } from '../CallsListPage';
+import ConferenceCallDialerPage from '../ConferenceCallDialerPage';
 import ComposeTextPage from '../ComposeTextPage';
 import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';

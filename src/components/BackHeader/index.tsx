@@ -1,6 +1,6 @@
 import React from 'react';
 import { styled, palette2 } from '@ringcentral/juno/foundation';
-import { RcIconButton } from '@ringcentral/juno';
+import { RcIconButton, RcTypography } from '@ringcentral/juno';
 import { Previous } from '@ringcentral/juno-icon';
 
 const BackButton = styled(RcIconButton)`
@@ -20,9 +20,16 @@ const Header = styled.div`
   background-color: ${palette2('nav', 'b01')};
 `;
 
+const BackButtonLabel = styled(RcTypography)`
+  position: absolute;
+  left: 45px;
+  top: 8px;
+`;
+
 export function BackHeader({
   onBack,
   children = undefined,
+  label = undefined,
 }) {
   return (
     <Header>
@@ -31,6 +38,13 @@ export function BackHeader({
         onClick={onBack}
         data-sign="backButton"
       />
+      {
+        label && (
+          <BackButtonLabel variant="body1" color="neutral.f06">
+            {label}
+          </BackButtonLabel>
+        )
+      }
       {
         children
       }
