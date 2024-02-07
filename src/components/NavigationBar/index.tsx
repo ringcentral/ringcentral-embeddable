@@ -46,6 +46,7 @@ export const NavigationBar: FunctionComponent<NavigationBarProps> = ({
   return (
     <StyledRcList
       role="tablist"
+      data-sign="navigationBar"
     >
       {
         tabs.filter(tab => {

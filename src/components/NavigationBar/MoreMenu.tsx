@@ -81,6 +81,7 @@ export function MoreMenu({
                 </RcListItemIcon>
               )}
               color={color}
+              data-sign={tab.dataSign || tab.label}
             >
               <StyledMoreMenuText
                 primary={tab.label}

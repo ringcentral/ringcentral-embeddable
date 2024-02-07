@@ -7,7 +7,6 @@ import {
   RcDialerPadSoundsMPEG,
   RcDialPad,
   RcIconButton,
-  spacing,
   styled,
   palette2,
 } from '@ringcentral/juno';
