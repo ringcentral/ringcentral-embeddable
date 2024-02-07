@@ -57313,13 +57313,13 @@ class Adapter extends AdapterCore/* default */.Z {
     return this._widgetCurrentPath.indexOf('/calls/active') === -1 && this.showDuration;
   }
   get showViewCallsBtn() {
-    return this._widgetCurrentPath !== '/calls' && (this.showOnHoldCalls || this.showRingingCalls);
+    return this._widgetCurrentPath !== '/history' && (this.showOnHoldCalls || this.showRingingCalls);
   }
   get centerDuration() {
     return this._widgetCurrentPath.indexOf('/calls/active') > -1;
   }
   get centerCallInfo() {
-    return this._widgetCurrentPath === '/calls';
+    return this._widgetCurrentPath === '/history';
   }
 }
 /* harmony default export */ var lib_Adapter = (Adapter);
