@@ -261,6 +261,9 @@ window.addEventListener('message', (e) => {
 });
 ```
 
+!!! warning "Working with multiple instances of Embeddable"
+    If user opens multiple tabs, the event will be fired in every tab. From `v1.10.1`, [`disableInactiveTabCallEvent`](../config/multiple-tabs.md) is a option that makes widget only fire this event in last active tab. Just add [`disableInactiveTabCallEvent=1`](../config/multiple-tabs.md) in widget adapter js uri or iframe src.
+
 ## Web phone call event
 
 These events are only fired when [calling mode](../config/call-settings.md) is set to `Browser` and the user has received a call via Embedddable.

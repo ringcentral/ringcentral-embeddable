@@ -737,6 +737,9 @@ export default class Adapter extends AdapterModuleCore {
   }
 
   telephonySessionNotify(session) {
+    if (this._disableInactiveTabCallEvent && this._tabManager.ready && (!this._tabManager.active)) {
+      return;
+    }
     this._postMessage({
       type: 'rc-telephony-session-notify',
       telephonySession: session,
