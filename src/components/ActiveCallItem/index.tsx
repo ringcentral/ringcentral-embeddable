@@ -15,11 +15,7 @@ import { isOnHold as isOnHoldDefault } from '@ringcentral-integration/commons/mo
 import i18n from '@ringcentral-integration/widgets/components/ActiveCallItem/i18n';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
 import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
-import type {
-  ActiveCallControlButtonsProps,
-  ActiveCallItemProps,
-  WebphoneButtonsProps,
-} from '@ringcentral-integration/widgets/components/ActiveCallItemV2/ActiveCallItem.interface';
+import type { ActiveCallItemProps } from '@ringcentral-integration/widgets/components/ActiveCallItemV2/ActiveCallItem.interface';
 import { RcListItemText, RcListItemAvatar } from '@ringcentral/juno';
 import {
   Phone,
@@ -33,6 +29,7 @@ import {
   Voicemail,
   NewAction,
   Edit,
+  ViewLogBorder,
 } from '@ringcentral/juno-icon'
 import styles from '@ringcentral-integration/widgets/components/ActiveCallItemV2/styles.scss';
 
@@ -45,7 +42,7 @@ import {
 import { SwitchDialog } from './SwitchDialog';
 import { CallIcon } from './CallIcon';
 
-const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
+const getWebphoneActions = ({
   currentLocale,
   session = undefined,
   webphoneReject,
@@ -64,29 +61,13 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
   showHoldAnswerBtn,
   showIgnoreBtn,
   isConnecting = false,
-  onMoreMenuOpen = () => {},
-  showLogButton = false,
-  logButtonTitle = '',
-  isLogged = false,
-  isLogging = false,
-  logCall = () => {},
 }) => {
   if (!session) {
-    return null;
+    return [];
   }
 
   const actions: any[] = [];
   const isRinging = isInbound(session) && session.callStatus === sessionStatus.connecting;
-  if (showLogButton) {
-    actions.push({
-      icon: isLogged ? Edit : NewAction,
-      title: (isLogged ? i18n.getString('editLog', currentLocale) : logButtonTitle) || i18n.getString('logCall', currentLocale),
-      onClick: () => {
-        logCall(true, undefined, isLogged ? 'editLog' : 'createLog');
-      },
-      disabled: disableLinks || isLogging,
-    });
-  }
   if (isRinging) {
     actions.push({
       icon: Voicemail,
@@ -160,23 +141,10 @@ const WebphoneButtons: FunctionComponent<WebphoneButtonsProps> = ({
       color: 'danger.b04'
     });
   }
-
-  return (
-    <StyledActionMenu
-      actions={actions}
-      size="small"
-      maxActions={3}
-      className="call-item-action-menu"
-      iconVariant="contained"
-      color="neutral.b01"
-      onMoreMenuOpen={onMoreMenuOpen}
-    />
-  );
+  return actions;
 };
 
-const ActiveCallControlButtons: FunctionComponent<
-  ActiveCallControlButtonsProps
-> = ({
+const getActiveCallControlActions = ({
   session = undefined,
   showRingoutCallControl,
   showSwitchCall,
@@ -195,26 +163,10 @@ const ActiveCallControlButtons: FunctionComponent<
   webphoneHold = undefined,
   isConnecting = false,
   clickSwitchTrack = () => {},
-  onMoreMenuOpen = () => {},
-  showLogButton = false,
-  logButtonTitle = '',
-  isLogged = false,
-  isLogging = false,
-  logCall = () => {},
 }) => {
-  if (!showRingoutCallControl && !showSwitchCall) return null;
+  if (!showRingoutCallControl && !showSwitchCall) return [];
   const actions: any[] = [];
   const incomingCall = inbound && ringing;
-  if (showLogButton) {
-    actions.push({
-      icon: isLogged ? Edit : NewAction,
-      title: (isLogged ? i18n.getString('editLog', currentLocale) : logButtonTitle) || i18n.getString('logCall', currentLocale),
-      onClick: () => {
-        logCall(true, undefined, isLogged ? 'editLog' : 'createLog');
-      },
-      disabled: disableLinks || isLogging,
-    });
-  }
   if (showRingoutCallControl) {
     if (!incomingCall) {
       const disabled = disableLinks || isConnecting || ringing;
@@ -290,17 +242,7 @@ const ActiveCallControlButtons: FunctionComponent<
       });
     }
   }
-  return (
-    <StyledActionMenu
-      actions={actions}
-      size="small"
-      maxActions={3}
-      className="call-item-action-menu"
-      iconVariant="contained"
-      color="neutral.b01"
-      onMoreMenuOpen={onMoreMenuOpen}
-    />
-  );
+  return actions;
 };
 
 function getContactMatches(call) {
@@ -353,7 +295,6 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
   areaCode,
   countryCode,
   enableContactFallback = false,
-  isLogging = false,
   brand = 'RingCentral',
   showContactDisplayPlaceholder = true,
   webphoneHangup,
@@ -368,14 +309,14 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
   phoneSourceNameRenderer,
   renderContactName,
   renderSubContactName,
-  renderExtraButton,
+  // renderExtraButton,
   contactDisplayStyle = '',
   isOnConferenceCall = false,
   conferenceCallParties = [],
   onClick,
   showMergeCall = false,
   showHold = true,
-  showAvatar = true,
+  // showAvatar = true,
   getAvatarUrl = undefined,
   disableMerge = false,
   onMergeCall = (i: any) => i,
@@ -395,6 +336,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
   formatPhone,
   onSwitchCall = undefined,
   updateSessionMatchedContact = (id: string, value: any) => id,
+  isLogging = false,
   showLogButton = false,
   logButtonTitle = '',
   onLogCall,
@@ -528,6 +470,76 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       }
     }
   };
+  let actions = [];
+  if (showLogButton) {
+    actions.push({
+      icon: isLogged ? Edit : NewAction,
+      title: (isLogged ? i18n.getString('editLog', currentLocale) : logButtonTitle) || i18n.getString('logCall', currentLocale),
+      onClick: () => {
+        logCall(true, undefined, isLogged ? 'editLog' : 'createLog');
+      },
+      disabled: disableLinks || isLogging || isLoggingState,
+    });
+  }
+  if (webphoneSession) {
+    actions = actions.concat(getWebphoneActions({
+      session: webphoneSession,
+      isConnecting,
+      telephonySessionId,
+      webphoneReject: (sessionId, telephonySessionId) => {
+        if (typeof webphoneToVoicemail !== 'function') {
+          return;
+        }
+        webphoneToVoicemail(sessionId, telephonySessionId);
+        toVoicemailTimeoutRef.current = window.setTimeout(() => {
+          webphoneReject(sessionId, telephonySessionId);
+        }, 3000);
+      },
+      webphoneHangup,
+      webphoneResume,
+      webphoneHold,
+      currentLocale,
+      showMergeCall,
+      showHold,
+      disableMerge,
+      onMergeCall,
+      webphoneAnswer,
+      isOnHold,
+      webphoneIgnore,
+      showIgnoreBtn,
+      showHoldAnswerBtn,
+      disableLinks,
+    }));
+  } else {
+    actions = actions.concat(getActiveCallControlActions({
+      session: telephonySession,
+      showSwitchCall: !webphoneSession && showSwitchCall,
+      onClickSwitchBtn,
+      showRingoutCallControl,
+      telephonySessionId,
+      disableLinks,
+      currentLocale,
+      ringing,
+      inbound,
+      ringoutReject,
+      ringoutHangup,
+      ringoutTransfer,
+      showTransferCall,
+      showHoldOnOtherDevice,
+      webphoneResume,
+      webphoneHold,
+      isConnecting,
+      clickSwitchTrack,
+    }));
+  }
+  if (showLogButton && isLogged) {
+    actions.push({
+      icon: ViewLogBorder,
+      title: 'View log details',
+      onClick: () => logCall(true, undefined, 'viewLog'),
+      disabled: disableLinks || isLogging || isLoggingState,
+    });
+  }
   return (
     <StyledListItem
       data-sign="callItem"
@@ -588,73 +600,17 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
           </StyledSecondary>
         }
       />
-      {webphoneSession ? (
-        <WebphoneButtons
-          session={webphoneSession}
-          isConnecting={isConnecting}
-          telephonySessionId={telephonySessionId}
-          webphoneReject={(sessionId, telephonySessionId) => {
-            if (typeof webphoneToVoicemail !== 'function') {
-              return;
-            }
-            webphoneToVoicemail(sessionId, telephonySessionId);
-            toVoicemailTimeoutRef.current = window.setTimeout(() => {
-              webphoneReject(sessionId, telephonySessionId);
-            }, 3000);
-          }}
-          webphoneHangup={webphoneHangup}
-          webphoneResume={webphoneResume}
-          webphoneHold={webphoneHold}
-          currentLocale={currentLocale}
-          showMergeCall={showMergeCall}
-          showHold={showHold}
-          disableMerge={disableMerge}
-          onMergeCall={onMergeCall}
-          webphoneAnswer={webphoneAnswer}
-          isOnHold={isOnHold}
-          webphoneIgnore={webphoneIgnore}
-          showIgnoreBtn={showIgnoreBtn}
-          showHoldAnswerBtn={showHoldAnswerBtn}
-          disableLinks={disableLinks}
-          showLogButton={showLogButton}
-          logButtonTitle={logButtonTitle}
-          isLogged={isLogged}
-          isLogging={isLoggingState || isLogging}
-          logCall={logCall}
-          onMoreMenuOpen={(open) => {
-            setHoverOnMoreMenu(open);
-          }}
-        />
-      ) : (
-        <ActiveCallControlButtons
-          session={telephonySession}
-          showSwitchCall={!webphoneSession && showSwitchCall}
-          onClickSwitchBtn={onClickSwitchBtn}
-          showRingoutCallControl={showRingoutCallControl}
-          telephonySessionId={telephonySessionId}
-          disableLinks={disableLinks}
-          currentLocale={currentLocale}
-          ringing={ringing}
-          inbound={inbound}
-          ringoutReject={ringoutReject}
-          ringoutHangup={ringoutHangup}
-          ringoutTransfer={ringoutTransfer}
-          showTransferCall={showTransferCall}
-          showHoldOnOtherDevice={showHoldOnOtherDevice}
-          webphoneResume={webphoneResume}
-          webphoneHold={webphoneHold}
-          isConnecting={isConnecting}
-          clickSwitchTrack={clickSwitchTrack}
-          showLogButton={showLogButton}
-          logButtonTitle={logButtonTitle}
-          isLogged={isLogged}
-          isLogging={isLoggingState || isLogging}
-          logCall={logCall}
-          onMoreMenuOpen={(open) => {
-            setHoverOnMoreMenu(open);
-          }}
-        />
-      )}
+      <StyledActionMenu
+        actions={actions}
+        size="small"
+        maxActions={3}
+        className="call-item-action-menu"
+        iconVariant="contained"
+        color="neutral.b01"
+        onMoreMenuOpen={(open) => {
+          setHoverOnMoreMenu(open);
+        }}
+      />
       <SwitchDialog
         open={switchDialogOpen}
         onClose={() => setSwitchDialogOpen(false)}
