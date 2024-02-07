@@ -1,8 +1,6 @@
 import type { FunctionComponent } from 'react';
 import React, { useEffect, useRef } from 'react';
 
-import classnames from 'classnames';
-
 import type { ToNumber as Recipient } from '@ringcentral-integration/commons/modules/ComposeText';
 import {
   flexCenterStyle,
@@ -17,7 +15,6 @@ import { Phone } from '@ringcentral/juno-icon';
 
 import RecipientsInput from '@ringcentral-integration/widgets/components/RecipientsInput';
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
-import styles from '@ringcentral-integration/widgets/components/DialerPanel/styles.scss';
 import FromField from './FromField';
 
 const Container = styled.div`
@@ -121,8 +118,8 @@ export interface DialerPanelProps {
 const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   currentLocale,
   callButtonDisabled,
-  className,
-  dialButtonsClassName,
+  // className,
+  // dialButtonsClassName,
   onToNumberChange,
   onCallButtonClick,
   toNumber,
@@ -136,7 +133,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   dialButtonMuted,
   searchContact,
   searchContactList,
-  recipients,
+  // recipients,
   recipient,
   clearToNumber,
   setRecipient,
@@ -150,7 +147,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   disableFromField = false,
   children,
   withTabs,
-  inConference,
+  // inConference,
   isLastInputFromDialpad,
   showAnonymous,
   useV2,
