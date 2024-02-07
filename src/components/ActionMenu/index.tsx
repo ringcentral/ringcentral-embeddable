@@ -96,7 +96,7 @@ export function ActionMenu({
                     }}
                     disabled={action.disabled}
                   >
-                    <RcListItemIcon>
+                    <RcListItemIcon color={action.color}>
                       <RcIcon symbol={action.icon} size="small" />
                     </RcListItemIcon>
                     <RcListItemText primary={action.title} />
