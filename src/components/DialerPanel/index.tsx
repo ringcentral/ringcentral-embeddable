@@ -27,23 +27,23 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   padding-top: 10px;
+  overflow-y: auto;
 `;
 
 const DialerWrapper = styled.div<{ withTabs: boolean }>`
   flex: 1 1 auto;
-  margin: ${({ withTabs }) => (withTabs ? spacing(0, 11) : spacing(2, 11))};
   display: flex;
   justify-content: center;
   flex-direction: column;
+  margin: 0 16%;
 `;
 
 const BodyBottom = styled.div`
   ${flexCenterStyle};
-  margin-bottom: ${spacing(7)};
+  padding-bottom: 10px;
 `;
 
 const StyledRecipientsInput = styled(RecipientsInput)`
-  
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -68,6 +68,12 @@ const StyledRecipientsInput = styled(RecipientsInput)`
 
   input {
     text-align: center;
+  }
+
+  .RecipientsInput_rightPanel {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
   }
 `;
 
