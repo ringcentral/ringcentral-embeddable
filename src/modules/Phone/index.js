@@ -147,9 +147,8 @@ import {
 import {
   ConnectivityManager,
 } from '@ringcentral-integration/widgets/modules/ConnectivityManager';
-import {
-  ContactDetailsUI,
-} from '@ringcentral-integration/widgets/modules/ContactDetailsUI';
+import { ContactDetailsUI } from '@ringcentral-integration/widgets/modules/ContactDetailsUI';
+import { ContactSearchUI } from '@ringcentral-integration/widgets/modules/ContactSearchUI';
 // UI modules
 import {
   ContactListUI,
@@ -312,6 +311,7 @@ import { MainViewUI } from '../MainViewUI';
     { provide: 'CallQueues', useClass: CallQueues },
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetailsUI', useClass: ContactDetailsUI },
+    { provide: 'ContactSearchUI', useClass: ContactSearchUI },
     { provide: 'ContactListUI', useClass: ContactListUI},
     { provide: 'DialerUI', useClass: DialerUI },
     { provide: 'Adapter', useClass: Adapter },
