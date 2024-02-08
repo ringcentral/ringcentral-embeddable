@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.7">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.8">
     
     
       
@@ -49,6 +49,8 @@
     
     
       <link rel="stylesheet" href="../../extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/badge.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2328,6 +2330,9 @@
 <h1 id="embeddable-api-for-controlling-and-manipulating-the-ui">Embeddable API for controlling and manipulating the UI</h1>
 <p>Embeddable provides an API that allows developers to control the UI and flow of the application via the embedded CTI. It is based on the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">postMessage</a> API.</p>
 <h2 id="active-call-control">Active call control</h2>
+<p><span class="badge-group">
+    <span class="badge badge-normal"><span class=sep> [</span><span class=title>version</span><span class=sep> | </span><span class=value>1.x</span><span class=sep>] </span></span>
+</span></p>
 <p>Following APIs need to work with <a href="../events/#web-phone-call-event">Web phone call event</a> to get <code>callId</code>.</p>
 <h3 id="answer-a-ringing-call">Answer a ringing call</h3>
 <div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
@@ -2690,9 +2695,11 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.tabs", "navigation.top", "navigation.expand", "navigation.sections", "search.sharing", "search.highlight", "content.code.copy", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.caa56a14.min.js"></script>
+      <script src="../../assets/javascripts/bundle.8fd75fb4.min.js"></script>
       
         <script src="../../extra.js"></script>
+      
+        <script src="../../assets/javascripts/badge.js" async></script>
       
     
   </body>
