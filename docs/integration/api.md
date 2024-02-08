@@ -4,6 +4,8 @@ Embeddable provides an API that allows developers to control the UI and flow of 
 
 ## Active call control
 
+|version|1.x|
+
 Following APIs need to work with [Web phone call event](events.md#web-phone-call-event) to get `callId`.
 
 ### Answer a ringing call
