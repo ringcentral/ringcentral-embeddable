@@ -9,6 +9,7 @@
 .badge {
     font-size: .85em;
     color: rgb(64, 81, 181) !important;
+    line-height: 0.9rem;
 }
 .badge .title {
     border-top-left-radius: 0.1rem;
