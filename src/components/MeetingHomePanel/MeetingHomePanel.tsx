@@ -181,6 +181,7 @@ const MeetingHomePanel = (props) => {
         }}
         meetingId={meetingId}
         onMeetingIdChange={(e) => setMeetingId(e.target.value)}
+        currentLocale={currentLocale}
       />
     </Root>
   );

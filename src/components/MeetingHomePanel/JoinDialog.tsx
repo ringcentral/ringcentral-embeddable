@@ -9,6 +9,7 @@ import {
   RcTextField,
   styled,
 } from '@ringcentral/juno';
+import i18n from './i18n';
 
 const StyledDialog = styled(RcDialog)`
   .MuiDialog-paper {
@@ -23,6 +24,7 @@ export function JoinDialog({
   onJoin,
   meetingId,
   onMeetingIdChange,
+  currentLocale,
 }) {
   return (
     <StyledDialog
@@ -34,20 +36,20 @@ export function JoinDialog({
         <RcTextField
           label="Meeting info"
           fullWidth
-          placeholder="Enter meeting ID or link"
+          placeholder={i18n.getString('enterMeetingId', currentLocale)}
           value={meetingId}
           onChange={onMeetingIdChange}
         />
       </RcDialogContent>
       <RcDialogActions>
         <RcButton variant="text" onClick={onClose}>
-          Cancel
+          {i18n.getString('cancel', currentLocale)}
         </RcButton>
         <RcButton
           onClick={onJoin}
           disabled={!meetingId}
         >
-          Join
+          {i18n.getString('join', currentLocale)}
         </RcButton>
       </RcDialogActions>
     </StyledDialog>

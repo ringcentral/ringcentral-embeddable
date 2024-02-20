@@ -6,4 +6,6 @@ export default {
   scheduleDescription: "Schedule a meeting for later",
   join: "Join",
   joinDescription: "Join a meeting you were invited to",
+  enterMeetingId: "Enter meeting ID or link",
+  cancel: "Cancel",
 };
