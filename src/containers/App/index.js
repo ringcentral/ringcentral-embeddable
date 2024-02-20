@@ -250,6 +250,23 @@ export default function App({
                           ) : undefined
                         }
                         logTitle={phone.thirdPartyService.meetingLoggerTitle}
+                        type="all"
+                      />
+                    </MeetingTabContainer>
+                  )}
+                />
+                <Route
+                  path="/meeting/recordings"
+                  component={() => (
+                    <MeetingTabContainer>
+                      <MeetingHistoryPage
+                        onLog={
+                          phone.thirdPartyService.meetingLoggerRegistered ? (
+                            (meeting) => phone.thirdPartyService.logMeeting(meeting)
+                          ) : undefined
+                        }
+                        logTitle={phone.thirdPartyService.meetingLoggerTitle}
+                        type="recordings"
                       />
                     </MeetingTabContainer>
                   )}

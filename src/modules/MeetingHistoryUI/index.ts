@@ -24,12 +24,11 @@ export class MeetingHistoryUI extends RcUIModuleV2 {
   pageToken = null;
 
   @state
-  type = 'all';
-
-  @state
   searchText = '';
 
-  getUIProps() {
+  getUIProps({
+    type,
+  }) {
     return {
       currentLocale: this._deps.locale.ready && this._deps.locale.currentLocale,
       showSpinner: !(
@@ -40,14 +39,14 @@ export class MeetingHistoryUI extends RcUIModuleV2 {
       fetchingNextPage: (this.fetching && this.pageToken),
       meetings: this._deps.genericMeeting.historyMeetings,
       searchText: this.searchText,
-      type: this.type,
+      type,
     };
   }
 
   getUIFunctions() {
     return {
-      fetchMeetings: () => {
-        return this.fetchHistoryMeeting();
+      fetchMeetings: (type) => {
+        return this.fetchHistoryMeeting(type);
       },
       dateTimeFormatter: (startTime) => {
         return this._deps.dateTimeFormat.formatDateTime({
@@ -55,29 +54,19 @@ export class MeetingHistoryUI extends RcUIModuleV2 {
           type: 'long',
         });
       },
-      fetchNextPageMeetings: () => {
+      fetchNextPageMeetings: (type) => {
         const pageToken = this.pageToken;
-        return this.fetchHistoryMeeting(pageToken)
+        return this.fetchHistoryMeeting(type, pageToken)
       },
       onClick: (meetingId) => {
         const host = `https://v.ringcentral.com`;
         window.open(`${host}/welcome/meetings/recordings/recording/${meetingId}`);
       },
-      updateType: (type) => {
-        this._updateType(type);
-        this.fetchHistoryMeeting();
-      },
-      updateSearchText: (text) => {
+      updateSearchText: (text, type) => {
         this._updateSearchText(text);
-        this.onSearch();
+        this.onSearch(type);
       },
     };
-  }
-
-  @action
-  private _updateType(type) {
-    this.type = type;
-    this.pageToken = null;
   }
 
   @action
@@ -105,7 +94,7 @@ export class MeetingHistoryUI extends RcUIModuleV2 {
 
   onSearch = debounce(this.fetchHistoryMeeting, 300, false)
 
-  async fetchHistoryMeeting(pageToken?: string) {
+  async fetchHistoryMeeting(type, pageToken?: string) {
     if (this.fetching) {
       return;
     }
@@ -117,7 +106,7 @@ export class MeetingHistoryUI extends RcUIModuleV2 {
       const result = await this._deps.genericMeeting.fetchHistoryMeetings({
         pageToken,
         searchText: this.searchText,
-        type: this.type,
+        type,
       });
       this._onFetchMeetingsSuccess(result.paging.nextPageToken || 'noNext');
     } catch (e) {

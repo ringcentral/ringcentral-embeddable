@@ -1,13 +1,89 @@
 import React from 'react';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { formatDuration } from '@ringcentral-integration/commons/lib/formatDuration';
-import PlayIcon from '@ringcentral-integration/widgets/assets/images/Play.svg';
-import LogIcon from '@ringcentral-integration/widgets/assets/images/MessagesLog.svg';
 
-import styles from './styles.scss';
+import {
+  RcListItem,
+  RcListItemText,
+  RcIconButton,
+  styled,
+  palette2,
+  ellipsis,
+} from '@ringcentral/juno';
+import {
+  PlayCircleBorder,
+  AddTextLog,
+  PlayBorder,
+} from '@ringcentral/juno-icon';
+
+import { ActionMenu } from '../ActionMenu';
 import i18n from './i18n';
+
+const StyledListItem = styled(RcListItem)`
+  padding: 12px 16px;
+  border-bottom: 1px solid ${palette2('neutral', 'l02')};
+
+  .RcListItemText-primary {
+    font-size: 0.875rem;
+    line-height: 20px;
+  }
+
+  .meeting-item-action-menu {
+    display: none;
+  }
+
+  &:hover {
+    .meeting-item-time {
+      display: none;
+    }
+    .meeting-item-action-menu {
+      display: block;
+    }
+  }
+`;
+
+const StyledSecondary = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  margin-top: 4px;
+`;
+
+const DetailArea = styled.div`
+  flex: 1;
+  overflow: hidden;
+  ${ellipsis()}
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+`;
+
+const Separator = styled.hr`
+  position: relative;
+  border: 0px;
+  flex-shrink: 0;
+  overflow: initial;
+  width: 1px;
+  height: 16px;
+  margin: 0px 4px;
+  background-color: ${palette2('neutral', 'l03')};
+`;
+
+const StyledPlayIcon = styled(RcIconButton)`
+  margin-right: 4px;
+`;
+
+export const StyledActionMenu = styled(ActionMenu)`
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  margin-top: -16px;
+
+  .RcIconButton-root {
+    margin-left: 6px;
+  }
+`;
 
 export default function MeetingItem({
   displayName,
@@ -21,54 +97,81 @@ export default function MeetingItem({
   onLog,
   showLog,
   logTitle,
+  duration,
 }) {
   const recording = recordings && recordings[0]
-  const recodingContent = recording && recording.metadata ? (
-    <div
-      className={classnames(styles.item, styles.recording)}
+  const recodingIcon = recording && recording.metadata ? (
+    <StyledPlayIcon
+      stretchIcon
+      variant="plain"
+      symbol={PlayCircleBorder}
       onClick={() => {
         onClick(id)
       }}
-    >
-      <PlayIcon width={18} height={18} />
-      <span className={styles.duration}>{formatDuration(recording.metadata.duration)}</span>
-    </div>
+      size="small"
+      color="action.primary"
+    />
   ) : null;
 
   const hostContent = hostInfo ? (
-    <div className={styles.item}>
-      {i18n.getString('host', currentLocale)}: {hostInfo.displayName}
-    </div>
+    <span>
+      {hostInfo.displayName}
+    </span>
   ) : null;
   
-  const logBtn = showLog ? (
-    <div className={styles.logButton} onClick={onLog} title={logTitle}>
-      <LogIcon className={styles.logIcon} />
-    </div>
-  ) :  null;
+  const actions = [];
+  if (recording) {
+    actions.push({
+      icon: PlayBorder,
+      onClick: () => {
+        onClick(id);
+      },
+      title: i18n.getString('play', currentLocale),
+    });
+  }
+  if (showLog) {
+    actions.push({
+      icon: AddTextLog,
+      onClick: onLog,
+      title: logTitle || i18n.getString('log', currentLocale),
+    });
+  }
   return (
-    <div
-      className={classnames(styles.root)}
-    >
-      <div
-        className={
-          classnames(styles.item, styles.subject, recording && onClick ? styles.clickable : '')
+    <StyledListItem>
+      <RcListItemText
+        primary={displayName}
+        secondary={
+          <StyledSecondary>
+            <DetailArea>
+              {recodingIcon}
+              <span>
+                {formatDuration(duration)}
+              </span>
+              {
+                hostInfo ? 
+                (<Separator />) :
+                null
+              }
+              {hostContent}
+            </DetailArea>
+            <span className="meeting-item-time">
+              {dateTimeFormatter(startTime)}
+            </span>
+          </StyledSecondary>
         }
-        onClick={() => {
-          recording && onClick(id)
+        secondaryTypographyProps={{
+          component: 'div',
         }}
-      >
-        {displayName}
-      </div>
-      <div>
-        {recodingContent}
-        {hostContent}
-        <div className={styles.item}>
-          {dateTimeFormatter(startTime)}
-        </div>
-      </div>
-      {logBtn}
-    </div>
+      />
+      <StyledActionMenu
+        size="small"
+        maxActions={2}
+        className="meeting-item-action-menu"
+        iconVariant="contained"
+        color="neutral.b01"
+        actions={actions}
+      />
+    </StyledListItem>
   );
 }
 

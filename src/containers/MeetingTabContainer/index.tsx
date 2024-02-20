@@ -16,6 +16,10 @@ function mapToProps(_, { phone, phone: { locale, routerInteraction } }) {
         value: '/meeting/history',
         label: i18n.getString('recent', locale.currentLocale),
       },
+      {
+        value: '/meeting/recordings',
+        label: i18n.getString('recordings', locale.currentLocale),
+      }
     ]
   };
 }

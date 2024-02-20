@@ -207,7 +207,6 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
           <SearchLine
             onSearchInputChange={onSearchInputChange}
             searchInput={searchInput}
-            currentLocale={currentLocale}
             disableLinks={disableLinks}
             placeholder={i18n.getString('search', currentLocale)}
           />

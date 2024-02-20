@@ -1,3 +1,5 @@
 export default {
-  host: 'Host'
+  host: 'Host',
+  play: 'Play',
+  log: 'Log',
 };
