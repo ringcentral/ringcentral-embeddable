@@ -13,6 +13,7 @@ import { ScheduleMeeting, StartMeeting, JoinMeeting } from '@ringcentral/juno-ic
 
 import UpcomingMeetingList from '../UpcomingMeetingList';
 import { JoinDialog } from './JoinDialog';
+import i18n from './i18n';
 import noResult from '!url-loader!./noResult.svg';
 
 const Root = styled.div`
@@ -117,14 +118,16 @@ const MeetingHomePanel = (props) => {
     upcomingMeetingContent = (
       <NoResult>
         <NoResultImage src={noResult} />
-        <RcTypography variant="body1">You have no upcoming meetings</RcTypography>
+        <RcTypography variant="body1">
+          {i18n.getString('noUpcomingMeeting', currentLocale)}
+        </RcTypography>
       </NoResult>
     );
   }
   return (
     <Root>
       <StyledButtonGroup>
-        <RcTooltip title="Start a video meeting instantly">
+        <RcTooltip title={i18n.getString('startDescription', currentLocale)}>
           <StyledButton>
             <StyledMeetingIconButton
               symbol={StartMeeting}
@@ -133,10 +136,12 @@ const MeetingHomePanel = (props) => {
               color="action.primary"
               variant="round"
             />
-            <StyledButtonLabel variant="body1">Start</StyledButtonLabel>
+            <StyledButtonLabel variant="body1">
+              {i18n.getString('start', currentLocale)}
+            </StyledButtonLabel>
           </StyledButton> 
         </RcTooltip>
-        <RcTooltip title="Schedule a meeting for later">
+        <RcTooltip title={i18n.getString('scheduleDescription', currentLocale)}>
           <StyledButton>
             <StyledMeetingIconButton
               symbol={ScheduleMeeting}
@@ -145,10 +150,12 @@ const MeetingHomePanel = (props) => {
               color="action.primary"
               variant="round"
             />
-            <StyledButtonLabel variant="body1">Schedule</StyledButtonLabel>
+            <StyledButtonLabel variant="body1">
+              {i18n.getString('schedule', currentLocale)}
+            </StyledButtonLabel>
           </StyledButton>
         </RcTooltip>
-        <RcTooltip title="Join a meeting you were invited to">
+        <RcTooltip title={i18n.getString('joinDescription', currentLocale)}>
           <StyledButton>
             <StyledMeetingIconButton
               symbol={JoinMeeting}
@@ -157,7 +164,9 @@ const MeetingHomePanel = (props) => {
               color="action.primary"
               variant="round"
             />
-            <StyledButtonLabel variant="body1">Join</StyledButtonLabel>
+            <StyledButtonLabel variant="body1">
+              {i18n.getString('join', currentLocale)}
+            </StyledButtonLabel>
           </StyledButton>
         </RcTooltip>
       </StyledButtonGroup>
