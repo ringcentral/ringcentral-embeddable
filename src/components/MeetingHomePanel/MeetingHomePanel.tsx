@@ -1,16 +1,79 @@
 
 import React, { useState, useEffect } from 'react';
-import { RcIconButton, RcCircularProgress } from '@ringcentral/juno';
-import classnames from 'classnames';
-import Modal from '@ringcentral-integration/widgets/components/Modal';
-import TextInput from '@ringcentral-integration/widgets/components/TextInput';
+import {
+  RcIconButton,
+  RcCircularProgress,
+  RcTypography,
+  RcTooltip,
+  styled,
+  palette2,
+} from '@ringcentral/juno';
 
-import { Schedule, Start, Join } from '@ringcentral/juno-icon';
+import { ScheduleMeeting, StartMeeting, JoinMeeting } from '@ringcentral/juno-icon';
 
 import UpcomingMeetingList from '../UpcomingMeetingList';
-
+import { JoinDialog } from './JoinDialog';
+import i18n from './i18n';
 import noResult from '!url-loader!./noResult.svg';
-import styles from './styles.scss';
+
+const Root = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+`;
+
+const StyledButtonGroup = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  border-bottom: 1px solid ${palette2('neutral', 'l02')};
+  box-sizing: border-box;
+  padding: 24px 16px 16px 16px;
+  align-items: flex-start;
+  justify-content: space-around;
+`;
+
+const StyledButton = styled.div`
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const StyledButtonLabel = styled(RcTypography)`
+  margin-top: 4px;
+  font-size: 0.875rem;
+  color: ${palette2('neutral', 'f06')};
+`;
+
+const StyledMeetingIconButton = styled(RcIconButton)`
+  background: ${palette2('neutral', 'b02')};
+  border-radius: 16px;
+`;
+
+const Content = styled.div`
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const SpinnerContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+`;
+
+const NoResult = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const NoResultImage = styled.img`
+  margin-bottom: 10px;
+  width: 200px;
+`;
 
 const MeetingHomePanel = (props) => {
   const {
@@ -39,14 +102,13 @@ const MeetingHomePanel = (props) => {
   let upcomingMeetingContent;
   if (loadingUpcomingMeetings) {
     upcomingMeetingContent = (
-      <div className={styles.spinnerContainer}>
+      <SpinnerContainer>
         <RcCircularProgress size={35} />
-      </div>
+      </SpinnerContainer>
     );
-  } else if (upcomingMeetings.length > 0) {
+  } else if (upcomingMeetings && upcomingMeetings.length > 0) {
     upcomingMeetingContent = (
       <UpcomingMeetingList
-        className={styles.meetingList}
         meetings={upcomingMeetings}
         currentLocale={currentLocale}
         onJoin={onJoin}
@@ -54,73 +116,74 @@ const MeetingHomePanel = (props) => {
     );
   } else {
     upcomingMeetingContent = (
-      <div className={styles.noResult}>
-        <img src={noResult} className={styles.noResultImg} />
-        <div>You have no upcoming meetings</div>
-      </div>
+      <NoResult>
+        <NoResultImage src={noResult} />
+        <RcTypography variant="body1">
+          {i18n.getString('noUpcomingMeeting', currentLocale)}
+        </RcTypography>
+      </NoResult>
     );
   }
   return (
-    <div className={styles.root}>
-      <div className={styles.buttons}>
-        <div className={styles.button} onClick={gotoSchedule}>
-          <RcIconButton
-            symbol={Schedule}
-            size='medium'
-            color='label.red01'
-            className={classnames(styles.iconButton, styles.schedule)}
-            IconProps={{
-              size: 'medium',
-            }}
-          />
-          <label>Schedule</label>
-        </div>
-        <div className={styles.button} onClick={onStart}>
-          <RcIconButton
-            symbol={Start}
-            size='medium'
-            color='label.green01'
-            className={classnames(styles.iconButton, styles.start)}
-            IconProps={{
-              size: 'medium',
-            }}
-          />
-          <label>Start</label>
-        </div>
-        <div className={styles.button} onClick={() => setShowJoinModal(true)}>
-          <RcIconButton
-            symbol={Join}
-            size='medium'
-            color='label.blue01'
-            className={classnames(styles.iconButton, styles.join)}
-            IconProps={{
-              size: 'medium',
-            }}
-          />
-          <label>Join</label>
-        </div>
-      </div>
-      <div className={styles.content}>
+    <Root>
+      <StyledButtonGroup>
+        <RcTooltip title={i18n.getString('startDescription', currentLocale)}>
+          <StyledButton>
+            <StyledMeetingIconButton
+              symbol={StartMeeting}
+              onClick={onStart}
+              size="xlarge"
+              color="action.primary"
+              variant="round"
+            />
+            <StyledButtonLabel variant="body1">
+              {i18n.getString('start', currentLocale)}
+            </StyledButtonLabel>
+          </StyledButton> 
+        </RcTooltip>
+        <RcTooltip title={i18n.getString('scheduleDescription', currentLocale)}>
+          <StyledButton>
+            <StyledMeetingIconButton
+              symbol={ScheduleMeeting}
+              onClick={gotoSchedule}
+              size="xlarge"
+              color="action.primary"
+              variant="round"
+            />
+            <StyledButtonLabel variant="body1">
+              {i18n.getString('schedule', currentLocale)}
+            </StyledButtonLabel>
+          </StyledButton>
+        </RcTooltip>
+        <RcTooltip title={i18n.getString('joinDescription', currentLocale)}>
+          <StyledButton>
+            <StyledMeetingIconButton
+              symbol={JoinMeeting}
+              onClick={() => setShowJoinModal(true)}
+              size="xlarge"
+              color="action.primary"
+              variant="round"
+            />
+            <StyledButtonLabel variant="body1">
+              {i18n.getString('join', currentLocale)}
+            </StyledButtonLabel>
+          </StyledButton>
+        </RcTooltip>
+      </StyledButtonGroup>
+      <Content>
         {upcomingMeetingContent}
-      </div>
-      <Modal
-        currentLocale={currentLocale}
-        title='Join a meeting'
-        show={showJoinModal}
-        onCancel={() => setShowJoinModal(false)}
-        textConfirm="Join"
-        onConfirm={() => {
+      </Content>
+      <JoinDialog
+        open={showJoinModal}
+        onClose={() => setShowJoinModal(false)}
+        onJoin={() => {
           onJoin(meetingId)
         }}
-      >
-        <TextInput
-          className={styles.meetingInput}
-          placeholder="Enter meeting ID or meeting link"
-          onChange={(e) => { setMeetingId(e.currentTarget.value); }}
-          value={meetingId}
-        />
-      </Modal>
-    </div>
+        meetingId={meetingId}
+        onMeetingIdChange={(e) => setMeetingId(e.target.value)}
+        currentLocale={currentLocale}
+      />
+    </Root>
   );
 }
 

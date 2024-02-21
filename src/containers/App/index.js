@@ -212,14 +212,12 @@ export default function App({
                     };
                     if (phone.genericMeeting.isRCV) {
                       return (
-                        <MeetingTabContainer>
-                          <GenericMeetingPage
-                            showHeader={false}
-                            schedule={scheduleFunc}
-                            scheduleButton={MeetingScheduleButton}
-                            showRcvAdminLock
-                          />
-                        </MeetingTabContainer>
+                        <GenericMeetingPage
+                          showHeader={true}
+                          schedule={scheduleFunc}
+                          scheduleButton={MeetingScheduleButton}
+                          showRcvAdminLock
+                        />
                       );
                     }
                     return (
@@ -250,6 +248,23 @@ export default function App({
                           ) : undefined
                         }
                         logTitle={phone.thirdPartyService.meetingLoggerTitle}
+                        type="all"
+                      />
+                    </MeetingTabContainer>
+                  )}
+                />
+                <Route
+                  path="/meeting/recordings"
+                  component={() => (
+                    <MeetingTabContainer>
+                      <MeetingHistoryPage
+                        onLog={
+                          phone.thirdPartyService.meetingLoggerRegistered ? (
+                            (meeting) => phone.thirdPartyService.logMeeting(meeting)
+                          ) : undefined
+                        }
+                        logTitle={phone.thirdPartyService.meetingLoggerTitle}
+                        type="recordings"
                       />
                     </MeetingTabContainer>
                   )}
