@@ -10,8 +10,8 @@ import {
   palette2,
   setOpacity,
 } from '@ringcentral/juno';
-import { Info, Copy } from '@ringcentral/juno-icon';
-
+import { InfoBorder, Copy } from '@ringcentral/juno-icon';
+import { handleCopy } from '@ringcentral-integration/widgets/lib/handleCopy';
 import { ActionMenu } from '../ActionMenu';
 import i18n from './i18n';
 
@@ -121,9 +121,11 @@ function MeetingItem(props) {
     </StyledJoinButton>
   ) : null;
   const actions = [{
-    icon: Info,
+    icon: InfoBorder,
     title: i18n.getString('details', currentLocale),
-    onClick: () => window.open(editEventUrl),
+    onClick: () => {
+      window.open(editEventUrl)
+    },
     disabled: false,
   }];
   if (meetingId && location) {
@@ -131,7 +133,7 @@ function MeetingItem(props) {
       icon: Copy,
       title: i18n.getString('copy', currentLocale),
       onClick: () => {
-        navigator.clipboard.writeText(location);
+        handleCopy(location);
       },
       disabled: false,
     });

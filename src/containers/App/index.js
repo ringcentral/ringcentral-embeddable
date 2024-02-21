@@ -212,14 +212,12 @@ export default function App({
                     };
                     if (phone.genericMeeting.isRCV) {
                       return (
-                        <MeetingTabContainer>
-                          <GenericMeetingPage
-                            showHeader={false}
-                            schedule={scheduleFunc}
-                            scheduleButton={MeetingScheduleButton}
-                            showRcvAdminLock
-                          />
-                        </MeetingTabContainer>
+                        <GenericMeetingPage
+                          showHeader={true}
+                          schedule={scheduleFunc}
+                          scheduleButton={MeetingScheduleButton}
+                          showRcvAdminLock
+                        />
                       );
                     }
                     return (

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ReactNode } from 'react';
 import { styled, palette2 } from '@ringcentral/juno/foundation';
 import { RcIconButton, RcTypography } from '@ringcentral/juno';
 import { Previous } from '@ringcentral/juno-icon';
@@ -26,11 +27,17 @@ const BackButtonLabel = styled(RcTypography)`
   top: 8px;
 `;
 
+interface BackHeaderProps {
+  onBack: () => void;
+  children?: ReactNode;
+  label?: string;
+}
+
 export function BackHeader({
   onBack,
-  children = undefined,
+  children = null,
   label = undefined,
-}) {
+}: BackHeaderProps) {
   return (
     <Header>
       <BackButton

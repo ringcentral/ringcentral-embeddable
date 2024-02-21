@@ -106,7 +106,7 @@ const MeetingHomePanel = (props) => {
         <RcCircularProgress size={35} />
       </SpinnerContainer>
     );
-  } else if (upcomingMeetings.length > 0) {
+  } else if (upcomingMeetings && upcomingMeetings.length > 0) {
     upcomingMeetingContent = (
       <UpcomingMeetingList
         meetings={upcomingMeetings}

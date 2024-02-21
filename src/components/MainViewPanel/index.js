@@ -140,7 +140,6 @@ export const MainViewPanel = (props) => {
       showHeader: (currentPath) => {
         return (
           currentPath === '/meeting/home' ||
-          currentPath === '/meeting/schedule' ||
           currentPath === '/meeting/history' ||
           currentPath === '/meeting/recordings'
         );
