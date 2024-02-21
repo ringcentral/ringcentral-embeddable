@@ -5,3 +5,30 @@
 #config-table td:first-child {
     text-wrap: nowrap;
 }
+
+.badge {
+    font-size: .85em;
+    color: rgb(64, 81, 181) !important;
+    line-height: 0.9rem;
+}
+.badge .title {
+    border-top-left-radius: 0.1rem;
+    border-bottom-left-radius: 0.1rem;
+    background-color: var(--md-accent-fg-color--transparent) !important;
+    color: rgb(64, 81, 181) !important;
+    padding: 0rem;
+}
+
+.badge .value {
+    border-top-right-radius: 0.1rem;
+    border-bottom-right-radius: 0.1rem;
+    box-shadow: 0 0 0 1px inset var(--md-accent-fg-color--transparent);
+    padding: 0.2rem 0.3rem;
+    background-color: white !important;
+    color: rgb(64, 81, 181) !important;
+}
+
+.badge.version .title::before {
+    content: "\f02b";
+}
+

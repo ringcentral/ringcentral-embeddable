@@ -43,9 +43,11 @@ theme:
 plugins:
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - badges
   - exclude:
       regex:
         - '^\.#.*'
+        - '.*\.\#.*$'
 
 extra:
   social:
@@ -67,6 +69,9 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
 
 copyright: "2023 RingCentral, Inc. All rights reserved."
 

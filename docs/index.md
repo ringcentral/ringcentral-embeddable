@@ -40,7 +40,7 @@ Or access our [RingCentral Embeddable configuration tool](https://apps.ringcentr
 
 ### Prerequisites
 
-* A [RingCentral MVP](https://ringcentral.com/pricing/) account
+* A [RingCentral](https://ringcentral.com/pricing/) account
 * A supported browser, including:
     - Chrome
     - Microsoft Edge

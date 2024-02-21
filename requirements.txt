@@ -1,5 +1,6 @@
 mkdocs>=1.1
 mkdocs-material
+mkdocs-badges
 markdown_fenced_code_tabs>=1.0.3
 mkdocs-markdown-filter>=0.1.1
 mdx_include>=0.4.1
