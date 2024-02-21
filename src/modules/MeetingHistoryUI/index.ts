@@ -11,6 +11,8 @@ import {
   deps: ['GenericMeeting', 'Locale', 'DateTimeFormat'],
 })
 export class MeetingHistoryUI extends RcUIModuleV2 {
+  private _type: string;
+
   constructor(deps) {
     super({
       deps,
@@ -95,9 +97,10 @@ export class MeetingHistoryUI extends RcUIModuleV2 {
   onSearch = debounce(this.fetchHistoryMeeting, 300, false)
 
   async fetchHistoryMeeting(type, pageToken?: string) {
-    if (this.fetching) {
+    if (this.fetching && this._type === type) {
       return;
     }
+    this._type = type;
     if (pageToken === 'noNext') {
       return;
     }
