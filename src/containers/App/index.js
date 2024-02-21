@@ -18,7 +18,6 @@ import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/Cal
 import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
 import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
 import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
-import ContactsPage from '@ringcentral-integration/widgets/containers/ContactsPage';
 import { FeedbackPage } from '@ringcentral-integration/widgets/containers/FeedbackPage';
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
 import GenericMeetingPage from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
@@ -56,6 +55,7 @@ import RingtoneSettingsPage from '../RingtoneSettingsPage';
 import SettingsPage from '../SettingsPage';
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 import ThirdPartySettingSectionPage from '../ThirdPartySettingSectionPage';
+import ContactsPage from '../ContactsPage';
 
 export default function App({
   phone,
