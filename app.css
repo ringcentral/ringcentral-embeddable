@@ -7598,22 +7598,11 @@ div#viewport {
 body {
   background: #fff;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: 0;
 }
 
 input {
   background-color: transparent;
-}
-
-.AppView_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: var(--snow);
-}
-
-.AppView_demoWarning .TabNavigationView_root {
-  max-height: calc(100% - 30px);
 }
 
 .rc-editor-mention-dropdown {
@@ -7661,18 +7650,6 @@ input {
   height: 35%;
 }
 
-div[class*=MuiCircularProgress-indeterminate] {
-  animation: AppView_MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
-}
-
-@keyframes AppView_MuiCircularProgress-keyframes-circular-rotate2 {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 .DropdownNavigationItem_root .DropdownNavigationItem_notice {
   width: 1.4em;
   height: 1.4em;
