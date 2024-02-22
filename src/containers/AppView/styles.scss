@@ -12,21 +12,11 @@
 body {
   background: #fff;
   font-family: $font-family;
+  margin: 0;
 }
 
 input {
   background-color: transparent;
-}
-
-.root {
-  @include full-size;
-  background-color: $snow;
-}
-
-.demoWarning {
-  :global .TabNavigationView_root{
-    max-height: calc(100% - 30px);
-  }
 }
 
 :global .rc-editor-mention-dropdown {
@@ -72,19 +62,6 @@ input {
 
 :global .ActiveCallPad_stopButtonGroup {
   height: 35%;
-}
-
-div[class*="MuiCircularProgress-indeterminate"] {
-  animation: MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
-}
-
-@keyframes MuiCircularProgress-keyframes-circular-rotate2 {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 :global .DropdownNavigationItem_root .DropdownNavigationItem_notice {
