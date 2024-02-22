@@ -682,7 +682,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       }
       const callItem = { ...call };
       if (call.recording) {
-        let contentUri = call.recording.contentUri;
+        let contentUri = call.recording.contentUri.split('?')[0];
         if (this._callLoggerRecordingWithToken) {
           contentUri = `${contentUri}?access_token=${this._deps.auth.accessToken}`;
         }
