@@ -141,7 +141,7 @@ export const MainViewPanel = (props) => {
         return (
           currentPath === '/meeting/home' ||
           currentPath === '/meeting/history' ||
-          currentPath === '/meeting/recordings'
+          currentPath === '/meeting/history/recordings'
         );
       },
     },
