@@ -19,6 +19,7 @@ export function SubTabsView({
   goTo,
   children,
   tabs,
+  variant,
 }) {
   return (
     <Container>
@@ -26,6 +27,7 @@ export function SubTabsView({
         onChange={goTo}
         value={currentPath}
         tabs={tabs}
+        variant={variant}
       />
       <Content>
         {children}

@@ -1,81 +1,71 @@
 import React, { Component } from 'react';
 
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { includes } from 'ramda';
-
+import { styled, RcIconButton } from '@ringcentral/juno';
+import { Refresh } from '@ringcentral/juno-icon';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 
-import AddContactIcon from '@ringcentral-integration/widgets/assets/images/ContactAdd.svg';
-import RefreshingIcon from '@ringcentral-integration/widgets/assets/images/OvalLoading.svg';
-import RefreshContactIcon from '@ringcentral-integration/widgets/assets/images/RetryIcon.svg';
 import ContactList from '@ringcentral-integration/widgets/components/ContactList';
-import { ContactSourceFilter } from '@ringcentral-integration/widgets/components/ContactSourceFilter';
-import Panel from '@ringcentral-integration/widgets/components/Panel';
-import { SearchInput } from '@ringcentral-integration/widgets/components/SearchInput';
+import contactSourceI18n from '@ringcentral-integration/widgets/components/ContactSourceFilter/i18n';
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 import i18n from '@ringcentral-integration/widgets/components/ContactsView/i18n';
-import styles from '@ringcentral-integration/widgets/components/ContactsView/styles.scss';
 
-// @ts-expect-error
-const AddContact = ({ className, onClick }) => {
-  return (
-    <div className={className} onClick={onClick}>
-      <div className={styles.iconContainer}>
-        <AddContactIcon className={styles.iconNode} />
-      </div>
-    </div>
-  );
-};
-AddContact.propTypes = {
-  className: PropTypes.string,
-  onClick: PropTypes.func.isRequired,
-};
-AddContact.defaultProps = {
-  className: undefined,
-};
+import { SubTabsView } from '../SubTabsView';
+import { SearchLine } from '../SearchLine';
+
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+`;
+
+const SearchInputContainer = styled.div`
+  position: relative;
+`;
+
+const PanelContainer = styled.div`
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+`;
+
+const ContentWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+`;
+
+const StyledSpinnerOverlay = styled(SpinnerOverlay)`
+  z-index: 2;
+`;
+
+const StyledRefreshButton = styled(RcIconButton)`
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+`;
 
 const RefreshContacts = ({
-  // @ts-expect-error
-  className,
-  // @ts-expect-error
   onRefresh,
-  // @ts-expect-error
   refreshing,
-  // @ts-expect-error
   currentLocale,
 }) => {
-  let icon = null;
-  let iconWrapClass = null;
-  if (refreshing) {
-    iconWrapClass = styles.refreshingIcon;
-    icon = (
-      <RefreshingIcon className={styles.iconNode} width={12} height={12} />
-    );
-  } else {
-    iconWrapClass = styles.refreshIcon;
-    icon = (
-      <RefreshContactIcon className={styles.iconNode} width={12} height={12} />
-    );
-  }
   return (
-    <div
-      className={classnames(iconWrapClass, className)}
+    <StyledRefreshButton
+      loading={refreshing}
+      symbol={Refresh}
       onClick={onRefresh}
       title={i18n.getString('refresh', currentLocale)}
-    >
-      <div className={styles.iconContainer}>{icon}</div>
-    </div>
+    />
   );
-};
-RefreshContacts.propTypes = {
-  className: PropTypes.string,
-  currentLocale: PropTypes.string.isRequired,
-  onRefresh: PropTypes.func.isRequired,
-  refreshing: PropTypes.bool.isRequired,
-};
-RefreshContacts.defaultProps = {
-  className: undefined,
 };
 
 class ContactsView extends Component {
@@ -264,8 +254,6 @@ class ContactsView extends Component {
       // @ts-expect-error
       onItemSelect,
       // @ts-expect-error
-      contactSourceFilterRenderer: Filter,
-      // @ts-expect-error
       sourceNodeRenderer,
       // @ts-expect-error
       onRefresh,
@@ -286,68 +274,65 @@ class ContactsView extends Component {
     const showRefresh = typeof onRefresh === 'function';
     const refreshButton = showRefresh ? (
       <RefreshContacts
-        className={styles.actionButton}
         refreshing={refreshing}
         currentLocale={currentLocale}
         onRefresh={this.onRefresh}
       />
     ) : null;
     return (
-      <div className={styles.root}>
-        <div className={styles.actionBar}>
-          <SearchInput
-            dataSign="contactsSearchInput"
-            className={classnames(
-              styles.searchInput,
-              showRefresh ? styles.withRefresh : '',
-            )}
-            value={searchString || ''}
-            onChange={this.onSearchInputChange}
-            placeholder={i18n.getString('searchPlaceholder', currentLocale)}
-          />
-          {refreshButton}
-          <Filter
-            className={styles.actionButton}
-            currentLocale={currentLocale}
-            contactSourceNames={contactSourceNames}
-            onSourceSelect={this.onSourceSelect}
-            selectedSourceName={searchSource}
-            unfold={unfold}
-            // @ts-expect-error
-            onUnfoldChange={this.onUnfoldChange}
-          />
-        </div>
-        <Panel className={styles.content}>
-          <div
-            className={styles.contentWrapper}
-            ref={
-              // @ts-expect-error
-              this.contentWrapper
-            }
-          >
-            <ContactList
-              // @ts-expect-error
-              ref={this.contactList}
-              // @ts-expect-error
-              currentLocale={currentLocale}
-              contactGroups={contactGroups}
-              getAvatarUrl={getAvatarUrl}
-              getPresence={getPresence}
-              onItemSelect={onItemSelect}
-              currentSiteCode={currentSiteCode}
-              isMultipleSiteEnabled={isMultipleSiteEnabled}
-              sourceNodeRenderer={sourceNodeRenderer}
-              isSearching={isSearching}
-              bottomNotice={bottomNotice}
-              bottomNoticeHeight={bottomNoticeHeight}
-              width={contentWidth}
-              height={contentHeight}
+      <SubTabsView
+        currentPath={searchSource}
+        tabs={contactSourceNames.map((source) => {
+          return ({
+            value: source,
+            label: contactSourceI18n.getString(source, currentLocale),
+          });
+        })}
+        goTo={this.onSourceSelect}
+        variant="moreMenu"
+      >
+        <Container>
+          <SearchInputContainer>
+            <SearchLine
+              searchInput={searchString || ''}
+              dataSign="contactsSearchInput"
+              onSearchInputChange={this.onSearchInputChange}
+              placeholder={i18n.getString('searchPlaceholder', currentLocale)}
+              clearBtn={false}
             />
-          </div>
-        </Panel>
-        {showSpinner ? <SpinnerOverlay className={styles.spinner} /> : null}
-        {children}
-      </div>
+            {refreshButton}
+          </SearchInputContainer>
+          <PanelContainer>
+            <ContentWrapper
+              ref={
+                // @ts-expect-error
+                this.contentWrapper
+              }
+            >
+              <ContactList
+                // @ts-expect-error
+                ref={this.contactList}
+                // @ts-expect-error
+                currentLocale={currentLocale}
+                contactGroups={contactGroups}
+                getAvatarUrl={getAvatarUrl}
+                getPresence={getPresence}
+                onItemSelect={onItemSelect}
+                currentSiteCode={currentSiteCode}
+                isMultipleSiteEnabled={isMultipleSiteEnabled}
+                sourceNodeRenderer={sourceNodeRenderer}
+                isSearching={isSearching}
+                bottomNotice={bottomNotice}
+                bottomNoticeHeight={bottomNoticeHeight}
+                width={contentWidth}
+                height={contentHeight}
+              />
+            </ContentWrapper>
+          </PanelContainer>
+          {showSpinner ? <StyledSpinnerOverlay /> : null}
+          {children}
+        </Container>
+      </SubTabsView>
     );
   }
 }
@@ -384,7 +369,6 @@ ContactsView.propTypes = {
   isSearching: PropTypes.bool,
   onItemSelect: PropTypes.func,
   onSearchContact: PropTypes.func,
-  contactSourceFilterRenderer: PropTypes.func,
   sourceNodeRenderer: PropTypes.func,
   onVisitPage: PropTypes.func,
   onRefresh: PropTypes.func,
@@ -400,7 +384,6 @@ ContactsView.defaultProps = {
   isSearching: false,
   onItemSelect: undefined,
   onSearchContact: undefined,
-  contactSourceFilterRenderer: ContactSourceFilter,
   sourceNodeRenderer: undefined,
   onVisitPage: undefined,
   children: undefined,
