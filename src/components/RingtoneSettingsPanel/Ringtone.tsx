@@ -7,6 +7,7 @@ import {
   RcGrid,
   useMountState,
   useAudio,
+  styled,
 } from '@ringcentral/juno';
 import { Play, Attachment, Delete, Pause } from '@ringcentral/juno-icon';
 
@@ -14,7 +15,19 @@ import i18n from '@ringcentral-integration/widgets/components/Ringtone/i18n';
 
 import { AudioFileReaderProps, RingtoneProps } from '@ringcentral-integration/widgets/components/Ringtone/Ringtone.interface';
 
-import styles from './styles.scss';
+const FileNameGrid = styled(RcGrid)`
+  display: flex;
+  align-items: center;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const HiddenInput = styled.input`
+  display: none;
+`;
 
 const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
   currentLocale,
@@ -59,13 +72,13 @@ const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
 
   return (
     <RcGrid container>
-      <RcGrid item xs={8} className={styles.fileName}>
+      <FileNameGrid item xs={!!resetButton ? 7 : 8}>
         <RcText variant="body1">
           {fileName}
         </RcText>
-      </RcGrid>
-      <RcGrid item xs={4}>
-        <div className={styles.buttonGroup}>
+      </FileNameGrid>
+      <RcGrid item xs={!!resetButton ? 5 : 4}>
+        <ButtonGroup>
           <RcIconButton
             symbol={playing ? Pause : Play}
             onClick={async () => {
@@ -100,11 +113,10 @@ const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
             title={i18n.getString('upload', currentLocale)}
           />
           {resetButton}
-        </div>
+        </ButtonGroup>
       </RcGrid>
-      <input
+      <HiddenInput
         ref={inputElRef}
-        className={styles.hidden}
         type="file"
         accept="audio/*"
         onChange={({ currentTarget }) => {
