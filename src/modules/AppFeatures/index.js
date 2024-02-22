@@ -55,6 +55,14 @@ export class AppFeatures extends AppFeaturesBase {
     );
   }
 
+  get hasReadCallRecordings() {
+    return !!(
+      (
+        this.appScopes.indexOf('ReadCallRecording') > -1
+      ) && this._deps.extensionFeatures.features?.ReadExtensionCallRecordings?.available
+    );
+  }
+
   get showSignUpButton() {
     return !!this.config.SignUpButton;
   }

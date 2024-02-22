@@ -35,7 +35,11 @@ export class MainViewUI extends RcUIModuleV2 {
     } = this._deps;
 
     const unreadCounts = messageStore.unreadCounts || 0;
-    const showCall = appFeatures.ready && appFeatures.isCallingEnabled;
+    const showCall = appFeatures.ready && (
+      appFeatures.isCallingEnabled ||
+      appFeatures.hasReadExtensionCallLog ||
+      appFeatures.hasReadCallRecordings
+    );
     const showMessages = appFeatures.ready && appFeatures.hasReadMessagesPermission;
     const showMeeting = (
       appFeatures.ready &&
@@ -44,13 +48,11 @@ export class MainViewUI extends RcUIModuleV2 {
 
     const { currentLocale } = locale;
     const showContacts = appFeatures.ready && appFeatures.isContactsEnabled;
-    const showHistory = appFeatures.ready && appFeatures.hasReadExtensionCallLog;
     const settingsUnreadCount = thirdPartyService.showAuthRedDot ? 1 : 0;
     return {
       currentLocale,
       unreadCounts,
       showCall,
-      showHistory,
       showMessages,
       showNewComposeText: appFeatures.hasComposeTextPermission,
       showMeeting,
