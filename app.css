@@ -9383,30 +9383,6 @@ p {
   width: 100%;
   text-align: center;
 }
-.RingtoneSettingsPanel_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.RingtoneSettingsPanel_content {
-  padding: 20px;
-}
-
-.RingtoneSettingsPanel_hidden {
-  display: none;
-}
-
-.RingtoneSettingsPanel_buttonGroup {
-  display: flex;
-  flex-direction: row;
-}
-
-.RingtoneSettingsPanel_fileName {
-  display: flex;
-  align-items: center;
-}
 .popover-content {
   padding: 9px;
   font-size: 12px;
