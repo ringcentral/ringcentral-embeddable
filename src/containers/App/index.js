@@ -147,8 +147,8 @@ export default function App({
                   )}
                 />
                 <Route
-                  path="/history"
-                  component={() => (
+                  path="/history(/:type)"
+                  component={(routerProps) => (
                     <PhoneTabsContainer>
                       <CallsListPage
                         showRingoutCallControl={
@@ -156,6 +156,7 @@ export default function App({
                         }
                         showSwitchCall
                         getAvatarUrl={getAvatarUrl}
+                        type={routerProps.params.type || 'all'}
                       />
                       <CallLogSectionModal />
                     </PhoneTabsContainer>

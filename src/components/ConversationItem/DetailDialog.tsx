@@ -27,7 +27,7 @@ import messageDirection from '@ringcentral-integration/commons/enums/messageDire
 
 import { ActionMenu } from '../ActionMenu';
 import { ConversationIcon } from './ConversationIcon';
-import { AudioPlayer } from './AudioPlayer';
+import { AudioPlayer } from '../AudioPlayer';
 
 const StyledDialogTitle = styled(RcDialogTitle)`
   padding: 5px 6px;
@@ -296,7 +296,7 @@ export function DetailDialog({
                 variant="caption2"
                 color="neutral.f06"
               >
-                {direction === direction.inbound ? 'To' : 'From'}
+                {direction === messageDirection.inbound ? 'To' : 'From'}
               </SectionTitle>
               <RcTypography variant="body1">
                 {self.phoneNumber || self.extension}

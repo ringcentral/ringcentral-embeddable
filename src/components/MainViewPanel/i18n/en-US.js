@@ -3,6 +3,7 @@ export default {
   phoneLabel: 'Phone',
   callsLabel: 'Calls',
   historyLabel: 'History',
+  recordingsLabel: 'Recordings',
   messagesLabel: 'Messages',
   inboxLabel: 'Inbox',
   moreMenuLabel: 'More',

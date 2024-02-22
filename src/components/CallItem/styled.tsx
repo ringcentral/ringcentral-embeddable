@@ -14,9 +14,18 @@ export const StyledListItem = styled(RcListItem)`
   background-color: ${palette2('neutral', 'b01')};
   height: 60px;
   box-sizing: border-box;
+  ${({ $clickable }) =>
+    $clickable &&
+    `
+    cursor: pointer;
+  `}
 
   .call-item-action-menu {
     display: none;
+  }
+
+  .call-item-recording-icon {
+    margin-right: 4px;
   }
 
   &:hover {
@@ -25,6 +34,9 @@ export const StyledListItem = styled(RcListItem)`
     }
     .call-item-action-menu {
       display: flex;
+    }
+    .call-item-recording-icon {
+      color: ${palette2('action', 'primary')};
     }
   }
 
@@ -63,6 +75,9 @@ export const StyledSecondary = styled.span`
 export const DetailArea = styled.span`
   flex: 1;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
   ${ellipsis()}
 `;
 

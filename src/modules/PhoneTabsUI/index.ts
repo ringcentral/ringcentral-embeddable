@@ -43,6 +43,9 @@ export class PhoneTabsUI extends RcUIModuleV2 {
       }, {
         value: '/history',
         label: i18n.getString('callsLabel', currentLocale),
+      }, {
+        value: '/history/recordings',
+        label: i18n.getString('recordingsLabel', currentLocale),
       }],
     };
   }

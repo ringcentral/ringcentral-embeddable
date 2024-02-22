@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import React, { Component, createRef } from 'react';
 
 import classnames from 'classnames';
