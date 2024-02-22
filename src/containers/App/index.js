@@ -238,8 +238,8 @@ export default function App({
                   )}
                 />
                 <Route
-                  path="/meeting/history"
-                  component={() => (
+                  path="/meeting/history(/:type)"
+                  component={(routerProps) => (
                     <MeetingTabContainer>
                       <MeetingHistoryPage
                         onLog={
@@ -248,23 +248,7 @@ export default function App({
                           ) : undefined
                         }
                         logTitle={phone.thirdPartyService.meetingLoggerTitle}
-                        type="all"
-                      />
-                    </MeetingTabContainer>
-                  )}
-                />
-                <Route
-                  path="/meeting/recordings"
-                  component={() => (
-                    <MeetingTabContainer>
-                      <MeetingHistoryPage
-                        onLog={
-                          phone.thirdPartyService.meetingLoggerRegistered ? (
-                            (meeting) => phone.thirdPartyService.logMeeting(meeting)
-                          ) : undefined
-                        }
-                        logTitle={phone.thirdPartyService.meetingLoggerTitle}
-                        type="recordings"
+                        type={routerProps.params.type || 'all'}
                       />
                     </MeetingTabContainer>
                   )}
