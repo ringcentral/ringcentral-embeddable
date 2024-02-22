@@ -160,7 +160,7 @@ export const MainViewPanel = (props) => {
           currentPath === '/settings'
         );
       },
-      showHeaderBorder: true,
+      showHeaderBorder: false,
     }
   ];
   let tabs = tabList.filter((x) => !!x);

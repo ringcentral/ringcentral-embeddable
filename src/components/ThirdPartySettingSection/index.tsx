@@ -1,25 +1,16 @@
-import React, {
-  useEffect,
-  useState,
-} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import BackHeader from '@ringcentral-integration/widgets/components/BackHeader';
-import Panel from '@ringcentral-integration/widgets/components/Panel';
 import { RcButton } from '@ringcentral/juno';
 import { styled } from '@ringcentral/juno/foundation';
 
+import { BackHeaderView } from '../BackHeaderView';
 import { SettingParamInput } from './SettingParamInput';
 
-const Container = styled.div`
-  position: relative;
+const StyledPanel = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
-`;
-
-const StyledPanel = styled(Panel)`
-  padding: 20px;
-  height: calc(100% - 46px);
+  padding: 20px 16px;
   overflow-y: auto;
 `;
 
@@ -73,10 +64,10 @@ export function ThirdPartySettingSection({
   }
 
   return (
-    <Container>
-      <BackHeader onBackClick={onBackButtonClick}>
-        {section.name}
-      </BackHeader>
+    <BackHeaderView
+      onBack={onBackButtonClick}
+      title={section.name}
+    >
       <StyledPanel>
         {
           newSection.items.map((setting) => {
@@ -116,6 +107,6 @@ export function ThirdPartySettingSection({
           Save
         </StyledButton>
       </StyledPanel>
-    </Container>
+    </BackHeaderView>
   );
 }

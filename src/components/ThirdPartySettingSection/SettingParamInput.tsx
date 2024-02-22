@@ -9,12 +9,6 @@ import {
 } from '@ringcentral/juno';
 import { styled } from '@ringcentral/juno/foundation';
 
-const StyledTextarea = styled(RcTextarea)`
-  .RcTextareaInput-inputMultiline {
-    // padding: 10px;
-  }
-`;
-
 export function SettingParamInput({
   setting,
   className,
@@ -52,7 +46,7 @@ export function SettingParamInput({
   }
   if (setting.type === 'text') {
     return (
-      <StyledTextarea
+      <RcTextarea
         label={setting.name}
         value={setting.value}
         minRows={2}
