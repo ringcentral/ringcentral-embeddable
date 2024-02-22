@@ -291,7 +291,7 @@ class ContactsView extends Component {
         goTo={this.onSourceSelect}
         variant="moreMenu"
       >
-        <Container>
+        <Container data-sign="contactList">
           <SearchInputContainer>
             <SearchLine
               searchInput={searchString || ''}

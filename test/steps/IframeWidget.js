@@ -131,7 +131,7 @@ export class IframeWidget {
 
   async getContactSearchInput() {
     await this.waitFor('div[data-sign="contactList"]');
-    const searchInput = await this._widgetIframe.$('input[data-sign="contactsSearchInput"]');
+    const searchInput = await this._widgetIframe.$('div[data-sign="contactsSearchInput"] input');
     return searchInput;
   }
 
@@ -208,10 +208,9 @@ export class IframeWidget {
   }
 
   async getContactFilters() {
-    await this.waitFor('div[data-sign="filterIconContainer"]');
-    await this._widgetIframe.click('div[data-sign="filterIconContainer"]');
-    const text = await this._widgetIframe.$eval('ul[data-sign="contactSourceList"]', (el) => el.innerText);
-    return text;
+    await this.waitFor('div[role="tablist"]');
+    const filters = await this._widgetIframe.$$eval('div[role="tablist"] button:not([data-tab-more-button])', els => els.map(el => el.innerText));
+    return filters;
   }
 
   async getContactNames() {
