@@ -17,6 +17,7 @@ import {
   usePrevious,
   RcListItemText,
   RcIcon,
+  styled,
 } from '@ringcentral/juno';
 import {
   PhoneBorder,
@@ -27,6 +28,7 @@ import {
   ViewLogBorder,
   Edit,
   PlayCircleBorder,
+  Download,
 } from '@ringcentral/juno-icon';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
@@ -39,6 +41,10 @@ import styles from '@ringcentral-integration/widgets/components/CallItem/styles.
 
 import { CallIcon } from './CallIcon';
 import { RecordingDialog } from './RecordingDialog';
+
+const DownloadLink = styled.a`
+  display: none;
+`;
 
 import {
   StyledListItem,
@@ -306,6 +312,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   const [isLogging, setIsLogging] = useState(isLoggingProp);
   const [isCreating, setIsCreating] = useState(false);
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
+  const downloadRef = useRef(null);
   const [recordingDialogOpen, setRecordingDialogOpen] = useState(false);
 
   const contactDisplayRef = useRef<HTMLElement | null>(null);
@@ -381,6 +388,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   const isLogged = activityMatches.length > 0;
   if (showLogButton) {
     actions.push({
+      id: 'log',
       icon: isLogged ? Edit : NewAction,
       title: (isLogged ? i18n.getString('editLog', currentLocale) : logButtonTitle) || i18n.getString('logCall', currentLocale),
       onClick: () => logCall(true, undefined, isLogged ? 'editLog' : 'createLog'),
@@ -389,6 +397,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   }
   if (onClickToDial) {
     actions.push({
+      id: 'c2d',
       icon: PhoneBorder,
       title: i18n.getString('call', currentLocale),
       onClick: clickToDial,
@@ -397,6 +406,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   }
   if (onClickToSms) {
     actions.push({
+      id: 'c2sms',
       icon: SmsBorder,
       title: i18n.getString('text', currentLocale),
       onClick: () => clickToSms({ countryCode, areaCode }),
@@ -406,6 +416,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   const hasEntity = !!contactMatches.length;
   if (!isContactMatchesHidden && hasEntity) {
     actions.push({
+      id: 'viewContact',
       icon: People,
       title: i18n.getString('viewDetails', currentLocale),
       onClick: viewSelectedContact,
@@ -414,14 +425,27 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   }
   if (!hasEntity && phoneNumber && onCreateContact) {
     actions.push({
+      id: 'createContact',
       icon: AddMemberBorder,
       title: i18n.getString('addEntity', currentLocale),
       onClick: () => createSelectedContact(undefined),
       disabled: disableLinks,
     });
   }
+  if (isRecording) {
+    actions.push({
+      id: 'download',
+      icon: Download,
+      title: 'Download',
+      onClick: () => {
+        downloadRef.current?.click();
+      },
+      disabled: disableLinks,
+    });
+  }
   if (showLogButton && isLogged) {
     actions.push({
+      id: 'viewLog',
       icon: ViewLogBorder,
       title: 'View log details',
       onClick: () => logCall(true, undefined, 'viewLog'),
@@ -544,6 +568,17 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
             maxExtensionLength={maxExtensionNumberLength}
             recording={recording}
           />
+        )
+      }
+      {
+        isRecording && recording && (
+          <DownloadLink
+            target="_blank"
+            download
+            title="Download"
+            ref={downloadRef}
+            href={`${recording.contentUri}&contentDisposition=Attachment`}
+          ></DownloadLink>
         )
       }
     </StyledListItem>

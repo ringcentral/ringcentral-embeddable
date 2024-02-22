@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
-import { styled, palette2, ellipsis } from '@ringcentral/juno/foundation';
+import { styled, palette2 } from '@ringcentral/juno/foundation';
 import {
   RcDialog,
   RcDialogContent,
@@ -8,10 +8,7 @@ import {
   RcIconButton,
   RcTypography,
 } from '@ringcentral/juno';
-import {
-  Previous,
-  Download,
-} from '@ringcentral/juno-icon';
+import { Previous } from '@ringcentral/juno-icon';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
 import { ActionMenu } from '../ActionMenu';
@@ -60,10 +57,6 @@ const StyledAudioPlayer = styled(AudioPlayer)`
   flex: 1;
 `;
 
-const DownloadLink = styled.a`
-  display: none;
-`;
-
 export function RecordingDialog({
   open,
   onClose,
@@ -82,11 +75,12 @@ export function RecordingDialog({
   time,
   recording,
 }) {
-  const downloadRef = useRef(null);
   if (!open) {
     return null;
   }
   const self = direction === callDirections.inbound ? to : from;
+  const mainActions = actions.filter((action) => action.id !== 'download');
+  const downloadAction = actions.find((action) => action.id === 'download');
   return (
     <RcDialog
       open={open}
@@ -103,7 +97,6 @@ export function RecordingDialog({
       </StyledDialogTitle>
       <StyledDialogContent>
         <CallIcon
-          
           direction={direction}
           missed={missed}
           currentLocale={currentLocale}
@@ -112,7 +105,7 @@ export function RecordingDialog({
         <br />
         {contactDisplay}
         <StyledActionButtons
-          actions={actions}
+          actions={mainActions}
           maxActions={4}
         />
         <StyleSection>
@@ -128,13 +121,16 @@ export function RecordingDialog({
               disabled={disableLinks}
               currentLocale={currentLocale}
             />
-            <RcIconButton
-              symbol={Download}
-              title="Download"
-              onClick={() => {
-                downloadRef.current.click();
-              }}
-            />
+            {
+              downloadAction ? (
+                <RcIconButton
+                  symbol={downloadAction.icon}
+                  title={downloadAction.title}
+                  onClick={downloadAction.onClick}
+                  disabled={downloadAction.disabled}
+                />
+              ) : null
+            }
           </SectionRightArea>
         </StyleSection>
         {
@@ -158,13 +154,6 @@ export function RecordingDialog({
           ) : null
         }
       </StyledDialogContent>
-      <DownloadLink
-        target="_blank"
-        download
-        title="Download"
-        ref={downloadRef}
-        href={`${recording.contentUri}&contentDisposition=Attachment`}
-      ></DownloadLink>
     </RcDialog>
   );
 }
