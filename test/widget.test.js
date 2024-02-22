@@ -1,7 +1,7 @@
 const {
   setBrowserPermission,
   visitIndexPage,
-  getLoginedWidget,
+  getAuthorizedWidget,
 } = require('./steps/common');
 
 const hasUserLoginInfo = global.__JWT_TOKEN__;
@@ -16,7 +16,7 @@ conditionalDescribe('widget page test', () => {
   beforeAll(async () => {
     await setBrowserPermission();
     await visitIndexPage();
-    widgetIframe = await getLoginedWidget(__JWT_TOKEN__);
+    widgetIframe = await getAuthorizedWidget(__JWT_TOKEN__);
   });
 
   it('should login successfully', async () => {
@@ -154,7 +154,7 @@ conditionalDescribe('widget page test', () => {
     expect(serviceName).toEqual('TestService');
     await widgetIframe.clickNavigationButton('Contacts');
     const contactsFilters = await widgetIframe.getContactFilters();
-    expect(contactsFilters).toEqual(expect.stringContaining('TestService'));
+    expect(contactsFilters).toContain('TestService');
     await page.waitForTimeout(1500);
     const contacts = await widgetIframe.getContactNames();
     expect(contacts).toEqual(expect.arrayContaining(['TestService Name']));

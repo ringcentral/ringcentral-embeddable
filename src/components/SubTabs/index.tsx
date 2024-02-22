@@ -66,6 +66,7 @@ export function SubTabs({
   onChange,
   value,
   tabs,
+  variant = 'fullWidth',
 }) {
   return (
     <StyledRcTabs
@@ -73,7 +74,7 @@ export function SubTabs({
       onChange={(_, newValue) => {
         onChange(newValue);
       }}
-      variant="fullWidth"
+      variant={variant}
     >
       {
         tabs.map((tab) => (
