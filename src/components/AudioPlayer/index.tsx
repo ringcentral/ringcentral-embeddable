@@ -26,14 +26,15 @@ const StyledProgress = styled(RcSlider)`
 
 export function AudioPlayer({
   uri,
-  duration,
   disabled,
   currentLocale,
-  onPlay,
+  onPlay = () => {},
   className = undefined,
+  duration: propDuration = 0,
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(propDuration);
   const audio = useAudio((instance) => {
     instance.src = uri;
   });
@@ -54,17 +55,25 @@ export function AudioPlayer({
     const onAudioTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
     };
+    const onLoadedMetadata = () => {
+      setDuration(audio.duration);
+    };
     audio.addEventListener('ended', onAudioEnded);
     audio.addEventListener('pause', onAudioPause);
     audio.addEventListener('play', onAudioPlay);
     audio.addEventListener('error', onAudioError);
     audio.addEventListener('timeupdate', onAudioTimeUpdate);
+    if (audio.readyState >= 2 && audio.duration) {
+      setDuration(audio.duration);
+    }
+    audio.addEventListener('loadedmetadata', onLoadedMetadata);
     return () => {
       audio.removeEventListener('ended', onAudioEnded);
       audio.removeEventListener('pause', onAudioPause);
       audio.removeEventListener('play', onAudioPlay);
       audio.removeEventListener('error', onAudioError);
       audio.removeEventListener('timeupdate', onAudioTimeUpdate);
+      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
     };
   }, [audio]);
   
@@ -92,16 +101,20 @@ export function AudioPlayer({
       </RcTypography>
       <StyledProgress
         color="action.primary"
-        value={Math.round(currentTime / duration * 100)}
+        value={duration ? Math.round(currentTime / duration * 100) : 0}
         onChange={(e, value) => {
           audio.currentTime = Math.round((value as number) / 100 * duration);
         }}
         disabled={!uri}
         valueLabelDisplay="off"
       />
-      <RcTypography variant="caption1">
-        {formatDuration(duration)}
-      </RcTypography>
+      {
+        duration ? (
+          <RcTypography variant="caption1">
+            {formatDuration(duration)}
+          </RcTypography>
+        ) : null
+      }
     </Container>
   );
 }

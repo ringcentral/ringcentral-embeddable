@@ -104,6 +104,7 @@ export function CallsListPanel({
   onSwitchCall,
   isWide = true,
   activeCalls,
+  type,
 }) {
   const [contentHeight, setContentHeight] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
@@ -200,6 +201,7 @@ export function CallsListPanel({
       showLogButton={showLogButton}
       logButtonTitle={logButtonTitle}
       formatPhone={formatPhone}
+      isRecording={type === 'recordings'}
     />
   );
 

@@ -57,11 +57,13 @@ export const MainViewPanel = (props) => {
       path: phoneTabPath,
       isActive: (currentPath) => (
         currentPath === '/dialer' ||
-        currentPath === '/history'
+        currentPath === '/history' ||
+        currentPath === '/history/recordings'
       ),
       showHeader: (currentPath) => {
         return (
           currentPath === '/history' ||
+          currentPath === '/history/recordings' ||
           currentPath === '/dialer'
         );
       },

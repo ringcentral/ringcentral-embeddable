@@ -4,10 +4,12 @@ import { callingModes } from '@ringcentral-integration/commons/modules/CallingSe
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { isRingingInboundCall } from '@ringcentral-integration/commons/lib/callLogHelpers';
 import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
+import { computed } from '@ringcentral-integration/core';
 
 @Module({
   name: 'CallsListUI',
   deps: [
+    'Auth',
     'Locale',
     'CallLogSection',
     'RouterInteraction',
@@ -19,6 +21,24 @@ import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webp
   ],
 })
 export class CallsListUI extends BaseCallsListUI {
+  @computed((that: CallsListUI) => [
+    that._deps.callHistory.latestCalls,
+    that._deps.auth.token
+  ])
+  get recordings() {
+    return this._deps.callHistory.latestCalls
+      .filter((call) => !!call.recording)
+      .map((call) => {
+        return {
+          ...call,
+          recording: {
+            ...call.recording,
+            contentUri: `${call.recording.contentUri}?access_token=${this._deps.auth.accessToken}`,
+          },
+        }
+      })
+  }
+
   getUIProps({
     showRingoutCallControl = false,
     showSwitchCall = false,
@@ -26,6 +46,7 @@ export class CallsListUI extends BaseCallsListUI {
     showHoldOnOtherDevice = false,
     showMergeCall,
     useCallControl,
+    type,
     ...props
   }) {
     const {
@@ -86,8 +107,10 @@ export class CallsListUI extends BaseCallsListUI {
         rateLimiter.throttling ||
         controlBusy,
       useCallControl,
-      activeCalls: callMonitor.calls,
+      activeCalls: type !== 'recordings' ? callMonitor.calls : [],
+      calls: type !== 'recordings' ? callHistory.latestCalls : this.recordings,
       isWide: true,
+      type,
     };
   }
 
@@ -104,6 +127,7 @@ export class CallsListUI extends BaseCallsListUI {
       webphone,
       regionSettings,
       conferenceCall,
+      client,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -111,7 +135,7 @@ export class CallsListUI extends BaseCallsListUI {
         ...props,
       }),
       onLogCall: (async ({ call, contact, triggerType, redirect }) => {
-        if (callLogger.showLogModal && type !== 'viewLog') {
+        if (callLogger.showLogModal && triggerType !== 'viewLog') {
           callLogSection.handleLogSection(call);
           return;
         }

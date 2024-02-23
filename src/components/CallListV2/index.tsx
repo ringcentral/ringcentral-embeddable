@@ -57,6 +57,7 @@ type CallListV2Props = {
   formatPhone: (phoneNumber: string) => string | undefined;
   showLogButton: boolean;
   logButtonTitle: string;
+  isRecording?: boolean;
 };
 type CallListV2State = {
   extendedIndex: null;
@@ -123,6 +124,7 @@ class CallListV2 extends React.PureComponent<CallListV2Props, CallListV2State> {
       formatPhone,
       showLogButton,
       logButtonTitle,
+      isRecording,
     } = this.props;
     const { extendedIndex } = this.state;
     let content;
@@ -182,6 +184,7 @@ class CallListV2 extends React.PureComponent<CallListV2Props, CallListV2State> {
           maxExtensionNumberLength={maxExtensionNumberLength}
           showLogButton={showLogButton}
           logButtonTitle={logButtonTitle}
+          isRecording={isRecording}
         />
       );
     }
@@ -257,5 +260,6 @@ CallListV2.defaultProps = {
   extendedRowHeight: 130,
   showChooseEntityModal: true,
   enableCDC: false,
+  isRecording: false,
 };
 export default CallListV2;

@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import React, { Component, createRef } from 'react';
 
 import classnames from 'classnames';
@@ -680,6 +679,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     if (showLogButton) {
       const isLogged = conversationMatches.length > 0;
       actions.push({
+        id: 'log',
         icon: AddTextLog,
         title: logButtonTitle || i18n.getString(isLogged ? 'editLog' : 'addLog', currentLocale),
         onClick: this.logConversation,
@@ -688,6 +688,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     }
     if (type !== messageTypes.fax && onClickToDial) {
       actions.push({
+        id: 'c2d',
         icon: PhoneBorder,
         title: i18n.getString('call', currentLocale),
         onClick: this.clickToDial,
@@ -696,6 +697,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     }
     if (type === messageTypes.voiceMail && onClickToSms) {
       actions.push({
+        id: 'c2sms',
         icon: SmsBorder,
         title: i18n.getString('text', currentLocale),
         onClick: this.onClickToSms,
@@ -708,6 +710,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     ) {
       // mark/unmark
       actions.push({
+        id: 'mark',
         icon: unreadCounts > 0 ? Unread : Read,
         title: i18n.getString(
           unreadCounts > 0 ? 'unmark' : 'mark',
@@ -715,28 +718,34 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
         ),
         onClick: unreadCounts > 0 ? this.onUnmarkMessage : this.onMarkMessage,
         disabled: disableLinks,
+        sub: true,
       });
     }
     if (type === messageTypes.fax) {
       actions.push({
+        id: 'preview',
         icon: ViewBorder,
         title: i18n.getString('preview', currentLocale),
         onClick: (e) => {
           this.onPreviewFax(faxAttachment.uri)
         },
         disabled: disableLinks || !faxAttachment,
+        sub: true,
       });
     }
     if (downloadUri) {
       actions.push({
+        id: 'download',
         icon: Download,
         title: i18n.getString('download', currentLocale),
         onClick: this.onDownload,
         disabled: disableLinks,
+        sub: true,
       });
     }
     if (!isContactMatchesHidden || hasEntity) {
       actions.push({
+        id: 'viewContact',
         icon: People,
         title: i18n.getString('viewDetails', currentLocale),
         onClick: this.viewSelectedContact,
@@ -745,6 +754,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     }
     if (!hasEntity && phoneNumber && onCreateContact) {
       actions.push({
+        id: 'createContact',
         icon: AddMemberBorder,
         title: i18n.getString('addEntity', currentLocale),
         onClick: () => {
@@ -755,6 +765,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     }
     if (type === messageTypes.fax || type === messageTypes.voiceMail) {
       actions.push({
+        id: 'delete',
         icon: Delete,
         title: i18n.getString('delete', currentLocale),
         onClick: this.openDeleteDialog,
@@ -898,43 +909,17 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
                     })
                   : defaultContactDisplayWithoutUnread
               }
+              actions={actions}
               correspondents={correspondents}
               self={self}
               type={type}
               currentLocale={currentLocale}
               direction={direction}
               voicemailAttachment={voicemailAttachment}
-              faxAttachment={faxAttachment}
-              onDelete={this.openDeleteDialog}
               time={this.dateTimeFormatter(creationTime, 'datetime')}
               detail={detail}
-              onPreviewFax={this.onPreviewFax}
               disableLinks={disableLinks}
-              unread={unreadCounts > 0}
-              onMarkMessage={this.onMarkMessage}
-              onUnmarkMessage={this.onUnmarkMessage}
               onPlayVoicemail={this.onPlayVoicemail}
-              shouldHideEntityButton={isContactMatchesHidden}
-              onLog={this.logConversation}
-              onViewEntity={onViewContact && this.viewSelectedContact}
-              onCreateEntity={onCreateContact && this.createSelectedContact}
-              hasEntity={hasEntity}
-              onClickToDial={
-                !isFax ? onClickToDial && this.clickToDial : undefined
-              }
-              onClickToSms={
-                isVoicemail ? onClickToSms && this.onClickToSms : undefined
-              }
-              disableClickToSms={disableClickToSms}
-              phoneNumber={phoneNumber}
-              disableCallButton={disableCallButton}
-              disableClickToDial={disableClickToDial}
-              showLogButton={showLogButton}
-              logButtonTitle={logButtonTitle}
-              isLogging={isLogging || this.state.isLogging}
-              isLogged={conversationMatches.length > 0}
-              isCreating={this.state.isCreating}
-              onDownload={this.onDownload}
             />
           ) : null
         }

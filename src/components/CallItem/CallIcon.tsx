@@ -11,6 +11,7 @@ import {
   InboundFaxBorder,
   OutboundFaxBorder
 } from '@ringcentral/juno-icon';
+import i18n from '@ringcentral-integration/widgets/components/CallItem/i18n';
 
 type CallIconProps = {
   direction: string;
@@ -21,16 +22,16 @@ type CallIconProps = {
   outboundTitle?: string;
   missedTitle?: string;
   type?: string;
+  currentLocale: string;
 };
 export const CallIcon: FunctionComponent<CallIconProps> = ({
   direction,
   missed = false,
 //   active = false,
 //   ringing = false,
-  inboundTitle = '',
-  outboundTitle = '',
-  missedTitle = '',
+  
   type = '',
+  currentLocale,
 }) => {
   let icon;
   let title = '';
@@ -39,14 +40,14 @@ export const CallIcon: FunctionComponent<CallIconProps> = ({
     icon = direction === messageDirection.inbound ? InboundFaxBorder : OutboundFaxBorder;
   } else {
     if (missed) {
-      title = missedTitle;
+      title = i18n.getString('missedCall', currentLocale);
       icon = MissedcallBorder;
       color = 'danger.b04';
     } else if (direction === callDirections.inbound) {
-      title = inboundTitle;
+      title = i18n.getString('inboundCall', currentLocale);
       icon = IncallBorder;
     } else {
-      title = outboundTitle;
+      title = i18n.getString('outboundCall', currentLocale);
       icon = OutcallBorder;
     }
   }

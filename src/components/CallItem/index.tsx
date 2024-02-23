@@ -16,6 +16,8 @@ import {
   useEventCallback,
   usePrevious,
   RcListItemText,
+  RcIcon,
+  styled,
 } from '@ringcentral/juno';
 import {
   PhoneBorder,
@@ -25,6 +27,8 @@ import {
   NewAction,
   ViewLogBorder,
   Edit,
+  PlayCircleBorder,
+  Download,
 } from '@ringcentral/juno-icon';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
@@ -36,6 +40,12 @@ import i18n from '@ringcentral-integration/widgets/components/CallItem/i18n';
 import styles from '@ringcentral-integration/widgets/components/CallItem/styles.scss';
 
 import { CallIcon } from './CallIcon';
+import { RecordingDialog } from './RecordingDialog';
+
+const DownloadLink = styled.a`
+  display: none;
+`;
+
 import {
   StyledListItem,
   StyledItemIcon,
@@ -91,6 +101,7 @@ type CallItemProps = {
   enableCDC?: boolean;
   maxExtensionNumberLength?: number;
   formatPhone?: (...args: any[]) => any;
+  isRecording?: boolean;
 };
 
 export const CallItem: FunctionComponent<CallItemProps> = ({
@@ -137,6 +148,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   externalHasEntity,
   showLogButton,
   logButtonTitle,
+  isRecording = false,
 }) => {
   const {
     direction,
@@ -148,6 +160,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     offset,
     type,
     toName,
+    recording,
   } = call;
   const getInitialContactIndex = useEventCallback(() => {
     const contactMatches = getContactMatches()!;
@@ -299,6 +312,8 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   const [isLogging, setIsLogging] = useState(isLoggingProp);
   const [isCreating, setIsCreating] = useState(false);
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
+  const downloadRef = useRef(null);
+  const [recordingDialogOpen, setRecordingDialogOpen] = useState(false);
 
   const contactDisplayRef = useRef<HTMLElement | null>(null);
   const userSelectionRef = useRef(false);
@@ -373,6 +388,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   const isLogged = activityMatches.length > 0;
   if (showLogButton) {
     actions.push({
+      id: 'log',
       icon: isLogged ? Edit : NewAction,
       title: (isLogged ? i18n.getString('editLog', currentLocale) : logButtonTitle) || i18n.getString('logCall', currentLocale),
       onClick: () => logCall(true, undefined, isLogged ? 'editLog' : 'createLog'),
@@ -381,6 +397,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   }
   if (onClickToDial) {
     actions.push({
+      id: 'c2d',
       icon: PhoneBorder,
       title: i18n.getString('call', currentLocale),
       onClick: clickToDial,
@@ -389,6 +406,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   }
   if (onClickToSms) {
     actions.push({
+      id: 'c2sms',
       icon: SmsBorder,
       title: i18n.getString('text', currentLocale),
       onClick: () => clickToSms({ countryCode, areaCode }),
@@ -398,6 +416,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   const hasEntity = !!contactMatches.length;
   if (!isContactMatchesHidden && hasEntity) {
     actions.push({
+      id: 'viewContact',
       icon: People,
       title: i18n.getString('viewDetails', currentLocale),
       onClick: viewSelectedContact,
@@ -406,82 +425,110 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   }
   if (!hasEntity && phoneNumber && onCreateContact) {
     actions.push({
+      id: 'createContact',
       icon: AddMemberBorder,
       title: i18n.getString('addEntity', currentLocale),
       onClick: () => createSelectedContact(undefined),
       disabled: disableLinks,
     });
   }
+  if (isRecording) {
+    actions.push({
+      id: 'download',
+      icon: Download,
+      title: 'Download',
+      onClick: () => {
+        downloadRef.current?.click();
+      },
+      disabled: disableLinks,
+    });
+  }
   if (showLogButton && isLogged) {
     actions.push({
+      id: 'viewLog',
       icon: ViewLogBorder,
       title: 'View log details',
       onClick: () => logCall(true, undefined, 'viewLog'),
       disabled: disableLinks || isLogging,
     });
   }
+  const contactDisplay = (
+    <ContactDisplay
+      formatPhone={formatPhone}
+      missed={missed}
+      isOnConferenceCall={
+        direction === callDirections.outbound && toName === 'Conference'
+      }
+      contactName={contactName}
+      subContactName={subContactName}
+      reference={(ref) => {
+        contactDisplayRef.current = ref;
+      }}
+      className={classnames(
+        styles.contactDisplay,
+        contactDisplayStyle,
+        missed && styles.missed,
+        active && styles.active,
+      )}
+      selectClassName={styles.dropdownSelect}
+      brand={brand}
+      sourceIcons={sourceIcons}
+      phoneSourceNameRenderer={phoneSourceNameRenderer}
+      // TODO: find correct type
+      contactMatches={contactMatches as never}
+      selected={selected}
+      onSelectContact={onSelectContact}
+      disabled={disableLinks}
+      isLogging={isLogging}
+      fallBackName={fallbackContactName}
+      enableContactFallback={enableContactFallback}
+      areaCode={areaCode}
+      countryCode={countryCode}
+      phoneNumber={shouldHideNumber ? null : phoneNumber}
+      currentLocale={currentLocale}
+      stopPropagation={false}
+      showType={false}
+      showPlaceholder={showContactDisplayPlaceholder}
+      currentSiteCode={currentSiteCode}
+      isMultipleSiteEnabled={isMultipleSiteEnabled}
+    />
+  );
   return (
     <StyledListItem
       data-sign="calls_item_root"
       $hoverOnMoreMenu={hoverOnMoreMenu}
+      $clickable={!!isRecording}
     >
-      <StyledItemIcon>
+      <StyledItemIcon
+        onClick={isRecording ? () => {
+          setRecordingDialogOpen(true);
+        }: undefined}
+      >
         <CallIcon
           direction={direction!}
           // ringing={ringing}
           // active={active}
           missed={missed}
-          inboundTitle={i18n.getString('inboundCall', currentLocale)}
-          outboundTitle={i18n.getString('outboundCall', currentLocale)}
-          missedTitle={i18n.getString('missedCall', currentLocale)}
           type={type}
         />
       </StyledItemIcon>
       <RcListItemText
-        primary={(
-          <ContactDisplay
-            formatPhone={formatPhone}
-            missed={missed}
-            isOnConferenceCall={
-              direction === callDirections.outbound && toName === 'Conference'
-            }
-            contactName={contactName}
-            subContactName={subContactName}
-            reference={(ref) => {
-              contactDisplayRef.current = ref;
-            }}
-            className={classnames(
-              styles.contactDisplay,
-              contactDisplayStyle,
-              missed && styles.missed,
-              active && styles.active,
-            )}
-            selectClassName={styles.dropdownSelect}
-            brand={brand}
-            sourceIcons={sourceIcons}
-            phoneSourceNameRenderer={phoneSourceNameRenderer}
-            // TODO: find correct type
-            contactMatches={contactMatches as never}
-            selected={selected}
-            onSelectContact={onSelectContact}
-            disabled={disableLinks}
-            isLogging={isLogging}
-            fallBackName={fallbackContactName}
-            enableContactFallback={enableContactFallback}
-            areaCode={areaCode}
-            countryCode={countryCode}
-            phoneNumber={shouldHideNumber ? null : phoneNumber}
-            currentLocale={currentLocale}
-            stopPropagation={false}
-            showType={false}
-            showPlaceholder={showContactDisplayPlaceholder}
-            currentSiteCode={currentSiteCode}
-            isMultipleSiteEnabled={isMultipleSiteEnabled}
-          />
-        )}
+        onClick={isRecording ? () => {
+          setRecordingDialogOpen(true);
+        }: undefined}
+        primary={contactDisplay}
         secondary={
           <StyledSecondary>
             <DetailArea>
+              {
+                isRecording ? (
+                  <RcIcon
+                    symbol={PlayCircleBorder}
+                    size="xsmall"
+                    className='call-item-recording-icon'
+                  />
+                ) : null
+              }
               {durationEl}
             </DetailArea>
             <span className="call-item-time">
@@ -501,6 +548,39 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
           setHoverOnMoreMenu(open);
         }}
       />
+      {
+        isRecording && (
+          <RecordingDialog
+            currentLocale={currentLocale}
+            open={recordingDialogOpen}
+            onClose={() => setRecordingDialogOpen(false)}
+            contactDisplay={contactDisplay}
+            missed={missed}
+            time={dateEl}
+            type={type}
+            direction={direction}
+            to={call.to}
+            from={call.from}
+            disableLinks={disableLinks}
+            actions={actions}
+            countryCode={countryCode}
+            areaCode={areaCode}
+            maxExtensionLength={maxExtensionNumberLength}
+            recording={recording}
+          />
+        )
+      }
+      {
+        isRecording && recording && (
+          <DownloadLink
+            target="_blank"
+            download
+            title="Download"
+            ref={downloadRef}
+            href={`${recording.contentUri}&contentDisposition=Attachment`}
+          ></DownloadLink>
+        )
+      }
     </StyledListItem>
   );
 };
