@@ -9,19 +9,7 @@ import {
   RcTypography,
   RcButton,
 } from '@ringcentral/juno';
-import {
-  Previous,
-  ViewBorder,
-  Download,
-  Read,
-  Unread,
-  PhoneBorder,
-  SmsBorder,
-  People,
-  AddMemberBorder,
-  AddTextLog,
-} from '@ringcentral/juno-icon';
-import i18n from '@ringcentral-integration/widgets/components/MessageItem/i18n';
+import { Previous } from '@ringcentral/juno-icon';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
 
@@ -92,126 +80,19 @@ export function DetailDialog({
   currentLocale,
   direction,
   voicemailAttachment,
-  faxAttachment,
-  onDelete,
   self,
   detail,
   time,
-  onPreviewFax,
   disableLinks,
-  unread,
-  onMarkMessage,
-  onUnmarkMessage,
   onPlayVoicemail,
-  shouldHideEntityButton,
-  onLog,
-  onViewEntity,
-  onCreateEntity,
-  hasEntity,
-  onClickToDial,
-  onClickToSms,
-  disableClickToSms,
-  phoneNumber,
-  disableCallButton,
-  disableClickToDial,
-  isLogging,
-  isLogged,
-  isCreating,
-  onDownload,
-  showLogButton,
-  logButtonTitle,
+  actions,
 }) {
   if (!open) {
     return null;
   }
-  let downloadUri = null;
-  if (faxAttachment) {
-    downloadUri = faxAttachment.uri;
-  } else if (voicemailAttachment) {
-    downloadUri = voicemailAttachment.uri;
-  }
-  const actions = [];
-  if (onClickToDial) {
-    actions.push({
-      icon: PhoneBorder,
-      title: i18n.getString('call', currentLocale),
-      onClick: onClickToDial,
-      disabled: disableLinks || disableCallButton || disableClickToDial || !phoneNumber,
-    });
-  }
-  if (showLogButton) {
-    actions.push({
-      icon: AddTextLog,
-      title: logButtonTitle || i18n.getString(isLogged ? 'editLog' : 'addLog', currentLocale),
-      onClick: onLog,
-      disabled: disableLinks || isLogging || isCreating,
-    });
-  }
-  if (onClickToSms) {
-    actions.push({
-      icon: SmsBorder,
-      title: i18n.getString('text', currentLocale),
-      onClick: onClickToSms,
-      disabled: disableLinks || disableClickToSms || !phoneNumber,
-    });
-  }
-  if (!shouldHideEntityButton && hasEntity) {
-    actions.push({
-      icon: People,
-      title: i18n.getString('viewDetails', currentLocale),
-      onClick: onViewEntity,
-      disabled: disableLinks,
-    });
-  }
-  if (!hasEntity && onCreateEntity) {
-    actions.push({
-      icon: AddMemberBorder,
-      title: i18n.getString('addEntity', currentLocale),
-      onClick: () => {
-        onCreateEntity();
-      },
-      disabled: disableLinks,
-    });
-  }
-  const subActions = [];
-  if (type === messageTypes.fax) {
-    subActions.push({
-      icon: ViewBorder,
-      title: i18n.getString('preview', currentLocale),
-      onClick: () => {
-        onPreviewFax(faxAttachment.uri);
-      },
-      disabled: disableLinks || !faxAttachment || !faxAttachment.uri,
-    });
-    if (direction === messageDirection.inbound) {
-      subActions.push({
-        icon: unread ? Unread : Read,
-        title: i18n.getString(unread ? 'unmark' : 'mark', currentLocale),
-        onClick: unread ? onUnmarkMessage : onMarkMessage,
-        disabled: disableLinks,
-      });
-    }
-    subActions.push({
-      icon: Download,
-      title: i18n.getString('download', currentLocale),
-      onClick: onDownload,
-      disabled: disableLinks || !faxAttachment || !faxAttachment.uri,
-    });
-  }
-  if (type === messageTypes.voiceMail) {
-    subActions.push({
-      icon: Download,
-      title: i18n.getString('download', currentLocale),
-      onClick: onDownload,
-      disabled: disableLinks || !voicemailAttachment || !voicemailAttachment.uri,
-    });
-    subActions.push({
-      icon: unread ? Unread : Read,
-      title: i18n.getString(unread ? 'unmark' : 'mark', currentLocale),
-      onClick: unread ? onUnmarkMessage : onMarkMessage,
-      disabled: disableLinks,
-    });
-  }
+  const mainActions = actions.filter((action) => action.id !== 'delete' && !action.sub);
+  const subActions = actions.filter((action) => action.sub);
+  const deleteAction = actions.find((action) => action.id === 'delete');
   return (
     <RcDialog
       open={open}
@@ -237,7 +118,7 @@ export function DetailDialog({
         <br />
         {contactDisplay}
         <StyledActionButtons
-          actions={actions}
+          actions={mainActions}
           maxActions={4}
         />
         {
@@ -306,15 +187,20 @@ export function DetailDialog({
         }
         <br />
         <br />
-        <RcButton
-          variant='outlined'
-          color="danger.f02"
-          fullWidth
-          onClick={onDelete}
-          disabled={disableLinks}
-        >
-          {i18n.getString('delete', currentLocale)}
-        </RcButton>
+        {
+          deleteAction ? (
+            <RcButton
+              variant='outlined'
+              color="danger.f02"
+              fullWidth
+              onClick={deleteAction.onClick}
+              disabled={deleteAction.disabled}
+            >
+              {deleteAction.title}
+            </RcButton>
+          ) : null
+        }
+        
       </StyledDialogContent>
     </RcDialog>
   )
