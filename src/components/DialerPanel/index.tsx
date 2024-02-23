@@ -39,7 +39,7 @@ const DialerWrapper = styled.div<{ withTabs: boolean }>`
 
 const BodyBottom = styled.div`
   ${flexCenterStyle};
-  padding-bottom: 10px;
+  padding-bottom: 20px;
 `;
 
 const StyledRecipientsInput = styled(RecipientsInput)`
@@ -47,7 +47,7 @@ const StyledRecipientsInput = styled(RecipientsInput)`
   flex-direction: row;
   justify-content: center;
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 
   label {
     display: none;
