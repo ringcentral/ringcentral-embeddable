@@ -40,12 +40,15 @@ const PhoneNumber = ({
   currentLocale,
   phoneNumber,
   primary = false,
+  label = '',
 }) => {
   let primaryText = '';
   if (phoneNumber === 'anonymous') {
     primaryText = i18n.getString('Blocked', currentLocale);
   } else if (usageType) {
-    if (primary) {
+    if (label) {
+      primaryText = label;
+    } else if (primary) {
       primaryText = i18n.getString('primary', currentLocale);
     } else {
       primaryText = i18n.getString(usageType, currentLocale);
@@ -124,6 +127,7 @@ function FromField({
                   usageType={number.usageType}
                   currentLocale={currentLocale}
                   primary={number.primary}
+                  label={number.label}
                 />
               </RcMenuItem>
             );
