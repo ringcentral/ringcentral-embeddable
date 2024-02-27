@@ -32,3 +32,16 @@
     content: "\f02b";
 }
 
+.md-typeset .mdx-badge {
+    font-size: .85em;
+}
+
+.md-typeset .mdx-badge__icon {
+    background: var(--md-accent-fg-color--transparent);
+    padding: 0.2rem;
+}
+
+.md-typeset .mdx-badge__text {
+    box-shadow: 0 0 0 1px inset var(--md-accent-fg-color--transparent);
+    padding: 0.2rem 0.3rem;
+}

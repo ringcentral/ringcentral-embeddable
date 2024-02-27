@@ -327,7 +327,7 @@ window.addEventListener('message', (e) => {
 
 ## Web phone connection status event
 
-> supported after `v1.8.3`
+<!-- md:version 1.8.3 -->
 
 Embeddable's web phone (browser-based calling) works only after having successfully connected with a SIP server. To detect when the phone is connected:
 
@@ -349,7 +349,7 @@ window.addEventListener('message', (e) => {
 
 ## Web phone sessions sync event
 
-> supported after `v1.8.3`
+<!-- md:version 1.8.3 -->
 
 To get current active web phone calls send the sync trigger to Embeddable. 
 
