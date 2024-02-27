@@ -8,28 +8,28 @@
       
       
       
-        <link rel="canonical" href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/third-party-auth/">
+        <link rel="canonical" href="https://ringcentral.github.io/ringcentral-embeddable/docs/2.x/">
       
       
-        <link rel="prev" href="../meeting-schedule/">
+        <link rel="prev" href="../integration/authorization/">
       
       
-        <link rel="next" href="../upcoming-meetings/">
+        <link rel="next" href="../integration/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.11">
     
     
       
-        <title>Third-party auth - RingCentral Embeddable</title>
+        <title>2.x release - RingCentral Embeddable</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.7e359304.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e359304.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -48,11 +48,11 @@
       
     
     
-      <link rel="stylesheet" href="../../extra.css">
+      <link rel="stylesheet" href="../extra.css">
     
-      <link rel="stylesheet" href="../../assets/stylesheets/badge.css">
+      <link rel="stylesheet" href="../assets/stylesheets/badge.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#add-third-party-authorization-button" class="md-skip">
+        <a href="#2x-release" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="RingCentral Embeddable" class="md-header__button md-logo" aria-label="RingCentral Embeddable" data-md-component="logo">
+    <a href=".." title="RingCentral Embeddable" class="md-header__button md-logo" aria-label="RingCentral Embeddable" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Third-party auth
+              2.x release
             
           </span>
         </div>
@@ -238,7 +238,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../app-registration/" class="md-tabs__link">
+        <a href="../app-registration/" class="md-tabs__link">
           
   
   Getting started
@@ -256,7 +256,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../config/" class="md-tabs__link">
+        <a href="../config/" class="md-tabs__link">
           
   
   Configuration
@@ -276,7 +276,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../events/" class="md-tabs__link">
+        <a href="../integration/events/" class="md-tabs__link">
           
   
   Developer guide
@@ -292,7 +292,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../support/" class="md-tabs__link">
+      <a href="../support/" class="md-tabs__link">
         
   
     
@@ -343,7 +343,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="RingCentral Embeddable" class="md-nav__button md-logo" aria-label="RingCentral Embeddable" data-md-component="logo">
+    <a href=".." title="RingCentral Embeddable" class="md-nav__button md-logo" aria-label="RingCentral Embeddable" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -435,7 +435,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../app-registration/" class="md-nav__link">
+      <a href="../app-registration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -456,7 +456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../app-development/" class="md-nav__link">
+      <a href="../app-development/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -519,7 +519,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../initialization/" class="md-nav__link">
+      <a href="../initialization/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -540,7 +540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../versions/" class="md-nav__link">
+      <a href="../versions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -561,7 +561,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../self-hosting/" class="md-nav__link">
+      <a href="../self-hosting/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -639,7 +639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/" class="md-nav__link">
+      <a href="../config/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -660,7 +660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/setting-params/" class="md-nav__link">
+      <a href="../config/setting-params/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -723,7 +723,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/user-agent/" class="md-nav__link">
+      <a href="../config/user-agent/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -744,7 +744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/client-id/" class="md-nav__link">
+      <a href="../config/client-id/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -765,7 +765,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/styles/" class="md-nav__link">
+      <a href="../config/styles/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -786,7 +786,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/redirect-uri/" class="md-nav__link">
+      <a href="../config/redirect-uri/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -807,7 +807,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/prefix/" class="md-nav__link">
+      <a href="../config/prefix/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -828,7 +828,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/call-settings/" class="md-nav__link">
+      <a href="../config/call-settings/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -849,7 +849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../multiple-brands/" class="md-nav__link">
+      <a href="../multiple-brands/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -870,7 +870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/noise-reduction/" class="md-nav__link">
+      <a href="../config/noise-reduction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -891,7 +891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/popup-window/" class="md-nav__link">
+      <a href="../config/popup-window/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -912,7 +912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/multiple-tabs/" class="md-nav__link">
+      <a href="../config/multiple-tabs/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -933,7 +933,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/environment/" class="md-nav__link">
+      <a href="../config/environment/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -954,7 +954,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/badge/" class="md-nav__link">
+      <a href="../config/badge/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1035,7 +1035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../events/" class="md-nav__link">
+      <a href="../integration/events/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1056,7 +1056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
+      <a href="../integration/api/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1077,266 +1077,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../authorization/" class="md-nav__link">
+      <a href="../integration/authorization/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Authorization
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../2.x/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    2.x release
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
-            
-  
-  <span class="md-ellipsis">
-    Service features
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_5">
-            <span class="md-nav__icon md-icon"></span>
-            Service features
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Service registration
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../address-book/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Address book integration
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../contact-activities/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contact activities
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../custom-settings/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Custom settings
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../feedback-prompt/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Feedback prompt
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../call-logging/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Log calls
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../log-video-meeting/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Log meetings
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../message-logging/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Log messages
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../meeting-schedule/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Schedule meetings
   </span>
   
 
@@ -1362,15 +1107,72 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    2.x release
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    Third-party auth
+    2.x release
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#try-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      Try it
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-upgrade-to-2x" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why upgrade to 2.x?
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1383,8 +1185,263 @@
   
   
   
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Service features
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            Service features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../upcoming-meetings/" class="md-nav__link">
+      <a href="../integration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Service registration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/address-book/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Address book integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/contact-activities/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contact activities
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/custom-settings/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Custom settings
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/feedback-prompt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Feedback prompt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/call-logging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Log calls
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/log-video-meeting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Log meetings
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/message-logging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Log messages
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/meeting-schedule/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Schedule meetings
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/third-party-auth/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Third-party auth
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/upcoming-meetings/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1405,7 +1462,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../vcard-clicks/" class="md-nav__link">
+      <a href="../integration/vcard-clicks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1426,7 +1483,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sms-toolbar-button/" class="md-nav__link">
+      <a href="../integration/sms-toolbar-button/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1500,7 +1557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../analytics/" class="md-nav__link">
+      <a href="../integration/analytics/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1521,7 +1578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../click-to-dial/" class="md-nav__link">
+      <a href="../integration/click-to-dial/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1542,7 +1599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../call-pop/" class="md-nav__link">
+      <a href="../integration/call-pop/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1616,7 +1673,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new-latest-uri/" class="md-nav__link">
+      <a href="../integration/new-latest-uri/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1652,7 +1709,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../support/" class="md-nav__link">
+      <a href="../support/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1705,6 +1762,41 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#try-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      Try it
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-upgrade-to-2x" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why upgrade to 2.x?
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1718,7 +1810,7 @@
                   
 
   
-    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/master/docs/integration/third-party-auth.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/master/docs/2.x.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -1727,59 +1819,67 @@
     
       
     
-    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/master/docs/integration/third-party-auth.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/master/docs/2.x.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-<h1 id="add-third-party-authorization-button">Add third-party authorization button</h1>
-<p>For some CRM API, they requires user to authorize firstly. This feature allows developer to add a third party authorization button and sync status into widget.</p>
-<p>First you need to pass <code>authorizationPath</code>, <code>authorizedTitle</code>, <code>unauthorizedTitle</code> and <code>authorized</code> when you register service.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">authorizationPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/authorize&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">authorizedTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Unauthorize&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">unauthorizedTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Authorize&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">authorized</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">authorizedAccount</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;test@email.com&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, authorized account email or id</span>
-<span class="w">    </span><span class="nx">authorizationLogo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://your_brand_picture/logo.png&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, show your brand logo in authorization section, recommended: height 20px, width &lt; 85px.</span>
-<span class="w">    </span><span class="c1">// showAuthRedDot: true, // optional, this will show red dot at settings page when need to auth</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<h1 id="2x-release">2.x release</h1>
+<blockquote>
+<p>Currently we have RingCentral Embeddable 2.x version in beta release.</p>
+</blockquote>
+<p><img alt="new RingCentral Embeddable 2.x UI" src="https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/863c8863-c37b-4b42-a35c-1f1c3a35856c" /></p>
+<h3 id="try-it">Try it</h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Javascript</label><label for="__tabbed_1_2">iframe</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Add following code to any website's header to embed a RingCentral phone into that page. </p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x/adapter.js&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
+<span class="w">  </span><span class="p">})();</span>
+<span class="o">&lt;</span><span class="err">/script&gt;</span>
 </code></pre></div>
-<p>After registered, you can get a <code>TestService authorization button</code> in setting page:</p>
-<p><img alt="authorization image" src="https://user-images.githubusercontent.com/7036536/55848678-55817600-5b80-11e9-8eb3-a784a56997a8.jpeg" /></p>
-<p>Add a message event to response authorization button event:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/authorize&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="c1">// add your codes here to handle third party authorization</span>
-<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
-<span class="w">      </span><span class="c1">// response to widget</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">});</span>
-</code></pre></div>
-<p>Update authorization status in widget:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-authorization-status&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorized</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorizedAccount</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;test@email.com&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, authorized account email or id</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
-</code></pre></div>
-<div class="admonition info">
-<p class="admonition-title">If you register an authorization service into Embeddable, the contacts-related service above will work only after the user's status has changed to authorized.</p>
 </div>
+<div class="tabbed-block">
+<p>Add the following anywhere on your webpage.</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span> 
+  <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x/app.html&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<h2 id="changes">Changes</h2>
+<ol>
+<li>RingCentral Embeddable 2.x brings a comprehensive UI refactor to enhance user experience. Here are the key changes:<ul>
+<li><strong>New Navigation Bar UI</strong>: A redesigned navigation bar for improved accessibility and navigation efficiency.</li>
+<li><strong>New Dialer and Calls UI</strong>: The dialer and calls are merged into phone tab. New call history UI make it modernized user interface.</li>
+<li><strong>New Inbox (Messages) UI</strong>: Experience a refreshed inbox with a modernized user interface, making message management more efficient.</li>
+<li><strong>New Meetings UI</strong>: The meetings interface has been updated for a modernized user interface.</li>
+</ul>
+</li>
+<li><strong>New Recordings Page</strong>: Version 2.x introduces a dedicated recordings page, allowing users to conveniently manage and play their recorded calls directly within the widget.</li>
+<li><strong>Enhanced Voicemail Player</strong>: The new voicemail player in RingCentral Embeddable 2.x comes with seek support, providing users with more control over their voicemail playback.</li>
+<li><strong>Noise Reduction by Default</strong>: Enjoy improved audio quality with noise reduction enabled by default, ensuring a clearer communication experience.</li>
+<li><strong>New Customized Settings API</strong>: RingCentral Embeddable 2.x introduces a new <a href="../integration/custom-settings/">customized settings API</a>, offering developers more flexibility to tailor the widget settings to their specific needs.</li>
+</ol>
+<h2 id="why-upgrade-to-2x">Why upgrade to 2.x?</h2>
+<p>RingCentral Embeddable 2.x marks the next generation of the widget, bringing forth a host of new features and improvements. Here's why you should consider upgrading:</p>
+<ul>
+<li>
+<p><strong>Ongoing Feature Development</strong>: Moving forward, all new features will be exclusively added to RingCentral Embeddable 2.x. Staying on the latest version ensures that you have access to the latest functionalities and enhancements.</p>
+</li>
+<li>
+<p><strong>UI Consistency</strong>: The UI refactor aligns the Embeddable widget more closely with the RingCentral desktop app, providing a consistent and familiar user experience across platforms.</p>
+</li>
+</ul>
+<p>Make the transition to RingCentral Embeddable 2.x today to benefit from the latest advancements and ensure your users have the best communication and collaboration experience.</p>
 
 
 
@@ -1862,14 +1962,14 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.tabs", "navigation.top", "navigation.expand", "navigation.sections", "search.sharing", "search.highlight", "content.code.copy", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.path", "navigation.tabs", "navigation.top", "navigation.expand", "navigation.sections", "search.sharing", "search.highlight", "content.code.copy", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="../assets/javascripts/bundle.8fd75fb4.min.js"></script>
       
-        <script src="../../extra.js"></script>
+        <script src="../extra.js"></script>
       
-        <script src="../../assets/javascripts/badge.js" async></script>
+        <script src="../assets/javascripts/badge.js" async></script>
       
     
   </body>
