@@ -168,3 +168,16 @@ window.addEventListener('message', function (e) {
 ```
 
 ![incoming](https://user-images.githubusercontent.com/7036536/48829168-9bde6000-edac-11e8-9cd0-01b0dd65942b.jpeg)
+
+### Trigger contact match manually
+
+<!-- md:version 2.0.0 -->
+
+If there are new contacts in your system, you can trigger contact match manually:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-trigger-contact-match',
+  phoneNumbers: [`phoneNumberInE164Format`],
+}, '*');
+```

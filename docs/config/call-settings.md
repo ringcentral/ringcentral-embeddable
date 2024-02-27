@@ -99,7 +99,7 @@ After enabled, we can receive `From` number list in [calling settings updated](#
 
 ## Show my location numbers
 
-> Supported after v1.8.1
+<!-- md:version 1.8.1 -->
 
 In `RingOut` mode, user need to set `My Location` number to receive first-leg call. For developers who also want to get user's known location numbers programmatically, we need to set `showMyLocationNumbers` flag firstly:
 

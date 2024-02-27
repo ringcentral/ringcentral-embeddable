@@ -48,6 +48,8 @@ plugins:
       regex:
         - '^\.#.*'
         - '.*\.\#.*$'
+hooks:
+  - scripts/mkdocs/hooks/shortcodes.py
 
 extra:
   social:
@@ -107,6 +109,7 @@ nav:
   - 'Events': integration/events.md
   - 'API': integration/api.md
   - 'Authorization': integration/authorization.md
+  - '2.x release': 2.x.md
   - 'Service features':
     - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md
@@ -127,7 +130,6 @@ nav:
     - 'Call pop': integration/call-pop.md
   - 'Migration':
     - 'Migrating from Github Page build': integration/new-latest-uri.md
-
 - 'Troubleshooting': support.md
 
 - 'Changelog': https://github.com/ringcentral/ringcentral-embeddable/releases

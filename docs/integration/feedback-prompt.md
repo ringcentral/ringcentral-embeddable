@@ -45,7 +45,7 @@ window.addEventListener('message', function (e) {
 
 You can also add a feedback button at header, this way doesn't require to register service:
 
-Only supported from v1.10.0 at script js way
+<!-- md:version 1.10.0 -->
 
 ```js
 RCAdapter.showFeedback({

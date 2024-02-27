@@ -6,8 +6,6 @@ Embeddable provides an API that allows developers to control the UI and flow of 
 
 | :fontawesome-solid-tag: |1.x|
 
-
-
 Following APIs need to work with [Web phone call event](events.md#web-phone-call-event) to get `callId`.
 
 ### Answer a ringing call
@@ -155,7 +153,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 ### Show custom alert message
 
-> supported after `v1.8.6`
+<!-- md:version 1.8.6 -->
 
 ```js
 const requestId = Date.now().toString();
@@ -364,7 +362,7 @@ window.addEventListener('message', function (e) {
 
 ## Set presence
 
-> supported after `v1.8.2`
+<!-- md:version 1.8.2 -->
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
