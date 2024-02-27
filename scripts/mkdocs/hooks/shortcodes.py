@@ -62,10 +62,17 @@ def _badge_for_version(text: str, page: Page, files: Files):
     spec = text
     path = f"2.x.md#{spec}"
 
+    # TODO: update href with release
+
     # Return badge
     icon = "material-tag-outline"
-    href = _resolve_path("2.x.md", page, files)
+    if spec == "2.0.0":
+      href = _resolve_path("2.x.md", page, files)
+    elif spec == "2.x":
+      href = _resolve_path("2.x.md", page, files)
+    else:
+      href = "https://github.com/ringcentral/ringcentral-embeddable/releases"
     return _badge(
         icon = f"[:{icon}:]({href} 'Minimum version')",
-        text = f"[{text}]({_resolve_path(path, page, files)})" if spec else ""
+        text = f"[{text}]({href})" if spec else ""
     )
