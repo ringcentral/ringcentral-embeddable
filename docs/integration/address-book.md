@@ -194,7 +194,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   service: {
     name: 'TestService',
     // ...
-    contactMatchPath: '/contacts/match'
+    contactMatchPath: '/contacts/match',
     viewMatchedContactPath: '/contacts/view',
   }
 }, '*');
@@ -206,6 +206,8 @@ Add a message event to response view matched contact event:
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
+    // ... match contact event
+    // ...
     if (data.path === '/contacts/view') {
       console.log(data.body); // contact info to view
       // open contact detail page in your system
