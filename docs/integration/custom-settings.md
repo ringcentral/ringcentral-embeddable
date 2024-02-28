@@ -21,6 +21,28 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
         "name": "Open Contact Page at Call",
         "value": true
       },
+    ],
+  }
+}, '*');
+```
+
+### Register button and section
+
+<!-- md:version 2.0.0 -->
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    settingsPath: '/settings',
+    settings: [
+      {
+        "id": "goToAppSettings",
+        "type": "button",
+        "name": "Go to App settings",
+        "buttonLabel": "Open",
+      },
       {
         "id": "goToAppSettings",
         "type": "button",
@@ -76,13 +98,13 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-!!! info "In settings root items, it only supports `boolean`, `button` and `section` type. `section` type is supported from `v1.10.0`. `button` type is supported from `v2.0.0-alpha`. In section's items, it supports `boolean`, `string`, `option` and `text` type."
+!!! info "In settings root items, it only supports `boolean`, `button` and `section` type. In section's items, it supports `boolean`, `string`, `option` and `text` type."
 
 After registering, you can get your setting in settings page:
 
-![customize-settings](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/d753ab78-a791-4e38-8765-ad633f8a1363)
+![customize-settings](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/af76ff7a-7d3a-4e6a-a26b-41c8f79ad241)
 
-![customize-setting-section](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/29bc2481-05ec-4e29-bd77-9a63f9cdf1d0)
+![customize-setting-section](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/a7a1f33b-efc3-494d-a2ca-483b48dbbfe2)
 
 Add a message event to listen settings updated event:
 
@@ -114,9 +136,31 @@ window.addEventListener('message', function (e) {
 });
 ```
 
+### Listen for setting button click
+
+<!-- md:version 2.0.0 -->
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/button-click') {
+      // add your codes here to handle button click event
+      console.log(data);
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+  }
+});
+```
+
 ## Set settings item order
 
-!!! info "Supported from `v2.0.0-alpha`"
+<!-- md:version 2.0.0 -->
 
 You can set settings item order by adding `order` field in settings item:
 
@@ -157,11 +201,11 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 Order value is a number, the smaller the number, the higher the priority.
 
-![order-value](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/cf83505e-5a9f-49f5-a96a-624782ef2ed9)
+![order-value](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/91e7d9ed-3949-4bfe-9f21-56089de09ffb)
 
 ## Update settings
 
-!!! info "Supported from `v2.0.0-alpha`"
+<!-- md:version 2.0.0 -->
 
 You can update settings by sending `rc-adapter-update-third-party-settings` message:
 

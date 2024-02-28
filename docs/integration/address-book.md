@@ -171,6 +171,8 @@ window.addEventListener('message', function (e) {
 
 ### Trigger contact match manually
 
+<!-- md:version 2.0.0 -->
+
 If there are new contacts in your system, you can trigger contact match manually:
 
 ```js

@@ -5,7 +5,7 @@ npm-debug.log*
 *~
 # Dependency directory
 node_modules
-
+**/*/__pycache__
 **/.DS_Store
 api.json
 release
