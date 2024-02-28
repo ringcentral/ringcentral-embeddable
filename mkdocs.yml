@@ -109,7 +109,7 @@ nav:
   - 'Events': integration/events.md
   - 'API': integration/api.md
   - 'Authorization': integration/authorization.md
-  - '2.x release': 2.x.md
+  - 'Embeddable 2.0 beta': 2.x.md
   - 'Service features':
     - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md
