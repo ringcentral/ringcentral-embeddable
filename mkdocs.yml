@@ -10,6 +10,7 @@ docs_dir: docs
 
 theme:
   name: material
+  custom_dir: overrides
   features:
       - navigation.path
 #      - navigation.sections
