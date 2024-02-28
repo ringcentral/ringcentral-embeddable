@@ -37,6 +37,7 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _contactsPath?: string;
   private _contactSearchPath?: string;
   private _contactMatchPath?: string;
+  private _viewMatchedContactPath?: string;
   private _activitiesPath?: string;
   private _activityPath?: string;
   private _meetingInvitePath?: string;
@@ -111,6 +112,10 @@ export default class ThirdPartyService extends RcModuleV2 {
             this._registerContactMatch();
             this._deps.contactMatcher.triggerMatch();
           }
+        }
+        if (service.viewMatchedContactPath) {
+          this._viewMatchedContactPath = service.viewMatchedContactPath;
+          this._registerViewMatchedContact();
         }
         if (service.activitiesPath) {
           this._registerActivities(service);
@@ -224,6 +229,10 @@ export default class ThirdPartyService extends RcModuleV2 {
       readyCheckFn: () => this.sourceReady,
     });
     this._contactMatchSourceAdded = true;
+  }
+
+  _registerViewMatchedContact() {
+    this.setViewMatchedContactExternal(true);
   }
 
   _unregisterContactMatch() {
@@ -544,7 +553,12 @@ export default class ThirdPartyService extends RcModuleV2 {
       }
       phoneNumbers.forEach((phoneNumber) => {
         if (data[phoneNumber] && Array.isArray(data[phoneNumber])) {
-          result[phoneNumber] = data[phoneNumber];
+          result[phoneNumber] = data[phoneNumber].map((contact) => {
+            return ({
+              ...contact,
+              entityType: contact.entityType || contact.type,
+            });
+          });
         } else {
           result[phoneNumber] = [];
         }
@@ -558,6 +572,14 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   findContact(contactId) {
     return this.contacts.find((x) => x.id === contactId);
+  }
+
+  async onViewMatchedContactExternal(contact) {
+    try {
+      await requestWithPostMessage(this._viewMatchedContactPath, contact);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async matchCallLogEntities(sessionIds) {
@@ -1150,5 +1172,13 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   get additionalSMSToolbarButtons() {
     return this.additionalButtons.filter(x => x.type === 'smsToolbar');
+  }
+
+  @state
+  viewMatchedContactExternal = false;
+
+  @action
+  setViewMatchedContactExternal(value) {
+    this.viewMatchedContactExternal = value;
   }
 }

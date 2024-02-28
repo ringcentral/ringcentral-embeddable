@@ -80,6 +80,17 @@ export default function App({
       />
     );
   };
+  const onViewContact = ({ contact }) => {
+    const { type, id } = contact;
+    if (
+      !phone.thirdPartyService.viewMatchedContactExternal ||
+      type !== phone.thirdPartyService.sourceName
+    ) {
+      phone.routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
+      return;
+    }
+    phone.thirdPartyService.onViewMatchedContactExternal(contact);
+  };
   return (
     <PhoneContext.Provider value={phone}>
       <Provider store={phone.store} >
@@ -157,6 +168,7 @@ export default function App({
                         showSwitchCall
                         getAvatarUrl={getAvatarUrl}
                         type={routerProps.params.type || 'all'}
+                        onViewContact={onViewContact}
                       />
                       <CallLogSectionModal />
                     </PhoneTabsContainer>
@@ -180,6 +192,7 @@ export default function App({
                     <ConversationsPage
                       showGroupNumberName
                       showContactDisplayPlaceholder={false}
+                      onViewContact={onViewContact}
                     />
                   )}
                 />
