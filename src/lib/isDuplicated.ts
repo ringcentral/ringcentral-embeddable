@@ -18,4 +18,5 @@ export function isDuplicated(groupName: string, id, maxKeys = 20) {
   }
   localStorage.setItem(key, `${Date.now()}`);
   clearExpiredKeys(groupName, maxKeys);
+  return false;
 }
