@@ -159,6 +159,10 @@
       border-radius: 0.375rem;
       transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
     }
+
+    .md-typeset .admonition p{
+      font-size: 13px;
+    }
   </style>
   <script>__md_scope = new URL(".", location), __md_hash = e => [...e].reduce((e, _) => (e << 5) - e + _.charCodeAt(0), 0), __md_get = (e, _ = localStorage, t = __md_scope) => JSON.parse(_.getItem(t.pathname + "." + e)), __md_set = (e, _, t = localStorage, a = __md_scope) => { try { t.setItem(a.pathname + "." + e, JSON.stringify(_)) } catch (e) { } }</script>
 </head>
@@ -168,6 +172,13 @@
   <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
   <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
   <label class="md-overlay" for="__drawer"></label>
+  <div data-md-component="announce">
+    <aside class="md-banner">
+      <div class="md-banner__inner md-grid md-typeset">
+        Announcing the RingCentral Embeddable 2.0 Beta <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/2.x/" class="upgrade-button">Upgrade today</a>
+      </div>
+    </aside>
+  </div>
   <header class="md-header" data-md-component="header">
     <nav class="md-header__inner md-grid" aria-label="Header">
       <a href="." title="RingCentral Embeddable" class="md-header__button md-logo" aria-label="RingCentral Embeddable"
@@ -329,6 +340,11 @@
           <article class="md-content__inner md-typeset">
             <h1 id="embed-a-phone-into-any-webpage-with-ringcentral-embeddable">Embed a phone into any webpage with
               RingCentral Embeddable</h1>
+              <div class="admonition example">
+                <p class="admonition-title">Introducing the RingCentral Embeddable 2.0 beta</p>
+                <p>We are excited to announce and make available the next generation of the RingCentral Embeddable product. In addition to a new design and user interface, Embeddable 2.0 comes with new features including call recording playback and a new SMS/messaging inbox. Developers will enjoy new ways to extend the user interface without having to know or code HTML and CSS. </p>
+                <p><a class="md-button md-button--primary" href="https://ringcentral.github.io/ringcentral-embeddable/docs/2.x/">Learn more</a></p>
+              </div>
             <p>
               RingCentral Embeddable provides a ready-to-use, fully-functional web phone that can be embedded into any web site. Embeddable is a javascript wrapper around the foundational <a href="https://github.com/ringcentral/ringcentral-js-widgets">RingCentral Widgets Library</a>. By adding a few lines of javascript, anyone can embed a phone into any web page in seconds.
             </p>
@@ -423,7 +439,7 @@
             </div>
             <h3 id="prerequisites">Prerequisites</h3>
             <ul>
-              <li>A <a href="https://ringcentral.com/pricing/">RingCentral MVP</a> account</li>
+              <li>A <a href="https://ringcentral.com/pricing/">RingCentral</a> account</li>
               <li>A supported browser, including:
                 <ul>
                   <li>Chrome</li>
@@ -432,6 +448,10 @@
                 </ul>
                 </li>
             </ul>
+            <div class="admonition hint">
+              <p class="admonition-title">Removing the "FOR DEMO PURPOSES ONLY" banner</p>
+              <p>You may observe that a banner appears when running the sample code above. To remove this banner, please register your own application and <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/config/client-id/">use the client ID</a> associated with that application. </p>
+            </div>
             <h2>Setup environment of this page's online demo</h2>
             <p>1. Click <a href="#" id="setEnvironment">here to set this widget's client ID and app Server</a>.
               Enable
