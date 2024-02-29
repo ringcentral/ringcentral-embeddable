@@ -36,6 +36,7 @@ import {
   formatMeetingForm,
   formatMeetingInfo,
 } from '../../lib/formatMeetingInfo';
+import { isDuplicated } from '../../lib/isDuplicated';
 import PopupWindowManager from '../../lib/PopupWindowManager';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
@@ -161,12 +162,22 @@ export default class Adapter extends AdapterModuleCore {
     this._popupWindowManager = new PopupWindowManager({ prefix, isPopupWindow: fromPopup });
 
     this._messageStore.onNewInboundMessage((message) => {
+      if (isDuplicated(`${prefix}-deduplicate-inbound-message-event`, message.id)) {
+        return;
+      }
       this._postMessage({
         type: 'rc-inbound-message-notify',
         message,
       });
     });
     this._messageStore.onMessageUpdated((message) => {
+      if (isDuplicated(
+        `${prefix}-deduplicate-message-updated-event`,
+        `${message.id}-${message.lastModifiedTime}`,
+        30,
+      )) {
+        return;
+      }
       this._postMessage({
         type: 'rc-message-updated-notify',
         message,
