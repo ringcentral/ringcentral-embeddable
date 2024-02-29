@@ -1,8 +1,11 @@
 # Develop and graduate your application in sandbox
 
+!!! info "Introducing RingCentral Embeddable 2.0 beta"
+    Consider building your Embeddable application on the [next version of RingCentral Embeddable](2.x.md) to take full advantage of the new features and capabilities it brings. 
+
 Upon successfully [registering your application](app-registration.md) you will be provided with a unique client ID to identify your application on the network. Your next step will be to develop your application using this unique client ID in the RingCentral developer sandbox environment. 
 
-!!! info "Learn more [RingCentral's Developer sandbox environment](https://developers.ringcentral.com/guide/getting-started/using-sandbox)." 
+Learn more [RingCentral's developer sandbox environment](https://developers.ringcentral.com/guide/getting-started/using-sandbox)
 
 ## Initializing your application in sandbox
 
