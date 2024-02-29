@@ -16,7 +16,11 @@ export function isDuplicated(groupName: string, id, maxKeys = 20) {
   if (localStorage.getItem(key)) {
     return true;
   }
-  localStorage.setItem(key, `${Date.now()}`);
-  clearExpiredKeys(groupName, maxKeys);
+  try {
+    localStorage.setItem(key, `${Date.now()}`);
+    clearExpiredKeys(groupName, maxKeys);
+  } catch (e) {
+    console.error(e);
+  }
   return false;
 }
