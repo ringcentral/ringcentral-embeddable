@@ -1,5 +1,5 @@
 export default {
-  dialpadLabel: "Dial Pad",
+  dialpadLabel: "Dialpad",
   phoneLabel: 'Phone',
   callsLabel: "Calls",
   historyLabel: "History",

@@ -681,7 +681,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       actions.push({
         id: 'log',
         icon: AddTextLog,
-        title: logButtonTitle || i18n.getString(isLogged ? 'editLog' : 'addLog', currentLocale),
+        title: logButtonTitle || (isLogged ? 'Edit log' : i18n.getString('addLog', currentLocale)),
         onClick: this.logConversation,
         disabled: disableLinks || isLogging || this.state.isLogging,
       });
@@ -712,10 +712,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       actions.push({
         id: 'mark',
         icon: unreadCounts > 0 ? Unread : Read,
-        title: i18n.getString(
-          unreadCounts > 0 ? 'unmark' : 'mark',
-          currentLocale,
-        ),
+        title: unreadCounts > 0 ? 'Mark as read' : 'Mark as unread',
         onClick: unreadCounts > 0 ? this.onUnmarkMessage : this.onMarkMessage,
         disabled: disableLinks,
         sub: true,
@@ -747,7 +744,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       actions.push({
         id: 'viewContact',
         icon: People,
-        title: i18n.getString('viewDetails', currentLocale),
+        title: 'View contact details',
         onClick: this.viewSelectedContact,
         disabled: disableLinks,
       });
