@@ -390,7 +390,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     actions.push({
       id: 'log',
       icon: isLogged ? Edit : NewAction,
-      title: (isLogged ? i18n.getString('editLog', currentLocale) : logButtonTitle) || i18n.getString('logCall', currentLocale),
+      title: (isLogged ? 'Edit log' : logButtonTitle) || 'Log call',
       onClick: () => logCall(true, undefined, isLogged ? 'editLog' : 'createLog'),
       disabled: disableLinks || isLogging,
     });
@@ -418,7 +418,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     actions.push({
       id: 'viewContact',
       icon: People,
-      title: i18n.getString('viewDetails', currentLocale),
+      title: "View contact details",
       onClick: viewSelectedContact,
       disabled: disableLinks,
     });
