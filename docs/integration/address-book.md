@@ -181,3 +181,42 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   phoneNumbers: [`phoneNumberInE164Format`],
 }, '*');
 ```
+
+### View matched contact externally
+
+<!-- md:version 2.0.0 -->
+
+You can also view matched contact in your system by clicking "View contact details" in the call history or inbox page. You need to pass `viewMatchedContactPath` when you register service:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    // ...
+    contactMatchPath: '/contacts/match',
+    viewMatchedContactPath: '/contacts/view',
+  }
+}, '*');
+```
+
+Add a message event to response view matched contact event:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    // ... match contact event
+    // ...
+    if (data.path === '/contacts/view') {
+      console.log(data.body); // contact info to view
+      // open contact detail page in your system
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: 'ok',
+      }, '*');
+    }
+  }
+});
+```
