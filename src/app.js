@@ -32,7 +32,7 @@ if (enableDiscovery) {
   apiConfig.discoveryServer = discoverAppServer || apiConfig.server;
 }
 if (!authProxy && pathParams.appKey) {
-  console.warn('appKey is deprecated, please change to clientId. https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
+  console.warn('appKey is deprecated, please change to clientId. https://ringcentral.github.io/ringcentral-embeddable/docs/config/client-id/');
 }
 let isUsingDefaultClientId = false;
 if (
@@ -45,10 +45,10 @@ if (
   )
 ) {
   isUsingDefaultClientId = true;
-  console.warn('Default RingCentral client id is deprecated, it is required to setup your own RingCentral Client Id, Please stop using it soon before it is completely removed. Please follow here to setup your own RingCentral app client id: https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
+  console.warn('Default RingCentral client id is deprecated, it is required to setup your own RingCentral Client Id, Please stop using it soon before it is completely removed. Please follow here to setup your own RingCentral app client id: https://ringcentral.github.io/ringcentral-embeddable/docs/app-registration/');
 }
 if (!authProxy && !apiConfig.clientId) {
-  console.error('From v1.0.2, It is required to setup your own RingCentral Client Id. Please follow here to setup your own RingCentral app client id: https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/config-client-id-and-secret.md');
+  console.error('From v1.0.2, It is required to setup your own RingCentral Client Id. Please follow here to setup your own RingCentral app client id: https://ringcentral.github.io/ringcentral-embeddable/docs/app-registration/');
   // don't throw error in PR tests
   if (window.location.hostname !== 'localhost') {
     throw new Error('RingCentral App Client Id is required.');
