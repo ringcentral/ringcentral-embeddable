@@ -1277,6 +1277,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#view-matched-contact-externally" class="md-nav__link">
+    <span class="md-ellipsis">
+      View matched contact externally
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1830,6 +1839,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#view-matched-contact-externally" class="md-nav__link">
+    <span class="md-ellipsis">
+      View matched contact externally
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2014,6 +2032,37 @@
 <span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-trigger-contact-match&#39;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">phoneNumbers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="sb">`phoneNumberInE164Format`</span><span class="p">],</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="view-matched-contact-externally">View matched contact externally</h3>
+<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5Z"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
+<p>You can also view matched contact in your system by clicking "View contact details" in the call history or inbox page. You need to pass <code>viewMatchedContactPath</code> when you register service:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="w">    </span><span class="nx">contactMatchPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/contacts/match&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">viewMatchedContactPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/contacts/view&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+</code></pre></div>
+<p>Add a message event to response view matched contact event:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ... match contact event</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/contacts/view&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">);</span><span class="w"> </span><span class="c1">// contact info to view</span>
+<span class="w">      </span><span class="c1">// open contact detail page in your system</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
 </code></pre></div>
 
 
