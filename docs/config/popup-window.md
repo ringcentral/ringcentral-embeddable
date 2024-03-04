@@ -38,7 +38,7 @@ RCAdapter.isWindowPoppedUp().then((opened) => {...})
 
 ## Host the popup window
 
-For some reason, developers need to host [the popup HTML file](https://github.com/ringcentral/ringcentral-embeddable/blob/master/src/popup.html) by themselves. For example, if developer want to add [Third Party service](https://github.com/ringcentral/ringcentral-embeddable/blob/master/docs/third-party-service-in-widget.md#third-party-service-in-widget) register and response into the widget, it is required to host [the popup HTML file](https://github.com/ringcentral/ringcentral-embeddable/blob/master/src/popup.html) in your domain, and add your script inside the HTML file. It can be also used for resolve cross-origin domain issue.
+For some reason, developers need to host [the popup HTML file](https://github.com/ringcentral/ringcentral-embeddable/blob/main/src/popup.html) by themselves. For example, if developer want to add [Third Party service](https://github.com/ringcentral/ringcentral-embeddable/blob/main/docs/third-party-service-in-widget.md#third-party-service-in-widget) register and response into the widget, it is required to host [the popup HTML file](https://github.com/ringcentral/ringcentral-embeddable/blob/main/src/popup.html) in your domain, and add your script inside the HTML file. It can be also used for resolve cross-origin domain issue.
 
 In this case, we can config the popup button to open your own popup HTML file URI:
 
@@ -55,7 +55,7 @@ In this case, we can config the popup button to open your own popup HTML file UR
     </script>
     ```
 
-The HTML file need to be based on code of this [file](https://github.com/ringcentral/ringcentral-embeddable/blob/master/src/popup.html). Then update the `adapter.js` src into absolute address in the file:
+The HTML file need to be based on code of this [file](https://github.com/ringcentral/ringcentral-embeddable/blob/main/src/popup.html). Then update the `adapter.js` src into absolute address in the file:
 
 ```html
 <script src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js"></script>

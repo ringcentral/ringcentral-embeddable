@@ -5,7 +5,7 @@ site_url: https://ringcentral.github.io/ringcentral-embeddable/docs
 # Repository
 repo_url: https://github.com/ringcentral/ringcentral-embeddable
 repo_name: ringcentral/ringcentral-embeddable
-edit_uri: tree/master/docs
+edit_uri: tree/main/docs
 docs_dir: docs
 
 theme:
