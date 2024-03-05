@@ -32,7 +32,7 @@ jobs:
           API_SERVER: ${{ secrets.API_SERVER }}
   build:
     needs: test
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
