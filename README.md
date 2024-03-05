@@ -1,6 +1,6 @@
 # [RingCentral Embeddable](https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/)
 
-[![Build Status](https://github.com/ringcentral/ringcentral-embeddable/workflows/CI%20Pipeline/badge.svg?branch=main)](https://github.com/ringcentral/ringcentral-embeddable/actions)
+[![Build Status](https://github.com/ringcentral/ringcentral-embeddable/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ringcentral/ringcentral-embeddable/actions)
 [![Latest release](https://img.shields.io/github/v/release/ringcentral/ringcentral-embeddable)](https://github.com/ringcentral/ringcentral-embeddable/releases)
 
 RingCentral Embeddable is a fully functional, embeddable phone and dialer that is ready to use right out of the box. Using RingCentral Embeddable developers can embed a phone onto any web page to do the following:
