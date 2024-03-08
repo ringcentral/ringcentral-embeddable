@@ -12,7 +12,7 @@ import {
 } from '@ringcentral/juno';
 
 import { Previous } from '@ringcentral/juno-icon';
-import i18n from '@ringcentral-integration/widgets/components/CallItem/i18n';
+import { Field } from './Field';
 
 const StyledDialogTitle = styled(RcDialogTitle)`
   padding: 5px 50px;
@@ -40,12 +40,14 @@ const SaveButton = styled(RcButton)`
   top: 7px;
 `;
 
-const FieldArea = styled.div`
-  padding: 20px;
+const FieldsArea = styled.div`
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+`;
 
-  .RcTextareaInput-inputMultiline {
-    background: ${palette2('neutral', 'b01')};
-  }
+const StyledField = styled(Field)`
+  margin-bottom: 15px;
 `;
 
 export default function LogCallModal({
@@ -58,9 +60,12 @@ export default function LogCallModal({
   onLoadData,
   formatPhone,
   dateTimeFormatter,
+  customizedPageData,
+  onCustomizedFieldChange,
 }) {
   const [note, setNote] = useState('');
   const currentCallRef = useRef(currentCall);
+  const [logValue, setLogValue] = useState({});
   useEffect(() => {
     if (!currentCall) {
       currentCallRef.current = null;
@@ -85,6 +90,18 @@ export default function LogCallModal({
     currentCallRef.current = currentCall;
   }, [currentCall]);
 
+  useEffect(() => {
+    if (!customizedPageData) {
+      setLogValue({});
+      return;
+    }
+    const newValues = {};
+    customizedPageData.fields.forEach((field) => {
+      newValues[field.id] = field.value;
+    });
+    setLogValue(newValues);
+  }, [customizedPageData])
+
   if (!currentCall) {
     return null;
   }
@@ -107,7 +124,11 @@ export default function LogCallModal({
           onClick={onClose}
           data-sign="backButton"
         />
-        {isLogged ? i18n.getString('editLog', currentLocale) : i18n.getString('logCall', currentLocale)}
+        {
+          customizedPageData && customizedPageData.pageTitle ?
+            customizedPageData.pageTitle :
+            (isLogged ? 'Edit log' : 'Log call')
+        }
         <SaveButton
           variant='plain'
           onClick={() => {
@@ -117,7 +138,9 @@ export default function LogCallModal({
             });
           }}
         >
-          Save
+          {
+            customizedPageData && customizedPageData.saveButtonLabel ? customizedPageData.saveButtonLabel : 'Save'
+          }
         </SaveButton>
       </StyledDialogTitle>
       <StyledDialogContent>
@@ -132,20 +155,38 @@ export default function LogCallModal({
           formatPhone={formatPhone}
           dateTimeFormatter={dateTimeFormatter}
         />
-        <FieldArea>
-          <RcTextarea
-            data-sign="logNote"
-            label="Note"
-            placeholder="Add call log note"
-            fullWidth
-            minRows={2}
-            value={note}
-            onChange={(e) => {
-              setNote(e.target.value);
-            }}
-            maxLength={1000}
-          />
-        </FieldArea>
+        <FieldsArea>
+          {
+            customizedPageData && customizedPageData.fields && customizedPageData.fields.length > 0 ? customizedPageData.fields.map((field) => (
+              <StyledField
+                key={field.id}
+                field={field}
+                onChange={(value) => {
+                  const newLogValue = {
+                    ...logValue,
+                    [field.id]: value,
+                  };
+                  setLogValue(newLogValue);
+                  onCustomizedFieldChange(currentCall, newLogValue);
+                }}
+                value={logValue[field.id]}
+              />
+            )) : (
+              <RcTextarea
+                data-sign="logNote"
+                label="Note"
+                placeholder="Add call log note"
+                fullWidth
+                minRows={2}
+                value={note}
+                onChange={(e) => {
+                  setNote(e.target.value);
+                }}
+                maxLength={1000}
+              />
+            )
+          }
+        </FieldsArea>
       </StyledDialogContent>
     </RcDialog>
   );

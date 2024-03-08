@@ -58,6 +58,8 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _messageLoggerAttachmentWithToken?: boolean;
   private _additionalButtonPath?: string;
   private _vcardHandlerPath?: string;
+  private _callLogPageDataPath?: string;
+  private _callLogPageInputChangedEventPath?: string;
 
   constructor(deps) {
     super({
@@ -129,6 +131,10 @@ export default class ThirdPartyService extends RcModuleV2 {
         if (service.callLoggerPath) {
           this._registerCallLogger(service);
         }
+        if (service.callLogPageDataPath) {
+          this._callLogPageDataPath = service.callLogPageDataPath;
+          this._callLogPageInputChangedEventPath = service.callLogPageInputChangedEventPath;
+        }
         if (service.callLogEntityMatcherPath) {
           this._callLogEntityMatcherPath = service.callLogEntityMatcherPath;
           if (!this.authorizationRegistered || this.authorized) {
@@ -168,6 +174,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._triggerContactMatch(e.data.phoneNumbers);
       } else if (e.data.type === 'rc-adapter-update-third-party-settings') {
         this._updateSettings(e.data.settings);
+      } else if (e.data.type === 'rc-adapter-update-call-log-page-data') {
+        this._onUpdateCallLogPageData(e.data);
       }
     });
   }
@@ -1180,5 +1188,46 @@ export default class ThirdPartyService extends RcModuleV2 {
   @action
   setViewMatchedContactExternal(value) {
     this.viewMatchedContactExternal = value;
+  }
+
+  @state
+  customizedLogCallPageData = null;
+
+  @action
+  setCustomizedLogCallPageData(data) {
+    this.customizedLogCallPageData = data;
+  }
+
+  async fetchCustomizedLogCallPageData({ call }) {
+    if (!this._callLogPageDataPath) {
+      return null;
+    }
+    try {
+      const response = await requestWithPostMessage(this._callLogPageDataPath, {
+        call,
+      });
+      this.setCustomizedLogCallPageData(response.data);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  async onCustomizedLogCallPageInputChanged({ call, input }) {
+    if (!this._callLogPageInputChangedEventPath) {
+      return;
+    }
+    try {
+      await requestWithPostMessage(this._callLogPageInputChangedEventPath, {
+        call,
+        input,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  _onUpdateCallLogPageData(data) {
+    this.setCustomizedLogCallPageData(data.page);
   }
 }

@@ -8,6 +8,7 @@ function mapToProps(_, {
     callLogSection,
     locale,
     callLogger,
+    thirdPartyService,
   }
 }) {
   let currentCall = null;
@@ -19,6 +20,7 @@ function mapToProps(_, {
     currentCall,
     currentLogCall: callLogSection.callsMapping[callLogSection.currentIdentify],
     currentLocale: locale.currentLocale,
+    customizedPageData: thirdPartyService.customizedLogCallPageData,
   };
 }
 
@@ -30,6 +32,7 @@ function mapToFunctions(_, {
     accountInfo,
     extensionInfo,
     dateTimeFormat,
+    thirdPartyService,
   }
 }) {
   return {
@@ -43,6 +46,9 @@ function mapToFunctions(_, {
       activityMatcher.match({
         queries: [call.sessionId],
         ignoreCache: true
+      });
+      thirdPartyService.fetchCustomizedLogCallPageData({
+        call,
       });
     },
     formatPhone: (phoneNumber) =>
@@ -58,6 +64,12 @@ function mapToFunctions(_, {
       dateTimeFormat.formatDateTime({
         utcTimestamp,
       })),
+    onCustomizedFieldChange: (call, input) => {
+      thirdPartyService.onCustomizedLogCallPageInputChanged({
+        call,
+        input,
+      });
+    },
   };
 }
 
