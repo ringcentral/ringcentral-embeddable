@@ -107,7 +107,7 @@ export function Field({
       </RcSelect>
     );
   }
-  if (field.type.indexOf('admonition.') === 0) {
+  if (field.type && field.type.indexOf('admonition.') === 0) {
     return (
       <StyledAlert
         severity={field.type === 'admonition.warn' ? 'warning' : 'info'}

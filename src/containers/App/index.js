@@ -39,7 +39,7 @@ import AppView from '../AppView';
 import { PhoneTabsContainer } from '../PhoneTabsContainer';
 import DialerPage from '../DialerPage';
 import CallCtrlPage from '../CallCtrlPage';
-import CallLogSectionModal from '../CallLogSectionModal';
+import LogCallPage from '../LogCallPage';
 import { CallsListPage } from '../CallsListPage';
 import ConferenceCallDialerPage from '../ConferenceCallDialerPage';
 import ComposeTextPage from '../ComposeTextPage';
@@ -170,7 +170,6 @@ export default function App({
                         type={routerProps.params.type || 'all'}
                         onViewContact={onViewContact}
                       />
-                      <CallLogSectionModal />
                     </PhoneTabsContainer>
                   )} />
                 <Route
@@ -296,6 +295,14 @@ export default function App({
                     onAttachmentDownload={(uri, e) => {
                       phone.thirdPartyService.onClickVCard(uri, e);
                     }}
+                  />
+                )}
+              />
+              <Route
+                path="/log/call/:callSessionId"
+                component={routerProps => (
+                  <LogCallPage
+                    params={routerProps.params}
                   />
                 )}
               />

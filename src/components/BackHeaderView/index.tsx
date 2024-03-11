@@ -29,11 +29,13 @@ export function BackHeaderView({
   children = null,
   backButtonLabel = undefined,
   title = undefined,
+  rightButton = undefined,
 }: {
   onBack: () => void;
   children?: ReactNode;
   backButtonLabel?: string;
   title?: string;
+  rightButton?: ReactNode;
 }) {
   return (
     <Container>
@@ -45,6 +47,7 @@ export function BackHeaderView({
             </Title>
           )
         }
+        {rightButton}
       </BackHeader>
       <Content>
         {children}

@@ -1,39 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { styled } from '@ringcentral/juno/foundation';
-import {
-  RcButton,
-  RcDialog,
-  RcDialogTitle,
-  RcDialogContent,
-  RcIconButton,
-} from '@ringcentral/juno';
+import { RcButton } from '@ringcentral/juno';
 
-import { Previous } from '@ringcentral/juno-icon';
 import { Field } from './Field';
 import { CallInfo } from './CallInfo';
+import { BackHeaderView } from '../BackHeaderView';
 
-const StyledDialogTitle = styled(RcDialogTitle)`
-  padding: 5px 50px;
-  position: relative;
-  text-align: center;
-
-  .MuiTypography-root {
-    font-size: 0.9375rem;
-  }
-`;
-
-const StyledDialogContent = styled(RcDialogContent)`
+const Panel = styled.div`
+  width: 100%;
+  height: 100%;
   padding: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-`;
-
-const BackButton = styled(RcIconButton)`
-  position: absolute;
-  left: 10px;
-  top: 0;
 `;
 
 const SaveButton = styled(RcButton)`
@@ -79,21 +59,22 @@ function getDefaultFields(call) {
   return fields;
 }
 
-export default function LogCallModal({
-  open,
-  onClose,
+export default function LogCallPanel({
   currentLocale,
   currentCall = null,
-  currentLogCall = {},
   onSaveCallLog,
   onLoadData,
   formatPhone,
   dateTimeFormatter,
   customizedPageData,
   onCustomizedFieldChange,
+  onBackButtonClick,
 }) {
-  const currentCallRef = useRef(currentCall);
-  const [defaultFieldValues, setDefaultFiledValues] = useState({});
+  const currentCallRef = useRef(null);
+  const [defaultFieldValues, setDefaultFieldValues] = useState({
+    note: '',
+    contactId: undefined,
+  });
   const [customizedFieldValues, setCustomizedFieldValues] = useState({});
   useEffect(() => {
     if (!currentCall) {
@@ -105,12 +86,13 @@ export default function LogCallModal({
         currentCall.id !== currentCallRef.current.id
       )
     ) {
+      currentCallRef.current = currentCall;
       onLoadData(currentCall);
       const matchedActivity =
         currentCall.activityMatches &&
         currentCall.activityMatches[0];
       if (matchedActivity) {
-        setDefaultFiledValues({
+        setDefaultFieldValues({
           note: matchedActivity.note || '',
           contactId: matchedActivity && (
             matchedActivity.contact && (
@@ -120,18 +102,17 @@ export default function LogCallModal({
       } else {
         const matchContacts = currentCall.direction === callDirections.inbound
           ? currentCall.fromMatches : currentCall.toMatches;
-        setDefaultFiledValues({
+        setDefaultFieldValues({
           note: '',
           contactId: matchContacts && matchContacts[0] && matchContacts[0].id
         });
       }
-      currentCallRef.current = currentCall;
       return;
     }
     const currentMatch = currentCall.activityMatches && currentCall.activityMatches[0];
     const previousMatch = currentCallRef.current && currentCallRef.current.activityMatches && currentCallRef.current.activityMatches[0];
     if (currentMatch && previousMatch && currentMatch !== previousMatch) {
-      setDefaultFiledValues({
+      setDefaultFieldValues({
         note: currentMatch.note || '',
         contactId: currentMatch && currentMatch.contact && currentMatch.contact.id
       });
@@ -158,22 +139,14 @@ export default function LogCallModal({
   const isCustomizedFields = customizedPageData && customizedPageData.fields && customizedPageData.fields.length > 0;
   const fields = isCustomizedFields ? customizedPageData.fields : getDefaultFields(currentCall);
   return (
-    <RcDialog
-      open={open}
-      onClose={onClose}
-      fullScreen
-    >
-      <StyledDialogTitle>
-        <BackButton
-          symbol={Previous}
-          onClick={onClose}
-          data-sign="backButton"
-        />
-        {
-          customizedPageData && customizedPageData.pageTitle ?
+    <BackHeaderView
+      onBack={onBackButtonClick}
+      title={
+        customizedPageData && customizedPageData.pageTitle ?
             customizedPageData.pageTitle :
             (isLogged ? 'Edit log' : 'Log call')
-        }
+      }
+      rightButton={
         <SaveButton
           variant='plain'
           onClick={() => {
@@ -188,8 +161,9 @@ export default function LogCallModal({
             customizedPageData && customizedPageData.saveButtonLabel ? customizedPageData.saveButtonLabel : 'Save'
           }
         </SaveButton>
-      </StyledDialogTitle>
-      <StyledDialogContent>
+      }
+    >
+      <Panel>
         <CallInfo
           call={currentCall}
           currentLocale={currentLocale}
@@ -212,7 +186,7 @@ export default function LogCallModal({
                     onCustomizedFieldChange(currentCall, newValues, field.id);
                     return;
                   }
-                  setDefaultFiledValues({
+                  setDefaultFieldValues({
                     ...defaultFieldValues,
                     [field.id]: value,
                   });
@@ -222,7 +196,7 @@ export default function LogCallModal({
             ))
           }
         </FieldsArea>
-      </StyledDialogContent>
-    </RcDialog>
+      </Panel>
+    </BackHeaderView>
   );
 }

@@ -11,7 +11,6 @@ import { computed } from '@ringcentral-integration/core';
   deps: [
     'Auth',
     'Locale',
-    'CallLogSection',
     'RouterInteraction',
     'ActivityMatcher',
     'CallingSettings',
@@ -120,14 +119,12 @@ export class CallsListUI extends BaseCallsListUI {
     ...props
   }) {
     const {
-      callLogSection,
       routerInteraction,
       callLogger,
       activeCallControl,
       webphone,
       regionSettings,
       conferenceCall,
-      client,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -136,7 +133,7 @@ export class CallsListUI extends BaseCallsListUI {
       }),
       onLogCall: (async ({ call, contact, triggerType, redirect }) => {
         if (callLogger.showLogModal && triggerType !== 'viewLog') {
-          callLogSection.handleLogSection(call);
+          routerInteraction.push(`/log/call/${call.sessionId}`);
           return;
         }
         await callLogger.logCall({
