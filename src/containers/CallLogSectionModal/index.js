@@ -39,8 +39,8 @@ function mapToFunctions(_, {
     onClose() {
       callLogSection.closeLogSection();
     },
-    onSaveCallLog({ call, note }) {
-      callLogSection.saveCallLog(callLogSection.currentIdentify, call, note);
+    onSaveCallLog({ call, note, input }) {
+      callLogSection.saveCallLog(callLogSection.currentIdentify, call, note, input);
     },
     onLoadData(call) {
       activityMatcher.match({
@@ -64,10 +64,11 @@ function mapToFunctions(_, {
       dateTimeFormat.formatDateTime({
         utcTimestamp,
       })),
-    onCustomizedFieldChange: (call, input) => {
+    onCustomizedFieldChange: (call, input, key) => {
       thirdPartyService.onCustomizedLogCallPageInputChanged({
         call,
         input,
+        key,
       });
     },
   };

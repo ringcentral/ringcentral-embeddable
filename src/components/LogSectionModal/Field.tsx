@@ -76,6 +76,7 @@ export function Field({
           onChange(e.target.value);
         }}
         required={field.required}
+        maxRows={10}
       />
     );
   }

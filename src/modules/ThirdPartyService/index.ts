@@ -1213,7 +1213,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
   }
 
-  async onCustomizedLogCallPageInputChanged({ call, input }) {
+  async onCustomizedLogCallPageInputChanged({ call, input, key }) {
     if (!this._callLogPageInputChangedEventPath) {
       return;
     }
@@ -1221,6 +1221,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       await requestWithPostMessage(this._callLogPageInputChangedEventPath, {
         call,
         input,
+        key,
       });
     } catch (e) {
       console.error(e);

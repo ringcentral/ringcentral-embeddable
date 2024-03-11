@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
-import LogBasicInfoV2 from '@ringcentral-integration/widgets/components/LogBasicInfoV2'; 
-import { styled, palette2 } from '@ringcentral/juno/foundation';
+import { styled } from '@ringcentral/juno/foundation';
 import {
   RcButton,
   RcDialog,
   RcDialogTitle,
   RcDialogContent,
   RcIconButton,
-  RcTextarea,
 } from '@ringcentral/juno';
 
 import { Previous } from '@ringcentral/juno-icon';
 import { Field } from './Field';
+import { CallInfo } from './CallInfo';
 
 const StyledDialogTitle = styled(RcDialogTitle)`
   padding: 5px 50px;
@@ -26,6 +25,9 @@ const StyledDialogTitle = styled(RcDialogTitle)`
 
 const StyledDialogContent = styled(RcDialogContent)`
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 `;
 
 const BackButton = styled(RcIconButton)`
@@ -44,11 +46,38 @@ const FieldsArea = styled.div`
   padding: 16px;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
 `;
 
 const StyledField = styled(Field)`
   margin-bottom: 15px;
 `;
+
+function getDefaultFields(call) {
+  const fields: any[] = [];
+  const matchContacts = call.direction === callDirections.inbound
+      ? call.fromMatches : call.toMatches;
+  if (matchContacts && matchContacts.length > 0) {
+    fields.push({
+      id: 'contactId',
+      label: 'Contact',
+      type: 'input.choice',
+      options: matchContacts.map((entity) => ({
+        id: entity.id,
+        name: entity.name,
+        description: entity.description,
+      })),
+    });
+  }
+  fields.push({
+    id: 'note',
+    type: 'input.text',
+    label: 'Note',
+    placeholder: "Add call log note",
+  });
+  return fields;
+}
 
 export default function LogCallModal({
   open,
@@ -63,9 +92,9 @@ export default function LogCallModal({
   customizedPageData,
   onCustomizedFieldChange,
 }) {
-  const [note, setNote] = useState('');
   const currentCallRef = useRef(currentCall);
-  const [logValue, setLogValue] = useState({});
+  const [defaultFieldValues, setDefaultFiledValues] = useState({});
+  const [customizedFieldValues, setCustomizedFieldValues] = useState({});
   useEffect(() => {
     if (!currentCall) {
       currentCallRef.current = null;
@@ -80,38 +109,54 @@ export default function LogCallModal({
       const matchedActivity =
         currentCall.activityMatches &&
         currentCall.activityMatches[0];
-      setNote(matchedActivity && matchedActivity.note ? matchedActivity.note : '');
+      if (matchedActivity) {
+        setDefaultFiledValues({
+          note: matchedActivity.note || '',
+          contactId: matchedActivity && (
+            matchedActivity.contact && (
+              matchedActivity.contact.id || matchedActivity.contact
+            ))
+        });
+      } else {
+        const matchContacts = currentCall.direction === callDirections.inbound
+          ? currentCall.fromMatches : currentCall.toMatches;
+        setDefaultFiledValues({
+          note: '',
+          contactId: matchContacts && matchContacts[0] && matchContacts[0].id
+        });
+      }
+      currentCallRef.current = currentCall;
+      return;
     }
     const currentMatch = currentCall.activityMatches && currentCall.activityMatches[0];
     const previousMatch = currentCallRef.current && currentCallRef.current.activityMatches && currentCallRef.current.activityMatches[0];
     if (currentMatch && previousMatch && currentMatch !== previousMatch) {
-      setNote(currentMatch.note || '');
+      setDefaultFiledValues({
+        note: currentMatch.note || '',
+        contactId: currentMatch && currentMatch.contact && currentMatch.contact.id
+      });
     }
     currentCallRef.current = currentCall;
   }, [currentCall]);
 
   useEffect(() => {
     if (!customizedPageData) {
-      setLogValue({});
+      setCustomizedFieldValues({});
       return;
     }
     const newValues = {};
     customizedPageData.fields.forEach((field) => {
       newValues[field.id] = field.value;
     });
-    setLogValue(newValues);
+    setCustomizedFieldValues(newValues);
   }, [customizedPageData])
 
   if (!currentCall) {
     return null;
   }
-  let logName = 'Unknown';
-  const nameEntities = currentCall.direction === callDirections.inbound
-      ? currentCall.fromMatches : currentCall.toMatches;
-  if (nameEntities && nameEntities.length > 0) {
-    logName = nameEntities[0].name;
-  }
   const isLogged = currentCall.activityMatches && currentCall.activityMatches.length > 0;
+  const isCustomizedFields = customizedPageData && customizedPageData.fields && customizedPageData.fields.length > 0;
+  const fields = isCustomizedFields ? customizedPageData.fields : getDefaultFields(currentCall);
   return (
     <RcDialog
       open={open}
@@ -134,7 +179,8 @@ export default function LogCallModal({
           onClick={() => {
             onSaveCallLog({
               call: currentCall,
-              note,
+              input: isCustomizedFields ? customizedFieldValues : defaultFieldValues,
+              note: isCustomizedFields ? undefined : defaultFieldValues.note, // for backward support
             });
           }}
         >
@@ -144,47 +190,36 @@ export default function LogCallModal({
         </SaveButton>
       </StyledDialogTitle>
       <StyledDialogContent>
-        <LogBasicInfoV2
-          isWide
-          currentLog={{
-            call: currentCall,
-            currentLogCall,
-            logName,
-          }}
+        <CallInfo
+          call={currentCall}
           currentLocale={currentLocale}
           formatPhone={formatPhone}
           dateTimeFormatter={dateTimeFormatter}
         />
         <FieldsArea>
           {
-            customizedPageData && customizedPageData.fields && customizedPageData.fields.length > 0 ? customizedPageData.fields.map((field) => (
+            fields.map((field) => (
               <StyledField
                 key={field.id}
                 field={field}
                 onChange={(value) => {
-                  const newLogValue = {
-                    ...logValue,
+                  if (isCustomizedFields) {
+                    const newValues = {
+                      ...customizedFieldValues,
+                      [field.id]: value,
+                    };
+                    setCustomizedFieldValues(newValues);
+                    onCustomizedFieldChange(currentCall, newValues, field.id);
+                    return;
+                  }
+                  setDefaultFiledValues({
+                    ...defaultFieldValues,
                     [field.id]: value,
-                  };
-                  setLogValue(newLogValue);
-                  onCustomizedFieldChange(currentCall, newLogValue);
+                  });
                 }}
-                value={logValue[field.id]}
+                value={isCustomizedFields ? customizedFieldValues[field.id] : defaultFieldValues[field.id]}
               />
-            )) : (
-              <RcTextarea
-                data-sign="logNote"
-                label="Note"
-                placeholder="Add call log note"
-                fullWidth
-                minRows={2}
-                value={note}
-                onChange={(e) => {
-                  setNote(e.target.value);
-                }}
-                maxLength={1000}
-              />
-            )
+            ))
           }
         </FieldsArea>
       </StyledDialogContent>
