@@ -13,9 +13,14 @@ export class CallLogSection extends CallLogSectionBase {
   constructor(deps) {
     super(deps);
     this.addLogHandler({
-      logFunction: async (_identify, call, note) => {
+      logFunction: async (_identify, call, note, input) => {
         try {
-          await this._deps.thirdPartyService.logCall({ call, note });
+          await this._deps.thirdPartyService.logCall({
+            call,
+            note,
+            input,
+            triggerType: 'logForm'
+          });
           return true;
         } catch (e) {
           return false;

@@ -196,7 +196,6 @@ import { CallsListUI } from '../CallsListUI';
 import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
 import { CallLogger } from '../CallLogger';
-import { CallLogSection } from '../CallLogSection';
 import { CallQueues } from '../CallQueues';
 import { ComposeTextUI } from '../ComposeTextUI';
 import { ConferenceCall } from '../ConferenceCall';
@@ -234,6 +233,7 @@ import {
 import { TabManager } from '../TabManager';
 import ThirdPartyService from '../ThirdPartyService';
 import { ThirdPartySettingSectionUI } from '../ThirdPartySettingSectionUI';
+import { LogCallUI } from '../LogCallUI';
 import { Webphone } from '../Webphone';
 import { MainViewUI } from '../MainViewUI';
 // user Dependency Injection with decorator to create a phone class
@@ -300,7 +300,7 @@ import { MainViewUI } from '../MainViewUI';
     { provide: 'CallHistory', useClass: CallHistory },
     { provide: 'CallsListUI', useClass: CallsListUI },
     { provide: 'CallLogger', useClass: CallLogger },
-    { provide: 'CallLogSection', useClass: CallLogSection },
+    { provide: 'LogCallUI', useClass: LogCallUI },
     { provide: 'ActivityMatcher', useClass: ActivityMatcher },
     { provide: 'ConversationMatcher', useClass: ConversationMatcher },
     { provide: 'ContactSearch', useClass: ContactSearch },
