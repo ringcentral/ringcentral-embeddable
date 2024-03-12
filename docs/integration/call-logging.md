@@ -119,6 +119,162 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 ![image](https://user-images.githubusercontent.com/7036536/48827685-d1814a00-eda8-11e8-8160-0fb92cbb88f5.png)
 
+## Customize call log page
+
+<!-- md:version 2.0.0 -->
+
+From `v2.0.0`, call logger modal is refactored into call log page:
+
+![image](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/c4f7e129-32b9-4a2d-a296-9c6ad8ddd029)
+
+You can customize call log page by adding `callLogPageDataPath` and `callLogPageInputChangedEventPath` when register service:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    callLoggerPath: '/callLogger',
+    callLoggerTitle: 'Log to TestService',
+    callLoggerPath: '/callLogger',
+    callLogPageDataPath: '/callLogger/pageData',
+    callLogPageInputChangedEventPath: '/callLogger/inputChanged',
+  }
+}, '*');
+```
+
+Then add a message event to response call log page data and input changed request:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/callLogger/pageData') {
+      // Get call data: data.body.call
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: {
+          data: {
+            pageTitle: 'Log to TestService', // optional
+            saveButtonLabel: 'Save', // optional
+            fields: [{ 
+              id: 'warning',
+              type: 'admonition.warn', // "admonition.warn","admonition.info"
+              text: "No contact found. Enter a name to have a placeholder contact made for you."
+            }, {
+              id: 'contact',
+              label: 'Contact',
+              type: 'input.choice',
+              options: [{
+                id: 'xxxx',
+                name: 'John Doe',
+                description: 'Candidate - 347',
+              }, {
+                id: 'newEntity',
+                name: 'Create placeholder contact',
+              }],
+              value: '',
+            }, {
+              id: 'activityTitle',
+              label: 'Activity title',
+              type: 'input.text',
+              value: 'Outbound call to John Doe',
+            }, {
+              id: 'note',
+              label: 'Note',
+              type: 'input.text',
+              value: '',
+            }],
+          }
+        },
+      }, '*');
+      return;
+    }
+    if (data.path === '/callLogger/inputChanged') {
+      console.log(data); // get input changed data in here: data.body.input
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+      // update call log page data
+      return;
+    }
+    if (data.path === '/callLogger') {
+      // Get trigger type: data.body.triggerType
+      // When save button clicked, triggerType is 'logForm'
+      // When user click log button in call item, triggerType is 'createLog' or 'editLog'
+      // When it is triggered from auto log, triggerType is 'presenceUpdate'
+      // ...
+    }
+  }
+});
+```
+
+Go to call log page, you can see a customized call log page:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-navigate-to',
+  path: `/log/call/${call.sessionId}`, // call session id that you received from call logger event
+}, '*');
+```
+
+![customized call log page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/94cd0f4a-fdca-455b-a6e4-08305276637a)
+
+You can also update the page after received input changed event to make an dynamic page.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-update-call-log-page-data',
+  page: {
+    pageTitle: 'Log to TestService',
+    saveButtonLabel: 'Save',
+    fields: [{
+      id: 'contact',
+      label: 'Contact',
+      type: 'input.choice',
+      options: [{
+        id: 'xxxx',
+        name: 'John Doe',
+        description: 'Candidate - 347',
+      }, {
+        id: 'newEntity',
+        name: 'Create placeholder contact',
+      }],
+      value: 'newEntity', // Need to set new value
+    }, {
+      id: 'newContactName',
+      label: 'New contact name',
+      type: 'input.string',
+      value: 'John Doe',
+    }, {
+      id: 'newContactType',
+      label: 'Contact type',
+      type: 'input.choice',
+      value: 'Candidate',
+      options: [{
+        id: 'Candidate',
+        name: 'Candidate',
+      }, {
+        id: 'Contact',
+        name: 'Contact',
+      }],
+    }, {
+      id: 'activityTitle',
+      label: 'Activity title',
+      type: 'input.text',
+      value: '',
+    }, {
+      id: 'note',
+      label: 'Note',
+      type: 'input.text',
+      value: '',
+    }],
+  },
+}, '*');
+```
 
 ## Add call log entity matcher
 
