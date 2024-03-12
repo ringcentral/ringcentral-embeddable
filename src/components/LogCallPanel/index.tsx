@@ -19,7 +19,7 @@ const Panel = styled.div`
 const SaveButton = styled(RcButton)`
   position: absolute;
   right: 15px;
-  top: 7px;
+  top: 8px;
 `;
 
 const FieldsArea = styled.div`
@@ -73,7 +73,7 @@ export default function LogCallPanel({
   const currentCallRef = useRef(null);
   const [defaultFieldValues, setDefaultFieldValues] = useState({
     note: '',
-    contactId: undefined,
+    contactId: '',
   });
   const [customizedFieldValues, setCustomizedFieldValues] = useState({});
   useEffect(() => {
@@ -97,14 +97,14 @@ export default function LogCallPanel({
           contactId: matchedActivity && (
             matchedActivity.contact && (
               matchedActivity.contact.id || matchedActivity.contact
-            ))
+            )) || '',
         });
       } else {
         const matchContacts = currentCall.direction === callDirections.inbound
           ? currentCall.fromMatches : currentCall.toMatches;
         setDefaultFieldValues({
           note: '',
-          contactId: matchContacts && matchContacts[0] && matchContacts[0].id
+          contactId: matchContacts && matchContacts[0] && matchContacts[0].id || '',
         });
       }
       return;
@@ -114,7 +114,7 @@ export default function LogCallPanel({
     if (currentMatch && previousMatch && currentMatch !== previousMatch) {
       setDefaultFieldValues({
         note: currentMatch.note || '',
-        contactId: currentMatch && currentMatch.contact && currentMatch.contact.id
+        contactId: currentMatch && currentMatch.contact && currentMatch.contact.id || '',
       });
     }
     currentCallRef.current = currentCall;
@@ -172,28 +172,34 @@ export default function LogCallPanel({
         />
         <FieldsArea>
           {
-            fields.map((field) => (
-              <StyledField
-                key={field.id}
-                field={field}
-                onChange={(value) => {
-                  if (isCustomizedFields) {
-                    const newValues = {
-                      ...customizedFieldValues,
+            fields.map((field) => {
+              let value = isCustomizedFields ? customizedFieldValues[field.id] : defaultFieldValues[field.id];
+              if (typeof value === 'undefined') {
+                value = field.value;
+              }
+              return (
+                <StyledField
+                  key={field.id}
+                  field={field}
+                  onChange={(value) => {
+                    if (isCustomizedFields) {
+                      const newValues = {
+                        ...customizedFieldValues,
+                        [field.id]: value,
+                      };
+                      setCustomizedFieldValues(newValues);
+                      onCustomizedFieldChange(currentCall, newValues, field.id);
+                      return;
+                    }
+                    setDefaultFieldValues({
+                      ...defaultFieldValues,
                       [field.id]: value,
-                    };
-                    setCustomizedFieldValues(newValues);
-                    onCustomizedFieldChange(currentCall, newValues, field.id);
-                    return;
-                  }
-                  setDefaultFieldValues({
-                    ...defaultFieldValues,
-                    [field.id]: value,
-                  });
-                }}
-                value={isCustomizedFields ? customizedFieldValues[field.id] : defaultFieldValues[field.id]}
-              />
-            ))
+                    });
+                  }}
+                  value={value}
+                />
+              );
+            })
           }
         </FieldsArea>
       </Panel>

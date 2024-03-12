@@ -33,6 +33,9 @@ export function Field({
   onChange,
   value,
 }) {
+  if (typeof field.visible !== 'undefined' && !field.visible) {
+    return null;
+  }
   if (field.type === 'input.boolean') {
     return (
       <RcSwitch
@@ -93,7 +96,7 @@ export function Field({
         }}
         required={field.required}
       >
-        {field.options.map((option) => (
+        {(field.options || []).map((option) => (
           <RcMenuItem
             key={option.id}
             value={option.id}
