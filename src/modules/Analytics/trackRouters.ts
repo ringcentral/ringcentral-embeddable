@@ -61,4 +61,8 @@ export const trackRouters = trackRoutersBase
       eventPostfix: 'Log Call',
       router: '/log/call',
     },
+    {
+      eventPostfix: 'Log Messages',
+      router: '/log/messages',
+    },
   ]);

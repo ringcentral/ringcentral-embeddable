@@ -152,7 +152,11 @@ export class CallsListUI extends BaseCallsListUI {
           activity &&
           contact &&
           activity.contact &&
-          activity.contact.id === contact.id
+          (
+            activity.contact === contact.id ||
+            activity.contactId === contact.id ||
+            activity.contact.id === contact.id
+          )
         );
       },
       onMergeCall: undefined,

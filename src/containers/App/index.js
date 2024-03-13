@@ -45,6 +45,7 @@ import ConferenceCallDialerPage from '../ConferenceCallDialerPage';
 import ComposeTextPage from '../ComposeTextPage';
 import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
+import LogMessagesPage from '../LogMessagesPage';
 import MainView from '../MainView';
 import MeetingHistoryPage from '../MeetingHistoryPage';
 import MeetingHomePage from '../MeetingHomePage';
@@ -299,14 +300,6 @@ export default function App({
                 )}
               />
               <Route
-                path="/log/call/:callSessionId"
-                component={routerProps => (
-                  <LogCallPage
-                    params={routerProps.params}
-                  />
-                )}
-              />
-              <Route
                 path="/calls/active(/:sessionId)"
                 component={routerProps => (
                   <CallCtrlPage
@@ -446,6 +439,22 @@ export default function App({
                 path="/settings/thirdParty/:sectionId"
                 component={routerProps => (
                   <ThirdPartySettingSectionPage
+                    params={routerProps.params}
+                  />
+                )}
+              />
+              <Route
+                path="/log/call/:callSessionId"
+                component={routerProps => (
+                  <LogCallPage
+                    params={routerProps.params}
+                  />
+                )}
+              />
+              <Route
+                path="/log/messages/:conversationId"
+                component={routerProps => (
+                  <LogMessagesPage
                     params={routerProps.params}
                   />
                 )}

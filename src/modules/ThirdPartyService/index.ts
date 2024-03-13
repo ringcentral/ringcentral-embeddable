@@ -58,8 +58,8 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _messageLoggerAttachmentWithToken?: boolean;
   private _additionalButtonPath?: string;
   private _vcardHandlerPath?: string;
-  private _callLogPageDataPath?: string;
   private _callLogPageInputChangedEventPath?: string;
+  private _messagesLogPageInputChangedEventPath?: string;
 
   constructor(deps) {
     super({
@@ -131,8 +131,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         if (service.callLoggerPath) {
           this._registerCallLogger(service);
         }
-        if (service.callLogPageDataPath) {
-          this._callLogPageDataPath = service.callLogPageDataPath;
+        if (service.callLogPageInputChangedEventPath) {
           this._callLogPageInputChangedEventPath = service.callLogPageInputChangedEventPath;
         }
         if (service.callLogEntityMatcherPath) {
@@ -144,6 +143,9 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         if (service.messageLoggerPath) {
           this._registerMessageLogger(service);
+        }
+        if (service.messagesLogPageInputChangedEventPath) {
+          this._messagesLogPageInputChangedEventPath = service.messagesLogPageInputChangedEventPath;
         }
         if (service.messageLogEntityMatcherPath) {
           this._messageLogEntityMatcherPath = service.messageLogEntityMatcherPath;
@@ -176,6 +178,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._updateSettings(e.data.settings);
       } else if (e.data.type === 'rc-adapter-update-call-log-page-data') {
         this._onUpdateCallLogPageData(e.data);
+      } else if (e.data.type === 'rc-adapter-update-messages-log-page-data') {
+        this._onUpdateMessagesLogPageData(e.data);
       }
     });
   }
@@ -1198,21 +1202,6 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.customizedLogCallPageData = data;
   }
 
-  async fetchCustomizedLogCallPageData({ call }) {
-    if (!this._callLogPageDataPath) {
-      return null;
-    }
-    try {
-      const response = await requestWithPostMessage(this._callLogPageDataPath, {
-        call,
-      });
-      this.setCustomizedLogCallPageData(response.data);
-    } catch (e) {
-      console.error(e);
-      return null;
-    }
-  }
-
   async onCustomizedLogCallPageInputChanged({ call, input, key }) {
     if (!this._callLogPageInputChangedEventPath) {
       return;
@@ -1230,5 +1219,32 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   _onUpdateCallLogPageData(data) {
     this.setCustomizedLogCallPageData(data.page);
+  }
+
+  @state
+  customizedLogMessagesPageData = null;
+
+  @action
+  setCustomizedLogMessagesPageData(data) {
+    this.customizedLogMessagesPageData = data;
+  }
+
+  async onCustomizedLogMessagesPageInputChanged({ conversation, input, key }) {
+    if (!this._messagesLogPageInputChangedEventPath) {
+      return;
+    }
+    try {
+      await requestWithPostMessage(this._messagesLogPageInputChangedEventPath, {
+        conversation,
+        input,
+        key,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  _onUpdateMessagesLogPageData(data) {
+    this.setCustomizedLogMessagesPageData(data.page);
   }
 }
