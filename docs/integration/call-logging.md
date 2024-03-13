@@ -138,7 +138,6 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     // showLogModal: false, // disable showLogModal if you want to use call log page
     callLoggerTitle: 'Log to TestService',
     callLoggerPath: '/callLogger',
-    callLogPageDataPath: '/callLogger/pageData',
     callLogPageInputChangedEventPath: '/callLogger/inputChanged',
   }
 }, '*');
@@ -158,7 +157,7 @@ window.addEventListener('message', function (e) {
       if (data.body.triggerType === 'createLog' || data.body.triggerType === 'editLog') {
         // customize call log page
         document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-          type: 'rc-adapter-update-call-log-page-data',
+          type: 'rc-adapter-update-call-log-page',
           page: {
             pageTitle: 'Log to TestService',
             saveButtonLabel: 'Save',

@@ -39,7 +39,7 @@ export class LogCallUI extends RcUIModuleV2 {
     return {
       currentCall,
       currentLocale: locale.currentLocale,
-      customizedPageData: thirdPartyService.customizedLogCallPageData,
+      customizedPageData: thirdPartyService.customizedLogCallPage,
       isLogging: !!loggingMap[params.callSessionId],
     };
   }

@@ -176,10 +176,10 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._triggerContactMatch(e.data.phoneNumbers);
       } else if (e.data.type === 'rc-adapter-update-third-party-settings') {
         this._updateSettings(e.data.settings);
-      } else if (e.data.type === 'rc-adapter-update-call-log-page-data') {
-        this._onUpdateCallLogPageData(e.data);
-      } else if (e.data.type === 'rc-adapter-update-messages-log-page-data') {
-        this._onUpdateMessagesLogPageData(e.data);
+      } else if (e.data.type === 'rc-adapter-update-call-log-page') {
+        this._onUpdateCallLogPage(e.data);
+      } else if (e.data.type === 'rc-adapter-update-messages-log-page') {
+        this._onUpdateMessagesLogPage(e.data);
       }
     });
   }
@@ -1195,11 +1195,16 @@ export default class ThirdPartyService extends RcModuleV2 {
   }
 
   @state
-  customizedLogCallPageData = null;
+  customizedPages = [];
 
   @action
-  setCustomizedLogCallPageData(data) {
-    this.customizedLogCallPageData = data;
+  updateCustomizedPage(page) {
+    const index = this.customizedPages.findIndex(x => x.id === page.id);
+    if (index > -1) {
+      this.customizedPages[index] = page;
+    } else {
+      this.customizedPages.push(page);
+    }
   }
 
   async onCustomizedLogCallPageInputChanged({ call, input, key }) {
@@ -1217,16 +1222,15 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
   }
 
-  _onUpdateCallLogPageData(data) {
-    this.setCustomizedLogCallPageData(data.page);
+  _onUpdateCallLogPage(data) {
+    this.updateCustomizedPage({
+      ...data.page,
+      id: '$LOG-CALL',
+    });
   }
 
-  @state
-  customizedLogMessagesPageData = null;
-
-  @action
-  setCustomizedLogMessagesPageData(data) {
-    this.customizedLogMessagesPageData = data;
+  get customizedLogCallPage() {
+    return this.customizedPages.find(x => x.id === '$LOG-CALL');
   }
 
   async onCustomizedLogMessagesPageInputChanged({ conversation, input, key }) {
@@ -1244,7 +1248,14 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
   }
 
-  _onUpdateMessagesLogPageData(data) {
-    this.setCustomizedLogMessagesPageData(data.page);
+  _onUpdateMessagesLogPage(data) {
+    this.updateCustomizedPage({
+      ...data.page,
+      id: '$LOG-MESSAGES',
+    });
+  }
+
+  get customizedLogMessagesPage() {
+    return this.customizedPages.find(x => x.id === '$LOG-MESSAGES');
   }
 }

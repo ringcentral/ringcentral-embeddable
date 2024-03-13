@@ -59,7 +59,7 @@ export class LogMessagesUI extends RcUIModuleV2 {
     }
     return {
       currentLocale: locale.currentLocale,
-      customizedPageData: thirdPartyService.customizedLogMessagesPageData,
+      customizedPageData: thirdPartyService.customizedLogMessagesPage,
       conversationLog,
       correspondentMatches,
       lastMatchedCorrespondentEntity,
