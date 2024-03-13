@@ -237,6 +237,7 @@ import { LogCallUI } from '../LogCallUI';
 import { LogMessagesUI } from '../LogMessagesUI';
 import { Webphone } from '../Webphone';
 import { MainViewUI } from '../MainViewUI';
+import { CustomizedPageUI } from '../CustomizedPageUI';
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
@@ -479,7 +480,8 @@ import { MainViewUI } from '../MainViewUI';
         disconnectOnInactive: true,
       },
     },
-    { provide: 'ThirdPartySettingSectionUI', useClass: ThirdPartySettingSectionUI},
+    { provide: 'ThirdPartySettingSectionUI', useClass: ThirdPartySettingSectionUI },
+    { provide: 'CustomizedPageUI', useClass: CustomizedPageUI },
   ]
 })
 export default class BasePhone extends RcModule {

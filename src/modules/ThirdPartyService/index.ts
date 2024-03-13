@@ -60,6 +60,7 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _vcardHandlerPath?: string;
   private _callLogPageInputChangedEventPath?: string;
   private _messagesLogPageInputChangedEventPath?: string;
+  private _customizedPageInputChangedEventPath?: string;
 
   constructor(deps) {
     super({
@@ -166,6 +167,9 @@ export default class ThirdPartyService extends RcModuleV2 {
         if (service.buttonEventPath) {
           this._registerButtons(service);
         }
+        if (service.customizedPageInputChangedEventPath) {
+          this._customizedPageInputChangedEventPath = service.customizedPageInputChangedEventPath;
+        }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
       } else if (e.data.type === 'rc-adapter-sync-third-party-contacts') {
@@ -180,6 +184,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._onUpdateCallLogPage(e.data);
       } else if (e.data.type === 'rc-adapter-update-messages-log-page') {
         this._onUpdateMessagesLogPage(e.data);
+      } else if (e.data.type === 'rc-adapter-register-customized-page') {
+        this._onRegisterCustomizedPage(e.data);
       }
     });
   }
@@ -1199,6 +1205,10 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   @action
   updateCustomizedPage(page) {
+    if (!page.id) {
+      console.error('Customized page id is required');
+      return;
+    }
     const index = this.customizedPages.findIndex(x => x.id === page.id);
     if (index > -1) {
       this.customizedPages[index] = page;
@@ -1216,6 +1226,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         call,
         input,
         key,
+        page: this.customizedLogCallPage,
       });
     } catch (e) {
       console.error(e);
@@ -1242,6 +1253,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         conversation,
         input,
         key,
+        page: this.customizedLogMessagesPage,
       });
     } catch (e) {
       console.error(e);
@@ -1257,5 +1269,40 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   get customizedLogMessagesPage() {
     return this.customizedPages.find(x => x.id === '$LOG-MESSAGES');
+  }
+
+  _onRegisterCustomizedPage(data) {
+    this.updateCustomizedPage(data.page);
+  }
+
+  getCustomizedPage(id) {
+    return this.customizedPages.find(x => x.id === id);
+  }
+
+  async onCustomizedPageInputChanged({ pageId, input, key }) {
+    if (!this._customizedPageInputChangedEventPath) {
+      return;
+    }
+    const page = this.getCustomizedPage(pageId);
+    if (!page) {
+      return;
+    }
+    try {
+      await requestWithPostMessage(this._customizedPageInputChangedEventPath, {
+        page,
+        input,
+        key,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async onClickButtonInCustomizedPage(buttonId) {
+    await requestWithPostMessage(this._additionalButtonPath, {
+      button: {
+        id: buttonId,
+      },
+    });
   }
 }

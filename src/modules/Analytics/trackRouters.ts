@@ -65,4 +65,12 @@ export const trackRouters = trackRoutersBase
       eventPostfix: 'Log Messages',
       router: '/log/messages',
     },
+    {
+      eventPostfix: 'Recordings',
+      router: '/history/recordings',
+    },
+    {
+      eventPostfix: 'Customized Page',
+      router: '/customized',
+    },
   ]);

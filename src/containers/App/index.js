@@ -57,7 +57,7 @@ import SettingsPage from '../SettingsPage';
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 import ThirdPartySettingSectionPage from '../ThirdPartySettingSectionPage';
 import ContactsPage from '../ContactsPage';
-
+import CustomizedPage from '../CustomizedPage';
 export default function App({
   phone,
   showCallBadge,
@@ -455,6 +455,14 @@ export default function App({
                 path="/log/messages/:conversationId"
                 component={routerProps => (
                   <LogMessagesPage
+                    params={routerProps.params}
+                  />
+                )}
+              />
+              <Route
+                path="/customized/:pageId"
+                component={routerProps => (
+                  <CustomizedPage
                     params={routerProps.params}
                   />
                 )}
