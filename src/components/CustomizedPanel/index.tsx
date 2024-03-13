@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@ringcentral/juno/foundation';
 import { RcButton } from '@ringcentral/juno';
 
-import { CustomizedField as Field } from '../CustomizedField';
+import { Field } from './Field';
 import { BackHeaderView } from '../BackHeaderView';
 
 const Panel = styled.div`
@@ -32,7 +32,7 @@ const StyledField = styled(Field)`
   margin-bottom: 15px;
 `;
 
-export function LogPanel({
+export function CustomizedPanel({
   onSave,
   fields,
   onFieldInputChange,
@@ -51,7 +51,9 @@ export function LogPanel({
     }
     const newValues = {};
     fields.forEach((field) => {
-      newValues[field.id] = field.value;
+      if (field.type && field.type.indexOf('input.') === 0) {
+        newValues[field.id] = field.value;
+      }
     });
     setFieldValues(newValues);
   }, [fields]);
@@ -61,13 +63,15 @@ export function LogPanel({
       onBack={onBackButtonClick}
       title={pageTitle}
       rightButton={
-        <SaveButton
-          variant='plain'
-          onClick={() => onSave(fieldValues)}
-          loading={saveButtonLoading}
-        >
-          {saveButtonLabel || 'Save'}
-        </SaveButton>
+        saveButtonLabel ? (
+          <SaveButton
+            variant='plain'
+            onClick={() => onSave(fieldValues)}
+            loading={saveButtonLoading}
+          >
+            {saveButtonLabel }
+          </SaveButton>
+        ) : null
       }
     >
       <Panel>

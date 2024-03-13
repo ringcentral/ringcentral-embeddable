@@ -27,7 +27,7 @@ const StyledAlert = styled(RcAlert)`
   }
 `;
 
-export function CustomizedField({
+export function Field({
   field,
   className,
   onChange,

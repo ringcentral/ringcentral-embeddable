@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { LogPanel } from '../LogPanel';
+import { CustomizedPanel } from '../CustomizedPanel';
 import { ConversationInfo } from './ConversationInfo';
 
 export default function LogMessagesPanel({
@@ -65,7 +65,7 @@ export default function LogMessagesPanel({
   const isCustomizedFields = customizedPageData && customizedPageData.fields && customizedPageData.fields.length > 0;
   const fields = isCustomizedFields ? customizedPageData.fields : defaultFields;
   return (
-    <LogPanel
+    <CustomizedPanel
       onBackButtonClick={onBackButtonClick}
       pageTitle={
         customizedPageData && customizedPageData.pageTitle ?
@@ -73,7 +73,7 @@ export default function LogMessagesPanel({
             (isLogged ? 'Edit log' : 'Log messages')
       }
       saveButtonLabel={
-        customizedPageData && customizedPageData.saveButtonLabel
+        customizedPageData && customizedPageData.saveButtonLabel  || 'Save'
       }
       fields={fields}
       onSave={(input) => {

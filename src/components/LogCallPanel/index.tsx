@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 
 import { CallInfo } from './CallInfo';
-import { LogPanel } from '../LogPanel';
+import { CustomizedPanel } from '../CustomizedPanel';
 
 function getDefaultFields(call, defaultContactId, defaultNote) {
   const fields: any[] = [];
@@ -92,7 +92,7 @@ export default function LogCallPanel({
   const fields = isCustomizedFields ? customizedPageData.fields : defaultFields;
   
   return (
-    <LogPanel
+    <CustomizedPanel
       onBackButtonClick={onBackButtonClick}
       onSave={(input) => {
         onSave({
@@ -116,7 +116,7 @@ export default function LogCallPanel({
             (isLogged ? 'Edit log' : 'Log call')
       }
       saveButtonLabel={
-        customizedPageData && customizedPageData.saveButtonLabel
+        customizedPageData && customizedPageData.saveButtonLabel || 'Save'
       }
       fields={fields}
       onFieldInputChange={(newValues, key) => {
