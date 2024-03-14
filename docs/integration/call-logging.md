@@ -135,15 +135,14 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   service: {
     name: 'TestService',
     callLoggerPath: '/callLogger',
-    // showLogModal: false, // disable showLogModal if you want to use call log page
     callLoggerTitle: 'Log to TestService',
-    callLoggerPath: '/callLogger',
+    // showLogModal: false, // disable showLogModal if you want to use call log page
     callLogPageInputChangedEventPath: '/callLogger/inputChanged',
   }
 }, '*');
 ```
 
-Then add a message event to response call log page data and input changed request:
+Then add message event listener to show call log page and input changed request:
 
 ```js
 window.addEventListener('message', function (e) {
@@ -151,9 +150,9 @@ window.addEventListener('message', function (e) {
   if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/callLogger') {
       // Get trigger type: data.body.triggerType
-      // When save button clicked, triggerType is 'logForm'
       // When user click log button in call item, triggerType is 'createLog' or 'editLog'
       // When it is triggered from auto log, triggerType is 'presenceUpdate'
+      // When save button clicked, triggerType is 'logForm'
       if (data.body.triggerType === 'createLog' || data.body.triggerType === 'editLog') {
         // customize call log page
         document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -169,7 +168,7 @@ window.addEventListener('message', function (e) {
               id: 'contact',
               label: 'Contact',
               type: 'input.choice',
-              options: [{
+              choices: [{
                 id: 'xxxx',
                 name: 'John Doe',
                 description: 'Candidate - 347',
