@@ -96,7 +96,7 @@ export function Field({
         }}
         required={field.required}
       >
-        {(field.options || []).map((option) => (
+        {(field.choices || []).map((option) => (
           <RcMenuItem
             key={option.id}
             value={option.id}
