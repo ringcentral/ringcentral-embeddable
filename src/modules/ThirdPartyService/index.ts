@@ -58,8 +58,9 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _messageLoggerAttachmentWithToken?: boolean;
   private _additionalButtonPath?: string;
   private _vcardHandlerPath?: string;
-  private _callLogPageDataPath?: string;
   private _callLogPageInputChangedEventPath?: string;
+  private _messagesLogPageInputChangedEventPath?: string;
+  private _customizedPageInputChangedEventPath?: string;
 
   constructor(deps) {
     super({
@@ -131,8 +132,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         if (service.callLoggerPath) {
           this._registerCallLogger(service);
         }
-        if (service.callLogPageDataPath) {
-          this._callLogPageDataPath = service.callLogPageDataPath;
+        if (service.callLogPageInputChangedEventPath) {
           this._callLogPageInputChangedEventPath = service.callLogPageInputChangedEventPath;
         }
         if (service.callLogEntityMatcherPath) {
@@ -144,6 +144,9 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         if (service.messageLoggerPath) {
           this._registerMessageLogger(service);
+        }
+        if (service.messagesLogPageInputChangedEventPath) {
+          this._messagesLogPageInputChangedEventPath = service.messagesLogPageInputChangedEventPath;
         }
         if (service.messageLogEntityMatcherPath) {
           this._messageLogEntityMatcherPath = service.messageLogEntityMatcherPath;
@@ -164,6 +167,9 @@ export default class ThirdPartyService extends RcModuleV2 {
         if (service.buttonEventPath) {
           this._registerButtons(service);
         }
+        if (service.customizedPageInputChangedEventPath) {
+          this._customizedPageInputChangedEventPath = service.customizedPageInputChangedEventPath;
+        }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
       } else if (e.data.type === 'rc-adapter-sync-third-party-contacts') {
@@ -174,8 +180,12 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._triggerContactMatch(e.data.phoneNumbers);
       } else if (e.data.type === 'rc-adapter-update-third-party-settings') {
         this._updateSettings(e.data.settings);
-      } else if (e.data.type === 'rc-adapter-update-call-log-page-data') {
-        this._onUpdateCallLogPageData(e.data);
+      } else if (e.data.type === 'rc-adapter-update-call-log-page') {
+        this._onUpdateCallLogPage(e.data);
+      } else if (e.data.type === 'rc-adapter-update-messages-log-page') {
+        this._onUpdateMessagesLogPage(e.data);
+      } else if (e.data.type === 'rc-adapter-register-customized-page') {
+        this._onRegisterCustomizedPage(e.data);
       }
     });
   }
@@ -1191,25 +1201,19 @@ export default class ThirdPartyService extends RcModuleV2 {
   }
 
   @state
-  customizedLogCallPageData = null;
+  customizedPages = [];
 
   @action
-  setCustomizedLogCallPageData(data) {
-    this.customizedLogCallPageData = data;
-  }
-
-  async fetchCustomizedLogCallPageData({ call }) {
-    if (!this._callLogPageDataPath) {
-      return null;
+  updateCustomizedPage(page) {
+    if (!page.id) {
+      console.error('Customized page id is required');
+      return;
     }
-    try {
-      const response = await requestWithPostMessage(this._callLogPageDataPath, {
-        call,
-      });
-      this.setCustomizedLogCallPageData(response.data);
-    } catch (e) {
-      console.error(e);
-      return null;
+    const index = this.customizedPages.findIndex(x => x.id === page.id);
+    if (index > -1) {
+      this.customizedPages[index] = page;
+    } else {
+      this.customizedPages.push(page);
     }
   }
 
@@ -1222,13 +1226,83 @@ export default class ThirdPartyService extends RcModuleV2 {
         call,
         input,
         key,
+        page: this.customizedLogCallPage,
       });
     } catch (e) {
       console.error(e);
     }
   }
 
-  _onUpdateCallLogPageData(data) {
-    this.setCustomizedLogCallPageData(data.page);
+  _onUpdateCallLogPage(data) {
+    this.updateCustomizedPage({
+      ...data.page,
+      id: '$LOG-CALL',
+    });
+  }
+
+  get customizedLogCallPage() {
+    return this.customizedPages.find(x => x.id === '$LOG-CALL');
+  }
+
+  async onCustomizedLogMessagesPageInputChanged({ conversation, input, key }) {
+    if (!this._messagesLogPageInputChangedEventPath) {
+      return;
+    }
+    try {
+      await requestWithPostMessage(this._messagesLogPageInputChangedEventPath, {
+        conversation,
+        input,
+        key,
+        page: this.customizedLogMessagesPage,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  _onUpdateMessagesLogPage(data) {
+    this.updateCustomizedPage({
+      ...data.page,
+      id: '$LOG-MESSAGES',
+    });
+  }
+
+  get customizedLogMessagesPage() {
+    return this.customizedPages.find(x => x.id === '$LOG-MESSAGES');
+  }
+
+  _onRegisterCustomizedPage(data) {
+    this.updateCustomizedPage(data.page);
+  }
+
+  getCustomizedPage(id) {
+    return this.customizedPages.find(x => x.id === id);
+  }
+
+  async onCustomizedPageInputChanged({ pageId, input, key }) {
+    if (!this._customizedPageInputChangedEventPath) {
+      return;
+    }
+    const page = this.getCustomizedPage(pageId);
+    if (!page) {
+      return;
+    }
+    try {
+      await requestWithPostMessage(this._customizedPageInputChangedEventPath, {
+        page,
+        input,
+        key,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async onClickButtonInCustomizedPage(buttonId) {
+    await requestWithPostMessage(this._additionalButtonPath, {
+      button: {
+        id: buttonId,
+      },
+    });
   }
 }

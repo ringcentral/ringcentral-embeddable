@@ -234,8 +234,10 @@ import { TabManager } from '../TabManager';
 import ThirdPartyService from '../ThirdPartyService';
 import { ThirdPartySettingSectionUI } from '../ThirdPartySettingSectionUI';
 import { LogCallUI } from '../LogCallUI';
+import { LogMessagesUI } from '../LogMessagesUI';
 import { Webphone } from '../Webphone';
 import { MainViewUI } from '../MainViewUI';
+import { CustomizedPageUI } from '../CustomizedPageUI';
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
@@ -296,6 +298,7 @@ import { MainViewUI } from '../MainViewUI';
     { provide: 'ComposeTextUI', useClass: ComposeTextUI },
     { provide: 'ConversationsUI', useClass: ConversationsUI },
     { provide: 'ConversationUI', useClass: ConversationUI },
+    { provide: 'LogMessagesUI', useClass: LogMessagesUI },
     { provide: 'CallMonitor', useClass: CallMonitor },
     { provide: 'CallHistory', useClass: CallHistory },
     { provide: 'CallsListUI', useClass: CallsListUI },
@@ -409,6 +412,22 @@ import { MainViewUI } from '../MainViewUI';
     { provide: 'Meeting', useClass: Meeting },
     { provide: 'Analytics', useClass: Analytics },
     { provide: 'ConversationLogger', useClass: ConversationLogger },
+    { provide: 'ConversationLoggerOptions',
+      useValue: {
+        isLoggedContact: (conversation, activity, contact) => {
+          return (
+            activity &&
+            contact &&
+            activity.contact &&
+            (
+              activity.contact === contact.id ||
+              activity.contactId === contact.id ||
+              activity.contact.id === contact.id
+            )
+          )
+        }
+      }
+    },
     { provide: 'ActiveCallsUI', useClass: ActiveCallsUI },
     { provide: 'LoginUI', useClass: LoginUI },
     { provide: 'SettingsUI', useClass: SettingsUI },
@@ -461,7 +480,8 @@ import { MainViewUI } from '../MainViewUI';
         disconnectOnInactive: true,
       },
     },
-    { provide: 'ThirdPartySettingSectionUI', useClass: ThirdPartySettingSectionUI},
+    { provide: 'ThirdPartySettingSectionUI', useClass: ThirdPartySettingSectionUI },
+    { provide: 'CustomizedPageUI', useClass: CustomizedPageUI },
   ]
 })
 export default class BasePhone extends RcModule {

@@ -124,7 +124,16 @@ export class Analytics extends AnalyticsBase {
     }
     const routes = currentPath.split('/');
     let formatRoute: string | null = null;
-    const needMatchSecondRoutes = ['calls', 'settings', 'conferenceCall', 'meeting', 'glip', 'contacts', 'log'];
+    const needMatchSecondRoutes = [
+      'calls',
+      'settings',
+      'conferenceCall',
+      'meeting',
+      'glip',
+      'contacts',
+      'log',
+      'history'
+    ];
     if (routes.length >= 3 && needMatchSecondRoutes.indexOf(routes[1]) !== -1) {
       formatRoute = `/${routes[1]}/${routes[2]}`;
       if (routes[1] === 'contacts') {

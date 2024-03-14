@@ -3,12 +3,13 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
 import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
 
 @Module({
-  name: 'LogCallUI',
+  name: 'LogMessagesUI',
   deps: [
     'Locale',
-    'CallLogger',
+    'ConversationLogger',
     'DateTimeFormat',
-    'ActivityMatcher',
+    'ConversationMatcher',
+    'ContactMatcher',
     'RegionSettings',
     'AccountInfo',
     'ExtensionInfo',
@@ -16,7 +17,7 @@ import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber'
     'RouterInteraction',
   ],
 })
-export class LogCallUI extends RcUIModuleV2 {
+export class LogMessagesUI extends RcUIModuleV2 {
   constructor(deps) {
     super({
       deps,
@@ -28,53 +29,66 @@ export class LogCallUI extends RcUIModuleV2 {
   }) {
     const {
       locale,
-      callLogger,
       thirdPartyService,
+      conversationLogger,
+      contactMatcher
     } = this._deps;
-    let currentCall = null;
-    if (params.callSessionId) {
-      currentCall = callLogger.allCallMapping[params.callSessionId];
+    const conversationLog = conversationLogger.conversationLogMap[params.conversationId];
+    const logKeys = Object.keys(conversationLog);
+    let correspondentMatches = [];
+    let lastMatchedCorrespondentEntity = null;
+    const contactMapping = contactMatcher.dataMapping || [];
+    if (logKeys.length > 0) {
+      const conversation = conversationLog[logKeys[0]];
+      if (conversation) {
+        const correspondents = conversation.correspondents;
+        correspondentMatches = correspondents.reduce(
+          (matches, contact) => {
+            const number =
+              contact && (contact.phoneNumber || contact.extensionNumber);
+            return number &&
+              contactMapping[number] &&
+              contactMapping[number].length
+              ? matches.concat(contactMapping[number])
+              : matches;
+          },
+          [],
+        );
+        lastMatchedCorrespondentEntity = conversationLogger.getLastMatchedCorrespondentEntity(conversation);
+      }
     }
-    const loggingMap = callLogger.loggingMap || {};
     return {
-      currentCall,
       currentLocale: locale.currentLocale,
-      customizedPageData: thirdPartyService.customizedLogCallPage,
-      isLogging: !!loggingMap[params.callSessionId],
+      customizedPageData: thirdPartyService.customizedLogMessagesPage,
+      conversationLog,
+      correspondentMatches,
+      lastMatchedCorrespondentEntity,
     };
   }
 
   getUIFunctions() {
     const {
-      activityMatcher,
       regionSettings,
       accountInfo,
       extensionInfo,
       dateTimeFormat,
       thirdPartyService,
       routerInteraction,
-      callLogger,
+      conversationLogger,
     } = this._deps;
 
     return {
       onBackButtonClick() {
         routerInteraction.goBack();
       },
-      async onSave({ call, note, input }) {
-        await callLogger.logCall({
-          call,
+      async onSaveLog({ conversationId, input}) {
+        await conversationLogger.logConversation({
           triggerType: 'logForm',
-          note,
+          conversationId,
           input,
           redirect: true,
         });
         routerInteraction.goBack();
-      },
-      onLoadData(call) {
-        activityMatcher.match({
-          queries: [call.sessionId],
-          ignoreCache: true
-        });
       },
       formatPhone: (phoneNumber) =>
         formatNumber({
@@ -90,7 +104,7 @@ export class LogCallUI extends RcUIModuleV2 {
           utcTimestamp,
         })),
       onCustomizedFieldChange: (call, input, key) => {
-        thirdPartyService.onCustomizedLogCallPageInputChanged({
+        thirdPartyService.onCustomizedLogMessagesPageInputChanged({
           call,
           input,
           key,

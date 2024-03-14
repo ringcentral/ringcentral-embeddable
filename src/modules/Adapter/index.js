@@ -310,8 +310,13 @@ export default class Adapter extends AdapterModuleCore {
           break;
         }
         case 'rc-adapter-navigate-to': {
-          if (data.path && data.path.indexOf('/') === 0) {
-            this._router.push(data.path);
+          if (data.path) {
+            if (data.path.indexOf('/') === 0 && this._router.currentPath !== data.path) {
+              this._router.push(data.path);
+            }
+            if (data.path === 'goBack') {
+              this._router.goBack();
+            }
           }
           break;
         }

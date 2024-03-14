@@ -1,40 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
-import { styled } from '@ringcentral/juno/foundation';
-import { RcButton } from '@ringcentral/juno';
 
-import { Field } from './Field';
 import { CallInfo } from './CallInfo';
-import { BackHeaderView } from '../BackHeaderView';
+import { CustomizedPanel } from '../CustomizedPanel';
 
-const Panel = styled.div`
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-`;
-
-const SaveButton = styled(RcButton)`
-  position: absolute;
-  right: 15px;
-  top: 8px;
-`;
-
-const FieldsArea = styled.div`
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow-y: auto;
-`;
-
-const StyledField = styled(Field)`
-  margin-bottom: 15px;
-`;
-
-function getDefaultFields(call) {
+function getDefaultFields(call, defaultContactId, defaultNote) {
   const fields: any[] = [];
   const matchContacts = call.direction === callDirections.inbound
       ? call.fromMatches : call.toMatches;
@@ -48,6 +18,7 @@ function getDefaultFields(call) {
         name: entity.name,
         description: entity.description,
       })),
+      value: defaultContactId || matchContacts[0].id,
     });
   }
   fields.push({
@@ -55,6 +26,7 @@ function getDefaultFields(call) {
     type: 'input.text',
     label: 'Note',
     placeholder: "Add call log note",
+    value: defaultNote,
   });
   return fields;
 }
@@ -62,25 +34,24 @@ function getDefaultFields(call) {
 export default function LogCallPanel({
   currentLocale,
   currentCall = null,
-  onSaveCallLog,
+  onSave,
   onLoadData,
   formatPhone,
   dateTimeFormatter,
   customizedPageData,
   onCustomizedFieldChange,
   onBackButtonClick,
+  isLogging,
 }) {
   const currentCallRef = useRef(null);
-  const [defaultFieldValues, setDefaultFieldValues] = useState({
-    note: '',
-    contactId: '',
-  });
-  const [customizedFieldValues, setCustomizedFieldValues] = useState({});
+  const [defaultFields, setDefaultFields] = useState([]);
   useEffect(() => {
     if (!currentCall) {
       currentCallRef.current = null;
       return;
     }
+    let defaultNote = '';
+    let defaultContactId = '';
     if (
       !currentCallRef.current || (
         currentCall.id !== currentCallRef.current.id
@@ -92,117 +63,65 @@ export default function LogCallPanel({
         currentCall.activityMatches &&
         currentCall.activityMatches[0];
       if (matchedActivity) {
-        setDefaultFieldValues({
-          note: matchedActivity.note || '',
-          contactId: matchedActivity && (
-            matchedActivity.contact && (
-              matchedActivity.contact.id || matchedActivity.contact
-            )) || '',
-        });
-      } else {
-        const matchContacts = currentCall.direction === callDirections.inbound
-          ? currentCall.fromMatches : currentCall.toMatches;
-        setDefaultFieldValues({
-          note: '',
-          contactId: matchContacts && matchContacts[0] && matchContacts[0].id || '',
-        });
+        defaultNote = matchedActivity.note || '';
+        defaultContactId = matchedActivity && (
+          matchedActivity.contact && (
+            matchedActivity.contact.id || matchedActivity.contact
+          )) || '';
       }
+      setDefaultFields(getDefaultFields(currentCall, defaultContactId, defaultNote));
       return;
     }
     const currentMatch = currentCall.activityMatches && currentCall.activityMatches[0];
     const previousMatch = currentCallRef.current && currentCallRef.current.activityMatches && currentCallRef.current.activityMatches[0];
     if (currentMatch && previousMatch && currentMatch !== previousMatch) {
-      setDefaultFieldValues({
-        note: currentMatch.note || '',
-        contactId: currentMatch && currentMatch.contact && currentMatch.contact.id || '',
-      });
+      defaultNote = currentMatch.note || '';
+      defaultContactId = currentMatch.contactId || currentMatch.contact && (
+        currentMatch.contact.id || currentMatch.contact
+       ) || '';
+      setDefaultFields(getDefaultFields(currentCall, defaultContactId, defaultNote));
     }
     currentCallRef.current = currentCall;
   }, [currentCall]);
-
-  useEffect(() => {
-    if (!customizedPageData) {
-      setCustomizedFieldValues({});
-      return;
-    }
-    const newValues = {};
-    customizedPageData.fields.forEach((field) => {
-      newValues[field.id] = field.value;
-    });
-    setCustomizedFieldValues(newValues);
-  }, [customizedPageData])
 
   if (!currentCall) {
     return null;
   }
   const isLogged = currentCall.activityMatches && currentCall.activityMatches.length > 0;
   const isCustomizedFields = customizedPageData && customizedPageData.fields && customizedPageData.fields.length > 0;
-  const fields = isCustomizedFields ? customizedPageData.fields : getDefaultFields(currentCall);
+  const fields = isCustomizedFields ? customizedPageData.fields : defaultFields;
+  
   return (
-    <BackHeaderView
-      onBack={onBackButtonClick}
-      title={
-        customizedPageData && customizedPageData.pageTitle ?
-            customizedPageData.pageTitle :
-            (isLogged ? 'Edit log' : 'Log call')
-      }
-      rightButton={
-        <SaveButton
-          variant='plain'
-          onClick={() => {
-            onSaveCallLog({
-              call: currentCall,
-              input: isCustomizedFields ? customizedFieldValues : defaultFieldValues,
-              note: isCustomizedFields ? undefined : defaultFieldValues.note, // for backward support
-            });
-          }}
-        >
-          {
-            customizedPageData && customizedPageData.saveButtonLabel ? customizedPageData.saveButtonLabel : 'Save'
-          }
-        </SaveButton>
-      }
-    >
-      <Panel>
+    <CustomizedPanel
+      onBackButtonClick={onBackButtonClick}
+      onSave={(input) => {
+        onSave({
+          call: currentCall,
+          input,
+          note: input.note,
+        });
+      }}
+      saveButtonLoading={isLogging}
+      infoNode={
         <CallInfo
           call={currentCall}
           currentLocale={currentLocale}
           formatPhone={formatPhone}
           dateTimeFormatter={dateTimeFormatter}
         />
-        <FieldsArea>
-          {
-            fields.map((field) => {
-              let value = isCustomizedFields ? customizedFieldValues[field.id] : defaultFieldValues[field.id];
-              if (typeof value === 'undefined') {
-                value = field.value;
-              }
-              return (
-                <StyledField
-                  key={field.id}
-                  field={field}
-                  onChange={(value) => {
-                    if (isCustomizedFields) {
-                      const newValues = {
-                        ...customizedFieldValues,
-                        [field.id]: value,
-                      };
-                      setCustomizedFieldValues(newValues);
-                      onCustomizedFieldChange(currentCall, newValues, field.id);
-                      return;
-                    }
-                    setDefaultFieldValues({
-                      ...defaultFieldValues,
-                      [field.id]: value,
-                    });
-                  }}
-                  value={value}
-                />
-              );
-            })
-          }
-        </FieldsArea>
-      </Panel>
-    </BackHeaderView>
+      }
+      pageTitle={
+        customizedPageData && customizedPageData.pageTitle ?
+            customizedPageData.pageTitle :
+            (isLogged ? 'Edit log' : 'Log call')
+      }
+      saveButtonLabel={
+        customizedPageData && customizedPageData.saveButtonLabel || 'Save'
+      }
+      fields={fields}
+      onFieldInputChange={(newValues, key) => {
+        onCustomizedFieldChange(currentCall, newValues, key);
+      }}
+    />
   );
 }

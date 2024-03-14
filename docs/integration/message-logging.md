@@ -122,3 +122,108 @@ window.addEventListener('message', function (e) {
   }
 });
 ```
+
+## Message log page
+
+<!-- md:version 2.0.0 -->
+
+You can also add a message log page to have an related form when user logs messages to your service. 
+
+Register message log service:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    messageLoggerPath: '/messageLogger',
+    messageLoggerTitle: 'Log to TestService',
+    messagesLogPageInputChangedEventPath: '/messageLogger/inputChanged',
+  }
+}, '*');
+```
+
+Then add message event listener to show message log page and input changed request:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/messageLogger') {
+      // Get trigger type: data.body.triggerType
+      // When user click log button in message item, triggerType is 'manual'
+      // When user enable auto log, triggerType is 'auto' for new message
+      if (data.body.triggerType === 'manual') {
+        // customize message log page
+        document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+          type: 'rc-adapter-update-messages-log-page',
+          page: {
+            pageTitle: 'Log to TestService',
+            saveButtonLabel: 'Save',
+            fields: [{ 
+              id: 'warning',
+              type: 'admonition.warn',
+              text: "No contact found. Enter a name to have a placeholder contact made for you."
+            }, {
+              id: 'contact',
+              label: 'Contact',
+              type: 'input.choice',
+              choices: [{
+                id: 'xxxx',
+                name: 'John Doe',
+                description: 'Candidate - 347',
+              }, {
+                id: 'newEntity',
+                name: 'Create placeholder contact',
+              }],
+              value: input.contact,
+            }, {
+              id: 'newContactName',
+              label: 'New contact name',
+              type: 'input.string',
+              value: input.newContactName,
+            }, {
+              id: 'noteActions',
+              label: 'noteActions',
+              type: 'input.choice',
+              value: input.noteActions,
+              choices: [{
+                id: 'prescreen',
+                name: 'Prescreen',
+              }, {
+                id: 'interview',
+                name: 'Interview',
+              }],
+            }],
+          }，
+        }, '*');
+        // navigate to call log page
+        document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+          type: 'rc-adapter-navigate-to',
+          path: `/log/call/${data.body.call.sessionId}`,
+        }, '*');
+      }
+      if (data.body.triggerType === 'logForm' || data.body.triggerType === 'auto') {
+        // Save call log to your platform
+        console.log(data.body); // data.body.call, data.body.input
+      }
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+    if (data.path === '/messageLogger/inputChanged') {
+      console.log(data); // get input changed data in here: data.body.input
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+      // you can update message log page data here to make the form dynamic
+      return;
+    }
+  }
+});
+```

@@ -136,28 +136,30 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     name: 'TestService',
     callLoggerPath: '/callLogger',
     callLoggerTitle: 'Log to TestService',
-    callLoggerPath: '/callLogger',
-    callLogPageDataPath: '/callLogger/pageData',
+    // showLogModal: false, // disable showLogModal if you want to use call log page
     callLogPageInputChangedEventPath: '/callLogger/inputChanged',
   }
 }, '*');
 ```
 
-Then add a message event to response call log page data and input changed request:
+Then add message event listener to show call log page and input changed request:
 
 ```js
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
-    if (data.path === '/callLogger/pageData') {
-      // Get call data: data.body.call
-      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-        type: 'rc-post-message-response',
-        responseId: data.requestId,
-        response: {
-          data: {
-            pageTitle: 'Log to TestService', // optional
-            saveButtonLabel: 'Save', // optional
+    if (data.path === '/callLogger') {
+      // Get trigger type: data.body.triggerType
+      // When user click log button in call item, triggerType is 'createLog' or 'editLog'
+      // When it is triggered from auto log, triggerType is 'presenceUpdate'
+      // When save button clicked, triggerType is 'logForm'
+      if (data.body.triggerType === 'createLog' || data.body.triggerType === 'editLog') {
+        // customize call log page
+        document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+          type: 'rc-adapter-update-call-log-page',
+          page: {
+            pageTitle: 'Log to TestService',
+            saveButtonLabel: 'Save',
             fields: [{ 
               id: 'warning',
               type: 'admonition.warn', // "admonition.warn","admonition.info"
@@ -166,7 +168,7 @@ window.addEventListener('message', function (e) {
               id: 'contact',
               label: 'Contact',
               type: 'input.choice',
-              options: [{
+              choices: [{
                 id: 'xxxx',
                 name: 'John Doe',
                 description: 'Candidate - 347',
@@ -186,9 +188,23 @@ window.addEventListener('message', function (e) {
               type: 'input.text',
               value: '',
             }],
-          }
-        },
-      }, '*');
+          },
+        }, '*');
+        // navigate to call log page
+        document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+          type: 'rc-adapter-navigate-to',
+          path: `/log/call/${data.body.call.sessionId}`,
+        }, '*');
+      }
+      if (data.body.triggerType === 'logForm' || data.body.triggerType === 'presenceUpdate') {
+        // Save call log to your platform
+        console.log(data.body); // data.body.call, data.body.input
+      }
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+          type: 'rc-post-message-response',
+          responseId: data.requestId,
+          response: { data: 'ok' },
+        }, '*');
       return;
     }
     if (data.path === '/callLogger/inputChanged') {
@@ -198,83 +214,14 @@ window.addEventListener('message', function (e) {
         responseId: data.requestId,
         response: { data: 'ok' },
       }, '*');
-      // update call log page data
+      // you can update call log page data here to make the form dynamic
       return;
-    }
-    if (data.path === '/callLogger') {
-      // Get trigger type: data.body.triggerType
-      // When save button clicked, triggerType is 'logForm'
-      // When user click log button in call item, triggerType is 'createLog' or 'editLog'
-      // When it is triggered from auto log, triggerType is 'presenceUpdate'
-      // ...
     }
   }
 });
 ```
 
-Go to call log page, you can see a customized call log page:
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-navigate-to',
-  path: `/log/call/${call.sessionId}`, // call session id that you received from call logger event
-}, '*');
-```
-
 ![customized call log page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/94cd0f4a-fdca-455b-a6e4-08305276637a)
-
-You can also update the page after received input changed event to make an dynamic page.
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-update-call-log-page-data',
-  page: {
-    pageTitle: 'Log to TestService',
-    saveButtonLabel: 'Save',
-    fields: [{
-      id: 'contact',
-      label: 'Contact',
-      type: 'input.choice',
-      options: [{
-        id: 'xxxx',
-        name: 'John Doe',
-        description: 'Candidate - 347',
-      }, {
-        id: 'newEntity',
-        name: 'Create placeholder contact',
-      }],
-      value: 'newEntity', // Need to set new value
-    }, {
-      id: 'newContactName',
-      label: 'New contact name',
-      type: 'input.string',
-      value: 'John Doe',
-    }, {
-      id: 'newContactType',
-      label: 'Contact type',
-      type: 'input.choice',
-      value: 'Candidate',
-      options: [{
-        id: 'Candidate',
-        name: 'Candidate',
-      }, {
-        id: 'Contact',
-        name: 'Contact',
-      }],
-    }, {
-      id: 'activityTitle',
-      label: 'Activity title',
-      type: 'input.text',
-      value: '',
-    }, {
-      id: 'note',
-      label: 'Note',
-      type: 'input.text',
-      value: '',
-    }],
-  },
-}, '*');
-```
 
 ## Add call log entity matcher
 
