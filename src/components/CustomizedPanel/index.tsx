@@ -28,6 +28,16 @@ const FieldsArea = styled.div`
   overflow-y: auto;
 `;
 
+function allRequiredFieldsAreFilled(formData = {}, schema) {
+  const requiredFields = schema.required || [];
+  for (const key of requiredFields) {
+    if (typeof formData[key] === 'undefined' || formData[key] === null || formData[key] === '') {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function CustomizedPanel({
   onSave,
   formData,
@@ -56,6 +66,7 @@ export function CustomizedPanel({
             variant='plain'
             onClick={() => onSave(formDataState)}
             loading={saveButtonLoading}
+            disabled={!allRequiredFieldsAreFilled(formDataState, schema)}
           >
             {saveButtonLabel }
           </SaveButton>
