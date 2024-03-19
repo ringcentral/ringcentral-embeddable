@@ -129,6 +129,8 @@ window.addEventListener('message', function (e) {
 
 You can also add a message log page to have an related form when user logs messages to your service. 
 
+![customized message log page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/350c4f8b-63bd-4963-ab14-cd7ebefb6913)
+
 Register message log service:
 
 ```js
