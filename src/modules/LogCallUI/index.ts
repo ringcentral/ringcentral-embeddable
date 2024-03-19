@@ -39,7 +39,7 @@ export class LogCallUI extends RcUIModuleV2 {
     return {
       currentCall,
       currentLocale: locale.currentLocale,
-      customizedPageData: thirdPartyService.customizedLogCallPage,
+      customizedPage: thirdPartyService.customizedLogCallPage,
       isLogging: !!loggingMap[params.callSessionId],
     };
   }
@@ -60,12 +60,12 @@ export class LogCallUI extends RcUIModuleV2 {
       onBackButtonClick() {
         routerInteraction.goBack();
       },
-      async onSave({ call, note, input }) {
+      async onSave({ call, note, formData }) {
         await callLogger.logCall({
           call,
           triggerType: 'logForm',
           note,
-          input,
+          formData,
           redirect: true,
         });
         routerInteraction.goBack();
@@ -89,11 +89,11 @@ export class LogCallUI extends RcUIModuleV2 {
         dateTimeFormat.formatDateTime({
           utcTimestamp,
         })),
-      onCustomizedFieldChange: (call, input, key) => {
+      onCustomizedFieldChange: (call, formData, keys) => {
         thirdPartyService.onCustomizedLogCallPageInputChanged({
           call,
-          input,
-          key,
+          formData,
+          keys,
         });
       },
     };

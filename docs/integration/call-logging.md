@@ -158,36 +158,87 @@ window.addEventListener('message', function (e) {
         document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
           type: 'rc-adapter-update-call-log-page',
           page: {
-            pageTitle: 'Log to TestService',
-            saveButtonLabel: 'Save',
-            fields: [{ 
-              id: 'warning',
-              type: 'admonition.warn', // "admonition.warn","admonition.info"
-              text: "No contact found. Enter a name to have a placeholder contact made for you."
-            }, {
-              id: 'contact',
-              label: 'Contact',
-              type: 'input.choice',
-              choices: [{
-                id: 'xxxx',
-                name: 'John Doe',
-                description: 'Candidate - 347',
-              }, {
-                id: 'newEntity',
-                name: 'Create placeholder contact',
-              }],
-              value: '',
-            }, {
-              id: 'activityTitle',
-              label: 'Activity title',
-              type: 'input.text',
-              value: 'Outbound call to John Doe',
-            }, {
-              id: 'note',
-              label: 'Note',
-              type: 'input.text',
-              value: '',
-            }],
+            title: 'Log to TestService',
+            // schema and uiSchema are used to customize call log page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+            schema: {
+              type: 'object',
+              required: ['contact', 'activityTitle'],
+              properties: {
+                "warning": {
+                  "type": "string",
+                  "description": "No contact found. Enter a name to have a placeholder contact made for you.",
+                },
+                "contact": {
+                  "title": "Contact",
+                  "type": "string",
+                  "oneOf": [
+                    {
+                      "const": "xxx",
+                      "title": "John Doe",
+                      "description": "Candidate - 347",
+                    },
+                    {
+                      "const": "newEntity",
+                      "title": "Create placeholder contact"
+                    }
+                  ],
+                },
+                "contactName": {
+                  "type": 'string',
+                  "title": "Contact name",
+                },
+                "contactType": {
+                  "title": "Contact type",
+                  "type": "string",
+                  "oneOf": [
+                    {
+                      "const": "candidate",
+                      "title": "Candidate"
+                    },
+                    {
+                      "const": "contact",
+                      "title": "Contact"
+                    }
+                  ],
+                },
+                "activityTitle": {
+                  "type": "string",
+                  "title": "Activity title"
+                },
+                "note": {
+                  "type": "string",
+                  "title": "Note"
+                },
+              },
+            },
+            uiSchema: {
+              warning: {
+                "ui:field": "admonition", // or typography to show raw text
+                "ui:severity": "warning", // "warning", "info", "error", "success"
+              },
+              contactName: {
+                "ui:placeholder": 'Enter name',
+                "ui:widget": "hidden", // remove this line to show contactName input
+              },
+              contactType: {
+                "ui:placeholder": 'Select contact type',
+                "ui:widget": "hidden", // remove this line to show contactType input
+              },
+              note: {
+                "ui:placeholder": 'Enter note',
+                "ui:widget": "textarea", // show note input as textarea
+              },
+              submitButtonOptions: {
+                submitText: 'Save',
+              },
+            },
+            formData: {
+              contact: 'xxx',
+              contactName: '',
+              contactType: '',
+              activityTitle: 'Outbound call to ...',
+              note: '',
+            },
           },
         }, '*');
         // navigate to call log page
@@ -198,7 +249,7 @@ window.addEventListener('message', function (e) {
       }
       if (data.body.triggerType === 'logForm' || data.body.triggerType === 'presenceUpdate') {
         // Save call log to your platform
-        console.log(data.body); // data.body.call, data.body.input
+        console.log(data.body); // data.body.call, data.body.formData
       }
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
           type: 'rc-post-message-response',
@@ -208,7 +259,7 @@ window.addEventListener('message', function (e) {
       return;
     }
     if (data.path === '/callLogger/inputChanged') {
-      console.log(data); // get input changed data in here: data.body.input
+      console.log(data); // get input changed data in here: data.body.formData
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
         type: 'rc-post-message-response',
         responseId: data.requestId,

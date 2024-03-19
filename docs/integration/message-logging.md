@@ -129,6 +129,8 @@ window.addEventListener('message', function (e) {
 
 You can also add a message log page to have an related form when user logs messages to your service. 
 
+![customized message log page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/350c4f8b-63bd-4963-ab14-cd7ebefb6913)
+
 Register message log service:
 
 ```js
@@ -158,54 +160,108 @@ window.addEventListener('message', function (e) {
         document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
           type: 'rc-adapter-update-messages-log-page',
           page: {
-            pageTitle: 'Log to TestService',
-            saveButtonLabel: 'Save',
-            fields: [{ 
-              id: 'warning',
-              type: 'admonition.warn',
-              text: "No contact found. Enter a name to have a placeholder contact made for you."
-            }, {
-              id: 'contact',
-              label: 'Contact',
-              type: 'input.choice',
-              choices: [{
-                id: 'xxxx',
-                name: 'John Doe',
-                description: 'Candidate - 347',
-              }, {
-                id: 'newEntity',
-                name: 'Create placeholder contact',
-              }],
-              value: input.contact,
-            }, {
-              id: 'newContactName',
-              label: 'New contact name',
-              type: 'input.string',
-              value: input.newContactName,
-            }, {
-              id: 'noteActions',
-              label: 'noteActions',
-              type: 'input.choice',
-              value: input.noteActions,
-              choices: [{
-                id: 'prescreen',
-                name: 'Prescreen',
-              }, {
-                id: 'interview',
-                name: 'Interview',
-              }],
-            }],
+            title: 'Log to TestService',
+            // schema and uiSchema are used to customize call log page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+            schema: {
+              type: 'object',
+              required: ['contact', 'noteActions'],
+              properties: {
+                "warning": {
+                  "type": "string",
+                  "description": "No contact found. Enter a name to have a placeholder contact made for you.",
+                },
+                "contact": {
+                  "title": "Contact",
+                  "type": "string",
+                  "oneOf": [
+                    {
+                      "const": "xxx",
+                      "title": "John Doe",
+                      "description": "Candidate - 347",
+                    },
+                    {
+                      "const": "newEntity",
+                      "title": "Create placeholder contact"
+                    }
+                  ],
+                },
+                "contactName": {
+                  "type": 'string',
+                  "title": "Contact name",
+                },
+                "contactType": {
+                  "title": "Contact type",
+                  "type": "string",
+                  "oneOf": [
+                    {
+                      "const": "candidate",
+                      "title": "Candidate"
+                    },
+                    {
+                      "const": "contact",
+                      "title": "Contact"
+                    }
+                  ],
+                },
+                "noteActions": {
+                  "type": "string",
+                  "title": "Note actions",
+                  "oneOf": [
+                    {
+                      "const": "prescreen",
+                      "title": "Prescreen"
+                    },
+                    {
+                      "const": "interview",
+                      "title": "Interview"
+                    }
+                  ],
+                },
+                "note": {
+                  "type": "string",
+                  "title": "Note"
+                },
+              }
+            },
+            uiSchema: {
+              warning: {
+                "ui:field": "admonition", // or typography to show raw text
+                "ui:severity": "warning", // "warning", "info", "error", "success"
+              },
+              contactName: {
+                "ui:placeholder": 'Enter name',
+                "ui:widget": "hidden", // remove this line to show contactName input
+              },
+              contactType: {
+                "ui:placeholder": 'Select contact type',
+                "ui:widget": "hidden", // remove this line to show contactName input
+              },
+              note: {
+                "ui:placeholder": 'Enter note',
+                "ui:widget": "textarea",  // show note input as textarea
+              },
+              submitButtonOptions: {
+                submitText: 'Save',
+              },
+            },
+            formData: {
+              contact: 'xxx',
+              contactName: '',
+              contactType: '',
+              noteActions: 'prescreen',
+              note: '',
+            },
           }，
         }, '*');
-        // navigate to call log page
+        // navigate to message log page
         document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
           type: 'rc-adapter-navigate-to',
-          path: `/log/call/${data.body.call.sessionId}`,
+          path: `/log/messages/${data.body.conversation.conversationId}`, // conversation id that you received from message logger event
         }, '*');
       }
       if (data.body.triggerType === 'logForm' || data.body.triggerType === 'auto') {
-        // Save call log to your platform
-        console.log(data.body); // data.body.call, data.body.input
+        // Save message log to your platform
+        console.log(data.body); // data.body.conversation, data.body.formData
       }
       // response to widget
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -215,7 +271,7 @@ window.addEventListener('message', function (e) {
       }, '*');
     }
     if (data.path === '/messageLogger/inputChanged') {
-      console.log(data); // get input changed data in here: data.body.input
+      console.log(data); // get input changed data in here: data.body.formData
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
         type: 'rc-post-message-response',
         responseId: data.requestId,

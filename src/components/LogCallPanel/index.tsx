@@ -4,31 +4,44 @@ import callDirections from '@ringcentral-integration/commons/enums/callDirection
 import { CallInfo } from './CallInfo';
 import { CustomizedPanel } from '../CustomizedPanel';
 
-function getDefaultFields(call, defaultContactId, defaultNote) {
-  const fields: any[] = [];
+function getDefaultPage(call, defaultContactId, defaultNote) {
+  const page = {
+    schema: {
+      type: 'object',
+      properties: {} as any,
+    },
+    uiSchema: {} as any,
+    formData: {} as any,
+  };
   const matchContacts = call.direction === callDirections.inbound
       ? call.fromMatches : call.toMatches;
   if (matchContacts && matchContacts.length > 0) {
-    fields.push({
-      id: 'contactId',
-      label: 'Contact',
-      type: 'input.choice',
-      options: matchContacts.map((entity) => ({
-        id: entity.id,
-        name: entity.name,
+    page.schema.properties.contactId = {
+      type: 'string',
+      title: 'Contact',
+      oneOf: matchContacts.map((entity) => ({
+        title: entity.name,
+        const: entity.id,
         description: entity.description,
       })),
-      value: defaultContactId || matchContacts[0].id,
-    });
+    };
+    page.formData.contactId = defaultContactId || matchContacts[0].id || '';
   }
-  fields.push({
-    id: 'note',
-    type: 'input.text',
-    label: 'Note',
-    placeholder: "Add call log note",
-    value: defaultNote,
-  });
-  return fields;
+  page.schema.properties.note = {
+    type: 'string',
+    title: 'Note',
+  };
+  page.formData.note = defaultNote || '';
+  page.uiSchema = {
+    note: {
+      'ui:widget': 'textarea',
+      'ui:placeholder': 'Add call log note',
+    },
+    submitButtonOptions: {
+      submitText: 'Save',
+    },
+  }
+  return page;
 }
 
 export default function LogCallPanel({
@@ -38,13 +51,23 @@ export default function LogCallPanel({
   onLoadData,
   formatPhone,
   dateTimeFormatter,
-  customizedPageData,
+  customizedPage,
   onCustomizedFieldChange,
   onBackButtonClick,
   isLogging,
 }) {
   const currentCallRef = useRef(null);
-  const [defaultFields, setDefaultFields] = useState([]);
+  const [defaultPage, setDefaultPage] = useState({
+    schema: {
+      type: 'object',
+      properties: {} as any,
+    },
+    uiSchema: {} as any,
+    formData: {
+      contactId: '',
+      note: '',
+    } as any,
+  });
   useEffect(() => {
     if (!currentCall) {
       currentCallRef.current = null;
@@ -69,7 +92,7 @@ export default function LogCallPanel({
             matchedActivity.contact.id || matchedActivity.contact
           )) || '';
       }
-      setDefaultFields(getDefaultFields(currentCall, defaultContactId, defaultNote));
+      setDefaultPage(getDefaultPage(currentCall, defaultContactId, defaultNote));
       return;
     }
     const currentMatch = currentCall.activityMatches && currentCall.activityMatches[0];
@@ -79,7 +102,7 @@ export default function LogCallPanel({
       defaultContactId = currentMatch.contactId || currentMatch.contact && (
         currentMatch.contact.id || currentMatch.contact
        ) || '';
-      setDefaultFields(getDefaultFields(currentCall, defaultContactId, defaultNote));
+       setDefaultPage(getDefaultPage(currentCall, defaultContactId, defaultNote));
     }
     currentCallRef.current = currentCall;
   }, [currentCall]);
@@ -88,17 +111,15 @@ export default function LogCallPanel({
     return null;
   }
   const isLogged = currentCall.activityMatches && currentCall.activityMatches.length > 0;
-  const isCustomizedFields = customizedPageData && customizedPageData.fields && customizedPageData.fields.length > 0;
-  const fields = isCustomizedFields ? customizedPageData.fields : defaultFields;
-  
+
   return (
     <CustomizedPanel
       onBackButtonClick={onBackButtonClick}
-      onSave={(input) => {
+      onSave={(formData) => {
         onSave({
           call: currentCall,
-          input,
-          note: input.note,
+          formData,
+          note: formData.note,
         });
       }}
       saveButtonLoading={isLogging}
@@ -110,17 +131,16 @@ export default function LogCallPanel({
           dateTimeFormatter={dateTimeFormatter}
         />
       }
-      pageTitle={
-        customizedPageData && customizedPageData.pageTitle ?
-            customizedPageData.pageTitle :
+      title={
+        customizedPage && customizedPage.title ?
+            customizedPage.title :
             (isLogged ? 'Edit log' : 'Log call')
       }
-      saveButtonLabel={
-        customizedPageData && customizedPageData.saveButtonLabel || 'Save'
-      }
-      fields={fields}
-      onFieldInputChange={(newValues, key) => {
-        onCustomizedFieldChange(currentCall, newValues, key);
+      schema={customizedPage && customizedPage.schema || defaultPage.schema}
+      uiSchema={customizedPage && customizedPage.schema ? (customizedPage.uiSchema || {}) : defaultPage.uiSchema}
+      formData={customizedPage && customizedPage.schema ? (customizedPage.formData || {}) : defaultPage.formData}
+      onFormDataChange={(newFormData, keys) => {
+        onCustomizedFieldChange(currentCall, newFormData, keys);
       }}
     />
   );
