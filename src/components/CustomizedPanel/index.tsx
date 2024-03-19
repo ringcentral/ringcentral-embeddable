@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { styled } from '@ringcentral/juno/foundation';
 import { RcButton } from '@ringcentral/juno';
 
-import { Field } from './Field';
 import { BackHeaderView } from '../BackHeaderView';
+import { CustomizedForm } from './CustomizedForm';
 
 const Panel = styled.div`
   width: 100%;
@@ -28,45 +28,33 @@ const FieldsArea = styled.div`
   overflow-y: auto;
 `;
 
-const StyledField = styled(Field)`
-  margin-bottom: 15px;
-`;
-
 export function CustomizedPanel({
   onSave,
-  fields,
-  onFieldInputChange,
+  formData,
+  schema,
+  uiSchema,
+  onFormDataChange,
   onBackButtonClick,
   infoNode,
-  pageTitle,
-  saveButtonLabel,
+  title,
   saveButtonLoading,
 }) {
-  const [fieldValues, setFieldValues] = useState({});
-
+  const [formDataState, setFormDataState] = useState({});
+  const showSaveButton = !!uiSchema.submitButtonOptions;
+  const saveButtonLabel = uiSchema.submitButtonOptions?.submitText || 'Save';
   useEffect(() => {
-    if (!fields) {
-      setFieldValues({});
-      return;
-    }
-    const newValues = {};
-    fields.forEach((field) => {
-      if (field.type && field.type.indexOf('input.') === 0) {
-        newValues[field.id] = field.value;
-      }
-    });
-    setFieldValues(newValues);
-  }, [fields]);
+    setFormDataState(formData);
+  }, [formData]);
 
   return (
     <BackHeaderView
       onBack={onBackButtonClick}
-      title={pageTitle}
+      title={title}
       rightButton={
-        saveButtonLabel ? (
+        showSaveButton ? (
           <SaveButton
             variant='plain'
-            onClick={() => onSave(fieldValues)}
+            onClick={() => onSave(formDataState)}
             loading={saveButtonLoading}
           >
             {saveButtonLabel }
@@ -77,29 +65,18 @@ export function CustomizedPanel({
       <Panel>
         {infoNode}
         <FieldsArea>
-          {
-            fields.map((field) => {
-              let value = fieldValues[field.id];
-              if (typeof value === 'undefined') {
-                value = field.value;
-              }
-              return (
-                <StyledField
-                  key={field.id}
-                  field={field}
-                  onChange={(value) => {
-                    const newValues = {
-                      ...fieldValues,
-                      [field.id]: value,
-                    };
-                    setFieldValues(newValues);
-                    onFieldInputChange(newValues, field.id);
-                  }}
-                  value={value}
-                />
+          <CustomizedForm
+            schema={schema}
+            onFormDataChange={(newFormData) => {
+              const changedKeys = Object.keys(newFormData).filter(
+                (key) => newFormData[key] !== formDataState[key],
               );
-            })
-          }
+              setFormDataState(newFormData);
+              onFormDataChange(newFormData, changedKeys);
+            }}
+            formData={formDataState}
+            uiSchema={uiSchema}
+          />
         </FieldsArea>
       </Panel>
     </BackHeaderView>

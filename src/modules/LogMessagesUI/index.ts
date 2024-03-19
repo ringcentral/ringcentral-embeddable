@@ -59,7 +59,7 @@ export class LogMessagesUI extends RcUIModuleV2 {
     }
     return {
       currentLocale: locale.currentLocale,
-      customizedPageData: thirdPartyService.customizedLogMessagesPage,
+      customizedPage: thirdPartyService.customizedLogMessagesPage,
       conversationLog,
       correspondentMatches,
       lastMatchedCorrespondentEntity,
@@ -81,11 +81,11 @@ export class LogMessagesUI extends RcUIModuleV2 {
       onBackButtonClick() {
         routerInteraction.goBack();
       },
-      async onSaveLog({ conversationId, input}) {
+      async onSaveLog({ conversationId, formData }) {
         await conversationLogger.logConversation({
           triggerType: 'logForm',
           conversationId,
-          input,
+          formData,
           redirect: true,
         });
         routerInteraction.goBack();
@@ -103,11 +103,11 @@ export class LogMessagesUI extends RcUIModuleV2 {
         dateTimeFormat.formatDateTime({
           utcTimestamp,
         })),
-      onCustomizedFieldChange: (call, input, key) => {
+      onCustomizedFieldChange: (call, formData, keys) => {
         thirdPartyService.onCustomizedLogMessagesPageInputChanged({
           call,
-          input,
-          key,
+          formData,
+          keys,
         });
       },
     };

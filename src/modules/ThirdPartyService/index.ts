@@ -1211,21 +1211,26 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
     const index = this.customizedPages.findIndex(x => x.id === page.id);
     if (index > -1) {
-      this.customizedPages[index] = page;
+      Object.keys(page).forEach((key) => {
+        if (key === 'id') {
+          return;
+        }
+        this.customizedPages[index][key] = page[key];
+      });
     } else {
       this.customizedPages.push(page);
     }
   }
 
-  async onCustomizedLogCallPageInputChanged({ call, input, key }) {
+  async onCustomizedLogCallPageInputChanged({ call, formData, keys }) {
     if (!this._callLogPageInputChangedEventPath) {
       return;
     }
     try {
       await requestWithPostMessage(this._callLogPageInputChangedEventPath, {
         call,
-        input,
-        key,
+        formData,
+        keys,
         page: this.customizedLogCallPage,
       });
     } catch (e) {
@@ -1234,25 +1239,38 @@ export default class ThirdPartyService extends RcModuleV2 {
   }
 
   _onUpdateCallLogPage(data) {
-    this.updateCustomizedPage({
+    const newPage = {
       ...data.page,
       id: '$LOG-CALL',
-    });
+    };
+    if (!newPage.uiSchema) {
+      newPage.uiSchema = {
+        submitButtonOptions: {
+          submitText: 'Save',
+        },
+      };
+    } else {
+      newPage.uiSchema.submitButtonOptions = {
+        submitText: 'Save',
+        ...newPage.uiSchema.submitButtonOptions,
+      };
+    }
+    this.updateCustomizedPage(newPage);
   }
 
   get customizedLogCallPage() {
     return this.customizedPages.find(x => x.id === '$LOG-CALL');
   }
 
-  async onCustomizedLogMessagesPageInputChanged({ conversation, input, key }) {
+  async onCustomizedLogMessagesPageInputChanged({ conversation, formData, keys }) {
     if (!this._messagesLogPageInputChangedEventPath) {
       return;
     }
     try {
       await requestWithPostMessage(this._messagesLogPageInputChangedEventPath, {
         conversation,
-        input,
-        key,
+        formData,
+        keys,
         page: this.customizedLogMessagesPage,
       });
     } catch (e) {
@@ -1279,7 +1297,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     return this.customizedPages.find(x => x.id === id);
   }
 
-  async onCustomizedPageInputChanged({ pageId, input, key }) {
+  async onCustomizedPageInputChanged({ pageId, formData, keys }) {
     if (!this._customizedPageInputChangedEventPath) {
       return;
     }
@@ -1290,18 +1308,20 @@ export default class ThirdPartyService extends RcModuleV2 {
     try {
       await requestWithPostMessage(this._customizedPageInputChangedEventPath, {
         page,
-        input,
-        key,
+        formData,
+        keys,
       });
     } catch (e) {
       console.error(e);
     }
   }
 
-  async onClickButtonInCustomizedPage(buttonId) {
+  async onClickButtonInCustomizedPage(buttonId, formData) {
     await requestWithPostMessage(this._additionalButtonPath, {
       button: {
         id: buttonId,
+        type: 'submit',
+        formData,
       },
     });
   }

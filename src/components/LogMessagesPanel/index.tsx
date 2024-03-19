@@ -8,7 +8,7 @@ export default function LogMessagesPanel({
   onBackButtonClick,
   formatPhone,
   dateTimeFormatter,
-  customizedPageData,
+  customizedPage,
   onCustomizedFieldChange,
   conversationLog,
   onSaveLog,
@@ -16,35 +16,76 @@ export default function LogMessagesPanel({
   lastMatchedCorrespondentEntity,
   isLogging,
 }) {
-  const [defaultFields, setDefaultFields] = useState([]);
+  const [defaultPage, setDefaultPage] = useState({
+    schema: {
+      type: 'object',
+      properties: {} as any,
+    },
+    uiSchema: {
+      submitButtonOptions: {
+        submitText: 'Save',
+      },
+    } as any,
+    formData: {
+      contactId: '',
+      note: '',
+    } as any,
+  });
 
   useEffect(() => {
     if (!correspondentMatches || correspondentMatches.length === 0) {
-      setDefaultFields([{
-        id: 'contactId',
-        label: 'Contact',
-        type: 'input.choice',
-        options: [{
-          id: 'unknown',
-          name: 'Unknown',
-        }],
-      }]);
+      setDefaultPage({
+        schema: {
+          type: 'object',
+          properties: {
+            contactId: {
+              title: 'Contact',
+              type: 'string',
+              oneOf: [{
+                title: 'Unknown',
+                const: 'unknown',
+              }],
+            },
+          },
+        },
+        uiSchema: {
+          submitButtonOptions: {
+            submitText: 'Save',
+          },
+        },
+        formData: {
+          contactId: 'unknown'
+        },
+      });
       return;
     }
     const defaultContactId = lastMatchedCorrespondentEntity ?
       lastMatchedCorrespondentEntity.id :
       correspondentMatches[0].id;
-    setDefaultFields([{
-      id: 'contactId',
-      label: 'Contact',
-      type: 'input.choice',
-      options: correspondentMatches.map((entity) => ({
-        id: entity.id,
-        name: entity.name,
-        description: entity.description,
-      })),
-      value: defaultContactId,
-    }]);
+    setDefaultPage({
+      schema: {
+        type: 'object',
+        properties: {
+          contactId: {
+            title: 'Contact',
+            type: 'string',
+            oneOf: correspondentMatches.map((entity) => ({
+              title: entity.name,
+              const: entity.id,
+              description: entity.description,
+            })),
+          },
+        },
+      },
+      uiSchema: {
+        submitButtonOptions: {
+          submitText: 'Save',
+        },
+      },
+      formData: {
+        contactId: defaultContactId,
+      },
+    });
   }, [correspondentMatches, lastMatchedCorrespondentEntity]);
 
   if (!conversationLog) {
@@ -62,23 +103,17 @@ export default function LogMessagesPanel({
       }
     }
   }
-  const isCustomizedFields = customizedPageData && customizedPageData.fields && customizedPageData.fields.length > 0;
-  const fields = isCustomizedFields ? customizedPageData.fields : defaultFields;
   return (
     <CustomizedPanel
       onBackButtonClick={onBackButtonClick}
-      pageTitle={
-        customizedPageData && customizedPageData.pageTitle ?
-            customizedPageData.pageTitle :
+      title={
+        customizedPage && customizedPage.title ?
+            customizedPage.title :
             (isLogged ? 'Edit log' : 'Log messages')
       }
-      saveButtonLabel={
-        customizedPageData && customizedPageData.saveButtonLabel  || 'Save'
-      }
-      fields={fields}
-      onSave={(input) => {
+      onSave={(formData) => {
         onSaveLog({
-          input,
+          formData,
           conversationId,
         });
       }}
@@ -91,9 +126,12 @@ export default function LogMessagesPanel({
           conversationLog={conversationLog}
         />
       }
-      onFieldInputChange={(newValues, key) => {
-        onCustomizedFieldChange(conversationLog, newValues, key);
+      onFormDataChange={(formData, keys) => {
+        onCustomizedFieldChange(conversationLog, formData, keys);
       }}
+      schema={customizedPage && customizedPage.schema || defaultPage.schema}
+      uiSchema={customizedPage && customizedPage.schema ? (customizedPage.uiSchema || {}) : defaultPage.uiSchema}
+      formData={customizedPage && customizedPage.schema ? (customizedPage.formData || {}) : defaultPage.formData}
     />
   );
 }

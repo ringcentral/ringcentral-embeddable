@@ -23,10 +23,11 @@ export class CustomizedPageUI extends RcUIModuleV2 {
     } = this._deps;
     const page = thirdPartyService.getCustomizedPage(params.pageId);
     return {
-      pageTitle: page && page.pageTitle || 'Customized Page',
-      saveButtonLabel: page && page.saveButtonLabel,
-      fields: page && page.fields || [],
-      saveButtonLoading: false,
+      title: page && page.title || '',
+      schema: page && page.schema || {},
+      uiSchema: page && page.uiSchema || {},
+      formData: page && page.formData || [],
+      submitButtonLoading: false,
     };
   }
 
@@ -43,14 +44,14 @@ export class CustomizedPageUI extends RcUIModuleV2 {
       onBackButtonClick() {
         routerInteraction.goBack();
       },
-      onSave() {
-        thirdPartyService.onClickButtonInCustomizedPage(page && page.id);
+      onSave(formData) {
+        thirdPartyService.onClickButtonInCustomizedPage(page && page.id, formData);
       },
-      onFieldInputChange(input, key) {
+      onFormDataChange(formData, keys) {
         thirdPartyService.onCustomizedPageInputChanged({
           pageId: page && page.id,
-          input,
-          key
+          formData,
+          keys,
         });
       }
     };

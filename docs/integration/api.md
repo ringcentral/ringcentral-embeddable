@@ -255,6 +255,15 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+Navigate back to previous path:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-navigate-to',
+  path: 'goBack',
+}, '*');
+```
+
 ### Go to the SMS tab
 
 ```js
