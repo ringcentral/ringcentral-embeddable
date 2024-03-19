@@ -2,6 +2,8 @@
 
 The RingCentral Embeddable is a powerful tool that allows you to customize the user experience for your users. You can create a customized page to display your own content in the widget.
 
+![customized page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/ba7fb44f-dbb6-4bee-bab2-a054970274ea)
+
 Register your service:
 
 ```js
@@ -22,35 +24,69 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-register-customized-page',
   page: {
     id: 'page1', // page id, required
-    pageTitle: 'Customized page 1',
-    saveButtonLabel: 'Save', // optional if you don't want to show save button
-    fields: [{ 
-      id: 'warning',
-      type: 'admonition.warn', // or 'admonition.info'
-      text: "Please authorize the CRM to use this feature."
-    }, {
-      id: 'contactType',
-      label: 'Default link type',
-      type: 'input.choice',
-      choices: [{
-        id: 'Candidate',
-        name: 'Candidate',
-      }, {
-        id: 'Contact',
-        name: 'Contact',
-      }],
-      value: 'Candidate',
-    }, {
-      id: 'defaultContactName',
-      label: 'Default contact name',
-      type: 'input.string',
-      value: '',
-    }, {
-      id: 'Default note',
-      label: 'Note',
-      type: 'input.text',
-      value: '',
-    }],
+    title: 'Customized page 1',
+    // schema and uiSchema are used to customize call log page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+    schema: {
+      type: 'object',
+      required: ['contactType', 'defaultContactName'],
+      properties: {
+        "warning": {
+          "type": "string",
+          "description": "Please authorize the CRM to use this feature."
+        },
+        "someMessage": {
+          "type": "string",
+          "description": "This is a description message"
+        },
+        "contactType": {
+          "type": "string",
+          "title": "Default link type",
+          "oneOf": [
+            {
+              "const": "candidate",
+              "title": "Candidate"
+            },
+            {
+              "const": "contact",
+              "title": "Contact"
+            }
+          ],
+        },
+        "defaultContactName": {
+          "type": "string",
+          "title": "Default contact name",
+        },
+        "defaultNote": {
+          "type": "string",
+          "title": "Default note",
+        },
+      },
+    },
+    uiSchema: {
+      submitButtonOptions: { // optional if you don't want to show submit button
+        submitText: 'Save',
+      },
+      warning: {
+        "ui:field": "admonition",
+        "ui:severity": "warning",  // "warning", "info", "error", "success"
+      },
+      someMessage: {
+        "ui:field": "typography",
+        "ui:variant": "body1", // "caption1", "caption2", "body1", "body2", "subheading2", "subheading1", "title2", "title1"
+      },
+      defaultContactName: {
+        "ui:placeholder": 'Enter default contact name',
+      },
+      defaultNote: {
+        "ui:placeholder": 'Enter default note',
+        "ui:widget": "textarea", // show note input as textarea
+      },
+    },
+    formData: {
+      contactType: 'Candidate',
+      defaultContactName: 'John Doe',
+      defaultNote: '',
+    },
   },
 }, '*');
 ```
