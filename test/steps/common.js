@@ -16,10 +16,10 @@ export async function getAuthorizedWidget(jwtToken) {
   const widgetIframe = new IframeWidget();
   await widgetIframe.loadElement();
   await widgetIframe.waitForLoginPage();
-  const envButton = await page.$('#setEnvironment');
-  await envButton.evaluate(b => b.click());
-  await widgetIframe.enableSandboxEnvironment();
-  await widgetIframe.waitForLoginPage();
+  // const envButton = await page.$('#setEnvironment');
+  // await envButton.evaluate(b => b.click());
+  // await widgetIframe.enableSandboxEnvironment();
+  // await widgetIframe.waitForLoginPage();
   await widgetIframe.loginWithCallbackUri(`${__HOST_URI__}/redirect.html?jwt=${jwtToken}`);
   await page.waitForTimeout(1000);
   return widgetIframe;

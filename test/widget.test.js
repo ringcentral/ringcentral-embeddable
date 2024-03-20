@@ -50,7 +50,7 @@ conditionalDescribe('widget page test', () => {
     const recipientPlaceholder = await widgetIframe.getSMSRecipientInputPlaceholder();
     expect(recipientPlaceholder).toEqual('Enter name or number');
     const text = `text ${Date.now()}`;
-    await widgetIframe.typeSMSRecipientAndText({ recipientNumber: '101', text });
+    await widgetIframe.typeSMSRecipientAndText({ recipientNumber: __TEST_SMS_RECEIVER_NUMBER__, text });
     await widgetIframe.clickSMSSendButton();
     const lastTextInConversation = await widgetIframe.getLastTextAtConversation();
     expect(lastTextInConversation).toEqual(text);
