@@ -9,6 +9,7 @@ module.exports = {
     _HOST_URI__: true,
     __JWT_TOKEN__: true,
     __THIRD_PARTY_URI__: true,
+    __TEST_SMS_RECEIVER_NUMBER__: true,
   },
   overrides: [
     // js ts files

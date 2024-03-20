@@ -156,6 +156,7 @@ export class IframeWidget {
 
   async typeSMSRecipientAndText({ recipientNumber, text}) {
     await this._widgetIframe.type('input[name="receiver"]', recipientNumber);
+    await this._widgetIframe.waitForTimeout(1000);
     await this._widgetIframe.type('textarea[data-sign="messageInput"]', text);
   }
 
