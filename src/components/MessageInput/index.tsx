@@ -84,7 +84,7 @@ class MessageInput extends Component {
       // ignore value changes from props for 300ms after typing
       // this is to prevent unnecessary value changes when used in chrome extension
       // where value pushed back to background and back takes longer
-      Date.now() - this._lastValueChange > 300
+      Date.now() - this._lastValueChange > 400
     ) {
       // use setState(updater, callback) to recaculate height after value has been update to DOM
       this.setState(
