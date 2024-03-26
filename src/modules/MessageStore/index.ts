@@ -57,8 +57,17 @@ export class MessageStore extends MessageStoreBase {
         const records = this._messagesFilter(data.records);
         const isFSyncSuccess = !syncToken;
         // this is only executed in passive sync mode (aka. invoked by subscription)
-        if (passive) {
-          this._handledRecord = records;
+        // if (passive) {
+        //   this._handledRecord = records;
+        // }
+        // Override: only handle recent 30 minutes records
+        this._handledRecord = (records || []).filter((record) => {
+          const lastModifiedTime = new Date(record.lastModifiedTime);
+          return Date.now() - lastModifiedTime.getTime() < 30 * 60 * 1000;
+        });
+        if (!passive && this._handledRecord && this._handledRecord.length > 0) {
+          this._dispatchMessageHandlers(this._handledRecord);
+          this._handledRecord = null;
         }
         return {
           conversationList: this._processRawConversationList({
@@ -79,5 +88,23 @@ export class MessageStore extends MessageStoreBase {
         throw error;
       }
     }
+  }
+
+  override async pushMessages(records) {
+    this._deps.dataFetcherV2.updateData(
+      this._source,
+      {
+        ...this.data,
+        conversationList: this._processRawConversationList({
+          records,
+          conversationStore: this.conversationStore,
+        }),
+        conversationStore: this._processRawConversationStore({
+          records,
+        }),
+      },
+      Date.now(), // Fix new message is not saved into DB
+    );
+    this._dispatchMessageHandlers(records); // Send message event immediately
   }
 }

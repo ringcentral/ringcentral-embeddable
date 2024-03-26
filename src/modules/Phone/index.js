@@ -373,6 +373,7 @@ import { CustomizedPageUI } from '../CustomizedPageUI';
         daySpan: 90,
         conversationsLoadLength: 10,
         conversationLoadLength: 15,
+        ttl: 30 * 1000, // 30s ttl for re-syncing at reloading page
       },
     },
     {
