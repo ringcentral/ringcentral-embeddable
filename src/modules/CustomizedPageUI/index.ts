@@ -45,7 +45,7 @@ export class CustomizedPageUI extends RcUIModuleV2 {
         routerInteraction.goBack();
       },
       onSave(formData) {
-        thirdPartyService.onClickButtonInCustomizedPage(page && page.id, formData);
+        thirdPartyService.onClickButtonInCustomizedPage(page && page.id, 'submit', formData);
       },
       onFormDataChange(formData, keys) {
         thirdPartyService.onCustomizedPageInputChanged({
@@ -53,7 +53,10 @@ export class CustomizedPageUI extends RcUIModuleV2 {
           formData,
           keys,
         });
-      }
+      },
+      onButtonClick(id) {
+        thirdPartyService.onClickButtonInCustomizedPage(id, 'button');
+      },
     };
   }
 }
