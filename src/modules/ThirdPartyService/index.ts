@@ -1316,13 +1316,20 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
   }
 
-  async onClickButtonInCustomizedPage(buttonId, formData) {
+  async onClickButtonInCustomizedPage(buttonId, type, formData = undefined) {
+    const button : {
+      id: string;
+      type: string;
+      formData?: any;
+    } = {
+      id: buttonId,
+      type,
+    };
+    if (formData) {
+      button.formData = formData;
+    }
     await requestWithPostMessage(this._additionalButtonPath, {
-      button: {
-        id: buttonId,
-        type: 'submit',
-        formData,
-      },
+      button,
     });
   }
 }

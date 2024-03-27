@@ -14,6 +14,7 @@ export const CustomizedForm = ({
   uiSchema = {},
   formData,
   onFormDataChange,
+  onButtonClick,
 }) => {
   return (
     <Form
@@ -30,6 +31,11 @@ export const CustomizedForm = ({
         },
       }}
       fields={fields}
+      onFocus={(name, value) => {
+        if (value === '$$clicked') {
+          onButtonClick(name);
+        }
+      }}
     />
   );
 }

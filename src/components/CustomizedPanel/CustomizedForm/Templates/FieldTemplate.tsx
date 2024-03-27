@@ -45,10 +45,10 @@ export default function FieldTemplate<
     registry,
     uiOptions
   );
-
   if (hidden) {
     return <div style={{ display: 'none' }}>{children}</div>;
   }
+  const fullWidth = typeof uiOptions.fullWidth === 'boolean' ? uiOptions.fullWidth : true;
   return (
     <WrapIfAdditionalTemplate
       classNames={classNames}
@@ -64,7 +64,7 @@ export default function FieldTemplate<
       uiSchema={uiSchema}
       registry={registry}
     >
-      <FormControl fullWidth={true} error={rawErrors.length ? true : false} required={required}>
+      <FormControl fullWidth={fullWidth} error={rawErrors.length ? true : false} required={required}>
         {children}
         {displayLabel && rawDescription ? (
           <Typography variant="caption1" color="neutral.f05">

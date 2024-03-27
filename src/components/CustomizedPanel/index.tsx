@@ -48,6 +48,7 @@ export function CustomizedPanel({
   infoNode,
   title,
   saveButtonLoading,
+  onButtonClick,
 }) {
   const [formDataState, setFormDataState] = useState({});
   const showSaveButton = !!uiSchema.submitButtonOptions;
@@ -87,6 +88,7 @@ export function CustomizedPanel({
             }}
             formData={formDataState}
             uiSchema={uiSchema}
+            onButtonClick={onButtonClick}
           />
         </FieldsArea>
       </Panel>

@@ -38,6 +38,10 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
           "type": "string",
           "description": "This is a description message"
         },
+        "openSettingsButton": {
+          "type": "string",
+          "title": "Open CRM settings",
+        },
         "contactType": {
           "type": "string",
           "title": "Default link type",
@@ -74,6 +78,11 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
         "ui:field": "typography",
         "ui:variant": "body1", // "caption1", "caption2", "body1", "body2", "subheading2", "subheading1", "title2", "title1"
       },
+      openSettingsButton: {
+        "ui:field": "button",
+        "ui:variant": "contained", // "text", "outlined", "contained", "plain"
+        "ui:fullWidth": true
+      },
       defaultContactName: {
         "ui:placeholder": 'Enter default contact name',
       },
@@ -88,6 +97,15 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
       defaultNote: '',
     },
   },
+}, '*');
+```
+
+Navigate to the page:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-navigate-to',
+  path: '/customized/page1', // page id
 }, '*');
 ```
 
@@ -109,7 +127,14 @@ window.addEventListener('message', function (e) {
     }
     if (data.path === '/button-click') {
       if (data.body.button.id === 'page1') {
+        // on submit button click
+        // button id is the page id
         console.log('Save button clicked');
+        // ...
+      }
+      if (data.body.button.id === 'openSettingsButton') {
+        // click on the button registered in schema, button id is the button key
+        console.log('Open settings button clicked');
         // ...
       }
     }
@@ -118,4 +143,3 @@ window.addEventListener('message', function (e) {
 ```
 
 When the user clicks the button, you will receive a message with the path `/button-click`. When the user changes the input, you will receive a message with the path `/customizedPage/inputChanged`.
-```
