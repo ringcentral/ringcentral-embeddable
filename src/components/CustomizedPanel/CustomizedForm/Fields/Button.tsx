@@ -11,7 +11,6 @@ export function Button({
   disabled,
   name,
 }) {
-  console.log('uiSchema', uiSchema);
   return (
     <RcButton
       variant={uiSchema['ui:variant'] || 'contained'}

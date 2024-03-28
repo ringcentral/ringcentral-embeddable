@@ -49,6 +49,7 @@ export function CustomizedPanel({
   title,
   saveButtonLoading,
   onButtonClick,
+  pageId,
 }) {
   const [formDataState, setFormDataState] = useState({});
   const showSaveButton = !!uiSchema.submitButtonOptions;
@@ -65,7 +66,7 @@ export function CustomizedPanel({
         showSaveButton ? (
           <SaveButton
             variant='plain'
-            onClick={() => onSave(formDataState)}
+            onClick={() => onSave(pageId, formDataState)}
             loading={saveButtonLoading}
             disabled={!allRequiredFieldsAreFilled(formDataState, schema)}
           >
@@ -84,7 +85,7 @@ export function CustomizedPanel({
                 (key) => newFormData[key] !== formDataState[key],
               );
               setFormDataState(newFormData);
-              onFormDataChange(newFormData, changedKeys);
+              onFormDataChange(pageId, newFormData, changedKeys);
             }}
             formData={formDataState}
             uiSchema={uiSchema}
