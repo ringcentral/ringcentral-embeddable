@@ -28,28 +28,25 @@ export class CustomizedPageUI extends RcUIModuleV2 {
       uiSchema: page && page.uiSchema || {},
       formData: page && page.formData || [],
       submitButtonLoading: false,
+      pageId: params.pageId,
     };
   }
 
-  getUIFunctions({
-    params,
-  }) {
+  getUIFunctions() {
     const {
       routerInteraction,
       thirdPartyService,
     } = this._deps;
-
-    const page = thirdPartyService.getCustomizedPage(params.pageId);
     return {
       onBackButtonClick() {
         routerInteraction.goBack();
       },
-      onSave(formData) {
-        thirdPartyService.onClickButtonInCustomizedPage(page && page.id, 'submit', formData);
+      onSave(pageId, formData) {
+        thirdPartyService.onClickButtonInCustomizedPage(pageId, 'submit', formData);
       },
-      onFormDataChange(formData, keys) {
+      onFormDataChange(pageId, formData, keys) {
         thirdPartyService.onCustomizedPageInputChanged({
-          pageId: page && page.id,
+          pageId,
           formData,
           keys,
         });
