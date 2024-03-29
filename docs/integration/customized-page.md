@@ -1,8 +1,10 @@
 # Customized page
 
+<!-- md:version 2.0.0 -->
+
 The RingCentral Embeddable is a powerful tool that allows you to customize the user experience for your users. You can create a customized page to display your own content in the widget.
 
-![customized page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/ba7fb44f-dbb6-4bee-bab2-a054970274ea)
+![customized page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/2a20feaf-1336-4559-a488-ed327dd49ddc)
 
 Register your service:
 

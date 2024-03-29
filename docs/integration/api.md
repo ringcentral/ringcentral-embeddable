@@ -257,6 +257,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 Navigate back to previous path:
 
+<!-- md:version 2.0.0 -->
+
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-navigate-to',
