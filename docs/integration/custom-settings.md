@@ -44,12 +44,6 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
         "buttonLabel": "Open",
       },
       {
-        "id": "goToAppSettings",
-        "type": "button",
-        "name": "Go to App settings",
-        "buttonLabel": "Open",
-      },
-      {
         "id": "crmSetting",
         "type": "section",
         "name": "CRM settings",
@@ -114,16 +108,6 @@ window.addEventListener('message', function (e) {
   if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/settings') {
       // add your codes here to save settings into your service
-      console.log(data);
-      // response to widget
-      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-        type: 'rc-post-message-response',
-        responseId: data.requestId,
-        response: { data: 'ok' },
-      }, '*');
-    }
-    if (data.path === '/button-click') {
-      // add your codes here to handle button click event
       console.log(data);
       // response to widget
       document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
