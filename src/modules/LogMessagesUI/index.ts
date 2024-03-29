@@ -103,9 +103,9 @@ export class LogMessagesUI extends RcUIModuleV2 {
         dateTimeFormat.formatDateTime({
           utcTimestamp,
         })),
-      onCustomizedFieldChange: (call, formData, keys) => {
+      onCustomizedFieldChange: (conversation, formData, keys) => {
         thirdPartyService.onCustomizedLogMessagesPageInputChanged({
-          call,
+          conversation,
           formData,
           keys,
         });

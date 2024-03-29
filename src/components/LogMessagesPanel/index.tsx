@@ -111,7 +111,7 @@ export default function LogMessagesPanel({
             customizedPage.title :
             (isLogged ? 'Edit log' : 'Log messages')
       }
-      onSave={(formData) => {
+      onSave={(_pageId, formData) => {
         onSaveLog({
           formData,
           conversationId,
@@ -126,12 +126,13 @@ export default function LogMessagesPanel({
           conversationLog={conversationLog}
         />
       }
-      onFormDataChange={(formData, keys) => {
+      onFormDataChange={(_pageId, formData, keys) => {
         onCustomizedFieldChange(conversationLog, formData, keys);
       }}
       schema={customizedPage && customizedPage.schema || defaultPage.schema}
       uiSchema={customizedPage && customizedPage.schema ? (customizedPage.uiSchema || {}) : defaultPage.uiSchema}
       formData={customizedPage && customizedPage.schema ? (customizedPage.formData || {}) : defaultPage.formData}
+      pageId={customizedPage && customizedPage.id}
     />
   );
 }
