@@ -115,7 +115,7 @@ export default function LogCallPanel({
   return (
     <CustomizedPanel
       onBackButtonClick={onBackButtonClick}
-      onSave={(formData) => {
+      onSave={(_pageId, formData) => {
         onSave({
           call: currentCall,
           formData,
@@ -139,9 +139,10 @@ export default function LogCallPanel({
       schema={customizedPage && customizedPage.schema || defaultPage.schema}
       uiSchema={customizedPage && customizedPage.schema ? (customizedPage.uiSchema || {}) : defaultPage.uiSchema}
       formData={customizedPage && customizedPage.schema ? (customizedPage.formData || {}) : defaultPage.formData}
-      onFormDataChange={(newFormData, keys) => {
+      onFormDataChange={(_pageId, newFormData, keys) => {
         onCustomizedFieldChange(currentCall, newFormData, keys);
       }}
+      pageId={customizedPage && customizedPage.id}
     />
   );
 }
