@@ -125,6 +125,7 @@ nav:
     - 'View upcoming meetings': integration/upcoming-meetings.md
     - 'VCard click handling': integration/vcard-clicks.md
     - 'SMS toolbar button': 'integration/sms-toolbar-button.md'
+    - 'Customized page': integration/customized-page.md
   - 'Recipes':
     - 'Analytics integration': integration/analytics.md
     - 'Click-to-dial enablement': integration/click-to-dial.md

@@ -122,3 +122,164 @@ window.addEventListener('message', function (e) {
   }
 });
 ```
+
+## Message log page
+
+<!-- md:version 2.0.0 -->
+
+You can also add a message log page to have an related form when user logs messages to your service. 
+
+![customized message log page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/350c4f8b-63bd-4963-ab14-cd7ebefb6913)
+
+Register message log service:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    messageLoggerPath: '/messageLogger',
+    messageLoggerTitle: 'Log to TestService',
+    messagesLogPageInputChangedEventPath: '/messageLogger/inputChanged',
+  }
+}, '*');
+```
+
+Then add message event listener to show message log page and input changed request:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/messageLogger') {
+      // Get trigger type: data.body.triggerType
+      // When user click log button in message item, triggerType is 'manual'
+      // When user enable auto log, triggerType is 'auto' for new message
+      if (data.body.triggerType === 'manual') {
+        // customize message log page
+        document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+          type: 'rc-adapter-update-messages-log-page',
+          page: {
+            title: 'Log to TestService',
+            // schema and uiSchema are used to customize call log page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+            schema: {
+              type: 'object',
+              required: ['contact', 'noteActions'],
+              properties: {
+                "warning": {
+                  "type": "string",
+                  "description": "No contact found. Enter a name to have a placeholder contact made for you.",
+                },
+                "contact": {
+                  "title": "Contact",
+                  "type": "string",
+                  "oneOf": [
+                    {
+                      "const": "xxx",
+                      "title": "John Doe",
+                      "description": "Candidate - 347",
+                    },
+                    {
+                      "const": "newEntity",
+                      "title": "Create placeholder contact"
+                    }
+                  ],
+                },
+                "contactName": {
+                  "type": 'string',
+                  "title": "Contact name",
+                },
+                "contactType": {
+                  "title": "Contact type",
+                  "type": "string",
+                  "oneOf": [
+                    {
+                      "const": "candidate",
+                      "title": "Candidate"
+                    },
+                    {
+                      "const": "contact",
+                      "title": "Contact"
+                    }
+                  ],
+                },
+                "noteActions": {
+                  "type": "string",
+                  "title": "Note actions",
+                  "oneOf": [
+                    {
+                      "const": "prescreen",
+                      "title": "Prescreen"
+                    },
+                    {
+                      "const": "interview",
+                      "title": "Interview"
+                    }
+                  ],
+                },
+                "note": {
+                  "type": "string",
+                  "title": "Note"
+                },
+              }
+            },
+            uiSchema: {
+              warning: {
+                "ui:field": "admonition", // or typography to show raw text
+                "ui:severity": "warning", // "warning", "info", "error", "success"
+              },
+              contactName: {
+                "ui:placeholder": 'Enter name',
+                "ui:widget": "hidden", // remove this line to show contactName input
+              },
+              contactType: {
+                "ui:placeholder": 'Select contact type',
+                "ui:widget": "hidden", // remove this line to show contactName input
+              },
+              note: {
+                "ui:placeholder": 'Enter note',
+                "ui:widget": "textarea",  // show note input as textarea
+              },
+              submitButtonOptions: {
+                submitText: 'Save',
+              },
+            },
+            formData: {
+              contact: 'xxx',
+              contactName: '',
+              contactType: '',
+              noteActions: 'prescreen',
+              note: '',
+            },
+          }，
+        }, '*');
+        // navigate to message log page
+        document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+          type: 'rc-adapter-navigate-to',
+          path: `/log/messages/${data.body.conversation.conversationId}`, // conversation id that you received from message logger event
+        }, '*');
+      }
+      if (data.body.triggerType === 'logForm' || data.body.triggerType === 'auto') {
+        // Save message log to your platform
+        console.log(data.body); // data.body.conversation, data.body.formData
+      }
+      // response to widget
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+    if (data.path === '/messageLogger/inputChanged') {
+      console.log(data); // get input changed data in here: data.body.formData
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+      // you can update message log page data here to make the form dynamic
+      return;
+    }
+  }
+});
+```
