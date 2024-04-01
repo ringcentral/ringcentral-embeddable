@@ -7,6 +7,8 @@ import {
 } from '@ringcentral/juno-icon';
 
 const StyledAvatar = styled(RcAvatar)`
+  padding-left: 16px;
+
   .RcAvatar-avatarContainer {
     width: 26px;
     height: 26px;
