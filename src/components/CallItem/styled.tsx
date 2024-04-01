@@ -9,7 +9,7 @@ import {
 import { ActionMenu } from '../ActionMenu';
 
 export const StyledListItem = styled(RcListItem)`
-  padding: 6px 16px;
+  padding: 0;
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   background-color: ${palette2('neutral', 'b01')};
   height: 60px;
@@ -19,6 +19,15 @@ export const StyledListItem = styled(RcListItem)`
     `
     cursor: pointer;
   `}
+
+  &.RcListItem-gutters {
+    padding: 0;
+  }
+
+  .MuiListItemText-root {
+    margin: 0;
+    padding: 10px 16px 10px 0;
+  }
 
   .call-item-action-menu {
     display: none;
@@ -61,6 +70,8 @@ export const StyledListItem = styled(RcListItem)`
 `;
 
 export const StyledItemIcon = styled(RcListItemIcon)`
+  padding: 16px 0 16px 16px;
+
   .icon {
     font-size: 26px;
   }

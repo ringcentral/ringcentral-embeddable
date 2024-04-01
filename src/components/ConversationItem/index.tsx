@@ -106,10 +106,14 @@ type MessageItemState = {
 };
 
 const StyledListItem = styled(RcListItem)`
-  padding: 6px 16px;
+  padding: 0;
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   background-color: ${palette2('neutral', 'b01')};
   cursor: pointer;
+
+  &.RcListItem-gutters {
+    padding: 0;
+  }
 
   .conversation-item-action-menu {
     display: none;
@@ -136,7 +140,18 @@ const StyledListItem = styled(RcListItem)`
   `}
 `;
 
+const StyledListItemText = styled(RcListItemText)`
+  margin: 0;
+  padding: 10px 16px 10px 0;
+
+  &.RcListItemText-multiline {
+    margin: 0;
+  }
+`;
+
 const StyledItemIcon = styled(RcListItemIcon)`
+  padding: 16px 0 16px 16px;
+
   .icon {
     font-size: 26px;
   }
@@ -855,7 +870,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
             color={unreadCounts ? 'action.primary' : 'neutral.f06'}
           />
         </StyledItemIcon>
-        <RcListItemText
+        <StyledListItemText
           onClick={this.onClickWrapper}
           primary={
             renderContactName
