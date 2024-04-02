@@ -5,6 +5,7 @@ import i18n from '../../components/MainViewPanel/i18n';
 interface Tab {
   value: string;
   label: string;
+  unreadCounts?: number;
 }
 
 @Module({
@@ -14,6 +15,7 @@ interface Tab {
     'RouterInteraction',
     'CallingSettings',
     'AppFeatures',
+    'MessageStore',
     { dep: 'Webphone', optional: true },
     { dep: 'CallMonitor', optional: true },
     { dep: 'PhoneTabsUIOptions', optional: true },
@@ -39,6 +41,8 @@ export class PhoneTabsUI extends RcUIModuleV2 {
     that._deps.appFeatures.isCallingEnabled,
     that._deps.appFeatures.hasReadExtensionCallLog,
     that._deps.appFeatures.hasReadCallRecordings,
+    that._deps.appFeatures.hasVoicemailPermission,
+    that._deps.messageStore.voiceUnreadCounts,
     that._deps.locale.currentLocale
   ])
   get tabs() {
@@ -46,7 +50,7 @@ export class PhoneTabsUI extends RcUIModuleV2 {
       return [];
     }
     const tabs: Tab[] = [];
-    const { appFeatures, locale } = this._deps;
+    const { appFeatures, locale, messageStore } = this._deps;
     if (appFeatures.isCallingEnabled) {
       tabs.push({
         value: '/dialer',
@@ -57,6 +61,13 @@ export class PhoneTabsUI extends RcUIModuleV2 {
       tabs.push({
         value: '/history',
         label: i18n.getString('callsLabel', locale.currentLocale),
+      });
+    }
+    if (appFeatures.hasVoicemailPermission) {
+      tabs.push({
+        value: '/messages/voicemail',
+        label: i18n.getString('voicemailLabel', locale.currentLocale),
+        unreadCounts: messageStore.voiceUnreadCounts,
       });
     }
     if (appFeatures.hasReadCallRecordings) {
@@ -76,6 +87,7 @@ export class PhoneTabsUI extends RcUIModuleV2 {
       currentPath: routerInteraction.currentPath,
       // disableHistory: !this._deps.appFeatures.ready || !this._deps.appFeatures.hasReadExtensionCallLog,
       tabs: this.tabs,
+      variant: 'moreMenu',
     };
   }
 

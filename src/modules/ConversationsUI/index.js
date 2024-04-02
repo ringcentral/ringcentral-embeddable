@@ -1,17 +1,22 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { ConversationsUI as BaseConversationsUI } from '@ringcentral-integration/widgets/modules/ConversationsUI';
+import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 
 @Module({
   name: 'ConversationsUI',
 })
 export class ConversationsUI extends BaseConversationsUI {
-  getUIProps(props) {
+  getUIProps({
+    type = 'text',
+    ...props
+  }) {
     const baseProps = super.getUIProps(props);
     const {
       conversationLogger,
     } = this._deps;
     return {
       ...baseProps,
+      typeFilter: messageTypes[type],
       showLogButton: conversationLogger.loggerSourceReady,
       logButtonTitle: conversationLogger.logButtonTitle,
     };

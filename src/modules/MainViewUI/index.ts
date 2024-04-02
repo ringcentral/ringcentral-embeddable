@@ -32,15 +32,15 @@ export class MainViewUI extends RcUIModuleV2 {
       genericMeeting,
       brand,
       thirdPartyService,
+      phoneTabsUI,
     } = this._deps;
 
-    const unreadCounts = messageStore.unreadCounts || 0;
-    const showCall = appFeatures.ready && (
+    const showPhone = appFeatures.ready && (
       appFeatures.isCallingEnabled ||
       appFeatures.hasReadExtensionCallLog ||
-      appFeatures.hasReadCallRecordings
+      appFeatures.hasReadCallRecordings ||
+      appFeatures.hasVoicemailPermission
     );
-    const showMessages = appFeatures.ready && appFeatures.hasReadMessagesPermission;
     const showMeeting = (
       appFeatures.ready &&
       appFeatures.hasMeetingsPermission
@@ -51,10 +51,7 @@ export class MainViewUI extends RcUIModuleV2 {
     const settingsUnreadCount = thirdPartyService.showAuthRedDot ? 1 : 0;
     return {
       currentLocale,
-      unreadCounts,
-      showCall,
-      showMessages,
-      showNewComposeText: appFeatures.hasComposeTextPermission,
+      showPhone,
       showMeeting,
       isRCV: genericMeeting.isRCV,
       showContacts,
@@ -63,7 +60,13 @@ export class MainViewUI extends RcUIModuleV2 {
       currentPath: routerInteraction.currentPath,
       rcvProductName: brand.rcvProductName,
       settingsUnreadCount,
-      phoneTabPath: this._deps.phoneTabsUI.currentPath,
+      phoneTabPath: phoneTabsUI.currentPath,
+      showText: appFeatures.ready && appFeatures.hasReadTextPermission,
+      showNewComposeText: appFeatures.hasComposeTextPermission,
+      smsUnreadCounts: messageStore.textUnreadCounts || 0,
+      showFax: appFeatures.ready && appFeatures.hasReadFaxPermission,
+      faxUnreadCounts: messageStore.faxUnreadCounts || 0,
+      voiceUnreadCounts: messageStore.voiceUnreadCounts || 0,
     };
   }
   
