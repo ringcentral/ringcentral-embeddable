@@ -187,14 +187,29 @@ export default function App({
                   )}
                 />
                 <Route
-                  path="/messages"
-                  component={() => (
-                    <ConversationsPage
-                      showGroupNumberName
-                      showContactDisplayPlaceholder={false}
-                      onViewContact={onViewContact}
-                    />
-                  )}
+                  path="/messages(/:type)"
+                  component={(routerProps) => {
+                    if (routerProps.params.type === 'voicemail') {
+                      return (
+                        <PhoneTabsContainer>
+                          <ConversationsPage
+                            showGroupNumberName
+                            showContactDisplayPlaceholder={false}
+                            onViewContact={onViewContact}
+                            type="voiceMail"
+                          />
+                        </PhoneTabsContainer>
+                      );
+                    }
+                    return (
+                      <ConversationsPage
+                        showGroupNumberName
+                        showContactDisplayPlaceholder={false}
+                        onViewContact={onViewContact}
+                        type={routerProps.params.type}
+                      />
+                    );
+                  }}
                 />
                 <Route
                   path="/contacts"

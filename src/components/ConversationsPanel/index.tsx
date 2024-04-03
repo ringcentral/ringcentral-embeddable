@@ -11,7 +11,6 @@ import NoMessage from '@ringcentral-integration/widgets/components/Conversations
 import type { ConversationListProps } from '../ConversationList';
 import ConversationList from '../ConversationList';
 import { SearchLine } from '../SearchLine';
-import { ConversationTypeTabs } from './ConversationTypeTabs';
 
 type ConversationsPanelProps = {
   currentSiteCode?: string;
@@ -26,8 +25,8 @@ type ConversationsPanelProps = {
   phoneSourceNameRenderer?: (...args: any[]) => any;
   showComposeText?: boolean;
   goToComposeText: (...args: any[]) => any;
-  typeFilter?: string;
-  updateTypeFilter?: (...args: any[]) => any;
+  typeFilter: string;
+  updateTypeFilter: (...args: any[]) => any;
   showConversationDetail: (...args: any[]) => any;
   textUnreadCounts: number;
   voiceUnreadCounts: number;
@@ -117,11 +116,11 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     showContactDisplayPlaceholder = true,
     typeFilter = messageTypes.all,
     showGroupNumberName = false,
-    readTextPermission = true,
+    // readTextPermission = true,
     outboundSmsPermission = true,
     internalSmsPermission = true,
-    readVoicemailPermission = true,
-    readFaxPermission = true,
+    // readVoicemailPermission = true,
+    // readFaxPermission = true,
     searchInput = '',
     perPage = 20,
     disableLinks = false,
@@ -168,9 +167,9 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     externalViewEntity,
     formatPhone,
     onUnmount,
-    faxUnreadCounts,
-    textUnreadCounts,
-    voiceUnreadCounts,
+    // faxUnreadCounts,
+    // textUnreadCounts,
+    // voiceUnreadCounts,
     showLogButton = false,
     logButtonTitle = '',
   } = props;
@@ -180,6 +179,10 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    updateTypeFilter(typeFilter);
+  }, [typeFilter]);
+
   const placeholder =
     onSearchInputChange && searchInput.length > 0
       ? i18n.getString('noSearchResults', currentLocale)
@@ -187,17 +190,6 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
 
   return (
     <StyledContainer data-sign="ConversationsPanel">
-      <ConversationTypeTabs
-        onTabChange={updateTypeFilter}
-        currentTab={typeFilter}
-        currentLocale={currentLocale}
-        readVoicemailPermission={readVoicemailPermission}
-        voiceUnreadCounts={voiceUnreadCounts}
-        readFaxPermission={readFaxPermission}
-        faxUnreadCounts={faxUnreadCounts}
-        readTextPermission={readTextPermission}
-        textUnreadCounts={textUnreadCounts}
-      />
       {showSpinner ? (
         <SpinnerOverlay />
       ) : (

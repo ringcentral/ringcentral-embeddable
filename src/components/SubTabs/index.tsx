@@ -40,6 +40,10 @@ const StyledRcTabs = styled(RcTabs)`
     color: ${palette2('tab', 'selected')};
     font-weight: 700;
   }
+
+  .MuiTab-root {
+    padding: 6px 10px;
+  }
 `;
 
 function TabLabel({

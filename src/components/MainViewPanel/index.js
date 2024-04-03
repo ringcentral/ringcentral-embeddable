@@ -3,8 +3,6 @@ import React from 'react';
 import {
   Phone,
   PhoneBorder,
-  PhoneInbox,
-  PhoneInboxBorder,
   BubbleLines,
   BubbleLinesBorder,
   Contacts,
@@ -15,6 +13,10 @@ import {
   Settings,
   SettingsBorder,
   SmsInviteBorder,
+  FaxBorder,
+  Fax,
+  SmsBorder,
+  Sms,
 } from '@ringcentral/juno-icon';
 import { RcIcon } from '@ringcentral/juno';
 import { TabNavigationView } from '../TabNavigationView';
@@ -37,10 +39,9 @@ const getIconRenderer = ({ Icon }) => {
 export const MainViewPanel = (props) => {
   const {
     currentLocale,
-    showMessages,
-    unreadCounts,
+    showText,
     showMeeting,
-    showCall,
+    showPhone,
     showContacts,
     showGlip,
     glipUnreadCounts,
@@ -48,23 +49,30 @@ export const MainViewPanel = (props) => {
     settingsUnreadCount,
     showNewComposeText,
     phoneTabPath,
+    showFax,
+    faxUnreadCounts,
+    smsUnreadCounts,
+    voiceUnreadCounts,
   } = props;
   const tabList = [
-    showCall && {
+    showPhone && {
       icon: getIconRenderer({ Icon: PhoneBorder }),
       activeIcon: getIconRenderer({ Icon: Phone }),
       label: i18n.getString('phoneLabel', currentLocale),
       path: phoneTabPath,
+      noticeCounts: voiceUnreadCounts,
       isActive: (currentPath) => (
         currentPath === '/dialer' ||
         currentPath === '/history' ||
-        currentPath === '/history/recordings'
+        currentPath === '/history/recordings' ||
+        currentPath === '/messages/voicemail'
       ),
       showHeader: (currentPath) => {
         return (
           currentPath === '/history' ||
           currentPath === '/history/recordings' ||
-          currentPath === '/dialer'
+          currentPath === '/dialer' ||
+          currentPath === '/messages/voicemail'
         );
       },
       actionsInHeaderRight: [{
@@ -75,22 +83,21 @@ export const MainViewPanel = (props) => {
         },
       }]
     },
-    showMessages && {
-      icon: getIconRenderer({ Icon: PhoneInboxBorder }),
-      activeIcon: getIconRenderer({ Icon: PhoneInbox }),
-      label: i18n.getString('inboxLabel', currentLocale),
+    showText && {
+      icon: getIconRenderer({ Icon: SmsBorder }),
+      activeIcon: getIconRenderer({ Icon: Sms }),
+      label: i18n.getString('textLabel', currentLocale),
       path: '/messages',
-      noticeCounts: unreadCounts,
+      noticeCounts: smsUnreadCounts,
       isActive: (currentPath) => (
-        currentPath === '/messages' ||
-        currentPath === '/composeText' ||
-        currentPath.indexOf('/conversations/') !== -1
+        currentPath === '/messages'
       ),
       showHeader: (currentPath) => {
         return (
           currentPath === '/messages'
         );
       },
+      showHeaderBorder: true,
       actionsInHeaderRight: showNewComposeText ? [{
         icon: SmsInviteBorder,
         title: i18n.getString('composeText', currentLocale),
@@ -98,6 +105,20 @@ export const MainViewPanel = (props) => {
           props.goTo('/composeText');
         },
       }] : [],
+    },
+    showFax && {
+      icon: getIconRenderer({ Icon: FaxBorder }),
+      activeIcon: getIconRenderer({ Icon: Fax }),
+      label: i18n.getString('faxLabel', currentLocale),
+      path: '/messages/fax',
+      noticeCounts: faxUnreadCounts,
+      isActive: (currentPath) => (
+        currentPath === '/messages/fax'
+      ),
+      showHeaderBorder: true,
+      showHeader: () => {
+        return true;
+      },
     },
     showGlip && {
       icon: getIconRenderer({ Icon: BubbleLinesBorder }),

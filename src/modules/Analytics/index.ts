@@ -132,7 +132,8 @@ export class Analytics extends AnalyticsBase {
       'glip',
       'contacts',
       'log',
-      'history'
+      'history',
+      'messages',
     ];
     if (routes.length >= 3 && needMatchSecondRoutes.indexOf(routes[1]) !== -1) {
       formatRoute = `/${routes[1]}/${routes[2]}`;
