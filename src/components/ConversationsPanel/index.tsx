@@ -116,11 +116,11 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     showContactDisplayPlaceholder = true,
     typeFilter = messageTypes.all,
     showGroupNumberName = false,
-    readTextPermission = true,
+    // readTextPermission = true,
     outboundSmsPermission = true,
     internalSmsPermission = true,
-    readVoicemailPermission = true,
-    readFaxPermission = true,
+    // readVoicemailPermission = true,
+    // readFaxPermission = true,
     searchInput = '',
     perPage = 20,
     disableLinks = false,
@@ -167,9 +167,9 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     externalViewEntity,
     formatPhone,
     onUnmount,
-    faxUnreadCounts,
-    textUnreadCounts,
-    voiceUnreadCounts,
+    // faxUnreadCounts,
+    // textUnreadCounts,
+    // voiceUnreadCounts,
     showLogButton = false,
     logButtonTitle = '',
   } = props;
@@ -190,17 +190,6 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
 
   return (
     <StyledContainer data-sign="ConversationsPanel">
-      {/* <ConversationTypeTabs
-        onTabChange={updateTypeFilter}
-        currentTab={typeFilter}
-        currentLocale={currentLocale}
-        readVoicemailPermission={readVoicemailPermission}
-        voiceUnreadCounts={voiceUnreadCounts}
-        readFaxPermission={readFaxPermission}
-        faxUnreadCounts={faxUnreadCounts}
-        readTextPermission={readTextPermission}
-        textUnreadCounts={textUnreadCounts}
-      /> */}
       {showSpinner ? (
         <SpinnerOverlay />
       ) : (
