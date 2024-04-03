@@ -31,7 +31,12 @@ export function NavigationHeader({
 }) {
   return (
     <StyledHeader $bottomLine={showHeaderBorder}>
-      <StyledTitle variant="title2" color="neutral.f06" title={title}>
+      <StyledTitle
+        variant="title2"
+        color="neutral.f06"
+        title={title}
+        data-sign="navigationHeaderTitle"
+      >
         {title}
       </StyledTitle>
       {

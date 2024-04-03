@@ -37,12 +37,38 @@ conditionalDescribe('widget page test', () => {
     const noCallsText = await widgetIframe.getNoCallsText();
     const isNoCalls = noCallsText === 'No results found.';
     expect(callItems.length > 0 || isNoCalls).toEqual(true);
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Phone');
   });
 
-  it('should goto inbox page successfully', async () => {
-    await widgetIframe.clickNavigationButton('Inbox');
-    const allTabText = await widgetIframe.getMessageAllTabText();
-    expect(allTabText).toContain('All');
+  it('should goto voicemail page successfully', async () => {
+    await widgetIframe.clickSubTab('Voicemail');
+    const voicemailItems = await widgetIframe.getMessageList('VoiceMailMessageItem');
+    const noVoicemailText = await widgetIframe.getNoMessageText();
+    const isNoVoicemail = noVoicemailText === 'No Messages';
+    expect(voicemailItems.length > 0 || isNoVoicemail).toEqual(true);
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Phone');
+  });
+
+  it('should goto recordings page successfully', async () => {
+    await widgetIframe.clickSubTab('Recordings');
+    const callItems = await widgetIframe.getCallItemList();
+    const noCallsText = await widgetIframe.getNoCallsText();
+    const isNoCalls = noCallsText === 'No results found.';
+    expect(callItems.length > 0 || isNoCalls).toEqual(true);
+  });
+
+  it('should goto fax page successfully', async () => {
+    await widgetIframe.clickNavigationButton('Fax');
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Fax');
+  });
+
+  it('should goto text page successfully', async () => {
+    await widgetIframe.clickNavigationButton('Text');
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Text');
   });
 
   it('should goto Compose Text page successfully', async () => {
@@ -59,21 +85,33 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto contacts page successfully', async () => {
     await widgetIframe.clickNavigationButton('Contacts');
+    await widgetIframe.waitForTimeout(1000);
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Contacts');
     const contactSearchInput = await widgetIframe.getContactSearchInput();
     expect(!!contactSearchInput).toEqual(true);
   });
 
   it('should goto settings page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
-    const eluaText = await widgetIframe.getELUAText();
-    expect(eluaText).toEqual('End User License Agreement');
+    const eulaText = await widgetIframe.getEULAText();
+    expect(eulaText).toEqual('End User License Agreement');
   });
 
   it('should goto region setting page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
+    await widgetIframe.waitForTimeout(1000);
     await widgetIframe.clickSettingSection('Region');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Region');
+    await widgetIframe.clickBackButton();
+  });
+
+  it('should goto calling setting page successfully', async () => {
+    await widgetIframe.gotoSettingsPage();
+    await widgetIframe.clickSettingSection('Calling');
+    const headerLabel = await widgetIframe.getHeaderLabel();
+    expect(headerLabel).toEqual('Calling');
     await widgetIframe.clickBackButton();
   });
 
@@ -94,14 +132,6 @@ conditionalDescribe('widget page test', () => {
     const text = await widgetIframe.getSMSText();
     expect(recipientNumber).toEqual('+12345678902');
     expect(text).toEqual('test_sms');
-    await widgetIframe.clickBackButton();
-  });
-
-  it('should goto calling setting page successfully', async () => {
-    await widgetIframe.gotoSettingsPage();
-    await widgetIframe.clickSettingSection('Calling');
-    const headerLabel = await widgetIframe.getHeaderLabel();
-    expect(headerLabel).toEqual('Calling');
     await widgetIframe.clickBackButton();
   });
 
