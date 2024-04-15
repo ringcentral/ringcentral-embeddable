@@ -1,5 +1,5 @@
 import React from 'react';
-
+import type { FunctionComponent, ReactNode } from 'react';
 import {
   Phone,
   PhoneBorder,
@@ -23,7 +23,7 @@ import { TabNavigationView } from '../TabNavigationView';
 
 import i18n from './i18n';
 
-const getIconRenderer = ({ Icon }) => {
+function getIconRenderer({ Icon }): FunctionComponent<{ active: boolean }> {
   return ({ active }) => {
     const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
     return (
@@ -32,9 +32,27 @@ const getIconRenderer = ({ Icon }) => {
         size="medium"
         color={color}
       />
-    )
-  }
+    );
+  };
 }
+
+type Tab = {
+  icon: FunctionComponent<{ active: boolean }>,
+  activeIcon: FunctionComponent<{ active: boolean }>,
+  label: string,
+  path: string,
+  noticeCounts?: number,
+  isActive: (currentPath: string) => boolean,
+  showHeader: (currentPath: string) => boolean,
+  actionsInHeaderRight?: Array<{
+    icon: ReactNode,
+    title: string,
+    onClick: () => void,
+  }>,
+  showHeaderBorder?: boolean,
+  priority?: number,
+  childTabs?: Tab[],
+};
 
 export const MainViewPanel = (props) => {
   const {
@@ -54,13 +72,15 @@ export const MainViewPanel = (props) => {
     smsUnreadCounts,
     voiceUnreadCounts,
   } = props;
-  const tabList = [
-    showPhone && {
+  const tabList: Tab[] = [];
+  if (showPhone) {
+    tabList.push({
       icon: getIconRenderer({ Icon: PhoneBorder }),
       activeIcon: getIconRenderer({ Icon: Phone }),
       label: i18n.getString('phoneLabel', currentLocale),
       path: phoneTabPath,
       noticeCounts: voiceUnreadCounts,
+      priority: 10,
       isActive: (currentPath) => (
         currentPath === '/dialer' ||
         currentPath === '/history' ||
@@ -82,13 +102,16 @@ export const MainViewPanel = (props) => {
           props.goTo('/settings');
         },
       }]
-    },
-    showText && {
+    });
+  }
+  if (showText) {
+    tabList.push({
       icon: getIconRenderer({ Icon: SmsBorder }),
       activeIcon: getIconRenderer({ Icon: Sms }),
       label: i18n.getString('textLabel', currentLocale),
       path: '/messages',
       noticeCounts: smsUnreadCounts,
+      priority: 20,
       isActive: (currentPath) => (
         currentPath === '/messages'
       ),
@@ -105,13 +128,16 @@ export const MainViewPanel = (props) => {
           props.goTo('/composeText');
         },
       }] : [],
-    },
-    showFax && {
+    });
+  }
+  if (showFax) {
+    tabList.push({
       icon: getIconRenderer({ Icon: FaxBorder }),
       activeIcon: getIconRenderer({ Icon: Fax }),
       label: i18n.getString('faxLabel', currentLocale),
       path: '/messages/fax',
       noticeCounts: faxUnreadCounts,
+      priority: 30,
       isActive: (currentPath) => (
         currentPath === '/messages/fax'
       ),
@@ -119,13 +145,16 @@ export const MainViewPanel = (props) => {
       showHeader: () => {
         return true;
       },
-    },
-    showGlip && {
+    });
+  }
+  if (showGlip) {
+    tabList.push({
       icon: getIconRenderer({ Icon: BubbleLinesBorder }),
       activeIcon: getIconRenderer({ Icon: BubbleLines }),
       label: i18n.getString('glipLabel', currentLocale),
       path: '/glip',
       noticeCounts: glipUnreadCounts,
+      priority: 40,
       isActive: currentPath => (
         currentPath === '/glip' ||
         currentPath.indexOf('/glip/') !== -1
@@ -135,13 +164,15 @@ export const MainViewPanel = (props) => {
           currentPath === '/glip'
         );
       },
-    },
-    showContacts && {
+    });
+  }
+  if (showContacts) {
+    tabList.push({
       icon: getIconRenderer({ Icon: ContactsBorder }),
       activeIcon: getIconRenderer({ Icon: Contacts }),
-      moreMenuIcon: getIconRenderer({ Icon: MoreHoriz }),
       label: i18n.getString('contactsLabel', currentLocale),
       path: '/contacts',
+      priority: 50,
       isActive: (currentPath) => (
         currentPath.substr(0, 9) === '/contacts'
       ),
@@ -150,13 +181,15 @@ export const MainViewPanel = (props) => {
           currentPath === '/contacts'
         );
       },
-    },
-    showMeeting && {
+    });
+  }
+  if (showMeeting) {
+    tabList.push({
       icon: getIconRenderer({ Icon: VideocamBorder }),
       activeIcon: getIconRenderer({ Icon: Videocam }),
-      moreMenuIcon: getIconRenderer({ Icon: MoreHoriz }),
       label: i18n.getString('meetingLabel', currentLocale),
       path: isRCV ? '/meeting/home' : '/meeting/schedule',
+      priority: 60,
       isActive: (currentPath) => (
         currentPath.indexOf('/meeting') === 0
       ),
@@ -167,64 +200,33 @@ export const MainViewPanel = (props) => {
           currentPath === '/meeting/history/recordings'
         );
       },
+    });
+  }
+  tabList.push({
+    icon: getIconRenderer({ Icon: SettingsBorder }),
+    activeIcon: getIconRenderer({ Icon: Settings }),
+    label: i18n.getString('settingsLabel', currentLocale),
+    path: '/settings',
+    noticeCounts: settingsUnreadCount,
+    isActive: currentPath => (
+      currentPath.substr(0, 9) === '/settings'
+    ),
+    showHeader: (currentPath) => {
+      return (
+        currentPath === '/settings'
+      );
     },
-    {
-      icon: getIconRenderer({ Icon: SettingsBorder }),
-      activeIcon: getIconRenderer({ Icon: Settings }),
-      moreMenuIcon: getIconRenderer({ Icon: MoreHoriz }),
-      label: i18n.getString('settingsLabel', currentLocale),
-      path: '/settings',
-      noticeCounts: settingsUnreadCount,
-      isActive: currentPath => (
-        currentPath.substr(0, 9) === '/settings'
-      ),
-      showHeader: (currentPath) => {
-        return (
-          currentPath === '/settings'
-        );
-      },
-      showHeaderBorder: false,
-    }
-  ];
-  let tabs = tabList.filter((x) => !!x);
+    showHeaderBorder: false,
+  });
+  let tabs = tabList.sort((a, b) => {
+    return (a.priority || 100) - (b.priority || 100);
+  });
   if (tabs.length > 5) {
     const childTabs = tabs.slice(4, tabs.length);
     tabs = tabs.slice(0, 4);
     tabs.push({
-      icon: ({ currentPath, active }) => {
-        const childTab = childTabs.filter(childTab => (
-          (currentPath === childTab.path || childTab.isActive(currentPath))
-            && childTab.moreMenuIcon
-        ));
-        if (childTab.length > 0) {
-          const Icon = childTab[0].moreMenuIcon;
-          return <Icon active={active} />;
-        }
-        return (
-          <RcIcon
-            symbol={MoreHoriz}
-            size="medium"
-            color="nav.iconDefault"
-          />
-        )
-      },
-      activeIcon: ({ currentPath, active }) => {
-        const childTab = childTabs.filter(childTab => (
-          (currentPath === childTab.path || childTab.isActive(currentPath))
-            && childTab.moreMenuIcon
-        ));
-        if (childTab.length > 0) {
-          const Icon = childTab[0].moreMenuIcon;
-          return <Icon active={active} />;
-        }
-        return (
-          <RcIcon
-            symbol={MoreHoriz}
-            size="medium"
-            color="nav.iconSelected"
-          />
-        );
-      },
+      icon: getIconRenderer({ Icon: MoreHoriz }),
+      activeIcon: getIconRenderer({ Icon: MoreHoriz }),
       label: i18n.getString('moreMenuLabel', currentLocale),
       path: '!moreMenu',
       isActive: (currentPath) => {
