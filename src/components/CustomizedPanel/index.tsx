@@ -26,6 +26,7 @@ const FieldsArea = styled.div`
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
+  padding-top: 0;
 `;
 
 function allRequiredFieldsAreFilled(formData = {}, schema) {
@@ -50,6 +51,7 @@ export function CustomizedPanel({
   saveButtonLoading,
   onButtonClick,
   pageId,
+  type = 'page',
 }) {
   const [formDataState, setFormDataState] = useState({});
   const showSaveButton = !!uiSchema.submitButtonOptions;
@@ -58,6 +60,31 @@ export function CustomizedPanel({
     setFormDataState(formData);
   }, [formData]);
 
+  const panel = (
+    <Panel>
+      {infoNode}
+      <FieldsArea>
+        <CustomizedForm
+          schema={schema}
+          onFormDataChange={(newFormData) => {
+            const changedKeys = Object.keys(newFormData).filter(
+              (key) => newFormData[key] !== formDataState[key],
+            );
+            setFormDataState(newFormData);
+            onFormDataChange(pageId, newFormData, changedKeys);
+          }}
+          formData={formDataState}
+          uiSchema={uiSchema}
+          onButtonClick={onButtonClick}
+          hiddenSubmitButton={type === 'page' || !showSaveButton}
+          onSubmit={() => onSave(pageId, formDataState)}
+        />
+      </FieldsArea>
+    </Panel>
+  );
+  if (type === 'tab') {
+    return panel;
+  }
   return (
     <BackHeaderView
       onBack={onBackButtonClick}
@@ -75,24 +102,7 @@ export function CustomizedPanel({
         ) : null
       }
     >
-      <Panel>
-        {infoNode}
-        <FieldsArea>
-          <CustomizedForm
-            schema={schema}
-            onFormDataChange={(newFormData) => {
-              const changedKeys = Object.keys(newFormData).filter(
-                (key) => newFormData[key] !== formDataState[key],
-              );
-              setFormDataState(newFormData);
-              onFormDataChange(pageId, newFormData, changedKeys);
-            }}
-            formData={formDataState}
-            uiSchema={uiSchema}
-            onButtonClick={onButtonClick}
-          />
-        </FieldsArea>
-      </Panel>
+      {panel}
     </BackHeaderView>
   );
 }

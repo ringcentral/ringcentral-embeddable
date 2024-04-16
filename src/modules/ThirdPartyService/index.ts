@@ -6,6 +6,7 @@ import {
   action,
   RcModuleV2,
   state,
+  computed,
 } from '@ringcentral-integration/core';
 
 import requestWithPostMessage from '../../lib/requestWithPostMessage';
@@ -1331,5 +1332,18 @@ export default class ThirdPartyService extends RcModuleV2 {
     await requestWithPostMessage(this._additionalButtonPath, {
       button,
     });
+  }
+
+  @computed(that => [that.customizedPages])
+  get customizedTabs() {
+    return this.customizedPages.filter(x => x.type === 'tab').map(tab => ({
+      id: tab.id,
+      label: tab.title,
+      iconUri: tab.iconUri,
+      activeIconUri: tab.activeIconUri,
+      priority: tab.priority,
+      unreadCounts: tab.unreadCounts,
+      path: `/customizedTabs/${tab.id}`,
+    }));
   }
 }

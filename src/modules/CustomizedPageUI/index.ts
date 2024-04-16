@@ -29,6 +29,7 @@ export class CustomizedPageUI extends RcUIModuleV2 {
       formData: page && page.formData || [],
       submitButtonLoading: false,
       pageId: params.pageId,
+      type: page && page.type || 'page',
     };
   }
 

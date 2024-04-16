@@ -18,19 +18,37 @@ import {
   SmsBorder,
   Sms,
 } from '@ringcentral/juno-icon';
-import { RcIcon } from '@ringcentral/juno';
+import { RcIcon, styled } from '@ringcentral/juno';
 import { TabNavigationView } from '../TabNavigationView';
 
 import i18n from './i18n';
 
-function getIconRenderer({ Icon }): FunctionComponent<{ active: boolean }> {
+const ImageIcon = styled.img`
+  width: 24px;
+  height: 24px;
+`;
+
+function getIconRenderer({ Icon, iconUri, alt }: {
+  Icon?: ReactNode,
+  iconUri?: string,
+  alt?: string,
+  inMenu?: boolean,
+}): FunctionComponent<{ active: boolean }> {
   return ({ active }) => {
-    const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
+    if (Icon) {
+      const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
+      return (
+        <RcIcon
+          symbol={Icon}
+          size="medium"
+          color={color}
+        />
+      );
+    }
     return (
-      <RcIcon
-        symbol={Icon}
-        size="medium"
-        color={color}
+      <ImageIcon
+        src={iconUri}
+        alt={alt}
       />
     );
   };
@@ -71,6 +89,7 @@ export const MainViewPanel = (props) => {
     faxUnreadCounts,
     smsUnreadCounts,
     voiceUnreadCounts,
+    customizedTabs,
   } = props;
   const tabList: Tab[] = [];
   if (showPhone) {
@@ -208,6 +227,7 @@ export const MainViewPanel = (props) => {
     label: i18n.getString('settingsLabel', currentLocale),
     path: '/settings',
     noticeCounts: settingsUnreadCount,
+    priority: 70,
     isActive: currentPath => (
       currentPath.substr(0, 9) === '/settings'
     ),
@@ -218,6 +238,20 @@ export const MainViewPanel = (props) => {
     },
     showHeaderBorder: false,
   });
+  customizedTabs.forEach((customTab) => {
+    tabList.push({
+      label: customTab.label,
+      path: customTab.path,
+      noticeCounts: customTab.unreadCount,
+      isActive: (currentPath) => currentPath === customTab.path,
+      showHeader: () => true,
+      showHeaderBorder: true,
+      priority: customTab.priority,
+      icon: getIconRenderer({ iconUri: customTab.iconUri, alt: customTab.label }),
+      activeIcon: getIconRenderer({ iconUri: customTab.activeIconUri, alt: customTab.label }),
+    });
+  });
+
   let tabs = tabList.sort((a, b) => {
     return (a.priority || 100) - (b.priority || 100);
   });

@@ -31,6 +31,14 @@ const StyledBadge = styled(RcBadge)`
   top: 3px;
 `;
 
+const StyledItemIcon = styled(RcListItemIcon)`
+  img {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+  }
+`;
+
 export function MoreMenu({
   open,
   onClose,
@@ -71,14 +79,14 @@ export function MoreMenu({
                     horizontal: 'right',
                   }}
                 >
-                  <RcListItemIcon>
+                  <StyledItemIcon>
                     { active ? activeIcon : icon }
-                  </RcListItemIcon>
+                  </StyledItemIcon>
                 </StyledBadge>
               ) : (
-                <RcListItemIcon>
+                <StyledItemIcon>
                   { active ? activeIcon : icon }
-                </RcListItemIcon>
+                </StyledItemIcon>
               )}
               color={color}
               data-sign={tab.dataSign || tab.label}

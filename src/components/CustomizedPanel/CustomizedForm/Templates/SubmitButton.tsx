@@ -19,7 +19,13 @@ export default function SubmitButton<
   }
   return (
     <Box marginTop={3}>
-      <Button type='submit' variant='contained' color='primary' {...submitButtonProps}>
+      <Button
+        type='submit'
+        variant='contained'
+        color='primary'
+        fullWidth
+        {...submitButtonProps}
+      >
         {submitText}
       </Button>
     </Box>
