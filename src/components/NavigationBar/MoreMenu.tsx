@@ -9,6 +9,7 @@ import {
   RcBadge,
 } from '@ringcentral/juno';
 import { getTabInfo } from './helper';
+import { TabIcon } from './TabIcon';
 
 const StyledMoreMenuText = styled(RcListItemText)`
   .RcListItemText-primary {
@@ -45,7 +46,6 @@ export function MoreMenu({
   anchorEl,
   tabs = [],
   currentPath,
-  currentVirtualPath,
   goTo,
 }) {
   return (
@@ -56,12 +56,18 @@ export function MoreMenu({
     >
       {
         tabs.map((tab, index) => {
-          const { active, icon, activeIcon } = getTabInfo({
-            tab,
-            currentPath,
-            currentVirtualPath,
-          });
+          const active = tab.isActive?.(currentPath);
           const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
+          const tabIcon = (
+            <TabIcon
+              icon={tab.icon}
+              activeIcon={tab.activeIcon}
+              iconUri={tab.iconUri}
+              activeIconUri={tab.activeIconUri}
+              active={active}
+              alt={tab.label}
+            />
+          );
           return (
             <StyledMoreMenuItem
               key={index}
@@ -80,12 +86,12 @@ export function MoreMenu({
                   }}
                 >
                   <StyledItemIcon>
-                    { active ? activeIcon : icon }
+                    { tabIcon }
                   </StyledItemIcon>
                 </StyledBadge>
               ) : (
                 <StyledItemIcon>
-                  { active ? activeIcon : icon }
+                  { tabIcon }
                 </StyledItemIcon>
               )}
               color={color}

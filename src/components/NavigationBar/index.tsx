@@ -6,8 +6,7 @@ import { RcList } from '@ringcentral/juno';
 
 import type { TabPropTypes, NavigationBarProps } from './interface.ts';
 import { MoreMenu } from './MoreMenu';
-import { NavigationButton } from '../NavigationButton';
-import { getTabInfo } from './helper';
+import { NavigationButton } from './NavigationButton.tsx';
 
 const StyledRcList = styled(RcList)`
   display: flex;
@@ -38,10 +37,7 @@ export const NavigationBar: FunctionComponent<NavigationBarProps> = ({
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreTabRef = useRef<HTMLDivElement>(null);
   const moreTab = tabs.find((tab) => tab.path === '!moreMenu');
-  let moreTabInfo = moreTab ? getTabInfo({
-    tab: moreTab,
-    currentPath,
-  }) : null;
+  const moreTabActive = moreTab.isActive?.(currentPath)
 
   return (
     <StyledRcList
@@ -51,16 +47,15 @@ export const NavigationBar: FunctionComponent<NavigationBarProps> = ({
       {
         tabs.filter(tab => {
           return tab.path !== '!moreMenu'
-        }).map((tab, index) => {
-          const { active, icon, activeIcon } = getTabInfo({
-            tab,
-            currentPath,
-          });
+        }).map((tab) => {
+          const active = tab.isActive?.(currentPath);
           return (
             <NavigationButton
-              icon={icon}
-              activeIcon={activeIcon}
-              key={index}
+              icon={tab.icon}
+              activeIcon={tab.activeIcon}
+              iconUri={tab.iconUri}
+              activeIconUri={tab.activeIconUri}
+              key={tab.path}
               label={tab.label}
               active={active}
               onClick={() => goTo(tab)}
@@ -74,10 +69,12 @@ export const NavigationBar: FunctionComponent<NavigationBarProps> = ({
         moreTab ? (
           <>
             <NavigationButton
-              icon={moreTabInfo.icon}
-              activeIcon={moreTabInfo.activeIcon}
+              icon={moreTab.icon}
+              activeIcon={moreTab.activeIcon}
+              iconUri={moreTab.iconUri}
+              activeIconUri={moreTab.activeIconUri}
               label={moreTab.label}
-              active={moreTabInfo.active}
+              active={moreTabActive}
               innerRef={moreTabRef}
               onClick={() => {
                 setMoreMenuOpen(!moreMenuOpen);

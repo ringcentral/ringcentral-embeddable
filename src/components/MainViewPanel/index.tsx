@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FunctionComponent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import {
   Phone,
   PhoneBorder,
@@ -18,45 +18,15 @@ import {
   SmsBorder,
   Sms,
 } from '@ringcentral/juno-icon';
-import { RcIcon, styled } from '@ringcentral/juno';
 import { TabNavigationView } from '../TabNavigationView';
 
 import i18n from './i18n';
 
-const ImageIcon = styled.img`
-  width: 24px;
-  height: 24px;
-`;
-
-function getIconRenderer({ Icon, iconUri, alt }: {
-  Icon?: ReactNode,
-  iconUri?: string,
-  alt?: string,
-  inMenu?: boolean,
-}): FunctionComponent<{ active: boolean }> {
-  return ({ active }) => {
-    if (Icon) {
-      const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
-      return (
-        <RcIcon
-          symbol={Icon}
-          size="medium"
-          color={color}
-        />
-      );
-    }
-    return (
-      <ImageIcon
-        src={iconUri}
-        alt={alt}
-      />
-    );
-  };
-}
-
 type Tab = {
-  icon: FunctionComponent<{ active: boolean }>,
-  activeIcon: FunctionComponent<{ active: boolean }>,
+  icon?: ReactNode,
+  activeIcon?: ReactNode,
+  iconUri?: string,
+  activeIconUri?: string,
   label: string,
   path: string,
   noticeCounts?: number,
@@ -94,8 +64,8 @@ export const MainViewPanel = (props) => {
   const tabList: Tab[] = [];
   if (showPhone) {
     tabList.push({
-      icon: getIconRenderer({ Icon: PhoneBorder }),
-      activeIcon: getIconRenderer({ Icon: Phone }),
+      icon: PhoneBorder,
+      activeIcon: Phone,
       label: i18n.getString('phoneLabel', currentLocale),
       path: phoneTabPath,
       noticeCounts: voiceUnreadCounts,
@@ -125,8 +95,8 @@ export const MainViewPanel = (props) => {
   }
   if (showText) {
     tabList.push({
-      icon: getIconRenderer({ Icon: SmsBorder }),
-      activeIcon: getIconRenderer({ Icon: Sms }),
+      icon: SmsBorder,
+      activeIcon: Sms,
       label: i18n.getString('textLabel', currentLocale),
       path: '/messages',
       noticeCounts: smsUnreadCounts,
@@ -151,8 +121,8 @@ export const MainViewPanel = (props) => {
   }
   if (showFax) {
     tabList.push({
-      icon: getIconRenderer({ Icon: FaxBorder }),
-      activeIcon: getIconRenderer({ Icon: Fax }),
+      icon: FaxBorder,
+      activeIcon: Fax,
       label: i18n.getString('faxLabel', currentLocale),
       path: '/messages/fax',
       noticeCounts: faxUnreadCounts,
@@ -168,8 +138,8 @@ export const MainViewPanel = (props) => {
   }
   if (showGlip) {
     tabList.push({
-      icon: getIconRenderer({ Icon: BubbleLinesBorder }),
-      activeIcon: getIconRenderer({ Icon: BubbleLines }),
+      icon: BubbleLinesBorder,
+      activeIcon: BubbleLines,
       label: i18n.getString('glipLabel', currentLocale),
       path: '/glip',
       noticeCounts: glipUnreadCounts,
@@ -187,8 +157,8 @@ export const MainViewPanel = (props) => {
   }
   if (showContacts) {
     tabList.push({
-      icon: getIconRenderer({ Icon: ContactsBorder }),
-      activeIcon: getIconRenderer({ Icon: Contacts }),
+      icon: ContactsBorder,
+      activeIcon: Contacts,
       label: i18n.getString('contactsLabel', currentLocale),
       path: '/contacts',
       priority: 50,
@@ -204,8 +174,8 @@ export const MainViewPanel = (props) => {
   }
   if (showMeeting) {
     tabList.push({
-      icon: getIconRenderer({ Icon: VideocamBorder }),
-      activeIcon: getIconRenderer({ Icon: Videocam }),
+      icon: VideocamBorder,
+      activeIcon: Videocam,
       label: i18n.getString('meetingLabel', currentLocale),
       path: isRCV ? '/meeting/home' : '/meeting/schedule',
       priority: 60,
@@ -222,8 +192,8 @@ export const MainViewPanel = (props) => {
     });
   }
   tabList.push({
-    icon: getIconRenderer({ Icon: SettingsBorder }),
-    activeIcon: getIconRenderer({ Icon: Settings }),
+    icon: SettingsBorder,
+    activeIcon: Settings,
     label: i18n.getString('settingsLabel', currentLocale),
     path: '/settings',
     noticeCounts: settingsUnreadCount,
@@ -247,8 +217,8 @@ export const MainViewPanel = (props) => {
       showHeader: () => true,
       showHeaderBorder: true,
       priority: customTab.priority,
-      icon: getIconRenderer({ iconUri: customTab.iconUri, alt: customTab.label }),
-      activeIcon: getIconRenderer({ iconUri: customTab.activeIconUri, alt: customTab.label }),
+      iconUri: customTab.iconUri,
+      activeIconUri: customTab.activeIconUri,
     });
   });
 
@@ -259,8 +229,8 @@ export const MainViewPanel = (props) => {
     const childTabs = tabs.slice(4, tabs.length);
     tabs = tabs.slice(0, 4);
     tabs.push({
-      icon: getIconRenderer({ Icon: MoreHoriz }),
-      activeIcon: getIconRenderer({ Icon: MoreHoriz }),
+      icon: MoreHoriz,
+      activeIcon: MoreHoriz,
       label: i18n.getString('moreMenuLabel', currentLocale),
       path: '!moreMenu',
       isActive: (currentPath) => {
