@@ -105,7 +105,9 @@ export default function LogMessagesPanel({
   }
   return (
     <CustomizedPanel
+      type="page"
       onBackButtonClick={onBackButtonClick}
+      onButtonClick={undefined}
       title={
         customizedPage && customizedPage.title ?
             customizedPage.title :
