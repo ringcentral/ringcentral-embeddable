@@ -37,7 +37,6 @@ export const NavigationBar: FunctionComponent<NavigationBarProps> = ({
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreTabRef = useRef<HTMLDivElement>(null);
   const moreTab = tabs.find((tab) => tab.path === '!moreMenu');
-  const moreTabActive = moreTab.isActive?.(currentPath)
 
   return (
     <StyledRcList
@@ -74,7 +73,7 @@ export const NavigationBar: FunctionComponent<NavigationBarProps> = ({
               iconUri={moreTab.iconUri}
               activeIconUri={moreTab.activeIconUri}
               label={moreTab.label}
-              active={moreTabActive}
+              active={moreTab.isActive?.(currentPath)}
               innerRef={moreTabRef}
               onClick={() => {
                 setMoreMenuOpen(!moreMenuOpen);
