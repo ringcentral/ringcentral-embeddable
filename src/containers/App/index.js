@@ -295,6 +295,14 @@ export default function App({
                     )
                   }
                 />
+                <Route
+                  path="/customizedTabs/:pageId"
+                  component={routerProps => (
+                    <CustomizedPage
+                      params={routerProps.params}
+                    />
+                  )}
+                />
               </Route>
               <Route
                 path="/composeText"

@@ -1,25 +1,12 @@
-# Customized page
+# Customized page and tab
 
 <!-- md:version 2.0.0 -->
 
-The RingCentral Embeddable is a powerful tool that allows you to customize the user experience for your users. You can create a customized page to display your own content in the widget.
+RingCentral Embeddable is a powerful tool that allows you to customize the user experience for your users. You can create customized pages or tabs to display your own content in the widget.
 
-![customized page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/2a20feaf-1336-4559-a488-ed327dd49ddc)
+## Register a page
 
-Register your service:
-
-```js
-document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
-  type: 'rc-adapter-register-third-party-service',
-  service: {
-    name: 'TestService',
-    customizedPageInputChangedEventPath: '/customizedPage/inputChanged',
-    buttonEventPath: '/button-click',
-  }
-}, '*');
-```
-
-Register the page:
+Register a customized page:
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
@@ -27,7 +14,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   page: {
     id: 'page1', // page id, required
     title: 'Customized page 1',
-    // schema and uiSchema are used to customize call log page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+    type: 'page',
+    // schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
     schema: {
       type: 'object',
       required: ['contactType', 'defaultContactName'],
@@ -94,7 +82,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
       },
     },
     formData: {
-      contactType: 'Candidate',
+      contactType: 'candidate',
       defaultContactName: 'John Doe',
       defaultNote: '',
     },
@@ -102,12 +90,129 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+To update the page, you can re-register the page with new data and same page id.
+
 Navigate to the page:
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-navigate-to',
   path: '/customized/page1', // page id
+}, '*');
+```
+
+![customized page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/2a20feaf-1336-4559-a488-ed327dd49ddc)
+
+## Register a tab
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-customized-page',
+  page: {
+    id: 'tabID', // tab id, required
+    title: 'CRM',
+    type: 'tab', // tab type
+    iconUri: 'https://xxx/icon.png', // icon for tab, 24x24
+    activeIconUri: 'https://xxx/icon-active.png', // icon for tab in active status, 24x24
+    priority: 31, // tab priority, 0-100, 0 is the highest priority, Phone tab: 10, Text: 20, Fax: 30, Glip: 40, Contacts: 50, Video: 60, Settings: 70
+    // schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+    schema: {
+      type: 'object',
+      required: ['contactType', 'defaultContactName'],
+      properties: {
+        "warning": {
+          "type": "string",
+          "description": "Please authorize the CRM to use this feature."
+        },
+        "someMessage": {
+          "type": "string",
+          "description": "This is a description message"
+        },
+        "openSettingsButton": {
+          "type": "string",
+          "title": "Open CRM settings",
+        },
+        "contactType": {
+          "type": "string",
+          "title": "Default link type",
+          "oneOf": [
+            {
+              "const": "candidate",
+              "title": "Candidate"
+            },
+            {
+              "const": "contact",
+              "title": "Contact"
+            }
+          ],
+        },
+        "defaultContactName": {
+          "type": "string",
+          "title": "Default contact name",
+        },
+        "defaultNote": {
+          "type": "string",
+          "title": "Default note",
+        },
+      },
+    },
+    uiSchema: {
+      submitButtonOptions: { // optional if you don't want to show submit button
+        submitText: 'Save',
+      },
+      warning: {
+        "ui:field": "admonition",
+        "ui:severity": "warning",  // "warning", "info", "error", "success"
+      },
+      someMessage: {
+        "ui:field": "typography",
+        "ui:variant": "body1", // "caption1", "caption2", "body1", "body2", "subheading2", "subheading1", "title2", "title1"
+      },
+      openSettingsButton: {
+        "ui:field": "button",
+        "ui:variant": "contained", // "text", "outlined", "contained", "plain"
+        "ui:fullWidth": true
+      },
+      defaultContactName: {
+        "ui:placeholder": 'Enter default contact name',
+      },
+      defaultNote: {
+        "ui:placeholder": 'Enter default note',
+        "ui:widget": "textarea", // show note input as textarea
+      },
+    },
+    formData: {
+      contactType: 'candidate',
+      defaultContactName: 'John Doe',
+      defaultNote: '',
+    },
+  },
+}, '*');
+```
+
+Navigate to the tab:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-navigate-to',
+  path: '/customizedTabs/tabID', // page id
+}, '*');
+```
+
+![Customized tab](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/3dfba67e-2422-41ec-98a3-43847de6396b)
+
+## Handle button clicked and input changed event
+
+Register service first:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    customizedPageInputChangedEventPath: '/customizedPage/inputChanged',
+    buttonEventPath: '/button-click',
+  }
 }, '*');
 ```
 
@@ -139,6 +244,11 @@ window.addEventListener('message', function (e) {
         console.log('Open settings button clicked');
         // ...
       }
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
     }
   }
 });

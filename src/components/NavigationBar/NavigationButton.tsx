@@ -1,7 +1,6 @@
 import type {
-  ComponentType,
   DOMAttributes,
-  ReactElement,
+  ReactNode,
   FunctionComponent,
 } from 'react';
 
@@ -15,20 +14,15 @@ import {
   RcListItemText,
   RcBadge,
 } from '@ringcentral/juno';
-
-type NavigationButtonIconProps = {
-  currentPath?: string;
-};
-
-export type NavigationButtonIcon =
-  | ReactElement
-  | ComponentType<NavigationButtonIconProps>;
+import { TabIcon } from './TabIcon';
 
 export interface NavigationButtonProps {
-  icon: NavigationButtonIcon;
-  activeIcon: NavigationButtonIcon;
+  icon: ReactNode;
+  activeIcon: ReactNode;
+  iconUri?: string;
+  activeIconUri?: string;
   active?: boolean;
-  label: string;
+  label?: string;
   noticeCounts?: number;
   onClick: DOMAttributes<HTMLDivElement>['onClick'];
   id?: string;
@@ -98,70 +92,78 @@ const StyledListItemText = styled(RcListItemText)`
   }
 `;
 
-
-  export const NavigationButton: FunctionComponent<NavigationButtonProps> = ({
-    active,
-    activeIcon,
-    icon,
-    label,
-    noticeCounts,
-    onClick,
-    dataSign,
-    innerRef,
-  }) => {
-    const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
-    let currentIcon = active ? activeIcon : icon;
-
-    return (
-      <StyledRcListItem
-        role="tab"
-        size="medium"
-        disableGutters
-        disableTouchRipple
-        onClick={onClick}
-        selected={active}
-        aria-label={label}
-        aria-selected={active}
-        color={color}
-        innerRef={innerRef}
-        data-sign={dataSign ?? label}
-      >
-        {
-          noticeCounts && noticeCounts > 0 ? (
-            <StyledBadge
-              badgeContent={noticeCounts}
-              max={99}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-            >
-              <StyledIcon>
-                {currentIcon}
-              </StyledIcon>
-            </StyledBadge>
-          ) : (
+export const NavigationButton: FunctionComponent<NavigationButtonProps> = ({
+  active,
+  activeIcon,
+  icon,
+  iconUri,
+  activeIconUri,
+  label,
+  noticeCounts,
+  onClick,
+  dataSign,
+  innerRef,
+}) => {
+  const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
+  let currentIcon = (
+    <TabIcon
+      icon={icon}
+      activeIcon={activeIcon}
+      iconUri={iconUri}
+      activeIconUri={activeIconUri}
+      active={active}
+      alt={label}
+    />
+  );
+  return (
+    <StyledRcListItem
+      role="tab"
+      size="medium"
+      disableGutters
+      disableTouchRipple
+      onClick={onClick}
+      selected={active}
+      aria-label={label}
+      aria-selected={active}
+      color={color}
+      innerRef={innerRef}
+      data-sign={dataSign ?? label}
+    >
+      {
+        noticeCounts && noticeCounts > 0 ? (
+          <StyledBadge
+            badgeContent={noticeCounts}
+            max={99}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
             <StyledIcon>
               {currentIcon}
             </StyledIcon>
-          )
-        }
-        <StyledListItemText
-          primary={label}
-          primaryTypographyProps={{
-            variant: 'body1',
-            color,
-            align: 'center',
-          }}
-        />
-      </StyledRcListItem>
-    );
-  };
-  
-  NavigationButton.defaultProps = {
-    active: false,
-    keepStyle: false,
-  };
-  
-  export default NavigationButton;
-  
+          </StyledBadge>
+        ) : (
+          <StyledIcon>
+            {currentIcon}
+          </StyledIcon>
+        )
+      }
+      <StyledListItemText
+        primary={label}
+        primaryTypographyProps={{
+          variant: 'body1',
+          color,
+          align: 'center',
+        }}
+      />
+    </StyledRcListItem>
+  );
+};
+
+NavigationButton.defaultProps = {
+  active: false,
+  keepStyle: false,
+};
+
+export default NavigationButton;

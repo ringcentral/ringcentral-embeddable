@@ -114,7 +114,9 @@ export default function LogCallPanel({
 
   return (
     <CustomizedPanel
+      type="page"
       onBackButtonClick={onBackButtonClick}
+      onButtonClick={undefined}
       onSave={(_pageId, formData) => {
         onSave({
           call: currentCall,

@@ -15,7 +15,25 @@ export const CustomizedForm = ({
   formData,
   onFormDataChange,
   onButtonClick,
+  hiddenSubmitButton = true,
+  onSubmit,
 }) => {
+  let formUISchema = uiSchema;
+  if (hiddenSubmitButton) {
+    formUISchema = {
+      ...formUISchema,
+      'ui:submitButtonOptions': {
+        norender: true,
+      },
+    };
+  } else if (formUISchema['submitButtonOptions']) {
+    formUISchema = {
+      ...formUISchema,
+      'ui:submitButtonOptions': {
+        ...formUISchema['submitButtonOptions'],
+      },
+    };
+  }
   return (
     <Form
       schema={schema}
@@ -24,18 +42,14 @@ export const CustomizedForm = ({
       onChange={(e) => {
         onFormDataChange(e.formData);
       }}
-      uiSchema={{
-        ...uiSchema,
-        "ui:submitButtonOptions": {
-          norender: true,
-        },
-      }}
+      uiSchema={formUISchema}
       fields={fields}
       onFocus={(name, value) => {
         if (value === '$$clicked') {
           onButtonClick(name);
         }
       }}
+      onSubmit={onSubmit}
     />
   );
 }

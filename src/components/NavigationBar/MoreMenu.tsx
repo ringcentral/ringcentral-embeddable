@@ -9,6 +9,7 @@ import {
   RcBadge,
 } from '@ringcentral/juno';
 import { getTabInfo } from './helper';
+import { TabIcon } from './TabIcon';
 
 const StyledMoreMenuText = styled(RcListItemText)`
   .RcListItemText-primary {
@@ -31,13 +32,20 @@ const StyledBadge = styled(RcBadge)`
   top: 3px;
 `;
 
+const StyledItemIcon = styled(RcListItemIcon)`
+  img {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+  }
+`;
+
 export function MoreMenu({
   open,
   onClose,
   anchorEl,
   tabs = [],
   currentPath,
-  currentVirtualPath,
   goTo,
 }) {
   return (
@@ -48,12 +56,18 @@ export function MoreMenu({
     >
       {
         tabs.map((tab, index) => {
-          const { active, icon, activeIcon } = getTabInfo({
-            tab,
-            currentPath,
-            currentVirtualPath,
-          });
+          const active = tab.isActive?.(currentPath);
           const color = active ? 'nav.iconSelected' : 'nav.iconDefault';
+          const tabIcon = (
+            <TabIcon
+              icon={tab.icon}
+              activeIcon={tab.activeIcon}
+              iconUri={tab.iconUri}
+              activeIconUri={tab.activeIconUri}
+              active={active}
+              alt={tab.label}
+            />
+          );
           return (
             <StyledMoreMenuItem
               key={index}
@@ -71,14 +85,14 @@ export function MoreMenu({
                     horizontal: 'right',
                   }}
                 >
-                  <RcListItemIcon>
-                    { active ? activeIcon : icon }
-                  </RcListItemIcon>
+                  <StyledItemIcon>
+                    { tabIcon }
+                  </StyledItemIcon>
                 </StyledBadge>
               ) : (
-                <RcListItemIcon>
-                  { active ? activeIcon : icon }
-                </RcListItemIcon>
+                <StyledItemIcon>
+                  { tabIcon }
+                </StyledItemIcon>
               )}
               color={color}
               data-sign={tab.dataSign || tab.label}
