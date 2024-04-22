@@ -16,6 +16,6 @@ export default {
   hangoutsLabel: 'Start Hangouts',
   hangoutsTitle: 'Start Hangouts with Conferencing',
   settingsLabel: 'Settings',
-  glipLabel: 'Glip',
+  glipLabel: 'Message',
   composeText: 'Compose Text',
 };

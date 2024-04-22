@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import type { NavigationButtonProps } from '../NavigationButton';
+import type { NavigationButtonProps } from './NavigationButton';
 
 interface ActionInHeader {
   icon: ReactElement,
