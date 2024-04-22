@@ -59,7 +59,7 @@ export const MainViewPanel = (props) => {
     faxUnreadCounts,
     smsUnreadCounts,
     voiceUnreadCounts,
-    customizedTabs,
+    customizedTabs = [],
   } = props;
   const tabList: Tab[] = [];
   if (showPhone) {
