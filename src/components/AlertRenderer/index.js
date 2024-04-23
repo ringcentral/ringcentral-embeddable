@@ -25,6 +25,12 @@ export function getAlertRenderer() {
     if (message.message === 'showCustomAlertMessage') {
       return () => message.payload.alertMessage;
     }
+    if (message.message === 'noUnreadForOldMessages') {
+      return () => 'Sorry, app can\'t mark old messages as unread.';
+    }
+    if (message.message === 'noUnreadForOutboundMessages') {
+      return () => 'Sorry, app can\'t mark outbound messages as unread.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage
