@@ -719,20 +719,14 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
         disabled: disableLinks || disableClickToSms || !phoneNumber,
       });
     }
-    if (
-      type === messageTypes.voiceMail ||
-      (type === messageTypes.fax && direction === messageDirection.inbound)
-    ) {
-      // mark/unmark
-      actions.push({
-        id: 'mark',
-        icon: unreadCounts > 0 ? Unread : Read,
-        title: unreadCounts > 0 ? 'Mark as read' : 'Mark as unread',
-        onClick: unreadCounts > 0 ? this.onUnmarkMessage : this.onMarkMessage,
-        disabled: disableLinks,
-        sub: true,
-      });
-    }
+    actions.push({
+      id: 'mark',
+      icon: unreadCounts > 0 ? Unread : Read,
+      title: unreadCounts > 0 ? 'Mark as read' : 'Mark as unread',
+      onClick: unreadCounts > 0 ? this.onUnmarkMessage : this.onMarkMessage,
+      disabled: disableLinks,
+      sub: true,
+    });
     if (type === messageTypes.fax) {
       actions.push({
         id: 'preview',
