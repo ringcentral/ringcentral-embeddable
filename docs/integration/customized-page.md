@@ -255,3 +255,59 @@ window.addEventListener('message', function (e) {
 ```
 
 When the user clicks the button, you will receive a message with the path `/button-click`. When the user changes the input, you will receive a message with the path `/customizedPage/inputChanged`.
+
+## Show list in customized page
+
+You can show a list in the customized page:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-customized-page',
+  page: {
+    id: 'page1', // page id, required
+    title: 'Customized page 1',
+    type: 'page',
+    // schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+    schema: {
+      type: 'object',
+      required: ['contactType', 'defaultContactName'],
+      properties: {
+        "search": {
+          "type": "string",
+        },
+        "opportunity": {
+          "type": "string",
+          "oneOf": [{
+            "const": "opportunity1",
+            "title": "Opportunity 1",
+            "description": "This is a description message",
+            "meta": "4/18",
+            "icon": "https://ringcentral.github.io/juno/static/media/avatar.fe411800.jpg"
+          }, {
+            "const": "opportunity2",
+            "title": "Opportunity 2",
+            "description": "This is a description message 2",
+            "meta": "4/15",
+            "icon": "https://ringcentral.github.io/juno/static/media/avatar.fe411800.jpg"
+          }]
+        },
+      },
+    },
+    uiSchema: {
+      search: {
+        "ui:placeholder": 'Search',
+        "ui:label": false,
+      },
+      opportunity: {
+        "ui:field": "list",
+      },
+    },
+    formData: {
+      search: '',
+      opportunity: '',
+    },
+  },
+}, '*');
+```
+
+When user clicks on the list item, you will receive a message with the path `/customizedPage/inputChanged`.
