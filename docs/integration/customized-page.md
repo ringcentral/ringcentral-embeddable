@@ -255,3 +255,64 @@ window.addEventListener('message', function (e) {
 ```
 
 When the user clicks the button, you will receive a message with the path `/button-click`. When the user changes the input, you will receive a message with the path `/customizedPage/inputChanged`.
+
+## Show list in customized page
+
+![customized list](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/865e73e2-776b-4baf-87ed-fb52d965c84a)
+
+You can show a list in the customized page:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-customized-page',
+  page: {
+    id: 'tabID', // tab id, required
+    title: 'CRM',
+    type: 'tab', // tab type
+    iconUri: 'https://xxx/icon.png', // icon for tab, 24x24
+    activeIconUri: 'https://xxx/icon-active.png', // icon for tab in active status, 24x24
+    priority: 31,
+    // schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+    schema: {
+      type: 'object',
+      required: [],
+      properties: {
+        "search": {
+          "type": "string",
+        },
+        "opportunity": {
+          "type": "string",
+          "oneOf": [{
+            "const": "opportunity1",
+            "title": "Opportunity 1",
+            "description": "This is a description message",
+            "meta": "4/18",
+            "icon": "https://xxx/icon1.png"
+          }, {
+            "const": "opportunity2",
+            "title": "Opportunity 2",
+            "description": "This is a description message 2",
+            "meta": "4/15",
+            "icon": "https://xxx/icon1.png"
+          }]
+        },
+      },
+    },
+    uiSchema: {
+      search: {
+        "ui:placeholder": 'Search',
+        "ui:label": false,
+      },
+      opportunity: {
+        "ui:field": "list",
+      },
+    },
+    formData: {
+      search: '',
+      opportunity: '',
+    },
+  },
+}, '*');
+```
+
+When user clicks on the list item, you will receive a message with the path `/customizedPage/inputChanged`.
