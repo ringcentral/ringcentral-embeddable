@@ -1,5 +1,10 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { getRcmEventTpl, getRcvEventTpl } from '@ringcentral-integration/widgets/lib/MeetingCalendarHelper';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export function formatRCMInfo(meetingInfo, brand, currentLocale) {
   const { schedule, meetingType } = meetingInfo.meeting;
@@ -8,15 +13,12 @@ export function formatRCMInfo(meetingInfo, brand, currentLocale) {
   if (schedule) {
     const startTime = schedule.startTime;
     const duration = schedule.durationInMinutes;
-    timeFrom = moment.utc(startTime)
-      .format();
-    timeTo = moment.utc(startTime)
-      .add(duration, 'm')
-      .format();
+    timeFrom = dayjs.utc(startTime).format();
+    timeTo = dayjs.utc(startTime).add(duration, 'm').format();
   }
   if (meetingType === 'Recurring') {
-    timeFrom = moment.utc().format();
-    timeTo = moment.utc().add(1, 'h').format();
+    timeFrom = dayjs.utc().format();
+    timeTo = dayjs.utc().add(1, 'h').format();
   }
   return {
     topic: meetingInfo.meeting.topic,
@@ -29,8 +31,8 @@ export function formatRCMInfo(meetingInfo, brand, currentLocale) {
 
 export function formatRCVInfo(meetingInfo, brand, currentLocale) {
   const { startTime, duration } = meetingInfo.meeting;
-  const timeFrom = moment.utc(startTime).format();
-  const timeTo = moment
+  const timeFrom = dayjs.utc(startTime).format();
+  const timeTo = dayjs
     .utc(startTime)
     .add(duration, 'm')
     .format();
