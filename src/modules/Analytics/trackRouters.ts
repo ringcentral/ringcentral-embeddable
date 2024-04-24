@@ -81,4 +81,12 @@ export const trackRouters = trackRoutersBase
       eventPostfix: 'Fax',
       router: '/messages/fax',
     },
+    {
+      eventPostfix: 'Customized Page',
+      router: '/customized',
+    },
+    {
+      eventPostfix: 'Customized Tab',
+      router: '/customizedTabs',
+    }
   ]);
