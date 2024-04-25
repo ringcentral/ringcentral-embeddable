@@ -1,16 +1,12 @@
-import React, { Component } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import type { KeyboardEvent, FunctionComponent, ChangeEvent } from 'react';
 
-import classnames from 'classnames';
-import PropTypes from 'prop-types';
-
-import {
-  debounce,
-} from '@ringcentral-integration/commons/lib/debounce-throttle/debounce';
-import i18n
-  from '@ringcentral-integration/widgets/components/MessageInput/i18n';
+import i18n from '@ringcentral-integration/widgets/components/MessageInput/i18n';
 import {
   RcIconButton,
   RcTypography,
+  styled,
+  palette2,
 } from '@ringcentral/juno';
 import {
   Attachment as attachmentSvg,
@@ -19,335 +15,335 @@ import {
 } from '@ringcentral/juno-icon';
 
 import { AdditionalToolbarButton } from '../AdditionalToolbarButton';
-import styles from './styles.scss';
 
 const UIHeightOffset = 65;
 // the extra height of the entire field with paddings and borders
 
-class MessageInput extends Component {
-  static propTypes = {
-    value: PropTypes.string.isRequired,
-    currentLocale: PropTypes.string.isRequired,
-    disabled: PropTypes.bool,
-    sendButtonDisabled: PropTypes.bool,
-    minHeight: PropTypes.number,
-    maxHeight: PropTypes.number,
-    maxLength: PropTypes.number,
-    onSend: PropTypes.func,
-    onChange: PropTypes.func,
-    onHeightChange: PropTypes.func,
-    inputExpandable: PropTypes.bool,
-    supportAttachment: PropTypes.bool,
-    attachments: PropTypes.array,
-    addAttachment: PropTypes.func,
-    removeAttachment: PropTypes.func,
-    additionalToolbarButtons: PropTypes.arrayOf(PropTypes.object),
-    onClickAdditionalToolbarButton: PropTypes.func,
-  };
+const Container = styled.div`
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2px 2px 2px;
+  font-family: Helvetica;
+  border-top: 1px solid ${palette2('neutral', 'l02')};
+  box-sizing: border-box;
+  background-color: ${palette2('neutral', 'b01')};
+`;
 
-  static defaultProps = {
-    disabled: false,
-    sendButtonDisabled: false,
-    onSend: undefined,
-    onChange: undefined,
-    onHeightChange: undefined,
-    minHeight: 85,
-    maxHeight: 300,
-    maxLength: 1000,
-    inputExpandable: true,
-    supportAttachment: false,
-    attachments: [],
-    addAttachment: undefined,
-    removeAttachment: undefined,
-    additionalToolbarButtons: [],
-  };
+const Toolbar = styled.div`
+  padding: 0 15px 0 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
 
-  _fileInputRef: any;
-  _lastValueChange: any;
-  textArea: any;
+const InputTip = styled.div`
+  flex: 1;
+  text-align: right;
+`;
 
-  constructor(props: any, context: any) {
-    super(props, context);
-    this.state = {
-      value: props.value,
-      height: props.minHeight,
-    };
-    this._lastValueChange = 0;
-    this._fileInputRef = React.createRef();
+const TextFiled = styled.div`
+  padding-right: 50px;
+  box-sizing: border-box;
+  position: relative;
+  border: 1px solid ${palette2('neutral', 'l02')};
+  border-radius: 5px;
+  margin: 0 10px 10px 10px;
+  margin-top: 0;
+
+  textarea {
+    background: transparent;
+    font-size: 13px;
+    line-height: 18px;
+    width: 100%;
+    margin: 10px 0 0 10px;
+    resize: none;
+    border: none;
+    outline: medium none!important;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: ${palette2('neutral', 'f02')};
+    }
   }
+`;
 
-  // @ts-expect-error TS(4114): This member must have an 'override' modifier becau... Remove this comment to see the full error message
-  UNSAFE_componentWillReceiveProps(nextProps: any) {
-    if (
-      // @ts-expect-error TS(2339): Property 'value' does not exist on type 'Readonly<... Remove this comment to see the full error message
-      nextProps.value !== this.state.value &&
+const SendButton = styled(RcIconButton)`
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+`;
+
+const AttachmentsWrapper = styled.div`
+  display: block;
+  padding: 0 10px;
+  max-height: 250px;
+  overflow-y: auto;
+`;
+
+
+const AttachmentItem = styled.div`
+  display: inline-block;
+  color: ${palette2('neutral', 'f06')};
+  font-size: 13px;
+  border: solid 1px ${palette2('neutral', 'l03')};
+  border-radius: 4px;
+  max-width: 250px;
+  position: relative;
+  padding-right: 32px;
+  padding-left: 10px;
+  line-height: 40px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+`;
+
+const AttachmentRemoveIconWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+`;
+
+type Attachment = {
+  name: string;
+  size: number;
+  file: File;
+}
+
+type MessageInputProps = {
+  value: string;
+  currentLocale: string;
+  disabled: boolean;
+  sendButtonDisabled: boolean;
+  minHeight: number;
+  maxHeight: number;
+  maxLength: number;
+  onSend?: (value: string, attachments: any[]) => any;
+  onChange?: (value: string) => any;
+  onHeightChange?: (height: number) => any;
+  inputExpandable: boolean;
+  attachments: Attachment[],
+  addAttachment?: (attachment: Attachment) => any;
+  removeAttachment?: (attachment: Attachment) => any;
+  additionalToolbarButtons: any[];
+  onClickAdditionalToolbarButton: (id: string) => any;
+}
+
+type AttachmentsProps = {
+  attachments: Attachment[];
+  removeAttachment: (attachment: Attachment) => any;
+  disabled: boolean;
+};
+
+const AttachmentList: FunctionComponent<AttachmentsProps> = ({
+  attachments,
+  removeAttachment,
+  disabled,
+}) => {
+  return (
+    <AttachmentsWrapper>
+      {attachments.map((attachment: Attachment) => {
+        return (
+          <AttachmentItem
+            key={attachment.name}
+            title={attachment.name}
+          >
+            {attachment.name}
+            <AttachmentRemoveIconWrapper>
+              <RcIconButton
+                size="small"
+                symbol={removeSvg}
+                disabled={disabled}
+                onClick={() => {
+                  removeAttachment(attachment);
+                }}
+              />
+            </AttachmentRemoveIconWrapper>
+          </AttachmentItem>
+        );
+      })}
+    </AttachmentsWrapper>
+  );
+}
+const MessageInput: FunctionComponent<MessageInputProps> = ({
+  currentLocale,
+  value: valueProp = '',
+  disabled = false,
+  sendButtonDisabled = false,
+  onSend: onSendProp = undefined,
+  onChange = undefined,
+  onHeightChange = undefined,
+  inputExpandable = true,
+  maxLength = 1000,
+  maxHeight = 300,
+  minHeight = 85,
+  attachments = [],
+  addAttachment = undefined,
+  removeAttachment = undefined,
+  additionalToolbarButtons = [],
+  onClickAdditionalToolbarButton,
+}) => {
+  const [value, setValue] = useState('');
+  const [height, setHeight] = useState(minHeight);
+  const inputHeight = height - UIHeightOffset;
+  const fileInputRef = useRef(null);
+  const textAreaRef = useRef(null);
+  const lastValueChangeRef = useRef(0);
+  const heightRef = useRef(height);
+
+  useEffect(() => {
+    if (valueProp !== value) {
       // ignore value changes from props for 300ms after typing
       // this is to prevent unnecessary value changes when used in chrome extension
       // where value pushed back to background and back takes longer
-      Date.now() - this._lastValueChange > 400
-    ) {
-      // use setState(updater, callback) to recaculate height after value has been update to DOM
-      this.setState(
-        () => ({
-          value: nextProps.value,
-        }),
-        () => {
-          const newHeight = this.calculateNewHeight();
-          // @ts-expect-error TS(2339): Property 'height' does not exist on type 'Readonly... Remove this comment to see the full error message
-          if (newHeight !== this.state.height) {
-            // @ts-expect-error TS(2339): Property 'onHeightChange' does not exist on type '... Remove this comment to see the full error message
-            if (typeof this.props.onHeightChange === 'function') {
-              // @ts-expect-error TS(2339): Property 'onHeightChange' does not exist on type '... Remove this comment to see the full error message
-              this.props.onHeightChange(newHeight);
-            }
-            this.setState({
-              height: newHeight,
-            });
-          }
-        },
-      );
-    }
-  }
-
-  // @ts-expect-error TS(4114): This member must have an 'override' modifier becau... Remove this comment to see the full error message
-  componentDidMount() {
-    // do a initial size check in case the component is mounted with multi line value
-    const newHeight = this.calculateNewHeight();
-    // @ts-expect-error TS(2339): Property 'height' does not exist on type 'Readonly... Remove this comment to see the full error message
-    if (newHeight !== this.state.height) {
-      // @ts-expect-error TS(2339): Property 'onHeightChange' does not exist on type '... Remove this comment to see the full error message
-      if (typeof this.props.onHeightChange === 'function') {
-        // @ts-expect-error TS(2339): Property 'onHeightChange' does not exist on type '... Remove this comment to see the full error message
-        this.props.onHeightChange(newHeight);
+      const updateTimeDiff = Date.now() - lastValueChangeRef.current;
+      if (updateTimeDiff > 1000) {
+        setValue(valueProp);
       }
-      this.setState({
-        height: newHeight,
-      });
     }
-  }
+  }, [valueProp]);
 
-  calculateNewHeight() {
-    // @ts-expect-error TS(2339): Property 'inputExpandable' does not exist on type ... Remove this comment to see the full error message
-    if (!this.props.inputExpandable) {
-      // @ts-expect-error TS(2339): Property 'minHeight' does not exist on type 'Reado... Remove this comment to see the full error message
-      return this.props.minHeight;
-    }
-    // temperarily set height to 0 to check scrollHeight
-    this.textArea.style.height = 0;
-    const newHeight = this.textArea.scrollHeight + 10 + UIHeightOffset;
-    // set height back to original to avoid messing with react
-    // @ts-expect-error TS(2339): Property 'height' does not exist on type 'Readonly... Remove this comment to see the full error message
-    this.textArea.style.height = `${this.state.height - UIHeightOffset}px`;
-    // @ts-expect-error TS(2339): Property 'minHeight' does not exist on type 'Reado... Remove this comment to see the full error message
-    const { minHeight, maxHeight } = this.props;
-    if (newHeight < minHeight) {
-      return minHeight;
-    }
-    if (newHeight > maxHeight) {
-      return maxHeight;
-    }
-    return newHeight;
-  }
-
-  onChange = (e: any) => {
-    this._lastValueChange = Date.now();
-    const {
-      currentTarget: { value },
-    } = e;
-    const newHeight = this.calculateNewHeight();
-    if (
-      // @ts-expect-error TS(2339): Property 'height' does not exist on type 'Readonly... Remove this comment to see the full error message
-      newHeight !== this.state.height &&
-      // @ts-expect-error TS(2339): Property 'onHeightChange' does not exist on type '... Remove this comment to see the full error message
-      typeof this.props.onHeightChange === 'function'
-    ) {
-      // @ts-expect-error TS(2339): Property 'onHeightChange' does not exist on type '... Remove this comment to see the full error message
-      this.props.onHeightChange(newHeight);
-    }
-    this.setState({
-      value,
-      height: newHeight,
-    });
-    // ues debounce for avoiding frequent updates compose text module state
-    this.updateMessageText?.();
-  };
-
-  updateMessageText =
-    // @ts-expect-error TS(2339): Property 'onChange' does not exist on type 'Readon... Remove this comment to see the full error message
-    typeof this.props.onChange === 'function'
-      ? debounce({
-          // @ts-expect-error TS(2339): Property 'onChange' does not exist on type 'Readon... Remove this comment to see the full error message
-          fn: () => this.props.onChange(this.state.value),
-        })
-      : null;
-
-  onKeyDown = (e: any) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-
-      // TODO: this component should be refactored whole UX logic
-      // @ts-expect-error TS(2339): Property 'sendButtonDisabled' does not exist on ty... Remove this comment to see the full error message
-      if (this.props.sendButtonDisabled) return;
-
-      this.onSend();
-    }
-  };
-
-  onSend = () => {
-    this.updateMessageText?.flush();
-    // @ts-expect-error TS(2339): Property 'disabled' does not exist on type 'Readon... Remove this comment to see the full error message
-    if (!this.props.disabled && typeof this.props.onSend === 'function') {
-      // @ts-expect-error TS(2339): Property 'onSend' does not exist on type 'Readonly... Remove this comment to see the full error message
-      this.props.onSend(this.state.value, this.props.attachments);
-    }
-  };
-
-  onAttachmentIconClick = () => {
-    this._fileInputRef.current.click();
-  };
-
-  onSelectAttachment = ({ currentTarget }: any) => {
-    if (currentTarget.files.length === 0) {
+  useEffect(()  => {
+    let newHeight = minHeight;
+    if (!inputExpandable) {
       return;
     }
-    // @ts-expect-error TS(2339): Property 'addAttachment' does not exist on type 'R... Remove this comment to see the full error message
-    const { addAttachment } = this.props;
-    let file = currentTarget.files[0];
-    if (
-      (file.name.endsWith('.vcard') || file.name.endsWith('.vcf')) &&
-      file.type !== 'text/vcard'
-    ) {
-      file = new File([file], file.name, { type: 'text/vcard' });
+    // temporarily set height to 0 to check scrollHeight
+    textAreaRef.current.style.height = 0;
+    newHeight = textAreaRef.current.scrollHeight + 10 + UIHeightOffset;
+    // set height back to original to avoid messing with react
+    textAreaRef.current.style.height = `${heightRef.current - UIHeightOffset}px`;
+    if (newHeight < minHeight) {
+      newHeight = minHeight;
     }
-    addAttachment({
-      name: file.name,
-      size: file.size,
-      file,
-    });
+    if (newHeight > maxHeight) {
+      newHeight = maxHeight;
+    }
+    if (heightRef.current === newHeight) {
+      return;
+    }
+    heightRef.current = newHeight;
+    if (typeof onHeightChange === 'function') {
+      onHeightChange(newHeight);
+    }
+    setHeight(newHeight);
+  }, [value, minHeight, maxHeight, inputExpandable]);
+  
+  const onSend = () => {
+    if (!disabled && typeof onSendProp === 'function') {
+      onSendProp(value, attachments);
+    }
   };
 
-  // @ts-expect-error TS(4114): This member must have an 'override' modifier becau... Remove this comment to see the full error message
-  render() {
-    const {
-      // @ts-expect-error TS(2339): Property 'currentLocale' does not exist on type 'R... Remove this comment to see the full error message
-      currentLocale,
-      // @ts-expect-error TS(2339): Property 'disabled' does not exist on type 'Readon... Remove this comment to see the full error message
-      disabled,
-      // @ts-expect-error TS(2339): Property 'sendButtonDisabled' does not exist on ty... Remove this comment to see the full error message
-      sendButtonDisabled,
-      // @ts-expect-error TS(2339): Property 'maxLength' does not exist on type 'Reado... Remove this comment to see the full error message
-      maxLength,
-      // @ts-expect-error TS(2339): Property 'supportAttachment' does not exist on typ... Remove this comment to see the full error message
-      supportAttachment,
-      // @ts-expect-error TS(2339): Property 'attachments' does not exist on type 'Rea... Remove this comment to see the full error message
-      attachments,
-      // @ts-expect-error TS(2339): Property 'removeAttachment' does not exist on type... Remove this comment to see the full error message
-      removeAttachment,
-      additionalToolbarButtons,
-      onClickAdditionalToolbarButton,
-    } = this.props;
-    // @ts-expect-error TS(2339): Property 'value' does not exist on type 'Readonly<... Remove this comment to see the full error message
-    const { value, height } = this.state;
-    const inputHeight = height - UIHeightOffset;
-    return (
-      <div
-        className={classnames(
-          styles.root,
-          supportAttachment && styles.supportAttachment,
-        )}
-      >
-        <div className={styles.toolbar}>
-          <RcIconButton
-            variant="round"
-            size="medium"
-            symbol={attachmentSvg}
-            onClick={this.onAttachmentIconClick}
-            disabled={disabled}
-            title="Attach file"
-          />
-          <input
-            type="file"
-            accept="image/tiff,image/gif,image/jpeg,image/bmp,image/png,image/svg+xml,text/vcard,application/rtf,video/mpeg,audio/mpeg,video/mp4,application/zip"
-            style={{ display: 'none' }}
-            ref={this._fileInputRef}
-            onChange={this.onSelectAttachment}
-            disabled={disabled}
-          />
-          {
-            additionalToolbarButtons.map((button) => {
-              return (
-                <AdditionalToolbarButton
-                  key={button.id}
-                  label={button.label}
-                  icon={button.icon}
-                  onClick={() => {
-                    onClickAdditionalToolbarButton(button.id)
-                  }}
-                />
-              );
-            })
-          }
-          {
-            value && value.length > 0 && (
-              <div className={styles.inputTip}>
-                <RcTypography variant="caption1" color="neutral.f04">
-                  Press Shift + Return for new line
-                </RcTypography>
-              </div>
-            )
-          }
-        </div>
-        <div className={styles.textField}>
-          <textarea
-            data-sign="messageInput"
-            ref={(target) => {
-              this.textArea = target;
-            }}
-            placeholder={i18n.getString('typeMessage', currentLocale)}
-            value={value}
-            maxLength={maxLength}
-            onChange={this.onChange}
-            onKeyPressCapture={this.onKeyDown}
-            style={{
-              height: inputHeight,
-            }}
-            disabled={disabled}
-          />
-          <RcIconButton
-            data-sign="messageButton"
-            onClick={this.onSend}
-            className={styles.sendButton}
-            disabled={disabled || sendButtonDisabled}
-            symbol={sentSvg}
-            color="action.primary"
-          />
-        </div>
-        <div className={styles.attachments}>
-          {attachments.map((attachment: any) => {
+  return (
+    <Container>
+      <Toolbar>
+        <RcIconButton
+          variant="round"
+          size="medium"
+          symbol={attachmentSvg}
+          onClick={() => {
+            fileInputRef.current.click();
+          }}
+          disabled={disabled}
+          title="Attach file"
+        />
+        <input
+          type="file"
+          accept="image/tiff,image/gif,image/jpeg,image/bmp,image/png,image/svg+xml,text/vcard,application/rtf,video/mpeg,audio/mpeg,video/mp4,application/zip"
+          style={{ display: 'none' }}
+          ref={fileInputRef}
+          onChange={({ currentTarget }: any) => {
+            if (currentTarget.files.length === 0) {
+              return;
+            }
+            let file = currentTarget.files[0];
+            if (
+              (file.name.endsWith('.vcard') || file.name.endsWith('.vcf')) &&
+              file.type !== 'text/vcard'
+            ) {
+              file = new File([file], file.name, { type: 'text/vcard' });
+            }
+            addAttachment({
+              name: file.name,
+              size: file.size,
+              file,
+            });
+          }}
+          disabled={disabled}
+        />
+        {
+          additionalToolbarButtons.map((button) => {
             return (
-              <div
-                className={styles.attachmentItem}
-                key={attachment.name}
-                title={attachment.name}
-              >
-                {attachment.name}
-                <div className={styles.attachmentRemoveIcon}>
-                  <RcIconButton
-                    size="small"
-                    symbol={removeSvg}
-                    disabled={disabled}
-                    onClick={() => {
-                      removeAttachment(attachment);
-                    }}
-                  />
-                </div>
-              </div>
+              <AdditionalToolbarButton
+                key={button.id}
+                label={button.label}
+                icon={button.icon}
+                onClick={() => {
+                  onClickAdditionalToolbarButton(button.id)
+                }}
+              />
             );
-          })}
-        </div>
-      </div>
-    );
-  }
+          })
+        }
+        {
+          value && value.length > 0 && (
+            <InputTip>
+              <RcTypography variant="caption1" color="neutral.f04">
+                Press Shift + Return for new line
+              </RcTypography>
+            </InputTip>
+          )
+        }
+      </Toolbar>
+      <TextFiled>
+        <textarea
+          data-sign="messageInput"
+          ref={textAreaRef}
+          placeholder={i18n.getString('typeMessage', currentLocale)}
+          value={value}
+          maxLength={maxLength}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
+            lastValueChangeRef.current = Date.now();
+            const {
+              currentTarget: { value },
+            } = e;
+            setValue(value);
+            if (typeof onChange === 'function') {
+              // TODO: use debounce for avoiding frequent updates compose text module state
+              onChange(value);
+            }
+          }}
+          onKeyPressCapture={(e: KeyboardEvent<HTMLTextAreaElement>) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+        
+              // TODO: this component should be refactored whole UX logic
+              if (sendButtonDisabled) return;
+        
+              onSend();
+            }
+          }}
+          style={{
+            height: inputHeight,
+          }}
+          disabled={disabled}
+        />
+        <SendButton
+          data-sign="messageButton"
+          onClick={onSend}
+          disabled={disabled || sendButtonDisabled}
+          symbol={sentSvg}
+          color="action.primary"
+        />
+      </TextFiled>
+      <AttachmentList
+        attachments={attachments}
+        removeAttachment={removeAttachment}
+        disabled={disabled}
+      />
+    </Container>
+  );
 }
 
 export default MessageInput;
