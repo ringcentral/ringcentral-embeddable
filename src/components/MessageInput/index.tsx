@@ -9,12 +9,15 @@ import {
   palette2,
 } from '@ringcentral/juno';
 import {
+  Sms,
   Attachment as attachmentSvg,
   Close as removeSvg,
   SendFilled as sentSvg,
+  SmsTemplate as templateSvg
 } from '@ringcentral/juno-icon';
 
 import { AdditionalToolbarButton } from '../AdditionalToolbarButton';
+import { SmsTemplateDialog } from '../SmsTemplateDialog';
 
 const UIHeightOffset = 65;
 // the extra height of the entire field with paddings and borders
@@ -104,7 +107,7 @@ const AttachmentRemoveIconWrapper = styled.div`
   right: 0;
 `;
 
-type Attachment = {
+export type Attachment = {
   name: string;
   size: number;
   file: File;
@@ -127,6 +130,8 @@ type MessageInputProps = {
   removeAttachment?: (attachment: Attachment) => any;
   additionalToolbarButtons: any[];
   onClickAdditionalToolbarButton: (id: string) => any;
+  showTemplate?: boolean;
+  templates?: any[];
 }
 
 type AttachmentsProps = {
@@ -182,9 +187,12 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
   removeAttachment = undefined,
   additionalToolbarButtons = [],
   onClickAdditionalToolbarButton,
+  showTemplate = false,
+  templates = [],
 }) => {
   const [value, setValue] = useState('');
   const [height, setHeight] = useState(minHeight);
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const inputHeight = height - UIHeightOffset;
   const fileInputRef = useRef(null);
   const textAreaRef = useRef(null);
@@ -248,6 +256,20 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
           disabled={disabled}
           title="Attach file"
         />
+        {
+          showTemplate && (
+            <RcIconButton
+              variant="round"
+              size="medium"
+              symbol={templateSvg}
+              disabled={disabled}
+              title="Use template"
+              onClick={() => {
+                setTemplateDialogOpen(true);
+              }}
+            />
+          )
+        }
         <input
           type="file"
           accept="image/tiff,image/gif,image/jpeg,image/bmp,image/png,image/svg+xml,text/vcard,application/rtf,video/mpeg,audio/mpeg,video/mp4,application/zip"
@@ -341,6 +363,22 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
         attachments={attachments}
         removeAttachment={removeAttachment}
         disabled={disabled}
+      />
+      <SmsTemplateDialog
+        open={templateDialogOpen}
+        onClose={() => {
+          setTemplateDialogOpen(false);
+        }}
+        templates={templates}
+        onApply={(text) => {
+          lastValueChangeRef.current = Date.now();
+          setValue(text);
+          setTemplateDialogOpen(false);
+          if (typeof onChange === 'function') {
+            // TODO: use debounce for avoiding frequent updates compose text module state
+            onChange(text);
+          }
+        }}
       />
     </Container>
   );

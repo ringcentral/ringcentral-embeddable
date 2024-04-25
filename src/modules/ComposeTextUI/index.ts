@@ -8,6 +8,7 @@ import {
   deps: [
     'ThirdPartyService',
     'RouterInteraction',
+    'SmsTemplates',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -15,10 +16,14 @@ export class ComposeTextUI extends ComposeTextUIBase {
     const baseProps = super.getUIProps(props);
     const {
       thirdPartyService,
+      appFeatures,
+      smsTemplates,
     } = this._deps;
     return {
       ...baseProps,
       additionalToolbarButtons: thirdPartyService.additionalSMSToolbarButtons,
+      showTemplate: appFeatures.showSmsTemplate,
+      templates: smsTemplates.templates,
     };
   }
 
