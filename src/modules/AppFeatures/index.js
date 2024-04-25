@@ -70,4 +70,36 @@ export class AppFeatures extends AppFeaturesBase {
   get showNoiseReductionSetting() {
     return !!this.config.NoiseReduction;
   }
+
+  get showSmsTemplate() {
+    return (
+      this.appScopes.indexOf('ReadAccounts') > -1 ||
+      this.appScopes.indexOf('EditAccounts') > -1
+    ) && (
+      this.hasCompanySmsTemplateReadPermission ||
+      this.hasPersonalSmsTemplatePermission
+    );
+  }
+
+  get showSmsTemplateManage() {
+    return (
+      this.appScopes.indexOf('EditAccounts') > -1 &&
+      (
+        this.hasCompanySmsTemplateManagePermission ||
+        this.hasPersonalSmsTemplatePermission
+      )
+    );
+  }
+
+  get hasCompanySmsTemplateReadPermission() {
+    return this._deps.extensionFeatures.features?.ReadCompanySmsTemplates?.available ?? false;
+  }
+
+  get hasCompanySmsTemplateManagePermission() {
+    return this._deps.extensionFeatures.features?.EditCompanySmsTemplates?.available ?? false;
+  }
+
+  get hasPersonalSmsTemplatePermission() {
+    return this._deps.extensionFeatures.features?.SMSSending?.available ?? false;
+  }
 }
