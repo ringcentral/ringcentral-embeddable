@@ -132,6 +132,10 @@ type MessageInputProps = {
   onClickAdditionalToolbarButton: (id: string) => any;
   showTemplate?: boolean;
   templates?: any[];
+  showTemplateManagement?: boolean;
+  loadTemplates?: () => Promise<any>;
+  deleteTemplate?: (templateId: string) => Promise<any>;
+  createOrUpdateTemplate?: (template: any) => Promise<any>;
 }
 
 type AttachmentsProps = {
@@ -189,6 +193,10 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
   onClickAdditionalToolbarButton,
   showTemplate = false,
   templates = [],
+  showTemplateManagement = false,
+  loadTemplates = undefined,
+  deleteTemplate = undefined,
+  createOrUpdateTemplate = undefined,
 }) => {
   const [value, setValue] = useState('');
   const [height, setHeight] = useState(minHeight);
@@ -379,6 +387,10 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
             onChange(text);
           }
         }}
+        showTemplateManagement={showTemplateManagement}
+        loadTemplates={loadTemplates}
+        deleteTemplate={deleteTemplate}
+        createOrUpdateTemplate={createOrUpdateTemplate}
       />
     </Container>
   );

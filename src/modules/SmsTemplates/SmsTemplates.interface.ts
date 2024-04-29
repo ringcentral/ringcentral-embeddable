@@ -19,7 +19,7 @@ export interface Deps extends DataFetcherV2ConsumerBaseDeps {
 }
 
 export interface SmsTemplateRecord {
-  id: string;
+  id?: string;
   displayName: string;
   body: {
     text: string;

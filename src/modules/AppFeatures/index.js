@@ -75,31 +75,17 @@ export class AppFeatures extends AppFeaturesBase {
     return (
       this.appScopes.indexOf('ReadAccounts') > -1 ||
       this.appScopes.indexOf('EditAccounts') > -1
-    ) && (
-      this.hasCompanySmsTemplateReadPermission ||
-      this.hasPersonalSmsTemplatePermission
-    );
+    ) && this.hasSMSSendingFeature;
   }
 
   get showSmsTemplateManage() {
     return (
       this.appScopes.indexOf('EditAccounts') > -1 &&
-      (
-        this.hasCompanySmsTemplateManagePermission ||
-        this.hasPersonalSmsTemplatePermission
-      )
+      this.hasSMSSendingFeature
     );
   }
 
-  get hasCompanySmsTemplateReadPermission() {
-    return this._deps.extensionFeatures.features?.ReadCompanySmsTemplates?.available ?? false;
-  }
-
-  get hasCompanySmsTemplateManagePermission() {
-    return this._deps.extensionFeatures.features?.EditCompanySmsTemplates?.available ?? false;
-  }
-
-  get hasPersonalSmsTemplatePermission() {
+  get hasSMSSendingFeature() {
     return this._deps.extensionFeatures.features?.SMSSending?.available ?? false;
   }
 }

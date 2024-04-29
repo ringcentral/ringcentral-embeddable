@@ -5,7 +5,10 @@ import {
 
 @Module({
   name: 'ConversationUI',
-  deps: ['ThirdPartyService'],
+  deps: [
+    'ThirdPartyService',
+    'SmsTemplates',
+  ],
 })
 export class ConversationUI extends BaseConversationUI {
   getUIProps(props) {
@@ -13,12 +16,17 @@ export class ConversationUI extends BaseConversationUI {
     const {
       thirdPartyService,
       conversationLogger,
+      appFeatures,
+      smsTemplates,
     } = this._deps;
     return {
       ...baseProps,
       showLogButton: conversationLogger.loggerSourceReady,
       logButtonTitle: conversationLogger.logButtonTitle,
       additionalToolbarButtons: thirdPartyService.additionalSMSToolbarButtons,
+      showTemplate: appFeatures.showSmsTemplate,
+      templates: smsTemplates.templates,
+      showTemplateManagement: appFeatures.showSmsTemplateManage,
     };
   }
 
@@ -28,6 +36,7 @@ export class ConversationUI extends BaseConversationUI {
     const {
       conversationLogger,
       thirdPartyService,
+      smsTemplates,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
@@ -40,6 +49,15 @@ export class ConversationUI extends BaseConversationUI {
       },
       onClickAdditionalToolbarButton: (buttonId) => {
         thirdPartyService.onClickAdditionalButton(buttonId);
+      },
+      loadTemplates: () => {
+        return smsTemplates.sync();
+      },
+      deleteTemplate: (templateId) => {
+        return smsTemplates.deleteTemplate(templateId);
+      },
+      createOrUpdateTemplate: (template) => {
+        return smsTemplates.createOrUpdateTemplate(template);
       },
     }
   }

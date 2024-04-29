@@ -12,6 +12,7 @@ import { Deps, SmsTemplateRecord } from './SmsTemplates.interface';
     'DataFetcherV2',
     'ExtensionFeatures',
     'AppFeatures',
+    'Alert',
     { dep: 'CallerIdOptions', optional: true }
   ],
 })
@@ -33,22 +34,11 @@ export class SmsTemplates extends DataFetcherV2Consumer<
       permissionCheckFunction: () =>
         this._hasPermission,
       fetchFunction: async (): Promise<SmsTemplateRecord[]> => {
-        let records = [];
-        if (this._deps.appFeatures.hasCompanySmsTemplateReadPermission) {
-          const companyResponse = await this._deps.client.service
-            .platform()
-            .get('/restapi/v1.0/account/~/message-store-templates');
-          const companyResult = await companyResponse.json();
-          records = companyResult.records;
-        }
-        if (this._deps.appFeatures.hasPersonalSmsTemplatePermission) {
-          const personalResponse = await this._deps.client.service
-            .platform()
-            .get('/restapi/v1.0/account/~/extension/~/message-store-templates');
-          const personalResult = await personalResponse.json();
-          records = records.concat(personalResult.records);
-        }
-        return records;
+        const personalResponse = await this._deps.client.service
+          .platform()
+          .get('/restapi/v1.0/account/~/extension/~/message-store-templates');
+        const personalResult = await personalResponse.json();
+        return (personalResult.records || []).toReversed();
       },
     });
     this._deps.dataFetcherV2.register(this._source);
@@ -68,5 +58,57 @@ export class SmsTemplates extends DataFetcherV2Consumer<
       return;
     }
     await this._deps.dataFetcherV2.fetchData(this._source);
+  }
+
+  async deleteTemplate(templateId: string) {
+    try {
+      await this._deps.client.service
+        .platform()
+        .delete(`/restapi/v1.0/account/~/extension/~/message-store-templates/${templateId}`);
+      this._deps.dataFetcherV2.updateData(
+        this._source,
+        this.data.filter((template) => template.id !== templateId),
+        Date.now(),
+      );
+    } catch (e) {
+      console.error(e);
+      this._deps.alert.danger({
+        message: 'deleteSmsTemplateError',
+      });
+    }
+  }
+
+  async createOrUpdateTemplate(template: SmsTemplateRecord) {
+    const isSave = !!template.id;
+    try {
+      const response = await this._deps.client.service
+        .platform()
+        .send({
+          method: isSave ? 'PUT' : 'POST',
+          url: isSave
+            ? `/restapi/v1.0/account/~/extension/~/message-store-templates/${template.id}`
+            : '/restapi/v1.0/account/~/extension/~/message-store-templates',
+          body: {
+            displayName: template.displayName,
+            body: {
+              text: template.body.text,
+            },
+          },
+        });
+      const result = await response.json();
+      const newData = isSave ?
+        this.data.map((t) => (t.id === result.id ? result : t)) :
+        [result].concat(this.templates);
+      this._deps.dataFetcherV2.updateData(
+        this._source,
+        newData,
+        Date.now(),
+      );
+    } catch (e) {
+      console.error(e);
+      this._deps.alert.danger({
+        message: 'saveSmsTemplateError',
+      });
+    }
   }
 }

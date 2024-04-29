@@ -6,6 +6,8 @@ import {
   RcListItem,
   RcListItemText,
   RcListItemIcon,
+  RcListItemSecondaryAction,
+  RcChip,
   styled,
 } from '@ringcentral/juno';
 
@@ -79,14 +81,46 @@ const StyledActionMenu = styled(ActionMenu)`
   }
 `;
 
+const TypeLabel = styled(RcChip)`
+  font-size: 0.75rem;
+  padding: 0;
+  height: 22px;
+  top: 6px;
+`;
+
 export function TemplateItem({
   template,
   onApply,
   onEdit,
+  onDelete,
+  showTemplateManagement,
 }) {
   const [extended, setExtended] = useState(false);
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
 
+  const showEdit = showTemplateManagement && template.scope === 'Personal';
+  const actions = [{
+    icon: Copy,
+    title: 'Copy',
+    disabled: false,
+    onClick: () => {
+      handleCopy(template.body.text);
+    },
+  }];
+  if (showEdit) {
+    actions.push({
+      icon: Edit,
+      title: 'Edit',
+      disabled: false,
+      onClick: onEdit,
+    });
+    actions.push({
+      icon: Delete,
+      title: 'Delete',
+      disabled: false,
+      onClick: onDelete,
+    });
+  }
   return (
     <StyledListItem
       $hoverOnMoreMenu={hoverOnMoreMenu}
@@ -105,6 +139,13 @@ export function TemplateItem({
         $extended={extended}
         onClick={() => setExtended(!extended)}
       />
+      {
+        template.scope === 'Company' && (
+          <RcListItemSecondaryAction>
+            <TypeLabel label="Company" />
+          </RcListItemSecondaryAction>
+        )
+      }
       <div className="sms-template-btn-group">
         <RcButton
           size="small"
@@ -122,26 +163,7 @@ export function TemplateItem({
           onMoreMenuOpen={(open) => {
             setHoverOnMoreMenu(open);
           }}
-          actions={[{
-            icon: Copy,
-            title: 'Copy',
-            disabled: false,
-            onClick: () => {
-              handleCopy(template.body.text);
-            },
-          }, {
-            icon: Edit,
-            title: 'Edit',
-            disabled: false,
-            onClick: onEdit,
-          }, {
-            icon: Delete,
-            title: 'Delete',
-            disabled: false,
-            onClick: () => {
-              console.log('Delete');
-            },
-          }]}
+          actions={actions}
         />
       </div>
     </StyledListItem>

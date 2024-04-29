@@ -73,6 +73,10 @@ export interface ComposeTextPanelProps {
   goBack: (...args: any[]) => any;
   showTemplate?: boolean;
   templates?: any[];
+  showTemplateManagement?: boolean;
+  loadTemplates?: () => Promise<any>;
+  deleteTemplate?: (templateId: string) => Promise<any>;
+  createOrUpdateTemplate?: (template: any) => Promise<any>;
 }
 
 type ComposeTextPanelState = {
@@ -195,6 +199,10 @@ class ComposeTextPanel extends Component<
       goBack,
       showTemplate,
       templates,
+      showTemplateManagement,
+      loadTemplates,
+      deleteTemplate,
+      createOrUpdateTemplate,
     } = this.props;
     const filteredSearchContactList =
       useRecipientsInputV2 && typingToNumber.length >= 3
@@ -282,6 +290,10 @@ class ComposeTextPanel extends Component<
           onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
           showTemplate={showTemplate}
           templates={templates}
+          showTemplateManagement={showTemplateManagement}
+          loadTemplates={loadTemplates}
+          deleteTemplate={deleteTemplate}
+          createOrUpdateTemplate={createOrUpdateTemplate}
         />
       </div>
     );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   RcTypography,
   RcDialog,
@@ -8,6 +8,7 @@ import {
   RcList,
   styled,
   palette2,
+  RcLoading,
 } from '@ringcentral/juno';
 
 import {
@@ -17,6 +18,7 @@ import {
 
 import { TemplateItem } from './TemplateItem';
 import { EditDialog } from './EditDialog';
+import { ConfirmDialog } from '../ConfirmDialog';
 
 const StyledHeader = styled(RcDialogTitle)`
   padding: 0 30px;
@@ -48,6 +50,10 @@ export function SmsTemplateDialog({
   onClose,
   templates,
   onApply,
+  showTemplateManagement,
+  loadTemplates,
+  deleteTemplate,
+  createOrUpdateTemplate,
 }) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState({
@@ -56,6 +62,18 @@ export function SmsTemplateDialog({
       text: '',
     },
   });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingTemplate, setDeletingTemplate] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      loadTemplates ? loadTemplates() : null;
+    }
+  }, [open]);
+
+  const personalTemplates = templates.filter((template) => template.scope === 'Personal');
+
   return (
     <RcDialog
       open={open}
@@ -74,45 +92,73 @@ export function SmsTemplateDialog({
         onClick={onClose}
         data-sign="backButton"
       />
-      <AddButton
-        symbol={NewAction}
-        data-sign="addButton"
-        title="New template"
-        onClick={() => {
-          setEditingTemplate({
-            displayName: '',
-            body: {
-              text: '',
-            },
-          });
-          setEditDialogOpen(true);
-        }}
-      />
+      {
+        showTemplateManagement && personalTemplates.length < 25 && (
+          <AddButton
+            symbol={NewAction}
+            data-sign="addButton"
+            title="New template"
+            onClick={() => {
+              setEditingTemplate({
+                displayName: '',
+                body: {
+                  text: '',
+                },
+              });
+              setEditDialogOpen(true);
+            }}
+          />
+        )
+      }
       <StyledDialogContent>
-        <RcList>
-          {
-            templates.map((template) => (
-              <TemplateItem
-                key={template.id}
-                template={template}
-                onApply={onApply}
-                onEdit={() => {
-                  setEditingTemplate(template);
-                  setEditDialogOpen(true);
-                }}
-              />
-            ))
-          }
-        </RcList>
+        <RcLoading loading={loading}>
+          <RcList>
+            {
+              templates.map((template) => (
+                <TemplateItem
+                  key={template.id}
+                  template={template}
+                  onApply={onApply}
+                  onEdit={() => {
+                    setEditingTemplate(template);
+                    setEditDialogOpen(true);
+                  }}
+                  showTemplateManagement={showTemplateManagement}
+                  onDelete={() => {
+                    setDeletingTemplate(template);
+                    setDeleteDialogOpen(true);
+                  }}
+                />
+              ))
+            }
+          </RcList>
+        </RcLoading>
       </StyledDialogContent>
       <EditDialog
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
-        onSave={() => {
+        onSave={async () => {
           setEditDialogOpen(false);
+          setLoading(true);
+          await createOrUpdateTemplate(editingTemplate);
+          setLoading(false);
         }}
         editingTemplate={editingTemplate}
         onChange={setEditingTemplate}
+      />
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={async () => {
+          setDeleteDialogOpen(false);
+          setLoading(true);
+          await deleteTemplate(deletingTemplate.id);
+          setDeletingTemplate(null);
+          setLoading(false);
+        }}
+        title="Are you sure you want to delete this template?"
+        confirmButtonColor="danger.b04"
+        confirmText='Delete'
       />
     </RcDialog>
   );

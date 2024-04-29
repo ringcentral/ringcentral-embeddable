@@ -60,6 +60,9 @@ export function EditDialog({
           minRows={3}
           maxRows={10}
           placeholder="Enter template text"
+          inputProps={{
+            maxLength: 1000,
+          }}
         />
       </RcDialogContent>
       <RcDialogActions>

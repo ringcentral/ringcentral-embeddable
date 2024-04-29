@@ -31,6 +31,12 @@ export function getAlertRenderer() {
     if (message.message === 'noUnreadForOutboundMessages') {
       return () => 'Sorry, app can\'t mark outbound messages as unread.';
     }
+    if (message.message === 'deleteSmsTemplateError') {
+      return () => 'Sorry, template deletion failed. Please try again later.';
+    }
+    if (message.message === 'saveSmsTemplateError') {
+      return () => 'Sorry, template saving failed. Please try again later.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage
