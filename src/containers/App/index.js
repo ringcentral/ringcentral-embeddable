@@ -9,7 +9,7 @@ import {
 
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
-import AlertContainer from '@ringcentral-integration/widgets/containers/AlertContainer';
+import { NotificationContainer } from '@ringcentral-integration/widgets/containers/NotificationContainer';
 import AudioSettingsPage from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
 // import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
@@ -120,7 +120,7 @@ export default function App({
                   <ConnectivityBadgeContainer />
                   <MeetingInviteModal />
                   <ModalContainer />
-                  <AlertContainer
+                  <NotificationContainer
                     getAdditionalRenderer={getAlertRenderer}
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
