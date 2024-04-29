@@ -8,6 +8,7 @@ import {
   deps: [
     'ThirdPartyService',
     'RouterInteraction',
+    'SmsTemplates',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -15,10 +16,15 @@ export class ComposeTextUI extends ComposeTextUIBase {
     const baseProps = super.getUIProps(props);
     const {
       thirdPartyService,
+      appFeatures,
+      smsTemplates,
     } = this._deps;
     return {
       ...baseProps,
       additionalToolbarButtons: thirdPartyService.additionalSMSToolbarButtons,
+      showTemplate: appFeatures.showSmsTemplate,
+      templates: smsTemplates.templates,
+      showTemplateManagement: appFeatures.showSmsTemplateManage,
     };
   }
 
@@ -26,6 +32,8 @@ export class ComposeTextUI extends ComposeTextUIBase {
     const baseFuncs = super.getUIFunctions(props);
     const {
       thirdPartyService,
+      smsTemplates,
+      routerInteraction,
     } = this._deps;
     return {
       ...baseFuncs,
@@ -33,7 +41,16 @@ export class ComposeTextUI extends ComposeTextUIBase {
         thirdPartyService.onClickAdditionalButton(buttonId);
       },
       goBack: () => {
-        this._deps.routerInteraction.goBack();
+        routerInteraction.goBack();
+      },
+      loadTemplates: () => {
+        return smsTemplates.sync();
+      },
+      deleteTemplate: (templateId) => {
+        return smsTemplates.deleteTemplate(templateId);
+      },
+      createOrUpdateTemplate: (template) => {
+        return smsTemplates.createOrUpdateTemplate(template);
       },
     };
   }

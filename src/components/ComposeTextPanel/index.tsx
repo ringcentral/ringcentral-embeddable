@@ -21,7 +21,7 @@ import { RcTypography, styled } from '@ringcentral/juno';
 import i18n from '@ringcentral-integration/widgets/components/ConversationsPanel/i18n';
 import { BackHeader } from '../BackHeader';
 import MessageInput from '../MessageInput'; // TODO: temporary solution, wait for new component ready
-
+import type { Attachment } from '../MessageInput';
 const Title = styled(RcTypography)`
   line-height: 40px;
 `;
@@ -64,16 +64,19 @@ export interface ComposeTextPanelProps {
   autoFocus?: boolean;
   inputExpandable?: boolean;
   supportAttachment?: boolean;
-  attachments?: {
-    name: string;
-    size: number;
-  }[];
+  attachments?: Attachment[];
   addAttachment?: (...args: any[]) => any;
   removeAttachment?: (...args: any[]) => any;
   useRecipientsInputV2?: boolean;
   additionalToolbarButtons: any[];
   onClickAdditionalToolbarButton: (...args: any[]) => any;
   goBack: (...args: any[]) => any;
+  showTemplate?: boolean;
+  templates?: any[];
+  showTemplateManagement?: boolean;
+  loadTemplates?: () => Promise<any>;
+  deleteTemplate?: (templateId: string) => Promise<any>;
+  createOrUpdateTemplate?: (template: any) => Promise<any>;
 }
 
 type ComposeTextPanelState = {
@@ -194,6 +197,12 @@ class ComposeTextPanel extends Component<
       additionalToolbarButtons,
       onClickAdditionalToolbarButton,
       goBack,
+      showTemplate,
+      templates,
+      showTemplateManagement,
+      loadTemplates,
+      deleteTemplate,
+      createOrUpdateTemplate,
     } = this.props;
     const filteredSearchContactList =
       useRecipientsInputV2 && typingToNumber.length >= 3
@@ -275,11 +284,16 @@ class ComposeTextPanel extends Component<
           onSend={send}
           inputExpandable={inputExpandable}
           attachments={attachments}
-          supportAttachment={supportAttachment}
           addAttachment={addAttachment}
           removeAttachment={removeAttachment}
           additionalToolbarButtons={additionalToolbarButtons}
           onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
+          showTemplate={showTemplate}
+          templates={templates}
+          showTemplateManagement={showTemplateManagement}
+          loadTemplates={loadTemplates}
+          deleteTemplate={deleteTemplate}
+          createOrUpdateTemplate={createOrUpdateTemplate}
         />
       </div>
     );

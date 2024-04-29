@@ -238,6 +238,7 @@ import { LogMessagesUI } from '../LogMessagesUI';
 import { Webphone } from '../Webphone';
 import { MainViewUI } from '../MainViewUI';
 import { CustomizedPageUI } from '../CustomizedPageUI';
+import { SmsTemplates } from '../SmsTemplates';
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
@@ -309,6 +310,7 @@ import { CustomizedPageUI } from '../CustomizedPageUI';
     { provide: 'ContactSearch', useClass: ContactSearch },
     { provide: 'MessageStore', useClass: MessageStore },
     { provide: 'Conversations', useClass: Conversations },
+    { provide: 'SmsTemplates', useClass: SmsTemplates },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'CallQueues', useClass: CallQueues },
@@ -763,6 +765,7 @@ export function createPhone({
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
   isUsingDefaultClientId,
+  enableSMSTemplate,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -885,6 +888,7 @@ export function createPhone({
           CDC: true, // CompanyDirectoryControl,
           SignUpButton: showSignUpButton,
           NoiseReduction: !disableNoiseReduction,
+          SMSTemplate: !!enableSMSTemplate,
         },
       },
       {

@@ -13,6 +13,7 @@ import {
 import { RcAlert, RcIconButton, styled } from '@ringcentral/juno';
 import { AddTextLog } from '@ringcentral/juno-icon';
 import MessageInput from '../MessageInput';
+import type { Attachment } from '../MessageInput';
 import { BackHeader } from '../BackHeader';
 
 const LogButton = styled(RcIconButton)`
@@ -25,11 +26,6 @@ export type Recipient = {
   phoneNumber: string;
   extensionNumber?: string;
   name?: string;
-};
-
-export type Attachment = {
-  name: string;
-  size: number;
 };
 
 export type ConversationProps = {
@@ -99,6 +95,12 @@ export type ConversationProps = {
   additionalToolbarButtons: any[];
   onClickAdditionalToolbarButton: (...args: any[]) => any;
   onLinkClick: (...args: any[]) => any;
+  showTemplate?: boolean;
+  templates?: any[];
+  showTemplateManagement?: boolean;
+  loadTemplates?: () => Promise<any>;
+  deleteTemplate?: (templateId: string) => Promise<any>;
+  createOrUpdateTemplate?: (template: any) => Promise<any>;
 }
 
 type ConversationPanelState = {
@@ -491,11 +493,16 @@ class ConversationPanel extends Component<ConversationProps, ConversationPanelSt
             onHeightChange={this.onInputHeightChange}
             inputExpandable={this.props.inputExpandable}
             attachments={this.props.attachments}
-            supportAttachment={this.props.supportAttachment}
             addAttachment={this.props.addAttachment}
             removeAttachment={this.props.removeAttachment}
             additionalToolbarButtons={this.props.additionalToolbarButtons}
             onClickAdditionalToolbarButton={this.props.onClickAdditionalToolbarButton}
+            showTemplate={this.props.showTemplate}
+            templates={this.props.templates}
+            showTemplateManagement={this.props.showTemplateManagement}
+            loadTemplates={this.props.loadTemplates}
+            deleteTemplate={this.props.deleteTemplate}
+            createOrUpdateTemplate={this.props.createOrUpdateTemplate}
           />
         )}
       </div>

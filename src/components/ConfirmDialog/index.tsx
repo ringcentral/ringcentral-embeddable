@@ -13,7 +13,9 @@ export function ConfirmDialog({
   onClose,
   onConfirm,
   title,
-  keepMounted,
+  confirmText = 'Confirm',
+  confirmButtonColor = 'primary',
+  keepMounted = false,
   onClick = undefined,
 }) {
   return (
@@ -30,7 +32,9 @@ export function ConfirmDialog({
         <RcButton variant="outlined" onClick={onClose}>
           Cancel
         </RcButton>
-        <RcButton onClick={onConfirm}>Confirm</RcButton>
+        <RcButton onClick={onConfirm} color={confirmButtonColor}>
+          {confirmText}
+        </RcButton>
       </RcDialogActions>
     </RcDialog>
   );

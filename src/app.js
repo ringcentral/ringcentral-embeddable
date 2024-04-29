@@ -79,6 +79,7 @@ const {
   showSignUpButton,
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
+  enableSMSTemplate,
 } = pathParams;
 
 const defaultBrand = brand || process.env.BRAND;
@@ -154,6 +155,7 @@ const phone = createPhone({
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
   isUsingDefaultClientId,
+  enableSMSTemplate,
 });
 
 const store = createStore(phone.reducer);
