@@ -372,26 +372,30 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
         removeAttachment={removeAttachment}
         disabled={disabled}
       />
-      <SmsTemplateDialog
-        open={templateDialogOpen}
-        onClose={() => {
-          setTemplateDialogOpen(false);
-        }}
-        templates={templates}
-        onApply={(text) => {
-          lastValueChangeRef.current = Date.now();
-          setValue(text);
-          setTemplateDialogOpen(false);
-          if (typeof onChange === 'function') {
-            // TODO: use debounce for avoiding frequent updates compose text module state
-            onChange(text);
-          }
-        }}
-        showTemplateManagement={showTemplateManagement}
-        loadTemplates={loadTemplates}
-        deleteTemplate={deleteTemplate}
-        createOrUpdateTemplate={createOrUpdateTemplate}
-      />
+      {
+        showTemplate && (
+          <SmsTemplateDialog
+            open={templateDialogOpen}
+            onClose={() => {
+              setTemplateDialogOpen(false);
+            }}
+            templates={templates}
+            onApply={(text) => {
+              lastValueChangeRef.current = Date.now();
+              setValue(text);
+              setTemplateDialogOpen(false);
+              if (typeof onChange === 'function') {
+                // TODO: use debounce for avoiding frequent updates compose text module state
+                onChange(text);
+              }
+            }}
+            showTemplateManagement={showTemplateManagement}
+            loadTemplates={loadTemplates}
+            deleteTemplate={deleteTemplate}
+            createOrUpdateTemplate={createOrUpdateTemplate}
+          />
+        )
+      }
     </Container>
   );
 }
