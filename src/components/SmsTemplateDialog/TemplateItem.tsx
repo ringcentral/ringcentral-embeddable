@@ -85,7 +85,7 @@ const TypeLabel = styled(RcChip)`
   font-size: 0.75rem;
   padding: 0;
   height: 22px;
-  top: 6px;
+  top: 4px;
 `;
 
 export function TemplateItem({
