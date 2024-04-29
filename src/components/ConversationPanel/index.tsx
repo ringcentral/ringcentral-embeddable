@@ -13,6 +13,7 @@ import {
 import { RcAlert, RcIconButton, styled } from '@ringcentral/juno';
 import { AddTextLog } from '@ringcentral/juno-icon';
 import MessageInput from '../MessageInput';
+import type { Attachment } from '../MessageInput';
 import { BackHeader } from '../BackHeader';
 
 const LogButton = styled(RcIconButton)`
@@ -25,12 +26,6 @@ export type Recipient = {
   phoneNumber: string;
   extensionNumber?: string;
   name?: string;
-};
-
-export type Attachment = {
-  name: string;
-  size: number;
-  file: File;
 };
 
 export type ConversationProps = {
