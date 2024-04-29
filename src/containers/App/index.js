@@ -20,7 +20,6 @@ import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/con
 import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
 import { FeedbackPage } from '@ringcentral-integration/widgets/containers/FeedbackPage';
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
-import GenericMeetingPage from '@ringcentral-integration/widgets/containers/GenericMeetingPage';
 import { IncomingCallContainer } from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
 import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
 import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
@@ -31,9 +30,8 @@ import TransferPage from '@ringcentral-integration/widgets/containers/TransferPa
 import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
 
 import { getAlertRenderer } from '../../components/AlertRenderer';
-import ThirdPartyContactSourceIcon
-  from '../../components/ThirdPartyContactSourceIcon';
-// import GenericMeetingPage from '../GenericMeetingPage';
+import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourceIcon';
+import GenericMeetingPage from '../GenericMeetingPage';
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import AppView from '../AppView';
 import { PhoneTabsContainer } from '../PhoneTabsContainer';
