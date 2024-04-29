@@ -57401,7 +57401,8 @@ const {
   showSignUpButton,
   defaultDirection,
   defaultAutoLogCallEnabled,
-  defaultAutoLogMessageEnabled
+  defaultAutoLogMessageEnabled,
+  enableSMSTemplate
 } = parseCallbackUri(paramsUri);
 function obj2uri(obj) {
   if (!obj) {
@@ -57462,6 +57463,7 @@ const appUri = `${appUrl}?${obj2uri({
   showSignUpButton,
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
+  enableSMSTemplate,
   _t: Date.now()
 })}`;
 function init() {
