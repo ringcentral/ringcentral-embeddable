@@ -78,14 +78,27 @@ export class SmsTemplates extends DataFetcherV2Consumer<
     }
   }
 
+  get canCreateTemplate() {
+    const personalTemplates = this.templates.filter(
+      (template) => template.scope === 'Personal',
+    );
+    return personalTemplates.length < 25;
+  }
+
   async createOrUpdateTemplate(template: SmsTemplateRecord) {
-    const isSave = !!template.id;
+    const isUpdate = !!template.id;
+    if (!isUpdate && !this.canCreateTemplate) {
+      this._deps.alert.danger({
+        message: 'smsTemplateMaxLimit',
+      });
+      return new Error('smsTemplateMaxLimit');
+    }
     try {
       const response = await this._deps.client.service
         .platform()
         .send({
-          method: isSave ? 'PUT' : 'POST',
-          url: isSave
+          method: isUpdate ? 'PUT' : 'POST',
+          url: isUpdate
             ? `/restapi/v1.0/account/~/extension/~/message-store-templates/${template.id}`
             : '/restapi/v1.0/account/~/extension/~/message-store-templates',
           body: {
@@ -96,7 +109,7 @@ export class SmsTemplates extends DataFetcherV2Consumer<
           },
         });
       const result = await response.json();
-      const newData = isSave ?
+      const newData = isUpdate ?
         this.data.map((t) => (t.id === result.id ? result : t)) :
         [result].concat(this.templates);
       this._deps.dataFetcherV2.updateData(
@@ -104,11 +117,13 @@ export class SmsTemplates extends DataFetcherV2Consumer<
         newData,
         Date.now(),
       );
+      return null;
     } catch (e) {
       console.error(e);
       this._deps.alert.danger({
         message: 'saveSmsTemplateError',
       });
+      return e;
     }
   }
 }

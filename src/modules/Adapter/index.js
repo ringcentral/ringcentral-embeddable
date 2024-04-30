@@ -75,6 +75,7 @@ import {
     'ActiveCallControl',
     'ContactMatcher',
     'AudioSettings',
+    'SmsTemplates',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -110,6 +111,7 @@ export default class Adapter extends AdapterModuleCore {
     audioSettings,
     fromPopup,
     isUsingDefaultClientId,
+    smsTemplates,
     ...options
   }) {
     super({
@@ -145,6 +147,7 @@ export default class Adapter extends AdapterModuleCore {
     this._oAuth = oAuth;
     this._contactMatcher = contactMatcher;
     this._audioSettings = audioSettings;
+    this._smsTemplates = smsTemplates;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -376,7 +379,23 @@ export default class Adapter extends AdapterModuleCore {
             alertMessage: data.alertMessage
           }
         });
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: 'ok',
+        });
         break;
+      case '/create-sms-template': {
+        const error = await this._smsTemplates.createOrUpdateTemplate({
+          displayName: data.body.displayName,
+          body: {
+            text: data.body.text,
+          },
+        });
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: error ? error.message : 'ok',
+        });
+      }
       default: {
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
