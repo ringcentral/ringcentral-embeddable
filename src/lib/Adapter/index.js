@@ -667,6 +667,13 @@ class Adapter extends AdapterCore {
     });
   }
 
+  createSMSTemplate(displayName, text) {
+    return this._requestWithPostMessage('/create-sms-template', {
+      displayName,
+      text,
+    });
+  }
+
   get showCurrentCallBtn() {
     return this._widgetCurrentPath.indexOf('/calls/active') === -1 && this.showDuration;
   }

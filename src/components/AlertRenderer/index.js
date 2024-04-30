@@ -37,6 +37,9 @@ export function getAlertRenderer() {
     if (message.message === 'saveSmsTemplateError') {
       return () => 'Sorry, template saving failed. Please try again later.';
     }
+    if (message.message === 'smsTemplateMaxLimit') {
+      return () => 'Sorry, you have reached the maximum 25 number of templates.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage
