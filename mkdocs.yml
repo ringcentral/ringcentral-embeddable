@@ -114,22 +114,25 @@ nav:
   - 'Service features':
     - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md
+    - 'Authentication': integration/third-party-auth.md
     - 'Contact activities': integration/contact-activities.md
-    - 'Custom settings': integration/custom-settings.md
-    - 'Feedback prompt': integration/feedback-prompt.md
     - 'Log calls': integration/call-logging.md
     - 'Log meetings': integration/log-video-meeting.md
     - 'Log messages': integration/message-logging.md
     - 'Schedule meetings': integration/meeting-schedule.md
-    - 'Third-party auth': integration/third-party-auth.md
     - 'View upcoming meetings': integration/upcoming-meetings.md
     - 'VCard click handling': integration/vcard-clicks.md
     - 'SMS toolbar button': 'integration/sms-toolbar-button.md'
-    - 'Customized page and tab': integration/customized-page.md
+  - 'User interface customization':
+    - 'Call logging form': integration/custom-call-log-page.md
+    - 'Pages': integration/custom-page.md
+    - 'Settings': integration/custom-settings.md
+    - 'Tabs': integration/custom-tab.md
   - 'Recipes':
     - 'Analytics integration': integration/analytics.md
     - 'Click-to-dial enablement': integration/click-to-dial.md
     - 'Call pop': integration/call-pop.md
+    - 'Add a feedback prompt': integration/feedback-prompt.md
   - 'Migration':
     - 'Migrating from Github Page build': integration/new-latest-uri.md
 - 'Troubleshooting': support.md

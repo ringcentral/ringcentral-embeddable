@@ -1,4 +1,4 @@
-## SMS toolbar button
+# SMS toolbar button
 
 First, register service with `buttonEventPath`:
 
