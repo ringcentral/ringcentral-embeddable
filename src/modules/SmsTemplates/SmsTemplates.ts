@@ -38,7 +38,7 @@ export class SmsTemplates extends DataFetcherV2Consumer<
           .platform()
           .get('/restapi/v1.0/account/~/extension/~/message-store-templates');
         const personalResult = await personalResponse.json();
-        return (personalResult.records || []).toReversed();
+        return personalResult.records || [];
       },
     });
     this._deps.dataFetcherV2.register(this._source);
