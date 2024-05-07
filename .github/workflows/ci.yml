@@ -55,6 +55,7 @@ jobs:
           MIXPANEL_KEY: ${{ secrets.MIXPANEL_KEY }}
           ANALYTICS_SECRET_KEY: ${{ secrets.ANALYTICS_SECRET_KEY }}
       - run: ./build_brand_themes.sh
+      - run: pip install -U pip==22.0.3
       - run: pip install mkdocs
       - run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - run: mkdocs build
