@@ -978,6 +978,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config/sms-template/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SMS template
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1584,6 +1605,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#show-list-in-customized-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      Show list in customized tab
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1903,6 +1933,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#show-list-in-customized-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      Show list in customized tab
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2075,6 +2114,61 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>When the user clicks the button, you will receive a message with the path <code>/button-click</code>. When the user changes the input, you will receive a message with the path <code>/customizedPage/inputChanged</code>.</p>
+<h2 id="show-list-in-customized-tab">Show list in customized tab</h2>
+<p><img alt="customized list" src="https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/865e73e2-776b-4baf-87ed-fb52d965c84a" /></p>
+<p>You can show a list in the customized page:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-customized-page&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tabID&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// tab id, required</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;CRM&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tab&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// tab type</span>
+<span class="w">    </span><span class="nx">iconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://xxx/icon.png&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// icon for tab, 24x24</span>
+<span class="w">    </span><span class="nx">activeIconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://xxx/icon-active.png&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// icon for tab in active status, 24x24</span>
+<span class="w">    </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="mf">31</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)</span>
+<span class="w">    </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">      </span><span class="nx">properties</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;search&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="s2">&quot;opportunity&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;oneOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">            </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;opportunity1&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Opportunity 1&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;This is a description message&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;meta&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;4/18&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;icon&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://xxx/icon1.png&quot;</span>
+<span class="w">          </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;opportunity2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Opportunity 2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;This is a description message 2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;meta&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;4/15&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;icon&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://xxx/icon1.png&quot;</span>
+<span class="w">          </span><span class="p">}]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">uiSchema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">search</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;ui:placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Search&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;ui:label&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">opportunity</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">formData</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">search</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">opportunity</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+</code></pre></div>
+<p>When user clicks on the list item, you will receive a message with the path <code>/customizedPage/inputChanged</code>.</p>
 
 
 

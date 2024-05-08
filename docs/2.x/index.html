@@ -978,6 +978,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/sms-template/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SMS template
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1971,25 +1992,29 @@
 <p>The latest version of RingCentral Embeddable is completely backwards compatible with all previous versions of Embeddable 1.x. This means that developers can quickly and easily upgrade to the latest version with minimal risk of breaking your existing implementation.</p>
 </div>
 <h2 id="whats-new-in-20">What's new in 2.0</h2>
-<p><img align="right" alt="New RingCentral Embeddable 2.x UI" class="float-end" src="https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/863c8863-c37b-4b42-a35c-1f1c3a35856c" style="max-width: 200px" /></p>
+<p><img align="right" alt="New RingCentral Embeddable 2.x UI" class="float-end" src="https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/1bb439a0-0cd9-4c9a-b732-f08420607e20" style="max-width: 200px" /></p>
 <p><strong>Updated design</strong></p>
 <p>RingCentral Embeddable 2.0 front-end has been completely refactored to better conform with RingCentral's user interface guidelines and best practices. Users familiar with the RingCentral app will feel right at home using the new version of Embeddable. User interface highlights include:</p>
 <ul>
 <li><strong>New navigation bar</strong>: A redesigned navigation bar for improved accessibility and navigation efficiency.</li>
-<li><strong>New phone dialer</strong>: The dialer and calls are merged into phone tab. New call history UI make it modernized user interface.</li>
-<li><strong>New SMS inbox</strong>: Experience a refreshed inbox with a modernized user interface, making message management more efficient.</li>
+<li><strong>New phone dialer</strong>: The dialer, calls, voicemail and recordings are merged into phone tab. New call history UI make it modernized user interface.</li>
+<li><strong>New Text inbox</strong>: Experience a refreshed SMS inbox with a modernized user interface, making message management more efficient. Fax messages are split into independent tab.</li>
 <li><strong>New meetings home</strong>: The meetings interface has been updated for a modernized user interface.</li>
 </ul>
 <p><strong>Direct access to call recordings</strong></p>
 <p>In this new version, a new recordings page has been added, allowing users to conveniently manage and play their recorded calls directly within Embeddable.</p>
+<p><strong>SMS templates support</strong></p>
+<p>In this new version, <a href="../config/sms-template/">SMS templates feature</a> has been added, allowing users to apply and manage SMS templates in the widget.</p>
 <p><strong>Enhanced voicemail player</strong> </p>
 <p>The new voicemail player in RingCentral Embeddable 2.x comes with seek support, providing users with more control over their voicemail playback.</p>
 <p><strong>Noise reduction</strong></p>
 <p>Enjoy improved audio quality with noise reduction enabled by default, ensuring a clearer communication experience. This feature is available, but disabled by default in Embeddable 1.x.</p>
 <h3 id="developer-features">Developer features</h3>
-<p>Over the course of the Embeddable 2.0 beta, we will be working to make the UI more extensible by developers, without developers having to know or code HTML and CSS to conform to the <a href="https://ringcentral.github.io/juno/">RingCentral UI standard</a>. </p>
+<p>Over the course of the Embeddable 2.0 beta, we will be working to make the UI more extensible by developers, without developers having to know or code HTML and CSS to conform to the <a href="https://ringcentral.github.io/juno/">RingCentral UI standard</a>.</p>
 <p><strong>Customized settings API</strong></p>
 <p>RingCentral Embeddable 2.x introduces a new <a href="../integration/custom-settings/">customized settings API</a>, offering developers more flexibility to tailor Embeddable's settings to the specific needs of the application it powers. Consider for example a circumstance in which Embeddable is being used within a third-party app, and settings specific to that app need to be made available to end users. This feature allows developers to inject the setting/preference into the "Settings" page using a simple JSON data structure. </p>
+<p><strong>Customized page and tab</strong></p>
+<p>RingCentral Embeddable 2.x allows developers to register <a href="../integration/custom-tab/">JSON schema defined tab</a> or <a href="../integration/custom-page/">page</a> into the widget. </p>
 <h2 id="try-it">Try it</h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Javascript</label><label for="__tabbed_1_2">iframe</label></div>
 <div class="tabbed-content">
