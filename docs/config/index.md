@@ -26,6 +26,7 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `enableNoiseReductionSetting` | False | See [Noise reduction](noise-reduction.md). |
 | `enablePopup` | False | See [Customize pop-up window](popup-window.md). |
 | `enableRingtoneSettings` | False | For when call is ringing, app will play default ringtone. But we also support to customize ringtone. By enabled, user can get ringtone settings at settings page. Supported after v1.6.3 |
+| `enableSMSTemplate` | 0 | See [sms-template.md]. |
 | `jwt` | None | See [Alternative auth methods](../integration/authorization.md). |
 | `multipleTabsSupport` | False | See [Working with multiple tabs](multiple-tabs.md). |
 | `newAdapterUI` | False | See [Embeddable Badge](badge.md). |
@@ -35,6 +36,5 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `showSignUpButton` | False |  |
 | `stylesUri` | *null* | See [Customize look and feel through CSS](styles.md). |
 | `userAgent` | *null* | See [Customize X-User-Agent](user-agent.md). |
-
 </div>
 

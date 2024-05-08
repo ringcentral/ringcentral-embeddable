@@ -73,8 +73,8 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.emoji:
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
 
 copyright: "2023 RingCentral, Inc. All rights reserved."
 
@@ -104,8 +104,8 @@ nav:
     - 'Opening in a separate window': config/popup-window.md
     - 'Running in multiple tabs': config/multiple-tabs.md
     - 'Setting your environment': config/environment.md
+    - 'SMS templates': config/sms-template.md
     - 'Quick access badge': config/badge.md
-    - 'SMS template': config/sms-template.md
 
 - 'Developer guide':
   - 'Events': integration/events.md
