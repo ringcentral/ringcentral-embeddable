@@ -11,10 +11,10 @@
         <link rel="canonical" href="https://ringcentral.github.io/ringcentral-embeddable/docs/config/sms-template/">
       
       
-        <link rel="prev" href="../badge/">
+        <link rel="prev" href="../environment/">
       
       
-        <link rel="next" href="../../integration/events/">
+        <link rel="next" href="../badge/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>SMS template - RingCentral Embeddable</title>
+        <title>SMS templates - RingCentral Embeddable</title>
       
     
     
@@ -122,7 +122,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              SMS template
+              SMS templates
             
           </span>
         </div>
@@ -967,27 +967,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../badge/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Quick access badge
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -1004,7 +983,7 @@
           
   
   <span class="md-ellipsis">
-    SMS template
+    SMS templates
   </span>
   
 
@@ -1015,7 +994,7 @@
         
   
   <span class="md-ellipsis">
-    SMS template
+    SMS templates
   </span>
   
 
@@ -1067,6 +1046,27 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../badge/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick access badge
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1966,7 +1966,12 @@
 
 <h1 id="sms-template">SMS template</h1>
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5Z"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
-<p>The SMS template feature is supported from 2.0.0 version. It allows user to manage and use the SMS template in the widget.</p>
+<p>The SMS template feature is supported starting in version 2.0.0. This feature allows users to manage and utilize a set of shared pre-written messages in the SMS messages sent via RingCentral Embeddable. When enabled, users can:</p>
+<ul>
+<li>Select and apply an templated message in an SMS they are writing</li>
+<li>Create new SMS templates</li>
+<li>Access templates create by coworkers or administrators</li>
+</ul>
 <h2 id="enable-sms-template">Enable SMS template</h2>
 <p>First, you need to add <code>EditAccounts</code> permission into your RingCentral app in RingCentral developer portal.</p>
 <p>Then, you need to enable the SMS template feature in the widget. To enable it, you need to set <code>enableSMSTemplate</code> flag into the widget's URI. </p>
