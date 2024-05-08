@@ -1,0 +1,61 @@
+# SMS template
+
+<!-- md:version 2.0.0 -->
+
+The SMS template feature is supported from 2.0.0 version. It allows user to manage and use the SMS template in the widget.
+
+## Enable SMS template
+
+First, you need to add `EditAccounts` permission into your RingCentral app in RingCentral developer portal.
+
+Then, you need to enable the SMS template feature in the widget. To enable it, you need to set `enableSMSTemplate` flag into the widget's URI. 
+
+=== "Javascript"
+
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableSMSTemplate=1";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
+
+=== "iframe"
+
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableSMSTemplate=1">
+    </iframe>
+    ```
+
+## Use SMS template
+
+After enabled, user should be able to see the SMS template tab SMS text input toolbar.
+
+![SMS template](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/c5dda595-1d9d-41c5-ba74-50f590d63e1a)
+
+## Import SMS template
+
+The widget provides a API to import SMS template into the widget. You can use the following code to import SMS template into the widget.
+
+=== "Adapter JS"
+
+    ```js
+    RCAdapter.createSMSTemplate('Template name', 'Template text');
+    ```
+
+=== "Javascript"
+
+    ```js
+    document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+      type: 'rc-adapter-message-request',
+      requestId: Date.now().toString(),
+      path: '/create-sms-template',
+      body: {
+        displayName: 'Template name',
+        text: 'Template text'
+      },
+    }, '*');
+    ```
