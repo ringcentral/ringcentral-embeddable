@@ -131,7 +131,6 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     contactMatchPath: '/contacts/match',
     contactMatchTtl: 2 * 60 * 60 * 1000, // optional, contact match cache time in seconds, default is 2 hours, from v1.10.2
     contactNoMatchTtl: 5 * 60 * 1000, // optional, contact no match cache time in seconds, default is 5 minutes, from v1.10.2
-    contactMatchMaxCount: 30, // optional, per contact match request max count, default is 30, from v1.10.2
   }
 }, '*');
 ```
