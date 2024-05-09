@@ -157,7 +157,7 @@ window.addEventListener('message', function (e) {
 
 When the user clicks the button, you will receive a message with the path `/button-click`. When the user changes the input, you will receive a message with the path `/customizedPage/inputChanged`.
 
-## Show list in customized page
+## Show list in customized tab
 
 ![customized list](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/865e73e2-776b-4baf-87ed-fb52d965c84a)
 

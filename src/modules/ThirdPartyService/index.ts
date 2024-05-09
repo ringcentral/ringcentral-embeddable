@@ -25,6 +25,7 @@ import {
     'ContactSources',
     'ContactSearch',
     'ContactMatcher',
+    'ContactMatcherOptions',
     'ActivityMatcher',
     'ConversationMatcher',
     'GenericMeeting',
@@ -39,6 +40,8 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _contactSearchPath?: string;
   private _contactMatchPath?: string;
   private _viewMatchedContactPath?: string;
+  private _contactMatchTtl?: number;
+  private _contactNoMatchTtl?: number;
   private _activitiesPath?: string;
   private _activityPath?: string;
   private _meetingInvitePath?: string;
@@ -112,6 +115,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         if (service.contactMatchPath) {
           this._contactMatchPath = service.contactMatchPath;
+          this._contactMatchTtl = service.contactMatchTtl;
+          this._contactNoMatchTtl = service.contactNoMatchTtl;
           if (!this.authorizationRegistered || this.authorized) {
             this._registerContactMatch();
             this._deps.contactMatcher.triggerMatch();
@@ -248,6 +253,12 @@ export default class ThirdPartyService extends RcModuleV2 {
       readyCheckFn: () => this.sourceReady,
     });
     this._contactMatchSourceAdded = true;
+    if (this._contactMatchTtl) {
+      this._deps.contactMatcherOptions.ttl = this._contactMatchTtl;
+    }
+    if (this._contactNoMatchTtl) {
+      this._deps.contactMatcherOptions.noMatchTtl = this._contactNoMatchTtl;
+    }
   }
 
   _registerViewMatchedContact() {
@@ -269,7 +280,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     const queries = this._deps.contactMatcher._getQueries();
     this._deps.contactMatcher.match({
       queries: queries.slice(0, 30),
-      ignoreCache: true
+      ignoreCache: false
     });
   }
 

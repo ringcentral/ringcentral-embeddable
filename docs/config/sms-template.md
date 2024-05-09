@@ -2,7 +2,11 @@
 
 <!-- md:version 2.0.0 -->
 
-The SMS template feature is supported from 2.0.0 version. It allows user to manage and use the SMS template in the widget.
+The SMS template feature is supported starting in version 2.0.0. This feature allows users to manage and utilize a set of shared pre-written messages in the SMS messages sent via RingCentral Embeddable. When enabled, users can:
+
+* Select and apply an templated message in an SMS they are writing
+* Create new SMS templates
+* Access templates create by coworkers or administrators
 
 ## Enable SMS template
 
