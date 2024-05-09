@@ -2126,7 +2126,9 @@
 <span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">contactMatchPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/contacts/match&#39;</span>
+<span class="w">    </span><span class="nx">contactMatchPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/contacts/match&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">contactMatchTtl</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, contact match cache time in seconds, default is 2 hours, from v1.10.2</span>
+<span class="w">    </span><span class="nx">contactNoMatchTtl</span><span class="o">:</span><span class="w"> </span><span class="mf">5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, contact no match cache time in seconds, default is 5 minutes, from v1.10.2</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
