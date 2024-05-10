@@ -129,8 +129,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   service: {
     name: 'TestService',
     contactMatchPath: '/contacts/match',
-    contactMatchTtl: 2 * 60 * 60 * 1000, // optional, contact match cache time in seconds, default is 2 hours, from v1.10.2
-    contactNoMatchTtl: 5 * 60 * 1000, // optional, contact no match cache time in seconds, default is 5 minutes, from v1.10.2
+    contactMatchTtl: 2 * 60 * 60 * 1000, // optional, contact match data cache deleted time in seconds, default is 2 hours, supported from v1.10.2
+    contactNoMatchTtl: 5 * 60 * 1000, // optional, contact match data expired in seconds, will re-match at next match trigger, default is 5 minutes, from v1.10.2
   }
 }, '*');
 ```
