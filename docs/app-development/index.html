@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.23">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
     
     
       
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#develop-and-graduate-your-application-in-sandbox" class="md-skip">
+        <a href="#develop-your-application-in-sandbox" class="md-skip">
           Skip to content
         </a>
       
@@ -515,13 +515,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#initializing-your-application-in-sandbox" class="md-nav__link">
+  <a href="#initializing-your-application" class="md-nav__link">
     <span class="md-ellipsis">
-      Initializing your application in sandbox
+      Initializing your application
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Initializing your application in sandbox">
+    <nav class="md-nav" aria-label="Initializing your application">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -544,24 +544,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#graduate-your-app-to-production" class="md-nav__link">
-    <span class="md-ellipsis">
-      Graduate your app to production
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#update-your-client-id-and-server-url" class="md-nav__link">
-    <span class="md-ellipsis">
-      Update your client ID and server URL
-    </span>
-  </a>
   
 </li>
       
@@ -1931,13 +1913,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#initializing-your-application-in-sandbox" class="md-nav__link">
+  <a href="#initializing-your-application" class="md-nav__link">
     <span class="md-ellipsis">
-      Initializing your application in sandbox
+      Initializing your application
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Initializing your application in sandbox">
+    <nav class="md-nav" aria-label="Initializing your application">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1960,24 +1942,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#graduate-your-app-to-production" class="md-nav__link">
-    <span class="md-ellipsis">
-      Graduate your app to production
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#update-your-client-id-and-server-url" class="md-nav__link">
-    <span class="md-ellipsis">
-      Update your client ID and server URL
-    </span>
-  </a>
   
 </li>
       
@@ -2012,14 +1976,13 @@
   
 
 
-<h1 id="develop-and-graduate-your-application-in-sandbox">Develop and graduate your application in sandbox</h1>
+<h1 id="develop-your-application-in-sandbox">Develop your application in sandbox</h1>
 <div class="admonition info">
 <p class="admonition-title">Introducing RingCentral Embeddable 2.0 beta</p>
 <p>Consider building your Embeddable application on the <a href="../2.x/">next version of RingCentral Embeddable</a> to take full advantage of the new features and capabilities it brings. </p>
 </div>
-<p>Upon successfully <a href="../app-registration/">registering your application</a> you will be provided with a unique client ID to identify your application on the network. Your next step will be to develop your application using this unique client ID in the RingCentral developer sandbox environment. </p>
-<p>Learn more <a href="https://developers.ringcentral.com/guide/getting-started/using-sandbox">RingCentral's developer sandbox environment</a></p>
-<h2 id="initializing-your-application-in-sandbox">Initializing your application in sandbox</h2>
+<p>Upon successfully <a href="../app-registration/">registering your application</a> you will be provided with a unique client ID to identify your application on the network. Your next step will be to develop your application using this unique client ID in the RingCentral environment. </p>
+<h2 id="initializing-your-application">Initializing your application</h2>
 <p>To develop your application in sandbox, you will need to update two of RingCentral Embeddable's <a href="../config/">configuration parameters</a>. Set the following parameters:</p>
 <table>
 <thead>
@@ -2031,11 +1994,11 @@
 <tbody>
 <tr>
 <td><code>clientId</code></td>
-<td><em>Your sandbox client ID</em></td>
+<td><em>Your client ID</em></td>
 </tr>
 <tr>
 <td><code>appServer</code></td>
-<td><code>https://platform.devtest.ringcentral.com</code></td>
+<td><code>https://platform.ringcentral.com</code></td>
 </tr>
 </tbody>
 </table>
@@ -2044,7 +2007,7 @@
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">clientId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;YOUR CLIENT ID&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">appServer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://platform.devtest.ringcentral.com&quot;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">appServer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://platform.ringcentral.com&quot;</span>
 <span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?clientId=&quot;</span><span class="o">+</span><span class="nx">clientId</span><span class="o">+</span><span class="s2">&quot;&amp;appServer=&quot;</span><span class="o">+</span><span class="nx">appServer</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
@@ -2053,30 +2016,9 @@
 </code></pre></div>
 <h3 id="example-using-an-iframe">Example using an iframe</h3>
 <div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span>
-        <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?clientId=your_app_client_id&amp;appServer=https://platform.devtest.ringcentral.com&quot;</span><span class="p">&gt;</span>
+        <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?clientId=your_app_client_id&amp;appServer=https://platform.ringcentral.com&quot;</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 </code></pre></div>
-<h2 id="graduate-your-app-to-production">Graduate your app to production</h2>
-<p>Sandbox is used by developers when building and testing applications. In order to use the app in production, developers must "graduate" their app. For RingCentral Embeddable apps, the following should be done in sandbox to quality for graduation:</p>
-<ul>
-<li>Send more than 5 SMS messages</li>
-<li>Send more than 5 internal messages (SMS message to extension number in current account)</li>
-<li>Read more than 5 unread inbound messages</li>
-<li>Update presence more than 5 times in setting page</li>
-<li>Go to Contacts page, and click refresh button more than 5 times</li>
-<li>Login and logout more than 5 times</li>
-<li>Make 5 outbound web phone (Browser based) calls</li>
-<li>Make 5 inbound web phone (Browser based) calls</li>
-<li>Make 5 <a href="../config/call-settings/">Ringout</a> calls</li>
-<li>Control(end/hold) Ringout call in widget more than 5 times in widget</li>
-</ul>
-<p>Once you have completed the above steps within a 24-hour period, you should be able to "Apply for production" from the Graduation tab in the Developer Console. If you have successfully fulfilled all requirements, you will obtain a new client ID which can be used in production. </p>
-<div class="admonition info">
-<p class="admonition-title">Having difficulty graduating your app?</p>
-<p>Please create <a href="https://developers.ringcentral.com/support/create-case">developer support ticket</a> if you experience issues during the app graduation process.</p>
-</div>
-<h2 id="update-your-client-id-and-server-url">Update your client ID and server URL</h2>
-<p>Once you have successfully graduated your app, update your Embeddable application's <code>clientId</code> and <code>appServer</code> <a href="../config/">configuration parameters</a> to point your application to RingCentral's production environment.</p>
 
 
 
@@ -2162,7 +2104,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.path", "navigation.tabs", "navigation.top", "navigation.expand", "navigation.sections", "search.sharing", "search.highlight", "content.code.copy", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.ebd0bdb7.min.js"></script>
+      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
       
         <script src="../extra.js"></script>
       
