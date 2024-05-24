@@ -35,7 +35,7 @@ export class ConversationsUI extends BaseConversationsUI {
           triggerType: 'manual'
         });
       },
-      onRefreshContact: ({ phoneNumber}) => {
+      onRefreshContact: ({ phoneNumber }) => {
         contactMatcher.forceMatchNumber({ phoneNumber })
       },
     }

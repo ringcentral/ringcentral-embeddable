@@ -149,7 +149,7 @@ export class CallsListUI extends BaseCallsListUI {
       onViewContact: props.onViewContact || (({ contact: { type, id } }) => {
         routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
       }),
-      onRefreshContact: ({ phoneNumber}) => {
+      onRefreshContact: ({ phoneNumber }) => {
         contactMatcher.forceMatchNumber({ phoneNumber })
       },
       isLoggedContact(call, activity, contact) {
