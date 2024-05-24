@@ -34,6 +34,7 @@ export function CallsListPanel({
   formatPhone,
   onClickToSms = undefined,
   onCreateContact = undefined,
+  onRefreshContact = undefined,
   createEntityTypes = undefined,
   outboundSmsPermission = true,
   internalSmsPermission = true,
@@ -166,6 +167,7 @@ export function CallsListPanel({
       countryCode={countryCode}
       onViewContact={onViewContact}
       onCreateContact={onCreateContact}
+      onRefreshContact={onRefreshContact}
       createEntityTypes={createEntityTypes}
       onLogCall={onLogCall}
       onClickToDial={onClickToDial}

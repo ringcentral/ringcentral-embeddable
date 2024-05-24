@@ -20,6 +20,7 @@ type CallListV2Props = {
   countryCode: string;
   onViewContact?: (...args: any[]) => any;
   onCreateContact?: (...args: any[]) => any;
+  onRefreshContact?: (...args: any[]) => any;
   createEntityTypes?: any[];
   onLogCall?: (...args: any[]) => any;
   onClickToDial?: (...args: any[]) => any;
@@ -86,6 +87,7 @@ class CallListV2 extends React.PureComponent<CallListV2Props, CallListV2State> {
       countryCode,
       onViewContact,
       onCreateContact,
+      onRefreshContact,
       createEntityTypes,
       onLogCall,
       onClickToDial,
@@ -151,6 +153,7 @@ class CallListV2 extends React.PureComponent<CallListV2Props, CallListV2State> {
           countryCode={countryCode}
           onViewContact={onViewContact}
           onCreateContact={onCreateContact}
+          onRefreshContact={onRefreshContact}
           createEntityTypes={createEntityTypes}
           onLogCall={onLogCall}
           onClickToDial={onClickToDial}

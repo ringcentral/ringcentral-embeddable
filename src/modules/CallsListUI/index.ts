@@ -13,6 +13,7 @@ import { computed } from '@ringcentral-integration/core';
     'Locale',
     'RouterInteraction',
     'ActivityMatcher',
+    'ContactMatcher',
     'CallingSettings',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
@@ -125,6 +126,7 @@ export class CallsListUI extends BaseCallsListUI {
       webphone,
       regionSettings,
       conferenceCall,
+      contactMatcher,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -147,6 +149,9 @@ export class CallsListUI extends BaseCallsListUI {
       onViewContact: props.onViewContact || (({ contact: { type, id } }) => {
         routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
       }),
+      onRefreshContact: ({ phoneNumber }) => {
+        contactMatcher.forceMatchNumber({ phoneNumber })
+      },
       isLoggedContact(call, activity, contact) {
         return (
           activity &&

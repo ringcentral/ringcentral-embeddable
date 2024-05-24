@@ -25,7 +25,7 @@ export class ConversationsUI extends BaseConversationsUI {
   getUIFunctions(
     options,
   ) {
-    const { conversationLogger } = this._deps;
+    const { conversationLogger, contactMatcher } = this._deps;
     return {
       ...super.getUIFunctions(options),
       onLogConversation: async ({ redirect = true, ...options }) => {
@@ -34,6 +34,9 @@ export class ConversationsUI extends BaseConversationsUI {
           redirect,
           triggerType: 'manual'
         });
+      },
+      onRefreshContact: ({ phoneNumber }) => {
+        contactMatcher.forceMatchNumber({ phoneNumber })
       },
     }
   }
