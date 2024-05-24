@@ -54,6 +54,7 @@ type ConversationsPanelProps = {
   onLogConversation?: (...args: any[]) => any;
   onViewContact?: (...args: any[]) => any;
   onCreateContact?: (...args: any[]) => any;
+  onRefreshContact?: (...args: any[]) => any;
   createEntityTypes?: any[];
   disableClickToDial?: boolean;
   unmarkMessage: (...args: any[]) => any;
@@ -148,6 +149,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     onLogConversation,
     onViewContact,
     onCreateContact,
+    onRefreshContact,
     createEntityTypes,
     onClickToDial,
     onClickToSms,
@@ -230,6 +232,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
                 onLogConversation={onLogConversation}
                 onViewContact={onViewContact}
                 onCreateContact={onCreateContact}
+                onRefreshContact={onRefreshContact}
                 createEntityTypes={createEntityTypes}
                 onClickToDial={onClickToDial}
                 onClickToSms={onClickToSms}

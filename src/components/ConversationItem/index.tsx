@@ -18,6 +18,7 @@ import {
   AddMemberBorder,
   Delete,
   AddTextLog,
+  Refresh,
 } from '@ringcentral/juno-icon';
 import { extensionTypes } from '@ringcentral-integration/commons/enums/extensionTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
@@ -56,6 +57,7 @@ export type MessageItemProps = {
   onLogConversation?: (...args: any[]) => any;
   onViewContact?: (...args: any[]) => any;
   onCreateContact?: (...args: any[]) => any;
+  onRefreshContact?: (...args: any[]) => any;
   createEntityTypes?: any[];
   onClickToDial?: (...args: any[]) => any;
   onClickToSms?: (...args: any[]) => any;
@@ -343,7 +345,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
   }
 
   viewSelectedContact = (e) => {
-    e.stopPropagation();
+    e && e.stopPropagation();
     if (typeof this.props.onViewContact === 'function') {
       this.props.onViewContact({
         contact: this.getSelectedContact(),
@@ -687,6 +689,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       onClickToSms,
       currentLocale,
       onCreateContact,
+      onRefreshContact,
       showLogButton,
       logButtonTitle,
     } = this.props;
@@ -765,6 +768,19 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
         title: i18n.getString('addEntity', currentLocale),
         onClick: () => {
           this.createSelectedContact(undefined);
+        },
+        disabled: disableLinks,
+      });
+    }
+    if (phoneNumber && onRefreshContact) {
+      actions.push({
+        id: 'refreshContact',
+        icon: Refresh,
+        title: 'Refresh contact',
+        onClick: () => {
+          onRefreshContact({
+            phoneNumber,
+          });
         },
         disabled: disableLinks,
       });

@@ -29,6 +29,7 @@ import {
   Edit,
   PlayCircleBorder,
   Download,
+  Refresh,
 } from '@ringcentral/juno-icon';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
@@ -69,6 +70,7 @@ type CallItemProps = {
   onLogCall?: (...args: any[]) => any;
   onViewContact?: (...args: any[]) => any;
   onCreateContact?: (...args: any[]) => any;
+  onRefreshContact?: (...args: any[]) => any;
   createEntityTypes?: any[];
   onClickToDial?: (...args: any[]) => any;
   onClickToSms?: (...args: any[]) => any;
@@ -132,6 +134,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   active,
   onViewContact,
   onCreateContact,
+  onRefreshContact,
   createEntityTypes,
   onLogCall,
   onClickToDial,
@@ -429,6 +432,19 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
       icon: AddMemberBorder,
       title: i18n.getString('addEntity', currentLocale),
       onClick: () => createSelectedContact(undefined),
+      disabled: disableLinks,
+    });
+  }
+  if (phoneNumber && onRefreshContact) {
+    actions.push({
+      id: 'refreshContact',
+      icon: Refresh,
+      title: 'Refresh contact',
+      onClick: () => {
+        onRefreshContact({
+          phoneNumber,
+        });
+      },
       disabled: disableLinks,
     });
   }
