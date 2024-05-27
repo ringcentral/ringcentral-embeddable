@@ -1355,6 +1355,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       priority: tab.priority,
       unreadCounts: tab.unreadCounts,
       path: `/customizedTabs/${tab.id}`,
+      hidden: tab.hidden,
     }));
   }
 }

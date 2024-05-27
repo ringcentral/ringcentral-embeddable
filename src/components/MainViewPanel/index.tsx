@@ -209,6 +209,9 @@ export const MainViewPanel = (props) => {
     showHeaderBorder: false,
   });
   customizedTabs.forEach((customTab) => {
+    if (customTab.hidden) {
+      return;
+    }
     tabList.push({
       label: customTab.label,
       path: customTab.path,
