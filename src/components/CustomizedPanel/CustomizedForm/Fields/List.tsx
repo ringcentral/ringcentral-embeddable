@@ -9,6 +9,7 @@ import {
   RcAvatar,
   styled,
   palette2,
+  css
 } from '@ringcentral/juno';
 
 const StyledList = styled(RcList)`
@@ -20,12 +21,28 @@ const StyledItem = styled(RcListItem)`
   cursor: pointer;
 `;
 
+const StyledAvatar = styled(RcAvatar)`
+  .RcAvatar-avatarContainer {
+    ${({ $round }) => 
+      $round ? '' : css`
+        border-radius: 0;
+        background: transparent;
+      `
+    }
+  }
+`;
+
 export function List({
   schema,
+  uiSchema,
   disabled,
   formData,
   onChange,
 }) {
+  const showIconAsAvatar = 
+    typeof uiSchema['ui:showIconAsAvatar'] === 'undefined' ?
+    true :
+    uiSchema['ui:showIconAsAvatar'];
   return (
     <StyledList>
       {schema.oneOf.map((item) => (
@@ -40,9 +57,10 @@ export function List({
           {
             item.icon ? (
               <RcListItemAvatar>
-                <RcAvatar
+                <StyledAvatar
                   size="xsmall"
                   src={item.icon}
+                  $round={showIconAsAvatar}
                 />
               </RcListItemAvatar>
             ) : null
