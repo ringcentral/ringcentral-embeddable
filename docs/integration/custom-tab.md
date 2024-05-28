@@ -207,6 +207,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
       },
       opportunity: {
         "ui:field": "list",
+        "ui:showIconAsAvatar": true, // optional, default true. show icon as avatar (round) in list
       },
     },
     formData: {
