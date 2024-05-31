@@ -34,6 +34,9 @@ Before you can deploy your newly created application to production and remove th
     
 ## Graduate your app
 
+!!! info "Use in production"
+    Currently, new created RingCentral app will go to production directly. You don't need this section now.
+
 Sandbox is used by developers when building and testing applications. In order to use the app in production, developers must "graduate" their app. For RingCentral Embeddable apps, the following should be done in sandbox to quality for graduation:
 
 * Send more than 5 SMS messages

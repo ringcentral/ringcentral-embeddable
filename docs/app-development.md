@@ -1,4 +1,4 @@
-# Develop your application in sandbox
+# Develop your application
 
 !!! info "Introducing RingCentral Embeddable 2.0 beta"
     Consider building your Embeddable application on the [next version of RingCentral Embeddable](2.x.md) to take full advantage of the new features and capabilities it brings. 
@@ -7,7 +7,7 @@ Upon successfully [registering your application](app-registration.md) you will b
 
 ## Initializing your application
 
-To develop your application in sandbox, you will need to update two of RingCentral Embeddable's [configuration parameters](config/index.md). Set the following parameters:
+To develop your application, you will need to update two of RingCentral Embeddable's [configuration parameters](config/index.md). Set the following parameters:
 
 | Parameter   | Value                              |
 |-------------|------------------------------------|
