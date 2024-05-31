@@ -30,6 +30,7 @@ import {
   PlayCircleBorder,
   Download,
   Refresh,
+  AiSmartNotes,
 } from '@ringcentral/juno-icon';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
@@ -104,6 +105,7 @@ type CallItemProps = {
   maxExtensionNumberLength?: number;
   formatPhone?: (...args: any[]) => any;
   isRecording?: boolean;
+  onViewSmartNote?: (...args: any[]) => any;
 };
 
 export const CallItem: FunctionComponent<CallItemProps> = ({
@@ -152,6 +154,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   showLogButton,
   logButtonTitle,
   isRecording = false,
+  onViewSmartNote,
 }) => {
   const {
     direction,
@@ -418,6 +421,20 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     });
   }
   const hasEntity = !!contactMatches.length;
+  if (onViewSmartNote) {
+    actions.push({
+      id: 'viewSmartNote',
+      icon: AiSmartNotes,
+      title: 'View smart note',
+      onClick: () => onViewSmartNote({
+        telephonySessionId: call.telephonySessionId,
+        phoneNumber,
+        contactName: hasEntity ? contactMatches[0].name : fallbackContactName,
+      }),
+      disabled: disableLinks,
+    });
+  }
+  
   if (!isContactMatchesHidden && hasEntity) {
     actions.push({
       id: 'viewContact',

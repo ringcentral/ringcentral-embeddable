@@ -2804,10 +2804,10 @@
     url-parse "^1.2.0"
     uuid "^9.0.0"
 
-"@ringcentral/juno-icon@^1.62.0":
-  version "1.62.0"
-  resolved "https://registry.yarnpkg.com/@ringcentral/juno-icon/-/juno-icon-1.62.0.tgz#5a93949ed14eaacad8d88d4c9dba4b984fb81fd2"
-  integrity sha512-RnXFyAuvHD7Mo5Rt0UButmJzBOUG+z1cshvf8ZDcwAOyJ50Oa1nwyxs/NOgT/7WOI9jG2Vrnw0idSAshRg+GJg==
+"@ringcentral/juno-icon@^1.72.0":
+  version "1.72.0"
+  resolved "https://registry.yarnpkg.com/@ringcentral/juno-icon/-/juno-icon-1.72.0.tgz#de7fc6fc5e84edc3046bf81fbb5ccdb50bacaaa0"
+  integrity sha512-PPV1k57anGgI/lO3XvE7m7I7HLKBI8hGvdbUnUHyrowkf9L/84J0Loz4CVuwwWHeK7eAHJhijNrRlXsL5ZikPw==
   dependencies:
     "@material-ui/core" "^4.12.3"
     tslib ">=2.0.0"
@@ -2834,6 +2834,42 @@
     tslib ">=2.0.0"
     type-fest "^2.12.2"
     typeface-lato "^0.0.75"
+
+"@ringcentral/mfe-builder@^0.3.7":
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/@ringcentral/mfe-builder/-/mfe-builder-0.3.7.tgz#b7f7517dfcc792a7246cea60284fed6eb42989cf"
+  integrity sha512-D1t1/ElXe7epjnvJOUqYCAalOcMiT/s8LQJWrLOjBWj14egxO92THTR3yLHe4Ybl0CWZP84D9FcjNMeJSNR7rA==
+  dependencies:
+    "@ringcentral/mfe-shared" "^0.3.7"
+    yargs "17.6.2"
+
+"@ringcentral/mfe-core@^0.3.7":
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/@ringcentral/mfe-core/-/mfe-core-0.3.7.tgz#f5071773c2033f8f067c21f0914da28f115d1ec0"
+  integrity sha512-yhQCAJDX0BXNPlnAc2I0gHh8qKfRUXSRMJ6SMJpfFASkRrWRsz0dk+eCqdMe3nlma3t2Tska/rFoJDH6ETQ7yA==
+  dependencies:
+    "@ringcentral/mfe-shared" "^0.3.7"
+    "@ringcentral/mfe-transport" "^0.3.7"
+
+"@ringcentral/mfe-react@^0.3.7":
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/@ringcentral/mfe-react/-/mfe-react-0.3.7.tgz#516c90d5924c8d9180b84429ce8f1eec5160213b"
+  integrity sha512-vWrl4yJv8Qrnf83Q2ntk6fhcZMOgKzbaAoUDdjqyXh50wSTi0PGRVFBAQQ/SrgG1FV2oMmLIYuu4C7VwtqJCkA==
+  dependencies:
+    "@ringcentral/mfe-core" "^0.3.7"
+
+"@ringcentral/mfe-shared@^0.3.7":
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/@ringcentral/mfe-shared/-/mfe-shared-0.3.7.tgz#d0fa89d8c4fcdad0f076364e409e3ea11e71e4a6"
+  integrity sha512-J2GctrZgZ7GTs5AkAw9EC281bNxChJTT2WOINXAnee83f2E2i5XoUIVAUyaY3VU+qu5U1bgY5MPHA1x/UWhogQ==
+
+"@ringcentral/mfe-transport@^0.3.7":
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/@ringcentral/mfe-transport/-/mfe-transport-0.3.7.tgz#9cb07d613b039ec804003cad9659a42fecc57969"
+  integrity sha512-eBZjikFOabQjcQFncVt5RuICjYZtiV8bYh2iS6Rey55EhSfvP9//9wgwXNojCl40WXFOnYJE9/Nv+eYaJvDcQw==
+  dependencies:
+    "@ringcentral/mfe-shared" "^0.3.7"
+    data-transport "^4.3.5"
 
 "@ringcentral/sdk@^4.7.2":
   version "4.7.2"
@@ -5182,6 +5218,13 @@ data-transport@^4.2.2:
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/data-transport/-/data-transport-4.2.2.tgz#0e1a96a36b53d8d54e4d82e0d64e1a092d7fda98"
   integrity sha512-AeOpqb5OFRX7EoNEJH2qYWMMWJ3RnbGXa4K8Ll1jPUzJyxI3VyafASVrII8EOtLSGb12hc5bJR2NA5Su4r4hHw==
+  dependencies:
+    uuid "^9.0.0"
+
+data-transport@^4.3.5:
+  version "4.3.6"
+  resolved "https://registry.yarnpkg.com/data-transport/-/data-transport-4.3.6.tgz#6f51f5d91a9d43e5f4ec1b491d009e80c47e243c"
+  integrity sha512-YIhrpsHU4xy4BX4RH9cPkDvpF2YmCmVnyV6yJQ79MrSg74mEdMel16tGyL/BkCSZDned0sqBye8jC5fqQxa5PQ==
   dependencies:
     uuid "^9.0.0"
 
@@ -11923,6 +11966,19 @@ yargs-parser@^21.1.1:
   version "21.1.1"
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-21.1.1.tgz#9096bceebf990d21bb31fa9516e0ede294a77d35"
   integrity sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==
+
+yargs@17.6.2:
+  version "17.6.2"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.6.2.tgz#2e23f2944e976339a1ee00f18c77fedee8332541"
+  integrity sha512-1/9UrdHjDZc0eOU0HxOHoS78C69UD3JRMvzlJ7S79S2nTaWRA/whGCTV8o9e/N/1Va9YIV7Q4sOxD8VV4pCWOw==
+  dependencies:
+    cliui "^8.0.1"
+    escalade "^3.1.1"
+    get-caller-file "^2.0.5"
+    require-directory "^2.1.1"
+    string-width "^4.2.3"
+    y18n "^5.0.5"
+    yargs-parser "^21.1.1"
 
 yargs@17.7.1, yargs@^17.3.1:
   version "17.7.1"

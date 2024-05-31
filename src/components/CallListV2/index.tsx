@@ -59,6 +59,7 @@ type CallListV2Props = {
   showLogButton: boolean;
   logButtonTitle: string;
   isRecording?: boolean;
+  onViewSmartNote?: (...args: any[]) => any;
 };
 type CallListV2State = {
   extendedIndex: null;
@@ -127,6 +128,7 @@ class CallListV2 extends React.PureComponent<CallListV2Props, CallListV2State> {
       showLogButton,
       logButtonTitle,
       isRecording,
+      onViewSmartNote,
     } = this.props;
     const { extendedIndex } = this.state;
     let content;
@@ -188,6 +190,7 @@ class CallListV2 extends React.PureComponent<CallListV2Props, CallListV2State> {
           showLogButton={showLogButton}
           logButtonTitle={logButtonTitle}
           isRecording={isRecording}
+          onViewSmartNote={onViewSmartNote}
         />
       );
     }

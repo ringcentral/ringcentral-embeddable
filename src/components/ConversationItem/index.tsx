@@ -121,6 +121,11 @@ const StyledListItem = styled(RcListItem)`
     display: none;
   }
 
+  .conversation-item-time {
+    flex: 1;
+    text-align: right;
+  }
+
   &:hover {
     .conversation-item-time {
       display: none;
@@ -166,9 +171,8 @@ const StyledSecondary = styled.span`
 `;
 
 const DetailArea = styled.span`
-  flex: 1;
-  overflow: hidden;
   ${ellipsis()}
+  max-width: 160px;
 `;
 
 const StyledActionMenu = styled(ActionMenu)`

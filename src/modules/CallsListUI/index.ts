@@ -15,6 +15,7 @@ import { computed } from '@ringcentral-integration/core';
     'ActivityMatcher',
     'ContactMatcher',
     'CallingSettings',
+    'SmartNotes',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
     { dep: 'CallsListUIOptions', optional: true },
@@ -127,6 +128,7 @@ export class CallsListUI extends BaseCallsListUI {
       regionSettings,
       conferenceCall,
       contactMatcher,
+      smartNotes,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -247,6 +249,18 @@ export class CallsListUI extends BaseCallsListUI {
       isOnHold: (webphoneSession) => {
         return isOnHold(webphoneSession);
       },
+      onViewSmartNote: ({
+        telephonySessionId,
+        phoneNumber,
+        contactName,
+      }) => {
+        smartNotes.setSession({
+          id: telephonySessionId,
+          status: 'Disconnected',
+          phoneNumber: phoneNumber,
+          contactName,
+        });
+      }
     };
   }
 }

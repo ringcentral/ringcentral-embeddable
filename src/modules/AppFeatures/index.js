@@ -92,4 +92,8 @@ export class AppFeatures extends AppFeaturesBase {
   get hasSMSSendingFeature() {
     return this._deps.extensionFeatures.features?.SMSSending?.available ?? false;
   }
+
+  get hasSmartNotePermission() {
+    return this._deps.extensionFeatures.features?.RingSenseMVP?.available ?? false;
+  }
 }
