@@ -6,6 +6,7 @@ import { RcUIModuleV2, action, state, watch } from '@ringcentral-integration/cor
   deps: [
     'Locale',
     'SmartNotes',
+    'Alert',
   ],
 })
 export class SideDrawerUI extends RcUIModuleV2 {
@@ -46,9 +47,20 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this._deps.smartNotes.setSession(null);
   }
 
+  onAlert = ({ level, message }) => {
+    this._deps.alert.alert({
+      message: 'showCustomAlertMessage',
+      level,
+      payload: {
+        alertMessage: message
+      }
+    });
+  }
+
   getUIFunctions() {
     return {
       onClose: this.onClose,
+      onAlert: this.onAlert
     };
   }
 }

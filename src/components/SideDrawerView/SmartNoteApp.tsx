@@ -20,6 +20,7 @@ const Container = styled.div`
 export function SmartNoteApp({
   client,
   onClose,
+  onAlert,
 }) {
   const SmartNotePlugin = useApp({
     name: 'SmartNotes',
@@ -40,6 +41,7 @@ export function SmartNoteApp({
       <SmartNotePlugin
         client={client}
         onClose={onClose}
+        onAlert={onAlert}
       />
     </Container>
   );

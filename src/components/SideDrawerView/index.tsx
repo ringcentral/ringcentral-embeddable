@@ -15,6 +15,7 @@ export function SideDrawerView({
   smartNoteSession,
   show,
   onClose,
+  onAlert,
 }) {
   if (!show) {
     return null;
@@ -30,6 +31,7 @@ export function SideDrawerView({
       <SmartNoteApp
         client={smartNoteClient}
         onClose={onClose}
+        onAlert={onAlert}
       />
     </StyledDrawer>
   );
