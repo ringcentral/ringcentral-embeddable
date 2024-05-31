@@ -36,6 +36,7 @@ Before you begin development, you will first need to register your application v
     * `Internal Messages`
     * `Read Accounts`
     * `Read Call Log`
+    * `Read Call Recording` (2.x recordings feature)
     * `Read Contacts`
     * `Read Messages`
     * `Read Presence`
