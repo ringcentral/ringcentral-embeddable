@@ -106,6 +106,8 @@ type CallItemProps = {
   formatPhone?: (...args: any[]) => any;
   isRecording?: boolean;
   onViewSmartNote?: (...args: any[]) => any;
+  showLogButton?: boolean;
+  logButtonTitle?: string;
 };
 
 export const CallItem: FunctionComponent<CallItemProps> = ({

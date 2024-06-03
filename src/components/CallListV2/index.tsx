@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
-import { List } from 'react-virtualized';
-
-import NoCalls from '@ringcentral-integration/widgets/components/NoCalls';
+import { Virtuoso } from '@ringcentral/juno';
 
 import { CallItem } from '../CallItem';
 
@@ -60,212 +58,137 @@ type CallListV2Props = {
   logButtonTitle: string;
   isRecording?: boolean;
   onViewSmartNote?: (...args: any[]) => any;
+  onViewCalls?: (...args: any[]) => any;
 };
-type CallListV2State = {
-  extendedIndex: null;
-};
-class CallListV2 extends React.PureComponent<CallListV2Props, CallListV2State> {
-  _list: any;
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      extendedIndex: null,
-    };
-    this._list = React.createRef();
-  }
 
-  _renderRowHeight = ({ index }: any) => {
-    return 60;
-  };
+export function CallListV2({
+  className,
+  width,
+  height,
+  brand,
+  currentLocale,
+  calls,
+  areaCode,
+  countryCode,
+  onViewContact,
+  onCreateContact,
+  onRefreshContact,
+  createEntityTypes,
+  onLogCall,
+  onClickToDial,
+  onClickToSms,
+  isLoggedContact,
+  disableLinks,
+  disableCallButton,
+  disableClickToDial,
+  outboundSmsPermission,
+  internalSmsPermission,
+  active,
+  dateTimeFormatter,
+  loggingMap,
+  webphoneAnswer,
+  webphoneReject,
+  webphoneHangup,
+  webphoneResume,
+  enableContactFallback,
+  autoLog,
+  showContactDisplayPlaceholder,
+  sourceIcons,
+  phoneTypeRenderer,
+  phoneSourceNameRenderer,
+  renderContactName,
+  renderSubContactName,
+  renderExtraButton,
+  contactDisplayStyle,
+  externalViewEntity,
+  externalHasEntity,
+  readTextPermission,
+  currentSiteCode,
+  isMultipleSiteEnabled,
+  showChooseEntityModal,
+  enableCDC,
+  maxExtensionNumberLength,
+  formatPhone,
+  showLogButton,
+  logButtonTitle,
+  isRecording,
+  onViewSmartNote,
+  onViewCalls,
+}: CallListV2Props) {
+  const listRef = useRef(null);
 
-  _rowRender = ({ index, key, style }: any) => {
-    const {
-      className,
-      brand,
-      currentLocale,
-      calls,
-      areaCode,
-      countryCode,
-      onViewContact,
-      onCreateContact,
-      onRefreshContact,
-      createEntityTypes,
-      onLogCall,
-      onClickToDial,
-      onClickToSms,
-      isLoggedContact,
-      disableLinks,
-      disableCallButton,
-      disableClickToDial,
-      outboundSmsPermission,
-      internalSmsPermission,
-      active,
-      dateTimeFormatter,
-      loggingMap,
-      webphoneAnswer,
-      webphoneReject,
-      webphoneHangup,
-      webphoneResume,
-      enableContactFallback,
-      autoLog,
-      showContactDisplayPlaceholder,
-      sourceIcons,
-      phoneTypeRenderer,
-      phoneSourceNameRenderer,
-      renderContactName,
-      renderSubContactName,
-      renderExtraButton,
-      contactDisplayStyle,
-      externalViewEntity,
-      externalHasEntity,
-      readTextPermission,
-      currentSiteCode,
-      isMultipleSiteEnabled,
-      showChooseEntityModal,
-      enableCDC,
-      maxExtensionNumberLength,
-      formatPhone,
-      showLogButton,
-      logButtonTitle,
-      isRecording,
-      onViewSmartNote,
-    } = this.props;
-    const { extendedIndex } = this.state;
-    let content;
-    if (index >= calls.length) {
-      content = (
-        <div className={className}>
-          <NoCalls currentLocale={currentLocale} active={active} />
-        </div>
-      );
-    } else {
-      const call = calls[index];
-      content = (
-        <CallItem
-          formatPhone={formatPhone}
-          key={call.id}
-          renderIndex={index}
-          extended={extendedIndex === index}
-          call={call}
-          currentLocale={currentLocale}
-          currentSiteCode={currentSiteCode}
-          isMultipleSiteEnabled={isMultipleSiteEnabled}
-          brand={brand}
-          areaCode={areaCode}
-          countryCode={countryCode}
-          onViewContact={onViewContact}
-          onCreateContact={onCreateContact}
-          onRefreshContact={onRefreshContact}
-          createEntityTypes={createEntityTypes}
-          onLogCall={onLogCall}
-          onClickToDial={onClickToDial}
-          onClickToSms={onClickToSms}
-          isLoggedContact={isLoggedContact}
-          disableLinks={disableLinks}
-          disableCallButton={disableCallButton}
-          disableClickToDial={disableClickToDial}
-          outboundSmsPermission={outboundSmsPermission}
-          internalSmsPermission={internalSmsPermission}
-          active={!!active}
-          dateTimeFormatter={dateTimeFormatter}
-          isLogging={!!loggingMap[call.sessionId]}
-          enableContactFallback={enableContactFallback}
-          autoLog={autoLog}
-          showContactDisplayPlaceholder={showContactDisplayPlaceholder}
-          sourceIcons={sourceIcons}
-          phoneTypeRenderer={phoneTypeRenderer}
-          phoneSourceNameRenderer={phoneSourceNameRenderer}
-          renderContactName={renderContactName}
-          renderSubContactName={renderSubContactName}
-          renderExtraButton={renderExtraButton}
-          contactDisplayStyle={contactDisplayStyle}
-          externalViewEntity={externalViewEntity}
-          externalHasEntity={externalHasEntity}
-          readTextPermission={readTextPermission}
-          // disable animation when rendered with react-virtualized
-          withAnimation={false}
-          showChooseEntityModal={showChooseEntityModal}
-          enableCDC={enableCDC}
-          maxExtensionNumberLength={maxExtensionNumberLength}
-          showLogButton={showLogButton}
-          logButtonTitle={logButtonTitle}
-          isRecording={isRecording}
-          onViewSmartNote={onViewSmartNote}
-        />
-      );
-    }
-    return (
-      <div key={key} style={style}>
-        {content}
-      </div>
-    );
-  };
-  noRowsRender = () => {
-    const { currentLocale, active } = this.props;
-    return <NoCalls currentLocale={currentLocale} active={active} />;
-  };
-
-  override render() {
-    const { width, height, calls, className } = this.props;
-    return (
-      <div>
-        <List
-          style={{ outline: 'none', overflowY: 'auto' }}
-          containerStyle={{ overflow: 'visible' }}
-          ref={this._list}
-          width={width}
-          height={height}
-          overscanRowCount={15}
-          className={className}
-          rowCount={calls.length}
-          rowHeight={this._renderRowHeight}
-          rowRenderer={this._rowRender}
-          noRowsRenderer={this.noRowsRender}
-        />
-      </div>
-    );
-  }
+  return (
+    <Virtuoso
+      className={className}
+      style={{
+        height: height,
+        width: width,
+      }}
+      rangeChanged={(data) => {
+        if (typeof onViewCalls !== 'function') {
+          return;
+        }
+        onViewCalls(calls.slice(data.startIndex, data.endIndex));
+      }}
+      ref={listRef}
+      totalCount={calls.length}
+      data={calls}
+      itemContent={(index, call) => {
+        return (
+          <CallItem
+            formatPhone={formatPhone}
+            key={call.id}
+            renderIndex={index}
+            call={call}
+            currentLocale={currentLocale}
+            currentSiteCode={currentSiteCode}
+            isMultipleSiteEnabled={isMultipleSiteEnabled}
+            brand={brand}
+            areaCode={areaCode}
+            countryCode={countryCode}
+            onViewContact={onViewContact}
+            onCreateContact={onCreateContact}
+            onRefreshContact={onRefreshContact}
+            createEntityTypes={createEntityTypes}
+            onLogCall={onLogCall}
+            onClickToDial={onClickToDial}
+            onClickToSms={onClickToSms}
+            isLoggedContact={isLoggedContact}
+            disableLinks={disableLinks}
+            disableCallButton={disableCallButton}
+            disableClickToDial={disableClickToDial}
+            outboundSmsPermission={outboundSmsPermission}
+            internalSmsPermission={internalSmsPermission}
+            active={!!active}
+            dateTimeFormatter={dateTimeFormatter}
+            isLogging={!!loggingMap[call.sessionId]}
+            enableContactFallback={enableContactFallback}
+            autoLog={autoLog}
+            showContactDisplayPlaceholder={showContactDisplayPlaceholder}
+            sourceIcons={sourceIcons}
+            phoneTypeRenderer={phoneTypeRenderer}
+            phoneSourceNameRenderer={phoneSourceNameRenderer}
+            renderContactName={renderContactName}
+            renderSubContactName={renderSubContactName}
+            renderExtraButton={renderExtraButton}
+            contactDisplayStyle={contactDisplayStyle}
+            externalViewEntity={externalViewEntity}
+            externalHasEntity={externalHasEntity}
+            readTextPermission={readTextPermission}
+            // disable animation when rendered with react-virtualized
+            withAnimation={false}
+            showChooseEntityModal={showChooseEntityModal}
+            enableCDC={enableCDC}
+            maxExtensionNumberLength={maxExtensionNumberLength}
+            showLogButton={showLogButton}
+            logButtonTitle={logButtonTitle}
+            isRecording={isRecording}
+            onViewSmartNote={onViewSmartNote}
+          />
+        );
+      }}
+    />
+  );
 }
-// @ts-expect-error TS(2339): Property 'defaultProps' does not exist on type 'ty... Remove this comment to see the full error message
-CallListV2.defaultProps = {
-  currentSiteCode: '',
-  isMultipleSiteEnabled: false,
-  className: null,
-  active: false,
-  disableLinks: false,
-  disableCallButton: false,
-  disableClickToDial: false,
-  outboundSmsPermission: false,
-  internalSmsPermission: false,
-  onViewContact: undefined,
-  onCreateContact: undefined,
-  createEntityTypes: undefined,
-  onLogCall: undefined,
-  isLoggedContact: undefined,
-  onClickToDial: undefined,
-  onClickToSms: undefined,
-  loggingMap: {},
-  webphoneAnswer: undefined,
-  webphoneReject: undefined,
-  webphoneHangup: undefined,
-  webphoneResume: undefined,
-  enableContactFallback: undefined,
-  showContactDisplayPlaceholder: true,
-  autoLog: false,
-  sourceIcons: undefined,
-  phoneTypeRenderer: undefined,
-  phoneSourceNameRenderer: undefined,
-  renderContactName: undefined,
-  renderSubContactName: undefined,
-  renderExtraButton: undefined,
-  contactDisplayStyle: undefined,
-  externalViewEntity: undefined,
-  externalHasEntity: undefined,
-  readTextPermission: true,
-  rowHeight: 65,
-  extendedRowHeight: 130,
-  showChooseEntityModal: true,
-  enableCDC: false,
-  isRecording: false,
-};
+
 export default CallListV2;

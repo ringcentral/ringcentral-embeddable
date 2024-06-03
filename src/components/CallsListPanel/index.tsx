@@ -107,6 +107,7 @@ export function CallsListPanel({
   activeCalls,
   type,
   onViewSmartNote,
+  onViewCalls,
 }) {
   const [contentHeight, setContentHeight] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
