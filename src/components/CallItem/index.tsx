@@ -106,6 +106,7 @@ type CallItemProps = {
   formatPhone?: (...args: any[]) => any;
   isRecording?: boolean;
   onViewSmartNote?: (...args: any[]) => any;
+  aiNoted: boolean;
   showLogButton?: boolean;
   logButtonTitle?: string;
 };
@@ -157,6 +158,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   logButtonTitle,
   isRecording = false,
   onViewSmartNote,
+  aiNoted,
 }) => {
   const {
     direction,
@@ -423,7 +425,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     });
   }
   const hasEntity = !!contactMatches.length;
-  if (onViewSmartNote) {
+  if (onViewSmartNote && aiNoted) {
     actions.push({
       id: 'viewSmartNote',
       icon: AiSmartNotes,

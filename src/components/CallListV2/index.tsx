@@ -59,6 +59,7 @@ type CallListV2Props = {
   isRecording?: boolean;
   onViewSmartNote?: (...args: any[]) => any;
   onViewCalls?: (...args: any[]) => any;
+  aiNotedCallMapping?: any;
 };
 
 export function CallListV2({
@@ -114,6 +115,7 @@ export function CallListV2({
   isRecording,
   onViewSmartNote,
   onViewCalls,
+  aiNotedCallMapping,
 }: CallListV2Props) {
   const listRef = useRef(null);
 
@@ -184,6 +186,7 @@ export function CallListV2({
             logButtonTitle={logButtonTitle}
             isRecording={isRecording}
             onViewSmartNote={onViewSmartNote}
+            aiNoted={aiNotedCallMapping[call.telephonySessionId]}
           />
         );
       }}

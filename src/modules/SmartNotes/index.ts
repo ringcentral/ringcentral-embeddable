@@ -3,6 +3,7 @@ import {
   action,
   RcModuleV2,
   state,
+  computed,
 } from '@ringcentral-integration/core';
 import { dynamicLoad } from '@ringcentral/mfe-react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
@@ -131,5 +132,59 @@ export class SmartNotes extends RcModuleV2 {
 
   get smartNoteClient() {
     return this._smartNoteClient;
+  }
+
+  @state
+  callsQueryResults = [];
+
+  @action
+  addCallsQueryResults(calls) {
+    // remote old calls
+    let results = this.callsQueryResults.filter((call) => {
+      return calls.find((newCall) => newCall.id === call.id);
+    });
+    results = calls.concat(results);
+    // only saved 100 calls
+    if (results.length > 100) {
+      results = results.slice(0, 100);
+    }
+    this.callsQueryResults = results;
+  }
+
+  async queryNotedCalls(telephonySessionIds) {
+    if (!this.SmartNoteClient || !this.hasPermission) {
+      return;
+    }
+    const noQueryIds = telephonySessionIds.filter((id) => {
+      return !this.callsQueryResults.find((call) => call.id === id);
+    });
+    if (noQueryIds.length === 0) {
+      return;
+    }
+    const sdk = this._deps.client.service
+    try {
+      const queryResult = await this.SmartNoteClient.querySmartNotes(sdk, noQueryIds);
+      const notedResult = [];
+      telephonySessionIds.forEach((id) => {
+        const noted = !!queryResult.records.find((record) => record.telephonySessionId === id);
+        notedResult.push({
+          id,
+          noted,
+        });
+      })
+      this.addCallsQueryResults(notedResult);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  @computed((that: SmartNotes) => [that.callsQueryResults])
+  get aiNotedCallMapping() {
+    return this.callsQueryResults.reduce((map, call) => {
+      if (call.noted) {
+        map[call.id] = true;
+      }
+      return map;
+    }, {});
   }
 }
