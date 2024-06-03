@@ -99,6 +99,7 @@ export class SmartNotes extends RcModuleV2 {
       });
       this._setSession(session);
     } else {
+      // Close smart note when session is null
       if (!session) {
         this._smartNoteClient.stop();
         this._smartNoteClient = null;
@@ -109,19 +110,15 @@ export class SmartNotes extends RcModuleV2 {
         this._setSession(session);
         this._smartNoteClient.updateTelephonySessionStatus(session.status);
       } else {
-        this._setSession(null);
-        this._smartNoteClient.stop();
-        this._smartNoteClient = new this.SmartNoteClient({
-          sdk: this._deps.client.service,
+        this._setSession(session);
+        this._smartNoteClient.switchSession({
           telephonySessionId: session.id,
-          extensionId: this._deps.auth.ownerId,
           telephonySessionStatus: session.status,
           contact: {
             name: session.contactName,
             phoneNumber: session.phoneNumber,
           }
         });
-        this._setSession(session);
       }
     }
   }
