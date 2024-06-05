@@ -32,7 +32,7 @@ export class SmartNotes extends RcModuleV2 {
     this._smartNoteClient = null;
   }
 
-  onInitOnce() {
+  async onInitOnce() {
     if (!this.hasPermission) {
       return;
     }
@@ -67,12 +67,20 @@ export class SmartNotes extends RcModuleV2 {
         });
       }
     });
-    dynamicLoad(
-      '@ringcentral/smart-note-widget/src/bootstrap',
-      'http://localhost:5000/remoteEntry.js',
-    ).then((module) => {
-      return this.SmartNoteClient = module.default.SmartNoteClient;
-    });
+    try {
+      const plugins = await fetch('./plugins.json').then((res) => res.json());
+      const smartNotesRemoteEntry = plugins.smartNotes;
+      if (!smartNotesRemoteEntry) {
+        return;
+      }
+      const smartNotesModule = await dynamicLoad(
+        '@ringcentral/smart-note-widget/src/bootstrap',
+        smartNotesRemoteEntry,
+      );
+      this.SmartNoteClient = smartNotesModule.default.SmartNoteClient;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   @state
