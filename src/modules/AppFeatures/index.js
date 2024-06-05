@@ -94,6 +94,11 @@ export class AppFeatures extends AppFeaturesBase {
   }
 
   get hasSmartNotePermission() {
-    return this._deps.extensionFeatures.features?.RingSenseMVP?.available ?? false;
+    return (
+      this.config.SmartNote &&
+      this.appScopes.indexOf('AIInternal') > -1 &&
+      this.appScopes.indexOf('TelephonySessions') > -1 &&
+      (this._deps.extensionFeatures.features?.RingSenseMVP?.available ?? false)
+    )
   }
 }

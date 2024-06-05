@@ -56,6 +56,7 @@ export default function LogCallPanel({
   onBackButtonClick,
   isLogging,
   onFormPageButtonClick,
+  smartNote = '',
 }) {
   const currentCallRef = useRef(null);
   const [defaultPage, setDefaultPage] = useState({
@@ -87,7 +88,7 @@ export default function LogCallPanel({
         currentCall.activityMatches &&
         currentCall.activityMatches[0];
       if (matchedActivity) {
-        defaultNote = matchedActivity.note || '';
+        defaultNote = matchedActivity.note || smartNote || '';
         defaultContactId = matchedActivity && (
           matchedActivity.contact && (
             matchedActivity.contact.id || matchedActivity.contact

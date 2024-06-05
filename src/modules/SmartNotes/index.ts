@@ -33,45 +33,46 @@ export class SmartNotes extends RcModuleV2 {
   }
 
   onInitOnce() {
-    if (this.hasPermission) {
-      this._deps.webphone.onCallStart((webphoneSession) => {
-        if (!webphoneSession.partyData) {
-          return;
-        }
-        const phoneNumber =
-          webphoneSession.direction === callDirections.outbound ?
-            webphoneSession.to :
-            webphoneSession.from;
-        const feedbackName =
-          webphoneSession.direction === callDirections.outbound ?
-            webphoneSession.toUserName :
-            webphoneSession.fromUserName;
-        const contact = this._deps.contactMatcher.dataMapping[phoneNumber];
+    if (!this.hasPermission) {
+      return;
+    }
+    this._deps.webphone.onCallStart((webphoneSession) => {
+      if (!webphoneSession.partyData) {
+        return;
+      }
+      const phoneNumber =
+        webphoneSession.direction === callDirections.outbound ?
+          webphoneSession.to :
+          webphoneSession.from;
+      const feedbackName =
+        webphoneSession.direction === callDirections.outbound ?
+          webphoneSession.toUserName :
+          webphoneSession.fromUserName;
+      const contact = this._deps.contactMatcher.dataMapping[phoneNumber];
+      this.setSession({
+        id: webphoneSession.partyData.sessionId,
+        status: 'Answered',
+        phoneNumber: phoneNumber,
+        contactName: contact && contact.length > 0 ? contact[0].name : feedbackName,
+      });
+    });
+    this._deps.webphone.onCallEnd((webphoneSession) => {
+      if (!webphoneSession.partyData) {
+        return;
+      }
+      if (this.session?.id === webphoneSession.partyData.sessionId) {
         this.setSession({
           id: webphoneSession.partyData.sessionId,
-          status: 'Answered',
-          phoneNumber: phoneNumber,
-          contactName: contact && contact.length > 0 ? contact[0].name : feedbackName,
+          status: 'Disconnected',
         });
-      });
-      this._deps.webphone.onCallEnd((webphoneSession) => {
-        if (!webphoneSession.partyData) {
-          return;
-        }
-        if (this.session?.id === webphoneSession.partyData.sessionId) {
-          this.setSession({
-            id: webphoneSession.partyData.sessionId,
-            status: 'Disconnected',
-          });
-        }
-      });
-      dynamicLoad(
-        '@ringcentral/smart-note-widget/src/bootstrap',
-        'http://localhost:5000/remoteEntry.js',
-      ).then((module) => {
-        return this.SmartNoteClient = module.default.SmartNoteClient;
-      })
-    }
+      }
+    });
+    dynamicLoad(
+      '@ringcentral/smart-note-widget/src/bootstrap',
+      'http://localhost:5000/remoteEntry.js',
+    ).then((module) => {
+      return this.SmartNoteClient = module.default.SmartNoteClient;
+    });
   }
 
   @state
@@ -181,6 +182,48 @@ export class SmartNotes extends RcModuleV2 {
       if (call.noted) {
         map[call.id] = true;
       }
+      return map;
+    }, {});
+  }
+
+  @state
+  smartNoteTextStore = [];
+
+  @action
+  addSmartNoteTextStore(id, text) {
+    let newStore = this.smartNoteTextStore.filter((item) => item.id !== id);
+    newStore = [{ id, text }].concat(newStore);
+    if (newStore.length > 20) {
+      newStore = newStore.slice(0, 20);
+    }
+    this.smartNoteTextStore = newStore;
+  }
+
+  async fetchSmartNoteText(telephonySessionId) {
+    if (!this.SmartNoteClient || !this.hasPermission) {
+      return;
+    }
+    if (!telephonySessionId) {
+      return;
+    }
+    await this.queryNotedCalls([telephonySessionId]);
+    const noted = this.callsQueryResults.find((call) => call.id === telephonySessionId);
+    if (!noted || !noted.noted) {
+      return;
+    }
+    const sdk = this._deps.client.service;
+    try {
+      const note = await this.SmartNoteClient.getNotes(sdk, telephonySessionId);
+      this.addSmartNoteTextStore(telephonySessionId, note.data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  @computed((that: SmartNotes) => [that.smartNoteTextStore])
+  get smartNoteTextMapping() {
+    return this.smartNoteTextStore.reduce((map, item) => {
+      map[item.id] = item.text;
       return map;
     }, {});
   }

@@ -86,6 +86,7 @@ const {
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
   enableSMSTemplate,
+  enableSmartNote,
 } = parseUri(paramsUri);
 
 function obj2uri(obj) {
@@ -148,6 +149,7 @@ const appUri = `${appUrl}?${obj2uri({
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
   enableSMSTemplate,
+  enableSmartNote,
   _t: Date.now(),
 })}`;
 
