@@ -201,22 +201,31 @@ export class SmartNotes extends RcModuleV2 {
 
   async fetchSmartNoteText(telephonySessionId) {
     if (!this.SmartNoteClient || !this.hasPermission) {
-      return;
+      return null;
     }
     if (!telephonySessionId) {
-      return;
+      return null;
+    }
+    if (this.smartNoteTextMapping[telephonySessionId]) {
+      return this.smartNoteTextMapping[telephonySessionId];
     }
     await this.queryNotedCalls([telephonySessionId]);
     const noted = this.callsQueryResults.find((call) => call.id === telephonySessionId);
     if (!noted || !noted.noted) {
-      return;
+      return null;
     }
     const sdk = this._deps.client.service;
     try {
       const note = await this.SmartNoteClient.getNotes(sdk, telephonySessionId);
-      this.addSmartNoteTextStore(telephonySessionId, note.data);
+      let noteHTMLString = note.data || '';
+      noteHTMLString = noteHTMLString.replaceAll('<strong>', '**').replaceAll('</strong>', '**');
+      const doc = new DOMParser().parseFromString(noteHTMLString, 'text/html');
+      const purgedText = doc.body.textContent || '';
+      this.addSmartNoteTextStore(telephonySessionId, purgedText);
+      return purgedText;
     } catch (e) {
       console.error(e);
+      return null;
     }
   }
 

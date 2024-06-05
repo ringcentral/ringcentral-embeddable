@@ -75,7 +75,7 @@ export default function LogCallPanel({
       currentCallRef.current = null;
       return;
     }
-    let defaultNote = '';
+    let defaultNote = smartNote;
     let defaultContactId = '';
     if (
       !currentCallRef.current || (
@@ -88,7 +88,7 @@ export default function LogCallPanel({
         currentCall.activityMatches &&
         currentCall.activityMatches[0];
       if (matchedActivity) {
-        defaultNote = matchedActivity.note || smartNote || '';
+        defaultNote = matchedActivity.note || '';
         defaultContactId = matchedActivity && (
           matchedActivity.contact && (
             matchedActivity.contact.id || matchedActivity.contact
@@ -108,6 +108,22 @@ export default function LogCallPanel({
     }
     currentCallRef.current = currentCall;
   }, [currentCall]);
+
+  useEffect(() => {
+    if (!smartNote) {
+      return;
+    }
+    if (defaultPage.formData.note !== '') {
+      return;
+    }
+    setDefaultPage({
+      ...defaultPage,
+      formData: {
+        ...defaultPage.formData,
+        note: smartNote,
+      },
+    });
+  }, [smartNote]);
 
   if (!currentCall) {
     return null;
