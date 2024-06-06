@@ -12,4 +12,21 @@ export class CallLog extends CallLogBase {
 
     this.sync = debounce(this.sync, 5000, false);
   }
+
+
+  syncSuccess({
+    timestamp,
+    syncToken,
+    records = [],
+    supplementRecords = [],
+    daySpan,
+  }) {
+    super.syncSuccess({
+      timestamp,
+      syncToken,
+      records: records.filter((record) => record.type !== 'Fax'),
+      supplementRecords: supplementRecords.filter((record) => record.type !== 'Fax'),
+      daySpan,
+    });
+  }
 }
