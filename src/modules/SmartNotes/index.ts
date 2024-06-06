@@ -154,7 +154,7 @@ export class SmartNotes extends RcModuleV2 {
   addCallsQueryResults(calls) {
     // remote old calls
     let results = this.callsQueryResults.filter((call) => {
-      return calls.find((newCall) => newCall.id === call.id);
+      return !calls.find((newCall) => newCall.id === call.id);
     });
     results = calls.concat(results);
     // only saved 100 calls
@@ -178,13 +178,13 @@ export class SmartNotes extends RcModuleV2 {
     try {
       const queryResult = await this.SmartNoteClient.querySmartNotes(sdk, noQueryIds);
       const notedResult = [];
-      telephonySessionIds.forEach((id) => {
+      noQueryIds.forEach((id) => {
         const noted = !!queryResult.records.find((record) => record.telephonySessionId === id);
         notedResult.push({
           id,
           noted,
         });
-      })
+      });
       this.addCallsQueryResults(notedResult);
     } catch (e) {
       console.error(e);
