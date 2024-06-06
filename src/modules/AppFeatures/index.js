@@ -74,13 +74,13 @@ export class AppFeatures extends AppFeaturesBase {
   get showSmsTemplate() {
     return this.config.SMSTemplate && (
       this.appScopes.indexOf('ReadAccounts') > -1 ||
-      this.appScopes.indexOf('EditAccounts') > -1
+      this.appScopes.indexOf('EditExtensions') > -1
     ) && this.hasSMSSendingFeature;
   }
 
   get showSmsTemplateManage() {
     return (
-      this.appScopes.indexOf('EditAccounts') > -1 &&
+      this.appScopes.indexOf('EditExtensions') > -1 &&
       this.hasSMSSendingFeature
     );
   }
