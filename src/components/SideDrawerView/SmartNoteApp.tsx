@@ -21,6 +21,7 @@ export function SmartNoteApp({
   client,
   onClose,
   onAlert,
+  smartNoteRemoteEntry,
 }) {
   const SmartNotePlugin = useApp({
     name: 'SmartNotes',
@@ -28,14 +29,14 @@ export function SmartNoteApp({
       console.log('loading smart note');
       return dynamicLoad(
         '@ringcentral/smart-note-widget/src/bootstrap',
-        'http://localhost:5000/remoteEntry.js',
+        smartNoteRemoteEntry,
       );
     },
     attrs: {
       className: 'smart-note-app',
     },
     bootstrap: async (platform) => {},
-  })
+  });
   return (
     <Container>
       <SmartNotePlugin

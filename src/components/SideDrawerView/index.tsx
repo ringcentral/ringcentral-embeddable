@@ -13,6 +13,7 @@ const StyledDrawer = styled(RcDrawer)`
 export function SideDrawerView({
   smartNoteClient,
   smartNoteSession,
+  smartNoteRemoteEntry,
   show,
   onClose,
   onAlert,
@@ -32,6 +33,7 @@ export function SideDrawerView({
         client={smartNoteClient}
         onClose={onClose}
         onAlert={onAlert}
+        smartNoteRemoteEntry={smartNoteRemoteEntry}
       />
     </StyledDrawer>
   );

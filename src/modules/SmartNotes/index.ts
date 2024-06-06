@@ -21,6 +21,8 @@ import callDirections from '@ringcentral-integration/commons/enums/callDirection
 export class SmartNotes extends RcModuleV2 {
   protected SmartNoteClient: any;
   protected _smartNoteClient: any;
+  protected _smartNoteMFERemoteEntry: string;
+  protected _smartNoteIframeUri: string;
 
   constructor(deps) {
     super({
@@ -30,6 +32,8 @@ export class SmartNotes extends RcModuleV2 {
     });
     this.SmartNoteClient = null
     this._smartNoteClient = null;
+    this._smartNoteIframeUri = '';
+    this._smartNoteMFERemoteEntry = '';
   }
 
   async onInitOnce() {
@@ -69,10 +73,12 @@ export class SmartNotes extends RcModuleV2 {
     });
     try {
       const plugins = await fetch('./plugins.json').then((res) => res.json());
-      const smartNotesRemoteEntry = plugins.smartNotes;
+      const smartNotesRemoteEntry = plugins.smartNotesMFE;
       if (!smartNotesRemoteEntry) {
         return;
       }
+      this._smartNoteMFERemoteEntry = smartNotesRemoteEntry;
+      this._smartNoteIframeUri = plugins.smartNotesIframe;
       const smartNotesModule = await dynamicLoad(
         '@ringcentral/smart-note-widget/src/bootstrap',
         smartNotesRemoteEntry,
@@ -104,7 +110,8 @@ export class SmartNotes extends RcModuleV2 {
         contact: {
           name: session.contactName,
           phoneNumber: session.phoneNumber,
-        }
+        },
+        smartNoteIframeUri: this._smartNoteIframeUri,
       });
       this._setSession(session);
     } else {
@@ -243,5 +250,9 @@ export class SmartNotes extends RcModuleV2 {
       map[item.id] = item.text;
       return map;
     }, {});
+  }
+
+  get smartNoteMFERemoteEntry() {
+    return this._smartNoteMFERemoteEntry;
   }
 }

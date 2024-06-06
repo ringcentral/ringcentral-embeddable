@@ -39,6 +39,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
       smartNoteSession: smartNotes.session,
       show: this.show,
       smartNoteClient: smartNotes.smartNoteClient,
+      smartNoteRemoteEntry: smartNotes.smartNoteMFERemoteEntry,
     };
   }
 
