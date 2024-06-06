@@ -350,7 +350,8 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     enableCDC && checkShouldHideContactUser(contactMatches);
   const fallbackContactName = getFallbackContactName();
 
-  const ringing = isRinging(call);
+  // const ringing = isRinging(call);
+  const isFax = call.type === 'Fax';
 
   const missed = isInbound(call) && isMissed(call);
   const parsedInfo = parseNumber({
@@ -389,7 +390,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   // const selectedMatchContactType = getSelectedContact()?.type ?? '';
   const actions: any[] = [];
   const isLogged = activityMatches.length > 0;
-  if (showLogButton) {
+  if (showLogButton && !isFax) {
     actions.push({
       id: 'log',
       icon: isLogged ? Edit : NewAction,
@@ -459,7 +460,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
       disabled: disableLinks,
     });
   }
-  if (showLogButton && isLogged) {
+  if (showLogButton && isLogged && !isFax) {
     actions.push({
       id: 'viewLog',
       icon: ViewLogBorder,
