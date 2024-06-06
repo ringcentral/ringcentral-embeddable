@@ -2835,14 +2835,6 @@
     type-fest "^2.12.2"
     typeface-lato "^0.0.75"
 
-"@ringcentral/mfe-builder@^0.3.7":
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/@ringcentral/mfe-builder/-/mfe-builder-0.3.7.tgz#b7f7517dfcc792a7246cea60284fed6eb42989cf"
-  integrity sha512-D1t1/ElXe7epjnvJOUqYCAalOcMiT/s8LQJWrLOjBWj14egxO92THTR3yLHe4Ybl0CWZP84D9FcjNMeJSNR7rA==
-  dependencies:
-    "@ringcentral/mfe-shared" "^0.3.7"
-    yargs "17.6.2"
-
 "@ringcentral/mfe-core@^0.3.7":
   version "0.3.7"
   resolved "https://registry.yarnpkg.com/@ringcentral/mfe-core/-/mfe-core-0.3.7.tgz#f5071773c2033f8f067c21f0914da28f115d1ec0"
@@ -11966,19 +11958,6 @@ yargs-parser@^21.1.1:
   version "21.1.1"
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-21.1.1.tgz#9096bceebf990d21bb31fa9516e0ede294a77d35"
   integrity sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==
-
-yargs@17.6.2:
-  version "17.6.2"
-  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.6.2.tgz#2e23f2944e976339a1ee00f18c77fedee8332541"
-  integrity sha512-1/9UrdHjDZc0eOU0HxOHoS78C69UD3JRMvzlJ7S79S2nTaWRA/whGCTV8o9e/N/1Va9YIV7Q4sOxD8VV4pCWOw==
-  dependencies:
-    cliui "^8.0.1"
-    escalade "^3.1.1"
-    get-caller-file "^2.0.5"
-    require-directory "^2.1.1"
-    string-width "^4.2.3"
-    y18n "^5.0.5"
-    yargs-parser "^21.1.1"
 
 yargs@17.7.1, yargs@^17.3.1:
   version "17.7.1"
