@@ -6,7 +6,6 @@ import { Call } from '@ringcentral-integration/commons/interfaces/Call.interface
 import {
   isInbound,
   isMissed,
-  isRinging,
 } from '@ringcentral-integration/commons/lib/callLogHelpers';
 import { formatDuration } from '@ringcentral-integration/commons/lib/formatDuration';
 import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
@@ -43,10 +42,6 @@ import styles from '@ringcentral-integration/widgets/components/CallItem/styles.
 
 import { CallIcon } from './CallIcon';
 import { RecordingDialog } from './RecordingDialog';
-
-const DownloadLink = styled.a`
-  display: none;
-`;
 
 import {
   StyledListItem,
@@ -110,6 +105,14 @@ type CallItemProps = {
   showLogButton?: boolean;
   logButtonTitle?: string;
 };
+
+const DownloadLink = styled.a`
+  display: none;
+`;
+
+const IconBadge = styled(RcIcon)`
+  margin-left: 8px;
+`;
 
 export const CallItem: FunctionComponent<CallItemProps> = ({
   currentSiteCode = '',
@@ -436,6 +439,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
         contactName: hasEntity ? contactMatches[0].name : fallbackContactName,
       }),
       disabled: disableLinks,
+      color: 'label.purple01',
     });
   }
   
@@ -568,6 +572,15 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
                 ) : null
               }
               {durationEl}
+              {
+                aiNoted && (
+                  <IconBadge
+                    symbol={AiSmartNotes}
+                    size="small"
+                    color="label.purple01"
+                  />
+                )
+              }
             </DetailArea>
             <span className="call-item-time">
               {dateEl}{statusEl}
