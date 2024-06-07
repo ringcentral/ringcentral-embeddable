@@ -75,7 +75,7 @@ export function CustomizedPanel({
           }}
           formData={formDataState}
           uiSchema={uiSchema}
-          onButtonClick={onButtonClick}
+          onButtonClick={(id) => onButtonClick(id, formDataState)}
           hiddenSubmitButton={type === 'page' || !showSaveButton}
           onSubmit={() => onSave(pageId, formDataState)}
         />
