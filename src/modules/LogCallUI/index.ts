@@ -96,6 +96,9 @@ export class LogCallUI extends RcUIModuleV2 {
           keys,
         });
       },
+      onFormPageButtonClick(id, formData) {
+        thirdPartyService.onClickButtonInCustomizedPage(id, 'button', formData);
+      }
     };
   }
 }

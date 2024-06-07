@@ -19,6 +19,7 @@ export function Button({
       }}
       fullWidth={uiSchema['ui:fullWidth']}
       disabled={disabled}
+      color={uiSchema['ui:color'] || 'primary'}
     >
       {schema.title}
     </RcButton>

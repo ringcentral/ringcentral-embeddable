@@ -55,6 +55,7 @@ export default function LogCallPanel({
   onCustomizedFieldChange,
   onBackButtonClick,
   isLogging,
+  onFormPageButtonClick,
 }) {
   const currentCallRef = useRef(null);
   const [defaultPage, setDefaultPage] = useState({
@@ -116,7 +117,7 @@ export default function LogCallPanel({
     <CustomizedPanel
       type="page"
       onBackButtonClick={onBackButtonClick}
-      onButtonClick={undefined}
+      onButtonClick={onFormPageButtonClick}
       onSave={(_pageId, formData) => {
         onSave({
           call: currentCall,
