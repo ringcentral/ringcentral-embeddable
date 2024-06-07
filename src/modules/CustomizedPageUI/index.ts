@@ -52,8 +52,8 @@ export class CustomizedPageUI extends RcUIModuleV2 {
           keys,
         });
       },
-      onButtonClick(id) {
-        thirdPartyService.onClickButtonInCustomizedPage(id, 'button');
+      onButtonClick(id, formData) {
+        thirdPartyService.onClickButtonInCustomizedPage(id, 'button', formData);
       },
     };
   }
