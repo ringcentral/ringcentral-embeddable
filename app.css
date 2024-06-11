@@ -7277,12 +7277,6 @@ input {
 .CallsListPanel_maskStyle {
   top: calc(-20% + 84px);
 }
-.NoCalls_noCalls {
-  color: var(--darkgray);
-  font-size: 14px;
-  text-align: center;
-  line-height: 180px;
-}
 .CallItem_root {
   min-height: 62px;
   border-bottom: 1px solid #e2e2e2;
