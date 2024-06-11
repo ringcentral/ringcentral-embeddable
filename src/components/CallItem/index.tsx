@@ -30,6 +30,7 @@ import {
   Download,
   Refresh,
   AiSmartNotes,
+  Disposition,
 } from '@ringcentral/juno-icon';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
@@ -578,6 +579,17 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
                     symbol={AiSmartNotes}
                     size="small"
                     color="label.purple01"
+                    title="Smart note"
+                  />
+                )
+              }
+              {
+                isLogged && (
+                  <IconBadge
+                    symbol={Disposition}
+                    size="small"
+                    color="label.blue01"
+                    title="Logged"
                   />
                 )
               }
