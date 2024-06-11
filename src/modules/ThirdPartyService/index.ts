@@ -29,6 +29,7 @@ import {
     'ActivityMatcher',
     'ConversationMatcher',
     'GenericMeeting',
+    'SmartNotes',
     { dep: 'ThirdPartyContactsOptions', optional: true },
   ],
 })
@@ -81,6 +82,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._ignoreModuleReadiness(deps.activityMatcher);
     this._ignoreModuleReadiness(deps.conversationMatcher);
     this._ignoreModuleReadiness(deps.genericMeeting);
+    this._ignoreModuleReadiness(deps.smartNotes);
 
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
@@ -731,6 +733,9 @@ export default class ThirdPartyService extends RcModuleV2 {
     try {
       if (!this._callLoggerPath) {
         return;
+      }
+      if (this._deps.smartNotes.hasPermission) {
+        options.aiNote = await this._deps.smartNotes.fetchSmartNoteText(call.telephonySessionId);
       }
       const callItem = { ...call };
       if (call.recording) {

@@ -239,6 +239,9 @@ import { Webphone } from '../Webphone';
 import { MainViewUI } from '../MainViewUI';
 import { CustomizedPageUI } from '../CustomizedPageUI';
 import { SmsTemplates } from '../SmsTemplates';
+import { SmartNotes } from '../SmartNotes';
+import { SideDrawerUI } from '../SideDrawerUI';
+
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
@@ -251,6 +254,7 @@ import { SmsTemplates } from '../SmsTemplates';
     { provide: 'Theme', useClass: Theme },
     { provide: 'ThemeUI', useClass: ThemeUI },
     { provide: 'MainViewUI', useClass: MainViewUI },
+    { provide: 'SideDrawerUI', useClass: SideDrawerUI },
     { provide: 'Locale', useClass: Locale },
     { provide: 'TabManager', useClass: TabManager },
     { provide: 'GlobalStorage', useClass: GlobalStorage },
@@ -485,6 +489,7 @@ import { SmsTemplates } from '../SmsTemplates';
     },
     { provide: 'ThirdPartySettingSectionUI', useClass: ThirdPartySettingSectionUI },
     { provide: 'CustomizedPageUI', useClass: CustomizedPageUI },
+    { provide: 'SmartNotes', useClass: SmartNotes },
   ]
 })
 export default class BasePhone extends RcModule {
@@ -766,6 +771,7 @@ export function createPhone({
   defaultAutoLogMessageEnabled,
   isUsingDefaultClientId,
   enableSMSTemplate,
+  enableSmartNote,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -889,6 +895,7 @@ export function createPhone({
           SignUpButton: showSignUpButton,
           NoiseReduction: !disableNoiseReduction,
           SMSTemplate: !!enableSMSTemplate,
+          SmartNote: !!enableSmartNote,
         },
       },
       {

@@ -15,3 +15,5 @@ build
 extension
 src/noise-reduction
 site
+src/plugins.json
+

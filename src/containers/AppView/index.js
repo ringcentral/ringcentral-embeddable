@@ -7,6 +7,8 @@ import { withPhone } from '@ringcentral-integration/widgets/lib/phoneContext';
 
 import { DemoOnlyBanner } from '../../components/DemoOnlyBanner';
 import { EnvironmentPanel } from '../../components/EnvironmentPanel';
+import { SideDrawerContainer } from '../SideDrawerContainer';
+
 import './styles.scss';
 
 const Root = styled.div`
@@ -14,9 +16,18 @@ const Root = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: ${palette2('neutral', 'b01')};
+  display: flex;
+  flex-direction: row;
+`;
+
+const MainContent = styled.div`
   display: flex;
   flex-direction: column;
-  background: ${palette2('neutral', 'b01')};
+  flex: 1;
+  height: 100%;
+  max-width: 100%;
+  position: relative;
 `;
 
 const Content = styled.div`
@@ -27,22 +38,25 @@ const Content = styled.div`
 function AppView(props) {
   return (
     <Root>
-      <DemoOnlyBanner
-        show={props.showDemoWarning}
-        onClose={props.dismissDemoWarning}
-      />
-      <Content>
-        {props.children}
-        <EnvironmentPanel
-          server={props.server}
-          enabled={props.enabled}
-          clientId={props.clientId}
-          clientSecret={props.clientSecret}
-          onSetData={props.onSetData}
-          redirectUri={props.redirectUri}
-          recordingHost={''}
+      <MainContent>
+        <DemoOnlyBanner
+          show={props.showDemoWarning}
+          onClose={props.dismissDemoWarning}
         />
-      </Content>
+        <Content>
+          {props.children}
+          <EnvironmentPanel
+            server={props.server}
+            enabled={props.enabled}
+            clientId={props.clientId}
+            clientSecret={props.clientSecret}
+            onSetData={props.onSetData}
+            redirectUri={props.redirectUri}
+            recordingHost={''}
+          />
+        </Content>
+      </MainContent>
+      <SideDrawerContainer />
     </Root>
   );
 }

@@ -14,6 +14,7 @@ import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber'
     'ExtensionInfo',
     'ThirdPartyService',
     'RouterInteraction',
+    'SmartNotes',
   ],
 })
 export class LogCallUI extends RcUIModuleV2 {
@@ -30,17 +31,20 @@ export class LogCallUI extends RcUIModuleV2 {
       locale,
       callLogger,
       thirdPartyService,
+      smartNotes,
     } = this._deps;
     let currentCall = null;
     if (params.callSessionId) {
       currentCall = callLogger.allCallMapping[params.callSessionId];
     }
     const loggingMap = callLogger.loggingMap || {};
+    const noteText = currentCall ? smartNotes.smartNoteTextMapping[currentCall.telephonySessionId] : '';
     return {
       currentCall,
       currentLocale: locale.currentLocale,
       customizedPage: thirdPartyService.customizedLogCallPage,
       isLogging: !!loggingMap[params.callSessionId],
+      smartNote: noteText || '',
     };
   }
 
@@ -54,6 +58,7 @@ export class LogCallUI extends RcUIModuleV2 {
       thirdPartyService,
       routerInteraction,
       callLogger,
+      smartNotes,
     } = this._deps;
 
     return {
@@ -75,6 +80,7 @@ export class LogCallUI extends RcUIModuleV2 {
           queries: [call.sessionId],
           ignoreCache: true
         });
+        smartNotes.fetchSmartNoteText(call.telephonySessionId);
       },
       formatPhone: (phoneNumber) =>
         formatNumber({

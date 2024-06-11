@@ -106,6 +106,9 @@ export function CallsListPanel({
   isWide = true,
   activeCalls,
   type,
+  onViewSmartNote,
+  onViewCalls,
+  aiNotedCallMapping = {},
 }) {
   const [contentHeight, setContentHeight] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
@@ -204,6 +207,9 @@ export function CallsListPanel({
       logButtonTitle={logButtonTitle}
       formatPhone={formatPhone}
       isRecording={type === 'recordings'}
+      onViewSmartNote={onViewSmartNote}
+      onViewCalls={onViewCalls}
+      aiNotedCallMapping={aiNotedCallMapping}
     />
   );
 

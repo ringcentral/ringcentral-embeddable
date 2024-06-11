@@ -76,6 +76,7 @@ import {
     'ContactMatcher',
     'AudioSettings',
     'SmsTemplates',
+    'SideDrawerUI',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -112,6 +113,7 @@ export default class Adapter extends AdapterModuleCore {
     fromPopup,
     isUsingDefaultClientId,
     smsTemplates,
+    sideDrawerUI,
     ...options
   }) {
     super({
@@ -148,6 +150,7 @@ export default class Adapter extends AdapterModuleCore {
     this._contactMatcher = contactMatcher;
     this._audioSettings = audioSettings;
     this._smsTemplates = smsTemplates;
+    this._sideDrawerUI = sideDrawerUI;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -166,6 +169,7 @@ export default class Adapter extends AdapterModuleCore {
     this._dialerDisabled = null;
     this._meetingReady = null;
     this._brandConfig = null;
+    this._sideDrawerOpen = null;
     this._popupWindowManager = new PopupWindowManager({ prefix, isPopupWindow: fromPopup });
 
     this._messageStore.onNewInboundMessage((message) => {
@@ -270,6 +274,7 @@ export default class Adapter extends AdapterModuleCore {
     this._checkMeetingStatusChanged();
     this._checkBrandConfigChanged();
     this._checkWebphoneStatus();
+    this._checkSideDrawerOpen();
   }
 
   _onMessage(event) {
@@ -1122,6 +1127,25 @@ export default class Adapter extends AdapterModuleCore {
     this.store.dispatch({
       type: this.actionTypes.setShowDemoWarning,
       show: false,
+    });
+  }
+
+  _checkSideDrawerOpen() {
+    if (!this.ready) {
+      return;
+    }
+    if (this._sideDrawerOpen === this._sideDrawerUI.show) {
+      return;
+    }
+    this._sideDrawerOpen = this._sideDrawerUI.show;
+    const newSize = {
+      width: this._sideDrawerOpen ? 600 : 300,
+      height: 500,
+    };
+    this._syncSize(newSize);
+    this._postMessage({
+      type: this._messageTypes.syncSize,
+      size: newSize,
     });
   }
 }

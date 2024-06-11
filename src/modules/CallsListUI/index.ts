@@ -5,6 +5,7 @@ import callDirections from '@ringcentral-integration/commons/enums/callDirection
 import { isRingingInboundCall } from '@ringcentral-integration/commons/lib/callLogHelpers';
 import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
 import { computed } from '@ringcentral-integration/core';
+import debounce from '@ringcentral-integration/commons/lib/debounce';
 
 @Module({
   name: 'CallsListUI',
@@ -15,6 +16,7 @@ import { computed } from '@ringcentral-integration/core';
     'ActivityMatcher',
     'ContactMatcher',
     'CallingSettings',
+    'SmartNotes',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
     { dep: 'CallsListUIOptions', optional: true },
@@ -65,6 +67,7 @@ export class CallsListUI extends BaseCallsListUI {
       conferenceCall,
       rateLimiter,
       callMonitor,
+      smartNotes,
     } = this._deps;
     const isWebRTC = callingSettings.callingMode === callingModes.webphone;
     const controlBusy = activeCallControl?.busy || false;
@@ -111,6 +114,7 @@ export class CallsListUI extends BaseCallsListUI {
       calls: type !== 'recordings' ? callHistory.latestCalls : this.recordings,
       isWide: true,
       type,
+      aiNotedCallMapping: smartNotes.aiNotedCallMapping,
     };
   }
 
@@ -127,6 +131,7 @@ export class CallsListUI extends BaseCallsListUI {
       regionSettings,
       conferenceCall,
       contactMatcher,
+      smartNotes,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -247,6 +252,23 @@ export class CallsListUI extends BaseCallsListUI {
       isOnHold: (webphoneSession) => {
         return isOnHold(webphoneSession);
       },
+      onViewSmartNote: ({
+        telephonySessionId,
+        phoneNumber,
+        contactName,
+      }) => {
+        smartNotes.setSession({
+          id: telephonySessionId,
+          status: 'Disconnected',
+          phoneNumber: phoneNumber,
+          contactName,
+        });
+      },
+      onViewCalls: this.onViewCalls,
     };
   }
+
+  onViewCalls = debounce((calls) => {
+    return this._deps.smartNotes.queryNotedCalls(calls.map(c => c.telephonySessionId));
+  }, 300);
 }

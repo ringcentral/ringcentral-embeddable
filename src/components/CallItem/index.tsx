@@ -6,7 +6,6 @@ import { Call } from '@ringcentral-integration/commons/interfaces/Call.interface
 import {
   isInbound,
   isMissed,
-  isRinging,
 } from '@ringcentral-integration/commons/lib/callLogHelpers';
 import { formatDuration } from '@ringcentral-integration/commons/lib/formatDuration';
 import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
@@ -30,6 +29,7 @@ import {
   PlayCircleBorder,
   Download,
   Refresh,
+  AiSmartNotes,
 } from '@ringcentral/juno-icon';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
@@ -42,10 +42,6 @@ import styles from '@ringcentral-integration/widgets/components/CallItem/styles.
 
 import { CallIcon } from './CallIcon';
 import { RecordingDialog } from './RecordingDialog';
-
-const DownloadLink = styled.a`
-  display: none;
-`;
 
 import {
   StyledListItem,
@@ -104,7 +100,19 @@ type CallItemProps = {
   maxExtensionNumberLength?: number;
   formatPhone?: (...args: any[]) => any;
   isRecording?: boolean;
+  onViewSmartNote?: (...args: any[]) => any;
+  aiNoted: boolean;
+  showLogButton?: boolean;
+  logButtonTitle?: string;
 };
+
+const DownloadLink = styled.a`
+  display: none;
+`;
+
+const IconBadge = styled(RcIcon)`
+  margin-left: 8px;
+`;
 
 export const CallItem: FunctionComponent<CallItemProps> = ({
   currentSiteCode = '',
@@ -152,6 +160,8 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   showLogButton,
   logButtonTitle,
   isRecording = false,
+  onViewSmartNote,
+  aiNoted,
 }) => {
   const {
     direction,
@@ -418,6 +428,21 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     });
   }
   const hasEntity = !!contactMatches.length;
+  if (onViewSmartNote && aiNoted) {
+    actions.push({
+      id: 'viewSmartNote',
+      icon: AiSmartNotes,
+      title: 'View smart note',
+      onClick: () => onViewSmartNote({
+        telephonySessionId: call.telephonySessionId,
+        phoneNumber,
+        contactName: hasEntity ? contactMatches[0].name : fallbackContactName,
+      }),
+      disabled: disableLinks,
+      color: 'label.purple01',
+    });
+  }
+  
   if (!isContactMatchesHidden && hasEntity) {
     actions.push({
       id: 'viewContact',
@@ -547,6 +572,15 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
                 ) : null
               }
               {durationEl}
+              {
+                aiNoted && (
+                  <IconBadge
+                    symbol={AiSmartNotes}
+                    size="small"
+                    color="label.purple01"
+                  />
+                )
+              }
             </DetailArea>
             <span className="call-item-time">
               {dateEl}{statusEl}

@@ -56,6 +56,7 @@ export default function LogCallPanel({
   onBackButtonClick,
   isLogging,
   onFormPageButtonClick,
+  smartNote = '',
 }) {
   const currentCallRef = useRef(null);
   const [defaultPage, setDefaultPage] = useState({
@@ -74,7 +75,7 @@ export default function LogCallPanel({
       currentCallRef.current = null;
       return;
     }
-    let defaultNote = '';
+    let defaultNote = smartNote;
     let defaultContactId = '';
     if (
       !currentCallRef.current || (
@@ -107,6 +108,22 @@ export default function LogCallPanel({
     }
     currentCallRef.current = currentCall;
   }, [currentCall]);
+
+  useEffect(() => {
+    if (!smartNote) {
+      return;
+    }
+    if (defaultPage.formData.note !== '') {
+      return;
+    }
+    setDefaultPage({
+      ...defaultPage,
+      formData: {
+        ...defaultPage.formData,
+        note: smartNote,
+      },
+    });
+  }, [smartNote]);
 
   if (!currentCall) {
     return null;
