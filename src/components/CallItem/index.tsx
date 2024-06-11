@@ -30,6 +30,8 @@ import {
   Download,
   Refresh,
   AiSmartNotes,
+  Disposition,
+  ExtensionLineBorder,
 } from '@ringcentral/juno-icon';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
@@ -573,11 +575,30 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
               }
               {durationEl}
               {
+                isExtension && (
+                  <IconBadge
+                    symbol={ExtensionLineBorder}
+                    size="small"
+                    title="Internal call"
+                  />
+                )
+              }
+              {
                 aiNoted && (
                   <IconBadge
                     symbol={AiSmartNotes}
                     size="small"
                     color="label.purple01"
+                    title="Smart note"
+                  />
+                )
+              }
+              {
+                isLogged && (
+                  <IconBadge
+                    symbol={Disposition}
+                    size="small"
+                    title="Logged"
                   />
                 )
               }
