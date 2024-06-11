@@ -203,9 +203,6 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
       isLastInputFromDialpad={isLastInputFromDialpad}
       titleEnabled
       autoFocus={autoFocus}
-      onEnterKeyDown={() => {
-        onCallButtonClick({ clickDialerToCall: true });
-      }}
     />
   );
   return (
