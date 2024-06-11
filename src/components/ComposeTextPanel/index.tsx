@@ -12,9 +12,6 @@ import styles
 import FromField from '@ringcentral-integration/widgets/components/FromField';
 import RecipientsInput from '@ringcentral-integration/widgets/components/RecipientsInput';
 import {
-  RecipientsInputV2,
-} from '@ringcentral-integration/widgets/components/RecipientsInputV2';
-import {
   SpinnerOverlay,
 } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 import { RcTypography, styled } from '@ringcentral/juno';
@@ -223,48 +220,27 @@ class ComposeTextPanel extends Component<
           showAlert={this.showAlert()}
           brand={brand}
         />
-        {useRecipientsInputV2 ? (
-          <RecipientsInputV2
-            value={typingToNumber}
-            recipientsClassName={styles.recipients}
-            onInputChange={this.onInputChange}
-            onInputClear={this.cleanReceiverValue}
-            recipients={toNumbers}
-            addToRecipients={this.addToRecipients}
-            removeFromRecipients={this.removeFromRecipients}
-            searchContactList={filteredSearchContactList}
-            formatContactPhone={formatContactPhone}
-            currentLocale={currentLocale}
-            phoneTypeRenderer={phoneTypeRenderer}
-            phoneSourceNameRenderer={phoneSourceNameRenderer}
-            contactInfoRenderer={recipientsContactInfoRenderer}
-            contactPhoneRenderer={recipientsContactPhoneRenderer}
-            enableTitle
-            multiple
-          />
-        ) : (
-          <RecipientsInput
-            value={typingToNumber}
-            recipientsClassName={styles.recipients}
-            onChange={updateTypingToNumber}
-            onClean={this.cleanReceiverValue}
-            recipients={toNumbers}
-            addToRecipients={this.addToRecipients}
-            removeFromRecipients={this.removeFromRecipients}
-            searchContact={searchContact}
-            searchContactList={searchContactList}
-            formatContactPhone={formatContactPhone}
-            detectPhoneNumbers={detectPhoneNumbers}
-            currentLocale={currentLocale}
-            phoneTypeRenderer={phoneTypeRenderer}
-            phoneSourceNameRenderer={phoneSourceNameRenderer}
-            contactInfoRenderer={recipientsContactInfoRenderer}
-            contactPhoneRenderer={recipientsContactPhoneRenderer}
-            titleEnabled
-            autoFocus={autoFocus}
-            multiple
-          />
-        )}
+        <RecipientsInput
+          value={typingToNumber}
+          recipientsClassName={styles.recipients}
+          onChange={updateTypingToNumber}
+          onClean={this.cleanReceiverValue}
+          recipients={toNumbers}
+          addToRecipients={this.addToRecipients}
+          removeFromRecipients={this.removeFromRecipients}
+          searchContact={searchContact}
+          searchContactList={searchContactList}
+          formatContactPhone={formatContactPhone}
+          detectPhoneNumbers={detectPhoneNumbers}
+          currentLocale={currentLocale}
+          phoneTypeRenderer={phoneTypeRenderer}
+          phoneSourceNameRenderer={phoneSourceNameRenderer}
+          contactInfoRenderer={recipientsContactInfoRenderer}
+          contactPhoneRenderer={recipientsContactPhoneRenderer}
+          titleEnabled
+          autoFocus={autoFocus}
+          multiple
+        />
         <div className={styles.senderField}>
           <FromField
             currentLocale={currentLocale}

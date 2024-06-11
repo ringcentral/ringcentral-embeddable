@@ -165,6 +165,22 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (callButtonDisabled) {
+      return;
+    }
+    const onKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        onCallButtonClick({ clickDialerToCall: true });
+      }
+    };
+    window.document.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [callButtonDisabled]);
+
   const input = (
     <StyledRecipientsInput
       inputRef={(element) => {
