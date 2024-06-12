@@ -26,7 +26,7 @@ import { ModalContainer } from '@ringcentral-integration/widgets/containers/Moda
 import RegionSettingsPage from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
 import { SimpleCallControlPage } from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
 import { ThemeContainer } from '@ringcentral-integration/widgets/containers/ThemeContainer';
-import TransferPage from '@ringcentral-integration/widgets/containers/TransferPage';
+
 import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
 
 import { getAlertRenderer } from '../../components/AlertRenderer';
@@ -37,6 +37,7 @@ import AppView from '../AppView';
 import { PhoneTabsContainer } from '../PhoneTabsContainer';
 import DialerPage from '../DialerPage';
 import CallCtrlPage from '../CallCtrlPage';
+import TransferPage from '../TransferPage';
 import LogCallPage from '../LogCallPage';
 import { CallsListPage } from '../CallsListPage';
 import ConferenceCallDialerPage from '../ConferenceCallDialerPage';
@@ -90,6 +91,19 @@ export default function App({
     }
     phone.thirdPartyService.onViewMatchedContactExternal(contact);
   };
+
+  const getPresenceOnContactSearch = (contact) => {
+    // show presence in contact search result
+    if (contact.type !== 'company') {
+      return undefined;
+    }
+    const companyContact = phone.accountContacts.rcCompanyMapping[contact.contactId];
+    if (!companyContact) {
+      return undefined;
+    }
+    return phone.contacts.getPresence(companyContact, false);
+  };
+
   return (
     <PhoneContext.Provider value={phone}>
       <Provider store={phone.store} >
@@ -152,17 +166,7 @@ export default function App({
                     <PhoneTabsContainer>
                       <DialerPage
                         withTabs={true}
-                        getPresence={(contact) => {
-                          // show presence in contact search result
-                          if (contact.type !== 'company') {
-                            return undefined;
-                          }
-                          const companyContact = phone.accountContacts.rcCompanyMapping[contact.contactId];
-                          if (!companyContact) {
-                            return undefined;
-                          }
-                          return phone.contacts.getPresence(companyContact, false);
-                        }}
+                        getPresence={getPresenceOnContactSearch}
                       />
                     </PhoneTabsContainer>
                   )}
@@ -347,7 +351,12 @@ export default function App({
                 )} />
               <Route
                 path="/conferenceCall/dialer/:fromNumber/:fromSessionId"
-                component={ConferenceCallDialerPage}
+                component={(routerProps) => (
+                  <ConferenceCallDialerPage
+                    params={routerProps.params}
+                    getPresence={getPresenceOnContactSearch}
+                  />
+                )}
               />
               <Route
                 path="/conferenceCall/participants"
@@ -372,6 +381,7 @@ export default function App({
                   <TransferPage
                     params={routerProps.params}
                     enableWarmTransfer={routerProps.params.type !== 'active'}
+                    getPresence={getPresenceOnContactSearch}
                   />
                 )}
               />

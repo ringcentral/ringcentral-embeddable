@@ -10,7 +10,7 @@ import NoSenderAlert
 import styles
   from '@ringcentral-integration/widgets/components/ComposeTextPanel/styles.scss';
 import FromField from '@ringcentral-integration/widgets/components/FromField';
-import RecipientsInput from '@ringcentral-integration/widgets/components/RecipientsInput';
+
 import {
   SpinnerOverlay,
 } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
@@ -19,6 +19,8 @@ import i18n from '@ringcentral-integration/widgets/components/ConversationsPanel
 import { BackHeader } from '../BackHeader';
 import MessageInput from '../MessageInput'; // TODO: temporary solution, wait for new component ready
 import type { Attachment } from '../MessageInput';
+import RecipientsInput from '../RecipientsInput';
+
 const Title = styled(RcTypography)`
   line-height: 40px;
 `;
