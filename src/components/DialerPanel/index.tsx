@@ -12,9 +12,9 @@ import {
 } from '@ringcentral/juno';
 import { Phone } from '@ringcentral/juno-icon';
 
-import RecipientsInput from '@ringcentral-integration/widgets/components/RecipientsInput';
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 import FromField from './FromField';
+import RecipientsInput from '../RecipientsInput';
 
 const Container = styled.div`
   position: relative;

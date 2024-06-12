@@ -11,10 +11,6 @@ import RcModule from '@ringcentral-integration/commons/lib/RcModule';
 import {
   RingCentralClient,
 } from '@ringcentral-integration/commons/lib/RingCentralClient';
-// Contacts related modules
-import {
-  AccountContacts,
-} from '@ringcentral-integration/commons/modules/AccountContacts';
 // Base info modules
 import {
   AccountInfo,
@@ -185,6 +181,7 @@ import hackSend from '../../lib/hackSend';
 import lockRefresh from '../../lib/lockRefresh';
 import { ActiveCallControl } from '../ActiveCallControl';
 import Adapter from '../Adapter';
+import { AccountContacts } from '../AccountContacts';
 import { AddressBook } from '../AddressBook';
 import { Analytics } from '../Analytics';
 import { AppFeatures } from '../AppFeatures';
