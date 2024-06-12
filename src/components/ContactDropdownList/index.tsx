@@ -15,6 +15,11 @@ export type ContactDropdownListProps = {
     entityType: string;
     phoneType: string;
     phoneNumber: string;
+    id: string;
+    type: string;
+    profileImageUrl: string;
+    presence: string;
+    contactId: string;
   }[];
   formatContactPhone: (...args: any[]) => any;
   addToRecipients: (...args: any[]) => any;
@@ -26,6 +31,7 @@ export type ContactDropdownListProps = {
   phoneSourceNameRenderer?: (...args: any[]) => any;
   contactInfoRenderer?: (...args: any[]) => any;
   contactPhoneRenderer?: (...args: any[]) => any;
+  getPresence?: (...args: any[]) => any;
 };
 export class ContactDropdownList extends Component<
   ContactDropdownListProps,
@@ -72,10 +78,41 @@ export class ContactDropdownList extends Component<
       phoneSourceNameRenderer,
       contactInfoRenderer,
       contactPhoneRenderer,
+      getPresence,
     } = this.props;
     if (!visibility || items.length === 0) {
       return null;
     }
+    let lastContactId = null;
+    const contactItems = items.map((item, index) => {
+      let hiddenContactInfo = false;
+      if (lastContactId === item.contactId && typeof item.contactId !== 'undefined') {
+        hiddenContactInfo = true;
+      }
+      lastContactId = item.contactId;
+      return (
+        <ContactItem
+          contact={item}
+          currentLocale={currentLocale}
+          active={selectedIndex === index}
+          phoneTypeRenderer={phoneTypeRenderer}
+          phoneSourceNameRenderer={phoneSourceNameRenderer}
+          formatContactPhone={formatContactPhone}
+          onHover={() => setSelectedIndex(index)}
+          onClick={() => addToRecipients(item)}
+          key={`${index}${item.phoneNumber}${item.name}${item.phoneType}`}
+          titleEnabled={titleEnabled}
+          contactInfoRenderer={contactInfoRenderer}
+          contactPhoneRenderer={contactPhoneRenderer}
+          getPresence={
+            typeof getPresence === 'function' && item.type === 'company' ?
+              () => getPresence(item) :
+              undefined
+          }
+          hiddenContactInfo={hiddenContactInfo}
+        />
+      );
+  })
     return (
       <ul
         className={classnames(styles.dropdownList, className)}
@@ -87,29 +124,7 @@ export class ContactDropdownList extends Component<
         }}
         data-sign="contactDropdownList"
       >
-        {items.map((item, index) => (
-          <ContactItem
-            id={item.id}
-            type={item.type}
-            currentLocale={currentLocale}
-            active={selectedIndex === index}
-            name={item.name}
-            entityType={item.entityType}
-            phoneType={item.phoneType}
-            phoneNumber={item.phoneNumber}
-            phoneTypeRenderer={phoneTypeRenderer}
-            phoneSourceNameRenderer={phoneSourceNameRenderer}
-            formatContactPhone={formatContactPhone}
-            onHover={() => setSelectedIndex(index)}
-            onClick={() => addToRecipients(item)}
-            key={`${index}${item.phoneNumber}${item.name}${item.phoneType}`}
-            titleEnabled={titleEnabled}
-            contactInfoRenderer={contactInfoRenderer}
-            contactPhoneRenderer={contactPhoneRenderer}
-            // @ts-expect-error TS(2339): Property 'doNotCall' does not exist on type '{ nam... Remove this comment to see the full error message
-            doNotCall={item.doNotCall}
-          />
-        ))}
+        {contactItems}
       </ul>
     );
   }

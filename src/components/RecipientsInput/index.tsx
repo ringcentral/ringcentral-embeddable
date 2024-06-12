@@ -49,6 +49,7 @@ type RecipientsInputProps = {
   contactPhoneRenderer?: (...args: any[]) => any;
   useRCUI?: boolean;
   isLastInputFromDialpad?: boolean;
+  getPresence?: (...args: any[]) => any;
 };
 type RecipientsInputState = {
   value: any;
@@ -318,6 +319,7 @@ class RecipientsInput extends Component<
       searchContactList,
       titleEnabled,
       useRCUI,
+      getPresence,
     } = this.props;
 
     const { value, isFocusOnInput, scrollDirection, selectedContactIndex } =
@@ -414,6 +416,7 @@ class RecipientsInput extends Component<
           phoneSourceNameRenderer={phoneSourceNameRenderer}
           contactInfoRenderer={contactInfoRenderer}
           contactPhoneRenderer={contactPhoneRenderer}
+          getPresence={getPresence}
         />
       </div>
     );

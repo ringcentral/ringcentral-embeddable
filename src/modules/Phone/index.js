@@ -149,9 +149,6 @@ import { ContactSearchUI } from '@ringcentral-integration/widgets/modules/Contac
 import {
   ContactListUI,
 } from '@ringcentral-integration/widgets/modules/ContactListUI';
-import {
-  DialerAndCallsTabUI,
-} from '@ringcentral-integration/widgets/modules/DialerAndCallsTabUI';
 import { DialerUI } from '@ringcentral-integration/widgets/modules/DialerUI';
 import { FlipUI } from '@ringcentral-integration/widgets/modules/FlipUI';
 import {

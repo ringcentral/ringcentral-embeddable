@@ -152,6 +152,17 @@ export default function App({
                     <PhoneTabsContainer>
                       <DialerPage
                         withTabs={true}
+                        getPresence={(contact) => {
+                          // show presence in contact search result
+                          if (contact.type !== 'company') {
+                            return undefined;
+                          }
+                          const companyContact = phone.accountContacts.rcCompanyMapping[contact.contactId];
+                          if (!companyContact) {
+                            return undefined;
+                          }
+                          return phone.contacts.getPresence(companyContact, false);
+                        }}
                       />
                     </PhoneTabsContainer>
                   )}

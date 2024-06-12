@@ -119,6 +119,7 @@ export interface DialerPanelProps {
   isLastInputFromDialpad?: boolean;
   useV2?: boolean;
   showAnonymous?: boolean;
+  getPresence?: (...args: any[]) => any;
 }
 const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   currentLocale,
@@ -156,6 +157,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   isLastInputFromDialpad,
   showAnonymous,
   useV2,
+  getPresence,
 }) => {
   const inputEl = useRef(null);
   useEffect(() => {
@@ -203,6 +205,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
       isLastInputFromDialpad={isLastInputFromDialpad}
       titleEnabled
       autoFocus={autoFocus}
+      getPresence={getPresence}
     />
   );
   return (
