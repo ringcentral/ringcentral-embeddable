@@ -71,15 +71,18 @@ function ContactAvatar({
     if (typeof getPresence !== 'function') {
       return;
     }
-    const fetchData = async () => {
+    let fetchTimeout = setTimeout(async () => {
+      fetchTimeout = null;
       const presenceData = await getPresence();
       if (mounted.current) {
         setPresenceState(presenceData);
       }
-    };
-    fetchData();
+    }, 300);
     return () => {
       mounted.current = false;
+      if (fetchTimeout) {
+        clearTimeout(fetchTimeout);
+      }
     }
   }, []);
   return (
