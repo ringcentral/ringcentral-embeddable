@@ -4158,6 +4158,45 @@ input:checked + .Switch_slider:before {
   fill: var(--smoke);
   stroke: var(--smoke);
 }
+.RegionSettingsPanel_root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.RegionSettingsPanel_content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overflow-y: auto;
+  height: 94%;
+  max-height: calc(100% - 32px);
+  box-sizing: border-box;
+  background-color: white;
+  padding: 10px 20px 10px 20px;
+}
+
+.RegionSettingsPanel_hint {
+  padding: 5px 0px 10px 0px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--night);
+}
+
+.RegionSettingsPanel_select {
+  border: 1px solid #a6a6a6;
+  border-radius: 2px;
+  height: 100%;
+}
+
+.RegionSettingsPanel_iconRotate {
+  transform: rotate(-180deg);
+  position: absolute;
+  top: 5px;
+  left: 10px;
+}
 .ActiveCallButton_root {
   position: relative;
   text-align: center;
@@ -4203,856 +4242,6 @@ input:checked + .Switch_slider:before {
 }
 .ActiveCallButton_buttonDisabled g:hover circle {
   stroke: var(--gray);
-}
-.ContactDropdownList_dropdownList {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  top: 100%;
-  z-index: 5;
-  padding: 0;
-  margin: 0;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #333;
-  text-align: left;
-  list-style: none;
-  background: #ffffff;
-  border: 1px solid #efefef;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.175);
-  max-height: 265px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-.ContactDropdownList_dropdownList li {
-  padding: 7px 10px 8px 10px;
-}
-.ContactDropdownList_dropdownList li a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.ContactDropdownList_name {
-  color: #303030;
-  font-weight: bold;
-}
-
-.ContactDropdownList_label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ContactDropdownList_splitter {
-  padding: 0 5px;
-}
-
-.ContactDropdownList_nameSection {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ContactDropdownList_dncNameSection {
-  display: inline-block;
-  max-width: calc(100% - 24px);
-  vertical-align: middle;
-}
-
-.ContactDropdownList_phoneNumberSection {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ContactDropdownList_clickable {
-  cursor: pointer;
-}
-
-.ContactDropdownList_doNotCall {
-  display: inline-block;
-  border-radius: 50%;
-  vertical-align: middle;
-  font-size: 0;
-  margin: -2px 0 0 5px;
-  height: 12px;
-  width: 12px;
-}
-.ContactDropdownList_doNotCall:hover {
-  background-color: rgba(101, 108, 128, 0.08);
-}
-.RemoveButton_container {
-  text-decoration: none;
-  color: #666666;
-  cursor: pointer;
-}
-.RemoveButton_container:hover {
-  text-decoration: none;
-  color: #666666;
-}
-
-.RemoveButton_deleteIcon {
-  width: 1em;
-  height: 1em;
-}
-
-.RemoveButton_icon {
-  width: 1em;
-  height: 1em;
-}
-.RemoveButton_icon g {
-  fill: none;
-}
-.RemoveButton_icon path {
-  fill: currentColor;
-}
-.RemoveButton_icon circle {
-  stroke-width: 0.5;
-  stroke: currentColor;
-}
-
-.RemoveButton_hideRemoveButton {
-  color: transparent;
-  text-decoration: none !important;
-  cursor: unset;
-}
-.RemoveButton_hideRemoveButton:hover {
-  color: transparent;
-}
-.RemoveButton_hideRemoveButton:focus {
-  outline: none;
-}
-.RecipientsInput_container {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-  position: relative;
-  display: flex;
-  color: var(--night);
-  margin-top: 10px;
-  margin: 10px 20px 0 20px;
-}
-.RecipientsInput_container * {
-  box-sizing: content-box;
-}
-.RecipientsInput_container a {
-  text-decoration: none;
-}
-
-.RecipientsInput_label {
-  font-size: 15px;
-  font-weight: normal !important;
-  line-height: 29px;
-  font-weight: 200;
-  min-width: 46px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.RecipientsInput_rightPanel {
-  font-size: 15px;
-  display: block;
-  flex-grow: 1;
-  overflow: hidden;
-}
-
-.RecipientsInput_inputWrapper {
-  position: relative;
-}
-
-.RecipientsInput_removeButton {
-  position: absolute;
-  top: 50%;
-  margin-top: -8px;
-  right: 2px;
-  width: 14px;
-}
-
-.RecipientsInput_inputField {
-  position: relative;
-  padding-right: 20px;
-}
-.RecipientsInput_inputField input::-ms-clear {
-  display: none;
-}
-
-.RecipientsInput_numberInput {
-  color: #303030;
-  font-size: 15px;
-  line-height: 20px;
-  width: 100%;
-  height: 27px;
-  border-radius: 3px;
-  border: 0;
-  outline: 0;
-}
-.RecipientsInput_numberInput::-moz-placeholder {
-  font-size: 13px;
-  color: #a9a9a9;
-}
-.RecipientsInput_numberInput::placeholder {
-  font-size: 13px;
-  color: #a9a9a9;
-}
-
-.RecipientsInput_numberInput::-ms-clear {
-  display: none;
-}
-
-.RecipientsInput_contactsDropdown {
-  width: 100%;
-}
-
-.RecipientsInput_selectReceivers {
-  margin: 2px 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-}
-.RecipientsInput_selectReceivers .RecipientsInput_warningRecipient {
-  color: #f54c3d;
-  background: #f9ebe9;
-  border-radius: 100px;
-  border: 1px solid #f54c3d;
-  padding: 4px 23px 4px 10px;
-}
-.RecipientsInput_selectReceivers li {
-  position: relative;
-  color: #fff;
-  border-radius: 20px;
-  font-size: 13px;
-  line-height: 1;
-  margin-bottom: 2px;
-  max-width: 90%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 5px 23px 5px 10px;
-  margin-right: 5px;
-}
-.RecipientsInput_selectReceivers li span {
-  font-weight: 200;
-}
-.RecipientsInput_selectReceivers .RecipientsInput_phoneNumber {
-  background-color: var(--primary-color);
-  opacity: 0.6;
-}
-.RecipientsInput_selectReceivers .RecipientsInput_extension {
-  background-color: var(--extension-background-color);
-}
-
-.RecipientsInput_removeReceiver {
-  position: absolute;
-  right: 7px;
-  width: 10px;
-  color: #ffffff !important;
-}
-
-.RecipientsInput_rcuiStyle {
-  width: 100%;
-}
-.RecipientsInput_rcuiStyle .RecipientsInput_inputField {
-  padding: 0;
-}
-.RecipientsInput_rcuiStyle .RecipientsInput_numberInput {
-  border-bottom: solid 1px;
-  border-radius: 0;
-  background: none;
-}
-.ForwardForm_root {
-  box-sizing: border-box;
-  width: 100%;
-  display: block;
-  padding: 0 0 10px 0;
-  background: #ffffff;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-}
-
-.ForwardForm_buttonGroup {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-  display: block;
-  margin-top: 10px;
-  padding: 0 20px;
-  text-align: right;
-}
-
-.ForwardForm_cancelButton {
-  font-size: 12px;
-  color: var(--primary-color);
-  display: inline-block;
-  width: 65px;
-  height: 28px;
-  border-radius: 100px;
-  border: solid 1px var(--primary-color-highlight);
-  line-height: 28px;
-  text-align: center;
-  margin-right: 10px;
-  opacity: 0.9;
-}
-.ForwardForm_cancelButton:hover {
-  color: var(--primary-color);
-}
-
-.ForwardForm_forwardButton {
-  display: inline-block;
-  width: 65px;
-  height: 28px;
-  border-radius: 100px;
-  background: var(--primary-color);
-  border: solid 1px var(--primary-color);
-  font-size: 12px;
-  color: #ffffff;
-  line-height: 28px;
-  text-align: center;
-}
-.ForwardForm_forwardButton:hover {
-  color: #ffffff;
-}
-.ForwardForm_forwardButton.ForwardForm_disabled {
-  background: #c7c7c7;
-  border: solid 1px #c7c7c7;
-}
-.ForwardForm_forwardButton.ForwardForm_disabled .ForwardForm_buttonText {
-  color: #ffffff;
-}
-
-.ForwardForm_customInput {
-  display: none;
-  border: solid 1px #e3e3e3;
-  margin: 10px 10px 0 10px;
-}
-.ForwardForm_customInput input {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  padding: 0 10px;
-  font-size: 12px;
-}
-
-.ForwardForm_custromNumber {
-  padding: 5px 20px 10px 20px;
-}
-.ForwardForm_custromNumber .ForwardForm_customLabel {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  line-height: 16px;
-  font-weight: 300;
-  cursor: pointer;
-}
-.ForwardForm_custromNumber.ForwardForm_active .ForwardForm_customLabel {
-  color: var(--primary-color);
-}
-.ForwardForm_custromNumber.ForwardForm_active .ForwardForm_customInput {
-  display: block;
-}
-
-.ForwardForm_active {
-  color: var(--primary-color);
-  background-color: #f9f9f9;
-}
-
-.ForwardForm_numbers {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  font-weight: 300;
-  width: 100%;
-  line-height: 28px;
-  max-height: 84px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-.ForwardForm_numbers .ForwardForm_number {
-  box-sizing: border-box;
-  height: 28px;
-  padding: 0 0 0 20px;
-  cursor: pointer;
-  line-height: 28px;
-}
-.ForwardForm_numbers .ForwardForm_number span {
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.ForwardForm_numbers .ForwardForm_number .ForwardForm_label {
-  width: 43px;
-}
-.ForwardForm_numbers .ForwardForm_number .ForwardForm_colon {
-  padding-right: 5px;
-}
-.MultiCallAnswerButton_button {
-  width: 100%;
-  border-radius: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 2px;
-}
-
-.MultiCallAnswerButton_answer circle {
-  fill: var(--call-btn-color);
-  opacity: 1;
-}
-.MultiCallAnswerButton_answer g, .MultiCallAnswerButton_answer path {
-  fill: #ffffff;
-}
-
-.MultiCallAnswerButton_endButton circle {
-  stroke: #ff4646;
-}
-.MultiCallAnswerButton_endButton g, .MultiCallAnswerButton_endButton path {
-  fill: #ff4646;
-}
-
-.MultiCallAnswerButton_buttonTitle {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  font-size: 73px;
-  fill: var(--darkergray);
-}
-.ReplyWithMessage_root {
-  display: block;
-  width: 100%;
-  padding: 0 0 16px 0;
-  background: #ffffff;
-  font-weight: 300;
-}
-.ReplyWithMessage_root * {
-  box-sizing: border-box;
-}
-
-.ReplyWithMessage_buttonGroup {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-  display: block;
-  margin-top: 10px;
-  padding: 0 20px;
-  text-align: right;
-}
-
-.ReplyWithMessage_cancelButton {
-  font-size: 12px;
-  color: var(--primary-color);
-  display: inline-block;
-  width: 65px;
-  height: 28px;
-  border-radius: 100px;
-  border: solid 1px var(--primary-color-highlight);
-  line-height: 28px;
-  text-align: center;
-  margin-right: 10px;
-  opacity: 0.9;
-}
-.ReplyWithMessage_cancelButton:hover {
-  color: var(--primary-color);
-}
-
-.ReplyWithMessage_replyButton {
-  display: inline-block;
-  width: 65px;
-  height: 28px;
-  border-radius: 100px;
-  background: var(--primary-color);
-  font-size: 12px;
-  color: #ffffff;
-  line-height: 28px;
-  text-align: center;
-  border: solid 1px var(--primary-color);
-}
-.ReplyWithMessage_replyButton:hover {
-  color: #ffffff;
-}
-.ReplyWithMessage_replyButton.ReplyWithMessage_disabled {
-  background: #c7c7c7;
-  border: solid 1px #c7c7c7;
-}
-.ReplyWithMessage_replyButton.ReplyWithMessage_disabled .ReplyWithMessage_buttonText {
-  color: #ffffff;
-}
-
-.ReplyWithMessage_messages {
-  display: block;
-  overflow-y: auto;
-  max-height: 160px;
-}
-.ReplyWithMessage_messages .ReplyWithMessage_messageItem {
-  padding: 5px 20px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  font-size: 14px;
-  line-height: 16px;
-}
-.ReplyWithMessage_messages .ReplyWithMessage_messageItem .ReplyWithMessage_label {
-  cursor: pointer;
-}
-.ReplyWithMessage_messages .ReplyWithMessage_messageItem .ReplyWithMessage_inputField {
-  display: none;
-  margin-top: 10px;
-  margin-bottom: 5px;
-}
-.ReplyWithMessage_messages .ReplyWithMessage_messageItem .ReplyWithMessage_inputField textarea {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  font-size: 12px;
-  padding: 7px 9px;
-  resize: none;
-  width: 150px;
-  height: 42px;
-  border: solid 1px #e3e3e3;
-  outline: none;
-  background: #ffffff;
-}
-.ReplyWithMessage_messages .ReplyWithMessage_messageItem.ReplyWithMessage_active {
-  color: var(--primary-color);
-  background: #f5f5f5;
-}
-.ReplyWithMessage_messages .ReplyWithMessage_messageItem.ReplyWithMessage_active .ReplyWithMessage_inputField {
-  display: block;
-}
-
-.ReplyWithMessage_timeInput {
-  display: block;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  font-size: 12px;
-}
-
-.ReplyWithMessage_timeValue {
-  cursor: auto;
-}
-.ReplyWithMessage_timeValue input {
-  outline: none;
-  line-height: 18px;
-  padding: 1px 0 1px 5px;
-  width: 40px;
-  height: 20px;
-}
-.IncomingCallPad_root {
-  position: relative;
-}
-
-.IncomingCallPad_buttonRow {
-  text-align: center;
-  margin-bottom: 10px;
-  height: 25%;
-  margin-left: 2%;
-  margin-right: 2%;
-}
-
-.IncomingCallPad_callButton {
-  width: 33.33%;
-  padding: 0;
-}
-.IncomingCallPad_callButton text {
-  font-size: 90px;
-}
-@media screen and (max-width: 385px) and (min-width: 200px) and (min-height: 500px) {
-  .IncomingCallPad_callButton text {
-    font-size: calc(
-        76px + (90 - 76) * ((100vw - 385px) / (385 - 200))
-      );
-  }
-}
-@media screen and (max-width: 200px) {
-  .IncomingCallPad_callButton text {
-    font-size: 76px;
-  }
-}
-
-.IncomingCallPad_bigCallButton {
-  width: 50%;
-}
-
-.IncomingCallPad_button circle {
-  fill: #ff4646;
-}
-.IncomingCallPad_button g,
-.IncomingCallPad_button path {
-  fill: #ffffff;
-}
-
-.IncomingCallPad_voiceMailButton {
-}
-
-.IncomingCallPad_answerButton {
-}
-.IncomingCallPad_answerButton circle {
-  fill: var(--call-btn-color);
-}
-
-.IncomingCallPad_answerButtonGroup {
-  width: 68%;
-  margin-left: auto;
-  margin-right: auto;
-  height: 26.5%;
-}
-
-.IncomingCallPad_multiCallsButtonGroup {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  height: 25%;
-}
-
-.IncomingCallPad_forwardContainner {
-  display: block;
-  width: 60%;
-  height: 1px;
-}
-.IncomingCallPad_forwardContainner .rc-tooltip {
-  border: solid 1px #e3e3e3;
-  border-radius: 5px;
-  opacity: 1;
-  width: 79%;
-  min-width: 230px;
-  background: #fff;
-  z-index: 9;
-}
-.IncomingCallPad_forwardContainner .rc-tooltip-inner {
-  padding: 0;
-  border: none;
-}
-.IncomingCallPad_forwardContainner .rc-tooltip-arrow {
-  border-top-color: #e3e3e3;
-}
-.IncomingCallPad_forwardContainner .rc-tooltip-placement-topLeft .rc-tooltip-arrow {
-  left: 18%;
-}
-
-.IncomingCallPad_replyWithMessageContainner {
-  display: block;
-  width: 60%;
-  height: 1px;
-}
-.IncomingCallPad_replyWithMessageContainner .rc-tooltip {
-  z-index: 9;
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15);
-  border: solid 1px #e3e3e3;
-  border-radius: 0;
-  opacity: 1;
-  width: 79%;
-  min-width: 192px;
-  background: #fff;
-}
-.IncomingCallPad_replyWithMessageContainner .rc-tooltip-inner {
-  padding: 0;
-  border: none;
-}
-.IncomingCallPad_replyWithMessageContainner .rc-tooltip-arrow {
-  border-top-color: #e3e3e3;
-}
-.IncomingCallPanel_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
-  padding-left: 5%;
-  padding-right: 5%;
-  padding-top: 30px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2147483647;
-  background: #ffffff;
-}
-
-.IncomingCallPanel_backButton {
-  position: absolute;
-  top: 15px;
-  left: 20px;
-  font-size: 13px;
-  color: var(--grey-light);
-  transform: rotate(90deg);
-  cursor: pointer;
-}
-
-.IncomingCallPanel_userInfo {
-  margin-top: 0;
-  text-align: center;
-  font-size: 60px;
-  color: lightblack;
-  width: 100%;
-  height: 182px;
-}
-
-.IncomingCallPanel_callPad {
-  height: calc(100% - 182px);
-  padding-bottom: 30px;
-}
-
-.IncomingCallPanel_avatarContainer {
-  display: block;
-  margin-top: 25px;
-}
-
-.IncomingCallPanel_userNameContainer {
-  display: block;
-  height: 25px;
-  font-size: 15px;
-  color: var(--night);
-  line-height: 25px;
-}
-
-.IncomingCallPanel_userName {
-  font-size: 15px;
-  color: var(--night);
-  display: inline-block;
-  vertical-align: top;
-  line-height: 25px;
-}
-
-.IncomingCallPanel_userPhoneNumber {
-  font-size: 12px;
-  color: var(--grey-light);
-  margin-top: 5px;
-}
-
-.IncomingCallPanel_avatarHolder {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 10px;
-  color: var(--primary-color);
-}
-
-.IncomingCallPanel_ringOutside {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -50px;
-  margin-left: -50px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
-  opacity: 0.1;
-  border: solid 1px var(--primary-color);
-  z-index: 1;
-}
-
-.IncomingCallPanel_ringInner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -42px;
-  margin-left: -42px;
-  width: 84px;
-  height: 84px;
-  border-radius: 50px;
-  opacity: 0.29;
-  border: solid 1px var(--primary-color);
-  z-index: 2;
-}
-
-.IncomingCallPanel_avatar {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -32px;
-  margin-left: -31px;
-  width: 65px;
-  height: 65px;
-  border-radius: 33px;
-  z-index: 3;
-  overflow: hidden;
-}
-.IncomingCallPanel_avatar img,
-.IncomingCallPanel_avatar svg {
-  width: 100%;
-}
-
-.IncomingCallPanel_icon {
-  display: block;
-  font-size: 66px;
-  opacity: 0.3;
-}
-
-@keyframes IncomingCallPanel_ringingOutside {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 0.1;
-  }
-}
-@keyframes IncomingCallPanel_ringingInner {
-  0% {
-    opacity: 0.05;
-  }
-  100% {
-    opacity: 0.29;
-  }
-}
-.IncomingCallPanel_ringOutside.IncomingCallPanel_ringing {
-  animation-name: IncomingCallPanel_ringingOutside;
-  animation-direction: alternate;
-  animation-duration: 0.8s;
-  animation-iteration-count: infinite;
-}
-
-.IncomingCallPanel_ringInner.IncomingCallPanel_ringing {
-  animation-name: IncomingCallPanel_ringingInner;
-  animation-direction: alternate;
-  animation-duration: 0.7s;
-  animation-iteration-count: infinite;
-}
-
-.IncomingCallPanel_dropdown ul {
-  max-height: 90px;
-}
-.RegionSettingsPanel_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.RegionSettingsPanel_content {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  overflow-y: auto;
-  height: 94%;
-  max-height: calc(100% - 32px);
-  box-sizing: border-box;
-  background-color: white;
-  padding: 10px 20px 10px 20px;
-}
-
-.RegionSettingsPanel_hint {
-  padding: 5px 0px 10px 0px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-}
-
-.RegionSettingsPanel_select {
-  border: 1px solid #a6a6a6;
-  border-radius: 2px;
-  height: 100%;
-}
-
-.RegionSettingsPanel_iconRotate {
-  transform: rotate(-180deg);
-  position: absolute;
-  top: 5px;
-  left: 10px;
 }
 .Tooltip_dropdownContainer {
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15);
@@ -5744,71 +4933,6 @@ input:checked + .Switch_slider:before {
 }
 .ConfirmMergeModal_confirmMergeModal .ConfirmMergeModal_content::after {
   clear: both;
-}
-.TransferPanel_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
-  background: var(--snow);
-}
-
-.TransferPanel_backHeader {
-  height: 44px;
-  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.15);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.TransferPanel_dialInput {
-  height: 43px;
-  border: 0px;
-  padding: 5px 0;
-  margin: 0 20px;
-  border-bottom: 1px solid var(--gray);
-  box-sizing: border-box;
-}
-
-.TransferPanel_padContainer {
-  height: calc(100% - 43px);
-  padding: 0 10px;
-}
-
-.TransferPanel_dialPad {
-  height: 64%;
-  box-sizing: border-box;
-  padding-top: 8%;
-  padding-left: 7%;
-  padding-right: 7%;
-}
-
-.TransferPanel_buttonRow {
-  text-align: center;
-  height: 20%;
-  width: 100%;
-}
-
-.TransferPanel_button {
-  width: 16.1%;
-  height: 100%;
-  display: inline-block;
-}
-
-.TransferPanel_buttonGroupItem {
-  margin: 0 20px;
-  width: 20%;
-}
-
-.TransferPanel_disabled g {
-  cursor: not-allowed;
-}
-.TransferPanel_disabled circle {
-  opacity: 1;
-  stroke: var(--smoke);
-}
-.TransferPanel_disabled path {
-  fill: var(--smoke);
 }
 .ThirdPartyContactSourceIcon_icon {
   margin: 0;
@@ -7168,6 +6292,690 @@ input {
   font-size: 0.7em;
   top: 0.2em;
   left: 3.2em;
+}
+.RemoveButton_container {
+  text-decoration: none;
+  color: #666666;
+  cursor: pointer;
+}
+.RemoveButton_container:hover {
+  text-decoration: none;
+  color: #666666;
+}
+
+.RemoveButton_deleteIcon {
+  width: 1em;
+  height: 1em;
+}
+
+.RemoveButton_icon {
+  width: 1em;
+  height: 1em;
+}
+.RemoveButton_icon g {
+  fill: none;
+}
+.RemoveButton_icon path {
+  fill: currentColor;
+}
+.RemoveButton_icon circle {
+  stroke-width: 0.5;
+  stroke: currentColor;
+}
+
+.RemoveButton_hideRemoveButton {
+  color: transparent;
+  text-decoration: none !important;
+  cursor: unset;
+}
+.RemoveButton_hideRemoveButton:hover {
+  color: transparent;
+}
+.RemoveButton_hideRemoveButton:focus {
+  outline: none;
+}
+.RecipientsInput_container {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--night);
+  position: relative;
+  display: flex;
+  color: var(--night);
+  margin-top: 10px;
+  margin: 10px 20px 0 20px;
+}
+.RecipientsInput_container * {
+  box-sizing: content-box;
+}
+.RecipientsInput_container a {
+  text-decoration: none;
+}
+
+.RecipientsInput_label {
+  font-size: 15px;
+  font-weight: normal !important;
+  line-height: 29px;
+  font-weight: 200;
+  min-width: 46px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RecipientsInput_rightPanel {
+  font-size: 15px;
+  display: block;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.RecipientsInput_inputWrapper {
+  position: relative;
+}
+
+.RecipientsInput_removeButton {
+  position: absolute;
+  top: 50%;
+  margin-top: -8px;
+  right: 2px;
+  width: 14px;
+}
+
+.RecipientsInput_inputField {
+  position: relative;
+  padding-right: 20px;
+}
+.RecipientsInput_inputField input::-ms-clear {
+  display: none;
+}
+
+.RecipientsInput_numberInput {
+  color: #303030;
+  font-size: 15px;
+  line-height: 20px;
+  width: 100%;
+  height: 27px;
+  border-radius: 3px;
+  border: 0;
+  outline: 0;
+}
+.RecipientsInput_numberInput::-moz-placeholder {
+  font-size: 13px;
+  color: #a9a9a9;
+}
+.RecipientsInput_numberInput::placeholder {
+  font-size: 13px;
+  color: #a9a9a9;
+}
+
+.RecipientsInput_numberInput::-ms-clear {
+  display: none;
+}
+
+.RecipientsInput_contactsDropdown {
+  width: 100%;
+}
+
+.RecipientsInput_selectReceivers {
+  margin: 2px 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+.RecipientsInput_selectReceivers .RecipientsInput_warningRecipient {
+  color: #f54c3d;
+  background: #f9ebe9;
+  border-radius: 100px;
+  border: 1px solid #f54c3d;
+  padding: 4px 23px 4px 10px;
+}
+.RecipientsInput_selectReceivers li {
+  position: relative;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 13px;
+  line-height: 1;
+  margin-bottom: 2px;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 5px 23px 5px 10px;
+  margin-right: 5px;
+}
+.RecipientsInput_selectReceivers li span {
+  font-weight: 200;
+}
+.RecipientsInput_selectReceivers .RecipientsInput_phoneNumber {
+  background-color: var(--primary-color);
+  opacity: 0.6;
+}
+.RecipientsInput_selectReceivers .RecipientsInput_extension {
+  background-color: var(--extension-background-color);
+}
+
+.RecipientsInput_removeReceiver {
+  position: absolute;
+  right: 7px;
+  width: 10px;
+  color: #ffffff !important;
+}
+
+.RecipientsInput_rcuiStyle {
+  width: 100%;
+}
+.RecipientsInput_rcuiStyle .RecipientsInput_inputField {
+  padding: 0;
+}
+.RecipientsInput_rcuiStyle .RecipientsInput_numberInput {
+  border-bottom: solid 1px;
+  border-radius: 0;
+  background: none;
+}
+.ContactDropdownList_dropdownList {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: 100%;
+  z-index: 5;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #333;
+  text-align: left;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #efefef;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.175);
+  max-height: 265px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.ContactDropdownList_dropdownList li {
+  padding: 7px 10px 8px 10px;
+}
+.ContactDropdownList_dropdownList li a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ContactDropdownList_name {
+  color: #303030;
+  font-weight: bold;
+}
+
+.ContactDropdownList_label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ContactDropdownList_splitter {
+  padding: 0 5px;
+}
+
+.ContactDropdownList_nameSection {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ContactDropdownList_dncNameSection {
+  display: inline-block;
+  max-width: calc(100% - 24px);
+  vertical-align: middle;
+}
+
+.ContactDropdownList_phoneNumberSection {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ContactDropdownList_clickable {
+  cursor: pointer;
+}
+
+.ContactDropdownList_doNotCall {
+  display: inline-block;
+  border-radius: 50%;
+  vertical-align: middle;
+  font-size: 0;
+  margin: -2px 0 0 5px;
+  height: 12px;
+  width: 12px;
+}
+.ContactDropdownList_doNotCall:hover {
+  background-color: rgba(101, 108, 128, 0.08);
+}
+.IncomingCallPanel_root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-top: 30px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2147483647;
+  background: #ffffff;
+}
+
+.IncomingCallPanel_backButton {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  font-size: 13px;
+  color: var(--grey-light);
+  transform: rotate(90deg);
+  cursor: pointer;
+}
+
+.IncomingCallPanel_userInfo {
+  margin-top: 0;
+  text-align: center;
+  font-size: 60px;
+  color: lightblack;
+  width: 100%;
+  height: 182px;
+}
+
+.IncomingCallPanel_callPad {
+  height: calc(100% - 182px);
+  padding-bottom: 30px;
+}
+
+.IncomingCallPanel_avatarContainer {
+  display: block;
+  margin-top: 25px;
+}
+
+.IncomingCallPanel_userNameContainer {
+  display: block;
+  height: 25px;
+  font-size: 15px;
+  color: var(--night);
+  line-height: 25px;
+}
+
+.IncomingCallPanel_userName {
+  font-size: 15px;
+  color: var(--night);
+  display: inline-block;
+  vertical-align: top;
+  line-height: 25px;
+}
+
+.IncomingCallPanel_userPhoneNumber {
+  font-size: 12px;
+  color: var(--grey-light);
+  margin-top: 5px;
+}
+
+.IncomingCallPanel_avatarHolder {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.IncomingCallPanel_ringOutside {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -50px;
+  margin-left: -50px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  opacity: 0.1;
+  border: solid 1px var(--primary-color);
+  z-index: 1;
+}
+
+.IncomingCallPanel_ringInner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -42px;
+  margin-left: -42px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50px;
+  opacity: 0.29;
+  border: solid 1px var(--primary-color);
+  z-index: 2;
+}
+
+.IncomingCallPanel_avatar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -32px;
+  margin-left: -31px;
+  width: 65px;
+  height: 65px;
+  border-radius: 33px;
+  z-index: 3;
+  overflow: hidden;
+}
+.IncomingCallPanel_avatar img,
+.IncomingCallPanel_avatar svg {
+  width: 100%;
+}
+
+.IncomingCallPanel_icon {
+  display: block;
+  font-size: 66px;
+  opacity: 0.3;
+}
+
+@keyframes IncomingCallPanel_ringingOutside {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+@keyframes IncomingCallPanel_ringingInner {
+  0% {
+    opacity: 0.05;
+  }
+  100% {
+    opacity: 0.29;
+  }
+}
+.IncomingCallPanel_ringOutside.IncomingCallPanel_ringing {
+  animation-name: IncomingCallPanel_ringingOutside;
+  animation-direction: alternate;
+  animation-duration: 0.8s;
+  animation-iteration-count: infinite;
+}
+
+.IncomingCallPanel_ringInner.IncomingCallPanel_ringing {
+  animation-name: IncomingCallPanel_ringingInner;
+  animation-direction: alternate;
+  animation-duration: 0.7s;
+  animation-iteration-count: infinite;
+}
+
+.IncomingCallPanel_dropdown ul {
+  max-height: 90px;
+}
+.MultiCallAnswerButton_button {
+  width: 100%;
+  border-radius: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2px;
+}
+
+.MultiCallAnswerButton_answer circle {
+  fill: var(--call-btn-color);
+  opacity: 1;
+}
+.MultiCallAnswerButton_answer g, .MultiCallAnswerButton_answer path {
+  fill: #ffffff;
+}
+
+.MultiCallAnswerButton_endButton circle {
+  stroke: #ff4646;
+}
+.MultiCallAnswerButton_endButton g, .MultiCallAnswerButton_endButton path {
+  fill: #ff4646;
+}
+
+.MultiCallAnswerButton_buttonTitle {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  font-size: 73px;
+  fill: var(--darkergray);
+}
+.ReplyWithMessage_root {
+  display: block;
+  width: 100%;
+  padding: 0 0 16px 0;
+  background: #ffffff;
+  font-weight: 300;
+}
+.ReplyWithMessage_root * {
+  box-sizing: border-box;
+}
+
+.ReplyWithMessage_buttonGroup {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--night);
+  display: block;
+  margin-top: 10px;
+  padding: 0 20px;
+  text-align: right;
+}
+
+.ReplyWithMessage_cancelButton {
+  font-size: 12px;
+  color: var(--primary-color);
+  display: inline-block;
+  width: 65px;
+  height: 28px;
+  border-radius: 100px;
+  border: solid 1px var(--primary-color-highlight);
+  line-height: 28px;
+  text-align: center;
+  margin-right: 10px;
+  opacity: 0.9;
+}
+.ReplyWithMessage_cancelButton:hover {
+  color: var(--primary-color);
+}
+
+.ReplyWithMessage_replyButton {
+  display: inline-block;
+  width: 65px;
+  height: 28px;
+  border-radius: 100px;
+  background: var(--primary-color);
+  font-size: 12px;
+  color: #ffffff;
+  line-height: 28px;
+  text-align: center;
+  border: solid 1px var(--primary-color);
+}
+.ReplyWithMessage_replyButton:hover {
+  color: #ffffff;
+}
+.ReplyWithMessage_replyButton.ReplyWithMessage_disabled {
+  background: #c7c7c7;
+  border: solid 1px #c7c7c7;
+}
+.ReplyWithMessage_replyButton.ReplyWithMessage_disabled .ReplyWithMessage_buttonText {
+  color: #ffffff;
+}
+
+.ReplyWithMessage_messages {
+  display: block;
+  overflow-y: auto;
+  max-height: 160px;
+}
+.ReplyWithMessage_messages .ReplyWithMessage_messageItem {
+  padding: 5px 20px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  font-size: 14px;
+  line-height: 16px;
+}
+.ReplyWithMessage_messages .ReplyWithMessage_messageItem .ReplyWithMessage_label {
+  cursor: pointer;
+}
+.ReplyWithMessage_messages .ReplyWithMessage_messageItem .ReplyWithMessage_inputField {
+  display: none;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+.ReplyWithMessage_messages .ReplyWithMessage_messageItem .ReplyWithMessage_inputField textarea {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  font-size: 12px;
+  padding: 7px 9px;
+  resize: none;
+  width: 150px;
+  height: 42px;
+  border: solid 1px #e3e3e3;
+  outline: none;
+  background: #ffffff;
+}
+.ReplyWithMessage_messages .ReplyWithMessage_messageItem.ReplyWithMessage_active {
+  color: var(--primary-color);
+  background: #f5f5f5;
+}
+.ReplyWithMessage_messages .ReplyWithMessage_messageItem.ReplyWithMessage_active .ReplyWithMessage_inputField {
+  display: block;
+}
+
+.ReplyWithMessage_timeInput {
+  display: block;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  font-size: 12px;
+}
+
+.ReplyWithMessage_timeValue {
+  cursor: auto;
+}
+.ReplyWithMessage_timeValue input {
+  outline: none;
+  line-height: 18px;
+  padding: 1px 0 1px 5px;
+  width: 40px;
+  height: 20px;
+}
+.IncomingCallPad_root {
+  position: relative;
+}
+
+.IncomingCallPad_buttonRow {
+  text-align: center;
+  margin-bottom: 10px;
+  height: 25%;
+  margin-left: 2%;
+  margin-right: 2%;
+}
+
+.IncomingCallPad_callButton {
+  width: 33.33%;
+  padding: 0;
+}
+.IncomingCallPad_callButton text {
+  font-size: 90px;
+}
+@media screen and (max-width: 385px) and (min-width: 200px) and (min-height: 500px) {
+  .IncomingCallPad_callButton text {
+    font-size: calc(
+        76px + (90 - 76) * ((100vw - 385px) / (385 - 200))
+      );
+  }
+}
+@media screen and (max-width: 200px) {
+  .IncomingCallPad_callButton text {
+    font-size: 76px;
+  }
+}
+
+.IncomingCallPad_bigCallButton {
+  width: 50%;
+}
+
+.IncomingCallPad_button circle {
+  fill: #ff4646;
+}
+.IncomingCallPad_button g,
+.IncomingCallPad_button path {
+  fill: #ffffff;
+}
+
+.IncomingCallPad_voiceMailButton {
+}
+
+.IncomingCallPad_answerButton {
+}
+.IncomingCallPad_answerButton circle {
+  fill: var(--call-btn-color);
+}
+
+.IncomingCallPad_answerButtonGroup {
+  width: 68%;
+  margin-left: auto;
+  margin-right: auto;
+  height: 26.5%;
+}
+
+.IncomingCallPad_multiCallsButtonGroup {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  height: 25%;
+}
+
+.IncomingCallPad_forwardContainner {
+  display: block;
+  width: 60%;
+  height: 1px;
+}
+.IncomingCallPad_forwardContainner .rc-tooltip {
+  border: solid 1px #e3e3e3;
+  border-radius: 5px;
+  opacity: 1;
+  width: 79%;
+  min-width: 230px;
+  background: #fff;
+  z-index: 9;
+}
+.IncomingCallPad_forwardContainner .rc-tooltip-inner {
+  padding: 0;
+  border: none;
+}
+.IncomingCallPad_forwardContainner .rc-tooltip-arrow {
+  border-top-color: #e3e3e3;
+}
+.IncomingCallPad_forwardContainner .rc-tooltip-placement-topLeft .rc-tooltip-arrow {
+  left: 18%;
+}
+
+.IncomingCallPad_replyWithMessageContainner {
+  display: block;
+  width: 60%;
+  height: 1px;
+}
+.IncomingCallPad_replyWithMessageContainner .rc-tooltip {
+  z-index: 9;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15);
+  border: solid 1px #e3e3e3;
+  border-radius: 0;
+  opacity: 1;
+  width: 79%;
+  min-width: 192px;
+  background: #fff;
+}
+.IncomingCallPad_replyWithMessageContainner .rc-tooltip-inner {
+  padding: 0;
+  border: none;
+}
+.IncomingCallPad_replyWithMessageContainner .rc-tooltip-arrow {
+  border-top-color: #e3e3e3;
 }
 .ShinyBar_shinyBar {
   width: 100%;
