@@ -17,6 +17,7 @@ export default function searchContactPhoneNumbers(contacts, searchString, entity
             phoneNumber: p.phoneNumber,
             phoneType: p.phoneType.replace('Phone', ''),
             entityType,
+            contactId: item.id,
           });
         }
       });

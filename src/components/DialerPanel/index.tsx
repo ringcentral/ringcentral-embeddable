@@ -12,9 +12,9 @@ import {
 } from '@ringcentral/juno';
 import { Phone } from '@ringcentral/juno-icon';
 
-import RecipientsInput from '@ringcentral-integration/widgets/components/RecipientsInput';
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 import FromField from './FromField';
+import { StyledRecipientsInput } from './StyledRecipientsInput';
 
 const Container = styled.div`
   position: relative;
@@ -40,40 +40,6 @@ const DialerWrapper = styled.div<{ withTabs: boolean }>`
 const BodyBottom = styled.div`
   ${flexCenterStyle};
   padding-bottom: 20px;
-`;
-
-const StyledRecipientsInput = styled(RecipientsInput)`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  margin-top: 0;
-  margin-bottom: 0;
-
-  label {
-    display: none;
-  }
-
-  .MuiInput-underline:after {
-    border-bottom: none;
-  }
-
-  .MuiInput-underline:before {
-    border-bottom: none;
-  }
-
-  .MuiInput-underline:hover:not(.Mui-disabled):before {
-    border-bottom: none;
-  }
-
-  input {
-    text-align: center;
-  }
-
-  .RecipientsInput_rightPanel {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-  }
 `;
 
 export interface DialerPanelProps {
@@ -119,6 +85,7 @@ export interface DialerPanelProps {
   isLastInputFromDialpad?: boolean;
   useV2?: boolean;
   showAnonymous?: boolean;
+  getPresence?: (...args: any[]) => any;
 }
 const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   currentLocale,
@@ -156,6 +123,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   isLastInputFromDialpad,
   showAnonymous,
   useV2,
+  getPresence,
 }) => {
   const inputEl = useRef(null);
   useEffect(() => {
@@ -203,6 +171,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
       isLastInputFromDialpad={isLastInputFromDialpad}
       titleEnabled
       autoFocus={autoFocus}
+      getPresence={getPresence}
     />
   );
   return (

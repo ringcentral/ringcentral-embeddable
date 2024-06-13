@@ -1046,6 +1046,24 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
+  async _onNavigateToViewCalls() {
+    this._router.push('/history');
+    if (this._userGuide && this._userGuide.started) {
+      this._userGuide.dismiss();
+    }
+    if (this._quickAccess && this._quickAccess.entered) {
+      this._quickAccess.exit();
+    }
+    if (
+      this._webphone &&
+      this._webphone.ringSession &&
+      !this._webphone.ringSession.minimized
+    ) {
+      this._webphone.toggleMinimized(this._webphone.ringSession.id);
+    }
+    this._callLogSection?.closeLogSection();
+  }
+
   async _scheduleMeeting(data) {
     const inputs = formatMeetingForm(data, this._meeting.isRCV);
     const resp = await this._meeting.schedule(inputs);

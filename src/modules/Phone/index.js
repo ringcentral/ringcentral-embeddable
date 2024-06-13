@@ -11,10 +11,6 @@ import RcModule from '@ringcentral-integration/commons/lib/RcModule';
 import {
   RingCentralClient,
 } from '@ringcentral-integration/commons/lib/RingCentralClient';
-// Contacts related modules
-import {
-  AccountContacts,
-} from '@ringcentral-integration/commons/modules/AccountContacts';
 // Base info modules
 import {
   AccountInfo,
@@ -153,9 +149,6 @@ import { ContactSearchUI } from '@ringcentral-integration/widgets/modules/Contac
 import {
   ContactListUI,
 } from '@ringcentral-integration/widgets/modules/ContactListUI';
-import {
-  DialerAndCallsTabUI,
-} from '@ringcentral-integration/widgets/modules/DialerAndCallsTabUI';
 import { DialerUI } from '@ringcentral-integration/widgets/modules/DialerUI';
 import { FlipUI } from '@ringcentral-integration/widgets/modules/FlipUI';
 import {
@@ -185,6 +178,7 @@ import hackSend from '../../lib/hackSend';
 import lockRefresh from '../../lib/lockRefresh';
 import { ActiveCallControl } from '../ActiveCallControl';
 import Adapter from '../Adapter';
+import { AccountContacts } from '../AccountContacts';
 import { AddressBook } from '../AddressBook';
 import { Analytics } from '../Analytics';
 import { AppFeatures } from '../AppFeatures';
@@ -716,6 +710,9 @@ export default class BasePhone extends RcModule {
           } else {
             this.routerInteraction.push('/settings');
           }
+        }
+        if (this.routerInteraction.currentPath === '/calls') {
+          this.routerInteraction.push('/history'); // redirect to history
         }
       }
     });

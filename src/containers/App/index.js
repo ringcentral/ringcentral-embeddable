@@ -20,13 +20,12 @@ import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/con
 import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
 import { FeedbackPage } from '@ringcentral-integration/widgets/containers/FeedbackPage';
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
-import { IncomingCallContainer } from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
 import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
 import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
 import RegionSettingsPage from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
 import { SimpleCallControlPage } from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
 import { ThemeContainer } from '@ringcentral-integration/widgets/containers/ThemeContainer';
-import TransferPage from '@ringcentral-integration/widgets/containers/TransferPage';
+
 import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
 
 import { getAlertRenderer } from '../../components/AlertRenderer';
@@ -37,6 +36,8 @@ import AppView from '../AppView';
 import { PhoneTabsContainer } from '../PhoneTabsContainer';
 import DialerPage from '../DialerPage';
 import CallCtrlPage from '../CallCtrlPage';
+import { IncomingCallContainer } from '../IncomingCallContainer';
+import TransferPage from '../TransferPage';
 import LogCallPage from '../LogCallPage';
 import { CallsListPage } from '../CallsListPage';
 import ConferenceCallDialerPage from '../ConferenceCallDialerPage';
@@ -90,6 +91,19 @@ export default function App({
     }
     phone.thirdPartyService.onViewMatchedContactExternal(contact);
   };
+
+  const getPresenceOnContactSearch = (contact) => {
+    // show presence in contact search result
+    if (contact.type !== 'company') {
+      return undefined;
+    }
+    const companyContact = phone.accountContacts.rcCompanyMapping[contact.contactId];
+    if (!companyContact) {
+      return undefined;
+    }
+    return phone.contacts.getPresence(companyContact, false);
+  };
+
   return (
     <PhoneContext.Provider value={phone}>
       <Provider store={phone.store} >
@@ -116,6 +130,7 @@ export default function App({
                     showContactDisplayPlaceholder={false}
                     getAvatarUrl={getAvatarUrl}
                     showCallQueueName
+                    getPresence={getPresenceOnContactSearch}
                   />
                   <ConnectivityBadgeContainer />
                   <MeetingInviteModal />
@@ -152,6 +167,7 @@ export default function App({
                     <PhoneTabsContainer>
                       <DialerPage
                         withTabs={true}
+                        getPresence={getPresenceOnContactSearch}
                       />
                     </PhoneTabsContainer>
                   )}
@@ -336,7 +352,12 @@ export default function App({
                 )} />
               <Route
                 path="/conferenceCall/dialer/:fromNumber/:fromSessionId"
-                component={ConferenceCallDialerPage}
+                component={(routerProps) => (
+                  <ConferenceCallDialerPage
+                    params={routerProps.params}
+                    getPresence={getPresenceOnContactSearch}
+                  />
+                )}
               />
               <Route
                 path="/conferenceCall/participants"
@@ -361,6 +382,7 @@ export default function App({
                   <TransferPage
                     params={routerProps.params}
                     enableWarmTransfer={routerProps.params.type !== 'active'}
+                    getPresence={getPresenceOnContactSearch}
                   />
                 )}
               />
