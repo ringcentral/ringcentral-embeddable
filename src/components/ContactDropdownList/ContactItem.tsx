@@ -16,7 +16,6 @@ import { ContactInfo } from '@ringcentral-integration/widgets/components/Contact
 import { ContactPhone } from '@ringcentral-integration/widgets/components/ContactDropdownList/ContactPhone';
 import { DoNotCallIndicator } from '@ringcentral-integration/widgets/components/ContactDropdownList/DoNotCallIndicator';
 import { getPresenceStatus } from '@ringcentral-integration/widgets/modules/ContactSearchUI/ContactSearchHelper';
-import styles from '@ringcentral-integration/widgets/components/ContactDropdownList/styles.scss';
 
 const StyledListItem = styled(RcListItem)`
   color: ${palette2('neutral', 'f04')};
@@ -115,11 +114,11 @@ export const ContactItem: React.FC<ContactItemProps> = ({
   onHover,
   onClick,
   formatContactPhone,
-  titleEnabled,
-  phoneTypeRenderer,
-  phoneSourceNameRenderer,
-  contactInfoRenderer: ContactInfoRenderer,
-  contactPhoneRenderer: ContactPhoneRenderer,
+  titleEnabled = undefined,
+  phoneTypeRenderer = undefined,
+  phoneSourceNameRenderer = undefined,
+  contactInfoRenderer: ContactInfoRenderer = undefined,
+  contactPhoneRenderer: ContactPhoneRenderer = undefined,
   getPresence,
   contact,
   hiddenContactInfo,
@@ -141,7 +140,6 @@ export const ContactItem: React.FC<ContactItemProps> = ({
   }
   return (
     <StyledListItem
-      className={styles.contactItem}
       onMouseOver={onHover}
       selected={active}
       data-sign="contactItem"
@@ -206,13 +204,4 @@ export const ContactItem: React.FC<ContactItemProps> = ({
       />
     </StyledListItem>
   );
-};
-
-ContactItem.defaultProps = {
-  titleEnabled: undefined,
-  phoneTypeRenderer: undefined,
-  phoneSourceNameRenderer: undefined,
-  contactInfoRenderer: undefined,
-  contactPhoneRenderer: undefined,
-  doNotCall: false,
 };
