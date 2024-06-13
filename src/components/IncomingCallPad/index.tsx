@@ -1,12 +1,8 @@
-import 'rc-tooltip/assets/bootstrap_white.css';
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
 
 import classnames from 'classnames';
-// @ts-expect-error TS(7016): Could not find a declaration file for module 'rc-t... Remove this comment to see the full error message
-import Tooltip from 'rc-tooltip';
-
+import { RcDialog } from '@ringcentral/juno';
 import AnswerIcon from '@ringcentral-integration/widgets/assets/images/Answer.svg';
 import ForwardIcon from '@ringcentral-integration/widgets/assets/images/Forward.svg';
 import IgnoreIcon from '@ringcentral-integration/widgets/assets/images/Ignore.svg';
@@ -20,7 +16,6 @@ import styles from '@ringcentral-integration/widgets/components/IncomingCallPad/
 
 import ForwardForm from '../ForwardForm';
 
-const TooltipCom = typeof Tooltip === 'function' ? Tooltip : Tooltip.default;
 type IncomingCallPadProps = {
   answer: (...args: any[]) => any;
   reject: (...args: any[]) => any;
@@ -188,47 +183,15 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
           dataSign="forward"
           className={styles.callButton}
         />
-        <TooltipCom
-          defaultVisible={false}
-          visible={showReplyWithMessage}
-          onVisibleChange={(visible) => {
-            setShowReplyWithMessage(visible);
+        <ActiveCallButton
+          onClick={() => {
+            setShowReplyWithMessage(true);
           }}
-          placement="top"
-          trigger="click"
-          arrowContent={<div className="rc-tooltip-arrow-inner" />}
-          getTooltipContainer={() => replyWithMessageContainer.current}
-          overlay={
-            <ReplyWithMessage
-              currentLocale={currentLocale}
-              onCancel={() => {
-                setShowReplyWithMessage(false);
-              }}
-              value={replyMessage}
-              onChange={(message) => {
-                setReplyMessage(message);
-              }}
-              onReply={(value) => {
-                if (typeof replyWithMessage === 'function') {
-                  replyWithMessage(value);
-                  setReplyMessageEnabled(false);
-                  replyTimeout.current = setTimeout(() => {
-                    reject();
-                  }, 3000);
-                }
-              }}
-              disabled={!replyMessageEnabled}
-            />
-          }
-        >
-          <ActiveCallButton
-            onClick={() => null}
-            icon={MessageIcon}
-            title={i18n.getString('reply', currentLocale)}
-            dataSign="reply"
-            className={styles.callButton}
-          />
-        </TooltipCom>
+          icon={MessageIcon}
+          title={i18n.getString('reply', currentLocale)}
+          dataSign="reply"
+          className={styles.callButton}
+        />
         <ActiveCallButton
           onClick={reject}
           icon={IgnoreIcon}
@@ -255,6 +218,37 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
             phoneSourceNameRenderer={phoneSourceNameRenderer}
             getPresence={getPresence}
           />
+        )
+      }
+      {
+        showReplyWithMessage && (
+          <RcDialog
+            open={showReplyWithMessage}
+            onClose={() => {
+              setShowReplyWithMessage(false);
+            }}
+          >
+            <ReplyWithMessage
+              currentLocale={currentLocale}
+              onCancel={() => {
+                setShowReplyWithMessage(false);
+              }}
+              value={replyMessage}
+              onChange={(message) => {
+                setReplyMessage(message);
+              }}
+              onReply={(value) => {
+                if (typeof replyWithMessage === 'function') {
+                  replyWithMessage(value);
+                  setReplyMessageEnabled(false);
+                  replyTimeout.current = setTimeout(() => {
+                    reject();
+                  }, 3000);
+                }
+              }}
+              disabled={!replyMessageEnabled}
+            />
+          </RcDialog>
         )
       }
     </div>
