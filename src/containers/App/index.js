@@ -20,7 +20,6 @@ import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/con
 import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
 import { FeedbackPage } from '@ringcentral-integration/widgets/containers/FeedbackPage';
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
-import { IncomingCallContainer } from '@ringcentral-integration/widgets/containers/IncomingCallContainer';
 import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
 import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
 import RegionSettingsPage from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
@@ -37,6 +36,7 @@ import AppView from '../AppView';
 import { PhoneTabsContainer } from '../PhoneTabsContainer';
 import DialerPage from '../DialerPage';
 import CallCtrlPage from '../CallCtrlPage';
+import { IncomingCallContainer } from '../IncomingCallContainer';
 import TransferPage from '../TransferPage';
 import LogCallPage from '../LogCallPage';
 import { CallsListPage } from '../CallsListPage';
@@ -130,6 +130,7 @@ export default function App({
                     showContactDisplayPlaceholder={false}
                     getAvatarUrl={getAvatarUrl}
                     showCallQueueName
+                    getPresence={getPresenceOnContactSearch}
                   />
                   <ConnectivityBadgeContainer />
                   <MeetingInviteModal />
