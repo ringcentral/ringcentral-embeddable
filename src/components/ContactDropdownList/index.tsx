@@ -77,17 +77,19 @@ export const ContactDropdownList: FunctionComponent<ContactDropdownListProps> = 
     return null;
   }
   return (
-    <div className={classnames(styles.dropdownList, className)}>
+    <div
+      className={classnames(styles.dropdownList, className)}
+      ref={(c) => {
+        if (typeof listRef === 'function') {
+          listRef(c);
+        }
+      }}
+    >
       <Virtuoso
         style={{
           height: items.length > 4 ? '212px' : `${items.length * 53}px`,
         }}
-        ref={(c) => {
-          nodeRef.current = c;
-          if (typeof listRef === 'function') {
-            listRef(c);
-          }
-        }}
+        ref={nodeRef}
         data-sign="contactDropdownList"
         totalCount={items.length}
         data={items}

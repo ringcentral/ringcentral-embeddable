@@ -92,9 +92,18 @@ export class IframeWidget {
     return !!moreButton;
   }
 
-  async clickSubTab(label) {
+  async clickSubTab(label, path) {
     await this.waitFor('.MuiTabs-flexContainer');
-    await this._widgetIframe.click(`.MuiTab-root[data-sign="${label}"]`);
+    const hasHidden = await this._widgetIframe.$eval(`.MuiTab-root[data-sign="${label}"]`, (element) => {
+      return element.hasAttribute('aria-hidden');
+    });
+    if (hasHidden){
+      await this._widgetIframe.click('.MuiTabs-flexContainer button[data-tab-more-button]');
+      await this._widgetIframe.waitForTimeout(1000);
+      await this._widgetIframe.click(`li[value="${path}"]`);
+    } else {
+      await this._widgetIframe.click(`.MuiTab-root[data-sign="${label}"]`);
+    }
   }
 
   async clickBackButton() {
