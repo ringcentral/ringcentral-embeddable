@@ -711,6 +711,9 @@ export default class BasePhone extends RcModule {
             this.routerInteraction.push('/settings');
           }
         }
+        if (this.routerInteraction.currentPath === '/calls') {
+          this.routerInteraction.push('/history'); // redirect to history
+        }
       }
     });
   }
