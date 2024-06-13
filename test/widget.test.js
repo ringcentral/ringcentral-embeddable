@@ -32,7 +32,7 @@ conditionalDescribe('widget page test', () => {
   });
 
   it('should goto calls page successfully', async () => {
-    await widgetIframe.clickSubTab('Calls');
+    await widgetIframe.clickSubTab('Calls', '/history');
     const callItems = await widgetIframe.getCallItemList();
     const noCallsText = await widgetIframe.getNoCallsText();
     const isNoCalls = noCallsText === 'No results found.';
@@ -42,7 +42,7 @@ conditionalDescribe('widget page test', () => {
   });
 
   it('should goto voicemail page successfully', async () => {
-    await widgetIframe.clickSubTab('Voicemail');
+    await widgetIframe.clickSubTab('Voicemail', '/messages/voicemail');
     const voicemailItems = await widgetIframe.getMessageList('VoiceMailMessageItem');
     const noVoicemailText = await widgetIframe.getNoMessageText();
     const isNoVoicemail = noVoicemailText === 'No Messages';
@@ -52,7 +52,7 @@ conditionalDescribe('widget page test', () => {
   });
 
   it('should goto recordings page successfully', async () => {
-    await widgetIframe.clickSubTab('Recordings');
+    await widgetIframe.clickSubTab('Recordings', '/history/recordings');
     const callItems = await widgetIframe.getCallItemList();
     const noCallsText = await widgetIframe.getNoCallsText();
     const isNoCalls = noCallsText === 'No results found.';
