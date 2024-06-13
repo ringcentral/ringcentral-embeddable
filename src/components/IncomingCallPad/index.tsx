@@ -63,8 +63,6 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
   const [toVoiceMailEnabled, setToVoiceMailEnabled] = useState(true);
   const [replyMessageEnabled, setReplyMessageEnabled] = useState(true);
   const voicemailTimeout = useRef(null);
-  const forwardContainer = useRef(null);
-  const replyWithMessageContainer = useRef(null);
   const replyTimeout = useRef(null);
 
   useEffect(() => {
@@ -162,14 +160,7 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
   );
   return (
     <div className={classnames(styles.root, className)}>
-      <div
-        className={styles.forwardContainner}
-        ref={forwardContainer}
-      />
-      <div
-        className={styles.replyWithMessageContainner}
-        ref={replyWithMessageContainer}
-      />
+      <br />
       <div className={styles.buttonRow}>
         <ActiveCallButton
           icon={ForwardIcon}
