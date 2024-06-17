@@ -7,11 +7,12 @@ import {
   palette2,
   RcFormLabel,
 } from '@ringcentral/juno';
-import { Audio, AudioSp } from '@ringcentral/juno-icon';
+import { SpeakerDown, SpeakerUp } from '@ringcentral/juno-icon';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  margin-bottom: 16px;
 `;
 
 const SlideContainer = styled.div`
@@ -53,7 +54,11 @@ export const VolumeSlider: FC<{
       { label ? (<InputLabel>{label}</InputLabel>) : null }
       <SlideContainer className={className}>
         <VolumeIconContainer>
-          <RcIcon symbol={AudioSp} />
+          <RcIcon
+            symbol={SpeakerDown}
+            color="neutral.b05"
+            size="medium"
+          />
         </VolumeIconContainer>
         <PaddedSlider
           min={toPercentValue(minVolume)}
@@ -64,7 +69,11 @@ export const VolumeSlider: FC<{
           onChange={(_, value) => onChange(toValue(value as number))}
         />
         <VolumeIconContainer>
-          <RcIcon symbol={Audio} />
+          <RcIcon
+            symbol={SpeakerUp}
+            color="neutral.b05"
+            size="medium"
+          />
         </VolumeIconContainer>
       </SlideContainer>
     </Container>

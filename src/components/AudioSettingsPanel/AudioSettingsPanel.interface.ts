@@ -34,4 +34,8 @@ export interface AudioSettingsPanelProps {
   showRingToneVolume?: boolean;
   supportDevices: boolean;
   userMedia: boolean;
+  noiseReductionEnabled: boolean;
+  showNoiseReductionSetting: boolean;
+  disableNoiseReductionSetting: boolean;
+  onNoiseReductionChange: (...args: any) => unknown;
 }

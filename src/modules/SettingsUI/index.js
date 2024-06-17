@@ -10,8 +10,6 @@ import {
     'ConversationLogger',
     'ThirdPartyService',
     'AudioSettings',
-    'NoiseReduction',
-    'Webphone',
   ]
 })
 export class SettingsUI extends BaseSettingsUI {
@@ -23,8 +21,6 @@ export class SettingsUI extends BaseSettingsUI {
       appFeatures,
       thirdPartyService,
       audioSettings,
-      noiseReduction,
-      webphone,
     } = this._deps;
     return {
       ...baseProps,
@@ -48,9 +44,6 @@ export class SettingsUI extends BaseSettingsUI {
       showFeedback: thirdPartyService.showFeedback,
       thirdPartySettings: thirdPartyService.settings,
       showRingtoneSettings: appFeatures.ringtonePermission,
-      noiseReductionEnabled: noiseReduction.enabled,
-      showNoiseReductionSetting: appFeatures.showNoiseReductionSetting,
-      disableNoiseReductionSetting: webphone.sessions.length > 0,
     }
   }
 
@@ -75,9 +68,6 @@ export class SettingsUI extends BaseSettingsUI {
         value: !setting.value,
       }),
       gotoRingtoneSettings: () => routerInteraction.push('/settings/ringtone'),
-      onNoiseReductionChange: () => {
-        this._deps.noiseReduction.setEnabled(!this._deps.noiseReduction.enabled);
-      },
       gotoThirdPartySection: (sectionId) => {
         routerInteraction.push(`/settings/thirdParty/${sectionId}`);
       },

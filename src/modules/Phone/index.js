@@ -117,9 +117,6 @@ import {
 } from '@ringcentral-integration/widgets/modules/ActiveCallsUI';
 import { AlertUI } from '@ringcentral-integration/widgets/modules/AlertUI';
 import {
-  AudioSettingsUI,
-} from '@ringcentral-integration/widgets/modules/AudioSettingsUI';
-import {
   CallBadgeUI,
 } from '@ringcentral-integration/widgets/modules/CallBadgeUI';
 import {
@@ -183,6 +180,7 @@ import { AddressBook } from '../AddressBook';
 import { Analytics } from '../Analytics';
 import { AppFeatures } from '../AppFeatures';
 import { Auth } from '../Auth';
+import { AudioSettingsUI } from '../AudioSettingsUI';
 import { PhoneTabsUI } from '../PhoneTabsUI';
 import { CallControlUI } from '../CallControlUI';
 import { CallHistory } from '../CallHistory';

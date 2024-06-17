@@ -39,7 +39,7 @@ function ButtonLineItem({
   );
 }
 
-const Empty = (): null => null;
+const Empty = () => null;
 
 export function AdditionalSettings({
   currentLocale,
@@ -57,10 +57,6 @@ export function AdditionalSettings({
   onSettingToggle,
   gotoRingtoneSettings,
   showRingtoneSettings,
-  disableNoiseReductionSetting,
-  noiseReductionEnabled,
-  showNoiseReductionSetting,
-  onNoiseReductionChange,
   gotoThirdPartySection,
   onThirdPartyButtonClick,
   showAutoLog = false,
@@ -74,21 +70,6 @@ export function AdditionalSettings({
   onAutoLogSMSChange,
 }) {
   const additionalItems = [];
-  if (showNoiseReductionSetting) {
-    additionalItems.push({
-      order: 1000,
-      id: 'noiseReduction',
-      component: (
-        <SwitchLineItem
-          customTitle="Enable noise reduction (Beta)"
-          checked={noiseReductionEnabled}
-          show={showNoiseReductionSetting}
-          onChange={onNoiseReductionChange}
-          disabled={disableNoiseReductionSetting}
-        />
-      ),
-    });
-  }
   if (showRingtoneSettings) {
     additionalItems.push({
       order: 2000,

@@ -1,33 +1,30 @@
-import { usePrevious } from '@ringcentral/juno';
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-
+import React, { useMemo, useRef, useState } from 'react';
+import type { FC } from 'react';
 import {
   styled,
   RcSelect,
   RcMenuItem,
   RcListItemText,
   RcTypography,
+  RcCard,
+  RcCardContent,
+  RcCardActions,
+  RcButton,
+  RcSwitch,
 } from '@ringcentral/juno';
-import { Button } from '@ringcentral-integration/widgets/components/Button';
-import IconLine from '@ringcentral-integration/widgets/components/IconLine';
-import SaveButton from '@ringcentral-integration/widgets/components/SaveButton';
 import i18n from '@ringcentral-integration/widgets/components/AudioSettingsPanel/i18n';
 
 import { BackHeaderView } from '../BackHeaderView';
 import { VolumeSlider } from './VolumeSlider';
-import { AudioSettingsPanelProps, OmitFunctions } from './AudioSettingsPanel.interface';
+import type { AudioSettingsPanelProps, OmitFunctions } from './AudioSettingsPanel.interface';
 
 const Panel = styled.div`
   padding: 10px 16px;
   flex: 1;
   overflow-y: auto;
+`;
+const StyledCard = styled(RcCard)`
+  margin-bottom: 16px;
 `;
 
 const CheckMicPermission: FC<
@@ -40,16 +37,18 @@ const CheckMicPermission: FC<
     return null;
   }
   return (
-    <IconLine
-      noBorder
-      icon={
-        <Button dataSign="checkMicPermission" onClick={checkUserMedia}>
+    <StyledCard>
+      <RcCardContent>
+        <RcTypography variant="body1" color="neutral.f05">
+          {i18n.getString('micNoPermissionMessage', currentLocale)}
+        </RcTypography>
+      </RcCardContent>
+      <RcCardActions>
+        <RcButton data-sign="checkMicPermission" onClick={checkUserMedia}>
           {i18n.getString('checkMicPermission', currentLocale)}
-        </Button>
-      }
-    >
-      {i18n.getString('micNoPermissionMessage', currentLocale)}
-    </IconLine>
+        </RcButton>
+      </RcCardActions>
+    </StyledCard>
   );
 };
 
@@ -101,6 +100,10 @@ const useDeviceRenderers = (
   );
 };
 
+const StyledSelect = styled(RcSelect)`
+  margin-bottom: 16px;
+`;
+
 const OutputDevice: FC<
   Pick<
     AudioSettingsPanelProps,
@@ -110,7 +113,7 @@ const OutputDevice: FC<
     | 'outputDeviceId'
   > & {
     isFirefox: boolean;
-    onChange: (device: OmitFunctions<MediaDeviceInfo>) => void;
+    onChange: (deviceId: string) => void;
   }
 > = ({
   availableOutputDevices,
@@ -126,7 +129,7 @@ const OutputDevice: FC<
   );
   if (isFirefox && !availableOutputDevices.length) {
     return (
-      <RcSelect
+      <StyledSelect
         variant="box"
         value="default"
         label={i18n.getString('outputDevice', currentLocale)}
@@ -137,21 +140,16 @@ const OutputDevice: FC<
             primary={i18n.getString('defaultOutputDevice', currentLocale)}
           />
         </RcMenuItem>
-      </RcSelect>
+      </StyledSelect>
     );
   }
   return (
-    <RcSelect
+    <StyledSelect
       variant="box"
       value={availableOutputDevices.length ? outputDeviceId : undefined}
       onChange={(e) => {
         const deviceId = e.target.value;
-        const device = availableOutputDevices.find(
-          (d) => d.deviceId === deviceId,
-        );
-        if (device) {
-          onChange(device);
-        }
+        onChange(deviceId as string);
       }}
       disabled={outputDeviceDisabled}
       label={i18n.getString('outputDevice', currentLocale)}
@@ -166,26 +164,9 @@ const OutputDevice: FC<
           </RcMenuItem>
         ))
       }
-    </RcSelect>
+    </StyledSelect>
   );
 };
-
-const SectionContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-function Section({
-  label,
-  children,
-  dataSign
-}) {
-  return (
-    <SectionContainer data-sign={dataSign}>
-
-    </SectionContainer>
-  )
-}
 
 const InputDevice: FC<
   Pick<
@@ -195,7 +176,7 @@ const InputDevice: FC<
     | 'inputDeviceDisabled'
     | 'currentLocale'
   > & {
-    onChange: (device: OmitFunctions<MediaDeviceInfo>) => void;
+    onChange: (deviceId: string) => void;
     isFirefox: boolean;
   }
 > = ({
@@ -217,17 +198,12 @@ const InputDevice: FC<
       : isFirefox;
 
   return (
-    <RcSelect
+    <StyledSelect
       variant="box"
       value={availableInputDevices.length ? inputDeviceId : undefined}
       onChange={(e) => {
         const deviceId = e.target.value;
-        const device = availableInputDevices.find(
-          (d) => d.deviceId === deviceId,
-        );
-        if (device) {
-          onChange(device);
-        }
+        onChange(deviceId as string);
       }}
       disabled={inputDeviceDisabled}
       label={i18n.getString('inputDevice', currentLocale)}
@@ -243,36 +219,9 @@ const InputDevice: FC<
           </RcMenuItem>
         ))
       }
-    </RcSelect>
+    </StyledSelect>
   );
 };
-
-function useDeviceIdState(
-  deviceId: string,
-  devices: OmitFunctions<MediaDeviceInfo>[],
-) {
-  const [deviceIdState, setDeviceIdState] = useState(deviceId);
-  const setDeviceState = useCallback(
-    (device: OmitFunctions<MediaDeviceInfo>) => {
-      setDeviceIdState(device.deviceId);
-    },
-    [setDeviceIdState],
-  );
-  const oldDeviceId = usePrevious(() => deviceId, true);
-  const oldDevices = usePrevious(() => devices, true);
-  useEffect(() => {
-    if (deviceId !== oldDeviceId) {
-      setDeviceIdState(deviceId);
-    }
-    if (devices !== oldDevices) {
-      if (!devices.find((device) => device.deviceId === deviceIdState)) {
-        setDeviceIdState(deviceId);
-      }
-    }
-  }, [oldDeviceId, oldDevices, devices, deviceIdState, deviceId]);
-
-  return [deviceIdState, setDeviceState] as const;
-}
 
 const VolumeInput: FC<{
   volume: number;
@@ -291,6 +240,39 @@ const VolumeInput: FC<{
     />
   );
 };
+
+const SectionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+`;
+
+const SectionTitle = styled(RcTypography)`
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+  margin-bottom: 4px;
+`;
+
+const StyledCardContent = styled(RcCardContent)`
+  padding: 12px;
+`;
+
+function Section({
+  label,
+  children,
+  dataSign
+}) {
+  return (
+    <SectionContainer data-sign={dataSign}>
+      <SectionTitle variant="body1" color="neutral.f04">{label}</SectionTitle>
+      <RcCard>
+        <StyledCardContent>
+          {children}
+        </StyledCardContent>
+      </RcCard>
+    </SectionContainer>
+  )
+}
 
 export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
   availableInputDevices,
@@ -312,6 +294,10 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
   showRingToneVolume = false,
   supportDevices,
   userMedia,
+  noiseReductionEnabled,
+  showNoiseReductionSetting,
+  onNoiseReductionChange,
+  disableNoiseReductionSetting,
 }) => {
   // For firefox, when input device have empty label
   // trigger get-user-media to load the device info at the first time
@@ -322,71 +308,9 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
       checkUserMedia();
     }
   }
-  const [outputDeviceIdState, setOutputDeviceState] = useDeviceIdState(
-    outputDeviceId,
-    availableOutputDevices,
-  );
-  const [inputDeviceIdState, setInputDeviceState] = useDeviceIdState(
-    inputDeviceId,
-    availableInputDevices,
-  );
+
   const [isFirefox] = useState<boolean>(
     navigator.userAgent.indexOf('Firefox') > -1,
-  );
-
-  const [dialButtonVolumeState, setDialButtonVolumeState] =
-    useState(dialButtonVolume);
-  const [ringtoneVolumeState, setRingtoneVolumeState] =
-    useState(ringtoneVolume);
-  const [callVolumeState, setCallVolumeState] = useState(callVolume);
-
-  const oldDialButtonVolume = usePrevious(() => dialButtonVolume, true);
-  const oldRingtoneVolume = usePrevious(() => ringtoneVolume, true);
-  const oldCallVolume = usePrevious(() => callVolume, true);
-
-  useEffect(() => {
-    if (dialButtonVolume !== oldDialButtonVolume) {
-      setDialButtonVolumeState(dialButtonVolume);
-    }
-    if (ringtoneVolume !== oldRingtoneVolume) {
-      setRingtoneVolumeState(ringtoneVolume);
-    }
-    if (callVolume !== oldCallVolume) {
-      setCallVolumeState(callVolume);
-    }
-  }, [
-    dialButtonVolume,
-    ringtoneVolume,
-    callVolume,
-    oldDialButtonVolume,
-    oldRingtoneVolume,
-    oldCallVolume,
-  ]);
-
-  const hasChanges =
-    outputDeviceId !== outputDeviceIdState ||
-    inputDeviceId !== inputDeviceIdState ||
-    dialButtonVolume !== dialButtonVolumeState ||
-    ringtoneVolume !== ringtoneVolumeState ||
-    callVolume !== callVolumeState;
-
-  const onSaveClick = useCallback(
-    () =>
-      onSave({
-        outputDeviceId: outputDeviceIdState,
-        inputDeviceId: inputDeviceIdState,
-        dialButtonVolume: dialButtonVolumeState,
-        ringtoneVolume: ringtoneVolumeState,
-        callVolume: callVolumeState,
-      }),
-    [
-      onSave,
-      outputDeviceIdState,
-      inputDeviceIdState,
-      dialButtonVolumeState,
-      ringtoneVolumeState,
-      callVolumeState,
-    ],
   );
 
   return (
@@ -396,58 +320,103 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
       title={i18n.getString('title', currentLocale)}
     >
       <Panel>
-        {supportDevices ? (
-          <>
-            <OutputDevice
-              availableOutputDevices={availableOutputDevices}
-              currentLocale={currentLocale}
-              isFirefox={isFirefox}
-              outputDeviceDisabled={outputDeviceDisabled}
-              outputDeviceId={outputDeviceIdState}
-              onChange={setOutputDeviceState}
-            />
-            <InputDevice
-              availableInputDevices={availableInputDevices}
-              currentLocale={currentLocale}
-              isFirefox={isFirefox}
-              inputDeviceDisabled={inputDeviceDisabled}
-              inputDeviceId={inputDeviceIdState}
-              onChange={setInputDeviceState}
-            />
-          </>
-        ) : null}
         <CheckMicPermission
           checkUserMedia={checkUserMedia}
           currentLocale={currentLocale}
           userMedia={userMedia}
         />
-        {showCallVolume ? (
-          <VolumeInput
-            volume={callVolumeState}
-            label={i18n.getString('callVolume', currentLocale)}
-            onChange={setCallVolumeState}
-            minVolume={0.1}
-          />
-        ) : null}
-        {showRingToneVolume ? (
-          <VolumeInput
-            volume={ringtoneVolumeState}
-            label={i18n.getString('ringtoneVolume', currentLocale)}
-            onChange={setRingtoneVolumeState}
-          />
-        ) : null}
-        {showDialButtonVolume ? (
-          <VolumeInput
-            volume={dialButtonVolumeState}
-            label={i18n.getString('dialButtonVolume', currentLocale)}
-            onChange={setDialButtonVolumeState}
-          />
-        ) : null}
-        <SaveButton
-          onClick={onSaveClick}
-          disabled={!hasChanges}
-          currentLocale={currentLocale}
-        />
+        <Section
+          label="Input"
+          dataSign="inputDeviceSection"
+        >
+          {supportDevices ? (
+            <InputDevice
+              availableInputDevices={availableInputDevices}
+              currentLocale={currentLocale}
+              isFirefox={isFirefox}
+              inputDeviceDisabled={inputDeviceDisabled}
+              inputDeviceId={inputDeviceId}
+              onChange={(deviceId) => {
+                onSave({
+                  inputDeviceId: deviceId,
+                });
+              }}
+            />
+          ) : null}
+          {
+            showNoiseReductionSetting ? (
+              <RcSwitch
+                formControlLabelProps={{
+                  labelPlacement: 'start',
+                  style: {
+                    marginLeft: 0,
+                    marginTop: '-10px',
+                  },
+                }}
+                label="Enable noise reduction (Beta)"
+                checked={noiseReductionEnabled}
+                onChange={(_, checked) => {
+                  onNoiseReductionChange(checked);
+                }}
+                disabled={disableNoiseReductionSetting}
+              />
+            ) : null
+          }
+        </Section>
+        <Section
+          label="Output"
+          dataSign="outputDeviceSection"
+        >
+          {supportDevices ? (
+            <OutputDevice
+              availableOutputDevices={availableOutputDevices}
+              currentLocale={currentLocale}
+              isFirefox={isFirefox}
+              outputDeviceDisabled={outputDeviceDisabled}
+              outputDeviceId={outputDeviceId}
+              onChange={(deviceId) => {
+                onSave({
+                  outputDeviceId: deviceId,
+                });
+              }}
+            />
+          ) : null}
+          {showCallVolume ? (
+            <VolumeInput
+              volume={callVolume}
+              label={i18n.getString('callVolume', currentLocale)}
+              onChange={(volume) => {
+                onSave({
+                  callVolume: volume,
+                });
+              }}
+              minVolume={0.1}
+            />
+          ) : null}
+          {showRingToneVolume ? (
+            <VolumeInput
+              volume={ringtoneVolume}
+              label={i18n.getString('ringtoneVolume', currentLocale)}
+              minVolume={0.01}
+              onChange={(volume) => {
+                onSave({
+                  ringtoneVolume: volume,
+                });
+              }}
+            />
+          ) : null}
+          {showDialButtonVolume ? (
+            <VolumeInput
+              volume={dialButtonVolume}
+              label={i18n.getString('dialButtonVolume', currentLocale)}
+              onChange={(volume) => {
+                onSave({
+                  dialButtonVolume: volume,
+                });
+              }}
+            />
+          ) : null}
+        </Section>
       </Panel>
     </BackHeaderView>
   );
