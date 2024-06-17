@@ -15,6 +15,7 @@ export default function LogMessagesPanel({
   correspondentMatches,
   lastMatchedCorrespondentEntity,
   isLogging,
+  onFormPageButtonClick,
 }) {
   const [defaultPage, setDefaultPage] = useState({
     schema: {
@@ -107,7 +108,7 @@ export default function LogMessagesPanel({
     <CustomizedPanel
       type="page"
       onBackButtonClick={onBackButtonClick}
-      onButtonClick={undefined}
+      onButtonClick={onFormPageButtonClick}
       title={
         customizedPage && customizedPage.title ?
             customizedPage.title :

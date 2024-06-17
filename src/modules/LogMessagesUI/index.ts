@@ -110,6 +110,9 @@ export class LogMessagesUI extends RcUIModuleV2 {
           keys,
         });
       },
+      onFormPageButtonClick(id, formData) {
+        thirdPartyService.onClickButtonInCustomizedPage(id, 'button', formData);
+      }
     };
   }
 }
