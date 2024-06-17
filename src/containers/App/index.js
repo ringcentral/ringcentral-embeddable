@@ -10,7 +10,6 @@ import {
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
 import { NotificationContainer } from '@ringcentral-integration/widgets/containers/NotificationContainer';
-import AudioSettingsPage from '@ringcentral-integration/widgets/containers/AudioSettingsPage';
 // import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
 import CallingSettingsPage from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
@@ -34,6 +33,7 @@ import GenericMeetingPage from '../GenericMeetingPage';
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import AppView from '../AppView';
 import { PhoneTabsContainer } from '../PhoneTabsContainer';
+import AudioSettingsPage from '../AudioSettingsPage';
 import DialerPage from '../DialerPage';
 import CallCtrlPage from '../CallCtrlPage';
 import { IncomingCallContainer } from '../IncomingCallContainer';
@@ -468,7 +468,13 @@ export default function App({
               />
               <Route
                 path="/settings/audio"
-                component={AudioSettingsPage}
+                component={() => (
+                  <AudioSettingsPage
+                    showCallVolume
+                    showDialButtonVolume
+                    showRingToneVolume
+                  />
+                )}
               />
               <Route
                 path="/settings/ringtone"
