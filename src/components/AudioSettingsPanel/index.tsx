@@ -114,6 +114,7 @@ const OutputDevice: FC<
   > & {
     isFirefox: boolean;
     onChange: (deviceId: string) => void;
+    label: string;
   }
 > = ({
   availableOutputDevices,
@@ -122,6 +123,7 @@ const OutputDevice: FC<
   onChange,
   outputDeviceDisabled,
   outputDeviceId,
+  label,
 }) => {
   const [deviceValueRenderer, deviceOptionRenderer] = useDeviceRenderers(
     availableOutputDevices,
@@ -132,7 +134,7 @@ const OutputDevice: FC<
       <StyledSelect
         variant="box"
         value="default"
-        label={i18n.getString('outputDevice', currentLocale)}
+        label={label}
         fullWidth
       >
         <RcMenuItem value="default">
@@ -152,7 +154,7 @@ const OutputDevice: FC<
         onChange(deviceId as string);
       }}
       disabled={outputDeviceDisabled}
-      label={i18n.getString('outputDevice', currentLocale)}
+      label={label}
       fullWidth
     >
       {
@@ -298,6 +300,8 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
   showNoiseReductionSetting,
   onNoiseReductionChange,
   disableNoiseReductionSetting,
+  ringtoneDeviceId,
+  onRingtoneDeviceIdChange,
 }) => {
   // For firefox, when input device have empty label
   // trigger get-user-media to load the device info at the first time
@@ -379,6 +383,7 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
                   outputDeviceId: deviceId,
                 });
               }}
+              label={i18n.getString('outputDevice', currentLocale)}
             />
           ) : null}
           {showCallVolume ? (
@@ -393,11 +398,21 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
               minVolume={0.1}
             />
           ) : null}
+          {supportDevices ? (
+            <OutputDevice
+              availableOutputDevices={availableOutputDevices}
+              currentLocale={currentLocale}
+              isFirefox={isFirefox}
+              outputDeviceDisabled={outputDeviceDisabled}
+              outputDeviceId={ringtoneDeviceId}
+              onChange={onRingtoneDeviceIdChange}
+              label="Ringtone Device"
+            />
+          ) : null}
           {showRingToneVolume ? (
             <VolumeInput
               volume={ringtoneVolume}
               label={i18n.getString('ringtoneVolume', currentLocale)}
-              minVolume={0.01}
               onChange={(volume) => {
                 onSave({
                   ringtoneVolume: volume,

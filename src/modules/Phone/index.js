@@ -21,9 +21,6 @@ import {
 // Foundation modules
 import { Alert } from '@ringcentral-integration/commons/modules/Alert';
 import {
-  AudioSettings,
-} from '@ringcentral-integration/commons/modules/AudioSettings';
-import {
   AvailabilityMonitor,
 } from '@ringcentral-integration/commons/modules/AvailabilityMonitor';
 import { Brand } from '@ringcentral-integration/commons/modules/Brand';
@@ -180,6 +177,7 @@ import { AddressBook } from '../AddressBook';
 import { Analytics } from '../Analytics';
 import { AppFeatures } from '../AppFeatures';
 import { Auth } from '../Auth';
+import { AudioSettings } from '../AudioSettings';
 import { AudioSettingsUI } from '../AudioSettingsUI';
 import { PhoneTabsUI } from '../PhoneTabsUI';
 import { CallControlUI } from '../CallControlUI';

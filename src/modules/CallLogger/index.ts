@@ -3,6 +3,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import { CallLogger as CallLoggerBase } from '@ringcentral-integration/commons/modules/CallLogger';
 
 @Module({
+  name: 'CallLogger',
   deps: ['ThirdPartyService'],
 })
 export class CallLogger extends CallLoggerBase {

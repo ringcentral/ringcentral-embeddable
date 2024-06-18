@@ -18,6 +18,7 @@ export class AudioSettingsUI extends BaseAudioSettingsUI {
       appFeatures,
       noiseReduction,
       webphone,
+      audioSettings,
     } = this._deps;
   
     return {
@@ -25,6 +26,7 @@ export class AudioSettingsUI extends BaseAudioSettingsUI {
       noiseReductionEnabled: noiseReduction.enabled,
       showNoiseReductionSetting: appFeatures.showNoiseReductionSetting,
       disableNoiseReductionSetting: webphone.sessions.length > 0,
+      ringtoneDeviceId: audioSettings.ringtoneDeviceId,
     };
   }
 
@@ -37,6 +39,9 @@ export class AudioSettingsUI extends BaseAudioSettingsUI {
       ...baseFunctions,
       onNoiseReductionChange: () => {
         noiseReduction.setEnabled(!noiseReduction.enabled);
+      },
+      onRingtoneDeviceIdChange: (deviceId) => {
+        this._deps.audioSettings.setRingtoneDeviceId(deviceId);
       },
     };
   }
