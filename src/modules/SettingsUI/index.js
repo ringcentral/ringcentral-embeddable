@@ -43,7 +43,6 @@ export class SettingsUI extends BaseSettingsUI {
       showAuthRedDot: thirdPartyService.showAuthRedDot,
       showFeedback: thirdPartyService.showFeedback,
       thirdPartySettings: thirdPartyService.settings,
-      showRingtoneSettings: appFeatures.ringtonePermission,
     }
   }
 
@@ -67,7 +66,6 @@ export class SettingsUI extends BaseSettingsUI {
         ...setting,
         value: !setting.value,
       }),
-      gotoRingtoneSettings: () => routerInteraction.push('/settings/ringtone'),
       gotoThirdPartySection: (sectionId) => {
         routerInteraction.push(`/settings/thirdParty/${sectionId}`);
       },

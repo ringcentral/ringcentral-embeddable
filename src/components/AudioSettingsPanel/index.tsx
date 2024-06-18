@@ -208,7 +208,7 @@ const InputDevice: FC<
         onChange(deviceId as string);
       }}
       disabled={inputDeviceDisabled}
-      label={i18n.getString('inputDevice', currentLocale)}
+      label="Input device"
       fullWidth
       helperText={showTooltip ? i18n.getString('noLabelTip', currentLocale) : ''}
     >
@@ -276,6 +276,35 @@ function Section({
   )
 }
 
+const StyledLinkItemWrapper = styled.label`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 16px;
+`;
+
+const StyledLinkItemLabel = styled(RcTypography)`
+  flex: 1;
+`;
+
+function LinkItem({
+  onClick,
+  label,
+  linkLabel,
+}) {
+  return (
+    <StyledLinkItemWrapper>
+      <StyledLinkItemLabel color="neutral.f05">{label}</StyledLinkItemLabel>
+      <RcButton
+        variant="plain"
+        onClick={onClick}
+      >
+        {linkLabel}
+      </RcButton>
+    </StyledLinkItemWrapper>
+  );
+}
+
 export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
   availableInputDevices,
   availableOutputDevices,
@@ -302,6 +331,8 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
   disableNoiseReductionSetting,
   ringtoneDeviceId,
   onRingtoneDeviceIdChange,
+  showRingtoneAudioSetting,
+  gotoRingtoneSettings,
 }) => {
   // For firefox, when input device have empty label
   // trigger get-user-media to load the device info at the first time
@@ -383,13 +414,13 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
                   outputDeviceId: deviceId,
                 });
               }}
-              label={i18n.getString('outputDevice', currentLocale)}
+              label="Output device"
             />
           ) : null}
           {showCallVolume ? (
             <VolumeInput
               volume={callVolume}
-              label={i18n.getString('callVolume', currentLocale)}
+              label="Call volume"
               onChange={(volume) => {
                 onSave({
                   callVolume: volume,
@@ -406,13 +437,13 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
               outputDeviceDisabled={outputDeviceDisabled}
               outputDeviceId={ringtoneDeviceId}
               onChange={onRingtoneDeviceIdChange}
-              label="Ringtone Device"
+              label="Ringtone device"
             />
           ) : null}
           {showRingToneVolume ? (
             <VolumeInput
               volume={ringtoneVolume}
-              label={i18n.getString('ringtoneVolume', currentLocale)}
+              label="Ringtone volume"
               onChange={(volume) => {
                 onSave({
                   ringtoneVolume: volume,
@@ -420,10 +451,19 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
               }}
             />
           ) : null}
+          {
+            showRingtoneAudioSetting ? (
+              <LinkItem
+                onClick={gotoRingtoneSettings}
+                label="Ringtone audio"
+                linkLabel="Manage"
+              />
+            ) : null
+          }
           {showDialButtonVolume ? (
             <VolumeInput
               volume={dialButtonVolume}
-              label={i18n.getString('dialButtonVolume', currentLocale)}
+              label="Dial button volume"
               onChange={(volume) => {
                 onSave({
                   dialButtonVolume: volume,

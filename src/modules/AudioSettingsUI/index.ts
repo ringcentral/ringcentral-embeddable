@@ -27,6 +27,7 @@ export class AudioSettingsUI extends BaseAudioSettingsUI {
       showNoiseReductionSetting: appFeatures.showNoiseReductionSetting,
       disableNoiseReductionSetting: webphone.sessions.length > 0,
       ringtoneDeviceId: audioSettings.ringtoneDeviceId,
+      showRingtoneAudioSetting: appFeatures.ringtonePermission,
     };
   }
 
@@ -34,6 +35,8 @@ export class AudioSettingsUI extends BaseAudioSettingsUI {
     const baseFunctions = super.getUIFunctions(props);
     const {
       noiseReduction,
+      audioSettings,
+      routerInteraction,
     } = this._deps;
     return {
       ...baseFunctions,
@@ -41,7 +44,10 @@ export class AudioSettingsUI extends BaseAudioSettingsUI {
         noiseReduction.setEnabled(!noiseReduction.enabled);
       },
       onRingtoneDeviceIdChange: (deviceId) => {
-        this._deps.audioSettings.setRingtoneDeviceId(deviceId);
+        audioSettings.setRingtoneDeviceId(deviceId);
+      },
+      gotoRingtoneSettings: () => {
+        routerInteraction.push('/settings/ringtone');
       },
     };
   }

@@ -29,7 +29,11 @@ const HiddenInput = styled.input`
   display: none;
 `;
 
-const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
+type NewAudioFileReaderProps = AudioFileReaderProps & {
+  ringtoneDeviceId?: string;
+};
+
+const AudioFileReader: FunctionComponent<NewAudioFileReaderProps> = ({
   currentLocale,
   defaultFileName,
   defaultDataUrl,
@@ -37,6 +41,7 @@ const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
   dataUrl = null,
   onChange,
   onReset,
+  ringtoneDeviceId,
 }) => {
   const isMountedRef = useMountState();
   const inputElRef = useRef(null);
@@ -82,6 +87,11 @@ const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
           <RcIconButton
             symbol={playing ? Pause : Play}
             onClick={async () => {
+              if (typeof audio.setSinkId === 'function') {
+                await audio.setSinkId(ringtoneDeviceId || '').catch((error: any) => {
+                  console.error('setSinkId error:', error);
+                });
+              }
               if (playing) {
                 audio.pause();
               } else {
@@ -146,7 +156,11 @@ const AudioFileReader: FunctionComponent<AudioFileReaderProps> = ({
   );
 };
 
-export const Ringtone: FunctionComponent<RingtoneProps> = ({
+type NewRingtoneProps = RingtoneProps & {
+  ringtoneDeviceId?: string;
+};
+
+export const Ringtone: FunctionComponent<NewRingtoneProps> = ({
   currentLocale,
   incomingAudio,
   incomingAudioFile,
@@ -155,6 +169,7 @@ export const Ringtone: FunctionComponent<RingtoneProps> = ({
   showRingToneSettings,
   setIncomingAudio,
   resetIncomingAudio,
+  ringtoneDeviceId,
 }) => {
   if (!showRingToneSettings) {
     return null;
@@ -165,7 +180,7 @@ export const Ringtone: FunctionComponent<RingtoneProps> = ({
       <RcCard>
         <RcCardContent>
           <RcText variant="subheading2">
-            {i18n.getString('incomingRingtone', currentLocale)}
+            Incoming ringtone
           </RcText>
           <AudioFileReader
             currentLocale={currentLocale}
@@ -177,6 +192,7 @@ export const Ringtone: FunctionComponent<RingtoneProps> = ({
               setIncomingAudio({ fileName, dataUrl });
             }}
             onReset={resetIncomingAudio}
+            ringtoneDeviceId={ringtoneDeviceId}
           />
         </RcCardContent>
       </RcCard>

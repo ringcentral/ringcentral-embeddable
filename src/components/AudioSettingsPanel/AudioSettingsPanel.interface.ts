@@ -38,4 +38,8 @@ export interface AudioSettingsPanelProps {
   showNoiseReductionSetting: boolean;
   disableNoiseReductionSetting: boolean;
   onNoiseReductionChange: (...args: any) => unknown;
+  ringtoneDeviceId: string;
+  onRingtoneDeviceIdChange: (...args: any) => unknown;
+  showRingtoneAudioSetting: boolean;
+  gotoRingtoneSettings: (...args: any) => unknown;
 }

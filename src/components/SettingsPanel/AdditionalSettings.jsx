@@ -55,8 +55,6 @@ export function AdditionalSettings({
   showAuthRedDot,
   thirdPartySettings,
   onSettingToggle,
-  gotoRingtoneSettings,
-  showRingtoneSettings,
   gotoThirdPartySection,
   onThirdPartyButtonClick,
   showAutoLog = false,
@@ -70,20 +68,6 @@ export function AdditionalSettings({
   onAutoLogSMSChange,
 }) {
   const additionalItems = [];
-  if (showRingtoneSettings) {
-    additionalItems.push({
-      order: 2000,
-      id: 'ringtone',
-      component: (
-        <LinkLineItem
-          show={showRingtoneSettings}
-          customTitle="Ringtone"
-          currentLocale={currentLocale}
-          onClick={gotoRingtoneSettings}
-        />
-      ),
-    });
-  }
   if (showAutoLog) {
     additionalItems.push({
       order: 3000,
