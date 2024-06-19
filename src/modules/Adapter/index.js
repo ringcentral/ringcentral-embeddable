@@ -336,6 +336,10 @@ export default class Adapter extends AdapterModuleCore {
           this._syncWebphoneSessions();
           break;
         }
+        case 'rc-adapter-update-ringtone': {
+          this._updateRingtone(data);
+          break;
+        }
         default:
           super._onMessage(data);
           break;
@@ -1095,6 +1099,27 @@ export default class Adapter extends AdapterModuleCore {
       dndStatus: dndStatus ? dndStatus : this._presence.dndStatus,
       userStatus: userStatus ? userStatus : this._presence.userStatus,
     });
+  }
+
+  async _updateRingtone({ name, uri, volume }) {
+    if (typeof volume === 'number' && volume >= 0 && volume <= 1) {
+      this._audioSettings.setData({ ringtoneVolume: volume });
+    }
+    if (typeof name === 'string' && typeof uri === 'string') {
+      if (
+        uri.indexOf('https://') !== 0 &&
+        uri.indexOf('http://') !== 0 &&
+        uri.indexOf('data:audio/') !== 0
+      ) {
+        return;
+      }
+      this._webphone.setRingtone({
+        incomingAudio: uri,
+        incomingAudioFile: name,
+        outgoingAudio:  this._webphone.defaultOutgoingAudio,
+        outgoingAudioFile:  this._webphone.defaultOutgoingAudioFile,
+      });
+    }
   }
 
   // eslint-disable-next-line
