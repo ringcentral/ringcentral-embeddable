@@ -37,6 +37,7 @@ export class RingtoneSettingsUI extends RcUIModuleV2 {
       defaultIncomingAudioFile: webphone.defaultIncomingAudioFile,
       defaultIncomingAudio: webphone.defaultIncomingAudio,
       ringtoneDeviceId: audioSettings.ringtoneDeviceId,
+      ringtoneVolume: audioSettings.ringtoneVolume,
     };
   }
 

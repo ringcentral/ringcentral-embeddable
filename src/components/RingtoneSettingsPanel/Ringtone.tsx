@@ -31,6 +31,7 @@ const HiddenInput = styled.input`
 
 type NewAudioFileReaderProps = AudioFileReaderProps & {
   ringtoneDeviceId?: string;
+  ringtoneVolume?: number;
 };
 
 const AudioFileReader: FunctionComponent<NewAudioFileReaderProps> = ({
@@ -42,6 +43,7 @@ const AudioFileReader: FunctionComponent<NewAudioFileReaderProps> = ({
   onChange,
   onReset,
   ringtoneDeviceId,
+  ringtoneVolume,
 }) => {
   const isMountedRef = useMountState();
   const inputElRef = useRef(null);
@@ -92,6 +94,7 @@ const AudioFileReader: FunctionComponent<NewAudioFileReaderProps> = ({
                   console.error('setSinkId error:', error);
                 });
               }
+              audio.volume = ringtoneVolume ?? 0.5;
               if (playing) {
                 audio.pause();
               } else {
@@ -158,6 +161,7 @@ const AudioFileReader: FunctionComponent<NewAudioFileReaderProps> = ({
 
 type NewRingtoneProps = RingtoneProps & {
   ringtoneDeviceId?: string;
+  ringtoneVolume?: number;
 };
 
 export const Ringtone: FunctionComponent<NewRingtoneProps> = ({
@@ -170,6 +174,7 @@ export const Ringtone: FunctionComponent<NewRingtoneProps> = ({
   setIncomingAudio,
   resetIncomingAudio,
   ringtoneDeviceId,
+  ringtoneVolume,
 }) => {
   if (!showRingToneSettings) {
     return null;
@@ -193,6 +198,7 @@ export const Ringtone: FunctionComponent<NewRingtoneProps> = ({
             }}
             onReset={resetIncomingAudio}
             ringtoneDeviceId={ringtoneDeviceId}
+            ringtoneVolume={ringtoneVolume}
           />
         </RcCardContent>
       </RcCard>
