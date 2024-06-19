@@ -674,6 +674,19 @@ class Adapter extends AdapterCore {
     });
   }
 
+  updateRingtone({
+    name,
+    uri,
+    volume,
+  }) {
+    this._postMessage({
+      type: 'rc-adapter-update-ringtone',
+      name,
+      uri,
+      volume,
+    });
+  }
+
   get showCurrentCallBtn() {
     return this._widgetCurrentPath.indexOf('/calls/active') === -1 && this.showDuration;
   }
