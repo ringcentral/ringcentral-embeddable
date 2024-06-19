@@ -193,8 +193,8 @@ export class IframeWidget {
   }
 
   async getHeaderLabel() {
-    await this.waitFor('div[data-sign="headerTitle"]');
-    const text = await this._widgetIframe.$eval('div[data-sign="headerTitle"]', (el) => el.innerText);
+    await this.waitFor('[data-sign="headerTitle"]');
+    const text = await this._widgetIframe.$eval('[data-sign="headerTitle"]', (el) => el.innerText);
     return text;
   }
 

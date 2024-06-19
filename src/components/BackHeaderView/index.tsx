@@ -44,7 +44,7 @@ export function BackHeaderView({
       <BackHeader onBack={onBack} label={backButtonLabel} >
         {
           title && (
-            <Title variant="body1" color="neutral.f06">
+            <Title variant="body1" color="neutral.f06" data-sign="headerTitle">
               {title}
             </Title>
           )
