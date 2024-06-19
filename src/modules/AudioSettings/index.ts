@@ -6,7 +6,6 @@ import {
   storage,
 } from '@ringcentral-integration/core';
 import { AudioSettings as AudioSettingsBase } from '@ringcentral-integration/commons/modules/AudioSettings';
-import type { AudioSettingsData } from '@ringcentral-integration/commons/modules/AudioSettings/AudioSettings.interface';
 
 @Module({
   name: 'AudioSettings',
