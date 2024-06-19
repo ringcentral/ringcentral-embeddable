@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import {
   styled,
@@ -336,13 +336,9 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
 }) => {
   // For firefox, when input device have empty label
   // trigger get-user-media to load the device info at the first time
-  const triggerCheckUserMedia = useRef<boolean>(false);
-  if (!triggerCheckUserMedia.current) {
-    triggerCheckUserMedia.current = true;
-    if (userMedia && availableInputDevices[0]?.label === '') {
-      checkUserMedia();
-    }
-  }
+  useEffect(() => {
+    checkUserMedia();
+  }, []);
 
   const [isFirefox] = useState<boolean>(
     navigator.userAgent.indexOf('Firefox') > -1,

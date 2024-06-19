@@ -21,6 +21,7 @@ export const RingtoneSettingsPanel = ({
   defaultIncomingAudioFile,
   onBackButtonClick,
   ringtoneDeviceId,
+  ringtoneVolume,
 }) => {
   const [incomingAudioState, setIncomingAudioState] = useState(incomingAudio);
   const [incomingAudioFileState, setIncomingAudioFileState] = useState(
@@ -48,6 +49,7 @@ export const RingtoneSettingsPanel = ({
             setIncomingAudioFileState(defaultIncomingAudioFile);
           }}
           ringtoneDeviceId={ringtoneDeviceId}
+          ringtoneVolume={ringtoneVolume}
         />
         <br />
         <RcButton
