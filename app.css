@@ -2271,6 +2271,61 @@ div[class*=MuiCircularProgress-indeterminate] {
 .DynamicsFont_save:before {
   content: "\e907";
 }
+.Badge_root {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 0 20px;
+  background: #ff3703;
+  height: 22px;
+  border-radius: 11px;
+  font-size: 0.8em;
+  color: #fff;
+  line-height: 22px;
+  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  text-decoration: none;
+}
+.Badge_root:focus {
+  outline: none;
+  text-decoration: none;
+  color: #fff;
+}
+.Badge_root:hover {
+  text-decoration: none;
+  color: #fff;
+}
+.Draggable_root {
+  display: inline-block;
+}
+.ActiveCallBadge_root {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  z-index: 20;
+  position: absolute;
+  top: 0px;
+  right: 10px;
+}
+
+.ActiveCallBadge_badge {
+  box-sizing: content-box;
+  background: var(--call-btn-color);
+  padding: 0;
+  text-align: center;
+  width: 100px;
+  font-size: 10px;
+  color: var(--snow);
+  height: 20px;
+  line-height: 20px;
+  font-weight: 300;
+}
+
+.ActiveCallBadge_activeIcon {
+  padding-right: 5px;
+  position: relative;
+  top: -1px;
+}
 .Header_root {
   position: relative;
   width: 100%;
@@ -2542,34 +2597,6 @@ div[class*=MuiCircularProgress-indeterminate] {
   vertical-align: middle;
   content: "";
 }
-.Line_root {
-  position: relative;
-  width: 100%;
-  padding: 15px 20px;
-  min-height: 30px;
-  box-sizing: border-box;
-  background-color: var(--snow);
-  border-style: solid;
-  border-width: 0;
-  border-top-width: 1px;
-  border-bottom-width: 0px;
-  border-color: var(--gray);
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-}
-
-.Line_horizontal {
-  display: inline-flex;
-}
-
-.Line_clickable {
-  cursor: pointer;
-}
-
-.Line_noborder {
-  border: none;
-}
 .InputField_root {
   padding: 10px 0;
 }
@@ -2616,6 +2643,13 @@ div[class*=MuiCircularProgress-indeterminate] {
   box-sizing: border-box;
   padding-bottom: 14px;
 }
+.Tooltip_title {
+  display: block;
+  max-width: 250px;
+}
+[sf-classic] .Tooltip_title {
+  max-width: 158px;
+}
 .SaveButton_root {
   display: block;
   margin-top: 20px;
@@ -2644,131 +2678,6 @@ div[class*=MuiCircularProgress-indeterminate] {
   background: #ffffff;
   border: solid 1px var(--silver);
   color: var(--grey-light) !important;
-}
-.AudioSettingsPanel_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.AudioSettingsPanel_content {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  overflow-y: auto;
-  height: 94%;
-  max-height: calc(100% - 46px);
-  box-sizing: border-box;
-  background-color: white;
-  padding: 10px 20px 10px 20px;
-}
-
-.AudioSettingsPanel_select {
-  border: 1px solid #a6a6a6;
-  border-radius: 2px;
-  height: 100%;
-}
-
-.AudioSettingsPanel_tooltipContainer {
-  width: 100%;
-  height: 1px;
-}
-.AudioSettingsPanel_tooltipContainer .rc-tooltip {
-  opacity: 1;
-  left: 0 !important;
-}
-
-.AudioSettingsPanel_infoIcon {
-  margin-left: 6px;
-  vertical-align: bottom;
-}
-.AudioSettingsPanel_infoIcon path {
-  fill: var(--ash);
-}
-
-.AudioSettingsPanel_setupOutputDeviceLink {
-  text-decoration: none;
-  color: blue;
-  cursor: pointer;
-}
-
-.AudioSettingsPanel_fakeDropdownContainer {
-  border-radius: 2px;
-  height: 100%;
-  color: #797979;
-  position: relative;
-  font-size: 13px;
-  cursor: default;
-  text-transform: none;
-  text-align: left;
-}
-
-.AudioSettingsPanel_noHeightInputField div:nth-child(2) {
-  height: auto;
-}
-.Badge_root {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 0 20px;
-  background: #ff3703;
-  height: 22px;
-  border-radius: 11px;
-  font-size: 0.8em;
-  color: #fff;
-  line-height: 22px;
-  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  text-decoration: none;
-}
-.Badge_root:focus {
-  outline: none;
-  text-decoration: none;
-  color: #fff;
-}
-.Badge_root:hover {
-  text-decoration: none;
-  color: #fff;
-}
-.Draggable_root {
-  display: inline-block;
-}
-.ActiveCallBadge_root {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  z-index: 20;
-  position: absolute;
-  top: 0px;
-  right: 10px;
-}
-
-.ActiveCallBadge_badge {
-  box-sizing: content-box;
-  background: var(--call-btn-color);
-  padding: 0;
-  text-align: center;
-  width: 100px;
-  font-size: 10px;
-  color: var(--snow);
-  height: 20px;
-  line-height: 20px;
-  font-weight: 300;
-}
-
-.ActiveCallBadge_activeIcon {
-  padding-right: 5px;
-  position: relative;
-  top: -1px;
-}
-.Tooltip_title {
-  display: block;
-  max-width: 250px;
-}
-[sf-classic] .Tooltip_title {
-  max-width: 158px;
 }
 .Switch_switch {
   position: relative;
@@ -5693,6 +5602,34 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 }
 .GenericMeetingPanel_wrapper label[class*=Switch] {
   flex-shrink: 0;
+}
+.Line_root {
+  position: relative;
+  width: 100%;
+  padding: 15px 20px;
+  min-height: 30px;
+  box-sizing: border-box;
+  background-color: var(--snow);
+  border-style: solid;
+  border-width: 0;
+  border-top-width: 1px;
+  border-bottom-width: 0px;
+  border-color: var(--gray);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--night);
+}
+
+.Line_horizontal {
+  display: inline-flex;
+}
+
+.Line_clickable {
+  cursor: pointer;
+}
+
+.Line_noborder {
+  border: none;
 }
 .EnvironmentPanel_root {
   position: relative;
