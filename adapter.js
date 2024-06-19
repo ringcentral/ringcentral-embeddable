@@ -57315,6 +57315,19 @@ class Adapter extends AdapterCore/* default */.Z {
       text
     });
   }
+  updateRingtone(_ref3) {
+    let {
+      name,
+      uri,
+      volume
+    } = _ref3;
+    this._postMessage({
+      type: 'rc-adapter-update-ringtone',
+      name,
+      uri,
+      volume
+    });
+  }
   get showCurrentCallBtn() {
     return this._widgetCurrentPath.indexOf('/calls/active') === -1 && this.showDuration;
   }
