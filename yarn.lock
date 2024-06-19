@@ -2804,10 +2804,10 @@
     url-parse "^1.2.0"
     uuid "^9.0.0"
 
-"@ringcentral/juno-icon@^1.72.0":
-  version "1.72.0"
-  resolved "https://registry.yarnpkg.com/@ringcentral/juno-icon/-/juno-icon-1.72.0.tgz#de7fc6fc5e84edc3046bf81fbb5ccdb50bacaaa0"
-  integrity sha512-PPV1k57anGgI/lO3XvE7m7I7HLKBI8hGvdbUnUHyrowkf9L/84J0Loz4CVuwwWHeK7eAHJhijNrRlXsL5ZikPw==
+"@ringcentral/juno-icon@^1.74.0":
+  version "1.74.0"
+  resolved "https://registry.yarnpkg.com/@ringcentral/juno-icon/-/juno-icon-1.74.0.tgz#8ee13d3a4a54741d9f46e737c37d495b353543e1"
+  integrity sha512-7xmMuLQBV8qY8HzyOrdkXZC5sPnZ6ChNXicmryzx+in45K5taSm4j9BmdsYgQPdUiQtp+0NN78uWT9vNaStv1A==
   dependencies:
     "@material-ui/core" "^4.12.3"
     tslib ">=2.0.0"

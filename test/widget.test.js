@@ -107,6 +107,15 @@ conditionalDescribe('widget page test', () => {
     await widgetIframe.clickBackButton();
   });
 
+  it('should goto audio setting page successfully', async () => {
+    await widgetIframe.gotoSettingsPage();
+    await widgetIframe.waitForTimeout(1000);
+    await widgetIframe.clickSettingSection('Audio');
+    const headerLabel = await widgetIframe.getHeaderLabel();
+    expect(headerLabel).toEqual('Audio');
+    await widgetIframe.clickBackButton();
+  });
+
   it('should goto calling setting page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
     await widgetIframe.clickSettingSection('Calling');

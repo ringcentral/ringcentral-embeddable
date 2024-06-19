@@ -7,6 +7,7 @@ import { RcUIModuleV2, track } from '@ringcentral-integration/core';
   deps: [
     'Locale',
     'RouterInteraction',
+    'AudioSettings',
     {
       dep: 'Webphone',
       optional: true,
@@ -24,6 +25,7 @@ export class RingtoneSettingsUI extends RcUIModuleV2 {
     const {
       webphone,
       locale,
+      audioSettings,
     } = this._deps;
     if (!webphone) {
       return {};
@@ -34,6 +36,7 @@ export class RingtoneSettingsUI extends RcUIModuleV2 {
       incomingAudio: webphone.incomingAudio,
       defaultIncomingAudioFile: webphone.defaultIncomingAudioFile,
       defaultIncomingAudio: webphone.defaultIncomingAudio,
+      ringtoneDeviceId: audioSettings.ringtoneDeviceId,
     };
   }
 

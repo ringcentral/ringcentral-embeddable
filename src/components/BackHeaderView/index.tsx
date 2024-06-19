@@ -30,19 +30,21 @@ export function BackHeaderView({
   backButtonLabel = undefined,
   title = undefined,
   rightButton = undefined,
+  className = undefined,
 }: {
   onBack: () => void;
   children?: ReactNode;
   backButtonLabel?: string;
   title?: string;
   rightButton?: ReactNode;
+  className?: string;
 }) {
   return (
-    <Container>
+    <Container className={className}>
       <BackHeader onBack={onBack} label={backButtonLabel} >
         {
           title && (
-            <Title variant="body1" color="neutral.f06">
+            <Title variant="body1" color="neutral.f06" data-sign="headerTitle">
               {title}
             </Title>
           )
