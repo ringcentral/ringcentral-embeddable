@@ -107,8 +107,9 @@ import {
   VideoConfiguration,
 } from '@ringcentral-integration/commons/modules/VideoConfiguration';
 import {
-  WebSocketSubscription,
+  WebSocketSubscription as Subscription,
 } from '@ringcentral-integration/commons/modules/WebSocketSubscription';
+import { RingCentralExtensions } from '@ringcentral-integration/commons/modules/RingCentralExtensions';
 import {
   ActiveCallsUI,
 } from '@ringcentral-integration/widgets/modules/ActiveCallsUI';
@@ -211,15 +212,6 @@ import { RcVideo } from '../RcVideo';
 import { RingtoneSettingsUI } from '../RingtoneSettingsUI';
 import { SettingsUI } from '../SettingsUI';
 import { Storage } from '../Storage';
-import {
-  GenericSubscription as Subscription,
-} from '../Subscription';  // TODO: wsg subscription
-import { PubnubReadyController } from '../Subscription/PubnubReadyController';
-import { PubnubSubscription } from '../Subscription/PubnubSubscription';
-import { RingCentralExtensions } from '../Subscription/RingCentralExtensions';
-import {
-  WebSocketReadyController,
-} from '../Subscription/WebSocketReadyController';
 import { TabManager } from '../TabManager';
 import ThirdPartyService from '../ThirdPartyService';
 import { ThirdPartySettingSectionUI } from '../ThirdPartySettingSectionUI';
@@ -273,10 +265,6 @@ import { SideDrawerUI } from '../SideDrawerUI';
     { provide: 'ContactMatcher', useClass: ContactMatcher },
     { provide: 'Subscription', useClass: Subscription },
     { provide: 'RingCentralExtensions', useClass: RingCentralExtensions },
-    { provide: 'PubnubReadyController', useClass: PubnubReadyController },
-    { provide: 'WebSocketReadyController', useClass: WebSocketReadyController },
-    { provide: 'PubnubSubscription', useClass: PubnubSubscription },
-    { provide: 'WebSocketSubscription', useClass: WebSocketSubscription },
     { provide: 'RegionSettings', useClass: RegionSettings },
     { provide: 'NumberValidate', useClass: NumberValidate },
     { provide: 'NoiseReduction', useClass: NoiseReduction },
