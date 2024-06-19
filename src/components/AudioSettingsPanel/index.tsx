@@ -208,7 +208,7 @@ const InputDevice: FC<
         onChange(deviceId as string);
       }}
       disabled={inputDeviceDisabled}
-      label="Input device"
+      label="Microphone"
       fullWidth
       helperText={showTooltip ? i18n.getString('noLabelTip', currentLocale) : ''}
     >
@@ -410,13 +410,13 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
                   outputDeviceId: deviceId,
                 });
               }}
-              label="Output device"
+              label="Speaker source"
             />
           ) : null}
           {showCallVolume ? (
             <VolumeInput
               volume={callVolume}
-              label="Call volume"
+              label="Speaker volume"
               onChange={(volume) => {
                 onSave({
                   callVolume: volume,
@@ -433,7 +433,7 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
               outputDeviceDisabled={outputDeviceDisabled}
               outputDeviceId={ringtoneDeviceId}
               onChange={onRingtoneDeviceIdChange}
-              label="Ringtone device"
+              label="Ringtone source"
             />
           ) : null}
           {showRingToneVolume ? (
