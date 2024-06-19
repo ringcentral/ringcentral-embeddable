@@ -27,13 +27,6 @@ object-assign
 /*!
  * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <http://feross.org>
- * @license  MIT
- */
-
-/*!
- * The buffer module from node.js, for the browser.
- *
  * @author   Feross Aboukhadijeh <https://feross.org>
  * @license  MIT
  */
@@ -59,21 +52,11 @@ object-assign
  * Licensed under the MIT License.
  */
 
-/*! 4.32.1 / Consumer  */
-
 /*! https://mths.be/punycode v1.3.2 by @mathias */
 
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
-/*! lil-uuid - v0.1 - MIT License - https://github.com/lil-js/uuid */
-
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
-
-/**
- * @file Web Cryptography API shim
- * @author Artem S Vybornov <vybornov@gmail.com>
- * @license MIT
- */
 
 /**
  * @license React
