@@ -385,3 +385,27 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 To get current presence status please refer this [event](events.md#presence-sync-event).
 
+## Update ringtone settings
+
+<!-- md:version 2.0.0 -->
+
+Set ringtone audio
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-update-ringtone',
+  name: 'CoolRingTone', // Ringtone name
+  uri: 'https://xxx.wav', // Ringtone URI, support http/https and base64 data URI
+}, '*');
+```
+
+Set ringtone volume
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-update-ringtone',
+  volume: 0.5, // 0 - 1.0
+}, '*');
+```
+
+If you are using Adapter JS way, just you can just call `RCAdapter.updateRingtone({ name, uri, volume })`.
