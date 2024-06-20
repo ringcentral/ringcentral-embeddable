@@ -2,6 +2,8 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
   ConversationLogger as ConversationLoggerBase,
 } from '@ringcentral-integration/commons/modules/ConversationLogger';
+import { computed } from '@ringcentral-integration/core';
+import type { Correspondent } from '@ringcentral-integration/commons/lib/messageHelper';
 
 const getCurrentDateTimeStamp = () => {
   let today = new Date();
@@ -80,6 +82,9 @@ export class ConversationLogger extends ConversationLoggerBase {
       const numberMap: Record<string, boolean> = {};
       /* eslint { "no-inner-declarations": 0 } */
       function addIfNotExist(contact) {
+        if (!contact) {
+          return;
+        }
         const number = contact.phoneNumber || contact.extensionNumber;
         if (number && !numberMap[number]) {
           numbers.push(number);
@@ -192,4 +197,28 @@ export class ConversationLogger extends ConversationLoggerBase {
   //     date,
   //   });
   // }
+
+  @computed((that: ConversationLogger) => [that.conversationLogMap])
+  get uniqueNumbers() {
+    const output: string[] = [];
+    const numberMap: Record<string, boolean> = {};
+    function addIfNotExist(contact: Correspondent = {}) {
+      if (!contact) {
+        return;
+      }
+      const number = contact.phoneNumber || contact.extensionNumber;
+      if (number && !numberMap[number]) {
+        output.push(number);
+        numberMap[number] = true;
+      }
+    }
+    Object.keys(this.conversationLogMap).forEach((conversationId) => {
+      Object.keys(this.conversationLogMap[conversationId]).forEach((date) => {
+        const conversation = this.conversationLogMap[conversationId][date];
+        addIfNotExist(conversation.self);
+        conversation.correspondents!.forEach(addIfNotExist);
+      });
+    });
+    return output;
+  }
 }
