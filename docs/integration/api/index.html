@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -1426,6 +1426,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#update-ringtone-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Update ringtone settings
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2476,6 +2485,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#update-ringtone-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Update ringtone settings
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2793,6 +2811,22 @@
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
 <p>To get current presence status please refer this <a href="../events/#presence-sync-event">event</a>.</p>
+<h2 id="update-ringtone-settings">Update ringtone settings</h2>
+<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5Z"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
+<p>Set ringtone audio</p>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-ringtone&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;CoolRingTone&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Ringtone name</span>
+<span class="w">  </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://xxx.wav&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Ringtone URI, support http/https and base64 data URI</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+</code></pre></div>
+<p>Set ringtone volume</p>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-ringtone&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">volume</span><span class="o">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="c1">// 0 - 1.0</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+</code></pre></div>
+<p>If you are using Adapter JS way, just you can just call <code>RCAdapter.updateRingtone({ name, uri, volume })</code>.</p>
 
 
 
