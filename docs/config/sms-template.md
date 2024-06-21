@@ -10,7 +10,7 @@ The SMS template feature is supported starting in version 2.0.0. This feature al
 
 ## Enable SMS template
 
-First, you need to add `EditAccounts` permission into your RingCentral app in RingCentral developer portal.
+First, you need to add `EditExtensions` permission into your RingCentral app in RingCentral developer portal.
 
 Then, you need to enable the SMS template feature in the widget. To enable it, you need to set `enableSMSTemplate` flag into the widget's URI. 
 

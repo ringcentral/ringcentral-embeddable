@@ -16,6 +16,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     iconUri: 'https://xxx/icon.png', // icon for tab, 24x24
     activeIconUri: 'https://xxx/icon-active.png', // icon for tab in active status, 24x24
     hidden: false, // optional, default false, whether to hide the tab icon from navigation bar
+    unreadCount: 0, // optional, unread count, 0-99
     priority: 31, // tab priority, 0-100, 0 is the highest priority, Phone tab: 10, Text: 20, Fax: 30, Glip: 40, Contacts: 50, Video: 60, Settings: 70
     // schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
     schema: {

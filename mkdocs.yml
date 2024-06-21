@@ -79,7 +79,7 @@ markdown_extensions:
 copyright: "2023 RingCentral, Inc. All rights reserved."
 
 nav:
-- 'Home': https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/
+- 'Home': https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/index.html
 
 - 'Getting started':
   - 'Registering your application': app-registration.md
