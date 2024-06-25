@@ -53,6 +53,7 @@ module.exports = {
       icon: '/assets/atos/icon.png',
     },
     showFeedback: false,
+    enableEDP: true,
   },
   brandFolder: __dirname,
   assetsFolder: path.resolve(__dirname, '../../src/assets/atos'),

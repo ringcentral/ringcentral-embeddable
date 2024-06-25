@@ -877,6 +877,7 @@ export function createPhone({
           NoiseReduction: !disableNoiseReduction,
           SMSTemplate: !!enableSMSTemplate,
           SmartNote: !!enableSmartNote,
+          EDP: true,
         },
       },
       {

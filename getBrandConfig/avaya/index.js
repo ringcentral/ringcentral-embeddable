@@ -54,6 +54,7 @@ module.exports = {
       icon: '/assets/avaya/icon.svg',
     },
     showFeedback: false,
+    enableEDP: true,
   },
   brandFolder: __dirname,
   assetsFolder: path.resolve(__dirname, '../../src/assets/avaya'),
