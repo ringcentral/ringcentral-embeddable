@@ -56971,6 +56971,7 @@ class Adapter extends AdapterCore/* default */.Z {
     if ((0,utils.isSafari)()) {
       sandboxAttributes = sandboxAttributes.replace(' allow-downloads', '');
     }
+    sandboxAttributes = `${sandboxAttributes} allow-popups-to-escape-sandbox`;
     return `
       <header class="${this._styles.header}" draggable="false">
         <div class="${this._styles.presence} ${this._styles.NoPresence}">
