@@ -72,3 +72,7 @@ input {
   top: 0.2em;
   left: 3.2em;
 }
+
+:global .CallingSettingsPanel_content {
+  max-height: calc(100% - 46px);
+}
