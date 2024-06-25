@@ -62,6 +62,7 @@ function MeetingList({
   onClick,
   onLog,
   logTitle,
+  type,
 }) {
   const list = meetings.map((meeting) => (
     <MeetingItem
@@ -80,6 +81,7 @@ function MeetingList({
       showLog={!!onLog}
       logTitle={logTitle}
       duration={meeting.duration}
+      type={type}
     />
   ));
   if (meetings.length === 0) {
@@ -147,6 +149,7 @@ export default function MeetingHistoryPanel({
         onClick={onClick}
         onLog={onLog}
         logTitle={logTitle}
+        type={type}
       />
     );
   }

@@ -98,6 +98,7 @@ export default function MeetingItem({
   showLog,
   logTitle,
   duration,
+  type,
 }) {
   const recording = recordings && recordings[0]
   const recodingIcon = recording && recording.metadata ? (
@@ -112,6 +113,10 @@ export default function MeetingItem({
       color="action.primary"
     />
   ) : null;
+  let durationValue = duration;
+  if (type === 'recordings' && recording && recording.metadata) {
+    durationValue = recording.metadata.duration;
+  }
 
   const hostContent = hostInfo ? (
     <span>
@@ -145,7 +150,7 @@ export default function MeetingItem({
             <DetailArea>
               {recodingIcon}
               <span>
-                {formatDuration(duration)}
+                {formatDuration(durationValue)}
               </span>
               {
                 hostInfo ? 
