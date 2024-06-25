@@ -254,6 +254,7 @@ class Adapter extends AdapterCore {
     if (isSafari()) {
       sandboxAttributes = sandboxAttributes.replace(' allow-downloads', '');
     }
+    sandboxAttributes = `${sandboxAttributes} allow-popups-to-escape-sandbox`;
     return `
       <header class="${this._styles.header}" draggable="false">
         <div class="${this._styles.presence} ${this._styles.NoPresence}">

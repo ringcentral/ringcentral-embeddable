@@ -124,7 +124,7 @@ function MeetingItem(props) {
     icon: InfoBorder,
     title: i18n.getString('details', currentLocale),
     onClick: () => {
-      window.open(editEventUrl)
+      window.open(editEventUrl);
     },
     disabled: false,
   }];
