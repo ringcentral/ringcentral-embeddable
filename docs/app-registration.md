@@ -44,6 +44,7 @@ Before you begin development, you will first need to register your application v
     * `Read Presence`
     * `RingOut`
     * `SMS`
+    * `Edit Extensions` (2.x SMS templates feature)
     * `TeamMessaging` (optional)
     * `WebSocketSubscription`
     * `Video` (optional)
