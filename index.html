@@ -560,7 +560,10 @@
       if (basePath.indexOf('https://apps.ringcentral.com') === 0) {
         version = basePath.split('/').pop();
       }
-      if (basePath === 'https://apps.ringcentral.com/integration/ringcentral-embeddable/latest') {
+      if (
+        basePath === 'https://apps.ringcentral.com/integration/ringcentral-embeddable/latest' ||
+        basePath === 'https://ringcentral.github.io/ringcentral-embeddable'
+      ) {
         version = '2.x';
       }
       return version;
