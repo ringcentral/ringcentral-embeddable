@@ -573,6 +573,9 @@
       var defaultVersion = getDefaultVersion(removeGithubPageBuild);
       const selectedVersion = localStorage.getItem(selectedVersionStorageKey + defaultVersion);
       if (!selectedVersion) {
+        if (defaultVersion === '2.x') {
+          return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x';
+        }
         return basePath;
       }
       if (selectedVersion === '2.x') {
