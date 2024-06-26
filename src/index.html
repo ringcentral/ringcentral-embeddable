@@ -630,7 +630,7 @@
     }
     updateCodes();
     function replaceRedirectUri() {
-      var basePath = getBasePath();
+      var basePath = getWidgetBasePath();
       var defaultRedirectUriElem = window.document.querySelector('#defaultRedirectUri');
       var defaultRedirectUri = defaultRedirectUriElem.innerText;
       defaultRedirectUri = defaultRedirectUri.replace('https://apps.ringcentral.com/integration/ringcentral-embeddable/latest', basePath);
