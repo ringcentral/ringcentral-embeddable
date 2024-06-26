@@ -5,7 +5,7 @@ hide:
 
 # Embed a phone into any webpage with RingCentral Embeddable
 
-!!! example "Introducing the RingCentral Embeddable 2.0 beta"
+!!! example "Introducing the RingCentral Embeddable 2.0"
     We are excited to announce and make available the next generation of the RingCentral Embeddable product. In addition to a new design and user interface, Embeddable 2.0 comes with new features including call recording playback and a new SMS/messaging inbox. Developers will enjoy new ways to extend the user interface without having to know or code HTML and CSS. 
 	
 	[Learn more](2.x.md){.md-button .md-button--primary}
