@@ -76,7 +76,7 @@ markdown_extensions:
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
       emoji_index: !!python/name:material.extensions.emoji.twemoji
 
-copyright: "2023 RingCentral, Inc. All rights reserved."
+copyright: "2024 RingCentral, Inc. All rights reserved."
 
 nav:
 - 'Home': https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/index.html
@@ -111,7 +111,7 @@ nav:
   - 'Events': integration/events.md
   - 'API': integration/api.md
   - 'Authorization': integration/authorization.md
-  - 'Embeddable 2.0 beta': 2.x.md
+  - 'Embeddable 2.0': 2.x.md
   - 'Service features':
     - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md
