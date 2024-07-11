@@ -703,6 +703,18 @@ class Adapter extends AdapterCore {
   get centerCallInfo() {
     return this._widgetCurrentPath === '/history';
   }
+
+  alertMessage({ message, level, ttl }) {
+    return this._requestWithPostMessage('/custom-alert-message', {
+      message, level, ttl,
+    });
+  }
+
+  dismissMessage(id = null) {
+    return this._requestWithPostMessage('/dismiss-alert-message', {
+      id,
+    });
+  }
 }
 
 export default Adapter;
