@@ -380,14 +380,25 @@ export default class Adapter extends AdapterModuleCore {
         break;
       }
       case '/custom-alert-message':
-        this._alert.alert({
-          level: data.alertLevel,
-          ttl: data.ttl,
+        const alertId = await this._alert.alert({
+          level: data.alertLevel || data.body && data.body.level, // to support old format
+          ttl: data.ttl || data.body && data.body.ttl,
           message: 'showCustomAlertMessage',
           payload: {
-            alertMessage: data.alertMessage
+            alertMessage: data.alertMessage || data.body && data.body.message,
           }
         });
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: alertId,
+        });
+        break;
+      case '/dismiss-alert-message':
+        if (data.body && data.body.id) {
+          this._alert.dismiss(data.body.id);
+        } else {
+          this._alert.dismissAll();
+        }
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
           response: 'ok',
@@ -404,6 +415,7 @@ export default class Adapter extends AdapterModuleCore {
           responseId: data.requestId,
           response: error ? error.message : 'ok',
         });
+        break;
       }
       default: {
         this._postRCAdapterMessageResponse({
