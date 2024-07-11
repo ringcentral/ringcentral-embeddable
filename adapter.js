@@ -57341,6 +57341,24 @@ class Adapter extends AdapterCore/* default */.Z {
   get centerCallInfo() {
     return this._widgetCurrentPath === '/history';
   }
+  alertMessage(_ref4) {
+    let {
+      message,
+      level,
+      ttl
+    } = _ref4;
+    return this._requestWithPostMessage('/custom-alert-message', {
+      message,
+      level,
+      ttl
+    });
+  }
+  dismissMessage() {
+    let id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    return this._requestWithPostMessage('/dismiss-alert-message', {
+      id
+    });
+  }
 }
 /* harmony default export */ var lib_Adapter = (Adapter);
 ;// CONCATENATED MODULE: ./src/adapter.js
