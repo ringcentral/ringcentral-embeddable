@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { handleCopy } from '@ringcentral-integration/widgets/lib/handleCopy';
 import {
   RcButton,
-  RcIcon,
   RcListItem,
   RcListItemText,
   RcListItemIcon,
@@ -12,8 +11,6 @@ import {
 } from '@ringcentral/juno';
 
 import {
-  ArrowDown2,
-  ArrowUp2,
   Copy,
   Edit,
   Delete,
@@ -49,12 +46,6 @@ const StyledListItem = styled(RcListItem)`
       display: flex;
     }
   `}
-`;
-
-const StyledListItemIcon = styled(RcListItemIcon)`
-  position: relative;
-  top: 6px;
-  cursor: pointer;
 `;
 
 const StyledListItemText = styled(RcListItemText)`
@@ -94,6 +85,9 @@ export function TemplateItem({
   onEdit,
   onDelete,
   showTemplateManagement,
+  innerRef,
+  icon,
+  ...rest
 }) {
   const [extended, setExtended] = useState(false);
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
@@ -124,14 +118,12 @@ export function TemplateItem({
   return (
     <StyledListItem
       $hoverOnMoreMenu={hoverOnMoreMenu}
+      ref={innerRef}
+      {...rest}
     >
-      <StyledListItemIcon
-        onClick={() => setExtended(!extended)}
-      >
-        <RcIcon
-          symbol={extended ? ArrowUp2 : ArrowDown2}
-        />
-      </StyledListItemIcon>
+      <RcListItemIcon>
+        {icon}
+      </RcListItemIcon>
       <StyledListItemText
         primary={template.displayName}
         secondary={template.body.text}

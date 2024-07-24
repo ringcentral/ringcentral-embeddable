@@ -52,6 +52,9 @@ export class ComposeTextUI extends ComposeTextUIBase {
       createOrUpdateTemplate: (template) => {
         return smsTemplates.createOrUpdateTemplate(template);
       },
+      sortTemplates: (templateIds) => {
+        return smsTemplates.sort(templateIds);
+      },
     };
   }
 }
