@@ -136,6 +136,7 @@ type MessageInputProps = {
   loadTemplates?: () => Promise<any>;
   deleteTemplate?: (templateId: string) => Promise<any>;
   createOrUpdateTemplate?: (template: any) => Promise<any>;
+  sortTemplates?: (templates: any[]) => any;
 }
 
 type AttachmentsProps = {
@@ -197,6 +198,7 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
   loadTemplates = undefined,
   deleteTemplate = undefined,
   createOrUpdateTemplate = undefined,
+  sortTemplates = undefined,
 }) => {
   const [value, setValue] = useState('');
   const [height, setHeight] = useState(minHeight);
@@ -393,6 +395,7 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
             loadTemplates={loadTemplates}
             deleteTemplate={deleteTemplate}
             createOrUpdateTemplate={createOrUpdateTemplate}
+            sortTemplates={sortTemplates}
           />
         )
       }

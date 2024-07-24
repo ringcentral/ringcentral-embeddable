@@ -1,4 +1,4 @@
-import { computed } from '@ringcentral-integration/core';
+import { computed, storage, state, action } from '@ringcentral-integration/core';
 
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
@@ -13,6 +13,7 @@ import { Deps, SmsTemplateRecord } from './SmsTemplates.interface';
     'ExtensionFeatures',
     'AppFeatures',
     'Alert',
+    'Storage',
     { dep: 'CallerIdOptions', optional: true }
   ],
 })
@@ -26,6 +27,7 @@ export class SmsTemplates extends DataFetcherV2Consumer<
   constructor(deps: Deps) {
     super({
       deps,
+      storageKey: 'SmsTemplates',
     });
     this._source = new DataSource({
       ...deps.smsTemplateOptions,
@@ -46,9 +48,58 @@ export class SmsTemplates extends DataFetcherV2Consumer<
     this._deps.dataFetcherV2.register(this._source);
   }
 
-  @computed(({ data }: SmsTemplates) => [data])
+  @storage
+  @state
+  orderedIds: string[] = [];
+
+  @action
+  _setOrderedIds(orderedIds: string[]) {
+    this.orderedIds = orderedIds;
+  }
+
+  @action
+  clearOrderedIds() {
+    const orderedIds = [];
+    const list = this.data ?? [];
+    this.orderedIds.forEach((id) => {
+      if (list.find((template) => template.id === id)) {
+        orderedIds.push(id);
+      }
+    });
+    this.orderedIds = orderedIds;
+  }
+
+  @action
+  setToFirstOrder(templateId: string) {
+    const orderedIds = this.orderedIds.filter((id) => id !== templateId);
+    this.orderedIds = [templateId].concat(orderedIds);
+  }
+
+  sort(ids: string[]) {
+    this._setOrderedIds(ids);
+  }
+
+  @computed(({ data, orderedIds }: SmsTemplates) => [data, orderedIds])
   get templates() {
-    return this.data ?? [];
+    const originalList = this.data ?? [];
+    const listMap = originalList.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+    const orderedList = [];
+    this.orderedIds.forEach((id) => {
+      if (listMap[id]) {
+        orderedList.push(listMap[id]);
+        delete listMap[id];
+      }
+    });
+    const unorderedList = [];
+    originalList.forEach((item) => {
+      if (listMap[item.id]) {
+        unorderedList.push(item);
+      }
+    });
+    return orderedList.concat(unorderedList);
   }
 
   get _hasPermission() {
@@ -60,6 +111,7 @@ export class SmsTemplates extends DataFetcherV2Consumer<
       return;
     }
     await this._deps.dataFetcherV2.fetchData(this._source);
+    this.clearOrderedIds();
   }
 
   async deleteTemplate(templateId: string) {
@@ -72,6 +124,7 @@ export class SmsTemplates extends DataFetcherV2Consumer<
         this.data.filter((template) => template.id !== templateId),
         Date.now(),
       );
+      this.clearOrderedIds();
     } catch (e) {
       console.error(e);
       this._deps.alert.danger({
@@ -119,6 +172,9 @@ export class SmsTemplates extends DataFetcherV2Consumer<
         newData,
         Date.now(),
       );
+      if (!isUpdate) {
+        this.setToFirstOrder(result.id);
+      }
       return null;
     } catch (e) {
       console.error(e);

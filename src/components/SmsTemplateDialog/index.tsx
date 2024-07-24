@@ -5,7 +5,6 @@ import {
   RcDialogTitle,
   RcDialogContent,
   RcIconButton,
-  RcList,
   styled,
   palette2,
   RcLoading,
@@ -16,7 +15,7 @@ import {
   NewAction,
 } from '@ringcentral/juno-icon';
 
-import { TemplateItem } from './TemplateItem';
+import { TemplateList } from './TemplateList';
 import { EditDialog } from './EditDialog';
 import { ConfirmDialog } from '../ConfirmDialog';
 
@@ -54,6 +53,7 @@ export function SmsTemplateDialog({
   loadTemplates,
   deleteTemplate,
   createOrUpdateTemplate,
+  sortTemplates,
 }) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState({
@@ -112,26 +112,20 @@ export function SmsTemplateDialog({
       }
       <StyledDialogContent>
         <RcLoading loading={loading}>
-          <RcList>
-            {
-              templates.map((template) => (
-                <TemplateItem
-                  key={template.id}
-                  template={template}
-                  onApply={onApply}
-                  onEdit={() => {
-                    setEditingTemplate(template);
-                    setEditDialogOpen(true);
-                  }}
-                  showTemplateManagement={showTemplateManagement}
-                  onDelete={() => {
-                    setDeletingTemplate(template);
-                    setDeleteDialogOpen(true);
-                  }}
-                />
-              ))
-            }
-          </RcList>
+          <TemplateList
+            templates={templates}
+            onApply={onApply}
+            showTemplateManagement={showTemplateManagement}
+            onEditItem={(template) => {
+              setEditingTemplate(template);
+              setEditDialogOpen(true);
+            }}
+            onDeleteItem={(template) => {
+              setDeletingTemplate(template);
+              setDeleteDialogOpen(true);
+            }}
+            sortTemplates={sortTemplates}
+          />
         </RcLoading>
       </StyledDialogContent>
       <EditDialog

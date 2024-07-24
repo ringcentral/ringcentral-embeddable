@@ -76,6 +76,7 @@ export interface ComposeTextPanelProps {
   loadTemplates?: () => Promise<any>;
   deleteTemplate?: (templateId: string) => Promise<any>;
   createOrUpdateTemplate?: (template: any) => Promise<any>;
+  sortTemplates?: (...args: any[]) => any;
 }
 
 type ComposeTextPanelState = {
@@ -202,6 +203,7 @@ class ComposeTextPanel extends Component<
       loadTemplates,
       deleteTemplate,
       createOrUpdateTemplate,
+      sortTemplates,
     } = this.props;
     const filteredSearchContactList =
       useRecipientsInputV2 && typingToNumber.length >= 3
@@ -272,6 +274,7 @@ class ComposeTextPanel extends Component<
           loadTemplates={loadTemplates}
           deleteTemplate={deleteTemplate}
           createOrUpdateTemplate={createOrUpdateTemplate}
+          sortTemplates={sortTemplates}
         />
       </div>
     );

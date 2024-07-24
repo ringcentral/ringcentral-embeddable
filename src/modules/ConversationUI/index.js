@@ -59,6 +59,9 @@ export class ConversationUI extends BaseConversationUI {
       createOrUpdateTemplate: (template) => {
         return smsTemplates.createOrUpdateTemplate(template);
       },
+      sortTemplates: (templateIds) => {
+        return smsTemplates.sort(templateIds);
+      },
     }
   }
 }

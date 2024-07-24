@@ -101,6 +101,7 @@ export type ConversationProps = {
   loadTemplates?: () => Promise<any>;
   deleteTemplate?: (templateId: string) => Promise<any>;
   createOrUpdateTemplate?: (template: any) => Promise<any>;
+  sortTemplates?: (templates: any[]) => any;
 }
 
 type ConversationPanelState = {
@@ -503,6 +504,7 @@ class ConversationPanel extends Component<ConversationProps, ConversationPanelSt
             loadTemplates={this.props.loadTemplates}
             deleteTemplate={this.props.deleteTemplate}
             createOrUpdateTemplate={this.props.createOrUpdateTemplate}
+            sortTemplates={this.props.sortTemplates}
           />
         )}
       </div>

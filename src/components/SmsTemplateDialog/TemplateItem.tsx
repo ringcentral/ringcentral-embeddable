@@ -51,12 +51,6 @@ const StyledListItem = styled(RcListItem)`
   `}
 `;
 
-const StyledListItemIcon = styled(RcListItemIcon)`
-  position: relative;
-  top: 6px;
-  cursor: pointer;
-`;
-
 const StyledListItemText = styled(RcListItemText)`
   cursor: pointer;
 
@@ -94,6 +88,9 @@ export function TemplateItem({
   onEdit,
   onDelete,
   showTemplateManagement,
+  innerRef,
+  icon,
+  ...rest
 }) {
   const [extended, setExtended] = useState(false);
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
@@ -124,14 +121,12 @@ export function TemplateItem({
   return (
     <StyledListItem
       $hoverOnMoreMenu={hoverOnMoreMenu}
+      ref={innerRef}
+      {...rest}
     >
-      <StyledListItemIcon
-        onClick={() => setExtended(!extended)}
-      >
-        <RcIcon
-          symbol={extended ? ArrowUp2 : ArrowDown2}
-        />
-      </StyledListItemIcon>
+      <RcListItemIcon>
+        {icon}
+      </RcListItemIcon>
       <StyledListItemText
         primary={template.displayName}
         secondary={template.body.text}
