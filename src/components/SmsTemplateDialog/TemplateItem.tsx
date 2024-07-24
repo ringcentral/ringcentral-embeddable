@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { handleCopy } from '@ringcentral-integration/widgets/lib/handleCopy';
 import {
   RcButton,
-  RcIcon,
   RcListItem,
   RcListItemText,
   RcListItemIcon,
@@ -12,8 +11,6 @@ import {
 } from '@ringcentral/juno';
 
 import {
-  ArrowDown2,
-  ArrowUp2,
   Copy,
   Edit,
   Delete,
