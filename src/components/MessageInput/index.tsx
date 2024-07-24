@@ -217,6 +217,9 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
       const updateTimeDiff = Date.now() - lastValueChangeRef.current;
       if (updateTimeDiff > 1000) {
         setValue(valueProp);
+      } else if (!valueProp) {
+        // For sms sent and text value cleared
+        setValue('');
       }
     }
   }, [valueProp]);
