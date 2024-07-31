@@ -28,6 +28,7 @@ export class SmsTemplates extends DataFetcherV2Consumer<
     super({
       deps,
       storageKey: 'SmsTemplates',
+      enableCache: true,
     });
     this._source = new DataSource({
       ...deps.smsTemplateOptions,
