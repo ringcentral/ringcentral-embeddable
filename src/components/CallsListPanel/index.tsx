@@ -240,6 +240,7 @@ export function CallsListPanel({
       formatPhone={formatPhone}
       onClickToSms={onClickToSms}
       onCreateContact={onCreateContact}
+      enableCDC={enableCDC}
       onViewContact={onViewContact}
       outboundSmsPermission={outboundSmsPermission}
       internalSmsPermission={internalSmsPermission}

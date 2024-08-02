@@ -80,7 +80,11 @@ type ActiveCallListProps = {
   onSwitchCall?: (call: Call) => any;
   isWide?: boolean;
   allCalls: any[];
+  showLogButton?: boolean;
+  logButtonTitle?: string;
+  enableCDC?: boolean;
 };
+
 const ActiveCallList: React.SFC<ActiveCallListProps> = ({
   calls,
   className,
@@ -147,6 +151,7 @@ const ActiveCallList: React.SFC<ActiveCallListProps> = ({
   allCalls,
   showLogButton = false,
   logButtonTitle = '',
+  enableCDC,
 }) => {
   if (!calls.length) {
     return null;
@@ -208,6 +213,7 @@ const ActiveCallList: React.SFC<ActiveCallListProps> = ({
               outboundSmsPermission={outboundSmsPermission}
               isLoggedContact={isLoggedContact}
               onLogCall={onLogCall}
+              enableCDC={enableCDC}
               onViewContact={onViewContact}
               onCreateContact={onCreateContact}
               loggingMap={loggingMap}
