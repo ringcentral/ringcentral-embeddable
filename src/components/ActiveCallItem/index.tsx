@@ -30,8 +30,10 @@ import {
   NewAction,
   Edit,
   ViewLogBorder,
+  People,
 } from '@ringcentral/juno-icon'
 import styles from '@ringcentral-integration/widgets/components/ActiveCallItemV2/styles.scss';
+import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 
 import {
   StyledListItem,
@@ -285,6 +287,11 @@ function getFallbackContactName(call) {
 
 interface newActiveCallItemProps extends ActiveCallItemProps {
   onSwitchCall?: (call: ActiveCallItemProps['call']) => void;
+  enableCDC?: boolean;
+  showLogButton?: boolean;
+  logButtonTitle?: string;
+  onLogCall?: (...args: any[]) => any;
+  onViewContact?: (...args: any[]) => any;
 }
 
 export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
@@ -340,6 +347,8 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
   showLogButton = false,
   logButtonTitle = '',
   onLogCall,
+  enableCDC = false,
+  onViewContact,
 }) => {
   const {
     direction,
@@ -538,6 +547,28 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       title: 'View log details',
       onClick: () => logCall(true, undefined, 'viewLog'),
       disabled: disableLinks || isLogging || isLoggingState,
+    });
+  }
+  const viewSelectedContact = () => {
+    if (typeof onViewContact !== 'function') return;
+
+    const activityMatches = (call && call.activityMatches) || [];
+    onViewContact({
+      activityMatches,
+      contactMatches,
+      contact: getSessionContact(call, selected),
+      phoneNumber,
+    });
+  };
+  const hasEntity = !!contactMatches.length;
+  const isContactMatchesHidden = enableCDC && checkShouldHideContactUser(contactMatches);
+  if (!isContactMatchesHidden && hasEntity) {
+    actions.push({
+      id: 'viewContact',
+      icon: People,
+      title: "View contact details",
+      onClick: viewSelectedContact,
+      disabled: disableLinks,
     });
   }
   return (
