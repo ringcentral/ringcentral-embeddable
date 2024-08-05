@@ -9,6 +9,16 @@ function checkSettingSectionItem(item) {
       return false;
     }
   }
+  if (item.type === 'admonition') {
+    if (typeof item.value !== 'string') {
+      return false;
+    }
+  }
+  if (item.type === 'typography') {
+    if (typeof item.value !== 'string') {
+      return false;
+    }
+  }
   if (item.type === 'option') {
     if (!item.options || !Array.isArray(item.options)) {
       return false;
