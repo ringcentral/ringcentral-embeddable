@@ -156,7 +156,10 @@ export function getImageUri(sourceUri?: string) {
   const sourceUrl = String(sourceUri);
   if (sourceUrl.indexOf('data:image') === 0) {
     imageUri = sourceUrl;
-  } else if (sourceUrl.split('?')[0].match(/.(png|jpg|jpeg)$/)){
+  } else if (
+    sourceUrl.indexOf('http://') === 0 ||
+    sourceUrl.indexOf('https://') === 0
+  ) {
     imageUri = sourceUrl;
   }
   return imageUri;

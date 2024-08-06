@@ -1,58 +1,10 @@
 import React from 'react';
-import { RcButton } from '@ringcentral/juno';
-import { styled } from '@ringcentral/juno/foundation';
-
-import Line from '@ringcentral-integration/widgets/components/Line';
-import {
-  LinkLineItem,
-} from '@ringcentral-integration/widgets/components/SettingsPanel/LinkLineItem';
-import {
-  SwitchLineItem,
-} from '@ringcentral-integration/widgets/components/SettingsPanel/SwitchLineItem';
-
-import AuthorizeSettingsSection from '../../components/AuthorizeSettingsSection';
-
-const LineWrapper = styled.div`
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-`;
-
-function ButtonLineItem({
-  name,
-  buttonLabel,
-  onClick,
-}) {
-  return (
-    <Line>
-      <LineWrapper>
-        {name}
-        <RcButton
-          size="small"
-          color="action.primary"
-          onClick={onClick}
-        >
-          {buttonLabel}
-        </RcButton>
-      </LineWrapper>
-    </Line>
-  );
-}
+import { LinkLineItem, SwitchLineItem, ButtonLineItem } from './SettingItem';
 
 const Empty = () => null;
 
 export function AdditionalSettings({
   currentLocale,
-  authorizationRegistered,
-  thirdPartyAuthorized,
-  onThirdPartyAuthorize,
-  authorizedTitle,
-  unauthorizedTitle,
-  thirdPartyServiceName,
-  thirdPartyContactSyncing,
-  authorizationLogo,
-  authorizedAccount,
-  showAuthRedDot,
   thirdPartySettings,
   onSettingToggle,
   gotoThirdPartySection,
@@ -148,26 +100,6 @@ export function AdditionalSettings({
       component: item,
     });
   });
-  if (authorizationRegistered) {
-    const authorization = (
-      <AuthorizeSettingsSection
-        serviceName={thirdPartyServiceName}
-        authorized={thirdPartyAuthorized}
-        contactSyncing={thirdPartyContactSyncing}
-        onAuthorize={onThirdPartyAuthorize}
-        authorizedTitle={authorizedTitle}
-        unauthorizedTitle={unauthorizedTitle}
-        authorizationLogo={authorizationLogo}
-        authorizedAccount={authorizedAccount}
-        showAuthRedDot={showAuthRedDot}
-      />
-    );
-    additionalItems.push({
-      order: 9000,
-      id: 'authorization',
-      component: authorization,
-    });
-  }
   return (
     <>
       {

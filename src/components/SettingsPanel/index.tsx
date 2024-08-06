@@ -1,12 +1,39 @@
 import React from 'react';
 
-import {
-  SettingsPanel,
-} from '@ringcentral-integration/widgets/components/SettingsPanel';
+import { SettingsPanel } from './SettingsPanel';
 
 import { AdditionalSettings } from './AdditionalSettings';
+import { AuthorizeSettingsSection } from './AuthorizeSettingsSection';
 
-function NewSettingsPanel(props) {
+function NewSettingsPanel({
+  authorizationRegistered,
+  thirdPartyAuthorized,
+  onThirdPartyAuthorize,
+  thirdPartyServiceName,
+  thirdPartyContactSyncing,
+  authorizationLogo,
+  authorizedAccount,
+  showAuthRedDot,
+  authorizedTitle,
+  unauthorizedTitle,
+  ...props
+}) {
+  let thirdPartyAuthorization = null;
+  if (authorizationRegistered) {
+    thirdPartyAuthorization = (
+      <AuthorizeSettingsSection
+        serviceName={thirdPartyServiceName}
+        authorized={thirdPartyAuthorized}
+        contactSyncing={thirdPartyContactSyncing}
+        onAuthorize={onThirdPartyAuthorize}
+        authorizedTitle={authorizedTitle}
+        unauthorizedTitle={unauthorizedTitle}
+        authorizationLogo={authorizationLogo}
+        authorizedAccount={authorizedAccount}
+        showAuthRedDot={showAuthRedDot}
+      />
+    );
+  }
   return (
     <SettingsPanel
       {
@@ -14,6 +41,7 @@ function NewSettingsPanel(props) {
       }
       showAutoLog={false}
       showAutoLogSMS={false}
+      thirdPartyAuthorizationSetting={thirdPartyAuthorization}
       additional={
         <AdditionalSettings
           {...props}
