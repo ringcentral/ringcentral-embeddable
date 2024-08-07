@@ -3,7 +3,7 @@ import React from 'react';
 import { SettingsPanel } from './SettingsPanel';
 
 import { AdditionalSettings } from './AdditionalSettings';
-import { AuthorizeSettingsSection } from './AuthorizeSettingsSection';
+import { AuthSettingsSection } from './AuthSettingsSection';
 
 function NewSettingsPanel({
   authorizationRegistered,
@@ -22,7 +22,7 @@ function NewSettingsPanel({
   let thirdPartyAuthorization = null;
   if (authorizationRegistered) {
     thirdPartyAuthorization = (
-      <AuthorizeSettingsSection
+      <AuthSettingsSection
         serviceName={thirdPartyServiceName}
         serviceInfo={thirdPartyServiceInfo}
         authorized={thirdPartyAuthorized}

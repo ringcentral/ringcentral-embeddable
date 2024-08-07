@@ -78,13 +78,14 @@ export const SwitchLineItem: FunctionComponent<SwitchLineItemProps> = ({
     >
       <RcListItemText
         primary={customTitle || i18n.getString(name, currentLocale)}
+        title={customTitle || i18n.getString(name, currentLocale)}
       />
       <RcListItemSecondaryAction>
         <RcSwitch
           checked={checked}
           disabled={disabled}
           onChange={(_, checked) => {
-            onChange(checked);
+            onChange && onChange(checked);
           }}
           formControlLabelProps={{
             labelPlacement: 'start',

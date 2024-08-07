@@ -99,17 +99,17 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         onClick={onCallingSettingsLinkClick}
       />
       <LinkLineItem
+        name="audio"
+        show={showAudio}
+        currentLocale={currentLocale}
+        onClick={onAudioSettingsLinkClick}
+      />
+      <LinkLineItem
         name="region"
         dataSign="region"
         show={showRegion}
         currentLocale={currentLocale}
         onClick={onRegionSettingsLinkClick}
-      />
-      <LinkLineItem
-        name="audio"
-        show={showAudio}
-        currentLocale={currentLocale}
-        onClick={onAudioSettingsLinkClick}
       />
       {
         showPresenceSettings && dndStatus && userStatus ? (
@@ -127,7 +127,6 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
           />
         ) : null
       }
-      
       {children}
       <SwitchLineItem
         name="autoLogCalls"
