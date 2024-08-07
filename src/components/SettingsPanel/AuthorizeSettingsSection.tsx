@@ -5,25 +5,54 @@ import {
   RcButton,
   RcListItemText,
   RcListItemIcon,
-  RcListItemSecondaryAction,
+  RcTypography,
   styled,
-  palette2
+  palette2,
+  RcChip,
 } from '@ringcentral/juno';
-
 import { StyledSettingItem } from './SettingItem';
+
+const StyledAuthSettingItem = styled(StyledSettingItem)`
+  align-items: flex-start;
+
+  .RcListItemText-primary {
+    display: flex;
+    flex-direction: row;
+  }
+`;
+
+const StyledChip = styled(RcChip)`
+  height: 22px;
+  font-size: 0.75rem;
+  margin-right: 5px;
+  position: absolute;
+  right: 16px;
+  top: 10px;
+
+  .MuiChip-label {
+    padding: 0 6px;
+  }
+`;
 
 const RedDot = styled.div`
   position: absolute;
   width: 16px;
   height: 16px;
   border-radius: 100%;
-  background-color: ${palette2('danger', 'b04')};
-  top: 9px;
-  right: 12px;
+  background-color: ${palette2('highlight', 'b01')};
+  top: -5px;
+  right: -5px;
+`;
+
+const AuthAction = styled.div`
+  position: relative;
+  margin-top: 5px;
+  display: inline-block;
 `;
 
 const IconWrapper = styled.div`
   margin-right: 10px;
+  margin-top: 8px;
 
   img {
     vertical-align: middle;
@@ -43,6 +72,7 @@ interface AuthorizeSettingsSectionProps {
   authorizationLogo?: string;
   authorizedAccount?: string;
   showAuthRedDot?: boolean;
+  serviceInfo?: string;
 }
 
 export const AuthorizeSettingsSection: FunctionComponent<AuthorizeSettingsSectionProps> = ({
@@ -50,6 +80,7 @@ export const AuthorizeSettingsSection: FunctionComponent<AuthorizeSettingsSectio
   onAuthorize,
   authorizedTitle = 'Unauthorize',
   unauthorizedTitle = 'Authorize',
+  serviceInfo = '',
   serviceName,
   contactSyncing = false,
   authorizationLogo = null,
@@ -71,7 +102,7 @@ export const AuthorizeSettingsSection: FunctionComponent<AuthorizeSettingsSectio
     );
   }
   return (
-    <StyledSettingItem
+    <StyledAuthSettingItem
       canHover={false}
       disableTouchRipple
       disableRipple
@@ -80,18 +111,53 @@ export const AuthorizeSettingsSection: FunctionComponent<AuthorizeSettingsSectio
       {icon}
       <RcListItemText
         primary={serviceName}
-        secondary={authorized ? authorizedAccount : undefined}
+        secondary={
+          <>
+            {
+              authorized && authorizedAccount ? (
+                <RcTypography variant="caption1" color="neutral.f04">
+                  {authorizedAccount}
+                </RcTypography>
+              ) : (
+                null
+              )
+            }
+            <AuthAction>
+              <RcButton
+                size="small"
+                onClick={onAuthorize}
+                variant="outlined"
+                color={(authorized && !contactSyncing) ? 'danger.b04' : 'action.primary'}
+              >
+                {status}
+              </RcButton>
+              {
+                !authorized && showAuthRedDot ? (
+                  <RedDot />
+                ) : null
+              }
+            </AuthAction>
+            {
+              serviceInfo ? (
+                <RcTypography variant="caption1" color="neutral.f04">
+                  {serviceInfo}
+                </RcTypography>
+              ) : (
+                null
+              )
+            }
+            
+          </>
+        }
+        secondaryTypographyProps={{
+          component: 'div',
+        }}
       />
-      <RcListItemSecondaryAction>
-        <RcButton
-          size="small"
-          onClick={onAuthorize}
-          color={(authorized && !contactSyncing) ? 'danger.b04' : 'action.primary'}
-        >
-          {status}
-        </RcButton>
-        {showAuthRedDot ? (<RedDot />) : null}
-      </RcListItemSecondaryAction>
-    </StyledSettingItem>
+      <StyledChip
+        label={authorized? 'Connected' : 'Disconnected'}
+        color={authorized ? 'success.b03' : 'danger.b03'}
+        variant="outlined"
+      />
+    </StyledAuthSettingItem>
   );
 }

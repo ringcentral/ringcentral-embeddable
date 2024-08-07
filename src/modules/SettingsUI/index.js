@@ -38,6 +38,7 @@ export class SettingsUI extends BaseSettingsUI {
       authorizedTitle: thirdPartyService.authorizedTitle,
       unauthorizedTitle: thirdPartyService.unauthorizedTitle,
       thirdPartyServiceName: thirdPartyService.serviceName,
+      thirdPartyServiceInfo: thirdPartyService.serviceInfo,
       authorizationLogo: thirdPartyService.authorizationLogo,
       authorizedAccount: thirdPartyService.authorizedAccount,
       showAuthRedDot: thirdPartyService.showAuthRedDot,

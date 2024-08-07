@@ -10,6 +10,7 @@ function NewSettingsPanel({
   thirdPartyAuthorized,
   onThirdPartyAuthorize,
   thirdPartyServiceName,
+  thirdPartyServiceInfo,
   thirdPartyContactSyncing,
   authorizationLogo,
   authorizedAccount,
@@ -23,6 +24,7 @@ function NewSettingsPanel({
     thirdPartyAuthorization = (
       <AuthorizeSettingsSection
         serviceName={thirdPartyServiceName}
+        serviceInfo={thirdPartyServiceInfo}
         authorized={thirdPartyAuthorized}
         contactSyncing={thirdPartyContactSyncing}
         onAuthorize={onThirdPartyAuthorize}

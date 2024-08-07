@@ -102,6 +102,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         this._registerService({
           serviceName: service.name,
+          serviceInfo: service.info,
         });
         if (service.authorizationPath) {
           this._registerAuthorizationButton(service);
@@ -974,14 +975,19 @@ export default class ThirdPartyService extends RcModuleV2 {
   serviceName = null;
 
   @state
+  serviceInfo = null;
+
+  @state
   _sourceReady = false;
 
   @action
   _registerService({
     serviceName,
+    serviceInfo,
   }) {
     this.serviceName = serviceName;
     this._sourceReady = true;
+    this.serviceInfo = serviceInfo;
   }
 
   get sourceName() {
