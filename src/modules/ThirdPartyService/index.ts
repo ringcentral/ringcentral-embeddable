@@ -15,6 +15,7 @@ import {
   checkThirdPartySettings,
   formatContacts,
   getImageUri,
+  findSettingItem,
 } from './helper';
 
 @Module({
@@ -881,6 +882,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._onUpdateSettings({ setting });
     await requestWithPostMessage(this._settingsPath, {
       settings: this.settings,
+      setting,
     });
   }
 
@@ -916,21 +918,23 @@ export default class ThirdPartyService extends RcModuleV2 {
   }
 
   async onClickSettingButton(buttonId) {
-    const setting = this.settings.find(x => x.id === buttonId);
-    if (setting) {
-      if (!this._additionalButtonPath) {
-        console.error('additionalButtonPath is not registered');
-        return;
-      }
-      await requestWithPostMessage(this._additionalButtonPath, {
-        button: {
-          id: setting.id,
-          type: 'setting',
-          label: setting.buttonLabel,
-          name: setting.name,
-        },
-      });
+    const setting = findSettingItem(this.settings, buttonId);
+    if (!setting) {
+      console.error('Setting not found');
+      return;
     }
+    if (!this._additionalButtonPath) {
+      console.error('additionalButtonPath is not registered');
+      return;
+    }
+    await requestWithPostMessage(this._additionalButtonPath, {
+      button: {
+        id: setting.id,
+        type: 'setting',
+        label: setting.buttonLabel,
+        name: setting.name,
+      },
+    });
   }
 
   async sync(params) {
@@ -1180,10 +1184,13 @@ export default class ThirdPartyService extends RcModuleV2 {
   _onUpdateSettings({
     setting,
   }) {
-    const settingIndex = this.settings.findIndex(s => s.id === setting.id);
-    if (settingIndex > -1) {
-      this.settings[settingIndex] = setting;
+    const settingItem = findSettingItem(this.settings, setting.id);
+    if (!settingItem) {
+      return;
     }
+    Object.keys(setting).forEach((key) => {
+      settingItem[key] = setting[key];
+    });
   }
 
   @state

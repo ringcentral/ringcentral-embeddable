@@ -5,18 +5,28 @@ import { BasePanel } from '@ringcentral-integration/widgets/components/SettingsP
 
 import { PresenceSettingSection } from './PresenceSettingSection';
 import type { SettingsPanelProps } from '@ringcentral-integration/widgets/components/SettingsPanel/SettingsPanel.interface';
-import { LinkLineItem, SwitchLineItem, ButtonLineItem } from './SettingItem';
+import {
+  LinkLineItem,
+  SwitchLineItem,
+  ButtonLineItem,
+  GroupLineItem,
+  ExternalLinkLineItem,
+} from './SettingItem';
 import { AuthSettingsSection } from './AuthSettingsSection';
 
 const Empty = (): null => null;
 
-type ThirdPartySettings = {
+type ThirdPartySetting = {
   id?: string;
   name: string;
   type: string;
   buttonLabel?: string;
+  buttonType?: string;
   value?: boolean;
   order?: number;
+  groupId?: string;
+  items?: ThirdPartySetting[];
+  uri?: string;
 }
 
 type SettingItem = {
@@ -24,7 +34,7 @@ type SettingItem = {
   id: string;
   name?: string;
   dataSign?: string;
-  show: boolean;
+  show?: boolean;
   onClick?: (...args: any[]) => any;
   customTitle?: string;
   disabled?: boolean;
@@ -32,6 +42,12 @@ type SettingItem = {
   onChange?: (...args: any[]) => any;
   buttonLabel?: string;
   order: number;
+  items?: SettingItem[];
+  uri?: string;
+}
+
+function getLoggingGroupName(showAutoLog: boolean, showAutoLogSMS: boolean) {
+  return `${showAutoLog ? 'Call' : ''}${showAutoLog && showAutoLogSMS ? ' and ' : ''}${showAutoLogSMS ? 'SMS' : ''} logging`;
 }
 
 interface NewSettingsPanelProps extends SettingsPanelProps {
@@ -48,10 +64,171 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   } | null;
   onThirdPartyAuthorize?: () => void;
   disableAutoLogSMSEnabled?: boolean;
-  thirdPartySettings?: ThirdPartySettings[];
+  thirdPartySettings?: ThirdPartySetting[];
   gotoThirdPartySection: (id: string) => void;
   onThirdPartyButtonClick: (id: string) => void;
   onSettingToggle: (setting: any) => void;
+}
+
+function ItemRenderer({ item, currentLocale }: {
+  item: SettingItem;
+  currentLocale: string;
+}) {
+  if (item.type === 'link') {
+    return (
+      <LinkLineItem
+        name={item.name}
+        dataSign={item.dataSign}
+        show={item.show}
+        currentLocale={currentLocale}
+        onClick={item.onClick}
+      />
+    );
+  }
+  if (item.type === 'switch') {
+    return (
+      <SwitchLineItem
+        name={item.name}
+        customTitle={item.customTitle}
+        dataSign={item.dataSign}
+        show={item.show}
+        currentLocale={currentLocale}
+        disabled={item.disabled}
+        checked={item.checked}
+        onChange={item.onChange}
+      />
+    );
+  }
+  if (item.type === 'button') {
+    return (
+      <ButtonLineItem
+        name={item.name}
+        buttonLabel={item.buttonLabel}
+        onClick={item.onClick}
+      />
+    );
+  }
+  if (item.type === 'externalLink') {
+    return (
+      <ExternalLinkLineItem
+        name={item.name}
+        uri={item.uri}
+      />
+    );
+  }
+  if (item.type === 'group') {
+    const groupItems =  item.items || [];
+    if (groupItems.length === 0) {
+      return null;
+    }
+    const groupItemsShow = !!groupItems.find((subItem) => subItem.show);
+    return (
+      <GroupLineItem
+        name={item.name}
+        show={groupItemsShow}
+      >
+        {
+          groupItems.sort((a, b) => a.order - b.order).map((subItem) => (
+            <ItemRenderer
+              key={subItem.id}
+              item={subItem}
+              currentLocale={currentLocale}
+            />
+          ))
+        }
+      </GroupLineItem>
+    );
+  }
+  return null;
+}
+
+function getSettingItemFromThirdPartyItem({
+  item,
+  gotoThirdPartySection,
+  onThirdPartyButtonClick,
+  onSettingToggle,
+  order,
+}: {
+  item: ThirdPartySetting,
+  gotoThirdPartySection: (id: string) => void,
+  onThirdPartyButtonClick: (id: string) => void,
+  onSettingToggle: (setting: ThirdPartySetting) => void,
+  order: number,
+}): SettingItem {
+  if (item.type === 'section') {
+    return {
+      type: 'link',
+      id: item.id || item.name,
+      name: item.name,
+      dataSign: item.name,
+      show: true,
+      onClick: () => gotoThirdPartySection(item.id),
+      order,
+    };
+  }
+  if (item.type === 'button') {
+    if (item.buttonType === 'link') {
+      return {
+        type: 'link',
+        id: item.id || item.name,
+        name: item.name,
+        dataSign: item.name,
+        show: true,
+        onClick: () => onThirdPartyButtonClick(item.id),
+        order,
+      };
+    }
+    return {
+      type: 'button',
+      id: item.id || item.name,
+      name: item.name,
+      dataSign: item.name,
+      buttonLabel: item.buttonLabel || 'Open',
+      show: true,
+      onClick: () => onThirdPartyButtonClick(item.id),
+      order,
+    };
+  }
+  if (item.type === 'boolean') {
+    return {
+      type: 'switch',
+      id: item.id || item.name,
+      name: item.name,
+      customTitle: item.name,
+      dataSign: `thirdPartySettings-${item.name}`,
+      checked: item.value,
+      show: true,
+      onChange: () => onSettingToggle(item),
+      order,
+    };
+  }
+  if (item.type === 'group') {
+    return {
+      type: 'group',
+      id: item.id || item.name,
+      order,
+      name: item.name,
+      items: item.items?.map((subItem) => getSettingItemFromThirdPartyItem({
+        item: subItem,
+        gotoThirdPartySection,
+        onThirdPartyButtonClick,
+        onSettingToggle,
+        order: subItem.order || 0,
+      })),
+    }
+  }
+  if (item.type === 'externalLink') {
+    return {
+      type: 'externalLink',
+      id: item.id || item.name,
+      name: item.name,
+      dataSign: item.name,
+      show: true,
+      uri: item.uri,
+      order,
+    };
+  }
+  return null;
 }
 
 export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
@@ -99,6 +276,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   showAutoLogSMS = false,
   showCalling = false,
   // showClickToDial = false,
+  showFeedback = false,
+  onFeedbackSettingsLinkClick,
   showHeader = false,
   // showLogSMSContent = false,
   showPresenceSettings = true,
@@ -145,65 +324,65 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     order: 400,
     show: !!(showPresenceSettings && dndStatus && userStatus),
   }, {
-    id: 'autoLogCalls',
-    type: 'switch',
-    name: 'autoLogCalls',
-    dataSign: 'AutoLogCall',
-    show: showAutoLog,
-    customTitle: autoLogTitle,
-    disabled: disableAutoLogEnabled,
-    checked: autoLogEnabled,
-    onChange: onAutoLogChange,
-    order: 3000,
+    id: 'logging',
+    type: 'group',
+    name: getLoggingGroupName(showAutoLog, showAutoLogSMS),
+    order: 500,
+    items: [{
+      id: 'autoLogCalls',
+      type: 'switch',
+      name: 'autoLogCalls',
+      dataSign: 'AutoLogCall',
+      show: showAutoLog,
+      customTitle: autoLogTitle,
+      disabled: disableAutoLogEnabled,
+      checked: autoLogEnabled,
+      onChange: onAutoLogChange,
+      order: 3000,
+    }, {
+      id: 'autoLogSMS',
+      type: 'switch',
+      name: 'autoLogSMS',
+      dataSign: 'AutoLogSMS',
+      customTitle: autoLogSMSTitle,
+      show: showAutoLogSMS,
+      disabled: disableAutoLogSMSEnabled,
+      checked: autoLogSMSEnabled,
+      onChange: onAutoLogSMSChange,
+      order: 4000,
+    }],
   }, {
-    id: 'autoLogSMS',
-    type: 'switch',
-    name: 'autoLogSMS',
-    dataSign: 'AutoLogSMS',
-    customTitle: autoLogSMSTitle,
-    show: showAutoLogSMS,
-    disabled: disableAutoLogSMSEnabled,
-    checked: autoLogSMSEnabled,
-    onChange: onAutoLogSMSChange,
-    order: 4000,
+    id: 'feedback',
+    type: 'link',
+    name: 'feedback',
+    onClick: onFeedbackSettingsLinkClick,
+    show: showFeedback,
+    order: 10000,
   }];
   thirdPartySettings.forEach((item, index) => {
-    if (item.type === 'section') {
-      settingsItems.push({
-        type: 'link',
-        id: item.id || item.name,
-        name: item.name,
-        dataSign: item.name,
-        show: true,
-        onClick: () => gotoThirdPartySection(item.id),
-        order: item.order || (8000 + index),
-      });
-      return;
-    }
-    if (item.type === 'button') {
-      settingsItems.push({
-        type: 'button',
-        id: item.id || item.name,
-        name: item.name,
-        dataSign: item.name,
-        buttonLabel: item.buttonLabel || 'Open',
-        show: true,
-        onClick: () => onThirdPartyButtonClick(item.id),
-        order: item.order || (8000 + index),
-      });
-      return;
-    }
-    settingsItems.push({
-      type: 'switch',
-      id: item.id || item.name,
-      name: item.name,
-      customTitle: item.name,
-      dataSign: `thirdPartySettings-${item.name}`,
-      checked: item.value,
-      show: true,
-      onChange: () => onSettingToggle(item),
-      order: item.order || (8000 + index),
+    const settingItem = getSettingItemFromThirdPartyItem({
+      item,
+      gotoThirdPartySection,
+      onThirdPartyButtonClick,
+      onSettingToggle,
+      order: 8000 + index,
     });
+    if (!settingItem) {
+      return;
+    }
+    if (item.type !== 'group' && typeof item.groupId !== 'undefined') {
+      const groupItem = settingsItems.find(
+        (groupItem) => groupItem.id === item.groupId && groupItem.type === 'group',
+      );
+      if (groupItem) {
+        if (!groupItem.items) {
+          groupItem.items = [];
+        }
+        groupItem.items.push(settingItem);
+        return;
+      }
+    }
+    settingsItems.push(settingItem);
   });
   settingsItems = settingsItems.sort((a, b) => a.order - b.order);
   return (
@@ -240,33 +419,6 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       }
       {
         settingsItems.map((item) => {
-          if (item.type === 'link') {
-            return (
-              <LinkLineItem
-                key={item.id}
-                name={item.name}
-                dataSign={item.dataSign}
-                show={item.show}
-                currentLocale={currentLocale}
-                onClick={item.onClick}
-              />
-            );
-          }
-          if (item.type === 'switch') {
-            return (
-              <SwitchLineItem
-                key={item.id}
-                name={item.name}
-                customTitle={item.customTitle}
-                dataSign={item.dataSign}
-                show={item.show}
-                currentLocale={currentLocale}
-                disabled={item.disabled}
-                checked={item.checked}
-                onChange={item.onChange}
-              />
-            );
-          }
           if (item.type === 'presence' && item.show) {
             return (
               <PresenceSettingSection
@@ -284,16 +436,13 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
               />
             );
           }
-          if (item.type === 'button') {
-            return (
-              <ButtonLineItem
-                key={item.id}
-                name={item.name}
-                buttonLabel={item.buttonLabel}
-                onClick={item.onClick}
-              />
-            );
-          }
+          return (
+            <ItemRenderer
+              key={item.id}
+              item={item}
+              currentLocale={currentLocale}
+            />
+          )
         })
       }
       {children}

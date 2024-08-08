@@ -59,10 +59,10 @@ export function SettingParamInput({
       <RcSwitch
         formControlLabelProps={{
           labelPlacement: 'end',
+          className: `${className} RcSwitch-formControlLabel`,
         }}
         label={label}
         checked={setting.value}
-        className={className}
         onChange={(_, checked) => {
           onChange(checked);
         }}

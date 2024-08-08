@@ -26,6 +26,7 @@ import { SwitchLineItem, StyledSettingItem } from './SettingItem';
 const StyledList = styled(RcList)`
   background-color: ${palette2('neutral', 'elevation')};
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
+  margin-bottom: 10px;
 
   ${RcListItem} {
     padding-left: ${spacing(5)};
@@ -33,10 +34,12 @@ const StyledList = styled(RcList)`
 `;
 
 const StyledPresenceSettingItem = styled(StyledSettingItem)`
-  ${(props) => props.$hideBorder && css`
-    border-bottom: none;
+  ${(props) => props.$extended && css`
+    .RcListItemText-primary {
+      font-weight: bold;
+    }
   `}
-`
+`;
 
 type PresenceSettingSectionProps = {
   currentLocale: string;
@@ -57,6 +60,13 @@ const StyledPresenceIcon = styled(RcPresence)`
 
 const StyledCurrentStatus = styled.span`
   font-size: 0.875rem;
+`;
+
+const StyledCallQueueSwitch = styled(SwitchLineItem)`
+  padding-left: ${spacing(2)};
+  padding-right: ${spacing(2)};
+  font-size: 13px;
+  min-height: 40px;
 `;
 
 export const PresenceSettingSection: FunctionComponent<
@@ -84,7 +94,7 @@ export const PresenceSettingSection: FunctionComponent<
   };
 
   const acceptQueueCalls = (
-    <SwitchLineItem
+    <StyledCallQueueSwitch
       show={isCallQueueMember}
       dataSign="acceptQueueSwitch"
       name={i18n.getString('acceptQueueCalls', currentLocale)}
@@ -128,7 +138,7 @@ export const PresenceSettingSection: FunctionComponent<
       <StyledPresenceSettingItem
         data-sign="statusToggleShow"
         onClick={toggleShow}
-        $hideBorder={showSelects}
+        $extended={showSelects}
       >
         <RcListItemText
           primary={i18n.getString('status', currentLocale)}
@@ -145,12 +155,12 @@ export const PresenceSettingSection: FunctionComponent<
         showSelects ? (
           <StyledList>
             {presenceElements}
+            {acceptQueueCalls}
           </StyledList>
         ) : (
           null
         )
       }
-      {acceptQueueCalls}
     </>
   );
 };

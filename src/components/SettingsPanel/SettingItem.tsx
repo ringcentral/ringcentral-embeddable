@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { FunctionComponent } from 'react';
 import {
   RcListItem,
   RcListItemText,
   RcListItemSecondaryAction,
   styled,
+  css,
   RcIcon,
   RcSwitch,
   RcButton,
   palette2,
+  setOpacity,
+  RcLink,
 } from '@ringcentral/juno';
-import { ArrowRight } from '@ringcentral/juno-icon';
+import { ArrowRight, ArrowUp2, ArrowDown2 } from '@ringcentral/juno-icon';
 
 import type {
   LinkLineItemProps,
@@ -56,7 +59,11 @@ export const LinkLineItem: FunctionComponent<LinkLineItemProps> = ({
   );
 };
 
-export const SwitchLineItem: FunctionComponent<SwitchLineItemProps> = ({
+interface NewSwitchLineItemProps extends SwitchLineItemProps {
+  className?: string;
+}
+
+export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
   show,
   name,
   customTitle,
@@ -66,6 +73,7 @@ export const SwitchLineItem: FunctionComponent<SwitchLineItemProps> = ({
   disabled,
   checked,
   onChange,
+  className,
   // tooltip,
 }) => {
   if (!show) {
@@ -75,6 +83,7 @@ export const SwitchLineItem: FunctionComponent<SwitchLineItemProps> = ({
   return (
     <StyledSettingItem
       data-sign={dataSign}
+      className={className}
     >
       <RcListItemText
         primary={customTitle || i18n.getString(name, currentLocale)}
@@ -122,6 +131,87 @@ export const ButtonLineItem: FunctionComponent<ButtonLineItemProps> = ({
           {buttonLabel}
         </RcButton>
       </RcListItemSecondaryAction>
+    </StyledSettingItem>
+  );
+}
+
+interface GroupLineItemProps {
+  name: string;
+  show: boolean;
+}
+
+const StyledGroupSettingItem = styled(StyledSettingItem)`
+  ${(props) => props.$extended && css`
+    background-color: ${setOpacity(palette2('neutral', 'b04'), '08')};
+    .RcListItemText-primary {
+      font-weight: bold;
+    }
+  `}
+`;
+
+const StyledGroupSplit = styled.div`
+  height: 10px;
+`;
+export const GroupLineItem: FunctionComponent<GroupLineItemProps> = ({
+  name,
+  children,
+  show,
+}) => {
+  const [extended, setExtended] = useState(false);
+
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <>
+      <StyledGroupSettingItem
+        onClick={() => setExtended(!extended)}
+        $extended={extended}
+      >
+        <RcListItemText
+          primary={name}
+        />
+        <RcListItemSecondaryAction>
+          <RcIcon
+            symbol={extended ? ArrowUp2 : ArrowDown2}
+          />
+        </RcListItemSecondaryAction>
+      </StyledGroupSettingItem>
+      {
+        extended ? children : null
+      }
+      {
+        extended ?<StyledGroupSplit /> : null
+      }
+    </>
+  );
+}
+
+interface ExternalLinkLineItemProps {
+  name: string;
+  uri: string;
+}
+
+export const ExternalLinkLineItem: FunctionComponent<ExternalLinkLineItemProps> = ({
+  uri,
+  name
+}) => {
+  return (
+    <StyledSettingItem>
+      <RcListItemText
+        primary={(
+          <RcLink
+            href={uri}
+            target="_blank"
+          >
+            {name}
+          </RcLink>
+        )}
+        primaryTypographyProps={{
+          'component': 'div',
+        }}
+      />
     </StyledSettingItem>
   );
 }

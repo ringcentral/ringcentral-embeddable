@@ -16,6 +16,12 @@ const StyledPanel = styled.div`
 
 const StyledParamInput = styled(SettingParamInput)`
   margin-bottom: 15px;
+
+  &.RcSwitch-formControlLabel {
+    .MuiFormControlLabel-label {
+      font-size: 0.875rem;
+    }
+  }
 `;
 
 const StyledButton = styled(RcButton)`

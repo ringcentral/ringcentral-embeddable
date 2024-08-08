@@ -79,8 +79,13 @@ export function checkThirdPartySettings(settings: any[]) {
     }
     if (setting.type === 'button') {
       if (
-        !setting.buttonLabel ||
-        typeof setting.buttonLabel !== 'string'
+        (
+          setting.buttonLabel &&
+          typeof setting.buttonLabel !== 'string'
+        ) || (
+          setting.buttonType &&
+          typeof setting.buttonType !== 'string'
+        )
       ) {
         inValidSettings.push(setting);
       } else {
@@ -114,11 +119,55 @@ export function checkThirdPartySettings(settings: any[]) {
         inValidSettings.push(setting);
       }
     }
+    if (setting.type === 'group') {
+      validSettings.push({
+        ...setting,
+        items: checkThirdPartySettings(setting.items),
+      });
+    }
+    if (setting.type === 'externalLink') {
+      if (
+        !setting.uri ||
+        typeof setting.uri !== 'string' ||
+        (
+          setting.uri.indexOf('http://') !== 0 &&
+          setting.uri.indexOf('https://') !== 0
+        )
+      ) {
+        inValidSettings.push(setting);
+      } else {
+        validSettings.push(setting);
+      }
+    }
   });
   if (inValidSettings.length > 0) {
     console.warn('Invalid settings:', inValidSettings);
   }
   return validSettings;
+}
+
+export function findSettingItem(settings, id) {
+  let setting = null;
+  settings.forEach((item) => {
+    if (setting) {
+      return;
+    }
+    if (item.id === id) {
+      setting = item;
+      return;
+    }
+    if (item.type === 'group') {
+      item.items.forEach((subItem) => {
+        if (setting) {
+          return;
+        }
+        if (subItem.id === id) {
+          setting = subItem;
+        }
+      });
+    }
+  });
+  return setting;
 }
 
 function formatPhoneType(phoneType?: string) {
