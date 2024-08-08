@@ -44,6 +44,17 @@ export class SettingsUI extends BaseSettingsUI {
       showAuthRedDot: thirdPartyService.showAuthRedDot,
       showFeedback: thirdPartyService.showFeedback,
       thirdPartySettings: thirdPartyService.settings,
+      thirdPartyAuth: thirdPartyService.authorizationRegistered ? {
+        serviceName: thirdPartyService.serviceName,
+        serviceInfo: thirdPartyService.serviceInfo,
+        authorized: thirdPartyService.authorized,
+        contactSyncing: thirdPartyService.contactSyncing,
+        authorizedTitle: thirdPartyService.authorizedTitle,
+        unauthorizedTitle: thirdPartyService.unauthorizedTitle,
+        authorizationLogo: thirdPartyService.authorizationLogo,
+        authorizedAccount: thirdPartyService.authorizedAccount,
+        showAuthRedDot: thirdPartyService.showAuthRedDot,
+      } : null,
     }
   }
 
