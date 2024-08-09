@@ -73,7 +73,7 @@ export function SettingParamInput({
     return (
       <RcTextField
         label={label}
-        value={setting.value}
+        value={setting.value || ''}
         className={className}
         fullWidth
         placeholder={setting.placeholder}
@@ -89,7 +89,7 @@ export function SettingParamInput({
     return (
       <RcTextarea
         label={label}
-        value={setting.value}
+        value={setting.value || ''}
         minRows={2}
         className={className}
         fullWidth
