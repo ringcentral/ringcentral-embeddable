@@ -103,7 +103,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         this._registerService({
           serviceName: service.name,
-          serviceInfo: service.info,
+          serviceInfo: service.info || '',
         });
         if (service.authorizationPath) {
           this._registerAuthorizationButton(service);

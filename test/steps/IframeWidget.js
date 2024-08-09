@@ -234,7 +234,7 @@ export class IframeWidget {
 
   async getServiceNameInAuthorizationSettings() {
     await this.waitFor('div[data-sign="thirdPartyAuthSetting"]');
-    const text = await this._widgetIframe.$eval('div[data-sign="thirdPartyAuthSetting"] RcListItemText-primary', (el) => el.innerText);
+    const text = await this._widgetIframe.$eval('div[data-sign="thirdPartyAuthSetting"] .RcListItemText-primary', (el) => el.innerText);
     return text;
   }
 
