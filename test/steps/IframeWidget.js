@@ -184,7 +184,7 @@ export class IframeWidget {
 
   async clickSettingSection(label) {
     await this.waitFor('.SettingsPanel_root');
-    await this._widgetIframe.click(`div[data-sign="${label}" role="button"]`);
+    await this._widgetIframe.click(`div[data-sign="${label}"][role="button"]`);
   }
 
   async getHeaderLabel() {
