@@ -94,14 +94,14 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto settings page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
-    const eulaText = await widgetIframe.getEULAText();
-    expect(eulaText).toEqual('End User License Agreement');
+    const title = await widgetIframe.getTabHeader();
+    expect(title).toEqual('Settings');
   });
 
   it('should goto region setting page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
     await widgetIframe.waitForTimeout(1000);
-    await widgetIframe.clickSettingSection('Region');
+    await widgetIframe.clickSettingSection('region');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Region');
     await widgetIframe.clickBackButton();
@@ -110,7 +110,7 @@ conditionalDescribe('widget page test', () => {
   it('should goto audio setting page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
     await widgetIframe.waitForTimeout(1000);
-    await widgetIframe.clickSettingSection('Audio');
+    await widgetIframe.clickSettingSection('audio');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Audio');
     await widgetIframe.clickBackButton();
@@ -118,7 +118,7 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto calling setting page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
-    await widgetIframe.clickSettingSection('Calling');
+    await widgetIframe.clickSettingSection('calling');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Calling');
     await widgetIframe.clickBackButton();
@@ -194,7 +194,7 @@ conditionalDescribe('widget page test', () => {
     await widgetIframe.clickNavigationButton('Contacts');
     const contactsFilters = await widgetIframe.getContactFilters();
     expect(contactsFilters).toContain('TestService');
-    await page.waitForTimeout(1500);
+    await widgetIframe.waitForTimeout(1500);
     const contacts = await widgetIframe.getContactNames();
     expect(contacts).toEqual(expect.arrayContaining(['TestService Name']));
   });
