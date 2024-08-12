@@ -94,14 +94,14 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto settings page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
-    const eulaText = await widgetIframe.getEULAText();
-    expect(eulaText).toEqual('End User License Agreement');
+    const title = await widgetIframe.getTabHeader();
+    expect(title).toEqual('Settings');
   });
 
   it('should goto region setting page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
     await widgetIframe.waitForTimeout(1000);
-    await widgetIframe.clickSettingSection('Region');
+    await widgetIframe.clickSettingSection('region');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Region');
     await widgetIframe.clickBackButton();
@@ -110,7 +110,7 @@ conditionalDescribe('widget page test', () => {
   it('should goto audio setting page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
     await widgetIframe.waitForTimeout(1000);
-    await widgetIframe.clickSettingSection('Audio');
+    await widgetIframe.clickSettingSection('audio');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Audio');
     await widgetIframe.clickBackButton();
@@ -118,7 +118,7 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto calling setting page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
-    await widgetIframe.clickSettingSection('Calling');
+    await widgetIframe.clickSettingSection('calling');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Calling');
     await widgetIframe.clickBackButton();
@@ -174,27 +174,101 @@ conditionalDescribe('widget page test', () => {
                 syncTimestamp: Date.now()
               },
             }, '*');
+            return;
           }
+          iframe.postMessage({
+            type: 'rc-post-message-response',
+            responseId: data.requestId,
+            response: 'ok',
+          }, '*');
         }
       });
       iframe.postMessage({
         type: 'rc-adapter-register-third-party-service',
         service: {
           name: 'TestService',
+          authorized: true,
+          authorizedAccount: 'TestAccount',
           authorizationPath: '/authorize',
           authorizedTitle: 'Unauthorize',
           unauthorizedTitle: 'Authorize',
           contactsPath: '/contacts',
-          authorized: true,
+          callLoggerPath: '/callLogger',
+          callLoggerTitle: 'Log to TestService',
+          messageLoggerPath: '/messageLogger',
+          messageLoggerTitle: 'Log to TestService',
+          settingsPath: '/settings',
+          settings: [{
+            "id": 'openLoggingPageAfterCall',
+            "type": 'boolean',
+            "name": 'Open call logging page after call',
+            "value": true,
+            "groupId": 'logging',
+          }, {
+            "id": 'contacts',
+            "type": 'section',
+            "name": 'Contacts',
+            "items": [
+              {
+                "id": "info",
+                "name": "info",
+                "type": "admonition",
+                "severity": "info",
+                "value": "Please authorize ThirdPartyService firstly",
+              },
+              {
+                "id": "introduction",
+                "name": "Introduction",
+                "type": "typography",
+                "variant": "body2",
+                "value": "Update ThirdPartyService contact settings",
+              },
+              {
+                "id": 'openPlaceholderContact',
+                "type": 'boolean',
+                "name": 'Open placeholder contact upon creation',
+                "value": false,
+              },
+              {
+                "name": "Phone number format alternatives",
+                "id": "phoneFormat",
+                "value": "(***) ***-****)",
+                "type": "string",
+              },
+            ],
+          }, {
+            "id": "support",
+            "type": "group",
+            "name": "Support",
+            "items": [{
+              "id": "document",
+              "type": "externalLink",
+              "name": "Document",
+              "uri": "https://ringcentral.github.io/ringcentral-embbeddable/docs/",
+            }, {
+              "id": "feedback",
+              "type": "button",
+              "name": "Feedback",
+              "buttonLabel": "Open",
+              "buttonType": "link",
+            }],
+          }],
         },
       }, '*');
     });
     const serviceName = await widgetIframe.getServiceNameInAuthorizationSettings();
     expect(serviceName).toEqual('TestService');
+    await widgetIframe.clickSettingSection('logging');
+    const openLoggingPageAfterCall = await widgetIframe.getSettingSection('thirdPartySettings-openLoggingPageAfterCall');
+    expect(!!openLoggingPageAfterCall).toEqual(true);
+    const contactsSection = await widgetIframe.getSettingSection('contacts');
+    expect(!!contactsSection).toEqual(true);
+    const supportSection = await widgetIframe.getSettingSection('support');
+    expect(!!supportSection).toEqual(true);
     await widgetIframe.clickNavigationButton('Contacts');
     const contactsFilters = await widgetIframe.getContactFilters();
     expect(contactsFilters).toContain('TestService');
-    await page.waitForTimeout(1500);
+    await widgetIframe.waitForTimeout(1500);
     const contacts = await widgetIframe.getContactNames();
     expect(contacts).toEqual(expect.arrayContaining(['TestService Name']));
   });

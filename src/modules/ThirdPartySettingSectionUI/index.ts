@@ -3,6 +3,7 @@ import {
   RcUIModuleV2,
   track,
 } from '@ringcentral-integration/core';
+import { findSettingItem } from '../ThirdPartyService/helper';
 
 @Module({
   name: 'ThirdPartySettingSectionUI',
@@ -22,10 +23,7 @@ export class ThirdPartySettingSectionUI extends RcUIModuleV2 {
     params,
   }) {
     const { thirdPartyService } = this._deps;
-    const section = thirdPartyService.settings.find((setting) => (
-      setting.id === params.sectionId &&
-      setting.type === 'section'
-    ));
+    const section = findSettingItem(thirdPartyService.settings, params.sectionId);
     return {
       section,
     };

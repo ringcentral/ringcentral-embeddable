@@ -184,12 +184,13 @@ export class IframeWidget {
 
   async clickSettingSection(label) {
     await this.waitFor('.SettingsPanel_root');
-    const textHandlers = await this._widgetIframe.$x(`//div[contains(text(), '${label}')]`);
-    if (textHandlers.length > 0) {
-      await textHandlers[0].click();
-    } else {
-      throw new Error(`click ${label} not found`);
-    }
+    await this._widgetIframe.click(`div[data-sign="${label}"][role="button"]`);
+  }
+
+  async getSettingSection(label) {
+    await this.waitFor('.SettingsPanel_root');
+    const section = await this._widgetIframe.$(`div[data-sign="${label}"][role="button"]`);
+    return section;
   }
 
   async getHeaderLabel() {
@@ -238,8 +239,8 @@ export class IframeWidget {
   }
 
   async getServiceNameInAuthorizationSettings() {
-    await this.waitFor('.AuthorizeSettingsSection_serviceName');
-    const text = await this._widgetIframe.$eval('.AuthorizeSettingsSection_serviceName', (el) => el.innerText);
+    await this.waitFor('div[data-sign="thirdPartyAuthSetting"]');
+    const text = await this._widgetIframe.$eval('div[data-sign="thirdPartyAuthSetting"] .RcListItemText-primary', (el) => el.innerText);
     return text;
   }
 
