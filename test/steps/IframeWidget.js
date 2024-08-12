@@ -187,6 +187,12 @@ export class IframeWidget {
     await this._widgetIframe.click(`div[data-sign="${label}"][role="button"]`);
   }
 
+  async getSettingSection(label) {
+    await this.waitFor('.SettingsPanel_root');
+    const section = await this._widgetIframe.$(`div[data-sign="${label}"][role="button"]`);
+    return section;
+  }
+
   async getHeaderLabel() {
     await this.waitFor('[data-sign="headerTitle"]');
     const text = await this._widgetIframe.$eval('[data-sign="headerTitle"]', (el) => el.innerText);
