@@ -113,6 +113,7 @@ function ItemRenderer({ item, currentLocale }: {
       <ExternalLinkLineItem
         name={item.name}
         uri={item.uri}
+        dataSign={item.dataSign}
       />
     );
   }
@@ -126,6 +127,7 @@ function ItemRenderer({ item, currentLocale }: {
       <GroupLineItem
         name={item.name}
         show={groupItemsShow}
+        dataSign={item.dataSign}
       >
         {
           groupItems.sort((a, b) => a.order - b.order).map((subItem) => (
@@ -160,7 +162,7 @@ function getSettingItemFromThirdPartyItem({
       type: 'link',
       id: item.id || item.name,
       name: item.name,
-      dataSign: item.name,
+      dataSign: item.id || item.name,
       show: true,
       onClick: () => gotoThirdPartySection(item.id),
       order,
@@ -195,7 +197,7 @@ function getSettingItemFromThirdPartyItem({
       id: item.id || item.name,
       name: item.name,
       customTitle: item.name,
-      dataSign: `thirdPartySettings-${item.name}`,
+      dataSign: `thirdPartySettings-${item.id || item.name}`,
       checked: item.value,
       show: true,
       onChange: () => onSettingToggle(item),
@@ -215,6 +217,7 @@ function getSettingItemFromThirdPartyItem({
         onSettingToggle,
         order: subItem.order || 0,
       })),
+      dataSign: item.id || item.name,
     }
   }
   if (item.type === 'externalLink') {
@@ -328,6 +331,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     type: 'group',
     name: getLoggingGroupName(showAutoLog, showAutoLogSMS),
     order: 500,
+    dataSign: 'logging',
     items: [{
       id: 'autoLogCalls',
       type: 'switch',
@@ -358,6 +362,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     onClick: onFeedbackSettingsLinkClick,
     show: showFeedback,
     order: 10000,
+    dataSign: 'feedback',
   }];
   thirdPartySettings.forEach((item, index) => {
     const settingItem = getSettingItemFromThirdPartyItem({

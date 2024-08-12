@@ -138,6 +138,7 @@ export const ButtonLineItem: FunctionComponent<ButtonLineItemProps> = ({
 interface GroupLineItemProps {
   name: string;
   show: boolean;
+  dataSign?: string;
 }
 
 const StyledGroupSettingItem = styled(StyledSettingItem)`
@@ -156,6 +157,7 @@ export const GroupLineItem: FunctionComponent<GroupLineItemProps> = ({
   name,
   children,
   show,
+  dataSign = undefined,
 }) => {
   const [extended, setExtended] = useState(false);
 
@@ -168,6 +170,7 @@ export const GroupLineItem: FunctionComponent<GroupLineItemProps> = ({
       <StyledGroupSettingItem
         onClick={() => setExtended(!extended)}
         $extended={extended}
+        data-sign={dataSign}
       >
         <RcListItemText
           primary={name}
@@ -191,14 +194,16 @@ export const GroupLineItem: FunctionComponent<GroupLineItemProps> = ({
 interface ExternalLinkLineItemProps {
   name: string;
   uri: string;
+  dataSign?: string;
 }
 
 export const ExternalLinkLineItem: FunctionComponent<ExternalLinkLineItemProps> = ({
   uri,
-  name
+  name,
+  dataSign = undefined,
 }) => {
   return (
-    <StyledSettingItem>
+    <StyledSettingItem data-sign={dataSign}>
       <RcListItemText
         primary={(
           <RcLink
