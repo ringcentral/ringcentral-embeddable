@@ -26,7 +26,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
-### Register button and section
+### Register button, section and group
 
 <!-- md:version 2.0.0 -->
 
@@ -38,16 +38,37 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     settingsPath: '/settings',
     settings: [
       {
-        "id": "goToAppSettings",
-        "type": "button",
-        "name": "Go to App settings",
-        "buttonLabel": "Open",
+        "id": 'openLoggingPageAfterCall',
+        "type": 'boolean',
+        "name": 'Open call logging page after call',
+        "value": true,
+        "groupId": 'logging', // optional, group settings into call and sms logging settings
       },
       {
         "id": "crmSetting",
         "type": "section",
         "name": "CRM settings",
         "items": [
+          {
+            "id": "info",
+            "name": "info",
+            "type": "admonition",
+            "severity": "info",
+            "value": "Please authorize ThirdPartyService firstly",
+          },
+          {
+            "id": "introduction",
+            "name": "Introduction",
+            "type": "typography",
+            "variant": "body2", // optional, default is body1
+            "value": "Update ThirdPartyService contact settings",
+          },
+          {
+            "id": 'openContactPageAtCall',
+            "type": 'boolean',
+            "name": 'Open contact for incoming calls',
+            "value": true,
+          },
           {
             "id": "defaultRecordType",
             "type": "option",
@@ -78,27 +99,45 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
             "value": "",
             "placeholder": "Input default note"
           },
-          {
-            "id": "noLogWhenCallIsMissed",
-            "type": "boolean",
-            "name": "Don't log when call is missed",
-            "value": true
-          },
         ]
-      }
+      },
+      {
+        "id": "support",
+        "type": "group",
+        "name": "Support",
+        "items": [{
+          "id": "document",
+          "type": "externalLink",
+          "name": "Document",
+          "uri": "https://www.google.com",
+        }, {
+          "id": "feedback",
+          "type": "button",
+          "name": "Feedback",
+          "buttonLabel": "Open",
+          "buttonType": "link",
+        }, {
+          "id": "devSupport",
+          "type": "button",
+          "name": "Developer support",
+          "buttonLabel": "Open",
+        }]
+      },
     ],
     buttonEventPath: '/button-click', // required if you have button type in settings
   }
 }, '*');
 ```
 
-!!! info "In settings root items, it only supports `boolean`, `button` and `section` type. In section's items, it supports `boolean`, `string`, `option` and `text` type."
+!!! info "In settings root items, it only supports `boolean`, `button`, `section` and `group` type. In section's items, it supports `boolean`, `string`, `option`, `text`, `typography` and `admonition` type."
 
 After registering, you can get your setting in settings page:
 
-![customize-settings](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/af76ff7a-7d3a-4e6a-a26b-41c8f79ad241)
+![customize-settings](https://github.com/user-attachments/assets/561e51b5-83fb-419f-aa01-e80c63f9d081)
 
-![customize-setting-section](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/a7a1f33b-efc3-494d-a2ca-483b48dbbfe2)
+![customize-setting-section](https://github.com/user-attachments/assets/7c0d1253-bf0c-4861-a817-d8ca3242e7a9)
+
+![group-setting](https://github.com/user-attachments/assets/9879a084-1507-4b6e-aea4-8fc5a8540b8b)
 
 Add a message event to listen settings updated event:
 
@@ -156,25 +195,16 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     settingsPath: '/settings',
     settings: [
       {
-        "id": "goToAppSettings",
+        "id": "settingItem1",
         "type": "button",
-        "name": "Before noise reduction",
+        "name": "Setting Item 1",
         "buttonLabel": "Open",
-        "order": 999, // before noise reduction setting (order: 1000)
-      },
-      {
-        "id": "beforeAutoLog",
-        "type": "button",
-        "name": "Before auto log",
-        "buttonLabel": "Open",
-        "order": 2999 // before auto log setting (order: 3000)
-      },
-      {
-        "id": "afterAuth",
-        "type": "boolean",
-        "name": "After auth setting",
-        "value": true,
-        "order": 10000 // after auth setting (order: 9000)
+        "order": 250 // the smaller the number, the higher the priority. 
+        // Calling setting order value: 100,
+        // Audio setting order value: 200,
+        // Region setting order value: 300,
+        // Status setting order value: 400,
+        // Call and SMS logging setting order value: 500,
       },
     ],
     buttonEventPath: '/button-click', // required if you have button type in settings
@@ -182,10 +212,6 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   }
 }, '*');
 ```
-
-Order value is a number, the smaller the number, the higher the priority.
-
-![order-value](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/91e7d9ed-3949-4bfe-9f21-56089de09ffb)
 
 ## Update settings
 
