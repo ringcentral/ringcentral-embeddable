@@ -169,6 +169,20 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 Note: `alertLevel` can be `info`, `warning` or `danger`.
 
+<!-- md:version 2.0.0 -->
+
+```js
+const alertId = await RCAdapter.alertMessage({
+  message: 'Test info message',
+  level: 'info',
+  ttl: 5000 //5000ms => 5s, 0 for infinite
+});
+// Dismiss the alert message
+RCAdapter.dismissMessage(alertId); // dismiss the alert message
+// Dismiss all alert messages
+RCAdapter.dismissMessage();
+```
+
 ### Minimize/Hide/Remove the widget
 
 Only for Adapter JS way:
