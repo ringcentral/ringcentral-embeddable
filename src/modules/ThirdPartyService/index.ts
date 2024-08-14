@@ -67,6 +67,7 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _callLogPageInputChangedEventPath?: string;
   private _messagesLogPageInputChangedEventPath?: string;
   private _customizedPageInputChangedEventPath?: string;
+  private _doNotContactPath?: string;
 
   constructor(deps) {
     super({
@@ -179,6 +180,9 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         if (service.customizedPageInputChangedEventPath) {
           this._customizedPageInputChangedEventPath = service.customizedPageInputChangedEventPath;
+        }
+        if (service.doNotContactPath) {
+          this._registerDoNotContact(service);
         }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
@@ -1375,5 +1379,26 @@ export default class ThirdPartyService extends RcModuleV2 {
       path: `/customizedTabs/${tab.id}`,
       hidden: tab.hidden,
     }));
+  }
+
+  @state
+  doNotContactRegistered = false;
+
+  @action
+  _setDoNotContactRegistered(value) {
+    this.doNotContactRegistered = value;
+  }
+
+  _registerDoNotContact(service) {
+    this._doNotContactPath = service.doNotContactPath;
+    this._setDoNotContactRegistered(true);
+  }
+
+  async checkDoNotContact(contact) {
+    if (!this._doNotContactPath) {
+      return false;
+    }
+    const { data } = await requestWithPostMessage(this._doNotContactPath, contact);
+    return data;
   }
 }

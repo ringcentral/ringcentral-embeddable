@@ -144,7 +144,7 @@ import { ContactSearchUI } from '@ringcentral-integration/widgets/modules/Contac
 import {
   ContactListUI,
 } from '@ringcentral-integration/widgets/modules/ContactListUI';
-import { DialerUI } from '@ringcentral-integration/widgets/modules/DialerUI';
+
 import { FlipUI } from '@ringcentral-integration/widgets/modules/FlipUI';
 import {
   GenericMeetingUI,
@@ -219,6 +219,7 @@ import { LogCallUI } from '../LogCallUI';
 import { LogMessagesUI } from '../LogMessagesUI';
 import { Webphone } from '../Webphone';
 import { MainViewUI } from '../MainViewUI';
+import { DialerUI } from '../DialerUI';
 import { CustomizedPageUI } from '../CustomizedPageUI';
 import { SmsTemplates } from '../SmsTemplates';
 import { SmartNotes } from '../SmartNotes';
