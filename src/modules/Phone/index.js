@@ -35,9 +35,6 @@ import {
 // SMS related modules
 // import { MessageStore } from '@ringcentral-integration/commons/modules/MessageStore';
 import {
-  ComposeText,
-} from '@ringcentral-integration/commons/modules/ComposeText';
-import {
   ConnectivityMonitor,
 } from '@ringcentral-integration/commons/modules/ConnectivityMonitor';
 import {
@@ -188,6 +185,7 @@ import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
 import { CallLogger } from '../CallLogger';
 import { CallQueues } from '../CallQueues';
+import { ComposeText } from '../ComposeText';
 import { ComposeTextUI } from '../ComposeTextUI';
 import { ConferenceCall } from '../ConferenceCall';
 import { ConversationLogger } from '../ConversationLogger';

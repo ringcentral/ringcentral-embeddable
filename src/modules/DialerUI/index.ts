@@ -16,17 +16,18 @@ export class DialerUI extends DialerUIBase {
     }
     const contact = phoneNumber ? {
       phoneNumber,
+      actionType: 'call',
     } : {
       phoneNumber: recipient.phoneNumber,
-      id: recipient.contactId,
+      contactId: recipient.contactId,
       name: recipient.name,
-      type: recipient.type,
+      contactType: recipient.type,
       entityType: recipient.entityType,
       phoneType: recipient.phoneType,
-    }
+      actionType: 'call',
+    };
     try {
       const doNotContact = await this._deps.thirdPartyService.checkDoNotContact(contact);
-      console.log('Do not contact', doNotContact);
       if (!doNotContact || !doNotContact.result) {
         return true;
       }
