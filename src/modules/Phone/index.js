@@ -35,9 +35,6 @@ import {
 // SMS related modules
 // import { MessageStore } from '@ringcentral-integration/commons/modules/MessageStore';
 import {
-  ComposeText,
-} from '@ringcentral-integration/commons/modules/ComposeText';
-import {
   ConnectivityMonitor,
 } from '@ringcentral-integration/commons/modules/ConnectivityMonitor';
 import {
@@ -144,7 +141,7 @@ import { ContactSearchUI } from '@ringcentral-integration/widgets/modules/Contac
 import {
   ContactListUI,
 } from '@ringcentral-integration/widgets/modules/ContactListUI';
-import { DialerUI } from '@ringcentral-integration/widgets/modules/DialerUI';
+
 import { FlipUI } from '@ringcentral-integration/widgets/modules/FlipUI';
 import {
   GenericMeetingUI,
@@ -188,6 +185,7 @@ import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
 import { CallLogger } from '../CallLogger';
 import { CallQueues } from '../CallQueues';
+import { ComposeText } from '../ComposeText';
 import { ComposeTextUI } from '../ComposeTextUI';
 import { ConferenceCall } from '../ConferenceCall';
 import { ConversationLogger } from '../ConversationLogger';
@@ -219,6 +217,7 @@ import { LogCallUI } from '../LogCallUI';
 import { LogMessagesUI } from '../LogMessagesUI';
 import { Webphone } from '../Webphone';
 import { MainViewUI } from '../MainViewUI';
+import { DialerUI } from '../DialerUI';
 import { CustomizedPageUI } from '../CustomizedPageUI';
 import { SmsTemplates } from '../SmsTemplates';
 import { SmartNotes } from '../SmartNotes';
