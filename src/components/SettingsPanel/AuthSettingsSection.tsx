@@ -65,7 +65,7 @@ const IconWrapper = styled.div`
 
   img {
     vertical-align: middle;
-    height: 20px;
+    height: 30px;
     max-width: 86px;
     position: relative;
   }
