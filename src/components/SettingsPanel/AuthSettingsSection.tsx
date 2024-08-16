@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { FunctionComponent } from 'react';
 
 import {
@@ -8,32 +8,21 @@ import {
   RcTypography,
   styled,
   palette2,
-  RcChip,
-  RcIcon,
 } from '@ringcentral/juno';
-import { ArrowDown2, ArrowUp2 } from '@ringcentral/juno-icon';
-
 import { StyledSettingItem } from './SettingItem';
 
 const StyledAuthSettingItem = styled(StyledSettingItem)`
   align-items: flex-start;
 
+  .RcListItemText-multiline {
+    margin: 0;
+  }
+
   .RcListItemText-primary {
     display: flex;
     flex-direction: row;
-  }
-`;
-
-const StyledChip = styled(RcChip)`
-  height: 22px;
-  font-size: 0.75rem;
-  margin-right: 5px;
-  position: absolute;
-  right: 38px;
-  top: 10px;
-
-  .MuiChip-label {
-    padding: 0 6px;
+    line-height: 28px;
+    margin-right: 100px;
   }
 `;
 
@@ -48,15 +37,10 @@ const RedDot = styled.div`
 `;
 
 const AuthAction = styled.div`
-  position: relative;
-  margin-top: 5px;
-  display: inline-block;
-`;
-
-const StyledArrowIcon = styled(RcIcon)`
   position: absolute;
+  display: inline-block;
   right: 16px;
-  top: 8px;
+  top: 5px;
 `;
 
 const IconWrapper = styled.div`
@@ -96,8 +80,6 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
   authorizedAccount = null,
   showAuthRedDot,
 }) => {
-  const [showDetail, setShowDetail] = useState(!authorized);
-
   let status = authorized ? authorizedTitle : unauthorizedTitle;
   if (authorized && contactSyncing) {
     status = 'Syncing';
@@ -105,9 +87,7 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
   let icon = null;
   if (authorizationLogo) {
     icon = (
-      <RcListItemIcon
-        onClick={() => setShowDetail(!showDetail)}
-      >
+      <RcListItemIcon>
         <IconWrapper>
           <img src={authorizationLogo} alt={serviceName} />
         </IconWrapper>
@@ -126,39 +106,11 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
         primary={serviceName}
         secondary={
           <>
+            <RcTypography variant="caption1" color="neutral.f04">
+              { authorized ? 'Connected' : 'Disconnected'} { authorized && authorizedAccount ? `as ${authorizedAccount}` : '' }
+            </RcTypography>
             {
-              authorized && authorizedAccount ? (
-                <RcTypography variant="caption1" color="neutral.f04">
-                  {authorizedAccount}
-                </RcTypography>
-              ) : (
-                null
-              )
-            }
-            {
-              showDetail ? (
-                <AuthAction>
-                  <RcButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAuthorize();
-                    }}
-                    variant="outlined"
-                    color={(authorized && !contactSyncing) ? 'danger.b04' : 'action.primary'}
-                  >
-                    {status}
-                  </RcButton>
-                  {
-                    !authorized && showAuthRedDot ? (
-                      <RedDot />
-                    ) : null
-                  }
-                </AuthAction>
-              ) : null
-            }
-            {
-              serviceInfo && showDetail ? (
+              serviceInfo ? (
                 <RcTypography variant="caption1" color="neutral.f04">
                   {serviceInfo}
                 </RcTypography>
@@ -171,19 +123,25 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
         secondaryTypographyProps={{
           component: 'div',
         }}
-        onClick={() => setShowDetail(!showDetail)}
       />
-      <StyledChip
-        label={authorized? 'Connected' : 'Disconnected'}
-        color={authorized ? 'success.b03' : 'danger.b03'}
-        variant="outlined"
-        onClick={() => setShowDetail(!showDetail)}
-      />
-      <StyledArrowIcon
-        symbol={showDetail ? ArrowUp2 : ArrowDown2}
-        onClick={() => setShowDetail(!showDetail)}
-        color="neutral.f04"
-      />
+      <AuthAction>
+        <RcButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAuthorize();
+          }}
+          variant="outlined"
+          color={(authorized && !contactSyncing) ? 'danger.b04' : 'action.primary'}
+        >
+          {status}
+        </RcButton>
+        {
+          !authorized && showAuthRedDot ? (
+            <RedDot />
+          ) : null
+        }
+      </AuthAction>
     </StyledAuthSettingItem>
   );
 }
