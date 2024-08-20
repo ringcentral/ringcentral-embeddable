@@ -1,5 +1,7 @@
 # Do Not Contact
 
+<!-- md:version 2.0.0 -->
+
 This is feature to prevent the user to call/message someone who is in the DoNotContact list in your service.
 
 To enable the feature, please pass `doNotContactPath` when you register service.
