@@ -175,7 +175,7 @@
   <div data-md-component="announce">
     <aside class="md-banner">
       <div class="md-banner__inner md-grid md-typeset">
-        Announcing the RingCentral Embeddable 2.0 Beta <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/2.x/" class="upgrade-button">Upgrade today</a>
+        Announcing the RingCentral Embeddable 2.0<a href="https://ringcentral.github.io/ringcentral-embeddable/docs/2.x/" class="upgrade-button">Upgrade today</a>
       </div>
     </aside>
   </div>
@@ -341,7 +341,7 @@
             <h1 id="embed-a-phone-into-any-webpage-with-ringcentral-embeddable">Embed a phone into any webpage with
               RingCentral Embeddable</h1>
               <div class="admonition example">
-                <p class="admonition-title">Introducing the RingCentral Embeddable 2.0 beta</p>
+                <p class="admonition-title">Introducing the RingCentral Embeddable 2.0</p>
                 <p>We are excited to announce and make available the next generation of the RingCentral Embeddable product. In addition to a new design and user interface, Embeddable 2.0 comes with new features including call recording playback and a new SMS/messaging inbox. Developers will enjoy new ways to extend the user interface without having to know or code HTML and CSS. </p>
                 <p><a class="md-button md-button--primary" href="https://ringcentral.github.io/ringcentral-embeddable/docs/2.x/">Learn more</a></p>
               </div>
@@ -363,8 +363,8 @@
                   </button>
                   <div class="version-select">
                     <select id="version-select" title="Version">
-                      <option value="latest">Version: latest</option>
-                      <option value="2.x">Version: 2.x-beta</option>
+                      <option value="latest">Version: Legacy</option>
+                      <option value="2.x">Version: 2.x</option>
                     </select>
                   </div>
                 </div>
@@ -560,6 +560,12 @@
       if (basePath.indexOf('https://apps.ringcentral.com') === 0) {
         version = basePath.split('/').pop();
       }
+      if (
+        basePath === 'https://apps.ringcentral.com/integration/ringcentral-embeddable/latest' ||
+        basePath === 'https://ringcentral.github.io/ringcentral-embeddable'
+      ) {
+        version = '2.x';
+      }
       return version;
     }
     function getWidgetBasePath(removeGithubPageBuild = true) {
@@ -567,6 +573,9 @@
       var defaultVersion = getDefaultVersion(removeGithubPageBuild);
       const selectedVersion = localStorage.getItem(selectedVersionStorageKey + defaultVersion);
       if (!selectedVersion) {
+        if (defaultVersion === '2.x') {
+          return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x';
+        }
         return basePath;
       }
       if (selectedVersion === '2.x') {
@@ -621,7 +630,7 @@
     }
     updateCodes();
     function replaceRedirectUri() {
-      var basePath = getBasePath();
+      var basePath = getWidgetBasePath();
       var defaultRedirectUriElem = window.document.querySelector('#defaultRedirectUri');
       var defaultRedirectUri = defaultRedirectUriElem.innerText;
       defaultRedirectUri = defaultRedirectUri.replace('https://apps.ringcentral.com/integration/ringcentral-embeddable/latest', basePath);
