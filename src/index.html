@@ -363,7 +363,8 @@
                   </button>
                   <div class="version-select">
                     <select id="version-select" title="Version">
-                      <option value="latest">Version: Legacy</option>
+                      <option value="latest">Version: latest</option>
+                      <option value="1.x">Version: Legacy 1.x</option>
                       <option value="2.x">Version: 2.x</option>
                     </select>
                   </div>
@@ -564,7 +565,7 @@
         basePath === 'https://apps.ringcentral.com/integration/ringcentral-embeddable/latest' ||
         basePath === 'https://ringcentral.github.io/ringcentral-embeddable'
       ) {
-        version = '2.x';
+        version = 'latest';
       }
       return version;
     }
@@ -576,10 +577,16 @@
         if (defaultVersion === '2.x') {
           return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x';
         }
+        if (defaultVersion === '1.x') {
+          return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/1.10.2';
+        }
         return basePath;
       }
       if (selectedVersion === '2.x') {
         return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x';
+      }
+      if (selectedVersion === '1.x') {
+        return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/1.10.2';
       }
       return basePath.replace(defaultVersion, selectedVersion);
     }
