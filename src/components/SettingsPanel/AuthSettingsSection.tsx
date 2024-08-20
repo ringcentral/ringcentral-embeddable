@@ -21,8 +21,13 @@ const StyledAuthSettingItem = styled(StyledSettingItem)`
   .RcListItemText-primary {
     display: flex;
     flex-direction: row;
-    line-height: 28px;
+    line-height: 30px;
     margin-right: 100px;
+    align-items: center;
+  }
+
+  .RcListItemText-secondary {
+    margin-top: 5px;
   }
 `;
 
@@ -40,15 +45,14 @@ const AuthAction = styled.div`
   position: absolute;
   display: inline-block;
   right: 16px;
-  top: 5px;
+  top: 6px;
 `;
 
 const IconWrapper = styled.div`
-  margin-right: 10px;
-  margin-top: 8px;
+  margin-right: 8px;
+  height: 30px;
 
   img {
-    vertical-align: middle;
     height: 30px;
     max-width: 86px;
     position: relative;
@@ -87,11 +91,9 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
   let icon = null;
   if (authorizationLogo) {
     icon = (
-      <RcListItemIcon>
-        <IconWrapper>
-          <img src={authorizationLogo} alt={serviceName} />
-        </IconWrapper>
-      </RcListItemIcon>
+      <IconWrapper>
+        <img src={authorizationLogo} alt={serviceName} />
+      </IconWrapper>
     );
   }
   return (
@@ -101,9 +103,18 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
       disableRipple
       data-sign="thirdPartyAuthSetting"
     >
-      {icon}
       <RcListItemText
-        primary={serviceName}
+        primary={
+          <>
+            {icon}
+            <RcTypography variant="body1" color="neutral.f06">
+              {serviceName}
+            </RcTypography>
+          </>
+        }
+        primaryTypographyProps={{
+          component: 'div',
+        }}
         secondary={
           <>
             <RcTypography variant="caption1" color="neutral.f04">
