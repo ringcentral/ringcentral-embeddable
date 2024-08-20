@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.32">
     
     
       
@@ -1762,6 +1762,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../do-not-contact/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Do not contact
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2652,6 +2673,17 @@
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
 <p>Note: <code>alertLevel</code> can be <code>info</code>, <code>warning</code> or <code>danger</code>.</p>
+<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5Z"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">alertId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">RCAdapter</span><span class="p">.</span><span class="nx">alertMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Test info message&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;info&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="mf">5000</span><span class="w"> </span><span class="c1">//5000ms =&gt; 5s, 0 for infinite</span>
+<span class="p">});</span>
+<span class="c1">// Dismiss the alert message</span>
+<span class="nx">RCAdapter</span><span class="p">.</span><span class="nx">dismissMessage</span><span class="p">(</span><span class="nx">alertId</span><span class="p">);</span><span class="w"> </span><span class="c1">// dismiss the alert message</span>
+<span class="c1">// Dismiss all alert messages</span>
+<span class="nx">RCAdapter</span><span class="p">.</span><span class="nx">dismissMessage</span><span class="p">();</span>
+</code></pre></div>
 <h3 id="minimizehideremove-the-widget">Minimize/Hide/Remove the widget</h3>
 <p>Only for Adapter JS way:</p>
 <p>Minimize:</p>
@@ -2912,7 +2944,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.tabs", "navigation.top", "navigation.expand", "navigation.sections", "search.sharing", "search.highlight", "content.code.copy", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../../assets/javascripts/bundle.471ce7a9.min.js"></script>
       
         <script src="../../extra.js"></script>
       
