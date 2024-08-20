@@ -12,7 +12,7 @@ export async function visitIndexPage() {
   });
 }
 
-export async function getLoginedWidget(jwtToken) {
+export async function getAuthorizedWidget(jwtToken) {
   const widgetIframe = new IframeWidget();
   await widgetIframe.loadElement();
   await widgetIframe.waitForLoginPage();

@@ -1,31 +1,58 @@
-import React, { Component } from 'react';
-import classnames from 'classnames';
+import React, { useRef, useEffect } from 'react';
 
-import { RcTextField, RcSelect, RcIcon, RcMenuItem, RcCircularProgress } from '@ringcentral/juno';
+import {
+  RcCircularProgress,
+  RcTypography,
+  RcList,
+  styled,
+} from '@ringcentral/juno';
 
-import { Search } from '@ringcentral/juno-icon';
-
+import { SearchLine } from '../SearchLine';
 import MeetingItem from '../MeetingItem';
-import styles from './styles.scss';
 
 import i18n from './i18n';
+
+const StyledContainer = styled.div`
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+`;
+
+const StyledNoFound = styled(RcTypography)`
+  margin-top: 50px;
+  text-align: center;
+`;
+
+const SpinnerContainer = styled.div`
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  margin-top: -20px;
+  margin-left: -20px;
+  width: 40px;
+  height: 40px;
+`;
+
+const LoadingNext = styled(RcTypography)`
+  text-align: center;
+  line-height: 40px;
+  font-size: 14px;
+`;
 
 interface IMeetingHistoryPanelProps {
   currentLocale: string;
   showSpinner: boolean;
   meetings: any[];
-  fetchMeetings: () => any[];
-  fetchNextPageMeetings: () => any[];
-  cleanMettings: () => any[];
+  fetchMeetings: (type) => any[];
+  fetchNextPageMeetings: (type) => any[];
   dateTimeFormatter: (startTime: string) => string;
   onClick: () => void;
   onLog?: (meeting: any) => void;
   logTitle?: string;
   fetchingNextPage: boolean;
   type: string;
-  updateType: (type: any) => void;
   searchText: string;
-  updateSearchText: (type: any) => void;
+  updateSearchText: (searchText: string, type: string) => void;
 }
 
 function MeetingList({
@@ -35,6 +62,7 @@ function MeetingList({
   onClick,
   onLog,
   logTitle,
+  type,
 }) {
   const list = meetings.map((meeting) => (
     <MeetingItem
@@ -52,134 +80,100 @@ function MeetingList({
       }}
       showLog={!!onLog}
       logTitle={logTitle}
+      duration={meeting.duration}
+      type={type}
     />
   ));
-  const noResult = meetings.length === 0 ? (
-     <div className={styles.noFound}>{i18n.getString('noFound', currentLocale)}</div>
-  ) : null;
-  return (
-    <div>
-      {list}
-      {noResult}
-    </div>
-  )
-}
-
-export default class IMeetingHistoryPanel extends Component<IMeetingHistoryPanelProps, any> {
-  static defaultProps = {
-    showSpinner: false,
-    fetchMeetings: () => {},
-    fetchNextPageMeetings: () => {},
-    cleanMettings: () => {},
-    onClick: () => {},
-  };
-
-  private _meetingListBody: any;
-  private _scrollTop: number;
-
-  componentDidMount() {
-    this.props.fetchMeetings();
-  }
-
-  componentWillUnmount() {}
-
-  onScroll = () => {
-    const totalScrollHeight = this._meetingListBody.scrollHeight;
-    const { clientHeight } = this._meetingListBody;
-    const currentScrollTop = this._meetingListBody.scrollTop;
-    // load next page if scroll near buttom
-    if (
-      totalScrollHeight - this._scrollTop > clientHeight + 10 &&
-      totalScrollHeight - currentScrollTop <= clientHeight + 10
-    ) {
-      this.props.fetchNextPageMeetings();
-    }
-    this._scrollTop = currentScrollTop;
-  };
-
-  render() {
-    const {
-      showSpinner,
-      dateTimeFormatter,
-      currentLocale,
-      meetings,
-      onClick,
-      onLog,
-      logTitle,
-      fetchingNextPage,
-      type,
-      updateType,
-      searchText,
-      updateSearchText,
-    } = this.props;
-    let content;
-    if (showSpinner) {
-      content = (
-        <div className={styles.spinnerContainer}>
-          <RcCircularProgress size={35} />
-        </div>
-      );
-    } else {
-      content = (
-        <MeetingList
-          dateTimeFormatter={dateTimeFormatter}
-          currentLocale={currentLocale}
-          meetings={meetings}
-          onClick={onClick}
-          onLog={onLog}
-          logTitle={logTitle}
-        />
-      );
-    }
-    const loadingNextPageTip = fetchingNextPage ? (
-      <div className={styles.loading}>
-        Loading
-      </div>
-    ) : null;
+  if (meetings.length === 0) {
     return (
-      <div
-        className={classnames(styles.meetingContainer)}
-        ref={(list) => {
-          this._meetingListBody = list;
-        }}
-        onScroll={this.onScroll}
-      >
-        <div className={styles.header}>
-          <div className={styles.input}>
-            <RcTextField
-              variant="outline"
-              fullWidth
-              InputProps={{
-                startAdornment: (
-                  <RcIcon symbol={Search} color="icon.subdued" size="small" />
-                ),
-              }}
-              value={searchText}
-              size="small"
-              onChange={(e) => {
-                updateSearchText(e.target.value);
-              }}
-            />
-          </div>
-          <RcSelect
-            variant="box"
-            className={styles.typeSelect}
-            value={type}
-            renderValue={(value) => i18n.getString(value, currentLocale)}
-            onChange={(e) => {
-              updateType(e.target.value);
-            }}
-            classes={{
-              root: styles.typeSelect,
-            }}
-          >
-            <RcMenuItem value="all">{i18n.getString('all', currentLocale)}</RcMenuItem>
-            <RcMenuItem value={'recordings'}>{i18n.getString('recordings', currentLocale)}</RcMenuItem>
-          </RcSelect>
-        </div>
-        {content}
-        {loadingNextPageTip}
-      </div>
+      <StyledNoFound variant="body1">{i18n.getString('noFound', currentLocale)}</StyledNoFound>
     );
   }
+  return (
+    <RcList>
+      {list}
+    </RcList>
+  );
+}
+
+export default function MeetingHistoryPanel({
+  currentLocale,
+  showSpinner = false,
+  meetings,
+  fetchMeetings,
+  fetchNextPageMeetings,
+  dateTimeFormatter,
+  onClick,
+  onLog,
+  logTitle,
+  fetchingNextPage,
+  searchText,
+  updateSearchText,
+  type
+}: IMeetingHistoryPanelProps) {
+  const meetingListBody = useRef(null);
+  const scrollTop = useRef(0);
+
+  useEffect(() => {
+    fetchMeetings(type);
+  }, [type]);
+
+  const onScroll = () => {
+    const totalScrollHeight = meetingListBody.current.scrollHeight;
+    const { clientHeight } = meetingListBody.current;
+    const currentScrollTop = meetingListBody.current.scrollTop;
+    // load next page if scroll near buttom
+    if (
+      totalScrollHeight - scrollTop.current > clientHeight + 10 &&
+      totalScrollHeight - currentScrollTop <= clientHeight + 10
+    ) {
+      fetchNextPageMeetings(type);
+    }
+    scrollTop.current = currentScrollTop;
+  };
+
+  let content;
+
+  if (showSpinner) {
+    content = (
+      <SpinnerContainer>
+        <RcCircularProgress size={35} />
+      </SpinnerContainer>
+    );
+  } else {
+    content = (
+      <MeetingList
+        dateTimeFormatter={dateTimeFormatter}
+        currentLocale={currentLocale}
+        meetings={meetings}
+        onClick={onClick}
+        onLog={onLog}
+        logTitle={logTitle}
+        type={type}
+      />
+    );
+  }
+
+  const loadingNextPageTip = fetchingNextPage ? (
+    <LoadingNext>
+      {i18n.getString('loading', currentLocale)}
+    </LoadingNext>
+  ) : null;
+  return (
+    <StyledContainer
+      ref={meetingListBody}
+      onScroll={onScroll}
+    >
+      <SearchLine
+        onSearchInputChange={(e) => {
+          updateSearchText(e.target.value, type);
+        }}
+        searchInput={searchText}
+        disableLinks={false}
+        placeholder={i18n.getString('search', currentLocale)}
+      />
+      {content}
+      {loadingNextPageTip}
+    </StyledContainer>
+  );
 }

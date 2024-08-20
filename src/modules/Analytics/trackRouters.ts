@@ -56,5 +56,37 @@ export const trackRouters = trackRoutersBase
     {
       eventPostfix: 'Contact Details',
       router: '/contacts/details',
+    },
+    {
+      eventPostfix: 'Log Call',
+      router: '/log/call',
+    },
+    {
+      eventPostfix: 'Log Messages',
+      router: '/log/messages',
+    },
+    {
+      eventPostfix: 'Recordings',
+      router: '/history/recordings',
+    },
+    {
+      eventPostfix: 'Customized Page',
+      router: '/customized',
+    },
+    {
+      eventPostfix: 'Voicemail',
+      router: '/messages/voicemail',
+    },
+    {
+      eventPostfix: 'Fax',
+      router: '/messages/fax',
+    },
+    {
+      eventPostfix: 'Customized Page',
+      router: '/customized',
+    },
+    {
+      eventPostfix: 'Customized Tab',
+      router: '/customizedTabs',
     }
   ]);

@@ -43,16 +43,16 @@ export class IframeWidget {
     return popup;
   }
 
-  async waitFor(selector, timeout = 40000) {
+  async waitFor(selector, timeout = 30000) {
     await this._widgetIframe.waitForSelector(selector, { timeout });
   }
 
   async waitForDialButton() {
-    await this.waitFor('svg[data-sign="callButton"]', 100000);
+    await this.waitFor('button[data-sign="callButton"]', 100000);
   }
 
-  async waitForNavigations() {
-    await this.waitFor('nav.NavigationBar_root');
+  async waitForNavigation() {
+    await this.waitFor('ul[data-sign="navigationBar"]');
   }
 
   async getLoginButtonText() {
@@ -61,30 +61,72 @@ export class IframeWidget {
   }
 
   async getDialButton() {
-    const callBtn = await this._widgetIframe.$('svg[data-sign="callButton"]');
+    const callBtn = await this._widgetIframe.$('button[data-sign="callButton"]');
     return callBtn;
   }
 
   async waitDialButtonEnabled() {
     await this._widgetIframe.waitForSelector('div[data-sign="spinnerOverlay"]', { hidden: true });
-    await this.waitFor('svg[data-sign="callButton"]:not(.DialerPanel_disabled)', 100000);
-    const callBtn = await this._widgetIframe.$('svg[data-sign="callButton"]:not(.DialerPanel_disabled)');
+    await this.waitFor('button[data-sign="callButton"]:not([disabled])', 100000);
+    const callBtn = await this._widgetIframe.$('button[data-sign="callButton"]:not([disabled])');
     return callBtn;
   }
 
   async clickNavigationButton(label) {
-    await this.waitFor('nav.NavigationBar_root');
-    await this._widgetIframe.click(`.TabNavigationButton_iconHolder[data-sign="${label}"]`);
+    await this.waitFor('ul[data-sign="navigationBar"]');
+    const tab = await this._widgetIframe.$(`.MuiListItem-root[role="tab"][data-sign="${label}"]`);
+    if (tab) {
+      await this._widgetIframe.click(`.MuiListItem-root[role="tab"][data-sign="${label}"]`);
+      return;
+    }
+    if (label === 'More') {
+      throw new Error(`Navigation button not found for ${label}`);
+    }
+    await this._widgetIframe.click('.MuiListItem-root[role="tab"][data-sign="More"]');
+    await this._widgetIframe.waitForTimeout(1000);
+    await this.clickNavigationSubMenu(label);
   }
 
-  async clickDropdownNavigationMenu(label) {
-    await this.waitFor('.DropdownNavigationView_root');
-    await this._widgetIframe.click(`.DropdownNavigationItem_root[title="${label}"]`);
+  async moreButtonExist() {
+    const moreButton = await this._widgetIframe.$('button[data-sign="More"]');
+    return !!moreButton;
+  }
+
+  async clickSubTab(label, path) {
+    await this.waitFor('.MuiTabs-flexContainer');
+    const hasHidden = await this._widgetIframe.$eval(`.MuiTab-root[data-sign="${label}"]`, (element) => {
+      return element.hasAttribute('aria-hidden');
+    });
+    if (hasHidden){
+      await this._widgetIframe.click('.MuiTabs-flexContainer button[data-tab-more-button]');
+      await this._widgetIframe.waitForTimeout(1000);
+      await this._widgetIframe.click(`li[value="${path}"]`);
+    } else {
+      await this._widgetIframe.click(`.MuiTab-root[data-sign="${label}"]`);
+    }
+  }
+
+  async clickBackButton() {
+    await this._widgetIframe.click('[data-sign="backButton"]');
+  }
+
+  async clickNavigationSubMenu(label) {
+    await this.waitFor(`.MuiMenuItem-root[data-sign="${label}"]`);
+    await this._widgetIframe.click(`.MuiMenuItem-root[data-sign="${label}"]`);
+  }
+
+  async gotoSettingsPage() {
+    const headerText = await this.getTabHeader();
+    if (headerText === 'Settings') {
+      return;
+    }
+    await this.clickNavigationButton('Settings');
   }
 
   async getCallItemList() {
     await this.waitFor('.CallsListPanel_container');
-    const callItems = await this._widgetIframe.$$('.CallItem_root');
+    await this._widgetIframe.waitForTimeout(500); // for render
+    const callItems = await this._widgetIframe.$$('div[data-sign="calls_item_root"]');
     return callItems;
   }
 
@@ -98,20 +140,38 @@ export class IframeWidget {
     return noCallsText;
   }
 
+  async getMessageList(type) {
+    await this.waitFor('div[data-sign="messageList"]');
+    await this._widgetIframe.waitForTimeout(500); // for render
+    const voicemailItems = await this._widgetIframe.$$(`div[data-sign="${type}"]`);
+    return voicemailItems;
+  }
+
+  async getNoMessageText() {
+    await this.waitFor('div[data-sign="messageList"]');
+    await this._widgetIframe.waitForTimeout(500);
+    const noMessage = await this._widgetIframe.$('p[data-sign="noMatch"]');
+    if (!noMessage) {
+      return null;
+    }
+    const noMessageText = await this._widgetIframe.$eval('p[data-sign="noMatch"]', (el) => el.innerText);
+    return noMessageText;
+  }
+
   async getMessageAllTabText() {
     await this.waitFor('div[data-sign="ConversationsPanel"]');
-    const allTabText = await this._widgetIframe.$eval('div[data-sign="All"]', (el) => el.innerText);
+    const allTabText = await this._widgetIframe.$eval('button[data-sign="All"]', (el) => el.innerText);
     return allTabText;
   }
 
   async getContactSearchInput() {
     await this.waitFor('div[data-sign="contactList"]');
-    const searchInput = await this._widgetIframe.$('input[data-sign="contactsSearchInput"]');
+    const searchInput = await this._widgetIframe.$('div[data-sign="contactsSearchInput"] input');
     return searchInput;
   }
 
-  async getELUAText() {
-    await this.waitFor('.SettingsPanel_root');
+  async getEULAText() {
+    // await this.waitFor('.SettingsPanel_root');
     const elua = await this._widgetIframe.$eval('a[data-sign="eula"]', (el) => el.innerText);
     return elua;
   }
@@ -124,17 +184,18 @@ export class IframeWidget {
 
   async clickSettingSection(label) {
     await this.waitFor('.SettingsPanel_root');
-    const textHanlders = await this._widgetIframe.$x(`//div[contains(text(), '${label}')]`);
-    if (textHanlders.length > 0) {
-      await textHanlders[0].click();
-    } else {
-      throw new Error(`click ${label} not found`);
-    }
+    await this._widgetIframe.click(`div[data-sign="${label}"][role="button"]`);
+  }
+
+  async getSettingSection(label) {
+    await this.waitFor('.SettingsPanel_root');
+    const section = await this._widgetIframe.$(`div[data-sign="${label}"][role="button"]`);
+    return section;
   }
 
   async getHeaderLabel() {
-    await this.waitFor('.Header_root');
-    const text = await this._widgetIframe.$eval('.Header_label', (el) => el.innerText);
+    await this.waitFor('[data-sign="headerTitle"]');
+    const text = await this._widgetIframe.$eval('[data-sign="headerTitle"]', (el) => el.innerText);
     return text;
   }
 
@@ -151,7 +212,7 @@ export class IframeWidget {
   }
 
   async clickComposeTextIcon() {
-    await this._widgetIframe.click('span[title="Compose Text"]');
+    await this._widgetIframe.click('button[title="Compose Text"]');
   }
 
   async typeSMSRecipientAndText({ recipientNumber, text}) {
@@ -178,20 +239,28 @@ export class IframeWidget {
   }
 
   async getServiceNameInAuthorizationSettings() {
-    await this.waitFor('.AuthorizeSettingsSection_serviceName');
-    const text = await this._widgetIframe.$eval('.AuthorizeSettingsSection_serviceName', (el) => el.innerText);
+    await this.waitFor('div[data-sign="thirdPartyAuthSetting"]');
+    const text = await this._widgetIframe.$eval('div[data-sign="thirdPartyAuthSetting"] .RcListItemText-primary', (el) => el.innerText);
     return text;
   }
 
   async getContactFilters() {
-    await this.waitFor('div[data-sign="filterIconContainer"]');
-    await this._widgetIframe.click('div[data-sign="filterIconContainer"]');
-    const text = await this._widgetIframe.$eval('ul[data-sign="contactSourceList"]', (el) => el.innerText);
-    return text;
+    await this.waitFor('div[role="tablist"]');
+    const filters = await this._widgetIframe.$$eval('div[role="tablist"] button:not([data-tab-more-button])', els => els.map(el => el.innerText));
+    return filters;
   }
 
   async getContactNames() {
     const texts = await this._widgetIframe.$$eval('.ContactItem_contactName', els => els.map(el => el.textContent));
     return texts;
+  }
+
+  async getTabHeader() {
+    const text = await this._widgetIframe.$eval('h6[data-sign="navigationHeaderTitle"]', (el) => el.innerText);
+    return text;
+  }
+
+  async waitForTimeout(timeout) {
+    await this._widgetIframe.waitForTimeout(timeout);
   }
 }

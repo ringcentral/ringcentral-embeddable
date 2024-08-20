@@ -1,66 +1,26 @@
-import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createSelector } from 'reselect';
-
 import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
-import TabContentPanel from '@ringcentral-integration/widgets/components/TabContentPanel';
-import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
+import { SubTabsView } from '../../components/SubTabsView';
+
 import i18n from './i18n';
-import styles from './styles.scss';
-
-interface MeetingTabContentViewProps {
-  showSpinner: boolean,
-  currentLocale: string,
-  currentPath: string,
-  goTo: (args: any) => any,
-}
-
-class TabContentView extends Component {
-  constructor(props: MeetingTabContentViewProps) {
-    super(props);
-    this.getTabs = createSelector(
-      () => this.props.currentLocale,
-      () => this.props.currentPath,
-      (currentLocale, currentPath) => [
-        {
-          path: '/meeting/home',
-          label: i18n.getString('home', currentLocale),
-          isActive() {
-            return currentPath === '/meeting/home';
-          },
-        },
-        {
-          path: '/meeting/history',
-          label: i18n.getString('rencents', currentLocale),
-          isActive() {
-            return currentPath === '/meeting/history';
-          },
-        },
-      ],
-    );
-  }
-
-  render() {
-    if (this.props.showSpinner) {
-      return <SpinnerOverlay />;
-    }
-    return (
-      <TabContentPanel
-        {...this.props}
-        tabs={this.getTabs()}
-        navClassName={styles.nav}
-        tabContentClassName={styles.content}
-        showTabs
-      />
-    );
-  }
-}
 
 function mapToProps(_, { phone, phone: { locale, routerInteraction } }) {
   return {
-    currentLocale: locale.currentLocale,
-    showSpinner: !locale.ready,
     currentPath: routerInteraction.currentPath,
+    tabs: [
+      {
+        value: '/meeting/home',
+        label: i18n.getString('home', locale.currentLocale),
+      },
+      {
+        value: '/meeting/history',
+        label: i18n.getString('recent', locale.currentLocale),
+      },
+      {
+        value: '/meeting/history/recordings',
+        label: i18n.getString('recordings', locale.currentLocale),
+      }
+    ]
   };
 }
 
@@ -76,7 +36,7 @@ const MeetingTabContainer = withPhone(
   connect(
     mapToProps,
     mapToFunctions,
-  )(TabContentView),
+  )(SubTabsView),
 );
 
 export { mapToProps, mapToFunctions, MeetingTabContainer as default };

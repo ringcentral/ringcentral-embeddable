@@ -1,15 +1,22 @@
 export default {
   dialpadLabel: "ダイヤルパッド",
+  phoneLabel: "電話",
   callsLabel: "通話",
   historyLabel: "履歴",
   messagesLabel: "メッセージ",
-  moreMenuLabel: "その他のメニュー",
+  recordingsLabel: 'レコーディング',
+  inboxLabel: "受信トレイ",
+  textLabel: 'テキスト',
+  voicemailLabel: 'ボイスメール',
+  faxLabel: 'FAX',
+  moreMenuLabel: "その他",
   contactsLabel: "連絡先",
-  meetingLabel: "会議のスケジュール設定",
+  meetingLabel: "ビデオ",
   conferenceLabel: "会議のスケジュール設定",
   hangoutsLabel: "ハングアウトを起動",
   hangoutsTitle: "Conferencingでハングアウトを起動",
-  settingsLabel: "設定"
+  settingsLabel: "設定",
+  composeText: "テキストを作成",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

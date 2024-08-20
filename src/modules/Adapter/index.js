@@ -68,12 +68,15 @@ import {
     'MessageStore',
     'TabManager',
     'CallLogger',
+    'ConversationLogger',
     'GenericMeeting',
     'Brand',
     'Conversations',
     'ActiveCallControl',
     'ContactMatcher',
     'AudioSettings',
+    'SmsTemplates',
+    'SideDrawerUI',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -99,6 +102,7 @@ export default class Adapter extends AdapterModuleCore {
     disableInactiveTabCallEvent,
     tabManager,
     callLogger,
+    conversationLogger,
     genericMeeting,
     brand,
     appFeatures,
@@ -108,6 +112,8 @@ export default class Adapter extends AdapterModuleCore {
     audioSettings,
     fromPopup,
     isUsingDefaultClientId,
+    smsTemplates,
+    sideDrawerUI,
     ...options
   }) {
     super({
@@ -132,6 +138,7 @@ export default class Adapter extends AdapterModuleCore {
     this._tabManager = this:: ensureExist(tabManager, 'tabManager');
     this._alert = alert;
     this._callLogger = callLogger;
+    this._conversationLogger = conversationLogger;
     this._extensionInfo = extensionInfo;
     this._accountInfo = accountInfo;
     this._meeting = genericMeeting;
@@ -142,6 +149,8 @@ export default class Adapter extends AdapterModuleCore {
     this._oAuth = oAuth;
     this._contactMatcher = contactMatcher;
     this._audioSettings = audioSettings;
+    this._smsTemplates = smsTemplates;
+    this._sideDrawerUI = sideDrawerUI;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -156,9 +165,11 @@ export default class Adapter extends AdapterModuleCore {
     this._callWith = null;
     this._ringoutMyLocation = null;
     this._callLoggerAutoLogEnabled = null;
+    this._conversationLoggerAutoLogEnabled = null;
     this._dialerDisabled = null;
     this._meetingReady = null;
     this._brandConfig = null;
+    this._sideDrawerOpen = null;
     this._popupWindowManager = new PopupWindowManager({ prefix, isPopupWindow: fromPopup });
 
     this._messageStore.onNewInboundMessage((message) => {
@@ -258,10 +269,12 @@ export default class Adapter extends AdapterModuleCore {
     this._checkRouteChanged();
     this._checkCallingSettingsChanged();
     this._checkAutoCallLoggerChanged();
+    this._checkAutoConversationLoggerChanged();
     this._checkDialUIStatusChanged();
     this._checkMeetingStatusChanged();
     this._checkBrandConfigChanged();
     this._checkWebphoneStatus();
+    this._checkSideDrawerOpen();
   }
 
   _onMessage(event) {
@@ -305,8 +318,13 @@ export default class Adapter extends AdapterModuleCore {
           break;
         }
         case 'rc-adapter-navigate-to': {
-          if (data.path && data.path.indexOf('/') === 0) {
-            this._router.push(data.path);
+          if (data.path) {
+            if (data.path.indexOf('/') === 0 && this._router.currentPath !== data.path) {
+              this._router.push(data.path);
+            }
+            if (data.path === 'goBack') {
+              this._router.goBack();
+            }
           }
           break;
         }
@@ -316,6 +334,10 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-webphone-sessions-sync': {
           this._syncWebphoneSessions();
+          break;
+        }
+        case 'rc-adapter-update-ringtone': {
+          this._updateRingtone(data);
           break;
         }
         default:
@@ -358,15 +380,43 @@ export default class Adapter extends AdapterModuleCore {
         break;
       }
       case '/custom-alert-message':
-        this._alert.alert({
-          level: data.alertLevel,
-          ttl: data.ttl,
+        const alertId = await this._alert.alert({
+          level: data.alertLevel || data.body && data.body.level, // to support old format
+          ttl: data.ttl || data.body && data.body.ttl,
           message: 'showCustomAlertMessage',
           payload: {
-            alertMessage: data.alertMessage
+            alertMessage: data.alertMessage || data.body && data.body.message,
           }
         });
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: alertId,
+        });
         break;
+      case '/dismiss-alert-message':
+        if (data.body && data.body.id) {
+          this._alert.dismiss(data.body.id);
+        } else {
+          this._alert.dismissAll();
+        }
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: 'ok',
+        });
+        break;
+      case '/create-sms-template': {
+        const error = await this._smsTemplates.createOrUpdateTemplate({
+          displayName: data.body.displayName,
+          body: {
+            text: data.body.text,
+          },
+        });
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: error ? error.message : 'ok',
+        });
+        break;
+      }
       default: {
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
@@ -539,6 +589,19 @@ export default class Adapter extends AdapterModuleCore {
       this._postMessage({
         type: 'rc-callLogger-auto-log-notify',
         autoLog: this._callLogger.autoLog,
+      });
+    }
+  }
+
+  _checkAutoConversationLoggerChanged() {
+    if (!this._conversationLogger.ready) {
+      return;
+    }
+    if (this._conversationLoggerAutoLogEnabled !== this._conversationLogger.autoLog) {
+      this._conversationLoggerAutoLogEnabled = this._conversationLogger.autoLog;
+      this._postMessage({
+        type: 'rc-messageLogger-auto-log-notify',
+        autoLog: this._conversationLogger.autoLog,
       });
     }
   }
@@ -999,6 +1062,24 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
+  async _onNavigateToViewCalls() {
+    this._router.push('/history');
+    if (this._userGuide && this._userGuide.started) {
+      this._userGuide.dismiss();
+    }
+    if (this._quickAccess && this._quickAccess.entered) {
+      this._quickAccess.exit();
+    }
+    if (
+      this._webphone &&
+      this._webphone.ringSession &&
+      !this._webphone.ringSession.minimized
+    ) {
+      this._webphone.toggleMinimized(this._webphone.ringSession.id);
+    }
+    this._callLogSection?.closeLogSection();
+  }
+
   async _scheduleMeeting(data) {
     const inputs = formatMeetingForm(data, this._meeting.isRCV);
     const resp = await this._meeting.schedule(inputs);
@@ -1030,6 +1111,27 @@ export default class Adapter extends AdapterModuleCore {
       dndStatus: dndStatus ? dndStatus : this._presence.dndStatus,
       userStatus: userStatus ? userStatus : this._presence.userStatus,
     });
+  }
+
+  async _updateRingtone({ name, uri, volume }) {
+    if (typeof volume === 'number' && volume >= 0 && volume <= 1) {
+      this._audioSettings.setData({ ringtoneVolume: volume });
+    }
+    if (typeof name === 'string' && typeof uri === 'string') {
+      if (
+        uri.indexOf('https://') !== 0 &&
+        uri.indexOf('http://') !== 0 &&
+        uri.indexOf('data:audio/') !== 0
+      ) {
+        return;
+      }
+      this._webphone.setRingtone({
+        incomingAudio: uri,
+        incomingAudioFile: name,
+        outgoingAudio:  this._webphone.defaultOutgoingAudio,
+        outgoingAudioFile:  this._webphone.defaultOutgoingAudioFile,
+      });
+    }
   }
 
   // eslint-disable-next-line
@@ -1080,6 +1182,25 @@ export default class Adapter extends AdapterModuleCore {
     this.store.dispatch({
       type: this.actionTypes.setShowDemoWarning,
       show: false,
+    });
+  }
+
+  _checkSideDrawerOpen() {
+    if (!this.ready) {
+      return;
+    }
+    if (this._sideDrawerOpen === this._sideDrawerUI.show) {
+      return;
+    }
+    this._sideDrawerOpen = this._sideDrawerUI.show;
+    const newSize = {
+      width: this._sideDrawerOpen ? 600 : 300,
+      height: 500,
+    };
+    this._syncSize(newSize);
+    this._postMessage({
+      type: this._messageTypes.syncSize,
+      size: newSize,
     });
   }
 }

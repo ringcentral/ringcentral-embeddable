@@ -75,10 +75,12 @@ const {
   enableWebRTCPlanB,
   brand,
   enableRingtoneSettings,
-  enableNoiseReductionSetting,
+  disableNoiseReduction,
   showSignUpButton,
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
+  enableSMSTemplate,
+  enableSmartNote,
 } = pathParams;
 
 const defaultBrand = brand || process.env.BRAND;
@@ -112,6 +114,7 @@ const fromAdapter = !!pathParams.fromAdapter;
 const fromPopup = !!pathParams.fromPopup;
 
 const recordingLink = process.env.RECORDING_LINK;
+const isExtensionLocalMode = window.location.protocol === 'chrome-extension:';
 
 const phone = createPhone({
   apiConfig,
@@ -147,12 +150,14 @@ const phone = createPhone({
   forceCurrentWebphoneActive: fromPopup,
   fromPopup,
   enableRingtoneSettings,
-  enableNoiseReductionSetting,
+  disableNoiseReduction: isExtensionLocalMode ? disableNoiseReduction !== 'false' : !!disableNoiseReduction, // default to disable noise reduction at extension local mode
   brandBaseUrl: process.env.HOSTING_URL ? process.env.HOSTING_URL : url.resolve(window.location.href, './'),
   showSignUpButton,
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
   isUsingDefaultClientId,
+  enableSMSTemplate,
+  enableSmartNote,
 });
 
 const store = createStore(phone.reducer);

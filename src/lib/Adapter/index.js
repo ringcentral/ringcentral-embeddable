@@ -254,6 +254,7 @@ class Adapter extends AdapterCore {
     if (isSafari()) {
       sandboxAttributes = sandboxAttributes.replace(' allow-downloads', '');
     }
+    sandboxAttributes = `${sandboxAttributes} allow-popups-to-escape-sandbox`;
     return `
       <header class="${this._styles.header}" draggable="false">
         <div class="${this._styles.presence} ${this._styles.NoPresence}">
@@ -667,12 +668,32 @@ class Adapter extends AdapterCore {
     });
   }
 
+  createSMSTemplate(displayName, text) {
+    return this._requestWithPostMessage('/create-sms-template', {
+      displayName,
+      text,
+    });
+  }
+
+  updateRingtone({
+    name,
+    uri,
+    volume,
+  }) {
+    this._postMessage({
+      type: 'rc-adapter-update-ringtone',
+      name,
+      uri,
+      volume,
+    });
+  }
+
   get showCurrentCallBtn() {
     return this._widgetCurrentPath.indexOf('/calls/active') === -1 && this.showDuration;
   }
 
   get showViewCallsBtn() {
-    return this._widgetCurrentPath !== '/calls' && (this.showOnHoldCalls || this.showRingingCalls);
+    return this._widgetCurrentPath !== '/history' && (this.showOnHoldCalls || this.showRingingCalls);
   }
 
   get centerDuration() {
@@ -680,7 +701,19 @@ class Adapter extends AdapterCore {
   }
 
   get centerCallInfo() {
-    return this._widgetCurrentPath === '/calls';
+    return this._widgetCurrentPath === '/history';
+  }
+
+  alertMessage({ message, level, ttl }) {
+    return this._requestWithPostMessage('/custom-alert-message', {
+      message, level, ttl,
+    });
+  }
+
+  dismissMessage(id = null) {
+    return this._requestWithPostMessage('/dismiss-alert-message', {
+      id,
+    });
   }
 }
 

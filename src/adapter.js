@@ -80,11 +80,13 @@ const {
   enablePopup,
   popupPageUri,
   enableRingtoneSettings,
-  enableNoiseReductionSetting,
+  disableNoiseReduction,
   showSignUpButton,
   defaultDirection,
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
+  enableSMSTemplate,
+  enableSmartNote,
 } = parseUri(paramsUri);
 
 function obj2uri(obj) {
@@ -142,10 +144,12 @@ const appUri = `${appUrl}?${obj2uri({
   fromAdapter: 1,
   fromPopup,
   enableRingtoneSettings,
-  enableNoiseReductionSetting,
+  disableNoiseReduction,
   showSignUpButton,
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
+  enableSMSTemplate,
+  enableSmartNote,
   _t: Date.now(),
 })}`;
 

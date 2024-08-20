@@ -1,16 +1,87 @@
-import React from 'react';
-import classnames from 'classnames';
-
-import { RcIconButton, RcButton } from '@ringcentral/juno';
-import { Info } from '@ringcentral/juno-icon';
-
+import React, { useState } from 'react';
+import {
+  RcButton,
+  RcTypography,
+  RcList,
+  RcListItem,
+  RcListItemText,
+  styled,
+  ellipsis,
+  palette2,
+  setOpacity,
+} from '@ringcentral/juno';
+import { InfoBorder, Copy } from '@ringcentral/juno-icon';
+import { handleCopy } from '@ringcentral-integration/widgets/lib/handleCopy';
+import { ActionMenu } from '../ActionMenu';
 import i18n from './i18n';
-import styles from './styles.scss';
+
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+`;
+
+const StyledMeetingGroup = styled.div`
+  &:last-child {
+    margin-bottom: 20px;
+  }
+`;
+
+const StyledDateName = styled(RcTypography)`
+  line-height: 30px;
+  padding: 10px 20px;
+  text-align: center;
+`;
+
+const StyledMeetingItem = styled(RcListItem)`
+  border-bottom: 1px solid ${setOpacity(palette2('neutral', 'l02'), '48')};
+
+  &:first-child {
+    border-top: 1px solid ${setOpacity(palette2('neutral', 'l02'), '48')};
+  }
+
+  .RcListItemText-primary {
+    font-size: 0.875rem;
+    line-height: 22px;
+    ${ellipsis()}
+  }
+
+  .meeting-btn-group {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  &:hover {
+    .meeting-btn-group {
+      display: flex;
+    }
+  }
+
+  ${({ $hoverOnMoreMenu }) =>
+    $hoverOnMoreMenu &&
+    `
+    .meeting-btn-group {
+      display: flex;
+    }
+  `}
+`;
+
+const StyledJoinButton = styled(RcButton)`
+  margin-right: 8px;
+`;
 
 function DateName(props) {
   const { date } = props;
   return (
-    <div className={styles.dateName}>{date}</div>
+    <StyledDateName variant="caption1" color="neutral.f06">
+      {date}
+    </StyledDateName>
   );
 }
 
@@ -31,39 +102,62 @@ function MeetingItem(props) {
     editEventUrl,
     meetingIds,
     isAllDay,
+    location,
   } = props;
+  const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
   const startDate = formatMeetingTime(startTime, currentLocale)
   const endDate = formatMeetingTime(endTime, currentLocale)
   const meetingId = meetingIds[0];
   const joinBtn = meetingId ? (
-    <RcButton
-      size="medium"
+    <StyledJoinButton
+      size="small"
       color="primary"
-      className={styles.button}
       onClick={() => {
-        onJoin(meetingId)
+        onJoin(location || meetingId)
       }}
+      radius="round"
     >
-      Join
-    </RcButton>
+      {i18n.getString('join', currentLocale)}
+    </StyledJoinButton>
   ) : null;
+  const actions = [{
+    icon: InfoBorder,
+    title: i18n.getString('details', currentLocale),
+    onClick: () => {
+      window.open(editEventUrl);
+    },
+    disabled: false,
+  }];
+  if (meetingId && location) {
+    actions.push({
+      icon: Copy,
+      title: i18n.getString('copy', currentLocale),
+      onClick: () => {
+        handleCopy(location);
+      },
+      disabled: false,
+    });
+  }
   return (
-    <div className={styles.meetingItem}>
-      <div className={styles.meetingName}>{title}</div>
-      <div className={styles.meetingTime}>
-        { isAllDay ? 'All day' : `${startDate} - ${endDate}` }
-      </div>
-      <div className={styles.buttons}>
-        <span title="Details" className={styles.iconButton}>
-          <RcIconButton
-            size="small"
-            symbol={Info}
-            onClick={() => window.open(editEventUrl)}
-          />
-        </span>
+    <StyledMeetingItem $hoverOnMoreMenu={hoverOnMoreMenu}>
+      <RcListItemText
+        primary={title}
+        secondary={isAllDay ? i18n.getString('allDay', currentLocale) : `${startDate} - ${endDate}`}
+      />
+      <div className="meeting-btn-group">
         {joinBtn}
+        <ActionMenu
+          actions={actions}
+          iconVariant="contained"
+          color="neutral.b01"
+          size="small"
+          maxActions={1}
+          onMoreMenuOpen={(open) => {
+            setHoverOnMoreMenu(open);
+          }}
+        />
       </div>
-    </div>
+    </StyledMeetingItem>
   );
 }
 
@@ -97,13 +191,13 @@ function UpcomingMeetingList(props) {
   const { meetings, currentLocale, className, onJoin } = props;
   const groupedMeetings = groupMeetings(meetings, currentLocale);
   return (
-    <div className={classnames(styles.meetingList, className)}>
+    <Container className={className}>
       {
         groupedMeetings.map((groupedMeeting) => {
           return (
-            <div key={groupedMeeting.name} className={styles.meetingGroup}>
+            <StyledMeetingGroup key={groupedMeeting.name}>
               <DateName date={groupedMeeting.name} />
-              <div>
+              <RcList>
                 {
                   groupedMeeting.meetings.map((meeting) => {
                     return (
@@ -117,16 +211,17 @@ function UpcomingMeetingList(props) {
                         onJoin={onJoin}
                         meetingIds={meeting.meetingIds}
                         isAllDay={meeting.isAllDay}
+                        location={meeting.location}
                       />
                     );
                   })
                 }
-              </div>
-            </div>
+              </RcList>
+            </StyledMeetingGroup>
           );
         })
       }
-    </div>
+    </Container>
   );
 }
 

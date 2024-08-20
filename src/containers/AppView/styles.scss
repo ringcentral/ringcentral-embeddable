@@ -12,21 +12,11 @@
 body {
   background: #fff;
   font-family: $font-family;
+  margin: 0;
 }
 
 input {
   background-color: transparent;
-}
-
-.root {
-  @include full-size;
-  background-color: $lightgray;
-}
-
-.demoWarning {
-  :global .TabNavigationView_root{
-    max-height: calc(100% - 30px);
-  }
 }
 
 :global .rc-editor-mention-dropdown {
@@ -74,19 +64,6 @@ input {
   height: 35%;
 }
 
-div[class*="MuiCircularProgress-indeterminate"] {
-  animation: MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
-}
-
-@keyframes MuiCircularProgress-keyframes-circular-rotate2 {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 :global .DropdownNavigationItem_root .DropdownNavigationItem_notice {
   width: 1.4em;
   height: 1.4em;
@@ -94,4 +71,8 @@ div[class*="MuiCircularProgress-indeterminate"] {
   font-size: 0.7em;
   top: 0.2em;
   left: 3.2em;
+}
+
+:global .CallingSettingsPanel_content {
+  max-height: calc(100% - 46px);
 }

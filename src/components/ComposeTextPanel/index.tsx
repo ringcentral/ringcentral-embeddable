@@ -10,17 +10,20 @@ import NoSenderAlert
 import styles
   from '@ringcentral-integration/widgets/components/ComposeTextPanel/styles.scss';
 import FromField from '@ringcentral-integration/widgets/components/FromField';
-import RecipientsInput
-  from '@ringcentral-integration/widgets/components/RecipientsInput';
-import {
-  RecipientsInputV2,
-} from '@ringcentral-integration/widgets/components/RecipientsInputV2';
+
 import {
   SpinnerOverlay,
 } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
+import { RcTypography, styled } from '@ringcentral/juno';
+import i18n from '@ringcentral-integration/widgets/components/ConversationsPanel/i18n';
+import { BackHeader } from '../BackHeader';
+import MessageInput from '../MessageInput'; // TODO: temporary solution, wait for new component ready
+import type { Attachment } from '../MessageInput';
+import RecipientsInput from '../RecipientsInput';
 
-import MessageInput
-  from '../MessageInput'; // TODO: temporary solution, wait for new component ready
+const Title = styled(RcTypography)`
+  line-height: 40px;
+`;
 
 export interface ComposeTextPanelProps {
   brand?: string;
@@ -60,16 +63,22 @@ export interface ComposeTextPanelProps {
   autoFocus?: boolean;
   inputExpandable?: boolean;
   supportAttachment?: boolean;
-  attachments?: {
-    name: string;
-    size: number;
-  }[];
+  attachments?: Attachment[];
   addAttachment?: (...args: any[]) => any;
   removeAttachment?: (...args: any[]) => any;
   useRecipientsInputV2?: boolean;
   additionalToolbarButtons: any[];
   onClickAdditionalToolbarButton: (...args: any[]) => any;
+  goBack: (...args: any[]) => any;
+  showTemplate?: boolean;
+  templates?: any[];
+  showTemplateManagement?: boolean;
+  loadTemplates?: () => Promise<any>;
+  deleteTemplate?: (templateId: string) => Promise<any>;
+  createOrUpdateTemplate?: (template: any) => Promise<any>;
+  sortTemplates?: (...args: any[]) => any;
 }
+
 type ComposeTextPanelState = {
   messageText: any;
 };
@@ -187,6 +196,14 @@ class ComposeTextPanel extends Component<
       recipientsContactPhoneRenderer,
       additionalToolbarButtons,
       onClickAdditionalToolbarButton,
+      goBack,
+      showTemplate,
+      templates,
+      showTemplateManagement,
+      loadTemplates,
+      deleteTemplate,
+      createOrUpdateTemplate,
+      sortTemplates,
     } = this.props;
     const filteredSearchContactList =
       useRecipientsInputV2 && typingToNumber.length >= 3
@@ -195,53 +212,39 @@ class ComposeTextPanel extends Component<
     return (
       <div className={classnames(styles.root, className)}>
         {showSpinner ? <SpinnerOverlay /> : null}
+        <BackHeader
+          onBack={goBack}
+        >
+          <Title variant="body1">
+            {i18n.getString('composeText', currentLocale)}
+          </Title>
+        </BackHeader>
         <NoSenderAlert
           currentLocale={currentLocale}
           showAlert={this.showAlert()}
           brand={brand}
         />
-        {useRecipientsInputV2 ? (
-          <RecipientsInputV2
-            value={typingToNumber}
-            recipientsClassName={styles.recipients}
-            onInputChange={this.onInputChange}
-            onInputClear={this.cleanReceiverValue}
-            recipients={toNumbers}
-            addToRecipients={this.addToRecipients}
-            removeFromRecipients={this.removeFromRecipients}
-            searchContactList={filteredSearchContactList}
-            formatContactPhone={formatContactPhone}
-            currentLocale={currentLocale}
-            phoneTypeRenderer={phoneTypeRenderer}
-            phoneSourceNameRenderer={phoneSourceNameRenderer}
-            contactInfoRenderer={recipientsContactInfoRenderer}
-            contactPhoneRenderer={recipientsContactPhoneRenderer}
-            enableTitle
-            multiple
-          />
-        ) : (
-          <RecipientsInput
-            value={typingToNumber}
-            recipientsClassName={styles.recipients}
-            onChange={updateTypingToNumber}
-            onClean={this.cleanReceiverValue}
-            recipients={toNumbers}
-            addToRecipients={this.addToRecipients}
-            removeFromRecipients={this.removeFromRecipients}
-            searchContact={searchContact}
-            searchContactList={searchContactList}
-            formatContactPhone={formatContactPhone}
-            detectPhoneNumbers={detectPhoneNumbers}
-            currentLocale={currentLocale}
-            phoneTypeRenderer={phoneTypeRenderer}
-            phoneSourceNameRenderer={phoneSourceNameRenderer}
-            contactInfoRenderer={recipientsContactInfoRenderer}
-            contactPhoneRenderer={recipientsContactPhoneRenderer}
-            titleEnabled
-            autoFocus={autoFocus}
-            multiple
-          />
-        )}
+        <RecipientsInput
+          value={typingToNumber}
+          recipientsClassName={styles.recipients}
+          onChange={updateTypingToNumber}
+          onClean={this.cleanReceiverValue}
+          recipients={toNumbers}
+          addToRecipients={this.addToRecipients}
+          removeFromRecipients={this.removeFromRecipients}
+          searchContact={searchContact}
+          searchContactList={searchContactList}
+          formatContactPhone={formatContactPhone}
+          detectPhoneNumbers={detectPhoneNumbers}
+          currentLocale={currentLocale}
+          phoneTypeRenderer={phoneTypeRenderer}
+          phoneSourceNameRenderer={phoneSourceNameRenderer}
+          contactInfoRenderer={recipientsContactInfoRenderer}
+          contactPhoneRenderer={recipientsContactPhoneRenderer}
+          titleEnabled
+          autoFocus={autoFocus}
+          multiple
+        />
         <div className={styles.senderField}>
           <FromField
             currentLocale={currentLocale}
@@ -261,11 +264,17 @@ class ComposeTextPanel extends Component<
           onSend={send}
           inputExpandable={inputExpandable}
           attachments={attachments}
-          supportAttachment={supportAttachment}
           addAttachment={addAttachment}
           removeAttachment={removeAttachment}
           additionalToolbarButtons={additionalToolbarButtons}
           onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
+          showTemplate={showTemplate}
+          templates={templates}
+          showTemplateManagement={showTemplateManagement}
+          loadTemplates={loadTemplates}
+          deleteTemplate={deleteTemplate}
+          createOrUpdateTemplate={createOrUpdateTemplate}
+          sortTemplates={sortTemplates}
         />
       </div>
     );

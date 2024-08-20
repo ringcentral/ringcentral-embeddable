@@ -61,6 +61,7 @@ module.exports = {
       { id: '3710', code: 'rcuk' },
     ],
     showFeedback: false,
+    enableEDP: true,
   },
   brandFolder: __dirname,
   assetsFolder: path.resolve(__dirname, '../../src/assets/rc'),

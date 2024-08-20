@@ -1,15 +1,22 @@
 export default {
-  dialpadLabel: "Dial Pad",
+  dialpadLabel: "Dialpad",
+  phoneLabel: 'Phone',
   callsLabel: "Calls",
   historyLabel: "History",
+  recordingsLabel: 'Recordings',
   messagesLabel: "Messages",
-  moreMenuLabel: "More Menu",
+  inboxLabel: 'Inbox',
+  textLabel: 'Text',
+  voicemailLabel: 'Voicemail',
+  faxLabel: 'Fax',
+  moreMenuLabel: "More",
   contactsLabel: "Contacts",
-  meetingLabel: "Schedule Meeting",
+  meetingLabel: "Video",
   conferenceLabel: "Schedule Conference",
   hangoutsLabel: "Start Hangouts",
   hangoutsTitle: "Start Hangouts with Conferencing",
-  settingsLabel: "Settings"
+  settingsLabel: "Settings",
+  composeText: 'Compose Text',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

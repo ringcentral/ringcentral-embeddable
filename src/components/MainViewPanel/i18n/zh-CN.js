@@ -1,15 +1,22 @@
 export default {
   dialpadLabel: "拨号键盘",
+  phoneLabel: "电话",
   callsLabel: "通话",
   historyLabel: "历史记录",
+  recordingsLabel: '录音',
   messagesLabel: "消息",
-  moreMenuLabel: "更多菜单",
+  inboxLabel: "收件箱",
+  textLabel: '短信',
+  voicemailLabel: '语音邮件',
+  faxLabel: '传真',
+  moreMenuLabel: "更多",
   contactsLabel: "联系人",
-  meetingLabel: "安排视频会议",
+  meetingLabel: "视频",
   conferenceLabel: "安排电话会议",
   hangoutsLabel: "开始聚会",
   hangoutsTitle: "通过召开会议开始聚会",
-  settingsLabel: "设置"
+  settingsLabel: "设置",
+  composeText: "编辑短信",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

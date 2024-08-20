@@ -2,6 +2,8 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
   MessageStore as MessageStoreBase,
 } from '@ringcentral-integration/commons/modules/MessageStore';
+import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
+import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
 
 // reference: https://developers.ringcentral.com/api-reference/Message-Store/syncMessages
 const INVALID_TOKEN_ERROR_CODES = ['CMN-101', 'MSG-333'];
@@ -106,5 +108,31 @@ export class MessageStore extends MessageStoreBase {
       Date.now(), // Fix new message is not saved into DB
     );
     this._dispatchMessageHandlers(records); // Send message event immediately
+  }
+
+  // override to support unread Text conversation
+  override async unreadMessage(conversationId: string) {
+    let messageId = conversationId;
+    const messageList = this.conversationStore[conversationId];
+    if (!messageList || messageList.length === 0) {
+      this._deps.alert.warning({ message: 'noUnreadForOldMessages' });
+      return;
+    }
+    const firstMessage = messageList[0];
+    if (
+      firstMessage.type === messageTypes.sms ||
+      firstMessage.type === messageTypes.text ||
+      firstMessage.type === messageTypes.pager
+    ) {
+      const inboundMessage = messageList.find(
+        (message) => message.direction === messageDirection.inbound,
+      );
+      if (!inboundMessage) {
+        this._deps.alert.warning({ message: 'noUnreadForOutboundMessages' });
+        return;
+      }
+      messageId = inboundMessage.id;
+    }
+    await super.unreadMessage(messageId);
   }
 }

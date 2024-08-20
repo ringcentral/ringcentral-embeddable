@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import BackHeader from '@ringcentral-integration/widgets/components/BackHeader';
-import Panel from '@ringcentral-integration/widgets/components/Panel';
-import SaveButton from '@ringcentral-integration/widgets/components/SaveButton';
+import { styled, RcButton } from '@ringcentral/juno';
+import saveButtonI18n from '@ringcentral-integration/widgets/components/SaveButton/i18n';
 
+import { BackHeaderView } from '../BackHeaderView';
 import { Ringtone } from './Ringtone';
 
-import styles from './styles.scss';
+const Panel = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 20px 16px;
+`;
 
 export const RingtoneSettingsPanel = ({
   onSave,
@@ -15,19 +20,19 @@ export const RingtoneSettingsPanel = ({
   defaultIncomingAudio,
   defaultIncomingAudioFile,
   onBackButtonClick,
+  ringtoneDeviceId,
+  ringtoneVolume,
 }) => {
   const [incomingAudioState, setIncomingAudioState] = useState(incomingAudio);
   const [incomingAudioFileState, setIncomingAudioFileState] = useState(
     incomingAudioFile,
   );
   return (
-    <div
-      className={styles.root}
+    <BackHeaderView
+      onBack={onBackButtonClick}
+      title="Ringtone settings"
     >
-      <BackHeader onBackClick={onBackButtonClick}>
-        Ringtone Settings
-      </BackHeader>
-      <Panel className={styles.content}>
+      <Panel>
         <Ringtone
           showRingToneSettings={true}
           currentLocale={currentLocale}
@@ -43,10 +48,11 @@ export const RingtoneSettingsPanel = ({
             setIncomingAudioState(defaultIncomingAudio);
             setIncomingAudioFileState(defaultIncomingAudioFile);
           }}
+          ringtoneDeviceId={ringtoneDeviceId}
+          ringtoneVolume={ringtoneVolume}
         />
         <br />
-        <SaveButton
-          currentLocale={currentLocale}
+        <RcButton
           onClick={() => {
             onSave({
               incomingAudio: incomingAudioState,
@@ -57,8 +63,11 @@ export const RingtoneSettingsPanel = ({
             incomingAudioState === incomingAudio &&
             incomingAudioFileState === incomingAudioFile
           }
-        />
+          fullWidth
+        >
+          {saveButtonI18n.getString('save', currentLocale)}
+        </RcButton>
       </Panel>
-    </div>
+    </BackHeaderView>
   );
 }

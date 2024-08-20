@@ -176,27 +176,35 @@ export class RcVideo extends RcVideoBase {
     const providers = providersData.providers.filter(p => p.isAuthorized);
     let allEvents = [];
     await Promise.all(providers.map(async (provider) => {
-      const calendersRes = await platform.get(`/rcvideo/v1/scheduling/providers/${provider.id}/calendars`)
-      const calendersData = await calendersRes.json();
-      const calendars = calendersData.calendars.filter(
-        c => c.isPrimary
-      );
-      const fromDate = new Date();
-      const toDate = new Date();
-      toDate.setDate(toDate.getDate() + 7)
-      await Promise.all(calendars.map(async (calendar) => {
-        const eventsRes = await platform.get(
-          `/rcvideo/v1/scheduling/providers/${provider.id}/calendars/${encodeURIComponent(calendar.id)}/events`,
-          {
-            includeNonRcEvents: true,
-            startTimeFrom: fromDate.toISOString(),
-            startTimeTo: toDate.toISOString(),
+      try {
+        const calendersRes = await platform.get(`/rcvideo/v1/scheduling/providers/${provider.id}/calendars`)
+        const calendersData = await calendersRes.json();
+        const calendars = calendersData.calendars.filter(
+          c => c.isPrimary
+        );
+        const fromDate = new Date();
+        const toDate = new Date();
+        toDate.setDate(toDate.getDate() + 7)
+        await Promise.all(calendars.map(async (calendar) => {
+          try {
+            const eventsRes = await platform.get(
+              `/rcvideo/v1/scheduling/providers/${provider.id}/calendars/${encodeURIComponent(calendar.id)}/events`,
+              {
+                includeNonRcEvents: true,
+                startTimeFrom: fromDate.toISOString(),
+                startTimeTo: toDate.toISOString(),
+              }
+            )
+            const eventsData = await eventsRes.json();
+            const events = eventsData.events;
+            allEvents = allEvents.concat(events);
+          } catch (e) {
+            console.error('Fetching events error:', e);
           }
-        )
-        const eventsData = await eventsRes.json();
-        const events = eventsData.events;
-        allEvents = allEvents.concat(events);
-      }));
+        }));
+      } catch (e) {
+        console.error('Fetching calendars error:', e);
+      }
     }));
     await Promise.all(Object.keys(this._thirdPartyProviders).map(async (name) => {
       const fetchFunc = this._thirdPartyProviders[name].fetchUpcomingMeetingList;

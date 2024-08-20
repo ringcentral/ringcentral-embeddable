@@ -60,6 +60,7 @@ module.exports = {
     },
     showFeedback: false,
     subBrands: [{ id: '3460', code: 'attub' }],
+    enableEDP: true,
   },
   brandFolder: __dirname,
   assetsFolder: path.resolve(__dirname, '../../src/assets/att'),

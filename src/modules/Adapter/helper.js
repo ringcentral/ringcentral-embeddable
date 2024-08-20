@@ -27,23 +27,7 @@ export function findExistedConversation(conversations, phoneNumber) {
 
 export function setOutputDeviceWhenCall(webphone, audioSettings) {
   if (webphone._webphone) {
-    if (webphone._remoteVideo && webphone._remoteVideo.setSinkId) {
-      if (audioSettings.outputDeviceId === 'default') {
-        const defaultDevice = audioSettings.outputDevice;
-        const defaultDeviceLabel = defaultDevice.label;
-        const deviceLabel = defaultDeviceLabel.split(' - ')[1];
-        if (deviceLabel) {
-          const device = audioSettings.availableOutputDevices.find(
-            (device) => device.label === deviceLabel
-          );
-          if (device) {
-            webphone._remoteVideo.setSinkId(device.deviceId);
-          }
-        }
-      } else {
-        webphone._remoteVideo.setSinkId(audioSettings.outputDeviceId);
-      }
-    }
+    audioSettings.getUserMedia(); // refresh audio devices
   }
 }
 

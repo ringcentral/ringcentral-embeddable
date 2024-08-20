@@ -18,6 +18,7 @@ import {
   action,
   track,
   watch,
+  computed,
 } from '@ringcentral-integration/core';
 import type {
   ObjectMapValue,
@@ -136,6 +137,23 @@ export class Webphone extends WebphoneBase {
         },
       );
     }
+    watch(
+      this,
+      () => this.shouldSetRingtoneSinkId,
+      () => {
+        if (
+          this.ready &&
+          this._webphone &&
+          this._webphone.userAgent &&
+          this._webphone.userAgent.audioHelper &&
+          this._webphone.userAgent.audioHelper.setDeviceId
+        ) {
+          this._webphone.userAgent.audioHelper.setDeviceId(
+            this._deps.audioSettings.ringtoneDeviceId,
+          );
+        }
+      },
+    );
   }
 
   _initMultipleTabsStateSyncing() {
@@ -518,6 +536,9 @@ export class Webphone extends WebphoneBase {
         incoming: this.incomingAudio,
         outgoing: this.outgoingAudio,
       });
+      this._webphone.userAgent.audioHelper.setDeviceId(
+        this._deps.audioSettings.ringtoneDeviceId,
+      );
     }
   }
 
@@ -562,5 +583,18 @@ export class Webphone extends WebphoneBase {
     webphoneSession.on('terminated', () => {
       this._deps.noiseReduction.reset(webphoneSession.id);
     });
+  }
+
+  @computed((that: WebphoneBase) => [
+    that.ready,
+    that._deps.audioSettings.supportDevices,
+    that._deps.audioSettings.ringtoneDeviceId,
+  ])
+  get shouldSetRingtoneSinkId(): any[] {
+    return [
+      this.ready,
+      this._deps.audioSettings.supportDevices,
+      this._deps.audioSettings.ringtoneDeviceId,
+    ];
   }
 }

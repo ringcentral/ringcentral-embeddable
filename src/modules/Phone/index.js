@@ -11,10 +11,6 @@ import RcModule from '@ringcentral-integration/commons/lib/RcModule';
 import {
   RingCentralClient,
 } from '@ringcentral-integration/commons/lib/RingCentralClient';
-// Contacts related modules
-import {
-  AccountContacts,
-} from '@ringcentral-integration/commons/modules/AccountContacts';
 // Base info modules
 import {
   AccountInfo,
@@ -24,9 +20,6 @@ import {
 } from '@ringcentral-integration/commons/modules/ActivityMatcher';
 // Foundation modules
 import { Alert } from '@ringcentral-integration/commons/modules/Alert';
-import {
-  AudioSettings,
-} from '@ringcentral-integration/commons/modules/AudioSettings';
 import {
   AvailabilityMonitor,
 } from '@ringcentral-integration/commons/modules/AvailabilityMonitor';
@@ -42,9 +35,6 @@ import {
 // SMS related modules
 // import { MessageStore } from '@ringcentral-integration/commons/modules/MessageStore';
 import {
-  ComposeText,
-} from '@ringcentral-integration/commons/modules/ComposeText';
-import {
   ConnectivityMonitor,
 } from '@ringcentral-integration/commons/modules/ConnectivityMonitor';
 import {
@@ -57,9 +47,6 @@ import {
 import {
   ConversationMatcher,
 } from '@ringcentral-integration/commons/modules/ConversationMatcher';
-import {
-  Conversations,
-} from '@ringcentral-integration/commons/modules/Conversations';
 import {
   DataFetcherV2,
 } from '@ringcentral-integration/commons/modules/DataFetcherV2';
@@ -117,15 +104,13 @@ import {
   VideoConfiguration,
 } from '@ringcentral-integration/commons/modules/VideoConfiguration';
 import {
-  WebSocketSubscription,
+  WebSocketSubscription as Subscription,
 } from '@ringcentral-integration/commons/modules/WebSocketSubscription';
+import { RingCentralExtensions } from '@ringcentral-integration/commons/modules/RingCentralExtensions';
 import {
   ActiveCallsUI,
 } from '@ringcentral-integration/widgets/modules/ActiveCallsUI';
 import { AlertUI } from '@ringcentral-integration/widgets/modules/AlertUI';
-import {
-  AudioSettingsUI,
-} from '@ringcentral-integration/widgets/modules/AudioSettingsUI';
 import {
   CallBadgeUI,
 } from '@ringcentral-integration/widgets/modules/CallBadgeUI';
@@ -150,17 +135,13 @@ import {
 import {
   ConnectivityManager,
 } from '@ringcentral-integration/widgets/modules/ConnectivityManager';
-import {
-  ContactDetailsUI,
-} from '@ringcentral-integration/widgets/modules/ContactDetailsUI';
+import { ContactDetailsUI } from '@ringcentral-integration/widgets/modules/ContactDetailsUI';
+import { ContactSearchUI } from '@ringcentral-integration/widgets/modules/ContactSearchUI';
 // UI modules
 import {
   ContactListUI,
 } from '@ringcentral-integration/widgets/modules/ContactListUI';
-import {
-  DialerAndCallsTabUI,
-} from '@ringcentral-integration/widgets/modules/DialerAndCallsTabUI';
-import { DialerUI } from '@ringcentral-integration/widgets/modules/DialerUI';
+
 import { FlipUI } from '@ringcentral-integration/widgets/modules/FlipUI';
 import {
   GenericMeetingUI,
@@ -189,20 +170,26 @@ import hackSend from '../../lib/hackSend';
 import lockRefresh from '../../lib/lockRefresh';
 import { ActiveCallControl } from '../ActiveCallControl';
 import Adapter from '../Adapter';
+import { AccountContacts } from '../AccountContacts';
 import { AddressBook } from '../AddressBook';
 import { Analytics } from '../Analytics';
 import { AppFeatures } from '../AppFeatures';
 import { Auth } from '../Auth';
+import { AudioSettings } from '../AudioSettings';
+import { AudioSettingsUI } from '../AudioSettingsUI';
+import { PhoneTabsUI } from '../PhoneTabsUI';
 import { CallControlUI } from '../CallControlUI';
 import { CallHistory } from '../CallHistory';
+import { CallsListUI } from '../CallsListUI';
 import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
 import { CallLogger } from '../CallLogger';
-import { CallLogSection } from '../CallLogSection';
 import { CallQueues } from '../CallQueues';
+import { ComposeText } from '../ComposeText';
 import { ComposeTextUI } from '../ComposeTextUI';
 import { ConferenceCall } from '../ConferenceCall';
 import { ConversationLogger } from '../ConversationLogger';
+import { Conversations } from '../Conversations';
 import { ConversationsUI } from '../ConversationsUI';
 import { ConversationUI } from '../ConversationUI';
 import { DynamicBrand } from '../DynamicBrand';
@@ -223,19 +210,18 @@ import { RcVideo } from '../RcVideo';
 import { RingtoneSettingsUI } from '../RingtoneSettingsUI';
 import { SettingsUI } from '../SettingsUI';
 import { Storage } from '../Storage';
-import {
-  GenericSubscription as Subscription,
-} from '../Subscription';  // TODO: wsg subscription
-import { PubnubReadyController } from '../Subscription/PubnubReadyController';
-import { PubnubSubscription } from '../Subscription/PubnubSubscription';
-import { RingCentralExtensions } from '../Subscription/RingCentralExtensions';
-import {
-  WebSocketReadyController,
-} from '../Subscription/WebSocketReadyController';
 import { TabManager } from '../TabManager';
 import ThirdPartyService from '../ThirdPartyService';
 import { ThirdPartySettingSectionUI } from '../ThirdPartySettingSectionUI';
+import { LogCallUI } from '../LogCallUI';
+import { LogMessagesUI } from '../LogMessagesUI';
 import { Webphone } from '../Webphone';
+import { MainViewUI } from '../MainViewUI';
+import { DialerUI } from '../DialerUI';
+import { CustomizedPageUI } from '../CustomizedPageUI';
+import { SmsTemplates } from '../SmsTemplates';
+import { SmartNotes } from '../SmartNotes';
+import { SideDrawerUI } from '../SideDrawerUI';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -248,6 +234,8 @@ import { Webphone } from '../Webphone';
     { provide: 'DynamicBrand', useClass: DynamicBrand },
     { provide: 'Theme', useClass: Theme },
     { provide: 'ThemeUI', useClass: ThemeUI },
+    { provide: 'MainViewUI', useClass: MainViewUI },
+    { provide: 'SideDrawerUI', useClass: SideDrawerUI },
     { provide: 'Locale', useClass: Locale },
     { provide: 'TabManager', useClass: TabManager },
     { provide: 'GlobalStorage', useClass: GlobalStorage },
@@ -276,10 +264,6 @@ import { Webphone } from '../Webphone';
     { provide: 'ContactMatcher', useClass: ContactMatcher },
     { provide: 'Subscription', useClass: Subscription },
     { provide: 'RingCentralExtensions', useClass: RingCentralExtensions },
-    { provide: 'PubnubReadyController', useClass: PubnubReadyController },
-    { provide: 'WebSocketReadyController', useClass: WebSocketReadyController },
-    { provide: 'PubnubSubscription', useClass: PubnubSubscription },
-    { provide: 'WebSocketSubscription', useClass: WebSocketSubscription },
     { provide: 'RegionSettings', useClass: RegionSettings },
     { provide: 'NumberValidate', useClass: NumberValidate },
     { provide: 'NoiseReduction', useClass: NoiseReduction },
@@ -296,20 +280,24 @@ import { Webphone } from '../Webphone';
     { provide: 'ComposeTextUI', useClass: ComposeTextUI },
     { provide: 'ConversationsUI', useClass: ConversationsUI },
     { provide: 'ConversationUI', useClass: ConversationUI },
+    { provide: 'LogMessagesUI', useClass: LogMessagesUI },
     { provide: 'CallMonitor', useClass: CallMonitor },
     { provide: 'CallHistory', useClass: CallHistory },
+    { provide: 'CallsListUI', useClass: CallsListUI },
     { provide: 'CallLogger', useClass: CallLogger },
-    { provide: 'CallLogSection', useClass: CallLogSection },
+    { provide: 'LogCallUI', useClass: LogCallUI },
     { provide: 'ActivityMatcher', useClass: ActivityMatcher },
     { provide: 'ConversationMatcher', useClass: ConversationMatcher },
     { provide: 'ContactSearch', useClass: ContactSearch },
     { provide: 'MessageStore', useClass: MessageStore },
     { provide: 'Conversations', useClass: Conversations },
+    { provide: 'SmsTemplates', useClass: SmsTemplates },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'CallQueues', useClass: CallQueues },
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetailsUI', useClass: ContactDetailsUI },
+    { provide: 'ContactSearchUI', useClass: ContactSearchUI },
     { provide: 'ContactListUI', useClass: ContactListUI},
     { provide: 'DialerUI', useClass: DialerUI },
     { provide: 'Adapter', useClass: Adapter },
@@ -408,6 +396,22 @@ import { Webphone } from '../Webphone';
     { provide: 'Meeting', useClass: Meeting },
     { provide: 'Analytics', useClass: Analytics },
     { provide: 'ConversationLogger', useClass: ConversationLogger },
+    { provide: 'ConversationLoggerOptions',
+      useValue: {
+        isLoggedContact: (conversation, activity, contact) => {
+          return (
+            activity &&
+            contact &&
+            activity.contact &&
+            (
+              activity.contact === contact.id ||
+              activity.contactId === contact.id ||
+              activity.contact.id === contact.id
+            )
+          )
+        }
+      }
+    },
     { provide: 'ActiveCallsUI', useClass: ActiveCallsUI },
     { provide: 'LoginUI', useClass: LoginUI },
     { provide: 'SettingsUI', useClass: SettingsUI },
@@ -415,7 +419,7 @@ import { Webphone } from '../Webphone';
     { provide: 'CallControlUI', useClass: CallControlUI },
     { provide: 'CallHistoryUI', useClass: CallHistoryUI },
     { provide: 'CallsOnholdUI', useClass: CallsOnholdUI },
-    { provide: 'DialerAndCallsTabUI', useClass: DialerAndCallsTabUI },
+    { provide: 'PhoneTabsUI', useClass: PhoneTabsUI },
     { provide: 'IncomingCallUI', useClass: IncomingCallUI },
     { provide: 'FlipUI', useClass: FlipUI },
     { provide: 'TransferUI', useClass: TransferUI },
@@ -460,7 +464,9 @@ import { Webphone } from '../Webphone';
         disconnectOnInactive: true,
       },
     },
-    { provide: 'ThirdPartySettingSectionUI', useClass: ThirdPartySettingSectionUI},
+    { provide: 'ThirdPartySettingSectionUI', useClass: ThirdPartySettingSectionUI },
+    { provide: 'CustomizedPageUI', useClass: CustomizedPageUI },
+    { provide: 'SmartNotes', useClass: SmartNotes },
   ]
 })
 export default class BasePhone extends RcModule {
@@ -531,20 +537,20 @@ export default class BasePhone extends RcModule {
       }
 
       if (!currentSession && ringSession) {
-        routerInteraction.push('/calls');
+        routerInteraction.push('/history');
         return;
       }
 
-      if (
-        routerInteraction.currentPath === '/calls'
-        && !callMonitor.activeRingCalls.length
-        && !callMonitor.activeOnHoldCalls.length
-        && !callMonitor.activeCurrentCalls.length
-        && !conferenceCall.isMerging
-        // && callMonitor.otherDeviceCalls.length === 0
-      ) {
-        routerInteraction.replace('/dialer');
-      }
+      // if (
+      //   routerInteraction.currentPath === '/history'
+      //   && !callMonitor.activeRingCalls.length
+      //   && !callMonitor.activeOnHoldCalls.length
+      //   && !callMonitor.activeCurrentCalls.length
+      //   && !conferenceCall.isMerging
+      //   // && callMonitor.otherDeviceCalls.length === 0
+      // ) {
+      //   routerInteraction.replace('/dialer');
+      // }
     });
     webphone.onCallInit((session) => {
       const path = `/calls/active/${session.id}`;
@@ -572,8 +578,8 @@ export default class BasePhone extends RcModule {
     });
     webphone.onCallRing((session) => {
       if (webphone.ringSessions.length > 1) {
-        if (routerInteraction.currentPath !== '/calls') {
-          routerInteraction.push('/calls');
+        if (routerInteraction.currentPath !== '/history') {
+          routerInteraction.push('/history');
         }
         webphone.ringSessions.forEach((session) => {
           if (!session.minimized) {
@@ -639,7 +645,7 @@ export default class BasePhone extends RcModule {
       if (webphone.connected) {
         return;
       }
-      routerInteraction.push('/calls');
+      routerInteraction.push('/history');
     });
 
     callMonitor.onCallUpdated((call) => {
@@ -648,7 +654,7 @@ export default class BasePhone extends RcModule {
         webphone.connected &&
         webphone.sessions.length === 0
       ) {
-        routerInteraction.push('/calls');
+        routerInteraction.push('/history');
       }
     });
 
@@ -687,6 +693,9 @@ export default class BasePhone extends RcModule {
           } else {
             this.routerInteraction.push('/settings');
           }
+        }
+        if (this.routerInteraction.currentPath === '/calls') {
+          this.routerInteraction.push('/history'); // redirect to history
         }
       }
     });
@@ -735,12 +744,14 @@ export function createPhone({
   enableWebRTCPlanB,
   fromPopup,
   enableRingtoneSettings,
-  enableNoiseReductionSetting,
+  disableNoiseReduction,
   brandBaseUrl,
   showSignUpButton,
   defaultAutoLogCallEnabled,
   defaultAutoLogMessageEnabled,
   isUsingDefaultClientId,
+  enableSMSTemplate,
+  enableSmartNote,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -862,7 +873,10 @@ export function createPhone({
           Contacts: !disableContacts,
           CDC: true, // CompanyDirectoryControl,
           SignUpButton: showSignUpButton,
-          NoiseReduction: enableNoiseReductionSetting,
+          NoiseReduction: !disableNoiseReduction,
+          SMSTemplate: !!enableSMSTemplate,
+          SmartNote: !!enableSmartNote,
+          EDP: true,
         },
       },
       {

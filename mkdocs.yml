@@ -124,6 +124,7 @@ nav:
     - 'View upcoming meetings': integration/upcoming-meetings.md
     - 'VCard click handling': integration/vcard-clicks.md
     - 'SMS toolbar button': 'integration/sms-toolbar-button.md'
+    - 'Do not contact': integration/do-not-contact.md
   - 'User interface customization':
     - 'Call logging form': integration/custom-call-log-page.md
     - 'Pages': integration/custom-page.md

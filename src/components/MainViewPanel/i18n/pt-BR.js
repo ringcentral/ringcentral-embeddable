@@ -1,15 +1,22 @@
 export default {
   dialpadLabel: "Teclado de discagem",
+  phoneLabel: "Telefone",
   callsLabel: "Chamadas",
   historyLabel: "Histórico",
+  recordingsLabel: 'Gravações',
   messagesLabel: "Mensagens",
-  moreMenuLabel: "Menu Mais",
+  inboxLabel: "Caixa de entrada",
+  textLabel: 'Texto',
+  voicemailLabel: 'Caixa postal',
+  faxLabel: 'Fax',
+  moreMenuLabel: "Mais",
   contactsLabel: "Contatos",
-  meetingLabel: "Agendar reuniões",
+  meetingLabel: "Vídeo",
   conferenceLabel: "Agendar conferência",
   hangoutsLabel: "Iniciar Hangouts",
   hangoutsTitle: "Iniciar Hangouts com sistema de conferência",
-  settingsLabel: "Configurações"
+  settingsLabel: "Configurações",
+  composeText: "Criar texto",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

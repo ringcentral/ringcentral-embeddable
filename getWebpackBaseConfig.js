@@ -49,10 +49,15 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
         process: 'process/browser.js',
         Buffer: ['buffer', 'Buffer'],
       }),
-      // new webpack.NormalModuleReplacementPlugin(
-      //   /@ringcentral-integration\/commons\/lib\/Tabbie.js/,
-      //   path.resolve(__dirname, './vendors/commons/lib/Tabbie.js'),
-      // ),
+      // override LogButton
+      new webpack.NormalModuleReplacementPlugin(
+        /@ringcentral-integration\/widgets\/components\/LogButton\/index.js/,
+        path.resolve(__dirname, './vendor/LogButton/index.js'),
+      ),
+      new webpack.NormalModuleReplacementPlugin(
+        /@ringcentral-integration\/widgets\/components\/LogButton\/index.js.map/,
+        path.resolve(__dirname, './vendor/LogButton/index.js.map'),
+      ),
     ],
     module: {
       rules: [

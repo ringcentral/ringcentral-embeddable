@@ -1,7 +1,7 @@
 const {
   setBrowserPermission,
   visitIndexPage,
-  getLoginedWidget,
+  getAuthorizedWidget,
 } = require('./steps/common');
 
 const hasUserLoginInfo = global.__JWT_TOKEN__;
@@ -16,7 +16,7 @@ conditionalDescribe('widget page test', () => {
   beforeAll(async () => {
     await setBrowserPermission();
     await visitIndexPage();
-    widgetIframe = await getLoginedWidget(__JWT_TOKEN__);
+    widgetIframe = await getAuthorizedWidget(__JWT_TOKEN__);
   });
 
   it('should login successfully', async () => {
@@ -31,18 +31,44 @@ conditionalDescribe('widget page test', () => {
     expect(noTimeout).toEqual(true);
   });
 
-  it('should goto history page successfully', async () => {
-    await widgetIframe.clickNavigationButton('History');
+  it('should goto calls page successfully', async () => {
+    await widgetIframe.clickSubTab('Calls', '/history');
+    const callItems = await widgetIframe.getCallItemList();
+    const noCallsText = await widgetIframe.getNoCallsText();
+    const isNoCalls = noCallsText === 'No results found.';
+    expect(callItems.length > 0 || isNoCalls).toEqual(true);
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Phone');
+  });
+
+  it('should goto voicemail page successfully', async () => {
+    await widgetIframe.clickSubTab('Voicemail', '/messages/voicemail');
+    const voicemailItems = await widgetIframe.getMessageList('VoiceMailMessageItem');
+    const noVoicemailText = await widgetIframe.getNoMessageText();
+    const isNoVoicemail = noVoicemailText === 'No Messages';
+    expect(voicemailItems.length > 0 || isNoVoicemail).toEqual(true);
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Phone');
+  });
+
+  it('should goto recordings page successfully', async () => {
+    await widgetIframe.clickSubTab('Recordings', '/history/recordings');
     const callItems = await widgetIframe.getCallItemList();
     const noCallsText = await widgetIframe.getNoCallsText();
     const isNoCalls = noCallsText === 'No results found.';
     expect(callItems.length > 0 || isNoCalls).toEqual(true);
   });
 
-  it('should goto messages page successfully', async () => {
-    await widgetIframe.clickNavigationButton('Messages');
-    const allTabText = await widgetIframe.getMessageAllTabText();
-    expect(allTabText).toEqual('All');
+  it('should goto fax page successfully', async () => {
+    await widgetIframe.clickNavigationButton('Fax');
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Fax');
+  });
+
+  it('should goto text page successfully', async () => {
+    await widgetIframe.clickNavigationButton('Text');
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Text');
   });
 
   it('should goto Compose Text page successfully', async () => {
@@ -54,59 +80,72 @@ conditionalDescribe('widget page test', () => {
     await widgetIframe.clickSMSSendButton();
     const lastTextInConversation = await widgetIframe.getLastTextAtConversation();
     expect(lastTextInConversation).toEqual(text);
+    await widgetIframe.clickBackButton();
   });
 
   it('should goto contacts page successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Contacts');
+    await widgetIframe.clickNavigationButton('Contacts');
+    await widgetIframe.waitForTimeout(1000);
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Contacts');
     const contactSearchInput = await widgetIframe.getContactSearchInput();
     expect(!!contactSearchInput).toEqual(true);
   });
 
   it('should goto settings page successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Settings');
-    const eluaText = await widgetIframe.getELUAText();
-    expect(eluaText).toEqual('End User License Agreement');
+    await widgetIframe.gotoSettingsPage();
+    const title = await widgetIframe.getTabHeader();
+    expect(title).toEqual('Settings');
   });
 
   it('should goto region setting page successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Settings');
-    await widgetIframe.clickSettingSection('Region');
+    await widgetIframe.gotoSettingsPage();
+    await widgetIframe.waitForTimeout(1000);
+    await widgetIframe.clickSettingSection('region');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Region');
+    await widgetIframe.clickBackButton();
+  });
+
+  it('should goto audio setting page successfully', async () => {
+    await widgetIframe.gotoSettingsPage();
+    await widgetIframe.waitForTimeout(1000);
+    await widgetIframe.clickSettingSection('audio');
+    const headerLabel = await widgetIframe.getHeaderLabel();
+    expect(headerLabel).toEqual('Audio');
+    await widgetIframe.clickBackButton();
+  });
+
+  it('should goto calling setting page successfully', async () => {
+    await widgetIframe.gotoSettingsPage();
+    await widgetIframe.clickSettingSection('calling');
+    const headerLabel = await widgetIframe.getHeaderLabel();
+    expect(headerLabel).toEqual('Calling');
+    await widgetIframe.clickBackButton();
   });
 
   it('should goto Compose Text page when click SMS link', async () => {
-    await widgetIframe.waitForNavigations();
+    await widgetIframe.waitForNavigation();
     const smsLink = await page.$('a[href="sms:+12345678901"]');
     await smsLink.evaluate(l => l.click());
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     expect(recipientNumber).toEqual('+12345678901');
+    await widgetIframe.clickBackButton();
   });
 
   it('should goto Compose Text page when click SMS link with body', async () => {
-    await widgetIframe.waitForNavigations();
+    await widgetIframe.waitForNavigation();
     const smsLink = await page.$('a[href="sms:+12345678902?body=test_sms"]');
     await smsLink.evaluate(l => l.click());
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     const text = await widgetIframe.getSMSText();
     expect(recipientNumber).toEqual('+12345678902');
     expect(text).toEqual('test_sms');
-  });
-
-  it('should goto calling setting page successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Settings');
-    await widgetIframe.clickSettingSection('Calling');
-    const headerLabel = await widgetIframe.getHeaderLabel();
-    expect(headerLabel).toEqual('Calling');
+    await widgetIframe.clickBackButton();
   });
 
   it('should register service successfully', async () => {
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Settings');
+    await widgetIframe.gotoSettingsPage();
     await page.evaluate(() => {
       const iframe = document.querySelector("#rc-widget-adapter-frame").contentWindow;
       window.addEventListener('message', function (e) {
@@ -135,28 +174,101 @@ conditionalDescribe('widget page test', () => {
                 syncTimestamp: Date.now()
               },
             }, '*');
+            return;
           }
+          iframe.postMessage({
+            type: 'rc-post-message-response',
+            responseId: data.requestId,
+            response: 'ok',
+          }, '*');
         }
       });
       iframe.postMessage({
         type: 'rc-adapter-register-third-party-service',
         service: {
           name: 'TestService',
+          authorized: true,
+          authorizedAccount: 'TestAccount',
           authorizationPath: '/authorize',
           authorizedTitle: 'Unauthorize',
           unauthorizedTitle: 'Authorize',
           contactsPath: '/contacts',
-          authorized: true,
+          callLoggerPath: '/callLogger',
+          callLoggerTitle: 'Log to TestService',
+          messageLoggerPath: '/messageLogger',
+          messageLoggerTitle: 'Log to TestService',
+          settingsPath: '/settings',
+          settings: [{
+            "id": 'openLoggingPageAfterCall',
+            "type": 'boolean',
+            "name": 'Open call logging page after call',
+            "value": true,
+            "groupId": 'logging',
+          }, {
+            "id": 'contacts',
+            "type": 'section',
+            "name": 'Contacts',
+            "items": [
+              {
+                "id": "info",
+                "name": "info",
+                "type": "admonition",
+                "severity": "info",
+                "value": "Please authorize ThirdPartyService firstly",
+              },
+              {
+                "id": "introduction",
+                "name": "Introduction",
+                "type": "typography",
+                "variant": "body2",
+                "value": "Update ThirdPartyService contact settings",
+              },
+              {
+                "id": 'openPlaceholderContact',
+                "type": 'boolean',
+                "name": 'Open placeholder contact upon creation',
+                "value": false,
+              },
+              {
+                "name": "Phone number format alternatives",
+                "id": "phoneFormat",
+                "value": "(***) ***-****)",
+                "type": "string",
+              },
+            ],
+          }, {
+            "id": "support",
+            "type": "group",
+            "name": "Support",
+            "items": [{
+              "id": "document",
+              "type": "externalLink",
+              "name": "Document",
+              "uri": "https://ringcentral.github.io/ringcentral-embbeddable/docs/",
+            }, {
+              "id": "feedback",
+              "type": "button",
+              "name": "Feedback",
+              "buttonLabel": "Open",
+              "buttonType": "link",
+            }],
+          }],
         },
       }, '*');
     });
     const serviceName = await widgetIframe.getServiceNameInAuthorizationSettings();
     expect(serviceName).toEqual('TestService');
-    await widgetIframe.clickNavigationButton('More Menu');
-    await widgetIframe.clickDropdownNavigationMenu('Contacts');
+    await widgetIframe.clickSettingSection('logging');
+    const openLoggingPageAfterCall = await widgetIframe.getSettingSection('thirdPartySettings-openLoggingPageAfterCall');
+    expect(!!openLoggingPageAfterCall).toEqual(true);
+    const contactsSection = await widgetIframe.getSettingSection('contacts');
+    expect(!!contactsSection).toEqual(true);
+    const supportSection = await widgetIframe.getSettingSection('support');
+    expect(!!supportSection).toEqual(true);
+    await widgetIframe.clickNavigationButton('Contacts');
     const contactsFilters = await widgetIframe.getContactFilters();
-    expect(contactsFilters).toEqual(expect.stringContaining('TestService'));
-    await page.waitForTimeout(1500);
+    expect(contactsFilters).toContain('TestService');
+    await widgetIframe.waitForTimeout(1500);
     const contacts = await widgetIframe.getContactNames();
     expect(contacts).toEqual(expect.arrayContaining(['TestService Name']));
   });

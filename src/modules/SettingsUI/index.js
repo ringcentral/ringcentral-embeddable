@@ -10,8 +10,6 @@ import {
     'ConversationLogger',
     'ThirdPartyService',
     'AudioSettings',
-    'NoiseReduction',
-    'Webphone',
   ]
 })
 export class SettingsUI extends BaseSettingsUI {
@@ -23,8 +21,6 @@ export class SettingsUI extends BaseSettingsUI {
       appFeatures,
       thirdPartyService,
       audioSettings,
-      noiseReduction,
-      webphone,
     } = this._deps;
     return {
       ...baseProps,
@@ -42,15 +38,23 @@ export class SettingsUI extends BaseSettingsUI {
       authorizedTitle: thirdPartyService.authorizedTitle,
       unauthorizedTitle: thirdPartyService.unauthorizedTitle,
       thirdPartyServiceName: thirdPartyService.serviceName,
+      thirdPartyServiceInfo: thirdPartyService.serviceInfo,
       authorizationLogo: thirdPartyService.authorizationLogo,
       authorizedAccount: thirdPartyService.authorizedAccount,
       showAuthRedDot: thirdPartyService.showAuthRedDot,
       showFeedback: thirdPartyService.showFeedback,
       thirdPartySettings: thirdPartyService.settings,
-      showRingtoneSettings: appFeatures.ringtonePermission,
-      noiseReductionEnabled: noiseReduction.enabled,
-      showNoiseReductionSetting: appFeatures.showNoiseReductionSetting,
-      disableNoiseReductionSetting: webphone.sessions.length > 0,
+      thirdPartyAuth: thirdPartyService.authorizationRegistered ? {
+        serviceName: thirdPartyService.serviceName,
+        serviceInfo: thirdPartyService.serviceInfo,
+        authorized: thirdPartyService.authorized,
+        contactSyncing: thirdPartyService.contactSyncing,
+        authorizedTitle: thirdPartyService.authorizedTitle,
+        unauthorizedTitle: thirdPartyService.unauthorizedTitle,
+        authorizationLogo: thirdPartyService.authorizationLogo,
+        authorizedAccount: thirdPartyService.authorizedAccount,
+        showAuthRedDot: thirdPartyService.showAuthRedDot,
+      } : null,
     }
   }
 
@@ -74,10 +78,6 @@ export class SettingsUI extends BaseSettingsUI {
         ...setting,
         value: !setting.value,
       }),
-      gotoRingtoneSettings: () => routerInteraction.push('/settings/ringtone'),
-      onNoiseReductionChange: () => {
-        this._deps.noiseReduction.setEnabled(!this._deps.noiseReduction.enabled);
-      },
       gotoThirdPartySection: (sectionId) => {
         routerInteraction.push(`/settings/thirdParty/${sectionId}`);
       },

@@ -13,7 +13,7 @@ import { phoneTypes } from '@ringcentral-integration/commons/enums/phoneTypes';
 import { Deps } from './CallQueue.interface';
 
 @Module({
-  name: 'CallerId',
+  name: 'CallQueues',
   deps: [
     'Client',
     'DataFetcherV2',

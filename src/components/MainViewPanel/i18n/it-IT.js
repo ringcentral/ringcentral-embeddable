@@ -1,15 +1,22 @@
 export default {
   dialpadLabel: "Tastierino",
+  phoneLabel: "Telefono",
   callsLabel: "Chiamate",
   historyLabel: "Cronologia",
+  recordingsLabel: 'Registrazioni',
   messagesLabel: "Messaggi",
-  moreMenuLabel: "Menu Altro",
+  inboxLabel: "In entrata",
+  textLabel: 'SMS',
+  voicemailLabel: 'Segreteria telefonica',
+  faxLabel: 'Fax',
+  moreMenuLabel: "Altro",
   contactsLabel: "Contatti",
-  meetingLabel: "Programma riunione",
+  meetingLabel: "Video",
   conferenceLabel: "Programma conferenza",
   hangoutsLabel: "Avvia Hangouts",
   hangoutsTitle: "Avvia Hangouts con il servizio di conferenza",
-  settingsLabel: "Impostazioni"
+  settingsLabel: "Impostazioni",
+  composeText: "Componi SMS",
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@
