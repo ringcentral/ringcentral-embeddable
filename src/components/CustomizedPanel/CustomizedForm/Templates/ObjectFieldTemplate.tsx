@@ -64,17 +64,24 @@ export default function ObjectFieldTemplate<
         />
       )}
       <Grid container={true} spacing={2} style={{ marginTop: '10px' }}>
-        {properties.map((element, index) =>
+        {properties.map((element, index) => {
           // Remove the <Grid> if the inner element is hidden as the <Grid>
           // itself would otherwise still take up space.
-          element.hidden ? (
-            element.content
-          ) : (
-            <Grid item={true} xs={12} key={index} style={{ marginBottom: '10px' }}>
+          if (element.hidden) {
+            return element.content;
+          }
+          const uiSchemaProperty = uiSchema?.[element.name] || {};
+          const style = uiSchemaProperty?.['ui:bulletedList'] ? {
+            marginLeft: '16px',
+          } : {
+            marginBottom: '10px'
+          };
+          return (
+            <Grid item={true} xs={12} key={index} style={style}>
               {element.content}
             </Grid>
-          )
-        )}
+          );
+        })}
         {canExpand<T, S, F>(schema, uiSchema, formData) && (
           <Grid container justifyContent='flex-end'>
             <Grid item={true}>
