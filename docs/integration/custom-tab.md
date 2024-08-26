@@ -106,7 +106,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 ## Handle button clicked and input changed event
 
-Register service first:
+Pass `buttonEventPath` and `customizedPageInputChangedEventPath` when you register service:
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({

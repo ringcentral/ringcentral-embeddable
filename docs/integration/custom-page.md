@@ -102,3 +102,58 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 ```
 
 ![customized page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/2a20feaf-1336-4559-a488-ed327dd49ddc)
+
+## Handle button clicked and input changed event
+
+Pass `buttonEventPath` and `customizedPageInputChangedEventPath` when you register service:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    customizedPageInputChangedEventPath: '/customizedPage/inputChanged',
+    buttonEventPath: '/button-click',
+  }
+}, '*');
+```
+
+Add event listener to get button clicked and input changed event:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/customizedPage/inputChanged') {
+      console.log(data); // get input changed data in here: data.body.input
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+      // you can re-register page data here to update the page
+      return;
+    }
+    if (data.path === '/button-click') {
+      if (data.body.button.id === 'page1') {
+        // on submit button click
+        // button id is the page id
+        console.log('Save button clicked');
+        // ...
+      }
+      if (data.body.button.id === 'openSettingsButton') {
+        // click on the button registered in schema, button id is the button key
+        console.log('Open settings button clicked');
+        // ...
+      }
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+  }
+});
+```
+
+When the user clicks the button, you will receive a message with the path `/button-click`. When the user changes the input, you will receive a message with the path `/customizedPage/inputChanged`.
