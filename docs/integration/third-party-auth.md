@@ -9,12 +9,14 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-register-third-party-service',
   service: {
     name: 'TestService',
+    displayName: 'TestServiceDisplayName', // Optional, supported from 2.0.1
+    info: 'Some description about this service', // Optional, supported from 2.0.0
     authorizationPath: '/authorize',
     authorizedTitle: 'Unauthorize',
     unauthorizedTitle: 'Authorize',
     authorized: false,
     authorizedAccount: 'test@email.com', // optional, authorized account email or id
-    authorizationLogo: 'https://your_brand_picture/logo.png', // optional, show your brand logo in authorization section, recommended: height 20px, width < 85px.
+    authorizationLogo: 'https://your_brand_picture/logo.png', // optional, show your brand logo in authorization section, recommended: height 30px, width < 85px.
     // showAuthRedDot: true, // optional, this will show red dot at settings page when need to auth
   }
 }, '*');

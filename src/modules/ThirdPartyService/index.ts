@@ -104,6 +104,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         this._registerService({
           serviceName: service.name,
+          serviceDisplayName: service.displayName,
           serviceInfo: service.info || '',
         });
         if (service.authorizationPath) {
@@ -983,6 +984,9 @@ export default class ThirdPartyService extends RcModuleV2 {
   serviceName = null;
 
   @state
+  displayName = null;
+
+  @state
   serviceInfo = null;
 
   @state
@@ -991,9 +995,13 @@ export default class ThirdPartyService extends RcModuleV2 {
   @action
   _registerService({
     serviceName,
+    serviceDisplayName,
     serviceInfo,
   }) {
     this.serviceName = serviceName;
+    if (serviceDisplayName) {
+      this.displayName = serviceDisplayName;
+    }
     this._sourceReady = true;
     this.serviceInfo = serviceInfo;
   }
