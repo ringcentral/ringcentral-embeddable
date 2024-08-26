@@ -1909,12 +1909,14 @@
 <span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">displayName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestServiceDisplayName&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Optional, supported from 2.0.1</span>
+<span class="w">    </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Some description about this service&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Optional, supported from 2.0.0</span>
 <span class="w">    </span><span class="nx">authorizationPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/authorize&#39;</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">authorizedTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Unauthorize&#39;</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">unauthorizedTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Authorize&#39;</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">authorized</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">authorizedAccount</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;test@email.com&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, authorized account email or id</span>
-<span class="w">    </span><span class="nx">authorizationLogo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://your_brand_picture/logo.png&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, show your brand logo in authorization section, recommended: height 20px, width &lt; 85px.</span>
+<span class="w">    </span><span class="nx">authorizationLogo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://your_brand_picture/logo.png&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, show your brand logo in authorization section, recommended: height 30px, width &lt; 85px.</span>
 <span class="w">    </span><span class="c1">// showAuthRedDot: true, // optional, this will show red dot at settings page when need to auth</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
