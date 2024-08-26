@@ -272,4 +272,170 @@ conditionalDescribe('widget page test', () => {
     const contacts = await widgetIframe.getContactNames();
     expect(contacts).toEqual(expect.arrayContaining(['TestService Name']));
   });
+
+  it('should register customized page and tab successfully', async () => {
+    await page.evaluate(() => {
+      const iframe = document.querySelector("#rc-widget-adapter-frame").contentWindow;
+      iframe.postMessage({
+        type: 'rc-adapter-register-customized-page',
+        page: {
+          id: 'crmTab',
+          title: 'CRM',
+          type: 'tab',
+          hidden: false,
+          priority: 31,
+          unreadCount: 1,
+          iconUri: 'https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/d23f7dbf-fcf7-4011-a538-16adfba06a66',
+          activeIconUri: 'https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/10a1edf9-9837-4dec-8950-7ec81b14be4d',
+          schema: {
+            type: 'object',
+            properties: {
+              "search": {
+                "type": "string",
+              },
+              "opportunity": {
+                "type": "string",
+                "oneOf": [{
+                  "const": "opportunity1",
+                  "title": "Opportunity 1",
+                  "description": "This is a description message",
+                  "meta": "4/18",
+                  "icon": "https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/f3cdcd56-372f-4c45-8972-fe85ce177903",
+                }, {
+                  "const": "opportunity2",
+                  "title": "Opportunity 2",
+                  "description": "This is a description message 2",
+                  "meta": "4/15",
+                  "icon": "https://ringcentral.github.io/juno/static/media/avatar.fe411800.jpg"
+                }]
+              }
+            },
+          },
+          uiSchema: {
+            search: {
+              "ui:placeholder": 'Search',
+              "ui:label": false,
+            },
+            opportunity: {
+              "ui:field": "list",
+              "ui:showIconAsAvatar": false, // show icon as avatar (round) in list
+            },
+          },
+          formData: {
+            search: '',
+            opportunity: '',
+          },
+        },
+      }, '*');
+      iframe.postMessage({
+        type: 'rc-adapter-register-customized-page',
+        page: {
+          id: 'page1',
+          title: 'Customized page 1',
+          type: 'page',
+          schema: {
+            type: 'object',
+            required: ['contactType', 'defaultContactName'],
+            properties: {
+              "warning": {
+                "type": "string",
+                "description": "Please authorize the CRM to use this feature."
+              },
+              "someTitle": {
+                "type": "string",
+                "description": "Note title",
+              },
+              "someMessage": {
+                "type": "string",
+                "description": "This is a description message"
+              },
+              "someMessage1": {
+                "type": "string",
+                "description": "This is a description message 2"
+              },
+              "openSettingsButton": {
+                "type": "string",
+                "title": "Open CRM settings",
+              },
+              "contactType": {
+                "type": "string",
+                "title": "Default link type",
+                "oneOf": [
+                  {
+                    "const": "candidate",
+                    "title": "Candidate"
+                  },
+                  {
+                    "const": "contact",
+                    "title": "Contact"
+                  }
+                ],
+              },
+              "defaultContactName": {
+                "type": "string",
+                "title": "Default contact name",
+              },
+              "defaultNote": {
+                "type": "string",
+                "title": "Default note",
+              },
+            },
+          },
+          uiSchema: {
+            submitButtonOptions: {
+              submitText: 'Save',
+            },
+            openSettingsButton: {
+              "ui:field": "button",
+              "ui:variant": "contained", // "text", "outlined", "contained", "plain"
+              "ui:fullWidth": true
+            },
+            warning: {
+              "ui:field": "admonition",
+              "ui:severity": "warning",
+            },
+            someTitle: {
+              "ui:field": "typography",
+              "ui:variant": "body2"
+            },
+            someMessage: {
+              "ui:field": "typography",
+              "ui:bulletedList": true,
+            },
+            someMessage1: {
+              "ui:field": "typography",
+              "ui:bulletedList": true,
+            },
+            defaultContactName: {
+              "ui:placeholder": 'Enter default contact name',
+            },
+            defaultNote: {
+              "ui:placeholder": 'Enter default note',
+              "ui:widget": "textarea", // show note input as textarea
+              "ui:readonly": true, // make note input as readonly
+            },
+          },
+          formData: {
+            contactType: 'candidate',
+            defaultContactName: 'John Doe',
+            defaultNote: 'Hello',
+            search: '',
+            opportunity: '',
+          },
+        }
+      });
+    });
+    await widgetIframe.clickNavigationButton('CRM');
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('CRM');
+    await page.evaluate(() => {
+      const iframe = document.querySelector("#rc-widget-adapter-frame").contentWindow;
+      iframe.postMessage({
+        type: 'rc-adapter-navigate-to',
+        path: '/customized/page1',
+      }, '*');
+    });
+    const headerLabel = await widgetIframe.getHeaderLabel();
+    expect(headerLabel).toEqual('Customized page 1');
+  });
 });
