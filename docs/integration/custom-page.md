@@ -28,6 +28,10 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
           "type": "string",
           "description": "This is a description message"
         },
+        "someLink": {
+          "type": "string",
+          "description": "This is a link message"
+        },
         "openSettingsButton": {
           "type": "string",
           "title": "Open CRM settings",
@@ -67,6 +71,14 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
       someMessage: {
         "ui:field": "typography",
         "ui:variant": "body1", // "caption1", "caption2", "body1", "body2", "subheading2", "subheading1", "title2", "title1"
+        // "ui:bulletedList": true, // show text as list item // supported from v2.0.1
+      },
+      someLink: {
+        "ui:field": "link", // supported from v2.0.1
+        "ui:variant": "body1",
+        "ui:color": "avatar.brass",
+        "ui:underline": false,
+        "ui:href": "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/",
       },
       openSettingsButton: {
         "ui:field": "button",
