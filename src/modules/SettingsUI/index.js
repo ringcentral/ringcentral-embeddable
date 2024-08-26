@@ -45,7 +45,7 @@ export class SettingsUI extends BaseSettingsUI {
       showFeedback: thirdPartyService.showFeedback,
       thirdPartySettings: thirdPartyService.settings,
       thirdPartyAuth: thirdPartyService.authorizationRegistered ? {
-        serviceName: thirdPartyService.serviceName,
+        serviceName: thirdPartyService.displayName || thirdPartyService.serviceName,
         serviceInfo: thirdPartyService.serviceInfo,
         authorized: thirdPartyService.authorized,
         contactSyncing: thirdPartyService.contactSyncing,
