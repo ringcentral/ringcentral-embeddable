@@ -1995,12 +1995,11 @@
 <ul>
 <li>Select "3-legged OAuth flow authorization code" </li>
 <li>Select "Client-side web app, e.g. SPA, Javascript"</li>
-<li>
-<p>Set "OAuth Redirect URI" to:</p>
-<p>Legacy version: <code>https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/redirect.html</code></p>
-<p>2.x version: <code>https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x/redirect.html</code></p>
-</li>
+<li>Set "OAuth Redirect URI" to:</li>
 </ul>
+<p>Latest Embeddable version: <code>https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/redirect.html</code></p>
+<pre><code>For fixed version: `https://apps.ringcentral.com/integration/ringcentral-embeddable/$VERSION/redirect.html`
+</code></pre>
 </li>
 <li>
 <p>Under the Security section, add the following "Application scopes:"</p>
@@ -2017,11 +2016,11 @@
 <li><code>Read Presence</code></li>
 <li><code>RingOut</code></li>
 <li><code>SMS</code></li>
+<li><code>VoIP Calling</code></li>
+<li><code>WebSocketSubscription</code></li>
 <li><code>Edit Extensions</code> (2.x SMS templates feature)</li>
 <li><code>TeamMessaging</code> (optional)</li>
-<li><code>WebSocketSubscription</code></li>
-<li><code>Video</code> (optional)</li>
-<li><code>VoIP Calling</code></li>
+<li><code>Video</code> (optional for Meeting feature)</li>
 </ul>
 </li>
 </ol>
