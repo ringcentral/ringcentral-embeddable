@@ -2091,7 +2091,7 @@
 </code></pre></div>
 <p><img alt="Customized tab" src="https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/3dfba67e-2422-41ec-98a3-43847de6396b" /></p>
 <h2 id="handle-button-clicked-and-input-changed-event">Handle button clicked and input changed event</h2>
-<p>Register service first:</p>
+<p>Pass <code>buttonEventPath</code> and <code>customizedPageInputChangedEventPath</code> when you register service:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>

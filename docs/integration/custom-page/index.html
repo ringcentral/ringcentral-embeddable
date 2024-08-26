@@ -1575,6 +1575,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#handle-button-clicked-and-input-changed-event" class="md-nav__link">
+    <span class="md-ellipsis">
+      Handle button clicked and input changed event
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1927,6 +1936,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#handle-button-clicked-and-input-changed-event" class="md-nav__link">
+    <span class="md-ellipsis">
+      Handle button clicked and input changed event
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1982,6 +2000,10 @@
 <span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
 <span class="w">          </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;This is a description message&quot;</span>
 <span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="s2">&quot;someLink&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;This is a link message&quot;</span>
+<span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="s2">&quot;openSettingsButton&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
 <span class="w">          </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Open CRM settings&quot;</span><span class="p">,</span>
@@ -2021,6 +2043,14 @@
 <span class="w">      </span><span class="nx">someMessage</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;typography&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="s2">&quot;ui:variant&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;body1&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// &quot;caption1&quot;, &quot;caption2&quot;, &quot;body1&quot;, &quot;body2&quot;, &quot;subheading2&quot;, &quot;subheading1&quot;, &quot;title2&quot;, &quot;title1&quot;</span>
+<span class="w">        </span><span class="c1">// &quot;ui:bulletedList&quot;: true, // show text as list item // supported from v2.0.1</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">someLink</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;link&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// supported from v2.0.1</span>
+<span class="w">        </span><span class="s2">&quot;ui:variant&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;body1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;ui:color&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;avatar.brass&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;ui:underline&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;ui:href&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">openSettingsButton</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;button&quot;</span><span class="p">,</span>
@@ -2051,6 +2081,53 @@
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
 <p><img alt="customized page" src="https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/2a20feaf-1336-4559-a488-ed327dd49ddc" /></p>
+<h2 id="handle-button-clicked-and-input-changed-event">Handle button clicked and input changed event</h2>
+<p>Pass <code>buttonEventPath</code> and <code>customizedPageInputChangedEventPath</code> when you register service:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">customizedPageInputChangedEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/customizedPage/inputChanged&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+</code></pre></div>
+<p>Add event listener to get button clicked and input changed event:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/customizedPage/inputChanged&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span><span class="w"> </span><span class="c1">// get input changed data in here: data.body.input</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="c1">// you can re-register page data here to update the page</span>
+<span class="w">      </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;page1&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// on submit button click</span>
+<span class="w">        </span><span class="c1">// button id is the page id</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Save button clicked&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// ...</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;openSettingsButton&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// click on the button registered in schema, button id is the button key</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Open settings button clicked&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// ...</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>When the user clicks the button, you will receive a message with the path <code>/button-click</code>. When the user changes the input, you will receive a message with the path <code>/customizedPage/inputChanged</code>.</p>
 
 
 
