@@ -55,4 +55,24 @@ export class AudioSettings extends AudioSettingsBase {
       }
     }
   }
+
+  @state
+  autoPlayEnabled = false;
+
+  @action
+  setAutoPlayEnabled(enabled) {
+    this.autoPlayEnabled = enabled;
+  }
+
+  enableAutoPlay() {
+    this.setAutoPlayEnabled(true);
+  }
+
+  override onInitOnce() {
+    const onAutoplayButtonClick = () => {
+      this.enableAutoPlay();
+      window.removeEventListener('click', onAutoplayButtonClick);
+    };
+    window.addEventListener('click', onAutoplayButtonClick);
+  }
 }
