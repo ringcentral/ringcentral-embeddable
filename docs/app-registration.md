@@ -27,9 +27,9 @@ Before you begin development, you will first need to register your application v
 	* Select "Client-side web app, e.g. SPA, Javascript"
     * Set "OAuth Redirect URI" to:
 	  
-	    Legacy version: `https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/redirect.html`
+	Latest Embeddable version: `https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/redirect.html`
 
-        2.x version: `https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x/redirect.html`
+        For fixed version: `https://apps.ringcentral.com/integration/ringcentral-embeddable/$VERSION/redirect.html`
 
 5. Under the Security section, add the following "Application scopes:"
     * `Call Control`
@@ -44,10 +44,11 @@ Before you begin development, you will first need to register your application v
     * `Read Presence`
     * `RingOut`
     * `SMS`
+    * `VoIP Calling`
+    * `WebSocketSubscription`
     * `Edit Extensions` (2.x SMS templates feature)
     * `TeamMessaging` (optional)
-    * `WebSocketSubscription`
-    * `Video` (optional)
-    * `VoIP Calling`
+    * `Video` (optional for Meeting feature)
+
 
 For all other parameters you are free to select whatever values your prefer. Consult the Developer Guide to learn more about [app registration](https://developers.ringcentral.com/guide/getting-started/register-app).
