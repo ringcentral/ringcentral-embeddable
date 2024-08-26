@@ -353,6 +353,10 @@ conditionalDescribe('widget page test', () => {
                 "type": "string",
                 "description": "This is a description message 2"
               },
+              "someLink": {
+                "type": "string",
+                "description": "This is a link"
+              },
               "openSettingsButton": {
                 "type": "string",
                 "title": "Open CRM settings",
@@ -405,6 +409,13 @@ conditionalDescribe('widget page test', () => {
             someMessage1: {
               "ui:field": "typography",
               "ui:bulletedList": true,
+            },
+            someLink: {
+              "ui:field": "link",
+              "ui:variant": "body1",
+              "ui:color": "avatar.brass",
+              "ui:underline": true,
+              "ui:href": "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/",
             },
             defaultContactName: {
               "ui:placeholder": 'Enter default contact name',
