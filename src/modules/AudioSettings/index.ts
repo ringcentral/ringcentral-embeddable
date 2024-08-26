@@ -57,11 +57,11 @@ export class AudioSettings extends AudioSettingsBase {
   }
 
   @state
-  autoPlayEnabled = false;
+  autoplayEnabled = false;
 
   @action
   setAutoPlayEnabled(enabled) {
-    this.autoPlayEnabled = enabled;
+    this.autoplayEnabled = enabled;
   }
 
   enableAutoPlay() {

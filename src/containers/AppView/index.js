@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { styled, palette2 } from '@ringcentral/juno/foundation';
 import { withPhone } from '@ringcentral-integration/widgets/lib/phoneContext';
+import { callingModes } from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
 
 import { DemoOnlyBanner } from '../../components/DemoOnlyBanner';
+import { InitializeAudioBanner } from '../../components/InitializeAudioBanner';
 import { EnvironmentPanel } from '../../components/EnvironmentPanel';
 import { SideDrawerContainer } from '../SideDrawerContainer';
 
@@ -43,6 +45,11 @@ function AppView(props) {
           show={props.showDemoWarning}
           onClose={props.dismissDemoWarning}
         />
+        {
+          props.showAudioInit ? (
+            <InitializeAudioBanner />
+          ) : null
+        }
         <Content>
           {props.children}
           <EnvironmentPanel
@@ -69,6 +76,7 @@ AppView.propTypes = {
   enabled: PropTypes.bool,
   onSetData: PropTypes.func,
   redirectUri: PropTypes.string.isRequired,
+  showAudioInit: PropTypes.bool.isRequired,
 };
 
 AppView.defaultProps = {
@@ -86,6 +94,8 @@ export default withPhone(connect((_, {
     oAuth,
     environment,
     adapter,
+    audioSettings,
+    callingSettings,
   },
 }) => ({
   currentLocale: locale.currentLocale,
@@ -95,6 +105,10 @@ export default withPhone(connect((_, {
   enabled: environment.enabled,
   redirectUri: oAuth.redirectUri,
   showDemoWarning: adapter.showDemoWarning,
+  showAudioInit: (
+    !audioSettings.autoplayEnabled &&
+    callingSettings.callingMode === callingModes.webphone
+  ),
 }), (_, {
   phone: {
     environment,
