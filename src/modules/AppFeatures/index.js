@@ -21,6 +21,10 @@ export class AppFeatures extends AppFeaturesBase {
     );
   }
 
+  get hasInternalVideoScope() {
+    return this.appScopes.indexOf('VideoInternal') > -1;
+  }
+
   get appScopes() {
     return (
       this._deps.auth.token &&
@@ -99,6 +103,6 @@ export class AppFeatures extends AppFeaturesBase {
       this.appScopes.indexOf('AIInternal') > -1 &&
       this.appScopes.indexOf('TelephonySessions') > -1 &&
       (this._deps.extensionFeatures.features?.RingSenseMVP?.available ?? false)
-    )
+    );
   }
 }
