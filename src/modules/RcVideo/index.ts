@@ -170,42 +170,45 @@ export class RcVideo extends RcVideoBase {
   }
 
   async _fetchUpcomingMeetings() {
-    const platform = this._deps.client.service.platform();
-    const providersRes = await platform.get('/rcvideo/v1/scheduling/providers');
-    const providersData = await providersRes.json();
-    const providers = providersData.providers.filter(p => p.isAuthorized);
     let allEvents = [];
-    await Promise.all(providers.map(async (provider) => {
-      try {
-        const calendersRes = await platform.get(`/rcvideo/v1/scheduling/providers/${provider.id}/calendars`)
-        const calendersData = await calendersRes.json();
-        const calendars = calendersData.calendars.filter(
-          c => c.isPrimary
-        );
-        const fromDate = new Date();
-        const toDate = new Date();
-        toDate.setDate(toDate.getDate() + 7)
-        await Promise.all(calendars.map(async (calendar) => {
-          try {
-            const eventsRes = await platform.get(
-              `/rcvideo/v1/scheduling/providers/${provider.id}/calendars/${encodeURIComponent(calendar.id)}/events`,
-              {
-                includeNonRcEvents: true,
-                startTimeFrom: fromDate.toISOString(),
-                startTimeTo: toDate.toISOString(),
-              }
-            )
-            const eventsData = await eventsRes.json();
-            const events = eventsData.events;
-            allEvents = allEvents.concat(events);
-          } catch (e) {
-            console.error('Fetching events error:', e);
-          }
-        }));
-      } catch (e) {
-        console.error('Fetching calendars error:', e);
-      }
-    }));
+    if (this._deps.appFeatures.hasInternalVideoScope) {
+      const platform = this._deps.client.service.platform();
+      const providersRes = await platform.get('/rcvideo/v1/scheduling/providers');
+      const providersData = await providersRes.json();
+      const providers = providersData.providers.filter(p => p.isAuthorized);
+
+      await Promise.all(providers.map(async (provider) => {
+        try {
+          const calendersRes = await platform.get(`/rcvideo/v1/scheduling/providers/${provider.id}/calendars`)
+          const calendersData = await calendersRes.json();
+          const calendars = calendersData.calendars.filter(
+            c => c.isPrimary
+          );
+          const fromDate = new Date();
+          const toDate = new Date();
+          toDate.setDate(toDate.getDate() + 7)
+          await Promise.all(calendars.map(async (calendar) => {
+            try {
+              const eventsRes = await platform.get(
+                `/rcvideo/v1/scheduling/providers/${provider.id}/calendars/${encodeURIComponent(calendar.id)}/events`,
+                {
+                  includeNonRcEvents: true,
+                  startTimeFrom: fromDate.toISOString(),
+                  startTimeTo: toDate.toISOString(),
+                }
+              )
+              const eventsData = await eventsRes.json();
+              const events = eventsData.events;
+              allEvents = allEvents.concat(events);
+            } catch (e) {
+              console.error('Fetching events error:', e);
+            }
+          }));
+        } catch (e) {
+          console.error('Fetching calendars error:', e);
+        }
+      }));
+    }
     await Promise.all(Object.keys(this._thirdPartyProviders).map(async (name) => {
       const fetchFunc = this._thirdPartyProviders[name].fetchUpcomingMeetingList;
       const events = await fetchFunc();
@@ -283,5 +286,12 @@ export class RcVideo extends RcVideoBase {
       .get(`/rcvideo/v2/bridges/pin/web/${meetingId}`);
     const meeting = await result.json();
     return formatV2Bridge(meeting);
+  }
+
+  async _initPreferences() {
+    if (!this._deps.appFeatures.hasInternalVideoScope) {
+      return;
+    }
+    await super._initPreferences();
   }
 }
