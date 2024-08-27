@@ -96,7 +96,9 @@ export default withPhone(connect((_, {
     adapter,
     audioSettings,
     callingSettings,
+    auth,
   },
+  fromPopup,
 }) => ({
   currentLocale: locale.currentLocale,
   server: environment.server,
@@ -106,8 +108,10 @@ export default withPhone(connect((_, {
   redirectUri: oAuth.redirectUri,
   showDemoWarning: adapter.showDemoWarning,
   showAudioInit: (
-    !audioSettings.autoplayEnabled &&
-    callingSettings.callingMode === callingModes.webphone
+    !audioSettings.autoplayEnabled && (
+      fromPopup ||
+      (auth.loggedIn && callingSettings.callingMode === callingModes.webphone)
+    )
   ),
 }), (_, {
   phone: {

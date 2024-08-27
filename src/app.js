@@ -171,6 +171,7 @@ ReactDOM.render(
     phone={phone}
     showCallBadge={!fromAdapter}
     appVersion={externalAppVersion}
+    fromPopup={fromPopup}
   />,
   document.querySelector('div#viewport'),
 );

@@ -68,7 +68,8 @@ export class AudioSettings extends AudioSettingsBase {
     this.setAutoPlayEnabled(true);
   }
 
-  override onInitOnce() {
+  override async _initModule() {
+    super._initModule();
     const onAutoplayButtonClick = () => {
       this.enableAutoPlay();
       window.removeEventListener('click', onAutoplayButtonClick);
