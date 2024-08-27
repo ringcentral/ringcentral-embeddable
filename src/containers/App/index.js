@@ -61,6 +61,7 @@ export default function App({
   phone,
   showCallBadge,
   appVersion,
+  fromPopup,
 }) {
   const getAvatarUrl = async (contact) => {
     const avatarUrl = await phone.contacts.getProfileImage(contact, true);
@@ -111,7 +112,7 @@ export default function App({
           <Router history={phone.routerInteraction.history}>
             <Route
               component={routerProps => (
-                <AppView>
+                <AppView fromPopup={fromPopup}>
                   {routerProps.children}
                   <CallBadgeContainer
                     hidden={(
