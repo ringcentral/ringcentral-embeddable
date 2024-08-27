@@ -68,6 +68,24 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
           exclude: /node_modules/,
         },
         {
+          test: /\.(js|jsx|ts|tsx)$/,
+          use: [{
+            loader: 'string-replace-loader', // remove unload event with pagehide
+            options: {
+              search: /window.addEventListener\('unload'/,
+              replace: "window.addEventListener('pagehide'",
+              flags: 'g',
+            },
+          }, {
+            loader: 'string-replace-loader', // remove unload event with pagehide
+            options: {
+              search: /window.removeEventListener\('unload'/,
+              replace: "window.removeEventListener('pagehide'",
+              flags: 'g',
+            },
+          }]
+        },
+        {
           test: /\.md$/,
           use: 'raw-loader',
         },
