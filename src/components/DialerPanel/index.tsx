@@ -27,7 +27,6 @@ const Container = styled.div`
   background: ${palette2('neutral', 'b01')};
   display: flex;
   flex-direction: column;
-  // padding-top: 10px;
   overflow-y: auto;
   justify-content: space-around;
   padding: ${spacing(2)} 0;
