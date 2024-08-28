@@ -16,6 +16,16 @@ const Container = styled.div`
   justify-content: center;
 `;
 
+const FromLabel = styled(RcTypography)`
+  @media only screen and (min-width: 350px) {
+    font-size: 0.875rem;
+  }
+
+  @media only screen and (min-width: 400px) {
+    font-size: 1rem;
+  }
+`;
+
 const Select = styled(RcSelect)`
   width: auto;
 
@@ -24,6 +34,14 @@ const Select = styled(RcSelect)`
   }
   .RcBoxSelectInput-input {
     font-size: 0.75rem;
+
+    @media only screen and (min-width: 350px) {
+      font-size: 0.875rem;
+    }
+
+    @media only screen and (min-width: 400px) {
+      font-size: 1rem;
+    }
   }
 `;
 
@@ -95,7 +113,7 @@ function FromField({
   }
   return (
     <Container>
-      <RcTypography variant="caption1">{i18n.getString('from', currentLocale)}:</RcTypography>
+      <FromLabel variant="caption1">{i18n.getString('from', currentLocale)}:</FromLabel>
       <Select
         value={fromNumber}
         onChange={(e) => {

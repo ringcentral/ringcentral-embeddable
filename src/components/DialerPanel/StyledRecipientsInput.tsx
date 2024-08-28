@@ -34,4 +34,8 @@ export const StyledRecipientsInput = styled(RecipientsInput)`
     flex-direction: row;
     justify-content: center;
   }
+
+  .RecipientsInput_inputField {
+    padding-left: 20px;
+  }
 `;

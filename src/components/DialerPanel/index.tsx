@@ -9,6 +9,8 @@ import {
   RcIconButton,
   styled,
   palette2,
+  spacing,
+  setOpacity,
 } from '@ringcentral/juno';
 import { Phone } from '@ringcentral/juno-icon';
 
@@ -25,21 +27,98 @@ const Container = styled.div`
   background: ${palette2('neutral', 'b01')};
   display: flex;
   flex-direction: column;
-  padding-top: 10px;
   overflow-y: auto;
+  justify-content: space-around;
+  padding: ${spacing(2)} 0;
+
+  @media only screen and (min-width: 350px) {
+    .RecipientsInput_numberInput {
+      font-size: 1.25rem;
+
+      &::placeholder {
+        font-size: 1rem;
+      }
+    }
+
+    .RecipientsInput_selectReceivers li {
+      font-size: 0.875rem;
+    }
+  }
+
+  @media only screen and (min-width: 400px) {
+    padding: ${spacing(4)} 0;
+
+    .RecipientsInput_numberInput {
+      font-size: 1.5rem;
+
+      &::placeholder {
+        font-size: 1.25rem;
+      }
+    }
+
+    .RecipientsInput_selectReceivers li {
+      font-size: 1rem;
+    }
+  }
 `;
 
-const DialerWrapper = styled.div<{ withTabs: boolean }>`
-  flex: 1 1 auto;
+const DialerWrapper = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-direction: column;
-  margin: 0 16%;
+  margin: 0 18%;
+  padding: ${spacing(1)} 0;
 `;
 
-const BodyBottom = styled.div`
+const StyledDialpad = styled(RcDialPad)`
+  max-width: 300px;
+  width: 100%;
+
+  .RcIconButton-contained::before {
+    border: 1px solid ${palette2('neutral', 'l02')};
+    box-shadow: none;
+  }
+
+  .RcIconButton-contained {
+    background-color: transparent;
+    margin-bottom: ${spacing(4)};
+    box-shadow: none;
+  }
+
+  .RcIconButton-contained:hover::before {
+    background-color: ${setOpacity(palette2('neutral', 'b06'), '08')};
+  }
+
+  @media only screen and (max-width: 400px) {
+    .RcIconButton-contained {
+      margin-bottom: ${spacing(2)};
+    }
+  }
+
+  @media only screen and (max-width: 350px) {
+    .RcIconButton-contained {
+      margin-bottom: ${spacing(1)};
+    }
+  }
+`;
+
+const CallButtonWrapper = styled.div`
   ${flexCenterStyle};
-  padding-bottom: 20px;
+`;
+
+const CallButton = styled(RcIconButton)`
+  margin-bottom: ${spacing(2)};
+  @media only screen and (min-width: 350px) {
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+  }
+  @media only screen and (min-width: 400px) {
+    width: 72px;
+    height: 72px;
+    font-size: 36px;
+  }
 `;
 
 export interface DialerPanelProps {
@@ -126,6 +205,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   getPresence,
 }) => {
   const inputEl = useRef(null);
+
   useEffect(() => {
     if (useV2 && autoFocus && inputEl.current) {
       // @ts-expect-error TS(2339): Property 'focus' does not exist on type 'never'.
@@ -194,8 +274,8 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
         />
       ) : null}
       {input}
-      <DialerWrapper withTabs={withTabs}>
-        <RcDialPad
+      <DialerWrapper>
+        <StyledDialpad
           data-sign="dialPad"
           onChange={(value) => {
             // @ts-expect-error TS(2722): Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
@@ -205,24 +285,26 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
           getDialPadButtonProps={(v) => ({
             'data-test-id': `${v}`,
             'data-sign': `dialPadBtn${v}`,
+            variant: 'contained',
           })}
           volume={dialButtonVolume}
           muted={dialButtonMuted}
+          autoSize
         />
       </DialerWrapper>
-      <BodyBottom>
-        <RcIconButton
+      <CallButtonWrapper>
+        <CallButton
           data-sign="callButton"
           color="success.b03"
           symbol={Phone}
-          size={withTabs ? 'medium' : 'large'}
           variant="contained"
           elevation="0"
           activeElevation="0"
           onClick={() => onCallButtonClick({ clickDialerToCall: true })}
           disabled={callButtonDisabled}
+          size="large"
         />
-      </BodyBottom>
+      </CallButtonWrapper>
       {showSpinner ? <SpinnerOverlay /> : null}
       {children}
     </Container>
