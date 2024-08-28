@@ -7,9 +7,6 @@ import {
   RcDialerPadSoundsMPEG,
   RcDialPad,
   RcIconButton,
-  useResponsiveMatch,
-  useResponsiveContext,
-  RcResponsive,
   styled,
   palette2,
   spacing,
@@ -209,11 +206,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   getPresence,
 }) => {
   const inputEl = useRef(null);
-  const bp = useResponsiveContext();
-  const matchResult = useResponsiveMatch();
 
-  console.log('matchResult: ', matchResult);
-  console.log('bp: ', bp);
   useEffect(() => {
     if (useV2 && autoFocus && inputEl.current) {
       // @ts-expect-error TS(2339): Property 'focus' does not exist on type 'never'.
@@ -263,61 +256,59 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
     />
   );
   return (
-    <RcResponsive>
-      <Container>
-        {showFromField ? (
-          <FromField
-            // @ts-expect-error TS(2322): Type 'boolean | undefined' is not assignable to ty... Remove this comment to see the full error message
-            showAnonymous={showAnonymous}
-            // @ts-expect-error TS(2322): Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message
-            fromNumber={fromNumber}
-            // @ts-expect-error TS(2322): Type '{ phoneNumber?: string | undefined; usageTyp... Remove this comment to see the full error message
-            fromNumbers={fromNumbers}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            onChange={changeFromNumber}
-            // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-            formatPhone={formatPhone}
-            currentLocale={currentLocale}
-            hidden={!isWebphoneMode}
-            disabled={disableFromField}
-          />
-        ) : null}
-        {input}
-        <DialerWrapper>
-          <StyledDialpad
-            data-sign="dialPad"
-            onChange={(value) => {
-              // @ts-expect-error TS(2722): Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
-              onToNumberChange(toNumber + value, true);
-            }}
-            sounds={RcDialerPadSoundsMPEG}
-            getDialPadButtonProps={(v) => ({
-              'data-test-id': `${v}`,
-              'data-sign': `dialPadBtn${v}`,
-              variant: 'contained',
-            })}
-            volume={dialButtonVolume}
-            muted={dialButtonMuted}
-            autoSize
-          />
-        </DialerWrapper>
-        <CallButtonWrapper>
-          <CallButton
-            data-sign="callButton"
-            color="success.b03"
-            symbol={Phone}
-            variant="contained"
-            elevation="0"
-            activeElevation="0"
-            onClick={() => onCallButtonClick({ clickDialerToCall: true })}
-            disabled={callButtonDisabled}
-            size="large"
-          />
-        </CallButtonWrapper>
-        {showSpinner ? <SpinnerOverlay /> : null}
-        {children}
-      </Container>
-    </RcResponsive>
+    <Container>
+      {showFromField ? (
+        <FromField
+          // @ts-expect-error TS(2322): Type 'boolean | undefined' is not assignable to ty... Remove this comment to see the full error message
+          showAnonymous={showAnonymous}
+          // @ts-expect-error TS(2322): Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message
+          fromNumber={fromNumber}
+          // @ts-expect-error TS(2322): Type '{ phoneNumber?: string | undefined; usageTyp... Remove this comment to see the full error message
+          fromNumbers={fromNumbers}
+          // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+          onChange={changeFromNumber}
+          // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
+          formatPhone={formatPhone}
+          currentLocale={currentLocale}
+          hidden={!isWebphoneMode}
+          disabled={disableFromField}
+        />
+      ) : null}
+      {input}
+      <DialerWrapper>
+        <StyledDialpad
+          data-sign="dialPad"
+          onChange={(value) => {
+            // @ts-expect-error TS(2722): Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
+            onToNumberChange(toNumber + value, true);
+          }}
+          sounds={RcDialerPadSoundsMPEG}
+          getDialPadButtonProps={(v) => ({
+            'data-test-id': `${v}`,
+            'data-sign': `dialPadBtn${v}`,
+            variant: 'contained',
+          })}
+          volume={dialButtonVolume}
+          muted={dialButtonMuted}
+          autoSize
+        />
+      </DialerWrapper>
+      <CallButtonWrapper>
+        <CallButton
+          data-sign="callButton"
+          color="success.b03"
+          symbol={Phone}
+          variant="contained"
+          elevation="0"
+          activeElevation="0"
+          onClick={() => onCallButtonClick({ clickDialerToCall: true })}
+          disabled={callButtonDisabled}
+          size="large"
+        />
+      </CallButtonWrapper>
+      {showSpinner ? <SpinnerOverlay /> : null}
+      {children}
+    </Container>
   );
 };
 
