@@ -13,8 +13,7 @@ import Notification from '../notification';
 
 // eslint-disable-next-line
 import popupIconUrl from '!url-loader!../../assets/images/popup.svg';
-import feedbackIconUrl from '!url-loader!../../assets/images/feedback.svg';
-import { type } from 'os';
+import helpIconUrl from '!url-loader!../../assets/images/help.svg';
 
 function checkValidImageUri(uri) {
   return (
@@ -266,8 +265,8 @@ class Adapter extends AdapterCore {
         </div>
         <div class="${this._styles.buttons}">
           <div class="${this._styles.button} ${this._styles.feedback}">
-            <div class="${this._styles.feedbackIcon}" title="Feedback">
-              <img src="${feedbackIconUrl}" draggable="false" />
+            <div class="${this._styles.feedbackIcon}" title="Help">
+              <img src="${helpIconUrl}" draggable="false" />
             </div>
           </div>
           <div class="${this._styles.button} ${this._styles.popup}">
