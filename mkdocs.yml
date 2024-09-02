@@ -88,6 +88,7 @@ nav:
      - 'Javascript vs iframes': initialization.md
      - 'Version control': versions.md
      - 'Self-hosting': self-hosting.md
+     - 'Audio': audio.md
 
 - 'Configuration':
   - 'All parameters': config/index.md
