@@ -4,7 +4,7 @@ When the calling setting is configured to "Browser", the widget utilizes the bro
 
 ## Audio output
 
-Due to browser limitations, the widget can only play audio when the user interacts with it. Therefore, an audio initialization is required to enable ringtone playback for incoming calls. Users can initialize audio by clicking the `Initialize audio` button or interacting with any other button within the widget.
+Due to browser limitations, the widget can only play audio after user interacts with it. Therefore, an audio initialization is required to enable ringtone playback for incoming calls. Users can initialize audio by clicking the `Initialize audio` button or interacting with any other button within the widget.
 
 ![audio init](https://github.com/user-attachments/assets/e10b9bbe-3868-477d-995b-c4d73fcb3bbf)
 
@@ -16,20 +16,20 @@ Access to a microphone device is essential for the widget to capture audio. If t
 
 There are some reasons the widget might fail to access the microphone:
 
-1. User permission:
+### User permission
    
 The user must grant permission for the widget to access the microphone. If permission is denied, the widget will be unable to capture audio. When the user clicks on the `Web Phone Unavailable` badge, the browser will prompt a dialog requesting microphone access.
 
-2. No microphone device:
+### No microphone device
 
 If the user's device does not have a microphone, the widget will be unable to capture audio. Users can connect an external microphone to resolve this issue.
 
-3. HTTP protocol:
+### HTTP protocol
 
 Microphone access is only permitted over secure connections (HTTPS). If the website is not using HTTPS, the browser will prevent the widget from accessing the microphone.
 
 
-4. Permissions-Policy:
+### Permissions-Policy
 
 For security reasons, some websites may implement a Permissions-Policy header that restricts microphone usage. If such a header is present, the widget will only be able to access the microphone if the policy explicitly permits it. The header should be formatted as follows:
 
