@@ -1,5 +1,5 @@
 import type { FunctionComponent } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import type { ToNumber as Recipient } from '@ringcentral-integration/commons/modules/ComposeText';
 import {
@@ -11,6 +11,7 @@ import {
   palette2,
   spacing,
   setOpacity,
+  css,
 } from '@ringcentral/juno';
 import { Phone } from '@ringcentral/juno-icon';
 
@@ -62,13 +63,28 @@ const Container = styled.div`
   }
 `;
 
-const DialerWrapper = styled.div`
+const DialerWrapper = styled.div<{ $dialerHeight: number }>`
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   margin: 0 18%;
   padding: ${spacing(1)} 0;
+
+  ${({ $dialerHeight }) => {
+    if ($dialerHeight <= 335) {
+      return css`
+        margin: 0 20%;
+        padding: 0;
+
+        .RcIconButton-contained {
+          width: 26%;
+          padding-top: 26%;
+        }
+      `;
+    }
+    return '';
+  }}
 `;
 
 const StyledDialpad = styled(RcDialPad)`
@@ -107,8 +123,19 @@ const CallButtonWrapper = styled.div`
   ${flexCenterStyle};
 `;
 
-const CallButton = styled(RcIconButton)`
+const CallButton = styled(RcIconButton)<{ $dialerHeight: number }>`
   margin-bottom: ${spacing(2)};
+
+  ${({ $dialerHeight }) => {
+    if ($dialerHeight <= 335) {
+      return css`
+        width: 42px;
+        height: 42px;
+      `;
+    }
+    return '';
+  }}
+
   @media only screen and (min-width: 350px) {
     width: 56px;
     height: 56px;
@@ -205,13 +232,29 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   getPresence,
 }) => {
   const inputEl = useRef(null);
+  const containerEl = useRef(null);
+  const [dialerHeight, setDialerHeight] = useState(345);
 
   useEffect(() => {
     if (useV2 && autoFocus && inputEl.current) {
-      // @ts-expect-error TS(2339): Property 'focus' does not exist on type 'never'.
       inputEl.current.focus();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (containerEl.current) {
+      setDialerHeight(containerEl.current.clientHeight);
+      // listen to element resize
+      if (!window.ResizeObserver) {
+        return;
+      }
+      const resizeObserver = new ResizeObserver(() => {
+        if (containerEl.current) {
+          setDialerHeight(containerEl.current.clientHeight);
+        }
+      });
+      resizeObserver.observe(containerEl.current);
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -255,7 +298,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
     />
   );
   return (
-    <Container>
+    <Container ref={containerEl}>
       {showFromField ? (
         <FromField
           // @ts-expect-error TS(2322): Type 'boolean | undefined' is not assignable to ty... Remove this comment to see the full error message
@@ -274,7 +317,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
         />
       ) : null}
       {input}
-      <DialerWrapper>
+      <DialerWrapper $dialerHeight={dialerHeight}>
         <StyledDialpad
           data-sign="dialPad"
           onChange={(value) => {
@@ -303,6 +346,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
           onClick={() => onCallButtonClick({ clickDialerToCall: true })}
           disabled={callButtonDisabled}
           size="large"
+          $dialerHeight={dialerHeight}
         />
       </CallButtonWrapper>
       {showSpinner ? <SpinnerOverlay /> : null}
