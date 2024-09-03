@@ -13,7 +13,7 @@ import {
   setOpacity,
   RcLink,
 } from '@ringcentral/juno';
-import { ArrowRight, ArrowUp2, ArrowDown2 } from '@ringcentral/juno-icon';
+import { ArrowRight, ArrowUp2, ArrowDown2, Logout } from '@ringcentral/juno-icon';
 
 import type {
   LinkLineItemProps,
@@ -21,10 +21,14 @@ import type {
 } from '@ringcentral-integration/widgets/components/SettingsPanel/SettingsPanel.interface';
 import i18n from '@ringcentral-integration/widgets/components/SettingsPanel/i18n';
 
-export const StyledSettingItem = styled(RcListItem)`
+export const StyledSettingItem = styled(RcListItem)<{ $noBorder?: boolean }>`
   min-height: 50px;
   background-color: ${palette2('neutral', 'b01')};
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
+
+  ${(props) => props.$noBorder && css`
+    border-bottom: none;
+  `}
 
   .RcListItemText-primary {
     font-size: 0.875rem;
@@ -219,4 +223,46 @@ export const ExternalLinkLineItem: FunctionComponent<ExternalLinkLineItemProps> 
       />
     </StyledSettingItem>
   );
+}
+
+interface LogoutItemProps {
+  onLogout: () => void;
+  loginNumber: string;
+  currentLocale: string;
+  brandName?: string;
+}
+
+export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
+  currentLocale,
+  onLogout,
+  loginNumber,
+  brandName,
+}) => {
+  return (
+    <StyledSettingItem
+      onClick={onLogout}
+      data-sign="logoutButton"
+      $noBorder
+    >
+      <RcListItemText
+        primary={
+          `${i18n.getString('logout', currentLocale)} ${brandName ? `of ${brandName}` : ''}`
+        }
+        primaryTypographyProps={{
+          color: 'neutral.f05',
+        }}
+        secondary={loginNumber}
+        secondaryTypographyProps={{
+          'data-sign': 'loginNumber',
+        }}
+      />
+      <RcListItemSecondaryAction>
+        <RcIcon
+          symbol={Logout}
+          size="medium"
+          color="neutral.f03"
+        />
+      </RcListItemSecondaryAction>
+    </StyledSettingItem>
+  )
 }
