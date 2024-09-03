@@ -6,6 +6,8 @@ When the calling setting is configured to "Browser", the widget utilizes the bro
 
 Due to browser limitations, the widget can only play audio after user interacts with it. Therefore, an audio initialization is required to enable ringtone playback for incoming calls. Users can initialize audio by clicking the `Initialize audio` button or interacting with any other button within the widget.
 
+<!-- md:version 2.0.1 -->
+
 ![audio init](https://github.com/user-attachments/assets/e10b9bbe-3868-477d-995b-c4d73fcb3bbf)
 
 ## Audio input
