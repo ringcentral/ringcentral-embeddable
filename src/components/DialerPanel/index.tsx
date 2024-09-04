@@ -30,7 +30,7 @@ const Container = styled.div`
   flex-direction: column;
   overflow-y: auto;
   justify-content: space-around;
-  padding: ${spacing(2)} 0;
+  padding-top: ${spacing(2)};
 
   @media only screen and (min-width: 350px) {
     .RecipientsInput_numberInput {
