@@ -1,16 +1,38 @@
 import React from 'react';
 
+import { styled, palette2, RcText } from '@ringcentral/juno';
 import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayouts';
-import ActiveCallPad from '@ringcentral-integration/widgets/components/ActiveCallPad';
-import BackButton from '@ringcentral-integration/widgets/components/BackButton';
-import BackHeader from '@ringcentral-integration/widgets/components/BackHeader';
+
 import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
-import Panel from '@ringcentral-integration/widgets/components/Panel';
 import ConferenceInfo from '@ringcentral-integration/widgets/components/ActiveCallPanel/ConferenceInfo';
 import MergeInfo from '@ringcentral-integration/widgets/components/ActiveCallPanel/MergeInfo';
-import styles from '@ringcentral-integration/widgets/components/ActiveCallPanel/styles.scss';
 
+import { BackHeaderView } from '../../BackHeaderView';
 import CallInfo from './CallInfo';
+import ActiveCallPad from '../ActiveCallPad';
+import ActiveKeyPad from '../ActiveKeyPad';
+import { EndButtonGroup } from '../EndButtonGroup';
+
+const StyledPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  padding-bottom: 14px;
+  padding-top: 30px;
+  background-color: ${palette2('neutral', 'b01')};
+  justify-content: space-around;
+`;
+
+const StyledTimeCounter = styled(RcText)`
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  padding: 0;
+  text-align: right;
+`;
 
 type ActiveCallPanelProps = {
   phoneNumber?: string;
@@ -66,6 +88,10 @@ type ActiveCallPanelProps = {
   isOnWaitingTransfer?: boolean;
   onCompleteTransfer?: (...args: any[]) => any;
   isOnTransfer?: boolean;
+  showKeyPad: boolean;
+  onKeyPadChange: (...args: any[]) => any;
+  onHideKeyPad: (...args: any[]) => any;
+  children?: any;
 };
 const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   showBackButton,
@@ -93,6 +119,9 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   onRecord,
   onStopRecord,
   onShowKeyPad,
+  onHideKeyPad,
+  showKeyPad,
+  onKeyPadChange,
   onHangup,
   onPark,
   onAdd,
@@ -125,20 +154,14 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   isOnWaitingTransfer,
   onCompleteTransfer,
 }) => {
-  const backHeader = showBackButton ? (
-    <BackHeader
-      onBackClick={onBackButtonClick}
-      backButton={<BackButton label={backButtonLabel} />}
-    />
-  ) : null;
   const timeCounter = (
-    <div className={styles.timeCounter}>
+    <StyledTimeCounter variant="caption1" color="neutral.f04">
       {startTime ? (
         <DurationCounter startTime={startTime} offset={startTimeOffset} />
       ) : (
         <span aria-hidden="true">&nbsp;</span>
       )}
-    </div>
+    </StyledTimeCounter>
   );
   const currentCallTitle = nameMatches?.length
     ? nameMatches[0].name
@@ -197,66 +220,75 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
     layout !== callCtrlLayouts.mergeCtrl &&
     layout !== callCtrlLayouts.completeTransferCtrl;
   return (
-    <div data-sign="activeCallPanel" className={styles.root}>
-      {backHeader}
-      <Panel className={styles.panel}>
+    <BackHeaderView
+      dataSign="activeCallPanel"
+      onBack={onBackButtonClick}
+      backButtonLabel={backButtonLabel}
+      hideHeader={!showBackButton}
+    >
+      <StyledPanel>
         {showTimeCounter ? timeCounter : null}
         {callInfo}
-        <ActiveCallPad
-          className={styles.callPad}
-          currentLocale={currentLocale}
-          isOnMute={isOnMute}
-          isOnHold={isOnHold}
-          recordStatus={recordStatus}
-          onMute={onMute}
-          onUnmute={onUnmute}
-          onHold={onHold}
-          onUnhold={onUnhold}
-          onRecord={onRecord}
-          onStopRecord={onStopRecord}
-          onShowKeyPad={onShowKeyPad}
-          onHangup={onHangup}
-          onAdd={onAdd}
-          onMerge={onMerge}
-          onTransfer={onTransfer}
-          // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-          onFlip={onFlip}
-          disableFlip={disableFlip}
-          // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-          onPark={onPark}
-          showPark={showPark}
-          layout={layout}
-          direction={direction}
-          addDisabled={addDisabled}
-          mergeDisabled={mergeDisabled}
-          conferenceCallEquipped={conferenceCallEquipped}
-          hasConferenceCall={hasConferenceCall}
-          actions={actions}
+        {
+          showKeyPad ? (
+            <ActiveKeyPad
+              onChange={onKeyPadChange}
+            />
+          ) : (
+            <ActiveCallPad
+              currentLocale={currentLocale}
+              isOnMute={isOnMute}
+              isOnHold={isOnHold}
+              recordStatus={recordStatus}
+              onMute={onMute}
+              onUnmute={onUnmute}
+              onHold={onHold}
+              onUnhold={onUnhold}
+              onRecord={onRecord}
+              onStopRecord={onStopRecord}
+              onShowKeyPad={onShowKeyPad}
+              onHangup={onHangup}
+              onAdd={onAdd}
+              onMerge={onMerge}
+              onTransfer={onTransfer}
+              onFlip={onFlip}
+              disableFlip={disableFlip}
+              onPark={onPark}
+              showPark={showPark}
+              layout={layout}
+              addDisabled={addDisabled}
+              mergeDisabled={mergeDisabled}
+              conferenceCallEquipped={conferenceCallEquipped}
+              hasConferenceCall={hasConferenceCall}
+              actions={actions}
+              controlBusy={controlBusy}
+              isOnTransfer={isOnTransfer}
+              isOnWaitingTransfer={isOnWaitingTransfer}
+              onCompleteTransfer={onCompleteTransfer}
+            />
+          )
+        }
+        <EndButtonGroup
           controlBusy={controlBusy}
-          isOnTransfer={isOnTransfer}
-          isOnWaitingTransfer={isOnWaitingTransfer}
-          // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-          onCompleteTransfer={onCompleteTransfer}
+          onHangup={onHangup}
+          showHideKeyPad={showKeyPad}
+          onHideKeyPad={onHideKeyPad}
         />
         {children}
-      </Panel>
-    </div>
+      </StyledPanel>
+    </BackHeaderView>
   );
 };
 ActiveCallPanel.defaultProps = {
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'number | un... Remove this comment to see the full error message
   startTime: null,
   startTimeOffset: 0,
   isOnMute: false,
   isOnHold: false,
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
   phoneNumber: null,
   children: undefined,
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
   avatarUrl: null,
   showBackButton: false,
   backButtonLabel: 'Active Calls',
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type '((...args: ... Remove this comment to see the full error message
   onBackButtonClick: null,
   brand: 'RingCentral',
   showContactDisplayPlaceholder: true,
@@ -271,7 +303,6 @@ ActiveCallPanel.defaultProps = {
   sourceIcons: undefined,
   phoneTypeRenderer: undefined,
   phoneSourceNameRenderer: undefined,
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
   direction: null,
   addDisabled: false,
   mergeDisabled: false,
@@ -282,7 +313,6 @@ ActiveCallPanel.defaultProps = {
   getAvatarUrl: () => null,
   actions: [],
   controlBusy: false,
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
   callQueueName: null,
   isOnWaitingTransfer: false,
   isOnTransfer: false,

@@ -219,20 +219,10 @@ class CallCtrlPanel extends Component<CallCtrlPanelProps, CallCtrlPanelState> {
       isOnTransfer,
     } = this.props;
     const { isShowKeyPad, isShowMergeConfirm } = this.state;
-    if (isShowKeyPad) {
-      return (
-        <ActiveCallDialPad
-          // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-          onChange={onKeyPadChange}
-          hiddenDialPad={this.hiddenKeyPad}
-          onHangup={onHangup}
-          currentLocale={currentLocale}
-        />
-      );
-    }
     return (
       <ActiveCallPanel
         showBackButton={showBackButton}
+        showKeyPad={isShowKeyPad}
         backButtonLabel={backButtonLabel}
         onBackButtonClick={onBackButtonClick}
         currentLocale={currentLocale}
@@ -256,6 +246,8 @@ class CallCtrlPanel extends Component<CallCtrlPanelProps, CallCtrlPanelState> {
         // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
         onStopRecord={onStopRecord}
         onShowKeyPad={this.showKeyPad}
+        onHideKeyPad={this.hiddenKeyPad}
+        onKeyPadChange={onKeyPadChange}
         onHangup={onHangup}
         onPark={onPark}
         onAdd={onAdd}
