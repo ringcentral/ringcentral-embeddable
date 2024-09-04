@@ -229,14 +229,12 @@ interface LogoutItemProps {
   onLogout: () => void;
   loginNumber: string;
   currentLocale: string;
-  brandName?: string;
 }
 
 export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
   currentLocale,
   onLogout,
   loginNumber,
-  brandName,
 }) => {
   return (
     <StyledSettingItem
@@ -245,9 +243,7 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
       $noBorder
     >
       <RcListItemText
-        primary={
-          `${i18n.getString('logout', currentLocale)} ${brandName ? `of ${brandName}` : ''}`
-        }
+        primary={i18n.getString('logout', currentLocale)}
         primaryTypographyProps={{
           color: 'neutral.f05',
         }}

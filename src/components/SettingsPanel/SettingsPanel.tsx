@@ -296,7 +296,6 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   gotoThirdPartySection,
   onThirdPartyButtonClick,
   onSettingToggle,
-  brandConfig,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'link',
@@ -405,7 +404,6 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         onLogoutButtonClick,
         version,
         versionContainer,
-        brandName: brandConfig?.name,
       }}
     >
       {

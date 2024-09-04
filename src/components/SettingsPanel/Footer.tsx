@@ -17,10 +17,7 @@ const StyledVersionContainer = styled(RcText)`
   font-size: 0.815rem;
 `;
 
-interface NewFooterProps extends FooterProps {
-  brandName?: string;
-}
-export const Footer: FunctionComponent<NewFooterProps> = ({
+export const Footer: FunctionComponent<FooterProps> = ({
   loginNumber,
   currentLocale,
   version,
@@ -29,7 +26,6 @@ export const Footer: FunctionComponent<NewFooterProps> = ({
   eulaLabel,
   eulaLink,
   onEulaLinkClick,
-  brandName,
 }) => {
   const versionArea = versionContainer || (
     <StyledVersionContainer
@@ -57,7 +53,6 @@ export const Footer: FunctionComponent<NewFooterProps> = ({
           onLogout={onLogoutButtonClick}
           loginNumber={loginNumber}
           currentLocale={currentLocale}
-          brandName={brandName}
         />
       </StyledSection>
       {versionArea}

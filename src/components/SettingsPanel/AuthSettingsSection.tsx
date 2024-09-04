@@ -4,38 +4,30 @@ import type { FunctionComponent } from 'react';
 import {
   RcButton,
   RcListItemText,
-  RcListItemAvatar,
   RcTypography,
   styled,
   palette2,
-  css
 } from '@ringcentral/juno';
 import { StyledSettingItem } from './SettingItem';
 
-const StyledAuthSettingItem = styled(StyledSettingItem)<{ $authorized: boolean }>`
-  .MuiListItemAvatar-root {
-    margin-right: 4px;
-  }
+const StyledAuthSettingItem = styled(StyledSettingItem)`
+  align-items: flex-start;
 
   .RcListItemText-multiline {
     margin: 0;
   }
 
-  ${({ $authorized }) => $authorized ? css`
-    .third-party-auth-action {
-      display: none;
-    }
+  .RcListItemText-primary {
+    display: flex;
+    flex-direction: row;
+    line-height: 30px;
+    margin-right: 100px;
+    align-items: center;
+  }
 
-    &:hover {
-      .third-party-auth-action {
-        display: block;
-      }
-    }
-  ` : css`
-    .third-party-auth-action {
-      display: block;
-    }
-  `}
+  .RcListItemText-secondary {
+    margin-top: 5px;
+  }
 `;
 
 const RedDot = styled.div`
@@ -50,9 +42,9 @@ const RedDot = styled.div`
 
 const AuthAction = styled.div`
   position: absolute;
+  display: inline-block;
   right: 16px;
-  top: 11px;
-  background-color: ${palette2('neutral', 'b01')};
+  top: 6px;
 `;
 
 const IconWrapper = styled.div`
@@ -109,17 +101,19 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
       disableTouchRipple
       disableRipple
       data-sign="thirdPartyAuthSetting"
-      $authorized={authorized}
     >
-      {
-        icon ? (
-          <RcListItemAvatar>
-            {icon}
-          </RcListItemAvatar>
-        ) : null
-      }
       <RcListItemText
-        primary={serviceName}
+        primary={
+          <>
+            {icon}
+            <RcTypography variant="body1" color="neutral.f06">
+              {serviceName}
+            </RcTypography>
+          </>
+        }
+        primaryTypographyProps={{
+          component: 'div',
+        }}
         secondary={
           <>
             <RcTypography variant="caption1" color="neutral.f04">
@@ -140,7 +134,7 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
           component: 'div',
         }}
       />
-      <AuthAction className="third-party-auth-action">
+      <AuthAction>
         <RcButton
           size="small"
           onClick={(e) => {

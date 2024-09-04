@@ -25,11 +25,7 @@ const StyledPanel = styled(Panel)`
   background-color: ${palette2('neutral', 'b02')};
 `;
 
-interface NewBasePanelProps extends BasePanelProps {
-  brandName?: string;
-}
-
-export const BasePanel: FunctionComponent<NewBasePanelProps> = ({
+export const BasePanel: FunctionComponent<BasePanelProps> = ({
   currentLocale,
   className,
   showSpinner,
@@ -41,7 +37,6 @@ export const BasePanel: FunctionComponent<NewBasePanelProps> = ({
   onEulaLinkClick,
   version,
   versionContainer,
-  brandName,
 }) => {
   if (showSpinner) {
     return <SpinnerOverlay />;
@@ -61,7 +56,6 @@ export const BasePanel: FunctionComponent<NewBasePanelProps> = ({
             onLogoutButtonClick,
             version,
             versionContainer,
-            brandName,
           }}
         />
       </StyledPanel>
