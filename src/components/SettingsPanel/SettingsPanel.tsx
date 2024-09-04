@@ -1,10 +1,10 @@
 import type { FunctionComponent } from 'react';
 import React from 'react';
 
-import { BasePanel } from '@ringcentral-integration/widgets/components/SettingsPanel/BasePanel';
+import type { SettingsPanelProps } from '@ringcentral-integration/widgets/components/SettingsPanel/SettingsPanel.interface';
+import { BasePanel } from './BasePanel';
 
 import { PresenceSettingSection } from './PresenceSettingSection';
-import type { SettingsPanelProps } from '@ringcentral-integration/widgets/components/SettingsPanel/SettingsPanel.interface';
 import {
   LinkLineItem,
   SwitchLineItem,

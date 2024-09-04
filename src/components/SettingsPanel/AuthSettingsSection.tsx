@@ -4,7 +4,6 @@ import type { FunctionComponent } from 'react';
 import {
   RcButton,
   RcListItemText,
-  RcListItemIcon,
   RcTypography,
   styled,
   palette2,
