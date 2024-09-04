@@ -1,5 +1,5 @@
 import React from 'react';
-
+import type { FunctionComponent } from 'react';
 import {
   RcListItem,
   RcListItemText,
@@ -10,11 +10,20 @@ import {
 } from '@ringcentral/juno';
 import { People } from '@ringcentral/juno-icon';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
-import styles from '@ringcentral-integration/widgets/components/ActiveCallPanel/styles.scss';
-
 
 const StyledItem = styled(RcListItem)`
+  .RcListItemText-primary {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+  }
+
   .ContactDisplay_root {
+    vertical-align: bottom;
+    font-family: Lato, Helvetica, Arial, sans-serif;
+    flex: 1;
+    overflow: hidden;
+  
     > div {
       font-size: 0.9375rem;
       font-weight: 400;
@@ -45,7 +54,24 @@ type CallInfoProps = {
   phoneSourceNameRenderer?: (...args: any[]) => any;
   callQueueName?: string;
 };
-const CallInfo: React.SFC<CallInfoProps> = (props) => {
+const CallInfo: FunctionComponent<CallInfoProps> = ({
+  nameMatches = [],
+  phoneNumber = null,
+  avatarUrl = null,
+  brand = 'RingCentral',
+  showContactDisplayPlaceholder = true,
+  sourceIcons = undefined,
+  phoneTypeRenderer = undefined,
+  phoneSourceNameRenderer = undefined,
+  callQueueName = null,
+  selectedMatcherIndex = 0,
+  formatPhone,
+  fallBackName,
+  currentLocale,
+  areaCode,
+  countryCode,
+  onSelectMatcherName,
+}) => {
   return (
     <StyledItem
       canHover={false}
@@ -54,12 +80,12 @@ const CallInfo: React.SFC<CallInfoProps> = (props) => {
       <RcListItemAvatar>
         <RcAvatar
           size="small"
-          src={props.avatarUrl}
+          src={avatarUrl}
           data-sign="avatar"
           color="avatar.global"
         >
           {
-            props.avatarUrl ? null : (
+            avatarUrl ? null : (
               <RcIcon
                 symbol={People}
                 size="medium"
@@ -71,35 +97,33 @@ const CallInfo: React.SFC<CallInfoProps> = (props) => {
       <RcListItemText
         primary={
           <>
-            {props.callQueueName}
+            {callQueueName}
             <ContactDisplay
-              formatPhone={props.formatPhone}
-              className={styles.contactDisplay}
-              selectClassName={styles.dropdown}
-              contactMatches={props.nameMatches}
-              phoneNumber={props.phoneNumber}
-              fallBackName={props.fallBackName}
-              currentLocale={props.currentLocale}
-              areaCode={props.areaCode}
-              countryCode={props.countryCode}
+              formatPhone={formatPhone}
+              contactMatches={nameMatches}
+              phoneNumber={phoneNumber}
+              fallBackName={fallBackName}
+              currentLocale={currentLocale}
+              areaCode={areaCode}
+              countryCode={countryCode}
               showType={false}
-              selected={props.selectedMatcherIndex}
-              onSelectContact={props.onSelectMatcherName}
+              selected={selectedMatcherIndex}
+              onSelectContact={onSelectMatcherName}
               isLogging={false}
               enableContactFallback
-              brand={props.brand}
-              showPlaceholder={props.showContactDisplayPlaceholder}
+              brand={brand}
+              showPlaceholder={showContactDisplayPlaceholder}
               // @ts-expect-error TS(2322): Type 'object | undefined' is not assignable to typ... Remove this comment to see the full error message
-              sourceIcons={props.sourceIcons}
-              phoneTypeRenderer={props.phoneTypeRenderer}
-              phoneSourceNameRenderer={props.phoneSourceNameRenderer}
+              sourceIcons={sourceIcons}
+              phoneTypeRenderer={phoneTypeRenderer}
+              phoneSourceNameRenderer={phoneSourceNameRenderer}
             />
           </>
         }
         primaryTypographyProps={{
           component: 'div',
         }}
-        secondary={props.formatPhone(props.phoneNumber)}
+        secondary={formatPhone(phoneNumber)}
         secondaryTypographyProps={{
           'data-sign': 'userPhoneNumber',
         }}
@@ -107,17 +131,5 @@ const CallInfo: React.SFC<CallInfoProps> = (props) => {
     </StyledItem>
   );
 };
-CallInfo.defaultProps = {
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
-  phoneNumber: null,
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
-  avatarUrl: null,
-  brand: 'RingCentral',
-  showContactDisplayPlaceholder: true,
-  sourceIcons: undefined,
-  phoneTypeRenderer: undefined,
-  phoneSourceNameRenderer: undefined,
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
-  callQueueName: null,
-};
+
 export default CallInfo;
