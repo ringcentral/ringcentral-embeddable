@@ -105,4 +105,8 @@ export class AppFeatures extends AppFeaturesBase {
       (this._deps.extensionFeatures.features?.RingSenseMVP?.available ?? false)
     );
   }
+
+  get showAudioInitPrompt() {
+    return !!this.config.AudioInitPrompt;
+  }
 }

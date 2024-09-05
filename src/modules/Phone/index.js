@@ -752,6 +752,7 @@ export function createPhone({
   isUsingDefaultClientId,
   enableSMSTemplate,
   enableSmartNote,
+  enableAudioInitPrompt,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -877,6 +878,7 @@ export function createPhone({
           SMSTemplate: !!enableSMSTemplate,
           SmartNote: !!enableSmartNote,
           EDP: true,
+          AudioInitPrompt: !!enableAudioInitPrompt,
         },
       },
       {

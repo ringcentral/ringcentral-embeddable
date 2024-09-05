@@ -96,6 +96,7 @@ export default withPhone(connect((_, {
     adapter,
     audioSettings,
     callingSettings,
+    appFeatures,
     auth,
   },
   fromPopup,
@@ -108,6 +109,7 @@ export default withPhone(connect((_, {
   redirectUri: oAuth.redirectUri,
   showDemoWarning: adapter.showDemoWarning,
   showAudioInit: (
+    appFeatures.showAudioInitPrompt &&
     !audioSettings.autoplayEnabled && (
       fromPopup ||
       (auth.loggedIn && callingSettings.callingMode === callingModes.webphone)
