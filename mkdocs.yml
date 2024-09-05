@@ -88,7 +88,6 @@ nav:
      - 'Javascript vs iframes': initialization.md
      - 'Version control': versions.md
      - 'Self-hosting': self-hosting.md
-     - 'Audio': audio.md
 
 - 'Configuration':
   - 'All parameters': config/index.md
@@ -107,6 +106,7 @@ nav:
     - 'Setting your environment': config/environment.md
     - 'SMS templates': config/sms-template.md
     - 'Quick access badge': config/badge.md
+    - 'Audio': config/audio.md
 
 - 'Developer guide':
   - 'Events': integration/events.md

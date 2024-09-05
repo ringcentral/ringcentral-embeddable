@@ -36,5 +36,6 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `showSignUpButton` | False |  |
 | `stylesUri` | *null* | See [Customize look and feel through CSS](styles.md). |
 | `userAgent` | *null* | See [Customize X-User-Agent](user-agent.md). |
+| `enableAudioInitPrompt` | *null* | See [Audio](./audio.md). |
 </div>
 

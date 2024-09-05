@@ -81,6 +81,7 @@ const {
   defaultAutoLogMessageEnabled,
   enableSMSTemplate,
   enableSmartNote,
+  enableAudioInitPrompt,
 } = pathParams;
 
 const defaultBrand = brand || process.env.BRAND;
@@ -158,6 +159,7 @@ const phone = createPhone({
   isUsingDefaultClientId,
   enableSMSTemplate,
   enableSmartNote,
+  enableAudioInitPrompt,
 });
 
 const store = createStore(phone.reducer);

@@ -4,9 +4,31 @@ When the calling setting is configured to "Browser", the widget utilizes the bro
 
 ## Audio output
 
-Due to browser limitations, the widget can only play audio after user interacts with it. Therefore, an audio initialization is required to enable ringtone playback for incoming calls. Users can initialize audio by clicking the `Initialize audio` button or interacting with any other button within the widget.
+Due to browser limitations, the widget can only play audio after user interacts with it. Therefore, an audio initialization is required to enable ringtone playback for incoming calls. Users can initialize audio by interacting with any button within the widget.
+
+And developer can enable `Audio Initialization` banner to remind user to initialize audio. The banner will be displayed at the top of the widget.
 
 <!-- md:version 2.0.1 -->
+
+=== "Javascript"
+
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableAudioInitPrompt=1";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
+
+=== "iframe"
+
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableAudioInitPrompt=1">
+    </iframe>
+    ```
 
 ![audio init](https://github.com/user-attachments/assets/e10b9bbe-3868-477d-995b-c4d73fcb3bbf)
 
