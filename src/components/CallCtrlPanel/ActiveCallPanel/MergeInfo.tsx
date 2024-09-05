@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
-import classnames from 'classnames';
 
 import calleeTypes from '@ringcentral-integration/commons/enums/calleeTypes';
 import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
@@ -14,8 +13,9 @@ import {
   RcIcon,
   RcText,
   styled,
+  palette2,
 } from '@ringcentral/juno';
-import { People } from '@ringcentral/juno-icon';
+import { People, Conference } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/ActiveCallPanel/i18n';
 
 const Container = styled(RcList)`
@@ -44,6 +44,28 @@ const MergeItem = styled(RcListItem)`
       line-height: 22px;
     }
   }
+`;
+
+const LastCallItem = styled(MergeItem)`
+  &.RcListItem-gutters {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .MuiListItemText-primary {
+    font-size: 0.875rem;
+    color: ${palette2('neutral', 'f04')};
+  }
+`;
+
+const LastCallStatus = styled(RcText)`
+  font-size: 0.75rem;
+  color: ${palette2('neutral', 'f04')};
+`;
+
+const CallDuration = styled(RcText)`
+  font-size: 0.75rem;
+  color: ${palette2('neutral', 'f06')};
 `;
 
 const EmptyUserInfo = styled.div`
@@ -153,7 +175,7 @@ const MergeInfo: FunctionComponent<MergeInfoProps> = ({
     : lastCallInfo.avatarUrl;
   return (
     <Container data-sign="mergeInfo">
-      <MergeItem
+      <LastCallItem
         canHover={false}
         disableTouchRipple
       >
@@ -167,7 +189,7 @@ const MergeInfo: FunctionComponent<MergeInfoProps> = ({
             {
               firstCalleeAvatarUrl ? null : (
                 <RcIcon
-                  symbol={People}
+                  symbol={isOnConferenceCall ? Conference : People}
                   size="small"
                 />
               )
@@ -201,40 +223,45 @@ const MergeInfo: FunctionComponent<MergeInfoProps> = ({
         <RcListItemSecondaryAction>
           {
             (isLastCallInfoReady || (!isLastCallInfoReady && isOnConferenceCall)) && (
-              <RcText variant="body1" color="neutral.f04">
+              <LastCallStatus variant="body1">
                 {/* @ts-expect-error TS(2339): Property 'status' does not exist on */}
                 {lastCallInfo.status === sessionStatus.finished
                   ? i18n.getString('disconnected', currentLocale)
                   : i18n.getString('onHold', currentLocale)}
-              </RcText>
+              </LastCallStatus>
             )
           }
         </RcListItemSecondaryAction>
-      </MergeItem>
-      <MergeItem>
-        <RcAvatar
-          size="small"
-          src={currentCallAvatarUrl}
-          data-sign="avatar"
-          color="avatar.global"
-        >
-          {
-            currentCallAvatarUrl ? null : (
-              <RcIcon
-                symbol={People}
-                size="small"
-              />
-            )
-          }
-        </RcAvatar>
+      </LastCallItem>
+      <MergeItem
+        canHover={false}
+        disableTouchRipple
+      >
+        <RcListItemAvatar>
+          <RcAvatar
+            size="small"
+            src={currentCallAvatarUrl}
+            data-sign="avatar"
+            color="avatar.lake"
+          >
+            {
+              currentCallAvatarUrl ? null : (
+                <RcIcon
+                  symbol={People}
+                  size="small"
+                />
+              )
+            }
+          </RcAvatar>
+        </RcListItemAvatar>
         <RcListItemText
           primary={currentCallTitle}
           data-sign="activeCalleeName"
         />
         <RcListItemSecondaryAction>
-          <RcText variant="body1" color="neutral.f06">
+          <CallDuration variant="body1">
             {timeCounter}
-          </RcText>
+          </CallDuration>
         </RcListItemSecondaryAction>
       </MergeItem>
     </Container>

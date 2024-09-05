@@ -12,6 +12,8 @@ import { People } from '@ringcentral/juno-icon';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
 
 const StyledItem = styled(RcListItem)`
+  margin-top: 16px;
+
   .RcListItemText-primary {
     display: flex;
     align-items: center;

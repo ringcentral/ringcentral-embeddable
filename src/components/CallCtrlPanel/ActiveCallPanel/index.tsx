@@ -21,7 +21,7 @@ const StyledPanel = styled.div`
   position: relative;
   box-sizing: border-box;
   padding-bottom: 14px;
-  padding-top: 30px;
+  padding-top: 16px;
   background-color: ${palette2('neutral', 'b01')};
   justify-content: space-around;
 `;
@@ -154,15 +154,11 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   isOnWaitingTransfer,
   onCompleteTransfer,
 }) => {
-  const timeCounter = (
-    <StyledTimeCounter variant="caption1" color="neutral.f04">
-      {startTime ? (
-        <DurationCounter startTime={startTime} offset={startTimeOffset} />
-      ) : (
-        <span aria-hidden="true">&nbsp;</span>
-      )}
-    </StyledTimeCounter>
-  );
+  const timeCounter = startTime ? (
+      <DurationCounter startTime={startTime} offset={startTimeOffset} />
+    ) : (
+      <span aria-hidden="true">&nbsp;</span>
+    );
   const currentCallTitle = nameMatches?.length
     ? nameMatches[0].name
     : formatPhone(phoneNumber);
@@ -227,7 +223,11 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
       hideHeader={!showBackButton}
     >
       <StyledPanel>
-        {showTimeCounter ? timeCounter : null}
+        {showTimeCounter ? (
+          <StyledTimeCounter variant="caption1" color="neutral.f04">
+            timeCounter
+          </StyledTimeCounter>
+        ) : null}
         {callInfo}
         {
           showKeyPad ? (

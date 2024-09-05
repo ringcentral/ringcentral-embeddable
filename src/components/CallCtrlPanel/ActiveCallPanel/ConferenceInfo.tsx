@@ -12,11 +12,18 @@ import { Conference } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/ActiveCallPanel/i18n';
 
 const Container = styled.div`
+  margin-top: 16px;
   margin-left: 13%;
   margin-right: 13%;
 `;
 
 const StyledItem = styled(RcListItem)`
+  cursor: pointer;
+  width: 100%;
+  max-width: 332px;
+  margin-left: auto;
+  margin-right: auto;
+
   .ContactDisplay_root {
     > div {
       font-size: 0.9375rem;
@@ -24,10 +31,6 @@ const StyledItem = styled(RcListItem)`
       line-height: 22px;
     }
   }
-  width: 100%;
-  max-width: 332px;
-  margin-left: auto;
-  margin-right: auto;
 
   &.RcListItem-gutters {
     padding-left: 0;
@@ -60,13 +63,13 @@ const ConferenceInfo: FunctionComponent<ConferenceInfoProps> = ({
         canHover={false}
         disableTouchRipple
         data-sign="conferenceInfo"
+        onClick={onClick}
       >
         <RcListItemAvatar>
           <RcAvatar
             size="small"
             data-sign="avatar"
             color="avatar.global"
-            onClick={onClick}
           >
             <RcIcon
               symbol={Conference}
