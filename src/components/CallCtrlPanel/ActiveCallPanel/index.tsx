@@ -4,11 +4,11 @@ import { styled, palette2, RcText } from '@ringcentral/juno';
 import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayouts';
 
 import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
-import MergeInfo from '@ringcentral-integration/widgets/components/ActiveCallPanel/MergeInfo';
 
 import { BackHeaderView } from '../../BackHeaderView';
 import CallInfo from './CallInfo';
 import ConferenceInfo from './ConferenceInfo';
+import MergeInfo from './MergeInfo';
 import ActiveCallPad from '../ActiveCallPad';
 import ActiveKeyPad from '../ActiveKeyPad';
 import { EndButtonGroup } from '../EndButtonGroup';

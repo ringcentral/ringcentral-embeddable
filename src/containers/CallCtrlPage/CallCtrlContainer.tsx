@@ -321,7 +321,6 @@ export class CallCtrlContainer extends Component<
     if (!session.id) {
       return null;
     }
-    console.log(JSON.stringify(this.props.session, null, 2));
     let fallbackUserName;
     if (
       session.direction === callDirections.inbound &&

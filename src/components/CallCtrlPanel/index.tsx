@@ -1,7 +1,6 @@
 import React, { Component, memo } from 'react';
 
 import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayouts';
-import ActiveCallDialPad from '@ringcentral-integration/widgets/components/ActiveCallDialPad';
 import ConfirmMergeModal from '@ringcentral-integration/widgets/components/ConfirmMergeModal';
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 
