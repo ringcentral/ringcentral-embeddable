@@ -82,7 +82,7 @@ const ConferenceInfo: FunctionComponent<ConferenceInfoProps> = ({
           primaryTypographyProps={{
             title: conferenceName,
           }}
-          secondary={`${i18n.getString('conferenceCall', currentLocale)} (${partiesCount + 1})`}
+          secondary={`${i18n.getString('conferenceCall', currentLocale)} (${partiesCount})`}
         />
       </StyledItem>
     </Container>
