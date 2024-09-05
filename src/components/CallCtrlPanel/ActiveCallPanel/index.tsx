@@ -225,7 +225,7 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
       <StyledPanel>
         {showTimeCounter ? (
           <StyledTimeCounter variant="caption1" color="neutral.f04">
-            timeCounter
+            {timeCounter}
           </StyledTimeCounter>
         ) : null}
         {callInfo}

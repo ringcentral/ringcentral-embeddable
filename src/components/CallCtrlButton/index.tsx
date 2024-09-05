@@ -42,12 +42,34 @@ const StyledIconButton = styled(RcIconButton)<{ $active: boolean, $activeColor: 
   }
 `;
 
+const StyledRipple = styled.div`
+  @keyframes ripple {
+    to {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
+  position: absolute;
+  background-color: ${setOpacity(palette2('interactive', 'b02'), '24')};
+  border-radius: 100%;
+  transform: scale(0);
+  animation: ripple 1s ease-out infinite;
+  pointer-events: none;
+  transform-origin: center;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+`;
+
 const Label = styled(RcText)`
   text-align: center;
   position: absolute;
   top: 100%;
   left: 50%;
   transform: translate(-50%, 5px);
+  cursor: pointer;
 `;
 
 type ActiveCallButtonProps = {
@@ -82,7 +104,7 @@ const CallCtrlButton: FunctionComponent<ActiveCallButtonProps> = ({
     (activeColor || 'interactive.b01') :
     (color || 'neutral.b03');
   return (
-    <Container className={className}>
+    <Container className={className} onClick={onClick}>
       <StyledIconButton
         symbol={icon}
         size="large"
@@ -90,12 +112,17 @@ const CallCtrlButton: FunctionComponent<ActiveCallButtonProps> = ({
         className={buttonClassName}
         variant="contained"
         disabled={disabled}
-        onClick={onClick}
         color={buttonColor}
         innerRef={buttonRef}
         $active={active}
         $activeColor={activeColor}
+        disableRipple={showRipple}
       />
+      {
+        showRipple && (
+          <StyledRipple />
+        )
+      }
       {
         title && (
           <Label variant="caption1" color={disabled ? 'neutral.f02' : 'neutral.f06'}>
