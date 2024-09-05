@@ -675,8 +675,7 @@ export default class BasePhone extends RcModule {
           this.appFeatures.ready
         ) {
           if (this.appFeatures.isCallingEnabled) {
-            // this.routerInteraction.push('/dialer');
-            this.routerInteraction.push('/calls/active/8n26fq11ngj7vuakl4jpne0cdsuvk0');
+            this.routerInteraction.push('/dialer');
           } else if (this.appFeatures.hasReadMessagesPermission) {
             this.routerInteraction.push('/messages');
           } else if (this.appFeatures.isContactsEnabled) {

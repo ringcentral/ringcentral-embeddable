@@ -31,37 +31,8 @@ export class CallControlUI extends CallControlUIBase {
     }
     return {
       ...props,
-      // session,
-      session: {
-        "id": "8n26fq11ngj7vuakl4jpne0cdsuvk0",
-        "callId": "8n26fq11ngj7vuakl4jp",
-        "direction": "Outbound",
-        "callStatus": "webphone-session-connected",
-        "to": "+16504257106",
-        "from": "16503626712*103",
-        "fromNumber": "+16503626712",
-        "fromTag": "ne0cdsuvk0",
-        "startTime": 1725349486061,
-        "creationTime": 1725349484104,
-        "isOnHold": false,
-        "isOnMute": false,
-        "isOnFlip": false,
-        "isOnTransfer": false,
-        "isToVoicemail": false,
-        "isForwarded": false,
-        "isReplied": false,
-        "recordStatus": "webphone-record-idle",
-        "minimized": false,
-        "partyData": {
-          "partyId": "p-a71911f2a3477z191b6d7dce3zfb720000-1",
-          "sessionId": "s-a71911f2a3477z191b6d7dce3zfb720000"
-        },
-        "lastActiveTime": 1725349484104,
-        "cached": false,
-        "removed": false,
-        "callQueueName": null
-      },
-    }
+      session,
+    };
   }
 
   _getTelephonySessionId(webphoneSessionId) {
