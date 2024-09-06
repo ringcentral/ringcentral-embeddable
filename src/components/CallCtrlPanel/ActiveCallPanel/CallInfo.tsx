@@ -19,6 +19,10 @@ const StyledItem = styled(RcListItem)`
     align-items: center;
     flex-direction: row;
   }
+  
+  &.RcListItem-gutters {
+    padding-left: 32px;
+  }
 
   .ContactDisplay_root {
     vertical-align: bottom;
