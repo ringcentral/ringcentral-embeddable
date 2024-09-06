@@ -16,7 +16,6 @@ import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/Cal
 import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
 import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
 import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
-import { FeedbackPage } from '@ringcentral-integration/widgets/containers/FeedbackPage';
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
 import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
 import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
@@ -479,10 +478,6 @@ export default function App({
               <Route
                 path="/settings/ringtone"
                 component={RingtoneSettingsPage}
-              />
-              <Route
-                path="/settings/feedback"
-                component={FeedbackPage}
               />
               <Route
                 path="/settings/thirdParty/:sectionId"
