@@ -49,14 +49,8 @@ type ConferenceInfoProps = {
 
 const ConferenceInfo: FunctionComponent<ConferenceInfoProps> = ({
   currentLocale,
-  partyProfiles = undefined,
   onClick = undefined,
 }) => {
-  const profiles = partyProfiles || [];
-  const partiesCount = profiles.length + 1;
-  const conferenceName = profiles.length > 0 ?
-    profiles.map((profile) => profile.partyName).join(', ') :
-    'Conference Call';
   return (
     <Container>
       <StyledItem
@@ -78,11 +72,7 @@ const ConferenceInfo: FunctionComponent<ConferenceInfoProps> = ({
           </RcAvatar>
         </RcListItemAvatar>
         <RcListItemText
-          primary={conferenceName}
-          primaryTypographyProps={{
-            title: conferenceName,
-          }}
-          secondary={`${i18n.getString('conferenceCall', currentLocale)} (${partiesCount})`}
+          primary={i18n.getString('conferenceCall', currentLocale)}
         />
       </StyledItem>
     </Container>

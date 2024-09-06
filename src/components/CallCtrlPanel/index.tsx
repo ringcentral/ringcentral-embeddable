@@ -1,10 +1,11 @@
 import React, { Component, memo } from 'react';
 
 import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayouts';
-import ConfirmMergeModal from '@ringcentral-integration/widgets/components/ConfirmMergeModal';
+
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 
 import ActiveCallPanel from './ActiveCallPanel';
+import ConfirmMergeModal from './ConfirmMergeModal';
 
 type CallCtrlPanelProps = {
   callStatus?: string;
@@ -291,7 +292,6 @@ class CallCtrlPanel extends Component<CallCtrlPanelProps, CallCtrlPanelState> {
             show={isShowMergeConfirm}
             onMerge={this.confirmMerge}
             onCancel={this.hideMergeConfirmAlt}
-            partyProfiles={conferenceCallParties}
           />
         ) : null}
       </ActiveCallPanel>
