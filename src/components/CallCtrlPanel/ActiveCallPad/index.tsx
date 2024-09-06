@@ -29,6 +29,7 @@ import i18n from '@ringcentral-integration/widgets/components/ActiveCallPad/i18n
 import { pickElements } from '@ringcentral-integration/widgets/components/ActiveCallPad/utils';
 
 import CallCtrlButton from '../../CallCtrlButton';
+import { ACTIONS_CTRL_MAP } from './actions';
 
 const StyledContainer = styled.div`
   margin-left: 15%;
@@ -54,17 +55,7 @@ const StyledCtrlButton = styled(CallCtrlButton)`
 `;
 
 const DisplayButtonNumber = 6;
-export const ACTIONS_CTRL_MAP = {
-  muteCtrl: 'muteCtrl',
-  keypadCtrl: 'keypadCtrl',
-  holdCtrl: 'holdCtrl',
-  mergeOrAddCtrl: 'mergeOrAddCtrl',
-  recordCtrl: 'recordCtrl',
-  transferCtrl: 'transferCtrl',
-  flipCtrl: 'flipCtrl',
-  parkCtrl: 'parkCtrl',
-  completeTransferCtrl: 'completeTransferCtrl',
-};
+
 type ActiveCallPadProps = {
   currentLocale: string;
   className?: string;
