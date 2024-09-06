@@ -92,6 +92,9 @@ type ActiveCallPanelProps = {
   onKeyPadChange: (...args: any[]) => any;
   onHideKeyPad: (...args: any[]) => any;
   children?: any;
+  sessionId?: string;
+  callStatus?: string;
+  onTransfer: (...args: any[]) => any;
 };
 const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   showBackButton,
@@ -127,7 +130,6 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   onAdd,
   onMerge,
   onFlip,
-  // @ts-expect-error TS(2339): Property 'onTransfer' does not exist on type 'Prop... Remove this comment to see the full error message
   onTransfer,
   gotoParticipantsCtrl,
   children,
