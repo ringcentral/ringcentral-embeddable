@@ -10,19 +10,16 @@ import {
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
 import { NotificationContainer } from '@ringcentral-integration/widgets/containers/NotificationContainer';
-// import CallCtrlPage from '@ringcentral-integration/widgets/containers/CallCtrlPage';
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
 import CallingSettingsPage from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
 import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
 import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
 import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
 import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
-import { FeedbackPage } from '@ringcentral-integration/widgets/containers/FeedbackPage';
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
 import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
 import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
 import RegionSettingsPage from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
-import { SimpleCallControlPage } from '@ringcentral-integration/widgets/containers/SimpleCallControlPage';
 import { ThemeContainer } from '@ringcentral-integration/widgets/containers/ThemeContainer';
 
 import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
@@ -35,7 +32,8 @@ import AppView from '../AppView';
 import { PhoneTabsContainer } from '../PhoneTabsContainer';
 import AudioSettingsPage from '../AudioSettingsPage';
 import DialerPage from '../DialerPage';
-import CallCtrlPage from '../CallCtrlPage';
+import { CallCtrlPage } from '../CallCtrlPage';
+import { OtherDeviceCallCtrlPage } from '../OtherDeviceCallCtrlPage';
 import { IncomingCallContainer } from '../IncomingCallContainer';
 import TransferPage from '../TransferPage';
 import LogCallPage from '../LogCallPage';
@@ -396,7 +394,7 @@ export default function App({
               <Route
                 path="/simplifycallctrl/:sessionId"
                 component={routerProps => (
-                  <SimpleCallControlPage params={routerProps.params} />
+                  <OtherDeviceCallCtrlPage params={routerProps.params} />
                 )}
               />
               <Route
@@ -480,10 +478,6 @@ export default function App({
               <Route
                 path="/settings/ringtone"
                 component={RingtoneSettingsPage}
-              />
-              <Route
-                path="/settings/feedback"
-                component={FeedbackPage}
               />
               <Route
                 path="/settings/thirdParty/:sectionId"

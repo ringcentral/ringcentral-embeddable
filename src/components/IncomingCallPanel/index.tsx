@@ -2,7 +2,7 @@ import type { FunctionComponent } from 'react';
 import React, { memo } from 'react';
 
 import classnames from 'classnames';
-import { RcDialog, RcIconButton, styled  } from '@ringcentral/juno';
+import { RcDialog, RcIconButton, styled, palette2 } from '@ringcentral/juno';
 import { Previous } from '@ringcentral/juno-icon';
 
 import { CallAvatar } from '@ringcentral-integration/widgets/components/CallAvatar';
@@ -16,6 +16,17 @@ const BackButton = styled(RcIconButton)`
   position: absolute;
   left: 6px;
   top: 6px;
+`;
+
+const UserNameContainer = styled.div`
+  display: flex;
+  height: 25px;
+  font-size: 15px;
+  color: ${palette2('neutral', 'f06')};
+  line-height: 25px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 `;
 
 // TODO: fix that props type when full refactor ready
@@ -49,7 +60,7 @@ const UserInfo: FunctionComponent<any> = ({
           </div>
         </div>
       </div>
-      <div className={styles.userNameContainer}>
+      <UserNameContainer>
         {callQueueName}
         <ContactDisplay
           name={name}
@@ -73,7 +84,7 @@ const UserInfo: FunctionComponent<any> = ({
           phoneTypeRenderer={phoneTypeRenderer}
           phoneSourceNameRenderer={phoneSourceNameRenderer}
         />
-      </div>
+      </UserNameContainer>
       <div className={styles.userPhoneNumber} data-sign="userPhoneNumber">
         {formatPhone(phoneNumber)}
       </div>

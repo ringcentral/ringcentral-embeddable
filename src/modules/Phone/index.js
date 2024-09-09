@@ -652,7 +652,8 @@ export default class BasePhone extends RcModule {
       if (
         call.telephonyStatus === 'CallConnected' &&
         webphone.connected &&
-        webphone.sessions.length === 0
+        webphone.sessions.length === 0 &&
+        routerInteraction.currentPath.indexOf('/simplifycallctrl') === -1
       ) {
         routerInteraction.push('/history');
       }

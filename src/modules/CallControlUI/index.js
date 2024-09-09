@@ -32,7 +32,7 @@ export class CallControlUI extends CallControlUIBase {
     return {
       ...props,
       session,
-    }
+    };
   }
 
   _getTelephonySessionId(webphoneSessionId) {
