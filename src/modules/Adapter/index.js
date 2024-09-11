@@ -44,6 +44,7 @@ import {
   findExistedConversation,
   setOutputDeviceWhenCall,
   getValidAttachments,
+  trackWebphoneCallEnded,
 } from './helper';
 
 @Module({
@@ -77,6 +78,7 @@ import {
     'AudioSettings',
     'SmsTemplates',
     'SideDrawerUI',
+    'Analytics',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -84,6 +86,7 @@ export default class Adapter extends AdapterModuleCore {
   constructor({
     auth,
     alert,
+    analytics,
     oAuth,
     extensionInfo,
     accountInfo,
@@ -151,6 +154,7 @@ export default class Adapter extends AdapterModuleCore {
     this._audioSettings = audioSettings;
     this._smsTemplates = smsTemplates;
     this._sideDrawerUI = sideDrawerUI;
+    this._analytics = analytics;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -196,6 +200,9 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallEnd((session) => {
       this.endCallNotify(session);
+      if (this._webphone._webphone && !this._webphone.originalSessions[session.id]) {
+        trackWebphoneCallEnded(this._analytics, session);
+      }
     });
     this._webphone.onCallInit((session) => {
       this.initCallNotify(session);

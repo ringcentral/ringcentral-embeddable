@@ -100,3 +100,31 @@ export function getValidAttachments(attachments = []) {
   });
   return validAttachments;
 }
+
+export function trackWebphoneCallEnded(analytics, session) {
+  let duration = 0;
+  if (session.startTime) {
+    duration = Math.floor((Date.now() - session.startTime) / 1000) + 1;
+  }
+  let result = 'Terminated';
+  if (session.isToVoicemail) {
+    result = 'Voicemail';
+  }
+  if (session.isOnFlip) {
+    result = 'Call Flip';
+  }
+  if (session.isForwarded) {
+    result = 'Forwarded';
+  }
+  if (session.isReplied) {
+    result = 'Replied';
+  }
+  if (session.isOnTransfer) {
+    result = 'Transfer';
+  }
+  return analytics.track('WebRTC Call Ended', {
+    direction: session.direction,
+    duration,
+    result,
+  });
+}
