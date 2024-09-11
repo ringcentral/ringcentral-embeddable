@@ -4,7 +4,7 @@ import { callingModes } from '@ringcentral-integration/commons/modules/CallingSe
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { isRingingInboundCall } from '@ringcentral-integration/commons/lib/callLogHelpers';
 import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
-import { computed, state, action } from '@ringcentral-integration/core';
+import { computed } from '@ringcentral-integration/core';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 
 @Module({
@@ -42,13 +42,7 @@ export class CallsListUI extends BaseCallsListUI {
       })
   }
 
-  @state
-  callType = 'calls';
-
-  @action
-  setCallType(type: string) {
-    this.callType = type;
-  }
+  callType = 'all';
 
   getUIProps({
     showRingoutCallControl = false,
@@ -57,7 +51,7 @@ export class CallsListUI extends BaseCallsListUI {
     showHoldOnOtherDevice = false,
     showMergeCall,
     useCallControl,
-    type = 'calls',
+    type = 'all',
     ...props
   }) {
     const {
@@ -284,8 +278,10 @@ export class CallsListUI extends BaseCallsListUI {
       },
       onLoadCalls: (type) => {
         if (type !== this.callType) {
-          this.setCallType(type);
-          callLog.clearOldCalls();
+          this.callType = type;
+          if (callLog.oldCalls.length > 0) {
+            callLog.clearOldCalls();
+          }
         }
         if (
           callLog.ready &&

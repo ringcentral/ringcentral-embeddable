@@ -84,7 +84,7 @@ export class CallLog extends CallLogBase {
     this.resetOldCalls();
   }
 
-  async fetchOldCalls(type = 'calls') {
+  async fetchOldCalls(type = 'all') {
     if (this.loadingOldCalls) {
       return;
     }
