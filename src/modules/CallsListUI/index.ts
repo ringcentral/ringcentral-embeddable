@@ -283,11 +283,11 @@ export class CallsListUI extends BaseCallsListUI {
             callLog.clearOldCalls();
           }
         }
-        if (
-          callLog.ready &&
-          callLog.list.length === 0 &&
-          appFeatures.allowLoadMoreCalls
-        ) {
+        if (!callLog.ready || !appFeatures.allowLoadMoreCalls) {
+          return;
+        }
+        const calls = type === 'recordings' ? this.recordings : callLog.list;
+        if (calls.length === 0) {
           callLog.fetchOldCalls(type);
         }
       }
