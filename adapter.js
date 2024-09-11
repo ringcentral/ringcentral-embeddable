@@ -57442,7 +57442,8 @@ const {
   defaultAutoLogMessageEnabled,
   enableSMSTemplate,
   enableSmartNote,
-  enableAudioInitPrompt
+  enableAudioInitPrompt,
+  enableLoadMoreCalls
 } = parseCallbackUri(paramsUri);
 function obj2uri(obj) {
   if (!obj) {
@@ -57506,6 +57507,7 @@ const appUri = `${appUrl}?${obj2uri({
   enableSMSTemplate,
   enableSmartNote,
   enableAudioInitPrompt,
+  enableLoadMoreCalls,
   _t: Date.now()
 })}`;
 function init() {
