@@ -105,7 +105,7 @@ export function CallsListPanel({
   onSwitchCall,
   isWide = true,
   activeCalls,
-  type = 'calls',
+  type,
   onViewSmartNote,
   onViewCalls,
   aiNotedCallMapping = {},
