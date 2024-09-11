@@ -17,6 +17,7 @@ import debounce from '@ringcentral-integration/commons/lib/debounce';
     'ContactMatcher',
     'CallingSettings',
     'SmartNotes',
+    'CallLog',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
     { dep: 'CallsListUIOptions', optional: true },
@@ -41,6 +42,8 @@ export class CallsListUI extends BaseCallsListUI {
       })
   }
 
+  callType = 'all';
+
   getUIProps({
     showRingoutCallControl = false,
     showSwitchCall = false,
@@ -48,7 +51,7 @@ export class CallsListUI extends BaseCallsListUI {
     showHoldOnOtherDevice = false,
     showMergeCall,
     useCallControl,
-    type,
+    type = 'all',
     ...props
   }) {
     const {
@@ -68,6 +71,7 @@ export class CallsListUI extends BaseCallsListUI {
       rateLimiter,
       callMonitor,
       smartNotes,
+      callLog,
     } = this._deps;
     const isWebRTC = callingSettings.callingMode === callingModes.webphone;
     const controlBusy = activeCallControl?.busy || false;
@@ -115,6 +119,8 @@ export class CallsListUI extends BaseCallsListUI {
       isWide: true,
       type,
       aiNotedCallMapping: smartNotes.aiNotedCallMapping,
+      loadingMoreCalls: callLog.loadingOldCalls,
+      hasMoreCalls: callLog.hasMoreOldCalls && appFeatures.allowLoadMoreCalls,
     };
   }
 
@@ -132,6 +138,8 @@ export class CallsListUI extends BaseCallsListUI {
       conferenceCall,
       contactMatcher,
       smartNotes,
+      callLog,
+      appFeatures,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -265,6 +273,24 @@ export class CallsListUI extends BaseCallsListUI {
         });
       },
       onViewCalls: this.onViewCalls,
+      loadMoreCalls: async () => {
+        await callLog.fetchOldCalls(this.callType);
+      },
+      onLoadCalls: (type) => {
+        if (type !== this.callType) {
+          this.callType = type;
+          if (callLog.oldCalls.length > 0) {
+            callLog.clearOldCalls();
+          }
+        }
+        if (
+          callLog.ready &&
+          callLog.list.length === 0 &&
+          appFeatures.allowLoadMoreCalls
+        ) {
+          callLog.fetchOldCalls(type);
+        }
+      }
     };
   }
 

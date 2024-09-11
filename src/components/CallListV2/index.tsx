@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-import { Virtuoso } from '@ringcentral/juno';
+import { Virtuoso, RcButton, styled, } from '@ringcentral/juno';
 
 import { CallItem } from '../CallItem';
 
@@ -60,7 +60,37 @@ type CallListV2Props = {
   onViewSmartNote?: (...args: any[]) => any;
   onViewCalls?: (...args: any[]) => any;
   aiNotedCallMapping?: any;
+  hasMoreCalls: boolean;
+  loadMoreCalls: (...args: any[]) => any;
+  loadingMoreCalls: boolean;
 };
+
+const LoadMoreButton = styled(RcButton)`
+  &.RcButton-text {
+    padding: 14px 16px;
+    font-size: 0.875rem;
+  }
+`;
+
+const ListFooter = ({
+  context: { loadMore, loading, hasMore }
+}) => {
+  if (!hasMore) {
+    return null;
+  }
+  return (
+    <LoadMoreButton
+      fullWidth
+      variant='plain'
+      disabled={loading}
+      onClick={loadMore}
+    >
+      {
+        loading ? 'Loading...' : 'Load more'
+      }
+    </LoadMoreButton>
+  );
+}
 
 export function CallListV2({
   className,
@@ -116,6 +146,9 @@ export function CallListV2({
   onViewSmartNote,
   onViewCalls,
   aiNotedCallMapping,
+  hasMoreCalls,
+  loadMoreCalls,
+  loadingMoreCalls,
 }: CallListV2Props) {
   const listRef = useRef(null);
 
@@ -125,6 +158,14 @@ export function CallListV2({
       style={{
         height: height,
         width: width,
+      }}
+      components={{
+        Footer: ListFooter,
+      }}
+      context={{
+        loading: loadingMoreCalls,
+        hasMore: hasMoreCalls,
+        loadMore: loadMoreCalls,
       }}
       rangeChanged={(data) => {
         if (typeof onViewCalls !== 'function') {
