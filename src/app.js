@@ -82,6 +82,7 @@ const {
   enableSMSTemplate,
   enableSmartNote,
   enableAudioInitPrompt,
+  enableLoadMoreCalls,
 } = pathParams;
 
 const defaultBrand = brand || process.env.BRAND;
@@ -160,6 +161,7 @@ const phone = createPhone({
   enableSMSTemplate,
   enableSmartNote,
   enableAudioInitPrompt,
+  enableLoadMoreCalls,
 });
 
 const store = createStore(phone.reducer);

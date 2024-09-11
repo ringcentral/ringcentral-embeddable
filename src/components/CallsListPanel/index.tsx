@@ -105,15 +105,28 @@ export function CallsListPanel({
   onSwitchCall,
   isWide = true,
   activeCalls,
-  type,
+  type = 'calls',
   onViewSmartNote,
   onViewCalls,
   aiNotedCallMapping = {},
+  hasMoreCalls,
+  loadingMoreCalls,
+  loadMoreCalls,
+  onLoadCalls = undefined,
 }) {
   const [contentHeight, setContentHeight] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
   const listWrapper = useRef(null);
   const mounted = useRef(false);
+
+  useEffect(() => {
+    if (showSpinner) {
+      return;
+    }
+    if (typeof onLoadCalls === 'function') {
+      onLoadCalls(type);
+    }
+  }, [type, showSpinner]);
 
   const calculateContentSize = () => {
     if (listWrapper.current && listWrapper.current.getBoundingClientRect) {
@@ -210,6 +223,9 @@ export function CallsListPanel({
       onViewSmartNote={onViewSmartNote}
       onViewCalls={onViewCalls}
       aiNotedCallMapping={aiNotedCallMapping}
+      hasMoreCalls={hasMoreCalls}
+      loadingMoreCalls={loadingMoreCalls}
+      loadMoreCalls={loadMoreCalls}
     />
   );
 

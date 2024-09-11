@@ -109,4 +109,11 @@ export class AppFeatures extends AppFeaturesBase {
   get showAudioInitPrompt() {
     return !!this.config.AudioInitPrompt;
   }
+
+  get allowLoadMoreCalls() {
+    return (
+      this.config.LoadMoreCalls &&
+      this.hasReadExtensionCallLog
+    );
+  }
 }
