@@ -65,6 +65,7 @@ type IncomingCallPadProps = {
   phoneTypeRenderer?: (...args: any[]) => any;
   phoneSourceNameRenderer?: (...args: any[]) => any;
   getPresence?: (...args: any[]) => any;
+  isCallQueueCall?: boolean;
 };
 
 const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
@@ -74,7 +75,6 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
   answer,
   forwardingNumbers,
   formatPhone = (phone: any) => phone,
-  className = null,
   hasOtherActiveCall = false,
   answerAndEnd = () => null,
   answerAndHold = () => null,
@@ -86,6 +86,7 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
   phoneTypeRenderer = undefined,
   phoneSourceNameRenderer = undefined,
   replyWithMessage,
+  isCallQueueCall = false,
 }) => {
   const [showForward, setShowForward] = useState(false);
   const [replyMessage, setReplyMessage] = useState(null);
@@ -127,6 +128,24 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
       }, 3000);
     }
   };
+  const endButton = isCallQueueCall ? (
+    <StyledCtrlButton
+      icon={Ignore}
+      onClick={reject}
+      title={i18n.getString('ignore', currentLocale)}
+      dataSign="ignore"
+      color="danger.b04"
+    />
+  ) : (
+    <StyledCtrlButton
+      icon={Voicemail}
+      onClick={onToVoicemail}
+      title={i18n.getString('toVoicemail', currentLocale)}
+      dataSign="toVoiceMail"
+      disabled={!toVoiceMailEnabled}
+      color="danger.b04"
+    />
+  );
   const multiCallButtons = (
     <StyledButtonRow>
       <StyledCtrlButton
@@ -135,14 +154,7 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
         title={i18n.getString('answerAndEnd', currentLocale)}
         dataSign="answerAndEnd"
       />
-      <StyledCtrlButton
-        icon={Voicemail}
-        onClick={onToVoicemail}
-        title={i18n.getString('toVoicemail', currentLocale)}
-        dataSign="toVoiceMail"
-        disabled={!toVoiceMailEnabled}
-        color="danger.b04"
-      />
+      {endButton}
       <StyledCtrlButton
         icon={HoldAnswer}
         onClick={answerAndHold}
@@ -153,14 +165,7 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
   );
   const singleCallButtons = (
     <TwoButtonRow>
-      <StyledCtrlButton
-        icon={Voicemail}
-        onClick={onToVoicemail}
-        title={i18n.getString('toVoicemail', currentLocale)}
-        dataSign="toVoiceMail"
-        disabled={!toVoiceMailEnabled}
-        color="danger.b04"
-      />
+      {endButton}
       <StyledCtrlButton
         icon={Phone}
         onClick={answer}
@@ -172,30 +177,34 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
   );
   return (
     <StyledContainer>
-      <StyledButtonRow>
-        <StyledCtrlButton
-          icon={Forwarding}
-          onClick={() => {
-            setShowForward(true);
-          }}
-          title={i18n.getString('forward', currentLocale)}
-          dataSign="forward"
-        />
-        <StyledCtrlButton
-          icon={Sms}
-          onClick={() => {
-            setShowReplyWithMessage(true);
-          }}
-          title={i18n.getString('reply', currentLocale)}
-          dataSign="reply"
-        />
-        <StyledCtrlButton
-          icon={Ignore}
-          onClick={reject}
-          title={i18n.getString('ignore', currentLocale)}
-          dataSign="ignore"
-        />
-      </StyledButtonRow>
+      {
+        isCallQueueCall ? null : (
+          <StyledButtonRow>
+            <StyledCtrlButton
+              icon={Forwarding}
+              onClick={() => {
+                setShowForward(true);
+              }}
+              title={i18n.getString('forward', currentLocale)}
+              dataSign="forward"
+            />
+            <StyledCtrlButton
+              icon={Sms}
+              onClick={() => {
+                setShowReplyWithMessage(true);
+              }}
+              title={i18n.getString('reply', currentLocale)}
+              dataSign="reply"
+            />
+            <StyledCtrlButton
+              icon={Ignore}
+              onClick={reject}
+              title={i18n.getString('ignore', currentLocale)}
+              dataSign="ignore"
+            />
+          </StyledButtonRow>
+        )
+      }
       {hasOtherActiveCall ? multiCallButtons : singleCallButtons}
       {
         showForward && (

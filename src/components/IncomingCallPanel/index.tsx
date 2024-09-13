@@ -337,6 +337,7 @@ const IncomingCallPanel: FunctionComponent<any> = ({
           phoneTypeRenderer={phoneTypeRenderer}
           phoneSourceNameRenderer={phoneSourceNameRenderer}
           getPresence={getPresence}
+          isCallQueueCall={callQueueName && callQueueName.length > 0}
         />
         {children}
       </Container>
