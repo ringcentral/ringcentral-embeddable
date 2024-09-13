@@ -7,12 +7,13 @@ import {
   RcText,
   RcTypography,
   RcAvatar,
+  RcTooltip,
   RcIcon,
   styled,
   palette2,
   useAvatarShortName,
 } from '@ringcentral/juno';
-import { Previous, People } from '@ringcentral/juno-icon';
+import { Previous, People, IdBorder } from '@ringcentral/juno-icon';
 
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
 import i18n from '@ringcentral-integration/widgets/components/IncomingCallView/i18n';
@@ -80,7 +81,9 @@ const UserNameContainer = styled(RcTypography)`
   text-align: center;
 
   .ContactDisplay_root {
-    display: inline-block;
+    display: inline;
+    line-height: 28px;
+
     > div {
       font-size: 1.25rem;
       color: ${palette2('neutral', 'f06')};
@@ -98,6 +101,12 @@ const UserNameContainer = styled(RcTypography)`
       }
     }
   }
+`;
+
+const StyledNameIcon = styled(RcIcon)`
+  margin-left: 5px;
+  vertical-align: middle;
+  display: inline;;
 `;
 
 function getNames(name) {
@@ -213,10 +222,17 @@ const CallInfo: FunctionComponent<CallInfoProps> = ({
   phoneSourceNameRenderer,
   formatPhone,
 }) => {
+  const isCallerId =
+    (!nameMatches || nameMatches.length === 0) &&
+    fallBackName && fallBackName.length > 0;
   return (
     <StyledUserInfo>
       <UserNameContainer component="div" variant="title1">
-        {callQueueName}
+        {
+          callQueueName && (
+            <span data-sign="callQueueName">{callQueueName}</span>
+          )
+        }
         <ContactDisplay
           name={name}
           contactMatches={nameMatches}
@@ -237,6 +253,16 @@ const CallInfo: FunctionComponent<CallInfoProps> = ({
           phoneTypeRenderer={phoneTypeRenderer}
           phoneSourceNameRenderer={phoneSourceNameRenderer}
         />
+        {
+          isCallerId && (
+            <RcTooltip title="Caller ID">
+              <StyledNameIcon
+                symbol={IdBorder}
+                size="medium"
+              />
+            </RcTooltip>
+          )
+        }
       </UserNameContainer>
       <PhoneNumber data-sign="userPhoneNumber">
         {formatPhone(phoneNumber)}

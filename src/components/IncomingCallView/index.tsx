@@ -18,6 +18,7 @@ export type IncomingCallViewProps = {
     to?: string;
     from?: string;
     fromUserName?: string;
+    toUserName?: string;
     contactMatch?: object;
     minimized?: boolean;
     callQueueName?: any;
@@ -172,7 +173,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
     fallbackUserName = i18n.getString('anonymous', currentLocale);
   }
   if (!fallbackUserName) {
-    fallbackUserName = session.fromUserName;
+    fallbackUserName = session.direction === callDirections.inbound ? session.fromUserName : session.toUserName;
   }
 
   return (
