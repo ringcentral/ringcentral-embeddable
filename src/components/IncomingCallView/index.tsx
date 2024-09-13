@@ -17,6 +17,7 @@ export type IncomingCallViewProps = {
     isOnRecord?: boolean;
     to?: string;
     from?: string;
+    fromUserName?: string;
     contactMatch?: object;
     minimized?: boolean;
     callQueueName?: any;
@@ -47,6 +48,7 @@ export type IncomingCallViewProps = {
   phoneTypeRenderer?: (...args: any[]) => any;
   phoneSourceNameRenderer?: (...args: any[]) => any;
   phoneNumber: string;
+  toPhoneNumber?: string;
   name: string;
   getPresence?: (...args: any[]) => any;
 };
@@ -57,6 +59,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
     currentLocale,
     nameMatches = [],
     phoneNumber,
+    toPhoneNumber,
     formatPhone,
     areaCode,
     countryCode,
@@ -169,7 +172,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
     fallbackUserName = i18n.getString('anonymous', currentLocale);
   }
   if (!fallbackUserName) {
-    fallbackUserName = i18n.getString('unknown', currentLocale);
+    fallbackUserName = session.fromUserName;
   }
 
   return (
@@ -180,6 +183,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
       fallBackName={fallbackUserName}
       callQueueName={showCallQueueName ? session.callQueueName : null}
       phoneNumber={phoneNumber}
+      toPhoneNumber={toPhoneNumber}
       answer={answer}
       reject={reject}
       replyWithMessage={replyWithMessage}
