@@ -333,9 +333,6 @@ export class CallCtrlContainer extends Component<
     if (!fallbackUserName) {
       fallbackUserName = session.direction === callDirections.inbound ? session.fromUserName : session.toUserName;
     }
-    if (!fallbackUserName) {
-      fallbackUserName = i18n.getString('unknown', this.props.currentLocale);
-    }
     const backButtonLabel = this.props.backButtonLabel
       ? this.props.backButtonLabel
       : i18n.getString('activeCalls', this.props.currentLocale);
