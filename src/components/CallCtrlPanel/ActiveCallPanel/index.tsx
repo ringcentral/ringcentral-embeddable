@@ -4,6 +4,7 @@ import { styled, palette2, RcText } from '@ringcentral/juno';
 import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayouts';
 
 import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
+import i18n from '@ringcentral-integration/widgets/components/CallCtrlContainer/i18n';
 
 import { BackHeaderView } from '../../BackHeaderView';
 import CallInfo from './CallInfo';
@@ -164,6 +165,11 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   const currentCallTitle = nameMatches?.length
     ? nameMatches[0].name
     : formatPhone(phoneNumber);
+  const showCallerIdName =
+    (!nameMatches || nameMatches.length === 0) &&
+    fallBackName &&
+    fallBackName.length > 0 &&
+    phoneNumber !== 'anonymous';
   let callInfo;
   switch (layout) {
     case callCtrlLayouts.completeTransferCtrl:
@@ -174,7 +180,7 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
           timeCounter={timeCounter}
           lastCallInfo={lastCallInfo}
           currentCallAvatarUrl={avatarUrl}
-          currentCallTitle={currentCallTitle || fallBackName}
+          currentCallTitle={currentCallTitle || fallBackName || i18n.getString('unknown', currentLocale)}
           formatPhone={formatPhone}
           getAvatarUrl={getAvatarUrl}
         />
@@ -194,11 +200,9 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
         <CallInfo
           currentLocale={currentLocale}
           nameMatches={nameMatches}
-          fallBackName={fallBackName}
+          fallBackName={fallBackName || i18n.getString('unknown', currentLocale)}
           phoneNumber={phoneNumber}
           formatPhone={formatPhone}
-          // @ts-expect-error TS(2322): Type '{ currentLocale: string; nameMatches: { name... Remove this comment to see the full error message
-          startTime={startTime}
           areaCode={areaCode}
           countryCode={countryCode}
           selectedMatcherIndex={selectedMatcherIndex}
@@ -210,6 +214,7 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
           phoneTypeRenderer={phoneTypeRenderer}
           phoneSourceNameRenderer={phoneSourceNameRenderer}
           callQueueName={callQueueName}
+          showCallerIdName={showCallerIdName}
         />
       );
       break;

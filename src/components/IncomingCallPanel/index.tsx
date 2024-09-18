@@ -222,45 +222,49 @@ const CallInfo: FunctionComponent<CallInfoProps> = ({
   phoneSourceNameRenderer,
   formatPhone,
 }) => {
-  const isCallerId =
+  const showCallerIdName =
     (!nameMatches || nameMatches.length === 0) &&
-    fallBackName && fallBackName.length > 0;
+    fallBackName &&
+    fallBackName.length > 0 &&
+    phoneNumber !== 'anonymous';
   return (
     <StyledUserInfo>
       <UserNameContainer component="div" variant="title1">
         {
-          callQueueName && (
-            <span data-sign="callQueueName">{callQueueName}</span>
-          )
+          callQueueName && !showCallerIdName ?
+            (<span data-sign="callQueueName">{callQueueName}</span>) : null
         }
-        <ContactDisplay
-          name={name}
-          contactMatches={nameMatches}
-          phoneNumber={phoneNumber}
-          fallBackName={fallBackName || i18n.getString('unknown', currentLocale)}
-          currentLocale={currentLocale}
-          areaCode={areaCode}
-          countryCode={countryCode}
-          showType={false}
-          selected={selectedMatcherIndex}
-          onSelectContact={onSelectMatcherName}
-          isLogging={false}
-          enableContactFallback
-          brand={brand}
-          showPlaceholder={showContactDisplayPlaceholder}
-          sourceIcons={sourceIcons}
-          // @ts-expect-error TS(2322): Type '{ name: any; className: string; selectClassN... Remove this comment to see the full error message
-          phoneTypeRenderer={phoneTypeRenderer}
-          phoneSourceNameRenderer={phoneSourceNameRenderer}
-        />
         {
-          isCallerId && (
-            <RcTooltip title="Caller ID">
-              <StyledNameIcon
-                symbol={IdBorder}
-                size="medium"
-              />
-            </RcTooltip>
+          showCallerIdName ? (
+            <>
+              {fallBackName}
+              <RcTooltip title="Caller ID">
+                <StyledNameIcon
+                  symbol={IdBorder}
+                  size="medium"
+                />
+              </RcTooltip>
+            </>
+          ) : (
+            <ContactDisplay
+              name={name}
+              contactMatches={nameMatches}
+              phoneNumber={phoneNumber}
+              fallBackName={fallBackName || i18n.getString('unknown', currentLocale)}
+              currentLocale={currentLocale}
+              areaCode={areaCode}
+              countryCode={countryCode}
+              showType={false}
+              selected={selectedMatcherIndex}
+              onSelectContact={onSelectMatcherName}
+              isLogging={false}
+              enableContactFallback
+              brand={brand}
+              showPlaceholder={showContactDisplayPlaceholder}
+              sourceIcons={sourceIcons}
+              phoneTypeRenderer={phoneTypeRenderer}
+              phoneSourceNameRenderer={phoneSourceNameRenderer}
+            />
           )
         }
       </UserNameContainer>
@@ -300,6 +304,7 @@ const IncomingCallPanel: FunctionComponent<any> = ({
   forwardingNumbers,
   answer,
   reject,
+  ignore,
   toVoiceMail,
   replyWithMessage,
   onForward,
@@ -350,6 +355,7 @@ const IncomingCallPanel: FunctionComponent<any> = ({
           formatPhone={formatPhone}
           answer={answer}
           reject={reject}
+          ignore={ignore}
           toVoiceMail={toVoiceMail}
           replyWithMessage={replyWithMessage}
           onForward={onForward}
