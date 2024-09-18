@@ -146,9 +146,6 @@ import { FlipUI } from '@ringcentral-integration/widgets/modules/FlipUI';
 import {
   GenericMeetingUI,
 } from '@ringcentral-integration/widgets/modules/GenericMeetingUI';
-import {
-  IncomingCallUI,
-} from '@ringcentral-integration/widgets/modules/IncomingCallUI';
 import { LoginUI } from '@ringcentral-integration/widgets/modules/LoginUI';
 import { ModalUI } from '@ringcentral-integration/widgets/modules/ModalUI';
 import {
@@ -179,6 +176,7 @@ import { AudioSettings } from '../AudioSettings';
 import { AudioSettingsUI } from '../AudioSettingsUI';
 import { PhoneTabsUI } from '../PhoneTabsUI';
 import { CallControlUI } from '../CallControlUI';
+import { IncomingCallUI } from '../IncomingCallUI';
 import { CallHistory } from '../CallHistory';
 import { CallsListUI } from '../CallsListUI';
 import { CallingSettings } from '../CallingSettings';

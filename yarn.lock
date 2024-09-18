@@ -2844,10 +2844,10 @@
     url-parse "^1.2.0"
     uuid "^9.0.0"
 
-"@ringcentral/juno-icon@^1.74.0":
-  version "1.74.0"
-  resolved "https://registry.yarnpkg.com/@ringcentral/juno-icon/-/juno-icon-1.74.0.tgz#8ee13d3a4a54741d9f46e737c37d495b353543e1"
-  integrity sha512-7xmMuLQBV8qY8HzyOrdkXZC5sPnZ6ChNXicmryzx+in45K5taSm4j9BmdsYgQPdUiQtp+0NN78uWT9vNaStv1A==
+"@ringcentral/juno-icon@^1.77.0":
+  version "1.77.0"
+  resolved "https://registry.yarnpkg.com/@ringcentral/juno-icon/-/juno-icon-1.77.0.tgz#9785bbb8cec96fe9902ce5bfbdd32aa389238aac"
+  integrity sha512-JpjTn37BadzIAj8A/PC9VjK9jgqOUi8YXo0aCmxdNOxRShgmCpbL+aTkuYYOMilhlEDxvdjVEA5JemxwOiUECg==
   dependencies:
     "@material-ui/core" "^4.12.3"
     tslib ">=2.0.0"

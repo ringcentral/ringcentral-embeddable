@@ -27,6 +27,8 @@ export type CallCtrlContainerProps = PropsWithChildren<{
     callStatus?: string;
     isOnTransfer?: boolean;
     callQueueName?: string;
+    fromUserName?: string;
+    toUserName?: string;
   };
   currentLocale: string;
   onMute: (...args: any[]) => any;
@@ -329,7 +331,7 @@ export class CallCtrlContainer extends Component<
       fallbackUserName = i18n.getString('anonymous', this.props.currentLocale);
     }
     if (!fallbackUserName) {
-      fallbackUserName = i18n.getString('unknown', this.props.currentLocale);
+      fallbackUserName = session.direction === callDirections.inbound ? session.fromUserName : session.toUserName;
     }
     const backButtonLabel = this.props.backButtonLabel
       ? this.props.backButtonLabel

@@ -20,11 +20,13 @@ function getCallQueueName({ direction, headers }) {
   if (headers['P-Rc-Api-Call-Info'][0].raw.indexOf('queue-call') === -1) {
     return null;
   }
-  const name = headers['P-Asserted-Identity'][0].raw.split("\"")[1];
-  if (name) {
-    return `${name} - `
+  const callInfo = headers['P-Rc-Api-Call-Info'][0].raw.split(';');
+  let queueName = callInfo.find((info) => info.indexOf('queueName=') > -1);
+  if (!queueName) {
+    return null;
   }
-  return null;
+  queueName = queueName.split('=')[1];
+  return `${queueName} - `
 }
 
 export function normalizeSession(session) {

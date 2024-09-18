@@ -6,9 +6,10 @@ import {
   RcListItemAvatar,
   RcAvatar,
   RcIcon,
+  RcTooltip,
   styled,
 } from '@ringcentral/juno';
-import { People } from '@ringcentral/juno-icon';
+import { People, IdBorder } from '@ringcentral/juno-icon';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
 
 const StyledItem = styled(RcListItem)`
@@ -27,7 +28,6 @@ const StyledItem = styled(RcListItem)`
   .ContactDisplay_root {
     vertical-align: bottom;
     font-family: Lato, Helvetica, Arial, sans-serif;
-    flex: 1;
     overflow: hidden;
   
     > div {
@@ -40,6 +40,10 @@ const StyledItem = styled(RcListItem)`
   max-width: 332px;
   margin-left: auto;
   margin-right: auto;
+`;
+
+const StyledCallerIDIcon = styled(RcIcon)`
+  margin-left: 5px;
 `;
 
 type CallInfoProps = {
@@ -59,6 +63,7 @@ type CallInfoProps = {
   phoneTypeRenderer?: (...args: any[]) => any;
   phoneSourceNameRenderer?: (...args: any[]) => any;
   callQueueName?: string;
+  showCallerIdName: boolean;
 };
 const CallInfo: FunctionComponent<CallInfoProps> = ({
   nameMatches = [],
@@ -77,6 +82,7 @@ const CallInfo: FunctionComponent<CallInfoProps> = ({
   areaCode,
   countryCode,
   onSelectMatcherName,
+  showCallerIdName,
 }) => {
   return (
     <StyledItem
@@ -103,27 +109,49 @@ const CallInfo: FunctionComponent<CallInfoProps> = ({
       <RcListItemText
         primary={
           <>
-            {callQueueName}
-            <ContactDisplay
-              formatPhone={formatPhone}
-              contactMatches={nameMatches}
-              phoneNumber={phoneNumber}
-              fallBackName={fallBackName}
-              currentLocale={currentLocale}
-              areaCode={areaCode}
-              countryCode={countryCode}
-              showType={false}
-              selected={selectedMatcherIndex}
-              onSelectContact={onSelectMatcherName}
-              isLogging={false}
-              enableContactFallback
-              brand={brand}
-              showPlaceholder={showContactDisplayPlaceholder}
-              // @ts-expect-error TS(2322): Type 'object | undefined' is not assignable to typ... Remove this comment to see the full error message
-              sourceIcons={sourceIcons}
-              phoneTypeRenderer={phoneTypeRenderer}
-              phoneSourceNameRenderer={phoneSourceNameRenderer}
-            />
+            {
+              callQueueName && !showCallerIdName && (
+                <span data-sign="callQueueName">
+                  {callQueueName}
+                </span>
+              )
+            }
+            {
+              showCallerIdName ? (
+                <>
+                  <span data-sign="callerId" title={fallBackName}>
+                    {fallBackName}
+                  </span>
+                  <RcTooltip title="Caller ID">
+                    <StyledCallerIDIcon
+                      symbol={IdBorder}
+                      size="medium"
+                    />
+                  </RcTooltip>
+                </>
+              ) : (
+                <ContactDisplay
+                  formatPhone={formatPhone}
+                  contactMatches={nameMatches}
+                  phoneNumber={phoneNumber}
+                  fallBackName={fallBackName}
+                  currentLocale={currentLocale}
+                  areaCode={areaCode}
+                  countryCode={countryCode}
+                  showType={false}
+                  selected={selectedMatcherIndex}
+                  onSelectContact={onSelectMatcherName}
+                  isLogging={false}
+                  enableContactFallback
+                  brand={brand}
+                  showPlaceholder={showContactDisplayPlaceholder}
+                  // @ts-expect-error TS(2322): Type 'object | undefined' is not assignable to typ... Remove this comment to see the full error message
+                  sourceIcons={sourceIcons}
+                  phoneTypeRenderer={phoneTypeRenderer}
+                  phoneSourceNameRenderer={phoneSourceNameRenderer}
+                />
+              )
+            }
           </>
         }
         primaryTypographyProps={{
