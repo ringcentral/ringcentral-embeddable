@@ -5,15 +5,10 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import proxyActionTypes
   from '@ringcentral-integration/commons/lib/proxy/baseActionTypes';
 import { proxify } from '@ringcentral-integration/commons/lib/proxy/proxify';
-import {
-  Webphone as WebphoneBase,
-} from '@ringcentral-integration/commons/modules/Webphone';
-import {
-  connectionStatus,
-} from '@ringcentral-integration/commons/modules/Webphone/connectionStatus';
-import {
-  EVENTS as EVENTS_BASE,
-} from '@ringcentral-integration/commons/modules/Webphone/events';
+import { Webphone as WebphoneBase } from '@ringcentral-integration/commons/modules/Webphone';
+import { connectionStatus } from '@ringcentral-integration/commons/modules/Webphone/connectionStatus';
+import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
+import { EVENTS as EVENTS_BASE } from '@ringcentral-integration/commons/modules/Webphone/events';
 import {
   action,
   track,
@@ -25,7 +20,6 @@ import type {
 } from '@ringcentral-integration/core/lib/ObjectMap';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import { sleep } from '@ringcentral-integration/utils';
-
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
 import { normalizeSession } from './helper';
 import { patchAudioHelper } from './patchAudioHelper';
@@ -596,5 +590,19 @@ export class Webphone extends WebphoneBase {
       this._deps.audioSettings.supportDevices,
       this._deps.audioSettings.ringtoneDeviceId,
     ];
+  }
+
+  @proxify
+  async ignore(sessionId: string) {
+    const session = this.originalSessions[sessionId];
+    if (!session || session.__rc_callStatus === sessionStatus.finished) {
+      return;
+    }
+    try {
+      await session.ignore();
+    } catch (e: any /** TODO: confirm with instanceof */) {
+      console.error(e);
+      this._onCallEnd(session);
+    }
   }
 }

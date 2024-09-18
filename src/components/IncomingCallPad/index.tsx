@@ -49,6 +49,7 @@ const TwoButtonRow = styled(StyledButtonRow)`
 type IncomingCallPadProps = {
   answer: (...args: any[]) => any;
   reject: (...args: any[]) => any;
+  ignore: (...args: any[]) => any;
   toVoiceMail: (...args: any[]) => any;
   currentLocale: string;
   forwardingNumbers: any[];
@@ -72,6 +73,7 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
   currentLocale,
   sessionId,
   reject,
+  ignore,
   answer,
   forwardingNumbers,
   formatPhone = (phone: any) => phone,
@@ -131,7 +133,7 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
   const endButton = isCallQueueCall ? (
     <StyledCtrlButton
       icon={Ignore}
-      onClick={reject}
+      onClick={ignore}
       title={i18n.getString('ignore', currentLocale)}
       dataSign="ignore"
       color="danger.b04"

@@ -75,6 +75,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
     activeSessionId,
     showCallQueueName,
     reject: rejectProp,
+    ignore: ignoreProp,
     toVoiceMail: toVoiceMailProp,
     replyWithMessage: replyWithMessageProp,
     toggleMinimized: toggleMinimizedProp,
@@ -97,6 +98,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
   const hasOtherActiveCall = !!activeSessionId;
   const answer = () => answerProp(session.id);
   const reject = () => rejectProp(session.id);
+  const ignore = () => ignoreProp(session.id);
   const toVoiceMail = () => toVoiceMailProp(session.id);
   const replyWithMessage = (message: string) =>
     replyWithMessageProp(session.id, message);
@@ -187,6 +189,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
       toPhoneNumber={toPhoneNumber}
       answer={answer}
       reject={reject}
+      ignore={ignore}
       replyWithMessage={replyWithMessage}
       toVoiceMail={toVoiceMail}
       formatPhone={formatPhone}
