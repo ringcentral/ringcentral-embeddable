@@ -19,15 +19,12 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const NormalListRoot = styled.div`
+const ListRoot = styled.div`
   position: relative;
   width: 100%;
   flex: 1;
   overflow: auto;
   background-color: ${palette2('neutral', 'b01')};
-`;
-
-const ResponsiveListRoot = styled(NormalListRoot)`
   flex: 1;
 `;
 
@@ -395,12 +392,12 @@ export function CallsListPanel({
         ) : null)
       }
       {search}
-      <ResponsiveListRoot
+      <ListRoot
         className="CallsListPanel_root"
         ref={listWrapper}
       >
         {calls.length > 0 ? historyCall : noCalls}
-      </ResponsiveListRoot>
+      </ListRoot>
     </Container>
   );
 }
