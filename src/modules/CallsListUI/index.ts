@@ -2,9 +2,13 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import { CallsListUI as BaseCallsListUI } from '@ringcentral-integration/widgets/modules/CallsListUI';
 import { callingModes } from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
-import { isRingingInboundCall } from '@ringcentral-integration/commons/lib/callLogHelpers';
+import {
+  isRingingInboundCall,
+  isInbound,
+  isMissed,
+} from '@ringcentral-integration/commons/lib/callLogHelpers';
 import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
-import { computed } from '@ringcentral-integration/core';
+import { computed, action, state } from '@ringcentral-integration/core';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 
 @Module({
@@ -42,7 +46,51 @@ export class CallsListUI extends BaseCallsListUI {
       })
   }
 
+  @state
   callType = 'all';
+
+  @action
+  setCallType(type) {
+    this.callType = type;
+  }
+
+  @state
+  filterType = 'All';
+
+  @action
+  setFilterType(type) {
+    this.filterType = type;
+  }
+
+  @computed((that: CallsListUI) => [
+    that._deps.callHistory.latestCalls,
+    that._deps.auth.token,
+    that.callType,
+    that.filterType,
+  ])
+  get historyCalls() {
+    if (this.callType === 'recordings') {
+      return this.recordings;
+    }
+    if (this.filterType === 'All') {
+      return this._deps.callHistory.latestCalls;
+    }
+    return this._deps.callHistory.latestCalls.filter((call) => {
+      if (this.filterType === 'UnLogged') {
+        return call.activityMatches && call.activityMatches.length === 0;
+      }
+      if (this.filterType === 'Missed') {
+        return isInbound(call) && isMissed(call);
+      }
+      if (this.filterType === 'Inbound') {
+        return isInbound(call);
+      }
+      if (this.filterType === 'Outbound') {
+        return !isInbound(call);
+      }
+      return true;
+    });
+  }
 
   getUIProps({
     showRingoutCallControl = false,
@@ -115,12 +163,24 @@ export class CallsListUI extends BaseCallsListUI {
         controlBusy,
       useCallControl,
       activeCalls: type !== 'recordings' ? callMonitor.calls : [],
-      calls: type !== 'recordings' ? callHistory.latestCalls : this.recordings,
+      calls: this.historyCalls,
       isWide: true,
       type,
       aiNotedCallMapping: smartNotes.aiNotedCallMapping,
       loadingMoreCalls: callLog.loadingOldCalls,
-      hasMoreCalls: callLog.hasMoreOldCalls && appFeatures.allowLoadMoreCalls,
+      hasMoreCalls: (
+        callLog.hasMoreOldCalls &&
+        appFeatures.allowLoadMoreCalls &&
+        callHistory.searchInput === '' &&
+        (
+          type === 'recordings' || (
+            this.filterType !== 'UnLogged' &&
+            this.filterType !== 'Missed'
+          )
+        )
+      ),
+      searchInput: callHistory.searchInput,
+      filterType: this.filterType,
     };
   }
 
@@ -140,6 +200,7 @@ export class CallsListUI extends BaseCallsListUI {
       smartNotes,
       callLog,
       appFeatures,
+      callHistory,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -274,11 +335,24 @@ export class CallsListUI extends BaseCallsListUI {
       },
       onViewCalls: this.onViewCalls,
       loadMoreCalls: async () => {
-        await callLog.fetchOldCalls(this.callType);
+        const query: {
+          isRecording?: boolean;
+          direction?: string;
+        } = {}
+        if (this.callType === 'recordings') {
+          query.isRecording = true;
+        } else {
+          if (this.filterType === 'Inbound') {
+            query.direction = 'Inbound';
+          } else if (this.filterType === 'Outbound') {
+            query.direction = 'Outbound';
+          }
+        }
+        await callLog.fetchOldCalls(query);
       },
-      onLoadCalls: (type) => {
+      onLoadCalls: (type, filterType) => {
         if (type !== this.callType) {
-          this.callType = type;
+          this.setCallType(type);
           if (callLog.oldCalls.length > 0) {
             callLog.clearOldCalls();
           }
@@ -286,9 +360,34 @@ export class CallsListUI extends BaseCallsListUI {
         if (!callLog.ready || !appFeatures.allowLoadMoreCalls) {
           return;
         }
-        const calls = type === 'recordings' ? this.recordings : callLog.list;
-        if (calls.length === 0) {
-          callLog.fetchOldCalls(type);
+        if (this.historyCalls.length === 0) {
+          const query: {
+            isRecording?: boolean;
+            direction?: string;
+          } = {}
+          if (type === 'recordings') {
+            query.isRecording
+          } else {
+            if (filterType === 'Inbound') {
+              query.direction = 'Inbound';
+            } else if (filterType === 'Outbound') {
+              query.direction = 'Outbound';
+            }
+          }
+          callLog.fetchOldCalls(query);
+        }
+      },
+      onSearchInputChange : (value) => {
+        callHistory.updateSearchInput(value);
+        callHistory.debouncedSearch();
+      },
+      onFilterTypeChange: (value) => {
+        const oldValue = this.filterType;
+        if (value !== this.filterType) {
+          this.setFilterType(value);
+        }
+        if (oldValue !== 'All' && callLog.oldCalls.length > 0) {
+          callLog.clearOldCalls();
         }
       }
     };

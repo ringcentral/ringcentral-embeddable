@@ -18,7 +18,9 @@ type CallLogQueryParams = {
   dateFrom: string;
   dateTo: string;
   perPage: number;
-  withRecording?: string;
+  recordingType?: string;
+  direction?: string;
+  type: string;
 };
 
 @Module({
@@ -84,7 +86,10 @@ export class CallLog extends CallLogBase {
     this.resetOldCalls();
   }
 
-  async fetchOldCalls(type = 'all') {
+  async fetchOldCalls({
+    isRecording = false,
+    direction = undefined,
+  }) {
     if (this.loadingOldCalls) {
       return;
     }
@@ -105,13 +110,16 @@ export class CallLog extends CallLogBase {
         perPage: 20,
         dateFrom: dateFrom.toISOString(),
         dateTo: new Date(dateToTime).toISOString(),
+        type: 'Voice',
       };
-      if (type === 'recordings') {
-        queryParams.withRecording = 'true';
+      if (isRecording) {
+        queryParams.recordingType = 'All';
+      }
+      if (direction) {
+        queryParams.direction = direction;
       }
       const response = await this._deps.client.account().extension().callLog().list(queryParams);
       const records = (response.records || [])
-        .filter((record) => record.type !== 'Fax')
         .map(({ startTime, uri, extension, ...record}) => {
           return {
             ...record,

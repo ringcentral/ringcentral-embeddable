@@ -3,16 +3,33 @@ import React, { useState, useRef, useEffect } from 'react';
 import classnames from 'classnames';
 
 import debounce from '@ringcentral-integration/commons/lib/debounce';
-
+import { styled, palette2 } from '@ringcentral/juno';
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
 import i18n from '@ringcentral-integration/widgets/components/CallsListPanel/i18n';
 import styles from '@ringcentral-integration/widgets/components/CallsListPanel/styles.scss';
 
 import CallListV2 from '../CallListV2';
 import ActiveCallList from '../ActiveCallList';
-import { SearchLine } from '../SearchLine';
+import { Filter } from './Filter';
 
-const SEARCH_BAR_HEIGHT = 51;
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const NormalListRoot = styled.div`
+  position: relative;
+  width: 100%;
+  flex: 1;
+  overflow: auto;
+  background-color: ${palette2('neutral', 'b01')};
+`;
+
+const ResponsiveListRoot = styled(NormalListRoot)`
+  flex: 1;
+`;
 
 export function CallsListPanel({
   width = 300,
@@ -106,6 +123,8 @@ export function CallsListPanel({
   isWide = true,
   activeCalls,
   type,
+  filterType,
+  onFilterTypeChange,
   onViewSmartNote,
   onViewCalls,
   aiNotedCallMapping = {},
@@ -124,15 +143,15 @@ export function CallsListPanel({
       return;
     }
     if (typeof onLoadCalls === 'function') {
-      onLoadCalls(type);
+      onLoadCalls(type, filterType);
     }
-  }, [type, showSpinner]);
+  }, [type, showSpinner, filterType]);
 
   const calculateContentSize = () => {
     if (listWrapper.current && listWrapper.current.getBoundingClientRect) {
       const react = listWrapper.current.getBoundingClientRect();
       setContentHeight(
-        react.bottom - react.top - (onSearchInputChange ? SEARCH_BAR_HEIGHT : 0),
+        react.bottom - react.top,
       );
       setContentWidth(react.right - react.left);
       return;
@@ -165,7 +184,7 @@ export function CallsListPanel({
         calculateContentSize();
       }, 0);
     }
-  }, [showSpinner])
+  }, [showSpinner]);
 
   if (showSpinner) {
     return (<SpinnerOverlay />);
@@ -230,11 +249,16 @@ export function CallsListPanel({
   );
 
   const search = onSearchInputChange ? (
-    <SearchLine
+    <Filter
       searchInput={searchInput}
       onSearchInputChange={onSearchInputChange}
       placeholder={i18n.getString('searchPlaceholder', currentLocale)}
       disableLinks={disableLinks}
+      type={filterType}
+      onTypeChange={onFilterTypeChange}
+      showUnLoggedType={showLogButton}
+      currentLocale={currentLocale}
+      showTypeFilter={type !== 'recordings'}
     />
   ) : null;
 
@@ -332,59 +356,52 @@ export function CallsListPanel({
   );
 
   return (
-    <div
-      className={classnames(
-        styles.container,
-        onSearchInputChange ? styles.containerWithSearch : null,
-      )}
+    <Container
       data-sign="callsListPanel"
-      ref={listWrapper}
+      className="CallsListPanel_container"
     >
       {children}
-      {search}
-      <div
-        className={classnames(
-          styles.root,
-          currentLog && currentLog.showLog ? styles.hiddenScroll : '',
-          className,
+      {onlyHistory ||
+        getCallList(
+          activeRingCalls,
+          i18n.getString('ringCall', currentLocale),
+          showCallDetail,
+          activeCalls,
+          false,
         )}
+      {onlyHistory ||
+        getCallList(
+          activeCurrentCalls,
+          i18n.getString('currentCall', currentLocale),
+          showCallDetail,
+          activeCalls,
+          false,
+        )}
+      {onlyHistory ||
+        getCallList(
+          activeOnHoldCalls,
+          i18n.getString('onHoldCall', currentLocale),
+          showCallDetail,
+          activeCalls,
+          true,
+        )}
+      {onlyHistory ||
+        (showOtherDevice ? getCallList(
+          otherDeviceCalls,
+          i18n.getString('otherDeviceCall', currentLocale),
+          showCallDetail,
+          activeCalls,
+          false,
+        ) : null)
+      }
+      {search}
+      <ResponsiveListRoot
+        className="CallsListPanel_root"
+        ref={listWrapper}
       >
-        {onlyHistory ||
-          getCallList(
-            activeRingCalls,
-            i18n.getString('ringCall', currentLocale),
-            showCallDetail,
-            activeCalls,
-            false,
-          )}
-        {onlyHistory ||
-          getCallList(
-            activeCurrentCalls,
-            i18n.getString('currentCall', currentLocale),
-            showCallDetail,
-            activeCalls,
-            false,
-          )}
-        {onlyHistory ||
-          getCallList(
-            activeOnHoldCalls,
-            i18n.getString('onHoldCall', currentLocale),
-            showCallDetail,
-            activeCalls,
-            true,
-          )}
-        {onlyHistory ||
-          (showOtherDevice ? getCallList(
-            otherDeviceCalls,
-            i18n.getString('otherDeviceCall', currentLocale),
-            showCallDetail,
-            activeCalls,
-            false,
-          ) : null)
-        }
         {calls.length > 0 ? historyCall : noCalls}
-      </div>
-    </div>
+      </ResponsiveListRoot>
+    </Container>
   );
 }
 
