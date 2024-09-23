@@ -366,7 +366,7 @@ export class CallsListUI extends BaseCallsListUI {
             direction?: string;
           } = {}
           if (type === 'recordings') {
-            query.isRecording
+            query.isRecording = true;
           } else {
             if (filterType === 'Inbound') {
               query.direction = 'Inbound';
