@@ -119,20 +119,20 @@ export const MainViewPanel = (props) => {
       }] : [],
     });
   }
-  if (showFax) {
+  if (showContacts) {
     tabList.push({
-      icon: FaxBorder,
-      activeIcon: Fax,
-      label: i18n.getString('faxLabel', currentLocale),
-      path: '/messages/fax',
-      noticeCounts: faxUnreadCounts,
+      icon: ContactsBorder,
+      activeIcon: Contacts,
+      label: i18n.getString('contactsLabel', currentLocale),
+      path: '/contacts',
       priority: 30,
       isActive: (currentPath) => (
-        currentPath === '/messages/fax'
+        currentPath.substr(0, 9) === '/contacts'
       ),
-      showHeaderBorder: true,
-      showHeader: () => {
-        return true;
+      showHeader: (currentPath) => {
+        return (
+          currentPath === '/contacts'
+        );
       },
     });
   }
@@ -155,30 +155,13 @@ export const MainViewPanel = (props) => {
       },
     });
   }
-  if (showContacts) {
-    tabList.push({
-      icon: ContactsBorder,
-      activeIcon: Contacts,
-      label: i18n.getString('contactsLabel', currentLocale),
-      path: '/contacts',
-      priority: 50,
-      isActive: (currentPath) => (
-        currentPath.substr(0, 9) === '/contacts'
-      ),
-      showHeader: (currentPath) => {
-        return (
-          currentPath === '/contacts'
-        );
-      },
-    });
-  }
   if (showMeeting) {
     tabList.push({
       icon: VideocamBorder,
       activeIcon: Videocam,
       label: i18n.getString('meetingLabel', currentLocale),
       path: isRCV ? '/meeting/home' : '/meeting/schedule',
-      priority: 60,
+      priority: 50,
       isActive: (currentPath) => (
         currentPath.indexOf('/meeting') === 0
       ),
@@ -188,6 +171,23 @@ export const MainViewPanel = (props) => {
           currentPath === '/meeting/history' ||
           currentPath === '/meeting/history/recordings'
         );
+      },
+    });
+  }
+  if (showFax) {
+    tabList.push({
+      icon: FaxBorder,
+      activeIcon: Fax,
+      label: i18n.getString('faxLabel', currentLocale),
+      path: '/messages/fax',
+      noticeCounts: faxUnreadCounts,
+      priority: 60,
+      isActive: (currentPath) => (
+        currentPath === '/messages/fax'
+      ),
+      showHeaderBorder: true,
+      showHeader: () => {
+        return true;
       },
     });
   }
