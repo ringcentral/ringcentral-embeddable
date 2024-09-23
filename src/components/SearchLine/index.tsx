@@ -11,6 +11,7 @@ type SearchProps = {
   disableLinks?: boolean;
   dataSign?: string;
   clearBtn?: boolean;
+  className?: string;
 };
 
 const Container = styled.div`
@@ -51,12 +52,13 @@ export const SearchLine: React.FC<SearchProps> = ({
   placeholder = undefined,
   dataSign = undefined,
   clearBtn = true,
+  className = undefined,
 }) => {
   if (!onSearchInputChange) {
     return null;
   }
   return (
-    <Container data-sign={dataSign}>
+    <Container data-sign={dataSign} className={className}>
       <StyledTextField
         fullWidth
         value={searchInput}
