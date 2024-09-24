@@ -703,9 +703,9 @@ class Adapter extends AdapterCore {
     return this._widgetCurrentPath === '/history';
   }
 
-  alertMessage({ message, level, ttl }) {
+  alertMessage({ message, level, ttl, details }) {
     return this._requestWithPostMessage('/custom-alert-message', {
-      message, level, ttl,
+      message, level, ttl, details,
     });
   }
 
