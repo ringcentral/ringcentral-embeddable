@@ -221,4 +221,12 @@ export class ConversationLogger extends ConversationLoggerBase {
     });
     return output;
   }
+
+  get autoLogReadOnly() {
+    return this._deps.thirdPartyService.messageLoggerAutoSettingReadOnly;
+  }
+
+  get autoLogReadOnlyReason() {
+    return this._deps.thirdPartyService.messageLoggerAutoSettingReadOnlyReason;
+  }
 }

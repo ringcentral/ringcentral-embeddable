@@ -27,6 +27,8 @@ type ThirdPartySetting = {
   groupId?: string;
   items?: ThirdPartySetting[];
   uri?: string;
+  readOnly?: boolean;
+  readOnlyReason?: string;
 }
 
 type SettingItem = {
@@ -44,6 +46,8 @@ type SettingItem = {
   order: number;
   items?: SettingItem[];
   uri?: string;
+  readOnly?: boolean;
+  readOnlyReason?: string;
 }
 
 function getLoggingGroupName(showAutoLog: boolean, showAutoLogSMS: boolean) {
@@ -68,6 +72,10 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   gotoThirdPartySection: (id: string) => void;
   onThirdPartyButtonClick: (id: string) => void;
   onSettingToggle: (setting: any) => void;
+  autoLogReadOnly?: boolean;
+  autoLogReadOnlyReason?: string;
+  autoLogSMSReadOnly?: boolean;
+  autoLogSMSReadOnlyReason?: string;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -96,6 +104,8 @@ function ItemRenderer({ item, currentLocale }: {
         disabled={item.disabled}
         checked={item.checked}
         onChange={item.onChange}
+        readOnly={item.readOnly}
+        readOnlyReason={item.readOnlyReason}
       />
     );
   }
@@ -202,6 +212,8 @@ function getSettingItemFromThirdPartyItem({
       show: true,
       onChange: () => onSettingToggle(item),
       order,
+      readOnly: item.readOnly,
+      readOnlyReason: item.readOnlyReason,
     };
   }
   if (item.type === 'group') {
@@ -237,9 +249,13 @@ function getSettingItemFromThirdPartyItem({
 export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   additional,
   autoLogEnabled = false,
+  autoLogReadOnly = false,
+  autoLogReadOnlyReason = '',
   // autoLogNotesEnabled = false,
   autoLogSMSEnabled = false,
   autoLogSMSTitle,
+  autoLogSMSReadOnly = false,
+  autoLogSMSReadOnlyReason = '',
   autoLogTitle,
   children,
   className,
@@ -343,6 +359,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       checked: autoLogEnabled,
       onChange: onAutoLogChange,
       order: 3000,
+      readOnly: autoLogReadOnly,
+      readOnlyReason: autoLogReadOnlyReason,
     }, {
       id: 'autoLogSMS',
       type: 'switch',
@@ -354,6 +372,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       checked: autoLogSMSEnabled,
       onChange: onAutoLogSMSChange,
       order: 4000,
+      readOnly: autoLogSMSReadOnly,
+      readOnlyReason: autoLogSMSReadOnlyReason,
     }],
   }, {
     id: 'feedback',

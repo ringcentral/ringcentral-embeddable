@@ -39,4 +39,12 @@ export class CallLogger extends CallLoggerBase {
   get showLogModal() {
     return this._deps.thirdPartyService.showLogModal;
   }
+
+  get autoLogReadOnly() {
+    return this._deps.thirdPartyService.callLoggerAutoSettingReadOnly;
+  }
+
+  get autoLogReadOnlyReason() {
+    return this._deps.thirdPartyService.callLoggerAutoSettingReadOnlyReason;
+  }
 }

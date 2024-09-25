@@ -401,6 +401,9 @@ export default class ThirdPartyService extends RcModuleV2 {
       callLoggerTitle: service.callLoggerTitle,
       showLogModal: !!service.showLogModal,
       callLoggerAutoSettingLabel: service.callLoggerAutoSettingLabel,
+      callLoggerAutoSettingReadOnly: service.callLoggerAutoSettingReadOnly,
+      callLoggerAutoSettingReadOnlyReason: service.callLoggerAutoSettingReadOnlyReason,
+      callLoggerAutoSettingReadOnlyValue: service.callLoggerAutoSettingReadOnlyValue,
     });
   }
 
@@ -444,6 +447,9 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._onRegisterMessageLogger({
       messageLoggerTitle: service.messageLoggerTitle,
       messageLoggerAutoSettingLabel: service.messageLoggerAutoSettingLabel,
+      messageLoggerAutoSettingReadOnly: service.messageLoggerAutoSettingReadOnly,
+      messageLoggerAutoSettingReadOnlyReason: service.messageLoggerAutoSettingReadOnlyReason,
+      messageLoggerAutoSettingReadOnlyValue: service.messageLoggerAutoSettingReadOnlyValue,
     });
   }
 
@@ -1082,13 +1088,24 @@ export default class ThirdPartyService extends RcModuleV2 {
   @state
   showLogModal = false;
 
+  @state
+  callLoggerAutoSettingReadOnly = false;
+
+  @state
+  callLoggerAutoSettingReadOnlyReason = '';
+
+  @state
+  callLoggerAutoSettingReadOnlyValue: null | boolean = null;
+
   @action
   _onRegisterCallLogger({
     callLoggerTitle,
     callLoggerAutoSettingLabel,
     showLogModal,
+    callLoggerAutoSettingReadOnly,
+    callLoggerAutoSettingReadOnlyReason,
+    callLoggerAutoSettingReadOnlyValue,
   }) {
-    this.callLoggerRegistered = true;
     if (callLoggerTitle) {
       this.callLoggerTitle = callLoggerTitle;
     }
@@ -1096,6 +1113,12 @@ export default class ThirdPartyService extends RcModuleV2 {
       this.callLoggerAutoSettingLabel = callLoggerAutoSettingLabel;
     }
     this.showLogModal = showLogModal;
+    this.callLoggerAutoSettingReadOnly = !!callLoggerAutoSettingReadOnly;
+    this.callLoggerAutoSettingReadOnlyReason = callLoggerAutoSettingReadOnlyReason || '';
+    if (this.callLoggerAutoSettingReadOnly && typeof callLoggerAutoSettingReadOnlyValue === 'boolean') {
+      this.callLoggerAutoSettingReadOnlyValue = callLoggerAutoSettingReadOnlyValue;
+    }
+    this.callLoggerRegistered = true;
   }
 
   @state
@@ -1107,17 +1130,34 @@ export default class ThirdPartyService extends RcModuleV2 {
   @state
   messageLoggerAutoSettingLabel = null;
 
+  @state
+  messageLoggerAutoSettingReadOnly = false;
+
+  @state
+  messageLoggerAutoSettingReadOnlyReason = '';
+
+  @state
+  messageLoggerAutoSettingReadOnlyValue: null | boolean = null;
+
   _onRegisterMessageLogger({
     messageLoggerTitle,
     messageLoggerAutoSettingLabel,
+    messageLoggerAutoSettingReadOnly,
+    messageLoggerAutoSettingReadOnlyReason,
+    messageLoggerAutoSettingReadOnlyValue,
   }) {
-    this.messageLoggerRegistered = true;
     if (messageLoggerTitle) {
       this.messageLoggerTitle = messageLoggerTitle;
     }
     if (messageLoggerAutoSettingLabel) {
       this.messageLoggerAutoSettingLabel = messageLoggerAutoSettingLabel;
     }
+    this.messageLoggerAutoSettingReadOnly = !!messageLoggerAutoSettingReadOnly;
+    this.messageLoggerAutoSettingReadOnlyReason = messageLoggerAutoSettingReadOnlyReason || '';
+    if (this.messageLoggerAutoSettingReadOnly && typeof messageLoggerAutoSettingReadOnlyValue === 'boolean') {
+      this.messageLoggerAutoSettingReadOnlyValue = messageLoggerAutoSettingReadOnlyValue;
+    }
+    this.messageLoggerRegistered = true;
   }
 
   @state
