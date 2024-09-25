@@ -9,7 +9,10 @@ import {
   RcSnackbarAction,
   RcSnackbarContent,
   RcText,
+  RcLink,
   styled,
+  getParsePaletteColor,
+  css,
 } from '@ringcentral/juno';
 import { Close as closeSvg } from '@ringcentral/juno-icon';
 
@@ -34,12 +37,61 @@ export function getLevelType(level: NotificationMessage['level']) {
   return type;
 }
 
-const StyledFooterText = styled(RcText)`
+const RcSnackbarContentColors = {
+  success: {
+    textColor: 'neutral.f06',
+    bgColor: 'success.b01',
+  },
+  error: {
+    textColor: 'danger.f02',
+    bgColor: 'danger.b01',
+  },
+  info: {
+    textColor: 'neutral.f06',
+    bgColor: 'neutral.b03',
+  },
+  warn: {
+    textColor: 'neutral.f06',
+    bgColor: 'warning.b02',
+  },
+};
+
+const MoreLinkColors = {
+  success: 'action.primary',
+  error: 'action.primary',
+  info: 'action.primary',
+  warn: 'action.primary',
+};
+
+const StyledSnackbarContent = styled(RcSnackbarContent)`
+  color: ${({ type }) => getParsePaletteColor(RcSnackbarContentColors[type].textColor)};
+  background-color: ${({ type }) => getParsePaletteColor(RcSnackbarContentColors[type].bgColor)};
+
+  .RcSnackbarContent-message {
+    a {
+      color: ${({ type }) => getParsePaletteColor(MoreLinkColors[type])};
+      font-style: normal!important;
+      text-decoration: underline;
+    }
+
+    /* .RcSnackbarAction-text {
+      a {
+        color: ${({ type }) => getParsePaletteColor(MoreLinkColors[type])};
+        font-style: normal!important;
+        
+      }
+    } */
+  }
+`;
+
+const ShowMoreLink = styled(RcLink)`
   font-size: 0.815rem;
   line-height: 24px;
 `;
 
-const CounterText = styled(StyledFooterText)`
+const CounterText = styled(RcText)`
+  font-size: 0.815rem;
+  line-height: 24px;
   text-align: right;
   flex: 1;
 `;
@@ -86,6 +138,7 @@ function Footer({
   showMore,
   onShowMore,
   ttl,
+  type,
 }) {
   return (
     <StyledFooter>
@@ -93,9 +146,9 @@ function Footer({
         <RcSnackbarAction
           onClick={onShowMore}
         >
-          <StyledFooterText>
+          <ShowMoreLink>
             Show more
-          </StyledFooterText>
+          </ShowMoreLink>
         </RcSnackbarAction>
       )}
       {ttl > 0 && <ClosingCounter ttl={ttl} />}
@@ -166,7 +219,7 @@ export const NotificationItem: FunctionComponent<NewNotificationItemProps> = mem
             onClick={onBackdropClick}
           />
         )}
-        <RcSnackbarContent
+        <StyledSnackbarContent
           data-sign="notification"
           data-sign-type={type}
           type={type}
@@ -200,6 +253,7 @@ export const NotificationItem: FunctionComponent<NewNotificationItemProps> = mem
                       setShowMore(true);
                     }}
                     ttl={ttl}
+                    type={type}
                   />
                 )
               }

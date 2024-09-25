@@ -23,7 +23,6 @@ import { ThemeContainer } from '@ringcentral-integration/widgets/containers/Them
 
 import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
 
-import { getAlertRenderer } from '../../components/AlertRenderer';
 import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourceIcon';
 import GenericMeetingPage from '../GenericMeetingPage';
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
@@ -136,7 +135,6 @@ export default function App({
                   <MeetingInviteModal />
                   <ModalContainer />
                   <NotificationContainer
-                    getAdditionalRenderer={getAlertRenderer}
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
                   />
