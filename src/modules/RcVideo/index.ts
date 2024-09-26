@@ -98,6 +98,18 @@ export class RcVideo extends RcVideoBase {
   @state
   upcomingMeetings = [];
 
+  @state
+  calendars = [];
+
+  @state
+  calendarsLoaded = false;
+
+  @action
+  private _saveCalendars(calendars) {
+    this.calendars = calendars;
+    this.calendarsLoaded = true;
+  }
+
   @action
   private _saveMeetings({ meetings, pageToken }) {
     if (!pageToken) {
@@ -169,43 +181,51 @@ export class RcVideo extends RcVideoBase {
     this._fetchingUpcomingMeetings = false;
   }
 
+  async _fetchCalendars() {
+    if (this.calendarsLoaded) {
+      return;
+    }
+    const platform = this._deps.client.service.platform();
+    const providersRes = await platform.get('/restapi/v1.0/account/~/extension/~/cloud-calendars/ucc');
+    const providersData = await providersRes.json();
+    const newCalendars = providersData.records.filter(c => {
+      return c.connected && c.providerSubscription && c.primary;
+    });
+    this._saveCalendars(newCalendars);
+  }
+
   async _fetchUpcomingMeetings() {
     let allEvents = [];
     if (this._deps.appFeatures.hasInternalVideoScope) {
+      await this._fetchCalendars();
+      const fromDate = new Date();
+      const toDate = new Date();
+      toDate.setDate(toDate.getDate() + 7)
       const platform = this._deps.client.service.platform();
-      const providersRes = await platform.get('/rcvideo/v1/scheduling/providers');
-      const providersData = await providersRes.json();
-      const providers = providersData.providers.filter(p => p.isAuthorized);
-
-      await Promise.all(providers.map(async (provider) => {
+      await Promise.all(this.calendars.map(async (calendar) => {
         try {
-          const calendersRes = await platform.get(`/rcvideo/v1/scheduling/providers/${provider.id}/calendars`)
-          const calendersData = await calendersRes.json();
-          const calendars = calendersData.calendars.filter(
-            c => c.isPrimary
-          );
-          const fromDate = new Date();
-          const toDate = new Date();
-          toDate.setDate(toDate.getDate() + 7)
-          await Promise.all(calendars.map(async (calendar) => {
-            try {
-              const eventsRes = await platform.get(
-                `/rcvideo/v1/scheduling/providers/${provider.id}/calendars/${encodeURIComponent(calendar.id)}/events`,
-                {
-                  includeNonRcEvents: true,
-                  startTimeFrom: fromDate.toISOString(),
-                  startTimeTo: toDate.toISOString(),
-                }
-              )
-              const eventsData = await eventsRes.json();
-              const events = eventsData.events;
-              allEvents = allEvents.concat(events);
-            } catch (e) {
-              console.error('Fetching events error:', e);
+          const eventsRes = await platform.get(
+            `/restapi/v1.0/account/~/extension/~/cloud-calendars/ucc/${(calendar.providerId).toLowerCase()}/~/${encodeURIComponent(calendar.calendarId)}/events`,
+            {
+              startTimeFrom: fromDate.toISOString(),
+              startTimeTo: toDate.toISOString(),
             }
+          )
+          const eventsData = await eventsRes.json();
+          const events = eventsData.records.filter(e => !e.cancelled);
+          allEvents = allEvents.concat(events.map((event) => {
+            return {
+              id: event.id,
+              title: event.subject,
+              startTime: event.start && event.start.dateTime,
+              endTime: event.end && event.end.dateTime,
+              isAllDay: event.allDay,
+              editEventUrl: event.webViewUri,
+              location: event.location,
+            };
           }));
         } catch (e) {
-          console.error('Fetching calendars error:', e);
+          console.error('Fetching events error:', e);
         }
       }));
     }
