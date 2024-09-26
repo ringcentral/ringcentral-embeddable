@@ -32,11 +32,32 @@ export class CallLogger extends CallLoggerBase {
     return mapping;
   }
 
+  override async onInit() {
+    if (super.onInit) {
+      await super.onInit();
+    }
+    if (
+      this.autoLogReadOnly &&
+      this._deps.thirdPartyService.callLoggerAutoSettingReadOnlyValue !== null &&
+      this._deps.thirdPartyService.callLoggerAutoSettingReadOnlyValue !== this._autoLog
+    ) {
+      this._setAutoLog(this._deps.thirdPartyService.callLoggerAutoSettingReadOnlyValue);
+    }
+  }
+
   get logButtonTitle() {
     return this._deps.thirdPartyService.callLoggerTitle;
   }
 
   get showLogModal() {
     return this._deps.thirdPartyService.showLogModal;
+  }
+
+  get autoLogReadOnly() {
+    return this._deps.thirdPartyService.callLoggerAutoSettingReadOnly;
+  }
+
+  get autoLogReadOnlyReason() {
+    return this._deps.thirdPartyService.callLoggerAutoSettingReadOnlyReason;
   }
 }

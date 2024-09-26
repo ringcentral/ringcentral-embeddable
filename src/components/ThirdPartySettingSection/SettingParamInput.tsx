@@ -10,9 +10,10 @@ import {
   RcTypography,
   RcIcon,
   RcTooltip,
+  css,
 } from '@ringcentral/juno';
 import { styled } from '@ringcentral/juno/foundation';
-import { InfoBorder } from '@ringcentral/juno-icon';
+import { InfoBorder, Lock } from '@ringcentral/juno-icon';
 
 const StyledAlert = styled(RcAlert)`
   &.RcAlert-root {
@@ -29,6 +30,37 @@ const InfoIcon = styled(RcIcon)`
   margin-left: 5px;
   vertical-align: middle;
   cursor: pointer;
+  display: inline-block;
+`;
+
+const StyledSwitch = styled(RcSwitch)`
+  ${(props) => props.readOnly && css`
+    opacity: 0.5;
+  `}
+`;
+
+const StyledTextField = styled(RcTextField)<{ readOnly: boolean }>`
+  ${(props) => props.readOnly && css`
+    .RcTextFieldInput-root {
+      opacity: 0.5;
+    }
+  `}
+`;
+
+const StyledTextarea = styled(RcTextarea)<{ readOnly: boolean }>`
+  ${(props) => props.readOnly && css`
+    .RcTextareaInput-root {
+      opacity: 0.5;
+    }
+  `}
+`;
+
+const StyledSelect = styled(RcSelect)<{ readOnly: boolean }>`
+  ${(props) => props.readOnly && css`
+    .RcLineSelectInput-input {
+      opacity: 0.5;
+    }
+  `}
 `;
 
 export function SettingParamInput({
@@ -37,57 +69,78 @@ export function SettingParamInput({
   onChange,
 }) {
   let label = setting.name;
-  if (setting.description) {
+  if (setting.description || setting.readOnly) {
     label = (
       <>
         {setting.name}
-        <RcTooltip title={setting.description}>
-          <InfoIcon
-            symbol={InfoBorder}
-            size="small"
-            style={{
-              marginLeft: '5px',
-              verticalAlign: 'middle',
-            }}
-          />
-        </RcTooltip>
+        {
+          setting.description ? (
+            <RcTooltip title={setting.description}>
+              <InfoIcon
+                symbol={InfoBorder}
+                size="small"
+              />
+            </RcTooltip>
+          ) : null
+        }
+        {
+          setting.readOnly ? (
+            <RcTooltip title={setting.readOnlyReason || ''}>
+              <InfoIcon
+                symbol={Lock}
+                size="small"
+              />
+            </RcTooltip>
+          ) : null
+        }
       </>
     )
   }
   if (setting.type === 'boolean') {
     return (
-      <RcSwitch
+      <StyledSwitch
         formControlLabelProps={{
-          labelPlacement: 'end',
+          labelPlacement: 'start',
           className: `${className} RcSwitch-formControlLabel`,
+          style: { marginLeft: 0, marginRight: 0 },
         }}
         label={label}
         checked={setting.value}
         onChange={(_, checked) => {
+          if (setting.readOnly) {
+            return;
+          }
           onChange(checked);
         }}
+        readOnly={setting.readOnly}
       />
     );
   }
   if (setting.type === 'string') {
     return (
-      <RcTextField
+      <StyledTextField
         label={label}
         value={setting.value || ''}
         className={className}
         fullWidth
         placeholder={setting.placeholder}
         onChange={(e) => {
+          if (setting.readOnly) {
+            return;
+          }
           onChange(e.target.value);
         }}
         required={setting.required}
         helperText={setting.helper}
+        aria-readonly={setting.readOnly}
+        readOnly={setting.readOnly}
       />
     );
   }
+
   if (setting.type === 'text') {
     return (
-      <RcTextarea
+      <StyledTextarea
         label={label}
         value={setting.value || ''}
         minRows={2}
@@ -95,26 +148,34 @@ export function SettingParamInput({
         fullWidth
         placeholder={setting.placeholder}
         onChange={(e) => {
+          if (setting.readOnly) {
+            return;
+          }
           onChange(e.target.value);
         }}
         required={setting.required}
         helperText={setting.helper}
+        readOnly={setting.readOnly}
       />
     );
   }
   if (setting.type === 'option') {
     return (
-      <RcSelect
+      <StyledSelect
         label={label}
         value={setting.value}
         fullWidth
         className={className}
         placeholder={setting.placeholder}
         onChange={(e) => {
+          if (setting.readOnly) {
+            return;
+          }
           onChange(e.target.value);
         }}
         required={setting.required}
         helperText={setting.helper}
+        readOnly={setting.readOnly}
       >
         {setting.options.map((option) => (
           <RcMenuItem
@@ -124,7 +185,7 @@ export function SettingParamInput({
             {option.name}
           </RcMenuItem>
         ))}
-      </RcSelect>
+      </StyledSelect>
     );
   }
   if (setting.type === 'admonition') {

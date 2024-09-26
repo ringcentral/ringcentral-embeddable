@@ -23,7 +23,7 @@ function checkSettingSectionItem(item) {
     if (!item.options || !Array.isArray(item.options)) {
       return false;
     }
-    if (item.value && item.options.indexOf(item.value) === -1) {
+    if (item.value && !item.options.find((option) => option.id === item.value)) {
       return false;
     }
     for (const option of item.options) {

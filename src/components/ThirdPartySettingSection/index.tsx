@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { RcButton } from '@ringcentral/juno';
-import { styled } from '@ringcentral/juno/foundation';
+import { RcButton, styled, palette2 } from '@ringcentral/juno';
 
 import { BackHeaderView } from '../BackHeaderView';
 import { SettingParamInput } from './SettingParamInput';
@@ -18,9 +17,15 @@ const StyledParamInput = styled(SettingParamInput)`
   margin-bottom: 15px;
 
   &.RcSwitch-formControlLabel {
+    width: 100%;
     .MuiFormControlLabel-label {
       font-size: 0.875rem;
+      flex: 1;
     }
+  }
+
+  .RcTextFieldInputLabel-root {
+    color: ${palette2('neutral', 'f05')};
   }
 `;
 

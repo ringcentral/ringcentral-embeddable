@@ -44,6 +44,19 @@ export class ConversationLogger extends ConversationLoggerBase {
     };
   }
 
+  override async onInit() {
+    if (super.onInit) {
+      await super.onInit();
+    }
+    if (
+      this.autoLogReadOnly &&
+      this._deps.thirdPartyService.messageLoggerAutoSettingReadOnlyValue !== null &&
+      this._deps.thirdPartyService.messageLoggerAutoSettingReadOnlyValue !== this._autoLog
+    ) {
+      this._setAutoLog(this._deps.thirdPartyService.messageLoggerAutoSettingReadOnlyValue);
+    }
+  }
+
   async _doLog(conversation) {
     this._deps.thirdPartyService.logConversation(conversation);
   }
@@ -220,5 +233,13 @@ export class ConversationLogger extends ConversationLoggerBase {
       });
     });
     return output;
+  }
+
+  get autoLogReadOnly() {
+    return this._deps.thirdPartyService.messageLoggerAutoSettingReadOnly;
+  }
+
+  get autoLogReadOnlyReason() {
+    return this._deps.thirdPartyService.messageLoggerAutoSettingReadOnlyReason;
   }
 }

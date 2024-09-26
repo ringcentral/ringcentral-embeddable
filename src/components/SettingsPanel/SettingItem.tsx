@@ -12,8 +12,9 @@ import {
   palette2,
   setOpacity,
   RcLink,
+  RcTooltip,
 } from '@ringcentral/juno';
-import { ArrowRight, ArrowUp2, ArrowDown2, Logout } from '@ringcentral/juno-icon';
+import { ArrowRight, ArrowUp2, ArrowDown2, Logout, Lock } from '@ringcentral/juno-icon';
 
 import type {
   LinkLineItemProps,
@@ -65,7 +66,22 @@ export const LinkLineItem: FunctionComponent<LinkLineItemProps> = ({
 
 interface NewSwitchLineItemProps extends SwitchLineItemProps {
   className?: string;
+  readOnly?: boolean;
+  readOnlyReason?: string;
 }
+
+const StyledSwitch = styled(RcSwitch)`
+  ${(props) => props.readOnly && css`
+    opacity: 0.5;
+  `}
+`;
+
+const InfoIcon = styled(RcIcon)`
+  margin-left: 5px;
+  vertical-align: middle;
+  cursor: pointer;
+  display: inline-block;
+`;
 
 export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
   show,
@@ -78,32 +94,52 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
   checked,
   onChange,
   className,
+  readOnly,
+  readOnlyReason,
   // tooltip,
 }) => {
   if (!show) {
     return null;
   }
 
+  let label = customTitle || i18n.getString(name, currentLocale);
+  if (readOnly) {
+    label = (
+      <>
+        {label}
+        <RcTooltip title={readOnlyReason || ''}>
+          <InfoIcon
+            symbol={Lock}
+            size="small"
+          />
+        </RcTooltip>
+      </>
+    );
+  }
   return (
     <StyledSettingItem
       data-sign={dataSign}
       className={className}
     >
       <RcListItemText
-        primary={customTitle || i18n.getString(name, currentLocale)}
+        primary={label}
         title={customTitle || i18n.getString(name, currentLocale)}
       />
       <RcListItemSecondaryAction>
-        <RcSwitch
+        <StyledSwitch
           checked={checked}
           disabled={disabled}
           onChange={(_, checked) => {
+            if (readOnly) {
+              return;
+            }
             onChange && onChange(checked);
           }}
           formControlLabelProps={{
             labelPlacement: 'start',
           }}
           label={switchTitle}
+          readOnly={readOnly}
         />
       </RcListItemSecondaryAction>
     </StyledSettingItem>
