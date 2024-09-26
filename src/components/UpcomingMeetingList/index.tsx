@@ -100,20 +100,34 @@ function MeetingItem(props) {
     currentLocale,
     onJoin,
     editEventUrl,
-    meetingIds,
     isAllDay,
     location,
   } = props;
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
   const startDate = formatMeetingTime(startTime, currentLocale)
   const endDate = formatMeetingTime(endTime, currentLocale)
-  const meetingId = meetingIds[0];
+  let meetingId = '';
+  let meetingUri = '';
+  if (location && location.indexOf('/join/') > -1) {
+    const locations = location.split(';');
+    locations.forEach((loc) => {
+      if (loc.indexOf('/join/') > -1) {
+        meetingUri = loc.trim();
+      }
+    });
+  }
+  if (meetingUri) {
+    meetingId = meetingUri.split('/join/')[1];
+    if (meetingId && meetingId.indexOf('?') > 0) {
+      meetingId = meetingId.split('?')[0];
+    }
+  }
   const joinBtn = meetingId ? (
     <StyledJoinButton
       size="small"
       color="primary"
       onClick={() => {
-        onJoin(location || meetingId)
+        onJoin(meetingUri || meetingId)
       }}
       radius="round"
     >
@@ -128,12 +142,12 @@ function MeetingItem(props) {
     },
     disabled: false,
   }];
-  if (meetingId && location) {
+  if (meetingUri) {
     actions.push({
       icon: Copy,
       title: i18n.getString('copy', currentLocale),
       onClick: () => {
-        handleCopy(location);
+        handleCopy(meetingUri);
       },
       disabled: false,
     });
@@ -209,7 +223,6 @@ function UpcomingMeetingList(props) {
                         currentLocale={currentLocale}
                         editEventUrl={meeting.editEventUrl}
                         onJoin={onJoin}
-                        meetingIds={meeting.meetingIds}
                         isAllDay={meeting.isAllDay}
                         location={meeting.location}
                       />
