@@ -110,7 +110,6 @@ import { RingCentralExtensions } from '@ringcentral-integration/commons/modules/
 import {
   ActiveCallsUI,
 } from '@ringcentral-integration/widgets/modules/ActiveCallsUI';
-import { AlertUI } from '@ringcentral-integration/widgets/modules/AlertUI';
 import {
   CallBadgeUI,
 } from '@ringcentral-integration/widgets/modules/CallBadgeUI';
@@ -167,6 +166,7 @@ import hackSend from '../../lib/hackSend';
 import lockRefresh from '../../lib/lockRefresh';
 import { ActiveCallControl } from '../ActiveCallControl';
 import Adapter from '../Adapter';
+import { AlertUI } from '../AlertUI';
 import { AccountContacts } from '../AccountContacts';
 import { AddressBook } from '../AddressBook';
 import { Analytics } from '../Analytics';

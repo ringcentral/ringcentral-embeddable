@@ -3,12 +3,15 @@ import React from 'react';
 import FormattedMessage from '@ringcentral-integration/widgets/components/FormattedMessage';
 import { RcLink } from '@ringcentral/juno';
 import { styled } from '@ringcentral/juno/foundation';
+import { CustomizedAlert } from './CustomizedAlert';
 
 const StyledLink = styled(RcLink)`
   font-size: 13px;
 `;
 
-export function getAlertRenderer() {
+export function getAlertRenderer({
+  onThirdPartyLinkClick,
+}) {
   return (message) => {
     if (message.message === 'allowMicrophonePermissionOnInactiveTab') {
       return () => 'Please go to your first opened tab with this widget to allow microphone permission for this call.';
@@ -23,7 +26,15 @@ export function getAlertRenderer() {
       return () => 'Sorry, stopping recording is not supported for this call. Please contact your account administrator to enable "Allow mute in auto recording".';
     }
     if (message.message === 'showCustomAlertMessage') {
-      return () => message.payload.alertMessage;
+      return ({ message, showMore }) => {
+        return (
+          <CustomizedAlert
+            message={message}
+            showMore={showMore}
+            onLinkClick={onThirdPartyLinkClick}
+          />
+        );
+      }
     }
     if (message.message === 'noUnreadForOldMessages') {
       return () => 'Sorry, app can\'t mark old messages as unread.';

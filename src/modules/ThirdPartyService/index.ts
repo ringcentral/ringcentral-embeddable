@@ -1415,6 +1415,19 @@ export default class ThirdPartyService extends RcModuleV2 {
     });
   }
 
+  async onClickLinkInAlertDetail(id) {
+    if (!this._additionalButtonPath) {
+      console.warn('Button event is not registered, ');
+      return;
+    }
+    await requestWithPostMessage(this._additionalButtonPath, {
+      button: {
+        id,
+        type: 'linkInAlertDetail',
+      },
+    });
+  }
+
   @computed(that => [that.customizedPages])
   get customizedTabs() {
     return this.customizedPages.filter(x => x.type === 'tab').map(tab => ({

@@ -9,7 +9,6 @@ import {
 
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
-import { NotificationContainer } from '@ringcentral-integration/widgets/containers/NotificationContainer';
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
 import CallingSettingsPage from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
 import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
@@ -24,7 +23,6 @@ import { ThemeContainer } from '@ringcentral-integration/widgets/containers/Them
 
 import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
 
-import { getAlertRenderer } from '../../components/AlertRenderer';
 import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourceIcon';
 import GenericMeetingPage from '../GenericMeetingPage';
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
@@ -55,6 +53,8 @@ import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 import ThirdPartySettingSectionPage from '../ThirdPartySettingSectionPage';
 import ContactsPage from '../ContactsPage';
 import CustomizedPage from '../CustomizedPage';
+import { NotificationContainer } from '../NotificationContainer';
+
 export default function App({
   phone,
   showCallBadge,
@@ -135,7 +135,6 @@ export default function App({
                   <MeetingInviteModal />
                   <ModalContainer />
                   <NotificationContainer
-                    getAdditionalRenderer={getAlertRenderer}
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
                   />

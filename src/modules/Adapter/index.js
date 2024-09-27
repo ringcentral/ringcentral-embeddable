@@ -393,6 +393,7 @@ export default class Adapter extends AdapterModuleCore {
           message: 'showCustomAlertMessage',
           payload: {
             alertMessage: data.alertMessage || data.body && data.body.message,
+            details: data.body && data.body.details,
           }
         });
         this._postRCAdapterMessageResponse({
