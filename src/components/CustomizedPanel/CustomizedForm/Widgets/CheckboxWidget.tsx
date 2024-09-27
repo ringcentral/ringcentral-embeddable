@@ -1,7 +1,8 @@
 import React, { FocusEvent } from 'react';
 import {
-  RcCheckbox as Checkbox,
-  RcFormControlLabel as FormControlLabel,
+  RcSwitch,
+  styled,
+  css,
 }from '@ringcentral/juno';
 import {
   ariaDescribedByIds,
@@ -14,6 +15,29 @@ import {
   StrictRJSFSchema,
   WidgetProps,
 } from '@rjsf/utils';
+
+const SwitchContainer = styled.div`
+  width: 100%;
+
+  .MuiFormControlLabel-label {
+    flex: 1;
+  }
+
+  .MuiFormControlLabel-root {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .RcSwitch-root {
+    margin: 2px;
+  }
+`;
+
+const StyledSwitch = styled(RcSwitch)`
+  ${(props) => props.readOnly && css`
+    opacity: 0.5;
+  `}
+`;
 
 export default function CheckboxWidget<
   T = any,
@@ -62,23 +86,25 @@ export default function CheckboxWidget<
           registry={registry}
         />
       )}
-      <FormControlLabel
-        control={
-          <Checkbox
-            id={id}
-            name={id}
-            checked={typeof value === 'undefined' ? false : Boolean(value)}
-            required={required}
-            disabled={disabled || readonly}
-            autoFocus={autofocus}
-            onChange={_onChange}
-            onBlur={_onBlur}
-            onFocus={_onFocus}
-            aria-describedby={ariaDescribedByIds<T>(id)}
-          />
-        }
-        label={labelValue(label, hideLabel, false)}
-      />
+      <SwitchContainer>
+        <StyledSwitch
+          id={id}
+          name={id}
+          checked={typeof value === 'undefined' ? false : Boolean(value)}
+          required={required}
+          disabled={disabled || readonly}
+          autoFocus={autofocus}
+          onChange={_onChange}
+          onBlur={_onBlur}
+          onFocus={_onFocus}
+          aria-describedby={ariaDescribedByIds<T>(id)}
+          formControlLabelProps={{
+            labelPlacement: 'start',
+          }}
+          label={labelValue(label, hideLabel, false)}
+          readOnly={readonly}
+        />
+      </SwitchContainer>
     </>
   );
 }
