@@ -6,7 +6,11 @@ import {
   RcIcon,
   palette2,
 } from '@ringcentral/juno';
-import { ReportAnIssue, InfoBorder } from '@ringcentral/juno-icon';
+import {
+  ReportAnIssue,
+  InfoBorder,
+  Check,
+} from '@ringcentral/juno-icon';
 
 const Container = styled.div`
   display: flex;
@@ -77,12 +81,22 @@ export function CustomizedAlert({
   onLinkClick,
 }) {
   const { payload, level } = message;
+  let icon = InfoBorder;
+  let iconColor;
+  if (level === 'danger') {
+    icon = ReportAnIssue;
+    iconColor = 'danger.f02';
+  } else if (level === 'success') {
+    icon = Check;
+    iconColor = 'success.f02';
+  }
   return (
     <Container>
       <StyleMessage>
         <StyledIcon
-          symbol={level === 'danger' ? ReportAnIssue : InfoBorder}
+          symbol={icon}
           size="small"
+          color={iconColor}
         />
         {payload && payload.alertMessage}
       </StyleMessage>
