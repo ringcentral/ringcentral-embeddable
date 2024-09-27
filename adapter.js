@@ -57345,12 +57345,14 @@ class Adapter extends AdapterCore/* default */.A {
     let {
       message,
       level,
-      ttl
+      ttl,
+      details
     } = _ref4;
     return this._requestWithPostMessage('/custom-alert-message', {
       message,
       level,
-      ttl
+      ttl,
+      details
     });
   }
   dismissMessage() {
