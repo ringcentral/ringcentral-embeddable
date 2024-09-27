@@ -1,5 +1,5 @@
-import React from 'react';
-import { RcGrid as Grid } from '@ringcentral/juno';
+import React, { useState } from 'react';
+import { RcGrid as Grid, RcDivider as Divider } from '@ringcentral/juno';
 import {
   FormContextType,
   ObjectFieldTemplateProps,
@@ -24,7 +24,7 @@ export default function ObjectFieldTemplate<
     required,
     disabled,
     readonly,
-    uiSchema,
+    uiSchema = {},
     idSchema,
     schema,
     formData,
@@ -42,6 +42,15 @@ export default function ObjectFieldTemplate<
   const {
     ButtonTemplates: { AddButton },
   } = registry.templates;
+  const gridStyle: {
+    paddingLeft?: string;
+    marginTop: string;
+  } = { marginTop: '10px' };
+  if (title) {
+    gridStyle.paddingLeft = '16px';
+  }
+  const collapsible = uiOptions.collapsible || false;
+  const [extended, setExtended] = useState<boolean>(collapsible ? false : true);
   return (
     <>
       {title && (
@@ -52,6 +61,13 @@ export default function ObjectFieldTemplate<
           schema={schema}
           uiSchema={uiSchema}
           registry={registry}
+          extended={extended}
+          onClick={() => {
+            if (!collapsible) {
+              return;
+            }
+            setExtended(!extended);
+          }}
         />
       )}
       {description && (
@@ -63,39 +79,46 @@ export default function ObjectFieldTemplate<
           registry={registry}
         />
       )}
-      <Grid container={true} spacing={2} style={{ marginTop: '10px' }}>
-        {properties.map((element, index) => {
-          // Remove the <Grid> if the inner element is hidden as the <Grid>
-          // itself would otherwise still take up space.
-          if (element.hidden) {
-            return element.content;
-          }
-          const uiSchemaProperty = uiSchema?.[element.name] || {};
-          const style = uiSchemaProperty?.['ui:bulletedList'] ? {
-            marginLeft: '16px',
-          } : {
-            marginBottom: '10px'
-          };
-          return (
-            <Grid item={true} xs={12} key={index} style={style}>
-              {element.content}
-            </Grid>
-          );
-        })}
-        {canExpand<T, S, F>(schema, uiSchema, formData) && (
-          <Grid container justifyContent='flex-end'>
-            <Grid item={true}>
-              <AddButton
-                className='object-property-expand'
-                onClick={onAddClick(schema)}
-                disabled={disabled || readonly}
-                uiSchema={uiSchema}
-                registry={registry}
-              />
-            </Grid>
+      {
+        extended && (
+          <Grid container={true} spacing={2} style={gridStyle}>
+            {properties.map((element, index) => {
+              // Remove the <Grid> if the inner element is hidden as the <Grid>
+              // itself would otherwise still take up space.
+              if (element.hidden) {
+                return element.content;
+              }
+              const uiSchemaProperty = uiSchema?.[element.name] || {};
+              const style = uiSchemaProperty?.['ui:bulletedList'] ? {
+                marginLeft: '16px',
+              } : {
+                marginBottom: '10px'
+              };
+              return (
+                <Grid item={true} xs={12} key={index} style={style}>
+                  {element.content}
+                </Grid>
+              );
+            })}
+            {canExpand<T, S, F>(schema, uiSchema, formData) && (
+              <Grid container justifyContent='flex-end'>
+                <Grid item={true}>
+                  <AddButton
+                    className='object-property-expand'
+                    onClick={onAddClick(schema)}
+                    disabled={disabled || readonly}
+                    uiSchema={uiSchema}
+                    registry={registry}
+                  />
+                </Grid>
+              </Grid>
+            )}
           </Grid>
-        )}
-      </Grid>
+        )
+      }
+      {
+        collapsible && (<Divider />)
+      }
     </>
   );
 }
