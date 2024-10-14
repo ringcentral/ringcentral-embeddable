@@ -58,6 +58,7 @@ export class SmartNotes extends RcModuleV2 {
         status: 'Answered',
         phoneNumber: phoneNumber,
         contactName: contact && contact.length > 0 ? contact[0].name : feedbackName,
+        startTime: new Date(webphoneSession.startTime).toISOString(),
       });
     });
     this._deps.webphone.onCallEnd((webphoneSession) => {
@@ -112,6 +113,9 @@ export class SmartNotes extends RcModuleV2 {
           phoneNumber: session.phoneNumber,
         },
         smartNoteIframeUri: this._smartNoteIframeUri,
+        callMetaData: {
+          startTime: session.startTime,
+        }
       });
       this._setSession(session);
     } else {
