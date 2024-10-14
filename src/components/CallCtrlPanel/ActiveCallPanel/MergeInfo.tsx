@@ -44,6 +44,10 @@ const MergeItem = styled(RcListItem)`
       line-height: 22px;
     }
   }
+
+  .MuiTypography-root {
+    user-select: text;
+  }
 `;
 
 const LastCallItem = styled(MergeItem)`

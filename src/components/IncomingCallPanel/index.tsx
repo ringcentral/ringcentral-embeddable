@@ -68,17 +68,20 @@ const DefaultAvatar = styled(RcIcon)`
 
 const PhoneNumber = styled(RcText)`
   margin: 10px 0;
+  user-select: text;
 `;
 
 const ToPhoneNumber = styled(RcText)`
   font-size: 0.813rem;
   margin-bottom: 10px;
+  user-select: text;
 `;
 
 const UserNameContainer = styled(RcTypography)`
   line-height: 28px;
   color: ${palette2('neutral', 'f06')};
   text-align: center;
+  user-select: text;
 
   .ContactDisplay_root {
     display: inline;
