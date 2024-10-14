@@ -7,11 +7,13 @@ import {
   RcDialerPadSoundsMPEG,
   RcDialPad,
   RcIconButton,
+  RcResponsive,
   styled,
   palette2,
   spacing,
   setOpacity,
   css,
+  useResponsiveMatch,
 } from '@ringcentral/juno';
 import { Phone } from '@ringcentral/juno-icon';
 
@@ -19,7 +21,10 @@ import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/Spin
 import FromField from './FromField';
 import { StyledRecipientsInput } from './StyledRecipientsInput';
 
-const Container = styled.div`
+const Container = styled.div<{
+  $bigFont: boolean;
+  $mediumFont: boolean;
+}>`
   position: relative;
   width: 100%;
   height: 100%;
@@ -32,7 +37,7 @@ const Container = styled.div`
   justify-content: space-around;
   padding-top: ${spacing(2)};
 
-  @media only screen and (min-width: 350px) {
+  ${({ $mediumFont }) => $mediumFont && css`
     .RecipientsInput_numberInput {
       font-size: 1.25rem;
 
@@ -44,9 +49,15 @@ const Container = styled.div`
     .RecipientsInput_selectReceivers li {
       font-size: 0.875rem;
     }
-  }
 
-  @media only screen and (min-width: 400px) {
+    .RcWidgetCallButton {
+      width: 56px;
+      height: 56px;
+      font-size: 28px;
+    }
+  `}
+
+  ${({ $bigFont }) => $bigFont && css`
     padding: ${spacing(4)} 0;
 
     .RecipientsInput_numberInput {
@@ -60,7 +71,13 @@ const Container = styled.div`
     .RecipientsInput_selectReceivers li {
       font-size: 1rem;
     }
-  }
+
+    .RcWidgetCallButton {
+      width: 72px;
+      height: 72px;
+      font-size: 36px;
+    }
+  `}
 `;
 
 const DialerWrapper = styled.div<{ $dialerHeight: number }>`
@@ -87,7 +104,10 @@ const DialerWrapper = styled.div<{ $dialerHeight: number }>`
   }}
 `;
 
-const StyledDialpad = styled(RcDialPad)`
+const StyledDialpad = styled(RcDialPad)<{
+  $xs: boolean;
+  $sm: boolean;
+}>`
   max-width: 300px;
   width: 100%;
 
@@ -106,17 +126,17 @@ const StyledDialpad = styled(RcDialPad)`
     background-color: ${setOpacity(palette2('neutral', 'b06'), '08')};
   }
 
-  @media only screen and (max-width: 400px) {
+  ${({ $sm }) => $sm && css`
     .RcIconButton-contained {
       margin-bottom: ${spacing(2)};
     }
-  }
+  `}
 
-  @media only screen and (max-width: 350px) {
+  ${({ $xs }) => $xs && css`
     .RcIconButton-contained {
       margin-bottom: ${spacing(1)};
     }
-  }
+  `}
 `;
 
 const CallButtonWrapper = styled.div`
@@ -135,18 +155,44 @@ const CallButton = styled(RcIconButton)<{ $dialerHeight: number }>`
     }
     return '';
   }}
-
-  @media only screen and (min-width: 350px) {
-    width: 56px;
-    height: 56px;
-    font-size: 28px;
-  }
-  @media only screen and (min-width: 400px) {
-    width: 72px;
-    height: 72px;
-    font-size: 36px;
-  }
 `;
+
+function ResponsiveContainer({ children, innerRef }) {
+  const { gtXS, gtSM } = useResponsiveMatch();
+  return (
+    <Container $bigFont={gtSM} $mediumFont={gtXS} ref={innerRef}>
+      {children}
+    </Container>
+  );
+}
+
+function ResponsiveDialpad({
+  onToNumberChange,
+  toNumber,
+  dialButtonVolume,
+  dialButtonMuted,
+}) {
+  const { ltSM, ltMD } = useResponsiveMatch();
+  return (
+    <StyledDialpad
+      data-sign="dialPad"
+      onChange={(value) => {
+        onToNumberChange(toNumber + value, true);
+      }}
+      sounds={RcDialerPadSoundsMPEG}
+      getDialPadButtonProps={(v) => ({
+        'data-test-id': `${v}`,
+        'data-sign': `dialPadBtn${v}`,
+        variant: 'contained',
+      })}
+      volume={dialButtonVolume}
+      muted={dialButtonMuted}
+      autoSize
+      $xs={ltSM}
+      $sm={ltMD}
+    />
+  );
+}
 
 export interface DialerPanelProps {
   currentLocale: string;
@@ -193,22 +239,25 @@ export interface DialerPanelProps {
   showAnonymous?: boolean;
   getPresence?: (...args: any[]) => any;
 }
+
+const Empty: FunctionComponent = () => null;
+
 const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   currentLocale,
-  callButtonDisabled,
+  callButtonDisabled = false,
   // className,
   // dialButtonsClassName,
-  onToNumberChange,
+  onToNumberChange = Empty,
   onCallButtonClick,
-  toNumber,
-  fromNumber,
-  fromNumbers,
-  changeFromNumber,
-  formatPhone,
-  isWebphoneMode,
-  showSpinner,
-  dialButtonVolume,
-  dialButtonMuted,
+  toNumber = '',
+  fromNumber = '',
+  fromNumbers = [],
+  changeFromNumber = Empty,
+  formatPhone = (phoneNumber) => phoneNumber,
+  isWebphoneMode = false,
+  showSpinner = false,
+  dialButtonVolume = 1,
+  dialButtonMuted = false,
   searchContact,
   searchContactList,
   // recipients,
@@ -220,15 +269,15 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   phoneSourceNameRenderer,
   recipientsContactInfoRenderer,
   recipientsContactPhoneRenderer,
-  autoFocus,
+  autoFocus = false,
   showFromField = true,
   disableFromField = false,
   children,
-  withTabs,
-  // inConference,
-  isLastInputFromDialpad,
-  showAnonymous,
-  useV2,
+  withTabs = false,
+  // inConference = false,
+  isLastInputFromDialpad = false,
+  showAnonymous = true,
+  useV2 = false,
   getPresence,
 }) => {
   const inputEl = useRef(null);
@@ -298,90 +347,59 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
     />
   );
   return (
-    <Container ref={containerEl}>
-      {showFromField ? (
-        <FromField
-          // @ts-expect-error TS(2322): Type 'boolean | undefined' is not assignable to ty... Remove this comment to see the full error message
-          showAnonymous={showAnonymous}
-          // @ts-expect-error TS(2322): Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message
-          fromNumber={fromNumber}
-          // @ts-expect-error TS(2322): Type '{ phoneNumber?: string | undefined; usageTyp... Remove this comment to see the full error message
-          fromNumbers={fromNumbers}
-          // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-          onChange={changeFromNumber}
-          // @ts-expect-error TS(2322): Type '((...args: any[]) => any) | undefined' is no... Remove this comment to see the full error message
-          formatPhone={formatPhone}
-          currentLocale={currentLocale}
-          hidden={!isWebphoneMode}
-          disabled={disableFromField}
-        />
-      ) : null}
-      {input}
-      <DialerWrapper $dialerHeight={dialerHeight}>
-        <StyledDialpad
-          data-sign="dialPad"
-          onChange={(value) => {
-            // @ts-expect-error TS(2722): Cannot invoke an object which is possibly 'undefin... Remove this comment to see the full error message
-            onToNumberChange(toNumber + value, true);
-          }}
-          sounds={RcDialerPadSoundsMPEG}
-          getDialPadButtonProps={(v) => ({
-            'data-test-id': `${v}`,
-            'data-sign': `dialPadBtn${v}`,
-            variant: 'contained',
-          })}
-          volume={dialButtonVolume}
-          muted={dialButtonMuted}
-          autoSize
-        />
-      </DialerWrapper>
-      <CallButtonWrapper>
-        <CallButton
-          data-sign="callButton"
-          color="success.b03"
-          symbol={Phone}
-          variant="contained"
-          elevation="0"
-          activeElevation="0"
-          onClick={() => onCallButtonClick({ clickDialerToCall: true })}
-          disabled={callButtonDisabled}
-          size="large"
-          $dialerHeight={dialerHeight}
-        />
-      </CallButtonWrapper>
-      {showSpinner ? <SpinnerOverlay /> : null}
-      {children}
-    </Container>
+    <RcResponsive
+      responsiveTarget={containerEl}
+      breakpointMap={{
+        lg: 1280,
+        md: 400,
+        sm: 350,
+        xl: 1920,
+        xs: 0,
+      }}
+    >
+      <ResponsiveContainer innerRef={containerEl}>
+        {showFromField ? (
+          <FromField
+            showAnonymous={showAnonymous}
+            fromNumber={fromNumber}
+            fromNumbers={fromNumbers}
+            onChange={changeFromNumber}
+            formatPhone={formatPhone}
+            currentLocale={currentLocale}
+            hidden={!isWebphoneMode}
+            disabled={disableFromField}
+          />
+        ) : null}
+        {input}
+        <DialerWrapper $dialerHeight={dialerHeight}>
+          <ResponsiveDialpad
+            onToNumberChange={onToNumberChange}
+            toNumber={toNumber}
+            data-sign="dialPad"
+            dialButtonVolume={dialButtonVolume}
+            dialButtonMuted={dialButtonMuted}
+          />
+        </DialerWrapper>
+        <CallButtonWrapper>
+          <CallButton
+            data-sign="callButton"
+            color="success.b03"
+            symbol={Phone}
+            variant="contained"
+            elevation="0"
+            activeElevation="0"
+            onClick={() => onCallButtonClick({ clickDialerToCall: true })}
+            disabled={callButtonDisabled}
+            size="large"
+            $dialerHeight={dialerHeight}
+            className="RcWidgetCallButton"
+          />
+        </CallButtonWrapper>
+        {showSpinner ? <SpinnerOverlay /> : null}
+        {children}
+      </ResponsiveContainer>
+    </RcResponsive>
   );
 };
 
-const Empty: FunctionComponent = () => null;
-
-DialerPanel.defaultProps = {
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
-  className: null,
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
-  dialButtonsClassName: null,
-  // @ts-expect-error TS(2322): Type 'null' is not assignable to type 'string | un... Remove this comment to see the full error message
-  fromNumber: null,
-  callButtonDisabled: false,
-  toNumber: '',
-  fromNumbers: [],
-  isWebphoneMode: false,
-  changeFromNumber: Empty,
-  onToNumberChange: Empty,
-  formatPhone: (phoneNumber) => phoneNumber,
-  showSpinner: false,
-  dialButtonVolume: 1,
-  dialButtonMuted: false,
-  recipients: [],
-  autoFocus: false,
-  showFromField: true,
-  disableFromField: false,
-  withTabs: false,
-  inConference: false,
-  isLastInputFromDialpad: false,
-  useV2: false,
-  showAnonymous: true,
-};
 export default DialerPanel;
