@@ -36,6 +36,10 @@ const StyledItem = styled(RcListItem)`
     padding-left: 0;
     padding-right: 0;
   }
+
+  .MuiTypography-root {
+    user-select: text;
+  }
 `;
 
 type ConferenceInfoProps = {

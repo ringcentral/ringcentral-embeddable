@@ -25,6 +25,10 @@ const StyledItem = styled(RcListItem)`
     padding-left: 32px;
   }
 
+  .MuiTypography-root {
+    user-select: text;
+  }
+
   .ContactDisplay_root {
     vertical-align: bottom;
     font-family: Lato, Helvetica, Arial, sans-serif;

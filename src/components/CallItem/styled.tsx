@@ -29,6 +29,10 @@ export const StyledListItem = styled(RcListItem)`
     padding: 10px 16px 10px 0;
   }
 
+  .MuiTypography-root {
+    user-select: text;
+  }
+
   .call-item-action-menu {
     display: none;
   }
