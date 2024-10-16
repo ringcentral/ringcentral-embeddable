@@ -8,6 +8,18 @@ import {
 import { dynamicLoad } from '@ringcentral/mfe-react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 
+interface SmartNoteSession {
+  id: string;
+  status: string;
+  phoneNumber?: string;
+  contact?: {
+    name?: string;
+    phoneNumber?: string;
+    profileImageUrl?: string;
+  };
+  direction: string;
+  startTime?: string;
+}
 @Module({
   name: 'SmartNotes',
   deps: [
@@ -52,12 +64,16 @@ export class SmartNotes extends RcModuleV2 {
         webphoneSession.direction === callDirections.outbound ?
           webphoneSession.toUserName :
           webphoneSession.fromUserName;
-      const contact = this._deps.contactMatcher.dataMapping[phoneNumber];
+      const contactMatches = this._deps.contactMatcher.dataMapping[phoneNumber];
       this.setSession({
         id: webphoneSession.partyData.sessionId,
         status: 'Answered',
         phoneNumber: phoneNumber,
-        contactName: contact && contact.length > 0 ? contact[0].name : feedbackName,
+        contact: contactMatches && contactMatches.length > 0 ? contactMatches[0] : {
+          name: feedbackName,
+        },
+        direction: webphoneSession.direction,
+        startTime: new Date(webphoneSession.startTime).toISOString(),
       });
     });
     this._deps.webphone.onCallEnd((webphoneSession) => {
@@ -68,6 +84,7 @@ export class SmartNotes extends RcModuleV2 {
         this.setSession({
           id: webphoneSession.partyData.sessionId,
           status: 'Disconnected',
+          direction: webphoneSession.direction,
         });
       }
     });
@@ -97,9 +114,27 @@ export class SmartNotes extends RcModuleV2 {
     this.session = session;
   }
 
-  setSession(session) {
+  setSession(session: SmartNoteSession) {
     if (!this.SmartNoteClient) {
       return;
+    }
+    let callMetaData
+    if (session) {
+      callMetaData = {
+        startTime: session.startTime,
+        direction: session.direction,
+      };
+      if (session.direction === 'Outbound') {
+        callMetaData.to = {
+          phoneNumber: session.phoneNumber,
+          name: session.contact ? session.contact.name : '',
+        };
+      } else {
+        callMetaData.from = {
+          phoneNumber: session.phoneNumber,
+          name: session.contact ? session.contact.name : '',
+        };
+      }
     }
     if (!this.session) {
       this._smartNoteClient = new this.SmartNoteClient({
@@ -107,11 +142,14 @@ export class SmartNotes extends RcModuleV2 {
         telephonySessionId: session.id,
         extensionId: this._deps.auth.ownerId,
         telephonySessionStatus: session.status,
-        contact: {
-          name: session.contactName,
+        contact: session.contact ? {
+          ...session.contact,
+          phoneNumber: session.phoneNumber,
+        } : {
           phoneNumber: session.phoneNumber,
         },
         smartNoteIframeUri: this._smartNoteIframeUri,
+        callMetaData,
       });
       this._setSession(session);
     } else {
@@ -123,17 +161,25 @@ export class SmartNotes extends RcModuleV2 {
         return;
       }
       if (session.id === this.session.id) {
-        this._setSession(session);
-        this._smartNoteClient.updateTelephonySessionStatus(session.status);
+        if (this._smartNoteClient.transcriptionStatus !== 'idle') {
+          this._setSession(session);
+          this._smartNoteClient.updateTelephonySessionStatus(session.status);
+        } else {
+          this._smartNoteClient = null;
+          this._setSession(null);
+        }
       } else {
         this._setSession(session);
         this._smartNoteClient.switchSession({
           telephonySessionId: session.id,
           telephonySessionStatus: session.status,
-          contact: {
-            name: session.contactName,
+          contact: session.contact ? {
+            ...session.contact,
             phoneNumber: session.phoneNumber,
-          }
+          } : {
+            phoneNumber: session.phoneNumber,
+          },
+          callMetaData,
         });
       }
     }

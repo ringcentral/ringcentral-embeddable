@@ -6,6 +6,8 @@ import {
   RcMenuItem,
   RcListItemText,
   RcSelect,
+  useResponsiveMatch,
+  css,
 } from '@ringcentral/juno';
 import i18n from './i18n';
 
@@ -16,17 +18,23 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-const FromLabel = styled(RcTypography)`
-  @media only screen and (min-width: 350px) {
+const FromLabel = styled(RcTypography)<{
+  $bigFont: boolean;
+  $mediumFont: boolean;
+}>`
+  ${({ $mediumFont }) => $mediumFont && css`
     font-size: 0.875rem;
-  }
+  `}
 
-  @media only screen and (min-width: 400px) {
+  ${({ $bigFont }) => $bigFont && css`
     font-size: 1rem;
-  }
+  `}
 `;
 
-const Select = styled(RcSelect)`
+const Select = styled(RcSelect)<{
+  $bigFont: boolean;
+  $mediumFont: boolean;
+}>`
   width: auto;
 
   .RcBoxSelectInput-root {
@@ -35,13 +43,13 @@ const Select = styled(RcSelect)`
   .RcBoxSelectInput-input {
     font-size: 0.75rem;
 
-    @media only screen and (min-width: 350px) {
+    ${({ $mediumFont }) => $mediumFont && css`
       font-size: 0.875rem;
-    }
+    `}
 
-    @media only screen and (min-width: 400px) {
+    ${({ $bigFont }) => $bigFont && css`
       font-size: 1rem;
-    }
+    `}
   }
 `;
 
@@ -108,13 +116,22 @@ function FromField({
   showAnonymous = true,
   currentLocale,
 }: FromFieldIns) {
+  const { gtXS, gtSM } = useResponsiveMatch();
   if (hidden) {
     return null;
   }
   return (
     <Container>
-      <FromLabel variant="caption1">{i18n.getString('from', currentLocale)}:</FromLabel>
+      <FromLabel
+        variant="caption1"
+        $bigFont={gtSM}
+        $mediumFont={gtXS}
+      >
+        {i18n.getString('from', currentLocale)}:
+      </FromLabel>
       <Select
+        $bigFont={gtSM}
+        $mediumFont={gtXS}
         value={fromNumber}
         onChange={(e) => {
           onChange({

@@ -324,13 +324,15 @@ export class CallsListUI extends BaseCallsListUI {
       onViewSmartNote: ({
         telephonySessionId,
         phoneNumber,
-        contactName,
+        contact,
+        direction,
       }) => {
         smartNotes.setSession({
           id: telephonySessionId,
           status: 'Disconnected',
           phoneNumber: phoneNumber,
-          contactName,
+          contact,
+          direction,
         });
       },
       onViewCalls: this.onViewCalls,
