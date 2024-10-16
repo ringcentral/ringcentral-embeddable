@@ -438,7 +438,10 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
       onClick: () => onViewSmartNote({
         telephonySessionId: call.telephonySessionId,
         phoneNumber,
-        contactName: hasEntity ? contactMatches[0].name : fallbackContactName,
+        contact: hasEntity ? contactMatches[0] : {
+          name: fallbackContactName,
+        },
+        direction,
       }),
       disabled: disableLinks,
       color: 'label.purple01',
