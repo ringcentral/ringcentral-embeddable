@@ -1210,5 +1210,9 @@ export default class Adapter extends AdapterModuleCore {
       type: this._messageTypes.syncSize,
       size: newSize,
     });
+    this._postMessage({
+      type: 'rc-adapter-side-drawer-open-notify',
+      open: this._sideDrawerOpen,
+    });
   }
 }
