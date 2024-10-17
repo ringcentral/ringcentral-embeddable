@@ -157,7 +157,7 @@ export function CallListV2({
       className={className}
       style={{
         height: height,
-        width: width,
+        width: '100%',
       }}
       components={{
         Footer: ListFooter,
