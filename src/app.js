@@ -83,6 +83,7 @@ const {
   enableSmartNote,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
+  mainTab,
 } = pathParams;
 
 const defaultBrand = brand || process.env.BRAND;
@@ -149,7 +150,7 @@ const phone = createPhone({
   disableLoginPopup: !!disableLoginPopup,
   multipleTabsSupport: !!multipleTabsSupport || fromPopup,
   enableWebRTCPlanB,
-  forceCurrentWebphoneActive: fromPopup,
+  forceCurrentWebphoneActive: mainTab === 'true' || (mainTab === undefined && fromPopup),
   fromPopup,
   enableRingtoneSettings,
   disableNoiseReduction: isExtensionLocalMode ? disableNoiseReduction !== 'false' : !!disableNoiseReduction, // default to disable noise reduction at extension local mode

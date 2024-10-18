@@ -89,6 +89,7 @@ const {
   enableSmartNote,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
+  mainTab,
 } = parseUri(paramsUri);
 
 function obj2uri(obj) {
@@ -154,6 +155,7 @@ const appUri = `${appUrl}?${obj2uri({
   enableSmartNote,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
+  mainTab,
   _t: Date.now(),
 })}`;
 
