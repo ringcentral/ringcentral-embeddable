@@ -15,6 +15,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     callLoggerTitle: 'Log to TestService',
     // callLoggerAutoSettingLabel: 'Auto log calls', // optional, customized the auto log setting label
     // recordingWithToken: 1
+    // callLoggerAutoLogOnCallSync: true, // supported from v2.1.0, auto log calls that happened during the widget closed. Need auto log enabled firstly.
   }
 }, '*');
 ```
