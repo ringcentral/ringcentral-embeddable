@@ -47,7 +47,9 @@ function AppView(props) {
         />
         {
           props.showAudioInit ? (
-            <InitializeAudioBanner />
+            <InitializeAudioBanner
+              onEnableAudio={props.onEnableAudio}
+            />
           ) : null
         }
         <Content>
@@ -119,6 +121,7 @@ export default withPhone(connect((_, {
   phone: {
     environment,
     adapter,
+    audioSettings,
   },
 }) => ({
   onSetData: (options) => {
@@ -126,5 +129,8 @@ export default withPhone(connect((_, {
   },
   dismissDemoWarning: () => {
     adapter.dismissDemoWarning();
+  },
+  onEnableAudio: () => {
+    audioSettings.setAutoPlayEnabled(true);
   },
 }))(AppView));

@@ -166,6 +166,9 @@ export default function App({
                       <DialerPage
                         withTabs={true}
                         getPresence={getPresenceOnContactSearch}
+                        onEnableAudio={() => {
+                          phone.audioSettings.setAutoPlayEnabled(true);
+                        }}
                       />
                     </PhoneTabsContainer>
                   )}

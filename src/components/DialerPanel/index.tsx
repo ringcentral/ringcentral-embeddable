@@ -171,6 +171,7 @@ function ResponsiveDialpad({
   toNumber,
   dialButtonVolume,
   dialButtonMuted,
+  onEnableAudio,
 }) {
   const { ltSM, ltMD } = useResponsiveMatch();
   return (
@@ -178,6 +179,9 @@ function ResponsiveDialpad({
       data-sign="dialPad"
       onChange={(value) => {
         onToNumberChange(toNumber + value, true);
+        if (dialButtonVolume > 0 && !dialButtonMuted) {
+          onEnableAudio(); // enable audio once audio played
+        }
       }}
       sounds={RcDialerPadSoundsMPEG}
       getDialPadButtonProps={(v) => ({
@@ -238,6 +242,7 @@ export interface DialerPanelProps {
   useV2?: boolean;
   showAnonymous?: boolean;
   getPresence?: (...args: any[]) => any;
+  onEnableAudio?: (...args: any[]) => any;
 }
 
 const Empty: FunctionComponent = () => null;
@@ -279,6 +284,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   showAnonymous = true,
   useV2 = false,
   getPresence,
+  onEnableAudio = () => Empty,
 }) => {
   const inputEl = useRef(null);
   const containerEl = useRef(null);
@@ -378,6 +384,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
             data-sign="dialPad"
             dialButtonVolume={dialButtonVolume}
             dialButtonMuted={dialButtonMuted}
+            onEnableAudio={onEnableAudio}
           />
         </DialerWrapper>
         <CallButtonWrapper>
