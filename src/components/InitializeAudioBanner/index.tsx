@@ -4,7 +4,9 @@ import {
   RcAlert,
   RcButton,
   styled,
-  palette2
+  palette2,
+  useAudio,
+  RcDialerPadSoundsMPEG,
 } from '@ringcentral/juno';
 
 const StyledAlert = styled(RcAlert)`
@@ -25,7 +27,13 @@ const StyledAlert = styled(RcAlert)`
   }
 `;
 
-export function InitializeAudioBanner() {
+export function InitializeAudioBanner({
+  onEnableAudio,
+}) {
+  const audio = useAudio((ele) => {
+    ele.src = RcDialerPadSoundsMPEG['1'];
+    ele.volume = 0.1;
+  });
   return (
     <StyledAlert
       severity="info"
@@ -34,6 +42,12 @@ export function InitializeAudioBanner() {
           variant="outlined"
           radius="round"
           size="small"
+          onClick={async () => {
+            await audio.play();
+            setTimeout(() => {
+              onEnableAudio();
+            }, 1000);
+          }}
         >
           Initialize audio
         </RcButton>
