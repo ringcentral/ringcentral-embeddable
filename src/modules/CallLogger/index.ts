@@ -51,40 +51,12 @@ export class CallLogger extends CallLoggerBase {
     }
   }
 
-  override onInitOnce() {
-    super.onInitOnce();
-    watch(
-      this,
-      () => [this._deps.callLog.calls, this.ready, this.autoLog, this.autoLogOnCallSync],
-      () => {
-        if (this._autoLogHistoryCallsTimer) {
-          clearTimeout(this._autoLogHistoryCallsTimer);
-          this._autoLogHistoryCallsTimer = null;
-        }
-        if (
-          !this.ready ||
-          !this.autoLog ||
-          !this.autoLogOnCallSync ||
-          this._deps.callLog.calls.length === 0
-        ) {
-          return;
-        }
-        this._autoLogHistoryCallsTimer = setTimeout(() => {
-          this._autoLogHistoryCalls();
-        }, 10000);
-      },
-      {
-        multiple: true,
-      }
-    );
-  }
-
-  async _autoLogHistoryCalls() {
-    if (!this.autoLog || !this.ready || !this.autoLogOnCallSync) {
-      return;
-    }
+  async getRecentUnloggedCalls({
+    perPage = 100,
+    page = 1,
+  }) {
     await this._deps.activityMatcher.triggerMatch();
-    let historyCalls = this._deps.callHistory.calls.filter(call => {
+    const calls = this._deps.callHistory.calls.filter(call => {
       if (!call.action) {
         // not real call log, from endedCalls
         return false;
@@ -93,27 +65,16 @@ export class CallLogger extends CallLoggerBase {
       if (activityMatches.length > 0) {
         return false;
       }
-      // only logged history calls before 1 minutes
-      if (call.startTime + call.duration * 1000 > Date.now() - 60 * 1000) {
-        return false;
-      }
-      // only logged history calls within 7 days
-      if (call.startTime < Date.now() - 7 * 24 * 60 * 60 * 1000) {
+      // no recent 20s ended call, those calls will be handled by presenceUpdate triggerType
+      if (call.startTime + call.duration * 1000 > Date.now() - 20 * 1000) {
         return false;
       }
       return true;
     });
-    if (historyCalls.length === 0) {
-      return;
-    }
-    // only log the latest 20 history call, other calls will be logged next time
-    historyCalls = historyCalls.slice(0, 20);
-    for (const call of historyCalls) {
-      await this._onCallUpdated(
-        call,
-        callLoggerTriggerTypes.callLogSync,
-      );
-    }
+    return {
+      calls: calls.slice((page - 1) * perPage, page * perPage),
+      hasMore: calls.length > page * perPage,
+    };
   }
 
   get logButtonTitle() {

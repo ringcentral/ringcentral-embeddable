@@ -68,6 +68,7 @@ import {
     'Locale',
     'MessageStore',
     'TabManager',
+    'CallLog',
     'CallLogger',
     'ConversationLogger',
     'GenericMeeting',
@@ -105,6 +106,7 @@ export default class Adapter extends AdapterModuleCore {
     disableInactiveTabCallEvent,
     tabManager,
     callLogger,
+    callLog,
     conversationLogger,
     genericMeeting,
     brand,
@@ -141,6 +143,7 @@ export default class Adapter extends AdapterModuleCore {
     this._tabManager = this:: ensureExist(tabManager, 'tabManager');
     this._alert = alert;
     this._callLogger = callLogger;
+    this._callLog = callLog;
     this._conversationLogger = conversationLogger;
     this._extensionInfo = extensionInfo;
     this._accountInfo = accountInfo;
@@ -249,6 +252,9 @@ export default class Adapter extends AdapterModuleCore {
       this.telephonySessionNotify(session);
     });
     this._webphoneConnectionStatus = null;
+    this._callLog.onSyncSuccess(() => {
+      this.callLogSyncedNotify();
+    });
   }
 
   initialize() {
@@ -422,6 +428,20 @@ export default class Adapter extends AdapterModuleCore {
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
           response: error ? error.message : 'ok',
+        });
+        break;
+      }
+      case '/unlogged-calls': {
+        const { calls, hasMore } = await this._callLogger.getRecentUnloggedCalls({
+          perPage: data.body.perPage,
+          page: data.body.page,
+        });
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: {
+            calls,
+            hasMore,
+          },
         });
         break;
       }
@@ -1213,6 +1233,12 @@ export default class Adapter extends AdapterModuleCore {
     this._postMessage({
       type: 'rc-adapter-side-drawer-open-notify',
       open: this._sideDrawerOpen,
+    });
+  }
+
+  callLogSyncedNotify() {
+    this._postMessage({
+      type: 'rc-call-history-synced-notify',
     });
   }
 }

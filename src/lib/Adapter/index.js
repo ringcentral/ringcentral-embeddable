@@ -233,6 +233,10 @@ class Adapter extends AdapterCore {
         case 'rc-meeting-status-notify':
           console.log('rc-meeting-status-notify:', data.ready, data.permission);
           break;
+        case 'rc-call-history-synced-notify': {
+          console.log('rc-call-history-synced-notify');
+          break;
+        }
         case 'rc-brand-assets-notify':
           if (data.logoUri) {
             this._setLogoUrl(data.logoUri);
@@ -712,6 +716,13 @@ class Adapter extends AdapterCore {
   dismissMessage(id = null) {
     return this._requestWithPostMessage('/dismiss-alert-message', {
       id,
+    });
+  }
+
+  getUnloggedCalls(perPage, page) {
+    return this._requestWithPostMessage('/unlogged-calls', {
+      perPage,
+      page,
     });
   }
 }
