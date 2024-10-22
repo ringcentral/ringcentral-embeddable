@@ -1,7 +1,7 @@
 import { CallLog as CallLogBase } from '@ringcentral-integration/commons/modules/CallLog';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
-import { action, state, computed, storage } from '@ringcentral-integration/core';
+import { action, state, computed } from '@ringcentral-integration/core';
 import {
   sortByStartTime,
 } from '@ringcentral-integration/commons/lib/callLogHelpers';
