@@ -150,7 +150,7 @@ const phone = createPhone({
   disableLoginPopup: !!disableLoginPopup,
   multipleTabsSupport: !!multipleTabsSupport || fromPopup,
   enableWebRTCPlanB,
-  forceCurrentWebphoneActive: mainTab === 'true' || (mainTab === undefined && fromPopup),
+  forceCurrentWebphoneActive: mainTab === 'true' || (typeof mainTab === 'undefined' && fromPopup),
   fromPopup,
   enableRingtoneSettings,
   disableNoiseReduction: isExtensionLocalMode ? disableNoiseReduction !== 'false' : !!disableNoiseReduction, // default to disable noise reduction at extension local mode
@@ -163,6 +163,8 @@ const phone = createPhone({
   enableSmartNote,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
+  isMainTab: mainTab === 'true',
+  autoMainTab: typeof mainTab === 'undefined',
 });
 
 const store = createStore(phone.reducer);
