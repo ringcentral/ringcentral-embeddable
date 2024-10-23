@@ -2194,6 +2194,16 @@
 <span class="w">            </span><span class="s2">&quot;icon&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://xxx/icon1.png&quot;</span>
 <span class="w">          </span><span class="p">}]</span>
 <span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="s2">&quot;section&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;oneOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">            </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;advanced1&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Advanced settings 1&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;advanced2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Advanced settings 2&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="p">}]</span>
+<span class="w">        </span><span class="p">},</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nx">uiSchema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -2204,6 +2214,10 @@
 <span class="w">      </span><span class="nx">opportunity</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="s2">&quot;ui:showIconAsAvatar&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, default true. show icon as avatar (round) in list</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">section</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;ui:navigation&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, default false. show list as navigation items, supported from v2.1.0. it can be used to navigate to another page</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nx">formData</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>

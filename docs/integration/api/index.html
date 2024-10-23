@@ -2705,6 +2705,41 @@
 <span class="c1">// Dismiss all alert messages</span>
 <span class="nx">RCAdapter</span><span class="p">.</span><span class="nx">dismissMessage</span><span class="p">();</span>
 </code></pre></div>
+<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">2.1.0</a></span></span></p>
+<p>Alert with details
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">alertId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">RCAdapter</span><span class="p">.</span><span class="nx">alertMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Can not log phone call&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;danger&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">details</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Description&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;text&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;This is a longer more descriptive explanation of the problem that can expand over multiple lines.&#39;</span>
+<span class="w">    </span><span class="p">}],</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Error from CRM&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;text&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;OAU-1973 Contact not found&#39;</span>
+<span class="w">    </span><span class="p">}],</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Actions&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;link&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Need help? Ask out community.&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">href</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://community.ringcentral.com&#39;</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;link&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// when not href set, it will send a event with [button event](./sms-toolbar-button.md)</span>
+<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Resolve logging conflict&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}]</span>
+<span class="w">  </span><span class="p">}]</span>
+<span class="p">})</span>
+</code></pre></div></p>
 <h3 id="minimizehideremove-the-widget">Minimize/Hide/Remove the widget</h3>
 <p>Only for Adapter JS way:</p>
 <p>Minimize:</p>
