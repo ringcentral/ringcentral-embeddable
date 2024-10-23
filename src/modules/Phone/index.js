@@ -753,6 +753,8 @@ export function createPhone({
   enableSmartNote,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
+  isMainTab,
+  autoMainTab,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -831,6 +833,13 @@ export function createPhone({
         provide: 'AlertOptions',
         useValue: {
           enableTabSync: multipleTabsSupport,
+        },
+      },
+      {
+        provide: 'TabManagerOptions',
+        useValue: {
+          isMainTab,
+          autoMainTab,
         },
       },
       {
