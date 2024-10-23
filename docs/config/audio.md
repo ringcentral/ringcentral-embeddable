@@ -8,7 +8,7 @@ Due to browser limitations, the widget can only play audio after user interacts 
 
 And developer can enable `Audio Initialization` banner to remind user to initialize audio. The banner will be displayed at the top of the widget.
 
-<!-- md:version 2.0.1 -->
+<!-- md:version 2.1.0 -->
 
 === "Javascript"
 

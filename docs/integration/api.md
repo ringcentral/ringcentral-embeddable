@@ -183,6 +183,43 @@ RCAdapter.dismissMessage(alertId); // dismiss the alert message
 RCAdapter.dismissMessage();
 ```
 
+<!-- md:version 2.1.0 -->
+
+Alert with details
+```js
+const alertId = await RCAdapter.alertMessage({
+  message: 'Can not log phone call',
+  ttl: 0,
+  level: 'danger',
+  details: [{
+    title: 'Description',
+    items: [{
+      id: '1',
+      type: 'text',
+      text: 'This is a longer more descriptive explanation of the problem that can expand over multiple lines.'
+    }],
+  }, {
+    title: 'Error from CRM',
+    items: [{
+      id: '1',
+      type: 'text',
+      text: 'OAU-1973 Contact not found'
+    }],
+  }, {
+    title: 'Actions',
+    items: [{
+      id: '1',
+      type: 'link',
+      text: 'Need help? Ask out community.',
+      href: 'https://community.ringcentral.com'
+    }, {
+      id: '2',
+      type: 'link', // when not href set, it will send a event with [button event](./sms-toolbar-button.md)
+      text: 'Resolve logging conflict',
+    }]
+  }]
+})
+```
 ### Minimize/Hide/Remove the widget
 
 Only for Adapter JS way:

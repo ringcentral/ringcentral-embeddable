@@ -174,3 +174,13 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   sessionIds: [`call_session_id`],
 }, '*');
 ```
+
+## Get un-logged calls
+
+<!-- md:version 2.1.0 -->
+
+When user have calls in other device during the widget closed, those calls data can't be sent by the `callLoggerPath` event even auto log enabled. You can get those calls by un-logged calls api.
+
+```js
+const { calls, hasMore } = await RCAdapter.getUnloggedCalls(PER_PAGE, PAGE_NUMBER); // PER_PAGE: number of calls per page, PAGE_NUMBER: page number
+```

@@ -43,6 +43,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
         "name": 'Open call logging page after call',
         "value": true,
         "groupId": 'logging', // optional, group settings into call and sms logging settings
+        // "readOnly": true, // supported from v2.1.0
+        // "readOnlyReason": "This setting is managed by admin", // supported from v2.1.0
       },
       {
         "id": "goToAppSettings",

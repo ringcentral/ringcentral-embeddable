@@ -199,6 +199,16 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
             "icon": "https://xxx/icon1.png"
           }]
         },
+        "section": {
+          "type": "string",
+          "oneOf": [{
+            "const": "advanced1",
+            "title": "Advanced settings 1",
+          }, {
+            "const": "advanced2",
+            "title": "Advanced settings 2",
+          }]
+        },
       },
     },
     uiSchema: {
@@ -209,6 +219,10 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
       opportunity: {
         "ui:field": "list",
         "ui:showIconAsAvatar": true, // optional, default true. show icon as avatar (round) in list
+      },
+      section: {
+        "ui:field": "list",
+        "ui:navigation": true, // optional, default false. show list as navigation items, supported from v2.1.0. it can be used to navigate to another page
       },
     },
     formData: {
