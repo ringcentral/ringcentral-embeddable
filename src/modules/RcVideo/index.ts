@@ -314,4 +314,11 @@ export class RcVideo extends RcVideoBase {
     }
     await super._initPreferences();
   }
+
+  override _getDialinNumbers() {
+    if (!this._deps.appFeatures.hasInternalVideoScope) {
+      return [];
+    }
+    return super._getDialinNumbers();
+  }
 }
