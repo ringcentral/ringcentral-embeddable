@@ -32,6 +32,21 @@ export class Auth extends AuthBase {
     };
   }
 
+  override async onStateChange() {
+    await super.onStateChange();
+    if (
+      this.ready &&
+      this._deps.tabManager &&
+      this._deps.tabManager.ready &&
+      !this._deps.tabManager.autoMainTab &&
+      this._deps.tabManager.event &&
+      this._deps.tabManager.event.name === 'LOGOUT_REQUEST' &&
+      this._deps.tabManager.active
+    ) {
+      this.logout({ fromLogoutRequest: true });
+    }
+  }
+
   async fetchToken() {
     const token = await this._getTokenFromSDK();
     this.setInitLogin({
@@ -66,7 +81,17 @@ export class Auth extends AuthBase {
     };
   }
 
-  async logout(options) {
+  override async logout(options = {}) {
+    if (
+      this._deps.tabManager &&
+      !this._deps.tabManager.autoMainTab &&
+      !this._deps.tabManager.active
+    ) {
+      if (!options.fromLogoutRequest) {
+        this._deps.tabManager.send('LOGOUT_REQUEST');
+      }
+      return;
+    }
     if (this.useWAP) {
       const platform = this._deps.client.service.platform();
       platform.logout = async () => {

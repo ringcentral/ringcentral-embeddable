@@ -11,4 +11,8 @@ export class TabManager extends TabManagerBase {
     // TODO: fix in widgets lib. 1min+ timeout to avoid timer is throttled
     this.tabbie._heartBeatExpire = 70000;
   }
+
+  get autoMainTab() {
+    return this._deps.tabManagerOptions.autoMainTab;
+  }
 }
