@@ -342,13 +342,6 @@ import { SideDrawerUI } from '../SideDrawerUI';
       },
     },
     {
-      provide: 'StorageOptions',
-      useValue: {
-        StorageProvider: LocalForageStorage, // IndexedDB
-        disableInactiveTabsWrite: true,
-      },
-    },
-    {
       provide: 'MessageStoreOptions',
       useValue: {
         daySpan: 90,
@@ -840,6 +833,13 @@ export function createPhone({
         useValue: {
           isMainTab,
           autoMainTab,
+        },
+      },
+      {
+        provide: 'StorageOptions',
+        useValue: {
+          StorageProvider: LocalForageStorage, // IndexedDB
+          disableInactiveTabsWrite: autoMainTab,
         },
       },
       {

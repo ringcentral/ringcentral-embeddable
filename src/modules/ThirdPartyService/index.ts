@@ -7,6 +7,8 @@ import {
   RcModuleV2,
   state,
   computed,
+  globalStorage,
+  watch,
 } from '@ringcentral-integration/core';
 
 import requestWithPostMessage from '../../lib/requestWithPostMessage';
@@ -31,6 +33,8 @@ import {
     'ConversationMatcher',
     'GenericMeeting',
     'SmartNotes',
+    'GlobalStorage',
+    'TabManager',
     { dep: 'ThirdPartyContactsOptions', optional: true },
   ],
 })
@@ -57,7 +61,6 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _settingsPath?: string;
   private _authorizationPath?: string;
   private _authorizationLogo?: string;
-  private _authorizedAccount?: string;
   private _contactIcon?: string;
   private _recordingLink?: string;
   private _callLoggerRecordingWithToken?: boolean;
@@ -73,7 +76,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     super({
       deps,
       storageKey: 'thirdPartyService',
-      enableGlobalCache: false,
+      enableGlobalCache: !deps.tabManager.autoMainTab,
     });
 
     this._ignoreModuleReadiness(deps.auth);
@@ -97,7 +100,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       if (!e.data) {
         return;
       }
-      if (e.data.type === 'rc-adapter-register-third-party-service' && this.serviceName === null) {
+      if (e.data.type === 'rc-adapter-register-third-party-service') {
         const service = e.data.service;
         if (!service || !service.name) {
           return;
@@ -107,26 +110,16 @@ export default class ThirdPartyService extends RcModuleV2 {
           serviceDisplayName: service.displayName,
           serviceInfo: service.info || '',
         });
-        if (service.authorizationPath) {
-          this._registerAuthorizationButton(service);
-        }
         if (service.contactsPath) {
           this._registerContacts(service);
         }
         if (service.contactSearchPath) {
           this._contactSearchPath = service.contactSearchPath;
-          if (!this.authorizationRegistered || this.authorized) {
-            this._registerContactSearch(service);
-          }
         }
         if (service.contactMatchPath) {
           this._contactMatchPath = service.contactMatchPath;
           this._contactMatchTtl = service.contactMatchTtl;
           this._contactNoMatchTtl = service.contactNoMatchTtl;
-          if (!this.authorizationRegistered || this.authorized) {
-            this._registerContactMatch();
-            this._deps.contactMatcher.triggerMatch();
-          }
         }
         if (service.viewMatchedContactPath) {
           this._viewMatchedContactPath = service.viewMatchedContactPath;
@@ -149,10 +142,6 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         if (service.callLogEntityMatcherPath) {
           this._callLogEntityMatcherPath = service.callLogEntityMatcherPath;
-          if (!this.authorizationRegistered || this.authorized) {
-            this._registerCallLogEntityMatch(service);
-            this._deps.activityMatcher.triggerMatch();
-          }
         }
         if (service.messageLoggerPath) {
           this._registerMessageLogger(service);
@@ -162,10 +151,6 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         if (service.messageLogEntityMatcherPath) {
           this._messageLogEntityMatcherPath = service.messageLogEntityMatcherPath;
-          if (!this.authorizationRegistered || this.authorized) {
-            this._registerMessageLogEntityMatch(service);
-            this._deps.conversationMatcher.triggerMatch();
-          }
         }
         if (service.feedbackPath) {
           this._registerFeedback(service);
@@ -185,6 +170,18 @@ export default class ThirdPartyService extends RcModuleV2 {
         if (service.doNotContactPath) {
           this._registerDoNotContact(service);
         }
+        const oldAuthorizedStatus = this.authorized;
+        if (service.authorizationPath) {
+          this._registerAuthorizationButton(service);
+        } else {
+          // if not authorization service, make it authorized by default
+          this.setAuthorized(true, '');
+        }
+        if (this.authorized && oldAuthorizedStatus === this.authorized) {
+          // trigger if authorized status is not changed
+          console.log('third party authorized not changed');
+          this._onAuthorizedChanged(this.authorized, false);
+        }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
       } else if (e.data.type === 'rc-adapter-sync-third-party-contacts') {
@@ -203,6 +200,44 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._onRegisterCustomizedPage(e.data);
       }
     });
+    watch(
+      this,
+      () => this.authorized,
+      (newAuthorized, oldAuthorized) => {
+        const isFreshRegister = oldAuthorized === null && newAuthorized;
+        this._onAuthorizedChanged(newAuthorized, isFreshRegister);
+      },
+    )
+  }
+
+  _onAuthorizedChanged(authorized, isFreshRegister) {
+    if (authorized) {
+      console.log('third party authorized');
+      this._registerContactSearch();
+      this._registerContactMatch();
+      this._registerCallLogEntityMatch();
+      this._registerMessageLogEntityMatch();
+      if (this._deps.tabManager.autoMainTab || this._deps.tabManager.active) {
+        this.fetchContacts();
+      }
+      if (this._deps.tabManager && this._deps.tabManager.active) {
+        console.log('third party refreshing matches...');
+        if (!isFreshRegister) {
+          this._refreshContactMatch();
+          this._refreshCallLogEntityMatch();
+          this._refreshMessageLogEntityMatch();
+        }
+        this._deps.contactMatcher.triggerMatch();
+        this._deps.activityMatcher.triggerMatch();
+        this._deps.conversationMatcher.triggerMatch();
+      }
+    } else {
+      console.log('third party unauthorized');
+      this._unregisterContactSearch();
+      this._unregisterContactMatch();
+      this._unregisterCallLogEntityMatch();
+      this._unregisterMessageLogEntityMatch();
+    }
   }
 
   _registerContacts(service) {
@@ -212,7 +247,6 @@ export default class ThirdPartyService extends RcModuleV2 {
     if (this._deps.contactSources.indexOf(this) === -1) {
       this._deps.contactSources.push(this);
     }
-    this.fetchContacts();
   }
 
   // contact source interface
@@ -350,12 +384,12 @@ export default class ThirdPartyService extends RcModuleV2 {
   _registerAuthorizationButton(service) {
     this._authorizationPath = service.authorizationPath;
     this._authorizationLogo = getImageUri(service.authorizationLogo);
-    this._authorizedAccount = service.authorizedAccount;
     this._onRegisterAuthorization({
       authorized: service.authorized,
       authorizedTitle: service.authorizedTitle,
       unauthorizedTitle: service.unauthorizedTitle,
       showAuthRedDot: service.showAuthRedDot || false,
+      authorizedAccount: service.authorizedAccount,
     });
   }
 
@@ -363,27 +397,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     if (!this.authorizationRegistered) {
       return;
     }
-    const lastAuthorized = this.authorized;
-    this._authorizedAccount = data.authorizedAccount;
-    this.setAuthorized(!!data.authorized)
-    if (!lastAuthorized && this.authorized) {
-      await this.fetchContacts();
-      this._registerContactSearch();
-      this._registerContactMatch();
-      this._refreshContactMatch();
-      this._deps.contactMatcher.triggerMatch();
-      this._registerCallLogEntityMatch();
-      this._registerMessageLogEntityMatch();
-      this._refreshCallLogEntityMatch();
-      this._refreshMessageLogEntityMatch();
-      this._deps.activityMatcher.triggerMatch();
-    }
-    if (lastAuthorized && !this.authorized) {
-      this._unregisterContactSearch();
-      this._unregisterContactMatch();
-      this._unregisterCallLogEntityMatch();
-      this._unregisterMessageLogEntityMatch();
-    }
+    this.setAuthorized(!!data.authorized, data.authorizedAccount);
   }
 
   _registerActivities(service) {
@@ -987,15 +1001,19 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.contactSyncing = value;
   }
 
+  @globalStorage
   @state
   serviceName = null;
 
+  @globalStorage
   @state
   displayName = null;
 
+  @globalStorage
   @state
   serviceInfo = null;
 
+  @globalStorage
   @state
   _sourceReady = false;
 
@@ -1024,15 +1042,19 @@ export default class ThirdPartyService extends RcModuleV2 {
     return this._sourceReady;
   }
 
+  @globalStorage
   @state
   _activitiesRegistered = false;
 
+  @globalStorage
   @state
   activityName = null;
 
+  @globalStorage
   @state
   activitiesLoaded = false;
 
+  @globalStorage
   @state
   activities = [];
 
@@ -1067,6 +1089,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     return this._activitiesRegistered;
   }
 
+  @globalStorage
   @state
   meetingInviteTitle = null;
 
@@ -1077,27 +1100,35 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.meetingInviteTitle = meetingInviteTitle;
   }
 
+  @globalStorage
   @state
   callLoggerRegistered = false;
 
+  @globalStorage
   @state
   callLoggerTitle = null;
 
+  @globalStorage
   @state
   callLoggerAutoSettingLabel = null;
 
+  @globalStorage
   @state
   showLogModal = false;
 
+  @globalStorage
   @state
   callLoggerAutoSettingReadOnly = false;
 
+  @globalStorage
   @state
   callLoggerAutoSettingReadOnlyReason = '';
 
+  @globalStorage
   @state
   callLoggerAutoSettingReadOnlyValue: null | boolean = null;
 
+  @globalStorage
   @state
   callLoggerAutoLogOnCallSync = false;
 
@@ -1127,21 +1158,27 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.callLoggerAutoLogOnCallSync = !!callLoggerAutoLogOnCallSync;
   }
 
+  @globalStorage
   @state
   messageLoggerRegistered = false;
 
+  @globalStorage
   @state
   messageLoggerTitle = null;
 
+  @globalStorage
   @state
   messageLoggerAutoSettingLabel = null;
 
+  @globalStorage
   @state
   messageLoggerAutoSettingReadOnly = false;
 
+  @globalStorage
   @state
   messageLoggerAutoSettingReadOnlyReason = '';
 
+  @globalStorage
   @state
   messageLoggerAutoSettingReadOnlyValue: null | boolean = null;
 
@@ -1166,15 +1203,23 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.messageLoggerRegistered = true;
   }
 
+  @globalStorage
   @state
   authorized = null;
 
+  @globalStorage
+  @state
+  authorizedAccount = null;
+
+  @globalStorage
   @state
   authorizedTitle = null;
 
+  @globalStorage
   @state
   unauthorizedTitle = null;
 
+  @globalStorage
   @state
   _showAuthRedDot = false;
 
@@ -1184,24 +1229,27 @@ export default class ThirdPartyService extends RcModuleV2 {
     authorizedTitle,
     unauthorizedTitle,
     showAuthRedDot,
+    authorizedAccount,
   }) {
     this.authorized = authorized;
     this.authorizedTitle = authorizedTitle;
     this.unauthorizedTitle = unauthorizedTitle;
     this._showAuthRedDot = showAuthRedDot;
-  }
-
-  @action
-  setAuthorized(value) {
-    this.authorized = value;
-  }
-
-  get authorizationRegistered() {
-    return this.authorized !== null;
+    this.authorizedAccount = authorizedAccount;
   }
 
   get authorizationLogo() {
     return this._authorizationLogo;
+  }
+
+  @action
+  setAuthorized(value, account) {
+    this.authorized = value;
+    this.authorizedAccount = account
+  }
+
+  get authorizationRegistered() {
+    return this.authorized !== null;
   }
 
   get showAuthRedDot() {
@@ -1212,14 +1260,11 @@ export default class ThirdPartyService extends RcModuleV2 {
     );
   }
 
-  get authorizedAccount() {
-    return this._authorizedAccount;
-  }
-
   get contactIcon() {
     return this._contactIcon;
   }
 
+  @globalStorage
   @state
   showFeedback = false;
 
@@ -1228,6 +1273,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.showFeedback = true;
   }
 
+  @globalStorage
   @state
   settings = [];
 
@@ -1251,9 +1297,11 @@ export default class ThirdPartyService extends RcModuleV2 {
     });
   }
 
+  @globalStorage
   @state
   meetingLoggerRegistered = false;
 
+  @globalStorage
   @state
   meetingLoggerTitle = null;
 
@@ -1267,6 +1315,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
   }
 
+  @globalStorage
   @state
   additionalButtons = [];
 
@@ -1280,6 +1329,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     return this.additionalButtons.filter(x => x.type === 'smsToolbar');
   }
 
+  @globalStorage
   @state
   viewMatchedContactExternal = false;
 
@@ -1288,6 +1338,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.viewMatchedContactExternal = value;
   }
 
+  @globalStorage
   @state
   customizedPages = [];
 
@@ -1448,6 +1499,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     }));
   }
 
+  @globalStorage
   @state
   doNotContactRegistered = false;
 
