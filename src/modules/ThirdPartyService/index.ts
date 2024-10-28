@@ -967,15 +967,12 @@ export default class ThirdPartyService extends RcModuleV2 {
     await this.fetchContacts(params);
   }
 
-  @globalStorage
   @state
   contacts = [];
 
-  @globalStorage
   @state
   contactSyncTimestamp = null;
 
-  @globalStorage
   @state
   contactSyncing = false;
 
