@@ -30,6 +30,7 @@ export class CustomizedPageUI extends RcUIModuleV2 {
       submitButtonLoading: false,
       pageId: params.pageId,
       type: page && page.type || 'page',
+      hideBackButton: page && page.hideBackButton || false,
     };
   }
 

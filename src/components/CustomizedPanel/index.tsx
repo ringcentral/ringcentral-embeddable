@@ -52,6 +52,7 @@ export function CustomizedPanel({
   onButtonClick,
   pageId,
   type = 'page',
+  hideBackButton = false,
 }) {
   const [formDataState, setFormDataState] = useState({});
   const showSaveButton = !!uiSchema.submitButtonOptions;
@@ -89,6 +90,7 @@ export function CustomizedPanel({
     <BackHeaderView
       onBack={onBackButtonClick}
       title={title}
+      hideBackButton={hideBackButton}
       rightButton={
         showSaveButton ? (
           <SaveButton
