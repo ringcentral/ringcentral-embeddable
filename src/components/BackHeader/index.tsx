@@ -31,20 +31,26 @@ interface BackHeaderProps {
   onBack: () => void;
   children?: ReactNode;
   label?: string;
+  hideBackButton?: boolean;
 }
 
 export function BackHeader({
   onBack,
   children = null,
   label = undefined,
+  hideBackButton = false,
 }: BackHeaderProps) {
   return (
     <Header>
-      <BackButton
-        symbol={Previous}
-        onClick={onBack}
-        data-sign="backButton"
-      />
+      {
+        hideBackButton ? null : (
+          <BackButton
+            symbol={Previous}
+            onClick={onBack}
+            data-sign="backButton"
+          />
+        )
+      }
       {
         label && (
           <BackButtonLabel variant="body1" color="neutral.f06">
