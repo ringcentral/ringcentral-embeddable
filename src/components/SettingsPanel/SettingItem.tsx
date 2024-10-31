@@ -44,6 +44,7 @@ export const LinkLineItem: FunctionComponent<LinkLineItemProps> = ({
   onClick,
   dataSign = undefined,
   pendoSignName = undefined,
+  description = undefined,
 }) => {
   if (!show) {
     return null;
@@ -56,6 +57,7 @@ export const LinkLineItem: FunctionComponent<LinkLineItemProps> = ({
     >
       <RcListItemText
         primary={customTitle || i18n.getString(name, currentLocale)}
+        secondary={description}
       />
       <RcListItemSecondaryAction>
         <RcIcon symbol={ArrowRight} />
@@ -68,6 +70,7 @@ interface NewSwitchLineItemProps extends SwitchLineItemProps {
   className?: string;
   readOnly?: boolean;
   readOnlyReason?: string;
+  description?: string;
 }
 
 const StyledSwitch = styled(RcSwitch)`
@@ -96,6 +99,7 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
   className,
   readOnly,
   readOnlyReason,
+  description,
   // tooltip,
 }) => {
   if (!show) {
@@ -124,6 +128,7 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
       <RcListItemText
         primary={label}
         title={customTitle || i18n.getString(name, currentLocale)}
+        secondary={description}
       />
       <RcListItemSecondaryAction>
         <StyledSwitch
@@ -150,17 +155,20 @@ interface ButtonLineItemProps {
   name: string;
   buttonLabel: string;
   onClick: () => void;
+  description?: string;
 }
 
 export const ButtonLineItem: FunctionComponent<ButtonLineItemProps> = ({
   name,
   buttonLabel,
   onClick,
+  description = undefined,
 }) => {
   return (
     <StyledSettingItem>
       <RcListItemText
         primary={name}
+        secondary={description}
       />
       <RcListItemSecondaryAction>
         <RcButton
@@ -179,6 +187,7 @@ interface GroupLineItemProps {
   name: string;
   show: boolean;
   dataSign?: string;
+  description?: string;
 }
 
 const StyledGroupSettingItem = styled(StyledSettingItem)`
@@ -198,6 +207,7 @@ export const GroupLineItem: FunctionComponent<GroupLineItemProps> = ({
   children,
   show,
   dataSign = undefined,
+  description = undefined,
 }) => {
   const [extended, setExtended] = useState(false);
 
@@ -214,6 +224,7 @@ export const GroupLineItem: FunctionComponent<GroupLineItemProps> = ({
       >
         <RcListItemText
           primary={name}
+          secondary={description}
         />
         <RcListItemSecondaryAction>
           <RcIcon
@@ -235,12 +246,14 @@ interface ExternalLinkLineItemProps {
   name: string;
   uri: string;
   dataSign?: string;
+  description?: string;
 }
 
 export const ExternalLinkLineItem: FunctionComponent<ExternalLinkLineItemProps> = ({
   uri,
   name,
   dataSign = undefined,
+  description = undefined,
 }) => {
   return (
     <StyledSettingItem data-sign={dataSign}>
@@ -256,6 +269,7 @@ export const ExternalLinkLineItem: FunctionComponent<ExternalLinkLineItemProps> 
         primaryTypographyProps={{
           'component': 'div',
         }}
+        secondary={description}
       />
     </StyledSettingItem>
   );

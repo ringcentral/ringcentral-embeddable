@@ -29,6 +29,7 @@ type ThirdPartySetting = {
   uri?: string;
   readOnly?: boolean;
   readOnlyReason?: string;
+  description?: string;
 }
 
 type SettingItem = {
@@ -48,6 +49,7 @@ type SettingItem = {
   uri?: string;
   readOnly?: boolean;
   readOnlyReason?: string;
+  description?: string;
 }
 
 function getLoggingGroupName(showAutoLog: boolean, showAutoLogSMS: boolean) {
@@ -90,6 +92,7 @@ function ItemRenderer({ item, currentLocale }: {
         show={item.show}
         currentLocale={currentLocale}
         onClick={item.onClick}
+        description={item.description}
       />
     );
   }
@@ -106,6 +109,7 @@ function ItemRenderer({ item, currentLocale }: {
         onChange={item.onChange}
         readOnly={item.readOnly}
         readOnlyReason={item.readOnlyReason}
+        description={item.description}
       />
     );
   }
@@ -115,6 +119,7 @@ function ItemRenderer({ item, currentLocale }: {
         name={item.name}
         buttonLabel={item.buttonLabel}
         onClick={item.onClick}
+        description={item.description}
       />
     );
   }
@@ -124,6 +129,7 @@ function ItemRenderer({ item, currentLocale }: {
         name={item.name}
         uri={item.uri}
         dataSign={item.dataSign}
+        description={item.description}
       />
     );
   }
@@ -138,6 +144,7 @@ function ItemRenderer({ item, currentLocale }: {
         name={item.name}
         show={groupItemsShow}
         dataSign={item.dataSign}
+        description={item.description}
       >
         {
           groupItems.sort((a, b) => a.order - b.order).map((subItem) => (
@@ -176,6 +183,7 @@ function getSettingItemFromThirdPartyItem({
       show: true,
       onClick: () => gotoThirdPartySection(item.id),
       order,
+      description: item.description,
     };
   }
   if (item.type === 'button') {
@@ -188,6 +196,7 @@ function getSettingItemFromThirdPartyItem({
         show: true,
         onClick: () => onThirdPartyButtonClick(item.id),
         order,
+        description: item.description,
       };
     }
     return {
@@ -199,6 +208,7 @@ function getSettingItemFromThirdPartyItem({
       show: true,
       onClick: () => onThirdPartyButtonClick(item.id),
       order,
+      description: item.description,
     };
   }
   if (item.type === 'boolean') {
@@ -214,6 +224,7 @@ function getSettingItemFromThirdPartyItem({
       order,
       readOnly: item.readOnly,
       readOnlyReason: item.readOnlyReason,
+      description: item.description,
     };
   }
   if (item.type === 'group') {
@@ -230,6 +241,7 @@ function getSettingItemFromThirdPartyItem({
         order: subItem.order || 0,
       })),
       dataSign: item.id || item.name,
+      description: item.description,
     }
   }
   if (item.type === 'externalLink') {
@@ -241,6 +253,7 @@ function getSettingItemFromThirdPartyItem({
       show: true,
       uri: item.uri,
       order,
+      description: item.description,
     };
   }
   return null;
