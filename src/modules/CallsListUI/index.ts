@@ -21,7 +21,6 @@ import debounce from '@ringcentral-integration/commons/lib/debounce';
     'ContactMatcher',
     'CallingSettings',
     'SmartNotes',
-    'StatusMatcher',
     'CallLog',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
@@ -397,16 +396,6 @@ export class CallsListUI extends BaseCallsListUI {
   }
 
   onViewCalls = debounce((calls) => {
-    this._deps.smartNotes.queryNotedCalls(calls.map(c => c.telephonySessionId));
-    if (this._deps.statusMatcher.ready) {
-      this._deps.statusMatcher.match({
-        queries: calls.filter((call) => {
-          if (call.activityMatches && call.activityMatches.length > 0) {
-            return false;
-          }
-          return true;
-        }).map((call) => call.sessionId),
-      });
-    }
+    return this._deps.smartNotes.queryNotedCalls(calls.map(c => c.telephonySessionId));
   }, 300);
 }
