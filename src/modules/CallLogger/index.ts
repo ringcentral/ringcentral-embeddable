@@ -1,7 +1,6 @@
 import { computed, watch } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { CallLogger as CallLoggerBase } from '@ringcentral-integration/commons/modules/CallLogger';
-import { callLoggerTriggerTypes } from '@ringcentral-integration/commons/enums/callLoggerTriggerTypes';
 
 @Module({
   name: 'CallLogger',
@@ -62,7 +61,10 @@ export class CallLogger extends CallLoggerBase {
         return false;
       }
       const activityMatches = this._deps.activityMatcher.dataMapping[call.sessionId] || [];
-      if (activityMatches.length > 0) {
+      if (
+        activityMatches.length > 0 &&
+        activityMatches.find((match) => match.type !== 'status')
+      ) {
         return false;
       }
       // no recent 20s ended call, those calls will be handled by presenceUpdate triggerType
