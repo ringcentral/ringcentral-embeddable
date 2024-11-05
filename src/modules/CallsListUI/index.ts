@@ -77,7 +77,10 @@ export class CallsListUI extends BaseCallsListUI {
     }
     return this._deps.callHistory.latestCalls.filter((call) => {
       if (this.filterType === 'UnLogged') {
-        return call.activityMatches && call.activityMatches.length === 0;
+        return (
+          call.activityMatches &&
+          call.activityMatches.filter(m => m.type !== 'status').length === 0
+        );
       }
       if (this.filterType === 'Missed') {
         return isInbound(call) && isMissed(call);
