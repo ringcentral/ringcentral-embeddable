@@ -782,7 +782,7 @@ export default class ThirdPartyService extends RcModuleV2 {
           contentUri,
         };
       }
-      await requestWithPostMessage(this._callLoggerPath, { call: callItem, ...options }, 6000);
+      await requestWithPostMessage(this._callLoggerPath, { call: callItem, ...options }, 15000);
       if (this._callLogEntityMatchSourceAdded) {
         this._deps.activityMatcher.match({
           queries: [call.sessionId],
@@ -790,7 +790,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         });
       }
     } catch (e) {
-      console.error(e);
+      console.error('Log call error, please check if call logger responds', e);
     }
   }
 
@@ -866,7 +866,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         });
         item.messages = messages;
       }
-      await requestWithPostMessage(this._messageLoggerPath, { conversation: item, ...options }, 6000);
+      await requestWithPostMessage(this._messageLoggerPath, { conversation: item, ...options }, 15000);
       if (this._messageLogEntityMatchSourceAdded) {
         this._deps.conversationMatcher.match({
           queries: [item.conversationLogId],
@@ -874,7 +874,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         });
       }
     } catch (e) {
-      console.error(e);
+      console.error('Log message error, please check if message logger responds', e);
     }
   }
 

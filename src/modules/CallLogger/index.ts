@@ -1,6 +1,7 @@
-import { computed, watch } from '@ringcentral-integration/core';
+import { computed } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { CallLogger as CallLoggerBase } from '@ringcentral-integration/commons/modules/CallLogger';
+import { isRinging } from '@ringcentral-integration/commons/lib/callLogHelpers';
 
 @Module({
   name: 'CallLogger',
@@ -23,6 +24,19 @@ export class CallLogger extends CallLoggerBase {
   async _doLog({ item, ...options }) {
     delete item.toNumberEntity;
     await this._deps.thirdPartyService.logCall({ call: item, ...options });
+  }
+
+  async _shouldLogUpdatedCall(call) {
+    const isActive = await this._ensureActive();
+    if (isActive && (this.logOnRinging || !isRinging(call))) {
+      if (this.autoLog) return true;
+      await this._deps.activityMatcher.triggerMatch();
+      const activityMatches =
+        this._deps.activityMatcher.dataMapping[call.sessionId] || [];
+      const isLogging = !!this.loggingMap[call.sessionId];
+      return activityMatches.length > 0 || isLogging;
+    }
+    return false;
   }
 
   @computed(that => [that._deps.callMonitor.calls, that._deps.callHistory.calls])
