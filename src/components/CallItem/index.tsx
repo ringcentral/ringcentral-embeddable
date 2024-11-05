@@ -44,6 +44,7 @@ import styles from '@ringcentral-integration/widgets/components/CallItem/styles.
 
 import { CallIcon } from './CallIcon';
 import { RecordingDialog } from './RecordingDialog';
+import { StatusMessage } from './StatusMessage';
 
 import {
   StyledListItem,
@@ -401,14 +402,19 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
 
   // const selectedMatchContactType = getSelectedContact()?.type ?? '';
   const actions: any[] = [];
-  const isLogged = activityMatches.length > 0;
+  const isLogged = activityMatches.length > 0 && activityMatches.find(
+    (activity) => activity.type !== 'status',
+  );
+  const statusMatch = activityMatches.find(
+    (activity) => activity.type === 'status',
+  );
   if (showLogButton && !isFax) {
     actions.push({
       id: 'log',
       icon: isLogged ? Edit : NewAction,
       title: (isLogged ? 'Edit log' : logButtonTitle) || 'Log call',
       onClick: () => logCall(true, undefined, isLogged ? 'editLog' : 'createLog'),
-      disabled: disableLinks || isLogging,
+      disabled: disableLinks || isLogging || statusMatch && statusMatch.status === 'pending',
     });
   }
   if (onClickToDial) {
@@ -602,6 +608,13 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
                     symbol={Disposition}
                     size="small"
                     title="Logged"
+                  />
+                )
+              }
+              {
+                statusMatch && (
+                  <StatusMessage
+                    statusMatch={statusMatch}
                   />
                 )
               }
