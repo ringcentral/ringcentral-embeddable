@@ -44,7 +44,10 @@ export class ConversationsUI extends BaseConversationsUI {
       },
       onSearchFilterChange: (value) => {
         conversations.updateSearchFilter(value);
-      }
+      },
+      onSearchInputChange: (value) => {
+        this._deps.conversations.updateSearchInput(value);
+      },
     }
   }
 }
