@@ -168,7 +168,7 @@ const StyledItemIcon = styled(RcListItemIcon)`
 `;
 
 const IconBadge = styled(RcIcon)`
-  margin-left: 8px;
+  margin-right: 4px;
 `;
 
 const StyledSecondary = styled.span`
@@ -932,8 +932,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
             <>
               <StyledSecondary>
                 <DetailArea>
-                  {detail}
-                  {
+                {
                     isLogged && (
                       <IconBadge
                         symbol={Disposition}
@@ -942,6 +941,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
                       />
                     )
                   }
+                  {detail}
                 </DetailArea>
                 <span className="conversation-item-time">
                   {this.dateTimeFormatter(creationTime)}
