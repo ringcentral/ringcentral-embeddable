@@ -10,7 +10,11 @@ import styles from '@ringcentral-integration/widgets/components/CallsListPanel/s
 
 import CallListV2 from '../CallListV2';
 import ActiveCallList from '../ActiveCallList';
-import { Filter } from './Filter';
+import {
+  SearchAndFilter,
+  CALL_TYPE_LIST,
+  CALL_TYPE_LIST_WITH_UN_LOGGED,
+} from '../SearchAndFilter';
 
 const Container = styled.div`
   width: 100%;
@@ -246,14 +250,14 @@ export function CallsListPanel({
   );
 
   const search = onSearchInputChange ? (
-    <Filter
+    <SearchAndFilter
       searchInput={searchInput}
       onSearchInputChange={onSearchInputChange}
       placeholder={i18n.getString('searchPlaceholder', currentLocale)}
       disableLinks={disableLinks}
       type={filterType}
       onTypeChange={onFilterTypeChange}
-      showUnLoggedType={showLogButton}
+      typeList={showLogButton ? CALL_TYPE_LIST_WITH_UN_LOGGED : CALL_TYPE_LIST}
       currentLocale={currentLocale}
       showTypeFilter={type !== 'recordings'}
     />
