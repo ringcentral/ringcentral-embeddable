@@ -37,6 +37,7 @@ export class LogMessagesUI extends RcUIModuleV2 {
     const logKeys = Object.keys(conversationLog);
     let correspondentMatches = [];
     let lastMatchedCorrespondentEntity = null;
+    let conversationLogId = '';
     const contactMapping = contactMatcher.dataMapping || [];
     if (logKeys.length > 0) {
       const conversation = conversationLog[logKeys[0]];
@@ -55,14 +56,17 @@ export class LogMessagesUI extends RcUIModuleV2 {
           [],
         );
         lastMatchedCorrespondentEntity = conversationLogger.getLastMatchedCorrespondentEntity(conversation);
+        conversationLogId = conversation.conversationLogId;
       }
     }
+    const loggingMap = conversationLogger.loggingMap || {};
     return {
       currentLocale: locale.currentLocale,
       customizedPage: thirdPartyService.customizedLogMessagesPage,
       conversationLog,
       correspondentMatches,
       lastMatchedCorrespondentEntity,
+      isLogging: !!loggingMap[conversationLogId],
     };
   }
 
