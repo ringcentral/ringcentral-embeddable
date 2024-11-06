@@ -2,11 +2,10 @@ import React from 'react';
 
 import { RcText, styled } from '@ringcentral/juno';
 
-const StyledText = styled(RcText)`
-  margin-left: 8px;
-`;
-
-export function StatusMessage({ statusMatch }) {
+export function StatusMessage({ statusMatch, className }: {
+  statusMatch?: { message: string; status: string };
+  className?: string;
+}) {
   if (!statusMatch) {
     return null;
   }
@@ -23,13 +22,14 @@ export function StatusMessage({ statusMatch }) {
     color = 'success.f02';
   }
   return (
-    <StyledText
+    <RcText
       color={color}
       title={message}
       variant="caption1"
       component="span"
+      className={className}
     >
       {message}
-    </StyledText>
+    </RcText>
   );
 }

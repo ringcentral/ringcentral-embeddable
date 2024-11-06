@@ -43,7 +43,7 @@ export class CallsListUI extends BaseCallsListUI {
             contentUri: `${call.recording.contentUri}?access_token=${this._deps.auth.accessToken}`,
           },
         }
-      })
+      });
   }
 
   @state
@@ -78,7 +78,8 @@ export class CallsListUI extends BaseCallsListUI {
     return this._deps.callHistory.latestCalls.filter((call) => {
       if (this.filterType === 'UnLogged') {
         return (
-          call.activityMatches &&
+          !call.activityMatches ||
+          call.activityMatches.length === 0 ||
           call.activityMatches.filter(m => m.type !== 'status').length === 0
         );
       }

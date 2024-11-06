@@ -6,6 +6,7 @@ import {
   RcListItem,
   RcListItemText,
   RcListItemIcon,
+  RcIcon,
 } from '@ringcentral/juno';
 import {
   ViewBorder,
@@ -19,6 +20,7 @@ import {
   Delete,
   AddTextLog,
   Refresh,
+  Disposition,
 } from '@ringcentral/juno-icon';
 import { extensionTypes } from '@ringcentral-integration/commons/enums/extensionTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
@@ -45,6 +47,7 @@ import { ConversationIcon } from './ConversationIcon';
 import { DetailDialog } from './DetailDialog';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { ActionMenu } from '../ActionMenu';
+import { StatusMessage } from '../CallItem/StatusMessage';
 
 export type MessageItemProps = {
   conversation: Message;
@@ -122,8 +125,8 @@ const StyledListItem = styled(RcListItem)`
   }
 
   .conversation-item-time {
-    flex: 1;
     text-align: right;
+    margin-left: 8px;
   }
 
   &:hover {
@@ -164,6 +167,10 @@ const StyledItemIcon = styled(RcListItemIcon)`
   }
 `;
 
+const IconBadge = styled(RcIcon)`
+  margin-right: 4px;
+`;
+
 const StyledSecondary = styled.span`
   display: flex;
   align-items: center;
@@ -172,7 +179,15 @@ const StyledSecondary = styled.span`
 
 const DetailArea = styled.span`
   ${ellipsis()}
-  max-width: 160px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+`;
+
+const SubjectOverview = styled.span`
+  ${ellipsis()}
+  flex: 1;
 `;
 
 const StyledActionMenu = styled(ActionMenu)`
@@ -501,7 +516,9 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
           count: conversation.mmsAttachments.length,
         });
       }
-      return conversation.subject;
+      return (
+        <SubjectOverview>{conversation.subject}</SubjectOverview>
+      );
     }
     if (conversation.voicemailAttachment) {
       const { duration } = conversation.voicemailAttachment;
@@ -697,9 +714,18 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       showLogButton,
       logButtonTitle,
     } = this.props;
-    const actions = [];
+    const actions: {
+      id: string;
+      icon: any;
+      title: string;
+      onClick: (...args: any[]) => any;
+      disabled: boolean;
+      sub?: boolean;
+    }[] = [];
     if (showLogButton) {
-      const isLogged = conversationMatches.length > 0;
+      const isLogged = conversationMatches.filter((match) =>
+        match.type !== 'status'
+      ).length > 0;
       actions.push({
         id: 'log',
         icon: AddTextLog,
@@ -809,7 +835,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
         unreadCounts,
         correspondents,
         correspondentMatches,
-        conversationMatches,
+        conversationMatches = [],
         creationTime,
         isLogging,
         type,
@@ -861,6 +887,12 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     } else if (voicemailAttachment) {
       downloadUri = voicemailAttachment.uri;
     }
+    const isLogged = conversationMatches.filter((match) =>
+      match.type !== 'status'
+    ).length > 0;
+    const statusMatch = conversationMatches.find((match) =>
+      match.type === 'status'
+    );
     const actions = this.getActions({
       disableLinks,
       phoneNumber,
@@ -897,14 +929,30 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
               : defaultContactDisplayWithUnread
           }
           secondary={
-            <StyledSecondary>
-              <DetailArea>
-                {detail}
-              </DetailArea>
-              <span className="conversation-item-time">
-                {this.dateTimeFormatter(creationTime)}
-              </span>
-            </StyledSecondary>
+            <>
+              <StyledSecondary>
+                <DetailArea>
+                {
+                    isLogged && (
+                      <IconBadge
+                        symbol={Disposition}
+                        size="small"
+                        title="Logged"
+                      />
+                    )
+                  }
+                  {detail}
+                </DetailArea>
+                <span className="conversation-item-time">
+                  {this.dateTimeFormatter(creationTime)}
+                </span>
+              </StyledSecondary>
+              {
+                statusMatch && (
+                  <StatusMessage statusMatch={statusMatch} />
+                )
+              }
+            </>
           }
         />
         <StyledActionMenu

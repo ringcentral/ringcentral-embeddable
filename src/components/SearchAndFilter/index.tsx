@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { SearchLine } from '../../SearchLine';
+import React, { useState } from 'react';
+import { SearchLine } from '../SearchLine';
 
 import {
   styled,
@@ -131,10 +131,12 @@ function TypeFilter({
   );
 }
 
-const TYPE_LIST = ['All', 'Missed', 'Inbound', 'Outbound'];
-const TYPE_LIST_WITH_UN_LOGGED = ['All', 'UnLogged', 'Missed', 'Inbound', 'Outbound'];
+export const CALL_TYPE_LIST = ['All', 'Missed', 'Inbound', 'Outbound'];
+export const CALL_TYPE_LIST_WITH_UN_LOGGED = ['All', 'UnLogged', 'Missed', 'Inbound', 'Outbound'];
+export const MESSAGE_TYPE_LIST = ['All', 'Unread'];
+export const MESSAGE_TYPE_LIST_WITH_UN_LOGGED = ['All', 'UnLogged', 'Unread'];
 
-export function Filter({
+export function SearchAndFilter({
   searchInput,
   onSearchInputChange,
   disableLinks,
@@ -142,8 +144,8 @@ export function Filter({
   currentLocale,
   type,
   onTypeChange,
-  showUnLoggedType = false,
   showTypeFilter = true,
+  typeList,
 }) {
   return (
     <Container>
@@ -158,7 +160,7 @@ export function Filter({
           <TypeFilter
             type={type}
             onTypeChange={onTypeChange}
-            typeList={showUnLoggedType ? TYPE_LIST_WITH_UN_LOGGED : TYPE_LIST}
+            typeList={typeList}
             currentLocale={currentLocale}
             previewLength={searchInput.length > 0 ? 1 : 2}
           />

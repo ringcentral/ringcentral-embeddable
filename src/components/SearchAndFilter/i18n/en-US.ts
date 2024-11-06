@@ -4,4 +4,5 @@ export default {
   Inbound: 'Inbound',
   Outbound: 'Outbound',
   UnLogged: 'Unlogged',
+  Unread: 'Unread',
 };

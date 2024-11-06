@@ -25,7 +25,7 @@ export type ConversationListProps = {
   readMessage: (...args: any[]) => any;
   markMessage: (...args: any[]) => any;
   unmarkMessage: (...args: any[]) => any;
-  dateTimeFormatter?: (...args: any[]) => any;
+  dateTimeFormatter: (...args: any[]) => any;
   showContactDisplayPlaceholder?: boolean;
   sourceIcons?: object;
   phoneTypeRenderer?: (...args: any[]) => any;
@@ -58,24 +58,31 @@ const Root = styled.div`
   transform: translateZ(0);
 `;
 
-function ConversationList({
-  className,
+const ConversationList: FunctionComponent<ConversationListProps> = ({
+  className = undefined,
   currentLocale,
-  currentSiteCode,
-  isMultipleSiteEnabled,
+  currentSiteCode = '',
+  isMultipleSiteEnabled = false,
   conversations,
-  perPage,
-  disableLinks,
-  disableCallButton,
-  placeholder,
-  loadingNextPage,
+  perPage = 20,
+  disableLinks = false,
+  disableCallButton = false,
+  placeholder = undefined,
+  loadingNextPage = false,
   formatPhone,
-  typeFilter,
-  loadNextPage,
+  typeFilter = undefined,
+  loadNextPage = undefined,
   showLogButton = false,
   logButtonTitle = '',
+  dateTimeFormatter,
+  showContactDisplayPlaceholder = true,
+  sourceIcons = undefined,
+  phoneTypeRenderer = undefined,
+  phoneSourceNameRenderer = undefined,
+  showGroupNumberName = false,
+  enableCDC = false,
   ...childProps
-}): FunctionComponent<ConversationListProps> {
+}: ConversationListProps) => {
   const scrollTopRef = useRef(0);
   const messagesListBodyRef = useRef(null);
 
@@ -93,6 +100,8 @@ function ConversationList({
           conversations.map((item) => (
             <MessageItem
               {...childProps}
+              showContactDisplayPlaceholder={showContactDisplayPlaceholder}
+              dateTimeFormatter={dateTimeFormatter}
               formatPhone={formatPhone}
               conversation={item}
               currentLocale={currentLocale}
@@ -103,6 +112,11 @@ function ConversationList({
               disableCallButton={disableCallButton}
               showLogButton={showLogButton}
               logButtonTitle={logButtonTitle}
+              sourceIcons={sourceIcons}
+              phoneTypeRenderer={phoneTypeRenderer}
+              phoneSourceNameRenderer={phoneSourceNameRenderer}
+              showGroupNumberName={showGroupNumberName}
+              enableCDC={enableCDC}
             />
           ))
         }
@@ -119,6 +133,9 @@ function ConversationList({
       className={className}
       data-sign="conversationList"
       onScroll={() => {
+        if (!messagesListBodyRef.current) {
+          return;
+        }
         const totalScrollHeight = messagesListBodyRef.current.scrollHeight;
         const { clientHeight } = messagesListBodyRef.current;
         const currentScrollTop = messagesListBodyRef.current.scrollTop;
@@ -141,24 +158,4 @@ function ConversationList({
   );
 }
 
-// @ts-expect-error TS(2339): Property 'defaultProps' does not exist on type 'ty... Remove this comment to see the full error message
-ConversationList.defaultProps = {
-  currentSiteCode: '',
-  isMultipleSiteEnabled: false,
-  perPage: 20,
-  className: undefined,
-  disableLinks: false,
-  disableCallButton: false,
-  dateTimeFormatter: undefined,
-  showContactDisplayPlaceholder: true,
-  sourceIcons: undefined,
-  phoneTypeRenderer: undefined,
-  phoneSourceNameRenderer: undefined,
-  showGroupNumberName: false,
-  placeholder: undefined,
-  loadNextPage: undefined,
-  loadingNextPage: false,
-  typeFilter: undefined,
-  enableCDC: false,
-};
 export default ConversationList;

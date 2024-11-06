@@ -10,7 +10,11 @@ import NoMessage from '@ringcentral-integration/widgets/components/Conversations
 
 import type { ConversationListProps } from '../ConversationList';
 import ConversationList from '../ConversationList';
-import { SearchLine } from '../SearchLine';
+import {
+  SearchAndFilter,
+  MESSAGE_TYPE_LIST,
+  MESSAGE_TYPE_LIST_WITH_UN_LOGGED,
+} from '../SearchAndFilter';
 
 type ConversationsPanelProps = {
   currentSiteCode?: string;
@@ -81,6 +85,8 @@ type ConversationsPanelProps = {
   externalViewEntity: (...args: any[]) => void;
   showLogButton?: boolean;
   logButtonTitle?: string;
+  searchFilter: string;
+  onSearchFilterChange: (type: string) => void;
 } & Omit<ConversationListProps, 'conversation'>;
 
 const StyledContainer = styled.div`
@@ -174,6 +180,8 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     // voiceUnreadCounts,
     showLogButton = false,
     logButtonTitle = '',
+    searchFilter,
+    onSearchFilterChange,
   } = props;
 
   useEffect(() => {
@@ -198,11 +206,16 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
         <StyledContentArea
           data-sign="messageList"
         >
-          <SearchLine
-            onSearchInputChange={onSearchInputChange}
+          <SearchAndFilter
             searchInput={searchInput}
-            disableLinks={disableLinks}
+            onSearchInputChange={onSearchInputChange}
             placeholder={i18n.getString('search', currentLocale)}
+            disableLinks={disableLinks}
+            type={searchFilter}
+            onTypeChange={onSearchFilterChange}
+            typeList={showLogButton ? MESSAGE_TYPE_LIST_WITH_UN_LOGGED : MESSAGE_TYPE_LIST}
+            currentLocale={currentLocale}
+            showTypeFilter
           />
           <StyledConversationListArea>
             {conversations.length ? (
@@ -247,7 +260,6 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
                 typeFilter={typeFilter}
                 outboundSmsPermission={outboundSmsPermission}
                 internalSmsPermission={internalSmsPermission}
-                updateTypeFilter={updateTypeFilter}
                 onFaxDownload={onFaxDownload}
                 showChooseEntityModal={showChooseEntityModal}
                 shouldLogSelectRecord={shouldLogSelectRecord}

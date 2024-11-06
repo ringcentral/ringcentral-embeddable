@@ -58,7 +58,7 @@ export class ConversationLogger extends ConversationLoggerBase {
   }
 
   async _doLog(conversation) {
-    this._deps.thirdPartyService.logConversation(conversation);
+    return this._deps.thirdPartyService.logConversation(conversation);
   }
 
   get logButtonTitle() {
@@ -143,11 +143,26 @@ export class ConversationLogger extends ConversationLoggerBase {
     });
   }
 
-  async logConversation({
+  override async logConversation({
     triggerType = 'auto',
     ...options
   } = {}) {
-    super.logConversation({ ...options, triggerType });
+    return super.logConversation({ ...options, triggerType });
+  }
+
+  override async log({
+    conversation,
+    ...options
+  }) {
+    if (!this.ready) {
+      throw new Error(`${this.constructor.name}.log: module is not ready.`);
+    }
+    if (!conversation) {
+      throw new Error(
+        `${this.constructor.name}.log: options.conversation is undefined.`,
+      );
+    }
+    await this._log({ item: conversation, ...options });
   }
 
   // @selector

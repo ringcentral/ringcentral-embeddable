@@ -117,6 +117,10 @@ const IconBadge = styled(RcIcon)`
   margin-left: 8px;
 `;
 
+const StyledStatusMessage = styled(StatusMessage)`
+  margin-left: 8px;
+`;
+
 export const CallItem: FunctionComponent<CallItemProps> = ({
   currentSiteCode = '',
   isMultipleSiteEnabled = false,
@@ -613,7 +617,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
               }
               {
                 statusMatch && (
-                  <StatusMessage
+                  <StyledStatusMessage
                     statusMatch={statusMatch}
                   />
                 )
