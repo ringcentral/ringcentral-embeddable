@@ -6,6 +6,7 @@ import {
   RcListItem,
   RcListItemText,
   RcListItemIcon,
+  RcIcon,
 } from '@ringcentral/juno';
 import {
   ViewBorder,
@@ -19,6 +20,7 @@ import {
   Delete,
   AddTextLog,
   Refresh,
+  Disposition,
 } from '@ringcentral/juno-icon';
 import { extensionTypes } from '@ringcentral-integration/commons/enums/extensionTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
@@ -122,8 +124,8 @@ const StyledListItem = styled(RcListItem)`
   }
 
   .conversation-item-time {
-    flex: 1;
     text-align: right;
+    margin-left: 8px;
   }
 
   &:hover {
@@ -164,6 +166,10 @@ const StyledItemIcon = styled(RcListItemIcon)`
   }
 `;
 
+const IconBadge = styled(RcIcon)`
+  margin-left: 8px;
+`;
+
 const StyledSecondary = styled.span`
   display: flex;
   align-items: center;
@@ -172,7 +178,15 @@ const StyledSecondary = styled.span`
 
 const DetailArea = styled.span`
   ${ellipsis()}
-  max-width: 160px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+`;
+
+const SubjectOverview = styled.span`
+  ${ellipsis()}
+  flex: 1;
 `;
 
 const StyledActionMenu = styled(ActionMenu)`
@@ -501,7 +515,9 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
           count: conversation.mmsAttachments.length,
         });
       }
-      return conversation.subject;
+      return (
+        <SubjectOverview>{conversation.subject}</SubjectOverview>
+      );
     }
     if (conversation.voicemailAttachment) {
       const { duration } = conversation.voicemailAttachment;
@@ -861,6 +877,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     } else if (voicemailAttachment) {
       downloadUri = voicemailAttachment.uri;
     }
+    const isLogged = conversationMatches.length > 0;
     const actions = this.getActions({
       disableLinks,
       phoneNumber,
@@ -900,6 +917,15 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
             <StyledSecondary>
               <DetailArea>
                 {detail}
+                {
+                  isLogged && (
+                    <IconBadge
+                      symbol={Disposition}
+                      size="small"
+                      title="Logged"
+                    />
+                  )
+                }
               </DetailArea>
               <span className="conversation-item-time">
                 {this.dateTimeFormatter(creationTime)}
