@@ -58,7 +58,7 @@ export class ConversationLogger extends ConversationLoggerBase {
   }
 
   async _doLog(conversation) {
-    this._deps.thirdPartyService.logConversation(conversation);
+    return this._deps.thirdPartyService.logConversation(conversation);
   }
 
   get logButtonTitle() {

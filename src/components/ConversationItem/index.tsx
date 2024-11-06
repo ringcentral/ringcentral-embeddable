@@ -47,6 +47,7 @@ import { ConversationIcon } from './ConversationIcon';
 import { DetailDialog } from './DetailDialog';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { ActionMenu } from '../ActionMenu';
+import { StatusMessage } from '../CallItem/StatusMessage';
 
 export type MessageItemProps = {
   conversation: Message;
@@ -713,9 +714,18 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
       showLogButton,
       logButtonTitle,
     } = this.props;
-    const actions = [];
+    const actions: {
+      id: string;
+      icon: any;
+      title: string;
+      onClick: (...args: any[]) => any;
+      disabled: boolean;
+      sub?: boolean;
+    }[] = [];
     if (showLogButton) {
-      const isLogged = conversationMatches.length > 0;
+      const isLogged = conversationMatches.filter((match) =>
+        match.type !== 'status'
+      ).length > 0;
       actions.push({
         id: 'log',
         icon: AddTextLog,
@@ -825,7 +835,7 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
         unreadCounts,
         correspondents,
         correspondentMatches,
-        conversationMatches,
+        conversationMatches = [],
         creationTime,
         isLogging,
         type,
@@ -877,7 +887,12 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
     } else if (voicemailAttachment) {
       downloadUri = voicemailAttachment.uri;
     }
-    const isLogged = conversationMatches.length > 0;
+    const isLogged = conversationMatches.filter((match) =>
+      match.type !== 'status'
+    ).length > 0;
+    const statusMatch = conversationMatches.find((match) =>
+      match.type === 'status'
+    );
     const actions = this.getActions({
       disableLinks,
       phoneNumber,
@@ -914,23 +929,30 @@ class MessageItem extends Component<MessageItemProps, MessageItemState> {
               : defaultContactDisplayWithUnread
           }
           secondary={
-            <StyledSecondary>
-              <DetailArea>
-                {detail}
-                {
-                  isLogged && (
-                    <IconBadge
-                      symbol={Disposition}
-                      size="small"
-                      title="Logged"
-                    />
-                  )
-                }
-              </DetailArea>
-              <span className="conversation-item-time">
-                {this.dateTimeFormatter(creationTime)}
-              </span>
-            </StyledSecondary>
+            <>
+              <StyledSecondary>
+                <DetailArea>
+                  {detail}
+                  {
+                    isLogged && (
+                      <IconBadge
+                        symbol={Disposition}
+                        size="small"
+                        title="Logged"
+                      />
+                    )
+                  }
+                </DetailArea>
+                <span className="conversation-item-time">
+                  {this.dateTimeFormatter(creationTime)}
+                </span>
+              </StyledSecondary>
+              {
+                statusMatch && (
+                  <StatusMessage statusMatch={statusMatch} />
+                )
+              }
+            </>
           }
         />
         <StyledActionMenu
