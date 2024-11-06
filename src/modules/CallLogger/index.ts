@@ -88,7 +88,18 @@ export class CallLogger extends CallLoggerBase {
       return true;
     });
     return {
-      calls: calls.slice((page - 1) * perPage, page * perPage),
+      calls: calls.slice((page - 1) * perPage, page * perPage).map((call) => {
+        if (!call.recording) {
+          return call;
+        }
+        return {
+          ...call,
+          recording: {
+            ...call.recording,
+            link: this._deps.thirdPartyService.getRecordingLink(call.recording),
+          },
+        };
+      }),
       hasMore: calls.length > page * perPage,
     };
   }

@@ -760,6 +760,18 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
   }
 
+  getRecordingLink(recording) {
+    if (!recording) {
+      return null;
+    }
+    const isSandbox = recording.uri.indexOf('platform.devtest') > -1;
+    let recordingLink = this._recordingLink;
+    if (isSandbox) {
+      recordingLink = `${recordingLink}sandbox`;
+    }
+    return `${recordingLink}?media=${encodeURIComponent(recording.contentUri)}`;
+  }
+
   async logCall({ call, ...options }) {
     try {
       if (!this._callLoggerPath) {
@@ -774,14 +786,9 @@ export default class ThirdPartyService extends RcModuleV2 {
         if (this._callLoggerRecordingWithToken) {
           contentUri = `${contentUri}?access_token=${this._deps.auth.accessToken}`;
         }
-        const isSandbox = call.recording.uri.indexOf('platform.devtest') > -1;
-        let recordingLink = this._recordingLink;
-        if (isSandbox) {
-          recordingLink = `${recordingLink}sandbox`;
-        }
         callItem.recording = {
           ...call.recording,
-          link: `${recordingLink}?media=${encodeURIComponent(call.recording.contentUri)}`,
+          link: this.getRecordingLink(call.recording),
           contentUri,
         };
       }
