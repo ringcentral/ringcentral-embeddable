@@ -1,6 +1,6 @@
 import {
   trackRouters as trackRoutersBase,
-} from '@ringcentral-integration/commons/modules/AnalyticsV2';
+} from '@ringcentral-integration/commons/modules/AnalyticsV2/analyticsRouters';
 
 export const trackRouters = trackRoutersBase
   .filter(r => r.router !== '/conferenceCall')

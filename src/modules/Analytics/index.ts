@@ -1,10 +1,8 @@
 import crypto from 'crypto';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { watch } from '@ringcentral-integration/core';
-import {
-  Analytics as AnalyticsBase,
-} from '@ringcentral-integration/commons/modules/AnalyticsV2';
 import type { TrackRouter } from '@ringcentral-integration/commons/modules/AnalyticsV2/Analytics.interface';
+import { Analytics as AnalyticsBase } from './AnalyticsBase';
 import { AnalyticsBrowser } from './AnalyticsBrowser';
 import { trackRouters } from './trackRouters';
 
