@@ -57372,6 +57372,17 @@ class Adapter extends AdapterCore/* default */.A {
       page
     });
   }
+  setAutoLog() {
+    let {
+      message = undefined,
+      call = undefined
+    } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    return this._postMessage({
+      type: 'rc-adapter-update-auto-log-settings',
+      message,
+      call
+    });
+  }
 }
 /* harmony default export */ var lib_Adapter = (Adapter);
 ;// CONCATENATED MODULE: ./src/adapter.js
