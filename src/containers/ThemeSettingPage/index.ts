@@ -4,8 +4,8 @@ import {
 
 import { SettingSection } from '../../components/SettingSection';
 
-const ThirdPartySettingSectionPage = connectModule((phone) => phone.thirdPartySettingSectionUI)(
+const ThemeSettingPage = connectModule((phone) => phone.themeSettingUI)(
   SettingSection,
 );
 
-export default ThirdPartySettingSectionPage;
+export default ThemeSettingPage;

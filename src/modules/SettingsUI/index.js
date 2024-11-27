@@ -21,6 +21,7 @@ export class SettingsUI extends BaseSettingsUI {
       appFeatures,
       thirdPartyService,
       audioSettings,
+      brand,
     } = this._deps;
     return {
       ...baseProps,
@@ -59,6 +60,7 @@ export class SettingsUI extends BaseSettingsUI {
         authorizedAccount: thirdPartyService.authorizedAccount,
         showAuthRedDot: thirdPartyService.showAuthRedDot,
       } : null,
+      showThemeSetting: brand.code === 'rc', // only show theme settings for rc brand now
     }
   }
 
@@ -87,6 +89,9 @@ export class SettingsUI extends BaseSettingsUI {
       },
       onThirdPartyButtonClick: (buttonId) => {
         thirdPartyService.onClickSettingButton(buttonId);
+      },
+      onThemeSettingsLinkClick() {
+        routerInteraction.push('/settings/theme');
       },
     }
   }

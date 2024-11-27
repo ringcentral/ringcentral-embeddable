@@ -78,6 +78,8 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   autoLogReadOnlyReason?: string;
   autoLogSMSReadOnly?: boolean;
   autoLogSMSReadOnlyReason?: string;
+  showThemeSetting?: boolean;
+  onThemeSettingsLinkClick?: () => void;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -325,6 +327,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   gotoThirdPartySection,
   onThirdPartyButtonClick,
   onSettingToggle,
+  onThemeSettingsLinkClick,
+  showThemeSetting,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'link',
@@ -396,6 +400,14 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     show: showFeedback,
     order: 10000,
     dataSign: 'feedback',
+  }, {
+    id: 'theme',
+    type: 'link',
+    name: 'Theme',
+    onClick: onThemeSettingsLinkClick,
+    show: showThemeSetting,
+    order: 11000,
+    dataSign: 'theme',
   }];
   thirdPartySettings.forEach((item, index) => {
     const settingItem = getSettingItemFromThirdPartyItem({

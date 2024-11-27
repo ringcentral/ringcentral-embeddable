@@ -10,7 +10,6 @@ import {
 import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
 import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
-import CallingSettingsPage from '@ringcentral-integration/widgets/containers/CallingSettingsPage';
 import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
 import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
 import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
@@ -51,6 +50,8 @@ import RingtoneSettingsPage from '../RingtoneSettingsPage';
 import SettingsPage from '../SettingsPage';
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 import ThirdPartySettingSectionPage from '../ThirdPartySettingSectionPage';
+import ThemeSettingPage from '../ThemeSettingPage';
+import CallingSettingsPage from '../CallingSettingsPage';
 import ContactsPage from '../ContactsPage';
 import CustomizedPage from '../CustomizedPage';
 import { NotificationContainer } from '../NotificationContainer';
@@ -480,6 +481,10 @@ export default function App({
               <Route
                 path="/settings/ringtone"
                 component={RingtoneSettingsPage}
+              />
+              <Route
+                path="/settings/theme"
+                component={ThemeSettingPage}
               />
               <Route
                 path="/settings/thirdParty/:sectionId"

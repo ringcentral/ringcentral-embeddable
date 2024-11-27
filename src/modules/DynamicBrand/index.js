@@ -13,6 +13,7 @@ import {
 import {
   getBrandThemeWithJupiterBlue,
   getBrandVariable,
+  getBrandDarkTheme,
 } from '../../lib/themes';
 
 window.brandConfigs = process.env.BRAND_CONFIGS;
@@ -123,6 +124,7 @@ export class DynamicBrand extends RcModuleV2 {
       defaultTheme: 'light',
       themeMap: {
         light: getBrandThemeWithJupiterBlue(brandConfig.code),
+        dark: getBrandDarkTheme(brandConfig.code),
       },
       variable: getBrandVariable(brandConfig.code),
     };
