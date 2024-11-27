@@ -725,6 +725,14 @@ class Adapter extends AdapterCore {
       page,
     });
   }
+
+  setAutoLog({ message = undefined, call = undefined } = {}) {
+    return this._postMessage({
+      type: 'rc-adapter-update-auto-log-settings',
+      message,
+      call,
+    });
+  }
 }
 
 export default Adapter;

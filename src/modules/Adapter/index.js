@@ -353,6 +353,10 @@ export default class Adapter extends AdapterModuleCore {
           this._updateRingtone(data);
           break;
         }
+        case 'rc-adapter-update-auto-log-settings': {
+          this._onUpdateAutoLogSettings(data);
+          break;
+        }
         default:
           super._onMessage(data);
           break;
@@ -1159,6 +1163,15 @@ export default class Adapter extends AdapterModuleCore {
         outgoingAudio:  this._webphone.defaultOutgoingAudio,
         outgoingAudioFile:  this._webphone.defaultOutgoingAudioFile,
       });
+    }
+  }
+
+  _onUpdateAutoLogSettings(data) {
+    if (typeof data.call === 'boolean') {
+      this._callLogger.setAutoLog(data.call);
+    }
+    if (typeof data.message === 'boolean') {
+      this._conversationLogger.setAutoLog(data.message);
     }
   }
 
