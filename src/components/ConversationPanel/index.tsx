@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
-import ConversationMessageList from '@ringcentral-integration/widgets/components/ConversationMessageList';
 import i18n from '@ringcentral-integration/widgets/components/ConversationPanel/i18n';
 import messageItemI18n from '@ringcentral-integration/widgets/components/MessageItem/i18n';
 import styles from '@ringcentral-integration/widgets/components/ConversationPanel/styles.scss';
@@ -10,16 +9,24 @@ import {
 import {
   checkShouldHidePhoneNumber,
 } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
-import { RcAlert, RcIconButton, styled } from '@ringcentral/juno';
+import { RcAlert, RcIconButton, styled, palette2 } from '@ringcentral/juno';
 import { AddTextLog } from '@ringcentral/juno-icon';
 import MessageInput from '../MessageInput';
 import type { Attachment } from '../MessageInput';
 import { BackHeader } from '../BackHeader';
+import { ConversationMessageList } from '../ConversationMessageList';
 
 const LogButton = styled(RcIconButton)`
   position: absolute;
   top: 0;
   right: 6px;
+`;
+
+const Root = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 `;
 
 export type Recipient = {
@@ -388,7 +395,6 @@ class ConversationPanel extends Component<ConversationProps, ConversationPanelSt
           currentLocale={this.props.currentLocale}
           height={this.getMessageListHeight()}
           messages={this.props.messages}
-          className={styles.conversationBody}
           dateTimeFormatter={this.props.dateTimeFormatter}
           showSender={recipients && recipients.length > 1}
           messageSubjectRenderer={messageSubjectRenderer}
@@ -459,7 +465,7 @@ class ConversationPanel extends Component<ConversationProps, ConversationPanelSt
       />
     );
     return (
-      <div className={styles.root} data-sign="conversationPanel">
+      <Root data-sign="conversationPanel">
         <BackHeader
           onBack={this.props.goBack}
         >
@@ -507,7 +513,7 @@ class ConversationPanel extends Component<ConversationProps, ConversationPanelSt
             sortTemplates={this.props.sortTemplates}
           />
         )}
-      </div>
+      </Root>
     );
   }
 }
