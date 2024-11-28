@@ -80,6 +80,7 @@ import {
     'SmsTemplates',
     'SideDrawerUI',
     'Analytics',
+    'Theme',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -119,6 +120,7 @@ export default class Adapter extends AdapterModuleCore {
     isUsingDefaultClientId,
     smsTemplates,
     sideDrawerUI,
+    theme,
     ...options
   }) {
     super({
@@ -158,6 +160,7 @@ export default class Adapter extends AdapterModuleCore {
     this._smsTemplates = smsTemplates;
     this._sideDrawerUI = sideDrawerUI;
     this._analytics = analytics;
+    this._theme = theme;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -177,6 +180,7 @@ export default class Adapter extends AdapterModuleCore {
     this._meetingReady = null;
     this._brandConfig = null;
     this._sideDrawerOpen = null;
+    this._themeType = null;
     this._popupWindowManager = new PopupWindowManager({ prefix, isPopupWindow: fromPopup });
 
     this._messageStore.onNewInboundMessage((message) => {
@@ -288,6 +292,7 @@ export default class Adapter extends AdapterModuleCore {
     this._checkBrandConfigChanged();
     this._checkWebphoneStatus();
     this._checkSideDrawerOpen();
+    this._checkThemeType();
   }
 
   _onMessage(event) {
@@ -1246,6 +1251,20 @@ export default class Adapter extends AdapterModuleCore {
     this._postMessage({
       type: 'rc-adapter-side-drawer-open-notify',
       open: this._sideDrawerOpen,
+    });
+  }
+
+  _checkThemeType() {
+    if (!this.ready) {
+      return;
+    }
+    if (this._themeType === this._theme.themeType) {
+      return;
+    }
+    this._themeType = this._theme.themeType;
+    this._postMessage({
+      type: 'rc-adapter-theme-notify',
+      theme: this._themeType,
     });
   }
 

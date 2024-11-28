@@ -11,6 +11,10 @@
   box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);
 }
 
+.dark.root {
+  background-color: #1e2027;
+}
+
 .root.dock {
   top: initial!important;
   border-radius: 0 !important;
@@ -37,6 +41,10 @@
 .root .header {
   border-bottom: 1px solid #e8e9ed;
   min-width: 165px;;
+}
+
+.dark .header {
+  border-bottom: 1px solid #30323A;
 }
 
 .root .button {

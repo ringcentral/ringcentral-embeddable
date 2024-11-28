@@ -64,6 +64,7 @@ class Adapter extends AdapterCore {
     this._disableMinimize = disableMinimize;
     this._showFeedbackAtHead = false;
     this._strings = {};
+    this._theme = 'light';
     this._generateContentDOM();
     const styleList = document.querySelectorAll('style');
     for (let i = 0; i < styleList.length; ++i) {
@@ -245,6 +246,9 @@ class Adapter extends AdapterCore {
             this._setIconUrl(data.iconUri);
           }
           break;
+        case 'rc-adapter-theme-notify':
+          this._setTheme(data.theme);
+          break;
         default:
           super._onMessage(data);
           break;
@@ -354,6 +358,7 @@ class Adapter extends AdapterCore {
       this._enablePopup && this._styles.showPopup,
       this._disableMinimize && this._styles.hideToggleButton,
       this._showFeedbackAtHead && this._styles.showFeedback,
+      this._theme === 'dark' && this._styles.dark,
     ));
     this._headerEl.setAttribute('class', classnames(
       this._styles.header,
@@ -441,6 +446,11 @@ class Adapter extends AdapterCore {
       return;
     }
     super._setLogoUrl(logoUri);
+  }
+
+  _setTheme(theme) {
+    this._theme = theme;
+    this._renderMainClass();
   }
 
   async popupWindow() {
