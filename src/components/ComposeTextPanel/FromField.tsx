@@ -13,7 +13,7 @@ const Select = styled(RcSelect)`
 
   .RcBoxSelectInput-input {
     .RcListItemText-primary {
-      font-size: 0.875rem;
+      font-size: 0.75rem;
     }
     padding-left: 0;
   }

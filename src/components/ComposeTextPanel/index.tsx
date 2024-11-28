@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import type { ToNumber } from '@ringcentral-integration/commons/modules/ComposeText';
 import NoSenderAlert from '@ringcentral-integration/widgets/components/ComposeTextPanel/NoSenderAlert';
 
@@ -101,207 +101,136 @@ export interface ComposeTextPanelProps {
   sortTemplates?: (...args: any[]) => any;
 }
 
-type ComposeTextPanelState = {
-  messageText: any;
-};
-class ComposeTextPanel extends Component<
-  ComposeTextPanelProps,
-  ComposeTextPanelState
-> {
-  addToRecipients: (item: ToNumber) => void;
-  removeFromRecipients: (phoneNumber: string) => void;
-  cleanReceiverValue: () => void;
-  onSenderChange: any;
-  static defaultProps: {
-    brand: 'RingCentral';
-    className: null;
-    messageText: '';
-    typingToNumber: '';
-    senderNumber: '';
-    outboundSMS: false;
-    showSpinner: false;
-    autoFocus: false;
-    supportAttachment: false;
-    additionalToolbarButtons: [],
-  };
-  constructor(props: ComposeTextPanelProps | Readonly<ComposeTextPanelProps>) {
-    super(props);
-    this.state = {
-      messageText: props.messageText,
-    };
-    const {
-      updateSenderNumber,
-      cleanTypingToNumber,
-      addToNumber,
-      removeToNumber,
-    } = this.props;
-    this.onSenderChange = (value: any) => {
-      updateSenderNumber({
-        phoneNumber: value
-      });
-    };
-    this.cleanReceiverValue = () => {
-      cleanTypingToNumber();
-    };
-    this.addToRecipients = async (receiver, shouldClean = true) => {
-      const isAdded = await addToNumber(receiver);
-      if (isAdded && shouldClean) {
-        cleanTypingToNumber();
-      }
-    };
-    this.removeFromRecipients = (phoneNumber) => {
-      removeToNumber({ phoneNumber });
-    };
-  }
-
-  override UNSAFE_componentWillReceiveProps(nextProps: { messageText: any }) {
-    const { messageText } = this.state;
-    if (nextProps.messageText !== messageText) {
-      this.setState({
-        messageText: nextProps.messageText,
-      });
-    }
-  }
-  hasSenderNumbers() {
-    const { senderNumbers } = this.props;
-    return senderNumbers.length > 0;
-  }
-  hasPersonalRecipient() {
-    const { toNumbers } = this.props;
-    return toNumbers.some((x) => x && x.type !== 'company');
-  }
-
-  showAlert() {
-    const { outboundSMS } = this.props;
-    return !!(
-      !this.hasSenderNumbers() &&
-      outboundSMS &&
-      this.hasPersonalRecipient()
-    );
-  }
-
-  onInputChange = (searchString: string) => {
-    const { updateTypingToNumber, searchContact } = this.props;
-    updateTypingToNumber(searchString);
-    searchContact(searchString);
-  };
-
-  override render() {
-    const {
-      send,
-      brand,
-      autoFocus,
-      className,
-      toNumbers,
-      attachments,
-      formatPhone,
-      messageText,
-      showSpinner,
-      senderNumber,
-      addAttachment,
-      currentLocale,
-      searchContact,
-      senderNumbers,
-      typingToNumber,
-      inputExpandable,
-      removeAttachment,
-      phoneTypeRenderer,
-      searchContactList,
-      supportAttachment,
-      updateMessageText,
-      detectPhoneNumbers,
-      formatContactPhone,
-      sendButtonDisabled,
-      updateTypingToNumber,
-      // TODO: temporary solution, wait for new component ready
-      useRecipientsInputV2,
-      phoneSourceNameRenderer,
-      recipientsContactInfoRenderer,
-      recipientsContactPhoneRenderer,
-      additionalToolbarButtons,
-      onClickAdditionalToolbarButton,
-      goBack,
-      showTemplate,
-      templates,
-      showTemplateManagement,
-      loadTemplates,
-      deleteTemplate,
-      createOrUpdateTemplate,
-      sortTemplates,
-    } = this.props;
-    const filteredSearchContactList =
-      useRecipientsInputV2 && typingToNumber.length >= 3
-        ? searchContactList
-        : [];
-    return (
-      <Root className={className}>
-        {showSpinner ? <SpinnerOverlay /> : null}
-        <BackHeader
-          onBack={goBack}
-        >
-          <Title variant="body1" color="neutral.f06">
-            {i18n.getString('composeText', currentLocale)}
-          </Title>
-        </BackHeader>
-        <NoSenderAlert
+function ComposeTextPanel({
+  send,
+  brand = 'RingCentral',
+  autoFocus = false,
+  className = undefined,
+  toNumbers,
+  attachments,
+  formatPhone,
+  messageText = '',
+  showSpinner = false,
+  senderNumber = '',
+  addAttachment,
+  currentLocale,
+  searchContact,
+  senderNumbers,
+  typingToNumber = '',
+  inputExpandable,
+  removeAttachment,
+  phoneTypeRenderer,
+  searchContactList,
+  updateMessageText,
+  detectPhoneNumbers,
+  formatContactPhone,
+  sendButtonDisabled,
+  updateTypingToNumber,
+  phoneSourceNameRenderer,
+  recipientsContactInfoRenderer,
+  recipientsContactPhoneRenderer,
+  additionalToolbarButtons = [],
+  onClickAdditionalToolbarButton,
+  goBack,
+  showTemplate,
+  templates,
+  showTemplateManagement,
+  loadTemplates,
+  deleteTemplate,
+  createOrUpdateTemplate,
+  sortTemplates,
+  outboundSMS = false,
+  cleanTypingToNumber,
+  addToNumber,
+  removeToNumber,
+  updateSenderNumber,
+}: ComposeTextPanelProps) {
+  const showAlert = !!(
+    senderNumbers.length === 0 &&
+    outboundSMS &&
+    toNumbers.some((x) => x && x.type !== 'company')
+  );
+  return (
+    <Root className={className}>
+      {showSpinner ? <SpinnerOverlay /> : null}
+      <BackHeader
+        onBack={goBack}
+      >
+        <Title variant="body1" color="neutral.f06">
+          {i18n.getString('composeText', currentLocale)}
+        </Title>
+      </BackHeader>
+      <NoSenderAlert
+        currentLocale={currentLocale}
+        showAlert={showAlert}
+        brand={brand}
+      />
+      <RecipientsInput
+        value={typingToNumber}
+        onChange={updateTypingToNumber}
+        onClean={() => {
+          cleanTypingToNumber();
+        }}
+        recipients={toNumbers}
+        addToRecipients={async (receiver, shouldClean = true) => {
+          const isAdded = await addToNumber(receiver);
+          if (isAdded && shouldClean) {
+            cleanTypingToNumber();
+          }
+        }}
+        removeFromRecipients={(phoneNumber) => {
+          removeToNumber({ phoneNumber });
+        }}
+        searchContact={searchContact}
+        searchContactList={searchContactList}
+        formatContactPhone={formatContactPhone}
+        detectPhoneNumbers={detectPhoneNumbers}
+        currentLocale={currentLocale}
+        phoneTypeRenderer={phoneTypeRenderer}
+        phoneSourceNameRenderer={phoneSourceNameRenderer}
+        contactInfoRenderer={recipientsContactInfoRenderer}
+        contactPhoneRenderer={recipientsContactPhoneRenderer}
+        titleEnabled
+        autoFocus={autoFocus}
+        multiple
+      />
+      <SenderField>
+        <FromField
           currentLocale={currentLocale}
-          showAlert={this.showAlert()}
-          brand={brand}
+          fromNumber={senderNumber}
+          fromNumbers={senderNumbers}
+          formatPhone={formatPhone}
+          onChange={(value: string) => {
+            updateSenderNumber({
+              phoneNumber: value
+            });
+          }}
+          hidden={senderNumbers.length === 0}
+          showAnonymous={false}
         />
-        <RecipientsInput
-          value={typingToNumber}
-          onChange={updateTypingToNumber}
-          onClean={this.cleanReceiverValue}
-          recipients={toNumbers}
-          addToRecipients={this.addToRecipients}
-          removeFromRecipients={this.removeFromRecipients}
-          searchContact={searchContact}
-          searchContactList={searchContactList}
-          formatContactPhone={formatContactPhone}
-          detectPhoneNumbers={detectPhoneNumbers}
-          currentLocale={currentLocale}
-          phoneTypeRenderer={phoneTypeRenderer}
-          phoneSourceNameRenderer={phoneSourceNameRenderer}
-          contactInfoRenderer={recipientsContactInfoRenderer}
-          contactPhoneRenderer={recipientsContactPhoneRenderer}
-          titleEnabled
-          autoFocus={autoFocus}
-          multiple
-        />
-        <SenderField>
-          <FromField
-            currentLocale={currentLocale}
-            fromNumber={senderNumber}
-            fromNumbers={senderNumbers}
-            formatPhone={formatPhone}
-            onChange={this.onSenderChange}
-            hidden={!this.hasSenderNumbers()}
-            showAnonymous={false}
-          />
-        </SenderField>
-        <MessageInput
-          value={messageText}
-          onChange={updateMessageText}
-          sendButtonDisabled={sendButtonDisabled}
-          currentLocale={currentLocale}
-          onSend={send}
-          inputExpandable={inputExpandable}
-          attachments={attachments}
-          addAttachment={addAttachment}
-          removeAttachment={removeAttachment}
-          additionalToolbarButtons={additionalToolbarButtons}
-          onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
-          showTemplate={showTemplate}
-          templates={templates}
-          showTemplateManagement={showTemplateManagement}
-          loadTemplates={loadTemplates}
-          deleteTemplate={deleteTemplate}
-          createOrUpdateTemplate={createOrUpdateTemplate}
-          sortTemplates={sortTemplates}
-        />
-      </Root>
-    );
-  }
+      </SenderField>
+      <MessageInput
+        value={messageText}
+        onChange={updateMessageText}
+        sendButtonDisabled={sendButtonDisabled}
+        currentLocale={currentLocale}
+        onSend={send}
+        inputExpandable={inputExpandable}
+        attachments={attachments}
+        addAttachment={addAttachment}
+        removeAttachment={removeAttachment}
+        additionalToolbarButtons={additionalToolbarButtons}
+        onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
+        showTemplate={showTemplate}
+        templates={templates}
+        showTemplateManagement={showTemplateManagement}
+        loadTemplates={loadTemplates}
+        deleteTemplate={deleteTemplate}
+        createOrUpdateTemplate={createOrUpdateTemplate}
+        sortTemplates={sortTemplates}
+      />
+    </Root>
+  );
 }
 
 export default ComposeTextPanel;
