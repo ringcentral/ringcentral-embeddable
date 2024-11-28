@@ -77,3 +77,15 @@ input {
 :global .CallingSettingsPanel_content {
   max-height: calc(100% - 46px);
 }
+
+:global .RegionSettingsPanel_content {
+  background-color: $snow;
+}
+
+:global .DropdownSelect_selectedValue {
+  color: $night;
+}
+
+:global .DropdownSelect_dropdown {
+  background-color: $snow;
+}
