@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 
-import PropTypes from 'prop-types';
 import { RcSelect, RcMenuItem, RcListItemText, styled, palette2 } from '@ringcentral/juno';
 import i18n from '@ringcentral-integration/widgets/components/FromField/i18n';
 
@@ -22,10 +21,15 @@ const Select = styled(RcSelect)`
 
 const PhoneNumber = ({
   formatPhone,
-  usageType,
+  usageType = null,
   currentLocale,
-  phoneNumber,
-}: any) => {
+  phoneNumber = null,
+}: {
+  formatPhone: (...args: any[]) => any;
+  usageType?: string;
+  currentLocale: string;
+  phoneNumber?: string;
+}) => {
   if (phoneNumber === 'anonymous') {
     return (
       <RcListItemText
@@ -42,22 +46,15 @@ const PhoneNumber = ({
   );
 };
 
-PhoneNumber.propTypes = {
-  formatPhone: PropTypes.func.isRequired,
-  phoneNumber: PropTypes.string,
-  usageType: PropTypes.string,
-  currentLocale: PropTypes.string.isRequired,
-};
-
-PhoneNumber.defaultProps = {
-  phoneNumber: null,
-  usageType: null,
-};
+type PhoneNumberType = {
+  phoneNumber: string;
+  usageType?: string;
+}
 
 interface FromFieldIns {
   fromNumber: string;
   formatPhone: (...args: any[]) => any;
-  fromNumbers: any[];
+  fromNumbers: PhoneNumberType[];
   onChange: (...args: any[]) => any;
   currentLocale: string;
   hidden: boolean;
@@ -91,14 +88,14 @@ const Label = styled.label`
 // phone number formatting becomes expensive when there are lots of numbers
 // memo makes this a pure component to reduce rendering cost
 const FromField = memo(function FromField({
-  className,
-  fromNumber,
+  className = undefined,
+  fromNumber = null,
   fromNumbers,
   onChange,
   formatPhone,
   hidden,
-  disabled,
-  showAnonymous,
+  disabled = false,
+  showAnonymous = true,
   currentLocale,
 }: FromFieldIns) {
   if (hidden) {
@@ -152,31 +149,5 @@ const FromField = memo(function FromField({
     </Root>
   );
 });
-
-// @ts-expect-error TS(2339): Property 'propTypes' does not exist on type 'Named... Remove this comment to see the full error message
-FromField.propTypes = {
-  fromNumber: PropTypes.string,
-  formatPhone: PropTypes.func.isRequired,
-  fromNumbers: PropTypes.arrayOf(
-    PropTypes.shape({
-      phoneNumber: PropTypes.string,
-      usageType: PropTypes.string,
-    }),
-  ).isRequired,
-  onChange: PropTypes.func.isRequired,
-  currentLocale: PropTypes.string.isRequired,
-  hidden: PropTypes.bool.isRequired,
-  showAnonymous: PropTypes.bool,
-  className: PropTypes.string,
-  disabled: PropTypes.bool,
-};
-
-// @ts-expect-error TS(2339): Property 'defaultProps' does not exist on type 'Na... Remove this comment to see the full error message
-FromField.defaultProps = {
-  fromNumber: null,
-  className: undefined,
-  showAnonymous: true,
-  disabled: false,
-};
 
 export default FromField;
