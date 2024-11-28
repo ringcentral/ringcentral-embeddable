@@ -17,7 +17,7 @@
 }
 
 .localMessageItem:hover {
-  background: #fafafa;
+  background: $gray;
 }
 
 .dl {
@@ -28,7 +28,7 @@
   float: left;
   width: 68%;
   margin-right: 2%;
-  color: $lightblack;
+  color: $night;
   text-align: left;
   @include text-ellipsis;
 }

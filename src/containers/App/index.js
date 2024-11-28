@@ -13,7 +13,6 @@ import CallBadgeContainer from '@ringcentral-integration/widgets/containers/Call
 import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
 import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
 import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
-import ContactDetailsPage from '@ringcentral-integration/widgets/containers/ContactDetailsPage';
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
 import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
 import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
@@ -53,6 +52,7 @@ import ThirdPartySettingSectionPage from '../ThirdPartySettingSectionPage';
 import ThemeSettingPage from '../ThemeSettingPage';
 import CallingSettingsPage from '../CallingSettingsPage';
 import ContactsPage from '../ContactsPage';
+import ContactDetailsPage from '../ContactDetailsPage';
 import CustomizedPage from '../CustomizedPage';
 import { NotificationContainer } from '../NotificationContainer';
 
