@@ -1,28 +1,50 @@
 import React, { Component } from 'react';
-
-import classnames from 'classnames';
-
-import type {
-  ToNumber,
-} from '@ringcentral-integration/commons/modules/ComposeText';
-import NoSenderAlert
-  from '@ringcentral-integration/widgets/components/ComposeTextPanel/NoSenderAlert';
-import styles
-  from '@ringcentral-integration/widgets/components/ComposeTextPanel/styles.scss';
-import FromField from '@ringcentral-integration/widgets/components/FromField';
+import type { ToNumber } from '@ringcentral-integration/commons/modules/ComposeText';
+import NoSenderAlert from '@ringcentral-integration/widgets/components/ComposeTextPanel/NoSenderAlert';
 
 import {
   SpinnerOverlay,
 } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
-import { RcTypography, styled } from '@ringcentral/juno';
+import { RcTypography, styled, palette2 } from '@ringcentral/juno';
 import i18n from '@ringcentral-integration/widgets/components/ConversationsPanel/i18n';
 import { BackHeader } from '../BackHeader';
 import MessageInput from '../MessageInput'; // TODO: temporary solution, wait for new component ready
 import type { Attachment } from '../MessageInput';
 import RecipientsInput from '../RecipientsInput';
+import FromField from './FromField';
 
 const Title = styled(RcTypography)`
   line-height: 40px;
+`;
+
+const Root = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: inherit;
+  box-sizing: border-box;
+  background: ${palette2('neutral', 'b01')};
+  * {
+    box-sizing: border-box;
+  }
+
+  label {
+    font-weight: normal;
+    margin-bottom: 0;
+  }
+
+  .RecipientsInput_selectReceivers {
+    max-height: 24vh;
+    overflow-y: auto;
+  }
+`;
+
+const SenderField = styled.div`
+  margin: 0 0 5px 0;
+  padding: 0 20px 1px 20px;
+  border-bottom: ${palette2('neutral', 'l02')} 1px solid;
+  transition: height 0.5s ease-in;
+  color: ${palette2('neutral', 'f03')};
 `;
 
 export interface ComposeTextPanelProps {
@@ -114,7 +136,9 @@ class ComposeTextPanel extends Component<
       removeToNumber,
     } = this.props;
     this.onSenderChange = (value: any) => {
-      updateSenderNumber(value);
+      updateSenderNumber({
+        phoneNumber: value
+      });
     };
     this.cleanReceiverValue = () => {
       cleanTypingToNumber();
@@ -210,12 +234,12 @@ class ComposeTextPanel extends Component<
         ? searchContactList
         : [];
     return (
-      <div className={classnames(styles.root, className)}>
+      <Root className={className}>
         {showSpinner ? <SpinnerOverlay /> : null}
         <BackHeader
           onBack={goBack}
         >
-          <Title variant="body1">
+          <Title variant="body1" color="neutral.f06">
             {i18n.getString('composeText', currentLocale)}
           </Title>
         </BackHeader>
@@ -226,7 +250,6 @@ class ComposeTextPanel extends Component<
         />
         <RecipientsInput
           value={typingToNumber}
-          recipientsClassName={styles.recipients}
           onChange={updateTypingToNumber}
           onClean={this.cleanReceiverValue}
           recipients={toNumbers}
@@ -245,7 +268,7 @@ class ComposeTextPanel extends Component<
           autoFocus={autoFocus}
           multiple
         />
-        <div className={styles.senderField}>
+        <SenderField>
           <FromField
             currentLocale={currentLocale}
             fromNumber={senderNumber}
@@ -255,7 +278,7 @@ class ComposeTextPanel extends Component<
             hidden={!this.hasSenderNumbers()}
             showAnonymous={false}
           />
-        </div>
+        </SenderField>
         <MessageInput
           value={messageText}
           onChange={updateMessageText}
@@ -276,7 +299,7 @@ class ComposeTextPanel extends Component<
           createOrUpdateTemplate={createOrUpdateTemplate}
           sortTemplates={sortTemplates}
         />
-      </div>
+      </Root>
     );
   }
 }

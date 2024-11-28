@@ -9,7 +9,7 @@ import {
 import {
   checkShouldHidePhoneNumber,
 } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
-import { RcAlert, RcIconButton, styled, palette2 } from '@ringcentral/juno';
+import { RcAlert, RcIconButton, styled } from '@ringcentral/juno';
 import { AddTextLog } from '@ringcentral/juno-icon';
 import MessageInput from '../MessageInput';
 import type { Attachment } from '../MessageInput';

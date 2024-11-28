@@ -1,5 +1,4 @@
-import React, { Component, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
 import { isBlank } from '@ringcentral-integration/commons/lib/isBlank';
 import { RcIcon, styled, palette2, css } from '@ringcentral/juno';
@@ -110,6 +109,7 @@ const Loading = styled.div`
 
 const Picture = styled.img`
   width: 100%;
+  background-color: ${palette2('neutral', 'b02')};
 `;
 
 const File = styled.div`
