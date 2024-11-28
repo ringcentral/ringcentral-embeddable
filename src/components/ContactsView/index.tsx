@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import PropTypes from 'prop-types';
 import { includes } from 'ramda';
-import { styled, RcIconButton } from '@ringcentral/juno';
+import { styled, RcIconButton, palette2 } from '@ringcentral/juno';
 import { Refresh } from '@ringcentral/juno-icon';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 
@@ -20,6 +20,26 @@ const Container = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
+
+  .ContactItem_root {
+    background: ${palette2('neutral', 'b01')};
+    border-bottom: 1px solid ${palette2('neutral', 'l02')};
+    
+    .ContactItem_contactName {
+      color: ${palette2('neutral', 'f06')};
+      font-family: 'Lato', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    }
+
+    .ContactItem_phoneNumber {
+      color: ${palette2('neutral', 'f05')};
+      font-family: 'Lato', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    }
+  }
+
+  .ContactList_groupCaption {
+    background-color: ${palette2('neutral', 'b03')};
+    color: ${palette2('neutral', 'f06')};
+  }
 `;
 
 const SearchInputContainer = styled.div`
