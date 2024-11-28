@@ -1,9 +1,31 @@
-import React, { Component, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
-import classnames from 'classnames';
-import styles from '@ringcentral-integration/widgets/components/ContactDropdownList/styles.scss';
+import { styled, palette2, setOpacity } from '@ringcentral/juno'; 
 import { Virtuoso } from 'react-virtuoso';
 import { ContactItem } from './ContactItem';
+
+const DropdownList = styled.div`
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: 100%;
+  z-index: 5;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: ${palette2('neutral', 'f06')};
+  text-align: left;
+  list-style: none;
+  background: ${palette2('neutral', 'b01')};
+  border: 1px solid ${palette2('neutral', 'l02')};
+  border-radius: 4px;
+  box-shadow: 0 4px 12px ${setOpacity(palette2('neutral', 'b06'), '12')};
+  max-height: 265px;
+  overflow-y: auto;
+  overflow-x: hidden;
+`;
 
 export type ContactDropdownListProps = {
   currentLocale: string;
@@ -77,8 +99,8 @@ export const ContactDropdownList: FunctionComponent<ContactDropdownListProps> = 
     return null;
   }
   return (
-    <div
-      className={classnames(styles.dropdownList, className)}
+    <DropdownList
+      className={className}
       ref={(c) => {
         if (typeof listRef === 'function') {
           listRef(c);
@@ -127,6 +149,6 @@ export const ContactDropdownList: FunctionComponent<ContactDropdownListProps> = 
           );
         }}
       />
-    </div>
+    </DropdownList>
   );
 }

@@ -2,7 +2,7 @@ import type { ClipboardEvent } from 'react';
 import React, { Component } from 'react';
 
 import classnames from 'classnames';
-
+import { styled, palette2 } from '@ringcentral/juno';
 import { RemoveButton } from '@ringcentral-integration/widgets/components/RemoveButton';
 import { focusCampo } from '@ringcentral-integration/widgets/components/RecipientsInput/focusCampo';
 import i18n from '@ringcentral-integration/widgets/components/RecipientsInput/i18n';
@@ -10,6 +10,21 @@ import { SelectedRecipients } from '@ringcentral-integration/widgets/components/
 import styles from '@ringcentral-integration/widgets/components/RecipientsInput/styles.scss';
 
 import { ContactDropdownList } from '../ContactDropdownList';
+
+const NumberInput = styled.input`
+  color: ${palette2('neutral', 'f06')};
+  font-size: 15px;
+  line-height: 20px;
+  width: 100%;
+  height: 27px;
+  border-radius: 3px;
+  border: 0;
+  outline: 0;
+  &::placeholder {
+    font-size: 13px;
+    color: ${palette2('neutral', 'f02')};
+  }
+`;
 
 type RecipientsInputProps = {
   className?: string;
@@ -345,14 +360,13 @@ class RecipientsInput extends Component<
               'MuiInput-underline',
             )}
           >
-            <input
+            <NumberInput
               data-sign="recipientsInput"
               ref={this.setInputRef}
               name="receiver"
               value={value}
               onChange={this.onInputChange}
               onPaste={this.onPaste}
-              className={styles.numberInput}
               maxLength={30}
               onFocus={this.onInputFocus}
               onKeyUp={this.onInputKeyUp}
