@@ -189,7 +189,7 @@ export class RcVideo extends RcVideoBase {
     const providersRes = await platform.get('/restapi/v1.0/account/~/extension/~/cloud-calendars/ucc');
     const providersData = await providersRes.json();
     const newCalendars = providersData.records.filter(c => {
-      return c.connected && c.providerSubscription && c.primary;
+      return c.connected && c.primary;
     });
     this._saveCalendars(newCalendars);
   }
