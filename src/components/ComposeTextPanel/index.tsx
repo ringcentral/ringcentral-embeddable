@@ -151,7 +151,7 @@ function ComposeTextPanel({
     toNumbers.some((x) => x && x.type !== 'company')
   );
   return (
-    <Root className={className}>
+    <Root className={className} data-sign="composeTextPanel">
       {showSpinner ? <SpinnerOverlay /> : null}
       <BackHeader
         onBack={goBack}
