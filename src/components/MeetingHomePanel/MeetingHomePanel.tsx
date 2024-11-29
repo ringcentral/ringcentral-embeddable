@@ -13,6 +13,7 @@ import { ScheduleMeeting, StartMeeting, JoinMeeting } from '@ringcentral/juno-ic
 
 import UpcomingMeetingList from '../UpcomingMeetingList';
 import { JoinDialog } from './JoinDialog';
+import NoResultSvg from './noResult.svg';
 import i18n from './i18n';
 
 const Root = styled.div`
@@ -67,7 +68,15 @@ const NoResult = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 100px;
+`;
+
+const NoResultSvgWrapper = styled.div`
+  height: 114px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
 `;
 
 const MeetingHomePanel = (props) => {
@@ -112,6 +121,9 @@ const MeetingHomePanel = (props) => {
   } else {
     upcomingMeetingContent = (
       <NoResult>
+        <NoResultSvgWrapper>
+          <NoResultSvg height={114} width={640} />  
+        </NoResultSvgWrapper>
         <RcTypography variant="body1" color="neutral.f06">
           {i18n.getString('noUpcomingMeeting', currentLocale)}
         </RcTypography>
