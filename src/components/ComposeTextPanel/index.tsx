@@ -11,7 +11,8 @@ import { BackHeader } from '../BackHeader';
 import MessageInput from '../MessageInput'; // TODO: temporary solution, wait for new component ready
 import type { Attachment } from '../MessageInput';
 import RecipientsInput from '../RecipientsInput';
-import FromField from './FromField';
+import { FromField } from './FromField';
+import { NoTextPermission } from './NoTextPermission';
 
 const Title = styled(RcTypography)`
   line-height: 40px;
@@ -145,10 +146,9 @@ function ComposeTextPanel({
   removeToNumber,
   updateSenderNumber,
 }: ComposeTextPanelProps) {
-  const showAlert = !!(
-    senderNumbers.length === 0 &&
-    outboundSMS &&
-    toNumbers.some((x) => x && x.type !== 'company')
+  const noPermission = !!(
+    senderNumbers.length === 0 ||
+    !outboundSMS
   );
   return (
     <Root className={className} data-sign="composeTextPanel">
@@ -160,75 +160,78 @@ function ComposeTextPanel({
           {i18n.getString('composeText', currentLocale)}
         </Title>
       </BackHeader>
-      <NoSenderAlert
-        currentLocale={currentLocale}
-        showAlert={showAlert}
-        brand={brand}
-      />
-      <RecipientsInput
-        value={typingToNumber}
-        onChange={updateTypingToNumber}
-        onClean={() => {
-          cleanTypingToNumber();
-        }}
-        recipients={toNumbers}
-        addToRecipients={async (receiver, shouldClean = true) => {
-          const isAdded = await addToNumber(receiver);
-          if (isAdded && shouldClean) {
-            cleanTypingToNumber();
-          }
-        }}
-        removeFromRecipients={(phoneNumber) => {
-          removeToNumber({ phoneNumber });
-        }}
-        searchContact={searchContact}
-        searchContactList={searchContactList}
-        formatContactPhone={formatContactPhone}
-        detectPhoneNumbers={detectPhoneNumbers}
-        currentLocale={currentLocale}
-        phoneTypeRenderer={phoneTypeRenderer}
-        phoneSourceNameRenderer={phoneSourceNameRenderer}
-        contactInfoRenderer={recipientsContactInfoRenderer}
-        contactPhoneRenderer={recipientsContactPhoneRenderer}
-        titleEnabled
-        autoFocus={autoFocus}
-        multiple
-      />
-      <SenderField>
-        <FromField
-          currentLocale={currentLocale}
-          fromNumber={senderNumber}
-          fromNumbers={senderNumbers}
-          formatPhone={formatPhone}
-          onChange={(value: string) => {
-            updateSenderNumber({
-              phoneNumber: value
-            });
-          }}
-          hidden={senderNumbers.length === 0}
-          showAnonymous={false}
-        />
-      </SenderField>
-      <MessageInput
-        value={messageText}
-        onChange={updateMessageText}
-        sendButtonDisabled={sendButtonDisabled}
-        currentLocale={currentLocale}
-        onSend={send}
-        inputExpandable={inputExpandable}
-        attachments={attachments}
-        addAttachment={addAttachment}
-        removeAttachment={removeAttachment}
-        additionalToolbarButtons={additionalToolbarButtons}
-        onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
-        showTemplate={showTemplate}
-        templates={templates}
-        showTemplateManagement={showTemplateManagement}
-        loadTemplates={loadTemplates}
-        deleteTemplate={deleteTemplate}
-        createOrUpdateTemplate={createOrUpdateTemplate}
-        sortTemplates={sortTemplates}
-      />
+      {
+        noPermission ? (
+          <NoTextPermission />
+        ) : (
+          <>
+            <RecipientsInput
+              value={typingToNumber}
+              onChange={updateTypingToNumber}
+              onClean={() => {
+                cleanTypingToNumber();
+              }}
+              recipients={toNumbers}
+              addToRecipients={async (receiver, shouldClean = true) => {
+                const isAdded = await addToNumber(receiver);
+                if (isAdded && shouldClean) {
+                  cleanTypingToNumber();
+                }
+              }}
+              removeFromRecipients={(phoneNumber) => {
+                removeToNumber({ phoneNumber });
+              }}
+              searchContact={searchContact}
+              searchContactList={searchContactList}
+              formatContactPhone={formatContactPhone}
+              detectPhoneNumbers={detectPhoneNumbers}
+              currentLocale={currentLocale}
+              phoneTypeRenderer={phoneTypeRenderer}
+              phoneSourceNameRenderer={phoneSourceNameRenderer}
+              contactInfoRenderer={recipientsContactInfoRenderer}
+              contactPhoneRenderer={recipientsContactPhoneRenderer}
+              titleEnabled
+              autoFocus={autoFocus}
+              multiple
+            />
+            <SenderField>
+              <FromField
+                currentLocale={currentLocale}
+                fromNumber={senderNumber}
+                fromNumbers={senderNumbers}
+                formatPhone={formatPhone}
+                onChange={(value: string) => {
+                  updateSenderNumber({
+                    phoneNumber: value
+                  });
+                }}
+                hidden={senderNumbers.length === 0}
+                showAnonymous={false}
+              />
+            </SenderField>
+            <MessageInput
+              value={messageText}
+              onChange={updateMessageText}
+              sendButtonDisabled={sendButtonDisabled}
+              currentLocale={currentLocale}
+              onSend={send}
+              inputExpandable={inputExpandable}
+              attachments={attachments}
+              addAttachment={addAttachment}
+              removeAttachment={removeAttachment}
+              additionalToolbarButtons={additionalToolbarButtons}
+              onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
+              showTemplate={showTemplate}
+              templates={templates}
+              showTemplateManagement={showTemplateManagement}
+              loadTemplates={loadTemplates}
+              deleteTemplate={deleteTemplate}
+              createOrUpdateTemplate={createOrUpdateTemplate}
+              sortTemplates={sortTemplates}
+            />
+          </>
+        )
+      }
     </Root>
   );
 }

@@ -111,6 +111,12 @@ export class RcVideo extends RcVideoBase {
   }
 
   @action
+  private _clearCalendars() {
+    this.calendars = [];
+    this.calendarsLoaded = false;
+  }
+
+  @action
   private _saveMeetings({ meetings, pageToken }) {
     if (!pageToken) {
       this.historyMeetings = meetings;
@@ -133,6 +139,16 @@ export class RcVideo extends RcVideoBase {
   async createInstantMeeting() {
     const meeting = await this.createMeeting({ type: 1 });
     return meeting;
+  }
+
+  override onReset() {
+    if (super.onReset) {
+      super.onReset();
+    }
+    this._clearMeetings();
+    this._fetchingUpcomingMeetings = false;
+    this._saveUpcomingMeetings({ meetings: [] });
+    this._clearCalendars();
   }
 
   async fetchHistoryMeetings({
@@ -189,7 +205,7 @@ export class RcVideo extends RcVideoBase {
     const providersRes = await platform.get('/restapi/v1.0/account/~/extension/~/cloud-calendars/ucc');
     const providersData = await providersRes.json();
     const newCalendars = providersData.records.filter(c => {
-      return c.connected && c.providerSubscription && c.primary;
+      return c.connected && c.primary;
     });
     this._saveCalendars(newCalendars);
   }
