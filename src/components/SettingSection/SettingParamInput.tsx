@@ -204,7 +204,7 @@ export function SettingParamInput({
     return (
       <RcTypography
         variant={setting.variant || 'body1'}
-        color={setting.color}
+        color={setting.color || 'neutral.f06'}
         className={className}
       >
         {setting.value}
