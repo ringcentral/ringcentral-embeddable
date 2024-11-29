@@ -403,7 +403,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   }, {
     id: 'theme',
     type: 'link',
-    name: 'Theme',
+    name: 'Theme (Beta)',
     onClick: onThemeSettingsLinkClick,
     show: showThemeSetting,
     order: 11000,
