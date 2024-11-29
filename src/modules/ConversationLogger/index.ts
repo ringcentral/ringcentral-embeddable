@@ -37,10 +37,11 @@ export class ConversationLogger extends ConversationLoggerBase {
       await this._doLog(data);
     };
     this._accordWithLogRequirement = (conversation) => {
-      const { date } = conversation;
-      const dateTimeStamp = new Date(date).getTime();
-      const currentDateTimeStamp = getCurrentDateTimeStamp();
-      return currentDateTimeStamp === dateTimeStamp;
+      const today = this._formatDateTime({
+        type: 'date',
+        utcTimestamp: new Date(),
+      });
+      return today === conversation.date;
     };
   }
 
