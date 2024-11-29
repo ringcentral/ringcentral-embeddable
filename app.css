@@ -2274,492 +2274,6 @@ div[class*=MuiCircularProgress-indeterminate] {
   position: relative;
   top: -1px;
 }
-.Header_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  height: 46px;
-  min-height: 32px;
-  box-sizing: border-box;
-  border-width: 0;
-  border-bottom-width: 1px;
-  border-style: solid;
-  border-color: var(--gray);
-  text-align: center;
-}
-.Header_root .Header_label {
-  position: relative;
-  display: inline;
-  vertical-align: middle;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-  font-size: 0.9em;
-}
-.Header_root .Header_label:before {
-  position: relative;
-  display: inline-block;
-  height: 100%;
-  width: 0;
-  vertical-align: middle;
-  content: "";
-}
-.Header_root .Header_buttonGroup {
-  position: absolute;
-  height: 100%;
-  top: 0;
-  padding-left: 5px;
-  white-space: nowrap;
-  max-width: 50%;
-}
-.Header_root .Header_leftButtons {
-  left: 0;
-}
-.Header_root .Header_rightButtons {
-  right: 0;
-}
-.Header_root .Header_button {
-  position: relative;
-  display: inline;
-  vertical-align: middle;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
-  user-drag: none;
-  cursor: pointer;
-  color: var(--darkgray);
-  padding: 3px;
-  margin-left: 3px;
-  margin-right: 3px;
-}
-.Header_root .Header_button:before {
-  position: relative;
-  display: inline-block;
-  height: 100%;
-  width: 0;
-  vertical-align: middle;
-  content: "";
-}
-.Header_root .Header_button:hover {
-  color: var(--primary-color);
-}
-.Header_root .Header_disabled,
-.Header_root .Header_button.Header_disabled:hover {
-  color: var(--gray);
-  cursor: not-allowed;
-}
-.BackHeader_iconRotate {
-  transform: rotate(90deg);
-  position: absolute;
-  top: 5px;
-  left: 10px;
-}
-.DropdownSelect_root {
-  position: relative;
-  font-size: 13px;
-  border: 1px solid #a6a6a6;
-  border-radius: 2px;
-  color: #797979;
-  padding: 0 10px;
-}
-
-.DropdownSelect_noPadding {
-  padding: 0 0px;
-}
-
-.DropdownSelect_button {
-  position: relative;
-  height: 30px;
-  line-height: 30px;
-  border: 0;
-  padding: 0;
-  width: 100%;
-  outline: medium none !important;
-  cursor: pointer;
-  text-transform: none;
-  background: transparent;
-  text-align: left;
-  overflow: hidden;
-}
-.DropdownSelect_button label {
-  float: left;
-  width: 50px;
-  overflow: hidden;
-}
-
-.DropdownSelect_customInput {
-  padding: 0;
-  border: none;
-  width: inherit;
-  line-height: inherit;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.DropdownSelect_selectedValue {
-  margin-left: 0;
-  display: block;
-  margin-right: 20px;
-  color: rgb(0, 0, 0);
-}
-
-.DropdownSelect_icon {
-  position: absolute;
-  right: 0px;
-  top: 0;
-}
-
-.DropdownSelect_iconUp {
-  transform: rotate(-180deg);
-}
-
-.DropdownSelect_left {
-  text-align: left;
-}
-
-.DropdownSelect_right {
-  text-align: right;
-}
-
-.DropdownSelect_center {
-  text-align: center;
-}
-
-.DropdownSelect_dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0px;
-  margin: 0;
-  margin-top: 1px;
-  z-index: 2;
-  width: 100%;
-  border-radius: 2px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.175);
-  background: #fff;
-  max-height: 250px;
-  overflow: hidden;
-  overflow-y: auto;
-}
-.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child {
-  color: #303030;
-  font-size: 13px;
-  font-weight: bold;
-}
-.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child:hover {
-  color: #303030;
-}
-
-.DropdownSelect_open .DropdownSelect_dropdown {
-  display: block;
-}
-
-.DropdownSelect_disabled {
-  color: #777;
-  cursor: not-allowed;
-}
-.DropdownSelect_disabled .DropdownSelect_selectedValue {
-  color: #777;
-}
-
-.DropdownSelect_ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-[contenteditable]:focus {
-  outline: 0px solid transparent;
-}
-
-.DropdownSelect_inputWithLabel {
-  text-align: right;
-  padding-right: 34px;
-  margin-right: 0;
-  padding-left: 39%;
-}
-
-.DropdownSelect_active {
-  padding-left: 0;
-}
-
-.DropdownSelect_selectedOptionLabel {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: calc(39% - 8px);
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.DropdownSelect_selectedOptionLabelHide {
-  z-index: -1;
-}
-.IconField_wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.IconField_content {
-  width: calc(100% - 10%);
-  max-width: calc(100% - 58px);
-  display: inline-block;
-  position: relative;
-  vertical-align: top;
-}
-
-.IconField_iconHolder {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
-  user-drag: none;
-  display: inline-block;
-  position: relative;
-  vertical-align: top;
-  width: 10%;
-  min-width: 58px;
-  text-align: right;
-}
-
-.IconField_icon {
-  position: relative;
-  display: inline;
-  vertical-align: middle;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
-  user-drag: none;
-  display: inline-block;
-  font-size: 14px;
-  color: var(--darkgray);
-}
-.IconField_icon:before {
-  position: relative;
-  display: inline-block;
-  height: 100%;
-  width: 0;
-  vertical-align: middle;
-  content: "";
-}
-.InputField_root {
-  padding: 10px 0;
-}
-
-.InputField_label {
-  width: 100%;
-  display: inline-block;
-  position: relative;
-  vertical-align: top;
-  padding-bottom: 10px;
-  padding-left: 1px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--night);
-  font-weight: bold;
-}
-
-.InputField_hint {
-  font-weight: normal;
-  font-size: 12px;
-}
-
-.InputField_inputHolder {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
-  user-drag: none;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 12px;
-  color: var(--darkergray);
-  display: inline-block;
-  position: relative;
-  vertical-align: top;
-  width: 100%;
-  height: 30px;
-  text-align: center;
-}
-.Panel_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: var(--snow);
-  box-sizing: border-box;
-  padding-bottom: 14px;
-}
-.Tooltip_title {
-  display: block;
-  max-width: 250px;
-}
-[sf-classic] .Tooltip_title {
-  max-width: 158px;
-}
-.SaveButton_root {
-  display: block;
-  margin-top: 20px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  width: 100%;
-  height: 36px;
-  border-radius: 100px;
-  background: var(--primary-color);
-  line-height: 36px;
-  color: #ffffff !important;
-  text-align: center;
-}
-.SaveButton_root.SaveButton_disabled {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  width: 100%;
-  height: 36px;
-  border-radius: 100px;
-  background: var(--primary-color);
-  line-height: 36px;
-  color: #ffffff !important;
-  text-align: center;
-  background: #ffffff;
-  border: solid 1px var(--silver);
-  color: var(--grey-light) !important;
-}
-.Switch_switch {
-  position: relative;
-  display: inline-block;
-  width: 38px;
-  height: 20px;
-  vertical-align: middle;
-  background-color: white;
-  border-radius: 20px;
-}
-
-/* Hide default HTML checkbox */
-.Switch_switch input {
-  display: none;
-}
-
-.Switch_slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 20px;
-}
-
-.Switch_slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 1px;
-  bottom: 1px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-.Switch_disable .Switch_slider {
-  opacity: 0.4;
-  background-color: var(--smoke);
-  cursor: not-allowed;
-}
-.Switch_disable input:checked + .Switch_slider {
-  background-color: var(--primary-color);
-}
-.Switch_disable input:focus + .Switch_slider {
-  box-shadow: 0 0 1px #ccc;
-}
-
-input:checked + .Switch_slider {
-  background-color: var(--primary-color);
-}
-
-input:focus + .Switch_slider {
-  box-shadow: 0 0 1px var(--primary-color);
-}
-
-input:checked + .Switch_slider:before {
-  transform: translateX(18px);
-}
-.CallingSettingsPanel_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.CallingSettingsPanel_content {
-  width: 100%;
-  height: 100%;
-  bottom: 0 !important;
-  position: absolute !important;
-  overflow-y: auto !important;
-  max-height: calc(100% - 40px);
-  max-height: calc(100% - 40px);
-  box-sizing: border-box;
-  background-color: white;
-  padding: 10px 20px 10px 20px;
-}
-
-.CallingSettingsPanel_iconField {
-  padding: 15px 0px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-}
-
-.CallingSettingsPanel_infoIcon {
-  margin-left: 6px;
-  vertical-align: bottom;
-}
-.CallingSettingsPanel_infoIcon path {
-  fill: var(--ash);
-}
-
-.CallingSettingsPanel_tooltipContainer {
-  width: 100%;
-  height: 1px;
-}
-.CallingSettingsPanel_tooltipContainer .rc-tooltip {
-  opacity: 1;
-  left: 0 !important;
-}
-
-.CallingSettingsPanel_ringoutHint {
-  padding: 15px 0px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-}
-
-.CallingSettingsPanel_select {
-  border: 1px solid #a6a6a6;
-  border-radius: 2px;
-}
-
-.CallingSettingsPanel_locationSelect ul {
-  max-height: 120px;
-  overflow-y: auto;
-}
-
-.CallingSettingsPanel_tooltipIcon {
-  position: relative;
-  top: 2px;
-  left: 5px;
-}
-
-.CallingSettingsPanel_overWidth {
-  left: -1px;
-  width: calc(100% + 2px);
-}
 .CallAvatar_callAvatar {
   width: 100%;
 }
@@ -3235,6 +2749,87 @@ input:checked + .Switch_slider:before {
 .BackButton_backLabel:hover {
   color: inherit;
 }
+.Header_root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  height: 46px;
+  min-height: 32px;
+  box-sizing: border-box;
+  border-width: 0;
+  border-bottom-width: 1px;
+  border-style: solid;
+  border-color: var(--gray);
+  text-align: center;
+}
+.Header_root .Header_label {
+  position: relative;
+  display: inline;
+  vertical-align: middle;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--night);
+  font-size: 0.9em;
+}
+.Header_root .Header_label:before {
+  position: relative;
+  display: inline-block;
+  height: 100%;
+  width: 0;
+  vertical-align: middle;
+  content: "";
+}
+.Header_root .Header_buttonGroup {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  padding-left: 5px;
+  white-space: nowrap;
+  max-width: 50%;
+}
+.Header_root .Header_leftButtons {
+  left: 0;
+}
+.Header_root .Header_rightButtons {
+  right: 0;
+}
+.Header_root .Header_button {
+  position: relative;
+  display: inline;
+  vertical-align: middle;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  user-drag: none;
+  cursor: pointer;
+  color: var(--darkgray);
+  padding: 3px;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+.Header_root .Header_button:before {
+  position: relative;
+  display: inline-block;
+  height: 100%;
+  width: 0;
+  vertical-align: middle;
+  content: "";
+}
+.Header_root .Header_button:hover {
+  color: var(--primary-color);
+}
+.Header_root .Header_disabled,
+.Header_root .Header_button.Header_disabled:hover {
+  color: var(--gray);
+  cursor: not-allowed;
+}
+.BackHeader_iconRotate {
+  transform: rotate(90deg);
+  position: absolute;
+  top: 5px;
+  left: 10px;
+}
 .CallsOnholdPanel_root {
   position: relative;
   width: 100%;
@@ -3439,344 +3034,6 @@ input:checked + .Switch_slider:before {
   color: var(--snow);
   background: var(--bigRed);
 }
-.ContactDetails_root {
-  padding: 0 15px;
-}
-
-.ContactDetails_clearBoth {
-  clear: both;
-}
-
-.ContactDetails_section {
-  line-height: 23px;
-  overflow: hidden;
-  margin: 0;
-  padding: 20px 0;
-  list-style: none;
-}
-.ContactDetails_section .ContactDetails_item {
-  overflow: hidden;
-  min-width: 250px;
-}
-.ContactDetails_section .ContactDetails_item:not(:first-child) {
-  margin-top: 20px;
-}
-.ContactDetails_section .ContactDetails_label {
-  width: 20%;
-  color: var(--ash);
-  vertical-align: middle;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  display: inline-block;
-  word-break: break-all;
-}
-.ContactDetails_section .ContactDetails_label span {
-  vertical-align: middle;
-}
-.ContactDetails_section .ContactDetails_content {
-  float: right;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  width: 80%;
-  box-sizing: border-box;
-  padding-left: 5px;
-}
-.ContactDetails_section .ContactDetails_content .ContactDetails_text {
-  display: inline-block;
-  min-width: 40%;
-  max-width: 80%;
-  vertical-align: middle;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--night);
-  -webkit-user-select: text;
-     -moz-user-select: text;
-          user-select: text;
-}
-
-.ContactDetails_contacts {
-  border-bottom: 1px solid var(--gray);
-}
-.ContactDetails_contacts .ContactDetails_number {
-  max-width: calc(80% - 70px);
-}
-.ContactDetails_contacts .ContactDetails_menu {
-  float: right;
-  text-align: right;
-  margin-right: 5px;
-}
-.ContactDetails_contacts .ContactDetails_menu button {
-  border: none;
-  background: none;
-}
-.ContactDetails_contacts .ContactDetails_menu button:hover, .ContactDetails_contacts .ContactDetails_menu button:focus, .ContactDetails_contacts .ContactDetails_menu button:active {
-  outline: none;
-}
-.ContactDetails_contacts .ContactDetails_menu button:hover i, .ContactDetails_contacts .ContactDetails_menu button:focus i, .ContactDetails_contacts .ContactDetails_menu button:active i {
-  color: var(--primary-color);
-}
-.ContactDetails_contacts .ContactDetails_menu button:hover path, .ContactDetails_contacts .ContactDetails_menu button:focus path, .ContactDetails_contacts .ContactDetails_menu button:active path {
-  fill: var(--primary-color);
-}
-.ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled {
-  cursor: not-allowed;
-}
-.ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:hover, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:focus, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:active {
-  outline: none;
-}
-.ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:hover i, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:focus i, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:active i {
-  color: #666;
-}
-.ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:hover path, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:focus path, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:active path {
-  fill: #666;
-}
-.ContactDetails_contacts .ContactDetails_menu i {
-  font-size: 20px;
-  color: var(--ash);
-}
-.ContactDetails_contacts .ContactDetails_menu .ContactDetails_faxIcon {
-  vertical-align: middle;
-}
-.ContactDetails_contacts .ContactDetails_menu .ContactDetails_faxIcon path {
-  fill: var(--ash);
-}
-
-.ContactDetails_profile {
-  padding: 20px 0;
-  border-bottom: 1px solid var(--gray);
-}
-
-.ContactDetails_profileWrapper {
-  position: relative;
-  width: 100%;
-  vertical-align: middle;
-  display: flex;
-}
-
-.ContactDetails_site {
-  display: flex;
-  padding-top: 15px;
-  font-size: 13px;
-}
-.ContactDetails_site .ContactDetails_label {
-  flex: 1;
-  color: #797979;
-}
-.ContactDetails_site .ContactDetails_content {
-  overflow: hidden;
-  flex: 4;
-  padding-left: 5px;
-}
-
-.ContactDetails_avatar {
-  display: flex;
-  width: 45px;
-  height: 45px;
-  min-width: 45px;
-  padding-right: 8px;
-  padding-bottom: 5px;
-  position: relative;
-}
-.ContactDetails_avatar .ContactDetails_avatarImage {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font: inherit;
-  line-height: 1;
-  width: 100%;
-  height: 100%;
-  line-height: 30px;
-  text-align: center;
-  border-radius: 100%;
-}
-.ContactDetails_avatar .ContactDetails_inactive {
-  opacity: 0.3;
-}
-.ContactDetails_avatar .ContactDetails_sourceWrapper {
-  position: absolute;
-  overflow: hidden;
-  background: #fff;
-  padding: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 10px;
-  top: -2px;
-  right: 2px;
-}
-
-.ContactDetails_name {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 15px;
-  -webkit-user-select: text;
-     -moz-user-select: text;
-          user-select: text;
-}
-
-.ContactDetails_name.ContactDetails_withoutPresence {
-  margin-top: -5px;
-}
-
-.ContactDetails_info {
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  padding-left: 5px;
-}
-
-.ContactDetails_status {
-  position: relative;
-}
-.ContactDetails_status .ContactDetails_presence {
-  overflow: hidden;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  border: 1px solid #fff;
-  float: left;
-}
-.ContactDetails_status .ContactDetails_presence .ContactDetails_presenceIcon {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font: inherit;
-  line-height: 1;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-.ContactDetails_status .ContactDetails_presence .ContactDetails_presenceIcon div {
-  top: -2px;
-  left: -1px;
-}
-.ContactDetails_status .ContactDetails_presenceName {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 12px;
-  color: var(--darkergray);
-  color: var(--ash);
-  margin-left: 5px;
-  vertical-align: top;
-}
-
-.ContactDetails_email li:not(:first-child) {
-  margin-top: 20px;
-}
-.ContactDetails_email li a {
-  width: 100%;
-  vertical-align: middle;
-  display: inline-block;
-  -webkit-user-select: text;
-     -moz-user-select: text;
-          user-select: text;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: var(--darkergray);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.ContactDetails_email li a,
-.ContactDetails_email li a:hover,
-.ContactDetails_email li a:visited,
-.ContactDetails_email li a:focus {
-  color: var(--primary-color);
-}
-.ContactDetails_email .ContactDetails_underline:hover {
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.ContactDetails_inactiveText {
-  font-size: 12px;
-  color: var(--coin);
-}
-
-.ContactDetails_companyInfo {
-  border-bottom: 1px solid var(--gray);
-}
-.PresenceStatusIcon_presence {
-  position: relative;
-  height: 14px;
-  width: 14px;
-  border-radius: 8px;
-  display: none;
-}
-
-.PresenceStatusIcon_Offline {
-  display: block;
-  background: #cdcdcd;
-}
-
-.PresenceStatusIcon_Busy {
-  display: block;
-  background: #f95b5c;
-}
-
-.PresenceStatusIcon_Available {
-  display: block;
-  background-color: #32ae31;
-}
-
-.PresenceStatusIcon_presenceBar {
-  display: none;
-  position: absolute;
-  width: 57%;
-  height: 2px;
-  border-radius: 1.5px;
-  background-color: #ffffff;
-  transform-origin: 50% 50%;
-  transform: translate(3px, 6px);
-}
-
-.PresenceStatusIcon_DoNotAcceptAnyCalls {
-  display: block;
-  background: #f95b5c;
-}
-.PresenceStatusIcon_DoNotAcceptAnyCalls .PresenceStatusIcon_presenceBar {
-  display: block;
-}
-.ContactDetailsView_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-  z-index: 2;
-}
-
-.ContactDetailsView_content {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  height: calc(100% - 65px);
-  overflow-y: auto;
-  padding-top: 0;
-  padding-bottom: 30px;
-}
-
-.ContactDetailsView_header {
-  background: #fff;
-}
-
-.ContactDetailsView_placeholder {
-  color: var(--darkgray);
-  font-size: 14px;
-  text-align: center;
-  margin-top: 40px;
-}
 .RadioBtnGroup_root {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
@@ -3911,6 +3168,223 @@ input:checked + .Switch_slider:before {
   opacity: 1;
   fill: var(--smoke);
   stroke: var(--smoke);
+}
+.DropdownSelect_root {
+  position: relative;
+  font-size: 13px;
+  border: 1px solid #a6a6a6;
+  border-radius: 2px;
+  color: #797979;
+  padding: 0 10px;
+}
+
+.DropdownSelect_noPadding {
+  padding: 0 0px;
+}
+
+.DropdownSelect_button {
+  position: relative;
+  height: 30px;
+  line-height: 30px;
+  border: 0;
+  padding: 0;
+  width: 100%;
+  outline: medium none !important;
+  cursor: pointer;
+  text-transform: none;
+  background: transparent;
+  text-align: left;
+  overflow: hidden;
+}
+.DropdownSelect_button label {
+  float: left;
+  width: 50px;
+  overflow: hidden;
+}
+
+.DropdownSelect_customInput {
+  padding: 0;
+  border: none;
+  width: inherit;
+  line-height: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.DropdownSelect_selectedValue {
+  margin-left: 0;
+  display: block;
+  margin-right: 20px;
+  color: rgb(0, 0, 0);
+}
+
+.DropdownSelect_icon {
+  position: absolute;
+  right: 0px;
+  top: 0;
+}
+
+.DropdownSelect_iconUp {
+  transform: rotate(-180deg);
+}
+
+.DropdownSelect_left {
+  text-align: left;
+}
+
+.DropdownSelect_right {
+  text-align: right;
+}
+
+.DropdownSelect_center {
+  text-align: center;
+}
+
+.DropdownSelect_dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0px;
+  margin: 0;
+  margin-top: 1px;
+  z-index: 2;
+  width: 100%;
+  border-radius: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.175);
+  background: #fff;
+  max-height: 250px;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child {
+  color: #303030;
+  font-size: 13px;
+  font-weight: bold;
+}
+.DropdownSelect_dropdown .DropdownSelect_placeholder:first-child:hover {
+  color: #303030;
+}
+
+.DropdownSelect_open .DropdownSelect_dropdown {
+  display: block;
+}
+
+.DropdownSelect_disabled {
+  color: #777;
+  cursor: not-allowed;
+}
+.DropdownSelect_disabled .DropdownSelect_selectedValue {
+  color: #777;
+}
+
+.DropdownSelect_ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[contenteditable]:focus {
+  outline: 0px solid transparent;
+}
+
+.DropdownSelect_inputWithLabel {
+  text-align: right;
+  padding-right: 34px;
+  margin-right: 0;
+  padding-left: 39%;
+}
+
+.DropdownSelect_active {
+  padding-left: 0;
+}
+
+.DropdownSelect_selectedOptionLabel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(39% - 8px);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.DropdownSelect_selectedOptionLabelHide {
+  z-index: -1;
+}
+.InputField_root {
+  padding: 10px 0;
+}
+
+.InputField_label {
+  width: 100%;
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  padding-bottom: 10px;
+  padding-left: 1px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--night);
+  font-weight: bold;
+}
+
+.InputField_hint {
+  font-weight: normal;
+  font-size: 12px;
+}
+
+.InputField_inputHolder {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  user-drag: none;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  color: var(--darkergray);
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  width: 100%;
+  height: 30px;
+  text-align: center;
+}
+.Panel_root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--snow);
+  box-sizing: border-box;
+  padding-bottom: 14px;
+}
+.SaveButton_root {
+  display: block;
+  margin-top: 20px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  width: 100%;
+  height: 36px;
+  border-radius: 100px;
+  background: var(--primary-color);
+  line-height: 36px;
+  color: #ffffff !important;
+  text-align: center;
+}
+.SaveButton_root.SaveButton_disabled {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  width: 100%;
+  height: 36px;
+  border-radius: 100px;
+  background: var(--primary-color);
+  line-height: 36px;
+  color: #ffffff !important;
+  text-align: center;
+  background: #ffffff;
+  border: solid 1px var(--silver);
+  color: var(--grey-light) !important;
 }
 .RegionSettingsPanel_root {
   position: relative;
@@ -4711,6 +4185,54 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 .GenericMeetingPanel_wrapper label[class*=Switch] {
   flex-shrink: 0;
 }
+.IconField_wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.IconField_content {
+  width: calc(100% - 10%);
+  max-width: calc(100% - 58px);
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
+
+.IconField_iconHolder {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  user-drag: none;
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  width: 10%;
+  min-width: 58px;
+  text-align: right;
+}
+
+.IconField_icon {
+  position: relative;
+  display: inline;
+  vertical-align: middle;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  user-drag: none;
+  display: inline-block;
+  font-size: 14px;
+  color: var(--darkgray);
+}
+.IconField_icon:before {
+  position: relative;
+  display: inline-block;
+  height: 100%;
+  width: 0;
+  vertical-align: middle;
+  content: "";
+}
 .Line_root {
   position: relative;
   width: 100%;
@@ -4738,6 +4260,68 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 
 .Line_noborder {
   border: none;
+}
+.Switch_switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 20px;
+  vertical-align: middle;
+  background-color: white;
+  border-radius: 20px;
+}
+
+/* Hide default HTML checkbox */
+.Switch_switch input {
+  display: none;
+}
+
+.Switch_slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.Switch_slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 1px;
+  bottom: 1px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.Switch_disable .Switch_slider {
+  opacity: 0.4;
+  background-color: var(--smoke);
+  cursor: not-allowed;
+}
+.Switch_disable input:checked + .Switch_slider {
+  background-color: var(--primary-color);
+}
+.Switch_disable input:focus + .Switch_slider {
+  box-shadow: 0 0 1px #ccc;
+}
+
+input:checked + .Switch_slider {
+  background-color: var(--primary-color);
+}
+
+input:focus + .Switch_slider {
+  box-shadow: 0 0 1px var(--primary-color);
+}
+
+input:checked + .Switch_slider:before {
+  transform: translateX(18px);
 }
 .EnvironmentPanel_root {
   position: relative;
@@ -5276,8 +4860,8 @@ div#viewport {
 }
 
 body {
-  background: #fff;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: var(--snow);
+  font-family: "Lato", "Roboto", "Helvetica", "Arial", sans-serif;
   margin: 0;
   font-size: 16px;
 }
@@ -5342,6 +4926,22 @@ input {
 
 .CallingSettingsPanel_content {
   max-height: calc(100% - 46px);
+}
+
+.RegionSettingsPanel_content {
+  background-color: var(--snow);
+}
+
+.DropdownSelect_selectedValue {
+  color: var(--night);
+}
+
+.DropdownSelect_dropdown {
+  background-color: var(--snow);
+}
+
+.GlipChatPanel_header {
+  color: var(--night);
 }
 .RemoveButton_container {
   text-decoration: none;
@@ -5600,6 +5200,13 @@ input {
 }
 .ContactDropdownList_doNotCall:hover {
   background-color: rgba(101, 108, 128, 0.08);
+}
+.Tooltip_title {
+  display: block;
+  max-width: 250px;
+}
+[sf-classic] .Tooltip_title {
+  max-width: 158px;
 }
 .ReplyWithMessage_root {
   display: block;
@@ -6036,149 +5643,6 @@ input {
 .MessageSenderAlert_link {
   cursor: pointer;
 }
-.ComposeTextPanel_root {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: inherit;
-  font-family: Helvetica;
-  box-sizing: border-box;
-  background: #ffffff;
-}
-.ComposeTextPanel_root * {
-  box-sizing: border-box;
-}
-.ComposeTextPanel_root label {
-  font-weight: normal;
-  margin-bottom: 0;
-}
-
-.ComposeTextPanel_senderField {
-  margin: 0 0 5px 0;
-  padding: 0 20px 1px 20px;
-  border-bottom: #e3e3e3 1px solid;
-  transition: height 0.5s ease-in;
-  color: #797979;
-}
-
-.ComposeTextPanel_hiddenField {
-  height: 0px;
-}
-
-.ComposeTextPanel_buttomField {
-  position: absolute;
-  bottom: 0px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 2px 2px 2px;
-  font-family: Helvetica;
-  border-top: 1px solid #e3e3e5;
-}
-
-.ComposeTextPanel_textField {
-  margin-right: 115px;
-}
-.ComposeTextPanel_textField textarea {
-  background: transparent;
-  font-size: 13px;
-  line-height: 18px;
-  width: 100%;
-  margin: 10px 0 10px 10px;
-  resize: none;
-  border: none;
-  outline: medium none !important;
-  box-sizing: border-box !important;
-}
-.ComposeTextPanel_textField textarea::-moz-placeholder {
-  color: #a9a9a9;
-}
-.ComposeTextPanel_textField textarea::placeholder {
-  color: #a9a9a9;
-}
-
-.ComposeTextPanel_submitField {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  width: 115px;
-  margin-top: -18px;
-  margin-right: 2px;
-}
-
-.ComposeTextPanel_submitButton {
-  display: block;
-  margin: 0 auto;
-  width: 73px;
-  height: 36px;
-  box-sizing: border-box;
-  font-size: 13px;
-  line-height: 18px;
-  padding: 7px;
-  border-radius: 18px;
-  outline: medium none !important;
-  color: #fff;
-  background-color: var(--primary-color);
-  border-style: none;
-}
-
-.ComposeTextPanel_submitButton:hover {
-  background-color: var(--primary-color-highlight);
-  color: #fff;
-}
-
-.ComposeTextPanel_submitButton:disabled,
-.ComposeTextPanel_submitButton:disabled:hover {
-  background-color: #fff !important;
-  border: #c9c9c9 1px solid;
-  color: #a9a9a9;
-  cursor: not-allowed;
-}
-
-.ComposeTextPanel_recipients {
-  max-height: 24vh;
-  overflow-y: auto;
-}
-.FromField_root {
-  font-size: 12px;
-  width: 100%;
-  border: none;
-  padding: 0;
-}
-.FromField_root label {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  color: var(--night);
-  color: var(--grey-light);
-  font-size: 12px;
-  width: 46px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.FromField_root button {
-  margin-left: 0;
-  margin-right: 0;
-  color: var(--grey-light);
-  font-size: 12px;
-}
-.FromField_root ul {
-  overflow-y: auto;
-  margin-top: -2px;
-}
-.FromField_root li {
-  text-align: left;
-  padding: 10px;
-  font-size: 13px;
-}
-
-.FromField_usageType {
-  float: right;
-}
-
-.FromField_phoneNumber {
-  width: 100%;
-}
 .NoMessage_noMessages {
   color: #797979;
   font-size: 14px;
@@ -6336,172 +5800,6 @@ input {
 .MessageItem_dropdownSelect ul {
   left: 0;
   margin-left: -5px;
-}
-.ConversationMessageList_root {
-  position: relative;
-  display: block;
-  overflow-y: auto;
-  overflow-x: hidden;
-  height: 354px;
-  padding: 0 15px;
-  background: #fff;
-}
-
-.ConversationMessageList_message {
-  display: block;
-  width: 100%;
-  font-size: 12px;
-  color: #333333;
-}
-.ConversationMessageList_message:first-child {
-  margin-top: 10px;
-}
-.ConversationMessageList_message:last-child {
-  margin-bottom: 10px;
-}
-
-.ConversationMessageList_time {
-  text-align: center;
-  font-size: 12px;
-  margin-bottom: 10px;
-  color: #a2a2a2;
-  clear: both;
-}
-
-.ConversationMessageList_sender {
-  color: #a2a2a2;
-  clear: both;
-  margin-bottom: 1px;
-}
-
-.ConversationMessageList_messageBody {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 10px;
-  min-width: 50%;
-  max-width: 60%;
-  text-align: left;
-  -webkit-hyphens: auto;
-          hyphens: auto;
-  padding: 10px 15px;
-  background: var(--sms-bubble-background-color);
-  border-radius: 16px;
-  min-height: 13px;
-  box-sizing: content-box;
-  /* For Firefox */
-  white-space: pre-wrap;
-  word-break: break-word;
-  /* For Chrome and IE */
-  word-wrap: break-word;
-}
-
-.ConversationMessageList_messageBody.ConversationMessageList_inbound {
-  border-bottom-left-radius: 10px;
-  background: #efefef;
-}
-.ConversationMessageList_messageBody.ConversationMessageList_inbound:before {
-  z-index: 0;
-  position: absolute;
-  content: "";
-  width: 25px;
-  height: 25px;
-  bottom: 0px;
-  left: -10px;
-  background: #efefef;
-  border-bottom-right-radius: 33px;
-  transform: rotate(-3deg);
-}
-.ConversationMessageList_messageBody.ConversationMessageList_inbound:after {
-  z-index: 0;
-  position: absolute;
-  content: "";
-  width: 30px;
-  height: 30px;
-  bottom: -1px;
-  left: -24px;
-  background: #fff;
-  border-bottom-right-radius: 30px;
-  transform: rotate(-24deg);
-}
-
-.ConversationMessageList_messageBody.ConversationMessageList_outbound {
-  float: right;
-  clear: both;
-  border-bottom-right-radius: 10px;
-}
-.ConversationMessageList_messageBody.ConversationMessageList_outbound:before {
-  z-index: 0;
-  position: absolute;
-  content: "";
-  width: 25px;
-  height: 25px;
-  bottom: -2px;
-  right: -11px;
-  background: var(--sms-bubble-background-color);
-  border-bottom-left-radius: 33px;
-  transform: rotate(-6deg);
-}
-.ConversationMessageList_messageBody.ConversationMessageList_outbound:after {
-  z-index: 0;
-  position: absolute;
-  content: "";
-  width: 30px;
-  height: 30px;
-  bottom: 3px;
-  right: -23px;
-  background: #fff;
-  border-bottom-left-radius: 30px;
-  transform: rotate(43deg);
-}
-
-.ConversationMessageList_messageBody.ConversationMessageList_big {
-  width: 85%;
-  max-width: 85%;
-}
-
-.ConversationMessageList_clear {
-  clear: both;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font: inherit;
-  vertical-align: baseline;
-}
-
-.ConversationMessageList_loading {
-  text-align: center;
-  line-height: 40px;
-  font-size: 14px;
-}
-
-.ConversationMessageList_picture {
-  width: 100%;
-}
-
-.ConversationMessageList_file {
-  padding: 10px;
-  min-width: 80px;
-  max-width: 200px;
-  border-radius: 4px;
-  background: var(--snow);
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  justify-content: flex-start;
-  margin-bottom: 5px;
-}
-
-.ConversationMessageList_fileName {
-  margin: 0 5px;
-  flex: 1;
-}
-
-.ConversationMessageList_download {
-  color: var(--ash);
-  cursor: pointer;
-}
-.ConversationMessageList_download:focus {
-  outline: 0;
 }
 .ConversationPanel_root {
   position: relative;
@@ -7017,10 +6315,60 @@ input {
   transition: height 0.2s 0s ease-in-out;
   transform: translateZ(0);
 }
-.RecentActivityContainer_title {
-  font-size: 15px;
-  width: 100%;
+.RecentActivityItems_messages {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+}
+
+.RecentActivityItems_messageItem {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 15px;
+}
+
+.RecentActivityItems_localMessageItem {
+  cursor: pointer;
+}
+
+.RecentActivityItems_localMessageItem:hover {
+  background: var(--gray);
+}
+
+.RecentActivityItems_dl {
+  margin: 0;
+}
+
+.RecentActivityItems_messageSubject {
+  float: left;
+  width: 68%;
+  margin-right: 2%;
+  color: var(--night);
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RecentActivityItems_messageTime {
+  text-align: right;
+  color: var(--darkergray);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RecentActivityItems_noRecords {
+  color: var(--darkgray);
+  font-size: 14px;
   text-align: center;
+  margin-top: 30px;
+}
+
+.RecentActivityItems_spinner {
+  width: 43px;
+  height: 43px;
+  margin: 30px auto;
 }
 .MeetingScheduleButton_actionPrompt {
   color: #212121;
@@ -7055,6 +6403,47 @@ input {
 
 .MeetingScheduleButton_gutter {
   margin-top: 8px;
+}
+.PresenceStatusIcon_presence {
+  position: relative;
+  height: 14px;
+  width: 14px;
+  border-radius: 8px;
+  display: none;
+}
+
+.PresenceStatusIcon_Offline {
+  display: block;
+  background: #cdcdcd;
+}
+
+.PresenceStatusIcon_Busy {
+  display: block;
+  background: #f95b5c;
+}
+
+.PresenceStatusIcon_Available {
+  display: block;
+  background-color: #32ae31;
+}
+
+.PresenceStatusIcon_presenceBar {
+  display: none;
+  position: absolute;
+  width: 57%;
+  height: 2px;
+  border-radius: 1.5px;
+  background-color: #ffffff;
+  transform-origin: 50% 50%;
+  transform: translate(3px, 6px);
+}
+
+.PresenceStatusIcon_DoNotAcceptAnyCalls {
+  display: block;
+  background: #f95b5c;
+}
+.PresenceStatusIcon_DoNotAcceptAnyCalls .PresenceStatusIcon_presenceBar {
+  display: block;
 }
 .ContactItem_root {
   display: block;
@@ -7252,6 +6641,272 @@ input {
   text-transform: uppercase;
   background-color: #f5f5f5;
   z-index: 2;
+}
+.ContactDetails_root {
+  padding: 0 15px;
+}
+
+.ContactDetails_clearBoth {
+  clear: both;
+}
+
+.ContactDetails_section {
+  line-height: 23px;
+  overflow: hidden;
+  margin: 0;
+  padding: 20px 0;
+  list-style: none;
+}
+.ContactDetails_section .ContactDetails_item {
+  overflow: hidden;
+  min-width: 250px;
+}
+.ContactDetails_section .ContactDetails_item:not(:first-child) {
+  margin-top: 20px;
+}
+.ContactDetails_section .ContactDetails_label {
+  width: 20%;
+  color: var(--ash);
+  vertical-align: middle;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  display: inline-block;
+  word-break: break-all;
+}
+.ContactDetails_section .ContactDetails_label span {
+  vertical-align: middle;
+}
+.ContactDetails_section .ContactDetails_content {
+  float: right;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  width: 80%;
+  box-sizing: border-box;
+  padding-left: 5px;
+}
+.ContactDetails_section .ContactDetails_content .ContactDetails_text {
+  display: inline-block;
+  min-width: 40%;
+  max-width: 80%;
+  vertical-align: middle;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--night);
+  -webkit-user-select: text;
+     -moz-user-select: text;
+          user-select: text;
+}
+
+.ContactDetails_contacts {
+  border-bottom: 1px solid var(--gray);
+}
+.ContactDetails_contacts .ContactDetails_number {
+  max-width: calc(80% - 70px);
+}
+.ContactDetails_contacts .ContactDetails_menu {
+  float: right;
+  text-align: right;
+  margin-right: 5px;
+}
+.ContactDetails_contacts .ContactDetails_menu button {
+  border: none;
+  background: none;
+}
+.ContactDetails_contacts .ContactDetails_menu button:hover, .ContactDetails_contacts .ContactDetails_menu button:focus, .ContactDetails_contacts .ContactDetails_menu button:active {
+  outline: none;
+}
+.ContactDetails_contacts .ContactDetails_menu button:hover i, .ContactDetails_contacts .ContactDetails_menu button:focus i, .ContactDetails_contacts .ContactDetails_menu button:active i {
+  color: var(--primary-color);
+}
+.ContactDetails_contacts .ContactDetails_menu button:hover path, .ContactDetails_contacts .ContactDetails_menu button:focus path, .ContactDetails_contacts .ContactDetails_menu button:active path {
+  fill: var(--primary-color);
+}
+.ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled {
+  cursor: not-allowed;
+}
+.ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:hover, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:focus, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:active {
+  outline: none;
+}
+.ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:hover i, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:focus i, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:active i {
+  color: #666;
+}
+.ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:hover path, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:focus path, .ContactDetails_contacts .ContactDetails_menu button.ContactDetails_disabled:active path {
+  fill: #666;
+}
+.ContactDetails_contacts .ContactDetails_menu i {
+  font-size: 20px;
+  color: var(--ash);
+}
+.ContactDetails_contacts .ContactDetails_menu .ContactDetails_faxIcon {
+  vertical-align: middle;
+}
+.ContactDetails_contacts .ContactDetails_menu .ContactDetails_faxIcon path {
+  fill: var(--ash);
+}
+
+.ContactDetails_profile {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--gray);
+}
+
+.ContactDetails_profileWrapper {
+  position: relative;
+  width: 100%;
+  vertical-align: middle;
+  display: flex;
+}
+
+.ContactDetails_site {
+  display: flex;
+  padding-top: 15px;
+  font-size: 13px;
+}
+.ContactDetails_site .ContactDetails_label {
+  flex: 1;
+  color: #797979;
+}
+.ContactDetails_site .ContactDetails_content {
+  overflow: hidden;
+  flex: 4;
+  padding-left: 5px;
+}
+
+.ContactDetails_avatar {
+  display: flex;
+  width: 45px;
+  height: 45px;
+  min-width: 45px;
+  padding-right: 8px;
+  padding-bottom: 5px;
+  position: relative;
+}
+.ContactDetails_avatar .ContactDetails_avatarImage {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  line-height: 1;
+  width: 100%;
+  height: 100%;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 100%;
+}
+.ContactDetails_avatar .ContactDetails_inactive {
+  opacity: 0.3;
+}
+.ContactDetails_avatar .ContactDetails_sourceWrapper {
+  position: absolute;
+  overflow: hidden;
+  background: #fff;
+  padding: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 10px;
+  top: -2px;
+  right: 2px;
+}
+
+.ContactDetails_name {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--night);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  -webkit-user-select: text;
+     -moz-user-select: text;
+          user-select: text;
+}
+
+.ContactDetails_name.ContactDetails_withoutPresence {
+  margin-top: -5px;
+}
+
+.ContactDetails_info {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding-left: 5px;
+}
+
+.ContactDetails_status {
+  position: relative;
+}
+.ContactDetails_status .ContactDetails_presence {
+  overflow: hidden;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  border: 1px solid #fff;
+  float: left;
+}
+.ContactDetails_status .ContactDetails_presence .ContactDetails_presenceIcon {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  line-height: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.ContactDetails_status .ContactDetails_presence .ContactDetails_presenceIcon div {
+  top: -2px;
+  left: -1px;
+}
+.ContactDetails_status .ContactDetails_presenceName {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  color: var(--darkergray);
+  color: var(--ash);
+  margin-left: 5px;
+  vertical-align: top;
+}
+
+.ContactDetails_email li:not(:first-child) {
+  margin-top: 20px;
+}
+.ContactDetails_email li a {
+  width: 100%;
+  vertical-align: middle;
+  display: inline-block;
+  -webkit-user-select: text;
+     -moz-user-select: text;
+          user-select: text;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--darkergray);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ContactDetails_email li a,
+.ContactDetails_email li a:hover,
+.ContactDetails_email li a:visited,
+.ContactDetails_email li a:focus {
+  color: var(--primary-color);
+}
+.ContactDetails_email .ContactDetails_underline:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.ContactDetails_inactiveText {
+  font-size: 12px;
+  color: var(--coin);
+}
+
+.ContactDetails_companyInfo {
+  border-bottom: 1px solid var(--gray);
 }
 @charset "UTF-8";
 
