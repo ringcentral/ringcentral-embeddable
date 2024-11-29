@@ -87,7 +87,7 @@ const Label = styled.label`
 
 // phone number formatting becomes expensive when there are lots of numbers
 // memo makes this a pure component to reduce rendering cost
-const FromField = memo(function FromField({
+export const FromField = memo(function FromField({
   className = undefined,
   fromNumber = null,
   fromNumbers,
@@ -149,5 +149,3 @@ const FromField = memo(function FromField({
     </Root>
   );
 });
-
-export default FromField;
