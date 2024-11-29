@@ -159,7 +159,7 @@ export class IframeWidget {
   }
 
   async getMessageAllTabText() {
-    await this.waitFor('div[data-sign="ConversationsPanel"]');
+    await this.waitFor('div[data-sign="conversationsPanel"]');
     const allTabText = await this._widgetIframe.$eval('button[data-sign="All"]', (el) => el.innerText);
     return allTabText;
   }
@@ -200,13 +200,13 @@ export class IframeWidget {
   }
 
   async getSMSRecipientNumber() {
-    await this.waitFor('.ComposeTextPanel_root');
+    await this.waitFor('div[data-sign="composeTextPanel"]');
     const value = await this._widgetIframe.$eval('input[name="receiver"]', (el) => el.value);
     return value;
   }
 
   async getSMSRecipientInputPlaceholder() {
-    await this.waitFor('.ComposeTextPanel_root');
+    await this.waitFor('div[data-sign="composeTextPanel"]');
     const value = await this._widgetIframe.$eval('input[name="receiver"]', (el) => el.placeholder);
     return value;
   }
@@ -233,7 +233,7 @@ export class IframeWidget {
   }
 
   async getSMSText() {
-    await this.waitFor('.ComposeTextPanel_root');
+    await this.waitFor('div[data-sign="composeTextPanel"]');
     const value = await this._widgetIframe.$eval('textarea[data-sign="messageInput"]', (el) => el.value);
     return value;
   }

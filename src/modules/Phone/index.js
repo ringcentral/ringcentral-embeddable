@@ -95,7 +95,6 @@ import {
   SleepDetector,
 } from '@ringcentral-integration/commons/modules/SleepDetector';
 import { Softphone } from '@ringcentral-integration/commons/modules/Softphone';
-import { Theme } from '@ringcentral-integration/commons/modules/Theme';
 // Meeting modules
 import {
   VideoConfiguration,
@@ -205,6 +204,8 @@ import { OAuth } from '../OAuth';
 import { RcVideo } from '../RcVideo';
 import { RingtoneSettingsUI } from '../RingtoneSettingsUI';
 import { SettingsUI } from '../SettingsUI';
+import { Theme } from '../Theme';
+import { ThemeSettingUI } from '../ThemeSettingUI';
 import { Storage } from '../Storage';
 import { TabManager } from '../TabManager';
 import ThirdPartyService from '../ThirdPartyService';
@@ -453,6 +454,7 @@ import { SideDrawerUI } from '../SideDrawerUI';
         disconnectOnInactive: true,
       },
     },
+    { provide: 'ThemeSettingUI', useClass: ThemeSettingUI },
     { provide: 'ThirdPartySettingSectionUI', useClass: ThirdPartySettingSectionUI },
     { provide: 'CustomizedPageUI', useClass: CustomizedPageUI },
     { provide: 'SmartNotes', useClass: SmartNotes },

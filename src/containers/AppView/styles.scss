@@ -10,8 +10,8 @@
 }
 
 body {
-  background: #fff;
-  font-family: $font-family;
+  background: $snow;
+  font-family: $juno-font-family;
   margin: 0;
   font-size: 16px;
 }
@@ -76,4 +76,20 @@ input {
 
 :global .CallingSettingsPanel_content {
   max-height: calc(100% - 46px);
+}
+
+:global .RegionSettingsPanel_content {
+  background-color: $snow;
+}
+
+:global .DropdownSelect_selectedValue {
+  color: $night;
+}
+
+:global .DropdownSelect_dropdown {
+  background-color: $snow;
+}
+
+:global .GlipChatPanel_header {
+  color: $night;
 }

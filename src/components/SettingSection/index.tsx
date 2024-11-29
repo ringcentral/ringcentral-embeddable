@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-import { RcButton, styled, palette2 } from '@ringcentral/juno';
+import { styled, palette2 } from '@ringcentral/juno';
 
 import { BackHeaderView } from '../BackHeaderView';
 import { SettingParamInput } from './SettingParamInput';
+import { SaveButton } from '../SaveButton';
 
 const StyledPanel = styled.div`
   width: 100%;
@@ -29,7 +30,7 @@ const StyledParamInput = styled(SettingParamInput)`
   }
 `;
 
-const StyledButton = styled(RcButton)`
+const StyledButton = styled(SaveButton)`
   margin-top: 20px;
 `;
 
@@ -49,7 +50,7 @@ function allRequiredFilled(items) {
   return allFilled;
 }
 
-export function ThirdPartySettingSection({
+export function SettingSection({
   onSave,
   section,
   onBackButtonClick,
@@ -106,17 +107,11 @@ export function ThirdPartySettingSection({
           })
         }
         <StyledButton
-          fullWidth
-          variant="contained"
-          radius="round"
           onClick={() => {
             onSave(newSection);
           }}
-          color="action.primary"
           disabled={!valueChanged || !allRequiredFilled(newSection.items)}
-        >
-          Save
-        </StyledButton>
+        />
       </StyledPanel>
     </BackHeaderView>
   );

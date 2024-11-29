@@ -10,7 +10,7 @@ export default function DescriptionField<
   const { id, description } = props;
   if (description) {
     return (
-      <RcTypography id={id} variant="body1" style={{ marginTop: '5px' }}>
+      <RcTypography id={id} variant="body1" style={{ marginTop: '5px' }} color="neutral.f06">
         {description}
       </RcTypography>
     );

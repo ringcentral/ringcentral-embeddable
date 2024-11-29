@@ -124,6 +124,7 @@ function FromField({
     <Container>
       <FromLabel
         variant="caption1"
+        color="neutral.f06"
         $bigFont={gtSM}
         $mediumFont={gtXS}
       >

@@ -2,7 +2,7 @@ import type { ClipboardEvent } from 'react';
 import React, { Component } from 'react';
 
 import classnames from 'classnames';
-
+import { styled, palette2 } from '@ringcentral/juno';
 import { RemoveButton } from '@ringcentral-integration/widgets/components/RemoveButton';
 import { focusCampo } from '@ringcentral-integration/widgets/components/RecipientsInput/focusCampo';
 import i18n from '@ringcentral-integration/widgets/components/RecipientsInput/i18n';
@@ -10,6 +10,57 @@ import { SelectedRecipients } from '@ringcentral-integration/widgets/components/
 import styles from '@ringcentral-integration/widgets/components/RecipientsInput/styles.scss';
 
 import { ContactDropdownList } from '../ContactDropdownList';
+
+const NumberInput = styled.input`
+  color: ${palette2('neutral', 'f06')};
+  font-size: 15px;
+  line-height: 20px;
+  width: 100%;
+  height: 27px;
+  border-radius: 3px;
+  border: 0;
+  outline: 0;
+  &::placeholder {
+    font-size: 13px;
+    color: ${palette2('neutral', 'f02')};
+  }
+`;
+
+const Container = styled.div`
+  position: relative;
+  display: flex;
+  color: ${palette2('neutral', 'f06')};
+  margin-top: 10px;
+  margin: 10px 20px 0 20px;
+
+  * {
+    box-sizing: content-box;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .RecipientsInput_selectReceivers li {
+    color: ${palette2('neutral', 'f01')};
+
+    span {
+      font-weight: 400;
+    }
+  }
+
+  .MuiInput-underline:after {
+    border-bottom: none;
+  }
+
+  .MuiInput-underline:before {
+    border-bottom: none;
+  }
+
+  .MuiInput-underline:hover:not(.Mui-disabled):before {
+    border-bottom: none;
+  }
+`;
 
 type RecipientsInputProps = {
   className?: string;
@@ -345,14 +396,13 @@ class RecipientsInput extends Component<
               'MuiInput-underline',
             )}
           >
-            <input
+            <NumberInput
               data-sign="recipientsInput"
               ref={this.setInputRef}
               name="receiver"
               value={value}
               onChange={this.onInputChange}
               onPaste={this.onPaste}
-              className={styles.numberInput}
               maxLength={30}
               onFocus={this.onInputFocus}
               onKeyUp={this.onInputKeyUp}
@@ -372,12 +422,8 @@ class RecipientsInput extends Component<
         </div>
       );
     return (
-      <div
-        className={classnames(
-          styles.container,
-          useRCUI ? styles.rcuiStyle : null,
-          className,
-        )}
+      <Container
+        className={className}
         onKeyDown={this.handleHotKey}
       >
         {labelEl}
@@ -418,7 +464,7 @@ class RecipientsInput extends Component<
           contactPhoneRenderer={contactPhoneRenderer}
           getPresence={getPresence}
         />
-      </div>
+      </Container>
     );
   }
 }

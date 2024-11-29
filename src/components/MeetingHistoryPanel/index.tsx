@@ -86,7 +86,9 @@ function MeetingList({
   ));
   if (meetings.length === 0) {
     return (
-      <StyledNoFound variant="body1">{i18n.getString('noFound', currentLocale)}</StyledNoFound>
+      <StyledNoFound variant="body1" color="neutral.f06">
+        {i18n.getString('noFound', currentLocale)}
+      </StyledNoFound>
     );
   }
   return (

@@ -1,23 +1,23 @@
 import React from 'react';
 
 import { connect } from 'react-redux';
+import { RcIcon, styled } from '@ringcentral/juno';
+import { ActivecallBorder, SmsBorder } from '@ringcentral/juno-icon';
+import callDirections from '@ringcentral-integration/commons/enums/callDirections';
+import RecentActivityCalls from '@ringcentral-integration/widgets/components/RecentActivityCalls';
+import RecentActivityMessages from '@ringcentral-integration/widgets/components/RecentActivityMessages';
 
-import callDirections
-  from '@ringcentral-integration/commons/enums/callDirections';
-import dynamicsFont
-  from '@ringcentral-integration/widgets/assets/DynamicsFont/DynamicsFont.scss';
-import RecentActivityCalls
-  from '@ringcentral-integration/widgets/components/RecentActivityCalls';
-import RecentActivityMessages
-  from '@ringcentral-integration/widgets/components/RecentActivityMessages';
-import RecentActivityPanel
-  from '@ringcentral-integration/widgets/components/RecentActivityPanel';
 import withPhone from '@ringcentral-integration/widgets/lib/withPhone';
-import i18n
-  from '@ringcentral-integration/widgets/modules/RecentActivityUI/i18n';
-
+import i18n from '@ringcentral-integration/widgets/modules/RecentActivityUI/i18n';
+import RecentActivityPanel from '../../components/RecentActivityPanel';
 import RecentActivityItems from '../../components/RecentActivityItems';
-import styles from './styles.scss';
+
+const Title = styled.div`
+  font-size: 13px;
+	width: 100%;
+	text-align: center;
+  line-height: 35px;
+`;
 
 function getTabs({
   ready,
@@ -49,7 +49,7 @@ function getTabs({
   }
   const tabs = [
     {
-      icon: <span className={dynamicsFont.active} />,
+      icon: <RcIcon symbol={ActivecallBorder} size="small" />,
       label: i18n.getString('call', currentLocale),
       path: 'recentCalls',
       isActive: path => path === 'recentCalls',
@@ -67,7 +67,7 @@ function getTabs({
       cleanUp: () => recentCalls.cleanUpCalls({ contact: currentContact, sessionId })
     },
     {
-      icon: <span className={dynamicsFont.composeText} />,
+      icon: <RcIcon symbol={SmsBorder} size="small" />,
       label: i18n.getString('text', currentLocale),
       path: 'recentMessages',
       noticeCounts: unreadMessageCounts,
@@ -90,9 +90,9 @@ function getTabs({
   if (thirdPartyService.activitiesRegistered) {
     tabs.push({
       icon: (
-        <span className={styles.title}>
+        <Title>
           {thirdPartyService.activityName || thirdPartyService.serviceName}
-        </span>
+        </Title>
       ),
       label: thirdPartyService.activityName || thirdPartyService.serviceName,
       path: 'thirdPartyService',

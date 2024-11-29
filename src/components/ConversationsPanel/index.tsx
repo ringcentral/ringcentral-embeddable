@@ -199,7 +199,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
       : i18n.getString('noMessages', currentLocale);
 
   return (
-    <StyledContainer data-sign="ConversationsPanel">
+    <StyledContainer data-sign="conversationsPanel">
       {showSpinner ? (
         <SpinnerOverlay />
       ) : (

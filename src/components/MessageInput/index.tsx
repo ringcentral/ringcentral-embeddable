@@ -65,6 +65,7 @@ const TextFiled = styled.div`
     border: none;
     outline: medium none!important;
     box-sizing: border-box;
+    color: ${palette2('neutral', 'f06')};
 
     &::placeholder {
       color: ${palette2('neutral', 'f02')};

@@ -13,18 +13,6 @@ export const StyledRecipientsInput = styled(RecipientsInput)`
     display: none;
   }
 
-  .MuiInput-underline:after {
-    border-bottom: none;
-  }
-
-  .MuiInput-underline:before {
-    border-bottom: none;
-  }
-
-  .MuiInput-underline:hover:not(.Mui-disabled):before {
-    border-bottom: none;
-  }
-
   input {
     text-align: center;
   }

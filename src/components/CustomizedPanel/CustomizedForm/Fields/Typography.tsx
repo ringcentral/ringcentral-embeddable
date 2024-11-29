@@ -17,6 +17,7 @@ export function Typography({
       variant={variant}
       style={style}
       component={component}
+      color="neutral.f06"
     >
       {schema.description}
     </RcTypography>
