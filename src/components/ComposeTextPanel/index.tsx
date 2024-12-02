@@ -1,6 +1,5 @@
 import React from 'react';
 import type { ToNumber } from '@ringcentral-integration/commons/modules/ComposeText';
-import NoSenderAlert from '@ringcentral-integration/widgets/components/ComposeTextPanel/NoSenderAlert';
 
 import {
   SpinnerOverlay,
