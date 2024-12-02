@@ -1,5 +1,6 @@
 const {
   getNewWindowPromise,
+  waitForTimeout,
 } = require('../helpers');
 
 export class IframeWidget {
@@ -11,7 +12,7 @@ export class IframeWidget {
 
   async loadElement() {
     await this._targetPage.waitForSelector('iframe#rc-widget-adapter-frame', { timeout: 300000 });
-    await this._targetPage.waitForTimeout(3000);
+    await waitForTimeout(3000);
     const iframeElement = await this._targetPage.$('iframe#rc-widget-adapter-frame');
     this._widgetIframe = await iframeElement.contentFrame();
   }
@@ -83,7 +84,7 @@ export class IframeWidget {
       throw new Error(`Navigation button not found for ${label}`);
     }
     await this._widgetIframe.click('.MuiListItem-root[role="tab"][data-sign="More"]');
-    await this._widgetIframe.waitForTimeout(1000);
+    await waitForTimeout(1000);
     await this.clickNavigationSubMenu(label);
   }
 
@@ -99,7 +100,7 @@ export class IframeWidget {
     });
     if (hasHidden){
       await this._widgetIframe.click('.MuiTabs-flexContainer button[data-tab-more-button]');
-      await this._widgetIframe.waitForTimeout(1000);
+      await waitForTimeout(1000);
       await this._widgetIframe.click(`li[value="${path}"]`);
     } else {
       await this._widgetIframe.click(`.MuiTab-root[data-sign="${label}"]`);
@@ -125,7 +126,7 @@ export class IframeWidget {
 
   async getCallItemList() {
     await this.waitFor('.CallsListPanel_container');
-    await this._widgetIframe.waitForTimeout(500); // for render
+    await waitForTimeout(500); // for render
     const callItems = await this._widgetIframe.$$('div[data-sign="calls_item_root"]');
     return callItems;
   }
@@ -142,14 +143,14 @@ export class IframeWidget {
 
   async getMessageList(type) {
     await this.waitFor('div[data-sign="messageList"]');
-    await this._widgetIframe.waitForTimeout(500); // for render
+    await waitForTimeout(500); // for render
     const voicemailItems = await this._widgetIframe.$$(`div[data-sign="${type}"]`);
     return voicemailItems;
   }
 
   async getNoMessageText() {
     await this.waitFor('div[data-sign="messageList"]');
-    await this._widgetIframe.waitForTimeout(500);
+    await waitForTimeout(500);
     const noMessage = await this._widgetIframe.$('p[data-sign="noMatch"]');
     if (!noMessage) {
       return null;
@@ -217,7 +218,7 @@ export class IframeWidget {
 
   async typeSMSRecipientAndText({ recipientNumber, text}) {
     await this._widgetIframe.type('input[name="receiver"]', recipientNumber);
-    await this._widgetIframe.waitForTimeout(1000);
+    await waitForTimeout(1000);
     await this._widgetIframe.type('textarea[data-sign="messageInput"]', text);
   }
 
@@ -261,6 +262,6 @@ export class IframeWidget {
   }
 
   async waitForTimeout(timeout) {
-    await this._widgetIframe.waitForTimeout(timeout);
+    await waitForTimeout(timeout);
   }
 }

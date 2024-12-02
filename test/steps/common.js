@@ -1,4 +1,5 @@
 const { IframeWidget } = require('./IframeWidget');
+const { waitForTimeout } = require('../helpers');
 
 export async function setBrowserPermission(permissions = ['notifications', 'microphone']) {
   const context = browser.defaultBrowserContext();
@@ -21,6 +22,6 @@ export async function getAuthorizedWidget(jwtToken) {
   // await widgetIframe.enableSandboxEnvironment();
   // await widgetIframe.waitForLoginPage();
   await widgetIframe.loginWithCallbackUri(`${__HOST_URI__}/redirect.html?jwt=${jwtToken}`);
-  await page.waitForTimeout(1000);
+  await waitForTimeout(1000);
   return widgetIframe;
 }
