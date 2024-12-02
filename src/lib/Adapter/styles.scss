@@ -12,7 +12,7 @@
 }
 
 .dark.root {
-  background-color: #1e2027;
+  background-color: #282A32;
 }
 
 .root.dock {
@@ -238,4 +238,14 @@
   left: auto;
   right: auto;
   margin-top: 0;
+}
+
+.dark .line {
+  background-color: #282A32;
+  border-color: #30323A;
+  color: #ffffff;
+}
+
+.dark .presenceItem:hover {
+  background-color: #30323A;
 }
