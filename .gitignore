@@ -16,4 +16,4 @@ extension
 src/noise-reduction
 site
 src/plugins.json
-
+.vscode

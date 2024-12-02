@@ -43,10 +43,19 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
     hot: true,
     port: 8080,
     // webSocketServer: false,
+    client: {
+      overlay: {
+        errors: true,
+        warnings: false,
+        runtimeErrors: false,
+      },
+    },
   };
   config.output = {
     path: buildPath,
     filename: '[name].js',
+    hashFunction: 'md5',
+    hashDigestLength: 32,
   };
   config.plugins = [
     ...config.plugins,

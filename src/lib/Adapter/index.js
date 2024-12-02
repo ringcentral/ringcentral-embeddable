@@ -12,8 +12,8 @@ import styles from './styles.scss';
 import Notification from '../notification';
 
 // eslint-disable-next-line
-import popupIconUrl from '!url-loader!../../assets/images/popup.svg';
-import helpIconUrl from '!url-loader!../../assets/images/help.svg';
+import popupIconUrl from '../../assets/images/popup.svg?urlLoader';
+import helpIconUrl from '../../assets/images/help.svg?urlLoader';
 
 function checkValidImageUri(uri) {
   return (
