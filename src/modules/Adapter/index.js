@@ -494,6 +494,7 @@ export default class Adapter extends AdapterModuleCore {
         telephonyStatus: (this._auth.loggedIn && this._presence.telephonyStatus) || null,
         userStatus: (this._auth.loggedIn && this._presence.userStatus) || null,
         dndStatus: (this._auth.loggedIn && this._presence.dndStatus) || null,
+        presenceOption: (this._auth.loggedIn && this._presence.presenceOption) || null,
       });
     }
   }
