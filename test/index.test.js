@@ -2,6 +2,7 @@ const {
   setBrowserPermission,
   visitIndexPage,
 } = require('./steps/common');
+const { waitForTimeout } = require('./helpers');
 
 const { IframeWidget } = require('./steps/IframeWidget');
 
@@ -20,7 +21,7 @@ describe('Index page test', () => {
     const widgetIframe = new IframeWidget();
     await widgetIframe.loadElement();
     await widgetIframe.waitForLoginPage();
-    await page.waitForTimeout(1000);
+    await waitForTimeout(1000);
     const loginText = await widgetIframe.getLoginButtonText();
     expect(loginText).toEqual('Sign In');
   });

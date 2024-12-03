@@ -51,6 +51,8 @@ function getWebpackConfig({ prefix, brand, env = {}, styleLoader, themeFolder = 
   config.output = {
     path: buildPath,
     filename: '[name].js',
+    hashFunction: 'md5',
+    hashDigestLength: 32,
   };
   config.plugins = [
     // @ts-ignore

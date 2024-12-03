@@ -1,3 +1,5 @@
+const { waitForTimeout } = require('../helpers');
+
 export class LoginWindow {
   constructor(targetPage, username, password) {
     this._targetPage = targetPage;
@@ -10,9 +12,9 @@ export class LoginWindow {
     await this._targetPage.type('input[name="credential"]', this._username);
     await this._targetPage.click('button[type="submit"]');
     await this._targetPage.waitForSelector('input[name="Password"]');
-    await this._targetPage.waitForTimeout(1200);
+    await waitForTimeout(1200);
     await this._targetPage.type('input[name="Password"]', this._password);
-    await this._targetPage.waitForTimeout(200);
+    await waitForTimeout(200);
     await this._targetPage.click('button[type="submit"]');
   }
 
@@ -55,7 +57,7 @@ export class LoginWindow {
       'document.querySelector("body").innerText.includes("Access Request")'
     );
     await this._targetPage.click('button.btn-primary');
-    await this._targetPage.waitForTimeout(200);
+    await waitForTimeout(200);
     await this.confirmEmergencyDigitalLine();
   }
 }

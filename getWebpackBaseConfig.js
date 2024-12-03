@@ -1,5 +1,3 @@
-const path = require('path');
-const autoprefixer = require('autoprefixer');
 const webpack = require('webpack');
 const supportedLocales = [
   'en-US',
@@ -87,30 +85,41 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
         },
         {
           test: /\.md$/,
-          use: 'raw-loader',
+          type: 'asset/source',
         },
         {
           test: /\.css$/,
           use: [
             styleLoader,
-            'css-loader',
+            {
+              loader: 'css-loader',
+              options: {
+                modules: {
+                  localIdentName: '[folder]_[local]',
+                  namedExport: false,
+                  exportOnlyLocals: false,
+                  exportLocalsConvention: 'as-is',
+                },
+              }
+            }
           ],
         },
         {
           test: /\.woff|\.woff2|.eot|\.ttf/,
-          use: {
-            loader: 'url-loader',
-            options: {
-              limit: 15000,
-              name: 'fonts/[name]_[hash].[ext]',
-              // TODO: it should be upgrade css-loader and update config
-              esModule: false,
+          type: 'asset',
+          generator: {
+            filename: 'fonts/[name]_[hash][ext]',
+          },
+          parser: {
+            dataUrlCondition: {
+              maxSize: 15 * 1024,
             },
           },
         },
         {
           test: /\.svg/,
           exclude: /font/,
+          resourceQuery: { not: [/urlLoader/] },
           use: [
             'babel-loader',
             {
@@ -129,12 +138,27 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
           ]
         },
         {
+          resourceQuery: /urlLoader/,
+          type: 'asset/inline',
+        },
+        {
           test: /\.png|\.jpg|\.gif|fonts(\/|\\).*\.svg/,
-          use: 'url-loader?limit=20000&name=images/[name]_[hash].[ext]',
+          type: 'asset',
+          parser: {
+            dataUrlCondition: {
+              maxSize: 20 * 1024,
+            },
+          },
+          generator: {
+            filename: 'images/[name]_[hash][ext]',
+          },
         },
         {
           test: /\.ogg$/,
-          use: 'file-loader?publicPath=./&name=audio/[name]_[hash].[ext]',
+          type: 'asset/resource',
+          generator: {
+            filename: 'audio/[name]_[hash][ext]',
+          },
         },
         {
           test: /\.sass|\.scss/,
@@ -143,23 +167,31 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
             {
               loader: 'css-loader',
               options: {
-                localIdentName: '[folder]_[local]',
-                modules: true,
+                modules: {
+                  localIdentName: '[folder]_[local]',
+                  namedExport: false,
+                  exportOnlyLocals: false,
+                  exportLocalsConvention: 'as-is',
+                },
               }
             },
             {
               loader: 'postcss-loader',
               options: {
-                plugins() {
-                  return [autoprefixer];
+                postcssOptions: {
+                  plugins: [
+                    ['postcss-preset-env'],
+                  ],
                 },
               },
             },
             {
               loader: 'sass-loader',
               options: {
-                outputStyle: 'expanded',
-                includePaths: sassLoaderIncludePaths,
+                sassOptions: {
+                  style: 'expanded',
+                  loadPaths: sassLoaderIncludePaths,
+                },
               },
             }
           ],
