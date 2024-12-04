@@ -77,8 +77,24 @@ export function GlipPostList({
         }}
         ref={listRef}
         initialTopMostItemIndex={posts.length - 1}
-        rangeChanged={(range) => {
+        rangeChanged={async (range) => {
+          const oldRange = visibleRangeRef.current;
           visibleRangeRef.current = range;
+          if (oldRange && range.startIndex < 2 && oldRange.startIndex > range.startIndex) {
+            // start reached
+            if (!mounted.current) {
+              return;
+            }
+            if (loadingNextPage) {
+              return;
+            }
+            setLoadingNextPage(true);
+            await loadNextPage();
+            if (!mounted.current) {
+              return;
+            }
+            setLoadingNextPage(false);
+          }
         }}
         totalCount={posts.length}
         data={posts}
@@ -110,20 +126,6 @@ export function GlipPostList({
               showCreator={showCreator}
             />
           );
-        }}
-        startReached={async () => {
-          if (!mounted.current) {
-            return;
-          }
-          if (loadingNextPage) {
-            return;
-          }
-          setLoadingNextPage(true);
-          await loadNextPage();
-          if (!mounted.current) {
-            return;
-          }
-          setLoadingNextPage(false);
         }}
       />
     </Container>

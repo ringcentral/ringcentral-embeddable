@@ -68,14 +68,14 @@ function GlipGroupAvatar({
     <RcListItemAvatar>
       <RcAvatar
         src={avatarUrl}
-        size="small"
-        color="avatar.lake"
+        size="xsmall"
+        color="avatar.global"
       >
         {
           avatarUrl ? null : (
             <RcIcon
-              symbol={persons.length > 2 ? DefaultTeamAvatar : UserDefault}
-              size="large"
+              symbol={(persons.length > 2 || groupType === 'Team') ? DefaultTeamAvatar : UserDefault}
+              size="medium"
             />
           )
         }

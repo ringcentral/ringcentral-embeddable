@@ -22,6 +22,9 @@ const Title = styled(RcTypography)`
   display: block;
   padding: 0 10px;
   line-height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export function BackHeaderView({
@@ -52,7 +55,7 @@ export function BackHeaderView({
           <BackHeader onBack={onBack} label={backButtonLabel} hideBackButton={hideBackButton}>
             {
               title && (
-                <Title variant="body1" color="neutral.f06" data-sign="headerTitle">
+                <Title variant="body1" color="neutral.f06" data-sign="headerTitle" title={title}>
                   {title}
                 </Title>
               )

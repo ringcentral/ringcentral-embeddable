@@ -30,7 +30,7 @@ function PostAvatar({
     <RcAvatar
       src={creator && creator.avatar}
       size="xsmall"
-      color="avatar.lake"
+      color="avatar.global"
       onClick={creator ? () => viewProfile(creator.id) : undefined}
     >
       {
