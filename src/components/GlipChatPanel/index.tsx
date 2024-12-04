@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { RcLoading, styled, palette2 } from '@ringcentral/juno';
-import GlipChatForm from '@ringcentral-integration/glip-widgets/components/GlipChatForm';
+import { GlipChatForm } from './GlipChatForm';
 import { GlipPostList } from './GlipPostList';
 import { getGlipGroupName } from './getGlipGroupName';
 import { BackHeaderView } from '../BackHeaderView';
@@ -85,7 +85,8 @@ export function GlipChatPanel({
             onSubmit={createPost}
             onUploadFile={uploadFile}
             members={group.detailMembers}
-            mobile={mobile}
+            placeholder="Type a message"
+            disabled={showSpinner}
           />
         </Container>
       </RcLoading>

@@ -76,10 +76,27 @@ const StyleText = styled.p`
 function TextRender({
   children,
 }) {
+  const lines = [];
+  children.forEach((child) => {
+    if (!child || !child.indexOf) {
+      lines.push(child);
+      return;
+    }
+    if (child.indexOf('\n') === 0) {
+      lines.push(child);
+      return;
+    }
+    child.split('\n').forEach((line) => {
+      if (line) {
+        lines.push(line);
+        lines.push(<br />);
+      }
+    }, []);
+  });
   return (
     <StyleText>
       {
-        children.map(child => parseAndRenderEmoji(child))
+        lines.map(line => parseAndRenderEmoji(line))
       }
     </StyleText>
   );
