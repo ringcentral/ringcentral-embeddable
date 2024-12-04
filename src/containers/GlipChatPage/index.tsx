@@ -82,10 +82,12 @@ function mapToFunctions(
       });
     },
     updateText(text, mentions) {
-      glipPosts.updatePostInput({
+      const oldInput = glipPosts.postInputs[glipGroups.currentGroupId];
+      const oldMentions = oldInput && oldInput.mentions || [];
+      return glipPosts.updatePostInput({
         text,
         groupId: glipGroups.currentGroupId,
-        mentions,
+        mentions: mentions || oldMentions,
       });
     },
     uploadFile: (fileName, rawFile) =>

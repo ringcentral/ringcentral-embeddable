@@ -124,6 +124,10 @@ const StyledItem = styled(RcListItem)`
   .RcListItemText-secondary {
     font-size: 0.875rem;
     color: ${palette2('neutral', 'f06')};
+
+    a {
+      color: ${palette2('interactive', 'f01')};
+    }
   }
 `;
 
