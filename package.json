@@ -75,6 +75,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
     "@babel/runtime": "^7.3.4",
+    "@emoji-mart/data": "^1.2.1",
     "@rc-ex/core": "^1.2.1",
     "@rc-ex/debug": "^1.0.10",
     "@rc-ex/rcsdk": "^1.0.10",
@@ -97,6 +98,7 @@
     "classnames": "^2.2.5",
     "core-js": "^3.9.1",
     "dayjs": "^1.11.7",
+    "emoji-mart": "^5.6.0",
     "format-message": "^6.2.3",
     "isomorphic-fetch": "^3.0.0",
     "isomorphic-ws": "4.0.1",
@@ -111,6 +113,7 @@
     "react-redux": "^5.1.1",
     "react-router": "^3.2.6",
     "react-router-redux": "^4.0.8",
+    "react-markdown": "^8.0.7",
     "redux": "^4.2.0",
     "ringcentral-client": "^1.0.0-beta.2",
     "setimmediate": "^1.0.5",

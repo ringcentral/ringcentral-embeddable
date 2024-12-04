@@ -19,7 +19,7 @@ function mapToProps(
 
 function mapToFunctions(
   _,
-  { phone: { glipGroups, contactListUI }, onSelectGroup },
+  { phone: { glipGroups, contactListUI, dateTimeFormat }, onSelectGroup },
 ) {
   return {
     onSelectGroup,
@@ -39,6 +39,8 @@ function mapToFunctions(
       );
       onSelectGroup(groupId);
     },
+    dateTimeFormatter: (time) =>
+      dateTimeFormat.formatDateTime({ utcTimestamp: time }),
   };
 }
 

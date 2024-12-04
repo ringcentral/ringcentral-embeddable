@@ -35,7 +35,7 @@ export function BackHeaderView({
   hideHeader = false,
   hideBackButton = false,
 }: {
-  onBack: () => void;
+  onBack?: () => void;
   children?: ReactNode;
   backButtonLabel?: string;
   title?: string;

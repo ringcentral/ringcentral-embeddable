@@ -11,7 +11,8 @@ import {
   palette2,
 } from '@ringcentral/juno';
 import { UserDefault, DefaultTeamAvatar } from '@ringcentral/juno-icon';
-import { getPostAbstract } from './formatPost';
+import { getPostAbstract } from '../GlipChatPanel/formatPost';
+import { getGlipGroupName } from '../GlipChatPanel/getGlipGroupName';
 
 type Group = {
   id?: string;
@@ -83,34 +84,6 @@ function GlipGroupAvatar({
   );
 };
 
-function GlipGroupName({ group, showNumber }: {
-  group: Group;
-  showNumber?: boolean;
-}) {
-  let name = group.name;
-  if (!name && group.detailMembers) {
-    let noMes = group.detailMembers.filter((m) => !m.isMe);
-    if (noMes.length === 0) {
-      noMes = group.detailMembers;
-    }
-    const names = noMes.map(
-      (p) =>
-        `${p.firstName ? p.firstName : ''} ${p.lastName ? p.lastName : ''}`,
-    );
-    name = names.join(', ');
-  }
-  let number;
-  if (showNumber && group.members && group.members.length > 2) {
-    number = ` (${group.members.length})`;
-  }
-  return (
-    <span>
-      {name}
-      {number}
-    </span>
-  );
-}
-
 const StyledListItem = styled(RcListItem)`
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   background-color: ${palette2('neutral', 'b01')};
@@ -141,11 +114,13 @@ export function GlipGroupItem(
     className = undefined,
     onSelectGroup,
     active = false,
+    dateTimeFormatter,
   }: {
     group: Group;
     className?: string;
     onSelectGroup: (...args: any[]) => any;
     active?: boolean;
+    dateTimeFormatter: (...args: any[]) => any;
   }
 ) {
   return (
@@ -159,7 +134,7 @@ export function GlipGroupItem(
         groupType={group.type}
       />
       <RcListItemText
-        primary={<GlipGroupName group={group} />}
+        primary={getGlipGroupName({ group })}
         secondary={
           <LatestPost latestPost={group.latestPost} members={group.detailMembers} />
         }
@@ -172,7 +147,7 @@ export function GlipGroupItem(
             />
           ) : null
         }
-        <span>13:10</span>
+        <span>{group.latestPost ? dateTimeFormatter(group.latestPost.creationTime) : null}</span>
       </StyledSecondaryAction>
     </StyledListItem>
   );

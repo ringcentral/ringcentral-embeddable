@@ -35,11 +35,13 @@ const GlipGroupList = ({
   groups,
   currentGroupId,
   onSelectGroup,
+  dateTimeFormatter,
 }: {
   className?: string;
   groups: any;
   currentGroupId: string;
   onSelectGroup: (...args: any[]) => any;
+  dateTimeFormatter: (...args: any[]) => any;
 }) => {
   return (
     <Virtuoso
@@ -58,6 +60,7 @@ const GlipGroupList = ({
             onSelectGroup={() => {
               onSelectGroup(group.id);
             }}
+            dateTimeFormatter={dateTimeFormatter}
           />
         );
       }}
@@ -79,6 +82,7 @@ export const GlipGroupsPanel = ({
   searchFilter = '',
   updateSearchFilter,
   createTeam,
+  dateTimeFormatter = () => null,
 }: {
   groups: any;
   className?: string;
@@ -93,6 +97,7 @@ export const GlipGroupsPanel = ({
   searchFilter: string;
   updateSearchFilter: (...args: any[]) => any;
   createTeam: (...args: any[]) => any;
+  dateTimeFormatter?: (...args: any[]) => any;
 }) => {
   const [showTeamCreationModal, setShowTeamCreationModal] = useState(false);
 
@@ -120,6 +125,7 @@ export const GlipGroupsPanel = ({
             groups={groups}
             onSelectGroup={onSelectGroup}
             currentGroupId={currentGroupId}
+            dateTimeFormatter={dateTimeFormatter}
           />
         </Content>
         <GlipTeamCreationModal
