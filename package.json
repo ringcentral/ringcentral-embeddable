@@ -76,6 +76,7 @@
     "@babel/polyfill": "^7.10.4",
     "@babel/runtime": "^7.3.4",
     "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@rc-ex/core": "^1.2.1",
     "@rc-ex/debug": "^1.0.10",
     "@rc-ex/rcsdk": "^1.0.10",

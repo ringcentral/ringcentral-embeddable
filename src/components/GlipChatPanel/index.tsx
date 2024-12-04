@@ -32,7 +32,6 @@ export function GlipChatPanel({
   viewProfile,
   loadNextPage,
   onBackClick = undefined,
-  mobile = false,
   loadGroup,
   groupId = null,
 }: {
@@ -49,7 +48,6 @@ export function GlipChatPanel({
   viewProfile: (...args: any[]) => any;
   loadNextPage: (...args: any[]) => any;
   onBackClick?: (...args: any[]) => any;
-  mobile: boolean;
   loadGroup: (...args: any[]) => any;
   groupId?: string | null;
 }) {

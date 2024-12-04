@@ -192,7 +192,10 @@ export function GlipPostItem({
             <PostStatus sendStatus={post.sendStatus} />
             {
               post.type === 'TextMessage' ? (
-                <GlipPostContent post={post} atRender={atRender} />
+                <GlipPostContent
+                  post={post}
+                  atRender={atRender}
+                />
               ) : (
                 <>
                   <OtherMessageType

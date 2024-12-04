@@ -1,13 +1,11 @@
 import React from 'react';
-import { styled, RcIcon, palette2 } from '@ringcentral/juno';
-import { Download } from '@ringcentral/juno-icon';
-import isPicture from './formatPost';
+import { styled, palette2 } from '@ringcentral/juno';
 import { GlipMarkdown } from './GlipMarkdown';
 
-const StyledImage = styled.img`
-  max-width: 100%;
-  height: auto;
-`;
+// const StyledImage = styled.img`
+//   max-width: 100%;
+//   height: auto;
+// `;
 
 const AttachmentFile = styled.a`
   position: relative;
@@ -30,16 +28,16 @@ type Attachment = {
 
 function Attachments({ attachments }: { attachments: Attachment[] }) {
   const attachmentFiles = attachments.map((attachment) => {
-    if (isPicture(attachment.contentUri)) {
-      return (
-        <StyledImage
-          key={attachment.name || attachment.contentUri}
-          src={attachment.contentUri}
-          alt={attachment.name}
-        />
-      );
-    }
-    if (attachment.type === 'Card' || attachment.type === 'AdaptiveCard') {
+    // if (isPicture(attachment.contentUri, attachment.name)) {
+    //   return (
+    //     <StyledImage
+    //       key={attachment.name || attachment.contentUri}
+    //       src={attachment.contentUri}
+    //       alt={attachment.name}
+    //     />
+    //   );
+    // }
+    if (attachment.type !== 'File') {
       return 'Unsupported message';
     }
     return (
@@ -47,12 +45,9 @@ function Attachments({ attachments }: { attachments: Attachment[] }) {
         key={attachment.name || attachment.contentUri}
         download
         href={attachment.contentUri}
+        target="_blank"
       >
         {attachment.name}
-        <RcIcon
-          symbol={Download}
-          size="small"
-        />
       </AttachmentFile>
     );
   });

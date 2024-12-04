@@ -1,15 +1,18 @@
-import PropTypes from 'prop-types';
 import React from 'react';
+import type { ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { styled } from '@ringcentral/juno';
-import data from '@emoji-mart/data';
+import emojiData from '@emoji-mart/data';
 import { init } from 'emoji-mart'
 import { SearchIndex } from 'emoji-mart';
 
-init({ data });
+init({ data: emojiData });
 
-function ImageRender(props) {
-  console.log('ImageRender', props);
+function ImageRender(props: {
+  src: string;
+  alt?: string;
+  atRender?: any;
+}) {
   if (props.alt === ':Person' || props.alt === ':Team') {
     if (typeof props.atRender === 'function') {
       const AtRender = props.atRender;
@@ -20,18 +23,11 @@ function ImageRender(props) {
   return <img src={props.src} alt={props.alt} />;
 }
 
-ImageRender.propTypes = {
-  src: PropTypes.string.isRequired,
-  alt: PropTypes.string,
-  atRender: PropTypes.func,
-};
-
-ImageRender.defaultProps = {
-  alt: undefined,
-  atRender: undefined,
-};
-
-function LinkRender(props) {
+function LinkRender(props: {
+  href: string;
+  children: ReactNode,
+  title?: string;
+}) {
   return (
     <a
       target="_blank"
@@ -43,16 +39,6 @@ function LinkRender(props) {
     </a>
   );
 }
-
-LinkRender.propTypes = {
-  href: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
-  title: PropTypes.string,
-};
-
-LinkRender.defaultProps = {
-  title: undefined,
-};
 
 const parseAndRenderEmoji = (text) => {
   if (typeof text !== 'string') {
@@ -75,6 +61,8 @@ const StyleText = styled.p`
 
 function TextRender({
   children,
+}: {
+  children: string[];
 }) {
   const lines = [];
   children.forEach((child) => {
@@ -96,15 +84,17 @@ function TextRender({
   return (
     <StyleText>
       {
-        lines.map(line => parseAndRenderEmoji(line))
+        lines.map((line, index) => {
+          return (
+            <span key={index}>
+              {parseAndRenderEmoji(line)}
+            </span>
+          )
+        })
       }
     </StyleText>
   );
 }
-
-TextRender.propTypes = {
-  children: PropTypes.node.isRequired,
-};
 
 export function GlipMarkdown({
   className = undefined,

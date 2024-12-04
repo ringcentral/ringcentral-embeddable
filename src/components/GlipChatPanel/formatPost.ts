@@ -1,13 +1,18 @@
 const picExtensions = ['jpg', 'jpeg', 'gif', 'svg', 'png'];
 
-export default function isPicture(uri) {
+export default function isPicture(uri, name = null) {
   if (!uri) {
     return false;
   }
   let isPic = false;
   picExtensions.forEach((ext) => {
-    if (uri.indexOf(`.${ext}?`) > 0) {
+    if (uri.indexOf(`.${ext}?`) > -1) {
       isPic = true;
+    }
+    if (!isPic && name) {
+      if (name.indexOf(`.${ext}`) > -1) {
+        isPic = true;
+      }
     }
   });
   return isPic;

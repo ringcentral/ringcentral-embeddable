@@ -14,7 +14,7 @@ import 'quill-mention/dist/quill.mention.css';
 
 Quill.register('modules/mentions', QuillMention);
 
-const mentionMatchRegExp = /@\[[^]]+\]/;
+const mentionMatchRegExp = /@\[[^\]]+\]/;
 
 const QuillEditorWrapper = styled.div`
   flex: 1;
@@ -125,16 +125,17 @@ function getDeltaFromText(text, suggestions) {
     delta.ops.push({ insert: previousText });
     const mentionText = matchResult[0];
     const mentionId = mentionText.slice(2, -1);
-    const mentionItem = suggestions.find(suggestion => suggestion.id === mentionId);
+    const mentionItem = suggestions.find(suggestion => suggestion.email === mentionId);
     if (!mentionItem) {
       delta.ops.push({ insert: mentionText });
     } else {
       const mentionObject = {
         id: mentionId,
-        value: `[${mentionItem.id}]`,
-        denotationChar: '@',
+        value: `[${mentionItem.email}]`,
+        denotationChar: '',
         index: `${mentionIndex}`,
       };
+      delta.ops.push({ insert: '@' });
       delta.ops.push({ insert: { mention: mentionObject }});
       mentionIndex += 1;
     }
@@ -160,6 +161,7 @@ export function GlipTextInput({
   placeholder,
   disabled,
   className,
+  editorRef,
 }: {
   value?: string;
   onChange: (string, mentions) => void;
@@ -167,25 +169,28 @@ export function GlipTextInput({
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  editorRef?: any;
 }) {
   const [deltaValue, setDeltaValue] = useState(getDeltaFromText(value, suggestions));
   const suggestionsRef = useRef(suggestions);
+  const changedRef = useRef(false);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    let timeout = null;
-    if (value === '') {
-      // clear editor
-      timeout = setTimeout(() => {
-        timeout = null;
-        setDeltaValue(getDeltaFromText(value, suggestions));
-      }, 500);
+    if (changedRef.current) {
+      changedRef.current = false;
+      return;
     }
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
+    setDeltaValue(getDeltaFromText(value, suggestions));
   }, [value, suggestions]);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      if (editorRef) {
+        editorRef.current = inputRef.current.getEditor();
+      }
+    }
+  }, []);
 
   useEffect(() => {
     suggestionsRef.current = suggestions;
@@ -238,6 +243,7 @@ export function GlipTextInput({
       <ReactQuill
         theme="snow"
         value={deltaValue}
+        ref={inputRef}
         onChange={(content, delta, source, editor) => {
           const newDelta = editor.getContents();
           setDeltaValue(newDelta);
@@ -252,6 +258,7 @@ export function GlipTextInput({
             }
           });
           if (newValue !== value) {
+            changedRef.current = true;
             onChange(newValue, mentions);
           }
         }}
