@@ -7,8 +7,6 @@ import {
   Router,
 } from 'react-router';
 
-import GlipChat from '@ringcentral-integration/glip-widgets/containers/GlipChat';
-import GlipGroups from '@ringcentral-integration/glip-widgets/containers/GlipGroups';
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
 import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
 import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
@@ -55,6 +53,8 @@ import ContactsPage from '../ContactsPage';
 import ContactDetailsPage from '../ContactDetailsPage';
 import CustomizedPage from '../CustomizedPage';
 import { NotificationContainer } from '../NotificationContainer';
+import GlipChatPage from '../GlipChatPage';
+import GlipGroupsPage from '../GlipGroupsPage';
 
 export default function App({
   phone,
@@ -302,7 +302,7 @@ export default function App({
                   path="/glip"
                   component={
                     () => (
-                      <GlipGroups
+                      <GlipGroupsPage
                         hiddenCurrentGroup
                         onSelectGroup={(id) => {
                           phone.routerInteraction.push(`/glip/groups/${id}`);
@@ -425,7 +425,7 @@ export default function App({
                 path="/glip/groups/:groupId"
                 component={
                   routerProps => (
-                    <GlipChat
+                    <GlipChatPage
                       params={routerProps.params}
                       onBackClick={() => {
                         phone.routerInteraction.push('/glip');

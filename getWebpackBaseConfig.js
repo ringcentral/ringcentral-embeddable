@@ -29,7 +29,7 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
       redirect: './src/redirect.js',
     },
     resolve: {
-      extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       fallback: {
         crypto: require.resolve('crypto-browserify'),
         stream: require.resolve('stream-browserify'),
