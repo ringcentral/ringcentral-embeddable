@@ -86,6 +86,13 @@ conditionalDescribe('widget page test', () => {
     expect(!!contactSearchInput).toEqual(true);
   });
 
+  it('should goto message page successfully', async () => {
+    await widgetIframe.clickNavigationButton('Message');
+    await widgetIframe.waitForTimeout(1000);
+    const tabHeaderText = await widgetIframe.getTabHeader();
+    expect(tabHeaderText).toEqual('Message');
+  });
+
   it('should goto fax page successfully', async () => {
     await widgetIframe.clickNavigationButton('Fax');
     await widgetIframe.waitForTimeout(1000);
