@@ -46,9 +46,17 @@ export function GlipChatForm({
   onTextChange,
   onSubmit,
   onUploadFile,
-  groupId,
   members = [],
   disabled,
+}: {
+  className?: string;
+  placeholder?: string;
+  textValue?: string;
+  onTextChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: () => Promise<void>;
+  onUploadFile: (fileName: string, fileContent: ArrayBuffer) => Promise<void>;
+  members?: { id: string, name: string }[];
+  disabled: boolean;
 }) {
   const fileInputRef = useRef(null);
   const [sending, setSending] = useState(false);
@@ -133,18 +141,10 @@ export function GlipChatForm({
         <StyledInput
           placeholder={placeholder}
           value={textValue}
-          onChange={(text, mentions) => {
-            onTextChange(text, mentions.map((mention) => {
-              const member = members.find((m) => m.email === mention.id);
-              return {
-                mention: mention.mention,
-                matcherId: member && member.id,
-              };
-            }));
-          }}
+          onChange={onTextChange}
           suggestions={members}
           disabled={disabled}
-          editorRef={inputRef}
+          ref={inputRef}
         />
         <SendButton
           onClick={async () => {

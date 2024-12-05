@@ -86,10 +86,21 @@ function mapToFunctions(
     updateText(text, mentions) {
       const oldInput = glipPosts.postInputs[glipGroups.currentGroupId];
       const oldMentions = oldInput && oldInput.mentions || [];
+      let newMentions;
+      if (mentions) {
+        const members = glipGroups.currentGroup.detailMembers;
+        newMentions = mentions.map((mention) => {
+          const member = members.find((m) => m.email === mention.id);
+          return {
+            mention: mention.mention,
+            matcherId: member && member.id,
+          };
+        });
+      }
       return glipPosts.updatePostInput({
         text,
         groupId: glipGroups.currentGroupId,
-        mentions: mentions || oldMentions,
+        mentions: newMentions || oldMentions,
       });
     },
     uploadFile: (fileName, rawFile) =>
