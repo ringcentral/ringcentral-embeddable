@@ -56,6 +56,7 @@ const NameText = styled.span`
   font-weight: 700;
   color: ${palette2('neutral', 'f06')};
   font-size: 0.875rem;
+  user-select: text;
 `;
 
 const TimeText = styled.span`

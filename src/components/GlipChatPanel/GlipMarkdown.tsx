@@ -13,7 +13,7 @@ function ImageRender(props: {
   alt?: string;
   atRender?: any;
 }) {
-  if (props.alt === ':Person' || props.alt === ':Team') {
+  if (props.alt === ':Person' || props.alt === ':Team' ||  props.alt === ':All') {
     if (typeof props.atRender === 'function') {
       const AtRender = props.atRender;
       return <AtRender id={props.src} type={props.alt.replace(':', '')} />;
@@ -40,11 +40,12 @@ function LinkRender(props: {
   );
 }
 
-const parseAndRenderEmoji = (text) => {
+const emojiRegex = /:([a-zA-Z0-9_+-]+):/g;
+
+const replaceEmojiText = (text) => {
   if (typeof text !== 'string') {
     return text;
   }
-  const emojiRegex = /:([a-zA-Z0-9_+-]+):/g;
 
   return text.split(emojiRegex).map((part, index) => {
     const emojiCode = SearchIndex.get(part);
@@ -55,8 +56,27 @@ const parseAndRenderEmoji = (text) => {
   }).join('');
 };
 
+const atTeamRegex = /<a\s+class='at_mention_compose'\s+rel='{"id":-1}'>[^<]+<\/a>/;
+
+const replaceAtTeamText = (text) => {
+  if (typeof text !== 'string') {
+    return text;
+  }
+  const matched = text.match(atTeamRegex);
+  if (!matched) {
+    return text;
+  }
+  let mentionText = matched[0].split('>')[1];
+  if (!mentionText) {
+    return text;
+  }
+  mentionText = mentionText.split('<')[0];
+  return text.replace(matched[0], `![:All](${mentionText})`);
+};
+
 const StyleText = styled.p`
   margin: 0;
+  user-select: text;
 `;
 
 function TextRender({
@@ -87,9 +107,9 @@ function TextRender({
         lines.map((line, index) => {
           return (
             <span key={index}>
-              {parseAndRenderEmoji(line)}
+              {line}
             </span>
-          )
+          );
         })
       }
     </StyleText>
@@ -119,7 +139,7 @@ export function GlipMarkdown({
           p: TextRender,
         }}
       >
-        {text}
+        {replaceAtTeamText(replaceEmojiText(text))}
       </ReactMarkdown>
     </div>
   );

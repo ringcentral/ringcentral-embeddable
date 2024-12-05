@@ -16,6 +16,8 @@ function getAtRender({
     if (type === 'Team') {
       const group = glipGroups.allGroups.find((g) => g.id === id);
       name = group && group.name;
+    } if (type === 'All') {
+      name = 'Team';
     } else {
       const person = glipPersons.personsMap[id];
       name =
