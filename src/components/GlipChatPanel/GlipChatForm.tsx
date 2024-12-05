@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { styled, palette2, RcIconButton, RcPopover } from '@ringcentral/juno';
 import { Attachment, Emoji, SendFilled } from '@ringcentral/juno-icon';
 import emojiData from '@emoji-mart/data'
@@ -133,18 +133,10 @@ export function GlipChatForm({
         <StyledInput
           placeholder={placeholder}
           value={textValue}
-          onChange={(text, mentions) => {
-            onTextChange(text, mentions.map((mention) => {
-              const member = members.find((m) => m.email === mention.id);
-              return {
-                mention: mention.mention,
-                matcherId: member && member.id,
-              };
-            }));
-          }}
+          onChange={onTextChange}
           suggestions={members}
           disabled={disabled}
-          editorRef={inputRef}
+          ref={inputRef}
         />
         <SendButton
           onClick={async () => {
