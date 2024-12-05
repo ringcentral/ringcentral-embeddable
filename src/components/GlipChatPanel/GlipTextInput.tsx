@@ -15,9 +15,7 @@ import {
   createGlobalStyle,
 } from '@ringcentral/juno/foundation';
 import Quill from 'quill';
-import { Mention, MentionBlot } from "quill-mention";
-
-// import 'react-quill/dist/quill.snow.css';
+import { Mention, MentionBlot } from 'quill-mention';
 
 import { ReactQuill } from './ReactQuill';
 
@@ -232,12 +230,6 @@ export const GlipTextInput = forwardRef(({
           renderList(matches, searchTerm);
         }
       },
-      // onSelect: function (item, insertItem) {
-      //   insertItem({
-      //     id: item.id,
-      //     value: `[${item.id}]`,
-      //   }, true);
-      // },
     }
   }), []);
 

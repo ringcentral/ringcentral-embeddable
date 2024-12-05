@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { styled, palette2, RcIconButton, RcPopover } from '@ringcentral/juno';
 import { Attachment, Emoji, SendFilled } from '@ringcentral/juno-icon';
 import emojiData from '@emoji-mart/data'
@@ -46,9 +46,17 @@ export function GlipChatForm({
   onTextChange,
   onSubmit,
   onUploadFile,
-  groupId,
   members = [],
   disabled,
+}: {
+  className?: string;
+  placeholder?: string;
+  textValue?: string;
+  onTextChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: () => Promise<void>;
+  onUploadFile: (fileName: string, fileContent: ArrayBuffer) => Promise<void>;
+  members?: { id: string, name: string }[];
+  disabled: boolean;
 }) {
   const fileInputRef = useRef(null);
   const [sending, setSending] = useState(false);
