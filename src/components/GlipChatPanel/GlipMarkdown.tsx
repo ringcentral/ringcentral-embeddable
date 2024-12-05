@@ -2,11 +2,7 @@ import React from 'react';
 import type { ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { styled } from '@ringcentral/juno';
-import emojiData from '@emoji-mart/data';
-import { init } from 'emoji-mart'
-import { SearchIndex } from 'emoji-mart';
-
-init({ data: emojiData });
+import { replaceEmojiText, replaceAtTeamText } from './formatPost';
 
 function ImageRender(props: {
   src: string;
@@ -39,40 +35,6 @@ function LinkRender(props: {
     </a>
   );
 }
-
-const emojiRegex = /:([a-zA-Z0-9_+-]+):/g;
-
-const replaceEmojiText = (text) => {
-  if (typeof text !== 'string') {
-    return text;
-  }
-
-  return text.split(emojiRegex).map((part, index) => {
-    const emojiCode = SearchIndex.get(part);
-    if (emojiCode && emojiCode.skins) {
-      return emojiCode.skins[0].native;
-    }
-    return part;
-  }).join('');
-};
-
-const atTeamRegex = /<a\s+class='at_mention_compose'\s+rel='{"id":-1}'>[^<]+<\/a>/;
-
-const replaceAtTeamText = (text) => {
-  if (typeof text !== 'string') {
-    return text;
-  }
-  const matched = text.match(atTeamRegex);
-  if (!matched) {
-    return text;
-  }
-  let mentionText = matched[0].split('>')[1];
-  if (!mentionText) {
-    return text;
-  }
-  mentionText = mentionText.split('<')[0];
-  return text.replace(matched[0], `![:All](${mentionText})`);
-};
 
 const StyleText = styled.p`
   margin: 0;
