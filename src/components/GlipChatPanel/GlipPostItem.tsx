@@ -67,17 +67,15 @@ const TimeText = styled.span`
 
 function PostName({
   creator = null,
-  showName,
   viewProfile,
   dateTime,
 }: {
   creator: Creator | null;
-  showName: boolean;
   viewProfile: (id: string) => void;
   dateTime?: string;
   sendStatus?: string | null;
 }) {
-  if (!creator || !showName) {
+  if (!creator) {
     return null;
   }
   return (
@@ -145,7 +143,6 @@ export function GlipPostItem({
   post = {},
   className = undefined,
   creationTime = undefined,
-  showName = true,
   atRender = () => null,
   viewProfile,
   showCreator = true,
@@ -153,7 +150,6 @@ export function GlipPostItem({
   post: any;
   className?: string;
   creationTime?: string;
-  showName?: boolean;
   showCreator?: boolean;
   atRender: (...args: any[]) => any;
   viewProfile: (...args: any[]) => any;
@@ -183,7 +179,6 @@ export function GlipPostItem({
           showCreator ? (
             <PostName
               creator={post.creator}
-              showName={showName || post.type !== 'TextMessage'}
               viewProfile={viewProfile}
               dateTime={creationTime}
             />

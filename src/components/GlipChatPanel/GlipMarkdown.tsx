@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { styled } from '@ringcentral/juno';
+import { styled, palette2 } from '@ringcentral/juno';
 import { replaceEmojiText, replaceAtTeamText } from './formatPost';
 
 function ImageRender(props: {
@@ -78,6 +78,17 @@ function TextRender({
   );
 }
 
+const Container = styled.div`
+  blockquote {
+    padding: 6px 6px 6px 16px;
+    margin: 4px 0px 8px;
+    border-left: 1px solid ${palette2('interactive', 'b02')};
+    background-color: ${palette2('neutral', 'b02')};
+    color: ${palette2('neutral', 'f04')};
+    overflow-x: auto;
+  }
+`;
+
 export function GlipMarkdown({
   className = undefined,
   text,
@@ -88,7 +99,7 @@ export function GlipMarkdown({
   atRender?: (...args: any[]) => any;
 }) {
   return (
-    <div className={className}>
+    <Container className={className}>
       <ReactMarkdown
         components={{
           a: LinkRender,
@@ -103,6 +114,6 @@ export function GlipMarkdown({
       >
         {replaceAtTeamText(replaceEmojiText(text))}
       </ReactMarkdown>
-    </div>
+    </Container>
   );
 }

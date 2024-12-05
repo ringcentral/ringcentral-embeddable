@@ -12,7 +12,6 @@ export function GlipPostList({
   className = undefined,
   posts = [],
   groupId = undefined,
-  showName = true,
   dateTimeFormatter,
   viewProfile,
   loadNextPage,
@@ -21,7 +20,6 @@ export function GlipPostList({
   className?: string;
   posts?: any[];
   groupId?: string;
-  showName?: boolean;
   dateTimeFormatter: (...args: any[]) => any;
   viewProfile: (...args: any[]) => any;
   loadNextPage: (...args: any[]) => any;
@@ -120,7 +118,6 @@ export function GlipPostList({
             <GlipPostItem
               post={post}
               creationTime={dateTimeFormatter(post.creationTime)}
-              showName={showName}
               atRender={atRender}
               viewProfile={viewProfile}
               showCreator={showCreator}

@@ -70,7 +70,6 @@ export function GlipChatPanel({
               posts={posts}
               atRender={atRender}
               groupId={group.id}
-              showName={group.members && group.members.length > 2}
               dateTimeFormatter={dateTimeFormatter}
               viewProfile={viewProfile}
               loadNextPage={loadNextPage}

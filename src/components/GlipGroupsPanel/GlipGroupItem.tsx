@@ -87,6 +87,11 @@ function GlipGroupAvatar({
 const StyledListItem = styled(RcListItem)`
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   background-color: ${palette2('neutral', 'b01')};
+  height: 57px;
+
+  .RcListItemText-primary {
+    font-size: 0.875rem;
+  }
 `;
 
 const UnreadBadge = styled(RcChip)`
