@@ -1,6 +1,6 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
-  plugins: ['@nrwl/nx', 'lodash'],
+  plugins: ['lodash'],
   ignorePatterns: ['node_modules', 'release', 'html-report'],
   globals: {
     page: true,
@@ -16,7 +16,6 @@ module.exports = {
     {
       files: ['*.ts', '*.tsx', '*.js', '*.jsx'],
       extends: [
-        'plugin:@nrwl/nx/javascript',
         'plugin:import/recommended',
         'plugin:prettier/recommended',
       ],
@@ -36,26 +35,12 @@ module.exports = {
         'import/named': 'off',
         'no-console': 'warn',
         '@typescript-eslint/no-empty-function': 'off',
-        // for more detail view here https://nx.dev/structure/monorepo-tags
-        '@nrwl/nx/enforce-module-boundaries': [
-          'error',
-          {
-            enforceBuildableLibDependency: false,
-            allow: [],
-            depConstraints: [
-              {
-                sourceTag: '*',
-                onlyDependOnLibsWithTags: ['*'],
-              },
-            ],
-          },
-        ],
       },
     },
     // js files
     {
       files: ['*.js', '*.jsx'],
-      extends: ['plugin:@nrwl/nx/javascript'],
+      extends: [],
       rules: {
         '@typescript-eslint/no-empty-function': 'off',
       },
@@ -63,7 +48,7 @@ module.exports = {
     // ts files
     {
       files: ['*.ts', '*.tsx'],
-      extends: ['plugin:@nrwl/nx/typescript', 'plugin:import/typescript'],
+      extends: ['plugin:import/typescript'],
       rules: {
         '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
         '@typescript-eslint/no-empty-interface': 'off',
@@ -88,7 +73,7 @@ module.exports = {
     // react files
     {
       files: ['*.jsx', '*.tsx'],
-      extends: ['plugin:@nrwl/nx/react'],
+      extends: [],
       rules: {
         // a11y still not need in our app
         'jsx-a11y/anchor-is-valid': 'off',
@@ -108,7 +93,6 @@ module.exports = {
       ],
       plugins: ['jest'],
       rules: {
-        '@nrwl/nx/enforce-module-boundaries': 'off',
         'react-hooks/rules-of-hooks': 'off',
         'no-undef': 'off',
       },
