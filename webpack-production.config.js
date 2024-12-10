@@ -125,7 +125,6 @@ function getAppWebpackConfig({ brand }) {
   ];
   config.entry = {
     app: './src/app.js',
-    proxy: './src/proxy.js',
     redirect: './src/redirect.js',
   };
   if (!process.env.LOCAL_EXTENSION_MODE) {

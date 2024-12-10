@@ -27,7 +27,6 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
     entry: {
       app: './src/app.js',
       adapter: './src/adapter.js',
-      proxy: './src/proxy.js',
       redirect: './src/redirect.js',
     },
     resolve: {
