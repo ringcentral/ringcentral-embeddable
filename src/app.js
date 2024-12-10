@@ -22,10 +22,21 @@ const clientSecretFromParams = pathParams.clientSecret || pathParams.appSecret;
 const authProxy = pathParams.authProxy;
 const enableDiscovery = !!pathParams.discovery;
 const discoverAppServer = pathParams.discoverAppServer;
+function getAppServer() {
+  if (
+    pathParams.appServer &&
+    pathParams.appServer.indexOf('https://') === 0 &&
+    pathParams.appServer.indexOf('?') === -1 &&
+    pathParams.appServer.indexOf('javascript') === -1
+  ) {
+    return pathParams.appServer;
+  }
+  return defaultApiConfig.server;
+}
 const apiConfig = {
   clientId: clientIdFromParams || defaultApiConfig.appKey,
   clientSecret: (clientIdFromParams ? clientSecretFromParams : defaultApiConfig.appSecret),
-  server: pathParams.appServer || defaultApiConfig.server,
+  server: getAppServer(),
 };
 if (enableDiscovery) {
   apiConfig.enableDiscovery = enableDiscovery;
