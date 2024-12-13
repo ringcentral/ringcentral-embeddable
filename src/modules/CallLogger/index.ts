@@ -123,4 +123,8 @@ export class CallLogger extends CallLoggerBase {
   get autoLogOnCallSync() {
     return this._deps.thirdPartyService.callLoggerAutoLogOnCallSync;
   }
+
+  get hideEditLogButton() {
+    return this._deps.thirdPartyService.callLoggerHideEditLogButton;
+  }
 }

@@ -106,6 +106,7 @@ type CallItemProps = {
   onViewSmartNote?: (...args: any[]) => any;
   aiNoted: boolean;
   showLogButton?: boolean;
+  hideEditLogButton?: boolean;
   logButtonTitle?: string;
 };
 
@@ -165,6 +166,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   externalViewEntity: externalViewEntityProp,
   externalHasEntity,
   showLogButton,
+  hideEditLogButton,
   logButtonTitle,
   isRecording = false,
   onViewSmartNote,
@@ -412,7 +414,11 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   const statusMatch = activityMatches.find(
     (activity) => activity.type === 'status',
   );
-  if (showLogButton && !isFax) {
+  if (
+    showLogButton &&
+    !isFax &&
+    (!isLogged || !hideEditLogButton)
+  ) {
     actions.push({
       id: 'log',
       icon: isLogged ? Edit : NewAction,
