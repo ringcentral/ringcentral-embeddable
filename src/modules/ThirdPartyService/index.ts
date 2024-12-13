@@ -1509,6 +1509,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       label: tab.title,
       iconUri: tab.iconUri,
       activeIconUri: tab.activeIconUri,
+      darkIconUri: tab.darkIconUri,
       priority: tab.priority,
       unreadCount: tab.unreadCount,
       path: `/customizedTabs/${tab.id}`,

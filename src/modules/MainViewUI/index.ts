@@ -14,6 +14,7 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
     'ThirdPartyService',
     'Brand',
     'PhoneTabsUI',
+    'Theme',
   ],
 })
 export class MainViewUI extends RcUIModuleV2 {
@@ -33,6 +34,7 @@ export class MainViewUI extends RcUIModuleV2 {
       brand,
       thirdPartyService,
       phoneTabsUI,
+      theme,
     } = this._deps;
 
     const showPhone = appFeatures.ready && (
@@ -68,6 +70,7 @@ export class MainViewUI extends RcUIModuleV2 {
       faxUnreadCounts: messageStore.faxUnreadCounts || 0,
       voiceUnreadCounts: messageStore.voiceUnreadCounts || 0,
       customizedTabs: thirdPartyService.customizedTabs,
+      themeType: theme.themeType,
     };
   }
   
