@@ -91,6 +91,7 @@ export function CallsListPanel({
   maxExtensionLength,
   showLogButton = false,
   logButtonTitle = '',
+  hideEditLogButton = false,
   showMergeCall,
   showCallDetail,
   onMergeCall,
@@ -238,6 +239,7 @@ export function CallsListPanel({
       enableCDC={enableCDC}
       showLogButton={showLogButton}
       logButtonTitle={logButtonTitle}
+      hideEditLogButton={hideEditLogButton}
       formatPhone={formatPhone}
       isRecording={type === 'recordings'}
       onViewSmartNote={onViewSmartNote}

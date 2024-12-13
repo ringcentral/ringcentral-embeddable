@@ -147,6 +147,7 @@ export class CallsListUI extends BaseCallsListUI {
         (!composeText || composeText.ready)
       ),
       showLogButton: callLogger.ready,
+      hideEditLogButton: callLogger.hideEditLogButton,
       logButtonTitle: callLogger.logButtonTitle,
       showRingoutCallControl,
       showTransferCall,

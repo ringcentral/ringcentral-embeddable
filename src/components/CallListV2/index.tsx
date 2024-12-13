@@ -55,6 +55,7 @@ type CallListV2Props = {
   maxExtensionNumberLength: number;
   formatPhone: (phoneNumber: string) => string | undefined;
   showLogButton: boolean;
+  hideEditLogButton: boolean;
   logButtonTitle: string;
   isRecording?: boolean;
   onViewSmartNote?: (...args: any[]) => any;
@@ -141,6 +142,7 @@ export function CallListV2({
   maxExtensionNumberLength,
   formatPhone,
   showLogButton,
+  hideEditLogButton,
   logButtonTitle,
   isRecording,
   onViewSmartNote,
@@ -224,6 +226,7 @@ export function CallListV2({
             enableCDC={enableCDC}
             maxExtensionNumberLength={maxExtensionNumberLength}
             showLogButton={showLogButton}
+            hideEditLogButton={hideEditLogButton}
             logButtonTitle={logButtonTitle}
             isRecording={isRecording}
             onViewSmartNote={onViewSmartNote}
