@@ -60,6 +60,7 @@ export const MainViewPanel = (props) => {
     smsUnreadCounts,
     voiceUnreadCounts,
     customizedTabs = [],
+    themeType,
   } = props;
   const tabList: Tab[] = [];
   if (showPhone) {
@@ -212,6 +213,10 @@ export const MainViewPanel = (props) => {
     if (customTab.hidden) {
       return;
     }
+    let iconUri = customTab.iconUri;
+    if (themeType === 'dark' && customTab.darkIconUri) {
+      iconUri = customTab.darkIconUri;
+    }
     tabList.push({
       label: customTab.label,
       path: customTab.path,
@@ -220,7 +225,7 @@ export const MainViewPanel = (props) => {
       showHeader: () => true,
       showHeaderBorder: true,
       priority: customTab.priority,
-      iconUri: customTab.iconUri,
+      iconUri,
       activeIconUri: customTab.activeIconUri,
     });
   });

@@ -13,8 +13,9 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     id: 'tabID', // tab id, required
     title: 'CRM',
     type: 'tab', // tab type
-    iconUri: 'https://xxx/icon.png', // icon for tab, 24x24
-    activeIconUri: 'https://xxx/icon-active.png', // icon for tab in active status, 24x24
+    iconUri: 'https://xxx/icon.png', // icon for tab, 24x24, recommended color: #16181D
+    activeIconUri: 'https://xxx/icon-active.png', // icon for tab in active status, 24x24, recommended color: ##2559E4
+    darkIconUri: 'https://xxx/icon-dark.png', // Supported from v2.2.1, icon for tab in dark mode, 24x24, recommended color: #ffffff
     hidden: false, // optional, default false, whether to hide the tab icon from navigation bar
     unreadCount: 0, // optional, unread count, 0-99
     priority: 31, // tab priority, 0-100, 0 is the highest priority, Phone tab: 10, Text: 20, Fax: 30, Glip: 40, Contacts: 50, Video: 60, Settings: 70
