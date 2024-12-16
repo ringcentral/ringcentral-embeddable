@@ -20,6 +20,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
+      - run: pip install mkdocs
+      - run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - run: mkdocs build
       - run: yarn
       - run: yarn test
         env:
@@ -55,9 +58,8 @@ jobs:
           MIXPANEL_KEY: ${{ secrets.MIXPANEL_KEY }}
           ANALYTICS_SECRET_KEY: ${{ secrets.ANALYTICS_SECRET_KEY }}
       - run: ./build_brand_themes.sh
-      - run: pip install -U pip==22.0.3
-      - run: pip install --user mkdocs
-      - run: if [ -f requirements.txt ]; then pip install --user -r requirements.txt; fi
+      - run: pip install mkdocs
+      - run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - run: mkdocs build
       - run: mv site release/docs
       - name: Github Pages
