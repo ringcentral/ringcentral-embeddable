@@ -204,6 +204,11 @@ export const NotificationItem: FunctionComponent<NewNotificationItemProps> = mem
       }),
       [second],
     );
+
+    // TODO: fix in widgets lib for blank screen in unknown alert message
+    if (Message === null || Message === undefined) {
+      return null;
+    }
     return (
       <div className={styles.container}>
         {backdrop && (
