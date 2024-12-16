@@ -17,12 +17,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
-      - run: pip install mkdocs
-      - run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - run: mkdocs build
       - run: yarn
       - run: yarn test
         env:
@@ -49,6 +43,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 20.x
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
       - run: yarn
       - run: yarn build
         env:
