@@ -39,6 +39,8 @@ function LinkRender(props: {
 const StyleText = styled.p`
   margin: 0;
   user-select: text;
+  text-wrap: auto;
+  overflow-wrap: break-word;
 `;
 
 function TextRender({
