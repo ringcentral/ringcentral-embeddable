@@ -284,6 +284,9 @@ export class RcVideo extends RcVideoBase {
     } catch (errors) {
       console.error('fetch personal meeting error:', errors);
       this._resetPersonalMeeting();
+      if (errors && errors.response && errors.response.status === 404) {
+        return;
+      }
       this._errorHandle(errors);
     }
   }
