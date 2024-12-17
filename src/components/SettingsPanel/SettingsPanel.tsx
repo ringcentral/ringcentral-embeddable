@@ -80,6 +80,9 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   autoLogSMSReadOnlyReason?: string;
   showThemeSetting?: boolean;
   onThemeSettingsLinkClick?: () => void;
+  showSmartNoteSetting?: boolean;
+  smartNoteEnabled?: boolean;
+  onSmartNoteToggle: () => void;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -329,6 +332,9 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   onSettingToggle,
   onThemeSettingsLinkClick,
   showThemeSetting,
+  showSmartNoteSetting = false,
+  smartNoteEnabled = false,
+  onSmartNoteToggle,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'link',
@@ -413,6 +419,16 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       show: showThemeSetting,
       order: 0,
       dataSign: 'theme',
+    }, {
+      id: 'smartNote',
+      type: 'switch',
+      name: 'Smart Note',
+      description: 'Show smart note widget during a call',
+      dataSign: 'SmartNote (Beta)',
+      show: showSmartNoteSetting,
+      checked: smartNoteEnabled,
+      onChange: onSmartNoteToggle,
+      order: 10,
     }],
   }];
   thirdPartySettings.forEach((item, index) => {

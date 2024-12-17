@@ -10,6 +10,7 @@ import {
     'ConversationLogger',
     'ThirdPartyService',
     'AudioSettings',
+    'SmartNotes',
   ]
 })
 export class SettingsUI extends BaseSettingsUI {
@@ -22,6 +23,7 @@ export class SettingsUI extends BaseSettingsUI {
       thirdPartyService,
       audioSettings,
       brand,
+      smartNotes,
     } = this._deps;
     return {
       ...baseProps,
@@ -61,7 +63,9 @@ export class SettingsUI extends BaseSettingsUI {
         showAuthRedDot: thirdPartyService.showAuthRedDot,
       } : null,
       showThemeSetting: brand.code === 'rc', // only show theme settings for rc brand now
-    }
+      showSmartNoteSetting: smartNotes.hasPermission && smartNotes.clientInitialized,
+      smartNoteEnabled: smartNotes.showSmartNote,
+    };
   }
 
   getUIFunctions(props) {
@@ -71,6 +75,7 @@ export class SettingsUI extends BaseSettingsUI {
       conversationLogger,
       thirdPartyService,
       routerInteraction,
+      smartNotes,
     } = this._deps;
     return {
       ...baseFuncs,
@@ -92,6 +97,9 @@ export class SettingsUI extends BaseSettingsUI {
       },
       onThemeSettingsLinkClick() {
         routerInteraction.push('/settings/theme');
+      },
+      onSmartNoteToggle: () => {
+        smartNotes.toggleShowSmartNote();
       },
     }
   }

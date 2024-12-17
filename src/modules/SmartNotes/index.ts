@@ -4,6 +4,7 @@ import {
   RcModuleV2,
   state,
   computed,
+  storage,
 } from '@ringcentral-integration/core';
 import { dynamicLoad } from '@ringcentral/mfe-react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
@@ -28,6 +29,7 @@ interface SmartNoteSession {
     'AppFeatures',
     'Webphone',
     'ContactMatcher',
+    'Storage',
   ],
 })
 export class SmartNotes extends RcModuleV2 {
@@ -40,7 +42,7 @@ export class SmartNotes extends RcModuleV2 {
     super({
       deps,
       storageKey: 'smartNotes',
-      enableCache: false,
+      enableCache: true,
     });
     this.SmartNoteClient = null
     this._smartNoteClient = null;
@@ -53,6 +55,9 @@ export class SmartNotes extends RcModuleV2 {
       return;
     }
     this._deps.webphone.onCallStart((webphoneSession) => {
+      if (!this.showSmartNote) {
+        return;
+      }
       if (!webphoneSession.partyData) {
         return;
       }
@@ -101,8 +106,10 @@ export class SmartNotes extends RcModuleV2 {
         smartNotesRemoteEntry,
       );
       this.SmartNoteClient = smartNotesModule.default.SmartNoteClient;
+      this.setClientInitialized(true);
     } catch (e) {
       console.error(e);
+      this.setClientInitialized(false);
     }
   }
 
@@ -112,6 +119,23 @@ export class SmartNotes extends RcModuleV2 {
   @action
   _setSession(session) {
     this.session = session;
+  }
+
+  @storage
+  @state
+  showSmartNote = false;
+
+  @action
+  toggleShowSmartNote() {
+    this.showSmartNote = !this.showSmartNote;
+  }
+
+  @state
+  clientInitialized = false
+
+  @action
+  setClientInitialized(initialized) {
+    this.clientInitialized = initialized;
   }
 
   setSession(session: SmartNoteSession) {
