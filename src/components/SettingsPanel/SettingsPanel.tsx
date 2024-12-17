@@ -422,7 +422,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     }, {
       id: 'smartNote',
       type: 'switch',
-      name: 'Smart Note',
+      name: 'Smart Note (Beta)',
       description: 'Show smart note widget during a call',
       dataSign: 'SmartNote (Beta)',
       show: showSmartNoteSetting,
