@@ -401,13 +401,19 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     order: 10000,
     dataSign: 'feedback',
   }, {
-    id: 'theme',
-    type: 'link',
-    name: 'Theme (Beta)',
-    onClick: onThemeSettingsLinkClick,
-    show: showThemeSetting,
+    id: 'advancedFeatures',
+    type: 'group',
+    name: 'Advanced features',
     order: 11000,
-    dataSign: 'theme',
+    items: [{
+      id: 'theme',
+      type: 'link',
+      name: 'Theme (Beta)',
+      onClick: onThemeSettingsLinkClick,
+      show: showThemeSetting,
+      order: 0,
+      dataSign: 'theme',
+    }],
   }];
   thirdPartySettings.forEach((item, index) => {
     const settingItem = getSettingItemFromThirdPartyItem({
@@ -429,6 +435,28 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
           groupItem.items = [];
         }
         groupItem.items.push(settingItem);
+        return;
+      }
+    }
+    if (settingItem.type === 'group') {
+      const existingGroupItem = settingsItems.find(
+        (groupItem) => groupItem.id === settingItem.id && groupItem.type === 'group',
+      );
+      if (existingGroupItem) {
+        if (settingItem.name) {
+          existingGroupItem.name = settingItem.name;
+        }
+        if (settingItem.description) {
+          existingGroupItem.description = settingItem.description;
+        }
+        if (settingItem.order) {
+          existingGroupItem.order = settingItem.order;
+        }
+        if (settingItem.items && settingItem.items.length > 0) {
+          existingGroupItem.items = existingGroupItem.items.concat(
+            settingItem.items,
+          ).sort((a, b) => a.order - b.order);
+        }
         return;
       }
     }
