@@ -130,7 +130,7 @@ export class SmartNotes extends RcModuleV2 {
     }
   }
 
-  onRest() {
+  onReset() {
     this.clearStates()
   }
 
