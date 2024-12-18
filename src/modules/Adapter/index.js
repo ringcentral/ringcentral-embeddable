@@ -561,13 +561,17 @@ export default class Adapter extends AdapterModuleCore {
       return;
     }
     if (this._auth.loggedIn && (
-      !this._extensionInfo.ready || !this._accountInfo.ready
+      !this._extensionInfo.ready ||
+      !this._accountInfo.ready ||
+      !this._appFeatures.ready
     )) {
       return;
     }
     this._loggedIn = this._auth.loggedIn;
     let loginNumber;
     let contractedCountryCode;
+    let isAdmin = false;
+    let features = {};
     if (this._loggedIn) {
       const extensionNumber =
         this._extensionInfo.extensionNumber && this._extensionInfo.extensionNumber !== '0'
@@ -580,12 +584,27 @@ export default class Adapter extends AdapterModuleCore {
         this._accountInfo.serviceInfo &&
         this._accountInfo.serviceInfo.contractedCountry &&
         this._accountInfo.serviceInfo.contractedCountry.isoCode;
+      isAdmin = (
+        this._extensionInfo.info &&
+        this._extensionInfo.info.permissions &&
+        this._extensionInfo.info.permissions.admin &&
+        this._extensionInfo.info.permissions.admin.enabled
+      ) || false;
+      features = {
+        sms: this._appFeatures.hasSMSSendingFeature,
+        meeting: this._appFeatures.hasMeetingsPermission,
+        glip: this._appFeatures.hasGlipPermission,
+        smartNote: this._appFeatures.hasSmartNotePermission,
+        call: this._appFeatures.isCallingEnabled,
+      };
     }
     this._postMessage({
       type: 'rc-login-status-notify',
       loggedIn: this._loggedIn,
       loginNumber,
       contractedCountryCode,
+      admin: isAdmin,
+      features,
     });
   }
 
