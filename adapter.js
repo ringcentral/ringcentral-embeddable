@@ -56859,7 +56859,7 @@ class Adapter extends AdapterCore/* default */.A {
           console.log(data.calls);
           break;
         case 'rc-login-status-notify':
-          console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber, data.contractedCountryCode);
+          console.log('rc-login-status-notify:', data.loggedIn, data.loginNumber, data.contractedCountryCode, data.admin, data.features);
           break;
         case 'rc-calling-settings-notify':
           console.log('rc-calling-settings-notify:', data.callWith, data.callingMode);
