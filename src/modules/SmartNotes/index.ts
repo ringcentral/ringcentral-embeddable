@@ -37,6 +37,7 @@ export class SmartNotes extends RcModuleV2 {
   protected _smartNoteClient: any;
   protected _smartNoteMFERemoteEntry: string;
   protected _smartNoteIframeUri: string;
+  protected _webphoneHookAdded: boolean;
 
   constructor(deps) {
     super({
@@ -48,51 +49,67 @@ export class SmartNotes extends RcModuleV2 {
     this._smartNoteClient = null;
     this._smartNoteIframeUri = '';
     this._smartNoteMFERemoteEntry = '';
+    this._webphoneHookAdded = false;
   }
 
-  async onInitOnce() {
+  async onInit() {
     if (!this.hasPermission) {
       return;
     }
-    this._deps.webphone.onCallStart((webphoneSession) => {
-      if (!this.showSmartNote) {
-        return;
-      }
-      if (!webphoneSession.partyData) {
-        return;
-      }
-      const phoneNumber =
-        webphoneSession.direction === callDirections.outbound ?
-          webphoneSession.to :
-          webphoneSession.from;
-      const feedbackName =
-        webphoneSession.direction === callDirections.outbound ?
-          webphoneSession.toUserName :
-          webphoneSession.fromUserName;
-      const contactMatches = this._deps.contactMatcher.dataMapping[phoneNumber];
-      this.setSession({
-        id: webphoneSession.partyData.sessionId,
-        status: 'Answered',
-        phoneNumber: phoneNumber,
-        contact: contactMatches && contactMatches.length > 0 ? contactMatches[0] : {
-          name: feedbackName,
-        },
-        direction: webphoneSession.direction,
-        startTime: new Date(webphoneSession.startTime).toISOString(),
-      });
-    });
-    this._deps.webphone.onCallEnd((webphoneSession) => {
-      if (!webphoneSession.partyData) {
-        return;
-      }
-      if (this.session?.id === webphoneSession.partyData.sessionId) {
+    if (this.clientInitialized) {
+      return;
+    }
+    if (!this._webphoneHookAdded) {
+      this._deps.webphone.onCallStart((webphoneSession) => {
+        if (!this.hasPermission) {
+          return;
+        }
+        if (!this.showSmartNote) {
+          return;
+        }
+        if (!webphoneSession.partyData) {
+          return;
+        }
+        const phoneNumber =
+          webphoneSession.direction === callDirections.outbound ?
+            webphoneSession.to :
+            webphoneSession.from;
+        const feedbackName =
+          webphoneSession.direction === callDirections.outbound ?
+            webphoneSession.toUserName :
+            webphoneSession.fromUserName;
+        const contactMatches = this._deps.contactMatcher.dataMapping[phoneNumber];
         this.setSession({
           id: webphoneSession.partyData.sessionId,
-          status: 'Disconnected',
+          status: 'Answered',
+          phoneNumber: phoneNumber,
+          contact: contactMatches && contactMatches.length > 0 ? contactMatches[0] : {
+            name: feedbackName,
+          },
           direction: webphoneSession.direction,
+          startTime: new Date(webphoneSession.startTime).toISOString(),
         });
-      }
-    });
+      });
+      this._deps.webphone.onCallEnd((webphoneSession) => {
+        if (!this.hasPermission) {
+          return;
+        }
+        if (!this.showSmartNote) {
+          return;
+        }
+        if (!webphoneSession.partyData) {
+          return;
+        }
+        if (this.session?.id === webphoneSession.partyData.sessionId) {
+          this.setSession({
+            id: webphoneSession.partyData.sessionId,
+            status: 'Disconnected',
+            direction: webphoneSession.direction,
+          });
+        }
+      });
+      this._webphoneHookAdded = true
+    }
     try {
       const plugins = await fetch('./plugins.json').then((res) => res.json());
       const smartNotesRemoteEntry = plugins.smartNotesMFE;
@@ -111,6 +128,17 @@ export class SmartNotes extends RcModuleV2 {
       console.error(e);
       this.setClientInitialized(false);
     }
+  }
+
+  onReset() {
+    this.clearStates()
+  }
+
+  @action
+  clearStates() {
+    this.callsQueryResults = [];
+    this.smartNoteTextStore = [];
+    this.session = null;
   }
 
   @state

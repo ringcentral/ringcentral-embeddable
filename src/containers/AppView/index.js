@@ -28,7 +28,7 @@ const MainContent = styled.div`
   flex-direction: column;
   flex: 1;
   height: 100%;
-  max-width: 100%;
+  max-width: ${({ showSideDrawer }) => showSideDrawer ? '50%' : '100%'};
   position: relative;
 `;
 
@@ -40,7 +40,7 @@ const Content = styled.div`
 function AppView(props) {
   return (
     <Root>
-      <MainContent>
+      <MainContent showSideDrawer={props.showSideDrawer}>
         <DemoOnlyBanner
           show={props.showDemoWarning}
           onClose={props.dismissDemoWarning}
@@ -100,6 +100,7 @@ export default withPhone(connect((_, {
     callingSettings,
     appFeatures,
     auth,
+    sideDrawerUI,
   },
   fromPopup,
 }) => ({
@@ -117,6 +118,7 @@ export default withPhone(connect((_, {
       (auth.loggedIn && callingSettings.callingMode === callingModes.webphone)
     )
   ),
+  showSideDrawer: sideDrawerUI.show,
 }), (_, {
   phone: {
     environment,
