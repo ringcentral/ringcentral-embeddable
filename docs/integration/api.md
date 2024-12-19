@@ -149,6 +149,16 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+### Close/open current ringing page
+
+<!-- md:version 2.2.1 -->
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'toggleRingingDialog',
+}, '*');
+
 ## Embeddable widget
 
 ### Show custom alert message
