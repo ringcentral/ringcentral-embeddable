@@ -10752,44 +10752,6 @@ exports.A = AdapterCore;
 
 /***/ }),
 
-/***/ 33734:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-var __webpack_unused_export__;
-
-
-__webpack_require__(36000);
-__webpack_unused_export__ = ({
-  value: true
-});
-exports.Ay = void 0;
-__webpack_unused_export__ = popWindow;
-function popWindow(url, id, w, h) {
-  // Fixes dual-screen position                         Most browsers      Firefox
-  var dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screen.left;
-  var dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screen.top;
-  var width = window.screen.width || window.outerWidth;
-  var height = window.screen.height || window.innerHeight;
-  var left = width / 2 - w / 2 + dualScreenLeft;
-  var top = height / 2 - h / 2 + dualScreenTop;
-  var newWindow = window.open(url, id, "scrollbars=yes, width=".concat(w, ", height=").concat(h, ", top=").concat(top, ", left=").concat(left));
-
-  // Puts focus on the newWindow
-  try {
-    newWindow === null || newWindow === void 0 ? void 0 : newWindow.focus();
-  } catch (error) {
-    /* ignore error */
-  }
-  return newWindow;
-}
-var _default = popWindow;
-exports.Ay = _default;
-//# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
 /***/ 45480:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
@@ -56511,12 +56473,33 @@ var url = __webpack_require__(48788);
 // EXTERNAL MODULE: ./node_modules/classnames/index.js
 var classnames = __webpack_require__(6860);
 var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames);
-// EXTERNAL MODULE: ./node_modules/@ringcentral-integration/widgets/lib/popWindow/index.js
-var popWindow = __webpack_require__(33734);
 // EXTERNAL MODULE: ./node_modules/@ringcentral-integration/widgets/lib/AdapterCore/index.js
 var AdapterCore = __webpack_require__(27461);
 // EXTERNAL MODULE: ./node_modules/@ringcentral-integration/utils/index.js
 var utils = __webpack_require__(48042);
+;// ./src/lib/popWindow.ts
+function popWindow(url, id, w, h) {
+  if (url.indexOf('javascript') > 0) {
+    throw new Error('Invalid window open url');
+  }
+  // Fixes dual-screen position                         Most browsers      Firefox
+  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screen.left;
+  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screen.top;
+  const width = window.screen.width || window.outerWidth;
+  const height = window.screen.height || window.innerHeight;
+  const left = width / 2 - w / 2 + dualScreenLeft;
+  const top = height / 2 - h / 2 + dualScreenTop;
+  const newWindow = window.open(url, id, `scrollbars=yes, width=${w}, height=${h}, top=${top}, left=${left}`);
+
+  // Puts focus on the newWindow
+  try {
+    newWindow === null || newWindow === void 0 || newWindow.focus();
+  } catch (error) {
+    /* ignore error */
+  }
+  return newWindow;
+}
+/* harmony default export */ var lib_popWindow = (popWindow);
 // EXTERNAL MODULE: ./node_modules/qs/lib/index.js
 var lib = __webpack_require__(47136);
 var lib_default = /*#__PURE__*/__webpack_require__.n(lib);
@@ -57102,7 +57085,7 @@ class Adapter extends AdapterCore/* default */.A {
     if (this._popupPageUri) {
       popupUri = `${this._popupPageUri}?${popupUri.split('?')[1]}`;
     }
-    this._popupedWindow = (0,popWindow/* default */.Ay)(popupUri, 'RCPopupWindow', 300, 535);
+    this._popupedWindow = lib_popWindow(popupUri, 'RCPopupWindow', 300, 535);
     this.setMinimized(true);
   }
   isWindowPoppedUp() {
