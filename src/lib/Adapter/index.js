@@ -1,9 +1,9 @@
 import classnames from 'classnames';
 import url from 'url';
-import popWindow from '@ringcentral-integration/widgets/lib/popWindow';
 import AdapterCore from '@ringcentral-integration/widgets/lib/AdapterCore';
 import { isSafari } from '@ringcentral-integration/utils';
 
+import popWindow from '../popWindow';
 import parseUri from '../parseUri';
 import messageTypes from './messageTypes';
 import requestWithPostMessage from '../requestWithPostMessage';

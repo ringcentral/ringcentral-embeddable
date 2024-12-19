@@ -1,6 +1,7 @@
 import 'setimmediate';
 import './lib/TabFreezePrevention';
 import './lib/patchGetUserMedia';
+import './lib/patchOpenWindow';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -21,7 +22,7 @@ const clientIdFromParams = pathParams.clientId || pathParams.appKey;
 const clientSecretFromParams = pathParams.clientSecret || pathParams.appSecret;
 const authProxy = pathParams.authProxy;
 const enableDiscovery = !!pathParams.discovery;
-const discoverAppServer = pathParams.discoverAppServer;
+
 function getAppServer() {
   if (
     pathParams.appServer &&
@@ -38,9 +39,23 @@ const apiConfig = {
   clientSecret: (clientIdFromParams ? clientSecretFromParams : defaultApiConfig.appSecret),
   server: getAppServer(),
 };
+
+function getDiscoveryServer() {
+  const discoveryServer = pathParams.discoverAppServer || apiConfig.server;
+  if ([
+    'https://platform.ringcentral.com',
+    'https://platform.devtest.ringcentral.com',
+    'https://discovery.ringcentral.biz',
+    'https://discovery.ringcentral.com',
+    'https://platform.ringcentral.biz',
+  ].indexOf(discoveryServer) > -1) {
+    return discoveryServer;
+  }
+  return defaultApiConfig.server;
+}
 if (enableDiscovery) {
   apiConfig.enableDiscovery = enableDiscovery;
-  apiConfig.discoveryServer = discoverAppServer || apiConfig.server;
+  apiConfig.discoveryServer = getDiscoveryServer();
 }
 if (!authProxy && pathParams.appKey) {
   console.warn('appKey is deprecated, please change to clientId. https://ringcentral.github.io/ringcentral-embeddable/docs/config/client-id/');
