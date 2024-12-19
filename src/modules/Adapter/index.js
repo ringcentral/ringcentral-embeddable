@@ -904,6 +904,9 @@ export default class Adapter extends AdapterModuleCore {
       case 'unmute':
         this._webphone.unmute(id || this._webphone.activeSessionId);
         break;
+      case 'toggleRingingDialog':
+        this._webphone.toggleMinimized(id || this._webphone.ringSessionId);
+        break;
       default:
         break;
     }
