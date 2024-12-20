@@ -177,6 +177,8 @@ export class CallCtrlContainer extends Component<
        * if the last has already been terminated after rendering, need to trigger the callback at the point
        */
       this.onLastMergingCallEnded();
+    } else if (!this.props.session.id) {
+      this.props.onBackButtonClick && this.props.onBackButtonClick();
     }
   }
 
