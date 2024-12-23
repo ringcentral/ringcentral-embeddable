@@ -7,6 +7,7 @@ import { RcUIModuleV2, action, state, watch } from '@ringcentral-integration/cor
     'Locale',
     'SmartNotes',
     'Alert',
+    'Theme',
   ],
 })
 export class SideDrawerUI extends RcUIModuleV2 {
@@ -33,13 +34,14 @@ export class SideDrawerUI extends RcUIModuleV2 {
   }
 
   getUIProps() {
-    const { locale, smartNotes } = this._deps;
+    const { locale, smartNotes, theme } = this._deps;
     return {
       currentLocale: locale.currentLocale,
       smartNoteSession: smartNotes.session,
       show: this.show,
       smartNoteClient: smartNotes.smartNoteClient,
       smartNoteRemoteEntry: smartNotes.smartNoteMFERemoteEntry,
+      themeType: theme.themeType,
     };
   }
 

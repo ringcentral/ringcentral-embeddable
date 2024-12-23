@@ -17,6 +17,7 @@ export function SideDrawerView({
   show,
   onClose,
   onAlert,
+  themeType,
 }) {
   if (!show) {
     return null;
@@ -34,6 +35,7 @@ export function SideDrawerView({
         onClose={onClose}
         onAlert={onAlert}
         smartNoteRemoteEntry={smartNoteRemoteEntry}
+        themeType={themeType}
       />
     </StyledDrawer>
   );

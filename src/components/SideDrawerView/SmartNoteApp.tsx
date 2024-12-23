@@ -1,6 +1,6 @@
 import React from 'react';
 import { dynamicLoad, useApp } from '@ringcentral/mfe-react';
-import { styled } from '@ringcentral/juno/foundation';
+import { styled, useTheme } from '@ringcentral/juno/foundation';
 
 const Container = styled.div`
   width: 100%;
@@ -22,7 +22,9 @@ export function SmartNoteApp({
   onClose,
   onAlert,
   smartNoteRemoteEntry,
+  themeType,
 }) {
+  const theme = useTheme();
   const SmartNotePlugin = useApp({
     name: 'SmartNotes',
     loader: () => {
@@ -43,6 +45,8 @@ export function SmartNoteApp({
         client={client}
         onClose={onClose}
         onAlert={onAlert}
+        theme={theme}
+        themeType={themeType}
       />
     </Container>
   );
