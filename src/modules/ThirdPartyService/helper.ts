@@ -213,3 +213,65 @@ export function getImageUri(sourceUri?: string) {
   }
   return imageUri;
 }
+
+interface Transcript {
+  context: {
+    participants: {
+      accountId?: string;
+      extensionId?: string;
+      name: string;
+      participantId: string;
+    }[]
+  };
+
+  transcripts: {
+    text: string;
+    participantId: string;
+  }[];
+}
+
+interface Call {
+  from: {
+    extensionId?: string;
+    name: string;
+    phoneNumber?: string;
+    extensionNumber?: string;
+  },
+  to: {
+    extensionId?: string;
+    name: string;
+    phoneNumber?: string;
+    extensionNumber?: string;
+  },
+  fromName?: string;
+  toName?: string;
+  partyId?: string;
+}
+
+export function getTranscriptText(transcript: Transcript, call): string {
+  if (!transcript) {
+    return '';
+  }
+  if (!transcript.transcripts) {
+    return '';
+  }
+  if (!transcript.context) {
+    return '';
+  }
+  const nameMap = {};
+  transcript.context.participants.forEach((p) => {
+    nameMap[p.participantId] = p.name;
+    if (p.extensionId) {
+      if (call.from.extensionId === p.extensionId) {
+        nameMap[p.participantId] = call.fromName || call.from.name || call.from.phoneNumber || call.from.extensionNumber;
+        return;
+      }
+      if (call.to.extensionId === p.extensionId) {
+        nameMap[p.participantId] = call.toName || call.to.name || call.to.phoneNumber || call.to.extensionNumber;
+      }
+    }
+  });
+  return transcript.transcripts.map((t) => {
+    return `${nameMap[t.participantId]}: ${t.text}`;
+  }).join('\n');
+}

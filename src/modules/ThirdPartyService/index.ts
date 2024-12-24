@@ -18,6 +18,7 @@ import {
   formatContacts,
   getImageUri,
   findSettingItem,
+  getTranscriptText,
 } from './helper';
 
 @Module({
@@ -780,6 +781,10 @@ export default class ThirdPartyService extends RcModuleV2 {
       }
       if (this._deps.smartNotes.hasPermission) {
         options.aiNote = await this._deps.smartNotes.fetchSmartNoteText(call.telephonySessionId);
+        const transcript = await this._deps.smartNotes.fetchTranscript(call.telephonySessionId);
+        if (transcript) {
+          options.transcript = getTranscriptText(transcript, call);
+        }
       }
       const callItem = { ...call };
       if (call.recording) {

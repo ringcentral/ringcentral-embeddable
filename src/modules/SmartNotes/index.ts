@@ -353,4 +353,51 @@ export class SmartNotes extends RcModuleV2 {
   get smartNoteMFERemoteEntry() {
     return this._smartNoteMFERemoteEntry;
   }
+
+  @state
+  transcriptStore = [];
+
+  @action
+  addTranscriptStore(id, transcript) {
+    let newStore = this.transcriptStore.filter((item) => item.id !== id);
+    newStore = [{ id, transcript }].concat(newStore);
+    if (newStore.length > 20) {
+      newStore = newStore.slice(0, 20);
+    }
+    this.transcriptStore = newStore;
+  }
+
+  async fetchTranscript(telephonySessionId) {
+    if (!this.SmartNoteClient || !this.hasPermission) {
+      return null;
+    }
+    if (!telephonySessionId) {
+      return null;
+    }
+    if (this.transcriptMapping[telephonySessionId]) {
+      return this.transcriptMapping[telephonySessionId];
+    }
+    await this.queryNotedCalls([telephonySessionId]);
+    const noted = this.callsQueryResults.find((call) => call.id === telephonySessionId);
+    if (!noted || !noted.noted) {
+      return null;
+    }
+    const sdk = this._deps.client.service;
+    try {
+      const transcript = await this.SmartNoteClient.getTranscripts(sdk, telephonySessionId);
+      this.addTranscriptStore(telephonySessionId, transcript);
+      return transcript;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  @computed((that: SmartNotes) => [that.transcriptStore])
+  get transcriptMapping() {
+    return this.transcriptStore.reduce((map, item) => {
+      map[item.id] = item.transcript;
+      return map;
+    }, {});
+  }
 }
