@@ -779,7 +779,12 @@ export default class ThirdPartyService extends RcModuleV2 {
       if (!this._callLoggerPath) {
         return;
       }
-      if (this._deps.smartNotes.hasPermission) {
+      if (
+        this._deps.smartNotes.hasPermission && (
+          !!call.internalType || // call log from history
+          call.result === 'Disconnected' // active call after call end
+        )
+      ) {
         options.aiNote = await this._deps.smartNotes.fetchSmartNoteText(call.telephonySessionId);
         const transcript = await this._deps.smartNotes.fetchTranscript(call.telephonySessionId);
         if (transcript) {

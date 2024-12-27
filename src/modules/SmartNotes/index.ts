@@ -8,6 +8,7 @@ import {
 } from '@ringcentral-integration/core';
 import { dynamicLoad } from '@ringcentral/mfe-react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
+import { sleep } from '@ringcentral-integration/commons/utils';
 
 interface SmartNoteSession {
   id: string;
@@ -101,6 +102,9 @@ export class SmartNotes extends RcModuleV2 {
           return;
         }
         if (this.session?.id === webphoneSession.partyData.sessionId) {
+          if (this._smartNoteClient && this._smartNoteClient.transcriptions.length > 0) {
+            this.addRecentNotedCall(this.session.id);
+          }
           this.setSession({
             id: webphoneSession.partyData.sessionId,
             status: 'Disconnected',
@@ -246,6 +250,20 @@ export class SmartNotes extends RcModuleV2 {
   }
 
   @state
+  recentNotedCalls = [];
+
+  @action
+  addRecentNotedCall(telephonySessionId) {
+    let newRecentNotedCalls = [telephonySessionId].concat(
+      this.recentNotedCalls.filter((id) => id !== telephonySessionId),
+    );
+    if (newRecentNotedCalls.length > 5) {
+      newRecentNotedCalls = newRecentNotedCalls.slice(0, 5);
+    }
+    this.recentNotedCalls = newRecentNotedCalls;
+  }
+
+  @state
   callsQueryResults = [];
 
   @action
@@ -277,7 +295,10 @@ export class SmartNotes extends RcModuleV2 {
       const queryResult = await this.SmartNoteClient.querySmartNotes(sdk, noQueryIds);
       const notedResult = [];
       noQueryIds.forEach((id) => {
-        const noted = !!queryResult.records.find((record) => record.telephonySessionId === id);
+        let noted = !!queryResult.records.find((record) => record.telephonySessionId === id);
+        if (!noted && this.recentNotedCalls.indexOf(id) > -1) {
+          noted = true; // if it's in recentNotedCalls, it should be noted
+        }
         notedResult.push({
           id,
           noted,
@@ -312,6 +333,19 @@ export class SmartNotes extends RcModuleV2 {
     this.smartNoteTextStore = newStore;
   }
 
+  async _fetchNotesUntilFinished(telephonySessionId, retryCount = 0) {
+    const sdk = this._deps.client.service;
+    const result = await this.SmartNoteClient.getNotes(sdk, telephonySessionId);
+    if (result.status !== 'InProgress') {
+      return result;
+    }
+    if (retryCount > 3) {
+      return result;
+    }
+    await sleep(5000);
+    return this._fetchNotesUntilFinished(telephonySessionId, retryCount + 1);
+  }
+
   async fetchSmartNoteText(telephonySessionId) {
     if (!this.SmartNoteClient || !this.hasPermission) {
       return null;
@@ -327,9 +361,8 @@ export class SmartNotes extends RcModuleV2 {
     if (!noted || !noted.noted) {
       return null;
     }
-    const sdk = this._deps.client.service;
     try {
-      const note = await this.SmartNoteClient.getNotes(sdk, telephonySessionId);
+      const note = await this._fetchNotesUntilFinished(telephonySessionId);
       let noteHTMLString = note.data || '';
       noteHTMLString = noteHTMLString.replaceAll('<strong>', '**').replaceAll('</strong>', '**');
       const doc = new DOMParser().parseFromString(noteHTMLString, 'text/html');
