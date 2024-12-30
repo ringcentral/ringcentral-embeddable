@@ -102,7 +102,7 @@ export class SmartNotes extends RcModuleV2 {
           return;
         }
         if (this.session?.id === webphoneSession.partyData.sessionId) {
-          if (this._smartNoteClient && this._smartNoteClient.transcriptions.length > 0) {
+          if (this._smartNoteClient && this._smartNoteClient.transcriptions.length > 1) {
             this.addRecentNotedCall(this.session.id);
           }
           this.setSession({
