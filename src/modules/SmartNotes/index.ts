@@ -22,6 +22,20 @@ interface SmartNoteSession {
   direction: string;
   startTime?: string;
 }
+
+interface CallMetaData {
+  startTime: string;
+  direction: string;
+  from?: {
+    phoneNumber: string;
+    name: string;
+  };
+  to?: {
+    phoneNumber: string;
+    name: string;
+  };
+}
+
 @Module({
   name: 'SmartNotes',
   deps: [
@@ -35,7 +49,7 @@ interface SmartNoteSession {
 })
 export class SmartNotes extends RcModuleV2 {
   protected SmartNoteClient: any;
-  protected _smartNoteClient: any;
+  protected _smartNoteClientMap: { [key: string]: any };
   protected _smartNoteMFERemoteEntry: string;
   protected _smartNoteIframeUri: string;
   protected _webphoneHookAdded: boolean;
@@ -47,7 +61,7 @@ export class SmartNotes extends RcModuleV2 {
       enableCache: true,
     });
     this.SmartNoteClient = null
-    this._smartNoteClient = null;
+    this._smartNoteClientMap = {};
     this._smartNoteIframeUri = '';
     this._smartNoteMFERemoteEntry = '';
     this._webphoneHookAdded = false;
@@ -68,28 +82,16 @@ export class SmartNotes extends RcModuleV2 {
         if (!this.showSmartNote) {
           return;
         }
-        if (!webphoneSession.partyData) {
+        this._setWebphoneSession(webphoneSession);
+      });
+      this._deps.webphone.onCallResume((webphoneSession) => {
+        if (!this.hasPermission) {
           return;
         }
-        const phoneNumber =
-          webphoneSession.direction === callDirections.outbound ?
-            webphoneSession.to :
-            webphoneSession.from;
-        const feedbackName =
-          webphoneSession.direction === callDirections.outbound ?
-            webphoneSession.toUserName :
-            webphoneSession.fromUserName;
-        const contactMatches = this._deps.contactMatcher.dataMapping[phoneNumber];
-        this.setSession({
-          id: webphoneSession.partyData.sessionId,
-          status: 'Answered',
-          phoneNumber: phoneNumber,
-          contact: contactMatches && contactMatches.length > 0 ? contactMatches[0] : {
-            name: feedbackName,
-          },
-          direction: webphoneSession.direction,
-          startTime: new Date(webphoneSession.startTime).toISOString(),
-        });
+        if (!this.showSmartNote) {
+          return;
+        }
+        this._setWebphoneSession(webphoneSession);
       });
       this._deps.webphone.onCallEnd((webphoneSession) => {
         if (!this.hasPermission) {
@@ -101,16 +103,11 @@ export class SmartNotes extends RcModuleV2 {
         if (!webphoneSession.partyData) {
           return;
         }
-        if (this.session?.id === webphoneSession.partyData.sessionId) {
-          if (this._smartNoteClient && this._smartNoteClient.transcriptions.length > 1) {
-            this.addRecentNotedCall(this.session.id);
-          }
-          this.setSession({
-            id: webphoneSession.partyData.sessionId,
-            status: 'Disconnected',
-            direction: webphoneSession.direction,
-          });
-        }
+        this.setSessionDisconnected({
+          id: webphoneSession.partyData.sessionId,
+          status: 'Disconnected',
+          direction: webphoneSession.direction,
+        });
       });
       this._webphoneHookAdded = true
     }
@@ -170,64 +167,70 @@ export class SmartNotes extends RcModuleV2 {
     this.clientInitialized = initialized;
   }
 
+  _setWebphoneSession(webphoneSession) {
+    if (!webphoneSession.partyData) {
+      return;
+    }
+    const phoneNumber =
+      webphoneSession.direction === callDirections.outbound ?
+        webphoneSession.to :
+        webphoneSession.from;
+    const feedbackName =
+      webphoneSession.direction === callDirections.outbound ?
+        webphoneSession.toUserName :
+        webphoneSession.fromUserName;
+    const contactMatches = this._deps.contactMatcher.dataMapping[phoneNumber];
+    this.setSession({
+      id: webphoneSession.partyData.sessionId,
+      status: 'Answered',
+      phoneNumber: phoneNumber,
+      contact: contactMatches && contactMatches.length > 0 ? contactMatches[0] : {
+        name: feedbackName,
+      },
+      direction: webphoneSession.direction,
+      startTime: new Date(webphoneSession.startTime).toISOString(),
+    });
+  }
+
+  // called when webphone session is started or user view the post-call note
   setSession(session: SmartNoteSession) {
     if (!this.SmartNoteClient) {
       return;
     }
-    let callMetaData
-    if (session) {
-      callMetaData = {
-        startTime: session.startTime,
-        direction: session.direction,
-      };
-      if (session.direction === 'Outbound') {
-        callMetaData.to = {
-          phoneNumber: session.phoneNumber,
-          name: session.contact ? session.contact.name : '',
-        };
-      } else {
-        callMetaData.from = {
-          phoneNumber: session.phoneNumber,
-          name: session.contact ? session.contact.name : '',
-        };
-      }
-    }
-    if (!this.session) {
-      this._smartNoteClient = new this.SmartNoteClient({
-        sdk: this._deps.client.service,
-        telephonySessionId: session.id,
-        extensionId: this._deps.auth.ownerId,
-        telephonySessionStatus: session.status,
-        contact: session.contact ? {
-          ...session.contact,
-          phoneNumber: session.phoneNumber,
-        } : {
-          phoneNumber: session.phoneNumber,
-        },
-        smartNoteIframeUri: this._smartNoteIframeUri,
-        callMetaData,
-      });
-      this._setSession(session);
-    } else {
+    if (!session) {
       // Close smart note when session is null
-      if (!session) {
-        this._smartNoteClient.stop();
-        this._smartNoteClient = null;
-        this._setSession(null);
-        return;
-      }
-      if (session.id === this.session.id) {
-        if (this._smartNoteClient.transcriptionStatus !== 'idle') {
-          this._setSession(session);
-          this._smartNoteClient.updateTelephonySessionStatus(session.status);
-        } else {
-          this._smartNoteClient = null;
-          this._setSession(null);
+      if (this.session) {
+        const smartNoteClient = this._smartNoteClientMap[this.session.id];
+        if (smartNoteClient) {
+          smartNoteClient.stop();
+          delete this._smartNoteClientMap[this.session.id];
         }
-      } else {
-        this._setSession(session);
-        this._smartNoteClient.switchSession({
+        this._setSession(null);
+      }
+      return;
+    }
+    let callMetaData: CallMetaData = {
+      startTime: session.startTime,
+      direction: session.direction,
+    };
+    if (session.direction === 'Outbound') {
+      callMetaData.to = {
+        phoneNumber: session.phoneNumber,
+        name: session.contact ? session.contact.name : '',
+      };
+    } else {
+      callMetaData.from = {
+        phoneNumber: session.phoneNumber,
+        name: session.contact ? session.contact.name : '',
+      };
+    }
+    // if session is not the same as current session, create a new smart note client
+    if (this.session?.id !== session.id) {
+      if (!this._smartNoteClientMap[session.id]) {
+        this._smartNoteClientMap[session.id] = new this.SmartNoteClient({
+          sdk: this._deps.client.service,
           telephonySessionId: session.id,
+          extensionId: this._deps.auth.ownerId,
           telephonySessionStatus: session.status,
           contact: session.contact ? {
             ...session.contact,
@@ -235,10 +238,80 @@ export class SmartNotes extends RcModuleV2 {
           } : {
             phoneNumber: session.phoneNumber,
           },
+          smartNoteIframeUri: this._smartNoteIframeUri,
           callMetaData,
         });
+      } else {
+        this._smartNoteClientMap[session.id].updateTelephonySessionStatus(session.status);
       }
+      // if there is an old session, close it or stop it
+      if (this.session) {
+        const oldSmartNoteClient = this._smartNoteClientMap[this.session.id];
+        // Pause old smart note client if it's not idle
+        if (oldSmartNoteClient.transcriptionStatus !== 'idle') {
+          // TODO: test with multiple sessions
+          oldSmartNoteClient.pause();
+        }
+      }
+      this._setSession(session);
+      this._clearOtherIdleSmartNoteClient(session.id);
+      return;
     }
+    const smartNoteClient = this._smartNoteClientMap[session.id];
+    if (!smartNoteClient) {
+      return;
+    }
+    // Update the status of the current session
+    smartNoteClient.updateTelephonySessionStatus(session.status);
+    this._setSession(session);
+    this._clearOtherIdleSmartNoteClient(session.id);
+  }
+
+  setSessionDisconnected(session) {
+    if (!this.SmartNoteClient) {
+      return;
+    }
+    if (!session) {
+      return;
+    }
+    const smartNoteClient = this._smartNoteClientMap[session.id];
+    if (!smartNoteClient) {
+      return;
+    }
+    if (smartNoteClient.transcriptions.length > 1) {
+      this.addRecentNotedCall(session.id);
+    }
+    if (this.session?.id === session.id) {
+      if (smartNoteClient.transcriptionStatus === 'idle') {
+        // when smart note is not started, just remove the session to close the smart note widget
+        delete this._smartNoteClientMap[session.id];
+        this._setSession(null);
+      } else {
+        // when smart note is started, update the status to 'Disconnected' to redirect the smart note to post call page
+        smartNoteClient.updateTelephonySessionStatus('Disconnected');
+        this._setSession(session);
+      }
+      return;
+    }
+    if (smartNoteClient.transcriptionStatus !== 'idle') {
+      // when smart note is started, update the status to 'Disconnected' to stop the transcription
+      smartNoteClient.updateTelephonySessionStatus('Disconnected');
+    }
+    delete this._smartNoteClientMap[session.id];
+  }
+
+  _clearOtherIdleSmartNoteClient(sessionId) {
+    Object.keys(this._smartNoteClientMap).forEach((id) => {
+      if (id !== sessionId) {
+        const smartNoteClient = this._smartNoteClientMap[id];
+        if (
+          smartNoteClient.transcriptionStatus === 'idle' ||
+          smartNoteClient.transcriptionStatus === 'stopped'
+        ) {
+          delete this._smartNoteClientMap[id];
+        }
+      }
+    });
   }
 
   get hasPermission() {
@@ -246,7 +319,10 @@ export class SmartNotes extends RcModuleV2 {
   }
 
   get smartNoteClient() {
-    return this._smartNoteClient;
+    if (!this.session) {
+      return null;
+    }
+    return this._smartNoteClientMap[this.session.id];
   }
 
   @state

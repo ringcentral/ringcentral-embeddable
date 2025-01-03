@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { RcDrawer, styled } from '@ringcentral/juno';
 import { SmartNoteApp } from './SmartNoteApp';
 
@@ -19,10 +19,20 @@ export function SideDrawerView({
   onAlert,
   themeType,
 }) {
+  const [session, setSession] = useState(null);
+  useEffect(() => {
+    setSession(null);
+    const timeout = setTimeout(() => {
+      setSession(smartNoteSession);
+    }, 50);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [smartNoteSession]);
   if (!show) {
     return null;
   }
-  if (!smartNoteSession || !smartNoteClient) {
+  if (!session || !smartNoteClient) {
     return null;
   }
   return (
