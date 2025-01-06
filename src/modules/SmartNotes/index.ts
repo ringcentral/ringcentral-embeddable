@@ -280,6 +280,14 @@ export class SmartNotes extends RcModuleV2 {
     if (!smartNoteClient) {
       return;
     }
+    if (
+      this.session &&
+      this.session.id === session.id &&
+      this.session.status === 'Disconnected'
+    ) {
+      // avoid duplicated call
+      return;
+    }
     if (smartNoteClient.transcriptions.length > 1) {
       this.addRecentNotedCall(session.id);
     }
