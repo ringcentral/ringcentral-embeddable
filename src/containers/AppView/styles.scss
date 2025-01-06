@@ -93,3 +93,7 @@ input {
 :global .GlipChatPanel_header {
   color: $night;
 }
+
+:global .RecentActivityPanel_expandable {
+  position: absolute!important;
+}
