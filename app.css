@@ -3288,6 +3288,10 @@ input {
 .GlipChatPanel_header {
   color: var(--night);
 }
+
+.RecentActivityPanel_expandable {
+  position: absolute !important;
+}
 .RemoveButton_container {
   -webkit-text-decoration: none;
   text-decoration: none;
