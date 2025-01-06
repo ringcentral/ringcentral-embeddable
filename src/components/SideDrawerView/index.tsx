@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RcDrawer, styled } from '@ringcentral/juno';
 import { SmartNoteApp } from './SmartNoteApp';
 
@@ -21,7 +21,17 @@ export function SideDrawerView({
   onSmartNoteSave,
 }) {
   const [session, setSession] = useState(null);
+  const sessionRef = useRef(session);
   useEffect(() => {
+    if (
+      sessionRef.current &&
+      smartNoteSession &&
+      sessionRef.current.id === smartNoteSession.id
+    ) {
+      // avoid re-render when session is the same
+      return;
+    }
+    sessionRef.current = smartNoteSession;
     setSession(null);
     const timeout = setTimeout(() => {
       setSession(smartNoteSession);
