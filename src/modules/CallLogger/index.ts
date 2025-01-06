@@ -2,10 +2,11 @@ import { computed } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { CallLogger as CallLoggerBase } from '@ringcentral-integration/commons/modules/CallLogger';
 import { isRinging } from '@ringcentral-integration/commons/lib/callLogHelpers';
+import { callLoggerTriggerTypes } from '@ringcentral-integration/commons/enums/callLoggerTriggerTypes';
 
 @Module({
   name: 'CallLogger',
-  deps: ['ThirdPartyService', 'CallLog'],
+  deps: ['ThirdPartyService', 'CallLog', 'SmartNotes'],
 })
 export class CallLogger extends CallLoggerBase {
   private _logFunction: (data: any) => Promise<void>;
@@ -19,6 +20,7 @@ export class CallLogger extends CallLoggerBase {
     };
     this._readyCheckFunction = () => this._deps.thirdPartyService.callLoggerRegistered;
     this._autoLogHistoryCallsTimer = null;
+    this._deps.smartNotes.onSmartNoteUpdate(this.onCallNoteUpdated);
   }
 
   async _doLog({ item, ...options }) {
@@ -126,5 +128,16 @@ export class CallLogger extends CallLoggerBase {
 
   get hideEditLogButton() {
     return this._deps.thirdPartyService.callLoggerHideEditLogButton;
+  }
+
+  onCallNoteUpdated = (telephonySessionId) => {
+    if (!this.ready) {
+      return;
+    }
+    const call = this._deps.callHistory.calls.find(call => call.telephonySessionId === telephonySessionId);
+    if (!call) {
+      return;
+    }
+    this._onCallUpdated(call, callLoggerTriggerTypes.callLogSync);
   }
 }
