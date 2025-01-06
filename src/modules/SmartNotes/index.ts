@@ -461,10 +461,10 @@ export class SmartNotes extends RcModuleV2 {
         noteHTMLString = noteHTMLString.replaceAll('</ul>', '</ul>\n');
       }
       if (noteHTMLString.indexOf('<ol>\n') === -1) {
-        noteHTMLString = noteHTMLString.replaceAll('<ol>', '<ul>\n');
+        noteHTMLString = noteHTMLString.replaceAll('<ol>', '<ol>\n');
       }
       if (noteHTMLString.indexOf('</ol>\n') === -1) {
-        noteHTMLString = noteHTMLString.replaceAll('</ol>', '</ul>\n');
+        noteHTMLString = noteHTMLString.replaceAll('</ol>', '</ol>\n');
       }
       const doc = new DOMParser().parseFromString(noteHTMLString, 'text/html');
       const purgedText = doc.body.textContent || '';
