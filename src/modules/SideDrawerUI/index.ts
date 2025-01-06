@@ -60,10 +60,15 @@ export class SideDrawerUI extends RcUIModuleV2 {
     });
   }
 
+  onSmartNoteSave = async (data) => {
+    return this._deps.smartNotes.onSmartNoteSave();
+  }
+
   getUIFunctions() {
     return {
       onClose: this.onClose,
-      onAlert: this.onAlert
+      onAlert: this.onAlert,
+      onSmartNoteSave: this.onSmartNoteSave,
     };
   }
 }

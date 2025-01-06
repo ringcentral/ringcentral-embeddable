@@ -53,6 +53,7 @@ export class SmartNotes extends RcModuleV2 {
   protected _smartNoteMFERemoteEntry: string;
   protected _smartNoteIframeUri: string;
   protected _webphoneHookAdded: boolean;
+  protected _onSmartNoteUpdate?: (id: string) => void;
 
   constructor(deps) {
     super({
@@ -65,6 +66,7 @@ export class SmartNotes extends RcModuleV2 {
     this._smartNoteIframeUri = '';
     this._smartNoteMFERemoteEntry = '';
     this._webphoneHookAdded = false;
+    this._onSmartNoteUpdate = undefined;
   }
 
   async onInit() {
@@ -409,6 +411,11 @@ export class SmartNotes extends RcModuleV2 {
     this.smartNoteTextStore = newStore;
   }
 
+  @action
+  removeSmartNoteTextStore(id) {
+    this.smartNoteTextStore = this.smartNoteTextStore.filter((item) => item.id !== id);
+  }
+
   async _fetchNotesUntilFinished(telephonySessionId, retryCount = 0) {
     const sdk = this._deps.client.service;
     const result = await this.SmartNoteClient.getNotes(sdk, telephonySessionId);
@@ -508,5 +515,19 @@ export class SmartNotes extends RcModuleV2 {
       map[item.id] = item.transcript;
       return map;
     }, {});
+  }
+
+  onSmartNoteSave = async () => {
+    if (!this.session) {
+      return;
+    }
+    this.removeSmartNoteTextStore(this.session.id);
+    if (this._onSmartNoteUpdate) {
+      this._onSmartNoteUpdate(this.session.id);
+    }
+  }
+
+ onSmartNoteUpdate(onSmartNoteUpdate) {
+    this._onSmartNoteUpdate = onSmartNoteUpdate;
   }
 }

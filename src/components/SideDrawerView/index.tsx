@@ -18,6 +18,7 @@ export function SideDrawerView({
   onClose,
   onAlert,
   themeType,
+  onSmartNoteSave,
 }) {
   const [session, setSession] = useState(null);
   useEffect(() => {
@@ -46,6 +47,7 @@ export function SideDrawerView({
         onAlert={onAlert}
         smartNoteRemoteEntry={smartNoteRemoteEntry}
         themeType={themeType}
+        onSave={onSmartNoteSave}
       />
     </StyledDrawer>
   );

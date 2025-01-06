@@ -23,6 +23,7 @@ export function SmartNoteApp({
   onAlert,
   smartNoteRemoteEntry,
   themeType,
+  onSave,
 }) {
   const theme = useTheme();
   const SmartNotePlugin = useApp({
@@ -47,6 +48,7 @@ export function SmartNoteApp({
         onAlert={onAlert}
         theme={theme}
         themeType={themeType}
+        onSave={onSave}
       />
     </Container>
   );
