@@ -448,6 +448,24 @@ export class SmartNotes extends RcModuleV2 {
       const note = await this._fetchNotesUntilFinished(telephonySessionId);
       let noteHTMLString = note.data || '';
       noteHTMLString = noteHTMLString.replaceAll('<strong>', '**').replaceAll('</strong>', '**');
+      if (noteHTMLString.indexOf('</p>\n') === -1) {
+        noteHTMLString = noteHTMLString.replaceAll('</p>', '</p>\n');
+      }
+      if (noteHTMLString.indexOf('</li>\n') === -1) {
+        noteHTMLString = noteHTMLString.replaceAll('</li>', '</li>\n');
+      }
+      if (noteHTMLString.indexOf('<ul>\n') === -1) {
+        noteHTMLString = noteHTMLString.replaceAll('<ul>', '<ul>\n');
+      }
+      if (noteHTMLString.indexOf('</ul>\n') === -1) {
+        noteHTMLString = noteHTMLString.replaceAll('</ul>', '</ul>\n');
+      }
+      if (noteHTMLString.indexOf('<ol>\n') === -1) {
+        noteHTMLString = noteHTMLString.replaceAll('<ol>', '<ul>\n');
+      }
+      if (noteHTMLString.indexOf('</ol>\n') === -1) {
+        noteHTMLString = noteHTMLString.replaceAll('</ol>', '</ul>\n');
+      }
       const doc = new DOMParser().parseFromString(noteHTMLString, 'text/html');
       const purgedText = doc.body.textContent || '';
       this.addSmartNoteTextStore(telephonySessionId, purgedText);
