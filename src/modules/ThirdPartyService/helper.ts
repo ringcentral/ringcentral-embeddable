@@ -248,7 +248,7 @@ interface Call {
   partyId?: string;
 }
 
-export function getTranscriptText(transcript: Transcript, call): string {
+export function getTranscriptText(transcript: Transcript, call: Call): string {
   if (!transcript) {
     return '';
   }
