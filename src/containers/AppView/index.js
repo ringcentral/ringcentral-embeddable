@@ -9,7 +9,6 @@ import { callingModes } from '@ringcentral-integration/commons/modules/CallingSe
 import { DemoOnlyBanner } from '../../components/DemoOnlyBanner';
 import { InitializeAudioBanner } from '../../components/InitializeAudioBanner';
 import { EnvironmentPanel } from '../../components/EnvironmentPanel';
-import { SideDrawerContainer } from '../SideDrawerContainer';
 
 import './styles.scss';
 
@@ -28,19 +27,21 @@ const MainContent = styled.div`
   flex-direction: column;
   flex: 1;
   height: 100%;
-  max-width: ${({ showSideDrawer }) => showSideDrawer ? '50%' : '100%'};
+  width: 100%;
   position: relative;
 `;
 
 const Content = styled.div`
   flex: 1;
   overflow: hidden;
+  display: flex;
+  flex-direction: row;
 `;
 
 function AppView(props) {
   return (
     <Root>
-      <MainContent showSideDrawer={props.showSideDrawer}>
+      <MainContent>
         <DemoOnlyBanner
           show={props.showDemoWarning}
           onClose={props.dismissDemoWarning}
@@ -65,7 +66,6 @@ function AppView(props) {
           />
         </Content>
       </MainContent>
-      <SideDrawerContainer />
     </Root>
   );
 }

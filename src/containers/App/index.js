@@ -55,6 +55,8 @@ import CustomizedPage from '../CustomizedPage';
 import { NotificationContainer } from '../NotificationContainer';
 import GlipChatPage from '../GlipChatPage';
 import GlipGroupsPage from '../GlipGroupsPage';
+import { SideDrawerContainer } from '../SideDrawerContainer';
+import { SmartNotesPage } from '../SmartNotesPage';
 
 export default function App({
   phone,
@@ -139,6 +141,9 @@ export default function App({
                     callingSettingsUrl="/settings/calling"
                     regionSettingsUrl="/settings/region"
                   />
+                  <SideDrawerContainer>
+                    <SmartNotesPage />
+                  </SideDrawerContainer>
                 </AppView>
               )} >
               <Route
