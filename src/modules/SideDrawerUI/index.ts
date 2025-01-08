@@ -1,13 +1,10 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { RcUIModuleV2, action, state, watch } from '@ringcentral-integration/core';
+import { RcUIModuleV2, action, state } from '@ringcentral-integration/core';
 
 @Module({
   name: 'SideDrawerUI',
   deps: [
     'Locale',
-    'SmartNotes',
-    'Alert',
-    'Theme',
   ],
 })
 export class SideDrawerUI extends RcUIModuleV2 {
@@ -15,14 +12,17 @@ export class SideDrawerUI extends RcUIModuleV2 {
     super({
       deps,
     });
+  }
 
-    watch(
-      this,
-      () => this._deps.smartNotes.session,
-      (smartNoteSession) => {
-        this.setShow(!!smartNoteSession);
-      },
-    );
+  onInitOnce() {
+    const handleResize = () => {
+      const newVariant = window.innerWidth > 500 ? 'permanent' : 'temporary';
+      if (this.variant === newVariant) {
+        return;
+      }
+      this.setVariant(newVariant);
+    };
+    window.addEventListener('resize', handleResize);
   }
 
   @state
@@ -33,42 +33,24 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.show = show;
   }
 
+  @state
+  variant = 'permanent';
+
+  @action
+  setVariant(variant: 'permanent' | 'temporary') {
+    this.variant = variant;
+  }
+
   getUIProps() {
-    const { locale, smartNotes, theme } = this._deps;
+    const { locale } = this._deps;
     return {
       currentLocale: locale.currentLocale,
-      smartNoteSession: smartNotes.session,
       show: this.show,
-      smartNoteClient: smartNotes.smartNoteClient,
-      smartNoteRemoteEntry: smartNotes.smartNoteMFERemoteEntry,
-      themeType: theme.themeType,
+      variant: this.variant,
     };
-  }
-
-  onClose = () => {
-    this.setShow(false);
-    this._deps.smartNotes.setSession(null);
-  }
-
-  onAlert = ({ level, message }) => {
-    this._deps.alert.alert({
-      message: 'showCustomAlertMessage',
-      level,
-      payload: {
-        alertMessage: message
-      }
-    });
-  }
-
-  onSmartNoteSave = async (data) => {
-    return this._deps.smartNotes.onSmartNoteSave();
   }
 
   getUIFunctions() {
-    return {
-      onClose: this.onClose,
-      onAlert: this.onAlert,
-      onSmartNoteSave: this.onSmartNoteSave,
-    };
+    return {};
   }
 }
