@@ -35,9 +35,17 @@ export function AudioPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(propDuration);
-  const audio = useAudio((instance) => {
-    instance.src = uri;
-  });
+  const audio = useAudio();
+  useEffect(() => {
+    // reset audio when uri changed
+    audio.src = uri;
+    audio.currentTime = 0;
+    return () => {
+      setIsPlaying(false);
+      audio.pause();
+    }
+  }, [uri]);
+
   useEffect(() => {
     const onAudioEnded = () => {
       setIsPlaying(false);
