@@ -5,7 +5,7 @@ import { RcList } from '@ringcentral/juno';
 import i18n from '@ringcentral-integration/widgets/components/ConversationList/i18n';
 
 import type { MessageItemProps } from '../ConversationItem';
-import MessageItem from '../ConversationItem';
+import { ConversationItem } from '../ConversationItem';
 
 export type ConversationListProps = {
   brand: string;
@@ -98,7 +98,7 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
       <RcList>
         {
           conversations.map((item) => (
-            <MessageItem
+            <ConversationItem
               {...childProps}
               showContactDisplayPlaceholder={showContactDisplayPlaceholder}
               dateTimeFormatter={dateTimeFormatter}
