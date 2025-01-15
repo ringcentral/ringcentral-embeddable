@@ -273,6 +273,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
                 externalViewEntity={externalViewEntity}
                 showLogButton={showLogButton}
                 logButtonTitle={logButtonTitle}
+                updateTypeFilter={updateTypeFilter}
               />
             ) : (
               !loadingNextPage &&
