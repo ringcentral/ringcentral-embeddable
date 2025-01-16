@@ -21,6 +21,7 @@ import debounce from '@ringcentral-integration/commons/lib/debounce';
     'ContactMatcher',
     'CallingSettings',
     'SmartNotes',
+    'SideDrawerUI',
     'CallLog',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
@@ -206,6 +207,7 @@ export class CallsListUI extends BaseCallsListUI {
       callLog,
       appFeatures,
       callHistory,
+      sideDrawerUI,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -396,6 +398,15 @@ export class CallsListUI extends BaseCallsListUI {
         if (oldValue !== 'All' && callLog.oldCalls.length > 0) {
           callLog.clearOldCalls();
         }
+      },
+      onViewCallDetails: (telephonySessionId) => {
+        sideDrawerUI.openWidget({
+          id: 'callDetails',
+          name: 'Call details',
+          params: {
+            telephonySessionId,
+          }
+        }, true);
       }
     };
   }

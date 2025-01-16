@@ -176,6 +176,7 @@ import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
 import { CallLogger } from '../CallLogger';
 import { CallQueues } from '../CallQueues';
+import { CallDetailsUI } from '../CallDetailsUI';
 import { CompanyContacts } from '../CompanyContacts';
 import { ComposeText } from '../ComposeText';
 import { ComposeTextUI } from '../ComposeTextUI';
@@ -212,6 +213,7 @@ import { LogCallUI } from '../LogCallUI';
 import { LogMessagesUI } from '../LogMessagesUI';
 import { Webphone } from '../Webphone';
 import { MainViewUI } from '../MainViewUI';
+import { AppViewUI } from '../AppViewUI';
 import { DialerUI } from '../DialerUI';
 import { CustomizedPageUI } from '../CustomizedPageUI';
 import { SmsTemplates } from '../SmsTemplates';
@@ -231,6 +233,7 @@ import { SmartNotesUI } from '../SmartNotesUI';
     { provide: 'Theme', useClass: Theme },
     { provide: 'ThemeUI', useClass: ThemeUI },
     { provide: 'MainViewUI', useClass: MainViewUI },
+    { provide: 'AppViewUI', useClass: AppViewUI },
     { provide: 'SideDrawerUI', useClass: SideDrawerUI },
     { provide: 'Locale', useClass: Locale },
     { provide: 'TabManager', useClass: TabManager },
@@ -407,6 +410,7 @@ import { SmartNotesUI } from '../SmartNotesUI';
     { provide: 'CallBadgeUI', useClass: CallBadgeUI },
     { provide: 'CallControlUI', useClass: CallControlUI },
     { provide: 'CallHistoryUI', useClass: CallHistoryUI },
+    { provide: 'CallDetailsUI', useClass: CallDetailsUI },
     { provide: 'CallsOnholdUI', useClass: CallsOnholdUI },
     { provide: 'PhoneTabsUI', useClass: PhoneTabsUI },
     { provide: 'IncomingCallUI', useClass: IncomingCallUI },
@@ -744,6 +748,7 @@ export function createPhone({
   isUsingDefaultClientId,
   enableSMSTemplate,
   enableSmartNote,
+  enableSideWidget,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
   isMainTab,
@@ -959,6 +964,12 @@ export function createPhone({
           autoLog: !!defaultAutoLogMessageEnabled,
         },
       },
+      {
+        provide: 'SideDrawerUIOptions',
+        useValue: {
+          enableSideWidget,
+        },
+      }
     ]
   })
   class Phone extends BasePhone {}
