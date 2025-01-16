@@ -120,6 +120,7 @@ function init({
     enableAudioInitPrompt,
     enableLoadMoreCalls,
     mainTab,
+    enableSideWidget,
   } = options;
   const appUri = `${appUrl}?${obj2uri({
     appKey,
@@ -170,6 +171,7 @@ function init({
     defaultAutoLogMessageEnabled,
     enableSMSTemplate,
     enableSmartNote,
+    enableSideWidget,
     enableAudioInitPrompt,
     enableLoadMoreCalls,
     mainTab,

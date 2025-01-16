@@ -8,7 +8,11 @@ import {
 
 import { ActionMenu } from '../ActionMenu';
 
-export const StyledListItem = styled(RcListItem)`
+export const StyledListItem = styled(RcListItem)<{
+  $clickable?: boolean;
+  $hoverOnMoreMenu?: boolean;
+  $cursorPointer?: boolean;
+}>`
   padding: 0;
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   background-color: ${palette2('neutral', 'b01')};

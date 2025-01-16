@@ -64,6 +64,7 @@ type CallListV2Props = {
   hasMoreCalls: boolean;
   loadMoreCalls: (...args: any[]) => any;
   loadingMoreCalls: boolean;
+  onViewCallDetails: (...args: any[]) => any;
 };
 
 const LoadMoreButton = styled(RcButton)`
@@ -151,6 +152,7 @@ export function CallListV2({
   hasMoreCalls,
   loadMoreCalls,
   loadingMoreCalls,
+  onViewCallDetails,
 }: CallListV2Props) {
   const listRef = useRef(null);
 
@@ -183,7 +185,6 @@ export function CallListV2({
           <CallItem
             formatPhone={formatPhone}
             key={call.id}
-            renderIndex={index}
             call={call}
             currentLocale={currentLocale}
             currentSiteCode={currentSiteCode}
@@ -194,7 +195,6 @@ export function CallListV2({
             onViewContact={onViewContact}
             onCreateContact={onCreateContact}
             onRefreshContact={onRefreshContact}
-            createEntityTypes={createEntityTypes}
             onLogCall={onLogCall}
             onClickToDial={onClickToDial}
             onClickToSms={onClickToSms}
@@ -220,9 +220,6 @@ export function CallListV2({
             externalViewEntity={externalViewEntity}
             externalHasEntity={externalHasEntity}
             readTextPermission={readTextPermission}
-            // disable animation when rendered with react-virtualized
-            withAnimation={false}
-            showChooseEntityModal={showChooseEntityModal}
             enableCDC={enableCDC}
             maxExtensionNumberLength={maxExtensionNumberLength}
             showLogButton={showLogButton}
@@ -231,6 +228,7 @@ export function CallListV2({
             isRecording={isRecording}
             onViewSmartNote={onViewSmartNote}
             aiNoted={aiNotedCallMapping[call.telephonySessionId]}
+            onViewCallDetails={onViewCallDetails}
           />
         );
       }}
