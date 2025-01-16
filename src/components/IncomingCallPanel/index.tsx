@@ -31,6 +31,7 @@ const StyledDialog = styled(RcDialog)`
     display: flex;
     flex-direction: column;
   }
+  position: absolute!important;
 `;
 
 const Container = styled.div`
@@ -320,12 +321,25 @@ const IncomingCallPanel: FunctionComponent<any> = ({
   children,
   name,
   getPresence,
+  container,
 }) => {
   return (
     <StyledDialog
       data-sign="IncomingCallPanel"
       open
       fullScreen
+      container={container}
+      BackdropProps={{
+        style: {
+          position: 'absolute',
+        },
+      }}
+      PaperProps={{
+        style: {
+          width: '100%',
+          position: 'absolute',
+        },
+      }}
     >
       <Avatar
         avatarUrl={avatarUrl}

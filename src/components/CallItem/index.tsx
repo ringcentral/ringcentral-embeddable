@@ -8,32 +8,20 @@ import {
   isMissed,
 } from '@ringcentral-integration/commons/lib/callLogHelpers';
 import { formatDuration } from '@ringcentral-integration/commons/lib/formatDuration';
-import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
 import { parseNumber } from '@ringcentral-integration/commons/lib/parseNumber';
 
 import {
-  useEventCallback,
   usePrevious,
   RcListItemText,
   RcIcon,
   styled,
 } from '@ringcentral/juno';
 import {
-  PhoneBorder,
-  SmsBorder,
-  People,
-  AddMemberBorder,
-  NewAction,
-  ViewLogBorder,
-  Edit,
   PlayCircleBorder,
-  Download,
-  Refresh,
   AiSmartNotes,
   Disposition,
   ExtensionLineBorder,
 } from '@ringcentral/juno-icon';
-import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
 import usePromise from '@ringcentral-integration/widgets/react-hooks/usePromise';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
@@ -43,8 +31,15 @@ import i18n from '@ringcentral-integration/widgets/components/CallItem/i18n';
 import styles from '@ringcentral-integration/widgets/components/CallItem/styles.scss';
 
 import { CallIcon } from './CallIcon';
-import { RecordingDialog } from './RecordingDialog';
 import { StatusMessage } from './StatusMessage';
+import {
+  getPhoneNumber,
+  getContactMatches,
+  getInitialContactIndex,
+  getSelectedContact,
+  getFallbackContactName,
+  getActions,
+} from './helper';
 
 import {
   StyledListItem,
@@ -55,8 +50,8 @@ import {
 } from './styled';
 
 type CallItemProps = {
-  renderIndex?: number;
-  extended?: boolean;
+  // renderIndex?: number;
+  // extended?: boolean;
   // TODO: find correct type
   call: Call & {
     offset: number;
@@ -70,7 +65,7 @@ type CallItemProps = {
   onViewContact?: (...args: any[]) => any;
   onCreateContact?: (...args: any[]) => any;
   onRefreshContact?: (...args: any[]) => any;
-  createEntityTypes?: any[];
+  // createEntityTypes?: any[];
   onClickToDial?: (...args: any[]) => any;
   onClickToSms?: (...args: any[]) => any;
   isLoggedContact?: (...args: any[]) => any;
@@ -95,10 +90,10 @@ type CallItemProps = {
   externalViewEntity?: (...args: any[]) => any;
   externalHasEntity?: (...args: any[]) => any;
   readTextPermission?: boolean;
-  withAnimation?: boolean;
+  // withAnimation?: boolean;
   currentSiteCode?: string;
   isMultipleSiteEnabled?: boolean;
-  showChooseEntityModal?: boolean;
+  // showChooseEntityModal?: boolean;
   enableCDC?: boolean;
   maxExtensionNumberLength?: number;
   formatPhone?: (...args: any[]) => any;
@@ -125,7 +120,6 @@ const StyledStatusMessage = styled(StatusMessage)`
 export const CallItem: FunctionComponent<CallItemProps> = ({
   currentSiteCode = '',
   isMultipleSiteEnabled = false,
-  extended: extendedProp = false,
   isLoggedContact = () => false,
   isLogging: isLoggingProp = false,
   disableClickToDial = false,
@@ -136,12 +130,12 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   showContactDisplayPlaceholder = true,
   autoLog = false,
   readTextPermission = true,
-  withAnimation = true,
-  showChooseEntityModal = true,
+  // withAnimation = true,
+  // showChooseEntityModal = true,
   enableCDC = false,
   maxExtensionNumberLength = 6,
   formatPhone = (phoneNumber: string) => phoneNumber,
-  renderIndex,
+  // renderIndex,
   call,
   brand,
   currentLocale,
@@ -151,7 +145,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   onViewContact,
   onCreateContact,
   onRefreshContact,
-  createEntityTypes,
+  // createEntityTypes,
   onLogCall,
   onClickToDial,
   onClickToSms,
@@ -171,6 +165,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   isRecording = false,
   onViewSmartNote,
   aiNoted,
+  onViewCallDetails,
 }) => {
   const {
     direction,
@@ -184,24 +179,17 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     toName,
     recording,
   } = call;
-  const getInitialContactIndex = useEventCallback(() => {
-    const contactMatches = getContactMatches()!;
 
-    const activityMatches = call.activityMatches || [];
-    for (const activity of activityMatches) {
-      const index = contactMatches.findIndex((contact) =>
-        isLoggedContact?.(call, activity, contact),
-      );
-      if (index > -1) return index;
-    }
-    if (call.toNumberEntity) {
-      const index = contactMatches.findIndex(
-        (contact) => contact.id === call.toNumberEntity,
-      );
-      return index;
-    }
-    return showContactDisplayPlaceholder ? -1 : 0;
-  });
+  const mounted = usePromise();
+  const [selected, setSelected] = useState(getInitialContactIndex(call, showContactDisplayPlaceholder, isLoggedContact));
+  const [isLogging, setIsLogging] = useState(isLoggingProp);
+  const [isCreating, setIsCreating] = useState(false);
+  const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
+  const downloadRef = useRef(null);
+
+  const contactDisplayRef = useRef<HTMLElement | null>(null);
+  const userSelectionRef = useRef(false);
+  const previousCall = usePrevious(() => call);
 
   const onSelectContact = (value: any, idx: any) => {
     const selected = showContactDisplayPlaceholder
@@ -214,38 +202,13 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     }
   };
 
-  const getSelectedContact = (isSelected = selected) => {
-    const contactMatches = getContactMatches();
-    return (
-      (isSelected > -1 && contactMatches[isSelected]) ||
-      (contactMatches.length === 1 && contactMatches[0]) ||
-      null
-    );
-  };
-
-  const getPhoneNumber = () => {
-    return (
-      isInbound(call)
-        ? call.from!.phoneNumber || call.from!.extensionNumber
-        : call.to!.phoneNumber || call.to!.extensionNumber
-    ) as string;
-  };
-
-  const getContactMatches = () => {
-    return (isInbound(call) ? call.fromMatches : call.toMatches) || [];
-  };
-
-  const getFallbackContactName = () => {
-    return isInbound(call) ? call.from!.name : call.to?.name;
-  };
-
   const logCall = async (redirect = true, isSelected = selected, type) => {
     if (typeof onLogCall === 'function' && !isLogging) {
       setIsLogging(true);
       try {
         await mounted(
           onLogCall({
-            contact: getSelectedContact(isSelected),
+            contact: getSelectedContact(isSelected, call),
             call: call,
             redirect,
             triggerType: type,
@@ -259,26 +222,14 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     }
   };
 
-  const viewSelectedContact = () => {
-    if (typeof onViewContact !== 'function') return;
-
-    const activityMatches = (call && call.activityMatches) || [];
-    onViewContact({
-      activityMatches,
-      contactMatches: getContactMatches(),
-      contact: getSelectedContact(),
-      phoneNumber: getPhoneNumber(),
-    });
-  };
-
   const createSelectedContact = async (entityType: any) => {
     if (typeof onCreateContact === 'function' && !isCreating) {
       setIsCreating(true);
-      const phoneNumber = getPhoneNumber();
+      const phoneNumber = getPhoneNumber(call);
       await mounted(
         onCreateContact({
           phoneNumber,
-          name: enableContactFallback ? getFallbackContactName() : '',
+          name: enableContactFallback ? getFallbackContactName(call) : '',
           entityType,
         }),
       );
@@ -286,64 +237,6 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
       setIsCreating(false);
     }
   };
-
-  const clickToSms = ({ countryCode, areaCode }: any) => {
-    if (!onClickToSms) return;
-
-    const phoneNumber = getPhoneNumber()!;
-    const contact = getSelectedContact();
-    if (contact) {
-      onClickToSms({
-        ...contact,
-        phoneNumber,
-      });
-    } else {
-      const formatted = formatNumber({
-        phoneNumber,
-        countryCode,
-        areaCode,
-        maxExtensionLength: maxExtensionNumberLength,
-      });
-      onClickToSms(
-        {
-          name: enableContactFallback ? getFallbackContactName() : formatted,
-          phoneNumber,
-        },
-        true,
-      );
-    }
-  };
-
-  const clickToDial = () => {
-    if (onClickToDial) {
-      const contact = getSelectedContact() || {};
-      const phoneNumber = getPhoneNumber();
-
-      if (phoneNumber) {
-        onClickToDial({
-          ...contact,
-          phoneNumber,
-        });
-      }
-    }
-  };
-
-  const mounted = usePromise();
-  const [selected, setSelected] = useState(getInitialContactIndex());
-  const [extended, setExtended] = useState(extendedProp);
-  const [isLogging, setIsLogging] = useState(isLoggingProp);
-  const [isCreating, setIsCreating] = useState(false);
-  const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
-  const downloadRef = useRef(null);
-  const [recordingDialogOpen, setRecordingDialogOpen] = useState(false);
-
-  const contactDisplayRef = useRef<HTMLElement | null>(null);
-  const userSelectionRef = useRef(false);
-  const previousCall = usePrevious(() => call);
-
-  useEffect(() => {
-    setExtended(extendedProp);
-  }, [extendedProp]);
 
   useEffect(() => {
     setIsLogging(isLoggingProp);
@@ -357,21 +250,17 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
         call.fromMatches !== previousCall?.fromMatches ||
         call.toMatches !== previousCall?.toMatches)
     ) {
-      setSelected(getInitialContactIndex());
+      setSelected(getInitialContactIndex(call, showContactDisplayPlaceholder, isLoggedContact));
     }
-  }, [call, getInitialContactIndex, previousCall]);
+  }, [call, previousCall, showContactDisplayPlaceholder]);
 
-  const phoneNumber = getPhoneNumber();
-  const contactMatches = getContactMatches();
+  const phoneNumber = getPhoneNumber(call);
+  const contactMatches = getContactMatches(call);
   const shouldHideNumber =
     enableCDC && checkShouldHidePhoneNumber(phoneNumber, contactMatches);
-  const isContactMatchesHidden =
-    enableCDC && checkShouldHideContactUser(contactMatches);
-  const fallbackContactName = getFallbackContactName();
+  const fallbackContactName = getFallbackContactName(call);
 
   // const ringing = isRinging(call);
-  const isFax = call.type === 'Fax';
-
   const missed = isInbound(call) && isMissed(call);
   const parsedInfo = parseNumber({
     phoneNumber,
@@ -382,10 +271,6 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     !parsedInfo.hasPlus &&
     parsedInfo.number &&
     parsedInfo.number.length <= maxExtensionNumberLength;
-  const disableClickToSms = !(
-    onClickToSms &&
-    (isExtension ? internalSmsPermission : outboundSmsPermission)
-  );
 
   const durationEl =
     typeof duration === 'undefined' ? (
@@ -407,114 +292,46 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   // const extraButton = renderExtraButton?.(call);
 
   // const selectedMatchContactType = getSelectedContact()?.type ?? '';
-  const actions: any[] = [];
   const isLogged = activityMatches.length > 0 && activityMatches.find(
     (activity) => activity.type !== 'status',
   );
   const statusMatch = activityMatches.find(
     (activity) => activity.type === 'status',
   );
-  if (
-    showLogButton &&
-    !isFax &&
-    (!isLogged || !hideEditLogButton)
-  ) {
-    actions.push({
-      id: 'log',
-      icon: isLogged ? Edit : NewAction,
-      title: (isLogged ? 'Edit log' : logButtonTitle) || 'Log call',
-      onClick: () => logCall(true, undefined, isLogged ? 'editLog' : 'createLog'),
-      disabled: disableLinks || isLogging || statusMatch && statusMatch.status === 'pending',
-    });
-  }
-  if (onClickToDial) {
-    actions.push({
-      id: 'c2d',
-      icon: PhoneBorder,
-      title: i18n.getString('call', currentLocale),
-      onClick: clickToDial,
-      disabled: disableLinks || disableCallButton || disableClickToDial,
-    });
-  }
-  if (onClickToSms) {
-    actions.push({
-      id: 'c2sms',
-      icon: SmsBorder,
-      title: i18n.getString('text', currentLocale),
-      onClick: () => clickToSms({ countryCode, areaCode }),
-      disabled: disableLinks || disableClickToSms || !phoneNumber || !readTextPermission,
-    });
-  }
-  const hasEntity = !!contactMatches.length;
-  if (onViewSmartNote && aiNoted) {
-    actions.push({
-      id: 'viewSmartNote',
-      icon: AiSmartNotes,
-      title: 'View smart note',
-      onClick: () => onViewSmartNote({
-        telephonySessionId: call.telephonySessionId,
-        phoneNumber,
-        contact: hasEntity ? contactMatches[0] : {
-          name: fallbackContactName,
-        },
-        direction,
-      }),
-      disabled: disableLinks,
-      color: 'label.purple01',
-    });
-  }
-  
-  if (!isContactMatchesHidden && hasEntity) {
-    actions.push({
-      id: 'viewContact',
-      icon: People,
-      title: "View contact details",
-      onClick: viewSelectedContact,
-      disabled: disableLinks,
-    });
-  }
-  if (!hasEntity && phoneNumber && onCreateContact) {
-    actions.push({
-      id: 'createContact',
-      icon: AddMemberBorder,
-      title: i18n.getString('addEntity', currentLocale),
-      onClick: () => createSelectedContact(undefined),
-      disabled: disableLinks,
-    });
-  }
-  if (phoneNumber && onRefreshContact) {
-    actions.push({
-      id: 'refreshContact',
-      icon: Refresh,
-      title: 'Refresh contact',
-      onClick: () => {
-        onRefreshContact({
-          phoneNumber,
-        });
-      },
-      disabled: disableLinks,
-    });
-  }
-  if (isRecording) {
-    actions.push({
-      id: 'download',
-      icon: Download,
-      title: 'Download',
-      onClick: () => {
-        downloadRef.current?.click();
-      },
-      disabled: disableLinks,
-    });
-  }
-  if (showLogButton && isLogged && !isFax) {
-    actions.push({
-      id: 'viewLog',
-      icon: ViewLogBorder,
-      title: 'View log details',
-      onClick: () => logCall(true, undefined, 'viewLog'),
-      disabled: disableLinks || isLogging,
-    });
-  }
+  const actions = getActions({
+    call,
+    isExtension,
+    showLogButton,
+    hideEditLogButton,
+    logButtonTitle,
+    logCall,
+    disableLinks,
+    isLogging,
+    onClickToDial,
+    currentLocale,
+    selected,
+    disableCallButton,
+    disableClickToDial,
+    onClickToSms,
+    countryCode,
+    areaCode,
+    maxExtensionNumberLength,
+    enableContactFallback,
+    internalSmsPermission,
+    outboundSmsPermission,
+    readTextPermission,
+    onViewSmartNote,
+    aiNoted,
+    enableCDC,
+    onViewContact,
+    onCreateContact,
+    createSelectedContact,
+    onRefreshContact,
+    isRecording,
+    onDownload: () => {
+      downloadRef.current?.click();
+    },
+  });
   const contactDisplay = (
     <ContactDisplay
       formatPhone={formatPhone}
@@ -556,6 +373,11 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
       isMultipleSiteEnabled={isMultipleSiteEnabled}
     />
   );
+
+  const openRecording = () => {
+    onViewCallDetails(call.telephonySessionId);
+  };
+
   return (
     <StyledListItem
       data-sign="calls_item_root"
@@ -563,12 +385,11 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
       $clickable={!!isRecording}
     >
       <StyledItemIcon
-        onClick={isRecording ? () => {
-          setRecordingDialogOpen(true);
-        }: undefined}
+        onClick={isRecording ? openRecording: undefined}
       >
         <CallIcon
           direction={direction!}
+          currentLocale={currentLocale}
           // ringing={ringing}
           // active={active}
           missed={missed}
@@ -576,9 +397,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
         />
       </StyledItemIcon>
       <RcListItemText
-        onClick={isRecording ? () => {
-          setRecordingDialogOpen(true);
-        }: undefined}
+        onClick={isRecording ? openRecording: undefined}
         primary={contactDisplay}
         secondary={
           <StyledSecondary>
@@ -646,28 +465,6 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
           setHoverOnMoreMenu(open);
         }}
       />
-      {
-        isRecording && (
-          <RecordingDialog
-            currentLocale={currentLocale}
-            open={recordingDialogOpen}
-            onClose={() => setRecordingDialogOpen(false)}
-            contactDisplay={contactDisplay}
-            missed={missed}
-            time={dateEl}
-            type={type}
-            direction={direction}
-            to={call.to}
-            from={call.from}
-            disableLinks={disableLinks}
-            actions={actions}
-            countryCode={countryCode}
-            areaCode={areaCode}
-            maxExtensionLength={maxExtensionNumberLength}
-            recording={recording}
-          />
-        )
-      }
       {
         isRecording && recording && (
           <DownloadLink
