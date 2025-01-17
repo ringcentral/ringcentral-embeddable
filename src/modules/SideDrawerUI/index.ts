@@ -48,6 +48,9 @@ export class SideDrawerUI extends RcUIModuleV2 {
   }
 
   @state
+  showTabs = false;
+
+  @state
   variant = 'permanent';
 
   @action
@@ -72,6 +75,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
       } else {
         this.widgets[index] = widget;
       }
+      this.showTabs = true;
     }
     this.currentWidgetId = widget.id;
     if (!this.show) {
@@ -112,6 +116,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
       variant: this.variant,
       widgets: this.widgets,
       currentWidgetId: this.currentWidgetId,
+      showTabs: this.showTabs,
     };
   }
 
