@@ -23,10 +23,10 @@ export class SmartNotesUI extends RcUIModuleV2 {
         if (smartNoteSession) {
           this._deps.sideDrawerUI.openWidget({
             id: 'smartNotes',
-            name: smartNoteSession.status === 'Disconnected' ? 'Notes (beta)' : 'Notes and transcript (Beta)',
+            name: smartNoteSession.status === 'Disconnected' ? 'Notes (beta)' : 'Overview',
             onClose: this.onClose,
             showCloseButton: smartNoteSession.status !== 'Disconnected',
-          }, true);
+          }, smartNoteSession.status === 'Disconnected');
         } else {
           this._deps.sideDrawerUI.closeWidget('smartNotes');
         }
