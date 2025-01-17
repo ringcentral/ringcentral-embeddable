@@ -45,6 +45,7 @@ plugins:
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   - badges
+  - with-pdf
   - exclude:
       regex:
         - '^\.#.*'
@@ -76,7 +77,7 @@ markdown_extensions:
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
       emoji_index: !!python/name:material.extensions.emoji.twemoji
 
-copyright: "2024 RingCentral, Inc. All rights reserved."
+copyright: "2024-2025 RingCentral, Inc. All rights reserved."
 
 nav:
 - 'Home': https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/index.html

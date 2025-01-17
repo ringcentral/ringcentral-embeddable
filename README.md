@@ -15,20 +15,12 @@ For developers, RingCentral Embeddable is also a framework that allows them to c
 
 RingCentral Embeddable is React and Redux wrapper around [RingCentral Widgets](https://github.com/ringcentral/ringcentral-js-widgets).
 
-## Important notice
-
-**Major release**: RingCentral Embeddable 2.0 released, follow [upgrading guide](https://ringcentral.github.io/ringcentral-embeddable/docs/2.x/) to have a quick upgrading.
-
-All developers are advised to upgrade to RingCentral Embeddable 1.9 or greater. Applications who do not upgrade by March 31, 2024 will cease to function. Learn more about our plan to [end-of-life support for PubNub](https://community.ringcentral.com/articles/116312/end-of-life-for-pubnub-event-delivery-scheduled-fo.html) in our developer community.
-
-Github Page build URI is deprecated. See [Migrating from Github Page latest URI](https://ringcentral.github.io/ringcentral-embeddable/docs/integration/new-latest-uri/) for more details.
-
 ## Additional RingCentral Embeddable resources
 
 * [Document and guide website](https://ringcentral.github.io/ringcentral-embeddable/docs)
 * [Free online demo and configuration tool](https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/)
 * [Watch a video on our website](https://developers.ringcentral.com/embeddable-voice)
-* [List of all Embeddable releases](https://github.com/ringcentral/ringcentral-embeddable/releases)
+* [Embeddable release history](https://github.com/ringcentral/ringcentral-embeddable/releases)
 
 ## Getting started
 
@@ -38,7 +30,7 @@ RingCentral Embeddable can be integrate into a web page in two primary ways.
 
 For those who want to get up and running as quickly as possible, the instructions below allow you to embed a phone into a web page in under a minute. This is perfect for a quick demo or proof of concept. 
 
-*Please note: this quick start mode has all developers share the same client ID and secret. It is NOT recommended for production use as the actions of other users may result in the app being rate-limited, or even suspended - causing disruption to your integration. Once you have successfully demo'ed Embeddable, please [register your own app](docs/config-client-id-and-secret.md) with RingCentral, being careful to configure it properly, and insert your own Client ID into your embed tag.*
+*Please note: this quick start mode has all developers share the same client ID and secret. It is NOT recommended for production use as the actions of other users may result in the app being rate-limited, or even suspended - causing disruption to your integration. Once you have successfully demo'ed Embeddable, please [register your own app](https://ringcentral.github.io/ringcentral-embeddable/docs/app-registration/) with RingCentral, being careful to configure it properly, and insert your own Client ID into your embed tag.*
 
 #### Embed via a `<script>` tag, a.k.a. "Adapter" method
 
@@ -79,20 +71,6 @@ https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.j
 **Via an iframe**
 ```
 https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?clientId=<YOUR CLIENT ID>
-```
-
-### Running Embeddable in sandbox
-
-To run RingCentral Embeddable in our [developer sandbox environment](https://developers.ringcentral.com/guide/getting-started/using-sandbox), pass the sandbox URL to Embeddable via the `appServer` query string parameter. For example:
-
-**Via a script tag**
-```
-https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?appServer=https://platform.devtest.ringcentral.com
-```
-
-**Via an iframe**
-```
-https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?appServer=https://platform.devtest.ringcentral.com
 ```
 
 ### Use our configuration helper
