@@ -17,6 +17,7 @@ import RecentActivityContainer from '../RecentActivityContainer';
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
     width: 100%;
+    background-color: ${palette2('neutral', 'b01')};
   }
 
   &.MuiDrawer-docked {
