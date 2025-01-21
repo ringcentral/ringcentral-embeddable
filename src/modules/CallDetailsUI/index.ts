@@ -57,6 +57,8 @@ export class CallDetailsUI extends RcUIModuleV2 {
           );
           if (newCall) {
             this.setCurrentCall(newCall);
+          } else {
+            this._deps.sideDrawerUI.closeWidget('callDetails');
           }
         }
       },
