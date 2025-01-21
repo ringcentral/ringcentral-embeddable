@@ -16,11 +16,10 @@ import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib
 import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
 
 export function getPhoneNumber(call) {
-  return (
-    isInbound(call)
-      ? call.from!.phoneNumber || call.from!.extensionNumber
-      : call.to!.phoneNumber || call.to!.extensionNumber
-  ) as string;
+  if (isInbound(call)) {
+    return call.from?.phoneNumber || call.from?.extensionNumber || '';
+  }
+  return call.to?.phoneNumber || call.to?.extensionNumber || '';
 };
 
 export function getContactMatches(call) {

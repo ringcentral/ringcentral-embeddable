@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import classnames from 'classnames';
 import { styled, palette2 } from '@ringcentral/juno/foundation';
 import { RcIconButton, RcTypography } from '@ringcentral/juno';
@@ -65,6 +65,7 @@ const DownloadLink = styled.a`
 `;
 
 export function CallDetailsPanel({
+  telephonySessionId,
   currentSiteCode = '',
   isMultipleSiteEnabled = false,
   isLoggedContact = () => false,
@@ -103,19 +104,32 @@ export function CallDetailsPanel({
   logButtonTitle,
   onViewSmartNote,
   aiNoted,
+  onViewCall,
 }) {
-  const {
-    direction,
-    startTime,
-    type,
-    toName,
-    to,
-    from,
-  } = call;
   const downloadRef = useRef(null);
-  const [selected, setSelected] = useState(getInitialContactIndex(call, showContactDisplayPlaceholder, isLoggedContact));
-  const [isLogging, setIsLogging] = useState(isLoggingProp);
+  const [selected, setSelected] = useState(0);
+  const [isLogging, setIsLogging] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const mounted = usePromise();
+  useEffect(() => {
+    onViewCall(telephonySessionId)
+  }, [telephonySessionId]);
+
+  useEffect(() => {
+    if (!call) {
+      return;
+    }
+    setSelected(getInitialContactIndex(call, showContactDisplayPlaceholder, isLoggedContact));
+  }, [call, showContactDisplayPlaceholder]);
+
+  useEffect(() => {
+    setIsLogging(isLoggingProp);
+  }, [isLoggingProp]);
+
+  if (!call) {
+    return null;
+  }
+  const { direction, startTime, type, toName, to, from } = call;
   const missed = isInbound(call) && isMissed(call);
   const self = direction === callDirections.inbound ? to : from;
   const time = dateTimeFormatter({ utcTimestamp: startTime });
@@ -135,7 +149,6 @@ export function CallDetailsPanel({
   const fallbackContactName = getFallbackContactName(call);
   const shouldHideNumber =
     enableCDC && checkShouldHidePhoneNumber(phoneNumber, contactMatches);
-  const mounted = usePromise();
   const logCall = async (redirect = true, isSelected = selected, type) => {
     if (typeof onLogCall === 'function' && !isLogging) {
       setIsLogging(true);

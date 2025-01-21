@@ -1,5 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { RcUIModuleV2 } from '@ringcentral-integration/core';
+import { RcUIModuleV2, state, action, watch } from '@ringcentral-integration/core';
 import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
 
 @Module({
@@ -28,6 +28,7 @@ import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber'
     'RegionSettings',
     'Call',
     'ThirdPartyService',
+    'SideDrawerUI',
   ],
 })
 export class CallDetailsUI extends RcUIModuleV2 {
@@ -35,6 +36,31 @@ export class CallDetailsUI extends RcUIModuleV2 {
     super({
       deps,
     });
+  }
+
+  @state
+  currentCall = null;
+
+  @action
+  setCurrentCall(call) {
+    this.currentCall = call;
+  }
+
+  onInitOnce() {
+    watch(
+      this,
+      () => this._deps.callHistory.latestCalls,
+      (latestCalls) => {
+        if (this.currentCall) {
+          const newCall = latestCalls.find(
+            (call) => call.sessionId === this.currentCall.sessionId,
+          );
+          if (newCall) {
+            this.setCurrentCall(newCall);
+          }
+        }
+      },
+    );
   }
 
   getUIProps({
@@ -45,7 +71,6 @@ export class CallDetailsUI extends RcUIModuleV2 {
     const {
       locale,
       brand,
-      callHistory,
       call,
       extensionInfo,
       appFeatures,
@@ -58,11 +83,12 @@ export class CallDetailsUI extends RcUIModuleV2 {
       regionSettings,
       auth,
     } = this._deps;
-    const currentCall = callHistory.latestCalls.find((call) => call.telephonySessionId === params.telephonySessionId) || {};
     const loggingMap  = callLogger && callLogger.loggingMap || {};
+    const currentCall = this.currentCall;
     return {
+      telephonySessionId: params.telephonySessionId,
       call: currentCall,
-      recording: currentCall.recording ? {
+      recording: currentCall && currentCall.recording ? {
         ...currentCall.recording,
         contentUri: `${currentCall.recording.contentUri}?access_token=${auth.accessToken}`,
       } : null,
@@ -87,12 +113,12 @@ export class CallDetailsUI extends RcUIModuleV2 {
         connectivityManager.isWebphoneUnavailableMode ||
         connectivityManager.isWebphoneInitializing ||
         rateLimiter.throttling,
-      aiNoted: smartNotes.aiNotedCallMapping[currentCall.telephonySessionId],
+      aiNoted: smartNotes.aiNotedCallMapping[params.telephonySessionId],
       brand: brand.name,
       showContactDisplayPlaceholder,
       enableContactFallback,
       autoLog: !!(callLogger && callLogger.autoLog),
-      isLogging: !!loggingMap[currentCall.sessionId],
+      isLogging: !!loggingMap[currentCall && currentCall.sessionId],
       readTextPermission: appFeatures.hasReadTextPermission,
       enableCDC: appFeatures.isCDCEnabled,
     };
@@ -118,9 +144,14 @@ export class CallDetailsUI extends RcUIModuleV2 {
       contactSearch,
       smartNotes,
       thirdPartyService,
+      sideDrawerUI,
     } = this._deps;
 
     return {
+      onViewCall: (telephonySessionId) => {
+        const currentCall = callHistory.latestCalls.find((call) => call.telephonySessionId === telephonySessionId);
+        this.setCurrentCall(currentCall);
+      },
       onClose() {
         routerInteraction.goBack();
       },
@@ -180,7 +211,17 @@ export class CallDetailsUI extends RcUIModuleV2 {
           !thirdPartyService.viewMatchedContactExternal ||
           type !== thirdPartyService.sourceName
         ) {
-          routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
+          sideDrawerUI.openWidget({
+            widget: {
+              id: 'contactDetails',
+              name: 'Contact',
+              params: {
+                contactType: type,
+                contactId: id,
+              },
+            },
+            closeOtherWidgets: true,
+          });
           return;
         }
         thirdPartyService.onViewMatchedContactExternal(contact);
