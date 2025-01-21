@@ -37,6 +37,7 @@ const StyledPanel = styled.div`
 
 type AdditionProps = {
   hideHeader: boolean;
+  contactId?: string;
 }
 
 export const ContactDetailsView: FunctionComponent<
@@ -61,13 +62,14 @@ export const ContactDetailsView: FunctionComponent<
   sourceNodeRenderer,
   getPresence,
   hideHeader,
+  contactId,
 }) => {
   useEffect(() => {
     onVisitPage?.();
 
     return onLeavingPage;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [contactId]);
   let content = null;
   if (showSpinner) {
     content = (
