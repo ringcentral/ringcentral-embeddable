@@ -77,15 +77,16 @@ export default function App({
       />
     );
   };
-  const onViewContact = ({ contact }) => {
+  const onViewContact = ({ contact, forceOpenInWidget = false }) => {
     const { type, id } = contact;
     if (
+      forceOpenInWidget ||
       !phone.thirdPartyService.viewMatchedContactExternal ||
       type !== phone.thirdPartyService.sourceName
     ) {
       phone.sideDrawerUI.openWidget({
         id: 'contactDetails',
-        name: 'Contact details',
+        name: 'Contact',
         params: {
           contactType: type,
           contactId: id,
@@ -121,6 +122,7 @@ export default function App({
                   getAvatarUrl={getAvatarUrl}
                   getPresence={getPresenceOnContactSearch}
                   showCallBadge={showCallBadge}
+                  contactSourceRenderer={ContactSourceIcon}
                 >
                   {routerProps.children}
                 </AppView>
@@ -218,6 +220,9 @@ export default function App({
                       onVisitPage={async () => { await phone.contacts.sync(); }}
                       onRefresh={async () => { await phone.contacts.sync({ type: 'manual' }); }}
                       sourceNodeRenderer={ContactSourceIcon}
+                      onItemSelect={(contact) => {
+                        onViewContact({ contact, forceOpenInWidget: true });
+                      }}
                     />
                   )}
                 />

@@ -91,7 +91,7 @@ export class AppViewUI extends RcUIModuleV2 {
       goToCallCtrl: (sessionId) => {
         const session = webphone.activeSession || webphone.ringSession || {};
         routerInteraction.push(`/calls/active/${sessionId || session.id}`);
-      }
+      },
     });
   }
 }

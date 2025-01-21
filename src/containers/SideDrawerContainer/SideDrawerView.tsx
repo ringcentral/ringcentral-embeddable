@@ -12,6 +12,7 @@ import { Close } from '@ringcentral/juno-icon';
 import { CallDetailsPage } from '../CallDetailsPage';
 import { SmartNotesPage } from '../SmartNotesPage';
 import ContactDetailsPage from '../ContactDetailsPage';
+import RecentActivityContainer from '../RecentActivityContainer';
 
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
@@ -78,7 +79,7 @@ function EmptyView() {
   );
 }
 
-function Widget({ widget }) {
+function Widget({ widget, contactSourceRenderer, navigateTo }) {
   if (!widget) {
     return <EmptyView />;
   }
@@ -92,12 +93,19 @@ function Widget({ widget }) {
     return (
       <ContactDetailsPage
         params={widget.params}
+        sourceNodeRenderer={contactSourceRenderer}
         onClickMailTo={
           (email) => {
             window.open(`mailto:${email}`);
           }
         }
-      ></ContactDetailsPage>
+        hideHeader
+      >
+        <RecentActivityContainer
+          navigateTo={navigateTo}
+          useContact
+        />
+      </ContactDetailsPage>
     )
   }
   return <EmptyView />;
@@ -110,6 +118,8 @@ export function SideDrawerView({
   currentWidgetId,
   closeWidget,
   showTabs,
+  contactSourceRenderer,
+  navigateTo,
 }) {
 
   if (!show && variant === 'permanent') {
@@ -150,7 +160,11 @@ export function SideDrawerView({
           </StyledTabs>
         )
       }
-     <Widget widget={widget} />
+     <Widget
+       widget={widget}
+       contactSourceRenderer={contactSourceRenderer}
+       navigateTo={navigateTo}
+      />
     </StyledDrawer>
   );
 }
