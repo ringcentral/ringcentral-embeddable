@@ -48,6 +48,10 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.show = show;
   }
 
+  toggleShow() {
+    this.setShow(!this.show);
+  }
+
   @state
   showTabs = false;
 
@@ -66,9 +70,18 @@ export class SideDrawerUI extends RcUIModuleV2 {
   currentWidgetId: String | null = null;
 
   @action
-  openWidget(widget: Widget, clearOther = false) {
-    if (clearOther) {
+  openWidget({
+    widget,
+    closeOtherWidgets = false,
+    openSideDrawer = false,
+  }: {
+    widget: Widget;
+    closeOtherWidgets?: boolean;
+    openSideDrawer?: boolean;
+  }) {
+    if (closeOtherWidgets) {
       this.widgets = [widget];
+      this.showTabs = false;
     } else {
       const index = this.widgets.findIndex((w) => w.name === widget.name);
       if (index === -1) {
@@ -79,7 +92,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
       this.showTabs = true;
     }
     this.currentWidgetId = widget.id;
-    if (!this.show) {
+    if (openSideDrawer && !this.show) {
       this.show = true;
     }
   }

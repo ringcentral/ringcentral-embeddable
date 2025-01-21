@@ -22,6 +22,9 @@ export interface TabNavigationViewProps {
   tabNavigationViewClassName?: string;
   onLoading?: boolean;
   tooltipForceHide?: boolean;
+  supportSideDrawer?: boolean;
+  sideDrawerOpen?: boolean;
+  toggleSideDrawer?: () => void;
 }
 
 const Container = styled.div`
@@ -66,6 +69,9 @@ export const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
   goTo,
   currentPath,
   children,
+  supportSideDrawer,
+  sideDrawerOpen,
+  toggleSideDrawer,
 }) => {
   if (onLoading) {
     return <SpinnerOverlay />;
@@ -90,6 +96,9 @@ export const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
             title={currentTab.label}
             showHeaderBorder={currentTab.showHeaderBorder}
             actionsInHeaderRight={currentTab.actionsInHeaderRight}
+            supportSideDrawer={supportSideDrawer && currentTab.showSideDrawerButton}
+            sideDrawerOpen={sideDrawerOpen}
+            toggleSideDrawer={toggleSideDrawer}
           />
         ) : null
       }

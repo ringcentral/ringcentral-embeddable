@@ -85,13 +85,16 @@ export default function App({
       type !== phone.thirdPartyService.sourceName
     ) {
       phone.sideDrawerUI.openWidget({
-        id: 'contactDetails',
-        name: 'Contact',
-        params: {
-          contactType: type,
-          contactId: id,
+        widget: {
+          id: 'contactDetails',
+          name: 'Contact',
+          params: {
+            contactType: type,
+            contactId: id,
+          },
         },
-      }, true);
+        closeOtherWidgets: true,
+      });
       // phone.routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
       return;
     }
@@ -394,6 +397,7 @@ export default function App({
                 component={routerProps => (
                   <ContactDetailsPage
                     params={routerProps.params}
+                    contactId={routerProps.params.contactId}
                     sourceNodeRenderer={ContactSourceIcon}
                     onClickMailTo={
                       (email) => {
