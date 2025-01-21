@@ -93,6 +93,7 @@ function Widget({ widget, contactSourceRenderer, navigateTo }) {
     return (
       <ContactDetailsPage
         params={widget.params}
+        contactId={widget.params?.contactId}
         sourceNodeRenderer={contactSourceRenderer}
         onClickMailTo={
           (email) => {
@@ -112,7 +113,6 @@ function Widget({ widget, contactSourceRenderer, navigateTo }) {
 }
 
 export function SideDrawerView({
-  show,
   variant = 'permanent',
   widgets,
   currentWidgetId,
@@ -120,9 +120,16 @@ export function SideDrawerView({
   showTabs,
   contactSourceRenderer,
   navigateTo,
+}: {
+  variant: 'permanent' | 'temporary';
+  widgets: any[];
+  currentWidgetId: string | null;
+  closeWidget: (widgetId: string) => void;
+  showTabs: boolean;
+  contactSourceRenderer: any;
+  navigateTo: (path: string) => void;
 }) {
-
-  if (!show && variant === 'permanent') {
+  if (widgets.length === 0 && variant === 'temporary') {
     return null;
   }
   const widget = widgets.find((w) => w.id === currentWidgetId);
@@ -130,8 +137,8 @@ export function SideDrawerView({
   return (
     <StyledDrawer
       anchor="right"
-      variant={variant as "permanent" | "temporary"}
-      open={show}
+      variant={variant}
+      open={variant === 'temporary' ? !!widget : undefined}
       keepMounted={variant === 'temporary' ? true : undefined}
     >
       {

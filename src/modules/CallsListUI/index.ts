@@ -401,12 +401,15 @@ export class CallsListUI extends BaseCallsListUI {
       },
       onViewCallDetails: (telephonySessionId) => {
         sideDrawerUI.openWidget({
-          id: 'callDetails',
-          name: 'Call details',
-          params: {
-            telephonySessionId,
-          }
-        }, true);
+          widget: {
+            id: 'callDetails',
+            name: 'Call details',
+            params: {
+              telephonySessionId,
+            }
+          },
+          closeOtherWidgets: true,
+        });
       }
     };
   }

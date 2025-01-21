@@ -40,6 +40,7 @@ type Tab = {
   showHeaderBorder?: boolean,
   priority?: number,
   childTabs?: Tab[],
+  showSideDrawerButton?: boolean,
 };
 
 export const MainViewPanel = (props) => {
@@ -91,7 +92,8 @@ export const MainViewPanel = (props) => {
         onClick: () => {
           props.goTo('/settings');
         },
-      }]
+      }],
+      showSideDrawerButton: true,
     });
   }
   if (showText) {
@@ -135,6 +137,7 @@ export const MainViewPanel = (props) => {
           currentPath === '/contacts'
         );
       },
+      showSideDrawerButton: true,
     });
   }
   if (showGlip) {
