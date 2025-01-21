@@ -1,8 +1,6 @@
 import type { FunctionComponent } from 'react';
 import React, { useEffect } from 'react';
 import { styled, palette2 } from '@ringcentral/juno';
-import { ContactDetails } from '@ringcentral-integration/widgets/components/ContactDetails';
-import Panel from '@ringcentral-integration/widgets/components/Panel';
 import type {
   ContactDetailsViewFunctionProps,
   ContactDetailsViewProps,
@@ -10,6 +8,7 @@ import type {
 import i18n from '@ringcentral-integration/widgets/components/ContactDetailsView/i18n';
 
 import { BackHeaderView } from '../BackHeaderView';
+import { ContactDetails } from './ContactDetails';
 
 interface MessageHolderProps {
   children: string;
@@ -25,14 +24,23 @@ const MessageHolder: FunctionComponent<MessageHolderProps> = ({ children }) => {
   return <MessageHolderWrapper>{children}</MessageHolderWrapper>;
 };
 
-const StyledPanel = styled(Panel)`
-  overflow-y: auto;
+const StyledPanel = styled.div`
+  overflow: hidden;
   padding-top: 0;
   padding-bottom: 30px;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background-color: ${palette2('neutral', 'b01')};
+  box-sizing: border-box;
 `;
 
+type AdditionProps = {
+  hideHeader: boolean;
+}
+
 export const ContactDetailsView: FunctionComponent<
-  ContactDetailsViewFunctionProps & ContactDetailsViewProps
+  ContactDetailsViewFunctionProps & ContactDetailsViewProps & AdditionProps
 > = ({
   children,
   contact,
@@ -52,6 +60,7 @@ export const ContactDetailsView: FunctionComponent<
   onClickToSMS,
   sourceNodeRenderer,
   getPresence,
+  hideHeader,
 }) => {
   useEffect(() => {
     onVisitPage?.();
@@ -97,6 +106,7 @@ export const ContactDetailsView: FunctionComponent<
       dataSign="contactDetails"
       onBack={onBackClick}
       title={i18n.getString('contactDetails', currentLocale)}
+      hideHeader={hideHeader}
     >
       <StyledPanel>
         {content}

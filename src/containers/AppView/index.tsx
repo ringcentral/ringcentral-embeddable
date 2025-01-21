@@ -60,6 +60,7 @@ function AppView({
   clientSecret = null,
   onSetData = undefined,
   redirectUri,
+  contactSourceRenderer,
 }: {
   showDemoWarning: boolean,
   dismissDemoWarning: Function,
@@ -125,7 +126,7 @@ function AppView({
           />
         </Content>
       </MainContent>
-      <SideDrawerContainer />
+      <SideDrawerContainer contactSourceRenderer={contactSourceRenderer} />
     </Root>
   );
 }
