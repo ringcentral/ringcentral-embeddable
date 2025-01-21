@@ -5,3 +5,4 @@ markdown_fenced_code_tabs>=1.0.3
 mkdocs-markdown-filter>=0.1.1
 mdx_include>=0.4.1
 mkdocs-exclude>=1.0.2
+mkdocs-with-pdf
