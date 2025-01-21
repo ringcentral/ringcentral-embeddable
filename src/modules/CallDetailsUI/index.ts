@@ -150,7 +150,11 @@ export class CallDetailsUI extends RcUIModuleV2 {
     return {
       onViewCall: (telephonySessionId) => {
         const currentCall = callHistory.latestCalls.find((call) => call.telephonySessionId === telephonySessionId);
-        this.setCurrentCall(currentCall);
+        if (!currentCall) {
+          sideDrawerUI.closeWidget('callDetails');
+          return;
+        }
+        this.setCurrentCall(currentCall || null);
       },
       onClose() {
         routerInteraction.goBack();
