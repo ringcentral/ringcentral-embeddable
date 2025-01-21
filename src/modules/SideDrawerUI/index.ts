@@ -14,6 +14,7 @@ interface Widget {
   name: 'SideDrawerUI',
   deps: [
     'Locale',
+    'RouterInteraction',
     'SideDrawerUIOptions',
   ],
 })
@@ -123,6 +124,9 @@ export class SideDrawerUI extends RcUIModuleV2 {
   getUIFunctions() {
     return {
       closeWidget: (widgetName: string) => this.closeWidget(widgetName),
+      navigateTo: (path) => {
+        this._deps.routerInteraction.push(path);
+      },
     };
   }
 }
