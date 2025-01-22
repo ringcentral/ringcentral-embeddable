@@ -25,14 +25,14 @@ const Root = styled.div`
   flex-direction: row;
 `;
 
-const MainContent = styled.div<{ showSideDrawer: boolean }>`
+const MainContent = styled.div<{ sideDrawerExtended: boolean }>`
   display: flex;
   flex-direction: column;
   flex: 1;
   height: 100%;
   width: 100%;
   position: relative;
-  max-width: ${({ showSideDrawer }) => showSideDrawer ? '50%' : '100%'};
+  max-width: ${({ sideDrawerExtended }) => sideDrawerExtended ? '50%' : '100%'};
 `;
 
 const Content = styled.div`
@@ -48,7 +48,7 @@ function AppView({
   dismissDemoWarning,
   showAudioInit,
   onEnableAudio,
-  showSideDrawer,
+  sideDrawerExtended,
   callBadgeHidden,
   goToCallCtrl,
   getAvatarUrl,
@@ -66,7 +66,7 @@ function AppView({
   dismissDemoWarning: Function,
   showAudioInit: boolean,
   onEnableAudio: Function,
-  showSideDrawer: boolean,
+  sideDrawerExtended: boolean,
   openSideDrawer: Function,
   callBadgeHidden: boolean,
   goToCallCtrl: Function,
@@ -83,7 +83,7 @@ function AppView({
   const mainContent = useRef(null);
   return (
     <Root>
-      <MainContent showSideDrawer={showSideDrawer}>
+      <MainContent sideDrawerExtended={sideDrawerExtended}>
         <DemoOnlyBanner
           show={showDemoWarning}
           onClose={dismissDemoWarning}

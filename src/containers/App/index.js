@@ -84,17 +84,7 @@ export default function App({
       !phone.thirdPartyService.viewMatchedContactExternal ||
       type !== phone.thirdPartyService.sourceName
     ) {
-      phone.sideDrawerUI.openWidget({
-        widget: {
-          id: 'contactDetails',
-          name: 'Contact',
-          params: {
-            contactType: type,
-            contactId: id,
-          },
-        },
-        closeOtherWidgets: true,
-      });
+      phone.sideDrawerUI.gotoContactDetails({ type, id });
       // phone.routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
       return;
     }

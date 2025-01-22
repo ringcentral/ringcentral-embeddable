@@ -40,7 +40,7 @@ type Tab = {
   showHeaderBorder?: boolean,
   priority?: number,
   childTabs?: Tab[],
-  showSideDrawerButton?: boolean,
+  sideDrawerExtendedButton?: boolean,
 };
 
 export const MainViewPanel = (props) => {
@@ -62,6 +62,7 @@ export const MainViewPanel = (props) => {
     voiceUnreadCounts,
     customizedTabs = [],
     themeType,
+    gotoComposeText,
   } = props;
   const tabList: Tab[] = [];
   if (showPhone) {
@@ -93,7 +94,7 @@ export const MainViewPanel = (props) => {
           props.goTo('/settings');
         },
       }],
-      showSideDrawerButton: true,
+      sideDrawerExtendedButton: true,
     });
   }
   if (showText) {
@@ -116,10 +117,9 @@ export const MainViewPanel = (props) => {
       actionsInHeaderRight: showNewComposeText ? [{
         icon: SmsInviteBorder,
         title: i18n.getString('composeText', currentLocale),
-        onClick: () => {
-          props.goTo('/composeText');
-        },
+        onClick: gotoComposeText,
       }] : [],
+      sideDrawerExtendedButton: true,
     });
   }
   if (showContacts) {
@@ -137,7 +137,7 @@ export const MainViewPanel = (props) => {
           currentPath === '/contacts'
         );
       },
-      showSideDrawerButton: true,
+      sideDrawerExtendedButton: true,
     });
   }
   if (showGlip) {
@@ -193,7 +193,7 @@ export const MainViewPanel = (props) => {
       showHeader: () => {
         return true;
       },
-      showSideDrawerButton: true,
+      sideDrawerExtendedButton: true,
     });
   }
   tabList.push({

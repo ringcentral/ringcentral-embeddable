@@ -6,6 +6,8 @@ import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
   name: 'ConversationsUI',
   deps: [
     'SideDrawerUI',
+    'ComposeTextUI',
+    'ConversationUI',
   ],
 })
 export class ConversationsUI extends BaseConversationsUI {
@@ -31,7 +33,16 @@ export class ConversationsUI extends BaseConversationsUI {
   getUIFunctions(
     options,
   ) {
-    const { conversationLogger, contactMatcher, conversations } = this._deps;
+    const {
+      conversationLogger,
+      contactMatcher,
+      conversations,
+      composeTextUI,
+      appFeatures,
+      messageStore,
+      sideDrawerUI,
+      conversationUI,
+    } = this._deps;
     return {
       ...super.getUIFunctions(options),
       onLogConversation: async ({ redirect = true, ...options }) => {
@@ -48,20 +59,24 @@ export class ConversationsUI extends BaseConversationsUI {
         conversations.updateSearchFilter(value);
       },
       onSearchInputChange: (value) => {
-        this._deps.conversations.updateSearchInput(value);
+        conversations.updateSearchInput(value);
       },
       openMessageDetails: (id) => {
-        this._deps.sideDrawerUI.openWidget({
-          widget: {
-            id: 'messageDetails',
-            name: 'Message details',
-            params: {
-              messageId: id,
-            },
-          },
-          closeOtherWidgets: true,
-        });
+        sideDrawerUI.gotoMessageDetails(id);
       },
+      goToComposeText: () => {
+        composeTextUI.gotoComposeText();
+      },
+      showConversationDetail: (conversationId) => {
+        sideDrawerUI.gotoConversation(conversationId);
+      },
+      onClickToSms: appFeatures.hasComposeTextPermission
+        ? (contact, isDummyContact = false) => {
+            composeTextUI.gotoComposeText(contact, isDummyContact);
+            // for track
+            messageStore.onClickToSMS();
+          }
+        : undefined,
     }
   }
 }

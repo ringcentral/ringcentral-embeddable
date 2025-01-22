@@ -99,6 +99,7 @@ export interface ComposeTextPanelProps {
   deleteTemplate?: (templateId: string) => Promise<any>;
   createOrUpdateTemplate?: (template: any) => Promise<any>;
   sortTemplates?: (...args: any[]) => any;
+  hideHeader?: boolean;
 }
 
 function ComposeTextPanel({
@@ -144,6 +145,7 @@ function ComposeTextPanel({
   addToNumber,
   removeToNumber,
   updateSenderNumber,
+  hideHeader = false,
 }: ComposeTextPanelProps) {
   const noPermission = !!(
     senderNumbers.length === 0 ||
@@ -152,13 +154,17 @@ function ComposeTextPanel({
   return (
     <Root className={className} data-sign="composeTextPanel">
       {showSpinner ? <SpinnerOverlay /> : null}
-      <BackHeader
-        onBack={goBack}
-      >
-        <Title variant="body1" color="neutral.f06">
-          {i18n.getString('composeText', currentLocale)}
-        </Title>
-      </BackHeader>
+      {
+        !hideHeader && (
+          <BackHeader
+            onBack={goBack}
+          >
+            <Title variant="body1" color="neutral.f06">
+              {i18n.getString('composeText', currentLocale)}
+            </Title>
+          </BackHeader>
+        )
+      }
       {
         noPermission ? (
           <NoTextPermission />

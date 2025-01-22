@@ -8,6 +8,8 @@ interface Widget {
   icon?: string;
   node?: ReactNode;
   onClose?: () => void;
+  showTitle?: boolean;
+  params: Record<string, any>;
 }
 
 @Module({
@@ -16,6 +18,7 @@ interface Widget {
     'Locale',
     'RouterInteraction',
     'SideDrawerUIOptions',
+    'ThirdPartyService',
   ],
 })
 export class SideDrawerUI extends RcUIModuleV2 {
@@ -41,15 +44,15 @@ export class SideDrawerUI extends RcUIModuleV2 {
   }
 
   @state
-  show = false;
+  extended = false;
 
   @action
-  setShow(show: boolean) {
-    this.show = show;
+  setExtended(extended: boolean) {
+    this.extended = extended;
   }
 
-  toggleShow() {
-    this.setShow(!this.show);
+  toggleExtended() {
+    this.setExtended(!this.extended);
   }
 
   @state
@@ -92,8 +95,8 @@ export class SideDrawerUI extends RcUIModuleV2 {
       this.showTabs = true;
     }
     this.currentWidgetId = widget.id;
-    if (openSideDrawer && !this.show) {
-      this.show = true;
+    if (openSideDrawer && !this.extended) {
+      this.extended = true;
     }
   }
 
@@ -109,7 +112,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.widgets = this.widgets.filter((w) => w.id !== widgetId);
     if (this.widgets.length === 0) {
       this.currentWidgetId = null;
-      this.show = false;
+      this.extended = false;
     } else {
       if (index === -1) {
         return;
@@ -122,11 +125,21 @@ export class SideDrawerUI extends RcUIModuleV2 {
     }
   }
 
+  get modalOpen() {
+    return this.widgets.length > 0 && this.variant === 'temporary';
+  }
+
+  @action
+  clearWidgets() {
+    this.widgets = [];
+    this.currentWidgetId = null;
+  }
+
   getUIProps() {
     const { locale } = this._deps;
     return {
       currentLocale: locale.currentLocale,
-      show: this.show,
+      extended: this.extended,
       variant: this.variant,
       widgets: this.widgets,
       currentWidgetId: this.currentWidgetId,
@@ -135,11 +148,68 @@ export class SideDrawerUI extends RcUIModuleV2 {
   }
 
   getUIFunctions() {
+    const { thirdPartyService, routerInteraction } = this._deps;
     return {
       closeWidget: (widgetName: string) => this.closeWidget(widgetName),
       navigateTo: (path) => {
-        this._deps.routerInteraction.push(path);
+        routerInteraction.push(path);
+      },
+      onAttachmentDownload: (uri, e) => {
+        thirdPartyService.onClickVCard(uri, e);
       },
     };
+  }
+
+  gotoConversation(conversationId) {
+    this.openWidget({
+      widget: {
+        id: 'conversation',
+        name: 'Conversation',
+        params: {
+          conversationId,
+        },
+      },
+      closeOtherWidgets: true,
+    });
+  }
+
+  gotoContactDetails({ type, id }) {
+    this.openWidget({
+      widget: {
+        id: 'contactDetails',
+        name: 'Contact',
+        params: {
+          contactType: type,
+          contactId: id,
+        },
+      },
+      closeOtherWidgets: true,
+    });
+  }
+
+  gotoCallDetails(telephonySessionId) {
+    this.openWidget({
+      widget: {
+        id: 'callDetails',
+        name: 'Call details',
+        params: {
+          telephonySessionId,
+        }
+      },
+      closeOtherWidgets: true,
+    });
+  }
+
+  gotoMessageDetails(messageId) {
+    this.openWidget({
+      widget: {
+        id: 'messageDetails',
+        name: 'Message details',
+        params: {
+          messageId,
+        },
+      },
+      closeOtherWidgets: true,
+    });
   }
 }

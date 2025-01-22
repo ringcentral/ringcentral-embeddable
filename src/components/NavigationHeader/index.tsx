@@ -58,7 +58,7 @@ export function NavigationHeader({
       {
         supportSideDrawer && (
           <RcIconButton
-            title="Side Drawer"
+            title={sideDrawerOpen ? 'Close side drawer' : 'Open side drawer'}
             symbol={sideDrawerOpen ? DoubleChevronLeft : DoubleChevronRight}
             useRcTooltip
             onClick={toggleSideDrawer}

@@ -9,6 +9,7 @@ import {
     'ModalUI',
     'ThirdPartyService',
     'SmsTemplates',
+    'SideDrawerUI',
   ],
 })
 export class ConversationUI extends BaseConversationUI {
