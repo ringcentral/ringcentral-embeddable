@@ -4,7 +4,8 @@ import type { ToNumber } from '@ringcentral-integration/commons/modules/ComposeT
 import {
   SpinnerOverlay,
 } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
-import { RcTypography, styled, palette2 } from '@ringcentral/juno';
+import { RcTypography, RcIconButton, styled, palette2 } from '@ringcentral/juno';
+import { Close } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/ConversationsPanel/i18n';
 import { BackHeader } from '../BackHeader';
 import MessageInput from '../MessageInput'; // TODO: temporary solution, wait for new component ready
@@ -100,7 +101,16 @@ export interface ComposeTextPanelProps {
   createOrUpdateTemplate?: (template: any) => Promise<any>;
   sortTemplates?: (...args: any[]) => any;
   hideHeader?: boolean;
+  hideBackButton?: boolean;
+  onClose?: (...args: any[]) => any;
+  showCloseButton?: boolean;
 }
+
+const CloseButton = styled(RcIconButton)`
+  position: absolute;
+  right: 6px;
+  top: 0;
+`;
 
 function ComposeTextPanel({
   send,
@@ -146,6 +156,9 @@ function ComposeTextPanel({
   removeToNumber,
   updateSenderNumber,
   hideHeader = false,
+  hideBackButton = false,
+  onClose,
+  showCloseButton = false,
 }: ComposeTextPanelProps) {
   const noPermission = !!(
     senderNumbers.length === 0 ||
@@ -158,10 +171,21 @@ function ComposeTextPanel({
         !hideHeader && (
           <BackHeader
             onBack={goBack}
+            hideBackButton={hideBackButton}
           >
             <Title variant="body1" color="neutral.f06">
               {i18n.getString('composeText', currentLocale)}
             </Title>
+            {
+              showCloseButton && (
+                <CloseButton
+                  symbol={Close}
+                  onClick={onClose}
+                  data-sign="closeButton"
+                  title="Close"
+                />
+              )
+            }
           </BackHeader>
         )
       }

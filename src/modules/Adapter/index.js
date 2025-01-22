@@ -1013,7 +1013,7 @@ export default class Adapter extends AdapterModuleCore {
     }
     const validAttachments = getValidAttachments(attachments);
     if (existedConversation) {
-      this._router.push(`/conversations/${existedConversation.conversationId}`);
+      this._sideDrawerUI.gotoConversation(existedConversation.conversationId);
       if (text && text.length > 0) {
         this._conversations.loadConversation(existedConversation.conversationId);
         this._conversations.updateMessageText(String(text));
