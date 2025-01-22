@@ -193,6 +193,7 @@ export const MainViewPanel = (props) => {
       showHeader: () => {
         return true;
       },
+      showSideDrawerButton: true,
     });
   }
   tabList.push({

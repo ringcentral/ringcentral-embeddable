@@ -197,6 +197,7 @@ import { MeetingHomeUI } from '../MeetingHomeUI';
 import { MeetingInviteUI } from '../MeetingInviteModalUI';
 import { MessageSender } from '../MessageSender';
 import { MessageStore } from '../MessageStore';
+import { MessageDetailsUI } from '../MessageDetailsUI';
 import { NoiseReduction } from '../NoiseReduction';
 import { NumberValidate } from '../NumberValidate';
 import { OAuth } from '../OAuth';
@@ -279,6 +280,7 @@ import { SmartNotesUI } from '../SmartNotesUI';
     { provide: 'ComposeTextUI', useClass: ComposeTextUI },
     { provide: 'ConversationsUI', useClass: ConversationsUI },
     { provide: 'ConversationUI', useClass: ConversationUI },
+    { provide: 'MessageDetailsUI', useClass: MessageDetailsUI },
     { provide: 'LogMessagesUI', useClass: LogMessagesUI },
     { provide: 'CallMonitor', useClass: CallMonitor },
     { provide: 'CallHistory', useClass: CallHistory },

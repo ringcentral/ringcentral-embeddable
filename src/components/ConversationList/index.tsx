@@ -40,6 +40,7 @@ export type ConversationListProps = {
   formatPhone?: (formatPhone: string) => string | undefined;
   showLogButton?: boolean;
   logButtonTitle?: string;
+  openMessageDetails: (id: number) => void;
 } & Omit<MessageItemProps, 'conversation'>;
 
 const Loading = styled.div`
@@ -81,6 +82,7 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
   phoneSourceNameRenderer = undefined,
   showGroupNumberName = false,
   enableCDC = false,
+  openMessageDetails,
   ...childProps
 }: ConversationListProps) => {
   const scrollTopRef = useRef(0);
@@ -117,6 +119,7 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
               phoneSourceNameRenderer={phoneSourceNameRenderer}
               showGroupNumberName={showGroupNumberName}
               enableCDC={enableCDC}
+              openMessageDetails={openMessageDetails}
             />
           ))
         }
