@@ -10,6 +10,7 @@ interface Widget {
   onClose?: () => void;
   showTitle?: boolean;
   params: Record<string, any>;
+  showCloseButton?: boolean;
 }
 
 @Module({
@@ -112,7 +113,6 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.widgets = this.widgets.filter((w) => w.id !== widgetId);
     if (this.widgets.length === 0) {
       this.currentWidgetId = null;
-      this.extended = false;
     } else {
       if (index === -1) {
         return;
@@ -168,6 +168,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
         params: {
           conversationId,
         },
+        showCloseButton: false,
       },
       closeOtherWidgets: true,
     });

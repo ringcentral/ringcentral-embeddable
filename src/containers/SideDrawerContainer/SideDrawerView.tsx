@@ -96,6 +96,7 @@ const StyledTab = styled(RcTab)`
 
 const WidgetWrapper = styled.div`
   flex: 1;
+  overflow: hidden;
 `;
 
 function EmptyView() {
@@ -106,7 +107,14 @@ function EmptyView() {
   );
 }
 
-function Widget({ widget, contactSourceRenderer, navigateTo, onAttachmentDownload }) {
+function Widget({
+  widget,
+  contactSourceRenderer,
+  navigateTo,
+  onAttachmentDownload,
+  onClose,
+  drawerVariant,
+}) {
   if (!widget) {
     return (<EmptyView />);
   }
@@ -128,7 +136,10 @@ function Widget({ widget, contactSourceRenderer, navigateTo, onAttachmentDownloa
     return (
       <ComposeTextPage
         supportAttachment
-        hideHeader
+        hideBackButton={drawerVariant === 'permanent'}
+        showCloseButton={drawerVariant === 'permanent'}
+        onClose={onClose}
+        goBack={onClose}
       />
     );
   }
@@ -140,6 +151,10 @@ function Widget({ widget, contactSourceRenderer, navigateTo, onAttachmentDownloa
         showGroupNumberName
         supportAttachment
         onAttachmentDownload={onAttachmentDownload}
+        hideBackButton={drawerVariant === 'permanent'}
+        showCloseButton={drawerVariant === 'permanent'}
+        onClose={onClose}
+        goBack={onClose}
       />
     );
   }
@@ -180,7 +195,7 @@ export function SideDrawerView({
   variant: 'permanent' | 'temporary';
   widgets: any[];
   currentWidgetId: string | null;
-  closeWidget: (widgetId: string) => void;
+  closeWidget: (widgetId: string | null) => void;
   showTabs: boolean;
   contactSourceRenderer: any;
   navigateTo: (path: string) => void;
@@ -244,6 +259,8 @@ export function SideDrawerView({
           contactSourceRenderer={contactSourceRenderer}
           navigateTo={navigateTo}
           onAttachmentDownload={onAttachmentDownload}
+          onClose={() => closeWidget(currentWidgetId)}
+          drawerVariant={drawerVariant}
         />
       </WidgetWrapper>
     </StyledDrawer>

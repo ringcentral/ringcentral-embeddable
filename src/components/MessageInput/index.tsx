@@ -119,9 +119,9 @@ type MessageInputProps = {
   currentLocale: string;
   disabled: boolean;
   sendButtonDisabled: boolean;
-  minHeight: number;
-  maxHeight: number;
-  maxLength: number;
+  minHeight?: number;
+  maxHeight?: number;
+  maxLength?: number;
   onSend?: (value: string, attachments: any[]) => any;
   onChange?: (value: string) => any;
   onHeightChange?: (height: number) => any;

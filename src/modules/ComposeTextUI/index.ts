@@ -46,7 +46,7 @@ export class ComposeTextUI extends ComposeTextUIBase {
       onClickAdditionalToolbarButton: (buttonId) => {
         thirdPartyService.onClickAdditionalButton(buttonId);
       },
-      goBack: () => {
+      goBack: props.goBack ? props.goBack : () => {
         routerInteraction.goBack();
       },
       loadTemplates: () => {
@@ -74,7 +74,7 @@ export class ComposeTextUI extends ComposeTextUIBase {
       widget: {
         id: 'composeText',
         name: 'Compose text',
-        showTitle: true,
+        showCloseButton: false,
       },
       closeOtherWidgets: true,
     });
