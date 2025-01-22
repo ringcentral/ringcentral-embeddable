@@ -54,7 +54,7 @@ export class AppViewUI extends RcUIModuleV2 {
           (auth.loggedIn && callingSettings.callingMode === callingModes.webphone)
         )
       ),
-      showSideDrawer: sideDrawerUI.show,
+      sideDrawerExtended: sideDrawerUI.extended,
       callBadgeHidden: (
         (!showCallBadge) ||
         routerInteraction.currentPath && (

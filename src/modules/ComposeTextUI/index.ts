@@ -3,12 +3,18 @@ import {
   ComposeTextUI as ComposeTextUIBase,
 } from '@ringcentral-integration/widgets/modules/ComposeTextUI';
 
+type ComposeContact = {
+  name?: string;
+  phoneNumber: string;
+}
+
 @Module({
   name: 'ComposeTextUI',
   deps: [
     'ThirdPartyService',
     'RouterInteraction',
     'SmsTemplates',
+    'SideDrawerUI',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -56,5 +62,36 @@ export class ComposeTextUI extends ComposeTextUIBase {
         return smsTemplates.sort(templateIds);
       },
     };
+  }
+
+  gotoComposeText(contact: ComposeContact | undefined = undefined, isDummyContact = false) {
+    const {
+      composeText,
+      contactSearch,
+      sideDrawerUI,
+    } = this._deps;
+    sideDrawerUI.openWidget({
+      widget: {
+        id: 'composeText',
+        name: 'Compose text',
+        showTitle: true,
+      },
+      closeOtherWidgets: true,
+    });
+    if (!contact) {
+      return;
+    }
+    // if contact autocomplete, if no match fill the number only
+    if (contact.name && contact.phoneNumber && isDummyContact) {
+      composeText.updateTypingToNumber(contact.name);
+      contactSearch.search({ searchString: contact.name });
+    } else {
+      composeText.addToNumber(contact);
+      if (
+        composeText.typingToNumber === contact.phoneNumber
+      ) {
+        composeText.cleanTypingToNumber();
+      }
+    }
   }
 }

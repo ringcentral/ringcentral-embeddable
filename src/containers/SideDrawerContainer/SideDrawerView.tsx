@@ -7,6 +7,7 @@ import {
   RcTab,
   styled,
   palette2,
+  css,
 } from '@ringcentral/juno';
 import { Close } from '@ringcentral/juno-icon';
 import { CallDetailsPage } from '../CallDetailsPage';
@@ -14,11 +15,16 @@ import { SmartNotesPage } from '../SmartNotesPage';
 import ContactDetailsPage from '../ContactDetailsPage';
 import RecentActivityContainer from '../RecentActivityContainer';
 import { MessageDetailsPage } from '../MessageDetailsPage';
+import ComposeTextPage from '../ComposeTextPage';
+import { ConversationPage } from '../ConversationPage';
 
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
     width: 100%;
+    height: 100%;
     background-color: ${palette2('neutral', 'b01')};
+    display: flex;
+    flex-direction: column;
   }
 
   &.MuiDrawer-docked {
@@ -35,10 +41,25 @@ const StyledTypography = styled(RcTypography)`
   padding-top: 50px;
 `;
 
-const ActionLine = styled.div`
+const Header = styled.div<{ $showBorder?: boolean }>`
   position: relative;
-  padding: 5px 6px;
-  text-align: right;
+  padding: 0;
+  text-align: center;
+  width: 100%;
+  height: 40px;
+  ${props => props.$showBorder && css`
+    border-bottom: 1px solid ${palette2('neutral', 'l02')};
+  `}
+`;
+
+const HeaderTitle = styled(RcTypography)`
+  line-height: 40px;
+`;
+
+const CloseButton = styled(RcIconButton)`
+  position: absolute;
+  right: 6px;
+  top: 0;
 `;
 
 const StyledTabs = styled(RcTabs)`
@@ -73,6 +94,10 @@ const StyledTab = styled(RcTab)`
   }
 `;
 
+const WidgetWrapper = styled.div`
+  flex: 1;
+`;
+
 function EmptyView() {
   return (
     <StyledTypography>
@@ -81,7 +106,7 @@ function EmptyView() {
   );
 }
 
-function Widget({ widget, contactSourceRenderer, navigateTo }) {
+function Widget({ widget, contactSourceRenderer, navigateTo, onAttachmentDownload }) {
   if (!widget) {
     return (<EmptyView />);
   }
@@ -96,6 +121,25 @@ function Widget({ widget, contactSourceRenderer, navigateTo }) {
       <MessageDetailsPage
         params={widget.params}
         showContactDisplayPlaceholder={false}
+      />
+    );
+  }
+  if (widget.id === 'composeText') {
+    return (
+      <ComposeTextPage
+        supportAttachment
+        hideHeader
+      />
+    );
+  }
+  if (widget.id === 'conversation') {
+    return (
+      <ConversationPage
+        params={widget.params}
+        showContactDisplayPlaceholder={false}
+        showGroupNumberName
+        supportAttachment
+        onAttachmentDownload={onAttachmentDownload}
       />
     );
   }
@@ -130,6 +174,8 @@ export function SideDrawerView({
   showTabs,
   contactSourceRenderer,
   navigateTo,
+  extended,
+  onAttachmentDownload,
 }: {
   variant: 'permanent' | 'temporary';
   widgets: any[];
@@ -138,28 +184,43 @@ export function SideDrawerView({
   showTabs: boolean;
   contactSourceRenderer: any;
   navigateTo: (path: string) => void;
+  extended: boolean;
+  onAttachmentDownload: (attachment: any) => void;
 }) {
-  if (widgets.length === 0 && variant === 'temporary') {
+  let drawerVariant = variant;
+  if (extended) {
+    drawerVariant = 'permanent';
+  }
+  if (widgets.length === 0 && drawerVariant === 'temporary') {
     return null;
   }
   const widget = widgets.find((w) => w.id === currentWidgetId);
   let showCloseButton = widget?.showCloseButton ?? true;
+  const showTitleInHeader = !!(widget && widget.showTitle && widget.name);
   return (
     <StyledDrawer
       anchor="right"
-      variant={variant}
-      open={variant === 'temporary' ? !!widget : undefined}
-      keepMounted={variant === 'temporary' ? true : undefined}
+      variant={drawerVariant}
+      open={drawerVariant === 'temporary' ? !!widget : undefined}
+      keepMounted={drawerVariant === 'temporary' ? true : undefined}
     >
       {
         showCloseButton && !showTabs && (
-          <ActionLine>
-            <RcIconButton
+          <Header $showBorder={showTitleInHeader}>
+            {
+              showTitleInHeader && (
+                <HeaderTitle variant="body1" color="neutral.f06">
+                  {widget.name}
+                </HeaderTitle>
+              )
+            }
+            <CloseButton
               symbol={Close}
               onClick={() => closeWidget(currentWidgetId)}
               size="medium"
+              data-sign="sideDrawerModalCloseButton"
             />
-          </ActionLine>
+          </Header>
         )
       }
       {
@@ -177,11 +238,14 @@ export function SideDrawerView({
           </StyledTabs>
         )
       }
-     <Widget
-       widget={widget}
-       contactSourceRenderer={contactSourceRenderer}
-       navigateTo={navigateTo}
-      />
+      <WidgetWrapper>
+        <Widget
+          widget={widget}
+          contactSourceRenderer={contactSourceRenderer}
+          navigateTo={navigateTo}
+          onAttachmentDownload={onAttachmentDownload}
+        />
+      </WidgetWrapper>
     </StyledDrawer>
   );
 }

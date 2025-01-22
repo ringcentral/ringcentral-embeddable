@@ -6,11 +6,15 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
   deps: [
     'ModalUI',
     'ThirdPartyService',
+    'SideDrawerUI',
   ],
 })
 export class DialerUI extends DialerUIBase {
   protected _alertModalId = null;
   callVerify = async ({ phoneNumber, recipient }) => {
+    if (this._deps.sideDrawerUI.modalOpen) {
+      this._deps.sideDrawerUI.clearWidgets();
+    }
     if (!this._deps.thirdPartyService.doNotContactRegistered) {
       return true;
     }

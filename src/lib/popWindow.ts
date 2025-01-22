@@ -1,4 +1,4 @@
-export function popWindow(url: string, id: string, w: number, h: number) {
+export function popWindow(url: string, id: string, w: number, h: number): WindowProxy | null {
   if (url.indexOf('javascript') > 0) {
     throw new Error('Invalid window open url');
   }
