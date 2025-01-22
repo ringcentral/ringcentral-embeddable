@@ -1,10 +1,12 @@
-import { computed, action, state } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { ConversationsUI as BaseConversationsUI } from '@ringcentral-integration/widgets/modules/ConversationsUI';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 
 @Module({
   name: 'ConversationsUI',
+  deps: [
+    'SideDrawerUI',
+  ],
 })
 export class ConversationsUI extends BaseConversationsUI {
   getUIProps({
@@ -47,6 +49,18 @@ export class ConversationsUI extends BaseConversationsUI {
       },
       onSearchInputChange: (value) => {
         this._deps.conversations.updateSearchInput(value);
+      },
+      openMessageDetails: (id) => {
+        this._deps.sideDrawerUI.openWidget({
+          widget: {
+            id: 'messageDetails',
+            name: 'Message details',
+            params: {
+              messageId: id,
+            },
+          },
+          closeOtherWidgets: true,
+        });
       },
     }
   }

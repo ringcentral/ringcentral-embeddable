@@ -13,6 +13,7 @@ import { CallDetailsPage } from '../CallDetailsPage';
 import { SmartNotesPage } from '../SmartNotesPage';
 import ContactDetailsPage from '../ContactDetailsPage';
 import RecentActivityContainer from '../RecentActivityContainer';
+import { MessageDetailsPage } from '../MessageDetailsPage';
 
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
@@ -82,13 +83,21 @@ function EmptyView() {
 
 function Widget({ widget, contactSourceRenderer, navigateTo }) {
   if (!widget) {
-    return <EmptyView />;
+    return (<EmptyView />);
   }
   if (widget.id === 'callDetails') {
-    return <CallDetailsPage params={widget.params} />;
+    return (<CallDetailsPage params={widget.params} />);
   }
   if (widget.id === 'smartNotes') {
-    return <SmartNotesPage />;
+    return (<SmartNotesPage />);
+  }
+  if (widget.id === 'messageDetails') {
+    return (
+      <MessageDetailsPage
+        params={widget.params}
+        showContactDisplayPlaceholder={false}
+      />
+    );
   }
   if (widget.id === 'contactDetails') {
     return (
