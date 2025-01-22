@@ -21,6 +21,7 @@ import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber'
     'ContactSearch',
     'AccountInfo',
     'SideDrawerUI',
+    'ComposeTextUI',
     'ThirdPartyService',
     { dep: 'Call', optional: true },
     { dep: 'DialerUI', optional: true },
@@ -154,6 +155,7 @@ export class MessageDetailsUI extends RcUIModuleV2 {
       composeText,
       contactSearch,
       conversationLogger,
+      composeTextUI,
     } = this._deps;
     return {
       onViewMessage: (messageId) => {
@@ -181,17 +183,7 @@ export class MessageDetailsUI extends RcUIModuleV2 {
           !thirdPartyService.viewMatchedContactExternal ||
           type !== thirdPartyService.sourceName
         ) {
-          sideDrawerUI.openWidget({
-            widget: {
-              id: 'contactDetails',
-              name: 'Contact',
-              params: {
-                contactType: type,
-                contactId: id,
-              },
-            },
-            closeOtherWidgets: true,
-          });
+          sideDrawerUI.gotoContactDetails({ type, id });
           return;
         }
         thirdPartyService.onViewMatchedContactExternal(contact);
@@ -226,21 +218,7 @@ export class MessageDetailsUI extends RcUIModuleV2 {
         : undefined,
       onClickToSms: appFeatures.hasComposeTextPermission
         ? (contact, isDummyContact = false) => {
-            if (routerInteraction) {
-              routerInteraction.push(composeTextRoute);
-            }
-            // if contact autocomplete, if no match fill the number only
-            if (contact.name && contact.phoneNumber && isDummyContact) {
-              composeText.updateTypingToNumber(contact.name);
-              contactSearch.search({ searchString: contact.name });
-            } else {
-              composeText.addToNumber(contact);
-              if (
-                composeText.typingToNumber === contact.phoneNumber
-              ) {
-                composeText.cleanTypingToNumber();
-              }
-            }
+            composeTextUI.gotoComposeText(contact, isDummyContact);
             // for track
             messageStore.onClickToSMS();
           }

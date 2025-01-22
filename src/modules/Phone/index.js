@@ -127,7 +127,6 @@ import {
 import {
   ConnectivityManager,
 } from '@ringcentral-integration/widgets/modules/ConnectivityManager';
-import { ContactDetailsUI } from '@ringcentral-integration/widgets/modules/ContactDetailsUI';
 import { ContactSearchUI } from '@ringcentral-integration/widgets/modules/ContactSearchUI';
 // UI modules
 import {
@@ -168,6 +167,7 @@ import { Auth } from '../Auth';
 import { AudioSettings } from '../AudioSettings';
 import { AudioSettingsUI } from '../AudioSettingsUI';
 import { PhoneTabsUI } from '../PhoneTabsUI';
+import { ContactDetailsUI } from '../ContactDetailsUI';
 import { CallControlUI } from '../CallControlUI';
 import { IncomingCallUI } from '../IncomingCallUI';
 import { CallHistory } from '../CallHistory';
@@ -478,6 +478,7 @@ export default class BasePhone extends RcModule {
       appConfig,
       conferenceCall,
       contacts,
+      sideDrawerUI,
     } = options;
     // Webphone configuration
     webphone.onCallEnd((session, currentSession, ringSession) => {
@@ -585,6 +586,9 @@ export default class BasePhone extends RcModule {
         });
       }
       contactMatcher.forceMatchNumber({ phoneNumber: session.from });
+      if (sideDrawerUI.modalOpen) {
+        sideDrawerUI.clearWidgets();
+      }
     });
     webphone.onBeforeCallResume((session) => {
       if (!webphone._webphone) {

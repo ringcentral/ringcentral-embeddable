@@ -79,6 +79,7 @@ import {
     'AudioSettings',
     'SmsTemplates',
     'SideDrawerUI',
+    'ComposeTextUI',
     'Analytics',
     'Theme',
     { dep: 'AdapterOptions', optional: true }
@@ -120,6 +121,7 @@ export default class Adapter extends AdapterModuleCore {
     isUsingDefaultClientId,
     smsTemplates,
     sideDrawerUI,
+    composeTextUI,
     theme,
     ...options
   }) {
@@ -159,6 +161,7 @@ export default class Adapter extends AdapterModuleCore {
     this._audioSettings = audioSettings;
     this._smsTemplates = smsTemplates;
     this._sideDrawerUI = sideDrawerUI;
+    this._composeTextUI = composeTextUI;
     this._analytics = analytics;
     this._theme = theme;
 
@@ -179,7 +182,7 @@ export default class Adapter extends AdapterModuleCore {
     this._dialerDisabled = null;
     this._meetingReady = null;
     this._brandConfig = null;
-    this._sideDrawerOpen = null;
+    this._sideDrawerExtended = null;
     this._themeType = null;
     this._popupWindowManager = new PopupWindowManager({ prefix, isPopupWindow: fromPopup });
 
@@ -1022,7 +1025,7 @@ export default class Adapter extends AdapterModuleCore {
       }
       return;
     }
-    this._router.push('/composeText');
+    this._composeTextUI.gotoComposeText();
     if (phoneNumber) {
       this._composeText.updateTypingToNumber(phoneNumber);
     }
@@ -1258,12 +1261,12 @@ export default class Adapter extends AdapterModuleCore {
     if (!this.ready) {
       return;
     }
-    if (this._sideDrawerOpen === this._sideDrawerUI.show) {
+    if (this._sideDrawerExtended === this._sideDrawerUI.extended) {
       return;
     }
-    this._sideDrawerOpen = this._sideDrawerUI.show;
+    this._sideDrawerExtended = this._sideDrawerUI.extended;
     const newSize = {
-      width: this._sideDrawerOpen ? 600 : 300,
+      width: this._sideDrawerExtended ? 600 : 300,
       height: 500,
     };
     this._syncSize(newSize);
@@ -1273,7 +1276,7 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._postMessage({
       type: 'rc-adapter-side-drawer-open-notify',
-      open: this._sideDrawerOpen,
+      open: this._sideDrawerExtended,
     });
   }
 

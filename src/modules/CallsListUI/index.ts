@@ -22,6 +22,7 @@ import debounce from '@ringcentral-integration/commons/lib/debounce';
     'CallingSettings',
     'SmartNotes',
     'SideDrawerUI',
+    'ComposeTextUI',
     'CallLog',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
@@ -208,6 +209,7 @@ export class CallsListUI extends BaseCallsListUI {
       appFeatures,
       callHistory,
       sideDrawerUI,
+      composeTextUI,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -400,17 +402,12 @@ export class CallsListUI extends BaseCallsListUI {
         }
       },
       onViewCallDetails: (telephonySessionId) => {
-        sideDrawerUI.openWidget({
-          widget: {
-            id: 'callDetails',
-            name: 'Call details',
-            params: {
-              telephonySessionId,
-            }
-          },
-          closeOtherWidgets: true,
-        });
-      }
+        sideDrawerUI.gotoCallDetails(telephonySessionId);
+      },
+      onClickToSms: appFeatures.hasComposeTextPermission ? async (contact, isDummyContact = false) => {
+        composeTextUI.gotoComposeText(contact, isDummyContact);
+        this._deps.callHistory.onClickToSMS();
+      } : undefined,
     };
   }
 

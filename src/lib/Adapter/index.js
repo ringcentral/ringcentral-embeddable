@@ -249,6 +249,8 @@ class Adapter extends AdapterCore {
         case 'rc-adapter-theme-notify':
           this._setTheme(data.theme);
           break;
+        case 'rc-adapter-set-popup-window-size':
+          this._setPopupWindowSize(data.width, data.height);
         default:
           super._onMessage(data);
           break;
@@ -384,6 +386,13 @@ class Adapter extends AdapterCore {
       this._contentFrameContainerEl.style.height = 'calc(100% - 36px)';
       this._contentFrameEl.style.width = '100%';
       this._contentFrameEl.style.height = '100%';
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'rc-adapter-set-popup-window-size',
+          width: this._appWidth,
+          height: this._appHeight,
+        }, '*');
+      }
     }
   }
 
@@ -451,6 +460,15 @@ class Adapter extends AdapterCore {
   _setTheme(theme) {
     this._theme = theme;
     this._renderMainClass();
+  }
+
+  _setPopupWindowSize(width, height) {
+    if (this._popupedWindow) {
+      this._popupedWindow.resizeTo(
+        width, 
+        this._popupedWindow.outerHeight || (this._appHeight + 64)
+      );
+    }
   }
 
   async popupWindow() {
