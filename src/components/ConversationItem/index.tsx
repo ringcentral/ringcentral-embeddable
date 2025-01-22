@@ -8,33 +8,10 @@ import {
   RcListItemIcon,
   RcIcon,
 } from '@ringcentral/juno';
-import {
-  ViewBorder,
-  Download,
-  Read,
-  Unread,
-  PhoneBorder,
-  SmsBorder,
-  People,
-  AddMemberBorder,
-  Delete,
-  AddTextLog,
-  Refresh,
-  Disposition,
-} from '@ringcentral/juno-icon';
-import { extensionTypes } from '@ringcentral-integration/commons/enums/extensionTypes';
-import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
+import { Disposition } from '@ringcentral/juno-icon';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 import type { Message } from '@ringcentral-integration/commons/interfaces/MessageStore.model';
-import {
-  messageIsFax,
-  messageIsTextMessage,
-} from '@ringcentral-integration/commons/lib/messageHelper';
-import { formatDuration } from '@ringcentral-integration/commons/lib/formatDuration';
-import parseNumber from '@ringcentral-integration/commons/lib/parseNumber';
-import { format } from '@ringcentral-integration/utils';
-
-import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
+import { messageIsTextMessage } from '@ringcentral-integration/commons/lib/messageHelper';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
 import type { ContactDisplayItemProps } from '@ringcentral-integration/widgets/components/ContactDisplay/ContactDisplayItem';
@@ -44,10 +21,16 @@ import actionI18n from '@ringcentral-integration/widgets/components/ActionMenuLi
 import styles from '@ringcentral-integration/widgets/components/MessageItem/styles.scss';
 
 import { ConversationIcon } from './ConversationIcon';
-import { DetailDialog } from './DetailDialog';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { ActionMenu } from '../ActionMenu';
 import { StatusMessage } from '../CallItem/StatusMessage';
+import { Detail } from './Detail';
+import {
+  getSelectedContact,
+  getInitialContactIndex,
+  getPhoneNumber,
+  getActions,
+} from './helper';
 
 export type MessageItemProps = {
   conversation: Message;
@@ -99,15 +82,6 @@ export type MessageItemProps = {
   formatPhone: (phoneNumber: string) => string | undefined;
   showLogButton?: boolean;
   logButtonTitle?: string;
-};
-
-type MessageItemState = {
-  selected: number;
-  isLogging: boolean;
-  isCreating: boolean;
-  detailOpen: boolean;
-  deleteConfirmOpen: boolean;
-  hoverOnMoreMenu: boolean;
 };
 
 const StyledListItem = styled(RcListItem)<{ $hoverOnMoreMenu: boolean }>`
@@ -185,11 +159,6 @@ const DetailArea = styled.span`
   flex-direction: row;
 `;
 
-const SubjectOverview = styled.span`
-  ${ellipsis()}
-  flex: 1;
-`;
-
 const StyledActionMenu = styled(ActionMenu)`
   position: absolute;
   right: 16px;
@@ -204,52 +173,6 @@ const StyledActionMenu = styled(ActionMenu)`
 const DownloadLink = styled.a`
   display: none;
 `;
-
-function Detail({ conversation, currentLocale }) {
-  if (messageIsTextMessage(conversation)) {
-    if (
-      conversation.mmsAttachments &&
-      conversation.mmsAttachments.length > 0
-    ) {
-      const imageCount = conversation.mmsAttachments.filter(
-        (m) => m.contentType.indexOf('image') > -1,
-      ).length;
-      if (imageCount > 0) {
-        return format(i18n.getString('imageAttachment', currentLocale), {
-          count: imageCount,
-        });
-      }
-      return format(i18n.getString('fileAttachment', currentLocale), {
-        count: conversation.mmsAttachments.length,
-      });
-    }
-    return (
-      <SubjectOverview>{conversation.subject}</SubjectOverview>
-    );
-  }
-  if (conversation.voicemailAttachment) {
-    const { duration } = conversation.voicemailAttachment;
-    return `${i18n.getString(
-      'voiceMessage',
-      currentLocale,
-    )} (${formatDuration(duration)})`;
-  }
-  if (messageIsFax(conversation)) {
-    const pageCount = +conversation.faxPageCount;
-    const nameKey = pageCount === 1 ? 'page' : 'pages';
-    if (conversation.direction === messageDirection.inbound) {
-      return `${i18n.getString(
-        'faxReceived',
-        currentLocale,
-      )}(${pageCount} ${i18n.getString(nameKey, currentLocale)})`;
-    }
-    return `${i18n.getString(
-      'faxSent',
-      currentLocale,
-    )}(${pageCount} ${i18n.getString(nameKey, currentLocale)})`;
-  }
-  return '';
-}
 
 function DefaultContactDisplay({
   showUnreadStatus = true,
@@ -345,29 +268,6 @@ function DefaultContactDisplay({
   );
 }
 
-function getInitialContactIndex({
-  correspondentMatches,
-  lastMatchedCorrespondentEntity,
-  showContactDisplayPlaceholder,
-}) {
-  if (lastMatchedCorrespondentEntity) {
-    const index = correspondentMatches.findIndex(
-      (contact) => contact.id === lastMatchedCorrespondentEntity.id,
-    );
-    if (index > -1) return index;
-  }
-  return showContactDisplayPlaceholder ? -1 : 0;
-}
-
-function getSelectedContact(selected, correspondentMatches){
-  const contactMatches = correspondentMatches;
-  return (
-    (selected > -1 && contactMatches[selected]) ||
-    (contactMatches.length === 1 && contactMatches[0]) ||
-    null
-  );
-};
-
 export function ConversationItem({
   autoLog = false,
   areaCode,
@@ -413,6 +313,7 @@ export function ConversationItem({
   sourceIcons,
   updateTypeFilter,
   unmarkMessage,
+  openMessageDetails,
 }) {
   const {
     conversationId,
@@ -436,7 +337,6 @@ export function ConversationItem({
   }));
   const [isLoggingState, setIsLoggingState] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [detailOpen, setDetailOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
   const userSelectionRef = useRef(false);
@@ -478,34 +378,10 @@ export function ConversationItem({
   if (isFax && !faxAttachment) {
     disableLinks = true;
   }
-  const phoneNumber = (
-    (correspondents.length === 1 &&
-      correspondents[0] &&
-      (correspondents[0].phoneNumber || correspondents[0].extensionNumber)) ||
-    undefined
-  );
-  const isContactMatchesHidden =
-    enableCDC && checkShouldHideContactUser(correspondentMatches);
+  const phoneNumber = getPhoneNumber(conversation);
   const detail = (
     <Detail conversation={conversation} currentLocale={currentLocale} />
   );
-  let disableClickToSms = false;
-  if (phoneNumber) {
-    const parsedInfo = parseNumber({
-      phoneNumber,
-      countryCode,
-      areaCode,
-      maxExtensionLength: maxExtensionNumberLength,
-    });
-    const isExtension =
-      !parsedInfo.hasPlus &&
-      parsedInfo.number &&
-      parsedInfo.number.length <= maxExtensionNumberLength;
-    disableClickToSms = !(
-      onClickToSms &&
-      (isExtension ? internalSmsPermission : outboundSmsPermission)
-    );
-  }
   const msgItem = `${type}MessageItem`;
   const fallbackName = (correspondents.length === 1 && correspondents[0].name) || undefined;
   const logConversation = async ({
@@ -608,12 +484,6 @@ export function ConversationItem({
       isLoggingState={isLogging}
     />
   );
-  const selectedContact = getSelectedContact(selected, correspondentMatches);
-  const hasEntity = (
-    correspondents.length === 1 &&
-    !!correspondentMatches.length &&
-    (selectedContact?.type ?? '') !== extensionTypes.ivrMenu
-  );
   let downloadUri = null;
   if (faxAttachment) {
     downloadUri = faxAttachment.uri;
@@ -626,187 +496,66 @@ export function ConversationItem({
   const statusMatch = conversationMatches.find((match) =>
     match.type === 'status'
   );
-  const matchEntities = correspondentMatches || [];
-  const matchEntitiesIds = matchEntities.map((item) => item.id);
-  const actions: {
-    id: string;
-    icon: any;
-    title: string;
-    onClick: (...args: any[]) => any;
-    disabled: boolean;
-    sub?: boolean;
-  }[] = [];
-  if (showLogButton) {
-    const isLogged = conversationMatches.filter((match) =>
-      match.type !== 'status'
-    ).length > 0;
-    actions.push({
-      id: 'log',
-      icon: AddTextLog,
-      title: logButtonTitle || (isLogged ? 'Edit log' : i18n.getString('addLog', currentLocale)),
-      onClick: logConversation,
-      disabled: disableLinks || isLogging || isLoggingState,
-    });
-  }
-  if (type !== messageTypes.fax && onClickToDial) {
-    actions.push({
-      id: 'c2d',
-      icon: PhoneBorder,
-      title: i18n.getString('call', currentLocale),
-      onClick: () => {
-        if (onClickToDial) {
-          const contact = getSelectedContact(selected, correspondentMatches) || {};
-          if (phoneNumber) {
-            onClickToDial({
-              ...contact,
-              phoneNumber,
-              fromType: type,
-            });
-          }
+  const actions = getActions({
+    areaCode,
+    countryCode,
+    currentLocale,
+    conversation,
+    disableCallButton,
+    disableClickToDial,
+    enableCDC,
+    internalSmsPermission,
+    maxExtensionNumberLength,
+    markMessage,
+    logButtonTitle,
+    isLogging: isLoggingState || isLogging,
+    outboundSmsPermission,
+    onClickToDial,
+    onClickToSms,
+    onViewContact,
+    onCreateContact,
+    createSelectedContact: async () => {
+      if (
+        onCreateContact === 'function' &&
+        mountedRef.current &&
+        !isCreating
+      ) {
+        setIsCreating(true);
+        await onCreateContact({
+          phoneNumber,
+          name: enableContactFallback
+            ? fallbackName
+            : '',
+          entityType: undefined,
+        });
+  
+        if (mountedRef.current) {
+          setIsCreating(false);
+          // console.log('created: isCreating...', this.state.isCreating);
         }
-      },
-      disabled: disableLinks || disableCallButton || disableClickToDial || !phoneNumber,
-    });
-  }
-  if (type === messageTypes.voiceMail && onClickToSms) {
-    actions.push({
-      id: 'c2sms',
-      icon: SmsBorder,
-      title: i18n.getString('text', currentLocale),
-      onClick: () => {
-        if (onClickToSms) {
-          const contact = getSelectedContact(selected, correspondentMatches) || {};
-
-          if (phoneNumber) {
-            updateTypeFilter(messageTypes.text);
-            onClickToSms({
-              ...contact,
-              phoneNumber,
-            });
-          }
-        }
-      },
-      disabled: disableLinks || disableClickToSms || !phoneNumber,
-    });
-  }
-  actions.push({
-    id: 'mark',
-    icon: unreadCounts > 0 ? Unread : Read,
-    title: unreadCounts > 0 ? 'Mark as read' : 'Mark as unread',
-    onClick: unreadCounts > 0 ? () => {
-      if (unreadCounts > 0) {
-        unmarkMessage(conversationId);
-      }
-    } : () => {
-      if (unreadCounts === 0) {
-        markMessage(conversationId);
       }
     },
-    disabled: disableLinks,
-    sub: true,
+    onRefreshContact,
+    previewFaxMessages,
+    showLogButton,
+    updateTypeFilter,
+    unmarkMessage,
+    logConversation,
+    disableLinks,
+    selected,
+    onDownload: () => {
+      downloadRef.current?.click();
+    },
+    onDelete: () => {
+      setDeleteConfirmOpen(true);
+    },
   });
-  if (type === messageTypes.fax) {
-    actions.push({
-      id: 'preview',
-      icon: ViewBorder,
-      title: i18n.getString('preview', currentLocale),
-      onClick: () => {
-        previewFaxMessages(faxAttachment.uri, conversationId);
-      },
-      disabled: disableLinks || !faxAttachment,
-      sub: true,
-    });
-  }
-  if (downloadUri) {
-    actions.push({
-      id: 'download',
-      icon: Download,
-      title: i18n.getString('download', currentLocale),
-      onClick: () => {
-        downloadRef.current?.click();
-      },
-      disabled: disableLinks,
-      sub: true,
-    });
-  }
-  if (!isContactMatchesHidden || hasEntity) {
-    actions.push({
-      id: 'viewContact',
-      icon: People,
-      title: 'View contact details',
-      onClick: (e) => {
-        e && e.stopPropagation();
-        if (typeof onViewContact === 'function') {
-          onViewContact({
-            contact: getSelectedContact(selected, correspondentMatches),
-            contactMatches: matchEntities,
-            phoneNumber,
-            matchEntitiesIds,
-          });
-        }
-      },
-      disabled: disableLinks,
-    });
-  }
-  if (!hasEntity && phoneNumber && onCreateContact) {
-    actions.push({
-      id: 'createContact',
-      icon: AddMemberBorder,
-      title: i18n.getString('addEntity', currentLocale),
-      onClick: async () => {
-        if (
-          onCreateContact === 'function' &&
-          mountedRef.current &&
-          !isCreating
-        ) {
-          setIsCreating(true);
-          await onCreateContact({
-            phoneNumber,
-            name: enableContactFallback
-              ? fallbackName
-              : '',
-            entityType: undefined,
-          });
-    
-          if (mountedRef.current) {
-            setIsCreating(false);
-            // console.log('created: isCreating...', this.state.isCreating);
-          }
-        }
-      },
-      disabled: disableLinks,
-    });
-  }
-  if (phoneNumber && onRefreshContact) {
-    actions.push({
-      id: 'refreshContact',
-      icon: Refresh,
-      title: 'Refresh contact',
-      onClick: () => {
-        onRefreshContact({
-          phoneNumber,
-        });
-      },
-      disabled: disableLinks,
-    });
-  }
-  if (type === messageTypes.fax || type === messageTypes.voiceMail) {
-    actions.push({
-      id: 'delete',
-      icon: Delete,
-      title: i18n.getString('delete', currentLocale),
-      onClick: () => {
-        setDeleteConfirmOpen(true);
-      },
-      disabled: disableLinks,
-    });
-  }
 
   const onClickWrapper = (e) => {
     if (messageIsTextMessage(conversation)) {
       showConversationDetail(conversationId);
     } else {
-      setDetailOpen(true);
+      openMessageDetails(conversation.id);
     }
   };
 
@@ -884,42 +633,6 @@ export function ConversationItem({
           setHoverOnMoreMenu(open)
         }}
       />
-      {
-        type !== messageTypes.text ? (
-          <DetailDialog
-            open={detailOpen}
-            onClose={(e) => {
-              e.stopPropagation();
-              setDetailOpen(false);
-            }}
-            contactDisplay={
-              renderContactName
-                ? renderContactName({
-                    conversation,
-                    phoneNumber,
-                    unread: 0,
-                    defaultContactDisplay: defaultContactDisplayWithoutUnread,
-                  })
-                : defaultContactDisplayWithoutUnread
-            }
-            actions={actions}
-            correspondents={correspondents}
-            self={self}
-            type={type}
-            currentLocale={currentLocale}
-            direction={direction}
-            voicemailAttachment={voicemailAttachment}
-            time={dateTimeFormatterCatchError(creationTime, 'datetime')}
-            detail={detail}
-            disableLinks={disableLinks}
-            onPlayVoicemail={() => {
-              if (unreadCounts > 0) {
-                readMessage(conversationId);
-              }
-            }}
-          />
-        ) : null
-      }
       {
         (type == messageTypes.fax || type == messageTypes.voiceMail) ?
           (

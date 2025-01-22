@@ -87,6 +87,7 @@ type ConversationsPanelProps = {
   logButtonTitle?: string;
   searchFilter: string;
   onSearchFilterChange: (type: string) => void;
+  openMessageDetails: (id: number) => void;
 } & Omit<ConversationListProps, 'conversation'>;
 
 const StyledContainer = styled.div`
@@ -182,6 +183,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     logButtonTitle = '',
     searchFilter,
     onSearchFilterChange,
+    openMessageDetails,
   } = props;
 
   useEffect(() => {
@@ -274,6 +276,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
                 showLogButton={showLogButton}
                 logButtonTitle={logButtonTitle}
                 updateTypeFilter={updateTypeFilter}
+                openMessageDetails={openMessageDetails}
               />
             ) : (
               !loadingNextPage &&
