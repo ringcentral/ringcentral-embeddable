@@ -31,6 +31,17 @@ export function NavigationHeader({
   supportSideDrawer = false,
   sideDrawerOpen = false,
   toggleSideDrawer
+}: {
+  title?: string,
+  showHeaderBorder?: boolean,
+  actionsInHeaderRight?: Array<{
+    icon: React.ReactNode,
+    title: string,
+    onClick: () => void
+  }>,
+  supportSideDrawer?: boolean,
+  sideDrawerOpen?: boolean,
+  toggleSideDrawer?: () => void
 }) {
   return (
     <StyledHeader $bottomLine={showHeaderBorder}>

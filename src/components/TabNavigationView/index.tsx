@@ -91,12 +91,12 @@ export const TabNavigationView: FunctionComponent<TabNavigationViewProps> = ({
   return (
     <Container>
       {
-        showHeader ? (
+        showHeader && currentTab ? (
           <NavigationHeader
             title={currentTab.label}
             showHeaderBorder={currentTab.showHeaderBorder}
             actionsInHeaderRight={currentTab.actionsInHeaderRight}
-            supportSideDrawer={supportSideDrawer && currentTab.sideDrawerExtendedButton}
+            supportSideDrawer={supportSideDrawer && !currentTab.hideSideDrawerExtendedButton}
             sideDrawerOpen={sideDrawerOpen}
             toggleSideDrawer={toggleSideDrawer}
           />

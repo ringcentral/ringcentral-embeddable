@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { RcLoading, styled, palette2 } from '@ringcentral/juno';
+import { RcLoading, RcIconButton, styled, palette2 } from '@ringcentral/juno';
+import { Close as CloseIcon } from '@ringcentral/juno-icon';
 import { GlipChatForm } from './GlipChatForm';
 import { GlipPostList } from './GlipPostList';
 import { getGlipGroupName } from './getGlipGroupName';
@@ -18,6 +19,12 @@ const Content = styled.div`
   border-bottom: solid 1px ${palette2('neutral', 'l02')};
 `;
 
+const CloseButton = styled(RcIconButton)`
+  position: absolute;
+  right: 6px;
+  top: 0;
+`;
+
 export function GlipChatPanel({
   group = {},
   className = undefined,
@@ -31,9 +38,12 @@ export function GlipChatPanel({
   uploadFile,
   viewProfile,
   loadNextPage,
-  onBackClick = undefined,
+  onBack = undefined,
   loadGroup,
   groupId = null,
+  hideBackButton = false,
+  showCloseButton = false,
+  onClose,
 }: {
   group: any;
   className?: string;
@@ -47,9 +57,12 @@ export function GlipChatPanel({
   uploadFile: (...args: any[]) => any;
   viewProfile: (...args: any[]) => any;
   loadNextPage: (...args: any[]) => any;
-  onBackClick?: (...args: any[]) => any;
+  onBack?: (...args: any[]) => any;
   loadGroup: (...args: any[]) => any;
   groupId?: string | null;
+  hideBackButton?: boolean;
+  showCloseButton?: boolean;
+  onClose?: (...args: any[]) => any;
 }) {
   useEffect(() => {
     loadGroup(groupId);
@@ -58,10 +71,18 @@ export function GlipChatPanel({
   return (
     <BackHeaderView
       dataSign="glipChat"
-      onBack={onBackClick}
+      onBack={onBack}
       title={getGlipGroupName({ group, showNumber: true})}
-      hideBackButton={!onBackClick}
+      hideBackButton={!onBack || hideBackButton}
       className={className}
+      rightButton={showCloseButton ? (
+        <CloseButton 
+          symbol={CloseIcon} 
+          title="Close" 
+          onClick={onClose} 
+          data-sign="closeButton"
+        />
+      ) : null}
     >
       <RcLoading loading={showSpinner}>
         <Container>

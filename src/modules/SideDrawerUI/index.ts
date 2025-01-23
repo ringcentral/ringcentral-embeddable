@@ -103,6 +103,11 @@ export class SideDrawerUI extends RcUIModuleV2 {
 
   @action
   closeWidget(widgetId: string) {
+    if (!widgetId && this.widgets.length === 0) {
+      // close side drawer for empty view close
+      this.extended = false;
+      return;
+    }
     const index = this.widgets.findIndex((w) => w.id === widgetId);
     if (index > -1) {
       const widget = this.widgets[index];
@@ -214,6 +219,20 @@ export class SideDrawerUI extends RcUIModuleV2 {
         params: {
           messageId,
         },
+      },
+      closeOtherWidgets: true,
+    });
+  }
+
+  gotoGlipChat(chatId) {
+    this.openWidget({
+      widget: {
+        id: 'glipChat',
+        name: 'Glip chat',
+        params: {
+          groupId: chatId,
+        },
+        showCloseButton: false,
       },
       closeOtherWidgets: true,
     });

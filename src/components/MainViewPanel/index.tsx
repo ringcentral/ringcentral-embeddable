@@ -40,7 +40,7 @@ type Tab = {
   showHeaderBorder?: boolean,
   priority?: number,
   childTabs?: Tab[],
-  sideDrawerExtendedButton?: boolean,
+  hideSideDrawerExtendedButton?: boolean,
 };
 
 export const MainViewPanel = (props) => {
@@ -94,7 +94,6 @@ export const MainViewPanel = (props) => {
           props.goTo('/settings');
         },
       }],
-      sideDrawerExtendedButton: true,
     });
   }
   if (showText) {
@@ -119,7 +118,6 @@ export const MainViewPanel = (props) => {
         title: i18n.getString('composeText', currentLocale),
         onClick: gotoComposeText,
       }] : [],
-      sideDrawerExtendedButton: true,
     });
   }
   if (showContacts) {
@@ -137,7 +135,6 @@ export const MainViewPanel = (props) => {
           currentPath === '/contacts'
         );
       },
-      sideDrawerExtendedButton: true,
     });
   }
   if (showGlip) {
@@ -176,6 +173,7 @@ export const MainViewPanel = (props) => {
           currentPath === '/meeting/history/recordings'
         );
       },
+      hideSideDrawerExtendedButton: true,
     });
   }
   if (showFax) {
@@ -193,7 +191,6 @@ export const MainViewPanel = (props) => {
       showHeader: () => {
         return true;
       },
-      sideDrawerExtendedButton: true,
     });
   }
   tabList.push({
@@ -212,6 +209,7 @@ export const MainViewPanel = (props) => {
       );
     },
     showHeaderBorder: false,
+    hideSideDrawerExtendedButton: true,
   });
   customizedTabs.forEach((customTab) => {
     if (customTab.hidden) {
@@ -231,6 +229,7 @@ export const MainViewPanel = (props) => {
       priority: customTab.priority,
       iconUri,
       activeIconUri: customTab.activeIconUri,
+      hideSideDrawerExtendedButton: true,
     });
   });
 

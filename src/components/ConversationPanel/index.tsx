@@ -469,7 +469,7 @@ export function ConversationPanel({
               <RcIconButton
                 onClick={onClose}
                 symbol={Close}
-                title={i18n.getString('close', currentLocale)}
+                title="Close"
                 data-sign="closeButton"
               />
             )
