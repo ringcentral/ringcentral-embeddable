@@ -40,9 +40,42 @@ export class ComposeTextUI extends ComposeTextUIBase {
       thirdPartyService,
       smsTemplates,
       routerInteraction,
+      composeText,
+      messageStore,
+      conversations,
+      sideDrawerUI,
     } = this._deps;
     return {
       ...baseFuncs,
+      send: async (text, attachments) => {
+        try {
+          const responses = await composeText.send(
+            text,
+            attachments,
+          );
+          if (!responses || responses.length === 0) {
+            return;
+          }
+          messageStore.pushMessages(responses);
+          if (responses.length === 1) {
+            const conversationId =
+              responses[0] &&
+              responses[0].conversation &&
+              responses[0].conversation.id;
+            if (!conversationId) {
+              return;
+            }
+            sideDrawerUI.gotoConversation(conversationId);
+          } else {
+            routerInteraction.push('/messages');
+          }
+          conversations.relateCorrespondentEntity(responses);
+          composeText.clean();
+          return;
+        } catch (err) {
+          console.log(err);
+        }
+      },
       onClickAdditionalToolbarButton: (buttonId) => {
         thirdPartyService.onClickAdditionalButton(buttonId);
       },
