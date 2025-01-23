@@ -17,6 +17,7 @@ import RecentActivityContainer from '../RecentActivityContainer';
 import { MessageDetailsPage } from '../MessageDetailsPage';
 import ComposeTextPage from '../ComposeTextPage';
 import { ConversationPage } from '../ConversationPage';
+import { GlipChatPage } from '../GlipChatPage';
 
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
@@ -177,6 +178,17 @@ function Widget({
         />
       </ContactDetailsPage>
     )
+  }
+  if (widget.id === 'glipChat') {
+    return (
+      <GlipChatPage
+        params={widget.params}
+        hideBackButton={drawerVariant === 'permanent'}
+        showCloseButton={drawerVariant === 'permanent'}
+        onClose={onClose}
+        onBack={onClose}
+      />
+    );
   }
   return <EmptyView />;
 }

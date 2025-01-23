@@ -53,9 +53,20 @@ export function GlipPostList({
   }, [posts]);
 
   useEffect(() => {
-    if (listRef.current) {
-      listRef.current.autoscrollToBottom();
+    if (!groupId) {
+      return;
     }
+    const timer = setTimeout(() => {
+      if (listRef.current) {
+        listRef.current.scrollToIndex({
+          index: postsRef.current.length - 1,
+          align: 'end',
+        });
+      }
+    }, 20);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [groupId]);
 
   useEffect(() => {

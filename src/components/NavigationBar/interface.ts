@@ -16,7 +16,7 @@ export interface TabPropTypes extends Partial<NavigationButtonProps> {
   showHeader: (path: string) => boolean;
   showHeaderBorder?: boolean;
   actionsInHeaderRight?: ActionInHeader[];
-  sideDrawerExtendedButton?: boolean;
+  hideSideDrawerExtendedButton?: boolean;
 }
 
 export interface NavigationBarProps {
