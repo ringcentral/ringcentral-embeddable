@@ -279,7 +279,16 @@ export function ConversationPanel({
     setLoaded(true);
     readMessages(conversationId);
     userSelectionRef.current = false;
+    const timer = setTimeout(() => {
+      if (!messagesRef.current || messagesRef.current.length < perPage) {
+        loadPreviousMessages();
+      }
+      if (dncAlertRef.current) {
+        setAlertHeight(dncAlertRef.current.clientHeight);
+      }
+    }, 200);
     return () => {
+      clearTimeout(timer);
       unloadConversation();
       setLoaded(false);
     };
@@ -301,23 +310,6 @@ export function ConversationPanel({
       setSelected(getInitialContactIndex(newConversation));
     }
   }, [conversation]);
-
-  useEffect(() => {
-    if (!loaded) {
-      return;
-    }
-    const timer = setTimeout(() => {
-      if (!messagesRef.current || messagesRef.current.length < perPage) {
-        loadPreviousMessages();
-      }
-      if (dncAlertRef.current) {
-        setAlertHeight(dncAlertRef.current.clientHeight);
-      }
-    }, 100);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [loaded]);
 
   const onSend = (text, attachments) => {
     const selectContact = getSelectedContact(selected, conversation);

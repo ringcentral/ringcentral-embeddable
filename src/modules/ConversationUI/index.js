@@ -97,7 +97,7 @@ export class ConversationUI extends BaseConversationUI {
     return {
       ...super.getUIFunctions(options),
       goBack: options.goBack ? options.goBack : () => {
-        routerInteraction.push(conversationsPath);
+        routerInteraction.push(options.conversationsPath || '/messages');
       },
       replyToReceivers: async (text, attachments, selectedContact) => {
         const continueSMS = await this.smsVerify(

@@ -152,6 +152,11 @@ export class SideDrawerUI extends RcUIModuleV2 {
     return {
       closeWidget: (widgetName: string) => this.closeWidget(widgetName),
       navigateTo: (path) => {
+        if (path.indexOf('/conversations/') === 0) {
+          const conversationId = path.split('/')[2];
+          this.gotoConversation(conversationId);
+          return;
+        }
         routerInteraction.push(path);
       },
       onAttachmentDownload: (uri, e) => {
