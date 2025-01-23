@@ -5,6 +5,7 @@ import {
   state,
   computed,
   storage,
+  track,
 } from '@ringcentral-integration/core';
 import { dynamicLoad } from '@ringcentral/mfe-react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
@@ -156,6 +157,9 @@ export class SmartNotes extends RcModuleV2 {
   @state
   showSmartNote = false;
 
+  @track((that) =>
+    that.showSmartNote ? ['Enable smart note widget'] : ['Stop smart note widget'],
+  )
   @action
   toggleShowSmartNote() {
     this.showSmartNote = !this.showSmartNote;
@@ -205,6 +209,7 @@ export class SmartNotes extends RcModuleV2 {
         const smartNoteClient = this._smartNoteClientMap[this.session.id];
         if (smartNoteClient) {
           smartNoteClient.stop();
+          smartNoteClient.removeAllListeners();
           delete this._smartNoteClientMap[this.session.id];
         }
         this._setSession(null);
@@ -242,6 +247,11 @@ export class SmartNotes extends RcModuleV2 {
           },
           smartNoteIframeUri: this._smartNoteIframeUri,
           callMetaData,
+        });
+        this._smartNoteClientMap[session.id].on('statusUpdate', (status) => {
+          if (status === 'ready') {
+            this.trackSmartNoteStart();
+          }
         });
       } else {
         this._smartNoteClientMap[session.id].updateTelephonySessionStatus(session.status);
@@ -294,6 +304,7 @@ export class SmartNotes extends RcModuleV2 {
     if (this.session?.id === session.id) {
       if (smartNoteClient.transcriptionStatus === 'idle') {
         // when smart note is not started, just remove the session to close the smart note widget
+        this._smartNoteClientMap[session.id].removeAllListeners();
         delete this._smartNoteClientMap[session.id];
         this._setSession(null);
       } else {
@@ -307,6 +318,7 @@ export class SmartNotes extends RcModuleV2 {
       // when smart note is started, update the status to 'Disconnected' to stop the transcription
       smartNoteClient.updateTelephonySessionStatus('Disconnected');
     }
+    this._smartNoteClientMap[session.id].removeAllListeners();
     delete this._smartNoteClientMap[session.id];
   }
 
@@ -318,6 +330,7 @@ export class SmartNotes extends RcModuleV2 {
           smartNoteClient.transcriptionStatus === 'idle' ||
           smartNoteClient.transcriptionStatus === 'stopped'
         ) {
+          smartNoteClient.removeAllListeners();
           delete this._smartNoteClientMap[id];
         }
       }
@@ -553,7 +566,17 @@ export class SmartNotes extends RcModuleV2 {
     }
   }
 
- onSmartNoteUpdate(onSmartNoteUpdate) {
+  onSmartNoteUpdate(onSmartNoteUpdate) {
     this._onSmartNoteUpdate = onSmartNoteUpdate;
+  }
+
+  @track(() => ['View smart notes'])
+  viewSmartNote(session) {
+    return this.setSession(session);
+  }
+
+  @track(() => ['Start smart notes'])
+  trackSmartNoteStart() {
+    return null;
   }
 }
