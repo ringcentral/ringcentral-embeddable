@@ -332,7 +332,7 @@ export class CallsListUI extends BaseCallsListUI {
         contact,
         direction,
       }) => {
-        smartNotes.setSession({
+        smartNotes.viewSmartNote({
           id: telephonySessionId,
           status: 'Disconnected',
           phoneNumber: phoneNumber,
