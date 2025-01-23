@@ -191,6 +191,8 @@ import { GenericMeeting } from '../GenericMeeting';
 import { GlipCompany } from '../GlipCompany';
 import GlipGroups from '../GlipGroups';
 import GlipPersons from '../GlipPersons';
+import { GlipChatUI } from '../GlipChatUI';
+import { GlipGroupsUI } from '../GlipGroupsUI';
 import { GlobalStorage } from '../GlobalStorage';
 import { MeetingHistoryUI } from '../MeetingHistoryUI';
 import { MeetingHomeUI } from '../MeetingHomeUI';
@@ -363,6 +365,8 @@ import { SmartNotesUI } from '../SmartNotesUI';
     { provide: 'GlipCompany', useClass: GlipCompany },
     { provide: 'GlipGroups', useClass: GlipGroups },
     { provide: 'GlipPosts', useClass: GlipPosts },
+    { provide: 'GlipChatUI', useClass: GlipChatUI },
+    { provide: 'GlipGroupsUI', useClass: GlipGroupsUI },
     { provide: 'GlipPersons', useClass: GlipPersons },
     {
       provide: 'GlipPersonsOptions',
