@@ -124,6 +124,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.widgets = this.widgets.filter((w) => w.id !== widgetId);
     if (this.widgets.length === 0) {
       this.currentWidgetId = null;
+      this.showTabs = false;
     } else {
       if (index === -1) {
         return;
