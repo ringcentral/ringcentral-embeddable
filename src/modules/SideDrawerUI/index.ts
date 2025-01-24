@@ -244,4 +244,22 @@ export class SideDrawerUI extends RcUIModuleV2 {
       closeOtherWidgets: true,
     });
   }
+
+  gotoLogCall(callSessionId) {
+    this.openWidget({
+      widget: {
+        id: 'logCall',
+        name: 'Log call',
+        params: {
+          callSessionId,
+        },
+        showCloseButton: false,
+      },
+      closeOtherWidgets: true,
+    });
+  }
+
+  hasWidget(widgetId) {
+    return this.widgets.some((w) => w.id === widgetId);
+  }
 }

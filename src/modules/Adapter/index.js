@@ -340,12 +340,7 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-navigate-to': {
           if (data.path) {
-            if (data.path.indexOf('/') === 0 && this._router.currentPath !== data.path) {
-              this._router.push(data.path);
-            }
-            if (data.path === 'goBack') {
-              this._router.goBack();
-            }
+            this._navigateTo(data.path);
           }
           break;
         }
@@ -995,6 +990,20 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
+  _navigateTo(path) {
+    if (path.indexOf('/log/call/') === 0) {
+      const sessionId = path.split('/')[3];
+      this._sideDrawerUI.gotoLogCall(sessionId);
+      return;
+    }
+    if (path.indexOf('/') === 0 && this._router.currentPath !== path) {
+      this._router.push(path);
+    }
+    if (path === 'goBack') {
+      this._router.goBack();
+    }
+  }
+
   _newSMS(phoneNumber, text, conversation, attachments = null) {
     if (!this._auth.loggedIn) {
       return;
@@ -1135,6 +1144,9 @@ export default class Adapter extends AdapterModuleCore {
     }
     if (this._quickAccess && this._quickAccess.entered) {
       this._quickAccess.exit();
+    }
+    if (this._sideDrawerUI.modalOpen) {
+      this._sideDrawerUI.clearWidgets();
     }
     if (
       this._webphone &&
