@@ -1107,6 +1107,9 @@ export default class Adapter extends AdapterModuleCore {
       this._webphone.sessions.find(s => s.callStatus === sessionStatus.connected) ||
       this._webphone.activeSession;
     if (currentSession) {
+      if (this._sideDrawerUI.modalOpen) {
+        this._sideDrawerUI.clearWidgets();
+      }
       const currentCallPath = `${ACTIVE_CALL_PATH}/${currentSession.id}`;
       this._router.push(currentCallPath);
     }

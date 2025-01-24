@@ -15,6 +15,7 @@ import { callingModes } from '@ringcentral-integration/commons/modules/CallingSe
     'AppFeatures',
     'RouterInteraction',
     'SideDrawerUI',
+    'Webphone',
   ],
 })
 export class AppViewUI extends RcUIModuleV2 {
@@ -75,6 +76,7 @@ export class AppViewUI extends RcUIModuleV2 {
       audioSettings,
       webphone,
       routerInteraction,
+      sideDrawerUI,
     } = this._deps;
     return ({
       onSetData: (options) => {
@@ -91,6 +93,9 @@ export class AppViewUI extends RcUIModuleV2 {
       goToCallCtrl: (sessionId) => {
         const session = webphone.activeSession || webphone.ringSession || {};
         routerInteraction.push(`/calls/active/${sessionId || session.id}`);
+        if (sideDrawerUI.modalOpen) {
+          sideDrawerUI.clearWidgets();
+        }
       },
     });
   }
