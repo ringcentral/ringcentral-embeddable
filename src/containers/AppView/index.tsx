@@ -4,7 +4,6 @@ import { connectModule } from '@ringcentral-integration/widgets/lib/phoneContext
 import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
 import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
 import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
-import { DrawerContext } from '../../lib/DrawerContext';
 import { NotificationContainer } from '../NotificationContainer';
 import { SideDrawerContainer } from '../SideDrawerContainer';
 import MeetingInviteModal from '../MeetingInviteModal';
