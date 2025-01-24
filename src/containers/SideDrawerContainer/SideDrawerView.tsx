@@ -19,6 +19,7 @@ import ComposeTextPage from '../ComposeTextPage';
 import { ConversationPage } from '../ConversationPage';
 import { GlipChatPage } from '../GlipChatPage';
 import LogCallPage from '../LogCallPage';
+import LogMessagesPage from '../LogMessagesPage';
 
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
@@ -195,6 +196,17 @@ function Widget({
   if (widget.id === 'logCall') {
     return (
       <LogCallPage
+        params={widget.params}
+        hideBackButton={drawerVariant === 'permanent'}
+        showCloseButton={drawerVariant === 'permanent'}
+        onClose={onClose}
+        onBackButtonClick={onClose}
+      />
+    );
+  }
+  if (widget.id === 'logConversation') {
+    return (
+      <LogMessagesPage
         params={widget.params}
         hideBackButton={drawerVariant === 'permanent'}
         showCloseButton={drawerVariant === 'permanent'}
