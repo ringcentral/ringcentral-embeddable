@@ -15,6 +15,7 @@ import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber'
     'ThirdPartyService',
     'RouterInteraction',
     'SmartNotes',
+    'SideDrawerUI',
   ],
 })
 export class LogCallUI extends RcUIModuleV2 {
@@ -48,7 +49,9 @@ export class LogCallUI extends RcUIModuleV2 {
     };
   }
 
-  getUIFunctions() {
+  getUIFunctions({
+    onBackButtonClick,
+  }) {
     const {
       activityMatcher,
       regionSettings,
@@ -59,10 +62,11 @@ export class LogCallUI extends RcUIModuleV2 {
       routerInteraction,
       callLogger,
       smartNotes,
+      sideDrawerUI,
     } = this._deps;
 
     return {
-      onBackButtonClick() {
+      onBackButtonClick: onBackButtonClick ? onBackButtonClick : () => {
         routerInteraction.goBack();
       },
       async onSave({ call, note, formData }) {
@@ -73,7 +77,11 @@ export class LogCallUI extends RcUIModuleV2 {
           formData,
           redirect: true,
         });
-        routerInteraction.goBack();
+        if (sideDrawerUI.hasWidget('logCall')) {
+          sideDrawerUI.closeWidget('logCall');
+        } else {
+          routerInteraction.goBack();
+        }
       },
       onLoadData(call) {
         activityMatcher.match({

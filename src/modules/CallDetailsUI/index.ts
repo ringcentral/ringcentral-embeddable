@@ -144,7 +144,6 @@ export class CallDetailsUI extends RcUIModuleV2 {
       dialerUI,
       callHistory,
       composeText,
-      contactSearch,
       smartNotes,
       thirdPartyService,
       sideDrawerUI,
@@ -203,7 +202,7 @@ export class CallDetailsUI extends RcUIModuleV2 {
       },
       onLogCall: (async ({ call, contact, triggerType, redirect }) => {
         if (callLogger.showLogModal && triggerType !== 'viewLog') {
-          routerInteraction.push(`/log/call/${call.sessionId}`);
+          sideDrawerUI.gotoLogCall(call.sessionId);
           return;
         }
         await callLogger.logCall({
