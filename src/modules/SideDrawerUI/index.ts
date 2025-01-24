@@ -259,6 +259,20 @@ export class SideDrawerUI extends RcUIModuleV2 {
     });
   }
 
+  gotoLogConversation(conversationId) {
+    this.openWidget({
+      widget: {
+        id: 'logConversation',
+        name: 'Log conversation',
+        params: {
+          conversationId,
+        },
+        showCloseButton: false,
+      },
+      closeOtherWidgets: true,
+    });
+  }
+
   hasWidget(widgetId) {
     return this.widgets.some((w) => w.id === widgetId);
   }
