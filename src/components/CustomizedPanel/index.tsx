@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { styled } from '@ringcentral/juno/foundation';
-import { RcButton } from '@ringcentral/juno';
-
+import { styled, css } from '@ringcentral/juno/foundation';
+import { RcButton, RcIconButton } from '@ringcentral/juno';
+import { SaveDraft, Close } from '@ringcentral/juno-icon';
 import { BackHeaderView } from '../BackHeaderView';
 import { CustomizedForm } from './CustomizedForm';
 
@@ -14,10 +14,24 @@ const Panel = styled.div`
   overflow: hidden;
 `;
 
+const StyledBackHeaderView = styled(BackHeaderView)<{ $twoRightButtons?: boolean }>`
+  ${({ $twoRightButtons }) => $twoRightButtons && css`
+    .BackHeader-root {
+      padding-right: 70px;
+    }
+  `}
+`;
+
 const SaveButton = styled(RcButton)`
   position: absolute;
   right: 15px;
   top: 8px;
+`;
+
+const HeaderButtons = styled.div`
+  position: absolute;
+  right: 2px;
+  top: 0;
 `;
 
 const FieldsArea = styled.div`
@@ -53,6 +67,8 @@ export function CustomizedPanel({
   pageId,
   type = 'page',
   hideBackButton = false,
+  onClose,
+  showCloseButton = false,
 }) {
   const [formDataState, setFormDataState] = useState({});
   const showSaveButton = !!uiSchema.submitButtonOptions;
@@ -86,25 +102,62 @@ export function CustomizedPanel({
   if (type === 'tab') {
     return panel;
   }
+  let rightButtons;
+  let saveButton;
+  let closeButton = showCloseButton ? (
+    <RcIconButton
+      symbol={Close}
+      onClick={onClose}
+      title='Close'
+    />
+  ) : null;
+  if (showSaveButton) {
+    if (closeButton) {
+      saveButton = (
+        <RcIconButton
+          symbol={SaveDraft}
+          onClick={() => onSave(pageId, formDataState)}
+          loading={saveButtonLoading}
+          disabled={!allRequiredFieldsAreFilled(formDataState, schema)}
+          title={saveButtonLabel}
+          color="action.primary"
+        />
+      );
+      rightButtons = (
+        <HeaderButtons>
+          {saveButton}
+          {closeButton}
+        </HeaderButtons>
+      );
+    } else {
+      saveButton = (
+        <SaveButton
+          variant='plain'
+          onClick={() => onSave(pageId, formDataState)}
+          loading={saveButtonLoading}
+          disabled={!allRequiredFieldsAreFilled(formDataState, schema)}
+        >
+          {saveButtonLabel }
+        </SaveButton>
+      );
+      rightButtons = saveButton;
+    }
+  } else if (closeButton) {
+    rightButtons = (
+      <HeaderButtons>
+        {closeButton}
+      </HeaderButtons>
+    );
+  }
   return (
-    <BackHeaderView
+    <StyledBackHeaderView
       onBack={onBackButtonClick}
       title={title}
       hideBackButton={hideBackButton}
-      rightButton={
-        showSaveButton ? (
-          <SaveButton
-            variant='plain'
-            onClick={() => onSave(pageId, formDataState)}
-            loading={saveButtonLoading}
-            disabled={!allRequiredFieldsAreFilled(formDataState, schema)}
-          >
-            {saveButtonLabel }
-          </SaveButton>
-        ) : null
-      }
+      rightButton={rightButtons}
+      $twoRightButtons={!!(showSaveButton && showCloseButton)}
     >
       {panel}
-    </BackHeaderView>
+    </StyledBackHeaderView>
   );
 }

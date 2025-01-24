@@ -218,7 +218,8 @@ export class CallsListUI extends BaseCallsListUI {
       }),
       onLogCall: (async ({ call, contact, triggerType, redirect }) => {
         if (callLogger.showLogModal && triggerType !== 'viewLog') {
-          routerInteraction.push(`/log/call/${call.sessionId}`);
+          sideDrawerUI.gotoLogCall(call.sessionId);
+          // routerInteraction.push(`/log/call/${call.sessionId}`);
           return;
         }
         await callLogger.logCall({
