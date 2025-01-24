@@ -26,6 +26,7 @@ const StyledDrawer = styled(RcDrawer)`
     background-color: ${palette2('neutral', 'b01')};
     display: flex;
     flex-direction: column;
+    border-radius: 0;
   }
 
   &.MuiDrawer-docked {

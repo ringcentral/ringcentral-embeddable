@@ -13,6 +13,8 @@ interface Widget {
   showCloseButton?: boolean;
 }
 
+type Variant = 'permanent' | 'temporary';
+
 @Module({
   name: 'SideDrawerUI',
   deps: [
@@ -35,12 +37,16 @@ export class SideDrawerUI extends RcUIModuleV2 {
 
   onInitOnce() {
     const handleResize = () => {
-      const newVariant = window.innerWidth > 500 ? 'permanent' : 'temporary';
+      let newVariant: Variant = window.innerWidth > 500 ? 'permanent' : 'temporary';
+      if (!this.enabled && newVariant === 'permanent' && this.widgets.length === 0) {
+        newVariant = 'temporary';
+      }
       if (this.variant === newVariant) {
         return;
       }
       this.setVariant(newVariant);
     };
+    handleResize();
     window.addEventListener('resize', handleResize);
   }
 

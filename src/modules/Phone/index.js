@@ -571,6 +571,9 @@ export default class BasePhone extends RcModule {
       }
       const path = `/calls/active/${session.id}`;
       if (routerInteraction.currentPath !== path) {
+        if (sideDrawerUI.modalOpen) {
+          sideDrawerUI.clearWidgets();
+        }
         if (routerInteraction.currentPath.indexOf('/calls/active') === 0) {
           routerInteraction.replace(path);
         } else {
