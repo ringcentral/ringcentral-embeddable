@@ -15,6 +15,7 @@ import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber'
     'ExtensionInfo',
     'ThirdPartyService',
     'RouterInteraction',
+    'SideDrawerUI',
   ],
 })
 export class LogMessagesUI extends RcUIModuleV2 {
@@ -70,7 +71,9 @@ export class LogMessagesUI extends RcUIModuleV2 {
     };
   }
 
-  getUIFunctions() {
+  getUIFunctions({
+    onBackButtonClick
+  }) {
     const {
       regionSettings,
       accountInfo,
@@ -79,10 +82,11 @@ export class LogMessagesUI extends RcUIModuleV2 {
       thirdPartyService,
       routerInteraction,
       conversationLogger,
+      sideDrawerUI,
     } = this._deps;
 
     return {
-      onBackButtonClick() {
+      onBackButtonClick: onBackButtonClick ? onBackButtonClick : () => {
         routerInteraction.goBack();
       },
       async onSaveLog({ conversationId, formData }) {
@@ -92,7 +96,11 @@ export class LogMessagesUI extends RcUIModuleV2 {
           formData,
           redirect: true,
         });
-        routerInteraction.goBack();
+        if (sideDrawerUI.hasWidget('logConversation')) {
+          sideDrawerUI.closeWidget('logConversation');
+        } else {
+          routerInteraction.goBack();
+        }
       },
       formatPhone: (phoneNumber) =>
         formatNumber({

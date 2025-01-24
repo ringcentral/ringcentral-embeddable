@@ -16,6 +16,9 @@ export default function LogMessagesPanel({
   lastMatchedCorrespondentEntity,
   isLogging,
   onFormPageButtonClick,
+  onClose,
+  showCloseButton,
+  hideBackButton,
 }) {
   const [defaultPage, setDefaultPage] = useState({
     schema: {
@@ -107,6 +110,7 @@ export default function LogMessagesPanel({
   return (
     <CustomizedPanel
       type="page"
+      hideBackButton={hideBackButton}
       onBackButtonClick={onBackButtonClick}
       onButtonClick={onFormPageButtonClick}
       title={
@@ -121,6 +125,8 @@ export default function LogMessagesPanel({
         });
       }}
       saveButtonLoading={isLogging}
+      onClose={onClose}
+      showCloseButton={showCloseButton}
       infoNode={
         <ConversationInfo
           currentLocale={currentLocale}
