@@ -360,6 +360,10 @@ export default class Adapter extends AdapterModuleCore {
           this._onUpdateAutoLogSettings(data);
           break;
         }
+        case 'rc-adapter-set-side-drawer-extended': {
+          this._setSideDrawerExtended(data.extended);
+          break;
+        }
         default:
           super._onMessage(data);
           break;
@@ -990,6 +994,10 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
+  _setSideDrawerExtended(value) {
+    this._sideDrawerUI.setExtended(value);
+  }
+
   _navigateTo(path) {
     if (path.indexOf('/log/call/') === 0) {
       const sessionId = path.split('/')[3];
@@ -999,6 +1007,31 @@ export default class Adapter extends AdapterModuleCore {
     if (path.indexOf('/log/messages/') === 0) {
       const conversationId = path.split('/')[3];
       this._sideDrawerUI.gotoLogConversation(conversationId);
+      return;
+    }
+    if (path === '/composeText') {
+      this._composeTextUI.gotoComposeText();
+      return;
+    }
+    if (path.indexOf('/conversations/') === 0) {
+      const conversationId = path.split('/')[2];
+      this._sideDrawerUI.gotoConversation(conversationId);
+      return;
+    }
+    if (path.indexOf('/contacts/') === 0) {
+      const contactType = path.split('/')[2];
+      const contactId = path.split('/')[3];
+      if (contactType) {
+        this._sideDrawerUI.gotoContactDetails({
+          id: contactId,
+          type: contactType,
+        });
+        return;
+      }
+    }
+    if (path.indexOf('/glip/groups/') === 0) {
+      const groupId = path.split('/')[3];
+      this._sideDrawerUI.gotoGlipChat(groupId);
       return;
     }
     if (path.indexOf('/') === 0 && this._router.currentPath !== path) {
