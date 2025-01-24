@@ -130,7 +130,6 @@ import {
 import {
   ConnectivityManager,
 } from '@ringcentral-integration/widgets/modules/ConnectivityManager';
-import { ContactDetailsUI } from '@ringcentral-integration/widgets/modules/ContactDetailsUI';
 import { ContactSearchUI } from '@ringcentral-integration/widgets/modules/ContactSearchUI';
 // UI modules
 import {
@@ -171,6 +170,7 @@ import { Auth } from '../Auth';
 import { AudioSettings } from '../AudioSettings';
 import { AudioSettingsUI } from '../AudioSettingsUI';
 import { PhoneTabsUI } from '../PhoneTabsUI';
+import { ContactDetailsUI } from '../ContactDetailsUI';
 import { CallControlUI } from '../CallControlUI';
 import { IncomingCallUI } from '../IncomingCallUI';
 import { CallHistory } from '../CallHistory';
@@ -179,6 +179,7 @@ import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
 import { CallLogger } from '../CallLogger';
 import { CallQueues } from '../CallQueues';
+import { CallDetailsUI } from '../CallDetailsUI';
 import { CompanyContacts } from '../CompanyContacts';
 import { ComposeText } from '../ComposeText';
 import { ComposeTextUI } from '../ComposeTextUI';
@@ -193,12 +194,15 @@ import { GenericMeeting } from '../GenericMeeting';
 import { GlipCompany } from '../GlipCompany';
 import GlipGroups from '../GlipGroups';
 import GlipPersons from '../GlipPersons';
+import { GlipChatUI } from '../GlipChatUI';
+import { GlipGroupsUI } from '../GlipGroupsUI';
 import { GlobalStorage } from '../GlobalStorage';
 import { MeetingHistoryUI } from '../MeetingHistoryUI';
 import { MeetingHomeUI } from '../MeetingHomeUI';
 import { MeetingInviteUI } from '../MeetingInviteModalUI';
 import { MessageSender } from '../MessageSender';
 import { MessageStore } from '../MessageStore';
+import { MessageDetailsUI } from '../MessageDetailsUI';
 import { NoiseReduction } from '../NoiseReduction';
 import { OAuth } from '../OAuth';
 import { RcVideo } from '../RcVideo';
@@ -214,6 +218,7 @@ import { LogCallUI } from '../LogCallUI';
 import { LogMessagesUI } from '../LogMessagesUI';
 import { Webphone } from '../Webphone';
 import { MainViewUI } from '../MainViewUI';
+import { AppViewUI } from '../AppViewUI';
 import { DialerUI } from '../DialerUI';
 import { CustomizedPageUI } from '../CustomizedPageUI';
 import { SmsTemplates } from '../SmsTemplates';
@@ -233,6 +238,7 @@ import { SmartNotesUI } from '../SmartNotesUI';
     { provide: 'Theme', useClass: Theme },
     { provide: 'ThemeUI', useClass: ThemeUI },
     { provide: 'MainViewUI', useClass: MainViewUI },
+    { provide: 'AppViewUI', useClass: AppViewUI },
     { provide: 'SideDrawerUI', useClass: SideDrawerUI },
     { provide: 'Locale', useClass: Locale },
     { provide: 'TabManager', useClass: TabManager },
@@ -278,6 +284,7 @@ import { SmartNotesUI } from '../SmartNotesUI';
     { provide: 'ComposeTextUI', useClass: ComposeTextUI },
     { provide: 'ConversationsUI', useClass: ConversationsUI },
     { provide: 'ConversationUI', useClass: ConversationUI },
+    { provide: 'MessageDetailsUI', useClass: MessageDetailsUI },
     { provide: 'LogMessagesUI', useClass: LogMessagesUI },
     { provide: 'CallMonitor', useClass: CallMonitor },
     { provide: 'CallHistory', useClass: CallHistory },
@@ -360,6 +367,8 @@ import { SmartNotesUI } from '../SmartNotesUI';
     { provide: 'GlipCompany', useClass: GlipCompany },
     { provide: 'GlipGroups', useClass: GlipGroups },
     { provide: 'GlipPosts', useClass: GlipPosts },
+    { provide: 'GlipChatUI', useClass: GlipChatUI },
+    { provide: 'GlipGroupsUI', useClass: GlipGroupsUI },
     { provide: 'GlipPersons', useClass: GlipPersons },
     {
       provide: 'GlipPersonsOptions',
@@ -409,6 +418,7 @@ import { SmartNotesUI } from '../SmartNotesUI';
     { provide: 'CallBadgeUI', useClass: CallBadgeUI },
     { provide: 'CallControlUI', useClass: CallControlUI },
     { provide: 'CallHistoryUI', useClass: CallHistoryUI },
+    { provide: 'CallDetailsUI', useClass: CallDetailsUI },
     { provide: 'CallsOnholdUI', useClass: CallsOnholdUI },
     { provide: 'PhoneTabsUI', useClass: PhoneTabsUI },
     { provide: 'IncomingCallUI', useClass: IncomingCallUI },
@@ -474,6 +484,7 @@ export default class BasePhone extends RcModule {
       appConfig,
       conferenceCall,
       contacts,
+      sideDrawerUI,
     } = options;
     // Webphone configuration
     webphone.onCallEnd((session, currentSession, ringSession) => {
@@ -562,6 +573,9 @@ export default class BasePhone extends RcModule {
       }
       const path = `/calls/active/${session.id}`;
       if (routerInteraction.currentPath !== path) {
+        if (sideDrawerUI.modalOpen) {
+          sideDrawerUI.clearWidgets();
+        }
         if (routerInteraction.currentPath.indexOf('/calls/active') === 0) {
           routerInteraction.replace(path);
         } else {
@@ -581,6 +595,9 @@ export default class BasePhone extends RcModule {
         });
       }
       contactMatcher.forceMatchNumber({ phoneNumber: session.from });
+      if (sideDrawerUI.modalOpen) {
+        sideDrawerUI.clearWidgets();
+      }
     });
     webphone.onBeforeCallResume((session) => {
       if (!webphone._webphone) {
@@ -746,6 +763,7 @@ export function createPhone({
   isUsingDefaultClientId,
   enableSMSTemplate,
   enableSmartNote,
+  enableSideWidget,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
   isMainTab,
@@ -961,6 +979,12 @@ export function createPhone({
           autoLog: !!defaultAutoLogMessageEnabled,
         },
       },
+      {
+        provide: 'SideDrawerUIOptions',
+        useValue: {
+          enableSideWidget,
+        },
+      }
     ]
   })
   class Phone extends BasePhone {}

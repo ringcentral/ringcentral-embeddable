@@ -79,6 +79,7 @@ import {
     'AudioSettings',
     'SmsTemplates',
     'SideDrawerUI',
+    'ComposeTextUI',
     'Analytics',
     'Theme',
     { dep: 'AdapterOptions', optional: true }
@@ -120,6 +121,7 @@ export default class Adapter extends AdapterModuleCore {
     isUsingDefaultClientId,
     smsTemplates,
     sideDrawerUI,
+    composeTextUI,
     theme,
     ...options
   }) {
@@ -159,6 +161,7 @@ export default class Adapter extends AdapterModuleCore {
     this._audioSettings = audioSettings;
     this._smsTemplates = smsTemplates;
     this._sideDrawerUI = sideDrawerUI;
+    this._composeTextUI = composeTextUI;
     this._analytics = analytics;
     this._theme = theme;
 
@@ -179,7 +182,7 @@ export default class Adapter extends AdapterModuleCore {
     this._dialerDisabled = null;
     this._meetingReady = null;
     this._brandConfig = null;
-    this._sideDrawerOpen = null;
+    this._sideDrawerExtended = null;
     this._themeType = null;
     this._popupWindowManager = new PopupWindowManager({ prefix, isPopupWindow: fromPopup });
 
@@ -337,12 +340,7 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-navigate-to': {
           if (data.path) {
-            if (data.path.indexOf('/') === 0 && this._router.currentPath !== data.path) {
-              this._router.push(data.path);
-            }
-            if (data.path === 'goBack') {
-              this._router.goBack();
-            }
+            this._navigateTo(data.path);
           }
           break;
         }
@@ -360,6 +358,10 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-update-auto-log-settings': {
           this._onUpdateAutoLogSettings(data);
+          break;
+        }
+        case 'rc-adapter-set-side-drawer-extended': {
+          this._setSideDrawerExtended(data.extended);
           break;
         }
         default:
@@ -992,6 +994,54 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
+  _setSideDrawerExtended(value) {
+    this._sideDrawerUI.setExtended(value);
+  }
+
+  _navigateTo(path) {
+    if (path.indexOf('/log/call/') === 0) {
+      const sessionId = path.split('/')[3];
+      this._sideDrawerUI.gotoLogCall(sessionId);
+      return;
+    }
+    if (path.indexOf('/log/messages/') === 0) {
+      const conversationId = path.split('/')[3];
+      this._sideDrawerUI.gotoLogConversation(conversationId);
+      return;
+    }
+    if (path === '/composeText') {
+      this._composeTextUI.gotoComposeText();
+      return;
+    }
+    if (path.indexOf('/conversations/') === 0) {
+      const conversationId = path.split('/')[2];
+      this._sideDrawerUI.gotoConversation(conversationId);
+      return;
+    }
+    if (path.indexOf('/contacts/') === 0) {
+      const contactType = path.split('/')[2];
+      const contactId = path.split('/')[3];
+      if (contactType) {
+        this._sideDrawerUI.gotoContactDetails({
+          id: contactId,
+          type: contactType,
+        });
+        return;
+      }
+    }
+    if (path.indexOf('/glip/groups/') === 0) {
+      const groupId = path.split('/')[3];
+      this._sideDrawerUI.gotoGlipChat(groupId);
+      return;
+    }
+    if (path.indexOf('/') === 0 && this._router.currentPath !== path) {
+      this._router.push(path);
+    }
+    if (path === 'goBack') {
+      this._router.goBack();
+    }
+  }
+
   _newSMS(phoneNumber, text, conversation, attachments = null) {
     if (!this._auth.loggedIn) {
       return;
@@ -1010,7 +1060,7 @@ export default class Adapter extends AdapterModuleCore {
     }
     const validAttachments = getValidAttachments(attachments);
     if (existedConversation) {
-      this._router.push(`/conversations/${existedConversation.conversationId}`);
+      this._sideDrawerUI.gotoConversation(existedConversation.conversationId);
       if (text && text.length > 0) {
         this._conversations.loadConversation(existedConversation.conversationId);
         this._conversations.updateMessageText(String(text));
@@ -1022,7 +1072,7 @@ export default class Adapter extends AdapterModuleCore {
       }
       return;
     }
-    this._router.push('/composeText');
+    this._composeTextUI.gotoComposeText();
     if (phoneNumber) {
       this._composeText.updateTypingToNumber(phoneNumber);
     }
@@ -1104,6 +1154,9 @@ export default class Adapter extends AdapterModuleCore {
       this._webphone.sessions.find(s => s.callStatus === sessionStatus.connected) ||
       this._webphone.activeSession;
     if (currentSession) {
+      if (this._sideDrawerUI.modalOpen) {
+        this._sideDrawerUI.clearWidgets();
+      }
       const currentCallPath = `${ACTIVE_CALL_PATH}/${currentSession.id}`;
       this._router.push(currentCallPath);
     }
@@ -1129,6 +1182,9 @@ export default class Adapter extends AdapterModuleCore {
     }
     if (this._quickAccess && this._quickAccess.entered) {
       this._quickAccess.exit();
+    }
+    if (this._sideDrawerUI.modalOpen) {
+      this._sideDrawerUI.clearWidgets();
     }
     if (
       this._webphone &&
@@ -1258,12 +1314,12 @@ export default class Adapter extends AdapterModuleCore {
     if (!this.ready) {
       return;
     }
-    if (this._sideDrawerOpen === this._sideDrawerUI.show) {
+    if (this._sideDrawerExtended === this._sideDrawerUI.extended) {
       return;
     }
-    this._sideDrawerOpen = this._sideDrawerUI.show;
+    this._sideDrawerExtended = this._sideDrawerUI.extended;
     const newSize = {
-      width: this._sideDrawerOpen ? 600 : 300,
+      width: this._sideDrawerExtended ? 600 : 300,
       height: 500,
     };
     this._syncSize(newSize);
@@ -1273,7 +1329,7 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._postMessage({
       type: 'rc-adapter-side-drawer-open-notify',
-      open: this._sideDrawerOpen,
+      open: this._sideDrawerExtended,
     });
   }
 

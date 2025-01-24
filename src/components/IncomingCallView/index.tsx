@@ -52,6 +52,7 @@ export type IncomingCallViewProps = {
   toPhoneNumber?: string;
   name: string;
   getPresence?: (...args: any[]) => any;
+  container: Element;
 };
 export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
   props,
@@ -89,6 +90,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
     phoneSourceNameRenderer,
     name,
     getPresence,
+    container,
   } = props;
   const [selectedMatcherIndex, setSelectedMatcherIndex] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState(null);
@@ -180,6 +182,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
 
   return (
     <IncomingCallPanel
+      container={container}
       currentLocale={currentLocale}
       nameMatches={nameMatches}
       name={name}

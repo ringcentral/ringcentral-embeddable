@@ -2,7 +2,7 @@ import React from 'react';
 
 import { styled, palette2, css } from '@ringcentral/juno/foundation';
 import { RcIconButton, RcTypography } from '@ringcentral/juno';
-
+import { DoubleChevronRight, DoubleChevronLeft } from '@ringcentral/juno-icon';
 interface HeaderProps {
   $bottomLine?: boolean;
 }
@@ -28,6 +28,20 @@ export function NavigationHeader({
   title,
   showHeaderBorder = false,
   actionsInHeaderRight = [],
+  supportSideDrawer = false,
+  sideDrawerOpen = false,
+  toggleSideDrawer
+}: {
+  title?: string,
+  showHeaderBorder?: boolean,
+  actionsInHeaderRight?: Array<{
+    icon: React.ReactNode,
+    title: string,
+    onClick: () => void
+  }>,
+  supportSideDrawer?: boolean,
+  sideDrawerOpen?: boolean,
+  toggleSideDrawer?: () => void
 }) {
   return (
     <StyledHeader $bottomLine={showHeaderBorder}>
@@ -51,6 +65,16 @@ export function NavigationHeader({
             />
           );
         })
+      }
+      {
+        supportSideDrawer && (
+          <RcIconButton
+            title={sideDrawerOpen ? 'Close side drawer' : 'Open side drawer'}
+            symbol={sideDrawerOpen ? DoubleChevronLeft : DoubleChevronRight}
+            useRcTooltip
+            onClick={toggleSideDrawer}
+          />
+        )
       }
     </StyledHeader>
   );

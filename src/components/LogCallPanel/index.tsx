@@ -57,6 +57,9 @@ export default function LogCallPanel({
   isLogging,
   onFormPageButtonClick,
   smartNote = '',
+  onClose,
+  showCloseButton,
+  hideBackButton,
 }) {
   const currentCallRef = useRef(null);
   const [defaultPage, setDefaultPage] = useState({
@@ -133,6 +136,7 @@ export default function LogCallPanel({
   return (
     <CustomizedPanel
       type="page"
+      hideBackButton={hideBackButton}
       onBackButtonClick={onBackButtonClick}
       onButtonClick={onFormPageButtonClick}
       onSave={(_pageId, formData) => {
@@ -143,6 +147,8 @@ export default function LogCallPanel({
         });
       }}
       saveButtonLoading={isLogging}
+      onClose={onClose}
+      showCloseButton={showCloseButton}
       infoNode={
         <CallInfo
           call={currentCall}

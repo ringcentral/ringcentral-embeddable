@@ -41,7 +41,7 @@ export function BackHeader({
   hideBackButton = false,
 }: BackHeaderProps) {
   return (
-    <Header>
+    <Header className="BackHeader-root">
       {
         hideBackButton ? null : (
           <BackButton

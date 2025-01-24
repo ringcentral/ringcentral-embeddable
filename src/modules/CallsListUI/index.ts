@@ -21,6 +21,8 @@ import debounce from '@ringcentral-integration/commons/lib/debounce';
     'ContactMatcher',
     'CallingSettings',
     'SmartNotes',
+    'SideDrawerUI',
+    'ComposeTextUI',
     'CallLog',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
@@ -206,6 +208,8 @@ export class CallsListUI extends BaseCallsListUI {
       callLog,
       appFeatures,
       callHistory,
+      sideDrawerUI,
+      composeTextUI,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -214,7 +218,8 @@ export class CallsListUI extends BaseCallsListUI {
       }),
       onLogCall: (async ({ call, contact, triggerType, redirect }) => {
         if (callLogger.showLogModal && triggerType !== 'viewLog') {
-          routerInteraction.push(`/log/call/${call.sessionId}`);
+          sideDrawerUI.gotoLogCall(call.sessionId);
+          // routerInteraction.push(`/log/call/${call.sessionId}`);
           return;
         }
         await callLogger.logCall({
@@ -396,7 +401,14 @@ export class CallsListUI extends BaseCallsListUI {
         if (oldValue !== 'All' && callLog.oldCalls.length > 0) {
           callLog.clearOldCalls();
         }
-      }
+      },
+      onViewCallDetails: (telephonySessionId) => {
+        sideDrawerUI.gotoCallDetails(telephonySessionId);
+      },
+      onClickToSms: appFeatures.hasComposeTextPermission ? async (contact, isDummyContact = false) => {
+        composeTextUI.gotoComposeText(contact, isDummyContact);
+        this._deps.callHistory.onClickToSMS();
+      } : undefined,
     };
   }
 

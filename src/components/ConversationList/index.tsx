@@ -5,7 +5,7 @@ import { RcList } from '@ringcentral/juno';
 import i18n from '@ringcentral-integration/widgets/components/ConversationList/i18n';
 
 import type { MessageItemProps } from '../ConversationItem';
-import MessageItem from '../ConversationItem';
+import { ConversationItem } from '../ConversationItem';
 
 export type ConversationListProps = {
   brand: string;
@@ -40,6 +40,7 @@ export type ConversationListProps = {
   formatPhone?: (formatPhone: string) => string | undefined;
   showLogButton?: boolean;
   logButtonTitle?: string;
+  openMessageDetails: (id: number) => void;
 } & Omit<MessageItemProps, 'conversation'>;
 
 const Loading = styled.div`
@@ -81,6 +82,7 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
   phoneSourceNameRenderer = undefined,
   showGroupNumberName = false,
   enableCDC = false,
+  openMessageDetails,
   ...childProps
 }: ConversationListProps) => {
   const scrollTopRef = useRef(0);
@@ -98,7 +100,7 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
       <RcList>
         {
           conversations.map((item) => (
-            <MessageItem
+            <ConversationItem
               {...childProps}
               showContactDisplayPlaceholder={showContactDisplayPlaceholder}
               dateTimeFormatter={dateTimeFormatter}
@@ -117,6 +119,7 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
               phoneSourceNameRenderer={phoneSourceNameRenderer}
               showGroupNumberName={showGroupNumberName}
               enableCDC={enableCDC}
+              openMessageDetails={openMessageDetails}
             />
           ))
         }

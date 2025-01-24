@@ -40,6 +40,7 @@ type Tab = {
   showHeaderBorder?: boolean,
   priority?: number,
   childTabs?: Tab[],
+  hideSideDrawerExtendedButton?: boolean,
 };
 
 export const MainViewPanel = (props) => {
@@ -61,6 +62,7 @@ export const MainViewPanel = (props) => {
     voiceUnreadCounts,
     customizedTabs = [],
     themeType,
+    gotoComposeText,
   } = props;
   const tabList: Tab[] = [];
   if (showPhone) {
@@ -91,7 +93,7 @@ export const MainViewPanel = (props) => {
         onClick: () => {
           props.goTo('/settings');
         },
-      }]
+      }],
     });
   }
   if (showText) {
@@ -114,9 +116,7 @@ export const MainViewPanel = (props) => {
       actionsInHeaderRight: showNewComposeText ? [{
         icon: SmsInviteBorder,
         title: i18n.getString('composeText', currentLocale),
-        onClick: () => {
-          props.goTo('/composeText');
-        },
+        onClick: gotoComposeText,
       }] : [],
     });
   }
@@ -173,6 +173,7 @@ export const MainViewPanel = (props) => {
           currentPath === '/meeting/history/recordings'
         );
       },
+      hideSideDrawerExtendedButton: true,
     });
   }
   if (showFax) {
@@ -208,6 +209,7 @@ export const MainViewPanel = (props) => {
       );
     },
     showHeaderBorder: false,
+    hideSideDrawerExtendedButton: true,
   });
   customizedTabs.forEach((customTab) => {
     if (customTab.hidden) {
@@ -227,6 +229,7 @@ export const MainViewPanel = (props) => {
       priority: customTab.priority,
       iconUri,
       activeIconUri: customTab.activeIconUri,
+      hideSideDrawerExtendedButton: true,
     });
   });
 

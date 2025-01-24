@@ -15,6 +15,8 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
     'Brand',
     'PhoneTabsUI',
     'Theme',
+    'SideDrawerUI',
+    'ComposeTextUI',
   ],
 })
 export class MainViewUI extends RcUIModuleV2 {
@@ -35,6 +37,7 @@ export class MainViewUI extends RcUIModuleV2 {
       thirdPartyService,
       phoneTabsUI,
       theme,
+      sideDrawerUI,
     } = this._deps;
 
     const showPhone = appFeatures.ready && (
@@ -71,15 +74,28 @@ export class MainViewUI extends RcUIModuleV2 {
       voiceUnreadCounts: messageStore.voiceUnreadCounts || 0,
       customizedTabs: thirdPartyService.customizedTabs,
       themeType: theme.themeType,
+      supportSideDrawer: sideDrawerUI.enabled,
+      sideDrawerOpen: sideDrawerUI.extended,
     };
   }
   
   getUIFunctions() {
+    const {
+      routerInteraction,
+      sideDrawerUI,
+      composeTextUI,
+    } = this._deps;
     return {
       goTo: (path) => {
         if (path) {
-          this._deps.routerInteraction.push(path);
+          routerInteraction.push(path);
         }
+      },
+      toggleSideDrawer: () => {
+        sideDrawerUI.toggleExtended();
+      },
+      gotoComposeText: () => {
+        composeTextUI.gotoComposeText();
       },
     };
   }

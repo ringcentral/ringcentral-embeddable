@@ -2,18 +2,14 @@ import React from 'react';
 
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import {
-  Route,
-  Router,
-} from 'react-router';
+import { Route, Router } from 'react-router';
 
-import CallBadgeContainer from '@ringcentral-integration/widgets/containers/CallBadgeContainer';
 import { CallsOnholdPage } from '@ringcentral-integration/widgets/containers/CallsOnholdPage';
 import { ConferenceParticipantPage } from '@ringcentral-integration/widgets/containers/ConferenceParticipantPage';
-import { ConnectivityBadgeContainer } from '@ringcentral-integration/widgets/containers/ConnectivityBadgeContainer';
+
 import FlipPage from '@ringcentral-integration/widgets/containers/FlipPage';
 import { LoginPage } from '@ringcentral-integration/widgets/containers/LoginPage';
-import { ModalContainer } from '@ringcentral-integration/widgets/containers/ModalContainer';
+
 import RegionSettingsPage from '@ringcentral-integration/widgets/containers/RegionSettingsPage';
 import { ThemeContainer } from '@ringcentral-integration/widgets/containers/ThemeContainer';
 
@@ -28,7 +24,7 @@ import AudioSettingsPage from '../AudioSettingsPage';
 import DialerPage from '../DialerPage';
 import { CallCtrlPage } from '../CallCtrlPage';
 import { OtherDeviceCallCtrlPage } from '../OtherDeviceCallCtrlPage';
-import { IncomingCallContainer } from '../IncomingCallContainer';
+
 import TransferPage from '../TransferPage';
 import LogCallPage from '../LogCallPage';
 import { CallsListPage } from '../CallsListPage';
@@ -40,7 +36,7 @@ import LogMessagesPage from '../LogMessagesPage';
 import MainView from '../MainView';
 import MeetingHistoryPage from '../MeetingHistoryPage';
 import MeetingHomePage from '../MeetingHomePage';
-import MeetingInviteModal from '../MeetingInviteModal';
+
 import MeetingTabContainer from '../MeetingTabContainer';
 import RecentActivityContainer from '../RecentActivityContainer';
 import RingtoneSettingsPage from '../RingtoneSettingsPage';
@@ -52,11 +48,10 @@ import CallingSettingsPage from '../CallingSettingsPage';
 import ContactsPage from '../ContactsPage';
 import ContactDetailsPage from '../ContactDetailsPage';
 import CustomizedPage from '../CustomizedPage';
-import { NotificationContainer } from '../NotificationContainer';
+
 import GlipChatPage from '../GlipChatPage';
 import GlipGroupsPage from '../GlipGroupsPage';
-import { SideDrawerContainer } from '../SideDrawerContainer';
-import { SmartNotesPage } from '../SmartNotesPage';
+
 
 export default function App({
   phone,
@@ -82,13 +77,15 @@ export default function App({
       />
     );
   };
-  const onViewContact = ({ contact }) => {
+  const onViewContact = ({ contact, forceOpenInWidget = false }) => {
     const { type, id } = contact;
     if (
+      forceOpenInWidget ||
       !phone.thirdPartyService.viewMatchedContactExternal ||
       type !== phone.thirdPartyService.sourceName
     ) {
-      phone.routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
+      phone.sideDrawerUI.gotoContactDetails({ type, id });
+      // phone.routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
       return;
     }
     phone.thirdPartyService.onViewMatchedContactExternal(contact);
@@ -113,37 +110,14 @@ export default function App({
           <Router history={phone.routerInteraction.history}>
             <Route
               component={routerProps => (
-                <AppView fromPopup={fromPopup}>
+                <AppView
+                  fromPopup={fromPopup}
+                  getAvatarUrl={getAvatarUrl}
+                  getPresence={getPresenceOnContactSearch}
+                  showCallBadge={showCallBadge}
+                  contactSourceRenderer={ContactSourceIcon}
+                >
                   {routerProps.children}
-                  <CallBadgeContainer
-                    hidden={(
-                      (!showCallBadge) ||
-                      routerProps.location.pathname && (
-                        routerProps.location.pathname.indexOf('/calls/active') > -1 ||
-                        routerProps.location.pathname.indexOf('/conferenceCall') > -1
-                      )
-                    )}
-                    goToCallCtrl={(sessionId) => {
-                      const session = phone.webphone.activeSession || phone.webphone.ringSession || {};
-                      phone.routerInteraction.push(`/calls/active/${sessionId || session.id}`);
-                    }}
-                  />
-                  <IncomingCallContainer
-                    showContactDisplayPlaceholder={false}
-                    getAvatarUrl={getAvatarUrl}
-                    showCallQueueName
-                    getPresence={getPresenceOnContactSearch}
-                  />
-                  <ConnectivityBadgeContainer />
-                  <MeetingInviteModal />
-                  <ModalContainer />
-                  <NotificationContainer
-                    callingSettingsUrl="/settings/calling"
-                    regionSettingsUrl="/settings/region"
-                  />
-                  <SideDrawerContainer>
-                    <SmartNotesPage />
-                  </SideDrawerContainer>
                 </AppView>
               )} >
               <Route
@@ -239,6 +213,9 @@ export default function App({
                       onVisitPage={async () => { await phone.contacts.sync(); }}
                       onRefresh={async () => { await phone.contacts.sync({ type: 'manual' }); }}
                       sourceNodeRenderer={ContactSourceIcon}
+                      onItemSelect={(contact) => {
+                        onViewContact({ contact, forceOpenInWidget: true });
+                      }}
                     />
                   )}
                 />
@@ -309,9 +286,6 @@ export default function App({
                     () => (
                       <GlipGroupsPage
                         hiddenCurrentGroup
-                        onSelectGroup={(id) => {
-                          phone.routerInteraction.push(`/glip/groups/${id}`);
-                        }}
                       />
                     )
                   }
@@ -410,6 +384,7 @@ export default function App({
                 component={routerProps => (
                   <ContactDetailsPage
                     params={routerProps.params}
+                    contactId={routerProps.params.contactId}
                     sourceNodeRenderer={ContactSourceIcon}
                     onClickMailTo={
                       (email) => {
@@ -432,35 +407,6 @@ export default function App({
                   routerProps => (
                     <GlipChatPage
                       params={routerProps.params}
-                      onBackClick={() => {
-                        phone.routerInteraction.push('/glip');
-                      }}
-                      onViewPersonProfile={
-                        async (personId) => {
-                          if (personId === phone.glipPersons.me.id) {
-                            return;
-                          }
-                          let group = phone.glipGroups.groups.slice(0, 10).find((g) => {
-                            if (g.type !== 'PrivateChat') {
-                              return false;
-                            }
-                            return g.members.indexOf(personId) > -1;
-                          });
-                          if (!group) {
-                            group = await phone.glipGroups.startChat(personId);
-                          }
-                          if (group && group.id !== routerProps.params.groupId) {
-                            phone.routerInteraction.push(`/glip/groups/${group.id}`);
-                          }
-                        }
-                      }
-                      onViewGroup={
-                        (id) => {
-                          if (id !== routerProps.params.groupId) {
-                            phone.routerInteraction.push(`/glip/groups/${id}`);
-                          }
-                        }
-                      }
                     />
                   )
                 }

@@ -3,12 +3,18 @@ import {
   ComposeTextUI as ComposeTextUIBase,
 } from '@ringcentral-integration/widgets/modules/ComposeTextUI';
 
+type ComposeContact = {
+  name?: string;
+  phoneNumber: string;
+}
+
 @Module({
   name: 'ComposeTextUI',
   deps: [
     'ThirdPartyService',
     'RouterInteraction',
     'SmsTemplates',
+    'SideDrawerUI',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -34,13 +40,46 @@ export class ComposeTextUI extends ComposeTextUIBase {
       thirdPartyService,
       smsTemplates,
       routerInteraction,
+      composeText,
+      messageStore,
+      conversations,
+      sideDrawerUI,
     } = this._deps;
     return {
       ...baseFuncs,
+      send: async (text, attachments) => {
+        try {
+          const responses = await composeText.send(
+            text,
+            attachments,
+          );
+          if (!responses || responses.length === 0) {
+            return;
+          }
+          messageStore.pushMessages(responses);
+          if (responses.length === 1) {
+            const conversationId =
+              responses[0] &&
+              responses[0].conversation &&
+              responses[0].conversation.id;
+            if (!conversationId) {
+              return;
+            }
+            sideDrawerUI.gotoConversation(conversationId);
+          } else {
+            routerInteraction.push('/messages');
+          }
+          conversations.relateCorrespondentEntity(responses);
+          composeText.clean();
+          return;
+        } catch (err) {
+          console.log(err);
+        }
+      },
       onClickAdditionalToolbarButton: (buttonId) => {
         thirdPartyService.onClickAdditionalButton(buttonId);
       },
-      goBack: () => {
+      goBack: props.goBack ? props.goBack : () => {
         routerInteraction.goBack();
       },
       loadTemplates: () => {
@@ -56,5 +95,36 @@ export class ComposeTextUI extends ComposeTextUIBase {
         return smsTemplates.sort(templateIds);
       },
     };
+  }
+
+  gotoComposeText(contact: ComposeContact | undefined = undefined, isDummyContact = false) {
+    const {
+      composeText,
+      contactSearch,
+      sideDrawerUI,
+    } = this._deps;
+    sideDrawerUI.openWidget({
+      widget: {
+        id: 'composeText',
+        name: 'Compose text',
+        showCloseButton: false,
+      },
+      closeOtherWidgets: true,
+    });
+    if (!contact) {
+      return;
+    }
+    // if contact autocomplete, if no match fill the number only
+    if (contact.name && contact.phoneNumber && isDummyContact) {
+      composeText.updateTypingToNumber(contact.name);
+      contactSearch.search({ searchString: contact.name });
+    } else {
+      composeText.addToNumber(contact);
+      if (
+        composeText.typingToNumber === contact.phoneNumber
+      ) {
+        composeText.cleanTypingToNumber();
+      }
+    }
   }
 }

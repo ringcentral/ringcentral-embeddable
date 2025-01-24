@@ -20,7 +20,20 @@ export class SmartNotesUI extends RcUIModuleV2 {
       this,
       () => this._deps.smartNotes.session,
       (smartNoteSession) => {
-        this._deps.sideDrawerUI.setShow(!!smartNoteSession);
+        if (smartNoteSession) {
+          this._deps.sideDrawerUI.openWidget({
+            widget: {
+              id: 'smartNotes',
+              name: smartNoteSession.status === 'Disconnected' ? 'Notes (beta)' : 'Overview',
+              onClose: this.onClose,
+              showCloseButton: smartNoteSession.status !== 'Disconnected',
+            },
+            closeOtherWidgets: smartNoteSession.status === 'Disconnected',
+            openSideDrawer: smartNoteSession.status !== 'Disconnected',
+          });
+        } else {
+          this._deps.sideDrawerUI.closeWidget('smartNotes');
+        }
       },
     );
   }
@@ -36,8 +49,8 @@ export class SmartNotesUI extends RcUIModuleV2 {
   }
 
   onClose = () => {
-    this._deps.sideDrawerUI.setShow(false);
-    if (this._deps.smartNotes.session.status === 'Disconnected') {
+    const session = this._deps.smartNotes.session;
+    if (session && session.status === 'Disconnected') {
       this._deps.smartNotes.setSession(null);
     }
   }
