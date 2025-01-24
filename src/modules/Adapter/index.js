@@ -996,6 +996,11 @@ export default class Adapter extends AdapterModuleCore {
       this._sideDrawerUI.gotoLogCall(sessionId);
       return;
     }
+    if (path.indexOf('/log/messages/') === 0) {
+      const conversationId = path.split('/')[3];
+      this._sideDrawerUI.gotoLogConversation(conversationId);
+      return;
+    }
     if (path.indexOf('/') === 0 && this._router.currentPath !== path) {
       this._router.push(path);
     }

@@ -67,7 +67,7 @@ export function CustomizedPanel({
   pageId,
   type = 'page',
   hideBackButton = false,
-  onClose,
+  onClose = () => {},
   showCloseButton = false,
 }) {
   const [formDataState, setFormDataState] = useState({});
