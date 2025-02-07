@@ -73,9 +73,6 @@ import {
 import GlipPosts from '@ringcentral-integration/commons/modules/GlipPosts';
 import { Locale } from '@ringcentral-integration/commons/modules/Locale';
 import { Meeting } from '@ringcentral-integration/commons/modules/Meeting';
-import {
-  NumberValidate,
-} from '@ringcentral-integration/commons/modules/NumberValidate';
 import { Presence } from '@ringcentral-integration/commons/modules/Presence';
 import {
   RateLimiter,
@@ -200,6 +197,7 @@ import { MeetingInviteUI } from '../MeetingInviteModalUI';
 import { MessageSender } from '../MessageSender';
 import { MessageStore } from '../MessageStore';
 import { NoiseReduction } from '../NoiseReduction';
+import { NumberValidate } from '../NumberValidate';
 import { OAuth } from '../OAuth';
 import { RcVideo } from '../RcVideo';
 import { RingtoneSettingsUI } from '../RingtoneSettingsUI';
