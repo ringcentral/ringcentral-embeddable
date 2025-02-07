@@ -251,6 +251,20 @@ export class IframeWidget {
     return filters;
   }
 
+  async clickContactFilter(label) {
+    await this.waitFor('div[role="tablist"]');
+    const hasHidden = await this._widgetIframe.$eval(`div[role="tablist"] button[data-sign="${label}"]`, (element) => {
+      return element.hasAttribute('aria-hidden');
+    });
+    if (hasHidden){
+      await this._widgetIframe.click('div[role="tablist"] button[data-tab-more-button]');
+      await waitForTimeout(1000);
+      await this._widgetIframe.click(`li[value="${label}"]`);
+    } else {
+      await this._widgetIframe.click(`div[role="tablist"] button[data-sign="${label}"]`);
+    }
+  }
+
   async getContactNames() {
     const texts = await this._widgetIframe.$$eval('.ContactItem_contactName', els => els.map(el => el.textContent));
     return texts;
