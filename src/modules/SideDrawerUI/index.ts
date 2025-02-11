@@ -180,20 +180,18 @@ export class SideDrawerUI extends RcUIModuleV2 {
       return;
     }
     const index = this.widgets.findIndex((w) => w.id === widgetId);
-    if (index > -1) {
-      const widget = this.widgets[index];
-      if (typeof widget.onClose === 'function') {
-        widget.onClose();
-      }
+    if (index === -1) {
+      return;
+    }
+    const widget = this.widgets[index];
+    if (typeof widget.onClose === 'function') {
+      widget.onClose();
     }
     this.widgets = this.widgets.filter((w) => w.id !== widgetId);
     if (this.widgets.length === 0) {
       this.currentWidgetId = null;
       this.currentContact = null;
     } else {
-      if (index === -1) {
-        return;
-      }
       if (index < this.widgets.length) {
         this.currentWidgetId = this.widgets[index].id;
       } else {
@@ -325,7 +323,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.openWidget({
       widget: {
         id: 'logCall',
-        name: 'Log',
+        name: 'Log call',
         params: {
           callSessionId,
         },
@@ -334,13 +332,20 @@ export class SideDrawerUI extends RcUIModuleV2 {
     });
   }
 
-  gotoLogConversation(conversationId, contact) {
+  gotoLogConversation(conversation, contact) {
+    let name = 'Log messages';
+    if (conversation.type === 'VoiceMail') {
+      name = 'Log voicemail';
+    } else if (conversation.type === 'Fax') {
+      name = 'Log fax';
+    }
     this.openWidget({
       widget: {
         id: 'logConversation',
-        name: 'Log',
+        name,
         params: {
-          conversationId,
+          conversationId: conversation.conversationId,
+          type: conversation.type,
         },
       },
       contact,

@@ -116,6 +116,14 @@ const StyledTab = styled(RcTab)`
     border-bottom: 1px solid ${palette2('neutral', 'b01')};
     border-right: none;
   }
+
+  .RcTab-wrapper > *:first-child {
+    margin-right: 4px;
+  }
+
+  .RcTab-wrapper > .icon {
+    font-size: 18px;
+  }
 `;
 
 const WidgetWrapper = styled.div`
@@ -168,6 +176,7 @@ const StyledTabLabel = styled.span`
   max-width: 110px;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-wrap: nowrap;
   position: relative;
 `;
 
@@ -187,6 +196,7 @@ function TabLabel({
         onClick={onClose}
         size="xsmall"
         color="neutral.f06"
+        component="span"
       />
     </StyledTabLabel>
   );
@@ -199,7 +209,7 @@ function Widget({
   onAttachmentDownload,
   onClose,
   drawerVariant,
-  hideCloseButton,
+  withTab,
 }) {
   if (!widget) {
     return (<EmptyView />);
@@ -210,7 +220,7 @@ function Widget({
   if (widget.id === 'smartNotes') {
     return (
       <SmartNotesPage
-        showCloseButton={!hideCloseButton}
+        showCloseButton={!withTab}
       />
     );
   }
@@ -226,8 +236,8 @@ function Widget({
     return (
       <ComposeTextPage
         supportAttachment
-        hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
+        hideBackButton={drawerVariant === 'permanent' || withTab}
+        showCloseButton={drawerVariant === 'permanent' && !withTab}
         onClose={onClose}
         goBack={onClose}
       />
@@ -241,8 +251,8 @@ function Widget({
         showGroupNumberName
         supportAttachment
         onAttachmentDownload={onAttachmentDownload}
-        hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
+        hideBackButton={drawerVariant === 'permanent' || withTab}
+        showCloseButton={drawerVariant === 'permanent' && !withTab}
         onClose={onClose}
         goBack={onClose}
       />
@@ -272,8 +282,8 @@ function Widget({
     return (
       <GlipChatPage
         params={widget.params}
-        hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
+        hideBackButton={drawerVariant === 'permanent' || withTab}
+        showCloseButton={drawerVariant === 'permanent' && !withTab}
         onClose={onClose}
         onBack={onClose}
       />
@@ -283,8 +293,8 @@ function Widget({
     return (
       <LogCallPage
         params={widget.params}
-        hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
+        hideBackButton={drawerVariant === 'permanent' || withTab}
+        showCloseButton={drawerVariant === 'permanent' && !withTab}
         onClose={onClose}
         onBackButtonClick={onClose}
       />
@@ -294,8 +304,8 @@ function Widget({
     return (
       <LogMessagesPage
         params={widget.params}
-        hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
+        hideBackButton={drawerVariant === 'permanent' || withTab}
+        showCloseButton={drawerVariant === 'permanent' && !withTab}
         onClose={onClose}
         onBackButtonClick={onClose}
       />
@@ -334,7 +344,7 @@ export function SideDrawerView({
   }
   const showTabs = widgets.length > 1;
   const widget = widgets.find((w) => w.id === currentWidgetId);
-  let showCloseButton = widget?.showCloseButton ?? false;
+  const showCloseButton = !widget || widget.showCloseButton;
   const showTitleInHeader = !!(widget && widget.showTitle && widget.name);
   return (
     <StyledDrawer
@@ -380,7 +390,10 @@ export function SideDrawerView({
                     label={(
                       <TabLabel
                         name={widget.name}
-                        onClose={() => closeWidget(widget.id)}
+                        onClose={(e) => {
+                          e && e.stopPropagation();
+                          closeWidget(widget.id);
+                        }}
                       />
                     )}
                     key={widget.id}
@@ -405,7 +418,7 @@ export function SideDrawerView({
           onAttachmentDownload={onAttachmentDownload}
           onClose={() => closeWidget(currentWidgetId)}
           drawerVariant={drawerVariant}
-          hideCloseButton={showTabs}
+          withTab={showTabs}
         />
       </WidgetWrapper>
     </StyledDrawer>

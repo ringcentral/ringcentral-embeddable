@@ -1005,7 +1005,7 @@ export default class Adapter extends AdapterModuleCore {
       );
       if (conversation) {
         const phoneNumber = getConversationPhoneNumber(conversation);
-        this._sideDrawerUI.gotoLogConversation(conversationId, { phoneNumber });
+        this._sideDrawerUI.gotoLogConversation(conversation, { phoneNumber });
       }
       return;
     }
