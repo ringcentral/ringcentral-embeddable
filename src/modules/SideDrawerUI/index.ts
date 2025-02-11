@@ -15,6 +15,73 @@ interface Widget {
 
 type Variant = 'permanent' | 'temporary';
 
+type CurrentContact = {
+  id?: string;
+  phoneNumber?: string;
+  phoneNumbers?: {
+    phoneNumber: string;
+  }[];
+}
+
+function isSameContact(contact1?: CurrentContact | null, contact2?: CurrentContact | null) {
+  if (!contact1 || !contact2) {
+    return false;
+  }
+  if (
+    contact1.id &&
+    contact2.id &&
+    contact1.id === contact2.id
+  ) {
+    return true;
+  }
+  if (
+    contact1.phoneNumber &&
+    contact2.phoneNumber &&
+    contact1.phoneNumber === contact2.phoneNumber
+  ) {
+    return true
+  }
+  if (
+    contact1.phoneNumbers &&
+    contact2.phoneNumber &&
+    contact1.phoneNumbers.some((p) => p.phoneNumber === contact2.phoneNumber)
+  ) {
+    return true;
+  }
+  if (
+    contact2.phoneNumbers &&
+    contact1.phoneNumber &&
+    contact2.phoneNumbers.some((p) => p.phoneNumber === contact1.phoneNumber)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isContactHasNewData(currentContact: CurrentContact, newContact: CurrentContact) {
+  if (!currentContact.id && newContact.id) {
+    return true;
+  }
+  if (
+    currentContact.id &&
+    newContact.id &&
+    !currentContact.phoneNumber &&
+    newContact.phoneNumber
+  ) {
+    return true
+  }
+  if (
+    currentContact.id &&
+    newContact.id &&
+    currentContact.phoneNumber &&
+    newContact.phoneNumber &&
+    !currentContact.phoneNumbers &&
+    newContact.phoneNumbers
+  ) {
+    return true;
+  }
+}
+
 @Module({
   name: 'SideDrawerUI',
   deps: [
@@ -53,6 +120,18 @@ export class SideDrawerUI extends RcUIModuleV2 {
   @state
   extended = false;
 
+  @state
+  variant = 'permanent';
+
+  @state
+  widgets: Widget[] = [];
+
+  @state
+  currentWidgetId: String | null = null;
+
+  @state
+  currentContact: CurrentContact | null = null;
+
   @action
   setExtended(extended: boolean) {
     this.extended = extended;
@@ -62,44 +141,30 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.setExtended(!this.extended);
   }
 
-  @state
-  showTabs = false;
-
-  @state
-  variant = 'permanent';
-
   @action
   setVariant(variant: 'permanent' | 'temporary') {
     this.variant = variant;
   }
 
-  @state
-  widgets: Widget[] = [];
-
-  @state
-  currentWidgetId: String | null = null;
-
   @action
   openWidget({
     widget,
-    closeOtherWidgets = false,
     openSideDrawer = false,
+    contact = null,
   }: {
     widget: Widget;
-    closeOtherWidgets?: boolean;
     openSideDrawer?: boolean;
+    contact?: CurrentContact | null;
   }) {
-    if (closeOtherWidgets) {
+    const sameContact = isSameContact(this.currentContact, contact);
+    if (!sameContact) {
       this.widgets = [widget];
-      this.showTabs = false;
+      this.currentContact = contact;
     } else {
-      const index = this.widgets.findIndex((w) => w.name === widget.name);
-      if (index === -1) {
-        this.widgets.push(widget);
-      } else {
-        this.widgets[index] = widget;
+      if (isContactHasNewData(this.currentContact!, contact!)) {
+        this.currentContact = contact;
       }
-      this.showTabs = true;
+      this.widgets = [widget].concat(this.widgets.filter((w) => w.id !== widget.id));
     }
     this.currentWidgetId = widget.id;
     if (openSideDrawer && !this.extended) {
@@ -124,7 +189,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.widgets = this.widgets.filter((w) => w.id !== widgetId);
     if (this.widgets.length === 0) {
       this.currentWidgetId = null;
-      this.showTabs = false;
+      this.currentContact = null;
     } else {
       if (index === -1) {
         return;
@@ -147,6 +212,11 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.currentWidgetId = null;
   }
 
+  @action
+  setCurrentWidgetId(widgetId: string) {
+    this.currentWidgetId = widgetId;
+  }
+
   getUIProps() {
     const { locale } = this._deps;
     return {
@@ -155,7 +225,6 @@ export class SideDrawerUI extends RcUIModuleV2 {
       variant: this.variant,
       widgets: this.widgets,
       currentWidgetId: this.currentWidgetId,
-      showTabs: this.showTabs,
     };
   }
 
@@ -163,10 +232,16 @@ export class SideDrawerUI extends RcUIModuleV2 {
     const { thirdPartyService, routerInteraction } = this._deps;
     return {
       closeWidget: (widgetName: string) => this.closeWidget(widgetName),
+      gotoWidget: (widgetId: string) => {
+        const widget = this.widgets.find((w) => w.id === widgetId);
+        if (widget) {
+          this.setCurrentWidgetId(widgetId);
+        }
+      },
       navigateTo: (path) => {
         if (path.indexOf('/conversations/') === 0) {
           const conversationId = path.split('/')[2];
-          this.gotoConversation(conversationId);
+          this.gotoConversation(conversationId, this.currentContact);
           return;
         }
         routerInteraction.push(path);
@@ -177,57 +252,60 @@ export class SideDrawerUI extends RcUIModuleV2 {
     };
   }
 
-  gotoConversation(conversationId) {
+  gotoConversation(conversationId, contact) {
     this.openWidget({
       widget: {
         id: 'conversation',
         name: 'Conversation',
         params: {
-          conversationId,
+          conversationId: conversationId,
         },
-        showCloseButton: false,
       },
-      closeOtherWidgets: true,
+      contact,
     });
   }
 
-  gotoContactDetails({ type, id }) {
+  gotoContactDetails(contact) {
     this.openWidget({
       widget: {
         id: 'contactDetails',
         name: 'Contact',
         params: {
-          contactType: type,
-          contactId: id,
+          contactType: contact.type,
+          contactId: contact.id,
         },
+        showCloseButton: true,
       },
-      closeOtherWidgets: true,
+      contact,
     });
   }
 
-  gotoCallDetails(telephonySessionId) {
+  gotoCallDetails(telephonySessionId, contact) {
     this.openWidget({
       widget: {
         id: 'callDetails',
-        name: 'Call details',
+        name: 'Recording',
         params: {
           telephonySessionId,
-        }
+        },
+        showCloseButton: true,
       },
-      closeOtherWidgets: true,
+      contact,
     });
   }
 
-  gotoMessageDetails(messageId) {
+  gotoMessageDetails(message, contact) {
     this.openWidget({
       widget: {
         id: 'messageDetails',
-        name: 'Message details',
+        name: message.type === 'Fax' ? 'Fax' : 'Voicemail',
         params: {
-          messageId,
+          messageId: message.id,
+          type: message.type,
         },
+        showCloseButton: true,
       },
-      closeOtherWidgets: true,
+      contact,
     });
   }
 
@@ -235,41 +313,37 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.openWidget({
       widget: {
         id: 'glipChat',
-        name: 'Glip chat',
+        name: 'Chat',
         params: {
           groupId: chatId,
         },
-        showCloseButton: false,
       },
-      closeOtherWidgets: true,
     });
   }
 
-  gotoLogCall(callSessionId) {
+  gotoLogCall(callSessionId, contact) {
     this.openWidget({
       widget: {
         id: 'logCall',
-        name: 'Log call',
+        name: 'Log',
         params: {
           callSessionId,
         },
-        showCloseButton: false,
       },
-      closeOtherWidgets: true,
+      contact,
     });
   }
 
-  gotoLogConversation(conversationId) {
+  gotoLogConversation(conversationId, contact) {
     this.openWidget({
       widget: {
         id: 'logConversation',
-        name: 'Log conversation',
+        name: 'Log',
         params: {
           conversationId,
         },
-        showCloseButton: false,
       },
-      closeOtherWidgets: true,
+      contact,
     });
   }
 

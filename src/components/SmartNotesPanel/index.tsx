@@ -9,6 +9,7 @@ export function SmartNotesPanel({
   onAlert,
   themeType,
   onSave,
+  showCloseButton
 }) {
   const [session, setSession] = useState(null);
   const sessionRef = useRef(session);
@@ -48,6 +49,7 @@ export function SmartNotesPanel({
       smartNoteRemoteEntry={smartNoteRemoteEntry}
       themeType={themeType}
       onSave={onSave}
+      showCloseButton={showCloseButton}
     />
   );
 }

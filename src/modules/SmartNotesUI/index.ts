@@ -26,9 +26,8 @@ export class SmartNotesUI extends RcUIModuleV2 {
               id: 'smartNotes',
               name: smartNoteSession.status === 'Disconnected' ? 'Notes (beta)' : 'Overview',
               onClose: this.onClose,
-              showCloseButton: smartNoteSession.status !== 'Disconnected',
             },
-            closeOtherWidgets: smartNoteSession.status === 'Disconnected',
+            contact: smartNoteSession.contact,
             openSideDrawer: smartNoteSession.status !== 'Disconnected',
           });
         } else {

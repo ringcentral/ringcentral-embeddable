@@ -84,7 +84,7 @@ export default function App({
       !phone.thirdPartyService.viewMatchedContactExternal ||
       type !== phone.thirdPartyService.sourceName
     ) {
-      phone.sideDrawerUI.gotoContactDetails({ type, id });
+      phone.sideDrawerUI.gotoContactDetails(contact);
       // phone.routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
       return;
     }
