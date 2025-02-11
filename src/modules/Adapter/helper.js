@@ -1,30 +1,3 @@
-import {
-  messageIsTextMessage,
-} from '@ringcentral-integration/commons/lib/messageHelper';
-
-export function findExistedConversation(conversations, phoneNumber) {
-  return conversations.find((conversation) => {
-    if (!conversation.to || conversation.to.length > 1) {
-      return false;
-    }
-    if (!messageIsTextMessage(conversation)) {
-      return false;
-    }
-    if (conversation.direction === 'Inbound') {
-      return conversation.from && (
-        conversation.from.phoneNumber === phoneNumber ||
-        conversation.from.extensionNumber === phoneNumber
-      );
-    }
-    return conversation.to.find(
-      number => (
-        number.phoneNumber === phoneNumber ||
-        number.extensionNumber === phoneNumber
-      )
-    );
-  });
-}
-
 export function setOutputDeviceWhenCall(webphone, audioSettings) {
   if (webphone._webphone) {
     audioSettings.getUserMedia(); // refresh audio devices

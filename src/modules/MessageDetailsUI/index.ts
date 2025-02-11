@@ -178,12 +178,12 @@ export class MessageDetailsUI extends RcUIModuleV2 {
         dateTimeFormatter ??
         ((...args) =>dateTimeFormat.formatDateTime(...args)),
       onViewContact:({ contact }) => {
-        const { type, id } = contact;
+        const { type } = contact;
         if (
           !thirdPartyService.viewMatchedContactExternal ||
           type !== thirdPartyService.sourceName
         ) {
-          sideDrawerUI.gotoContactDetails({ type, id });
+          sideDrawerUI.gotoContactDetails(contact);
           return;
         }
         thirdPartyService.onViewMatchedContactExternal(contact);

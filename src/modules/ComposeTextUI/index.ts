@@ -2,6 +2,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
   ComposeTextUI as ComposeTextUIBase,
 } from '@ringcentral-integration/widgets/modules/ComposeTextUI';
+import { getConversationPhoneNumber } from '../../lib/conversationHelper';
 
 type ComposeContact = {
   name?: string;
@@ -65,7 +66,8 @@ export class ComposeTextUI extends ComposeTextUIBase {
             if (!conversationId) {
               return;
             }
-            sideDrawerUI.gotoConversation(conversationId);
+            const phoneNumber = getConversationPhoneNumber(responses[0]);
+            sideDrawerUI.gotoConversation(conversationId, { phoneNumber });
           } else {
             routerInteraction.push('/messages');
           }
@@ -107,9 +109,8 @@ export class ComposeTextUI extends ComposeTextUIBase {
       widget: {
         id: 'composeText',
         name: 'Compose text',
-        showCloseButton: false,
       },
-      closeOtherWidgets: true,
+      contact,
     });
     if (!contact) {
       return;

@@ -1,6 +1,7 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { ConversationsUI as BaseConversationsUI } from '@ringcentral-integration/widgets/modules/ConversationsUI';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
+import { getConversationPhoneNumber } from '../../lib/conversationHelper';
 
 @Module({
   name: 'ConversationsUI',
@@ -62,13 +63,28 @@ export class ConversationsUI extends BaseConversationsUI {
         conversations.updateSearchInput(value);
       },
       openMessageDetails: (id) => {
-        sideDrawerUI.gotoMessageDetails(id);
+        const conversation = conversations.allConversations.find((c) => c.id === id);
+        let contact = null;
+        if (conversation) {
+          const phoneNumber = getConversationPhoneNumber(conversation);
+          contact = { phoneNumber };
+        }
+        sideDrawerUI.gotoMessageDetails({
+          id,
+          type: conversation && conversation.type,
+        }, contact);
       },
       goToComposeText: () => {
         composeTextUI.gotoComposeText();
       },
       showConversationDetail: (conversationId) => {
-        sideDrawerUI.gotoConversation(conversationId);
+        const conversation = conversations.allConversations.find((c) => c.conversationId === conversationId);
+        let contact = null;
+        if (conversation) {
+          const phoneNumber = getConversationPhoneNumber(conversation);
+          contact = { phoneNumber };
+        }
+        sideDrawerUI.gotoConversation(conversationId, contact);
       },
       onClickToSms: appFeatures.hasComposeTextPermission
         ? (contact, isDummyContact = false) => {

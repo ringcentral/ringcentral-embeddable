@@ -10,6 +10,7 @@ import {
 import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
 import { computed, action, state } from '@ringcentral-integration/core';
 import debounce from '@ringcentral-integration/commons/lib/debounce';
+import { getCallContact } from '../../lib/callHelper';
 
 @Module({
   name: 'CallsListUI',
@@ -218,7 +219,7 @@ export class CallsListUI extends BaseCallsListUI {
       }),
       onLogCall: (async ({ call, contact, triggerType, redirect }) => {
         if (callLogger.showLogModal && triggerType !== 'viewLog') {
-          sideDrawerUI.gotoLogCall(call.sessionId);
+          sideDrawerUI.gotoLogCall(call.sessionId, getCallContact(call));
           // routerInteraction.push(`/log/call/${call.sessionId}`);
           return;
         }
@@ -403,7 +404,11 @@ export class CallsListUI extends BaseCallsListUI {
         }
       },
       onViewCallDetails: (telephonySessionId) => {
-        sideDrawerUI.gotoCallDetails(telephonySessionId);
+        const call = callHistory.latestCalls.find((call) => call.telephonySessionId === telephonySessionId);
+        if (!call) {
+          return;
+        };
+        sideDrawerUI.gotoCallDetails(telephonySessionId, getCallContact(call));
       },
       onClickToSms: appFeatures.hasComposeTextPermission ? async (contact, isDummyContact = false) => {
         composeTextUI.gotoComposeText(contact, isDummyContact);

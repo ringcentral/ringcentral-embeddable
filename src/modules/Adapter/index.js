@@ -6,46 +6,33 @@ import {
 import debounce from '@ringcentral-integration/commons/lib/debounce';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
-import normalizeNumber
-  from '@ringcentral-integration/commons/lib/normalizeNumber';
-import {
-  callingModes,
-} from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
-import {
-  callingOptions,
-} from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
+import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumber';
+import { callingModes } from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
+import { callingOptions } from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
 import {
   dndStatus as dndStatusEnum,
 } from '@ringcentral-integration/commons/modules/Presence/dndStatus';
-import recordStatus
-  from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
-import sessionStatus
-  from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
-import webphoneErrors
-  from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
-import {
-  isOnHold,
-} from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
+import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
+import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
+import webphoneErrors from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
+import { isOnHold } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
-import AdapterModuleCore
-  from '@ringcentral-integration/widgets/lib/AdapterModuleCore';
+import AdapterModuleCore from '@ringcentral-integration/widgets/lib/AdapterModuleCore';
 
 import messageTypes from '../../lib/Adapter/messageTypes';
 import { getWebphoneSessionContactMatch } from '../../lib/contactMatchHelper';
-import {
-  formatMeetingForm,
-  formatMeetingInfo,
-} from '../../lib/formatMeetingInfo';
+import { formatMeetingForm, formatMeetingInfo } from '../../lib/formatMeetingInfo';
 import { isDuplicated } from '../../lib/isDuplicated';
 import PopupWindowManager from '../../lib/PopupWindowManager';
 import actionTypes from './actionTypes';
 import getReducer from './getReducer';
 import {
-  findExistedConversation,
   setOutputDeviceWhenCall,
   getValidAttachments,
   trackWebphoneCallEnded,
 } from './helper';
+import { findExistedConversation, getConversationPhoneNumber } from '../../lib/conversationHelper';
+import { getCallContact } from '../../lib/callHelper';
 
 @Module({
   name: 'Adapter',
@@ -70,12 +57,14 @@ import {
     'TabManager',
     'CallLog',
     'CallLogger',
+    'CallHistory',
     'ConversationLogger',
     'GenericMeeting',
     'Brand',
     'Conversations',
     'ActiveCallControl',
     'ContactMatcher',
+    'Contacts',
     'AudioSettings',
     'SmsTemplates',
     'SideDrawerUI',
@@ -109,6 +98,7 @@ export default class Adapter extends AdapterModuleCore {
     tabManager,
     callLogger,
     callLog,
+    callHistory,
     conversationLogger,
     genericMeeting,
     brand,
@@ -116,6 +106,7 @@ export default class Adapter extends AdapterModuleCore {
     conversations,
     activeCallControl,
     contactMatcher,
+    contacts,
     audioSettings,
     fromPopup,
     isUsingDefaultClientId,
@@ -148,6 +139,7 @@ export default class Adapter extends AdapterModuleCore {
     this._alert = alert;
     this._callLogger = callLogger;
     this._callLog = callLog;
+    this._callHistory = callHistory;
     this._conversationLogger = conversationLogger;
     this._extensionInfo = extensionInfo;
     this._accountInfo = accountInfo;
@@ -158,6 +150,7 @@ export default class Adapter extends AdapterModuleCore {
     this._activeCallControl = activeCallControl;
     this._oAuth = oAuth;
     this._contactMatcher = contactMatcher;
+    this._contacts = contacts;
     this._audioSettings = audioSettings;
     this._smsTemplates = smsTemplates;
     this._sideDrawerUI = sideDrawerUI;
@@ -998,15 +991,22 @@ export default class Adapter extends AdapterModuleCore {
     this._sideDrawerUI.setExtended(value);
   }
 
-  _navigateTo(path) {
+  async _navigateTo(path) {
     if (path.indexOf('/log/call/') === 0) {
       const sessionId = path.split('/')[3];
-      this._sideDrawerUI.gotoLogCall(sessionId);
+      const call = this._callHistory.latestCalls.find((call) => call.sessionId === sessionId);
+      this._sideDrawerUI.gotoLogCall(sessionId, getCallContact(call));
       return;
     }
     if (path.indexOf('/log/messages/') === 0) {
       const conversationId = path.split('/')[3];
-      this._sideDrawerUI.gotoLogConversation(conversationId);
+      const conversation = this._conversations.allConversations.find(
+        item => item.conversationId === conversationId,
+      );
+      if (conversation) {
+        const phoneNumber = getConversationPhoneNumber(conversation);
+        this._sideDrawerUI.gotoLogConversation(conversationId, { phoneNumber });
+      }
       return;
     }
     if (path === '/composeText') {
@@ -1015,17 +1015,24 @@ export default class Adapter extends AdapterModuleCore {
     }
     if (path.indexOf('/conversations/') === 0) {
       const conversationId = path.split('/')[2];
-      this._sideDrawerUI.gotoConversation(conversationId);
+      const conversation = this._conversations.allConversations.find(
+        item => item.conversationId === conversationId,
+      );
+      if (conversation) {
+        const phoneNumber = getConversationPhoneNumber(conversation);
+        this._sideDrawerUI.gotoConversation(conversationId, { phoneNumber });
+      }
       return;
     }
     if (path.indexOf('/contacts/') === 0) {
       const contactType = path.split('/')[2];
       const contactId = path.split('/')[3];
       if (contactType) {
-        this._sideDrawerUI.gotoContactDetails({
-          id: contactId,
-          type: contactType,
+        const contact = this._contacts.findContact({
+          contactId,
+          sourceName: contactType,
         });
+        this._sideDrawerUI.gotoContactDetails(contact);
         return;
       }
     }
@@ -1046,31 +1053,33 @@ export default class Adapter extends AdapterModuleCore {
     if (!this._auth.loggedIn) {
       return;
     }
-    let existedConversation = null;
+    const validAttachments = getValidAttachments(attachments);
     if (conversation) {
       const normalizedNumber = normalizeNumber({
         phoneNumber,
         countryCode: this._regionSettings.countryCode,
         areaCode: this._regionSettings.areaCode,
       });
-      existedConversation = findExistedConversation(
+      const existedConversation = findExistedConversation(
         this._conversations.allConversations,
         normalizedNumber,
       );
-    }
-    const validAttachments = getValidAttachments(attachments);
-    if (existedConversation) {
-      this._sideDrawerUI.gotoConversation(existedConversation.conversationId);
-      if (text && text.length > 0) {
-        this._conversations.loadConversation(existedConversation.conversationId);
-        this._conversations.updateMessageText(String(text));
+      if (existedConversation) {
+        this._sideDrawerUI.gotoConversation(
+          existedConversation.conversationId,
+          { phoneNumber: normalizedNumber },
+        );
+        if (text && text.length > 0) {
+          this._conversations.loadConversation(existedConversation.conversationId);
+          this._conversations.updateMessageText(String(text));
+        }
+        if (validAttachments.length > 0) {
+          validAttachments.forEach((attachment) => {
+            this._conversations.addAttachment(attachment);
+          })
+        }
+        return;
       }
-      if (validAttachments.length > 0) {
-        validAttachments.forEach((attachment) => {
-          this._conversations.addAttachment(attachment);
-        })
-      }
-      return;
     }
     this._composeTextUI.gotoComposeText();
     if (phoneNumber) {

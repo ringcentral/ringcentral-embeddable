@@ -5,11 +5,30 @@ import {
   RcIconButton,
   RcTabs,
   RcTab,
+  RcIcon,
   styled,
   palette2,
   css,
 } from '@ringcentral/juno';
-import { Close } from '@ringcentral/juno-icon';
+import {
+  Close,
+  ContactsBorder,
+  Contacts,
+  Phone,
+  PhoneBorder,
+  AiIndicator,
+  AiSmartNotes,
+  Sms,
+  SmsBorder,
+  Voicemail,
+  VoicemailBorder,
+  Fax,
+  FaxBorder,
+  BubbleLines,
+  BubbleLinesBorder,
+  Note,
+  NoteBorder,
+} from '@ringcentral/juno-icon';
 import { CallDetailsPage } from '../CallDetailsPage';
 import { SmartNotesPage } from '../SmartNotesPage';
 import ContactDetailsPage from '../ContactDetailsPage';
@@ -68,7 +87,7 @@ const CloseButton = styled(RcIconButton)`
 
 const StyledTabs = styled(RcTabs)`
   background-color: ${palette2('neutral', 'b03')};
-  padding: 10px 5px 0 5px;
+  padding: 5px 5px 0 5px;
 
   .RcTabs-indicator {
     display: none;;
@@ -78,11 +97,12 @@ const StyledTabs = styled(RcTabs)`
 const StyledTab = styled(RcTab)`
   background-color: ${palette2('neutral', 'b03')};
   font-weight: 400;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding: 0 8px;
+  padding-right: 0;
   color: ${palette2('neutral', 'f05')};
   border-right: 1px solid ${palette2('neutral', 'l02')};
   border-bottom: 1px solid ${palette2('neutral', 'b03')};
+  font-size: 0.865rem;
 
   &:last-child {
     border-right: none;
@@ -92,7 +112,7 @@ const StyledTab = styled(RcTab)`
     background-color: ${palette2('neutral', 'b01')};
     color: ${palette2('neutral', 'f05')};
     font-weight: 400;
-    border-radius: 5px 5px 0 0;
+    border-radius: 8px 8px 0 0;
     border-bottom: 1px solid ${palette2('neutral', 'b01')};
     border-right: none;
   }
@@ -111,6 +131,67 @@ function EmptyView() {
   );
 }
 
+function getTabIcon(widget, active) {
+  const widgetId = widget.id;
+  if (widgetId === 'contactDetails') {
+    return active ? Contacts : ContactsBorder;
+  }
+  if (widgetId === 'callDetails') {
+    return active ? Phone : PhoneBorder;
+  }
+  if (widgetId === 'smartNotes') {
+    return active ? AiIndicator : AiSmartNotes;
+  }
+  if (widgetId === 'messageDetails') {
+    if (widget.params?.type === 'VoiceMail') {
+      return active ? Voicemail : VoicemailBorder;
+    }
+    if (widget.params?.type === 'Fax') {
+      return active ? Fax : FaxBorder;
+    }
+  }
+  if (widgetId === 'messageDetails' || widgetId === 'composeText' || widgetId === 'conversation') {
+    return active ? Sms : SmsBorder;
+  }
+  if (widgetId === 'glipChat') {
+    return active ? BubbleLines : BubbleLinesBorder;
+  }
+  if (widgetId === 'logCall' || widgetId === 'logConversation') {
+    return active ? Note : NoteBorder;
+  }
+  return null;
+}
+
+const StyledTabLabel = styled.span`
+  display: inline-block;
+  padding-right: 24px;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+`;
+
+const TabCloseButton = styled(CloseButton)`
+  right: 0;
+`;
+
+function TabLabel({
+  name,
+  onClose,
+}) {
+  return (
+    <StyledTabLabel title={name}>
+      {name}
+      <TabCloseButton
+        symbol={Close}
+        onClick={onClose}
+        size="xsmall"
+        color="neutral.f06"
+      />
+    </StyledTabLabel>
+  );
+}
+
 function Widget({
   widget,
   contactSourceRenderer,
@@ -118,6 +199,7 @@ function Widget({
   onAttachmentDownload,
   onClose,
   drawerVariant,
+  hideCloseButton,
 }) {
   if (!widget) {
     return (<EmptyView />);
@@ -126,7 +208,11 @@ function Widget({
     return (<CallDetailsPage params={widget.params} />);
   }
   if (widget.id === 'smartNotes') {
-    return (<SmartNotesPage />);
+    return (
+      <SmartNotesPage
+        showCloseButton={!hideCloseButton}
+      />
+    );
   }
   if (widget.id === 'messageDetails') {
     return (
@@ -141,7 +227,7 @@ function Widget({
       <ComposeTextPage
         supportAttachment
         hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent'}
+        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
         onClose={onClose}
         goBack={onClose}
       />
@@ -156,7 +242,7 @@ function Widget({
         supportAttachment
         onAttachmentDownload={onAttachmentDownload}
         hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent'}
+        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
         onClose={onClose}
         goBack={onClose}
       />
@@ -187,7 +273,7 @@ function Widget({
       <GlipChatPage
         params={widget.params}
         hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent'}
+        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
         onClose={onClose}
         onBack={onClose}
       />
@@ -198,7 +284,7 @@ function Widget({
       <LogCallPage
         params={widget.params}
         hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent'}
+        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
         onClose={onClose}
         onBackButtonClick={onClose}
       />
@@ -209,7 +295,7 @@ function Widget({
       <LogMessagesPage
         params={widget.params}
         hideBackButton={drawerVariant === 'permanent'}
-        showCloseButton={drawerVariant === 'permanent'}
+        showCloseButton={drawerVariant === 'permanent' && !hideCloseButton}
         onClose={onClose}
         onBackButtonClick={onClose}
       />
@@ -220,10 +306,10 @@ function Widget({
 
 export function SideDrawerView({
   variant = 'permanent',
-  widgets,
+  widgets = [],
   currentWidgetId,
   closeWidget,
-  showTabs,
+  gotoWidget,
   contactSourceRenderer,
   navigateTo,
   extended,
@@ -233,7 +319,7 @@ export function SideDrawerView({
   widgets: any[];
   currentWidgetId: string | null;
   closeWidget: (widgetId: string | null) => void;
-  showTabs: boolean;
+  gotoWidget: (widgetId: string) => void;
   contactSourceRenderer: any;
   navigateTo: (path: string) => void;
   extended: boolean;
@@ -246,8 +332,9 @@ export function SideDrawerView({
   if (widgets.length === 0 && drawerVariant === 'temporary') {
     return null;
   }
+  const showTabs = widgets.length > 1;
   const widget = widgets.find((w) => w.id === currentWidgetId);
-  let showCloseButton = widget?.showCloseButton ?? true;
+  let showCloseButton = widget?.showCloseButton ?? false;
   const showTitleInHeader = !!(widget && widget.showTitle && widget.name);
   return (
     <StyledDrawer
@@ -277,17 +364,37 @@ export function SideDrawerView({
       }
       {
         showTabs && (
-          <StyledTabs value={currentWidgetId}>
+          <StyledTabs
+            value={currentWidgetId}
+            onChange={(_, value) => gotoWidget(value)}
+            variant="moreMenu"
+          >
             {
-              widgets.map(w => (
-                <StyledTab
-                  value={w.id}
-                  label={w.name}
-                  key={w.id}
-                />
-              ))
+              widgets.map(widget => {
+                const icon = getTabIcon(widget, currentWidgetId === widget.id);
+                return (
+                  <StyledTab
+                    disableRipple
+                    value={widget.id}
+                    icon={icon && <RcIcon symbol={icon} size="medium" />}
+                    label={(
+                      <TabLabel
+                        name={widget.name}
+                        onClose={() => closeWidget(widget.id)}
+                      />
+                    )}
+                    key={widget.id}
+                    direction="vertical"
+                  />
+                );
+              })
             }
           </StyledTabs>
+        )
+      }
+      {
+        showCloseButton && showTabs && (
+          <Header></Header>
         )
       }
       <WidgetWrapper>
@@ -298,6 +405,7 @@ export function SideDrawerView({
           onAttachmentDownload={onAttachmentDownload}
           onClose={() => closeWidget(currentWidgetId)}
           drawerVariant={drawerVariant}
+          hideCloseButton={showTabs}
         />
       </WidgetWrapper>
     </StyledDrawer>

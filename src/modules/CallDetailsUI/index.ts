@@ -1,6 +1,7 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, state, action, watch } from '@ringcentral-integration/core';
 import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
+import { getCallContact } from '../../lib/callHelper';
 
 @Module({
   name: 'CallDetailsUI',
@@ -202,7 +203,7 @@ export class CallDetailsUI extends RcUIModuleV2 {
       },
       onLogCall: (async ({ call, contact, triggerType, redirect }) => {
         if (callLogger.showLogModal && triggerType !== 'viewLog') {
-          sideDrawerUI.gotoLogCall(call.sessionId);
+          sideDrawerUI.gotoLogCall(call.sessionId, getCallContact(call));
           return;
         }
         await callLogger.logCall({
@@ -213,12 +214,12 @@ export class CallDetailsUI extends RcUIModuleV2 {
         });
       }),
       onViewContact:({ contact }) => {
-        const { type, id } = contact;
+        const { type } = contact;
         if (
           !thirdPartyService.viewMatchedContactExternal ||
           type !== thirdPartyService.sourceName
         ) {
-          sideDrawerUI.gotoContactDetails({ type, id });
+          sideDrawerUI.gotoContactDetails(contact);
           return;
         }
         thirdPartyService.onViewMatchedContactExternal(contact);
