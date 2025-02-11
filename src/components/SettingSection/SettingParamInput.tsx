@@ -63,6 +63,15 @@ const StyledSelect = styled(RcSelect)<{ readOnly: boolean }>`
   `}
 `;
 
+const StyledSwitchLabelWrapper = styled.span`
+  display: inline-flex;
+  flex-direction: column;
+`;
+
+const StyledSwitchLabel = styled(RcTypography)`
+  font-size: 0.875rem;
+`;
+
 export function SettingParamInput({
   setting,
   className,
@@ -74,7 +83,7 @@ export function SettingParamInput({
       <>
         {setting.name}
         {
-          setting.description ? (
+          setting.description && setting.type !== 'boolean' ? (
             <RcTooltip title={setting.description}>
               <InfoIcon
                 symbol={InfoBorder}
@@ -97,6 +106,14 @@ export function SettingParamInput({
     )
   }
   if (setting.type === 'boolean') {
+    if (setting.description) {
+      label = (
+        <StyledSwitchLabelWrapper>
+          <StyledSwitchLabel variant='body1' component="span">{label}</StyledSwitchLabel>
+          <RcTypography variant='caption1' component="span" color="neutral.f04">{setting.description}</RcTypography>
+        </StyledSwitchLabelWrapper>
+      );
+    }
     return (
       <StyledSwitch
         formControlLabelProps={{
