@@ -60,6 +60,8 @@ export default function LogCallPanel({
   onClose,
   showCloseButton,
   hideBackButton,
+  sessionId,
+  onViewCall,
 }) {
   const currentCallRef = useRef(null);
   const [defaultPage, setDefaultPage] = useState({
@@ -73,6 +75,9 @@ export default function LogCallPanel({
       note: '',
     } as any,
   });
+  useEffect(() => {
+    onViewCall(sessionId);
+  }, [sessionId]);
   useEffect(() => {
     if (!currentCall) {
       currentCallRef.current = null;

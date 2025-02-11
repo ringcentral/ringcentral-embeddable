@@ -24,7 +24,7 @@ export class SmartNotesUI extends RcUIModuleV2 {
           this._deps.sideDrawerUI.openWidget({
             widget: {
               id: 'smartNotes',
-              name: smartNoteSession.status === 'Disconnected' ? 'Notes (beta)' : 'Overview',
+              name: 'AI Notes',
               onClose: this.onClose,
             },
             contact: smartNoteSession.contact,
