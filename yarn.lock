@@ -2531,10 +2531,10 @@
     url-parse "^1.2.0"
     uuid "^9.0.0"
 
-"@ringcentral/juno-icon@^1.77.0":
-  version "1.77.0"
-  resolved "https://registry.yarnpkg.com/@ringcentral/juno-icon/-/juno-icon-1.77.0.tgz#9785bbb8cec96fe9902ce5bfbdd32aa389238aac"
-  integrity sha512-JpjTn37BadzIAj8A/PC9VjK9jgqOUi8YXo0aCmxdNOxRShgmCpbL+aTkuYYOMilhlEDxvdjVEA5JemxwOiUECg==
+"@ringcentral/juno-icon@^1.80.0":
+  version "1.82.0"
+  resolved "https://registry.yarnpkg.com/@ringcentral/juno-icon/-/juno-icon-1.82.0.tgz#a6950cf1528adfadb817654f64a699c15d49a736"
+  integrity sha512-QOQApkO7wStfAEsCsA+PqW3n5ujiNQ8QyCls128rsfFwv+dxIESiE0R3txQ5xtzufdj2ZijLmufALgDRFgiAHw==
   dependencies:
     "@material-ui/core" "^4.12.3"
     tslib ">=2.0.0"

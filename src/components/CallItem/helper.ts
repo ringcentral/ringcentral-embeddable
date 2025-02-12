@@ -188,6 +188,7 @@ export function getActions({
         phoneNumber,
         contact: hasEntity ? contactMatches[0] : {
           name: fallbackContactName,
+          phoneNumber,
         },
         direction,
       }),

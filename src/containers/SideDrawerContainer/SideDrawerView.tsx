@@ -17,7 +17,7 @@ import {
   Phone,
   PhoneBorder,
   AiIndicator,
-  AiSmartNotes,
+  AiSparkle,
   Sms,
   SmsBorder,
   Voicemail,
@@ -148,7 +148,7 @@ function getTabIcon(widget, active) {
     return active ? Phone : PhoneBorder;
   }
   if (widgetId === 'smartNotes') {
-    return active ? AiIndicator : AiSmartNotes;
+    return active ? AiIndicator : AiSparkle;
   }
   if (widgetId === 'messageDetails') {
     if (widget.params?.type === 'VoiceMail') {

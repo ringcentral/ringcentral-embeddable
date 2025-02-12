@@ -26,6 +26,11 @@ export class Conversations extends ConversationsBase {
     }
   }
 
+  override async unloadConversation() {
+    await super.unloadConversation();
+    this._updateFetchMessagesStatus(conversationsStatus.idle);
+  }
+
   @action
   _setTypeFilter(type) {
     this.typeFilter = type;

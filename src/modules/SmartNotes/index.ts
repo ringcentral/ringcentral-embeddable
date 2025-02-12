@@ -192,6 +192,7 @@ export class SmartNotes extends RcModuleV2 {
       phoneNumber: phoneNumber,
       contact: contactMatches && contactMatches.length > 0 ? contactMatches[0] : {
         name: feedbackName,
+        phoneNumber,
       },
       direction: webphoneSession.direction,
       startTime: new Date(webphoneSession.startTime).toISOString(),
@@ -310,7 +311,10 @@ export class SmartNotes extends RcModuleV2 {
       } else {
         // when smart note is started, update the status to 'Disconnected' to redirect the smart note to post call page
         smartNoteClient.updateTelephonySessionStatus('Disconnected');
-        this._setSession(session);
+        this._setSession({
+          ...this.session,
+          session,
+        });
       }
       return;
     }
