@@ -87,10 +87,10 @@ conditionalDescribe('widget page test', () => {
   });
 
   it('should goto message page successfully', async () => {
-    await widgetIframe.clickNavigationButton('Message');
+    await widgetIframe.clickNavigationButton('Chat');
     await widgetIframe.waitForTimeout(1000);
     const tabHeaderText = await widgetIframe.getTabHeader();
-    expect(tabHeaderText).toEqual('Message');
+    expect(tabHeaderText).toEqual('Chat');
   });
 
   it('should goto fax page successfully', async () => {

@@ -11,11 +11,12 @@ export default {
   faxLabel: 'Fax',
   moreMenuLabel: "Altro",
   contactsLabel: "Contatti",
-  meetingLabel: "Video",
+  meetingLabel: "Riunioni",
   conferenceLabel: "Programma conferenza",
   hangoutsLabel: "Avvia Hangouts",
   hangoutsTitle: "Avvia Hangouts con il servizio di conferenza",
   settingsLabel: "Impostazioni",
+  glipLabel: "Messaggio",
   composeText: "Componi SMS",
 };
 

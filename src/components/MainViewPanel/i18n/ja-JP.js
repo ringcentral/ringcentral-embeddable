@@ -11,11 +11,12 @@ export default {
   faxLabel: 'FAX',
   moreMenuLabel: "その他",
   contactsLabel: "連絡先",
-  meetingLabel: "ビデオ",
+  meetingLabel: "会議",
   conferenceLabel: "会議のスケジュール設定",
   hangoutsLabel: "ハングアウトを起動",
   hangoutsTitle: "Conferencingでハングアウトを起動",
   settingsLabel: "設定",
+  glipLabel: 'メッセージ',
   composeText: "テキストを作成",
 };
 
