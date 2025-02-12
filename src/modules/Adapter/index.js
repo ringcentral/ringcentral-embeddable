@@ -58,6 +58,7 @@ import { getCallContact } from '../../lib/callHelper';
     'CallLog',
     'CallLogger',
     'CallHistory',
+    'CallMonitor',
     'ConversationLogger',
     'GenericMeeting',
     'Brand',
@@ -99,6 +100,7 @@ export default class Adapter extends AdapterModuleCore {
     callLogger,
     callLog,
     callHistory,
+    callMonitor,
     conversationLogger,
     genericMeeting,
     brand,
@@ -140,6 +142,7 @@ export default class Adapter extends AdapterModuleCore {
     this._callLogger = callLogger;
     this._callLog = callLog;
     this._callHistory = callHistory;
+    this._callMonitor = callMonitor;
     this._conversationLogger = conversationLogger;
     this._extensionInfo = extensionInfo;
     this._accountInfo = accountInfo;
@@ -994,7 +997,10 @@ export default class Adapter extends AdapterModuleCore {
   async _navigateTo(path) {
     if (path.indexOf('/log/call/') === 0) {
       const sessionId = path.split('/')[3];
-      const call = this._callHistory.latestCalls.find((call) => call.sessionId === sessionId);
+      let call = this._callHistory.latestCalls.find((call) => call.sessionId === sessionId);
+      if (!call) {
+        call = this._callMonitor.calls.find((call) => call.sessionId === sessionId);
+      }
       this._sideDrawerUI.gotoLogCall(sessionId, getCallContact(call));
       return;
     }

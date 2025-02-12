@@ -1,6 +1,9 @@
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 
 export function getCallContact(call) {
+  if (!call) {
+    return null;
+  }
   const matchKey = call.direction === callDirections.inbound ? 'fromMatches' : 'toMatches';
   const numberKey = call.direction === callDirections.inbound ? 'from' : 'to';
   const matches = call[matchKey] || [];
