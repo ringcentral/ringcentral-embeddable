@@ -4,7 +4,7 @@ import {
   track,
 } from '@ringcentral-integration/core';
 import { findSettingItem } from '../ThirdPartyService/helper';
-
+import { trackEvents } from '../Analytics/trackEvents';
 @Module({
   name: 'ThirdPartySettingSectionUI',
   deps: [
@@ -41,7 +41,7 @@ export class ThirdPartySettingSectionUI extends RcUIModuleV2 {
     };
   }
 
-  @track(() => ['Save Third Party Setting Section'])
+  @track(() => [trackEvents.saveThirdPartySettingSection])
   _onSave(newSection) {
     return this._deps.thirdPartyService.onUpdateSetting(newSection);
   }

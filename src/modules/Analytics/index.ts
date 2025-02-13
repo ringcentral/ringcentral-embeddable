@@ -109,7 +109,7 @@ export class Analytics extends AnalyticsBase {
       return;
     }
     this.analytics?.page(target.eventPostfix, {
-      path: target.router,
+      currentURL: target.router,
       ...this.trackProps,
     });
   }

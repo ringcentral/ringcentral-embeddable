@@ -2,6 +2,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcVideo as RcVideoBase } from '@ringcentral-integration/commons/modules/RcVideo';
 
 import { action, state, track } from '@ringcentral-integration/core';
+import { trackEvents } from '../Analytics/trackEvents';
 
 const PLAY_TONES_ENUM = {
   On: 0,
@@ -135,7 +136,7 @@ export class RcVideo extends RcVideoBase {
     this.upcomingMeetings = meetings;
   }
 
-  @track(() => ['Create instant meeting'])
+  @track(() => [trackEvents.createInstantMeeting])
   async createInstantMeeting() {
     const meeting = await this.createMeeting({ type: 1 });
     return meeting;

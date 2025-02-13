@@ -10,7 +10,7 @@ import {
 import { dynamicLoad } from '@ringcentral/mfe-react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { sleep } from '@ringcentral-integration/commons/utils';
-
+import { trackEvents } from '../Analytics/trackEvents';
 interface SmartNoteSession {
   id: string;
   status: string;
@@ -574,12 +574,12 @@ export class SmartNotes extends RcModuleV2 {
     this._onSmartNoteUpdate = onSmartNoteUpdate;
   }
 
-  @track(() => ['View smart notes'])
+  @track(() => [trackEvents.viewSmartNotes])
   viewSmartNote(session) {
     return this.setSession(session);
   }
 
-  @track(() => ['Start smart notes'])
+  @track(() => [trackEvents.startSmartNotes])
   trackSmartNoteStart() {
     return null;
   }
