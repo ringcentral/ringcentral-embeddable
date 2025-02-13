@@ -313,7 +313,7 @@ export class SmartNotes extends RcModuleV2 {
         smartNoteClient.updateTelephonySessionStatus('Disconnected');
         this._setSession({
           ...this.session,
-          session,
+          ...session,
         });
       }
       return;
