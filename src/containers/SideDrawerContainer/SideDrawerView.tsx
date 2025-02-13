@@ -336,10 +336,12 @@ export function SideDrawerView({
   onAttachmentDownload: (attachment: any) => void;
 }) {
   let drawerVariant = variant;
-  if (extended) {
-    drawerVariant = 'permanent';
-  }
-  if (widgets.length === 0 && drawerVariant === 'temporary') {
+  if (
+    widgets.length === 0 &&
+    (
+      drawerVariant === 'temporary' ||
+      !extended
+    )) {
     return null;
   }
   const showTabs = widgets.length > 1;

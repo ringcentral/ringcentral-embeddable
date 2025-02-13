@@ -105,14 +105,13 @@ export class SideDrawerUI extends RcUIModuleV2 {
 
   onInitOnce() {
     const handleResize = () => {
-      let newVariant: Variant = window.innerWidth > 500 ? 'permanent' : 'temporary';
-      if (!this.enabled && newVariant === 'permanent' && this.widgets.length === 0) {
-        newVariant = 'temporary';
+      const smallWindow = window.innerWidth < 500;
+      if (smallWindow && this.extended) {
+        this.setExtended(false);
       }
-      if (this.variant === newVariant) {
-        return;
+      if (!smallWindow && this.widgets.length > 0 && !this.extended) {
+        this.setExtended(true);
       }
-      this.setVariant(newVariant);
     };
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -122,7 +121,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
   extended = false;
 
   @state
-  variant = 'permanent';
+  variant = 'temporary';
 
   @state
   widgets: Widget[] = [];
@@ -136,6 +135,12 @@ export class SideDrawerUI extends RcUIModuleV2 {
   @action
   setExtended(extended: boolean) {
     this.extended = extended;
+    if (this.extended && this.variant === 'temporary') {
+      this.setVariant('permanent');
+    }
+    if (!this.extended && this.variant === 'permanent') {
+      this.setVariant('temporary');
+    }
   }
 
   @track((that) => that.extended ? [trackEvents.openSideDrawer] : [trackEvents.closeSideDrawer])
@@ -171,6 +176,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.currentWidgetId = widget.id;
     if (openSideDrawer && !this.extended) {
       this.extended = true;
+      this.variant = 'permanent';
     }
   }
 
@@ -179,6 +185,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
     if (!widgetId && this.widgets.length === 0) {
       // close side drawer for empty view close
       this.extended = false;
+      this.variant = 'temporary';
       return;
     }
     const index = this.widgets.findIndex((w) => w.id === widgetId);
