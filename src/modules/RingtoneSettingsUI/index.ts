@@ -1,7 +1,7 @@
 
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, track } from '@ringcentral-integration/core';
-
+import { trackEvents } from '../Analytics/trackEvents';
 @Module({
   name: 'RingtoneSettingsUI',
   deps: [
@@ -62,7 +62,7 @@ export class RingtoneSettingsUI extends RcUIModuleV2 {
     };
   }
 
-  @track(() => ['Save Ringtone'])
+  @track(() => [trackEvents.saveRingTone])
   _onSave({
     incomingAudio,
     incomingAudioFile,

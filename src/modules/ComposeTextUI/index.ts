@@ -16,6 +16,7 @@ type ComposeContact = {
     'RouterInteraction',
     'SmsTemplates',
     'SideDrawerUI',
+    'Analytics',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -113,6 +114,7 @@ export class ComposeTextUI extends ComposeTextUIBase {
       contact,
     });
     if (!contact) {
+      this._deps.analytics.trackRouter('/composeText');
       return;
     }
     // if contact autocomplete, if no match fill the number only
@@ -127,5 +129,6 @@ export class ComposeTextUI extends ComposeTextUIBase {
         composeText.cleanTypingToNumber();
       }
     }
+    this._deps.analytics.trackRouter('/composeText');
   }
 }

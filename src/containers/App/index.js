@@ -14,7 +14,7 @@ import RegionSettingsPage from '@ringcentral-integration/widgets/containers/Regi
 import { ThemeContainer } from '@ringcentral-integration/widgets/containers/ThemeContainer';
 
 import { PhoneContext } from '@ringcentral-integration/widgets/lib/phoneContext';
-
+import { trackEvents } from '../../modules/Analytics/trackEvents';
 import ThirdPartyContactSourceIcon from '../../components/ThirdPartyContactSourceIcon';
 import GenericMeetingPage from '../GenericMeetingPage';
 import { formatMeetingInfo } from '../../lib/formatMeetingInfo';
@@ -230,7 +230,7 @@ export default function App({
                       const formattedMeetingInfo = formatMeetingInfo(
                         resp, phone.brand, phone.locale.currentLocale, phone.genericMeeting.isRCV
                       );
-                      phone.analytics.track('Meeting Scheduled');
+                      phone.analytics.track(trackEvents.meetingScheduled);
                       if (phone.thirdPartyService.meetingInviteTitle) {
                         await phone.thirdPartyService.inviteMeeting(formattedMeetingInfo);
                         return;

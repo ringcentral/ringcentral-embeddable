@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { RcUIModuleV2, action, state } from '@ringcentral-integration/core';
-
+import { RcUIModuleV2, action, state, track } from '@ringcentral-integration/core';
+import { trackEvents } from '../Analytics/trackEvents';
 interface Widget {
   id: string;
   name: string;
@@ -89,6 +89,7 @@ function isContactHasNewData(currentContact: CurrentContact, newContact: Current
     'RouterInteraction',
     'SideDrawerUIOptions',
     'ThirdPartyService',
+    'Analytics',
   ],
 })
 export class SideDrawerUI extends RcUIModuleV2 {
@@ -137,6 +138,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
     this.extended = extended;
   }
 
+  @track((that) => that.extended ? [trackEvents.openSideDrawer] : [trackEvents.closeSideDrawer])
   toggleExtended() {
     this.setExtended(!this.extended);
   }
@@ -261,6 +263,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
       },
       contact,
     });
+    this._deps.analytics.trackRouter(`/conversations/${conversationId}`);
   }
 
   gotoContactDetails(contact) {
@@ -276,8 +279,10 @@ export class SideDrawerUI extends RcUIModuleV2 {
       },
       contact,
     });
+    this._deps.analytics.trackRouter(`/contacts/${contact.type}/${contact.id}`);
   }
 
+  @track(() => [trackEvents.viewRecording])
   gotoCallDetails(telephonySessionId, contact) {
     this.openWidget({
       widget: {
@@ -292,6 +297,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
     });
   }
 
+  @track(() => [trackEvents.viewMessageDetails])
   gotoMessageDetails(message, contact) {
     this.openWidget({
       widget: {
@@ -317,6 +323,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
         },
       },
     });
+    this._deps.analytics.trackRouter(`/glip/groups/${chatId}`);
   }
 
   gotoLogCall(callSessionId, contact) {
@@ -330,6 +337,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
       },
       contact,
     });
+    this._deps.analytics.trackRouter(`/log/call/${callSessionId}`);
   }
 
   gotoLogConversation(conversation, contact) {
@@ -350,6 +358,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
       },
       contact,
     });
+    this._deps.analytics.trackRouter(`/log/messages/${conversation.conversationId}`);
   }
 
   hasWidget(widgetId) {

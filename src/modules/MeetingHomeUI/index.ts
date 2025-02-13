@@ -1,6 +1,6 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, track } from '@ringcentral-integration/core';
-
+import { trackEvents } from '../Analytics/trackEvents';
 @Module({
   name: 'MeetingHomeUI',
   deps: ['GenericMeeting', 'Locale', 'RouterInteraction'],
@@ -46,7 +46,7 @@ export class MeetingHomeUI extends RcUIModuleV2 {
     };
   }
 
-  @track(() => ['Join Meeting'])
+  @track(() => [trackEvents.joinMeeting])
   _onJoinMeeting(meetingID) {
     if (meetingID.indexOf('https://') === 0) {
       window.open(meetingID);

@@ -1,3 +1,4 @@
+import { trackEvents } from "../Analytics/trackEvents";
 export function setOutputDeviceWhenCall(webphone, audioSettings) {
   if (webphone._webphone) {
     audioSettings.getUserMedia(); // refresh audio devices
@@ -95,7 +96,7 @@ export function trackWebphoneCallEnded(analytics, session) {
   if (session.isOnTransfer) {
     result = 'Transfer';
   }
-  return analytics.track('WebRTC Call Ended', {
+  return analytics.track(trackEvents.webRTCCallEnded, {
     direction: session.direction,
     duration,
     result,
