@@ -11,7 +11,7 @@ import { dynamicLoad } from '@ringcentral/mfe-react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { sleep } from '@ringcentral-integration/commons/utils';
 import { trackEvents } from '../Analytics/trackEvents';
-import { clear } from 'console';
+
 interface SmartNoteSession {
   id: string;
   status: string;
