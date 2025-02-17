@@ -419,6 +419,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       callLoggerTitle: service.callLoggerTitle,
       showLogModal: !!service.showLogModal,
       callLoggerAutoSettingLabel: service.callLoggerAutoSettingLabel,
+      callLoggerAutoSettingDescription: service.callLoggerAutoSettingDescription,
       callLoggerAutoSettingReadOnly: service.callLoggerAutoSettingReadOnly,
       callLoggerAutoSettingReadOnlyReason: service.callLoggerAutoSettingReadOnlyReason,
       callLoggerAutoSettingReadOnlyValue: service.callLoggerAutoSettingReadOnlyValue,
@@ -467,6 +468,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._onRegisterMessageLogger({
       messageLoggerTitle: service.messageLoggerTitle,
       messageLoggerAutoSettingLabel: service.messageLoggerAutoSettingLabel,
+      messageLoggerAutoSettingDescription: service.messageLoggerAutoSettingDescription,
       messageLoggerAutoSettingReadOnly: service.messageLoggerAutoSettingReadOnly,
       messageLoggerAutoSettingReadOnlyReason: service.messageLoggerAutoSettingReadOnlyReason,
       messageLoggerAutoSettingReadOnlyValue: service.messageLoggerAutoSettingReadOnlyValue,
@@ -1135,6 +1137,10 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   @globalStorage
   @state
+  callLoggerAutoSettingDescription = '';
+
+  @globalStorage
+  @state
   showLogModal = false;
 
   @globalStorage
@@ -1161,6 +1167,7 @@ export default class ThirdPartyService extends RcModuleV2 {
   _onRegisterCallLogger({
     callLoggerTitle,
     callLoggerAutoSettingLabel,
+    callLoggerAutoSettingDescription,
     showLogModal,
     callLoggerAutoSettingReadOnly,
     callLoggerAutoSettingReadOnlyReason,
@@ -1173,6 +1180,9 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
     if (callLoggerAutoSettingLabel) {
       this.callLoggerAutoSettingLabel = callLoggerAutoSettingLabel;
+    }
+    if (callLoggerAutoSettingDescription) {
+      this.callLoggerAutoSettingDescription = callLoggerAutoSettingDescription;
     }
     this.showLogModal = showLogModal;
     this.callLoggerAutoSettingReadOnly = !!callLoggerAutoSettingReadOnly;
@@ -1199,6 +1209,10 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   @globalStorage
   @state
+  messageLoggerAutoSettingDescription = '';
+
+  @globalStorage
+  @state
   messageLoggerAutoSettingReadOnly = false;
 
   @globalStorage
@@ -1212,6 +1226,7 @@ export default class ThirdPartyService extends RcModuleV2 {
   _onRegisterMessageLogger({
     messageLoggerTitle,
     messageLoggerAutoSettingLabel,
+    messageLoggerAutoSettingDescription,
     messageLoggerAutoSettingReadOnly,
     messageLoggerAutoSettingReadOnlyReason,
     messageLoggerAutoSettingReadOnlyValue,
@@ -1221,6 +1236,9 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
     if (messageLoggerAutoSettingLabel) {
       this.messageLoggerAutoSettingLabel = messageLoggerAutoSettingLabel;
+    }
+    if (messageLoggerAutoSettingDescription) {
+      this.messageLoggerAutoSettingDescription = messageLoggerAutoSettingDescription;
     }
     this.messageLoggerAutoSettingReadOnly = !!messageLoggerAutoSettingReadOnly;
     this.messageLoggerAutoSettingReadOnlyReason = messageLoggerAutoSettingReadOnlyReason || '';

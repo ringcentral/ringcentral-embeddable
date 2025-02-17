@@ -56,6 +56,9 @@ function getLoggingGroupName(showAutoLog: boolean, showAutoLogSMS: boolean) {
   return `${showAutoLog ? 'Call' : ''}${showAutoLog && showAutoLogSMS ? ' and ' : ''}${showAutoLogSMS ? 'SMS' : ''} logging`;
 }
 
+function getLoggingGroupDescription(showAutoLog: boolean, showAutoLogSMS: boolean) {
+  return `Manage ${showAutoLogSMS ? 'SMS' : ''}${showAutoLog && showAutoLogSMS ? ' and ' : ''}${showAutoLog ? 'phone' : ''} logging preferences`;
+}
 interface NewSettingsPanelProps extends SettingsPanelProps {
   thirdPartyAuth?: {
     serviceName: string;
@@ -74,8 +77,10 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   gotoThirdPartySection: (id: string) => void;
   onThirdPartyButtonClick: (id: string) => void;
   onSettingToggle: (setting: any) => void;
+  autoLogDescription?: string;
   autoLogReadOnly?: boolean;
   autoLogReadOnlyReason?: string;
+  autoLogSMSDescription?: string;
   autoLogSMSReadOnly?: boolean;
   autoLogSMSReadOnlyReason?: string;
   showThemeSetting?: boolean;
@@ -278,9 +283,11 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   // autoLogNotesEnabled = false,
   autoLogSMSEnabled = false,
   autoLogSMSTitle,
+  autoLogSMSDescription,
   autoLogSMSReadOnly = false,
   autoLogSMSReadOnlyReason = '',
   autoLogTitle,
+  autoLogDescription,
   children,
   className,
   // clickToDialEnabled = false,
@@ -352,6 +359,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     type: 'link',
     id: 'calling',
     name: 'calling',
+    description: 'Your preferred device when making/receiving calls',
     dataSign: 'calling',
     show: showCalling,
     onClick: onCallingSettingsLinkClick,
@@ -360,6 +368,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     type: 'link',
     id: 'audio',
     name: 'audio',
+    description: 'Manage audio and sound preferences',
     dataSign: 'audio',
     show: showAudio,
     onClick: onAudioSettingsLinkClick,
@@ -369,6 +378,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     id: 'region',
     name: 'region',
     dataSign: 'region',
+    description: 'Select the country code used for local dialing and phone number formatting.',
     show: showRegion,
     onClick: onRegionSettingsLinkClick,
     order: 300,
@@ -381,12 +391,14 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     id: 'logging',
     type: 'group',
     name: getLoggingGroupName(showAutoLog, showAutoLogSMS),
+    description: getLoggingGroupDescription(showAutoLog, showAutoLogSMS),
     order: 500,
     dataSign: 'logging',
     items: [{
       id: 'autoLogCalls',
       type: 'switch',
       name: 'autoLogCalls',
+      description: autoLogDescription || 'Automatically log calls when they end in this app',
       dataSign: 'AutoLogCall',
       show: showAutoLog,
       customTitle: autoLogTitle,
@@ -400,6 +412,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       id: 'autoLogSMS',
       type: 'switch',
       name: 'autoLogSMS',
+      description: autoLogSMSDescription || 'Automatically log SMS when they are sent or received in this app',
       dataSign: 'AutoLogSMS',
       customTitle: autoLogSMSTitle,
       show: showAutoLogSMS,
@@ -427,6 +440,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       id: 'theme',
       type: 'link',
       name: 'Theme (Beta)',
+      description: 'Switch between light and dark themes',
       onClick: onThemeSettingsLinkClick,
       show: showThemeSetting,
       order: 0,
@@ -436,7 +450,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       type: 'switch',
       name: 'AI Assistant (Beta)',
       description: 'Show AI assistant widget during a call',
-      dataSign: 'AI Assistant  (Beta)',
+      dataSign: 'AIAssistantWidget',
       show: showSmartNoteSetting,
       checked: smartNoteEnabled,
       onChange: onSmartNoteToggle,
@@ -448,7 +462,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       type: 'switch',
       name: 'Auto start AI assistant (Beta)',
       description: 'Start AI assistant automatically at call start',
-      dataSign: 'AI Assistant Auto Start (Beta)',
+      dataSign: 'AIAssistantAutoStart',
       show: showSmartNoteSetting && smartNoteEnabled,
       checked: smartNoteAutoStartEnabled,
       onChange: onSmartNoteAutoStartToggle,
