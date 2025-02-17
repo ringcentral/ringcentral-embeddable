@@ -85,6 +85,10 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   onSmartNoteToggle: () => void;
   smartNoteAutoStartEnabled?: boolean;
   onSmartNoteAutoStartToggle: () => void;
+  smartNoteEnabledReadOnly?: boolean;
+  smartNoteAutoStartEnabledReadOnly?: boolean;
+  smartNoteEnabledReadOnlyReason?: string;
+  smartNoteAutoStartEnabledReadOnlyReason?: string;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -337,6 +341,10 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   showSmartNoteSetting = false,
   smartNoteEnabled = false,
   smartNoteAutoStartEnabled = false,
+  smartNoteEnabledReadOnly = false,
+  smartNoteEnabledReadOnlyReason = '',
+  smartNoteAutoStartEnabledReadOnly = false,
+  smartNoteAutoStartEnabledReadOnlyReason = '',
   onSmartNoteToggle,
   onSmartNoteAutoStartToggle,
 }) => {
@@ -432,6 +440,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       show: showSmartNoteSetting,
       checked: smartNoteEnabled,
       onChange: onSmartNoteToggle,
+      readOnly: smartNoteEnabledReadOnly,
+      readOnlyReason: smartNoteEnabledReadOnlyReason,
       order: 10,
     }, {
       id: 'smartNoteAutoStart',
@@ -442,6 +452,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       show: showSmartNoteSetting && smartNoteEnabled,
       checked: smartNoteAutoStartEnabled,
       onChange: onSmartNoteAutoStartToggle,
+      readOnly: smartNoteAutoStartEnabledReadOnly,
+      readOnlyReason: smartNoteAutoStartEnabledReadOnlyReason,
       order: 11,
     }],
   }];

@@ -160,6 +160,12 @@ export class SmartNotes extends RcModuleV2 {
   @state
   showSmartNote = false;
 
+  @state
+  showSmartNoteReadOnly = false;
+
+  @state
+  showSmartNoteReadOnlyReason = '';
+
   @track((that) =>
     that.showSmartNote ? [trackEvents.enableSmartNotes] : [trackEvents.disableSmartNotes],
   )
@@ -168,9 +174,22 @@ export class SmartNotes extends RcModuleV2 {
     this.showSmartNote = !this.showSmartNote;
   }
 
+  @action
+  setShowSmartNote(show, readOnly = false, reason = '') {
+    this.showSmartNote = show;
+    this.showSmartNoteReadOnly = readOnly;
+    this.showSmartNoteReadOnlyReason = reason;
+  }
+
   @storage
   @state
   autoStartSmartNote = false;
+
+  @state
+  autoStartSmartNoteReadOnly = false;
+
+  @state
+  autoStartSmartNoteReadOnlyReason = '';
 
   @track((that) =>
     that.autoStartSmartNote ? [trackEvents.enableSmartNotesAutoStart] : [trackEvents.disableSmartNotesAutoStart],
@@ -178,6 +197,13 @@ export class SmartNotes extends RcModuleV2 {
   @action
   toggleAutoStartSmartNote() {
     this.autoStartSmartNote = !this.autoStartSmartNote;
+  }
+
+  @action
+  setAutoStartSmartNote(autoStart, readOnly = false, reason = '') {
+    this.autoStartSmartNote = autoStart;
+    this.autoStartSmartNoteReadOnly = readOnly;
+    this.autoStartSmartNoteReadOnlyReason = reason;
   }
 
   @state
