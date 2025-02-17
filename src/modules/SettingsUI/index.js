@@ -65,6 +65,11 @@ export class SettingsUI extends BaseSettingsUI {
       showThemeSetting: brand.code === 'rc', // only show theme settings for rc brand now
       showSmartNoteSetting: smartNotes.hasPermission && smartNotes.clientInitialized,
       smartNoteEnabled: smartNotes.showSmartNote,
+      smartNoteEnabledReadOnly: smartNotes.showSmartNoteReadOnly,
+      smartNoteEnabledReadOnlyReason: smartNotes.showSmartNoteReadOnlyReason,
+      smartNoteAutoStartEnabled: smartNotes.autoStartSmartNote,
+      smartNoteAutoStartEnabledReadOnly: smartNotes.autoStartSmartNoteReadOnly,
+      smartNoteAutoStartEnabledReadOnlyReason: smartNotes.autoStartSmartNoteReadOnlyReason,
     };
   }
 
@@ -100,6 +105,9 @@ export class SettingsUI extends BaseSettingsUI {
       },
       onSmartNoteToggle: () => {
         smartNotes.toggleShowSmartNote();
+      },
+      onSmartNoteAutoStartToggle: () => {
+        smartNotes.toggleAutoStartSmartNote();
       },
     }
   }

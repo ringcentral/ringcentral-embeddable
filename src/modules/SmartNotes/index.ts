@@ -11,6 +11,7 @@ import { dynamicLoad } from '@ringcentral/mfe-react';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { sleep } from '@ringcentral-integration/commons/utils';
 import { trackEvents } from '../Analytics/trackEvents';
+
 interface SmartNoteSession {
   id: string;
   status: string;
@@ -46,6 +47,7 @@ interface CallMetaData {
     'Webphone',
     'ContactMatcher',
     'Storage',
+    'Alert',
   ],
 })
 export class SmartNotes extends RcModuleV2 {
@@ -55,6 +57,7 @@ export class SmartNotes extends RcModuleV2 {
   protected _smartNoteIframeUri: string;
   protected _webphoneHookAdded: boolean;
   protected _onSmartNoteUpdate?: (id: string) => void;
+  protected _autoStartTimeout: NodeJS.Timeout;
 
   constructor(deps) {
     super({
@@ -157,12 +160,50 @@ export class SmartNotes extends RcModuleV2 {
   @state
   showSmartNote = false;
 
+  @state
+  showSmartNoteReadOnly = false;
+
+  @state
+  showSmartNoteReadOnlyReason = '';
+
   @track((that) =>
-    that.showSmartNote ? ['Enable smart note widget'] : ['Stop smart note widget'],
+    that.showSmartNote ? [trackEvents.enableSmartNotes] : [trackEvents.disableSmartNotes],
   )
   @action
   toggleShowSmartNote() {
     this.showSmartNote = !this.showSmartNote;
+  }
+
+  @action
+  setShowSmartNote(show, readOnly = false, reason = '') {
+    this.showSmartNote = show;
+    this.showSmartNoteReadOnly = readOnly;
+    this.showSmartNoteReadOnlyReason = reason;
+  }
+
+  @storage
+  @state
+  autoStartSmartNote = false;
+
+  @state
+  autoStartSmartNoteReadOnly = false;
+
+  @state
+  autoStartSmartNoteReadOnlyReason = '';
+
+  @track((that) =>
+    that.autoStartSmartNote ? [trackEvents.enableSmartNotesAutoStart] : [trackEvents.disableSmartNotesAutoStart],
+  )
+  @action
+  toggleAutoStartSmartNote() {
+    this.autoStartSmartNote = !this.autoStartSmartNote;
+  }
+
+  @action
+  setAutoStartSmartNote(autoStart, readOnly = false, reason = '') {
+    this.autoStartSmartNote = autoStart;
+    this.autoStartSmartNoteReadOnly = readOnly;
+    this.autoStartSmartNoteReadOnlyReason = reason;
   }
 
   @state
@@ -197,6 +238,39 @@ export class SmartNotes extends RcModuleV2 {
       direction: webphoneSession.direction,
       startTime: new Date(webphoneSession.startTime).toISOString(),
     });
+  }
+
+  async _startSmartNote(session, retry = false) {
+    if (this._autoStartTimeout) {
+      clearTimeout(this._autoStartTimeout);
+    }
+    const delayTime = retry ? 5000 : 2000;
+    this._autoStartTimeout = setTimeout(async () => {
+      const client = this._smartNoteClientMap[session.id];
+      if (client && client.transcriptionStatus === 'idle') {
+        try {
+          await this._smartNoteClientMap[session.id].start();
+        } catch (e) {
+          if (!retry && e.message && (
+            e.message.indexOf('CC-102') > -1 ||
+            e.message.indexOf('CC-104') > -1
+          )) {
+            // if the session is not ready, retry once
+            this._startSmartNote(session, true);
+            return;
+          }
+          console.error(e);
+          this._deps.alert.alert({
+            message: 'showCustomAlertMessage',
+            level: 'warning',
+            payload: {
+              alertMessage: 'Failed to auto start AI assistant, please start it manually after call answered',
+            },
+            ttl: 10000,
+          });
+        }
+      }
+    }, delayTime);
   }
 
   // called when webphone session is started or user view the post-call note
@@ -268,6 +342,14 @@ export class SmartNotes extends RcModuleV2 {
       }
       this._setSession(session);
       this._clearOtherIdleSmartNoteClient(session.id);
+      if (session.status === 'Answered' && this.autoStartSmartNote) {
+        const transcriptionStatus = this._smartNoteClientMap[session.id].transcriptionStatus;
+        if ( transcriptionStatus === 'idle') {
+          this._startSmartNote(session);
+        } else if (transcriptionStatus === 'paused') {
+          this._smartNoteClientMap[session.id].resume();
+        }
+      }
       return;
     }
     const smartNoteClient = this._smartNoteClientMap[session.id];

@@ -69,6 +69,7 @@ import { getCallContact } from '../../lib/callHelper';
     'AudioSettings',
     'SmsTemplates',
     'SideDrawerUI',
+    'SmartNotes',
     'ComposeTextUI',
     'Analytics',
     'Theme',
@@ -114,6 +115,7 @@ export default class Adapter extends AdapterModuleCore {
     isUsingDefaultClientId,
     smsTemplates,
     sideDrawerUI,
+    smartNotes,
     composeTextUI,
     theme,
     ...options
@@ -157,6 +159,7 @@ export default class Adapter extends AdapterModuleCore {
     this._audioSettings = audioSettings;
     this._smsTemplates = smsTemplates;
     this._sideDrawerUI = sideDrawerUI;
+    this._smartNotes = smartNotes;
     this._composeTextUI = composeTextUI;
     this._analytics = analytics;
     this._theme = theme;
@@ -354,6 +357,10 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-update-auto-log-settings': {
           this._onUpdateAutoLogSettings(data);
+          break;
+        }
+        case 'rc-adapter-update-ai-assistant-settings': {
+          this._onUpdateAIAssistantSettings(data);
           break;
         }
         case 'rc-adapter-set-side-drawer-extended': {
@@ -1271,6 +1278,23 @@ export default class Adapter extends AdapterModuleCore {
     }
     if (typeof data.message === 'boolean') {
       this._conversationLogger.setAutoLog(data.message);
+    }
+  }
+
+  _onUpdateAIAssistantSettings(data) {
+    if (typeof data.showAiAssistantWidget === 'boolean') {
+      this._smartNotes.setShowSmartNote(
+        data.showAiAssistantWidget,
+        !!data.showAiAssistantWidgetReadOnly,
+        data.showAiAssistantWidgetReadOnlyReason,
+      );
+    }
+    if (typeof data.autoStartAiAssistant === 'boolean') {
+      this._smartNotes.setAutoStartSmartNote(
+        data.autoStartAiAssistant,
+        !!data.autoStartAiAssistantReadOnly,
+        data.autoStartAiAssistantReadOnlyReason,
+      );
     }
   }
 
