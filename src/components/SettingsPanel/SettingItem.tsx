@@ -36,7 +36,11 @@ export const StyledSettingItem = styled(RcListItem)<{ $noBorder?: boolean }>`
   }
 `;
 
-export const LinkLineItem: FunctionComponent<LinkLineItemProps> = ({
+interface NewLinkLineItemProps extends LinkLineItemProps {
+  description?: string;
+}
+
+export const LinkLineItem: FunctionComponent<NewLinkLineItemProps> = ({
   show,
   name,
   customTitle,
@@ -58,6 +62,9 @@ export const LinkLineItem: FunctionComponent<LinkLineItemProps> = ({
       <RcListItemText
         primary={customTitle || i18n.getString(name, currentLocale)}
         secondary={description}
+        secondaryTypographyProps={{
+          title: description,
+        }}
       />
       <RcListItemSecondaryAction>
         <RcIcon symbol={ArrowRight} />
@@ -129,6 +136,9 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
         primary={label}
         title={customTitle || i18n.getString(name, currentLocale)}
         secondary={description}
+        secondaryTypographyProps={{
+          title: description,
+        }}
       />
       <RcListItemSecondaryAction>
         <StyledSwitch
