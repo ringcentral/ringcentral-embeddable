@@ -24,7 +24,7 @@ export class SmartNotesUI extends RcUIModuleV2 {
           this._deps.sideDrawerUI.openWidget({
             widget: {
               id: 'smartNotes',
-              name: 'AI Notes',
+              name: 'AI Assistant',
               onClose: this.onClose,
             },
             contact: smartNoteSession.contact,

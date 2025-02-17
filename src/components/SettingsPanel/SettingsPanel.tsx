@@ -83,6 +83,8 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   showSmartNoteSetting?: boolean;
   smartNoteEnabled?: boolean;
   onSmartNoteToggle: () => void;
+  smartNoteAutoStartEnabled?: boolean;
+  onSmartNoteAutoStartToggle: () => void;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -334,7 +336,9 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   showThemeSetting,
   showSmartNoteSetting = false,
   smartNoteEnabled = false,
+  smartNoteAutoStartEnabled = false,
   onSmartNoteToggle,
+  onSmartNoteAutoStartToggle,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'link',
@@ -422,13 +426,23 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     }, {
       id: 'smartNote',
       type: 'switch',
-      name: 'Smart Note (Beta)',
-      description: 'Show smart note widget during a call',
-      dataSign: 'SmartNote (Beta)',
+      name: 'AI Assistant (Beta)',
+      description: 'Show AI assistant widget during a call',
+      dataSign: 'AI Assistant  (Beta)',
       show: showSmartNoteSetting,
       checked: smartNoteEnabled,
       onChange: onSmartNoteToggle,
       order: 10,
+    }, {
+      id: 'smartNoteAutoStart',
+      type: 'switch',
+      name: 'Auto start AI assistant (Beta)',
+      description: 'Start AI assistant automatically at call start',
+      dataSign: 'AI Assistant Auto Start (Beta)',
+      show: showSmartNoteSetting && smartNoteEnabled,
+      checked: smartNoteAutoStartEnabled,
+      onChange: onSmartNoteAutoStartToggle,
+      order: 11,
     }],
   }];
   thirdPartySettings.forEach((item, index) => {
