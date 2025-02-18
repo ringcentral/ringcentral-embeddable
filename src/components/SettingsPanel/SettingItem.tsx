@@ -20,7 +20,7 @@ import type {
   LinkLineItemProps,
   SwitchLineItemProps,
 } from '@ringcentral-integration/widgets/components/SettingsPanel/SettingsPanel.interface';
-import i18n from '@ringcentral-integration/widgets/components/SettingsPanel/i18n';
+import i18n from './i18n';
 
 export const StyledSettingItem = styled(RcListItem)<{ $noBorder?: boolean }>`
   min-height: 50px;
@@ -198,6 +198,7 @@ interface GroupLineItemProps {
   show: boolean;
   dataSign?: string;
   description?: string;
+  currentLocale: string;
 }
 
 const StyledGroupSettingItem = styled(StyledSettingItem)`
@@ -218,6 +219,7 @@ export const GroupLineItem: FunctionComponent<GroupLineItemProps> = ({
   show,
   dataSign = undefined,
   description = undefined,
+  currentLocale,
 }) => {
   const [extended, setExtended] = useState(false);
 
@@ -233,7 +235,7 @@ export const GroupLineItem: FunctionComponent<GroupLineItemProps> = ({
         data-sign={dataSign}
       >
         <RcListItemText
-          primary={name}
+          primary={i18n.getString(name, currentLocale)}
           secondary={description}
         />
         <RcListItemSecondaryAction>

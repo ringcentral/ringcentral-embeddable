@@ -4,9 +4,9 @@ import React from 'react';
 import { styled, RcText } from '@ringcentral/juno';
 import { Eula } from '@ringcentral-integration/widgets/components/Eula';
 import Line from '@ringcentral-integration/widgets/components/Line';
-import i18n from '@ringcentral-integration/widgets/components/SettingsPanel/i18n';
 import type { FooterProps } from '@ringcentral-integration/widgets/components/SettingsPanel/SettingsPanel.interface';
 import { LogoutItem } from './SettingItem';
+import i18n from './i18n';
 
 const StyledSection = styled.section`
   padding-top: 8px;

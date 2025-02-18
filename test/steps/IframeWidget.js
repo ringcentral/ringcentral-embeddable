@@ -185,6 +185,11 @@ export class IframeWidget {
 
   async clickSettingSection(label) {
     await this.waitFor('.SettingsPanel_root');
+    const section = await this._widgetIframe.$(`div[data-sign="${label}"][role="button"]`);
+    if (!section) {
+      await this._widgetIframe.click(`div[data-sign="general"][role="button"]`);
+      await waitForTimeout(500);
+    }
     await this._widgetIframe.click(`div[data-sign="${label}"][role="button"]`);
   }
 
