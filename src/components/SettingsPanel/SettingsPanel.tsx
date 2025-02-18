@@ -161,6 +161,7 @@ function ItemRenderer({ item, currentLocale }: {
         show={groupItemsShow}
         dataSign={item.dataSign}
         description={item.description}
+        currentLocale={currentLocale}
       >
         {
           groupItems.sort((a, b) => a.order - b.order).map((subItem) => (
@@ -356,32 +357,47 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   onSmartNoteAutoStartToggle,
 }) => {
   let settingsItems: SettingItem[] = [{
-    type: 'link',
-    id: 'calling',
-    name: 'calling',
-    description: 'Your preferred device when making/receiving calls',
-    dataSign: 'calling',
-    show: showCalling,
-    onClick: onCallingSettingsLinkClick,
+    type: 'group',
+    id: 'general',
+    name: 'general',
+    dataSign: 'general',
     order: 100,
+    items: [{
+      type: 'link',
+      id: 'calling',
+      name: 'calling',
+      description: 'Your preferred device when making/receiving calls',
+      dataSign: 'calling',
+      show: showCalling,
+      onClick: onCallingSettingsLinkClick,
+      order: 100,
+    }, {
+      type: 'link',
+      id: 'region',
+      name: 'region',
+      dataSign: 'region',
+      description: 'Select the country code used for local dialing and phone number formatting.',
+      show: showRegion,
+      onClick: onRegionSettingsLinkClick,
+      order: 200,
+    }, {
+      id: 'theme',
+      type: 'link',
+      name: 'theme',
+      description: 'Switch between light and dark themes',
+      onClick: onThemeSettingsLinkClick,
+      show: showThemeSetting,
+      order: 300,
+      dataSign: 'theme',
+    }]
   }, {
     type: 'link',
     id: 'audio',
     name: 'audio',
-    description: 'Manage audio and sound preferences',
     dataSign: 'audio',
     show: showAudio,
     onClick: onAudioSettingsLinkClick,
     order: 200,
-  }, {
-    type: 'link',
-    id: 'region',
-    name: 'region',
-    dataSign: 'region',
-    description: 'Select the country code used for local dialing and phone number formatting.',
-    show: showRegion,
-    onClick: onRegionSettingsLinkClick,
-    order: 300,
   }, {
     type: 'presence',
     id: 'presence',
@@ -391,7 +407,6 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     id: 'logging',
     type: 'group',
     name: getLoggingGroupName(showAutoLog, showAutoLogSMS),
-    description: getLoggingGroupDescription(showAutoLog, showAutoLogSMS),
     order: 500,
     dataSign: 'logging',
     items: [{
@@ -434,21 +449,13 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   }, {
     id: 'advancedFeatures',
     type: 'group',
-    name: 'Advanced features',
+    name: 'advanced',
+    dataSign: 'advanced',
     order: 11000,
     items: [{
-      id: 'theme',
-      type: 'link',
-      name: 'Theme (Beta)',
-      description: 'Switch between light and dark themes',
-      onClick: onThemeSettingsLinkClick,
-      show: showThemeSetting,
-      order: 0,
-      dataSign: 'theme',
-    }, {
       id: 'smartNote',
       type: 'switch',
-      name: 'AI Assistant (Beta)',
+      name: 'aiAssistant',
       description: 'Show AI assistant widget during a call',
       dataSign: 'AIAssistantWidget',
       show: showSmartNoteSetting,
@@ -460,7 +467,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     }, {
       id: 'smartNoteAutoStart',
       type: 'switch',
-      name: 'Auto start AI assistant (Beta)',
+      name: 'autoStartAiAssistant',
       description: 'Start AI assistant automatically at call start',
       dataSign: 'AIAssistantAutoStart',
       show: showSmartNoteSetting && smartNoteEnabled,

@@ -142,7 +142,7 @@ export const PresenceSettingSection: FunctionComponent<
       >
         <RcListItemText
           primary={i18n.getString('status', currentLocale)}
-          secondary="Set visibility and availability"
+          secondary={showSelects ? 'Set visibility and availability' : ''}
         />
         <RcListItemSecondaryAction>
           <StyledPresenceIcon size="medium" type={selectedItem?.type} />
