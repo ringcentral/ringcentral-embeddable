@@ -102,7 +102,7 @@ export class AppFeatures extends AppFeaturesBase {
       this.config.SmartNote &&
       this.appScopes.indexOf('AIInternal') > -1 &&
       this.appScopes.indexOf('TelephonySessions') > -1 &&
-      (this._deps.extensionFeatures.features?.RingSenseMVP?.available ?? false) &&
+      (this._deps.extensionFeatures.features?.AIGeneratedNotes?.available ?? false) &&
       (this._deps.extensionFeatures.features?.VoiceCallsLiveTranscriptions?.available ?? false) &&
       (this._deps.extensionFeatures.features?.VoiceCallsCloseCaptioning?.available ?? false)
     );
