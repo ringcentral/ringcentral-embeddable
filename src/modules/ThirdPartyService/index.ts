@@ -614,7 +614,15 @@ export default class ThirdPartyService extends RcModuleV2 {
       if (!this._contactMatchPath) {
         return result;
       }
-      const { data } = await requestWithPostMessage(this._contactMatchPath, { phoneNumbers }, 30000);
+      const queryParams = { phoneNumbers } as any;
+      if (
+        phoneNumbers.length === 1 &&
+        phoneNumbers[0] === this._deps.contactMatcher.manualRefreshNumber
+      ) {
+        queryParams.triggerFrom = 'manual';
+        this._deps.contactMatcher.resetManualRefreshNumber();
+      }
+      const { data } = await requestWithPostMessage(this._contactMatchPath, queryParams, 30000);
       if (!data || Object.keys(data).length === 0) {
         return result;
       }

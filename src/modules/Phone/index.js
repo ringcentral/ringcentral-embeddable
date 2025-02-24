@@ -34,9 +34,6 @@ import {
 import {
   ConnectivityMonitor,
 } from '@ringcentral-integration/commons/modules/ConnectivityMonitor';
-import {
-  ContactMatcher,
-} from '@ringcentral-integration/commons/modules/ContactMatcher';
 import { Contacts } from '@ringcentral-integration/commons/modules/Contacts';
 import {
   ContactSearch,
@@ -161,6 +158,7 @@ import Adapter from '../Adapter';
 import { AlertUI } from '../AlertUI';
 import { AccountContacts } from '../AccountContacts';
 import { AddressBook } from '../AddressBook';
+import { ContactMatcher } from '../ContactMatcher';
 import { Analytics } from '../Analytics';
 import { AppFeatures } from '../AppFeatures';
 import { Auth } from '../Auth';

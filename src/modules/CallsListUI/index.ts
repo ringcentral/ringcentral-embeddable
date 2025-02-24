@@ -235,6 +235,7 @@ export class CallsListUI extends BaseCallsListUI {
         routerInteraction.push(`/contacts/${type}/${id}?direct=true`);
       }),
       onRefreshContact: ({ phoneNumber }) => {
+        contactMatcher.setManualRefreshNumber(phoneNumber);
         contactMatcher.forceMatchNumber({ phoneNumber })
       },
       isLoggedContact(call, activity, contact) {
