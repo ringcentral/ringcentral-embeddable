@@ -36,6 +36,7 @@ import {
     'SmartNotes',
     'GlobalStorage',
     'TabManager',
+    'CallHistory',
     { dep: 'ThirdPartyContactsOptions', optional: true },
   ],
 })
@@ -91,6 +92,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._ignoreModuleReadiness(deps.conversationMatcher);
     this._ignoreModuleReadiness(deps.genericMeeting);
     this._ignoreModuleReadiness(deps.smartNotes);
+    this._ignoreModuleReadiness(deps.callHistory);
 
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
@@ -622,6 +624,14 @@ export default class ThirdPartyService extends RcModuleV2 {
         queryParams.triggerFrom = 'manual';
         this._deps.contactMatcher.resetManualRefreshNumber();
       }
+      const callerIds = {};
+      phoneNumbers.forEach((phoneNumber) => {
+        const callID = this._deps.callHistory.callerIDMap[phoneNumber];
+        if (callID) {
+          callerIds[phoneNumber] = callID;
+        }
+      });
+      queryParams.callerIds = callerIds;
       const { data } = await requestWithPostMessage(this._contactMatchPath, queryParams, 30000);
       if (!data || Object.keys(data).length === 0) {
         return result;
