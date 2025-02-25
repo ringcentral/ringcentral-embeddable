@@ -54,6 +54,7 @@ export class ConversationsUI extends BaseConversationsUI {
         });
       },
       onRefreshContact: ({ phoneNumber }) => {
+        contactMatcher.setManualRefreshNumber(phoneNumber);
         contactMatcher.forceMatchNumber({ phoneNumber })
       },
       onSearchFilterChange: (value) => {
