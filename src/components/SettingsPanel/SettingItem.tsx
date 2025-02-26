@@ -13,6 +13,7 @@ import {
   setOpacity,
   RcLink,
   RcTooltip,
+  RcTypography,
 } from '@ringcentral/juno';
 import { ArrowRight, ArrowUp2, ArrowDown2, Logout, Lock } from '@ringcentral/juno-icon';
 
@@ -78,6 +79,7 @@ interface NewSwitchLineItemProps extends SwitchLineItemProps {
   readOnly?: boolean;
   readOnlyReason?: string;
   description?: string;
+  warning?: string;
 }
 
 const StyledSwitch = styled(RcSwitch)`
@@ -107,12 +109,15 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
   readOnly,
   readOnlyReason,
   description,
+  warning,
   // tooltip,
 }) => {
   if (!show) {
     return null;
   }
-
+  if (name === 'Auto-open extension') {
+    console.log('SwitchLineItem', description, warning);
+  }
   let label = customTitle || i18n.getString(name, currentLocale);
   if (readOnly) {
     label = (
@@ -135,9 +140,26 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
       <RcListItemText
         primary={label}
         title={customTitle || i18n.getString(name, currentLocale)}
-        secondary={description}
+        secondary={
+          <>
+            {
+              description ? (
+                <RcTypography variant="caption1" color="neutral.f04" title={description}>
+                  {description}
+                </RcTypography>
+              ) : null
+            }
+            {
+              warning ? (
+                <RcTypography variant="caption1" color="danger.f02" title={warning}>
+                  {warning}
+                </RcTypography>
+              ) : null
+            }
+          </>
+        }
         secondaryTypographyProps={{
-          title: description,
+          component: 'div',
         }}
       />
       <RcListItemSecondaryAction>

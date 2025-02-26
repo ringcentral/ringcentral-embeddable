@@ -35,6 +35,7 @@ export class SettingsUI extends BaseSettingsUI {
       autoLogReadOnlyReason: callLogger.autoLogReadOnlyReason,
       autoLogTitle: thirdPartyService.callLoggerAutoSettingLabel,
       autoLogDescription: thirdPartyService.callLoggerAutoSettingDescription,
+      autoLogWarning: thirdPartyService.callLoggerAutoSettingWarning,
       showAutoLogSMS: conversationLogger.loggerSourceReady,
       autoLogSMSEnabled: conversationLogger.autoLog,
       autoLogSMSTitle: thirdPartyService.messageLoggerAutoSettingLabel || 'Auto log messages',
