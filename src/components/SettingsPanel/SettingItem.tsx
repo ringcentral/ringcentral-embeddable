@@ -115,9 +115,6 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
   if (!show) {
     return null;
   }
-  if (name === 'Auto-open extension') {
-    console.log('SwitchLineItem', description, warning);
-  }
   let label = customTitle || i18n.getString(name, currentLocale);
   if (readOnly) {
     label = (
