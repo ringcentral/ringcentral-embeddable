@@ -30,6 +30,7 @@ type ThirdPartySetting = {
   readOnly?: boolean;
   readOnlyReason?: string;
   description?: string;
+  warning?: string;
 }
 
 type SettingItem = {
@@ -50,6 +51,7 @@ type SettingItem = {
   readOnly?: boolean;
   readOnlyReason?: string;
   description?: string;
+  warning?: string;
 }
 
 function getLoggingGroupName(showAutoLog: boolean, showAutoLogSMS: boolean) {
@@ -81,6 +83,7 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   autoLogReadOnly?: boolean;
   autoLogReadOnlyReason?: string;
   autoLogSMSDescription?: string;
+  autoLogWarning?: string;
   autoLogSMSReadOnly?: boolean;
   autoLogSMSReadOnlyReason?: string;
   showThemeSetting?: boolean;
@@ -126,6 +129,7 @@ function ItemRenderer({ item, currentLocale }: {
         readOnly={item.readOnly}
         readOnlyReason={item.readOnlyReason}
         description={item.description}
+        warning={item.warning}
       />
     );
   }
@@ -242,6 +246,7 @@ function getSettingItemFromThirdPartyItem({
       readOnly: item.readOnly,
       readOnlyReason: item.readOnlyReason,
       description: item.description,
+      warning: item.warning,
     };
   }
   if (item.type === 'group') {
@@ -287,6 +292,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   autoLogSMSDescription,
   autoLogSMSReadOnly = false,
   autoLogSMSReadOnlyReason = '',
+  autoLogWarning,
   autoLogTitle,
   autoLogDescription,
   children,
@@ -423,6 +429,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       order: 3000,
       readOnly: autoLogReadOnly,
       readOnlyReason: autoLogReadOnlyReason,
+      warning: autoLogWarning,
     }, {
       id: 'autoLogSMS',
       type: 'switch',

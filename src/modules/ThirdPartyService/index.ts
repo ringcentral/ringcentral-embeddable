@@ -425,6 +425,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       callLoggerAutoSettingReadOnly: service.callLoggerAutoSettingReadOnly,
       callLoggerAutoSettingReadOnlyReason: service.callLoggerAutoSettingReadOnlyReason,
       callLoggerAutoSettingReadOnlyValue: service.callLoggerAutoSettingReadOnlyValue,
+      callLoggerAutoSettingWarning: service.callLoggerAutoSettingWarning,
       callLoggerAutoLogOnCallSync: service.callLoggerAutoLogOnCallSync, // auto log for calls happened when the app is not opened
       callLoggerHideEditLogButton: service.callLoggerHideEditLogButton,
     });
@@ -1175,6 +1176,10 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   @globalStorage
   @state
+  callLoggerAutoSettingWarning = '';
+
+  @globalStorage
+  @state
   callLoggerAutoLogOnCallSync = false;
 
   @globalStorage
@@ -1190,6 +1195,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     callLoggerAutoSettingReadOnly,
     callLoggerAutoSettingReadOnlyReason,
     callLoggerAutoSettingReadOnlyValue,
+    callLoggerAutoSettingWarning = '',
     callLoggerAutoLogOnCallSync,
     callLoggerHideEditLogButton = false,
   }) {
@@ -1202,6 +1208,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     if (callLoggerAutoSettingDescription) {
       this.callLoggerAutoSettingDescription = callLoggerAutoSettingDescription;
     }
+    this.callLoggerAutoSettingWarning = callLoggerAutoSettingWarning;
     this.showLogModal = showLogModal;
     this.callLoggerAutoSettingReadOnly = !!callLoggerAutoSettingReadOnly;
     this.callLoggerAutoSettingReadOnlyReason = callLoggerAutoSettingReadOnlyReason || '';
