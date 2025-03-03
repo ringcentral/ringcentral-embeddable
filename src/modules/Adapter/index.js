@@ -183,6 +183,8 @@ export default class Adapter extends AdapterModuleCore {
     this._brandConfig = null;
     this._sideDrawerExtended = null;
     this._themeType = null;
+    this._aiAssistantEnabled = null;
+    this._aiAssistantAutoStart = null;
     this._popupWindowManager = new PopupWindowManager({ prefix, isPopupWindow: fromPopup });
 
     this._messageStore.onNewInboundMessage((message) => {
@@ -295,6 +297,7 @@ export default class Adapter extends AdapterModuleCore {
     this._checkWebphoneStatus();
     this._checkSideDrawerOpen();
     this._checkThemeType();
+    this._checkAiAssistantSettings();
   }
 
   _onMessage(event) {
@@ -1389,6 +1392,25 @@ export default class Adapter extends AdapterModuleCore {
   callLogSyncedNotify() {
     this._postMessage({
       type: 'rc-call-history-synced-notify',
+    });
+  }
+
+  _checkAiAssistantSettings() {
+    if (!this.ready) {
+      return;
+    }
+    if (
+      this._smartNotes.showSmartNote === this._aiAssistantEnabled &&
+      this._smartNotes.autoStartSmartNote === this._aiAssistantAutoStart
+    ) {
+      return;
+    }
+    this._aiAssistantEnabled = this._smartNotes.showSmartNote;
+    this._aiAssistantAutoStart = this._smartNotes.autoStartSmartNote;
+    this._postMessage({
+      type: 'rc-adapter-ai-assistant-settings-notify',
+      showAiAssistantWidget: this._smartNotes.showSmartNote,
+      autoStartAiAssistant: this._smartNotes.autoStartSmartNote,
     });
   }
 }

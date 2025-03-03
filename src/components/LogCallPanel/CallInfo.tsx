@@ -73,6 +73,10 @@ function Duration({ startTime, offset, duration = undefined }) {
   return formatDuration(duration);
 }
 
+const StyledShinyBar = styled(ShinyBar)`
+  position: relative;
+`;
+
 export function CallInfo({
   formatPhone,
   call,
@@ -87,7 +91,7 @@ export function CallInfo({
 
   return (
     <Container>
-      <ShinyBar
+      <StyledShinyBar
         isRinging={isRinging}
         status={getInfoStatus(status)}
       />
