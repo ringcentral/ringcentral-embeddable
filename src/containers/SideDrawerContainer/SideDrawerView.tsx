@@ -28,6 +28,7 @@ import {
   BubbleLinesBorder,
   Note,
   NoteBorder,
+  Apps,
 } from '@ringcentral/juno-icon';
 import { CallDetailsPage } from '../CallDetailsPage';
 import { SmartNotesPage } from '../SmartNotesPage';
@@ -39,6 +40,7 @@ import { ConversationPage } from '../ConversationPage';
 import { GlipChatPage } from '../GlipChatPage';
 import LogCallPage from '../LogCallPage';
 import LogMessagesPage from '../LogMessagesPage';
+import { ContactAppsPage } from '../ContactAppsPage';
 
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
@@ -166,6 +168,9 @@ function getTabIcon(widget, active) {
   }
   if (widgetId === 'logCall' || widgetId === 'logConversation') {
     return active ? Note : NoteBorder;
+  }
+  if (widgetId === 'contactApps') {
+    return Apps;
   }
   return null;
 }
@@ -308,6 +313,13 @@ function Widget({
         showCloseButton={drawerVariant === 'permanent' && !withTab}
         onClose={onClose}
         onBackButtonClick={onClose}
+      />
+    );
+  }
+  if (widget.id === 'contactApps') {
+    return (
+      <ContactAppsPage
+        params={widget.params}
       />
     );
   }

@@ -149,8 +149,16 @@ export class SideDrawerUI extends RcUIModuleV2 {
   }
 
   @action
-  setVariant(variant: 'permanent' | 'temporary') {
+  setVariant(variant: Variant) {
     this.variant = variant;
+  }
+
+  @action
+  addWidget(widget: Widget) {
+    if (this.widgets.some((w) => w.id === widget.id)) {
+      return;
+    }
+    this.widgets = this.widgets.concat(widget);
   }
 
   @action
@@ -285,6 +293,14 @@ export class SideDrawerUI extends RcUIModuleV2 {
         showCloseButton: true,
       },
       contact,
+    });
+    this.addWidget({
+      id: 'contactApps',
+      name: 'Apps',
+      params: {
+        contactType: contact.type,
+        contactId: contact.id,
+      },
     });
     this._deps.analytics.trackRouter(`/contacts/${contact.type}/${contact.id}`);
   }
