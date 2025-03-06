@@ -243,6 +243,7 @@ export interface DialerPanelProps {
   showAnonymous?: boolean;
   getPresence?: (...args: any[]) => any;
   onEnableAudio?: (...args: any[]) => any;
+  onEnterKeyPress?: (...args: any[]) => any;
 }
 
 const Empty: FunctionComponent = () => null;
@@ -285,6 +286,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   useV2 = false,
   getPresence,
   onEnableAudio = () => Empty,
+  onEnterKeyPress = () => Empty,
 }) => {
   const inputEl = useRef(null);
   const containerEl = useRef(null);
@@ -317,8 +319,8 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
       return;
     }
     const onKeyDown = (e) => {
-      if (e.key === 'Enter') {
-        onCallButtonClick({ clickDialerToCall: true });
+      if (e.key === 'Enter' && containerEl.current) {
+        onEnterKeyPress(e);
       }
     };
     window.document.addEventListener('keydown', onKeyDown);

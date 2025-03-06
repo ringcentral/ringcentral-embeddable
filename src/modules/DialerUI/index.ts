@@ -57,4 +57,17 @@ export class DialerUI extends DialerUIBase {
       return true;
     }
   }
+
+  getUIFunctions(props) {
+    const parentUIFunctions = super.getUIFunctions(props);
+    return {
+      ...parentUIFunctions,
+      onEnterKeyPress: (e) => {
+        if (this._deps.sideDrawerUI.modalOpen) {
+          return;
+        }
+        this.onCallButtonClick({ clickDialerToCall: true });
+      },
+    };
+  }
 }
