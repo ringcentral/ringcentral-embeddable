@@ -285,8 +285,8 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   showAnonymous = true,
   useV2 = false,
   getPresence,
-  onEnableAudio = () => Empty,
-  onEnterKeyPress = () => Empty,
+  onEnableAudio = Empty,
+  onEnterKeyPress = Empty,
 }) => {
   const inputEl = useRef(null);
   const containerEl = useRef(null);
