@@ -348,6 +348,7 @@ export function SideDrawerView({
   const widget = widgets.find((w) => w.id === currentWidgetId);
   const showCloseButton = !widget || widget.showCloseButton;
   const showTitleInHeader = !!(widget && widget.showTitle && widget.name);
+
   return (
     <StyledDrawer
       anchor="right"
@@ -412,7 +413,13 @@ export function SideDrawerView({
           <Header></Header>
         )
       }
-      <WidgetWrapper>
+      <WidgetWrapper
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.stopPropagation();
+          }
+        }}
+      >
         <Widget
           widget={widget}
           contactSourceRenderer={contactSourceRenderer}
