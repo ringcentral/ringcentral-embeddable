@@ -1044,7 +1044,7 @@ export default class Adapter extends AdapterModuleCore {
       const contactType = path.split('/')[2];
       const contactId = path.split('/')[3];
       if (contactType) {
-        const contact = this._contacts.findContact({
+        const contact = await this._contacts.findContact({
           contactId,
           sourceName: contactType,
         });

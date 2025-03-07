@@ -1,12 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import {
-  action,
-  RcUIModuleV2,
-  state,
-  computed,
-  storage,
-  track,
-} from '@ringcentral-integration/core';
+import { RcUIModuleV2 } from '@ringcentral-integration/core';
 
 type CurrentContact = {
   id?: string;
@@ -18,7 +11,9 @@ type CurrentContact = {
 
 @Module({
   name: 'ContactAppsUI',
-  deps: [],
+  deps: [
+    'ThirdPartyService',
+  ],
 })
 export class ContactAppsUI extends RcUIModuleV2 {
   constructor(deps) {
@@ -27,23 +22,19 @@ export class ContactAppsUI extends RcUIModuleV2 {
     });
   }
 
-  @state
-  currentContact: CurrentContact | null = null;
-
-  @action
-  setCurrentContact(contact: CurrentContact) {
-    this.currentContact = contact;
-  }
-
-  getUIProps() {
+  getUIProps(options) {
+    const {
+      thirdPartyService,
+    } = this._deps;
     return {
-      currentContact: this.currentContact,
+      currentContact: options?.params?.contact,
+      apps: thirdPartyService.apps,
     };
   }
 
   getUIFunctions() {
     return {
-      setCurrentContact: this.setCurrentContact,
+      
     };
   }
 }

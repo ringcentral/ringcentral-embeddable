@@ -294,14 +294,16 @@ export class SideDrawerUI extends RcUIModuleV2 {
       },
       contact,
     });
-    this.addWidget({
-      id: 'contactApps',
-      name: 'Apps',
-      params: {
-        contactType: contact.type,
-        contactId: contact.id,
-      },
-    });
+    if (this.enabled && this.extended) {
+      this.addWidget({
+        id: 'contactApps',
+        name: 'Apps',
+        params: {
+          contactType: contact.type,
+          contactId: contact.id,
+        },
+      });
+    }
     this._deps.analytics.trackRouter(`/contacts/${contact.type}/${contact.id}`);
   }
 

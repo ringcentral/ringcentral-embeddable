@@ -320,6 +320,8 @@ function Widget({
     return (
       <ContactAppsPage
         params={widget.params}
+        showCloseButton={!withTab}
+        onClose={onClose}
       />
     );
   }
