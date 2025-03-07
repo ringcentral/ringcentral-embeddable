@@ -204,7 +204,7 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._onUpdateMessagesLogPage(e.data);
       } else if (e.data.type === 'rc-adapter-register-customized-page') {
         this._onRegisterCustomizedPage(e.data);
-      } else if (e.data.type === 'rc-adapter-register-app') {
+      } else if (e.data.type === 'rc-adapter-register-widget-app') {
         this._onRegisterApp(e.data);
       }
     });

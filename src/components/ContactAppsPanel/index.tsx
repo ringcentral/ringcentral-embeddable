@@ -1,50 +1,17 @@
 import React, { useState } from 'react';
 import {
   styled,
-  palette2,
   RcTypography,
   RcIconButton,
   RcTab,
 } from '@ringcentral/juno';
-import { Close, ArrowLeft2, Refresh } from '@ringcentral/juno-icon';
-
-export const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  box-sizing: border-box;
-  flex: 1;
-  height: 100%;
-  width: 100%;
-  background: ${palette2('neutral', 'b01')};
-  color: ${palette2('neutral', 'f06')};
-`;
-
-const PageHeader = styled.div`
-  padding: 0 16px;
-  padding-right: 8px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  border-bottom: 1px solid ${palette2('neutral', 'l02')};
-  width: 100%;
-  height: 56px;
-  box-sizing: border-box;
-  align-items: center;
-`;
+import { Close } from '@ringcentral/juno-icon';
+import { ContactAppPanel } from './ContactAppPanel';
+import { Container, PageHeader, Content, AppIcon } from './styled';
 
 const PageTitle = styled(RcTypography)`
   flex: 1;
   text-align: left;
-`;
-
-const Content = styled.div`
-  flex: 1;
-  width: 100%;
-  padding: 16px;
-  box-sizing: border-box;
 `;
 
 const AppListWrapper = styled.div`
@@ -53,13 +20,6 @@ const AppListWrapper = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   flex-wrap: wrap;
-`;
-
-const AppIcon = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-  overflow: hidden;
 `;
 
 const AppItem = styled(RcTab)`
@@ -76,21 +36,17 @@ const AppItem = styled(RcTab)`
   }
 `;
 
-const AppIconInHeader = styled(AppIcon)`
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
-`;
-
-const BackButton = styled(RcIconButton)`
-  margin-left: -10px;
+const EmptyMessage = styled(RcTypography)`
+  text-align: center;
+  margin-top: 32px;
+  width: 100%;
 `;
 
 export function ContactAppsPanel({
   apps,
   showCloseButton,
   onClose,
-  contact
+  onLoadApp,
 }) {
   const [currentApp, setCurrentApp] = useState(null);
 
@@ -98,7 +54,7 @@ export function ContactAppsPanel({
     return (
       <Container>
         <PageHeader>
-          <PageTitle variant="subheading2">My apps</PageTitle>
+          <PageTitle variant="subheading2">Available apps</PageTitle>
           {
             showCloseButton && (
               <RcIconButton
@@ -120,31 +76,21 @@ export function ContactAppsPanel({
                 />
               ))
             }
+            {
+              apps.length === 0 && (
+                <EmptyMessage variant="body1">No available apps</EmptyMessage>
+              )
+            }
           </AppListWrapper>
         </Content>
       </Container>
     );
   }
   return (
-    <Container>
-      <PageHeader>
-        <BackButton
-          symbol={ArrowLeft2}
-          onClick={() => setCurrentApp(null)}
-          variant="plain"
-          size="xlarge"
-        />
-        <AppIconInHeader src={currentApp.iconUri} />
-        <PageTitle variant="subheading2">{currentApp.name}</PageTitle>
-        <RcIconButton
-          symbol={Refresh}
-          onClick={() => setCurrentApp(currentApp)}
-          size="small"
-        />
-      </PageHeader>
-      <Content>
-        app
-      </Content>
-    </Container>
+    <ContactAppPanel
+      app={currentApp}
+      onLoadApp={onLoadApp}
+      onBack={() => setCurrentApp(null)}
+    />
   );
 }
