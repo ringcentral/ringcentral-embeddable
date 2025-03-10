@@ -40,6 +40,9 @@ export class WidgetAppsUI extends RcUIModuleV2 {
       onLoadApp: (data) => {
         return thirdPartyService.loadAppPage(data);
       },
+      onInPageButtonClick(id, formData) {
+        thirdPartyService.onClickButtonInCustomizedPage(id, 'button', formData);
+      },
     };
   }
 }

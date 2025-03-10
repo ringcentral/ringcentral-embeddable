@@ -38,6 +38,7 @@ type App = {
   name: string;
   description?: string;
   iconUri: string;
+  submitPath?: string;
 };
 
 type Page = {
@@ -51,11 +52,13 @@ export function WidgetAppPanel({
   onLoadApp = async () => null,
   onBack,
   contact,
+  onButtonClick,
 }: {
   app: App;
   onLoadApp?: (data: any) => Promise<Page | null>;
   onBack: () => void;
   contact: any;
+  onButtonClick: (id: string, formData: any) => void;
 }) {
   const [page, setPage] = useState<Page | null>(null);
   const [formDataState, setFormDataState] = useState({});
@@ -145,8 +148,10 @@ export function WidgetAppPanel({
               }}
               formData={formDataState}
               uiSchema={page.uiSchema}
-              onButtonClick={(id) => {}}
-              hiddenSubmitButton={false}
+              onButtonClick={(id) => {
+                onButtonClick(id, formDataState)
+              }}
+              hiddenSubmitButton={!app.submitPath}
               onSubmit={async () => {
                 const newPage = await onLoadApp({
                   app,
