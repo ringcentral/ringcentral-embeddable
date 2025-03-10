@@ -1620,4 +1620,55 @@ export default class ThirdPartyService extends RcModuleV2 {
   _onRegisterApp(data) {
     this.updateApps(data.app);
   }
+
+  async loadAppPage({
+      app,
+      contact,
+      formData = null,
+      changedKeys = null,
+      type,
+    }) {
+    if (!app || !app.id) {
+      console.error('App id is required');
+      return;
+    }
+    let path;
+    const params: {
+      contact: any;
+      app: any;
+      formData?: any;
+      changedKeys?: any;
+      refresh?: boolean;
+    } = {
+      contact,
+      app,
+    };
+    if (type === 'inputChanged') {
+      path = app.inputChangedPath;
+      params.formData = formData;
+      params.changedKeys = changedKeys
+    } else if (type === 'submit') {
+      path = app.submitPath;
+      params.formData = formData;
+    } else {
+      path = app.pagePath;
+      if (type === 'refresh') {
+        params.refresh = true;
+        params.formData = formData;
+      }
+    }
+    if (!path) {
+      return;
+    }
+    try {
+      const { data } = await requestWithPostMessage(
+        path,
+        params,
+      );
+      return data;
+    } catch (e) {
+      console.error('Load app page error', e);
+      return null;
+    }
+  }
 }

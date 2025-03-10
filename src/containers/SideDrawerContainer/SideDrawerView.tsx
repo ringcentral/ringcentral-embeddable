@@ -40,7 +40,7 @@ import { ConversationPage } from '../ConversationPage';
 import { GlipChatPage } from '../GlipChatPage';
 import LogCallPage from '../LogCallPage';
 import LogMessagesPage from '../LogMessagesPage';
-import { ContactAppsPage } from '../ContactAppsPage';
+import { WidgetAppsPage } from '../WidgetAppsPage';
 
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
@@ -316,9 +316,9 @@ function Widget({
       />
     );
   }
-  if (widget.id === 'contactApps') {
+  if (widget.id === 'widgetApps') {
     return (
-      <ContactAppsPage
+      <WidgetAppsPage
         params={widget.params}
         showCloseButton={!withTab}
         onClose={onClose}

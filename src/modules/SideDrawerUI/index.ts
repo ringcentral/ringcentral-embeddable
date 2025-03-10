@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { RcUIModuleV2, action, state, track } from '@ringcentral-integration/core';
+import { RcUIModuleV2, action, state, track, watch } from '@ringcentral-integration/core';
 import { trackEvents } from '../Analytics/trackEvents';
 interface Widget {
   id: string;
@@ -186,6 +186,20 @@ export class SideDrawerUI extends RcUIModuleV2 {
       this.extended = true;
       this.variant = 'permanent';
     }
+    if (
+      this.extended &&
+      this.enabled &&
+      ['contactDetails', 'smartNotes'].includes(widget.id) &&
+      this.currentContact
+    ) {
+      this.addWidget({
+        id: 'widgetApps',
+        name: 'Apps',
+        params: {
+          contact: this.currentContact,
+        },
+      });
+    }
   }
 
   @action
@@ -294,16 +308,6 @@ export class SideDrawerUI extends RcUIModuleV2 {
       },
       contact,
     });
-    if (this.enabled && this.extended) {
-      this.addWidget({
-        id: 'contactApps',
-        name: 'Apps',
-        params: {
-          contactType: contact.type,
-          contactId: contact.id,
-        },
-      });
-    }
     this._deps.analytics.trackRouter(`/contacts/${contact.type}/${contact.id}`);
   }
 

@@ -10,12 +10,12 @@ type CurrentContact = {
 }
 
 @Module({
-  name: 'ContactAppsUI',
+  name: 'WidgetAppsUI',
   deps: [
     'ThirdPartyService',
   ],
 })
-export class ContactAppsUI extends RcUIModuleV2 {
+export class WidgetAppsUI extends RcUIModuleV2 {
   constructor(deps) {
     super({
       deps,
@@ -27,14 +27,19 @@ export class ContactAppsUI extends RcUIModuleV2 {
       thirdPartyService,
     } = this._deps;
     return {
-      currentContact: options?.params?.contact,
+      contact: options?.params?.contact,
       apps: thirdPartyService.apps,
     };
   }
 
   getUIFunctions() {
+    const {
+      thirdPartyService,
+    } = this._deps;
     return {
-      
+      onLoadApp: (data) => {
+        return thirdPartyService.loadAppPage(data);
+      },
     };
   }
 }

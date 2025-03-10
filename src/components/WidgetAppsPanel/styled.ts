@@ -5,7 +5,6 @@ export const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
   box-sizing: border-box;
   flex: 1;
   height: 100%;
@@ -32,6 +31,7 @@ export const Content = styled.div`
   width: 100%;
   padding: 16px;
   box-sizing: border-box;
+  overflow-y: auto;
 `;
 
 export const AppIcon = styled.img`

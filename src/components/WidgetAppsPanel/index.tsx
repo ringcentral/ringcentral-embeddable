@@ -6,7 +6,7 @@ import {
   RcTab,
 } from '@ringcentral/juno';
 import { Close } from '@ringcentral/juno-icon';
-import { ContactAppPanel } from './ContactAppPanel';
+import { WidgetAppPanel } from './WidgetAppPanel';
 import { Container, PageHeader, Content, AppIcon } from './styled';
 
 const PageTitle = styled(RcTypography)`
@@ -42,11 +42,12 @@ const EmptyMessage = styled(RcTypography)`
   width: 100%;
 `;
 
-export function ContactAppsPanel({
+export function WidgetAppsPanel({
   apps,
   showCloseButton,
   onClose,
   onLoadApp,
+  contact,
 }) {
   const [currentApp, setCurrentApp] = useState(null);
 
@@ -87,10 +88,11 @@ export function ContactAppsPanel({
     );
   }
   return (
-    <ContactAppPanel
+    <WidgetAppPanel
       app={currentApp}
       onLoadApp={onLoadApp}
       onBack={() => setCurrentApp(null)}
+      contact={contact}
     />
   );
 }

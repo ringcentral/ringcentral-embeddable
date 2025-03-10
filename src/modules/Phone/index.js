@@ -221,7 +221,7 @@ import { SmsTemplates } from '../SmsTemplates';
 import { SmartNotes } from '../SmartNotes';
 import { SideDrawerUI } from '../SideDrawerUI';
 import { SmartNotesUI } from '../SmartNotesUI';
-import { ContactAppsUI } from '../ContactAppsUI';
+import { WidgetAppsUI } from '../WidgetAppsUI';
 
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -467,7 +467,7 @@ import { ContactAppsUI } from '../ContactAppsUI';
     { provide: 'CustomizedPageUI', useClass: CustomizedPageUI },
     { provide: 'SmartNotes', useClass: SmartNotes },
     { provide: 'SmartNotesUI', useClass: SmartNotesUI },
-    { provide: 'ContactAppsUI', useClass: ContactAppsUI },
+    { provide: 'WidgetAppsUI', useClass: WidgetAppsUI },
   ]
 })
 export default class BasePhone extends RcModule {
