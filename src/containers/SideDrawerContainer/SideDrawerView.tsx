@@ -33,7 +33,6 @@ import {
 import { CallDetailsPage } from '../CallDetailsPage';
 import { SmartNotesPage } from '../SmartNotesPage';
 import ContactDetailsPage from '../ContactDetailsPage';
-import RecentActivityContainer from '../RecentActivityContainer';
 import { MessageDetailsPage } from '../MessageDetailsPage';
 import ComposeTextPage from '../ComposeTextPage';
 import { ConversationPage } from '../ConversationPage';
@@ -277,12 +276,8 @@ function Widget({
           }
         }
         hideHeader
-      >
-        <RecentActivityContainer
-          navigateTo={navigateTo}
-          useContact
-        />
-      </ContactDetailsPage>
+        navigateTo={navigateTo}
+      />
     )
   }
   if (widget.id === 'glipChat') {

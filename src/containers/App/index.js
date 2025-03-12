@@ -38,7 +38,6 @@ import MeetingHistoryPage from '../MeetingHistoryPage';
 import MeetingHomePage from '../MeetingHomePage';
 
 import MeetingTabContainer from '../MeetingTabContainer';
-import RecentActivityContainer from '../RecentActivityContainer';
 import RingtoneSettingsPage from '../RingtoneSettingsPage';
 import SettingsPage from '../SettingsPage';
 import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
@@ -391,14 +390,10 @@ export default function App({
                         window.open(`mailto:${email}`);
                       }
                     }
-                  >
-                    <RecentActivityContainer
-                      navigateTo={(path) => {
-                        phone.routerInteraction.push(path);
-                      }}
-                      useContact
-                    />
-                  </ContactDetailsPage>
+                    navigateTo={(path) => {
+                      phone.routerInteraction.push(path);
+                    }}
+                  />
                 )}
               />
               <Route
