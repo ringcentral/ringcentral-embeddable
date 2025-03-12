@@ -41,6 +41,7 @@ import { GlipChatPage } from '../GlipChatPage';
 import LogCallPage from '../LogCallPage';
 import LogMessagesPage from '../LogMessagesPage';
 import { WidgetAppsPage } from '../WidgetAppsPage';
+import type { WidgetContact } from '../../lib/widgetContact';
 
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
@@ -169,7 +170,7 @@ function getTabIcon(widget, active) {
   if (widgetId === 'logCall' || widgetId === 'logConversation') {
     return active ? Note : NoteBorder;
   }
-  if (widgetId === 'contactApps') {
+  if (widgetId === 'widgetApps') {
     return Apps;
   }
   return null;
@@ -215,6 +216,7 @@ function Widget({
   onClose,
   drawerVariant,
   withTab,
+  contact,
 }) {
   if (!widget) {
     return (<EmptyView />);
@@ -319,7 +321,7 @@ function Widget({
   if (widget.id === 'widgetApps') {
     return (
       <WidgetAppsPage
-        params={widget.params}
+        contact={contact}
         showCloseButton={!withTab}
         onClose={onClose}
       />
@@ -338,6 +340,7 @@ export function SideDrawerView({
   navigateTo,
   extended,
   onAttachmentDownload,
+  contact,
 }: {
   variant: 'permanent' | 'temporary';
   widgets: any[];
@@ -348,6 +351,7 @@ export function SideDrawerView({
   navigateTo: (path: string) => void;
   extended: boolean;
   onAttachmentDownload: (attachment: any) => void;
+  contact?: WidgetContact;
 }) {
   let drawerVariant = variant;
   if (
@@ -442,6 +446,7 @@ export function SideDrawerView({
           onClose={() => closeWidget(currentWidgetId)}
           drawerVariant={drawerVariant}
           withTab={showTabs}
+          contact={contact}
         />
       </WidgetWrapper>
     </StyledDrawer>

@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, action, state, track, watch } from '@ringcentral-integration/core';
 import { trackEvents } from '../Analytics/trackEvents';
+import type { WidgetContact } from '../../lib/widgetContact';
+import { isSameContact } from '../../lib/widgetContact';
 interface Widget {
   id: string;
   name: string;
@@ -15,48 +17,7 @@ interface Widget {
 
 type Variant = 'permanent' | 'temporary';
 
-type CurrentContact = {
-  id?: string;
-  phoneNumber?: string;
-  phoneNumbers?: {
-    phoneNumber: string;
-  }[];
-}
-
-function isSameContact(contact1?: CurrentContact | null, contact2?: CurrentContact | null) {
-  if (!contact1 || !contact2) {
-    return false;
-  }
-  if (
-    contact1.id &&
-    contact2.id &&
-    contact1.id === contact2.id
-  ) {
-    return true;
-  }
-  if (
-    contact1.phoneNumber &&
-    contact2.phoneNumber &&
-    contact1.phoneNumber === contact2.phoneNumber
-  ) {
-    return true
-  }
-  if (
-    contact1.phoneNumbers &&
-    contact2.phoneNumber &&
-    contact1.phoneNumbers.some((p) => p.phoneNumber === contact2.phoneNumber)
-  ) {
-    return true;
-  }
-  if (
-    contact2.phoneNumbers &&
-    contact1.phoneNumber &&
-    contact2.phoneNumbers.some((p) => p.phoneNumber === contact1.phoneNumber)
-  ) {
-    return true;
-  }
-  return false;
-}
+type CurrentContact = WidgetContact
 
 function isContactHasNewData(currentContact: CurrentContact, newContact: CurrentContact) {
   if (!currentContact.id && newContact.id) {
@@ -186,20 +147,6 @@ export class SideDrawerUI extends RcUIModuleV2 {
       this.extended = true;
       this.variant = 'permanent';
     }
-    if (
-      this.extended &&
-      this.enabled &&
-      ['contactDetails', 'smartNotes'].includes(widget.id) &&
-      this.currentContact
-    ) {
-      this.addWidget({
-        id: 'widgetApps',
-        name: 'Apps',
-        params: {
-          contact: this.currentContact,
-        },
-      });
-    }
   }
 
   @action
@@ -254,6 +201,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
       variant: this.variant,
       widgets: this.widgets,
       currentWidgetId: this.currentWidgetId,
+      contact: this.currentContact,
     };
   }
 
@@ -388,6 +336,21 @@ export class SideDrawerUI extends RcUIModuleV2 {
       contact,
     });
     this._deps.analytics.trackRouter(`/log/messages/${conversation.conversationId}`);
+  }
+
+  openApps(contact) {
+    if (!this.enabled) {
+      return;
+    }
+    this.openWidget({
+      widget: {
+        id: 'widgetApps',
+        name: 'Apps',
+        params: {},
+      },
+      contact,
+      openSideDrawer: true,
+    });
   }
 
   hasWidget(widgetId) {

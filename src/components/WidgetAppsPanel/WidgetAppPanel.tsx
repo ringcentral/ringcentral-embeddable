@@ -33,6 +33,10 @@ const AppHeader = styled(RcListItem)`
   }
 `;
 
+const StyledContent = styled(Content)`
+  padding-top: 0;
+`;
+
 type App = {
   id: string;
   name: string;
@@ -120,7 +124,7 @@ export function WidgetAppPanel({
           </RcListItemSecondaryAction>
         </AppHeader>
       </PageHeader>
-      <Content>
+      <StyledContent>
         {
           page && page.schema ? (
             <CustomizedForm
@@ -169,7 +173,7 @@ export function WidgetAppPanel({
             />
           ) : 'Loading...'
         }
-      </Content>
+      </StyledContent>
     </Container>
   );
 }

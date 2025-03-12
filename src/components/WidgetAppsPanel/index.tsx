@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   styled,
   RcTypography,
@@ -8,6 +8,7 @@ import {
 import { Close } from '@ringcentral/juno-icon';
 import { WidgetAppPanel } from './WidgetAppPanel';
 import { Container, PageHeader, Content, AppIcon } from './styled';
+import { isSameContact } from '../../lib/widgetContact';
 
 const PageTitle = styled(RcTypography)`
   flex: 1;
@@ -51,6 +52,14 @@ export function WidgetAppsPanel({
   onInPageButtonClick,
 }) {
   const [currentApp, setCurrentApp] = useState(null);
+  const contactRef = useRef(contact);
+
+  useEffect(() => {
+    if (!isSameContact(contactRef.current, contact)) {
+      setCurrentApp(null);
+    }
+    contactRef.current = contact;
+  }, [contact]);
 
   if (!currentApp) {
     return (

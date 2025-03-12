@@ -27,7 +27,6 @@ export class WidgetAppsUI extends RcUIModuleV2 {
       thirdPartyService,
     } = this._deps;
     return {
-      contact: options?.params?.contact,
       apps: thirdPartyService.apps,
     };
   }
