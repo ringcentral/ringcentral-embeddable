@@ -46,6 +46,8 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       activitiesTabName : thirdPartyService.activitiesTabName || thirdPartyService.serviceName,
       activities: thirdPartyService.activities,
       activitiesLoaded: thirdPartyService.activitiesLoaded,
+      showApps: thirdPartyService.apps && thirdPartyService.apps.length > 0,
+      apps: thirdPartyService.apps,
     };
   }
 
@@ -86,6 +88,12 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       clearActivities: async () => {},
       openActivityDetail: async (activity) => {
         await thirdPartyService.openActivity(activity);
+      },
+      onLoadApp: (data) => {
+        return thirdPartyService.loadAppPage(data);
+      },
+      onAppsInPageButtonClick(id, formData) {
+        thirdPartyService.onClickButtonInCustomizedPage(id, 'button', formData);
       },
     };
   }

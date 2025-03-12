@@ -61,6 +61,10 @@ type AdditionProps = {
   loadActivities: () => void;
   clearActivities: () => void;
   openActivityDetail: (activity: any) => void;
+  showApps: boolean;
+  apps: any[];
+  onLoadApp: (data: any) => void;
+  onAppsInPageButtonClick: (id: string, formData: any) => void;
 }
 
 export const ContactDetailsView: FunctionComponent<
@@ -104,6 +108,10 @@ export const ContactDetailsView: FunctionComponent<
   loadActivities,
   clearActivities,
   openActivityDetail,
+  showApps,
+  apps,
+  onLoadApp,
+  onAppsInPageButtonClick,
 }) => {
   useEffect(() => {
     onVisitPage?.();
@@ -158,6 +166,10 @@ export const ContactDetailsView: FunctionComponent<
         loadActivities={loadActivities}
         clearActivities={clearActivities}
         openActivityDetail={openActivityDetail}
+        showApps={showApps}
+        apps={apps}
+        onLoadApp={onLoadApp}
+        onAppsInPageButtonClick={onAppsInPageButtonClick}
       />
     );
   }

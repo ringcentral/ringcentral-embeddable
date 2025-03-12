@@ -27,6 +27,8 @@ import i18n from '@ringcentral-integration/widgets/components/ContactDetails/i18
 import { Calls } from './Calls';
 import { Messages } from './Messages';
 import { Activities } from './Activities';
+import { WidgetAppsPanel } from '../WidgetAppsPanel';
+
 import {
   PhoneSection,
   EmailSection,
@@ -62,6 +64,10 @@ interface ContactDetailsProps extends onClickMailTo,
   loadActivities: () => void;
   clearActivities: () => void;
   openActivityDetail: (activity: any) => void;
+  showApps: boolean;
+  apps: any[];
+  onLoadApp: (data: any) => void;
+  onAppsInPageButtonClick: (id: string, formData: any) => void;
 }
 
 const Container = styled.div`
@@ -174,6 +180,8 @@ const DetailsArea = styled.div`
   width: 100%;
 `;
 
+const EmptyFunction = () => {};
+
 export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
   contact,
   currentLocale,
@@ -206,6 +214,10 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
   loadActivities,
   clearActivities,
   openActivityDetail,
+  showApps,
+  apps,
+  onLoadApp,
+  onAppsInPageButtonClick,
 }) => {
   const fullName = contact.name || `${contact.firstName} ${contact.lastName}`;
   const [infoTab, setInfoTab] = useState('user-info');
@@ -229,6 +241,12 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
     tabs.push({
       value: 'activities',
       label: activitiesTabName
+    });
+  }
+  if (showApps) {
+    tabs.push({
+      value: 'apps',
+      label: 'Apps',
     });
   }
   return (
@@ -341,6 +359,18 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
               openItem={openActivityDetail}
               currentLocale={currentLocale}
               dateTimeFormatter={dateTimeFormatter}
+            />
+          )
+        }
+        {
+          infoTab === 'apps' && (
+            <WidgetAppsPanel
+              apps={apps}
+              showCloseButton={false}
+              onClose={EmptyFunction}
+              onLoadApp={onLoadApp}
+              onInPageButtonClick={onAppsInPageButtonClick}
+              contact={contact}
             />
           )
         }

@@ -15,12 +15,15 @@ const PageTitle = styled(RcTypography)`
   text-align: left;
 `;
 
-const AppListWrapper = styled.div`
+const AppListWrapper = styled(Content)`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
   flex-wrap: wrap;
+  padding: 0;
+  padding-top: 10px;
+  flex: unset;
 `;
 
 const AppItem = styled(RcTab)`
@@ -75,25 +78,23 @@ export function WidgetAppsPanel({
             )
           }
         </PageHeader>
-        <Content>
-          <AppListWrapper>
-            {
-              apps.map((app) => (
-                <AppItem
-                  key={app.id}
-                  label={app.name}
-                  icon={<AppIcon src={app.iconUri} />}
-                  onClick={() => setCurrentApp(app)}
-                />
-              ))
-            }
-            {
-              apps.length === 0 && (
-                <EmptyMessage variant="body1">No available apps</EmptyMessage>
-              )
-            }
-          </AppListWrapper>
-        </Content>
+        <AppListWrapper>
+          {
+            apps.map((app) => (
+              <AppItem
+                key={app.id}
+                label={app.name}
+                icon={<AppIcon src={app.iconUri} />}
+                onClick={() => setCurrentApp(app)}
+              />
+            ))
+          }
+          {
+            apps.length === 0 && (
+              <EmptyMessage variant="body1">No available apps</EmptyMessage>
+            )
+          }
+        </AppListWrapper>
       </Container>
     );
   }
