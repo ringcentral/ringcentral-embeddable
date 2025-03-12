@@ -158,6 +158,8 @@ const Profile = ({
 const StyledTabs = styled(RcTabs)`
   width: 100%;
   min-height: 34px;
+  background: ${palette2('neutral', 'b01')};
+  border-bottom: 1px solid ${palette2('neutral', 'l02')};
 `;
 
 const StyledTab = styled(RcTab)`
@@ -213,7 +215,22 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
   }
 
   const notActivated = contact.status === extensionStatusTypes.notActivated;
-
+  const tabs = [{
+    value: 'user-info',
+    label: 'Details',
+  }, {
+    value: 'calls',
+    label: 'Calls',
+  }, {
+    value: 'messages',
+    label: 'Messages',
+  }];
+  if (showActivities) {
+    tabs.push({
+      value: 'activities',
+      label: activitiesTabName
+    });
+  }
   return (
     <Container>
       <Profile
@@ -244,25 +261,14 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
         onChange={(e, value) => setInfoTab(value)}
         variant="moreMenu"
       >
-        <StyledTab
-          value="user-info"
-          label="Details"
-        />
-        <StyledTab
-          value="calls"
-          label="Calls"
-        />
-        <StyledTab
-          value="messages"
-          label="Messages"
-        />
         {
-          showActivities && (
+          tabs.map((tab) => (
             <StyledTab
-              value="activities"
-              label={activitiesTabName}
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
             />
-          )
+          ))
         }
       </StyledTabs>
       <DetailsArea>
