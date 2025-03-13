@@ -1,14 +1,6 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2 } from '@ringcentral-integration/core';
 
-type CurrentContact = {
-  id?: string;
-  phoneNumber?: string;
-  phoneNumbers?: {
-    phoneNumber: string;
-  }[];
-}
-
 @Module({
   name: 'WidgetAppsUI',
   deps: [

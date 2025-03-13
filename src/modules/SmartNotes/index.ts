@@ -48,6 +48,7 @@ interface CallMetaData {
     'ContactMatcher',
     'Storage',
     'Alert',
+    'TabManager',
   ],
 })
 export class SmartNotes extends RcModuleV2 {
@@ -342,10 +343,13 @@ export class SmartNotes extends RcModuleV2 {
       }
       this._setSession(session);
       this._clearOtherIdleSmartNoteClient(session.id);
+      const currentTabInteracting = this._deps.tabManager.interacting;
       if (session.status === 'Answered' && this.autoStartSmartNote) {
         const transcriptionStatus = this._smartNoteClientMap[session.id].transcriptionStatus;
-        if ( transcriptionStatus === 'idle') {
-          this._startSmartNote(session);
+        if (transcriptionStatus === 'idle') {
+          if (currentTabInteracting) {
+            this._startSmartNote(session);
+          }
         } else if (transcriptionStatus === 'paused') {
           this._smartNoteClientMap[session.id].resume();
         }
