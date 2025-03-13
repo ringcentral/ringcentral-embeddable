@@ -52,7 +52,6 @@ export function WidgetAppsPanel({
   onClose,
   onLoadApp,
   contact,
-  onInPageButtonClick,
 }) {
   const [currentApp, setCurrentApp] = useState(null);
   const contactRef = useRef(contact);
@@ -104,7 +103,6 @@ export function WidgetAppsPanel({
       onLoadApp={onLoadApp}
       onBack={() => setCurrentApp(null)}
       contact={contact}
-      onButtonClick={onInPageButtonClick}
     />
   );
 }

@@ -92,9 +92,6 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       onLoadApp: (data) => {
         return thirdPartyService.loadAppPage(data);
       },
-      onAppsInPageButtonClick(id, formData) {
-        thirdPartyService.onClickButtonInCustomizedPage(id, 'button', formData);
-      },
     };
   }
 }

@@ -64,7 +64,6 @@ type AdditionProps = {
   showApps: boolean;
   apps: any[];
   onLoadApp: (data: any) => void;
-  onAppsInPageButtonClick: (id: string, formData: any) => void;
 }
 
 export const ContactDetailsView: FunctionComponent<
@@ -111,7 +110,6 @@ export const ContactDetailsView: FunctionComponent<
   showApps,
   apps,
   onLoadApp,
-  onAppsInPageButtonClick,
 }) => {
   useEffect(() => {
     onVisitPage?.();
@@ -169,7 +167,6 @@ export const ContactDetailsView: FunctionComponent<
         showApps={showApps}
         apps={apps}
         onLoadApp={onLoadApp}
-        onAppsInPageButtonClick={onAppsInPageButtonClick}
       />
     );
   }

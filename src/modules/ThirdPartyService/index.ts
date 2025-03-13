@@ -1627,6 +1627,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       formData = null,
       changedKeys = null,
       type,
+      button = null,
     }) {
     if (!app || !app.id) {
       console.error('App id is required');
@@ -1639,6 +1640,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       formData?: any;
       changedKeys?: any;
       refresh?: boolean;
+      button?: any;
     } = {
       contact,
       app,
@@ -1650,6 +1652,9 @@ export default class ThirdPartyService extends RcModuleV2 {
     } else if (type === 'submit') {
       path = app.submitPath;
       params.formData = formData;
+    } else if (type === 'buttonClick') {
+      params.button = button;
+      path = app.buttonEventPath;
     } else {
       path = app.pagePath;
       if (type === 'refresh') {

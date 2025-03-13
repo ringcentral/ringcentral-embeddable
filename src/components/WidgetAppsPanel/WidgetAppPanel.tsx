@@ -49,6 +49,7 @@ type Page = {
   schema: any;
   uiSchema: any;
   formData: any;
+  type: string;
 };
 
 export function WidgetAppPanel({
@@ -56,13 +57,11 @@ export function WidgetAppPanel({
   onLoadApp = async () => null,
   onBack,
   contact,
-  onButtonClick,
 }: {
   app: App;
   onLoadApp?: (data: any) => Promise<Page | null>;
   onBack: () => void;
   contact: any;
-  onButtonClick: (id: string, formData: any) => void;
 }) {
   const [page, setPage] = useState<Page | null>(null);
   const [formDataState, setFormDataState] = useState({});
@@ -74,7 +73,7 @@ export function WidgetAppPanel({
         contact,
         type: 'init',
       });
-      if (page) {
+      if (page && page.schema && page.type === 'json-schema') {
         setPage(page);
         setFormDataState(page.formData || {});
       } else {
@@ -115,7 +114,7 @@ export function WidgetAppPanel({
                   formDataState,
                   type: 'refresh',
                 });
-                if (page) {
+                if (page && page.schema) {
                   setPage(page);
                   setFormDataState(page.formData || {});
                 }
@@ -142,7 +141,7 @@ export function WidgetAppPanel({
                     changedKeys,
                     type: 'inputChanged',
                   });
-                  if (newPage) {
+                  if (newPage && newPage.schema) {
                     setPage(newPage);
                     setFormDataState(newPage.formData || {});
                   }
@@ -152,10 +151,26 @@ export function WidgetAppPanel({
               }}
               formData={formDataState}
               uiSchema={page.uiSchema}
-              onButtonClick={(id) => {
-                onButtonClick(id, formDataState)
+              onButtonClick={async (id) => {
+                try {
+                  const newPage = await onLoadApp({
+                    app,
+                    contact,
+                    formData: formDataState,
+                    type: 'buttonClick',
+                    button: {
+                      id,
+                    }
+                  });
+                  if (newPage && newPage.schema) {
+                    setPage(newPage);
+                    setFormDataState(newPage.formData || {});
+                  }
+                } catch (e) {
+                  console.error(e);
+                }
               }}
-              hiddenSubmitButton={!app.submitPath}
+              hiddenSubmitButton={!app.submitPath || !(page.uiSchema && page.uiSchema.submitButtonOptions)}
               onSubmit={async () => {
                 const newPage = await onLoadApp({
                   app,
@@ -163,7 +178,7 @@ export function WidgetAppPanel({
                   formData: formDataState,
                   type: 'submit',
                 });
-                if (newPage) {
+                if (newPage && newPage.schema) {
                   setPage(newPage);
                   if (newPage.formData) {
                     setFormDataState(newPage.formData);

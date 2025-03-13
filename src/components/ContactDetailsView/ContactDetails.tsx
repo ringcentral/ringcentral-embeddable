@@ -67,7 +67,6 @@ interface ContactDetailsProps extends onClickMailTo,
   showApps: boolean;
   apps: any[];
   onLoadApp: (data: any) => void;
-  onAppsInPageButtonClick: (id: string, formData: any) => void;
 }
 
 const Container = styled.div`
@@ -217,7 +216,6 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
   showApps,
   apps,
   onLoadApp,
-  onAppsInPageButtonClick,
 }) => {
   const fullName = contact.name || `${contact.firstName} ${contact.lastName}`;
   const [infoTab, setInfoTab] = useState('user-info');
@@ -369,12 +367,11 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
               showCloseButton={false}
               onClose={EmptyFunction}
               onLoadApp={onLoadApp}
-              onInPageButtonClick={onAppsInPageButtonClick}
               contact={contact}
             />
           )
         }
       </DetailsArea>
     </Container>
-  )
+  );
 }
