@@ -204,6 +204,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._onUpdateMessagesLogPage(e.data);
       } else if (e.data.type === 'rc-adapter-register-customized-page') {
         this._onRegisterCustomizedPage(e.data);
+      } else if (e.data.type === 'rc-adapter-register-widget-app') {
+        this._onRegisterApp(e.data);
       }
     });
     watch(
@@ -1590,5 +1592,88 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
     const { data } = await requestWithPostMessage(this._doNotContactPath, contact);
     return data;
+  }
+
+  @globalStorage
+  @state
+  apps = [];
+
+  @action
+  updateApps(app) {
+    if (!app.id) {
+      console.error('App id is required');
+      return;
+    }
+    const index = this.apps.findIndex(x => x.id === app.id);
+    if (index > -1) {
+      Object.keys(app).forEach((key) => {
+        if (key === 'id') {
+          return;
+        }
+        this.apps[index][key] = app[key];
+      });
+      return;
+    }
+    this.apps.push(app);
+  }
+
+  _onRegisterApp(data) {
+    this.updateApps(data.app);
+  }
+
+  async loadAppPage({
+      app,
+      contact,
+      formData = null,
+      changedKeys = null,
+      type,
+      button = null,
+    }) {
+    if (!app || !app.id) {
+      console.error('App id is required');
+      return;
+    }
+    let path;
+    const params: {
+      contact: any;
+      app: any;
+      formData?: any;
+      changedKeys?: any;
+      refresh?: boolean;
+      button?: any;
+    } = {
+      contact,
+      app,
+    };
+    if (type === 'inputChanged') {
+      path = app.inputChangedPath;
+      params.formData = formData;
+      params.changedKeys = changedKeys
+    } else if (type === 'submit') {
+      path = app.submitPath;
+      params.formData = formData;
+    } else if (type === 'buttonClick') {
+      params.button = button;
+      path = app.buttonEventPath;
+    } else {
+      path = app.pagePath;
+      if (type === 'refresh') {
+        params.refresh = true;
+        params.formData = formData;
+      }
+    }
+    if (!path) {
+      return;
+    }
+    try {
+      const { data } = await requestWithPostMessage(
+        path,
+        params,
+      );
+      return data;
+    } catch (e) {
+      console.error('Load app page error', e);
+      return null;
+    }
   }
 }

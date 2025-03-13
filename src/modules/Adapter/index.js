@@ -73,6 +73,7 @@ import { getCallContact } from '../../lib/callHelper';
     'ComposeTextUI',
     'Analytics',
     'Theme',
+    'ThirdPartyService',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -118,6 +119,7 @@ export default class Adapter extends AdapterModuleCore {
     smartNotes,
     composeTextUI,
     theme,
+    thirdPartyService,
     ...options
   }) {
     super({
@@ -163,6 +165,7 @@ export default class Adapter extends AdapterModuleCore {
     this._composeTextUI = composeTextUI;
     this._analytics = analytics;
     this._theme = theme;
+    this._thirdPartyService = thirdPartyService;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -777,22 +780,46 @@ export default class Adapter extends AdapterModuleCore {
   }
 
   ringCallNotify(session) {
+    const contactMatch = getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping);
     this._postMessage({
       type: 'rc-call-ring-notify',
       call: {
         ...session,
-        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
+        contactMatch,
       },
+    });
+    if (!this._sideDrawerUI.enabled) {
+      return
+    }
+    if (this._thirdPartyService.apps.length === 0) {
+      return;
+    }
+    this._sideDrawerUI.openApps({
+      phoneNumber: session.from,
+      name: session.fromUserName,
+      ...(contactMatch || {}),
     });
   }
 
   initCallNotify(session) {
+    const contactMatch = getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping);
     this._postMessage({
       type: 'rc-call-init-notify',
       call: {
         ...session,
-        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
+        contactMatch,
       },
+    });
+    if (!this._sideDrawerUI.enabled) {
+      return
+    }
+    if (this._thirdPartyService.apps.length === 0) {
+      return;
+    }
+    this._sideDrawerUI.openApps({
+      phoneNumber: session.to,
+      name: session.toUserName,
+      ...(contactMatch || {}),
     });
   }
 
@@ -1044,7 +1071,7 @@ export default class Adapter extends AdapterModuleCore {
       const contactType = path.split('/')[2];
       const contactId = path.split('/')[3];
       if (contactType) {
-        const contact = this._contacts.findContact({
+        const contact = await this._contacts.findContact({
           contactId,
           sourceName: contactType,
         });

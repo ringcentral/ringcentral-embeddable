@@ -103,6 +103,10 @@ export function List({
     typeof uiSchema['ui:navigation'] === 'undefined' ?
     false :
     uiSchema['ui:navigation'];
+  const showSelected =
+    typeof uiSchema['ui:showSelected'] === 'undefined' ?
+    true :
+    uiSchema['ui:showSelected'];
   return (
     <StyledList>
       {schema.oneOf.map((item) => (
@@ -110,7 +114,7 @@ export function List({
           key={item.const}
           item={item}
           disabled={disabled}
-          selected={formData === item.const}
+          selected={showSelected && formData === item.const}
           onClick={() => {
             onChange(item.const);
           }}

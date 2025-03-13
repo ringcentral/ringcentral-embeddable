@@ -28,17 +28,19 @@ import {
   BubbleLinesBorder,
   Note,
   NoteBorder,
+  Apps,
 } from '@ringcentral/juno-icon';
 import { CallDetailsPage } from '../CallDetailsPage';
 import { SmartNotesPage } from '../SmartNotesPage';
 import ContactDetailsPage from '../ContactDetailsPage';
-import RecentActivityContainer from '../RecentActivityContainer';
 import { MessageDetailsPage } from '../MessageDetailsPage';
 import ComposeTextPage from '../ComposeTextPage';
 import { ConversationPage } from '../ConversationPage';
 import { GlipChatPage } from '../GlipChatPage';
 import LogCallPage from '../LogCallPage';
 import LogMessagesPage from '../LogMessagesPage';
+import { WidgetAppsPage } from '../WidgetAppsPage';
+import type { WidgetContact } from '../../lib/widgetContact';
 
 const StyledDrawer = styled(RcDrawer)`
   .RcDrawer-paper {
@@ -167,6 +169,9 @@ function getTabIcon(widget, active) {
   if (widgetId === 'logCall' || widgetId === 'logConversation') {
     return active ? Note : NoteBorder;
   }
+  if (widgetId === 'widgetApps') {
+    return Apps;
+  }
   return null;
 }
 
@@ -210,6 +215,7 @@ function Widget({
   onClose,
   drawerVariant,
   withTab,
+  contact,
 }) {
   if (!widget) {
     return (<EmptyView />);
@@ -270,12 +276,8 @@ function Widget({
           }
         }
         hideHeader
-      >
-        <RecentActivityContainer
-          navigateTo={navigateTo}
-          useContact
-        />
-      </ContactDetailsPage>
+        navigateTo={navigateTo}
+      />
     )
   }
   if (widget.id === 'glipChat') {
@@ -311,6 +313,15 @@ function Widget({
       />
     );
   }
+  if (widget.id === 'widgetApps') {
+    return (
+      <WidgetAppsPage
+        contact={contact}
+        showCloseButton={!withTab}
+        onClose={onClose}
+      />
+    );
+  }
   return <EmptyView />;
 }
 
@@ -324,6 +335,7 @@ export function SideDrawerView({
   navigateTo,
   extended,
   onAttachmentDownload,
+  contact,
 }: {
   variant: 'permanent' | 'temporary';
   widgets: any[];
@@ -334,6 +346,7 @@ export function SideDrawerView({
   navigateTo: (path: string) => void;
   extended: boolean;
   onAttachmentDownload: (attachment: any) => void;
+  contact?: WidgetContact;
 }) {
   let drawerVariant = variant;
   if (
@@ -428,6 +441,7 @@ export function SideDrawerView({
           onClose={() => closeWidget(currentWidgetId)}
           drawerVariant={drawerVariant}
           withTab={showTabs}
+          contact={contact}
         />
       </WidgetWrapper>
     </StyledDrawer>
