@@ -178,7 +178,11 @@ export class CallCtrlContainer extends Component<
        */
       this.onLastMergingCallEnded();
     } else if (!this.props.session.id) {
-      this.props.onBackButtonClick && this.props.onBackButtonClick();
+      setTimeout(() => {
+        if (this._mounted && !this.props.session.id) {
+          this.props.onBackButtonClick && this.props.onBackButtonClick();
+        }
+      }, 2000);
     }
   }
 
