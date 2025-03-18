@@ -10,7 +10,16 @@ import type { SimpleCallControlPanelProps } from '@ringcentral-integration/widge
 import { ACTIONS_CTRL_MAP } from '../CallCtrlPanel/ActiveCallPad/actions';
 import CallCtrlPanel from '../CallCtrlPanel';
 
-const OtherDeviceCallCtrlPanel: FunctionComponent<SimpleCallControlPanelProps> =
+type OtherDeviceCallCtrlPanelProps = SimpleCallControlPanelProps & {
+  updateSessionMatchedContact: (...args: any[]) => any;
+};
+
+// TODO: move this function to utils
+function getDefaultSelectedMatcherIndex(nameMatches, showContactDisplayPlaceholder) {
+
+}
+
+const OtherDeviceCallCtrlPanel: FunctionComponent<OtherDeviceCallCtrlPanelProps> =
   ({
     activeSession = null,
     areaCode,
@@ -37,6 +46,7 @@ const OtherDeviceCallCtrlPanel: FunctionComponent<SimpleCallControlPanelProps> =
     onHangup,
     onTransfer,
     maxExtensionNumberLength = 6,
+    updateSessionMatchedContact,
   }) => {
     const [selectedMatcherIndex, setSelectedMatcherIndex] = useState(0);
     const formatPhone = useCallback(
@@ -58,6 +68,7 @@ const OtherDeviceCallCtrlPanel: FunctionComponent<SimpleCallControlPanelProps> =
           selectedMatcherIndex = 0;
         }
         setSelectedMatcherIndex(selectedMatcherIndex);
+        updateSessionMatchedContact(sessionId, option);
       },
       [nameMatches],
     );

@@ -103,6 +103,8 @@ type CallItemProps = {
   showLogButton?: boolean;
   hideEditLogButton?: boolean;
   logButtonTitle?: string;
+  onViewCallDetails?: (...args: any[]) => any;
+  updateSessionMatchedContact?: (...args: any[]) => any;
 };
 
 const DownloadLink = styled.a`
@@ -166,6 +168,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   onViewSmartNote,
   aiNoted,
   onViewCallDetails,
+  updateSessionMatchedContact,
 }) => {
   const {
     direction,
@@ -197,6 +200,10 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
       : parseInt(idx, 10);
     userSelectionRef.current = true;
     setSelected(selected);
+    updateSessionMatchedContact({
+      telephonySessionId: call.telephonySessionId,
+      contact: value,
+    });
     if (autoLog) {
       logCall(false, selected, 'contactUpdated');
     }

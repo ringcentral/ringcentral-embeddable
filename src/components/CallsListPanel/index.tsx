@@ -250,6 +250,7 @@ export function CallsListPanel({
       loadingMoreCalls={loadingMoreCalls}
       loadMoreCalls={loadMoreCalls}
       onViewCallDetails={onViewCallDetails}
+      updateSessionMatchedContact={updateSessionMatchedContact}
     />
   );
 

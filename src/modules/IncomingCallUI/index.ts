@@ -18,6 +18,19 @@ export class IncomingCallUI extends IncomingCallUIBase {
     return {
       ...functions,
       ignore: (sessionId) => this._deps.webphone.ignore(sessionId),
+      updateSessionMatchedContact: (webphoneSessionId, contact) => {
+        this._deps.webphone.updateSessionMatchedContact(webphoneSessionId, contact);
+        const session = this._deps.webphone.sessions.find((session) => session.id === webphoneSessionId);
+        if (session && session.partyData) {
+          const telephonySessionId = session.partyData.sessionId;
+          if (telephonySessionId) {
+            this._deps.contactMatcher?.setCallMatched({
+              telephonySessionId,
+              toEntityId: contact.id
+            });
+          }
+        }
+      }
     }; 
   }
 }
