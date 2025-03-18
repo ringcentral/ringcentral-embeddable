@@ -14,11 +14,6 @@ type OtherDeviceCallCtrlPanelProps = SimpleCallControlPanelProps & {
   updateSessionMatchedContact: (...args: any[]) => any;
 };
 
-// TODO: move this function to utils
-function getDefaultSelectedMatcherIndex(nameMatches, showContactDisplayPlaceholder) {
-
-}
-
 const OtherDeviceCallCtrlPanel: FunctionComponent<OtherDeviceCallCtrlPanelProps> =
   ({
     activeSession = null,
