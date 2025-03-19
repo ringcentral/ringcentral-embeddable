@@ -903,6 +903,7 @@ export function createPhone({
           EDP: true,
           AudioInitPrompt: !!enableAudioInitPrompt,
           LoadMoreCalls: !!enableLoadMoreCalls,
+          CallRecording: !disableCall && !disableCallHistory,
         },
       },
       {

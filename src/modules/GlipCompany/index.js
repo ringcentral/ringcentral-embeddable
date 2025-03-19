@@ -2,7 +2,9 @@ import { GlipCompany as GlipCompanyBase } from '@ringcentral-integration/commons
 import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
-  deps: [],
+  deps: [
+    'AppFeatures',
+  ],
 })
 export class GlipCompany extends GlipCompanyBase {
   constructor(deps) {
@@ -17,6 +19,9 @@ export class GlipCompany extends GlipCompanyBase {
           error &&
           error.message === 'Company associated with RC account is not found'
         ) {
+          this._deps.appFeatures.setConfigState({
+            Glip: false,
+          });
           return {};
         }
         throw error;
