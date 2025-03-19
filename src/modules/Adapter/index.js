@@ -9,9 +9,8 @@ import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
 import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumber';
 import { callingModes } from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
 import { callingOptions } from '@ringcentral-integration/commons/modules/CallingSettings/callingOptions';
-import {
-  dndStatus as dndStatusEnum,
-} from '@ringcentral-integration/commons/modules/Presence/dndStatus';
+import callDirections from '@ringcentral-integration/commons/enums/callDirections';
+import { dndStatus as dndStatusEnum } from '@ringcentral-integration/commons/modules/Presence/dndStatus';
 import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 import webphoneErrors from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
@@ -371,6 +370,10 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-set-side-drawer-extended': {
           this._setSideDrawerExtended(data.extended);
+          break;
+        }
+        case 'rc-adapter-set-call-contact-matches-select': {
+          this._setCallContactMatched(data);
           break;
         }
         default:
@@ -1439,5 +1442,28 @@ export default class Adapter extends AdapterModuleCore {
       showAiAssistantWidget: this._smartNotes.showSmartNote,
       autoStartAiAssistant: this._smartNotes.autoStartSmartNote,
     });
+  }
+
+  _setCallContactMatched(data) {
+    if (!data.telephonySessionId || !data.contactId) {
+      return;
+    }
+    this._contactMatcher.setCallMatched({
+      telephonySessionId: data.telephonySessionId,
+      toEntityId: data.contactId,
+    });
+    const session = this._webphone.sessions.find(s => {
+      return s.partyData && s.partyData.sessionId === data.telephonySessionId
+    });
+    if (session) {
+      const phoneNumber = session.direction === callDirections.inbound
+        ? session.from
+        : session.to;
+      const nameMatches = this._contactMatcher.dataMapping[phoneNumber] || [];
+      const sessionContactMatch = nameMatches.find(m => m.id === data.contactId);
+      if (sessionContactMatch) {
+        this._webphone.updateSessionMatchedContact(session.id, sessionContactMatch);
+      }
+    }
   }
 }

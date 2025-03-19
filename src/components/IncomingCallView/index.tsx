@@ -1,5 +1,5 @@
 import type { FunctionComponent } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { useMountState } from '@ringcentral/juno/foundation/hooks';
@@ -94,6 +94,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
   } = props;
   const [selectedMatcherIndex, setSelectedMatcherIndex] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const sessionRef = useRef(null);
 
   const { current: mounted } = useMountState();
 
@@ -154,15 +155,37 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
   };
 
   useEffect(() => {
-    const contact = getSelectedMatcherItem(
-      session.contactMatch ||
-        // zero index maybe null
-        nameMatches?.[0],
-    );
-
-    updateAvatarUrl(contact);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session.id]);
+    if (sessionRef.current === session) {
+      return;
+    }
+    if (!sessionRef.current && !session) {
+      return;
+    }
+    if (!session) {
+      sessionRef.current = session;
+      return;
+    }
+    const oldSession = sessionRef.current;
+    sessionRef.current = session;
+    if (!oldSession || oldSession.id !== session.id) {
+      sessionRef.current = session;
+      const contact = getSelectedMatcherItem(
+        session.contactMatch ||
+          // zero index maybe null
+          nameMatches?.[0],
+      );
+  
+      updateAvatarUrl(contact);
+      return;
+    }
+    if (!session.contactMatch) {
+      return;
+    }
+    if (session.contactMatch?.id !== oldSession.contactMatch?.id) {
+      const contact = getSelectedMatcherItem(session.contactMatch);
+      updateAvatarUrl(contact);
+    }
+  }, [session]);
 
   const active = !!session.id;
   if (!active || session.minimized) {

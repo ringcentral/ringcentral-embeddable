@@ -51,6 +51,7 @@ export type CallCtrlContainerProps = PropsWithChildren<{
   countryCode: string;
   getAvatarUrl: (...args: any[]) => any;
   updateSessionMatchedContact: (...args: any[]) => any;
+  getDefaultContactMatch: (...args: any[]) => any;
   showBackButton?: boolean;
   backButtonLabel?: string;
   onBackButtonClick?: (...args: any[]) => any;
@@ -264,6 +265,18 @@ export class CallCtrlContainer extends Component<
       this._updateCurrentConferenceCall(nextProps);
     }
     this._updateMergeAddButtonDisabled(nextProps, layout);
+    if (
+      layout === callCtrlLayouts.normalCtrl &&
+      nextProps.session.id &&
+      nextProps.session.id === this.props.session.id &&
+      nextProps.session.contactMatch &&
+      (
+        !this.props.session.contactMatch ||
+        nextProps.session.contactMatch.id !== this.props.session.contactMatch.id
+      )
+    ) {
+      this._updateAvatarAndMatchIndex(nextProps);
+    }
   }
 
   _updateMergeAddButtonDisabled(nextProps: any, layout: any) {
@@ -280,8 +293,15 @@ export class CallCtrlContainer extends Component<
   componentWillUnmount() {
     this._mounted = false;
   }
+
   _updateAvatarAndMatchIndex(props: any) {
     let contact = props.session.contactMatch;
+    if (!contact && typeof props.getDefaultContactMatch === 'function') {
+      contact = props.getDefaultContactMatch(props.session, props.nameMatches);
+      if (contact) {
+        props.updateSessionMatchedContact(props.session.id, contact);
+      }
+    }
     let selectedMatcherIndex = 0;
     if (!contact) {
       contact = props.nameMatches && props.nameMatches[0];
@@ -289,6 +309,9 @@ export class CallCtrlContainer extends Component<
       selectedMatcherIndex = props.nameMatches.findIndex(
         (match: any) => match.id === contact.id,
       );
+      if (selectedMatcherIndex < 0) {
+        selectedMatcherIndex = 0;
+      }
     }
     this.setState({
       selectedMatcherIndex,

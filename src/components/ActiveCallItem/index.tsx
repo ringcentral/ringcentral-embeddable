@@ -259,6 +259,14 @@ function getPhoneNumber(call) {
 
 function getSelectedContactIdx(call, contactMatches) {
   let selected = 0;
+  if (call.toNumberEntity && contactMatches && contactMatches.length) {
+    selected = contactMatches.findIndex(
+      (match) => match.id === call.toNumberEntity,
+    );
+    if (selected > -1) {
+      return selected;
+    }
+  }
   if (!call.webphoneSession) {
     selected = 0;
   } else if (contactMatches && contactMatches.length) {
@@ -398,9 +406,11 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
           setAvatarUrl(avatarUrl);
         }
       });
-      if (call.webphoneSession) {
-        updateSessionMatchedContact(call.webphoneSession.id, value);
-      }
+      updateSessionMatchedContact({
+        webphoneSessionId: call.webphoneSession?.id,
+        contact: value,
+        telephonySessionId: call.telephonySessionId,
+      });
     }
   }, [call, getAvatarUrl, updateSessionMatchedContact]);
 

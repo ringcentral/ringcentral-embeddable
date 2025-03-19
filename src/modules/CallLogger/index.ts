@@ -24,7 +24,6 @@ export class CallLogger extends CallLoggerBase {
   }
 
   async _doLog({ item, ...options }) {
-    delete item.toNumberEntity;
     await this._deps.thirdPartyService.logCall({ call: item, ...options });
   }
 

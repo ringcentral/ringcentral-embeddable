@@ -37,6 +37,7 @@ import {
     'GlobalStorage',
     'TabManager',
     'CallHistory',
+    'CallMonitor',
     { dep: 'ThirdPartyContactsOptions', optional: true },
   ],
 })
@@ -93,6 +94,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._ignoreModuleReadiness(deps.genericMeeting);
     this._ignoreModuleReadiness(deps.smartNotes);
     this._ignoreModuleReadiness(deps.callHistory);
+    this._ignoreModuleReadiness(deps.callMonitor);
 
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
@@ -676,11 +678,14 @@ export default class ThirdPartyService extends RcModuleV2 {
       if (!this._callLogEntityMatcherPath) {
         return result;
       }
+      const activeSessionIds = sessionIds.filter((sessionId) => {
+        return !!(this._deps.callMonitor.calls.find((call) => call.sessionId === sessionId));
+      });
       const { data } = await requestWithPostMessage(
         this._callLogEntityMatcherPath,
-        { sessionIds },
-        30000)
-      ;
+        { sessionIds, activeSessionIds },
+        30000
+      );
       if (!data || Object.keys(data).length === 0) {
         return result;
       }

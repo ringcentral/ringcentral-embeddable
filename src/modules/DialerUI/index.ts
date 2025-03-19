@@ -15,6 +15,12 @@ export class DialerUI extends DialerUIBase {
     if (this._deps.sideDrawerUI.modalOpen) {
       this._deps.sideDrawerUI.clearWidgets();
     }
+    if (recipient) {
+      this._deps.call.onToNumberMatch({
+        entityId: recipient.id,
+        startTime: Date.now(),
+      });
+    }
     if (!this._deps.thirdPartyService.doNotContactRegistered) {
       return true;
     }

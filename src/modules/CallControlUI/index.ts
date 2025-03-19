@@ -9,6 +9,8 @@ import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/ses
   deps: [
     'Alert',
     'ActiveCallControl',
+    'Call',
+    'ContactMatcher',
   ],
 })
 export class CallControlUI extends CallControlUIBase {
@@ -114,6 +116,51 @@ export class CallControlUI extends CallControlUIBase {
         }
         return webphone.stopRecord(sessionId);
       },
+      updateSessionMatchedContact: async (webphoneSessionId, contact) => {
+        await this._deps.webphone.updateSessionMatchedContact(webphoneSessionId, contact);
+        const session = this._deps.webphone.sessions.find((session) => session.id === webphoneSessionId);
+        if (session && session.partyData) {
+          const telephonySessionId = session.partyData.sessionId;
+          if (telephonySessionId) {
+            const toNumberEntities = this._deps.call.toNumberEntities || [];
+            if (toNumberEntities.length > 0) {
+              this._deps.call.cleanToNumberEntities();
+            }
+            this._deps.contactMatcher?.setCallMatched({
+              telephonySessionId,
+              toEntityId: contact.id
+            });
+          }
+        }
+      },
+      getDefaultContactMatch: (session, nameMatches) => {
+        if (session.contactMatch) {
+          return session.contactMatch;
+        }
+        const telephonySessionId = session.partyData?.sessionId;
+        if (telephonySessionId) {
+          const matchedId = this._deps.contactMatcher?.callMatched[telephonySessionId];
+          if (matchedId) {
+            const contactMatch = nameMatches.find((match) => match.id === matchedId);
+            if (contactMatch) {
+              return contactMatch;
+            }
+          }
+        }
+        if (!nameMatches || nameMatches.length < 2) {
+          return null;
+        }
+        const toNumberEntities = this._deps.call.toNumberEntities || [];
+        if (toNumberEntities.length > 0) {
+          const contact = nameMatches.find((match) => {
+            return toNumberEntities.find((entity) => entity.entityId === match.id);
+          });
+          if (contact) {
+            return contact;
+          }
+        }
+        return null;
+      }
     }
   }
 }

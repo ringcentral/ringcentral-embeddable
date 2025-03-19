@@ -223,6 +223,9 @@ export class CallsListUI extends BaseCallsListUI {
           // routerInteraction.push(`/log/call/${call.sessionId}`);
           return;
         }
+        if (contact && call.toNumberEntity !== contact.id) {
+          call.toNumberEntity = contact.id;
+        }
         await callLogger.logCall({
           call,
           contact,
@@ -328,8 +331,21 @@ export class CallsListUI extends BaseCallsListUI {
           }
         }
       },
-      updateSessionMatchedContact: (sessionId, contact) =>
-        webphone.updateSessionMatchedContact(sessionId, contact),
+      updateSessionMatchedContact: ({
+        webphoneSessionId,
+        telephonySessionId,
+        contact,
+      }) => {
+        if (webphoneSessionId) {
+          webphone.updateSessionMatchedContact(webphoneSessionId, contact)
+        }
+        if (telephonySessionId) {
+          contactMatcher.setCallMatched({
+            telephonySessionId,
+            toEntityId: contact.id
+          });
+        }
+      },
       isOnHold: (webphoneSession) => {
         return isOnHold(webphoneSession);
       },

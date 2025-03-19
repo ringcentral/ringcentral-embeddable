@@ -26,9 +26,6 @@ import {
 import { Brand } from '@ringcentral-integration/commons/modules/Brand';
 import { Call } from '@ringcentral-integration/commons/modules/Call';
 import { CallerId } from '@ringcentral-integration/commons/modules/CallerId';
-import {
-  CallMonitor,
-} from '@ringcentral-integration/commons/modules/CallMonitor';
 // SMS related modules
 // import { MessageStore } from '@ringcentral-integration/commons/modules/MessageStore';
 import {
@@ -142,9 +139,6 @@ import {
 import {
   RouterInteraction,
 } from '@ringcentral-integration/widgets/modules/RouterInteraction';
-import {
-  SimpleCallControlUI,
-} from '@ringcentral-integration/widgets/modules/SimpleCallControlUI';
 import { ThemeUI } from '@ringcentral-integration/widgets/modules/ThemeUI';
 import {
   TransferUI,
@@ -167,7 +161,9 @@ import { AudioSettingsUI } from '../AudioSettingsUI';
 import { PhoneTabsUI } from '../PhoneTabsUI';
 import { ContactDetailsUI } from '../ContactDetailsUI';
 import { CallControlUI } from '../CallControlUI';
+import { SimpleCallControlUI } from '../SimpleCallControlUI';
 import { IncomingCallUI } from '../IncomingCallUI';
+import { CallMonitor } from '../CallMonitor';
 import { CallHistory } from '../CallHistory';
 import { CallsListUI } from '../CallsListUI';
 import { CallingSettings } from '../CallingSettings';
