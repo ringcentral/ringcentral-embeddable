@@ -365,6 +365,10 @@ export default class Adapter extends AdapterModuleCore {
           this._onUpdateAutoLogSettings(data);
           break;
         }
+        case 'rc-adapter-update-features-flags': {
+          this._onUpdateFeatureConfig(data);
+          break;
+        }
         case 'rc-adapter-update-ai-assistant-settings': {
           this._onUpdateAIAssistantSettings(data);
           break;
@@ -1308,6 +1312,35 @@ export default class Adapter extends AdapterModuleCore {
     }
     if (typeof data.message === 'boolean') {
       this._conversationLogger.setAutoLog(data.message);
+    }
+  }
+
+  _onUpdateFeatureConfig(data) {
+    const config = {};
+    if (typeof data.chat === 'boolean') {
+      config.Glip = data.chat;
+    }
+    if (typeof data.text === 'boolean') {
+      config.Pages = data.text;
+      config.SMS = data.text;
+    }
+    if (typeof data.fax === 'boolean') {
+      config.Fax = data.fax;
+    }
+    if (typeof data.voicemail === 'boolean') {
+      config.Voicemail = data.voicemail;
+    }
+    if (typeof data.meetings === 'boolean') {
+      config.Meetings = data.meetings;
+    }
+    if (typeof data.contacts === 'boolean') {
+      config.Contacts = data.contacts;
+    }
+    if (typeof data.recordings === 'boolean') {
+      config.CallRecording = data.recordings;
+    }
+    if (Object.keys(config).length > 0) {
+      this._appFeatures.setConfigState(config);
     }
   }
 

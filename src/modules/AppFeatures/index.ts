@@ -1,7 +1,9 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
   AppFeatures as AppFeaturesBase,
+  defaultConfiguration,
 } from '@ringcentral-integration/commons/modules/AppFeatures';
+import { action, state, computed } from '@ringcentral-integration/core';
 
 @Module({
   name: 'AppFeatures',
@@ -61,6 +63,7 @@ export class AppFeatures extends AppFeaturesBase {
 
   get hasReadCallRecordings() {
     return !!(
+      this.config.CallRecording &&
       (
         this.appScopes.indexOf('ReadCallRecording') > -1
       ) && this._deps.extensionFeatures.features?.ReadExtensionCallRecordings?.available
@@ -117,5 +120,22 @@ export class AppFeatures extends AppFeaturesBase {
       this.config.LoadMoreCalls &&
       this.hasReadExtensionCallLog
     );
+  }
+
+  @state
+  configState = {};
+
+  @action
+  setConfigState(newContact = {}) {
+    this.configState = newContact;
+  }
+
+  @computed((that: AppFeatures) => [that._deps.featureConfiguration, that.configState])
+  get config() {
+    return {
+      ...defaultConfiguration,
+      ...this._deps.featureConfiguration!,
+      ...this.configState
+    };
   }
 }

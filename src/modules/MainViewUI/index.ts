@@ -60,7 +60,7 @@ export class MainViewUI extends RcUIModuleV2 {
       showMeeting,
       isRCV: genericMeeting.isRCV,
       showContacts,
-      showGlip: (appFeatures.hasGlipPermission && !!glipCompany.name),
+      showGlip: appFeatures.hasGlipPermission,
       glipUnreadCounts: glipGroups.unreadCounts,
       currentPath: routerInteraction.currentPath,
       rcvProductName: brand.rcvProductName,
