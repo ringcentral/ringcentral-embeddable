@@ -20,6 +20,12 @@ type ComposeContact = {
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
+  constructor(deps) {
+    super(deps);
+    this._ignoreModuleReadiness(deps.smsTemplates);
+    this._ignoreModuleReadiness(deps.thirdPartyService);
+  }
+
   getUIProps(props) {
     const baseProps = super.getUIProps(props);
     const {
