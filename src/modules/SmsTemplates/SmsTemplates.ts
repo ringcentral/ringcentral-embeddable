@@ -14,7 +14,7 @@ import { Deps, SmsTemplateRecord } from './SmsTemplates.interface';
     'AppFeatures',
     'Alert',
     'Storage',
-    { dep: 'CallerIdOptions', optional: true }
+    { dep: 'SmsTemplatesOptions', optional: true }
   ],
 })
 export class SmsTemplates extends DataFetcherV2Consumer<
