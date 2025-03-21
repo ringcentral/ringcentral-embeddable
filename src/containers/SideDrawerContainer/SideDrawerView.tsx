@@ -61,11 +61,6 @@ const StyledDrawer = styled(RcDrawer)`
   }
 `;
 
-const StyledTypography = styled(RcTypography)`
-  text-align: center;
-  padding-top: 50px;
-`;
-
 const Header = styled.div<{ $showBorder?: boolean }>`
   position: relative;
   padding: 0;
@@ -133,11 +128,71 @@ const WidgetWrapper = styled.div`
   overflow: hidden;
 `;
 
-function EmptyView() {
+const EmptyWidgetContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+`;
+
+const EmptyContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  margin-top: 40%;
+`;
+
+const EmptyTitle = styled(RcTypography)`
+  margin-bottom: 8px;
+`;
+
+const EmptyDescription = styled(RcTypography)`
+  font-size: 0.875rem;
+  text-align: center;
+`;
+
+function EmptyView({
+  mainPath,
+}) {
+  let description = 'No widget view';
+  let title = '';
+  if (mainPath === '/contacts') {
+    description = 'Select an item on the left for a more detailed look.'
+  } else if (
+    mainPath.indexOf('/messages') === 0 ||
+    mainPath === '/history/recordings' ||
+    mainPath === '/glip'
+  ) {
+    if (mainPath.indexOf('/messages/voicemail') === 0) {
+      title = 'Voicemail summary';
+    } else if (mainPath.indexOf('/messages/fax') === 0) {
+      title = 'Fax summary';
+    } else if (mainPath === '/messages') {
+      title = 'Text details';
+    } else if (mainPath === '/history/recordings') {
+      title = 'Recording details';
+    } else if (mainPath === '/glip') {
+      title = 'Chat details';
+    }
+    description = 'For a detailed view, select an item from the list panel on the left.';
+  }
   return (
-    <StyledTypography>
-      No widget view
-    </StyledTypography>
+    <EmptyWidgetContainer>
+      <EmptyContent>
+        {
+          title && (
+            <EmptyTitle color="neutral.f06" variant="subheading2">
+              {title}
+            </EmptyTitle>
+          )
+        }
+        <EmptyDescription color="neutral.f05" variant='caption1'>
+          {description}
+        </EmptyDescription>
+      </EmptyContent>
+    </EmptyWidgetContainer>
   );
 }
 
@@ -216,9 +271,10 @@ function Widget({
   drawerVariant,
   withTab,
   contact,
+  mainPath,
 }) {
   if (!widget) {
-    return (<EmptyView />);
+    return (<EmptyView mainPath={mainPath} />);
   }
   if (widget.id === 'callDetails') {
     return (<CallDetailsPage params={widget.params} />);
@@ -336,6 +392,7 @@ export function SideDrawerView({
   extended,
   onAttachmentDownload,
   contact,
+  mainPath,
 }: {
   variant: 'permanent' | 'temporary';
   widgets: any[];
@@ -347,6 +404,7 @@ export function SideDrawerView({
   extended: boolean;
   onAttachmentDownload: (attachment: any) => void;
   contact?: WidgetContact;
+  mainPath: string;
 }) {
   let drawerVariant = variant;
   if (
@@ -442,6 +500,7 @@ export function SideDrawerView({
           drawerVariant={drawerVariant}
           withTab={showTabs}
           contact={contact}
+          mainPath={mainPath}
         />
       </WidgetWrapper>
     </StyledDrawer>
