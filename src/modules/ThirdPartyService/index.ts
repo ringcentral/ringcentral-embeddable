@@ -208,6 +208,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._onRegisterCustomizedPage(e.data);
       } else if (e.data.type === 'rc-adapter-register-widget-app') {
         this._onRegisterApp(e.data);
+      } else if (e.data.type === 'rc-adapter-unregister-widget-app') {
+        this._onUnregisterApp(e.data);
       }
     });
     watch(
@@ -1622,8 +1624,17 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.apps.push(app);
   }
 
+  @action
+  removeApp(appId) {
+    this.apps = this.apps.filter(x => x.id !== appId);
+  }
+
   _onRegisterApp(data) {
     this.updateApps(data.app);
+  }
+
+  _onUnregisterApp(data) {
+    this.removeApp(data.appId);
   }
 
   async loadAppPage({
