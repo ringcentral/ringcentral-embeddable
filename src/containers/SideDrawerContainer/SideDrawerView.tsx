@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   RcDrawer,
   RcTypography,
@@ -84,22 +84,26 @@ const CloseButton = styled(RcIconButton)`
 
 const StyledTabs = styled(RcTabs)`
   background-color: ${palette2('neutral', 'b03')};
-  padding: 5px 5px 0 5px;
+  padding: 4px 8px 0 8px;
+  height: 36px;
+  box-sizing: border-box;
 
   .RcTabs-indicator {
-    display: none;;
+    display: none;
   }
 `;
 
 const StyledTab = styled(RcTab)`
   background-color: ${palette2('neutral', 'b03')};
   font-weight: 400;
-  padding: 0 8px;
-  padding-right: 0;
-  color: ${palette2('neutral', 'f05')};
+  padding: 6px 16px 6px 16px;
+  color: ${palette2('neutral', 'f06')};
   border-right: 1px solid ${palette2('neutral', 'l02')};
-  border-bottom: 1px solid ${palette2('neutral', 'b03')};
-  font-size: 0.865rem;
+  border-bottom: 1px solid ${palette2('neutral', 'l02')};
+  font-size: 0.875rem;
+  line-height: 20px;
+  box-sizing: border-box;
+  height: 32px;
 
   &:last-child {
     border-right: none;
@@ -107,11 +111,17 @@ const StyledTab = styled(RcTab)`
 
   &.RcTab-selected {
     background-color: ${palette2('neutral', 'b01')};
-    color: ${palette2('neutral', 'f05')};
+    color: ${palette2('neutral', 'f06')};
     font-weight: 400;
-    border-radius: 8px 8px 0 0;
+    font-size: 0.875rem;
     border-bottom: 1px solid ${palette2('neutral', 'b01')};
+    border-radius: 12px 12px 0 0;
     border-right: none;
+    padding-right: 4px;
+
+    .SideWidgetTabLabel {
+      padding-right: 24px;
+    }
   }
 
   .RcTab-wrapper > *:first-child {
@@ -119,8 +129,21 @@ const StyledTab = styled(RcTab)`
   }
 
   .RcTab-wrapper > .icon {
-    font-size: 18px;
+    font-size: 16px;
   }
+`;
+
+const StyledTabLabel = styled.span`
+  display: inline-block;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+  position: relative;
+`;
+
+const TabCloseButton = styled(CloseButton)`
+  right: 0;
 `;
 
 const WidgetWrapper = styled.div`
@@ -230,34 +253,25 @@ function getTabIcon(widget, active) {
   return null;
 }
 
-const StyledTabLabel = styled.span`
-  display: inline-block;
-  padding-right: 24px;
-  max-width: 110px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-wrap: nowrap;
-  position: relative;
-`;
-
-const TabCloseButton = styled(CloseButton)`
-  right: 0;
-`;
-
 function TabLabel({
   name,
   onClose,
+  showCloseButton,
 }) {
   return (
-    <StyledTabLabel title={name}>
+    <StyledTabLabel title={name} className="SideWidgetTabLabel">
       {name}
-      <TabCloseButton
-        symbol={Close}
-        onClick={onClose}
-        size="xsmall"
-        color="neutral.f06"
-        component="span"
-      />
+      {
+        showCloseButton && (
+          <TabCloseButton
+            symbol={Close}
+            onClick={onClose}
+            size="xsmall"
+            color="neutral.f06"
+            component="span"
+          />
+        )
+      }
     </StyledTabLabel>
   );
 }
@@ -381,6 +395,72 @@ function Widget({
   return <EmptyView />;
 }
 
+const TabsPlaceholder = styled.div`
+  height: 36px;
+  background-color: ${palette2('neutral', 'b03')};
+  border-bottom: 1px solid ${palette2('neutral', 'l02')};
+`;
+
+function WidgetTabs({
+  widgets,
+  currentWidgetId,
+  gotoWidget,
+  closeWidget,
+}) {
+  const [tabs, setTabs] = useState(widgets);
+  useEffect(() => {
+    setTabs([]);
+    setTimeout(() => {
+      setTabs(widgets); // force update to fix tab no-re-render issue
+    }, 0);
+  }, [widgets, currentWidgetId]);
+
+  if (tabs.length === 0) {
+    return <TabsPlaceholder />;
+  }
+
+  const tabsList =
+    tabs.map(widget => {
+      const icon = getTabIcon(widget, currentWidgetId === widget.id);
+      return (
+        <StyledTab
+          disableRipple
+          value={widget.id}
+          icon={icon && <RcIcon symbol={icon} size="medium" />}
+          label={(
+            <TabLabel
+              name={widget.name}
+              onClose={(e) => {
+                e && e.stopPropagation();
+                closeWidget(widget.id);
+              }}
+              showCloseButton={currentWidgetId === widget.id}
+            />
+          )}
+          key={widget.id}
+          direction="vertical"
+        />
+      );
+    });
+  return (
+    <StyledTabs
+      value={currentWidgetId}
+      onChange={(_, value) => gotoWidget(value)}
+      variant="moreMenu"
+      resizeThrottleTime={0}
+      MoreButtonProps={{
+        MenuProps: {
+          MenuListProps: {
+            className: 'SideWidgetMenuList',
+          },
+        },
+      }}
+    >
+      {tabsList}
+    </StyledTabs>
+  );
+};
+
 export function SideDrawerView({
   variant = 'permanent',
   widgets = [],
@@ -448,35 +528,12 @@ export function SideDrawerView({
       }
       {
         showTabs && (
-          <StyledTabs
-            value={currentWidgetId}
-            onChange={(_, value) => gotoWidget(value)}
-            variant="moreMenu"
-          >
-            {
-              widgets.map(widget => {
-                const icon = getTabIcon(widget, currentWidgetId === widget.id);
-                return (
-                  <StyledTab
-                    disableRipple
-                    value={widget.id}
-                    icon={icon && <RcIcon symbol={icon} size="medium" />}
-                    label={(
-                      <TabLabel
-                        name={widget.name}
-                        onClose={(e) => {
-                          e && e.stopPropagation();
-                          closeWidget(widget.id);
-                        }}
-                      />
-                    )}
-                    key={widget.id}
-                    direction="vertical"
-                  />
-                );
-              })
-            }
-          </StyledTabs>
+          <WidgetTabs
+            widgets={widgets}
+            currentWidgetId={currentWidgetId}
+            gotoWidget={gotoWidget}
+            closeWidget={closeWidget}
+          />
         )
       }
       {

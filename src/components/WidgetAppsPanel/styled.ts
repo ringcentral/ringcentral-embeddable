@@ -20,7 +20,7 @@ export const PageHeader = styled.div`
   align-items: center;
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   width: 100%;
-  height: 56px;
+  height: 48px;
   box-sizing: border-box;
   align-items: center;
 `;
