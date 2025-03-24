@@ -202,6 +202,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
       widgets: this.widgets,
       currentWidgetId: this.currentWidgetId,
       contact: this.currentContact,
+      mainPath: this._deps.routerInteraction.currentPath,
     };
   }
 

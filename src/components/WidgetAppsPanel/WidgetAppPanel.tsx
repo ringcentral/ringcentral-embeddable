@@ -24,8 +24,7 @@ const AppHeader = styled(RcListItem)`
   flex: 1;
 
   &.RcListItem-gutters {
-    padding-left: 0;
-    padding-right: 0;
+    padding: 0;
   }
 
   .RcListItemText-primary {
