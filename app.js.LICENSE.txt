@@ -45,6 +45,8 @@ object-assign
  * Released under the MIT License.
  */
 
+/*! Axios v1.8.4 Copyright (c) 2025 Matt Zabriskie and contributors */
+
 /*! https://mths.be/punycode v1.3.2 by @mathias */
 
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
