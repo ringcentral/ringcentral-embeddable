@@ -5,6 +5,7 @@ import { Typography } from './Typography';
 import { Button } from './Button';
 import { List } from './List';
 import { Link } from './Link';
+import { Search } from './Search';
 
 export const fields: RegistryFieldsType = {
   admonition: Alert,
@@ -12,4 +13,5 @@ export const fields: RegistryFieldsType = {
   button: Button,
   list: List,
   link: Link,
+  search: Search,
 };
