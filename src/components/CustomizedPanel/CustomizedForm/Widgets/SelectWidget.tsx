@@ -87,6 +87,12 @@ export default function SelectWidget<
               <ListItemText
                 primary={label}
                 secondary={schema && schema.description}
+                secondaryTypographyProps={{
+                  title: schema && schema.description,
+                }}
+                primaryTypographyProps={{
+                  title: label,
+                }}
               />
             </MenuItem>
           );

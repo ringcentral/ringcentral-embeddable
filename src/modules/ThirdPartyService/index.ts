@@ -1670,6 +1670,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       params.formData = formData;
     } else if (type === 'buttonClick') {
       params.button = button;
+      params.formData = formData;
       path = app.buttonEventPath;
     } else {
       path = app.pagePath;
@@ -1685,6 +1686,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       const { data } = await requestWithPostMessage(
         path,
         params,
+        15000
       );
       return data;
     } catch (e) {
