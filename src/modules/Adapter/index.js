@@ -623,6 +623,7 @@ export default class Adapter extends AdapterModuleCore {
       contractedCountryCode,
       admin: isAdmin,
       features,
+      isFreshLogin: this._auth.isFreshLogin,
     });
   }
 

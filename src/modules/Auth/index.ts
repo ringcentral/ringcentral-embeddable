@@ -1,6 +1,10 @@
 import { Auth as AuthBase } from '@ringcentral-integration/commons/modules/Auth';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { loginStatus } from '@ringcentral-integration/commons/modules/Auth/loginStatus';
+import { watch } from '@ringcentral-integration/core';
+
+export const LoginStatusChangeEvent = 'loginStatusChange';
+export const TriggerSyncTokenEvent = 'triggerSyncTokenEvent';
 
 @Module({
   name: 'NewAuth',
@@ -45,6 +49,33 @@ export class Auth extends AuthBase {
     ) {
       this.logout({ fromLogoutRequest: true });
     }
+  }
+
+  override async onInit() {
+    const platform = this._deps.client.service.platform();
+    this._loggedIn = await platform.loggedIn();
+    this._bindEvents();
+    watch(
+      this,
+      () => [this.token, this._triggerSyncToken],
+      () => {
+        if (this._triggerSyncToken) {
+          this._deps.tabManager?.send(TriggerSyncTokenEvent);
+        }
+      },
+      {
+        multiple: true, // Add this to fix for multiple watch
+      }
+    );
+    watch(
+      this,
+      () => this._deps.tabManager?.event,
+      () => {
+        if (this._deps.tabManager?.event?.name === TriggerSyncTokenEvent) {
+          this.fetchToken();
+        }
+      },
+    );
   }
 
   async fetchToken() {

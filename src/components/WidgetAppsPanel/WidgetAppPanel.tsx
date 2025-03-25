@@ -6,6 +6,7 @@ import {
   RcListItemText,
   RcListItemSecondaryAction,
   RcListItemAvatar,
+  RcTypography,
 } from '@ringcentral/juno';
 import { ArrowLeft2, Refresh } from '@ringcentral/juno-icon';
 import { Container, PageHeader, Content, AppIcon } from './styled';
@@ -34,6 +35,10 @@ const AppHeader = styled(RcListItem)`
 
 const StyledContent = styled(Content)`
   padding-top: 0;
+`;
+
+const LoadingText = styled(RcTypography)`
+  padding-top: 16px;
 `;
 
 type App = {
@@ -185,7 +190,7 @@ export function WidgetAppPanel({
                 }
               }}
             />
-          ) : 'Loading...'
+          ) : (<LoadingText>Loading...</LoadingText>)
         }
       </StyledContent>
     </Container>
