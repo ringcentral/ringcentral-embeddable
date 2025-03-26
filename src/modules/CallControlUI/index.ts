@@ -3,7 +3,8 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import webphoneErrors from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
 import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
-
+import { track } from '@ringcentral-integration/core';
+import { trackEvents } from '../Analytics/trackEvents';
 @Module({
   name: 'CallControlUI',
   deps: [
@@ -56,16 +57,44 @@ export class CallControlUI extends CallControlUIBase {
     return [null, false];
   }
 
+  @track(trackEvents.muteInCallControl)
+  trackMute() {}
+
+  @track(trackEvents.unmuteInCallControl)
+  trackUnmute() {}
+
+  @track(trackEvents.holdInCallControl)
+  trackHold() {}
+
+  @track(trackEvents.unholdInCallControl)
+  trackUnhold() {}
+
   getUIFunctions(options) {
     const functions = super.getUIFunctions(options);
+    const {
+      alert,
+      activeCallControl,
+      webphone
+    } = this._deps;
     return {
       ...functions,
+      onMute: (sessionId: string) => {
+        this.trackMute();
+        return webphone.mute(sessionId);
+      },
+      onUnmute: (sessionId: string) => {
+        this.trackUnmute();
+        return webphone.unmute(sessionId)
+      },
+      onHold: (sessionId: string) => {
+        this.trackHold();
+        return webphone.hold(sessionId)
+      },
+      onUnhold: (sessionId: string) => {
+        this.trackUnhold();
+        return webphone.unhold(sessionId)
+      },
       onRecord: async (sessionId) => {
-        const {
-          alert,
-          activeCallControl,
-          webphone
-        } = this._deps;
         const [telephonySessionId, isConferenceCall] = this._getTelephonySessionId(sessionId);
         if (telephonySessionId && !isConferenceCall) {
           try {
@@ -86,11 +115,6 @@ export class CallControlUI extends CallControlUIBase {
         return webphone.startRecord(sessionId);
       },
       onStopRecord: async (sessionId) => {
-        const {
-          alert,
-          activeCallControl,
-          webphone
-        } = this._deps;
         const [telephonySessionId, isConferenceCall] = this._getTelephonySessionId(sessionId);
         if (telephonySessionId && !isConferenceCall) {
           try {

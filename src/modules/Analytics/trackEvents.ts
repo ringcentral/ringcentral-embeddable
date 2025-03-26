@@ -17,4 +17,10 @@ export const trackEvents = ObjectMap.fromObject({
   closeSideDrawer: 'Close side drawer',
   viewMessageDetails: 'View message details',
   viewRecording: 'View recording',
+  recordInCallControl: 'Call Control: Record/Call control page',
+  stopRecordInCallControl: 'Call Control: Stop record/Call control page',
+  muteInCallControl: 'Call Control: Mute/Call control page',
+  unmuteInCallControl: 'Call Control: Unmute/Call control page',
+  holdInCallControl: 'Call Control: Hold/Call control page',
+  unholdInCallControl: 'Call Control: Unhold/Call control page',
 } as const);
