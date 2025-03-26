@@ -12,6 +12,69 @@ const FILTERED_EVENTS = [
   'Call: Outbound RingOut Call connected',
 ];
 
+function formatEvent(event, props) {
+  let eventName = event;
+  let eventProps = props;
+  if (event.indexOf('Call Control:') > -1) {
+    eventName = 'Call interaction';
+    let callInteractionName = event.replace('Call Control: ', '');
+    let callInteractionLocation = 'Call control page';
+    if (callInteractionName.indexOf('/') > -1) {
+      [callInteractionName, callInteractionLocation] = callInteractionName.split('/');
+    }
+    eventProps = {
+      ...props,
+      callInteractionName,
+      callInteractionLocation,
+    };
+  } else if (event.indexOf('(All Calls)') > -1) {
+    eventName = 'Call interaction';
+    let callInteractionName = event.replace(' (All Calls)', '');
+    let callInteractionLocation = 'All calls page';
+    eventProps = {
+      ...props,
+      callInteractionName,
+      callInteractionLocation,
+    };
+  } else if (event.indexOf('(Call Control)') > -1) {
+    eventName = 'Call interaction';
+    let callInteractionName = event.replace(' (Call Control)', '');
+    let callInteractionLocation = 'Call control page';
+    eventProps = {
+      ...props,
+      callInteractionName,
+      callInteractionLocation,
+    };
+  } else if (
+    event.indexOf('Click To Dial') > -1 ||
+    event.indexOf('Click To dial') > -1
+  ) {
+    eventName = 'Click To dial';
+    let interactionLocation = '';
+    if (event.indexOf('(') > -1 && event.indexOf(')') > -1) {
+      interactionLocation = event.substring(event.indexOf('(') + 1, event.indexOf(')'));
+    }
+    eventProps = {
+      ...props,
+      interactionLocation,
+    };
+  } else if (event.indexOf('Click To SMS') > -1) {
+    eventName = 'Click to SMS';
+    let interactionLocation = '';
+    if (event.indexOf('(') > -1 && event.indexOf(')') > -1) {
+      interactionLocation = event.substring(event.indexOf('(') + 1, event.indexOf(')'));
+    }
+    eventProps = {
+      ...props,
+      interactionLocation,
+    };
+  }
+  return {
+    formattedEvent: eventName,
+    formattedProperties: eventProps,
+  };
+}
+
 function getHashId(id) {
   if (!id) {
     return null;
@@ -79,11 +142,15 @@ export class Analytics extends AnalyticsBase {
     if (FILTERED_EVENTS.indexOf(event) !== -1) {
       return;
     }
+    const {
+      formattedEvent,
+      formattedProperties,
+    } = formatEvent(event, properties);
     if (this._enableExternalAnalytics && window && window.parent) {
       window.parent.postMessage({
         type: 'rc-analytics-track',
-        event,
-        properties,
+        event: formattedEvent,
+        properties: formattedProperties,
       }, '*');
     }
     if (!this.analytics) {
@@ -91,11 +158,11 @@ export class Analytics extends AnalyticsBase {
     }
     const trackProps = {
       ...this.trackProps,
-      ...properties,
+      ...formattedProperties,
       ...this.extendedProps.get(event),
     };
 
-    this.analytics.track(event, trackProps);
+    this.analytics.track(formattedEvent, trackProps);
   }
 
   protected _identify({ userId, ...props }) {

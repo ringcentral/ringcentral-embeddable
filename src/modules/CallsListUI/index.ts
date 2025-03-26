@@ -211,6 +211,7 @@ export class CallsListUI extends BaseCallsListUI {
       callHistory,
       sideDrawerUI,
       composeTextUI,
+      callMonitor,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -254,6 +255,10 @@ export class CallsListUI extends BaseCallsListUI {
         );
       },
       onMergeCall: undefined,
+      webphoneHangup: (sessionId: string) => {
+        callMonitor.allCallsClickHangupTrack();
+        return webphone?.hangup(sessionId);
+      },
       webphoneAnswer: (sessionId: string) => {
         if (!webphone) {
           return;
@@ -281,6 +286,7 @@ export class CallsListUI extends BaseCallsListUI {
         // }
       },
       webphoneHold: (sessionId) => {
+        callMonitor.allCallsClickHoldTrack();
         return webphone?.hold(sessionId);
       },
       webphoneSwitchCall: async (activeCall) => {
@@ -291,17 +297,20 @@ export class CallsListUI extends BaseCallsListUI {
           activeCall,
           regionSettings.homeCountryId,
         );
+        activeCallControl?.clickSwitchTrack?.()
         return session;
       },
       webphoneIgnore: (telephonySessionId) =>
         activeCallControl?.ignore(telephonySessionId),
       ringoutHangup: async (...args) => {
+        callMonitor.allCallsClickHangupTrack();
         return activeCallControl?.hangUp(...args);
       },
       ringoutTransfer: (sessionId) => {
         routerInteraction.push(`/transfer/${sessionId}/active`);
       },
       ringoutReject: async (sessionId) => {
+        callMonitor.allCallsClickRejectTrack();
         return activeCallControl?.reject(sessionId);
       },
       isSessionAConferenceCall: (sessionId) =>
@@ -317,6 +326,7 @@ export class CallsListUI extends BaseCallsListUI {
           routerInteraction.push(
             `/simplifycallctrl/${telephonySessionId}`,
           );
+          callMonitor.callItemClickTrack();
         } else {
           // For webphone call
           // show the ring call modal when click a ringing call.
@@ -328,6 +338,7 @@ export class CallsListUI extends BaseCallsListUI {
             routerInteraction.push(
               `${callCtrlRoute}/${call.webphoneSession.id}`,
             );
+            callMonitor.callItemClickTrack();
           }
         }
       },
