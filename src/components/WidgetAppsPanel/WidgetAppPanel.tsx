@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   styled,
   RcIconButton,
@@ -7,8 +7,10 @@ import {
   RcListItemSecondaryAction,
   RcListItemAvatar,
   RcTypography,
+  RcMenuItem,
+  RcMenu,
 } from '@ringcentral/juno';
-import { ArrowLeft2, Refresh } from '@ringcentral/juno-icon';
+import { ArrowLeft2, Refresh, MoreVert } from '@ringcentral/juno-icon';
 import { Container, PageHeader, Content, AppIcon } from './styled';
 import { CustomizedForm } from '../CustomizedPanel/CustomizedForm';
 
@@ -41,6 +43,10 @@ const LoadingText = styled(RcTypography)`
   padding-top: 16px;
 `;
 
+const RefreshButton = styled(RcIconButton)`
+  transform: scaleX(-1);
+`;
+
 type App = {
   id: string;
   name: string;
@@ -49,12 +55,87 @@ type App = {
   submitPath?: string;
 };
 
+type AppAction = {
+  id: string;
+  label: string;
+  color?: string;
+}
+type AppData = {
+  page: Page;
+  actions: AppAction[];
+}
+
 type Page = {
   schema: any;
   uiSchema: any;
   formData: any;
   type: string;
 };
+
+function getPageInfo(data: AppData | Page) {
+  let page;
+  let actions = [];
+  if (data) {
+    if ((data as Page).schema && (data as Page).type === 'json-schema') {
+      page = data;
+    } else if ((data as AppData).page && (data as AppData).page.schema && (data as AppData).page.type === 'json-schema') {
+      page = (data as AppData).page;
+      actions = (data as AppData).actions;
+    }
+  }
+  return { page, actions };
+}
+
+function PageActions({
+  actions,
+  onActionClick,
+}: {
+  actions: AppAction[];
+  onActionClick: (id: string) => void;
+}) {
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const moreButtonRef = useRef<HTMLDivElement>(null);
+  return (
+    <>
+      <RcIconButton
+        symbol={MoreVert}
+        size="small"
+        onClick={() => {
+          setMoreMenuOpen(!moreMenuOpen);
+        }}
+        innerRef={moreButtonRef}
+        color="action.grayDark"
+      />
+      <RcMenu
+        open={moreMenuOpen}
+        anchorEl={moreButtonRef.current}
+        onClose={() => {
+          setMoreMenuOpen(false);
+        }}
+      >
+        {
+          actions.map((action) => (
+            <RcMenuItem
+              key={action.id}
+              onClick={() => {
+                onActionClick(action.id);
+                setMoreMenuOpen(false);
+              }}
+              color={action.color}
+            >
+              <RcListItemText
+                primary={action.label}
+                primaryTypographyProps={{
+                  color: action.color || 'action.grayDark',
+                }}
+              />
+            </RcMenuItem>
+          ))
+        }
+      </RcMenu>
+    </>
+  )
+}
 
 export function WidgetAppPanel({
   app,
@@ -63,26 +144,31 @@ export function WidgetAppPanel({
   contact,
 }: {
   app: App;
-  onLoadApp?: (data: any) => Promise<Page | null>;
+  onLoadApp?: (data: any) => Promise<AppData | Page | null>;
   onBack: () => void;
   contact: any;
 }) {
+  const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState<Page | null>(null);
   const [formDataState, setFormDataState] = useState({});
+  const [actions, setActions] = useState<{ id: string; label: string }[]>([]);
 
   useEffect(() => {
     const init = async () => {
-      const page = await onLoadApp({
+      const data = await onLoadApp({
         app,
         contact,
         type: 'init',
       });
-      if (page && page.schema && page.type === 'json-schema') {
+      const { page, actions } = getPageInfo(data);
+      if (page) {
         setPage(page);
         setFormDataState(page.formData || {});
+        setActions(actions || []);
       } else {
         setPage(null);
         setFormDataState({});
+        setActions([]);
       }
     };
     init();
@@ -109,21 +195,52 @@ export function WidgetAppPanel({
             secondary={app.description}
           />
           <RcListItemSecondaryAction>
-            <RcIconButton
+            <RefreshButton
               symbol={Refresh}
+              size="small"
+              color="action.grayDark"
+              loading={refreshing}
               onClick={async () => {
-                const page = await onLoadApp({
+                setRefreshing(true);
+                const data = await onLoadApp({
                   app,
                   contact,
                   formDataState,
                   type: 'refresh',
                 });
-                if (page && page.schema) {
+                setRefreshing(false);
+                const { page, actions } = getPageInfo(data);
+                if (page) {
                   setPage(page);
                   setFormDataState(page.formData || {});
+                  setActions(actions || []);
                 }
               }}
             />
+            {
+              actions && actions.length > 0 ? (
+                <PageActions
+                  actions={actions}
+                  onActionClick={async (id) => {
+                    const data = await onLoadApp({
+                      app,
+                      contact,
+                      formData: formDataState,
+                      type: 'buttonClick',
+                      button: {
+                        id,
+                      }
+                    });
+                    const { page, actions } = getPageInfo(data);
+                    if (page) {
+                      setPage(page);
+                      setFormDataState(page.formData || {});
+                      setActions(actions || []);
+                    }
+                  }}
+                />
+              ) : null
+            }
           </RcListItemSecondaryAction>
         </AppHeader>
       </PageHeader>
@@ -138,16 +255,18 @@ export function WidgetAppPanel({
                 );
                 setFormDataState(newFormData);
                 try {
-                  const newPage = await onLoadApp({
+                  const data = await onLoadApp({
                     app,
                     contact,
                     formData: newFormData,
                     changedKeys,
                     type: 'inputChanged',
                   });
-                  if (newPage && newPage.schema) {
-                    setPage(newPage);
-                    setFormDataState(newPage.formData || {});
+                  const { page, actions } = getPageInfo(data);
+                  if (page) {
+                    setPage(page);
+                    setFormDataState(page.formData || {});
+                    setActions(actions || []);
                   }
                 } catch (e) {
                   console.error(e);
@@ -157,7 +276,7 @@ export function WidgetAppPanel({
               uiSchema={page.uiSchema}
               onButtonClick={async (id) => {
                 try {
-                  const newPage = await onLoadApp({
+                  const data = await onLoadApp({
                     app,
                     contact,
                     formData: formDataState,
@@ -166,9 +285,11 @@ export function WidgetAppPanel({
                       id,
                     }
                   });
-                  if (newPage && newPage.schema) {
-                    setPage(newPage);
-                    setFormDataState(newPage.formData || {});
+                  const { page, actions } = getPageInfo(data);
+                  if (page) {
+                    setPage(page);
+                    setFormDataState(page.formData || {});
+                    setActions(actions || []);
                   }
                 } catch (e) {
                   console.error(e);
@@ -176,17 +297,17 @@ export function WidgetAppPanel({
               }}
               hiddenSubmitButton={!app.submitPath || !(page.uiSchema && page.uiSchema.submitButtonOptions)}
               onSubmit={async () => {
-                const newPage = await onLoadApp({
+                const data = await onLoadApp({
                   app,
                   contact,
                   formData: formDataState,
                   type: 'submit',
                 });
-                if (newPage && newPage.schema) {
-                  setPage(newPage);
-                  if (newPage.formData) {
-                    setFormDataState(newPage.formData);
-                  }
+                const { page, actions } = getPageInfo(data);
+                if (page) {
+                  setPage(page);
+                  setFormDataState(page.formData || {});
+                  setActions(actions || []);
                 }
               }}
             />
