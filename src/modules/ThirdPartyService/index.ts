@@ -1694,4 +1694,13 @@ export default class ThirdPartyService extends RcModuleV2 {
       return null;
     }
   }
+
+  @globalStorage
+  @state
+  defaultAppId = '';
+
+  @action
+  setDefaultAppId(appId) {
+    this.defaultAppId = appId;
+  }
 }

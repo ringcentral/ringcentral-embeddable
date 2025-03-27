@@ -64,6 +64,8 @@ type AdditionProps = {
   showApps: boolean;
   apps: any[];
   onLoadApp: (data: any) => void;
+  defaultAppId?: string;
+  setDefaultAppId: (appId: string) => void;
 }
 
 export const ContactDetailsView: FunctionComponent<
@@ -110,6 +112,8 @@ export const ContactDetailsView: FunctionComponent<
   showApps,
   apps,
   onLoadApp,
+  defaultAppId,
+  setDefaultAppId,
 }) => {
   useEffect(() => {
     onVisitPage?.();
@@ -167,6 +171,8 @@ export const ContactDetailsView: FunctionComponent<
         showApps={showApps}
         apps={apps}
         onLoadApp={onLoadApp}
+        defaultAppId={defaultAppId}
+        setDefaultAppId={setDefaultAppId}
       />
     );
   }

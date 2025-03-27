@@ -10,7 +10,7 @@ import {
   RcMenuItem,
   RcMenu,
 } from '@ringcentral/juno';
-import { ArrowLeft2, Refresh, MoreVert } from '@ringcentral/juno-icon';
+import { ArrowLeft2, Reset, MoreVert, Unpin, Pin } from '@ringcentral/juno-icon';
 import { Container, PageHeader, Content, AppIcon } from './styled';
 import { CustomizedForm } from '../CustomizedPanel/CustomizedForm';
 
@@ -43,8 +43,8 @@ const LoadingText = styled(RcTypography)`
   padding-top: 16px;
 `;
 
-const RefreshButton = styled(RcIconButton)`
-  transform: scaleX(-1);
+const IconButton = styled(RcIconButton)`
+  margin-left: 0;
 `;
 
 type App = {
@@ -97,7 +97,7 @@ function PageActions({
   const moreButtonRef = useRef<HTMLDivElement>(null);
   return (
     <>
-      <RcIconButton
+      <IconButton
         symbol={MoreVert}
         size="small"
         onClick={() => {
@@ -142,11 +142,15 @@ export function WidgetAppPanel({
   onLoadApp = async () => null,
   onBack,
   contact,
+  isPinned,
+  onPinChanged,
 }: {
   app: App;
   onLoadApp?: (data: any) => Promise<AppData | Page | null>;
   onBack: () => void;
   contact: any;
+  isPinned: boolean;
+  onPinChanged: () => void;
 }) {
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState<Page | null>(null);
@@ -195,11 +199,12 @@ export function WidgetAppPanel({
             secondary={app.description}
           />
           <RcListItemSecondaryAction>
-            <RefreshButton
-              symbol={Refresh}
+            <IconButton
+              symbol={Reset}
               size="small"
               color="action.grayDark"
               loading={refreshing}
+              title="Reload the app"
               onClick={async () => {
                 setRefreshing(true);
                 const data = await onLoadApp({
@@ -216,6 +221,13 @@ export function WidgetAppPanel({
                   setActions(actions || []);
                 }
               }}
+            />
+            <IconButton
+              symbol={isPinned ? Pin : Unpin}
+              size="small"
+              color="action.grayDark"
+              title={isPinned ? 'Remove this app from default app' : 'Open this app by default'}
+              onClick={onPinChanged}
             />
             {
               actions && actions.length > 0 ? (

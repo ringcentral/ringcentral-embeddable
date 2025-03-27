@@ -1,5 +1,6 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2 } from '@ringcentral-integration/core';
+import { set } from 'lodash';
 
 @Module({
   name: 'WidgetAppsUI',
@@ -20,6 +21,7 @@ export class WidgetAppsUI extends RcUIModuleV2 {
     } = this._deps;
     return {
       apps: thirdPartyService.apps,
+      defaultAppId: thirdPartyService.defaultAppId,
     };
   }
 
@@ -30,6 +32,9 @@ export class WidgetAppsUI extends RcUIModuleV2 {
     return {
       onLoadApp: (data) => {
         return thirdPartyService.loadAppPage(data);
+      },
+      setDefaultAppId: (appId) => {
+        thirdPartyService.setDefaultAppId(appId);
       },
     };
   }

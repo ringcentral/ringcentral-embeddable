@@ -48,6 +48,7 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       activitiesLoaded: thirdPartyService.activitiesLoaded,
       showApps: thirdPartyService.apps && thirdPartyService.apps.length > 0,
       apps: thirdPartyService.apps,
+      defaultAppId: thirdPartyService.defaultAppId,
     };
   }
 
@@ -91,6 +92,9 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       },
       onLoadApp: (data) => {
         return thirdPartyService.loadAppPage(data);
+      },
+      setDefaultAppId: (appId) => {
+        thirdPartyService.setDefaultAppId(appId);
       },
     };
   }

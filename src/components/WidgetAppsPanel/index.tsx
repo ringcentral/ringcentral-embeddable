@@ -52,16 +52,29 @@ export function WidgetAppsPanel({
   onClose,
   onLoadApp,
   contact,
+  defaultAppId,
+  setDefaultAppId,
 }) {
-  const [currentApp, setCurrentApp] = useState(null);
+  const [currentAppId, setCurrentAppId] = useState(null);
   const contactRef = useRef(contact);
 
   useEffect(() => {
     if (!isSameContact(contactRef.current, contact)) {
-      setCurrentApp(null);
+      setCurrentAppId(null);
     }
     contactRef.current = contact;
   }, [contact]);
+
+  useEffect(() => {
+    if (defaultAppId) {
+      const app = apps.find((a) => a.id === defaultAppId);
+      if (app) {
+        setCurrentAppId(app.id);
+      }
+    }
+  }, []);
+
+  const currentApp = currentAppId ? apps.find((app) => app.id === currentAppId) : null;
 
   if (!currentApp) {
     return (
@@ -84,7 +97,7 @@ export function WidgetAppsPanel({
                 key={app.id}
                 label={app.name}
                 icon={<AppIcon src={app.iconUri} />}
-                onClick={() => setCurrentApp(app)}
+                onClick={() => setCurrentAppId(app.id)}
               />
             ))
           }
@@ -101,8 +114,16 @@ export function WidgetAppsPanel({
     <WidgetAppPanel
       app={currentApp}
       onLoadApp={onLoadApp}
-      onBack={() => setCurrentApp(null)}
+      onBack={() => setCurrentAppId(null)}
       contact={contact}
+      isPinned={currentApp.id === defaultAppId}
+      onPinChanged={() => {
+        if (currentApp.id === defaultAppId) {
+          setDefaultAppId('');
+          return;
+        }
+        setDefaultAppId(currentApp.id);
+      }}
     />
   );
 }
