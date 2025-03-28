@@ -73,6 +73,17 @@ const StyledAudioPlayer = styled(AudioPlayer)`
   flex: 1;
 `;
 
+const TranscriptionTitle = styled(RcTypography)`
+  width: 100%;
+  text-align: left;
+  margin-bottom: 4px;
+`;
+
+const TranscriptionText = styled(RcTypography)`
+  font-size: 0.8125rem;
+  line-height: 1.0625rem;
+`;
+
 const StyledActionButtons = styled(ActionMenu)`
   justify-content: center;
   width: 100%;
@@ -213,6 +224,7 @@ export function MessageDetailsPanel({
   phoneTypeRenderer,
   phoneSourceNameRenderer,
   renderContactList,
+  transcription,
 }) {
   const [selected, setSelected] = useState(0);
   const [isLoggingState, setIsLoggingState] = useState(false);
@@ -380,9 +392,8 @@ export function MessageDetailsPanel({
       setDeleteConfirmOpen(true);
     },
   })
-  const mainActions = actions.filter((action) => action.id !== 'delete' && !action.sub);
+  const mainActions = actions.filter((action) => !action.sub);
   const subActions = actions.filter((action) => action.sub);
-  const deleteAction = actions.find((action) => action.id === 'delete');
   const dateTimeFormatterCatchError = (creationTime?: number, type?: string) => {
     try {
       return dateTimeFormatter({ utcTimestamp: creationTime, type });
@@ -528,19 +539,16 @@ export function MessageDetailsPanel({
           </StyleSection>
         ) : null
       }
-      <br />
-      <br />
       {
-        deleteAction ? (
-          <RcButton
-            variant='outlined'
-            color="danger.f02"
-            fullWidth
-            onClick={deleteAction.onClick}
-            disabled={deleteAction.disabled}
-          >
-            {deleteAction.title}
-          </RcButton>
+        transcription ? (
+          <>
+            <TranscriptionTitle variant="subheading1">Transcript</TranscriptionTitle>
+            <StyleSection>
+              <TranscriptionText variant="body1">
+                {transcription.text}
+              </TranscriptionText>
+            </StyleSection>
+          </>
         ) : null
       }
       {
