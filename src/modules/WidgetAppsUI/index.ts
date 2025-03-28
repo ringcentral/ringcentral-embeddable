@@ -1,6 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2 } from '@ringcentral-integration/core';
-import { set } from 'lodash';
 
 @Module({
   name: 'WidgetAppsUI',
