@@ -6,6 +6,7 @@ import {
   RcListItem,
   RcListItemText,
   RcListItemIcon,
+  RcListItemAvatar,
   RcIcon,
 } from '@ringcentral/juno';
 import { Disposition } from '@ringcentral/juno-icon';
@@ -21,6 +22,7 @@ import actionI18n from '@ringcentral-integration/widgets/components/ActionMenuLi
 import styles from '@ringcentral-integration/widgets/components/MessageItem/styles.scss';
 
 import { ConversationIcon } from './ConversationIcon';
+import { ContactAvatar } from '../ContactAvatar';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { ActionMenu } from '../ActionMenu';
 import { StatusMessage } from '../CallItem/StatusMessage';
@@ -133,12 +135,8 @@ const StyledListItemText = styled(RcListItemText)`
   }
 `;
 
-const StyledItemIcon = styled(RcListItemIcon)`
-  padding: 16px 0 16px 16px;
-
-  .icon {
-    font-size: 26px;
-  }
+const StyledItemAvatar= styled(RcListItemAvatar)`
+  padding-left: 16px;
 `;
 
 const IconBadge = styled(RcIcon)`
@@ -567,22 +565,24 @@ export function ConversationItem({
       return creationTime;
     }
   };
-
+  const isGroup = correspondents && correspondents.length > 1;
   return (
     <StyledListItem
       data-sign={msgItem}
       data-id={conversationId}
       $hoverOnMoreMenu={hoverOnMoreMenu}
     >
-      <StyledItemIcon onClick={onClickWrapper}>
-        <ConversationIcon
-          group={correspondents && correspondents.length > 1}
-          type={type}
-          currentLocale={currentLocale}
-          direction={direction}
-          color={unreadCounts ? 'action.primary' : 'neutral.f06'}
+      <StyledItemAvatar onClick={onClickWrapper}>
+        <ContactAvatar
+          contact={
+            isGroup ?
+            null:
+            (correspondentMatches && (correspondentMatches[selected] || correspondentMatches[0]))
+          }
+          size="xsmall"
+          isGroup={isGroup}
         />
-      </StyledItemIcon>
+      </StyledItemAvatar>
       <StyledListItemText
         onClick={onClickWrapper}
         primary={

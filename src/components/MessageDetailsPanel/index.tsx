@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   RcTypography,
-  RcButton,
   styled,
   palette2,
   ellipsis,
@@ -15,10 +14,11 @@ import ContactDisplay from '@ringcentral-integration/widgets/components/ContactD
 import styles from '@ringcentral-integration/widgets/components/MessageItem/styles.scss';
 
 import { ActionMenu } from '../ActionMenu';
-import { ConversationIcon } from '../ConversationItem/ConversationIcon';
 import { Detail } from '../ConversationItem/Detail';
 import { AudioPlayer } from '../AudioPlayer';
 import { ConfirmDialog } from '../ConfirmDialog';
+import { ContactAvatar } from '../ContactAvatar';
+
 import {
   getActions,
   getInitialContactIndex,
@@ -451,12 +451,8 @@ export function MessageDetailsPanel({
   );
   return (
     <Container>
-      <ConversationIcon
-        group={correspondents && correspondents.length > 1}
-        type={type}
-        currentLocale={currentLocale}
-        direction={direction}
-        color="neutral.f06"
+      <ContactAvatar
+        contact={correspondentMatches && (correspondentMatches[selected] || correspondentMatches[0])}
       />
       <br />
       {renderContactName
