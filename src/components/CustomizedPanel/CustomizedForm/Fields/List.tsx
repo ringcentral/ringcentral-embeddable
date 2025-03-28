@@ -16,6 +16,8 @@ import {
   palette2,
   css,
   ellipsis,
+  useAvatarColorToken,
+  useAvatarShortName,
 } from '@ringcentral/juno';
 
 import { ArrowRight } from '@ringcentral/juno-icon';
@@ -64,7 +66,8 @@ function ListItem({
           <RcListItemAvatar>
             <StyledAvatar
               size="xsmall"
-              src={item.icon}
+              src={item.icon || item.authorAvatar}
+              title={item.authorName}
               $round={showIconAsAvatar}
             />
           </RcListItemAvatar>
@@ -124,6 +127,16 @@ const StyledCardFooter = styled.div`
   ${ellipsis}
 `;
 
+const StyledCardAuthorAvatar = styled(RcAvatar)`
+  .RcAvatar-avatarContainer {
+    width: 12px;
+    height: 12px;
+    line-height: 12px;
+    font-size: 0.625rem;
+  }
+  margin-right: 4px;
+`;
+
 function CardItem({
   item,
   disabled,
@@ -142,6 +155,16 @@ function CardItem({
   if (width) {
     wrapperStyle.width = width;
   }
+  let shortName = '';
+  let avatarColor;
+  if (item.authorName) {
+    const [firstName, lastName] = item.authorName.split(/\s+/);
+    shortName = useAvatarShortName({
+      firstName,
+      lastName,
+    });
+    avatarColor = useAvatarColorToken(item.authorName);
+  }
   return (
     <StyledCardWrapper
       style={wrapperStyle}
@@ -159,6 +182,19 @@ function CardItem({
               {item.description}
             </StyledCardBody>
             <StyledCardFooter>
+              {
+                item.authorName && (
+                  <StyledCardAuthorAvatar
+                    size="xxsmall"
+                    src={item.authorAvatar}
+                    title={item.authorName}
+                    color={avatarColor}
+                    useRcTooltip
+                  >
+                    {shortName}
+                  </StyledCardAuthorAvatar>
+                )
+              }
               <RcTypography variant="caption1" color="neutral.f05">{item.meta}</RcTypography>
             </StyledCardFooter>
           </RcCardContent>
