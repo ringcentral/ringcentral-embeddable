@@ -38,6 +38,7 @@ import {
     'TabManager',
     'CallHistory',
     'CallMonitor',
+    'MessageStore',
     { dep: 'ThirdPartyContactsOptions', optional: true },
   ],
 })
@@ -95,6 +96,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._ignoreModuleReadiness(deps.smartNotes);
     this._ignoreModuleReadiness(deps.callHistory);
     this._ignoreModuleReadiness(deps.callMonitor);
+    this._ignoreModuleReadiness(deps.messageStore);
 
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
@@ -891,10 +893,16 @@ export default class ThirdPartyService extends RcModuleV2 {
         return;
       }
       if ((item.type === 'VoiceMail' || item.type === 'Fax')) {
+        const messageStore = this._deps.messageStore;
+        if (item.type === 'VoiceMail') {
+          const message = item.messages && item.messages[0];
+          await messageStore.fetchVoicemailTranscription(message);
+        }
         const messages = item.messages && item.messages.map((m) => {
           if (!m.attachments) {
             return m;
           }
+          const transcript = item.type === 'VoiceMail' ? messageStore.voicemailTranscriptionMap[m.id] : null;
           return {
             ...m,
             attachments: m.attachments.map(a => {
@@ -912,7 +920,8 @@ export default class ThirdPartyService extends RcModuleV2 {
                 link: `${attachmentLink}?media=${encodeURIComponent(a.uri)}`,
                 uri,
               });
-            })
+            }),
+            transcript: transcript && transcript.text,
           };
         });
         item.messages = messages;
