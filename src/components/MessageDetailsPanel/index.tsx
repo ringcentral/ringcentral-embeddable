@@ -32,6 +32,12 @@ const Container = styled.div`
   align-items: center;
   padding-left: 16px;
   padding-right: 16px;
+  height: 100%;
+  overflow-y: auto;
+
+  .MessageItem_contactDisplay {
+    min-height: 19px;
+  }
 `;
 
 const StyleSection = styled.div`
@@ -392,8 +398,8 @@ export function MessageDetailsPanel({
       setDeleteConfirmOpen(true);
     },
   })
-  const mainActions = actions.filter((action) => !action.sub);
-  const subActions = actions.filter((action) => action.sub);
+  const mainActions = actions.filter((action) => action.id !== 'delete' && !action.sub);
+  const subActions = actions.filter((action) => action.sub ||  action.id === 'delete');
   const dateTimeFormatterCatchError = (creationTime?: number, type?: string) => {
     try {
       return dateTimeFormatter({ utcTimestamp: creationTime, type });
