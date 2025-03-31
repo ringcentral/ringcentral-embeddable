@@ -41,6 +41,7 @@ export type ConversationListProps = {
   showLogButton?: boolean;
   logButtonTitle?: string;
   openMessageDetails: (id: number) => void;
+  rcAccessToken?: string;
 } & Omit<MessageItemProps, 'conversation'>;
 
 const Loading = styled.div`
@@ -83,6 +84,7 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
   showGroupNumberName = false,
   enableCDC = false,
   openMessageDetails,
+  rcAccessToken,
   ...childProps
 }: ConversationListProps) => {
   const scrollTopRef = useRef(0);
@@ -120,6 +122,7 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
               showGroupNumberName={showGroupNumberName}
               enableCDC={enableCDC}
               openMessageDetails={openMessageDetails}
+              rcAccessToken={rcAccessToken}
             />
           ))
         }

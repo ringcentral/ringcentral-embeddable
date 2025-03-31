@@ -231,6 +231,7 @@ export function MessageDetailsPanel({
   phoneSourceNameRenderer,
   renderContactList,
   transcription,
+  rcAccessToken,
 }) {
   const [selected, setSelected] = useState(0);
   const [isLoggingState, setIsLoggingState] = useState(false);
@@ -459,6 +460,7 @@ export function MessageDetailsPanel({
     <Container>
       <ContactAvatar
         contact={correspondentMatches && (correspondentMatches[selected] || correspondentMatches[0])}
+        rcAccessToken={rcAccessToken}
       />
       <br />
       {renderContactName

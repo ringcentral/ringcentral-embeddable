@@ -84,6 +84,7 @@ export type MessageItemProps = {
   formatPhone: (phoneNumber: string) => string | undefined;
   showLogButton?: boolean;
   logButtonTitle?: string;
+  rcAccessToken?: string;
 };
 
 const StyledListItem = styled(RcListItem)<{ $hoverOnMoreMenu: boolean }>`
@@ -312,6 +313,7 @@ export function ConversationItem({
   updateTypeFilter,
   unmarkMessage,
   openMessageDetails,
+  rcAccessToken,
 }) {
   const {
     conversationId,
@@ -581,6 +583,7 @@ export function ConversationItem({
           }
           size="xsmall"
           isGroup={isGroup}
+          rcAccessToken={rcAccessToken}
         />
       </StyledItemAvatar>
       <StyledListItemText

@@ -12,6 +12,9 @@ type Contact = {
   lastName?: string;
   name?: string;
   profileImageUrl?: string;
+  profileImage?: {
+    uri: string;
+  },
 }
 
 export function ContactAvatar({
@@ -21,6 +24,7 @@ export function ContactAvatar({
   presenceOrigin,
   presenceProps,
   isGroup = false,
+  rcAccessToken = '',
 } : {
   contact?: Contact;
   size?: 'small' | 'medium' | 'large' | 'xlarge' | 'xsmall' | 'xxsmall';
@@ -34,6 +38,7 @@ export function ContactAvatar({
   },
   fullName?: string;
   isGroup?: boolean;
+  rcAccessToken?: string;
 }) {
   let firstName = contact?.firstName || '';
   let lastName = contact?.lastName || '';
@@ -54,15 +59,27 @@ export function ContactAvatar({
   if (name) {
     avatarColor = useAvatarColorToken(name);
   }
+  let avatarSrc = contact?.profileImageUrl;
+  if (contact?.profileImage && rcAccessToken) {
+    if (contact.profileImage.uri &&
+      (
+        contact.profileImage.uri.indexOf('https://media.ringcentral.com/') === 0 ||
+        contact.profileImage.uri.indexOf('https://media.ringcentral.biz/') === 0
+      ) &&
+      contact.profileImage.uri.indexOf('access_token=') === -1
+    ) {
+      avatarSrc = `${contact.profileImage.uri}?access_token=${rcAccessToken}`;
+    }
+  }
   let iconSymbol;
-  if (!avatarName) {
+  if (!avatarSrc && !avatarName) {
     iconSymbol = isGroup ? GroupDefault : UserDefault;
   }
   return (
     <RcAvatar
       size={size}
       color={avatarColor || 'avatar.global'}
-      src={contact?.profileImageUrl}
+      src={avatarSrc}
       presenceOrigin={presenceOrigin}
       presenceProps={presenceProps}
       iconSymbol={iconSymbol}

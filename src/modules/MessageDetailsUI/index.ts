@@ -24,6 +24,7 @@ import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
     'SideDrawerUI',
     'ComposeTextUI',
     'ThirdPartyService',
+    'Auth',
     { dep: 'Call', optional: true },
     { dep: 'DialerUI', optional: true },
     { dep: 'ContactDetailsUI', optional: true },
@@ -86,6 +87,7 @@ export class MessageDetailsUI extends RcUIModuleV2 {
       dateTimeFormat,
       connectivityMonitor,
       messageStore,
+      auth,
     } = this._deps;
     return {
       messageId: params.messageId,
@@ -133,7 +135,8 @@ export class MessageDetailsUI extends RcUIModuleV2 {
         this.message.type === messageTypes.voiceMail ?
         messageStore.voicemailTranscriptionMap[this.message.id] :
         null
-      )
+      ),
+      rcAccessToken: auth.accessToken,
     };
   }
 
