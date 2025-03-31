@@ -16,18 +16,16 @@ import { extensionStatusTypes } from '@ringcentral-integration/commons/enums/ext
 import {
   styled,
   palette2,
-  RcAvatar,
   RcTypography,
   RcTabs,
   RcTab,
-  useAvatarColorToken,
-  useAvatarShortName
 } from '@ringcentral/juno';
 import i18n from '@ringcentral-integration/widgets/components/ContactDetails/i18n';
 import { Calls } from './Calls';
 import { Messages } from './Messages';
 import { Activities } from './Activities';
 import { WidgetAppsPanel } from '../WidgetAppsPanel';
+import { ContactAvatar } from '../ContactAvatar';
 
 import {
   PhoneSection,
@@ -74,8 +72,7 @@ interface ContactDetailsProps extends onClickMailTo,
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 10px 16px;
-  padding-bottom: 0;
+  padding: 0 16px;
   align-items: center;
   width: 100%;
   height: 100%;
@@ -116,13 +113,7 @@ const Profile = ({
   fullName,
   notActivated,
 }) => {
-  const [firstName, lastName] = fullName?.split(/\s+/) || [];
   const presence = usePresence(contact, { fetch: getPresence });
-  const avatarColor = useAvatarColorToken(fullName);
-  const avatarName = useAvatarShortName({
-    firstName,
-    lastName,
-  });
   let presenceName = presence ? getPresenceStatusName(
     presence.presenceStatus,
     presence.dndStatus,
@@ -136,10 +127,10 @@ const Profile = ({
 
   return (
     <ProfileWrapper>
-      <RcAvatar
+      <ContactAvatar
         size="medium"
-        color={avatarColor}
-        src={contact.profileImageUrl}
+        contact={contact}
+        fullName={fullName}
         presenceOrigin={{
           vertical: 'bottom',
           horizontal: 'right',
@@ -148,9 +139,7 @@ const Profile = ({
           type: presenceType,
           title: presenceName,
         } : undefined}
-      >
-        {avatarName}
-      </RcAvatar>
+      />
       {
           sourceNodeRenderer && (
             <SourceIcon>

@@ -1,6 +1,7 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, state, action, watch } from '@ringcentral-integration/core';
 import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
+import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 
 @Module({
   name: 'MessageDetailsUI',
@@ -23,6 +24,7 @@ import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber'
     'SideDrawerUI',
     'ComposeTextUI',
     'ThirdPartyService',
+    'Auth',
     { dep: 'Call', optional: true },
     { dep: 'DialerUI', optional: true },
     { dep: 'ContactDetailsUI', optional: true },
@@ -84,6 +86,8 @@ export class MessageDetailsUI extends RcUIModuleV2 {
       contactMatcher,
       dateTimeFormat,
       connectivityMonitor,
+      messageStore,
+      auth,
     } = this._deps;
     return {
       messageId: params.messageId,
@@ -127,6 +131,12 @@ export class MessageDetailsUI extends RcUIModuleV2 {
       ),
       enableCDC: appFeatures.isCDCEnabled,
       maxExtensionNumberLength: accountInfo.maxExtensionNumberLength,
+      transcription: this.message && (
+        this.message.type === messageTypes.voiceMail ?
+        messageStore.voicemailTranscriptionMap[this.message.id] :
+        null
+      ),
+      rcAccessToken: auth.accessToken,
     };
   }
 
@@ -164,6 +174,9 @@ export class MessageDetailsUI extends RcUIModuleV2 {
           sideDrawerUI.closeWidget('messageDetails');
         }
         this.setMessage(message);
+        if (message.type === messageTypes.voiceMail) {
+          messageStore.fetchVoicemailTranscription(message);
+        }
       },
       formatPhone: (phoneNumber: string) =>
         formatNumber({

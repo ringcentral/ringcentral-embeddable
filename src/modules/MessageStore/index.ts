@@ -1,5 +1,10 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
+  action,
+  state,
+  computed,
+} from '@ringcentral-integration/core';
+import {
   MessageStore as MessageStoreBase,
 } from '@ringcentral-integration/commons/modules/MessageStore';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
@@ -134,5 +139,89 @@ export class MessageStore extends MessageStoreBase {
       messageId = inboundMessage.id;
     }
     await super.unreadMessage(messageId);
+  }
+
+  @state
+  voicemailTranscriptions = [];
+
+  @action
+  addVoicemailTranscription({ id, text, messageId }) {
+    let newData = this.voicemailTranscriptions.filter((item) => item.messageId !== messageId);
+    newData = [{
+      id,
+      text,
+      messageId,
+    }].concat(newData);
+    if (newData.length > 20) {
+      newData = newData.slice(0, 20);
+    }
+    this.voicemailTranscriptions = newData;
+  }
+
+  @computed((that: MessageStore) => [that.voicemailTranscriptions])
+  get voicemailTranscriptionMap() {
+    return this.voicemailTranscriptions.reduce((map, item) => {
+      map[item.messageId] = item;
+      return map;
+    }, {});
+  }
+
+  async fetchVoicemailTranscription(message) {
+    if (!message || message.type !== messageTypes.voiceMail) {
+      return;
+    }
+    if (
+      message.vmTranscriptionStatus === 'InProgress' ||
+      message.vmTranscriptionStatus === 'CompletedPartially'
+    ) {
+      this.addVoicemailTranscription({
+        text: 'In progress',
+        id: null,
+        messageId: message.id
+      });
+      return;
+    }
+    if (message.vmTranscriptionStatus !== 'Completed') {
+      return;
+    }
+    const existingTranscription = this.voicemailTranscriptionMap[message.id];
+    if (existingTranscription && existingTranscription.id) {
+      return;
+    }
+    const attachment = message.attachments?.find(
+      (attachment) => attachment.type === 'AudioTranscription'
+    );
+    if (!attachment) {
+      return;
+    }
+    let uri = attachment.uri;
+    if (
+      uri.indexOf('https://media.ringcentral.com/') !== 0 &&
+      uri.indexOf('https://media.ringcentral.biz/') !== 0
+    ) {
+      return;
+    }
+    try {
+      this.addVoicemailTranscription({
+        text: 'Fetching transcription',
+        id: null,
+        messageId: message.id
+      });
+      const platform = this._deps.client.service.platform();
+      const response = await platform.get(uri);
+      const transcription = await response.text();
+      this.addVoicemailTranscription({
+        text: transcription,
+        id: attachment.id,
+        messageId: message.id
+      });
+    } catch (e) {
+      console.error(e);
+      this.addVoicemailTranscription({
+        text: 'Failed to fetch transcription',
+        id: null,
+        messageId: message.id
+      });
+    }
   }
 }

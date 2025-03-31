@@ -88,6 +88,7 @@ type ConversationsPanelProps = {
   searchFilter: string;
   onSearchFilterChange: (type: string) => void;
   openMessageDetails: (id: number) => void;
+  rcAccessToken?: string;
 } & Omit<ConversationListProps, 'conversation'>;
 
 const StyledContainer = styled.div`
@@ -184,6 +185,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     searchFilter,
     onSearchFilterChange,
     openMessageDetails,
+    rcAccessToken,
   } = props;
 
   useEffect(() => {
@@ -277,6 +279,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
                 logButtonTitle={logButtonTitle}
                 updateTypeFilter={updateTypeFilter}
                 openMessageDetails={openMessageDetails}
+                rcAccessToken={rcAccessToken}
               />
             ) : (
               !loadingNextPage &&

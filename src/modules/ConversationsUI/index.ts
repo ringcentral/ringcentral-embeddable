@@ -9,6 +9,7 @@ import { getConversationPhoneNumber } from '../../lib/conversationHelper';
     'SideDrawerUI',
     'ComposeTextUI',
     'ConversationUI',
+    'Auth',
   ],
 })
 export class ConversationsUI extends BaseConversationsUI {
@@ -20,6 +21,7 @@ export class ConversationsUI extends BaseConversationsUI {
     const {
       conversationLogger,
       conversations,
+      auth,
     } = this._deps;
     return {
       ...baseProps,
@@ -28,6 +30,7 @@ export class ConversationsUI extends BaseConversationsUI {
       logButtonTitle: conversationLogger.logButtonTitle,
       searchFilter: conversations.searchFilter,
       conversations: conversations.pagingConversations,
+      rcAccessToken: auth.accessToken,
     };
   }
 
@@ -42,7 +45,6 @@ export class ConversationsUI extends BaseConversationsUI {
       appFeatures,
       messageStore,
       sideDrawerUI,
-      conversationUI,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   RcTypography,
-  RcButton,
   styled,
   palette2,
   ellipsis,
@@ -15,10 +14,11 @@ import ContactDisplay from '@ringcentral-integration/widgets/components/ContactD
 import styles from '@ringcentral-integration/widgets/components/MessageItem/styles.scss';
 
 import { ActionMenu } from '../ActionMenu';
-import { ConversationIcon } from '../ConversationItem/ConversationIcon';
 import { Detail } from '../ConversationItem/Detail';
 import { AudioPlayer } from '../AudioPlayer';
 import { ConfirmDialog } from '../ConfirmDialog';
+import { ContactAvatar } from '../ContactAvatar';
+
 import {
   getActions,
   getInitialContactIndex,
@@ -32,6 +32,12 @@ const Container = styled.div`
   align-items: center;
   padding-left: 16px;
   padding-right: 16px;
+  height: 100%;
+  overflow-y: auto;
+
+  .MessageItem_contactDisplay {
+    min-height: 19px;
+  }
 `;
 
 const StyleSection = styled.div`
@@ -71,6 +77,17 @@ const SectionTitle = styled(RcTypography)`
 
 const StyledAudioPlayer = styled(AudioPlayer)`
   flex: 1;
+`;
+
+const TranscriptionTitle = styled(RcTypography)`
+  width: 100%;
+  text-align: left;
+  margin-bottom: 4px;
+`;
+
+const TranscriptionText = styled(RcTypography)`
+  font-size: 0.8125rem;
+  line-height: 1.0625rem;
 `;
 
 const StyledActionButtons = styled(ActionMenu)`
@@ -213,6 +230,8 @@ export function MessageDetailsPanel({
   phoneTypeRenderer,
   phoneSourceNameRenderer,
   renderContactList,
+  transcription,
+  rcAccessToken,
 }) {
   const [selected, setSelected] = useState(0);
   const [isLoggingState, setIsLoggingState] = useState(false);
@@ -381,8 +400,7 @@ export function MessageDetailsPanel({
     },
   })
   const mainActions = actions.filter((action) => action.id !== 'delete' && !action.sub);
-  const subActions = actions.filter((action) => action.sub);
-  const deleteAction = actions.find((action) => action.id === 'delete');
+  const subActions = actions.filter((action) => action.sub ||  action.id === 'delete');
   const dateTimeFormatterCatchError = (creationTime?: number, type?: string) => {
     try {
       return dateTimeFormatter({ utcTimestamp: creationTime, type });
@@ -440,12 +458,9 @@ export function MessageDetailsPanel({
   );
   return (
     <Container>
-      <ConversationIcon
-        group={correspondents && correspondents.length > 1}
-        type={type}
-        currentLocale={currentLocale}
-        direction={direction}
-        color="neutral.f06"
+      <ContactAvatar
+        contact={correspondentMatches && (correspondentMatches[selected] || correspondentMatches[0])}
+        rcAccessToken={rcAccessToken}
       />
       <br />
       {renderContactName
@@ -528,19 +543,16 @@ export function MessageDetailsPanel({
           </StyleSection>
         ) : null
       }
-      <br />
-      <br />
       {
-        deleteAction ? (
-          <RcButton
-            variant='outlined'
-            color="danger.f02"
-            fullWidth
-            onClick={deleteAction.onClick}
-            disabled={deleteAction.disabled}
-          >
-            {deleteAction.title}
-          </RcButton>
+        transcription ? (
+          <>
+            <TranscriptionTitle variant="subheading1">Transcript</TranscriptionTitle>
+            <StyleSection>
+              <TranscriptionText variant="body1">
+                {transcription.text}
+              </TranscriptionText>
+            </StyleSection>
+          </>
         ) : null
       }
       {
