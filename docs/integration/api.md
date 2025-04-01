@@ -157,7 +157,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-control-call',
   callAction: 'dtmf',
-  callId: `call id`
+  callId: `call id`, // optional, current call id by default
   options: {
     dtmf: '101', // DTMF value
   },
