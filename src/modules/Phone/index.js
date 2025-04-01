@@ -741,6 +741,7 @@ export function createPhone({
   defaultCallWith,
   enableFromNumberSetting,
   showMyLocationNumbers,
+  enableSmsSettingEvent,
   disconnectInactiveWebphone,
   disableInactiveTabCallEvent,
   disableLoginPopup,
@@ -833,6 +834,7 @@ export function createPhone({
           showMyLocationNumbers,
           fromPopup,
           isUsingDefaultClientId,
+          enableSmsSettingEvent,
         },
         spread: true
       },

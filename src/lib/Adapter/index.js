@@ -206,6 +206,9 @@ class Adapter extends AdapterCore {
         case 'rc-calling-settings-notify':
           console.log('rc-calling-settings-notify:', data.callWith, data.callingMode);
           break;
+        case 'rc-sms-settings-notify':
+          console.log('rc-sms-settings-notify:', data.senderNumber, data.senderNumbers);
+          break;
         case 'rc-region-settings-notify':
           console.log('rc-region-settings-notify:', data.countryCode, data.areaCode);
           break;
@@ -589,6 +592,15 @@ class Adapter extends AdapterCore {
       myLocation,
       ringoutPrompt,
       fromNumber,
+    });
+  }
+
+  updateSMSSetting({
+    senderNumber,
+  }) {
+    this._postMessage({
+      type: 'rc-sms-settings-update',
+      senderNumber,
     });
   }
 
