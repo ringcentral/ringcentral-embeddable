@@ -1098,6 +1098,9 @@ export default class Adapter extends AdapterModuleCore {
     if (path === 'goBack') {
       this._router.goBack();
     }
+    if (this._sideDrawerUI.modalOpen) {
+      this._sideDrawerUI.clearWidgets();
+    }
   }
 
   _newSMS(phoneNumber, text, conversation, attachments = null) {
