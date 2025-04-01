@@ -57162,10 +57162,12 @@ class Adapter extends AdapterCore/* default */.A {
     });
   }
   controlCall(action, id) {
+    let options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
     this._postMessage({
       type: 'rc-adapter-control-call',
       callAction: action,
-      callId: id
+      callId: id,
+      options
     });
   }
   logoutUser() {
