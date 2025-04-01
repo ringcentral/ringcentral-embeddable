@@ -20,16 +20,16 @@ import {
   WidgetProps,
 } from '@rjsf/utils';
 
-const StyledRadioGroup = styled(RadioGroup)<{flexDirection: string}>`
-  flex-direction: ${({ flexDirection }) => flexDirection};
+const StyledRadioGroup = styled(RadioGroup)<{$flexDirection: string}>`
+  flex-direction: ${({ $flexDirection }) => $flexDirection};
 `;
 
-const StyledRadio = styled(Radio)<{ iconColor: string }>`
+const StyledRadio = styled(Radio)<{ $iconColor: string }>`
   .RadioButtonIcon-root {
     .MuiSvgIcon-root {
       ${
-        ({ iconColor }) => iconColor && css`
-          fill: ${iconColor};
+        ({ $iconColor }) => $iconColor && css`
+          fill: ${$iconColor};
         `
       }
     }
@@ -83,7 +83,7 @@ export default function RadioWidget<T = any, S extends StrictRJSFSchema = RJSFSc
         onBlur={_onBlur}
         onFocus={_onFocus}
         aria-describedby={ariaDescribedByIds<T>(id)}
-        flexDirection={flexDirection}
+        $flexDirection={flexDirection}
       >
         {Array.isArray(enumOptions) &&
           enumOptions.map((option, index) => {
@@ -95,7 +95,7 @@ export default function RadioWidget<T = any, S extends StrictRJSFSchema = RJSFSc
                     name={id}
                     id={optionId(id, index)}
                     color={option.schema?.color}
-                    iconColor={option.schema?.color}
+                    $iconColor={option.schema?.color}
                     useRcTooltip
                     title={option.label}
                   />}

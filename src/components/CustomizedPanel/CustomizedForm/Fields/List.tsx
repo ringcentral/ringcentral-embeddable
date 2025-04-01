@@ -11,6 +11,7 @@ import {
   RcCard,
   RcCardContent,
   RcCardActionArea,
+  RcCardActions,
   RcTypography,
   styled,
   palette2,
@@ -124,6 +125,7 @@ const StyledCardFooter = styled.div`
   align-items: center;
   margin-top: 4px;
   height: 16px;
+  width: 100%;
   ${ellipsis}
 `;
 
@@ -134,7 +136,15 @@ const StyledCardAuthorAvatar = styled(RcAvatar)`
     line-height: 12px;
     font-size: 0.625rem;
   }
+`;
+
+const AuthorAvatarWrapper = styled.div`
   margin-right: 4px;
+  display: flex;
+`;
+
+const StyledCardContent = styled(RcCardContent)`
+  padding-bottom: 0;
 `;
 
 function CardItem({
@@ -142,6 +152,7 @@ function CardItem({
   disabled,
   onClick,
   width,
+  onClickAuthor,
 }) {
   const cardStyle: {
     backgroundColor?: string;
@@ -175,29 +186,34 @@ function CardItem({
         <RcCardActionArea
           onClick={onClick}
           disabled={disabled}
+          component="div"
         >
-          <RcCardContent>
+          <StyledCardContent>
             <CardTitle variant="body2">{item.title}</CardTitle>
             <StyledCardBody variant="caption1" color="neutral.f05">
               {item.description}
             </StyledCardBody>
+          </StyledCardContent>
+          <RcCardActions>
             <StyledCardFooter>
               {
                 item.authorName && (
-                  <StyledCardAuthorAvatar
-                    size="xxsmall"
-                    src={item.authorAvatar}
-                    title={item.authorName}
-                    color={avatarColor}
-                    useRcTooltip
-                  >
-                    {shortName}
-                  </StyledCardAuthorAvatar>
+                  <AuthorAvatarWrapper onClick={onClickAuthor}>
+                    <StyledCardAuthorAvatar
+                      size="xxsmall"
+                      src={item.authorAvatar}
+                      title={item.authorName}
+                      color={avatarColor}
+                      useRcTooltip
+                    >
+                      {shortName}
+                    </StyledCardAuthorAvatar>
+                  </AuthorAvatarWrapper>
                 )
               }
               <RcTypography variant="caption1" color="neutral.f05">{item.meta}</RcTypography>
             </StyledCardFooter>
-          </RcCardContent>
+          </RcCardActions>
         </RcCardActionArea>
       </StyledCard>
     </StyledCardWrapper>
@@ -216,6 +232,7 @@ export function List({
   disabled,
   formData,
   onChange,
+  onFocus,
 }) {
   const showIconAsAvatar = 
     typeof uiSchema['ui:showIconAsAvatar'] === 'undefined' ?
@@ -230,7 +247,7 @@ export function List({
     true :
     uiSchema['ui:showSelected'];
   const itemWidget = uiSchema['ui:itemWidget'];
-  const isCard = uiSchema['ui:itemType'] === 'card';
+  const isCard = uiSchema['ui:itemType'] === 'card' || itemWidget === 'card';
   const Item = isCard ? CardItem : ListItem;
   const Container = isCard ? StyledCardList : StyledList;
   return (
@@ -241,12 +258,16 @@ export function List({
           item={item}
           disabled={disabled}
           selected={showSelected && formData === item.const}
-          onClick={() => {
+          onClick={(e) => {
             onChange(item.const);
           }}
           showIconAsAvatar={showIconAsAvatar}
           showAsNavigation={showAsNavigation}
           width={uiSchema['ui:itemWidth']}
+          onClickAuthor={(e) => {
+            e.stopPropagation();
+            onFocus(`${item.const}-author`, '$$clicked');
+          }}
         />
       ))}
     </Container>
