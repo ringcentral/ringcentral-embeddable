@@ -5,6 +5,7 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
   name: 'WidgetAppsUI',
   deps: [
     'ThirdPartyService',
+    'Theme',
   ],
 })
 export class WidgetAppsUI extends RcUIModuleV2 {
@@ -27,10 +28,14 @@ export class WidgetAppsUI extends RcUIModuleV2 {
   getUIFunctions() {
     const {
       thirdPartyService,
+      theme,
     } = this._deps;
     return {
       onLoadApp: (data) => {
-        return thirdPartyService.loadAppPage(data);
+        return thirdPartyService.loadAppPage({
+          ...data,
+          theme: theme.themeType,
+        });
       },
       setDefaultAppId: (appId) => {
         thirdPartyService.setDefaultAppId(appId);

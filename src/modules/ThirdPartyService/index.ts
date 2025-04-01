@@ -1653,6 +1653,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       changedKeys = null,
       type,
       button = null,
+      theme = 'light',
     }) {
     if (!app || !app.id) {
       console.error('App id is required');
@@ -1666,9 +1667,11 @@ export default class ThirdPartyService extends RcModuleV2 {
       changedKeys?: any;
       refresh?: boolean;
       button?: any;
+      theme?: string;
     } = {
       contact,
       app,
+      theme,
     };
     if (type === 'inputChanged') {
       path = app.inputChangedPath;
