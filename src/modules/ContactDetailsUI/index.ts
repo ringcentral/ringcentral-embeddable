@@ -9,6 +9,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
     'RecentMessages',
     'DateTimeFormat',
     'ThirdPartyService',
+    'Theme',
   ]
 })
 export class ContactDetailsUI extends ContactDetailsUIBase {
@@ -58,6 +59,7 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       recentCalls,
       recentMessages,
       thirdPartyService,
+      theme,
     } = this._deps;
     return {
       ...super.getUIFunctions({ params }),
@@ -91,7 +93,10 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
         await thirdPartyService.openActivity(activity);
       },
       onLoadApp: (data) => {
-        return thirdPartyService.loadAppPage(data);
+        return thirdPartyService.loadAppPage({
+          ...data,
+          theme: theme.themeType,
+        });
       },
       setDefaultAppId: (appId) => {
         thirdPartyService.setDefaultAppId(appId);
