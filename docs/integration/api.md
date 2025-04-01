@@ -149,6 +149,21 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+### Send DTMF
+
+<!-- md:version 2.3.0 -->
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'dtmf',
+  callId: `call id`, // optional, current call id by default
+  options: {
+    dtmf: '101', // DTMF value
+  },
+}, '*');
+```
+
 ### Close/open current ringing page
 
 <!-- md:version 2.2.1 -->

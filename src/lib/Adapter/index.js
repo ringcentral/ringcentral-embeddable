@@ -567,11 +567,12 @@ class Adapter extends AdapterCore {
     });
   }
 
-  controlCall(action, id) {
+  controlCall(action, id, options = {}) {
     this._postMessage({
       type: 'rc-adapter-control-call',
       callAction: action,
       callId: id,
+      options,
     });
   }
 
