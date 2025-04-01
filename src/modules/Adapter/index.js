@@ -950,6 +950,9 @@ export default class Adapter extends AdapterModuleCore {
       case 'toggleRingingDialog':
         this._webphone.toggleMinimized(id || this._webphone.ringSessionId);
         break;
+      case 'dtmf':
+        this._webphone.sendDTMF(options.dtmf, id || this._webphone.activeSessionId);
+        break;
       default:
         break;
     }
