@@ -97,6 +97,7 @@ export default class Adapter extends AdapterModuleCore {
     enableFromNumberSetting,
     showMyLocationNumbers,
     disableInactiveTabCallEvent,
+    enableSmsSettingEvent,
     tabManager,
     callLogger,
     callLog,
@@ -178,6 +179,8 @@ export default class Adapter extends AdapterModuleCore {
     this._lastActiveCalls = [];
     this._callWith = null;
     this._ringoutMyLocation = null;
+    this._smsSenderNumber = null;
+    this._enableSmsSettingEvent = enableSmsSettingEvent;
     this._callLoggerAutoLogEnabled = null;
     this._conversationLoggerAutoLogEnabled = null;
     this._dialerDisabled = null;
@@ -291,6 +294,7 @@ export default class Adapter extends AdapterModuleCore {
     this._pushActiveCalls();
     this._checkRouteChanged();
     this._checkCallingSettingsChanged();
+    this._checkSmsSettingsChanged();
     this._checkAutoCallLoggerChanged();
     this._checkAutoConversationLoggerChanged();
     this._checkDialUIStatusChanged();
@@ -338,6 +342,11 @@ export default class Adapter extends AdapterModuleCore {
             this._updateCallingSettings(data);
           }
           break;
+        case 'rc-sms-settings-update': {
+          if (this._composeText.ready) {
+            this._updateSmsSettings(data);
+          }
+        }
         case 'rc-adapter-message-request': {
           this._handleRCAdapterMessageRequest(data);
           break;
@@ -703,13 +712,42 @@ export default class Adapter extends AdapterModuleCore {
       callingMode: callingMode && callingMode.replace('callingModes-', ''),
     };
     if (this._enableFromNumberSetting && this._callWith === callingOptions.browser) {
-      message.fromNumbers = this._fromNumbers.map(n => ({ phoneNumber: n.phoneNumber, usageType: n.usageType }));
+      message.fromNumbers = this._fromNumbers.map(n => ({
+        phoneNumber: n.phoneNumber,
+        usageType: n.usageType,
+        primary: n.primary,
+        label: n.label,
+      }));
     }
     if (this._showMyLocationNumbers) {
       message.myLocation = this._callingSettings.myLocation;
       message.myLocationNumbers = this._callingSettings.availableNumbersWithLabel;
     }
     this._postMessage(message);
+  }
+
+  _checkSmsSettingsChanged() {
+    if (!this._enableSmsSettingEvent) {
+      return;
+    }
+    if (!this._composeText.ready) {
+      return;
+    }
+    if (this._smsSenderNumber === this._composeText.senderNumber) {
+      return;
+    }
+    this._smsSenderNumber = this._composeText.senderNumber;
+    this._postMessage({
+      type: 'rc-sms-settings-notify',
+      senderNumber: this._smsSenderNumber,
+      senderNumbers: this._composeText.senderNumbersList.map((n) => ({
+        phoneNumber: n.phoneNumber,
+        usageType: n.usageType,
+        type: n.type,
+        features: n.features,
+        label: n.label,
+      })),
+    });
   }
 
   _checkDialUIStatusChanged() {
@@ -1209,6 +1247,15 @@ export default class Adapter extends AdapterModuleCore {
         this._callingSettings.updateFromNumber({
           phoneNumber: data.fromNumber,
         });
+      }
+    }
+  }
+
+  _updateSmsSettings(data) {
+    if (data.senderNumber) {
+      const isValid = this._composeText.senderNumbersList.find(p => p.phoneNumber === data.senderNumber);
+      if (isValid) {
+        this._composeText.updateSenderNumber(data.senderNumber);
       }
     }
   }

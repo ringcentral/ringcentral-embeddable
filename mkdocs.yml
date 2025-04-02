@@ -106,6 +106,7 @@ nav:
     - 'Running in multiple tabs': config/multiple-tabs.md
     - 'Setting your environment': config/environment.md
     - 'SMS templates': config/sms-template.md
+    - 'SMS settings': config/sms-settings.md
     - 'Quick access badge': config/badge.md
     - 'Audio': config/audio.md
 
