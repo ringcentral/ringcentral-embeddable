@@ -595,7 +595,7 @@ class Adapter extends AdapterCore {
     });
   }
 
-  updateSMSSetting({
+  updateSmsSetting({
     senderNumber,
   }) {
     this._postMessage({
