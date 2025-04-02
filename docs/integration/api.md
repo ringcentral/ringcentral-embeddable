@@ -173,6 +173,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-control-call',
   callAction: 'toggleRingingDialog',
 }, '*');
+```
 
 ## Embeddable widget
 
