@@ -170,6 +170,8 @@ import { CallingSettings } from '../CallingSettings';
 import { CallLog } from '../CallLog';
 import { CallLogger } from '../CallLogger';
 import { CallQueues } from '../CallQueues';
+import { CallQueuePresence } from '../CallQueuePresence';
+import { CallQueueSettingsUI } from '../CallQueueSettingsUI';
 import { CallDetailsUI } from '../CallDetailsUI';
 import { CompanyContacts } from '../CompanyContacts';
 import { ComposeText } from '../ComposeText';
@@ -293,6 +295,8 @@ import { WidgetAppsUI } from '../WidgetAppsUI';
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'CallQueues', useClass: CallQueues },
+    { provide: 'CallQueuePresence', useClass: CallQueuePresence },
+    { provide: 'CallQueueSettingsUI', useClass: CallQueueSettingsUI },
     { provide: 'Contacts', useClass: Contacts },
     { provide: 'ContactDetailsUI', useClass: ContactDetailsUI },
     { provide: 'ContactSearchUI', useClass: ContactSearchUI },

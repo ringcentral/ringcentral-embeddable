@@ -44,6 +44,7 @@ import MeetingScheduleButton from '../ThirdPartyMeetingScheduleButton';
 import ThirdPartySettingSectionPage from '../ThirdPartySettingSectionPage';
 import ThemeSettingPage from '../ThemeSettingPage';
 import CallingSettingsPage from '../CallingSettingsPage';
+import CallQueueSettingsPage from '../CallQueueSettingsPage';
 import ContactsPage from '../ContactsPage';
 import ContactDetailsPage from '../ContactDetailsPage';
 import CustomizedPage from '../CustomizedPage';
@@ -439,6 +440,10 @@ export default function App({
                     params={routerProps.params}
                   />
                 )}
+              />
+              <Route
+                path="/settings/callQueuePresence"
+                component={CallQueueSettingsPage}
               />
               <Route
                 path="/log/call/:callSessionId"

@@ -24,6 +24,7 @@ export default {
   shareIdea: "Share idea",
   reportIssue: "Report issue",
   advanced: 'Advanced',
+  callQueuePresenceSetting: 'Manage call queue presence',
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@
