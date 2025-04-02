@@ -1,9 +1,10 @@
 import { CallQueuePresence as CallQueuePresenceData } from '@rc-ex/core/definitions';
-import { computed } from '@ringcentral-integration/core';
+import { computed, track } from '@ringcentral-integration/core';
 
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
 import { Deps } from './CallQueuePresence.interface';
+import { trackEvents } from '../Analytics/trackEvents';
 
 @Module({
   name: 'CallQueuePresence',
@@ -60,6 +61,10 @@ export class CallQueuePresence extends DataFetcherV2Consumer<
     await this._deps.dataFetcherV2.fetchData(this._source);
   }
 
+  @track((that: CallQueuePresence, queueId: string, acceptCalls: boolean) => [
+    trackEvents.updateCallQueuePresence,
+    { acceptCalls },
+  ])
   async updatePresence(queueId: string, acceptCalls: boolean) {
     if (!this._deps.appFeatures.hasEditCallQueuePresencePermission) {
       console.error('No permission to update call queue presence');
