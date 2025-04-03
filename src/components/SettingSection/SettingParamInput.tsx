@@ -10,9 +10,12 @@ import {
   RcTypography,
   RcIcon,
   RcTooltip,
+  RcFormLabel,
+  RcFormGroup,
+  RcCheckbox,
   css,
 } from '@ringcentral/juno';
-import { styled } from '@ringcentral/juno/foundation';
+import { styled, palette2 } from '@ringcentral/juno/foundation';
 import { InfoBorder, Lock } from '@ringcentral/juno-icon';
 
 const StyledAlert = styled(RcAlert)`
@@ -72,6 +75,87 @@ const StyledSwitchLabel = styled(RcTypography)`
   font-size: 0.875rem;
 `;
 
+const CheckboxSelectWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledFormLabel = styled(RcFormLabel)`
+  font-size: 0.75rem;
+  color: ${palette2('neutral', 'f05')};
+`;
+
+const StyledFormGroup = styled(RcFormGroup)`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+function CheckboxSelect({
+  value,
+  label,
+  options,
+  onChange,
+  required,
+  className,
+  readOnly,
+  multiple,
+  disabled,
+  helperText,
+}) {
+  let currentValue = value;
+  if (multiple && !Array.isArray(value)) {
+    currentValue = [];
+  }
+  return (
+    <CheckboxSelectWrapper className={className}>
+      <StyledFormLabel required={required}>{label}</StyledFormLabel>
+      {helperText && (
+        <RcTypography variant='caption1' color="neutral.f04" component="span">
+          {helperText}
+        </RcTypography>
+      )}
+      <StyledFormGroup>
+        {options.map((option) => {
+          const checked = multiple ? currentValue.includes(option.id) : currentValue === option.id;
+          const itemDisabled = disabled || option.disabled;
+          return (
+            <RcCheckbox
+              formControlLabelProps={{
+                labelPlacement: 'end',
+              }}
+              label={option.name}
+              key={option.id}
+              id={option.id}
+              name={option.id}
+              checked={checked}
+              disabled={itemDisabled || readOnly}
+              onChange={(_, checked) => {
+                if (readOnly) {
+                  return;
+                }
+                if (multiple) {
+                  if (checked) {
+                    onChange([...currentValue, option.id]);
+                  } else {
+                    onChange(currentValue.filter((v) => v !== option.id));
+                  }
+                  return;
+                }
+                if (checked) {
+                  onChange(option.id);
+                } else {
+                  onChange(null);
+                }
+              }}
+            />
+          )
+        })}
+      </StyledFormGroup>
+    </CheckboxSelectWrapper>
+  );
+}
 export function SettingParamInput({
   setting,
   className,
@@ -177,6 +261,22 @@ export function SettingParamInput({
     );
   }
   if (setting.type === 'option') {
+    if (setting.checkbox) {
+      return (
+        <CheckboxSelect
+          label={label}
+          value={setting.value}
+          options={setting.options}
+          onChange={onChange}
+          required={setting.required}
+          className={className}
+          readOnly={setting.readOnly}
+          multiple={setting.multiple}
+          disabled={setting.disabled}
+          helperText={setting.helper}
+        />
+      );
+    }
     return (
       <StyledSelect
         label={label}
@@ -184,6 +284,7 @@ export function SettingParamInput({
         fullWidth
         className={className}
         placeholder={setting.placeholder}
+        multiple={setting.multiple}
         onChange={(e) => {
           if (setting.readOnly) {
             return;
