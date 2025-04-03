@@ -20,7 +20,9 @@ export default {
   quickAccess: "Configuración de acceso rápido",
   report: "Informe de análisis",
   shareIdea: "Compartir idea",
-  reportIssue: "Comunicar problema"
+  reportIssue: "Comunicar problema",
+  status: "Estado",
+  acceptQueueCalls: "Aceptar llamadas en cola"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

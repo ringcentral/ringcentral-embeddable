@@ -100,6 +100,20 @@ export class AppFeatures extends AppFeaturesBase {
     return this._deps.extensionFeatures.features?.SMSSending?.available ?? false;
   }
 
+  get hasReadCallQueuePresencePermission() {
+    return (
+      this.appScopes.indexOf('ReadPresence') > -1 &&
+      (this._deps.extensionFeatures.features?.ReadPresenceStatus?.available ?? false)
+    );
+  }
+
+  get hasEditCallQueuePresencePermission() {
+    return (
+      this.appScopes.indexOf('EditPresence') > -1 &&
+      (this._deps.extensionFeatures.features?.EditPresenceStatus?.available ?? false)
+    );
+  }
+
   get hasSmartNotePermission() {
     return (
       this.config.SmartNote &&

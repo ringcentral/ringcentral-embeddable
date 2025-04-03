@@ -18,7 +18,7 @@ import { Deps } from './CallQueue.interface';
     'Client',
     'DataFetcherV2',
     'ExtensionFeatures',
-    { dep: 'CallerIdOptions', optional: true }
+    { dep: 'CallQueuesOptions', optional: true }
   ],
 })
 export class CallQueues extends DataFetcherV2Consumer<

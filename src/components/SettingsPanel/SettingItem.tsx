@@ -39,6 +39,7 @@ export const StyledSettingItem = styled(RcListItem)<{ $noBorder?: boolean }>`
 
 interface NewLinkLineItemProps extends LinkLineItemProps {
   description?: string;
+  className?: string;
 }
 
 export const LinkLineItem: FunctionComponent<NewLinkLineItemProps> = ({
@@ -50,6 +51,7 @@ export const LinkLineItem: FunctionComponent<NewLinkLineItemProps> = ({
   dataSign = undefined,
   pendoSignName = undefined,
   description = undefined,
+  className = undefined,
 }) => {
   if (!show) {
     return null;
@@ -59,6 +61,7 @@ export const LinkLineItem: FunctionComponent<NewLinkLineItemProps> = ({
       onClick={onClick}
       data-sign={dataSign}
       data-pendo={pendoSignName}
+      className={className}
     >
       <RcListItemText
         primary={customTitle || i18n.getString(name, currentLocale)}

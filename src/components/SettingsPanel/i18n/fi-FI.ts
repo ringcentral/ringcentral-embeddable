@@ -21,7 +21,9 @@ export default {
   quickAccess: "Pikakäyttöasetukset",
   report: "Analytics-raportti",
   shareIdea: "Jaa idea",
-  reportIssue: "Ilmoita ongelmasta"
+  reportIssue: "Ilmoita ongelmasta",
+  status: "Tila",
+  acceptQueueCalls: "Hyväksy jonon puhelut"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

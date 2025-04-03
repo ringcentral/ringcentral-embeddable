@@ -21,7 +21,9 @@ export default {
   quickAccess: "Einstellung für Schnellzugriff",
   report: "Analysebericht",
   shareIdea: "Idee teilen",
-  reportIssue: "Problem melden"
+  reportIssue: "Problem melden",
+  status: "Status",
+  acceptQueueCalls: "Warteschlangenanrufe annehmen"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

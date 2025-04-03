@@ -19,9 +19,9 @@ import React, { useState } from 'react';
 import { getPresenceStatusName } from '@ringcentral-integration/widgets/lib/getPresenceStatusName';
 import { usePresenceItems } from '@ringcentral-integration/widgets/components/PresenceDropdown/usePresenceItems';
 
-import i18n from '@ringcentral-integration/widgets/components/PresenceSettingSection/i18n';
+import i18n from './i18n';
 
-import { SwitchLineItem, StyledSettingItem } from './SettingItem';
+import { SwitchLineItem, StyledSettingItem, LinkLineItem } from './SettingItem';
 
 const StyledList = styled(RcList)`
   background-color: ${palette2('neutral', 'elevation')};
@@ -52,6 +52,8 @@ type PresenceSettingSectionProps = {
   setInvisible: (...args: any[]) => any;
   toggleAcceptCallQueueCalls: (...args: any[]) => any;
   showPresenceSettings: boolean;
+  gotoCallQueuePresenceSettings: () => void;
+  showCallQueuePresenceSettings: boolean;
 };
 
 const StyledPresenceIcon = styled(RcPresence)`
@@ -69,6 +71,10 @@ const StyledCallQueueSwitch = styled(SwitchLineItem)`
   min-height: 40px;
 `;
 
+const StyledLinkLineItem = styled(LinkLineItem)`
+  min-height: 40px;
+`;
+
 export const PresenceSettingSection: FunctionComponent<
   PresenceSettingSectionProps
 > = ({
@@ -82,6 +88,8 @@ export const PresenceSettingSection: FunctionComponent<
   setBusy,
   setDoNotDisturb,
   setInvisible,
+  gotoCallQueuePresenceSettings,
+  showCallQueuePresenceSettings,
 }) => {
   const [showSelects, setShowSelects] = useState(showPresenceSettings);
 
@@ -103,6 +111,23 @@ export const PresenceSettingSection: FunctionComponent<
       onChange={onCallQueueChange}
     />
   );
+
+  const callQueuePresenceSetting = (
+    <StyledLinkLineItem
+      show={
+        showCallQueuePresenceSettings &&
+        isCallQueueMember && (
+          dndStatusProp === dndStatus.takeAllCalls ||
+          dndStatusProp === dndStatus.takeDepartmentCallsOnly
+        )
+      }
+      currentLocale={currentLocale}
+      dataSign="callQueuePresenceSetting"
+      name="callQueuePresenceSetting"
+      onClick={gotoCallQueuePresenceSettings}
+    />
+  );
+
   const currentStatus = getPresenceStatusName(
     userStatus as any,
     dndStatusProp as any,
@@ -157,6 +182,7 @@ export const PresenceSettingSection: FunctionComponent<
           <StyledList>
             {presenceElements}
             {acceptQueueCalls}
+            {callQueuePresenceSetting}
           </StyledList>
         ) : (
           null

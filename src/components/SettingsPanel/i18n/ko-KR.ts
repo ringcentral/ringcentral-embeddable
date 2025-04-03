@@ -21,7 +21,9 @@ export default {
   quickAccess: "빠른 액세스 설정",
   report: "분석 보고서",
   shareIdea: "아이디어 공유",
-  reportIssue: "문제 신고"
+  reportIssue: "문제 신고",
+  status: "상태",
+  acceptQueueCalls: "통화 큐 전화 받기"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

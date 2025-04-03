@@ -21,7 +21,9 @@ export default {
   quickAccess: "Impostazione accesso rapido",
   report: "Rapporto analisi",
   shareIdea: "Condividi idea",
-  reportIssue: "Segnala problema"
+  reportIssue: "Segnala problema",
+  status: "Stato",
+  acceptQueueCalls: "Accetta chiamate in coda"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@
