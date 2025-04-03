@@ -38,6 +38,7 @@ export class CallQueuePresence extends DataFetcherV2Consumer<
           .get('/restapi/v1.0/account/~/extension/~/call-queue-presence');
         return response.json();
       },
+      readyCheckFunction: () => this._deps.appFeatures.ready,
     });
     this._deps.dataFetcherV2.register(this._source);
   }
