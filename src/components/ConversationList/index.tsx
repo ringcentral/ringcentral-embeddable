@@ -1,7 +1,7 @@
 import type { FunctionComponent } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { styled } from '@ringcentral/juno/foundation';
-import { RcList } from '@ringcentral/juno';
+import { Virtuoso } from '@ringcentral/juno';
 import i18n from '@ringcentral-integration/widgets/components/ConversationList/i18n';
 
 import type { MessageItemProps } from '../ConversationItem';
@@ -60,6 +60,19 @@ const Root = styled.div`
   transform: translateZ(0);
 `;
 
+const ListFooter = ({
+  context: { loadingNextPage, currentLocale }
+}) => {
+  if (loadingNextPage) {
+    return (
+      <Loading>
+        {i18n.getString('loading', currentLocale)}
+      </Loading>
+    );
+  }
+  return null;
+}
+
 const ConversationList: FunctionComponent<ConversationListProps> = ({
   className = undefined,
   currentLocale,
@@ -87,79 +100,74 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
   rcAccessToken,
   ...childProps
 }: ConversationListProps) => {
-  const scrollTopRef = useRef(0);
   const messagesListBodyRef = useRef(null);
 
   useEffect(() => {
     if (messagesListBodyRef.current) {
-      messagesListBodyRef.current.scrollTop = 0;
+      messagesListBodyRef.current.scrollToIndex({
+        index: 0,
+        align: 'start',
+        behavior: 'smooth',
+      });
     }
   }, [typeFilter]);
 
   let content;
   if (conversations && conversations.length) {
     content = (
-      <RcList>
-        {
-          conversations.map((item) => (
-            <ConversationItem
-              {...childProps}
-              showContactDisplayPlaceholder={showContactDisplayPlaceholder}
-              dateTimeFormatter={dateTimeFormatter}
-              formatPhone={formatPhone}
-              conversation={item}
-              currentLocale={currentLocale}
-              currentSiteCode={currentSiteCode}
-              isMultipleSiteEnabled={isMultipleSiteEnabled}
-              key={item.id}
-              disableLinks={disableLinks}
-              disableCallButton={disableCallButton}
-              showLogButton={showLogButton}
-              logButtonTitle={logButtonTitle}
-              sourceIcons={sourceIcons}
-              phoneTypeRenderer={phoneTypeRenderer}
-              phoneSourceNameRenderer={phoneSourceNameRenderer}
-              showGroupNumberName={showGroupNumberName}
-              enableCDC={enableCDC}
-              openMessageDetails={openMessageDetails}
-              rcAccessToken={rcAccessToken}
-            />
-          ))
-        }
-      </RcList>
+      <Virtuoso
+        ref={messagesListBodyRef}
+        style={{
+          height: '100%',
+          width: '100%',
+        }}
+        components={{
+          Footer: ListFooter,
+        }}
+        context={{
+          loadingNextPage,
+          currentLocale,
+        }}
+        totalCount={conversations.length}
+        data={conversations}
+        itemContent={(index, item) => (
+          <ConversationItem
+            {...childProps}
+            showContactDisplayPlaceholder={showContactDisplayPlaceholder}
+            dateTimeFormatter={dateTimeFormatter}
+            formatPhone={formatPhone}
+            conversation={item}
+            currentLocale={currentLocale}
+            currentSiteCode={currentSiteCode}
+            isMultipleSiteEnabled={isMultipleSiteEnabled}
+            key={item.id}
+            disableLinks={disableLinks}
+            disableCallButton={disableCallButton}
+            showLogButton={showLogButton}
+            logButtonTitle={logButtonTitle}
+            sourceIcons={sourceIcons}
+            phoneTypeRenderer={phoneTypeRenderer}
+            phoneSourceNameRenderer={phoneSourceNameRenderer}
+            showGroupNumberName={showGroupNumberName}
+            enableCDC={enableCDC}
+            openMessageDetails={openMessageDetails}
+            rcAccessToken={rcAccessToken}
+          />
+        )}
+        endReached={() => {
+          if (typeof loadNextPage === 'function') {
+            loadNextPage();
+          }
+        }}
+      />
     );
   }
-  const loading = loadingNextPage ? (
-    <Loading>
-      {i18n.getString('loading', currentLocale)}
-    </Loading>
-  ) : null;
   return (
     <Root
       className={className}
       data-sign="conversationList"
-      onScroll={() => {
-        if (!messagesListBodyRef.current) {
-          return;
-        }
-        const totalScrollHeight = messagesListBodyRef.current.scrollHeight;
-        const { clientHeight } = messagesListBodyRef.current;
-        const currentScrollTop = messagesListBodyRef.current.scrollTop;
-        // load next page if scroll near buttom
-        if (
-          totalScrollHeight - scrollTopRef.current > clientHeight + 10 &&
-          totalScrollHeight - currentScrollTop <= clientHeight + 10
-        ) {
-          if (typeof loadNextPage === 'function') {
-            loadNextPage();
-          }
-        }
-        scrollTopRef.current = currentScrollTop;
-      }}
-      ref={messagesListBodyRef}
     >
       {content}
-      {loading}
     </Root>
   );
 }
