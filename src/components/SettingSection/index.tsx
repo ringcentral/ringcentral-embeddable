@@ -41,7 +41,8 @@ function allRequiredFilled(items) {
       item.required && (
         item.value === '' ||
         item.value === null ||
-        item.value === undefined
+        item.value === undefined ||
+        (item.multiple && item.value.length === 0)
       )
     ) {
       allFilled = false;

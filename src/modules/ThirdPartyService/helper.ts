@@ -23,7 +23,17 @@ function checkSettingSectionItem(item) {
     if (!item.options || !Array.isArray(item.options)) {
       return false;
     }
-    if (item.value && !item.options.find((option) => option.id === item.value)) {
+    if (item.multiple) {
+      if (!Array.isArray(item.value)) {
+        return false;
+      }
+      if (item.value.some((valueItem) => {
+        return !item.options.find((option) => option.id === valueItem);
+      })) {
+        return false;
+      }
+    }
+    if (!item.multiple && item.value && !item.options.find((option) => option.id === item.value)) {
       return false;
     }
     for (const option of item.options) {
