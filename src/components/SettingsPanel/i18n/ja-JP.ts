@@ -21,7 +21,9 @@ export default {
   quickAccess: "クイックアクセスの設定",
   report: "分析レポート",
   shareIdea: "アイデアを共有",
-  reportIssue: "問題を報告"
+  reportIssue: "問題を報告",
+  status: "ステータス",
+  acceptQueueCalls: "通話キューの通話を承諾"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

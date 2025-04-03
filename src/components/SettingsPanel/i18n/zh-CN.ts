@@ -23,6 +23,8 @@ export default {
   shareIdea: "分享想法",
   reportIssue: "报告问题",
   advanced: '高级',
+  status: "状态",
+  acceptQueueCalls: "接听通话队列呼叫"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

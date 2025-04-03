@@ -27,4 +27,6 @@ export default {
   aiAssistant: 'AI Assistant (Beta)',
   autoStartAiAssistant: 'Auto-start AI Assistant (Beta)',
   callQueuePresenceSetting: 'Manage call queue presence',
+  status: 'Status',
+  acceptQueueCalls: 'Accept calls from call queue',
 };

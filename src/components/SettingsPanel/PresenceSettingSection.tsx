@@ -19,7 +19,7 @@ import React, { useState } from 'react';
 import { getPresenceStatusName } from '@ringcentral-integration/widgets/lib/getPresenceStatusName';
 import { usePresenceItems } from '@ringcentral-integration/widgets/components/PresenceDropdown/usePresenceItems';
 
-import i18n from '@ringcentral-integration/widgets/components/PresenceSettingSection/i18n';
+import i18n from './i18n';
 
 import { SwitchLineItem, StyledSettingItem, LinkLineItem } from './SettingItem';
 
