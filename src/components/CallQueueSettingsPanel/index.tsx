@@ -8,6 +8,8 @@ import {
   RcSwitch,
   RcTooltip,
   RcAvatar,
+  RcTypography,
+  styled,
 } from '@ringcentral/juno';
 import { CallQueue } from '@ringcentral/juno-icon';
 import { BackHeaderView } from '../BackHeaderView';
@@ -59,6 +61,10 @@ function CallQueuePresenceItem({
   );
 }
 
+const StyledText = styled(RcTypography)`
+  padding: 32px 16px;
+`;
+
 export function CallQueueSettingsPanel({
   onBackButtonClick,
   presences,
@@ -69,27 +75,35 @@ export function CallQueueSettingsPanel({
     sync();
   }, []);
 
+  const content = presences && presences.length > 0 ? (
+    <Virtuoso
+      style={{
+        height: '100%',
+        width: '100%',
+      }}
+      totalCount={presences.length}
+      data={presences}
+      itemContent={(index, presence) => (
+        <CallQueuePresenceItem
+          presence={presence}
+          updatePresence={
+            (acceptCalls: boolean) => updatePresence(presence.callQueue.id, acceptCalls)
+          }
+        />
+      )}
+    />
+  ) : (
+    <StyledText variant="body1" color="neutral.f06">
+      You are not a member of any call queues.
+    </StyledText>
+  );
+
   return (
     <BackHeaderView
       onBack={onBackButtonClick}
       title="Manage call queue presence"
     >
-      <Virtuoso
-        style={{
-          height: '100%',
-          width: '100%',
-        }}
-        totalCount={presences.length}
-        data={presences}
-        itemContent={(index, presence) => (
-          <CallQueuePresenceItem
-            presence={presence}
-            updatePresence={
-              (acceptCalls: boolean) => updatePresence(presence.callQueue.id, acceptCalls)
-            }
-          />
-        )}
-      />
+      {content}
     </BackHeaderView>
   );
 }
