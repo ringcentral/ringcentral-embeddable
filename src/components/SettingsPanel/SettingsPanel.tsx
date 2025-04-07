@@ -97,6 +97,8 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   smartNoteAutoStartEnabledReadOnly?: boolean;
   smartNoteEnabledReadOnlyReason?: string;
   smartNoteAutoStartEnabledReadOnlyReason?: string;
+  gotoCallQueuePresenceSettings: () => void;
+  showCallQueuePresenceSettings: boolean;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -361,6 +363,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   smartNoteAutoStartEnabledReadOnlyReason = '',
   onSmartNoteToggle,
   onSmartNoteAutoStartToggle,
+  gotoCallQueuePresenceSettings,
+  showCallQueuePresenceSettings,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'group',
@@ -581,6 +585,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
                 setInvisible={setInvisible}
                 toggleAcceptCallQueueCalls={toggleAcceptCallQueueCalls}
                 showPresenceSettings={openPresenceSettings}
+                showCallQueuePresenceSettings={showCallQueuePresenceSettings}
+                gotoCallQueuePresenceSettings={gotoCallQueuePresenceSettings}
               />
             );
           }

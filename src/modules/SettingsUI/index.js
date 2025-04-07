@@ -73,6 +73,7 @@ export class SettingsUI extends BaseSettingsUI {
       smartNoteAutoStartEnabled: smartNotes.autoStartSmartNote,
       smartNoteAutoStartEnabledReadOnly: smartNotes.autoStartSmartNoteReadOnly,
       smartNoteAutoStartEnabledReadOnlyReason: smartNotes.autoStartSmartNoteReadOnlyReason,
+      showCallQueuePresenceSettings: appFeatures.hasReadCallQueuePresencePermission && appFeatures.hasEditCallQueuePresencePermission,
     };
   }
 
@@ -111,6 +112,9 @@ export class SettingsUI extends BaseSettingsUI {
       },
       onSmartNoteAutoStartToggle: () => {
         smartNotes.toggleAutoStartSmartNote();
+      },
+      gotoCallQueuePresenceSettings: () => {
+        routerInteraction.push('/settings/callQueuePresence');
       },
     }
   }

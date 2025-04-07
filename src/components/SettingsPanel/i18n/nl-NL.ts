@@ -21,7 +21,9 @@ export default {
   quickAccess: "Instelling snelle toegang",
   report: "Analyserapport",
   shareIdea: "Een idee delen",
-  reportIssue: "Probleem melden"
+  reportIssue: "Probleem melden",
+  status: "Status",
+  acceptQueueCalls: "Wachtrij-oproepen accepteren"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

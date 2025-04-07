@@ -21,7 +21,9 @@ export default {
   quickAccess: "快速存取設定",
   report: "分析報告",
   shareIdea: "分享意見",
-  reportIssue: "回報問題"
+  reportIssue: "回報問題",
+  status: "狀態",
+  acceptQueueCalls: "接受通話佇列電話"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

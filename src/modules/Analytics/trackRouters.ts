@@ -42,6 +42,10 @@ export const trackRouters = trackRoutersBase
       router: '/settings/ringtone',
     },
     {
+      eventPostfix: 'Call queue presence',
+      router: '/settings/callQueuePresence',
+    },
+    {
       eventPostfix: 'Conference Dialer',
       router: '/conferenceCall/dialer',
     },

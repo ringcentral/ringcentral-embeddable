@@ -24,6 +24,9 @@ export default {
   shareIdea: "Share idea",
   reportIssue: "Report issue",
   advanced: 'Advanced',
+  callQueuePresenceSetting: 'Manage call queue presence',
+  status: "Status",
+  acceptQueueCalls: "Accept calls from call queue"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

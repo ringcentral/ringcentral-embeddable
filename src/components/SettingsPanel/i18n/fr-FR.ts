@@ -21,7 +21,9 @@ export default {
   quickAccess: "Paramètre d’accès rapide",
   report: "Rapport d’analyses",
   shareIdea: "Partager une idée",
-  reportIssue: "Signaler un problème"
+  reportIssue: "Signaler un problème",
+  status: "Status",
+  acceptQueueCalls: "Accepter les appels en file d’attente"
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

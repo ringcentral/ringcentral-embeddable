@@ -23,4 +23,5 @@ export const trackEvents = ObjectMap.fromObject({
   unmuteInCallControl: 'Call Control: Unmute/Call control page',
   holdInCallControl: 'Call Control: Hold/Call control page',
   unholdInCallControl: 'Call Control: Unhold/Call control page',
+  updateCallQueuePresence: 'Update call queue presence',
 } as const);
