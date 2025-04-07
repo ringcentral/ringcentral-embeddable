@@ -1,7 +1,7 @@
 import type { FunctionComponent } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { styled } from '@ringcentral/juno/foundation';
-import { Virtuoso } from '@ringcentral/juno';
+import { Virtuoso, RcTypography } from '@ringcentral/juno';
 import i18n from '@ringcentral-integration/widgets/components/ConversationList/i18n';
 
 import type { MessageItemProps } from '../ConversationItem';
@@ -44,7 +44,7 @@ export type ConversationListProps = {
   rcAccessToken?: string;
 } & Omit<MessageItemProps, 'conversation'>;
 
-const Loading = styled.div`
+const Loading = styled(RcTypography)`
   text-align: center;
   line-height: 40px;
   font-size: 14px;
@@ -65,7 +65,7 @@ const ListFooter = ({
 }) => {
   if (loadingNextPage) {
     return (
-      <Loading>
+      <Loading variant="body1" color="neutral.f05">
         {i18n.getString('loading', currentLocale)}
       </Loading>
     );
