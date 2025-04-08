@@ -103,6 +103,7 @@ export class AppFeatures extends AppFeaturesBase {
   get hasReadCallQueuePresencePermission() {
     return (
       this.appScopes.indexOf('ReadPresence') > -1 &&
+      (this._deps.extensionFeatures.features?.CallQueuePresence?.available ?? false) &&
       (this._deps.extensionFeatures.features?.ReadPresenceStatus?.available ?? false)
     );
   }
@@ -110,6 +111,7 @@ export class AppFeatures extends AppFeaturesBase {
   get hasEditCallQueuePresencePermission() {
     return (
       this.appScopes.indexOf('EditPresence') > -1 &&
+      (this._deps.extensionFeatures.features?.EditCallQueuePresence?.available ?? false) &&
       (this._deps.extensionFeatures.features?.EditPresenceStatus?.available ?? false)
     );
   }
