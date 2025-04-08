@@ -5,10 +5,10 @@ hide:
 
 # Embed a phone into any webpage with RingCentral Embeddable
 
-!!! example "Introducing the RingCentral Embeddable 2.0"
-    We are excited to announce and make available the next generation of the RingCentral Embeddable product. In addition to a new design and user interface, Embeddable 2.0 comes with new features including call recording playback and a new SMS/messaging inbox. Developers will enjoy new ways to extend the user interface without having to know or code HTML and CSS. 
+!!! tip "Are you integrating with a CRM?"
+    Are you looking to log phone calls, SMS conversations and all other communications into a remote system, like a CRM or proprietary system? Check out App Cnnect! Built on top of Embeddable, App Connect makes building a full-featured integration with a CRM much, much easier. 
 	
-	[Learn more](2.x.md){.md-button .md-button--primary}
+	[Learn more](https://ringcentral.github.io/rc-unified-crm-extension/){.md-button .md-button--primary}
 
 RingCentral Embeddable provides a ready-to-use, fully-functional web phone that can be embedded into any web site. Embeddable is a javascript wrapper around the foundational [RingCentral Widgets Library](https://github.com/ringcentral/ringcentral-js-widgets). By adding a few lines of javascript, anyone can embed a phone into any web page in seconds. 
 
