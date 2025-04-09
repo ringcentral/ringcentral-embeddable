@@ -94,7 +94,7 @@ export class Webphone extends WebphoneBase {
           this._removedWebphoneAtUnload = true;
           setTimeout(() => {
             this._removedWebphoneAtUnload = false;
-          }, 8000);
+          }, 15000);
         }
       });
     }
@@ -103,9 +103,6 @@ export class Webphone extends WebphoneBase {
   override onInitOnce() {
     super.onInitOnce();
     if (this._multipleTabsSupport) {
-      if (!this.isWebphoneActiveTab) {
-        this._syncStateFromStorage();
-      }
       this._initMultipleTabsStateSyncing();
       watch(
         this,
@@ -152,8 +149,9 @@ export class Webphone extends WebphoneBase {
 
   _initMultipleTabsStateSyncing() {
     window.addEventListener('storage', (e) => {
-      if (e.key === WEBPHONE_STATE_SYNC_KEY) {
-        this._syncStateFromStorage();
+      if (e.key === WEBPHONE_STATE_SYNC_KEY && e.newValue) {
+        const newState = JSON.parse(e.newValue);
+        this._saveNewState(newState);
       }
     });
   }
@@ -175,22 +173,72 @@ export class Webphone extends WebphoneBase {
     );
   }
 
+  async _syncNewStateFromMainTab() {
+    const latestState = await this._getLatestState();
+    this._saveNewState(latestState);
+  }
+
+  @proxify
+  async _getLatestState() {
+    return {
+      activeSessionId: this.activeSessionId,
+      ringSessionId: this.ringSessionId,
+      lastEndedSessions: this.lastEndedSessions,
+      sessions: this.sessions,
+      connectionStatus: this.connectionStatus,
+      connectRetryCounts: this.connectRetryCounts,
+      errorCode: this.errorCode,
+      statusCode: this.statusCode,
+      device: this.device,
+    };
+  }
+
+  _resetStateAtUnloaded() {
+    localStorage.setItem(
+      WEBPHONE_STATE_SYNC_KEY,
+      JSON.stringify({
+        activeSessionId: null,
+        ringSessionId: null,
+        lastEndedSessions: [],
+        sessions: [],
+        device: null,
+        errorCode: null,
+        statusCode: null,
+      }),
+    );
+    this.sessions.forEach((session) => {
+      this._multipleTabsTransport.broadcast({
+        event: EVENTS.callEnd,
+        message: [
+          session,
+          this.activeSession,
+          this.ringSession,
+        ],
+      });
+    });
+  }
+
   @action
-  _syncStateFromStorage() {
-    const rawData = localStorage.getItem(WEBPHONE_STATE_SYNC_KEY);
-    if (!rawData) {
-      return;
-    }
-    const data = JSON.parse(rawData);
+  _saveNewState(data) {
     this.activeSessionId = data.activeSessionId;
     this.ringSessionId = data.ringSessionId;
     this.lastEndedSessions = data.lastEndedSessions;
     this.sessions = data.sessions;
-    this.connectionStatus = data.connectionStatus;
-    this.connectRetryCounts = data.connectRetryCounts;
-    this.errorCode = data.errorCode;
-    this.statusCode = data.statusCode;
-    this.device = data.device;
+    if (typeof data.connectionStatus !== 'undefined') {
+      this.connectionStatus = data.connectionStatus;
+    }
+    if (typeof data.connectRetryCounts !== 'undefined') {
+      this.connectRetryCounts = data.connectRetryCounts;
+    }
+    if (typeof data.errorCode !== 'undefined') {
+      this.errorCode = data.errorCode;
+    }
+    if (typeof data.statusCode !== 'undefined') {
+      this.statusCode = data.statusCode;
+    }
+    if (typeof data.device !== 'undefined') {
+      this.device = data.device;
+    }
   }
 
   // override normalizeSession for call queue name
@@ -379,6 +427,7 @@ export class Webphone extends WebphoneBase {
               args: [newOptions],
             }
           });
+          await this._syncNewStateFromMainTab();
           return;
         } catch (e) {
           console.error(new Error('multipleTabs no response'));
@@ -427,8 +476,10 @@ export class Webphone extends WebphoneBase {
         this._emitActiveWebphoneChangedEvent();
         return;
       }
+      // When page is unloaded
       localStorage.setItem(this._activeWebphoneKey, '-1');
       localStorage.removeItem(this._activeWebphoneKey);
+      this._resetStateAtUnloaded();
       this._enableProxify();
       this._emitActiveWebphoneChangedEvent();
       return;
