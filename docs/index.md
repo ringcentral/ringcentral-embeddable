@@ -6,7 +6,7 @@ hide:
 # Embed a phone into any webpage with RingCentral Embeddable
 
 !!! tip "Are you integrating with a CRM?"
-    Are you looking to log phone calls, SMS conversations and all other communications into a remote system, like a CRM or proprietary system? Check out App Cnnect! Built on top of Embeddable, App Connect makes building a full-featured integration with a CRM much, much easier. 
+    Are you looking to log phone calls, SMS conversations and all other communications into a remote system, like a CRM or proprietary system? Check out App Connect! Built on top of Embeddable, App Connect makes building a full-featured integration with a CRM much, much easier. 
 	
 	[Learn more](https://ringcentral.github.io/rc-unified-crm-extension/){.md-button .md-button--primary}
 
