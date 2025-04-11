@@ -433,6 +433,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       callLoggerAutoSettingReadOnly: service.callLoggerAutoSettingReadOnly,
       callLoggerAutoSettingReadOnlyReason: service.callLoggerAutoSettingReadOnlyReason,
       callLoggerAutoSettingReadOnlyValue: service.callLoggerAutoSettingReadOnlyValue,
+      callLoggerAutoLogSettingHidden: service.callLoggerAutoLogSettingHidden,
       callLoggerAutoSettingWarning: service.callLoggerAutoSettingWarning,
       callLoggerAutoLogOnCallSync: service.callLoggerAutoLogOnCallSync, // auto log for calls happened when the app is not opened
       callLoggerHideEditLogButton: service.callLoggerHideEditLogButton,
@@ -483,6 +484,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       messageLoggerAutoSettingReadOnly: service.messageLoggerAutoSettingReadOnly,
       messageLoggerAutoSettingReadOnlyReason: service.messageLoggerAutoSettingReadOnlyReason,
       messageLoggerAutoSettingReadOnlyValue: service.messageLoggerAutoSettingReadOnlyValue,
+      messageLoggerAutoSettingHidden: service.messageLoggerAutoSettingHidden,
     });
   }
 
@@ -1204,6 +1206,10 @@ export default class ThirdPartyService extends RcModuleV2 {
   @state
   callLoggerHideEditLogButton = false;
 
+  @globalStorage
+  @state
+  callLoggerAutoLogSettingHidden = false;
+
   @action
   _onRegisterCallLogger({
     callLoggerTitle,
@@ -1213,6 +1219,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     callLoggerAutoSettingReadOnly,
     callLoggerAutoSettingReadOnlyReason,
     callLoggerAutoSettingReadOnlyValue,
+    callLoggerAutoLogSettingHidden = false,
     callLoggerAutoSettingWarning = '',
     callLoggerAutoLogOnCallSync,
     callLoggerHideEditLogButton = false,
@@ -1236,6 +1243,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.callLoggerRegistered = true;
     this.callLoggerAutoLogOnCallSync = !!callLoggerAutoLogOnCallSync;
     this.callLoggerHideEditLogButton = !!callLoggerHideEditLogButton;
+    this.callLoggerAutoLogSettingHidden = !!callLoggerAutoLogSettingHidden;
   }
 
   @globalStorage
@@ -1266,6 +1274,10 @@ export default class ThirdPartyService extends RcModuleV2 {
   @state
   messageLoggerAutoSettingReadOnlyValue: null | boolean = null;
 
+  @globalStorage
+  @state
+  messageLoggerAutoSettingHidden = false;
+
   _onRegisterMessageLogger({
     messageLoggerTitle,
     messageLoggerAutoSettingLabel,
@@ -1273,6 +1285,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     messageLoggerAutoSettingReadOnly,
     messageLoggerAutoSettingReadOnlyReason,
     messageLoggerAutoSettingReadOnlyValue,
+    messageLoggerAutoSettingHidden,
   }) {
     if (messageLoggerTitle) {
       this.messageLoggerTitle = messageLoggerTitle;
@@ -1288,6 +1301,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     if (this.messageLoggerAutoSettingReadOnly && typeof messageLoggerAutoSettingReadOnlyValue === 'boolean') {
       this.messageLoggerAutoSettingReadOnlyValue = messageLoggerAutoSettingReadOnlyValue;
     }
+    this.messageLoggerAutoSettingHidden = !!messageLoggerAutoSettingHidden;
     this.messageLoggerRegistered = true;
   }
 
