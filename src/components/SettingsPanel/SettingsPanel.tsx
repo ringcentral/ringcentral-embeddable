@@ -157,6 +157,7 @@ function ItemRenderer({ item, currentLocale }: {
         readOnly={item.readOnly}
         readOnlyReason={item.readOnlyReason}
         description={item.description}
+        warning={item.warning}
       />
     )
   }
@@ -291,6 +292,7 @@ function getSettingItemFromThirdPartyItem({
       readOnly: item.readOnly,
       readOnlyReason: item.readOnlyReason,
       description: item.description,
+      warning: item.warning,
     };
   }
   if (item.type === 'group') {

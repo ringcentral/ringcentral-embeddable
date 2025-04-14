@@ -136,6 +136,11 @@ type BaseSettingActionItemProps = {
   warning?: string;
   settingAction: React.ReactNode;
 }
+
+const StyledSettingDescription = styled(RcTypography)`
+  text-wrap: auto;
+`;
+
 const BaseSettingActionItem: FunctionComponent<BaseSettingActionItemProps> = ({
   name,
   customTitle,
@@ -169,16 +174,16 @@ const BaseSettingActionItem: FunctionComponent<BaseSettingActionItemProps> = ({
           <>
             {
               description ? (
-                <RcTypography variant="caption1" color="neutral.f04" title={description}>
+                <StyledSettingDescription variant="caption1" color="neutral.f04" title={description}>
                   {description}
-                </RcTypography>
+                </StyledSettingDescription>
               ) : null
             }
             {
               warning ? (
-                <RcTypography variant="caption1" color="danger.f02" title={warning}>
+                <StyledSettingDescription variant="caption1" color="danger.f02" title={warning}>
                   {warning}
-                </RcTypography>
+                </StyledSettingDescription>
               ) : null
             }
           </>
