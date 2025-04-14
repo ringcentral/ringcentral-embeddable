@@ -1,5 +1,35 @@
 import { phoneTypes } from '@ringcentral-integration/commons/enums/phoneTypes';
 
+function checkOptionSettingItem(item) {
+  if (!item.options || !Array.isArray(item.options)) {
+    return false;
+  }
+  if (item.multiple) {
+    if (!Array.isArray(item.value)) {
+      return false;
+    }
+    if (item.value.some((valueItem) => {
+      return !item.options.find((option) => option.id === valueItem);
+    })) {
+      return false;
+    }
+  }
+  if (!item.multiple && item.value && !item.options.find((option) => option.id === item.value)) {
+    return false;
+  }
+  for (const option of item.options) {
+    if (
+      !option.id ||
+      !option.name ||
+      typeof option.name !== 'string' ||
+      (typeof option.id !== 'string' && typeof option.id !== 'number')
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function checkSettingSectionItem(item) {
   if (!item.name || !item.id || !item.type) {
     return false;
@@ -20,32 +50,7 @@ function checkSettingSectionItem(item) {
     }
   }
   if (item.type === 'option') {
-    if (!item.options || !Array.isArray(item.options)) {
-      return false;
-    }
-    if (item.multiple) {
-      if (!Array.isArray(item.value)) {
-        return false;
-      }
-      if (item.value.some((valueItem) => {
-        return !item.options.find((option) => option.id === valueItem);
-      })) {
-        return false;
-      }
-    }
-    if (!item.multiple && item.value && !item.options.find((option) => option.id === item.value)) {
-      return false;
-    }
-    for (const option of item.options) {
-      if (
-        !option.id ||
-        !option.name ||
-        typeof option.name !== 'string' ||
-        (typeof option.id !== 'string' && typeof option.id !== 'number')
-      ) {
-        return false;
-      }
-    }
+    return checkOptionSettingItem(item);
   }
   return true;
 }
@@ -102,6 +107,13 @@ export function checkThirdPartySettings(settings: any[]) {
         validSettings.push(setting);
       }
       return;
+    }
+    if (setting.type === 'option') {
+      if (checkOptionSettingItem(setting)) {
+        validSettings.push(setting);
+      } else {
+        inValidSettings.push(setting);
+      }
     }
     if (setting.type === 'section') {
       if (!setting.items || !Array.isArray(setting.items)) {

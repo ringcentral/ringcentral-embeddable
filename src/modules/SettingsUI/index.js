@@ -29,14 +29,14 @@ export class SettingsUI extends BaseSettingsUI {
       ...baseProps,
       version: props.appVersion,
       showAudio: audioSettings.availableDevices.length > 0 && appFeatures.isCallingEnabled,
-      showAutoLog: callLogger.ready,
+      showAutoLog: callLogger.ready && !thirdPartyService.callLoggerAutoLogSettingHidden,
       autoLogEnabled: callLogger.autoLog,
       autoLogReadOnly: callLogger.autoLogReadOnly,
       autoLogReadOnlyReason: callLogger.autoLogReadOnlyReason,
       autoLogTitle: thirdPartyService.callLoggerAutoSettingLabel,
       autoLogDescription: thirdPartyService.callLoggerAutoSettingDescription,
       autoLogWarning: thirdPartyService.callLoggerAutoSettingWarning,
-      showAutoLogSMS: conversationLogger.loggerSourceReady,
+      showAutoLogSMS: conversationLogger.loggerSourceReady && !thirdPartyService.messageLoggerAutoSettingHidden,
       autoLogSMSEnabled: conversationLogger.autoLog,
       autoLogSMSTitle: thirdPartyService.messageLoggerAutoSettingLabel || 'Auto log messages',
       autoLogSMSDescription: thirdPartyService.messageLoggerAutoSettingDescription,
@@ -94,9 +94,9 @@ export class SettingsUI extends BaseSettingsUI {
       onFeedbackSettingsLinkClick() {
         thirdPartyService.onShowFeedback();
       },
-      onSettingToggle: setting => thirdPartyService.onUpdateSetting({
+      onThirdPartySettingChanged: (setting, newValue) => thirdPartyService.onUpdateSetting({
         ...setting,
-        value: !setting.value,
+        value: newValue,
       }),
       gotoThirdPartySection: (sectionId) => {
         routerInteraction.push(`/settings/thirdParty/${sectionId}`);
