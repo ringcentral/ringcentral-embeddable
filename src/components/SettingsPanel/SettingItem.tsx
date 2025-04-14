@@ -14,6 +14,8 @@ import {
   RcLink,
   RcTooltip,
   RcTypography,
+  RcSelect,
+  RcMenuItem,
 } from '@ringcentral/juno';
 import { ArrowRight, ArrowUp2, ArrowDown2, Logout, Lock } from '@ringcentral/juno-icon';
 
@@ -98,26 +100,13 @@ const InfoIcon = styled(RcIcon)`
   display: inline-block;
 `;
 
-export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
-  show,
-  name,
+const ItemLabel = ({
   customTitle,
-  switchTitle,
+  name,
   currentLocale,
-  dataSign,
-  disabled,
-  checked,
-  onChange,
-  className,
   readOnly,
   readOnlyReason,
-  description,
-  warning,
-  // tooltip,
 }) => {
-  if (!show) {
-    return null;
-  }
   let label = customTitle || i18n.getString(name, currentLocale);
   if (readOnly) {
     label = (
@@ -132,6 +121,42 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
       </>
     );
   }
+  return label;
+}
+
+type BaseSettingActionItemProps = {
+  name: string;
+  customTitle?: string;
+  currentLocale: string;
+  dataSign?: string;
+  className?: string;
+  readOnly?: boolean;
+  readOnlyReason?: string;
+  description?: string;
+  warning?: string;
+  settingAction: React.ReactNode;
+}
+const BaseSettingActionItem: FunctionComponent<BaseSettingActionItemProps> = ({
+  name,
+  customTitle,
+  currentLocale,
+  dataSign,
+  className,
+  readOnly,
+  readOnlyReason,
+  description,
+  warning,
+  settingAction,
+}) => {
+  const label = (
+    <ItemLabel
+      customTitle={customTitle}
+      name={name}
+      currentLocale={currentLocale}
+      readOnly={readOnly}
+      readOnlyReason={readOnlyReason}
+    />
+  );
   return (
     <StyledSettingItem
       data-sign={dataSign}
@@ -163,6 +188,44 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
         }}
       />
       <RcListItemSecondaryAction>
+        {settingAction}
+      </RcListItemSecondaryAction>
+    </StyledSettingItem>
+  );
+}
+
+export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
+  show,
+  name,
+  customTitle,
+  switchTitle,
+  currentLocale,
+  dataSign,
+  disabled,
+  checked,
+  onChange,
+  className,
+  readOnly,
+  readOnlyReason,
+  description,
+  warning,
+  // tooltip,
+}) => {
+  if (!show) {
+    return null;
+  }
+  return (
+    <BaseSettingActionItem
+      name={name}
+      customTitle={customTitle}
+      currentLocale={currentLocale}
+      dataSign={dataSign}
+      className={className}
+      readOnly={readOnly}
+      readOnlyReason={readOnlyReason}
+      description={description}
+      warning={warning}
+      settingAction={
         <StyledSwitch
           checked={checked}
           disabled={disabled}
@@ -178,8 +241,91 @@ export const SwitchLineItem: FunctionComponent<NewSwitchLineItemProps> = ({
           label={switchTitle}
           readOnly={readOnly}
         />
-      </RcListItemSecondaryAction>
-    </StyledSettingItem>
+      }
+    />
+  );
+}
+
+type OptionSettingLineItemProps = {
+  show: boolean;
+  name: string;
+  customTitle?: string;
+  currentLocale: string;
+  dataSign?: string;
+  value: string | number;
+  disabled?: boolean;
+  options: {
+    id: string | number;
+    name: string;
+  }[];
+  onChange: (value: string | number) => void;
+  className?: string;
+  readOnly?: boolean;
+  readOnlyReason?: string;
+  description?: string;
+  warning?: string;
+}
+
+const StyledSelect = styled(RcSelect)`
+  width: 138px;
+`;
+
+export const OptionSettingLineItem: FunctionComponent<OptionSettingLineItemProps> = ({
+  show,
+  name,
+  customTitle,
+  currentLocale,
+  dataSign,
+  value,
+  disabled,
+  options,
+  onChange,
+  className,
+  readOnly,
+  readOnlyReason,
+  description,
+  warning,
+}) => {
+  if (!show) {
+    return null;
+  }
+  return (
+    <BaseSettingActionItem
+      name={name}
+      customTitle={customTitle}
+      currentLocale={currentLocale}
+      dataSign={dataSign}
+      className={className}
+      readOnly={readOnly}
+      readOnlyReason={readOnlyReason}
+      description={description}
+      warning={warning}
+      settingAction={
+        <StyledSelect
+          value={value}
+          disabled={disabled}
+          readOnly={readOnly}
+          variant="box"
+          onChange={(event) => {
+            if (readOnly) {
+              return;
+            }
+            onChange(event.target.value as (string | number));
+          }}
+        >
+          {
+            options.map((option) => (
+              <RcMenuItem
+                key={option.id}
+                value={option.id}
+              >
+                {option.name}
+              </RcMenuItem>
+            ))
+          }
+        </StyledSelect>
+      }
+    />
   );
 }
 

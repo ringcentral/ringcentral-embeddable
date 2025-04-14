@@ -94,9 +94,9 @@ export class SettingsUI extends BaseSettingsUI {
       onFeedbackSettingsLinkClick() {
         thirdPartyService.onShowFeedback();
       },
-      onSettingToggle: setting => thirdPartyService.onUpdateSetting({
+      onThirdPartySettingChanged: (setting, newValue) => thirdPartyService.onUpdateSetting({
         ...setting,
-        value: !setting.value,
+        value: newValue,
       }),
       gotoThirdPartySection: (sectionId) => {
         routerInteraction.push(`/settings/thirdParty/${sectionId}`);

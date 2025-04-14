@@ -8,6 +8,7 @@ import { PresenceSettingSection } from './PresenceSettingSection';
 import {
   LinkLineItem,
   SwitchLineItem,
+  OptionSettingLineItem,
   ButtonLineItem,
   GroupLineItem,
   ExternalLinkLineItem,
@@ -22,7 +23,7 @@ type ThirdPartySetting = {
   type: string;
   buttonLabel?: string;
   buttonType?: string;
-  value?: boolean;
+  value?: boolean | string;
   order?: number;
   groupId?: string;
   items?: ThirdPartySetting[];
@@ -31,6 +32,10 @@ type ThirdPartySetting = {
   readOnlyReason?: string;
   description?: string;
   warning?: string;
+  options?: {
+    id: string;
+    name: string;
+  }[];
 }
 
 type SettingItem = {
@@ -52,15 +57,17 @@ type SettingItem = {
   readOnlyReason?: string;
   description?: string;
   warning?: string;
+  value?: string | number;
+  options?: {
+    id: string;
+    name: string;
+  }[];
 }
 
 function getLoggingGroupName(showAutoLog: boolean, showAutoLogSMS: boolean) {
   return `${showAutoLog ? 'Call' : ''}${showAutoLog && showAutoLogSMS ? ' and ' : ''}${showAutoLogSMS ? 'SMS' : ''} logging`;
 }
 
-function getLoggingGroupDescription(showAutoLog: boolean, showAutoLogSMS: boolean) {
-  return `Manage ${showAutoLogSMS ? 'SMS' : ''}${showAutoLog && showAutoLogSMS ? ' and ' : ''}${showAutoLog ? 'phone' : ''} logging preferences`;
-}
 interface NewSettingsPanelProps extends SettingsPanelProps {
   thirdPartyAuth?: {
     serviceName: string;
@@ -78,7 +85,7 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   thirdPartySettings?: ThirdPartySetting[];
   gotoThirdPartySection: (id: string) => void;
   onThirdPartyButtonClick: (id: string) => void;
-  onSettingToggle: (setting: any) => void;
+  onThirdPartySettingChanged: (setting: any, newValue: string | number | boolean) => void;
   autoLogDescription?: string;
   autoLogReadOnly?: boolean;
   autoLogReadOnlyReason?: string;
@@ -135,6 +142,24 @@ function ItemRenderer({ item, currentLocale }: {
       />
     );
   }
+  if (item.type === 'selection') {
+    return (
+      <OptionSettingLineItem
+        show={item.show}
+        name={item.name}
+        customTitle={item.customTitle}
+        dataSign={item.dataSign}
+        currentLocale={currentLocale}
+        disabled={item.disabled}
+        options={item.options}
+        value={item.value}
+        onChange={item.onChange}
+        readOnly={item.readOnly}
+        readOnlyReason={item.readOnlyReason}
+        description={item.description}
+      />
+    )
+  }
   if (item.type === 'button') {
     return (
       <ButtonLineItem
@@ -188,13 +213,13 @@ function getSettingItemFromThirdPartyItem({
   item,
   gotoThirdPartySection,
   onThirdPartyButtonClick,
-  onSettingToggle,
+  onThirdPartySettingChanged,
   order,
 }: {
   item: ThirdPartySetting,
   gotoThirdPartySection: (id: string) => void,
   onThirdPartyButtonClick: (id: string) => void,
-  onSettingToggle: (setting: ThirdPartySetting) => void,
+  onThirdPartySettingChanged: (setting: ThirdPartySetting, newValue: string | number | boolean) => void,
   order: number,
 }): SettingItem {
   if (item.type === 'section') {
@@ -241,14 +266,31 @@ function getSettingItemFromThirdPartyItem({
       name: item.name,
       customTitle: item.name,
       dataSign: `thirdPartySettings-${item.id || item.name}`,
-      checked: item.value,
+      checked: item.value as boolean,
       show: true,
-      onChange: () => onSettingToggle(item),
+      onChange: (newValue) => onThirdPartySettingChanged(item, newValue),
       order,
       readOnly: item.readOnly,
       readOnlyReason: item.readOnlyReason,
       description: item.description,
       warning: item.warning,
+    };
+  }
+  if (item.type === 'option') {
+    return {
+      type: 'selection',
+      id: item.id || item.name,
+      name: item.name,
+      customTitle: item.name,
+      dataSign: `thirdPartySettings-${item.id || item.name}`,
+      value: item.value as string,
+      options: item.options,
+      show: true,
+      onChange: (newValue) => onThirdPartySettingChanged(item, newValue),
+      order,
+      readOnly: item.readOnly,
+      readOnlyReason: item.readOnlyReason,
+      description: item.description,
     };
   }
   if (item.type === 'group') {
@@ -261,12 +303,12 @@ function getSettingItemFromThirdPartyItem({
         item: subItem,
         gotoThirdPartySection,
         onThirdPartyButtonClick,
-        onSettingToggle,
+        onThirdPartySettingChanged,
         order: subItem.order || 0,
       })),
       dataSign: item.id || item.name,
       description: item.description,
-    }
+    };
   }
   if (item.type === 'externalLink') {
     return {
@@ -351,7 +393,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   thirdPartySettings = [],
   gotoThirdPartySection,
   onThirdPartyButtonClick,
-  onSettingToggle,
+  onThirdPartySettingChanged,
   onThemeSettingsLinkClick,
   showThemeSetting,
   showSmartNoteSetting = false,
@@ -494,7 +536,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       item,
       gotoThirdPartySection,
       onThirdPartyButtonClick,
-      onSettingToggle,
+      onThirdPartySettingChanged,
       order: 8000 + index,
     });
     if (!settingItem) {
