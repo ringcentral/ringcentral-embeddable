@@ -1723,10 +1723,15 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   @globalStorage
   @state
-  defaultAppId = '';
+  pinAppIds = [];
 
   @action
-  setDefaultAppId(appId) {
-    this.defaultAppId = appId;
+  toggleAppPin(appId) {
+    const index = this.pinAppIds.findIndex(x => x === appId);
+    if (index > -1) {
+      this.pinAppIds.splice(index, 1);
+    } else {
+      this.pinAppIds.push(appId);
+    }
   }
 }

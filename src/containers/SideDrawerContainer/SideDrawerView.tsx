@@ -250,7 +250,31 @@ function getTabIcon(widget, active) {
   if (widgetId === 'widgetApps') {
     return Apps;
   }
+  if (widget.icon) {
+    return widget.icon;
+  }
   return null;
+}
+
+const StyledTabImageIcon = styled.img`
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
+
+function TabIcon({
+  widget,
+  active,
+}) {
+  const icon = getTabIcon(widget, active);
+  if (!icon) {
+    return null;
+  }
+  if (typeof icon === 'string' && icon.indexOf("://") > 0) {
+    return <StyledTabImageIcon src={icon} />;
+  }
+  return <RcIcon symbol={icon} size="medium" />;
 }
 
 function TabLabel({
@@ -392,7 +416,17 @@ function Widget({
       />
     );
   }
-  return <EmptyView />;
+  if (widget.id.indexOf('widgetApps-') === 0) {
+    return (
+      <WidgetAppsPage
+        appId={widget.params?.appId}
+        contact={contact}
+        showCloseButton={!withTab}
+        onClose={onClose}
+      />
+    );
+  }
+  return <EmptyView mainPath={mainPath} />;
 }
 
 const TabsPlaceholder = styled.div`
@@ -421,12 +455,16 @@ function WidgetTabs({
 
   const tabsList =
     tabs.map(widget => {
-      const icon = getTabIcon(widget, currentWidgetId === widget.id);
       return (
         <StyledTab
           disableRipple
           value={widget.id}
-          icon={icon && <RcIcon symbol={icon} size="medium" />}
+          icon={(
+            <TabIcon
+              widget={widget}
+              active={currentWidgetId === widget.id}
+            />
+          )}
           label={(
             <TabLabel
               name={widget.name}

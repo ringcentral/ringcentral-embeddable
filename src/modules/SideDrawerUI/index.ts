@@ -354,6 +354,21 @@ export class SideDrawerUI extends RcUIModuleV2 {
     });
   }
 
+  openAppTab(app, contact) {
+    this.openWidget({
+      widget: {
+        id: `widgetApps-${app.id}`,
+        name: app.name,
+        icon: app.iconUri,
+        params: {
+          appId: app.id,
+        },
+      },
+      contact,
+      openSideDrawer: true,
+    });
+  }
+
   hasWidget(widgetId) {
     return this.widgets.some((w) => w.id === widgetId);
   }
