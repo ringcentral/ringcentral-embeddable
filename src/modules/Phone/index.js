@@ -93,7 +93,6 @@ import {
 import {
   WebSocketSubscription as Subscription,
 } from '@ringcentral-integration/commons/modules/WebSocketSubscription';
-import { RingCentralExtensions } from '@ringcentral-integration/commons/modules/RingCentralExtensions';
 import {
   ActiveCallsUI,
 } from '@ringcentral-integration/widgets/modules/ActiveCallsUI';
@@ -199,6 +198,7 @@ import { MessageDetailsUI } from '../MessageDetailsUI';
 import { NoiseReduction } from '../NoiseReduction';
 import { NumberValidate } from '../NumberValidate';
 import { OAuth } from '../OAuth';
+import { RingCentralExtensions } from '../RingCentralExtensions';
 import { RcVideo } from '../RcVideo';
 import { RingtoneSettingsUI } from '../RingtoneSettingsUI';
 import { SettingsUI } from '../SettingsUI';
