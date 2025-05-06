@@ -113,8 +113,21 @@ export class DynamicBrand extends RcModuleV2 {
     const configs = process.env.BRAND_CONFIGS;
     let brandConfig;
     Object.keys(configs).forEach((brandCode) => {
-      if (configs[brandCode] && configs[brandCode].id === brandId) {
+      if (!configs[brandCode]) {
+        return;
+      }
+      if (
+        configs[brandCode].id === brandId
+      ) {
         brandConfig = configs[brandCode];
+        return;
+      }
+      if (!configs[brandCode].subBrands) {
+        return;
+      }
+      if (configs[brandCode].subBrands.some((subBrand) => subBrand.id === brandId)) {
+        brandConfig = configs[brandCode];
+        return;
       }
     });
     if (!brandConfig) {

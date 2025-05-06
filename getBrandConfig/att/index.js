@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   prefix: 'rc-widget',
   brandConfig: {
-    id: '3420',
+    id: '3460',
     code: 'att',
     name: 'Office@Hand',
     appName: 'Office@Hand Embeddable',
@@ -59,7 +59,7 @@ module.exports = {
       icon: '/assets/att/icon.svg',
     },
     showFeedback: false,
-    subBrands: [{ id: '3460', code: 'attub' }],
+    subBrands: [{ id: '3420', code: 'attub' }],
     enableEDP: true,
   },
   brandFolder: __dirname,
