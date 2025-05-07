@@ -1,8 +1,10 @@
+import { findIndex, forEach } from 'ramda';
 import { CallHistory as CallHistoryBase } from '@ringcentral-integration/commons/modules/CallHistory';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { computed } from '@ringcentral-integration/core';
+import { computed, action } from '@ringcentral-integration/core';
 import type { HistoryCall } from '@ringcentral-integration/commons/modules/CallHistory/CallHistory.interface';
 import { sortByStartTime } from '@ringcentral-integration/commons/lib/callLogHelpers';
+import type { Call } from '@ringcentral-integration/commons/interfaces/Call.interface';
 
 @Module({
   name: 'NewCallHistory',
@@ -21,6 +23,30 @@ export class CallHistory extends CallHistoryBase {
     if (!this._deps.storage || !this._deps.tabManager || this._deps.tabManager.active) {
       this._deps.callLog.sync();
     }
+  }
+
+  @action
+  setEndedCalls(endedCalls: Call[], timestamp: number) {
+    forEach((call) => {
+      let offset = 0;
+      if (typeof call.offset === 'number') {
+        offset = call.offset;
+      }
+      const callWithDuration = {
+        ...call,
+        duration: Math.floor((timestamp - call.startTime - offset) / 1000),
+      };
+      const idx = findIndex(
+        (item) => item.telephonySessionId === call.telephonySessionId,
+        this.endedCalls,
+      );
+      if (idx > -1) {
+        // replace old one if found
+        this.endedCalls[idx] = callWithDuration;
+      } else {
+        this.endedCalls.push(callWithDuration);
+      }
+    }, endedCalls);
   }
 
   @computed((that: CallHistory) => [
