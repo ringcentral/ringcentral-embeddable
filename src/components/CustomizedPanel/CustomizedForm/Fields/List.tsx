@@ -47,6 +47,20 @@ const NavigationIcon = styled(RcIcon)`
   margin: 8px 0;
 `;
 
+const MetaContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  span {
+    ${ellipsis}
+  }
+
+  span:first-child {
+    line-height: 22px;
+  }
+`;
+
 function ListItem({
   item,
   disabled,
@@ -79,9 +93,12 @@ function ListItem({
         secondary={item.description}
       />
       {
-        (item.meta || showAsNavigation) ? (
+        (item.meta || item.authorName || showAsNavigation) ? (
           <RcListItemSecondaryAction>
-            {item.meta}
+            <MetaContainer>
+              {item.authorName && <span>{item.authorName}</span>}
+              {item.meta && <span>{item.meta}</span>}
+            </MetaContainer>
             {
               showAsNavigation ? (
                 <NavigationIcon
