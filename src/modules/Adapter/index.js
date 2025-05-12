@@ -862,11 +862,20 @@ export default class Adapter extends AdapterModuleCore {
     if (this._thirdPartyService.apps.length === 0) {
       return;
     }
-    this._sideDrawerUI.openApps({
+    const widgetContact = {
       phoneNumber: session.to,
       name: session.toUserName,
       ...(contactMatch || {}),
-    });
+    };
+    this._sideDrawerUI.openApps(widgetContact);
+    if (this._thirdPartyService.pinAppIds.length > 0) {
+      this._thirdPartyService.pinAppIds.forEach(appId => {
+        const app = this._thirdPartyService.apps.find(app => app.id === appId);
+        if (app) {
+          this._sideDrawerUI.openAppTab(app, widgetContact);
+        }
+      });
+    }
   }
 
   startCallNotify(session) {

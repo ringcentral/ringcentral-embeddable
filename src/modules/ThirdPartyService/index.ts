@@ -8,6 +8,7 @@ import {
   state,
   computed,
   globalStorage,
+  storage,
   watch,
 } from '@ringcentral-integration/core';
 
@@ -24,6 +25,7 @@ import {
 @Module({
   name: 'ThirdPartyService',
   deps: [
+    'Prefix',
     'Auth',
     'Contacts',
     'ContactSources',
@@ -35,6 +37,7 @@ import {
     'GenericMeeting',
     'SmartNotes',
     'GlobalStorage',
+    'Storage',
     'TabManager',
     'CallHistory',
     'CallMonitor',
@@ -83,6 +86,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       deps,
       storageKey: 'thirdPartyService',
       enableGlobalCache: !deps.tabManager.autoMainTab,
+      enableCache: true,
     });
 
     this._ignoreModuleReadiness(deps.auth);
@@ -97,6 +101,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._ignoreModuleReadiness(deps.callHistory);
     this._ignoreModuleReadiness(deps.callMonitor);
     this._ignoreModuleReadiness(deps.messageStore);
+    this._ignoreModuleReadiness(deps.storage);
 
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
@@ -1721,7 +1726,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
   }
 
-  @globalStorage
+  @storage
   @state
   pinAppIds = [];
 

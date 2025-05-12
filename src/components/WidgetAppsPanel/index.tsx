@@ -73,6 +73,8 @@ export function WidgetAppsPanel({
       if (app) {
         setCurrentAppId(app.id);
       }
+    } else {
+      setCurrentAppId(null);
     }
   }, [appId]);
 
