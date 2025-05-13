@@ -141,16 +141,20 @@ export function WidgetAppPanel({
   app,
   onLoadApp = async () => null,
   onBack,
+  showBack,
   contact,
   isPinned,
   onPinChanged,
+  showPin,
 }: {
   app: App;
   onLoadApp?: (data: any) => Promise<AppData | Page | null>;
   onBack: () => void;
+  showBack?: boolean;
   contact: any;
   isPinned: boolean;
   onPinChanged: () => void;
+  showPin: boolean;
 }) {
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState<Page | null>(null);
@@ -181,12 +185,16 @@ export function WidgetAppPanel({
   return (
     <Container>
       <PageHeader>
-        <BackButton
-          symbol={ArrowLeft2}
-          onClick={onBack}
-          variant="plain"
-          size="xlarge"
-        />
+        {
+          showBack && (
+            <BackButton
+              symbol={ArrowLeft2}
+              onClick={onBack}
+              variant="plain"
+              size="xlarge"
+            />
+          )
+        }
         <AppHeader
           disableRipple
           canHover={false}
@@ -222,13 +230,17 @@ export function WidgetAppPanel({
                 }
               }}
             />
-            <IconButton
-              symbol={isPinned ? Pin : Unpin}
-              size="small"
-              color="action.grayDark"
-              title={isPinned ? 'Remove this app from default app' : 'Open this app by default'}
-              onClick={onPinChanged}
-            />
+            {
+              showPin && (
+                <IconButton
+                  symbol={isPinned ? Pin : Unpin}
+                  size="small"
+                  color="action.grayDark"
+                  title={isPinned ? 'Do not open this app as new tab' : 'Open this app as new tab'}
+                  onClick={onPinChanged}
+                />
+              )
+            }
             {
               actions && actions.length > 0 ? (
                 <PageActions

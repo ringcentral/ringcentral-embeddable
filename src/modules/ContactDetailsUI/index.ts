@@ -10,7 +10,8 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
     'DateTimeFormat',
     'ThirdPartyService',
     'Theme',
-  ]
+    'SideDrawerUI',
+  ],
 })
 export class ContactDetailsUI extends ContactDetailsUIBase {
   async handleClickToSMS(contact, phoneNumber: string) {
@@ -49,7 +50,7 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       activitiesLoaded: thirdPartyService.activitiesLoaded,
       showApps: thirdPartyService.apps && thirdPartyService.apps.length > 0,
       apps: thirdPartyService.apps,
-      defaultAppId: thirdPartyService.defaultAppId,
+      pinAppIds: thirdPartyService.pinAppIds,
     };
   }
 
@@ -60,6 +61,7 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       recentMessages,
       thirdPartyService,
       theme,
+      sideDrawerUI,
     } = this._deps;
     return {
       ...super.getUIFunctions({ params }),
@@ -98,8 +100,11 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
           theme: theme.themeType,
         });
       },
-      setDefaultAppId: (appId) => {
-        thirdPartyService.setDefaultAppId(appId);
+      toggleAppPin: (appId) => {
+        thirdPartyService.toggleAppPin(appId);
+      },
+      openAppTab: (app, contact) => {
+        sideDrawerUI.openAppTab(app, contact);
       },
     };
   }

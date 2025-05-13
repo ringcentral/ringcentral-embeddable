@@ -9,6 +9,7 @@ import i18n from '@ringcentral-integration/widgets/components/ContactDetailsView
 
 import { BackHeaderView } from '../BackHeaderView';
 import { ContactDetails } from './ContactDetails';
+import { AnyAction } from 'redux';
 
 interface MessageHolderProps {
   children: string;
@@ -64,8 +65,9 @@ type AdditionProps = {
   showApps: boolean;
   apps: any[];
   onLoadApp: (data: any) => void;
-  defaultAppId?: string;
-  setDefaultAppId: (appId: string) => void;
+  pinAppIds: string[];
+  toggleAppPin: (appId: string) => void;
+  openAppTab: (appId: string, contact: any) => void;
 }
 
 export const ContactDetailsView: FunctionComponent<
@@ -112,8 +114,9 @@ export const ContactDetailsView: FunctionComponent<
   showApps,
   apps,
   onLoadApp,
-  defaultAppId,
-  setDefaultAppId,
+  pinAppIds,
+  toggleAppPin,
+  openAppTab,
 }) => {
   useEffect(() => {
     onVisitPage?.();
@@ -171,8 +174,9 @@ export const ContactDetailsView: FunctionComponent<
         showApps={showApps}
         apps={apps}
         onLoadApp={onLoadApp}
-        defaultAppId={defaultAppId}
-        setDefaultAppId={setDefaultAppId}
+        pinAppIds={pinAppIds}
+        toggleAppPin={toggleAppPin}
+        openAppTab={openAppTab}
       />
     );
   }

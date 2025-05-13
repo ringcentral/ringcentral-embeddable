@@ -52,10 +52,12 @@ export function WidgetAppsPanel({
   onClose,
   onLoadApp,
   contact,
-  defaultAppId,
-  setDefaultAppId,
+  appId = null,
+  pinAppIds,
+  toggleAppPin,
+  openAppTab,
 }) {
-  const [currentAppId, setCurrentAppId] = useState(null);
+  const [currentAppId, setCurrentAppId] = useState(appId);
   const contactRef = useRef(contact);
 
   useEffect(() => {
@@ -66,13 +68,15 @@ export function WidgetAppsPanel({
   }, [contact]);
 
   useEffect(() => {
-    if (defaultAppId) {
-      const app = apps.find((a) => a.id === defaultAppId);
+    if (appId) {
+      const app = apps.find((a) => a.id === appId);
       if (app) {
         setCurrentAppId(app.id);
       }
+    } else {
+      setCurrentAppId(null);
     }
-  }, []);
+  }, [appId]);
 
   const currentApp = currentAppId ? apps.find((app) => app.id === currentAppId) : null;
 
@@ -97,7 +101,13 @@ export function WidgetAppsPanel({
                 key={app.id}
                 label={app.name}
                 icon={<AppIcon src={app.iconUri} />}
-                onClick={() => setCurrentAppId(app.id)}
+                onClick={() => {
+                  if (pinAppIds.includes(app.id) && typeof openAppTab === 'function') {
+                    openAppTab(app, contact);
+                    return;
+                  }
+                  setCurrentAppId(app.id)
+                }}
               />
             ))
           }
@@ -115,15 +125,17 @@ export function WidgetAppsPanel({
       app={currentApp}
       onLoadApp={onLoadApp}
       onBack={() => setCurrentAppId(null)}
+      showBack={!appId}
       contact={contact}
-      isPinned={currentApp.id === defaultAppId}
+      isPinned={pinAppIds.includes(currentApp.id)}
       onPinChanged={() => {
-        if (currentApp.id === defaultAppId) {
-          setDefaultAppId('');
-          return;
+        const pined = pinAppIds.includes(currentApp.id);
+        toggleAppPin(currentApp.id);
+        if (!pined && typeof openAppTab === 'function') {
+          openAppTab(currentApp, contact);
         }
-        setDefaultAppId(currentApp.id);
       }}
+      showPin={typeof toggleAppPin === 'function'}
     />
   );
 }

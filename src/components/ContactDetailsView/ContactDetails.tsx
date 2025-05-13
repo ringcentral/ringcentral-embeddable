@@ -65,8 +65,9 @@ interface ContactDetailsProps extends onClickMailTo,
   showApps: boolean;
   apps: any[];
   onLoadApp: (data: any) => void;
-  defaultAppId?: string;
-  setDefaultAppId: (appId: string) => void;
+  pinAppIds: string[];
+  toggleAppPin: (appId: string) => void;
+  openAppTab: (appId: string, contact: ContactModel) => void;
 }
 
 const Container = styled.div`
@@ -207,8 +208,9 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
   showApps,
   apps,
   onLoadApp,
-  defaultAppId,
-  setDefaultAppId,
+  pinAppIds,
+  toggleAppPin,
+  openAppTab,
 }) => {
   const fullName = contact.name || `${contact.firstName} ${contact.lastName}`;
   const [infoTab, setInfoTab] = useState('user-info');
@@ -361,8 +363,9 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
               onClose={EmptyFunction}
               onLoadApp={onLoadApp}
               contact={contact}
-              defaultAppId={defaultAppId}
-              setDefaultAppId={setDefaultAppId}
+              toggleAppPin={toggleAppPin}
+              pinAppIds={pinAppIds}
+              openAppTab={openAppTab}
             />
           )
         }

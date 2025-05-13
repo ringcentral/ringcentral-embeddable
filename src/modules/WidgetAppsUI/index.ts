@@ -6,6 +6,7 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
   deps: [
     'ThirdPartyService',
     'Theme',
+    'SideDrawerUI',
   ],
 })
 export class WidgetAppsUI extends RcUIModuleV2 {
@@ -21,7 +22,7 @@ export class WidgetAppsUI extends RcUIModuleV2 {
     } = this._deps;
     return {
       apps: thirdPartyService.apps,
-      defaultAppId: thirdPartyService.defaultAppId,
+      pinAppIds: thirdPartyService.pinAppIds,
     };
   }
 
@@ -29,6 +30,7 @@ export class WidgetAppsUI extends RcUIModuleV2 {
     const {
       thirdPartyService,
       theme,
+      sideDrawerUI,
     } = this._deps;
     return {
       onLoadApp: (data) => {
@@ -37,8 +39,11 @@ export class WidgetAppsUI extends RcUIModuleV2 {
           theme: theme.themeType,
         });
       },
-      setDefaultAppId: (appId) => {
-        thirdPartyService.setDefaultAppId(appId);
+      toggleAppPin: (appId) => {
+        thirdPartyService.toggleAppPin(appId);
+      },
+      openAppTab: (app, contact) => {
+        sideDrawerUI.openAppTab(app, contact);
       },
     };
   }
