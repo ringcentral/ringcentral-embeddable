@@ -365,7 +365,6 @@ export class SideDrawerUI extends RcUIModuleV2 {
         },
       },
       contact,
-      openSideDrawer: true,
     });
   }
 
