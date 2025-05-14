@@ -10,7 +10,7 @@ import {
   RcMenuItem,
   RcMenu,
 } from '@ringcentral/juno';
-import { ArrowLeft2, Reset, MoreVert, Unpin, Pin } from '@ringcentral/juno-icon';
+import { ArrowLeft2, Reset, MoreVert, Unpin, Pin, Close } from '@ringcentral/juno-icon';
 import { Container, PageHeader, Content, AppIcon } from './styled';
 import { CustomizedForm } from '../CustomizedPanel/CustomizedForm';
 
@@ -89,9 +89,13 @@ function getPageInfo(data: AppData | Page) {
 function PageActions({
   actions,
   onActionClick,
+  showCloseButton,
+  onClose,
 }: {
   actions: AppAction[];
   onActionClick: (id: string) => void;
+  showCloseButton: boolean;
+  onClose: () => void;
 }) {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreButtonRef = useRef<HTMLDivElement>(null);
@@ -113,6 +117,15 @@ function PageActions({
           setMoreMenuOpen(false);
         }}
       >
+        {
+          showCloseButton && (
+            <RcMenuItem
+              onClick={onClose}
+            >
+              Close
+            </RcMenuItem>
+          )
+        }
         {
           actions.map((action) => (
             <RcMenuItem
@@ -146,6 +159,8 @@ export function WidgetAppPanel({
   isPinned,
   onPinChanged,
   showPin,
+  showCloseButton,
+  onClose,
 }: {
   app: App;
   onLoadApp?: (data: any) => Promise<AppData | Page | null>;
@@ -155,19 +170,26 @@ export function WidgetAppPanel({
   isPinned: boolean;
   onPinChanged: () => void;
   showPin: boolean;
+  showCloseButton: boolean;
+  onClose: () => void;
 }) {
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState<Page | null>(null);
   const [formDataState, setFormDataState] = useState({});
   const [actions, setActions] = useState<{ id: string; label: string }[]>([]);
+  const mountedRef = useRef(false);
 
   useEffect(() => {
+    mountedRef.current = true;
     const init = async () => {
       const data = await onLoadApp({
         app,
         contact,
         type: 'init',
       });
+      if (!mountedRef.current) {
+        return;
+      }
       const { page, actions } = getPageInfo(data);
       if (page) {
         setPage(page);
@@ -180,6 +202,9 @@ export function WidgetAppPanel({
       }
     };
     init();
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   return (
@@ -242,8 +267,20 @@ export function WidgetAppPanel({
               )
             }
             {
+              showCloseButton && (!actions || actions.length === 0) && (
+                <IconButton
+                  symbol={Close}
+                  size="small"
+                  color="action.grayDark"
+                  onClick={onClose}
+                />
+              )
+            }
+            {
               actions && actions.length > 0 ? (
                 <PageActions
+                  showCloseButton={showCloseButton}
+                  onClose={onClose}
                   actions={actions}
                   onActionClick={async (id) => {
                     const data = await onLoadApp({
