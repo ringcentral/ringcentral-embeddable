@@ -152,6 +152,7 @@ function PageActions({
 
 export function WidgetAppPanel({
   app,
+  appId,
   onLoadApp = async () => null,
   onBack,
   showBack,
@@ -163,6 +164,7 @@ export function WidgetAppPanel({
   onClose,
 }: {
   app: App;
+  appId: string;
   onLoadApp?: (data: any) => Promise<AppData | Page | null>;
   onBack: () => void;
   showBack?: boolean;
@@ -181,6 +183,7 @@ export function WidgetAppPanel({
 
   useEffect(() => {
     mountedRef.current = true;
+    setPage(null);
     const init = async () => {
       const data = await onLoadApp({
         app,
@@ -205,7 +208,7 @@ export function WidgetAppPanel({
     return () => {
       mountedRef.current = false;
     };
-  }, []);
+  }, [appId]);
 
   return (
     <Container>
