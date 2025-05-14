@@ -409,6 +409,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       unauthorizedTitle: service.unauthorizedTitle,
       showAuthRedDot: service.showAuthRedDot || false,
       authorizedAccount: service.authorizedAccount,
+      showAuthButton: !!service.authorizationPath,
     });
   }
 
@@ -1320,15 +1321,19 @@ export default class ThirdPartyService extends RcModuleV2 {
 
   @globalStorage
   @state
-  authorizedTitle = null;
+  authorizedTitle = '';
 
   @globalStorage
   @state
-  unauthorizedTitle = null;
+  unauthorizedTitle = '';
 
   @globalStorage
   @state
   _showAuthRedDot = false;
+
+  @globalStorage
+  @state
+  showAuthButton = false;
 
   @action
   _onRegisterAuthorization({
@@ -1337,12 +1342,14 @@ export default class ThirdPartyService extends RcModuleV2 {
     unauthorizedTitle,
     showAuthRedDot,
     authorizedAccount,
+    showAuthButton,
   }) {
     this.authorized = authorized;
     this.authorizedTitle = authorizedTitle;
     this.unauthorizedTitle = unauthorizedTitle;
     this._showAuthRedDot = showAuthRedDot;
     this.authorizedAccount = authorizedAccount;
+    this.showAuthButton = showAuthButton;
   }
 
   get authorizationLogo() {
