@@ -136,6 +136,8 @@ export function WidgetAppsPanel({
         }
       }}
       showPin={typeof toggleAppPin === 'function'}
+      showCloseButton={showCloseButton && !!appId}
+      onClose={onClose}
     />
   );
 }
