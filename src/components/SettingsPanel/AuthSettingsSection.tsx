@@ -69,19 +69,21 @@ interface AuthorizeSettingsSectionProps {
   authorizedAccount?: string;
   showAuthRedDot?: boolean;
   serviceInfo?: string;
+  showAuthButton?: boolean;
 }
 
 export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProps> = ({
   authorized,
   onAuthorize,
-  authorizedTitle = 'Unauthorize',
-  unauthorizedTitle = 'Authorize',
+  authorizedTitle,
+  unauthorizedTitle,
   serviceInfo = '',
   serviceName,
   contactSyncing = false,
   authorizationLogo = null,
   authorizedAccount = null,
   showAuthRedDot,
+  showAuthButton,
 }) => {
   let status = authorized ? authorizedTitle : unauthorizedTitle;
   if (authorized && contactSyncing) {
@@ -135,17 +137,21 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
         }}
       />
       <AuthAction>
-        <RcButton
-          size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            onAuthorize();
-          }}
-          variant="outlined"
-          color={(authorized && !contactSyncing) ? 'danger.b04' : 'action.primary'}
-        >
-          {status}
-        </RcButton>
+        {
+          showAuthButton && (
+            <RcButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAuthorize();
+              }}
+              variant="outlined"
+              color={(authorized && !contactSyncing) ? 'danger.b04' : 'action.primary'}
+            >
+              {status}
+            </RcButton>
+          )
+        }
         {
           !authorized && showAuthRedDot ? (
             <RedDot />

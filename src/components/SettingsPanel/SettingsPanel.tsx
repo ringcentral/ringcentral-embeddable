@@ -79,6 +79,7 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
     authorizationLogo?: string;
     authorizedAccount?: string;
     showAuthRedDot?: boolean;
+    showAuthButton?: boolean;
   } | null;
   onThirdPartyAuthorize?: () => void;
   disableAutoLogSMSEnabled?: boolean;
@@ -609,6 +610,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
             authorizationLogo={thirdPartyAuth.authorizationLogo}
             authorizedAccount={thirdPartyAuth.authorizedAccount}
             showAuthRedDot={thirdPartyAuth.showAuthRedDot}
+            showAuthButton={thirdPartyAuth.showAuthButton}
             onAuthorize={onThirdPartyAuthorize}
           />
         ) : null
