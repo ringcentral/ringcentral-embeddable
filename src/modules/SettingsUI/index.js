@@ -69,6 +69,7 @@ export class SettingsUI extends BaseSettingsUI {
       smartNoteAutoStartEnabledReadOnlyReason: smartNotes.autoStartSmartNoteReadOnlyReason,
       showCallQueuePresenceSettings: appFeatures.hasReadCallQueuePresencePermission && appFeatures.hasEditCallQueuePresencePermission,
       showText: appFeatures.hasSendSMSPermission,
+      showVoicemailDropSettings: true,
     };
   }
 
@@ -116,6 +117,9 @@ export class SettingsUI extends BaseSettingsUI {
       },
       onTextSettingsLinkClick: () => {
         routerInteraction.push('/settings/text');
+      },
+      gotoVoicemailDropSettings: () => {
+        routerInteraction.push('/settings/voicemailDrop');
       },
     }
   }
