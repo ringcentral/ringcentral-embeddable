@@ -6,6 +6,7 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
   constructor() {
     super();
     this.threshold = 0.01; // RMS threshold
+    this.beepPowerThreshold = 100; // Power threshold for Goertzel beep detection (initial value, needs tuning)
     this.silenceCounter = 0; // silence counter if no beep detected
     this.silenceCounterAfterBeep = 0; // silence counter after beep detected
     this.beepSoundCounter = 0; // beep sound counter
@@ -27,14 +28,43 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
     return Math.sqrt(sum / input.length);
   }
 
-  detectBeep(input) {
-    // Simple 450Hz tone detector (very rough)
-    // const fftSize = 128;
-    const mag = input.reduce((acc, val) => acc + Math.sin(2 * Math.PI * this.beepFreq * val), 0);
-    if (Math.abs(mag) > 20) {
-      console.log('mag: ', mag);
+  detectBeep(inputSamples) {
+    const N = inputSamples.length;
+    if (N === 0) {
+      return false;
     }
-    return Math.abs(mag) > 20;
+    const targetFreq = this.beepFreq;
+    // @ts-ignore sampleRate is a global in AudioWorkletGlobalScope
+    const SR = this.sampleRate;
+
+    // Calculate Goertzel parameters
+    // k is the specific frequency bin index for the target frequency
+    const k = Math.floor(0.5 + (N * targetFreq) / SR);
+    const omega = (2 * Math.PI * k) / N;
+    const coeff = 2 * Math.cos(omega);
+
+    let s0 = 0;
+    let s1 = 0;
+    let s2 = 0;
+
+    // Process samples
+    for (let i = 0; i < N; i++) {
+      s0 = inputSamples[i] + coeff * s1 - s2;
+      s2 = s1;
+      s1 = s0;
+    }
+
+    // Calculate power (magnitude squared) of the target frequency
+    // This power is proportional to (Amplitude * N / 2)^2
+    const power = s1 * s1 + s2 * s2 - coeff * s1 * s2;
+    
+    // For debugging or tuning the beepPowerThreshold:
+    // You can uncomment this log to see the power values for detected sounds.
+    // if (power > this.beepPowerThreshold / 1.5) { // Log if power is somewhat significant
+    //   console.log(`VoicemailGreetingEndDetector - Beep Detection Debug: Freq: ${targetFreq}Hz, Power: ${power.toFixed(2)}, Threshold: ${this.beepPowerThreshold}, N: ${N}, SR: ${SR}, k_bin: ${k}`);
+    // }
+
+    return power > this.beepPowerThreshold;
   }
 
   process(inputs) {
