@@ -16,7 +16,6 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
     this.framesPerSecond = this.sampleRate / 128; // 128 is default buffer size
 
     this.beepFreq = 450;
-    this.silenceStarted = null;
     this.state = 'listening'; // listening → beep-detected → waiting-for-silence → silence-detected → greeting-ended
   }
 
@@ -32,7 +31,9 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
     // Simple 450Hz tone detector (very rough)
     // const fftSize = 128;
     const mag = input.reduce((acc, val) => acc + Math.sin(2 * Math.PI * this.beepFreq * val), 0);
-    console.log('mag', mag);
+    if (Math.abs(mag) > 20) {
+      console.log('mag: ', mag);
+    }
     return Math.abs(mag) > 20;
   }
 
@@ -49,51 +50,50 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
           this.silenceCounter++;
           // If the silence duration is longer than the noBeepSilenceDuration, we consider the greeting to have ended
           if (this.silenceCounter > this.noBeepSilenceDuration * this.framesPerSecond) {
-            if (this.silenceStarted === null || this.silenceStarted === false) {
-              console.log('silence-started');
-              this.silenceStarted = true;
-              this.state = 'greeting-ended';
-              this.silenceCounter = 0;
-              this.port.postMessage('greeting-ended');
-            }
+            console.log('Greeting ended after long silence');
+            this.state = 'greeting-ended';
+            this.silenceCounter = 0;
+            this.port.postMessage('greeting-ended');
           }
           break;
         }
         this.silenceCounter = 0;
         if (this.detectBeep(input)) {
-          console.log('beep-detected');
+          console.log('Beep detected, waiting for silence');
           this.state = 'waiting-for-silence';
         }
         break;
       }
       case 'waiting-for-silence': {
         if (isSilence) {
+          console.log('Silence detected after beep');
           this.state = 'silence-detected';
           this.beepSoundCounter = 0;
           break;
-        } else {
-          this.beepSoundCounter++;
         }
+        this.beepSoundCounter++;
         // if beep sound too long, we consider wrong detection
         if (this.beepSoundCounter > this.beepSilenceDuration * this.framesPerSecond) {
-          console.log('wrong beep detection');
+          console.log('Wrong beep detection, back to listening');
           this.beepSoundCounter = 0;
           this.state = 'listening';
           break;
         }
+        break;
       }
       case 'silence-detected': {
         if (isSilence) {
           this.silenceCounterAfterBeep++;
+          if (this.silenceCounterAfterBeep > this.beepSilenceDuration * this.framesPerSecond) {
+            this.state = 'greeting-ended';
+            this.silenceCounterAfterBeep = 0;
+            console.log('Greeting ended after beep silence');
+            this.port.postMessage('greeting-ended');
+          }
         } else {
           this.state = 'listening';
           this.silenceCounterAfterBeep = 0;
-          break;
-        }
-        if (this.silenceCounterAfterBeep > this.beepSilenceDuration * this.framesPerSecond) {
-          this.state = 'greeting-ended';
-          this.silenceCounterAfterBeep = 0;
-          this.port.postMessage('greeting-ended');
+          console.log('Get sound after silence, back to listening');
         }
         break;
       }
