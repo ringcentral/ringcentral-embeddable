@@ -60,7 +60,7 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
               loader: '@ringcentral-integration/locale-loader',
               options: {
                 supportedLocales
-              }
+              },
             },
           ],
           exclude: /node_modules/,
@@ -82,6 +82,13 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
               flags: 'g',
             },
           }]
+        },
+        {
+          test: /\.worklet\.js$/,
+          type: 'asset/resource',
+          generator: {
+            filename: 'worklets/[name][ext]'
+          },
         },
         {
           test: /\.md$/,
