@@ -96,6 +96,8 @@ type ActiveCallPanelProps = {
   sessionId?: string;
   callStatus?: string;
   onTransfer: (...args: any[]) => any;
+  onVoicemailDrop: (...args: any[]) => any;
+  showVoicemailDrop?: boolean;
 };
 const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   showBackButton,
@@ -156,6 +158,8 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   isOnTransfer,
   isOnWaitingTransfer,
   onCompleteTransfer,
+  onVoicemailDrop,
+  showVoicemailDrop,
 }) => {
   const timeCounter = startTime ? (
       <DurationCounter startTime={startTime} offset={startTimeOffset} />
@@ -272,6 +276,8 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
               isOnTransfer={isOnTransfer}
               isOnWaitingTransfer={isOnWaitingTransfer}
               onCompleteTransfer={onCompleteTransfer}
+              onVoicemailDrop={onVoicemailDrop}
+              showVoicemailDrop={showVoicemailDrop}
             />
           )
         }

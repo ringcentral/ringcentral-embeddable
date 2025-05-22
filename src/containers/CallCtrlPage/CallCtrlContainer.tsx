@@ -46,6 +46,8 @@ export type CallCtrlContainerProps = PropsWithChildren<{
   onFlip: (...args: any[]) => any;
   onPark: (...args: any[]) => any;
   onTransfer: (...args: any[]) => any;
+  onVoicemailDrop: (...args: any[]) => any;
+  showVoicemailDrop?: boolean;
   nameMatches: any[];
   areaCode: string;
   countryCode: string;
@@ -395,6 +397,8 @@ export class CallCtrlContainer extends Component<
         onFlip={this.props.onFlip}
         onTransfer={this.props.onTransfer}
         onCompleteTransfer={this.onCompleteTransfer}
+        onVoicemailDrop={this.props.onVoicemailDrop}
+        showVoicemailDrop={this.props.showVoicemailDrop}
         onPark={this.onPark}
         disableFlip={this.props.disableFlip}
         showPark={this.props.showPark}

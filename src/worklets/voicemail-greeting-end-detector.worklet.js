@@ -15,9 +15,12 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
     // @ts-ignore
     this.sampleRate = sampleRate;
     this.framesPerSecond = this.sampleRate / 128; // 128 is default buffer size
-
+    console.log('sampleRate: ', this.sampleRate);
+    console.log('framesPerSecond: ', this.framesPerSecond);
     this.beepFreq = 450;
     this.state = 'listening'; // listening → beep-detected → waiting-for-silence → silence-detected → greeting-ended
+    this.inputBuffer = [];
+    // TODO: add detection timeout 1 minute
   }
 
   rms(input) {
@@ -28,11 +31,25 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
     return Math.sqrt(sum / input.length);
   }
 
-  detectBeep(inputSamples) {
+  pushInputToBuffer(input) {
+    // buffer max size 128 * 5 = 640
+    if (this.inputBuffer.length >= 640) {
+      // remove the first 128 samples
+      this.inputBuffer.splice(0, 128);
+    }
+    input.forEach(sample => {
+      this.inputBuffer.push(sample);
+    });
+  }
+
+  detectBeep(input) {
+    this.pushInputToBuffer(input);
+    const inputSamples = this.inputBuffer;
     const N = inputSamples.length;
-    if (N === 0) {
+    if (N < 640) {
       return false;
     }
+
     const targetFreq = this.beepFreq;
     // @ts-ignore sampleRate is a global in AudioWorkletGlobalScope
     const SR = this.sampleRate;
@@ -60,9 +77,9 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
     
     // For debugging or tuning the beepPowerThreshold:
     // You can uncomment this log to see the power values for detected sounds.
-    // if (power > this.beepPowerThreshold / 1.5) { // Log if power is somewhat significant
-    //   console.log(`VoicemailGreetingEndDetector - Beep Detection Debug: Freq: ${targetFreq}Hz, Power: ${power.toFixed(2)}, Threshold: ${this.beepPowerThreshold}, N: ${N}, SR: ${SR}, k_bin: ${k}`);
-    // }
+    if (power > this.beepPowerThreshold / 1.5) { // Log if power is somewhat significant
+      console.log(`VoicemailGreetingEndDetector - Beep Detection Debug: Freq: ${targetFreq}Hz, Power: ${power.toFixed(2)}, Threshold: ${this.beepPowerThreshold}, N: ${N}, SR: ${SR}, k_bin: ${k}`);
+    }
 
     return power > this.beepPowerThreshold;
   }

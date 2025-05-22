@@ -14,6 +14,7 @@ import {
   Record as RecordIcon,
   StopRecord as StopRecordIcon,
   TransferCall as TransferIcon,
+  Voicemail as VoicemailDropIcon
 } from '@ringcentral/juno-icon';
 import {
   styled,
@@ -30,7 +31,7 @@ import { pickElements } from '@ringcentral-integration/widgets/components/Active
 
 import CallCtrlButton from '../../CallCtrlButton';
 import { ACTIONS_CTRL_MAP } from './actions';
-
+VoicemailDropIcon
 const StyledContainer = styled.div`
   margin-left: 15%;
   margin-right: 15%;
@@ -88,6 +89,8 @@ type ActiveCallPadProps = {
   isOnWaitingTransfer?: boolean;
   onCompleteTransfer: (...args: any[]) => any;
   controlBusy?: boolean;
+  onVoicemailDrop: (...args: any[]) => any;
+  showVoicemailDrop?: boolean;
 };
 
 const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
@@ -120,6 +123,8 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
   onPark,
   className,
   isOnTransfer,
+  onVoicemailDrop,
+  showVoicemailDrop,
 }) => {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreButtonRef = useRef<HTMLDivElement>(null);
@@ -262,6 +267,17 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       title: i18n.getString('park', currentLocale),
       disabled: disableControlButton || controlBusy,
       onClick: onPark,
+    });
+  }
+  /* --------------------- Voicemail Drop --------------------------- */
+  if (showVoicemailDrop) {
+    buttons.push({
+      icon: VoicemailDropIcon,
+      id: ACTIONS_CTRL_MAP.voicemailDropCtrl,
+      dataSign: 'voicemailDrop',
+      title: 'Voicemail drop',
+      onClick: onVoicemailDrop,
+      disabled: disableControlButton || controlBusy || isOnHold,
     });
   }
   // filter actions

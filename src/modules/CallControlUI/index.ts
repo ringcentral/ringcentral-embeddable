@@ -12,6 +12,7 @@ import { trackEvents } from '../Analytics/trackEvents';
     'ActiveCallControl',
     'Call',
     'ContactMatcher',
+    'VoicemailDrop',
   ],
 })
 export class CallControlUI extends CallControlUIBase {
@@ -35,6 +36,7 @@ export class CallControlUI extends CallControlUIBase {
     return {
       ...props,
       session,
+      showVoicemailDrop: true,
     };
   }
 
@@ -74,10 +76,15 @@ export class CallControlUI extends CallControlUIBase {
     const {
       alert,
       activeCallControl,
-      webphone
+      webphone,
+      voicemailDrop,
     } = this._deps;
     return {
       ...functions,
+      onVoicemailDrop: (sessionId: string) => {
+        const messageId = voicemailDrop.voicemailMessages[0].id;
+        return webphone.dropVoicemailMessage(sessionId, messageId);
+      },
       onMute: (sessionId: string) => {
         this.trackMute();
         return webphone.mute(sessionId);
