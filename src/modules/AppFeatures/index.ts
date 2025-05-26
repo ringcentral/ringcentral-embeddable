@@ -138,6 +138,13 @@ export class AppFeatures extends AppFeaturesBase {
     );
   }
 
+  get hasSharedMessageStorePermission() {
+    return (
+      (this._deps.extensionFeatures.features?.SharedVoicemail?.available ?? false) ||
+      (this._deps.extensionFeatures.features?.CallQueueSmsRecipient?.available ?? false)
+    );
+  }
+
   @state
   configState = {};
 

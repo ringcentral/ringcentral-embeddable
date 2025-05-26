@@ -9,15 +9,109 @@ import {
 } from '@ringcentral-integration/commons/modules/MessageStore';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
+import { sleep } from '@ringcentral-integration/utils';
+import { syncTypes } from '@ringcentral-integration/commons/enums/syncTypes';
+
+import type {
+  MessageSyncList,
+} from '@ringcentral-integration/commons/interfaces/MessageStore.model';
+import type {
+  SyncFunctionOptions,
+} from '@ringcentral-integration/commons/modules/MessageStore/MessageStore.interface';
 
 // reference: https://developers.ringcentral.com/api-reference/Message-Store/syncMessages
 const INVALID_TOKEN_ERROR_CODES = ['CMN-101', 'MSG-333'];
+
+type GetSyncParamsOptions = Pick<
+  SyncFunctionOptions,
+  Exclude<keyof SyncFunctionOptions, 'receivedRecordsLength'>
+>;
+
+interface SyncParams {
+  syncType: string;
+  recordCountPerConversation: GetSyncParamsOptions['conversationLoadLength'];
+  recordCount?: GetSyncParamsOptions['recordCount'];
+  dateFrom?: string;
+  dateTo?: string;
+  owner?: 'Any' | 'Personal' | 'Shared';
+}
+
+const getSyncParams = ({
+  recordCount,
+  conversationLoadLength,
+  dateFrom,
+  dateTo,
+  syncToken,
+  hasSharedAccess,
+}: GetSyncParamsOptions) => {
+  if (syncToken) {
+    return {
+      syncToken,
+      syncType: syncTypes.iSync,
+    };
+  }
+  const params: SyncParams = {
+    recordCountPerConversation: conversationLoadLength,
+    syncType: syncTypes.fSync,
+  };
+  if (hasSharedAccess) {
+    params.owner = 'Any';
+  }
+  if (recordCount) {
+    params.recordCount = recordCount;
+  }
+  if (dateFrom) {
+    params.dateFrom = dateFrom.toISOString();
+  }
+  if (dateTo) {
+    params.dateTo = dateTo.toISOString();
+  }
+  return params;
+};
 
 @Module({
   name: 'MessageStore',
   deps: [],
 })
 export class MessageStore extends MessageStoreBase {
+  async _syncFunction({
+    recordCount,
+    conversationLoadLength,
+    dateFrom,
+    dateTo,
+    syncToken,
+    receivedRecordsLength = 0,
+  }: SyncFunctionOptions): Promise<MessageSyncList> {
+    const params = getSyncParams({
+      recordCount,
+      conversationLoadLength,
+      dateFrom,
+      dateTo,
+      syncToken,
+      hasSharedAccess: this._deps.appFeatures.hasSharedMessageStorePermission,
+    });
+    const { records, syncInfo = {} }: MessageSyncList = await this._deps.client
+      .account()
+      .extension()
+      .messageSync()
+      .list(params);
+    receivedRecordsLength += records.length;
+    if (!syncInfo.olderRecordsExist || receivedRecordsLength >= recordCount) {
+      return { records, syncInfo };
+    }
+    await sleep(500);
+    const olderDateTo = new Date(records[records.length - 1].creationTime);
+    const olderRecordResult = await this._syncFunction({
+      conversationLoadLength,
+      dateFrom,
+      dateTo: olderDateTo,
+    });
+    return {
+      records: records.concat(olderRecordResult.records),
+      syncInfo,
+    };
+  }
+
   // TODO: fix sync token error issue
   override async _syncData({ dateTo = null as Date, passive = false } = {}) {
     const conversationsLoadLength = this._conversationsLoadLength;
