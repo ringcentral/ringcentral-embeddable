@@ -31,5 +31,5 @@ export default {
   status: 'Status',
   acceptQueueCalls: 'Accept calls from call queue',
   appearance: 'Appearance',
-  voicemailDropSettings: 'Voicemail drop settings',
+  voicemailDropSettings: 'Voicemail drop settings (Beta)',
 };
