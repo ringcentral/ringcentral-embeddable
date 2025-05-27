@@ -124,6 +124,7 @@ function init({
     mainTab,
     enableSharedMessages,
     enableSideWidget,
+    enableVoicemailDrop,
   } = options;
   const appUri = `${appUrl}?${obj2uri({
     appKey,
@@ -180,6 +181,7 @@ function init({
     enableAudioInitPrompt,
     enableSharedMessages,
     enableLoadMoreCalls,
+    enableVoicemailDrop,
     mainTab,
     _t: Date.now(),
   })}`;

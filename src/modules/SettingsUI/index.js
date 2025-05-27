@@ -69,7 +69,7 @@ export class SettingsUI extends BaseSettingsUI {
       smartNoteAutoStartEnabledReadOnlyReason: smartNotes.autoStartSmartNoteReadOnlyReason,
       showCallQueuePresenceSettings: appFeatures.hasReadCallQueuePresencePermission && appFeatures.hasEditCallQueuePresencePermission,
       showText: appFeatures.hasSendSMSPermission,
-      showVoicemailDropSettings: true,
+      showVoicemailDropSettings: appFeatures.hasVoicemailDropPermission,
     };
   }
 

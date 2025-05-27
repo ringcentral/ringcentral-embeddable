@@ -770,6 +770,7 @@ export function createPhone({
   enableSharedMessages,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
+  enableVoicemailDrop,
   isMainTab,
   autoMainTab,
 }) {
@@ -920,6 +921,7 @@ export function createPhone({
           LoadMoreCalls: !!enableLoadMoreCalls,
           CallRecording: !disableCall && !disableCallHistory,
           SharedMessages: !!enableSharedMessages,
+          VoicemailDrop: !!enableVoicemailDrop,
         },
       },
       {
