@@ -11,6 +11,7 @@ import {
   RcButton,
   RcTypography,
   RcAlert,
+  RcTooltip,
 } from '@ringcentral/juno';
 import { BackHeaderView } from '../BackHeaderView';
 import { Edit, PlayCircle, Delete } from '@ringcentral/juno-icon';
@@ -106,22 +107,25 @@ export const VoicemailDropSettingsPanel = ({
         {content}
         {
           !selectedMessage && (
-            <AddButtonWrapper>
-              <RcButton
-                fullWidth
-                  onClick={() => {
-                    setSelectedMessage({
-                      id: null,
-                      name: '',
-                      file: null,
-                      fileName: '',
-                    });
-                }}
-                variant="outlined"
-              >
-                Add a pre-recorded message
-              </RcButton>
-            </AddButtonWrapper>
+            <RcTooltip title={voicemailMessages.length >= 20 ? 'You have reached the maximum 10 number of voicemail messages.' : ''}>
+              <AddButtonWrapper>
+                <RcButton
+                  fullWidth
+                    onClick={() => {
+                      setSelectedMessage({
+                        id: null,
+                        name: '',
+                        file: null,
+                        fileName: '',
+                      });
+                  }}
+                  variant="outlined"
+                  disabled={voicemailMessages.length >= 20}
+                >
+                  Add a pre-recorded message
+                </RcButton>
+              </AddButtonWrapper>
+            </RcTooltip>
           )
         }
         <ConfirmDialog

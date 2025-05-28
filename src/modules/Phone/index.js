@@ -220,6 +220,7 @@ import { SideDrawerUI } from '../SideDrawerUI';
 import { SmartNotesUI } from '../SmartNotesUI';
 import { WidgetAppsUI } from '../WidgetAppsUI';
 import { VoicemailDrop } from '../VoicemailDrop';
+import { VoicemailDropUI } from '../VoicemailDropUI';
 import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
@@ -471,6 +472,7 @@ import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
     { provide: 'WidgetAppsUI', useClass: WidgetAppsUI },
     { provide: 'VoicemailDrop', useClass: VoicemailDrop },
     { provide: 'VoicemailDropSettingsUI', useClass: VoicemailDropSettingsUI },
+    { provide: 'VoicemailDropUI', useClass: VoicemailDropUI },
   ]
 })
 export default class BasePhone extends RcModule {

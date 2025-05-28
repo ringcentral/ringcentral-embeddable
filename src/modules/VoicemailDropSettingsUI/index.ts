@@ -1,5 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { RcUIModuleV2, watch } from '@ringcentral-integration/core';
+import { RcUIModuleV2 } from '@ringcentral-integration/core';
 
 @Module({
   name: 'VoicemailDropSettingsUI',

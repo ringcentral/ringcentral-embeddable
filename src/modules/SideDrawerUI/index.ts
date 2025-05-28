@@ -368,6 +368,19 @@ export class SideDrawerUI extends RcUIModuleV2 {
     });
   }
 
+  openVoicemailDrop(callSessionId, contact) {
+    this.openWidget({
+      widget: {
+        id: 'voicemailDrop',
+        name: 'Voicemail drop',
+        params: {
+          callSessionId,
+        },
+      },
+      contact,
+    });
+  }
+
   hasWidget(widgetId) {
     return this.widgets.some((w) => w.id === widgetId);
   }

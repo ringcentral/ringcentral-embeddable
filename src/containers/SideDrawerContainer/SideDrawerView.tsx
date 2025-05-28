@@ -40,6 +40,7 @@ import { GlipChatPage } from '../GlipChatPage';
 import LogCallPage from '../LogCallPage';
 import LogMessagesPage from '../LogMessagesPage';
 import { WidgetAppsPage } from '../WidgetAppsPage';
+import { VoicemailDropPage } from '../VoicemailDropPage';
 import type { WidgetContact } from '../../lib/widgetContact';
 
 const StyledDrawer = styled(RcDrawer)`
@@ -250,6 +251,9 @@ function getTabIcon(widget, active) {
   if (widgetId === 'widgetApps') {
     return Apps;
   }
+  if (widgetId === 'voicemailDrop') {
+    return active ? Voicemail : VoicemailBorder;;
+  }
   if (widget.icon) {
     return widget.icon;
   }
@@ -426,6 +430,17 @@ function Widget({
         contact={contact}
         showCloseButton={!withTab}
         onClose={onClose}
+      />
+    );
+  }
+  if (widget.id === 'voicemailDrop') {
+    return (
+      <VoicemailDropPage
+        callSessionId={widget.params.callSessionId}
+        hideBackButton={drawerVariant === 'permanent' || withTab}
+        showCloseButton={drawerVariant === 'permanent' && !withTab}
+        onClose={onClose}
+        onBackButtonClick={onClose}
       />
     );
   }

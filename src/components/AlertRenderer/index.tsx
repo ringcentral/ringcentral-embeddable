@@ -51,6 +51,21 @@ export function getAlertRenderer({
     if (message.message === 'smsTemplateMaxLimit') {
       return () => 'Sorry, you have reached the maximum 25 number of templates.';
     }
+    if (message.message === 'dropVoicemailMessageError') {
+      return () => 'Sorry, failed to drop voicemail message. Please try again later.';
+    }
+    if (message.message === 'dropVoicemailMessageTimeout') {
+      return () => 'Sorry, voicemail greeting ended detection timeout. Please try again later.';
+    }
+    if (message.message === 'dropVoicemailMessageFailedAsCallEnded') {
+      return () => 'Sorry, voicemail greeting ended detection failed as call ended. Please try again later.';
+    }
+    if (message.message === 'dropVoicemailMessageSendedAsCallEnded') {
+      return () => 'Sorry, voicemail message sended failed as call ended.';
+    }
+    if (message.message === 'dropVoicemailMessageMaxLimit') {
+      return () => 'Sorry, you have reached the maximum 10 number of voicemail messages.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage
