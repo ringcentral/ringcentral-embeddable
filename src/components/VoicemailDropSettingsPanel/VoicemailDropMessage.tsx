@@ -82,7 +82,7 @@ export const VoicemailDropMessage = ({
         }}
       />
       <FileUploader>
-        <RcTypography variant="body1">{fileName ? fileName : 'Upload .WAV or .MP3 file'}</RcTypography>
+        <RcTypography variant="body1">{fileName ? fileName : 'Upload .WAV or .MP3 file (max 8MB)'}</RcTypography>
         {
           file && (
             <RcIconButton

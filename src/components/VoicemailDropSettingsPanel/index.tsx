@@ -100,7 +100,7 @@ export const VoicemailDropSettingsPanel = ({
         {
           !selectedMessage && (
             <StyledAlert severity="info">
-              When you found the outbound call is redirected to voicemail, you can drop a pre-recorded message to the voicemail.
+              When you notice that your outbound call goes to voicemail, you can drop a pre-recorded message.
             </StyledAlert>
           )
         }
