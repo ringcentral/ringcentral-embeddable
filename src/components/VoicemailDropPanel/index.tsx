@@ -27,6 +27,11 @@ const StyledAlert = styled(RcAlert)`
   margin: 16px;
 `;
 
+const NoMessage = styled(RcTypography)`
+  padding: 0 16px;
+  margin-top: 16px;
+`;
+
 export const VoicemailDropPanel = ({
   voicemailMessages,
   onClose,
@@ -87,6 +92,13 @@ export const VoicemailDropPanel = ({
               </RcListItemSecondaryAction>
             </RcListItem>
           ))}
+          {
+            voicemailMessages.length === 0 ? (
+              <NoMessage variant="body1">
+                No pre-recorded messages, please go to settings to create one.
+              </NoMessage>
+            ) : null
+          }
         </RcList>
       </Container>
     </BackHeaderView>

@@ -473,7 +473,8 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
     showRingoutCallControl ||
     showSwitchCall
   );
-  const cursorPointer = hasCallControl && !!onClick;
+  const voicemailDropStatus = webphoneSession?.voicemailDropStatus;
+  const cursorPointer = hasCallControl && !!onClick && !voicemailDropStatus;
   // real outbound call status
   const isConnecting =
     telephonySession?.otherParties[0]?.status?.code ===
@@ -497,7 +498,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       }
     }
   };
-  const voicemailDropStatus = webphoneSession?.voicemailDropStatus;
+
   let actions = [];
   if (showLogButton) {
     actions.push({
@@ -597,7 +598,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       $cursorPointer={cursorPointer}
     >
       <RcListItemAvatar
-        onClick={hasCallControl && onClick ? onClick : undefined}
+        onClick={hasCallControl && !voicemailDropStatus && onClick ? onClick : undefined}
       >
         <CallIcon
           isOnConferenceCall={isOnConferenceCall}
@@ -606,7 +607,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       </RcListItemAvatar>
       <RcListItemText
         data-sign="callNameAndDurationWrap"
-        onClick={hasCallControl && onClick ? onClick : undefined}
+        onClick={hasCallControl && !voicemailDropStatus && onClick ? onClick : undefined}
         primary={
           <ContactDisplay
             warmTransferRole={warmTransferRole}
