@@ -628,6 +628,13 @@ export class Webphone extends WebphoneBase {
     webphoneSession.on('terminated', () => {
       this._deps.noiseReduction.reset(webphoneSession.id);
     });
+    // Leak issue in SIP.js, terminated the call if the call is cancelled by local
+    webphoneSession.on('bye', (request) => {
+      if (webphoneSession.isCanceled) {
+        console.log('Force terminated the call when the call is cancelled by local');
+        webphoneSession.terminated(request, 'Canceled');
+      }
+    });
   }
 
   @computed((that: WebphoneBase) => [
