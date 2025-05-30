@@ -67,7 +67,12 @@ export const VoicemailDropSettingsPanel = ({
               <RcListItemIcon>
                 <RcIcon symbol={PlayCircle} />
               </RcListItemIcon>
-              <RcListItemText primary={message.label} />
+              <RcListItemText
+                primary={message.label}
+                primaryTypographyProps={{
+                  title: message.label,
+                }}
+              />
               <RcListItemSecondaryAction>
                 <RcIconButton symbol={Edit} onClick={() => setSelectedMessage(message)} />
                 <RcIconButton

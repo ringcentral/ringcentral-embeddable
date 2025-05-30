@@ -6,7 +6,8 @@ import {
   storage,
 } from '@ringcentral-integration/core';
 import voicemailGreetingEndDetectorWorklet from '../../worklets/voicemail-greeting-end-detector.worklet.js'; // DO NOT update for webpack
-
+import voicemailDropStatus from '../WebphoneV2/voicemailDropStatus';
+import { update } from 'lodash';
 type VoicemailMessage = {
   id: string;
   label: string;
@@ -114,27 +115,33 @@ export class VoicemailDrop extends RcModuleV2 {
     webphoneSession,
     audioBuffer,
     audioContext,
-    onEnded,
+    endCall,
+    updateStatus,
   }) {
     const result = await this._waitVoicemailGreetingEnd({
       webphoneSession,
       audioContext,
+      endCall,
     });
     if (!result) {
       console.error('Voicemail greeting ended detection failed');
+      updateStatus(voicemailDropStatus.greetingDetectionFailed);
       return;
     }
+    updateStatus(voicemailDropStatus.sending);
     await this._sendAudioData({
       webphoneSession,
       audioContext,
       audioBuffer,
-      onEnded,
+      endCall,
+      updateStatus,
     });
   }
 
   async _waitVoicemailGreetingEnd({
     webphoneSession,
     audioContext,
+    endCall,
   }) {
     const peerConnection: RTCPeerConnection = webphoneSession.sessionDescriptionHandler.peerConnection;
     const receiver = peerConnection.getReceivers().find((r: any) => r.track.kind === 'audio');
@@ -160,31 +167,35 @@ export class VoicemailDrop extends RcModuleV2 {
     });
     return new Promise((resolve) => {
       let detected = false;
+      let detectedTimeout = false;
       // if no detect silence in 2 minutes, return false
       let timeout = setTimeout(() => {
         timeout = null;
         if (!detected) {
+          detectedTimeout = true;
           console.log('Voicemail greeting ended detection timeout');
           this._deps.alert.warning({
-            message: 'dropVoicemailMessageTimeout',
+            message: 'dropVoicemailMessageGreetingDetectionTimeout',
           });
-          audio.srcObject = null; // clear audio source
-          greetingEndDetector.disconnect();
-          mediaStreamSource.disconnect();
-          gainNode.disconnect();
-          greetingEndDetector.port.onmessage = null;
+          endCall(); // hang up the call
           resolve(false);
         }
       }, 120000);
       const onCallEnd = () => {
-        audio.srcObject = null; // clear audio source
         if (timeout !== null) {
           clearTimeout(timeout);
         }
+        audio.srcObject = null; // clear audio source
+        greetingEndDetector.disconnect();
+        mediaStreamSource.disconnect();
+        gainNode.disconnect();
+        greetingEndDetector.port.onmessage = null;
         if (!detected) {
-          this._deps.alert.warning({
-            message: 'dropVoicemailMessageFailedAsCallEnded',
-          });
+          if (!detectedTimeout) {
+            this._deps.alert.warning({
+              message: 'dropVoicemailMessageFailedAsCallEnded',
+            });
+          }
           resolve(false);
         }
       };
@@ -212,7 +223,8 @@ export class VoicemailDrop extends RcModuleV2 {
     webphoneSession,
     audioContext,
     audioBuffer,
-    onEnded,
+    endCall,
+    updateStatus,
   }) {
     try {
       const peerConnection: RTCPeerConnection = webphoneSession.sessionDescriptionHandler.peerConnection;
@@ -239,7 +251,8 @@ export class VoicemailDrop extends RcModuleV2 {
           sourceNode.onended = () => {
             audioTrack.stop();
             webphoneSession.removeListener('terminated', onCallEnd);
-            onEnded();
+            updateStatus(voicemailDropStatus.finished);
+            endCall();
           };
           console.log('replace track');
           await sender.replaceTrack(audioTrack);
@@ -249,10 +262,13 @@ export class VoicemailDrop extends RcModuleV2 {
         console.log('Audio track added to peer connection');
       } else {
         console.error('Failed to create audio track from stream');
+        updateStatus(voicemailDropStatus.terminated);
+        endCall();
       }
     } catch (e) {
       console.error('Error in send audio data:', e);
-      onEnded();
+      updateStatus(voicemailDropStatus.voicemailDropTerminated);
+      endCall();
     }
   }
 }

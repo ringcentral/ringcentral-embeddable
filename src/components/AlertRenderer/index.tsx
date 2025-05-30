@@ -54,7 +54,7 @@ export function getAlertRenderer({
     if (message.message === 'dropVoicemailMessageError') {
       return () => 'Sorry, failed to drop voicemail message. Please try again later.';
     }
-    if (message.message === 'dropVoicemailMessageTimeout') {
+    if (message.message === 'dropVoicemailMessageGreetingDetectionTimeout') {
       return () => 'Sorry, voicemail greeting ended detection timeout. Please try again later.';
     }
     if (message.message === 'dropVoicemailMessageFailedAsCallEnded') {

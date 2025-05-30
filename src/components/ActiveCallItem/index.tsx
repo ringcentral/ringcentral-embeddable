@@ -34,7 +34,7 @@ import {
 } from '@ringcentral/juno-icon'
 import styles from '@ringcentral-integration/widgets/components/ActiveCallItemV2/styles.scss';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
-
+import voicemailDropStatus from '../../modules/WebphoneV2/voicemailDropStatus';
 import {
   StyledListItem,
   StyledSecondary,
@@ -43,6 +43,14 @@ import {
 } from '../CallItem/styled';
 import { SwitchDialog } from './SwitchDialog';
 import { CallIcon } from './CallIcon';
+
+const VOICEMAIL_DROP_STATUS_MAP = {
+  [voicemailDropStatus.waitingForGreetingEnd]: 'Waiting dropping',
+  [voicemailDropStatus.sending]: 'Dropping message',
+  [voicemailDropStatus.finished]: 'Message dropped',
+  [voicemailDropStatus.terminated]: 'Dropping terminated',
+  [voicemailDropStatus.greetingDetectionFailed]: 'Dropping failed',
+};
 
 const getWebphoneActions = ({
   currentLocale,
@@ -489,6 +497,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       }
     }
   };
+  const voicemailDropStatus = webphoneSession?.voicemailDropStatus;
   let actions = [];
   if (showLogButton) {
     actions.push({
@@ -518,8 +527,8 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       webphoneResume,
       webphoneHold,
       currentLocale,
-      showMergeCall,
-      showHold,
+      showMergeCall: showMergeCall && !voicemailDropStatus,
+      showHold: showHold && !voicemailDropStatus,
       disableMerge,
       onMergeCall,
       webphoneAnswer,
@@ -633,7 +642,11 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
         secondary={
           <StyledSecondary>
             <DetailArea>
-              {i18n.getString(telephonyStatus, currentLocale)}
+              {
+                voicemailDropStatus ?
+                  VOICEMAIL_DROP_STATUS_MAP[voicemailDropStatus] :
+                  i18n.getString(telephonyStatus, currentLocale)
+              }
             </DetailArea>
             <span className="call-item-time" data-sign="duration">
               <DurationCounter startTime={startTime} offset={offset} />

@@ -62,7 +62,12 @@ export const VoicemailDropPanel = ({
               <RcListItemIcon>
                 <RcIcon symbol={PlayCircle} />
               </RcListItemIcon>
-              <RcListItemText primary={voicemailMessage.label} />
+              <RcListItemText
+                primary={voicemailMessage.label}
+                primaryTypographyProps={{
+                  title: voicemailMessage.label,
+                }}
+              />
               <RcListItemSecondaryAction>
                 <RcIconButton
                   symbol={SendFilled}
