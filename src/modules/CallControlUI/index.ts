@@ -6,7 +6,6 @@ import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/ses
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { track } from '@ringcentral-integration/core';
 import { trackEvents } from '../Analytics/trackEvents';
-import { isDroppingVoicemail } from '../WebphoneV2/webphoneHelper';
 @Module({
   name: 'CallControlUI',
   deps: [
@@ -44,10 +43,6 @@ export class CallControlUI extends CallControlUIBase {
         this.currentSession &&
         this.currentSession.direction === callDirections.outbound,
       voicemailDropStatus: this.currentSession.voicemailDropStatus,
-      controlBusy: (
-        this.currentSession.callStatus === sessionStatus.setup ||
-        isDroppingVoicemail(this.currentSession.voicemailDropStatus)
-      ),
     };
   }
 

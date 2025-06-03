@@ -28,10 +28,10 @@ import {
 import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayouts';
 import i18n from '@ringcentral-integration/widgets/components/ActiveCallPad/i18n';
 import { pickElements } from '@ringcentral-integration/widgets/components/ActiveCallPad/utils';
-
+import { isDroppingVoicemail } from '../../../modules/Webphone/helper';
 import CallCtrlButton from '../../CallCtrlButton';
 import { ACTIONS_CTRL_MAP } from './actions';
-VoicemailDropIcon
+
 const StyledContainer = styled.div`
   margin-left: 15%;
   margin-right: 15%;
@@ -91,6 +91,7 @@ type ActiveCallPadProps = {
   controlBusy?: boolean;
   onVoicemailDrop: (...args: any[]) => any;
   showVoicemailDrop?: boolean;
+  voicemailDropStatus?: string;
 };
 
 const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
@@ -125,10 +126,11 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
   isOnTransfer,
   onVoicemailDrop,
   showVoicemailDrop,
+  voicemailDropStatus,
 }) => {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreButtonRef = useRef<HTMLDivElement>(null);
-
+  const droppingVoicemail = isDroppingVoicemail(voicemailDropStatus);
   let buttons = [];
   /* --------------------- Mute/Unmute --------------------------- */
   buttons.push(
@@ -138,7 +140,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
           id: ACTIONS_CTRL_MAP.muteCtrl,
           dataSign: 'mute',
           title: i18n.getString('unmute', currentLocale),
-          disabled: isOnHold || controlBusy,
+          disabled: isOnHold || controlBusy || droppingVoicemail,
           onClick: onUnmute,
           active: true,
         }
@@ -147,7 +149,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
           id: ACTIONS_CTRL_MAP.muteCtrl,
           dataSign: 'unmute',
           title: i18n.getString('mute', currentLocale),
-          disabled: isOnHold || controlBusy,
+          disabled: isOnHold || controlBusy || droppingVoicemail,
           onClick: onMute,
         },
   );
@@ -158,7 +160,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
     dataSign: 'keypad',
     title: i18n.getString('keypad', currentLocale),
     onClick: onShowKeyPad,
-    disabled: layout === callCtrlLayouts.conferenceCtrl,
+    disabled: layout === callCtrlLayouts.conferenceCtrl || droppingVoicemail,
   });
   /* --------------------- Hold/Unhold --------------------------- */
   buttons.push({
@@ -174,7 +176,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       : i18n.getString('hold', currentLocale),
     active: isOnHold,
     onClick: isOnHold ? onUnhold : onHold,
-    disabled: controlBusy,
+    disabled: controlBusy || droppingVoicemail,
   });
   if (isOnWaitingTransfer) {
     buttons.push({
@@ -182,7 +184,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       id: ACTIONS_CTRL_MAP.completeTransferCtrl,
       dataSign: 'completeTransfer',
       title: i18n.getString('completeTransfer', currentLocale),
-      disabled: isOnTransfer || controlBusy,
+      disabled: isOnTransfer || controlBusy || droppingVoicemail,
       onClick: onCompleteTransfer,
       showRipple: true,
     });
@@ -199,7 +201,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
             id: ACTIONS_CTRL_MAP.mergeOrAddCtrl,
             dataSign: 'merge',
             title: i18n.getString('mergeToConference', currentLocale),
-            disabled: mergeDisabled || controlBusy,
+            disabled: mergeDisabled || controlBusy || droppingVoicemail,
             onClick: onMerge,
             showRipple: !mergeDisabled,
           }
@@ -208,7 +210,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
             id: ACTIONS_CTRL_MAP.mergeOrAddCtrl,
             dataSign: 'add',
             title: i18n.getString('add', currentLocale),
-            disabled: addDisabled || controlBusy,
+            disabled: addDisabled || controlBusy || droppingVoicemail,
             onClick: onAdd,
           },
     );
@@ -229,7 +231,8 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       recordStatus === recordStatuses.pending ||
       layout === callCtrlLayouts.mergeCtrl ||
       recordStatus === recordStatuses.noAccess ||
-      controlBusy,
+      controlBusy ||
+      droppingVoicemail,
     onClick:
       recordStatus === recordStatuses.recording ? onStopRecord : onRecord,
     activeColor: 'danger.b02',
@@ -242,7 +245,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       id: ACTIONS_CTRL_MAP.transferCtrl,
       dataSign: 'transfer',
       title: i18n.getString('transfer', currentLocale),
-      disabled: disabledTransfer || controlBusy,
+      disabled: disabledTransfer || controlBusy || droppingVoicemail,
       onClick: onTransfer,
     });
   }
@@ -255,7 +258,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
     id: ACTIONS_CTRL_MAP.flipCtrl,
     dataSign: 'flip',
     title: i18n.getString('flip', currentLocale),
-    disabled: disabledFlip || controlBusy,
+    disabled: disabledFlip || controlBusy || droppingVoicemail,
     onClick: onFlip,
   });
   /* --------------------- Park --------------------------- */
@@ -265,7 +268,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       id: ACTIONS_CTRL_MAP.parkCtrl,
       dataSign: 'park',
       title: i18n.getString('park', currentLocale),
-      disabled: disableControlButton || controlBusy,
+      disabled: disableControlButton || controlBusy || droppingVoicemail,
       onClick: onPark,
     });
   }
@@ -277,7 +280,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       dataSign: 'voicemailDrop',
       title: 'Voicemail drop',
       onClick: onVoicemailDrop,
-      disabled: disableControlButton || controlBusy || isOnHold,
+      disabled: disableControlButton || controlBusy || droppingVoicemail,
     });
   }
   // filter actions

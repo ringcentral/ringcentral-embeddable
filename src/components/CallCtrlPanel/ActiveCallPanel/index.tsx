@@ -298,6 +298,7 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
               onCompleteTransfer={onCompleteTransfer}
               onVoicemailDrop={onVoicemailDrop}
               showVoicemailDrop={showVoicemailDrop}
+              voicemailDropStatus={voicemailDropStatus}
             />
           )
         }
