@@ -5,6 +5,7 @@ import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayo
 
 import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
 import i18n from '@ringcentral-integration/widgets/components/CallCtrlContainer/i18n';
+import { VOICEMAIL_DROP_STATUS_MAP } from '../../../modules/WebphoneV2/voicemailDropStatus';
 
 import { BackHeaderView } from '../../BackHeaderView';
 import CallInfo from './CallInfo';
@@ -98,7 +99,23 @@ type ActiveCallPanelProps = {
   onTransfer: (...args: any[]) => any;
   onVoicemailDrop: (...args: any[]) => any;
   showVoicemailDrop?: boolean;
+  voicemailDropStatus?: string;
 };
+
+function DurationCounterArea({
+  voicemailDropStatus,
+  startTime,
+  startTimeOffset,
+}) {
+  if (voicemailDropStatus) {
+    return <span>{VOICEMAIL_DROP_STATUS_MAP[voicemailDropStatus]}</span>
+  }
+  if (!startTime) {
+    return <span aria-hidden="true">&nbsp;</span>;
+  }
+  return <DurationCounter startTime={startTime} offset={startTimeOffset} />;
+}
+
 const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   showBackButton,
   backButtonLabel,
@@ -160,12 +177,15 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   onCompleteTransfer,
   onVoicemailDrop,
   showVoicemailDrop,
+  voicemailDropStatus,
 }) => {
-  const timeCounter = startTime ? (
-      <DurationCounter startTime={startTime} offset={startTimeOffset} />
-    ) : (
-      <span aria-hidden="true">&nbsp;</span>
-    );
+  const timeCounter = (
+    <DurationCounterArea
+      voicemailDropStatus={voicemailDropStatus}
+      startTime={startTime}
+      startTimeOffset={startTimeOffset}
+    />
+  );
   const currentCallTitle = nameMatches?.length
     ? nameMatches[0].name
     : formatPhone(phoneNumber);

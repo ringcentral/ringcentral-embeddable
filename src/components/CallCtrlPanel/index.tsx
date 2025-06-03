@@ -70,6 +70,7 @@ type CallCtrlPanelProps = {
   onCompleteTransfer?: (...args: any[]) => any;
   isOnWaitingTransfer?: boolean;
   isOnTransfer?: boolean;
+  voicemailDropStatus?: string;
 };
 
 const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
@@ -87,6 +88,7 @@ const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
   conferenceCallEquipped = false,
   conferenceCallParties = undefined,
   controlBusy = false,
+  voicemailDropStatus = null,
   countryCode,
   currentLocale,
   direction = null,
@@ -237,6 +239,7 @@ const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
       actions={actions}
       controlBusy={controlBusy}
       callQueueName={callQueueName}
+      voicemailDropStatus={voicemailDropStatus}
     >
       {children}
       {showSpinner ? <SpinnerOverlay /> : null}

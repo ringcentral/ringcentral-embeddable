@@ -1,12 +1,13 @@
 import { DialerUI as DialerUIBase } from '@ringcentral-integration/widgets/modules/DialerUI';
 import { Module } from '@ringcentral-integration/commons/lib/di';
-
+import { isDroppingVoicemail } from '../WebphoneV2/webphoneHelper';
 @Module({
   name: 'DialerUI',
   deps: [
     'ModalUI',
     'ThirdPartyService',
     'SideDrawerUI',
+    'Webphone',
   ],
 })
 export class DialerUI extends DialerUIBase {
@@ -14,6 +15,13 @@ export class DialerUI extends DialerUIBase {
   callVerify = async ({ phoneNumber, recipient }) => {
     if (this._deps.sideDrawerUI.modalOpen) {
       this._deps.sideDrawerUI.clearWidgets();
+    }
+    const voicemailDroppingSessions = this._deps.webphone.sessions.filter((session) => isDroppingVoicemail(session.voicemailDropStatus));
+    if (voicemailDroppingSessions.length > 5) {
+      this._deps.alert.warning({
+        message: 'tooManyVoicemailDroppingSessions',
+      });
+      return false;
     }
     if (recipient) {
       this._deps.call.onToNumberMatch({

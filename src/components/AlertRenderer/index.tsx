@@ -66,6 +66,9 @@ export function getAlertRenderer({
     if (message.message === 'dropVoicemailMessageMaxLimit') {
       return () => 'Sorry, you have reached the maximum 10 number of voicemail messages.';
     }
+    if (message.message === 'tooManyVoicemailDroppingSessions') {
+      return () => 'Sorry, there are too many voicemail dropping calls. Please wait them to finish and dial again.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage

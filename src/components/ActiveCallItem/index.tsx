@@ -34,7 +34,7 @@ import {
 } from '@ringcentral/juno-icon'
 import styles from '@ringcentral-integration/widgets/components/ActiveCallItemV2/styles.scss';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
-import voicemailDropStatus from '../../modules/WebphoneV2/voicemailDropStatus';
+import { VOICEMAIL_DROP_STATUS_MAP } from '../../modules/WebphoneV2/voicemailDropStatus';
 import {
   StyledListItem,
   StyledSecondary,
@@ -43,14 +43,6 @@ import {
 } from '../CallItem/styled';
 import { SwitchDialog } from './SwitchDialog';
 import { CallIcon } from './CallIcon';
-
-const VOICEMAIL_DROP_STATUS_MAP = {
-  [voicemailDropStatus.waitingForGreetingEnd]: 'Waiting dropping',
-  [voicemailDropStatus.sending]: 'Dropping message',
-  [voicemailDropStatus.finished]: 'Message dropped',
-  [voicemailDropStatus.terminated]: 'Dropping terminated',
-  [voicemailDropStatus.greetingDetectionFailed]: 'Dropping failed',
-};
 
 const getWebphoneActions = ({
   currentLocale,
