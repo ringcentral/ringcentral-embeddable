@@ -6,6 +6,7 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
   deps: [
     'VoicemailDrop',
     'RouterInteraction',
+    'Locale',
   ],
 })
 export class VoicemailDropSettingsUI extends RcUIModuleV2 {
@@ -16,9 +17,11 @@ export class VoicemailDropSettingsUI extends RcUIModuleV2 {
   }
 
   getUIProps() {
-    const { voicemailDrop } = this._deps;
+    const { voicemailDrop, locale } = this._deps;
     return {
       voicemailMessages: voicemailDrop.voicemailMessages || [],
+      externalVoicemailDropMessages: voicemailDrop.externalVoicemailDropFiles || [],
+      currentLocale: locale.currentLocale,
     };
   }
 
@@ -33,6 +36,9 @@ export class VoicemailDropSettingsUI extends RcUIModuleV2 {
       },
       onBackButtonClick: () => {
         routerInteraction.goBack();
+      },
+      onLoadExternalVoicemailDropMessages: () => {
+        voicemailDrop.fetchExternalVoicemailDropFiles();
       },
     };
   }

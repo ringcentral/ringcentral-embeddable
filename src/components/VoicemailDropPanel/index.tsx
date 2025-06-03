@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@ringcentral/juno/foundation';
 import { BackHeaderView } from '../BackHeaderView';
 import {
@@ -38,6 +38,7 @@ export const VoicemailDropPanel = ({
   onBackButtonClick,
   showCloseButton,
   onDrop,
+  onLoad,
   callSessionId,
   hideBackButton,
 }) => {
@@ -49,6 +50,11 @@ export const VoicemailDropPanel = ({
       title='Close'
     />
   ) : null;
+
+  useEffect(() => {
+    onLoad();
+  }, []);
+
   return (
     <BackHeaderView
       title='Voicemail drop'

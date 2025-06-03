@@ -4,16 +4,38 @@ import {
   RcModuleV2,
   state,
   storage,
+  computed,
 } from '@ringcentral-integration/core';
 import voicemailGreetingEndDetectorWorklet from '../../worklets/voicemail-greeting-end-detector.worklet.js'; // DO NOT update for webpack
 import voicemailDropStatus from '../WebphoneV2/voicemailDropStatus';
-import { update } from 'lodash';
+
 type VoicemailMessage = {
   id: string;
   label: string;
-  file: String; // Date URL
+  file?: String; // Date URL
   fileName: string;
+  uri?: string;
 };
+
+function isValidAudioUri(uri) {
+  if (!uri) {
+    return false;
+  }
+  if (
+    uri.startsWith('data:audio/mpeg;') ||
+    uri.startsWith('data:audio/wav;')
+  ) {
+    return true;
+  }
+  // no javascript in uri
+  if (uri.includes('javascript')) {
+    return false;
+  }
+  if (uri.startsWith('http://') || uri.startsWith('https://')) {
+    return true;
+  }
+  return false;
+}
 
 @Module({
   name: 'VoicemailDrop',
@@ -26,6 +48,7 @@ type VoicemailMessage = {
 })
 export class VoicemailDrop extends RcModuleV2 {
   protected _audioContext: AudioContext;
+  protected _externalVoicemailFetcher: (() => Promise<VoicemailMessage[]>) | null;
 
   constructor(deps) {
     super({
@@ -33,6 +56,11 @@ export class VoicemailDrop extends RcModuleV2 {
       storageKey: 'voicemailDrop',
       enableCache: true,
     });
+    this._externalVoicemailFetcher = null;
+  }
+
+  setExternalVoicemailFetcher(fetcher) {
+    this._externalVoicemailFetcher = fetcher;
   }
 
   @storage
@@ -66,6 +94,30 @@ export class VoicemailDrop extends RcModuleV2 {
     this.voicemailMessages = this.voicemailMessages.filter((message) => message.id !== voicemailMessage.id);
   }
 
+  @state
+  externalVoicemailDropFiles: VoicemailMessage[] = [];
+
+  @action
+  setExternalVoicemailDropFiles(voicemailMessages: VoicemailMessage[]) {
+    this.externalVoicemailDropFiles = voicemailMessages;
+  }
+
+  @computed((that: VoicemailDrop) => [that.voicemailMessages, that.externalVoicemailDropFiles])
+  get allMessages() {
+    return [...this.voicemailMessages, ...this.externalVoicemailDropFiles];
+  }
+
+  async fetchExternalVoicemailDropFiles() {
+    if (typeof this._externalVoicemailFetcher !== 'function') {
+      return;
+    }
+    const externalMessages = await this._externalVoicemailFetcher();
+    const validVoicemailMessages = externalMessages.filter((voicemailMessage) => {
+      return isValidAudioUri(voicemailMessage.uri) && voicemailMessage.label;
+    });
+    this.setExternalVoicemailDropFiles(validVoicemailMessages);
+  }
+
   get hasVoicemailDropPermission() {
     return this._deps.appFeatures.hasVoicemailDropPermission;
   }
@@ -89,7 +141,11 @@ export class VoicemailDrop extends RcModuleV2 {
   }
 
   async prepareVoicemailDrop(webphoneSession, messageId) {
-    const message = this.voicemailMessages.find((m) => m.id === messageId);
+    let message = this.allMessages.find((m) => m.id === messageId);
+    if (!message && this._externalVoicemailFetcher && this.externalVoicemailDropFiles.length === 0) {
+      await this.fetchExternalVoicemailDropFiles();
+      message = this.allMessages.find((m) => m.id === messageId);
+    }
     if (!message) {
       throw new Error('Message not found');
     }
@@ -103,7 +159,8 @@ export class VoicemailDrop extends RcModuleV2 {
       throw new Error('Sender not found for session');
     }
     const audioContext = await this.initAudioContext();
-    const audioData = await fetch(message.file as RequestInfo).then((res) => res.arrayBuffer());
+    const audioUri = message.file || message.uri;
+    const audioData = await fetch(audioUri as RequestInfo).then((res) => res.arrayBuffer());
     const audioBuffer = await audioContext.decodeAudioData(audioData);
     return {
       audioBuffer,
@@ -201,7 +258,6 @@ export class VoicemailDrop extends RcModuleV2 {
       };
       webphoneSession.once('terminated', onCallEnd);
       greetingEndDetector.port.onmessage = (e) => {
-        console.log('greetingEndDetector', e);
         if (e.data === 'greeting-ended' && !detected) {
           detected = true;
           audio.srcObject = null; // clear audio source
@@ -254,12 +310,9 @@ export class VoicemailDrop extends RcModuleV2 {
             updateStatus(voicemailDropStatus.finished);
             endCall();
           };
-          console.log('replace track');
           await sender.replaceTrack(audioTrack);
           sourceNode.start();
-          console.log('sourceNode.start');
         }
-        console.log('Audio track added to peer connection');
       } else {
         console.error('Failed to create audio track from stream');
         updateStatus(voicemailDropStatus.terminated);

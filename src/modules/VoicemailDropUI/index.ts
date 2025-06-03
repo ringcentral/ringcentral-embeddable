@@ -29,17 +29,20 @@ export class VoicemailDropUI extends RcUIModuleV2 {
   getUIProps() {
     const { voicemailDrop } = this._deps;
     return {
-      voicemailMessages: voicemailDrop.voicemailMessages || [],
+      voicemailMessages: voicemailDrop.allMessages || [],
     };
   }
 
   getUIFunctions() {
-    const { webphone, sideDrawerUI, routerInteraction } = this._deps;
+    const { webphone, sideDrawerUI, routerInteraction, voicemailDrop } = this._deps;
     return {
       onDrop: async (callSessionId, voicemailMessageId) => {
         await webphone.dropVoicemailMessage(callSessionId, voicemailMessageId);
         sideDrawerUI.closeWidget('voicemailDrop');
         routerInteraction.push('/dialer');
+      },
+      onLoad: () => {
+        return voicemailDrop.fetchExternalVoicemailDropFiles();
       },
     };
   }

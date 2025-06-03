@@ -1,14 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   styled,
   RcTextField,
   RcButton,
   RcIconButton,
   RcTypography,
-  useAudio,
   useMountState,
 } from '@ringcentral/juno';
-import { Attachment, Play, Pause } from '@ringcentral/juno-icon';
+import { Attachment } from '@ringcentral/juno-icon';
+import { AudioPlayer } from '../AudioPlayer';
 
 const Container = styled.div`
   display: flex;
@@ -31,6 +31,10 @@ const StyledTextField = styled(RcTextField)`
   margin-bottom: 16px;
 `;
 
+const StyledAudioPlayer = styled(AudioPlayer)`
+  margin-bottom: 16px;
+`;
+
 function canSave(message, label, file) {
   const labelTrimmed = label.trim();
   if (message.id) {
@@ -45,31 +49,16 @@ function canSave(message, label, file) {
 export const VoicemailDropMessage = ({
   message,
   onSave,
+  currentLocale,
 }) => {
   const [label, setLabel] = useState(message.label || '');
-  const [file, setFile] = useState(message.file || null);
+  const [file, setFile] = useState(message.file || message.uri || null);
   const [fileName, setFileName] = useState(message.fileName || '');
   const fileUploadRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audio = useAudio((a) => {
-    a.onplay = () => setIsPlaying(true);
-    a.onpause = () => setIsPlaying(false);
 
-    if (message && message.file) {
-      a.src = message.file;
-    }
-  });
   const isMountedRef = useMountState();
 
-  useEffect(() => {
-    audio.pause();
-    audio.currentTime = 0;
-    setIsPlaying(false);
-    
-    if (file) {
-      audio.src = file;
-    }
-  }, [audio, file]);
+  const isExternal = !!message.uri;
 
   return (
     <Container>
@@ -80,33 +69,30 @@ export const VoicemailDropMessage = ({
         onChange={(e) => {
           setLabel(e.target.value);
         }}
+        disabled={isExternal}
       />
-      <FileUploader>
-        <RcTypography variant="body1">{fileName ? fileName : 'Upload .WAV or .MP3 file (max 8MB)'}</RcTypography>
-        {
-          file && (
+      {
+        !isExternal && (
+          <FileUploader>
+            <RcTypography variant="body1">{fileName ? fileName : 'Upload .WAV or .MP3 file (max 8MB)'}</RcTypography>
             <RcIconButton
-              symbol={isPlaying ? Pause : Play}
-              title={isPlaying ? 'Pause' : 'Play'}
+              symbol={Attachment}
               onClick={() => {
-                if (isPlaying) {
-                  audio.pause();
-                } else {
-                  audio.play();
-                }
-                setIsPlaying(!isPlaying);
+                fileUploadRef.current.click();
               }}
+              title={file ? 'Change file' : 'Upload file'}
             />
-          )
-        }
-        <RcIconButton
-          symbol={Attachment}
-          onClick={() => {
-            fileUploadRef.current.click();
-          }}
-          title={file ? 'Change file' : 'Upload file'}
-        />
-      </FileUploader>
+          </FileUploader>
+        )
+      }
+      {
+        file && (
+          <StyledAudioPlayer
+            uri={file}
+            currentLocale={currentLocale}
+          />
+        )
+      }
       <HiddenInput
         type="file"
         ref={fileUploadRef}
@@ -131,20 +117,24 @@ export const VoicemailDropMessage = ({
         }}
         accept=".wav,.mp3"
       />
-      <RcButton
-        fullWidth
-        onClick={() => {
-          onSave({
-            id: message.id,
-            label,
-            file: file !== message.file ? file : null,
-            fileName: fileName !== message.fileName ? fileName : null,
-          });
-        }}
-        disabled={!canSave(message, label, file)}
-      >
-        Save
-      </RcButton>
+      {
+        !isExternal && (
+          <RcButton
+            fullWidth
+            onClick={() => {
+              onSave({
+                id: message.id,
+                label,
+                file: file !== message.file ? file : null,
+                fileName: fileName !== message.fileName ? fileName : null,
+              });
+            }}
+            disabled={!canSave(message, label, file)}
+          >
+            Save
+          </RcButton>
+        )
+      }
     </Container>
   );
 };

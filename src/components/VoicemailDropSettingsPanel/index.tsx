@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   styled,
   RcList,
@@ -14,7 +14,7 @@ import {
   RcTooltip,
 } from '@ringcentral/juno';
 import { BackHeaderView } from '../BackHeaderView';
-import { Edit, PlayCircle, Delete } from '@ringcentral/juno-icon';
+import { Edit, PlayCircle, Delete, ViewBorder } from '@ringcentral/juno-icon';
 import { VoicemailDropMessage } from './VoicemailDropMessage';
 import { ConfirmDialog } from '../ConfirmDialog';
 
@@ -40,12 +40,21 @@ const StyledAlert = styled(RcAlert)`
 export const VoicemailDropSettingsPanel = ({
   onBackButtonClick,
   voicemailMessages,
+  externalVoicemailDropMessages,
   onSave,
   onDelete,
+  onLoadExternalVoicemailDropMessages,
+  currentLocale,
 }) => {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState(null);
+
+  useEffect(() => {
+    if (typeof onLoadExternalVoicemailDropMessages === 'function') {
+      onLoadExternalVoicemailDropMessages();
+    }
+  }, []);
 
   const content = selectedMessage ? (
     <VoicemailDropMessage
@@ -54,6 +63,7 @@ export const VoicemailDropSettingsPanel = ({
         onSave(newMessage);
         setSelectedMessage(null);
       }}
+      currentLocale={currentLocale}
     />
   ) : (
     voicemailMessages.length > 0 ? (
@@ -84,6 +94,19 @@ export const VoicemailDropSettingsPanel = ({
                 />
               </RcListItemSecondaryAction>
 
+            </RcListItem>
+          ))}
+          {externalVoicemailDropMessages.map((message) => (
+            <RcListItem key={message.id}>
+              <RcListItemIcon>
+                <RcIcon symbol={PlayCircle} />
+              </RcListItemIcon>
+              <RcListItemText primary={message.label} />
+              <RcListItemSecondaryAction>
+                <RcIconButton symbol={ViewBorder} onClick={() => {
+                  setSelectedMessage(message);
+                }} />
+              </RcListItemSecondaryAction>
             </RcListItem>
           ))}
         </RcList>

@@ -278,7 +278,7 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       icon: VoicemailDropIcon,
       id: ACTIONS_CTRL_MAP.voicemailDropCtrl,
       dataSign: 'voicemailDrop',
-      title: 'Voicemail drop',
+      title: 'Voicemail drop (beta)',
       onClick: onVoicemailDrop,
       disabled: disableControlButton || controlBusy || droppingVoicemail,
     });
