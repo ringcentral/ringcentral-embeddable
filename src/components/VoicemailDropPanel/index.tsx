@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { styled } from '@ringcentral/juno/foundation';
 import { BackHeaderView } from '../BackHeaderView';
 import {
@@ -43,6 +43,7 @@ export const VoicemailDropPanel = ({
   hideBackButton,
 }) => {
   const [dropping, setDropping] = useState(false);
+  const mounted = useRef(false);
   const closeButton = showCloseButton ? (
     <RcIconButton
       symbol={Close}
@@ -52,7 +53,11 @@ export const VoicemailDropPanel = ({
   ) : null;
 
   useEffect(() => {
+    mounted.current = true;
     onLoad();
+    return () => {
+      mounted.current = false;
+    };
   }, []);
 
   return (
@@ -86,7 +91,9 @@ export const VoicemailDropPanel = ({
                     try {
                       setDropping(true);
                       await onDrop(callSessionId, voicemailMessage.id);
-                      setDropping(false);
+                      if (mounted.current) {
+                        setDropping(false);
+                      }
                     } catch (error) {
                       setDropping(false);
                       console.error(error);
