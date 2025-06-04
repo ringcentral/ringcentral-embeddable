@@ -110,6 +110,7 @@ const {
   enableSmartNote,
   enableSideWidget,
   enableAudioInitPrompt,
+  enableSharedMessages,
   enableLoadMoreCalls,
   mainTab,
 } = pathParams;
@@ -192,6 +193,7 @@ const phone = createPhone({
   enableSmartNote,
   enableSideWidget,
   enableAudioInitPrompt,
+  enableSharedMessages,
   enableLoadMoreCalls,
   isMainTab: mainTab === 'true',
   autoMainTab: typeof mainTab === 'undefined',

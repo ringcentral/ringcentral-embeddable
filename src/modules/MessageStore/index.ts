@@ -3,6 +3,7 @@ import {
   action,
   state,
   computed,
+  watch,
 } from '@ringcentral-integration/core';
 import {
   MessageStore as MessageStoreBase,
@@ -11,6 +12,7 @@ import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
 import { sleep } from '@ringcentral-integration/utils';
 import { syncTypes } from '@ringcentral-integration/commons/enums/syncTypes';
+import { subscriptionFilters } from '@ringcentral-integration/commons/enums/subscriptionFilters';
 
 import type {
   MessageSyncList,
@@ -20,7 +22,7 @@ import type {
 } from '@ringcentral-integration/commons/modules/MessageStore/MessageStore.interface';
 
 // reference: https://developers.ringcentral.com/api-reference/Message-Store/syncMessages
-const INVALID_TOKEN_ERROR_CODES = ['CMN-101', 'MSG-333'];
+const INVALID_TOKEN_ERROR_CODES = ['CMN-101', 'MSG-333', 'MSG-411'];
 
 type GetSyncParamsOptions = Pick<
   SyncFunctionOptions,
@@ -74,6 +76,60 @@ const getSyncParams = ({
   deps: [],
 })
 export class MessageStore extends MessageStoreBase {
+  override onInit() {
+    if (this._hasPermission) {
+      const filters = [subscriptionFilters.messageStore];
+      if (this._deps.appFeatures.hasCallQueueSmsRecipientPermission) {
+        filters.push('/restapi/v1.0/account/~/extension/~/shared-sms');
+      }
+      this._deps.subscription.subscribe(filters);
+    }
+  }
+
+  override onInitOnce() {
+    if (this._deps.connectivityMonitor) {
+      watch(
+        this,
+        () => this._deps.connectivityMonitor.connectivity,
+        (newValue) => {
+          if (this.ready && this._deps.connectivityMonitor.ready && newValue) {
+            this._deps.dataFetcherV2.fetchData(this._source);
+          }
+        },
+      );
+    }
+    watch(
+      this,
+      () => this._deps.subscription.message,
+      (newValue) => {
+        if (
+          !this.ready ||
+          (this._deps.tabManager && !this._deps.tabManager.active)
+        ) {
+          return;
+        }
+        const accountExtensionEndPoint = /\/message-store$/;
+        if (
+          newValue &&
+          accountExtensionEndPoint.test(newValue.event) &&
+          newValue.body?.changes
+        ) {
+          this.fetchData({ passive: true });
+        } else if (
+          newValue &&
+          newValue.event.indexOf('/shared-sms') !== -1 &&
+          newValue.body
+        ) {
+          this.pushMessages([{
+            ...newValue.body,
+            id: Number.parseInt(newValue.body.id, 10), // Fix different id type in shared sms notification
+          }]);
+          this.fetchData({ passive: true });
+        }
+      },
+    );
+  }
+
   async _syncFunction({
     recordCount,
     conversationLoadLength,

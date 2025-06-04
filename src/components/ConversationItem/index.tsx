@@ -5,7 +5,6 @@ import { styled, ellipsis, palette2 } from '@ringcentral/juno/foundation';
 import {
   RcListItem,
   RcListItemText,
-  RcListItemIcon,
   RcListItemAvatar,
   RcIcon,
 } from '@ringcentral/juno';
@@ -21,7 +20,6 @@ import i18n from '@ringcentral-integration/widgets/components/MessageItem/i18n';
 import actionI18n from '@ringcentral-integration/widgets/components/ActionMenuList/i18n';
 import styles from '@ringcentral-integration/widgets/components/MessageItem/styles.scss';
 
-import { ConversationIcon } from './ConversationIcon';
 import { ContactAvatar } from '../ContactAvatar';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { ActionMenu } from '../ActionMenu';
@@ -329,6 +327,7 @@ export function ConversationItem({
     voicemailAttachment,
     faxAttachment,
     self,
+    owner,
   } = conversation;
   const [selected, setSelected] = useState(getInitialContactIndex({
     correspondentMatches,
@@ -620,6 +619,13 @@ export function ConversationItem({
             {
               statusMatch && (
                 <StatusMessage statusMatch={statusMatch} />
+              )
+            }
+            {
+              owner && (
+                <span className="conversation-item-owner">
+                  {owner.name}
+                </span>
               )
             }
           </>
