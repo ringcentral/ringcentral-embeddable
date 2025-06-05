@@ -57475,6 +57475,7 @@ function init() {
     enableAudioInitPrompt,
     enableLoadMoreCalls,
     mainTab,
+    enableSharedMessages,
     enableSideWidget
   } = options;
   const appUri = `${appUrl}?${obj2uri({
@@ -57529,6 +57530,7 @@ function init() {
     enableSmartNote,
     enableSideWidget,
     enableAudioInitPrompt,
+    enableSharedMessages,
     enableLoadMoreCalls,
     mainTab,
     _t: Date.now()
