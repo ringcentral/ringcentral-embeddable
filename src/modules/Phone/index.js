@@ -763,6 +763,7 @@ export function createPhone({
   enableSMSTemplate,
   enableSmartNote,
   enableSideWidget,
+  enableSharedMessages,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
   isMainTab,
@@ -910,6 +911,7 @@ export function createPhone({
           AudioInitPrompt: !!enableAudioInitPrompt,
           LoadMoreCalls: !!enableLoadMoreCalls,
           CallRecording: !disableCall && !disableCallHistory,
+          SharedMessages: !!enableSharedMessages,
         },
       },
       {

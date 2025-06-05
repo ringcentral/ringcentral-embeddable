@@ -3,21 +3,190 @@ import {
   action,
   state,
   computed,
+  watch,
 } from '@ringcentral-integration/core';
 import {
   MessageStore as MessageStoreBase,
 } from '@ringcentral-integration/commons/modules/MessageStore';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 import messageDirection from '@ringcentral-integration/commons/enums/messageDirection';
+import { sleep } from '@ringcentral-integration/utils';
+import { syncTypes } from '@ringcentral-integration/commons/enums/syncTypes';
+import { subscriptionFilters } from '@ringcentral-integration/commons/enums/subscriptionFilters';
+
+import type {
+  MessageSyncList,
+} from '@ringcentral-integration/commons/interfaces/MessageStore.model';
+import type {
+  SyncFunctionOptions,
+} from '@ringcentral-integration/commons/modules/MessageStore/MessageStore.interface';
 
 // reference: https://developers.ringcentral.com/api-reference/Message-Store/syncMessages
-const INVALID_TOKEN_ERROR_CODES = ['CMN-101', 'MSG-333'];
+const INVALID_TOKEN_ERROR_CODES = ['CMN-101', 'MSG-333', 'MSG-411'];
+
+type GetSyncParamsOptions = Pick<
+  SyncFunctionOptions,
+  Exclude<keyof SyncFunctionOptions, 'receivedRecordsLength'>
+>;
+
+interface SyncParams {
+  syncToken?: string;
+  syncType: string;
+  recordCountPerConversation?: GetSyncParamsOptions['conversationLoadLength'];
+  recordCount?: GetSyncParamsOptions['recordCount'];
+  dateFrom?: string;
+  dateTo?: string;
+  owner?: 'Any' | 'Personal' | 'Shared';
+}
+
+const getSyncParams = ({
+  recordCount,
+  conversationLoadLength,
+  dateFrom,
+  dateTo,
+  syncToken,
+  hasSharedAccess,
+}: GetSyncParamsOptions) => {
+  if (syncToken) {
+    return {
+      syncToken,
+      syncType: syncTypes.iSync,
+    } as SyncParams;
+  }
+  const params: SyncParams = {
+    recordCountPerConversation: conversationLoadLength,
+    syncType: syncTypes.fSync,
+  };
+  if (hasSharedAccess) {
+    params.owner = 'Any';
+  }
+  if (recordCount) {
+    params.recordCount = recordCount;
+  }
+  if (dateFrom) {
+    params.dateFrom = dateFrom.toISOString();
+  }
+  if (dateTo) {
+    params.dateTo = dateTo.toISOString();
+  }
+  return params;
+};
 
 @Module({
   name: 'MessageStore',
   deps: [],
 })
 export class MessageStore extends MessageStoreBase {
+  get hasSharedAccess() {
+    return this._deps.appFeatures.hasSharedMessageStorePermission;
+  }
+
+  get syncOwner() {
+    return this.syncInfo?.owner;
+  }
+
+  override onInit() {
+    if (this._hasPermission) {
+      const filters = [subscriptionFilters.messageStore];
+      if (this._deps.appFeatures.hasCallQueueSmsRecipientPermission) {
+        filters.push('/restapi/v1.0/account/~/extension/~/shared-sms');
+      }
+      this._deps.subscription.subscribe(filters);
+    }
+  }
+
+  override onInitOnce() {
+    if (this._deps.connectivityMonitor) {
+      watch(
+        this,
+        () => this._deps.connectivityMonitor.connectivity,
+        (newValue) => {
+          if (this.ready && this._deps.connectivityMonitor.ready && newValue) {
+            this._deps.dataFetcherV2.fetchData(this._source);
+          }
+        },
+      );
+    }
+    watch(
+      this,
+      () => this._deps.subscription.message,
+      (newValue) => {
+        if (
+          !this.ready ||
+          (this._deps.tabManager && !this._deps.tabManager.active)
+        ) {
+          return;
+        }
+        const accountExtensionEndPoint = /\/message-store$/;
+        if (
+          newValue &&
+          accountExtensionEndPoint.test(newValue.event) &&
+          newValue.body?.changes
+        ) {
+          this.fetchData({ passive: true });
+        } else if (
+          newValue &&
+          newValue.event.indexOf('/shared-sms') !== -1 &&
+          newValue.body
+        ) {
+          this.pushMessages([{
+            ...newValue.body,
+            id: Number.parseInt(newValue.body.id, 10), // Fix different id type in shared sms notification
+          }]);
+          this.fetchData({ passive: true });
+        }
+      },
+    );
+  }
+
+  async _syncFunction({
+    recordCount,
+    conversationLoadLength,
+    dateFrom,
+    dateTo,
+    syncToken,
+    receivedRecordsLength = 0,
+  }: SyncFunctionOptions): Promise<MessageSyncList> {
+    const params = getSyncParams({
+      recordCount,
+      conversationLoadLength,
+      dateFrom,
+      dateTo,
+      syncToken,
+      hasSharedAccess: this.hasSharedAccess,
+    });
+    const owner = syncToken ? this.syncOwner : params.owner;
+    const { records, syncInfo = {} }: MessageSyncList = await this._deps.client
+      .account()
+      .extension()
+      .messageSync()
+      .list(params);
+    receivedRecordsLength += records.length;
+    if (!syncInfo.olderRecordsExist || receivedRecordsLength >= recordCount) {
+      return {
+        records,
+        syncInfo: {
+          ...syncInfo,
+          owner,
+        },
+      };
+    }
+    await sleep(500);
+    const olderDateTo = new Date(records[records.length - 1].creationTime);
+    const olderRecordResult = await this._syncFunction({
+      conversationLoadLength,
+      dateFrom,
+      dateTo: olderDateTo,
+    });
+    return {
+      records: records.concat(olderRecordResult.records),
+      syncInfo: {
+        ...syncInfo,
+        owner,
+      },
+    };
+  }
+
   // TODO: fix sync token error issue
   override async _syncData({ dateTo = null as Date, passive = false } = {}) {
     const conversationsLoadLength = this._conversationsLoadLength;
@@ -27,6 +196,9 @@ export class MessageStore extends MessageStoreBase {
       const dateFrom = new Date();
       dateFrom.setDate(dateFrom.getDate() - this._daySpan);
       let syncToken = dateTo ? null : this.syncInfo?.syncToken;
+      if (this.syncOwner !== 'Any' && this.hasSharedAccess) {
+        syncToken = null; // Force refresh when user get shared sms firstly
+      }
       const recordCount = conversationsLoadLength * conversationLoadLength;
       let data;
       try {

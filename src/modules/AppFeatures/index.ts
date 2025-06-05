@@ -138,6 +138,17 @@ export class AppFeatures extends AppFeaturesBase {
     );
   }
 
+  get hasCallQueueSmsRecipientPermission() {
+    return (
+      this.config.SharedMessages &&
+      (this._deps.extensionFeatures.features?.CallQueueSmsRecipient?.available ?? false)
+    );
+  }
+
+  get hasSharedMessageStorePermission() {
+    return this.hasCallQueueSmsRecipientPermission;
+  }
+
   @state
   configState = {};
 
