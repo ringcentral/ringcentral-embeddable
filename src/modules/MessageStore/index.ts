@@ -30,8 +30,9 @@ type GetSyncParamsOptions = Pick<
 >;
 
 interface SyncParams {
+  syncToken?: string;
   syncType: string;
-  recordCountPerConversation: GetSyncParamsOptions['conversationLoadLength'];
+  recordCountPerConversation?: GetSyncParamsOptions['conversationLoadLength'];
   recordCount?: GetSyncParamsOptions['recordCount'];
   dateFrom?: string;
   dateTo?: string;
@@ -50,7 +51,7 @@ const getSyncParams = ({
     return {
       syncToken,
       syncType: syncTypes.iSync,
-    };
+    } as SyncParams;
   }
   const params: SyncParams = {
     recordCountPerConversation: conversationLoadLength,
@@ -76,6 +77,14 @@ const getSyncParams = ({
   deps: [],
 })
 export class MessageStore extends MessageStoreBase {
+  get hasSharedAccess() {
+    return this._deps.appFeatures.hasSharedMessageStorePermission;
+  }
+
+  get syncOwner() {
+    return this.syncInfo?.owner;
+  }
+
   override onInit() {
     if (this._hasPermission) {
       const filters = [subscriptionFilters.messageStore];
@@ -144,8 +153,9 @@ export class MessageStore extends MessageStoreBase {
       dateFrom,
       dateTo,
       syncToken,
-      hasSharedAccess: this._deps.appFeatures.hasSharedMessageStorePermission,
+      hasSharedAccess: this.hasSharedAccess,
     });
+    const owner = syncToken ? this.syncOwner : params.owner;
     const { records, syncInfo = {} }: MessageSyncList = await this._deps.client
       .account()
       .extension()
@@ -153,7 +163,13 @@ export class MessageStore extends MessageStoreBase {
       .list(params);
     receivedRecordsLength += records.length;
     if (!syncInfo.olderRecordsExist || receivedRecordsLength >= recordCount) {
-      return { records, syncInfo };
+      return {
+        records,
+        syncInfo: {
+          ...syncInfo,
+          owner,
+        },
+      };
     }
     await sleep(500);
     const olderDateTo = new Date(records[records.length - 1].creationTime);
@@ -164,7 +180,10 @@ export class MessageStore extends MessageStoreBase {
     });
     return {
       records: records.concat(olderRecordResult.records),
-      syncInfo,
+      syncInfo: {
+        ...syncInfo,
+        owner,
+      },
     };
   }
 
@@ -177,6 +196,9 @@ export class MessageStore extends MessageStoreBase {
       const dateFrom = new Date();
       dateFrom.setDate(dateFrom.getDate() - this._daySpan);
       let syncToken = dateTo ? null : this.syncInfo?.syncToken;
+      if (this.syncOwner !== 'Any' && this.hasSharedAccess) {
+        syncToken = null; // Force refresh when user get shared sms firstly
+      }
       const recordCount = conversationsLoadLength * conversationLoadLength;
       let data;
       try {
