@@ -22,6 +22,7 @@ export class ConversationsUI extends BaseConversationsUI {
       conversationLogger,
       conversations,
       auth,
+      messageStore,
     } = this._deps;
     return {
       ...baseProps,
@@ -31,6 +32,7 @@ export class ConversationsUI extends BaseConversationsUI {
       searchFilter: conversations.searchFilter,
       conversations: conversations.pagingConversations,
       rcAccessToken: auth.accessToken,
+      showOwnerTab: type === 'text' && messageStore.sharedSmsConversations.length > 0,
     };
   }
 

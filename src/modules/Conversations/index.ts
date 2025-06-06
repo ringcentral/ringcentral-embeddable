@@ -41,6 +41,18 @@ export class Conversations extends ConversationsBase {
   }
 
   @state
+  ownerFilter = 'Personal'; // Personal, Shared
+
+  @action
+  setOwnerFilter(filter) {
+    this.ownerFilter = filter;
+  }
+
+  updateOwnerFilter(filter) {
+    this.ownerFilter = filter;
+  }
+
+  @state
   searchFilter = 'All';
 
   @action
@@ -70,6 +82,8 @@ export class Conversations extends ConversationsBase {
     that.filteredConversations,
     that.currentPage,
     that.searchFilter,
+    that.ownerFilter,
+    that.typeFilter,
   ])
   get pagingConversations() {
     const pageNumber = this.currentPage;
@@ -87,6 +101,18 @@ export class Conversations extends ConversationsBase {
           );
         }
         return true;
+      });
+    }
+    if (
+      this.typeFilter === messageTypes.text &&
+      this._deps.messageStore.sharedSmsConversations.length > 0 &&
+      this.ownerFilter
+    ) {
+      searchFiltered = searchFiltered.filter((conversation) => {
+        if (this.ownerFilter === 'Personal') {
+          return !conversation.owner;
+        }
+        return !!conversation.owner;
       });
     }
     return searchFiltered.slice(0, lastIndex);
@@ -114,8 +140,13 @@ export class Conversations extends ConversationsBase {
       dateFrom: dateFrom.toISOString(),
       dateTo: dateTo.toISOString(),
     };
-    if (typeFilter === messageTypes.text) {
+    if (typeFilter === messageTypes.text && this._deps.messageStore.sharedSmsConversations.length > 0) {
       params.messageType = [messageTypes.sms, messageTypes.pager];
+      if (this.ownerFilter === 'Shared') {
+        params.owner = 'Shared';
+      } else {
+        params.owner = 'Personal';
+      }
     } else if (typeFilter !== messageTypes.all) {
       params.messageType = [typeFilter];
     }

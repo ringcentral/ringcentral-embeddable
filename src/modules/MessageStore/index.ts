@@ -313,6 +313,13 @@ export class MessageStore extends MessageStoreBase {
     await super.unreadMessage(messageId);
   }
 
+  @computed((that: MessageStore) => [that.textConversations])
+  get sharedSmsConversations() {
+    return this.textConversations.filter((conversation) => {
+      return !!conversation.owner;
+    });
+  }
+
   @state
   voicemailTranscriptions = [];
 
