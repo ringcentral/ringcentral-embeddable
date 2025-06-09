@@ -44,6 +44,7 @@ function getWebpackConfig({ prefix, brand, styleLoader, themeFolder = null }) {
         runtimeErrors: false,
       },
     },
+    allowedHosts: 'all',
   };
   config.output = {
     path: buildPath,
