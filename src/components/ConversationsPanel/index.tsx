@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import React, { useEffect } from 'react';
 
-import { styled, palette2, RcText } from '@ringcentral/juno';
+import { styled, palette2 } from '@ringcentral/juno/foundation';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
@@ -195,7 +195,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     openMessageDetails,
     rcAccessToken,
     ownerFilter,
-    ownerTabs,
+    ownerTabs = [],
     onOwnerFilterChange,
   } = props;
 
@@ -221,7 +221,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
         <StyledContentArea
           data-sign="messageList"
         >
-          {ownerTabs.length > 0 && (
+          {ownerTabs && ownerTabs.length > 0 && (
             <SubTabs
               tabs={ownerTabs}
               value={ownerFilter}
