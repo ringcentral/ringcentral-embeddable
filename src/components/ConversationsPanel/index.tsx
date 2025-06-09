@@ -10,6 +10,7 @@ import NoMessage from '@ringcentral-integration/widgets/components/Conversations
 
 import type { ConversationListProps } from '../ConversationList';
 import ConversationList from '../ConversationList';
+import { SubTabs } from '../SubTabs';
 import {
   SearchAndFilter,
   MESSAGE_TYPE_LIST,
@@ -89,6 +90,13 @@ type ConversationsPanelProps = {
   onSearchFilterChange: (type: string) => void;
   openMessageDetails: (id: number) => void;
   rcAccessToken?: string;
+  ownerFilter?: string;
+  onOwnerFilterChange?: (filter: string) => void;
+  ownerTabs: {
+    label: string;
+    value: string;
+    unreadCounts: number;
+  }[];
 } & Omit<ConversationListProps, 'conversation'>;
 
 const StyledContainer = styled.div`
@@ -186,6 +194,9 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     onSearchFilterChange,
     openMessageDetails,
     rcAccessToken,
+    ownerFilter,
+    ownerTabs = [],
+    onOwnerFilterChange,
   } = props;
 
   useEffect(() => {
@@ -210,6 +221,13 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
         <StyledContentArea
           data-sign="messageList"
         >
+          {ownerTabs && ownerTabs.length > 0 && (
+            <SubTabs
+              tabs={ownerTabs}
+              value={ownerFilter}
+              onChange={onOwnerFilterChange}
+            />
+          )}
           <SearchAndFilter
             searchInput={searchInput}
             onSearchInputChange={onSearchInputChange}

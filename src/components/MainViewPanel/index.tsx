@@ -55,6 +55,7 @@ export const MainViewPanel = (props) => {
     isRCV,
     settingsUnreadCount,
     showNewComposeText,
+    showSharedSms,
     phoneTabPath,
     showFax,
     faxUnreadCounts,
@@ -112,7 +113,7 @@ export const MainViewPanel = (props) => {
           currentPath === '/messages'
         );
       },
-      showHeaderBorder: true,
+      showHeaderBorder: !showSharedSms,
       actionsInHeaderRight: showNewComposeText ? [{
         icon: SmsInviteBorder,
         title: i18n.getString('composeText', currentLocale),

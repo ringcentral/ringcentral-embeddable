@@ -313,6 +313,33 @@ export class MessageStore extends MessageStoreBase {
     await super.unreadMessage(messageId);
   }
 
+  @computed((that: MessageStore) => [that.textConversations])
+  get sharedSmsConversations() {
+    return this.textConversations.filter((conversation) => {
+      return !!conversation.owner;
+    });
+  }
+
+  @computed((that: MessageStore) => [that.textConversations])
+  get personalTextUnreadCounts() {
+    return this.textConversations.reduce((a, b) => {
+      if (!b.owner) {
+        return a + b.unreadCounts;
+      }
+      return a;
+    }, 0);
+  }
+
+  @computed((that: MessageStore) => [that.textConversations])
+  get sharedTextUnreadCounts() {
+    return this.textConversations.reduce((a, b) => {
+      if (b.owner) {
+        return a + b.unreadCounts;
+      }
+      return a;
+    }, 0);
+  }
+
   @state
   voicemailTranscriptions = [];
 
