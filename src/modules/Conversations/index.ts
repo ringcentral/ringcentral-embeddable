@@ -44,12 +44,12 @@ export class Conversations extends ConversationsBase {
   ownerFilter = 'Personal'; // Personal, Shared
 
   @action
-  setOwnerFilter(filter) {
+  _setOwnerFilter(filter) {
     this.ownerFilter = filter;
   }
 
   updateOwnerFilter(filter) {
-    this.ownerFilter = filter;
+    this._setOwnerFilter(filter);
   }
 
   @state
@@ -105,7 +105,7 @@ export class Conversations extends ConversationsBase {
     }
     if (
       this.typeFilter === messageTypes.text &&
-      this._deps.messageStore.sharedSmsConversations.length > 0 &&
+      this.hasSharedSmsAccess &&
       this.ownerFilter
     ) {
       searchFiltered = searchFiltered.filter((conversation) => {
@@ -116,6 +116,10 @@ export class Conversations extends ConversationsBase {
       });
     }
     return searchFiltered.slice(0, lastIndex);
+  }
+
+  get hasSharedSmsAccess() {
+    return this._deps.messageStore.hasSharedAccess && this._deps.messageStore.sharedSmsConversations.length > 0;
   }
 
   async fetchOldConversations() {
@@ -140,7 +144,7 @@ export class Conversations extends ConversationsBase {
       dateFrom: dateFrom.toISOString(),
       dateTo: dateTo.toISOString(),
     };
-    if (typeFilter === messageTypes.text && this._deps.messageStore.sharedSmsConversations.length > 0) {
+    if (typeFilter === messageTypes.text && this.hasSharedSmsAccess) {
       params.messageType = [messageTypes.sms, messageTypes.pager];
       if (this.ownerFilter === 'Shared') {
         params.owner = 'Shared';

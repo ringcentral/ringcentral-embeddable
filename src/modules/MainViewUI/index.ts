@@ -7,6 +7,7 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
     'Locale',
     'RouterInteraction',
     'MessageStore',
+    'Conversations',
     'AppFeatures',
     'GlipGroups',
     'GlipCompany',
@@ -38,6 +39,7 @@ export class MainViewUI extends RcUIModuleV2 {
       phoneTabsUI,
       theme,
       sideDrawerUI,
+      conversations,
     } = this._deps;
 
     const showPhone = appFeatures.ready && (
@@ -67,6 +69,7 @@ export class MainViewUI extends RcUIModuleV2 {
       settingsUnreadCount,
       phoneTabPath: phoneTabsUI.currentPath,
       showText: appFeatures.ready && appFeatures.hasReadTextPermission,
+      showSharedSms: conversations.hasSharedSmsAccess,
       showNewComposeText: appFeatures.hasComposeTextPermission,
       smsUnreadCounts: messageStore.textUnreadCounts || 0,
       showFax: appFeatures.ready && appFeatures.hasReadFaxPermission,

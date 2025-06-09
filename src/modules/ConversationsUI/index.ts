@@ -1,6 +1,7 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { ConversationsUI as BaseConversationsUI } from '@ringcentral-integration/widgets/modules/ConversationsUI';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
+import { computed } from '@ringcentral-integration/core';
 import { getConversationPhoneNumber } from '../../lib/conversationHelper';
 
 @Module({
@@ -13,6 +14,33 @@ import { getConversationPhoneNumber } from '../../lib/conversationHelper';
   ],
 })
 export class ConversationsUI extends BaseConversationsUI {
+  @computed((that: ConversationsUI) => [
+    that._deps.conversations.typeFilter,
+    that._deps.conversations.hasSharedSmsAccess,
+    that._deps.messageStore.personalTextUnreadCounts,
+    that._deps.messageStore.sharedTextUnreadCounts,
+  ])
+  get ownerTabs() {
+    if (
+      this._deps.conversations.typeFilter !== messageTypes.text ||
+      !this._deps.conversations.hasSharedSmsAccess
+    ) {
+      return [];
+    }
+    return [
+      {
+        label: 'Direct',
+        value: 'Personal',
+        unreadCounts: this._deps.messageStore.personalTextUnreadCounts,
+      },
+      {
+        label: 'Call queue',
+        value: 'Shared',
+        unreadCounts: this._deps.messageStore.sharedTextUnreadCounts,
+      },
+    ];
+  }
+
   getUIProps({
     type = 'text',
     ...props
@@ -22,7 +50,6 @@ export class ConversationsUI extends BaseConversationsUI {
       conversationLogger,
       conversations,
       auth,
-      messageStore,
     } = this._deps;
     return {
       ...baseProps,
@@ -32,7 +59,8 @@ export class ConversationsUI extends BaseConversationsUI {
       searchFilter: conversations.searchFilter,
       conversations: conversations.pagingConversations,
       rcAccessToken: auth.accessToken,
-      showOwnerTab: type === 'text' && messageStore.sharedSmsConversations.length > 0,
+      ownerFilter: conversations.ownerFilter,
+      ownerTabs: this.ownerTabs,
     };
   }
 
@@ -98,6 +126,9 @@ export class ConversationsUI extends BaseConversationsUI {
             messageStore.onClickToSMS();
           }
         : undefined,
+      onOwnerFilterChange: (filter) => {
+        conversations.updateOwnerFilter(filter);
+      }
     }
   }
 }

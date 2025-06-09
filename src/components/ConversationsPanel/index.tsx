@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import React, { useEffect } from 'react';
 
-import { styled, palette2 } from '@ringcentral/juno/foundation';
+import { styled, palette2, RcText } from '@ringcentral/juno';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 
 import { SpinnerOverlay } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
@@ -90,7 +90,13 @@ type ConversationsPanelProps = {
   onSearchFilterChange: (type: string) => void;
   openMessageDetails: (id: number) => void;
   rcAccessToken?: string;
-  showOwnerTab?: boolean;
+  ownerFilter?: string;
+  onOwnerFilterChange?: (filter: string) => void;
+  ownerTabs: {
+    label: string;
+    value: string;
+    unreadCounts: number;
+  }[];
 } & Omit<ConversationListProps, 'conversation'>;
 
 const StyledContainer = styled.div`
@@ -188,7 +194,9 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     onSearchFilterChange,
     openMessageDetails,
     rcAccessToken,
-    showOwnerTab,
+    ownerFilter,
+    ownerTabs,
+    onOwnerFilterChange,
   } = props;
 
   useEffect(() => {
@@ -213,17 +221,11 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
         <StyledContentArea
           data-sign="messageList"
         >
-          {showOwnerTab && (
+          {ownerTabs.length > 0 && (
             <SubTabs
-              value="Personal"
-              tabs={[{
-                label: 'Personal',
-                value: 'Personal',
-              },
-              {
-                label: 'Call queue',
-                value: 'Shared',
-              }]}
+              tabs={ownerTabs}
+              value={ownerFilter}
+              onChange={onOwnerFilterChange}
             />
           )}
           <SearchAndFilter
