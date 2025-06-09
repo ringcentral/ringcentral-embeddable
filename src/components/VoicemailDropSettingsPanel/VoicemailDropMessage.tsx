@@ -74,7 +74,7 @@ export const VoicemailDropMessage = ({
       {
         !isExternal && (
           <FileUploader>
-            <RcTypography variant="body1">{fileName ? fileName : 'Upload .WAV or .MP3 file (max 8MB)'}</RcTypography>
+            <RcTypography variant="body1">{fileName && file ? fileName : 'Upload .WAV or .MP3 file (max 8MB)'}</RcTypography>
             <RcIconButton
               symbol={Attachment}
               onClick={() => {

@@ -82,10 +82,10 @@ export class VoicemailDrop extends RcModuleV2 {
     const id = voicemailMessage.id || `${Date.now()}`;
     const existingRecord = this.voicemailMessages.find((message) => message.id === id);
     if (existingRecord) {
-      if (existingRecord.file !== voicemailMessage.file) {  
+      if (voicemailMessage.file && existingRecord.file !== voicemailMessage.file) {
         existingRecord.file = voicemailMessage.file;
       }
-      if (existingRecord.fileName !== voicemailMessage.fileName) {
+      if (voicemailMessage.fileName && existingRecord.fileName !== voicemailMessage.fileName) {
         existingRecord.fileName = voicemailMessage.fileName;
       }
       existingRecord.label = voicemailMessage.label;
@@ -157,21 +157,27 @@ export class VoicemailDrop extends RcModuleV2 {
       message = this.allMessages.find((m) => m.id === messageId);
     }
     if (!message) {
-      throw new Error('Message not found');
+      throw new Error('Pre-recorded message not found');
     }
     const peerConnection = webphoneSession.sessionDescriptionHandler.peerConnection;
     const receiver = peerConnection.getReceivers().find((r: any) => r.track.kind === 'audio');
     if (!receiver) {
-      throw new Error('Receiver not found for session');
+      throw new Error('Receiver not found for the call session');
     }
     const sender = peerConnection.getSenders().find((s: any) => s.track.kind === 'audio');
     if (!sender) {
-      throw new Error('Sender not found for session');
+      throw new Error('Sender not found for the call session');
     }
     const audioContext = await this.initAudioContext();
     const audioUri = message.file || message.uri;
-    const audioData = await fetch(audioUri as RequestInfo).then((res) => res.arrayBuffer());
-    const audioBuffer = await audioContext.decodeAudioData(audioData);
+    let audioData: ArrayBuffer;
+    let audioBuffer: AudioBuffer;
+    try {
+      audioData = await fetch(audioUri as RequestInfo).then((res) => res.arrayBuffer());
+      audioBuffer = await audioContext.decodeAudioData(audioData);
+    } catch (e) {
+      throw new Error('Failed to load audio data, please check or re-upload the audio message');
+    }
     return {
       audioBuffer,
       audioContext,
