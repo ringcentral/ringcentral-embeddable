@@ -6,6 +6,7 @@ import {
   storage,
   computed,
 } from '@ringcentral-integration/core';
+// @ts-ignore - Worklet is not a module, imported for webpack
 import voicemailGreetingEndDetectorWorklet from '../../worklets/voicemail-greeting-end-detector.worklet.js'; // DO NOT update for webpack
 import voicemailDropStatus from '../WebphoneV2/voicemailDropStatus';
 
@@ -62,6 +63,15 @@ export class VoicemailDrop extends RcModuleV2 {
   setExternalVoicemailFetcher(fetcher) {
     this._externalVoicemailFetcher = fetcher;
   }
+
+  @action
+  setNoBeepSilenceDuration(duration: number) {
+    this.noBeepSilenceDuration = duration;
+  }
+
+  @storage
+  @state
+  noBeepSilenceDuration = 4
 
   @storage
   @state
@@ -125,7 +135,7 @@ export class VoicemailDrop extends RcModuleV2 {
   async initAudioContext() {
     let newAudioContext = false;
     if (!this._audioContext) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       this._audioContext = new AudioContext();
       newAudioContext = true;
     }
@@ -209,7 +219,11 @@ export class VoicemailDrop extends RcModuleV2 {
     const outputTrack = receiver.track;
     const mediaStream = new MediaStream([outputTrack]);
     const mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
-    const greetingEndDetector = new AudioWorkletNode(audioContext, 'voicemail-greeting-end-detector');
+    const greetingEndDetector = new AudioWorkletNode(audioContext, 'voicemail-greeting-end-detector', {
+      processorOptions: {
+        noBeepSilenceDuration: this.noBeepSilenceDuration,
+      },
+    });
     mediaStreamSource.connect(greetingEndDetector);
     const gainNode = audioContext.createGain();
     mediaStreamSource.connect(gainNode);

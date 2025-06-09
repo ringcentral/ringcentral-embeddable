@@ -22,6 +22,7 @@ export class VoicemailDropSettingsUI extends RcUIModuleV2 {
       voicemailMessages: voicemailDrop.voicemailMessages || [],
       externalVoicemailDropMessages: voicemailDrop.externalVoicemailDropFiles || [],
       currentLocale: locale.currentLocale,
+      noBeepSilenceDuration: voicemailDrop.noBeepSilenceDuration,
     };
   }
 
@@ -39,6 +40,9 @@ export class VoicemailDropSettingsUI extends RcUIModuleV2 {
       },
       onLoadExternalVoicemailDropMessages: () => {
         voicemailDrop.fetchExternalVoicemailDropFiles();
+      },
+      onNoBeepSilenceDurationChange: (duration: number) => {
+        voicemailDrop.setNoBeepSilenceDuration(duration);
       },
     };
   }

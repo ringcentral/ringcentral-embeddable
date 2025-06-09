@@ -12,6 +12,8 @@ import {
   RcTypography,
   RcAlert,
   RcTooltip,
+  RcSlider,
+  RcFormLabel,
 } from '@ringcentral/juno';
 import { BackHeaderView } from '../BackHeaderView';
 import { Edit, PlayCircle, Delete, ViewBorder } from '@ringcentral/juno-icon';
@@ -37,6 +39,14 @@ const StyledAlert = styled(RcAlert)`
   margin: 16px;
 `;
 
+const SliderWrapper = styled.div`
+  padding: 0 16px;
+`;
+
+const StyledFormLabel = styled(RcFormLabel)`
+  font-size: 0.75rem;
+`;
+
 export const VoicemailDropSettingsPanel = ({
   onBackButtonClick,
   voicemailMessages,
@@ -45,6 +55,8 @@ export const VoicemailDropSettingsPanel = ({
   onDelete,
   onLoadExternalVoicemailDropMessages,
   currentLocale,
+  noBeepSilenceDuration,
+  onNoBeepSilenceDurationChange,
 }) => {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -130,6 +142,23 @@ export const VoicemailDropSettingsPanel = ({
             <StyledAlert severity="info">
               When you notice that your outbound call goes to voicemail, you can drop a pre-recorded message.
             </StyledAlert>
+          )
+        }
+        {
+          !selectedMessage && (
+            <SliderWrapper>
+              <StyledFormLabel>Silence timeout duration</StyledFormLabel>
+              <RcSlider
+                value={noBeepSilenceDuration}
+                onChange={(e, value) => onNoBeepSilenceDurationChange(value)}
+                min={2}
+                max={8}
+                step={1}
+              />
+              <RcTypography variant="caption1" color="textSecondary">
+                The app listens for the voicemail beep to start playing the pre-recorded message. If no beep is detected, it will wait for {noBeepSilenceDuration} seconds of silence before sending the message. Setting the timeout too short may cause false silence detection.
+              </RcTypography>
+            </SliderWrapper>
           )
         }
         {content}

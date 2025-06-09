@@ -4,7 +4,7 @@
 const INPUT_BUFFER_SIZE = 128;
 // @ts-ignore
 class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
-  constructor() {
+  constructor(options) {
     super();
     this.threshold = 0.01; // RMS threshold
     this.beepPowerThreshold = 20000; // Power threshold for Goertzel beep detection (initial value, needs tuning)
@@ -14,7 +14,11 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
     this.beepSoundCounter = 0; // beep sound counter
     this.beepSilenceDuration = 2; // beep silence duration
     this.beepSoundDuration = 5; // beep sound duration
-    this.noBeepSilenceDuration = 4; // no beep silence duration
+
+    // Make noBeepSilenceDuration configurable through options
+    const config = options?.processorOptions || {};
+    this.noBeepSilenceDuration = config.noBeepSilenceDuration || 4; // no beep silence duration (default 4 seconds)
+    console.log('noBeepSilenceDuration', this.noBeepSilenceDuration);
     // @ts-ignore
     this.sampleRate = sampleRate; // 48000
     this.framesPerSecond = this.sampleRate / INPUT_BUFFER_SIZE; // 128 is default buffer size, 375 frames per second, 27 frames is 0.072 seconds
@@ -25,7 +29,6 @@ class VoicemailGreetingEndDetector extends AudioWorkletProcessor {
     this.beepSoundCounterThreshold = this.beepSoundDuration * this.framesPerSecond / (this.bufferSize / INPUT_BUFFER_SIZE);
     this.state = 'listening'; // listening → beep-detected → waiting-for-silence → silence-detected → greeting-ended
     this.inputBufferIndex = 0;
-    // TODO: add detection timeout 1 minute
   }
 
   rms(buffer) {
