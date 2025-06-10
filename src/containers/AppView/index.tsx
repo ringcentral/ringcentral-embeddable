@@ -60,6 +60,7 @@ function AppView({
   onSetData = undefined,
   redirectUri,
   contactSourceRenderer,
+  sourceIcons,
 }: {
   showDemoWarning: boolean,
   dismissDemoWarning: Function,
@@ -78,6 +79,7 @@ function AppView({
   clientSecret: string,
   onSetData: Function,
   redirectUri: string,
+  sourceIcons: any,
 }) {
   const mainContent = useRef(null);
   return (
@@ -106,6 +108,7 @@ function AppView({
             showCallQueueName
             getPresence={getPresence}
             container={mainContent.current}
+            sourceIcons={sourceIcons}
           />
           <ConnectivityBadgeContainer />
           <MeetingInviteModal />
@@ -125,7 +128,7 @@ function AppView({
           />
         </Content>
       </MainContent>
-      <SideDrawerContainer contactSourceRenderer={contactSourceRenderer} />
+      <SideDrawerContainer contactSourceRenderer={contactSourceRenderer} sourceIcons={sourceIcons} />
     </Root>
   );
 }
