@@ -32,6 +32,10 @@ input {
   width: 75%;
 }
 
+:global .MuiMenuItem-root .ContactDisplay_typeIcon {
+  margin-right: 6px;
+}
+
 :global .VideoPanel_title {
   display: none;  
 }

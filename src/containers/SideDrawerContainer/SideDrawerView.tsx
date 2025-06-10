@@ -310,12 +310,13 @@ function Widget({
   withTab,
   contact,
   mainPath,
+  sourceIcons,
 }) {
   if (!widget) {
     return (<EmptyView mainPath={mainPath} />);
   }
   if (widget.id === 'callDetails') {
-    return (<CallDetailsPage params={widget.params} />);
+    return (<CallDetailsPage params={widget.params} sourceIcons={sourceIcons} />);
   }
   if (widget.id === 'smartNotes') {
     return (
@@ -329,6 +330,7 @@ function Widget({
       <MessageDetailsPage
         params={widget.params}
         showContactDisplayPlaceholder={false}
+        sourceIcons={sourceIcons}
       />
     );
   }
@@ -355,6 +357,7 @@ function Widget({
         showCloseButton={drawerVariant === 'permanent' && !withTab}
         onClose={onClose}
         goBack={onClose}
+        sourceIcons={sourceIcons}
       />
     );
   }
@@ -511,6 +514,7 @@ export function SideDrawerView({
   onAttachmentDownload,
   contact,
   mainPath,
+  sourceIcons,
 }: {
   variant: 'permanent' | 'temporary';
   widgets: any[];
@@ -523,6 +527,7 @@ export function SideDrawerView({
   onAttachmentDownload: (attachment: any) => void;
   contact?: WidgetContact;
   mainPath: string;
+  sourceIcons: any;
 }) {
   let drawerVariant = variant;
   if (
@@ -596,6 +601,7 @@ export function SideDrawerView({
           withTab={showTabs}
           contact={contact}
           mainPath={mainPath}
+          sourceIcons={sourceIcons}
         />
       </WidgetWrapper>
     </StyledDrawer>

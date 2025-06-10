@@ -77,6 +77,44 @@ export default function App({
       />
     );
   };
+
+  const getSourceIcons = () => {
+    const sourceIcons = {};
+    if (phone.brand.brandConfig && phone.brand.brandConfig.assets && phone.brand.brandConfig.assets.icon) {
+      sourceIcons.brandIcon = ({ className }) => {
+        return (
+          <ThirdPartyContactSourceIcon
+            iconUri={phone.brand.brandConfig.assets.icon}
+            sourceName={phone.brand.brandConfig.name}
+            width="14"
+            height="14"
+            className={className}
+          />
+        );
+      };
+    }
+    if (!phone.thirdPartyService.sourceName) {
+      return sourceIcons;
+    }
+    const thirdPartyContactUrl = phone.thirdPartyService.contactIcon || phone.thirdPartyService.authorizationLogo;
+    if (thirdPartyContactUrl) {
+      sourceIcons[phone.thirdPartyService.sourceName] = ({
+        className,
+      }) => {
+        return (
+          <ThirdPartyContactSourceIcon
+            iconUri={thirdPartyContactUrl}
+            sourceName={phone.thirdPartyService.sourceName}
+            width="14"
+            height="14"
+            className={className}
+          />
+        );
+      };
+    }
+    return sourceIcons;
+  }
+
   const onViewContact = ({ contact, forceOpenInWidget = false }) => {
     const { type, id } = contact;
     if (
@@ -116,6 +154,7 @@ export default function App({
                   getPresence={getPresenceOnContactSearch}
                   showCallBadge={showCallBadge}
                   contactSourceRenderer={ContactSourceIcon}
+                  sourceIcons={getSourceIcons()}
                 >
                   {routerProps.children}
                 </AppView>
@@ -165,6 +204,7 @@ export default function App({
                         getAvatarUrl={getAvatarUrl}
                         type={routerProps.params.type || 'all'}
                         onViewContact={onViewContact}
+                        sourceIcons={getSourceIcons()}
                       />
                     </PhoneTabsContainer>
                   )} />
@@ -192,6 +232,7 @@ export default function App({
                             showContactDisplayPlaceholder={false}
                             onViewContact={onViewContact}
                             type="voiceMail"
+                            sourceIcons={getSourceIcons()}
                           />
                         </PhoneTabsContainer>
                       );
@@ -202,6 +243,7 @@ export default function App({
                         showContactDisplayPlaceholder={false}
                         onViewContact={onViewContact}
                         type={routerProps.params.type}
+                        sourceIcons={getSourceIcons()}
                       />
                     );
                   }}
@@ -314,6 +356,7 @@ export default function App({
                     onAttachmentDownload={(uri, e) => {
                       phone.thirdPartyService.onClickVCard(uri, e);
                     }}
+                    sourceIcons={getSourceIcons()}
                   />
                 )}
               />
@@ -329,6 +372,7 @@ export default function App({
                     getAvatarUrl={getAvatarUrl}
                     showContactDisplayPlaceholder={false}
                     showCallQueueName
+                    sourceIcons={getSourceIcons()}
                   />
                 )} />
               <Route
