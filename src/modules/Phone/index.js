@@ -762,7 +762,7 @@ export function createPhone({
   isUsingDefaultClientId,
   enableSMSTemplate,
   enableSmartNote,
-  enableSideWidget,
+  enableSideWidget = false,
   enableSharedMessages,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
