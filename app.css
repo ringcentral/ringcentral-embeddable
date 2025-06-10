@@ -1655,15 +1655,6 @@ div[class*=MuiCircularProgress-indeterminate] {
   top: 5px;
   left: 10px;
 }
-.ThirdPartyContactSourceIcon_icon {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font: inherit;
-  line-height: 1;
-  width: 100%;
-  height: 100%;
-}
 .InnerTopic_input {
   font-size: 14px !important;
 }
@@ -4039,6 +4030,10 @@ input {
 
 .ContactDetails_section .ContactDetails_content {
   width: 75%;
+}
+
+.MuiMenuItem-root .ContactDisplay_typeIcon {
+  margin-right: 6px;
 }
 
 .VideoPanel_title {
