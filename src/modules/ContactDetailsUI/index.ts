@@ -1,5 +1,6 @@
 import { ContactDetailsUI as ContactDetailsUIBase } from '@ringcentral-integration/widgets/modules/ContactDetailsUI';
 import { Module } from '@ringcentral-integration/commons/lib/di';
+import { computed } from '@ringcentral-integration/core';
 
 @Module({
   name: 'ContactDetailsUI',
@@ -21,6 +22,16 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
     };
     this._deps.composeTextUI.gotoComposeText(recipient, false);
     this._trackClickToSMS();
+  }
+
+  @computed((that) => [
+    that._deps.thirdPartyService.sourceName,
+  ])
+  get sourceIcons() {
+    const imageURLs = {
+      [this._deps.thirdPartyService.sourceName]: this._deps.thirdPartyService.contactIcon,
+      
+    }
   }
 
   getUIProps() {
