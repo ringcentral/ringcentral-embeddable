@@ -7,7 +7,7 @@ import { watch } from '@ringcentral-integration/core';
 
 @Module({
   name: 'OAuth',
-  deps: []
+  deps: ['Prefix']
 })
 export class OAuth extends OAuthBase {
   protected _authorizationCode?: string;
