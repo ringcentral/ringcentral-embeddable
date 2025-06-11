@@ -1,18 +1,21 @@
 import { OAuth as OAuthBase } from '@ringcentral-integration/widgets/modules/OAuth';
 import { authMessages } from '@ringcentral-integration/commons/modules/Auth/authMessages';
 import parseCallbackUri from '@ringcentral-integration/widgets/lib/parseCallbackUri';
+import { loginStatus } from '@ringcentral-integration/commons/modules/Auth/loginStatus';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { watch } from '@ringcentral-integration/core';
 
 @Module({
   name: 'OAuth',
-  deps: []
+  deps: ['Prefix']
 })
 export class OAuth extends OAuthBase {
   protected _authorizationCode?: string;
   protected _authorizationCodeVerifier?: string;
   protected _disableLoginPopup?: boolean;
   protected _jwt?: string;
+  protected _userLogout = false;
+  protected _autoLogged = false;
 
   constructor(deps) {
     super(deps);
@@ -26,21 +29,53 @@ export class OAuth extends OAuthBase {
     super.onInitOnce();
     watch(
       this,
-      () => this.ready,
-      async () => {
+      () => [
+        this.ready,
+        this._deps.auth.loginStatus,
+      ],
+      async (newValue, oldValue) => {
         if (!this.ready) {
           return;
         }
-        if (this._deps.auth.loggedIn) {
+        if (this._deps.auth.loginStatus === null) {
           return;
         }
+        if (this._deps.auth.loginStatus === loginStatus.beforeLogout) {
+          // Do not jwt login after logout
+          this._userLogout = true;
+          return;
+        }
+        if (oldValue[1] === loginStatus.loggedIn && newValue[1] === loginStatus.notLoggedIn) {
+          this._userLogout = true;
+          return;
+        }
+        if (this._userLogout) {
+          return;
+        }
+        if (this._autoLogged) {
+          return;
+        }
+        if (
+          !this._deps.auth.notLoggedIn && (
+            !this._deps.oAuthOptions.externalAuthId ||
+            this._deps.oAuthOptions.externalAuthId === this.externalAuthId
+          )
+        ) {
+          return;
+        }
+        if (!this._authorizationCode && !this._jwt) {
+          return;
+        }
+        this._autoLogged = true;
         if (this._authorizationCode) {
           await this._silentLoginWithCode();
-          return;
-        }
-        if (this._jwt) {
+        } else if (this._jwt) {
           await this._deps.auth.jwtLogin(this._jwt);
         }
+        this.setExternalAuthId(this._deps.oAuthOptions.externalAuthId || '');
+      },
+      {
+        multiple: true,
       },
     );
   }
@@ -58,6 +93,22 @@ export class OAuth extends OAuthBase {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  get externalAuthId() {
+    // check localStorage api availability
+    if (!window.localStorage) {
+      return null;
+    }
+    return localStorage.getItem(`${this._deps.prefix}-external-auth-id`);
+  }
+
+  setExternalAuthId(externalAuthId: string) {
+    // check localStorage api availability
+    if (!window.localStorage) {
+      return;
+    }
+    localStorage.setItem(`${this._deps.prefix}-external-auth-id`, externalAuthId);
   }
 
   get oAuthUri() {

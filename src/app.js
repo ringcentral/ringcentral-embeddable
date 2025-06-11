@@ -91,6 +91,7 @@ const {
   authorizationCode,
   authorizationCodeVerifier,
   jwt,
+  externalAuthId,
   defaultCallWith,
   enableFromNumberSetting,
   showMyLocationNumbers,
@@ -197,6 +198,7 @@ const phone = createPhone({
   enableLoadMoreCalls,
   isMainTab: mainTab === 'true',
   autoMainTab: typeof mainTab === 'undefined',
+  externalAuthId,
 });
 
 const store = createStore(phone.reducer);
