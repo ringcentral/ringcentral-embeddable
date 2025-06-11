@@ -72,7 +72,7 @@ export class OAuth extends OAuthBase {
         } else if (this._jwt) {
           await this._deps.auth.jwtLogin(this._jwt);
         }
-        this.setexternalAuthId(this._deps.oAuthOptions.externalAuthId || '');
+        this.setExternalAuthId(this._deps.oAuthOptions.externalAuthId || '');
       },
       {
         multiple: true,
@@ -103,7 +103,7 @@ export class OAuth extends OAuthBase {
     return localStorage.getItem(`${this._deps.prefix}-external-auth-id`);
   }
 
-  setexternalAuthId(externalAuthId: string) {
+  setExternalAuthId(externalAuthId: string) {
     // check localStorage api availability
     if (!window.localStorage) {
       return;
