@@ -33,7 +33,7 @@ export class OAuth extends OAuthBase {
         this.ready,
         this._deps.auth.loginStatus,
       ],
-      async () => {
+      async (newValue, oldValue) => {
         if (!this.ready) {
           return;
         }
@@ -42,6 +42,10 @@ export class OAuth extends OAuthBase {
         }
         if (this._deps.auth.loginStatus === loginStatus.beforeLogout) {
           // Do not jwt login after logout
+          this._userLogout = true;
+          return;
+        }
+        if (oldValue[1] === loginStatus.loggedIn && newValue[1] === loginStatus.notLoggedIn) {
           this._userLogout = true;
           return;
         }
