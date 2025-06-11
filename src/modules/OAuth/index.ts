@@ -57,8 +57,8 @@ export class OAuth extends OAuthBase {
         }
         if (
           !this._deps.auth.notLoggedIn && (
-            !this._deps.oAuthOptions.externalLoginId ||
-            this._deps.oAuthOptions.externalLoginId === this.externalLoginId
+            !this._deps.oAuthOptions.externalAuthId ||
+            this._deps.oAuthOptions.externalAuthId === this.externalAuthId
           )
         ) {
           return;
@@ -72,7 +72,7 @@ export class OAuth extends OAuthBase {
         } else if (this._jwt) {
           await this._deps.auth.jwtLogin(this._jwt);
         }
-        this.setExternalLoginId(this._deps.oAuthOptions.externalLoginId || '');
+        this.setexternalAuthId(this._deps.oAuthOptions.externalAuthId || '');
       },
       {
         multiple: true,
@@ -95,20 +95,20 @@ export class OAuth extends OAuthBase {
     }
   }
 
-  get externalLoginId() {
+  get externalAuthId() {
     // check localStorage api availability
     if (!window.localStorage) {
       return null;
     }
-    return localStorage.getItem(`${this._deps.prefix}-external-login-id`);
+    return localStorage.getItem(`${this._deps.prefix}-external-auth-id`);
   }
 
-  setExternalLoginId(externalLoginId: string) {
+  setexternalAuthId(externalAuthId: string) {
     // check localStorage api availability
     if (!window.localStorage) {
       return;
     }
-    localStorage.setItem(`${this._deps.prefix}-external-login-id`, externalLoginId);
+    localStorage.setItem(`${this._deps.prefix}-external-auth-id`, externalAuthId);
   }
 
   get oAuthUri() {

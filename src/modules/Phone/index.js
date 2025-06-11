@@ -742,7 +742,7 @@ export function createPhone({
   authorizationCode,
   authorizationCodeVerifier,
   jwt,
-  externalLoginId,
+  externalAuthId,
   defaultCallWith,
   enableFromNumberSetting,
   showMyLocationNumbers,
@@ -829,7 +829,7 @@ export function createPhone({
           authorizationCodeVerifier,
           disableLoginPopup,
           jwt,
-          externalLoginId,
+          externalAuthId,
         },
       },
       {
