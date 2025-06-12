@@ -171,4 +171,11 @@ export class CallLog extends CallLogBase {
     super.onReset();
     this.resetOldCalls();
   }
+
+  override async _sync(syncType) {
+    if (!this._deps.appFeatures.hasReadExtensionCallLog) {
+      return;
+    }
+    return super._sync(syncType);
+  }
 }
