@@ -115,6 +115,7 @@ nav:
   - 'API': integration/api.md
   - 'Authorization': integration/authorization.md
   - 'Embeddable 2.0': 2.x.md
+  - 'Embeddable 3.0': 3.x.md
   - 'Service features':
     - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md
