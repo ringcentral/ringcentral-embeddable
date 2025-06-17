@@ -2,13 +2,15 @@
 
 <!-- md:version 3.0.0 -->
 
-Call Widgets are a new capability of RingCentral Embeddable, allowing developers to inject dynamic, contextual content directly into the core RingCentral calling experience.
+Call Widgets are a powerful capability of RingCentral Embeddable, allowing developers to inject dynamic, contextual content directly into the core RingCentral calling experience.
 
 When a user is on a call, call widgets appear in the right-hand panel, enabling quick access to relevant information or actions—without leaving the call page.
 
 ![call-widget-case-demo](../assets/call-widget-case-demo.png)
 
-## Registering a call widget
+## Getting started
+
+### Enable side widget feature
 
 Before registering a widget, you must first enable the side widget feature:
 
@@ -25,6 +27,10 @@ Before registering a widget, you must first enable the side widget feature:
     </script>
     ```
 
+The `enableSideWidget=1` parameter is required to activate call widget functionality
+
+### Register a call widget
+
 Once enabled, register your custom call widget:
 
 ```js
@@ -33,7 +39,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     app: {
       id: 'support-cases',
       name: 'Support cases',
-      iconUri: 'https://icon_uri',
+      iconUri: 'https://example.com/icon.png',
       pagePath: '/sidebarApps/support-cases',
       inputChangedPath: '/sidebarApps/support-cases/inputChanged',
       buttonEventPath: '/sidebarApps/support-cases/button-click',
@@ -41,21 +47,32 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   }, '*')
 ```
 
-You can register multiple call widgets by calling the "register" API multiple times with different configurations..
+1. Unique identifier for your widget
+2. Display name shown in the widget menu
+3. Icon URL (128x128px recommended)
+4. Main content request path
+5. Input change event path
+6. Button click event path
+
+!!! tip "Multiple widgets"
+    You can register multiple call widgets by calling the registration API multiple times with different configurations.
 
 After successful registration, your call widget will appear during active calls:
 
 ![call-widget-apps](../assets/call-widget-apps.png)
 
-## Responding to call widget requests
+## Building widget content
 
-When a user opens your call widget, the Embeddable framework sends a message to your app requesting page data in JSON format.
+### Understanding the request flow
 
-The widget page is rendered using [JSON schema form library](https://rjsf-team.github.io/react-jsonschema-form) , allowing for a dynamic and customizable UI layout.
+When a user opens your call widget, the Embeddable framework sends a message to your app requesting page data in JSON format. The widget page is rendered using the [JSON Schema Form library](https://rjsf-team.github.io/react-jsonschema-form), allowing for dynamic and customizable UI layouts.
 
-Learn how to define custom widget pages with JSON schema in the [customized tab document](./custom-tab.md).
+!!! note "JSON Schema reference"
+    Learn how to define custom widget pages with JSON schema in the [customized tab document](./custom-tab.md).
 
-Add a event to response page data request:
+### Basic page response
+
+Add an event listener to handle page data requests:
 
 ```js
 function responseMessage(request, response) {
@@ -147,7 +164,7 @@ window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/sidebarApps/support-cases') {
-      const contact = request.body.contact; // get contact { phoneNumber } from call
+      const contact = data.body.contact; // get contact { phoneNumber } from call
       // TODO: get cases from your CRM with contact info
       const cases = [{
         link: 'https://case_link',
@@ -158,7 +175,7 @@ window.addEventListener('message', function (e) {
         },
         Status: 'New',
       }];
-      responseMessage(request, {
+      responseMessage(data, {
         data: getCasesPageJSON(cases),
       });
     }
@@ -166,13 +183,24 @@ window.addEventListener('message', function (e) {
 });
 ```
 
+1. Dynamic list generation from your data
+2. UI Schema controls the visual presentation
+3. Form data sets initial values
+4. Actions create menu buttons
+5. Contact information from the active call
+
 ![call-widget-case-demo-page](../assets/call-widget-case-demo.png)
 
-Response to search input changes:
+## Handling user interactions
+
+### Search functionality
+
+Implement search with debouncing to optimize API calls:
 
 ```js
 // We use debounce to avoid sending too many requests to your CRM
 let supportCasesSearchDebounce = null;
+
 function debounceSupportCasesSearch(request) {
   if (!supportCasesSearchDebounce) {
     supportCasesSearchDebounce = {};
@@ -213,7 +241,7 @@ window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/sidebarApps/support-cases') {
-      // ...
+      // Handle main page request
     }
     if (data.path === '/sidebarApps/support-cases/inputChanged') {
       if (data.body.changedKeys[0] === 'caseSearch') {
@@ -224,22 +252,24 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-Respond to case item selection:
+1. 800ms debounce delay to prevent excessive API calls
+
+### Item selection handling
+
+Handle user interactions with list items:
 
 ```js
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
-    if (data.path === '/sidebarApps/support-cases') {
-      // ...
-    }
+    // ...
     if (data.path === '/sidebarApps/support-cases/inputChanged') {
       // ...
       if (data.body.changedKeys[0] === 'caseList') {
         const caseLink = data.body.formData.caseList;
-        // open case detail page in new tab
+        // Open case detail page in new tab
         window.open(caseLink, '_blank');
-        responseMessage(request, {
+        responseMessage(data, {
           data: 'ok',
         });
       }
@@ -248,14 +278,17 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-## Build authorization flow
+## Authentication flow
 
-For some widgets, you may need to build authorization flow to get the data.
+### Authorization page
+
+For widgets requiring authentication, implement an authorization flow:
 
 ![authorization-flow](../assets/call-widget-auth-button.png)
 
 ```js
-let crmAuthorized = false; // set to true when user authorize your CRM
+let crmAuthorized = false; // Set to true when user authorizes your CRM
+
 function getAuthorizationPageJSON() {
   return {
     page: {
@@ -280,7 +313,8 @@ function getAuthorizationPageJSON() {
       formData: {},
     },
   };
-};
+}
+
 function getRefreshAuthorizationJson() {
   return {
     page: {
@@ -305,24 +339,29 @@ function getRefreshAuthorizationJson() {
     },
   };
 }
+```
 
+### Authorization handling
+
+```js
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
     if (data.path === '/sidebarApps/support-cases') {
       if (!crmAuthorized) {
-        // show authorization page
-        responseMessage(request, {
+        // Show authorization page
+        responseMessage(data, {
           data: getAuthorizationPageJSON(),
         });
         return;
       }
+      // Show main content when authorized
     }
     if (data.path === '/sidebarApps/support-cases/button-click') {
       if (data.body.button.id === 'crmAuthButton') {
-        // open authorization page in new tab
+        // Open authorization page in new tab
         window.open('https://crm-authorization-page', '_blank');
-        responseMessage(request, {
+        responseMessage(data, {
           data: getRefreshAuthorizationJson(),
         });
       }
@@ -331,11 +370,12 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-For the flow, after user authorize your CRM, user need to refresh the app to get the data.
+!!! warning "Post-authorization flow"
+    After user authorization, the app needs to be refreshed to load the authenticated data. The widget will display a refresh message to guide users through this process.
 
-## Response action button click
+## Action buttons
 
-In previous example, we also set actions in the page JSON. Actions are buttons that appear in call widget's more actions menu.
+Actions are buttons that appear in the call widget's more actions menu:
 
 ![action-buttons](../assets/call-widget-action-buttons.png)
 
@@ -343,19 +383,17 @@ In previous example, we also set actions in the page JSON. Actions are buttons t
 window.addEventListener('message', function (e) {
   var data = e.data;
   if (data && data.type === 'rc-post-message-request') {
-    // ...
     if (data.path === '/sidebarApps/support-cases/button-click') {
-      //...
       if (data.body.button.id === 'home') {
-        // open home page
-        responseMessage(request, {
+        // Navigate to home page
+        responseMessage(data, {
           data: getCasesPageJSON(cases),
         });
       }
       if (data.body.button.id === 'unauthorize') {
-        // unauthorize your CRM
+        // Revoke authorization
         crmAuthorized = false;
-        responseMessage(request, {
+        responseMessage(data, {
           data: getAuthorizationPageJSON(),
         });
       }
@@ -364,12 +402,15 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-## Contact notes widget
+## Example implementation
 
-Here is a online demo of contact notes widget:
+### Contact notes widget
 
-[Contact notes widget online demo](https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/index.html)
+Here is an online demo of a contact notes widget:
+
+[Contact notes widget online demo](https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/index.html){ .md-button .md-button--primary }
 
 ![contact-notes-widget](../assets/call-widget-contact-notes.png)
 
-Get full code about contact notes widget in [this repo](https://github.com/ringcentral/ringcentral-embeddable-contact-notes-widget/).
+!!! example "Complete implementation"
+    Get the full source code for the contact notes widget in the [GitHub repository](https://github.com/ringcentral/ringcentral-embeddable-contact-notes-widget/).
