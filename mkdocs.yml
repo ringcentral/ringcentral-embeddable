@@ -133,6 +133,7 @@ nav:
     - 'Pages': integration/custom-page.md
     - 'Settings': integration/custom-settings.md
     - 'Tabs': integration/custom-tab.md
+    - 'Call widgets': integration/call-widget.md
   - 'Recipes':
     - 'Analytics integration': integration/analytics.md
     - 'Click-to-dial enablement': integration/click-to-dial.md

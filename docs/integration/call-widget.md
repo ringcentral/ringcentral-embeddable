@@ -6,7 +6,7 @@ Call Widgets are a new capability of RingCentral Embeddable, allowing developers
 
 When a user is on a call, call widgets appear in the right-hand panel, enabling quick access to relevant information or actions—without leaving the call page.
 
-![call-widgets-case-demo](https://github.com/user-attachments/assets/22d5c5da-894a-43e7-9858-7594113e9faf)
+![call-widget-case-demo](../assets/call-widget-case-demo.png)
 
 ## Registering a call widget
 
@@ -45,7 +45,7 @@ You can register multiple call widgets by calling the "register" API multiple ti
 
 After successful registration, your call widget will appear during active calls:
 
-![call-widget-apps](https://github.com/user-attachments/assets/e661562a-6fe6-4d73-956a-5fd43af41605)
+![call-widget-apps](../assets/call-widget-apps.png)
 
 ## Responding to call widget requests
 
@@ -166,7 +166,7 @@ window.addEventListener('message', function (e) {
 });
 ```
 
-![call-widgets-case-demo-page](https://github.com/user-attachments/assets/22d5c5da-894a-43e7-9858-7594113e9faf)
+![call-widget-case-demo-page](../assets/call-widget-case-demo.png)
 
 Response to search input changes:
 
@@ -181,6 +181,7 @@ function debounceSupportCasesSearch(request) {
     clearTimeout(timeout);
     const preRequest = supportCasesSearchDebounce.request;
     if (preRequest) {
+      // respond 'ok' to avoid re-render the page
       responseMessage(preRequest, {
         data: 'ok',
       });
@@ -251,7 +252,7 @@ window.addEventListener('message', function (e) {
 
 For some widgets, you may need to build authorization flow to get the data.
 
-![authorization-flow](https://github.com/user-attachments/assets/dacbbc29-21c0-4b10-aba9-248a49ae655e)
+![authorization-flow](../assets/call-widget-auth-button.png)
 
 ```js
 let crmAuthorized = false; // set to true when user authorize your CRM
@@ -336,7 +337,7 @@ For the flow, after user authorize your CRM, user need to refresh the app to get
 
 In previous example, we also set actions in the page JSON. Actions are buttons that appear in call widget's more actions menu.
 
-![action-buttons](https://github.com/user-attachments/assets/5bae07fc-a0c8-47eb-9b70-64724ce3bc7d)
+![action-buttons](../assets/call-widget-action-buttons.png)
 
 ```js
 window.addEventListener('message', function (e) {
@@ -362,3 +363,13 @@ window.addEventListener('message', function (e) {
   }
 });
 ```
+
+## Contact notes widget
+
+Here is a online demo of contact notes widget:
+
+[Contact notes widget online demo](https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/index.html)
+
+![contact-notes-widget](../assets/call-widget-contact-notes.png)
+
+Get full code about contact notes widget in [this repo](https://github.com/ringcentral/ringcentral-embeddable-contact-notes-widget/).
