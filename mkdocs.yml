@@ -115,6 +115,7 @@ nav:
   - 'API': integration/api.md
   - 'Authorization': integration/authorization.md
   - 'Embeddable 2.0': 2.x.md
+  - 'Embeddable 3.0 - BETA': 3.x.md
   - 'Service features':
     - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md
@@ -133,6 +134,7 @@ nav:
     - 'Pages': integration/custom-page.md
     - 'Settings': integration/custom-settings.md
     - 'Tabs': integration/custom-tab.md
+    - 'Call widgets': integration/call-widget.md
   - 'Recipes':
     - 'Analytics integration': integration/analytics.md
     - 'Click-to-dial enablement': integration/click-to-dial.md
