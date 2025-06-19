@@ -9,6 +9,8 @@ import {
   RcAlert,
   RcTypography,
   RcIcon,
+  RcIconButton,
+  RcButton,
   RcTooltip,
   RcFormLabel,
   RcFormGroup,
@@ -16,7 +18,7 @@ import {
   css,
 } from '@ringcentral/juno';
 import { styled, palette2 } from '@ringcentral/juno/foundation';
-import { InfoBorder, Lock } from '@ringcentral/juno-icon';
+import { InfoBorder, Lock, Delete, Add } from '@ringcentral/juno-icon';
 
 const StyledAlert = styled(RcAlert)`
   &.RcAlert-root {
@@ -155,6 +157,117 @@ function CheckboxSelect({
       </StyledFormGroup>
     </CheckboxSelectWrapper>
   );
+}
+
+const ArrayParamInputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+`;
+
+const ArrayItemWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 8px;
+`;
+
+const AddButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 8px;
+`;
+
+const ArrayItemTextField = styled(StyledTextField)`
+  flex: 1;
+`;
+
+function ArrayItem({
+  value,
+  onChange,
+  readOnly,
+  onDelete,
+}) {
+  return (
+    <ArrayItemWrapper>
+      <ArrayItemTextField
+        value={value}
+        onChange={(e) => {
+          if (readOnly) {
+            return;
+          }
+          onChange(e.target.value);
+        }}
+        aria-readonly={readOnly}
+        readOnly={readOnly}
+        fullWidth
+      />
+      {
+        !readOnly && (
+          <RcIconButton
+            symbol={Delete}
+            size="small"
+            onClick={onDelete}
+          />
+        )
+      }
+    </ArrayItemWrapper>
+  );
+}
+
+function ArrayParamInput({
+  value = [],
+  onChange,
+  label,
+  required,
+  helperText,
+  readOnly,
+  maxItems,
+}) {
+  return (
+    <ArrayParamInputWrapper>
+      <StyledFormLabel required={required}>{label}</StyledFormLabel>
+      {helperText && (
+        <RcTypography variant='caption1' color="neutral.f04" component="span">
+          {helperText}
+        </RcTypography>
+      )}
+      <RcFormGroup>
+        {value.map((item, index) => (
+          <ArrayItem
+            key={index}
+            value={item}
+            onChange={(newValue) => {
+              onChange(value.map((v, i) => i === index ? newValue : v));
+            }}
+            onDelete={() => onChange(value.filter((_, i) => i !== index))}
+            readOnly={readOnly}
+          />
+        ))}
+        {
+          !readOnly && (
+            <AddButtonWrapper>
+              <RcButton
+                variant="outlined"
+                size="small"
+                onClick={() => onChange([...value, ''])}
+                startIcon={
+                  <RcIcon
+                    symbol={Add}
+                    size="small"
+                  />
+                }
+                disabled={maxItems && value.length >= maxItems}
+              >
+                Add
+              </RcButton>
+            </AddButtonWrapper>
+          )
+        }
+      </RcFormGroup>
+    </ArrayParamInputWrapper>
+  )
 }
 export function SettingParamInput({
   setting,
@@ -327,6 +440,19 @@ export function SettingParamInput({
       >
         {setting.value}
       </RcTypography>
+    );
+  }
+  if (setting.type === 'array') {
+    return (
+      <ArrayParamInput
+        label={label}
+        value={setting.value}
+        onChange={onChange}
+        required={setting.required}
+        helperText={setting.helper}
+        readOnly={setting.readOnly}
+        maxItems={setting.maxItems}
+      />
     );
   }
   return null;

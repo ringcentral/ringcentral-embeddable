@@ -52,6 +52,16 @@ function checkSettingSectionItem(item) {
   if (item.type === 'option') {
     return checkOptionSettingItem(item);
   }
+  if (item.type === 'array') {
+    if (!Array.isArray(item.value)) {
+      return false;
+    }
+    if (item.value.some((valueItem) => {
+      return typeof valueItem !== 'string';
+    })) {
+      return false;
+    }
+  }
   return true;
 }
 
