@@ -4,16 +4,17 @@ import { RcThemeProvider } from '@ringcentral/juno';
 import { JSONSchemaPage } from '../index';
 
 const meta: Meta<typeof JSONSchemaPage> = {
-  title: 'JSONSchemaPage/Basic Forms',
+  title: 'JSONSchemaPage/Complete Form Examples',
   component: JSONSchemaPage,
   parameters: {
-    layout: 'padded',
+    layout: 'fullscreen',
     docs: {
       description: {
-        component: 'A comprehensive form component that renders forms based on JSON Schema and UI Schema definitions.',
+        component: 'Complete form examples showing real-world use cases - Contact forms, Multi-step workflows, Validation patterns, and advanced form features',
       },
     },
   },
+  tags: ['autodocs'],
   argTypes: {
     schema: {
       description: 'JSON Schema that defines the form structure',

@@ -37,13 +37,13 @@ const StoryLayout = ({ args, children, resultComponent }) => (
 );
 
 const meta: Meta<typeof JSONSchemaPage> = {
-  title: 'JSONSchemaPage/Widgets',
+  title: 'JSONSchemaPage/Form Input Widgets',
   component: JSONSchemaPage,
   parameters: {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Examples of different widget types available in JSONSchemaPage',
+        component: 'Form input widgets for collecting user data - Text inputs, Numbers, Selections, Toggles, File uploads, and other interactive form controls',
       },
     },
   },
