@@ -5,6 +5,10 @@
   "main": "index.js",
   "license": "MIT",
   "browserslist": "defaults",
+  "private": true,
+  "workspaces": [
+    "./packages/jsonschema-page"
+  ],
   "scripts": {
     "test": "jest --maxWorkers=1",
     "start": "npm run dev-server",
@@ -86,13 +90,11 @@
     "@ringcentral-integration/phone-number": "^1.1.0",
     "@ringcentral-integration/utils": "^0.14.0",
     "@ringcentral-integration/widgets": "^0.14.0",
+    "@ringcentral-integration/jsonschema-page": "^0.1.0",
     "@ringcentral/juno": "^2.45.0",
     "@ringcentral/juno-icon": "^1.84.1",
     "@ringcentral/mfe-react": "^0.3.7",
     "@ringcentral/sdk": "^4.7.2",
-    "@rjsf/core": "^5.17.1",
-    "@rjsf/utils": "^5.17.1",
-    "@rjsf/validator-ajv8": "^5.17.1",
     "classnames": "^2.2.5",
     "core-js": "^3.9.1",
     "dayjs": "^1.11.7",

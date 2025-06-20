@@ -9,7 +9,7 @@ const theme: ThemeProps = { widgets, templates };
 
 const Form = withTheme(theme);
 
-export const CustomizedForm = ({
+export const JSONSchemaPage = ({
   schema,
   uiSchema = {},
   formData,

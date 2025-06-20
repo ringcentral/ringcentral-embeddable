@@ -1,0 +1,73 @@
+{
+  "name": "@ringcentral-integration/jsonschema-page",
+  "version": "0.1.0",
+  "description": "The jsonschema page component",
+  "homepage": "https://github.com/ringcentral/ringcentral-embeddable/tree/main/packages/jsonschema-page#readme",
+  "bugs": {
+    "url": "https://github.com/ringcentral/ringcentral-embeddable/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ringcentral/ringcentral-embeddable.git"
+  },
+  "license": "MIT",
+  "author": "Embbnux Ji",
+  "main": "src/index.tsx",
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/eslint-parser": "^7.25.9",
+    "@babel/plugin-proposal-decorators": "^7.25.9",
+    "@babel/plugin-proposal-export-default-from": "^7.25.9",
+    "@babel/plugin-proposal-function-bind": "^7.25.9",
+    "@babel/plugin-transform-class-properties": "^7.25.9",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.25.9",
+    "@babel/plugin-transform-optional-chaining": "^7.25.9",
+    "@babel/plugin-transform-runtime": "^7.25.9",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.26.0",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "babel-loader": "^9.2.1",
+    "babel-plugin-const-enum": "^1.2.0",
+    "babel-plugin-direct-import": "^1.0.0",
+    "babel-plugin-transform-typescript-metadata": "^0.3.2",
+    "buffer": "^6.0.3",
+    "copy-webpack-plugin": "^12.0.2",
+    "cross-env": "^7.0.3",
+    "crypto-browserify": "^3.12.0",
+    "dotenv": "^6.2.0",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jest": "^28.9.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-lodash": "^8.0.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "5.0.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "querystring-es3": "^0.2.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "stream-browserify": "^3.0.0",
+    "terser-webpack-plugin": "^5.3.10",
+    "typescript": "^5.7.2",
+    "vm-browserify": "1.1.2",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+    "@ringcentral/juno": "^2.45.0",
+    "@ringcentral/juno-icon": "^1.84.1",
+    "styled-components": "^5.3.3"
+  },
+  "dependencies": {
+    "@rjsf/core": "^5.17.1",
+    "@rjsf/utils": "^5.17.1",
+    "@rjsf/validator-ajv8": "^5.17.1"
+  }
+}
