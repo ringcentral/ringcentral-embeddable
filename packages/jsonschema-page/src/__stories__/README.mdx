@@ -1,0 +1,107 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="README" />
+
+# JSONSchemaPage
+
+A powerful React component library that renders dynamic forms based on JSON Schema definitions. Built on top of [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form) and beautifully styled with [RingCentral Juno](https://github.com/ringcentral/ringcentral-juno) components.
+
+## 🚀 Quick Start
+
+```tsx
+import { JSONSchemaPage } from '@ringcentral-integration/jsonschema-page';
+
+function App() {
+  const [formData, setFormData] = useState({});
+
+  const schema = {
+    title: 'Contact Form',
+    type: 'object',
+    properties: {
+      name: { type: 'string', title: 'Full Name' },
+      email: { type: 'string', format: 'email', title: 'Email' }
+    },
+    required: ['name', 'email']
+  };
+
+  return (
+    <JSONSchemaPage
+      schema={schema}
+      formData={formData}
+      onFormDataChange={setFormData}
+      onSubmit={(data) => console.log('Submitted:', data.formData)}
+    />
+  );
+}
+```
+
+## 📚 Documentation & Examples
+
+Explore our comprehensive documentation and interactive examples:
+
+### 📖 **[Complete Documentation](/?path=/docs/jsonschemapage-documentation--docs)**
+Learn everything about JSON Schema, UI Schema customization, and advanced features.
+
+### 🎯 **Basic Forms**
+- **[Contact Form](/?path=/story/jsonschemapage-basic-forms--contact-form)** - Simple contact information form
+- **[All Widgets](/?path=/story/jsonschemapage-basic-forms--all-widgets)** - Showcase of all available widget types
+- **[Conditional Fields](/?path=/story/jsonschemapage-basic-forms--conditional-fields)** - Dynamic form fields based on user input
+- **[Array Fields](/?path=/story/jsonschemapage-basic-forms--array-fields)** - Dynamic lists and nested objects
+- **[Custom Validation](/?path=/story/jsonschemapage-basic-forms--custom-validation)** - Form validation examples
+
+### 🧩 **Widgets Showcase**
+- **[File Upload](/?path=/story/jsonschemapage-widgets--file-upload-widget)** - File upload with drag & drop
+- **[Range Sliders](/?path=/story/jsonschemapage-widgets--range-widget)** - Numeric range inputs
+- **[Radio Buttons](/?path=/story/jsonschemapage-widgets--radio-widget)** - Radio button groups
+- **[Select Dropdowns](/?path=/story/jsonschemapage-widgets--select-widget)** - Dropdown selections
+- **[Checkboxes](/?path=/story/jsonschemapage-widgets--checkbox-widget)** - Boolean toggles and multi-select
+- **[Text Areas](/?path=/story/jsonschemapage-widgets--textarea-widget)** - Multi-line text inputs
+
+### ⚡ **Custom Fields & Interactions**
+- **[Interactive Buttons](/?path=/story/jsonschemapage-custom-fields--button-fields)** - Action buttons within forms
+- **[Interactive Forms](/?path=/story/jsonschemapage-custom-fields--interactive-form)** - Complex form interactions
+- **[Dynamic Lists](/?path=/story/jsonschemapage-custom-fields--list-fields)** - Editable list management
+- **[Search & Filter](/?path=/story/jsonschemapage-custom-fields--search-and-filter-fields)** - Search functionality
+
+## ✨ Key Features
+
+- **🎨 Beautiful UI**: Styled with RingCentral Juno design system
+- **📱 Responsive**: Works great on desktop and mobile devices
+- **🔧 Customizable**: Extensive customization through UI Schema
+- **✅ Validation**: Built-in and custom validation support
+- **🎯 Interactive**: Buttons, search, and custom field types
+- **📊 Dynamic**: Conditional fields and array management
+- **♿ Accessible**: WCAG compliant form components
+- **⚡ Performance**: Optimized for large forms
+
+## 🛠️ Installation
+
+```bash
+npm install @ringcentral-integration/jsonschema-page
+```
+
+### Peer Dependencies
+```bash
+npm install @ringcentral/juno @ringcentral/juno-icon react styled-components
+```
+
+## 🎯 Use Cases
+
+- **Configuration Forms**: Application settings and preferences
+- **Data Entry**: Complex data collection forms
+- **Survey Forms**: Dynamic questionnaires
+- **Admin Panels**: Management interfaces
+- **User Profiles**: Registration and profile forms
+- **Wizard Forms**: Multi-step form workflows
+
+## 🔗 Links
+
+- [GitHub Repository](https://github.com/ringcentral/ringcentral-embeddable)
+- [React JSON Schema Form](https://github.com/rjsf-team/react-jsonschema-form)
+- [RingCentral Juno](https://github.com/ringcentral/ringcentral-juno)
+- [JSON Schema Specification](https://json-schema.org/)
+
+---
+
+**Ready to build amazing forms?** Start exploring the examples above! 🚀
+

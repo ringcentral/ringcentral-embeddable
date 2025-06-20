@@ -17,3 +17,6 @@ src/noise-reduction
 site
 src/plugins.json
 .vscode
+
+*storybook.log
+storybook-static

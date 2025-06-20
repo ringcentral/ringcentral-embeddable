@@ -2,6 +2,7 @@
 module.exports = {
   plugins: ['lodash'],
   ignorePatterns: ['node_modules', 'release', 'html-report'],
+
   globals: {
     page: true,
     browser: true,
@@ -11,6 +12,7 @@ module.exports = {
     __THIRD_PARTY_URI__: true,
     __TEST_SMS_RECEIVER_NUMBER__: true,
   },
+
   overrides: [
     // js ts files
     {
@@ -111,4 +113,6 @@ module.exports = {
       },
     },
   ],
+
+  extends: ['plugin:storybook/recommended']
 };

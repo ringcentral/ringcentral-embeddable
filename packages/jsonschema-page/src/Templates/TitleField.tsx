@@ -19,6 +19,7 @@ const StyledBox = styled(Box)<{ $clickable: boolean }>`
   display: flex;
   align-items: center;
   flex-direction: row;
+  overflow: hidden;
   ${({ $clickable }) => $clickable && css`
     cursor: pointer;
   `};
