@@ -29,4 +29,5 @@ export default {
   callQueuePresenceSetting: 'Manage call queue presence',
   status: 'Status',
   acceptQueueCalls: 'Accept calls from call queue',
+  appearance: 'Appearance',
 };

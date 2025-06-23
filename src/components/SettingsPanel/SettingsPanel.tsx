@@ -453,7 +453,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     }, {
       id: 'appearance',
       type: 'group',
-      name: 'Appearance',
+      name: 'appearance',
       dataSign: 'appearance',
       order: 300,
       items: [{
