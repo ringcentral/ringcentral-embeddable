@@ -675,13 +675,14 @@ export const CardListField: Story = {
       },
     },
     uiSchema: {
-      projectCard: {
-        'ui:field': 'list',
-        'ui:itemType': 'card',
-        'ui:itemWidth': '48%',
-        'ui:itemHeight': '110px',
-        'ui:showSelected': false,
-      },
+      "projectCard": {
+        "ui:field": "list",
+        "ui:itemType": "card",
+        "ui:itemWidth": "48%",
+        "ui:itemHeight": "110px",
+        "ui:showSelected": false,
+        "ui:readonly": false,
+      }
     },
     formData: {
       projectCard: 'web-app',
