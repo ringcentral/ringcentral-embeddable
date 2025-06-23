@@ -1,6 +1,6 @@
 export default {
   general: 'General',
-  theme: "Theme (Beta)",
+  theme: "Theme",
   region: 'Region',
   calling: 'Calling',
   logout: 'Logout',

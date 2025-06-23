@@ -328,6 +328,21 @@ function getSettingItemFromThirdPartyItem({
   return null;
 }
 
+function getExistingGroupItem(settingsItems: SettingItem[], groupId) {
+  for (const item of settingsItems) {
+    if (item.id === groupId && item.type === 'group') {
+      return item;
+    }
+    if (item.items) {
+      const existingGroupItem = getExistingGroupItem(item.items, groupId);
+      if (existingGroupItem) {
+        return existingGroupItem;
+      }
+    }
+  }
+  return null;
+}
+
 export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   additional,
   autoLogEnabled = false,
@@ -436,14 +451,21 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       onClick: onRegionSettingsLinkClick,
       order: 200,
     }, {
-      id: 'theme',
-      type: 'link',
-      name: 'theme',
-      description: 'Switch between light and dark themes',
-      onClick: onThemeSettingsLinkClick,
-      show: showThemeSetting,
+      id: 'appearance',
+      type: 'group',
+      name: 'Appearance',
+      dataSign: 'appearance',
       order: 300,
-      dataSign: 'theme',
+      items: [{
+        id: 'theme',
+        type: 'link',
+        name: 'theme',
+        description: 'Switch between light and dark themes',
+        onClick: onThemeSettingsLinkClick,
+        show: showThemeSetting,
+        order: 300,
+        dataSign: 'theme',
+      }],
     }]
   }, {
     type: 'link',
@@ -545,10 +567,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
     if (!settingItem) {
       return;
     }
-    if (item.type !== 'group' && typeof item.groupId !== 'undefined') {
-      const groupItem = settingsItems.find(
-        (groupItem) => groupItem.id === item.groupId && groupItem.type === 'group',
-      );
+    if (typeof item.groupId !== 'undefined') {
+      const groupItem = getExistingGroupItem(settingsItems, item.groupId);
       if (groupItem) {
         if (!groupItem.items) {
           groupItem.items = [];
@@ -558,9 +578,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       }
     }
     if (settingItem.type === 'group') {
-      const existingGroupItem = settingsItems.find(
-        (groupItem) => groupItem.id === settingItem.id && groupItem.type === 'group',
-      );
+      const existingGroupItem = getExistingGroupItem(settingsItems, settingItem.id);
       if (existingGroupItem) {
         if (settingItem.name) {
           existingGroupItem.name = settingItem.name;
