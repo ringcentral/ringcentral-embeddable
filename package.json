@@ -14,7 +14,8 @@
     "start": "npm run dev-server",
     "dev-server": "webpack serve --config webpack-dev-server.config.js",
     "build": "cross-env NODE_ENV=production webpack --config webpack-production.config.js",
-    "build-extension": "cross-env NODE_ENV=production RELEASE_DIR=extension LOCAL_EXTENSION_MODE=1 webpack --config webpack-production.config.js"
+    "build-extension": "cross-env NODE_ENV=production RELEASE_DIR=extension LOCAL_EXTENSION_MODE=1 webpack --config webpack-production.config.js",
+    "build-jsonschema-page-docs": "cross-env NODE_ENV=production yarn workspace @ringcentral-integration/jsonschema-page build-storybook"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
