@@ -701,8 +701,19 @@ export const RadioWidget: Story = {
         favoriteColor: {
           type: 'string',
           title: 'Favorite Color',
-          enum: ['red', 'green', 'blue', 'yellow', 'purple'],
-          enumNames: ['Red', 'Green', 'Blue', 'Yellow', 'Purple'],
+          oneOf: [{
+            "const": "neutral",
+            "title": "Neutral",
+            "color": "#939393"
+          }, {
+            "const": "yellow",
+            "title": "Yellow",
+            "color": "#B17D1A"
+          }, {
+            "const": "purple",
+            "title": "Purple",
+            "color": "#8A77E3"
+          }],
           description: 'Choose your favorite color',
         },
         priority: {
@@ -723,6 +734,7 @@ export const RadioWidget: Story = {
     uiSchema: {
       favoriteColor: {
         'ui:widget': 'radio',
+        "ui:itemDirection": "row",
       },
       priority: {
         'ui:widget': 'radio',
