@@ -55,6 +55,8 @@ jobs:
           MIXPANEL_KEY: ${{ secrets.MIXPANEL_KEY }}
           ANALYTICS_SECRET_KEY: ${{ secrets.ANALYTICS_SECRET_KEY }}
       - run: ./build_brand_themes.sh
+      - run: yarn build-jsonschema-page-docs
+      - run: mv packages/jsonschema-page/storybook-static release/jsonschema-page
       - run: pip install mkdocs
       - run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - run: mkdocs build

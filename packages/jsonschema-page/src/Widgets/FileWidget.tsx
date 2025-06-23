@@ -127,8 +127,8 @@ export default function FileWidget<
     setIsLoading(false);
   };
 
-  const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    handleFileSelect(event.target.files);
+  const handleFileInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    await handleFileSelect(event.target.files);
     // Reset input value to allow selecting the same file again
     if (fileInputRef.current) {
       fileInputRef.current.value = '';

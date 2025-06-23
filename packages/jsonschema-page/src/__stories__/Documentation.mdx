@@ -1,0 +1,657 @@
+import { Meta, Canvas, Story } from '@storybook/addon-docs/blocks';
+import { JSONSchemaPage } from '../index';
+
+<Meta title="JSONSchemaPage/Documentation" />
+
+# JSONSchemaPage Complete Documentation
+
+A comprehensive guide to building dynamic forms with JSON Schema. This documentation covers everything from basic setup to advanced patterns and best practices.
+
+## Table of Contents
+
+1. [Installation & Setup](#installation--setup)
+2. [Basic Usage](#basic-usage)
+3. [JSON Schema Fundamentals](#json-schema-fundamentals)
+4. [UI Schema Customization](#ui-schema-customization)
+5. [Available Widgets](#available-widgets)
+6. [Custom Fields](#custom-fields)
+7. [Event Handling](#event-handling)
+8. [Advanced Patterns](#advanced-patterns)
+9. [Best Practices](#best-practices)
+10. [API Reference](#api-reference)
+
+## Installation & Setup
+
+### Package Installation
+
+```bash
+npm install @ringcentral-integration/jsonschema-page
+```
+
+### Peer Dependencies
+
+Make sure you have these peer dependencies installed:
+
+```bash
+npm install @ringcentral/juno @ringcentral/juno-icon react styled-components
+```
+
+### TypeScript Support
+
+JSONSchemaPage includes full TypeScript definitions. No additional `@types` packages are needed.
+
+### Theme Setup
+
+Wrap your app with the RingCentral theme provider:
+
+```tsx
+import { RcThemeProvider } from '@ringcentral/juno';
+
+function App() {
+  return (
+    <RcThemeProvider>
+      {/* Your app components */}
+    </RcThemeProvider>
+  );
+}
+```
+
+## Basic Usage
+
+```tsx
+import React, { useState } from 'react';
+import { JSONSchemaPage } from '@ringcentral-integration/jsonschema-page';
+
+function MyForm() {
+  const [formData, setFormData] = useState({});
+
+  const schema = {
+    title: 'User Information',
+    type: 'object',
+    properties: {
+      name: {
+        type: 'string',
+        title: 'Full Name'
+      },
+      email: {
+        type: 'string',
+        format: 'email',
+        title: 'Email Address'
+      }
+    },
+    required: ['name', 'email']
+  };
+
+  return (
+    <JSONSchemaPage
+      schema={schema}
+      formData={formData}
+      onFormDataChange={setFormData}
+      onSubmit={(data) => {
+        console.log('Form submitted:', data.formData);
+      }}
+    />
+  );
+}
+```
+
+## JSON Schema Fundamentals
+
+JSON Schema is a vocabulary that allows you to annotate and validate JSON documents. Here are the key concepts:
+
+### Basic Types
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "stringField": {
+      "type": "string",
+      "title": "Text Input"
+    },
+    "numberField": {
+      "type": "number", 
+      "title": "Number Input"
+    },
+    "integerField": {
+      "type": "integer",
+      "title": "Integer Input"
+    },
+    "booleanField": {
+      "type": "boolean",
+      "title": "Checkbox"
+    }
+  }
+}
+```
+
+### String Formats
+
+JSON Schema supports various string formats that automatically provide validation:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email Address"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "uri": {
+      "type": "string",
+      "format": "uri",
+      "title": "Website URL"
+    }
+  }
+}
+```
+
+### Arrays
+
+Arrays can contain simple values or complex objects:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "tags": {
+      "type": "array",
+      "title": "Tags",
+      "items": {
+        "type": "string"
+      }
+    },
+    "users": {
+      "type": "array",
+      "title": "Team Members",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "role": { "type": "string", "title": "Role" }
+        }
+      }
+    }
+  }
+}
+```
+
+### Enums and Choices
+
+Use enums to provide predefined choices:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "color": {
+      "type": "string",
+      "title": "Favorite Color",
+      "enum": ["red", "green", "blue"],
+      "enumNames": ["Red", "Green", "Blue"]
+    }
+  }
+}
+```
+
+### Validation Rules
+
+Add validation constraints to your fields:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "password": {
+      "type": "string",
+      "title": "Password",
+      "minLength": 8,
+      "maxLength": 128
+    },
+    "age": {
+      "type": "integer",
+      "title": "Age",
+      "minimum": 0,
+      "maximum": 120
+    },
+    "username": {
+      "type": "string",
+      "title": "Username",
+      "pattern": "^[a-zA-Z0-9_]+$"
+    }
+  }
+}
+```
+
+## UI Schema Customization
+
+The UI Schema allows you to customize how the form is rendered without changing the data structure:
+
+### Widget Selection
+
+```json
+{
+  "description": {
+    "ui:widget": "textarea",
+    "ui:options": {
+      "rows": 4
+    }
+  },
+  "priority": {
+    "ui:widget": "radio"
+  },
+  "salary": {
+    "ui:widget": "range"
+  }
+}
+```
+
+### Field Options
+
+```json
+{
+  "email": {
+    "ui:placeholder": "Enter your email address",
+    "ui:help": "We'll never share your email"
+  },
+  "password": {
+    "ui:widget": "password"
+  },
+  "submitButton": {
+    "ui:submitButtonOptions": {
+      "norender": true
+    }
+  }
+}
+```
+
+### Custom Field Types
+
+```json
+{
+  "searchField": {
+    "ui:field": "Search",
+    "ui:placeholder": "Type to search..."
+  },
+  "actionButton": {
+    "ui:field": "Button",
+    "ui:variant": "contained",
+    "ui:color": "primary"
+  }
+}
+```
+
+## Available Widgets
+
+JSONSchemaPage includes several custom widgets styled with Juno components:
+
+### Text Widgets
+- **TextWidget**: Standard text input
+- **TextareaWidget**: Multi-line text input
+- **PasswordWidget**: Password input with masking
+
+### Selection Widgets
+- **SelectWidget**: Dropdown selection
+- **RadioWidget**: Radio button group
+- **CheckboxWidget**: Toggle switch
+- **CheckboxesWidget**: Multiple checkbox selection
+
+### Numeric Widgets
+- **RangeWidget**: Slider for numeric input
+- **NumberWidget**: Numeric input with validation
+
+### File Widgets
+- **FileWidget**: File upload with drag & drop support
+
+## Custom Fields
+
+### Button Field
+
+Create interactive buttons within your forms:
+
+```tsx
+// Schema
+{
+  "type": "object",
+  "properties": {
+    "saveButton": {
+      "type": "null",
+      "title": "Save Changes"
+    }
+  }
+}
+
+// UI Schema
+{
+  "saveButton": {
+    "ui:field": "Button",
+    "ui:variant": "contained",
+    "ui:color": "primary",
+    "ui:fullWidth": true
+  }
+}
+
+// Handle button clicks
+<JSONSchemaPage
+  schema={schema}
+  uiSchema={uiSchema}
+  onButtonClick={(buttonName) => {
+    if (buttonName === 'saveButton') {
+      // Handle save action
+    }
+  }}
+/>
+```
+
+### Search Field
+
+Add search functionality:
+
+```json
+{
+  "searchTerm": {
+    "ui:field": "Search",
+    "ui:placeholder": "Search items..."
+  }
+}
+```
+
+### Typography Fields
+
+Display formatted text:
+
+```json
+{
+  "heading": {
+    "ui:field": "Typography",
+    "ui:variant": "h4"
+  }
+}
+```
+
+## Event Handling
+
+### Form Data Changes
+
+```tsx
+<JSONSchemaPage
+  schema={schema}
+  formData={formData}
+  onFormDataChange={(newData) => {
+    setFormData(newData);
+    // Perform additional actions like auto-save
+  }}
+/>
+```
+
+### Form Submission
+
+```tsx
+<JSONSchemaPage
+  schema={schema}
+  onSubmit={(data) => {
+    console.log('Form Data:', data.formData);
+    // Submit to API
+    submitToAPI(data.formData);
+  }}
+/>
+```
+
+### Button Interactions
+
+```tsx
+<JSONSchemaPage
+  schema={schema}
+  onButtonClick={(buttonId) => {
+    switch (buttonId) {
+      case 'save':
+        saveData();
+        break;
+      case 'cancel':
+        resetForm();
+        break;
+    }
+  }}
+/>
+```
+
+## Advanced Patterns
+
+### Conditional Fields
+
+Use JSON Schema dependencies to show/hide fields based on other field values:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "hasAccount": {
+      "type": "boolean",
+      "title": "Do you have an account?"
+    }
+  },
+  "dependencies": {
+    "hasAccount": {
+      "oneOf": [
+        {
+          "properties": {
+            "hasAccount": { "const": true },
+            "username": {
+              "type": "string",
+              "title": "Username"
+            },
+            "password": {
+              "type": "string",
+              "title": "Password"
+            }
+          },
+          "required": ["username", "password"]
+        },
+        {
+          "properties": {
+            "hasAccount": { "const": false },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "title": "Email for new account"
+            }
+          },
+          "required": ["email"]
+        }
+      ]
+    }
+  }
+}
+```
+
+### Dynamic Array Management
+
+```tsx
+const schema = {
+  type: 'object',
+  properties: {
+    items: {
+      type: 'array',
+      title: 'Dynamic List',
+      items: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', title: 'Name' },
+          value: { type: 'string', title: 'Value' }
+        }
+      }
+    }
+  }
+};
+
+const uiSchema = {
+  items: {
+    'ui:options': {
+      addable: true,
+      removable: true,
+      orderable: true
+    }
+  }
+};
+```
+
+### Custom Validation
+
+```tsx
+<JSONSchemaPage
+  schema={schema}
+  onSubmit={(data) => {
+    // Custom validation
+    if (data.formData.password !== data.formData.confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+    
+    // Proceed with submission
+    handleSubmit(data.formData);
+  }}
+/>
+```
+
+## Best Practices
+
+### Schema Design
+- **Keep schemas modular**: Break complex schemas into smaller, reusable parts
+- **Use meaningful titles and descriptions**: Help users understand what each field does
+- **Provide sensible defaults**: Reduce user input burden where possible
+- **Define clear validation rules**: Use JSON Schema constraints and custom validation
+
+### User Experience
+- **Progressive disclosure**: Show advanced options only when needed
+- **Clear error messages**: Provide specific, actionable error feedback
+- **Logical field ordering**: Group related fields and follow natural flow
+- **Responsive design**: Test on different screen sizes
+
+### Performance
+- **Debounce form changes**: Avoid excessive re-renders on rapid input
+- **Lazy load large forms**: Split complex forms into steps or sections
+- **Optimize validation**: Run expensive validation only when necessary
+- **Memoize expensive computations**: Cache schema processing results
+
+### Accessibility
+- **Proper labels**: Every field should have a clear, descriptive label
+- **Keyboard navigation**: Ensure all interactive elements are keyboard accessible
+- **Screen reader support**: Use semantic HTML and ARIA attributes
+- **Color contrast**: Ensure sufficient contrast for all text and interactive elements
+
+### Testing
+- **Test with real data**: Use actual data scenarios, not just sample data
+- **Cross-browser testing**: Verify functionality across different browsers
+- **Validation testing**: Test both valid and invalid input scenarios
+- **Error handling**: Test network failures and edge cases
+
+## API Reference
+
+### Component Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `schema` | `JSONSchema7` | ✅ | JSON Schema definition for form structure |
+| `uiSchema` | `UiSchema` | ❌ | UI Schema for customization and styling |
+| `formData` | `object` | ❌ | Current form data values |
+| `onFormDataChange` | `(data: object) => void` | ❌ | Called when form data changes |
+| `onSubmit` | `(data: ISubmitEvent) => void` | ❌ | Called when form is submitted |
+| `onButtonClick` | `(buttonId: string) => void` | ❌ | Called when custom buttons are clicked |
+| `hiddenSubmitButton` | `boolean` | ❌ | Hide the default submit button |
+| `disabled` | `boolean` | ❌ | Disable the entire form |
+| `readonly` | `boolean` | ❌ | Make the entire form read-only |
+| `showErrorList` | `boolean` | ❌ | Show validation errors in a list |
+| `liveValidate` | `boolean` | ❌ | Validate fields as user types |
+
+### Schema Properties
+
+Common JSON Schema properties you can use:
+
+- `type`: Data type (string, number, integer, boolean, array, object)
+- `title`: Field label
+- `description`: Help text
+- `default`: Default value
+- `enum`: Predefined choices
+- `enumNames`: Display names for enum values
+- `required`: Array of required field names
+- `properties`: Object field definitions
+- `items`: Array item schema
+- `minimum`/`maximum`: Numeric constraints
+- `minLength`/`maxLength`: String length constraints
+- `pattern`: Regular expression validation
+- `format`: String format (email, date, uri, etc.)
+
+### UI Schema Properties
+
+Common UI Schema properties for customization:
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `ui:widget` | `string` | Widget type to use | `'textarea'`, `'radio'`, `'select'` |
+| `ui:field` | `string` | Custom field component | `'button'`, `'search'`, `'alert'` |
+| `ui:placeholder` | `string` | Placeholder text | `'Enter your name...'` |
+| `ui:help` | `string` | Help text below field | `'This field is required'` |
+| `ui:options` | `object` | Widget-specific options | `{ rows: 4, accept: 'image/*' }` |
+| `ui:variant` | `string` | Component variant | `'contained'`, `'outlined'` |
+| `ui:color` | `string` | Component color | `'primary'`, `'danger.b03'` |
+| `ui:fullWidth` | `boolean` | Full width layout | `true`, `false` |
+| `ui:disabled` | `boolean` | Disable field | `true`, `false` |
+| `ui:readonly` | `boolean` | Make field read-only | `true`, `false` |
+| `ui:hidden` | `boolean` | Hide field completely | `true`, `false` |
+
+### Custom Field Properties
+
+For custom fields like buttons, alerts, and typography:
+
+| Property | Type | Description | Used With |
+|----------|------|-------------|-----------|
+| `ui:severity` | `string` | Alert severity | Alert fields: `'info'`, `'success'`, `'warning'`, `'error'` |
+| `ui:href` | `string` | Link URL | Link fields |
+| `ui:underline` | `string` | Link underline style | Link fields: `'always'`, `'hover'`, `'none'` |
+| `ui:bulletedList` | `boolean` | Show as bulleted list | Typography/Link fields |
+| `ui:accept` | `string` | File type filter | File upload: `'image/*'`, `'.pdf,.doc'` |
+| `ui:maxSize` | `number` | Max file size in bytes | File upload: `5242880` (5MB) |
+| `ui:multiple` | `boolean` | Allow multiple files | File upload arrays |
+
+---
+
+## Quick Links to Examples
+
+### 🔤 Form Input Examples
+- **[Text Inputs](/story/jsonschemapage-form-input-widgets--text-input-widget)** - String, email, URL, password validation
+- **[Number Inputs](/story/jsonschemapage-form-input-widgets--number-input-widget)** - Numbers, integers, ranges, currency
+- **[File Uploads](/story/jsonschemapage-form-input-widgets--file-upload-widget)** - Single/multiple files, size limits, type filters
+- **[Select Dropdowns](/story/jsonschemapage-form-input-widgets--select-widget)** - Single/multiple selection, enums
+- **[Checkboxes](/story/jsonschemapage-form-input-widgets--checkbox-widget)** - Boolean toggles, multi-select arrays
+- **[Range Sliders](/story/jsonschemapage-form-input-widgets--range-widget)** - Numeric ranges with min/max/step
+
+### 🎯 Interactive Examples  
+- **[Button Fields](/story/jsonschemapage-interactive-components--button-fields)** - Action buttons with variants and colors
+- **[List Selection](/story/jsonschemapage-interactive-components--basic-list-field)** - OneOf selections with icons and metadata
+- **[Search Fields](/story/jsonschemapage-interactive-components--search-and-filter-fields)** - Search with suggestions and filters
+
+### 📄 Display Examples
+- **[Typography](/story/jsonschemapage-display-components--typography-fields)** - Headings, body text, lists
+- **[Alerts](/story/jsonschemapage-display-components--alert-fields)** - Info, success, warning, error messages  
+- **[Links](/story/jsonschemapage-display-components--link-fields)** - External links, colored, underlined, buttons
+
+### 📋 Complete Form Examples
+- **[Contact Form](/story/jsonschemapage-complete-form-examples--contact-form)** - Real-world contact collection
+- **[Conditional Fields](/story/jsonschemapage-complete-form-examples--conditional-fields)** - Dynamic show/hide logic
+- **[Array Management](/story/jsonschemapage-complete-form-examples--array-fields)** - Dynamic lists and nested objects
+- **[Custom Validation](/story/jsonschemapage-complete-form-examples--custom-validation)** - Complex validation patterns
+
+---
+
+## External Resources
+
+- **[JSON Schema Official Site](https://json-schema.org/)** - Complete JSON Schema specification
+- **[JSON Schema Validation](https://json-schema.org/understanding-json-schema/reference/validation.html)** - Validation keywords reference
+- **[React JSON Schema Form](https://github.com/rjsf-team/react-jsonschema-form)** - Base library documentation
+- **[RingCentral Juno](https://ringcentral.github.io/juno/)** - Design system documentation 

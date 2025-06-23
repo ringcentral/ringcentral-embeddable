@@ -2,6 +2,7 @@ import React, { FocusEvent } from 'react';
 import {
   RcFormLabel as FormLabel,
   RcSlider as Slider,
+  styled,
 } from '@ringcentral/juno';
 
 import {
@@ -13,6 +14,10 @@ import {
   WidgetProps,
   rangeSpec,
 } from '@rjsf/utils';
+
+const StyledFormLabel = styled(FormLabel)`
+  font-size: 0.75rem;
+`;
 
 export default function RangeWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any>(
   props: WidgetProps<T, S, F>
@@ -30,9 +35,9 @@ export default function RangeWidget<T = any, S extends StrictRJSFSchema = RJSFSc
   return (
     <>
       {labelValue(
-        <FormLabel required={required} htmlFor={id}>
+        <StyledFormLabel required={required} htmlFor={id}>
           {label || undefined}
-        </FormLabel>,
+        </StyledFormLabel>,
         hideLabel
       )}
       <Slider
