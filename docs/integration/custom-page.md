@@ -103,7 +103,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 ```
 
 !!! note "JSON Schema reference"
-    Learn how to define custom widget pages with JSON schema in the [JSON schema page document](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs).
+    Learn how to define custom page with JSON schema in the [JSON schema page document](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs).
 
 To update the page, you can re-register the page with new data and same page id.
 
