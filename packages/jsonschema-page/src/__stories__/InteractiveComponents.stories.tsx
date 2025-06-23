@@ -48,6 +48,53 @@ const meta: Meta<typeof JSONSchemaPage> = {
     },
   },
   tags: ['autodocs'],
+  argTypes: {
+    schema: {
+      description: 'JSON Schema that defines the form structure - Edit to see live updates!',
+      control: { type: 'object' },
+      table: {
+        type: { summary: 'object' },
+        defaultValue: { summary: '{}' },
+      },
+    },
+    uiSchema: {
+      description: 'UI Schema that defines how the form should be rendered - Customize appearance and behavior',
+      control: { type: 'object' },
+      table: {
+        type: { summary: 'object' },
+        defaultValue: { summary: '{}' },
+      },
+    },
+    formData: {
+      description: 'Current form data values - Set initial form values',
+      control: { type: 'object' },
+      table: {
+        type: { summary: 'object' },
+        defaultValue: { summary: '{}' },
+      },
+    },
+    onFormDataChange: {
+      action: 'formDataChanged',
+      description: 'Called when form data changes',
+      table: {
+        type: { summary: 'function' },
+      },
+    },
+    onSubmit: {
+      action: 'formSubmitted',
+      description: 'Called when form is submitted',
+      table: {
+        type: { summary: 'function' },
+      },
+    },
+    onButtonClick: {
+      action: 'buttonClicked',
+      description: 'Called when custom buttons are clicked',
+      table: {
+        type: { summary: 'function' },
+      },
+    },
+  },
 };
 
 export default meta;
@@ -159,12 +206,22 @@ export const ButtonFields: Story = {
         <JSONSchemaPage
           {...args}
           formData={formData}
-          onFormDataChange={setFormData}
-          onButtonClick={(buttonId: string) => {
+          onFormDataChange={(data) => {
+            setFormData(data);
+            args.onFormDataChange?.(data);
+          }}
+          onSubmit={(data) => {
+            console.log('Button form submitted:', data.formData);
+            args.onSubmit?.(data);
+            alert('Form submitted! Check console and Actions panel.');
+          }}
+          onButtonClick={(buttonId: string, value: string) => {
             setButtonClicks(prev => ({
               ...prev,
               [buttonId]: (prev[buttonId as keyof typeof prev] || 0) + 1,
             }));
+            console.log('Button clicked:', buttonId, value);
+            args.onButtonClick?.(buttonId, value);
           }}
         />
       </StoryLayout>
