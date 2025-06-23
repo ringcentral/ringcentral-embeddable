@@ -11,7 +11,6 @@ function getAbsolutePath(value: string): any {
 }
 const config: StorybookConfig = {
   "stories": [
-    "../src/__stories__/Welcome.mdx",
     "../src/**/*.mdx",
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
@@ -22,6 +21,44 @@ const config: StorybookConfig = {
   "framework": {
     "name": getAbsolutePath('@storybook/react-webpack5'),
     "options": {}
+  },
+  webpackFinal: async (config: any) => {
+    // Customize chunk naming to avoid problematic characters for GitHub Pages
+    if (config.output) {
+      // Set a simple, clean chunk filename pattern
+      config.output.chunkFilename = '[name]-[contenthash].js';
+    }
+
+    // Customize optimization to generate cleaner chunk names
+    if (config.optimization) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+          stories: {
+            test: /[\\/]src[\\/].*\.stories\./,
+            name: 'stories',
+            chunks: 'all',
+          },
+          docs: {
+            test: /[\\/]src[\\/].*\.mdx/,
+            name: 'docs',
+            chunks: 'all',
+          },
+          default: {
+            minChunks: 2,
+            name: 'common',
+            chunks: 'all',
+          }
+        }
+      };
+    }
+
+    return config;
   }
 };
 export default config;
