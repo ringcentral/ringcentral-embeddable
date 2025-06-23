@@ -727,6 +727,7 @@ export const SelectWidget: Story = {
           items: {
             type: 'string',
             enum: ['javascript', 'typescript', 'python', 'java', 'csharp', 'go', 'rust'],
+            enumNames: ['JavaScript', 'TypeScript', 'Python', 'Java', 'C#', 'Go', 'Rust'],
           },
           uniqueItems: true,
           description: 'Select multiple programming languages',
@@ -742,17 +743,7 @@ export const SelectWidget: Story = {
       },
       multipleLanguages: {
         'ui:widget': 'select',
-        'ui:options': {
-          enumOptions: [
-            { value: 'javascript', label: 'JavaScript' },
-            { value: 'typescript', label: 'TypeScript' },
-            { value: 'python', label: 'Python' },
-            { value: 'java', label: 'Java' },
-            { value: 'csharp', label: 'C#' },
-            { value: 'go', label: 'Go' },
-            { value: 'rust', label: 'Rust' },
-          ],
-        },
+        'ui:placeholder': 'Select languages...',
       },
     },
     formData: {
