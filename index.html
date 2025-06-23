@@ -1,2141 +1,680 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-      
-      
-        <link rel="canonical" href="https://ringcentral.github.io/ringcentral-embeddable/docs/">
-      
-      
-      
-      
-      <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
-    
-    
-      
-        <title>RingCentral Embeddable</title>
-      
-    
-    
-      <link rel="stylesheet" href="assets/stylesheets/main.0253249f.min.css">
-      
-        
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
-      
-      
 
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>RingCentral Embeddable</title>
+  <link rel="next" href="https://ringcentral.github.io/ringcentral-embeddable/docs/app-registration/">
+  <meta name="description" content="RingCentral Embeddable">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-eval' sha256-VriL3c45cYrUy/vLtd0e2YgaNRCydMo+n5a6sUcs0D8=' 'sha256-y/LizseRAqcmyOZpdF6YOqSawZ1iF2c6xBSaifLv6W4=' 'sha256-RMe4KGmIMS90n3lTzJrJYEkJBJMfxq0r6bQfaKbSgLY=' 'sha256-vi7De3RNiAYeCOZW/O7rkEGebZvUqnLIsLs3g/ky0w0=' 'sha256-Fl6+kMxOs0hkgUjjKMyDvT+wDRZmWSZ7naaIMkIAB1Y=' 'sha256-+KkLJ69aONDWZqL5WKgFWwH6jPSKX1wu51vtT711GJw=' 'sha256-VriL3c45cYrUy/vLtd0e2YgaNRCydMo+n5a6sUcs0D8=' 'sha256-VGeztJ41f4aXacMCW7POdrs8J3IaNHvQsNVbktLFOPo=' https://cdn.mxpnl.com https://apps.ringcentral.com/integration/ringcentral-embeddable/ https://ringcentral.github.io/ringcentral-embeddable/ https://unpkg.com/ringcentral-c2d@1.0.0/; worker-src 'self' blob: https://apps.ringcentral.com/integration/ringcentral-embeddable/; connect-src 'self' data: blob: wss://*.ringcentral.com wss://*.ringcentral.com:* wss://*.ringcentral.biz wss://*.ws-api.ringcentral.com wss://*.ws-api.ringcentral.biz wss://*.ringcentral.biz:* *.ringcentral.com *.ringcentral.biz *.labs.ringcentral.com *.mvp.ringcentral.com https://ringcentral.github.io/ringcentral-embeddable/ *.mixpanel.com https://api.github.com">
+  <link rel="shortcut icon" href="assets/images/favicon.ico">
+  <link rel="stylesheet" href="https://apps.ringcentral.com/integration/ringcentral-embeddable/docs-assets/main.1.min.css">
+  <link rel="stylesheet" href="https://apps.ringcentral.com/integration/ringcentral-embeddable/docs-assets/palette.1.min.css">
+  <link rel="stylesheet" href="https://ringcentral.github.io/ringcentral-embeddable/docs/extra.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+  <style>
+    :root {
+      --md-text-font: "Roboto";
+      --md-code-font: "Roboto Mono"
+    }
 
-    
-    
-      
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-      <link rel="stylesheet" href="extra.css">
-    
-      <link rel="stylesheet" href="assets/stylesheets/badge.css">
-    
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
+    p {
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
 
-    
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
-  
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#embed-a-phone-into-any-webpage-with-ringcentral-embeddable" class="md-skip">
-          Skip to content
-        </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-        <aside class="md-banner">
-          <div class="md-banner__inner md-grid md-typeset">
-            
-            
-  Announcing the RingCentral Embeddable 3.0 beta <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/3.x/" class="upgrade-button">Try it out</a>
+    pre {
+      padding: 5px;
+      overflow: auto;
+      font-size: 0.65rem;
+      line-height: 1.6;
+      border-radius: 3px;
+      background-color: var(--md-code-bg-color);
+    }
 
-          </div>
-          
-        </aside>
-      
-    </div>
-    
-    
-      
+    .config-tool {
+      margin-top: 20px;
+    }
 
-<header class="md-header" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="RingCentral Embeddable" class="md-header__button md-logo" aria-label="RingCentral Embeddable" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    .config-tool .config-button-line {
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+    }
 
-    </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
-            RingCentral Embeddable
-          </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
-            
-              Embed a phone into any webpage with RingCentral Embeddable
-            
-          </span>
-        </div>
+    .version-select {
+      position: relative;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .version-select::after {
+      display: inline-block;
+      margin-left: 0.255em;
+      vertical-align: 0.255em;
+      content: "";
+      border-top: 0.3em solid;
+      border-right: 0.3em solid transparent;
+      border-bottom: 0;
+      border-left: 0.3em solid transparent;
+      position: absolute;
+      top: 18px;
+      right: 5px;
+    }
+
+    .version-select select {
+      -webkit-appearance: none;
+      appearance: none;
+      padding: 10px 18px;
+      border-radius: 5px;
+      font-size: inherit;
+      width: 100%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      z-index: -1;
+    }
+
+    .version-select select:hover {
+      color: var(--md-primary-fg-color);
+    }
+
+    .config-tool .config-button {
+      padding: 10px 15px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    .config-button::after {
+      display: inline-block;
+      margin-left: 0.255em;
+      vertical-align: 0.255em;
+      content: "";
+      border-top: 0.3em solid;
+      border-right: 0.3em solid transparent;
+      border-bottom: 0;
+      border-left: 0.3em solid transparent;
+    }
+
+    .collapse {
+      display: none;
+      transition: height 0.3s ease;
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      word-wrap: break-word;
+      background-color: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.175);
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-top: 20px;
+    }
+
+    .card-description {
+      margin: 10px 0;
+      margin-top: 0;
+    }
+
+    .card .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .card .col-form-label {
+      padding-top: calc(0.375rem + 1px);
+      padding-bottom: calc(0.375rem + 1px);
+      margin-bottom: 0;
+      font-size: inherit;
+      line-height: 1.5;
+      flex: 0 0 auto;
+      width: 16.66666667%;
+    }
+
+    .card .col-sm-10 {
+      flex: 0 0 auto;
+      width: 83.33333333%;
+    }
+
+    .card .form-control {
+      display: block;
+      width: 100%;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #212529;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #ced4da;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      border-radius: 0.375rem;
+      transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+
+    .md-typeset .admonition p{
+      font-size: 13px;
+    }
+  </style>
+  <script>__md_scope = new URL(".", location), __md_hash = e => [...e].reduce((e, _) => (e << 5) - e + _.charCodeAt(0), 0), __md_get = (e, _ = localStorage, t = __md_scope) => JSON.parse(_.getItem(t.pathname + "." + e)), __md_set = (e, _, t = localStorage, a = __md_scope) => { try { t.setItem(a.pathname + "." + e, JSON.stringify(_)) } catch (e) { } }</script>
+</head>
+
+<body dir="ltr">
+  <script>var palette = __md_get("__palette"); if (palette && "object" == typeof palette.color) for (var key of Object.keys(palette.color)) document.body.setAttribute("data-md-color-" + key, palette.color[key])</script>
+  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+  <label class="md-overlay" for="__drawer"></label>
+  <div data-md-component="announce">
+    <aside class="md-banner">
+      <div class="md-banner__inner md-grid md-typeset">
+        Announcing the RingCentral Embeddable 2.0<a href="https://ringcentral.github.io/ringcentral-embeddable/docs/2.x/" class="upgrade-button">Upgrade today</a>
       </div>
-    </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
-      </label>
-    
-  
-</form>
-      
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
-    
-    
-    
-      <label class="md-header__button md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-      </label>
-      <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
-            Initializing search
-          </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
+    </aside>
   </div>
-</div>
-    
-    
+  <header class="md-header" data-md-component="header">
+    <nav class="md-header__inner md-grid" aria-label="Header">
+      <a href="." title="RingCentral Embeddable" class="md-header__button md-logo" aria-label="RingCentral Embeddable"
+        data-md-component="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z" />
+        </svg>
+      </a>
+      <label class="md-header__button md-icon" for="__drawer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z" />
+        </svg>
+      </label>
+      <div class="md-header__title" data-md-component="header-title">
+        <div class="md-header__ellipsis">
+          <div class="md-header__topic">
+            <span class="md-ellipsis">
+              RingCentral Embeddable
+            </span>
+          </div>
+          <div class="md-header__topic" data-md-component="header-topic">
+            <span class="md-ellipsis">
+              Home
+            </span>
+          </div>
+        </div>
+      </div>
+      <form class="md-header__option" data-md-component="palette">
+        <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+        <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+        </label>
+        <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+        <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        </label>
+      </form>
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
       <div class="md-header__source">
-        <a href="https://github.com/ringcentral/ringcentral-embeddable" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
-  </div>
-  <div class="md-source__repository">
-    ringcentral/ringcentral-embeddable
-  </div>
-</a>
+        <a href="https://github.com/ringcentral/ringcentral-embeddable" title="Go to repository" class="md-source"
+          data-md-component="source">
+          <div class="md-source__icon md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.-->
+              <path
+                d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z" />
+            </svg>
+          </div>
+          <div class="md-source__repository">
+            ringcentral/ringcentral-embeddable
+          </div>
+        </a>
       </div>
-    
-  </nav>
-  
-</header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-        
-          
-            
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/index.html" class="md-tabs__link">
-        
-  
-    
-  
-  Home
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="app-registration/" class="md-tabs__link">
-          
-  
-  Getting started
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="config/" class="md-tabs__link">
-          
-  
-  Configuration
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="integration/events/" class="md-tabs__link">
-          
-  
-  Developer guide
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="support/" class="md-tabs__link">
-        
-  
-    
-  
-  Troubleshooting
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="https://github.com/ringcentral/ringcentral-embeddable/releases" class="md-tabs__link">
-        
-  
-    
-  
-  Changelog
-
-      </a>
-    </li>
-  
-
-      
-    </ul>
-  </div>
-</nav>
-          
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-                
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-
-  
-
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="." title="RingCentral Embeddable" class="md-nav__button md-logo" aria-label="RingCentral Embeddable" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
-    RingCentral Embeddable
-  </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/ringcentral/ringcentral-embeddable" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
-  </div>
-  <div class="md-source__repository">
-    ringcentral/ringcentral-embeddable
-  </div>
-</a>
-    </div>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/index.html" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Home
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Getting started
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            Getting started
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="app-registration/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Registering your application
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="app-development/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Develop and graduate your app
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Initialization
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_3">
-            <span class="md-nav__icon md-icon"></span>
-            Initialization
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="initialization/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Javascript vs iframes
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="versions/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Version control
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="self-hosting/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Self-hosting
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Configuration
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
-            Configuration
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    All parameters
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/setting-params/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Setting parameters
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Advanced parameters
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
-            <span class="md-nav__icon md-icon"></span>
-            Advanced parameters
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/user-agent/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Custom X-User-Agent
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/client-id/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Custom Client ID
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/styles/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Custom styles through CSS
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/redirect-uri/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Custom redirect Uri
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/prefix/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Custom prefix
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/call-settings/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Default call settings
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="multiple-brands/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Multiple Partner Brand Support
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/noise-reduction/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Noise reduction
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/popup-window/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Opening in a separate window
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/multiple-tabs/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Running in multiple tabs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/environment/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Setting your environment
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/sms-template/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    SMS templates
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/sms-settings/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    SMS settings
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/badge/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Quick access badge
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/audio/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Audio
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Developer guide
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            Developer guide
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/events/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Events
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/api/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    API
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/authorization/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Authorization
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="3.x/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Embeddable 3.0 Beta
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Service features
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_5">
-            <span class="md-nav__icon md-icon"></span>
-            Service features
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Service registration
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/address-book/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Address book integration
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/third-party-auth/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Authentication
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/contact-activities/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contact activities
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/call-logging/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Log calls
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/log-video-meeting/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Log meetings
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/message-logging/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Log messages
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/meeting-schedule/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Schedule meetings
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/upcoming-meetings/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    View upcoming meetings
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/vcard-clicks/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    VCard click handling
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/sms-toolbar-button/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    SMS toolbar button
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/do-not-contact/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Do not contact
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    User interface customization
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_6">
-            <span class="md-nav__icon md-icon"></span>
-            User interface customization
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/custom-call-log-page/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Call logging form
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/custom-page/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Pages
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/custom-settings/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Settings
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/custom-tab/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Tabs
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/call-widget/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Call widgets (new)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Page schema reference
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_7" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Recipes
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_7">
-            <span class="md-nav__icon md-icon"></span>
-            Recipes
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/analytics/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Analytics integration
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/click-to-dial/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Click-to-dial enablement
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/call-pop/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Call pop
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/feedback-prompt/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Add a feedback prompt
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Migration
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8">
-            <span class="md-nav__icon md-icon"></span>
-            Migration
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="integration/new-latest-uri/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Migrating from Github Page build
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="support/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Troubleshooting
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="https://github.com/ringcentral/ringcentral-embeddable/releases" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Changelog
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-  </ul>
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-                
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
-    <span class="md-ellipsis">
-      Quick start
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quick start">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      Prerequisites
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
     </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
+  </header>
+  <div class="md-container" data-md-component="container">
+    <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+      <div class="md-grid">
+        <ul class="md-tabs__list">
+          <li class="md-tabs__item md-tabs__item--active">
+            <a href="./index.html" class="md-tabs__link">
+              Home
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/app-registration/" class="md-tabs__link">
+              Getting started
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/config/" class="md-tabs__link">
+              Configuration
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/events/" class="md-tabs__link">
+              Developer guide
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/support/" class="md-tabs__link">
+              Troubleshooting
+            </a>
+          </li>
+          <li class="md-tabs__item">
+            <a href="https://github.com/ringcentral/ringcentral-embeddable/releases" class="md-tabs__link">
+              Changelog
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main class="md-main" data-md-component="main">
+      <div class="md-main__inner md-grid">
+        <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+          <div class="md-sidebar__scrollwrap">
+            <div class="md-sidebar__inner">
+              <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+                <label class="md-nav__title" for="__drawer">
+                  <a href="." title="RingCentral Embeddable" class="md-nav__button md-logo"
+                    aria-label="RingCentral Embeddable" data-md-component="logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path
+                        d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z" />
+                    </svg>
+                  </a>
+                  RingCentral Embeddable
+                </label>
+                <ul class="md-nav__list" data-md-scrollfix>
+                  <li class="md-nav__item md-nav__item--active">
+                    <a href="." class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Home
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/app-registration/" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Getting started
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/config/" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Configuration
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/events/" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Developer guide
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/support/" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Troubleshooting
+                      </span>
+                    </a>
+                  </li>
+                  <li class="md-nav__item">
+                    <a href="https://github.com/ringcentral/ringcentral-embeddable/releases" class="md-nav__link">
+                      <span class="md-ellipsis">
+                        Changelog
+                      </span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+        <div class="md-content" data-md-component="content">
+          <article class="md-content__inner md-typeset">
+            <h1 id="embed-a-phone-into-any-webpage-with-ringcentral-embeddable">Embed a phone into any webpage with
+              RingCentral Embeddable</h1>
+              <div class="admonition example">
+                <p class="admonition-title">Introducing the RingCentral Embeddable 2.0</p>
+                <p>We are excited to announce and make available the next generation of the RingCentral Embeddable product. In addition to a new design and user interface, Embeddable 2.0 comes with new features including call recording playback and a new SMS/messaging inbox. Developers will enjoy new ways to extend the user interface without having to know or code HTML and CSS. </p>
+                <p><a class="md-button md-button--primary" href="https://ringcentral.github.io/ringcentral-embeddable/docs/2.x/">Learn more</a></p>
+              </div>
+            <p>
+              RingCentral Embeddable provides a ready-to-use, fully-functional web phone that can be embedded into any web site. Embeddable is a javascript wrapper around the foundational <a href="https://github.com/ringcentral/ringcentral-js-widgets">RingCentral Widgets Library</a>. By adding a few lines of javascript, anyone can embed a phone into any web page in seconds.
+            </p>
+            <h2 id="quick-start">Quick start</h2>
+            <div class="tabbed-set tabbed-alternate" data-tabs="1:2">
+              <input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" />
+              <input id="__tabbed_1_2" name="__tabbed_1" type="radio" />
+              <div class="tabbed-labels">
+                <label for="__tabbed_1_1">Javascript</label>
+                <label for="__tabbed_1_2">iframe</label>
+              </div>
+              <div class="config-tool">
+                <div class="config-button-line">
+                  <button class="md-button md-button--primary config-button" id="config-button">
+                    Config
+                  </button>
+                  <div class="version-select">
+                    <select id="version-select" title="Version">
+                      <option value="latest">Version: latest</option>
+                      <option value="1.x">Version: Legacy 1.x</option>
+                      <option value="2.x">Version: 2.x</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="collapse" id="config-params">
+                  <div class="card card-body">
+                    <p class="card-description">
+                      Create a browser based app in <a href="https://developer.ringcentral.com/" target="_blank"
+                        rel="noopener noreferrer">RingCentral Developer Platform</a> to get clientId, appSecret and
+                      appServer.
+                    </p>
+                    <form>
+                      <div class="mb-3 row">
+                        <label for="clientId" class="col-sm-2 col-form-label">clientId</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="clientId"
+                            placeholder="Your app key of RingCentral App">
+                        </div>
+                      </div>
+                      <div class="mb-3 row">
+                        <label for="appServer" class="col-sm-2 col-form-label">appServer</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="appServer"
+                            placeholder="default: https://platform.ringcentral.com">
+                        </div>
+                      </div>
+                      <div class="mb-3 row">
+                        <label for="redirectUri" class="col-sm-2 col-form-label">redirectUri</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="redirectUri"
+                            placeholder="default: https://ringcentral.github.io/ringcentral-embeddable/redirect.html">
+                        </div>
+                      </div>
+                    </form>
                   </div>
                 </div>
               </div>
-            
-          
-          
-            <div class="md-content" data-md-component="content">
-              <article class="md-content__inner md-typeset">
-                
-                  
-
-  
-    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/main/docs/index.md" title="Edit this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
-    </a>
-  
-  
-    
-      
-    
-    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/main/docs/index.md" title="View source of this page" class="md-content__button md-icon">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
-    </a>
-  
-
-
-<h1 id="embed-a-phone-into-any-webpage-with-ringcentral-embeddable">Embed a phone into any webpage with RingCentral Embeddable</h1>
-<div class="admonition tip">
-<p class="admonition-title">Are you integrating with a CRM?</p>
-<p>Are you looking to log phone calls, SMS conversations and all other communications into a remote system, like a CRM or proprietary system? Check out App Connect! Built on top of Embeddable, App Connect makes building a full-featured integration with a CRM much, much easier. </p>
-<p><a class="md-button md-button--primary" href="https://ringcentral.github.io/rc-unified-crm-extension/">Learn more</a></p>
-</div>
-<p>RingCentral Embeddable provides a ready-to-use, fully-functional web phone that can be embedded into any web site. Embeddable is a javascript wrapper around the foundational <a href="https://github.com/ringcentral/ringcentral-js-widgets">RingCentral Widgets Library</a>. By adding a few lines of javascript, anyone can embed a phone into any web page in seconds. </p>
-<h2 id="quick-start">Quick start</h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Javascript</label><label for="__tabbed_1_2">iframe</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>Add following code to any website's header to embed a RingCentral phone into that page. </p>
-<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
-<span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
-<span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
-<span class="w">  </span><span class="p">})();</span>
-<span class="o">&lt;</span><span class="err">/script&gt;</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<p>Add the following anywhere on your webpage.</p>
-<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span> 
-  <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html&quot;</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
-</code></pre></div>
-</div>
-</div>
-</div>
-<p>Or access our <a href="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/">RingCentral Embeddable configuration tool</a> for a live demo.</p>
-<div class="admonition info">
-<p class="admonition-title">When loading RingCentral Embeddable for the first time, users will need to grant access to their microphone and speaker.</p>
-</div>
-<h3 id="prerequisites">Prerequisites</h3>
-<ul>
-<li>A <a href="https://ringcentral.com/pricing/">RingCentral</a> account</li>
-<li>A supported browser, including:<ul>
-<li>Chrome</li>
-<li>Microsoft Edge</li>
-<li>Firefox</li>
-</ul>
-</li>
-</ul>
-<div class="admonition hint">
-<p class="admonition-title">Removing the "FOR DEMO PURPOSES ONLY" banner</p>
-<p>You may observe that a banner appears when running the sample code above. To remove this banner, please register your own application and <a href="config/client-id/">use the client ID</a> associated with that application. </p>
-</div>
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-  
-
-
-
-                
-              </article>
+              <div class="tabbed-content">
+                <div class="tabbed-block">
+                  <p>Just add following the following codes to your website's header. It will create a iframe in your
+                    website.
+                  </p>
+                  <pre id="adapter-code">
+&lt;script&gt;
+  (function() {
+    var rcs = document.createElement("script");
+    rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js";
+    var rcs0 = document.getElementsByTagName("script")[0];
+    rcs0.parentNode.insertBefore(rcs, rcs0);
+  })();
+&lt;/script&gt;
+                </pre>
+                </div>
+                <div class="tabbed-block">
+                  <p>Create a iframe with the following codes</p>
+                  <pre id="iframe-code">
+  &lt;iframe width="300" height="500" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html"&gt;
+  &lt;/iframe&gt;
+                </pre>
+                </div>
+              </div>
             </div>
-          
-          
-<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+
+            <p>You need to add following uri to your redirect url in app setting on developer website, if you don't
+              config
+              redirect widget uri.</p>
+            <pre id="defaultRedirectUri">https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/redirect.html</pre>
+            <p>For full document of <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/events/" target="_blank" rel="noopener noreferrer">API and
+                Event</a>, please refer to <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/events/" target="_blank"
+                rel="noopener noreferrer">here</a></p>
+            <div class="admonition info">
+              <p class="admonition-title">When loading RingCentral Embeddable for the first time, users will need to grant access to their microphone and speaker.</p>
+            </div>
+            <h3 id="prerequisites">Prerequisites</h3>
+            <ul>
+              <li>A <a href="https://ringcentral.com/pricing/">RingCentral</a> account</li>
+              <li>A supported browser, including:
+                <ul>
+                  <li>Chrome</li>
+                  <li>Microsoft Edge</li>
+                  <li>Firefox</li>
+                </ul>
+                </li>
+            </ul>
+            <div class="admonition hint">
+              <p class="admonition-title">Removing the "FOR DEMO PURPOSES ONLY" banner</p>
+              <p>You may observe that a banner appears when running the sample code above. To remove this banner, please register your own application and <a href="https://ringcentral.github.io/ringcentral-embeddable/docs/config/client-id/">use the client ID</a> associated with that application. </p>
+            </div>
+            <h2>Setup environment of this page's online demo</h2>
+            <p>1. Click <a href="#" id="setEnvironment">here to set this widget's client ID and app Server</a>.
+              Enable
+              and save.</p>
+            <p>2. Set redirect url in RingCentral Developer Platform as the app show.</p>
+            <p>In environment way, clientId and server are saved in your local storage, so it will not influence other
+              people.
+            </p>
+            <p>This app supports authorization code and authorization code with PKCE grant flow. If you only provide clientId, it will use
+              authorization code with PKCE. Refer <a
+                href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/authorization/"
+                target="_blank" rel="noopener noreferrer">here</a> to get more details about authorization flow.</p>
+            <h2>C2D demo</h2>
+            <p>TEL Link: <a href="tel:+12345678888">+12345678888</a></p>
+            <p>SMS Link: <a href="sms:+12345678901">+12345678901</a></p>
+            <p>SMS Link with Text: <a href="sms:+12345678902?body=test_sms">+12345678902</a></p>
+            <p>Text: +12345678901</p>
+          </article>
         </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
-</button>
-        
-      </main>
-      
-        <footer class="md-footer">
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
-  
-    <div class="md-copyright__highlight">
-      2024-2025 RingCentral, Inc. All rights reserved.
-    </div>
-  
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
-  
-</div>
-      
-        <div class="md-social">
-  
-    
-    
-    
-    
-      
-      
-    
-    <a href="https://github.com/ringcentral" target="_blank" rel="noopener" title="github.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
-    </a>
-  
-    
-    
-    
-    
-      
-      
-    
-    <a href="https://twitter.com/ringcentraldevs" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
-    </a>
-  
-</div>
-      
-    </div>
+      </div>
+      <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z" />
+        </svg>
+        Back to top
+      </button>
+    </main>
+    <footer class="md-footer">
+      <div class="md-footer-meta md-typeset">
+        <div class="md-footer-meta__inner md-grid">
+          <div class="md-copyright">
+            <div class="md-copyright__highlight">
+              2023-2025 RingCentral, Inc. All rights reserved.
+            </div>
+            Made with
+            <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+              Material for MkDocs
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
-</footer>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.path", "navigation.tabs", "navigation.top", "navigation.expand", "navigation.sections", "search.sharing", "search.highlight", "content.code.copy", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
-    
-    
-      <script src="assets/javascripts/bundle.83f73b43.min.js"></script>
-      
-        <script src="extra.js"></script>
-      
-        <script src="assets/javascripts/badge.js" async></script>
-      
-    
-  </body>
+  <div class="md-dialog" data-md-component="dialog">
+    <div class="md-dialog__inner md-typeset"></div>
+  </div>
+  <script src="https://unpkg.com/ringcentral-c2d@1.0.0/build/index.js"></script>
+  <script>
+    var configButton = window.document.querySelector('#config-button');
+    var configToolOpened = false;
+    configButton.addEventListener('click', function () {
+      configToolOpened = !configToolOpened;
+      var configParams = window.document.querySelector('#config-params');
+      if (configToolOpened) {
+        configParams.style.display = 'block';
+      } else {
+        configParams.style.display = 'none';
+      }
+    });
+    // setup c2d
+    if (typeof RingCentralC2D !== 'undefined') {
+      var clickToDial = new RingCentralC2D();
+      clickToDial.on(RingCentralC2D.events.call, (phoneNumber) => {
+        RCAdapter.clickToCall(phoneNumber, false);
+      });
+      clickToDial.on(RingCentralC2D.events.text, (phoneNumber) => {
+        RCAdapter.clickToSMS(phoneNumber);
+      });
+    }
+    // click button to change env
+    var setEnvironment = window.document.querySelector('#setEnvironment');
+    setEnvironment.addEventListener('click', function () {
+      if (window.RCAdapter && window.RCAdapter.setEnvironment) {
+        window.RCAdapter.setEnvironment();
+        window.RCAdapter.setMinimized(false);
+      }
+    });
+  </script>
+  <script>
+    var selectedVersionStorageKey = 'rc-embeddable-demo-selected-version';
+    function getConfigQuery() {
+      var config = {};
+      config.clientId = window.document.querySelector('#clientId').value;
+      config.appServer = window.document.querySelector('#appServer').value;
+      config.redirectUri = window.document.querySelector('#redirectUri').value;
+      var queries = [];
+      Object.keys(config).forEach(function (key) {
+        if (config[key] && config[key].length > 0) {
+          queries.push(key + '=' + config[key]);
+        }
+      });
+      return queries.join('&');
+    }
+    function getBasePath(removeGithubPageBuild = true) {
+      var basePath = window.location.protocol + '//' + window.location.host + window.location.pathname;
+      basePath = basePath.replace('/index.html', '');
+      if (basePath[basePath.length - 1] === '/') {
+        basePath = basePath.slice(0, basePath.length - 1);
+      }
+      if (removeGithubPageBuild && basePath === 'https://ringcentral.github.io/ringcentral-embeddable') {
+        basePath = 'https://apps.ringcentral.com/integration/ringcentral-embeddable/latest';
+      }
+      return basePath;
+    }
+    function getDefaultVersion(removeGithubPageBuild = true) {
+      let version = 'latest';
+      const basePath = getBasePath(removeGithubPageBuild);
+      if (basePath.indexOf('https://apps.ringcentral.com') === 0) {
+        version = basePath.split('/').pop();
+      }
+      if (
+        basePath === 'https://apps.ringcentral.com/integration/ringcentral-embeddable/latest' ||
+        basePath === 'https://ringcentral.github.io/ringcentral-embeddable'
+      ) {
+        version = 'latest';
+      }
+      return version;
+    }
+    function getWidgetBasePath(removeGithubPageBuild = true) {
+      var basePath = getBasePath(removeGithubPageBuild);
+      var defaultVersion = getDefaultVersion(removeGithubPageBuild);
+      const selectedVersion = localStorage.getItem(selectedVersionStorageKey + defaultVersion);
+      if (!selectedVersion) {
+        if (defaultVersion === '2.x') {
+          return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x';
+        }
+        if (defaultVersion === '1.x') {
+          return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/1.10.2';
+        }
+        return basePath;
+      }
+      if (selectedVersion === '2.x') {
+        return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/2.x';
+      }
+      if (selectedVersion === '1.x') {
+        return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/1.10.2';
+      }
+      return basePath.replace(defaultVersion, selectedVersion);
+    }
+    function initVersionSelect() {
+      var defaultVersion = getDefaultVersion();
+      var selectedVersion = localStorage.getItem(selectedVersionStorageKey + defaultVersion);
+      var currentVersion = selectedVersion || defaultVersion;
+      var versionSelect = window.document.querySelector('#version-select');
+      if (defaultVersion !== 'latest' && defaultVersion !== '2.x') {
+        var defaultOption = window.document.createElement('option');
+        defaultOption.value = defaultVersion;
+        defaultOption.innerText = 'Version: ' + defaultVersion;
+        versionSelect.appendChild(defaultOption);
+      }
+      versionSelect.value = currentVersion;
+      versionSelect.addEventListener('change', function () {
+        var selectedVersion = versionSelect.value;
+        localStorage.setItem(selectedVersionStorageKey + defaultVersion, selectedVersion);
+        window.location.reload();
+      });
+    }
+    initVersionSelect();
+    function updateCodes() {
+      var basePath = getWidgetBasePath();
+      var adapterElem = window.document.querySelector('#adapter-code');
+      var iframeElem = window.document.querySelector('#iframe-code');
+      var query = getConfigQuery();
+      var adapterCode = adapterElem.innerHTML;
+      var adapterUri = adapterCode.match(/"http\S+"/)[0];
+      var newAdapterUri = adapterUri.replace(/\?\S*"/, '').replace(/"$/, '');
+      if (query) {
+        newAdapterUri = newAdapterUri + '?' + query + '"';
+      } else {
+        newAdapterUri = newAdapterUri + '"';
+      }
+      newAdapterUri = newAdapterUri.replace('https://apps.ringcentral.com/integration/ringcentral-embeddable/latest', basePath);
+      var iframeCode = iframeElem.innerHTML;
+      var iframeSrc = iframeCode.match(/"http\S+"/)[0];
+      var newIframeSrc = iframeSrc.replace(/\?\S*"/, '').replace(/"$/, '');
+      if (query) {
+        newIframeSrc = newIframeSrc + '?' + query + '"';
+      } else {
+        newIframeSrc = newIframeSrc + '"';
+      }
+      newIframeSrc = newIframeSrc.replace('https://apps.ringcentral.com/integration/ringcentral-embeddable/latest', basePath);
+      adapterElem.innerHTML = adapterCode.replace(adapterUri, newAdapterUri);
+      iframeElem.innerHTML = iframeCode.replace(iframeSrc, newIframeSrc);
+    }
+    updateCodes();
+    function replaceRedirectUri() {
+      var basePath = getWidgetBasePath();
+      var defaultRedirectUriElem = window.document.querySelector('#defaultRedirectUri');
+      var defaultRedirectUri = defaultRedirectUriElem.innerText;
+      defaultRedirectUri = defaultRedirectUri.replace('https://apps.ringcentral.com/integration/ringcentral-embeddable/latest', basePath);
+      defaultRedirectUriElem.innerHTML = defaultRedirectUri;
+      var redirectUriInput = window.document.querySelector('#redirectUri');
+      redirectUriInput.setAttribute('placeholder', defaultRedirectUri);
+    }
+    replaceRedirectUri();
+    var inputs = window.document.querySelectorAll('input');
+    for (var i = 0; i < inputs.length; ++i) {
+      var inputElem = inputs[i];
+      inputElem.addEventListener('keyup', function () {
+        updateCodes();
+      });
+      inputElem.addEventListener('paste', function () {
+        updateCodes();
+      });
+      inputElem.addEventListener('blur', function () {
+        updateCodes();
+      });
+    }
+  </script>
+  <script>
+    var widgetAppBasePath = getWidgetBasePath(false);
+    (function () {
+      var rcs = document.createElement('script');
+      rcs.src = widgetAppBasePath + '/adapter.js?notification=1&disableGlip=false&multipleTabsSupport=1&enablePopup=1&enableRingtoneSettings=1&enableSMSTemplate=1&enableAudioInitPrompt=1&enableLoadMoreCalls=1';
+      var rcs0 = document.getElementsByTagName('script')[0];
+      rcs0.parentNode.insertBefore(rcs, rcs0);
+    })();
+</script>
+  <script id="__config"
+    type="application/json">{"base": ".", "features": ["navigation.path", "navigation.tabs", "navigation.top", "navigation.expand", "navigation.sections", "content.code.copy", "content.action.edit", "content.action.view", "content.code.annotate"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+  <script
+    src="https://apps.ringcentral.com/integration/ringcentral-embeddable/docs-assets/bundle.1.min.js"></script>
+</body>
 </html>
