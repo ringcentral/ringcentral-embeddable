@@ -379,17 +379,23 @@ export const FileUploadWidget: Story = {
     schema: {
       type: 'object',
       properties: {
+        singleFile: {
+          type: 'string',
+          title: 'Single File Upload',
+          format: 'data-url',
+          description: 'Select a single file to upload',
+        },
         profileImage: {
           type: 'string',
-          format: 'data-url',
           title: 'Profile Image',
-          description: 'Upload your profile picture (JPG, PNG)',
+          format: 'data-url',
+          description: 'Upload your profile picture (JPG, PNG only)',
         },
         resume: {
           type: 'string',
+          title: 'Resume (Max 5MB)',
           format: 'data-url',
-          title: 'Resume',
-          description: 'Upload your resume (PDF, DOC)',
+          description: 'Upload your resume (PDF, DOC files)',
         },
         documents: {
           type: 'array',
@@ -398,41 +404,124 @@ export const FileUploadWidget: Story = {
             type: 'string',
             format: 'data-url',
           },
-          description: 'Upload multiple files',
+          description: 'Upload multiple files at once',
         },
       },
     },
     uiSchema: {
+      singleFile: {
+        'ui:widget': 'file',
+        'ui:accept': '*/*',
+        'ui:placeholder': 'Choose any file...',
+      },
       profileImage: {
         'ui:widget': 'file',
-        'ui:options': {
-          accept: '.jpg,.jpeg,.png',
-        },
+        'ui:accept': 'image/*',
+        'ui:placeholder': 'Choose an image...',
       },
       resume: {
         'ui:widget': 'file',
-        'ui:options': {
-          accept: '.pdf,.doc,.docx',
-        },
+        'ui:accept': '.pdf,.doc,.docx',
+        'ui:maxSize': 5242880, // 5MB in bytes
+        'ui:placeholder': 'Choose a document...',
       },
       documents: {
-        'ui:widget': 'file',
-        'ui:options': {
-          multiple: true,
-        },
+        items: {
+          'ui:widget': 'file',
+          'ui:multiple': true,
+          'ui:accept': '*/*',
+          'ui:placeholder': 'Choose multiple files...',
+        } 
       },
     },
-    formData: {},
+    formData: {
+      singleFile: null,
+      profileImage: null,
+      resume: null,
+      documents: null,
+    },
   },
   render: (args) => {
     const [formData, setFormData] = useState(args.formData || {});
+    const [uploadStats, setUploadStats] = useState({
+      totalFiles: 0,
+      totalSize: 0,
+      fileTypes: {} as Record<string, number>,
+    });
+
+    // Calculate upload statistics
+    React.useEffect(() => {
+      const allFiles = [];
+      
+      // Add single files
+      if (formData.singleFile && typeof formData.singleFile === 'object') {
+        allFiles.push(formData.singleFile);
+      }
+      if (formData.profileImage && typeof formData.profileImage === 'object') {
+        allFiles.push(formData.profileImage);
+      }
+      if (formData.resume && typeof formData.resume === 'object') {
+        allFiles.push(formData.resume);
+      }
+      
+      // Add multiple files
+      if (Array.isArray(formData.documents)) {
+        allFiles.push(...formData.documents);
+      }
+
+      const stats = allFiles.reduce(
+        (acc, file) => {
+          if (file && file.name && file.size) {
+            acc.totalFiles += 1;
+            acc.totalSize += file.size;
+            const ext = file.name.split('.').pop()?.toLowerCase() || 'unknown';
+            acc.fileTypes[ext] = (acc.fileTypes[ext] || 0) + 1;
+          }
+          return acc;
+        },
+        { totalFiles: 0, totalSize: 0, fileTypes: {} as Record<string, number> }
+      );
+
+      setUploadStats(stats);
+    }, [formData]);
+
+    const formatFileSize = (bytes: number) => {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
     
     return (
       <StoryLayout 
         args={args}
         resultComponent={
           <>
-            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📊 File Information</h4>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📊 Upload Statistics</h4>
+            <div style={{ fontSize: '12px', marginBottom: '15px' }}>
+              <p>Total Files: {uploadStats.totalFiles}</p>
+              <p>Total Size: {formatFileSize(uploadStats.totalSize)}</p>
+              <p>File Types:</p>
+              <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+                {Object.entries(uploadStats.fileTypes).length > 0 ? 
+                  Object.entries(uploadStats.fileTypes).map(([type, count]) => (
+                    <li key={type}>{type}: {count} file{count > 1 ? 's' : ''}</li>
+                  )) : 
+                  <li>No files uploaded yet</li>
+                }
+              </ul>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>💡 Widget Features</h4>
+            <div style={{ fontSize: '11px', marginBottom: '15px', color: '#666' }}>
+              <p>• Single file: Returns FileInfoType object with dataURL, name, size, type</p>
+              <p>• Multiple files: Returns array of FileInfoType objects</p>
+              <p>• File size validation: resume field has 5MB maxSize limit</p>
+              <p>• Accept filter: profileImage accepts only images</p>
+              <p>• Files are converted to base64 dataURL format</p>
+              <p>• Drag & drop supported, click attachment icon to browse</p>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>📝 Form Data</h4>
             <pre style={{ fontSize: '11px', overflow: 'auto', maxHeight: '200px', margin: 0, background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
               {JSON.stringify(formData, null, 2)}
             </pre>
