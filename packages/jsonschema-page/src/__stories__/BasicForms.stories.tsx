@@ -17,20 +17,53 @@ const meta: Meta<typeof JSONSchemaPage> = {
   tags: ['autodocs'],
   argTypes: {
     schema: {
-      description: 'JSON Schema that defines the form structure',
+      description: 'JSON Schema that defines the form structure - Edit to see live updates!',
       control: { type: 'object' },
+      table: {
+        type: { summary: 'object' },
+        defaultValue: { summary: '{}' },
+      },
     },
     uiSchema: {
-      description: 'UI Schema that defines how the form should be rendered',
+      description: 'UI Schema that defines how the form should be rendered - Customize appearance and behavior',
       control: { type: 'object' },
+      table: {
+        type: { summary: 'object' },
+        defaultValue: { summary: '{}' },
+      },
     },
     formData: {
-      description: 'Current form data values',
+      description: 'Current form data values - Set initial form values',
       control: { type: 'object' },
+      table: {
+        type: { summary: 'object' },
+        defaultValue: { summary: '{}' },
+      },
     },
     hiddenSubmitButton: {
       description: 'Whether to hide the default submit button',
       control: { type: 'boolean' },
+    },
+    onFormDataChange: {
+      action: 'formDataChanged',
+      description: 'Called when form data changes',
+      table: {
+        type: { summary: 'function' },
+      },
+    },
+    onSubmit: {
+      action: 'formSubmitted',
+      description: 'Called when form is submitted',
+      table: {
+        type: { summary: 'function' },
+      },
+    },
+    onButtonClick: {
+      action: 'buttonClicked',
+      description: 'Called when custom buttons are clicked',
+      table: {
+        type: { summary: 'function' },
+      },
     },
   },
 };
@@ -130,10 +163,18 @@ export const ContactForm: Story = {
               <JSONSchemaPage
                 {...args}
                 formData={formData}
-                onFormDataChange={setFormData}
+                onFormDataChange={(data) => {
+                  setFormData(data);
+                  args.onFormDataChange?.(data);
+                }}
                 onSubmit={(data) => {
                   console.log('Form submitted:', data.formData);
-                  alert('Form submitted! Check console for data.');
+                  args.onSubmit?.(data);
+                  alert('Form submitted! Check console and Actions panel.');
+                }}
+                onButtonClick={(name, value) => {
+                  console.log('Button clicked:', name, value);
+                  args.onButtonClick?.(name, value);
                 }}
               />
             </div>
@@ -250,10 +291,18 @@ export const ConditionalFields: Story = {
               <JSONSchemaPage
                 {...args}
                 formData={formData}
-                onFormDataChange={setFormData}
+                onFormDataChange={(data) => {
+                  setFormData(data);
+                  args.onFormDataChange?.(data);
+                }}
                 onSubmit={(data) => {
                   console.log('Registration data:', data.formData);
-                  alert('Registration submitted! Check console for data.');
+                  args.onSubmit?.(data);
+                  alert('Registration submitted! Check console and Actions panel.');
+                }}
+                onButtonClick={(name, value) => {
+                  console.log('Button clicked:', name, value);
+                  args.onButtonClick?.(name, value);
                 }}
               />
             </div>
@@ -362,10 +411,18 @@ export const ArrayFields: Story = {
               <JSONSchemaPage
                 {...args}
                 formData={formData}
-                onFormDataChange={setFormData}
+                onFormDataChange={(data) => {
+                  setFormData(data);
+                  args.onFormDataChange?.(data);
+                }}
                 onSubmit={(data) => {
                   console.log('Team data:', data.formData);
-                  alert('Team data submitted! Check console for data.');
+                  args.onSubmit?.(data);
+                  alert('Team data submitted! Check console and Actions panel.');
+                }}
+                onButtonClick={(name, value) => {
+                  console.log('Button clicked:', name, value);
+                  args.onButtonClick?.(name, value);
                 }}
               />
             </div>
@@ -450,7 +507,10 @@ export const CustomValidation: Story = {
               <JSONSchemaPage
                 {...args}
                 formData={formData}
-                onFormDataChange={setFormData}
+                onFormDataChange={(data) => {
+                  setFormData(data);
+                  args.onFormDataChange?.(data);
+                }}
                 onSubmit={(data) => {
                   // Custom validation for password confirmation
                   if (data.formData.password !== data.formData.confirmPassword) {
@@ -458,7 +518,12 @@ export const CustomValidation: Story = {
                     return;
                   }
                   console.log('Account created:', data.formData);
-                  alert('Account created successfully!');
+                  args.onSubmit?.(data);
+                  alert('Account created successfully! Check console and Actions panel.');
+                }}
+                onButtonClick={(name, value) => {
+                  console.log('Button clicked:', name, value);
+                  args.onButtonClick?.(name, value);
                 }}
               />
             </div>

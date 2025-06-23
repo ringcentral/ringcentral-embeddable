@@ -48,6 +48,53 @@ const meta: Meta<typeof JSONSchemaPage> = {
     },
   },
   tags: ['autodocs'],
+  argTypes: {
+    schema: {
+      description: 'JSON Schema that defines the form structure - Edit to see live updates!',
+      control: { type: 'object' },
+      table: {
+        type: { summary: 'object' },
+        defaultValue: { summary: '{}' },
+      },
+    },
+    uiSchema: {
+      description: 'UI Schema that defines how the form should be rendered - Customize appearance and behavior',
+      control: { type: 'object' },
+      table: {
+        type: { summary: 'object' },
+        defaultValue: { summary: '{}' },
+      },
+    },
+    formData: {
+      description: 'Current form data values - Set initial form values',
+      control: { type: 'object' },
+      table: {
+        type: { summary: 'object' },
+        defaultValue: { summary: '{}' },
+      },
+    },
+    onFormDataChange: {
+      action: 'formDataChanged',
+      description: 'Called when form data changes',
+      table: {
+        type: { summary: 'function' },
+      },
+    },
+    onSubmit: {
+      action: 'formSubmitted',
+      description: 'Called when form is submitted',
+      table: {
+        type: { summary: 'function' },
+      },
+    },
+    onButtonClick: {
+      action: 'buttonClicked',
+      description: 'Called when custom buttons are clicked',
+      table: {
+        type: { summary: 'function' },
+      },
+    },
+  },
 };
 
 export default meta;
@@ -146,7 +193,19 @@ export const TextInputWidget: Story = {
         <JSONSchemaPage
           {...args}
           formData={formData}
-          onFormDataChange={setFormData}
+          onFormDataChange={(data) => {
+            setFormData(data);
+            args.onFormDataChange?.(data);
+          }}
+          onSubmit={(data) => {
+            console.log('Text inputs submitted:', data.formData);
+            args.onSubmit?.(data);
+            alert('Form submitted! Check console and Actions panel.');
+          }}
+          onButtonClick={(name, value) => {
+            console.log('Button clicked:', name, value);
+            args.onButtonClick?.(name, value);
+          }}
         />
       </StoryLayout>
     );
@@ -642,8 +701,19 @@ export const RadioWidget: Story = {
         favoriteColor: {
           type: 'string',
           title: 'Favorite Color',
-          enum: ['red', 'green', 'blue', 'yellow', 'purple'],
-          enumNames: ['Red', 'Green', 'Blue', 'Yellow', 'Purple'],
+          oneOf: [{
+            "const": "neutral",
+            "title": "Neutral",
+            "color": "#939393"
+          }, {
+            "const": "yellow",
+            "title": "Yellow",
+            "color": "#B17D1A"
+          }, {
+            "const": "purple",
+            "title": "Purple",
+            "color": "#8A77E3"
+          }],
           description: 'Choose your favorite color',
         },
         priority: {
@@ -664,6 +734,7 @@ export const RadioWidget: Story = {
     uiSchema: {
       favoriteColor: {
         'ui:widget': 'radio',
+        "ui:itemDirection": "row",
       },
       priority: {
         'ui:widget': 'radio',
