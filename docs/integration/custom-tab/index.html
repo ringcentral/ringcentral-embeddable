@@ -2243,7 +2243,7 @@
 <span class="w">    </span><span class="nx">hidden</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, default false, whether to hide the tab icon from navigation bar</span>
 <span class="w">    </span><span class="nx">unreadCount</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, unread count, 0-99</span>
 <span class="w">    </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="mf">31</span><span class="p">,</span><span class="w"> </span><span class="c1">// tab priority, 0-100, 0 is the highest priority, Phone tab: 10, Text: 20, Fax: 30, Glip: 40, Contacts: 50, Video: 60, Settings: 70</span>
-<span class="w">    </span><span class="c1">// schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)</span>
+<span class="w">    </span><span class="c1">// schema and uiSchema are used to customize page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)</span>
 <span class="w">    </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;contactType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;defaultContactName&#39;</span><span class="p">],</span>
@@ -2317,6 +2317,10 @@
 <span class="w">  </span><span class="p">},</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">JSON Schema reference</p>
+<p>Learn how to define custom page with JSON schema in the <a href="https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs">JSON schema page document</a>.</p>
+</div>
 <p>Navigate to the tab:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-navigate-to&#39;</span><span class="p">,</span>

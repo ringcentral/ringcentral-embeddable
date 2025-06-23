@@ -2220,7 +2220,7 @@
 <span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;page1&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// page id, required</span>
 <span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Customized page 1&#39;</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;page&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="c1">// schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)</span>
+<span class="w">    </span><span class="c1">// schema and uiSchema are used to customize page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)</span>
 <span class="w">    </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;contactType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;defaultContactName&#39;</span><span class="p">],</span>
@@ -2306,6 +2306,10 @@
 <span class="w">  </span><span class="p">},</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">JSON Schema reference</p>
+<p>Learn how to define custom page with JSON schema in the <a href="https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs">JSON schema page document</a>.</p>
+</div>
 <p>To update the page, you can re-register the page with new data and same page id.</p>
 <p>Navigate to the page:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
