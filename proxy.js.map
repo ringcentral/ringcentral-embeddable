@@ -1,1 +1,0 @@
-{"version":3,"file":"proxy.js","mappings":"AAAAA,QAAQC,MAAM","sources":["webpack://ringcentral-embeddable/./src/proxy.js"],"sourcesContent":["console.error('The file is deprecated, please upgrade to latest version');"],"names":["console","error"],"sourceRoot":""}
