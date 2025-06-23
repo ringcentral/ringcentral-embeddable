@@ -4,6 +4,6 @@ import { create } from '@storybook/theming';
 addons.setConfig({
   theme: create({
     base: 'light',
-    brandTitle: 'JSON Schema Page',
+    brandTitle: 'RingCentral Embeddable - JSON Schema Page',
   }),
 });

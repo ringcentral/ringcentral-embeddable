@@ -2,13 +2,20 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 <Meta title="README" />
 
-# JSONSchemaPage
+# RingCentral Embeddable - JSONSchemaPage
 
 A powerful React component library that renders dynamic forms based on JSON Schema definitions. Built on top of [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form) and beautifully styled with [RingCentral Juno](https://github.com/ringcentral/ringcentral-juno) components.
 
+---
+
 ## 🚀 Quick Navigation
 
-Find the JSON schema examples you need:
+Find exactly what you need:
+
+### **📖 New to JSONSchemaPage?**
+➡️ **[Complete Documentation & Tutorial](/docs/jsonschemapage-documentation--docs)**
+- Installation guide, basic usage, and comprehensive examples
+- Learn JSON Schema fundamentals and UI Schema customization
 
 ### **🔤 Need Form Inputs?**
 ➡️ **[Form Input Widgets](/story/jsonschemapage-form-input-widgets--text-input-widget)**
@@ -32,53 +39,27 @@ Find the JSON schema examples you need:
 
 ---
 
-## 📖 Component Categories
+## 📊 Quick Reference
 
-| Category | What's Inside | When to Use |
-|----------|---------------|-------------|
-| **Form Input Widgets** | Text, Number, Boolean, File, Select, Range, Textarea | When you need users to enter data |
-| **Display Components** | Typography, Alerts, Links | When you need to show information |
-| **Interactive Components** | Buttons, Lists, Search | When you need user actions/selections |
-| **Complete Examples** | Contact forms, Validation, Arrays | When you want complete working examples |
-
----
-
-## 🔍 Find By Use Case
-
-**"I want users to enter their name"** → Form Input Widgets → Text Input
-
-**"I want to show an error message"** → Display Components → Alert Fields  
-
-**"I want a save button"** → Interactive Components → Button Fields
-
-**"I want users to select from options"** → Interactive Components → List Fields
-
-**"I want a complete contact form"** → Complete Form Examples → Contact Form
+| **I want to...** | **Go to** | **Example** |
+|-------------------|-----------|-------------|
+| Learn the basics | [Documentation](/docs/jsonschemapage-documentation--docs) | Installation, basic usage |
+| Add a text input | [Text Input Widget](/story/jsonschemapage-form-input-widgets--text-input-widget) | `{ type: 'string', title: 'Name' }` |
+| Add a dropdown | [Select Widget](/story/jsonschemapage-form-input-widgets--select-widget) | `{ enum: ['option1', 'option2'] }` |
+| Add a button | [Button Fields](/story/jsonschemapage-interactive-components--button-fields) | `{ 'ui:field': 'button' }` |
+| Show an alert | [Alert Fields](/story/jsonschemapage-display-components--alert-fields) | `{ 'ui:field': 'alert' }` |
+| Build a contact form | [Contact Form](/story/jsonschemapage-complete-form-examples--contact-form) | Complete working example |
+| Handle file uploads | [File Upload](/story/jsonschemapage-form-input-widgets--file-upload-widget) | `{ type: 'string', format: 'data-url' }` |
 
 ---
 
-## 💡 Tips for Using Stories
-
-1. **Copy JSON Configuration** - Each story shows the exact `schema`, `uiSchema`, and `formData` needed
-2. **Side-by-Side View** - See your JSON config alongside the rendered component 
-3. **Live Examples** - Interact with components to see how they behave
-4. **Real-time Updates** - Watch form data change as you interact
-
----
-
-## 🛠️ Development Workflow
-
-1. **Browse Categories** - Find the type of component you need
-2. **Copy Schema** - Use the JSON configuration in your code
-3. **Customize** - Modify properties, styling, and behavior
-4. **Test** - Use the interactive examples to validate your implementation
-
-## 🚀 Quick Start
+## ⚡ Quick Start
 
 ```tsx
 import { JSONSchemaPage } from '@ringcentral-integration/jsonschema-page';
+import { useState } from 'react';
 
-function App() {
+function MyForm() {
   const [formData, setFormData] = useState({});
 
   const schema = {
@@ -102,44 +83,16 @@ function App() {
 }
 ```
 
-## 📚 Documentation & Examples
+---
 
-Explore our comprehensive documentation and interactive examples:
+## 💡 How to Use These Stories
 
-### 📖 **[Complete Documentation](/?path=/docs/jsonschemapage-documentation--docs)**
-Learn everything about JSON Schema, UI Schema customization, and advanced features.
+1. **📋 Copy JSON Configuration** - Each story shows the exact `schema`, `uiSchema`, and `formData`
+2. **👁️ Side-by-Side View** - See your JSON config alongside the rendered component 
+3. **🎮 Interactive Examples** - Click, type, and interact to see real behavior
+4. **📊 Live Updates** - Watch form data change in real-time as you interact
 
-### 🎯 **Basic Forms**
-- **[Contact Form](/?path=/story/jsonschemapage-basic-forms--contact-form)** - Simple contact information form
-- **[All Widgets](/?path=/story/jsonschemapage-basic-forms--all-widgets)** - Showcase of all available widget types
-- **[Conditional Fields](/?path=/story/jsonschemapage-basic-forms--conditional-fields)** - Dynamic form fields based on user input
-- **[Array Fields](/?path=/story/jsonschemapage-basic-forms--array-fields)** - Dynamic lists and nested objects
-- **[Custom Validation](/?path=/story/jsonschemapage-basic-forms--custom-validation)** - Form validation examples
-
-### 🧩 **Widgets Showcase**
-- **[File Upload](/?path=/story/jsonschemapage-widgets--file-upload-widget)** - File upload with drag & drop
-- **[Range Sliders](/?path=/story/jsonschemapage-widgets--range-widget)** - Numeric range inputs
-- **[Radio Buttons](/?path=/story/jsonschemapage-widgets--radio-widget)** - Radio button groups
-- **[Select Dropdowns](/?path=/story/jsonschemapage-widgets--select-widget)** - Dropdown selections
-- **[Checkboxes](/?path=/story/jsonschemapage-widgets--checkbox-widget)** - Boolean toggles and multi-select
-- **[Text Areas](/?path=/story/jsonschemapage-widgets--textarea-widget)** - Multi-line text inputs
-
-### ⚡ **Custom Fields & Interactions**
-- **[Interactive Buttons](/?path=/story/jsonschemapage-custom-fields--button-fields)** - Action buttons within forms
-- **[Interactive Forms](/?path=/story/jsonschemapage-custom-fields--interactive-form)** - Complex form interactions
-- **[Dynamic Lists](/?path=/story/jsonschemapage-custom-fields--list-fields)** - Editable list management
-- **[Search & Filter](/?path=/story/jsonschemapage-custom-fields--search-and-filter-fields)** - Search functionality
-
-## ✨ Key Features
-
-- **🎨 Beautiful UI**: Styled with RingCentral Juno design system
-- **📱 Responsive**: Works great on desktop and mobile devices
-- **🔧 Customizable**: Extensive customization through UI Schema
-- **✅ Validation**: Built-in and custom validation support
-- **🎯 Interactive**: Buttons, search, and custom field types
-- **📊 Dynamic**: Conditional fields and array management
-- **♿ Accessible**: WCAG compliant form components
-- **⚡ Performance**: Optimized for large forms
+---
 
 ## 🛠️ Installation
 
@@ -147,28 +100,45 @@ Learn everything about JSON Schema, UI Schema customization, and advanced featur
 npm install @ringcentral-integration/jsonschema-page
 ```
 
-### Peer Dependencies
+**Peer Dependencies:**
 ```bash
 npm install @ringcentral/juno @ringcentral/juno-icon react styled-components
 ```
 
-## 🎯 Use Cases
+---
 
-- **Configuration Forms**: Application settings and preferences
-- **Data Entry**: Complex data collection forms
-- **Survey Forms**: Dynamic questionnaires
-- **Admin Panels**: Management interfaces
-- **User Profiles**: Registration and profile forms
-- **Wizard Forms**: Multi-step form workflows
+## ✨ Key Features
 
-## 🔗 Links
-
-- [GitHub Repository](https://github.com/ringcentral/ringcentral-embeddable)
-- [React JSON Schema Form](https://github.com/rjsf-team/react-jsonschema-form)
-- [RingCentral Juno](https://github.com/ringcentral/ringcentral-juno)
-- [JSON Schema Specification](https://json-schema.org/)
+- **🎨 Beautiful UI** - Styled with RingCentral Juno design system
+- **📱 Responsive** - Works on desktop and mobile
+- **🔧 Highly Customizable** - Extensive UI Schema options
+- **✅ Built-in Validation** - JSON Schema validation + custom rules
+- **🎯 Interactive Elements** - Buttons, search, custom fields
+- **📊 Dynamic Forms** - Conditional fields and arrays
+- **♿ Accessible** - WCAG compliant components
+- **⚡ Performance Optimized** - Handles large forms efficiently
 
 ---
 
-**Ready to build amazing forms?** Start exploring the examples above! 🚀
+## 🎯 Common Use Cases
+
+- **Configuration Forms** - App settings and preferences
+- **Data Entry** - Complex data collection
+- **Survey Forms** - Dynamic questionnaires  
+- **Admin Panels** - Management interfaces
+- **User Profiles** - Registration and profiles
+- **Multi-step Wizards** - Complex workflows
+
+---
+
+## 🔗 Useful Links
+
+- **[Complete Documentation](/docs/jsonschemapage-documentation--docs)** - Learn everything
+- **[GitHub Repository](https://github.com/ringcentral/ringcentral-embeddable)** - Source code
+- **[JSON Schema Spec](https://json-schema.org/)** - Official specification
+- **[React JSON Schema Form](https://github.com/rjsf-team/react-jsonschema-form)** - Base library
+
+---
+
+**Ready to build amazing forms?** Start with the [Documentation](/docs/jsonschemapage-documentation--docs) or explore the examples above! 🚀
 
