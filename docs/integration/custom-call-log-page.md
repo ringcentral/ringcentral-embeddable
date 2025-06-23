@@ -38,7 +38,7 @@ window.addEventListener('message', function (e) {
           type: 'rc-adapter-update-call-log-page',
           page: {
             title: 'Log to TestService',
-            // schema and uiSchema are used to customize call log page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+            // schema and uiSchema are used to customize call log page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)
             schema: {
               type: 'object',
               required: ['contact', 'activityTitle'],
@@ -150,6 +150,9 @@ window.addEventListener('message', function (e) {
   }
 });
 ```
+
+!!! note "JSON Schema reference"
+    Learn how to define custom widget pages with JSON schema in the [JSON schema page document](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs).
 
 ![customized call log page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/94cd0f4a-fdca-455b-a6e4-08305276637a)
 

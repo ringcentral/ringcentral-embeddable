@@ -15,7 +15,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     id: 'page1', // page id, required
     title: 'Customized page 1',
     type: 'page',
-    // schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+    // schema and uiSchema are used to customize page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)
     schema: {
       type: 'object',
       required: ['contactType', 'defaultContactName'],
@@ -101,6 +101,9 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   },
 }, '*');
 ```
+
+!!! note "JSON Schema reference"
+    Learn how to define custom widget pages with JSON schema in the [JSON schema page document](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs).
 
 To update the page, you can re-register the page with new data and same page id.
 
