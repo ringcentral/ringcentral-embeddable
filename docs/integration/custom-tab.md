@@ -2,6 +2,8 @@
 
 <!-- md:version 2.0.0 -->
 
+!!! info "Check out the [Embeddable Page Schema reference](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs) on how to structure content in Embeddable using JSON"
+
 RingCentral Embeddable is a powerful tool that allows you to customize the user experience for your users. You can create customized pages or tabs to display your own content in the widget.
 
 ## Register a tab

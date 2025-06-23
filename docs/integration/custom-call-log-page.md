@@ -2,6 +2,8 @@
 
 <!-- md:version 2.0.0 -->
 
+!!! info "Check out the [Embeddable Page Schema reference](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs) on how to structure content in Embeddable using JSON"
+
 From `v2.0.0`, call logger modal is refactored into call log page:
 
 ![image](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/c4f7e129-32b9-4a2d-a296-9c6ad8ddd029)

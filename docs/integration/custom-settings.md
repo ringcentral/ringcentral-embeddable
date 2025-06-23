@@ -2,6 +2,8 @@
 
 !!! info "This feature requires you to [register your app as a service](index.md) first."
 
+!!! info "Check out the [Embeddable Page Schema reference](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs) on how to structure content in Embeddable using JSON"
+
 For some features that support user to customize, widget supports to add settings into widget's setting page.
 
 ## Register settings

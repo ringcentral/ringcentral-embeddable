@@ -135,6 +135,7 @@ nav:
     - 'Settings': integration/custom-settings.md
     - 'Tabs': integration/custom-tab.md
     - 'Call widgets': integration/call-widget.md
+    - 'Page schema reference': https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs
   - 'Recipes':
     - 'Analytics integration': integration/analytics.md
     - 'Click-to-dial enablement': integration/click-to-dial.md
