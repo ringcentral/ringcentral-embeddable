@@ -679,6 +679,7 @@ export const CardListField: Story = {
         'ui:field': 'list',
         'ui:itemType': 'card',
         'ui:itemWidth': '48%',
+        'ui:itemHeight': '110px',
         'ui:showSelected': false,
       },
     },

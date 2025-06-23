@@ -170,12 +170,17 @@ function CardItem({
   onClick,
   width,
   onClickAuthor,
+  height,
 }) {
   const cardStyle: {
     backgroundColor?: string;
+    height?: string;
   } = {};
   if (item.backgroundColor) {
     cardStyle.backgroundColor = item.backgroundColor;
+  }
+  if (height) {
+    cardStyle.height = height;
   }
   const wrapperStyle: {
     width?: string;
@@ -281,6 +286,7 @@ export function List({
           showIconAsAvatar={showIconAsAvatar}
           showAsNavigation={showAsNavigation}
           width={uiSchema['ui:itemWidth']}
+          height={uiSchema['ui:itemHeight']}
           onClickAuthor={(e) => {
             e.stopPropagation();
             onFocus(`${item.const}-author`, '$$clicked');
