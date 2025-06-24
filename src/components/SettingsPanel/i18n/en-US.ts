@@ -1,6 +1,6 @@
 export default {
   general: 'General',
-  theme: "Theme (Beta)",
+  theme: "Theme",
   region: 'Region',
   calling: 'Calling',
   logout: 'Logout',
@@ -29,4 +29,5 @@ export default {
   callQueuePresenceSetting: 'Manage call queue presence',
   status: 'Status',
   acceptQueueCalls: 'Accept calls from call queue',
+  appearance: 'Appearance',
 };
