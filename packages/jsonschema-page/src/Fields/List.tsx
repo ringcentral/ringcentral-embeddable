@@ -164,18 +164,40 @@ const StyledCardContent = styled(RcCardContent)`
   padding-bottom: 0;
 `;
 
+const ActionArea = ({
+  children,
+  readOnly,
+  onClick,
+  disabled,
+}) => {
+  if (readOnly) {
+    return <div>{children}</div>;
+  }
+  return (
+    <RcCardActionArea onClick={onClick} component="div" disabled={disabled}>
+      {children}
+    </RcCardActionArea>
+  );
+};
+
 function CardItem({
   item,
   disabled,
   onClick,
   width,
   onClickAuthor,
+  height,
+  readOnly,
 }) {
   const cardStyle: {
     backgroundColor?: string;
+    height?: string;
   } = {};
   if (item.backgroundColor) {
     cardStyle.backgroundColor = item.backgroundColor;
+  }
+  if (height) {
+    cardStyle.height = height;
   }
   const wrapperStyle: {
     width?: string;
@@ -193,6 +215,7 @@ function CardItem({
     });
     avatarColor = useAvatarColorToken(item.authorName);
   }
+
   return (
     <StyledCardWrapper
       style={wrapperStyle}
@@ -200,10 +223,10 @@ function CardItem({
       <StyledCard
         style={cardStyle}
       >
-        <RcCardActionArea
+        <ActionArea
           onClick={onClick}
+          readOnly={readOnly}
           disabled={disabled}
-          component="div"
         >
           <StyledCardContent>
             <CardTitle variant="body2">{item.title}</CardTitle>
@@ -231,7 +254,7 @@ function CardItem({
               <RcTypography variant="caption1" color="neutral.f05">{item.meta}</RcTypography>
             </StyledCardFooter>
           </RcCardActions>
-        </RcCardActionArea>
+        </ActionArea>
       </StyledCard>
     </StyledCardWrapper>
   );
@@ -263,6 +286,10 @@ export function List({
     typeof uiSchema['ui:showSelected'] === 'undefined' ?
     true :
     uiSchema['ui:showSelected'];
+  const readOnly =
+    typeof uiSchema['ui:readonly'] === 'undefined' ?
+    false :
+    uiSchema['ui:readonly'];
   const itemWidget = uiSchema['ui:itemWidget'];
   const isCard = uiSchema['ui:itemType'] === 'card' || itemWidget === 'card';
   const Item = isCard ? CardItem : ListItem;
@@ -276,11 +303,16 @@ export function List({
           disabled={disabled}
           selected={showSelected && formData === item.const}
           onClick={(e) => {
+            if (readOnly) {
+              return;
+            }
             onChange(item.const);
           }}
+          readOnly={readOnly}
           showIconAsAvatar={showIconAsAvatar}
           showAsNavigation={showAsNavigation}
           width={uiSchema['ui:itemWidth']}
+          height={uiSchema['ui:itemHeight']}
           onClickAuthor={(e) => {
             e.stopPropagation();
             onFocus(`${item.const}-author`, '$$clicked');

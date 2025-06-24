@@ -12,7 +12,7 @@ import {
 } from '@ringcentral/juno';
 import { ArrowLeft2, Reset, MoreVert, Unpin, Pin, Close } from '@ringcentral/juno-icon';
 import { Container, PageHeader, Content, AppIcon } from './styled';
-import { CustomizedForm } from '../CustomizedPanel/CustomizedForm';
+import { JSONSchemaPage } from '@ringcentral-integration/jsonschema-page';
 
 const AppIconInHeader = styled(AppIcon)`
   width: 24px;
@@ -311,7 +311,7 @@ export function WidgetAppPanel({
       <StyledContent>
         {
           page && page.schema ? (
-            <CustomizedForm
+            <JSONSchemaPage
               schema={page.schema}
               onFormDataChange={async (newFormData) => {
                 const changedKeys = Object.keys(newFormData).filter(

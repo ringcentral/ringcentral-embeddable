@@ -2,6 +2,8 @@
 
 <!-- md:version 2.0.0 -->
 
+!!! info "Check out the [Embeddable Page Schema reference](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs) on how to structure content in Embeddable using JSON"
+
 From `v2.0.0`, call logger modal is refactored into call log page:
 
 ![image](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/c4f7e129-32b9-4a2d-a296-9c6ad8ddd029)
@@ -38,7 +40,7 @@ window.addEventListener('message', function (e) {
           type: 'rc-adapter-update-call-log-page',
           page: {
             title: 'Log to TestService',
-            // schema and uiSchema are used to customize call log page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+            // schema and uiSchema are used to customize call log page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)
             schema: {
               type: 'object',
               required: ['contact', 'activityTitle'],
@@ -150,6 +152,9 @@ window.addEventListener('message', function (e) {
   }
 });
 ```
+
+!!! note "JSON Schema reference"
+    Learn how to define custom page components with JSON schema in the [JSON schema page document](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs).
 
 ![customized call log page](https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/94cd0f4a-fdca-455b-a6e4-08305276637a)
 

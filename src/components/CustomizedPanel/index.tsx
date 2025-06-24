@@ -3,7 +3,7 @@ import { styled, css } from '@ringcentral/juno/foundation';
 import { RcButton, RcIconButton } from '@ringcentral/juno';
 import { SaveDraft, Close } from '@ringcentral/juno-icon';
 import { BackHeaderView } from '../BackHeaderView';
-import { CustomizedForm } from './CustomizedForm';
+import { JSONSchemaPage } from '@ringcentral-integration/jsonschema-page';
 
 const Panel = styled.div`
   width: 100%;
@@ -81,7 +81,7 @@ export function CustomizedPanel({
     <Panel>
       {infoNode}
       <FieldsArea>
-        <CustomizedForm
+        <JSONSchemaPage
           schema={schema}
           onFormDataChange={(newFormData) => {
             const changedKeys = Object.keys(newFormData).filter(

@@ -2,6 +2,8 @@
 
 <!-- md:version 2.0.0 -->
 
+!!! info "Check out the [Embeddable Page Schema reference](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs) on how to structure content in Embeddable using JSON"
+
 RingCentral Embeddable is a powerful tool that allows you to customize the user experience for your users. You can create customized pages or tabs to display your own content in the widget.
 
 ## Register a tab
@@ -19,7 +21,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     hidden: false, // optional, default false, whether to hide the tab icon from navigation bar
     unreadCount: 0, // optional, unread count, 0-99
     priority: 31, // tab priority, 0-100, 0 is the highest priority, Phone tab: 10, Text: 20, Fax: 30, Glip: 40, Contacts: 50, Video: 60, Settings: 70
-    // schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+    // schema and uiSchema are used to customize page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)
     schema: {
       type: 'object',
       required: ['contactType', 'defaultContactName'],
@@ -93,6 +95,9 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   },
 }, '*');
 ```
+
+!!! note "JSON Schema reference"
+    Learn how to define custom page with JSON schema in the [JSON schema page document](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs).
 
 Navigate to the tab:
 

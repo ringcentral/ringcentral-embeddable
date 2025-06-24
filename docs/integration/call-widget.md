@@ -2,6 +2,8 @@
 
 <!-- md:version 3.0.0 -->
 
+!!! info "Check out the [Embeddable Page Schema reference](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs) on how to structure content in Embeddable using JSON"
+
 Call Widgets are a powerful capability of RingCentral Embeddable, allowing developers to inject dynamic, contextual content directly into the core RingCentral calling experience.
 
 When a user is on a call, call widgets appear in the right-hand panel, enabling quick access to relevant information or actions—without leaving the call page.
@@ -65,10 +67,10 @@ After successful registration, your call widget will appear during active calls:
 
 ### Understanding the request flow
 
-When a user opens your call widget, the Embeddable framework sends a message to your app requesting page data in JSON format. The widget page is rendered using the [JSON Schema Form library](https://rjsf-team.github.io/react-jsonschema-form), allowing for dynamic and customizable UI layouts.
+When a user opens your call widget, the Embeddable framework sends a message to your app requesting page data in JSON format. The widget page is rendered using the [JSON schema page library](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs), allowing for dynamic and customizable UI layouts.
 
 !!! note "JSON Schema reference"
-    Learn how to define custom widget pages with JSON schema in the [customized tab document](./custom-tab.md).
+    Learn how to define custom widget pages with JSON schema in the [JSON schema page document](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs).
 
 ### Basic page response
 

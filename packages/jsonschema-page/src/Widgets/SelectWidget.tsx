@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FocusEvent } from 'react';
+import React, { ChangeEvent, FocusEvent, ReactNode } from 'react';
 import {
   RcMenuItem as MenuItem,
   RcSelect as Select,
@@ -52,12 +52,18 @@ export default function SelectWidget<
   const emptyValue = multiple ? [] : '';
   const isEmpty = typeof value === 'undefined' || (multiple && value.length < 1) || (!multiple && value === emptyValue);
 
-  const _onChange = ({ target: { value } }: ChangeEvent<{ value: string }>) =>
+  const _onChange = (event: ChangeEvent<{ name?: string; value: unknown }>, child: React.ReactNode) => {
+    const value = event.target.value as string;
     onChange(enumOptionsValueForIndex<S>(value, enumOptions, optEmptyVal));
-  const _onBlur = ({ target: { value } }: FocusEvent<HTMLInputElement>) =>
+  };
+  const _onBlur = (event: FocusEvent<HTMLInputElement>) => {
+    const value = event.target.value;
     onBlur(id, enumOptionsValueForIndex<S>(value, enumOptions, optEmptyVal));
-  const _onFocus = ({ target: { value } }: FocusEvent<HTMLInputElement>) =>
+  };
+  const _onFocus = (event: FocusEvent<HTMLInputElement>) => {
+    const value = event.target.value;
     onFocus(id, enumOptionsValueForIndex<S>(value, enumOptions, optEmptyVal));
+  };
   const selectedIndexes = enumOptionsIndexForValue<S>(value, enumOptions, multiple);
 
   return (
@@ -78,6 +84,21 @@ export default function SelectWidget<
       multiple={multiple}
       aria-describedby={ariaDescribedByIds<T>(id)}
       fullWidth
+      renderValue={(index: unknown) => {
+        console.log('index', index);
+        if (typeof index === 'string' && enumOptions[Number.parseInt(index, 10)]) {
+          return enumOptions[Number.parseInt(index, 10)].label;
+        }
+        if (Array.isArray(index)) {
+          return index.map((i) => {
+            if (typeof i === 'string' && enumOptions[Number.parseInt(i, 10)]) {
+              return enumOptions[Number.parseInt(i, 10)].label;
+            }
+            return i;
+          }).join(', ');
+        }
+        return index;
+      }}
     >
       {Array.isArray(enumOptions) &&
         enumOptions.map(({ value, label, schema }, i: number) => {
