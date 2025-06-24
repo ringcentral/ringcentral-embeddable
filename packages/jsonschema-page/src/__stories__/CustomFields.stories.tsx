@@ -255,19 +255,19 @@ export const AlertFields: Story = {
     },
     uiSchema: {
       infoAlert: {
-        'ui:field': 'alert',
+        'ui:field': 'admonition',
         'ui:severity': 'info',
       },
       successAlert: {
-        'ui:field': 'alert',
+        'ui:field': 'admonition',
         'ui:severity': 'success',
       },
       warningAlert: {
-        'ui:field': 'alert',
+        'ui:field': 'admonition',
         'ui:severity': 'warning',
       },
       errorAlert: {
-        'ui:field': 'alert',
+        'ui:field': 'admonition',
         'ui:severity': 'error',
       },
     },
