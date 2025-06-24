@@ -208,7 +208,7 @@ import ThirdPartyService from '../ThirdPartyService';
 import { ThirdPartySettingSectionUI } from '../ThirdPartySettingSectionUI';
 import { LogCallUI } from '../LogCallUI';
 import { LogMessagesUI } from '../LogMessagesUI';
-import { Webphone } from '../Webphone';
+import { Webphone } from '../WebphoneV2';
 import { MainViewUI } from '../MainViewUI';
 import { AppViewUI } from '../AppViewUI';
 import { DialerUI } from '../DialerUI';

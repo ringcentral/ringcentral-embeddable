@@ -478,9 +478,9 @@ export class Webphone extends WebphoneBase {
 
   async _holdOtherSession(currentSessionId: string | null) {
     await Promise.all(
-      this.webphoneCallSessions.map(
+      this.webphoneSessions.map(
         async (session: WebphoneSession) => {
-          if (currentSessionId === session.callId) {
+          if (currentSessionId === session.id) {
             return;
           }
           if (session.__rc_localHold) {
@@ -513,10 +513,11 @@ export class Webphone extends WebphoneBase {
     }
     try {
       if (session.__rc_localHold) {
-        await this._holdOtherSession(session.callId);
+        await this._holdOtherSession(session.id);
         this._onBeforeCallResume(session);
         await session.unhold();
         session.__rc_callStatus = sessionStatus.connected;
+        session.__rc_localHold = false;
         this._updateSessions();
         this._onCallResume(session);
       }
@@ -1017,7 +1018,7 @@ export class Webphone extends WebphoneBase {
   @proxify
   async clearSessionCaching() {
     this._clearSessionCaching(
-      this.webphoneCallSessions.map(normalizeSession),
+      this.webphoneSessions.map(normalizeSession),
     );
   }
 
@@ -1026,7 +1027,9 @@ export class Webphone extends WebphoneBase {
   )
   _updateSessions() {
     this._updateSessionsState(
-      this.webphoneCallSessions.map(normalizeSession),
+      this.webphoneSessions
+        .filter((session) => session.state !== 'disposed' && session.state !== 'failed')
+        .map(normalizeSession),
     );
   }
 
@@ -1043,16 +1046,14 @@ export class Webphone extends WebphoneBase {
       return;
     }
     const currentId = localStorage.getItem(this._activeWebphoneActiveCallKey);
-    if (currentId !== session.callId) {
-      localStorage.setItem(this._activeWebphoneActiveCallKey, session.callId);
+    if (currentId !== session.id) {
+      localStorage.setItem(this._activeWebphoneActiveCallKey, session.id);
     }
   }
 
   _onCallInit(session: WebphoneSession) {
     this._updateSessions();
     const normalizedSession = this._getNormalizedSession(session);
-    console.log('current session ids', session.callId, session.sessionId);
-    console.log('current sessions', JSON.stringify(this.sessions, null, 2));
     this._setActiveSessionId(normalizedSession!.id);
 
     if (
@@ -1334,6 +1335,6 @@ export class Webphone extends WebphoneBase {
   }
 
   private _getNormalizedSession(session: WebphoneSession) {
-    return find((x) => x.id === session.callId, this.sessions);
+    return find((x) => x.id === session.id, this.sessions);
   }
 }

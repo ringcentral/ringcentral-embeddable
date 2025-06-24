@@ -2,8 +2,11 @@ import type { NormalizedSession } from '@ringcentral-integration/commons/interfa
 import type { WebphoneSession } from './Webphone.interface';
 import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 import { recordStatus } from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
-import { extractTag } from 'ringcentral-web-phone-beta-2/utils';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
+
+const extractTag = (peer: string) => peer.match(/;tag=(.*)/)![1];
+// peer: '"User Name" <sip:16503626712*103@8.8.8>;tag=2ba03ca1-61ef-416d-80d6-ebe2d66f40ea'
+const extractName = (peer: string) => peer.match(/"(.*)"/)?.[1] || '';
 
 function getCallStatus(webphoneState) {
   if (webphoneState === 'init') {
@@ -32,15 +35,15 @@ export function normalizeSession(
   const fromPeer = session.direction === 'inbound' ? session.remotePeer : session.localPeer;
   const toPeer = session.direction === 'inbound' ? session.localPeer : session.remotePeer;
   return {
-    id: session.callId,
+    id: session.id,
     callId: session.callId,
     direction: callDirections[session.direction],
     callStatus: getCallStatus(session.state),
     to: session.direction === 'inbound' ? session.localNumber : session.remoteNumber,
-    toUserName: '',
+    toUserName: toPeer ? extractName(toPeer) : '',
     from: session.direction === 'inbound' ? session.remoteNumber : session.localNumber,
     fromNumber: session.__rc_fromNumber,
-    fromUserName: '',
+    fromUserName: fromPeer ? extractName(fromPeer) : '',
     fromTag: fromPeer ? extractTag(fromPeer) : null,
     toTag: toPeer ? extractTag(toPeer) : null,
     startTime: session.startTime && new Date(session.startTime).getTime(),

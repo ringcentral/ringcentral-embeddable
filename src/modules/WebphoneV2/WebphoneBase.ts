@@ -338,7 +338,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         if (!this._webphone) {
           return;
         }
-        if (Object.keys(this.originalSessions).length > 0) {
+        if (this.webphoneSessions.length > 0) {
           return;
         }
         this._removedWebphoneAtBeforeUnload = true;
@@ -849,7 +849,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       if (e.newValue === this._deps.tabManager?.id) {
         return;
       }
-      if (Object.keys(this.originalSessions).length === 0) {
+      if (this.webphoneSessions.length === 0) {
         this._disconnectToInactive();
         return;
       }
@@ -867,7 +867,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   _makeWebphoneInactiveOnSessionsEmpty() {
     if (
       this._disconnectInactiveAfterSessionEnd &&
-      Object.keys(this.originalSessions).length === 0
+      this.webphoneSessions.length === 0
     ) {
       this._disconnectInactiveAfterSessionEnd = false;
       if (!document.hidden) {
@@ -1064,13 +1064,13 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   get originalSessions() {
     // map {id: session}
     const sessions = {};
-    this.webphoneCallSessions.forEach((session) => {
-      sessions[session.callId] = session;
+    this.webphoneSessions.forEach((session) => {
+      sessions[session.id] = session;
     });
     return sessions;
   }
 
-  get webphoneCallSessions() {
+  get webphoneSessions() {
     return (this._webphone?.callSessions ?? []) as WebphoneSession[];
   }
 
@@ -1156,11 +1156,5 @@ export class WebphoneBase extends RcModuleV2<Deps> {
 
   get defaultOutgoingAudioFile() {
     return DEFAULT_AUDIO;
-  }
-
-  onActiveWebphoneChanged(handler) {
-    if (typeof handler === 'function') {
-      this._eventEmitter.on(EVENTS.activeWebphoneChanged, handler);
-    }
   }
 }

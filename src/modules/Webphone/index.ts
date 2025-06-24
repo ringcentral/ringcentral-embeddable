@@ -587,15 +587,6 @@ export class Webphone extends WebphoneBase {
     }
   }
 
-  updateRecordStatus(sessionId, status) {
-    const session = this.originalSessions[sessionId];
-    if (!session) {
-      return;
-    }
-    session.__rc_recordStatus = status;
-    this._updateSessions();
-  }
-
   override _isAvailableToConnect({ force }: { force: boolean }) {
     if (!this.enabled || !this._deps.auth.loggedIn) {
       return false;
