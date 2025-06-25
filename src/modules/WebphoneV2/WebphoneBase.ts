@@ -26,14 +26,11 @@ import { connectionStatus } from '@ringcentral-integration/commons/modules/Webph
 import { EVENTS } from '@ringcentral-integration/commons/modules/Webphone/events';
 import type { Deps } from '@ringcentral-integration/commons/modules/Webphone/Webphone.interface';
 import { webphoneErrors } from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
-import {
-  isBrowserSupport,
-  isChrome,
-  isEnableMidLinesInSDP,
-} from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
+import { isBrowserSupport } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
 import { AudioDeviceManager } from './AudioDeviceManager';
 import defaultIncomingAudio from './incoming.ogg';
 import defaultOutgoingAudio from './outgoing.ogg';
+import { SharedSipClient } from './SharedSipClient';
 
 export const DEFAULT_AUDIO = 'default';
 
@@ -551,14 +548,30 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         this._deps.auth.endpointId!,
       );
     }
+    const useShared = true;
+    let sipClient;
+    if (useShared) {
+      sipClient = new SharedSipClient({
+        worker: new SharedWorker(new URL('./SharedSipClient.worker.ts', import.meta.url)),
+      });
+    }
     this._webphone = new RingCentralWebphone({
       sipInfo: provisionData.sipInfo?.[0] as SipInfo,
       instanceId: this._sipInstanceId,
       debug: this._deps.webphoneOptions.webphoneLogLevel ? this._deps.webphoneOptions.webphoneLogLevel > 1 : false,
       deviceManager: new AudioDeviceManager(),
+      sipClient,
     });
     try {
-      await this._webphone.start();
+      if (useShared) {
+        await sipClient.start({
+          sipInfo: provisionData.sipInfo?.[0] as SipInfo,
+          instanceId: this._sipInstanceId,
+          debug: this._deps.webphoneOptions.webphoneLogLevel ? this._deps.webphoneOptions.webphoneLogLevel > 1 : false,
+        });
+      } else {
+        await this._webphone.start();
+      }
       this._onWebphoneRegistered(provisionData);
     } catch (e) {
       console.error(e);
@@ -583,7 +596,8 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         statusCode: null,
       });
     };
-    this._webphone.sipClient.wsc.addEventListener('close', onSipTransportClosed);
+    // TODO: handle wsc close event in shared sip client
+    this._webphone.sipClient.wsc?.addEventListener('close', onSipTransportClosed);
     this._webphone.on('inboundCall', (session: InboundCallSession) => {
       console.log('New inbound call');
       this._onInvite(session);
