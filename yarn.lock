@@ -11657,7 +11657,7 @@ ringcentral-client@^1.0.0-beta.2:
 
 "ringcentral-web-phone-beta-2@git+https://github.com/embbnux/ringcentral-web-phone.git#v2-release":
   version "2.1.11"
-  resolved "git+https://github.com/embbnux/ringcentral-web-phone.git#9ef5fb5f7adac724c1aac7a7202563e35081f65d"
+  resolved "git+https://github.com/embbnux/ringcentral-web-phone.git#3cdac559ca52e45c08e706d4c7c4a0d8154996f5"
   dependencies:
     blueimp-md5 "^2.19.0"
     fast-xml-parser "^5.2.5"

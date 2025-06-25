@@ -734,13 +734,7 @@ export class Webphone extends WebphoneBase {
     newSession.__rc_isOnTransfer = true;
     this._updateSessions();
     try {
-      // TODO: warm transfer
-      // await oldSession._transfer(
-      //   `"${target}@sip.ringcentral.com" <sip:${target}@sip.ringcentral.com;transport=wss?Replaces=${newSession.callId}%3Bto-tag%3D${
-      //     extractTag(newSession.remotePeer)
-      //   }%3Bfrom-tag%3D${extractTag(newSession.localPeer)}>`,
-      // );
-      // await oldSession.warmTransfer(newSession);
+      await oldSession.completeWarmTransfer(newSession);
     } catch (e: any /** TODO: confirm with instanceof */) {
       console.error(e);
       newSession.__rc_isOnTransfer = false;
@@ -1026,10 +1020,9 @@ export class Webphone extends WebphoneBase {
     that.isOnTransfer ? [trackEvents.coldTransferCall] : null,
   )
   _updateSessions() {
+    // sync with webphone sessions
     this._updateSessionsState(
-      this.webphoneSessions
-        .filter((session) => session.state !== 'disposed' && session.state !== 'failed')
-        .map(normalizeSession),
+      this.webphoneSessions.map(normalizeSession),
     );
   }
 

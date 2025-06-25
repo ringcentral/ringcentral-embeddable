@@ -4,8 +4,7 @@ import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone
 import { recordStatus } from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 
-const extractTag = (peer: string) => peer.match(/;tag=(.*)/)![1];
-// peer: '"User Name" <sip:16503626712*103@8.8.8>;tag=2ba03ca1-61ef-416d-80d6-ebe2d66f40ea'
+// peer: '"User Name" <sip:16503621111*103@8.8.8>;tag=2ba03ca1-61ef-416d-80d6-ebe2d66f4111'
 const extractName = (peer: string) => peer.match(/"(.*)"/)?.[1] || '';
 
 function getCallStatus(webphoneState) {
@@ -34,6 +33,7 @@ export function normalizeSession(
   // const fromUserName = session.request?.from?.displayName;
   const fromPeer = session.direction === 'inbound' ? session.remotePeer : session.localPeer;
   const toPeer = session.direction === 'inbound' ? session.localPeer : session.remotePeer;
+  const queueName = session.rcApiCallInfo ? session.rcApiCallInfo.queueName : null;
   return {
     id: session.id,
     callId: session.callId,
@@ -44,8 +44,8 @@ export function normalizeSession(
     from: session.direction === 'inbound' ? session.remoteNumber : session.localNumber,
     fromNumber: session.__rc_fromNumber,
     fromUserName: fromPeer ? extractName(fromPeer) : '',
-    fromTag: fromPeer ? extractTag(fromPeer) : null,
-    toTag: toPeer ? extractTag(toPeer) : null,
+    fromTag: session.direction === 'inbound' ? session.remoteTag : session.localTag,
+    toTag: session.direction === 'inbound' ? session.localTag : session.remoteTag,
     startTime: session.startTime && new Date(session.startTime).getTime(),
     creationTime: session.__rc_creationTime,
     isOnHold: !!session.__rc_localHold,
@@ -65,7 +65,7 @@ export function normalizeSession(
     lastActiveTime: session.__rc_lastActiveTime,
     cached: false,
     removed: false,
-    callQueueName: session.rcApiCallInfo ? session.rcApiCallInfo.queueName : null,
+    callQueueName: queueName ? `${queueName} - ` : null,
     warmTransferSessionId: session.__rc_transferSessionId,
   };
 }
