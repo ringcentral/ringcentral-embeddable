@@ -179,27 +179,18 @@ export function checkThirdPartySettings(settings: any[]) {
 }
 
 export function findSettingItem(settings, id) {
-  let setting = null;
-  settings.forEach((item) => {
-    if (setting) {
-      return;
-    }
+  for (const item of settings) {
     if (item.id === id) {
-      setting = item;
-      return;
+      return item;
     }
     if (item.type === 'group') {
-      item.items.forEach((subItem) => {
-        if (setting) {
-          return;
-        }
-        if (subItem.id === id) {
-          setting = subItem;
-        }
-      });
+      const setting = findSettingItem(item.items, id);
+      if (setting) {
+        return setting;
+      }
     }
-  });
-  return setting;
+  };
+  return null;
 }
 
 function formatPhoneType(phoneType?: string) {
