@@ -138,6 +138,11 @@ const StyledCardWrapper = styled.div`
   width: 100%;
 `;
 
+const StyledCardActions = styled(RcCardActions)`
+  width: 100%;
+  box-sizing: border-box;
+`;
+
 const StyledCardFooter = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -359,7 +364,7 @@ function CardItem({
               {item.description}
             </StyledCardBody>
           </StyledCardContent>
-          <RcCardActions>
+          <StyledCardActions>
             <StyledCardFooter>
               {
                 item.authorName && (
@@ -378,7 +383,7 @@ function CardItem({
               }
               <RcTypography variant="caption1" color="neutral.f05">{item.meta}</RcTypography>
             </StyledCardFooter>
-          </RcCardActions>
+          </StyledCardActions>
         </ActionArea>
       </StyledCard>
     </StyledCardWrapper>
