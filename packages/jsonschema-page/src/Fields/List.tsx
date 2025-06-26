@@ -198,14 +198,14 @@ const MetricLabel = styled(RcTypography)`
   text-align: center;
   line-height: 1.2;
   margin-bottom: 2px;
-  font-size: 0.8125rem; // 13px
+  font-size: 0.8125rem;
 `;
 
 const MetricUnit = styled(RcTypography)`
   text-align: center;
   line-height: 1.2;
   margin-bottom: 4px;
-  font-size: 0.75rem; // 12px
+  font-size: 0.75rem;
 `;
 
 const MetricComparison = styled(RcTypography)`
