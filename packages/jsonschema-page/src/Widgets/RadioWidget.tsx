@@ -4,8 +4,11 @@ import {
   RcFormLabel as FormLabel,
   RcRadio as Radio,
   RcRadioGroup as RadioGroup,
+  RcTabs as Tabs,
+  RcTab as Tab,
   styled,
   css,
+  palette2,
 } from '@ringcentral/juno';
 
 import {
@@ -21,7 +24,9 @@ import {
 } from '@rjsf/utils';
 
 const StyledRadioGroup = styled(RadioGroup)<{$flexDirection: string}>`
-  flex-direction: ${({ $flexDirection }) => $flexDirection};
+  ${({ $flexDirection }) => $flexDirection && css`
+    flex-direction: ${$flexDirection};
+  `}
 `;
 
 const StyledRadio = styled(Radio)<{ $iconColor: string }>`
@@ -38,6 +43,20 @@ const StyledRadio = styled(Radio)<{ $iconColor: string }>`
 
 const StyledFormLabel = styled(FormLabel)`
   font-size: 0.75rem;
+`;
+
+const StyledTabs = styled(Tabs)`
+  background: ${palette2('neutral', 'b01')};
+  border-bottom: 1px solid ${palette2('neutral', 'l02')};
+
+  .RcTab-selected .tab-unread {
+    color: ${palette2('tab', 'selected')};
+    font-weight: 700;
+  }
+
+  .MuiTab-root {
+    padding: 6px 10px;
+  }
 `;
 
 export default function RadioWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any>({
@@ -64,8 +83,30 @@ export default function RadioWidget<T = any, S extends StrictRJSFSchema = RJSFSc
 
   const row = options ? options.inline : false;
   const selectedIndex = enumOptionsIndexForValue<S>(value, enumOptions) ?? null;
-  const flexDirection = uiSchema['ui:itemDirection'] || 'column';
+  const flexDirection = uiSchema['ui:itemDirection'];
   const showValueLabel = typeof uiSchema['ui:valueLabel'] === 'undefined' ? true : uiSchema['ui:valueLabel'];
+  const tabView = uiSchema['ui:tab'];
+  if (tabView) {
+    return (
+      <StyledTabs
+        value={selectedIndex}
+        onChange={_onChange}
+        variant="fullWidth"
+      >
+        {enumOptions.map((option, index) => {
+          const itemDisabled = Array.isArray(enumDisabled) && enumDisabled.indexOf(option.value) !== -1;
+          return (
+            <Tab
+              key={index}
+              label={option.label}
+              value={String(index)}
+              disabled={disabled || itemDisabled || readonly}
+            />
+          );
+        })}
+      </StyledTabs>
+    );
+  }
   return (
     <>
       {labelValue(
