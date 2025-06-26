@@ -723,6 +723,134 @@ export const CardListField: Story = {
   },
 };
 
+// Metric Cards Widget (similar to phone activity dashboard)
+export const MetricCardsWidget: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        phoneActivity: {
+          type: 'string',
+          title: 'Phone Activity',
+          description: 'View phone activity metrics',
+          oneOf: [
+            {
+              const: 'inbound',
+              title: 'Inbound Call',
+              value: '1',
+              label: 'inbound call',
+            },
+            {
+              const: 'outbound',
+              title: 'Outbound Calls',
+              value: '8',
+              label: 'outbound calls',
+            },
+            {
+              const: 'answered',
+              title: 'Answered Calls',
+              value: '1',
+              label: 'answered calls',
+            },
+            {
+              const: 'answer-rate',
+              title: 'Answer Rate',
+              value: '100%',
+              label: 'answer rate',
+              trend: '+67% company avg',
+              trendColor: 'success.f02',
+            },
+          ],
+        },
+        phoneEngagement: {
+          type: 'string',
+          title: 'Phone Engagement',
+          description: 'View phone engagement metrics',
+          oneOf: [
+            {
+              const: 'total-talk-time',
+              title: 'Total Talk Time',
+              value: '67',
+              unit: 'minutes',
+              label: 'total talk time',
+              trend: '+38% company avg',
+              trendColor: 'success.f02',
+            },
+            {
+              const: 'avg-talk-time',
+              title: 'Average Talk Time',
+              value: '22',
+              unit: 'minutes',
+              label: 'average talk time',
+              trend: '-5% company avg',
+              trendColor: 'danger.f02',
+            },
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      phoneActivity: {
+        'ui:field': 'list',
+        'ui:itemType': 'metric',
+        'ui:itemWidth': '48%',
+        'ui:itemHeight': '120px',
+        'ui:showSelected': false,
+        'ui:readonly': true,
+      },
+      phoneEngagement: {
+        'ui:field': 'list',
+        'ui:itemType': 'metric',
+        'ui:itemWidth': '48%',
+        'ui:itemHeight': '120px',
+        'ui:showSelected': false,
+      },
+    },
+    formData: {
+      phoneActivity: '',
+      phoneEngagement: '',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    
+    return (
+      <StoryLayout 
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📊 Metric Dashboard</h4>
+            <div style={{ fontSize: '12px', marginBottom: '15px' }}>
+              <p>Interactive: {formData.phoneActivity || formData.phoneEngagement ? 'Yes' : 'No'}</p>
+              <p>Selected Activity: {formData.phoneActivity || 'None'}</p>
+              <p>Selected Engagement: {formData.phoneEngagement || 'None'}</p>
+            </div>
+            <div style={{ padding: '10px', background: '#f8f9fa', borderRadius: '4px', marginBottom: '10px' }}>
+              <strong>Features:</strong>
+              <ul style={{ margin: '5px 0', paddingLeft: '20px', fontSize: '11px' }}>
+                <li>Large numeric values with descriptive labels</li>
+                <li>Comparison indicators (positive/negative)</li>
+                <li>Responsive card layout</li>
+                <li>Read-only mode for dashboard display</li>
+              </ul>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>📝 Form Data</h4>
+            <pre style={{ fontSize: '11px', overflow: 'auto', maxHeight: '200px', margin: 0, background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+              {JSON.stringify(formData, null, 2)}
+            </pre>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+        />
+      </StoryLayout>
+    );
+  },
+};
+
 // Navigation Style List
 export const NavigationListField: Story = {
   args: {
