@@ -20,9 +20,9 @@ export class ConferenceCall extends ConferenceCallBase {
   constructor(deps) {
     super(deps);
     this._multipleTabsSupport = deps.conferenceCallOptions.multipleTabsSupport;
-    if (this._multipleTabsSupport) {
+    if (this._multipleTabsSupport && deps.webphone.multipleTabsSupport) {
       this._proxyActionTypes = proxyActionTypes;
-      this._multipleTabsTransport = this._deps.webphone.multipleTabsTransport;
+      this._multipleTabsTransport = deps.webphone.multipleTabsTransport;
       this._multipleTabsTransport.on(
         this._multipleTabsTransport.events.broadcast,
         this._onMultipleTabsChannelBroadcast

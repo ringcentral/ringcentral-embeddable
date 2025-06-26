@@ -24,13 +24,13 @@ import { proxify } from '@ringcentral-integration/commons/lib/proxy/proxify';
 import { SipInstanceManager } from '@ringcentral-integration/commons/lib/SipInstanceManager';
 import { connectionStatus } from '@ringcentral-integration/commons/modules/Webphone/connectionStatus';
 import { EVENTS } from '@ringcentral-integration/commons/modules/Webphone/events';
-import type { Deps } from '@ringcentral-integration/commons/modules/Webphone/Webphone.interface';
 import { webphoneErrors } from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
 import { isBrowserSupport } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
-import { AudioDeviceManager } from './AudioDeviceManager';
+import { AudioDeviceManager, RingtoneHelper } from './AudioDeviceManager';
 import defaultIncomingAudio from './incoming.ogg';
-import defaultOutgoingAudio from './outgoing.ogg';
 import { SharedSipClient } from './SharedSipClient';
+import { isSharedWorkerSupported } from './webphoneHelper';
+import type { Deps } from './Webphone.interface';
 
 export const DEFAULT_AUDIO = 'default';
 
@@ -45,7 +45,6 @@ const AUTO_RETRIES_DELAY = [
   30 * 60 * 1000,
 ];
 
-const RECOVER_DEBOUNCE_THRESHOLD = 1000;
 const INACTIVE_SLEEP_DELAY = 1000;
 
 const registerErrors = [
@@ -87,17 +86,10 @@ const registerErrors = [
 })
 export class WebphoneBase extends RcModuleV2<Deps> {
   protected _reconnectDelays = AUTO_RETRIES_DELAY;
-  protected _disconnectOnInactive: boolean;
-  protected _activeWebphoneKey: string;
-  protected _webphoneInstanceKey?: string;
   protected _closedByUser = false;
 
-  _webphone?: RingCentralWebphone | null = null;
+  protected _webphone?: RingCentralWebphone | null = null;
   protected _sipInstanceManager: SipInstanceManager;
-  _remoteVideo?:
-    | (HTMLVideoElement & { setSinkId?: (id: string) => void })
-    | null = null;
-  _localVideo?: HTMLVideoElement | null = null;
   protected _sipInstanceId?: string | null;
 
   protected _connectTimeout?: NodeJS.Timeout | null = null;
@@ -108,6 +100,9 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   protected _eventEmitter = new EventEmitter();
   protected _stopWebphoneUserAgentPromise?: Promise<unknown> | null = null;
   protected _removedWebphoneAtBeforeUnload = false;
+  protected _sharedSipClient?: SharedSipClient | null = null;
+  protected _audioDeviceManager?: AudioDeviceManager | null = null;
+  protected _ringtoneHelper?: RingtoneHelper | null = null;
 
   constructor(deps: Deps) {
     super({
@@ -119,6 +114,10 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     this._sipInstanceManager = new SipInstanceManager(
       `${deps.prefix}-webphone-inactive-sip-instance`,
     );
+    this._audioDeviceManager = new AudioDeviceManager(deps.audioSettings);
+    this._ringtoneHelper = new RingtoneHelper({
+      audioUri: defaultIncomingAudio,
+    });
   }
 
   @state
@@ -287,50 +286,8 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     this.data.outgoingAudioDataUrl = null;
   }
 
-  private _prepareVideoElement() {
-    this._remoteVideo = document.createElement('video');
-    this._remoteVideo.id = 'remoteVideo';
-    this._remoteVideo.setAttribute('hidden', 'hidden');
-    this._localVideo = document.createElement('video');
-    this._localVideo.id = 'localVideo';
-    this._localVideo.setAttribute('hidden', 'hidden');
-    this._localVideo.setAttribute('muted', 'muted');
-    this._localVideo.muted = true;
-
-    document.body.appendChild(this._remoteVideo);
-    document.body.appendChild(this._localVideo);
-
-    this._remoteVideo.volume = this._deps.audioSettings.callVolume;
-    if (this._deps.audioSettings.supportDevices) {
-      if (
-        this._remoteVideo.setSinkId &&
-        this._deps.audioSettings.outputDeviceId
-      ) {
-        this._remoteVideo.setSinkId(this._deps.audioSettings.outputDeviceId);
-      }
-    }
-  }
-
-  private _destroyVideoElement() {
-    if (this._remoteVideo) {
-      this._remoteVideo.remove();
-      this._remoteVideo = null;
-    }
-    if (this._localVideo) {
-      this._localVideo.remove();
-      this._localVideo = null;
-    }
-  }
-
   override async _initModule() {
     if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-      if (document.readyState === 'loading') {
-        window.addEventListener('load', () => {
-          this._prepareVideoElement();
-        });
-      } else {
-        this._prepareVideoElement();
-      }
       window.addEventListener('beforeunload', () => {
         if (!this._webphone) {
           return;
@@ -351,7 +308,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           });
         }, 4000);
       });
-      window.addEventListener('unload', () => {
+      window.addEventListener('pagehide', () => {
         // mark current instance id as inactive, so app can reuse it after refresh
         if (this._sipInstanceId) {
           this._sipInstanceManager.setInstanceInactive(
@@ -364,11 +321,8 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         if (!this._removedWebphoneAtBeforeUnload) {
           this._disconnect();
         }
-        this._removeCurrentInstanceFromActiveWebphone();
-        this._destroyVideoElement();
       });
     }
-    this._createOtherWebphoneInstanceListener();
     await super._initModule();
   }
 
@@ -383,10 +337,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       () => {
         if (this.ready && this._webphone) {
           const ringtoneMuted = this._deps.audioSettings.ringtoneMuted;
-          // TODO: updateRingtoneVolume
-          // updateRingtoneVolume(
-          //   ringtoneMuted ? 0 : this._deps.audioSettings.ringtoneVolume,
-          // );
+          this._ringtoneHelper.setVolume(ringtoneMuted ? 0 : this._deps.audioSettings.ringtoneVolume);
         }
       },
     );
@@ -394,8 +345,12 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       this,
       () => this._deps.audioSettings.callVolume,
       () => {
-        if (this.ready && this._remoteVideo) {
-          this._remoteVideo.volume = this._deps.audioSettings.callVolume;
+        if (this.ready) {
+          this.webphoneSessions.forEach((session) => {
+            if (session.audioElement) {
+              session.audioElement.volume = this._deps.audioSettings.callVolume;
+            }
+          });
         }
       },
     );
@@ -405,11 +360,13 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       () => {
         if (
           this.ready &&
-          this._deps.audioSettings.supportDevices &&
-          this._remoteVideo &&
-          this._remoteVideo.setSinkId
+          this._deps.audioSettings.supportDevices
         ) {
-          this._remoteVideo.setSinkId(this._deps.audioSettings.outputDeviceId);
+          this.webphoneSessions.forEach((session) => {
+            if (session.audioElement) {
+              session.audioElement.setSinkId(this._deps.audioSettings.outputDeviceId);
+            }
+          });
         }
       },
     );
@@ -528,12 +485,12 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     }
     try {
       await this._webphone.dispose();
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
     }
     try {
       this.stopAudio();
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
       // ignore clean listener error
     }
@@ -548,23 +505,17 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         this._deps.auth.endpointId!,
       );
     }
-    const useShared = true;
-    let sipClient;
-    if (useShared) {
-      sipClient = new SharedSipClient({
-        worker: new SharedWorker(new URL('./SharedSipClient.worker.ts', import.meta.url)),
-      });
-    }
     this._webphone = new RingCentralWebphone({
       sipInfo: provisionData.sipInfo?.[0] as SipInfo,
       instanceId: this._sipInstanceId,
       debug: this._deps.webphoneOptions.webphoneLogLevel ? this._deps.webphoneOptions.webphoneLogLevel > 1 : false,
-      deviceManager: new AudioDeviceManager(),
-      sipClient,
+      deviceManager: this._audioDeviceManager,
+      sipClient: this._sharedSipClient,
     });
     try {
-      if (useShared) {
-        await sipClient.start({
+      if (this._sharedSipClient) {
+        await this._sharedSipClient.start({
+          device: provisionData.device,
           sipInfo: provisionData.sipInfo?.[0] as SipInfo,
           instanceId: this._sipInstanceId,
           debug: this._deps.webphoneOptions.webphoneLogLevel ? this._deps.webphoneOptions.webphoneLogLevel > 1 : false,
@@ -704,11 +655,35 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     if (!skipConnectDelay && connectDelay > 0) {
       await sleep(connectDelay);
     }
-    if (!skipDLCheck) {
+    if (!this._deps.auth.loggedIn) {
+      return;
+    }
+    if (isSharedWorkerSupported()) {
+      this._sharedSipClient = new SharedSipClient({
+        worker: new SharedWorker(new URL('./SharedSipClient.worker.ts', import.meta.url)),
+      });
       try {
-        if (!this._deps.auth.loggedIn) {
+        const statusResponse = await this._sharedSipClient.getStatus();
+        if (
+          statusResponse.status !== 'init' &&
+          statusResponse.status !== 'disconnected' &&
+          statusResponse.status !== 'unregistered' &&
+          statusResponse.status !== 'error'
+        ) {
+          // already connected
+          this._sipInstanceId = statusResponse.instanceId;
+          this._onWebphoneRegistered({
+            device: statusResponse.device,
+            sipInfo: statusResponse.sipInfo,
+          });
           return;
         }
+      } catch (e) {
+        console.error('Failed to get shared sip client status', e);
+      }
+    }
+    if (!skipDLCheck) {
+      try {
         const phoneLines = await this._fetchDL();
         if (phoneLines.length === 0) {
           this._deps.alert.warning({
@@ -807,12 +782,10 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   _onWebphoneRegistered(provisionData: CreateSipRegistrationResponse) {
     this._setStateOnRegistered(provisionData.device!);
     this._hideRegisterErrorAlert();
-    this._setCurrentInstanceAsActiveWebphone();
     this._eventEmitter.emit(EVENTS.webphoneRegistered);
   }
 
   _onWebphoneUnregistered() {
-    this._removeCurrentInstanceFromActiveWebphone();
     if (
       this.disconnecting ||
       this.inactiveDisconnecting ||
@@ -828,49 +801,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     this._eventEmitter.emit(EVENTS.webphoneUnregistered);
   }
 
-  _setCurrentInstanceAsActiveWebphone() {
-    if (this._disconnectOnInactive && this._deps.tabManager) {
-      localStorage.setItem(this._activeWebphoneKey, this._deps.tabManager.id);
-    }
-  }
-
-  _removeCurrentInstanceFromActiveWebphone() {
-    if (this._disconnectOnInactive && this._deps.tabManager) {
-      const activeWebphoneInstance = localStorage.getItem(
-        this._activeWebphoneKey,
-      );
-      if (activeWebphoneInstance === this._deps.tabManager.id) {
-        localStorage.removeItem(this._activeWebphoneKey);
-      }
-    }
-  }
-
-  _createOtherWebphoneInstanceListener() {
-    if (!this._disconnectOnInactive || !this._deps.tabManager) {
-      return;
-    }
-    window.addEventListener('storage', (e) => {
-      this._onStorageChangeEvent(e);
-    });
-  }
-
-  _onStorageChangeEvent(e: StorageEvent) {
-    // disconnect to inactive when other tabs' web phone connected
-    if (e.key === this._activeWebphoneKey) {
-      if (!this.connected || !document.hidden) {
-        return;
-      }
-      if (e.newValue === this._deps.tabManager?.id) {
-        return;
-      }
-      if (this.webphoneSessions.length === 0) {
-        this._disconnectToInactive();
-        return;
-      }
-      this._disconnectInactiveAfterSessionEnd = true;
-    }
-  }
-
   async _disconnectToInactive() {
     this._setConnectionStatus(connectionStatus.inactiveDisconnecting);
     this._setDevice(null);
@@ -878,42 +808,8 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     this._setStateWhenUnregisteredOnInactive();
   }
 
-  _makeWebphoneInactiveOnSessionsEmpty() {
-    if (
-      this._disconnectInactiveAfterSessionEnd &&
-      this.webphoneSessions.length === 0
-    ) {
-      this._disconnectInactiveAfterSessionEnd = false;
-      if (!document.hidden) {
-        // set to active
-        if (this._deps.tabManager?.active) {
-          this._setCurrentInstanceAsActiveWebphone();
-        }
-        return;
-      }
-      this._disconnectToInactive();
-    }
-  }
-
   async _onTabActive() {
-    if (!this._disconnectOnInactive) {
-      return;
-    }
-    if (this.connected) {
-      this._setCurrentInstanceAsActiveWebphone();
-      return;
-    }
-    await sleep(RECOVER_DEBOUNCE_THRESHOLD);
-    if (!this._deps.tabManager!.active) {
-      return;
-    }
-    if (this.inactive) {
-      this.connect({
-        skipDLCheck: true,
-        force: true,
-        skipTabActiveCheck: true,
-      });
-    }
+
   }
 
   _hideConnectingAlert() {
@@ -966,6 +862,11 @@ export class WebphoneBase extends RcModuleV2<Deps> {
 
   async _disconnect() {
     if (this.disconnected || this.disconnecting) {
+      return;
+    }
+    // TODO: handle disconnect
+    if (this._sharedSipClient) {
+      await this._sharedSipClient.dispose();
       return;
     }
     if (this._connectTimeout) {

@@ -1,19 +1,106 @@
 import type { DeviceManager } from 'ringcentral-web-phone-beta-2/dist/esm/types';
-
+import type { AudioSettings } from '@ringcentral-integration/commons/modules/AudioSettings';
 export class AudioDeviceManager implements DeviceManager {
+  private _audioSettings: AudioSettings;
+
+  constructor(audioSettings: AudioSettings) {
+    this._audioSettings = audioSettings;
+  }
+
   public async getInputDeviceId(): Promise<string> {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const defaultInputDevice = devices.find((device) =>
-      device.kind === "audioinput"
-    );
-    return defaultInputDevice!.deviceId;
+    return this._audioSettings.inputDeviceId;
   }
 
   public async getOutputDeviceId(): Promise<string | undefined> {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const defaultOutputDevice = devices.find((device) =>
-      device.kind === "audiooutput"
-    );
-    return defaultOutputDevice?.deviceId;
+    return this._audioSettings.outputDeviceId
+  }
+}
+
+export class RingtoneHelper {
+  private _audioUri: string;
+  private _deviceId: string;
+  private _audio: HTMLAudioElement;
+  private _enabled: boolean;
+  private _volume: number;
+  private _playPromise: Promise<void>;
+
+  constructor({
+    audioUri,
+  }: {
+    audioUri: string;
+  }) {
+    this._audioUri = audioUri;
+    this._enabled = true;
+    this._volume = 1;
+  }
+
+  setVolume(volume: number) {
+    if (volume < 0 || volume > 1) {
+      return;
+    }
+    this._volume = volume;
+    if (this._audio) {
+      this._audio.volume = volume;
+    }
+  }
+
+  setEnabled(enabled: boolean) {
+    this._enabled = enabled;
+    if (this._audio) {
+      this._audio.volume = enabled ? this._volume : 0;
+    }
+  }
+
+  loadAudio(uri: string) {
+    this._audioUri = uri;
+  }
+
+  setDeviceId(deviceId: string) {
+    this._deviceId = deviceId;
+    if (this._audio) {
+      if (this._playPromise !== undefined) {
+        this._playPromise.then(() => {
+          this._audio.setSinkId(deviceId).catch((error: any) => {
+            console.error('setSinkId error:', error);
+          });
+        });
+      } else {
+        this._audio.setSinkId(deviceId).catch((error: any) => {
+          console.error('setSinkId error:', error);
+        });
+      }
+    }
+  }
+
+  play() {
+    if (!this._enabled || !this._audioUri) {
+      return;
+    }
+    if (!this._audio) {
+      this._audio = new Audio();
+      this._audio.loop = true;
+    }
+    this._audio.src = this._audioUri;
+    this._audio.volume = this._volume;
+    if (this._deviceId && typeof this._audio.setSinkId === 'function') {
+      this._audio.setSinkId(this._deviceId).catch((error: any) => {
+        console.error('setSinkId error:', error);
+      });
+    }
+    this._audio.currentTime = 0;
+    this._playPromise = this._audio.play();
+    this._playPromise.catch((error: any) => {
+      console.error('playAudio error:', error);
+    });
+  }
+
+  stop() {
+    if (this._playPromise !== undefined) {
+      this._playPromise.then(() => {
+        this._audio.pause();
+      }).finally(() => {
+        this._audio.src = ''; // release audio resource
+      });
+    }
   }
 }

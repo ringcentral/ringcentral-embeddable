@@ -11,7 +11,9 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   public worker: SharedWorker;
   public instanceId: string;
   public sipInfo: SipInfo;
+  public device: { id: string };
   private debug: boolean;
+  private messageListener: (event: MessageEvent) => void;
 
   public constructor({
     worker,
@@ -20,8 +22,7 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   }) {
     super();
     this.worker = worker;
-    this.worker.port.start();
-    this.worker.port.addEventListener('message', (event) => {
+    this.messageListener = (event) => {
       if (event.data.type === 'inboundMessage') {
         if (this.debug) {
           console.log('inboundMessage', event.data.message);
@@ -33,7 +34,9 @@ export class SharedSipClient extends EventEmitter implements SipClient {
         }
         this.emit('outboundMessage', OutboundMessage.fromString(event.data.message));
       }
-    });
+    }
+    this.worker.port.addEventListener('message', this.messageListener);
+    this.worker.port.start();
   }
 
   workerRequest(message: any) {
@@ -70,13 +73,15 @@ export class SharedSipClient extends EventEmitter implements SipClient {
 
   public async start({
     sipInfo,
+    device,
     instanceId,
     debug,
   }: SipClientOptions) {
     this.sipInfo = sipInfo;
     this.instanceId = instanceId;
     this.debug = true;
-    await this.workerRequest({ type: 'startSipClient', data: { sipInfo, instanceId, debug } });
+    this.device = device;
+    await this.workerRequest({ type: 'startSipClient', data: { sipInfo, device, instanceId, debug } });
   }
 
   public async request(message: RequestMessage) {
@@ -102,6 +107,17 @@ export class SharedSipClient extends EventEmitter implements SipClient {
 
   public dispose() {
     this.disposed = true;
-    return Promise.resolve();
+    this.worker.port.removeEventListener('message', this.messageListener);
+    this.worker.port.postMessage({ type: 'destroyPort' });
+  }
+
+  public async getStatus() {
+    const response = await this.workerRequest({ type: 'getSipClientStatus' });
+    return response as {
+      status: 'init' | 'connecting' | 'connected' | 'disconnected' | 'registering' | 'registered' | 'unregistering' | 'unregistered' | 'error';
+      sipInfo: SipInfo;
+      device: { id: string };
+      instanceId: string;
+    };
   }
 }

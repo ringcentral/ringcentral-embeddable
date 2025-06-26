@@ -101,3 +101,7 @@ export function sortByLastActiveTimeDesc(
   }
   return sortByCreationTimeDesc(l, r);
 }
+
+export function isSharedWorkerSupported() {
+  return typeof SharedWorker !== 'undefined';
+}

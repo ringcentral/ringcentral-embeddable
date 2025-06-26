@@ -17,12 +17,15 @@ import {
 
 const maxExpires = 60;
 
+type SipClientStatus = 'init' | 'connecting' | 'connected' | 'disconnected' | 'registering' | 'registered' | 'unregistering' | 'unregistered' | 'error';
+
 class SharedWorkerSipClient extends EventEmitter implements SipClient {
-  public disposed = false;
   public wsc: WebSocket;
   public sipInfo: SipInfo;
+  public device: { id: string };
   public instanceId: string;
   private debug: boolean;
+  public status: SipClientStatus = 'init';
 
   private timeoutHandle: NodeJS.Timeout;
 
@@ -33,24 +36,41 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
   } = {}) {
     super();
     this.debug = debug;
+    this.status = 'init';
   }
 
   public async start({
     sipInfo,
     instanceId,
+    device,
     debug = false,
   }: SipClientOptions) {
     this.sipInfo = sipInfo;
+    this.device = device;
     this.instanceId = instanceId ?? sipInfo.authorizationId!;
     this.debug = true;
     if (this.wsc) {
       return;
     }
-    await this.connect();
+    try {
+      this.status = 'connecting';
+      await this.connect();
+      this.status = 'connected';
+    } catch (e) {
+      this.status = 'error';
+      this.emit('error', e);
+    }
     if (this.timeoutHandle) {
       clearInterval(this.timeoutHandle);
     }
-    await this.register(maxExpires);
+    try {
+      this.status = 'registering';
+      await this.register(maxExpires);
+      this.status = 'registered';
+    } catch (e) {
+      this.status = 'error';
+      this.emit('error', e);
+    }
   }
 
   private useBackupOutboundProxy = false;
@@ -118,11 +138,18 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
   }
 
   public async dispose() {
-    this.disposed = true;
-    clearInterval(this.timeoutHandle);
-    this.removeAllListeners();
-    await this.unregister();
-    this.wsc.close();
+    try {
+      this.status = 'unregistering';
+      clearInterval(this.timeoutHandle);
+      this.removeAllListeners();
+      await this.unregister();
+      this.status = 'unregistered';
+      this.wsc.close();
+      this.status = 'disconnected';
+    } catch (e) {
+      this.status = 'error';
+      this.emit('error', e);
+    }
   }
 
   public async register(expires: number) {
@@ -175,9 +202,11 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
   public async request(message: string | RequestMessage): Promise<InboundMessage> {
     return await this._send(message, true);
   }
+
   public async reply(message: string | ResponseMessage): Promise<void> {
     await this._send(message, false);
   }
+
   private _send(
     rawMessage: string | OutboundMessage,
     waitForReply = false,
@@ -213,20 +242,44 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
 }
 
 const sipClient = new SharedWorkerSipClient();
-let ports = [];
+let ports: MessagePort[] = [];
+let mainPort: MessagePort;
 
 // @ts-ignore
 onconnect = (event) => {
   const port = event.ports[0];
   ports.push(port);
-  console.log('port connected', port, ports);
+  if (ports.length === 1) {
+    mainPort = port;
+  }
   port.onmessage = async(event) => {
     const { type, requestId, request } = event.data;
     if (type === 'destroyPort') {
       ports = ports.filter((p) => p !== port);
+      if (mainPort === port) {
+        mainPort = ports[0] || null;
+      }
+      if (ports.length === 0) {
+        await sipClient.dispose();
+      }
       return;
     }
+    if (type === 'setMainPort') {
+      mainPort = port;
+    }
     if (type === 'workerRequest') {
+      if (request.type === 'getSipClientStatus') {
+        port.postMessage({
+          type: 'workerResponse',
+          requestId,
+          response: {
+            status: sipClient.status,
+            sipInfo: sipClient.sipInfo,
+            device: sipClient.device,
+            instanceId: sipClient.instanceId,
+          },
+        });
+      }
       if (request.type === 'startSipClient') {
         await sipClient.start(request.data);
         port.postMessage({
