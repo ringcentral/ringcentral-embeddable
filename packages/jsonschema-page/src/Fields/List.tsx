@@ -32,7 +32,7 @@ const StyledItem = styled(RcListItem)`
   cursor: pointer;
 `;
 
-const StyledAvatar = styled(RcAvatar)`
+const StyledAvatar = styled(RcAvatar)<{ $round?: boolean }>`
   .RcAvatar-avatarContainer {
     ${({ $round }) => 
       $round ? '' : css`
@@ -128,11 +128,19 @@ const StyledCardBody = styled(RcTypography)`
 
 const StyledCard = styled(RcCard)`
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 const StyledCardWrapper = styled.div`
   padding: 4px;
   width: 100%;
+`;
+
+const StyledCardActions = styled(RcCardActions)`
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const StyledCardFooter = styled.div`
@@ -164,6 +172,48 @@ const StyledCardContent = styled(RcCardContent)`
   padding-bottom: 0;
 `;
 
+// Metric Card Styles
+const MetricCardContent = styled(RcCardContent)`
+  padding: 0 !important;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  box-sizing: border-box;
+  
+  &:last-child {
+    padding-bottom: 0 !important;
+  }
+`;
+
+const MetricValue = styled(RcTypography)`
+  line-height: 1;
+  margin-bottom: 8px;
+  font-weight: 600;
+`;
+
+const MetricLabel = styled(RcTypography)`
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  font-size: 0.8125rem;
+`;
+
+const MetricUnit = styled(RcTypography)`
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+`;
+
+const MetricComparison = styled(RcTypography)`
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 2px;
+`;
+
 const ActionArea = ({
   children,
   readOnly,
@@ -171,14 +221,76 @@ const ActionArea = ({
   disabled,
 }) => {
   if (readOnly) {
-    return <div>{children}</div>;
+    return <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>{children}</div>;
   }
   return (
-    <RcCardActionArea onClick={onClick} component="div" disabled={disabled}>
+    <RcCardActionArea 
+      onClick={onClick} 
+      component="div" 
+      disabled={disabled}
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       {children}
     </RcCardActionArea>
   );
 };
+
+function MetricCard({
+  item,
+  disabled,
+  onClick,
+  width,
+  height,
+  readOnly,
+  uiSchema,
+}) {
+  const cardStyle: {
+    backgroundColor?: string;
+    height?: string;
+  } = {};
+  if (item.backgroundColor) {
+    cardStyle.backgroundColor = item.backgroundColor;
+  }
+  if (height) {
+    cardStyle.height = height;
+  }
+  const wrapperStyle: {
+    width?: string;
+  } = {};
+  if (width) {
+    wrapperStyle.width = width;
+  }
+
+  return (
+    <StyledCardWrapper style={wrapperStyle}>
+      <StyledCard style={cardStyle}>
+        <ActionArea
+          onClick={onClick}
+          readOnly={readOnly}
+          disabled={disabled}
+        >
+          <MetricCardContent>
+            <MetricValue variant="title2" color="neutral.f06">{item.value || item.title}</MetricValue>
+            {item.unit && (
+              <MetricUnit variant="caption1" color="neutral.f04">{item.unit}</MetricUnit>
+            )}
+            <MetricLabel variant="body1" color="neutral.f04">{item.title || item.description || item.label}</MetricLabel>
+            {item.trend && (
+              <MetricComparison 
+                color={
+                  item.trendColor || 
+                  uiSchema?.['ui:trendColor']
+                }
+              >
+                {item.trend}
+              </MetricComparison>
+            )}
+          </MetricCardContent>
+        </ActionArea>
+      </StyledCard>
+    </StyledCardWrapper>
+  );
+}
 
 function CardItem({
   item,
@@ -188,7 +300,25 @@ function CardItem({
   onClickAuthor,
   height,
   readOnly,
+  isMetric,
+  uiSchema,
 }) {
+  // Use MetricCard component for metric layout
+  if (isMetric) {
+    return (
+      <MetricCard
+        item={item}
+        disabled={disabled}
+        onClick={onClick}
+        width={width}
+        height={height}
+        readOnly={readOnly}
+        uiSchema={uiSchema}
+      />
+    );
+  }
+
+  // Standard card layout
   const cardStyle: {
     backgroundColor?: string;
     height?: string;
@@ -234,7 +364,7 @@ function CardItem({
               {item.description}
             </StyledCardBody>
           </StyledCardContent>
-          <RcCardActions>
+          <StyledCardActions>
             <StyledCardFooter>
               {
                 item.authorName && (
@@ -253,7 +383,7 @@ function CardItem({
               }
               <RcTypography variant="caption1" color="neutral.f05">{item.meta}</RcTypography>
             </StyledCardFooter>
-          </RcCardActions>
+          </StyledCardActions>
         </ActionArea>
       </StyledCard>
     </StyledCardWrapper>
@@ -292,8 +422,9 @@ export function List({
     uiSchema['ui:readonly'];
   const itemWidget = uiSchema['ui:itemWidget'];
   const isCard = uiSchema['ui:itemType'] === 'card' || itemWidget === 'card';
-  const Item = isCard ? CardItem : ListItem;
-  const Container = isCard ? StyledCardList : StyledList;
+  const isMetric = uiSchema['ui:itemType'] === 'metric' || itemWidget === 'metric';
+  const Item = isCard || isMetric ? CardItem : ListItem;
+  const Container = isCard || isMetric ? StyledCardList : StyledList;
   return (
     <Container>
       {schema.oneOf.map((item) => (
@@ -313,6 +444,8 @@ export function List({
           showAsNavigation={showAsNavigation}
           width={uiSchema['ui:itemWidth']}
           height={uiSchema['ui:itemHeight']}
+          isMetric={isMetric}
+          uiSchema={uiSchema}
           onClickAuthor={(e) => {
             e.stopPropagation();
             onFocus(`${item.const}-author`, '$$clicked');

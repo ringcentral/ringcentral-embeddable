@@ -722,6 +722,12 @@ export const RadioWidget: Story = {
           enum: ['low', 'medium', 'high', 'urgent'],
           enumNames: ['Low Priority', 'Medium Priority', 'High Priority', 'Urgent'],
         },
+        tab: {
+          type: 'string',
+          title: 'Tab',
+          enum: ['tab1', 'tab2', 'tab3'],
+          enumNames: ['Tab 1', 'Tab 2', 'Tab 3'],
+        },
         size: {
           type: 'string',
           title: 'T-Shirt Size',
@@ -732,20 +738,28 @@ export const RadioWidget: Story = {
       },
     },
     uiSchema: {
-      favoriteColor: {
-        'ui:widget': 'radio',
-        "ui:itemDirection": "row",
+      "favoriteColor": {
+        "ui:widget": "radio",
+        "ui:inline": true
       },
-      priority: {
-        'ui:widget': 'radio',
+      "priority": {
+        "ui:widget": "radio",
+        "ui:inline": true
       },
-      size: {
-        'ui:widget': 'radio',
+      "tab": {
+        "ui:widget": "radio",
+        "ui:inline": true,
+        "ui:tab": true,
+      },
+      "size": {
+        "ui:widget": "radio"
       },
     },
     formData: {
       favoriteColor: 'blue',
       priority: 'medium',
+      tab: 'tab1',
+      size: 'm',
     },
   },
   render: (args) => {
