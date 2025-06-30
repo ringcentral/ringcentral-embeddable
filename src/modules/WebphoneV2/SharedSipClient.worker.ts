@@ -265,6 +265,7 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
 const sipClient = new SharedWorkerSipClient();
 let ports: MessagePort[] = [];
 let mainPort: MessagePort;
+let sharedState = {};
 
 // @ts-ignore
 onconnect = (event) => {
@@ -287,8 +288,45 @@ onconnect = (event) => {
     }
     if (type === 'setActive') {
       mainPort = port;
+      const activeTabId = event.data.activeTabId;
+      console.log('setActive', activeTabId);
+      ports.forEach((p) => {
+        if (p === port) {
+          return;
+        }
+        p.postMessage({
+          type: 'setActive',
+          activeTabId,
+        });
+      });
+    }
+    if (type === 'setSharedState') {
+      const state = event.data.state;
+      if (state) {
+        Object.keys(state).forEach((key) => {
+          sharedState[key] = state[key];
+        });
+        ports.forEach((p) => {
+          if (p === port) {
+            return;
+          }
+          p.postMessage({
+            type: 'setSharedState',
+            state,
+          });
+        });
+      }
+      return;
     }
     if (type === 'workerRequest') {
+      if (request.type === 'getSharedState') {
+        port.postMessage({
+          type: 'workerResponse',
+          requestId,
+          response: sharedState,
+        });
+        return;
+      }
       if (request.type === 'getSipClientStatus') {
         port.postMessage({
           type: 'workerResponse',
@@ -300,6 +338,7 @@ onconnect = (event) => {
             instanceId: sipClient.instanceId,
           },
         });
+        return;
       }
       if (request.type === 'startSipClient') {
         await sipClient.start(request.data);
@@ -356,20 +395,28 @@ onconnect = (event) => {
 };
 
 sipClient.on('inboundMessage', (message) => {
-  if (!mainPort) {
+  let port = mainPort;
+  if (!port) {
+    port = ports[0];
+  }
+  if (!port) {
     return;
   }
-  mainPort.postMessage({
+  port.postMessage({
     type: 'inboundMessage',
     message: message.toString(),
   });
 });
 
 sipClient.on('outboundMessage', (message) => {
-  if (!mainPort) {
+  let port = mainPort;
+  if (!port) {
+    port = ports[0];
+  }
+  if (!port) {
     return;
   }
-  mainPort.postMessage({
+  port.postMessage({
     type: 'outboundMessage',
     message: message.toString(),
   });

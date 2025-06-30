@@ -515,9 +515,8 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           instanceId: this._sipInstanceId,
           debug: this._deps.webphoneOptions.webphoneLogLevel ? this._deps.webphoneOptions.webphoneLogLevel > 1 : false,
         });
-        if (this._deps.tabManager?.active) {
-          this._sharedSipClient.setActive();
-        }
+        await this._syncSharedState();
+        await this._setActive();
       } else {
         await this._webphone.start();
       }
@@ -557,12 +556,30 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     // TODO: switchBackProxy
   }
 
+  async _syncSharedState() {
+    // override
+  }
+
+  _onSharedStateUpdated(state: Record<string, any>) {
+    // override
+  }
+
+  async _canBeActiveTabs() {
+    return this._deps.tabManager?.active;
+  }
+
+  async _setActive() {
+    const beActive = await this._canBeActiveTabs();
+    if (beActive) {
+      this._sharedSipClient?.setActive(this._deps.tabManager?.tabbie.id);
+    }
+  }
+
   // eslint-disable-next-line
   _onInvite(session: WebphoneSession) {
     // override
   }
 
-  @proxify
   async _connect() {
     if (!this._deps.auth.loggedIn) {
       return;
@@ -571,6 +588,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     if (isSharedWorkerSupported()) {
       this._sharedSipClient = new SharedSipClient({
         worker: new SharedWorker(new URL('./SharedSipClient.worker.ts', import.meta.url)),
+        tabId: this._deps.tabManager?.tabbie.id,
       });
       this._sharedSipClient.on('status', (status) => {
         console.log('shared sip client status', status);
@@ -593,6 +611,9 @@ export class WebphoneBase extends RcModuleV2<Deps> {
             ttl: 0,
           });
         }
+      });
+      this._sharedSipClient.on('sharedState', (state) => {
+        this._onSharedStateUpdated(state);
       });
       try {
         const statusResponse = await this._sharedSipClient.getStatus();
@@ -664,7 +685,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   /**
    * connect a web phone.
    */
-  @proxify
   async connect({
     force = false,
     skipTimeout = true,
@@ -829,7 +849,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   }
 
   async _onTabActive() {
-
+    await this._setActive();
   }
 
   _hideConnectingAlert() {

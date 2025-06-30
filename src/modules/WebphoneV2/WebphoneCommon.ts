@@ -49,8 +49,6 @@ import {
 import type { WebphoneSession } from './Webphone.interface';
 import { WebphoneBase } from './WebphoneBase';
 
-export const INCOMING_CALL_INVALID_STATE_ERROR_CODE = 2;
-
 type InviteOptions = {
   extraHeaders?: Record<string, string>;
   homeCountryId?: string;
@@ -126,16 +124,40 @@ export class Webphone extends WebphoneBase {
         this,
         () => this.sessions?.length,
         () => {
-          if (!this._sipInstanceId || !this.sessions) {
-            return;
-          }
           const key = `sip-${this._deps.tabManager!.id}`;
           this._deps.availabilityMonitor!.setSharedState(key, {
-            hasCallSession: this.sessions.length > 0,
+            hasCallSession: this.webphoneSessions.length > 0,
           });
         },
       );
     }
+  }
+
+  override onInitOnce() {
+    super.onInitOnce();
+    watch(
+      this,
+      () => [
+        this.activeSessionId,
+        this.ringSessionId,
+        this.lastEndedSessions,
+        this.sessions,
+      ],
+      () => {
+        if (!this._sharedSipClient?.isActive) {
+          return;
+        }
+        this._sharedSipClient?.setSharedState({
+          activeSessionId: this.activeSessionId,
+          ringSessionId: this.ringSessionId,
+          lastEndedSessions: this.lastEndedSessions,
+          sessions: this.sessions,
+        });
+      },
+      {
+        multiple: true,
+      },
+    );
   }
 
   @state
@@ -249,6 +271,41 @@ export class Webphone extends WebphoneBase {
         session.isOnHold = true;
       }
     });
+  }
+
+  @action
+  _saveNewState(data) {
+    if (typeof data.activeSessionId !== 'undefined') {
+    this.activeSessionId = data.activeSessionId;
+    }
+    if (typeof data.ringSessionId !== 'undefined') {
+      this.ringSessionId = data.ringSessionId;
+    }
+    if (typeof data.lastEndedSessions !== 'undefined') {
+      this.lastEndedSessions = data.lastEndedSessions;
+    }
+    if (typeof data.sessions !== 'undefined') {
+      this.sessions = data.sessions;
+    }
+  }
+
+  override async _syncSharedState() {
+    try {
+      const sharedState = await this._sharedSipClient?.syncSharedState();
+      this._saveNewState(sharedState);
+    } catch (e) {
+      console.error('syncSharedState error', e);
+    }
+  }
+
+  override _onSharedStateUpdated(state: Record<string, any>) {
+    this._saveNewState(state);
+  }
+
+  override async _canBeActiveTabs() {
+    const tabActive = this._deps.tabManager?.active;
+    const noSessionsInOthers = this.webphoneSessions.length === this.sessions.length;
+    return tabActive && noSessionsInOthers;
   }
 
   override _onStorageChangeEvent(e: StorageEvent) {
@@ -1034,16 +1091,6 @@ export class Webphone extends WebphoneBase {
     });
   }
 
-  _setActiveWebphoneActiveCallId(session: WebphoneSession) {
-    if (!this._disconnectOnInactive) {
-      return;
-    }
-    const currentId = localStorage.getItem(this._activeWebphoneActiveCallKey);
-    if (currentId !== session.id) {
-      localStorage.setItem(this._activeWebphoneActiveCallKey, session.id);
-    }
-  }
-
   _onCallInit(session: WebphoneSession) {
     this._updateSessions();
     const normalizedSession = this._getNormalizedSession(session);
@@ -1060,7 +1107,6 @@ export class Webphone extends WebphoneBase {
       normalizedSession,
       this.activeSession,
     );
-    this._setActiveWebphoneActiveCallId(session);
   }
 
   _onCallStart(session: WebphoneSession) {
@@ -1074,7 +1120,6 @@ export class Webphone extends WebphoneBase {
       normalizedSession,
       this.activeSession,
     );
-    this._setActiveWebphoneActiveCallId(session);
   }
 
   _onCallRing(session: WebphoneSession) {
@@ -1122,20 +1167,6 @@ export class Webphone extends WebphoneBase {
     // }
   }
 
-  _reconnectWebphoneIfNecessaryOnSessionsEmpty() {
-    // TODO: check if this is needed
-    // if (this._reconnectAfterSessionEnd && this.sessions.length === 0) {
-    //   if (this._reconnectAfterSessionEnd.reason) {
-    //     this._deps.alert.warning({
-    //       message: this._reconnectAfterSessionEnd.reason,
-    //       allowDuplicates: false,
-    //     });
-    //   }
-    //   this._reconnectAfterSessionEnd = null;
-    //   this.connect({ skipConnectDelay: true, force: true, skipDLCheck: true });
-    // }
-  }
-
   _onCallEnd(session: WebphoneSession) {
     session.__rc_extendedControlStatus = extendedControlStatus.stopped;
     const normalizedSession = this._getNormalizedSession(session);
@@ -1158,8 +1189,7 @@ export class Webphone extends WebphoneBase {
       this.ringSession,
     );
     this._releaseVideoElementsOnSessionsEmpty();
-    this._reconnectWebphoneIfNecessaryOnSessionsEmpty();
-    this._makeWebphoneInactiveOnSessionsEmpty();
+    this._setActive();
   }
 
   _onBeforeCallResume(session: WebphoneSession) {
@@ -1180,7 +1210,6 @@ export class Webphone extends WebphoneBase {
       normalizedSession,
       this.activeSession,
     );
-    this._setActiveWebphoneActiveCallId(session);
   }
 
   _onCallHold(session: WebphoneSession) {

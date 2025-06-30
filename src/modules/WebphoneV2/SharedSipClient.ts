@@ -14,14 +14,20 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   public device: { id: string };
   private debug: boolean;
   private messageListener: (event: MessageEvent) => void;
+  private sharedState: Record<string, any> = {};
+  private tabId: string;
+  private activeTabId: string;
 
   public constructor({
     worker,
+    tabId,
   }: {
     worker: SharedWorker;
+    tabId: string;
   }) {
     super();
     this.worker = worker;
+    this.tabId = tabId;
     this.messageListener = (event) => {
       if (event.data.type === 'inboundMessage') {
         if (this.debug) {
@@ -38,10 +44,33 @@ export class SharedSipClient extends EventEmitter implements SipClient {
           console.log('status', event.data.status);
         }
         this.emit('status', event.data.status);
+      } else if (event.data.type === 'setSharedState') {
+        Object.keys(event.data.state).forEach((key) => {
+          this.sharedState[key] = event.data.state[key];
+        });
+        this.emit('sharedState', this.sharedState);
+      } else if (event.data.type === 'setActive') {
+        this.activeTabId = event.data.currentTabId;
       }
     }
     this.worker.port.addEventListener('message', this.messageListener);
     this.worker.port.start();
+  }
+
+  public async syncSharedState() {
+    const response = await this.workerRequest({ type: 'getSharedState' });
+    this.sharedState = response;
+    return this.sharedState;
+  }
+
+  public setSharedState(state: Record<string, any>) {
+    Object.keys(state).forEach((key) => {
+      this.sharedState[key] = state[key];
+    });
+    this.worker.port.postMessage({
+      type: 'setSharedState',
+      state,
+    });
   }
 
   workerRequest(message: any) {
@@ -126,9 +155,15 @@ export class SharedSipClient extends EventEmitter implements SipClient {
     };
   }
 
-  public setActive() {
+  get isActive() {
+    return this.activeTabId === this.tabId;
+  }
+
+  public setActive(activeTabId: string) {
+    this.activeTabId = activeTabId;
     this.worker.port.postMessage({
       type: 'setActive',
+      activeTabId,
     });
   }
 }
