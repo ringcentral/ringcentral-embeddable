@@ -3,6 +3,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import { CallLogger as CallLoggerBase } from '@ringcentral-integration/commons/modules/CallLogger';
 import { isRinging } from '@ringcentral-integration/commons/lib/callLogHelpers';
 import { callLoggerTriggerTypes } from '@ringcentral-integration/commons/enums/callLoggerTriggerTypes';
+import { getTranscriptText } from '../ThirdPartyService/helper';
 
 @Module({
   name: 'CallLogger',
@@ -70,7 +71,7 @@ export class CallLogger extends CallLoggerBase {
     page = 1,
   }) {
     await this._deps.activityMatcher.triggerMatch();
-    const calls = this._deps.callHistory.calls.filter(call => {
+    let calls = this._deps.callHistory.calls.filter(call => {
       if (!call.action) {
         // not real call log, from endedCalls
         return false;
@@ -88,10 +89,30 @@ export class CallLogger extends CallLoggerBase {
       }
       return true;
     });
+    const aiNotes = {};
+    const transcripts = {};
+    calls = calls.slice((page - 1) * perPage, page * perPage);
+    if (this._deps.smartNotes.hasPermission) {
+      let telephonySessionIds = calls.map((call) => call.telephonySessionId);
+      // only query 10 calls at a time
+      if (telephonySessionIds.length > 10) {
+        telephonySessionIds = telephonySessionIds.slice(0, 10);
+      }
+      await this._deps.smartNotes.queryNotedCalls(telephonySessionIds);
+      for (const telephonySessionId of telephonySessionIds) {
+        aiNotes[telephonySessionId] = await this._deps.smartNotes.fetchSmartNoteText(telephonySessionId);
+        transcripts[telephonySessionId] = await this._deps.smartNotes.fetchTranscript(telephonySessionId);
+      }
+    }
     return {
-      calls: calls.slice((page - 1) * perPage, page * perPage).map((call) => {
+      calls: calls.map((call) => {
+        const transcript = transcripts[call.telephonySessionId] ? getTranscriptText(transcripts[call.telephonySessionId], call) : null;
         if (!call.recording) {
-          return call;
+          return {
+            ...call,
+            aiNote: aiNotes[call.telephonySessionId],
+            transcript,
+          };
         }
         return {
           ...call,
@@ -99,6 +120,8 @@ export class CallLogger extends CallLoggerBase {
             ...call.recording,
             link: this._deps.thirdPartyService.getRecordingLink(call.recording),
           },
+          aiNote: aiNotes[call.telephonySessionId],
+          transcript,
         };
       }),
       hasMore: calls.length > page * perPage,
