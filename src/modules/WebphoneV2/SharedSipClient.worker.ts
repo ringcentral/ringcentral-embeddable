@@ -39,37 +39,59 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
     this.status = 'init';
   }
 
+  public setStatus(status: SipClientStatus) {
+    this.status = status;
+    this.emit('status', status);
+  }
+
   public async start({
     sipInfo,
     instanceId,
     device,
     debug = false,
   }: SipClientOptions) {
+    if (
+      this.wsc &&
+      this.sipInfo.authorizationId === sipInfo.authorizationId &&
+      this.sipInfo.domain === sipInfo.domain &&
+      this.sipInfo.username === sipInfo.username &&
+      this.sipInfo.password === sipInfo.password &&
+      this.sipInfo.outboundProxy === sipInfo.outboundProxy &&
+      this.sipInfo.outboundProxyBackup === sipInfo.outboundProxyBackup &&
+      this.status === 'registered'
+    ) {
+      return;
+    }
+    if (this.wsc) {
+      this.wsc.close();
+    }
     this.sipInfo = sipInfo;
     this.device = device;
     this.instanceId = instanceId ?? sipInfo.authorizationId!;
     this.debug = true;
-    if (this.wsc) {
+    try {
+      this.setStatus('connecting');
+      await this.connect();
+      this.setStatus('connected');
+    } catch (e) {
+      this.setStatus('error');
       return;
     }
-    try {
-      this.status = 'connecting';
-      await this.connect();
-      this.status = 'connected';
-    } catch (e) {
-      this.status = 'error';
-      this.emit('error', e);
-    }
+    this.wsc.addEventListener('close', () => {
+      if (this.status !== 'unregistered') {
+        this.setStatus('disconnected');
+      }
+    });
     if (this.timeoutHandle) {
       clearInterval(this.timeoutHandle);
     }
     try {
-      this.status = 'registering';
+      this.setStatus('registering');
       await this.register(maxExpires);
-      this.status = 'registered';
+      this.setStatus('registered');
     } catch (e) {
-      this.status = 'error';
-      this.emit('error', e);
+      this.setStatus('error');
+      return;
     }
   }
 
@@ -139,16 +161,15 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
 
   public async dispose() {
     try {
-      this.status = 'unregistering';
+      this.setStatus('unregistering');
       clearInterval(this.timeoutHandle);
       this.removeAllListeners();
       await this.unregister();
-      this.status = 'unregistered';
+      this.setStatus('unregistered');
       this.wsc.close();
-      this.status = 'disconnected';
     } catch (e) {
-      this.status = 'error';
-      this.emit('error', e);
+      this.setStatus('error');
+      return;
     }
   }
 
@@ -264,7 +285,7 @@ onconnect = (event) => {
       }
       return;
     }
-    if (type === 'setMainPort') {
+    if (type === 'setActive') {
       mainPort = port;
     }
     if (type === 'workerRequest') {
@@ -335,19 +356,21 @@ onconnect = (event) => {
 };
 
 sipClient.on('inboundMessage', (message) => {
-  ports.forEach((port) => {
-    port.postMessage({
-      type: 'inboundMessage',
-      message: message.toString(),
-    });
+  if (!mainPort) {
+    return;
+  }
+  mainPort.postMessage({
+    type: 'inboundMessage',
+    message: message.toString(),
   });
 });
 
 sipClient.on('outboundMessage', (message) => {
-  ports.forEach((port) => {
-    port.postMessage({
-      type: 'outboundMessage',
-      message: message.toString(),
-    });
+  if (!mainPort) {
+    return;
+  }
+  mainPort.postMessage({
+    type: 'outboundMessage',
+    message: message.toString(),
   });
 });

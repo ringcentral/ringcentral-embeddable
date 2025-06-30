@@ -488,13 +488,8 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     } catch (e) {
       console.error(e);
     }
-    try {
-      this.stopAudio();
-    } catch (e) {
-      console.error(e);
-      // ignore clean listener error
-    }
     this._webphone = null;
+    this._sharedSipClient = null;
   }
 
   async _createWebphone(provisionData: CreateSipRegistrationResponse) {
@@ -520,6 +515,9 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           instanceId: this._sipInstanceId,
           debug: this._deps.webphoneOptions.webphoneLogLevel ? this._deps.webphoneOptions.webphoneLogLevel > 1 : false,
         });
+        if (this._deps.tabManager?.active) {
+          this._sharedSipClient.setActive();
+        }
       } else {
         await this._webphone.start();
       }
@@ -570,25 +568,71 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       return;
     }
     let sipProvision;
-    try {
-      sipProvision = await this._sipProvision();
-    } catch (error: any) {
-      // TODO: should use instanceof to check that error type before use that
-      console.error(error, this.connectRetryCounts);
-      if (
-        error &&
-        error.message &&
-        error.message.indexOf('Feature [WebPhone] is not available') > -1
-      ) {
-        this._deps.extensionFeatures.fetchData();
+    if (isSharedWorkerSupported()) {
+      this._sharedSipClient = new SharedSipClient({
+        worker: new SharedWorker(new URL('./SharedSipClient.worker.ts', import.meta.url)),
+      });
+      this._sharedSipClient.on('status', (status) => {
+        console.log('shared sip client status', status);
+        if (status === 'registered') {
+          this._onWebphoneRegistered({
+            device: status.device,
+            sipInfo: status.sipInfo,
+          });
+        }
+        if (status === 'disconnected') {
+          this._onWebphoneUnregistered();
+        }
+        if (status === 'connecting') {
+          this._setStateOnConnect();
+        }
+        if (status === 'error') {
+          this._onConnectError({
+            errorCode: webphoneErrors.connectFailed,
+            statusCode: null,
+            ttl: 0,
+          });
+        }
+      });
+      try {
+        const statusResponse = await this._sharedSipClient.getStatus();
+        if (
+          statusResponse.status !== 'init' &&
+          statusResponse.status !== 'disconnected' &&
+          statusResponse.status !== 'unregistered' &&
+          statusResponse.status !== 'error'
+        ) {
+          // already connected
+          sipProvision = {
+            device: statusResponse.device,
+            sipInfo: [statusResponse.sipInfo],
+          };
+        }
+      } catch (e) {
+        console.error('Failed to get shared sip client status', e);
+      }
+    }
+    if (!sipProvision) {
+      try {
+        sipProvision = await this._sipProvision();
+      } catch (error: any) {
+        // TODO: should use instanceof to check that error type before use that
+        console.error(error, this.connectRetryCounts);
+        if (
+          error &&
+          error.message &&
+          error.message.indexOf('Feature [WebPhone] is not available') > -1
+        ) {
+          this._deps.extensionFeatures.fetchData();
+          return;
+        }
+        this._onConnectError({
+          errorCode: webphoneErrors.sipProvisionError,
+          statusCode: null,
+          ttl: 0,
+        });
         return;
       }
-      this._onConnectError({
-        errorCode: webphoneErrors.sipProvisionError,
-        statusCode: null,
-        ttl: 0,
-      });
-      return;
     }
     await this._createWebphone(sipProvision);
   }
@@ -657,30 +701,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     }
     if (!this._deps.auth.loggedIn) {
       return;
-    }
-    if (isSharedWorkerSupported()) {
-      this._sharedSipClient = new SharedSipClient({
-        worker: new SharedWorker(new URL('./SharedSipClient.worker.ts', import.meta.url)),
-      });
-      try {
-        const statusResponse = await this._sharedSipClient.getStatus();
-        if (
-          statusResponse.status !== 'init' &&
-          statusResponse.status !== 'disconnected' &&
-          statusResponse.status !== 'unregistered' &&
-          statusResponse.status !== 'error'
-        ) {
-          // already connected
-          this._sipInstanceId = statusResponse.instanceId;
-          this._onWebphoneRegistered({
-            device: statusResponse.device,
-            sipInfo: statusResponse.sipInfo,
-          });
-          return;
-        }
-      } catch (e) {
-        console.error('Failed to get shared sip client status', e);
-      }
     }
     if (!skipDLCheck) {
       try {
@@ -904,11 +924,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   }
 
   loadAudio() {
-    // TODO: load audio
-  }
-
-  stopAudio() {
-    // TODO: stop audio
+    this._ringtoneHelper?.loadAudio(this.incomingAudio);
   }
 
   @proxify

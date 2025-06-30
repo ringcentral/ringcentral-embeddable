@@ -33,6 +33,11 @@ export class SharedSipClient extends EventEmitter implements SipClient {
           console.log('outboundMessage', event.data.message);
         }
         this.emit('outboundMessage', OutboundMessage.fromString(event.data.message));
+      } else if (event.data.type === 'status') {
+        if (this.debug) {
+          console.log('status', event.data.status);
+        }
+        this.emit('status', event.data.status);
       }
     }
     this.worker.port.addEventListener('message', this.messageListener);
@@ -119,5 +124,11 @@ export class SharedSipClient extends EventEmitter implements SipClient {
       device: { id: string };
       instanceId: string;
     };
+  }
+
+  public setActive() {
+    this.worker.port.postMessage({
+      type: 'setActive',
+    });
   }
 }
