@@ -23,13 +23,13 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import { proxify } from '@ringcentral-integration/commons/lib/proxy/proxify';
 import { SipInstanceManager } from '@ringcentral-integration/commons/lib/SipInstanceManager';
 import { connectionStatus } from '@ringcentral-integration/commons/modules/Webphone/connectionStatus';
-import { EVENTS } from '@ringcentral-integration/commons/modules/Webphone/events';
 import { webphoneErrors } from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
 import { isBrowserSupport } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
 import { AudioDeviceManager, RingtoneHelper } from './AudioDeviceManager';
 import defaultIncomingAudio from './incoming.ogg';
 import { SharedSipClient } from './SharedSipClient';
 import { isSharedWorkerSupported } from './webphoneHelper';
+import { EVENTS } from './events';
 import type { Deps } from './Webphone.interface';
 
 export const DEFAULT_AUDIO = 'default';
@@ -571,11 +571,11 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     return this._deps.tabManager?.active;
   }
 
-  get isActive() {
+  get isWebphoneActiveTab() {
     if (!this._sharedSipClient) {
       return !!this._webphone;
     }
-    return this._sharedSipClient?.isActive;
+    return this._sharedSipClient?.active;
   }
 
   async _setActive() {

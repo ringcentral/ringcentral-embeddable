@@ -178,10 +178,6 @@ export class Webphone extends WebphoneBase {
     this._saveNewState(latestState);
   }
 
-  get isActive() {
-    return !!this._webphone;
-  }
-
   @proxify
   async _getLatestState() {
     return {

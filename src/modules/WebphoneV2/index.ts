@@ -1,15 +1,10 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { EVENTS as EVENTS_BASE } from '@ringcentral-integration/commons/modules/Webphone/events';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import type { ObjectMapValue } from '@ringcentral-integration/core/lib/ObjectMap';
 import { Webphone as WebphoneCommon } from './WebphoneCommon';
 import proxyActionTypes from '@ringcentral-integration/commons/lib/proxy/baseActionTypes';
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
-
-const EVENTS = ObjectMap.fromKeys([
-  ...ObjectMap.keys(EVENTS_BASE),
-  'activeWebphoneChanged',
-]);
+import { EVENTS } from './events';
 
 @Module({
   name: 'NewWebphone',
@@ -39,8 +34,11 @@ export class Webphone extends WebphoneCommon {
       this._onMultipleTabsChannelBroadcast
     );
     Array.from(ObjectMap.keys(EVENTS)).forEach((event) => {
+      if (event === EVENTS.activeWebphoneChanged) {
+        return;
+      }
       this._eventEmitter.on(event, (...args) => {
-        if (this.isActive && this._sharedSipClient) {
+        if (this.isWebphoneActiveTab && this._sharedSipClient) {
           this._multipleTabsTransport.broadcast({ event, message: args });
         }
       });
@@ -83,17 +81,29 @@ export class Webphone extends WebphoneCommon {
 
   async _setActive() {
     await super._setActive();
-    if (this._sharedSipClient?.isActive) {
+    if (this._sharedSipClient?.active) {
       this._disableProxify();
     }
+    this._emitActiveWebphoneChangedEvent();
   }
 
   override _onActiveTabIdChanged(activeTabId: string) {
-    if (this._sharedSipClient?.isActive) {
+    if (this._sharedSipClient?.active) {
       this._disableProxify();
     } else {
       this._enableProxify();
     }
+    this._emitActiveWebphoneChangedEvent();
+  }
+
+  _emitActiveWebphoneChangedEvent() {
+    this._eventEmitter.emit(
+      EVENTS.activeWebphoneChanged,
+      {
+        activeId: this._sharedSipClient?.activeTabId,
+        currentActive: this.isWebphoneActiveTab,
+      },
+    );
   }
 
   updateRecordStatus(sessionId, status) {

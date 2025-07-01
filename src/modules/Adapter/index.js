@@ -216,7 +216,7 @@ export default class Adapter extends AdapterModuleCore {
     });
     this._webphone.onCallEnd((session) => {
       this.endCallNotify(session);
-      if (this._webphone.isActive && !this._webphone.originalSessions[session.id]) {
+      if (this._webphone.isWebphoneActiveTab && !this._webphone.originalSessions[session.id]) {
         trackWebphoneCallEnded(this._analytics, session);
       }
     });
@@ -245,7 +245,7 @@ export default class Adapter extends AdapterModuleCore {
       setOutputDeviceWhenCall(this._webphone, this._audioSettings);
       // TODO: this will be support in new widgets lib
       if (
-        this._webphone.isActive &&
+        this._webphone.isWebphoneActiveTab &&
         this._webphone.activeSession &&
         !isOnHold(this._webphone.activeSession)
       ) {

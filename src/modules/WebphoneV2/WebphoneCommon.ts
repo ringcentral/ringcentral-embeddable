@@ -19,7 +19,6 @@ import { proxify } from '@ringcentral-integration/commons/lib/proxy/proxify';
 import { validateNumbers } from '@ringcentral-integration/commons/lib/validateNumbers';
 import { trackEvents } from '@ringcentral-integration/commons/enums/trackEvents';
 import { callErrors } from '@ringcentral-integration/commons/modules/Call/callErrors';
-import { EVENTS } from '@ringcentral-integration/commons/modules/Webphone/events';
 import { NumberValidError } from '@ringcentral-integration/commons/modules/Webphone/numberValidError';
 import { recordStatus } from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
@@ -46,6 +45,7 @@ import {
   sortByLastActiveTimeDesc,
   normalizeSession,
 } from './webphoneHelper';
+import { EVENTS } from './events';
 import type { WebphoneSession } from './Webphone.interface';
 import { WebphoneBase } from './WebphoneBase';
 
@@ -147,7 +147,7 @@ export class Webphone extends WebphoneBase {
           this.sessions,
         ],
         () => {
-          if (!this._sharedSipClient?.isActive) {
+          if (!this._sharedSipClient?.active) {
             return;
           }
           this._sharedSipClient?.setSharedState({
@@ -357,7 +357,7 @@ export class Webphone extends WebphoneBase {
     this._bindSessionEvents(session);
     this._onCallRing(session);
     if (
-      this.isActive &&
+      this.isWebphoneActiveTab &&
       this._ringtoneHelper &&
       (
         !this.activeSession ||

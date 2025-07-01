@@ -156,7 +156,7 @@ export class SharedSipClient extends EventEmitter implements SipClient {
     };
   }
 
-  get isActive() {
+  get active() {
     return this.activeTabId === this.tabId;
   }
 
