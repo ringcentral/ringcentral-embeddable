@@ -14,9 +14,9 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   public device: { id: string };
   private debug: boolean;
   private messageListener: (event: MessageEvent) => void;
-  private sharedState: Record<string, any> = {};
-  private tabId: string;
-  private activeTabId: string;
+  public sharedState: Record<string, any> = {};
+  public tabId: string;
+  public activeTabId: string;
 
   public constructor({
     worker,
@@ -48,9 +48,10 @@ export class SharedSipClient extends EventEmitter implements SipClient {
         Object.keys(event.data.state).forEach((key) => {
           this.sharedState[key] = event.data.state[key];
         });
-        this.emit('sharedState', this.sharedState);
+        this.emit('sharedStateChanged', this.sharedState);
       } else if (event.data.type === 'setActive') {
-        this.activeTabId = event.data.currentTabId;
+        this.activeTabId = event.data.activeTabId;
+        this.emit('activeTabIdChanged', this.activeTabId);
       }
     }
     this.worker.port.addEventListener('message', this.messageListener);

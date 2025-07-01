@@ -178,6 +178,10 @@ export class Webphone extends WebphoneBase {
     this._saveNewState(latestState);
   }
 
+  get isActive() {
+    return !!this._webphone;
+  }
+
   @proxify
   async _getLatestState() {
     return {
@@ -653,5 +657,9 @@ export class Webphone extends WebphoneBase {
       console.error(e);
       this._onCallEnd(session);
     }
+  }
+
+  stopRingtone() {
+    this._webphone?.userAgent?.audioHelper?.playIncoming(false);
   }
 }

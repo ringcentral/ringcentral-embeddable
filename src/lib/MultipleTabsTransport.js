@@ -74,7 +74,7 @@ export class MultipleTabsTransport extends TransportBase {
     const requestId = uuid.v4();
     let toTabId = tabId;
     if (!toTabId) {
-      toTabId = this._getMainTabId();
+      toTabId = this._getMainTabId(); // TODO: use activeTabId
     }
     let promise = new Promise((resolve, reject) => {
       this._requests.set(requestId, {

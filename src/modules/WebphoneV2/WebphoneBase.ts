@@ -449,7 +449,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     );
   }
 
-  @proxify
   async _sipProvision(): Promise<CreateSipRegistrationResponse> {
     const response = await this._deps.client.service
       .platform()
@@ -564,8 +563,19 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     // override
   }
 
+  _onActiveTabIdChanged(activeTabId: string) {
+    // override
+  }
+
   async _canBeActiveTabs() {
     return this._deps.tabManager?.active;
+  }
+
+  get isActive() {
+    if (!this._sharedSipClient) {
+      return !!this._webphone;
+    }
+    return this._sharedSipClient?.isActive;
   }
 
   async _setActive() {
@@ -587,7 +597,10 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     let sipProvision;
     if (isSharedWorkerSupported()) {
       this._sharedSipClient = new SharedSipClient({
-        worker: new SharedWorker(new URL('./SharedSipClient.worker.ts', import.meta.url)),
+        worker: new SharedWorker(
+          new URL('./SharedSipClient.worker.ts', import.meta.url),
+          { name: 'ringcentral-webphone-shared-sip-client' },
+        ),
         tabId: this._deps.tabManager?.tabbie.id,
       });
       this._sharedSipClient.on('status', (status) => {
@@ -612,8 +625,11 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           });
         }
       });
-      this._sharedSipClient.on('sharedState', (state) => {
+      this._sharedSipClient.on('sharedStateChanged', (state) => {
         this._onSharedStateUpdated(state);
+      });
+      this._sharedSipClient.on('activeTabIdChanged', (activeTabId) => {
+        this._onActiveTabIdChanged(activeTabId);
       });
       try {
         const statusResponse = await this._sharedSipClient.getStatus();
@@ -690,7 +706,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     skipTimeout = true,
     skipConnectDelay = false,
     skipDLCheck = false,
-    skipTabActiveCheck = false,
   } = {}) {
     if (!isBrowserSupport()) {
       this._setStateOnConnectError(webphoneErrors.browserNotSupported, null);
@@ -699,12 +714,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         ttl: 0,
       });
       return;
-    }
-    if (!this._isAvailableToConnect({ force })) {
-      return;
-    }
-    if (!skipTabActiveCheck) {
-      await this._waitStillTabActive();
     }
     if (!this._isAvailableToConnect({ force })) {
       return;
@@ -919,7 +928,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     this._setStateOnUnregistered();
   }
 
-  @proxify
   async disconnect() {
     this._sipInstanceId = null;
     await this._disconnect();
@@ -1107,5 +1115,9 @@ export class WebphoneBase extends RcModuleV2<Deps> {
 
   get defaultOutgoingAudioFile() {
     return DEFAULT_AUDIO;
+  }
+
+  stopRingtone() {
+    this._ringtoneHelper?.stop();
   }
 }

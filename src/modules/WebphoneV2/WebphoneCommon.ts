@@ -65,6 +65,8 @@ type InviteOptions = {
 export class Webphone extends WebphoneBase {
   protected _activeWebphoneActiveCallKey: string;
   protected _permissionCheck: boolean;
+  protected _enableSharedState: boolean = false;
+
   constructor(deps: Deps) {
     super(deps);
     this._activeWebphoneActiveCallKey = `${deps.prefix}-active-webphone-active-call-key`;
@@ -135,29 +137,31 @@ export class Webphone extends WebphoneBase {
 
   override onInitOnce() {
     super.onInitOnce();
-    watch(
-      this,
-      () => [
-        this.activeSessionId,
-        this.ringSessionId,
-        this.lastEndedSessions,
-        this.sessions,
-      ],
-      () => {
-        if (!this._sharedSipClient?.isActive) {
-          return;
-        }
-        this._sharedSipClient?.setSharedState({
-          activeSessionId: this.activeSessionId,
-          ringSessionId: this.ringSessionId,
-          lastEndedSessions: this.lastEndedSessions,
-          sessions: this.sessions,
-        });
-      },
-      {
-        multiple: true,
-      },
-    );
+    if (this._enableSharedState) {
+      watch(
+        this,
+        () => [
+          this.activeSessionId,
+          this.ringSessionId,
+          this.lastEndedSessions,
+          this.sessions,
+        ],
+        () => {
+          if (!this._sharedSipClient?.isActive) {
+            return;
+          }
+          this._sharedSipClient?.setSharedState({
+            activeSessionId: this.activeSessionId,
+            ringSessionId: this.ringSessionId,
+            lastEndedSessions: this.lastEndedSessions,
+            sessions: this.sessions,
+          });
+        },
+        {
+          multiple: true,
+        },
+      );
+    }
   }
 
   @state
@@ -290,6 +294,9 @@ export class Webphone extends WebphoneBase {
   }
 
   override async _syncSharedState() {
+    if (!this._enableSharedState) {
+      return;
+    }
     try {
       const sharedState = await this._sharedSipClient?.syncSharedState();
       this._saveNewState(sharedState);
@@ -327,6 +334,7 @@ export class Webphone extends WebphoneBase {
       ) {
         this._playExtendedControls(session);
       }
+      this._ringtoneHelper?.stop();
     });
     session.on('ringing', () => {
       console.log('Call ringing...');
@@ -348,6 +356,16 @@ export class Webphone extends WebphoneBase {
     session.__rc_lastActiveTime = Date.now();
     this._bindSessionEvents(session);
     this._onCallRing(session);
+    if (
+      this.isActive &&
+      this._ringtoneHelper &&
+      (
+        !this.activeSession ||
+        isOnHold(this.activeSession)
+      )
+    ) {
+      this._ringtoneHelper.play();
+    }
   }
 
   async _playExtendedControls(session: WebphoneSession) {
