@@ -26,6 +26,7 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
   public instanceId: string;
   private debug: boolean;
   public status: SipClientStatus = 'init';
+  public clientId: string;
 
   private timeoutHandle: NodeJS.Timeout;
 
@@ -48,6 +49,7 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
     sipInfo,
     instanceId,
     device,
+    clientId,
     debug = false,
   }: SipClientOptions) {
     if (
@@ -58,7 +60,8 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
       this.sipInfo.password === sipInfo.password &&
       this.sipInfo.outboundProxy === sipInfo.outboundProxy &&
       this.sipInfo.outboundProxyBackup === sipInfo.outboundProxyBackup &&
-      this.status === 'registered'
+      this.status === 'registered' &&
+      this.clientId === clientId
     ) {
       return;
     }
@@ -69,6 +72,7 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
     this.device = device;
     this.instanceId = instanceId ?? sipInfo.authorizationId!;
     this.debug = true;
+    this.clientId = clientId;
     try {
       this.setStatus('connecting');
       await this.connect();
@@ -184,6 +188,7 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
           `<sip:${this.sipInfo.username}@${this.sipInfo.domain}>;tag=${uuid()}`,
         To: `<sip:${this.sipInfo.username}@${this.sipInfo.domain}>`,
         Via: `SIP/2.0/WSS ${fakeDomain};branch=${branch()}`,
+        "Client-id": this.clientId,
       },
     );
     // if cannot get response in 5 seconds, we close the connection

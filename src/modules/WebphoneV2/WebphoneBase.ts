@@ -505,6 +505,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       debug: this._deps.webphoneOptions.webphoneLogLevel ? this._deps.webphoneOptions.webphoneLogLevel > 1 : false,
       deviceManager: this._audioDeviceManager,
       sipClient: this._sharedSipClient,
+      clientId: this._deps.webphoneOptions.appKey,
     });
     try {
       if (this._sharedSipClient) {
@@ -602,6 +603,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           { name: 'ringcentral-webphone-shared-sip-client' },
         ),
         tabId: this._deps.tabManager?.tabbie.id,
+        clientId: this._deps.webphoneOptions.appKey,
       });
       this._sharedSipClient.on('status', (status) => {
         console.log('shared sip client status', status);

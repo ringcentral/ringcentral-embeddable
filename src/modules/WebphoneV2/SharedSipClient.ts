@@ -17,17 +17,21 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   public sharedState: Record<string, any> = {};
   public tabId: string;
   public activeTabId: string;
+  public clientId: string;
 
   public constructor({
     worker,
     tabId,
+    clientId,
   }: {
     worker: SharedWorker;
     tabId: string;
+    clientId: string;
   }) {
     super();
     this.worker = worker;
     this.tabId = tabId;
+    this.clientId = clientId;
     this.messageListener = (event) => {
       if (event.data.type === 'inboundMessage') {
         if (this.debug) {
@@ -116,7 +120,10 @@ export class SharedSipClient extends EventEmitter implements SipClient {
     this.instanceId = instanceId;
     this.debug = true;
     this.device = device;
-    await this.workerRequest({ type: 'startSipClient', data: { sipInfo, device, instanceId, debug } });
+    await this.workerRequest({
+      type: 'startSipClient',
+      data: { sipInfo, device, instanceId, debug, clientId: this.clientId },
+    });
   }
 
   public async request(message: RequestMessage) {
