@@ -48,6 +48,11 @@ export class SharedSipClient extends EventEmitter implements SipClient {
           console.log('status', event.data.status);
         }
         this.emit('status', event.data.status);
+      } else if (event.data.type === 'transportStatus') {
+        if (this.debug) {
+          console.log('transportStatus', event.data.status);
+        }
+        this.emit('transportStatus', event.data.status);
       } else if (event.data.type === 'setSharedState') {
         Object.keys(event.data.state).forEach((key) => {
           this.sharedState[key] = event.data.state[key];
@@ -90,7 +95,7 @@ export class SharedSipClient extends EventEmitter implements SipClient {
       timeoutHandle = setTimeout(() => {
         this.worker.port.removeEventListener('message', messageListener);
         reject(new Error('Timeout'));
-      }, 5000);
+      }, 8000);
       const messageListener = (event) => {
         if (
           !event.data ||
@@ -104,6 +109,10 @@ export class SharedSipClient extends EventEmitter implements SipClient {
         }
         this.worker.port.removeEventListener('message', messageListener);
         clearTimeout(timeoutHandle);
+        if (event.data.error) {
+          reject(new Error(event.data.error));
+          return;
+        }
         resolve(event.data.response);
       };
       this.worker.port.addEventListener('message', messageListener);
@@ -115,6 +124,7 @@ export class SharedSipClient extends EventEmitter implements SipClient {
     device,
     instanceId,
     debug,
+    force,
   }: SipClientOptions) {
     this.sipInfo = sipInfo;
     this.instanceId = instanceId;
@@ -122,7 +132,7 @@ export class SharedSipClient extends EventEmitter implements SipClient {
     this.device = device;
     await this.workerRequest({
       type: 'startSipClient',
-      data: { sipInfo, device, instanceId, debug, clientId: this.clientId },
+      data: { sipInfo, device, instanceId, debug, clientId: this.clientId, force },
     });
   }
 
@@ -140,17 +150,15 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   }
 
   public async unregister() {
-    await this.register(0);
-  }
-
-  public async toggleBackupOutboundProxy(enabled = true) {
-    await this.workerRequest({ type: 'toggleBackupOutboundProxy', data: enabled });
+    await this.workerRequest({ type: 'unregister' });
   }
 
   public dispose() {
     this.disposed = true;
     this.worker.port.removeEventListener('message', this.messageListener);
     this.worker.port.postMessage({ type: 'destroyPort' });
+    this.worker.port.close();
+    this.worker = null;
   }
 
   public async getStatus() {

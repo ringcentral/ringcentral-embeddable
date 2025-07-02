@@ -411,12 +411,17 @@ export class Webphone extends WebphoneBase {
 
   @proxify
   async reject(sessionId: string) {
+    return this.ignore(sessionId);
+  }
+
+  @proxify
+  async ignore(sessionId: string) {
     const session = this.originalSessions[sessionId];
     if (!session || session.state === 'disposed') {
       return;
     }
     try {
-      await session.reject();
+      await session.decline();
     } catch (e: any /** TODO: confirm with instanceof */) {
       console.error(e);
       this._onCallEnd(session);
@@ -1285,8 +1290,8 @@ export class Webphone extends WebphoneBase {
     };
   }
 
-  override async _disconnect() {
-    await super._disconnect();
+  override async _disconnect(force = false) {
+    await super._disconnect(force);
     this._updateSessions();
   }
 

@@ -3,12 +3,14 @@ import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import type { ObjectMapValue } from '@ringcentral-integration/core/lib/ObjectMap';
 import { Webphone as WebphoneCommon } from './WebphoneCommon';
 import proxyActionTypes from '@ringcentral-integration/commons/lib/proxy/baseActionTypes';
+import { watch, computed } from '@ringcentral-integration/core';
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
+import type { WebphoneSession } from './Webphone.interface';
 import { EVENTS } from './events';
 
 @Module({
   name: 'NewWebphone',
-  deps: []
+  deps: ['NoiseReduction']
 })
 export class Webphone extends WebphoneCommon {
   protected _multipleTabsTransport: MultipleTabsTransport;
@@ -16,6 +18,7 @@ export class Webphone extends WebphoneCommon {
 
   constructor(deps) {
     super(deps);
+    this._ignoreModuleReadiness(deps.noiseReduction);
     this._enableSharedState = true;
     this._proxyActionTypes = proxyActionTypes;
     this._multipleTabsTransport = new MultipleTabsTransport({
@@ -43,6 +46,22 @@ export class Webphone extends WebphoneCommon {
         }
       });
     });
+  }
+
+  override onInitOnce() {
+    super.onInitOnce();
+    watch(
+      this,
+      () => this.shouldSetRingtoneSinkId,
+      () => {
+        if (
+          this.ready &&
+          this._ringtoneHelper
+        ) {
+          this._ringtoneHelper.setDeviceId(this._deps.audioSettings.ringtoneDeviceId);
+        }
+      },
+    );
   }
 
   _enableProxify() {
@@ -119,5 +138,36 @@ export class Webphone extends WebphoneCommon {
     if (typeof handler === 'function') {
       this._eventEmitter.on(EVENTS.activeWebphoneChanged, handler);
     }
+  }
+
+  get multipleTabsTransport() {
+    return this._multipleTabsTransport;
+  }
+
+  get proxifyTransport() {
+    return this._transport;
+  }
+
+  @computed((that: Webphone) => [
+    that.ready,
+    that._deps.audioSettings.supportDevices,
+    that._deps.audioSettings.ringtoneDeviceId,
+  ])
+  get shouldSetRingtoneSinkId(): any[] {
+    return [
+      this.ready,
+      this._deps.audioSettings.supportDevices,
+      this._deps.audioSettings.ringtoneDeviceId,
+    ];
+  }
+
+  override _bindSessionEvents(webphoneSession: WebphoneSession) {
+    super._bindSessionEvents(webphoneSession);
+    webphoneSession.on('userMedia', (stream) => {
+      this._deps.noiseReduction.denoiser(webphoneSession.id, stream);
+    });
+    webphoneSession.on('disposed', () => {
+      this._deps.noiseReduction.reset(webphoneSession.id);
+    });
   }
 }

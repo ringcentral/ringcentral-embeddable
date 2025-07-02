@@ -26,7 +26,8 @@ import { connectionStatus } from '@ringcentral-integration/commons/modules/Webph
 import { webphoneErrors } from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
 import { isBrowserSupport } from '@ringcentral-integration/commons/modules/Webphone/webphoneHelper';
 import { AudioDeviceManager, RingtoneHelper } from './AudioDeviceManager';
-import defaultIncomingAudio from './incoming.ogg';
+import defaultIncomingAudio from './audio/incoming.mp3';
+import defaultOutgoingAudio from './audio/outgoing.mp3';
 import { SharedSipClient } from './SharedSipClient';
 import { isSharedWorkerSupported } from './webphoneHelper';
 import { EVENTS } from './events';
@@ -297,7 +298,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         }
         this._removedWebphoneAtBeforeUnload = true;
         // disconnect webphone at beforeunload if there are not active sessions
-        this._disconnect();
+        this._disconnect(false);
         // set timeout to reconnect web phone is before unload cancel
         setTimeout(() => {
           this._removedWebphoneAtBeforeUnload = false;
@@ -310,7 +311,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       });
       window.addEventListener('pagehide', () => {
         // mark current instance id as inactive, so app can reuse it after refresh
-        if (this._sipInstanceId) {
+        if (this._sipInstanceId && !this._sharedSipClient) {
           this._sipInstanceManager.setInstanceInactive(
             this._sipInstanceId,
             this._deps.auth.endpointId!,
@@ -319,7 +320,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         }
         // disconnect if web phone is not disconnected at beforeunload
         if (!this._removedWebphoneAtBeforeUnload) {
-          this._disconnect();
+          this._disconnect(false);
         }
       });
     }
@@ -328,8 +329,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
 
   override onInitOnce() {
     this._deps.auth.addBeforeLogoutHandler(async () => {
-      this._sipInstanceId = null;
-      await this._disconnect();
+      await this.disconnect();
     });
     watch(
       this,
@@ -478,11 +478,22 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     return phoneLines;
   }
 
-  async _removeWebphone() {
+  async _removeWebphone(force = false) {
     if (!this._webphone) {
       return;
     }
+    console.log('removing webphone, force:', force);
     try {
+      if (
+        force &&
+        this._sharedSipClient &&
+        this._webphone.sipClient === this._sharedSipClient
+      ) {
+        console.log('unregistering shared sip client');
+        await this._sharedSipClient.unregister();
+        console.log('shared sip client unregistered');
+      }
+      console.log('disposing webphone');
       await this._webphone.dispose();
     } catch (e) {
       console.error(e);
@@ -491,9 +502,9 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     this._sharedSipClient = null;
   }
 
-  async _createWebphone(provisionData: CreateSipRegistrationResponse) {
+  async _createWebphone(provisionData: CreateSipRegistrationResponse, force = false) {
     this._closedByUser = false;
-    await this._removeWebphone();
+    await this._removeWebphone(force);
     if (!this._sipInstanceId) {
       this._sipInstanceId = this._sipInstanceManager.getInstanceId(
         this._deps.auth.endpointId!,
@@ -507,6 +518,20 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       sipClient: this._sharedSipClient,
       clientId: this._deps.webphoneOptions.appKey,
     });
+    this._webphone.on('provisionUpdate', () => {
+      if (this.webphoneSessions.length > 0) {
+        return;
+      }
+      this._deps.alert.warning({
+        message: webphoneErrors.provisionUpdate,
+        allowDuplicates: false,
+      });
+      this.connect({
+        force: true,
+        skipDLCheck: true,
+        skipConnectDelay: true,
+      });
+    });
     try {
       if (this._sharedSipClient) {
         await this._sharedSipClient.start({
@@ -514,13 +539,21 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           sipInfo: provisionData.sipInfo?.[0] as SipInfo,
           instanceId: this._sipInstanceId,
           debug: this._deps.webphoneOptions.webphoneLogLevel ? this._deps.webphoneOptions.webphoneLogLevel > 1 : false,
+          force,
         });
         await this._syncSharedState();
         await this._setActive();
+        const statusResponse = await this._sharedSipClient.getStatus();
+        if (statusResponse.status === 'registered') {
+          this._onWebphoneRegistered({
+            device: statusResponse.device,
+            sipInfo: [statusResponse.sipInfo],
+          });
+        }
       } else {
         await this._webphone.start();
+        this._onWebphoneRegistered(provisionData);
       }
-      this._onWebphoneRegistered(provisionData);
     } catch (e) {
       console.error(e);
       let errorCode = webphoneErrors.unknownError;
@@ -572,6 +605,10 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     return this._deps.tabManager?.active;
   }
 
+  get activeWebphoneId() {
+    return this._sharedSipClient?.activeTabId;
+  }
+
   get isWebphoneActiveTab() {
     if (!this._sharedSipClient) {
       return !!this._webphone;
@@ -591,7 +628,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     // override
   }
 
-  async _connect() {
+  async _connect(force = false) {
     if (!this._deps.auth.loggedIn) {
       return;
     }
@@ -605,26 +642,59 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         tabId: this._deps.tabManager?.tabbie.id,
         clientId: this._deps.webphoneOptions.appKey,
       });
-      this._sharedSipClient.on('status', (status) => {
+      this._sharedSipClient.on('status', async (status, error) => {
         console.log('shared sip client status', status);
         if (status === 'registered') {
+          const statusResponse = await this._sharedSipClient.getStatus();
           this._onWebphoneRegistered({
-            device: status.device,
-            sipInfo: status.sipInfo,
+            device: statusResponse.device,
+            sipInfo: statusResponse.sipInfo,
           });
+          return;
         }
-        if (status === 'disconnected') {
+        if (status === 'unregistered') {
           this._onWebphoneUnregistered();
+          return;
         }
-        if (status === 'connecting') {
-          this._setStateOnConnect();
-        }
-        if (status === 'error') {
+        // TODO: registering emitted every register loop
+        // if (status === 'registering') {
+        //   this._setConnectionStatus(connectionStatus.connecting);
+        //   return;
+        // }
+        if (status === 'registrationError') {
+          let errorCode = webphoneErrors.unknownError;
+          if (error && error.indexOf('SIP/2.0 603') > -1) {
+            errorCode = webphoneErrors.webphoneCountOverLimit;
+          }
           this._onConnectError({
-            errorCode: webphoneErrors.connectFailed,
+            errorCode,
             statusCode: null,
             ttl: 0,
           });
+          return;
+        }
+      });
+      this._sharedSipClient.on('transportStatus', (status) => {
+        console.log('shared sip client transport status', status);
+        if ((this.connected || this.connectError) && status === 'connecting') {
+          this._deps.alert.warning({
+            message: webphoneErrors.serverConnecting,
+            allowDuplicates: false,
+          });
+          this._setStateOnReconnect();
+        } else if (status === 'error') {
+          // error after connect retries
+          this._onConnectError({
+            errorCode: webphoneErrors.connectFailed,
+            statusCode: null,
+          });
+        } else if (status === 'disconnected') {
+          if (!this._closedByUser) {
+            this._onConnectError({
+              errorCode: webphoneErrors.connectFailed,
+              statusCode: null,
+            });
+          }
         }
       });
       this._sharedSipClient.on('sharedStateChanged', (state) => {
@@ -646,12 +716,13 @@ export class WebphoneBase extends RcModuleV2<Deps> {
             device: statusResponse.device,
             sipInfo: [statusResponse.sipInfo],
           };
+          this._sipInstanceId = statusResponse.instanceId;
         }
       } catch (e) {
         console.error('Failed to get shared sip client status', e);
       }
     }
-    if (!sipProvision) {
+    if (!sipProvision || force) {
       try {
         sipProvision = await this._sipProvision();
       } catch (error: any) {
@@ -673,7 +744,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         return;
       }
     }
-    await this._createWebphone(sipProvision);
+    await this._createWebphone(sipProvision, force);
   }
 
   async _waitStillTabActive() {
@@ -756,7 +827,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       clearTimeout(this._connectTimeout);
     }
     if (force || skipTimeout) {
-      await this._connect();
+      await this._connect(force);
       return;
     }
     this._connectTimeout = setTimeout(() => {
@@ -852,13 +923,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     this._eventEmitter.emit(EVENTS.webphoneUnregistered);
   }
 
-  async _disconnectToInactive() {
-    this._setConnectionStatus(connectionStatus.inactiveDisconnecting);
-    this._setDevice(null);
-    await this._removeWebphone();
-    this._setStateWhenUnregisteredOnInactive();
-  }
-
   async _onTabActive() {
     await this._setActive();
   }
@@ -911,12 +975,12 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     }
   }
 
-  async _disconnect() {
+  async _disconnect(force = false) {
     if (this.disconnected || this.disconnecting) {
       return;
     }
-    // TODO: handle disconnect
-    if (this._sharedSipClient) {
+    if (this._sharedSipClient && !force) {
+      console.log('disconnecting this port from shared sip client');
       await this._sharedSipClient.dispose();
       return;
     }
@@ -924,15 +988,14 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       clearTimeout(this._connectTimeout);
     }
     this._setStoreOnDisconnect();
-    if (this._webphone) {
-      await this._removeWebphone();
-    }
+    await this._removeWebphone(true);
     this._setStateOnUnregistered();
   }
 
   async disconnect() {
     this._sipInstanceId = null;
-    await this._disconnect();
+    this._closedByUser = true;
+    await this._disconnect(true);
   }
 
   /**
