@@ -38,5 +38,6 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `userAgent` | *null* | See [Customize X-User-Agent](user-agent.md). |
 | `enableAudioInitPrompt` | *null* | See [Audio](./audio.md). |
 | `enableLoadMoreCalls` | *null* | Support to load old call history (more than 7 days). Supported from v2.1.0 |
+| `enableSharedMessages` | *null* | Support to receive call queue SMS. Supported from v2.3.0 |
 </div>
 
