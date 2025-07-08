@@ -254,7 +254,7 @@ export const AlertFields: Story = {
         alertWithLink: {
           type: 'string',
           title: 'Alert with Link',
-          description: 'This is an alert with a link. It provides helpful information to users. [Learn more](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page).',
+          description: 'This is an alert with a link and bold text. It provides **helpful information** to users. [Learn more](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page).',
         },
       },
     },
