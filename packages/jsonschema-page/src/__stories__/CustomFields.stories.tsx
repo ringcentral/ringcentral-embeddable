@@ -251,6 +251,11 @@ export const AlertFields: Story = {
           title: 'Error Alert',
           description: 'This is an error alert. It indicates that something went wrong and requires attention.',
         },
+        alertWithLink: {
+          type: 'string',
+          title: 'Alert with Link',
+          description: 'This is an alert with a link and bold text. It provides **helpful information** to users. [Learn more](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page).',
+        },
       },
     },
     uiSchema: {
@@ -269,6 +274,10 @@ export const AlertFields: Story = {
       errorAlert: {
         'ui:field': 'admonition',
         'ui:severity': 'error',
+      },
+      alertWithLink: {
+        'ui:field': 'admonition',
+        'ui:severity': 'warning',
       },
     },
     formData: {},
