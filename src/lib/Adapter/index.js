@@ -774,6 +774,16 @@ class Adapter extends AdapterCore {
       call,
     });
   }
+
+  getCallLog({
+    sessionId,
+    telephonySessionId,
+  }) {
+    return this._requestWithPostMessage('/get-call-log', {
+      sessionId,
+      telephonySessionId,
+    });
+  }
 }
 
 export default Adapter;
