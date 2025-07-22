@@ -1,13 +1,14 @@
 import React from 'react';
-import validator from '@rjsf/validator-ajv8';
 import { withTheme, ThemeProps } from '@rjsf/core';
 import { widgets } from './Widgets';
 import { templates } from './Templates';
 import { fields } from './Fields';
+import { Validator } from './validator';
 
 const theme: ThemeProps = { widgets, templates };
 
 const Form = withTheme(theme);
+const validator = new Validator();
 
 export const JSONSchemaPage = ({
   schema,

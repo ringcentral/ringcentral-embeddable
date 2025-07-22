@@ -481,6 +481,25 @@ export default class Adapter extends AdapterModuleCore {
         });
         break;
       }
+      case '/get-call-log': {
+        if (!data.body.sessionId && !data.body.telephonySessionId) {
+          this._postRCAdapterMessageResponse({
+            responseId: data.requestId,
+            response: {
+              error: 'sessionId or telephonySessionId is required',
+            },
+          });
+          break;
+        }
+        const call = await this._callLogger.getCall(data.body.sessionId, data.body.telephonySessionId);
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: {
+            call,
+          },
+        });
+        break;
+      }
       default: {
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
