@@ -128,6 +128,35 @@ export class CallLogger extends CallLoggerBase {
     };
   }
 
+  async getCall(sessionId: string, telephonySessionId: string) {
+    const call = this._deps.callHistory.calls.find(call =>
+      (
+        call.sessionId === sessionId ||
+        call.telephonySessionId === telephonySessionId
+      )
+    );
+    if (!call) {
+      return null;
+    }
+    let aiNote = null;
+    let transcript = null;
+    if (this._deps.smartNotes.hasPermission) {
+      await this._deps.smartNotes.queryNotedCalls([call.telephonySessionId]);
+      aiNote = await this._deps.smartNotes.fetchSmartNoteText(call.telephonySessionId);
+      transcript = await this._deps.smartNotes.fetchTranscript(call.telephonySessionId);
+    }
+    return {
+      ...call,
+      activityMatches: this._deps.activityMatcher?.dataMapping[call.sessionId] || [],
+      aiNote,
+      recording: call.recording ? {
+        ...call.recording,
+        link: this._deps.thirdPartyService.getRecordingLink(call.recording),
+      } : null,
+      transcript: transcript ? getTranscriptText(transcript, call) : null,
+    };
+  }
+
   get logButtonTitle() {
     return this._deps.thirdPartyService.callLoggerTitle;
   }
