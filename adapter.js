@@ -57357,6 +57357,16 @@ class Adapter extends AdapterCore/* default */.A {
       call
     });
   }
+  getCallLog(_ref6) {
+    let {
+      sessionId,
+      telephonySessionId
+    } = _ref6;
+    return this._requestWithPostMessage('/get-call-log', {
+      sessionId,
+      telephonySessionId
+    });
+  }
 }
 /* harmony default export */ var lib_Adapter = (Adapter);
 ;// ./src/adapter.js
