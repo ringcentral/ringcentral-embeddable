@@ -7,7 +7,10 @@ import {
   RcTypography,
   styled,
   palette2,
+  RcIconButton,
 } from '@ringcentral/juno';
+import { Refresh } from '@ringcentral/juno-icon';
+import { TextWithMarkdown } from '@ringcentral-integration/jsonschema-page';
 import { StyledSettingItem } from './SettingItem';
 
 const StyledAuthSettingItem = styled(StyledSettingItem)`
@@ -27,6 +30,13 @@ const StyledAuthSettingItem = styled(StyledSettingItem)`
 
   .RcListItemText-secondary {
     margin-top: 5px;
+  }
+`;
+
+const LicenseDescription = styled(RcTypography)`
+  a {
+    font-size: inherit;
+    line-height: inherit;
   }
 `;
 
@@ -58,6 +68,10 @@ const IconWrapper = styled.div`
   }
 `;
 
+const RefreshIcon = styled(RcIconButton)`
+  margin-left: 4px;
+`;
+
 interface AuthorizeSettingsSectionProps {
   serviceName: string;
   onAuthorize: (...args: any[]) => any;
@@ -70,6 +84,10 @@ interface AuthorizeSettingsSectionProps {
   showAuthRedDot?: boolean;
   serviceInfo?: string;
   showAuthButton?: boolean;
+  licenseStatus?: string;
+  licenseDescription?: string;
+  licenseStatusColor?: string;
+  onLicenseRefresh?: () => void;
 }
 
 export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProps> = ({
@@ -79,11 +97,15 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
   unauthorizedTitle,
   serviceInfo = '',
   serviceName,
+  licenseStatus = 'License: expired',
+  licenseStatusColor = 'neutral.f04',
+  licenseDescription = '',
   contactSyncing = false,
   authorizationLogo = null,
   authorizedAccount = null,
   showAuthRedDot,
   showAuthButton,
+  onLicenseRefresh,
 }) => {
   let status = authorized ? authorizedTitle : unauthorizedTitle;
   if (authorized && contactSyncing) {
@@ -126,6 +148,31 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
                 <RcTypography variant="caption1" color="neutral.f04">
                   {serviceInfo}
                 </RcTypography>
+              ) : (
+                null
+              )
+            }
+            {
+              licenseStatus ? (
+                <RcTypography variant="caption1" color={licenseStatusColor}>
+                  {licenseStatus}
+                  <RefreshIcon
+                    size="xsmall"
+                    symbol={Refresh}
+                    variant="plain"
+                    title="Refresh"
+                    onClick={onLicenseRefresh}
+                  />
+                </RcTypography>
+              ) : (
+                null
+              )
+            }
+            {
+              licenseDescription ? (
+                <LicenseDescription variant="caption1" color="neutral.f04">
+                  <TextWithMarkdown text={licenseDescription} />
+                </LicenseDescription>
               ) : (
                 null
               )
