@@ -80,8 +80,12 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
     authorizedAccount?: string;
     showAuthRedDot?: boolean;
     showAuthButton?: boolean;
+    licenseStatus?: string;
+    licenseStatusColor?: string;
+    licenseDescription?: string;
   } | null;
   onThirdPartyAuthorize?: () => void;
+  onThirdPartyLicenseRefresh?: () => void;
   disableAutoLogSMSEnabled?: boolean;
   thirdPartySettings?: ThirdPartySetting[];
   gotoThirdPartySection: (id: string) => void;
@@ -408,6 +412,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   versionContainer,
   thirdPartyAuth = null,
   onThirdPartyAuthorize,
+  onThirdPartyLicenseRefresh,
   thirdPartySettings = [],
   gotoThirdPartySection,
   onThirdPartyButtonClick,
@@ -629,7 +634,11 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
             authorizedAccount={thirdPartyAuth.authorizedAccount}
             showAuthRedDot={thirdPartyAuth.showAuthRedDot}
             showAuthButton={thirdPartyAuth.showAuthButton}
+            licenseStatus={thirdPartyAuth.licenseStatus}
+            licenseStatusColor={thirdPartyAuth.licenseStatusColor}
+            licenseDescription={thirdPartyAuth.licenseDescription}
             onAuthorize={onThirdPartyAuthorize}
+            onLicenseRefresh={onThirdPartyLicenseRefresh}
           />
         ) : null
       }
