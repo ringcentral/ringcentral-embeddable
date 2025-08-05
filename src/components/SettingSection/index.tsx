@@ -65,7 +65,7 @@ export function SettingSection({
     }
     let changed = false;
     section.items.forEach((item, index) => {
-      if (item.value !== newSection.items[index].value) {
+      if (newSection.items[index] && item.value !== newSection.items[index].value) {
         changed = true;
       }
     });
