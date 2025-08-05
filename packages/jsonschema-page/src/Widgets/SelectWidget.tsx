@@ -85,7 +85,6 @@ export default function SelectWidget<
       aria-describedby={ariaDescribedByIds<T>(id)}
       fullWidth
       renderValue={(index: unknown) => {
-        console.log('index', index);
         if (typeof index === 'string' && enumOptions[Number.parseInt(index, 10)]) {
           return enumOptions[Number.parseInt(index, 10)].label;
         }

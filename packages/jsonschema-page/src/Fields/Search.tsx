@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { styled } from '@ringcentral/juno/foundation';
-import { RcIcon, RcTextField } from '@ringcentral/juno';
+import { RcIcon, RcTextField, styled } from '@ringcentral/juno';
 import { Search as SearchIcon } from '@ringcentral/juno-icon';
 
 const StyledTextField = styled(RcTextField)`
