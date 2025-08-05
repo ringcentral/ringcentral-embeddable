@@ -20,3 +20,5 @@ src/plugins.json
 
 *storybook.log
 storybook-static
+npm-package
+dist

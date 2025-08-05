@@ -1,6 +1,6 @@
 {
   "name": "@ringcentral-integration/jsonschema-page",
-  "version": "0.1.0",
+  "version": "0.0.4",
   "description": "The jsonschema page component",
   "homepage": "https://github.com/ringcentral/ringcentral-embeddable/tree/main/packages/jsonschema-page#readme",
   "bugs": {
@@ -78,6 +78,12 @@
     "@rjsf/utils": "^5.17.1"
   },
   "scripts": {
+    "build": "node build.js",
+    "publish:npm": "npm run build && cd npm-package && npm publish",
+    "publish:npm-dry": "npm run build && cd npm-package && npm publish --dry-run",
+    "pack": "npm run build && cd npm-package && npm pack",
+    "prebuild": "echo 'Skipping lint check for build'",
+    "lint:check": "eslint src/**/*.{ts,tsx} --max-warnings 0",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   }
