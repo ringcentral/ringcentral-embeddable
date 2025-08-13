@@ -240,20 +240,18 @@ export const SearchAndFilterFields: Story = {
           title: 'Global Search',
           description: 'Search across all data',
         },
-        filterSearch: {
-          type: 'string',
-          title: 'Filter Search',
-          description: 'Filter with autocomplete',
-        },
-        categoryFilter: {
-          type: 'string',
-          title: 'Category Filter',
-          description: 'Filter by category',
-        },
-        advancedSearch: {
-          type: 'string',
-          title: 'Advanced Search',
-          description: 'Search with advanced options',
+        searchWithFilters: {
+          type: 'object',
+          properties: {
+            search: {
+              type: 'string',
+              title: 'Search',
+            },
+            filter: {
+              type: 'string',
+              title: 'Filter',
+            },
+          },
         },
         searchResults: {
           type: 'null',
@@ -271,53 +269,12 @@ export const SearchAndFilterFields: Story = {
     uiSchema: {
       globalSearch: {
         'ui:field': 'search',
-        'ui:options': {
-          placeholder: 'Search everything...',
-          showSearchIcon: true,
-          onSearch: (query: string, formData: any, setFormData: any) => {
-            const mockResults = query ? Math.floor(Math.random() * 50) + 1 : 0;
-            setFormData((prev: any) => ({ ...prev, resultCount: mockResults }));
-            console.log(`Global search for: ${query}, found ${mockResults} results`);
-          },
-        },
+        'ui:placeholder': 'Search everything...',
       },
-      filterSearch: {
+      searchWithFilters: {
         'ui:field': 'search',
-        'ui:options': {
-          placeholder: 'Type to filter...',
-          suggestions: [
-            'JavaScript', 'TypeScript', 'React', 'Vue', 'Angular',
-            'Node.js', 'Python', 'Java', 'C++', 'Go',
-          ],
-          onSearch: (query: string) => {
-            console.log('Filter search:', query);
-          },
-        },
-      },
-      categoryFilter: {
-        'ui:field': 'search',
-        'ui:options': {
-          placeholder: 'Select category...',
-          suggestions: [
-            'Technology', 'Design', 'Marketing', 'Sales', 'Support',
-            'Development', 'Testing', 'DevOps', 'Management',
-          ],
-          variant: 'filter',
-          onSearch: (query: string) => {
-            console.log('Category filter:', query);
-          },
-        },
-      },
-      advancedSearch: {
-        'ui:field': 'search',
-        'ui:options': {
-          placeholder: 'Advanced search with operators...',
-          helpText: 'Use quotes for exact match, + for required terms, - for excluded terms',
-          onSearch: (query: string) => {
-            console.log('Advanced search:', query);
-            alert(`Advanced search: ${query}`);
-          },
-        },
+        'ui:placeholder': 'Search with filters...',
+        'ui:filters': ['All', 'Type A', 'Type B', 'Type C'],
       },
       searchResults: {
         'ui:field': 'typography',
@@ -341,9 +298,10 @@ export const SearchAndFilterFields: Story = {
     },
     formData: {
       globalSearch: '',
-      filterSearch: '',
-      categoryFilter: '',
-      advancedSearch: '',
+      searchWithFilters: {
+        search: '',
+        filter: 'All',
+      },
       resultCount: 0,
     },
   },
@@ -364,7 +322,7 @@ export const SearchAndFilterFields: Story = {
         globalSearch: {
           ...(args.uiSchema as any).globalSearch,
           'ui:options': {
-            ...(args.uiSchema as any).globalSearch['ui:options'],
+            ...(args.uiSchema as any).globalSearch['ui:options'] || {},
             onSearch: (query: string, currentFormData: any, setCurrentFormData: any) => {
               const mockResults = query ? Math.floor(Math.random() * 50) + 1 : 0;
               setFormData((prev: any) => ({ ...prev, resultCount: mockResults }));
@@ -376,29 +334,18 @@ export const SearchAndFilterFields: Story = {
             },
           },
         },
-        filterSearch: {
-          ...(args.uiSchema as any).filterSearch,
+        searchWithFilters: {
+          ...(args.uiSchema as any).searchWithFilters,
           'ui:options': {
-            ...(args.uiSchema as any).filterSearch['ui:options'],
-            onSearch: (query: string) => {
+            ...(args.uiSchema as any).searchWithFilters['ui:options'] || {},
+            onSearch: (query: string, currentFormData: any, setCurrentFormData: any) => {
+              const mockResults = query ? Math.floor(Math.random() * 50) + 1 : 0;
+              setFormData((prev: any) => ({ ...prev, resultCount: mockResults }));
               setSearchHistory(prev => ({
                 ...prev,
                 filter: [...(prev.filter || []), query].slice(-3),
               }));
-              console.log('Filter search:', query);
-            },
-          },
-        },
-        categoryFilter: {
-          ...(args.uiSchema as any).categoryFilter,
-          'ui:options': {
-            ...(args.uiSchema as any).categoryFilter['ui:options'],
-            onSearch: (query: string) => {
-              setSearchHistory(prev => ({
-                ...prev,
-                category: [...(prev.category || []), query].slice(-3),
-              }));
-              console.log('Category filter:', query);
+              console.log(`Filter search for: ${query}, found ${mockResults} results`);
             },
           },
         },
