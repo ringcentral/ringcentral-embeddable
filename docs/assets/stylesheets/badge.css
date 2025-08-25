@@ -6,7 +6,7 @@
 }
 
 .badge {
-    display: flex;
+    display: inline-flex;
     width: max-content;
     color: var(--md-badge-text-color);
     margin-right: 15px;
