@@ -9,7 +9,7 @@ import getIntlDateTimeFormatter, {
 // detect if enable 24-hour format (cross-browser)
 function isUserLocale24Hour() {
   try {
-    const { hour12 } = new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).resolvedOptions();
+    const { hour12 } = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' }).resolvedOptions();
     if (typeof hour12 === 'boolean') {
       return hour12 === false;
     }
