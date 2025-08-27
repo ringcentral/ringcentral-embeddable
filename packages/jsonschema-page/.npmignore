@@ -1,0 +1,56 @@
+# Source files (npm package is in npm-package/ directory)
+src/
+tsconfig*.json
+build.js
+test-esm-imports.js
+
+# Build directories
+dist/
+npm-package/
+
+# Development files
+.storybook/
+storybook-static/
+**/*.stories.*
+**/__stories__/
+
+# Build artifacts (temporary)
+tsconfig.build.*.json
+
+# IDE and OS files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+**/*.test.*
+**/*.spec.*
+test/
+tests/
+__tests__/
+
+# Documentation (keep README.md)
+docs/
+*.md
+!README.md
+RELEASE_GUIDE.md
+DEVELOPMENT.md
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Environment files
+.env*
+
+# Node modules (should be excluded by default but being explicit)
+node_modules/ 

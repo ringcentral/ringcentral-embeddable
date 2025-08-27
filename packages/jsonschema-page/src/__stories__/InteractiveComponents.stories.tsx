@@ -240,20 +240,18 @@ export const SearchAndFilterFields: Story = {
           title: 'Global Search',
           description: 'Search across all data',
         },
-        filterSearch: {
-          type: 'string',
-          title: 'Filter Search',
-          description: 'Filter with autocomplete',
-        },
-        categoryFilter: {
-          type: 'string',
-          title: 'Category Filter',
-          description: 'Filter by category',
-        },
-        advancedSearch: {
-          type: 'string',
-          title: 'Advanced Search',
-          description: 'Search with advanced options',
+        searchWithFilters: {
+          type: 'object',
+          properties: {
+            search: {
+              type: 'string',
+              title: 'Search',
+            },
+            filter: {
+              type: 'string',
+              title: 'Filter',
+            },
+          },
         },
         searchResults: {
           type: 'null',
@@ -271,53 +269,12 @@ export const SearchAndFilterFields: Story = {
     uiSchema: {
       globalSearch: {
         'ui:field': 'search',
-        'ui:options': {
-          placeholder: 'Search everything...',
-          showSearchIcon: true,
-          onSearch: (query: string, formData: any, setFormData: any) => {
-            const mockResults = query ? Math.floor(Math.random() * 50) + 1 : 0;
-            setFormData((prev: any) => ({ ...prev, resultCount: mockResults }));
-            console.log(`Global search for: ${query}, found ${mockResults} results`);
-          },
-        },
+        'ui:placeholder': 'Search everything...',
       },
-      filterSearch: {
+      searchWithFilters: {
         'ui:field': 'search',
-        'ui:options': {
-          placeholder: 'Type to filter...',
-          suggestions: [
-            'JavaScript', 'TypeScript', 'React', 'Vue', 'Angular',
-            'Node.js', 'Python', 'Java', 'C++', 'Go',
-          ],
-          onSearch: (query: string) => {
-            console.log('Filter search:', query);
-          },
-        },
-      },
-      categoryFilter: {
-        'ui:field': 'search',
-        'ui:options': {
-          placeholder: 'Select category...',
-          suggestions: [
-            'Technology', 'Design', 'Marketing', 'Sales', 'Support',
-            'Development', 'Testing', 'DevOps', 'Management',
-          ],
-          variant: 'filter',
-          onSearch: (query: string) => {
-            console.log('Category filter:', query);
-          },
-        },
-      },
-      advancedSearch: {
-        'ui:field': 'search',
-        'ui:options': {
-          placeholder: 'Advanced search with operators...',
-          helpText: 'Use quotes for exact match, + for required terms, - for excluded terms',
-          onSearch: (query: string) => {
-            console.log('Advanced search:', query);
-            alert(`Advanced search: ${query}`);
-          },
-        },
+        'ui:placeholder': 'Search with filters...',
+        'ui:filters': ['All', 'Type A', 'Type B', 'Type C'],
       },
       searchResults: {
         'ui:field': 'typography',
@@ -341,9 +298,10 @@ export const SearchAndFilterFields: Story = {
     },
     formData: {
       globalSearch: '',
-      filterSearch: '',
-      categoryFilter: '',
-      advancedSearch: '',
+      searchWithFilters: {
+        search: '',
+        filter: 'All',
+      },
       resultCount: 0,
     },
   },
@@ -364,7 +322,7 @@ export const SearchAndFilterFields: Story = {
         globalSearch: {
           ...(args.uiSchema as any).globalSearch,
           'ui:options': {
-            ...(args.uiSchema as any).globalSearch['ui:options'],
+            ...(args.uiSchema as any).globalSearch['ui:options'] || {},
             onSearch: (query: string, currentFormData: any, setCurrentFormData: any) => {
               const mockResults = query ? Math.floor(Math.random() * 50) + 1 : 0;
               setFormData((prev: any) => ({ ...prev, resultCount: mockResults }));
@@ -376,29 +334,18 @@ export const SearchAndFilterFields: Story = {
             },
           },
         },
-        filterSearch: {
-          ...(args.uiSchema as any).filterSearch,
+        searchWithFilters: {
+          ...(args.uiSchema as any).searchWithFilters,
           'ui:options': {
-            ...(args.uiSchema as any).filterSearch['ui:options'],
-            onSearch: (query: string) => {
+            ...(args.uiSchema as any).searchWithFilters['ui:options'] || {},
+            onSearch: (query: string, currentFormData: any, setCurrentFormData: any) => {
+              const mockResults = query ? Math.floor(Math.random() * 50) + 1 : 0;
+              setFormData((prev: any) => ({ ...prev, resultCount: mockResults }));
               setSearchHistory(prev => ({
                 ...prev,
                 filter: [...(prev.filter || []), query].slice(-3),
               }));
-              console.log('Filter search:', query);
-            },
-          },
-        },
-        categoryFilter: {
-          ...(args.uiSchema as any).categoryFilter,
-          'ui:options': {
-            ...(args.uiSchema as any).categoryFilter['ui:options'],
-            onSearch: (query: string) => {
-              setSearchHistory(prev => ({
-                ...prev,
-                category: [...(prev.category || []), query].slice(-3),
-              }));
-              console.log('Category filter:', query);
+              console.log(`Filter search for: ${query}, found ${mockResults} results`);
             },
           },
         },
@@ -945,3 +892,162 @@ export const NavigationListField: Story = {
     );
   },
 }; 
+
+// List with Actions
+
+export const ListWithActions: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        contacts: {
+          type: 'string',
+          title: 'Contacts',
+          description: 'Select a contact or use actions',
+          oneOf: [
+            {
+              const: 'alice',
+              title: 'Alice Johnson',
+              description: 'Account Manager',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+              meta: 'Last contacted: 2d ago',
+              actions: [
+                { id: 'call', title: 'Call', icon: 'phone' },
+                { id: 'sms', title: 'SMS', icon: 'sms' },
+                { id: 'edit', title: 'Edit', icon: 'edit' },
+                { id: 'delete', title: 'Delete', icon: 'delete', color: 'danger.b03' },
+                { id: 'newAction', title: 'New Action', icon: 'newAction' },
+                { id: 'info', title: 'Info', icon: 'info' },
+                { id: 'view', title: 'View', icon: 'view' },
+                { id: 'refresh', title: 'Refresh', icon: 'refresh' },
+                { id: 'copy', title: 'Copy', icon: 'copy' },
+                { id: 'share', title: 'Share', icon: 'share' },
+                { id: 'download', title: 'Download', icon: 'download' },
+                { id: 'people', title: 'People', icon: 'people' },
+                { id: 'insertLink', title: 'Insert Link', icon: 'insertLink' },
+                { id: 'connect', title: 'Connect', icon: 'connect' },
+                { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
+              ],
+            },
+            {
+              const: 'bob',
+              title: 'Bob Wilson',
+              description: 'Sales Engineer',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+              meta: 'Last contacted: 5h ago',
+              actions: [
+                { id: 'call', title: 'Call', icon: 'phone' },
+                { id: 'sms', title: 'SMS', icon: 'sms' },
+                { id: 'edit', title: 'Edit', icon: 'edit' },
+                { id: 'delete', title: 'Delete', icon: 'delete', color: 'danger.b03' },
+                { id: 'newAction', title: 'New Action', icon: 'newAction' },
+                { id: 'info', title: 'Info', icon: 'info' },
+                { id: 'view', title: 'View', icon: 'view' },
+                { id: 'refresh', title: 'Refresh', icon: 'refresh' },
+                { id: 'copy', title: 'Copy', icon: 'copy' },
+                { id: 'share', title: 'Share', icon: 'share' },
+                { id: 'download', title: 'Download', icon: 'download' },
+                { id: 'people', title: 'People', icon: 'people' },
+                { id: 'insertLink', title: 'Insert Link', icon: 'insertLink' },
+                { id: 'connect', title: 'Connect', icon: 'connect' },
+                { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
+              ],
+            },
+            {
+              const: 'carol',
+              title: 'Carol Davis',
+              description: 'Support Specialist',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+              meta: 'Last contacted: 1w ago',
+              actions: [
+                { id: 'call', title: 'Call', icon: 'phone' },
+                { id: 'sms', title: 'SMS', icon: 'sms' },
+                { id: 'edit', title: 'Edit', icon: 'edit' },
+                { id: 'delete', title: 'Delete', icon: 'delete', color: 'danger.b03' },
+                { id: 'newAction', title: 'New Action', icon: 'newAction' },
+                { id: 'info', title: 'Info', icon: 'info' },
+                { id: 'view', title: 'View', icon: 'view' },
+                { id: 'refresh', title: 'Refresh', icon: 'refresh' },
+                { id: 'copy', title: 'Copy', icon: 'copy' },
+                { id: 'share', title: 'Share', icon: 'share' },
+                { id: 'download', title: 'Download', icon: 'download' },
+                { id: 'people', title: 'People', icon: 'people' },
+                { id: 'insertLink', title: 'Insert Link', icon: 'insertLink' },
+                { id: 'connect', title: 'Connect', icon: 'connect' },
+                { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
+              ],
+            },
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      contacts: {
+        'ui:field': 'list',
+        'ui:showIconAsAvatar': true,
+        'ui:showSelected': true,
+      },
+    },
+    formData: {
+      contacts: 'alice',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    const [actionHistory, setActionHistory] = useState<string[]>([]);
+    const [actionCounts, setActionCounts] = useState<Record<string, number>>({});
+
+    return (
+      <StoryLayout
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📊 Action Activity</h4>
+            <div style={{ fontSize: '12px', marginBottom: '15px' }}>
+              <p>Selected Contact: {formData.contacts || 'None'}</p>
+              <p>Total Actions: {actionHistory.length}</p>
+              <div>
+                <strong>Action Counts:</strong>
+                <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+                  {Object.entries(actionCounts).map(([key, count]) => (
+                    <li key={key}>{key}: {count}</li>
+                  ))}
+                  {Object.keys(actionCounts).length === 0 && <li>None</li>}
+                </ul>
+              </div>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>📝 Recent Actions</h4>
+            <ul style={{ fontSize: '11px', margin: '5px 0 15px', paddingLeft: '20px' }}>
+              {actionHistory.slice(-5).map((entry, index) => (
+                <li key={index}>{entry}</li>
+              ))}
+              {actionHistory.length === 0 && <li>No actions yet</li>}
+            </ul>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>📝 Form Data</h4>
+            <pre style={{ fontSize: '11px', overflow: 'auto', maxHeight: '200px', margin: 0, background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+              {JSON.stringify(formData, null, 2)}
+            </pre>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+          onButtonClick={(name: string) => {
+            // name format: `${item.const}-${action.id}-action` or `${item.const}-author`
+            const timestamp = new Date().toLocaleTimeString();
+            setActionHistory(prev => [...prev, `${timestamp}: ${name}`]);
+            const actionMatch = name.match(/^(.*?)-(.*?)-(action)$/);
+            if (actionMatch) {
+              const [, actionId, itemId] = actionMatch;
+              const key = `${actionId}:${itemId}`;
+              setActionCounts(prev => ({ ...prev, [key]: (prev[key] || 0) + 1 }));
+            }
+            args.onButtonClick?.(name as any);
+          }}
+        />
+      </StoryLayout>
+    );
+  },
+};

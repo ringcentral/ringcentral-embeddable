@@ -199,6 +199,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
       } else if (e.data.type === 'rc-adapter-update-authorization-status') {
         this._updateAuthorizationStatus(e.data);
+      } else if (e.data.type === 'rc-adapter-refresh-license-status') {
+        this._refreshLicenseStatus(e.data);
       } else if (e.data.type === 'rc-adapter-sync-third-party-contacts') {
         this._triggerSyncContacts();
       } else if (e.data.type === 'rc-adapter-trigger-call-logger-match') {
@@ -410,6 +412,22 @@ export default class ThirdPartyService extends RcModuleV2 {
       showAuthRedDot: service.showAuthRedDot || false,
       authorizedAccount: service.authorizedAccount,
       showAuthButton: !!service.authorizationPath,
+      licenseStatus: service.licenseStatus,
+      licenseStatusColor: service.licenseStatusColor,
+      licenseDescription: service.licenseDescription,
+    });
+  }
+
+  async onClickLicenseRefreshButton() {
+    if (!this._additionalButtonPath) {
+      console.warn('Button event is not registered, ');
+      return;
+    }
+    await requestWithPostMessage(this._additionalButtonPath, {
+      button: {
+        id: 'refreshLicense',
+        type: 'refreshLicense',
+      },
     });
   }
 
@@ -418,6 +436,14 @@ export default class ThirdPartyService extends RcModuleV2 {
       return;
     }
     this.setAuthorized(!!data.authorized, data.authorizedAccount);
+  }
+
+  _refreshLicenseStatus(data) {
+    this.setLicenseStatus(
+      data.licenseStatus,
+      data.licenseStatusColor,
+      data.licenseDescription,
+    );
   }
 
   _registerActivities(service) {
@@ -1335,14 +1361,29 @@ export default class ThirdPartyService extends RcModuleV2 {
   @state
   showAuthButton = false;
 
+  @globalStorage
+  @state
+  licenseStatus = '';
+
+  @globalStorage
+  @state
+  licenseStatusColor = '';
+
+  @globalStorage
+  @state
+  licenseDescription = '';
+
   @action
   _onRegisterAuthorization({
     authorized,
-    authorizedTitle,
-    unauthorizedTitle,
-    showAuthRedDot,
-    authorizedAccount,
-    showAuthButton,
+    authorizedTitle = '',
+    unauthorizedTitle = '',
+    showAuthRedDot = false,
+    authorizedAccount = '',
+    showAuthButton = false,
+    licenseStatus = '',
+    licenseStatusColor = '',
+    licenseDescription = '',
   }) {
     this.authorized = authorized;
     this.authorizedTitle = authorizedTitle;
@@ -1350,6 +1391,9 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._showAuthRedDot = showAuthRedDot;
     this.authorizedAccount = authorizedAccount;
     this.showAuthButton = showAuthButton;
+    this.licenseStatus = licenseStatus;
+    this.licenseStatusColor = licenseStatusColor;
+    this.licenseDescription = licenseDescription;
   }
 
   get authorizationLogo() {
@@ -1360,6 +1404,13 @@ export default class ThirdPartyService extends RcModuleV2 {
   setAuthorized(value, account) {
     this.authorized = value;
     this.authorizedAccount = account
+  }
+
+  @action
+  setLicenseStatus(status = '', color = 'neutral.f04', description = '') {
+    this.licenseStatus = status;
+    this.licenseStatusColor = color;
+    this.licenseDescription = description;
   }
 
   get authorizationRegistered() {

@@ -4,12 +4,15 @@ import { widgets } from './Widgets';
 import { templates } from './Templates';
 import { fields } from './Fields';
 import { Validator } from './validator';
+import { TextWithMarkdown } from './components/TextWithMarkdown';
+import { ActionMenu } from './components/ActionMenu';
 
 const theme: ThemeProps = { widgets, templates };
 
 const Form = withTheme(theme);
 const validator = new Validator();
 
+export { TextWithMarkdown, ActionMenu };
 export const JSONSchemaPage = ({
   schema,
   uiSchema = {},

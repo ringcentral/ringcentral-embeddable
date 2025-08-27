@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   RcList,
@@ -21,15 +21,60 @@ import {
   useAvatarShortName,
 } from '@ringcentral/juno';
 
-import { ArrowRight } from '@ringcentral/juno-icon';
+import {
+  ArrowRight,
+  Edit,
+  Delete,
+  NewAction,
+  ViewBorder,
+  Copy,
+  Share,
+  Download,
+  PhoneBorder,
+  SmsBorder,
+  People,
+  Refresh,
+  InfoBorder,
+  InsertLink,
+  Connect,
+  ViewLogBorder,
+} from '@ringcentral/juno-icon';
+
+import { ActionMenu } from '../components/ActionMenu';
 
 const StyledList = styled(RcList)`
   margin: 0 -16px;
 `;
 
-const StyledItem = styled(RcListItem)`
+const StyledItem = styled(RcListItem)<{ $hoverOnMoreMenu?: boolean }>`
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   cursor: pointer;
+
+  .list-item-action-menu {
+    display: none;
+  }
+
+  ${({ $hoverOnMoreMenu }) =>
+    $hoverOnMoreMenu &&
+    `
+    .list-item-action-menu {
+      display: flex;
+    }
+
+    .list-item-meta {
+      display: none;
+    }
+  `}
+
+  &:hover {
+    .list-item-action-menu {
+      display: flex;
+    }
+
+    .list-item-meta {
+      display: none;
+    }
+  }
 `;
 
 const StyledAvatar = styled(RcAvatar)<{ $round?: boolean }>`
@@ -61,6 +106,35 @@ const MetaContainer = styled.div`
   }
 `;
 
+export const StyledActionMenu = styled(ActionMenu)`
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  margin-top: -16px;
+
+  .RcIconButton-root {
+    margin-left: 6px;
+  }
+`;
+
+const ICONS_MAP = {
+  'edit': Edit,
+  'delete': Delete,
+  'view': ViewBorder,
+  'copy': Copy,
+  'share': Share,
+  'download': Download,
+  'phone': PhoneBorder,
+  'sms': SmsBorder,
+  'people': People,
+  'refresh': Refresh,
+  'newAction': NewAction,
+  'info': InfoBorder,
+  'insertLink': InsertLink,
+  'connect': Connect,
+  'viewLog': ViewLogBorder,
+};
+
 function ListItem({
   item,
   disabled,
@@ -68,13 +142,31 @@ function ListItem({
   onClick,
   showIconAsAvatar,
   showAsNavigation,
+  actions = [],
+  onClickAction,
 }) {
+  const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
+  const formattedActions = actions.map((action) => {
+    const icon = ICONS_MAP[action.icon];
+    return {
+      title: action.title,
+      icon: icon || ICONS_MAP.info,
+      onClick: (e) => {
+        e.stopPropagation();
+        onClickAction(action);
+      },
+      id: action.id,
+      color: action.color,
+      disabled: action.disabled,
+    };
+  });
   return (
     <StyledItem
       key={item.const}
       disabled={disabled}
       selected={selected}
       onClick={onClick}
+      $hoverOnMoreMenu={hoverOnMoreMenu}
     >
       {
         item.icon ? (
@@ -95,7 +187,7 @@ function ListItem({
       {
         (item.meta || item.authorName || showAsNavigation) ? (
           <RcListItemSecondaryAction>
-            <MetaContainer>
+            <MetaContainer className="list-item-meta">
               {item.authorName && <span>{item.authorName}</span>}
               {item.meta && <span>{item.meta}</span>}
             </MetaContainer>
@@ -109,6 +201,21 @@ function ListItem({
             }
           </RcListItemSecondaryAction>
         ) : null
+      }
+      {
+        actions.length > 0 && (
+          <StyledActionMenu
+            actions={formattedActions}
+            size="small"
+            maxActions={3}
+            className="list-item-action-menu"
+            iconVariant="contained"
+            color="neutral.b01"
+            onMoreMenuOpen={(open) => {
+              setHoverOnMoreMenu(open);
+            }}
+          />
+        )
       }
     </StyledItem>
   );
@@ -449,6 +556,10 @@ export function List({
           onClickAuthor={(e) => {
             e.stopPropagation();
             onFocus(`${item.const}-author`, '$$clicked');
+          }}
+          actions={item.actions}
+          onClickAction={(action) => {
+            onFocus(`${action.id}-${item.const}-action`, '$$clicked');
           }}
         />
       ))}

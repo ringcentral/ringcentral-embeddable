@@ -202,6 +202,7 @@ function ArrayItem({
         aria-readonly={readOnly}
         readOnly={readOnly}
         fullWidth
+        autoFocus={!value}
       />
       {
         !readOnly && (

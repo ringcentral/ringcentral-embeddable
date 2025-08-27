@@ -42,9 +42,6 @@ import {
   DataFetcherV2,
 } from '@ringcentral-integration/commons/modules/DataFetcherV2';
 import {
-  DateTimeFormat,
-} from '@ringcentral-integration/commons/modules/DateTimeFormat';
-import {
   DialingPlan,
 } from '@ringcentral-integration/commons/modules/DialingPlan';
 import {
@@ -157,6 +154,7 @@ import { AppFeatures } from '../AppFeatures';
 import { Auth } from '../Auth';
 import { AudioSettings } from '../AudioSettings';
 import { AudioSettingsUI } from '../AudioSettingsUI';
+import { DateTimeFormat } from '../DateTimeFormat';
 import { PhoneTabsUI } from '../PhoneTabsUI';
 import { ContactDetailsUI } from '../ContactDetailsUI';
 import { CallControlUI } from '../CallControlUI';

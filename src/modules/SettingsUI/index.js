@@ -55,6 +55,9 @@ export class SettingsUI extends BaseSettingsUI {
         authorizedAccount: thirdPartyService.authorizedAccount,
         showAuthRedDot: thirdPartyService.showAuthRedDot,
         showAuthButton: thirdPartyService.showAuthButton,
+        licenseStatus: thirdPartyService.licenseStatus,
+        licenseStatusColor: thirdPartyService.licenseStatusColor,
+        licenseDescription: thirdPartyService.licenseDescription,
       } : null,
       showThemeSetting: brand.code === 'rc', // only show theme settings for rc brand now
       showSmartNoteSetting: smartNotes.hasPermission && smartNotes.clientInitialized,
@@ -106,6 +109,9 @@ export class SettingsUI extends BaseSettingsUI {
       },
       gotoCallQueuePresenceSettings: () => {
         routerInteraction.push('/settings/callQueuePresence');
+      },
+      onThirdPartyLicenseRefresh: () => {
+        thirdPartyService.onClickLicenseRefreshButton();
       },
     }
   }
