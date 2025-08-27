@@ -892,3 +892,162 @@ export const NavigationListField: Story = {
     );
   },
 }; 
+
+// List with Actions
+
+export const ListWithActions: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        contacts: {
+          type: 'string',
+          title: 'Contacts',
+          description: 'Select a contact or use actions',
+          oneOf: [
+            {
+              const: 'alice',
+              title: 'Alice Johnson',
+              description: 'Account Manager',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+              meta: 'Last contacted: 2d ago',
+              actions: [
+                { id: 'call', title: 'Call', icon: 'phone' },
+                { id: 'sms', title: 'SMS', icon: 'sms' },
+                { id: 'edit', title: 'Edit', icon: 'edit' },
+                { id: 'delete', title: 'Delete', icon: 'delete', color: 'danger.b03' },
+                { id: 'newAction', title: 'New Action', icon: 'newAction' },
+                { id: 'info', title: 'Info', icon: 'info' },
+                { id: 'view', title: 'View', icon: 'view' },
+                { id: 'refresh', title: 'Refresh', icon: 'refresh' },
+                { id: 'copy', title: 'Copy', icon: 'copy' },
+                { id: 'share', title: 'Share', icon: 'share' },
+                { id: 'download', title: 'Download', icon: 'download' },
+                { id: 'people', title: 'People', icon: 'people' },
+                { id: 'insertLink', title: 'Insert Link', icon: 'insertLink' },
+                { id: 'connect', title: 'Connect', icon: 'connect' },
+                { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
+              ],
+            },
+            {
+              const: 'bob',
+              title: 'Bob Wilson',
+              description: 'Sales Engineer',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+              meta: 'Last contacted: 5h ago',
+              actions: [
+                { id: 'call', title: 'Call', icon: 'phone' },
+                { id: 'sms', title: 'SMS', icon: 'sms' },
+                { id: 'edit', title: 'Edit', icon: 'edit' },
+                { id: 'delete', title: 'Delete', icon: 'delete', color: 'danger.b03' },
+                { id: 'newAction', title: 'New Action', icon: 'newAction' },
+                { id: 'info', title: 'Info', icon: 'info' },
+                { id: 'view', title: 'View', icon: 'view' },
+                { id: 'refresh', title: 'Refresh', icon: 'refresh' },
+                { id: 'copy', title: 'Copy', icon: 'copy' },
+                { id: 'share', title: 'Share', icon: 'share' },
+                { id: 'download', title: 'Download', icon: 'download' },
+                { id: 'people', title: 'People', icon: 'people' },
+                { id: 'insertLink', title: 'Insert Link', icon: 'insertLink' },
+                { id: 'connect', title: 'Connect', icon: 'connect' },
+                { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
+              ],
+            },
+            {
+              const: 'carol',
+              title: 'Carol Davis',
+              description: 'Support Specialist',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+              meta: 'Last contacted: 1w ago',
+              actions: [
+                { id: 'call', title: 'Call', icon: 'phone' },
+                { id: 'sms', title: 'SMS', icon: 'sms' },
+                { id: 'edit', title: 'Edit', icon: 'edit' },
+                { id: 'delete', title: 'Delete', icon: 'delete', color: 'danger.b03' },
+                { id: 'newAction', title: 'New Action', icon: 'newAction' },
+                { id: 'info', title: 'Info', icon: 'info' },
+                { id: 'view', title: 'View', icon: 'view' },
+                { id: 'refresh', title: 'Refresh', icon: 'refresh' },
+                { id: 'copy', title: 'Copy', icon: 'copy' },
+                { id: 'share', title: 'Share', icon: 'share' },
+                { id: 'download', title: 'Download', icon: 'download' },
+                { id: 'people', title: 'People', icon: 'people' },
+                { id: 'insertLink', title: 'Insert Link', icon: 'insertLink' },
+                { id: 'connect', title: 'Connect', icon: 'connect' },
+                { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
+              ],
+            },
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      contacts: {
+        'ui:field': 'list',
+        'ui:showIconAsAvatar': true,
+        'ui:showSelected': true,
+      },
+    },
+    formData: {
+      contacts: 'alice',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    const [actionHistory, setActionHistory] = useState<string[]>([]);
+    const [actionCounts, setActionCounts] = useState<Record<string, number>>({});
+
+    return (
+      <StoryLayout
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📊 Action Activity</h4>
+            <div style={{ fontSize: '12px', marginBottom: '15px' }}>
+              <p>Selected Contact: {formData.contacts || 'None'}</p>
+              <p>Total Actions: {actionHistory.length}</p>
+              <div>
+                <strong>Action Counts:</strong>
+                <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+                  {Object.entries(actionCounts).map(([key, count]) => (
+                    <li key={key}>{key}: {count}</li>
+                  ))}
+                  {Object.keys(actionCounts).length === 0 && <li>None</li>}
+                </ul>
+              </div>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>📝 Recent Actions</h4>
+            <ul style={{ fontSize: '11px', margin: '5px 0 15px', paddingLeft: '20px' }}>
+              {actionHistory.slice(-5).map((entry, index) => (
+                <li key={index}>{entry}</li>
+              ))}
+              {actionHistory.length === 0 && <li>No actions yet</li>}
+            </ul>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>📝 Form Data</h4>
+            <pre style={{ fontSize: '11px', overflow: 'auto', maxHeight: '200px', margin: 0, background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+              {JSON.stringify(formData, null, 2)}
+            </pre>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+          onButtonClick={(name: string) => {
+            // name format: `${item.const}-${action.id}-action` or `${item.const}-author`
+            const timestamp = new Date().toLocaleTimeString();
+            setActionHistory(prev => [...prev, `${timestamp}: ${name}`]);
+            const actionMatch = name.match(/^(.*?)-(.*?)-(action)$/);
+            if (actionMatch) {
+              const [, actionId, itemId] = actionMatch;
+              const key = `${actionId}:${itemId}`;
+              setActionCounts(prev => ({ ...prev, [key]: (prev[key] || 0) + 1 }));
+            }
+            args.onButtonClick?.(name as any);
+          }}
+        />
+      </StoryLayout>
+    );
+  },
+};

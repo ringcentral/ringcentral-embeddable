@@ -4,7 +4,7 @@ import {
   RcAlert,
   styled,
 } from '@ringcentral/juno';
-import { TextWithMarkdown } from '../lib/TextWithMarkdown';
+import { TextWithMarkdown } from '../components/TextWithMarkdown';
 
 const StyledAlert = styled(RcAlert)`
   &.RcAlert-root {
