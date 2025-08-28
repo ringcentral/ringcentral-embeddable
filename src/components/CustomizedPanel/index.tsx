@@ -85,7 +85,14 @@ export function CustomizedPanel({
           schema={schema}
           onFormDataChange={(newFormData) => {
             const changedKeys = Object.keys(newFormData).filter(
-              (key) => newFormData[key] !== formDataState[key],
+              (key) => {
+                const newVal = newFormData[key];
+                const oldVal = formDataState[key];
+                if (typeof newVal === 'object' && typeof oldVal === 'object') {
+                  return JSON.stringify(newVal) !== JSON.stringify(oldVal);
+                }
+                return newVal !== oldVal;
+              },
             );
             setFormDataState(newFormData);
             onFormDataChange(pageId, newFormData, changedKeys);

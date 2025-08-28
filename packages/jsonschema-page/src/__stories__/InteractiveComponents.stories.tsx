@@ -979,6 +979,11 @@ export const ListWithActions: Story = {
             },
           ],
         },
+        docs: {
+          type: 'string',
+          title: 'Docs',
+          description: 'Supported icons: phone, sms, edit, delete, newAction, info, view, refresh, copy, share, download, people, insertLink, connect, viewLog',
+        },
       },
     },
     uiSchema: {
@@ -986,6 +991,10 @@ export const ListWithActions: Story = {
         'ui:field': 'list',
         'ui:showIconAsAvatar': true,
         'ui:showSelected': true,
+      },
+      docs: {
+        "ui:field": "typography",
+        "ui:variant": "body1",
       },
     },
     formData: {
