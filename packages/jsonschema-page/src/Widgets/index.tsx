@@ -7,6 +7,7 @@ import RangeWidget from './RangeWidget';
 import SelectWidget from './SelectWidget';
 import TextareaWidget from './TextareaWidget';
 import FileWidget from './FileWidget';
+import AutocompleteWidget from './AutocompleteWidget';
 export const widgets = {
   CheckboxWidget,
   CheckboxesWidget,
@@ -15,4 +16,5 @@ export const widgets = {
   SelectWidget,
   TextareaWidget,
   FileWidget,
+  AutocompleteWidget,
 } as RegistryWidgetsType<any, RJSFSchema, FormContextType>;

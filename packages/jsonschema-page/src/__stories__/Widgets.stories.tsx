@@ -1058,3 +1058,102 @@ export const TextareaWidget: Story = {
     );
   },
 };
+
+// Autocomplete Widget (Downshift)
+export const AutocompleteWidget: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        city: {
+          type: 'string',
+          title: 'City',
+          description: 'Type to search and select a city',
+          enum: [
+            'New York',
+            'Los Angeles',
+            'Chicago',
+            'Houston',
+            'Phoenix',
+            'Philadelphia',
+            'San Antonio',
+            'San Diego',
+            'Dallas',
+            'San Jose',
+          ],
+          enumNames: [
+            'New York',
+            'Los Angeles',
+            'Chicago',
+            'Houston',
+            'Phoenix',
+            'Philadelphia',
+            'San Antonio',
+            'San Diego',
+            'Dallas',
+            'San Jose',
+          ],
+        },
+        language: {
+          type: 'string',
+          title: 'Programming Language',
+          description: 'Autocomplete with popular languages',
+          enum: [
+            'JavaScript',
+            'TypeScript',
+            'Python',
+            'Java',
+            'C#',
+            'Go',
+            'Rust',
+            'Ruby',
+            'PHP',
+            'Kotlin',
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      city: {
+        'ui:widget': 'AutocompleteWidget',
+        'ui:placeholder': 'Start typing a city...'
+      },
+      language: {
+        'ui:widget': 'AutocompleteWidget',
+        'ui:placeholder': 'Type a language...'
+      },
+    },
+    formData: {
+      city: 'San',
+      language: 'Type',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    
+    return (
+      <StoryLayout 
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>💡 Tips</h4>
+            <div style={{ fontSize: '12px', marginBottom: '10px' }}>
+              <p>• Start typing to see suggestions.</p>
+              <p>• Press Enter to accept highlighted suggestion.</p>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>📝 Form Data</h4>
+            <pre style={{ fontSize: '11px', overflow: 'auto', maxHeight: '200px', margin: 0, background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+              {JSON.stringify(formData, null, 2)}
+            </pre>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+        />
+      </StoryLayout>
+    );
+  },
+};
