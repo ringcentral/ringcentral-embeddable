@@ -180,7 +180,7 @@ export class Webphone extends WebphoneBase {
   _updateSessionsState(sessions: NormalizedSession[]) {
     const cachedSessions = this.sessions.filter((x) => x.cached);
     cachedSessions.forEach((cachedSession) => {
-      const session = sessions.find((x) => x.id === cachedSession.id);
+      const session = sessions.find((x) => x.callId === cachedSession.callId);
       if (session) {
         session.cached = true;
       } else {
@@ -198,29 +198,29 @@ export class Webphone extends WebphoneBase {
 
   @action
   _setStateOnCallRing(session: NormalizedSession) {
-    this.ringSessionId = session.id;
+    this.ringSessionId = session.callId;
   }
 
   @action
   _setStateOnCallStart(session: NormalizedSession) {
-    this.activeSessionId = session.id;
-    if (this.ringSessionId === session.id) {
+    this.activeSessionId = session.callId;
+    if (this.ringSessionId === session.callId) {
       const ringSessions = this.sessions.filter((x) => isRing(x));
-      this.ringSessionId = (ringSessions[0] && ringSessions[0].id) || null;
+      this.ringSessionId = (ringSessions[0] && ringSessions[0].callId) || null;
     }
   }
 
   @action
   _setStateOnCallEnd(session: NormalizedSession) {
-    if (this.activeSessionId === session.id) {
+    if (this.activeSessionId === session.callId) {
       const activeSessions = this.sessions.filter((x) => !isRing(x));
       activeSessions.sort(sortByLastActiveTimeDesc);
       this.activeSessionId =
-        (activeSessions[0] && activeSessions[0].id) || null;
+        (activeSessions[0] && activeSessions[0].callId) || null;
     }
-    if (this.ringSessionId === session.id) {
+    if (this.ringSessionId === session.callId) {
       const ringSessions = this.sessions.filter((x) => isRing(x));
-      this.ringSessionId = (ringSessions[0] && ringSessions[0].id) || null;
+      this.ringSessionId = (ringSessions[0] && ringSessions[0].callId) || null;
     }
     if (
       /**
@@ -235,7 +235,7 @@ export class Webphone extends WebphoneBase {
       return;
     }
     const lastSessions = [session].concat(
-      this.lastEndedSessions.filter((x) => x.id !== session.id),
+      this.lastEndedSessions.filter((x) => x.callId !== session.callId),
     );
     this.lastEndedSessions = lastSessions.slice(0, 5);
   }
@@ -243,7 +243,7 @@ export class Webphone extends WebphoneBase {
   @action
   _setSessionCaching(cachingSessionIds: string[]) {
     cachingSessionIds.forEach((sessionId) => {
-      const session = this.sessions.find((x) => x.id === sessionId);
+      const session = this.sessions.find((x) => x.callId === sessionId);
       if (session) {
         session.cached = true;
       }
@@ -264,7 +264,7 @@ export class Webphone extends WebphoneBase {
     }
     const activeSessions = sessions.filter((x) => !x.cached && !isRing(x));
     activeSessions.sort(sortByLastActiveTimeDesc);
-    this.activeSessionId = (activeSessions[0] && activeSessions[0].id) || null;
+    this.activeSessionId = (activeSessions[0] && activeSessions[0].callId) || null;
   }
 
   @action
@@ -394,7 +394,7 @@ export class Webphone extends WebphoneBase {
 
   @proxify
   async answer(sessionId: string) {
-    const session = this.sessions.find((session) => session.id === sessionId);
+    const session = this.sessions.find((session) => session.callId === sessionId);
     if (!session || !isRing(session)) {
       return;
     }
@@ -500,7 +500,7 @@ export class Webphone extends WebphoneBase {
 
   _addTrackAfterForward() {
     if (this.activeSession && !this.activeSession.isOnHold) {
-      const rawActiveSession = this.originalSessions[this.activeSession.id];
+      const rawActiveSession = this.originalSessions[this.activeSession.callId];
       this._addTrack(rawActiveSession);
     }
   }
@@ -560,7 +560,7 @@ export class Webphone extends WebphoneBase {
     await Promise.all(
       this.webphoneSessions.map(
         async (session: WebphoneSession) => {
-          if (currentSessionId === session.id) {
+          if (currentSessionId === session.callId) {
             return;
           }
           if (session.__rc_localHold) {
@@ -593,7 +593,7 @@ export class Webphone extends WebphoneBase {
     }
     try {
       if (session.__rc_localHold) {
-        await this._holdOtherSession(session.id);
+        await this._holdOtherSession(session.callId);
         this._onBeforeCallResume(session);
         await session.unhold();
         session.__rc_callStatus = sessionStatus.connected;
@@ -963,7 +963,9 @@ export class Webphone extends WebphoneBase {
       }
     }
     await this._holdOtherSession(null);
-    let headers = {};
+    let headers = {
+      'Client-id': this._deps.webphoneOptions.appKey,
+    };
     if (inviteOptions.extraHeaders) {
       headers = {
         ...inviteOptions.extraHeaders,
@@ -979,7 +981,7 @@ export class Webphone extends WebphoneBase {
         headers,
       },
     );
-    const session: WebphoneSession = this._webphone.callSessions[this._webphone.callSessions.length - 1];
+    const session = this._webphone.callSessions[this._webphone.callSessions.length - 1] as WebphoneSession;
     session.__rc_creationTime = Date.now();
     session.__rc_lastActiveTime = Date.now();
     session.__rc_fromNumber = inviteOptions.fromNumber!;
@@ -1117,7 +1119,7 @@ export class Webphone extends WebphoneBase {
   _onCallInit(session: WebphoneSession) {
     this._updateSessions();
     const normalizedSession = this._getNormalizedSession(session);
-    this._setActiveSessionId(normalizedSession!.id);
+    this._setActiveSessionId(normalizedSession!.callId);
 
     if (
       this._deps.contactMatcher &&
@@ -1226,7 +1228,7 @@ export class Webphone extends WebphoneBase {
 
   _onCallResume(session: WebphoneSession) {
     const normalizedSession = this._getNormalizedSession(session);
-    this._setActiveSessionId(normalizedSession!.id);
+    this._setActiveSessionId(normalizedSession!.callId);
 
     this._eventEmitter.emit(
       EVENTS.callResume,
@@ -1317,7 +1319,7 @@ export class Webphone extends WebphoneBase {
       return null;
     }
     const activeSession = find(
-      (session) => session.id === this.activeSessionId,
+      (session) => session.callId === this.activeSessionId,
       this.sessions,
     );
     return activeSession;
@@ -1335,7 +1337,7 @@ export class Webphone extends WebphoneBase {
       return null;
     }
     const session = find(
-      (session) => session.id === this.ringSessionId,
+      (session) => session.callId === this.ringSessionId,
       this.sessions,
     );
     return session;
@@ -1380,6 +1382,6 @@ export class Webphone extends WebphoneBase {
   }
 
   private _getNormalizedSession(session: WebphoneSession) {
-    return find((x) => x.id === session.id, this.sessions);
+    return find((x) => x.callId === session.callId, this.sessions);
   }
 }

@@ -516,21 +516,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       debug: this._deps.webphoneOptions.webphoneLogLevel ? this._deps.webphoneOptions.webphoneLogLevel > 1 : false,
       deviceManager: this._audioDeviceManager,
       sipClient: this._sharedSipClient,
-      clientId: this._deps.webphoneOptions.appKey,
-    });
-    this._webphone.on('provisionUpdate', () => {
-      if (this.webphoneSessions.length > 0) {
-        return;
-      }
-      this._deps.alert.warning({
-        message: webphoneErrors.provisionUpdate,
-        allowDuplicates: false,
-      });
-      this.connect({
-        force: true,
-        skipDLCheck: true,
-        skipConnectDelay: true,
-      });
     });
     try {
       if (this._sharedSipClient) {
@@ -553,6 +538,12 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       } else {
         await this._webphone.start();
         this._onWebphoneRegistered(provisionData);
+        this._webphone.sipClient.on('inboundMessage', (inboundMessage) => {
+          if(inboundMessage.headers.Event !== "check-sync") {
+            return;
+          }
+          this._onProvisionUpdateRequired();
+        });
       }
     } catch (e) {
       console.error(e);
@@ -628,6 +619,21 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     // override
   }
 
+  _onProvisionUpdateRequired() {
+    if (this.webphoneSessions.length > 0) {
+      return;
+    }
+    this._deps.alert.warning({
+      message: webphoneErrors.provisionUpdate,
+      allowDuplicates: false,
+    });
+    this.connect({
+      force: true,
+      skipDLCheck: true,
+      skipConnectDelay: true,
+    });
+  }
+
   async _connect(force = false) {
     if (!this._deps.auth.loggedIn) {
       return;
@@ -641,6 +647,12 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         ),
         tabId: this._deps.tabManager?.tabbie.id,
         clientId: this._deps.webphoneOptions.appKey,
+      });
+      this._sharedSipClient.on('inboundMessage', (inboundMessage) => {
+        if(inboundMessage.headers.Event !== "check-sync") {
+          return;
+        }
+        this._onProvisionUpdateRequired();
       });
       this._sharedSipClient.on('status', async (status, error) => {
         console.log('shared sip client status', status);
@@ -1089,7 +1101,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     // map {id: session}
     const sessions = {};
     this.webphoneSessions.forEach((session) => {
-      sessions[session.id] = session;
+      sessions[session.callId] = session;
     });
     return sessions;
   }

@@ -163,11 +163,11 @@ export class Webphone extends WebphoneCommon {
 
   override _bindSessionEvents(webphoneSession: WebphoneSession) {
     super._bindSessionEvents(webphoneSession);
-    webphoneSession.on('userMedia', (stream) => {
-      this._deps.noiseReduction.denoiser(webphoneSession.id, stream);
+    webphoneSession.on('mediaStreamSet', (stream) => {
+      this._deps.noiseReduction.denoiser(webphoneSession.callId, stream);
     });
     webphoneSession.on('disposed', () => {
-      this._deps.noiseReduction.reset(webphoneSession.id);
+      this._deps.noiseReduction.reset(webphoneSession.callId);
     });
   }
 }

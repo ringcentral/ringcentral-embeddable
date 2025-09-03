@@ -34,8 +34,11 @@ export function normalizeSession(
   const fromPeer = session.direction === 'inbound' ? session.remotePeer : session.localPeer;
   const toPeer = session.direction === 'inbound' ? session.localPeer : session.remotePeer;
   const queueName = session.rcApiCallInfo ? session.rcApiCallInfo.queueName : null;
+  const rcHeaders = session.sipMessage?.headers["p-rc-api-ids"];
+  const remoteTag = session.remotePeer ? session.remoteTag : null;
+  const localTag = session.localPeer ? session.localTag : null;
   return {
-    id: session.id,
+    id: session.callId, // for backward compatibility
     callId: session.callId,
     direction: callDirections[session.direction],
     callStatus: getCallStatus(session.state),
@@ -44,8 +47,8 @@ export function normalizeSession(
     from: session.direction === 'inbound' ? session.remoteNumber : session.localNumber,
     fromNumber: session.__rc_fromNumber,
     fromUserName: fromPeer ? extractName(fromPeer) : '',
-    fromTag: session.direction === 'inbound' ? session.remoteTag : session.localTag,
-    toTag: session.direction === 'inbound' ? session.localTag : session.remoteTag,
+    fromTag: session.direction === 'inbound' ? remoteTag : localTag,
+    toTag: session.direction === 'inbound' ? localTag : remoteTag,
     startTime: session.startTime && new Date(session.startTime).getTime(),
     creationTime: session.__rc_creationTime,
     isOnHold: !!session.__rc_localHold,
@@ -58,7 +61,7 @@ export function normalizeSession(
     recordStatus: session.__rc_recordStatus || recordStatus.idle,
     contactMatch: session.__rc_contactMatch,
     minimized: !!session.__rc_minimized,
-    partyData: session.partyId ? {
+    partyData: rcHeaders && session.partyId ? {
       partyId: session.partyId,
       sessionId: session.sessionId,
     } : null,
