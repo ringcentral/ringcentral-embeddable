@@ -132,7 +132,7 @@ function TypeFilter({
 }
 
 export const CALL_TYPE_LIST = ['All', 'Missed', 'Inbound', 'Outbound'];
-export const CALL_TYPE_LIST_WITH_UN_LOGGED = ['All', 'UnLogged', 'Missed', 'Inbound', 'Outbound'];
+export const CALL_TYPE_LIST_WITH_UN_LOGGED = ['All', 'UnLogged', 'Logged', 'Missed', 'Inbound', 'Outbound'];
 export const MESSAGE_TYPE_LIST = ['All', 'Unread'];
 export const MESSAGE_TYPE_LIST_WITH_UN_LOGGED = ['All', 'UnLogged', 'Unread'];
 
