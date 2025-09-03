@@ -120,7 +120,7 @@
     "react-router-redux": "^4.0.8",
     "redux": "^4.2.0",
     "ringcentral-client": "^1.0.0-beta.2",
-    "ringcentral-web-phone-beta-2": "git+https://github.com/embbnux/ringcentral-web-phone.git#v2-release",
+    "ringcentral-web-phone-beta-2": "git+https://github.com/embbnux/ringcentral-web-phone.git#v2-new-release",
     "setimmediate": "^1.0.5",
     "styled-components": "^5.3.3",
     "url": "^0.11.0",
