@@ -38,6 +38,8 @@ import {
   InsertLink,
   Connect,
   ViewLogBorder,
+  Read,
+  Unread,
 } from '@ringcentral/juno-icon';
 
 import { ActionMenu } from '../components/ActionMenu';
@@ -46,7 +48,10 @@ const StyledList = styled(RcList)`
   margin: 0 -16px;
 `;
 
-const StyledItem = styled(RcListItem)<{ $hoverOnMoreMenu?: boolean }>`
+const StyledItem = styled(RcListItem)<{
+  $hoverOnMoreMenu?: boolean
+  $hasActions?: boolean
+}>`
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   cursor: pointer;
 
@@ -66,15 +71,19 @@ const StyledItem = styled(RcListItem)<{ $hoverOnMoreMenu?: boolean }>`
     }
   `}
 
-  &:hover {
-    .list-item-action-menu {
-      display: flex;
-    }
+  ${({ $hasActions }) =>
+    $hasActions &&
+    `
+    &:hover {
+      .list-item-action-menu {
+        display: flex;
+      }
 
-    .list-item-meta {
-      display: none;
+      .list-item-meta {
+        display: none;
+      }
     }
-  }
+  `}
 `;
 
 const StyledAvatar = styled(RcAvatar)<{ $round?: boolean }>`
@@ -133,6 +142,8 @@ const ICONS_MAP = {
   'insertLink': InsertLink,
   'connect': Connect,
   'viewLog': ViewLogBorder,
+  'read': Read,
+  'unread': Unread,
 };
 
 function ListItem({
@@ -167,6 +178,7 @@ function ListItem({
       selected={selected}
       onClick={onClick}
       $hoverOnMoreMenu={hoverOnMoreMenu}
+      $hasActions={actions.length > 0}
     >
       {
         item.icon ? (
