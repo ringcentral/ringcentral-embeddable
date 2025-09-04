@@ -1,6 +1,6 @@
 {
   "name": "@ringcentral-integration/jsonschema-page",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "The jsonschema page component",
   "homepage": "https://github.com/ringcentral/ringcentral-embeddable/tree/main/packages/jsonschema-page#readme",
   "bugs": {

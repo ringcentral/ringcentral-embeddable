@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { styled } from '@ringcentral/juno/foundation';
 import {
   RcIconButton,
   RcMenu,
@@ -7,6 +6,7 @@ import {
   RcListItemText,
   RcListItemIcon,
   RcIcon,
+  styled,
 } from '@ringcentral/juno';
 
 import { MoreVert } from '@ringcentral/juno-icon';

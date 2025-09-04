@@ -43,7 +43,7 @@ export default function TitleField<T = any, S extends StrictRJSFSchema = RJSFSch
       $clickable={collapsible}
       onClick={onClick}
     >
-      <StyledTitle variant="subheading1" color="neutral.f06">{title}</StyledTitle>
+      <StyledTitle variant="subheading1" color="neutral.f06" component="div">{title}</StyledTitle>
       {
         collapsible ? (
           <StyledIcon

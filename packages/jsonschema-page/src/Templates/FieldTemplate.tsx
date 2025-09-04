@@ -67,7 +67,7 @@ export default function FieldTemplate<
       <FormControl fullWidth={fullWidth} error={rawErrors.length ? true : false} required={required}>
         {children}
         {displayLabel && rawDescription ? (
-          <Typography variant="caption1" color="neutral.f05">
+          <Typography variant="caption1" color="neutral.f05" component="div">
             {description}
           </Typography>
         ) : null}
