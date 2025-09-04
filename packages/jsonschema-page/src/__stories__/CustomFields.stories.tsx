@@ -119,7 +119,7 @@ export const TypographyFields: Story = {
         body1Text: {
           type: 'string',
           title: 'Body Text',
-          description: 'This is regular body text using the default body1 variant. It provides good readability for longer content.',
+          description: 'This is regular body text using the default body1 variant. It provides good readability for longer content. This is a [link](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page).',
         },
         body2Text: {
           type: 'string',
@@ -144,7 +144,7 @@ export const TypographyFields: Story = {
         bulletItem3: {
           type: 'string',
           title: 'Bullet Item 3',
-          description: 'Third bulleted list item',
+          description: 'Third bulleted list item. This is a [link](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page).',
         },
       },
     },

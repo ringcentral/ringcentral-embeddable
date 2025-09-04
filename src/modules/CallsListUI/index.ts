@@ -86,6 +86,13 @@ export class CallsListUI extends BaseCallsListUI {
           call.activityMatches.filter(m => m.type !== 'status').length === 0
         );
       }
+      if (this.filterType === 'Logged') {
+        return (
+          call.activityMatches &&
+          call.activityMatches.length > 0 &&
+          call.activityMatches.filter(m => m.type !== 'status').length > 0
+        );
+      }
       if (this.filterType === 'Missed') {
         return isInbound(call) && isMissed(call);
       }

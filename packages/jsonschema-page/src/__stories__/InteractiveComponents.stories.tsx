@@ -927,6 +927,8 @@ export const ListWithActions: Story = {
                 { id: 'insertLink', title: 'Insert Link', icon: 'insertLink' },
                 { id: 'connect', title: 'Connect', icon: 'connect' },
                 { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
+                { id: 'read', title: 'Mark as unread', icon: 'read' },
+                { id: 'unread', title: 'Mark as read', icon: 'unread' },
               ],
             },
             {
@@ -979,11 +981,6 @@ export const ListWithActions: Story = {
             },
           ],
         },
-        docs: {
-          type: 'string',
-          title: 'Docs',
-          description: 'Supported icons: phone, sms, edit, delete, newAction, info, view, refresh, copy, share, download, people, insertLink, connect, viewLog',
-        },
       },
     },
     uiSchema: {
@@ -991,10 +988,6 @@ export const ListWithActions: Story = {
         'ui:field': 'list',
         'ui:showIconAsAvatar': true,
         'ui:showSelected': true,
-      },
-      docs: {
-        "ui:field": "typography",
-        "ui:variant": "body1",
       },
     },
     formData: {
@@ -1011,6 +1004,10 @@ export const ListWithActions: Story = {
         args={args}
         resultComponent={
           <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📊Supported icons</h4>
+            <div style={{ fontSize: '12px', marginBottom: '15px' }}>
+              <p>call, sms, edit, delete, newAction, info, view, refresh, copy, share, download, people, insertLink, connect, viewLog, read, unread</p>
+            </div>
             <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📊 Action Activity</h4>
             <div style={{ fontSize: '12px', marginBottom: '15px' }}>
               <p>Selected Contact: {formData.contacts || 'None'}</p>
