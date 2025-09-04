@@ -588,7 +588,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     // override
   }
 
-  _onActiveTabIdChanged(activeTabId: string) {
+  _onActiveTabIdChanged() {
     // override
   }
 
@@ -713,7 +713,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         this._onSharedStateUpdated(state);
       });
       this._sharedSipClient.on('activeTabIdChanged', (activeTabId) => {
-        this._onActiveTabIdChanged(activeTabId);
+        this._onActiveTabIdChanged();
       });
       try {
         const statusResponse = await this._sharedSipClient.getStatus();

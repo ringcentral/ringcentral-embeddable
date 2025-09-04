@@ -95,24 +95,29 @@ export class Webphone extends WebphoneCommon {
   _onMultipleTabsChannelBroadcast = ({ event, message }) => {
     if (EVENTS[event]) {
       this._eventEmitter.emit(EVENTS[event], ...message);
+      if (event === EVENTS.callEnd) {
+        // on call end, check and set active after 1.2s
+        setTimeout(() => {
+          this._setActive();
+        }, 1200);
+      }
     }
   }
 
   async _setActive() {
     await super._setActive();
-    if (this._sharedSipClient?.active) {
-      this._disableProxify();
+    if (this._sharedSipClient) {
+      if (this._sharedSipClient.active) {
+        this._disableProxify();
+      } else {
+        this._enableProxify();
+      }
     }
     this._emitActiveWebphoneChangedEvent();
   }
 
-  override _onActiveTabIdChanged(activeTabId: string) {
-    if (this._sharedSipClient?.active) {
-      this._disableProxify();
-    } else {
-      this._enableProxify();
-    }
-    this._emitActiveWebphoneChangedEvent();
+  override _onActiveTabIdChanged() {
+    this._setActive();
   }
 
   _emitActiveWebphoneChangedEvent() {
