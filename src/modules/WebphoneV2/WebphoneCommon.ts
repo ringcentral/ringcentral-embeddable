@@ -45,6 +45,7 @@ import {
   sortByLastActiveTimeDesc,
   normalizeSession,
   rejectSession,
+  replyWithMessage,
 } from './webphoneHelper';
 import { EVENTS } from './events';
 import type { WebphoneSession } from './Webphone.interface';
@@ -410,7 +411,7 @@ export class Webphone extends WebphoneBase {
       await this._holdOtherSession(sessionId);
       await sipSession.answer();
       this._trackCallAnswer();
-    } catch (e: any) {
+    } catch (e) {
       console.log('Accept failed');
       console.error(e);
     }
@@ -433,7 +434,7 @@ export class Webphone extends WebphoneBase {
     }
     try {
       await session.decline();
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
       this._onCallEnd(session);
     }
@@ -499,7 +500,7 @@ export class Webphone extends WebphoneBase {
       this._onCallEnd(session);
       this._addTrackAfterForward();
       return true;
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
       this._deps.alert.warning({
         message: webphoneErrors.forwardError,
@@ -525,7 +526,7 @@ export class Webphone extends WebphoneBase {
         this._updateSessions();
       });
       return true;
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
       this._deps.alert.warning({
         message: webphoneErrors.muteError,
@@ -558,7 +559,7 @@ export class Webphone extends WebphoneBase {
       this._updateSessions();
       this._onCallHold(session);
       return true;
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error('hold error:', e);
       this._deps.alert.warning({
         message: webphoneErrors.holdError,
@@ -583,7 +584,7 @@ export class Webphone extends WebphoneBase {
           try {
             await session.hold();
             session.__rc_localHold = true;
-          } catch (e: any /** TODO: confirm with instanceof */) {
+          } catch (e) {
             console.error('Hold call fail');
             throw e;
           }
@@ -612,8 +613,8 @@ export class Webphone extends WebphoneBase {
         this._updateSessions();
         this._onCallResume(session);
       }
-    } catch (e: any /** TODO: confirm with instanceof */) {
-      console.log(e);
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -669,7 +670,7 @@ export class Webphone extends WebphoneBase {
       await session.stopRecording();
       session.__rc_recordStatus = recordStatus.idle;
       this._updateSessions();
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
       session.__rc_recordStatus = recordStatus.recording;
       this._updateSessions();
@@ -694,7 +695,7 @@ export class Webphone extends WebphoneBase {
           ttl: 0,
         });
       }
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
     }
   }
@@ -749,7 +750,7 @@ export class Webphone extends WebphoneBase {
       session.__rc_isOnTransfer = false;
       this._updateSessions();
       this._onCallEnd(session);
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e: any) {
       session.__rc_isOnTransfer = false;
       this._updateSessions();
 
@@ -801,7 +802,7 @@ export class Webphone extends WebphoneBase {
         extendedControls: '',
         transferSessionId: sessionId,
       });
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
       session.__rc_isOnTransfer = false;
       this._updateSessions();
@@ -826,7 +827,7 @@ export class Webphone extends WebphoneBase {
     this._updateSessions();
     try {
       await oldSession.completeWarmTransfer(newSession);
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
       newSession.__rc_isOnTransfer = false;
       this._updateSessions();
@@ -847,7 +848,7 @@ export class Webphone extends WebphoneBase {
       // this._onCallEnd(session);
       session.__rc_isOnFlip = true;
       console.log('Flipped');
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       session.__rc_isOnFlip = false;
       this._deps.alert.warning({
         message: webphoneErrors.flipError,
@@ -861,7 +862,7 @@ export class Webphone extends WebphoneBase {
   async _sendDTMF(dtmfValue: string, session: WebphoneSession) {
     try {
       await session.sendDtmf(dtmfValue, 100);
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
     }
   }
@@ -883,7 +884,7 @@ export class Webphone extends WebphoneBase {
     try {
       this._onBeforeCallEnd(session);
       await session.hangup();
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
       this._onCallEnd(session);
     }
@@ -898,7 +899,7 @@ export class Webphone extends WebphoneBase {
     try {
       session.__rc_isToVoicemail = true;
       await session.toVoicemail();
-    } catch (e: any /** TODO: confirm with instanceof */) {
+    } catch (e) {
       console.error(e);
       this._onCallEnd(session);
       this._deps.alert.warning({
@@ -915,9 +916,8 @@ export class Webphone extends WebphoneBase {
     }
     try {
       session.__rc_isReplied = true;
-      // TODO: support minutes parameter
-      await session.replyWithMessage(replyOptions.replyText);
-    } catch (e: any /** TODO: confirm with instanceof */) {
+      await replyWithMessage(session, replyOptions);
+    } catch (e) {
       console.error(e);
       this._onCallEnd(session);
     }

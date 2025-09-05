@@ -4,6 +4,9 @@ import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone
 import { recordStatus } from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import RequestMessage from "ringcentral-web-phone-beta-2/sip-message/outbound/request";
+import callControlCommands from "ringcentral-web-phone-beta-2/rc-message/call-control-commands";
+import RcMessage from "ringcentral-web-phone-beta-2/rc-message/rc-message";
+import type InboundMessage from "ringcentral-web-phone-beta-2/sip-message/inbound";
 
 // peer: '"User Name" <sip:16503621111*103@8.8.8>;tag=2ba03ca1-61ef-416d-80d6-ebe2d66f4111'
 const extractName = (peer: string) => peer.match(/"(.*)"/)?.[1] || '';
@@ -128,4 +131,47 @@ export async function rejectSession(session: WebphoneSession) {
     session.webPhone.callSessions.splice(sessionIndex, 1);
     session.dispose();
   }
+}
+
+interface ReplyOptions {
+  replyType: number; //TODO Use enum
+  replyText: string;
+  timeValue: string;
+  timeUnits: string;
+  callbackDirection: string;
+}
+export async function replyWithMessage(session: WebphoneSession, replyOptions: ReplyOptions) {
+  const body: {
+    RepTp: number;
+    Bdy?: string;
+    Vl?: string;
+    Units?: string;
+    Dir?: string;
+  } = {
+    RepTp: replyOptions.replyType,
+  };
+  if (replyOptions.replyType === 0) {
+    body.Bdy = replyOptions.replyText;
+  } else if (replyOptions.replyType === 1 || replyOptions.replyType === 4) {
+    body.Vl = replyOptions.timeValue;
+    body.Units = replyOptions.timeUnits;
+    body.Dir = replyOptions.callbackDirection;
+  }
+  await session.sendRcMessage(callControlCommands.ClientReply, body);
+  return new Promise((resolve) => {
+    const sessionCloseHandler = async (inboundMessage: InboundMessage) => {
+      if (inboundMessage.subject.startsWith("MESSAGE sip:")) {
+        const rcMessage = await RcMessage.fromXml(inboundMessage.body);
+        if (
+          rcMessage.headers.Cmd ===
+            callControlCommands.SessionClose.toString()
+        ) {
+          session.webPhone.sipClient.off("inboundMessage", sessionCloseHandler);
+          resolve(rcMessage);
+          // no need to dispose session here, session will dispose unpon CANCEL or BYE
+        }
+      }
+    };
+    session.webPhone.sipClient.on("inboundMessage", sessionCloseHandler);
+  });
 }
