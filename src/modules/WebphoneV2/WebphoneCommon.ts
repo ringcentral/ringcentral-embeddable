@@ -44,6 +44,7 @@ import {
   isRing,
   sortByLastActiveTimeDesc,
   normalizeSession,
+  rejectSession,
 } from './webphoneHelper';
 import { EVENTS } from './events';
 import type { WebphoneSession } from './Webphone.interface';
@@ -346,6 +347,7 @@ export class Webphone extends WebphoneBase {
     });
     session.on('disposed', () => {
       console.log('Call: disposed');
+      this._ringtoneHelper?.stop();
       this._onCallEnd(session);
       session.emit('terminated'); // For Conference Call back-compat
     });
@@ -416,7 +418,11 @@ export class Webphone extends WebphoneBase {
 
   @proxify
   async reject(sessionId: string) {
-    return this.ignore(sessionId);
+    const session = this.originalSessions[sessionId];
+    if (!session || session.state === 'disposed') {
+      return;
+    }
+    await rejectSession(session);
   }
 
   @proxify

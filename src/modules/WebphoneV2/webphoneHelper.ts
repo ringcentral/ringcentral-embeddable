@@ -3,6 +3,7 @@ import type { WebphoneSession } from './Webphone.interface';
 import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 import { recordStatus } from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
+import RequestMessage from "ringcentral-web-phone-beta-2/sip-message/outbound/request";
 
 // peer: '"User Name" <sip:16503621111*103@8.8.8>;tag=2ba03ca1-61ef-416d-80d6-ebe2d66f4111'
 const extractName = (peer: string) => peer.match(/"(.*)"/)?.[1] || '';
@@ -107,4 +108,24 @@ export function sortByLastActiveTimeDesc(
 
 export function isSharedWorkerSupported() {
   return typeof SharedWorker !== 'undefined';
+}
+
+export async function rejectSession(session: WebphoneSession) {
+  const requestMessage = new RequestMessage(
+    `SIP/2.0 480 Temporarily Unavailable`,
+    {
+      Via: session.sipMessage.headers.Via,
+      To: session.sipMessage.headers.To,
+      From: session.sipMessage.headers.From,
+      "Call-Id": session.callId,
+      CSeq: session.sipMessage.headers.CSeq,
+      Supported: 'outbound',
+    },
+  );
+  await session.webPhone.sipClient.reply(requestMessage);
+  const sessionIndex = session.webPhone.callSessions.findIndex(x => x.callId === session.callId);
+  if (sessionIndex !== -1) {
+    session.webPhone.callSessions.splice(sessionIndex, 1);
+    session.dispose();
+  }
 }
