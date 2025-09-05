@@ -335,6 +335,7 @@ export class Webphone extends WebphoneBase {
         this._playExtendedControls(session);
       }
       this._ringtoneHelper?.stop();
+      session.emit('accepted'); // For Conference Call back-compat
     });
     session.on('ringing', () => {
       console.log('Call ringing...');
@@ -346,6 +347,7 @@ export class Webphone extends WebphoneBase {
     session.on('disposed', () => {
       console.log('Call: disposed');
       this._onCallEnd(session);
+      session.emit('terminated'); // For Conference Call back-compat
     });
     // TODO: get media stream error handler
   }
@@ -354,6 +356,9 @@ export class Webphone extends WebphoneBase {
     super._onInvite(session);
     session.__rc_creationTime = Date.now();
     session.__rc_lastActiveTime = Date.now();
+    if (!session.id) {
+      session.id = session.callId;
+    }
     this._bindSessionEvents(session);
     this._onCallRing(session);
     if (
@@ -990,6 +995,9 @@ export class Webphone extends WebphoneBase {
     session.__rc_transferSessionId = transferSessionId!;
     this._bindSessionEvents(session);
     this._onCallInit(session);
+    if (!session.id) {
+      session.id = session.callId;
+    }
     return session;
   }
 
