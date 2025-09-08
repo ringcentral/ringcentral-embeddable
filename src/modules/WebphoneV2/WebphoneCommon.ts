@@ -469,6 +469,7 @@ export class Webphone extends WebphoneBase {
       return false;
     }
     session.__rc_isForwarded = true;
+    this._updateSessions();
   }
 
   @proxify
