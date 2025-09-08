@@ -163,7 +163,7 @@ function ListItem({
       title: action.title,
       icon: icon || ICONS_MAP.info,
       onClick: (e) => {
-        e.stopPropagation();
+        e && e.stopPropagation();
         onClickAction(action);
       },
       id: action.id,
