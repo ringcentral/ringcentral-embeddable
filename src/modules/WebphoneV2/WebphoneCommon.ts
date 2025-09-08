@@ -446,11 +446,38 @@ export class Webphone extends WebphoneBase {
   }
 
   @proxify
+  async startReply(sessionId: string) {
+    const session = this.originalSessions[sessionId];
+    if (!session) {
+      return;
+    }
+    if (session.__rc_isStartedReply) {
+      return;
+    }
+    try {
+      session.__rc_isStartedReply = true;
+      await session.startReply();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  @proxify
+  async setForwardFlag(sessionId) {
+    const session = this.originalSessions[sessionId];
+    if (!session) {
+      return false;
+    }
+    session.__rc_isForwarded = true;
+  }
+
+  @proxify
   async forward(sessionId: string, forwardNumber: string) {
     const session = this.originalSessions[sessionId];
     if (!session) {
       return false;
     }
+    // only support PSTN number
     try {
       let validatedResult;
       let validPhoneNumber;
@@ -494,7 +521,7 @@ export class Webphone extends WebphoneBase {
           validPhoneNumber = validatedResult.numbers?.[0]?.e164;
         }
       }
-      session.__rc_isForwarded = true;
+      session.__rc_isForwarded = true
       await session.forward(validPhoneNumber);
       console.log('Forwarded');
       this._onCallEnd(session);

@@ -52,6 +52,7 @@ export interface WebphoneSession extends InboundCallSession, OutboundCallSession
   __rc_isOnTransfer: boolean;
   __rc_isReplied: boolean;
   __rc_recordStatus: string;
+  __rc_isStartedReply: boolean;
   startTime: Date;
   id?: string;
 }

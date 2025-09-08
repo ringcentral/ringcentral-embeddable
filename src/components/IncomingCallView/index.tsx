@@ -28,7 +28,9 @@ export type IncomingCallViewProps = {
   toggleMinimized: (...args: any[]) => any;
   answer: (...args: any[]) => any;
   reject: (...args: any[]) => any;
+  ignore: (...args: any[]) => any;
   onForward: (...args: any[]) => any;
+  startReply: (...args: any[]) => any;
   toVoiceMail: (...args: any[]) => any;
   replyWithMessage: (...args: any[]) => any;
   formatPhone: (...args: any[]) => any;
@@ -84,6 +86,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
     answer: answerProp,
     onHold: onHoldProp,
     onForward: onForwardProp,
+    startReply: startReplyProp,
     getAvatarUrl,
     updateSessionMatchedContact,
     phoneTypeRenderer,
@@ -117,8 +120,10 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
     await answerProp(session.id);
   };
 
-  const onForward = (forwardNumber: string) =>
-    onForwardProp(session.id, forwardNumber);
+  const onForward = (forwardNumber: string, recipient: any) =>
+    onForwardProp(session.id, forwardNumber, recipient);
+
+  const startReply = () => startReplyProp(session.id);
 
   const updateAvatarUrl = async (contact: any) => {
     avatarUrl && setAvatarUrl(null);
@@ -227,6 +232,7 @@ export const IncomingCallView: FunctionComponent<IncomingCallViewProps> = (
       onBackButtonClick={toggleMinimized}
       forwardingNumbers={forwardingNumbers}
       onForward={onForward}
+      startReply={startReply}
       brand={brand}
       showContactDisplayPlaceholder={showContactDisplayPlaceholder}
       hasOtherActiveCall={hasOtherActiveCall}

@@ -48,6 +48,7 @@ import { getCallContact } from '../../lib/callHelper';
     'Call',
     'DialerUI',
     'Webphone',
+    'IncomingCallUI',
     'RegionSettings',
     'CallingSettings',
     'GlobalStorage',
@@ -89,6 +90,7 @@ export default class Adapter extends AdapterModuleCore {
     call,
     dialerUI,
     webphone,
+    incomingCallUI,
     regionSettings,
     callingSettings,
     messageStore,
@@ -166,6 +168,7 @@ export default class Adapter extends AdapterModuleCore {
     this._analytics = analytics;
     this._theme = theme;
     this._thirdPartyService = thirdPartyService;
+    this._incomingCallUI = incomingCallUI;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -999,7 +1002,7 @@ export default class Adapter extends AdapterModuleCore {
         this._webphone.toVoiceMail(id || this._webphone.ringSessionId);
         break;
       case 'forward':
-        this._webphone.forward(id || this._webphone.ringSessionId, options.forwardNumber);
+        this._forward(id || this._webphone.ringSessionId, options.forwardNumber);
         break;
       case 'startRecord':
         this._startRecord(id);
@@ -1022,6 +1025,10 @@ export default class Adapter extends AdapterModuleCore {
       default:
         break;
     }
+  }
+
+  async _forward(sessionId, forwardNumber) {
+    await this._incomingCallUI.forward(sessionId, forwardNumber);
   }
 
   async _startRecord(id) {
