@@ -232,6 +232,8 @@ export function MessageDetailsPanel({
   renderContactList,
   transcription,
   rcAccessToken,
+  additionalActions,
+  onClickAdditionalAction,
 }) {
   const [selected, setSelected] = useState(0);
   const [isLoggingState, setIsLoggingState] = useState(false);
@@ -398,6 +400,8 @@ export function MessageDetailsPanel({
     onDelete: () => {
       setDeleteConfirmOpen(true);
     },
+    additionalActions,
+    onClickAdditionalAction,
   })
   const mainActions = actions.filter((action) => action.id !== 'delete' && !action.sub);
   const subActions = actions.filter((action) => action.sub ||  action.id === 'delete');

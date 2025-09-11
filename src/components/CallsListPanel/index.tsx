@@ -135,6 +135,8 @@ export function CallsListPanel({
   loadMoreCalls,
   onLoadCalls = undefined,
   onViewCallDetails,
+  additionalActions,
+  onClickAdditionalAction,
 }) {
   const [contentHeight, setContentHeight] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
@@ -251,6 +253,8 @@ export function CallsListPanel({
       loadMoreCalls={loadMoreCalls}
       onViewCallDetails={onViewCallDetails}
       updateSessionMatchedContact={updateSessionMatchedContact}
+      additionalActions={additionalActions}
+      onClickAdditionalAction={onClickAdditionalAction}
     />
   );
 

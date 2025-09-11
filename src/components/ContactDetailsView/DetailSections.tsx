@@ -7,11 +7,26 @@ import {
   RcListItem,
   RcListItemText,
   RcListItemSecondaryAction,
-  RcIconButton,
 } from '@ringcentral/juno';
-import { PhoneBorder, SmsBorder } from '@ringcentral/juno-icon'
+import {
+  PhoneBorder,
+  SmsBorder,
+  CallsBorder,
+  Apps,
+} from '@ringcentral/juno-icon'
 import i18n from '@ringcentral-integration/widgets/components/ContactDetails/i18n';
 import { filterByPhoneTypes, sortByPhoneTypes } from '@ringcentral-integration/commons/lib/phoneTypeHelper';
+import { ActionMenu } from '../ActionMenu';
+
+const StyledActionMenu = styled(ActionMenu)`
+  .RcIconButton-root {
+    margin-left: 8px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+`;
 
 const Section = styled.div`
   padding: 8px 0;
@@ -59,6 +74,64 @@ const SectionItem = styled(RcListItem)`
   }
 `;
 
+const PHONE_ACTIONS_ICON_MAP = {
+  'call': PhoneBorder,
+  'text': SmsBorder,
+  'apps': Apps,
+  'clock': CallsBorder,
+};
+
+function getActions({
+  phoneType,
+  phoneNumber,
+  currentLocale,
+  disableLinks,
+  isCallButtonDisabled,
+  canCallButtonShow,
+  canTextButtonShow,
+  onClickToDial,
+  onClickToSMS,
+  contact,
+  additionalActions,
+  onClickAdditionalAction,
+}) {
+  const actions = [];
+  if (canCallButtonShow(phoneType)) {
+    actions.push({
+      id: 'call',
+      icon: PhoneBorder,
+      title: `${i18n.getString('call', currentLocale)} ${phoneNumber}`,
+      onClick: () => onClickToDial(contact, phoneNumber),
+      disabled: isCallButtonDisabled,
+    });
+  }
+  if (canTextButtonShow(phoneType)) {
+    actions.push({
+      id: 'text',
+      icon: SmsBorder,
+      title: `${i18n.getString('text', currentLocale)} ${phoneNumber}`,
+      onClick: () => onClickToSMS(contact, phoneNumber),
+      disabled: disableLinks,
+    });
+  }
+  if (additionalActions && additionalActions.length > 0) {
+    additionalActions.forEach(action => {
+      actions.push({
+        id: action.id,
+        icon: PHONE_ACTIONS_ICON_MAP[action.icon] || Apps,
+        title: action.label,
+        onClick: () => onClickAdditionalAction(action.id, {
+          ...contact,
+          phoneNumber,
+          phoneType,
+        }),
+        disabled: disableLinks,
+      });
+    });
+  }
+  return actions;
+}
+
 export const PhoneSection = ({
   contact,
   currentLocale,
@@ -70,6 +143,8 @@ export const PhoneSection = ({
   canTextButtonShow,
   onClickToDial,
   onClickToSMS,
+  additionalActions,
+  onClickAdditionalAction,
 }) => {
   if (!contact.phoneNumbers || contact.phoneNumbers.length === 0) {
     return null;
@@ -87,6 +162,20 @@ export const PhoneSection = ({
           isMultipleSiteEnabled && phoneType === 'extension'
             ? formattedNumber
             : phoneNumber;
+        const actions = getActions({
+          phoneType,
+          phoneNumber: usedPhoneNumber,
+          currentLocale,
+          disableLinks,
+          isCallButtonDisabled,
+          canCallButtonShow,
+          canTextButtonShow,
+          onClickToDial,
+          onClickToSMS,
+          contact,
+          additionalActions,
+          onClickAdditionalAction,
+        });
         return (
           <SectionItem key={idx}>
             <RcListItemText
@@ -98,30 +187,13 @@ export const PhoneSection = ({
               }}
             />
             <RcListItemSecondaryAction>
-              {canCallButtonShow(phoneType) && (
-                <RcIconButton
-                  symbol={PhoneBorder}
-                  size="small"
-                  data-sign="call"
-                  onClick={() => onClickToDial(contact, usedPhoneNumber)}
-                  disabled={isCallButtonDisabled}
-                  title={`${i18n.getString('call', currentLocale)} ${usedPhoneNumber}`}
-                  variant="contained"
-                  color="neutral.b01"
-                />
-              )}
-              {canTextButtonShow(phoneType) && (
-                <RcIconButton
-                  symbol={SmsBorder}
-                  size="small"
-                  data-sign="text"
-                  disabled={disableLinks}
-                  title={`${i18n.getString('text', currentLocale)} ${usedPhoneNumber}`}
-                  onClick={() => onClickToSMS(contact, usedPhoneNumber)}
-                  variant="contained"
-                  color="neutral.b01"
-                />
-              )}
+              <StyledActionMenu
+                actions={actions}
+                size="small"
+                maxActions={3}
+                iconVariant="contained"
+                color="neutral.b01"
+              />
             </RcListItemSecondaryAction>
           </SectionItem>
         )

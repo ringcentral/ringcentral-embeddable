@@ -10,6 +10,12 @@ import {
   Delete,
   AddTextLog,
   Refresh,
+  CallsBorder,
+  Apps,
+  SettingsBorder,
+  Edit,
+  NewAction,
+  ViewLogBorder,
 } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/MessageItem/i18n';
 import { extensionTypes } from '@ringcentral-integration/commons/enums/extensionTypes';
@@ -52,6 +58,28 @@ export function getSelectedContact(selected, correspondentMatches){
   );
 };
 
+const CONVERSATION_ACTIONS_ICON_MAP = {
+  'viewContact': People,
+  'createContact': AddMemberBorder,
+  'refreshContact': Refresh,
+  'delete': Delete,
+  'clock': CallsBorder,
+  'apps': Apps,
+  'settings': SettingsBorder,
+  'read': Read,
+  'unread': Unread,
+  'view': ViewBorder,
+  'edit': Edit,
+  'newAction': NewAction,
+  'viewLog': ViewLogBorder,
+  'download': Download,
+  'refresh': Refresh,
+  'people': People,
+  'addMember': AddMemberBorder,
+  'sms': SmsBorder,
+  'phone': PhoneBorder,
+};
+
 export function getActions({
   areaCode,
   countryCode,
@@ -81,6 +109,8 @@ export function getActions({
   onDownload,
   onDelete,
   isLogging,
+  additionalActions,
+  onClickAdditionalAction,
 }) {
   const {
     conversationId,
@@ -273,6 +303,17 @@ export function getActions({
       title: i18n.getString('delete', currentLocale),
       onClick: onDelete,
       disabled: disableLinks,
+    });
+  }
+  if (additionalActions && additionalActions.length > 0) {
+    additionalActions.forEach(action => {
+      actions.push({
+        id: action.id,
+        icon: CONVERSATION_ACTIONS_ICON_MAP[action.icon] || Apps,
+        title: action.label,
+        onClick: () => onClickAdditionalAction(action.id, conversation),
+        disabled: disableLinks,
+      });
     });
   }
   return actions;

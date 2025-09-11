@@ -86,6 +86,7 @@ export class CallDetailsUI extends RcUIModuleV2 {
       smartNotes,
       regionSettings,
       auth,
+      thirdPartyService,
     } = this._deps;
     const loggingMap  = callLogger && callLogger.loggingMap || {};
     const currentCall = this.currentCall;
@@ -125,6 +126,7 @@ export class CallDetailsUI extends RcUIModuleV2 {
       isLogging: !!loggingMap[currentCall && currentCall.sessionId],
       readTextPermission: appFeatures.hasReadTextPermission,
       enableCDC: appFeatures.isCDCEnabled,
+      additionalActions: thirdPartyService.additionalCallActions,
     };
   }
 
@@ -260,6 +262,9 @@ export class CallDetailsUI extends RcUIModuleV2 {
           contact,
           direction,
         });
+      },
+      onClickAdditionalAction: (buttonId, resource = undefined) => {
+        thirdPartyService.onClickAdditionalButton(buttonId, resource);
       },
     };
   }
