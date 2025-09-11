@@ -42,6 +42,8 @@ export type ConversationListProps = {
   logButtonTitle?: string;
   openMessageDetails: (id: number) => void;
   rcAccessToken?: string;
+  additionalActions?: any[];
+  onClickAdditionalAction?: (buttonId: string) => void;
 } & Omit<MessageItemProps, 'conversation'>;
 
 const Loading = styled(RcTypography)`
@@ -98,6 +100,8 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
   enableCDC = false,
   openMessageDetails,
   rcAccessToken,
+  additionalActions,
+  onClickAdditionalAction,
   ...childProps
 }: ConversationListProps) => {
   const messagesListBodyRef = useRef(null);
@@ -152,6 +156,8 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
             enableCDC={enableCDC}
             openMessageDetails={openMessageDetails}
             rcAccessToken={rcAccessToken}
+            additionalActions={additionalActions}
+            onClickAdditionalAction={onClickAdditionalAction}
           />
         )}
         endReached={() => {

@@ -105,6 +105,8 @@ export function CallDetailsPanel({
   onViewSmartNote,
   aiNoted,
   onViewCall,
+  additionalActions,
+  onClickAdditionalAction,
 }) {
   const downloadRef = useRef(null);
   const [selected, setSelected] = useState(0);
@@ -260,6 +262,8 @@ export function CallDetailsPanel({
     onDownload: () => {
       downloadRef.current?.click();
     },
+    additionalActions,
+    onClickAdditionalAction,
   });
   const mainActions = actions.filter((action) => action.id !== 'download');
   const downloadAction = actions.find((action) => action.id === 'download');

@@ -11,6 +11,7 @@ import { getConversationPhoneNumber } from '../../lib/conversationHelper';
     'ComposeTextUI',
     'ConversationUI',
     'Auth',
+    'ThirdPartyService',
   ],
 })
 export class ConversationsUI extends BaseConversationsUI {
@@ -50,6 +51,7 @@ export class ConversationsUI extends BaseConversationsUI {
       conversationLogger,
       conversations,
       auth,
+      thirdPartyService,
     } = this._deps;
     return {
       ...baseProps,
@@ -61,6 +63,7 @@ export class ConversationsUI extends BaseConversationsUI {
       rcAccessToken: auth.accessToken,
       ownerFilter: conversations.ownerFilter,
       ownerTabs: this.ownerTabs,
+      additionalActions: thirdPartyService.additionalMessageActions,
     };
   }
 
@@ -75,6 +78,7 @@ export class ConversationsUI extends BaseConversationsUI {
       appFeatures,
       messageStore,
       sideDrawerUI,
+      thirdPartyService,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
@@ -128,7 +132,10 @@ export class ConversationsUI extends BaseConversationsUI {
         : undefined,
       onOwnerFilterChange: (filter) => {
         conversations.updateOwnerFilter(filter);
-      }
+      },
+      onClickAdditionalAction: (buttonId, conversation) => {
+        thirdPartyService.onClickAdditionalButton(buttonId, conversation);
+      },
     }
   }
 }

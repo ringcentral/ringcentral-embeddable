@@ -1024,7 +1024,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
   }
 
-  async onClickAdditionalButton(buttonId) {
+  async onClickAdditionalButton(buttonId, resource = undefined) {
     const button = this.additionalButtons.find(x => x.id === buttonId);
     if (button) {
       await requestWithPostMessage(this._additionalButtonPath, {
@@ -1033,6 +1033,7 @@ export default class ThirdPartyService extends RcModuleV2 {
           type: button.type,
           label: button.label,
         },
+        resource,
       });
     }
   }
@@ -1490,8 +1491,24 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.additionalButtons = additionalButtons;
   };
 
+  @computed(that => [that.additionalButtons])
   get additionalSMSToolbarButtons() {
     return this.additionalButtons.filter(x => x.type === 'smsToolbar');
+  }
+
+  @computed(that => [that.additionalButtons])
+  get additionalCallActions() {
+    return this.additionalButtons.filter(x => x.type === 'callAction');
+  }
+
+  @computed(that => [that.additionalButtons])
+  get additionalMessageActions() {
+    return this.additionalButtons.filter(x => x.type === 'messageAction');
+  }
+
+  @computed(that => [that.additionalButtons])
+  get additionalContactActions() {
+    return this.additionalButtons.filter(x => x.type === 'contactAction');
   }
 
   @globalStorage

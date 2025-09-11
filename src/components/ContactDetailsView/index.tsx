@@ -68,6 +68,8 @@ type AdditionProps = {
   pinAppIds: string[];
   toggleAppPin: (appId: string) => void;
   openAppTab: (appId: string, contact: any) => void;
+  additionalActions: any[];
+  onClickAdditionalAction: (buttonId: string, data: any) => void;
 }
 
 export const ContactDetailsView: FunctionComponent<
@@ -117,6 +119,8 @@ export const ContactDetailsView: FunctionComponent<
   pinAppIds,
   toggleAppPin,
   openAppTab,
+  additionalActions,
+  onClickAdditionalAction,
 }) => {
   useEffect(() => {
     onVisitPage?.();
@@ -177,6 +181,8 @@ export const ContactDetailsView: FunctionComponent<
         pinAppIds={pinAppIds}
         toggleAppPin={toggleAppPin}
         openAppTab={openAppTab}
+        additionalActions={additionalActions}
+        onClickAdditionalAction={onClickAdditionalAction}
       />
     );
   }

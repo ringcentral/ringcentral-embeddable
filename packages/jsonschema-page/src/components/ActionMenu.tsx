@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { styled } from '@ringcentral/juno/foundation';
 import {
   RcIconButton,
   RcMenu,
@@ -7,6 +6,7 @@ import {
   RcListItemText,
   RcListItemIcon,
   RcIcon,
+  styled,
 } from '@ringcentral/juno';
 
 import { MoreVert } from '@ringcentral/juno-icon';
@@ -48,6 +48,7 @@ export function ActionMenu({
               symbol={action.icon}
               onClick={action.onClick}
               size={size}
+              data-sign={action.id}
               disabled={action.disabled}
               title={action.title}
               variant={iconVariant}
