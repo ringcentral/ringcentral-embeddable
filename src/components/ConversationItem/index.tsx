@@ -312,6 +312,8 @@ export function ConversationItem({
   unmarkMessage,
   openMessageDetails,
   rcAccessToken,
+  additionalActions,
+  onClickAdditionalAction,
 }) {
   const {
     conversationId,
@@ -548,6 +550,8 @@ export function ConversationItem({
     onDelete: () => {
       setDeleteConfirmOpen(true);
     },
+    additionalActions,
+    onClickAdditionalAction,
   });
 
   const onClickWrapper = (e) => {

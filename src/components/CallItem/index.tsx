@@ -105,6 +105,8 @@ type CallItemProps = {
   logButtonTitle?: string;
   onViewCallDetails?: (...args: any[]) => any;
   updateSessionMatchedContact?: (...args: any[]) => any;
+  additionalActions?: any[];
+  onClickAdditionalAction?: (...args: any[]) => any;
 };
 
 const DownloadLink = styled.a`
@@ -169,6 +171,8 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
   aiNoted,
   onViewCallDetails,
   updateSessionMatchedContact,
+  additionalActions,
+  onClickAdditionalAction,
 }) => {
   const {
     direction,
@@ -338,6 +342,8 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     onDownload: () => {
       downloadRef.current?.click();
     },
+    additionalActions,
+    onClickAdditionalAction,
   });
   const contactDisplay = (
     <ContactDisplay

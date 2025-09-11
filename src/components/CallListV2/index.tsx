@@ -66,6 +66,8 @@ type CallListV2Props = {
   loadingMoreCalls: boolean;
   onViewCallDetails: (...args: any[]) => any;
   updateSessionMatchedContact: (...args: any[]) => any;
+  additionalActions: any[];
+  onClickAdditionalAction: (...args: any[]) => any;
 };
 
 const LoadMoreButton = styled(RcButton)`
@@ -155,6 +157,8 @@ export function CallListV2({
   loadingMoreCalls,
   onViewCallDetails,
   updateSessionMatchedContact,
+  additionalActions,
+  onClickAdditionalAction,
 }: CallListV2Props) {
   const listRef = useRef(null);
 
@@ -232,6 +236,8 @@ export function CallListV2({
             aiNoted={aiNotedCallMapping[call.telephonySessionId]}
             onViewCallDetails={onViewCallDetails}
             updateSessionMatchedContact={updateSessionMatchedContact}
+            additionalActions={additionalActions}
+            onClickAdditionalAction={onClickAdditionalAction}
           />
         );
       }}

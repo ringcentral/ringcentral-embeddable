@@ -10,6 +10,12 @@ import {
   Download,
   Refresh,
   AiSmartNotes,
+  CallsBorder,
+  Apps,
+  SettingsBorder,
+  Read,
+  Unread,
+  ViewBorder,
 } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/CallItem/i18n';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
@@ -58,6 +64,25 @@ export function getSelectedContact(isSelected, call) {
   );
 };
 
+const CALL_ACTIONS_ICON_MAP = {
+  'clock': CallsBorder,
+  'apps': Apps,
+  'settings': SettingsBorder,
+  'read': Read,
+  'unread': Unread,
+  'view': ViewBorder,
+  'edit': Edit,
+  'newAction': NewAction,
+  'viewLog': ViewLogBorder,
+  'download': Download,
+  'refresh': Refresh,
+  'people': People,
+  'addMember': AddMemberBorder,
+  'sms': SmsBorder,
+  'phone': PhoneBorder,
+  'aiNotes': AiSmartNotes,
+};
+
 export function getActions({
   call,
   isExtension,
@@ -89,6 +114,8 @@ export function getActions({
   onRefreshContact,
   isRecording,
   onDownload,
+  additionalActions,
+  onClickAdditionalAction,
 }) {
   const {
     direction,
@@ -255,6 +282,16 @@ export function getActions({
       title: 'View log details',
       onClick: () => logCall(true, undefined, 'viewLog'),
       disabled: disableLinks || isLogging,
+    });
+  }
+  if (additionalActions && additionalActions.length > 0) {
+    additionalActions.forEach(action => {
+      actions.push({
+        id: action.id,
+        icon: CALL_ACTIONS_ICON_MAP[action.icon] || Apps,
+        title: action.label,
+        onClick: () => onClickAdditionalAction(action.id, call),
+      });
     });
   }
   return actions;

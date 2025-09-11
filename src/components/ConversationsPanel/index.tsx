@@ -97,6 +97,8 @@ type ConversationsPanelProps = {
     value: string;
     unreadCounts: number;
   }[];
+  additionalActions?: any[];
+  onClickAdditionalAction?: (buttonId: string) => void;
 } & Omit<ConversationListProps, 'conversation'>;
 
 const StyledContainer = styled.div`
@@ -197,6 +199,8 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     ownerFilter,
     ownerTabs = [],
     onOwnerFilterChange,
+    additionalActions,
+    onClickAdditionalAction,
   } = props;
 
   useEffect(() => {
@@ -298,6 +302,8 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
                 updateTypeFilter={updateTypeFilter}
                 openMessageDetails={openMessageDetails}
                 rcAccessToken={rcAccessToken}
+                additionalActions={additionalActions}
+                onClickAdditionalAction={onClickAdditionalAction}
               />
             ) : (
               !loadingNextPage &&

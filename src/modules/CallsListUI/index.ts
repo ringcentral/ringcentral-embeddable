@@ -25,6 +25,7 @@ import { getCallContact } from '../../lib/callHelper';
     'SideDrawerUI',
     'ComposeTextUI',
     'CallLog',
+    'ThirdPartyService',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
     { dep: 'CallsListUIOptions', optional: true },
@@ -134,6 +135,7 @@ export class CallsListUI extends BaseCallsListUI {
       callMonitor,
       smartNotes,
       callLog,
+      thirdPartyService,
     } = this._deps;
     const isWebRTC = callingSettings.callingMode === callingModes.webphone;
     const controlBusy = activeCallControl?.busy || false;
@@ -196,6 +198,7 @@ export class CallsListUI extends BaseCallsListUI {
       ),
       searchInput: callHistory.searchInput,
       filterType: this.filterType,
+      additionalActions: thirdPartyService.additionalCallActions,
     };
   }
 
@@ -449,6 +452,9 @@ export class CallsListUI extends BaseCallsListUI {
         composeTextUI.gotoComposeText(contact, isDummyContact);
         this._deps.callHistory.onClickToSMS();
       } : undefined,
+      onClickAdditionalAction: (buttonId, resource = undefined) => {
+        this._deps.thirdPartyService.onClickAdditionalButton(buttonId, resource);
+      },
     };
   }
 
