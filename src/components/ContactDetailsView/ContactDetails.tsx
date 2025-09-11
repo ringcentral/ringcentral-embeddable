@@ -68,6 +68,8 @@ interface ContactDetailsProps extends onClickMailTo,
   pinAppIds: string[];
   toggleAppPin: (appId: string) => void;
   openAppTab: (appId: string, contact: ContactModel) => void;
+  additionalActions: any[];
+  onClickAdditionalAction: (buttonId: string, data: any) => void;
 }
 
 const Container = styled.div`
@@ -211,6 +213,8 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
   pinAppIds,
   toggleAppPin,
   openAppTab,
+  additionalActions,
+  onClickAdditionalAction,
 }) => {
   const fullName = contact.name || `${contact.firstName} ${contact.lastName}`;
   const [infoTab, setInfoTab] = useState('user-info');
@@ -302,6 +306,8 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
                 canTextButtonShow={canTextButtonShow}
                 onClickToDial={onClickToDial}
                 onClickToSMS={onClickToSMS}
+                additionalActions={additionalActions}
+                onClickAdditionalAction={onClickAdditionalAction}
               />
               <EmailSection
                 emails={contact.emails}

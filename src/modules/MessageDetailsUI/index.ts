@@ -88,6 +88,7 @@ export class MessageDetailsUI extends RcUIModuleV2 {
       connectivityMonitor,
       messageStore,
       auth,
+      thirdPartyService,
     } = this._deps;
     return {
       messageId: params.messageId,
@@ -137,6 +138,7 @@ export class MessageDetailsUI extends RcUIModuleV2 {
         null
       ),
       rcAccessToken: auth.accessToken,
+      additionalActions: thirdPartyService.additionalMessageActions,
     };
   }
 
@@ -268,6 +270,9 @@ export class MessageDetailsUI extends RcUIModuleV2 {
         messageStore.readMessages(conversationId);
       },
       onFaxDownload,
+      onClickAdditionalAction: (buttonId, resource = undefined) => {
+        thirdPartyService.onClickAdditionalButton(buttonId, resource);
+      },
     };
   }
 }

@@ -48,6 +48,7 @@ export function ActionMenu({
               symbol={action.icon}
               onClick={action.onClick}
               size={size}
+              data-sign={action.id}
               disabled={action.disabled}
               title={action.title}
               variant={iconVariant}

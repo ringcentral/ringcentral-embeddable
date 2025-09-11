@@ -51,6 +51,7 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       showApps: thirdPartyService.apps && thirdPartyService.apps.length > 0,
       apps: thirdPartyService.apps,
       pinAppIds: thirdPartyService.pinAppIds,
+      additionalActions: thirdPartyService.additionalContactActions,
     };
   }
 
@@ -105,6 +106,9 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       },
       openAppTab: (app, contact) => {
         sideDrawerUI.openAppTab(app, contact);
+      },
+      onClickAdditionalAction: (buttonId, resource = undefined) => {
+        thirdPartyService.onClickAdditionalButton(buttonId, resource);
       },
     };
   }
