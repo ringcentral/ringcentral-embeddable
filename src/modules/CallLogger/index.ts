@@ -91,6 +91,7 @@ export class CallLogger extends CallLoggerBase {
     });
     const aiNotes = {};
     const transcripts = {};
+    const callsLength = calls.length;
     calls = calls.slice((page - 1) * perPage, page * perPage);
     if (this._deps.smartNotes.hasPermission) {
       let telephonySessionIds = calls.map((call) => call.telephonySessionId);
@@ -119,12 +120,13 @@ export class CallLogger extends CallLoggerBase {
           recording: {
             ...call.recording,
             link: this._deps.thirdPartyService.getRecordingLink(call.recording),
+            contentUri: this._deps.thirdPartyService.getRecordingContentUri(call.recording),
           },
           aiNote: aiNotes[call.telephonySessionId],
           transcript,
         };
       }),
-      hasMore: calls.length > page * perPage,
+      hasMore: callsLength > page * perPage,
     };
   }
 
@@ -152,6 +154,7 @@ export class CallLogger extends CallLoggerBase {
       recording: call.recording ? {
         ...call.recording,
         link: this._deps.thirdPartyService.getRecordingLink(call.recording),
+        contentUri: this._deps.thirdPartyService.getRecordingContentUri(call.recording),
       } : null,
       transcript: transcript ? getTranscriptText(transcript, call) : null,
     };
