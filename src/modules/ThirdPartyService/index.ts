@@ -840,6 +840,14 @@ export default class ThirdPartyService extends RcModuleV2 {
     return `${recordingLink}?media=${encodeURIComponent(recording.contentUri)}`;
   }
 
+  getRecordingContentUri(recording) {
+    let contentUri = recording.contentUri.split('?')[0];
+    if (this._callLoggerRecordingWithToken) {
+      contentUri = `${contentUri}?access_token=${this._deps.auth.accessToken}`;
+    }
+    return contentUri;
+  }
+
   async logCall({ call, ...options }) {
     try {
       if (!this._callLoggerPath) {
@@ -859,14 +867,10 @@ export default class ThirdPartyService extends RcModuleV2 {
       }
       const callItem = { ...call };
       if (call.recording) {
-        let contentUri = call.recording.contentUri.split('?')[0];
-        if (this._callLoggerRecordingWithToken) {
-          contentUri = `${contentUri}?access_token=${this._deps.auth.accessToken}`;
-        }
         callItem.recording = {
           ...call.recording,
           link: this.getRecordingLink(call.recording),
-          contentUri,
+          contentUri: this.getRecordingContentUri(call.recording),
         };
       }
       await requestWithPostMessage(this._callLoggerPath, { call: callItem, ...options }, 15000);
