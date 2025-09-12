@@ -1,5 +1,6 @@
 import type { DeviceManager } from 'ringcentral-web-phone-beta-2/dist/esm/types';
 import type { AudioSettings } from '@ringcentral-integration/commons/modules/AudioSettings';
+import { Logger } from './logger';
 export class AudioDeviceManager implements DeviceManager {
   private _audioSettings: AudioSettings;
 
@@ -23,15 +24,19 @@ export class RingtoneHelper {
   private _enabled: boolean;
   private _volume: number;
   private _playPromise: Promise<void>;
+  private _logger: Logger;
 
   constructor({
     audioUri,
+    logger,
   }: {
     audioUri: string;
+    logger: Logger;
   }) {
     this._audioUri = audioUri;
     this._enabled = true;
     this._volume = 1;
+    this._logger = logger;
   }
 
   setVolume(volume: number) {
@@ -61,12 +66,12 @@ export class RingtoneHelper {
       if (this._playPromise !== undefined) {
         this._playPromise.then(() => {
           this._audio.setSinkId(deviceId).catch((error: any) => {
-            console.error('setSinkId error:', error);
+            this._logger.error('setSinkId error:', error);
           });
         });
       } else {
         this._audio.setSinkId(deviceId).catch((error: any) => {
-          console.error('setSinkId error:', error);
+          this._logger.error('setSinkId error:', error);
         });
       }
     }
@@ -84,13 +89,13 @@ export class RingtoneHelper {
     this._audio.volume = this._volume;
     if (this._deviceId && typeof this._audio.setSinkId === 'function') {
       this._audio.setSinkId(this._deviceId).catch((error: any) => {
-        console.error('setSinkId error:', error);
+        this._logger.error('setSinkId error:', error);
       });
     }
     this._audio.currentTime = 0;
     this._playPromise = this._audio.play();
     this._playPromise.catch((error: any) => {
-      console.error('playAudio error:', error);
+      this._logger.error('playAudio error:', error);
     });
   }
 

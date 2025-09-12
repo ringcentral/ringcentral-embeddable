@@ -5,6 +5,7 @@ import RequestMessage from "ringcentral-web-phone-beta-2/sip-message/outbound/re
 import ResponseMessage from "ringcentral-web-phone-beta-2/sip-message/outbound/response";
 import type { SipClient, SipClientOptions, SipInfo } from "ringcentral-web-phone-beta-2/types";
 import { uuid } from "ringcentral-web-phone-beta-2/utils";
+import { Logger } from "./logger";
 
 export class SharedSipClient extends EventEmitter implements SipClient {
   public disposed = false;
@@ -18,39 +19,43 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   public tabId: string;
   public activeTabId: string;
   public clientId: string;
+  private _logger: Logger;
 
   public constructor({
     worker,
     tabId,
     clientId,
+    logger,
   }: {
     worker: SharedWorker;
     tabId: string;
     clientId: string;
+    logger: Logger;
   }) {
     super();
     this.worker = worker;
     this.tabId = tabId;
     this.clientId = clientId;
+    this._logger = logger;
     this.messageListener = (event) => {
       if (event.data.type === 'inboundMessage') {
         if (this.debug) {
-          console.log('inboundMessage', event.data.message);
+          this._logger.debug('inboundMessage', event.data.message);
         }
         this.emit('inboundMessage', InboundMessage.fromString(event.data.message));
       } else if (event.data.type === 'outboundMessage') {
         if (this.debug) {
-          console.log('outboundMessage', event.data.message);
+          this._logger.debug('outboundMessage', event.data.message);
         }
         this.emit('outboundMessage', OutboundMessage.fromString(event.data.message));
       } else if (event.data.type === 'status') {
         if (this.debug) {
-          console.log('status', event.data.status);
+          this._logger.debug('status', event.data.status);
         }
         this.emit('status', event.data.status);
       } else if (event.data.type === 'transportStatus') {
         if (this.debug) {
-          console.log('transportStatus', event.data.status);
+          this._logger.debug('transportStatus', event.data.status);
         }
         this.emit('transportStatus', event.data.status);
       } else if (event.data.type === 'setSharedState') {
@@ -105,7 +110,7 @@ export class SharedSipClient extends EventEmitter implements SipClient {
           return;
         }
         if (this.debug) {
-          console.log('workerResponse', event.data.response);
+          this._logger.debug('workerResponse', event.data.response);
         }
         this.worker.port.removeEventListener('message', messageListener);
         clearTimeout(timeoutHandle);
@@ -154,10 +159,14 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   }
 
   public dispose() {
+    this._logger.log('Disposing SharedSipClient');
     this.disposed = true;
-    this.worker.port.removeEventListener('message', this.messageListener);
-    this.worker.port.postMessage({ type: 'destroyPort' });
-    this.worker.port.close();
+    if (this.worker) {
+      this.worker.port.removeEventListener('message', this.messageListener);
+      this.worker.port.postMessage({ type: 'destroyPort' });
+      this.worker.port.close();
+    }
+    this.removeAllListeners();
     this.worker = null;
   }
 

@@ -14,6 +14,7 @@ import {
   generateAuthorization,
   uuid,
 } from "ringcentral-web-phone-beta-2/utils";
+import { Logger } from "./logger";
 
 const maxExpires = 60;
 
@@ -31,20 +32,6 @@ type TransportStatus =
   'reconnecting' |
   'disconnected' |
   'error';
-
-class Logger {
-  public log(message: string, ...args: any[]) {
-    console.log('[INFO] ', message, ...args);
-  }
-
-  public warn(message: string, ...args: any[]) {
-    console.warn('[WARN] ', message, ...args);
-  }
-
-  public error(message: string, ...args: any[]) {
-    console.error('[ERROR] ', message, ...args);
-  }
-}
 
 const logger = new Logger();
 
@@ -653,21 +640,37 @@ onconnect = (event) => {
         return;
       }
       if (request.type === 'request') {
-        const response = await sipClient.request(request.data);
-        port.postMessage({
-          type: 'workerResponse',
-          requestId,
-          response: response.toString(),
-        });
+        try {
+          const response = await sipClient.request(request.data);
+          port.postMessage({
+            type: 'workerResponse',
+            requestId,
+            response: response.toString(),
+          });
+        } catch (e) {
+          port.postMessage({
+            type: 'workerResponse',
+            requestId,
+            error: e.message || 'Unknown error',
+          });
+        }
         return;
       }
       if (request.type === 'reply') {
-        await sipClient.reply(request.data);
-        port.postMessage({
-          type: 'workerResponse',
-          requestId,
-          response: 'OK',
-        });
+        try {
+          await sipClient.reply(request.data);
+          port.postMessage({
+            type: 'workerResponse',
+            requestId,
+            response: 'OK',
+          });
+        } catch (e) {
+          port.postMessage({
+            type: 'workerResponse',
+            requestId,
+            error: e.message || 'Unknown error',
+          });
+        }
         return;
       }
       if (request.type === 'register') {

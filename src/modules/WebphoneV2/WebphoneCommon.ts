@@ -303,7 +303,7 @@ export class Webphone extends WebphoneBase {
       const sharedState = await this._sharedSipClient?.syncSharedState();
       this._saveNewState(sharedState);
     } catch (e) {
-      console.error('syncSharedState error', e);
+      this._logger.error('syncSharedState error', e);
     }
   }
 
@@ -327,7 +327,7 @@ export class Webphone extends WebphoneBase {
 
   _bindSessionEvents(session: WebphoneSession) {
     session.on('answered', () => {
-      console.log('answered');
+      this._logger.log('answered');
       session.startTime = new Date();
       this._onCallStart(session);
       if (
@@ -340,14 +340,14 @@ export class Webphone extends WebphoneBase {
       session.emit('accepted'); // For Conference Call back-compat
     });
     session.on('ringing', () => {
-      console.log('Call ringing...');
+      this._logger.log('Call ringing...');
       this._updateSessions();
     });
     session.on('failed', (message) => {
-      console.log('Call failed', message);
+      this._logger.log('Call failed', message);
     });
     session.on('disposed', () => {
-      console.log('Call: disposed');
+      this._logger.log('Call: disposed');
       this._ringtoneHelper?.stop();
       this._onCallEnd(session);
       session.emit('terminated'); // For Conference Call back-compat
@@ -412,8 +412,8 @@ export class Webphone extends WebphoneBase {
       await sipSession.answer();
       this._trackCallAnswer();
     } catch (e) {
-      console.log('Accept failed');
-      console.error(e);
+      this._logger.log('Accept failed');
+      this._logger.error(e);
     }
   }
 
@@ -435,7 +435,7 @@ export class Webphone extends WebphoneBase {
     try {
       await session.decline();
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       this._onCallEnd(session);
     }
   }
@@ -458,7 +458,7 @@ export class Webphone extends WebphoneBase {
       session.__rc_isStartedReply = true;
       await session.startReply();
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
     }
   }
 
@@ -524,12 +524,12 @@ export class Webphone extends WebphoneBase {
       }
       session.__rc_isForwarded = true
       await session.forward(validPhoneNumber);
-      console.log('Forwarded');
+      this._logger.log('Forwarded');
       this._onCallEnd(session);
       this._addTrackAfterForward();
       return true;
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       this._deps.alert.warning({
         message: webphoneErrors.forwardError,
       });
@@ -555,7 +555,7 @@ export class Webphone extends WebphoneBase {
       });
       return true;
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       this._deps.alert.warning({
         message: webphoneErrors.muteError,
       });
@@ -588,7 +588,7 @@ export class Webphone extends WebphoneBase {
       this._onCallHold(session);
       return true;
     } catch (e) {
-      console.error('hold error:', e);
+      this._logger.error('hold error:', e);
       this._deps.alert.warning({
         message: webphoneErrors.holdError,
       });
@@ -613,7 +613,7 @@ export class Webphone extends WebphoneBase {
             await session.hold();
             session.__rc_localHold = true;
           } catch (e) {
-            console.error('Hold call fail');
+            this._logger.error('Hold call fail');
             throw e;
           }
           this._onCallHold(session);
@@ -642,7 +642,7 @@ export class Webphone extends WebphoneBase {
         this._onCallResume(session);
       }
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
     }
   }
 
@@ -664,7 +664,7 @@ export class Webphone extends WebphoneBase {
       session.__rc_recordStatus = recordStatus.recording;
       this._updateSessions();
     } catch (e: any) {
-      console.error(e);
+      this._logger.error(e);
       session.__rc_recordStatus = recordStatus.idle;
       this._updateSessions();
       // Recording has been disabled
@@ -699,7 +699,7 @@ export class Webphone extends WebphoneBase {
       session.__rc_recordStatus = recordStatus.idle;
       this._updateSessions();
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       session.__rc_recordStatus = recordStatus.recording;
       this._updateSessions();
     }
@@ -713,7 +713,7 @@ export class Webphone extends WebphoneBase {
     }
     try {
       const result = await session.park();
-      console.log('Parked');
+      this._logger.log('Parked');
       if (result['park extension']) {
         this._deps.alert.success({
           message: webphoneMessages.parked,
@@ -724,7 +724,7 @@ export class Webphone extends WebphoneBase {
         });
       }
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
     }
   }
 
@@ -831,7 +831,7 @@ export class Webphone extends WebphoneBase {
         transferSessionId: sessionId,
       });
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       session.__rc_isOnTransfer = false;
       this._updateSessions();
       this._deps.alert.danger({
@@ -856,7 +856,7 @@ export class Webphone extends WebphoneBase {
     try {
       await oldSession.completeWarmTransfer(newSession);
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       newSession.__rc_isOnTransfer = false;
       this._updateSessions();
       this._deps.alert.danger({
@@ -875,13 +875,13 @@ export class Webphone extends WebphoneBase {
       await session.flip(flipValue);
       // this._onCallEnd(session);
       session.__rc_isOnFlip = true;
-      console.log('Flipped');
+      this._logger.log('Flipped');
     } catch (e) {
       session.__rc_isOnFlip = false;
       this._deps.alert.warning({
         message: webphoneErrors.flipError,
       });
-      console.error(e);
+      this._logger.error(e);
     }
     this._updateSessions();
   }
@@ -891,7 +891,7 @@ export class Webphone extends WebphoneBase {
     try {
       await session.sendDtmf(dtmfValue, 100);
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
     }
   }
 
@@ -913,7 +913,7 @@ export class Webphone extends WebphoneBase {
       this._onBeforeCallEnd(session);
       await session.hangup();
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       this._onCallEnd(session);
     }
   }
@@ -928,7 +928,7 @@ export class Webphone extends WebphoneBase {
       session.__rc_isToVoicemail = true;
       await session.toVoicemail();
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       this._onCallEnd(session);
       this._deps.alert.warning({
         message: webphoneErrors.toVoiceMailError,
@@ -946,7 +946,7 @@ export class Webphone extends WebphoneBase {
       session.__rc_isReplied = true;
       await replyWithMessage(session, replyOptions);
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       this._onCallEnd(session);
     }
   }

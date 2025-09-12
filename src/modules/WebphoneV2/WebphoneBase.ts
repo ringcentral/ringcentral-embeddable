@@ -32,6 +32,7 @@ import { SharedSipClient } from './SharedSipClient';
 import { isSharedWorkerSupported } from './webphoneHelper';
 import { EVENTS } from './events';
 import type { Deps } from './Webphone.interface';
+import { Logger } from './logger';
 
 export const DEFAULT_AUDIO = 'default';
 
@@ -89,6 +90,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   protected _reconnectDelays = AUTO_RETRIES_DELAY;
   protected _closedByUser = false;
 
+  protected _logger: Logger;
   protected _webphone?: RingCentralWebphone | null = null;
   protected _sipInstanceManager: SipInstanceManager;
   protected _sipInstanceId?: string | null;
@@ -111,13 +113,14 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       enableCache: true,
       storageKey: 'Webphone',
     });
-
+    this._logger = new Logger();
     this._sipInstanceManager = new SipInstanceManager(
       `${deps.prefix}-webphone-inactive-sip-instance`,
     );
     this._audioDeviceManager = new AudioDeviceManager(deps.audioSettings);
     this._ringtoneHelper = new RingtoneHelper({
       audioUri: defaultIncomingAudio,
+      logger: this._logger,
     });
   }
 
@@ -479,24 +482,32 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   }
 
   async _removeWebphone(force = false) {
-    if (!this._webphone) {
+    if (!this._webphone && !this._sharedSipClient) {
       return;
     }
-    console.log('removing webphone, force:', force);
-    try {
-      if (
-        force &&
-        this._sharedSipClient &&
-        this._webphone.sipClient === this._sharedSipClient
-      ) {
-        console.log('unregistering shared sip client');
+    this._logger.log('removing webphone, force:', force);
+    if (
+      force &&
+      this._sharedSipClient
+    ) {
+      try {
+        this._logger.log('unregistering shared sip client');
         await this._sharedSipClient.unregister();
-        console.log('shared sip client unregistered');
+        this._logger.log('shared sip client unregistered');
+      } catch (e) {
+        this._logger.error('Failed to unregister shared sip client', e);
       }
-      console.log('disposing webphone');
-      await this._webphone.dispose();
+    }
+    try {
+      this._logger.log('disposing webphone');
+      if (this._webphone) {
+        await this._webphone.dispose();
+      } else if (this._sharedSipClient) {
+        await this._sharedSipClient.dispose();
+      }
+      this._logger.log('webphone disposed');
     } catch (e) {
-      console.error(e);
+      this._logger.error('Failed to dispose webphone', e);
     }
     this._webphone = null;
     this._sharedSipClient = null;
@@ -504,7 +515,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
 
   async _createWebphone(provisionData: CreateSipRegistrationResponse, force = false) {
     this._closedByUser = false;
-    await this._removeWebphone(force);
     if (!this._sipInstanceId) {
       this._sipInstanceId = this._sipInstanceManager.getInstanceId(
         this._deps.auth.endpointId!,
@@ -546,7 +556,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         });
       }
     } catch (e) {
-      console.error(e);
+      this._logger.error(e);
       let errorCode = webphoneErrors.unknownError;
       if (e.message && e.message.indexOf('SIP/2.0 603') > -1) {
         errorCode = webphoneErrors.webphoneCountOverLimit;
@@ -571,7 +581,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     // TODO: handle wsc close event in shared sip client
     this._webphone.sipClient.wsc?.addEventListener('close', onSipTransportClosed);
     this._webphone.on('inboundCall', (session: InboundCallSession) => {
-      console.log('New inbound call');
+      this._logger.log('New inbound call');
       this._onInvite(session);
     });
     // sip provision expired
@@ -638,6 +648,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     if (!this._deps.auth.loggedIn) {
       return;
     }
+    await this._removeWebphone(force);
     let sipProvision;
     if (isSharedWorkerSupported()) {
       this._sharedSipClient = new SharedSipClient({
@@ -647,6 +658,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         ),
         tabId: this._deps.tabManager?.tabbie.id,
         clientId: this._deps.webphoneOptions.appKey,
+        logger: this._logger,
       });
       this._sharedSipClient.on('inboundMessage', (inboundMessage) => {
         if(inboundMessage.headers.Event !== "check-sync") {
@@ -655,7 +667,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         this._onProvisionUpdateRequired();
       });
       this._sharedSipClient.on('status', async (status, error) => {
-        console.log('shared sip client status', status);
+        this._logger.log('shared sip client status', status);
         if (status === 'registered') {
           const statusResponse = await this._sharedSipClient.getStatus();
           this._onWebphoneRegistered({
@@ -687,7 +699,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         }
       });
       this._sharedSipClient.on('transportStatus', (status) => {
-        console.log('shared sip client transport status', status);
+        this._logger.log('shared sip client transport status', status);
         if ((this.connected || this.connectError) && status === 'connecting') {
           this._deps.alert.warning({
             message: webphoneErrors.serverConnecting,
@@ -731,15 +743,14 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           this._sipInstanceId = statusResponse.instanceId;
         }
       } catch (e) {
-        console.error('Failed to get shared sip client status', e);
+        this._logger.error('Failed to get shared sip client status', e);
       }
     }
     if (!sipProvision || force) {
       try {
         sipProvision = await this._sipProvision();
-      } catch (error: any) {
-        // TODO: should use instanceof to check that error type before use that
-        console.error(error, this.connectRetryCounts);
+      } catch (error) {
+        this._logger.error('Failed to get sip provision', error, this.connectRetryCounts);
         if (
           error &&
           error.message &&
@@ -825,7 +836,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           });
         }
       } catch (error: any /** TODO: confirm with instanceof */) {
-        console.error('fetch DL failed', error);
+        this._logger.error('fetch DL failed', error);
         this._deps.alert.warning({
           message: webphoneErrors.checkDLError,
           allowDuplicates: false,
@@ -992,7 +1003,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       return;
     }
     if (this._sharedSipClient && !force) {
-      console.log('disconnecting this port from shared sip client');
+      this._logger.log('disconnecting this port from shared sip client');
       await this._sharedSipClient.dispose();
       return;
     }
