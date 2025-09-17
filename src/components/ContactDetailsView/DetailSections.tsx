@@ -13,6 +13,7 @@ import {
   SmsBorder,
   CallsBorder,
   Apps,
+  TodayCalendarIco,
 } from '@ringcentral/juno-icon'
 import i18n from '@ringcentral-integration/widgets/components/ContactDetails/i18n';
 import { filterByPhoneTypes, sortByPhoneTypes } from '@ringcentral-integration/commons/lib/phoneTypeHelper';
@@ -79,6 +80,7 @@ const PHONE_ACTIONS_ICON_MAP = {
   'text': SmsBorder,
   'apps': Apps,
   'clock': CallsBorder,
+  'calendar': TodayCalendarIco,
 };
 
 function getActions({
