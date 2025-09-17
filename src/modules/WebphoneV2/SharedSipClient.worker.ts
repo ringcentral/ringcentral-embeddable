@@ -39,6 +39,8 @@ class Transport extends EventEmitter {
   public wsc: WebSocket;
   public logger: Logger;
   public status: TransportStatus = 'disconnected';
+  private disposed: boolean = false;
+  public debug?: boolean;
   private wsServers: {
     server: string,
     isError: boolean,
@@ -64,6 +66,7 @@ class Transport extends EventEmitter {
     sipInfo,
   }) {
     super();
+    this.disposed = false;
     this.logger = logger;
     this.currentServer = null;
     this.reconnectionAttempts = 0;
@@ -91,15 +94,6 @@ class Transport extends EventEmitter {
     this.onMessage = (event) => {
       this.emit('message', event);
     };
-    this.onClose = () => {
-      this.wsc.removeEventListener('message', this.onMessage);
-      this.wsc.removeEventListener('close', this.onClose);
-      this.wsc = null;
-      this.currentServer = null;
-      this.reconnectionAttempts = 0;
-      this.logger.log('Transport closed');
-      this.setStatus('disconnected');
-    };
   }
 
   public setStatus(status: TransportStatus) {
@@ -125,17 +119,18 @@ class Transport extends EventEmitter {
   }
 
   public async _connect(forceMain): Promise<void> {
-    const server = this.currentServer || this.getNextServer(forceMain);
-    if (!server) {
+    this.currentServer = this.currentServer || this.getNextServer(forceMain);
+    if (!this.currentServer) {
       throw new Error('No available servers');
     }
+    this.logger.log('Connecting to server', this.currentServer.server);
     if (this.status !== 'disconnected' && this.wsc) {
       this.logger.warn('Attempted to connect while connected, disconnecting');
       await this.disconnect();
     }
     this.setStatus('connecting');
     this.wsc = new WebSocket(
-      "wss://" + server.server,
+      "wss://" + this.currentServer.server,
       "sip",
     );
     if (this.debug) {
@@ -152,21 +147,23 @@ class Transport extends EventEmitter {
         this.wsc.removeEventListener("error", errorEventHandler);
         clearTimeout(this.connectTimeoutHandle);
         this.wsc.addEventListener("message", this.onMessage);
-        this.wsc.addEventListener('close', this.onClose);
         resolve();
       };
       const errorEventHandler = (e) => {
         this.wsc.removeEventListener("error", errorEventHandler);
         this.wsc.removeEventListener("message", this.onMessage);
         clearTimeout(this.connectTimeoutHandle);
+        this.wsc = null;
         reject(e);
       };
       this.connectTimeoutHandle = setTimeout(() => {
-        this.wsc.close();
+        this.logger.log('Connection timeout, closing connection');
         this.wsc.removeEventListener("open", openEventHandler);
         this.wsc.removeEventListener("error", errorEventHandler);
         this.wsc.removeEventListener("message", this.onMessage);
         reject(new Error('Connection timeout'));
+        this.wsc.close();
+        this.wsc = null;
       }, this.connectionTimeout * 1000);
       this.wsc.addEventListener("open", openEventHandler);
       this.wsc.addEventListener("error", errorEventHandler);
@@ -217,6 +214,7 @@ class Transport extends EventEmitter {
       this.reconnectionAttempts = 0;
       this.currentServer = this.getNextServer();
       await this.reconnect();
+      // TODO: scheduleSwitchBackMainProxy after 15 mins
       return;
     }
     this.logger.warn('Reconnect attempt', this.reconnectionAttempts, 'next reconnect in', nextReconnectInterval);
@@ -232,19 +230,19 @@ class Transport extends EventEmitter {
   }
 
   public disconnect() {
-    if (this.status === 'disconnected') {
-      return;
-    }
     this._disconnect();
   }
 
   public _disconnect() {
-    if (!this.wsc) {
+    if (!this.wsc || this.status === 'disconnected') {
+      this.logger.warn('Transport is already disconnected');
       return;
     }
-    this.logger.log('Disconnecting');
-    this.setStatus('disconnecting');
+    this.logger.log('Transport disconnected');
+    this.setStatus('disconnected');
+    this.wsc.removeEventListener('message', this.onMessage);
     this.wsc.close();
+    this.wsc = null;
     this.currentServer = null;
     this.reconnectionAttempts = 0;
   }
@@ -271,13 +269,18 @@ class Transport extends EventEmitter {
   }
 
   dispose() {
-    this.removeAllListeners();
+    if (this.disposed) {
+      this.logger.warn('Transport is already disposed');
+      return;
+    }
+    this.logger.log('Disposing Transport');
+    this.disposed = true;
     if (this.reconnectTimeoutHandle) {
       clearTimeout(this.reconnectTimeoutHandle);
     }
+    this.removeAllListeners();
     this._disconnect();
-    this.currentServer = null;
-    this.reconnectionAttempts = 0;
+    this.logger.log('Transport disposed');
   }
 }
 
@@ -375,7 +378,7 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
       }
     });
     if (this.timeoutHandle) {
-      clearInterval(this.timeoutHandle);
+      clearTimeout(this.timeoutHandle);
     }
     this.setStatus('registering');
     this.transport.on('status', async (status) => {
@@ -426,6 +429,7 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
   }
 
    private async _register(expires: number) {
+    this.logger.log('Registering with instanceId', this.instanceId);
     const requestMessage = new RequestMessage(
       `REGISTER sip:${this.sipInfo.domain} SIP/2.0`,
       {
@@ -442,8 +446,7 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
     const requestPromise = new Promise<InboundMessage>((resolve, reject) => {
       // if cannot get response in 8 seconds, we close the connection
       const closeHandle = setTimeout(() => {
-        this.logger.warn('Registration timeout, disconnecting');
-        this.transport?.disconnect();
+        this.logger.warn('Registration timeout');
         reject(new Error('Registration timeout'));
       }, 8000);
       this.request(requestMessage).then((m) => {
@@ -477,6 +480,9 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
       const serverExpires = Number(
         inboundMessage.headers.Contact.match(/;expires=(\d+)/)![1],
       );
+      if (this.timeoutHandle) {
+        clearTimeout(this.timeoutHandle);
+      }
       this.timeoutHandle = setTimeout(
         () => {
           this.register(expires);
@@ -754,3 +760,5 @@ sipClient.on('transportStatus', (status) => {
     });
   });
 });
+
+self.sipClient = sipClient;

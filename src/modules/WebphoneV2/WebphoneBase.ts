@@ -735,6 +735,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           statusResponse.status !== 'unregistered' &&
           statusResponse.status !== 'error'
         ) {
+          this._logger.log('Reuse shared sip client status', statusResponse);
           // already connected
           sipProvision = {
             device: statusResponse.device,
