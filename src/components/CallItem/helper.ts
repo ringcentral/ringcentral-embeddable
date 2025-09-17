@@ -16,6 +16,7 @@ import {
   Read,
   Unread,
   ViewBorder,
+  TodayCalendarIco,
 } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/CallItem/i18n';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
@@ -81,6 +82,7 @@ const CALL_ACTIONS_ICON_MAP = {
   'sms': SmsBorder,
   'phone': PhoneBorder,
   'aiNotes': AiSmartNotes,
+  'calendar': TodayCalendarIco,
 };
 
 export function getActions({

@@ -16,6 +16,7 @@ import {
   Edit,
   NewAction,
   ViewLogBorder,
+  TodayCalendarIco,
 } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/MessageItem/i18n';
 import { extensionTypes } from '@ringcentral-integration/commons/enums/extensionTypes';
@@ -78,6 +79,7 @@ const CONVERSATION_ACTIONS_ICON_MAP = {
   'addMember': AddMemberBorder,
   'sms': SmsBorder,
   'phone': PhoneBorder,
+  'calendar': TodayCalendarIco,
 };
 
 export function getActions({
