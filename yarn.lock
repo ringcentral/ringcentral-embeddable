@@ -11671,9 +11671,9 @@ ringcentral-call-control@^0.2.8:
   integrity sha512-4HGSN/4NuSMwozr0Vmu47AHTUoBG5CdCkDMK77K/DNc/GhnthomHXWT6ZutXKqveZXWhrx5v17YvHigAS6+JRg==
 
 ringcentral-call@^0.2.20:
-  version "0.2.20"
-  resolved "https://registry.yarnpkg.com/ringcentral-call/-/ringcentral-call-0.2.20.tgz#e8677b177e662b9dabaa274444e2922ba87100c9"
-  integrity sha512-JVLiGwfvilI87Hu0HKGirqm+AihKKVvivFyHi677l5JMOxBFbgkEBcwNYVUwY/v3KXwHJTIyt5YJ4F3+IW6VeQ==
+  version "0.2.21"
+  resolved "https://registry.yarnpkg.com/ringcentral-call/-/ringcentral-call-0.2.21.tgz#cc53446ec18296c260783bde8de5f85b5aa6cda7"
+  integrity sha512-wpDHvxrko5owXKE2gJHdmFr+gQGTM2PEY0+t8UqLJHYzdKhCA2jiSp8K8f9K97c5wCFR5Y6z4/K3IANg4iHbHQ==
 
 ringcentral-client@^1.0.0-beta.2:
   version "1.0.0-beta.2"
@@ -11683,22 +11683,23 @@ ringcentral-client@^1.0.0-beta.2:
     form-data "^2.1.2"
     isomorphic-fetch "^2.2.1"
 
-"ringcentral-web-phone-beta-2@git+https://github.com/embbnux/ringcentral-web-phone.git#v2-new-release":
-  version "2.2.7"
-  resolved "git+https://github.com/embbnux/ringcentral-web-phone.git#834066f3c7abd4af469f87190caff6dad1a2ef07"
-  dependencies:
-    blueimp-md5 "^2.19.0"
-    fast-xml-parser "^5.2.5"
-    mixpanel-browser "^2.68.0"
-    sdp-transform "^2.15.0"
-    uuid "^11.1.0"
-
 ringcentral-web-phone@^0.8.10:
   version "0.8.14"
   resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-0.8.14.tgz#134265e1f03656605682a470a2ce037e77851f8c"
   integrity sha512-IxE8vYegFwb2WMirAObNs7/m7oxomfHhtsBnJyj46sx8rnj5VnSB6VJbKUmBUTluATGlWg+gnhT5iGlBYWW3BA==
   dependencies:
     sip.js "0.13.5"
+
+ringcentral-web-phone@^2.2.7:
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/ringcentral-web-phone/-/ringcentral-web-phone-2.2.7.tgz#7c22ae36cc0617a915df63902433cb93f2f30974"
+  integrity sha512-Efe11Y2MLWLVfvTRDj4T+27DFUy4ahxbKU5p4XT+Xgje8snqqAd+gJ3/NXlDBON7WqQduO4Ldj/f6U1E8NbN3Q==
+  dependencies:
+    blueimp-md5 "^2.19.0"
+    fast-xml-parser "^5.2.5"
+    mixpanel-browser "^2.68.0"
+    sdp-transform "^2.15.0"
+    uuid "^11.1.0"
 
 ripemd160@=2.0.1:
   version "2.0.1"

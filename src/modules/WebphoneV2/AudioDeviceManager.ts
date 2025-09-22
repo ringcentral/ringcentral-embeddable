@@ -1,4 +1,4 @@
-import type { DeviceManager } from 'ringcentral-web-phone-beta-2/dist/esm/types';
+import type { DeviceManager } from 'ringcentral-web-phone/dist/esm/types';
 import type { AudioSettings } from '@ringcentral-integration/commons/modules/AudioSettings';
 import { Logger } from './logger';
 export class AudioDeviceManager implements DeviceManager {

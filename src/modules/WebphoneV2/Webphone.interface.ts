@@ -1,5 +1,5 @@
-import type InboundCallSession from 'ringcentral-web-phone-beta-2/dist/esm/call-session/inbound';
-import type OutboundCallSession from 'ringcentral-web-phone-beta-2/dist/esm/call-session/outbound';
+import type InboundCallSession from 'ringcentral-web-phone/dist/esm/call-session/inbound';
+import type OutboundCallSession from 'ringcentral-web-phone/dist/esm/call-session/outbound';
 import type { WebPhoneOptions } from '@ringcentral-integration/commons/modules/Webphone/Webphone.interface';
 
 import type { RingCentralClient } from '@ringcentral-integration/commons/lib/RingCentralClient';

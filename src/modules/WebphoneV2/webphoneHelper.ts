@@ -3,10 +3,10 @@ import type { WebphoneSession } from './Webphone.interface';
 import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 import { recordStatus } from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
-import RequestMessage from "ringcentral-web-phone-beta-2/sip-message/outbound/request";
-import callControlCommands from "ringcentral-web-phone-beta-2/rc-message/call-control-commands";
-import RcMessage from "ringcentral-web-phone-beta-2/rc-message/rc-message";
-import type InboundMessage from "ringcentral-web-phone-beta-2/sip-message/inbound";
+import RequestMessage from "ringcentral-web-phone/sip-message/outbound/request";
+import callControlCommands from "ringcentral-web-phone/rc-message/call-control-commands";
+import RcMessage from "ringcentral-web-phone/rc-message/rc-message";
+import type InboundMessage from "ringcentral-web-phone/sip-message/inbound";
 
 // peer: '"User Name" <sip:16503621111*103@8.8.8>;tag=2ba03ca1-61ef-416d-80d6-ebe2d66f4111'
 const extractName = (peer: string) => peer.match(/"(.*)"/)?.[1] || '';
