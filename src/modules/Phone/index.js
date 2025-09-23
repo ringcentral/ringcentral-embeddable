@@ -802,6 +802,9 @@ export function createPhone({
     sdkConfig.authorizeEndpoint = '/authorize';
     sdkConfig.revokeEndpoint = '/logout';
   }
+
+  const webphoneLogLevelData = localStorage.getItem(`${prefix}-webphone-log-level`);
+  const webphoneLogLevel = webphoneLogLevelData ? parseInt(webphoneLogLevelData, 10) : 1;
   @ModuleFactory({
     providers: [
       {
@@ -869,7 +872,7 @@ export function createPhone({
           appKey: apiConfig.clientId,
           appName: appNameForSDK,
           appVersion,
-          webphoneLogLevel: 1,
+          webphoneLogLevel,
           permissionCheck: false,
           connectDelay: disconnectInactiveWebphone ? 800 : 0,
           disconnectOnInactive: disconnectInactiveWebphone,

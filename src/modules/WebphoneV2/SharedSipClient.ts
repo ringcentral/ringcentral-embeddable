@@ -49,14 +49,10 @@ export class SharedSipClient extends EventEmitter implements SipClient {
         }
         this.emit('outboundMessage', OutboundMessage.fromString(event.data.message));
       } else if (event.data.type === 'status') {
-        if (this.debug) {
-          this._logger.debug('status', event.data.status);
-        }
+        this._logger.log('status', event.data.status);
         this.emit('status', event.data.status);
       } else if (event.data.type === 'transportStatus') {
-        if (this.debug) {
-          this._logger.debug('transportStatus', event.data.status);
-        }
+        this._logger.log('transportStatus', event.data.status);
         this.emit('transportStatus', event.data.status);
       } else if (event.data.type === 'setSharedState') {
         Object.keys(event.data.state).forEach((key) => {
@@ -133,7 +129,7 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   }: SipClientOptions) {
     this.sipInfo = sipInfo;
     this.instanceId = instanceId;
-    this.debug = true;
+    this.debug = debug || false;
     this.device = device;
     await this.workerRequest({
       type: 'startSipClient',
