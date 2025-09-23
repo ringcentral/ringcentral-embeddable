@@ -1,6 +1,6 @@
 import { trackEvents } from "../Analytics/trackEvents";
 export function setOutputDeviceWhenCall(webphone, audioSettings) {
-  if (webphone._webphone) {
+  if (webphone.webphoneSessions?.length > 0) {
     audioSettings.getUserMedia(); // refresh audio devices
   }
 }

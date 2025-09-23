@@ -55,6 +55,7 @@ type IncomingCallPadProps = {
   forwardingNumbers: any[];
   formatPhone?: (...args: any[]) => any;
   onForward: (...args: any[]) => any;
+  startReply: (...args: any[]) => any;
   replyWithMessage: (...args: any[]) => any;
   className?: string;
   answerAndEnd?: (...args: any[]) => any;
@@ -83,6 +84,7 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
   getPresence = undefined,
   toVoiceMail,
   onForward,
+  startReply,
   searchContact,
   searchContactList,
   phoneTypeRenderer = undefined,
@@ -186,6 +188,7 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
               icon={Forwarding}
               onClick={() => {
                 setShowForward(true);
+                startReply();
               }}
               title={i18n.getString('forward', currentLocale)}
               dataSign="forward"
@@ -194,6 +197,7 @@ const IncomingCallPad: FunctionComponent<IncomingCallPadProps> = ({
               icon={Sms}
               onClick={() => {
                 setShowReplyWithMessage(true);
+                startReply();
               }}
               title={i18n.getString('reply', currentLocale)}
               dataSign="reply"

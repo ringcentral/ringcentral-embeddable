@@ -1,6 +1,6 @@
 {
   "name": "ringcentral-embeddable",
-  "version": "3.0.0-alpha.1",
+  "version": "3.0.0-alpha.2",
   "description": "A RingCentral Embeddable Widget Application",
   "main": "index.js",
   "license": "MIT",
@@ -120,6 +120,7 @@
     "react-router-redux": "^4.0.8",
     "redux": "^4.2.0",
     "ringcentral-client": "^1.0.0-beta.2",
+    "ringcentral-web-phone": "^2.2.7",
     "setimmediate": "^1.0.5",
     "styled-components": "^5.3.3",
     "url": "^0.11.0",

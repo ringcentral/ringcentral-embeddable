@@ -11,6 +11,7 @@ import {
   RcList,
   RcListItem,
   RcListItemText,
+  RcAlert,
   styled,
   css,
 } from '@ringcentral/juno';
@@ -49,7 +50,6 @@ export interface ForwardFormProps {
   forwardingNumbers: any[];
   formatPhone: (...args: any[]) => any;
   onForward: (...args: any[]) => any;
-  onChange?: (...args: any[]) => any;
   searchContactList: any[];
   searchContact: (...args: any[]) => any;
   phoneTypeRenderer?: (...args: any[]) => any;
@@ -101,7 +101,6 @@ const ForwardForm: FunctionComponent<ForwardFormProps> = ({
   phoneTypeRenderer = undefined,
   phoneSourceNameRenderer = undefined,
   autoFocus = true,
-  onChange = undefined,
   onForward,
   getPresence,
   open,
@@ -123,13 +122,9 @@ const ForwardForm: FunctionComponent<ForwardFormProps> = ({
   const disableButton = isBlank(value) || handling;
   const onSelect = (index) => {
     setSelectedIndex(index);
-    if (typeof onChange === 'function') {
-      onChange(getValue({
-        selectedIndex: index,
-        forwardingNumbers,
-        recipient,
-        customValue,
-      }));
+    if (index < forwardingNumbers.length) {
+      setRecipient(null);
+      setCustomValue('');
     }
   };
   
@@ -202,6 +197,9 @@ const ForwardForm: FunctionComponent<ForwardFormProps> = ({
           autoFocus={autoFocus}
           getPresence={getPresence}
         />
+        <RcAlert severity="warning">
+          When forwarding to internal contacts, please use extension number or select the contact from the search results.
+        </RcAlert>
       </RcDialogContent>
       <RcDialogActions>
         <RcButton
@@ -215,7 +213,7 @@ const ForwardForm: FunctionComponent<ForwardFormProps> = ({
           variant="contained"
           onClick={async () => {
             setHandling(true);
-            const result = await onForward(value);
+            const result = await onForward(value, recipient);
             if (!mounted.current) {
               return;
             }

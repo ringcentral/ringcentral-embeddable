@@ -154,7 +154,7 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
           },
         },
         {
-          test: /\.ogg$/,
+          test: /\.ogg|\.mp3|\.wav/,
           type: 'asset/resource',
           generator: {
             filename: 'audio/[name]_[hash][ext]',

@@ -312,6 +312,7 @@ const IncomingCallPanel: FunctionComponent<any> = ({
   toVoiceMail,
   replyWithMessage,
   onForward,
+  startReply,
   hasOtherActiveCall,
   answerAndEnd,
   answerAndHold,
@@ -376,6 +377,7 @@ const IncomingCallPanel: FunctionComponent<any> = ({
           toVoiceMail={toVoiceMail}
           replyWithMessage={replyWithMessage}
           onForward={onForward}
+          startReply={startReply}
           currentLocale={currentLocale}
           hasOtherActiveCall={hasOtherActiveCall}
           answerAndEnd={answerAndEnd}
