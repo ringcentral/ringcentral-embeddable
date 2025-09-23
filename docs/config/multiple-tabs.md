@@ -84,4 +84,10 @@ For 5 tab limitation, we support to disconnect web phone connection in inactive 
 
 ## Option 3: shared worker for multiple tabs
 
-From v3.0.0-alpha.2, we have updated web phone module to use shared worker for web phone connection. It will support multiple tabs by default, no need to set any option.
+Starting with **v3.0.0-alpha.2**, the Web Phone module now uses a Shared Worker for managing Web Phone connections.
+
+* **Multiple tabs supported by default** – No additional configuration or options are required.
+
+* **Single shared connection** – Improves performance and stability by preventing multiple independent connections.
+
+This change is automatic for v3.0.0-alpha.2 and later.
