@@ -81,3 +81,13 @@ For 5 tab limitation, we support to disconnect web phone connection in inactive 
     * App will show connecting badge a while after user change active tab
     * Performance issue when user change active tab fast
     * At Firefox, app can't disconnect web phone successfully at active page unloaded. So it maybe show too many connection error.
+
+## Option 3: shared worker for multiple tabs
+
+Starting with **v3.0.0-alpha.2**, the Web Phone module now uses a Shared Worker for managing Web Phone connections.
+
+* **Multiple tabs supported by default** – No additional configuration or options are required.
+
+* **Single shared connection** – Improves performance and stability by preventing multiple independent connections.
+
+This change is automatic for v3.0.0-alpha.2 and later.
