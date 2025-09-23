@@ -13,6 +13,10 @@ export class AudioDeviceManager implements DeviceManager {
   }
 
   public async getOutputDeviceId(): Promise<string | undefined> {
+    if (this._audioSettings.availableOutputDevices.length === 0) {
+      // for firefox/safari, if not setSinkId, return undefined
+      return undefined;
+    }
     return this._audioSettings.outputDeviceId
   }
 }

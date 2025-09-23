@@ -366,7 +366,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           this._deps.audioSettings.supportDevices
         ) {
           this.webphoneSessions.forEach((session) => {
-            if (session.audioElement) {
+            if (session.audioElement && typeof session.audioElement.setSinkId === 'function') {
               session.audioElement.setSinkId(this._deps.audioSettings.outputDeviceId);
             }
           });

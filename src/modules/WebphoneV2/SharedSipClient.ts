@@ -78,6 +78,9 @@ export class SharedSipClient extends EventEmitter implements SipClient {
     Object.keys(state).forEach((key) => {
       this.sharedState[key] = state[key];
     });
+    if (!this.worker) {
+      return;
+    }
     this.worker.port.postMessage({
       type: 'setSharedState',
       state,
