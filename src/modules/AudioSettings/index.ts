@@ -1,4 +1,4 @@
-import { find } from 'ramda';
+import { find, filter } from 'ramda';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
   action,
@@ -66,5 +66,62 @@ export class AudioSettings extends AudioSettingsBase {
 
   enableAutoPlay() {
     this.setAutoPlayEnabled(true);
+  }
+
+  get inputDeviceId() {
+    const saved = this.data.inputDeviceId;
+    if (saved !== 'default') {
+      return saved;
+    }
+    const availableInputDevices = this.availableInputDevices;
+    if (availableInputDevices.length === 0) {
+      return saved;
+    }
+    const defaultDevice = find(
+      (device) => device.deviceId === 'default',
+      availableInputDevices,
+    );
+    if (!defaultDevice) {
+      return saved;
+    }
+    let defaultGroupId = defaultDevice.groupId;
+    if (!defaultGroupId) {
+      return saved;
+    }
+    const otherGroupDevices = filter(
+      (device) => (
+        device.groupId === defaultGroupId &&
+        device.deviceId !== 'default'
+      ),
+      availableInputDevices,
+    );
+    if (otherGroupDevices.length === 0) {
+      return saved;
+    }
+    if (otherGroupDevices.length === 1) {
+      return otherGroupDevices[0].deviceId;
+    }
+    const defaultDeviceLabel = defaultDevice.label;
+    if (!defaultDeviceLabel) {
+      return saved;
+    }
+    const reactDevice = otherGroupDevices.find((device) =>
+      defaultDeviceLabel.includes(device.label)
+    );
+    if (!reactDevice) {
+      return saved;
+    }
+    return reactDevice.deviceId;
+  }
+
+  get audioConstraints() {
+    // just in case the inputDeviceId is somehow empty, we can return true to let browser use anything
+    return this.inputDeviceId
+      ? {
+          deviceId: {
+            exact: this.inputDeviceId,
+          },
+        }
+      : true;
   }
 }
