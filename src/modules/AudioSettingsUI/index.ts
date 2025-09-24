@@ -28,6 +28,7 @@ export class AudioSettingsUI extends BaseAudioSettingsUI {
       disableNoiseReductionSetting: webphone.sessions.length > 0,
       ringtoneDeviceId: audioSettings.ringtoneDeviceId,
       showRingtoneAudioSetting: appFeatures.ringtonePermission,
+      inputDeviceId: audioSettings.data.inputDeviceId,
     };
   }
 

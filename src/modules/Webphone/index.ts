@@ -663,4 +663,15 @@ export class Webphone extends WebphoneBase {
       this._onCallEnd(session);
     }
   }
+
+  get acceptOptions() {
+    return {
+      sessionDescriptionHandlerOptions: {
+        constraints: {
+          audio: this._deps.audioSettings.audioConstraints,
+          video: false,
+        },
+      },
+    };
+  }
 }
