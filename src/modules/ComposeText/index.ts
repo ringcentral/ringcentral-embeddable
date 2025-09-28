@@ -1,5 +1,10 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
+  action,
+  state,
+  storage,
+} from '@ringcentral-integration/core';
+import {
   ComposeText as ComposeTextBase,
 } from '@ringcentral-integration/commons/modules/ComposeText';
 
@@ -59,5 +64,29 @@ export class ComposeText extends ComposeTextBase {
       console.error(error);
       return true;
     }
+  }
+
+  @storage
+  @state
+  defaultTextId = '';
+
+  @action
+  setDefaultTextId(textId) {
+    this.defaultTextId = textId;
+  }
+
+  override _initSenderNumber() {
+    super._initSenderNumber();
+    const defaultTextId = this.defaultTextId;
+    if (
+      defaultTextId &&
+      this._deps.messageSender.senderNumbersList.find(
+        (number) => number.phoneNumber === defaultTextId
+      )
+    ) {
+      // if the default text id is valid, use it
+      return;
+    }
+    this.setDefaultTextId('');
   }
 }

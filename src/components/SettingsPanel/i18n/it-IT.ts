@@ -2,6 +2,7 @@ export default {
   general: 'Generale',
   region: "Regione",
   calling: "Chiamata",
+  text: "SMS",
   logout: "Disconnetti",
   version: "Versione",
   settings: "Impostazioni",

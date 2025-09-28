@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { ToNumber } from '@ringcentral-integration/commons/modules/ComposeText';
 
 import {
@@ -104,6 +104,7 @@ export interface ComposeTextPanelProps {
   hideBackButton?: boolean;
   onClose?: (...args: any[]) => any;
   showCloseButton?: boolean;
+  onLoad?: (...args: any[]) => any;
 }
 
 const CloseButton = styled(RcIconButton)`
@@ -159,11 +160,18 @@ function ComposeTextPanel({
   hideBackButton = false,
   onClose,
   showCloseButton = false,
+  onLoad,
 }: ComposeTextPanelProps) {
   const noPermission = !!(
     senderNumbers.length === 0 ||
     !outboundSMS
   );
+  useEffect(() => {
+    if (typeof onLoad === 'function') {
+      onLoad();
+    }
+  }, []);
+
   return (
     <Root className={className} data-sign="composeTextPanel">
       {showSpinner ? <SpinnerOverlay /> : null}

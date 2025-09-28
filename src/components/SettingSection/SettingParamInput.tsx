@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
   RcMenuItem,
+  RcListItemText,
   RcSelect,
   RcSwitch,
   RcTextarea,
@@ -414,7 +415,10 @@ export function SettingParamInput({
             key={option.id}
             value={option.id}
           >
-            {option.name}
+            <RcListItemText
+              primary={option.name}
+              secondary={option.description}
+            />
           </RcMenuItem>
         ))}
       </StyledSelect>
