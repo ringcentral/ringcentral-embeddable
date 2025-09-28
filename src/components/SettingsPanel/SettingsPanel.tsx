@@ -111,6 +111,8 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   smartNoteAutoStartEnabledReadOnlyReason?: string;
   gotoCallQueuePresenceSettings: () => void;
   showCallQueuePresenceSettings: boolean;
+  showText: boolean;
+  onTextSettingsLinkClick: () => void;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -430,6 +432,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   onSmartNoteAutoStartToggle,
   gotoCallQueuePresenceSettings,
   showCallQueuePresenceSettings,
+  showText,
+  onTextSettingsLinkClick,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'group',
@@ -446,6 +450,15 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       show: showCalling,
       onClick: onCallingSettingsLinkClick,
       order: 100,
+    }, {
+      type: 'link',
+      id: 'text',
+      name: 'text',
+      description: 'Your preferred phone number when sending texts',
+      dataSign: 'text',
+      show: showText,
+      onClick: onTextSettingsLinkClick,
+      order: 150,
     }, {
       type: 'link',
       id: 'region',

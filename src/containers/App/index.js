@@ -33,6 +33,7 @@ import ComposeTextPage from '../ComposeTextPage';
 import ConversationsPage from '../ConversationsPage';
 import ConversationPage from '../ConversationPage';
 import LogMessagesPage from '../LogMessagesPage';
+import TextSettingPage from '../TextSettingPage';
 import MainView from '../MainView';
 import MeetingHistoryPage from '../MeetingHistoryPage';
 import MeetingHomePage from '../MeetingHomePage';
@@ -488,6 +489,10 @@ export default function App({
               <Route
                 path="/settings/callQueuePresence"
                 component={CallQueueSettingsPage}
+              />
+              <Route
+                path="/settings/text"
+                component={TextSettingPage}
               />
               <Route
                 path="/log/call/:callSessionId"

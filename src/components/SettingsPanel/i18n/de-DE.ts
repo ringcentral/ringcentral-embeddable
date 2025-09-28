@@ -2,6 +2,7 @@ export default {
   general: 'Allgemein',
   region: "Region",
   calling: "Anrufen",
+  text: "Textnachr",
   logout: "Abmelden",
   version: "Version",
   settings: "Einstellungen",

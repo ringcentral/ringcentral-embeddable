@@ -173,6 +173,7 @@ import { CallDetailsUI } from '../CallDetailsUI';
 import { CompanyContacts } from '../CompanyContacts';
 import { ComposeText } from '../ComposeText';
 import { ComposeTextUI } from '../ComposeTextUI';
+import { TextSettingUI } from '../TextSettingUI';
 import { ConferenceCall } from '../ConferenceCall';
 import { ConversationLogger } from '../ConversationLogger';
 import { Conversations } from '../Conversations';
@@ -275,6 +276,7 @@ import { WidgetAppsUI } from '../WidgetAppsUI';
     { provide: 'MessageSender', useClass: MessageSender },
     { provide: 'ComposeText', useClass: ComposeText },
     { provide: 'ComposeTextUI', useClass: ComposeTextUI },
+    { provide: 'TextSettingUI', useClass: TextSettingUI },
     { provide: 'ConversationsUI', useClass: ConversationsUI },
     { provide: 'ConversationUI', useClass: ConversationUI },
     { provide: 'MessageDetailsUI', useClass: MessageDetailsUI },

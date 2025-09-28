@@ -103,6 +103,14 @@ export class ComposeTextUI extends ComposeTextUIBase {
       sortTemplates: (templateIds) => {
         return smsTemplates.sort(templateIds);
       },
+      onLoad: () => {
+        if (
+          composeText.defaultTextId &&
+          composeText.defaultTextId !== composeText.senderNumber
+        ) {
+          composeText.updateSenderNumber(composeText.defaultTextId);
+        }
+      },
     };
   }
 

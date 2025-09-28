@@ -10,6 +10,7 @@ import {
   css,
 } from '@ringcentral/juno';
 import i18n from './i18n';
+import { getPhoneNumberLabel } from './helper';
 
 const Container = styled.div`
   display: flex;
@@ -68,18 +69,12 @@ const PhoneNumber = ({
   primary = false,
   label = '',
 }) => {
-  let primaryText = '';
-  if (phoneNumber === 'anonymous') {
-    primaryText = i18n.getString('Blocked', currentLocale);
-  } else if (usageType) {
-    if (label) {
-      primaryText = label;
-    } else if (primary) {
-      primaryText = i18n.getString('primary', currentLocale);
-    } else {
-      primaryText = i18n.getString(usageType, currentLocale);
-    }
-  }
+  const primaryText = getPhoneNumberLabel({
+    phoneNumber,
+    usageType,
+    primary,
+    label,
+  }, currentLocale);
   let secondaryText = phoneNumber === 'anonymous' ? undefined : formatPhone(phoneNumber);
   if (!usageType && phoneNumber !== 'anonymous') {
     primary = formatPhone(phoneNumber);

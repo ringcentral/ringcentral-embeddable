@@ -3,6 +3,7 @@ export default {
   theme: "Theme",
   region: 'Region',
   calling: 'Calling',
+  text: 'Text',
   logout: 'Logout',
   version: 'Version',
   settings: 'Settings',

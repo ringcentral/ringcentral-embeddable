@@ -2,6 +2,7 @@ export default {
   general: 'Général',
   region: "Région",
   calling: "Appel en cours",
+  text: "SMS",
   logout: "Déconnexion",
   version: "Version",
   settings: "Paramètres",
