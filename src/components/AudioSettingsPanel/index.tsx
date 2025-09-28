@@ -287,6 +287,16 @@ const StyledLinkItemLabel = styled(RcTypography)`
   flex: 1;
 `;
 
+const SwitchItem = styled.div`
+  .RcFormControlLabel-root {
+    width: 100%;
+  }
+
+  .MuiFormControlLabel-label {
+    flex: 1;
+  }
+`;
+
 function LinkItem({
   onClick,
   label,
@@ -376,21 +386,23 @@ export const AudioSettingsPanel: FC<AudioSettingsPanelProps> = ({
           ) : null}
           {
             showNoiseReductionSetting ? (
-              <RcSwitch
-                formControlLabelProps={{
-                  labelPlacement: 'start',
-                  style: {
-                    marginLeft: 0,
-                    marginTop: '-10px',
-                  },
-                }}
-                label="Enable noise reduction (Beta)"
-                checked={noiseReductionEnabled}
-                onChange={(_, checked) => {
-                  onNoiseReductionChange(checked);
-                }}
-                disabled={disableNoiseReductionSetting}
-              />
+              <SwitchItem>
+                <RcSwitch
+                  formControlLabelProps={{
+                    labelPlacement: 'start',
+                    style: {
+                      marginLeft: 0,
+                      marginTop: '-10px',
+                    },
+                  }}
+                  label="Enable noise reduction"
+                  checked={noiseReductionEnabled}
+                  onChange={(_, checked) => {
+                    onNoiseReductionChange(checked);
+                  }}
+                  disabled={disableNoiseReductionSetting}
+                />
+              </SwitchItem>
             ) : null
           }
         </Section>
