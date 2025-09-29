@@ -1,7 +1,7 @@
 /******/ (function() { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 8741:
+/***/ 88627:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -56585,8 +56585,8 @@ var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleE
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
 var styleTagTransform = __webpack_require__(41113);
 var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[9].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[9].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[9].use[3]!./src/lib/Adapter/styles.scss
-var styles = __webpack_require__(8741);
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[10].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[10].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[10].use[3]!./src/lib/Adapter/styles.scss
+var styles = __webpack_require__(88627);
 ;// ./src/lib/Adapter/styles.scss
 
       
@@ -57485,7 +57485,8 @@ function init() {
     enableLoadMoreCalls,
     mainTab,
     enableSharedMessages,
-    enableSideWidget
+    enableSideWidget,
+    enableVoicemailDrop
   } = options;
   const appUri = `${appUrl}?${obj2uri({
     appKey,
@@ -57542,6 +57543,7 @@ function init() {
     enableAudioInitPrompt,
     enableSharedMessages,
     enableLoadMoreCalls,
+    enableVoicemailDrop,
     mainTab,
     _t: Date.now()
   })}`;
