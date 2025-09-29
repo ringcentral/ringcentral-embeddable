@@ -53,6 +53,7 @@ import CustomizedPage from '../CustomizedPage';
 import GlipChatPage from '../GlipChatPage';
 import GlipGroupsPage from '../GlipGroupsPage';
 
+import VoicemailDropSettingsPage from '../VoicemailDropSettingsPage';
 
 export default function App({
   phone,
@@ -493,6 +494,10 @@ export default function App({
               <Route
                 path="/settings/text"
                 component={TextSettingPage}
+              />
+              <Route
+                path="/settings/voicemailDrop"
+                component={VoicemailDropSettingsPage}
               />
               <Route
                 path="/log/call/:callSessionId"

@@ -31,6 +31,8 @@ type CallCtrlPanelProps = {
   onHangup: (...args: any[]) => any;
   onFlip?: (...args: any[]) => any;
   onTransfer: (...args: any[]) => any;
+  onVoicemailDrop: (...args: any[]) => any;
+  showVoicemailDrop?: boolean;
   disableFlip?: boolean;
   showBackButton?: boolean;
   backButtonLabel?: string;
@@ -68,6 +70,7 @@ type CallCtrlPanelProps = {
   onCompleteTransfer?: (...args: any[]) => any;
   isOnWaitingTransfer?: boolean;
   isOnTransfer?: boolean;
+  voicemailDropStatus?: string;
 };
 
 const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
@@ -85,6 +88,7 @@ const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
   conferenceCallEquipped = false,
   conferenceCallParties = undefined,
   controlBusy = false,
+  voicemailDropStatus = null,
   countryCode,
   currentLocale,
   direction = null,
@@ -132,6 +136,8 @@ const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
   isOnTransfer = false,
   disableFlip = false,
   onFlip = () => null,
+  showVoicemailDrop = false,
+  onVoicemailDrop = () => null,
 }) => {
   const [isShowKeyPad, setIsShowKeyPad] = useState(false);
   const [isShowMergeConfirm, setIsShowMergeConfirm] = useState(false);
@@ -213,6 +219,10 @@ const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
       onTransfer={() => {
         onTransfer(sessionId);
       }}
+      onVoicemailDrop={() => {
+        onVoicemailDrop(sessionId);
+      }}
+      showVoicemailDrop={showVoicemailDrop}
       gotoParticipantsCtrl={gotoParticipantsCtrl}
       sourceIcons={sourceIcons}
       phoneTypeRenderer={phoneTypeRenderer}
@@ -229,6 +239,7 @@ const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
       actions={actions}
       controlBusy={controlBusy}
       callQueueName={callQueueName}
+      voicemailDropStatus={voicemailDropStatus}
     >
       {children}
       {showSpinner ? <SpinnerOverlay /> : null}

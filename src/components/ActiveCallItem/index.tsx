@@ -34,7 +34,7 @@ import {
 } from '@ringcentral/juno-icon'
 import styles from '@ringcentral-integration/widgets/components/ActiveCallItemV2/styles.scss';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
-
+import { VOICEMAIL_DROP_STATUS_MAP } from '../../modules/WebphoneV2/voicemailDropStatus';
 import {
   StyledListItem,
   StyledSecondary,
@@ -465,7 +465,8 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
     showRingoutCallControl ||
     showSwitchCall
   );
-  const cursorPointer = hasCallControl && !!onClick;
+  const voicemailDropStatus = webphoneSession?.voicemailDropStatus;
+  const cursorPointer = hasCallControl && !!onClick && !voicemailDropStatus;
   // real outbound call status
   const isConnecting =
     telephonySession?.otherParties[0]?.status?.code ===
@@ -489,6 +490,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       }
     }
   };
+
   let actions = [];
   if (showLogButton) {
     actions.push({
@@ -518,8 +520,8 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       webphoneResume,
       webphoneHold,
       currentLocale,
-      showMergeCall,
-      showHold,
+      showMergeCall: showMergeCall && !voicemailDropStatus,
+      showHold: showHold && !voicemailDropStatus,
       disableMerge,
       onMergeCall,
       webphoneAnswer,
@@ -588,7 +590,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       $cursorPointer={cursorPointer}
     >
       <RcListItemAvatar
-        onClick={hasCallControl && onClick ? onClick : undefined}
+        onClick={hasCallControl && !voicemailDropStatus && onClick ? onClick : undefined}
       >
         <CallIcon
           isOnConferenceCall={isOnConferenceCall}
@@ -597,7 +599,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
       </RcListItemAvatar>
       <RcListItemText
         data-sign="callNameAndDurationWrap"
-        onClick={hasCallControl && onClick ? onClick : undefined}
+        onClick={hasCallControl && !voicemailDropStatus && onClick ? onClick : undefined}
         primary={
           <ContactDisplay
             warmTransferRole={warmTransferRole}
@@ -633,7 +635,11 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
         secondary={
           <StyledSecondary>
             <DetailArea>
-              {i18n.getString(telephonyStatus, currentLocale)}
+              {
+                voicemailDropStatus ?
+                  VOICEMAIL_DROP_STATUS_MAP[voicemailDropStatus] :
+                  i18n.getString(telephonyStatus, currentLocale)
+              }
             </DetailArea>
             <span className="call-item-time" data-sign="duration">
               <DurationCounter startTime={startTime} offset={offset} />

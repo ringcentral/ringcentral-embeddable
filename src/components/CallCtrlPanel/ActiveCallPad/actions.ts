@@ -8,4 +8,5 @@ export const ACTIONS_CTRL_MAP = {
   flipCtrl: 'flipCtrl',
   parkCtrl: 'parkCtrl',
   completeTransferCtrl: 'completeTransferCtrl',
+  voicemailDropCtrl: 'voicemailDropCtrl',
 };

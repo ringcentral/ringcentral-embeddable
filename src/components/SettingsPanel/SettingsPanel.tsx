@@ -113,6 +113,8 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   showCallQueuePresenceSettings: boolean;
   showText: boolean;
   onTextSettingsLinkClick: () => void;
+  gotoVoicemailDropSettings: () => void;
+  showVoicemailDropSettings: boolean;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -434,6 +436,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   showCallQueuePresenceSettings,
   showText,
   onTextSettingsLinkClick,
+  gotoVoicemailDropSettings,
+  showVoicemailDropSettings,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'group',
@@ -572,6 +576,15 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       readOnly: smartNoteAutoStartEnabledReadOnly,
       readOnlyReason: smartNoteAutoStartEnabledReadOnlyReason,
       order: 11,
+    }, {
+      id: 'voicemailDropSettings',
+      type: 'link',
+      name: 'voicemailDropSettings',
+      description: 'Configure voicemail drop messages',
+      dataSign: 'voicemailDropSettings',
+      show: showVoicemailDropSettings,
+      onClick: gotoVoicemailDropSettings,
+      order: 12,
     }],
   }];
   thirdPartySettings.forEach((item, index) => {

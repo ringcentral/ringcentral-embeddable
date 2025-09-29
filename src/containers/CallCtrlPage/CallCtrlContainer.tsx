@@ -46,6 +46,8 @@ export type CallCtrlContainerProps = PropsWithChildren<{
   onFlip: (...args: any[]) => any;
   onPark: (...args: any[]) => any;
   onTransfer: (...args: any[]) => any;
+  onVoicemailDrop: (...args: any[]) => any;
+  showVoicemailDrop?: boolean;
   nameMatches: any[];
   areaCode: string;
   countryCode: string;
@@ -77,6 +79,7 @@ export type CallCtrlContainerProps = PropsWithChildren<{
   phoneNumber?: string;
   showPark?: boolean;
   controlBusy?: boolean;
+  voicemailDropStatus?: string;
 }>;
 type CallCtrlContainerState = {
   layout: any;
@@ -395,6 +398,8 @@ export class CallCtrlContainer extends Component<
         onFlip={this.props.onFlip}
         onTransfer={this.props.onTransfer}
         onCompleteTransfer={this.onCompleteTransfer}
+        onVoicemailDrop={this.props.onVoicemailDrop}
+        showVoicemailDrop={this.props.showVoicemailDrop}
         onPark={this.onPark}
         disableFlip={this.props.disableFlip}
         showPark={this.props.showPark}
@@ -427,6 +432,7 @@ export class CallCtrlContainer extends Component<
         afterConfirmMerge={this.props.afterConfirmMerge}
         afterOnMerge={this.props.afterOnMerge}
         controlBusy={this.props.controlBusy}
+        voicemailDropStatus={this.props.voicemailDropStatus}
       >
         {this.props.children}
       </CallCtrlPanel>

@@ -157,6 +157,10 @@ export class AppFeatures extends AppFeaturesBase {
     this.configState = newContact;
   }
 
+  get hasVoicemailDropPermission() {
+    return this.config.VoicemailDrop;
+  }
+
   @computed((that: AppFeatures) => [that._deps.featureConfiguration, that.configState])
   get config() {
     return {

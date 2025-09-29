@@ -7,6 +7,7 @@ import RequestMessage from "ringcentral-web-phone/sip-message/outbound/request";
 import callControlCommands from "ringcentral-web-phone/rc-message/call-control-commands";
 import RcMessage from "ringcentral-web-phone/rc-message/rc-message";
 import type InboundMessage from "ringcentral-web-phone/sip-message/inbound";
+import voicemailDropStatus from './voicemailDropStatus';
 
 // peer: '"User Name" <sip:16503621111*103@8.8.8>;tag=2ba03ca1-61ef-416d-80d6-ebe2d66f4111'
 const extractName = (peer: string) => peer.match(/"(.*)"/)?.[1] || '';
@@ -25,6 +26,16 @@ function getCallStatus(webphoneState) {
     return sessionStatus.finished;
   }
   return sessionStatus.finished;
+}
+
+export function isDroppingVoicemail(dropStatus) {
+  return (
+    dropStatus === voicemailDropStatus.waitingForGreetingEnd ||
+    dropStatus === voicemailDropStatus.sending ||
+    dropStatus === voicemailDropStatus.finished ||
+    dropStatus === voicemailDropStatus.terminated ||
+    dropStatus === voicemailDropStatus.greetingDetectionFailed
+  );
 }
 
 export function normalizeSession(
@@ -55,7 +66,6 @@ export function normalizeSession(
     toTag: session.direction === 'inbound' ? localTag : remoteTag,
     startTime: session.startTime && new Date(session.startTime).getTime(),
     creationTime: session.__rc_creationTime,
-    isOnHold: !!session.__rc_localHold,
     isOnMute: !!session.__rc_isOnMute,
     isOnFlip: !!session.__rc_isOnFlip,
     isOnTransfer: !!session.__rc_isOnTransfer,
@@ -74,6 +84,8 @@ export function normalizeSession(
     removed: false,
     callQueueName: queueName ? `${queueName} - ` : null,
     warmTransferSessionId: session.__rc_transferSessionId,
+    voicemailDropStatus: session.__rc_voicemailDropStatus,
+    isOnHold: !!session.__rc_localHold && !isDroppingVoicemail(session.__rc_voicemailDropStatus),
   };
 }
 

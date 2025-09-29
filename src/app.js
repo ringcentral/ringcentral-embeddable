@@ -114,6 +114,7 @@ const {
   enableSharedMessages,
   enableLoadMoreCalls,
   mainTab,
+  enableVoicemailDrop,
 } = pathParams;
 
 const defaultBrand = brand || process.env.BRAND;
@@ -199,6 +200,7 @@ const phone = createPhone({
   isMainTab: mainTab === 'true',
   autoMainTab: typeof mainTab === 'undefined',
   externalAuthId,
+  enableVoicemailDrop,
 });
 
 const store = createStore(phone.reducer);

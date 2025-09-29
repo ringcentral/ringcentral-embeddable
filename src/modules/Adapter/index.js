@@ -264,6 +264,9 @@ export default class Adapter extends AdapterModuleCore {
     this._webphone.onActiveWebphoneChanged((event) => {
       this.activeWebphoneNotify(event);
     });
+    this._webphone.onCallVoicemailDropped((session) => {
+      this.dropVoicemailNotify(session);
+    });
     this._activeCallControl.onTelephonySessionUpdated((session) => {
       this.telephonySessionNotify(session);
     });
@@ -948,6 +951,16 @@ export default class Adapter extends AdapterModuleCore {
       call: {
         ...session,
         isOnMute: muted,
+        contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
+      },
+    });
+  }
+
+  dropVoicemailNotify(session) {
+    this._postMessage({
+      type: 'rc-call-drop-voicemail-notify',
+      call: {
+        ...session,
         contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
       },
     });

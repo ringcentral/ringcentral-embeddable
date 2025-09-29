@@ -219,7 +219,9 @@ import { SmartNotes } from '../SmartNotes';
 import { SideDrawerUI } from '../SideDrawerUI';
 import { SmartNotesUI } from '../SmartNotesUI';
 import { WidgetAppsUI } from '../WidgetAppsUI';
-
+import { VoicemailDrop } from '../VoicemailDrop';
+import { VoicemailDropUI } from '../VoicemailDropUI';
+import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
@@ -468,6 +470,9 @@ import { WidgetAppsUI } from '../WidgetAppsUI';
     { provide: 'SmartNotes', useClass: SmartNotes },
     { provide: 'SmartNotesUI', useClass: SmartNotesUI },
     { provide: 'WidgetAppsUI', useClass: WidgetAppsUI },
+    { provide: 'VoicemailDrop', useClass: VoicemailDrop },
+    { provide: 'VoicemailDropSettingsUI', useClass: VoicemailDropSettingsUI },
+    { provide: 'VoicemailDropUI', useClass: VoicemailDropUI },
   ]
 })
 export default class BasePhone extends RcModule {
@@ -767,6 +772,7 @@ export function createPhone({
   enableSharedMessages,
   enableAudioInitPrompt,
   enableLoadMoreCalls,
+  enableVoicemailDrop,
   isMainTab,
   autoMainTab,
 }) {
@@ -917,6 +923,7 @@ export function createPhone({
           LoadMoreCalls: !!enableLoadMoreCalls,
           CallRecording: !disableCall && !disableCallHistory,
           SharedMessages: !!enableSharedMessages,
+          VoicemailDrop: !!enableVoicemailDrop,
         },
       },
       {

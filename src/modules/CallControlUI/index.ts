@@ -3,6 +3,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import recordStatus from '@ringcentral-integration/commons/modules/Webphone/recordStatus';
 import webphoneErrors from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
 import sessionStatus from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
+import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { track } from '@ringcentral-integration/core';
 import { trackEvents } from '../Analytics/trackEvents';
 @Module({
@@ -12,6 +13,8 @@ import { trackEvents } from '../Analytics/trackEvents';
     'ActiveCallControl',
     'Call',
     'ContactMatcher',
+    'VoicemailDrop',
+    'SideDrawerUI',
   ],
 })
 export class CallControlUI extends CallControlUIBase {
@@ -35,6 +38,11 @@ export class CallControlUI extends CallControlUIBase {
     return {
       ...props,
       session,
+      showVoicemailDrop:
+        appFeatures.hasVoicemailDropPermission &&
+        this.currentSession &&
+        this.currentSession.direction === callDirections.outbound,
+      voicemailDropStatus: this.currentSession.voicemailDropStatus,
     };
   }
 
@@ -74,10 +82,17 @@ export class CallControlUI extends CallControlUIBase {
     const {
       alert,
       activeCallControl,
-      webphone
+      webphone,
+      sideDrawerUI,
     } = this._deps;
     return {
       ...functions,
+      onVoicemailDrop: (sessionId: string) => {
+        const session = webphone.sessions.find((session) => session.id === sessionId);
+        sideDrawerUI.openVoicemailDrop(sessionId, {
+          phoneNumber: session && session.to,
+        });
+      },
       onMute: (sessionId: string) => {
         this.trackMute();
         return webphone.mute(sessionId);

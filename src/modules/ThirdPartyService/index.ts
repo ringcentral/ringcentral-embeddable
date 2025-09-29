@@ -42,6 +42,7 @@ import {
     'CallHistory',
     'CallMonitor',
     'MessageStore',
+    'VoicemailDrop',
     { dep: 'ThirdPartyContactsOptions', optional: true },
   ],
 })
@@ -78,6 +79,7 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _messagesLogPageInputChangedEventPath?: string;
   private _customizedPageInputChangedEventPath?: string;
   private _doNotContactPath?: string;
+  private _voicemailDropFilesPath?: string;
   private _messageLogEntityMatchSourceAdded: boolean;
   private _fetchContactsPromise: Promise<{ contacts: any, syncTimestamp: number }> | null;
 
@@ -102,6 +104,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._ignoreModuleReadiness(deps.callMonitor);
     this._ignoreModuleReadiness(deps.messageStore);
     this._ignoreModuleReadiness(deps.storage);
+    this._ignoreModuleReadiness(deps.voicemailDrop);
 
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
@@ -184,6 +187,9 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         if (service.doNotContactPath) {
           this._registerDoNotContact(service);
+        }
+        if (service.voicemailDropFilesPath) {
+          this._registerVoicemailDropFiles(service);
         }
         const oldAuthorizedStatus = this.authorized;
         if (service.authorizationPath) {
@@ -1706,6 +1712,18 @@ export default class ThirdPartyService extends RcModuleV2 {
     }
     const { data } = await requestWithPostMessage(this._doNotContactPath, contact);
     return data;
+  }
+
+  _registerVoicemailDropFiles(service) {
+    this._voicemailDropFilesPath = service.voicemailDropFilesPath;
+    this._deps.voicemailDrop.setExternalVoicemailFetcher(async() => {
+      const { data } = await requestWithPostMessage(this._voicemailDropFilesPath);
+      if (!Array.isArray(data)) {
+        console.error('Voicemail drop files must be an array');
+        return [];
+      }
+      return data;
+    });
   }
 
   @globalStorage
