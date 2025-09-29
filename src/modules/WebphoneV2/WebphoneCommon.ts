@@ -212,10 +212,14 @@ export class Webphone extends WebphoneBase {
     }
   }
 
+  _getActiveSessions() {
+    return this.sessions.filter((x) => !isRing(x));
+  }
+
   @action
   _setStateOnCallEnd(session: NormalizedSession) {
     if (this.activeSessionId === session.callId) {
-      const activeSessions = this.sessions.filter((x) => !isRing(x));
+      const activeSessions = this._getActiveSessions();
       activeSessions.sort(sortByLastActiveTimeDesc);
       this.activeSessionId =
         (activeSessions[0] && activeSessions[0].callId) || null;
@@ -1423,7 +1427,7 @@ export class Webphone extends WebphoneBase {
     return find((session) => !session.minimized, this.ringSessions);
   }
 
-  private _getNormalizedSession(session: WebphoneSession) {
+  protected _getNormalizedSession(session: WebphoneSession) {
     return find((x) => x.callId === session.callId, this.sessions);
   }
 }

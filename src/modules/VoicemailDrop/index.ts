@@ -159,7 +159,7 @@ export class VoicemailDrop extends RcModuleV2 {
     if (!message) {
       throw new Error('Pre-recorded message not found');
     }
-    const peerConnection = webphoneSession.sessionDescriptionHandler.peerConnection;
+    const peerConnection = webphoneSession.rtcPeerConnection;
     const receiver = peerConnection.getReceivers().find((r: any) => r.track.kind === 'audio');
     if (!receiver) {
       throw new Error('Receiver not found for the call session');
@@ -216,10 +216,10 @@ export class VoicemailDrop extends RcModuleV2 {
     audioContext,
     endCall,
   }) {
-    const peerConnection: RTCPeerConnection = webphoneSession.sessionDescriptionHandler.peerConnection;
+    const peerConnection: RTCPeerConnection = webphoneSession.rtcPeerConnection;
     const receiver = peerConnection.getReceivers().find((r: any) => r.track.kind === 'audio');
     if (!receiver) {
-      console.error('Receiver not found for session:', webphoneSession.id);
+      console.error('Receiver not found for session:', webphoneSession.callId);
       return false;
     }
     const outputTrack = receiver.track;
@@ -276,12 +276,12 @@ export class VoicemailDrop extends RcModuleV2 {
           resolve(false);
         }
       };
-      webphoneSession.once('terminated', onCallEnd);
+      webphoneSession.once('disposed', onCallEnd);
       greetingEndDetector.port.onmessage = (e) => {
         if (e.data === 'greeting-ended' && !detected) {
           detected = true;
           audio.srcObject = null; // clear audio source
-          webphoneSession.removeListener('terminated', onCallEnd);
+          webphoneSession.off('disposed', onCallEnd);
           greetingEndDetector.disconnect();
           mediaStreamSource.disconnect();
           gainNode.disconnect();
@@ -303,7 +303,7 @@ export class VoicemailDrop extends RcModuleV2 {
     updateStatus,
   }) {
     try {
-      const peerConnection: RTCPeerConnection = webphoneSession.sessionDescriptionHandler.peerConnection;
+      const peerConnection: RTCPeerConnection = webphoneSession.rtcPeerConnection;
       const sourceNode = audioContext.createBufferSource();
       sourceNode.buffer = audioBuffer;
 
@@ -322,11 +322,11 @@ export class VoicemailDrop extends RcModuleV2 {
               message: 'dropVoicemailMessageSendedAsCallEnded',
             });
           };
-          webphoneSession.once('terminated', onCallEnd);
+          webphoneSession.once('disposed', onCallEnd);
           // listen audio finish event
           sourceNode.onended = () => {
             audioTrack.stop();
-            webphoneSession.removeListener('terminated', onCallEnd);
+            webphoneSession.off('disposed', onCallEnd);
             updateStatus(voicemailDropStatus.finished);
             endCall();
           };

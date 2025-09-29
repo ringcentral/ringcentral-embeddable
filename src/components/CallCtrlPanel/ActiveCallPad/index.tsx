@@ -28,7 +28,7 @@ import {
 import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayouts';
 import i18n from '@ringcentral-integration/widgets/components/ActiveCallPad/i18n';
 import { pickElements } from '@ringcentral-integration/widgets/components/ActiveCallPad/utils';
-import { isDroppingVoicemail } from '../../../modules/Webphone/helper';
+import { isDroppingVoicemail } from '../../../modules/WebphoneV2/webphoneHelper';
 import CallCtrlButton from '../../CallCtrlButton';
 import { ACTIONS_CTRL_MAP } from './actions';
 

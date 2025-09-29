@@ -3,4 +3,5 @@ import { EVENTS as EVENTS_BASE } from '@ringcentral-integration/commons/modules/
 export const EVENTS = {
   ...EVENTS_BASE,
   activeWebphoneChanged: 'activeWebphoneChanged',
+  callVoicemailDropped: 'callVoicemailDropped',
 };

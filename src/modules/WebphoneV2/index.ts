@@ -4,13 +4,20 @@ import type { ObjectMapValue } from '@ringcentral-integration/core/lib/ObjectMap
 import { Webphone as WebphoneCommon } from './WebphoneCommon';
 import proxyActionTypes from '@ringcentral-integration/commons/lib/proxy/baseActionTypes';
 import { watch, computed } from '@ringcentral-integration/core';
+import { proxify } from '@ringcentral-integration/commons/lib/proxy/proxify';
 import { MultipleTabsTransport } from '../../lib/MultipleTabsTransport';
 import type { WebphoneSession } from './Webphone.interface';
+import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
+import { voicemailDropStatus } from './voicemailDropStatus';
+import { isRing, isDroppingVoicemail } from './webphoneHelper';
 import { EVENTS } from './events';
 
 @Module({
   name: 'NewWebphone',
-  deps: ['NoiseReduction']
+  deps: [
+    'NoiseReduction',
+    'VoicemailDrop'
+  ]
 })
 export class Webphone extends WebphoneCommon {
   protected _multipleTabsTransport: MultipleTabsTransport;
@@ -174,5 +181,99 @@ export class Webphone extends WebphoneCommon {
     webphoneSession.on('disposed', () => {
       this._deps.noiseReduction.reset(webphoneSession.callId);
     });
+  }
+
+  async _stopSessionAudio(webphoneSession) {
+    await this._deps.noiseReduction.reset(webphoneSession.callId);
+    // stop input and output audio stream
+    const peerConnection = webphoneSession.rtcPeerConnection;
+    if (peerConnection.removeTrack && peerConnection.getSenders) {
+      peerConnection.getSenders().forEach((sender: any) => {
+        if (sender.track) {
+          sender.track.stop();
+        }
+      });
+    } else {
+      const localStream = peerConnection.getLocalStreams()[0];
+      localStream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
+    const receiver = peerConnection.getReceivers().find((r: any) => r.track.kind === 'audio');
+    const outputTrack = receiver.track;
+    const outputElement = webphoneSession.audioElement;
+    // stop media string to the audio element
+    if (outputElement && outputElement.srcObject) {
+      // check if the outputTrack connected to the output element
+      const outputStream = outputElement.srcObject;
+      const outputTracks = outputStream.getTracks();
+      if (outputTracks.some((t: any) => t.id === outputTrack.id)) {
+        // stop playing the output track
+        outputElement.srcObject = null;
+      }
+    }
+  }
+
+  onCallVoicemailDropped(handler) {
+    if (typeof handler === 'function') {
+      this._eventEmitter.on(EVENTS.callVoicemailDropped, handler);
+    }
+  }
+
+  _onCallVoicemailDropped(webphoneSession) {
+    const normalizedSession = this._getNormalizedSession(webphoneSession);
+    this._eventEmitter.emit(EVENTS.callVoicemailDropped, normalizedSession, this.activeSession);
+  }
+
+  @proxify
+  async dropVoicemailMessage(sessionId, messageId) {
+    const webphoneSession = this.originalSessions[sessionId];
+    if (!webphoneSession || webphoneSession.__rc_callStatus === sessionStatus.finished) {
+      return false;
+    }
+    if (
+      webphoneSession.__rc_voicemailDropStatus ||
+      webphoneSession.__rc_localHold ||
+      !webphoneSession.rtcPeerConnection
+    ) {
+      return false;
+    }
+    try {
+      const { audioBuffer, audioContext } = await this._deps.voicemailDrop.prepareVoicemailDrop(webphoneSession, messageId);
+      await this._stopSessionAudio(webphoneSession);
+      webphoneSession.__rc_voicemailDropStatus = voicemailDropStatus.waitingForGreetingEnd;
+      webphoneSession.__rc_localHold = true; // prevent the call be held when user start another call
+      this._updateSessions();
+      this._onCallVoicemailDropped(webphoneSession);
+      // run in background
+      this._deps.voicemailDrop.dropVoicemailMessage({
+        webphoneSession,
+        audioBuffer,
+        audioContext,
+        endCall: () => {
+          return this.hangup(webphoneSession.callId);
+        },
+        updateStatus: (status) => {
+          webphoneSession.__rc_voicemailDropStatus = status;
+          this._updateSessions();
+          this._onCallVoicemailDropped(webphoneSession);
+        },
+      });
+      return true;
+    } catch (e) {
+      console.error(e);
+      this._deps.alert.alert({
+        level: 'danger',
+        message: 'showCustomAlertMessage',
+        payload: {
+          alertMessage: e.message || 'Failed to send voicemail message',
+        },
+      });
+      return false;
+    }
+  }
+
+  override _getActiveSessions() {
+    return this.sessions.filter((x) => (!isRing(x) && !isDroppingVoicemail(x.voicemailDropStatus)));
   }
 }
