@@ -11,6 +11,7 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
     'ThirdPartyService',
     'Theme',
     'SideDrawerUI',
+    'PhoneNumberFormat',
   ],
 })
 export class ContactDetailsUI extends ContactDetailsUIBase {
@@ -63,6 +64,10 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       thirdPartyService,
       theme,
       sideDrawerUI,
+      phoneNumberFormat,
+      regionSettings,
+      accountInfo,
+      extensionInfo,
     } = this._deps;
     return {
       ...super.getUIFunctions({ params }),
@@ -110,6 +115,15 @@ export class ContactDetailsUI extends ContactDetailsUIBase {
       onClickAdditionalAction: (buttonId, resource = undefined) => {
         thirdPartyService.onClickAdditionalButton(buttonId, resource);
       },
+      formatNumber: (phoneNumber: string) =>
+        phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: regionSettings.areaCode,
+          countryCode: regionSettings.countryCode,
+          maxExtensionLength: accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+          siteCode: extensionInfo.site?.code,
+        }),
     };
   }
 }

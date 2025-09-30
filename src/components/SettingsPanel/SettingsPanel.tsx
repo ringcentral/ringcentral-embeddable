@@ -115,6 +115,8 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   onTextSettingsLinkClick: () => void;
   gotoVoicemailDropSettings: () => void;
   showVoicemailDropSettings: boolean;
+  showPhoneNumberFormatSettings: boolean;
+  gotoPhoneNumberFormatSettings: () => void;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -438,6 +440,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   onTextSettingsLinkClick,
   gotoVoicemailDropSettings,
   showVoicemailDropSettings,
+  gotoPhoneNumberFormatSettings,
+  showPhoneNumberFormatSettings,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'group',
@@ -487,6 +491,14 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         show: showThemeSetting,
         order: 300,
         dataSign: 'theme',
+      }, {
+        type: 'link',
+        id: 'phoneNumberFormat',
+        name: 'phoneNumberFormat',
+        description: 'Select phone number format',
+        onClick: gotoPhoneNumberFormatSettings,
+        show: showPhoneNumberFormatSettings,
+        order: 400,
       }],
     }]
   }, {

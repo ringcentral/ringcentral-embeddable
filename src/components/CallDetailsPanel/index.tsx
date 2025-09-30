@@ -4,7 +4,6 @@ import { styled, palette2 } from '@ringcentral/juno/foundation';
 import { RcIconButton, RcTypography } from '@ringcentral/juno';
 import { isInbound, isMissed } from '@ringcentral-integration/commons/lib/callLogHelpers';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
-import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
 import { parseNumber } from '@ringcentral-integration/commons/lib/parseNumber';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
 import usePromise from '@ringcentral-integration/widgets/react-hooks/usePromise';
@@ -316,12 +315,7 @@ export function CallDetailsPanel({
               {direction === callDirections.inbound ? 'To' : 'From'}
             </SectionTitle>
             <RcTypography variant="body1">
-              {self.phoneNumber ? formatNumber({
-                  phoneNumber: self.phoneNumber,
-                  countryCode,
-                  areaCode,
-                  maxExtensionLength: maxExtensionNumberLength,
-              }) : self.extension}
+              {self.phoneNumber ? formatPhone(self.phoneNumber) : self.extension}
             </RcTypography>
           </StyleSection>
         ) : null

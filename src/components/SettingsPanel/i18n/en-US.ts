@@ -32,4 +32,5 @@ export default {
   acceptQueueCalls: 'Accept calls from call queue',
   appearance: 'Appearance',
   voicemailDropSettings: 'Voicemail drop settings (Beta)',
+  phoneNumberFormat: 'Phone number format',
 };

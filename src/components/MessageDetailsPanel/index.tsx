@@ -542,7 +542,7 @@ export function MessageDetailsPanel({
               {direction === messageDirection.inbound ? 'To' : 'From'}
             </SectionTitle>
             <RcTypography variant="body1">
-              {self.phoneNumber || self.extension}
+              {self.phoneNumber ? formatPhone(self.phoneNumber) : self.extension}
             </RcTypography>
           </StyleSection>
         ) : null

@@ -197,6 +197,8 @@ import { MessageDetailsUI } from '../MessageDetailsUI';
 import { NoiseReduction } from '../NoiseReduction';
 import { NumberValidate } from '../NumberValidate';
 import { OAuth } from '../OAuth';
+import { PhoneNumberFormat } from '../PhoneNumberFormat';
+import { PhoneNumberFormatSettingUI } from '../PhoneNumberFormatSettingUI';
 import { RingCentralExtensions } from '../RingCentralExtensions';
 import { RcVideo } from '../RcVideo';
 import { RingtoneSettingsUI } from '../RingtoneSettingsUI';
@@ -295,6 +297,8 @@ import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
     { provide: 'Conversations', useClass: Conversations },
     { provide: 'SmsTemplates', useClass: SmsTemplates },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
+    { provide: 'PhoneNumberFormat', useClass: PhoneNumberFormat },
+    { provide: 'PhoneNumberFormatSettingUI', useClass: PhoneNumberFormatSettingUI },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'CallQueues', useClass: CallQueues },
     { provide: 'CallQueuePresence', useClass: CallQueuePresence },
