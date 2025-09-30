@@ -34,7 +34,7 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
           name: 'Select phone number format',
           type: 'option',
           value: phoneNumberFormat.formatType,
-          options: phoneNumberFormat.supportedFormats().map((format) => {
+          options: phoneNumberFormat.supportedFormats.map((format) => {
             const example = phoneNumberFormat.formatWithType({
               phoneNumber: mainCompanyNumber,
               areaCode: regionSettings.areaCode,

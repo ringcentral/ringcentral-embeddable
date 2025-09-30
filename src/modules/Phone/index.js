@@ -136,9 +136,6 @@ import {
   RouterInteraction,
 } from '@ringcentral-integration/widgets/modules/RouterInteraction';
 import { ThemeUI } from '@ringcentral-integration/widgets/modules/ThemeUI';
-import {
-  TransferUI,
-} from '@ringcentral-integration/widgets/modules/TransferUI';
 import { SDK } from '@ringcentral/sdk';
 
 import hackSend from '../../lib/hackSend';
@@ -220,6 +217,7 @@ import { SmsTemplates } from '../SmsTemplates';
 import { SmartNotes } from '../SmartNotes';
 import { SideDrawerUI } from '../SideDrawerUI';
 import { SmartNotesUI } from '../SmartNotesUI';
+import { TransferUI } from '../TransferUI';
 import { WidgetAppsUI } from '../WidgetAppsUI';
 import { VoicemailDrop } from '../VoicemailDrop';
 import { VoicemailDropUI } from '../VoicemailDropUI';

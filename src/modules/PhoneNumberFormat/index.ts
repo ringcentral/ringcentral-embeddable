@@ -1,5 +1,7 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { format, formatTypes } from '@ringcentral-integration/phone-number';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import type { CountryCode } from 'libphonenumber-js';
 import {
   action,
   RcModuleV2,
@@ -80,13 +82,45 @@ export class PhoneNumberFormat extends RcModuleV2 {
         type: formatTypes.e164,
       });
     }
+    if (type === 'masked') {
+      const item = this.supportedFormats.find((format) => format.id === type);
+      if (item) {
+        return this.formatWithTemplate(param, item.placeholder);
+      }
+    }
     return this._defaultFormatter({
       ...param,
       type: formatTypes.local,
     });
   }
 
-  supportedFormats() {
+  formatWithTemplate(param: InputParam, template: string) {
+    if (!param.phoneNumber) {
+      return '';
+    }
+    const parsedNumber = parsePhoneNumberFromString(param.phoneNumber, param.countryCode as CountryCode);
+    if (!parsedNumber) {
+      return param.phoneNumber;
+    }
+    const digitsOnly = parsedNumber.nationalNumber;
+    let formattedPhoneNumber = '';
+    let digitsIndex = 0;
+    for (let i = 0; i < template.length; i++) {
+      const char = template[i];
+      if (char === '#' || char === '*') {
+        formattedPhoneNumber += digitsOnly[digitsIndex];
+        digitsIndex++;
+      } else if (char === 'x') {
+        formattedPhoneNumber += 'x';
+        digitsIndex++;
+      } else {
+        formattedPhoneNumber += char;
+      }
+    }
+    return formattedPhoneNumber;
+  }
+
+  get defaultFormats() {
     return [{
       id: 'national',
       name: 'National',
@@ -99,6 +133,18 @@ export class PhoneNumberFormat extends RcModuleV2 {
       id: 'e164',
       name: 'E.164',
       placeholder: '+1##########',
-    }]
+    }];
+  }
+
+  get templateFormats() {
+    return [{
+      id: 'masked',
+      name: 'Masked (xxx-xxx-####)',
+      placeholder: 'xxx-xxx-####',
+    }];
+  }
+
+  get supportedFormats() {
+    return [...this.defaultFormats, ...this.templateFormats];
   }
 }

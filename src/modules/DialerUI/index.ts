@@ -8,6 +8,10 @@ import { isDroppingVoicemail } from '../WebphoneV2/webphoneHelper';
     'ThirdPartyService',
     'SideDrawerUI',
     'Webphone',
+    'PhoneNumberFormat',
+    'RegionSettings',
+    'AccountInfo',
+    'ExtensionInfo',
   ],
 })
 export class DialerUI extends DialerUIBase {
@@ -82,6 +86,15 @@ export class DialerUI extends DialerUIBase {
         }
         this.onCallButtonClick({ clickDialerToCall: true });
       },
+      formatContactPhone: (phoneNumber) =>
+        this._deps.phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: this._deps.regionSettings.areaCode,
+          countryCode: this._deps.regionSettings.countryCode,
+          maxExtensionLength: this._deps.accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: this._deps.extensionInfo.isMultipleSiteEnabled,
+          siteCode: this._deps.extensionInfo.site?.code,
+        }),
     };
   }
 }
