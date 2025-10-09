@@ -20,7 +20,6 @@ import {
 } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/CallItem/i18n';
 import { checkShouldHideContactUser } from '@ringcentral-integration/widgets/lib/checkShouldHideContactUser';
-import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
 
 export function getPhoneNumber(call) {
   if (isInbound(call)) {
@@ -101,9 +100,6 @@ export function getActions({
   disableClickToDial,
   readTextPermission,
   onClickToSms,
-  countryCode,
-  areaCode,
-  maxExtensionNumberLength = 6,
   enableContactFallback,
   internalSmsPermission,
   outboundSmsPermission,
@@ -118,6 +114,7 @@ export function getActions({
   onDownload,
   additionalActions,
   onClickAdditionalAction,
+  formatPhone = (phoneNumber: string) => phoneNumber,
 }) {
   const {
     direction,
@@ -188,18 +185,13 @@ export function getActions({
             phoneNumber,
           });
         } else {
-          const formatted = formatNumber({
-            phoneNumber,
-            countryCode,
-            areaCode,
-            maxExtensionLength: maxExtensionNumberLength,
-          });
+          const formatted = formatPhone(phoneNumber);
           onClickToSms(
             {
               name: enableContactFallback ? getFallbackContactName(call) : formatted,
               phoneNumber,
             },
-            true,
+            formatted.indexOf('x') === -1, // if it is masked, we need to show the masked number
           );
         }
       },

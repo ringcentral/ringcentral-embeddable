@@ -4,7 +4,15 @@ import { validateNumbers } from '@ringcentral-integration/commons/lib/validateNu
 import { webphoneErrors } from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
 @Module({
   name: 'IncomingCallUI',
-  deps: ['Client', 'Brand', 'RegionSettings', 'AccountInfo', 'Alert']
+  deps: [
+    'Client',
+    'Brand',
+    'RegionSettings',
+    'AccountInfo',
+    'Alert',
+    'PhoneNumberFormat',
+    'ExtensionInfo',
+  ]
 })
 export class IncomingCallUI extends IncomingCallUIBase {
   async forward(sessionId, forwardNumber, recipient) {
@@ -85,6 +93,15 @@ export class IncomingCallUI extends IncomingCallUIBase {
       },
       onForward: (sessionId, forwardNumber, recipient) => this.forward(sessionId, forwardNumber, recipient),
       startReply: (sessionId) => this._deps.webphone.startReply(sessionId),
+      formatPhone: (phoneNumber: string) =>
+        this._deps.phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: this._deps.regionSettings.areaCode,
+          countryCode: this._deps.regionSettings.countryCode,
+          maxExtensionLength: this._deps.accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: this._deps.extensionInfo.isMultipleSiteEnabled,
+          siteCode: this._deps.extensionInfo.site?.code,
+        }),
     };
   }
 }

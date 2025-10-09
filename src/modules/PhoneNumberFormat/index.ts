@@ -68,26 +68,31 @@ export class PhoneNumberFormat extends RcModuleV2 {
   }
 
   formatWithType(param: InputParam, type: string) {
-    if (type === 'international' || param.international) {
+    try {
+      if (type === 'international' || param.international) {
+        return this._defaultFormatter({
+          ...param,
+          type: formatTypes.international,
+        });
+      }
+      if (type === 'e164') {
+        return this._defaultFormatter({
+          ...param,
+          type: formatTypes.e164,
+        });
+      }
+      const format = this.templateFormats.find((format) => format.id === type);
+      if (format) {
+        return this.formatWithTemplate(param, format.placeholder);
+      }
       return this._defaultFormatter({
         ...param,
-        type: formatTypes.international,
+        type: formatTypes.local,
       });
+    } catch (error) {
+      console.error(error);
+      return param.phoneNumber;
     }
-    if (type === 'e164') {
-      return this._defaultFormatter({
-        ...param,
-        type: formatTypes.e164,
-      });
-    }
-    const format = this.templateFormats.find((format) => format.id === type);
-    if (format) {
-      return this.formatWithTemplate(param, format.placeholder);
-    }
-    return this._defaultFormatter({
-      ...param,
-      type: formatTypes.local,
-    });
   }
 
   formatWithTemplate(param: InputParam, template: string) {

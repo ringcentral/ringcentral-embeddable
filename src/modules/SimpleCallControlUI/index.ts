@@ -3,7 +3,12 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 
 @Module({
   name: 'NewSimpleCallControlUI',
-  deps: [],
+  deps: [
+    'PhoneNumberFormat',
+    'RegionSettings',
+    'AccountInfo',
+    'ExtensionInfo',
+  ],
 })
 export class SimpleCallControlUI extends SimpleCallControlUIBase {
   getUIFunctions(options) {
@@ -15,7 +20,16 @@ export class SimpleCallControlUI extends SimpleCallControlUIBase {
           telephonySessionId,
           toEntityId: contact.id
         });
-      }
+      },
+      formatPhone: (phoneNumber: string) =>
+        this._deps.phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: this._deps.regionSettings.areaCode,
+          countryCode: this._deps.regionSettings.countryCode,
+          maxExtensionLength: this._deps.accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: this._deps.extensionInfo.isMultipleSiteEnabled,
+          siteCode: this._deps.extensionInfo.site?.code,
+        }),
     };
   }
 }

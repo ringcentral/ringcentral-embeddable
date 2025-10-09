@@ -263,6 +263,7 @@ export function CallDetailsPanel({
     },
     additionalActions,
     onClickAdditionalAction,
+    formatPhone,
   });
   const mainActions = actions.filter((action) => action.id !== 'download');
   const downloadAction = actions.find((action) => action.id === 'download');

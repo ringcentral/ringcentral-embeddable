@@ -1,8 +1,6 @@
 import type { FunctionComponent } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
-
 import callCtrlLayouts from '@ringcentral-integration/widgets/enums/callCtrlLayouts';
 import i18n from '@ringcentral-integration/widgets/components/SimpleCallControlPanel/i18n';
 import type { SimpleCallControlPanelProps } from '@ringcentral-integration/widgets/components/SimpleCallControlPanel/SimpleCallControlPanel.interface';
@@ -12,6 +10,7 @@ import CallCtrlPanel from '../CallCtrlPanel';
 
 type OtherDeviceCallCtrlPanelProps = SimpleCallControlPanelProps & {
   updateSessionMatchedContact: (...args: any[]) => any;
+  formatPhone: (...args: any[]) => any;
 };
 
 const OtherDeviceCallCtrlPanel: FunctionComponent<OtherDeviceCallCtrlPanelProps> =
@@ -40,20 +39,10 @@ const OtherDeviceCallCtrlPanel: FunctionComponent<OtherDeviceCallCtrlPanelProps>
     onUnhold,
     onHangup,
     onTransfer,
-    maxExtensionNumberLength = 6,
     updateSessionMatchedContact,
+    formatPhone,
   }) => {
     const [selectedMatcherIndex, setSelectedMatcherIndex] = useState(0);
-    const formatPhone = useCallback(
-      (phoneNumber) =>
-        formatNumber({
-          phoneNumber,
-          areaCode,
-          countryCode,
-          maxExtensionLength: maxExtensionNumberLength,
-        }),
-      [areaCode, countryCode],
-    );
     const onSelectMatcherName = useCallback(
       (option) => {
         let selectedMatcherIndex = (nameMatches ?? []).findIndex(
