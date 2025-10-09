@@ -1,7 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { format, formatTypes } from '@ringcentral-integration/phone-number';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import type { CountryCode } from 'libphonenumber-js';
 import {
   action,
   RcModuleV2,
@@ -82,11 +80,9 @@ export class PhoneNumberFormat extends RcModuleV2 {
         type: formatTypes.e164,
       });
     }
-    if (type === 'masked') {
-      const item = this.supportedFormats.find((format) => format.id === type);
-      if (item) {
-        return this.formatWithTemplate(param, item.placeholder);
-      }
+    const format = this.templateFormats.find((format) => format.id === type);
+    if (format) {
+      return this.formatWithTemplate(param, format.placeholder);
     }
     return this._defaultFormatter({
       ...param,
@@ -98,23 +94,23 @@ export class PhoneNumberFormat extends RcModuleV2 {
     if (!param.phoneNumber) {
       return '';
     }
-    const parsedNumber = parsePhoneNumberFromString(param.phoneNumber, param.countryCode as CountryCode);
-    if (!parsedNumber) {
-      return param.phoneNumber;
-    }
-    const digitsOnly = parsedNumber.nationalNumber;
     let formattedPhoneNumber = '';
-    let digitsIndex = 0;
-    for (let i = 0; i < template.length; i++) {
+    const digitsOnly = param.phoneNumber.replace(/\D/g, '');
+    let digitsIndex = digitsOnly.length - 1;
+    for (let i = template.length - 1; i >= 0; i--) {
       const char = template[i];
       if (char === '#' || char === '*') {
-        formattedPhoneNumber += digitsOnly[digitsIndex];
-        digitsIndex++;
+        if (digitsIndex < 0) {
+          break;
+        }
+        formattedPhoneNumber = digitsOnly[digitsIndex] + formattedPhoneNumber;
+        digitsIndex--;
       } else if (char === 'x') {
-        formattedPhoneNumber += 'x';
-        digitsIndex++;
+        // for mask, we don't need to add the digit
+        formattedPhoneNumber = 'x' + formattedPhoneNumber;
+        digitsIndex--;
       } else {
-        formattedPhoneNumber += char;
+        formattedPhoneNumber = char + formattedPhoneNumber;
       }
     }
     return formattedPhoneNumber;
