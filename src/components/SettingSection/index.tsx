@@ -51,12 +51,52 @@ function allRequiredFilled(items) {
   return allFilled;
 }
 
+function shouldShow(item, newSection) {
+  if (!item.showWhen) {
+    return true;
+  }
+  return Object.keys(item.showWhen).every((key) => {
+    const input = newSection.items.find((item) => item.id === key);
+    const condition = item.showWhen[key];
+    if (condition.operator === 'equal') {
+      return input?.value === condition.value;
+    }
+    if (condition.operator === 'notEqual') {
+      return input?.value !== condition.value;
+    }
+    if (condition.operator === 'contains') {
+      return input?.value.includes(condition.value);
+    }
+    if (condition.operator === 'notContains') {
+      return !input?.value.includes(condition.value);
+    }
+    if (condition.operator === 'startsWith') {
+      return input?.value.startsWith(condition.value);
+    }
+    if (condition.operator === 'endsWith') {
+      return input?.value.endsWith(condition.value);
+    }
+    if (condition.operator === 'greaterThan') {
+      return input?.value > condition.value;
+    }
+    if (condition.operator === 'lessThan') {
+      return input?.value < condition.value;
+    }
+    if (condition.operator === 'greaterThanOrEqual') {
+      return input?.value >= condition.value;
+    }
+    if (condition.operator === 'lessThanOrEqual') {
+      return input?.value <= condition.value;
+    }
+    return false;
+  });
+}
 export function SettingSection({
   onSave,
   section,
   onBackButtonClick,
 }) {
-  const [newSection, setNewSection] = useState(section);
+  const [newSection, setNewSection] = useState(section ? JSON.parse(JSON.stringify(section)) : null);
   const [valueChanged, setValueChanged] = useState(false);
 
   useEffect(() => {
@@ -72,6 +112,10 @@ export function SettingSection({
     setValueChanged(changed);
   }, [section, newSection]);
 
+  useEffect(() => {
+    setNewSection(section ? JSON.parse(JSON.stringify(section)) : null);
+  }, [section]);
+
   if (!newSection || !newSection.items) {
     return null;
   }
@@ -84,6 +128,9 @@ export function SettingSection({
       <StyledPanel>
         {
           newSection.items.map((setting) => {
+            if (!shouldShow(setting, newSection)) {
+              return null;
+            }
             return (
               <StyledParamInput
                 setting={setting}
