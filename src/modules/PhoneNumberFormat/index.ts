@@ -48,6 +48,15 @@ export class PhoneNumberFormat extends RcModuleV2 {
   @state
   formatTypeReadOnly = false;
 
+  @globalStorage
+  @state
+  template = '';
+
+  @action
+  setTemplate(template: string) {
+    this.template = template;
+  }
+
   @action
   setFormatTypeReadOnly(formatTypeReadOnly: boolean) {
     this.formatTypeReadOnly = formatTypeReadOnly;
@@ -81,9 +90,8 @@ export class PhoneNumberFormat extends RcModuleV2 {
           type: formatTypes.e164,
         });
       }
-      const format = this.templateFormats.find((format) => format.id === type);
-      if (format) {
-        return this.formatWithTemplate(param, format.placeholder);
+      if (type === 'customized') {
+        return this.formatWithTemplate(param, this.template);
       }
       return this._defaultFormatter({
         ...param,
@@ -121,7 +129,7 @@ export class PhoneNumberFormat extends RcModuleV2 {
     return formattedPhoneNumber;
   }
 
-  get defaultFormats() {
+  get supportedFormats() {
     return [{
       id: 'national',
       name: 'National',
@@ -134,18 +142,10 @@ export class PhoneNumberFormat extends RcModuleV2 {
       id: 'e164',
       name: 'E.164',
       placeholder: '+1##########',
+    }, {
+      id: 'customized',
+      name: 'Customized',
+      placeholder: '',
     }];
-  }
-
-  get templateFormats() {
-    return [{
-      id: 'masked',
-      name: 'Masked (xxx-xxx-####)',
-      placeholder: 'xxx-xxx-####',
-    }];
-  }
-
-  get supportedFormats() {
-    return [...this.defaultFormats, ...this.templateFormats];
   }
 }
