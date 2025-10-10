@@ -69,10 +69,10 @@ export function getAlertRenderer({
     if (message.message === 'tooManyVoicemailDroppingSessions') {
       return () => 'Sorry, there are too many voicemail dropping calls. Please wait them to finish and dial again.';
     }
-    if (message.message === 'customizedTemplateRequired') {
-      return () => 'Please enter a template.';
+    if (message.message === 'customizedPhoneNumberFormatTemplateRequired') {
+      return () => 'Please enter a phone number format template.';
     }
-    if (message.message === 'customizedTemplateLengthInvalid') {
+    if (message.message === 'customizedPhoneNumberFormatTemplateLengthInvalid') {
       return () => 'Please enter a template with 10-15 digits.';
     }
     if (message.message === 'invalidPhoneNumberFormatType') {

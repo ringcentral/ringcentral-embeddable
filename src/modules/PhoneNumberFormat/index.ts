@@ -164,14 +164,14 @@ export class PhoneNumberFormat extends RcModuleV2 {
     if (setting.formatType === 'customized') {
       if (!setting.template) {
         this._deps.alert.warning({
-          message: 'customizedTemplateRequired',
+          message: 'customizedPhoneNumberFormatTemplateRequired',
         });
         return;
       }
       const templateCharLength = setting.template.split('').filter((char) => char === '#' || char === '*' || char === 'x').length;
       if (templateCharLength < 10 || templateCharLength > 15) {
         this._deps.alert.warning({
-          message: 'customizedTemplateLengthInvalid',
+          message: 'customizedPhoneNumberFormatTemplateLengthInvalid',
         });
         return;
       }
