@@ -39,7 +39,7 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
     const mainCompanyNumber = accountInfo.mainCompanyNumber;
     return {
       id: 'phoneNumberFormat',
-      name: 'Phone number format setting',
+      name: 'Phone number format',
       items: [{
         id: 'phoneNumberFormat',
         name: 'Select phone number format',
@@ -78,7 +78,7 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
             operator: 'equal',
           },
         },
-        placeholder: 'Eg. (###) ###-####',
+        placeholder: '(###) ###-####',
         helper: 'You can use # and * to represent the digits. x represents masked digit.',
         required: true,
       }]
@@ -95,7 +95,8 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
     const { phoneNumberFormat, routerInteraction } = this._deps;
     return {
       onSave: (newSetting) => {
-        if (newSetting.items[0].value === 'customized') {
+        const formatType = newSetting.items[0].value;
+        if (formatType === 'customized') {
           const template = newSetting.items[1].value;
           if (!template) {
             this._deps.alert.warning({
@@ -112,7 +113,7 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
           }
           phoneNumberFormat.setTemplate(template);
         }
-        phoneNumberFormat.setFormatType(newSetting.items[0].value);
+        phoneNumberFormat.setFormatType(formatType);
       },
       onBackButtonClick: () => {
         routerInteraction.goBack();

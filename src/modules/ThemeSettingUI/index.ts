@@ -1,5 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { RcUIModuleV2 } from '@ringcentral-integration/core';
+import { RcUIModuleV2, computed } from '@ringcentral-integration/core';
 
 @Module({
   name: 'ThemeSettingUI',
@@ -15,28 +15,33 @@ export class ThemeSettingUI extends RcUIModuleV2 {
     });
   }
 
-  getUIProps() {
+  @computed((that: ThemeSettingUI) => [that._deps.theme.isAutoMode, that._deps.theme.themeType])
+  get settingSection() {
     const { theme } = this._deps;
     const value = theme.isAutoMode ? 'auto' : theme.themeType;
     return {
-      section: {
-        id: 'theme',
-        name: 'Theme',
-        type: 'section',
-        items: [
-          {
-            id: 'theme',
-            name: 'Set color theme to',
-            type: 'option',
-            value,
-            options: [
-              { id: 'auto', name: 'From system settings' },
-              { id: 'light', name: 'Light' },
-              { id: 'dark', name: 'Dark' },
-            ],
-          },
-        ],
-      }
+      id: 'theme',
+      name: 'Theme',
+      type: 'section',
+      items: [
+        {
+          id: 'theme',
+          name: 'Set color theme to',
+          type: 'option',
+          value,
+          options: [
+            { id: 'auto', name: 'From system settings' },
+            { id: 'light', name: 'Light' },
+            { id: 'dark', name: 'Dark' },
+          ],
+        },
+      ],
+    };
+  }
+
+  getUIProps() {
+    return {
+      section: this.settingSection,
     };
   }
 
