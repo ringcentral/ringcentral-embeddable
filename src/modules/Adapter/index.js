@@ -397,6 +397,10 @@ export default class Adapter extends AdapterModuleCore {
           this._setCallContactMatched(data);
           break;
         }
+        case 'rc-adapter-set-phone-number-format': {
+          this._setPhoneNumberFormat(data);
+          break;
+        }
         default:
           super._onMessage(data);
           break;
@@ -1128,6 +1132,14 @@ export default class Adapter extends AdapterModuleCore {
 
   _setSideDrawerExtended(value) {
     this._sideDrawerUI.setExtended(value);
+  }
+
+  _setPhoneNumberFormat(data) {
+    this._phoneNumberFormat.setSetting({
+      formatType: data.formatType, // 'national', 'international', 'customized'
+      template: data.template, // required if 'customized' type, eg: '(###) ###-####'
+      readOnly: data.readOnly, // optional, set to true to disable user editing
+    });
   }
 
   async _navigateTo(path) {

@@ -96,28 +96,15 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
     return {
       onSave: (newSetting) => {
         const formatType = newSetting.items[0].value;
-        if (formatType === 'customized') {
-          const template = newSetting.items[1].value;
-          if (!template) {
-            this._deps.alert.warning({
-              message: 'customizedTemplateRequired',
-            });
-            return;
-          }
-          const templateCharLength = template.split('').filter((char) => char === '#' || char === '*' || char === 'x').length;
-          if (templateCharLength < 10 || templateCharLength > 15) {
-            this._deps.alert.warning({
-              message: 'customizedTemplateLengthInvalid',
-            });
-            return;
-          }
-          phoneNumberFormat.setTemplate(template);
-        }
-        phoneNumberFormat.setFormatType(formatType);
+        const template = newSetting.items[1].value;
+        phoneNumberFormat.setSetting({
+          formatType,
+          template,
+        });
       },
       onBackButtonClick: () => {
         routerInteraction.goBack();
-      }
+      },
     };
   }
 }

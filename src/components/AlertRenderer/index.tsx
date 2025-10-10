@@ -75,6 +75,9 @@ export function getAlertRenderer({
     if (message.message === 'customizedTemplateLengthInvalid') {
       return () => 'Please enter a template with 10-15 digits.';
     }
+    if (message.message === 'invalidPhoneNumberFormatType') {
+      return () => 'Sorry, invalid phone number format type.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage

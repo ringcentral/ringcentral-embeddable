@@ -22,7 +22,7 @@ type InputParam = {
 
 @Module({
   name: 'PhoneNumberFormat',
-  deps: ['GlobalStorage'],
+  deps: ['GlobalStorage', 'Alert'],
 })
 export class PhoneNumberFormat extends RcModuleV2 {
   private _defaultFormatter: PhonNumberFormatter;
@@ -147,5 +147,39 @@ export class PhoneNumberFormat extends RcModuleV2 {
       name: 'Customized',
       placeholder: '',
     }];
+  }
+
+  setSetting(setting: {
+    formatType: string;
+    template: string;
+    readOnly?: boolean;
+  }) {
+    const supported = this.supportedFormats.find((format) => format.id === setting.formatType);
+    if (!supported) {
+      this._deps.alert.warning({
+        message: 'invalidPhoneNumberFormatType',
+      });
+      return;
+    }
+    if (setting.formatType === 'customized') {
+      if (!setting.template) {
+        this._deps.alert.warning({
+          message: 'customizedTemplateRequired',
+        });
+        return;
+      }
+      const templateCharLength = setting.template.split('').filter((char) => char === '#' || char === '*' || char === 'x').length;
+      if (templateCharLength < 10 || templateCharLength > 15) {
+        this._deps.alert.warning({
+          message: 'customizedTemplateLengthInvalid',
+        });
+        return;
+      }
+      this.setTemplate(setting.template);
+    }
+    this.setFormatType(setting.formatType);
+    if (typeof setting.readOnly === 'boolean') {
+      this.setFormatTypeReadOnly(setting.readOnly);
+    }
   }
 }
