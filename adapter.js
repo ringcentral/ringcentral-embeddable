@@ -57367,6 +57367,19 @@ class Adapter extends AdapterCore/* default */.A {
       telephonySessionId
     });
   }
+  setPhoneNumberFormat(_ref7) {
+    let {
+      formatType,
+      template,
+      readOnly
+    } = _ref7;
+    return this._postMessage({
+      type: 'rc-adapter-set-phone-number-format',
+      formatType,
+      template,
+      readOnly
+    });
+  }
 }
 /* harmony default export */ var lib_Adapter = (Adapter);
 ;// ./src/adapter.js
