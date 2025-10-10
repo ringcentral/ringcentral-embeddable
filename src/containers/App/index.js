@@ -54,7 +54,7 @@ import GlipChatPage from '../GlipChatPage';
 import GlipGroupsPage from '../GlipGroupsPage';
 
 import VoicemailDropSettingsPage from '../VoicemailDropSettingsPage';
-
+import PhoneNumberFormatSettingPage from '../PhoneNumberFormatSettingPage';
 export default function App({
   phone,
   showCallBadge,
@@ -494,6 +494,10 @@ export default function App({
               <Route
                 path="/settings/text"
                 component={TextSettingPage}
+              />
+              <Route
+                path="/settings/phoneNumberFormat"
+                component={PhoneNumberFormatSettingPage}
               />
               <Route
                 path="/settings/voicemailDrop"

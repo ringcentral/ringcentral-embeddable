@@ -26,6 +26,7 @@ import { getCallContact } from '../../lib/callHelper';
     'ComposeTextUI',
     'CallLog',
     'ThirdPartyService',
+    'PhoneNumberFormat',
     { dep: 'ActiveCallControl', optional: true },
     { dep: 'ConferenceCall', optional: true },
     { dep: 'CallsListUIOptions', optional: true },
@@ -222,6 +223,10 @@ export class CallsListUI extends BaseCallsListUI {
       sideDrawerUI,
       composeTextUI,
       callMonitor,
+      phoneNumberFormat,
+      accountInfo,
+      extensionInfo,
+      thirdPartyService,
     } = this._deps;
     return {
       ...super.getUIFunctions({
@@ -450,11 +455,20 @@ export class CallsListUI extends BaseCallsListUI {
       },
       onClickToSms: appFeatures.hasComposeTextPermission ? async (contact, isDummyContact = false) => {
         composeTextUI.gotoComposeText(contact, isDummyContact);
-        this._deps.callHistory.onClickToSMS();
+        callHistory.onClickToSMS();
       } : undefined,
       onClickAdditionalAction: (buttonId, resource = undefined) => {
-        this._deps.thirdPartyService.onClickAdditionalButton(buttonId, resource);
+        thirdPartyService.onClickAdditionalButton(buttonId, resource);
       },
+      formatPhone: (phoneNumber: string) =>
+        phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: regionSettings.areaCode,
+          countryCode: regionSettings.countryCode,
+          maxExtensionLength: accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+          siteCode: extensionInfo.site?.code,
+        }),
     };
   }
 

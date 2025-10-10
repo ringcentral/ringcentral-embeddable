@@ -12,6 +12,7 @@ import { getConversationPhoneNumber } from '../../lib/conversationHelper';
     'ConversationUI',
     'Auth',
     'ThirdPartyService',
+    'PhoneNumberFormat',
   ],
 })
 export class ConversationsUI extends BaseConversationsUI {
@@ -79,6 +80,10 @@ export class ConversationsUI extends BaseConversationsUI {
       messageStore,
       sideDrawerUI,
       thirdPartyService,
+      regionSettings,
+      accountInfo,
+      extensionInfo,
+      phoneNumberFormat,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
@@ -136,6 +141,15 @@ export class ConversationsUI extends BaseConversationsUI {
       onClickAdditionalAction: (buttonId, conversation) => {
         thirdPartyService.onClickAdditionalButton(buttonId, conversation);
       },
+      formatPhone: (phoneNumber: string) =>
+        phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: regionSettings.areaCode,
+          countryCode: regionSettings.countryCode,
+          maxExtensionLength: accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+          siteCode: extensionInfo.site?.code,
+        }),
     }
   }
 }

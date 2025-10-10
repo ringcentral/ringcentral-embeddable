@@ -15,6 +15,10 @@ import { trackEvents } from '../Analytics/trackEvents';
     'ContactMatcher',
     'VoicemailDrop',
     'SideDrawerUI',
+    'PhoneNumberFormat',
+    'RegionSettings',
+    'AccountInfo',
+    'ExtensionInfo',
   ],
 })
 export class CallControlUI extends CallControlUIBase {
@@ -84,9 +88,22 @@ export class CallControlUI extends CallControlUIBase {
       activeCallControl,
       webphone,
       sideDrawerUI,
+      phoneNumberFormat,
+      regionSettings,
+      accountInfo,
+      extensionInfo,
     } = this._deps;
     return {
       ...functions,
+      formatPhone: (phoneNumber: string) =>
+        phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: regionSettings.areaCode,
+          countryCode: regionSettings.countryCode,
+          maxExtensionLength: accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+          siteCode: extensionInfo.site?.code,
+        }),
       onVoicemailDrop: (sessionId: string) => {
         const session = webphone.sessions.find((session) => session.id === sessionId);
         sideDrawerUI.openVoicemailDrop(sessionId, {

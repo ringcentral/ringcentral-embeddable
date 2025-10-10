@@ -11,6 +11,7 @@ import {
     'ThirdPartyService',
     'AudioSettings',
     'SmartNotes',
+    'PhoneNumberFormat',
   ]
 })
 export class SettingsUI extends BaseSettingsUI {
@@ -24,6 +25,7 @@ export class SettingsUI extends BaseSettingsUI {
       audioSettings,
       brand,
       smartNotes,
+      phoneNumberFormat,
     } = this._deps;
     return {
       ...baseProps,
@@ -70,6 +72,7 @@ export class SettingsUI extends BaseSettingsUI {
       showCallQueuePresenceSettings: appFeatures.hasReadCallQueuePresencePermission && appFeatures.hasEditCallQueuePresencePermission,
       showText: appFeatures.hasSendSMSPermission,
       showVoicemailDropSettings: appFeatures.hasVoicemailDropPermission,
+      showPhoneNumberFormatSettings: !phoneNumberFormat.formatTypeReadOnly,
     };
   }
 
@@ -120,6 +123,9 @@ export class SettingsUI extends BaseSettingsUI {
       },
       gotoVoicemailDropSettings: () => {
         routerInteraction.push('/settings/voicemailDrop');
+      },
+      gotoPhoneNumberFormatSettings: () => {
+        routerInteraction.push('/settings/phoneNumberFormat');
       },
     }
   }

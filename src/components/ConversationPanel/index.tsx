@@ -444,6 +444,7 @@ export function ConversationPanel({
       placeholder={contactPlaceholder}
       showPlaceholder={showContactDisplayPlaceholder}
       sourceIcons={sourceIcons}
+      formatPhone={formatPhone}
       phoneTypeRenderer={phoneTypeRenderer}
       phoneSourceNameRenderer={phoneSourceNameRenderer}
       showGroupNumberName={showGroupNumberName}

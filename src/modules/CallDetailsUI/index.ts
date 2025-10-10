@@ -1,6 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, state, action, watch } from '@ringcentral-integration/core';
-import { formatNumber } from '@ringcentral-integration/commons/lib/formatNumber';
 import { getCallContact } from '../../lib/callHelper';
 
 @Module({
@@ -31,6 +30,7 @@ import { getCallContact } from '../../lib/callHelper';
     'Call',
     'ThirdPartyService',
     'SideDrawerUI',
+    'PhoneNumberFormat',
   ],
 })
 export class CallDetailsUI extends RcUIModuleV2 {
@@ -151,6 +151,7 @@ export class CallDetailsUI extends RcUIModuleV2 {
       thirdPartyService,
       sideDrawerUI,
       composeTextUI,
+      phoneNumberFormat,
     } = this._deps;
 
     return {
@@ -166,7 +167,7 @@ export class CallDetailsUI extends RcUIModuleV2 {
         routerInteraction.goBack();
       },
       formatPhone: (phoneNumber) =>
-        formatNumber({
+        phoneNumberFormat.format({
           phoneNumber,
           areaCode: regionSettings.areaCode,
           countryCode: regionSettings.countryCode,

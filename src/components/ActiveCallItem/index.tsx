@@ -665,7 +665,7 @@ export const ActiveCallItem: FunctionComponent<newActiveCallItemProps> = ({
           setSwitchDialogOpen(false);
           webphoneSwitchCall(call);
         }}
-        contactName={contactName?.title || contactName || getPhoneNumber(call)}
+        contactName={contactName?.title || contactName || formatPhone(getPhoneNumber(call))}
         currentLocale={currentLocale}
       />
     </StyledListItem>

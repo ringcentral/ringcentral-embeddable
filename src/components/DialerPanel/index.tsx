@@ -214,6 +214,7 @@ export interface DialerPanelProps {
   }[];
   changeFromNumber?: (...args: any[]) => any;
   formatPhone?: (...args: any[]) => any;
+  formatContactPhone?: (...args: any[]) => any;
   showSpinner?: boolean;
   dialButtonVolume?: number;
   dialButtonMuted?: boolean;
@@ -260,6 +261,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   fromNumbers = [],
   changeFromNumber = Empty,
   formatPhone = (phoneNumber) => phoneNumber,
+  formatContactPhone,
   isWebphoneMode = false,
   showSpinner = false,
   dialButtonVolume = 1,
@@ -342,7 +344,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
       removeFromRecipients={clearRecipient}
       searchContact={searchContact}
       searchContactList={searchContactList}
-      formatContactPhone={formatPhone}
+      formatContactPhone={formatContactPhone || formatPhone}
       currentLocale={currentLocale}
       phoneTypeRenderer={phoneTypeRenderer}
       phoneSourceNameRenderer={phoneSourceNameRenderer}

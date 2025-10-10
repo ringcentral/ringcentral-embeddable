@@ -344,6 +344,7 @@ export const CallItem: FunctionComponent<CallItemProps> = ({
     },
     additionalActions,
     onClickAdditionalAction,
+    formatPhone,
   });
   const contactDisplay = (
     <ContactDisplay

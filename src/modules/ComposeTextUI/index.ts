@@ -17,6 +17,10 @@ type ComposeContact = {
     'SmsTemplates',
     'SideDrawerUI',
     'Analytics',
+    'PhoneNumberFormat',
+    'RegionSettings',
+    'AccountInfo',
+    'ExtensionInfo',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -52,6 +56,10 @@ export class ComposeTextUI extends ComposeTextUIBase {
       messageStore,
       conversations,
       sideDrawerUI,
+      phoneNumberFormat,
+      regionSettings,
+      accountInfo,
+      extensionInfo,
     } = this._deps;
     return {
       ...baseFuncs,
@@ -111,6 +119,15 @@ export class ComposeTextUI extends ComposeTextUIBase {
           composeText.updateSenderNumber(composeText.defaultTextId);
         }
       },
+      formatContactPhone: (phoneNumber) =>
+        phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: regionSettings.areaCode,
+          countryCode: regionSettings.countryCode,
+          maxExtensionLength: accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+          siteCode: extensionInfo.site?.code,
+        }),
     };
   }
 

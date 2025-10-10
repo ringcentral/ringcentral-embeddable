@@ -1,8 +1,7 @@
-import { SimpleCallControlUI as SimpleCallControlUIBase }  from '@ringcentral-integration/widgets/modules/SimpleCallControlUI';
 import { Module } from '@ringcentral-integration/commons/lib/di';
+import { TransferUI as TransferUIBase } from '@ringcentral-integration/widgets/modules/TransferUI';
 
 @Module({
-  name: 'NewSimpleCallControlUI',
   deps: [
     'PhoneNumberFormat',
     'RegionSettings',
@@ -10,18 +9,12 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
     'ExtensionInfo',
   ],
 })
-export class SimpleCallControlUI extends SimpleCallControlUIBase {
-  getUIFunctions(options) {
-    const functions = super.getUIFunctions(options);
+export class TransferUI extends TransferUIBase {
+  getUIFunctions(props) {
+    const parentUIFunctions = super.getUIFunctions(props);
     return {
-      ...functions,
-      updateSessionMatchedContact: (telephonySessionId, contact) => {
-        this._deps.contactMatcher.setCallMatched({
-          telephonySessionId,
-          toEntityId: contact.id
-        });
-      },
-      formatPhone: (phoneNumber: string) =>
+      ...parentUIFunctions,
+      formatPhone: (phoneNumber) =>
         this._deps.phoneNumberFormat.format({
           phoneNumber,
           areaCode: this._deps.regionSettings.areaCode,

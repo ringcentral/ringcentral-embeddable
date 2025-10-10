@@ -136,9 +136,6 @@ import {
   RouterInteraction,
 } from '@ringcentral-integration/widgets/modules/RouterInteraction';
 import { ThemeUI } from '@ringcentral-integration/widgets/modules/ThemeUI';
-import {
-  TransferUI,
-} from '@ringcentral-integration/widgets/modules/TransferUI';
 import { SDK } from '@ringcentral/sdk';
 
 import hackSend from '../../lib/hackSend';
@@ -197,6 +194,8 @@ import { MessageDetailsUI } from '../MessageDetailsUI';
 import { NoiseReduction } from '../NoiseReduction';
 import { NumberValidate } from '../NumberValidate';
 import { OAuth } from '../OAuth';
+import { PhoneNumberFormat } from '../PhoneNumberFormat';
+import { PhoneNumberFormatSettingUI } from '../PhoneNumberFormatSettingUI';
 import { RingCentralExtensions } from '../RingCentralExtensions';
 import { RcVideo } from '../RcVideo';
 import { RingtoneSettingsUI } from '../RingtoneSettingsUI';
@@ -218,6 +217,7 @@ import { SmsTemplates } from '../SmsTemplates';
 import { SmartNotes } from '../SmartNotes';
 import { SideDrawerUI } from '../SideDrawerUI';
 import { SmartNotesUI } from '../SmartNotesUI';
+import { TransferUI } from '../TransferUI';
 import { WidgetAppsUI } from '../WidgetAppsUI';
 import { VoicemailDrop } from '../VoicemailDrop';
 import { VoicemailDropUI } from '../VoicemailDropUI';
@@ -295,6 +295,8 @@ import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
     { provide: 'Conversations', useClass: Conversations },
     { provide: 'SmsTemplates', useClass: SmsTemplates },
     { provide: 'DateTimeFormat', useClass: DateTimeFormat },
+    { provide: 'PhoneNumberFormat', useClass: PhoneNumberFormat },
+    { provide: 'PhoneNumberFormatSettingUI', useClass: PhoneNumberFormatSettingUI },
     { provide: 'AddressBook', useClass: AddressBook },
     { provide: 'CallQueues', useClass: CallQueues },
     { provide: 'CallQueuePresence', useClass: CallQueuePresence },

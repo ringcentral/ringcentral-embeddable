@@ -74,6 +74,7 @@ import { getCallContact } from '../../lib/callHelper';
     'Analytics',
     'Theme',
     'ThirdPartyService',
+    'PhoneNumberFormat',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -122,6 +123,7 @@ export default class Adapter extends AdapterModuleCore {
     composeTextUI,
     theme,
     thirdPartyService,
+    phoneNumberFormat,
     ...options
   }) {
     super({
@@ -169,7 +171,7 @@ export default class Adapter extends AdapterModuleCore {
     this._theme = theme;
     this._thirdPartyService = thirdPartyService;
     this._incomingCallUI = incomingCallUI;
-
+    this._phoneNumberFormat = phoneNumberFormat;
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
@@ -393,6 +395,10 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-set-call-contact-matches-select': {
           this._setCallContactMatched(data);
+          break;
+        }
+        case 'rc-adapter-set-phone-number-format': {
+          this._setPhoneNumberFormat(data);
           break;
         }
         default:
@@ -1128,6 +1134,14 @@ export default class Adapter extends AdapterModuleCore {
     this._sideDrawerUI.setExtended(value);
   }
 
+  _setPhoneNumberFormat(data) {
+    this._phoneNumberFormat.setSetting({
+      formatType: data.formatType, // 'national', 'international', 'customized'
+      template: data.template, // required if 'customized' type, eg: '(###) ###-####'
+      readOnly: data.readOnly, // optional, set to true to disable user editing
+    });
+  }
+
   async _navigateTo(path) {
     if (path.indexOf('/log/call/') === 0) {
       const sessionId = path.split('/')[3];
@@ -1226,7 +1240,22 @@ export default class Adapter extends AdapterModuleCore {
     }
     this._composeTextUI.gotoComposeText();
     if (phoneNumber) {
-      this._composeText.updateTypingToNumber(phoneNumber);
+      const formattedPhoneNumber = this._phoneNumberFormat.format({
+        phoneNumber,
+        areaCode: this._regionSettings.areaCode,
+        countryCode: this._regionSettings.countryCode,
+        maxExtensionLength: this._accountInfo.maxExtensionNumberLength,
+        isMultipleSiteEnabled: this._extensionInfo.isMultipleSiteEnabled,
+        siteCode: this._extensionInfo.site && this._extensionInfo.site.code,
+      });
+      if (formattedPhoneNumber.indexOf('x') === -1) {
+        this._composeText.updateTypingToNumber(phoneNumber);
+      } else {
+        this._composeText.addToNumber({
+          name: formattedPhoneNumber,
+          phoneNumber,
+        });
+      }
     }
     if (text && text.length > 0) {
       this._composeText.updateMessageText(String(text));
@@ -1252,7 +1281,11 @@ export default class Adapter extends AdapterModuleCore {
     this._router.push('/dialer');
     this._dialerUI.setToNumberField(phoneNumber);
     if (toCall) {
-      this._dialerUI.call({ phoneNumber });
+      this._dialerUI.call({
+        recipient: {
+          phoneNumber,
+        },
+      });
     }
   }
 

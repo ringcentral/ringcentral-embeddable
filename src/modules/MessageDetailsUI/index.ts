@@ -25,6 +25,7 @@ import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
     'ComposeTextUI',
     'ThirdPartyService',
     'Auth',
+    'PhoneNumberFormat',
     { dep: 'Call', optional: true },
     { dep: 'DialerUI', optional: true },
     { dep: 'ContactDetailsUI', optional: true },
@@ -168,6 +169,7 @@ export class MessageDetailsUI extends RcUIModuleV2 {
       contactSearch,
       conversationLogger,
       composeTextUI,
+      phoneNumberFormat,
     } = this._deps;
     return {
       onViewMessage: (messageId) => {
@@ -181,7 +183,7 @@ export class MessageDetailsUI extends RcUIModuleV2 {
         }
       },
       formatPhone: (phoneNumber: string) =>
-        formatNumber({
+        phoneNumberFormat.format({
           phoneNumber,
           areaCode: regionSettings.areaCode,
           countryCode: regionSettings.countryCode,

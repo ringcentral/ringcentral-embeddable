@@ -10,6 +10,7 @@ import {
     'ThirdPartyService',
     'SmsTemplates',
     'SideDrawerUI',
+    'PhoneNumberFormat',
   ],
 })
 export class ConversationUI extends BaseConversationUI {
@@ -93,6 +94,11 @@ export class ConversationUI extends BaseConversationUI {
       thirdPartyService,
       smsTemplates,
       routerInteraction,
+      phoneNumberFormat,
+      regionSettings,
+      accountInfo,
+      extensionInfo,
+      conversations,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
@@ -101,13 +107,13 @@ export class ConversationUI extends BaseConversationUI {
       },
       replyToReceivers: async (text, attachments, selectedContact) => {
         const continueSMS = await this.smsVerify(
-          this._deps.conversations.currentConversation.correspondents,
+          conversations.currentConversation.correspondents,
           selectedContact,
         );
         if (!continueSMS) {
           return;
         }
-        return this._deps.conversations.replyToReceivers(text, attachments, selectedContact);
+        return conversations.replyToReceivers(text, attachments, selectedContact);
       },
       onLogConversation: async ({ redirect = true, ...options }) => {
         await conversationLogger.logConversation({
@@ -131,6 +137,15 @@ export class ConversationUI extends BaseConversationUI {
       sortTemplates: (templateIds) => {
         return smsTemplates.sort(templateIds);
       },
+      formatPhone: (phoneNumber) =>
+        phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: regionSettings.areaCode,
+          countryCode: regionSettings.countryCode,
+          maxExtensionLength: accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+          siteCode: extensionInfo.site?.code,
+        }),
     }
   }
 }

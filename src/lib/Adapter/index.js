@@ -784,6 +784,19 @@ class Adapter extends AdapterCore {
       telephonySessionId,
     });
   }
+
+  setPhoneNumberFormat({
+    formatType,
+    template,
+    readOnly,
+  }) {
+    return this._postMessage({
+      type: 'rc-adapter-set-phone-number-format',
+      formatType,
+      template,
+      readOnly,
+    });
+  }
 }
 
 export default Adapter;
