@@ -19,6 +19,7 @@ import {
 } from '@ringcentral/juno';
 import { styled, palette2 } from '@ringcentral/juno/foundation';
 import { InfoBorder, Lock, Delete, Add } from '@ringcentral/juno-icon';
+import { TextWithMarkdown } from '@ringcentral-integration/jsonschema-page';
 
 const StyledAlert = styled(RcAlert)`
   &.RcAlert-root {
@@ -408,6 +409,11 @@ export function SettingParamInput({
         required={setting.required}
         helperText={setting.helper}
         readOnly={setting.readOnly}
+        renderValue={setting.multiple ? (value) => {
+          return (value || []).map((v) => {
+            return setting.options.find((o) => o.id === v)?.name;
+          }).join(', ');
+        } : undefined}
       >
         {setting.options.map((option) => (
           <RcMenuItem
@@ -428,7 +434,7 @@ export function SettingParamInput({
     }
     return (
       <StyledAlert severity={severity} className={className}>
-        {setting.value}
+        <TextWithMarkdown text={setting.value} />
       </StyledAlert>
     );
   }
@@ -439,7 +445,7 @@ export function SettingParamInput({
         color={setting.color || 'neutral.f06'}
         className={className}
       >
-        {setting.value}
+        <TextWithMarkdown text={setting.value} />
       </RcTypography>
     );
   }
