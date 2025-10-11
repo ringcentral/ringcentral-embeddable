@@ -45,6 +45,8 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
         name: 'Select phone number format',
         type: 'option',
         value: phoneNumberFormat.formatType,
+        readOnly: phoneNumberFormat.readOnly,
+        readOnlyReason: phoneNumberFormat.readOnlyReason,
         options: phoneNumberFormat.supportedFormats.map((format) => {
           let example = '';
           if (
@@ -72,6 +74,8 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
         name: 'Custom template',
         type: 'string',
         value: phoneNumberFormat.template || '',
+        readOnly: phoneNumberFormat.readOnly,
+        readOnlyReason: phoneNumberFormat.readOnlyReason,
         showWhen: {
           phoneNumberFormat: {
             value: 'customized',

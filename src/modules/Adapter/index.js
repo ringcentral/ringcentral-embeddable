@@ -1141,28 +1141,29 @@ export default class Adapter extends AdapterModuleCore {
       formatType: data.formatType, // 'national', 'international', 'customized'
       template: data.template, // required if 'customized' type, eg: '(###) ###-####'
       readOnly: data.readOnly, // optional, set to true to disable user editing
+      readOnlyReason: data.readOnlyReason, // optional, reason for read only
     });
   }
 
   _checkPhoneNumberFormatSettingsChanged() {
+    if (!this._phoneNumberFormat.ready) {
+      return;
+    }
     if (
       this._phoneNumberFormatSetting &&
       this._phoneNumberFormatSetting.formatType === this._phoneNumberFormat.formatType &&
-      this._phoneNumberFormatSetting.template === this._phoneNumberFormat.template &&
-      this._phoneNumberFormatSetting.readOnly === this._phoneNumberFormat.readOnly
+      this._phoneNumberFormatSetting.template === this._phoneNumberFormat.template
     ) {
       return;
     }
     this._phoneNumberFormatSetting = {
       formatType: this._phoneNumberFormat.formatType,
       template: this._phoneNumberFormat.template,
-      readOnly: this._phoneNumberFormat.readOnly,
     };
     this._postMessage({
       type: 'rc-adapter-phone-number-format-settings-notify',
       formatType: this._phoneNumberFormat.formatType,
       template: this._phoneNumberFormat.formatType === 'customized' ? this._phoneNumberFormat.template : '',
-      readOnly: this._phoneNumberFormat.readOnly,
     });
   }
 

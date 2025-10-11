@@ -11,7 +11,6 @@ import {
     'ThirdPartyService',
     'AudioSettings',
     'SmartNotes',
-    'PhoneNumberFormat',
   ]
 })
 export class SettingsUI extends BaseSettingsUI {
@@ -25,7 +24,6 @@ export class SettingsUI extends BaseSettingsUI {
       audioSettings,
       brand,
       smartNotes,
-      phoneNumberFormat,
     } = this._deps;
     return {
       ...baseProps,
@@ -72,7 +70,7 @@ export class SettingsUI extends BaseSettingsUI {
       showCallQueuePresenceSettings: appFeatures.hasReadCallQueuePresencePermission && appFeatures.hasEditCallQueuePresencePermission,
       showText: appFeatures.hasSendSMSPermission,
       showVoicemailDropSettings: appFeatures.hasVoicemailDropPermission,
-      showPhoneNumberFormatSettings: !phoneNumberFormat.formatTypeReadOnly,
+      showPhoneNumberFormatSettings: true,
     };
   }
 
