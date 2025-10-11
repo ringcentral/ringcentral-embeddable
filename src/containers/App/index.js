@@ -24,7 +24,7 @@ import AudioSettingsPage from '../AudioSettingsPage';
 import DialerPage from '../DialerPage';
 import { CallCtrlPage } from '../CallCtrlPage';
 import { OtherDeviceCallCtrlPage } from '../OtherDeviceCallCtrlPage';
-
+import { ParkPage } from '../ParkPage';
 import TransferPage from '../TransferPage';
 import LogCallPage from '../LogCallPage';
 import { CallsListPage } from '../CallsListPage';
@@ -417,6 +417,12 @@ export default function App({
                 path="/flip/:sessionId"
                 component={(routerProps) => (
                   <FlipPage params={routerProps.params} />
+                )}
+              />
+              <Route
+                path="/park/:sessionId"
+                component={routerProps => (
+                  <ParkPage params={routerProps.params} />
                 )}
               />
               <Route

@@ -161,6 +161,13 @@ export class AppFeatures extends AppFeaturesBase {
     return this.config.VoicemailDrop;
   }
 
+  get hasHUDPermission() {
+    return (
+      this.appScopes.indexOf('ReadPresence') > -1 &&
+      (this._deps.extensionFeatures.features?.HUD?.available ?? false)
+    )
+  }
+
   @computed((that: AppFeatures) => [that._deps.featureConfiguration, that.configState])
   get config() {
     return {
