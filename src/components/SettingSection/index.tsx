@@ -45,18 +45,24 @@ function allRequiredFilled(items) {
         (item.multiple && item.value.length === 0)
       )
     ) {
+      if (item.showWhen) {
+        const show = shouldShow(item, items);
+        if (!show) {
+          return;
+        }
+      }
       allFilled = false;
     }
   });
   return allFilled;
 }
 
-function shouldShow(item, newSection) {
+function shouldShow(item, allItems) {
   if (!item.showWhen) {
     return true;
   }
   return Object.keys(item.showWhen).every((key) => {
-    const input = newSection.items.find((item) => item.id === key);
+    const input = allItems.find((item) => item.id === key);
     const condition = item.showWhen[key];
     if (condition.operator === 'equal') {
       return input?.value === condition.value;
@@ -128,7 +134,7 @@ export function SettingSection({
       <StyledPanel>
         {
           newSection.items.map((setting) => {
-            if (!shouldShow(setting, newSection)) {
+            if (!shouldShow(setting, newSection.items)) {
               return null;
             }
             return (
