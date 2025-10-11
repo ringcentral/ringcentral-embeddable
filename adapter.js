@@ -56912,6 +56912,9 @@ class Adapter extends AdapterCore/* default */.A {
           break;
         case 'rc-adapter-set-popup-window-size':
           this._setPopupWindowSize(data.width, data.height);
+        case 'rc-adapter-phone-number-format-settings-notify':
+          console.log('rc-adapter-phone-number-format-settings-notify:', data.formatType, data.template);
+          break;
         default:
           super._onMessage(data);
           break;
@@ -57371,13 +57374,15 @@ class Adapter extends AdapterCore/* default */.A {
     let {
       formatType,
       template,
-      readOnly
+      readOnly,
+      readOnlyReason
     } = _ref7;
     return this._postMessage({
       type: 'rc-adapter-set-phone-number-format',
       formatType,
       template,
-      readOnly
+      readOnly,
+      readOnlyReason
     });
   }
 }
