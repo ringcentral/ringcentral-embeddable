@@ -39,5 +39,7 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `enableAudioInitPrompt` | *null* | See [Audio](./audio.md). |
 | `enableLoadMoreCalls` | *null* | Support to load old call history (more than 7 days). Supported from v2.1.0 |
 | `enableSharedMessages` | *null* | Support to receive call queue SMS. Supported from v2.3.0 |
+| `enableSideWidget` | *null* | See [Call widgets](../integration/call-widget.md). Supported from v3.0.0 |
+| `enableVoicemailDrop` | *null* | See [Voicemail drop](voicemail-drop.md). Supported from v3.0.0 |
 </div>
 

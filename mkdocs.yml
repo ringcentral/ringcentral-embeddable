@@ -109,6 +109,7 @@ nav:
     - 'SMS settings': config/sms-settings.md
     - 'Quick access badge': config/badge.md
     - 'Audio': config/audio.md
+    - 'Voicemail drop (new)': config/voicemail-drop.md
 
 - 'Developer guide':
   - 'Events': integration/events.md

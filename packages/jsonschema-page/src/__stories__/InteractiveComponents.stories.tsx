@@ -136,6 +136,11 @@ export const ButtonFields: Story = {
           title: 'Plain Button',
           description: 'Plain style button',
         },
+        disabledButton: {
+          type: 'string',
+          title: 'Disabled Button',
+          description: 'Disabled button',
+        },
       },
     },
     uiSchema: {
@@ -167,6 +172,12 @@ export const ButtonFields: Story = {
       plainButton: {
         'ui:field': 'button',
         'ui:variant': 'plain',
+      },
+      disabledButton: {
+        'ui:field': 'button',
+        'ui:variant': 'contained',
+        'ui:color': 'primary',
+        'ui:disabled': true,
       },
     },
     formData: {},
