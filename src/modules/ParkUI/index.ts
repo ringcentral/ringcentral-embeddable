@@ -6,6 +6,7 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
   deps: [
     'MonitoredExtensions',
     'RouterInteraction',
+    'Locale',
   ],
 })
 export class ParkUI extends RcUIModuleV2 {
@@ -16,9 +17,11 @@ export class ParkUI extends RcUIModuleV2 {
   getUIProps() {
     const {
       monitoredExtensions,
+      locale,
     } = this._deps;
     return {
       parkLocations: monitoredExtensions.parkLocations,
+      currentLocale: locale.currentLocale,
     };
   }
 
