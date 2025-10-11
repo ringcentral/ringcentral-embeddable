@@ -46,7 +46,11 @@ export class PhoneNumberFormat extends RcModuleV2 {
 
   @globalStorage
   @state
-  formatTypeReadOnly = false;
+  readOnly = false;
+
+  @globalStorage
+  @state
+  readOnlyReason = '';
 
   @globalStorage
   @state
@@ -58,8 +62,9 @@ export class PhoneNumberFormat extends RcModuleV2 {
   }
 
   @action
-  setFormatTypeReadOnly(formatTypeReadOnly: boolean) {
-    this.formatTypeReadOnly = formatTypeReadOnly;
+  setReadOnly(readOnly: boolean, reason: string) {
+    this.readOnly = !!readOnly;
+    this.readOnlyReason = reason || '';
   }
 
   setDefaultFormatter() {
@@ -153,6 +158,7 @@ export class PhoneNumberFormat extends RcModuleV2 {
     formatType: string;
     template: string;
     readOnly?: boolean;
+    readOnlyReason?: string;
   }) {
     const supported = this.supportedFormats.find((format) => format.id === setting.formatType);
     if (!supported) {
@@ -179,7 +185,7 @@ export class PhoneNumberFormat extends RcModuleV2 {
     }
     this.setFormatType(setting.formatType);
     if (typeof setting.readOnly === 'boolean') {
-      this.setFormatTypeReadOnly(setting.readOnly);
+      this.setReadOnly(setting.readOnly, setting.readOnlyReason);
     }
   }
 }
