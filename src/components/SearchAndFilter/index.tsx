@@ -139,13 +139,14 @@ export const MESSAGE_TYPE_LIST_WITH_UN_LOGGED = ['All', 'UnLogged', 'Unread'];
 export function SearchAndFilter({
   searchInput,
   onSearchInputChange,
-  disableLinks,
+  disableLinks = false,
   placeholder,
   currentLocale,
   type,
   onTypeChange,
   showTypeFilter = true,
   typeList,
+  typePreviewLength = undefined,
 }) {
   return (
     <Container>
@@ -162,7 +163,7 @@ export function SearchAndFilter({
             onTypeChange={onTypeChange}
             typeList={typeList}
             currentLocale={currentLocale}
-            previewLength={searchInput.length > 0 ? 1 : 2}
+            previewLength={typePreviewLength ? typePreviewLength : (searchInput.length > 0 ? 1 : 2)}
           />
         )
       }

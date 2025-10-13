@@ -167,6 +167,7 @@ import { CallQueues } from '../CallQueues';
 import { CallQueuePresence } from '../CallQueuePresence';
 import { CallQueueSettingsUI } from '../CallQueueSettingsUI';
 import { CallDetailsUI } from '../CallDetailsUI';
+import { CallHUDUI } from '../CallHUDUI';
 import { CompanyContacts } from '../CompanyContacts';
 import { ComposeText } from '../ComposeText';
 import { ComposeTextUI } from '../ComposeTextUI';
@@ -423,6 +424,7 @@ import { ParkUI } from '../ParkUI';
     { provide: 'CallControlUI', useClass: CallControlUI },
     { provide: 'CallHistoryUI', useClass: CallHistoryUI },
     { provide: 'CallDetailsUI', useClass: CallDetailsUI },
+    { provide: 'CallHUDUI', useClass: CallHUDUI },
     { provide: 'CallsOnholdUI', useClass: CallsOnholdUI },
     { provide: 'PhoneTabsUI', useClass: PhoneTabsUI },
     { provide: 'IncomingCallUI', useClass: IncomingCallUI },

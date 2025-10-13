@@ -25,6 +25,7 @@ import DialerPage from '../DialerPage';
 import { CallCtrlPage } from '../CallCtrlPage';
 import { OtherDeviceCallCtrlPage } from '../OtherDeviceCallCtrlPage';
 import { ParkPage } from '../ParkPage';
+import { CallHUDPage } from '../CallHUDPage';
 import TransferPage from '../TransferPage';
 import LogCallPage from '../LogCallPage';
 import { CallsListPage } from '../CallsListPage';
@@ -209,7 +210,16 @@ export default function App({
                         sourceIcons={getSourceIcons()}
                       />
                     </PhoneTabsContainer>
-                  )} />
+                  )}
+                />
+                <Route
+                  path="/HUD"
+                  component={() => (
+                    <PhoneTabsContainer>
+                      <CallHUDPage />
+                    </PhoneTabsContainer>
+                  )}
+                />
                 <Route
                   path="/settings"
                   component={routerProps => (

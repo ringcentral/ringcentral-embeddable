@@ -78,14 +78,16 @@ export const MainViewPanel = (props) => {
         currentPath === '/dialer' ||
         currentPath === '/history' ||
         currentPath === '/history/recordings' ||
-        currentPath === '/messages/voicemail'
+        currentPath === '/messages/voicemail' ||
+        currentPath === '/HUD'
       ),
       showHeader: (currentPath) => {
         return (
           currentPath === '/history' ||
           currentPath === '/history/recordings' ||
           currentPath === '/dialer' ||
-          currentPath === '/messages/voicemail'
+          currentPath === '/messages/voicemail' ||
+          currentPath === '/HUD'
         );
       },
       actionsInHeaderRight: [{

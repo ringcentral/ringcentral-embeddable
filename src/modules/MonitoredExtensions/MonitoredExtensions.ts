@@ -187,14 +187,19 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
       return acc;
     }, {});
     return monitored.map((item) => {
+      const contact = companyContactsMap[item.extension.id];
+      let name = contact?.name;
+      if (!name && (contact?.firstName || contact?.lastName)) {
+        name = `${contact.firstName || ''} ${contact.lastName || ''}`;
+      }
       return {
         ...item,
         extension: {
           id: item.extension.id,
           extensionNumber: item.extension.extensionNumber,
           type: item.extension.type,
-          name: companyContactsMap[item.extension.id]?.name,
-          status: companyContactsMap[item.extension.id]?.status,
+          name,
+          status: contact?.status,
         },
         presence: this.presences[item.extension.id],
       };
@@ -209,6 +214,12 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
   @computed(({ monitoredExtensions }: MonitoredExtensions) => [monitoredExtensions])
   get parkLocations() {
     return this.monitoredExtensions.filter((extension) => extension.extension.type === 'ParkLocation');
+  }
+
+  get activeExtensionLength() {
+    return this.monitoredExtensions.filter(
+      (extension) => extension.presence?.activeCalls?.length > 0
+    ).length;
   }
 
   get _hasPermission() {

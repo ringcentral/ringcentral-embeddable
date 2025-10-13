@@ -5,4 +5,7 @@ export default {
   Outbound: 'Outbound',
   UnLogged: 'Unlogged',
   Unread: 'Unread',
+  User: 'Extensions',
+  GroupCallPickup: 'Group call pick up',
+  ParkLocation: 'Park locations',
 };
