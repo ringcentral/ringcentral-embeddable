@@ -727,8 +727,37 @@ export class Webphone extends WebphoneBase {
           ttl: 0,
         });
       }
+      return `*${result['park extension']}`;
     } catch (e) {
       this._logger.error(e);
+      return;
+    }
+  }
+
+  @proxify
+  async parkToLocation(sessionId: string, extension: { id: string, name: string, extensionNumber: string }) {
+    const session = this.originalSessions[sessionId];
+    if (!session) {
+      return;
+    }
+    if (!extension || !extension.id) {
+      return;
+    }
+    try {
+      await session.transfer(`prk${extension.id}`);
+      this._logger.log('Parked to location');
+      const parkedNumber = extension.name || extension.extensionNumber || extension.id;
+      this._deps.alert.success({
+        message: webphoneMessages.parked,
+        payload: {
+          parkedNumber,
+        },
+        ttl: 0,
+      });
+      return parkedNumber;
+    } catch (e) {
+      this._logger.error(e);
+      return;
     }
   }
 

@@ -4,4 +4,7 @@ export default {
   parkCurrentCall: 'Park current call',
   parkCurrentCallAndSendText: 'Park current call and send text',
   public: 'Public',
+  parkLocationDisabled: 'Location disabled',
+  parkLocationBusy: 'Location busy',
 };
+

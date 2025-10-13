@@ -19,6 +19,7 @@ import { trackEvents } from '../Analytics/trackEvents';
     'RegionSettings',
     'AccountInfo',
     'ExtensionInfo',
+    'MonitoredExtensions',
   ],
 })
 export class CallControlUI extends CallControlUIBase {
@@ -92,6 +93,8 @@ export class CallControlUI extends CallControlUIBase {
       regionSettings,
       accountInfo,
       extensionInfo,
+      monitoredExtensions,
+      routerInteraction,
     } = this._deps;
     return {
       ...functions,
@@ -171,6 +174,12 @@ export class CallControlUI extends CallControlUIBase {
           return;
         }
         return webphone.stopRecord(sessionId);
+      },
+      onPark: (sessionId) => {
+        if (monitoredExtensions.parkLocations.length === 0) {
+          return webphone.park(sessionId);
+        }
+        routerInteraction.push(`/park/${sessionId}`);
       },
       updateSessionMatchedContact: async (webphoneSessionId, contact) => {
         await this._deps.webphone.updateSessionMatchedContact(webphoneSessionId, contact);

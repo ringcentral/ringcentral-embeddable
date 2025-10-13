@@ -1,11 +1,13 @@
-import { computed, watch } from '@ringcentral-integration/core';
+import { computed, watch, state, action } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
+import { batchGetApi } from '@ringcentral-integration/commons/lib/batchApiHelper';
 
-import {
+import type {
   Deps,
   MonitoredExtensionData,
   MonitoredExtensionSubscriptionMessage,
+  PresenceData,
 } from './MonitoredExtensions.interface';
 
 @Module({
@@ -16,6 +18,7 @@ import {
     'AppFeatures',
     'Subscription',
     'CompanyContacts',
+    'ExtensionInfo',
     { dep: 'MonitoredExtensionsOptions', optional: true }
   ],
 })
@@ -39,7 +42,7 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
       fetchFunction: async (): Promise<MonitoredExtensionData> => {
         const response = await this._deps.client.service
           .platform()
-          .get('/restapi/v1.0/account/~/extension/~/presence/line');
+          .get('/restapi/v1.0/account/~/extension/~/presence/line?page=1&perPage=1000');
         return response.json();
       },
       readyCheckFunction: () => this._deps.appFeatures.ready,
@@ -48,9 +51,13 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
   }
 
   override onInit() {
-    if (this._deps.subscription && this._hasPermission) {
+    if (!this._hasPermission) {
+      return;
+    }
+    if (this._deps.subscription) {
       this._deps.subscription.subscribe([
-        '/restapi/v1.0/account/~/extension/~/presence/line'
+        '/restapi/v1.0/account/~/extension/~/presence/line',
+        '/restapi/v1.0/account/~/extension/~/presence/line/presence?detailedTelephonyState=true&sipData=true'
       ]);
       this._stopWatching = watch(
         this,
@@ -58,10 +65,24 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
         (message) => this._handleSubscription(message),
       );
     }
+    const monitored = (this.data?.records ?? []).filter((item) =>
+      item.extension.id !== String(this._deps.extensionInfo.id)
+    );
+    const extensionIds = monitored.map((item) => item.extension.id);
+    this.fetchPresences(extensionIds);
   }
 
   _handleSubscription(message: MonitoredExtensionSubscriptionMessage) {
-    if (message && message.event && message.event.indexOf('/presence/line') !== -1) {
+    if (!message || !message.event) {
+      return;
+    }
+    if (message.event.indexOf('/presence?detailedTelephonyState=true') !== -1 && message.body) {
+      // presence changed event
+      this.setPresences([message.body]);
+      return;
+    }
+    if ( message.event.indexOf('/presence/line') !== -1 ) {
+      // monitored extensions changed event
       this.sync();
     }
   }
@@ -71,6 +92,16 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
       return;
     }
     await this._deps.dataFetcherV2.fetchData(this._source);
+    const newExtensionIds = [];
+    const monitored = (this.data?.records ?? []).filter((item) =>
+      item.extension.id !== String(this._deps.extensionInfo.id)
+    );
+    monitored.forEach((item) => {
+      if (!this.presences[item.extension.id]) {
+        newExtensionIds.push(item.extension.id);
+      }
+    });
+    this.fetchPresences(newExtensionIds);
   }
 
   override onReset() {
@@ -78,12 +109,72 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
     this._stopWatching = null;
   }
 
+  @state
+  presences: {
+    [key: string]: PresenceData;
+  } = {};
+
+  @action
+  setPresences(newPresences: [PresenceData]) {
+    newPresences.forEach((presence) => {
+      const extensionId = String(presence.extensionId || presence.extension.id);
+      const newPresence = {
+        ...presence,
+        activeCalls:
+          presence.activeCalls ?
+            presence.activeCalls.filter((call) => !(call.telephonyStatus === 'NoCall' && call.terminationType === 'final'))
+            : [],
+      };
+      // reduce the presence data
+      delete newPresence.extension;
+      delete newPresence.extensionId;
+      delete newPresence.uri;
+      this.presences[extensionId] = newPresence;
+    });
+  }
+
+  async fetchPresences(extensionIds) {
+    if (extensionIds.length === 0) {
+      return;
+    }
+    try {
+      let presences = [];
+      if (extensionIds.length > 1) {
+        // batch by 30 per group
+        const batchedExtensionIds = extensionIds.reduce((acc, id, index) => {
+          if (index % 30 === 0) {
+            acc.push(extensionIds.slice(index, index + 30));
+          }
+          return acc;
+        }, []);
+        for (const group of batchedExtensionIds) {
+          const responses = await batchGetApi({
+            platform: this._deps.client.service.platform(),
+            url: `/restapi/v1.0/account/~/extension/${group.join(',')}/presence?detailedTelephonyState=true&sipData=true`,
+          });
+          presences = await Promise.all(responses.map((response) => response.json()));
+        }
+      } else {
+        const response = await this._deps.client.service.platform().get(`/restapi/v1.0/account/~/extension/${extensionIds[0]}/presence/line/presence?detailedTelephonyState=true&sipData=true`);
+        const presence = await response.json();
+        presences = [presence];
+      }
+      this.setPresences(presences as [PresenceData]);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   @computed((that: MonitoredExtensions) => [
     that.data,
     that._deps.companyContacts.data,
+    that._deps.extensionInfo.id,
+    that.presences,
   ])
   get monitoredExtensions() {
-    const monitored = this.data?.records ?? [];
+    const monitored = (this.data?.records ?? []).filter((item) =>
+      item.extension.id !== String(this._deps.extensionInfo.id)
+    );
     const extensionIdMaps = monitored.reduce((acc, item) => {
       acc[item.extension.id] = 1;
       return acc;
@@ -105,6 +196,7 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
           name: companyContactsMap[item.extension.id]?.name,
           status: companyContactsMap[item.extension.id]?.status,
         },
+        presence: this.presences[item.extension.id],
       };
     });
   }

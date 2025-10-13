@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
 import {
   styled,
@@ -9,6 +9,7 @@ import {
   RcListItemSecondaryAction,
   RcText,
   RcTypography,
+  RcTooltip,
 } from '@ringcentral/juno';
 import {
   ParkCallSp,
@@ -62,18 +63,43 @@ const Title = styled(RcTypography)`
 
 type ParkPanelProps = {
   parkLocations: any[];
-  onBackButtonClick: () => void;
+  onBack: () => void;
   currentLocale: string;
+  sessionId: string;
+  onPark: (locationId?: string) => Promise<{ fromNumber: string, destination: string }>;
+  onText: (text?: string) => Promise<void>;
+  onCallEnd: () => void;
+  session: any;
+  formatPhone: (phoneNumber: string) => string;
 };
 
 export const ParkPanel: FunctionComponent<ParkPanelProps> = ({
   parkLocations,
-  onBackButtonClick,
+  onBack,
   currentLocale,
+  onPark,
+  onText,
+  onCallEnd,
+  session,
+  formatPhone,
 }) => {
+  const sessionRef = useRef(session);
+
+  // handle session end
+  useEffect(() => {
+      if (sessionRef.current && !session) {
+        onCallEnd();
+      }
+      sessionRef.current = session;
+  }, [session]);
+
+  if (!session) {
+    return null;
+  }
+
   return (
     <BackHeaderView
-      onBack={onBackButtonClick}
+      onBack={onBack}
       title={i18n.getString('parkCall', currentLocale)}
     >
       <Title variant="body2" color="neutral.f06">{i18n.getString('parkLocation', currentLocale)}</Title>
@@ -89,14 +115,17 @@ export const ParkPanel: FunctionComponent<ParkPanelProps> = ({
               icon: ParkCallSp,
               title: i18n.getString('parkCurrentCall', currentLocale),
               onClick: () => {
-                console.log('park');
+                return onPark();
               },
             }, {
               id: 'parkAndText',
               icon: ParkCallText,
               title: i18n.getString('parkCurrentCallAndSendText', currentLocale),
-              onClick: () => {
-                console.log('park and text');
+              onClick: async () => {
+                const result = await onPark();
+                if (result) {
+                  onText(`You have a call from ${formatPhone(result.fromNumber)} at ${result.destination}`);
+                }
               },
             }]}
             size="small"
@@ -104,44 +133,65 @@ export const ParkPanel: FunctionComponent<ParkPanelProps> = ({
             color="neutral.b01"
           />
         </StyledListItem>
-        {parkLocations.map((parkLocation) => (
-          <StyledListItem
-            key={parkLocation.id}
-          >
-            <RcListItemText
-              primary={parkLocation.extension?.name}
-            />
-            <RcListItemSecondaryAction className="park-location-extension-number">
-              <RcText
-                variant="body1"
-                color="neutral.f04"
-              >
-                Ext.{parkLocation.extension?.extensionNumber}
-              </RcText>
-            </RcListItemSecondaryAction>
-            <StyledActionMenu
-              className="park-location-action-menu"
-              actions={[{
-                id: 'park',
-                icon: ParkCallSp,
-                title: i18n.getString('parkCurrentCall', currentLocale),
-                onClick: () => {
-                  console.log('park');
-                },
-              }, {
-                id: 'parkAndText',
-                icon: ParkCallText,
-                title: i18n.getString('parkCurrentCallAndSendText', currentLocale),
-                onClick: () => {
-                  console.log('park and text');
-                },
-              }]}
-              iconVariant="contained"
-              color="neutral.b01"
-              size="small"
-            />
-          </StyledListItem>
-        ))}
+        {parkLocations.map((parkLocation) => {
+          const disabled = parkLocation.extension?.status !== 'Enabled';
+          const busy = parkLocation.presence?.activeCalls?.length > 0;
+          let tooltip = '';
+          if (disabled) {
+            tooltip = i18n.getString('parkLocationDisabled', currentLocale);
+          } else if (busy) {
+            tooltip = i18n.getString('parkLocationBusy', currentLocale);
+          }
+          return (
+            <RcTooltip title={tooltip}>
+              <div>
+                <StyledListItem
+                  key={parkLocation.id}
+                  disabled={disabled || busy}
+                  title={tooltip}
+                >
+                  <RcListItemText
+                    primary={parkLocation.extension?.name}
+                  />
+                  <RcListItemSecondaryAction className="park-location-extension-number">
+                    <RcText
+                      variant="body1"
+                      color="neutral.f04"
+                    >
+                      Ext.{parkLocation.extension?.extensionNumber}
+                    </RcText>
+                  </RcListItemSecondaryAction>
+                  <StyledActionMenu
+                    className="park-location-action-menu"
+                    actions={[{
+                      id: 'park',
+                      icon: ParkCallSp,
+                      title: i18n.getString('parkCurrentCall', currentLocale),
+                      onClick: () => {
+                        return onPark(parkLocation.id);
+                      },
+                      disabled: disabled || busy,
+                    }, {
+                      id: 'parkAndText',
+                      icon: ParkCallText,
+                      title: i18n.getString('parkCurrentCallAndSendText', currentLocale),
+                      onClick: async () => {
+                        const result = await onPark(parkLocation.id);
+                        if (result) {
+                          onText(`You have a call from ${formatPhone(result.fromNumber)} at ${result.destination}`);
+                        }
+                      },
+                      disabled: disabled || busy,
+                    }]}
+                    iconVariant="contained"
+                    color="neutral.b01"
+                    size="small"
+                  />
+                </StyledListItem>
+              </div>
+            </RcTooltip>
+          );
+        })}
       </RcList>
     </BackHeaderView>
   );
