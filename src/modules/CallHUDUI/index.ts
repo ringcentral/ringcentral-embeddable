@@ -1,5 +1,6 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, state, action, computed } from '@ringcentral-integration/core';
+import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone/sessionStatus';
 
 @Module({
   name: 'CallHUDUI',
@@ -14,6 +15,8 @@ import { RcUIModuleV2, state, action, computed } from '@ringcentral-integration/
     'RouterInteraction',
     'ComposeText',
     'ComposeTextUI',
+    'Call',
+    'DialerUI',
   ],
 })
 export class CallHUDUI extends RcUIModuleV2 {
@@ -75,13 +78,23 @@ export class CallHUDUI extends RcUIModuleV2 {
   getUIProps() {
     const {
       locale,
+      call,
+      webphone,
     } = this._deps;
+    const hasActiveSession = (
+      webphone.activeSession &&
+      webphone.activeSession.callStatus === sessionStatus.connected &&
+      !webphone.activeSession.isOnHold &&
+      !webphone.activeSession.voicemailDropStatus
+    );
     return {
       type: this.type,
       typeList: this.typeList,
       searchInput: this.searchInput,
       extensions: this.extensions,
       currentLocale: locale.currentLocale,
+      disableClickToDial: !(call && call.isIdle),
+      canPark: hasActiveSession,
     };
   }
   
@@ -91,6 +104,12 @@ export class CallHUDUI extends RcUIModuleV2 {
       regionSettings,
       accountInfo,
       extensionInfo,
+      dialerUI,
+      call,
+      routerInteraction,
+      webphone,
+      composeTextUI,
+      composeText,
     } = this._deps;
     return {
       onTypeChange: (type: string) => {
@@ -108,6 +127,25 @@ export class CallHUDUI extends RcUIModuleV2 {
           isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
           siteCode: extensionInfo.site?.code,
         });
+      },
+      onClickToDial: (recipient: any) => {
+        if (call && call.isIdle) {
+          routerInteraction.push('/dialer');
+          dialerUI.call({
+            recipient,
+          });
+        }
+      },
+      onPark: async (extension) => {
+        if (webphone.activeSession) {
+          await webphone.parkToLocation(webphone.activeSession.id, extension);
+        }
+      },
+      onText: async (text) => {
+        if (text) {
+          composeTextUI.gotoComposeText();
+          composeText.updateMessageText(text);
+        }
       },
     };
   }

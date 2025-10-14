@@ -13,12 +13,19 @@ import {
   RcChip,
   RcTooltip,
 } from '@ringcentral/juno';
-import { DefaultGroupAvatar, People } from '@ringcentral/juno-icon';
+import {
+  DefaultGroupAvatar,
+  People,
+  PhoneBorder,
+  ParkCallSp,
+  SmsBorder,
+} from '@ringcentral/juno-icon';
 import { getPresenceStatus } from '@ringcentral-integration/widgets/modules/ContactSearchUI/ContactSearchHelper';
 import { getPresenceStatusName } from '@ringcentral-integration/widgets/lib/getPresenceStatusName';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
 import { SearchAndFilter } from '../SearchAndFilter';
+import { ActionMenu } from '../ActionMenu';
 
 const Root = styled.div`
   display: flex;
@@ -67,6 +74,17 @@ const StyledListItem = styled(RcListItem)`
     bottom: 0px;
     width: calc(100% - 32px);
     border-bottom: 1px solid ${palette2('neutral', 'l02')};
+  }
+`;
+
+const StyledActionMenu = styled(ActionMenu)`
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  margin-top: -16px;
+
+  .RcIconButton-root {
+    margin-left: 8px;
   }
 `;
 
@@ -126,10 +144,14 @@ function ExtensionAvatar({ extension, presence }) {
   );
 }
 
-function getCallDescription(call, formatPhone) {
+function getCallContactName(call, formatPhone) {
   const from = call.direction === callDirections.inbound ? call.from : call.to;
   const fromName = call.direction === callDirections.inbound ? call.fromName : call.toName;
-  const contactName = fromName || formatPhone(from);
+  return fromName || formatPhone(from);
+}
+
+function getCallDescription(call, formatPhone) {
+  const contactName = getCallContactName(call, formatPhone);
   if (call.telephonyStatus === 'ParkedCall') {
     return `Call from ${contactName}`;
   }
@@ -264,8 +286,57 @@ function ExtensionDescription({ extension, presence, formatPhone, currentLocale 
   );
 }
 
-function ExtensionItem({ item, formatPhone, currentLocale }) {
+function ExtensionItem({
+  item,
+  formatPhone,
+  currentLocale,
+  onClickToDial,
+  disableClickToDial,
+  canPark,
+  onPark,
+  onText,
+}) {
   const { extension, presence } = item;
+  const actions = [];
+  if (extension.type === 'User' && extension.extensionNumber) {
+    actions.push({
+      id: 'c2d',
+      icon: PhoneBorder,
+      title: 'Call',
+      disabled: disableClickToDial,
+      onClick: () => {
+        onClickToDial({
+          name: extension.name,
+          id: extension.id,
+          phoneNumber: extension.extensionNumber,
+        })
+      },
+    });
+  }
+  if (extension.type === 'ParkLocation' && extension.status === 'Enabled') {
+    if (presence?.activeCalls?.length === 0 && canPark) {
+      actions.push({
+        id: 'park',
+        icon: ParkCallSp,
+        title: 'Park current call',
+        onClick: () => {
+          onPark(extension);
+        },
+      });
+    }
+    if (presence?.activeCalls?.length > 0) {
+      const activeCall = presence?.activeCalls[0];
+      const contactName = getCallContactName(activeCall, formatPhone);
+      actions.push({
+        id: 'sms',
+        icon: SmsBorder,
+        title: 'Notify by text',
+        onClick: () => {
+          onText(`You have a call from ${contactName} at ${extension.name || extension.extensionNumber}`);
+        },
+      });
+    }
+  }
   return (
     <StyledListItem
       disabled={extension.status !== 'Enabled'}
@@ -280,6 +351,18 @@ function ExtensionItem({ item, formatPhone, currentLocale }) {
         formatPhone={formatPhone}
         currentLocale={currentLocale}
       />
+      {
+        actions.length > 0 && (
+          <StyledActionMenu
+            actions={actions}
+            size="small"
+            maxActions={3}
+            className="action-menu"
+            iconVariant="contained"
+            color="neutral.b01"
+          />
+        )
+      }
     </StyledListItem>
   );
 }
@@ -293,6 +376,11 @@ export const CallHUDPanel = ({
   typeList,
   extensions,
   formatPhone,
+  onClickToDial,
+  disableClickToDial,
+  canPark,
+  onPark,
+  onText,
 }) => {
   return (
     <Root
@@ -318,6 +406,11 @@ export const CallHUDPanel = ({
               item={extension}
               formatPhone={formatPhone}
               currentLocale={currentLocale}
+              onClickToDial={onClickToDial}
+              disableClickToDial={disableClickToDial}
+              canPark={canPark}
+              onPark={onPark}
+              onText={onText}
             />
           ))}
         </RcList>

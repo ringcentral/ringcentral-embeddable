@@ -36,7 +36,7 @@ const StyledListItem = styled(RcListItem)`
     }
   }
 
-  &:not(:last-child)::after {
+  &::after {
     content: "";
     position: absolute;
     bottom: 0px;
