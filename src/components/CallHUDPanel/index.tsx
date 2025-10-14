@@ -1,6 +1,23 @@
-import React from 'react';
-
-import { palette2, styled } from '@ringcentral/juno';
+import React, { useState } from 'react';
+import {
+  palette2,
+  styled,
+  RcList,
+  RcListItem,
+  RcListItemText,
+  RcText,
+  RcIcon,
+  RcAvatar,
+  RcListItemAvatar,
+  RcPresence,
+  RcChip,
+  RcTooltip,
+} from '@ringcentral/juno';
+import { DefaultGroupAvatar, People } from '@ringcentral/juno-icon';
+import { getPresenceStatus } from '@ringcentral-integration/widgets/modules/ContactSearchUI/ContactSearchHelper';
+import { getPresenceStatusName } from '@ringcentral-integration/widgets/lib/getPresenceStatusName';
+import callDirections from '@ringcentral-integration/commons/enums/callDirections';
+import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
 import { SearchAndFilter } from '../SearchAndFilter';
 
 const Root = styled.div`
@@ -19,6 +36,254 @@ const ListRoot = styled.div`
   flex: 1;
 `;
 
+const StyledListItem = styled(RcListItem)`
+  height: 58px;
+
+  .action-menu {
+    display: none;
+  }
+
+  .extension-name {
+    flex: 1;
+  }
+
+  .extension-number {
+    text-align: right;
+  }
+
+  &:hover {
+    .action-menu {
+      display: flex;
+    }
+
+    .extension-number {
+      display: none;
+    }
+  }
+
+  &:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    width: calc(100% - 32px);
+    border-bottom: 1px solid ${palette2('neutral', 'l02')};
+  }
+`;
+
+const StyledChip = styled(RcChip)`
+  margin-right: 4px;
+  font-size: 0.75rem;
+  height: 18px;
+  line-height: 16px;
+  padding: 0;
+`;
+
+const ItemLine = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 1;
+  overflow: hidden;
+  flex-direction: row;
+`;
+
+function ExtensionAvatar({ extension, presence }) {
+  const presenceProps = presence ? {
+    type: getPresenceStatus(presence),
+  } : undefined;
+  if (extension.type === 'User') {
+    return (
+      <RcListItemAvatar>
+        <RcAvatar
+          size="xsmall"
+          src={extension.profileImageUrl}
+          color="avatar.global"
+          presenceProps={presenceProps}
+        >
+          {
+            extension.profileImageUrl ? null : (
+              <RcIcon symbol={People} size="medium" />
+            )
+          }
+        </RcAvatar>
+      </RcListItemAvatar>
+    );
+  }
+
+  if (extension.type === 'ParkLocation') {
+    return (
+      <RcListItemAvatar>
+        <RcPresence type={presenceProps ? presenceProps.type : 'unavailable'} />
+      </RcListItemAvatar>
+    );
+  }
+
+  return (
+    <RcListItemAvatar>
+      <RcAvatar color="avatar.global" size="xsmall">
+        <RcIcon symbol={DefaultGroupAvatar} size="large" />
+      </RcAvatar>
+    </RcListItemAvatar>
+  );
+}
+
+function getCallDescription(call, formatPhone) {
+  const from = call.direction === callDirections.inbound ? call.from : call.to;
+  const fromName = call.direction === callDirections.inbound ? call.fromName : call.toName;
+  const contactName = fromName || formatPhone(from);
+  if (call.telephonyStatus === 'ParkedCall') {
+    return `Call from ${contactName}`;
+  }
+  if (call.telephonyStatus === 'Ringing') {
+    return `from ${contactName}`;
+  }
+  return `with ${contactName}`;
+}
+
+function ActiveCallBadge({ call, formatPhone, detailsInTooltip = false }) {
+  let callStatusText = 'Active call';
+  let color = 'danger.f02';
+  if (call.telephonyStatus === 'OnHold') {
+    color = 'warning.f02';
+    callStatusText = 'On hold';
+  } else if (call.telephonyStatus === 'ParkedCall') {
+    callStatusText = 'Parked';
+  } else if (call.telephonyStatus === 'Ringing') {
+    if (call.direction === callDirections.inbound) {
+      callStatusText = 'Incoming call';
+      color = 'success.f02';
+    }
+  }
+  let label;
+  let tooltip;
+  const duration = call.startTime ? (
+    <DurationCounter startTime={new Date(call.startTime).getTime()} offset={call.offset || 0} />
+  ) : null;
+  if (!detailsInTooltip) {
+    label = (
+      <span>
+        {callStatusText}
+        &nbsp;
+        {duration}
+      </span>
+    );
+    tooltip = '';
+  } else {
+    label = callStatusText;
+    tooltip = (
+      <span>
+        {callStatusText}
+        &nbsp;
+        {duration}
+        &nbsp;
+        {getCallDescription(call, formatPhone)}
+      </span>
+    )
+  }
+  return (
+    <RcTooltip title={tooltip}>
+      <StyledChip label={label} color={color} variant="outlined" />
+    </RcTooltip>
+  );
+}
+
+function ExtensionCallStatus({ extension, presence, formatPhone, currentLocale }) {
+  const activeCalls = presence?.activeCalls || [];
+  let description;
+  let badges = [];
+  if (activeCalls.length === 0) {
+    if (extension.type === 'User') {
+      description = presence ? getPresenceStatusName(
+        presence.presenceStatus,
+        presence.dndStatus,
+        currentLocale,
+      ) : undefined
+    }
+    if (extension.type === 'ParkLocation') {
+      badges.push(<StyledChip label="Available" color="success.f02" variant="outlined" />);
+      description = 'You can park call here';
+    }
+  } else if (activeCalls.length === 1) {
+    const call = activeCalls[0];
+    description = getCallDescription(call, formatPhone);
+    badges.push(<ActiveCallBadge call={call} formatPhone={formatPhone} />);
+  } else if (activeCalls.length > 1) {
+    description = '';
+    activeCalls.forEach((call) => {
+      badges.push(<ActiveCallBadge call={call} formatPhone={formatPhone} detailsInTooltip />);
+    });
+  }
+  if (!description && badges.length === 0) {
+    return null;
+  }
+  return (
+   <ItemLine>
+    {badges}
+    {
+      description ? (
+        <RcText variant="caption1" color="neutral.f04" component="span">
+          {description}
+        </RcText>
+      ) : null
+    }
+   </ItemLine>
+  );
+}
+
+function ExtensionDescription({ extension, presence, formatPhone, currentLocale }) {
+  const name = extension.extensionNumber ? (
+    <ItemLine>
+      <span className="extension-name">{extension.name}</span>
+      <RcText variant="caption1" color="neutral.f06" className="extension-number" component="span">
+        Ext.{extension.extensionNumber}
+      </RcText>
+    </ItemLine>
+  ) : extension.name;
+
+  if (extension.status !== 'Enabled') {
+    return (
+      <RcListItemText
+        primary={name}
+      />
+    );
+  }
+  return (
+    <RcListItemText
+      primary={name}
+      secondary={
+        <ExtensionCallStatus
+          extension={extension}
+          presence={presence}
+          formatPhone={formatPhone}
+          currentLocale={currentLocale}
+        />
+      }
+      secondaryTypographyProps={{
+        component: 'div',
+      }}
+    />
+  );
+}
+
+function ExtensionItem({ item, formatPhone, currentLocale }) {
+  const { extension, presence } = item;
+  return (
+    <StyledListItem
+      disabled={extension.status !== 'Enabled'}
+    >
+      <ExtensionAvatar
+        extension={extension}
+        presence={presence}
+      />
+      <ExtensionDescription
+        extension={extension}
+        presence={presence}
+        formatPhone={formatPhone}
+        currentLocale={currentLocale}
+      />
+    </StyledListItem>
+  );
+}
+
 export const CallHUDPanel = ({
   searchInput,
   onSearchInputChange,
@@ -27,6 +292,7 @@ export const CallHUDPanel = ({
   onTypeChange,
   typeList,
   extensions,
+  formatPhone,
 }) => {
   return (
     <Root
@@ -44,6 +310,18 @@ export const CallHUDPanel = ({
         typeList={typeList}
         typePreviewLength={1}
       />
+      <ListRoot>
+        <RcList>
+          {extensions.map((extension) => (
+            <ExtensionItem
+              key={extension.id}
+              item={extension}
+              formatPhone={formatPhone}
+              currentLocale={currentLocale}
+            />
+          ))}
+        </RcList>
+      </ListRoot>
     </Root>
   );
 }

@@ -64,7 +64,6 @@ import {
 import GlipPosts from '@ringcentral-integration/commons/modules/GlipPosts';
 import { Locale } from '@ringcentral-integration/commons/modules/Locale';
 import { Meeting } from '@ringcentral-integration/commons/modules/Meeting';
-import { Presence } from '@ringcentral-integration/commons/modules/Presence';
 import {
   RateLimiter,
 } from '@ringcentral-integration/commons/modules/RateLimiter';
@@ -195,6 +194,7 @@ import { MessageDetailsUI } from '../MessageDetailsUI';
 import { NoiseReduction } from '../NoiseReduction';
 import { NumberValidate } from '../NumberValidate';
 import { OAuth } from '../OAuth';
+import { Presence } from '../Presence';
 import { PhoneNumberFormat } from '../PhoneNumberFormat';
 import { PhoneNumberFormatSettingUI } from '../PhoneNumberFormatSettingUI';
 import { RingCentralExtensions } from '../RingCentralExtensions';

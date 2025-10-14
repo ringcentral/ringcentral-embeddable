@@ -19,6 +19,7 @@ import type {
     'Subscription',
     'CompanyContacts',
     'ExtensionInfo',
+    'Auth',
     { dep: 'MonitoredExtensionsOptions', optional: true }
   ],
 })
@@ -170,6 +171,7 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
     that._deps.companyContacts.data,
     that._deps.extensionInfo.id,
     that.presences,
+    that._deps.auth.accessToken,
   ])
   get monitoredExtensions() {
     const monitored = (this.data?.records ?? []).filter((item) =>
@@ -200,6 +202,11 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
           type: item.extension.type,
           name,
           status: contact?.status,
+          profileImageUrl: (
+            contact?.profileImage?.uri ? 
+              `${contact.profileImage.uri}?access_token=${this._deps.auth.accessToken}` :
+              undefined
+          ),
         },
         presence: this.presences[item.extension.id],
       };

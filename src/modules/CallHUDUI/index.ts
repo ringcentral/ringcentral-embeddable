@@ -1,6 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { RcUIModuleV2, state, action, computed } from '@ringcentral-integration/core';
-import { constants } from 'buffer';
 
 @Module({
   name: 'CallHUDUI',
@@ -87,12 +86,28 @@ export class CallHUDUI extends RcUIModuleV2 {
   }
   
   getUIFunctions() {
+    const {
+      phoneNumberFormat,
+      regionSettings,
+      accountInfo,
+      extensionInfo,
+    } = this._deps;
     return {
       onTypeChange: (type: string) => {
         this.setType(type);
       },
       onSearchInputChange: (searchInput: string) => {
         this.setSearchInput(searchInput);
+      },
+      formatPhone: (phoneNumber: string) => {
+        return phoneNumberFormat.format({
+          phoneNumber,
+          areaCode: regionSettings.areaCode,
+          countryCode: regionSettings.countryCode,
+          maxExtensionLength: accountInfo.maxExtensionNumberLength,
+          isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+          siteCode: extensionInfo.site?.code,
+        });
       },
     };
   }
