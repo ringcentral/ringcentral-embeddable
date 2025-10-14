@@ -1089,8 +1089,6 @@ export class Webphone extends WebphoneBase {
     transferSessionId?: string;
   }) {
     const inviteOptions = {
-      sessionDescriptionHandlerOptions:
-        this.acceptOptions.sessionDescriptionHandlerOptions,
       fromNumber,
       homeCountryId,
     };
@@ -1139,12 +1137,24 @@ export class Webphone extends WebphoneBase {
       'RC-call-type': `inbound-pickup; session-id: ${sessionId}; server-id: ${serverId}`,
     };
     const inviteOptions = {
-      sessionDescriptionHandlerOptions:
-        this.acceptOptions.sessionDescriptionHandlerOptions,
       fromNumber,
       extraHeaders,
     };
     const session = await this._invite(toNumber, {
+      inviteOptions,
+    });
+    return session;
+  }
+
+  @proxify
+  async pickParkLocation(locationExtensionId, activeCall, fromNumber) {
+    const inviteOptions = {
+      fromNumber,
+      extraHeaders: {
+        'Replaces': `${activeCall.telephonySessionId};to-tag=${activeCall.sipData.fromTag};from-tag=${activeCall.sipData.toTag};early-only`,
+      },
+    };
+    const session = await this._invite(`prk${locationExtensionId}`, {
       inviteOptions,
     });
     return session;
@@ -1431,20 +1441,6 @@ export class Webphone extends WebphoneBase {
   @computed(({ sessions }: Webphone) => [sessions])
   get cachedSessions(): NormalizedSession[] {
     return filter((session) => session.cached, this.sessions);
-  }
-
-  get acceptOptions() {
-    // TODO: change audio device id
-    return {
-      sessionDescriptionHandlerOptions: {
-        constraints: {
-          audio: {
-            deviceId: this._deps.audioSettings.inputDeviceId as string,
-          },
-          video: false,
-        },
-      },
-    };
   }
 
   get isOnTransfer() {

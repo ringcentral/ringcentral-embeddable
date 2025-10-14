@@ -17,6 +17,7 @@ import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone
     'ComposeTextUI',
     'Call',
     'DialerUI',
+    'CallingSettings',
   ],
 })
 export class CallHUDUI extends RcUIModuleV2 {
@@ -110,6 +111,7 @@ export class CallHUDUI extends RcUIModuleV2 {
       webphone,
       composeTextUI,
       composeText,
+      callingSettings,
     } = this._deps;
     return {
       onTypeChange: (type: string) => {
@@ -146,6 +148,9 @@ export class CallHUDUI extends RcUIModuleV2 {
           composeTextUI.gotoComposeText();
           composeText.updateMessageText(text);
         }
+      },
+      pickParkLocation: async (extension, activeCall) => {
+        await webphone.pickParkLocation(extension.id, activeCall, callingSettings.fromNumber);
       },
     };
   }

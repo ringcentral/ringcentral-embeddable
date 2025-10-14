@@ -19,6 +19,7 @@ import {
   PhoneBorder,
   ParkCallSp,
   SmsBorder,
+  PickUpCall
 } from '@ringcentral/juno-icon';
 import { getPresenceStatus } from '@ringcentral-integration/widgets/modules/ContactSearchUI/ContactSearchHelper';
 import { getPresenceStatusName } from '@ringcentral-integration/widgets/lib/getPresenceStatusName';
@@ -295,6 +296,7 @@ function ExtensionItem({
   canPark,
   onPark,
   onText,
+  pickParkLocation,
 }) {
   const { extension, presence } = item;
   const actions = [];
@@ -327,6 +329,14 @@ function ExtensionItem({
     if (presence?.activeCalls?.length > 0) {
       const activeCall = presence?.activeCalls[0];
       const contactName = getCallContactName(activeCall, formatPhone);
+      actions.push({
+        id: 'pickParkLocation',
+        icon: PickUpCall,
+        title: 'Pick up call',
+        onClick: () => {
+          pickParkLocation(extension, activeCall);
+        },
+      });
       actions.push({
         id: 'sms',
         icon: SmsBorder,
@@ -381,6 +391,7 @@ export const CallHUDPanel = ({
   canPark,
   onPark,
   onText,
+  pickParkLocation,
 }) => {
   return (
     <Root
@@ -411,6 +422,7 @@ export const CallHUDPanel = ({
               canPark={canPark}
               onPark={onPark}
               onText={onText}
+              pickParkLocation={pickParkLocation}
             />
           ))}
         </RcList>
