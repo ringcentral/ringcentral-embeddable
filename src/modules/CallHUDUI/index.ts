@@ -67,11 +67,11 @@ export class CallHUDUI extends RcUIModuleV2 {
   ])
   get typeList() {
     const list = ['User'];
-    if (this._deps.monitoredExtensions.monitoredExtensions.some((item) => item.extension.type === 'GroupCallPickup')) {
-      list.push('GroupCallPickup');
-    }
     if (this._deps.monitoredExtensions.monitoredExtensions.some((item) => item.extension.type === 'ParkLocation')) {
       list.push('ParkLocation');
+    }
+    if (this._deps.monitoredExtensions.monitoredExtensions.some((item) => item.extension.type === 'GroupCallPickup')) {
+      list.push('GroupCallPickup');
     }
     return list;
   }
@@ -151,6 +151,9 @@ export class CallHUDUI extends RcUIModuleV2 {
       },
       pickParkLocation: async (extension, activeCall) => {
         await webphone.pickParkLocation(extension.id, activeCall, callingSettings.fromNumber);
+      },
+      pickGroupCall: async (extension, activeCall) => {
+        await webphone.pickGroupCall(extension.id, activeCall, callingSettings.fromNumber);
       },
     };
   }

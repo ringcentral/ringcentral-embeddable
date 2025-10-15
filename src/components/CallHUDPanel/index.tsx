@@ -151,18 +151,23 @@ function getCallContactName(call, formatPhone) {
   return fromName || formatPhone(from);
 }
 
-function getCallDescription(call, formatPhone) {
+function getCallDescription(call, formatPhone, isGroupCall = false) {
   const contactName = getCallContactName(call, formatPhone);
   if (call.telephonyStatus === 'ParkedCall') {
     return `Call from ${contactName}`;
   }
   if (call.telephonyStatus === 'Ringing') {
+    if (isGroupCall) {
+      const to = call.direction === callDirections.inbound ? call.to : call.from;
+      const toName = call.direction === callDirections.inbound ? call.toName : call.fromName;
+      return `from ${contactName} to ${toName || to}`;
+    }
     return `from ${contactName}`;
   }
   return `with ${contactName}`;
 }
 
-function ActiveCallBadge({ call, formatPhone, detailsInTooltip = false }) {
+function ActiveCallBadge({ call, formatPhone, detailsInTooltip = false, isGroupCall = false }) {
   let callStatusText = 'Active call';
   let color = 'danger.f02';
   if (call.telephonyStatus === 'OnHold') {
@@ -198,7 +203,7 @@ function ActiveCallBadge({ call, formatPhone, detailsInTooltip = false }) {
         &nbsp;
         {duration}
         &nbsp;
-        {getCallDescription(call, formatPhone)}
+        {getCallDescription(call, formatPhone, isGroupCall)}
       </span>
     )
   }
@@ -213,6 +218,7 @@ function ExtensionCallStatus({ extension, presence, formatPhone, currentLocale }
   const activeCalls = presence?.activeCalls || [];
   let description;
   let badges = [];
+  const isGroupCall = extension.type === 'GroupCallPickup';
   if (activeCalls.length === 0) {
     if (extension.type === 'User') {
       description = presence ? getPresenceStatusName(
@@ -227,12 +233,12 @@ function ExtensionCallStatus({ extension, presence, formatPhone, currentLocale }
     }
   } else if (activeCalls.length === 1) {
     const call = activeCalls[0];
-    description = getCallDescription(call, formatPhone);
-    badges.push(<ActiveCallBadge call={call} formatPhone={formatPhone} />);
+    description = getCallDescription(call, formatPhone, isGroupCall);
+    badges.push(<ActiveCallBadge call={call} formatPhone={formatPhone} isGroupCall={isGroupCall} />);
   } else if (activeCalls.length > 1) {
     description = '';
     activeCalls.forEach((call) => {
-      badges.push(<ActiveCallBadge call={call} formatPhone={formatPhone} detailsInTooltip />);
+      badges.push(<ActiveCallBadge call={call} formatPhone={formatPhone} detailsInTooltip isGroupCall={isGroupCall} />);
     });
   }
   if (!description && badges.length === 0) {
@@ -243,7 +249,7 @@ function ExtensionCallStatus({ extension, presence, formatPhone, currentLocale }
     {badges}
     {
       description ? (
-        <RcText variant="caption1" color="neutral.f04" component="span">
+        <RcText variant="caption1" color="neutral.f04" component="span" title={description}>
           {description}
         </RcText>
       ) : null
@@ -297,6 +303,7 @@ function ExtensionItem({
   onPark,
   onText,
   pickParkLocation,
+  pickGroupCall,
 }) {
   const { extension, presence } = item;
   const actions = [];
@@ -347,6 +354,19 @@ function ExtensionItem({
       });
     }
   }
+  if (extension.type === 'GroupCallPickup' && extension.status === 'Enabled') {
+    if (presence?.activeCalls?.length > 0) {
+      const activeCall = presence?.activeCalls[0];
+      actions.push({
+        id: 'pickGroupCall',
+        icon: PickUpCall,
+        title: 'Pick up call',
+        onClick: () => {
+          pickGroupCall(extension, activeCall);
+        },
+      });
+    }
+  }
   return (
     <StyledListItem
       disabled={extension.status !== 'Enabled'}
@@ -392,6 +412,7 @@ export const CallHUDPanel = ({
   onPark,
   onText,
   pickParkLocation,
+  pickGroupCall,
 }) => {
   return (
     <Root
@@ -423,6 +444,7 @@ export const CallHUDPanel = ({
               onPark={onPark}
               onText={onText}
               pickParkLocation={pickParkLocation}
+              pickGroupCall={pickGroupCall}
             />
           ))}
         </RcList>

@@ -1008,12 +1008,16 @@ export class Webphone extends WebphoneBase {
       inviteOptions,
       extendedControls,
       transferSessionId,
-      replaceNumber,
+      originalRemoteNumber,
+      originalLocalNumber,
+      originalLocalName,
     }: {
       inviteOptions: InviteOptions;
       extendedControls?: string[];
       transferSessionId?: string;
-      replaceNumber?: string;
+      originalRemoteNumber?: string;
+      originalLocalNumber?: string;
+      originalLocalName?: string;
     },
   ) {
     if (!this._webphone) {
@@ -1062,8 +1066,14 @@ export class Webphone extends WebphoneBase {
     session.__rc_extendedControls = extendedControls;
     session.__rc_extendedControlStatus = extendedControlStatus.pending;
     session.__rc_transferSessionId = transferSessionId!;
-    if (replaceNumber) {
-      session.__rc_replaceNumber = replaceNumber;
+    if (originalRemoteNumber) {
+      session.__rc_originalRemoteNumber = originalRemoteNumber;
+    }
+    if (originalLocalNumber) {
+      session.__rc_originalLocalNumber = originalLocalNumber;
+    }
+    if (originalLocalName) {
+      session.__rc_originalLocalName = originalLocalName;
     }
     this._bindSessionEvents(session);
     this._onCallInit(session);
@@ -1153,7 +1163,7 @@ export class Webphone extends WebphoneBase {
 
   @proxify
   async pickParkLocation(locationExtensionId, activeCall, fromNumber) {
-    const originalNumber = activeCall.direction === callDirections.inbound ? activeCall.from?.phoneNumber : activeCall.to?.phoneNumber;
+    const originalRemoteNumber = activeCall.direction === callDirections.inbound ? activeCall.from : activeCall.to;
     const inviteOptions = {
       fromNumber,
       extraHeaders: {
@@ -1162,7 +1172,27 @@ export class Webphone extends WebphoneBase {
     };
     const session = await this._invite(`prk${locationExtensionId}`, {
       inviteOptions,
-      replaceNumber: originalNumber, // TODO: fix replace number not work
+      originalRemoteNumber: originalRemoteNumber,
+    });
+    return session;
+  }
+
+  @proxify
+  async pickGroupCall(locationExtensionId, activeCall, fromNumber) {
+    const originalRemoteNumber = activeCall.direction === callDirections.inbound ? activeCall.from : activeCall.to;
+    const originalLocalNumber = activeCall.direction === callDirections.inbound ? activeCall.to : activeCall.from;
+    const originalLocalName = activeCall.direction === callDirections.inbound ? activeCall.toName : activeCall.fromName;
+    const inviteOptions = {
+      fromNumber,
+      extraHeaders: {
+        'Replaces': `${activeCall.telephonySessionId};to-tag=${activeCall.sipData.fromTag};from-tag=${activeCall.sipData.toTag};early-only`,
+      },
+    };
+    const session = await this._invite(`gcp${locationExtensionId}`, {
+      inviteOptions,
+      originalRemoteNumber: originalRemoteNumber,
+      originalLocalNumber: originalLocalNumber,
+      originalLocalName: originalLocalName,
     });
     return session;
   }
