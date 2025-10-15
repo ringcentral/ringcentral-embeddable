@@ -139,7 +139,7 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
 
   @storage
   @state
-  enabled = true;
+  enabled = false;
 
   @action
   setEnabled(enabled: boolean) {
