@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   RcDownshift,
   RcMenuItem as MenuItem,
@@ -29,36 +29,86 @@ export default function AutocompleteWidget<
   options,
   onChange,
   rawErrors = [],
+  multiple,
 }: WidgetProps<T, S, F>) {
   const [downshiftValue, setDownshiftValue] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const downshiftUpdated = useRef(false);
   const { enumOptions = [] } = options;
 
-  const dsOptions = Array.isArray(enumOptions)
-    ? enumOptions.map((opt: any) => ({
-        id: opt.value,
-        label: opt.label,
-        value: opt.value,
-        schema: opt.schema,
-      }))
-    : [];
+  const dsOptions = useMemo(
+    () => (Array.isArray(enumOptions)
+      ? enumOptions.map((opt: any) => ({
+          id: opt.value,
+          label: opt.label,
+          value: opt.value,
+          schema: opt.schema,
+        }))
+      : []),
+    [enumOptions]
+  );
 
   useEffect(() => {
-    const item = enumOptions.find(s => s.value === value);
-    if (item) {
-      setDownshiftValue([{
-        id: item.value,
-        label: item.label,
-        value: item.value,
-        schema: item.schema,
-      }]);
-      setInputValue('');
+    if (Array.isArray(value)) {
+      const newDownshiftValue: any[] = [];
+      let newInputValue = '';
+      value.forEach((v) => {
+        const found = enumOptions.find((s: any) => s.value === v);
+        if (!found) {
+          newInputValue = v as any;
+          return;
+        }
+        newDownshiftValue.push({
+          id: found.value,
+          label: found.label,
+          value: found.value,
+          schema: found.schema,
+        });
+      });
+
+      const needsDownshiftUpdate =
+        newDownshiftValue.length !== (downshiftValue as any[]).length ||
+        newDownshiftValue.some((item, idx) => {
+          const cur = (downshiftValue as any[])[idx];
+          return !cur || cur.value !== item.value;
+        });
+
+      if (needsDownshiftUpdate) {
+        setDownshiftValue(newDownshiftValue);
+      }
+      if (newInputValue !== '' && inputValue !== newInputValue) {
+        setInputValue(newInputValue);
+      }
+      return;
+    }
+
+    const found = enumOptions.find((s: any) => s.value === value);
+    if (found) {
+      const next = [{
+        id: found.value,
+        label: found.label,
+        value: found.value,
+        schema: found.schema,
+      }];
+      const needsDownshiftUpdate =
+        (downshiftValue as any[]).length !== 1 ||
+        !(downshiftValue as any[])[0] ||
+        (downshiftValue as any[])[0].value !== found.value;
+      if (needsDownshiftUpdate) {
+        setDownshiftValue(next);
+      }
+      if (inputValue !== '') {
+        setInputValue('');
+      }
     } else {
-      setInputValue(value);
+      if (inputValue !== (value as any)) {
+        setInputValue(value as any);
+      }
+      if ((downshiftValue as any[]).length !== 0) {
+        setDownshiftValue([]);
+      }
     }
   }, [value, enumOptions]);
-
   return (
     <RcDownshift
       id={id}
@@ -67,8 +117,9 @@ export default function AutocompleteWidget<
       placeholder={placeholder}
       disabled={disabled || readonly}
       required={required}
-      multiple={false}
+      multiple={multiple}
       toggleButton={dsOptions.length > 0}
+      variant="tags"
       options={dsOptions.filter((opt: any) => {
         if (!inputValue) {
           return true;
@@ -88,24 +139,36 @@ export default function AutocompleteWidget<
       onInputChange={(val: string) => {
         setInputValue(val);
         if (!downshiftUpdated.current) {
-          onChange(val);
+          if (!multiple) {
+            onChange(val);
+          } else {
+            onChange(downshiftValue.map((item) => item.value).concat(val));
+          }
         }
         downshiftUpdated.current = false;
       }}
       onChange={(newItems) => {
         downshiftUpdated.current = true;
         setDownshiftValue(newItems);
-        if (newItems.length > 0) {
-          onChange(newItems[0].value);
+        if (!multiple) {
+          if (newItems.length > 0) {
+            onChange(newItems[0].value);
+          } else {
+            onChange('');
+          }
         } else {
-          onChange('');
+          onChange(newItems.map((item) => item.value));
         }
       }}
       onBlur={() => {
-        if (downshiftValue.length > 0) {
-          onChange(downshiftValue[0].value);
+        if (!multiple) {
+          if (downshiftValue.length > 0) {
+            onChange(downshiftValue[0].value);
+          } else {
+            onChange(inputValue);
+          }
         } else {
-          onChange(inputValue);
+          onChange(downshiftValue.map((item) => item.value));
         }
       }}
       renderOption={(item: any, state: any) => (
@@ -125,5 +188,6 @@ export default function AutocompleteWidget<
     />
   );
 }
+
 
 
