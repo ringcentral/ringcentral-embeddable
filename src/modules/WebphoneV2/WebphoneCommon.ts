@@ -1008,10 +1008,12 @@ export class Webphone extends WebphoneBase {
       inviteOptions,
       extendedControls,
       transferSessionId,
+      replaceNumber,
     }: {
       inviteOptions: InviteOptions;
       extendedControls?: string[];
       transferSessionId?: string;
+      replaceNumber?: string;
     },
   ) {
     if (!this._webphone) {
@@ -1060,6 +1062,9 @@ export class Webphone extends WebphoneBase {
     session.__rc_extendedControls = extendedControls;
     session.__rc_extendedControlStatus = extendedControlStatus.pending;
     session.__rc_transferSessionId = transferSessionId!;
+    if (replaceNumber) {
+      session.__rc_replaceNumber = replaceNumber;
+    }
     this._bindSessionEvents(session);
     this._onCallInit(session);
     if (!session.id) {
@@ -1148,6 +1153,7 @@ export class Webphone extends WebphoneBase {
 
   @proxify
   async pickParkLocation(locationExtensionId, activeCall, fromNumber) {
+    const originalNumber = activeCall.direction === callDirections.inbound ? activeCall.from?.phoneNumber : activeCall.to?.phoneNumber;
     const inviteOptions = {
       fromNumber,
       extraHeaders: {
@@ -1156,6 +1162,7 @@ export class Webphone extends WebphoneBase {
     };
     const session = await this._invite(`prk${locationExtensionId}`, {
       inviteOptions,
+      replaceNumber: originalNumber, // TODO: fix replace number not work
     });
     return session;
   }

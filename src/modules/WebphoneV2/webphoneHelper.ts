@@ -52,14 +52,15 @@ export function normalizeSession(
   const rcHeaders = session.sipMessage?.headers["p-rc-api-ids"];
   const remoteTag = session.remotePeer ? session.remoteTag : null;
   const localTag = session.localPeer ? session.localTag : null;
+  const remoteNumber = session.__rc_replaceNumber || session.remoteNumber;
   return {
     id: session.callId, // for backward compatibility
     callId: session.callId,
     direction: callDirections[session.direction],
     callStatus: getCallStatus(session.state),
-    to: session.direction === 'inbound' ? session.localNumber : session.remoteNumber,
+    to: session.direction === 'inbound' ? session.localNumber : remoteNumber,
     toUserName: toPeer ? extractName(toPeer) : '',
-    from: session.direction === 'inbound' ? session.remoteNumber : session.localNumber,
+    from: session.direction === 'inbound' ? remoteNumber : session.localNumber,
     fromNumber: session.__rc_fromNumber,
     fromUserName: fromPeer ? extractName(fromPeer) : '',
     fromTag: session.direction === 'inbound' ? remoteTag : localTag,
