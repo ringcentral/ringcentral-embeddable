@@ -1111,6 +1111,13 @@ export const AutocompleteWidget: Story = {
             'Kotlin',
           ],
         },
+        multipleLanguages: {
+          type: 'array',
+          title: 'Multiple Languages',
+          items: {
+            type: 'string',
+          },
+        },
       },
     },
     uiSchema: {
@@ -1122,10 +1129,25 @@ export const AutocompleteWidget: Story = {
         'ui:widget': 'AutocompleteWidget',
         'ui:placeholder': 'Type a language...'
       },
+      multipleLanguages: {
+        'ui:widget': 'AutocompleteWidget',
+        'ui:placeholder': 'Select languages...',
+        'ui:options': {
+          multiple: true,
+          enumOptions: [
+            { value: 'javascript', label: 'JavaScript' },
+            { value: 'typescript', label: 'TypeScript' },
+            { value: 'python', label: 'Python' },
+            { value: 'java', label: 'Java' },
+            { value: 'csharp', label: 'C#' },
+          ],
+        }
+      },
     },
     formData: {
       city: 'San',
       language: 'Type',
+      multipleLanguages: ['javascript', 'typescript'],
     },
   },
   render: (args) => {
