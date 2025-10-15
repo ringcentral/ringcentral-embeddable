@@ -109,7 +109,6 @@ export default function AutocompleteWidget<
       }
     }
   }, [value, enumOptions]);
-  console.log('id', id, 'name', label, 'multiple', multiple);
   return (
     <RcDownshift
       id={id}
