@@ -44,9 +44,9 @@ export class PhoneTabsUI extends RcUIModuleV2 {
     that._deps.appFeatures.hasReadCallRecordings,
     that._deps.appFeatures.hasVoicemailPermission,
     that._deps.messageStore.voiceUnreadCounts,
-    that._deps.appFeatures.hasHUDPermission,
-    that._deps.locale.currentLocale,
+    that._deps.monitoredExtensions.hasPermission,
     that._deps.monitoredExtensions.activeExtensionLength,
+    that._deps.locale.currentLocale,
   ])
   get tabs() {
     if (!this._deps.appFeatures.ready) {
@@ -79,7 +79,7 @@ export class PhoneTabsUI extends RcUIModuleV2 {
         label: i18n.getString('recordingsLabel', locale.currentLocale),
       });
     }
-    if (appFeatures.hasHUDPermission) {
+    if (monitoredExtensions.hasPermission) {
       tabs.push({
         value: '/HUD',
         label: 'HUD',

@@ -1,4 +1,4 @@
-import { computed, watch, state, action } from '@ringcentral-integration/core';
+import { computed, watch, state, action, storage } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
 import { batchGetApi } from '@ringcentral-integration/commons/lib/batchApiHelper';
@@ -20,6 +20,7 @@ import type {
     'CompanyContacts',
     'ExtensionInfo',
     'Auth',
+    'Storage',
     { dep: 'MonitoredExtensionsOptions', optional: true }
   ],
 })
@@ -33,13 +34,15 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
   constructor(deps: Deps) {
     super({
       deps,
+      storageKey: 'MonitoredExtensions',
+      enableCache: true,
     });
     this._source = new DataSource({
       ...deps.monitoredExtensionsOptions,
       key: 'monitoredExtensions',
       cleanOnReset: true,
       permissionCheckFunction: () =>
-        this._hasPermission,
+        this.hasPermission,
       fetchFunction: async (): Promise<MonitoredExtensionData> => {
         const response = await this._deps.client.service
           .platform()
@@ -52,7 +55,7 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
   }
 
   override onInit() {
-    if (!this._hasPermission) {
+    if (!this.hasPermission) {
       return;
     }
     if (this._deps.subscription) {
@@ -89,7 +92,7 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
   }
 
   async sync() {
-    if (!this._hasPermission) {
+    if (!this.hasPermission) {
       return;
     }
     await this._deps.dataFetcherV2.fetchData(this._source);
@@ -132,6 +135,26 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
       delete newPresence.uri;
       this.presences[extensionId] = newPresence;
     });
+  }
+
+  @storage
+  @state
+  enabled = true;
+
+  @action
+  setEnabled(enabled: boolean) {
+    this.enabled = enabled;
+  }
+
+  async toggleEnabled() {
+    let newEnabled = !this.enabled;
+    this.setEnabled(newEnabled);
+    if (!newEnabled) {
+      this.onReset();
+    } else {
+      await this._deps.dataFetcherV2.fetchData(this._source);
+      this.onInit();
+    }
   }
 
   async fetchPresences(extensionIds) {
@@ -225,11 +248,13 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
 
   get activeExtensionLength() {
     return this.monitoredExtensions.filter(
-      (extension) => extension.presence?.activeCalls?.length > 0
+      (extension) =>
+        extension.extension.type !== 'User' &&
+        extension.presence?.activeCalls?.length > 0
     ).length;
   }
 
-  get _hasPermission() {
-    return this._deps.appFeatures.hasHUDPermission;
+  get hasPermission() {
+    return this._deps.appFeatures.hasHUDPermission && this.enabled;
   }
 }
