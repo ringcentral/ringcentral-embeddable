@@ -66,12 +66,29 @@ export class CallHUDUI extends RcUIModuleV2 {
     that._deps.monitoredExtensions.monitoredExtensions,
   ])
   get typeList() {
-    const list = ['User'];
-    if (this._deps.monitoredExtensions.monitoredExtensions.some((item) => item.extension.type === 'ParkLocation')) {
-      list.push('ParkLocation');
+    const list = [{
+      id: 'User',
+      unreadCount: 0,
+    }];
+    if (this._deps.monitoredExtensions.parkLocations.length > 0) {
+      const unreadCount = this._deps.monitoredExtensions.parkLocations.reduce((acc, item) => {
+        const activeCalls = item.presence?.activeCalls?.length || 0;
+        return acc + (activeCalls > 0 ? 1 : 0);
+      }, 0);
+      list.push({
+        id: 'ParkLocation',
+        unreadCount,
+      });
     }
-    if (this._deps.monitoredExtensions.monitoredExtensions.some((item) => item.extension.type === 'GroupCallPickup')) {
-      list.push('GroupCallPickup');
+    if (this._deps.monitoredExtensions.groupCallPickupList.length > 0) {
+      const unreadCount = this._deps.monitoredExtensions.groupCallPickupList.reduce((acc, item) => {
+        const activeCalls = item.presence?.activeCalls?.length || 0;
+        return acc + (activeCalls > 0 ? 1 : 0);
+      }, 0);
+      list.push({
+        id: 'GroupCallPickup',
+        unreadCount,
+      });
     }
     return list;
   }

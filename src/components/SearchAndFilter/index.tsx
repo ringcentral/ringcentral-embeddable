@@ -146,7 +146,6 @@ export function SearchAndFilter({
   onTypeChange,
   showTypeFilter = true,
   typeList,
-  typePreviewLength = undefined,
 }) {
   return (
     <Container>
@@ -163,7 +162,7 @@ export function SearchAndFilter({
             onTypeChange={onTypeChange}
             typeList={typeList}
             currentLocale={currentLocale}
-            previewLength={typePreviewLength ? typePreviewLength : (searchInput.length > 0 ? 1 : 2)}
+            previewLength={searchInput.length > 0 ? 1 : 2}
           />
         )
       }

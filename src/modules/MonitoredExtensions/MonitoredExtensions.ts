@@ -246,6 +246,7 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
     return this.monitoredExtensions.filter((extension) => extension.extension.type === 'ParkLocation');
   }
 
+  @computed(({ monitoredExtensions }: MonitoredExtensions) => [monitoredExtensions])
   get activeExtensionLength() {
     return this.monitoredExtensions.filter(
       (extension) =>

@@ -61,6 +61,7 @@ export const MainViewPanel = (props) => {
     faxUnreadCounts,
     smsUnreadCounts,
     voiceUnreadCounts,
+    callHUDUnreadCounts,
     customizedTabs = [],
     themeType,
     gotoComposeText,
@@ -72,7 +73,7 @@ export const MainViewPanel = (props) => {
       activeIcon: Phone,
       label: i18n.getString('phoneLabel', currentLocale),
       path: phoneTabPath,
-      noticeCounts: voiceUnreadCounts,
+      noticeCounts: voiceUnreadCounts + callHUDUnreadCounts,
       priority: 10,
       isActive: (currentPath) => (
         currentPath === '/dialer' ||
