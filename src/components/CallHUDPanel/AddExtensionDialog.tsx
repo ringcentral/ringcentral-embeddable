@@ -109,6 +109,7 @@ export function AddExtensionDialog({
             }
           }
           variant="contained"
+          loading={loading}
         >
           Add
         </RcButton>
