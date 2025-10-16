@@ -3,6 +3,7 @@ import {
   palette2,
   styled,
   RcList,
+  RcTypography,
 } from '@ringcentral/juno';
 import { SearchAndFilter } from './SearchAndFilter';
 import { ExtensionItem } from './ExtensionItem';
@@ -23,6 +24,45 @@ const ListRoot = styled.div`
   background-color: ${palette2('neutral', 'b01')};
   flex: 1;
 `;
+
+const EmptyStateContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  margin-top: 50px;
+  padding: 0 16px;
+  text-align: center;
+`;
+
+const EmptyStateDescription = styled(RcTypography)`
+  font-size: 13px;
+`;
+
+function EmptyState({
+  type,
+}) {
+  return (
+    <EmptyStateContainer>
+      <RcTypography variant="subheading2">
+        {
+          type === 'ParkLocation' ?
+          'No park locations yet' :
+          'No extensions yet'
+        }
+      </RcTypography>
+      <br />
+      <EmptyStateDescription variant="body1">
+        {
+          type === 'ParkLocation' ?
+          'All park locations added to HUD will show up here' :
+          'All extensions added to HUD will appear here.'
+        }
+      </EmptyStateDescription>
+    </EmptyStateContainer>
+  )
+}
 
 export const CallHUDPanel = ({
   searchInput,
@@ -86,6 +126,13 @@ export const CallHUDPanel = ({
           ))}
         </RcList>
       </ListRoot>
+      {
+        extensions.length === 0 && (
+          <EmptyState
+            type={type}
+          />
+        )
+      }
       {
         (type === 'User' || type === 'ParkLocation') && (
           <AddExtensionDialog

@@ -28,8 +28,9 @@ import callDirections from '@ringcentral-integration/commons/enums/callDirection
 import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
 import { ActionMenu } from '../ActionMenu';
 import { ConfirmDialog } from '../ConfirmDialog';
-const StyledListItem = styled(RcListItem)`
-  height: 58px;
+
+const Container = styled.div`
+  position: relative;
 
   .action-menu {
     display: none;
@@ -52,8 +53,12 @@ const StyledListItem = styled(RcListItem)`
       display: none;
     }
   }
+`;
 
-  &:not(:last-child)::after {
+const StyledListItem = styled(RcListItem)`
+  height: 58px;
+
+  &::after {
     content: "";
     position: absolute;
     bottom: 0px;
@@ -300,7 +305,7 @@ export function ExtensionItem({
   const [removeExtensionConfirmOpen, setRemoveExtensionConfirmOpen] = useState(false);
   const { extension, presence } = item;
   const actions = [];
-  if (extension.type === 'User' && extension.extensionNumber) {
+  if (extension.type === 'User' && extension.extensionNumber && extension.status === 'Enabled') {
     actions.push({
       id: 'c2d',
       icon: PhoneBorder,
@@ -384,19 +389,21 @@ export function ExtensionItem({
     }
   }
   return (
-    <StyledListItem
-      disabled={extension.status !== 'Enabled'}
-    >
-      <ExtensionAvatar
-        extension={extension}
-        presence={presence}
-      />
-      <ExtensionDescription
-        extension={extension}
-        presence={presence}
-        formatPhone={formatPhone}
-        currentLocale={currentLocale}
-      />
+    <Container>
+      <StyledListItem
+        disabled={extension.status !== 'Enabled'}
+      >
+        <ExtensionAvatar
+          extension={extension}
+          presence={presence}
+        />
+        <ExtensionDescription
+          extension={extension}
+          presence={presence}
+          formatPhone={formatPhone}
+          currentLocale={currentLocale}
+        />
+      </StyledListItem>
       {
         actions.length > 0 && (
           <StyledActionMenu
@@ -425,6 +432,6 @@ export function ExtensionItem({
           />
         )
       }
-    </StyledListItem>
+    </Container>
   );
 }

@@ -34,6 +34,8 @@ export class CallHUDUI extends RcUIModuleV2 {
   @action
   setType(type: string) {
     this.type = type;
+    this.setSearchInput('');
+    this.setExtensionAddFilter('');
   }
 
   @state

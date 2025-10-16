@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   RcDialog,
   RcDialogTitle,
@@ -33,6 +33,10 @@ export function AddExtensionDialog({
 }) {
   const [selectedExtensions, setSelectedExtensions] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setSelectedExtensions([]);
+  }, [type, open]);
 
   return (
     <StyledDialog open={open} onClose={onClose}>
