@@ -23,7 +23,6 @@ import type {
     'Auth',
     'Storage',
     'Alert',
-    'GrantExtensions',
     { dep: 'MonitoredExtensionsOptions', optional: true }
   ],
 })
@@ -111,7 +110,6 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
       });
       this.clearPresences();
       await this.fetchPresences(newExtensionIds);
-      await this._deps.grantExtensions.sync();
     } catch (e) {
       console.error(e);
       this._deps.alert.danger({

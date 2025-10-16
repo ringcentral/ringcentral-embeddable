@@ -1,4 +1,4 @@
-import { computed } from '@ringcentral-integration/core';
+import { computed, watch } from '@ringcentral-integration/core';
 
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
@@ -16,6 +16,7 @@ import type {
     'DataFetcherV2',
     'ExtensionFeatures',
     'CompanyContacts',
+    'Subscription',
     { dep: 'GrantExtensionsOptions', optional: true }
   ],
 })
@@ -23,6 +24,7 @@ export class GrantExtensions extends DataFetcherV2Consumer<
   Deps,
   GrantExtensionsResponse
 > {
+  private _stopWatching: any;
   private _source: DataSource<GrantExtensionsResponse>;
 
   constructor(deps: Deps) {
@@ -40,8 +42,39 @@ export class GrantExtensions extends DataFetcherV2Consumer<
           .get('/restapi/v1.0/account/~/extension/~/grant?page=1&perPage=1000');
         return response.json();
       },
+      readyCheckFunction: () => this._deps.extensionFeatures.ready,
     });
     this._deps.dataFetcherV2.register(this._source);
+  }
+
+  override onInit() {
+    if (!this._hasPermission) {
+      return;
+    }
+    if (this._deps.subscription) {
+      this._deps.subscription.subscribe([
+        '/restapi/v1.0/account/~/extension/~/grant',
+      ]);
+      this._stopWatching = watch(
+        this,
+        () => this._deps.subscription!.message,
+        (message) => this._handleSubscription(message),
+      );
+    }
+  }
+
+  override onReset() {
+    this._stopWatching?.();
+    this._stopWatching = null;
+  }
+
+  _handleSubscription(message: any) {
+    if (!message || !message.event) {
+      return;
+    }
+    if (message.event.indexOf('/grant') !== -1) {
+      this.sync();
+    }
   }
 
   @computed(({ data }: GrantExtensions) => [data])

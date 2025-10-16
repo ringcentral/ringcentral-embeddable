@@ -69,6 +69,7 @@ export class CallHUDUI extends RcUIModuleV2 {
 
   @computed((that: CallHUDUI) => [
     that._deps.monitoredExtensions.monitoredExtensions,
+    that._deps.grantExtensions.grantParkLocations,
   ])
   get typeList() {
     const list = [{
