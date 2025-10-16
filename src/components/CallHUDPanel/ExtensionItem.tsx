@@ -18,7 +18,8 @@ import {
   PhoneBorder,
   ParkCallSp,
   SmsBorder,
-  PickUpCall
+  PickUpCall,
+  CallQueue,
 } from '@ringcentral/juno-icon';
 import { getPresenceStatus } from '@ringcentral-integration/widgets/modules/ContactSearchUI/ContactSearchHelper';
 import { getPresenceStatusName } from '@ringcentral-integration/widgets/lib/getPresenceStatusName';
@@ -118,10 +119,16 @@ function ExtensionAvatar({ extension, presence }) {
     );
   }
 
+  let icon;
+  if (extension.type === 'Department') {
+    icon = CallQueue;
+  } else {
+    icon = DefaultGroupAvatar;
+  }
   return (
     <RcListItemAvatar>
       <RcAvatar color="avatar.global" size="xsmall">
-        <RcIcon symbol={DefaultGroupAvatar} size="large" />
+        <RcIcon symbol={icon} size="large" />
       </RcAvatar>
     </RcListItemAvatar>
   );
@@ -286,6 +293,7 @@ export function ExtensionItem({
   onText,
   pickParkLocation,
   pickGroupCall,
+  pickCallQueueCall,
 }) {
   const { extension, presence } = item;
   const actions = [];
@@ -345,6 +353,19 @@ export function ExtensionItem({
         title: 'Pick up call',
         onClick: () => {
           pickGroupCall(extension, activeCall);
+        },
+      });
+    }
+  }
+  if (extension.type === 'Department' && extension.status === 'Enabled') {
+    if (presence?.activeCalls?.length > 0) {
+      const activeCall = presence?.activeCalls[0];
+      actions.push({
+        id: 'pickCallQueueCall',
+        icon: PickUpCall,
+        title: 'Pick up call',
+        onClick: () => {
+          pickCallQueueCall(extension, activeCall);
         },
       });
     }

@@ -26,7 +26,7 @@ export class CallHUDUI extends RcUIModuleV2 {
   }
 
   @state
-  type = 'User'; // User, GroupCallPickup, ParkLocation
+  type = 'User'; // User, GroupCallPickup, ParkLocation, Department
 
   @action
   setType(type: string) {
@@ -87,6 +87,16 @@ export class CallHUDUI extends RcUIModuleV2 {
       }, 0);
       list.push({
         id: 'GroupCallPickup',
+        unreadCount,
+      });
+    }
+    if (this._deps.monitoredExtensions.callQueuePickupList.length > 0) {
+      const unreadCount = this._deps.monitoredExtensions.callQueuePickupList.reduce((acc, item) => {
+        const activeCalls = item.presence?.activeCalls?.length || 0;
+        return acc + (activeCalls > 0 ? 1 : 0);
+      }, 0);
+      list.push({
+        id: 'Department',
         unreadCount,
       });
     }
@@ -170,7 +180,10 @@ export class CallHUDUI extends RcUIModuleV2 {
         await webphone.pickParkLocation(extension.id, activeCall, callingSettings.fromNumber);
       },
       pickGroupCall: async (extension, activeCall) => {
-        await webphone.pickGroupCall(extension.id, activeCall, callingSettings.fromNumber);
+        await webphone.pickGroupCall(extension.id, activeCall, callingSettings.fromNumber, 'gcp');
+      },
+      pickCallQueueCall: async (extension, activeCall) => {
+        await webphone.pickGroupCall(extension.id, activeCall, callingSettings.fromNumber, 'qpk');
       },
     };
   }

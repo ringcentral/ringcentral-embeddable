@@ -242,6 +242,11 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
   }
 
   @computed(({ monitoredExtensions }: MonitoredExtensions) => [monitoredExtensions])
+  get callQueuePickupList() {
+    return this.monitoredExtensions.filter((extension) => extension.extension.type === 'Department');
+  }
+
+  @computed(({ monitoredExtensions }: MonitoredExtensions) => [monitoredExtensions])
   get parkLocations() {
     return this.monitoredExtensions.filter((extension) => extension.extension.type === 'ParkLocation');
   }

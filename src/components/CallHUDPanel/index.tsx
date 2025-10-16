@@ -39,6 +39,7 @@ export const CallHUDPanel = ({
   onText,
   pickParkLocation,
   pickGroupCall,
+  pickCallQueueCall,
 }) => {
   return (
     <Root
@@ -70,6 +71,7 @@ export const CallHUDPanel = ({
               onText={onText}
               pickParkLocation={pickParkLocation}
               pickGroupCall={pickGroupCall}
+              pickCallQueueCall={pickCallQueueCall}
             />
           ))}
         </RcList>

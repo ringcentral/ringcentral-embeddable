@@ -1163,22 +1163,34 @@ export class Webphone extends WebphoneBase {
 
   @proxify
   async pickParkLocation(locationExtensionId, activeCall, fromNumber) {
-    const originalRemoteNumber = activeCall.direction === callDirections.inbound ? activeCall.from : activeCall.to;
-    const inviteOptions = {
+    return this.pickOtherExtensionCall({
+      extensionId: locationExtensionId,
       fromNumber,
-      extraHeaders: {
-        'Replaces': `${activeCall.telephonySessionId};to-tag=${activeCall.sipData.fromTag};from-tag=${activeCall.sipData.toTag};early-only`,
-      },
-    };
-    const session = await this._invite(`prk${locationExtensionId}`, {
-      inviteOptions,
-      originalRemoteNumber: originalRemoteNumber,
+      pickPrefix: 'prk',
+      activeCall,
+      overrideLocal: false,
     });
-    return session;
   }
 
   @proxify
-  async pickGroupCall(locationExtensionId, activeCall, fromNumber) {
+  async pickGroupCall(locationExtensionId, activeCall, fromNumber, pickPrefix = 'gcp') {
+    return this.pickOtherExtensionCall({
+      extensionId: locationExtensionId,
+      fromNumber,
+      pickPrefix,
+      activeCall,
+      overrideLocal: true,
+    });
+  }
+
+  @proxify
+  async pickOtherExtensionCall({
+    extensionId,
+    activeCall,
+    fromNumber,
+    pickPrefix,
+    overrideLocal = false,
+  }) {
     const originalRemoteNumber = activeCall.direction === callDirections.inbound ? activeCall.from : activeCall.to;
     const originalLocalNumber = activeCall.direction === callDirections.inbound ? activeCall.to : activeCall.from;
     const originalLocalName = activeCall.direction === callDirections.inbound ? activeCall.toName : activeCall.fromName;
@@ -1188,11 +1200,11 @@ export class Webphone extends WebphoneBase {
         'Replaces': `${activeCall.telephonySessionId};to-tag=${activeCall.sipData.fromTag};from-tag=${activeCall.sipData.toTag};early-only`,
       },
     };
-    const session = await this._invite(`gcp${locationExtensionId}`, {
+    const session = await this._invite(`${pickPrefix}${extensionId}`, {
       inviteOptions,
       originalRemoteNumber: originalRemoteNumber,
-      originalLocalNumber: originalLocalNumber,
-      originalLocalName: originalLocalName,
+      originalLocalNumber: overrideLocal ? originalLocalNumber : undefined,
+      originalLocalName: overrideLocal ? originalLocalName : undefined,
     });
     return session;
   }
