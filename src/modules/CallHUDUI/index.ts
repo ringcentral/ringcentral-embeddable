@@ -11,6 +11,7 @@ import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone
     'AccountInfo',
     'ExtensionInfo',
     'MonitoredExtensions',
+    'GrantExtensions',
     'Webphone',
     'RouterInteraction',
     'ComposeText',
@@ -18,6 +19,8 @@ import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone
     'Call',
     'DialerUI',
     'CallingSettings',
+    'CompanyContacts',
+    'Auth',
   ],
 })
 export class CallHUDUI extends RcUIModuleV2 {
@@ -70,7 +73,7 @@ export class CallHUDUI extends RcUIModuleV2 {
       id: 'User',
       unreadCount: 0,
     }];
-    if (this._deps.monitoredExtensions.parkLocations.length > 0) {
+    if (this._deps.grantExtensions.grantParkLocations.length > 0) {
       const unreadCount = this._deps.monitoredExtensions.parkLocations.reduce((acc, item) => {
         const activeCalls = item.presence?.activeCalls?.length || 0;
         return acc + (activeCalls > 0 ? 1 : 0);
@@ -103,6 +106,82 @@ export class CallHUDUI extends RcUIModuleV2 {
     return list;
   }
 
+  @state
+  extensionAddFilter = '';
+
+  @action
+  setExtensionAddFilter(extensionAddFilter: string) {
+    this.extensionAddFilter = extensionAddFilter;
+  }
+
+  @computed((that: CallHUDUI) => [
+    that._deps.companyContacts.data,
+    that._deps.auth.accessToken,
+    that.extensionAddFilter,
+    that.type,
+    that._deps.monitoredExtensions.monitoredExtensions,
+  ])
+  get availableExtensions() {
+    if (!this.extensionAddFilter || this.extensionAddFilter.trim() === '') {
+      return [];
+    }
+    const searchString = this.extensionAddFilter.toLowerCase();
+    const addedMap = this._deps.monitoredExtensions.monitoredExtensions.reduce((acc, item) => {
+      acc[item.extension.id] = 1;
+      return acc;
+    }, {});
+    addedMap[this._deps.extensionInfo.id] = 1;
+    if (this.type === 'ParkLocation') {
+      return this._deps.grantExtensions.grantParkLocations.filter(
+        (item) => {
+          return (
+            !addedMap[item.extension.id] &&
+            (
+              item.extension.extensionNumber?.toLowerCase().includes(searchString)
+              || item.extension.name?.toLowerCase().includes(searchString)
+            )
+          );
+        }
+      )
+      .slice(0, 10)
+      .map((item) => {
+        return {
+          id: item.extension.id,
+          name: item.extension.name,
+          extensionNumber: item.extension.extensionNumber,
+        };
+      });
+    }
+    return (this._deps.companyContacts.data || []).filter(
+      (item) => {
+        return (
+          item.type === 'User' && 
+          !addedMap[item.id] &&
+          (
+            item.extensionNumber?.toLowerCase().includes(searchString)
+            || item.name?.toLowerCase().includes(searchString)
+            || item.firstName?.toLowerCase().includes(searchString)
+            || item.lastName?.toLowerCase().includes(searchString)
+            || `${item.firstName || ''} ${item.lastName || ''}`.toLowerCase().includes(searchString)
+          )
+        );
+      }
+    )
+    .slice(0, 10)
+    .map((item) => {
+      let name = item.name;
+      if (!name && (item.firstName || item.lastName)) {
+        name = `${item.firstName || ''} ${item.lastName || ''}`;
+      }
+      return {
+        id: item.id,
+        name: name || item.extensionNumber,
+        extensionNumber: item.extensionNumber,
+        profileImageUrl: item.profileImage?.uri ? `${item.profileImage.uri}?access_token=${this._deps.auth.accessToken}` : undefined,
+      };
+    });
+  }
+
   getUIProps() {
     const {
       locale,
@@ -123,6 +202,8 @@ export class CallHUDUI extends RcUIModuleV2 {
       currentLocale: locale.currentLocale,
       disableClickToDial: !(call && call.isIdle),
       canPark: hasActiveSession,
+      allExtensions: this.availableExtensions,
+      extensionAddFilter: this.extensionAddFilter,
     };
   }
   
@@ -146,6 +227,9 @@ export class CallHUDUI extends RcUIModuleV2 {
       },
       onSearchInputChange: (searchInput: string) => {
         this.setSearchInput(searchInput);
+      },
+      onExtensionAddFilterChange: (extensionAddFilter: string) => {
+        this.setExtensionAddFilter(extensionAddFilter);
       },
       formatPhone: (phoneNumber: string) => {
         return phoneNumberFormat.format({
@@ -184,6 +268,15 @@ export class CallHUDUI extends RcUIModuleV2 {
       },
       pickCallQueueCall: async (extension, activeCall) => {
         await webphone.pickGroupCall(extension.id, activeCall, callingSettings.fromNumber, 'qpk');
+      },
+      onAddExtensions: async (extensions) => {
+        if (extensions.length === 0) {
+          return;
+        }
+        await this._deps.monitoredExtensions.addExtensions(extensions);
+      },
+      onRemoveExtension: async (extensionId) => {
+        await this._deps.monitoredExtensions.removeExtension(extensionId);
       },
     };
   }

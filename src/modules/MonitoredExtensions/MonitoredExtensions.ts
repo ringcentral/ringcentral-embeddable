@@ -16,11 +16,14 @@ import type {
     'Client',
     'DataFetcherV2',
     'AppFeatures',
+    'ExtensionFeatures',
     'Subscription',
     'CompanyContacts',
     'ExtensionInfo',
     'Auth',
     'Storage',
+    'Alert',
+    'GrantExtensions',
     { dep: 'MonitoredExtensionsOptions', optional: true }
   ],
 })
@@ -95,17 +98,26 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
     if (!this.hasPermission) {
       return;
     }
-    await this._deps.dataFetcherV2.fetchData(this._source);
-    const newExtensionIds = [];
-    const monitored = (this.data?.records ?? []).filter((item) =>
-      item.extension.id !== String(this._deps.extensionInfo.id)
-    );
-    monitored.forEach((item) => {
-      if (!this.presences[item.extension.id]) {
-        newExtensionIds.push(item.extension.id);
-      }
-    });
-    this.fetchPresences(newExtensionIds);
+    try {
+      await this._deps.dataFetcherV2.fetchData(this._source);
+      const newExtensionIds = [];
+      const monitored = (this.data?.records ?? []).filter((item) =>
+        item.extension.id !== String(this._deps.extensionInfo.id)
+      );
+      monitored.forEach((item) => {
+        if (!this.presences[item.extension.id]) {
+          newExtensionIds.push(item.extension.id);
+        }
+      });
+      this.clearPresences();
+      await this.fetchPresences(newExtensionIds);
+      await this._deps.grantExtensions.sync();
+    } catch (e) {
+      console.error(e);
+      this._deps.alert.danger({
+        message: 'callHUDSyncExtensionsFailed',
+      });
+    }
   }
 
   override onReset() {
@@ -135,6 +147,22 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
       delete newPresence.uri;
       this.presences[extensionId] = newPresence;
     });
+  }
+
+  @action
+  _clearPresences(extensionIds: string[]) {
+    extensionIds.forEach((extensionId) => {
+      delete this.presences[extensionId];
+    });
+  }
+
+  clearPresences() {
+    const presenceExtensionIds = Object.keys(this.presences);
+    const monitoredExtensionIds = (this.data?.records ?? []).filter((item) =>
+      item.extension.id !== String(this._deps.extensionInfo.id)
+    ).map((item) => item.extension.id);
+    const extensionIdsToClear = presenceExtensionIds.filter((extensionId) => !monitoredExtensionIds.includes(extensionId));
+    this._clearPresences(extensionIdsToClear);
   }
 
   @storage
@@ -179,7 +207,7 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
           presences = await Promise.all(responses.map((response) => response.json()));
         }
       } else {
-        const response = await this._deps.client.service.platform().get(`/restapi/v1.0/account/~/extension/${extensionIds[0]}/presence/line/presence?detailedTelephonyState=true&sipData=true`);
+        const response = await this._deps.client.service.platform().get(`/restapi/v1.0/account/~/extension/${extensionIds[0]}/presence?detailedTelephonyState=true&sipData=true`);
         const presence = await response.json();
         presences = [presence];
       }
@@ -187,6 +215,62 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
     } catch (e) {
       console.error(e);
     }
+  }
+
+  async _updateExtensions(extensions) {
+    try {
+      await this._deps.client.service.platform().put(
+        '/restapi/v1.0/account/~/extension/~/presence/line',
+        JSON.stringify(extensions),
+        null,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+    } catch (e) {
+      console.error(e);
+      this._deps.alert.danger({
+        message: 'callHUDUpdateExtensionsFailed',
+      });
+    }
+  }
+
+  async addExtensions(extensions) {
+    const feature = this._deps.extensionFeatures.features['HUD'];
+    const limit = feature?.params?.find(p => p.name === 'limitMax')?.value;
+    if (
+      limit &&
+      extensions.length + this.monitoredExtensions.length > Number.parseInt(limit, 10)
+    ) {
+      this._deps.alert.warning({
+        message: 'callHUDAddExtensionsLimitExceeded',
+      });
+      return;
+    }
+    const currentList = (this.data?.records ?? []);
+    const lastId = Number.parseInt(currentList[currentList.length - 1]?.id || '3', 10);
+    const newList = currentList.map((item) => ({
+      id: item.id,
+      extension: {
+        id: String(item.extension.id),
+      },
+    })).concat(extensions.map((extension, index) => ({
+      id: String(lastId + index + 1),
+      extension: {
+        id: String(extension.id),
+      },
+    })));
+    await this._updateExtensions(newList);
+    await this.sync();
+  }
+
+  async removeExtension(extensionId) {
+    const currentList = (this.data?.records ?? []);
+    const newList = currentList.filter((item) => item.extension?.id !== String(extensionId));
+    await this._updateExtensions(newList);
+    await this.sync();
   }
 
   @computed((that: MonitoredExtensions) => [

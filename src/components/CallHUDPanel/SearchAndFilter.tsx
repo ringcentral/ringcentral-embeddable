@@ -10,8 +10,9 @@ import {
   RcText,
   RcIcon,
   RcBadge,
+  RcIconButton,
 } from '@ringcentral/juno';
-import { ArrowDown2, ArrowUp2 } from '@ringcentral/juno-icon';
+import { ArrowDown2, ArrowUp2, AddMemberBorder, AddParkLocation } from '@ringcentral/juno-icon';
 import i18n from './i18n';
 
 const Container = styled.div`
@@ -116,6 +117,7 @@ export function SearchAndFilter({
   onTypeChange,
   showTypeFilter = true,
   typeList,
+  onAddExtension,
 }) {
   return (
     <Container>
@@ -132,6 +134,24 @@ export function SearchAndFilter({
             onTypeChange={onTypeChange}
             typeList={typeList}
             currentLocale={currentLocale}
+          />
+        )
+      }
+      {
+        type === 'User' && (
+          <RcIconButton
+            onClick={onAddExtension}
+            symbol={AddMemberBorder}
+            title="Add an extension"
+          />
+        )
+      }
+      {
+        type === 'ParkLocation' && (
+          <RcIconButton
+            onClick={onAddExtension}
+            symbol={AddParkLocation}
+            title="Add park location"
           />
         )
       }

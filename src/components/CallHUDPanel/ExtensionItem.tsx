@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   palette2,
   styled,
@@ -20,13 +20,14 @@ import {
   SmsBorder,
   PickUpCall,
   CallQueue,
+  Delete,
 } from '@ringcentral/juno-icon';
 import { getPresenceStatus } from '@ringcentral-integration/widgets/modules/ContactSearchUI/ContactSearchHelper';
 import { getPresenceStatusName } from '@ringcentral-integration/widgets/lib/getPresenceStatusName';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
 import { ActionMenu } from '../ActionMenu';
-
+import { ConfirmDialog } from '../ConfirmDialog';
 const StyledListItem = styled(RcListItem)`
   height: 58px;
 
@@ -294,7 +295,9 @@ export function ExtensionItem({
   pickParkLocation,
   pickGroupCall,
   pickCallQueueCall,
+  onRemoveExtension,
 }) {
+  const [removeExtensionConfirmOpen, setRemoveExtensionConfirmOpen] = useState(false);
   const { extension, presence } = item;
   const actions = [];
   if (extension.type === 'User' && extension.extensionNumber) {
@@ -343,6 +346,16 @@ export function ExtensionItem({
         },
       });
     }
+  }
+  if (extension.type === 'User' || extension.type === 'ParkLocation') {
+    actions.push({
+      id: 'removeExtension',
+      icon: Delete,
+      title: 'Remove',
+      onClick: () => {
+        setRemoveExtensionConfirmOpen(true);
+      },
+    });
   }
   if (extension.type === 'GroupCallPickup' && extension.status === 'Enabled') {
     if (presence?.activeCalls?.length > 0) {
@@ -393,6 +406,22 @@ export function ExtensionItem({
             className="action-menu"
             iconVariant="contained"
             color="neutral.b01"
+          />
+        )
+      }
+      {
+        (extension.type === 'User' || extension.type === 'ParkLocation') && (
+          <ConfirmDialog
+            open={removeExtensionConfirmOpen}
+            onClose={() => setRemoveExtensionConfirmOpen(false)}
+            onConfirm={() => onRemoveExtension(extension.id)}
+            title={
+              extension.type === 'User' ? 
+              `Do you want to remove ${extension.name} from your HUD list?` : 
+              `Are you sure you want to remove ${extension.name} from your park locations?`
+            }
+            confirmText="Remove"
+            confirmButtonColor="danger.b04"
           />
         )
       }

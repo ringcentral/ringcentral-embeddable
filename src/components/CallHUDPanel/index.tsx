@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   palette2,
   styled,
@@ -6,6 +6,7 @@ import {
 } from '@ringcentral/juno';
 import { SearchAndFilter } from './SearchAndFilter';
 import { ExtensionItem } from './ExtensionItem';
+import { AddExtensionDialog } from './AddExtensionDialog';
 
 const Root = styled.div`
   display: flex;
@@ -40,7 +41,14 @@ export const CallHUDPanel = ({
   pickParkLocation,
   pickGroupCall,
   pickCallQueueCall,
+  allExtensions,
+  onAddExtensions,
+  extensionAddFilter,
+  onExtensionAddFilterChange,
+  onRemoveExtension,
 }) => {
+  const [openAddExtensionDialog, setOpenAddExtensionDialog] = useState(false);
+
   return (
     <Root
       data-sign="callHUDPanel"
@@ -55,6 +63,7 @@ export const CallHUDPanel = ({
         onTypeChange={onTypeChange}
         showTypeFilter
         typeList={typeList}
+        onAddExtension={() => setOpenAddExtensionDialog(true)}
       />
       <ListRoot>
         <RcList>
@@ -72,10 +81,24 @@ export const CallHUDPanel = ({
               pickParkLocation={pickParkLocation}
               pickGroupCall={pickGroupCall}
               pickCallQueueCall={pickCallQueueCall}
+              onRemoveExtension={onRemoveExtension}
             />
           ))}
         </RcList>
       </ListRoot>
+      {
+        (type === 'User' || type === 'ParkLocation') && (
+          <AddExtensionDialog
+            type={type}
+            open={openAddExtensionDialog}
+            onClose={() => setOpenAddExtensionDialog(false)}
+            onAdd={onAddExtensions}
+            allExtensions={allExtensions}
+            extensionAddFilter={extensionAddFilter}
+            onExtensionAddFilterChange={onExtensionAddFilterChange}
+          />
+        )
+      }
     </Root>
   );
 }

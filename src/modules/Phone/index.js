@@ -223,6 +223,7 @@ import { WidgetAppsUI } from '../WidgetAppsUI';
 import { VoicemailDrop } from '../VoicemailDrop';
 import { VoicemailDropUI } from '../VoicemailDropUI';
 import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
+import { GrantExtensions } from '../GrantExtensions';
 import { MonitoredExtensions } from '../MonitoredExtensions';
 import { ParkUI } from '../ParkUI';
 
@@ -481,6 +482,7 @@ import { ParkUI } from '../ParkUI';
     { provide: 'VoicemailDropSettingsUI', useClass: VoicemailDropSettingsUI },
     { provide: 'VoicemailDropUI', useClass: VoicemailDropUI },
     { provide: 'MonitoredExtensions', useClass: MonitoredExtensions },
+    { provide: 'GrantExtensions', useClass: GrantExtensions },
     { provide: 'ParkUI', useClass: ParkUI },
   ]
 })
