@@ -118,6 +118,7 @@ export function SearchAndFilter({
   showTypeFilter = true,
   typeList,
   onAddExtension,
+  canAdd,
 }) {
   return (
     <Container>
@@ -138,7 +139,7 @@ export function SearchAndFilter({
         )
       }
       {
-        type === 'User' && (
+        type === 'User' && canAdd && (
           <RcIconButton
             onClick={onAddExtension}
             symbol={AddMemberBorder}
@@ -147,7 +148,7 @@ export function SearchAndFilter({
         )
       }
       {
-        type === 'ParkLocation' && (
+        type === 'ParkLocation' && canAdd && (
           <RcIconButton
             onClick={onAddExtension}
             symbol={AddParkLocation}

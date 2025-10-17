@@ -21,6 +21,7 @@ import { sessionStatus } from '@ringcentral-integration/commons/modules/Webphone
     'CallingSettings',
     'CompanyContacts',
     'Auth',
+    'AppFeatures',
   ],
 })
 export class CallHUDUI extends RcUIModuleV2 {
@@ -190,6 +191,7 @@ export class CallHUDUI extends RcUIModuleV2 {
       locale,
       call,
       webphone,
+      appFeatures,
     } = this._deps;
     const hasActiveSession = (
       webphone.activeSession &&
@@ -207,6 +209,7 @@ export class CallHUDUI extends RcUIModuleV2 {
       canPark: hasActiveSession,
       allExtensions: this.availableExtensions,
       extensionAddFilter: this.extensionAddFilter,
+      canEdit: appFeatures.hasEditMonitoredExtensionsPermission,
     };
   }
   

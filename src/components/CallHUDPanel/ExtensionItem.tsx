@@ -301,6 +301,7 @@ export function ExtensionItem({
   pickGroupCall,
   pickCallQueueCall,
   onRemoveExtension,
+  canEdit,
 }) {
   const [removeExtensionConfirmOpen, setRemoveExtensionConfirmOpen] = useState(false);
   const { extension, presence } = item;
@@ -352,7 +353,7 @@ export function ExtensionItem({
       });
     }
   }
-  if (extension.type === 'User' || extension.type === 'ParkLocation') {
+  if (canEdit && (extension.type === 'User' || extension.type === 'ParkLocation')) {
     actions.push({
       id: 'removeExtension',
       icon: Delete,

@@ -168,6 +168,13 @@ export class AppFeatures extends AppFeaturesBase {
     )
   }
 
+  get hasEditMonitoredExtensionsPermission() {
+    return (
+      this.appScopes.indexOf('EditPresence') > -1 &&
+      (this._deps.extensionFeatures.features?.EditBlfSettings?.available ?? false)
+    );
+  }
+
   @computed((that: AppFeatures) => [that._deps.featureConfiguration, that.configState])
   get config() {
     return {

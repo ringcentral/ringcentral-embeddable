@@ -61,7 +61,7 @@ function EmptyState({
         }
       </EmptyStateDescription>
     </EmptyStateContainer>
-  )
+  );
 }
 
 export const CallHUDPanel = ({
@@ -86,6 +86,7 @@ export const CallHUDPanel = ({
   extensionAddFilter,
   onExtensionAddFilterChange,
   onRemoveExtension,
+  canEdit,
 }) => {
   const [openAddExtensionDialog, setOpenAddExtensionDialog] = useState(false);
 
@@ -104,6 +105,7 @@ export const CallHUDPanel = ({
         showTypeFilter
         typeList={typeList}
         onAddExtension={() => setOpenAddExtensionDialog(true)}
+        canAdd={canEdit}
       />
       <ListRoot>
         <RcList>
@@ -122,6 +124,7 @@ export const CallHUDPanel = ({
               pickGroupCall={pickGroupCall}
               pickCallQueueCall={pickCallQueueCall}
               onRemoveExtension={onRemoveExtension}
+              canEdit={canEdit}
             />
           ))}
         </RcList>
