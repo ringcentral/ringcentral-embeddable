@@ -100,6 +100,7 @@ type ActiveCallPanelProps = {
   onVoicemailDrop: (...args: any[]) => any;
   showVoicemailDrop?: boolean;
   voicemailDropStatus?: string;
+  onBehalfOf?: string;
 };
 
 function DurationCounterArea({
@@ -178,6 +179,7 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
   onVoicemailDrop,
   showVoicemailDrop,
   voicemailDropStatus,
+  onBehalfOf,
 }) => {
   const timeCounter = (
     <DurationCounterArea
@@ -239,6 +241,7 @@ const ActiveCallPanel: React.SFC<ActiveCallPanelProps> = ({
           phoneSourceNameRenderer={phoneSourceNameRenderer}
           callQueueName={callQueueName}
           showCallerIdName={showCallerIdName}
+          onBehalfOf={onBehalfOf}
         />
       );
       break;

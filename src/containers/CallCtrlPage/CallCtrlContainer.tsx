@@ -29,6 +29,7 @@ export type CallCtrlContainerProps = PropsWithChildren<{
     callQueueName?: string;
     fromUserName?: string;
     toUserName?: string;
+    originalLocalName?: string;
   };
   currentLocale: string;
   onMute: (...args: any[]) => any;
@@ -433,6 +434,7 @@ export class CallCtrlContainer extends Component<
         afterOnMerge={this.props.afterOnMerge}
         controlBusy={this.props.controlBusy}
         voicemailDropStatus={this.props.voicemailDropStatus}
+        onBehalfOf={session.originalLocalName}
       >
         {this.props.children}
       </CallCtrlPanel>

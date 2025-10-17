@@ -727,8 +727,37 @@ export class Webphone extends WebphoneBase {
           ttl: 0,
         });
       }
+      return `*${result['park extension']}`;
     } catch (e) {
       this._logger.error(e);
+      return;
+    }
+  }
+
+  @proxify
+  async parkToLocation(sessionId: string, extension: { id: string, name: string, extensionNumber: string }) {
+    const session = this.originalSessions[sessionId];
+    if (!session) {
+      return;
+    }
+    if (!extension || !extension.id) {
+      return;
+    }
+    try {
+      await session.transfer(`prk${extension.id}`);
+      this._logger.log('Parked to location');
+      const parkedNumber = extension.name || extension.extensionNumber || extension.id;
+      this._deps.alert.success({
+        message: webphoneMessages.parked,
+        payload: {
+          parkedNumber,
+        },
+        ttl: 0,
+      });
+      return parkedNumber;
+    } catch (e) {
+      this._logger.error(e);
+      return;
     }
   }
 
@@ -979,10 +1008,16 @@ export class Webphone extends WebphoneBase {
       inviteOptions,
       extendedControls,
       transferSessionId,
+      originalRemoteNumber,
+      originalLocalNumber,
+      originalLocalName,
     }: {
       inviteOptions: InviteOptions;
       extendedControls?: string[];
       transferSessionId?: string;
+      originalRemoteNumber?: string;
+      originalLocalNumber?: string;
+      originalLocalName?: string;
     },
   ) {
     if (!this._webphone) {
@@ -1031,6 +1066,15 @@ export class Webphone extends WebphoneBase {
     session.__rc_extendedControls = extendedControls;
     session.__rc_extendedControlStatus = extendedControlStatus.pending;
     session.__rc_transferSessionId = transferSessionId!;
+    if (originalRemoteNumber) {
+      session.__rc_originalRemoteNumber = originalRemoteNumber;
+    }
+    if (originalLocalNumber) {
+      session.__rc_originalLocalNumber = originalLocalNumber;
+    }
+    if (originalLocalName) {
+      session.__rc_originalLocalName = originalLocalName;
+    }
     this._bindSessionEvents(session);
     this._onCallInit(session);
     if (!session.id) {
@@ -1060,8 +1104,6 @@ export class Webphone extends WebphoneBase {
     transferSessionId?: string;
   }) {
     const inviteOptions = {
-      sessionDescriptionHandlerOptions:
-        this.acceptOptions.sessionDescriptionHandlerOptions,
       fromNumber,
       homeCountryId,
     };
@@ -1110,13 +1152,59 @@ export class Webphone extends WebphoneBase {
       'RC-call-type': `inbound-pickup; session-id: ${sessionId}; server-id: ${serverId}`,
     };
     const inviteOptions = {
-      sessionDescriptionHandlerOptions:
-        this.acceptOptions.sessionDescriptionHandlerOptions,
       fromNumber,
       extraHeaders,
     };
     const session = await this._invite(toNumber, {
       inviteOptions,
+    });
+    return session;
+  }
+
+  @proxify
+  async pickParkLocation(locationExtensionId, activeCall, fromNumber) {
+    return this.pickOtherExtensionCall({
+      extensionId: locationExtensionId,
+      fromNumber,
+      pickPrefix: 'prk',
+      activeCall,
+      overrideLocal: false,
+    });
+  }
+
+  @proxify
+  async pickGroupCall(locationExtensionId, activeCall, fromNumber, pickPrefix = 'gcp') {
+    return this.pickOtherExtensionCall({
+      extensionId: locationExtensionId,
+      fromNumber,
+      pickPrefix,
+      activeCall,
+      overrideLocal: true,
+    });
+  }
+
+  @proxify
+  async pickOtherExtensionCall({
+    extensionId,
+    activeCall,
+    fromNumber,
+    pickPrefix,
+    overrideLocal = false,
+  }) {
+    const originalRemoteNumber = activeCall.direction === callDirections.inbound ? activeCall.from : activeCall.to;
+    const originalLocalNumber = activeCall.direction === callDirections.inbound ? activeCall.to : activeCall.from;
+    const originalLocalName = activeCall.direction === callDirections.inbound ? activeCall.toName : activeCall.fromName;
+    const inviteOptions = {
+      fromNumber,
+      extraHeaders: {
+        'Replaces': `${activeCall.telephonySessionId};to-tag=${activeCall.sipData.fromTag};from-tag=${activeCall.sipData.toTag};early-only`,
+      },
+    };
+    const session = await this._invite(`${pickPrefix}${extensionId}`, {
+      inviteOptions,
+      originalRemoteNumber: originalRemoteNumber,
+      originalLocalNumber: overrideLocal ? originalLocalNumber : undefined,
+      originalLocalName: overrideLocal ? originalLocalName : undefined,
     });
     return session;
   }
@@ -1402,20 +1490,6 @@ export class Webphone extends WebphoneBase {
   @computed(({ sessions }: Webphone) => [sessions])
   get cachedSessions(): NormalizedSession[] {
     return filter((session) => session.cached, this.sessions);
-  }
-
-  get acceptOptions() {
-    // TODO: change audio device id
-    return {
-      sessionDescriptionHandlerOptions: {
-        constraints: {
-          audio: {
-            deviceId: this._deps.audioSettings.inputDeviceId as string,
-          },
-          video: false,
-        },
-      },
-    };
   }
 
   get isOnTransfer() {

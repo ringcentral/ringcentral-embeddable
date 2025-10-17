@@ -18,6 +18,7 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
     'Theme',
     'SideDrawerUI',
     'ComposeTextUI',
+    'MonitoredExtensions',
   ],
 })
 export class MainViewUI extends RcUIModuleV2 {
@@ -32,7 +33,6 @@ export class MainViewUI extends RcUIModuleV2 {
       appFeatures,
       routerInteraction,
       glipGroups,
-      glipCompany,
       genericMeeting,
       brand,
       thirdPartyService,
@@ -40,6 +40,7 @@ export class MainViewUI extends RcUIModuleV2 {
       theme,
       sideDrawerUI,
       conversations,
+      monitoredExtensions,
     } = this._deps;
 
     const showPhone = appFeatures.ready && (
@@ -75,6 +76,7 @@ export class MainViewUI extends RcUIModuleV2 {
       showFax: appFeatures.ready && appFeatures.hasReadFaxPermission,
       faxUnreadCounts: messageStore.faxUnreadCounts || 0,
       voiceUnreadCounts: messageStore.voiceUnreadCounts || 0,
+      callHUDUnreadCounts: monitoredExtensions.hasPermission ? monitoredExtensions.activeExtensionLength : 0,
       customizedTabs: thirdPartyService.customizedTabs,
       themeType: theme.themeType,
       supportSideDrawer: sideDrawerUI.enabled,

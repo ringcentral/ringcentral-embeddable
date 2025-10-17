@@ -117,6 +117,9 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   showVoicemailDropSettings: boolean;
   showPhoneNumberFormatSettings: boolean;
   gotoPhoneNumberFormatSettings: () => void;
+  showHUDSettings: boolean;
+  hudEnabled: boolean;
+  onHUDSettingsToggle: () => void;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -442,6 +445,9 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   showVoicemailDropSettings,
   gotoPhoneNumberFormatSettings,
   showPhoneNumberFormatSettings,
+  showHUDSettings,
+  hudEnabled,
+  onHUDSettingsToggle,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'group',
@@ -597,6 +603,16 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       show: showVoicemailDropSettings,
       onClick: gotoVoicemailDropSettings,
       order: 12,
+    }, {
+      id: 'hudSettings',
+      type: 'switch',
+      name: 'Heads-up display (HUD) - Beta',
+      description: 'Monitor contacts, view their presence status, and call or text them.',
+      dataSign: 'hudSettings',
+      show: showHUDSettings,
+      checked: hudEnabled,
+      onChange: onHUDSettingsToggle,
+      order: 13,
     }],
   }];
   thirdPartySettings.forEach((item, index) => {

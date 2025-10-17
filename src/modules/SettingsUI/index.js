@@ -11,6 +11,7 @@ import {
     'ThirdPartyService',
     'AudioSettings',
     'SmartNotes',
+    'MonitoredExtensions',
   ]
 })
 export class SettingsUI extends BaseSettingsUI {
@@ -24,6 +25,7 @@ export class SettingsUI extends BaseSettingsUI {
       audioSettings,
       brand,
       smartNotes,
+      monitoredExtensions,
     } = this._deps;
     return {
       ...baseProps,
@@ -71,6 +73,8 @@ export class SettingsUI extends BaseSettingsUI {
       showText: appFeatures.hasSendSMSPermission,
       showVoicemailDropSettings: appFeatures.hasVoicemailDropPermission,
       showPhoneNumberFormatSettings: true,
+      showHUDSettings: appFeatures.hasHUDPermission,
+      hudEnabled: monitoredExtensions.enabled,
     };
   }
 
@@ -82,6 +86,7 @@ export class SettingsUI extends BaseSettingsUI {
       thirdPartyService,
       routerInteraction,
       smartNotes,
+      monitoredExtensions,
     } = this._deps;
     return {
       ...baseFuncs,
@@ -124,6 +129,9 @@ export class SettingsUI extends BaseSettingsUI {
       },
       gotoPhoneNumberFormatSettings: () => {
         routerInteraction.push('/settings/phoneNumberFormat');
+      },
+      onHUDSettingsToggle: () => {
+        monitoredExtensions.toggleEnabled();
       },
     }
   }

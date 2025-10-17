@@ -16,6 +16,7 @@ interface Tab {
     'CallingSettings',
     'AppFeatures',
     'MessageStore',
+    'MonitoredExtensions',
     { dep: 'Webphone', optional: true },
     { dep: 'CallMonitor', optional: true },
     { dep: 'PhoneTabsUIOptions', optional: true },
@@ -43,14 +44,16 @@ export class PhoneTabsUI extends RcUIModuleV2 {
     that._deps.appFeatures.hasReadCallRecordings,
     that._deps.appFeatures.hasVoicemailPermission,
     that._deps.messageStore.voiceUnreadCounts,
-    that._deps.locale.currentLocale
+    that._deps.monitoredExtensions.hasPermission,
+    that._deps.monitoredExtensions.activeExtensionLength,
+    that._deps.locale.currentLocale,
   ])
   get tabs() {
     if (!this._deps.appFeatures.ready) {
       return [];
     }
     const tabs: Tab[] = [];
-    const { appFeatures, locale, messageStore } = this._deps;
+    const { appFeatures, locale, messageStore, monitoredExtensions } = this._deps;
     if (appFeatures.isCallingEnabled) {
       tabs.push({
         value: '/dialer',
@@ -74,6 +77,13 @@ export class PhoneTabsUI extends RcUIModuleV2 {
       tabs.push({
         value: '/history/recordings',
         label: i18n.getString('recordingsLabel', locale.currentLocale),
+      });
+    }
+    if (monitoredExtensions.hasPermission) {
+      tabs.push({
+        value: '/HUD',
+        label: 'HUD',
+        unreadCounts: monitoredExtensions.activeExtensionLength,
       });
     }
     return tabs;

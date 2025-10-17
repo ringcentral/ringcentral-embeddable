@@ -64,7 +64,6 @@ import {
 import GlipPosts from '@ringcentral-integration/commons/modules/GlipPosts';
 import { Locale } from '@ringcentral-integration/commons/modules/Locale';
 import { Meeting } from '@ringcentral-integration/commons/modules/Meeting';
-import { Presence } from '@ringcentral-integration/commons/modules/Presence';
 import {
   RateLimiter,
 } from '@ringcentral-integration/commons/modules/RateLimiter';
@@ -167,6 +166,7 @@ import { CallQueues } from '../CallQueues';
 import { CallQueuePresence } from '../CallQueuePresence';
 import { CallQueueSettingsUI } from '../CallQueueSettingsUI';
 import { CallDetailsUI } from '../CallDetailsUI';
+import { CallHUDUI } from '../CallHUDUI';
 import { CompanyContacts } from '../CompanyContacts';
 import { ComposeText } from '../ComposeText';
 import { ComposeTextUI } from '../ComposeTextUI';
@@ -194,6 +194,7 @@ import { MessageDetailsUI } from '../MessageDetailsUI';
 import { NoiseReduction } from '../NoiseReduction';
 import { NumberValidate } from '../NumberValidate';
 import { OAuth } from '../OAuth';
+import { Presence } from '../Presence';
 import { PhoneNumberFormat } from '../PhoneNumberFormat';
 import { PhoneNumberFormatSettingUI } from '../PhoneNumberFormatSettingUI';
 import { RingCentralExtensions } from '../RingCentralExtensions';
@@ -222,6 +223,10 @@ import { WidgetAppsUI } from '../WidgetAppsUI';
 import { VoicemailDrop } from '../VoicemailDrop';
 import { VoicemailDropUI } from '../VoicemailDropUI';
 import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
+import { GrantExtensions } from '../GrantExtensions';
+import { MonitoredExtensions } from '../MonitoredExtensions';
+import { ParkUI } from '../ParkUI';
+
 // user Dependency Injection with decorator to create a phone class
 // https://github.com/ringcentral/ringcentral-js-integration-commons/blob/master/docs/dependency-injection.md
 @ModuleFactory({
@@ -420,6 +425,7 @@ import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
     { provide: 'CallControlUI', useClass: CallControlUI },
     { provide: 'CallHistoryUI', useClass: CallHistoryUI },
     { provide: 'CallDetailsUI', useClass: CallDetailsUI },
+    { provide: 'CallHUDUI', useClass: CallHUDUI },
     { provide: 'CallsOnholdUI', useClass: CallsOnholdUI },
     { provide: 'PhoneTabsUI', useClass: PhoneTabsUI },
     { provide: 'IncomingCallUI', useClass: IncomingCallUI },
@@ -475,6 +481,9 @@ import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
     { provide: 'VoicemailDrop', useClass: VoicemailDrop },
     { provide: 'VoicemailDropSettingsUI', useClass: VoicemailDropSettingsUI },
     { provide: 'VoicemailDropUI', useClass: VoicemailDropUI },
+    { provide: 'MonitoredExtensions', useClass: MonitoredExtensions },
+    { provide: 'GrantExtensions', useClass: GrantExtensions },
+    { provide: 'ParkUI', useClass: ParkUI },
   ]
 })
 export default class BasePhone extends RcModule {

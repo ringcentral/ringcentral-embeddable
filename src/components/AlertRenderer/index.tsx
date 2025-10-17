@@ -78,6 +78,15 @@ export function getAlertRenderer({
     if (message.message === 'invalidPhoneNumberFormatType') {
       return () => 'Sorry, invalid phone number format type.';
     }
+    if (message.message === 'callHUDAddExtensionsLimitExceeded') {
+      return () => 'Sorry, you have reached the maximum number of extensions.';
+    }
+    if (message.message === 'callHUDUpdateExtensionsFailed') {
+      return () => 'Sorry, failed to update extensions list. Please try again later.';
+    }
+    if (message.message === 'callHUDSyncExtensionsFailed') {
+      return () => 'Sorry, failed to sync extensions list. Please try again later.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage

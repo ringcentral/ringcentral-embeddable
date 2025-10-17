@@ -633,10 +633,10 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     if (this.webphoneSessions.length > 0) {
       return;
     }
-    this._deps.alert.warning({
-      message: webphoneErrors.provisionUpdate,
-      allowDuplicates: false,
-    });
+    // this._deps.alert.warning({
+    //   message: webphoneErrors.provisionUpdate,
+    //   allowDuplicates: false,
+    // });
     this.connect({
       force: true,
       skipDLCheck: true,
@@ -701,10 +701,10 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       this._sharedSipClient.on('transportStatus', (status) => {
         this._logger.log('shared sip client transport status', status);
         if ((this.connected || this.connectError) && status === 'connecting') {
-          this._deps.alert.warning({
-            message: webphoneErrors.serverConnecting,
-            allowDuplicates: false,
-          });
+          // this._deps.alert.warning({
+          //   message: webphoneErrors.serverConnecting,
+          //   allowDuplicates: false,
+          // });
           this._setStateOnReconnect();
         } else if (status === 'error') {
           // error after connect retries

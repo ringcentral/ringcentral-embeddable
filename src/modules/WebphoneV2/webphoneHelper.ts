@@ -52,14 +52,15 @@ export function normalizeSession(
   const rcHeaders = session.sipMessage?.headers["p-rc-api-ids"];
   const remoteTag = session.remotePeer ? session.remoteTag : null;
   const localTag = session.localPeer ? session.localTag : null;
+  const remoteNumber = session.__rc_originalRemoteNumber || session.remoteNumber;
   return {
     id: session.callId, // for backward compatibility
     callId: session.callId,
     direction: callDirections[session.direction],
     callStatus: getCallStatus(session.state),
-    to: session.direction === 'inbound' ? session.localNumber : session.remoteNumber,
+    to: session.direction === 'inbound' ? session.localNumber : remoteNumber,
     toUserName: toPeer ? extractName(toPeer) : '',
-    from: session.direction === 'inbound' ? session.remoteNumber : session.localNumber,
+    from: session.direction === 'inbound' ? remoteNumber : session.localNumber,
     fromNumber: session.__rc_fromNumber,
     fromUserName: fromPeer ? extractName(fromPeer) : '',
     fromTag: session.direction === 'inbound' ? remoteTag : localTag,
@@ -86,6 +87,8 @@ export function normalizeSession(
     warmTransferSessionId: session.__rc_transferSessionId,
     voicemailDropStatus: session.__rc_voicemailDropStatus,
     isOnHold: !!session.__rc_localHold && !isDroppingVoicemail(session.__rc_voicemailDropStatus),
+    originalLocalNumber: session.__rc_originalLocalNumber,
+    originalLocalName: session.__rc_originalLocalName,
   };
 }
 

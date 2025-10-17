@@ -50,6 +50,11 @@ const StyledCallerIDIcon = styled(RcIcon)`
   margin-left: 5px;
 `;
 
+const StyledSecondaryWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 type CallInfoProps = {
   phoneNumber?: string;
   formatPhone: (...args: any[]) => any;
@@ -68,6 +73,7 @@ type CallInfoProps = {
   phoneSourceNameRenderer?: (...args: any[]) => any;
   callQueueName?: string;
   showCallerIdName: boolean;
+  onBehalfOf?: string;
 };
 const CallInfo: FunctionComponent<CallInfoProps> = ({
   nameMatches = [],
@@ -87,6 +93,7 @@ const CallInfo: FunctionComponent<CallInfoProps> = ({
   countryCode,
   onSelectMatcherName,
   showCallerIdName,
+  onBehalfOf,
 }) => {
   return (
     <StyledItem
@@ -161,9 +168,23 @@ const CallInfo: FunctionComponent<CallInfoProps> = ({
         primaryTypographyProps={{
           component: 'div',
         }}
-        secondary={formatPhone(phoneNumber)}
+        secondary={
+          <StyledSecondaryWrapper>
+            <div>
+              {formatPhone(phoneNumber)}
+            </div>
+            {
+              onBehalfOf && (
+                <div>
+                  On behalf of {onBehalfOf}
+                </div>
+              )
+            }
+          </StyledSecondaryWrapper>
+        }
         secondaryTypographyProps={{
           'data-sign': 'userPhoneNumber',
+          component: 'div',
         }}
       />
     </StyledItem>

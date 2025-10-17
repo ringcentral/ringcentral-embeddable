@@ -71,6 +71,7 @@ type CallCtrlPanelProps = {
   isOnWaitingTransfer?: boolean;
   isOnTransfer?: boolean;
   voicemailDropStatus?: string;
+  onBehalfOf?: string;
 };
 
 const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
@@ -138,6 +139,7 @@ const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
   onFlip = () => null,
   showVoicemailDrop = false,
   onVoicemailDrop = () => null,
+  onBehalfOf,
 }) => {
   const [isShowKeyPad, setIsShowKeyPad] = useState(false);
   const [isShowMergeConfirm, setIsShowMergeConfirm] = useState(false);
@@ -240,6 +242,7 @@ const CallCtrlPanel: FunctionComponent<CallCtrlPanelProps> = ({
       controlBusy={controlBusy}
       callQueueName={callQueueName}
       voicemailDropStatus={voicemailDropStatus}
+      onBehalfOf={onBehalfOf}
     >
       {children}
       {showSpinner ? <SpinnerOverlay /> : null}
