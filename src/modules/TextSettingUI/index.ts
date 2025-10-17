@@ -38,7 +38,7 @@ export class TextSettingUI extends RcUIModuleV2 {
       items: [
         {
           id: 'defaultTextId',
-          name: 'Default text ID',
+          name: 'Default SMS sender',
           type: 'option',
           value: composeText.defaultTextId,
           options: messageSender.senderNumbersList.map((number) => ({
