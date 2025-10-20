@@ -95,7 +95,7 @@ export class PhoneNumberFormat extends RcModuleV2 {
           type: formatTypes.e164,
         });
       }
-      if (type === 'customized') {
+      if (type === 'custom') {
         return this.formatWithTemplate(param, this.template);
       }
       return this._defaultFormatter({
@@ -148,8 +148,8 @@ export class PhoneNumberFormat extends RcModuleV2 {
       name: 'E.164',
       placeholder: '+1##########',
     }, {
-      id: 'customized',
-      name: 'Customized',
+      id: 'custom',
+      name: 'Custom',
       placeholder: '',
     }];
   }
@@ -167,17 +167,17 @@ export class PhoneNumberFormat extends RcModuleV2 {
       });
       return;
     }
-    if (setting.formatType === 'customized') {
+    if (setting.formatType === 'custom') {
       if (!setting.template) {
         this._deps.alert.warning({
-          message: 'customizedPhoneNumberFormatTemplateRequired',
+          message: 'customPhoneNumberFormatTemplateRequired',
         });
         return;
       }
       const templateCharLength = setting.template.split('').filter((char) => char === '#' || char === '*' || char === 'x').length;
       if (templateCharLength < 10 || templateCharLength > 15) {
         this._deps.alert.warning({
-          message: 'customizedPhoneNumberFormatTemplateLengthInvalid',
+          message: 'customPhoneNumberFormatTemplateLengthInvalid',
         });
         return;
       }

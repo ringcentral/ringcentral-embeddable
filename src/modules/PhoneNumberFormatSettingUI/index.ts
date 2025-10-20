@@ -50,7 +50,7 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
         options: phoneNumberFormat.supportedFormats.map((format) => {
           let example = '';
           if (
-            format.id !== 'customized' ||
+            format.id !== 'custom' ||
             phoneNumberFormat.template
           ) {
             example = phoneNumberFormat.formatWithType({
@@ -69,6 +69,7 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
             description: example ? `Eg. ${example}` : '',
           });
         }),
+        helper: 'This format is only applicable to the number view in the app.',
       }, {
         id: 'template',
         name: 'Custom template',
@@ -78,7 +79,7 @@ export class PhoneNumberFormatSettingUI extends RcUIModuleV2 {
         readOnlyReason: phoneNumberFormat.readOnlyReason,
         showWhen: {
           phoneNumberFormat: {
-            value: 'customized',
+            value: 'custom',
             operator: 'equal',
           },
         },
