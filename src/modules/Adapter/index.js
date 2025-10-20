@@ -1138,8 +1138,8 @@ export default class Adapter extends AdapterModuleCore {
 
   _setPhoneNumberFormat(data) {
     this._phoneNumberFormat.setSetting({
-      formatType: data.formatType, // 'national', 'international', 'customized'
-      template: data.template, // required if 'customized' type, eg: '(###) ###-####'
+      formatType: data.formatType, // 'national', 'international', 'custom'
+      template: data.template, // required if 'custom' type, eg: '(###) ###-####'
       readOnly: data.readOnly, // optional, set to true to disable user editing
       readOnlyReason: data.readOnlyReason, // optional, reason for read only
     });
@@ -1163,7 +1163,7 @@ export default class Adapter extends AdapterModuleCore {
     this._postMessage({
       type: 'rc-adapter-phone-number-format-settings-notify',
       formatType: this._phoneNumberFormat.formatType,
-      template: this._phoneNumberFormat.formatType === 'customized' ? this._phoneNumberFormat.template : '',
+      template: this._phoneNumberFormat.formatType === 'custom' ? this._phoneNumberFormat.template : '',
     });
   }
 
