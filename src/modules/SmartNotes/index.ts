@@ -157,9 +157,13 @@ export class SmartNotes extends RcModuleV2 {
     this.session = session;
   }
 
-  @storage
-  @state
-  showSmartNote = false;
+  // @storage
+  // @state
+  // showSmartNote = true;
+
+  get showSmartNote() {
+    return true;
+  }
 
   @state
   showSmartNoteReadOnly = false;
@@ -172,12 +176,12 @@ export class SmartNotes extends RcModuleV2 {
   )
   @action
   toggleShowSmartNote() {
-    this.showSmartNote = !this.showSmartNote;
+    // this.showSmartNote = !this.showSmartNote;
   }
 
   @action
   setShowSmartNote(show, readOnly = false, reason = '') {
-    this.showSmartNote = show;
+    // this.showSmartNote = show;
     this.showSmartNoteReadOnly = readOnly;
     this.showSmartNoteReadOnlyReason = reason;
   }
