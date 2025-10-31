@@ -316,7 +316,7 @@ export default class Adapter extends AdapterModuleCore {
           }
           break;
         case 'rc-adapter-new-sms':
-          this._newSMS(data.phoneNumber, data.text, data.conversation, data.attachments);
+          this._newSMS(data.phoneNumber, data.text, data.conversation, data.attachments, data.recipient);
           break;
         case 'rc-adapter-new-call':
           this._newCall(data.phoneNumber, data.toCall);
@@ -1172,12 +1172,13 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _newSMS(phoneNumber, text, conversation, attachments = null) {
+  _newSMS(phoneNumber, text, conversation, attachments = null, recipient = false) {
     if (!this._auth.loggedIn) {
       return;
     }
     const validAttachments = getValidAttachments(attachments);
-    if (conversation) {
+    const currentToNumbers = this._composeText.toNumbers;
+    if (conversation && currentToNumbers.length === 0) {
       const normalizedNumber = normalizeNumber({
         phoneNumber,
         countryCode: this._regionSettings.countryCode,
@@ -1205,8 +1206,11 @@ export default class Adapter extends AdapterModuleCore {
       }
     }
     this._composeTextUI.gotoComposeText();
-    if (phoneNumber) {
+    if (phoneNumber && !recipient) {
       this._composeText.updateTypingToNumber(phoneNumber);
+    }
+    if (phoneNumber && recipient) {
+      this._composeText.addToNumber({ phoneNumber, name: recipient.name || phoneNumber });
     }
     if (text && text.length > 0) {
       this._composeText.updateMessageText(String(text));
