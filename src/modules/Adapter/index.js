@@ -326,7 +326,7 @@ export default class Adapter extends AdapterModuleCore {
           }
           break;
         case 'rc-adapter-new-sms':
-          this._newSMS(data.phoneNumber, data.text, data.conversation, data.attachments);
+          this._newSMS(data.phoneNumber, data.text, data.conversation, data.attachments, data.recipient);
           break;
         case 'rc-adapter-new-call':
           this._newCall(data.phoneNumber, data.toCall);
@@ -1231,12 +1231,13 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _newSMS(phoneNumber, text, conversation, attachments = null) {
+  _newSMS(phoneNumber, text, conversation, attachments = null, recipient = false) {
     if (!this._auth.loggedIn) {
       return;
     }
     const validAttachments = getValidAttachments(attachments);
-    if (conversation) {
+    const currentToNumbers = this._composeText.toNumbers;
+    if (conversation && currentToNumbers.length === 0) {
       const normalizedNumber = normalizeNumber({
         phoneNumber,
         countryCode: this._regionSettings.countryCode,
@@ -1264,8 +1265,9 @@ export default class Adapter extends AdapterModuleCore {
       }
     }
     this._composeTextUI.gotoComposeText();
+    let formattedPhoneNumber = phoneNumber;
     if (phoneNumber) {
-      const formattedPhoneNumber = this._phoneNumberFormat.format({
+      formattedPhoneNumber = this._phoneNumberFormat.format({
         phoneNumber,
         areaCode: this._regionSettings.areaCode,
         countryCode: this._regionSettings.countryCode,
@@ -1273,6 +1275,8 @@ export default class Adapter extends AdapterModuleCore {
         isMultipleSiteEnabled: this._extensionInfo.isMultipleSiteEnabled,
         siteCode: this._extensionInfo.site && this._extensionInfo.site.code,
       });
+    }
+    if (phoneNumber && !recipient) {
       if (formattedPhoneNumber.indexOf('x') === -1) {
         this._composeText.updateTypingToNumber(phoneNumber);
       } else {
@@ -1281,6 +1285,9 @@ export default class Adapter extends AdapterModuleCore {
           phoneNumber,
         });
       }
+    }
+    if (phoneNumber && recipient) {
+      this._composeText.addToNumber({ phoneNumber, name: recipient.name || formattedPhoneNumber });
     }
     if (text && text.length > 0) {
       this._composeText.updateMessageText(String(text));
