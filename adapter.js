@@ -57149,13 +57149,15 @@ class Adapter extends AdapterCore/* default */.A {
   }
   clickToSMS(phoneNumber, text, conversation) {
     let attachments = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : undefined;
+    let recipient = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : undefined;
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
       phoneNumber,
       text,
       conversation,
-      attachments
+      attachments,
+      recipient
     });
   }
   clickToCall(phoneNumber) {
