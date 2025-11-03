@@ -550,7 +550,7 @@ class Adapter extends AdapterCore {
     });
   }
 
-  clickToSMS(phoneNumber, text, conversation, attachments = undefined) {
+  clickToSMS(phoneNumber, text, conversation, attachments = undefined, recipient = undefined) {
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
@@ -558,6 +558,7 @@ class Adapter extends AdapterCore {
       text,
       conversation,
       attachments,
+      recipient,
     });
   }
 
