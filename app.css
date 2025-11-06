@@ -4101,6 +4101,10 @@ input {
 .RecentActivityPanel_expandable {
   position: absolute !important;
 }
+
+.MessageItem_contactDisplay {
+  font-family: Lato, Helvetica, Arial, sans-serif;
+}
 .CallsListPanel_root {
   position: relative;
   width: 100%;
