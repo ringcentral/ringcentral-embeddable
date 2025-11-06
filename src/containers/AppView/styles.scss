@@ -101,3 +101,7 @@ input {
 :global .RecentActivityPanel_expandable {
   position: absolute!important;
 }
+
+:global .MessageItem_contactDisplay {
+  font-family: Lato, Helvetica, Arial, sans-serif;
+}
