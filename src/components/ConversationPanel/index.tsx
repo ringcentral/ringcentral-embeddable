@@ -15,6 +15,7 @@ import MessageInput from '../MessageInput';
 import type { Attachment } from '../MessageInput';
 import { BackHeader } from '../BackHeader';
 import { ConversationMessageList } from '../ConversationMessageList';
+import { GroupNumbersDisplay } from './GroupNumbersDisplay';
 
 const HeaderButtons = styled.div`
   position: absolute;
@@ -45,6 +46,13 @@ type Conversation = {
   isLogging?: boolean;
   conversationId?: string;
 }
+
+const StyledGroupNumbersDisplay = styled(GroupNumbersDisplay)`
+  height: 40px;
+  line-height: 40px;
+  width: 100%;
+  padding-left: 10px;
+`;
 
 export type ConversationProps = {
   isWide: boolean;
@@ -445,13 +453,24 @@ export function ConversationPanel({
       showPlaceholder={showContactDisplayPlaceholder}
       sourceIcons={sourceIcons}
       formatPhone={formatPhone}
-      phoneTypeRenderer={phoneTypeRenderer}
       phoneSourceNameRenderer={phoneSourceNameRenderer}
       showGroupNumberName={showGroupNumberName}
       dropdownRenderFunction={renderContactList}
       dropdownClassName={dropdownClassName}
     />
   );
+
+  const groupNumbersDisplay = groupNumbers && groupNumbers.length > 1 ? (
+    <StyledGroupNumbersDisplay
+      correspondents={conversation.correspondents}
+      contactMatches={correspondentMatches}
+      formatPhone={formatPhone}
+      phoneSourceNameRenderer={phoneSourceNameRenderer}
+      brand={brand}
+      currentLocale={currentLocale}
+      unread={false}
+    />
+  ) : null;
   return (
     <Root data-sign="conversationPanel">
       <BackHeader
@@ -462,7 +481,7 @@ export function ConversationPanel({
           conversation: conversation,
           phoneNumber,
           defaultContactDisplay,
-        }) || defaultContactDisplay}
+        }) || groupNumbersDisplay || defaultContactDisplay}
         <HeaderButtons>
           {logButton}
           {

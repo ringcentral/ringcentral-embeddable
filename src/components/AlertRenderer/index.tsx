@@ -36,6 +36,9 @@ export function getAlertRenderer({
         );
       }
     }
+    if (message.message === 'maxGroupSMSLimitReached') {
+      return () => 'Sorry, you have reached the maximum 10 recipients for group SMS.';
+    }
     if (message.message === 'noUnreadForOldMessages') {
       return () => 'Sorry, app can\'t mark old messages as unread.';
     }

@@ -36,6 +36,7 @@ export class ComposeTextUI extends ComposeTextUIBase {
       thirdPartyService,
       appFeatures,
       smsTemplates,
+      composeText,
     } = this._deps;
     return {
       ...baseProps,
@@ -43,6 +44,7 @@ export class ComposeTextUI extends ComposeTextUIBase {
       showTemplate: appFeatures.showSmsTemplate,
       templates: smsTemplates.templates,
       showTemplateManagement: appFeatures.showSmsTemplateManage,
+      groupSMS: composeText.groupSMS,
     };
   }
 
@@ -128,6 +130,9 @@ export class ComposeTextUI extends ComposeTextUIBase {
           isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
           siteCode: extensionInfo.site?.code,
         }),
+      setGroupSMS: (checked: boolean) => {
+        composeText.setGroupSMS(checked);
+      },
     };
   }
 
