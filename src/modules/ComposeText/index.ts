@@ -7,6 +7,9 @@ import {
 import {
   ComposeText as ComposeTextBase,
 } from '@ringcentral-integration/commons/modules/ComposeText';
+import type { Attachment } from '@ringcentral-integration/commons/modules/MessageSender';
+import type { ToNumber } from '@ringcentral-integration/commons/modules/ComposeText';
+import { isBlank } from '@ringcentral-integration/commons/lib/isBlank';
 
 @Module({
   name: 'ComposeText',
@@ -75,6 +78,33 @@ export class ComposeText extends ComposeTextBase {
     this.defaultTextId = textId;
   }
 
+  @storage
+  @state
+  groupSMS = false;
+
+  @action
+  setGroupSMS(checked: boolean) {
+    this.groupSMS = checked;
+  }
+
+  async addToNumber(number: ToNumber) {
+    if (isBlank(number.phoneNumber)) {
+      return false;
+    }
+    const isValid = await this._validatePhoneNumber(number.phoneNumber);
+    if (!isValid) {
+      return false;
+    }
+    if (this.groupSMS && this.toNumbers.length >= 10) {
+      this._deps.alert.warning({
+        message: 'maxGroupSMSLimitReached',
+      });
+      return false;
+    }
+    this._addToNumber(number);
+    return true;
+  }
+
   override _initSenderNumber() {
     super._initSenderNumber();
     const defaultTextId = this.defaultTextId;
@@ -88,5 +118,53 @@ export class ComposeText extends ComposeTextBase {
       return;
     }
     this.setDefaultTextId('');
+  }
+
+  override async send(text: string, attachments: Attachment[] = []) {
+    const toNumbers = this.toNumbers.map((number) => number.phoneNumber);
+    const { typingToNumber } = this;
+    if (!isBlank(typingToNumber)) {
+      if (await this._validatePhoneNumber(typingToNumber)) {
+        toNumbers.push(typingToNumber);
+      } else {
+        return null;
+      }
+    }
+
+    const continueSend = this.smsVerify
+      ? await this.smsVerify({ toNumbers: this.toNumbers, typingToNumber })
+      : true;
+    if (!continueSend) return null;
+
+    let timeoutID = setTimeout(() => {
+      if (this._deps.routerInteraction?.currentPath === '/composeText') {
+        this.alertMessageSending();
+      }
+      // @ts-expect-error
+      timeoutID = null;
+    }, 10000);
+
+    try {
+      const responses = await this._deps.messageSender.send({
+        fromNumber: this.senderNumber,
+        toNumbers,
+        text,
+        attachments,
+        groupSMS: this.groupSMS,
+      });
+
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+        timeoutID = null;
+      }
+      this.dismissMessageSending();
+      return responses;
+    } catch (err) {
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+        timeoutID = null;
+      }
+      throw err;
+    }
   }
 }

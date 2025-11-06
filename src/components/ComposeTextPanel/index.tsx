@@ -4,8 +4,8 @@ import type { ToNumber } from '@ringcentral-integration/commons/modules/ComposeT
 import {
   SpinnerOverlay,
 } from '@ringcentral-integration/widgets/components/SpinnerOverlay';
-import { RcTypography, RcIconButton, styled, palette2 } from '@ringcentral/juno';
-import { Close } from '@ringcentral/juno-icon';
+import { RcTypography, RcIconButton, RcCheckbox, RcIcon, RcTooltip, styled, palette2 } from '@ringcentral/juno';
+import { Close, InfoBorder } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/ConversationsPanel/i18n';
 import { BackHeader } from '../BackHeader';
 import MessageInput from '../MessageInput'; // TODO: temporary solution, wait for new component ready
@@ -38,14 +38,40 @@ const Root = styled.div`
     max-height: 24vh;
     overflow-y: auto;
   }
+
+  .GroupSMSCheckboxLabel {
+    margin-left: 0;
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 18px;
+    margin-bottom: 5px;
+
+    .MuiFormControlLabel-label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .RcCheckbox-root {
+      padding: 6px;
+    }
+  }
 `;
 
 const SenderField = styled.div`
-  margin: 0 0 5px 0;
   padding: 0 20px 1px 20px;
-  border-bottom: ${palette2('neutral', 'l02')} 1px solid;
   transition: height 0.5s ease-in;
   color: ${palette2('neutral', 'f03')};
+`;
+
+const Aline = styled.div`
+  border-bottom: ${palette2('neutral', 'l02')} 1px solid;
+  margin-bottom: 5px;
+`;
+
+const GroupSMSLabelText = styled(RcTypography)`
+  font-size: 0.75rem;
+  margin-right: 10px;
 `;
 
 export interface ComposeTextPanelProps {
@@ -105,6 +131,8 @@ export interface ComposeTextPanelProps {
   onClose?: (...args: any[]) => any;
   showCloseButton?: boolean;
   onLoad?: (...args: any[]) => any;
+  groupSMS?: boolean;
+  setGroupSMS?: (checked: boolean) => void;
 }
 
 const CloseButton = styled(RcIconButton)`
@@ -112,6 +140,46 @@ const CloseButton = styled(RcIconButton)`
   right: 6px;
   top: 0;
 `;
+
+function GroupSMSCheckbox({
+  checked,
+  onChange,
+  disabled = false,
+}) {
+  return (
+    <RcCheckbox
+      disabled={disabled}
+      label={
+        <>
+          <GroupSMSLabelText component="span" variant="caption1">
+            Create group text
+          </GroupSMSLabelText>
+          <RcTooltip title={
+            <>
+              <RcTypography variant="body1">
+                Send group text messages (up to 10 people) to start a text conversation.
+              </RcTypography>
+              <br />
+              <RcTypography variant="body1">
+                Or uncheck the box to send a text message to everyone individually. They will be unaware of the other recipients.
+              </RcTypography>
+            </>
+          }>
+            <RcIcon symbol={InfoBorder} size="small" />
+          </RcTooltip>
+        </>
+      }
+      formControlLabelProps={{
+        labelPlacement: 'start',
+        className: 'GroupSMSCheckboxLabel',
+      }}
+      checked={checked}
+      onChange={(e, checked) => {
+        onChange(checked);
+      }}
+    />
+  );
+}
 
 function ComposeTextPanel({
   send,
@@ -161,6 +229,8 @@ function ComposeTextPanel({
   onClose,
   showCloseButton = false,
   onLoad,
+  groupSMS = false,
+  setGroupSMS = (checked: boolean) => {},
 }: ComposeTextPanelProps) {
   const noPermission = !!(
     senderNumbers.length === 0 ||
@@ -246,6 +316,12 @@ function ComposeTextPanel({
                 showAnonymous={false}
               />
             </SenderField>
+            <GroupSMSCheckbox
+              checked={groupSMS}
+              onChange={setGroupSMS}
+              disabled={toNumbers.length === 0 || (toNumbers.length === 1 && !typingToNumber)}
+            />
+            <Aline />
             <MessageInput
               value={messageText}
               onChange={updateMessageText}

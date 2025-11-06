@@ -25,6 +25,7 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import { ActionMenu } from '../ActionMenu';
 import { StatusMessage } from '../CallItem/StatusMessage';
 import { Detail } from './Detail';
+import { GroupNumbersDisplay } from '../ConversationPanel/GroupNumbersDisplay';
 import {
   getSelectedContact,
   getInitialContactIndex,
@@ -226,6 +227,21 @@ function DefaultContactDisplay({
   const shouldHideNumber =
     enableCDC &&
     checkShouldHidePhoneNumber(phoneNumber, correspondentMatches);
+
+  if (groupNumbers) {
+    return (
+      <GroupNumbersDisplay
+        correspondents={correspondents}
+        contactMatches={correspondentMatches}
+        formatPhone={formatPhone}
+        className={styles.contactDisplay}
+        phoneSourceNameRenderer={phoneSourceNameRenderer}
+        brand={brand}
+        currentLocale={currentLocale}
+        unread={showUnreadStatus ? !!unreadCounts : false}
+      />
+    );
+  }
   return (
     <ContactDisplay
       formatPhone={formatPhone}
@@ -601,6 +617,12 @@ export function ConversationItem({
               })
             : defaultContactDisplayWithUnread
         }
+        primaryTypographyProps={{
+          component: 'div',
+        }}
+        secondaryTypographyProps={{
+          component: 'div',
+        }}
         secondary={
           <>
             <StyledSecondary>

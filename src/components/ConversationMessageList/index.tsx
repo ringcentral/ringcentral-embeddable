@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
 import { isBlank } from '@ringcentral-integration/commons/lib/isBlank';
-import { RcIcon, styled, palette2, css } from '@ringcentral/juno';
+import { RcIcon, RcText, styled, palette2, css } from '@ringcentral/juno';
 import {
   DefaultFile as fileSvg,
   Download as downloadSvg,
@@ -141,6 +141,33 @@ const Download = styled.a`
   }
 `;
 
+const SendStatus = styled(RcText)`
+  float: right;
+  clear: both;
+`;
+
+function MessageSendStatus({ direction, status }: { direction: string, status: string }) {
+  if (direction === 'Inbound') {
+    return null;
+  }
+  if (status === 'Queued') {
+    return (
+      <SendStatus variant="caption1" color="neutral.f04">Sending</SendStatus>
+    );
+  }
+  if (status === 'SendingFailed') {
+    return (
+      <SendStatus variant="caption1" color="danger.f02">Sending failure</SendStatus>
+    );
+  }
+  if (status === 'DeliveryFailed') {
+    return (
+      <SendStatus variant="caption1" color="danger.f02">Delivery failure</SendStatus>
+    );
+  }
+  return null;
+}
+
 export const Message = ({
   subject = '',
   time = undefined,
@@ -151,6 +178,7 @@ export const Message = ({
   currentLocale,
   onAttachmentDownload = undefined,
   onLinkClick,
+  messageStatus,
 }: {
   subject: string;
   time?: string;
@@ -161,6 +189,7 @@ export const Message = ({
   currentLocale: string;
   onAttachmentDownload?: any;
   onLinkClick: any;
+  messageStatus: string;
 }) => {
   let subjectNode;
   if (subject && !isBlank(subject)) {
@@ -214,6 +243,7 @@ export const Message = ({
       {sender && direction === 'Inbound' ? (
         <Sender>{sender}</Sender>
       ) : null}
+      <MessageSendStatus direction={direction} status={messageStatus} />
       <MessageTextWrapper
         data-sign={`${direction}Text`}
         inbound={direction === 'Inbound'}
@@ -330,6 +360,7 @@ export function ConversationMessageList({
         currentLocale={currentLocale}
         onAttachmentDownload={onAttachmentDownload}
         onLinkClick={onLinkClick}
+        messageStatus={message.messageStatus}
       />
     );
   });
