@@ -656,6 +656,7 @@ export default class Adapter extends AdapterModuleCore {
         glip: this._appFeatures.hasGlipPermission,
         smartNote: this._appFeatures.hasSmartNotePermission,
         call: this._appFeatures.isCallingEnabled,
+        ringSenseInsights: this._appFeatures.hasRingSenseInsightsPermission,
       };
     }
     this._postMessage({

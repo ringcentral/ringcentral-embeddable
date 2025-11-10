@@ -16,6 +16,7 @@ import {
   RcTypography,
   RcSelect,
   RcMenuItem,
+  RcChip,
 } from '@ringcentral/juno';
 import { ArrowRight, ArrowUp2, ArrowDown2, Logout, Lock } from '@ringcentral/juno-icon';
 
@@ -464,12 +465,40 @@ interface LogoutItemProps {
   onLogout: () => void;
   loginNumber: string;
   currentLocale: string;
+  ringSenseLicensed: boolean;
 }
+
+const LoginNumberLine = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const StyledChip = styled(RcChip)`
+  margin-left: 8px;
+  height: 20px;
+  line-height: 20px;
+  font-size: 0.75rem;
+  background-color: ${palette2('highlight', 'b03')};
+  color: ${palette2('neutral', 'f01')};
+
+  &:hover {
+    background-color: ${palette2('highlight', 'b03')};
+  }
+
+  .MuiChip-label {
+    padding: 0 10px;
+  }
+
+  .MuiChip-label {
+    padding: 0 10px;
+  }
+`;
 
 export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
   currentLocale,
   onLogout,
   loginNumber,
+  ringSenseLicensed,
 }) => {
   return (
     <StyledSettingItem
@@ -482,9 +511,23 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
         primaryTypographyProps={{
           color: 'neutral.f05',
         }}
-        secondary={loginNumber}
+        secondary={
+          <LoginNumberLine>
+            {loginNumber}
+            {ringSenseLicensed ? (
+              <RcTooltip title="RingSense is licensed">
+                <StyledChip
+                  label="RingSense"
+                  color="warning.b03"
+                />
+              </RcTooltip>
+              ) : null
+            }
+          </LoginNumberLine>
+        }
         secondaryTypographyProps={{
           'data-sign': 'loginNumber',
+          component: 'div',
         }}
       />
       <RcListItemSecondaryAction>

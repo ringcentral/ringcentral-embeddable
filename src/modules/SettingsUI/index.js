@@ -75,6 +75,7 @@ export class SettingsUI extends BaseSettingsUI {
       showPhoneNumberFormatSettings: true,
       showHUDSettings: appFeatures.hasHUDPermission,
       hudEnabled: monitoredExtensions.enabled,
+      ringSenseLicensed: appFeatures.hasRingSenseInsightsPermission,
     };
   }
 
