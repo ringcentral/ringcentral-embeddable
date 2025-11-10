@@ -111,6 +111,7 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   smartNoteAutoStartEnabledReadOnlyReason?: string;
   gotoCallQueuePresenceSettings: () => void;
   showCallQueuePresenceSettings: boolean;
+  ringSenseLicensed: boolean;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -430,6 +431,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   onSmartNoteAutoStartToggle,
   gotoCallQueuePresenceSettings,
   showCallQueuePresenceSettings,
+  ringSenseLicensed = false,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'group',
@@ -619,6 +621,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         onLogoutButtonClick,
         version,
         versionContainer,
+        ringSenseLicensed,
       }}
     >
       {

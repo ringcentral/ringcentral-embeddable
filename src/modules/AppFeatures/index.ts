@@ -127,6 +127,12 @@ export class AppFeatures extends AppFeaturesBase {
     );
   }
 
+  get hasRingSenseInsightsPermission() {
+    return (
+      this._deps.extensionFeatures.features?.ReadRingSenseInsights?.available ?? false
+    );
+  }
+
   get showAudioInitPrompt() {
     return !!this.config.AudioInitPrompt;
   }
