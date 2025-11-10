@@ -25,7 +25,11 @@ const StyledPanel = styled(Panel)`
   background-color: ${palette2('neutral', 'b02')};
 `;
 
-export const BasePanel: FunctionComponent<BasePanelProps> = ({
+interface NewBasePanelProps extends BasePanelProps {
+  ringSenseLicensed: boolean;
+}
+
+export const BasePanel: FunctionComponent<NewBasePanelProps> = ({
   currentLocale,
   className,
   showSpinner,
@@ -37,6 +41,7 @@ export const BasePanel: FunctionComponent<BasePanelProps> = ({
   onEulaLinkClick,
   version,
   versionContainer,
+  ringSenseLicensed,
 }) => {
   if (showSpinner) {
     return <SpinnerOverlay />;
@@ -56,6 +61,7 @@ export const BasePanel: FunctionComponent<BasePanelProps> = ({
             onLogoutButtonClick,
             version,
             versionContainer,
+            ringSenseLicensed,
           }}
         />
       </StyledPanel>

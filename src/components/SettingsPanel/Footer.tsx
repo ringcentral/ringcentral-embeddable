@@ -17,7 +17,11 @@ const StyledVersionContainer = styled(RcText)`
   font-size: 0.815rem;
 `;
 
-export const Footer: FunctionComponent<FooterProps> = ({
+interface NewFooterProps extends FooterProps {
+  ringSenseLicensed: boolean;
+}
+
+export const Footer: FunctionComponent<NewFooterProps> = ({
   loginNumber,
   currentLocale,
   version,
@@ -26,6 +30,7 @@ export const Footer: FunctionComponent<FooterProps> = ({
   eulaLabel,
   eulaLink,
   onEulaLinkClick,
+  ringSenseLicensed,
 }) => {
   const versionArea = versionContainer || (
     <StyledVersionContainer
@@ -53,6 +58,7 @@ export const Footer: FunctionComponent<FooterProps> = ({
           onLogout={onLogoutButtonClick}
           loginNumber={loginNumber}
           currentLocale={currentLocale}
+          ringSenseLicensed={ringSenseLicensed}
         />
       </StyledSection>
       {versionArea}
