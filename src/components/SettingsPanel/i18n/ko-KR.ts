@@ -2,6 +2,7 @@ export default {
   general: '일반',
   region: "지역",
   calling: "통화 중",
+  phone: "전화",
   text: "SMS",
   logout: "로그아웃",
   version: "버전",

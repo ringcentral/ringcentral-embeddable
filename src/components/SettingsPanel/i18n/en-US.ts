@@ -3,6 +3,7 @@ export default {
   theme: "Theme",
   region: 'Region',
   calling: 'Calling',
+  phone: 'Phone',
   text: 'Text',
   logout: 'Logout',
   version: 'Version',
@@ -31,6 +32,7 @@ export default {
   status: 'Status',
   acceptQueueCalls: 'Accept calls from call queue',
   appearance: 'Appearance',
-  voicemailDropSettings: 'Voicemail drop settings (Beta)',
+  voicemailDropSettings: 'Voicemail drop settings',
   phoneNumberFormat: 'Phone number format',
+  hud: 'Heads-up display (HUD)',
 };
