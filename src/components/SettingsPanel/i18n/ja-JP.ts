@@ -2,6 +2,7 @@ export default {
   general: '一般',
   region: "地域",
   calling: "発信中",
+  phone: "電話",
   text: "テキスト",
   logout: "ログアウト",
   version: "バージョン",

@@ -2,6 +2,7 @@ export default {
   general: 'Algemeen',
   region: "Regio",
   calling: "Bellen",
+  phone: "Telefoon",
   logout: "Afmelden",
   version: "Versie",
   settings: "Instellingen",

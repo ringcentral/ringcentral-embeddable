@@ -2,6 +2,7 @@ export default {
   general: 'Geral',
   region: "Região",
   calling: "A chamar",
+  phone: "Telefone",
   logout: "Terminar sessão",
   version: "Versão",
   settings: "Definições",

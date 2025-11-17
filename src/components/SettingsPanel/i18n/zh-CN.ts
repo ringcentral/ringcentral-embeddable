@@ -2,6 +2,7 @@ export default {
   general: '常规',
   region: "地区",
   calling: "呼叫",
+  phone: "电话",
   text: "短信",
   logout: "退出登录",
   version: "版本",

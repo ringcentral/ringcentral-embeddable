@@ -1,6 +1,7 @@
 export default {
   region: "Región",
   calling: "Llamando",
+  phone: 'Teléfono',
   text: "SMS",
   logout: "Cerrar sesión",
   version: "Versión",

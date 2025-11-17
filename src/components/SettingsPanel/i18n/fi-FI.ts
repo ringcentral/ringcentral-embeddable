@@ -2,6 +2,7 @@ export default {
   general: 'Yleinen',
   region: "Alue",
   calling: "Soittaminen",
+  phone: 'Puhelin',
   logout: "Kirjaudu ulos",
   version: "Versio",
   settings: "Asetukset",

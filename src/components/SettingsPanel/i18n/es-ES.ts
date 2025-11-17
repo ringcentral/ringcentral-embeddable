@@ -2,6 +2,7 @@ export default {
   region: "Región",
   calling: "Llamando",
   text: "Mensaje",
+  phone: 'Teléfono',
   logout: "Cerrar sesión",
   version: "Versión",
   settings: "Configuración",

@@ -2,6 +2,7 @@ export default {
   general: 'Geral',
   region: "Região",
   calling: "Chamadas",
+  phone: "Telefone",
   text: "Texto",
   logout: "Fazer logout",
   version: "Versão",
