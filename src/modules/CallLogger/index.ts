@@ -1,4 +1,4 @@
-import { computed } from '@ringcentral-integration/core';
+import { computed, watch } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { CallLogger as CallLoggerBase } from '@ringcentral-integration/commons/modules/CallLogger';
 import { isRinging } from '@ringcentral-integration/commons/lib/callLogHelpers';
@@ -64,6 +64,46 @@ export class CallLogger extends CallLoggerBase {
     ) {
       this._setAutoLog(this._deps.thirdPartyService.callLoggerAutoSettingReadOnlyValue);
     }
+  }
+
+  override onInitOnce() {
+    super.onInitOnce();
+    watch(
+      this,
+      () => this._deps.callLog.calls,
+      (newCalls, oldCalls) => {
+        if (!this.ready) {
+          return;
+        }
+        const oldCallsMap = {};
+        const maxOldHandledCount = oldCalls.length > 20 ? 20 : oldCalls.length;
+        for (let i = 0; i < maxOldHandledCount; i++) {
+          const oldCall = oldCalls[i];
+          oldCallsMap[oldCall.telephonySessionId] = oldCall;
+        }
+        const maxNewHandledCount = newCalls.length > 20 ? 20 : newCalls.length;
+        for (let i = 0; i < maxNewHandledCount; i++) {
+          const newCall = newCalls[i];
+          if (!newCall.recording) {
+            continue;
+          }
+          const oldCall = oldCallsMap[newCall.telephonySessionId];
+          // For new call log added, it will be handled by this._deps.callHistory.endedCalls watcher
+          if (!oldCall) {
+            continue;
+          }
+          // only handle new recording data found
+          if (oldCall.recording) {
+            continue;
+          }
+          const call = this._deps.callHistory.calls.find(call => call.telephonySessionId === newCall.telephonySessionId);
+          if (!call) {
+            return;
+          }
+          this._onCallUpdated(call, callLoggerTriggerTypes.callLogSync);
+        }
+      }
+    );
   }
 
   async getRecentUnloggedCalls({
