@@ -1,6 +1,6 @@
 {
   "name": "ringcentral-embeddable",
-  "version": "3.0.0-alpha.2",
+  "version": "3.0.0-beta",
   "description": "A RingCentral Embeddable Widget Application",
   "main": "index.js",
   "license": "MIT",
