@@ -55,7 +55,7 @@ export class CallLog extends CallLogBase {
       daySpan,
     });
     if (newRecords.length > 0 || newSupplementRecords.length > 0) {
-      this._eventEmitter.emit('syncSuccess', newRecords);
+      this._eventEmitter.emit('syncSuccess');
     }
   }
 
