@@ -126,7 +126,7 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto calling setting page successfully', async () => {
     await widgetIframe.gotoSettingsPage();
-    await widgetIframe.clickSettingSection('calling');
+    await widgetIframe.clickSettingSection('calling', 'phone');
     const headerLabel = await widgetIframe.getHeaderLabel();
     expect(headerLabel).toEqual('Calling');
     await widgetIframe.clickBackButton();
