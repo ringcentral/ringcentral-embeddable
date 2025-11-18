@@ -190,4 +190,13 @@ export class SharedSipClient extends EventEmitter implements SipClient {
       activeTabId,
     });
   }
+
+  public async syncActiveTabId() {
+    const response = await this.workerRequest({ type: 'getActiveTabId' });
+    const activeTabId = response as string;
+    if (activeTabId && this.activeTabId !== activeTabId) {
+      this.activeTabId = activeTabId;
+    }
+    return this.activeTabId;
+  }
 }

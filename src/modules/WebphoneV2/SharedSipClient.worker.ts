@@ -143,27 +143,36 @@ class Transport extends EventEmitter {
 
     return new Promise<void>((resolve, reject) => {
       const openEventHandler = () => {
+        clearTimeout(this.connectTimeoutHandle);
+        this.connectTimeoutHandle = null;
         this.wsc.removeEventListener("open", openEventHandler);
         this.wsc.removeEventListener("error", errorEventHandler);
-        clearTimeout(this.connectTimeoutHandle);
         this.wsc.addEventListener("message", this.onMessage);
         resolve();
       };
       const errorEventHandler = (e) => {
+        clearTimeout(this.connectTimeoutHandle);
+        this.connectTimeoutHandle = null;
         this.wsc.removeEventListener("error", errorEventHandler);
         this.wsc.removeEventListener("message", this.onMessage);
-        clearTimeout(this.connectTimeoutHandle);
         this.wsc = null;
         reject(e);
       };
+      if (this.connectTimeoutHandle) {
+        clearTimeout(this.connectTimeoutHandle);
+      }
       this.connectTimeoutHandle = setTimeout(() => {
         this.logger.log('Connection timeout, closing connection');
-        this.wsc.removeEventListener("open", openEventHandler);
-        this.wsc.removeEventListener("error", errorEventHandler);
-        this.wsc.removeEventListener("message", this.onMessage);
+        if (this.wsc) {
+          this.wsc.removeEventListener("open", openEventHandler);
+          this.wsc.removeEventListener("error", errorEventHandler);
+          this.wsc.removeEventListener("message", this.onMessage);
+        }
         reject(new Error('Connection timeout'));
-        this.wsc.close();
-        this.wsc = null;
+        if (this.wsc) {
+          this.wsc.close();
+          this.wsc = null;
+        }
       }, this.connectionTimeout * 1000);
       this.wsc.addEventListener("open", openEventHandler);
       this.wsc.addEventListener("error", errorEventHandler);
@@ -239,6 +248,10 @@ class Transport extends EventEmitter {
       return;
     }
     this.logger.log('Transport disconnected');
+    if (this.connectTimeoutHandle) {
+      clearTimeout(this.connectTimeoutHandle);
+      this.connectTimeoutHandle = null;
+    }
     this.setStatus('disconnected');
     this.wsc.removeEventListener('message', this.onMessage);
     this.wsc.close();
@@ -544,6 +557,7 @@ const sipClient = new SharedWorkerSipClient();
 let ports: MessagePort[] = [];
 let mainPort: MessagePort;
 let sharedState = {};
+let activeTabId: string | null = null;
 
 // @ts-ignore
 onconnect = (event) => {
@@ -570,7 +584,7 @@ onconnect = (event) => {
       return;
     }
     if (type === 'setActive') {
-      const activeTabId = event.data.activeTabId;
+      activeTabId = event.data.activeTabId;
       logger.log('setActive', activeTabId);
       mainPort = port;
       if (!ports.find((p) => p === port)) {
@@ -587,6 +601,7 @@ onconnect = (event) => {
           activeTabId,
         });
       });
+      return;
     }
     if (type === 'setSharedState') {
       const state = event.data.state;
@@ -612,6 +627,14 @@ onconnect = (event) => {
           type: 'workerResponse',
           requestId,
           response: sharedState,
+        });
+        return;
+      }
+      if (request.type === 'getActiveTabId') {
+        port.postMessage({
+          type: 'workerResponse',
+          requestId,
+          response: activeTabId,
         });
         return;
       }

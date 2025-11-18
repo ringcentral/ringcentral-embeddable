@@ -538,6 +538,9 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         });
         await this._syncSharedState();
         await this._setActive();
+        if (!this._sharedSipClient.activeTabId) {
+          await this._sharedSipClient.syncActiveTabId();
+        }
         const statusResponse = await this._sharedSipClient.getStatus();
         if (statusResponse.status === 'registered') {
           this._onWebphoneRegistered({
