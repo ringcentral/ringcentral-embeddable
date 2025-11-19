@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RcGrid as Grid, RcDivider as Divider } from '@ringcentral/juno';
+import { RcGrid as Grid, RcDivider as Divider, styled } from '@ringcentral/juno';
 import {
   FormContextType,
   ObjectFieldTemplateProps,
@@ -11,6 +11,10 @@ import {
   getUiOptions,
   titleId,
 } from '@rjsf/utils';
+
+const StyledDivider = styled(Divider)`
+  margin-top: 8px;
+`;
 
 export default function ObjectFieldTemplate<
   T = any,
@@ -77,6 +81,7 @@ export default function ObjectFieldTemplate<
           schema={schema}
           uiSchema={uiSchema}
           registry={registry}
+          style={{ marginTop: '-4px' }}
         />
       )}
       {
@@ -92,7 +97,7 @@ export default function ObjectFieldTemplate<
               const style = uiSchemaProperty?.['ui:bulletedList'] ? {
                 marginLeft: '16px',
               } : {
-                marginBottom: '10px'
+                marginBottom: uiSchemaProperty?.['ui:collapsible'] ? '0' : '10px'
               };
               return (
                 <Grid item={true} xs={12} key={index} style={style}>
@@ -117,7 +122,7 @@ export default function ObjectFieldTemplate<
         )
       }
       {
-        collapsible && (<Divider />)
+        collapsible && (<StyledDivider />)
       }
     </>
   );
