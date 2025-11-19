@@ -3,7 +3,6 @@ import {
   RcBox as Box,
   RcTypography as Typography,
   RcIcon,
-  RcDivider as Divider,
   styled,
   css,
 } from '@ringcentral/juno';
@@ -26,7 +25,7 @@ const StyledBox = styled(Box)<{ $clickable: boolean }>`
 `;
 
 const StyledIcon = styled(RcIcon)`
-  margin: 4px 0;
+  margin: 0;
 `;
 
 export default function TitleField<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any>({
@@ -43,7 +42,7 @@ export default function TitleField<T = any, S extends StrictRJSFSchema = RJSFSch
       $clickable={collapsible}
       onClick={onClick}
     >
-      <StyledTitle variant="subheading1" color="neutral.f06" component="div">{title}</StyledTitle>
+      <StyledTitle variant={extended ? 'body2' : 'body1'} color="neutral.f06" component="div">{title}</StyledTitle>
       {
         collapsible ? (
           <StyledIcon
@@ -51,9 +50,6 @@ export default function TitleField<T = any, S extends StrictRJSFSchema = RJSFSch
             color="neutral.f06"
           />
         ) : null
-      }
-      {
-        collapsible ? null : (<Divider />)
       }
     </StyledBox>
   );
