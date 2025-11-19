@@ -80,21 +80,18 @@ export default function CheckboxWidget<
   const _onBlur = ({ target: { value } }: FocusEvent<HTMLButtonElement>) => onBlur(id, value);
   const _onFocus = ({ target: { value } }: FocusEvent<HTMLButtonElement>) => onFocus(id, value);
   const description = options.description ?? schema.description;
-  let labelNode: ReactNode = labelValue(label, hideLabel, false);
-  if (!hideLabel && !!description) {
-    labelNode = (
-      <StyledSwitchLabelWrapper>
-        {labelNode}
-        <DescriptionFieldTemplate
-          id={descriptionId<T>(id)}
-          description={description}
-          schema={schema}
-          uiSchema={uiSchema}
-          registry={registry}
-        />
-      </StyledSwitchLabelWrapper>
-    );
-  }
+  const labelNode: ReactNode = (!hideLabel && !!description) ? (
+    <StyledSwitchLabelWrapper>
+      {labelValue(label, hideLabel, false)}
+      <DescriptionFieldTemplate
+        id={descriptionId<T>(id)}
+        description={description}
+        schema={schema}
+        uiSchema={uiSchema}
+        registry={registry}
+      />
+    </StyledSwitchLabelWrapper>
+  ) :labelValue(label, hideLabel, false);
   return (
     <>
       <SwitchContainer>
