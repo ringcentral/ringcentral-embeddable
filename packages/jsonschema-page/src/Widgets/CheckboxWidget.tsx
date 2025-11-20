@@ -1,4 +1,5 @@
 import React, { FocusEvent } from 'react';
+import type { ReactNode } from 'react';
 import {
   RcSwitch,
   styled,
@@ -39,6 +40,11 @@ const StyledSwitch = styled(RcSwitch)`
   `}
 `;
 
+const StyledSwitchLabelWrapper = styled.span`
+  display: inline-flex;
+  flex-direction: column;
+`;
+
 export default function CheckboxWidget<
   T = any,
   S extends StrictRJSFSchema = RJSFSchema,
@@ -74,18 +80,20 @@ export default function CheckboxWidget<
   const _onBlur = ({ target: { value } }: FocusEvent<HTMLButtonElement>) => onBlur(id, value);
   const _onFocus = ({ target: { value } }: FocusEvent<HTMLButtonElement>) => onFocus(id, value);
   const description = options.description ?? schema.description;
-
+  const labelNode: ReactNode = (!hideLabel && !!description) ? (
+    <StyledSwitchLabelWrapper>
+      {labelValue(label, hideLabel, false)}
+      <DescriptionFieldTemplate
+        id={descriptionId<T>(id)}
+        description={description}
+        schema={schema}
+        uiSchema={uiSchema}
+        registry={registry}
+      />
+    </StyledSwitchLabelWrapper>
+  ) :labelValue(label, hideLabel, false);
   return (
     <>
-      {!hideLabel && !!description && (
-        <DescriptionFieldTemplate
-          id={descriptionId<T>(id)}
-          description={description}
-          schema={schema}
-          uiSchema={uiSchema}
-          registry={registry}
-        />
-      )}
       <SwitchContainer>
         <StyledSwitch
           id={id}
@@ -101,7 +109,7 @@ export default function CheckboxWidget<
           formControlLabelProps={{
             labelPlacement: 'start',
           }}
-          label={labelValue(label, hideLabel, false)}
+          label={labelNode}
           readOnly={readonly}
         />
       </SwitchContainer>

@@ -367,24 +367,8 @@ export const BooleanToggleWidget: Story = {
       required: ['requiredToggle'],
     },
     uiSchema: {
-      basicToggle: {
-        'ui:widget': 'checkbox',
-      },
-      defaultTrue: {
-        'ui:widget': 'checkbox',
-      },
       requiredToggle: {
-        'ui:widget': 'checkbox',
         'ui:help': 'This field is required',
-      },
-      consentToggle: {
-        'ui:widget': 'checkbox',
-      },
-      privacyToggle: {
-        'ui:widget': 'checkbox',
-      },
-      notificationToggle: {
-        'ui:widget': 'checkbox',
       },
     },
     formData: {
