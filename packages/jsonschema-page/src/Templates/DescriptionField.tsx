@@ -15,10 +15,12 @@ export default function DescriptionField<
   S extends StrictRJSFSchema = RJSFSchema,
   F extends FormContextType = any
 >(props: DescriptionFieldProps<T, S, F>) {
-  const { id, description, style = {} } = props;
+  const { id, description, style = {}, uiSchema = {} } = props;
   if (description) {
+    const disabled = uiSchema['ui:disabled'] || false;
+    const color = disabled ? 'disabled.f02' : 'neutral.f05';
     return (
-      <StyledTypography id={id} variant="caption1" color="neutral.f05" component="div" style={style}>
+      <StyledTypography id={id} variant="caption1" color={color} component="div" style={style}>
         {
           typeof description === 'string' ? <TextWithMarkdown text={description} /> : description
         }
