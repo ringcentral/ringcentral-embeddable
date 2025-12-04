@@ -49,8 +49,8 @@ export class SharedSipClient extends EventEmitter implements SipClient {
         }
         this.emit('outboundMessage', OutboundMessage.fromString(event.data.message));
       } else if (event.data.type === 'status') {
-        this._logger.log('status', event.data.status);
-        this.emit('status', event.data.status);
+        this._logger.log('status', event.data.status, event.data.error);
+        this.emit('status', event.data.status, event.data.error);
       } else if (event.data.type === 'transportStatus') {
         this._logger.log('transportStatus', event.data.status);
         this.emit('transportStatus', event.data.status);

@@ -561,12 +561,25 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     } catch (e) {
       this._logger.error(e);
       let errorCode = webphoneErrors.unknownError;
-      if (e.message && e.message.indexOf('SIP/2.0 603') > -1) {
-        errorCode = webphoneErrors.webphoneCountOverLimit;
+      let statusCode = null;
+      if (e.message) {
+        if (e.message.indexOf('SIP/2.0 603') > -1) {
+          errorCode = webphoneErrors.webphoneCountOverLimit;
+          statusCode = 603;
+        } else if (e.message.indexOf('SIP/2.0 403') > -1) {
+          errorCode = webphoneErrors.webphoneForbidden;
+          statusCode = 403;
+        } else if (e.message.indexOf('SIP/2.0 500') > -1) {
+          errorCode = webphoneErrors.internalServerError;
+          statusCode = 500;
+        } else if (e.message.indexOf('SIP/2.0 504') > -1) {
+          errorCode = webphoneErrors.serverTimeout;
+          statusCode = 504;
+        }
       }
       this._onConnectError({
         errorCode,
-        statusCode: null,
+        statusCode,
         ttl: 0,
       });
     }
@@ -690,8 +703,19 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         // }
         if (status === 'registrationError') {
           let errorCode = webphoneErrors.unknownError;
+          let statusCode = null;
           if (error && error.indexOf('SIP/2.0 603') > -1) {
             errorCode = webphoneErrors.webphoneCountOverLimit;
+            statusCode = 603;
+          } else if (error && error.indexOf('SIP/2.0 403') > -1) {
+            errorCode = webphoneErrors.webphoneForbidden;
+            statusCode = 403;
+          } else if (error && error.indexOf('SIP/2.0 500') > -1) {
+            errorCode = webphoneErrors.internalServerError;
+            statusCode = 500;
+          } else if (error && error.indexOf('SIP/2.0 504') > -1) {
+            errorCode = webphoneErrors.serverTimeout;
+            statusCode = 504;
           }
           this._onConnectError({
             errorCode,
@@ -1008,7 +1032,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     }
     if (this._sharedSipClient && !force) {
       this._logger.log('disconnecting this port from shared sip client');
-      await this._sharedSipClient.dispose();
+      this._sharedSipClient.dispose();
       return;
     }
     if (this._connectTimeout) {
