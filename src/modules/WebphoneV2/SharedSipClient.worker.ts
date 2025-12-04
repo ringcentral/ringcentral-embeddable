@@ -488,8 +488,13 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
       inboundMessage = await this.request(newMessage);
     } else if (inboundMessage.subject.startsWith("SIP/2.0 603 ")) {
       throw new Error("Registration failed: " + inboundMessage.subject);
+    } else if (inboundMessage.subject.startsWith("SIP/2.0 403 ")) {
+      throw new Error("Registration failed: " + inboundMessage.subject);
     }
     if (expires > 0) { // not for unregister
+      if (!inboundMessage.headers.Contact) {
+        throw new Error("Registration failed: " + inboundMessage.subject);
+      }
       const serverExpires = Number(
         inboundMessage.headers.Contact.match(/;expires=(\d+)/)![1],
       );
@@ -538,17 +543,17 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
       });
     }
     return new Promise<InboundMessage>((resolve) => {
-      const messageListerner = (inboundMessage: InboundMessage) => {
+      const messageListener = (inboundMessage: InboundMessage) => {
         if (inboundMessage.headers.CSeq !== message.headers.CSeq) {
           return;
         }
         if (inboundMessage.subject.startsWith("SIP/2.0 100 ")) {
           return; // ignore
         }
-        this.off("inboundMessage", messageListerner);
+        this.off("inboundMessage", messageListener);
         resolve(inboundMessage);
       };
-      this.on("inboundMessage", messageListerner);
+      this.on("inboundMessage", messageListener);
     });
   }
 }

@@ -33,6 +33,6 @@ export class AlertUI extends AlertUIBase {
           ttl: 0,
         });
       },
-    }; 
+    };
   }
 }

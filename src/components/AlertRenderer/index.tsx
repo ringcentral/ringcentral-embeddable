@@ -1,6 +1,7 @@
 import React from 'react';
 
 import FormattedMessage from '@ringcentral-integration/widgets/components/FormattedMessage';
+import { webphoneErrors } from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
 import { RcLink } from '@ringcentral/juno';
 import { styled } from '@ringcentral/juno/foundation';
 import { CustomizedAlert } from './CustomizedAlert';
@@ -106,6 +107,12 @@ export function getAlertRenderer({
           }}
         />
       );
+    }
+    if (
+      message.message === webphoneErrors.webphoneCountOverLimit ||
+      message.message === webphoneErrors.webphoneForbidden
+    ) {
+      return () => 'Account signed in on another device. Phone access lost on this device. Limit active devices and log in again to restore phone functionality.';
     }
     return null;
   };
