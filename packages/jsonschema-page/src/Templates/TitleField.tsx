@@ -36,13 +36,15 @@ export default function TitleField<T = any, S extends StrictRJSFSchema = RJSFSch
   onClick = undefined
 }: TitleFieldProps<T, S, F>) {
   const collapsible = uiSchema['ui:collapsible'] || false;
+  const disabled = uiSchema['ui:disabled'] || false;
+  const color = disabled ? 'disabled.f01' : 'neutral.f06';
   return (
     <StyledBox
       id={id} mb={1} mt={1}
       $clickable={collapsible}
       onClick={onClick}
     >
-      <StyledTitle variant={extended ? 'body2' : 'body1'} color="neutral.f06" component="div">{title}</StyledTitle>
+      <StyledTitle variant={extended ? 'body2' : 'body1'} color={color} component="div">{title}</StyledTitle>
       {
         collapsible ? (
           <StyledIcon
