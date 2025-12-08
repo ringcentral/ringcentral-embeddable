@@ -185,6 +185,9 @@ export default class ThirdPartyService extends RcModuleV2 {
         if (service.doNotContactPath) {
           this._registerDoNotContact(service);
         }
+        if (service.banner) {
+          this._setCustomizedBanner(service.banner);
+        }
         const oldAuthorizedStatus = this.authorized;
         if (service.authorizationPath) {
           this._registerAuthorizationButton(service);
@@ -219,6 +222,8 @@ export default class ThirdPartyService extends RcModuleV2 {
         this._onRegisterApp(e.data);
       } else if (e.data.type === 'rc-adapter-unregister-widget-app') {
         this._onUnregisterApp(e.data);
+      } else if (e.data.type === 'rc-adapter-update-customized-banner') {
+        this._setCustomizedBanner(e.data.banner);
       }
     });
     watch(
@@ -1816,6 +1821,76 @@ export default class ThirdPartyService extends RcModuleV2 {
       this.pinAppIds.splice(index, 1);
     } else {
       this.pinAppIds.push(appId);
+    }
+  }
+
+  @globalStorage
+  @state
+  customizedBanner: {
+    id: string;
+    message: string;
+    severity?: 'info' | 'warning' | 'error' | 'success';
+    action?: {
+      label: string;
+      variant?: 'text' | 'outlined' | 'contained' | 'plain';
+      color?: string;
+    };
+    closable?: boolean;
+  } | null = null;
+
+  @action
+  _setCustomizedBanner(banner) {
+    if (!banner || banner.hidden) {
+      this.customizedBanner = null;
+      return;
+    }
+    this.customizedBanner = {
+      ...(this.customizedBanner || {}),
+      id: banner.id,
+      message: banner.message || '',
+      severity: banner.severity || 'info',
+      action: banner.action,
+      closable: banner.closable || false,
+    };
+  }
+
+  async onBannerAction() {
+    if (!this._additionalButtonPath) {
+      console.warn('Button event path is not registered');
+      return;
+    }
+    if (!this.customizedBanner) {
+      console.warn('Banner not found');
+      return;
+    }
+    try {
+      await requestWithPostMessage(this._additionalButtonPath, {
+        button: {
+          id: this.customizedBanner.id,
+          type: 'customizedBanner',
+          label: this.customizedBanner.action?.label,
+        },
+      });
+    } catch (e) {
+      console.error('Banner action error', e);
+    }
+  }
+
+  async onBannerClose() {
+    const bannerId = this.customizedBanner?.id;
+    this._setCustomizedBanner(null);
+    if (this._additionalButtonPath && bannerId) {
+      try {
+        await requestWithPostMessage(this._additionalButtonPath, {
+          button: {
+            id: bannerId,
+            type: 'customizedBanner',
+            dismissed: true,
+          },
+        });
+      } catch (e) {
+        console.error('Banner close error', e);
+      }
     }
   }
 }

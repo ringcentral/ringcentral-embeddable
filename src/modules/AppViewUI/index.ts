@@ -16,6 +16,7 @@ import { callingModes } from '@ringcentral-integration/commons/modules/CallingSe
     'RouterInteraction',
     'SideDrawerUI',
     'Webphone',
+    'ThirdPartyService',
   ],
 })
 export class AppViewUI extends RcUIModuleV2 {
@@ -38,6 +39,7 @@ export class AppViewUI extends RcUIModuleV2 {
       auth,
       sideDrawerUI,
       routerInteraction,
+      thirdPartyService,
     } = this._deps;
 
     return ({
@@ -63,6 +65,7 @@ export class AppViewUI extends RcUIModuleV2 {
           routerInteraction.currentPath.indexOf('/conferenceCall') > -1
         )
       ),
+      customizedBanner: thirdPartyService.customizedBanner,
     });
   }
   
@@ -77,6 +80,7 @@ export class AppViewUI extends RcUIModuleV2 {
       webphone,
       routerInteraction,
       sideDrawerUI,
+      thirdPartyService,
     } = this._deps;
     return ({
       onSetData: (options) => {
@@ -96,6 +100,12 @@ export class AppViewUI extends RcUIModuleV2 {
         if (sideDrawerUI.modalOpen) {
           sideDrawerUI.clearWidgets();
         }
+      },
+      onCustomizedBannerAction: () => {
+        thirdPartyService.onBannerAction();
+      },
+      onCustomizedBannerClose: () => {
+        thirdPartyService.onBannerClose();
       },
     });
   }
