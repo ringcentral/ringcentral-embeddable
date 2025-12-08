@@ -10,6 +10,7 @@ import MeetingInviteModal from '../MeetingInviteModal';
 import { IncomingCallContainer } from '../IncomingCallContainer';
 import { DemoOnlyBanner } from '../../components/DemoOnlyBanner';
 import { InitializeAudioBanner } from '../../components/InitializeAudioBanner';
+import { ThirdPartyBanner, ThirdPartyBannerProps } from '../../components/ThirdPartyBanner';
 import { EnvironmentPanel } from '../../components/EnvironmentPanel';
 
 import './styles.scss';
@@ -61,6 +62,9 @@ function AppView({
   redirectUri,
   contactSourceRenderer,
   sourceIcons,
+  customizedBanner = null,
+  onCustomizedBannerAction,
+  onCustomizedBannerClose,
 }: {
   showDemoWarning: boolean,
   dismissDemoWarning: Function,
@@ -80,6 +84,9 @@ function AppView({
   onSetData: Function,
   redirectUri: string,
   sourceIcons: any,
+  customizedBanner: ThirdPartyBannerProps | null,
+  onCustomizedBannerAction: () => void,
+  onCustomizedBannerClose: () => void,
 }) {
   const mainContent = useRef(null);
   return (
@@ -96,6 +103,11 @@ function AppView({
             />
           ) : null
         }
+        <ThirdPartyBanner
+          banner={customizedBanner}
+          onAction={onCustomizedBannerAction}
+          onClose={onCustomizedBannerClose}
+        />
         <Content ref={mainContent}>
           {children}
           <CallBadgeContainer
