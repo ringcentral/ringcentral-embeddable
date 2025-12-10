@@ -44,7 +44,17 @@ export class CallLog extends CallLogBase {
     supplementRecords = [],
     daySpan,
   }) {
-    const newRecords = records.filter((record) => record.type !== 'Fax');
+    const newRecords = records.filter((record) => {
+      if (record.type === 'Fax') {
+        // Fax message will be received from message store. We don't need to sync it here in call log.
+        return false;
+      }
+      if (record.direction === 'Outbound' && record.result === 'IP Phone Offline') {
+        // filter out IP phone offline call logs, it is not useful for us. Following call log will override it.
+        return false;
+      }
+      return true;
+    });
     const newSupplementRecords = supplementRecords.filter((record) => record.type !== 'Fax');
   
     super.syncSuccess({
