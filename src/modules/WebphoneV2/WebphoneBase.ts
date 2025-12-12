@@ -861,7 +861,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       this._sharedSipClient &&
       (this._deps.tabManager && !this._deps.tabManager.active)
     ) {
-      // for reconnecting, we allow need active tab to trigger reconnecting
+      // for reconnecting, we only allow active tab to trigger reconnecting
       this._logger.warn('web phone will be reconnected in active tab');
       return false;
     }
