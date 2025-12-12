@@ -677,7 +677,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     //   allowDuplicates: false,
     // });
     // only re-connect in active tab
-    if (this._deps.tabManager && !this._deps.tabManager.active) {
+    if (this._sharedSipClient && this._deps.tabManager && !this._deps.tabManager.active) {
       return;
     }
     this.connect({
