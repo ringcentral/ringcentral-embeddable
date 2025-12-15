@@ -23,6 +23,7 @@ import type {
     'Auth',
     'Storage',
     'Alert',
+    'TabManager',
     { dep: 'MonitoredExtensionsOptions', optional: true }
   ],
 })
@@ -97,6 +98,10 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
     if (!this.hasPermission) {
       return;
     }
+    if (this._deps.tabManager && !this._deps.tabManager.active) {
+      // only active tab need to sync
+      return;
+    }
     try {
       await this._deps.dataFetcherV2.fetchData(this._source);
       const newExtensionIds = [];
@@ -123,6 +128,7 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
     this._stopWatching = null;
   }
 
+  @storage
   @state
   presences: {
     [key: string]: PresenceData;
@@ -185,6 +191,9 @@ export class MonitoredExtensions extends DataFetcherV2Consumer<
 
   async fetchPresences(extensionIds) {
     if (extensionIds.length === 0) {
+      return;
+    }
+    if (this._deps.tabManager && !this._deps.tabManager.active) {
       return;
     }
     try {
