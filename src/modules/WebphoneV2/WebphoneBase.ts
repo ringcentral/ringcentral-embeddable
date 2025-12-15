@@ -3,6 +3,7 @@ import type PhoneLinesInfo from 'ringcentral-client/build/definitions/PhoneLines
 import RingCentralWebphone from 'ringcentral-web-phone';
 import type { SipInfo } from 'ringcentral-web-phone/dist/esm/types';
 import type InboundCallSession from 'ringcentral-web-phone/dist/esm/call-session/inbound';
+import type OutboundCallSession from 'ringcentral-web-phone/dist/esm/call-session/outbound';
 import type CreateSipRegistrationResponse from '@rc-ex/core/lib/definitions/CreateSipRegistrationResponse';
 import type SipRegistrationDeviceInfo from '@rc-ex/core/lib/definitions/SipRegistrationDeviceInfo';
 import {
@@ -104,6 +105,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   protected _stopWebphoneUserAgentPromise?: Promise<unknown> | null = null;
   protected _removedWebphoneAtBeforeUnload = false;
   protected _sharedSipClient?: SharedSipClient | null = null;
+  protected _connectPromise?: Promise<void> | null = null;
   protected _audioDeviceManager?: AudioDeviceManager | null = null;
   protected _ringtoneHelper?: RingtoneHelper | null = null;
 
@@ -306,7 +308,6 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         setTimeout(() => {
           this._removedWebphoneAtBeforeUnload = false;
           this.connect({
-            force: true,
             skipConnectDelay: true,
             skipDLCheck: true,
           });
@@ -501,7 +502,29 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     try {
       this._logger.log('disposing webphone');
       if (this._webphone) {
-        await this._webphone.dispose();
+        // we override dispose function from sdk to fix remotePeer undefined issue
+        this._webphone.disposed = true;
+        for (const callSession of this._webphone.callSessions) {
+          try {
+            if (callSession.state === "answered") {
+              await callSession.hangup();
+            } else if (callSession.direction === "inbound") {
+              await (callSession as InboundCallSession).decline();
+            } else {
+              if (callSession.remotePeer) {
+                await (callSession as OutboundCallSession).cancel();
+              } else {
+                this._logger.warn('The call session is not in progress, dispose it directly')
+                callSession.dispose()
+              }
+            }
+            // callSession.dispose() will be auto triggered by the above methods
+          } catch (e) {
+            this._logger.error('Fail to disconnect call session', callSession.callId);
+          }
+        }
+        this._webphone.removeAllListeners();
+        await this._webphone.sipClient.dispose();
       } else if (this._sharedSipClient) {
         await this._sharedSipClient.dispose();
       }
@@ -653,6 +676,10 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     //   message: webphoneErrors.provisionUpdate,
     //   allowDuplicates: false,
     // });
+    // only re-connect in active tab
+    if (this._sharedSipClient && this._deps.tabManager && !this._deps.tabManager.active) {
+      return;
+    }
     this.connect({
       force: true,
       skipDLCheck: true,
@@ -696,11 +723,17 @@ export class WebphoneBase extends RcModuleV2<Deps> {
           this._onWebphoneUnregistered();
           return;
         }
-        // TODO: registering emitted every register loop
-        // if (status === 'registering') {
-        //   this._setConnectionStatus(connectionStatus.connecting);
-        //   return;
-        // }
+        if (
+          status === 'registering' &&
+          !this.connected
+        ) {
+          if (this.connectError || this.connectFailed) {
+            this._setConnectionStatus(connectionStatus.reconnecting);
+          } else {
+            this._setConnectionStatus(connectionStatus.connecting);
+          }
+          return;
+        }
         if (status === 'registrationError') {
           let errorCode = webphoneErrors.unknownError;
           let statusCode = null;
@@ -727,12 +760,15 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       });
       this._sharedSipClient.on('transportStatus', (status) => {
         this._logger.log('shared sip client transport status', status);
-        if ((this.connected || this.connectError) && status === 'connecting') {
-          // this._deps.alert.warning({
-          //   message: webphoneErrors.serverConnecting,
-          //   allowDuplicates: false,
-          // });
-          this._setStateOnReconnect();
+        if (status === 'connecting') {
+          if (this.connecting || this.reconnecting) {
+            return;
+          }
+          if (this.connected || this.connectError || this.connectFailed) {
+            this._setStateOnReconnect();
+          } else {
+            this._setConnectionStatus(connectionStatus.connecting)
+          }
         } else if (status === 'error') {
           // error after connect retries
           this._onConnectError({
@@ -756,13 +792,14 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       });
       try {
         const statusResponse = await this._sharedSipClient.getStatus();
+        this._logger.log('Shared sip client status', statusResponse.status);
         if (
           statusResponse.status !== 'init' &&
           statusResponse.status !== 'disconnected' &&
           statusResponse.status !== 'unregistered' &&
           statusResponse.status !== 'error'
         ) {
-          this._logger.log('Reuse shared sip client status', statusResponse);
+          this._logger.log('reuse shared sip client status');
           // already connected
           sipProvision = {
             device: statusResponse.device,
@@ -808,15 +845,24 @@ export class WebphoneBase extends RcModuleV2<Deps> {
 
   _isAvailableToConnect({ force }: { force: boolean }) {
     if (!this.enabled || !this._deps.auth.loggedIn) {
+      this._logger.warn('web phone is not enabled or no loggedIn');
       return false;
     }
     // do not connect if it is connecting
     // do not reconnect when user disconnected
-    if (this.connecting || this.disconnecting || this.inactiveDisconnecting) {
+    if (this.connecting || this.reconnecting || this.disconnecting || this.inactiveDisconnecting) {
       return false;
     }
     // do not connect when connected unless force
     if (!force && this.connected) {
+      return false;
+    }
+    if (
+      this._sharedSipClient &&
+      (this._deps.tabManager && !this._deps.tabManager.active)
+    ) {
+      // for reconnecting, we only allow active tab to trigger reconnecting
+      this._logger.warn('web phone will be reconnected in active tab');
       return false;
     }
     return true;
@@ -924,11 +970,12 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       });
       this._hideConnectingAlert();
       // Need to show unavailable badge and reconnect in background when third retry
-      // sleep before next reconnect for slient reconnect in background
+      // sleep before next reconnect for silent reconnect in background
       await sleep(this._getConnectTimeoutTtl());
       if (!this.connectError) {
         return;
       }
+      this._logger.log('trigger connect after connect error');
       this.connect({ skipConnectDelay: true, force: true, skipDLCheck: true });
       return;
     }
@@ -945,6 +992,7 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       });
       this._hideConnectFailedAlert();
     }
+    this._logger.log('trigger connect after connect failed');
     this.connect({
       skipDLCheck: true,
       skipConnectDelay: true,

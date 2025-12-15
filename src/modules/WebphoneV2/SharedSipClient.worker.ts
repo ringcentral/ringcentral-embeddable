@@ -59,7 +59,7 @@ class Transport extends EventEmitter {
   private connectionTimeout = 5;
   // private disconnectPromise: Promise<void> | null = null;
   private onMessage: (event: MessageEvent) => void;
-  private onClose: () => void;
+  private onClose: (event: CloseEvent) => void;
   private reconnectTimeoutHandle: NodeJS.Timeout;
 
   constructor({
@@ -93,6 +93,13 @@ class Transport extends EventEmitter {
     }
     this.onMessage = (event) => {
       this.emit('message', event);
+    };
+    this.onClose = (event: CloseEvent) => {
+      this.logger.warn('Transport closed');
+      this.emit('close');
+      if (this.status !== 'disconnected') {
+        this.setStatus('disconnected'); // set status to error to trigger reconnect
+      }
     };
   }
 
@@ -148,6 +155,7 @@ class Transport extends EventEmitter {
         this.wsc.removeEventListener("open", openEventHandler);
         this.wsc.removeEventListener("error", errorEventHandler);
         this.wsc.addEventListener("message", this.onMessage);
+        this.wsc.addEventListener("close", this.onClose);
         resolve();
       };
       const errorEventHandler = (e) => {
@@ -167,6 +175,7 @@ class Transport extends EventEmitter {
           this.wsc.removeEventListener("open", openEventHandler);
           this.wsc.removeEventListener("error", errorEventHandler);
           this.wsc.removeEventListener("message", this.onMessage);
+          this.wsc.removeEventListener("close", this.onClose);
         }
         reject(new Error('Connection timeout'));
         if (this.wsc) {
@@ -243,19 +252,28 @@ class Transport extends EventEmitter {
   }
 
   public _disconnect() {
-    if (!this.wsc || this.status === 'disconnected') {
+    if (!this.wsc) {
       this.logger.warn('Transport is already disconnected');
       return;
     }
-    this.logger.log('Transport disconnected');
+    if (this.status === 'disconnected') {
+      this.logger.warn('Transport is already disconnected');
+    } else {
+      this.logger.log('Transport disconnected');
+    }
     if (this.connectTimeoutHandle) {
       clearTimeout(this.connectTimeoutHandle);
       this.connectTimeoutHandle = null;
     }
-    this.setStatus('disconnected');
-    this.wsc.removeEventListener('message', this.onMessage);
-    this.wsc.close();
-    this.wsc = null;
+    if (this.status !== 'disconnected') {
+      this.setStatus('disconnected');
+    }
+    if (this.wsc) {
+      this.wsc.removeEventListener('message', this.onMessage);
+      this.wsc.removeEventListener('close', this.onClose);
+      this.wsc.close();
+      this.wsc = null;
+    }
     this.currentServer = null;
     this.reconnectionAttempts = 0;
   }
@@ -401,6 +419,14 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
         this.logger.log('Transport connected, registering');
         this.register(maxExpires);
       }
+      if (status === 'disconnected') {
+        // clear timeout handle to prevent register loop
+        this.logger.log('Transport disconnected, clearing timeout handle');
+        if (this.timeoutHandle) {
+          clearTimeout(this.timeoutHandle);
+          this.timeoutHandle = null;
+        }
+      }
     });
     await this.transport.connect();
   }
@@ -441,7 +467,11 @@ class SharedWorkerSipClient extends EventEmitter implements SipClient {
     }
   }
 
-   private async _register(expires: number) {
+  private async _register(expires: number) {
+    if (expires === 0 && this.transport.status === 'disconnected') {
+      this.logger.log('Transport is disconnected, skipping unregister');
+      return;
+    }
     this.logger.log('Registering with instanceId', this.instanceId);
     const requestMessage = new RequestMessage(
       `REGISTER sip:${this.sipInfo.domain} SIP/2.0`,
