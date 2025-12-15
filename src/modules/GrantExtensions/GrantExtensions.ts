@@ -17,6 +17,7 @@ import type {
     'ExtensionFeatures',
     'CompanyContacts',
     'Subscription',
+    'TabManager',
     { dep: 'GrantExtensionsOptions', optional: true }
   ],
 })
@@ -116,6 +117,10 @@ export class GrantExtensions extends DataFetcherV2Consumer<
 
   async sync() {
     if (!this._hasPermission) {
+      return;
+    }
+    if (this._deps.tabManager && !this._deps.tabManager.active) {
+      // do not sync when the tab is not active
       return;
     }
     await this._deps.dataFetcherV2.fetchData(this._source);
