@@ -225,6 +225,8 @@ import { VoicemailDropUI } from '../VoicemailDropUI';
 import { VoicemailDropSettingsUI } from '../VoicemailDropSettingsUI';
 import { GrantExtensions } from '../GrantExtensions';
 import { MonitoredExtensions } from '../MonitoredExtensions';
+import { MessageThreads } from '../MessageThreads';
+import { MessageThreadEntries } from '../MessageThreadEntries';
 import { ParkUI } from '../ParkUI';
 
 // user Dependency Injection with decorator to create a phone class
@@ -482,6 +484,8 @@ import { ParkUI } from '../ParkUI';
     { provide: 'VoicemailDropSettingsUI', useClass: VoicemailDropSettingsUI },
     { provide: 'VoicemailDropUI', useClass: VoicemailDropUI },
     { provide: 'MonitoredExtensions', useClass: MonitoredExtensions },
+    { provide: 'MessageThreads', useClass: MessageThreads },
+    { provide: 'MessageThreadEntries', useClass: MessageThreadEntries },
     { provide: 'GrantExtensions', useClass: GrantExtensions },
     { provide: 'ParkUI', useClass: ParkUI },
   ]

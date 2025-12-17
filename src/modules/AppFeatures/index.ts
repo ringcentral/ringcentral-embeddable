@@ -187,6 +187,14 @@ export class AppFeatures extends AppFeaturesBase {
     );
   }
 
+  get hasMessageThreadsPermission() {
+    return (
+      this.config.SMS &&
+      this.appScopes.indexOf('SMS') > -1 &&
+      (this._deps.extensionFeatures.features?.MessageThreads?.available ?? false)
+    );
+  }
+
   @computed((that: AppFeatures) => [that._deps.featureConfiguration, that.configState])
   get config() {
     return {
