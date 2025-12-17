@@ -99,6 +99,22 @@ export interface ThreadAssignmentSystemHit {
 
 export type MessageThreadEntry = AliveMessage | DeletedMessage | AliveNote | DeletedNote | ThreadSystemHint | ThreadAssignmentSystemHit;
 
+export type MessageThreadEntriesStoreItem = Omit<MessageThreadEntry, 'lastModifiedTime' | 'creationTime'> & {
+  lastModifiedTime: number;
+  creationTime: number;
+};
+
+export type MessageThreadEntriesStore = Record<string, MessageThreadEntriesStoreItem[]>;
+
+export interface MessageThreadEntriesStoreData {
+  store: MessageThreadEntriesStore;
+  syncInfo: {
+    syncToken: string;
+    syncTime: string;
+    syncType: string;
+  };
+}
+
 export interface MessageThreadEntriesData {
   records: MessageThreadEntry[];
   syncInfo?: {

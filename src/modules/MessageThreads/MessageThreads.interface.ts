@@ -46,8 +46,22 @@ export interface MessageThread {
   lastModifiedTime: string;
 }
 
+export type MessageThreadSavedItem = Omit<MessageThread, 'creationTime' | 'lastModifiedTime'> & {
+  creationTime: number;
+  lastModifiedTime: number;
+};
+
 export interface MessageThreadsData {
   records: MessageThread[];
+  syncInfo: {
+    syncToken: string;
+    syncTime: string;
+    syncType: string;
+  }
+}
+
+export interface MessageThreadsSavedData {
+  records: MessageThreadSavedItem[];
   syncInfo: {
     syncToken: string;
     syncTime: string;

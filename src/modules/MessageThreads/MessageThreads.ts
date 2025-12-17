@@ -6,6 +6,9 @@ import type {
   Deps,
   MessageThreadsData,
   MessageThreadsSubscriptionMessage,
+  MessageThreadsSavedData,
+  MessageThreadSavedItem,
+  MessageThread,
 } from './MessageThreads.interface';
 
 @Module({
@@ -14,17 +17,19 @@ import type {
     'Client',
     'DataFetcherV2',
     'AppFeatures',
+    'MessageThreadEntries',
     'Auth',
+    'TabManager',
     { dep: 'Subscription', optional: true },
     { dep: 'MessageThreadsOptions', optional: true },
   ],
 })
 export class MessageThreads extends DataFetcherV2Consumer<
   Deps,
-  MessageThreadsData
+  MessageThreadsSavedData
 > {
   private _stopWatching: any;
-  private _source: DataSource<MessageThreadsData>;
+  private _source: DataSource<MessageThreadsSavedData>;
 
   constructor(deps: Deps) {
     super({
@@ -66,7 +71,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
     }
   }
 
-  async _syncFunction(syncToken?: string) {
+  async _syncFunction(syncToken?: string): Promise<MessageThreadsData> {
     const syncType = syncToken ? 'ISync' : 'FSync';
     const params: {
       syncType: string;
@@ -83,16 +88,42 @@ export class MessageThreads extends DataFetcherV2Consumer<
     return response.json();
   }
 
-  _mergeData(newDate: MessageThreadsData) {
-    const { records, syncInfo } = newDate;
-    const existingRecords = this.data?.records ?? [];
-    const oldRecords = existingRecords.filter((record) => {
-      return !records.some((newRecord) => newRecord.id === record.id);
+  _mergeData(records: MessageThread[], isFullSync = false) {
+    const existingRecords: MessageThreadSavedItem[] = this.data?.records ?? [];
+    let newRecords: MessageThreadSavedItem[] = [];
+    if (!isFullSync) {
+      if (records.length === 0) {
+        return existingRecords;
+      }
+      newRecords = [].concat(existingRecords);
+    }
+    records.forEach((record) => {
+      const oldRecordIndex = existingRecords.findIndex((existingRecord) => existingRecord.id === record.id);
+      if (record.availability === 'Deleted') {
+        if (oldRecordIndex !== -1) {
+          newRecords.splice(oldRecordIndex, 1);
+        }
+        return;
+      }
+      const lastModifiedTime = new Date(record.lastModifiedTime).getTime();
+      if (oldRecordIndex !== -1) {
+        const oldRecord = newRecords[oldRecordIndex];
+        if (lastModifiedTime > oldRecord.lastModifiedTime) {
+          newRecords[oldRecordIndex] = {
+            ...record,
+            lastModifiedTime,
+            creationTime: new Date(record.creationTime).getTime(),
+          };
+        }
+      } else {
+        newRecords.push({
+          ...record,
+          lastModifiedTime,
+          creationTime: new Date(record.creationTime).getTime(),
+        });
+      }
     });
-    return {
-      records: [...records, ...oldRecords].filter((record) => record.availability === 'Alive'),
-      syncInfo,
-    };
+    return newRecords.sort((a, b) => a.creationTime - b.creationTime);
   }
 
   async _syncData() {
@@ -109,7 +140,10 @@ export class MessageThreads extends DataFetcherV2Consumer<
         throw e;
       }
       if (this._deps.auth.ownerId === ownerId) {
-        return this._mergeData(data);
+        return {
+          records: this._mergeData(data.records, !syncToken),
+          syncInfo: data.syncInfo,
+        };
       }
     } catch (e) {
       if (this._deps.auth.ownerId === ownerId) {
@@ -121,6 +155,9 @@ export class MessageThreads extends DataFetcherV2Consumer<
 
   async sync() {
     if (!this.hasPermission) {
+      return;
+    }
+    if (this._deps.tabManager && !this._deps.tabManager.active) {
       return;
     }
     await this.fetchData();
@@ -140,9 +177,19 @@ export class MessageThreads extends DataFetcherV2Consumer<
     this._stopWatching = null;
   }
 
-  @computed((that: MessageThreads) => [that.data])
+  @computed((that: MessageThreads) => [
+    that.data,
+    that._deps.messageThreadEntries.store,
+  ])
   get threads() {
-    return this.data?.records ?? [];
+    const list = this.data?.records ?? [];
+    const store = this._deps.messageThreadEntries.store;
+    return list.map((thread) => {
+      return {
+        ...thread,
+        entries: store[thread.id] ?? [],
+      };
+    });
   }
 
   get hasPermission() {

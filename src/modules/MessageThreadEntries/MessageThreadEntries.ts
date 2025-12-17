@@ -6,6 +6,12 @@ import type {
   Deps,
   MessageThreadEntriesData,
   MessageThreadEntriesSubscriptionMessage,
+  MessageThreadEntry,
+  MessageThreadEntriesStore,
+  MessageThreadEntriesStoreData,
+  DeletedMessage,
+  AliveMessage,
+  AliveNote,
 } from './MessageThreadEntries.interface';
 
 @Module({
@@ -15,16 +21,17 @@ import type {
     'DataFetcherV2',
     'AppFeatures',
     'Auth',
+    'TabManager',
     { dep: 'Subscription', optional: true },
     { dep: 'MessageThreadEntriesOptions', optional: true },
   ],
 })
 export class MessageThreadEntries extends DataFetcherV2Consumer<
   Deps,
-  MessageThreadEntriesData
+  MessageThreadEntriesStoreData
 > {
   private _stopWatching: any;
-  private _source: DataSource<MessageThreadEntriesData>;
+  private _source: DataSource<MessageThreadEntriesStoreData>;
 
   constructor(deps: Deps) {
     super({
@@ -66,7 +73,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     }
   }
 
-  async _syncFunction(syncToken?: string) {
+  async _syncFunction(syncToken?: string): Promise<MessageThreadEntriesData> {
     const syncType = syncToken ? 'ISync' : 'FSync';
     const params: {
       syncType: string;
@@ -90,16 +97,59 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     return response.json();
   }
 
-  _mergeData(newData: MessageThreadEntriesData) {
-    const { records, syncInfo } = newData;
-    const existingRecords = this.data?.records ?? [];
-    const oldRecords = existingRecords.filter((record) => {
-      return !records.some((newRecord) => newRecord.id === record.id);
+  _mergeIntoStoreData(records: MessageThreadEntry[] = [], isFullSync = false) {
+    const oldStore: MessageThreadEntriesStore = this.data?.store ?? {};
+    let newStore: MessageThreadEntriesStore = {};
+    if (!isFullSync) {
+      if (records.length === 0) {
+        return oldStore;
+      }
+      newStore = { ...oldStore };
+    }
+    const updatedStoreKeys: Record<string, number> = {};
+    records.forEach((record) => {
+      const threadId = record.threadId;
+      const lastModifiedTime = new Date(record.lastModifiedTime).getTime();
+      const entries = newStore[threadId] ? [].concat(newStore[threadId]) : [];
+      const oldIndex = entries.findIndex((entry) => entry.id === record.id);
+      if ((record as DeletedMessage).availability === 'Deleted') {
+        if (oldIndex !== -1) {
+          newStore[threadId].splice(oldIndex, 1);
+        }
+        if (newStore[threadId].length === 0) {
+          delete newStore[threadId];
+        }
+        return;
+      }
+      if (oldIndex !== -1) {
+        const oldEntry = entries[oldIndex];
+        if (lastModifiedTime > oldEntry.lastModifiedTime) {
+          entries[oldIndex] = {
+            ...record,
+            lastModifiedTime,
+            creationTime:
+              (record as AliveMessage | AliveNote).creationTime ?
+                new Date((record as AliveMessage | AliveNote).creationTime).getTime() :
+                lastModifiedTime,
+          };
+        }
+      } else {
+        entries.push({
+          ...record,
+          lastModifiedTime,
+          creationTime:
+            (record as AliveMessage | AliveNote).creationTime ?
+              new Date((record as AliveMessage | AliveNote).creationTime).getTime() :
+              lastModifiedTime,
+        });
+      }
+      newStore[threadId] = entries;
+      updatedStoreKeys[threadId] = 1;
     });
-    return {
-      records: [...records, ...oldRecords].filter((record) => record.availability === 'Alive'),
-      syncInfo,
-    };
+    Object.keys(updatedStoreKeys).forEach((threadId) => {
+      newStore[threadId] = newStore[threadId].sort((a, b) => a.creationTime - b.creationTime);
+    });
+    return newStore;
   }
 
   async _syncData() {
@@ -116,7 +166,10 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
         throw e;
       }
       if (this._deps.auth.ownerId === ownerId) {
-        return this._mergeData(data);
+        return {
+          store: this._mergeIntoStoreData(data.records, !syncToken),
+          syncInfo: data.syncInfo,
+        };
       }
     } catch (e) {
       if (this._deps.auth.ownerId === ownerId) {
@@ -139,6 +192,9 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     if (!this.hasPermission) {
       return;
     }
+    if (this._deps.tabManager && !this._deps.tabManager.active) {
+      return;
+    }
     await this.fetchData();
   }
 
@@ -148,8 +204,8 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   }
 
   @computed((that: MessageThreadEntries) => [that.data])
-  get entries() {
-    return this.data?.records ?? [];
+  get store() {
+    return this.data?.store ?? {};
   }
 
   get hasPermission() {
@@ -168,4 +224,3 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     return this.data?.syncInfo;
   }
 }
-

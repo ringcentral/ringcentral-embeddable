@@ -13,6 +13,7 @@ import { getConversationPhoneNumber } from '../../lib/conversationHelper';
     'Auth',
     'ThirdPartyService',
     'PhoneNumberFormat',
+    'AppFeatures',
   ],
 })
 export class ConversationsUI extends BaseConversationsUI {
@@ -21,26 +22,38 @@ export class ConversationsUI extends BaseConversationsUI {
     that._deps.conversations.hasSharedSmsAccess,
     that._deps.messageStore.personalTextUnreadCounts,
     that._deps.messageStore.sharedTextUnreadCounts,
+    that._deps.appFeatures.hasMessageThreadsPermission,
   ])
   get ownerTabs() {
     if (
       this._deps.conversations.typeFilter !== messageTypes.text ||
-      !this._deps.conversations.hasSharedSmsAccess
+      (
+        !this._deps.conversations.hasSharedSmsAccess &&
+        !this._deps.appFeatures.hasMessageThreadsPermission
+      )
     ) {
       return [];
     }
-    return [
-      {
-        label: 'Direct',
-        value: 'Personal',
-        unreadCounts: this._deps.messageStore.personalTextUnreadCounts,
-      },
-      {
+    const tabs = [{
+      label: 'Direct',
+      value: 'Personal',
+      unreadCounts: this._deps.messageStore.personalTextUnreadCounts,
+    }];
+    if (this._deps.appFeatures.hasSharedSmsAccess) {
+      tabs.push({
         label: 'Call queue',
         value: 'Shared',
         unreadCounts: this._deps.messageStore.sharedTextUnreadCounts,
-      },
-    ];
+      });
+    }
+    if (this._deps.appFeatures.hasMessageThreadsPermission) {
+      tabs.push({
+        label: 'Shared',
+        value: 'Threads',
+        unreadCounts: 0,
+      });
+    }
+    return tabs;
   }
 
   getUIProps({
