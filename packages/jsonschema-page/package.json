@@ -58,7 +58,7 @@
     "querystring-es3": "^0.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "storybook": "^9.0.12",
+    "storybook": "^9.1.17",
     "stream-browserify": "^3.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "typescript": "^5.7.2",
