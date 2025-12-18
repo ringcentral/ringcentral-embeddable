@@ -1,4 +1,4 @@
-import { computed, watch } from '@ringcentral-integration/core';
+import { computed, watch, state, action, storage } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
 
@@ -22,6 +22,7 @@ import type {
     'AppFeatures',
     'Auth',
     'TabManager',
+    'Storage',
     { dep: 'Subscription', optional: true },
     { dep: 'MessageThreadEntriesOptions', optional: true },
   ],
@@ -32,10 +33,13 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
 > {
   private _stopWatching: any;
   private _source: DataSource<MessageThreadEntriesStoreData>;
+  private _syncPromise: Promise<MessageThreadEntriesStoreData> | null = null;
 
   constructor(deps: Deps) {
     super({
       deps,
+      enableCache: true,
+      storageKey: 'MessageThreadEntries',
     });
     this._source = new DataSource({
       ...deps.messageThreadEntriesOptions,
@@ -156,18 +160,25 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     const { ownerId } = this._deps.auth;
     try {
       const syncToken = this.syncInfo?.syncToken;
+      let isFullSyncing = !syncToken;
       let data;
       try {
         data = await this._syncFunction(syncToken);
       } catch (e: any) {
         if (syncToken && e.response?.status === 400) {
+          isFullSyncing = false;
           data = await this._syncFunction(null);
         }
         throw e;
       }
       if (this._deps.auth.ownerId === ownerId) {
+        const store = this._mergeIntoStoreData(data.records, !syncToken);
+        if (isFullSyncing) {
+          this.clearUnreadCountMap(Object.keys(store));
+        }
+        this.markEntriesAsUnread(data.records);
         return {
-          store: this._mergeIntoStoreData(data.records, !syncToken),
+          store,
           syncInfo: data.syncInfo,
         };
       }
@@ -184,8 +195,14 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   }
 
   override async fetchData() {
-    const data = await this._syncData();
+    if (this._syncPromise) {
+      return this._syncPromise;
+    }
+    this._syncPromise = this._syncData();
+    const data = await this._syncPromise;
+    this._syncPromise = null;
     this._updateData(data);
+    return data;
   }
 
   async sync() {
@@ -222,5 +239,33 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
 
   get syncInfo() {
     return this.data?.syncInfo;
+  }
+
+  @storage
+  @state
+  unreadCountMap: Record<string, number> = {};
+
+  @action
+  markEntriesAsUnread(entries: MessageThreadEntry[]) {
+    entries.forEach((entry) => {  
+      if (entry.recordType === 'AliveMessage') {
+        this.unreadCountMap[entry.threadId] = (this.unreadCountMap[entry.threadId] ?? 0) + 1;
+      }
+    });
+  }
+
+  @action
+  clearUnreadCountMap(currentThreadIds: string[]) {
+    const threadIds = Object.keys(this.unreadCountMap);
+    threadIds.forEach((threadId) => {
+      if (!currentThreadIds.includes(threadId)) {
+        delete this.unreadCountMap[threadId];
+      }
+    });
+  }
+
+  @action
+  markThreadAsRead(threadId: string) {
+    delete this.unreadCountMap[threadId];
   }
 }

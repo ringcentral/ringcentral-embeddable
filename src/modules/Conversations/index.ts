@@ -2,14 +2,18 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import { Conversations as ConversationsBase } from '@ringcentral-integration/commons/modules/Conversations';
 import { conversationsStatus } from '@ringcentral-integration/commons/modules/Conversations/conversationsStatus';
 import { messageTypes } from '@ringcentral-integration/commons/enums/messageTypes';
-
+import { sortSearchResults } from '@ringcentral-integration/commons/lib/messageHelper';
 import { action, state, computed } from '@ringcentral-integration/core';
 import type GetMessageList from '@rc-ex/core/lib/definitions/GetMessageList';
 import type ListMessagesParameters from '@rc-ex/core/lib/definitions/ListMessagesParameters';
+import cleanNumber from '@ringcentral-integration/commons/lib/cleanNumber';
 
 @Module({
   name: 'NewConversations',
-  deps: []
+  deps: [
+    'MessageThreads',
+    'MessageThreadEntries',
+  ]
 })
 export class Conversations extends ConversationsBase {
   override async updateTypeFilter(type) {
@@ -41,15 +45,23 @@ export class Conversations extends ConversationsBase {
   }
 
   @state
-  ownerFilter = 'Personal'; // Personal, Shared
+  ownerFilter = 'Personal'; // Personal, Shared, Threads
 
   @action
   _setOwnerFilter(filter) {
     this.ownerFilter = filter;
+    this.currentPage = 1;
   }
 
   updateOwnerFilter(filter) {
+    if (filter === this.ownerFilter) {
+      return;
+    }
     this._setOwnerFilter(filter);
+    if (filter === 'Threads') {
+      this._deps.messageThreads.sync();
+      this._deps.messageThreadEntries.sync();
+    }
   }
 
   @state
@@ -84,11 +96,12 @@ export class Conversations extends ConversationsBase {
     that.searchFilter,
     that.ownerFilter,
     that.typeFilter,
+    that.formattedMessageThreads,
   ])
   get pagingConversations() {
     const pageNumber = this.currentPage;
     const lastIndex = pageNumber * this._perPage;
-    let searchFiltered = this.filteredConversations;
+    let searchFiltered = this.ownerFilter === 'Threads' ? this.filteredMessageThreads : this.filteredConversations;
     if (this.searchFilter !== 'All') {
       searchFiltered = searchFiltered.filter((conversation) => {
         if (this.searchFilter === 'Unread') {
@@ -103,10 +116,16 @@ export class Conversations extends ConversationsBase {
         return true;
       });
     }
+    if (this.ownerFilter === 'Threads') {
+      searchFiltered = searchFiltered.filter((conversation) => {
+        return conversation.status === 'Open';
+      });
+    }
     if (
       this.typeFilter === messageTypes.text &&
       this.hasSharedSmsAccess &&
-      this.ownerFilter
+      this.ownerFilter &&
+      this.ownerFilter !== 'Threads'
     ) {
       searchFiltered = searchFiltered.filter((conversation) => {
         if (this.ownerFilter === 'Personal') {
@@ -122,11 +141,18 @@ export class Conversations extends ConversationsBase {
     return this._deps.messageStore.hasSharedAccess && this._deps.messageStore.sharedSmsConversations.length > 0;
   }
 
+  get hasMessageThreadsPermission() {
+    return this._deps.messageThreads.hasPermission;
+  }
+
   async fetchOldConversations() {
     if (!this._olderDataExisted) {
       return;
     }
     if (this.loadingOldConversations) {
+      return;
+    }
+    if (this.ownerFilter === 'Threads') {
       return;
     }
     this._updateFetchConversationsStatus(conversationsStatus.fetching);
@@ -177,5 +203,121 @@ export class Conversations extends ConversationsBase {
         this._updateFetchConversationsStatus(conversationsStatus.idle);
       }
     }
+  }
+
+  @computed((that: Conversations) => [
+    that._deps.messageThreads.threads,
+    that._deps.contactMatcher?.dataMapping,
+    that._deps.conversationLogger?.loggingMap,
+  ])
+  get formattedMessageThreads() {
+    const messageThreads = this._deps.messageThreads.threads;
+    const contactMapping = this._deps.contactMatcher?.dataMapping ?? {};
+    const loggingMap = this._deps.conversationLogger?.loggingMap ?? {};
+    const conversationLogMapping =
+      (this._deps.conversationLogger &&
+        this._deps.conversationLogger.dataMapping
+      ) || {};
+    return messageThreads.map((thread) => {
+      const self = thread.ownerParty;
+      const correspondents = [thread.guestParty];
+      const selfNumber = self.phoneNumber;
+      const selfMatches = (selfNumber && contactMapping[selfNumber]) || [];
+      const correspondentMatches = correspondents.reduce((matches, correspondent) => {
+        const number = correspondent.phoneNumber;
+        if (number) {
+          return matches.concat(contactMapping[number] || []);
+        }
+        return matches;
+      }, []);
+      const conversationLogId = this._deps.conversationLogger
+        ? this._deps.conversationLogger.getMessageThreadLogId(thread)
+        : null;
+      const isLogging = !!(conversationLogId && loggingMap[conversationLogId]);
+      const conversationLogMatches = conversationLogMapping[conversationLogId] || [];
+      const formatted = {
+        ...thread,
+        correspondents,
+        self,
+        selfMatches,
+        correspondentMatches,
+        conversationLogId,
+        isLogging,
+        conversationLogMatches,
+        conversationId: thread.id,
+        type: 'Thread',
+      };
+      formatted.lastMatchedCorrespondentEntity = this._deps.conversationLogger?.getLastMatchedCorrespondentEntity(formatted);
+      return formatted;
+    });
+  }
+
+  @computed((that: Conversations) => [
+    that.formattedMessageThreads,
+    that.effectiveSearchString,
+  ])
+  get filteredMessageThreads() {
+    const conversations = this.formattedMessageThreads;
+    const effectiveSearchString = this.effectiveSearchString;
+    if (effectiveSearchString === '') {
+      return conversations;
+    }
+    const cleanRegex = /[^\d*+#\s]/g;
+    const searchString = effectiveSearchString.toLowerCase();
+    const searchNumber = effectiveSearchString.replace(cleanRegex, '');
+    const cleanSearchNumber = cleanNumber(searchNumber);
+    const searchResults = [];
+    conversations.forEach((conversation) => {
+      if (searchNumber === effectiveSearchString) {
+        // only digital
+        if (conversation.correspondents.some((correspondent) => correspondent.phoneNumber.includes(cleanSearchNumber))) {
+          searchResults.push({
+            ...conversation,
+            matchOrder: 0,
+          });
+          return;
+        }
+      }
+      if (conversation.correspondentMatches.length > 0) {
+        conversation.correspondentMatches.forEach((match) => {
+          const name = match.name || [match.firstName, match.lastName].filter(Boolean).join(' ');
+          if (name && name.toLowerCase().includes(searchString)) {
+            searchResults.push({
+              ...conversation,
+              matchOrder: 0,
+            });
+            return;
+          }
+        });
+      } else if (
+        conversation.correspondents.some(
+          (correspondent) => correspondent.name && correspondent.name.toLowerCase().includes(searchString)
+        )
+      ) {
+        searchResults.push({
+          ...conversation,
+          matchOrder: 0,
+        });
+        return;
+      }
+      if (conversation.subject && conversation.subject.toLowerCase().includes(searchString)) {
+        searchResults.push({
+          ...conversation,
+          matchOrder: 1,
+        });
+        return;
+      }
+      const matchedMessage = conversation.messages.find((message) => {
+        return message.subject && message.subject.toLowerCase().includes(searchString);
+      });
+      if (matchedMessage) {
+        searchResults.push({
+          ...conversation,
+          matchOrder: 1,
+          matchedMessage,
+        });
+      }
+    });
+    return searchResults.sort(sortSearchResults);
   }
 }

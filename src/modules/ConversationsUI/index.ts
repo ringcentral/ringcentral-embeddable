@@ -14,6 +14,7 @@ import { getConversationPhoneNumber } from '../../lib/conversationHelper';
     'ThirdPartyService',
     'PhoneNumberFormat',
     'AppFeatures',
+    'MessageThreads',
   ],
 })
 export class ConversationsUI extends BaseConversationsUI {
@@ -23,6 +24,7 @@ export class ConversationsUI extends BaseConversationsUI {
     that._deps.messageStore.personalTextUnreadCounts,
     that._deps.messageStore.sharedTextUnreadCounts,
     that._deps.appFeatures.hasMessageThreadsPermission,
+    that._deps.messageThreads.unreadCounts,
   ])
   get ownerTabs() {
     if (
@@ -50,7 +52,7 @@ export class ConversationsUI extends BaseConversationsUI {
       tabs.push({
         label: 'Shared',
         value: 'Threads',
-        unreadCounts: 0,
+        unreadCounts: this._deps.messageThreads.unreadCounts,
       });
     }
     return tabs;

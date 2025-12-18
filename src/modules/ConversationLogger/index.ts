@@ -4,6 +4,7 @@ import {
 } from '@ringcentral-integration/commons/modules/ConversationLogger';
 import { computed } from '@ringcentral-integration/core';
 import type { Correspondent } from '@ringcentral-integration/commons/lib/messageHelper';
+import { getLogId } from '@ringcentral-integration/commons/modules/ConversationLogger/conversationLoggerHelper';
 
 const getCurrentDateTimeStamp = () => {
   let today = new Date();
@@ -204,28 +205,26 @@ export class ConversationLogger extends ConversationLoggerBase {
   //   },
   // ]
 
-  // getConversationLogId(message) {
-  //   if (!message) {
-  //     return;
-  //   }
-  //   if (!message.creationTime) {
-  //     return null;
-  //   }
-  //   const { conversationId } = message;
-  //   let date = null;
-  //   try {
-  //     date = this._formatDateTime({
-  //       type: 'date',
-  //       utcTimestamp: message.creationTime,
-  //     });
-  //   } catch (e) {
-  //     // ignore error
-  //   }
-  //   return getLogId({
-  //     conversationId,
-  //     date,
-  //   });
-  // }
+  getMessageThreadLogId(thread) {
+    if (!thread) {
+      return;
+    }
+    const threadId = thread.id;
+    let lastModifiedTime = thread.lastModifiedTime;
+    thread.messages.forEach((entry) => {
+      if (entry.lastModifiedTime > lastModifiedTime) {
+        lastModifiedTime = entry.lastModifiedTime;
+      }
+    });
+    const date = this._formatDateTime({
+      type: 'date',
+      utcTimestamp: lastModifiedTime,
+    });
+    return getLogId({
+      conversationId: threadId,
+      date,
+    });
+  }
 
   @computed((that: ConversationLogger) => [that.conversationLogMap])
   get uniqueNumbers() {

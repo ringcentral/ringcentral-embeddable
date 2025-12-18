@@ -30,6 +30,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
 > {
   private _stopWatching: any;
   private _source: DataSource<MessageThreadsSavedData>;
+  private _syncPromise: Promise<MessageThreadsSavedData> | null = null;
 
   constructor(deps: Deps) {
     super({
@@ -168,8 +169,14 @@ export class MessageThreads extends DataFetcherV2Consumer<
   }
 
   override async fetchData() {
-    const data = await this._syncData();
+    if (this._syncPromise) {
+      return this._syncPromise;
+    }
+    this._syncPromise = this._syncData();
+    const data = await this._syncPromise;
+    this._syncPromise = null;
     this._updateData(data);
+    return data;
   }
 
   override onReset() {
@@ -180,14 +187,63 @@ export class MessageThreads extends DataFetcherV2Consumer<
   @computed((that: MessageThreads) => [
     that.data,
     that._deps.messageThreadEntries.store,
+    that._deps.messageThreadEntries.unreadCountMap,
   ])
   get threads() {
+    // format threads to similar format as normal SMS conversations
     const list = this.data?.records ?? [];
     const store = this._deps.messageThreadEntries.store;
     return list.map((thread) => {
+      const entries = store[thread.id] ?? [];
+      let latestEntry;
+      const isAssignedToMe = thread.assignee?.extensionId === this._deps.auth.ownerId;
+      entries.forEach((entry) => {
+        if (
+          entry.recordType === 'AliveMessage' &&
+          (!latestEntry || entry.lastModifiedTime > latestEntry.lastModifiedTime)
+        ) {
+          latestEntry = entry;
+        }
+      });
+      const direction = latestEntry?.direction || 'Outbound';
+      const from = direction === 'Inbound' ?
+        thread.guestParty :
+        {
+          ...thread.owner,
+          ...thread.ownerParty,
+        };
+      const to = direction === 'Inbound' ?
+        [{
+          ...thread.owner,
+          ...thread.ownerParty,
+        }] :
+        [thread.guestParty];
+      let unreadCounts = 0;
+      if (isAssignedToMe) {
+        unreadCounts = this._deps.messageThreadEntries.unreadCountMap[thread.id] ?? 0;
+      }
       return {
         ...thread,
-        entries: store[thread.id] ?? [],
+        messages: entries.map((entry) => {
+          if (entry.recordType === 'AliveMessage') {
+            return {
+              ...entry,
+              subject: entry.text,
+              direction: entry.direction,
+              from: entry.author,
+              to: entry.direction === 'Inbound' ?
+                [thread.ownerParty] :
+                [entry.guestParty],
+            };
+          }
+          return entry;
+        }),
+        unreadCounts,
+        subject: thread.label || (latestEntry?.text ?? ''),
+        direction,
+        from,
+        to,
+        isAssignedToMe,
       };
     });
   }
@@ -206,5 +262,15 @@ export class MessageThreads extends DataFetcherV2Consumer<
 
   get syncInfo() {
     return this.data?.syncInfo;
+  }
+
+  @computed((that: MessageThreads) => [
+    that.threads,
+  ])
+  get unreadCounts() {
+    if (!this.hasPermission) {
+      return 0;
+    }
+    return this.threads.reduce((a, b) => a + b.unreadCounts, 0);
   }
 }
