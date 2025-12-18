@@ -101,7 +101,8 @@ export class Conversations extends ConversationsBase {
   get pagingConversations() {
     const pageNumber = this.currentPage;
     const lastIndex = pageNumber * this._perPage;
-    let searchFiltered = this.ownerFilter === 'Threads' ? this.filteredMessageThreads : this.filteredConversations;
+    const isThreads = this.ownerFilter === 'Threads' && this.typeFilter === messageTypes.text;
+    let searchFiltered = isThreads ? this.filteredMessageThreads : this.filteredConversations;
     if (this.searchFilter !== 'All') {
       searchFiltered = searchFiltered.filter((conversation) => {
         if (this.searchFilter === 'Unread') {
@@ -116,7 +117,7 @@ export class Conversations extends ConversationsBase {
         return true;
       });
     }
-    if (this.ownerFilter === 'Threads') {
+    if (isThreads) {
       searchFiltered = searchFiltered.filter((conversation) => {
         return conversation.status === 'Open';
       });

@@ -25,6 +25,7 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import { ActionMenu } from '../ActionMenu';
 import { StatusMessage } from '../CallItem/StatusMessage';
 import { Detail } from './Detail';
+import { AssignedBadge } from './AssignedBadge';
 import { GroupNumbersDisplay } from '../ConversationPanel/GroupNumbersDisplay';
 import {
   getSelectedContact,
@@ -105,12 +106,22 @@ const StyledListItem = styled(RcListItem)<{ $hoverOnMoreMenu: boolean }>`
     margin-left: 8px;
   }
 
+  .conversation-item-assigned-badge {
+    position: absolute;
+    bottom: 32px;
+    right: 16px;
+    display: block;
+  }
+
   &:hover {
     .conversation-item-time {
       display: none;
     }
     .conversation-item-action-menu {
       display: flex;
+    }
+    .conversation-item-assigned-badge {
+      display: none;
     }
   }
 
@@ -145,8 +156,14 @@ const IconBadge = styled(RcIcon)`
 
 const StyledSecondary = styled.span`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   flex-direction: row;
+`;
+
+const StyledSecondaryLeft = styled.span`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 `;
 
 const DetailArea = styled.span`
@@ -346,6 +363,8 @@ export function ConversationItem({
     faxAttachment,
     self,
     owner,
+    assignee,
+    isAssignedToMe,
   } = conversation;
   const [selected, setSelected] = useState(getInitialContactIndex({
     correspondentMatches,
@@ -624,10 +643,10 @@ export function ConversationItem({
           component: 'div',
         }}
         secondary={
-          <>
-            <StyledSecondary>
+          <StyledSecondary>
+            <StyledSecondaryLeft>
               <DetailArea>
-              {
+                {
                   isLogged && (
                     <IconBadge
                       symbol={Disposition}
@@ -638,24 +657,30 @@ export function ConversationItem({
                 }
                 {detail}
               </DetailArea>
-              <span className="conversation-item-time">
-                {dateTimeFormatterCatchError(creationTime)}
-              </span>
-            </StyledSecondary>
-            {
-              statusMatch && (
-                <StatusMessage statusMatch={statusMatch} />
-              )
-            }
-            {
-              owner && (
-                <span className="conversation-item-owner">
-                  {owner.name}
-                </span>
-              )
-            }
-          </>
+              {
+                statusMatch && (
+                  <StatusMessage statusMatch={statusMatch} />
+                )
+              }
+              {
+                owner && (
+                  <span className="conversation-item-owner">
+                    {owner.name}
+                  </span>
+                )
+              }
+            </StyledSecondaryLeft>
+            
+            <span className="conversation-item-time">
+              {dateTimeFormatterCatchError(creationTime)}
+            </span>
+          </StyledSecondary>
         }
+      />
+      <AssignedBadge
+        assignee={assignee}
+        isAssignedToMe={isAssignedToMe}
+        className="conversation-item-assigned-badge"
       />
       <StyledActionMenu
         actions={actions}
