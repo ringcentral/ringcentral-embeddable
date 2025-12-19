@@ -230,13 +230,14 @@ export class SideDrawerUI extends RcUIModuleV2 {
     };
   }
 
-  gotoConversation(conversationId, contact) {
+  gotoConversation(conversationId, contact, type: 'conversation' | 'thread' = 'conversation') {
     this.openWidget({
       widget: {
         id: 'conversation',
         name: 'Conversation',
         params: {
           conversationId: conversationId,
+          type,
         },
       },
       contact,

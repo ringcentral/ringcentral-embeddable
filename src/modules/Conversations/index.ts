@@ -321,4 +321,29 @@ export class Conversations extends ConversationsBase {
     });
     return searchResults.sort(sortSearchResults);
   }
+
+  @computed((that: Conversations) => [
+    that.formattedMessageThreads,
+    that.currentConversationId,
+  ])
+  get currentMessageThread() {
+    const theadId = this.currentConversationId;
+    const thread = this.formattedMessageThreads.find((thread) => thread.id === theadId);
+    if (!thread) {
+      return null;
+    }
+    return {
+      ...thread,
+      senderNumber: thread.ownerParty?.phoneNumber ?? '',
+      recipients: [thread.guestParty],
+      conversationMatches: thread.conversationLogMatches ?? [],
+    };
+  }
+
+  override async fetchOldMessages(options) {
+    if (this.currentMessageThread) {
+      return;
+    }
+    return super.fetchOldMessages(options);
+  }
 }

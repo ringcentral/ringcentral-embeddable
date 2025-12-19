@@ -9,19 +9,14 @@ import {
 import {
   checkShouldHidePhoneNumber,
 } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
-import { RcAlert, RcIconButton, styled } from '@ringcentral/juno';
-import { AddTextLog, Close } from '@ringcentral/juno-icon';
+import { RcAlert, RcIconButton, styled, palette2 } from '@ringcentral/juno';
+import { AddTextLog, Close, Previous } from '@ringcentral/juno-icon';
 import MessageInput from '../MessageInput';
 import type { Attachment } from '../MessageInput';
-import { BackHeader } from '../BackHeader';
 import { ConversationMessageList } from '../ConversationMessageList';
 import { GroupNumbersDisplay } from './GroupNumbersDisplay';
-
-const HeaderButtons = styled.div`
-  position: absolute;
-  top: 0;
-  right: 6px;
-`;
+import { AssignedFullBadge } from '../ConversationItem/AssignedBadge';
+import { ActionMenu } from '../ActionMenu';
 
 const Root = styled.div`
   position: relative;
@@ -45,6 +40,11 @@ type Conversation = {
   correspondents?: any[];
   isLogging?: boolean;
   conversationId?: string;
+  type?: string;
+  isAssignedToMe?: boolean;
+  assignee?: {
+    name: string;
+  };
 }
 
 const StyledGroupNumbersDisplay = styled(GroupNumbersDisplay)`
@@ -52,6 +52,45 @@ const StyledGroupNumbersDisplay = styled(GroupNumbersDisplay)`
   line-height: 40px;
   width: 100%;
   padding-left: 10px;
+`;
+
+const Header = styled.div`
+  position: relative;
+  padding: 0 8px;
+  min-height: 32px;
+  text-align: center;
+  border-bottom: 1px solid ${palette2('neutral', 'l02')};
+  background-color: ${palette2('nav', 'b01')};
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const HeaderButtons = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const HeaderName = styled.div`
+  flex: 1;
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  margin-left: 8px;
+`;
+
+const StyledContactDisplay = styled(ContactDisplay)`
+  width: auto;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const StyledAssignedFullBadge = styled(AssignedFullBadge)`
+  margin-top: 4px;
 `;
 
 export type ConversationProps = {
@@ -122,6 +161,7 @@ export type ConversationProps = {
   hideBackButton?: boolean;
   showCloseButton?: boolean;
   onClose?: (...args: any[]) => any;
+  myExtensionId: string;
 }
 
 function getInitialContactIndex(conversation: Conversation) {
@@ -253,6 +293,7 @@ export function ConversationPanel({
   hideBackButton = false,
   showCloseButton = false,
   onClose = () => null,
+  myExtensionId,
 }: ConversationProps) {
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState(getInitialContactIndex(conversation));
@@ -401,6 +442,7 @@ export function ConversationPanel({
         onAttachmentDownload={onAttachmentDownload}
         onLinkClick={onLinkClick}
         className="ConversationMessageList"
+        myExtensionId={myExtensionId}
       />
     );
   }
@@ -409,32 +451,37 @@ export function ConversationPanel({
   const groupNumbers = getGroupPhoneNumbers(conversation);
   const shouldHideNumber = enableCDC && checkShouldHidePhoneNumber(phoneNumber, correspondentMatches);
   const fallbackName = getFallbackContactName(conversation);
-  const logButton =
-    onLogConversation &&
-    showLogButton  ? (
-      <RcIconButton
-        onClick={() => {
-          logConversation();
-        }}
-        disabled={disableLinks || isLogging || isLoggingState}
-        title={
-          logButtonTitle ||
-          messageItemI18n.getString(
-            conversationMatches.length > 0 ? 'editLog' : 'addLog',
-            currentLocale
-          )
-        }
-        data-sign="logButton"
-        symbol={AddTextLog}
-      />
-    ) : null;
+  const headerActions = [];
+  if (onLogConversation && showLogButton) {
+    headerActions.push({
+      id: 'log',
+      icon: AddTextLog,
+      disabled: disableLinks || isLogging || isLoggingState,
+      title: logButtonTitle || messageItemI18n.getString(
+        conversationMatches.length > 0 ? 'editLog' : 'addLog',
+        currentLocale
+      ),
+      onClick: () => {
+        logConversation();
+      },
+      dataSign: 'logButton',
+    });
+  }
+  if (showCloseButton) {
+    headerActions.push({
+      id: 'close',
+      icon: Close,
+      title: 'Close page',
+      onClick: onClose,
+      dataSign: 'closeButton',
+    });
+  }
   const defaultContactDisplay = (
-    <ContactDisplay
+    <StyledContactDisplay
       currentSiteCode={currentSiteCode}
       maxExtensionNumberLength={maxExtensionNumberLength}
       isMultipleSiteEnabled={isMultipleSiteEnabled}
       brand={brand}
-      className={styles.contactDisplay}
       selectClassName={styles.contactDisplaySelect}
       contactMatches={correspondentMatches || []}
       selected={selected}
@@ -473,30 +520,35 @@ export function ConversationPanel({
   ) : null;
   return (
     <Root data-sign="conversationPanel">
-      <BackHeader
-        onBack={goBack}
-        hideBackButton={hideBackButton}
-      >
-        {renderConversationTitle?.({
-          conversation: conversation,
-          phoneNumber,
-          defaultContactDisplay,
-        }) || groupNumbersDisplay || defaultContactDisplay}
-        <HeaderButtons>
-          {logButton}
+      <Header>
+        {
+          !hideBackButton && (
+            <RcIconButton
+              symbol={Previous}
+              onClick={goBack}
+              data-sign="backButton"
+            />
+          )
+        }
+        <HeaderName>
+          {renderConversationTitle?.({
+            conversation: conversation,
+            phoneNumber,
+            defaultContactDisplay,
+          }) || groupNumbersDisplay || defaultContactDisplay}
           {
-            showCloseButton && (
-              <RcIconButton
-                onClick={onClose}
-                symbol={Close}
-                title="Close"
-                data-sign="closeButton"
+            conversation.type === 'Thread' && (
+              <StyledAssignedFullBadge
+                assignee={conversation.assignee}
+                isAssignedToMe={conversation.isAssignedToMe}
               />
             )
           }
+        </HeaderName>
+        <HeaderButtons>
+          <ActionMenu actions={headerActions} maxActions={2} />
         </HeaderButtons>
-        
-      </BackHeader>
+      </Header>
       {renderLogInfoSection?.(conversation) || null}
       {conversationBody}
       {restrictSendMessage?.(getSelectedContact(selected, conversation)) ? (

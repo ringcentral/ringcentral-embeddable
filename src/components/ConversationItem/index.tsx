@@ -25,7 +25,7 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import { ActionMenu } from '../ActionMenu';
 import { StatusMessage } from '../CallItem/StatusMessage';
 import { Detail } from './Detail';
-import { AssignedBadge } from './AssignedBadge';
+import { AssignedShortBadge } from './AssignedBadge';
 import { GroupNumbersDisplay } from '../ConversationPanel/GroupNumbersDisplay';
 import {
   getSelectedContact,
@@ -677,7 +677,7 @@ export function ConversationItem({
           </StyledSecondary>
         }
       />
-      <AssignedBadge
+      <AssignedShortBadge
         assignee={assignee}
         isAssignedToMe={isAssignedToMe}
         className="conversation-item-assigned-badge"

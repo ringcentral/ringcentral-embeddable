@@ -137,11 +137,19 @@ export class ConversationsUI extends BaseConversationsUI {
       showConversationDetail: (conversationId) => {
         const conversation = conversations.allConversations.find((c) => c.conversationId === conversationId);
         let contact = null;
+        let type = 'conversation';
         if (conversation) {
           const phoneNumber = getConversationPhoneNumber(conversation);
           contact = { phoneNumber };
+          type = 'conversation';
+        } else {
+          const messageThread = conversations.formattedMessageThreads.find((mt) => mt.id === conversationId);
+          if (messageThread) {
+            contact = { phoneNumber: messageThread.guestParty?.phoneNumber ?? '' };
+            type = 'thread';
+          }
         }
-        sideDrawerUI.gotoConversation(conversationId, contact);
+        sideDrawerUI.gotoConversation(conversationId, contact, type);
       },
       onClickToSms: appFeatures.hasComposeTextPermission
         ? (contact, isDummyContact = false) => {

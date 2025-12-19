@@ -11,6 +11,7 @@ import {
     'SmsTemplates',
     'SideDrawerUI',
     'PhoneNumberFormat',
+    'ExtensionInfo',
   ],
 })
 export class ConversationUI extends BaseConversationUI {
@@ -23,7 +24,14 @@ export class ConversationUI extends BaseConversationUI {
       conversationLogger,
       appFeatures,
       smsTemplates,
+      conversations,
+      extensionInfo,
     } = this._deps;
+    if (props.params.type === 'thread' && conversations.currentMessageThread) {
+      baseProps.conversation = conversations.currentMessageThread;
+      baseProps.messages = conversations.currentMessageThread.messages;
+      baseProps.recipients = conversations.currentMessageThread.recipients;
+    }
     return {
       ...baseProps,
       showLogButton: conversationLogger.loggerSourceReady,
@@ -32,6 +40,7 @@ export class ConversationUI extends BaseConversationUI {
       showTemplate: appFeatures.showSmsTemplate,
       templates: smsTemplates.templates,
       showTemplateManagement: appFeatures.showSmsTemplateManage,
+      myExtensionId: String(extensionInfo.id),
     };
   }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { RcChip, styled, palette2 } from '@ringcentral/juno';
+import { RcChip, RcTooltip, styled, palette2 } from '@ringcentral/juno';
 
 function getInitials(name: string): string {
   return name
@@ -32,7 +32,62 @@ const HighlightedChip = styled(StyledChip)`
   }
 `;
 
-export function AssignedBadge({
+const UnassignedChip = styled(StyledChip)`
+  background-color: ${palette2('neutral', 'f02')};
+  color: ${palette2('neutral', 'f01')};
+  border: none;
+
+  &:hover {
+    background-color: ${palette2('neutral', 'f02')};
+    color: ${palette2('neutral', 'f01')};
+    border: none;
+  }
+`;
+
+export function AssignedFullBadge({
+  assignee,
+  className,
+  isAssignedToMe,
+}: {
+  assignee: {
+    name: string;
+  };
+  className?: string;
+  isAssignedToMe: boolean;
+}) {
+  if (!assignee) {
+    return (
+      <RcTooltip title="Unassigned">
+        <UnassignedChip
+          label="UNASSIGNED"
+          className={className}
+        />
+      </RcTooltip>
+    );
+  }
+  if (!isAssignedToMe) {
+    return (
+      <RcTooltip title={`Assigned to ${assignee.name}`}>
+        <StyledChip
+          label={`ASSIGNED TO ${(assignee.name || '').toUpperCase()}`}
+          variant="outlined"
+          color="action.primary"
+          className={className}
+        />
+      </RcTooltip>
+    );
+  }
+  return (
+    <RcTooltip title="Assigned to you">
+      <HighlightedChip
+        label="ASSIGNED TO YOU"
+        className={className}
+      />
+    </RcTooltip>
+  );
+}
+
+export function AssignedShortBadge({
   assignee,
   isAssignedToMe,
   className,

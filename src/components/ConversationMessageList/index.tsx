@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
 import { isBlank } from '@ringcentral-integration/commons/lib/isBlank';
-import { RcIcon, RcText, styled, palette2, css } from '@ringcentral/juno';
+import { RcIcon, RcText, RcTypography, styled, palette2, css } from '@ringcentral/juno';
 import {
   DefaultFile as fileSvg,
   Download as downloadSvg,
@@ -168,6 +168,49 @@ function MessageSendStatus({ direction, status }: { direction: string, status: s
   return null;
 }
 
+const HintText = styled(RcTypography)`
+  margin-bottom: 24px;
+  margin-top: -8px;
+  clear: both;
+  text-align: center;
+  width: 100%;
+`;
+
+export function ThreadHintMessage({
+  assignee,
+  time,
+  type,
+  myExtensionId,
+}) {
+  let message = '';
+  if (type === 'ThreadCreatedHint') {
+    message = 'Conversation has been created.';
+  } else if (type == 'ThreadAssignedHint') {
+    if (assignee) {
+      const name = myExtensionId === assignee.extensionId ? 'you' : assignee.name;
+      message = `Conversation has been assigned to ${name}.`;
+    } else {
+      message = 'This conversation is unassigned.';
+    }
+  } else if (type === 'ThreadResolvedHint') {
+    message = 'Conversation has been resolved.';
+  } else if (type === 'ThreadDeletedHint') {
+    message = 'Conversation has been deleted.';
+  }
+  return (
+    <MessageWrapper data-sign="threadHintMessage">
+      {time ? (
+        <Time data-sign="threadHintMessageTime">
+          {time}
+        </Time>
+      ) : null}
+      <HintText variant="caption1" color="interactive.f01">
+        {message}
+      </HintText>
+    </MessageWrapper>
+  );
+};
+
 export const Message = ({
   subject = '',
   time = undefined,
@@ -289,6 +332,7 @@ export function ConversationMessageList({
   onAttachmentDownload = undefined,
   onLinkClick,
   loadPreviousMessages = () => null,
+  myExtensionId,
 }: {
   className: string;
   dateTimeFormatter: any;
@@ -302,6 +346,7 @@ export function ConversationMessageList({
   onAttachmentDownload: (uri: string, e: any) => void;
   onLinkClick: (e: any) => void;
   loadPreviousMessages: () => void;
+  myExtensionId: string;
 }) {
   const listRef = useRef(null);
   const scrollHeight = useRef(null);
@@ -348,6 +393,27 @@ export function ConversationMessageList({
           });
     // @ts-expect-error TS(2322): Type 'Date' is not assignable to type 'number'.
     lastDate = date;
+    if (
+      message.recordType === 'ThreadCreatedHint' ||
+      message.recordType === 'ThreadAssignedHint' ||
+      message.recordType === 'ThreadResolvedHint' ||
+      message.recordType === 'ThreadDeletedHint'
+    ) {
+      return (
+        <ThreadHintMessage
+          key={message.id}
+          assignee={message.assignee}
+          time={time || (
+            dateTimeFormatter({
+              utcTimestamp: message.creationTime || message.lastModifiedTime,
+              type: 'long',
+            })
+          )}
+          type={message.recordType}
+          myExtensionId={myExtensionId}
+        />
+      );
+    }
     return (
       <Message
         key={message.id}
