@@ -23,6 +23,12 @@ const Root = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .ConversationMessageList {
+    flex: 1;
+  }
 `;
 
 export type Recipient = {
@@ -365,10 +371,6 @@ export function ConversationPanel({
     replyToReceivers(text, attachments, selectContact);
   };
 
-  const onInputHeightChange = (value) => {
-    setInputHeight(value);
-  };
-
   const logConversation = async ({ redirect = true, selectedIndex = selected, prefill = true } = {}) => {
     if (typeof onLogConversation === 'function' && mountedRef.current && !isLoggingState) {
       setIsLoggingState(true);
@@ -401,22 +403,6 @@ export function ConversationPanel({
     }
   };
 
-  const getMessageListHeight = () => {
-    const headerHeight = 41;
-    const alertMargin = 12;
-    const logInfoHeight = isWide ? 60 : 100;
-    let extraHeight = 0;
-    if (restrictSendMessage?.(getSelectedContact(selected, conversation))) {
-      extraHeight = alertHeight + alertMargin + headerHeight;
-    } else {
-      extraHeight = inputHeight + headerHeight;
-    }
-    if (typeof renderLogInfoSection === 'function') {
-      extraHeight += logInfoHeight;
-    }
-    return `calc(100% - ${extraHeight}px)`;
-  }
-
   if (!loaded || !conversation) {
     return (
       <div className={styles.root}>
@@ -431,7 +417,6 @@ export function ConversationPanel({
     conversationBody = (
       <ConversationMessageList
         currentLocale={currentLocale}
-        height={getMessageListHeight()}
         messages={messages}
         dateTimeFormatter={dateTimeFormatter}
         showSender={recipients && recipients.length > 1}
@@ -568,7 +553,6 @@ export function ConversationPanel({
           sendButtonDisabled={sendButtonDisabled}
           currentLocale={currentLocale}
           onSend={onSend}
-          onHeightChange={onInputHeightChange}
           inputExpandable={inputExpandable}
           attachments={attachments}
           addAttachment={addAttachment}

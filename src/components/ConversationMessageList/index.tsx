@@ -306,7 +306,7 @@ const Root = styled.div`
   display: block;
   overflow-y: auto;
   overflow-x: hidden;
-  height: 354px;
+  height: auto;
   padding: 0 15px;
   background: ${palette2('neutral', 'b01')};
 `;
@@ -324,7 +324,6 @@ export function ConversationMessageList({
   dateTimeFormatter,
   messages,
   showSender = false,
-  height = '100%',
   messageSubjectRenderer = undefined,
   formatPhone,
   loadingNextPage = false,
@@ -338,7 +337,6 @@ export function ConversationMessageList({
   dateTimeFormatter: any;
   messages: MessageData[];
   showSender: boolean;
-  height: number | string;
   messageSubjectRenderer: FunctionComponent<{ subject: string }>;
   formatPhone: (phone: string) => string;
   loadingNextPage: boolean;
@@ -438,7 +436,6 @@ export function ConversationMessageList({
   return (
     <Root
       className={className}
-      style={{ height }}
       ref={listRef}
       onScroll={async () => {
         if (!listRef.current) {
