@@ -137,6 +137,7 @@ type MessageInputProps = {
   deleteTemplate?: (templateId: string) => Promise<any>;
   createOrUpdateTemplate?: (template: any) => Promise<any>;
   sortTemplates?: (templates: any[]) => any;
+  supportAttachment?: boolean;
 }
 
 type AttachmentsProps = {
@@ -198,6 +199,7 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
   deleteTemplate = undefined,
   createOrUpdateTemplate = undefined,
   sortTemplates = undefined,
+  supportAttachment = true,
 }) => {
   const [value, setValue] = useState('');
   const [height, setHeight] = useState(minHeight);
@@ -255,16 +257,20 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
   return (
     <Container>
       <Toolbar>
-        <RcIconButton
-          variant="round"
-          size="medium"
-          symbol={attachmentSvg}
-          onClick={() => {
-            fileInputRef.current.click();
-          }}
-          disabled={disabled}
-          title="Attach file"
-        />
+        {
+          supportAttachment && (
+            <RcIconButton
+              variant="round"
+              size="medium"
+              symbol={attachmentSvg}
+              onClick={() => {
+                fileInputRef.current.click();
+              }}
+              disabled={disabled}
+              title="Attach file"
+            />
+          )
+        }
         {
           showTemplate && (
             <RcIconButton

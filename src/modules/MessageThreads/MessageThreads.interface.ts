@@ -49,6 +49,7 @@ export interface MessageThread {
 export type MessageThreadSavedItem = Omit<MessageThread, 'creationTime' | 'lastModifiedTime'> & {
   creationTime: number;
   lastModifiedTime: number;
+  isReopened?: boolean;
 };
 
 export interface MessageThreadsData {
@@ -72,4 +73,12 @@ export interface MessageThreadsSavedData {
 export interface MessageThreadsSubscriptionMessage {
   event: string;
   body?: MessageThread;
+}
+
+export interface SMSRecipient {
+  id: string;
+  name: string;
+  extensionNumber: string;
+  assignable: boolean;
+  hasLicense: boolean;
 }

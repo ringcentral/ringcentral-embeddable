@@ -12,6 +12,8 @@ import {
     'SideDrawerUI',
     'PhoneNumberFormat',
     'ExtensionInfo',
+    'MessageThreads',
+    'MessageThreadEntries',
   ],
 })
 export class ConversationUI extends BaseConversationUI {
@@ -108,6 +110,9 @@ export class ConversationUI extends BaseConversationUI {
       accountInfo,
       extensionInfo,
       conversations,
+      messageThreads,
+      messageStore,
+      messageThreadEntries,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
@@ -155,6 +160,35 @@ export class ConversationUI extends BaseConversationUI {
           isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
           siteCode: extensionInfo.site?.code,
         }),
+      readMessages: (id) => {
+        if (options.params.type === 'thread') {
+          messageThreadEntries.markThreadAsRead(id);
+          return;
+        }
+        messageStore.readMessages(id);
+      },
+      onAssign: async (assignee) => {
+        return messageThreads.assign(conversations.currentMessageThread.id, assignee);
+      },
+      getSMSRecipients: () => {
+        return messageThreads.getSMSRecipients(conversations.currentMessageThread.owner);
+      },
+      onReplyThread: async () => {
+        const conversation = conversations.currentMessageThread;
+        if (conversation.status === 'Resolved') {
+          await messageThreads.reopen(conversation.id);
+          return;
+        }
+        if (!conversation.assignee) {
+          await messageThreads.assign(conversation.id, { extensionId: String(extensionInfo.id) });
+        }
+      },
+      onResolveThread: async () => {
+        const conversation = conversations.currentMessageThread;
+        if (conversation.status === 'Open') {
+          await messageThreads.resolve(conversation.id);
+        }
+      },
     }
   }
 }

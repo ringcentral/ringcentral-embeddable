@@ -10,13 +10,24 @@ import {
   checkShouldHidePhoneNumber,
 } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
 import { RcAlert, RcIconButton, styled, palette2 } from '@ringcentral/juno';
-import { AddTextLog, Close, Previous } from '@ringcentral/juno-icon';
+import {
+  AddTextLog,
+  Close,
+  Previous,
+  OuboundCallOnBehalf as Assign,
+  Logout as Unassign,
+  ThreadReply as Reply,
+  Check as Resolve,
+} from '@ringcentral/juno-icon';
 import MessageInput from '../MessageInput';
 import type { Attachment } from '../MessageInput';
 import { ConversationMessageList } from '../ConversationMessageList';
 import { GroupNumbersDisplay } from './GroupNumbersDisplay';
 import { AssignedFullBadge } from '../ConversationItem/AssignedBadge';
 import { ActionMenu } from '../ActionMenu';
+import { AssignDialog } from '../AssignDialog';
+import { BottomAssignInfo } from './BottomAssignInfo';
+import type { SMSRecipient, MessageThread } from '../../modules/MessageThreads/MessageThreads.interface';
 
 const Root = styled.div`
   position: relative;
@@ -48,9 +59,9 @@ type Conversation = {
   conversationId?: string;
   type?: string;
   isAssignedToMe?: boolean;
-  assignee?: {
-    name: string;
-  };
+  assignee?: MessageThread['assignee'];
+  owner?: MessageThread['owner'];
+  status?: string;
 }
 
 const StyledGroupNumbersDisplay = styled(GroupNumbersDisplay)`
@@ -168,6 +179,12 @@ export type ConversationProps = {
   showCloseButton?: boolean;
   onClose?: (...args: any[]) => any;
   myExtensionId: string;
+  onAssign: (assignee: {
+    extensionId: string;
+  } | null) => void;
+  getSMSRecipients: () => Promise<SMSRecipient[]>;
+  onReplyThread: () => void;
+  onResolveThread: () => void;
 }
 
 function getInitialContactIndex(conversation: Conversation) {
@@ -300,6 +317,10 @@ export function ConversationPanel({
   showCloseButton = false,
   onClose = () => null,
   myExtensionId,
+  onAssign,
+  getSMSRecipients,
+  onReplyThread,
+  onResolveThread,
 }: ConversationProps) {
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState(getInitialContactIndex(conversation));
@@ -311,6 +332,7 @@ export function ConversationPanel({
   const conversationRef = useRef(conversation);
   const messagesRef = useRef(messages);
   const dncAlertRef = useRef(null);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -452,6 +474,48 @@ export function ConversationPanel({
       dataSign: 'logButton',
     });
   }
+  if (conversation.type === 'Thread') {
+    if (conversation.status === 'Open' && conversation.assignee) {
+      headerActions.push({
+        id: 'resolve',
+        icon: Resolve,
+        title: 'Resolve',
+        onClick: () => {
+          onResolveThread();
+        },
+      });
+    }
+    if (!conversation.assignee) {
+      headerActions.push({
+        id: 'reply',
+        icon: Reply,
+        title: 'Reply',
+        onClick: () => {
+          onReplyThread();
+        },
+      });
+    }
+    if (conversation.status === 'Open') {
+      headerActions.push({
+        id: 'assign',
+        icon: Assign,
+        title: conversation.assignee ? 'Reassign' : 'Assign',
+        onClick: () => {
+          setIsAssignDialogOpen(true);
+        },
+      });
+    }
+    if (conversation.assignee) {
+      headerActions.push({
+        id: 'unassign',
+        icon: Unassign,
+        title: 'Unassign',
+        onClick: () => {
+          onAssign(null);
+        },
+      });
+    }
+  }
   if (showCloseButton) {
     headerActions.push({
       id: 'close',
@@ -531,7 +595,10 @@ export function ConversationPanel({
           }
         </HeaderName>
         <HeaderButtons>
-          <ActionMenu actions={headerActions} maxActions={2} />
+          <ActionMenu
+            actions={headerActions}
+            maxActions={2}
+          />
         </HeaderButtons>
       </Header>
       {renderLogInfoSection?.(conversation) || null}
@@ -547,28 +614,53 @@ export function ConversationPanel({
           {i18n.getString('dncAlert', currentLocale)}
         </RcAlert>
       ) : (
-        <MessageInput
-          value={messageText}
-          onChange={updateMessageText}
-          sendButtonDisabled={sendButtonDisabled}
-          currentLocale={currentLocale}
-          onSend={onSend}
-          inputExpandable={inputExpandable}
-          attachments={attachments}
-          addAttachment={addAttachment}
-          removeAttachment={removeAttachment}
-          additionalToolbarButtons={additionalToolbarButtons}
-          onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
-          showTemplate={showTemplate}
-          templates={templates}
-          showTemplateManagement={showTemplateManagement}
-          loadTemplates={loadTemplates}
-          deleteTemplate={deleteTemplate}
-          createOrUpdateTemplate={createOrUpdateTemplate}
-          sortTemplates={sortTemplates}
-          disabled={disableLinks}
-        />
+        conversation.type !== 'Thread' || (
+          (conversation.assignee && conversation.isAssignedToMe)
+        ) ? (
+          <MessageInput
+            value={messageText}
+            onChange={updateMessageText}
+            sendButtonDisabled={sendButtonDisabled}
+            currentLocale={currentLocale}
+            onSend={onSend}
+            inputExpandable={inputExpandable}
+            attachments={attachments}
+            addAttachment={addAttachment}
+            removeAttachment={removeAttachment}
+            additionalToolbarButtons={additionalToolbarButtons}
+            onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
+            showTemplate={showTemplate}
+            templates={templates}
+            showTemplateManagement={showTemplateManagement}
+            loadTemplates={loadTemplates}
+            deleteTemplate={deleteTemplate}
+            createOrUpdateTemplate={createOrUpdateTemplate}
+            sortTemplates={sortTemplates}
+            disabled={disableLinks}
+            supportAttachment={conversation.type !== 'Thread'}
+          />
+        ) : (
+          <BottomAssignInfo
+            assignee={conversation.assignee}
+            isAssignedToMe={conversation.isAssignedToMe}
+            onAssignToMe={() => onAssign({ extensionId: myExtensionId })}
+            onAssign={() => setIsAssignDialogOpen(true)}
+            onReply={onReplyThread}
+            status={conversation.status}
+          />
+        )
       )}
+      {
+        conversation.type === 'Thread' && (
+          <AssignDialog
+            open={isAssignDialogOpen}
+            getSMSRecipients={getSMSRecipients}
+            currentAssignee={conversation.assignee}
+            onAssign={onAssign}
+            onCancel={() => setIsAssignDialogOpen(false)}
+          />
+        )
+      }
     </Root>
   );
 }

@@ -9,6 +9,7 @@ import type {
   MessageThreadsSavedData,
   MessageThreadSavedItem,
   MessageThread,
+  SMSRecipient,
 } from './MessageThreads.interface';
 
 @Module({
@@ -219,7 +220,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
         }] :
         [thread.guestParty];
       let unreadCounts = 0;
-      if (isAssignedToMe) {
+      if (isAssignedToMe && thread.status === 'Open') {
         unreadCounts = this._deps.messageThreadEntries.unreadCountMap[thread.id] ?? 0;
       }
       return {
@@ -272,5 +273,48 @@ export class MessageThreads extends DataFetcherV2Consumer<
       return 0;
     }
     return this.threads.reduce((a, b) => a + b.unreadCounts, 0);
+  }
+
+  async getSMSRecipients(threadOwner: MessageThread['owner']): Promise<SMSRecipient[]> {
+    const response = await this._deps.client.service
+      .platform()
+      .get(`/restapi/v1.0/account/~/extension/${threadOwner.extensionId}/sms-recipients`);
+    const result = await response.json();
+    return result.smsRecipients;
+  }
+
+  async assign(threadId, assignee: {
+    extensionId: string;
+  } | null) {
+    // for unassign, assignee is null
+    const response = await this._deps.client.service
+      .platform()
+      .post(`/restapi/v1.0/account/~/message-threads/${threadId}/assign`, {
+        assignee,
+      });
+    return response.json();
+  }
+
+  async resolve(threadId: string) {
+    const response = await this._deps.client.service
+      .platform()
+      .post(`/restapi/v1.0/account/~/message-threads/${threadId}/resolve`);
+    return response.json();
+  }
+
+  reopen(threadId: string) {
+    this._deps.dataFetcherV2.updateData(this._source, {
+      ...this.data,
+      records: this.data?.records.map((record) => {
+        if (record.id === threadId) {
+          return {
+            ...record,
+            status: 'Open',
+            isReopened: true,
+          };
+        }
+        return record;
+      }),
+    });
   }
 }
