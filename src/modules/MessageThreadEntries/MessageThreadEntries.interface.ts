@@ -31,7 +31,7 @@ export interface AliveMessage {
   lastModifiedTime: string;
   messageStatus: 'Queued' | 'Sent' | 'Delivered' | 'DeliveryFailed' | 'SendingFailed' | 'Received';
   text: string;
-  author: {
+  author?: {
     extensionId: string;
     name: string;
   };

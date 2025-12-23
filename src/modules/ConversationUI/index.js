@@ -127,6 +127,9 @@ export class ConversationUI extends BaseConversationUI {
         if (!continueSMS) {
           return;
         }
+        if (options.params.type === 'thread') {
+          return this._deps.conversations.replyToThread(text);
+        }
         return conversations.replyToReceivers(text, attachments, selectedContact);
       },
       onLogConversation: async ({ redirect = true, ...options }) => {

@@ -188,7 +188,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
   @computed((that: MessageThreads) => [
     that.data,
     that._deps.messageThreadEntries.store,
-    that._deps.messageThreadEntries.unreadCountMap,
+    that._deps.messageThreadEntries.lastReadTimeMap,
   ])
   get threads() {
     // format threads to similar format as normal SMS conversations
@@ -198,12 +198,17 @@ export class MessageThreads extends DataFetcherV2Consumer<
       const entries = store[thread.id] ?? [];
       let latestEntry;
       const isAssignedToMe = thread.assignee?.extensionId === this._deps.auth.ownerId;
+      const lastReadTime = this._deps.messageThreadEntries.lastReadTimeMap[thread.id] ?? 0;
+      let unreadCounts = 0;
       entries.forEach((entry) => {
         if (
           entry.recordType === 'AliveMessage' &&
-          (!latestEntry || entry.lastModifiedTime > latestEntry.lastModifiedTime)
+          (!latestEntry || entry.creationTime > latestEntry.creationTime)
         ) {
           latestEntry = entry;
+        }
+        if (entry.creationTime > lastReadTime && entry.direction === 'Inbound') {
+          unreadCounts++;
         }
       });
       const direction = latestEntry?.direction || 'Outbound';
@@ -219,9 +224,8 @@ export class MessageThreads extends DataFetcherV2Consumer<
           ...thread.ownerParty,
         }] :
         [thread.guestParty];
-      let unreadCounts = 0;
-      if (isAssignedToMe && thread.status === 'Open') {
-        unreadCounts = this._deps.messageThreadEntries.unreadCountMap[thread.id] ?? 0;
+      if (thread.status !== 'Open' || (thread.assignee && !isAssignedToMe)) {
+        unreadCounts = 0;
       }
       return {
         ...thread,
@@ -316,5 +320,52 @@ export class MessageThreads extends DataFetcherV2Consumer<
         return record;
       }),
     });
+  }
+
+  async sendMessage({
+    threadId,
+    text,
+    from,
+    to,
+  }: {
+    threadId?: string;
+    text: string;
+    from: {
+      phoneNumber: string;
+    };
+    to: {
+      phoneNumber: string;
+    }[];
+  }): Promise<void> {
+    const body: {
+      text: string;
+      from: {
+        phoneNumber: string;
+      };
+      to: {
+        phoneNumber: string;
+      }[];
+      threadId?: string;
+    } = {
+      text,
+      from,
+      to,
+    };
+    if (threadId) {
+      const thread = this.data?.records.find((record) => record.id === threadId);
+      if (thread && thread.status === 'Open' && !thread.isReopened) {
+        body.threadId = thread.id;
+      }
+    }
+    const response = await this._deps.client.service
+      .platform()
+      .post(`/restapi/v1.0/account/~/message-threads/messages`, body);
+    const newEntry = await response.json();
+    const newMessage = {
+      ...newEntry,
+      recordType: 'AliveMessage',
+    };
+    this._deps.messageThreadEntries.saveNewMessage(newMessage);
+    return newMessage;
   }
 }

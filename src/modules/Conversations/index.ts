@@ -346,4 +346,31 @@ export class Conversations extends ConversationsBase {
     }
     return super.fetchOldMessages(options);
   }
+
+  resetInput() {
+    this._updateConversationStatus(conversationsStatus.idle);
+    this._removeInputContent(this.currentConversationId);
+  }
+
+  async replyToThread(text) {
+    const thread = this.currentMessageThread;
+    if (!thread) {
+      return;
+    }
+    this._updateConversationStatus(conversationsStatus.pushing);
+    try {
+      const newMessage = await this._deps.messageThreads.sendMessage({
+        threadId: thread.id,
+        text,
+        from: thread.ownerParty,
+        to: [thread.guestParty],
+      });
+      this._updateConversationStatus(conversationsStatus.idle);
+      this._removeInputContent(this.currentConversationId);
+      return newMessage;
+    } catch (error) {
+      this._onReplyError();
+      throw error;
+    }
+  }
 }

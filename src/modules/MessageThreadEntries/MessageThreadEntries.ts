@@ -1,6 +1,7 @@
 import { computed, watch, state, action, storage } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
+import debounce from '@ringcentral-integration/commons/lib/debounce';
 
 import type {
   Deps,
@@ -34,6 +35,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   private _stopWatching: any;
   private _source: DataSource<MessageThreadEntriesStoreData>;
   private _syncPromise: Promise<MessageThreadEntriesStoreData> | null = null;
+  private _syncTimeout: NodeJS.Timeout | null = null;
 
   constructor(deps: Deps) {
     super({
@@ -50,6 +52,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
       readyCheckFunction: () => this._deps.appFeatures.ready,
     });
     this._deps.dataFetcherV2.register(this._source);
+    this.sync = debounce(this._sync, 3000, false);
   }
 
   override onInit() {
@@ -166,7 +169,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
         data = await this._syncFunction(syncToken);
       } catch (e: any) {
         if (syncToken && e.response?.status === 400) {
-          isFullSyncing = false;
+          isFullSyncing = true;
           data = await this._syncFunction(null);
         }
         throw e;
@@ -174,9 +177,9 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
       if (this._deps.auth.ownerId === ownerId) {
         const store = this._mergeIntoStoreData(data.records, !syncToken);
         if (isFullSyncing) {
-          this.clearUnreadCountMap(Object.keys(store));
+          this.clearReadTimeMap(Object.keys(store));
         }
-        this.markEntriesAsUnread(data.records);
+        this.updateReadTimeMap(data.records);
         return {
           store,
           syncInfo: data.syncInfo,
@@ -205,7 +208,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     return data;
   }
 
-  async sync() {
+  async _sync() {
     if (!this.hasPermission) {
       return;
     }
@@ -243,29 +246,74 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
 
   @storage
   @state
-  unreadCountMap: Record<string, number> = {};
+  lastReadTimeMap: Record<string, number> = {};
 
   @action
-  markEntriesAsUnread(entries: MessageThreadEntry[]) {
-    entries.forEach((entry) => {  
-      if (entry.recordType === 'AliveMessage') {
-        this.unreadCountMap[entry.threadId] = (this.unreadCountMap[entry.threadId] ?? 0) + 1;
+  updateReadTimeMap(entries: MessageThreadEntry[]) {
+    const outboundEntries: AliveMessage[] = entries.filter((entry) => entry.recordType === 'AliveMessage' && entry.direction === 'Outbound') as AliveMessage[];
+    outboundEntries.forEach((entry) => {
+      const currentCreationTime = new Date(entry.creationTime).getTime();
+      const lastReadTime = this.lastReadTimeMap[entry.threadId] ?? 0;
+      if (currentCreationTime > lastReadTime) {
+        // if replied, the last read time should be the creation time of the replied message
+        this.lastReadTimeMap[entry.threadId] = currentCreationTime - 1;
       }
     });
   }
 
   @action
-  clearUnreadCountMap(currentThreadIds: string[]) {
-    const threadIds = Object.keys(this.unreadCountMap);
+  clearReadTimeMap(currentThreadIds: string[]) {
+    const threadIds = Object.keys(this.lastReadTimeMap);
     threadIds.forEach((threadId) => {
       if (!currentThreadIds.includes(threadId)) {
-        delete this.unreadCountMap[threadId];
+        delete this.lastReadTimeMap[threadId];
       }
     });
   }
 
   @action
+  _markThreadAsRead(threadId: string) {
+    this.lastReadTimeMap[threadId] = Date.now();
+  }
+
   markThreadAsRead(threadId: string) {
-    delete this.unreadCountMap[threadId];
+    this._markThreadAsRead(threadId);
+    this.triggerSyncWithTimeout();
+  }
+
+  triggerSyncWithTimeout() {
+    if (this._syncTimeout) {
+      clearTimeout(this._syncTimeout);
+    }
+    this._syncTimeout = setTimeout(() => {
+      this.sync();
+    }, 5000);
+  }
+
+  saveNewMessage(message: AliveMessage) {
+    const threadId = message.threadId;
+    const entries = this.data?.store[threadId] ?? [];
+    const index = entries.findIndex((entry) => entry.id === message.id);
+    const newMessage = {
+      ...message,
+      lastModifiedTime: new Date(message.lastModifiedTime).getTime(),
+      creationTime: new Date(message.creationTime).getTime(),
+    }
+    if (index !== -1) {
+      if (entries[index].lastModifiedTime > newMessage.lastModifiedTime) {
+        return;
+      }
+      entries[index] = newMessage;
+    } else {
+      entries.push(newMessage);
+    }
+    this._deps.dataFetcherV2.updateData(this._source, {
+      ...this.data,
+      store: {
+        ...this.data?.store,
+        [message.threadId]: entries,
+      },
+    });
+    this.triggerSyncWithTimeout();
   }
 }
