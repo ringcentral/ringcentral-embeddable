@@ -306,22 +306,6 @@ export class MessageThreads extends DataFetcherV2Consumer<
     return response.json();
   }
 
-  reopen(threadId: string) {
-    this._deps.dataFetcherV2.updateData(this._source, {
-      ...this.data,
-      records: this.data?.records.map((record) => {
-        if (record.id === threadId) {
-          return {
-            ...record,
-            status: 'Open',
-            isReopened: true,
-          };
-        }
-        return record;
-      }),
-    });
-  }
-
   async sendMessage({
     threadId,
     text,
@@ -353,7 +337,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
     };
     if (threadId) {
       const thread = this.data?.records.find((record) => record.id === threadId);
-      if (thread && thread.status === 'Open' && !thread.isReopened) {
+      if (thread && thread.status === 'Open') {
         body.threadId = thread.id;
       }
     }

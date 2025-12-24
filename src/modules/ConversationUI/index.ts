@@ -14,6 +14,7 @@ import {
     'ExtensionInfo',
     'MessageThreads',
     'MessageThreadEntries',
+    'ComposeTextUI',
   ],
 })
 export class ConversationUI extends BaseConversationUI {
@@ -113,6 +114,7 @@ export class ConversationUI extends BaseConversationUI {
       messageThreads,
       messageStore,
       messageThreadEntries,
+      composeTextUI,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
@@ -179,7 +181,13 @@ export class ConversationUI extends BaseConversationUI {
       onReplyThread: async () => {
         const conversation = conversations.currentMessageThread;
         if (conversation.status === 'Resolved') {
-          await messageThreads.reopen(conversation.id);
+          // Can't re-open case now, need to start a new thread instead
+          let contact = conversation.correspondents?.[0] ?? conversation.guestParty;
+          if (conversation.correspondentMatches?.length === 1) {
+            contact = conversation.correspondentMatches[0];
+          }
+          const senderNumber = conversation.ownerParty?.phoneNumber ?? '';
+          composeTextUI.gotoComposeText(contact, false, senderNumber);
           return;
         }
         if (!conversation.assignee) {

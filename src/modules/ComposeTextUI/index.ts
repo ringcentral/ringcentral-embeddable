@@ -26,10 +26,13 @@ type ComposeContact = {
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
+  private _presetSenderNumber: string;
+
   constructor(deps) {
     super(deps);
     this._ignoreModuleReadiness(deps.smsTemplates);
     this._ignoreModuleReadiness(deps.thirdPartyService);
+    this._presetSenderNumber = '';
   }
 
   getUIProps(props) {
@@ -146,6 +149,13 @@ export class ComposeTextUI extends ComposeTextUIBase {
         return smsTemplates.sort(templateIds);
       },
       onLoad: () => {
+        if (this._presetSenderNumber) {
+          if (this._presetSenderNumber !== composeText.senderNumber) {
+            composeText.updateSenderNumber(this._presetSenderNumber);
+          }
+          this._presetSenderNumber = '';
+          return;
+        }
         if (
           composeText.defaultTextId &&
           composeText.defaultTextId !== composeText.senderNumber
@@ -168,12 +178,13 @@ export class ComposeTextUI extends ComposeTextUIBase {
     };
   }
 
-  gotoComposeText(contact: ComposeContact | undefined = undefined, isDummyContact = false) {
+  gotoComposeText(contact: ComposeContact | undefined = undefined, isDummyContact = false, presetSenderNumber = '') {
     const {
       composeText,
       contactSearch,
       sideDrawerUI,
     } = this._deps;
+    this._presetSenderNumber = presetSenderNumber;
     sideDrawerUI.openWidget({
       widget: {
         id: 'composeText',
