@@ -68,7 +68,6 @@ const StyledGroupNumbersDisplay = styled(GroupNumbersDisplay)`
   height: 40px;
   line-height: 40px;
   width: 100%;
-  padding-left: 10px;
 `;
 
 const Header = styled.div`
@@ -557,7 +556,7 @@ export function ConversationPanel({
   );
 
   const groupNumbersDisplay = groupNumbers && groupNumbers.length > 1 ? (
-    <StyledGroupNumbersDisplay
+    <GroupNumbersDisplay
       correspondents={conversation.correspondents}
       contactMatches={correspondentMatches}
       formatPhone={formatPhone}

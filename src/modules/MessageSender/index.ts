@@ -184,7 +184,8 @@ export class MessageSender extends MessageSenderBase {
   }): Promise<GetMessageInfoResponse> {
     let isThread = false;
     if (
-      this._deps.messageThreads.hasPermission
+      this._deps.messageThreads.hasPermission &&
+      to.length === 1
     ) {
       const sender = this.senderNumbersList.find((number) => number.phoneNumber === fromNumber);
       if (sender && sender.extension) {

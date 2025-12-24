@@ -125,7 +125,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
         });
       }
     });
-    return newRecords.sort((a, b) => a.creationTime - b.creationTime);
+    return newRecords.sort((a, b) => b.creationTime - a.creationTime);
   }
 
   async _syncData() {
@@ -368,7 +368,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
     return newMessage;
   }
 
-  async loadThread(threadId: string): Promise<MessageThread | null> {
+  async loadThread(threadId: string): Promise<MessageThreadSavedItem | null> {
     const thread = this.data?.records.find((record) => record.id === threadId);
     if (thread) {
       return thread;
@@ -378,14 +378,12 @@ export class MessageThreads extends DataFetcherV2Consumer<
         .platform()
         .get(`/restapi/v1.0/account/~/message-threads/${threadId}`);
       const threadRecord = await response.json();
-      const newRecords = (this.data?.records || [])
-        .filter((record) => record.id !== threadId)
-        .concat(threadRecord);
+      const newRecords = this._mergeData([threadRecord], false);
       await this._deps.dataFetcherV2.updateData(this._source, {
-        ...this.data,
+        ...(this.data ?? {}),
         records: newRecords,
       });
-      return threadRecord;
+      return newRecords.find((record) => record.id === threadId) ?? null;
     } catch (e) {
       console.error(e);
       return null;

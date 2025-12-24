@@ -291,30 +291,9 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   }
 
   saveNewMessages(messages: AliveMessage[]) {
-    const newStore: MessageThreadEntriesStore = {
-      ...(this.data?.store ?? {}),
-    };
-    messages.forEach((message) => {
-      const threadId = message.threadId;
-      const entries = this.data?.store[threadId] ?? [];
-      const index = entries.findIndex((entry) => entry.id === message.id);
-      const newMessage = {
-        ...message,
-        lastModifiedTime: new Date(message.lastModifiedTime).getTime(),
-        creationTime: new Date(message.creationTime).getTime(),
-      }
-      if (index !== -1) {
-        if (entries[index].lastModifiedTime > newMessage.lastModifiedTime) {
-          return;
-        }
-        entries[index] = newMessage;
-      } else {
-        entries.push(newMessage);
-      }
-      newStore[threadId] = entries;
-    });
+    const newStore = this._mergeIntoStoreData(messages, false);
     this._deps.dataFetcherV2.updateData(this._source, {
-      ...this.data,
+      ...(this.data ?? {}),
       store: newStore,
     });
     this.triggerSyncWithTimeout();

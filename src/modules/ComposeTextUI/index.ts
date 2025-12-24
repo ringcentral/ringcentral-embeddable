@@ -111,7 +111,11 @@ export class ComposeTextUI extends ComposeTextUIBase {
               sideDrawerUI.closeWidget('composeText');
             }
           } else {
+            if (threadMessages.length > 0) {
+              conversations.updateOwnerFilter('Threads');
+            }
             routerInteraction.push('/messages');
+            sideDrawerUI.closeWidget('composeText');
           }
           // TODO: relate correspondent entity for thread messages
           if (normalMessages.length > 0) {
