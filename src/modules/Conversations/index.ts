@@ -365,6 +365,7 @@ export class Conversations extends ConversationsBase {
         from: thread.ownerParty,
         to: [thread.guestParty],
       });
+      this._deps.messageThreadEntries.saveNewMessages([newMessage]);
       this._updateConversationStatus(conversationsStatus.idle);
       this._removeInputContent(this.currentConversationId);
       return newMessage;

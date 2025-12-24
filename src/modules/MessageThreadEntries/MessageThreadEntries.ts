@@ -290,29 +290,32 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     }, 5000);
   }
 
-  saveNewMessage(message: AliveMessage) {
-    const threadId = message.threadId;
-    const entries = this.data?.store[threadId] ?? [];
-    const index = entries.findIndex((entry) => entry.id === message.id);
-    const newMessage = {
-      ...message,
-      lastModifiedTime: new Date(message.lastModifiedTime).getTime(),
-      creationTime: new Date(message.creationTime).getTime(),
-    }
-    if (index !== -1) {
-      if (entries[index].lastModifiedTime > newMessage.lastModifiedTime) {
-        return;
+  saveNewMessages(messages: AliveMessage[]) {
+    const newStore: MessageThreadEntriesStore = {
+      ...(this.data?.store ?? {}),
+    };
+    messages.forEach((message) => {
+      const threadId = message.threadId;
+      const entries = this.data?.store[threadId] ?? [];
+      const index = entries.findIndex((entry) => entry.id === message.id);
+      const newMessage = {
+        ...message,
+        lastModifiedTime: new Date(message.lastModifiedTime).getTime(),
+        creationTime: new Date(message.creationTime).getTime(),
       }
-      entries[index] = newMessage;
-    } else {
-      entries.push(newMessage);
-    }
+      if (index !== -1) {
+        if (entries[index].lastModifiedTime > newMessage.lastModifiedTime) {
+          return;
+        }
+        entries[index] = newMessage;
+      } else {
+        entries.push(newMessage);
+      }
+      newStore[threadId] = entries;
+    });
     this._deps.dataFetcherV2.updateData(this._source, {
       ...this.data,
-      store: {
-        ...this.data?.store,
-        [message.threadId]: entries,
-      },
+      store: newStore,
     });
     this.triggerSyncWithTimeout();
   }

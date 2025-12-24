@@ -21,6 +21,8 @@ type ComposeContact = {
     'RegionSettings',
     'AccountInfo',
     'ExtensionInfo',
+    'MessageThreadEntries',
+    'MessageThreads',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -62,6 +64,8 @@ export class ComposeTextUI extends ComposeTextUIBase {
       regionSettings,
       accountInfo,
       extensionInfo,
+      messageThreadEntries,
+      messageThreads,
     } = this._deps;
     return {
       ...baseFuncs,
@@ -74,21 +78,45 @@ export class ComposeTextUI extends ComposeTextUIBase {
           if (!responses || responses.length === 0) {
             return;
           }
-          messageStore.pushMessages(responses);
+          const threadMessages = responses.filter((response) => response.threadId);
+          if (threadMessages.length > 0) {
+            messageThreadEntries.saveNewMessages(threadMessages);
+          }
+          const normalMessages = responses.filter((response) => !response.threadId);
+          if (normalMessages.length > 0) {
+            messageStore.pushMessages(normalMessages);
+          }
           if (responses.length === 1) {
-            const conversationId =
-              responses[0] &&
-              responses[0].conversation &&
-              responses[0].conversation.id;
-            if (!conversationId) {
-              return;
+            const threadId = responses[0]?.threadId;
+            if (threadId) {
+              const thread = await messageThreads.loadThread(threadId);
+              console.log('thread', thread);
+              if (thread) {
+                const phoneNumber = thread.guestParty?.phoneNumber ?? '';
+                sideDrawerUI.gotoConversation(threadId, { phoneNumber }, 'thread');
+                sideDrawerUI.closeWidget('composeText');
+              } else {
+                routerInteraction.push('/messages');
+              }
+            } else {
+              const conversationId =
+                responses[0] &&
+                responses[0].conversation &&
+                responses[0].conversation.id;
+              if (!conversationId) {
+                return;
+              }
+              const phoneNumber = getConversationPhoneNumber(responses[0]);
+              sideDrawerUI.gotoConversation(conversationId, { phoneNumber });
+              sideDrawerUI.closeWidget('composeText');
             }
-            const phoneNumber = getConversationPhoneNumber(responses[0]);
-            sideDrawerUI.gotoConversation(conversationId, { phoneNumber });
           } else {
             routerInteraction.push('/messages');
           }
-          conversations.relateCorrespondentEntity(responses);
+          // TODO: relate correspondent entity for thread messages
+          if (normalMessages.length > 0) {
+            conversations.relateCorrespondentEntity(normalMessages);
+          }
           composeText.clean();
           return;
         } catch (err) {

@@ -11,7 +11,7 @@ import type {
   MessageThread,
   SMSRecipient,
 } from './MessageThreads.interface';
-
+import type { AliveMessage } from '../MessageThreadEntries/MessageThreadEntries.interface';
 @Module({
   name: 'MessageThreads',
   deps: [
@@ -336,7 +336,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
     to: {
       phoneNumber: string;
     }[];
-  }): Promise<void> {
+  }): Promise<AliveMessage> {
     const body: {
       text: string;
       from: {
@@ -365,7 +365,30 @@ export class MessageThreads extends DataFetcherV2Consumer<
       ...newEntry,
       recordType: 'AliveMessage',
     };
-    this._deps.messageThreadEntries.saveNewMessage(newMessage);
     return newMessage;
+  }
+
+  async loadThread(threadId: string): Promise<MessageThread | null> {
+    const thread = this.data?.records.find((record) => record.id === threadId);
+    if (thread) {
+      return thread;
+    }
+    try {
+      const response = await this._deps.client.service
+        .platform()
+        .get(`/restapi/v1.0/account/~/message-threads/${threadId}`);
+      const threadRecord = await response.json();
+      const newRecords = (this.data?.records || [])
+        .filter((record) => record.id !== threadId)
+        .concat(threadRecord);
+      await this._deps.dataFetcherV2.updateData(this._source, {
+        ...this.data,
+        records: newRecords,
+      });
+      return threadRecord;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
   }
 }
