@@ -29,6 +29,7 @@ export class ConversationUI extends BaseConversationUI {
       smsTemplates,
       conversations,
       extensionInfo,
+      messageThreads,
     } = this._deps;
     if (props.params.type === 'thread' && conversations.currentMessageThread) {
       baseProps.conversation = conversations.currentMessageThread;
@@ -44,6 +45,7 @@ export class ConversationUI extends BaseConversationUI {
       templates: smsTemplates.templates,
       showTemplateManagement: appFeatures.showSmsTemplateManage,
       myExtensionId: String(extensionInfo.id),
+      threadBusy: messageThreads.busy,
     };
   }
 

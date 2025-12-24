@@ -48,13 +48,22 @@ export function AssignedFullBadge({
   assignee,
   className,
   isAssignedToMe,
+  status,
 }: {
   assignee: {
     name: string;
   };
   className?: string;
   isAssignedToMe: boolean;
+  status: string;
 }) {
+  if (status === 'Resolved') {
+    return (
+      <RcTooltip title="Resolved">
+        <UnassignedChip label="RESOLVED" className={className} />
+      </RcTooltip>
+    );
+  }
   if (!assignee) {
     return (
       <RcTooltip title="Unassigned">

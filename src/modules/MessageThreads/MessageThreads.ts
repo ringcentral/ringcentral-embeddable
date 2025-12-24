@@ -1,7 +1,7 @@
 import { computed, watch, state, action } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
-
+import debounce from '@ringcentral-integration/commons/lib/debounce';
 import type {
   Deps,
   MessageThreadsData,
@@ -21,6 +21,7 @@ import type { AliveMessage } from '../MessageThreadEntries/MessageThreadEntries.
     'MessageThreadEntries',
     'Auth',
     'TabManager',
+    'Alert',
     { dep: 'Subscription', optional: true },
     { dep: 'MessageThreadsOptions', optional: true },
   ],
@@ -46,6 +47,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
       readyCheckFunction: () => this._deps.appFeatures.ready,
     });
     this._deps.dataFetcherV2.register(this._source);
+    this.sync = debounce(this._sync, 1000, false);
   }
 
   override onInit() {
@@ -155,7 +157,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
     }
   }
 
-  async sync() {
+  async _sync() {
     if (!this.hasPermission) {
       return;
     }
@@ -269,6 +271,14 @@ export class MessageThreads extends DataFetcherV2Consumer<
     return this.data?.syncInfo;
   }
 
+  @state
+  busy: boolean = false;
+
+  @action
+  setBusy(busy: boolean) {
+    this.busy = busy;
+  }
+
   @computed((that: MessageThreads) => [
     that.threads,
   ])
@@ -291,19 +301,55 @@ export class MessageThreads extends DataFetcherV2Consumer<
     extensionId: string;
   } | null) {
     // for unassign, assignee is null
-    const response = await this._deps.client.service
-      .platform()
-      .post(`/restapi/v1.0/account/~/message-threads/${threadId}/assign`, {
-        assignee,
+    if (this.busy) {
+      return null;
+    }
+    try {
+      this.setBusy(true);
+      const response = await this._deps.client.service
+        .platform()
+        .post(`/restapi/v1.0/account/~/message-threads/${threadId}/assign`, {
+          assignee,
+        });
+      const thread = await response.json();
+      const newRecords = this._mergeData([thread], false);
+      await this._deps.dataFetcherV2.updateData(this._source, {
+        ...(this.data ?? {}),
+        records: newRecords,
       });
-    return response.json();
+      this.setBusy(false);
+      return newRecords.find((record) => record.id === threadId) ?? null;
+    } catch (e) {
+      console.error(e);
+      this.setBusy(false);
+      this._deps.alert.warning({ message: 'messageThreadAssignFailed' });
+      return null;
+    }
   }
 
   async resolve(threadId: string) {
-    const response = await this._deps.client.service
-      .platform()
-      .post(`/restapi/v1.0/account/~/message-threads/${threadId}/resolve`);
-    return response.json();
+    if (this.busy) {
+      return null;
+    }
+    try {
+      this.setBusy(true);
+      const response = await this._deps.client.service
+        .platform()
+        .post(`/restapi/v1.0/account/~/message-threads/${threadId}/resolve`);
+      const thread = await response.json();
+      const newRecords = this._mergeData([thread], false);
+      await this._deps.dataFetcherV2.updateData(this._source, {
+        ...(this.data ?? {}),
+        records: newRecords,
+      });
+      this.setBusy(false);
+      return newRecords.find((record) => record.id === threadId) ?? null;
+    } catch (e) {
+      console.error(e);
+      this.setBusy(false);
+      this._deps.alert.warning({ message: 'messageThreadResolveFailed' });
+      return null;
+    }
   }
 
   async sendMessage({

@@ -184,6 +184,7 @@ export type ConversationProps = {
   getSMSRecipients: () => Promise<SMSRecipient[]>;
   onReplyThread: () => void;
   onResolveThread: () => void;
+  threadBusy: boolean;
 }
 
 function getInitialContactIndex(conversation: Conversation) {
@@ -320,6 +321,7 @@ export function ConversationPanel({
   getSMSRecipients,
   onReplyThread,
   onResolveThread,
+  threadBusy,
 }: ConversationProps) {
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState(getInitialContactIndex(conversation));
@@ -479,6 +481,7 @@ export function ConversationPanel({
         id: 'resolve',
         icon: Resolve,
         title: 'Resolve',
+        disabled: threadBusy,
         onClick: () => {
           onResolveThread();
         },
@@ -489,6 +492,7 @@ export function ConversationPanel({
         id: 'reply',
         icon: Reply,
         title: 'Reply',
+        disabled: threadBusy,
         onClick: () => {
           onReplyThread();
         },
@@ -499,6 +503,7 @@ export function ConversationPanel({
         id: 'assign',
         icon: Assign,
         title: conversation.assignee ? 'Reassign' : 'Assign',
+        disabled: threadBusy,
         onClick: () => {
           setIsAssignDialogOpen(true);
         },
@@ -509,6 +514,7 @@ export function ConversationPanel({
         id: 'unassign',
         icon: Unassign,
         title: 'Unassign',
+        disabled: threadBusy,
         onClick: () => {
           onAssign(null);
         },
@@ -589,6 +595,7 @@ export function ConversationPanel({
               <StyledAssignedFullBadge
                 assignee={conversation.assignee}
                 isAssignedToMe={conversation.isAssignedToMe}
+                status={conversation.status}
               />
             )
           }

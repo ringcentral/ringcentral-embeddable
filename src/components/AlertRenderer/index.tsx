@@ -91,6 +91,12 @@ export function getAlertRenderer({
     if (message.message === 'callHUDSyncExtensionsFailed') {
       return () => 'Sorry, failed to sync extensions list. Please try again later.';
     }
+    if (message.message === 'messageThreadResolveFailed') {
+      return () => 'Sorry, failed to resolve message thread. Please try again later.';
+    }
+    if (message.message === 'messageThreadAssignFailed') {
+      return () => 'Sorry, failed to assign message thread. Please try again later.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage
