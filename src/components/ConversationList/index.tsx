@@ -44,6 +44,10 @@ export type ConversationListProps = {
   rcAccessToken?: string;
   additionalActions?: any[];
   onClickAdditionalAction?: (buttonId: string) => void;
+  onAssignThread?: (conversation: any) => void;
+  onUnassignThread?: (conversation: any) => Promise<void>;
+  onResolveThread?: (conversation: any) => Promise<void>;
+  threadBusy?: boolean;
 } & Omit<MessageItemProps, 'conversation'>;
 
 const Loading = styled(RcTypography)`
@@ -102,6 +106,10 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
   rcAccessToken,
   additionalActions,
   onClickAdditionalAction,
+  onAssignThread,
+  onUnassignThread,
+  onResolveThread,
+  threadBusy = false,
   ...childProps
 }: ConversationListProps) => {
   const messagesListBodyRef = useRef(null);
@@ -158,6 +166,10 @@ const ConversationList: FunctionComponent<ConversationListProps> = ({
             rcAccessToken={rcAccessToken}
             additionalActions={additionalActions}
             onClickAdditionalAction={onClickAdditionalAction}
+            onAssignThread={onAssignThread}
+            onUnassignThread={onUnassignThread}
+            onResolveThread={onResolveThread}
+            threadBusy={threadBusy}
           />
         )}
         endReached={() => {

@@ -85,6 +85,10 @@ export type MessageItemProps = {
   showLogButton?: boolean;
   logButtonTitle?: string;
   rcAccessToken?: string;
+  onAssignThread?: (conversation: Message) => void;
+  onUnassignThread?: (conversation: Message) => Promise<void>;
+  onResolveThread?: (conversation: Message) => Promise<void>;
+  threadBusy?: boolean;
 };
 
 const StyledListItem = styled(RcListItem)<{ $hoverOnMoreMenu: boolean }>`
@@ -347,6 +351,10 @@ export function ConversationItem({
   rcAccessToken,
   additionalActions,
   onClickAdditionalAction,
+  onAssignThread,
+  onUnassignThread,
+  onResolveThread,
+  threadBusy = false,
 }) {
   const {
     conversationId,
@@ -587,6 +595,10 @@ export function ConversationItem({
     },
     additionalActions,
     onClickAdditionalAction,
+    onAssign: onAssignThread ? () => onAssignThread(conversation) : undefined,
+    onUnassign: onUnassignThread ? () => onUnassignThread(conversation) : undefined,
+    onResolveThread: onResolveThread ? () => onResolveThread(conversation) : undefined,
+    threadBusy,
   });
 
   const onClickWrapper = (e) => {

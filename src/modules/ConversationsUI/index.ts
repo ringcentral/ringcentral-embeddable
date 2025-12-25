@@ -98,6 +98,7 @@ export class ConversationsUI extends BaseConversationsUI {
       ownerFilter: conversations.ownerFilter,
       ownerTabs: this.ownerTabs,
       additionalActions: thirdPartyService.additionalMessageActions,
+      threadBusy: this._deps.messageThreads.busy,
     };
   }
 
@@ -117,6 +118,7 @@ export class ConversationsUI extends BaseConversationsUI {
       accountInfo,
       extensionInfo,
       phoneNumberFormat,
+      messageThreads,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
@@ -191,6 +193,23 @@ export class ConversationsUI extends BaseConversationsUI {
           isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
           siteCode: extensionInfo.site?.code,
         }),
+      onAssignThread: async (conversation, assignee) => {
+        const threadId = conversation.id || conversation.conversationId;
+        // For unassign, assignee is null
+        if (assignee === null && !conversation.assignee) {
+          return;
+        }
+        await messageThreads.assign(threadId, assignee);
+      },
+      onResolveThread: async (conversation) => {
+        const threadId = conversation.id || conversation.conversationId;
+        if (conversation.status === 'Open') {
+          await messageThreads.resolve(threadId);
+        }
+      },
+      getSMSRecipients: (conversation) => {
+        return messageThreads.getSMSRecipients(conversation.owner);
+      },
     }
   }
 }

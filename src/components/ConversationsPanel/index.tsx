@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import { styled, palette2 } from '@ringcentral/juno/foundation';
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
@@ -12,6 +12,8 @@ import type { ConversationListProps } from '../ConversationList';
 import ConversationList from '../ConversationList';
 import { SubTabs } from '../SubTabs';
 import { SearchAndFilter } from '../SearchAndFilter';
+import { AssignDialog } from '../AssignDialog';
+import type { SMSRecipient } from '../../modules/MessageThreads/MessageThreads.interface';
 
 type ConversationsPanelProps = {
   currentSiteCode?: string;
@@ -95,6 +97,10 @@ type ConversationsPanelProps = {
   }[];
   additionalActions?: any[];
   onClickAdditionalAction?: (buttonId: string) => void;
+  onAssignThread?: (conversation: any, assignee: { extensionId: string } | null) => Promise<void>;
+  onResolveThread?: (conversation: any) => void;
+  getSMSRecipients?: (conversation: any) => Promise<SMSRecipient[]>;
+  threadBusy?: boolean;
 } & Omit<ConversationListProps, 'conversation'>;
 
 const StyledContainer = styled.div`
@@ -198,7 +204,13 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     onOwnerFilterChange,
     additionalActions,
     onClickAdditionalAction,
+    onAssignThread,
+    onResolveThread,
+    getSMSRecipients,
+    threadBusy = false,
   } = props;
+
+  const [assigningConversation, setAssigningConversation] = useState<any>(null);
 
   useEffect(() => {
     return onUnmount;
@@ -208,6 +220,34 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
   useEffect(() => {
     updateTypeFilter(typeFilter);
   }, [typeFilter]);
+
+  const handleOpenAssignDialog = useCallback((conversation: any) => {
+    setAssigningConversation(conversation);
+  }, []);
+
+  const handleAssign = useCallback(async (assignee: { extensionId: string } | null) => {
+    if (assigningConversation && onAssignThread) {
+      await onAssignThread(assigningConversation, assignee);
+    }
+    setAssigningConversation(null);
+  }, [assigningConversation, onAssignThread]);
+
+  const handleCancelAssign = useCallback(() => {
+    setAssigningConversation(null);
+  }, []);
+
+  const handleUnassign = useCallback(async (conversation: any) => {
+    if (onAssignThread) {
+      await onAssignThread(conversation, null);
+    }
+  }, [onAssignThread]);
+
+  const handleGetSMSRecipients = useCallback(() => {
+    if (assigningConversation && getSMSRecipients) {
+      return getSMSRecipients(assigningConversation);
+    }
+    return Promise.resolve([]);
+  }, [assigningConversation, getSMSRecipients]);
 
   const placeholder =
     onSearchInputChange && searchInput.length > 0
@@ -301,6 +341,10 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
                 rcAccessToken={rcAccessToken}
                 additionalActions={additionalActions}
                 onClickAdditionalAction={onClickAdditionalAction}
+                onAssignThread={handleOpenAssignDialog}
+                onUnassignThread={handleUnassign}
+                onResolveThread={onResolveThread}
+                threadBusy={threadBusy}
               />
             ) : (
               !loadingNextPage &&
@@ -309,6 +353,13 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
           </StyledConversationListArea>
         </StyledContentArea>
       )}
+      <AssignDialog
+        open={!!assigningConversation}
+        getSMSRecipients={handleGetSMSRecipients}
+        currentAssignee={assigningConversation?.assignee}
+        onAssign={handleAssign}
+        onCancel={handleCancelAssign}
+      />
     </StyledContainer>
   );
 };
