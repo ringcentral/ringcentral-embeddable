@@ -44,6 +44,18 @@ const UnassignedChip = styled(StyledChip)`
   }
 `;
 
+const ResolvedChip = styled(StyledChip)`
+  background-color: ${palette2('avatar', 'global')};
+  color: ${palette2('neutral', 'f01')};
+  border: none;
+
+  &:hover {
+    background-color: ${palette2('avatar', 'global')};
+    color: ${palette2('neutral', 'f01')};
+    border: none;
+  }
+`;
+
 export function AssignedFullBadge({
   assignee,
   className,
@@ -60,7 +72,7 @@ export function AssignedFullBadge({
   if (status === 'Resolved') {
     return (
       <RcTooltip title="Resolved">
-        <UnassignedChip label="RESOLVED" className={className} />
+        <ResolvedChip label="RESOLVED" className={className} />
       </RcTooltip>
     );
   }
