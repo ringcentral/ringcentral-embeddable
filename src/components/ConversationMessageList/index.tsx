@@ -5,6 +5,7 @@ import { RcIcon, RcText, RcTypography, styled, palette2, css } from '@ringcentra
 import {
   DefaultFile as fileSvg,
   Download as downloadSvg,
+  Notes,
 } from '@ringcentral/juno-icon';
 
 import i18n from '@ringcentral-integration/widgets/components/ConversationMessageList/i18n';
@@ -66,7 +67,7 @@ const MessageTextWrapper = styled.div<{
 const MessageWrapper = styled.div`
   display: block;
   width: 100%;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: ${palette2('neutral', 'f06')};
 
   &:first-child {
@@ -80,7 +81,7 @@ const MessageWrapper = styled.div`
 
 const Time = styled.div`
   text-align: center;
-  font-size: 12px;
+  font-size: 0.75rem;
   margin-bottom: 10px;
   color: ${palette2('neutral', 'f02')};
   clear: both;
@@ -211,6 +212,88 @@ export function ThreadHintMessage({
   );
 };
 
+const InternalNoteWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  clear: both;
+
+  &:first-child {
+    margin-top: 10px;
+  }
+`;
+
+const InternalNoteHeader = styled.div`
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: ${palette2('neutral', 'f06')};
+  line-height: 1.5;
+  text-align: center;
+`;
+
+const InternalNoteIcon = styled(RcIcon)`
+  color: ${palette2('neutral', 'f04')};
+  vertical-align: middle;
+  margin-right: 6px;
+`;
+
+const InternNoteTime = styled.span`
+  color: ${palette2('neutral', 'f04')};
+`;
+
+const InternalNoteAuthor = styled.span`
+  font-weight: 700;
+`;
+
+const InternalNoteContent = styled.div`
+  border: 1px solid ${palette2('neutral', 'l02')};
+  border-radius: 8px;
+  padding: 12px;
+  background: ${palette2('neutral', 'b01')};
+  color: ${palette2('neutral', 'f06')};
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  width: 100%;
+  max-width: 270px;
+
+  &:hover {
+    cursor: pointer;
+    background: ${palette2('neutral', 'b02')};
+  }
+`;
+
+function InternalNoteMessage({
+  text,
+  time,
+  author,
+  onViewNote,
+}: {
+  text: string;
+  time?: string;
+  author?: { name?: string; extensionId?: string };
+  onViewNote: () => void;
+}) {
+  return (
+    <InternalNoteWrapper data-sign="internalNoteMessage">
+      <InternalNoteHeader>
+        <InternalNoteIcon symbol={Notes} size="small" />
+        Internal note posted by <InternalNoteAuthor>{author?.name || 'Unknown'}</InternalNoteAuthor>
+        {time && <InternNoteTime>&nbsp;&nbsp;{time}</InternNoteTime>}
+      </InternalNoteHeader>
+      <InternalNoteContent
+        onClick={onViewNote}
+      >
+        {text}
+      </InternalNoteContent>
+    </InternalNoteWrapper>
+  );
+}
+
 export const Message = ({
   subject = '',
   time = undefined,
@@ -332,6 +415,7 @@ export function ConversationMessageList({
   onLinkClick,
   loadPreviousMessages = () => null,
   myExtensionId,
+  onViewNote,
 }: {
   className: string;
   dateTimeFormatter: any;
@@ -345,6 +429,7 @@ export function ConversationMessageList({
   onLinkClick: (e: any) => void;
   loadPreviousMessages: () => void;
   myExtensionId: string;
+  onViewNote: () => void;
 }) {
   const listRef = useRef(null);
   const scrollHeight = useRef(null);
@@ -409,6 +494,20 @@ export function ConversationMessageList({
           )}
           type={message.recordType}
           myExtensionId={myExtensionId}
+        />
+      );
+    }
+    if (message.recordType === 'AliveNote') {
+      return (
+        <InternalNoteMessage
+          key={message.id}
+          text={message.text}
+          time={time || dateTimeFormatter({
+            utcTimestamp: message.creationTime,
+            type: 'long',
+          })}
+          author={message.author}
+          onViewNote={onViewNote}
         />
       );
     }

@@ -156,6 +156,7 @@ interface NoteItemProps {
   onEditSave: () => void;
   onEditCancel: () => void;
   onMenuOpen: (event: React.MouseEvent<HTMLElement>) => void;
+  readOnly: boolean;
 }
 
 function NoteItem({
@@ -168,6 +169,7 @@ function NoteItem({
   onEditSave,
   onEditCancel,
   onMenuOpen,
+  readOnly,
 }: NoteItemProps) {
   const handleEditKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -223,7 +225,7 @@ function NoteItem({
             {note.author?.name || 'Unknown'} | {formattedTime}
           </NoteMeta>
         </NoteContent>
-        {isAuthor && (
+        {isAuthor && !readOnly && (
           <MoreButton
             symbol={MoreVert}
             size="small"
@@ -247,6 +249,7 @@ interface NotesDialogProps {
   dateTimeFormatter: (params: { utcTimestamp: number }) => string;
   myExtensionId: string;
   loading?: boolean;
+  readOnly?: boolean;
 }
 
 export function NotesDialog({
@@ -259,6 +262,7 @@ export function NotesDialog({
   dateTimeFormatter,
   myExtensionId,
   loading = false,
+  readOnly = false,
 }: NotesDialogProps) {
   const [inputValue, setInputValue] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -408,6 +412,7 @@ export function NotesDialog({
                   onEditSave={handleEditSave}
                   onEditCancel={handleEditCancel}
                   onMenuOpen={(e) => handleMenuOpen(e, note)}
+                  readOnly={readOnly}
                 />
               ))}
             </NotesListContainer>
@@ -415,21 +420,23 @@ export function NotesDialog({
         </RcLoading>
       </StyledDialogContent>
 
-      <InputContainer>
-        <StyledTextField
-          fullWidth
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Add a note"
-          disabled={submitting}
-          data-sign="noteInput"
-          variant="outline"
-          size="small"
-          multiline
-          minRows={1}
-        />
-      </InputContainer>
+      {!readOnly && (
+        <InputContainer>
+          <StyledTextField
+            fullWidth
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Add a note"
+            disabled={submitting}
+            data-sign="noteInput"
+            variant="outline"
+            size="small"
+            multiline
+            minRows={1}
+          />
+        </InputContainer>
+      )}
 
       <RcMenu
         anchorEl={menuAnchor}

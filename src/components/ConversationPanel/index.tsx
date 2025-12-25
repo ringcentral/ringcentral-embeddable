@@ -462,6 +462,9 @@ export function ConversationPanel({
         onLinkClick={onLinkClick}
         className="ConversationMessageList"
         myExtensionId={myExtensionId}
+        onViewNote={() => {
+          setIsNotesDialogOpen(true);
+        }}
       />
     );
   }
@@ -534,7 +537,7 @@ export function ConversationPanel({
     headerActions.push({
       id: 'notes',
       icon: Notes,
-      title: 'Notes',
+      title: conversation.notes?.length > 0 ? `Notes (${conversation.notes.length})` : 'Notes',
       disabled: threadBusy,
       onClick: () => {
         setIsNotesDialogOpen(true);
@@ -696,6 +699,7 @@ export function ConversationPanel({
               dateTimeFormatter={dateTimeFormatter}
               myExtensionId={myExtensionId}
               loading={threadBusy}
+              readOnly={conversation.status === 'Resolved'}
             />
           </>
         )
