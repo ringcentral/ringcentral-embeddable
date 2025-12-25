@@ -298,4 +298,65 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     });
     this.triggerSyncWithTimeout();
   }
+
+  async createNote(threadId: string, text: string): Promise<AliveNote> {
+    const response = await this._deps.client.service
+      .platform()
+      .post(`/restapi/v1.0/account/~/message-threads/notes`, {
+        text,
+        threadId,
+      });
+    const note = await response.json();
+    const newNote = {
+      ...note,
+      recordType: 'AliveNote',
+    };
+    const newStore = this._mergeIntoStoreData([newNote], false);
+    this._deps.dataFetcherV2.updateData(this._source, {
+      ...(this.data ?? {}),
+      store: newStore,
+    });
+    return newNote;
+  }
+
+  async updateNote(noteId: string, text: string): Promise<AliveNote> {
+    const response = await this._deps.client.service
+      .platform()
+      .patch(`/restapi/v1.0/account/~/message-threads/notes/${noteId}`, {
+        text,
+      });
+    const note = await response.json();
+    const newNote = {
+      ...note,
+      recordType: 'AliveNote',
+    };
+    const newStore = this._mergeIntoStoreData([newNote], false);
+    this._deps.dataFetcherV2.updateData(this._source, {
+      ...(this.data ?? {}),
+      store: newStore,
+    });
+    return newNote;
+  }
+
+  async deleteNote(threadId: string, noteId: string): Promise<void> {
+    await this._deps.client.service
+      .platform()
+      .send({
+        url: `/restapi/v1.0/account/~/message-threads/notes`,
+        method: 'DELETE',
+        body: {
+          ids: [noteId],
+        },
+      });
+    // Update store to remove the deleted note immediately
+    const currentStore = this.data?.store ?? {};
+    const newStore = {
+      ...currentStore,
+      [threadId]: (currentStore[threadId] || []).filter((entry) => entry.id !== noteId),
+    };
+    this._deps.dataFetcherV2.updateData(this._source, {
+      ...(this.data ?? {}),
+      store: newStore,
+    });
+  }
 }

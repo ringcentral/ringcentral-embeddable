@@ -76,7 +76,7 @@ export function AssignedFullBadge({
   }
   if (!isAssignedToMe) {
     return (
-      <RcTooltip title={`Assigned to ${assignee.name}`}>
+      <RcTooltip title={`Conversation is assigned to ${assignee.name}`}>
         <StyledChip
           label={`ASSIGNED TO ${(assignee.name || '').toUpperCase()}`}
           variant="outlined"
@@ -87,7 +87,7 @@ export function AssignedFullBadge({
     );
   }
   return (
-    <RcTooltip title="Assigned to you">
+    <RcTooltip title="Conversation is assigned to you">
       <HighlightedChip
         label="ASSIGNED TO YOU"
         className={className}
@@ -113,18 +113,22 @@ export function AssignedShortBadge({
   const initials = getInitials(assignee.name);
   if (!isAssignedToMe) {
     return (
-      <StyledChip
-        label={initials}
-        variant="outlined"
-        color="action.primary"
-        className={className}
-      />
+      <RcTooltip title={`Conversation is assigned to ${assignee.name}`}>
+        <StyledChip
+          label={initials}
+          variant="outlined"
+          color="action.primary"
+          className={className}
+        />
+      </RcTooltip>
     );
   }
   return (
-    <HighlightedChip
-      label={initials}
-      className={className}
-    />
+    <RcTooltip title="Conversation is assigned to you">
+      <HighlightedChip
+        label={initials}
+        className={className}
+      />
+    </RcTooltip>
   );
 }

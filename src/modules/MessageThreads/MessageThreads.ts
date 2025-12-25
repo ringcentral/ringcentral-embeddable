@@ -245,6 +245,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
           }
           return entry;
         }),
+        notes: entries.filter((entry) => entry.recordType === 'AliveNote'),
         unreadCounts,
         subject: thread.label || (latestEntry?.text ?? ''),
         direction,
@@ -416,6 +417,56 @@ export class MessageThreads extends DataFetcherV2Consumer<
       return newRecords.find((record) => record.id === threadId) ?? null;
     } catch (e) {
       console.error(e);
+      return null;
+    }
+  }
+
+  async createNote(threadId: string, text: string) {
+    if (this.busy) {
+      return;
+    }
+    try {
+      this.setBusy(true);
+      const note = await this._deps.messageThreadEntries.createNote(threadId, text);
+      this.setBusy(false);
+      return note;
+    } catch (e) {
+      console.error(e);
+      this.setBusy(false);
+      this._deps.alert.warning({ message: 'messageThreadCreateNoteFailed' });
+      return null;
+    }
+  }
+
+  async updateNote(noteId: string, text: string) {
+    if (this.busy) {
+      return;
+    }
+    try {
+      this.setBusy(true);
+      const note = await this._deps.messageThreadEntries.updateNote(noteId, text);
+      this.setBusy(false);
+      return note;
+    } catch (e) {
+      console.error(e);
+      this.setBusy(false);
+      this._deps.alert.warning({ message: 'messageThreadUpdateNoteFailed' });
+      return null;
+    }
+  }
+
+  async deleteNote(threadId: string, noteId: string) {
+    if (this.busy) {
+      return;
+    }
+    try {
+      this.setBusy(true);
+      await this._deps.messageThreadEntries.deleteNote(threadId, noteId);
+      this.setBusy(false);
+    } catch (e) {
+      console.error(e);
+      this.setBusy(false);
+      this._deps.alert.warning({ message: 'messageThreadDeleteNoteFailed' });
       return null;
     }
   }

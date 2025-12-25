@@ -202,6 +202,21 @@ export class ConversationUI extends BaseConversationUI {
           await messageThreads.resolve(conversation.id);
         }
       },
+      onCreateNote: async (text: string) => {
+        const conversation = conversations.currentMessageThread;
+        if (conversation) {
+          await messageThreads.createNote(conversation.id, text);
+        }
+      },
+      onUpdateNote: async (noteId: string, text: string) => {
+        await messageThreads.updateNote(noteId, text);
+      },
+      onDeleteNote: async (noteId: string) => {
+        const conversation = conversations.currentMessageThread;
+        if (conversation) {
+          await messageThreads.deleteNote(conversation.id, noteId);
+        }
+      },
     }
   }
 }

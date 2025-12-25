@@ -18,6 +18,7 @@ import {
   Logout as Unassign,
   ThreadReply as Reply,
   Check as Resolve,
+  Notes,
 } from '@ringcentral/juno-icon';
 import MessageInput from '../MessageInput';
 import type { Attachment } from '../MessageInput';
@@ -26,8 +27,10 @@ import { GroupNumbersDisplay } from './GroupNumbersDisplay';
 import { AssignedFullBadge } from '../ConversationItem/AssignedBadge';
 import { ActionMenu } from '../ActionMenu';
 import { AssignDialog } from '../AssignDialog';
+import { NotesDialog } from './NotesDialog';
 import { BottomAssignInfo } from './BottomAssignInfo';
 import type { SMSRecipient, MessageThread } from '../../modules/MessageThreads/MessageThreads.interface';
+import type { AliveNote } from '../../modules/MessageThreadEntries/MessageThreadEntries.interface';
 
 const Root = styled.div`
   position: relative;
@@ -62,6 +65,7 @@ type Conversation = {
   assignee?: MessageThread['assignee'];
   owner?: MessageThread['owner'];
   status?: string;
+  notes?: AliveNote[];
 }
 
 const StyledGroupNumbersDisplay = styled(GroupNumbersDisplay)`
@@ -184,6 +188,9 @@ export type ConversationProps = {
   getSMSRecipients: () => Promise<SMSRecipient[]>;
   onReplyThread: () => void;
   onResolveThread: () => void;
+  onCreateNote: (text: string) => Promise<void>;
+  onUpdateNote: (noteId: string, text: string) => Promise<void>;
+  onDeleteNote: (noteId: string) => Promise<void>;
   threadBusy: boolean;
 }
 
@@ -321,6 +328,9 @@ export function ConversationPanel({
   getSMSRecipients,
   onReplyThread,
   onResolveThread,
+  onCreateNote,
+  onUpdateNote,
+  onDeleteNote,
   threadBusy,
 }: ConversationProps) {
   const [loaded, setLoaded] = useState(false);
@@ -334,6 +344,7 @@ export function ConversationPanel({
   const messagesRef = useRef(messages);
   const dncAlertRef = useRef(null);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [isNotesDialogOpen, setIsNotesDialogOpen] = useState(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -520,6 +531,15 @@ export function ConversationPanel({
         },
       });
     }
+    headerActions.push({
+      id: 'notes',
+      icon: Notes,
+      title: 'Notes',
+      disabled: threadBusy,
+      onClick: () => {
+        setIsNotesDialogOpen(true);
+      },
+    });
   }
   if (showCloseButton) {
     headerActions.push({
@@ -658,13 +678,26 @@ export function ConversationPanel({
       )}
       {
         conversation.type === 'Thread' && (
-          <AssignDialog
-            open={isAssignDialogOpen}
-            getSMSRecipients={getSMSRecipients}
-            currentAssignee={conversation.assignee}
-            onAssign={onAssign}
-            onCancel={() => setIsAssignDialogOpen(false)}
-          />
+          <>
+            <AssignDialog
+              open={isAssignDialogOpen}
+              getSMSRecipients={getSMSRecipients}
+              currentAssignee={conversation.assignee}
+              onAssign={onAssign}
+              onCancel={() => setIsAssignDialogOpen(false)}
+            />
+            <NotesDialog
+              open={isNotesDialogOpen}
+              notes={conversation.notes || []}
+              onClose={() => setIsNotesDialogOpen(false)}
+              onCreateNote={onCreateNote}
+              onUpdateNote={onUpdateNote}
+              onDeleteNote={onDeleteNote}
+              dateTimeFormatter={dateTimeFormatter}
+              myExtensionId={myExtensionId}
+              loading={threadBusy}
+            />
+          </>
         )
       }
     </Root>
