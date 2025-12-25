@@ -25,25 +25,26 @@ export function BottomAssignInfo({
   onAssign,
   onReply,
   status,
+  busy,
 }) {
   if (status === 'Resolved') {
     return (
       <Root variant='caption1'>
-        This conversation is resolved. <Link variant="inherit" onClick={onReply}>Reply</Link>
+        This conversation is resolved. <Link variant="inherit" disabled={busy} onClick={onReply}>Reply</Link>
       </Root>
     );
   }
   if (assignee && !isAssignedToMe) {
     return (
       <Root variant='caption1'>
-        This conversation is assigned to {assignee.name}. <Link variant="inherit" onClick={onAssignToMe}>Assign to me</Link>
+        This conversation is assigned to {assignee.name}. <Link variant="inherit" disabled={busy} onClick={onAssignToMe}>Assign to me</Link>
       </Root>
     );
   }
   if (!assignee) {
     return (
       <Root variant='caption1'>
-        This conversation is unassigned. <Link variant="inherit" onClick={onReply}>Reply</Link> or <Link variant="inherit" onClick={onAssign}>Assign</Link>
+        This conversation is unassigned. <Link variant="inherit" onClick={onReply} disabled={busy}>Reply</Link> or <Link variant="inherit" onClick={onAssign} disabled={busy}>Assign</Link>
       </Root>
     );
   }

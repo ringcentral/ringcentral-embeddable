@@ -673,6 +673,7 @@ export function ConversationPanel({
             onAssign={() => setIsAssignDialogOpen(true)}
             onReply={onReplyThread}
             status={conversation.status}
+            busy={threadBusy}
           />
         )
       )}
