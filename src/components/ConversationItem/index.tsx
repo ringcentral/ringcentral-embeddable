@@ -25,7 +25,7 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import { ActionMenu } from '../ActionMenu';
 import { StatusMessage } from '../CallItem/StatusMessage';
 import { Detail } from './Detail';
-import { AssignedShortBadge } from './AssignedBadge';
+import { AssignedShortBadge, ResolvedShortBadge } from './AssignedBadge';
 import { GroupNumbersDisplay } from '../ConversationPanel/GroupNumbersDisplay';
 import {
   getSelectedContact,
@@ -682,6 +682,14 @@ export function ConversationItem({
         isAssignedToMe={isAssignedToMe}
         className="conversation-item-assigned-badge"
       />
+      {
+        conversation.status === 'Resolved' && (
+          <ResolvedShortBadge
+            reason={conversation.statusReason}
+            className="conversation-item-assigned-badge"
+          />
+        )
+      }
       <StyledActionMenu
         actions={actions}
         size="small"

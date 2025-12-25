@@ -62,6 +62,7 @@ export class Conversations extends ConversationsBase {
       this._deps.messageThreads.sync();
       this._deps.messageThreadEntries.sync();
     }
+    this.updateSearchFilter('All');
   }
 
   @state
@@ -114,10 +115,25 @@ export class Conversations extends ConversationsBase {
             conversation.conversationMatches.length === 0
           );
         }
+        if (!isThreads) {
+          return true;
+        }
+        if (this.searchFilter === 'Assigned to me') {
+          return conversation.isAssignedToMe;
+        }
+        if (this.searchFilter === 'Unassigned') {
+          return !conversation.assignee && conversation.status === 'Open';
+        }
+        if (this.searchFilter === 'Assigned to others') {
+          return conversation.assignee && !conversation.isAssignedToMe;
+        }
+        if (this.searchFilter === 'Resolved') {
+          return conversation.status === 'Resolved';
+        }
         return true;
       });
-    }
-    if (isThreads) {
+    } else if (isThreads) {
+      // For all, only show open threads
       searchFiltered = searchFiltered.filter((conversation) => {
         return conversation.status === 'Open';
       });

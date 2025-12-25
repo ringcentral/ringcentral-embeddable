@@ -66,13 +66,8 @@ type Conversation = {
   owner?: MessageThread['owner'];
   status?: string;
   notes?: AliveNote[];
+  statusReason?: string;
 }
-
-const StyledGroupNumbersDisplay = styled(GroupNumbersDisplay)`
-  height: 40px;
-  line-height: 40px;
-  width: 100%;
-`;
 
 const Header = styled.div`
   position: relative;
@@ -465,6 +460,7 @@ export function ConversationPanel({
         onViewNote={() => {
           setIsNotesDialogOpen(true);
         }}
+        statusReason={conversation.statusReason}
       />
     );
   }
@@ -619,6 +615,7 @@ export function ConversationPanel({
                 assignee={conversation.assignee}
                 isAssignedToMe={conversation.isAssignedToMe}
                 status={conversation.status}
+                statusReason={conversation.statusReason}
               />
             )
           }

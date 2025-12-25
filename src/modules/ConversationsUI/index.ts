@@ -58,6 +58,23 @@ export class ConversationsUI extends BaseConversationsUI {
     return tabs;
   }
 
+  @computed((that: ConversationsUI) => [
+    that._deps.conversations.ownerFilter,
+    that._deps.conversationLogger.loggerSourceReady
+  ])
+  get searchFilterList() {
+    if (this._deps.conversations.ownerFilter === 'Threads') {
+      if (this._deps.conversationLogger.loggerSourceReady) {
+        return ['All', 'UnLogged', 'Assigned to me', 'Unassigned', 'Assigned to others', 'Unread', 'Resolved'];
+      }
+      return ['All', 'Assigned to me', 'Unassigned', 'Assigned to others', 'Unread', 'Resolved'];
+    }
+    if (this._deps.conversationLogger.loggerSourceReady) {
+      return ['All', 'UnLogged', 'Unread'];
+    }
+    return ['All', 'Unread'];
+  }
+
   getUIProps({
     type = 'text',
     ...props
@@ -75,6 +92,7 @@ export class ConversationsUI extends BaseConversationsUI {
       showLogButton: conversationLogger.loggerSourceReady,
       logButtonTitle: conversationLogger.logButtonTitle,
       searchFilter: conversations.searchFilter,
+      searchFilterList: this.searchFilterList,
       conversations: conversations.pagingConversations,
       rcAccessToken: auth.accessToken,
       ownerFilter: conversations.ownerFilter,

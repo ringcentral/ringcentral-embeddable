@@ -11,11 +11,7 @@ import NoMessage from '@ringcentral-integration/widgets/components/Conversations
 import type { ConversationListProps } from '../ConversationList';
 import ConversationList from '../ConversationList';
 import { SubTabs } from '../SubTabs';
-import {
-  SearchAndFilter,
-  MESSAGE_TYPE_LIST,
-  MESSAGE_TYPE_LIST_WITH_UN_LOGGED,
-} from '../SearchAndFilter';
+import { SearchAndFilter } from '../SearchAndFilter';
 
 type ConversationsPanelProps = {
   currentSiteCode?: string;
@@ -194,6 +190,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
     logButtonTitle = '',
     searchFilter,
     onSearchFilterChange,
+    searchFilterList,
     openMessageDetails,
     rcAccessToken,
     ownerFilter,
@@ -239,7 +236,7 @@ export const ConversationsPanel: FC<ConversationsPanelProps> = (props) => {
             disableLinks={disableLinks}
             type={searchFilter}
             onTypeChange={onSearchFilterChange}
-            typeList={showLogButton ? MESSAGE_TYPE_LIST_WITH_UN_LOGGED : MESSAGE_TYPE_LIST}
+            typeList={searchFilterList}
             currentLocale={currentLocale}
             showTypeFilter
           />

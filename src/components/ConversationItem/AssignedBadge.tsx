@@ -1,5 +1,6 @@
 import React from 'react';
-import { RcChip, RcTooltip, styled, palette2 } from '@ringcentral/juno';
+import { RcChip, RcTooltip, RcIcon, styled, palette2 } from '@ringcentral/juno';
+import { Check, CallsBorder } from '@ringcentral/juno-icon';
 
 function getInitials(name: string): string {
   return name
@@ -54,6 +55,14 @@ const ResolvedChip = styled(StyledChip)`
     color: ${palette2('neutral', 'f01')};
     border: none;
   }
+
+  .MuiChip-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
 `;
 
 export function AssignedFullBadge({
@@ -61,6 +70,7 @@ export function AssignedFullBadge({
   className,
   isAssignedToMe,
   status,
+  statusReason,
 }: {
   assignee: {
     name: string;
@@ -68,11 +78,25 @@ export function AssignedFullBadge({
   className?: string;
   isAssignedToMe: boolean;
   status: string;
+  statusReason: string;
 }) {
   if (status === 'Resolved') {
+    const tooltipTitle = statusReason === 'ThreadExpired' ? 'Conversation resolved automatically.' : 'Resolved';
     return (
-      <RcTooltip title="Resolved">
-        <ResolvedChip label="RESOLVED" className={className} />
+      <RcTooltip title={tooltipTitle}>
+        <ResolvedChip label={
+          <>
+            {
+              statusReason === 'ThreadExpired' && (
+                <>
+                  <RcIcon symbol={CallsBorder} size="xsmall" />
+                  &nbsp;
+                </>
+              )
+            }
+            RESOLVED
+          </>
+        } className={className} />
       </RcTooltip>
     );
   }
@@ -140,6 +164,30 @@ export function AssignedShortBadge({
       <HighlightedChip
         label={initials}
         className={className}
+      />
+    </RcTooltip>
+  );
+}
+
+export function ResolvedShortBadge({
+  reason,
+  className,
+}: {
+  reason: string;
+  className?: string;
+}) {
+  return (
+    <RcTooltip title="Resolved">
+      <ResolvedChip
+        className={className}
+        label={
+          <>
+            {
+              reason === 'ThreadExpired' && <RcIcon symbol={CallsBorder} size="xsmall" />
+            }
+            <RcIcon symbol={Check} size="small" />
+          </>
+        }
       />
     </RcTooltip>
   );

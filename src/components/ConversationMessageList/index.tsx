@@ -182,6 +182,7 @@ export function ThreadHintMessage({
   time,
   type,
   myExtensionId,
+  statusReason,
 }) {
   let message = '';
   if (type === 'ThreadCreatedHint') {
@@ -194,7 +195,11 @@ export function ThreadHintMessage({
       message = 'This conversation is unassigned.';
     }
   } else if (type === 'ThreadResolvedHint') {
-    message = 'Conversation has been resolved.';
+    if (statusReason === 'ThreadExpired') {
+      message = 'Conversation resolved automatically.';
+    } else {
+      message = 'Conversation has been resolved.';
+    }
   } else if (type === 'ThreadDeletedHint') {
     message = 'Conversation has been deleted.';
   }
@@ -416,6 +421,7 @@ export function ConversationMessageList({
   loadPreviousMessages = () => null,
   myExtensionId,
   onViewNote,
+  statusReason,
 }: {
   className: string;
   dateTimeFormatter: any;
@@ -430,6 +436,7 @@ export function ConversationMessageList({
   loadPreviousMessages: () => void;
   myExtensionId: string;
   onViewNote: () => void;
+  statusReason: string;
 }) {
   const listRef = useRef(null);
   const scrollHeight = useRef(null);
@@ -494,6 +501,7 @@ export function ConversationMessageList({
           )}
           type={message.recordType}
           myExtensionId={myExtensionId}
+          statusReason={statusReason}
         />
       );
     }
