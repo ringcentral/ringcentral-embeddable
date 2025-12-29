@@ -129,3 +129,6 @@ export interface MessageThreadEntriesSubscriptionMessage {
   body?: MessageThreadEntry;
 }
 
+export interface EntityHandler {
+  (entity: MessageThreadEntry): void;
+}

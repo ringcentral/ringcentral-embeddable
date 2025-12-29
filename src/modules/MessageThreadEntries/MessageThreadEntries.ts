@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import { computed, watch, state, action, storage } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
@@ -13,6 +14,7 @@ import type {
   DeletedMessage,
   AliveMessage,
   AliveNote,
+  EntityHandler,
 } from './MessageThreadEntries.interface';
 
 @Module({
@@ -24,6 +26,7 @@ import type {
     'Auth',
     'TabManager',
     'Storage',
+    'GrantExtensions',
     { dep: 'Subscription', optional: true },
     { dep: 'MessageThreadEntriesOptions', optional: true },
   ],
@@ -36,6 +39,8 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   private _source: DataSource<MessageThreadEntriesStoreData>;
   private _syncPromise: Promise<MessageThreadEntriesStoreData> | null = null;
   private _syncTimeout: NodeJS.Timeout | null = null;
+  protected _eventEmitter = new EventEmitter();
+  protected _handledRecords: MessageThreadEntry[] = [];
 
   constructor(deps: Deps) {
     super({
@@ -52,7 +57,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
       readyCheckFunction: () => this._deps.appFeatures.ready,
     });
     this._deps.dataFetcherV2.register(this._source);
-    this.sync = debounce(this._sync, 3000, false);
+    this.sync = debounce(this._sync, 2000, false);
   }
 
   override onInit() {
@@ -159,7 +164,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     return newStore;
   }
 
-  async _syncData() {
+  async _syncData({ passive = false }: { passive?: boolean } = {}) {
     const { ownerId } = this._deps.auth;
     try {
       const syncToken = this.syncInfo?.syncToken;
@@ -175,6 +180,10 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
         throw e;
       }
       if (this._deps.auth.ownerId === ownerId) {
+        if (passive) {
+          // only handle records that invoked by subscription
+          this._handledRecords = data.records;
+        }
         const store = this._mergeIntoStoreData(data.records, !syncToken);
         if (isFullSyncing) {
           this.clearReadTimeMap(Object.keys(store));
@@ -201,10 +210,15 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     if (this._syncPromise) {
       return this._syncPromise;
     }
-    this._syncPromise = this._syncData();
+    this._handledRecords = [];
+    this._syncPromise = this._syncData({ passive: true });
     const data = await this._syncPromise;
     this._syncPromise = null;
     this._updateData(data);
+    if (this._handledRecords && this._handledRecords.length > 0) {
+      this._dispatchEntityHandlers(this._handledRecords);
+      this._handledRecords = [];
+    }
     return data;
   }
 
@@ -229,7 +243,10 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   }
 
   get hasPermission() {
-    return this._deps.appFeatures.hasMessageThreadsPermission;
+    return (
+      this._deps.appFeatures.hasMessageThreadsPermission &&
+      this._deps.grantExtensions.callQueueSmsRecipients.length > 0
+    );
   }
 
   override get data() {
@@ -296,7 +313,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
       ...(this.data ?? {}),
       store: newStore,
     });
-    this.triggerSyncWithTimeout();
+    // this.triggerSyncWithTimeout();
   }
 
   async createNote(threadId: string, text: string): Promise<AliveNote> {
@@ -358,5 +375,17 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
       ...(this.data ?? {}),
       store: newStore,
     });
+  }
+
+  _dispatchEntityHandlers(entities: MessageThreadEntry[]) {
+    entities.forEach((entity) => {
+      this._eventEmitter.emit('entityUpdated', entity);
+    });
+  }
+
+  onEntityUpdated(handler: EntityHandler) {
+    if (typeof handler === 'function') {
+      this._eventEmitter.on('entityUpdated', handler);
+    }
   }
 }

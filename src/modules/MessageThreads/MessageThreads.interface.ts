@@ -82,3 +82,7 @@ export interface SMSRecipient {
   assignable: boolean;
   hasLicense: boolean;
 }
+
+export interface ThreadHandler {
+  (thread: MessageThread): void;
+}

@@ -130,4 +130,9 @@ export class GrantExtensions extends DataFetcherV2Consumer<
   get grantParkLocations() {
     return this.grantExtensions.filter((item) => item.extension.type === 'ParkLocation');
   }
+
+  @computed(({ grantExtensions }: GrantExtensions) => [grantExtensions])
+  get callQueueSmsRecipients() {
+    return this.grantExtensions.filter((item) => item.callQueueSmsRecipient);
+  }
 }

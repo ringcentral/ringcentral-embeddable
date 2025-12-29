@@ -23,7 +23,7 @@ export class ConversationsUI extends BaseConversationsUI {
     that._deps.conversations.hasSharedSmsAccess,
     that._deps.messageStore.personalTextUnreadCounts,
     that._deps.messageStore.sharedTextUnreadCounts,
-    that._deps.appFeatures.hasMessageThreadsPermission,
+    that._deps.conversations.hasMessageThreadsPermission,
     that._deps.messageThreads.unreadCounts,
   ])
   get ownerTabs() {
@@ -31,7 +31,7 @@ export class ConversationsUI extends BaseConversationsUI {
       this._deps.conversations.typeFilter !== messageTypes.text ||
       (
         !this._deps.conversations.hasSharedSmsAccess &&
-        !this._deps.appFeatures.hasMessageThreadsPermission
+        !this._deps.conversations.hasMessageThreadsPermission
       )
     ) {
       return [];
@@ -48,7 +48,7 @@ export class ConversationsUI extends BaseConversationsUI {
         unreadCounts: this._deps.messageStore.sharedTextUnreadCounts,
       });
     }
-    if (this._deps.appFeatures.hasMessageThreadsPermission) {
+    if (this._deps.conversations.hasMessageThreadsPermission) {
       tabs.push({
         label: 'Shared',
         value: 'Threads',

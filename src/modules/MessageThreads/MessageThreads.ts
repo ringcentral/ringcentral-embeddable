@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import { computed, watch, state, action } from '@ringcentral-integration/core';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import { DataFetcherV2Consumer, DataSource } from '@ringcentral-integration/commons/modules/DataFetcherV2';
@@ -10,6 +11,7 @@ import type {
   MessageThreadSavedItem,
   MessageThread,
   SMSRecipient,
+  ThreadHandler,
 } from './MessageThreads.interface';
 import type { AliveMessage } from '../MessageThreadEntries/MessageThreadEntries.interface';
 @Module({
@@ -22,6 +24,7 @@ import type { AliveMessage } from '../MessageThreadEntries/MessageThreadEntries.
     'Auth',
     'TabManager',
     'Alert',
+    'GrantExtensions',
     { dep: 'Subscription', optional: true },
     { dep: 'MessageThreadsOptions', optional: true },
   ],
@@ -33,6 +36,8 @@ export class MessageThreads extends DataFetcherV2Consumer<
   private _stopWatching: any;
   private _source: DataSource<MessageThreadsSavedData>;
   private _syncPromise: Promise<MessageThreadsSavedData> | null = null;
+  protected _eventEmitter = new EventEmitter();
+  protected _handledRecords: MessageThread[] = [];
 
   constructor(deps: Deps) {
     super({
@@ -130,7 +135,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
     return newRecords.sort((a, b) => b.creationTime - a.creationTime);
   }
 
-  async _syncData() {
+  async _syncData({ passive = false }: { passive?: boolean } = {}) {
     const { ownerId } = this._deps.auth;
     try {
       const syncToken = this.syncInfo?.syncToken;
@@ -144,6 +149,10 @@ export class MessageThreads extends DataFetcherV2Consumer<
         throw e;
       }
       if (this._deps.auth.ownerId === ownerId) {
+        if (passive) {
+          // only handle records that invoked by subscription
+          this._handledRecords = data.records;
+        }
         return {
           records: this._mergeData(data.records, !syncToken),
           syncInfo: data.syncInfo,
@@ -175,10 +184,15 @@ export class MessageThreads extends DataFetcherV2Consumer<
     if (this._syncPromise) {
       return this._syncPromise;
     }
-    this._syncPromise = this._syncData();
+    this._handledRecords = [];
+    this._syncPromise = this._syncData({ passive: true });
     const data = await this._syncPromise;
     this._syncPromise = null;
     this._updateData(data);
+    if (this._handledRecords && this._handledRecords.length > 0) {
+      this._dispatchThreadsHandlers(this._handledRecords);
+      this._handledRecords = [];
+    }
     return data;
   }
 
@@ -257,7 +271,10 @@ export class MessageThreads extends DataFetcherV2Consumer<
   }
 
   get hasPermission() {
-    return this._deps.appFeatures.hasMessageThreadsPermission;
+    return (
+      this._deps.appFeatures.hasMessageThreadsPermission &&
+      this._deps.grantExtensions.callQueueSmsRecipients.length > 0
+    );
   }
 
   override get data() {
@@ -293,7 +310,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
   async getSMSRecipients(threadOwner: MessageThread['owner']): Promise<SMSRecipient[]> {
     const response = await this._deps.client.service
       .platform()
-      .get(`/restapi/v1.0/account/~/extension/${threadOwner.extensionId}/sms-recipients`);
+      .get(`/restapi/v1.0/account/~/call-queues/${threadOwner.extensionId}/sms-recipients`);
     const result = await response.json();
     return result.smsRecipients;
   }
@@ -468,6 +485,18 @@ export class MessageThreads extends DataFetcherV2Consumer<
       this.setBusy(false);
       this._deps.alert.warning({ message: 'messageThreadDeleteNoteFailed' });
       return null;
+    }
+  }
+
+  _dispatchThreadsHandlers(threads: MessageThread[]) {
+    threads.forEach((entity) => {
+      this._eventEmitter.emit('threadUpdated', entity);
+    });
+  }
+
+  onThreadUpdated(handler: ThreadHandler) {
+    if (typeof handler === 'function') {
+      this._eventEmitter.on('threadUpdated', handler);
     }
   }
 }

@@ -2,33 +2,25 @@ import { Module } from '@ringcentral-integration/commons/lib/di';
 import {
   ConversationLogger as ConversationLoggerBase,
 } from '@ringcentral-integration/commons/modules/ConversationLogger';
+import type {
+  ConversationLogMap,
+} from '@ringcentral-integration/commons/modules/ConversationLogger/ConversationLogger.interface';
 import { computed } from '@ringcentral-integration/core';
+import { sortByDate, getNumbersFromMessage } from '@ringcentral-integration/commons/lib/messageHelper';
 import type { Correspondent } from '@ringcentral-integration/commons/lib/messageHelper';
 import { getLogId } from '@ringcentral-integration/commons/modules/ConversationLogger/conversationLoggerHelper';
 
-const getCurrentDateTimeStamp = () => {
-  let today = new Date();
-  let dd = today.getDate();
-  let mm = today.getMonth() + 1;
-  const yyyy = today.getFullYear();
-  let ddString = dd.toString();
-  let mmString = mm.toString();
-  if (dd < 10) {
-    ddString = `0${dd}`;
-  }
-  if (mm < 10) {
-    mmString = `0${mm}`;
-  }
-  const todayString = `${mmString}/${ddString}/${yyyy}`;
-  return new Date(todayString).getTime();
-};
-
 @Module({
   deps: [
-    'ThirdPartyService'
+    'ThirdPartyService',
+    'MessageThreads',
+    'MessageThreadEntries',
   ],
 })
 export class ConversationLogger extends ConversationLoggerBase {
+  protected _threadUpdatedTimeout: NodeJS.Timeout | null = null;
+  protected _lastProcessedConversations: ConversationLogMap | null = null;
+
   constructor(deps) {
     super(deps);
     if (this._deps.conversationLoggerOptions.autoLog) {
@@ -44,6 +36,23 @@ export class ConversationLogger extends ConversationLoggerBase {
       });
       return today === conversation.date;
     };
+
+    this._deps.messageThreadEntries.onEntityUpdated((entity) => {
+      if (this._threadUpdatedTimeout) {
+        clearTimeout(this._threadUpdatedTimeout);
+      }
+      this._threadUpdatedTimeout = setTimeout(() => {
+        this._processConversationLogMap();
+      }, 2000);
+    });
+    this._deps.messageThreads.onThreadUpdated((thread) => {
+      if (this._threadUpdatedTimeout) {
+        clearTimeout(this._threadUpdatedTimeout);
+      }
+      this._threadUpdatedTimeout = setTimeout(() => {
+        this._processConversationLogMap();
+      }, 2000);
+    });
   }
 
   override async onInit() {
@@ -71,8 +80,56 @@ export class ConversationLogger extends ConversationLoggerBase {
     return this._deps.thirdPartyService.messageLoggerRegistered;
   }
 
+  override _processConversationLogMap() {
+    if (this.ready && this._lastAutoLog !== this.autoLog) {
+      this._lastAutoLog = this.autoLog;
+      if (this.autoLog) {
+        // force conversation log checking when switch auto log to on
+        this._lastProcessedConversations = null;
+      }
+    }
+    if (
+      this.ready &&
+      this._lastProcessedConversations !== this.conversationLogMap
+    ) {
+      this._deps.conversationMatcher.triggerMatch();
+      this._deps.contactMatcher.triggerMatch();
+      const oldMap = this._lastProcessedConversations || {};
+      this._lastProcessedConversations = this.conversationLogMap;
+      if (!this._deps.tabManager || this._deps.tabManager.active) {
+        Object.keys(this._lastProcessedConversations).forEach(
+          (conversationId) => {
+            Object.keys(
+              this._lastProcessedConversations![conversationId],
+            ).forEach((date) => {
+              const conversation =
+                this._lastProcessedConversations![conversationId][date];
+              if (
+                !oldMap[conversationId] ||
+                !oldMap[conversationId][date] ||
+                conversation.messages[0].id !==
+                  oldMap[conversationId][date].messages[0].id ||
+                (conversation.type === 'Thread' && (
+                  conversation.lastModifiedTime > oldMap[conversationId][date].lastModifiedTime ||
+                  conversation.entities.length !== oldMap[conversationId][date].entities.length ||
+                  conversation.entities[conversation.entities.length -1]?.lastModifiedTime > oldMap[conversationId][date].entities[oldMap[conversationId][date].entities[length -1]]?.lastModifiedTime
+                ))
+              ) {
+                if (this.accordWithProcessLogRequirement(conversation)) {
+                  this._queueAutoLogConversation({
+                    conversation,
+                  });
+                }
+              }
+            });
+          },
+        );
+      }
+    }
+  }
+
   // overwrite super to support voicemail and fax
-  async _processConversationLog({
+  override async _processConversationLog({
     conversation,
   }) {
     // await this._deps.conversationMatcher.triggerMatch();
@@ -167,43 +224,98 @@ export class ConversationLogger extends ConversationLoggerBase {
     await this._log({ item: conversation, ...options });
   }
 
-  // @selector
-  // conversationLogMap = [
-  //   () => this._messageStore.conversationStore,
-  //   () => this._extensionInfo.extensionNumber,
-  //   () => this._conversationMatcher.dataMapping,
-  //   (conversationStore, extensionNumber, conversationLogMapping = {}) => {
-  //     const messages = Object.values(conversationStore)
-  //       .reduce((allMessages, messages) => [...allMessages, ...messages], []);
-  //     const mapping = {};
-  //     messages.slice().sort(sortByDate)
-  //       .forEach((message) => {
-  //         const { conversationId } = message;
-  //         const date = this._formatDateTime({
-  //           type: 'date',
-  //           utcTimestamp: message.creationTime,
-  //         });
-  //         if (!mapping[conversationId]) {
-  //           mapping[conversationId] = {};
-  //         }
-  //         if (!mapping[conversationId][date]) {
-  //           const conversationLogId = getLogId({ conversationId, date });
-  //           mapping[conversationId][date] = {
-  //             conversationLogId,
-  //             conversationId,
-  //             creationTime: message.creationTime, // for sorting
-  //             date,
-  //             type: message.type,
-  //             messages: [],
-  //             conversationLogMatches: conversationLogMapping[conversationLogId] || [],
-  //             ...getNumbersFromMessage({ extensionNumber, message }),
-  //           };
-  //         }
-  //         mapping[conversationId][date].messages.push(message);
-  //       });
-  //     return mapping;
-  //   },
-  // ]
+  @computed((that: ConversationLogger) => [
+    that._deps.messageStore.conversationStore,
+    that._deps.extensionInfo.extensionNumber,
+    that._deps.conversationMatcher.dataMapping,
+    that._deps.messageThreads.threads,
+  ])
+  get conversationLogMap() {
+    const { conversationStore } = this._deps.messageStore;
+    const extensionNumber = this._deps.extensionInfo.extensionNumber!;
+    const conversationLogMapping =
+      this._deps.conversationMatcher.dataMapping ?? {};
+    const messages = Object.values(conversationStore).reduce(
+      (allMessages, messages) => [...allMessages, ...messages],
+      [],
+    );
+    const mapping: ConversationLogMap = {};
+    messages
+      .slice()
+      .sort(sortByDate)
+      .forEach((message) => {
+        const conversationId = message.conversationId!;
+        const date = this._formatDateTime({
+          type: 'date',
+          utcTimestamp: message.creationTime,
+        })!;
+
+        if (!mapping[conversationId]) {
+          mapping[conversationId] = {};
+        }
+
+        if (!mapping[conversationId][date]) {
+          const conversationLogId = this.getConversationLogId(message)!;
+
+          mapping[conversationId][date] = {
+            conversationLogId,
+            conversationId,
+            creationTime: message.creationTime!, // for sorting
+            date,
+            type: message.type,
+            messages: [],
+            conversationLogMatches:
+              conversationLogMapping[conversationLogId] || [],
+            // The reason for passing extensionNumber here is to filter the correspondence in the group conversation(type paper, and Only it has extensionNumber) that contains its own information.
+            ...getNumbersFromMessage({ extensionNumber, message }),
+          };
+        }
+
+        mapping[conversationId][date].messages.push(message);
+      });
+    this._deps.messageThreads.threads.forEach((thread) => {
+      const conversationId = thread.id;
+      if (!mapping[conversationId]) {
+        mapping[conversationId] = {};
+      }
+      thread.messages.forEach((message) => {
+        const date = this._formatDateTime({
+          type: 'date',
+          utcTimestamp: message.creationTime || message.lastModifiedTime,
+        });
+        if (!mapping[conversationId][date]) {
+          const conversationLogId = this.getMessageThreadLogId(thread);
+          mapping[conversationId][date] = {
+            conversationLogId,
+            conversationId,
+            creationTime: thread.creationTime,
+            date,
+            type: 'Thread',
+            messages: [],
+            entities: [],
+            conversationLogMatches:
+              conversationLogMapping[conversationLogId] || [],
+            self: thread.ownerParty,
+            correspondents: [thread.guestParty],
+            status: thread.status,
+            statusReason: thread.statusReason,
+            assignee: thread.assignee,
+            owner: thread.owner,
+            guestParty: thread.guestParty,
+            ownerParty: thread.ownerParty,
+            lastModifiedTime: thread.lastModifiedTime,
+            isAssignedToMe: thread.isAssignedToMe,
+            label: thread.label,
+          };
+        }
+        mapping[conversationId][date].entities.push(message);
+        if (message.recordType === 'AliveMessage') {
+          mapping[conversationId][date].messages.push(message);
+        }
+      });
+    });
+    return mapping;
+  }
 
   getMessageThreadLogId(thread) {
     if (!thread) {
