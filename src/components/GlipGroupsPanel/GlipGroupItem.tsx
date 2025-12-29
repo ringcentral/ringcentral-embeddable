@@ -104,6 +104,11 @@ const UnreadBadge = styled(RcChip)`
     color: ${palette2('neutral', 'f01')};
   }
 `;
+const Time = styled.span`
+  width: 56px;
+  margin-left: 0;
+  text-align: right;
+`;
 
 const StyledSecondaryAction = styled(RcListItemSecondaryAction)`
   display: flex;
@@ -152,7 +157,7 @@ export function GlipGroupItem(
             />
           ) : null
         }
-        <span>{group.latestPost ? dateTimeFormatter(group.latestPost.creationTime) : null}</span>
+        <Time>{group.latestPost ? dateTimeFormatter(group.latestPost.creationTime) : null}</Time>
       </StyledSecondaryAction>
     </StyledListItem>
   );
