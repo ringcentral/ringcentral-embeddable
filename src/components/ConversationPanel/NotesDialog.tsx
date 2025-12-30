@@ -434,6 +434,7 @@ export function NotesDialog({
             size="small"
             multiline
             minRows={1}
+            helperText="Press Enter to save, Shift + Enter for new line"
           />
         </InputContainer>
       )}
