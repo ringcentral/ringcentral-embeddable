@@ -1222,6 +1222,14 @@ export default class Adapter extends AdapterModuleCore {
       if (conversation) {
         const phoneNumber = getConversationPhoneNumber(conversation);
         this._sideDrawerUI.gotoConversation(conversationId, { phoneNumber });
+        return;
+      }
+      const thread = this._conversations.formattedMessageThreads.find(
+        item => item.id === conversationId,
+      );
+      if (thread) {
+        const phoneNumber = thread.guestParty?.phoneNumber ?? '';
+        this._sideDrawerUI.gotoConversation(conversationId, { phoneNumber }, 'thread');
       }
       return;
     }
