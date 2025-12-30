@@ -56881,6 +56881,12 @@ class Adapter extends AdapterCore/* default */.A {
         case 'rc-message-updated-notify':
           console.log('rc-message-updated-notify:', data.message.id);
           break;
+        case 'rc-message-thread-notify':
+          console.log('rc-message-thread-notify:', data.thread.id);
+          break;
+        case 'rc-message-thread-entity-notify':
+          console.log('rc-message-thread-entity-notify:', data.entity.id);
+          break;
         case 'rc-route-changed-notify':
           this._updateWidgetCurrentPath(data.path);
           console.log('rc-route-changed-notify:', data.path);
