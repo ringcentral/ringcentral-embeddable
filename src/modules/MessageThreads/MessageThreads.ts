@@ -55,6 +55,34 @@ export class MessageThreads extends DataFetcherV2Consumer<
     this.sync = debounce(this._sync, 1000, false);
   }
 
+  override onInitOnce() {
+    super.onInitOnce();
+    if (this.hasPermission) {
+      return;
+    }
+    // For first time to check if has permission, if not, watch the permission change
+    watch(
+      this,
+      () => this.hasPermission,
+      (hasPermission) => {
+        if (this._stopWatching) {
+          return;
+        }
+        if (hasPermission) {
+          this.sync();
+          this._deps.subscription.subscribe([
+            '/restapi/v1.0/account/~/message-threads/sync',
+          ]);
+          this._stopWatching = watch(
+            this,
+            () => this._deps.subscription!.message,
+            (message) => this._handleSubscription(message),
+          );
+        }
+      }
+    );
+  }
+
   override onInit() {
     if (!this.hasPermission) {
       return;
@@ -242,6 +270,14 @@ export class MessageThreads extends DataFetcherV2Consumer<
         [thread.guestParty];
       if (thread.status !== 'Open' || (thread.assignee && !isAssignedToMe)) {
         unreadCounts = 0;
+      }
+      if (
+        thread.status === 'Open' &&
+        unreadCounts === 0 &&
+        (isAssignedToMe || !thread.assignee) &&
+        thread.lastModifiedTime > lastReadTime
+      ) {
+        unreadCounts = 1;
       }
       return {
         ...thread,
@@ -499,4 +535,22 @@ export class MessageThreads extends DataFetcherV2Consumer<
       this._eventEmitter.on('threadUpdated', handler);
     }
   }
-}
+
+  markAsUnread(threadId: string) {
+    const thread = this.threads.find((thread) => thread.id === threadId);
+    if (thread.unreadCounts > 0) {
+      return;
+    }
+    const lastInboundMessage = thread.messages.find(
+      (message) => message.direction === 'Inbound' && message.recordType === 'AliveMessage'
+    );
+    if (!lastInboundMessage) {
+      if (thread.isAssignedToMe || !thread.assignee) {
+        this._deps.messageThreadEntries.markAsUnread(threadId, thread.lastModifiedTime);
+        return;
+      }
+      this._deps.alert.warning({ message: 'messageThreadMarkAsUnreadFailed' });
+      return;
+    }
+    this._deps.messageThreadEntries.markAsUnread(threadId, lastInboundMessage.creationTime);
+  }}

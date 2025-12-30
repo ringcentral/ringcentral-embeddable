@@ -210,6 +210,13 @@ export class ConversationsUI extends BaseConversationsUI {
       getSMSRecipients: (conversation) => {
         return messageThreads.getSMSRecipients(conversation.owner);
       },
+      markMessage: (conversationId) => {
+        if (this._deps.conversations.ownerFilter === 'Threads') {
+          messageThreads.markAsUnread(conversationId);
+          return;
+        }
+        this._deps.messageStore.unreadMessage(conversationId);
+      },
     }
   }
 }

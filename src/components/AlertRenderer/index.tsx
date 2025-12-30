@@ -106,6 +106,9 @@ export function getAlertRenderer({
     if (message.message === 'messageThreadDeleteNoteFailed') {
       return () => 'Sorry, failed to delete note for message thread. Please try again later.';
     }
+    if (message.message === 'messageThreadMarkAsUnreadFailed') {
+      return () => 'Sorry, current thread does not have any inbound messages.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage

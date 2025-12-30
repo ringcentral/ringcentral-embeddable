@@ -60,6 +60,34 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     this.sync = debounce(this._sync, 2000, false);
   }
 
+  override onInitOnce() {
+    super.onInitOnce();
+    if (this.hasPermission) {
+      return;
+    }
+    // For first time to check if has permission, if not, watch the permission change
+    watch(
+      this,
+      () => this.hasPermission,
+      (hasPermission) => {
+        if (this._stopWatching) {
+          return;
+        }
+        if (hasPermission) {
+          this.sync();
+          this._deps.subscription.subscribe([
+            '/restapi/v1.0/account/~/message-threads/entries/sync',
+          ]);
+          this._stopWatching = watch(
+            this,
+            () => this._deps.subscription!.message,
+            (message) => this._handleSubscription(message),
+          );
+        }
+      }
+    );
+  }
+
   override onInit() {
     if (!this.hasPermission) {
       return;
@@ -291,6 +319,11 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   @action
   _markThreadAsRead(threadId: string) {
     this.lastReadTimeMap[threadId] = Date.now();
+  }
+
+  @action
+  markAsUnread(threadId: string, messageTime: number) {
+    this.lastReadTimeMap[threadId] = messageTime - 1;
   }
 
   markThreadAsRead(threadId: string) {
