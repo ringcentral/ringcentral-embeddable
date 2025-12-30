@@ -344,9 +344,10 @@ export class MessageThreads extends DataFetcherV2Consumer<
   }
 
   async getSMSRecipients(threadOwner: MessageThread['owner']): Promise<SMSRecipient[]> {
+    const extensionType = threadOwner.extensionType === 'Department' ? 'call-queues' : 'extension';
     const response = await this._deps.client.service
       .platform()
-      .get(`/restapi/v1.0/account/~/call-queues/${threadOwner.extensionId}/sms-recipients`);
+      .get(`/restapi/v1.0/account/~/${extensionType}/${threadOwner.extensionId}/sms-recipients`);
     const result = await response.json();
     return result.smsRecipients;
   }
