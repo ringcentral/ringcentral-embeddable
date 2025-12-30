@@ -38,6 +38,8 @@ const LicenseDescription = styled(RcTypography)`
     font-size: inherit;
     line-height: inherit;
   }
+  overflow-wrap: break-word;
+  white-space: normal;
 `;
 
 const RedDot = styled.div`
