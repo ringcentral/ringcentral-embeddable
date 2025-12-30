@@ -21,6 +21,8 @@ const Title = styled(RcTypography)`
 const Root = styled.div`
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   position: inherit;
   box-sizing: border-box;
@@ -67,6 +69,10 @@ const SenderField = styled.div`
 const Aline = styled.div`
   border-bottom: ${palette2('neutral', 'l02')} 1px solid;
   margin-bottom: 5px;
+`;
+
+const EmptyContainer = styled.div`
+  flex: 1;
 `;
 
 const GroupSMSLabelText = styled(RcTypography)`
@@ -322,6 +328,7 @@ function ComposeTextPanel({
               disabled={toNumbers.length === 0 || (toNumbers.length === 1 && !typingToNumber)}
             />
             <Aline />
+            <EmptyContainer />
             <MessageInput
               value={messageText}
               onChange={updateMessageText}
@@ -341,6 +348,7 @@ function ComposeTextPanel({
               deleteTemplate={deleteTemplate}
               createOrUpdateTemplate={createOrUpdateTemplate}
               sortTemplates={sortTemplates}
+              disabled={senderNumbers.length === 0}
             />
           </>
         )

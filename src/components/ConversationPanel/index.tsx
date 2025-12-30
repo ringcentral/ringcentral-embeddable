@@ -9,25 +9,40 @@ import {
 import {
   checkShouldHidePhoneNumber,
 } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
-import { RcAlert, RcIconButton, styled } from '@ringcentral/juno';
-import { AddTextLog, Close } from '@ringcentral/juno-icon';
+import { RcAlert, RcIconButton, styled, palette2 } from '@ringcentral/juno';
+import {
+  AddTextLog,
+  Close,
+  Previous,
+  OuboundCallOnBehalf as Assign,
+  Logout as Unassign,
+  ThreadReply as Reply,
+  Check as Resolve,
+  Notes,
+} from '@ringcentral/juno-icon';
 import MessageInput from '../MessageInput';
 import type { Attachment } from '../MessageInput';
-import { BackHeader } from '../BackHeader';
 import { ConversationMessageList } from '../ConversationMessageList';
 import { GroupNumbersDisplay } from './GroupNumbersDisplay';
-
-const HeaderButtons = styled.div`
-  position: absolute;
-  top: 0;
-  right: 6px;
-`;
+import { AssignedFullBadge } from '../ConversationItem/AssignedBadge';
+import { ActionMenu } from '../ActionMenu';
+import { AssignDialog } from '../AssignDialog';
+import { NotesDialog } from './NotesDialog';
+import { BottomAssignInfo } from './BottomAssignInfo';
+import type { SMSRecipient, MessageThread } from '../../modules/MessageThreads/MessageThreads.interface';
+import type { AliveNote } from '../../modules/MessageThreadEntries/MessageThreadEntries.interface';
 
 const Root = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .ConversationMessageList {
+    flex: 1;
+  }
 `;
 
 export type Recipient = {
@@ -45,13 +60,52 @@ type Conversation = {
   correspondents?: any[];
   isLogging?: boolean;
   conversationId?: string;
+  type?: string;
+  isAssignedToMe?: boolean;
+  assignee?: MessageThread['assignee'];
+  owner?: MessageThread['owner'];
+  status?: string;
+  notes?: AliveNote[];
+  statusReason?: string;
 }
 
-const StyledGroupNumbersDisplay = styled(GroupNumbersDisplay)`
-  height: 40px;
-  line-height: 40px;
-  width: 100%;
-  padding-left: 10px;
+const Header = styled.div`
+  position: relative;
+  padding: 0 8px;
+  min-height: 32px;
+  text-align: center;
+  border-bottom: 1px solid ${palette2('neutral', 'l02')};
+  background-color: ${palette2('nav', 'b01')};
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const HeaderButtons = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const HeaderName = styled.div`
+  flex: 1;
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  margin-left: 8px;
+`;
+
+const StyledContactDisplay = styled(ContactDisplay)`
+  width: auto;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const StyledAssignedFullBadge = styled(AssignedFullBadge)`
+  margin-top: 4px;
 `;
 
 export type ConversationProps = {
@@ -122,6 +176,17 @@ export type ConversationProps = {
   hideBackButton?: boolean;
   showCloseButton?: boolean;
   onClose?: (...args: any[]) => any;
+  myExtensionId: string;
+  onAssign: (assignee: {
+    extensionId: string;
+  } | null) => void;
+  getSMSRecipients: () => Promise<SMSRecipient[]>;
+  onReplyThread: () => void;
+  onResolveThread: () => void;
+  onCreateNote: (text: string) => Promise<void>;
+  onUpdateNote: (noteId: string, text: string) => Promise<void>;
+  onDeleteNote: (noteId: string) => Promise<void>;
+  threadBusy: boolean;
 }
 
 function getInitialContactIndex(conversation: Conversation) {
@@ -253,6 +318,15 @@ export function ConversationPanel({
   hideBackButton = false,
   showCloseButton = false,
   onClose = () => null,
+  myExtensionId,
+  onAssign,
+  getSMSRecipients,
+  onReplyThread,
+  onResolveThread,
+  onCreateNote,
+  onUpdateNote,
+  onDeleteNote,
+  threadBusy,
 }: ConversationProps) {
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState(getInitialContactIndex(conversation));
@@ -264,6 +338,8 @@ export function ConversationPanel({
   const conversationRef = useRef(conversation);
   const messagesRef = useRef(messages);
   const dncAlertRef = useRef(null);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [isNotesDialogOpen, setIsNotesDialogOpen] = useState(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -324,10 +400,6 @@ export function ConversationPanel({
     replyToReceivers(text, attachments, selectContact);
   };
 
-  const onInputHeightChange = (value) => {
-    setInputHeight(value);
-  };
-
   const logConversation = async ({ redirect = true, selectedIndex = selected, prefill = true } = {}) => {
     if (typeof onLogConversation === 'function' && mountedRef.current && !isLoggingState) {
       setIsLoggingState(true);
@@ -360,22 +432,6 @@ export function ConversationPanel({
     }
   };
 
-  const getMessageListHeight = () => {
-    const headerHeight = 41;
-    const alertMargin = 12;
-    const logInfoHeight = isWide ? 60 : 100;
-    let extraHeight = 0;
-    if (restrictSendMessage?.(getSelectedContact(selected, conversation))) {
-      extraHeight = alertHeight + alertMargin + headerHeight;
-    } else {
-      extraHeight = inputHeight + headerHeight;
-    }
-    if (typeof renderLogInfoSection === 'function') {
-      extraHeight += logInfoHeight;
-    }
-    return `calc(100% - ${extraHeight}px)`;
-  }
-
   if (!loaded || !conversation) {
     return (
       <div className={styles.root}>
@@ -390,7 +446,6 @@ export function ConversationPanel({
     conversationBody = (
       <ConversationMessageList
         currentLocale={currentLocale}
-        height={getMessageListHeight()}
         messages={messages}
         dateTimeFormatter={dateTimeFormatter}
         showSender={recipients && recipients.length > 1}
@@ -401,6 +456,11 @@ export function ConversationPanel({
         onAttachmentDownload={onAttachmentDownload}
         onLinkClick={onLinkClick}
         className="ConversationMessageList"
+        myExtensionId={myExtensionId}
+        onViewNote={() => {
+          setIsNotesDialogOpen(true);
+        }}
+        statusReason={conversation.statusReason}
       />
     );
   }
@@ -409,32 +469,92 @@ export function ConversationPanel({
   const groupNumbers = getGroupPhoneNumbers(conversation);
   const shouldHideNumber = enableCDC && checkShouldHidePhoneNumber(phoneNumber, correspondentMatches);
   const fallbackName = getFallbackContactName(conversation);
-  const logButton =
-    onLogConversation &&
-    showLogButton  ? (
-      <RcIconButton
-        onClick={() => {
-          logConversation();
-        }}
-        disabled={disableLinks || isLogging || isLoggingState}
-        title={
-          logButtonTitle ||
-          messageItemI18n.getString(
-            conversationMatches.length > 0 ? 'editLog' : 'addLog',
-            currentLocale
-          )
-        }
-        data-sign="logButton"
-        symbol={AddTextLog}
-      />
-    ) : null;
+  const headerActions = [];
+  if (onLogConversation && showLogButton) {
+    headerActions.push({
+      id: 'log',
+      icon: AddTextLog,
+      disabled: disableLinks || isLogging || isLoggingState,
+      title: logButtonTitle || messageItemI18n.getString(
+        conversationMatches.length > 0 ? 'editLog' : 'addLog',
+        currentLocale
+      ),
+      onClick: () => {
+        logConversation();
+      },
+      dataSign: 'logButton',
+    });
+  }
+  if (conversation.type === 'Thread') {
+    if (conversation.status === 'Open' && conversation.assignee) {
+      headerActions.push({
+        id: 'resolve',
+        icon: Resolve,
+        title: 'Resolve',
+        disabled: threadBusy,
+        onClick: () => {
+          onResolveThread();
+        },
+      });
+    }
+    if (!conversation.assignee) {
+      headerActions.push({
+        id: 'reply',
+        icon: Reply,
+        title: 'Reply',
+        disabled: threadBusy,
+        onClick: () => {
+          onReplyThread();
+        },
+      });
+    }
+    if (conversation.status === 'Open') {
+      headerActions.push({
+        id: 'assign',
+        icon: Assign,
+        title: conversation.assignee ? 'Reassign' : 'Assign',
+        disabled: threadBusy,
+        onClick: () => {
+          setIsAssignDialogOpen(true);
+        },
+      });
+    }
+    if (conversation.assignee) {
+      headerActions.push({
+        id: 'unassign',
+        icon: Unassign,
+        title: 'Unassign',
+        disabled: threadBusy,
+        onClick: () => {
+          onAssign(null);
+        },
+      });
+    }
+    headerActions.push({
+      id: 'notes',
+      icon: Notes,
+      title: conversation.notes?.length > 0 ? `Notes (${conversation.notes.length})` : 'Notes',
+      disabled: threadBusy,
+      onClick: () => {
+        setIsNotesDialogOpen(true);
+      },
+    });
+  }
+  if (showCloseButton) {
+    headerActions.push({
+      id: 'close',
+      icon: Close,
+      title: 'Close page',
+      onClick: onClose,
+      dataSign: 'closeButton',
+    });
+  }
   const defaultContactDisplay = (
-    <ContactDisplay
+    <StyledContactDisplay
       currentSiteCode={currentSiteCode}
       maxExtensionNumberLength={maxExtensionNumberLength}
       isMultipleSiteEnabled={isMultipleSiteEnabled}
       brand={brand}
-      className={styles.contactDisplay}
       selectClassName={styles.contactDisplaySelect}
       contactMatches={correspondentMatches || []}
       selected={selected}
@@ -461,7 +581,7 @@ export function ConversationPanel({
   );
 
   const groupNumbersDisplay = groupNumbers && groupNumbers.length > 1 ? (
-    <StyledGroupNumbersDisplay
+    <GroupNumbersDisplay
       correspondents={conversation.correspondents}
       contactMatches={correspondentMatches}
       formatPhone={formatPhone}
@@ -473,30 +593,40 @@ export function ConversationPanel({
   ) : null;
   return (
     <Root data-sign="conversationPanel">
-      <BackHeader
-        onBack={goBack}
-        hideBackButton={hideBackButton}
-      >
-        {renderConversationTitle?.({
-          conversation: conversation,
-          phoneNumber,
-          defaultContactDisplay,
-        }) || groupNumbersDisplay || defaultContactDisplay}
-        <HeaderButtons>
-          {logButton}
+      <Header>
+        {
+          !hideBackButton && (
+            <RcIconButton
+              symbol={Previous}
+              onClick={goBack}
+              data-sign="backButton"
+            />
+          )
+        }
+        <HeaderName>
+          {renderConversationTitle?.({
+            conversation: conversation,
+            phoneNumber,
+            defaultContactDisplay,
+          }) || groupNumbersDisplay || defaultContactDisplay}
           {
-            showCloseButton && (
-              <RcIconButton
-                onClick={onClose}
-                symbol={Close}
-                title="Close"
-                data-sign="closeButton"
+            conversation.type === 'Thread' && (
+              <StyledAssignedFullBadge
+                assignee={conversation.assignee}
+                isAssignedToMe={conversation.isAssignedToMe}
+                status={conversation.status}
+                statusReason={conversation.statusReason}
               />
             )
           }
+        </HeaderName>
+        <HeaderButtons>
+          <ActionMenu
+            actions={headerActions}
+            maxActions={2}
+          />
         </HeaderButtons>
-        
-      </BackHeader>
+      </Header>
       {renderLogInfoSection?.(conversation) || null}
       {conversationBody}
       {restrictSendMessage?.(getSelectedContact(selected, conversation)) ? (
@@ -510,29 +640,68 @@ export function ConversationPanel({
           {i18n.getString('dncAlert', currentLocale)}
         </RcAlert>
       ) : (
-        <MessageInput
-          value={messageText}
-          onChange={updateMessageText}
-          sendButtonDisabled={sendButtonDisabled}
-          currentLocale={currentLocale}
-          onSend={onSend}
-          onHeightChange={onInputHeightChange}
-          inputExpandable={inputExpandable}
-          attachments={attachments}
-          addAttachment={addAttachment}
-          removeAttachment={removeAttachment}
-          additionalToolbarButtons={additionalToolbarButtons}
-          onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
-          showTemplate={showTemplate}
-          templates={templates}
-          showTemplateManagement={showTemplateManagement}
-          loadTemplates={loadTemplates}
-          deleteTemplate={deleteTemplate}
-          createOrUpdateTemplate={createOrUpdateTemplate}
-          sortTemplates={sortTemplates}
-          disabled={disableLinks}
-        />
+        conversation.type !== 'Thread' || (
+          (conversation.assignee && conversation.isAssignedToMe)
+        ) ? (
+          <MessageInput
+            value={messageText}
+            onChange={updateMessageText}
+            sendButtonDisabled={sendButtonDisabled}
+            currentLocale={currentLocale}
+            onSend={onSend}
+            inputExpandable={inputExpandable}
+            attachments={attachments}
+            addAttachment={addAttachment}
+            removeAttachment={removeAttachment}
+            additionalToolbarButtons={additionalToolbarButtons}
+            onClickAdditionalToolbarButton={onClickAdditionalToolbarButton}
+            showTemplate={showTemplate}
+            templates={templates}
+            showTemplateManagement={showTemplateManagement}
+            loadTemplates={loadTemplates}
+            deleteTemplate={deleteTemplate}
+            createOrUpdateTemplate={createOrUpdateTemplate}
+            sortTemplates={sortTemplates}
+            disabled={disableLinks}
+            supportAttachment={conversation.type !== 'Thread'}
+          />
+        ) : (
+          <BottomAssignInfo
+            assignee={conversation.assignee}
+            isAssignedToMe={conversation.isAssignedToMe}
+            onAssignToMe={() => onAssign({ extensionId: myExtensionId })}
+            onAssign={() => setIsAssignDialogOpen(true)}
+            onReply={onReplyThread}
+            status={conversation.status}
+            busy={threadBusy}
+          />
+        )
       )}
+      {
+        conversation.type === 'Thread' && (
+          <>
+            <AssignDialog
+              open={isAssignDialogOpen}
+              getSMSRecipients={getSMSRecipients}
+              currentAssignee={conversation.assignee}
+              onAssign={onAssign}
+              onCancel={() => setIsAssignDialogOpen(false)}
+            />
+            <NotesDialog
+              open={isNotesDialogOpen}
+              notes={conversation.notes || []}
+              onClose={() => setIsNotesDialogOpen(false)}
+              onCreateNote={onCreateNote}
+              onUpdateNote={onUpdateNote}
+              onDeleteNote={onDeleteNote}
+              dateTimeFormatter={dateTimeFormatter}
+              myExtensionId={myExtensionId}
+              loading={threadBusy}
+              readOnly={conversation.status === 'Resolved'}
+            />
+          </>
+        )
+      }
     </Root>
   );
 }

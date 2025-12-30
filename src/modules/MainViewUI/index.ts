@@ -19,6 +19,7 @@ import { RcUIModuleV2 } from '@ringcentral-integration/core';
     'SideDrawerUI',
     'ComposeTextUI',
     'MonitoredExtensions',
+    'MessageThreads',
   ],
 })
 export class MainViewUI extends RcUIModuleV2 {
@@ -41,6 +42,7 @@ export class MainViewUI extends RcUIModuleV2 {
       sideDrawerUI,
       conversations,
       monitoredExtensions,
+      messageThreads,
     } = this._deps;
 
     const showPhone = appFeatures.ready && (
@@ -72,7 +74,7 @@ export class MainViewUI extends RcUIModuleV2 {
       showText: appFeatures.ready && appFeatures.hasReadTextPermission,
       showSharedSms: conversations.hasSharedSmsAccess,
       showNewComposeText: appFeatures.hasComposeTextPermission,
-      smsUnreadCounts: messageStore.textUnreadCounts || 0,
+      smsUnreadCounts: (messageStore.textUnreadCounts || 0) + (messageThreads.unreadCounts || 0),
       showFax: appFeatures.ready && appFeatures.hasReadFaxPermission,
       faxUnreadCounts: messageStore.faxUnreadCounts || 0,
       voiceUnreadCounts: messageStore.voiceUnreadCounts || 0,

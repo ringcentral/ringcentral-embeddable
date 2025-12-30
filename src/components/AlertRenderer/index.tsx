@@ -91,6 +91,24 @@ export function getAlertRenderer({
     if (message.message === 'callHUDSyncExtensionsFailed') {
       return () => 'Sorry, failed to sync extensions list. Please try again later.';
     }
+    if (message.message === 'messageThreadResolveFailed') {
+      return () => 'Sorry, failed to resolve message thread. Please try again later.';
+    }
+    if (message.message === 'messageThreadAssignFailed') {
+      return () => 'Sorry, failed to assign message thread. Please try again later.';
+    }
+    if (message.message === 'messageThreadCreateNoteFailed') {
+      return () => 'Sorry, failed to create note for message thread. Please try again later.';
+    }
+    if (message.message === 'messageThreadUpdateNoteFailed') {
+      return () => 'Sorry, failed to update note for message thread. Please try again later.';
+    }
+    if (message.message === 'messageThreadDeleteNoteFailed') {
+      return () => 'Sorry, failed to delete note for message thread. Please try again later.';
+    }
+    if (message.message === 'messageThreadMarkAsUnreadFailed') {
+      return () => 'Sorry, current thread does not have any inbound messages.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage

@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 
 import { RcSelect, RcMenuItem, RcListItemText, styled, palette2 } from '@ringcentral/juno';
 import i18n from '@ringcentral-integration/widgets/components/FromField/i18n';
+import { getPhoneNumberLabel } from '../DialerPanel/FromField/helper';
 
 const Select = styled(RcSelect)`
   width: auto;
@@ -24,24 +25,34 @@ const PhoneNumber = ({
   usageType = null,
   currentLocale,
   phoneNumber = null,
+  extension = null,
+  primary = false,
+  label = '',
 }: {
   formatPhone: (...args: any[]) => any;
   usageType?: string;
   currentLocale: string;
   phoneNumber?: string;
+  primary?: boolean;
+  label?: string;
+  extension?: {
+    name: string;
+  };
 }) => {
-  if (phoneNumber === 'anonymous') {
-    return (
-      <RcListItemText
-        primary={i18n.getString('Blocked', currentLocale)}
-      />
-    );
+  let formattedLabel = getPhoneNumberLabel({
+    phoneNumber,
+    usageType,
+    primary,
+    label,
+  }, currentLocale);
+  if (extension && extension.name) {
+    formattedLabel = extension.name;
   }
   return (
     <RcListItemText
       data-sign="phoneNumber"
-      primary={usageType ? i18n.getString(usageType, currentLocale) : formatPhone(phoneNumber)}
-      secondary={ usageType ? formatPhone(phoneNumber) : null }
+      primary={formattedLabel ? formattedLabel : formatPhone(phoneNumber)}
+      secondary={ formattedLabel ? formatPhone(phoneNumber) : null }
     />
   );
 };
@@ -49,6 +60,11 @@ const PhoneNumber = ({
 type PhoneNumberType = {
   phoneNumber: string;
   usageType?: string;
+  primary?: boolean;
+  label?: string;
+  extension?: {
+    name: string;
+  };
 }
 
 interface FromFieldIns {
@@ -141,6 +157,9 @@ export const FromField = memo(function FromField({
                 phoneNumber={option.phoneNumber}
                 usageType={option.usageType}
                 currentLocale={currentLocale}
+                extension={option.extension}
+                primary={option.primary}
+                label={option.label}
               />
             </RcMenuItem>
           ))

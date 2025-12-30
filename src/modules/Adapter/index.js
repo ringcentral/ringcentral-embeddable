@@ -75,6 +75,8 @@ import { getCallContact } from '../../lib/callHelper';
     'Theme',
     'ThirdPartyService',
     'PhoneNumberFormat',
+    'MessageThreads',
+    'MessageThreadEntries',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -124,6 +126,8 @@ export default class Adapter extends AdapterModuleCore {
     theme,
     thirdPartyService,
     phoneNumberFormat,
+    messageThreads,
+    messageThreadEntries,
     ...options
   }) {
     super({
@@ -172,6 +176,8 @@ export default class Adapter extends AdapterModuleCore {
     this._thirdPartyService = thirdPartyService;
     this._incomingCallUI = incomingCallUI;
     this._phoneNumberFormat = phoneNumberFormat;
+    this._messageThreads = messageThreads;
+    this._messageThreadEntries = messageThreadEntries;
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
@@ -276,6 +282,12 @@ export default class Adapter extends AdapterModuleCore {
     this._webphoneConnectionStatus = null;
     this._callLog.onSyncSuccess(() => {
       this.callLogSyncedNotify();
+    });
+    this._messageThreads.onThreadUpdated((thread) => {
+      this.messageThreadNotify(thread);
+    });
+    this._messageThreadEntries.onEntityUpdated((entity) => {
+      this.messageThreadEntityNotify(entity);
     });
   }
 
@@ -1186,6 +1198,15 @@ export default class Adapter extends AdapterModuleCore {
       if (conversation) {
         const phoneNumber = getConversationPhoneNumber(conversation);
         this._sideDrawerUI.gotoLogConversation(conversation, { phoneNumber });
+        return;
+      }
+      const thread = this._conversations.formattedMessageThreads.find(
+        item => item.id === conversationId,
+      );
+      if (thread) {
+        const phoneNumber = thread.guestParty?.phoneNumber ?? '';
+        this._sideDrawerUI.gotoLogConversation(thread, { phoneNumber });
+        return;
       }
       return;
     }
@@ -1201,6 +1222,14 @@ export default class Adapter extends AdapterModuleCore {
       if (conversation) {
         const phoneNumber = getConversationPhoneNumber(conversation);
         this._sideDrawerUI.gotoConversation(conversationId, { phoneNumber });
+        return;
+      }
+      const thread = this._conversations.formattedMessageThreads.find(
+        item => item.id === conversationId,
+      );
+      if (thread) {
+        const phoneNumber = thread.guestParty?.phoneNumber ?? '';
+        this._sideDrawerUI.gotoConversation(conversationId, { phoneNumber }, 'thread');
       }
       return;
     }
@@ -1623,6 +1652,20 @@ export default class Adapter extends AdapterModuleCore {
   callLogSyncedNotify() {
     this._postMessage({
       type: 'rc-call-history-synced-notify',
+    });
+  }
+
+  messageThreadNotify(thread) {
+    this._postMessage({
+      type: 'rc-message-thread-notify',
+      thread,
+    });
+  }
+
+  messageThreadEntityNotify(entity) {
+    this._postMessage({
+      type: 'rc-message-thread-entity-notify',
+      entity,
     });
   }
 

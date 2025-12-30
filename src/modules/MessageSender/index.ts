@@ -18,7 +18,9 @@ const SENDING_THRESHOLD = 30;
 
 @Module({
   name: 'MessageSender',
-  deps: [],
+  deps: [
+    'MessageThreads',
+  ],
 })
 export class MessageSender extends MessageSenderBase {
   // TODO: fix noAttachmentToExtension error not idle issue
@@ -180,6 +182,24 @@ export class MessageSender extends MessageSenderBase {
     to: { phoneNumber: string }[];
     text: string;
   }): Promise<GetMessageInfoResponse> {
+    let isThread = false;
+    if (
+      this._deps.messageThreads.hasPermission &&
+      to.length === 1
+    ) {
+      const sender = this.senderNumbersList.find((number) => number.phoneNumber === fromNumber);
+      if (sender && sender.extension) {
+        isThread = true;
+      }
+    }
+    if (isThread) {
+      const message = await this._deps.messageThreads.sendMessage({
+        text,
+        from: { phoneNumber: fromNumber },
+        to,
+      });
+      return message;
+    }
     const response = await this._deps.client
       .account()
       .extension()

@@ -13,6 +13,8 @@ import { getConversationPhoneNumber } from '../../lib/conversationHelper';
     'Auth',
     'ThirdPartyService',
     'PhoneNumberFormat',
+    'AppFeatures',
+    'MessageThreads',
   ],
 })
 export class ConversationsUI extends BaseConversationsUI {
@@ -21,26 +23,56 @@ export class ConversationsUI extends BaseConversationsUI {
     that._deps.conversations.hasSharedSmsAccess,
     that._deps.messageStore.personalTextUnreadCounts,
     that._deps.messageStore.sharedTextUnreadCounts,
+    that._deps.conversations.hasMessageThreadsPermission,
+    that._deps.messageThreads.unreadCounts,
   ])
   get ownerTabs() {
     if (
       this._deps.conversations.typeFilter !== messageTypes.text ||
-      !this._deps.conversations.hasSharedSmsAccess
+      (
+        !this._deps.conversations.hasSharedSmsAccess &&
+        !this._deps.conversations.hasMessageThreadsPermission
+      )
     ) {
       return [];
     }
-    return [
-      {
-        label: 'Direct',
-        value: 'Personal',
-        unreadCounts: this._deps.messageStore.personalTextUnreadCounts,
-      },
-      {
+    const tabs = [{
+      label: 'Direct',
+      value: 'Personal',
+      unreadCounts: this._deps.messageStore.personalTextUnreadCounts,
+    }];
+    if (this._deps.appFeatures.hasSharedSmsAccess) {
+      tabs.push({
         label: 'Call queue',
         value: 'Shared',
         unreadCounts: this._deps.messageStore.sharedTextUnreadCounts,
-      },
-    ];
+      });
+    }
+    if (this._deps.conversations.hasMessageThreadsPermission) {
+      tabs.push({
+        label: 'Shared',
+        value: 'Threads',
+        unreadCounts: this._deps.messageThreads.unreadCounts,
+      });
+    }
+    return tabs;
+  }
+
+  @computed((that: ConversationsUI) => [
+    that._deps.conversations.ownerFilter,
+    that._deps.conversationLogger.loggerSourceReady
+  ])
+  get searchFilterList() {
+    if (this._deps.conversations.ownerFilter === 'Threads') {
+      if (this._deps.conversationLogger.loggerSourceReady) {
+        return ['All', 'UnLogged', 'Assigned to me', 'Unassigned', 'Assigned to others', 'Unread', 'Resolved'];
+      }
+      return ['All', 'Assigned to me', 'Unassigned', 'Assigned to others', 'Unread', 'Resolved'];
+    }
+    if (this._deps.conversationLogger.loggerSourceReady) {
+      return ['All', 'UnLogged', 'Unread'];
+    }
+    return ['All', 'Unread'];
   }
 
   getUIProps({
@@ -60,11 +92,13 @@ export class ConversationsUI extends BaseConversationsUI {
       showLogButton: conversationLogger.loggerSourceReady,
       logButtonTitle: conversationLogger.logButtonTitle,
       searchFilter: conversations.searchFilter,
+      searchFilterList: this.searchFilterList,
       conversations: conversations.pagingConversations,
       rcAccessToken: auth.accessToken,
       ownerFilter: conversations.ownerFilter,
       ownerTabs: this.ownerTabs,
       additionalActions: thirdPartyService.additionalMessageActions,
+      threadBusy: this._deps.messageThreads.busy,
     };
   }
 
@@ -84,6 +118,7 @@ export class ConversationsUI extends BaseConversationsUI {
       accountInfo,
       extensionInfo,
       phoneNumberFormat,
+      messageThreads,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
@@ -122,11 +157,19 @@ export class ConversationsUI extends BaseConversationsUI {
       showConversationDetail: (conversationId) => {
         const conversation = conversations.allConversations.find((c) => c.conversationId === conversationId);
         let contact = null;
+        let type = 'conversation';
         if (conversation) {
           const phoneNumber = getConversationPhoneNumber(conversation);
           contact = { phoneNumber };
+          type = 'conversation';
+        } else {
+          const messageThread = conversations.formattedMessageThreads.find((mt) => mt.id === conversationId);
+          if (messageThread) {
+            contact = { phoneNumber: messageThread.guestParty?.phoneNumber ?? '' };
+            type = 'thread';
+          }
         }
-        sideDrawerUI.gotoConversation(conversationId, contact);
+        sideDrawerUI.gotoConversation(conversationId, contact, type);
       },
       onClickToSms: appFeatures.hasComposeTextPermission
         ? (contact, isDummyContact = false) => {
@@ -150,6 +193,30 @@ export class ConversationsUI extends BaseConversationsUI {
           isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
           siteCode: extensionInfo.site?.code,
         }),
+      onAssignThread: async (conversation, assignee) => {
+        const threadId = conversation.id || conversation.conversationId;
+        // For unassign, assignee is null
+        if (assignee === null && !conversation.assignee) {
+          return;
+        }
+        await messageThreads.assign(threadId, assignee);
+      },
+      onResolveThread: async (conversation) => {
+        const threadId = conversation.id || conversation.conversationId;
+        if (conversation.status === 'Open') {
+          await messageThreads.resolve(threadId);
+        }
+      },
+      getSMSRecipients: (conversation) => {
+        return messageThreads.getSMSRecipients(conversation.owner);
+      },
+      markMessage: (conversationId) => {
+        if (this._deps.conversations.ownerFilter === 'Threads') {
+          messageThreads.markAsUnread(conversationId);
+          return;
+        }
+        this._deps.messageStore.unreadMessage(conversationId);
+      },
     }
   }
 }

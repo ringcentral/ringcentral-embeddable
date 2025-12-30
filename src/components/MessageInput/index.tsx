@@ -23,8 +23,6 @@ const UIHeightOffset = 65;
 // the extra height of the entire field with paddings and borders
 
 const Container = styled.div`
-  position: absolute;
-  bottom: 0px;
   width: 100%;
   margin: 0 auto;
   padding: 0 2px 2px 2px;
@@ -32,6 +30,7 @@ const Container = styled.div`
   border-top: 1px solid ${palette2('neutral', 'l02')};
   box-sizing: border-box;
   background-color: ${palette2('neutral', 'b01')};
+  max-height: 300px;
 `;
 
 const Toolbar = styled.div`
@@ -138,6 +137,7 @@ type MessageInputProps = {
   deleteTemplate?: (templateId: string) => Promise<any>;
   createOrUpdateTemplate?: (template: any) => Promise<any>;
   sortTemplates?: (templates: any[]) => any;
+  supportAttachment?: boolean;
 }
 
 type AttachmentsProps = {
@@ -183,7 +183,6 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
   sendButtonDisabled = false,
   onSend: onSendProp = undefined,
   onChange = undefined,
-  onHeightChange = undefined,
   inputExpandable = true,
   maxLength = 1000,
   maxHeight = 300,
@@ -200,6 +199,7 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
   deleteTemplate = undefined,
   createOrUpdateTemplate = undefined,
   sortTemplates = undefined,
+  supportAttachment = true,
 }) => {
   const [value, setValue] = useState('');
   const [height, setHeight] = useState(minHeight);
@@ -245,9 +245,6 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
       return;
     }
     heightRef.current = newHeight;
-    if (typeof onHeightChange === 'function') {
-      onHeightChange(newHeight);
-    }
     setHeight(newHeight);
   }, [value, minHeight, maxHeight, inputExpandable]);
   
@@ -260,16 +257,20 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
   return (
     <Container>
       <Toolbar>
-        <RcIconButton
-          variant="round"
-          size="medium"
-          symbol={attachmentSvg}
-          onClick={() => {
-            fileInputRef.current.click();
-          }}
-          disabled={disabled}
-          title="Attach file"
-        />
+        {
+          supportAttachment && (
+            <RcIconButton
+              variant="round"
+              size="medium"
+              symbol={attachmentSvg}
+              onClick={() => {
+                fileInputRef.current.click();
+              }}
+              disabled={disabled}
+              title="Attach file"
+            />
+          )
+        }
         {
           showTemplate && (
             <RcIconButton

@@ -4,8 +4,10 @@ import {
 } from '@ringcentral-integration/commons/modules/DataFetcherV2';
 
 import { DataFetcherV2 } from '@ringcentral-integration/commons/modules/DataFetcherV2';
+import {
+  WebSocketSubscription as Subscription,
+} from '@ringcentral-integration/commons/modules/WebSocketSubscription';
 import { AppFeatures } from '../AppFeatures';
-import { Subscription } from '../Subscription';
 
 export interface MonitoredExtensionsOptions extends DataSourceBaseProps {}
 

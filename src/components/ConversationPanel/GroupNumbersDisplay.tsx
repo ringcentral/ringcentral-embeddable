@@ -4,6 +4,8 @@ import { displayFormatter } from '@ringcentral-integration/widgets/components/Co
 
 const Root = styled(RcText)`
   font-size: 14px;
+  text-align: left;
+  padding-left: 0;
 `;
 
 type Correspondent = {

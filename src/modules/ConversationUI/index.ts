@@ -11,6 +11,10 @@ import {
     'SmsTemplates',
     'SideDrawerUI',
     'PhoneNumberFormat',
+    'ExtensionInfo',
+    'MessageThreads',
+    'MessageThreadEntries',
+    'ComposeTextUI',
   ],
 })
 export class ConversationUI extends BaseConversationUI {
@@ -23,7 +27,15 @@ export class ConversationUI extends BaseConversationUI {
       conversationLogger,
       appFeatures,
       smsTemplates,
+      conversations,
+      extensionInfo,
+      messageThreads,
     } = this._deps;
+    if (props.params.type === 'thread' && conversations.currentMessageThread) {
+      baseProps.conversation = conversations.currentMessageThread;
+      baseProps.messages = conversations.currentMessageThread.messages;
+      baseProps.recipients = conversations.currentMessageThread.recipients;
+    }
     return {
       ...baseProps,
       showLogButton: conversationLogger.loggerSourceReady,
@@ -32,6 +44,8 @@ export class ConversationUI extends BaseConversationUI {
       showTemplate: appFeatures.showSmsTemplate,
       templates: smsTemplates.templates,
       showTemplateManagement: appFeatures.showSmsTemplateManage,
+      myExtensionId: String(extensionInfo.id),
+      threadBusy: messageThreads.busy,
     };
   }
 
@@ -99,6 +113,10 @@ export class ConversationUI extends BaseConversationUI {
       accountInfo,
       extensionInfo,
       conversations,
+      messageThreads,
+      messageStore,
+      messageThreadEntries,
+      composeTextUI,
     } = this._deps;
     return {
       ...super.getUIFunctions(options),
@@ -112,6 +130,9 @@ export class ConversationUI extends BaseConversationUI {
         );
         if (!continueSMS) {
           return;
+        }
+        if (options.params.type === 'thread') {
+          return this._deps.conversations.replyToThread(text);
         }
         return conversations.replyToReceivers(text, attachments, selectedContact);
       },
@@ -146,6 +167,56 @@ export class ConversationUI extends BaseConversationUI {
           isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
           siteCode: extensionInfo.site?.code,
         }),
+      readMessages: (id) => {
+        if (options.params.type === 'thread') {
+          messageThreadEntries.markThreadAsRead(id);
+          return;
+        }
+        messageStore.readMessages(id);
+      },
+      onAssign: async (assignee) => {
+        return messageThreads.assign(conversations.currentMessageThread.id, assignee);
+      },
+      getSMSRecipients: () => {
+        return messageThreads.getSMSRecipients(conversations.currentMessageThread.owner);
+      },
+      onReplyThread: async () => {
+        const conversation = conversations.currentMessageThread;
+        if (conversation.status === 'Resolved') {
+          // Can't re-open case now, need to start a new thread instead
+          let contact = conversation.correspondents?.[0] ?? conversation.guestParty;
+          if (conversation.correspondentMatches?.length === 1) {
+            contact = conversation.correspondentMatches[0];
+          }
+          const senderNumber = conversation.ownerParty?.phoneNumber ?? '';
+          composeTextUI.gotoComposeText(contact, false, senderNumber);
+          return;
+        }
+        if (!conversation.assignee) {
+          await messageThreads.assign(conversation.id, { extensionId: String(extensionInfo.id) });
+        }
+      },
+      onResolveThread: async () => {
+        const conversation = conversations.currentMessageThread;
+        if (conversation.status === 'Open') {
+          await messageThreads.resolve(conversation.id);
+        }
+      },
+      onCreateNote: async (text: string) => {
+        const conversation = conversations.currentMessageThread;
+        if (conversation) {
+          await messageThreads.createNote(conversation.id, text);
+        }
+      },
+      onUpdateNote: async (noteId: string, text: string) => {
+        await messageThreads.updateNote(noteId, text);
+      },
+      onDeleteNote: async (noteId: string) => {
+        const conversation = conversations.currentMessageThread;
+        if (conversation) {
+          await messageThreads.deleteNote(conversation.id, noteId);
+        }
+      },
     }
   }
 }

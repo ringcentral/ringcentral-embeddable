@@ -21,13 +21,18 @@ type ComposeContact = {
     'RegionSettings',
     'AccountInfo',
     'ExtensionInfo',
+    'MessageThreadEntries',
+    'MessageThreads',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
+  private _presetSenderNumber: string;
+
   constructor(deps) {
     super(deps);
     this._ignoreModuleReadiness(deps.smsTemplates);
     this._ignoreModuleReadiness(deps.thirdPartyService);
+    this._presetSenderNumber = '';
   }
 
   getUIProps(props) {
@@ -62,6 +67,8 @@ export class ComposeTextUI extends ComposeTextUIBase {
       regionSettings,
       accountInfo,
       extensionInfo,
+      messageThreadEntries,
+      messageThreads,
     } = this._deps;
     return {
       ...baseFuncs,
@@ -74,21 +81,49 @@ export class ComposeTextUI extends ComposeTextUIBase {
           if (!responses || responses.length === 0) {
             return;
           }
-          messageStore.pushMessages(responses);
-          if (responses.length === 1) {
-            const conversationId =
-              responses[0] &&
-              responses[0].conversation &&
-              responses[0].conversation.id;
-            if (!conversationId) {
-              return;
-            }
-            const phoneNumber = getConversationPhoneNumber(responses[0]);
-            sideDrawerUI.gotoConversation(conversationId, { phoneNumber });
-          } else {
-            routerInteraction.push('/messages');
+          const threadMessages = responses.filter((response) => response.threadId);
+          if (threadMessages.length > 0) {
+            messageThreadEntries.saveNewMessages(threadMessages);
           }
-          conversations.relateCorrespondentEntity(responses);
+          const normalMessages = responses.filter((response) => !response.threadId);
+          if (normalMessages.length > 0) {
+            messageStore.pushMessages(normalMessages);
+          }
+          if (responses.length === 1) {
+            const threadId = responses[0]?.threadId;
+            if (threadId) {
+              const thread = await messageThreads.loadThread(threadId);
+              console.log('thread', thread);
+              if (thread) {
+                const phoneNumber = thread.guestParty?.phoneNumber ?? '';
+                sideDrawerUI.gotoConversation(threadId, { phoneNumber }, 'thread');
+                sideDrawerUI.closeWidget('composeText');
+              } else {
+                routerInteraction.push('/messages');
+              }
+            } else {
+              const conversationId =
+                responses[0] &&
+                responses[0].conversation &&
+                responses[0].conversation.id;
+              if (!conversationId) {
+                return;
+              }
+              const phoneNumber = getConversationPhoneNumber(responses[0]);
+              sideDrawerUI.gotoConversation(conversationId, { phoneNumber });
+              sideDrawerUI.closeWidget('composeText');
+            }
+          } else {
+            if (threadMessages.length > 0) {
+              conversations.updateOwnerFilter('Threads');
+            }
+            routerInteraction.push('/messages');
+            sideDrawerUI.closeWidget('composeText');
+          }
+          // TODO: relate correspondent entity for thread messages
+          if (normalMessages.length > 0) {
+            conversations.relateCorrespondentEntity(normalMessages);
+          }
           composeText.clean();
           return;
         } catch (err) {
@@ -114,6 +149,13 @@ export class ComposeTextUI extends ComposeTextUIBase {
         return smsTemplates.sort(templateIds);
       },
       onLoad: () => {
+        if (this._presetSenderNumber) {
+          if (this._presetSenderNumber !== composeText.senderNumber) {
+            composeText.updateSenderNumber(this._presetSenderNumber);
+          }
+          this._presetSenderNumber = '';
+          return;
+        }
         if (
           composeText.defaultTextId &&
           composeText.defaultTextId !== composeText.senderNumber
@@ -136,12 +178,13 @@ export class ComposeTextUI extends ComposeTextUIBase {
     };
   }
 
-  gotoComposeText(contact: ComposeContact | undefined = undefined, isDummyContact = false) {
+  gotoComposeText(contact: ComposeContact | undefined = undefined, isDummyContact = false, presetSenderNumber = '') {
     const {
       composeText,
       contactSearch,
       sideDrawerUI,
     } = this._deps;
+    this._presetSenderNumber = presetSenderNumber;
     sideDrawerUI.openWidget({
       widget: {
         id: 'composeText',

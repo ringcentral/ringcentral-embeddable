@@ -17,6 +17,9 @@ import {
   NewAction,
   ViewLogBorder,
   TodayCalendarIco,
+  OuboundCallOnBehalf as Assign,
+  Logout as Unassign,
+  Check as Resolve,
 } from '@ringcentral/juno-icon';
 import i18n from '@ringcentral-integration/widgets/components/MessageItem/i18n';
 import { extensionTypes } from '@ringcentral-integration/commons/enums/extensionTypes';
@@ -113,6 +116,10 @@ export function getActions({
   isLogging,
   additionalActions,
   onClickAdditionalAction,
+  onAssign = undefined,
+  onUnassign = undefined,
+  onResolveThread = undefined,
+  threadBusy = false,
 }) {
   const {
     conversationId,
@@ -218,6 +225,36 @@ export function getActions({
       },
       disabled: disableLinks || disableClickToSms || !phoneNumber,
     });
+  }
+  // Thread-specific actions
+  if (type === 'Thread' && conversation.status === 'Open') {
+    if (onAssign) {
+      actions.push({
+        id: 'assign',
+        icon: Assign,
+        title: conversation.assignee ? 'Reassign' : 'Assign',
+        onClick: onAssign,
+        disabled: disableLinks || threadBusy,
+      });
+    }
+    if (conversation.assignee && onUnassign) {
+      actions.push({
+        id: 'unassign',
+        icon: Unassign,
+        title: 'Unassign',
+        onClick: onUnassign,
+        disabled: disableLinks || threadBusy,
+      });
+    }
+    if (onResolveThread) {
+      actions.push({
+        id: 'resolve',
+        icon: Resolve,
+        title: 'Resolve',
+        onClick: onResolveThread,
+        disabled: disableLinks || threadBusy,
+      });
+    }
   }
   actions.push({
     id: 'mark',

@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
 import { isBlank } from '@ringcentral-integration/commons/lib/isBlank';
-import { RcIcon, RcText, styled, palette2, css } from '@ringcentral/juno';
+import { RcIcon, RcText, RcTypography, styled, palette2, css } from '@ringcentral/juno';
 import {
   DefaultFile as fileSvg,
   Download as downloadSvg,
+  Notes,
 } from '@ringcentral/juno-icon';
 
 import i18n from '@ringcentral-integration/widgets/components/ConversationMessageList/i18n';
@@ -66,7 +67,7 @@ const MessageTextWrapper = styled.div<{
 const MessageWrapper = styled.div`
   display: block;
   width: 100%;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: ${palette2('neutral', 'f06')};
 
   &:first-child {
@@ -80,7 +81,7 @@ const MessageWrapper = styled.div`
 
 const Time = styled.div`
   text-align: center;
-  font-size: 12px;
+  font-size: 0.75rem;
   margin-bottom: 10px;
   color: ${palette2('neutral', 'f02')};
   clear: both;
@@ -166,6 +167,136 @@ function MessageSendStatus({ direction, status }: { direction: string, status: s
     );
   }
   return null;
+}
+
+const HintText = styled(RcTypography)`
+  margin-bottom: 24px;
+  margin-top: -8px;
+  clear: both;
+  text-align: center;
+  width: 100%;
+`;
+
+export function ThreadHintMessage({
+  assignee,
+  time,
+  type,
+  myExtensionId,
+  statusReason,
+}) {
+  let message = '';
+  if (type === 'ThreadCreatedHint') {
+    message = 'Conversation has been created.';
+  } else if (type == 'ThreadAssignedHint') {
+    if (assignee) {
+      const name = myExtensionId === assignee.extensionId ? 'you' : assignee.name;
+      message = `Conversation has been assigned to ${name}.`;
+    } else {
+      message = 'This conversation is unassigned.';
+    }
+  } else if (type === 'ThreadResolvedHint') {
+    if (statusReason === 'ThreadExpired') {
+      message = 'Conversation resolved automatically.';
+    } else {
+      message = 'Conversation has been resolved.';
+    }
+  } else if (type === 'ThreadDeletedHint') {
+    message = 'Conversation has been deleted.';
+  }
+  return (
+    <MessageWrapper data-sign="threadHintMessage">
+      {time ? (
+        <Time data-sign="threadHintMessageTime">
+          {time}
+        </Time>
+      ) : null}
+      <HintText variant="caption1" color="interactive.f01">
+        {message}
+      </HintText>
+    </MessageWrapper>
+  );
+};
+
+const InternalNoteWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  clear: both;
+
+  &:first-child {
+    margin-top: 10px;
+  }
+`;
+
+const InternalNoteHeader = styled.div`
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: ${palette2('neutral', 'f06')};
+  line-height: 1.5;
+  text-align: center;
+`;
+
+const InternalNoteIcon = styled(RcIcon)`
+  color: ${palette2('neutral', 'f04')};
+  vertical-align: middle;
+  margin-right: 6px;
+`;
+
+const InternNoteTime = styled.span`
+  color: ${palette2('neutral', 'f04')};
+`;
+
+const InternalNoteAuthor = styled.span`
+  font-weight: 700;
+`;
+
+const InternalNoteContent = styled.div`
+  border: 1px solid ${palette2('neutral', 'l02')};
+  border-radius: 8px;
+  padding: 12px;
+  background: ${palette2('neutral', 'b01')};
+  color: ${palette2('neutral', 'f06')};
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  width: 100%;
+  max-width: 270px;
+
+  &:hover {
+    cursor: pointer;
+    background: ${palette2('neutral', 'b02')};
+  }
+`;
+
+function InternalNoteMessage({
+  text,
+  time,
+  author,
+  onViewNote,
+}: {
+  text: string;
+  time?: string;
+  author?: { name?: string; extensionId?: string };
+  onViewNote: () => void;
+}) {
+  return (
+    <InternalNoteWrapper data-sign="internalNoteMessage">
+      <InternalNoteHeader>
+        <InternalNoteIcon symbol={Notes} size="small" />
+        Internal note posted by <InternalNoteAuthor>{author?.name || 'Unknown'}</InternalNoteAuthor>
+        {time && <InternNoteTime>&nbsp;&nbsp;{time}</InternNoteTime>}
+      </InternalNoteHeader>
+      <InternalNoteContent
+        onClick={onViewNote}
+      >
+        {text}
+      </InternalNoteContent>
+    </InternalNoteWrapper>
+  );
 }
 
 export const Message = ({
@@ -263,7 +394,7 @@ const Root = styled.div`
   display: block;
   overflow-y: auto;
   overflow-x: hidden;
-  height: 354px;
+  height: auto;
   padding: 0 15px;
   background: ${palette2('neutral', 'b01')};
 `;
@@ -281,7 +412,6 @@ export function ConversationMessageList({
   dateTimeFormatter,
   messages,
   showSender = false,
-  height = '100%',
   messageSubjectRenderer = undefined,
   formatPhone,
   loadingNextPage = false,
@@ -289,12 +419,14 @@ export function ConversationMessageList({
   onAttachmentDownload = undefined,
   onLinkClick,
   loadPreviousMessages = () => null,
+  myExtensionId,
+  onViewNote,
+  statusReason,
 }: {
   className: string;
   dateTimeFormatter: any;
   messages: MessageData[];
   showSender: boolean;
-  height: number | string;
   messageSubjectRenderer: FunctionComponent<{ subject: string }>;
   formatPhone: (phone: string) => string;
   loadingNextPage: boolean;
@@ -302,6 +434,9 @@ export function ConversationMessageList({
   onAttachmentDownload: (uri: string, e: any) => void;
   onLinkClick: (e: any) => void;
   loadPreviousMessages: () => void;
+  myExtensionId: string;
+  onViewNote: () => void;
+  statusReason: string;
 }) {
   const listRef = useRef(null);
   const scrollHeight = useRef(null);
@@ -348,6 +483,42 @@ export function ConversationMessageList({
           });
     // @ts-expect-error TS(2322): Type 'Date' is not assignable to type 'number'.
     lastDate = date;
+    if (
+      message.recordType === 'ThreadCreatedHint' ||
+      message.recordType === 'ThreadAssignedHint' ||
+      message.recordType === 'ThreadResolvedHint' ||
+      message.recordType === 'ThreadDeletedHint'
+    ) {
+      return (
+        <ThreadHintMessage
+          key={message.id}
+          assignee={message.assignee}
+          time={time || (
+            dateTimeFormatter({
+              utcTimestamp: message.creationTime || message.lastModifiedTime,
+              type: 'long',
+            })
+          )}
+          type={message.recordType}
+          myExtensionId={myExtensionId}
+          statusReason={statusReason}
+        />
+      );
+    }
+    if (message.recordType === 'AliveNote') {
+      return (
+        <InternalNoteMessage
+          key={message.id}
+          text={message.text}
+          time={time || dateTimeFormatter({
+            utcTimestamp: message.creationTime,
+            type: 'long',
+          })}
+          author={message.author}
+          onViewNote={onViewNote}
+        />
+      );
+    }
     return (
       <Message
         key={message.id}
@@ -372,7 +543,6 @@ export function ConversationMessageList({
   return (
     <Root
       className={className}
-      style={{ height }}
       ref={listRef}
       onScroll={async () => {
         if (!listRef.current) {
