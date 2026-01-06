@@ -669,6 +669,7 @@ export default class Adapter extends AdapterModuleCore {
         smartNote: this._appFeatures.hasSmartNotePermission,
         call: this._appFeatures.isCallingEnabled,
         ringSenseInsights: this._appFeatures.hasRingSenseInsightsPermission,
+        ringCX: this._appFeatures.hasRingCXPermission,
       };
     }
     this._postMessage({
