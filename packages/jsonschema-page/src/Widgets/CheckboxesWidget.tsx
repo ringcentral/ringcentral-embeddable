@@ -4,6 +4,8 @@ import {
   RcFormControlLabel as FormControlLabel,
   RcFormGroup as FormGroup,
   RcFormLabel as FormLabel,
+  styled,
+  palette2,
 } from '@ringcentral/juno';
 
 import {
@@ -19,6 +21,12 @@ import {
   RJSFSchema,
   StrictRJSFSchema,
 } from '@rjsf/utils';
+
+const StyledFormLabel = styled(FormLabel)`
+  font-size: 0.75rem;
+  color: ${palette2('neutral', 'f04')};
+  line-height: 16px;
+`;
 
 export default function CheckboxesWidget<
   T = any,
@@ -59,9 +67,9 @@ export default function CheckboxesWidget<
   return (
     <>
       {labelValue(
-        <FormLabel required={required} htmlFor={id}>
+        <StyledFormLabel required={required} htmlFor={id}>
           {label || undefined}
-        </FormLabel>,
+        </StyledFormLabel>,
         hideLabel
       )}
       <FormGroup id={id} row={!!inline}>
