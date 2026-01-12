@@ -109,6 +109,9 @@ export function getAlertRenderer({
     if (message.message === 'messageThreadMarkAsUnreadFailed') {
       return () => 'Sorry, current thread does not have any inbound messages.';
     }
+    if (message.message === 'threadIsAssignedToOtherExtension') {
+      return () => 'Sorry, this thread of this phone number is assigned to another extension. Please check the thread and assign it to your extension in shared inbox.';
+    }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
         <FormattedMessage

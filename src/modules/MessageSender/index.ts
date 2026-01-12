@@ -134,6 +134,14 @@ export class MessageSender extends MessageSenderBase {
         multipart,
       });
       this._smsSentError();
+      if (error.response) {
+        const errResp = await error.response.clone().json();
+        if (errResp.errors?.some((err) => err.errorCode === 'MSG-427')) {
+          this._alertWarning('threadIsAssignedToOtherExtension');
+          throw error;
+          return;
+        }
+      }
       await this._onSendError(error);
       throw error;
     }
