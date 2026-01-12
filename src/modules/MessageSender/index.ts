@@ -139,7 +139,6 @@ export class MessageSender extends MessageSenderBase {
         if (errResp.errors?.some((err) => err.errorCode === 'MSG-427')) {
           this._alertWarning('threadIsAssignedToOtherExtension');
           throw error;
-          return;
         }
       }
       await this._onSendError(error);
