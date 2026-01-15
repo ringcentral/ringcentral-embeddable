@@ -69,6 +69,7 @@ export class SettingsUI extends BaseSettingsUI {
       smartNoteAutoStartEnabledReadOnlyReason: smartNotes.autoStartSmartNoteReadOnlyReason,
       showCallQueuePresenceSettings: appFeatures.hasReadCallQueuePresencePermission && appFeatures.hasEditCallQueuePresencePermission,
       ringSenseLicensed: appFeatures.hasRingSensePermission,
+      ringCXLicensed: appFeatures.hasRingCXPermission,
     };
   }
 

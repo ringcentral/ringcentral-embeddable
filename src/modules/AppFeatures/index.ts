@@ -169,6 +169,12 @@ export class AppFeatures extends AppFeaturesBase {
     this.configState = newContact;
   }
 
+  get hasRingCXPermission() {
+    return (
+      this._deps.extensionFeatures.features?.ContactCenterAccount?.available ?? false
+    );
+  }
+
   @computed((that: AppFeatures) => [that._deps.featureConfiguration, that.configState])
   get config() {
     return {

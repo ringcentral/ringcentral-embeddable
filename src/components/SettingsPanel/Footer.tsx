@@ -19,6 +19,7 @@ const StyledVersionContainer = styled(RcText)`
 
 interface NewFooterProps extends FooterProps {
   ringSenseLicensed: boolean;
+  ringCXLicensed: boolean;
 }
 
 export const Footer: FunctionComponent<NewFooterProps> = ({
@@ -31,6 +32,7 @@ export const Footer: FunctionComponent<NewFooterProps> = ({
   eulaLink,
   onEulaLinkClick,
   ringSenseLicensed,
+  ringCXLicensed,
 }) => {
   const versionArea = versionContainer || (
     <StyledVersionContainer
@@ -59,6 +61,7 @@ export const Footer: FunctionComponent<NewFooterProps> = ({
           loginNumber={loginNumber}
           currentLocale={currentLocale}
           ringSenseLicensed={ringSenseLicensed}
+          ringCXLicensed={ringCXLicensed}
         />
       </StyledSection>
       {versionArea}

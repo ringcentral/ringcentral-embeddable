@@ -112,6 +112,7 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   gotoCallQueuePresenceSettings: () => void;
   showCallQueuePresenceSettings: boolean;
   ringSenseLicensed: boolean;
+  ringCXLicensed: boolean;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -432,6 +433,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   gotoCallQueuePresenceSettings,
   showCallQueuePresenceSettings,
   ringSenseLicensed = false,
+  ringCXLicensed = false,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'group',
@@ -622,6 +624,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         version,
         versionContainer,
         ringSenseLicensed,
+        ringCXLicensed,
       }}
     >
       {
