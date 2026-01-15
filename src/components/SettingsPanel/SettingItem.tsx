@@ -466,6 +466,7 @@ interface LogoutItemProps {
   loginNumber: string;
   currentLocale: string;
   ringSenseLicensed: boolean;
+  ringCXLicensed: boolean;
 }
 
 const LoginNumberLine = styled.div`
@@ -499,6 +500,7 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
   onLogout,
   loginNumber,
   ringSenseLicensed,
+  ringCXLicensed,
 }) => {
   return (
     <StyledSettingItem
@@ -519,6 +521,15 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
                 <StyledChip
                   label="RingSense"
                   color="warning.b03"
+                />
+              </RcTooltip>
+              ) : null
+            }
+            {ringCXLicensed ? (
+              <RcTooltip title="RingCX account">
+                <StyledChip
+                  label="RingCX"
+                  color="informative.b01"
                 />
               </RcTooltip>
               ) : null
