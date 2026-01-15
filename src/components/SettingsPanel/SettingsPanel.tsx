@@ -113,6 +113,7 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   showCallQueuePresenceSettings: boolean;
   ringSenseLicensed: boolean;
   ringCXLicensed: boolean;
+  isAdmin: boolean;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -434,6 +435,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   showCallQueuePresenceSettings,
   ringSenseLicensed = false,
   ringCXLicensed = false,
+  isAdmin = false,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'group',
@@ -625,6 +627,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         versionContainer,
         ringSenseLicensed,
         ringCXLicensed,
+        isAdmin,
       }}
     >
       {

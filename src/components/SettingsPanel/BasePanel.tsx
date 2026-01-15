@@ -28,6 +28,7 @@ const StyledPanel = styled(Panel)`
 interface NewBasePanelProps extends BasePanelProps {
   ringSenseLicensed: boolean;
   ringCXLicensed: boolean;
+  isAdmin: boolean;
 }
 
 export const BasePanel: FunctionComponent<NewBasePanelProps> = ({
@@ -44,6 +45,7 @@ export const BasePanel: FunctionComponent<NewBasePanelProps> = ({
   versionContainer,
   ringSenseLicensed,
   ringCXLicensed,
+  isAdmin,
 }) => {
   if (showSpinner) {
     return <SpinnerOverlay />;
@@ -65,6 +67,7 @@ export const BasePanel: FunctionComponent<NewBasePanelProps> = ({
             versionContainer,
             ringSenseLicensed,
             ringCXLicensed,
+            isAdmin,
           }}
         />
       </StyledPanel>

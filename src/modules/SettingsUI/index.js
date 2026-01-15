@@ -24,6 +24,7 @@ export class SettingsUI extends BaseSettingsUI {
       audioSettings,
       brand,
       smartNotes,
+      extensionInfo,
     } = this._deps;
     return {
       ...baseProps,
@@ -70,6 +71,9 @@ export class SettingsUI extends BaseSettingsUI {
       showCallQueuePresenceSettings: appFeatures.hasReadCallQueuePresencePermission && appFeatures.hasEditCallQueuePresencePermission,
       ringSenseLicensed: appFeatures.hasRingSensePermission,
       ringCXLicensed: appFeatures.hasRingCXPermission,
+      isAdmin: extensionInfo.ready && (
+        extensionInfo.info?.permissions?.admin?.enabled ?? false
+      ),
     };
   }
 
