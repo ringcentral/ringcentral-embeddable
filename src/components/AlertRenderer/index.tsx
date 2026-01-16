@@ -110,7 +110,7 @@ export function getAlertRenderer({
       return () => 'Sorry, current thread does not have any inbound messages.';
     }
     if (message.message === 'threadIsAssignedToOtherExtension') {
-      return () => 'Sorry, this thread of this phone number is assigned to another extension. Please check the thread and assign it to your extension in shared inbox.';
+      return () => 'Unable to send. This conversation is currently assigned to another user. Please reassign it to yourself in the shared inbox to proceed.';
     }
     if (message.message === 'showNoiseReductionNotSupported') {
       return () => (
