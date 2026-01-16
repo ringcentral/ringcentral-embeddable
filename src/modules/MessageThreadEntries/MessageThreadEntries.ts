@@ -204,8 +204,9 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
         if (syncToken && e.response?.status === 400) {
           isFullSyncing = true;
           data = await this._syncFunction(null);
+        } else {
+          throw e;
         }
-        throw e;
       }
       if (this._deps.auth.ownerId === ownerId) {
         if (passive) {

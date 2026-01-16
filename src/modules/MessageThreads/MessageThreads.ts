@@ -173,8 +173,9 @@ export class MessageThreads extends DataFetcherV2Consumer<
       } catch (e: any) {
         if (syncToken && e.response?.status === 400) {
           data = await this._syncFunction(null);
+        } else {
+          throw e;
         }
-        throw e;
       }
       if (this._deps.auth.ownerId === ownerId) {
         if (passive) {
