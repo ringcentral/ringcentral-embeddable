@@ -26,6 +26,7 @@ export class SettingsUI extends BaseSettingsUI {
       brand,
       smartNotes,
       monitoredExtensions,
+      extensionInfo,
     } = this._deps;
     return {
       ...baseProps,
@@ -76,6 +77,10 @@ export class SettingsUI extends BaseSettingsUI {
       showHUDSettings: appFeatures.hasHUDPermission,
       hudEnabled: monitoredExtensions.enabled,
       ringSenseLicensed: appFeatures.hasRingSensePermission,
+      ringCXLicensed: appFeatures.hasRingCXPermission,
+      isAdmin: extensionInfo.ready && (
+        extensionInfo.info?.permissions?.admin?.enabled ?? false
+      ),
     };
   }
 

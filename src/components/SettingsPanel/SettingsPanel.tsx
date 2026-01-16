@@ -121,6 +121,8 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
   hudEnabled: boolean;
   onHUDSettingsToggle: () => void;
   ringSenseLicensed: boolean;
+  ringCXLicensed: boolean;
+  isAdmin: boolean;
 }
 
 function ItemRenderer({ item, currentLocale }: {
@@ -450,6 +452,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
   hudEnabled,
   onHUDSettingsToggle,
   ringSenseLicensed = false,
+  ringCXLicensed = false,
+  isAdmin = false,
 }) => {
   let settingsItems: SettingItem[] = [{
     type: 'group',
@@ -688,6 +692,8 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         version,
         versionContainer,
         ringSenseLicensed,
+        ringCXLicensed,
+        isAdmin,
       }}
     >
       {

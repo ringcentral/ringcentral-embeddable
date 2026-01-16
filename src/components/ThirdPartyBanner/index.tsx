@@ -4,6 +4,7 @@ import {
   RcButton,
   styled,
 } from '@ringcentral/juno';
+import { TextWithMarkdown } from '@ringcentral-integration/jsonschema-page';
 
 export interface ThirdPartyBannerProps {
   id: string;
@@ -67,8 +68,7 @@ export function ThirdPartyBanner({
       }
       data-sign={`thirdPartyBanner-${id}`}
     >
-      {message}
+      <TextWithMarkdown text={message} />
     </StyledAlert>
   );
 }
-

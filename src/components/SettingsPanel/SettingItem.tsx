@@ -466,31 +466,44 @@ interface LogoutItemProps {
   loginNumber: string;
   currentLocale: string;
   ringSenseLicensed: boolean;
+  ringCXLicensed: boolean;
+  isAdmin: boolean;
 }
 
 const LoginNumberLine = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  row-gap: 4px;
+  column-gap: 8px;
+`;
+
+const ChipGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 const StyledChip = styled(RcChip)`
-  margin-left: 8px;
   height: 20px;
   line-height: 20px;
   font-size: 0.75rem;
+
+  .MuiChip-label {
+    padding: 0 10px;
+  }
+
+  .MuiChip-label {
+    padding: 0 10px;
+  }
+`;
+
+const HighlightChip = styled(StyledChip)`
   background-color: ${palette2('highlight', 'b03')};
   color: ${palette2('neutral', 'f01')};
 
   &:hover {
     background-color: ${palette2('highlight', 'b03')};
-  }
-
-  .MuiChip-label {
-    padding: 0 10px;
-  }
-
-  .MuiChip-label {
-    padding: 0 10px;
   }
 `;
 
@@ -499,6 +512,8 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
   onLogout,
   loginNumber,
   ringSenseLicensed,
+  ringCXLicensed,
+  isAdmin,
 }) => {
   return (
     <StyledSettingItem
@@ -514,15 +529,33 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
         secondary={
           <LoginNumberLine>
             {loginNumber}
-            {ringSenseLicensed ? (
-              <RcTooltip title="RingSense is licensed">
-                <StyledChip
-                  label="RingSense"
-                  color="warning.b03"
-                />
-              </RcTooltip>
-              ) : null
-            }
+            {(ringSenseLicensed || ringCXLicensed || isAdmin) ? (
+              <ChipGroup onClick={(e) => e.stopPropagation()}>
+                {ringSenseLicensed ? (
+                  <RcTooltip title="RingSense is licensed">
+                    <HighlightChip
+                      label="RingSense"
+                      color="warning.b03"
+                    />
+                  </RcTooltip>
+                ) : null}
+                {ringCXLicensed ? (
+                  <RcTooltip title="RingCX account">
+                    <HighlightChip
+                      label="RingCX"
+                      color="informative.b01"
+                    />
+                  </RcTooltip>
+                ) : null}
+                {isAdmin ? (
+                  <RcTooltip title="Admin user">
+                    <StyledChip
+                      label="Admin"
+                    />
+                  </RcTooltip>
+                ) : null}
+              </ChipGroup>
+            ) : null}
           </LoginNumberLine>
         }
         secondaryTypographyProps={{
