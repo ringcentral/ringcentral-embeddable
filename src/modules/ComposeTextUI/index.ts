@@ -23,6 +23,7 @@ type ComposeContact = {
     'ExtensionInfo',
     'MessageThreadEntries',
     'MessageThreads',
+    'Alert'
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -69,11 +70,60 @@ export class ComposeTextUI extends ComposeTextUIBase {
       extensionInfo,
       messageThreadEntries,
       messageThreads,
+      messageSender,
+      alert,
     } = this._deps;
     return {
       ...baseFuncs,
       send: async (text, attachments) => {
         try {
+          let isThread = false;
+          if (
+            messageThreads.hasPermission &&
+            composeText.toNumbers.length === 1 &&
+            attachments.length === 0
+          ) {
+            const sender = messageSender.senderNumbersList.find(
+              (number) => number.phoneNumber === composeText.senderNumber
+            );
+            if (sender && sender.extension) {
+              isThread = true;
+            }
+          }
+          if (isThread) {
+            // check if thread exists
+            // TODO: format phone number to match the format in the thread
+            const thread = messageThreads.threads.find((thread) => {
+              return (
+                thread.guestParty?.phoneNumber === composeText.toNumbers[0].phoneNumber &&
+                thread.ownerParty?.phoneNumber === composeText.senderNumber
+              );
+            });
+            if (thread && thread.status === 'Open') {
+              conversations.loadConversation(thread.id);
+              conversations.updateMessageText(text ?? '');
+              // TODO: copy attachments to thread after thread support MMS
+              sideDrawerUI.gotoConversation(thread.id, { phoneNumber: thread.guestParty?.phoneNumber ?? '' }, 'thread');
+              sideDrawerUI.closeWidget('composeText');
+              composeText.clean();
+              if (
+                !thread.assignee ||
+                String(thread.assignee.extensionId) !== String(extensionInfo.id)
+              ) {
+                alert.warning({
+                  message: 'threadIsAssignedToOtherExtension',
+                  ttl: 0,
+                });
+                return;
+              }
+              if (
+                text && text.length > 0
+              ) {
+                conversations.replyToThread(text);
+              }
+              return;
+            }
+          }
           const responses = await composeText.send(
             text,
             attachments,
