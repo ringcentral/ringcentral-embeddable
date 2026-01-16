@@ -2862,11 +2862,13 @@
 <span class="w">    </span><span class="nx">banner</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;my-banner&#39;</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;CRM connection lost&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;warning&#39;</span><span class="p">,</span><span class="w">  </span><span class="c1">// &#39;info&#39; | &#39;warning&#39; | &#39;error&#39; | &#39;success&#39;, default: &#39;info&#39;</span>
+<span class="w">      </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;info&#39;</span><span class="p">,</span><span class="w">  </span><span class="c1">// &#39;info&#39; | &#39;warning&#39; | &#39;error&#39; | &#39;success&#39; | &#39;announcement&#39;, default: &#39;info&#39;</span>
 <span class="w">      </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// optional, show action button</span>
-<span class="w">        </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Reconnect&#39;</span><span class="w"> </span><span class="c1">// action button label, required</span>
+<span class="w">        </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Reconnect&#39;</span><span class="w"> </span><span class="c1">// action button label, required,</span>
+<span class="w">        </span><span class="nx">variant</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;outlined&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, button variant, &#39;text&#39;, &#39;outlined&#39;, &#39;contained&#39;, &#39;plain&#39;, default: &#39;outlined&#39;</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nx">closable</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c1">// optional, show close button, default: false, only works if no action button is provided</span>
+<span class="w">      </span><span class="nx">closable</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, show close button, default: false, only works if no action button is provided</span>
+<span class="w">      </span><span class="nx">closeButtonLabel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Close&#39;</span><span class="w"> </span><span class="c1">// optional, close button label, default: &#39;Close&#39;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
