@@ -17,11 +17,13 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     banner: {
       id: 'my-banner',
       message: 'CRM connection lost',
-      severity: 'warning',  // 'info' | 'warning' | 'error' | 'success', default: 'info'
+      severity: 'info',  // 'info' | 'warning' | 'error' | 'success' | 'announcement', default: 'info'
       action: {  // optional, show action button
-        label: 'Reconnect' // action button label, required
+        label: 'Reconnect' // action button label, required,
+        variant: 'outlined', // optional, button variant, 'text', 'outlined', 'contained', 'plain', default: 'outlined'
       },
-      closable: true // optional, show close button, default: false, only works if no action button is provided
+      closable: true, // optional, show close button, default: false, only works if no action button is provided
+      closeButtonLabel: 'Close' // optional, close button label, default: 'Close'
     }
   }
 }, '*');
