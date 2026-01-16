@@ -8,7 +8,6 @@ import type {
 import { computed } from '@ringcentral-integration/core';
 import { sortByDate, getNumbersFromMessage } from '@ringcentral-integration/commons/lib/messageHelper';
 import type { Correspondent } from '@ringcentral-integration/commons/lib/messageHelper';
-import { getLogId } from '@ringcentral-integration/commons/modules/ConversationLogger/conversationLoggerHelper';
 
 @Module({
   deps: [
@@ -30,6 +29,10 @@ export class ConversationLogger extends ConversationLoggerBase {
       await this._doLog(data);
     };
     this._accordWithLogRequirement = (conversation) => {
+      if (conversation.type === 'Thread') {
+        // thread only have a date, so it should be logged every time
+        return true;
+      }
       const today = this._formatDateTime({
         type: 'date',
         utcTimestamp: new Date(),
@@ -278,11 +281,11 @@ export class ConversationLogger extends ConversationLoggerBase {
       if (!mapping[conversationId]) {
         mapping[conversationId] = {};
       }
+      const date = this._formatDateTime({
+        type: 'date',
+        utcTimestamp: thread.creationTime,
+      });
       thread.messages.forEach((message) => {
-        const date = this._formatDateTime({
-          type: 'date',
-          utcTimestamp: message.creationTime || message.lastModifiedTime,
-        });
         if (!mapping[conversationId][date]) {
           const conversationLogId = this.getMessageThreadLogId(thread);
           mapping[conversationId][date] = {
@@ -321,21 +324,7 @@ export class ConversationLogger extends ConversationLoggerBase {
     if (!thread) {
       return;
     }
-    const threadId = thread.id;
-    let lastModifiedTime = thread.lastModifiedTime;
-    thread.messages.forEach((entry) => {
-      if (entry.lastModifiedTime > lastModifiedTime) {
-        lastModifiedTime = entry.lastModifiedTime;
-      }
-    });
-    const date = this._formatDateTime({
-      type: 'date',
-      utcTimestamp: lastModifiedTime,
-    });
-    return getLogId({
-      conversationId: threadId,
-      date,
-    });
+    return thread.id;
   }
 
   @computed((that: ConversationLogger) => [that.conversationLogMap])
