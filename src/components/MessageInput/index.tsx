@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { KeyboardEvent, FunctionComponent, ChangeEvent } from 'react';
 
 import i18n from '@ringcentral-integration/widgets/components/MessageInput/i18n';
+import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
+import { formatDuration } from '@ringcentral-integration/commons/lib/formatDuration';
 import {
   RcIconButton,
   RcTypography,
@@ -13,7 +15,8 @@ import {
   Attachment as attachmentSvg,
   Close as removeSvg,
   SendFilled as sentSvg,
-  SmsTemplate as templateSvg
+  SmsTemplate as templateSvg,
+  TimeBorder as timerSvg,
 } from '@ringcentral/juno-icon';
 
 import { AdditionalToolbarButton } from '../AdditionalToolbarButton';
@@ -44,6 +47,14 @@ const Toolbar = styled.div`
 const InputTip = styled.div`
   flex: 1;
   text-align: right;
+`;
+
+const TypingDuration = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  color: ${palette2('neutral', 'f04')};
 `;
 
 const TextFiled = styled.div`
@@ -138,6 +149,10 @@ type MessageInputProps = {
   deleteTemplate?: (templateId: string) => Promise<any>;
   createOrUpdateTemplate?: (template: any) => Promise<any>;
   sortTemplates?: (templates: any[]) => any;
+  // Typing duration tracking
+  showTypingDuration?: boolean;
+  typingStartTime?: number | null;
+  accumulatedTypingTime?: number;
 }
 
 type AttachmentsProps = {
@@ -200,6 +215,9 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
   deleteTemplate = undefined,
   createOrUpdateTemplate = undefined,
   sortTemplates = undefined,
+  showTypingDuration = false,
+  typingStartTime = null,
+  accumulatedTypingTime = 0,
 }) => {
   const [value, setValue] = useState('');
   const [height, setHeight] = useState(minHeight);
@@ -321,6 +339,36 @@ const MessageInput: FunctionComponent<MessageInputProps> = ({
               />
             );
           })
+        }
+        {
+          showTypingDuration && typingStartTime && (
+            <TypingDuration data-sign="typingDuration">
+              <RcIconButton
+                variant="plain"
+                size="xsmall"
+                symbol={timerSvg}
+                disabled
+              />
+              <RcTypography variant="caption1" color="neutral.f04">
+                <DurationCounter startTime={typingStartTime} offset={-accumulatedTypingTime} />
+              </RcTypography>
+            </TypingDuration>
+          )
+        }
+        {
+          showTypingDuration && !typingStartTime && accumulatedTypingTime > 0 && (
+            <TypingDuration data-sign="typingDurationPaused">
+              <RcIconButton
+                variant="plain"
+                size="xsmall"
+                symbol={timerSvg}
+                disabled
+              />
+              <RcTypography variant="caption1" color="neutral.f04">
+                {formatDuration(Math.round(accumulatedTypingTime / 1000))}
+              </RcTypography>
+            </TypingDuration>
+          )
         }
         {
           value && value.length > 0 && (

@@ -114,6 +114,10 @@ export type ConversationProps = {
   hideBackButton?: boolean;
   showCloseButton?: boolean;
   onClose?: (...args: any[]) => any;
+  // Typing duration tracking
+  showTypingDuration?: boolean;
+  typingStartTime?: number | null;
+  accumulatedTypingTime?: number;
 }
 
 function getInitialContactIndex(conversation: Conversation) {
@@ -245,6 +249,9 @@ export function ConversationPanel({
   hideBackButton = false,
   showCloseButton = false,
   onClose = () => null,
+  showTypingDuration = false,
+  typingStartTime = null,
+  accumulatedTypingTime = 0,
 }: ConversationProps) {
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState(getInitialContactIndex(conversation));
@@ -511,6 +518,9 @@ export function ConversationPanel({
           createOrUpdateTemplate={createOrUpdateTemplate}
           sortTemplates={sortTemplates}
           disabled={disableLinks}
+          showTypingDuration={showTypingDuration}
+          typingStartTime={typingStartTime}
+          accumulatedTypingTime={accumulatedTypingTime}
         />
       )}
     </Root>

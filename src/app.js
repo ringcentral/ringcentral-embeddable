@@ -199,6 +199,7 @@ const phone = createPhone({
   isMainTab: mainTab === 'true',
   autoMainTab: typeof mainTab === 'undefined',
   externalAuthId,
+  enableTypingTimeTracking: true,
 });
 
 const store = createStore(phone.reducer);

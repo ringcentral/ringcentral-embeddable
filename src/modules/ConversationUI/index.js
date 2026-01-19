@@ -10,10 +10,11 @@ import {
     'ThirdPartyService',
     'SmsTemplates',
     'SideDrawerUI',
+    'SmsTypingTimeTracker',
   ],
 })
 export class ConversationUI extends BaseConversationUI {
-  protected _alertModalId = null;
+  _alertModalId = null;
 
   getUIProps(props) {
     const baseProps = super.getUIProps(props);
@@ -22,7 +23,13 @@ export class ConversationUI extends BaseConversationUI {
       conversationLogger,
       appFeatures,
       smsTemplates,
+      smsTypingTimeTracker,
+      conversations,
     } = this._deps;
+    // Get typing duration props for current conversation
+    const conversationId = conversations.currentConversationId;
+    const typingStartTime = conversationId ? (smsTypingTimeTracker._typingStartTimes?.[conversationId] || null) : null;
+    const accumulatedTypingTime = conversationId ? (smsTypingTimeTracker.accumulatedTypingTimes?.[conversationId] || 0) : 0;
     return {
       ...baseProps,
       showLogButton: conversationLogger.loggerSourceReady,
@@ -31,6 +38,10 @@ export class ConversationUI extends BaseConversationUI {
       showTemplate: appFeatures.showSmsTemplate,
       templates: smsTemplates.templates,
       showTemplateManagement: appFeatures.showSmsTemplateManage,
+      // Typing duration tracking
+      showTypingDuration: smsTypingTimeTracker.enabled,
+      typingStartTime,
+      accumulatedTypingTime,
     };
   }
 
@@ -93,21 +104,56 @@ export class ConversationUI extends BaseConversationUI {
       thirdPartyService,
       smsTemplates,
       routerInteraction,
+      conversations,
+      smsTypingTimeTracker,
     } = this._deps;
+
+    const baseFuncs = super.getUIFunctions(options);
+
     return {
-      ...super.getUIFunctions(options),
+      ...baseFuncs,
+      updateMessageText: (text) => {
+        const conversationId = conversations.currentConversationId;
+        // Start typing tracking when there's text (startTyping handles duplicate calls internally)
+        if (conversationId && text) {
+          smsTypingTimeTracker.startTyping(conversationId);
+        }
+        conversations.updateMessageText(text);
+      },
       goBack: options.goBack ? options.goBack : () => {
         routerInteraction.push(options.conversationsPath || '/messages');
       },
+      unloadConversation: () => {
+        // Clear if no text, pause if text exists (preserve accumulated time)
+        const conversationId = conversations.currentConversationId;
+        if (conversationId) {
+          if (conversations.messageText) {
+            smsTypingTimeTracker.pauseTyping(conversationId);
+          } else {
+            smsTypingTimeTracker.clearTyping(conversationId);
+          }
+        }
+        conversations.unloadConversation();
+      },
       replyToReceivers: async (text, attachments, selectedContact) => {
         const continueSMS = await this.smsVerify(
-          this._deps.conversations.currentConversation.correspondents,
+          conversations.currentConversation.correspondents,
           selectedContact,
         );
         if (!continueSMS) {
           return;
         }
-        return this._deps.conversations.replyToReceivers(text, attachments, selectedContact);
+        const conversationId = conversations.currentConversationId;
+        // Pause typing before sending - so if send fails, time won't keep accumulating
+        if (conversationId) {
+          smsTypingTimeTracker.pauseTyping(conversationId);
+        }
+        const response = await conversations.replyToReceivers(text, attachments, selectedContact);
+        // Save typing time after successful send
+        if (response && response.id && conversationId) {
+          smsTypingTimeTracker.stopTyping(conversationId, String(response.id));
+        }
+        return response;
       },
       onLogConversation: async ({ redirect = true, ...options }) => {
         await conversationLogger.logConversation({
