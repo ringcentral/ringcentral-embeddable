@@ -185,8 +185,12 @@ export class ConversationUI extends BaseConversationUI {
         if (conversation.status === 'Resolved') {
           // Can't re-open case now, need to start a new thread instead
           let contact = conversation.correspondents?.[0] ?? conversation.guestParty;
+          const phoneNumber = contact?.phoneNumber ?? '';
           if (conversation.correspondentMatches?.length === 1) {
             contact = conversation.correspondentMatches[0];
+            if (contact.phoneNumber !== phoneNumber && phoneNumber) {
+              contact.phoneNumber = phoneNumber;
+            }
           }
           const senderNumber = conversation.ownerParty?.phoneNumber ?? '';
           composeTextUI.gotoComposeText(contact, false, senderNumber);

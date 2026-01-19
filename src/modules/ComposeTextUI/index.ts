@@ -23,6 +23,7 @@ type ComposeContact = {
     'ExtensionInfo',
     'MessageThreadEntries',
     'MessageThreads',
+    'Alert'
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -69,11 +70,78 @@ export class ComposeTextUI extends ComposeTextUIBase {
       extensionInfo,
       messageThreadEntries,
       messageThreads,
+      messageSender,
+      alert,
     } = this._deps;
     return {
       ...baseFuncs,
       send: async (text, attachments) => {
         try {
+          let isThread = false;
+          if (
+            messageThreads.hasPermission &&
+            (
+              (
+                composeText.toNumbers.length === 1 && 
+                !composeText.typingToNumber
+              ) ||
+              (
+                composeText.toNumbers.length === 0 &&
+                composeText.typingToNumber
+              )
+            ) &&
+            attachments.length === 0
+          ) {
+            const sender = messageSender.senderNumbersList.find(
+              (number) => number.phoneNumber === composeText.senderNumber
+            );
+            if (sender && sender.extension) {
+              isThread = true;
+            }
+          }
+          if (isThread) {
+            // check if thread exists
+            const toNumber = composeText.typingToNumber || composeText.toNumbers[0].phoneNumber;
+            const formattedToNumber = phoneNumberFormat.formatWithType({
+              phoneNumber: toNumber,
+              areaCode: regionSettings.areaCode,
+              countryCode: regionSettings.countryCode,
+              maxExtensionLength: accountInfo.maxExtensionNumberLength,
+              isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+              siteCode: extensionInfo.site?.code,
+            }, 'e164');
+            const thread = messageThreads.threads.find((thread) => {
+              return (
+                thread.guestParty?.phoneNumber === formattedToNumber &&
+                thread.ownerParty?.phoneNumber === composeText.senderNumber
+              );
+            });
+            if (thread && thread.status === 'Open') {
+              // Go to thread page, and send
+              conversations.loadConversation(thread.id);
+              conversations.updateMessageText(text ?? '');
+              // TODO: copy attachments to thread after thread support MMS
+              sideDrawerUI.gotoConversation(thread.id, { phoneNumber: thread.guestParty?.phoneNumber ?? '' }, 'thread');
+              sideDrawerUI.closeWidget('composeText');
+              composeText.clean();
+              if (
+                !thread.assignee ||
+                String(thread.assignee.extensionId) !== String(extensionInfo.id)
+              ) {
+                alert.warning({
+                  message: 'threadIsAssignedToOtherExtension',
+                  ttl: 0,
+                });
+                return;
+              }
+              if (
+                text && text.length > 0
+              ) {
+                conversations.replyToThread(text);
+              }
+              return;
+            }
+          }
           const responses = await composeText.send(
             text,
             attachments,
