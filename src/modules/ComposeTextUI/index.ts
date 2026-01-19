@@ -80,7 +80,16 @@ export class ComposeTextUI extends ComposeTextUIBase {
           let isThread = false;
           if (
             messageThreads.hasPermission &&
-            composeText.toNumbers.length === 1 &&
+            (
+              (
+                composeText.toNumbers.length === 1 && 
+                !composeText.typingToNumber
+              ) ||
+              (
+                composeText.toNumbers.length === 0 &&
+                composeText.typingToNumber
+              )
+            ) &&
             attachments.length === 0
           ) {
             const sender = messageSender.senderNumbersList.find(
@@ -92,14 +101,23 @@ export class ComposeTextUI extends ComposeTextUIBase {
           }
           if (isThread) {
             // check if thread exists
-            // TODO: format phone number to match the format in the thread
+            const toNumber = composeText.typingToNumber || composeText.toNumbers[0].phoneNumber;
+            const formattedToNumber = phoneNumberFormat.formatWithType({
+              phoneNumber: toNumber,
+              areaCode: regionSettings.areaCode,
+              countryCode: regionSettings.countryCode,
+              maxExtensionLength: accountInfo.maxExtensionNumberLength,
+              isMultipleSiteEnabled: extensionInfo.isMultipleSiteEnabled,
+              siteCode: extensionInfo.site?.code,
+            }, 'e164');
             const thread = messageThreads.threads.find((thread) => {
               return (
-                thread.guestParty?.phoneNumber === composeText.toNumbers[0].phoneNumber &&
+                thread.guestParty?.phoneNumber === formattedToNumber &&
                 thread.ownerParty?.phoneNumber === composeText.senderNumber
               );
             });
             if (thread && thread.status === 'Open') {
+              // Go to thread page, and send
               conversations.loadConversation(thread.id);
               conversations.updateMessageText(text ?? '');
               // TODO: copy attachments to thread after thread support MMS
