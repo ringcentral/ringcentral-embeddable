@@ -124,6 +124,7 @@ nav:
     - 'Log calls': integration/call-logging.md
     - 'Log meetings': integration/log-video-meeting.md
     - 'Log messages': integration/message-logging.md
+    - 'Track SMS typing time (new)': integration/smsTypingTime.md
     - 'Schedule meetings': integration/meeting-schedule.md
     - 'View upcoming meetings': integration/upcoming-meetings.md
     - 'VCard click handling': integration/vcard-clicks.md
