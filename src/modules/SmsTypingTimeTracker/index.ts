@@ -34,8 +34,21 @@ export class SmsTypingTimeTracker extends RcModuleV2<Deps> {
     });
   }
 
-  // Feature flag getter
+  // Persisted: dynamic enabled state (null means use default from options)
+  @storage
+  @state
+  _enabledOverride: boolean | null = null;
+
+  @action
+  setEnabled(enabled: boolean): void {
+    this._enabledOverride = enabled;
+  }
+
+  // Feature flag getter - prioritizes dynamic override, falls back to options
   get enabled(): boolean {
+    if (this._enabledOverride !== null) {
+      return this._enabledOverride;
+    }
     return this._deps.smsTypingTimeTrackerOptions?.enableTypingTimeTracking ?? false;
   }
 

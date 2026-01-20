@@ -73,6 +73,7 @@ import { getCallContact } from '../../lib/callHelper';
     'Analytics',
     'Theme',
     'ThirdPartyService',
+    'SmsTypingTimeTracker',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -120,6 +121,7 @@ export default class Adapter extends AdapterModuleCore {
     composeTextUI,
     theme,
     thirdPartyService,
+    smsTypingTimeTracker,
     ...options
   }) {
     super({
@@ -166,6 +168,7 @@ export default class Adapter extends AdapterModuleCore {
     this._analytics = analytics;
     this._theme = theme;
     this._thirdPartyService = thirdPartyService;
+    this._smsTypingTimeTracker = smsTypingTimeTracker;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -379,6 +382,10 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-update-ai-assistant-settings': {
           this._onUpdateAIAssistantSettings(data);
+          break;
+        }
+        case 'rc-adapter-update-sms-typing-time-tracking': {
+          this._onUpdateSmsTypingTimeTracking(data);
           break;
         }
         case 'rc-adapter-set-side-drawer-extended': {
@@ -1448,6 +1455,16 @@ export default class Adapter extends AdapterModuleCore {
         !!data.autoStartAiAssistantReadOnly,
         data.autoStartAiAssistantReadOnlyReason,
       );
+    }
+  }
+
+  _onUpdateSmsTypingTimeTracking(data) {
+    if (typeof data.enabled === 'boolean') {
+      this._smsTypingTimeTracker.setEnabled(data.enabled);
+      this._postMessage({
+        type: 'rc-sms-typing-time-tracking-notify',
+        enabled: this._smsTypingTimeTracker.enabled,
+      });
     }
   }
 
