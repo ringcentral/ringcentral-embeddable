@@ -73,6 +73,7 @@ import { getCallContact } from '../../lib/callHelper';
     'Analytics',
     'Theme',
     'ThirdPartyService',
+    'SmsTypingTimeTracker',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -120,6 +121,7 @@ export default class Adapter extends AdapterModuleCore {
     composeTextUI,
     theme,
     thirdPartyService,
+    smsTypingTimeTracker,
     ...options
   }) {
     super({
@@ -166,6 +168,7 @@ export default class Adapter extends AdapterModuleCore {
     this._analytics = analytics;
     this._theme = theme;
     this._thirdPartyService = thirdPartyService;
+    this._smsTypingTimeTracker = smsTypingTimeTracker;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();

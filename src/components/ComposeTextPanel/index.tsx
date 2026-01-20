@@ -104,6 +104,10 @@ export interface ComposeTextPanelProps {
   hideBackButton?: boolean;
   onClose?: (...args: any[]) => any;
   showCloseButton?: boolean;
+  // Typing duration tracking
+  showTypingDuration?: boolean;
+  typingStartTime?: number | null;
+  accumulatedTypingTime?: number;
 }
 
 const CloseButton = styled(RcIconButton)`
@@ -159,6 +163,9 @@ function ComposeTextPanel({
   hideBackButton = false,
   onClose,
   showCloseButton = false,
+  showTypingDuration = false,
+  typingStartTime = null,
+  accumulatedTypingTime = 0,
 }: ComposeTextPanelProps) {
   const noPermission = !!(
     senderNumbers.length === 0 ||
@@ -257,6 +264,9 @@ function ComposeTextPanel({
               deleteTemplate={deleteTemplate}
               createOrUpdateTemplate={createOrUpdateTemplate}
               sortTemplates={sortTemplates}
+              showTypingDuration={showTypingDuration}
+              typingStartTime={typingStartTime}
+              accumulatedTypingTime={accumulatedTypingTime}
             />
           </>
         )

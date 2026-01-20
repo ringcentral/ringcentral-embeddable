@@ -42,6 +42,7 @@ import {
     'CallHistory',
     'CallMonitor',
     'MessageStore',
+    'SmsTypingTimeTracker',
     { dep: 'ThirdPartyContactsOptions', optional: true },
   ],
 })
@@ -102,6 +103,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     this._ignoreModuleReadiness(deps.callMonitor);
     this._ignoreModuleReadiness(deps.messageStore);
     this._ignoreModuleReadiness(deps.storage);
+    this._ignoreModuleReadiness(deps.smsTypingTimeTracker);
 
     this._searchSourceAdded = false;
     this._contactMatchSourceAdded = false;
@@ -965,6 +967,18 @@ export default class ThirdPartyService extends RcModuleV2 {
               });
             }),
             transcript: transcript && transcript.text,
+          };
+        });
+        item.messages = messages;
+      } else {
+        const messages = item.messages && item.messages.map((m) => {
+          const typingTime = this._deps.smsTypingTimeTracker.getTypingTime(m.id);
+          if (typeof typingTime !== 'number') {
+            return m;
+          }
+          return {
+            ...m,
+            typingDurationMs: typingTime,
           };
         });
         item.messages = messages;

@@ -9,6 +9,8 @@ type ComposeContact = {
   phoneNumber: string;
 }
 
+const COMPOSE_TYPING_KEY = 'compose';
+
 @Module({
   name: 'ComposeTextUI',
   deps: [
@@ -17,6 +19,7 @@ type ComposeContact = {
     'SmsTemplates',
     'SideDrawerUI',
     'Analytics',
+    'SmsTypingTimeTracker',
   ]
 })
 export class ComposeTextUI extends ComposeTextUIBase {
@@ -32,13 +35,21 @@ export class ComposeTextUI extends ComposeTextUIBase {
       thirdPartyService,
       appFeatures,
       smsTemplates,
+      smsTypingTimeTracker,
     } = this._deps;
+    // Get typing duration props using simple 'compose' key
+    const typingStartTime = smsTypingTimeTracker._typingStartTimes?.[COMPOSE_TYPING_KEY] || null;
+    const accumulatedTypingTime = smsTypingTimeTracker.accumulatedTypingTimes?.[COMPOSE_TYPING_KEY] || 0;
     return {
       ...baseProps,
       additionalToolbarButtons: thirdPartyService.additionalSMSToolbarButtons,
       showTemplate: appFeatures.showSmsTemplate,
       templates: smsTemplates.templates,
       showTemplateManagement: appFeatures.showSmsTemplateManage,
+      // Typing duration tracking
+      showTypingDuration: smsTypingTimeTracker.enabled,
+      typingStartTime,
+      accumulatedTypingTime,
     };
   }
 
@@ -52,10 +63,29 @@ export class ComposeTextUI extends ComposeTextUIBase {
       messageStore,
       conversations,
       sideDrawerUI,
+      smsTypingTimeTracker,
     } = this._deps;
+
     return {
       ...baseFuncs,
+      updateMessageText: (text: string) => {
+        // Reset accumulated time if user returned and clears text for first time
+        if (
+          text === '' &&
+          composeText.messageText !== '' &&
+          (!!smsTypingTimeTracker.accumulatedTypingTimes?.[COMPOSE_TYPING_KEY])
+        ) {
+          smsTypingTimeTracker.clearTyping(COMPOSE_TYPING_KEY);
+        }
+        // Start typing tracking when there's text
+        if (text) {
+          smsTypingTimeTracker.startTyping(COMPOSE_TYPING_KEY);
+        }
+        composeText.updateMessageText(text);
+      },
       send: async (text, attachments) => {
+        // Pause typing before sending - so if send fails, time won't keep accumulating
+        smsTypingTimeTracker.pauseTyping(COMPOSE_TYPING_KEY);
         try {
           const responses = await composeText.send(
             text,
@@ -64,6 +94,12 @@ export class ComposeTextUI extends ComposeTextUIBase {
           if (!responses || responses.length === 0) {
             return;
           }
+          // Save typing time for each sent message
+          responses.forEach((response) => {
+            if (response && response.id) {
+              smsTypingTimeTracker.stopTyping(COMPOSE_TYPING_KEY, String(response.id));
+            }
+          });
           messageStore.pushMessages(responses);
           if (responses.length === 1) {
             const conversationId =
@@ -88,9 +124,28 @@ export class ComposeTextUI extends ComposeTextUIBase {
       onClickAdditionalToolbarButton: (buttonId) => {
         thirdPartyService.onClickAdditionalButton(buttonId);
       },
-      goBack: props.goBack ? props.goBack : () => {
-        routerInteraction.goBack();
+      goBack: () => {
+        // Clear if no text, pause if text exists (preserve accumulated time)
+        if (composeText.messageText) {
+          smsTypingTimeTracker.pauseTyping(COMPOSE_TYPING_KEY);
+        } else {
+          smsTypingTimeTracker.clearTyping(COMPOSE_TYPING_KEY);
+        }
+        if (props.goBack) {
+          props.goBack();
+        } else {
+          routerInteraction.goBack();
+        }
       },
+      onClose: props.onClose ? () => {
+        // Clear if no text, pause if text exists (preserve accumulated time)
+        if (composeText.messageText) {
+          smsTypingTimeTracker.pauseTyping(COMPOSE_TYPING_KEY);
+        } else {
+          smsTypingTimeTracker.clearTyping(COMPOSE_TYPING_KEY);
+        }
+        props.onClose();
+      } : undefined,
       loadTemplates: () => {
         return smsTemplates.sync();
       },

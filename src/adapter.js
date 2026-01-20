@@ -124,6 +124,7 @@ function init({
     mainTab,
     enableSharedMessages,
     enableSideWidget,
+    enableTypingTimeTracking,
   } = options;
   const appUri = `${appUrl}?${obj2uri({
     appKey,
@@ -181,6 +182,7 @@ function init({
     enableSharedMessages,
     enableLoadMoreCalls,
     mainTab,
+    enableTypingTimeTracking,
     _t: Date.now(),
   })}`;
   window.RCAdapter = new Adapter({
