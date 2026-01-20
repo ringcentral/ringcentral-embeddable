@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/custom-settings/">
+        <link rel="canonical" href="https://ringcentral.github.io/ringcentral-embeddable/docs/integration/smsTypingTime/">
       
       
-        <link rel="prev" href="../custom-page/">
+        <link rel="prev" href="../message-logging/">
       
       
-        <link rel="next" href="../custom-tab/">
+        <link rel="next" href="../meeting-schedule/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Settings - RingCentral Embeddable</title>
+        <title>Track SMS typing time (new) - RingCentral Embeddable</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#custom-third-party-settings-and-preferences" class="md-skip">
+        <a href="#track-sms-typing-time" class="md-skip">
           Skip to content
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Settings
+              Track SMS typing time (new)
             
           </span>
         </div>
@@ -1483,8 +1483,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1498,13 +1500,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" checked>
         
           
           <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
@@ -1525,7 +1525,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1736,10 +1736,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../smsTypingTime/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Track SMS typing time (new)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1755,6 +1782,87 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#enable-sms-typing-time-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable SMS typing time tracking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enable SMS typing time tracking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-via-uri-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable via URI parameter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-dynamically-via-postmessage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable dynamically via postMessage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#receive-typing-duration-in-message-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Receive typing duration in message logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-typing-time-is-calculated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How typing time is calculated
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1912,8 +2020,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1929,11 +2035,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_6" >
         
           
           <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="">
@@ -1954,7 +2062,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2025,37 +2133,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Settings
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../custom-settings/" class="md-nav__link">
         
   
   
@@ -2071,87 +2152,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#register-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Register settings
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Register settings">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#register-button-section-and-group" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Register button, section and group
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#listen-for-setting-button-click" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Listen for setting button click
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#set-settings-item-order" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Set settings item order
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#update-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Update settings
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2635,22 +2635,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#register-settings" class="md-nav__link">
+  <a href="#enable-sms-typing-time-tracking" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Register settings
+        Enable SMS typing time tracking
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Register settings">
+    <nav class="md-nav" aria-label="Enable SMS typing time tracking">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#register-button-section-and-group" class="md-nav__link">
+  <a href="#enable-via-uri-parameter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Register button, section and group
+        Enable via URI parameter
       
     </span>
   </a>
@@ -2658,10 +2658,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#listen-for-setting-button-click" class="md-nav__link">
+  <a href="#enable-dynamically-via-postmessage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Listen for setting button click
+        Enable dynamically via postMessage
       
     </span>
   </a>
@@ -2674,10 +2674,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#set-settings-item-order" class="md-nav__link">
+  <a href="#receive-typing-duration-in-message-logs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Set settings item order
+        Receive typing duration in message logs
       
     </span>
   </a>
@@ -2685,10 +2685,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#update-settings" class="md-nav__link">
+  <a href="#how-typing-time-is-calculated" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Update settings
+        How typing time is calculated
       
     </span>
   </a>
@@ -2739,10 +2739,10 @@
     
     
       <li class="md-path__item">
-        <a href="../custom-call-log-page/" class="md-path__link">
+        <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    User interface customization
+    Service features
   </span>
 
         </a>
@@ -2761,7 +2761,7 @@
 
 
   
-    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/main/docs/integration/custom-settings.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/main/docs/integration/smsTypingTime.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2770,170 +2770,69 @@
     
       
     
-    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/main/docs/integration/custom-settings.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/ringcentral/ringcentral-embeddable/tree/main/docs/integration/smsTypingTime.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="custom-third-party-settings-and-preferences">Custom third-party settings and preferences</h1>
+<h1 id="track-sms-typing-time">Track SMS typing time</h1>
+<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">3.0.0</a></span></span></p>
 <div class="admonition info">
-<p class="admonition-title">This feature requires you to <a href="../">register your app as a service</a> first.</p>
+<p class="admonition-title">This feature is still on progress</p>
 </div>
-<div class="admonition info">
-<p class="admonition-title">Check out the <a href="https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs">Embeddable Page Schema reference</a> on how to structure content in Embeddable using JSON</p>
+<p>This feature allows you to track how long a user spends composing an SMS message before sending it. The typing duration is measured in milliseconds and can be useful for analytics, productivity tracking, or CRM logging purposes.</p>
+<h2 id="enable-sms-typing-time-tracking">Enable SMS typing time tracking</h2>
+<h3 id="enable-via-uri-parameter">Enable via URI parameter</h3>
+<p>Add <code>enableTypingTimeTracking=1</code> to the widget URI:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Javascript</label><label for="__tabbed_1_2">iframe</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableTypingTimeTracking=1&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
+<span class="w">  </span><span class="p">})();</span>
+<span class="o">&lt;</span><span class="err">/script&gt;</span>
+</code></pre></div>
 </div>
-<p>For some features that support user to customize, widget supports to add settings into widget's setting page.</p>
-<h2 id="register-settings">Register settings</h2>
-<p>First, register service with <code>settings</code> and <code>settingsPath</code>:</p>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableTypingTimeTracking=1&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<h3 id="enable-dynamically-via-postmessage">Enable dynamically via postMessage</h3>
+<p>You can enable or disable the feature at runtime:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">settingsPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/settings&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">settings</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;openContactPageAtCall&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Open Contact Page at Call&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;value&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-sms-typing-time-tracking&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">enabled</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// or false to disable</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
 </code></pre></div>
-<h3 id="register-button-section-and-group">Register button, section and group</h3>
-<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">settingsPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/settings&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">settings</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;openLoggingPageAfterCall&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Open call logging page after call&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;value&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;groupId&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;logging&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, group settings into call and sms logging settings</span>
-<span class="w">        </span><span class="c1">// &quot;readOnly&quot;: true, // supported from v2.1.0</span>
-<span class="w">        </span><span class="c1">// &quot;readOnlyReason&quot;: &quot;This setting is managed by admin&quot;, // supported from v2.1.0</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;goToAppSettings&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;button&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Go to App settings&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;buttonLabel&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Open&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;crmSetting&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;section&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;CRM settings&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;items&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admonition&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;severity&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;value&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Please authorize ThirdPartyService firstly&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;introduction&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Introduction&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;typography&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;variant&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;body2&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, default is body1</span>
-<span class="w">            </span><span class="s2">&quot;value&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Update ThirdPartyService contact settings&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;openContactPageAtCall&#39;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Open contact for incoming calls&#39;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;value&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;defaultRecordType&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;option&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Default record type&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;options&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">              </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Lead&quot;</span><span class="p">,</span>
-<span class="w">              </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Lead&quot;</span>
-<span class="w">            </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
-<span class="w">              </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Contact&quot;</span><span class="p">,</span>
-<span class="w">              </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Contact&quot;</span>
-<span class="w">            </span><span class="p">}],</span>
-<span class="w">            </span><span class="s2">&quot;value&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Select default record type&quot;</span>
-<span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;defaultContactName&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Default contact name&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;value&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Input default contact name&quot;</span>
-<span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;defaultNote&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Default note&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;value&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Input default note&quot;</span>
-<span class="w">          </span><span class="p">},</span>
-<span class="w">        </span><span class="p">]</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;support&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;group&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Support&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;items&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">          </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;document&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;externalLink&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Document&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;uri&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://www.google.com&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;feedback&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;button&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Feedback&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;buttonLabel&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Open&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;buttonType&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;link&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;devSupport&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;button&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Developer support&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;buttonLabel&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Open&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">}]</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// required if you have button type in settings</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
-</code></pre></div>
+<h2 id="receive-typing-duration-in-message-logs">Receive typing duration in message logs</h2>
 <div class="admonition info">
-<p class="admonition-title">In settings root items, it only supports <code>boolean</code>, <code>button</code>, <code>section</code> and <code>group</code> type. In section's items, it supports <code>boolean</code>, <code>string</code>, <code>option</code>, <code>text</code>, <code>typography</code> and <code>admonition</code> type.</p>
+<p class="admonition-title">This feature requires you to <a href="../message-logging/">register message logger</a> first.</p>
 </div>
-<p>After registering, you can get your setting in settings page:</p>
-<p><img alt="customize-settings" src="https://github.com/user-attachments/assets/561e51b5-83fb-419f-aa01-e80c63f9d081" /></p>
-<p><img alt="customize-setting-section" src="https://github.com/user-attachments/assets/7c0d1253-bf0c-4861-a817-d8ca3242e7a9" /></p>
-<p><img alt="group-setting" src="https://github.com/user-attachments/assets/9879a084-1507-4b6e-aea4-8fc5a8540b8b" /></p>
-<p>Add a message event to listen settings updated event:</p>
+<p>When SMS typing time tracking is enabled and you have a message logger registered, the typing duration will be included in the message data when logging messages.</p>
+<p>The <code>typingDurationMs</code> field will be added to each outbound message in the conversation:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/settings&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="c1">// add your codes here to save settings into your service</span>
-<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
-<span class="w">      </span><span class="c1">// response to widget</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="c1">// add your codes here to handle button click event</span>
-<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/messageLogger&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Messages in the conversation will include typingDurationMs</span>
+<span class="w">      </span><span class="kd">var</span><span class="w"> </span><span class="nx">conversation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">conversation</span><span class="p">;</span>
+<span class="w">      </span><span class="nx">conversation</span><span class="p">.</span><span class="nx">messages</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">typingDurationMs</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Message ID:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Typing duration (ms):&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="p">.</span><span class="nx">typingDurationMs</span><span class="p">);</span>
+<span class="w">          </span><span class="c1">// Convert to seconds for display</span>
+<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Typing duration (s):&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="p">.</span><span class="nx">typingDurationMs</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">});</span>
 <span class="w">      </span><span class="c1">// response to widget</span>
 <span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
 <span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
@@ -2944,73 +2843,16 @@
 <span class="w">  </span><span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
-<h3 id="listen-for-setting-button-click">Listen for setting button click</h3>
-<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="c1">// add your codes here to handle button click event</span>
-<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
-<span class="w">      </span><span class="c1">// response to widget</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">});</span>
-</code></pre></div>
-<h2 id="set-settings-item-order">Set settings item order</h2>
-<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
-<p>You can set settings item order by adding <code>order</code> field in settings item:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">settingsPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/settings&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">settings</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;settingItem1&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;button&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Setting Item 1&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;buttonLabel&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Open&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;order&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">250</span><span class="w"> </span><span class="c1">// the smaller the number, the higher the priority. </span>
-<span class="w">        </span><span class="c1">// Calling setting order value: 100,</span>
-<span class="w">        </span><span class="c1">// Audio setting order value: 200,</span>
-<span class="w">        </span><span class="c1">// Region setting order value: 300,</span>
-<span class="w">        </span><span class="c1">// Status setting order value: 400,</span>
-<span class="w">        </span><span class="c1">// Call and SMS logging setting order value: 500,</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// required if you have button type in settings</span>
-<span class="w">    </span><span class="c1">// ...</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
-</code></pre></div>
-<h2 id="update-settings">Update settings</h2>
-<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
-<p>You can update settings by sending <code>rc-adapter-update-third-party-settings</code> message:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-third-party-settings&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">settings</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;openContactPageAtCall&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Open Contact Page at Call&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;value&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;openCRMPage&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;button&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Go to app settings&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;buttonLabel&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Open&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;order&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">10000</span><span class="p">,</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
-</code></pre></div>
+<h2 id="how-typing-time-is-calculated">How typing time is calculated</h2>
+<p>The tracker measures the time from when the user starts typing to when the message is sent:</p>
+<ul>
+<li><strong>Start</strong>: Timer begins when the user starts typing in the message compose field</li>
+<li><strong>Pause</strong>: If the user navigates away from the conversation, the timer is paused and accumulated time is preserved</li>
+<li><strong>Resume</strong>: When the user returns to the conversation and continues typing, the timer resumes</li>
+<li><strong>Stop</strong>: When the message is successfully sent, the total typing duration is saved</li>
+<li><strong>Clear</strong>: If the compose field is cleared without sending, the timer is reset</li>
+</ul>
+<p>This approach ensures accurate tracking even when users switch between conversations or temporarily leave the messaging interface.</p>
 
 
 
