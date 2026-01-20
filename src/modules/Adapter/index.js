@@ -384,6 +384,10 @@ export default class Adapter extends AdapterModuleCore {
           this._onUpdateAIAssistantSettings(data);
           break;
         }
+        case 'rc-adapter-update-sms-typing-time-tracking': {
+          this._onUpdateSmsTypingTimeTracking(data);
+          break;
+        }
         case 'rc-adapter-set-side-drawer-extended': {
           this._setSideDrawerExtended(data.extended);
           break;
@@ -1451,6 +1455,12 @@ export default class Adapter extends AdapterModuleCore {
         !!data.autoStartAiAssistantReadOnly,
         data.autoStartAiAssistantReadOnlyReason,
       );
+    }
+  }
+
+  _onUpdateSmsTypingTimeTracking(data) {
+    if (typeof data.enabled === 'boolean') {
+      this._smsTypingTimeTracker.setEnabled(data.enabled);
     }
   }
 
