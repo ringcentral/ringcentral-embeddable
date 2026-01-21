@@ -165,10 +165,14 @@ export class ConversationUI extends BaseConversationUI {
         if (!continueSMS) {
           return;
         }
-        if (options.params.type === 'thread') {
-          return this._deps.conversations.replyToThread(text);
-        }
         const conversationId = conversations.currentConversationId;
+        if (options.params.type === 'thread') {
+          const newMessage = await conversations.replyToThread(text);
+          if (newMessage) {
+            smsTypingTimeTracker.stopTyping(conversationId, String(newMessage.id));
+          }
+          return newMessage;
+        }
         // Pause typing before sending - so if send fails, time won't keep accumulating
         if (conversationId) {
           smsTypingTimeTracker.pauseTyping(conversationId);

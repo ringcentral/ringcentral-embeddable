@@ -168,7 +168,10 @@ export class ComposeTextUI extends ComposeTextUIBase {
                 text && text.length > 0
               ) {
                 // TODO: Save typing time for reply to thread
-                conversations.replyToThread(text);
+                const newMessage = await conversations.replyToThread(text);
+                if (newMessage) {
+                  smsTypingTimeTracker.stopTyping(COMPOSE_TYPING_KEY, String(newMessage.id));
+                }
               }
               return;
             }

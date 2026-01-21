@@ -976,18 +976,6 @@ export default class ThirdPartyService extends RcModuleV2 {
           };
         });
         item.messages = messages;
-      } else {
-        const messages = item.messages && item.messages.map((m) => {
-          const typingTime = this._deps.smsTypingTimeTracker.getTypingTime(m.id);
-          if (typeof typingTime !== 'number') {
-            return m;
-          }
-          return {
-            ...m,
-            typingDurationMs: typingTime,
-          };
-        });
-        item.messages = messages;
       }
       await requestWithPostMessage(this._messageLoggerPath, { conversation: item, ...options }, 15000);
       if (this._messageLogEntityMatchSourceAdded) {

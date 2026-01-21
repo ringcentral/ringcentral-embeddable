@@ -14,6 +14,7 @@ import type { Correspondent } from '@ringcentral-integration/commons/lib/message
     'ThirdPartyService',
     'MessageThreads',
     'MessageThreadEntries',
+    'SmsTypingTimeTracker',
   ],
 })
 export class ConversationLogger extends ConversationLoggerBase {
@@ -273,8 +274,15 @@ export class ConversationLogger extends ConversationLoggerBase {
             ...getNumbersFromMessage({ extensionNumber, message }),
           };
         }
-
-        mapping[conversationId][date].messages.push(message);
+        const typingTime = this._deps.smsTypingTimeTracker.getTypingTime(message.id);
+        let messageWithTypingTime = message;
+        if (typeof typingTime === 'number') {
+          messageWithTypingTime = {
+            ...message,
+            typingDurationMs: typingTime,
+          };
+        }
+        mapping[conversationId][date].messages.push(messageWithTypingTime);
       });
     this._deps.messageThreads.threads.forEach((thread) => {
       const conversationId = thread.id;
@@ -311,9 +319,17 @@ export class ConversationLogger extends ConversationLoggerBase {
             label: thread.label,
           };
         }
-        mapping[conversationId][date].entities.push(message);
+        const typingTime = this._deps.smsTypingTimeTracker.getTypingTime(message.id);
+        let messageWithTypingTime = message;
+        if (typeof typingTime === 'number') {
+          messageWithTypingTime = {
+            ...message,
+            typingDurationMs: typingTime,
+          };
+        }
+        mapping[conversationId][date].entities.push(messageWithTypingTime);
         if (message.recordType === 'AliveMessage') {
-          mapping[conversationId][date].messages.push(message);
+          mapping[conversationId][date].messages.push(messageWithTypingTime);
         }
       });
     });
