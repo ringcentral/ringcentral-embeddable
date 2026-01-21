@@ -139,6 +139,10 @@ export interface ComposeTextPanelProps {
   onLoad?: (...args: any[]) => any;
   groupSMS?: boolean;
   setGroupSMS?: (checked: boolean) => void;
+  // Typing duration tracking
+  showTypingDuration?: boolean;
+  typingStartTime?: number | null;
+  accumulatedTypingTime?: number;
 }
 
 const CloseButton = styled(RcIconButton)`
@@ -237,6 +241,9 @@ function ComposeTextPanel({
   onLoad,
   groupSMS = false,
   setGroupSMS = (checked: boolean) => {},
+  showTypingDuration = false,
+  typingStartTime = null,
+  accumulatedTypingTime = 0,
 }: ComposeTextPanelProps) {
   const noPermission = !!(
     senderNumbers.length === 0 ||
@@ -349,6 +356,9 @@ function ComposeTextPanel({
               createOrUpdateTemplate={createOrUpdateTemplate}
               sortTemplates={sortTemplates}
               disabled={senderNumbers.length === 0}
+              showTypingDuration={showTypingDuration}
+              typingStartTime={typingStartTime}
+              accumulatedTypingTime={accumulatedTypingTime}
             />
           </>
         )

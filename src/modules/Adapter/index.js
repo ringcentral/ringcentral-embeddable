@@ -77,6 +77,7 @@ import { getCallContact } from '../../lib/callHelper';
     'PhoneNumberFormat',
     'MessageThreads',
     'MessageThreadEntries',
+    'SmsTypingTimeTracker',
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -128,6 +129,7 @@ export default class Adapter extends AdapterModuleCore {
     phoneNumberFormat,
     messageThreads,
     messageThreadEntries,
+    smsTypingTimeTracker,
     ...options
   }) {
     super({
@@ -178,6 +180,8 @@ export default class Adapter extends AdapterModuleCore {
     this._phoneNumberFormat = phoneNumberFormat;
     this._messageThreads = messageThreads;
     this._messageThreadEntries = messageThreadEntries;
+    this._smsTypingTimeTracker = smsTypingTimeTracker;
+
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
     this._stylesUri = stylesUri;
@@ -401,6 +405,10 @@ export default class Adapter extends AdapterModuleCore {
         }
         case 'rc-adapter-update-ai-assistant-settings': {
           this._onUpdateAIAssistantSettings(data);
+          break;
+        }
+        case 'rc-adapter-update-sms-typing-time-tracking': {
+          this._onUpdateSmsTypingTimeTracking(data);
           break;
         }
         case 'rc-adapter-set-side-drawer-extended': {
@@ -1559,6 +1567,12 @@ export default class Adapter extends AdapterModuleCore {
         !!data.autoStartAiAssistantReadOnly,
         data.autoStartAiAssistantReadOnlyReason,
       );
+    }
+  }
+
+  _onUpdateSmsTypingTimeTracking(data) {
+    if (typeof data.enabled === 'boolean') {
+      this._smsTypingTimeTracker.setEnabled(data.enabled);
     }
   }
 

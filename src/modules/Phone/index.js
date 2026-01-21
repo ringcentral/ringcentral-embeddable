@@ -189,6 +189,7 @@ import { MeetingHistoryUI } from '../MeetingHistoryUI';
 import { MeetingHomeUI } from '../MeetingHomeUI';
 import { MeetingInviteUI } from '../MeetingInviteModalUI';
 import { MessageSender } from '../MessageSender';
+import { SmsTypingTimeTracker } from '../SmsTypingTimeTracker';
 import { MessageStore } from '../MessageStore';
 import { MessageDetailsUI } from '../MessageDetailsUI';
 import { NoiseReduction } from '../NoiseReduction';
@@ -283,6 +284,7 @@ import { ParkUI } from '../ParkUI';
     { provide: 'Call', useClass: Call },
     { provide: 'ConferenceCall', useClass: ConferenceCall },
     { provide: 'MessageSender', useClass: MessageSender },
+    { provide: 'SmsTypingTimeTracker', useClass: SmsTypingTimeTracker },
     { provide: 'ComposeText', useClass: ComposeText },
     { provide: 'ComposeTextUI', useClass: ComposeTextUI },
     { provide: 'TextSettingUI', useClass: TextSettingUI },
@@ -790,6 +792,7 @@ export function createPhone({
   enableVoicemailDrop,
   isMainTab,
   autoMainTab,
+  enableTypingTimeTracking = false,
 }) {
   let appNameForSDK = brandConfig.appName.replace(/\s+/g, '');
   if (userAgent) {
@@ -1014,7 +1017,13 @@ export function createPhone({
         useValue: {
           enableSideWidget,
         },
-      }
+      },
+      {
+        provide: 'SmsTypingTimeTrackerOptions',
+        useValue: {
+          enableTypingTimeTracking,
+        },
+      },
     ]
   })
   class Phone extends BasePhone {}

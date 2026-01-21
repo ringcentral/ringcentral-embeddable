@@ -187,6 +187,10 @@ export type ConversationProps = {
   onUpdateNote: (noteId: string, text: string) => Promise<void>;
   onDeleteNote: (noteId: string) => Promise<void>;
   threadBusy: boolean;
+  // Typing duration tracking
+  showTypingDuration?: boolean;
+  typingStartTime?: number | null;
+  accumulatedTypingTime?: number;
 }
 
 function getInitialContactIndex(conversation: Conversation) {
@@ -327,6 +331,9 @@ export function ConversationPanel({
   onUpdateNote,
   onDeleteNote,
   threadBusy,
+  showTypingDuration = false,
+  typingStartTime = null,
+  accumulatedTypingTime = 0,
 }: ConversationProps) {
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState(getInitialContactIndex(conversation));
@@ -664,6 +671,9 @@ export function ConversationPanel({
             sortTemplates={sortTemplates}
             disabled={disableLinks}
             supportAttachment={conversation.type !== 'Thread'}
+            showTypingDuration={showTypingDuration}
+            typingStartTime={typingStartTime}
+            accumulatedTypingTime={accumulatedTypingTime}
           />
         ) : (
           <BottomAssignInfo

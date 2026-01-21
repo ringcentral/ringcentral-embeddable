@@ -15,10 +15,11 @@ import {
     'MessageThreads',
     'MessageThreadEntries',
     'ComposeTextUI',
+    'SmsTypingTimeTracker',
   ],
 })
 export class ConversationUI extends BaseConversationUI {
-  protected _alertModalId = null;
+  _alertModalId = null;
 
   getUIProps(props) {
     const baseProps = super.getUIProps(props);
@@ -30,12 +31,17 @@ export class ConversationUI extends BaseConversationUI {
       conversations,
       extensionInfo,
       messageThreads,
+      smsTypingTimeTracker,
     } = this._deps;
     if (props.params.type === 'thread' && conversations.currentMessageThread) {
       baseProps.conversation = conversations.currentMessageThread;
       baseProps.messages = conversations.currentMessageThread.messages;
       baseProps.recipients = conversations.currentMessageThread.recipients;
     }
+    // Get typing duration props for current conversation
+    const conversationId = conversations.currentConversationId;
+    const typingStartTime = conversationId ? (smsTypingTimeTracker._typingStartTimes?.[conversationId] || null) : null;
+    const accumulatedTypingTime = conversationId ? (smsTypingTimeTracker.accumulatedTypingTimes?.[conversationId] || 0) : 0;
     return {
       ...baseProps,
       showLogButton: conversationLogger.loggerSourceReady,
@@ -46,6 +52,10 @@ export class ConversationUI extends BaseConversationUI {
       showTemplateManagement: appFeatures.showSmsTemplateManage,
       myExtensionId: String(extensionInfo.id),
       threadBusy: messageThreads.busy,
+      // Typing duration tracking
+      showTypingDuration: smsTypingTimeTracker.enabled,
+      typingStartTime,
+      accumulatedTypingTime,
     };
   }
 
@@ -117,11 +127,35 @@ export class ConversationUI extends BaseConversationUI {
       messageStore,
       messageThreadEntries,
       composeTextUI,
+      smsTypingTimeTracker,
     } = this._deps;
+
+    const baseFuncs = super.getUIFunctions(options);
+
     return {
-      ...super.getUIFunctions(options),
+      ...baseFuncs,
+      updateMessageText: (text) => {
+        const conversationId = conversations.currentConversationId;
+        // Start typing tracking when there's text (startTyping handles duplicate calls internally)
+        if (conversationId && text) {
+          smsTypingTimeTracker.startTyping(conversationId);
+        }
+        conversations.updateMessageText(text);
+      },
       goBack: options.goBack ? options.goBack : () => {
         routerInteraction.push(options.conversationsPath || '/messages');
+      },
+      unloadConversation: () => {
+        // Clear if no text, pause if text exists (preserve accumulated time)
+        const conversationId = conversations.currentConversationId;
+        if (conversationId) {
+          if (conversations.messageText) {
+            smsTypingTimeTracker.pauseTyping(conversationId);
+          } else {
+            smsTypingTimeTracker.clearTyping(conversationId);
+          }
+        }
+        conversations.unloadConversation();
       },
       replyToReceivers: async (text, attachments, selectedContact) => {
         const continueSMS = await this.smsVerify(
@@ -134,7 +168,17 @@ export class ConversationUI extends BaseConversationUI {
         if (options.params.type === 'thread') {
           return this._deps.conversations.replyToThread(text);
         }
-        return conversations.replyToReceivers(text, attachments, selectedContact);
+        const conversationId = conversations.currentConversationId;
+        // Pause typing before sending - so if send fails, time won't keep accumulating
+        if (conversationId) {
+          smsTypingTimeTracker.pauseTyping(conversationId);
+        }
+        const response = await conversations.replyToReceivers(text, attachments, selectedContact);
+        // Save typing time after successful send
+        if (response && response.id && conversationId) {
+          smsTypingTimeTracker.stopTyping(conversationId, String(response.id));
+        }
+        return response;
       },
       onLogConversation: async ({ redirect = true, ...options }) => {
         await conversationLogger.logConversation({

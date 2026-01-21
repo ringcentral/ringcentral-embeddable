@@ -113,6 +113,7 @@ const {
   enableAudioInitPrompt,
   enableSharedMessages,
   enableLoadMoreCalls,
+  enableTypingTimeTracking,
   mainTab,
   enableVoicemailDrop,
 } = pathParams;
@@ -201,6 +202,7 @@ const phone = createPhone({
   autoMainTab: typeof mainTab === 'undefined',
   externalAuthId,
   enableVoicemailDrop,
+  enableTypingTimeTracking: !!enableTypingTimeTracking,
 });
 
 const store = createStore(phone.reducer);
