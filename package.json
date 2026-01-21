@@ -103,7 +103,7 @@
     "format-message": "^6.2.3",
     "isomorphic-fetch": "^3.0.0",
     "isomorphic-ws": "4.0.1",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.23",
     "mixpanel-browser": "^2.48.1",
     "moment": "^2.29.4",
     "normalize.css": "^8.0.1",
