@@ -428,6 +428,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       licenseStatus: service.licenseStatus,
       licenseStatusColor: service.licenseStatusColor,
       licenseDescription: service.licenseDescription,
+      authorizationLinks: service.authorizationLinks || [],
     });
   }
 
@@ -1391,6 +1392,10 @@ export default class ThirdPartyService extends RcModuleV2 {
   @state
   licenseDescription = '';
 
+  @globalStorage
+  @state
+  authorizationLinks: Array<{ label: string; uri: string }> = [];
+
   @action
   _onRegisterAuthorization({
     authorized,
@@ -1402,6 +1407,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     licenseStatus = '',
     licenseStatusColor = '',
     licenseDescription = '',
+    authorizationLinks = [],
   }) {
     this.authorized = authorized;
     this.authorizedTitle = authorizedTitle;
@@ -1412,6 +1418,19 @@ export default class ThirdPartyService extends RcModuleV2 {
     this.licenseStatus = licenseStatus;
     this.licenseStatusColor = licenseStatusColor;
     this.licenseDescription = licenseDescription;
+    this.authorizationLinks = authorizationLinks.filter(link => {
+      if (typeof link.label !== 'string' || typeof link.uri !== 'string') {
+        return false;
+      }
+      if (!link.uri.startsWith('http://') && !link.uri.startsWith('https://')) {
+        return false;
+      }
+      if (link.uri.indexOf('javascript') > -1) {
+        // for security reason, we don't allow javascript in uri
+        return false;
+      }
+      return true;
+    });
   }
 
   get authorizationLogo() {

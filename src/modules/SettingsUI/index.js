@@ -61,6 +61,7 @@ export class SettingsUI extends BaseSettingsUI {
         licenseStatus: thirdPartyService.licenseStatus,
         licenseStatusColor: thirdPartyService.licenseStatusColor,
         licenseDescription: thirdPartyService.licenseDescription,
+        authorizationLinks: thirdPartyService.authorizationLinks,
       } : null,
       showThemeSetting: brand.code === 'rc', // only show theme settings for rc brand now
       showSmartNoteSetting: smartNotes.hasPermission && smartNotes.clientInitialized,

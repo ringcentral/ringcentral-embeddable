@@ -83,6 +83,7 @@ interface NewSettingsPanelProps extends SettingsPanelProps {
     licenseStatus?: string;
     licenseStatusColor?: string;
     licenseDescription?: string;
+    authorizationLinks?: Array<{ label: string; uri: string }>;
   } | null;
   onThirdPartyAuthorize?: () => void;
   onThirdPartyLicenseRefresh?: () => void;
@@ -712,6 +713,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
             licenseStatus={thirdPartyAuth.licenseStatus}
             licenseStatusColor={thirdPartyAuth.licenseStatusColor}
             licenseDescription={thirdPartyAuth.licenseDescription}
+            links={thirdPartyAuth.authorizationLinks}
             onAuthorize={onThirdPartyAuthorize}
             onLicenseRefresh={onThirdPartyLicenseRefresh}
           />
