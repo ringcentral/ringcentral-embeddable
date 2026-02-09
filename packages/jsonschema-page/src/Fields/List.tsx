@@ -52,9 +52,10 @@ const StyledList = styled(RcList)`
 const StyledItem = styled(RcListItem)<{
   $hoverOnMoreMenu?: boolean
   $hasActions?: boolean
+  $readOnly?: boolean
 }>`
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
-  cursor: pointer;
+  cursor: ${({ $readOnly }) => ($readOnly ? 'default' : 'pointer')};
 
   .list-item-action-menu {
     display: none;
@@ -72,8 +73,8 @@ const StyledItem = styled(RcListItem)<{
     }
   `}
 
-  ${({ $hasActions }) =>
-    $hasActions &&
+  ${({ $hasActions, $readOnly }) =>
+    $hasActions && !$readOnly &&
     `
     &:hover {
       .list-item-action-menu {
@@ -157,6 +158,7 @@ function ListItem({
   showAsNavigation,
   actions = [],
   onClickAction,
+  readOnly,
 }) {
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
   const formattedActions = actions.map((action) => {
@@ -177,10 +179,13 @@ function ListItem({
     <StyledItem
       key={item.const}
       disabled={disabled}
-      selected={selected}
-      onClick={onClick}
+      selected={!readOnly && selected}
+      onClick={readOnly ? undefined : onClick}
+      canHover={!readOnly}
+      disableRipple={readOnly}
       $hoverOnMoreMenu={hoverOnMoreMenu}
       $hasActions={actions.length > 0}
+      $readOnly={readOnly}
     >
       {
         item.icon ? (

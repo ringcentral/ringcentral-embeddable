@@ -904,6 +904,91 @@ export const NavigationListField: Story = {
   },
 }; 
 
+// ReadOnly List
+export const ReadOnlyListField: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        readonlyList: {
+          type: 'string',
+          title: 'Account Information',
+          description: 'Read-only list displaying account details',
+          oneOf: [
+            {
+              const: 'name',
+              title: 'Account Name',
+              description: 'Acme Corporation',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+              meta: 'Verified',
+            },
+            {
+              const: 'plan',
+              title: 'Current Plan',
+              description: 'Enterprise - Annual',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+              meta: 'Active',
+            },
+            {
+              const: 'users',
+              title: 'Team Size',
+              description: '25 members',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+              meta: '5 pending',
+            },
+            {
+              const: 'storage',
+              title: 'Storage Used',
+              description: '42 GB of 100 GB',
+              icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+              meta: '42%',
+            },
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      readonlyList: {
+        'ui:field': 'list',
+        'ui:showIconAsAvatar': true,
+        'ui:showSelected': false,
+        'ui:readonly': true,
+      },
+    },
+    formData: {
+      readonlyList: '',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+
+    return (
+      <StoryLayout
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Read-Only List</h4>
+            <div style={{ fontSize: '12px', marginBottom: '15px' }}>
+              <p>This list is read-only: items are not clickable, no hover effects, no selection highlight, and cursor is default.</p>
+              <p>Set <code>ui:readonly: true</code> in uiSchema to enable.</p>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>Form Data</h4>
+            <pre style={{ fontSize: '11px', overflow: 'auto', maxHeight: '200px', margin: 0, background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+              {JSON.stringify(formData, null, 2)}
+            </pre>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+        />
+      </StoryLayout>
+    );
+  },
+};
+
 // List with Actions
 
 export const ListWithActions: Story = {
