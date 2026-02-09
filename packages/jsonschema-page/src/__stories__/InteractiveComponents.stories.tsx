@@ -940,6 +940,7 @@ export const ListWithActions: Story = {
                 { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
                 { id: 'read', title: 'Mark as unread', icon: 'read' },
                 { id: 'unread', title: 'Mark as read', icon: 'unread' },
+                { id: 'settings', title: 'Settings', icon: 'settings' },
               ],
             },
             {
@@ -964,6 +965,7 @@ export const ListWithActions: Story = {
                 { id: 'insertLink', title: 'Insert Link', icon: 'insertLink' },
                 { id: 'connect', title: 'Connect', icon: 'connect' },
                 { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
+                { id: 'settings', title: 'Settings', icon: 'settings' },
               ],
             },
             {
@@ -988,6 +990,7 @@ export const ListWithActions: Story = {
                 { id: 'insertLink', title: 'Insert Link', icon: 'insertLink' },
                 { id: 'connect', title: 'Connect', icon: 'connect' },
                 { id: 'viewLog', title: 'View Log', icon: 'viewLog' },
+                { id: 'settings', title: 'Settings', icon: 'settings' },
               ],
             },
           ],

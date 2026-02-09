@@ -40,6 +40,7 @@ import {
   ViewLogBorder,
   Read,
   Unread,
+  SettingsBorder,
 } from '@ringcentral/juno-icon';
 
 import { ActionMenu } from '../components/ActionMenu';
@@ -144,6 +145,7 @@ const ICONS_MAP = {
   'viewLog': ViewLogBorder,
   'read': Read,
   'unread': Unread,
+  'settings': SettingsBorder,
 };
 
 function ListItem({
