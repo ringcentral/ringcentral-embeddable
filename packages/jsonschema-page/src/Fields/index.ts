@@ -6,6 +6,7 @@ import { Button } from './Button';
 import { List } from './List';
 import { Link } from './Link';
 import { Search } from './Search';
+import { Image } from './Image';
 
 export const fields: RegistryFieldsType = {
   admonition: Alert,
@@ -14,4 +15,5 @@ export const fields: RegistryFieldsType = {
   list: List,
   link: Link,
   search: Search,
+  image: Image,
 };

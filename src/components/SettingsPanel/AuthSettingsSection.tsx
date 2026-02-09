@@ -3,6 +3,7 @@ import type { FunctionComponent } from 'react';
 
 import {
   RcButton,
+  RcLink,
   RcListItemText,
   RcTypography,
   styled,
@@ -74,6 +75,24 @@ const RefreshIcon = styled(RcIconButton)`
   margin-left: 4px;
 `;
 
+const LinkGroup = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  line-height: 1.5;
+
+  a {
+    font-size: inherit;
+    line-height: inherit;
+  }
+`;
+
+const Separator = styled.span`
+  margin: 0 4px;
+`;
+
 interface AuthorizeSettingsSectionProps {
   serviceName: string;
   onAuthorize: (...args: any[]) => any;
@@ -90,6 +109,7 @@ interface AuthorizeSettingsSectionProps {
   licenseDescription?: string;
   licenseStatusColor?: string;
   onLicenseRefresh?: () => void;
+  links?: Array<{ label: string; uri: string }>;
 }
 
 export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProps> = ({
@@ -108,6 +128,7 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
   showAuthRedDot,
   showAuthButton,
   onLicenseRefresh,
+  links = [],
 }) => {
   let status = authorized ? authorizedTitle : unauthorizedTitle;
   if (authorized && contactSyncing) {
@@ -178,6 +199,20 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
               ) : (
                 null
               )
+            }
+            {
+              links.length > 0 ? (
+                <LinkGroup>
+                  {links.map((link, index) => (
+                    <React.Fragment key={link.uri}>
+                      {index > 0 && <Separator>|</Separator>}
+                      <RcLink href={link.uri} target="_blank">
+                        {link.label}
+                      </RcLink>
+                    </React.Fragment>
+                  ))}
+                </LinkGroup>
+              ) : null
             }
           </>
         }

@@ -314,6 +314,129 @@ export const AlertFields: Story = {
   },
 };
 
+// Image Fields
+export const ImageFields: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        basicImage: {
+          type: 'string',
+          title: 'Basic Image',
+          description: 'A simple image from ui:src',
+        },
+        styledImage: {
+          type: 'string',
+          title: 'Styled Image',
+          description: 'Image with custom styles',
+        },
+        clickableImage: {
+          type: 'string',
+          title: 'Clickable Image',
+          description: 'Click this image to trigger an action',
+        },
+        linkedImage: {
+          type: 'string',
+          title: 'Linked Image',
+          description: 'Click to open a URL',
+        },
+        formDataImage: {
+          type: 'string',
+          title: 'Image from Form Data',
+          description: 'Image source provided via formData',
+        },
+      },
+    },
+    uiSchema: {
+      basicImage: {
+        'ui:field': 'image',
+        'ui:src': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+        'ui:alt': 'React Logo',
+      },
+      styledImage: {
+        'ui:field': 'image',
+        'ui:src': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+        'ui:alt': 'TypeScript Logo',
+        'ui:style': {
+          width: '120px',
+          height: '120px',
+          borderRadius: '16px',
+          margin: '0 auto',
+          backgroundColor: '#f0f0f0',
+          padding: '10px',
+        },
+      },
+      clickableImage: {
+        'ui:field': 'image',
+        'ui:src': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+        'ui:alt': 'JavaScript Logo',
+        'ui:clickable': true,
+        'ui:style': {
+          width: '80px',
+          height: '80px',
+        },
+      },
+      formDataImage: {
+        'ui:field': 'image',
+        'ui:alt': 'Dynamic Image',
+        'ui:style': {
+          width: '100px',
+          height: '100px',
+          objectFit: 'contain',
+        },
+      },
+    },
+    formData: {
+      formDataImage: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    const [clickCount, setClickCount] = useState(0);
+
+    return (
+      <StoryLayout
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Image Field Features</h4>
+            <div style={{ fontSize: '12px', marginBottom: '15px' }}>
+              <p>Basic: Simple image from ui:src</p>
+              <p>Styled: Custom size, border radius, centering via ui:style</p>
+              <p>Clickable: Triggers onButtonClick (clicks: {clickCount})</p>
+              <p>FormData: Image source from formData</p>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>UI Schema Options</h4>
+            <div style={{ fontSize: '11px', color: '#666' }}>
+              <p>ui:src - Image URL</p>
+              <p>ui:alt - Alt text</p>
+              <p>ui:style - CSS styles object</p>
+              <p>ui:clickable - Trigger onButtonClick</p>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>Form Data</h4>
+            <pre style={{ fontSize: '11px', overflow: 'auto', maxHeight: '200px', margin: 0, background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+              {JSON.stringify(formData, null, 2)}
+            </pre>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+          onButtonClick={(buttonId: string) => {
+            if (buttonId === 'clickableImage') {
+              setClickCount((prev) => prev + 1);
+            }
+            console.log('Image clicked:', buttonId);
+            args.onButtonClick?.(buttonId as any);
+          }}
+        />
+      </StoryLayout>
+    );
+  },
+};
+
 // Link Fields
 export const LinkFields: Story = {
   args: {
