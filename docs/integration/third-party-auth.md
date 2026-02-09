@@ -9,22 +9,28 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-register-third-party-service',
   service: {
     name: 'TestService',
-    displayName: 'TestServiceDisplayName', // Optional, supported from 2.0.1
+    displayName: 'TestService', // Optional, supported from 2.0.1
     info: 'Some description about this service', // Optional, supported from 2.0.0
     authorizationPath: '/authorize',
-    authorizedTitle: 'Unauthorize',
-    unauthorizedTitle: 'Authorize',
+    authorizedTitle: 'Logout', // authorized button title in authorization section.
+    unauthorizedTitle: 'Connect', // unauthorized button title in authorization section.
     authorized: false,
     authorizedAccount: 'test@email.com', // optional, authorized account email or id
     authorizationLogo: 'https://your_brand_picture/logo.png', // optional, show your brand logo in authorization section, recommended: height 30px, width < 85px.
     // showAuthRedDot: true, // optional, this will show red dot at settings page when need to auth
+    // licenseStatus: 'License: expired', // optional, supported from 3.0.0. To show license status in authorization section.
+    // licenseDescription: 'Please purchase license at [here](https://www.ringcentral.com/). To use this feature, you need to purchase a license.',
+    authorizationLinks: [
+      { label: 'Support', uri: 'https://www.ringcentral.com/contact' },
+      { label: 'Terms of use', uri: 'https://www.ringcentral.com/terms' },
+    ], // optional, supported from 3.0.0. To add more links to authorization section.
   }
 }, '*');
 ```
 
 After registered, you can get a `TestService authorization button` in setting page:
 
-![authorization image](https://user-images.githubusercontent.com/7036536/55848678-55817600-5b80-11e9-8eb3-a784a56997a8.jpeg)
+![authorization image](../assets/authorization-section.png)
 
 Add a message event to response authorization button event:
 
