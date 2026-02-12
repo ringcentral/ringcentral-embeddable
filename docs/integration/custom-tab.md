@@ -16,11 +16,12 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     title: 'CRM',
     type: 'tab', // tab type
     iconUri: 'https://xxx/icon.png', // icon for tab, 24x24, recommended color: #16181D
-    activeIconUri: 'https://xxx/icon-active.png', // icon for tab in active status, 24x24, recommended color: ##2559E4
+    activeIconUri: 'https://xxx/icon-active.png', // icon for tab in active status, 24x24, recommended color: #2559E4
     darkIconUri: 'https://xxx/icon-dark.png', // Supported from v2.2.1, icon for tab in dark mode, 24x24, recommended color: #ffffff
     hidden: false, // optional, default false, whether to hide the tab icon from navigation bar
     unreadCount: 0, // optional, unread count, 0-99
-    priority: 31, // tab priority, 0-100, 0 is the highest priority, Phone tab: 10, Text: 20, Fax: 30, Glip: 40, Contacts: 50, Video: 60, Settings: 70
+    priority: 31, // tab priority, 0-100, 0 is the highest priority, Phone: 10, Text: 20, Contacts: 30, Glip: 40, Video: 50, Fax: 60, Settings: 70
+    actions: [], // optional, header actions, see "Register tab header actions" section below
     // schema and uiSchema are used to customize page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)
     schema: {
       type: 'object',
@@ -142,13 +143,16 @@ window.addEventListener('message', function (e) {
       return;
     }
     if (data.path === '/button-click') {
-      if (data.body.button.id === 'page1') {
+      if (data.body.button.type === 'customizedTabAction') {
+        // tab header action clicked, supported from v3.x
+        console.log('Tab action clicked:', data.body.button.id);
+        console.log('Tab id:', data.body.button.tabId);
+      } else if (data.body.button.id === 'page1') {
         // on submit button click
         // button id is the page id
         console.log('Save button clicked');
         // ...
-      }
-      if (data.body.button.id === 'openSettingsButton') {
+      } else if (data.body.button.id === 'openSettingsButton') {
         // click on the button registered in schema, button id is the button key
         console.log('Open settings button clicked');
         // ...
@@ -164,6 +168,66 @@ window.addEventListener('message', function (e) {
 ```
 
 When the user clicks the button, you will receive a message with the path `/button-click`. When the user changes the input, you will receive a message with the path `/customizedPage/inputChanged`.
+
+## Register tab header actions
+
+<!-- md:version 3.0.0 -->
+
+You can register actions that are displayed as icon buttons in the tab's header (top-right area). Currently supported icon types are `settings`, `new`, `refresh`, `download`, and `edit`.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-customized-page',
+  page: {
+    id: 'tabID',
+    title: 'CRM',
+    type: 'tab',
+    iconUri: 'https://xxx/icon.png',
+    activeIconUri: 'https://xxx/icon-active.png',
+    priority: 31,
+    actions: [
+      { id: 'refreshData', icon: 'refresh', title: 'Refresh' },
+      { id: 'openSettings', icon: 'settings', title: 'Settings' },
+      { id: 'createNew', icon: 'new', title: 'New Item' },
+      { id: 'download', icon: 'download', title: 'Download' },
+      { id: 'edit', icon: 'edit', title: 'Edit' },
+    ],
+    schema: { /* ... */ },
+    uiSchema: { /* ... */ },
+    formData: { /* ... */ },
+  },
+}, '*');
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `actions[].id` | string | Action id, required. Used to identify the action in click events |
+| `actions[].icon` | string | Icon type, required. Supported values: `settings`, `new`, `refresh`, `download`, `edit` |
+| `actions[].title` | string | Tooltip text for the action button |
+
+When a user clicks a tab header action, you will receive a message at `buttonEventPath`:
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    if (data.path === '/button-click') {
+      if (data.body.button.type === 'customizedTabAction') {
+        console.log('Tab action clicked:', data.body.button.id); // action id, e.g. 'refreshData'
+        console.log('Tab id:', data.body.button.tabId); // tab id, e.g. 'tabID'
+      }
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' },
+      }, '*');
+    }
+  }
+});
+```
+
+!!! note "Prerequisite"
+    Make sure you have registered `buttonEventPath` in your service registration. See [Handle button clicked and input changed event](#handle-button-clicked-and-input-changed-event) below.
 
 ## Show list in customized tab
 
@@ -181,7 +245,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     iconUri: 'https://xxx/icon.png', // icon for tab, 24x24
     activeIconUri: 'https://xxx/icon-active.png', // icon for tab in active status, 24x24
     priority: 31,
-    // schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)
+    // schema and uiSchema are used to customize page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)
     schema: {
       type: 'object',
       required: [],
