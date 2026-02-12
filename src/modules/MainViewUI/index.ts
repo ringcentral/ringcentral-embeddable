@@ -91,6 +91,7 @@ export class MainViewUI extends RcUIModuleV2 {
       routerInteraction,
       sideDrawerUI,
       composeTextUI,
+      thirdPartyService,
     } = this._deps;
     return {
       goTo: (path) => {
@@ -103,6 +104,9 @@ export class MainViewUI extends RcUIModuleV2 {
       },
       gotoComposeText: () => {
         composeTextUI.gotoComposeText();
+      },
+      onCustomizedTabActionClick: (tabId: string, actionId: string) => {
+        thirdPartyService.onClickCustomizedTabAction(tabId, actionId);
       },
     };
   }

@@ -1703,6 +1703,19 @@ export default class ThirdPartyService extends RcModuleV2 {
     });
   }
 
+  async onClickCustomizedTabAction(tabId: string, actionId: string) {
+    if (!this._additionalButtonPath) {
+      return;
+    }
+    await requestWithPostMessage(this._additionalButtonPath, {
+      button: {
+        id: actionId,
+        type: 'customizedTabAction',
+        tabId,
+      },
+    });
+  }
+
   @computed(that => [that.customizedPages])
   get customizedTabs() {
     return this.customizedPages.filter(x => x.type === 'tab').map(tab => ({
@@ -1715,6 +1728,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       unreadCount: tab.unreadCount,
       path: `/customizedTabs/${tab.id}`,
       hidden: tab.hidden,
+      actions: tab.actions || [],
     }));
   }
 

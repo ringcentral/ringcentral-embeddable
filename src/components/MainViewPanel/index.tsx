@@ -17,10 +17,22 @@ import {
   Fax,
   SmsBorder,
   Sms,
+  Refresh,
+  NewAction,
+  Download,
+  Edit,
 } from '@ringcentral/juno-icon';
 import { TabNavigationView } from '../TabNavigationView';
 
 import i18n from './i18n';
+
+const tabActionIconMap: Record<string, ReactNode> = {
+  settings: SettingsBorder,
+  new: NewAction,
+  refresh: Refresh,
+  download: Download,
+  edit: Edit,
+};
 
 type Tab = {
   icon?: ReactNode,
@@ -65,6 +77,7 @@ export const MainViewPanel = (props) => {
     customizedTabs = [],
     themeType,
     gotoComposeText,
+    onCustomizedTabActionClick,
   } = props;
   const tabList: Tab[] = [];
   if (showPhone) {
@@ -223,6 +236,17 @@ export const MainViewPanel = (props) => {
     if (themeType === 'dark' && customTab.darkIconUri) {
       iconUri = customTab.darkIconUri;
     }
+    const actions = (customTab.actions || [])
+      .filter((action) => action.id && tabActionIconMap[action.icon])
+      .map((action) => ({
+        icon: tabActionIconMap[action.icon],
+        title: action.title || action.id,
+        onClick: () => {
+          if (onCustomizedTabActionClick) {
+            onCustomizedTabActionClick(customTab.id, action.id);
+          }
+        },
+      }));
     tabList.push({
       label: customTab.label,
       path: customTab.path,
@@ -234,6 +258,7 @@ export const MainViewPanel = (props) => {
       iconUri,
       activeIconUri: customTab.activeIconUri,
       hideSideDrawerExtendedButton: true,
+      actionsInHeaderRight: actions,
     });
   });
 
