@@ -425,9 +425,8 @@
 }
 
 .CircleButton_btnSvgGroup {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+       user-select: none;
   user-drag: none;
   cursor: pointer;
 }
@@ -875,9 +874,8 @@
   position: relative;
   display: inline;
   vertical-align: middle;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+       user-select: none;
   user-drag: none;
   cursor: pointer;
   color: var(--darkgray);
@@ -1077,7 +1075,6 @@
   box-sizing: border-box;
   display: inline-block;
   cursor: pointer;
-  -webkit-text-decoration: none;
   text-decoration: none;
   margin: 0px;
   padding: 0px;
@@ -1086,7 +1083,6 @@
   z-index: 1;
   color: var(--primary-color);
   transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
   overflow: hidden;
@@ -1533,9 +1529,8 @@ div[class*=MuiCircularProgress-indeterminate] {
 }
 
 .InputField_inputHolder {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+       user-select: none;
   user-drag: none;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
@@ -1671,7 +1666,6 @@ div[class*=MuiCircularProgress-indeterminate] {
 }
 
 .MeetingAlert_underline {
-  -webkit-text-decoration: underline !important;
   text-decoration: underline !important;
 }
 
@@ -1744,9 +1738,8 @@ div.ExtendedTooltip_meetingSettings div.ExtendedTooltip_meetingTimePicker {
 }
 div.ExtendedTooltip_videoConfig div.ExtendedTooltip_accordionSummaryDisabled {
   opacity: inherit;
-  -webkit-user-select: inherit;
-     -moz-user-select: inherit;
-          user-select: inherit;
+  -moz-user-select: inherit;
+       user-select: inherit;
 }
 
 div.ExtendedTooltip_videoConfig div.ExtendedTooltip_accordion div.ExtendedTooltip_accordionSummary {
@@ -1994,9 +1987,8 @@ div.MeetingConfigsV2_meetingSettings div.MeetingConfigsV2_meetingTimePicker {
 }
 div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_accordionSummaryDisabled {
   opacity: inherit;
-  -webkit-user-select: inherit;
-     -moz-user-select: inherit;
-          user-select: inherit;
+  -moz-user-select: inherit;
+       user-select: inherit;
 }
 
 div.MeetingConfigsV2_videoConfig div.MeetingConfigsV2_accordion div.MeetingConfigsV2_accordionSummary {
@@ -2180,9 +2172,8 @@ div.SettingGroup_accordion div.SettingGroup_accordionSummary {
 }
 div.SettingGroup_accordion div.SettingGroup_accordionSummary.SettingGroup_accordionSummaryDisabled {
   opacity: inherit;
-  -webkit-user-select: inherit;
-     -moz-user-select: inherit;
-          user-select: inherit;
+  -moz-user-select: inherit;
+       user-select: inherit;
 }
 div.SettingGroup_accordion div.SettingGroup_accordionSummary div.SettingGroup_accordionSummaryContent {
   margin: 0 0;
@@ -2388,7 +2379,6 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 }
 
 .VideoPanel_underline {
-  -webkit-text-decoration: underline !important;
   text-decoration: underline !important;
 }
 
@@ -2398,7 +2388,6 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 }
 
 .VideoPanel_noUnderLine {
-  -webkit-text-decoration: none !important;
   text-decoration: none !important;
 }
 .GenericMeetingPanel_wrapper {
@@ -2422,17 +2411,14 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
   line-height: 22px;
   box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.4);
   cursor: pointer;
-  -webkit-text-decoration: none;
   text-decoration: none;
 }
 .Badge_root:focus {
   outline: none;
-  -webkit-text-decoration: none;
   text-decoration: none;
   color: #fff;
 }
 .Badge_root:hover {
-  -webkit-text-decoration: none;
   text-decoration: none;
   color: #fff;
 }
@@ -2843,13 +2829,11 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
   margin-left: -5px;
 }
 .RemoveButton_container {
-  -webkit-text-decoration: none;
   text-decoration: none;
   color: #666666;
   cursor: pointer;
 }
 .RemoveButton_container:hover {
-  -webkit-text-decoration: none;
   text-decoration: none;
   color: #666666;
 }
@@ -2876,7 +2860,6 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 
 .RemoveButton_hideRemoveButton {
   color: transparent;
-  -webkit-text-decoration: none !important;
   text-decoration: none !important;
   cursor: inherit;
 }
@@ -2900,7 +2883,6 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
   box-sizing: content-box;
 }
 .RecipientsInput_container a {
-  -webkit-text-decoration: none;
   text-decoration: none;
 }
 
@@ -3052,7 +3034,6 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 }
 .ContactDropdownList_dropdownList li a {
   color: inherit;
-  -webkit-text-decoration: none;
   text-decoration: none;
 }
 
@@ -3135,14 +3116,12 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
   left: 15px;
   font-size: 13px;
   color: #666;
-  -webkit-text-decoration: none;
   text-decoration: none;
   transform: rotate(90deg);
   cursor: pointer;
 }
 .ConversationPanel_backButton:hover {
   color: #666;
-  -webkit-text-decoration: none;
   text-decoration: none;
 }
 
@@ -3351,9 +3330,8 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
 }
 
 .IconField_iconHolder {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+       user-select: none;
   user-drag: none;
   display: inline-block;
   position: relative;
@@ -3367,9 +3345,8 @@ label.VideoPanel_labelPlacementEndRoot .VideoPanel_labelText {
   position: relative;
   display: inline;
   vertical-align: middle;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+       user-select: none;
   user-drag: none;
   display: inline-block;
   font-size: 14px;

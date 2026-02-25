@@ -14,7 +14,7 @@
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".Adapter_centerStyle, .Adapter_button, .Adapter_presence, .Adapter_logo {\n  top: 50%;\n  position: absolute;\n}\n\n.Adapter_root {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  user-drag: none;\n  box-sizing: border-box;\n  padding: 0;\n  border-radius: 3px;\n  position: fixed;\n  display: block;\n  visibility: visible;\n  bottom: 0;\n  background-color: #fff;\n  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.1s 0s ease-in-out;\n  z-index: 99999;\n  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);\n  overflow: hidden;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_dragging {\n  transition: opacity 0.1s 0s linear;\n}\n\n.Adapter_root.Adapter_closed {\n  visibility: hidden;\n  opacity: 0;\n}\n\n.Adapter_root.Adapter_loading {\n  display: none;\n}\n\n.Adapter_header {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  user-drag: none;\n  position: relative;\n  height: 36px;\n  line-height: 36px;\n  min-width: 134px;\n  text-align: center;\n  cursor: move;\n  z-index: 11;\n  overflow: hidden;\n  font-family: Helvetica;\n  font-weight: normal;\n  border-bottom: 1px solid #e8e9ed;\n  box-sizing: border-box;\n}\n\n.Adapter_minimized.Adapter_header {\n  border-bottom: none;\n  cursor: ew-resize;\n}\n\n.Adapter_logo {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  user-drag: none;\n  left: 50%;\n  height: 18px;\n  width: 84px;\n  margin-top: -7px;\n  margin-left: -46px;\n  display: none;\n}\n\n.Adapter_logo.Adapter_visible {\n  display: inline-block;\n}\n\n.Adapter_presence {\n  left: 20px;\n  height: 14px;\n  width: 14px;\n  border-radius: 8px;\n  margin-top: -7px;\n  display: none;\n  cursor: pointer;\n}\n\n.Adapter_dropdownPresence {\n  display: none;\n  position: absolute;\n  width: 100%;\n  height: 100vh;\n}\n\n.Adapter_showDropdown {\n  display: block;\n}\n\n.Adapter_presenceItem {\n  padding: 10px 15px;\n  display: block;\n  cursor: pointer;\n  -webkit-text-decoration: none;\n  text-decoration: none;\n  text-align: left;\n}\n.Adapter_presenceItem:hover {\n  background-color: #f5f5f5;\n}\n\n.Adapter_selected {\n  color: #066fac;\n}\n\n.Adapter_line {\n  position: relative;\n  width: 160px;\n  min-width: 134px;\n  left: 5px;\n  padding: 0;\n  min-height: 30px;\n  box-sizing: border-box;\n  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);\n  background-color: #ffffff;\n  border-style: solid;\n  border-width: 0;\n  border-top-width: 1px;\n  border-bottom-width: 0px;\n  border-color: #eeeeee;\n  border-radius: 4px;\n  font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  color: #2f2f2f;\n}\n.Adapter_line .Adapter_horizontal {\n  display: inline-flex;\n}\n.Adapter_line .Adapter_clickable {\n  cursor: pointer;\n}\n.Adapter_line .Adapter_noborder {\n  border: none;\n}\n\n.Adapter_minimized .Adapter_presence {\n  left: 10px;\n}\n\n.Adapter_Offline {\n  display: block;\n  background: #cdcdcd;\n}\n\n.Adapter_Busy {\n  display: block;\n  background: #f95b5c;\n}\n\n.Adapter_Available {\n  display: block;\n  background-color: #32ae31;\n}\n\n.Adapter_presenceBar {\n  display: none;\n  position: absolute;\n  width: 8px;\n  height: 2px;\n  border-radius: 1.5px;\n  background-color: #ffffff;\n  transform-origin: 50% 50%;\n  transform: translate(3px, 6px);\n}\n\n.Adapter_DoNotAcceptAnyCalls {\n  display: block;\n  background: #f95b5c;\n}\n.Adapter_DoNotAcceptAnyCalls .Adapter_presenceBar {\n  display: block;\n}\n\n.Adapter_statusIcon {\n  display: inline-block;\n  position: relative;\n  margin-right: 5px;\n  top: 2px;\n  left: 0;\n  margin-top: 0;\n}\n\n.Adapter_button {\n  box-sizing: border-box;\n  height: 20px;\n  width: 20px;\n  margin-top: -10px;\n  border-radius: 3px;\n  cursor: pointer;\n  border-style: solid;\n  border-width: 1px;\n  border-color: transparent;\n}\n\n.Adapter_toggle {\n  right: 44px;\n}\n\n.Adapter_minimized .Adapter_toggle {\n  right: -18px;\n}\n\n.Adapter_minimizeIcon {\n  position: absolute;\n  box-sizing: border-box;\n  left: 3px;\n  bottom: 7px;\n  width: 12px;\n  height: 2px;\n  border: 1px solid #888888;\n}\n\n.Adapter_minimized .Adapter_minimizeIcon {\n  height: 12px;\n  bottom: 3px;\n}\n\n.Adapter_minimizeIconBar {\n  width: 100%;\n  height: 1px;\n  background-color: #888888;\n}\n\n.Adapter_close {\n  right: 16px;\n}\n\n.Adapter_minimized .Adapter_close {\n  display: none;\n}\n\n.Adapter_closeIcon {\n  position: relative;\n  overflow: hidden;\n  margin: 2px;\n  width: 14px;\n  height: 14px;\n}\n.Adapter_closeIcon :first-child,\n.Adapter_closeIcon :last-child {\n  position: absolute;\n  height: 2px;\n  width: 100%;\n  top: 6px;\n  left: 0;\n  background: #888888;\n  border-radius: 1px;\n}\n.Adapter_closeIcon :first-child {\n  transform: rotate(45deg);\n}\n.Adapter_closeIcon :last-child {\n  transform: rotate(-45deg);\n}\n\n.Adapter_contentFrame {\n  display: block;\n  border: none;\n  width: 0;\n  height: 0;\n}\n\n.Adapter_frameContainer {\n  overflow: hidden;\n  transition: width 0.1s 0s ease-in-out, height 0.1s 0s ease-in-out;\n}\n\n@keyframes Adapter_glow {\n  0% {\n    box-shadow: inset 0 0 7px -10px #2559E4;\n  }\n  40%, 50% {\n    box-shadow: inset 0 0 7px 0px #2559E4;\n  }\n  100% {\n    box-shadow: inset 0 0 7px -10px #2559E4;\n  }\n}\n.Adapter_minimized.Adapter_ringing {\n  animation-name: Adapter_glow;\n  animation-duration: 2s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: infinite;\n}\n\n@keyframes Adapter_moveIn {\n  0% {\n    display: none;\n    top: -50%;\n  }\n  100% {\n    display: inline-block;\n    top: 50%;\n  }\n}\n@keyframes Adapter_moveOut {\n  0% {\n    display: inline-block;\n    top: 50%;\n  }\n  100% {\n    top: 150%;\n    display: none;\n  }\n}\n.Adapter_moveIn {\n  animation-name: Adapter_moveIn;\n  animation-duration: 1s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n}\n\n.Adapter_moveOut {\n  animation-name: Adapter_moveOut;\n  animation-duration: 1s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n}\n\n.Adapter_duration.Adapter_visible,\n.Adapter_ringingCalls.Adapter_visible,\n.Adapter_onHoldCalls.Adapter_visible,\n.Adapter_otherDeviceCalls.Adapter_visible {\n  top: 50%;\n}\n\n.Adapter_duration {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  height: 16px;\n  line-height: 16px;\n  margin-top: -8px;\n  color: #666666;\n  font-size: 12px;\n  white-space: nowrap;\n  width: 33px;\n  margin-left: -60px;\n  cursor: pointer;\n}\n\n.Adapter_duration.Adapter_center {\n  margin-left: -16px;\n}\n\n.Adapter_ringingCalls,\n.Adapter_onHoldCalls,\n.Adapter_otherDeviceCalls {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  height: 16px;\n  line-height: 16px;\n  margin-top: -8px;\n  color: #666666;\n  font-size: 12px;\n  white-space: nowrap;\n  width: 100px;\n  margin-left: -100px;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  text-align: center;\n}\n\n.Adapter_ringingCalls.Adapter_center,\n.Adapter_onHoldCalls.Adapter_center,\n.Adapter_otherDeviceCalls.Adapter_center {\n  margin-left: -50px;\n}\n\n.Adapter_currentCallBtn {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  padding: 0 5px;\n  height: 18px;\n  line-height: 18px;\n  border-radius: 10.5px;\n  font-size: 11px;\n  margin-top: -10px;\n  margin-left: -13px;\n  overflow: hidden;\n  white-space: nowrap;\n  min-width: 66px;\n  max-width: 110px;\n  cursor: pointer;\n  border: solid 1px #5fb95c;\n  color: #5fb95c;\n}\n\n.Adapter_currentCallBtn.Adapter_visible {\n  display: inline-block;\n  margin-top: -10px;\n  top: 50%;\n}\n\n.Adapter_currentCallBtn:hover {\n  color: #5fb95c;\n}\n\n.Adapter_currentCallBtn.Adapter_left {\n  margin-left: -80px;\n}\n\n.Adapter_viewCallsBtn {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  padding: 0 5px;\n  height: 18px;\n  line-height: 18px;\n  border-radius: 10.5px;\n  font-size: 11px;\n  margin-top: -10px;\n  margin-left: -13px;\n  overflow: hidden;\n  white-space: nowrap;\n  min-width: 66px;\n  max-width: 110px;\n  cursor: pointer;\n  border: solid 1px #ff8800;\n  color: #ff8800;\n  margin-left: 0;\n}\n\n.Adapter_viewCallsBtn:hover {\n  color: #ff8800;\n}\n\n.Adapter_viewCallsBtn.Adapter_visible {\n  display: inline-block;\n  margin-top: -10px;\n  top: 50%;\n}\n\n.Adapter_hack {\n  background: url(\"https://{{rc-styles}}\");\n}\n\n.Adapter_root {\n  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.2s 0s ease-in-out, width 0.2s ease-in-out;\n  background-color: #fff;\n  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);\n}\n\n.Adapter_dark.Adapter_root {\n  background-color: #282A32;\n}\n\n.Adapter_root.Adapter_dock {\n  top: auto !important;\n  top: initial !important;\n  border-radius: 0 !important;\n  width: 300px;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized {\n  width: 60px;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized.Adapter_noPresence {\n  width: 35px;\n}\n\n.Adapter_root .Adapter_logo {\n  width: 92px;\n  height: 14px;\n  margin-top: -7px;\n  margin-left: -46px;\n}\n\n.Adapter_root .Adapter_header {\n  border-bottom: 1px solid #e8e9ed;\n  min-width: 165px;\n}\n\n.Adapter_dark .Adapter_header {\n  border-bottom: 1px solid #30323A;\n}\n\n.Adapter_root .Adapter_button {\n  margin-top: -10px;\n}\n\n.Adapter_iconTrans .Adapter_presence {\n  opacity: 1 !important;\n}\n.Adapter_iconTrans .Adapter_iconContainer {\n  opacity: 0 !important;\n}\n.Adapter_iconTrans .Adapter_logo {\n  opacity: 1 !important;\n}\n\n.Adapter_iconContainer {\n  display: none;\n}\n\n.Adapter_close {\n  display: none;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized .Adapter_toggle {\n  right: -10px;\n}\n\n.Adapter_dock.Adapter_minimized.Adapter_expandable {\n  width: 140px !important;\n}\n\n.Adapter_dock .Adapter_minimized.Adapter_header {\n  line-height: normal;\n  line-height: initial;\n  cursor: pointer;\n}\n.Adapter_dock .Adapter_minimized .Adapter_presence {\n  width: 12px;\n  height: 12px;\n  margin-top: -6px;\n  z-index: 2;\n  transition: 0.2s;\n}\n.Adapter_dock .Adapter_minimized .Adapter_presenceBar {\n  transform: translate(2px, 5px);\n}\n.Adapter_dock .Adapter_minimized .Adapter_logo {\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.Adapter_dock .Adapter_minimized .Adapter_iconContainer {\n  z-index: 2147483648;\n  top: 7px;\n  position: absolute;\n  left: 30px;\n  height: 22px;\n  width: 22px;\n  display: block;\n  cursor: pointer;\n  opacity: 1;\n  transition: 0.2s;\n  display: flex;\n}\n.Adapter_dock .Adapter_minimized .Adapter_iconContainer .Adapter_icon {\n  width: 22px;\n  height: 22px;\n  display: inline-block;\n}\n.Adapter_dock .Adapter_minimized .Adapter_noPresence {\n  left: 7px !important;\n}\n\n.Adapter_iconContainer.Adapter_hidden {\n  display: none;\n}\n\n.Adapter_viewCallsBtn.Adapter_visible {\n  margin-left: 20px;\n}\n.Adapter_viewCallsBtn.Adapter_moveIn {\n  margin-left: 20px;\n}\n.Adapter_viewCallsBtn.Adapter_moveOut {\n  margin-left: 20px;\n}\n\n.Adapter_ringingCalls.Adapter_visible, .Adapter_onHoldCalls.Adapter_visible {\n  margin-left: -80px;\n}\n.Adapter_ringingCalls.Adapter_moveIn, .Adapter_onHoldCalls.Adapter_moveIn {\n  margin-left: -80px;\n}\n.Adapter_ringingCalls.Adapter_moveOut, .Adapter_onHoldCalls.Adapter_moveOut {\n  margin-left: -80px;\n}\n\n.Adapter_popup {\n  right: 33px;\n  display: none;\n}\n\n.Adapter_showPopup .Adapter_popup {\n  display: block;\n}\n\n.Adapter_minimized .Adapter_popup {\n  display: none;\n}\n\n.Adapter_popupIcon img {\n  position: absolute;\n  top: 4px;\n  left: 1px;\n  width: 14px;\n}\n\n.Adapter_hideToggleButton .Adapter_toggle {\n  display: none;\n}\n.Adapter_hideToggleButton .Adapter_popup {\n  right: 10px;\n}\n\n.Adapter_feedback {\n  width: 22px;\n  height: 22px;\n  display: none;\n}\n\n.Adapter_feedbackIcon {\n  width: 22px;\n  height: 22px;\n}\n\n.Adapter_showFeedback .Adapter_feedback {\n  display: block;\n}\n\n.Adapter_minimized .Adapter_feedback {\n  display: none;\n}\n\n.Adapter_buttons {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  height: 100%;\n}\n\n.Adapter_root .Adapter_button {\n  margin-left: 3px;\n  position: relative;\n  top: auto;\n  left: auto;\n  right: auto;\n  margin-top: 0;\n}\n\n.Adapter_dark .Adapter_line {\n  background-color: #282A32;\n  border-color: #30323A;\n  color: #ffffff;\n}\n\n.Adapter_dark .Adapter_presenceItem:hover {\n  background-color: #30323A;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".Adapter_centerStyle, .Adapter_button, .Adapter_presence, .Adapter_logo {\n  top: 50%;\n  position: absolute;\n}\n\n.Adapter_root {\n  -moz-user-select: none;\n       user-select: none;\n  user-drag: none;\n  box-sizing: border-box;\n  padding: 0;\n  border-radius: 3px;\n  position: fixed;\n  display: block;\n  visibility: visible;\n  bottom: 0;\n  background-color: #fff;\n  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.1s 0s ease-in-out;\n  z-index: 99999;\n  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);\n  overflow: hidden;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_dragging {\n  transition: opacity 0.1s 0s linear;\n}\n\n.Adapter_root.Adapter_closed {\n  visibility: hidden;\n  opacity: 0;\n}\n\n.Adapter_root.Adapter_loading {\n  display: none;\n}\n\n.Adapter_header {\n  -moz-user-select: none;\n       user-select: none;\n  user-drag: none;\n  position: relative;\n  height: 36px;\n  line-height: 36px;\n  min-width: 134px;\n  text-align: center;\n  cursor: move;\n  z-index: 11;\n  overflow: hidden;\n  font-family: Helvetica;\n  font-weight: normal;\n  border-bottom: 1px solid #e8e9ed;\n  box-sizing: border-box;\n}\n\n.Adapter_minimized.Adapter_header {\n  border-bottom: none;\n  cursor: ew-resize;\n}\n\n.Adapter_logo {\n  -moz-user-select: none;\n       user-select: none;\n  user-drag: none;\n  left: 50%;\n  height: 18px;\n  width: 84px;\n  margin-top: -7px;\n  margin-left: -46px;\n  display: none;\n}\n\n.Adapter_logo.Adapter_visible {\n  display: inline-block;\n}\n\n.Adapter_presence {\n  left: 20px;\n  height: 14px;\n  width: 14px;\n  border-radius: 8px;\n  margin-top: -7px;\n  display: none;\n  cursor: pointer;\n}\n\n.Adapter_dropdownPresence {\n  display: none;\n  position: absolute;\n  width: 100%;\n  height: 100vh;\n}\n\n.Adapter_showDropdown {\n  display: block;\n}\n\n.Adapter_presenceItem {\n  padding: 10px 15px;\n  display: block;\n  cursor: pointer;\n  text-decoration: none;\n  text-align: left;\n}\n.Adapter_presenceItem:hover {\n  background-color: #f5f5f5;\n}\n\n.Adapter_selected {\n  color: #066fac;\n}\n\n.Adapter_line {\n  position: relative;\n  width: 160px;\n  min-width: 134px;\n  left: 5px;\n  padding: 0;\n  min-height: 30px;\n  box-sizing: border-box;\n  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);\n  background-color: #ffffff;\n  border-style: solid;\n  border-width: 0;\n  border-top-width: 1px;\n  border-bottom-width: 0px;\n  border-color: #eeeeee;\n  border-radius: 4px;\n  font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  color: #2f2f2f;\n}\n.Adapter_line .Adapter_horizontal {\n  display: inline-flex;\n}\n.Adapter_line .Adapter_clickable {\n  cursor: pointer;\n}\n.Adapter_line .Adapter_noborder {\n  border: none;\n}\n\n.Adapter_minimized .Adapter_presence {\n  left: 10px;\n}\n\n.Adapter_Offline {\n  display: block;\n  background: #cdcdcd;\n}\n\n.Adapter_Busy {\n  display: block;\n  background: #f95b5c;\n}\n\n.Adapter_Available {\n  display: block;\n  background-color: #32ae31;\n}\n\n.Adapter_presenceBar {\n  display: none;\n  position: absolute;\n  width: 8px;\n  height: 2px;\n  border-radius: 1.5px;\n  background-color: #ffffff;\n  transform-origin: 50% 50%;\n  transform: translate(3px, 6px);\n}\n\n.Adapter_DoNotAcceptAnyCalls {\n  display: block;\n  background: #f95b5c;\n}\n.Adapter_DoNotAcceptAnyCalls .Adapter_presenceBar {\n  display: block;\n}\n\n.Adapter_statusIcon {\n  display: inline-block;\n  position: relative;\n  margin-right: 5px;\n  top: 2px;\n  left: 0;\n  margin-top: 0;\n}\n\n.Adapter_button {\n  box-sizing: border-box;\n  height: 20px;\n  width: 20px;\n  margin-top: -10px;\n  border-radius: 3px;\n  cursor: pointer;\n  border-style: solid;\n  border-width: 1px;\n  border-color: transparent;\n}\n\n.Adapter_toggle {\n  right: 44px;\n}\n\n.Adapter_minimized .Adapter_toggle {\n  right: -18px;\n}\n\n.Adapter_minimizeIcon {\n  position: absolute;\n  box-sizing: border-box;\n  left: 3px;\n  bottom: 7px;\n  width: 12px;\n  height: 2px;\n  border: 1px solid #888888;\n}\n\n.Adapter_minimized .Adapter_minimizeIcon {\n  height: 12px;\n  bottom: 3px;\n}\n\n.Adapter_minimizeIconBar {\n  width: 100%;\n  height: 1px;\n  background-color: #888888;\n}\n\n.Adapter_close {\n  right: 16px;\n}\n\n.Adapter_minimized .Adapter_close {\n  display: none;\n}\n\n.Adapter_closeIcon {\n  position: relative;\n  overflow: hidden;\n  margin: 2px;\n  width: 14px;\n  height: 14px;\n}\n.Adapter_closeIcon :first-child,\n.Adapter_closeIcon :last-child {\n  position: absolute;\n  height: 2px;\n  width: 100%;\n  top: 6px;\n  left: 0;\n  background: #888888;\n  border-radius: 1px;\n}\n.Adapter_closeIcon :first-child {\n  transform: rotate(45deg);\n}\n.Adapter_closeIcon :last-child {\n  transform: rotate(-45deg);\n}\n\n.Adapter_contentFrame {\n  display: block;\n  border: none;\n  width: 0;\n  height: 0;\n}\n\n.Adapter_frameContainer {\n  overflow: hidden;\n  transition: width 0.1s 0s ease-in-out, height 0.1s 0s ease-in-out;\n}\n\n@keyframes Adapter_glow {\n  0% {\n    box-shadow: inset 0 0 7px -10px #2559E4;\n  }\n  40%, 50% {\n    box-shadow: inset 0 0 7px 0px #2559E4;\n  }\n  100% {\n    box-shadow: inset 0 0 7px -10px #2559E4;\n  }\n}\n.Adapter_minimized.Adapter_ringing {\n  animation-name: Adapter_glow;\n  animation-duration: 2s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: infinite;\n}\n\n@keyframes Adapter_moveIn {\n  0% {\n    display: none;\n    top: -50%;\n  }\n  100% {\n    display: inline-block;\n    top: 50%;\n  }\n}\n@keyframes Adapter_moveOut {\n  0% {\n    display: inline-block;\n    top: 50%;\n  }\n  100% {\n    top: 150%;\n    display: none;\n  }\n}\n.Adapter_moveIn {\n  animation-name: Adapter_moveIn;\n  animation-duration: 1s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n}\n\n.Adapter_moveOut {\n  animation-name: Adapter_moveOut;\n  animation-duration: 1s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n}\n\n.Adapter_duration.Adapter_visible,\n.Adapter_ringingCalls.Adapter_visible,\n.Adapter_onHoldCalls.Adapter_visible,\n.Adapter_otherDeviceCalls.Adapter_visible {\n  top: 50%;\n}\n\n.Adapter_duration {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  height: 16px;\n  line-height: 16px;\n  margin-top: -8px;\n  color: #666666;\n  font-size: 12px;\n  white-space: nowrap;\n  width: 33px;\n  margin-left: -60px;\n  cursor: pointer;\n}\n\n.Adapter_duration.Adapter_center {\n  margin-left: -16px;\n}\n\n.Adapter_ringingCalls,\n.Adapter_onHoldCalls,\n.Adapter_otherDeviceCalls {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  height: 16px;\n  line-height: 16px;\n  margin-top: -8px;\n  color: #666666;\n  font-size: 12px;\n  white-space: nowrap;\n  width: 100px;\n  margin-left: -100px;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  text-align: center;\n}\n\n.Adapter_ringingCalls.Adapter_center,\n.Adapter_onHoldCalls.Adapter_center,\n.Adapter_otherDeviceCalls.Adapter_center {\n  margin-left: -50px;\n}\n\n.Adapter_currentCallBtn {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  padding: 0 5px;\n  height: 18px;\n  line-height: 18px;\n  border-radius: 10.5px;\n  font-size: 11px;\n  margin-top: -10px;\n  margin-left: -13px;\n  overflow: hidden;\n  white-space: nowrap;\n  min-width: 66px;\n  max-width: 110px;\n  cursor: pointer;\n  border: solid 1px #5fb95c;\n  color: #5fb95c;\n}\n\n.Adapter_currentCallBtn.Adapter_visible {\n  display: inline-block;\n  margin-top: -10px;\n  top: 50%;\n}\n\n.Adapter_currentCallBtn:hover {\n  color: #5fb95c;\n}\n\n.Adapter_currentCallBtn.Adapter_left {\n  margin-left: -80px;\n}\n\n.Adapter_viewCallsBtn {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  padding: 0 5px;\n  height: 18px;\n  line-height: 18px;\n  border-radius: 10.5px;\n  font-size: 11px;\n  margin-top: -10px;\n  margin-left: -13px;\n  overflow: hidden;\n  white-space: nowrap;\n  min-width: 66px;\n  max-width: 110px;\n  cursor: pointer;\n  border: solid 1px #ff8800;\n  color: #ff8800;\n  margin-left: 0;\n}\n\n.Adapter_viewCallsBtn:hover {\n  color: #ff8800;\n}\n\n.Adapter_viewCallsBtn.Adapter_visible {\n  display: inline-block;\n  margin-top: -10px;\n  top: 50%;\n}\n\n.Adapter_hack {\n  background: url(\"https://{{rc-styles}}\");\n}\n\n.Adapter_root {\n  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.2s 0s ease-in-out, width 0.2s ease-in-out;\n  background-color: #fff;\n  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);\n}\n\n.Adapter_dark.Adapter_root {\n  background-color: #282A32;\n}\n\n.Adapter_root.Adapter_dock {\n  top: auto !important;\n  top: initial !important;\n  border-radius: 0 !important;\n  width: 300px;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized {\n  width: 60px;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized.Adapter_noPresence {\n  width: 35px;\n}\n\n.Adapter_root .Adapter_logo {\n  width: 92px;\n  height: 14px;\n  margin-top: -7px;\n  margin-left: -46px;\n}\n\n.Adapter_root .Adapter_header {\n  border-bottom: 1px solid #e8e9ed;\n  min-width: 165px;\n}\n\n.Adapter_dark .Adapter_header {\n  border-bottom: 1px solid #30323A;\n}\n\n.Adapter_root .Adapter_button {\n  margin-top: -10px;\n}\n\n.Adapter_iconTrans .Adapter_presence {\n  opacity: 1 !important;\n}\n.Adapter_iconTrans .Adapter_iconContainer {\n  opacity: 0 !important;\n}\n.Adapter_iconTrans .Adapter_logo {\n  opacity: 1 !important;\n}\n\n.Adapter_iconContainer {\n  display: none;\n}\n\n.Adapter_close {\n  display: none;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized .Adapter_toggle {\n  right: -10px;\n}\n\n.Adapter_dock.Adapter_minimized.Adapter_expandable {\n  width: 140px !important;\n}\n\n.Adapter_dock .Adapter_minimized.Adapter_header {\n  line-height: normal;\n  line-height: initial;\n  cursor: pointer;\n}\n.Adapter_dock .Adapter_minimized .Adapter_presence {\n  width: 12px;\n  height: 12px;\n  margin-top: -6px;\n  z-index: 2;\n  transition: 0.2s;\n}\n.Adapter_dock .Adapter_minimized .Adapter_presenceBar {\n  transform: translate(2px, 5px);\n}\n.Adapter_dock .Adapter_minimized .Adapter_logo {\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.Adapter_dock .Adapter_minimized .Adapter_iconContainer {\n  z-index: 2147483648;\n  top: 7px;\n  position: absolute;\n  left: 30px;\n  height: 22px;\n  width: 22px;\n  display: block;\n  cursor: pointer;\n  opacity: 1;\n  transition: 0.2s;\n  display: flex;\n}\n.Adapter_dock .Adapter_minimized .Adapter_iconContainer .Adapter_icon {\n  width: 22px;\n  height: 22px;\n  display: inline-block;\n}\n.Adapter_dock .Adapter_minimized .Adapter_noPresence {\n  left: 7px !important;\n}\n\n.Adapter_iconContainer.Adapter_hidden {\n  display: none;\n}\n\n.Adapter_viewCallsBtn.Adapter_visible {\n  margin-left: 20px;\n}\n.Adapter_viewCallsBtn.Adapter_moveIn {\n  margin-left: 20px;\n}\n.Adapter_viewCallsBtn.Adapter_moveOut {\n  margin-left: 20px;\n}\n\n.Adapter_ringingCalls.Adapter_visible, .Adapter_onHoldCalls.Adapter_visible {\n  margin-left: -80px;\n}\n.Adapter_ringingCalls.Adapter_moveIn, .Adapter_onHoldCalls.Adapter_moveIn {\n  margin-left: -80px;\n}\n.Adapter_ringingCalls.Adapter_moveOut, .Adapter_onHoldCalls.Adapter_moveOut {\n  margin-left: -80px;\n}\n\n.Adapter_popup {\n  right: 33px;\n  display: none;\n}\n\n.Adapter_showPopup .Adapter_popup {\n  display: block;\n}\n\n.Adapter_minimized .Adapter_popup {\n  display: none;\n}\n\n.Adapter_popupIcon img {\n  position: absolute;\n  top: 4px;\n  left: 1px;\n  width: 14px;\n}\n\n.Adapter_hideToggleButton .Adapter_toggle {\n  display: none;\n}\n.Adapter_hideToggleButton .Adapter_popup {\n  right: 10px;\n}\n\n.Adapter_feedback {\n  width: 22px;\n  height: 22px;\n  display: none;\n}\n\n.Adapter_feedbackIcon {\n  width: 22px;\n  height: 22px;\n}\n\n.Adapter_showFeedback .Adapter_feedback {\n  display: block;\n}\n\n.Adapter_minimized .Adapter_feedback {\n  display: none;\n}\n\n.Adapter_buttons {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  height: 100%;\n}\n\n.Adapter_root .Adapter_button {\n  margin-left: 3px;\n  position: relative;\n  top: auto;\n  left: auto;\n  right: auto;\n  margin-top: 0;\n}\n\n.Adapter_dark .Adapter_line {\n  background-color: #282A32;\n  border-color: #30323A;\n  color: #ffffff;\n}\n\n.Adapter_dark .Adapter_presenceItem:hover {\n  background-color: #30323A;\n}", ""]);
 // Exports
 ___CSS_LOADER_EXPORT___.locals = {
 	"centerStyle": "Adapter_centerStyle",
@@ -5908,14 +5908,16 @@ var createStore = function createStore(options, preloadedState) {
     var service = module;
     var className = Object.getPrototypeOf(service).constructor.name;
     if (typeof service[_constant.stateKey] === 'undefined' || service[_constant.bootstrappedKey]) {
-      if (false) {}
+      if (false) // removed by dead control flow
+{}
     }
     var identifier = (_service$identifierKe = service[_constant.identifierKey]) !== null && _service$identifierKe !== void 0 ? _service$identifierKe : service.name;
     if (identifier === null || typeof identifier === 'undefined') {
       identifier = "@@usm-redux/".concat(className, "/").concat(Math.random().toString(36));
     }
     if (typeof identifier !== 'string') {
-      if (false) {} else {
+      if (false) // removed by dead control flow
+{} else {
         throw new Error("'".concat(className, "' module 'name' property should be defined as a valid 'string'."));
       }
     }
@@ -6065,7 +6067,8 @@ var action = function action(target, key, descriptor) {
       args[_key] = arguments[_key];
     }
     var time;
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
     if (typeof (0, _index.getStagedState)() === 'undefined') {
       try {
         var _this$_getLastState, _this$_getLastState2;
@@ -6089,7 +6092,8 @@ var action = function action(target, key, descriptor) {
         }
         (0, _index.setStagedState)(undefined);
         var changed = lastState !== state;
-        if (false) { var executionTime, _console; }
+        if (false) // removed by dead control flow
+{ var executionTime, _console; }
 
         if (changed) {
           var _this$_handleState;
@@ -6104,7 +6108,8 @@ var action = function action(target, key, descriptor) {
             _patches: patches,
             _inversePatches: inversePatches
           } : {});
-          if (false) { var requiredWarning; }
+          if (false) // removed by dead control flow
+{ var requiredWarning; }
           this[_constant.storeKey].dispatch(_action);
         }
       } finally {
@@ -6151,7 +6156,8 @@ function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _ty
 function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 var computed = function computed(depsCallback) {
   return function (target, key, descriptor) {
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
     var depsCallbackSelector = (0, _index.createSelectorWithArray)(
     // This check will be skipped if the store has not been created yet.
     function (that) {
@@ -7995,7 +8001,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 var time = function time(title) {
   // eslint-disable-next-line func-names
   return function (target, name, descriptor) {
-    if (false) { var trackedFn, initializer, fn; }
+    if (false) // removed by dead control flow
+{ var trackedFn, initializer, fn; }
     return descriptor;
   };
 };
@@ -8787,7 +8794,8 @@ var getTranslateFn = function getTranslateFn() {
     i18nInput[_key] = arguments[_key];
   }
   var i18nInstances = Array.isArray(i18nInput) ? i18nInput : [i18nInput];
-  if (false) { var _i18nInstances, firstI18n, rest, TranslateError; }
+  if (false) // removed by dead control flow
+{ var _i18nInstances, firstI18n, rest, TranslateError; }
   return function (key) {
     var i18nString = key;
     i18nInstances.some(function (i18nInstance) {
@@ -9175,7 +9183,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
  * ```
  */
 var polling = function polling(fn, interval) {
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   var finished = false;
   var sleepPromise;
 
@@ -11438,7 +11447,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 			return classNames;
 		}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	} else {}
+	} else // removed by dead control flow
+{}
 }());
 
 
@@ -24354,7 +24364,8 @@ function n(n){for(var r=arguments.length,t=Array(r>1?r-1:0),e=1;e<r;e++)t[e-1]=a
 
 if (true) {
   module.exports = __webpack_require__(74250)
-} else {}
+} else // removed by dead control flow
+{}
 
 
 /***/ }),
@@ -25723,7 +25734,8 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/punycode v1.3.2 by @mathia
 			return punycode;
 		}).call(exports, __webpack_require__, exports, module),
 		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	} else {}
+	} else // removed by dead control flow
+{}
 
 }(this));
 
@@ -25849,7 +25861,7 @@ var parseValues = function parseQueryStringValues(str, options) {
     var cleanStr = options.ignoreQueryPrefix ? str.replace(/^\?/, '') : str;
     cleanStr = cleanStr.replace(/%5B/gi, '[').replace(/%5D/gi, ']');
 
-    var limit = options.parameterLimit === Infinity ? undefined : options.parameterLimit;
+    var limit = options.parameterLimit === Infinity ? void undefined : options.parameterLimit;
     var parts = cleanStr.split(
         options.delimiter,
         options.throwOnLimitExceeded ? limit + 1 : limit
@@ -25916,6 +25928,13 @@ var parseValues = function parseQueryStringValues(str, options) {
             val = isArray(val) ? [val] : val;
         }
 
+        if (options.comma && isArray(val) && val.length > options.arrayLimit) {
+            if (options.throwOnLimitExceeded) {
+                throw new RangeError('Array limit exceeded. Only ' + options.arrayLimit + ' element' + (options.arrayLimit === 1 ? '' : 's') + ' allowed in an array.');
+            }
+            val = utils.combine([], val, options.arrayLimit, options.plainObjects);
+        }
+
         if (key !== null) {
             var existing = has.call(obj, key);
             if (existing && options.duplicates === 'combine') {
@@ -25966,17 +25985,21 @@ var parseObject = function (chain, val, options, valuesParsed) {
             var cleanRoot = root.charAt(0) === '[' && root.charAt(root.length - 1) === ']' ? root.slice(1, -1) : root;
             var decodedRoot = options.decodeDotInKeys ? cleanRoot.replace(/%2E/g, '.') : cleanRoot;
             var index = parseInt(decodedRoot, 10);
-            if (!options.parseArrays && decodedRoot === '') {
-                obj = { 0: leaf };
-            } else if (
-                !isNaN(index)
+            var isValidArrayIndex = !isNaN(index)
                 && root !== decodedRoot
                 && String(index) === decodedRoot
                 && index >= 0
-                && (options.parseArrays && index <= options.arrayLimit)
-            ) {
+                && options.parseArrays;
+            if (!options.parseArrays && decodedRoot === '') {
+                obj = { 0: leaf };
+            } else if (isValidArrayIndex && index < options.arrayLimit) {
                 obj = [];
                 obj[index] = leaf;
+            } else if (isValidArrayIndex && options.throwOnLimitExceeded) {
+                throw new RangeError('Array limit exceeded. Only ' + options.arrayLimit + ' element' + (options.arrayLimit === 1 ? '' : 's') + ' allowed in an array.');
+            } else if (isValidArrayIndex) {
+                obj[index] = leaf;
+                utils.markOverflow(obj, index);
             } else if (decodedRoot !== '__proto__') {
                 obj[decodedRoot] = leaf;
             }
@@ -26016,7 +26039,7 @@ var splitKeyIntoSegments = function splitKeyIntoSegments(givenKey, options) {
             }
         }
 
-        keys.push(parent);
+        keys[keys.length] = parent;
     }
 
     var i = 0;
@@ -26030,7 +26053,7 @@ var splitKeyIntoSegments = function splitKeyIntoSegments(givenKey, options) {
             }
         }
 
-        keys.push(segment[1]);
+        keys[keys.length] = segment[1];
     }
 
     if (segment) {
@@ -26038,7 +26061,7 @@ var splitKeyIntoSegments = function splitKeyIntoSegments(givenKey, options) {
             throw new RangeError('Input depth exceeded depth option of ' + options.depth + ' and strictDepth is true');
         }
 
-        keys.push('[' + key.slice(segment.index) + ']');
+        keys[keys.length] = '[' + key.slice(segment.index) + ']';
     }
 
     return keys;
@@ -26548,7 +26571,7 @@ var setMaxIndex = function setMaxIndex(obj, maxIndex) {
 var hexTable = (function () {
     var array = [];
     for (var i = 0; i < 256; ++i) {
-        array.push('%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase());
+        array[array.length] = '%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase();
     }
 
     return array;
@@ -26564,7 +26587,7 @@ var compactQueue = function compactQueue(queue) {
 
             for (var j = 0; j < obj.length; ++j) {
                 if (typeof obj[j] !== 'undefined') {
-                    compacted.push(obj[j]);
+                    compacted[compacted.length] = obj[j];
                 }
             }
 
@@ -26592,7 +26615,11 @@ var merge = function merge(target, source, options) {
 
     if (typeof source !== 'object' && typeof source !== 'function') {
         if (isArray(target)) {
-            target.push(source);
+            var nextIndex = target.length;
+            if (options && typeof options.arrayLimit === 'number' && nextIndex > options.arrayLimit) {
+                return markOverflow(arrayToObject(target.concat(source), options), nextIndex);
+            }
+            target[nextIndex] = source;
         } else if (target && typeof target === 'object') {
             if (isOverflow(target)) {
                 // Add at next numeric index for overflow objects
@@ -26625,7 +26652,11 @@ var merge = function merge(target, source, options) {
             }
             return markOverflow(result, getMaxIndex(source) + 1);
         }
-        return [target].concat(source);
+        var combined = [target].concat(source);
+        if (options && typeof options.arrayLimit === 'number' && combined.length > options.arrayLimit) {
+            return markOverflow(arrayToObject(combined, options), combined.length - 1);
+        }
+        return combined;
     }
 
     var mergeTarget = target;
@@ -26640,7 +26671,7 @@ var merge = function merge(target, source, options) {
                 if (targetItem && typeof targetItem === 'object' && item && typeof item === 'object') {
                     target[i] = merge(targetItem, item, options);
                 } else {
-                    target.push(item);
+                    target[target.length] = item;
                 }
             } else {
                 target[i] = item;
@@ -26657,6 +26688,17 @@ var merge = function merge(target, source, options) {
         } else {
             acc[key] = value;
         }
+
+        if (isOverflow(source) && !isOverflow(acc)) {
+            markOverflow(acc, getMaxIndex(source));
+        }
+        if (isOverflow(acc)) {
+            var keyNum = parseInt(key, 10);
+            if (String(keyNum) === key && keyNum >= 0 && keyNum > getMaxIndex(acc)) {
+                setMaxIndex(acc, keyNum);
+            }
+        }
+
         return acc;
     }, mergeTarget);
 };
@@ -26773,8 +26815,8 @@ var compact = function compact(value) {
             var key = keys[j];
             var val = obj[key];
             if (typeof val === 'object' && val !== null && refs.indexOf(val) === -1) {
-                queue.push({ obj: obj, prop: key });
-                refs.push(val);
+                queue[queue.length] = { obj: obj, prop: key };
+                refs[refs.length] = val;
             }
         }
     }
@@ -26816,7 +26858,7 @@ var maybeMap = function maybeMap(val, fn) {
     if (isArray(val)) {
         var mapped = [];
         for (var i = 0; i < val.length; i += 1) {
-            mapped.push(fn(val[i]));
+            mapped[mapped.length] = fn(val[i]);
         }
         return mapped;
     }
@@ -26833,6 +26875,7 @@ module.exports = {
     isBuffer: isBuffer,
     isOverflow: isOverflow,
     isRegExp: isRegExp,
+    markOverflow: markOverflow,
     maybeMap: maybeMap,
     merge: merge
 };
@@ -44107,7 +44150,8 @@ function isDate(val) {
 function kindOf(val) {
   var typeOfVal = typeof val;
 
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
 
   return typeOfVal;
 }
@@ -44509,7 +44553,8 @@ function combineReducers(reducers) {
   for (var i = 0; i < reducerKeys.length; i++) {
     var key = reducerKeys[i];
 
-    if (false) {}
+    if (false) // removed by dead control flow
+{}
 
     if (typeof reducers[key] === 'function') {
       finalReducers[key] = reducers[key];
@@ -44521,7 +44566,8 @@ function combineReducers(reducers) {
 
   var unexpectedKeyCache;
 
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
 
   var shapeAssertionError;
 
@@ -44540,7 +44586,8 @@ function combineReducers(reducers) {
       throw shapeAssertionError;
     }
 
-    if (false) { var warningMessage; }
+    if (false) // removed by dead control flow
+{ var warningMessage; }
 
     var hasChanged = false;
     var nextState = {};
@@ -52414,42 +52461,25 @@ function containsMoreThanOneSlashInNationalNumber(phoneNumber, candidate) {
 
 function checkNumberGroupingIsValid(number, candidate, metadata, checkGroups, regExpCache) {
   throw new Error('This part of code hasn\'t been ported');
-  var normalizedCandidate = normalizeDigits(candidate, true
-  /* keep non-digits */
-  );
-  var formattedNumberGroups = getNationalNumberGroups(metadata, number, null);
+  // removed by dead control flow
+ var normalizedCandidate; 
+  // removed by dead control flow
+ var formattedNumberGroups; 
 
-  if (checkGroups(metadata, number, normalizedCandidate, formattedNumberGroups)) {
-    return true;
-  } // If this didn't pass, see if there are any alternate formats that match, and try them instead.
+  // removed by dead control flow
+ // If this didn't pass, see if there are any alternate formats that match, and try them instead.
 
 
-  var alternateFormats = MetadataManager.getAlternateFormatsForCountry(number.getCountryCode());
-  var nationalSignificantNumber = util.getNationalSignificantNumber(number);
+  // removed by dead control flow
+ var alternateFormats; 
+  // removed by dead control flow
+ var nationalSignificantNumber; 
 
-  if (alternateFormats) {
-    for (var _iterator = _createForOfIteratorHelperLoose(alternateFormats.numberFormats()), _step; !(_step = _iterator()).done;) {
-      var alternateFormat = _step.value;
+  // removed by dead control flow
+ var leadingDigitsRegExp, alternateFormat, _iterator, _step; 
 
-      if (alternateFormat.leadingDigitsPatterns().length > 0) {
-        // There is only one leading digits pattern for alternate formats.
-        var leadingDigitsRegExp = regExpCache.getPatternForRegExp('^' + alternateFormat.leadingDigitsPatterns()[0]);
+  // removed by dead control flow
 
-        if (!leadingDigitsRegExp.test(nationalSignificantNumber)) {
-          // Leading digits don't match; try another one.
-          continue;
-        }
-      }
-
-      formattedNumberGroups = getNationalNumberGroups(metadata, number, alternateFormat);
-
-      if (checkGroups(metadata, number, normalizedCandidate, formattedNumberGroups)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
 }
 /**
  * Helper method to get the national-number part of a number, formatted without any national
@@ -52461,102 +52491,72 @@ function checkNumberGroupingIsValid(number, candidate, metadata, checkGroups, re
 function getNationalNumberGroups(metadata, number, formattingPattern) {
   throw new Error('This part of code hasn\'t been ported');
 
-  if (formattingPattern) {
-    // We format the NSN only, and split that according to the separator.
-    var nationalSignificantNumber = util.getNationalSignificantNumber(number);
-    return util.formatNsnUsingPattern(nationalSignificantNumber, formattingPattern, 'RFC3966', metadata).split('-');
-  } // This will be in the format +CC-DG1-DG2-DGX;ext=EXT where DG1..DGX represents groups of digits.
+  // removed by dead control flow
+ var nationalSignificantNumber;  // This will be in the format +CC-DG1-DG2-DGX;ext=EXT where DG1..DGX represents groups of digits.
 
 
-  var rfc3966Format = formatNumber(number, 'RFC3966', metadata); // We remove the extension part from the formatted string before splitting it into different
+  // removed by dead control flow
+ var rfc3966Format;  // We remove the extension part from the formatted string before splitting it into different
   // groups.
 
-  var endIndex = rfc3966Format.indexOf(';');
+  // removed by dead control flow
+ var endIndex; 
 
-  if (endIndex < 0) {
-    endIndex = rfc3966Format.length;
-  } // The country-code will have a '-' following it.
+  // removed by dead control flow
+ // The country-code will have a '-' following it.
 
 
-  var startIndex = rfc3966Format.indexOf('-') + 1;
-  return rfc3966Format.slice(startIndex, endIndex).split('-');
+  // removed by dead control flow
+ var startIndex; 
+  // removed by dead control flow
+
 }
 
 function allNumberGroupsAreExactlyPresent(metadata, number, normalizedCandidate, formattedNumberGroups) {
   throw new Error('This part of code hasn\'t been ported');
-  var candidateGroups = normalizedCandidate.split(NON_DIGITS_PATTERN); // Set this to the last group, skipping it if the number has an extension.
+  // removed by dead control flow
+ var candidateGroups;  // Set this to the last group, skipping it if the number has an extension.
 
-  var candidateNumberGroupIndex = number.hasExtension() ? candidateGroups.length - 2 : candidateGroups.length - 1; // First we check if the national significant number is formatted as a block.
+  // removed by dead control flow
+ var candidateNumberGroupIndex;  // First we check if the national significant number is formatted as a block.
   // We use contains and not equals, since the national significant number may be present with
   // a prefix such as a national number prefix, or the country code itself.
 
-  if (candidateGroups.length == 1 || candidateGroups[candidateNumberGroupIndex].contains(util.getNationalSignificantNumber(number))) {
-    return true;
-  } // Starting from the end, go through in reverse, excluding the first group, and check the
+  // removed by dead control flow
+ // Starting from the end, go through in reverse, excluding the first group, and check the
   // candidate and number groups are the same.
 
 
-  var formattedNumberGroupIndex = formattedNumberGroups.length - 1;
+  // removed by dead control flow
+ var formattedNumberGroupIndex; 
 
-  while (formattedNumberGroupIndex > 0 && candidateNumberGroupIndex >= 0) {
-    if (candidateGroups[candidateNumberGroupIndex] !== formattedNumberGroups[formattedNumberGroupIndex]) {
-      return false;
-    }
-
-    formattedNumberGroupIndex--;
-    candidateNumberGroupIndex--;
-  } // Now check the first group. There may be a national prefix at the start, so we only check
+  // removed by dead control flow
+ // Now check the first group. There may be a national prefix at the start, so we only check
   // that the candidate group ends with the formatted number group.
 
 
-  return candidateNumberGroupIndex >= 0 && (0, _util.endsWith)(candidateGroups[candidateNumberGroupIndex], formattedNumberGroups[0]);
+  // removed by dead control flow
+
 }
 
 function allNumberGroupsRemainGrouped(metadata, number, normalizedCandidate, formattedNumberGroups) {
   throw new Error('This part of code hasn\'t been ported');
-  var fromIndex = 0;
+  // removed by dead control flow
+ var fromIndex; 
 
-  if (number.getCountryCodeSource() !== CountryCodeSource.FROM_DEFAULT_COUNTRY) {
-    // First skip the country code if the normalized candidate contained it.
-    var countryCode = String(number.getCountryCode());
-    fromIndex = normalizedCandidate.indexOf(countryCode) + countryCode.length();
-  } // Check each group of consecutive digits are not broken into separate groupings in the
+  // removed by dead control flow
+ var countryCode;  // Check each group of consecutive digits are not broken into separate groupings in the
   // {@code normalizedCandidate} string.
 
 
-  for (var i = 0; i < formattedNumberGroups.length; i++) {
-    // Fails if the substring of {@code normalizedCandidate} starting from {@code fromIndex}
-    // doesn't contain the consecutive digits in formattedNumberGroups[i].
-    fromIndex = normalizedCandidate.indexOf(formattedNumberGroups[i], fromIndex);
-
-    if (fromIndex < 0) {
-      return false;
-    } // Moves {@code fromIndex} forward.
-
-
-    fromIndex += formattedNumberGroups[i].length();
-
-    if (i == 0 && fromIndex < normalizedCandidate.length()) {
-      // We are at the position right after the NDC. We get the region used for formatting
-      // information based on the country code in the phone number, rather than the number itself,
-      // as we do not need to distinguish between different countries with the same country
-      // calling code and this is faster.
-      var region = util.getRegionCodeForCountryCode(number.getCountryCode());
-
-      if (util.getNddPrefixForRegion(region, true) != null && Character.isDigit(normalizedCandidate.charAt(fromIndex))) {
-        // This means there is no formatting symbol after the NDC. In this case, we only
-        // accept the number if there is no formatting symbol at all in the number, except
-        // for extensions. This is only important for countries with national prefixes.
-        var nationalSignificantNumber = util.getNationalSignificantNumber(number);
-        return (0, _util.startsWith)(normalizedCandidate.slice(fromIndex - formattedNumberGroups[i].length), nationalSignificantNumber);
-      }
-    }
-  } // The check here makes sure that we haven't mistakenly already used the extension to
+  // removed by dead control flow
+ var nationalSignificantNumber, region, i;  // The check here makes sure that we haven't mistakenly already used the extension to
   // match the last group of the subscriber number. Note the extension cannot have
   // formatting in-between digits.
 
 
-  return normalizedCandidate.slice(fromIndex).contains(number.getExtension());
+  // removed by dead control flow
+
 }
 //# sourceMappingURL=Leniency.js.map
 
@@ -58092,10 +58092,7 @@ var uuid = __webpack_require__(62811);
 var uuid_default = /*#__PURE__*/__webpack_require__.n(uuid);
 ;// ./src/lib/requestWithPostMessage.js
 
-function requestWithPostMessage(path, body) {
-  let timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 3000;
-  let target = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : window.parent;
-  let prefix = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'rc-post-message';
+function requestWithPostMessage(path, body, timeout = 3000, target = window.parent, prefix = 'rc-post-message') {
   return new Promise((resolve, reject) => {
     const id = uuid_default().v4();
     let responseFunc;
@@ -58191,13 +58188,12 @@ class Notification {
       });
     }
   }
-  notify(_ref) {
-    let {
-      title,
-      text,
-      icon,
-      onClick
-    } = _ref;
+  notify({
+    title,
+    text,
+    icon,
+    onClick
+  }) {
     if (!this._enableNotification) {
       return;
     }
@@ -58237,24 +58233,23 @@ function checkValidImageUri(uri) {
   return uri && (uri.indexOf('https://') === 0 || uri.indexOf('http://') === 0 || uri.indexOf('chrome-extension://') === 0 || uri.indexOf('data:image') === 0);
 }
 class Adapter extends AdapterCore/* default */.A {
-  constructor() {
-    let {
-      logoUrl,
-      appUrl,
-      iconUrl,
-      prefix = 'rc-widget',
-      version,
-      appWidth = 300,
-      appHeight = 500,
-      zIndex = 999,
-      enableNotification = false,
-      newAdapterUI = false,
-      fromPopup = false,
-      enablePopup = false,
-      disableMinimize = false,
-      popupPageUri,
-      defaultDirection = 'right'
-    } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  constructor({
+    logoUrl,
+    appUrl,
+    iconUrl,
+    prefix = 'rc-widget',
+    version,
+    appWidth = 300,
+    appHeight = 500,
+    zIndex = 999,
+    enableNotification = false,
+    newAdapterUI = false,
+    fromPopup = false,
+    enablePopup = false,
+    disableMinimize = false,
+    popupPageUri,
+    defaultDirection = 'right'
+  } = {}) {
     const container = document.createElement('div');
     container.id = prefix;
     container.setAttribute('class', classnames_default()(Adapter_styles.root, Adapter_styles.loading));
@@ -58666,10 +58661,9 @@ class Adapter extends AdapterCore/* default */.A {
     this._popupedWindow = lib_popWindow(popupUri, 'RCPopupWindow', 300, 535);
     this.setMinimized(true);
   }
-  isWindowPoppedUp() {
-    let {
-      alert = false
-    } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  isWindowPoppedUp({
+    alert = false
+  } = {}) {
     return this._requestWithPostMessage('/check-popup-window', {
       alert
     });
@@ -58706,9 +58700,7 @@ class Adapter extends AdapterCore/* default */.A {
       type: 'rc-adapter-set-environment'
     });
   }
-  clickToSMS(phoneNumber, text, conversation) {
-    let attachments = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : undefined;
-    let recipient = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : undefined;
+  clickToSMS(phoneNumber, text, conversation, attachments = undefined, recipient = undefined) {
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
@@ -58719,8 +58711,7 @@ class Adapter extends AdapterCore/* default */.A {
       recipient
     });
   }
-  clickToCall(phoneNumber) {
-    let toCall = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  clickToCall(phoneNumber, toCall = false) {
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-call',
@@ -58728,8 +58719,7 @@ class Adapter extends AdapterCore/* default */.A {
       toCall
     });
   }
-  controlCall(action, id) {
-    let options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  controlCall(action, id, options = {}) {
     this._postMessage({
       type: 'rc-adapter-control-call',
       callAction: action,
@@ -58742,13 +58732,12 @@ class Adapter extends AdapterCore/* default */.A {
       type: 'rc-adapter-logout'
     });
   }
-  updateCallingSetting(_ref) {
-    let {
-      callWith,
-      myLocation,
-      ringoutPrompt,
-      fromNumber
-    } = _ref;
+  updateCallingSetting({
+    callWith,
+    myLocation,
+    ringoutPrompt,
+    fromNumber
+  }) {
     this._postMessage({
       type: 'rc-calling-settings-update',
       callWith,
@@ -58757,10 +58746,9 @@ class Adapter extends AdapterCore/* default */.A {
       fromNumber
     });
   }
-  updateSmsSetting(_ref2) {
-    let {
-      senderNumber
-    } = _ref2;
+  updateSmsSetting({
+    senderNumber
+  }) {
     this._postMessage({
       type: 'rc-sms-settings-update',
       senderNumber
@@ -58838,10 +58826,9 @@ class Adapter extends AdapterCore/* default */.A {
     }
     this._currentCallEl.setAttribute('class', classnames_default()(this._styles.currentCallBtn, this.showCurrentCallBtn && this._styles.visible, !this.centerDuration && this.moveOutCurrentCallBtn && this._styles.moveOut, !this.centerDuration && this.moveInCurrentCallBtn && this._styles.moveIn));
   }
-  showFeedback(_ref3) {
-    let {
-      onFeedback
-    } = _ref3;
+  showFeedback({
+    onFeedback
+  }) {
     if (typeof onFeedback !== 'function') {
       throw new Error('onFeedback function is required.');
     }
@@ -58859,12 +58846,11 @@ class Adapter extends AdapterCore/* default */.A {
       text
     });
   }
-  updateRingtone(_ref4) {
-    let {
-      name,
-      uri,
-      volume
-    } = _ref4;
+  updateRingtone({
+    name,
+    uri,
+    volume
+  }) {
     this._postMessage({
       type: 'rc-adapter-update-ringtone',
       name,
@@ -58884,13 +58870,12 @@ class Adapter extends AdapterCore/* default */.A {
   get centerCallInfo() {
     return this._widgetCurrentPath === '/history';
   }
-  alertMessage(_ref5) {
-    let {
-      message,
-      level,
-      ttl,
-      details
-    } = _ref5;
+  alertMessage({
+    message,
+    level,
+    ttl,
+    details
+  }) {
     return this._requestWithPostMessage('/custom-alert-message', {
       message,
       level,
@@ -58898,8 +58883,7 @@ class Adapter extends AdapterCore/* default */.A {
       details
     });
   }
-  dismissMessage() {
-    let id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+  dismissMessage(id = null) {
     return this._requestWithPostMessage('/dismiss-alert-message', {
       id
     });
@@ -58910,34 +58894,31 @@ class Adapter extends AdapterCore/* default */.A {
       page
     });
   }
-  setAutoLog() {
-    let {
-      message = undefined,
-      call = undefined
-    } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  setAutoLog({
+    message = undefined,
+    call = undefined
+  } = {}) {
     return this._postMessage({
       type: 'rc-adapter-update-auto-log-settings',
       message,
       call
     });
   }
-  getCallLog(_ref6) {
-    let {
-      sessionId,
-      telephonySessionId
-    } = _ref6;
+  getCallLog({
+    sessionId,
+    telephonySessionId
+  }) {
     return this._requestWithPostMessage('/get-call-log', {
       sessionId,
       telephonySessionId
     });
   }
-  setPhoneNumberFormat(_ref7) {
-    let {
-      formatType,
-      template,
-      readOnly,
-      readOnlyReason
-    } = _ref7;
+  setPhoneNumberFormat({
+    formatType,
+    template,
+    readOnly,
+    readOnlyReason
+  }) {
     return this._postMessage({
       type: 'rc-adapter-set-phone-number-format',
       formatType,
@@ -58971,7 +58952,8 @@ function getBrandFromAdapterName() {
   return name;
 }
 function getDefaultAppUrl() {
-  if (false) {}
+  if (false) // removed by dead control flow
+{}
   if (currentScript) {
     return url.resolve(currentScript.src, './app.html');
   }
@@ -58994,11 +58976,10 @@ function obj2uri(obj) {
   });
   return urlParams.join('&');
 }
-function init() {
-  let {
-    appUrl = getDefaultAppUrl(),
-    options = parseCallbackUri(paramsUri)
-  } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+function init({
+  appUrl = getDefaultAppUrl(),
+  options = parseCallbackUri(paramsUri)
+} = {}) {
   if (window.RCAdapter) {
     return;
   }
