@@ -18,7 +18,7 @@ export class AnalyticsBrowser {
   protected _mixpanel?: any = null;
   
   constructor(mixpanelToken) {
-    mixpanel.init(mixpanelToken);
+    mixpanel.init(mixpanelToken, { persistence: 'localStorage' });
     this._mixpanel = mixpanel;
   }
 
