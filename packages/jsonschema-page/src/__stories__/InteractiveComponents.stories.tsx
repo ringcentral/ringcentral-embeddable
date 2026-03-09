@@ -1008,6 +1008,7 @@ export const ListWithActions: Story = {
               icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
               meta: 'Last contacted: 2d ago',
               actions: [
+                { id: 'invite', title: 'Invite', type: 'button', variant: 'contained', color: 'primary' },
                 { id: 'call', title: 'Call', icon: 'phone' },
                 { id: 'sms', title: 'SMS', icon: 'sms' },
                 { id: 'edit', title: 'Edit', icon: 'edit' },
@@ -1035,6 +1036,7 @@ export const ListWithActions: Story = {
               icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
               meta: 'Last contacted: 5h ago',
               actions: [
+                { id: 'followUp', title: 'Follow Up', type: 'button', variant: 'outlined', color: 'secondary' },
                 { id: 'call', title: 'Call', icon: 'phone' },
                 { id: 'sms', title: 'SMS', icon: 'sms' },
                 { id: 'edit', title: 'Edit', icon: 'edit' },
@@ -1106,6 +1108,7 @@ export const ListWithActions: Story = {
             <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📊Supported icons</h4>
             <div style={{ fontSize: '12px', marginBottom: '15px' }}>
               <p>call, sms, edit, delete, newAction, info, view, refresh, copy, share, download, people, insertLink, connect, viewLog, read, unread</p>
+              <p>Button actions use <code>{`{ type: 'button', title, variant, color }`}</code>, stay visible without hover, and limit the icon action menu to 1 visible action.</p>
             </div>
             <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📊 Action Activity</h4>
             <div style={{ fontSize: '12px', marginBottom: '15px' }}>
@@ -1140,7 +1143,7 @@ export const ListWithActions: Story = {
           formData={formData}
           onFormDataChange={setFormData}
           onButtonClick={(name: string) => {
-            // name format: `${item.const}-${action.id}-action` or `${item.const}-author`
+            // name format: `${action.id}-${item.const}-action` or `${item.const}-author`
             const timestamp = new Date().toLocaleTimeString();
             setActionHistory(prev => [...prev, `${timestamp}: ${name}`]);
             const actionMatch = name.match(/^(.*?)-(.*?)-(action)$/);

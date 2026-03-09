@@ -8,6 +8,7 @@ import {
   RcListItemSecondaryAction,
   RcAvatar,
   RcIcon,
+  RcButton,
   RcCard,
   RcCardContent,
   RcCardActionArea,
@@ -53,6 +54,7 @@ const StyledItem = styled(RcListItem)<{
   $hoverOnMoreMenu?: boolean
   $hasActions?: boolean
   $readOnly?: boolean
+  $hideMetaOnActionHover?: boolean
 }>`
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   cursor: ${({ $readOnly }) => ($readOnly ? 'default' : 'pointer')};
@@ -61,31 +63,37 @@ const StyledItem = styled(RcListItem)<{
     display: none;
   }
 
-  ${({ $hoverOnMoreMenu }) =>
+  ${({ $hoverOnMoreMenu, $hideMetaOnActionHover }) =>
     $hoverOnMoreMenu &&
-    `
-    .list-item-action-menu {
-      display: flex;
-    }
-
-    .list-item-meta {
-      display: none;
-    }
-  `}
-
-  ${({ $hasActions, $readOnly }) =>
-    $hasActions && !$readOnly &&
-    `
-    &:hover {
+    css`
       .list-item-action-menu {
         display: flex;
       }
 
-      .list-item-meta {
-        display: none;
+      ${$hideMetaOnActionHover &&
+      css`
+        .list-item-meta {
+          display: none;
+        }
+      `}
+    `}
+
+  ${({ $hasActions, $readOnly, $hideMetaOnActionHover }) =>
+    $hasActions && !$readOnly &&
+    css`
+      &:hover {
+        .list-item-action-menu {
+          display: flex;
+        }
+
+        ${$hideMetaOnActionHover &&
+        css`
+          .list-item-meta {
+            display: none;
+          }
+        `}
       }
-    }
-  `}
+    `}
 `;
 
 const StyledAvatar = styled(RcAvatar)<{ $round?: boolean }>`
@@ -118,14 +126,18 @@ const MetaContainer = styled.div`
 `;
 
 export const StyledActionMenu = styled(ActionMenu)`
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  margin-top: -16px;
-
   .RcIconButton-root {
     margin-left: 6px;
   }
+`;
+
+const SecondaryActionContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const StyledActionButton = styled(RcButton)`
+  margin-left: 8px;
 `;
 
 const ICONS_MAP = {
@@ -149,6 +161,12 @@ const ICONS_MAP = {
   'settings': SettingsBorder,
 };
 
+const BUTTON_ACTION_TYPE = 'button';
+const DEFAULT_ACTION_MENU_MAX_ACTIONS = 3;
+const ACTION_MENU_MAX_ACTIONS_WITH_BUTTON = 1;
+
+const isButtonAction = (action) => action?.type === BUTTON_ACTION_TYPE;
+
 function ListItem({
   item,
   disabled,
@@ -161,7 +179,9 @@ function ListItem({
   readOnly,
 }) {
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
-  const formattedActions = actions.map((action) => {
+  const buttonAction = actions.find(isButtonAction);
+  const iconActions = actions.filter((action) => !isButtonAction(action));
+  const formattedActions = iconActions.map((action) => {
     const icon = ICONS_MAP[action.icon];
     return {
       title: action.title,
@@ -175,6 +195,11 @@ function ListItem({
       disabled: action.disabled,
     };
   });
+  const actionMenuMaxActions = buttonAction ?
+    ACTION_MENU_MAX_ACTIONS_WITH_BUTTON :
+    DEFAULT_ACTION_MENU_MAX_ACTIONS;
+  const hasSecondaryAction = item.meta || item.authorName || showAsNavigation || buttonAction || iconActions.length > 0;
+  const hideMetaOnActionHover = iconActions.length > 0 && !buttonAction;
   return (
     <StyledItem
       key={item.const}
@@ -184,8 +209,9 @@ function ListItem({
       canHover={!readOnly}
       disableRipple={readOnly}
       $hoverOnMoreMenu={hoverOnMoreMenu}
-      $hasActions={actions.length > 0}
+      $hasActions={iconActions.length > 0}
       $readOnly={readOnly}
+      $hideMetaOnActionHover={hideMetaOnActionHover}
     >
       {
         item.icon ? (
@@ -204,37 +230,59 @@ function ListItem({
         secondary={item.description}
       />
       {
-        (item.meta || item.authorName || showAsNavigation) ? (
+        hasSecondaryAction ? (
           <RcListItemSecondaryAction>
-            <MetaContainer className="list-item-meta">
-              {item.authorName && <span>{item.authorName}</span>}
-              {item.meta && <span>{item.meta}</span>}
-            </MetaContainer>
-            {
-              showAsNavigation ? (
-                <NavigationIcon
-                  symbol={ArrowRight}
-                  size="large"
-                />
-              ) : null
-            }
+            <SecondaryActionContainer>
+              {
+                (item.meta || item.authorName) ? (
+                  <MetaContainer className="list-item-meta">
+                    {item.authorName && <span>{item.authorName}</span>}
+                    {item.meta && <span>{item.meta}</span>}
+                  </MetaContainer>
+                ) : null
+              }
+              {
+                showAsNavigation ? (
+                  <NavigationIcon
+                    symbol={ArrowRight}
+                    size="large"
+                  />
+                ) : null
+              }
+              {
+                buttonAction ? (
+                  <StyledActionButton
+                    size="small"
+                    variant={buttonAction.variant || 'contained'}
+                    color={buttonAction.color || 'primary'}
+                    disabled={buttonAction.disabled}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClickAction(buttonAction);
+                    }}
+                  >
+                    {buttonAction.title}
+                  </StyledActionButton>
+                ) : null
+              }
+              {
+                iconActions.length > 0 && (
+                  <StyledActionMenu
+                    actions={formattedActions}
+                    size="small"
+                    maxActions={actionMenuMaxActions}
+                    className="list-item-action-menu"
+                    iconVariant="contained"
+                    color="neutral.b01"
+                    onMoreMenuOpen={(open) => {
+                      setHoverOnMoreMenu(open);
+                    }}
+                  />
+                )
+              }
+            </SecondaryActionContainer>
           </RcListItemSecondaryAction>
         ) : null
-      }
-      {
-        actions.length > 0 && (
-          <StyledActionMenu
-            actions={formattedActions}
-            size="small"
-            maxActions={3}
-            className="list-item-action-menu"
-            iconVariant="contained"
-            color="neutral.b01"
-            onMoreMenuOpen={(open) => {
-              setHoverOnMoreMenu(open);
-            }}
-          />
-        )
       }
     </StyledItem>
   );
