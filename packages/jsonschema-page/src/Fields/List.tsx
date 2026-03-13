@@ -14,6 +14,7 @@ import {
   RcCardActionArea,
   RcCardActions,
   RcTypography,
+  RcTooltip,
   styled,
   palette2,
   css,
@@ -42,6 +43,7 @@ import {
   Read,
   Unread,
   SettingsBorder,
+  Warning,
 } from '@ringcentral/juno-icon';
 
 import { ActionMenu } from '../components/ActionMenu';
@@ -108,7 +110,7 @@ const StyledAvatar = styled(RcAvatar)<{ $round?: boolean }>`
 `;
 
 const NavigationIcon = styled(RcIcon)`
-  margin: 8px 0;
+  margin: 8px 0 8px 8px;
 `;
 
 const MetaContainer = styled.div`
@@ -136,6 +138,18 @@ const SecondaryActionContainer = styled.div`
   align-items: center;
 `;
 
+const IconMetaContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const StyledMetaIcon = styled(RcIcon)`
+  & + & {
+    margin-left: 4px;
+  }
+`;
+
 const StyledActionButton = styled(RcButton)`
   margin-left: 8px;
 `;
@@ -159,6 +173,7 @@ const ICONS_MAP = {
   'read': Read,
   'unread': Unread,
   'settings': SettingsBorder,
+  'warning': Warning,
 };
 
 const BUTTON_ACTION_TYPE = 'button';
@@ -198,7 +213,7 @@ function ListItem({
   const actionMenuMaxActions = buttonAction ?
     ACTION_MENU_MAX_ACTIONS_WITH_BUTTON :
     DEFAULT_ACTION_MENU_MAX_ACTIONS;
-  const hasSecondaryAction = item.meta || item.authorName || showAsNavigation || buttonAction || iconActions.length > 0;
+  const hasSecondaryAction = item.meta || item.iconMeta?.length > 0 || item.authorName || showAsNavigation || buttonAction || iconActions.length > 0;
   const hideMetaOnActionHover = iconActions.length > 0 && !buttonAction;
   return (
     <StyledItem
@@ -240,6 +255,21 @@ function ListItem({
                     {item.meta && <span>{item.meta}</span>}
                   </MetaContainer>
                 ) : null
+              }
+              {
+                item.iconMeta && item.iconMeta.length > 0 && (
+                  <IconMetaContainer className="list-item-meta">
+                    {item.iconMeta.map((iconMetaItem, index) => (
+                      <RcTooltip key={index} title={iconMetaItem.message}>
+                        <StyledMetaIcon
+                          symbol={ICONS_MAP[iconMetaItem.icon] || ICONS_MAP.info}
+                          size={iconMetaItem.size || 'small'}
+                          color={iconMetaItem.color || 'neutral.f04'}
+                        />
+                      </RcTooltip>
+                    ))}
+                  </IconMetaContainer>
+                )
               }
               {
                 showAsNavigation ? (
