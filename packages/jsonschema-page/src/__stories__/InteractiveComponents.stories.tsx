@@ -581,6 +581,121 @@ export const ListWithMetaField: Story = {
   },
 };
 
+// List with Icon Meta
+export const ListWithIconMeta: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        taskStatus: {
+          type: 'string',
+          title: 'Task Status',
+          description: 'Select task with icon indicators',
+          oneOf: [
+            {
+              const: 'in_progress',
+              title: 'In Progress',
+              description: 'Currently being worked on',
+              iconMeta: [
+                { icon: 'refresh', message: 'Active', color: 'interactive.f01' },
+                { icon: 'info', message: 'Check details' },
+              ],
+            },
+            {
+              const: 'blocked',
+              title: 'Blocked',
+              description: 'Waiting on dependencies',
+              iconMeta: [
+                { icon: 'people', message: 'Needs review', color: 'danger.f02', size: 'medium' },
+              ],
+            },
+            {
+              const: 'done',
+              title: 'Done',
+              description: 'Completed and closed',
+              iconMeta: [
+                { icon: 'read', message: 'Verified' },
+              ],
+            },
+          ],
+        },
+        settingsNav: {
+          type: 'string',
+          title: 'Settings',
+          description: 'Navigate to a settings section',
+          oneOf: [
+            {
+              const: 'account',
+              title: 'Account',
+              description: 'Manage your account details',
+              iconMeta: [
+                { icon: 'warning', message: 'Incomplete profile', color: 'warning.f02' },
+              ],
+            },
+            {
+              const: 'notifications',
+              title: 'Notifications',
+              description: 'Configure notification preferences',
+            },
+            {
+              const: 'security',
+              title: 'Security',
+              description: 'Password and 2FA settings',
+              iconMeta: [
+                { icon: 'warning', message: 'Action required', color: 'danger.f02', size: 'medium' },
+              ],
+            },
+            {
+              const: 'integrations',
+              title: 'Integrations',
+              description: 'Connected apps and services',
+            },
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      taskStatus: {
+        'ui:field': 'list',
+        'ui:showSelected': true,
+      },
+      settingsNav: {
+        'ui:field': 'list',
+        'ui:navigation': true,
+        'ui:showSelected': false,
+      },
+    },
+    formData: { taskStatus: 'in_progress' },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+
+    return (
+      <StoryLayout
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Task Status</h4>
+            <div style={{ fontSize: '12px', marginBottom: '15px' }}>
+              <p>Selected Status: {formData.taskStatus || 'None'}</p>
+            </div>
+            <h4 style={{ margin: '15px 0 10px 0', color: '#555' }}>Form Data</h4>
+            <pre style={{ fontSize: '11px', overflow: 'auto', maxHeight: '200px', margin: 0, background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+              {JSON.stringify(formData, null, 2)}
+            </pre>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+        />
+      </StoryLayout>
+    );
+  },
+};
+
 // Card Layout List
 export const CardListField: Story = {
   args: {
