@@ -532,9 +532,9 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
             {(ringSenseLicensed || ringCXLicensed || isAdmin) ? (
               <ChipGroup onClick={(e) => e.stopPropagation()}>
                 {ringSenseLicensed ? (
-                  <RcTooltip title="RingSense is licensed">
+                  <RcTooltip title="AI Conversation Expert is licensed">
                     <HighlightChip
-                      label="RingSense"
+                      label="ACE"
                       color="warning.b03"
                     />
                   </RcTooltip>
