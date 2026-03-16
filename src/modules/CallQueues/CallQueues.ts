@@ -18,6 +18,7 @@ import { Deps } from './CallQueue.interface';
     'Client',
     'DataFetcherV2',
     'ExtensionFeatures',
+    'AccountContacts',
     { dep: 'CallQueuesOptions', optional: true }
   ],
 })
@@ -61,18 +62,17 @@ export class CallQueues extends DataFetcherV2Consumer<
   }
 
   // interface of ContactSource
-  @computed(({ queues }: CallQueues) => [queues])
+  @computed((that: CallQueues) => [that._deps.accountContacts.directoryContacts])
   get contacts() {
-    return this.queues.map((queue) => {
+    return this._deps.accountContacts.directoryContacts.queues.filter(
+      (queue) => queue.status === 'Enabled' && !queue.hidden
+    ).map((queue) => {
       return {
         ...queue,
         type: this.sourceName,
-        phoneNumbers: [{
-          phoneNumber: queue.extensionNumber,
-          phoneType: phoneTypes.extension,
-        }],
+        phoneNumbers: queue.phoneNumbers || [],
       };
-    })
+    });
   }
 
   // interface of ContactSource
