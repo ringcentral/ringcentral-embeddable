@@ -91,16 +91,20 @@ export class AccountContacts extends AccountContactsBase {
                 });
             });
           }
-          result.all.push(contact);
-          if (!contact.hidden) {
-            const cdcContact = {
-              ...contact,
-              phoneNumbers: filter(
-                (number) => !number.hidden,
-                contact.phoneNumbers ?? [],
-              ),
-            };
-            result.cdc.push(cdcContact);
+          if (item.type === 'Department') {
+            result.queues.push(contact);
+          } else {
+            result.all.push(contact);
+            if (!contact.hidden) {
+              const cdcContact = {
+                ...contact,
+                phoneNumbers: filter(
+                  (number) => !number.hidden,
+                  contact.phoneNumbers ?? [],
+                ),
+              };
+              result.cdc.push(cdcContact);
+            }
           }
         }
         return result;
@@ -108,6 +112,7 @@ export class AccountContacts extends AccountContactsBase {
       {
         all: [],
         cdc: [],
+        queues: [],
       } as DirectoryContacts,
       this._deps.companyContacts.filteredContacts,
     );
