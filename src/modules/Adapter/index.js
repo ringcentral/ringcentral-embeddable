@@ -78,6 +78,7 @@ import { getCallContact } from '../../lib/callHelper';
     'MessageThreads',
     'MessageThreadEntries',
     'SmsTypingTimeTracker',
+    { dep: 'MonitoredExtensions', optional: true },
     { dep: 'AdapterOptions', optional: true }
   ]
 })
@@ -130,6 +131,7 @@ export default class Adapter extends AdapterModuleCore {
     messageThreads,
     messageThreadEntries,
     smsTypingTimeTracker,
+    monitoredExtensions,
     ...options
   }) {
     super({
@@ -181,6 +183,7 @@ export default class Adapter extends AdapterModuleCore {
     this._messageThreads = messageThreads;
     this._messageThreadEntries = messageThreadEntries;
     this._smsTypingTimeTracker = smsTypingTimeTracker;
+    this._monitoredExtensions = monitoredExtensions;
 
     this._reducer = getReducer(this.actionTypes);
     this._callSessions = new Map();
@@ -352,6 +355,9 @@ export default class Adapter extends AdapterModuleCore {
           break;
         case 'rc-adapter-control-call':
           this._controlCall(data.callAction, data.callId, data.options);
+          break;
+        case 'rc-adapter-pick-call':
+          this._pickCall(data.extensionId, data.telephonySessionId);
           break;
         case 'rc-adapter-logout':
           if (this._auth.loggedIn) {
@@ -1072,6 +1078,82 @@ export default class Adapter extends AdapterModuleCore {
 
   async _forward(sessionId, forwardNumber) {
     await this._incomingCallUI.forward(sessionId, forwardNumber);
+  }
+
+  async _pickCall(extensionId, telephonySessionId) {
+    if (!extensionId || !telephonySessionId) {
+      this._postMessage({
+        type: 'rc-control-call-error',
+        error: 'PickError',
+        message: 'extensionId and telephonySessionId are required',
+      });
+      return;
+    }
+
+    if (this._callingSettings.callingMode !== callingModes.webphone) {
+      this._postMessage({
+        type: 'rc-control-call-error',
+        error: 'PickError',
+        message: 'Pick call is only supported in webphone mode',
+      });
+      return;
+    }
+
+    let activeCall = null;
+    let extensionType = null;
+
+    if (this._monitoredExtensions) {
+      const monitoredExt = this._monitoredExtensions.monitoredExtensions.find(
+        (ext) => String(ext.extension.id) === String(extensionId)
+      );
+      if (monitoredExt) {
+        extensionType = monitoredExt.extension.type;
+        activeCall = monitoredExt.presence?.activeCalls?.find(
+          (call) => call.telephonySessionId === telephonySessionId
+        ) || null;
+      }
+    }
+
+    if (!activeCall) {
+      this._postMessage({
+        type: 'rc-control-call-error',
+        error: 'PickError',
+        message: 'Call not found in monitored extensions',
+      });
+      return;
+    }
+
+    if (!extensionType) {
+      this._postMessage({
+        type: 'rc-control-call-error',
+        error: 'PickError',
+        message: 'Extension not found in monitored extensions',
+      });
+      return;
+    }
+
+    const fromNumber = this._callingSettings.fromNumber;
+    try {
+      if (extensionType === 'ParkLocation') {
+        await this._webphone.pickParkLocation(extensionId, activeCall, fromNumber);
+      } else if (extensionType === 'GroupCallPickup') {
+        await this._webphone.pickGroupCall(extensionId, activeCall, fromNumber, 'gcp');
+      } else if (extensionType === 'Department') {
+        await this._webphone.pickGroupCall(extensionId, activeCall, fromNumber, 'qpk');
+      } else {
+        this._postMessage({
+          type: 'rc-control-call-error',
+          error: 'PickError',
+          message: `Unsupported extension type for pick: ${extensionType}`,
+        });
+      }
+    } catch (e) {
+      this._postMessage({
+        type: 'rc-control-call-error',
+        error: 'PickError',
+        message: e.message || 'Failed to pick call',
+      });
+    }
   }
 
   async _startRecord(id) {
