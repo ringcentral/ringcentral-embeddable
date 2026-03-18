@@ -1274,3 +1274,340 @@ export const ListWithActions: Story = {
     );
   },
 };
+
+export const ListWithMarkdown: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        resources: {
+          type: 'string',
+          title: 'Resources',
+          description: 'Select a resource',
+          oneOf: [
+            {
+              const: 'docs',
+              title: 'Documentation **[required]**',
+              description: 'Read the [official docs](https://example.com/docs) to get started.',
+            },
+            {
+              const: 'sdk',
+              title: 'SDK **v2.0**',
+              description: 'Install via npm — see [release notes](https://example.com/releases) for **breaking changes**.',
+            },
+            {
+              const: 'support',
+              title: 'Support',
+              description: 'Open a ticket on [GitHub Issues](https://github.com/example/repo/issues) or contact **support@example.com**.',
+            },
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      resources: {
+        'ui:field': 'list',
+        'ui:showSelected': true,
+      },
+    },
+    formData: {
+      resources: 'docs',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    return (
+      <StoryLayout args={args} resultComponent={null}>
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+        />
+      </StoryLayout>
+    );
+  },
+};
+
+export const ListWithDescriptionColor: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        alerts: {
+          type: 'string',
+          title: 'Alerts',
+          description: 'Status items with colored descriptions',
+          oneOf: [
+            {
+              const: 'ok',
+              title: 'Service Online',
+              description: 'All systems are running normally.',
+            },
+            {
+              const: 'degraded',
+              title: 'Degraded Performance',
+              description: 'Response times are elevated.',
+              descriptionColor: 'warning',
+            },
+            {
+              const: 'outage',
+              title: 'Service Outage',
+              description: 'The service is currently unavailable.',
+              descriptionColor: 'error',
+            },
+            {
+              const: 'restored',
+              title: 'Service Restored',
+              description: 'Incident resolved. All systems back to normal.',
+              descriptionColor: 'success',
+            },
+            {
+              const: 'maintenance',
+              title: 'Scheduled Maintenance',
+              description: 'Maintenance window: 02:00–04:00 UTC.',
+              descriptionColor: 'info',
+            },
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      alerts: {
+        'ui:field': 'list',
+        'ui:showSelected': true,
+      },
+    },
+    formData: {
+      alerts: 'ok',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    return (
+      <StoryLayout
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>ℹ️ Description colors</h4>
+            <p style={{ fontSize: '12px', margin: '0 0 8px 0' }}>
+              Set <code>descriptionColor</code> on a list item to one of the semantic values:
+            </p>
+            <ul style={{ fontSize: '12px', margin: '0', paddingLeft: '20px' }}>
+              <li><strong>error</strong> — danger / red</li>
+              <li><strong>warning</strong> — amber / orange</li>
+              <li><strong>success</strong> — green</li>
+              <li><strong>info</strong> — blue</li>
+              <li>Any custom CSS color string is also accepted.</li>
+            </ul>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+        />
+      </StoryLayout>
+    );
+  },
+};
+
+export const ListLicenseStatus: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        licenses: {
+          type: 'string',
+          title: 'Licenses',
+          oneOf: [
+            {
+              const: 'license_a',
+              title: 'Pro License — Workspace A',
+              description: 'License expired. [Renew now](https://example.com/renew) to restore access.',
+              descriptionColor: 'error',
+              iconMeta: [
+                { icon: 'warning', message: 'Expired 3d ago', color: 'warning.f02' },
+              ],
+              actions: [
+                { id: 'refresh', title: 'Refresh license', icon: 'refresh' },
+                { id: 'settings', title: 'Settings', icon: 'settings' },
+              ],
+            },
+            {
+              const: 'license_b',
+              title: 'Pro License — Workspace B',
+              description: 'Expires in 5 days. [Manage subscription](https://example.com/manage) to avoid interruption.',
+              descriptionColor: 'warning',
+              iconMeta: [
+                { icon: 'info', message: 'Expires soon', color: 'interactive.f01' },
+              ],
+              actions: [
+                { id: 'refresh', title: 'Refresh license', icon: 'refresh' },
+                { id: 'settings', title: 'Settings', icon: 'settings' },
+              ],
+            },
+            {
+              const: 'license_c',
+              title: 'Pro License — Workspace C',
+              description: 'Active. View [license details](https://example.com/details).',
+              actions: [
+                { id: 'refresh', title: 'Refresh license', icon: 'refresh' },
+                { id: 'settings', title: 'Settings', icon: 'settings' },
+              ],
+            },
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      licenses: {
+        'ui:field': 'list',
+        'ui:showSelected': true,
+        'ui:alwaysShowActions': true,
+      },
+    },
+    formData: {
+      licenses: 'license_a',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    const [actionHistory, setActionHistory] = useState<string[]>([]);
+
+    return (
+      <StoryLayout
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>ℹ️ Features used</h4>
+            <ul style={{ fontSize: '12px', margin: '0 0 15px 0', paddingLeft: '20px' }}>
+              <li><code>descriptionColor</code> — error / warning / default</li>
+              <li>Markdown links in description</li>
+              <li><code>iconMeta</code> — warning / info indicators</li>
+              <li><code>ui:alwaysShowActions</code> — refresh & settings always visible</li>
+            </ul>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📝 Recent Actions</h4>
+            <ul style={{ fontSize: '11px', margin: '5px 0 15px', paddingLeft: '20px' }}>
+              {actionHistory.slice(-5).map((entry, index) => (
+                <li key={index}>{entry}</li>
+              ))}
+              {actionHistory.length === 0 && <li>No actions yet</li>}
+            </ul>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+          onButtonClick={(name: string) => {
+            const timestamp = new Date().toLocaleTimeString();
+            setActionHistory(prev => [...prev, `${timestamp}: ${name}`]);
+            args.onButtonClick?.(name as any);
+          }}
+        />
+      </StoryLayout>
+    );
+  },
+};
+
+export const ListWithAlwaysShowActions: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      properties: {
+        tasks: {
+          type: 'string',
+          title: 'Tasks',
+          description: 'Manage tasks — actions are always visible',
+          oneOf: [
+            {
+              const: 'task1',
+              title: 'Design review',
+              description: 'Review the new component designs',
+              meta: 'Due: today',
+              actions: [
+                { id: 'call', title: 'Call', icon: 'phone' },
+                { id: 'edit', title: 'Edit', icon: 'edit' },
+                { id: 'delete', title: 'Delete', icon: 'delete', color: 'danger.b03' },
+              ],
+            },
+            {
+              const: 'task2',
+              title: 'Code implementation',
+              description: 'Implement the List field changes',
+              meta: 'Due: tomorrow',
+              actions: [
+                { id: 'call', title: 'Call', icon: 'phone' },
+                { id: 'edit', title: 'Edit', icon: 'edit' },
+                { id: 'delete', title: 'Delete', icon: 'delete', color: 'danger.b03' },
+              ],
+            },
+            {
+              const: 'task3',
+              title: 'Write tests',
+              description: 'Add unit and storybook tests',
+              meta: 'Due: next week',
+              actions: [
+                { id: 'call', title: 'Call', icon: 'phone' },
+                { id: 'edit', title: 'Edit', icon: 'edit' },
+                { id: 'delete', title: 'Delete', icon: 'delete', color: 'danger.b03' },
+              ],
+            },
+          ],
+        },
+      },
+    },
+    uiSchema: {
+      tasks: {
+        'ui:field': 'list',
+        'ui:showSelected': true,
+        'ui:alwaysShowActions': true,
+      },
+    },
+    formData: {
+      tasks: 'task1',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    const [actionHistory, setActionHistory] = useState<string[]>([]);
+
+    return (
+      <StoryLayout
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>ℹ️ Always-visible actions</h4>
+            <p style={{ fontSize: '12px', margin: '0 0 15px 0' }}>
+              Setting <code>ui:alwaysShowActions: true</code> keeps icon actions permanently visible without requiring hover.
+            </p>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📝 Recent Actions</h4>
+            <ul style={{ fontSize: '11px', margin: '5px 0 15px', paddingLeft: '20px' }}>
+              {actionHistory.slice(-5).map((entry, index) => (
+                <li key={index}>{entry}</li>
+              ))}
+              {actionHistory.length === 0 && <li>No actions yet</li>}
+            </ul>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📝 Form Data</h4>
+            <pre style={{ fontSize: '11px', overflow: 'auto', maxHeight: '200px', margin: 0, background: 'white', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+              {JSON.stringify(formData, null, 2)}
+            </pre>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={setFormData}
+          onButtonClick={(name: string) => {
+            const timestamp = new Date().toLocaleTimeString();
+            setActionHistory(prev => [...prev, `${timestamp}: ${name}`]);
+            args.onButtonClick?.(name as any);
+          }}
+        />
+      </StoryLayout>
+    );
+  },
+};

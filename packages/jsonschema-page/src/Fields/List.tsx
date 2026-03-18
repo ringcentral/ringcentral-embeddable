@@ -47,6 +47,7 @@ import {
 } from '@ringcentral/juno-icon';
 
 import { ActionMenu } from '../components/ActionMenu';
+import { TextWithMarkdown } from '../components/TextWithMarkdown';
 
 const StyledList = styled(RcList)`
   margin: 0 -16px;
@@ -57,16 +58,17 @@ const StyledItem = styled(RcListItem)<{
   $hasActions?: boolean
   $readOnly?: boolean
   $hideMetaOnActionHover?: boolean
+  $alwaysShowActions?: boolean
 }>`
   border-bottom: 1px solid ${palette2('neutral', 'l02')};
   cursor: ${({ $readOnly }) => ($readOnly ? 'default' : 'pointer')};
 
   .list-item-action-menu {
-    display: none;
+    display: ${({ $alwaysShowActions }) => ($alwaysShowActions ? 'flex' : 'none')};
   }
 
-  ${({ $hoverOnMoreMenu, $hideMetaOnActionHover }) =>
-    $hoverOnMoreMenu &&
+  ${({ $hoverOnMoreMenu, $hideMetaOnActionHover, $alwaysShowActions }) =>
+    $hoverOnMoreMenu && !$alwaysShowActions &&
     css`
       .list-item-action-menu {
         display: flex;
@@ -80,8 +82,8 @@ const StyledItem = styled(RcListItem)<{
       `}
     `}
 
-  ${({ $hasActions, $readOnly, $hideMetaOnActionHover }) =>
-    $hasActions && !$readOnly &&
+  ${({ $hasActions, $readOnly, $hideMetaOnActionHover, $alwaysShowActions }) =>
+    $hasActions && !$readOnly && !$alwaysShowActions &&
     css`
       &:hover {
         .list-item-action-menu {
@@ -176,6 +178,23 @@ const ICONS_MAP = {
   'warning': Warning,
 };
 
+const DESCRIPTION_COLOR_MAP = {
+  error: palette2('danger', 'b04'),
+  success: palette2('success', 'b04'),
+  warning: palette2('warning', 'b04'),
+  info: palette2('interactive', 'b04'),
+};
+
+const StyledListItemText = styled(RcListItemText)<{ $descriptionColor?: string }>`
+  ${({ $descriptionColor }) =>
+    $descriptionColor &&
+    css`
+      .RcListItemText-secondary {
+        color: ${$descriptionColor};
+      }
+    `}
+`;
+
 const BUTTON_ACTION_TYPE = 'button';
 const DEFAULT_ACTION_MENU_MAX_ACTIONS = 3;
 const ACTION_MENU_MAX_ACTIONS_WITH_BUTTON = 1;
@@ -192,6 +211,7 @@ function ListItem({
   actions = [],
   onClickAction,
   readOnly,
+  alwaysShowActions,
 }) {
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
   const buttonAction = actions.find(isButtonAction);
@@ -227,6 +247,7 @@ function ListItem({
       $hasActions={iconActions.length > 0}
       $readOnly={readOnly}
       $hideMetaOnActionHover={hideMetaOnActionHover}
+      $alwaysShowActions={alwaysShowActions}
     >
       {
         item.icon ? (
@@ -240,9 +261,10 @@ function ListItem({
           </RcListItemAvatar>
         ) : null
       }
-      <RcListItemText
-        primary={item.title}
-        secondary={item.description}
+      <StyledListItemText
+        primary={item.title ? <TextWithMarkdown text={item.title} /> : item.title}
+        secondary={item.description ? <TextWithMarkdown text={item.description} /> : item.description}
+        $descriptionColor={DESCRIPTION_COLOR_MAP[item.descriptionColor] || item.descriptionColor}
       />
       {
         hasSecondaryAction ? (
@@ -263,7 +285,7 @@ function ListItem({
                       <RcTooltip key={index} title={iconMetaItem.message}>
                         <StyledMetaIcon
                           symbol={ICONS_MAP[iconMetaItem.icon] || ICONS_MAP.info}
-                          size={iconMetaItem.size || 'small'}
+                          size={iconMetaItem.size || 'medium'}
                           color={iconMetaItem.color || 'neutral.f04'}
                         />
                       </RcTooltip>
@@ -627,6 +649,7 @@ export function List({
   const itemWidget = uiSchema['ui:itemWidget'];
   const isCard = uiSchema['ui:itemType'] === 'card' || itemWidget === 'card';
   const isMetric = uiSchema['ui:itemType'] === 'metric' || itemWidget === 'metric';
+  const alwaysShowActions = !!uiSchema['ui:alwaysShowActions'];
   const Item = isCard || isMetric ? CardItem : ListItem;
   const Container = isCard || isMetric ? StyledCardList : StyledList;
   return (
@@ -658,6 +681,7 @@ export function List({
           onClickAction={(action) => {
             onFocus(`${action.id}-${item.const}-action`, '$$clicked');
           }}
+          alwaysShowActions={alwaysShowActions}
         />
       ))}
     </Container>
