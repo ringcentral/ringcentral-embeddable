@@ -175,6 +175,34 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+## Pick up a call
+
+<!-- md:version 3.x -->
+
+Pick up a parked call or group call from a monitored extension (park location, group call pickup, or call queue).
+
+!!! info "This requires the HUD (Heads Up Display) feature to be enabled and the target extension to be in the monitored extensions list."
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-pick-call',
+  extensionId: 'extension_id',                // required: extension ID of the park location / group / queue to pick from
+  telephonySessionId: 'telephony_session_id', // required: telephony session ID of the call to pick up
+}, '*');
+```
+
+The `extensionId` is the ID of the park location, group call pickup, or call queue extension. The `telephonySessionId` can be obtained from the [Presence Line Events](https://developers.ringcentral.com/api-reference/Detailed-Presence-Event) notifications.
+
+Errors are reported back via the `rc-control-call-error` message:
+
+```js
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'rc-control-call-error') {
+    console.error('Pick call error:', e.data.message);
+  }
+});
+```
+
 ## Embeddable widget
 
 ### Show custom alert message
