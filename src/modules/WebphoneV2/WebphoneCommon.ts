@@ -410,6 +410,11 @@ export class Webphone extends WebphoneBase {
     if (!session || !isRing(session)) {
       return;
     }
+    // In firefox, we need to call getUserMedia to get the device info before making a call
+    await this._deps.audioSettings.getUserMedia();
+    if (!this._deps.audioSettings.hasUserMedia) {
+      return;
+    }
     const sipSession = this.originalSessions[sessionId];
     try {
       await this._holdOtherSession(sessionId);
@@ -1039,6 +1044,11 @@ export class Webphone extends WebphoneBase {
         });
         return null;
       }
+    }
+    // In firefox, we need to call getUserMedia to get the device info before making a call
+    await this._deps.audioSettings.getUserMedia();
+    if (!this._deps.audioSettings.hasUserMedia) {
+      return null;
     }
     await this._holdOtherSession(null);
     let headers = {
