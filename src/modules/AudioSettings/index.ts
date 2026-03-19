@@ -124,17 +124,4 @@ export class AudioSettings extends AudioSettingsBase {
         }
       : true;
   }
-
-  get userMedia() {
-    // Now Firefox has supported to return device label when getUserMedia is granted, so we comment firefox checking
-    // const isFirefox = navigator.userAgent.indexOf('Firefox') > -1;
-    // if (isFirefox) {
-    //   return true;
-    // }
-    // this detection method may not work in the future
-    // currently there is no good way to detect this
-    return !!(
-      this.availableDevices.length && this.availableDevices[0].label !== ''
-    );
-  }
 }
