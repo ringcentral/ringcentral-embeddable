@@ -23,6 +23,10 @@ const StyledUnitAdornment = styled(Typography)`
   padding-right: 8px;
 `;
 
+const StyledTextField = styled(TextField)`
+  width: 50%;
+`;
+
 const DURATION_REGEX = /^P(?=\d|T\d)(?:(\d+)D)?(?:T(?=\d)(?:(\d+)H)?(?:(\d+)M)?)?$/i;
 
 type DurationParts = {
@@ -157,7 +161,7 @@ export default function DurationWidget<
         hideLabel
       )}
       <Box display="flex" flexDirection="row" gap={2} flexWrap="wrap">
-        <TextField
+        <StyledTextField
           id={`${id}__hours`}
           name={`${id}__hours`}
           label={undefined}
@@ -191,7 +195,7 @@ export default function DurationWidget<
           aria-describedby={describedBy}
           clearBtn={false}
         />
-        <TextField
+        <StyledTextField
           id={`${id}__minutes`}
           name={`${id}__minutes`}
           label={undefined}
