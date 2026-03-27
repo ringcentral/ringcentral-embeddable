@@ -186,8 +186,12 @@ export class Validator implements ValidatorType {
         return this.emailRegex.test(value) ? null : 'Must be a valid email address';
       case 'date':
         return this._isValidDate(value) ? null : 'Must be a valid date (YYYY-MM-DD)';
+      case 'time':
+        return this._isValidTime(value) ? null : 'Must be a valid time (HH:MM or HH:MM:SS)';
       case 'date-time':
         return this._isValidDateTime(value) ? null : 'Must be a valid date-time';
+      case 'duration':
+        return this._isValidDuration(value) ? null : 'Must be a valid duration (for example PT1H30M)';
       case 'uri':
         return this._isValidUri(value) ? null : 'Must be a valid URI';
       case 'uuid':
@@ -207,6 +211,16 @@ export class Validator implements ValidatorType {
   private _isValidDateTime(value: string): boolean {
     const date = new Date(value);
     return date instanceof Date && !isNaN(date.getTime());
+  }
+
+  private _isValidTime(value: string): boolean {
+    const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d{1,3})?)?$/;
+    return timeRegex.test(value);
+  }
+
+  private _isValidDuration(value: string): boolean {
+    const durationRegex = /^P(?=\d|T\d)(?:(\d+)D)?(?:T(?=\d)(?:(\d+)H)?(?:(\d+)M)?)?$/i;
+    return durationRegex.test(value);
   }
 
   private _isValidUri(value: string): boolean {
