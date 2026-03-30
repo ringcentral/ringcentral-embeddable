@@ -41,6 +41,7 @@ Find exactly what you need:
 |-------------------|-----------|-------------|
 | Learn the basics | [Documentation](https://github.com/ringcentral/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs) | Installation, basic usage |
 | Add a text input | [Text Input Widget](https://github.com/ringcentral/ringcentral-embeddable/jsonschema-page/?path=/story/jsonschemapage-form-input-widgets--text-input-widget) | `{ type: 'string', title: 'Name' }` |
+| Add scheduling fields | [Scheduling Input Widgets](https://github.com/ringcentral/ringcentral-embeddable/jsonschema-page/?path=/story/jsonschemapage-form-input-widgets--scheduling-input-widgets) | `{ type: 'string', format: 'duration' }` |
 | Add a dropdown | [Select Widget](https://github.com/ringcentral/ringcentral-embeddable/jsonschema-page/?path=/story/jsonschemapage-form-input-widgets--select-widget) | `{ enum: ['option1', 'option2'] }` |
 | Add a button | [Button Fields](https://github.com/ringcentral/ringcentral-embeddable/jsonschema-page/?path=/story/jsonschemapage-interactive-components--button-fields) | `{ 'ui:field': 'button' }` |
 | Show an alert | [Alert Fields](https://github.com/ringcentral/ringcentral-embeddable/jsonschema-page/?path=/story/jsonschemapage-display-components--alert-fields) | `{ 'ui:field': 'alert' }` |
@@ -137,4 +138,3 @@ npm install @ringcentral/juno @ringcentral/juno-icon react styled-components
 ---
 
 **Ready to build amazing forms?** Start with the [Documentation](https://github.com/ringcentral/ringcentral-embeddable/jsonschema-page/?path=/docs/jsonschemapage-documentation--docs) or explore the examples above! 🚀
-

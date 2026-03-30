@@ -44,6 +44,7 @@ import {
   Unread,
   SettingsBorder,
   Warning,
+  Check,
 } from '@ringcentral/juno-icon';
 
 import { ActionMenu } from '../components/ActionMenu';
@@ -176,6 +177,7 @@ const ICONS_MAP = {
   'unread': Unread,
   'settings': SettingsBorder,
   'warning': Warning,
+  'check': Check,
 };
 
 const DESCRIPTION_COLOR_MAP = {

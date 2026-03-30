@@ -1142,6 +1142,7 @@ export const ListWithActions: Story = {
                 { id: 'read', title: 'Mark as unread', icon: 'read' },
                 { id: 'unread', title: 'Mark as read', icon: 'unread' },
                 { id: 'settings', title: 'Settings', icon: 'settings' },
+                { id: 'check', title: 'Check', icon: 'check' },
               ],
             },
             {

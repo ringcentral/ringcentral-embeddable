@@ -36,6 +36,41 @@ const StoryLayout = ({ args, children, resultComponent }) => (
   </div>
 );
 
+const DURATION_REGEX = /^P(?=\d|T\d)(?:(\d+)D)?(?:T(?=\d)(?:(\d+)H)?(?:(\d+)M)?)?$/i;
+
+const getDurationMinutes = (value?: string) => {
+  if (!value) {
+    return null;
+  }
+
+  const match = value.match(DURATION_REGEX);
+  if (!match) {
+    return null;
+  }
+
+  const [, days = '0', hours = '0', minutes = '0'] = match;
+  return Number.parseInt(days, 10) * 24 * 60
+    + Number.parseInt(hours, 10) * 60
+    + Number.parseInt(minutes, 10);
+};
+
+const formatDurationSummary = (value?: string) => {
+  const totalMinutes = getDurationMinutes(value);
+  if (totalMinutes === null) {
+    return 'Invalid duration';
+  }
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours > 0 && minutes > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  if (hours > 0) {
+    return `${hours}h`;
+  }
+  return `${minutes}m`;
+};
+
 const meta: Meta<typeof JSONSchemaPage> = {
   title: 'JSONSchemaPage/Form Input Widgets',
   component: JSONSchemaPage,
@@ -199,6 +234,105 @@ export const TextInputWidget: Story = {
           }}
           onSubmit={(data) => {
             console.log('Text inputs submitted:', data.formData);
+            args.onSubmit?.(data);
+            alert('Form submitted! Check console and Actions panel.');
+          }}
+          onButtonClick={(name, value) => {
+            console.log('Button clicked:', name, value);
+            args.onButtonClick?.(name, value);
+          }}
+        />
+      </StoryLayout>
+    );
+  },
+};
+
+export const SchedulingInputWidgets: Story = {
+  args: {
+    schema: {
+      type: 'object',
+      required: ['meetingDate', 'meetingTime', 'meetingStart', 'meetingDuration'],
+      properties: {
+        meetingDate: {
+          type: 'string',
+          format: 'date',
+          title: 'Meeting Date',
+          description: 'Calendar date for the invitation',
+        },
+        meetingTime: {
+          type: 'string',
+          format: 'time',
+          title: 'Meeting Time',
+          description: 'Start time for the invitation',
+        },
+        meetingStart: {
+          type: 'string',
+          format: 'date-time',
+          title: 'Meeting Start DateTime',
+          description: 'Combined start date and time in UTC format',
+        },
+        meetingDuration: {
+          type: 'string',
+          format: 'duration',
+          title: 'Meeting Duration',
+          description: 'Meeting length stored as an ISO 8601 duration string',
+        },
+      },
+    },
+    uiSchema: {
+      meetingTime: {
+        'ui:help': 'Stored as HH:MM:SS in form data',
+      },
+      meetingStart: {
+        'ui:help': 'Date-time values are stored in UTC',
+      },
+      meetingDuration: {
+        'ui:help': 'The duration widget stores values like PT45M or PT1H30M',
+        'ui:options': {
+          minuteStep: 15,
+        },
+      },
+    },
+    formData: {
+      meetingDate: '2026-04-15',
+      meetingTime: '09:30:00',
+      meetingStart: '2026-04-15T09:30:00.000Z',
+      meetingDuration: 'PT45M',
+    },
+  },
+  render: (args) => {
+    const [formData, setFormData] = useState(args.formData || {});
+    const durationMinutes = getDurationMinutes(formData.meetingDuration);
+    const meetingEnd = formData.meetingStart && durationMinutes !== null
+      ? new Date(new Date(formData.meetingStart).getTime() + durationMinutes * 60 * 1000)
+      : null;
+
+    return (
+      <StoryLayout
+        args={args}
+        resultComponent={
+          <>
+            <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>📅 Meeting Invitation Preview</h4>
+            <div style={{ fontSize: '12px' }}>
+              <p>Date Value: {formData.meetingDate || 'Not set'}</p>
+              <p>Time Value: {formData.meetingTime || 'Not set'}</p>
+              <p>DateTime Value: {formData.meetingStart || 'Not set'}</p>
+              <p>Duration Value: {formData.meetingDuration || 'Not set'}</p>
+              <p>Duration Summary: {formData.meetingDuration ? formatDurationSummary(formData.meetingDuration) : 'Not set'}</p>
+              <p>Estimated End: {meetingEnd ? meetingEnd.toLocaleString() : 'Not enough information yet'}</p>
+            </div>
+          </>
+        }
+      >
+        <JSONSchemaPage
+          {...args}
+          formData={formData}
+          onFormDataChange={(data) => {
+            setFormData(data);
+            args.onFormDataChange?.(data);
+          }}
+          onSubmit={(data) => {
+            console.log('Scheduling inputs submitted:', data.formData);
             args.onSubmit?.(data);
             alert('Form submitted! Check console and Actions panel.');
           }}
