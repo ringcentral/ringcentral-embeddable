@@ -1,0 +1,41 @@
+{
+  "distPath": "dist",
+  "buildPath": "build",
+  "themePath": "./next",
+  "pages": [
+    {
+      "index": "next/app.html",
+      "main": "next/app.ts"
+    },
+    {
+      "main": "next/adapter.ts",
+      "filename": "adapter.js"
+    },
+    {
+      "index": "next/redirect.html",
+      "main": "next/redirect.ts"
+    }
+  ],
+  "assets": [
+    { "from": "next/popup.html", "to": "popup.html" },
+    { "from": "next/index.html", "to": "index.html" },
+    { "from": "next/assets", "to": "assets" }
+  ],
+  "environment": {
+    "local": {
+      "brand": ["rc"],
+      "mode": "development"
+    },
+    "dev": {
+      "brand": ["rc"],
+      "mode": "production"
+    },
+    "prod": {
+      "brand": ["rc"],
+      "mode": "production"
+    }
+  },
+  "appConfigPath": "next/config/index.ts",
+  "devServerPort": 8080,
+  "themeSystem": "spring-ui"
+}

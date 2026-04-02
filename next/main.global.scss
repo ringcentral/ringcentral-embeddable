@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body,
+html,
+#app {
+  @apply h-full w-full;
+
+  @apply bg-neutral-base text-neutral-b0;
+}
