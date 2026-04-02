@@ -28,6 +28,7 @@ import {
   ContactMatcher,
 } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { ContactDetailsView } from '@ringcentral-integration/micro-contacts/src/app/views';
+import { IntegrationConfigOptions } from '@ringcentral-integration/micro-setting/src/app/services';
 import {
   BlockPlugin,
   SpringThemePlugin,
@@ -331,6 +332,19 @@ export const getAppConfig = <
           // disable sms log for demo app
           supportCRMLogMessageTypes: [],
         } satisfies SmsConversationsOptions,
+      },
+      {
+        provide: 'IntegrationConfigOptions',
+        useValue:
+          ({
+            key: 'thirdParty',
+            onViewEntity: (entity) => {
+              console.log('🐞 ~ onViewEntity entity:', entity);
+            },
+            onCreateEntity: (entity) => {
+              console.log('🐞 ~ onCreateEntity entity:', entity);
+            },
+          } satisfies IntegrationConfigOptions)
       },
       ...modules,
     ],
