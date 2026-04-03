@@ -96,6 +96,11 @@ import {
   SharedConversationView,
   SmsOptOutView,
 } from '@ringcentral-integration/micro-message/src/app/views';
+import {
+  Webphone as WebphoneV2,
+  NoiseReduction,
+  VoicemailDrop,
+} from './services';
 import { AppView } from './AppView';
 
 interface CreateAppEntryOptions<
@@ -158,7 +163,12 @@ export const getAppConfig = <
       OAuth,
       CallerId,
       AvailabilityMonitor,
-      Webphone,
+      {
+        provide: Webphone,
+        useClass: WebphoneV2,
+      },
+      NoiseReduction,
+      VoicemailDrop,
       CallingSettings,
       Presence,
       QuickAccess,
