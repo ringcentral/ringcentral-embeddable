@@ -150,14 +150,14 @@
     "@ringcentral-integration/next-core": "0.0.1",
     "@ringcentral-integration/next-integration": "0.0.1",
     "@ringcentral-integration/next-micro": "0.0.1",
-    "@ringcentral-integration/next-widgets": "0.0.1",
+    "@ringcentral-integration/next-widgets": "git+https://github.com/ringcentral/ringcentral-js-widgets.git#next-widgets-release",
     "@ringcentral-integration/phone-number": "^1.2.0",
     "@ringcentral-integration/react-hooks": "^0.16.0",
     "@ringcentral-integration/rjsf-juno": "0.0.1",
     "@ringcentral-integration/rjsf-spring": "0.0.1",
     "@ringcentral-integration/utils": "0.16.0-next",
     "@ringcentral-integration/widgets": "^0.16.0",
-    "@ringcentral/juno": "^2.46.0",
+    "@ringcentral/juno": "^2.52.0",
     "@ringcentral/juno-icon": "^1.94.0",
     "@ringcentral/mfe-react": "^0.4.18",
     "@ringcentral/sdk": "^5.0.6",
@@ -189,7 +189,7 @@
     "react-router-redux": "^4.0.7",
     "redux": "^4.2.0",
     "ringcentral-client": "^1.0.0-beta.2",
-    "ringcentral-web-phone": "^0.8.13",
+    "ringcentral-web-phone": "^2.2.7",
     "setimmediate": "^1.0.5",
     "styled-components": "^5.3.3",
     "url": "^0.11.0",
@@ -207,6 +207,7 @@
     "@ringcentral-integration/i18n-dayjs": "0.16.0-next",
     "@ringcentral-integration/commons": "git+https://github.com/embbnux/ringcentral-js-widget.git#commons-release",
     "@ringcentral-integration/micro-message": "git+https://github.com/ringcentral/ringcentral-js-widgets.git#micro-message-release",
-    "@ringcentral-integration/micro-phone": "git+https://github.com/ringcentral/ringcentral-js-widgets.git#micro-phone-release"
+    "@ringcentral-integration/micro-phone": "git+https://github.com/ringcentral/ringcentral-js-widgets.git#micro-phone-release",
+    "@ringcentral-integration/next-widgets": "git+https://github.com/ringcentral/ringcentral-js-widgets.git#next-widgets-release"
   }
 }

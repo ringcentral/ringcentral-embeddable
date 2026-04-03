@@ -65,6 +65,13 @@ const getCustomRules = (): RuleSetRule[] => [
       },
     },
   },
+  {
+    test: /\.worklet\.js$/,
+    type: 'asset/resource',
+    generator: {
+      filename: 'worklets/[name][ext]'
+    },
+  },
 ];
 
 export const getWebpackConfig = (options: WebpackConfigOptions<AppConfig>) => {
@@ -140,6 +147,10 @@ export const getWebpackConfig = (options: WebpackConfigOptions<AppConfig>) => {
         '@ringcentral/juno-icon/es6': path.resolve(
           __dirname,
           './node_modules/@ringcentral/juno-icon/es6',
+        ),
+        'ringcentral-web-phone/lib/audioHelper$': path.resolve(
+          __dirname,
+          './next/app/services/WebphoneV2/AudioHelper.ts',
         ),
       },
     },
