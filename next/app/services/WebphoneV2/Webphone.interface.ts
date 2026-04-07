@@ -185,6 +185,7 @@ export interface WebphoneSession
   data?: {
     sessionId?: string;
   };
+  callId: string;
   localHold?: boolean;
   __rc_extendedControls?: string[];
   __rc_extendedControlStatus?: string;

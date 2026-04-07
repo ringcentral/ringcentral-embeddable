@@ -797,8 +797,13 @@ export class WebphoneBase extends RcModule {
     if (!this._sharedSipClient) {
       return;
     }
+    if (this.isWebphoneActiveTab) {
+      return;
+    }
     const canBeActiveTabs = await this._canBeActiveTabs();
+    this.logger.log('setSharedSipClientActive', canBeActiveTabs);
     if (canBeActiveTabs) {
+      this.logger.log('setSharedSipClientActive', this._portManager.clientId);
       this._sharedSipClient.setActive(this._portManager.clientId ?? null);
     }
   }

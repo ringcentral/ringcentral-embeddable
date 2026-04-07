@@ -96,8 +96,8 @@ import {
 } from './webphoneHelper';
 
 export const INCOMING_CALL_INVALID_STATE_ERROR_CODE = 2;
-const customClientDelegateName = 'customClientDelegateName';
 const webphoneHandleTimeoutName = 'webphoneHandleTimeoutName';
+const WEBPHONE_ACTIVE_CLIENT_CHANNEL = 'webphoneActiveClient';
 
 export class NumberValidError extends Error {
   constructor() {
@@ -109,17 +109,6 @@ export class NumberValidError extends Error {
   name: 'Webphone',
 })
 export class Webphone extends WebphoneBase {
-  private readonly _handleWebphoneClientDelegate = async (options: any) => {
-    if (!this.checkMainTab()) {
-      return new Promise(() => {
-        // do not resolve and it can't response if it's not the active webphone tab
-      });
-    }
-    const module = getRef(this).modules![options.module];
-    const result = await applyMethod(module, options);
-    return result;
-  };
-
   private get _permissionCheck() {
     return this._webphoneOptions?.permissionCheck ?? true;
   }
@@ -214,7 +203,15 @@ export class Webphone extends WebphoneBase {
     }
 
     if (this._portManager.shared) {
-      this.useWebphoneMainTab();
+      this._portManager.checkMainTabMapping.set(
+        this,
+        () => this._isAuthoritativeWebphoneClient(),
+      );
+      this._portManager.customClientDelegateNameMapping.set(
+        this,
+        WEBPHONE_ACTIVE_CLIENT_CHANNEL,
+      );
+      this._setupActiveWebphoneTransportListeners();
       watch(
         this,
         () => [this.ready, this._portManager.activeTabId, this.sessions.length],
@@ -248,44 +245,6 @@ export class Webphone extends WebphoneBase {
             }
           },
         );
-      });
-      this._portManager.onClient((transport) => {
-        // TODO: fix type
-        // @ts-ignore
-        transport.listen(
-          customClientDelegateName,
-          this._handleWebphoneClientDelegate,
-        );
-      });
-      this._portManager.onServer((transport) => {
-        // TODO: fix type
-        // @ts-ignore
-        transport.listen(customClientDelegateName, async (options) => {
-          if (!this._portManager.isWorkerMode) {
-            return this._handleWebphoneClientDelegate(options);
-          }
-          if (!this._portManager.activeTabId && !this._portManager.mainClientId) {
-            await this._portManager.promiseMainTabClient;
-          }
-          const targetClientId =
-            this.activeWebphoneId ??
-            this._portManager.activeTabId ??
-            this._portManager.mainClientId;
-          if (!targetClientId) {
-            return new Promise(() => {
-              // wait for the active webphone tab to be ready
-            });
-          }
-          return transport.emit(
-            {
-              // TODO: fix type
-              // @ts-ignore
-              name: customClientDelegateName,
-              clientIds: [targetClientId],
-            },
-            options,
-          );
-        });
       });
       if (this._portManager.isWorkerMode) {
         this._portManager.onClient((transport) => {
@@ -332,20 +291,6 @@ export class Webphone extends WebphoneBase {
           });
         });
       }
-    }
-  }
-
-  checkMainTab = () =>
-    this.isWebphoneActiveTab ||
-    (!this.activeWebphoneId && this._portManager.isActiveTab);
-
-  useWebphoneMainTab(target: object = this) {
-    if (this._portManager.shared) {
-      this._portManager.checkMainTabMapping.set(target, this.checkMainTab);
-      this._portManager.customClientDelegateNameMapping.set(
-        target,
-        customClientDelegateName,
-      );
     }
   }
 
@@ -398,10 +343,69 @@ export class Webphone extends WebphoneBase {
   }
 
   protected override _onActiveTabIdChanged() {
+    this.logger.log('onActiveTabIdChanged', this._portManager.isActiveTab);
     if (this._portManager.isActiveTab) {
       void this._onTabActive();
     }
     this._emitActiveWebphoneChangedEvent();
+  }
+
+  /**
+   * Registers transport listeners on both client and server for the custom
+   * webphone active client channel used by `@delegate('mainClient')` with
+   * `customClientDelegateNameMapping`.
+   */
+  private _setupActiveWebphoneTransportListeners() {
+    const channelName = WEBPHONE_ACTIVE_CLIENT_CHANNEL;
+    const resolveActiveClientId = () => this.activeWebphoneId;
+    this._portManager.onClient((transport: any) => {
+      transport.listen(channelName, async (params: any) => {
+        const activeClientId = resolveActiveClientId();
+        const isTarget =
+          activeClientId === this._portManager.clientId ||
+          (!activeClientId && this._portManager.isActiveTab);
+        if (!isTarget) {
+          return new Promise(() => {
+            // not the target tab -- hang so the server picks the next transport
+          });
+        }
+        const module = getRef(this as any).modules![params.module];
+        return applyMethod(module, params);
+      });
+    });
+    this._portManager.onServer((transport: any) => {
+      transport.listen(channelName, async (params: any) => {
+        if (!this._portManager.isWorkerMode) {
+          const activeClientId = resolveActiveClientId();
+          const isTarget =
+            activeClientId === this._portManager.clientId ||
+            (!activeClientId && this._portManager.isActiveTab);
+          if (isTarget) {
+            const module = getRef(this as any).modules![params.module];
+            return applyMethod(module, params);
+          }
+        }
+        if (
+          !this._portManager.activeTabId &&
+          !this._portManager.mainClientId
+        ) {
+          await this._portManager.promiseMainTabClient;
+        }
+        const targetClientId =
+          resolveActiveClientId() ??
+          this._portManager.activeTabId ??
+          this._portManager.mainClientId;
+        if (!targetClientId) {
+          return new Promise(() => {
+            // no active client available
+          });
+        }
+        return transport.emit(
+          { name: channelName, clientIds: [targetClientId] },
+          params,
+        );
+      });
+    });
   }
 
   @state
@@ -509,7 +513,8 @@ export class Webphone extends WebphoneBase {
     (session as WebphoneSession & { __rc_eventsBound?: boolean }).__rc_eventsBound =
       true;
     this._prepareSession(session);
-    this.logger.log('initWebphoneSessionEvents', session);
+    // Session is non-serializable data, how to log?
+    this.logger.log('initWebphoneSessionEvents', session.id || session.callId);
 
     session.on('answered', async () => {
       if (session.__rc_callStatus === sessionStatus.finished) {
@@ -713,18 +718,12 @@ export class Webphone extends WebphoneBase {
     }
   }
 
-  @delegate('mainClient')
   async mute(
     sessionId: string,
     errorHandler?: (error: any) => void | Promise<void>,
   ) {
     try {
-      this._sessionHandleWithId(sessionId, async (session: WebphoneSession) => {
-        session.__rc_isOnMute = true;
-        session.mute();
-        await this._updateSessions();
-      });
-      return true;
+      return await this._delegateMute(sessionId);
     } catch (e) {
       this.logger.error(`mute fail`, e);
       if (errorHandler) {
@@ -739,6 +738,16 @@ export class Webphone extends WebphoneBase {
   }
 
   @delegate('mainClient')
+  private async _delegateMute(sessionId: string) {
+    this._sessionHandleWithId(sessionId, async (session: WebphoneSession) => {
+      session.__rc_isOnMute = true;
+      session.mute();
+      await this._updateSessions();
+    });
+    return true;
+  }
+
+  @delegate('mainClient')
   async unmute(sessionId: string) {
     this._sessionHandleWithId(sessionId, async (session: WebphoneSession) => {
       session.__rc_isOnMute = false;
@@ -747,25 +756,12 @@ export class Webphone extends WebphoneBase {
     });
   }
 
-  @delegate('mainClient')
   async hold(
     sessionId: string,
     errorHandler?: (error: any) => void | Promise<void>,
   ) {
-    const session = this.originalSessions[sessionId];
-    if (!session) {
-      return false;
-    }
-    if (session.localHold) {
-      return true;
-    }
     try {
-      await session.hold();
-      session.__rc_localHold = true;
-      session.__rc_callStatus = sessionStatus.onHold;
-      await this._updateSessions();
-      this._onCallHold(session);
-      return true;
+      return await this._delegateHold(sessionId);
     } catch (e) {
       this.logger.error(`hold error:`, e);
       if (errorHandler) {
@@ -777,6 +773,23 @@ export class Webphone extends WebphoneBase {
       }
       return false;
     }
+  }
+
+  @delegate('mainClient')
+  private async _delegateHold(sessionId: string) {
+    const session = this.originalSessions[sessionId];
+    if (!session) {
+      return false;
+    }
+    if (session.localHold) {
+      return true;
+    }
+    await session.hold();
+    session.__rc_localHold = true;
+    session.__rc_callStatus = sessionStatus.onHold;
+    await this._updateSessions();
+    this._onCallHold(session);
+    return true;
   }
 
   async _holdOtherSession(currentSessionId: string | null) {
@@ -803,28 +816,32 @@ export class Webphone extends WebphoneBase {
     await this._updateSessions();
   }
 
-  @delegate('mainClient')
   async unhold(
     sessionId: string,
     errorHandler?: (error: any) => Promise<void> | void,
   ) {
+    try {
+      await this._delegateUnhold(sessionId);
+    } catch (e) {
+      this.logger.log(`unhold fail`, e);
+      errorHandler?.(e);
+    }
+  }
+
+  @delegate('mainClient')
+  private async _delegateUnhold(sessionId: string) {
     const session = this.originalSessions[sessionId];
     if (!session) {
       return;
     }
-    try {
-      if (session.localHold) {
-        await this._holdOtherSession(session.id);
-        this._onBeforeCallResume(session);
-        await session.unhold();
-        session.__rc_localHold = false;
-        session.__rc_callStatus = sessionStatus.connected;
-        await this._updateSessions();
-        await this._onCallResume(session);
-      }
-    } catch (e) {
-      this.logger.log(`unhold fail`, e);
-      errorHandler?.(e);
+    if (session.localHold) {
+      await this._holdOtherSession(session.id);
+      this._onBeforeCallResume(session);
+      await session.unhold();
+      session.__rc_localHold = false;
+      session.__rc_callStatus = sessionStatus.connected;
+      await this._updateSessions();
+      await this._onCallResume(session);
     }
   }
 
@@ -867,11 +884,20 @@ export class Webphone extends WebphoneBase {
     }
   }
 
-  @delegate('mainClient')
   async stopRecord(
     sessionId: string,
     errorHandler?: (error: any) => void | Promise<void>,
   ) {
+    try {
+      await this._delegateStopRecord(sessionId);
+    } catch (e) {
+      this.logger.error(`stop record fail`, e);
+      errorHandler?.(e);
+    }
+  }
+
+  @delegate('mainClient')
+  private async _delegateStopRecord(sessionId: string) {
     const session = this.originalSessions[sessionId];
     if (!session) {
       return;
@@ -883,10 +909,9 @@ export class Webphone extends WebphoneBase {
       session.__rc_recordStatus = recordStatus.idle;
       await this._updateSessions();
     } catch (e) {
-      this.logger.error(`stop record fail`, e);
       session.__rc_recordStatus = recordStatus.recording;
       await this._updateSessions();
-      errorHandler?.(e);
+      throw e;
     }
   }
 
@@ -1085,11 +1110,20 @@ export class Webphone extends WebphoneBase {
     }
   }
 
-  @delegate('mainClient')
   async hangup(
     sessionId: string,
     errorHandler?: (error: any) => void | Promise<void>,
   ) {
+    try {
+      await this._delegateHangup(sessionId);
+    } catch (e) {
+      this.logger.log('hangup fail', e);
+      errorHandler?.(e);
+    }
+  }
+
+  @delegate('mainClient')
+  private async _delegateHangup(sessionId: string) {
     const session = this.originalSessions[sessionId];
     if (!session) {
       return;
@@ -1098,10 +1132,8 @@ export class Webphone extends WebphoneBase {
       this._onBeforeCallEnd(session);
       await session.hangup();
     } catch (e) {
-      this.logger.log('hangup fail', e);
-
       await this._onCallEnd(session);
-      errorHandler?.(e);
+      throw e;
     }
   }
 
@@ -1124,11 +1156,23 @@ export class Webphone extends WebphoneBase {
     }
   }
 
-  @delegate('mainClient')
   async replyWithMessage(
     sessionId: string,
     replyOptions: SessionReplyOptions,
     errorHandler?: (error: any) => void | Promise<void>,
+  ) {
+    try {
+      return await this._delegateReplyWithMessage(sessionId, replyOptions);
+    } catch (e) {
+      this.logger.log('replyWithMessage fail', e);
+      errorHandler?.(e);
+    }
+  }
+
+  @delegate('mainClient')
+  private async _delegateReplyWithMessage(
+    sessionId: string,
+    replyOptions: SessionReplyOptions,
   ) {
     const session = this.originalSessions[sessionId];
     if (!session) {
@@ -1139,9 +1183,8 @@ export class Webphone extends WebphoneBase {
       await replyWithMessage(session, replyOptions);
       return true;
     } catch (e) {
-      this.logger.log('replyWithMessage fail', e);
       await this._onCallEnd(session);
-      errorHandler?.(e);
+      throw e;
     }
   }
 
@@ -1468,7 +1511,10 @@ export class Webphone extends WebphoneBase {
 
     this._contactMatcher?.triggerMatch();
 
-    if (this.checkMainTab() && (!this.activeSession || isOnHold(this.activeSession))) {
+    const isActiveWebphoneClient =
+      this.isWebphoneActiveTab ||
+      (!this.activeWebphoneId && this._portManager.isActiveTab);
+    if (isActiveWebphoneClient && (!this.activeSession || isOnHold(this.activeSession))) {
       this._ringtoneHelper?.play();
     } else {
       this.stopRingtone();
@@ -1619,7 +1665,7 @@ export class Webphone extends WebphoneBase {
   }
 
   @delegate('mainClient')
-  updateRecordStatus(sessionId: string, status: string) {
+  async updateRecordStatus(sessionId: string, status: string) {
     const session = this.originalSessions[sessionId];
     if (!session) {
       return;
@@ -1834,4 +1880,7 @@ export class Webphone extends WebphoneBase {
   private _getNormalizedSession(session: WebphoneSession) {
     return find((x) => x.id === session.callId, this.sessions);
   }
+
+  // For backward compatibility from v1 module
+  useWebphoneMainTab() {}
 }
