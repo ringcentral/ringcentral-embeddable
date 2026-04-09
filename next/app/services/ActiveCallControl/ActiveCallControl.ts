@@ -117,23 +117,12 @@ export class ActiveCallControl extends ActiveCallControlBase {
     return this._webphone as unknown as WebphoneV2;
   }
 
-  private _getRealSessionByTelephonySessionId(telephonySessionId: string) {
-    return this.data.sessions.find(
-      (session) =>
-        session.telephonySessionId === telephonySessionId ||
-        session.id === telephonySessionId,
-    );
-  }
-
-  private _getFallbackWebphoneSessionId(telephonySessionId: string) {
-    if (this._getRealSessionByTelephonySessionId(telephonySessionId)) {
-      return null;
-    }
+  private getWebphoneSessionId(telephonySessionId: string) {
     return this.currentDeviceCallsMap[telephonySessionId] ?? null;
   }
 
-  private _getWarmTransferFallbackWebphoneSessionId(telephonySessionId: string) {
-    const direct = this._getFallbackWebphoneSessionId(telephonySessionId);
+  private getWarmTransferWebphoneSessionId(telephonySessionId: string) {
+    const direct = this.getWebphoneSessionId(telephonySessionId);
     if (direct) {
       return direct;
     }
@@ -142,7 +131,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
     if (!relatedTelephonySessionId) {
       return null;
     }
-    return this._getFallbackWebphoneSessionId(relatedTelephonySessionId);
+    return this.getWebphoneSessionId(relatedTelephonySessionId);
   }
 
   private _mapWebphoneCallStatus(callStatus?: string) {
@@ -293,8 +282,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async mute(telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.mute(telephonySessionId);
     }
@@ -311,8 +299,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async unmute(telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.unmute(telephonySessionId);
     }
@@ -331,8 +318,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async startRecord(telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.startRecord(telephonySessionId);
     }
@@ -350,8 +336,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async stopRecord(telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.stopRecord(telephonySessionId);
     }
@@ -365,7 +350,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
 
   @delegate('server')
   async checkIfConferenceCall(telephonySessionId: string) {
-    if (!this._getRealSessionByTelephonySessionId(telephonySessionId)) {
+    if (this.getWebphoneSessionId(telephonySessionId)) {
       return false;
     }
     return super.checkIfConferenceCall(telephonySessionId);
@@ -376,8 +361,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async hangUp(telephonySessionId: string, hangupOnlyHost?: boolean) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.hangUp(telephonySessionId, hangupOnlyHost);
     }
@@ -386,8 +370,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
 
   @delegate('server')
   async endCall(telephonySessionId: string, hangupOnlyHost?: boolean) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.endCall(telephonySessionId, hangupOnlyHost);
     }
@@ -405,8 +388,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async hold(telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.hold(telephonySessionId);
     }
@@ -423,8 +405,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async unhold(telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.unhold(telephonySessionId);
     }
@@ -441,8 +422,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async reject(telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.reject(telephonySessionId);
     }
@@ -459,8 +439,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async ignore(telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.ignore(telephonySessionId);
     }
@@ -486,8 +465,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
     params: ReplyWithTextParams,
     telephonySessionId: string,
   ) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.replyWithMessage(params, telephonySessionId);
     }
@@ -501,8 +479,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
 
   @delegate('server')
   async toVoicemail(voicemailId: string, telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.toVoicemail(voicemailId, telephonySessionId);
     }
@@ -517,8 +494,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   @track(trackEvents.transfer)
   @delegate('server')
   async transfer(transferNumber: string, telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.transfer(transferNumber, telephonySessionId);
     }
@@ -535,8 +511,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async forward(forwardNumber: string, telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.forward(forwardNumber, telephonySessionId);
     }
@@ -550,8 +525,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
 
   @delegate('server')
   async flip(flipValue: string, telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.flip(flipValue, telephonySessionId);
     }
@@ -566,8 +540,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   @track(trackEvents.transferAskFirst, process.env.THEME_SYSTEM === 'spring-ui')
   @delegate('server')
   async startWarmTransfer(transferNumber: string, telephonySessionId: string) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.startWarmTransfer(transferNumber, telephonySessionId);
     }
@@ -585,7 +558,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   @delegate('server')
   async completeWarmTransfer(telephonySessionId: string) {
     const webphoneSessionId =
-      this._getWarmTransferFallbackWebphoneSessionId(telephonySessionId);
+      this.getWarmTransferWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.completeWarmTransfer(telephonySessionId);
     }
@@ -602,8 +575,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async answerAndEnd(telephonySessionId: string, needPickupCall = false) {
-    const webphoneSessionId =
-      this._getFallbackWebphoneSessionId(telephonySessionId);
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.answerAndEnd(telephonySessionId, needPickupCall);
     }
