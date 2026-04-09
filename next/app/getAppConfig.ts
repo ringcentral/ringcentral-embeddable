@@ -15,8 +15,8 @@ import {
   ExtensionNumberAreaCode,
   Presence,
   RateLimiter,
-  WebSocketSubscription,
   OAuthOptions,
+  RingCentralExtensions,
 } from '@ringcentral-integration/micro-auth/src/app/services';
 import {
   AccountContacts,
@@ -64,9 +64,10 @@ import {
   ActiveCallControl,
   AudioSettings,
   Call,
+  CallAction,
+  CallMonitor,
   CallerId,
   CallingSettings,
-  CallMonitor,
   RingtoneConfiguration,
   Softphone,
   VolumeInspector,
@@ -100,6 +101,10 @@ import {
   Webphone as WebphoneV2,
   NoiseReduction,
   VoicemailDrop,
+  ActiveCallControl as ActiveCallControlV2,
+  CallMonitor as CallMonitorV2,
+  WebSocketSubscription,
+  RingCentralExtensions as RingCentralExtensionsV2,
 } from './services';
 import { AppView } from './AppView';
 
@@ -164,6 +169,10 @@ export const getAppConfig = <
       CallerId,
       AvailabilityMonitor,
       {
+        provide: RingCentralExtensions,
+        useClass: RingCentralExtensionsV2,
+      },
+      {
         provide: Webphone,
         useClass: WebphoneV2,
       },
@@ -184,7 +193,6 @@ export const getAppConfig = <
       Brand,
       Locale,
       Softphone,
-      CallMonitor,
       Call,
       SleepDetector,
       AudioSettings,
@@ -192,7 +200,15 @@ export const getAppConfig = <
       VolumeInspector,
       ContactSearch,
       RateLimiter,
-      ActiveCallControl,
+      {
+        provide: ActiveCallControl,
+        useClass: ActiveCallControlV2,
+      },
+      CallAction,
+      {
+        provide: CallMonitor,
+        useClass: CallMonitorV2,
+      },
       ComposeText,
       FaxSender,
       Environment,
