@@ -1483,176 +1483,68 @@ export class WebphoneBase extends RcModule {
     return true;
   }
 
-  // eslint-disable-next-line
-  async _onInvite(session: WebphoneSession) {
-    // override
-  }
-
-  /**
-   * Server-only connect flow. Skips browser-only logic (browser support
-   * check, toasts, device line validation, WebRTC) and connects only the
-   * shared SIP client running in the SharedWorker.
-   */
-  protected async _serverConnect({ force = false } = {}) {
-    this.logger.log('_serverConnect', { force });
-    await firstValueFrom(this._auth.isLoggedIn$);
-    if (!this.enabled) return;
-    if (this.connectError || force) {
-      await this.setStateOnReconnect();
-    } else if (!this.connected) {
-      await this.setStateOnConnect();
-    }
-    try {
-      await this._connectSipServer(force);
-    } catch (error) {
-      this.logger.error('Server SIP connect error:', error);
-      await this.setStateOnConnectError('connectFailed', null);
-    }
-  }
-
-  /**
-   * Connects the SipClientInServer directly on the server.
-   * Provisions SIP credentials and starts SIP registration without
-   * creating any browser-side RingCentralWebphone instance.
-   */
-  protected async _connectSipServer(force = false) {
-    this.logger.log('_connectSipServer');
-    if (!this._auth.loggedIn) return;
-    const sipClientInServer = this._ensureSipClientInServer();
-    let sipProvision: CreateSipRegistrationResponse | undefined;
-    if (!force) {
-      const statusResponse = sipClientInServer.getStatus();
-      const { canReuse } = this._canReuseSharedSipStatus(statusResponse);
-      if (canReuse && statusResponse.device && statusResponse.sipInfo) {
-        sipProvision = {
-          device: statusResponse.device,
-          sipInfo: [statusResponse.sipInfo],
-        };
-        this._sipInstanceId = statusResponse.instanceId;
-      }
-    }
-    if (!sipProvision || force) {
-      sipProvision = await this._sipProvision();
-    }
-    if (!sipProvision) return;
-    if (!this._sipInstanceId) {
-      this._sipInstanceId =
-        sipProvision.sipInfo?.[0]?.authorizationId ?? null;
-    }
-    await sipClientInServer.start({
-      clientId: this._webphoneOptions?.appKey ?? '',
-      debug: (this._webphoneOptions?.webphoneLogLevel ?? 0) > 1,
-      device: sipProvision.device!,
-      force,
-      instanceId: this._sipInstanceId,
-      sipInfo: sipProvision.sipInfo?.[0] as SipInfo,
-    });
-    const statusAfterStart = sipClientInServer.getStatus();
-    if (statusAfterStart.status === 'registered') {
-      await this.setStateOnRegistered(sipProvision.device!);
-    }
-  }
-
-  async _connect(force = false) {
-    this.logger.log('_connect');
-
-    if (!this._auth.loggedIn) return;
-
-    let sipProvision: CreateSipRegistrationResponse | undefined;
-    const sharedSipClient = this._ensureSharedSipClient();
-    if (sharedSipClient && !force) {
-      try {
-        const statusResponse = await sharedSipClient.getStatus();
-        this.logger.log('shared sip client status', statusResponse.status);
-        const { canReuse } = this._canReuseSharedSipStatus(statusResponse);
-        if (canReuse && statusResponse.device && statusResponse.sipInfo) {
-          sipProvision = {
-            device: statusResponse.device,
-            sipInfo: [statusResponse.sipInfo],
-          };
-          this._sipInstanceId = statusResponse.instanceId;
-        }
-      } catch (error) {
-        this.logger.error('Failed to get shared sip client status', error);
-      }
-    }
-    if (!sipProvision || force) {
-      sipProvision = await this._sipProvision();
-    }
-    if (sipProvision) {
-      await this._createWebphone(sipProvision, force);
-    }
-  }
-
-  _isAvailableToConnect({ force }: { force: boolean }) {
-    this.logger.log('check available to connect', {
-      loggedIn: this._auth.loggedIn,
-      force,
-      enabled: this.enabled,
-      connectionStatus: this.connectionStatus,
-    });
-
-    if (!this.enabled || !this._auth.loggedIn) {
-      return false;
-    }
-    // do not connect if it is connecting
-    // do not reconnect when user disconnected
-    if (
-      this.connecting ||
-      this.disconnecting ||
-      this.inactiveDisconnecting ||
-      this.reconnecting
-    ) {
-      return false;
-    }
-    // do not connect when connected unless force
-    if (!force && this.connected) {
-      return false;
-    }
-    if (this._sharedSipClient && this._portManager.shared && !this._portManager.isActiveTab) {
-      this.logger.log('skip connect in inactive tab when shared sip client already exists');
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * connect a web phone.
-   * In shared mode on the server, only connects the SIP client.
-   * Client tabs create their own RingCentralWebphone instances
-   * via _ensureLocalWebphoneFromSharedState() when connection state changes.
-   */
-  async connect({
-    force = false,
-    skipTimeout = true,
-    skipConnectDelay = false,
-    skipDLCheck = false,
-  } = {}) {
-    this.logger.log('connect', {
-      force,
-      skipTimeout,
-      skipConnectDelay,
-      skipDLCheck,
-    });
-    if (this._portManager.shared && this._portManager.isServer) {
-      await this._serverConnect({ force });
-      return;
-    }
-    if (!isBrowserSupport()) {
-      await this.setStateOnConnectError('browserNotSupported', null);
-      this._toast.warning({
-        message: t('browserNotSupported'),
-        group: this.identifier,
-        ttl: 0,
-      });
-      return;
-    }
-
+  private async _waitForConnectPrerequisites() {
     this.logger.log('wait for loggedIn');
-
     await firstValueFrom(this._auth.isLoggedIn$);
     await firstValueFrom(this._extensionFeatures.dataReady$);
+  }
 
+  private _getReusableSipProvision(
+    statusResponse?: SharedSipClientStatusResponse | null,
+  ): CreateSipRegistrationResponse | undefined {
+    if (!statusResponse) {
+      return;
+    }
+    const { canReuse } = this._canReuseSharedSipStatus(statusResponse);
+    if (!canReuse || !statusResponse.device || !statusResponse.sipInfo) {
+      return;
+    }
+    this._sipInstanceId = statusResponse.instanceId;
+    return {
+      device: statusResponse.device,
+      sipInfo: [statusResponse.sipInfo],
+    };
+  }
+
+  private async _resolveSipProvision({
+    force = false,
+    getStatus,
+    onStatusError,
+  }: {
+    force?: boolean;
+    getStatus?:
+      | (() =>
+          | SharedSipClientStatusResponse
+          | Promise<SharedSipClientStatusResponse>)
+      | null;
+    onStatusError?: (error: unknown) => void;
+  }): Promise<CreateSipRegistrationResponse | undefined> {
+    if (!force && getStatus) {
+      try {
+        const statusResponse = await getStatus();
+        const reusableProvision =
+          this._getReusableSipProvision(statusResponse);
+        if (reusableProvision) {
+          return reusableProvision;
+        }
+      } catch (error) {
+        onStatusError?.(error);
+      }
+    }
+    return this._sipProvision();
+  }
+
+  protected async _setStateOnStartConnect(force = false) {
+    if (this.connectError || force) {
+      await this.setStateOnReconnect();
+      return;
+    }
+    if (!this.connected) {
+      await this.setStateOnConnect();
+    }
+  }
+
+  private async _prepareRealtimeRecoveryForConnect() {
     this._clearRealtimeRecoveryRetryTimeout();
 
     const shouldRecover =
@@ -1695,23 +1587,19 @@ export class WebphoneBase extends RcModule {
         this.logger.log(`Will retry in ${retryDelay}ms`);
         this._scheduleRealtimeRecoveryRetry(retryDelay);
       }
-      return;
+      return false;
     }
 
     await this.setRealtimeRecoveryRetryCounts(0);
+    return true;
+  }
 
-    const isAvailableToConnect = this._isAvailableToConnect({ force });
-
-    this.logger.log('isAvailableToConnect', isAvailableToConnect);
-
-    if (!isAvailableToConnect) return;
-
-    // when last connect is connect error, use reconnect (will show connecting badge)
-    if (this.connectError || force) {
-      await this.setStateOnReconnect();
-    } else {
-      await this.setStateOnConnect();
-    }
+  protected async _connectInBrowser({
+    force = false,
+    skipTimeout = true,
+    skipConnectDelay = false,
+    skipDLCheck = false,
+  } = {}) {
     const connectDelay = this._webphoneOptions!.connectDelay ?? 0;
 
     this.logger.log('connect to webphone delay', {
@@ -1763,6 +1651,183 @@ export class WebphoneBase extends RcModule {
       this._connectTimeout = null;
       void this._connect(force);
     }, connectTimeoutTTL);
+  }
+
+  // eslint-disable-next-line
+  async _onInvite(session: WebphoneSession) {
+    // override
+  }
+
+  /**
+   * Server-only connect flow. Skips browser-only logic (browser support
+   * check, toasts, device line validation, WebRTC) and connects only the
+   * shared SIP client running in the SharedWorker.
+   */
+  protected async _serverConnect({ force = false } = {}) {
+    this.logger.log('_serverConnect', { force });
+    await this._waitForConnectPrerequisites();
+    const isAvailableToConnect = this._isAvailableToConnect({
+      force,
+      skipSharedActiveTabCheck: true,
+    });
+    this.logger.log('_serverConnect available', isAvailableToConnect);
+    if (!isAvailableToConnect) return;
+    await this._setStateOnStartConnect(force);
+    try {
+      await this._connectSipServer(force);
+    } catch (error) {
+      this.logger.error('Server SIP connect error:', error);
+      await this.setStateOnConnectError('connectFailed', null);
+    }
+  }
+
+  /**
+   * Connects the SipClientInServer directly on the server.
+   * Provisions SIP credentials and starts SIP registration without
+   * creating any browser-side RingCentralWebphone instance.
+   */
+  protected async _connectSipServer(force = false) {
+    this.logger.log('_connectSipServer');
+    if (!this._auth.loggedIn) return;
+    const sipClientInServer = this._ensureSipClientInServer();
+    const sipProvision = await this._resolveSipProvision({
+      force,
+      getStatus: () => sipClientInServer.getStatus(),
+    });
+    if (!sipProvision) return;
+    if (!this._sipInstanceId) {
+      this._sipInstanceId =
+        sipProvision.sipInfo?.[0]?.authorizationId ?? null;
+    }
+    await sipClientInServer.start({
+      clientId: this._webphoneOptions?.appKey ?? '',
+      debug: (this._webphoneOptions?.webphoneLogLevel ?? 0) > 1,
+      device: sipProvision.device!,
+      force,
+      instanceId: this._sipInstanceId,
+      sipInfo: sipProvision.sipInfo?.[0] as SipInfo,
+    });
+    const statusAfterStart = sipClientInServer.getStatus();
+    if (statusAfterStart.status === 'registered') {
+      await this.setStateOnRegistered(sipProvision.device!);
+    }
+  }
+
+  async _connect(force = false) {
+    this.logger.log('_connect');
+
+    if (!this._auth.loggedIn) return;
+
+    const sharedSipClient = this._ensureSharedSipClient();
+    const sipProvision = await this._resolveSipProvision({
+      force,
+      getStatus: sharedSipClient ? () => sharedSipClient.getStatus() : null,
+      onStatusError: (error) => {
+        this.logger.error('Failed to get shared sip client status', error);
+      },
+    });
+    if (sipProvision) {
+      await this._createWebphone(sipProvision, force);
+    }
+  }
+
+  _isAvailableToConnect({
+    force,
+    skipSharedActiveTabCheck = false,
+  }: {
+    force: boolean;
+    skipSharedActiveTabCheck?: boolean;
+  }) {
+    this.logger.log('check available to connect', {
+      loggedIn: this._auth.loggedIn,
+      force,
+      enabled: this.enabled,
+      connectionStatus: this.connectionStatus,
+    });
+
+    if (!this.enabled || !this._auth.loggedIn) {
+      return false;
+    }
+    // do not connect if it is connecting
+    // do not reconnect when user disconnected
+    if (
+      this.connecting ||
+      this.disconnecting ||
+      this.inactiveDisconnecting ||
+      this.reconnecting
+    ) {
+      return false;
+    }
+    // do not connect when connected unless force
+    if (!force && this.connected) {
+      return false;
+    }
+    if (
+      !skipSharedActiveTabCheck &&
+      this._sharedSipClient &&
+      this._portManager.shared &&
+      !this._portManager.isActiveTab
+    ) {
+      this.logger.log(
+        'skip connect in inactive tab when shared sip client already exists',
+      );
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * connect a web phone.
+   * In shared mode on the server, only connects the SIP client.
+   * Client tabs create their own RingCentralWebphone instances
+   * via _ensureLocalWebphoneFromSharedState() when connection state changes.
+   */
+  async connect({
+    force = false,
+    skipTimeout = true,
+    skipConnectDelay = false,
+    skipDLCheck = false,
+  } = {}) {
+    this.logger.log('connect', {
+      force,
+      skipTimeout,
+      skipConnectDelay,
+      skipDLCheck,
+    });
+    if (this._portManager.shared && this._portManager.isServer) {
+      await this._serverConnect({ force });
+      return;
+    }
+    if (!isBrowserSupport()) {
+      await this.setStateOnConnectError('browserNotSupported', null);
+      this._toast.warning({
+        message: t('browserNotSupported'),
+        group: this.identifier,
+        ttl: 0,
+      });
+      return;
+    }
+
+    await this._waitForConnectPrerequisites();
+
+    const realtimeReady = await this._prepareRealtimeRecoveryForConnect();
+    if (!realtimeReady) {
+      return;
+    }
+
+    const isAvailableToConnect = this._isAvailableToConnect({ force });
+
+    this.logger.log('isAvailableToConnect', isAvailableToConnect);
+
+    if (!isAvailableToConnect) return;
+
+    await this._setStateOnStartConnect(force);
+    await this._connectInBrowser({
+      force,
+      skipTimeout,
+      skipConnectDelay,
+      skipDLCheck,
+    });
   }
 
   _getConnectTimeoutTtl() {
