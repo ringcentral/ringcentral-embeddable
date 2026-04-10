@@ -226,7 +226,6 @@ class Adapter extends AdapterCore {
           );
           break;
         default:
-          console.log('rc-adapter-message:', data.type, data);
           super._onMessage(data);
           break;
       }
@@ -492,7 +491,6 @@ class Adapter extends AdapterCore {
   }
 
   _onPushAdapterState(options) {
-    console.log('_onPushAdapterState:', options);
     if (!this._fromPopup) {
       return super._onPushAdapterState(options);
     }

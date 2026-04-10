@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import { debounce } from '@ringcentral-integration/commons/lib/debounce-throttle';
 import { callingModes } from '@ringcentral-integration/micro-phone/src/app/services/CallingSettings/callingModes';
 import { callingOptions } from '@ringcentral-integration/micro-phone/src/app/services/CallingSettings/callingOptions';
-import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import { format } from '@ringcentral-integration/utils';
 import {
   action,
@@ -16,6 +16,7 @@ import {
   state,
   StoragePlugin,
   watch,
+  delegate,
 } from '@ringcentral-integration/next-core';
 import {
   AccountInfo,
@@ -115,6 +116,8 @@ const SUPPORTED_ATTACHMENT_MIME = new Set([
   'application/gzip',
   'application/rtf',
 ]);
+
+const CALLING_SETTINGS_NOTIFY_DEBOUNCE_MS = 1000;
 
 function dataURLtoBlob(dataUrl: string) {
   const arr = dataUrl.split(',');
@@ -273,10 +276,15 @@ function formatMeetingInfo(
 })
 export class Adapter extends RcModule {
   private _messageTypes: Record<string, string>;
-  private _runtimePrefix: string;
   private _popupWindowManager: PopupWindowManager | null = null;
   private _lastActiveCalls = new Map<string, string>();
   private _lastMuteStates = new Map<string, boolean>();
+  private _debouncedNotifyCallingSettings = debounce({
+    fn: () => {
+      this._notifyCallingSettings();
+    },
+    threshold: CALLING_SETTINGS_NOTIFY_DEBOUNCE_MS,
+  });
   private _customAlertGroup = 'rc-adapter-custom-alert';
 
   constructor(
@@ -313,11 +321,6 @@ export class Adapter extends RcModule {
   ) {
     super();
     this._storage.enable(this);
-    const runtimePrefix =
-      _prefix ||
-      (globalThis.window ? parseUri(window.location.href).prefix : '') ||
-      '';
-    this._runtimePrefix = runtimePrefix;
     this._messageTypes = messageTypes;
     this._setupClientBridge();
   }
@@ -380,6 +383,11 @@ export class Adapter extends RcModule {
     };
   }
 
+  @delegate('server')
+  async setSize(size: Partial<AdapterSize>) {
+    this._setSize(size);
+  }
+
   @action
   private _setPosition(position: Partial<AdapterPosition>) {
     this.position = {
@@ -412,139 +420,161 @@ export class Adapter extends RcModule {
       Boolean((window as any).__ON_RC_POPUP_WINDOW) ||
       ['1', 'true'].includes(parseUri(window.location.href).fromPopup || '');
     this._popupWindowManager = new PopupWindowManager({
-      prefix: this._runtimePrefix,
+      prefix: this._prefix,
       isPopupWindow,
     });
 
     window.addEventListener('message', this._onWindowMessage);
 
+    const multipleWatchOptions = { multiple: true } as const;
     const unwatchFns = [
       watch(
         this,
-        () => this._getAdapterStateSignature(),
+        () => this._watchAdapterStateValues(),
         () => {
           this._pushAdapterState();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getPresenceSignature(),
+        () => this._watchPresenceValues(),
         () => {
           this._pushPresence();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getCallBarSignature(),
+        () => this._watchCallBarValues(),
         () => {
           this._pushLocale();
           this._pushCalls();
           this._pushRingState();
           this._pushRouteState();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getRouteSignature(),
+        () => this._watchRouteValues(),
         () => {
           this._pushRouteState();
           this._notifyRouteChanged();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getLoginStatusSignature(),
+        () => this._watchLoginStatusValues(),
         () => {
           this._notifyLoginStatus();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getRegionSignature(),
+        () => this._watchRegionValues(),
         () => {
           this._notifyRegionSettings();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getCallingSettingsSignature(),
+        () => this._watchCallingSettingsValues(),
         () => {
-          this._notifyCallingSettings();
+          this._debouncedNotifyCallingSettings();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getSmsSettingsSignature(),
+        () => this._watchSmsSettingsValues(),
         () => {
           this._notifySmsSettings();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getAutoLogSignature(),
+        () => this._watchCallLoggerAutoLogValues(),
         () => {
-          this._notifyAutoLogSettings();
+          this._notifyCallLoggerAutoLogSetting();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getDialerStatusSignature(),
+        () => this._watchConversationLoggerAutoLogValues(),
+        () => {
+          this._notifyConversationLoggerAutoLogSetting();
+        },
+        multipleWatchOptions,
+      ),
+      watch(
+        this,
+        () => this._watchDialerStatusValues(),
         () => {
           this._notifyDialerStatus();
         },
       ),
       watch(
         this,
-        () => this._getMeetingStatusSignature(),
+        () => this._watchMeetingStatusValues(),
         () => {
           this._notifyMeetingStatus();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getBrandSignature(),
+        () => this._watchBrandValues(),
         () => {
           this._notifyBrandAssets();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getThemeSignature(),
+        () => this._theme.themeType,
         () => {
           this._notifyTheme();
         },
       ),
       watch(
         this,
-        () => this._getWebphoneStatusSignature(),
+        () => this._watchWebphoneStatusValues(),
         () => {
           this._notifyWebphoneStatus();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getCallLogSyncSignature(),
+        () => this._watchCallLogSyncValues(),
         () => {
           this._notifyCallHistorySynced();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
-        () => this._getActiveCallsSignature(),
+        () => this._presence.activeCalls,
         () => {
           this._notifyPresenceActiveCalls();
         },
       ),
       watch(
         this,
-        () => this._getMuteStateSignature(),
+        () => this._webphone.sessions,
         () => {
           this._notifyMuteChanges();
         },
       ),
       watch(
         this,
-        () => this._getPhoneNumberFormatSignature(),
+        () => this.phoneNumberFormatSetting,
         () => {
           this._notifyPhoneNumberFormatSettings();
         },
@@ -575,6 +605,7 @@ export class Adapter extends RcModule {
     this._syncWebphoneSessions();
 
     return () => {
+      this._debouncedNotifyCallingSettings.cancel();
       window.removeEventListener('message', this._onWindowMessage);
       unwatchFns.forEach((fn) => fn?.());
     };
@@ -670,6 +701,7 @@ export class Adapter extends RcModule {
         break;
       case this._messageTypes.syncSize:
         if (data.size) {
+          console.log('🐞 ~ _onWindowMessage ~ data.size:', data.size);
           this._setSize(data.size);
         }
         break;
@@ -981,8 +1013,8 @@ export class Adapter extends RcModule {
     return hasCallContext ? '/calling' : '/history';
   }
 
-  private _getAdapterStateSignature() {
-    return JSON.stringify([
+  private _watchAdapterStateValues() {
+    return [
       this.closed,
       this.minimized,
       this.size.width,
@@ -991,169 +1023,159 @@ export class Adapter extends RcModule {
       this.position.translateY,
       this.position.minTranslateX,
       this.position.minTranslateY,
-      this._auth.loggedIn ? this._presence.telephonyStatus : null,
-      this._auth.loggedIn ? this._presence.userStatus : null,
-      this._auth.loggedIn ? this._presence.dndStatus : null,
-    ]);
+      this._auth.loggedIn,
+      this._presence.telephonyStatus,
+      this._presence.userStatus,
+      this._presence.dndStatus,
+    ];
   }
 
-  private _getPresenceSignature() {
-    return JSON.stringify([
+  private _watchPresenceValues() {
+    return [
       this._auth.loggedIn,
       this._presence.telephonyStatus,
       this._presence.userStatus,
       this._presence.dndStatus,
       this._presence.presenceOption,
-    ]);
+    ];
   }
 
-  private _getCallBarSignature() {
-    return JSON.stringify([
+  private _watchCallBarValues() {
+    return [
       this._locale.currentLocale,
-      this._callMonitor.activeRingCalls.length,
-      this._callMonitor.activeOnHoldCalls.length,
-      this._callMonitor.otherDeviceCalls.length,
-      this._callMonitor.activeCurrentCalls[0]?.startTime || 0,
+      this._callMonitor.activeRingCalls,
+      this._callMonitor.activeOnHoldCalls,
+      this._callMonitor.otherDeviceCalls,
+      this._callMonitor.activeCurrentCalls,
       this._callingSettings.callingMode,
       this._webphone.ringSessionId,
       this._presence.telephonyStatus,
-    ]);
+    ];
   }
 
-  private _getRouteSignature() {
-    return JSON.stringify([
+  private _watchRouteValues() {
+    return [
       this._router.currentPath,
       this._callViewState?.view,
-      this._callMonitor.activeCurrentCalls.length,
-      this._callMonitor.activeRingCalls.length,
-      this._callMonitor.activeOnHoldCalls.length,
-    ]);
+      this._callMonitor.activeCurrentCalls,
+      this._callMonitor.activeRingCalls,
+      this._callMonitor.activeOnHoldCalls,
+    ];
   }
 
-  private _getLoginStatusSignature() {
+  private _watchLoginStatusValues() {
     if (!this._auth.ready) {
-      return 'pending';
+      return ['pending'];
     }
     if (
       this._auth.loggedIn &&
       (!this._extensionInfo.ready || !this._accountInfo.ready || !this._appFeatures.ready)
     ) {
-      return 'pending';
+      return ['pending', this._auth.loggedIn];
     }
 
-    return JSON.stringify([
+    const extensionNumber =
+      this._extensionInfo.extensionNumber &&
+      this._extensionInfo.extensionNumber !== '0'
+        ? this._extensionInfo.extensionNumber
+        : null;
+
+    return [
+      'ready',
       this._auth.loggedIn,
-      this._accountInfo.mainCompanyNumber,
-      this._extensionInfo.extensionNumber,
-      this._accountInfo.serviceInfo?.contractedCountry?.isoCode,
-      this._extensionInfo.info?.permissions?.admin?.enabled,
-      this._appFeatures.hasOutboundSMSPermission,
-      this._appFeatures.hasMeetingsPermission,
-      this._appFeatures.hasGlipPermission,
-      this._appFeatures.hasSmartNotePermission,
-      this._appFeatures.isCallingEnabled,
+      this._auth.loggedIn ? this._accountInfo.mainCompanyNumber : null,
+      this._auth.loggedIn ? extensionNumber : null,
+      this._auth.loggedIn
+        ? this._accountInfo.serviceInfo?.contractedCountry?.isoCode ?? null
+        : null,
+      this._auth.loggedIn
+        ? Boolean(this._extensionInfo.info?.permissions?.admin?.enabled)
+        : false,
+      this._auth.loggedIn ? this._appFeatures.hasOutboundSMSPermission : false,
+      this._auth.loggedIn ? this._appFeatures.hasMeetingsPermission : false,
+      this._auth.loggedIn ? this._appFeatures.hasGlipPermission : false,
+      this._auth.loggedIn ? this._appFeatures.hasSmartNotePermission : false,
+      this._auth.loggedIn ? this._appFeatures.isCallingEnabled : false,
       this._auth.isFreshLogin,
-    ]);
+    ];
   }
 
-  private _getRegionSignature() {
-    if (!this._regionSettings.ready) {
-      return 'pending';
-    }
-    return JSON.stringify([
+  private _watchRegionValues() {
+    return [
+      this._regionSettings.ready,
       this._regionSettings.countryCode,
       this._regionSettings.areaCode,
-    ]);
+    ];
   }
 
-  private _getCallingSettingsSignature() {
-    if (!this._callingSettings.ready) {
-      return 'pending';
-    }
-    return JSON.stringify([
-      this._callingSettings.callWith,
-      this._callingSettings.callingMode,
-      this._callingSettings.myLocation,
-      this._callingSettings.fromNumber,
-      this._callingSettings.fromNumbers,
-      this._callingSettings.availableNumbersWithLabel,
-    ]);
+  private _watchCallingSettingsValues() {
+    return [
+      this._callingSettings.ready,
+      this._callingSettings.data,
+      this._callingSettings.myPhoneNumbers,
+      this._callingSettings.availableNumbersWithLabel
+    ];
   }
 
-  private _getSmsSettingsSignature() {
-    if (!this._composeText.ready) {
-      return 'pending';
-    }
-    return JSON.stringify([
+  private _watchSmsSettingsValues() {
+    return [
+      this._composeText.ready,
       this._composeText.senderNumber,
       this._composeText.senderNumbersList,
-    ]);
+    ];
   }
 
-  private _getAutoLogSignature() {
-    return JSON.stringify([
-      this._callLogger?.autoLog ?? null,
+  private _watchCallLoggerAutoLogValues() {
+    return [
+      this._callLogger.ready,
+      this._callLogger.autoLog,
+    ];
+  }
+
+  private _watchConversationLoggerAutoLogValues() {
+    return [
+      this._conversationLogger.ready,
       this._conversationLogger.autoLog,
-    ]);
+    ];
   }
 
-  private _getDialerStatusSignature() {
-    return JSON.stringify([
-      this._dialerView?.showSpinner ?? false,
-      this._dialerView?.isCallButtonDisabled ?? false,
-    ]);
+  private _watchDialerStatusValues() {
+    return (
+      this._dialerView.showSpinner ||
+      this._dialerView.isCallButtonDisabled
+    );
   }
 
-  private _getMeetingStatusSignature() {
-    return JSON.stringify([
-      this._genericMeeting?.ready ?? false,
+  private _watchMeetingStatusValues() {
+    return [
+      this._genericMeeting?.ready,
       this._appFeatures.hasMeetingsPermission,
-    ]);
+    ];
   }
 
-  private _getBrandSignature() {
-    return JSON.stringify([
+  private _watchBrandValues() {
+    return [
       this._brand.brandConfig?.assets?.logo,
       this._brand.brandConfig?.assets?.icon,
-    ]);
+    ];
   }
 
-  private _getThemeSignature() {
+  private _watchThemeValue() {
     return this._theme.themeType || '';
   }
 
-  private _getWebphoneStatusSignature() {
-    return JSON.stringify([
+  private _watchWebphoneStatusValues() {
+    return [
       this._webphone.connectionStatus,
-      this._webphone.device?.id ?? null,
-    ]);
+      this._webphone.device,
+    ];
   }
 
-  private _getCallLogSyncSignature() {
-    if (!this._callLog?.ready) {
-      return 'pending';
-    }
-    return `${this._callLog.timestamp ?? 'null'}`;
-  }
-
-  private _getActiveCallsSignature() {
-    return JSON.stringify(
-      (this._presence.activeCalls || []).map((call: any) => [
-        `${call.sessionId}${call.direction}`,
-        call.telephonyStatus,
-        call.terminationType,
-      ]),
-    );
-  }
-
-  private _getMuteStateSignature() {
-    return JSON.stringify(
-      this._webphone.sessions.map((session: any) => [session.id, Boolean(session.isOnMute)]),
-    );
-  }
-
-  private _getPhoneNumberFormatSignature() {
-    return JSON.stringify(this.phoneNumberFormatSetting);
+  private _watchCallLogSyncValues() {
+    return [
+      this._callLog.ready,
+      this._callLog.timestamp,
+    ];
   }
 
   private _pushAdapterState() {
@@ -1301,7 +1323,7 @@ export class Adapter extends RcModule {
         primary: item.primary,
         label: item.label,
       })),
-      myLocation: this._callingSettings.myLocation,
+      myLocation: this._callingSettings.fromNumbers,
       myLocationNumbers: this._callingSettings.availableNumbersWithLabel,
     });
   }
@@ -1325,19 +1347,28 @@ export class Adapter extends RcModule {
   }
 
   private _notifyAutoLogSettings() {
-    if (this._callLogger?.ready) {
-      this._postMessage({
-        type: 'rc-callLogger-auto-log-notify',
-        autoLog: this._callLogger.autoLog,
-      });
-    }
+    this._notifyCallLoggerAutoLogSetting();
+    this._notifyConversationLoggerAutoLogSetting();
+  }
 
-    if (this._conversationLogger.ready) {
-      this._postMessage({
-        type: 'rc-messageLogger-auto-log-notify',
-        autoLog: this._conversationLogger.autoLog,
-      });
+  private _notifyCallLoggerAutoLogSetting() {
+    if (!this._callLogger?.ready) {
+      return;
     }
+    this._postMessage({
+      type: 'rc-callLogger-auto-log-notify',
+      autoLog: this._callLogger.autoLog,
+    });
+  }
+
+  private _notifyConversationLoggerAutoLogSetting() {
+    if (!this._conversationLogger.ready) {
+      return;
+    }
+    this._postMessage({
+      type: 'rc-messageLogger-auto-log-notify',
+      autoLog: this._conversationLogger.autoLog,
+    });
   }
 
   private _notifyDialerStatus() {
@@ -1394,10 +1425,7 @@ export class Adapter extends RcModule {
     const nextMap = new Map<string, string>();
     (this._presence.activeCalls || []).forEach((call: any) => {
       const key = `${call.sessionId}${call.direction}`;
-      const signature = JSON.stringify([
-        call.telephonyStatus,
-        call.terminationType,
-      ]);
+      const signature = `${call.telephonyStatus ?? ''}|${call.terminationType ?? ''}`;
       nextMap.set(key, signature);
       if (this._lastActiveCalls.get(key) === signature) {
         return;
@@ -1792,6 +1820,25 @@ export class Adapter extends RcModule {
       type: 'rc-adapter-message-response',
       responseId,
       response,
+    });
+  }
+
+
+
+  onWindowExpanded(expanded: boolean) {
+    if (!globalThis.window) return;
+    const newSize = {
+      width: expanded ? 600 : 300,
+      height: 540,
+    };
+    this.setSize(newSize);
+    this._postMessage({
+      type: this._messageTypes.syncSize,
+      size: newSize,
+    });
+    this._postMessage({
+      type: 'rc-adapter-side-drawer-open-notify',
+      open: expanded,
     });
   }
 }
