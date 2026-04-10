@@ -5,3 +5,4 @@ export * from './ActiveCallControl';
 export * from './CallMonitor';
 export * from './WebSocketSubscription';
 export * from './RingCentralExtensions';
+export * from './Adapter';

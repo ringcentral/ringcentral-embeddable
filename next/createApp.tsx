@@ -31,6 +31,7 @@ interface UrlParams {
   clientId?: string;
   clientSecret?: string;
   appServer?: string;
+  prefix?: string;
   disableLoginPopup?: boolean;
   jwt?: string;
   jwtOwnerId?: string;
@@ -94,6 +95,7 @@ function readUrlParams(): UrlParams {
     clientId: params.clientId || params.appKey || undefined,
     clientSecret: params.clientSecret || params.appSecret || undefined,
     appServer: params.appServer || undefined,
+    prefix: params.prefix || undefined,
     disableLoginPopup: parseBooleanParam(params.disableLoginPopup),
     jwt: params.jwt || undefined,
     jwtOwnerId: params.jwtOwnerId || undefined,
@@ -130,7 +132,7 @@ export const createApp = async (
 
   const appConfig = getAppConfig({
     appVersion,
-    prefix,
+    prefix: urlParams.prefix || prefix,
     brandConfig,
     sdkConfig: mergedSdkConfig,
     modules: additionalModules,

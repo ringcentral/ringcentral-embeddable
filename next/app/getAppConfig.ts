@@ -7,6 +7,7 @@ import {
   AccountInfo,
   Analytics,
   AnalyticsOptions,
+  AppFeatures,
   AvailabilityMonitor,
   type AvailabilityMonitorOptions,
   ConnectivityMonitor,
@@ -16,6 +17,7 @@ import {
   Presence,
   RateLimiter,
   OAuthOptions,
+  RegionSettings,
   RingCentralExtensions,
 } from '@ringcentral-integration/micro-auth/src/app/services';
 import {
@@ -43,6 +45,8 @@ import {
   Brand,
   Locale,
   SleepDetector,
+  Theme,
+  Toast,
 } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   ModalView,
@@ -58,13 +62,17 @@ import {
   type MessageThreadOptions,
   SmsConversationsOptions,
   SmsOptOut,
+  MessageStore,
+  SmsTemplate,
 } from '@ringcentral-integration/micro-message/src/app/services';
 import type { WebphoneOptions } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   ActiveCallControl,
   AudioSettings,
   Call,
+  CallLog,
   CallAction,
+  CallLogger,
   CallMonitor,
   CallerId,
   CallingSettings,
@@ -73,7 +81,9 @@ import {
   VolumeInspector,
   Webphone,
   CallQueueManagement,
+  type CallLoggerOptions,
 } from '@ringcentral-integration/micro-phone/src/app/services';
+import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
 import { DialerView } from '@ringcentral-integration/micro-phone/src/app/views';
 import {
   QuickAccess,
@@ -97,6 +107,7 @@ import {
   SharedConversationView,
   SmsOptOutView,
 } from '@ringcentral-integration/micro-message/src/app/views';
+import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import {
   Webphone as WebphoneV2,
   NoiseReduction,
@@ -105,6 +116,7 @@ import {
   CallMonitor as CallMonitorV2,
   WebSocketSubscription,
   RingCentralExtensions as RingCentralExtensionsV2,
+  Adapter,
 } from './services';
 import { AppView } from './AppView';
 
@@ -172,6 +184,7 @@ export const getAppConfig = <
         provide: RingCentralExtensions,
         useClass: RingCentralExtensionsV2,
       },
+      Adapter,
       {
         provide: Webphone,
         useClass: WebphoneV2,
@@ -179,6 +192,7 @@ export const getAppConfig = <
       NoiseReduction,
       VoicemailDrop,
       CallingSettings,
+      RegionSettings,
       Presence,
       QuickAccess,
       UserGuide,
@@ -192,6 +206,8 @@ export const getAppConfig = <
       ConnectivityMonitor,
       Brand,
       Locale,
+      Theme,
+      Toast,
       Softphone,
       Call,
       SleepDetector,
@@ -204,11 +220,15 @@ export const getAppConfig = <
         provide: ActiveCallControl,
         useClass: ActiveCallControlV2,
       },
+      CallLog,
+      CallLogger,
       CallAction,
+      CallViewState,
       {
         provide: CallMonitor,
         useClass: CallMonitorV2,
       },
+      AppFeatures,
       ComposeText,
       FaxSender,
       Environment,
@@ -218,6 +238,8 @@ export const getAppConfig = <
       ContactDetailsView,
       DialerView,
       ModalView,
+      MessageStore,
+      SmsTemplate,
       SmsOptOut,
       SmsOptOutView,
       MessageThread,
@@ -225,6 +247,7 @@ export const getAppConfig = <
       SharedConversationView,
       ConversationLogger,
       ConversationMatcher,
+      GenericMeeting,
       CallQueueManagement,
       {
         provide: 'MessageThreadOptions',
@@ -328,6 +351,15 @@ export const getAppConfig = <
           accountContacts: AccountContacts,
           addressBook: AddressBook,
         ) => [accountContacts, addressBook],
+      },
+      {
+        provide: 'CallLoggerOptions',
+        useValue: {
+          logFunction: async () => {
+            // TODO: implement log function
+          },
+          readyCheckFunction: () => true,
+        } satisfies CallLoggerOptions,
       },
       {
         provide: 'ConversationLoggerOptions',

@@ -1,0 +1,246 @@
+@use 'sass:math';
+@import '@ringcentral-integration/widgets/lib/AdapterCore/styles.scss';
+
+.hack {
+  background: url('https://{{rc-styles}}');
+}
+
+.root {
+  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.2s 0s ease-in-out, width 0.2s ease-in-out;
+  background-color: #fff;
+  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);
+}
+
+.dark.root {
+  background-color: #282A32;
+}
+
+.root.dock {
+  top: initial !important;
+  border-radius: 0 !important;
+  width: 300px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.root.dock.minimized {
+  width: 60px;
+}
+
+.root.dock.minimized.noPresence {
+  width: 35px;
+}
+
+.root .logo {
+  width: $header-logo-width;
+  height: $header-logo-height;
+  margin-top: - math.div($header-logo-height, 2);
+  margin-left: - math.div($header-logo-width, 2);
+}
+
+.root .header {
+  border-bottom: 1px solid #e8e9ed;
+  min-width: 165px;
+}
+
+.dark .header {
+  border-bottom: 1px solid #30323A;
+}
+
+.root .button {
+  margin-top: -10px;
+}
+
+.iconTrans {
+  .presence {
+    opacity: 1 !important;
+  }
+
+  .iconContainer {
+    opacity: 0 !important;
+  }
+
+  .logo {
+    opacity: 1 !important;
+  }
+}
+
+.iconContainer {
+  display: none;
+}
+
+.close {
+  display: none;
+}
+
+.root.dock.minimized .toggle {
+  right: -10px;
+}
+
+.dock.minimized.expandable {
+  width: 140px !important;
+}
+
+.dock {
+  .minimized {
+    &.header {
+      line-height: initial;
+      cursor: pointer;
+    }
+
+    .presence {
+      width: 12px;
+      height: 12px;
+      margin-top: -6px;
+      z-index: 2;
+      transition: .2s;
+    }
+
+    .presenceBar {
+      transform: translate(2px, 5px);
+    }
+
+    .logo {
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    .iconContainer {
+      z-index: 2147483648;
+      top: 7px;
+      position: absolute;
+      left: 30px;
+      height: 22px;
+      width: 22px;
+      display: block;
+      cursor: pointer;
+      opacity: 1;
+      transition: .2s;
+      display: flex;
+
+      .icon {
+        width: 22px;
+        height: 22px;
+        display: inline-block;
+      }
+    }
+
+    .noPresence {
+      left: 7px !important;
+    }
+  }
+}
+
+.iconContainer.hidden {
+  display: none;
+}
+
+.viewCallsBtn {
+  &.visible {
+    margin-left: 20px;
+  }
+
+  &.moveIn {
+    margin-left: 20px;
+  }
+
+  &.moveOut {
+    margin-left: 20px;
+  }
+}
+
+.ringingCalls,
+.onHoldCalls {
+  &.visible {
+    margin-left: -80px;
+  }
+
+  &.moveIn {
+    margin-left: -80px;
+  }
+
+  &.moveOut {
+    margin-left: -80px;
+  }
+}
+
+.popup {
+  right: 33px;
+  display: none;
+}
+
+.showPopup .popup {
+  display: block;
+}
+
+.minimized .popup {
+  display: none;
+}
+
+.popupIcon {
+  img {
+    position: absolute;
+    top: 4px;
+    left: 1px;
+    width: 14px;
+  }
+}
+
+.hideToggleButton {
+  .toggle {
+    display: none;
+  }
+
+  .popup {
+    right: 10px;
+  }
+}
+
+.feedback {
+  width: 22px;
+  height: 22px;
+  display: none;
+}
+
+.feedbackIcon {
+  width: 22px;
+  height: 22px;
+}
+
+.showFeedback .feedback {
+  display: block;
+}
+
+.minimized .feedback {
+  display: none;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  right: 10px;
+  height: 100%;
+}
+
+.root .button {
+  margin-left: 3px;
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  margin-top: 0;
+}
+
+.dark .line {
+  background-color: #282A32;
+  border-color: #30323A;
+  color: #ffffff;
+}
+
+.dark .presenceItem:hover {
+  background-color: #30323A;
+}
