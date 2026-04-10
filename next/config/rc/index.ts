@@ -18,5 +18,5 @@ export default {
     releaseVersion: version,
     appVersion: version,
   },
-  prefix: 'rc-embeddable',
+  prefix: 'rc-widget',
 } as AppConfig;
