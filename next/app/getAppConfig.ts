@@ -83,7 +83,15 @@ import {
   CallQueueManagement,
   type CallLoggerOptions,
 } from '@ringcentral-integration/micro-phone/src/app/services';
-import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
+import {
+  GenericMeeting,
+  type RcVideoOptions,
+} from '@ringcentral-integration/micro-meeting/src/app/services';
+import type { HeaderNavViewSpringOptions } from '@ringcentral-integration/micro-core/src/app/views';
+import {
+  GenericMeetingViewSpring,
+  PersonalMeetingSettingsViewSpring,
+} from '@ringcentral-integration/micro-meeting/src/app/views';
 import { DialerView } from '@ringcentral-integration/micro-phone/src/app/views';
 import {
   QuickAccess,
@@ -248,6 +256,25 @@ export const getAppConfig = <
       ConversationLogger,
       ConversationMatcher,
       GenericMeeting,
+      GenericMeetingViewSpring,
+      PersonalMeetingSettingsViewSpring,
+      {
+        provide: 'MeetingOptions',
+        useValue: {
+          enablePersonalMeeting: true,
+          enableServiceWebSettings: true,
+        },
+      },
+      {
+        provide: 'RcVideoOptions',
+        useValue: {
+          enablePersonalMeeting: true,
+          enableInvitationApi: true,
+          enableInvitationBridgesApi: true,
+          enableInvitationApiFailedToast: true,
+          enableWaitingRoom: true,
+        } satisfies RcVideoOptions,
+      },
       CallQueueManagement,
       {
         provide: 'MessageThreadOptions',
@@ -403,6 +430,12 @@ export const getAppConfig = <
               console.log('🐞 ~ onCreateEntity entity:', entity);
             },
           } satisfies IntegrationConfigOptions)
+      },
+      {
+        provide: 'HeaderNavViewOptions',
+        useValue: {
+          enableVideoTab: true,
+        } satisfies HeaderNavViewSpringOptions,
       },
       ...modules,
     ],
