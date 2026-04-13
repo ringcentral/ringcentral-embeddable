@@ -1,6 +1,10 @@
-// @ts-nocheck
 import classnames from 'classnames';
-import AdapterCore from '@ringcentral-integration/widgets/lib/AdapterCore';
+import { presenceStatus } from '@ringcentral-integration/commons/enums/presenceStatus.enum';
+import debounce from '@ringcentral-integration/commons/lib/debounce';
+import ensureExist from '@ringcentral-integration/commons/lib/ensureExist';
+import { formatDuration } from '@ringcentral-integration/commons/lib/formatDuration';
+import { dndStatus } from '@ringcentral-integration/commons/modules/Presence';
+import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import { isSafari } from '@ringcentral-integration/utils';
 
 import popWindow from '../popWindow';
@@ -14,9 +18,31 @@ import Notification from '../notification';
 import popupIconUrl from '../../assets/images/popup.svg?url';
 import helpIconUrl from '../../assets/images/help.svg?url';
 
-function checkValidImageUri(uri) {
+const SANDBOX_ATTRIBUTE_VALUE = [
+  'allow-same-origin',
+  'allow-scripts',
+  'allow-forms',
+  'allow-popups',
+  'allow-downloads',
+].join(' ');
+
+const ALLOW_ATTRIBUTE_VALUE = ['microphone', 'autoplay'].join('; ');
+
+const urlRegex =
+  /(https:\/\/)?(?:www\.)?outlook\.office(?:365)?\.com\/(mail)\/(deeplink)/;
+const clickEvent = urlRegex.test(location.href) ? 'mousedown' : 'click';
+
+const ON_HOLD_CALLS = 0;
+const RINGING_CALLS = 1;
+const CURRENT_CALL = 2;
+const OTHER_DEVICE_CALLS = 3;
+
+const ROTATE_LENGTH = 4;
+const ROTATE_INTERVAL = 5000;
+
+function checkValidImageUri(uri: string): boolean {
   return (
-    uri &&
+    !!uri &&
     (uri.indexOf('https://') === 0 ||
       uri.indexOf('http://') === 0 ||
       uri.indexOf('chrome-extension://') === 0 ||
@@ -24,15 +50,117 @@ function checkValidImageUri(uri) {
   );
 }
 
-function isCurrentCallPath(path) {
+function isCurrentCallPath(path: string): boolean {
   return typeof path === 'string' && path.indexOf('/calling') === 0;
 }
 
-function isViewCallsPath(path) {
+function isViewCallsPath(path: string): boolean {
   return typeof path === 'string' && path.indexOf('/history') === 0;
 }
 
-class Adapter extends AdapterCore {
+class Adapter {
+  currentState: number = -1;
+  callInfoMap: Record<number, boolean> = {};
+  lastState: number = -1;
+
+  private _otherDeviceCallsLength: number = 0;
+  private _onHoldCallsLength: number = 0;
+  private _ringingCallsLength: number = 0;
+  private _currentStartTime: number = 0;
+  private _otherDeviceCallsEl!: HTMLElement;
+  private _onHoldCallsEl!: HTMLElement;
+  private _ringingCallsEl!: HTMLElement;
+  private _durationEl!: HTMLElement;
+  private _currentCallEl!: HTMLElement;
+  private _viewCallsEl!: HTMLElement;
+  private _scrollable: boolean = false;
+  private _hoverBar: any;
+  private _onAllCallsPath: any;
+  private _onCurrentCallPath: any;
+
+  _prefix: any;
+  _messageTypes: any;
+  _container: any;
+  _root!: HTMLElement;
+  _styles: any;
+  _defaultDirection: string = 'right';
+  _padding: number = 15;
+  _minTranslateX: number = 0;
+  _minTranslateY: number = 0;
+  _translateX: number = 0;
+  _translateY: number = 0;
+  _appWidth: number = 300;
+  _appHeight: number = 500;
+  _dragStartPosition: any = null;
+  _closed: boolean = true;
+  _minimized: boolean = true;
+  _dragging: boolean = false;
+  _hover: boolean = false;
+  _hoverHeader: boolean = false;
+  _loading: boolean = true;
+  _userStatus: any = null;
+  _dndStatus: any = null;
+  _telephonyStatus: any = null;
+  _presenceOption: any = null;
+  _headerEl?: HTMLElement;
+  _logoEl: any;
+  _contentFrameContainerEl: any;
+  _toggleEl: any;
+  _closeEl: any;
+  _presenceEl: any;
+  _presenceItemEls: any;
+  _dropdownPresence: any;
+  _contentFrameEl: any;
+  _isClick: boolean = true;
+  _resizeTimeout: any;
+  _resizeTick: any;
+  _messageTransport: any;
+  _logoUrl: any;
+  _appUrl: any;
+  _ringing: any;
+  _hasActiveCalls: boolean = false;
+  _locale: any;
+  _themeVariableString: string = '';
+  rotateInterval: number = 0;
+  durationInterval: number = 0;
+
+  _zIndex: number;
+  _fromPopup: boolean;
+  _enablePopup: boolean;
+  _popupPageUri: any;
+  _disableMinimize: boolean;
+  _showFeedbackAtHead: boolean;
+  _strings: any;
+  _theme: string;
+  _showDockUI: boolean;
+  _webphoneActive: boolean;
+  _widgetCurrentPath: string;
+  _webphoneCalls: any[];
+  _currentWebhoneCallId: any;
+  _notification: any;
+  _version: any;
+  _appOrigin: string = '';
+  _popupWindowPromise: any;
+  _popupedWindow: any;
+  _feedbackEl: any;
+  _iconEl: any;
+  _popupEl: any;
+  _iconContainerEl: any;
+  styleEl: any;
+
+  protected _beforeRender(): void {
+    this._iconEl = this._root.querySelector(`.${this._styles.icon}`);
+    this._popupEl = this._root.querySelector(`.${this._styles.popup}`);
+    this._iconEl.addEventListener('dragstart', () => false);
+    this._iconContainerEl = this._root.querySelector(
+      `.${this._styles.iconContainer}`,
+    );
+    this._popupEl.addEventListener('click', (evt: MouseEvent) => {
+      evt.stopPropagation();
+      this.popupWindow();
+    });
+  }
+
   constructor({
     logoUrl,
     appUrl,
@@ -49,28 +177,63 @@ class Adapter extends AdapterCore {
     disableMinimize = false,
     popupPageUri,
     defaultDirection = 'right',
-  } = {}) {
+  }: {
+    logoUrl?: string;
+    appUrl: string;
+    iconUrl?: string;
+    prefix?: string;
+    version?: string;
+    appWidth?: number;
+    appHeight?: number;
+    zIndex?: number;
+    enableNotification?: boolean;
+    newAdapterUI?: boolean;
+    fromPopup?: boolean;
+    enablePopup?: boolean;
+    disableMinimize?: boolean;
+    popupPageUri?: string;
+    defaultDirection?: string;
+  } = {} as any) {
     const container = document.createElement('div');
     container.id = prefix;
     container.setAttribute('class', classnames(styles.root, styles.loading));
     container.draggable = false;
-    super({
-      prefix,
-      container,
-      styles,
-      messageTypes,
-      defaultDirection,
-    });
-    this._messageTypes = messageTypes;
-    this._zIndex = zIndex;
+
+    this._prefix = prefix;
+    this._messageTypes = ObjectMap.prefixValues(messageTypes, prefix);
+    this._container = ensureExist.call(this, container, 'container');
+    this._root = container;
+    this._styles = styles;
+    this._defaultDirection = defaultDirection;
+    this._padding = 15;
+    this._minTranslateX = 0;
+    this._minTranslateY = 0;
+    this._translateX = 0;
+    this._translateY = 0;
     this._appWidth = appWidth;
     this._appHeight = appHeight;
+    this._dragStartPosition = null;
+    this._closed = true;
+    this._minimized = true;
+    this._dragging = false;
+    this._hover = false;
+    this._hoverHeader = false;
+    this._loading = true;
+    this._userStatus = null;
+    this._dndStatus = null;
+    this._telephonyStatus = null;
+    this._presenceOption = null;
+    this._scrollable = false;
+    this.currentState = -1;
+    this._strings = {};
+
+    this._messageTypes = messageTypes;
+    this._zIndex = zIndex;
     this._fromPopup = fromPopup;
     this._enablePopup = enablePopup;
     this._popupPageUri = popupPageUri;
     this._disableMinimize = disableMinimize;
     this._showFeedbackAtHead = false;
-    this._strings = {};
     this._theme = 'light';
     this._generateContentDOM();
     const styleList = document.querySelectorAll('style');
@@ -98,14 +261,14 @@ class Adapter extends AdapterCore {
     document.addEventListener(
       'click',
       (event) => {
-        let target = event.target;
+        let target = event.target as HTMLElement | null;
         if (!target) {
           return;
         }
-        if (target && !target.href) {
+        if (target && !(target as HTMLAnchorElement).href) {
           target = target.parentElement;
         }
-        if (target && !target.href) {
+        if (target && !(target as HTMLAnchorElement).href) {
           target = target.parentElement;
         }
         if (!target) {
@@ -113,14 +276,14 @@ class Adapter extends AdapterCore {
         }
         if (target.matches('a[href^="sms:"]')) {
           event.preventDefault();
-          const hrefStr = target.href;
+          const hrefStr = (target as HTMLAnchorElement).href;
           const pathStr = hrefStr.split('?')[0];
           const { text, body } = parseUri(hrefStr);
           const phoneNumber = pathStr.replace(/[^\d+*-]/g, '');
           this.clickToSMS(phoneNumber, body || text);
         } else if (target.matches('a[href^="tel:"]')) {
           event.preventDefault();
-          const hrefStr = target.href;
+          const hrefStr = (target as HTMLAnchorElement).href;
           const phoneNumber = hrefStr.replace(/[^\d+*-]/g, '');
           this.clickToCall(phoneNumber, true);
         }
@@ -153,8 +316,16 @@ class Adapter extends AdapterCore {
     });
   }
 
-  _onMessage(data) {
+  setThemeVariables(variableString: string): void {
+    this._themeVariableString = variableString;
+    if (this._headerEl) {
+      this._headerEl.style.cssText = this._themeVariableString;
+    }
+  }
+
+  _onMessage(data: any): void {
     if (data) {
+      console.log('🐞 ~ _onMessage ~ data:', data.type, data);
       switch (data.type) {
         case 'rc-call-ring-notify':
           this.setMinimized(false);
@@ -225,14 +396,43 @@ class Adapter extends AdapterCore {
             data.template,
           );
           break;
+        case this._messageTypes.syncClosed:
+          this._onSyncClosed(data.closed);
+          break;
+        case this._messageTypes.syncMinimized:
+          this._onSyncMinimized(data.minimized);
+          break;
+        case this._messageTypes.syncSize:
+          this._onSyncSize(data.size);
+          break;
+        case this._messageTypes.syncPresence:
+          this._onPushPresence(data);
+          break;
+        case this._messageTypes.pushAdapterState:
+          this._onPushAdapterState(data);
+          break;
+        case this._messageTypes.pushLocale:
+          this._onPushLocale(data);
+          break;
+        case this._messageTypes.pushRingState:
+          this._onPushRingState(data);
+          break;
+        case this._messageTypes.pushCalls:
+          this._onPushCallsInfo(data);
+          break;
+        case this._messageTypes.pushOnCurrentCallPath:
+          this._onPushOnCurrentCallPath(data);
+          break;
+        case this._messageTypes.pushOnAllCallsPath:
+          this._onPushOnAllCallsPath(data);
+          break;
         default:
-          super._onMessage(data);
           break;
       }
     }
   }
 
-  _getContentDOM(sanboxAttributeValue, allowAttributeValue) {
+  _getContentDOM(sanboxAttributeValue: string, allowAttributeValue: string): string {
     let sandboxAttributes = sanboxAttributeValue;
     if (isSafari()) {
       sandboxAttributes = sandboxAttributes.replace(' allow-downloads', '');
@@ -302,87 +502,465 @@ class Adapter extends AdapterCore {
       </div>`;
   }
 
-  _beforeRender() {
-    this._iconEl = this._root.querySelector(`.${this._styles.icon}`);
-    this._popupEl = this._root.querySelector(`.${this._styles.popup}`);
-    this._iconEl.addEventListener('dragstart', () => false);
-    this._iconContainerEl = this._root.querySelector(
-      `.${this._styles.iconContainer}`,
+  _generateContentDOM(): void {
+    this._root.innerHTML = this._getContentDOM(
+      SANDBOX_ATTRIBUTE_VALUE,
+      ALLOW_ATTRIBUTE_VALUE,
     );
-    this._popupEl.addEventListener('click', (evt) => {
+    this._headerEl = this._root.querySelector(`.${this._styles.header}`)!;
+    if (this._themeVariableString) {
+      this._headerEl.style.cssText = this._themeVariableString;
+    }
+    this._logoEl = this._root.querySelector(`.${this._styles.logo}`);
+    this._logoEl.addEventListener('dragstart', () => false);
+
+    this._contentFrameContainerEl = this._root.querySelector(
+      `.${this._styles.frameContainer}`,
+    );
+
+    this._toggleEl = this._root.querySelector(`.${this._styles.toggle}`);
+    this._toggleEl.addEventListener(clickEvent, (evt: any) => {
       evt.stopPropagation();
-      this.popupWindow();
+      this.toggleMinimized();
     });
-  }
 
-  _renderMainClass() {
-    this._container.setAttribute(
-      'class',
-      classnames(
-        this._styles.root,
-        this._styles[this._defaultDirection],
-        this._closed && this._styles.closed,
-        this._minimized && this._styles.minimized,
-        this._dragging && this._styles.dragging,
-        this._hover && this._styles.hover,
-        this._loading && this._styles.loading,
-        this._showDockUI && this._styles.dock,
-        this._showDockUI &&
-          this._minimized &&
-          (this._hoverHeader || this._dragging) &&
-          this._styles.expandable,
-        this._showDockUI &&
-          !(this._userStatus || this._dndStatus) &&
-          this._styles.noPresence,
-        this._enablePopup && this._styles.showPopup,
-        this._disableMinimize && this._styles.hideToggleButton,
-        this._showFeedbackAtHead && this._styles.showFeedback,
-        this._theme === 'dark' && this._styles.dark,
-      ),
-    );
-    this._headerEl.setAttribute(
-      'class',
-      classnames(
-        this._styles.header,
-        this._minimized && this._styles.minimized,
-        this._ringing && this._styles.ringing,
-        this._showDockUI &&
-          this._minimized &&
-          (this._hoverHeader || this._dragging) &&
-          this._styles.iconTrans,
-      ),
-    );
-    this._iconContainerEl.setAttribute(
-      'class',
-      classnames(
-        this._styles.iconContainer,
-        !(this._userStatus || this._dndStatus) && this._styles.noPresence,
-        !this._showDockUI && this._styles.hidden,
-      ),
-    );
-  }
+    this._closeEl = this._root.querySelector(`.${this._styles.close}`);
+    if (this._closeEl) {
+      this._closeEl.addEventListener(clickEvent, () => {
+        this.setClosed(true);
+      });
+    }
 
-  renderAdapterSize() {
-    super.renderAdapterSize();
-    if (this._fromPopup) {
-      this._contentFrameContainerEl.style.width = '100%';
-      this._contentFrameContainerEl.style.height = 'calc(100% - 36px)';
-      this._contentFrameEl.style.width = '100%';
-      this._contentFrameEl.style.height = '100%';
-      if (window.opener) {
-        window.opener.postMessage(
-          {
-            type: 'rc-adapter-set-popup-window-size',
-            width: this._appWidth,
-            height: this._appHeight,
-          },
-          '*',
-        );
+    this._presenceEl = this._root.querySelector(`.${this._styles.presence}`);
+    this._presenceEl.addEventListener(clickEvent, (evt: any) => {
+      evt.stopPropagation();
+      this.togglePresenceDropdown();
+    });
+
+    this._presenceItemEls = this._root.querySelectorAll(
+      `.${this._styles.presenceItem}`,
+    );
+
+    this._presenceItemEls.forEach((itemEl: any) => {
+      const dataPresence = itemEl.getAttribute('data-presence');
+      itemEl.addEventListener(clickEvent, (evt: any) => {
+        evt.stopPropagation();
+        this.togglePresenceDropdown();
+        this._postMessage({
+          type: this._messageTypes.presenceItemClicked,
+          presenceType:
+            (presenceStatus as any)[dataPresence] ||
+            (dndStatus as any)[dataPresence],
+        });
+      });
+    });
+
+    this._dropdownPresence = this._root.querySelector(
+      `.${this._styles.dropdownPresence}`,
+    );
+    if (this._dropdownPresence) {
+      this._dropdownPresence.addEventListener(clickEvent, (evt: any) => {
+        evt.stopPropagation();
+        this.togglePresenceDropdown();
+      });
+    }
+
+    this._contentFrameEl = this._root.querySelector(
+      `.${this._styles.contentFrame}`,
+    )!;
+
+    this._durationEl = this._root.querySelector(`.${this._styles.duration}`)!;
+    this._durationEl.addEventListener(clickEvent, (evt: Event) => {
+      evt.stopPropagation();
+      this._postMessage({
+        type: this._messageTypes.navigateToCurrentCall,
+      });
+    });
+
+    this._currentCallEl = this._root.querySelector(
+      `.${this._styles.currentCallBtn}`,
+    )!;
+    this._currentCallEl.addEventListener(clickEvent, (evt: Event) => {
+      evt.stopPropagation();
+      this._postMessage({
+        type: this._messageTypes.navigateToCurrentCall,
+      });
+    });
+
+    this._viewCallsEl = this._root.querySelector(
+      `.${this._styles.viewCallsBtn}`,
+    )!;
+    this._viewCallsEl.addEventListener(clickEvent, (evt: Event) => {
+      evt.stopPropagation();
+      this._postMessage({
+        type: this._messageTypes.navigateToViewCalls,
+      });
+    });
+
+    this._ringingCallsEl = this._root.querySelector(
+      `.${this._styles.ringingCalls}`,
+    )!;
+
+    this._onHoldCallsEl = this._root.querySelector(
+      `.${this._styles.onHoldCalls}`,
+    )!;
+
+    this._otherDeviceCallsEl = this._root.querySelector(
+      `.${this._styles.otherDeviceCalls}`,
+    )!;
+
+    this._headerEl.addEventListener('mousedown', (evt: any) => {
+      this._dragging = true;
+      this._isClick = true;
+      this._dragStartPosition = {
+        x: evt.clientX,
+        y: evt.clientY,
+        translateX: this._translateX,
+        translateY: this._translateY,
+        minTranslateX: this._minTranslateX,
+        minTranslateY: this._minTranslateY,
+      };
+      this._renderMainClass();
+    });
+    this._headerEl.addEventListener('mouseup', () => {
+      this._dragging = false;
+      this._renderMainClass();
+    });
+    window.addEventListener('mousemove', this._onWindowMouseMove);
+
+    this._headerEl.addEventListener('mouseenter', () => {
+      if (!this._minimized) {
+        return;
       }
+      if (this._currentStartTime > 0) {
+        this._hoverBar = true;
+        this._scrollable = false;
+        this._renderCallsBar();
+      }
+      this._hoverHeader = true;
+      this._renderMainClass();
+    });
+    this._headerEl.addEventListener('mouseleave', () => {
+      this._hoverHeader = false;
+      this._hoverBar = false;
+      this._scrollable = false;
+      this._renderCallsBar();
+      this._renderMainClass();
+    });
+
+    this._isClick = true;
+    this._headerEl.addEventListener(clickEvent, (evt: any) => {
+      if (this._isClick) {
+        this._onHeaderClicked();
+      }
+    });
+
+    this._resizeTimeout = null;
+    this._resizeTick = null;
+    window.addEventListener('resize', this._onWindowResize);
+
+    this._container.addEventListener('mouseenter', () => {
+      this._hover = true;
+      this._renderMainClass();
+    });
+    this._container.addEventListener('mouseleave', () => {
+      this._hover = false;
+      this._renderMainClass();
+    });
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('load', () => {
+        document.body.appendChild(this._container);
+      });
+    } else {
+      document.body.appendChild(this._container);
+    }
+
+    this._beforeRender();
+
+    this._render();
+  }
+
+  _onWindowResize = (): void => {
+    if (this._dragging) {
+      return;
+    }
+    if (this._resizeTimeout) {
+      clearTimeout(this._resizeTimeout);
+    }
+    this._resizeTimeout = setTimeout(
+      () => this._renderRestrictedPosition(),
+      100,
+    );
+    if (!this._resizeTick || Date.now() - this._resizeTick > 50) {
+      this._resizeTick = Date.now();
+      this._renderRestrictedPosition();
+    }
+  };
+
+  _onWindowMouseMove = (evt: any): void => {
+    if (this._dragging) {
+      if (evt.buttons === 0) {
+        this._dragging = false;
+        this._renderMainClass();
+        return;
+      }
+      const factor = this._calculateFactor();
+      const delta = {
+        x: evt.clientX - this._dragStartPosition.x,
+        y: evt.clientY - this._dragStartPosition.y,
+      };
+      if (this._minimized) {
+        this._minTranslateX =
+          this._dragStartPosition.minTranslateX + delta.x * factor;
+        this._minTranslateY = this._dragStartPosition.minTranslateY + delta.y;
+      } else {
+        this._translateX =
+          this._dragStartPosition.translateX + delta.x * factor;
+        this._translateY = this._dragStartPosition.translateY + delta.y;
+      }
+      if (delta.x !== 0 || delta.y !== 0) {
+        this._isClick = false;
+      }
+      this._syncPosition();
+      this._renderRestrictedPosition();
+    }
+  };
+
+  togglePresenceDropdown(): void {
+    if (this._dropdownPresence) {
+      this._dropdownPresence.classList.toggle(`${this._styles.showDropdown}`);
+      this.setMinimized(false);
     }
   }
 
-  renderPosition() {
+  get messageTransport(): any {
+    return this._messageTransport;
+  }
+
+  _postMessage(data: any): void {
+    if (this._contentFrameEl.contentWindow) {
+      this._contentFrameEl.contentWindow.postMessage(data, this._appOrigin);
+    }
+  }
+
+  _setLogoUrl(logoUri: string): void {
+    if (!checkValidImageUri(logoUri)) {
+      return;
+    }
+    this._logoUrl = logoUri;
+    this._logoEl.src = logoUri;
+    this._logoEl.setAttribute(
+      'class',
+      classnames(
+        this._styles.logo,
+        this._logoUrl && this._logoUrl !== '' && this._styles.visible,
+      ),
+    );
+  }
+
+  _setAppUrl(appUrl: string): void {
+    this._appUrl = appUrl;
+    this._appOrigin = new URL(appUrl, window.location.href).origin;
+    if (appUrl) {
+      this.contentFrameEl.src = appUrl;
+      this.contentFrameEl.id = `${this._prefix}-adapter-frame`;
+    }
+  }
+
+  _onSyncMinimized(minimized: boolean): void {
+    this._minimized = !!minimized;
+    this._renderMainClass();
+    this.renderAdapterSize();
+    this._renderRestrictedPosition();
+  }
+
+  setMinimized(minimized: boolean): void {
+    this._onSyncMinimized(minimized);
+    this._postMessage({
+      type: this._messageTypes.syncMinimized,
+      minimized: this._minimized,
+    });
+    if (minimized && this._dropdownPresence) {
+      this._dropdownPresence.classList.remove(`${this._styles.showDropdown}`);
+    }
+  }
+
+  toggleMinimized(): void {
+    this.setMinimized(!this._minimized);
+  }
+
+  _calculateMinMaxPosition(): { minimumX: number; minimumY: number; maximumX: number; maximumY: number } | undefined {
+    if (!this._headerEl) return undefined;
+    const maximumX =
+      window.innerWidth -
+      (this._minimized ? this._headerEl.clientWidth : this._appWidth) -
+      2 * this._padding;
+    const maximumY =
+      window.innerHeight -
+      (this._minimized
+        ? this._headerEl.clientHeight
+        : this._headerEl.clientHeight + this._appHeight) -
+      this._padding;
+    return {
+      minimumX: this._padding,
+      minimumY: this._padding,
+      maximumX,
+      maximumY,
+    };
+  }
+
+  _onSyncClosed(closed: boolean): void {
+    this._closed = !!closed;
+    this._renderMainClass();
+  }
+
+  setClosed(closed: boolean): void {
+    this._onSyncClosed(closed);
+    this._postMessage({
+      type: this._messageTypes.syncClosed,
+      closed: this.closed,
+    });
+  }
+
+  toggleClosed(): void {
+    this.setClosed(!this.closed);
+  }
+
+  _onSyncSize({ width, height }: { width: number; height: number }): void {
+    this._appWidth = width;
+    this._appHeight = height;
+    this._contentFrameEl.style.width = `${width}px`;
+    this._contentFrameEl.style.height = `${height}px`;
+    this.renderAdapterSize();
+  }
+
+  setSize(size: { width: number; height: number }): void {
+    this._onSyncSize(size);
+    this._postMessage({
+      type: this._messageTypes.syncSize,
+      size,
+    });
+  }
+
+  _onPushRingState({ ringing }: any): void {
+    this._ringing = ringing;
+    this._render();
+  }
+
+  _onPushCallsInfo({
+    ringingCallsLength,
+    onHoldCallsLength,
+    otherDeviceCallsLength,
+    currentStartTime,
+  }: any): void {
+    this._currentStartTime = currentStartTime;
+    this._ringingCallsLength = ringingCallsLength;
+    this._onHoldCallsLength = onHoldCallsLength;
+    this._otherDeviceCallsLength = otherDeviceCallsLength;
+    this._hasActiveCalls =
+      this._currentStartTime > 0 ||
+      this._ringingCallsLength > 0 ||
+      this._onHoldCallsLength > 0 ||
+      this._otherDeviceCallsLength > 0;
+    this.renderCallsBar();
+  }
+
+  _onPushOnCurrentCallPath({ onCurrentCallPath }: any): void {
+    this._onCurrentCallPath = onCurrentCallPath;
+    this._render();
+  }
+
+  _onPushOnAllCallsPath({ onAllCallsPath }: any): void {
+    this._onAllCallsPath = onAllCallsPath;
+    this._render();
+  }
+
+  _onPushPresence({
+    dndStatus: dndStatusValue,
+    userStatus,
+    telephonyStatus,
+    presenceOption,
+  }: any): void {
+    if (
+      dndStatusValue !== this._dndStatus ||
+      userStatus !== this._userStatus ||
+      telephonyStatus !== this._telephonyStatus
+    ) {
+      this._dndStatus = dndStatusValue;
+      this._userStatus = userStatus;
+      this._telephonyStatus = telephonyStatus;
+      this._presenceOption = presenceOption;
+      this.renderPresence();
+    }
+  }
+
+  _onPushLocale({ locale, strings = {} }: any): void {
+    this._locale = locale;
+    this._strings = strings;
+    this._renderString();
+  }
+
+  _renderString(): void {
+    this._renderCallBarBtn();
+    this._renderRingingCalls();
+    this._renderOnHoldCalls();
+    this._renderOtherDevicesCalls();
+    this._renderPresenceItem();
+  }
+
+  _debouncedPostMessage = debounce(this._postMessage, 100);
+
+  _syncPosition(): void {
+    if (this._fromPopup) {
+      return;
+    }
+    this._debouncedPostMessage.call(this, {
+      type: this._messageTypes.syncPosition,
+      position: {
+        translateX: this._translateX,
+        translateY: this._translateY,
+        minTranslateX: this._minTranslateX,
+        minTranslateY: this._minTranslateY,
+      },
+    });
+  }
+
+  _onPushAdapterState(options: any): void {
+    const resolved = this._fromPopup
+      ? { ...options, minimized: false }
+      : options;
+    const {
+      size: { width, height },
+      minimized,
+      closed,
+      position: { translateX, translateY, minTranslateX, minTranslateY },
+      dndStatus: dndStatusValue,
+      userStatus,
+      telephonyStatus,
+    } = resolved;
+    this._minimized = minimized;
+    this._closed = closed;
+    if (!this._dragging) {
+      this._translateX = translateX;
+      this._translateY = translateY;
+      this._minTranslateX = minTranslateX;
+      this._minTranslateY = minTranslateY;
+    }
+    this._appWidth = width;
+    this._appHeight = height;
+    this._dndStatus = dndStatusValue;
+    this._userStatus = userStatus;
+    this._telephonyStatus = telephonyStatus;
+    this._loading = false;
+    this._render();
+  }
+
+  _calculateFactor(): number {
+    return this._defaultDirection === 'right' ? -1 : 1;
+  }
+
+  renderPosition(): void {
     if (this._fromPopup) {
       return;
     }
@@ -407,49 +985,474 @@ class Adapter extends AdapterCore {
     }
   }
 
-  _syncPosition() {
-    if (this._fromPopup) {
-      return;
+  _renderRestrictedPosition(): void {
+    const positions = this._calculateMinMaxPosition();
+    if (!positions) return;
+    const { minimumX, minimumY, maximumX, maximumY } = positions;
+
+    if (this._minimized) {
+      const newMinTranslateX = Math.max(
+        Math.min(this._minTranslateX, maximumX),
+        minimumX,
+      );
+      if (newMinTranslateX !== this._minTranslateX) {
+        this._minTranslateX = newMinTranslateX;
+      }
+      const newMinTranslateY = Math.max(
+        Math.min(this._minTranslateY, -minimumY),
+        -maximumY,
+      );
+      if (newMinTranslateY !== this._minTranslateY) {
+        this._minTranslateY = newMinTranslateY;
+      }
+    } else {
+      const newTranslateX = Math.max(
+        Math.min(this._translateX, maximumX),
+        minimumX,
+      );
+      const newTranslateY = Math.max(
+        Math.min(this._translateY, -minimumY),
+        -maximumY,
+      );
+      if (
+        this._translateX !== newTranslateX ||
+        this._translateY !== newTranslateY
+      ) {
+        this._translateX = newTranslateX;
+        this._translateY = newTranslateY;
+      }
     }
-    super._syncPosition();
+    this.renderPosition();
   }
 
-  _onHeaderClicked() {
+  renderAdapterSize(): void {
+    if (this._minimized) {
+      this._contentFrameContainerEl.style.width = 0;
+      this._contentFrameContainerEl.style.height = 0;
+    } else {
+      this._contentFrameContainerEl.style.width = `${this._appWidth}px`;
+      this._contentFrameContainerEl.style.height = `${this._appHeight}px`;
+      this._contentFrameEl.style.width = `${this._appWidth}px`;
+      this._contentFrameEl.style.height = `${this._appHeight}px`;
+    }
+    if (this._fromPopup) {
+      this._contentFrameContainerEl.style.width = '100%';
+      this._contentFrameContainerEl.style.height = 'calc(100% - 36px)';
+      this._contentFrameEl.style.width = '100%';
+      this._contentFrameEl.style.height = '100%';
+      if (window.opener) {
+        window.opener.postMessage(
+          {
+            type: 'rc-adapter-set-popup-window-size',
+            width: this._appWidth,
+            height: this._appHeight,
+          },
+          '*',
+        );
+      }
+    }
+  }
+
+  _renderMainClass(): void {
+    this._container.setAttribute(
+      'class',
+      classnames(
+        this._styles.root,
+        this._styles[this._defaultDirection],
+        this._closed && this._styles.closed,
+        this._minimized && this._styles.minimized,
+        this._dragging && this._styles.dragging,
+        this._hover && this._styles.hover,
+        this._loading && this._styles.loading,
+        this._showDockUI && this._styles.dock,
+        this._showDockUI &&
+          this._minimized &&
+          (this._hoverHeader || this._dragging) &&
+          this._styles.expandable,
+        this._showDockUI &&
+          this._minimized &&
+          !(this._userStatus || this._dndStatus) &&
+          this._styles.noPresence,
+        this._enablePopup && this._styles.showPopup,
+        this._disableMinimize && this._styles.hideToggleButton,
+        this._showFeedbackAtHead && this._styles.showFeedback,
+        this._theme === 'dark' && this._styles.dark,
+      ),
+    );
+    this._headerEl?.setAttribute(
+      'class',
+      classnames(
+        this._styles.header,
+        this._minimized && this._styles.minimized,
+        this._ringing && this._styles.ringing,
+        this._showDockUI &&
+          this._minimized &&
+          (this._hoverHeader || this._dragging) &&
+          this._styles.iconTrans,
+      ),
+    );
+    this._iconContainerEl?.setAttribute(
+      'class',
+      classnames(
+        this._styles.iconContainer,
+        !(this._userStatus || this._dndStatus) && this._styles.noPresence,
+        !this._showDockUI && this._styles.hidden,
+      ),
+    );
+  }
+
+  renderPresence(): void {
+    this._presenceEl.setAttribute(
+      'class',
+      classnames(
+        this._minimized && this._styles.minimized,
+        this._styles.presence,
+        this._minimized && this._userStatus && this._styles[this._userStatus],
+        this._minimized && this._dndStatus && this._styles[this._dndStatus],
+      ),
+    );
+
+    this._presenceItemEls.forEach((presenceItem: any) => {
+      const dataPresence = presenceItem.getAttribute('data-presence');
+      if (
+        (presenceStatus as any)[dataPresence] === this._presenceOption ||
+        (dndStatus as any)[dataPresence] === this._presenceOption
+      ) {
+        presenceItem.setAttribute(
+          'class',
+          classnames(this._styles.presenceItem, this._styles.selected),
+        );
+      } else {
+        presenceItem.setAttribute('class', classnames(this._styles.presenceItem));
+      }
+    });
+  }
+
+  calculateState(): number {
+    const startTime = this._currentStartTime;
+    return Math.round((new Date().getTime() - startTime) / 1000);
+  }
+
+  renderCallsBar(): void {
+    if (this.rotateInterval) {
+      clearInterval(this.rotateInterval);
+      this.rotateInterval = 0;
+    }
+    if (!this._hasActiveCalls) {
+      this.currentState = -1;
+      this._scrollable = false;
+      this._hoverBar = false;
+      if (this.durationInterval) {
+        clearInterval(this.durationInterval);
+        this.durationInterval = 0;
+      }
+      this._renderCallsBar();
+      return;
+    }
+    if (
+      this._currentStartTime > 0 &&
+      this._ringingCallsLength === 0 &&
+      this._onHoldCallsLength === 0 &&
+      this._otherDeviceCallsLength === 0
+    ) {
+      this.currentState = CURRENT_CALL;
+      this._scrollable = false;
+      this._renderCallDuration();
+      this._renderCallsBar();
+      return;
+    }
+    if (
+      this._currentStartTime === 0 &&
+      this._otherDeviceCallsLength === 0 &&
+      this._ringingCallsLength > 0
+    ) {
+      this.currentState = RINGING_CALLS;
+      this._scrollable = false;
+      this._hoverBar = false;
+      if (this.durationInterval) {
+        clearInterval(this.durationInterval);
+        this.durationInterval = 0;
+      }
+      this._renderRingingCalls();
+      this._renderCallsBar();
+      return;
+    }
+    if (
+      this._currentStartTime === 0 &&
+      this._ringingCallsLength === 0 &&
+      this._onHoldCallsLength === 0 &&
+      this._otherDeviceCallsLength > 0
+    ) {
+      this.currentState = OTHER_DEVICE_CALLS;
+      this._scrollable = false;
+      this._renderOtherDevicesCalls();
+      this._renderCallsBar();
+      return;
+    }
+    this.callInfoMap = {
+      [CURRENT_CALL]: this._currentStartTime > 0,
+      [RINGING_CALLS]: this._ringingCallsLength > 0,
+      [ON_HOLD_CALLS]: this._onHoldCallsLength > 0,
+      [OTHER_DEVICE_CALLS]: this._otherDeviceCallsLength > 0,
+    };
+    this.rotateCallInfo();
+    this.rotateInterval = setInterval(() => {
+      this.rotateCallInfo();
+    }, ROTATE_INTERVAL) as unknown as number;
+  }
+
+  rotateCallInfo() {
+    if (this._hoverBar && this.callInfoMap[this.currentState]) {
+      return;
+    }
+    this.lastState = this.currentState;
+    this.currentState = this.increment(this.currentState);
+    const hasStatuses = Object.values(this.callInfoMap).some((value) => value);
+    if (!hasStatuses) {
+      return;
+    }
+    while (!this.callInfoMap[this.currentState]) {
+      this.currentState = this.increment(this.currentState);
+    }
+    switch (this.currentState) {
+      case ON_HOLD_CALLS:
+        this._renderOnHoldCalls();
+        break;
+      case RINGING_CALLS:
+        this._renderRingingCalls();
+        break;
+      case CURRENT_CALL:
+        this._renderCallDuration();
+        break;
+      case OTHER_DEVICE_CALLS:
+        this._renderOtherDevicesCalls();
+        break;
+      default:
+        break;
+    }
+    this._scrollable = true;
+    this._renderCallsBar();
+    this._scrollable = false;
+  }
+
+  increment(state: number): number {
+    const newState = state + 1;
+    if (state >= ROTATE_LENGTH - 1) {
+      return 0;
+    }
+    return newState;
+  }
+
+  _clearCallsBar(): void {
+    this._logoEl.setAttribute(
+      'class',
+      classnames(
+        this._styles.logo,
+        this._logoUrl && this._logoUrl !== '' && this._styles.visible,
+      ),
+    );
+    this._durationEl.setAttribute('class', classnames(this._styles.duration));
+    this._ringingCallsEl.setAttribute('class', classnames(this._styles.ringingCalls));
+    this._onHoldCallsEl.setAttribute('class', classnames(this._styles.onHoldCalls));
+    this._otherDeviceCallsEl?.setAttribute(
+      'class',
+      classnames(this._styles.otherDeviceCalls),
+    );
+    this._currentCallEl.setAttribute(
+      'class',
+      classnames(this._styles.currentCallBtn),
+    );
+    this._viewCallsEl.setAttribute('class', classnames(this._styles.viewCallsBtn));
+  }
+
+  _renderCallsBar(): void {
+    if (!this._minimized) {
+      this._clearCallsBar();
+      return;
+    }
+    this._logoEl.setAttribute(
+      'class',
+      classnames(
+        this._styles.logo,
+        !this._hasActiveCalls &&
+          this._logoUrl &&
+          this._logoUrl !== '' &&
+          this._styles.visible,
+      ),
+    );
+    this._durationEl.setAttribute(
+      'class',
+      classnames(
+        this._styles.duration,
+        this.showDuration && this._styles.visible,
+        this.centerDuration && this._styles.center,
+        this.moveOutDuration && this._styles.moveOut,
+        this.moveInDuration && this._styles.moveIn,
+      ),
+    );
+    this._ringingCallsEl.setAttribute(
+      'class',
+      classnames(
+        this._styles.ringingCalls,
+        this.showRingingCalls && this._styles.visible,
+        this.centerCallInfo && this._styles.center,
+        this.moveOutRingingInfo && this._styles.moveOut,
+        this.moveInRingingInfo && this._styles.moveIn,
+      ),
+    );
+    this._onHoldCallsEl.setAttribute(
+      'class',
+      classnames(
+        this._styles.onHoldCalls,
+        this.showOnHoldCalls && this._styles.visible,
+        this.centerCallInfo && this._styles.center,
+        this.moveOutOnHoldInfo && this._styles.moveOut,
+        this.moveInOnHoldInfo && this._styles.moveIn,
+      ),
+    );
+    this._otherDeviceCallsEl?.setAttribute(
+      'class',
+      classnames(
+        this._styles.otherDeviceCalls,
+        this.showOtherDeviceCalls && this._styles.visible,
+        this.centerCallInfo && this._styles.center,
+        this.isInMoveOutStatus(OTHER_DEVICE_CALLS) && this._styles.moveOut,
+        this.isInMoveInStatus(OTHER_DEVICE_CALLS) && this._styles.moveIn,
+      ),
+    );
+    this._currentCallEl.setAttribute(
+      'class',
+      classnames(
+        this._styles.currentCallBtn,
+        this.showCurrentCallBtn && this._styles.visible,
+        !this.centerDuration &&
+          this.moveOutCurrentCallBtn &&
+          this._styles.moveOut,
+        !this.centerDuration && this.moveInCurrentCallBtn && this._styles.moveIn,
+      ),
+    );
+    this._viewCallsEl.setAttribute(
+      'class',
+      classnames(
+        this._styles.viewCallsBtn,
+        this.showViewCallsBtn && this._styles.visible,
+        !this.moveInViewCallsBtn &&
+          this.moveOutViewCallsBtn &&
+          this._styles.moveOut,
+        this.moveInViewCallsBtn && this._styles.moveIn,
+      ),
+    );
+  }
+
+  _renderCallDuration(): void {
+    if (this.durationInterval) {
+      clearInterval(this.durationInterval);
+      this.durationInterval = 0;
+    }
+    const duration = formatDuration(this.calculateState());
+    this._durationEl.innerHTML = duration;
+    this.durationInterval = setInterval(() => {
+      const newDuration = formatDuration(this.calculateState());
+      this._durationEl.innerHTML = newDuration;
+    }, 1000) as unknown as number;
+  }
+
+  _renderRingingCalls(): void {
+    if (!this._ringingCallsLength || !this._strings) {
+      return;
+    }
+    let ringCallsStrings = this._strings.ringCallsInfo || '';
+    ringCallsStrings = ringCallsStrings.replace('0', String(this._ringingCallsLength));
+    this._ringingCallsEl.innerHTML = ringCallsStrings;
+    this._ringingCallsEl.title = ringCallsStrings;
+  }
+
+  _renderOnHoldCalls(): void {
+    if (!this._onHoldCallsLength || !this._strings) {
+      return;
+    }
+    let onHoldCallsInfo = this._strings.onHoldCallsInfo || '';
+    onHoldCallsInfo = onHoldCallsInfo.replace('0', String(this._onHoldCallsLength));
+    this._onHoldCallsEl.innerHTML = onHoldCallsInfo;
+    this._onHoldCallsEl.title = onHoldCallsInfo;
+  }
+
+  _renderOtherDevicesCalls(): void {
+    if (
+      !this._otherDeviceCallsLength ||
+      !this._strings ||
+      !this._otherDeviceCallsEl
+    ) {
+      return;
+    }
+    this._otherDeviceCallsEl.innerHTML = this._strings.otherDeviceCallsInfo;
+    this._otherDeviceCallsEl.title = this._strings.otherDeviceCallsInfo;
+  }
+
+  _renderCallBarBtn(): void {
+    if (!this._strings) {
+      return;
+    }
+    this._currentCallEl.innerHTML = this._strings.currentCallBtn;
+    this._viewCallsEl.innerHTML = this._strings.viewCallsBtn;
+  }
+
+  _renderPresenceItem(): void {
+    if (!this._strings) {
+      return;
+    }
+    this._presenceItemEls.forEach((presenceItem: any) => {
+      const dataPresence = presenceItem.getAttribute('data-presence');
+      presenceItem.querySelector('span').innerHTML =
+        this._strings[`${dataPresence}Btn`];
+    });
+  }
+
+  _render(): void {
+    this.renderPresence();
+    this.renderAdapterSize();
+    this._renderRestrictedPosition();
+    this._renderMainClass();
+    this._renderCallsBar();
+  }
+
+  dispose(): void {
+    window.removeEventListener('mousemove', this._onWindowMouseMove);
+    window.removeEventListener('resize', this._onWindowResize);
+    if (this._resizeTimeout) {
+      clearTimeout(this._resizeTick);
+    }
+    this._container.remove();
+  }
+
+  isInMoveInStatus(state: number): boolean {
+    return !this._hoverBar && this.currentState === state && this._scrollable;
+  }
+
+  isInMoveOutStatus(state: number): boolean {
+    return !this._hoverBar && this._scrollable && this.lastState === state;
+  }
+
+  _onHeaderClicked(): void {
     if (!this._minimized) {
       return;
     }
     this.toggleMinimized();
   }
 
-  _setAppUrl(appUrl) {
-    this._appUrl = appUrl;
-    this._appOrigin = new URL(appUrl, window.location.href).origin;
-    if (appUrl) {
-      this.contentFrameEl.src = appUrl;
-      this.contentFrameEl.id = `${this._prefix}-adapter-frame`;
-    }
-  }
-
-  _setIconUrl(iconUrl) {
+  _setIconUrl(iconUrl: string): void {
     if (!checkValidImageUri(iconUrl)) {
       return;
     }
     this._iconEl.src = iconUrl;
   }
 
-  _setLogoUrl(logoUri) {
-    if (!checkValidImageUri(logoUri)) {
-      return;
-    }
-    super._setLogoUrl(logoUri);
-  }
-
-  _setTheme(theme) {
+  _setTheme(theme: string): void {
     this._theme = theme;
     this._renderMainClass();
   }
 
-  _setPopupWindowSize(width, height) {
+  _setPopupWindowSize(width: number, height: number): void {
     if (this._popupedWindow) {
       this._popupedWindow.resizeTo(
         width,
@@ -458,7 +1461,7 @@ class Adapter extends AdapterCore {
     }
   }
 
-  async popupWindow() {
+  async popupWindow(): Promise<void> {
     if (!this._popupWindowPromise) {
       this._popupWindowPromise = this._popupWindow();
     }
@@ -470,7 +1473,7 @@ class Adapter extends AdapterCore {
     this._popupWindowPromise = null;
   }
 
-  async _popupWindow() {
+  async _popupWindow(): Promise<void> {
     const isWindowPoppedUp = await this.isWindowPoppedUp({ alert: true });
     if (isWindowPoppedUp) {
       if (this._popupedWindow?.focus) {
@@ -486,27 +1489,11 @@ class Adapter extends AdapterCore {
     this.setMinimized(true);
   }
 
-  isWindowPoppedUp({ alert = false } = {}) {
+  isWindowPoppedUp({ alert = false }: { alert?: boolean } = {}): Promise<any> {
     return this._requestWithPostMessage('/check-popup-window', { alert });
   }
 
-  _onPushAdapterState(options) {
-    if (!this._fromPopup) {
-      return super._onPushAdapterState(options);
-    }
-    return super._onPushAdapterState({
-      ...options,
-      minimized: false,
-    });
-  }
-
-  _postMessage(data) {
-    if (this._contentFrameEl.contentWindow) {
-      this._contentFrameEl.contentWindow.postMessage(data, this._appOrigin);
-    }
-  }
-
-  _requestWithPostMessage(path, body) {
+  _requestWithPostMessage(path: string, body: any): Promise<any> {
     return requestWithPostMessage(
       path,
       body,
@@ -516,31 +1503,31 @@ class Adapter extends AdapterCore {
     );
   }
 
-  setRinging(ringing) {
+  setRinging(ringing: boolean): void {
     this._ringing = !!ringing;
     this._renderMainClass();
   }
 
-  gotoPresence() {
+  gotoPresence(): void {
     this._postMessage({
       type: 'rc-adapter-goto-presence',
       version: this._version,
     });
   }
 
-  setEnvironment() {
+  setEnvironment(): void {
     this._postMessage({
       type: 'rc-adapter-set-environment',
     });
   }
 
   clickToSMS(
-    phoneNumber,
-    text,
-    conversation,
-    attachments = undefined,
-    recipient = undefined,
-  ) {
+    phoneNumber: string,
+    text?: string,
+    conversation?: any,
+    attachments: any = undefined,
+    recipient: any = undefined,
+  ): void {
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-sms',
@@ -552,7 +1539,7 @@ class Adapter extends AdapterCore {
     });
   }
 
-  clickToCall(phoneNumber, toCall = false) {
+  clickToCall(phoneNumber: string, toCall: boolean = false): void {
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-call',
@@ -561,7 +1548,7 @@ class Adapter extends AdapterCore {
     });
   }
 
-  controlCall(action, id, options = {}) {
+  controlCall(action: string, id: string, options: any = {}): void {
     this._postMessage({
       type: 'rc-adapter-control-call',
       callAction: action,
@@ -570,13 +1557,23 @@ class Adapter extends AdapterCore {
     });
   }
 
-  logoutUser() {
+  logoutUser(): void {
     this._postMessage({
       type: 'rc-adapter-logout',
     });
   }
 
-  updateCallingSetting({ callWith, myLocation, ringoutPrompt, fromNumber }) {
+  updateCallingSetting({
+    callWith,
+    myLocation,
+    ringoutPrompt,
+    fromNumber,
+  }: {
+    callWith?: string;
+    myLocation?: string;
+    ringoutPrompt?: boolean;
+    fromNumber?: string;
+  }): void {
     this._postMessage({
       type: 'rc-calling-settings-update',
       callWith,
@@ -586,30 +1583,30 @@ class Adapter extends AdapterCore {
     });
   }
 
-  updateSmsSetting({ senderNumber }) {
+  updateSmsSetting({ senderNumber }: { senderNumber: string }): void {
     this._postMessage({
       type: 'rc-sms-settings-update',
       senderNumber,
     });
   }
 
-  navigateTo(path) {
+  navigateTo(path: string): void {
     this._postMessage({
       type: 'rc-adapter-navigate-to',
       path,
     });
   }
 
-  scheduleMeeting(meetingInfo) {
+  scheduleMeeting(meetingInfo: any): Promise<any> {
     return this._requestWithPostMessage('/schedule-meeting', meetingInfo);
   }
 
-  _updateWidgetCurrentPath(path) {
+  _updateWidgetCurrentPath(path: string): void {
     this._widgetCurrentPath = path;
     this._updateCallBarStatus();
   }
 
-  _updateWebphoneCalls(webphoneCall) {
+  _updateWebphoneCalls(webphoneCall: any): void {
     const cleanCalls = this._webphoneCalls.filter((call) => call.id !== webphoneCall.id);
     if (webphoneCall.endTime) {
       if (
@@ -639,7 +1636,7 @@ class Adapter extends AdapterCore {
     this._updateCallBarStatus();
   }
 
-  _updateCallBarStatus() {
+  _updateCallBarStatus(): void {
     const activeCalls = this._webphoneCalls.filter(
       (call) =>
         call.callStatus !== 'webphone-session-connecting' ||
@@ -659,65 +1656,27 @@ class Adapter extends AdapterCore {
     this.renderCallsBar();
   }
 
-  _renderRingingCalls() {
-    if (!this._ringingCallsLength || !this._strings) {
-      return;
-    }
-    let ringCallsStrings = this._strings.ringCallsInfo || '';
-    ringCallsStrings = ringCallsStrings.replace('0', String(this._ringingCallsLength));
-    this._ringingCallsEl.innerHTML = ringCallsStrings;
-    this._ringingCallsEl.title = ringCallsStrings;
-  }
-
-  _renderOnHoldCalls() {
-    if (!this._onHoldCallsLength || !this._strings) {
-      return;
-    }
-    let onHoldCallsInfo = this._strings.onHoldCallsInfo || '';
-    onHoldCallsInfo = onHoldCallsInfo.replace('0', String(this._onHoldCallsLength));
-    this._onHoldCallsEl.innerHTML = onHoldCallsInfo;
-    this._onHoldCallsEl.title = onHoldCallsInfo;
-  }
-
-  _renderCallsBar() {
-    super._renderCallsBar();
-    if (this._minimized) {
-      return;
-    }
-    this._currentCallEl.setAttribute(
-      'class',
-      classnames(
-        this._styles.currentCallBtn,
-        this.showCurrentCallBtn && this._styles.visible,
-        !this.centerDuration &&
-          this.moveOutCurrentCallBtn &&
-          this._styles.moveOut,
-        !this.centerDuration && this.moveInCurrentCallBtn && this._styles.moveIn,
-      ),
-    );
-  }
-
-  showFeedback({ onFeedback }) {
+  showFeedback({ onFeedback }: { onFeedback: () => void }): void {
     if (typeof onFeedback !== 'function') {
       throw new Error('onFeedback function is required.');
     }
     this._showFeedbackAtHead = true;
     this._renderMainClass();
     this._feedbackEl = this._root.querySelector(`.${this._styles.feedback}`);
-    this._feedbackEl.addEventListener('click', (evt) => {
+    this._feedbackEl.addEventListener('click', (evt: MouseEvent) => {
       evt.stopPropagation();
       onFeedback();
     });
   }
 
-  createSMSTemplate(displayName, text) {
+  createSMSTemplate(displayName: string, text: string): Promise<any> {
     return this._requestWithPostMessage('/create-sms-template', {
       displayName,
       text,
     });
   }
 
-  updateRingtone({ name, uri, volume }) {
+  updateRingtone({ name, uri, volume }: { name?: string; uri?: string; volume?: number }): void {
     this._postMessage({
       type: 'rc-adapter-update-ringtone',
       name,
@@ -726,24 +1685,7 @@ class Adapter extends AdapterCore {
     });
   }
 
-  get showCurrentCallBtn() {
-    return !isCurrentCallPath(this._widgetCurrentPath) && this.showDuration;
-  }
-
-  get showViewCallsBtn() {
-    return !isViewCallsPath(this._widgetCurrentPath) &&
-      (this.showOnHoldCalls || this.showRingingCalls);
-  }
-
-  get centerDuration() {
-    return isCurrentCallPath(this._widgetCurrentPath);
-  }
-
-  get centerCallInfo() {
-    return isViewCallsPath(this._widgetCurrentPath);
-  }
-
-  alertMessage({ message, level, ttl, details }) {
+  alertMessage({ message, level, ttl, details }: { message: string; level?: string; ttl?: number; details?: any }): Promise<any> {
     return this._requestWithPostMessage('/custom-alert-message', {
       message,
       level,
@@ -752,20 +1694,20 @@ class Adapter extends AdapterCore {
     });
   }
 
-  dismissMessage(id = null) {
+  dismissMessage(id: string | null = null): Promise<any> {
     return this._requestWithPostMessage('/dismiss-alert-message', {
       id,
     });
   }
 
-  getUnloggedCalls(perPage, page) {
+  getUnloggedCalls(perPage: number, page: number): Promise<any> {
     return this._requestWithPostMessage('/unlogged-calls', {
       perPage,
       page,
     });
   }
 
-  setAutoLog({ message = undefined, call = undefined } = {}) {
+  setAutoLog({ message = undefined, call = undefined }: { message?: any; call?: any } = {}): void {
     this._postMessage({
       type: 'rc-adapter-update-auto-log-settings',
       message,
@@ -773,7 +1715,7 @@ class Adapter extends AdapterCore {
     });
   }
 
-  getCallLog({ sessionId, telephonySessionId }) {
+  getCallLog({ sessionId, telephonySessionId }: { sessionId: string; telephonySessionId: string }): Promise<any> {
     return this._requestWithPostMessage('/get-call-log', {
       sessionId,
       telephonySessionId,
@@ -785,7 +1727,12 @@ class Adapter extends AdapterCore {
     template,
     readOnly,
     readOnlyReason,
-  }) {
+  }: {
+    formatType?: string;
+    template?: string;
+    readOnly?: boolean;
+    readOnlyReason?: string;
+  }): void {
     this._postMessage({
       type: 'rc-adapter-set-phone-number-format',
       formatType,
@@ -793,6 +1740,195 @@ class Adapter extends AdapterCore {
       readOnly,
       readOnlyReason,
     });
+  }
+
+  get container(): any {
+    return this._container;
+  }
+
+  get root(): HTMLElement {
+    return this._root;
+  }
+
+  get headerEl(): HTMLElement | undefined {
+    return this._headerEl;
+  }
+
+  get contentFrameContainerEl(): any {
+    return this._contentFrameContainerEl;
+  }
+
+  get toggleEl(): any {
+    return this._toggleEl;
+  }
+
+  get closeEl(): any {
+    return this._closeEl;
+  }
+
+  get presenceEl(): any {
+    return this._presenceEl;
+  }
+
+  get contentFrameEl(): any {
+    return this._contentFrameEl;
+  }
+
+  get minTranslateX(): number {
+    return this._minTranslateX;
+  }
+
+  get minTranslateY(): number {
+    return this._minTranslateY;
+  }
+
+  get translateX(): number {
+    return this._translateX;
+  }
+
+  get translateY(): number {
+    return this._translateY;
+  }
+
+  get appWidth(): number {
+    return this._appWidth;
+  }
+
+  get appHeight(): number {
+    return this._appHeight;
+  }
+
+  get dragStartPosition(): any {
+    return this._dragStartPosition;
+  }
+
+  get closed(): boolean {
+    return this._closed;
+  }
+
+  get minimized(): boolean {
+    return this._minimized;
+  }
+
+  get dragging(): boolean {
+    return this._dragging;
+  }
+
+  get hover(): boolean {
+    return this._hover;
+  }
+
+  get loading(): boolean {
+    return this._loading;
+  }
+
+  get userStatus(): any {
+    return this._userStatus;
+  }
+
+  get dndStatus(): any {
+    return this._dndStatus;
+  }
+
+  get ringing(): any {
+    return this._ringing;
+  }
+
+  get showDuration(): boolean {
+    return !this._scrollable && this.currentState === CURRENT_CALL;
+  }
+
+  get showRingingCalls(): boolean {
+    return !this._scrollable && this.currentState === RINGING_CALLS;
+  }
+
+  get showOnHoldCalls(): boolean {
+    return !this._scrollable && this.currentState === ON_HOLD_CALLS;
+  }
+
+  get showOtherDeviceCalls(): boolean {
+    return !this._scrollable && this.currentState === OTHER_DEVICE_CALLS;
+  }
+
+  get showCurrentCallBtn(): boolean {
+    return !isCurrentCallPath(this._widgetCurrentPath) && this.showDuration;
+  }
+
+  get showViewCallsBtn(): boolean {
+    return (
+      !isViewCallsPath(this._widgetCurrentPath) &&
+      (this.showOnHoldCalls || this.showRingingCalls)
+    );
+  }
+
+  get centerDuration(): boolean {
+    return isCurrentCallPath(this._widgetCurrentPath);
+  }
+
+  get centerCallInfo(): boolean {
+    return isViewCallsPath(this._widgetCurrentPath);
+  }
+
+  get moveInDuration(): boolean {
+    return (
+      !this._hoverBar && this.currentState === CURRENT_CALL && this._scrollable
+    );
+  }
+
+  get moveOutDuration(): boolean {
+    return (
+      !this._hoverBar && this._scrollable && this.lastState === CURRENT_CALL
+    );
+  }
+
+  get moveInRingingInfo(): boolean {
+    return (
+      !this._hoverBar && this.currentState === RINGING_CALLS && this._scrollable
+    );
+  }
+
+  get moveOutRingingInfo(): boolean {
+    return (
+      !this._hoverBar && this._scrollable && this.lastState === RINGING_CALLS
+    );
+  }
+
+  get moveInOnHoldInfo(): boolean {
+    return (
+      !this._hoverBar && this.currentState === ON_HOLD_CALLS && this._scrollable
+    );
+  }
+
+  get moveOutOnHoldInfo(): boolean {
+    return (
+      !this._hoverBar && this._scrollable && this.lastState === ON_HOLD_CALLS
+    );
+  }
+
+  get moveInCurrentCallBtn(): boolean {
+    return !isCurrentCallPath(this._widgetCurrentPath) && this.moveInDuration;
+  }
+
+  get moveOutCurrentCallBtn(): boolean {
+    return !isCurrentCallPath(this._widgetCurrentPath) && this.moveOutDuration;
+  }
+
+  get moveInViewCallsBtn(): boolean {
+    return (
+      !isViewCallsPath(this._widgetCurrentPath) &&
+      (this.moveInRingingInfo ||
+        this.moveInOnHoldInfo ||
+        this.isInMoveInStatus(OTHER_DEVICE_CALLS))
+    );
+  }
+
+  get moveOutViewCallsBtn(): boolean {
+    return (
+      !isViewCallsPath(this._widgetCurrentPath) &&
+      (this.moveOutRingingInfo ||
+        this.moveOutOnHoldInfo ||
+        this.isInMoveOutStatus(OTHER_DEVICE_CALLS))
+    );
   }
 }
 

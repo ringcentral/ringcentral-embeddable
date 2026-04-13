@@ -1,8 +1,27 @@
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
-import baseMessageTypes from '@ringcentral-integration/widgets/lib/AdapterCore/baseMessageTypes';
 
 const messageTypes = ObjectMap.prefixKeys(
-  [...ObjectMap.keys(baseMessageTypes), 'syncPresence'],
+  [
+    'syncClosed',
+    'syncMinimized',
+    'syncSize',
+    'syncPosition',
+    'pushPresence',
+    'pushAdapterState',
+    'pushLocale',
+    'presenceClicked',
+    'presenceItemClicked',
+    'clickToDial',
+    'clickToSms',
+    'pushRingState',
+    'pushCalls',
+    'pushOnCurrentCallPath',
+    'pushOnAllCallsPath',
+    'navigateToCurrentCall',
+    'navigateToViewCalls',
+    'popOut',
+    'syncPresence',
+  ],
   'rc-adapter',
 );
 

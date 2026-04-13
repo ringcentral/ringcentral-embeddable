@@ -17,6 +17,7 @@ import {
   StoragePlugin,
   watch,
   delegate,
+  Root,
 } from '@ringcentral-integration/next-core';
 import {
   AccountInfo,
@@ -288,6 +289,7 @@ export class Adapter extends RcModule {
   private _customAlertGroup = 'rc-adapter-custom-alert';
 
   constructor(
+    protected _root: Root,
     protected _storage: StoragePlugin,
     protected _portManager: PortManager,
     protected _router: RouterPlugin,
@@ -428,6 +430,13 @@ export class Adapter extends RcModule {
 
     const multipleWatchOptions = { multiple: true } as const;
     const unwatchFns = [
+      watch(
+        this,
+        () => this._root.expanded,
+        () => {
+          this._onWindowExpanded(this._root.expanded);
+        }
+      ),
       watch(
         this,
         () => this._watchAdapterStateValues(),
@@ -585,6 +594,7 @@ export class Adapter extends RcModule {
     this._bindMessageEvents();
 
     this._pushAdapterState();
+    this._onWindowExpanded(this._root.expanded);
     this._pushPresence();
     this._pushLocale();
     this._pushCalls();
@@ -1825,7 +1835,7 @@ export class Adapter extends RcModule {
 
 
 
-  onWindowExpanded(expanded: boolean) {
+  _onWindowExpanded(expanded: boolean) {
     if (!globalThis.window) return;
     const newSize = {
       width: expanded ? 600 : 300,

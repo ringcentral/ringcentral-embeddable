@@ -82,6 +82,7 @@ import {
   Webphone,
   CallQueueManagement,
   type CallLoggerOptions,
+  type CallActionOptions,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   GenericMeeting,
@@ -101,6 +102,7 @@ import type {
   InitiatorOptions,
   IRouterOptions,
   ISharedAppOptions,
+  RootOptions,
 } from '@ringcentral-integration/next-core';
 import {
   createMemoryHistory,
@@ -389,6 +391,12 @@ export const getAppConfig = <
         } satisfies CallLoggerOptions,
       },
       {
+        provide: 'CallActionOptions',
+        useValue: {
+          expandedAbility: true,
+        },
+      },
+      {
         provide: 'ConversationLoggerOptions',
         useValue: {
           async logFunction(e) {
@@ -436,6 +444,16 @@ export const getAppConfig = <
         useValue: {
           enableVideoTab: true,
         } satisfies HeaderNavViewSpringOptions,
+      },
+      {
+        provide: 'RootOptions',
+        deps: [],
+        useFactory: () =>
+          ({
+            onExpand: (expand) => {
+              console.log('onExpand expand:', expand);
+            },
+          } satisfies RootOptions),
       },
       ...modules,
     ],
