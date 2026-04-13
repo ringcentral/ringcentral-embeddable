@@ -325,7 +325,6 @@ class Adapter {
 
   _onMessage(data: any): void {
     if (data) {
-      console.log('🐞 ~ _onMessage ~ data:', data.type, data);
       switch (data.type) {
         case 'rc-call-ring-notify':
           this.setMinimized(false);
