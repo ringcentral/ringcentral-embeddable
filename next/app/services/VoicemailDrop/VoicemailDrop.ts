@@ -16,6 +16,8 @@ import type { WebphoneSession } from '../WebphoneV2/Webphone.interface';
 import { voicemailDropStatus } from '../WebphoneV2/voicemailDropStatus';
 import type { VoicemailMessage } from './VoicemailDrop.interface';
 
+import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
+
 
 function isValidAudioUri(uri?: string) {
   if (!uri) {
@@ -48,6 +50,10 @@ export class VoicemailDrop extends RcModule {
     this._storage.enable(this);
   }
 
+  private get _embeddableAppFeatures() {
+    return this._appFeatures as EmbeddableAppFeatures;
+  }
+
   @storage
   @state
   noBeepSilenceDuration = 4;
@@ -68,9 +74,7 @@ export class VoicemailDrop extends RcModule {
   }
 
   get hasVoicemailDropPermission() {
-    return Boolean(
-      (this._appFeatures.config as Record<string, boolean>).VoicemailDrop,
-    );
+    return Boolean(this._embeddableAppFeatures.hasVoicemailDropPermission);
   }
 
   setExternalVoicemailFetcher(fetcher: () => Promise<VoicemailMessage[]>) {

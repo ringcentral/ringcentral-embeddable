@@ -12,6 +12,8 @@ import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 
 import { Denoiser } from './Denoiser';
 
+import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
+
 function isSameOrigin(uri: string) {
   if (uri.indexOf('http') !== 0) {
     return true;
@@ -50,6 +52,10 @@ export class NoiseReduction extends RcModule {
     }
   }
 
+  private get _embeddableAppFeatures() {
+    return this._appFeatures as EmbeddableAppFeatures;
+  }
+
   @storage
   @state
   enabled = true;
@@ -60,9 +66,7 @@ export class NoiseReduction extends RcModule {
   }
 
   get isFeatureEnabled() {
-    return Boolean(
-      (this._appFeatures.config as Record<string, boolean>).NoiseReduction,
-    );
+    return this._embeddableAppFeatures.showNoiseReductionSetting;
   }
 
   private _showNotSupportAlert() {

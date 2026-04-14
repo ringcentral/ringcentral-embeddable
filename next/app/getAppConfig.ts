@@ -86,13 +86,22 @@ import {
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   GenericMeeting,
+  RcVideo,
   type RcVideoOptions,
 } from '@ringcentral-integration/micro-meeting/src/app/services';
 import type { HeaderNavViewSpringOptions } from '@ringcentral-integration/micro-core/src/app/views';
 import {
-  GenericMeetingViewSpring,
   PersonalMeetingSettingsViewSpring,
 } from '@ringcentral-integration/micro-meeting/src/app/views';
+import {
+  AppFeatures as AppFeaturesV2,
+  GenericMeeting as GenericMeetingV2,
+  RcVideo as RcVideoV2,
+} from './services';
+import {
+  MeetingView,
+  MeetingInviteView,
+} from './views/MeetingView';
 import { DialerView } from '@ringcentral-integration/micro-phone/src/app/views';
 import {
   QuickAccess,
@@ -128,6 +137,7 @@ import {
   RingCentralExtensions as RingCentralExtensionsV2,
   Adapter,
 } from './services';
+import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 
 interface CreateAppEntryOptions<
@@ -173,7 +183,7 @@ export const getAppConfig = <
     cachePrefix: `sdk-${prefix}`,
     clearCacheOnRefreshError: false,
     discoveryServer: sdkConfig.discoveryServer,
-    enableDiscovery: sdkConfig.enableDiscovery ?? true,
+    // enableDiscovery: false, // RCV's discovery server is not available for third party clients
   };
 
   return {
@@ -238,7 +248,10 @@ export const getAppConfig = <
         provide: CallMonitor,
         useClass: CallMonitorV2,
       },
-      AppFeatures,
+      {
+        provide: AppFeatures,
+        useClass: AppFeaturesV2,
+      },
       ComposeText,
       FaxSender,
       Environment,
@@ -257,9 +270,18 @@ export const getAppConfig = <
       SharedConversationView,
       ConversationLogger,
       ConversationMatcher,
-      GenericMeeting,
-      GenericMeetingViewSpring,
+      {
+        provide: GenericMeeting,
+        useClass: GenericMeetingV2,
+      },
+      {
+        provide: RcVideo,
+        useClass: RcVideoV2,
+      },
+      GenericMeetingView,
       PersonalMeetingSettingsViewSpring,
+      MeetingView,
+      MeetingInviteView,
       {
         provide: 'MeetingOptions',
         useValue: {
@@ -271,10 +293,8 @@ export const getAppConfig = <
         provide: 'RcVideoOptions',
         useValue: {
           enablePersonalMeeting: true,
-          enableInvitationApi: true,
-          enableInvitationBridgesApi: true,
-          enableInvitationApiFailedToast: true,
           enableWaitingRoom: true,
+          enableV2Api: true,
         } satisfies RcVideoOptions,
       },
       CallQueueManagement,

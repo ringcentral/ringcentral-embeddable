@@ -1,4 +1,5 @@
 export * from './WebphoneV2';
+export * from './AppFeatures';
 export * from './NoiseReduction';
 export * from './VoicemailDrop';
 export * from './ActiveCallControl';
@@ -6,3 +7,5 @@ export * from './CallMonitor';
 export * from './WebSocketSubscription';
 export * from './RingCentralExtensions';
 export * from './Adapter';
+export * from './RcVideo';
+export * from './GenericMeeting';

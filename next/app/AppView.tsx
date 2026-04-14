@@ -9,15 +9,14 @@ import {
   useAppFooter,
 } from '@ringcentral-integration/micro-core/src/app/components';
 import {
-  HeaderNavViewSpring,
   HeaderView,
   SpringAppRootView,
   VIEW_TRANSITION_DETAIL_IDENTIFY,
 } from '@ringcentral-integration/micro-core/src/app/views';
 import {
-  GenericMeetingViewSpring,
   PersonalMeetingSettingsViewSpring,
 } from '@ringcentral-integration/micro-meeting/src/app/views';
+import { MeetingView } from './views/MeetingView';
 import {
   ComposeTextViewSpring,
   ConversationsViewSpring,
@@ -52,12 +51,12 @@ import {
   RouterPlugin,
   Route as RouterRoute,
   Switch,
-  useConnector,
 } from '@ringcentral-integration/next-core';
 import React, { ReactNode } from 'react';
-
+import meetingI18n from './views/MeetingView/i18n';
 import type { AppViewOptions } from './AppView.interface';
-
+import { HeaderNavViewSpring } from './views/HeaderNavView';
+import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 @injectable({
   name: 'AppView',
 })
@@ -199,9 +198,14 @@ export class AppView extends RcViewModule {
     },
     {
       path: '/meeting',
-      component: this._genericMeetingViewSpring?.component,
+      component: this._meetingView ? this._meetingView.component : this._genericMeetingView?.component,
       authentication: true,
       exact: true,
+    },
+    {
+      path: '/meeting/schedule',
+      component: this._genericMeetingView?.component,
+      authentication: true,
     },
     {
       path: '/meeting/personalMeetingSettings',
@@ -259,9 +263,11 @@ export class AppView extends RcViewModule {
     private _faxSendView: FaxSendView,
     private _headerNavView: HeaderNavViewSpring,
     @optional()
-    private _genericMeetingViewSpring?: GenericMeetingViewSpring,
+    private _genericMeetingView?: GenericMeetingView,
     @optional()
     private _personalMeetingSettingsViewSpring?: PersonalMeetingSettingsViewSpring,
+    @optional()
+    private _meetingView?: MeetingView,
     @optional('AppViewOptions')
     private _appViewOptions?: AppViewOptions,
   ) {

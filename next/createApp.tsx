@@ -125,6 +125,7 @@ export const createApp = async (
     ...(urlParams.appServer && { server: urlParams.appServer }),
   } as Required<Pick<NormalizedRuntimeSdkConfig, 'clientId' | 'server'>> &
     NormalizedRuntimeSdkConfig;
+
   const redirectUri = urlParams.redirectUri || process.env.REDIRECT_URI;
   const analyticsKey = process.env.MIXPANEL_KEY || '';
 
