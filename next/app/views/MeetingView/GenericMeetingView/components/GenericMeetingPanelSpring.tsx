@@ -237,7 +237,7 @@ export const GenericMeetingPanelSpring: React.FC<
     <>
       <AppHeaderNav override>
         <PageHeader onBackClick={onBackClick}>
-          {t('video')}
+          {t('scheduleMeeting')}
         </PageHeader>
       </AppHeaderNav>
       <div

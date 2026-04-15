@@ -11,7 +11,6 @@ import { Locale } from '@ringcentral-integration/micro-core/src/app/services';
 import { t } from '@ringcentral-integration/micro-core/src/app/views/HeaderNavViewSpring/i18n';
 import { defaultTabMap } from '@ringcentral-integration/micro-core/src/app/views/HeaderNavViewSpring/utils/tabs';
 
-
 @injectable({
   name: 'HeaderNavViewSpring',
 })

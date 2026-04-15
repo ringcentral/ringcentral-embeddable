@@ -1,5 +1,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import {
+  SearchInputToggle,
+} from '@ringcentral-integration/micro-message/src/app/components';
+import type { ChangeEvent } from 'react';
+import {
   action,
   injectable,
   RcViewModule,
@@ -11,28 +15,17 @@ import {
 } from '@ringcentral-integration/next-core';
 import { Locale } from '@ringcentral-integration/micro-core/src/app/services';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { RecentMd } from '@ringcentral/spring-icon';
 import {
   CircularProgressIndicator,
   EmptyState,
   List,
-  TextField,
 } from '@ringcentral/spring-ui';
 
 import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
-import { MeetingItem } from './components/MeetingItem';
+import { MeetingItem, type MeetingHistoryItem } from './components/MeetingItem';
 import i18n from './i18n';
-
-interface HistoryMeeting {
-  id: string;
-  topic?: string;
-  name?: string;
-  startTime: string;
-  endTime?: string;
-  duration?: number;
-  hasRecording?: boolean;
-}
 
 interface MeetingHistoryViewProps {
   type?: string;
@@ -40,7 +33,7 @@ interface MeetingHistoryViewProps {
 
 interface MeetingHistoryPanelProps {
   isReady: boolean;
-  meetings: HistoryMeeting[];
+  meetings: MeetingHistoryItem[];
   currentLocale: string;
   fetching: boolean;
   pageToken: string | null;
@@ -64,7 +57,7 @@ interface FetchHistoryMeetingsResult {
 }
 
 interface GenericMeetingWithHistoryDeps extends GenericMeeting {
-  readonly historyMeetings: HistoryMeeting[];
+  readonly historyMeetings: MeetingHistoryItem[];
   fetchHistoryMeetings(
     params: FetchHistoryMeetingsParams,
   ): Promise<FetchHistoryMeetingsResult | null>;
@@ -211,15 +204,20 @@ export class MeetingHistoryView extends RcViewModule {
 
     return (
       <div className="flex flex-col h-full overflow-hidden">
-        <div className="px-4 py-2 border-b border-neutral-l01">
-          <TextField
-            fullWidth
-            type="search"
-            placeholder={t('search')}
-            value={searchText}
-            onChange={(e) => uiFunctions.onUpdateSearchText(e.target.value, type)}
-            data-sign="meetingHistorySearch"
-          />
+        <div className="border-b border-neutral-l01">
+          <div className="flex px-3 py-1 items-center gap-2">
+            <div className="flex-auto">
+              <SearchInputToggle
+                searchInput={searchText || ''}
+                onSearchInputChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  uiFunctions.onUpdateSearchText(e.target.value, type);
+                }}
+                placeholder={t('search')}
+                data-sign="meetingHistorySearch"
+                alwaysExpanded
+              />
+            </div>
+          </div>
         </div>
         <div
           ref={scrollRef}
@@ -243,14 +241,16 @@ export class MeetingHistoryView extends RcViewModule {
               />
             </div>
           ) : (
-            <List className="px-2 py-1">
+            <List className="py-1">
               {meetings.map((meeting) => (
                 <MeetingItem
                   key={meeting.id}
                   meeting={meeting}
+                  type={type}
                   divider={meetings.length > 1 && meeting.id !== meetings[meetings.length - 1]?.id}
                   onClick={uiFunctions.onMeetingClick}
                   formatDateTime={(t) => uiFunctions.formatDateTime(t, currentLocale)}
+                  t={t}
                 />
               ))}
             </List>
