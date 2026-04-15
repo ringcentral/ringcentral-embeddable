@@ -28,15 +28,14 @@ import {
   EmptyState,
   IconButton,
   IconButtonLabel,
-  Text,
   TextField,
 } from '@ringcentral/spring-ui';
 import { ExtensionInfo, AccountInfo } from '@ringcentral-integration/micro-auth/src/app/services';
+import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
 import {
   delegateInActiveTab,
   setupActiveTabDelegate,
 } from '../../../../lib/delegateInActiveTab';
-import { GenericMeeting } from '../../../services/GenericMeeting';
 import {
   UpcomingMeetingList,
   type UpcomingMeeting,
@@ -58,6 +57,11 @@ interface MeetingHomePanelProps {
   onOpenJoinModal: () => void;
 }
 
+interface GenericMeetingWithUpcomingDeps extends GenericMeeting {
+  readonly upcomingMeetings: UpcomingMeeting[];
+  fetchUpcomingMeetings(): Promise<void>;
+}
+
 @injectable({
   name: 'MeetingHomeView',
 })
@@ -67,6 +71,10 @@ export class MeetingHomeView extends RcViewModule {
 
   @state
   private isLoadingUpcomingMeetings = true;
+
+  private get _genericMeetingWithUpcoming(): GenericMeetingWithUpcomingDeps {
+    return this._genericMeeting as GenericMeetingWithUpcomingDeps;
+  }
 
   constructor(
     private _genericMeeting: GenericMeeting,
@@ -155,7 +163,7 @@ export class MeetingHomeView extends RcViewModule {
       isReady: this._genericMeeting.ready && this._locale.ready,
       isStarting: this.isStarting,
       isLoadingUpcomingMeetings: this.isLoadingUpcomingMeetings,
-      upcomingMeetings: (this._genericMeeting.upcomingMeetings as UpcomingMeeting[]) ?? [],
+      upcomingMeetings: this._genericMeetingWithUpcoming.upcomingMeetings ?? [],
       currentLocale: this._locale.currentLocale,
     };
   }
@@ -184,7 +192,7 @@ export class MeetingHomeView extends RcViewModule {
       onFetchUpcoming: async (): Promise<void> => {
         this._setIsLoadingUpcomingMeetings(true);
         try {
-          await this._genericMeeting.fetchUpcomingMeetings();
+          await this._genericMeetingWithUpcoming.fetchUpcomingMeetings();
         } finally {
           this._setIsLoadingUpcomingMeetings(false);
         }
@@ -219,7 +227,7 @@ export class MeetingHomeView extends RcViewModule {
       }
     }, [isReady, uiFunctions]);
 
-    if (!isReady || isLoadingUpcomingMeetings) {
+    if (!isReady) {
       return (
         <div className="flex items-center justify-center h-full">
           <CircularProgressIndicator
@@ -270,17 +278,20 @@ export class MeetingHomeView extends RcViewModule {
           </IconButtonLabel>
         </div>
         <div className="flex-1 overflow-y-auto">
-          {upcomingMeetings.length > 0 ? (
-            <>
-              <Text className="px-4 pt-3 pb-1 text-neutral-f04">
-                {t('upcomingMeetings')}
-              </Text>
-              <UpcomingMeetingList
-                meetings={upcomingMeetings}
-                onJoin={uiFunctions.onJoin}
-                currentLocale={currentLocale}
+          {isLoadingUpcomingMeetings ? (
+            <div className="flex h-full items-center justify-center">
+              <CircularProgressIndicator
+                size="large"
+                color="primary"
+                data-sign="meetingUpcomingListLoading"
               />
-            </>
+            </div>
+          ) : upcomingMeetings.length > 0 ? (
+            <UpcomingMeetingList
+              meetings={upcomingMeetings}
+              onJoin={uiFunctions.onJoin}
+              currentLocale={currentLocale}
+            />
           ) : (
             <div className="flex h-full items-center justify-center px-6">
               <EmptyState

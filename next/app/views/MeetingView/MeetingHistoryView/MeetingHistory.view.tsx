@@ -13,8 +13,14 @@ import { Locale } from '@ringcentral-integration/micro-core/src/app/services';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import React, { useEffect, useRef } from 'react';
 import { RecentMd } from '@ringcentral/spring-icon';
+import {
+  CircularProgressIndicator,
+  EmptyState,
+  List,
+  TextField,
+} from '@ringcentral/spring-ui';
 
-import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services/GenericMeeting';
+import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
 import { MeetingItem } from './components/MeetingItem';
 import i18n from './i18n';
 
@@ -45,6 +51,25 @@ interface MeetingHistoryPanelProps {
   formatDateTime: (startTime: string, currentLocale: string) => string;
 }
 
+interface FetchHistoryMeetingsParams {
+  readonly pageToken?: string;
+  readonly searchText?: string;
+  readonly type?: string;
+}
+
+interface FetchHistoryMeetingsResult {
+  readonly paging?: {
+    readonly nextPageToken?: string | null;
+  };
+}
+
+interface GenericMeetingWithHistoryDeps extends GenericMeeting {
+  readonly historyMeetings: HistoryMeeting[];
+  fetchHistoryMeetings(
+    params: FetchHistoryMeetingsParams,
+  ): Promise<FetchHistoryMeetingsResult | null>;
+}
+
 const NO_NEXT_PAGE = 'noNext';
 
 @injectable({
@@ -53,6 +78,10 @@ const NO_NEXT_PAGE = 'noNext';
 export class MeetingHistoryView extends RcViewModule {
   private _fetchType: string = '';
   private _searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private get _genericMeetingWithHistory(): GenericMeetingWithHistoryDeps {
+    return this._genericMeeting as GenericMeetingWithHistoryDeps;
+  }
 
   constructor(
     private _genericMeeting: GenericMeeting,
@@ -97,7 +126,7 @@ export class MeetingHistoryView extends RcViewModule {
   getUIProps(): UIProps<MeetingHistoryPanelProps> {
     return {
       isReady: this._genericMeeting.ready && this._locale.ready,
-      meetings: (this._genericMeeting.historyMeetings as HistoryMeeting[]) ?? [],
+      meetings: this._genericMeetingWithHistory.historyMeetings ?? [],
       currentLocale: this._locale.currentLocale,
       fetching: this.fetching,
       pageToken: this.pageToken,
@@ -113,11 +142,11 @@ export class MeetingHistoryView extends RcViewModule {
         this._fetchType = type;
         this._onFetchStart(pageToken ?? null);
         try {
-          const result = (await this._genericMeeting.fetchHistoryMeetings({
+          const result = await this._genericMeetingWithHistory.fetchHistoryMeetings({
             pageToken,
             searchText: this.searchText,
             type,
-          })) as any;
+          });
           this._onFetchSuccess(result?.paging?.nextPageToken ?? NO_NEXT_PAGE);
         } catch (err) {
           console.error(err);
@@ -183,9 +212,9 @@ export class MeetingHistoryView extends RcViewModule {
     return (
       <div className="flex flex-col h-full overflow-hidden">
         <div className="px-4 py-2 border-b border-neutral-l01">
-          <input
+          <TextField
+            fullWidth
             type="search"
-            className="w-full border border-neutral-l02 rounded-lg px-3 py-2 text-body2 text-neutral-f06 focus:outline-none focus:ring-2 focus:ring-interactive-b01 bg-neutral-b01"
             placeholder={t('search')}
             value={searchText}
             onChange={(e) => uiFunctions.onUpdateSearchText(e.target.value, type)}
@@ -199,28 +228,36 @@ export class MeetingHistoryView extends RcViewModule {
         >
           {showInitialSpinner ? (
             <div className="flex items-center justify-center h-full">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-interactive-b01 border-t-transparent" />
+              <CircularProgressIndicator
+                size="large"
+                color="primary"
+                data-sign="meetingHistoryLoading"
+              />
             </div>
           ) : meetings.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full gap-2 text-neutral-f03">
-              <RecentMd className="w-12 h-12 opacity-40" />
-              <p className="text-body2">{t('noMeetings')}</p>
+            <div className="flex h-full items-center justify-center px-6">
+              <EmptyState
+                icon={RecentMd}
+                title={t('noMeetings')}
+                data-sign="meetingHistoryEmptyState"
+              />
             </div>
           ) : (
-            <ul className="list-none p-0 m-0">
+            <List className="px-2 py-1">
               {meetings.map((meeting) => (
                 <MeetingItem
                   key={meeting.id}
                   meeting={meeting}
+                  divider={meetings.length > 1 && meeting.id !== meetings[meetings.length - 1]?.id}
                   onClick={uiFunctions.onMeetingClick}
                   formatDateTime={(t) => uiFunctions.formatDateTime(t, currentLocale)}
                 />
               ))}
-            </ul>
+            </List>
           )}
           {showLoadMoreSpinner ? (
             <div className="flex justify-center py-2">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-interactive-b01 border-t-transparent" />
+              <CircularProgressIndicator size="small" color="primary" />
             </div>
           ) : null}
         </div>

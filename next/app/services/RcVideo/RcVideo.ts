@@ -168,7 +168,9 @@ interface UpcomingEvent {
   endTime: string;
   isAllDay: boolean;
   editEventUrl: string;
-  location: string;
+  location?: string;
+  description?: string;
+  joinUri?: string;
 }
 
 interface FetchHistoryMeetingsParams {
@@ -181,6 +183,7 @@ interface FetchHistoryMeetingsParams {
   name: 'RcVideo',
 })
 export class RcVideo extends RcVideoBase {
+  private static _joinUriRegexp = /https?:\/\/[^\s<>"']*\/join\/[^\s<>"']*/i;
 
   constructor(
     protected _toast: Toast,
@@ -361,6 +364,9 @@ export class RcVideo extends RcVideoBase {
                 isAllDay: event.allDay,
                 editEventUrl: event.webViewUri,
                 location: event.location,
+                description: event.description,
+                joinUri: this._extractJoinUri(event.location, event.description),
+                attendees: event.attendees,
               })),
             );
           } catch (err) {
@@ -381,6 +387,24 @@ export class RcVideo extends RcVideoBase {
       const date2 = new Date(b.startTime).getTime();
       return date1 - date2;
     });
+  }
+
+  private _extractJoinUri(...candidates: Array<string | undefined>): string {
+    for (const candidate of candidates) {
+      if (!candidate || !candidate.includes('/join/')) {
+        continue;
+      }
+
+      const matchedUri = candidate.match(RcVideo._joinUriRegexp)?.[0];
+
+      if (matchedUri) {
+        return matchedUri
+          .replace(/[),.;]+$/, '')
+          .replace(/&amp;/g, '&');
+      }
+    }
+
+    return '';
   }
 
   addThirdPartyProvider({ name, fetchUpcomingMeetingList }: { name: string; fetchUpcomingMeetingList: () => Promise<unknown[]> }): void {

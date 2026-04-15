@@ -1,4 +1,9 @@
 import React from 'react';
+import {
+  ListItem,
+  ListItemText,
+  Text,
+} from '@ringcentral/spring-ui';
 
 interface MeetingHistoryItem {
   id: string;
@@ -12,29 +17,45 @@ interface MeetingHistoryItem {
 
 interface MeetingItemProps {
   meeting: MeetingHistoryItem;
+  divider?: boolean;
   onClick: (meetingId: string) => void;
   formatDateTime: (startTime: string) => string;
 }
 
-export function MeetingItem({ meeting, onClick, formatDateTime }: MeetingItemProps): React.ReactElement {
+export function MeetingItem({
+  meeting,
+  divider = false,
+  onClick,
+  formatDateTime,
+}: MeetingItemProps): React.ReactElement {
   const title = meeting.topic || meeting.name || 'Meeting';
   const timeLabel = meeting.startTime ? formatDateTime(meeting.startTime) : '';
 
   return (
-    <li
-      className="flex items-center justify-between px-4 py-3 hover:bg-neutral-b02 cursor-pointer border-b border-neutral-l01 last:border-0"
+    <ListItem
+      clickable
+      hoverable
+      divider={divider}
+      className="rounded-xl"
       onClick={() => onClick(meeting.id)}
       data-sign="meetingHistoryItem"
     >
-      <div className="flex flex-col flex-1 min-w-0 mr-2">
-        <span className="text-body2 text-neutral-f06 truncate font-medium">{title}</span>
-        {timeLabel ? (
-          <span className="text-caption1 text-neutral-f04 mt-0.5">{timeLabel}</span>
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <ListItemText
+          className="min-w-0 flex-1"
+          primary={(
+            <Text noWrap titleWhenOverflow={500} className="text-neutral-f06">
+              {title}
+            </Text>
+          )}
+          secondary={timeLabel ? (
+            <Text className="text-neutral-f04">{timeLabel}</Text>
+          ) : undefined}
+        />
+        {meeting.hasRecording ? (
+          <Text className="shrink-0 text-interactive-f01">Recording</Text>
         ) : null}
       </div>
-      {meeting.hasRecording ? (
-        <span className="text-caption1 text-interactive-f01 shrink-0 ml-2">Recording</span>
-      ) : null}
-    </li>
+    </ListItem>
   );
 }
