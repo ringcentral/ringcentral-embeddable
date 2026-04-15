@@ -1,3 +1,4 @@
+import React, { ReactNode } from 'react';
 import {
   ConnectivityView,
   EnvironmentView,
@@ -17,6 +18,10 @@ import {
   PersonalMeetingSettingsViewSpring,
 } from '@ringcentral-integration/micro-meeting/src/app/views';
 import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
+import {
+  ContactListView,
+  ContactDetailsView,
+} from '@ringcentral-integration/micro-contacts/src/app/views';
 import { MeetingView } from './views/MeetingView';
 import {
   ComposeTextViewSpring,
@@ -54,8 +59,6 @@ import {
   Switch,
   useConnector,
 } from '@ringcentral-integration/next-core';
-import React, { ReactNode } from 'react';
-import meetingI18n from './views/MeetingView/i18n';
 import type { AppViewOptions } from './AppView.interface';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
@@ -229,6 +232,16 @@ export class AppView extends RcViewModule {
       component: this._personalMeetingSettingsViewSpring?.component,
       authentication: true,
     },
+    {
+      path: '/contacts',
+      component: this._contactListView.component,
+      authentication: true,
+    },
+    {
+      path: '/contacts/:contactId',
+      component: this._contactDetailsView.component,
+      authentication: true,
+    }
   ];
 
   private routesMap = this.routes.reduce(
@@ -286,6 +299,8 @@ export class AppView extends RcViewModule {
     private _personalMeetingSettingsViewSpring?: PersonalMeetingSettingsViewSpring,
     @optional()
     private _meetingView?: MeetingView,
+    private _contactListView?: ContactListView,
+    private _contactDetailsView?: ContactDetailsView,
     @optional('AppViewOptions')
     private _appViewOptions?: AppViewOptions,
   ) {
