@@ -7,6 +7,7 @@ import type {
   NavButtonProps,
 } from '@ringcentral-integration/micro-core/src/app/views/HeaderNavViewSpring/HeaderNav.view.interface';
 import { Locale } from '@ringcentral-integration/micro-core/src/app/services';
+import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
 
 import { t } from '@ringcentral-integration/micro-core/src/app/views/HeaderNavViewSpring/i18n';
 import { defaultTabMap } from '@ringcentral-integration/micro-core/src/app/views/HeaderNavViewSpring/utils/tabs';
@@ -18,6 +19,7 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
   constructor(
     protected _locale: Locale,
     protected _router: RouterPlugin,
+    protected _genericMeeting: GenericMeeting,
     @optional('HeaderNavViewOptions')
     protected _headerNavViewOptions?: HeaderNavViewSpringOptions,
   ) {
@@ -30,7 +32,7 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
       ...defaultTabMap.video,
       title: t('video'),
       active: this._router.currentPath?.includes('/meeting'),
-      to: '/meeting',
+      to: this._genericMeeting.isRCV ? '/meeting' : '/meeting/schedule',
       dataSign: 'videoTab',
     };
   }

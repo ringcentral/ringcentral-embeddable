@@ -58,6 +58,7 @@ export class GenericMeetingView extends GenericMeetingViewSpring {
 
   component(props: any) {
     const navigationState = props.location!.search!;
+    const isTab = props.isTab || false;
 
     const { current: uiFunctions } = useRef(this.getUIFunctions());
     const _props = useConnector(() => {
@@ -69,6 +70,6 @@ export class GenericMeetingView extends GenericMeetingViewSpring {
 
     const Component =
       this._meetingViewOptions?.component || GenericMeetingPanelSpring;
-    return <Component {..._props} {...uiFunctions} />;
+    return <Component {..._props} {...uiFunctions} isTab={isTab} />;
   }
 }

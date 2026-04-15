@@ -149,6 +149,7 @@ export const GenericMeetingPanelSpring: React.FC<
     viewPersonalMeetingSettings,
     navigationState,
     onBackClick,
+    isTab = false,
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -235,11 +236,15 @@ export const GenericMeetingPanelSpring: React.FC<
 
   return (
     <>
-      <AppHeaderNav override>
-        <PageHeader onBackClick={onBackClick}>
-          {t('scheduleMeeting')}
-        </PageHeader>
-      </AppHeaderNav>
+      {isTab ? (
+        <AppHeaderNav title={t('video')}>{null}</AppHeaderNav>
+      ) : (
+        <AppHeaderNav override>
+          <PageHeader onBackClick={onBackClick}>
+            {t('scheduleMeeting')}
+          </PageHeader>
+        </AppHeaderNav>
+      )}
       <div
         className="flex flex-col flex-auto overflow-y-auto overflow-x-hidden px-3 py-3 gap-3"
         data-sign="videoConfigsPanel"
@@ -267,7 +272,7 @@ export const GenericMeetingPanelSpring: React.FC<
           </>
         )}
       </div>
-      <AppFooterNav />
+      {!isTab && <AppFooterNav />}
     </>
   );
 };

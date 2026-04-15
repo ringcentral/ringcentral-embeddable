@@ -16,6 +16,7 @@ import {
 import {
   PersonalMeetingSettingsViewSpring,
 } from '@ringcentral-integration/micro-meeting/src/app/views';
+import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
 import { MeetingView } from './views/MeetingView';
 import {
   ComposeTextViewSpring,
@@ -51,6 +52,7 @@ import {
   RouterPlugin,
   Route as RouterRoute,
   Switch,
+  useConnector,
 } from '@ringcentral-integration/next-core';
 import React, { ReactNode } from 'react';
 import meetingI18n from './views/MeetingView/i18n';
@@ -78,6 +80,21 @@ export class AppView extends RcViewModule {
     });
 
     return footer;
+  }
+
+  @autobind
+  private MeetingEntry({ ...props }) {
+    const isRCV = useConnector(() => Boolean(this._genericMeeting.isRCV));
+
+    if (isRCV && this._meetingView) {
+      return <this._meetingView.component {...props} />;
+    }
+
+    if (this._genericMeetingView) {
+      return <this._genericMeetingView.component {...props} isTab />;
+    }
+
+    return this._meetingView ? <this._meetingView.component {...props} /> : null;
   }
 
   private routes = [
@@ -198,7 +215,7 @@ export class AppView extends RcViewModule {
     },
     {
       path: '/meeting',
-      component: this._meetingView ? this._meetingView.component : this._genericMeetingView?.component,
+      component: this.MeetingEntry,
       authentication: true,
       exact: true,
     },
@@ -262,6 +279,7 @@ export class AppView extends RcViewModule {
     private _headerView: HeaderView,
     private _faxSendView: FaxSendView,
     private _headerNavView: HeaderNavViewSpring,
+    private _genericMeeting?: GenericMeeting,
     @optional()
     private _genericMeetingView?: GenericMeetingView,
     @optional()
