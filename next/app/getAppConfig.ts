@@ -29,7 +29,10 @@ import {
   ContactSearch,
   ContactMatcher,
 } from '@ringcentral-integration/micro-contacts/src/app/services';
-import { ContactDetailsView } from '@ringcentral-integration/micro-contacts/src/app/views';
+import {
+  ContactDetailsView as ContactDetailsViewBase,
+  ContactListView as ContactListViewBase,
+} from '@ringcentral-integration/micro-contacts/src/app/views';
 import { IntegrationConfigOptions } from '@ringcentral-integration/micro-setting/src/app/services';
 import {
   BlockPlugin,
@@ -102,6 +105,8 @@ import {
   MeetingView,
   MeetingInviteView,
 } from './views/MeetingView';
+import { ContactListView } from './views/ContactListView/ContactList.view';
+import { ContactDetailsView } from './views/ContactDetailsView/ContactDetails.view';
 import { DialerView } from '@ringcentral-integration/micro-phone/src/app/views';
 import {
   QuickAccess,
@@ -258,7 +263,14 @@ export const getAppConfig = <
       ContactInitiator,
       ContactMatcher,
       // views
-      ContactDetailsView,
+      {
+        provide: ContactDetailsViewBase,
+        useClass: ContactDetailsView,
+      },
+      {
+        provide: ContactListViewBase,
+        useClass: ContactListView,
+      },
       DialerView,
       ModalView,
       MessageStore,

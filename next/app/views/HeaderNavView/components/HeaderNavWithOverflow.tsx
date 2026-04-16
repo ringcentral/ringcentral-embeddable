@@ -1,9 +1,8 @@
 import React from 'react';
 
 import { HeaderNav } from '@ringcentral-integration/micro-core/src/app/views/HeaderNavViewSpring/HeaderNav';
-import { NavButton } from '@ringcentral-integration/micro-core/src/app/views/HeaderNavViewSpring/HeaderNav/NavButton';
 import type { HeaderNavPanelProps } from '@ringcentral-integration/micro-core/src/app/views/HeaderNavViewSpring/HeaderNav.view.interface';
-
+import { NavButton } from './NavButton';
 import { OverflowMenuButton } from './OverflowMenuButton';
 
 const MAX_VISIBLE_TABS = 5;

@@ -238,7 +238,7 @@ export class AppView extends RcViewModule {
       authentication: true,
     },
     {
-      path: '/contacts/:contactId',
+      path: '/contacts/:contactType/:contactId',
       component: this._contactDetailsView.component,
       authentication: true,
     }
