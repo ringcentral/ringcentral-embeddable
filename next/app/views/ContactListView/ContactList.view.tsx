@@ -142,7 +142,7 @@ export class ContactListView extends ContactListViewBase {
     const tabs: SyncTabProps['tabs'] = _props.sourceNames.map((source) => ({
       id: source,
       label: contactSourceT(source),
-      component: null,
+      component: contactList,
     }));
 
     return (
@@ -159,9 +159,7 @@ export class ContactListView extends ContactListViewBase {
             className="[&_.sui-tab]:max-w-none [&_.sui-tab]:flex-grow"
             variant="scrollable"
             tabs={tabs}
-          >
-            {contactList}
-          </this._syncTabView.component>
+          />
         ) : (
           contactList
         )}
