@@ -236,6 +236,7 @@ export class AppView extends RcViewModule {
       path: '/contacts',
       component: this._contactListView.component,
       authentication: true,
+      exact: true,
     },
     {
       path: '/contacts/:contactType/:contactId',

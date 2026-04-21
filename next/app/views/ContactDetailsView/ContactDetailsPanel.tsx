@@ -1,9 +1,17 @@
 import type { ContactModel } from '@ringcentral-integration/commons/interfaces/Contact.model';
 import { filterByPhoneTypes, sortByPhoneTypes } from '@ringcentral-integration/commons/lib/phoneTypeHelper';
 import { ContactAvatar } from '@ringcentral-integration/micro-contacts/src/app/components';
-import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import { CallMd, Smsmd, EmailMd } from '@ringcentral/spring-icon';
+import phoneTypeNames from '@ringcentral-integration/next-widgets/i18n/phoneTypeNames';
 import {
+  AppFooterNav,
+  AppHeaderNav,
+} from '@ringcentral-integration/micro-core/src/app/components';
+import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
+import { PageHeader } from '@ringcentral-integration/next-widgets/components';
+import { CallMd, Smsmd } from '@ringcentral/spring-icon';
+import {
+  Block,
+  BlockHeader,
   Icon,
   IconButton,
   Tab,
@@ -29,6 +37,44 @@ interface ContactDetailsPanelProps {
   onClickToSMS: (contact: ContactModel, phoneNumber: string) => void;
   onClickMailTo?: (email: string, contactType: string) => void;
   getPresence?: (contact: any, useCache: boolean) => Promise<any>;
+}
+
+interface ContactDetailsViewContact extends ContactModel {
+  department?: string;
+  site?: { name: string };
+}
+
+function SectionBlock({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <Block className="w-full mb-2">{children}</Block>;
+}
+
+function SectionItem({
+  label,
+  value,
+  valueTitle,
+  endSlot,
+  divider = false,
+}: {
+  label: string;
+  value: React.ReactNode;
+  valueTitle?: string;
+  endSlot?: React.ReactNode;
+  divider?: boolean;
+}) {
+  return (
+    <BlockHeader divider={divider} endSlot={endSlot}>
+      <div className="min-w-0">
+        <div className="typography-descriptorMini text-neutral-b2">{label}</div>
+        <div className="typography-mainText truncate" title={valueTitle}>
+          {value}
+        </div>
+      </div>
+    </BlockHeader>
+  );
 }
 
 function PhoneSection({
@@ -57,11 +103,13 @@ function PhoneSection({
   if (!contact.phoneNumbers || contact.phoneNumbers.length === 0) {
     return null;
   }
+  const { t } = useLocale(i18n);
+  const { t: tPhoneType } = useLocale(phoneTypeNames);
   const sortedPhoneNumbers = sortByPhoneTypes(
     filterByPhoneTypes(contact.phoneNumbers),
   );
   return (
-    <div className="rounded-lg border border-[color:var(--sui-color-neutral-border)] w-full my-2">
+    <SectionBlock>
       {sortedPhoneNumbers.map((item, idx) => {
         const { phoneType, phoneNumber, rawPhoneNumber } = item;
         const formattedNumber = formatNumber(phoneNumber!);
@@ -70,19 +118,11 @@ function PhoneSection({
           isMultipleSiteEnabled && phoneType === 'extension'
             ? formattedNumber
             : phoneNumber!;
-        return (
-          <div
-            key={idx}
-            className="flex items-center justify-between px-4 py-2"
-          >
-            <div className="flex flex-col min-w-0 flex-1">
-              <span className="typography-caption2 text-[color:var(--sui-color-neutral-foreground-secondary)]">
-                {phoneType}
-              </span>
-              <span className="typography-body2 truncate">
-                {displayedPhoneNumber}
-              </span>
-            </div>
+
+        let endSlot: React.ReactNode;
+
+        if (canCallButtonShow(phoneType!) || canTextButtonShow(phoneType!)) {
+          endSlot = (
             <div className="flex items-center gap-1 flex-none">
               {canCallButtonShow(phoneType!) && (
                 <IconButton
@@ -109,10 +149,21 @@ function PhoneSection({
                 </IconButton>
               )}
             </div>
-          </div>
+          );
+        }
+
+        return (
+          <SectionItem
+            key={`${phoneType}-${phoneNumber}-${idx}`}
+            label={phoneType ? tPhoneType(phoneType) : t('phone')}
+            value={displayedPhoneNumber}
+            valueTitle={displayedPhoneNumber}
+            endSlot={endSlot}
+            divider={idx < sortedPhoneNumbers.length - 1}
+          />
         );
       })}
-    </div>
+    </SectionBlock>
   );
 }
 
@@ -126,26 +177,31 @@ function EmailSection({
   onClickMailTo?: (email: string, contactType: string) => void;
 }) {
   if (!emails || emails.length === 0) return null;
+  const { t } = useLocale(i18n);
   return (
-    <div className="rounded-lg border border-[color:var(--sui-color-neutral-border)] w-full my-2 px-4 py-2">
-      <span className="typography-caption2 text-[color:var(--sui-color-neutral-foreground-secondary)]">
-        Email
-      </span>
+    <SectionBlock>
       {emails.map((email, idx) => (
-        <button
-          type="button"
-          key={idx}
-          className="block typography-body2 text-[color:var(--sui-color-interactive-foreground)] truncate mt-1 cursor-pointer bg-transparent border-none p-0 text-left"
-          title={email}
-          onClick={(e) => {
-            e.preventDefault();
-            onClickMailTo?.(email, contactType);
-          }}
-        >
-          {email}
-        </button>
+        <SectionItem
+          key={`${email}-${idx}`}
+          label={t('email')}
+          valueTitle={email}
+          divider={idx < emails.length - 1}
+          value={(
+            <button
+              type="button"
+              className="block w-full truncate cursor-pointer bg-transparent border-none p-0 text-left text-[color:var(--sui-color-interactive-foreground)]"
+              title={email}
+              onClick={(e) => {
+                e.preventDefault();
+                onClickMailTo?.(email, contactType);
+              }}
+            >
+              {email}
+            </button>
+          )}
+        />
       ))}
-    </div>
+    </SectionBlock>
   );
 }
 
@@ -157,25 +213,41 @@ function CompanySection({
   department?: string;
 }) {
   if (!company && !department) return null;
+  const { t } = useLocale(i18n);
+  const items = [
+    department
+      ? {
+          label: t('department'),
+          value: department,
+        }
+      : null,
+    company
+      ? {
+          label: t('company'),
+          value: company,
+        }
+      : null,
+  ].filter(
+    (
+      item,
+    ): item is {
+      label: string;
+      value: string;
+    } => item !== null,
+  );
+
   return (
-    <div className="rounded-lg border border-[color:var(--sui-color-neutral-border)] w-full my-2 px-4 py-2">
-      {department && (
-        <div className="mb-1">
-          <span className="typography-caption2 text-[color:var(--sui-color-neutral-foreground-secondary)]">
-            Department
-          </span>
-          <span className="block typography-body2">{department}</span>
-        </div>
-      )}
-      {company && (
-        <div>
-          <span className="typography-caption2 text-[color:var(--sui-color-neutral-foreground-secondary)]">
-            Company
-          </span>
-          <span className="block typography-body2">{company}</span>
-        </div>
-      )}
-    </div>
+    <SectionBlock>
+      {items.map((item, idx) => (
+        <SectionItem
+          key={item.label}
+          label={item.label}
+          value={item.value}
+          valueTitle={item.value}
+          divider={idx < items.length - 1}
+        />
+      ))}
+    </SectionBlock>
   );
 }
 
@@ -187,13 +259,15 @@ function SiteSection({
   site?: { name: string };
 }) {
   if (!isMultipleSiteEnabled || !site) return null;
+  const { t } = useLocale(i18n);
   return (
-    <div className="rounded-lg border border-[color:var(--sui-color-neutral-border)] w-full my-2 px-4 py-2">
-      <span className="typography-caption2 text-[color:var(--sui-color-neutral-foreground-secondary)]">
-        Site
-      </span>
-      <span className="block typography-body2">{site.name}</span>
-    </div>
+    <SectionBlock>
+      <SectionItem
+        label={t('site')}
+        value={site.name}
+        valueTitle={site.name}
+      />
+    </SectionBlock>
   );
 }
 
@@ -215,91 +289,106 @@ export function ContactDetailsPanel({
   const { t } = useLocale(i18n);
   const [activeTab, setActiveTab] = useState('details');
 
+  let content: React.ReactNode;
+
   if (showSpinner) {
-    return (
-      <div className="flex items-center justify-center h-full">
+    content = (
+      <div className="flex flex-1 items-center justify-center w-full">
         <span className="typography-body1 text-[color:var(--sui-color-neutral-foreground-secondary)]">
           {t('loadingContact')}
         </span>
       </div>
     );
-  }
-
-  if (!contact) {
-    return (
-      <div className="flex items-center justify-center h-full">
+  } else if (!contact) {
+    content = (
+      <div className="flex flex-1 items-center justify-center w-full">
         <span className="typography-body1 text-[color:var(--sui-color-neutral-foreground-secondary)]">
           {t('contactNotFound')}
         </span>
       </div>
     );
+  } else {
+    const detailsContact = contact as ContactDetailsViewContact;
+    const fullName =
+      contact.name ||
+      [contact.firstName, contact.lastName].filter(Boolean).join(' ') ||
+      '';
+
+    content = (
+      <div className="flex flex-col items-center w-full h-full overflow-hidden">
+        <div className="flex flex-col items-center pt-4 px-4 w-full">
+          <ContactAvatar
+            contact={contact}
+            size="xlarge"
+            showPresence
+          />
+          <span className="typography-subtitle1 mt-2 text-center truncate w-full">
+            {fullName}
+          </span>
+          {contact.jobTitle && (
+            <span className="typography-body2 text-[color:var(--sui-color-neutral-foreground-secondary)] text-center truncate w-full">
+              {contact.jobTitle}
+            </span>
+          )}
+        </div>
+        <TabContext
+          defaultValue="details"
+                site={detailsContact.site}
+          onChange={(_, value) => setActiveTab(value as string)}
+        >
+          <Tabs
+            variant="scrollable"
+            className="w-full flex-none mt-2 mb-2 border-b border-neutral-l01"
+          >
+            <Tab value="details" label={t('details')} />
+          </Tabs>
+        </TabContext>
+        <div className="flex-1 overflow-y-auto w-full px-4 pb-4">
+          {activeTab === 'details' && (
+            <>
+              <SiteSection
+                isMultipleSiteEnabled={isMultipleSiteEnabled}
+                site={(contact as any).site}
+              />
+              <PhoneSection
+                contact={contact}
+                currentLocale={currentLocale}
+                disableLinks={disableLinks}
+                isCallButtonDisabled={isCallButtonDisabled}
+                isMultipleSiteEnabled={isMultipleSiteEnabled}
+                formatNumber={formatNumber}
+                canCallButtonShow={canCallButtonShow}
+                canTextButtonShow={canTextButtonShow}
+                onClickToDial={onClickToDial}
+                onClickToSMS={onClickToSMS}
+              />
+              <EmailSection
+                emails={contact.emails}
+                contactType={contact.type}
+                onClickMailTo={onClickMailTo}
+              />
+              <CompanySection
+                company={detailsContact.company}
+                department={detailsContact.department}
+              />
+            </>
+          )}
+        </div>
+      </div>
+    );
   }
 
-  const fullName =
-    contact.name ||
-    [contact.firstName, contact.lastName].filter(Boolean).join(' ') ||
-    '';
-
   return (
-    <div className="flex flex-col items-center w-full h-full overflow-hidden">
-      <div className="flex flex-col items-center pt-4 px-4 w-full">
-        <ContactAvatar
-          contact={contact}
-          size="xlarge"
-          showPresence
-        />
-        <span className="typography-subtitle1 mt-2 text-center truncate w-full">
-          {fullName}
-        </span>
-        {contact.jobTitle && (
-          <span className="typography-body2 text-[color:var(--sui-color-neutral-foreground-secondary)] text-center truncate w-full">
-            {contact.jobTitle}
-          </span>
-        )}
+    <div className="flex flex-col w-full h-full overflow-hidden" data-sign="contactDetails">
+      <AppHeaderNav override>
+        <PageHeader onBackClick={onBackClick}>
+          <></>
+        </PageHeader>
+      </AppHeaderNav>
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {content}
       </div>
-      <TabContext
-        defaultValue="details"
-        value={activeTab}
-        onChange={(_, value) => setActiveTab(value as string)}
-      >
-        <Tabs
-          variant="scrollable"
-          className="w-full flex-none mt-2 border-b border-[color:var(--sui-color-neutral-border)]"
-        >
-          <Tab value="details" label={t('details')} />
-        </Tabs>
-      </TabContext>
-      <div className="flex-1 overflow-y-auto w-full px-4 pb-4">
-        {activeTab === 'details' && (
-          <>
-            <SiteSection
-              isMultipleSiteEnabled={isMultipleSiteEnabled}
-              site={(contact as any).site}
-            />
-            <PhoneSection
-              contact={contact}
-              currentLocale={currentLocale}
-              disableLinks={disableLinks}
-              isCallButtonDisabled={isCallButtonDisabled}
-              isMultipleSiteEnabled={isMultipleSiteEnabled}
-              formatNumber={formatNumber}
-              canCallButtonShow={canCallButtonShow}
-              canTextButtonShow={canTextButtonShow}
-              onClickToDial={onClickToDial}
-              onClickToSMS={onClickToSMS}
-            />
-            <EmailSection
-              emails={contact.emails}
-              contactType={contact.type}
-              onClickMailTo={onClickMailTo}
-            />
-            <CompanySection
-              company={contact.company}
-              department={(contact as any).department}
-            />
-          </>
-        )}
-      </div>
+      <AppFooterNav />
     </div>
   );
 }

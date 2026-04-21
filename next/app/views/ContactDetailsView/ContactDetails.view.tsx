@@ -1,3 +1,5 @@
+import React, { useEffect, useRef } from 'react';
+import { useParams } from 'react-router';
 /* eslint-disable react-hooks/rules-of-hooks */
 import {
   AccountInfo,
@@ -16,6 +18,7 @@ import {
 import type {
   ContactDetailsViewOptions,
   ContactDetailsViewProps,
+  RouteParams,
 } from '@ringcentral-integration/micro-contacts/src/app/views/ContactDetailsView/ContactDetails.view.interface';
 import { ContactMatcher, Contacts, ContactSearch } from '@ringcentral-integration/micro-contacts/src/app/services';
 import {
@@ -23,10 +26,8 @@ import {
   optional,
   RouterPlugin,
   useConnector,
+  delegate,
 } from '@ringcentral-integration/next-core';
-import React, { useEffect, useRef } from 'react';
-import { useParams } from 'react-router';
-
 import { ContactDetailsPanel } from './ContactDetailsPanel';
 
 @injectable({
@@ -67,10 +68,15 @@ export class ContactDetailsView extends ContactDetailsViewBase {
       _contactDetailsViewOptions,
     );
   }
+
+  @delegate('server')
+  async showContactDetails({ id, type, direct = false }: RouteParams) {
+    this._router.push(`/contacts/${type}/${id}${direct ? '?direct=true' : ''}`);
+  }
+
   override component(props: Partial<ContactDetailsViewProps>) {
     const params = useParams<{ contactType?: string; contactId?: string }>();
     (this as any).params = params;
-
     useEffect(() => {
       this.initCurrentContact(params);
       return () => {

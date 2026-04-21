@@ -31,9 +31,13 @@ import {
   injectable,
   optional,
   useConnector,
+  state,
+  action,
+  delegate,
 } from '@ringcentral-integration/next-core';
 import { t as contactSourceT } from '@ringcentral-integration/widgets/components/ContactSourceFilter/i18n';
 import React, { useEffect, useRef } from 'react';
+import type { StateSnapshot } from 'react-virtuoso';
 
 import { ContactListPanel } from './ContactListPanel';
 import i18n from './i18n';
@@ -56,6 +60,23 @@ export class ContactListView extends ContactListViewBase {
   ) {
     super(_auth, _locale, _extensionInfo, _contacts, _contactDetailsView, _contactListViewOptions);
   }
+
+  /**
+   * Persisted Virtuoso state snapshot per source tab.
+   */
+  @state
+  private _lastPositions: Record<string, StateSnapshot | undefined> = {};
+
+  @action
+  private _setLastPosition(source: string, snapshot?: StateSnapshot) {
+    this._lastPositions[source] = snapshot;
+  }
+
+  @delegate('server')
+  async setLastPosition(source: string, snapshot?: StateSnapshot) {
+    this._setLastPosition(source, snapshot);
+  }
+
   /**
    * Flat sorted contact list (no grouping by first letter).
    */
@@ -64,11 +85,8 @@ export class ContactListView extends ContactListViewBase {
     return sortContactItemsByName(uniqueContactItems(this.filteredContacts));
   }
 
-  override component(props: ContactListViewProps) {
-    const { current: uiFunctions } = useRef(this.getUIFunctions(props));
-    const { t } = useLocale(i18n);
-
-    const _props = useConnector(() => ({
+  override getUIProps(props: ContactListViewProps) {
+    return {
       sourceNames: this.sourceNames,
       contacts: this.sortedContacts,
       searchSource: this.sourceFilter,
@@ -76,7 +94,24 @@ export class ContactListView extends ContactListViewBase {
       isSearching: this.isFiltering,
       showSpinner: !this._locale.ready,
       activeTab: this._syncTabView.tabInfo[CONTACT_TAB_ID]?.active as string | null,
-    }));
+      lastPosition: this._lastPositions[this.sourceFilter ?? ''],
+    };
+  }
+
+  override getUIFunctions(props: ContactListViewProps) {
+    return {
+      ...super.getUIFunctions(props),
+      setLastPosition: (source: string, snapshot?: StateSnapshot) => {
+        this.setLastPosition(source, snapshot);
+      },
+    };
+  }
+
+  override component(props: ContactListViewProps) {
+    const { current: uiFunctions } = useRef(this.getUIFunctions(props));
+    const { t } = useLocale(i18n);
+
+    const _props = useConnector(() => this.getUIProps(props));
 
     const activeTab = _props.activeTab ?? _props.sourceNames[0];
 
@@ -99,6 +134,8 @@ export class ContactListView extends ContactListViewBase {
         onSearchContact={uiFunctions.onSearchContact}
         searchSource={_props.searchSource}
         getPresence={uiFunctions.getPresence}
+        lastPosition={_props.lastPosition}
+        setLastPosition={uiFunctions.setLastPosition}
       />
     );
 

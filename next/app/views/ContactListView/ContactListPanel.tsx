@@ -1,5 +1,6 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
+import type { StateSnapshot } from 'react-virtuoso';
 import type {
   IContact,
   ContactPresence,
@@ -7,6 +8,7 @@ import type {
 import { AllContactSourceName } from '@ringcentral-integration/commons/lib/contactHelper';
 import { ContactAvatar } from '@ringcentral-integration/micro-contacts/src/app/components';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
+import { useVirtuosoScrollPosition } from '@ringcentral-integration/react-hooks';
 import {
   SearchInputToggle,
 } from '@ringcentral-integration/micro-message/src/app/components';
@@ -34,6 +36,8 @@ interface ContactListPanelProps {
     searchString: string;
   }) => void;
   getPresence?: (contact: IContact) => Promise<ContactPresence | null>;
+  lastPosition?: StateSnapshot;
+  setLastPosition: (source: string, snapshot?: StateSnapshot) => void;
 }
 
 export function ContactListPanel({
@@ -45,8 +49,14 @@ export function ContactListPanel({
   onItemSelect,
   onSearchContact,
   getPresence,
+  lastPosition,
+  setLastPosition,
 }: ContactListPanelProps) {
   const { t } = useLocale(i18n);
+
+  const { virtuosoActionsRef, scrollerRef } = useVirtuosoScrollPosition(
+    (snapshot: StateSnapshot) => setLastPosition(searchSource ?? '', snapshot),
+  );
 
   const handleSearchInputChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +99,7 @@ export function ContactListPanel({
           onClick={() =>
             onItemSelect({ type: contact.type, id: contact.id })
           }
+          className="pt-1"
         >
           <ContactAvatar
             contact={contact}
@@ -141,6 +152,9 @@ export function ContactListPanel({
             data={contacts}
             totalCount={contacts.length}
             style={{ height: '100%' }}
+            virtuosoActions={virtuosoActionsRef}
+            scrollerRef={scrollerRef}
+            restoreStateFrom={lastPosition || undefined}
           >
             {itemContent}
           </VirtualizedList>
