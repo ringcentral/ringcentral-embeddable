@@ -85,28 +85,44 @@ class Transport extends EventEmitter {
     this.onClose = () => {
       this.logger.warn('Transport closed');
       this.emit('close');
-      if (this.status !== 'disconnected') {
+      // Clean up the closed WebSocket
+      if (this.wsc) {
+        this.wsc.removeEventListener('message', this.onMessage);
+        this.wsc.removeEventListener('close', this.onClose);
+        this.wsc = null;
+      }
+      if (!this.disposed) {
+        // Auto-reconnect on unexpected close (e.g. after sleep/wake)
+        this.reconnectionAttempts = 0;
+        this.wsServers.forEach((s) => { s.isError = false; });
+        this.setStatus('reconnecting');
+        void this.reconnect();
+      } else if (this.status !== 'disconnected') {
         this.setStatus('disconnected');
       }
     };
   }
 
   public setStatus(status: SharedSipTransportStatus) {
+    this.logger.log('Transport status change:', this.status, '->', status);
     this.status = status;
     this.emit('status', status);
   }
 
   public async connect(forceMain = false): Promise<void> {
+    this.logger.log('Transport connect', { forceMain, currentStatus: this.status, hasPromise: !!this._connectPromise });
     if (this._connectPromise) {
+      this.logger.log('Transport connect: reusing existing connect promise');
       return this._connectPromise;
     }
     try {
       this._connectPromise = this._connect(forceMain);
       await this._connectPromise;
+      this.reconnectionAttempts = 0;
       this.setStatus('connected');
       this._connectPromise = null;
     } catch (error) {
-      this.logger.error('Connect failed', error);
+      this.logger.error('Transport connect failed', error);
       this.setStatus('reconnecting');
       this._connectPromise = null;
       await this.reconnect();
@@ -192,9 +208,13 @@ class Transport extends EventEmitter {
   }
 
   public async reconnect(forceMain = false) {
-    if (this.reconnectionAttempts > 0) {
-      this.logger.warn('Reconnect attempt', this.reconnectionAttempts);
-    }
+    this.logger.log('Transport reconnect', {
+      forceMain,
+      attempt: this.reconnectionAttempts,
+      maxAttempts: this.maxReconnectionAttempts,
+      currentServer: this.currentServer?.server,
+      status: this.status,
+    });
     if (forceMain) {
       this.disconnect();
       this.currentServer = this.getNextServer(true);
@@ -203,7 +223,7 @@ class Transport extends EventEmitter {
       return;
     }
     if (this.noAvailableServers()) {
-      this.logger.warn('No available servers');
+      this.logger.warn('No available servers, all servers marked as error');
       this.setStatus('error');
       this.reconnectionAttempts = 0;
       this.currentServer = this.getNextServer(true);
@@ -327,6 +347,7 @@ export class SipClientInServer
   }
 
   public setStatus(status: SharedSipRegistrationStatus, error?: Error) {
+    this.logger.log('SipClient status change:', this.status, '->', status, error ? `error: ${error.message}` : '');
     this.status = status;
     this.emit('status', status, error?.message);
   }
@@ -429,17 +450,24 @@ export class SipClientInServer
       }
     });
     this.transport.on('status', async (status: SharedSipTransportStatus) => {
+      this.logger.log('SipClient received transport status:', status, '| current registration status:', this.status);
       this.emit('transportStatus', status);
       if (status === 'connected') {
         this.wsc = this.transport?.wsc as unknown as WebSocket;
+        this.logger.log('SipClient transport connected, starting registration');
         await this.register(maxExpires);
       }
-      if (status === 'disconnected' && this.timeoutHandle) {
+      if (
+        (status === 'disconnected' || status === 'reconnecting') &&
+        this.timeoutHandle
+      ) {
+        this.logger.log('SipClient clearing re-registration timer due to transport', status);
         clearTimeout(this.timeoutHandle);
         this.timeoutHandle = null;
       }
     });
     this.setStatus('registering');
+    this.logger.log('SipClient starting transport connect');
     await this.transport.connect();
   }
 
@@ -474,6 +502,7 @@ export class SipClientInServer
   }
 
   public async register(expires: number) {
+    this.logger.log('SipClient register', { expires, transportStatus: this.transport?.status });
     try {
       this.setStatus(expires > 0 ? 'registering' : 'unregistering');
       await this._register(expires);
@@ -483,6 +512,7 @@ export class SipClientInServer
         this.logger.error('Registration failed', error);
         this.setStatus('registrationError', error as Error);
       } else {
+        this.logger.warn('Unregister failed, setting unregistered anyway', error);
         this.setStatus('unregistered');
       }
     }

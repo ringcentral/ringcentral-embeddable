@@ -1070,7 +1070,12 @@ export class WebphoneBase extends RcModule {
         if (sharedSipClient.disposed) {
           return;
         }
-        this.logger.log('shared sip client status', status);
+        this.logger.log('shared sip client status', status, {
+          connectionStatus: this.connectionStatus,
+          connectRetryCounts: this.connectRetryCounts,
+          isAuthoritative: this._isAuthoritativeWebphoneClient(),
+          error,
+        });
         if (!this._isAuthoritativeWebphoneClient()) {
           return;
         }
@@ -1091,7 +1096,7 @@ export class WebphoneBase extends RcModule {
         if (status === 'registering' && !this.connected) {
           if (this.connectError || this.connectFailed) {
             await this.setStateOnReconnect();
-          } else {
+          } else if (!this.connecting && !this.reconnecting) {
             await this.setStateOnConnect();
           }
           return;
@@ -1112,12 +1117,17 @@ export class WebphoneBase extends RcModule {
         if (sharedSipClient.disposed) {
           return;
         }
-        this.logger.log('shared sip client transport status', status);
+        this.logger.log('shared sip client transport status', status, {
+          connectionStatus: this.connectionStatus,
+          connectRetryCounts: this.connectRetryCounts,
+          isAuthoritative: this._isAuthoritativeWebphoneClient(),
+        });
         if (!this._isAuthoritativeWebphoneClient()) {
           return;
         }
         if (status === 'connecting') {
           if (this.connecting || this.reconnecting) {
+            this.logger.log('shared sip client transport connecting: skipping, already', this.connectionStatus);
             return;
           }
           if (this.connected || this.connectError || this.connectFailed) {
@@ -1535,6 +1545,7 @@ export class WebphoneBase extends RcModule {
   }
 
   protected async _setStateOnStartConnect(force = false) {
+    this.logger.log('_setStateOnStartConnect', { force, connectionStatus: this.connectionStatus, connectRetryCounts: this.connectRetryCounts });
     if (this.connectError || force) {
       await this.setStateOnReconnect();
       return;
@@ -1687,7 +1698,7 @@ export class WebphoneBase extends RcModule {
    * creating any browser-side RingCentralWebphone instance.
    */
   protected async _connectSipServer(force = false) {
-    this.logger.log('_connectSipServer');
+    this.logger.log('_connectSipServer', { force, connectionStatus: this.connectionStatus });
     if (!this._auth.loggedIn) return;
     const sipClientInServer = this._ensureSipClientInServer();
     const sipProvision = await this._resolveSipProvision({
@@ -1919,6 +1930,13 @@ export class WebphoneBase extends RcModule {
     statusCode?: number | null;
     ttl?: number;
   }) {
+    this.logger.log('_onConnectError', {
+      errorCode,
+      statusCode,
+      connectionStatus: this.connectionStatus,
+      connectRetryCounts: this.connectRetryCounts,
+      isAuthoritative: this._isAuthoritativeWebphoneClient(),
+    });
     if (!this._isAuthoritativeWebphoneClient()) {
       return;
     }
@@ -1939,13 +1957,18 @@ export class WebphoneBase extends RcModule {
       await this._hideConnectingAlert();
       // Need to show unavailable badge and reconnect in background when third retry
       // sleep before next reconnect for slient reconnect in background
-      await sleep(this._getConnectTimeoutTtl());
+      const retryDelay = this._getConnectTimeoutTtl();
+      this.logger.log('_onConnectError: sleeping before retry', { retryDelay, connectRetryCounts: this.connectRetryCounts });
+      await sleep(retryDelay);
       if (!this.connectError) {
+        this.logger.log('_onConnectError: state changed during sleep, aborting retry', { connectionStatus: this.connectionStatus });
         return;
       }
+      this.logger.log('_onConnectError: retrying connect after sleep');
       this.connect({ skipConnectDelay: true, force: true, skipDLCheck: true });
       return;
     }
+    this.logger.log('_onConnectError: early retry', { connectRetryCounts: this.connectRetryCounts });
     await this.setStateOnConnectFailed(errorCode, statusCode!);
     if (this.connectRetryCounts === 1) {
       this.showErrorToast({ ttl, errorCode, statusCode, isConnecting: true });
