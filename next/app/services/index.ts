@@ -8,4 +8,5 @@ export * from './WebSocketSubscription';
 export * from './RingCentralExtensions';
 export * from './Adapter';
 export * from './RcVideo';
+export * from './AccountContacts';
 export * from './GenericMeeting';

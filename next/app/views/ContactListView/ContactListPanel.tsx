@@ -3,10 +3,8 @@ import React, { useCallback } from 'react';
 import type { StateSnapshot } from 'react-virtuoso';
 import type {
   IContact,
-  ContactPresence,
 } from '@ringcentral-integration/commons/interfaces/Contact.model';
 import { AllContactSourceName } from '@ringcentral-integration/commons/lib/contactHelper';
-import { ContactAvatar } from '@ringcentral-integration/micro-contacts/src/app/components';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { useVirtuosoScrollPosition } from '@ringcentral-integration/react-hooks';
 import {
@@ -15,13 +13,11 @@ import {
 import {
   CircularProgressIndicator,
   EmptyState,
-  ListItem,
-  ListItemText,
   VirtualizedList,
-  Text,
 } from '@ringcentral/spring-ui';
 import { ContactsMd } from '@ringcentral/spring-icon';
 
+import { ContactListItem } from '../../components/ContactListItem';
 import i18n from './i18n';
 
 interface ContactListPanelProps {
@@ -35,7 +31,6 @@ interface ContactListPanelProps {
     searchSource: string;
     searchString: string;
   }) => void;
-  getPresence?: (contact: IContact) => Promise<ContactPresence | null>;
   lastPosition?: StateSnapshot;
   setLastPosition: (source: string, snapshot?: StateSnapshot) => void;
 }
@@ -48,7 +43,6 @@ export function ContactListPanel({
   showSpinner,
   onItemSelect,
   onSearchContact,
-  getPresence,
   lastPosition,
   setLastPosition,
 }: ContactListPanelProps) {
@@ -73,52 +67,11 @@ export function ContactListPanel({
       const contact = contacts[index];
       if (!contact) return null;
 
-      const displayName =
-        contact.name ||
-        [contact.firstName, contact.lastName].filter(Boolean).join(' ') ||
-        contact.extensionNumber ||
-        contact.phoneNumber ||
-        '';
-      const secondaryText =
-        contact.email ??
-        contact.emails?.[0] ??
-        contact.phoneNumbers?.[0]?.phoneNumber ??
-        contact.phoneNumber ??
-        '';
-      const extensionText = contact.extensionNumber
-        ? `Ext. ${contact.extensionNumber}`
-        : '';
-
       return (
-        <ListItem
-          data-sign="contactItem"
-          divider
-          hoverable
-          clickable
-          size="small"
-          onClick={() =>
-            onItemSelect({ type: contact.type, id: contact.id })
-          }
-          className="pt-1"
-        >
-          <ContactAvatar
-            contact={contact}
-            size="medium"
-            showPresence
-          />
-          <ListItemText
-            primary={displayName}
-            secondary={secondaryText}
-          />
-          {extensionText ? (
-            <Text
-              className="typography-descriptor text-right"
-              title={extensionText}
-            >
-              {extensionText}
-            </Text>
-          ) : null}
-        </ListItem>
+        <ContactListItem
+          contact={contact}
+          onItemSelect={onItemSelect}
+        />
       );
     },
     [contacts, onItemSelect],

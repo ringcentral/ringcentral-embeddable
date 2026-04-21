@@ -101,6 +101,7 @@ import {
   GenericMeeting as GenericMeetingV2,
   RcVideo as RcVideoV2,
 } from './services';
+import { AccountContactsV2 } from './services/AccountContacts';
 import {
   MeetingView,
   MeetingInviteView,
@@ -223,7 +224,10 @@ export const getAppConfig = <
       UserGuide,
       Contacts,
       CompanyContacts,
-      AccountContacts,
+      {
+        provide: AccountContacts,
+        useClass: AccountContactsV2,
+      },
       AddressBook,
       AccountInfo,
       ExtensionInfo,

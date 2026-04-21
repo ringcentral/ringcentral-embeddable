@@ -133,7 +133,6 @@ export class ContactListView extends ContactListViewBase {
         onItemSelect={uiFunctions.onItemSelect}
         onSearchContact={uiFunctions.onSearchContact}
         searchSource={_props.searchSource}
-        getPresence={uiFunctions.getPresence}
         lastPosition={_props.lastPosition}
         setLastPosition={uiFunctions.setLastPosition}
       />
