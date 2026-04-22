@@ -176,8 +176,10 @@ function EmailSection({
   contactType: string;
   onClickMailTo?: (email: string, contactType: string) => void;
 }) {
-  if (!emails || emails.length === 0) return null;
   const { t } = useLocale(i18n);
+  if (!emails || emails.length === 0) return null;
+  const validEmails = emails.filter((email) => !!email);
+  if (validEmails.length === 0) return null;
   return (
     <SectionBlock>
       {emails.map((email, idx) => (
@@ -321,6 +323,8 @@ export function ContactDetailsPanel({
             contact={contact}
             size="xlarge"
             showPresence
+            contactName={contact.isCallQueueNumber ? undefined : fullName}
+            isDepartment={contact.isCallQueueNumber}
           />
           <span className="typography-subtitle1 mt-2 text-center truncate w-full">
             {fullName}

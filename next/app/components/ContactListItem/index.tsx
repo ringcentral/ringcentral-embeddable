@@ -49,6 +49,8 @@ export function ContactListItem({
         contact={contact}
         size="medium"
         showPresence
+        contactName={contact.isCallQueueNumber ? undefined : displayName}
+        isDepartment={contact.isCallQueueNumber}
       />
       <ListItemText
         primary={displayName}
