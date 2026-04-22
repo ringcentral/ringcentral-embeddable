@@ -31,6 +31,10 @@ export interface PresenceActiveCall {
   partyId: string;
   telephonySessionId: string;
   terminationType: string;
+  sipData?: {
+    fromTag: string;
+    toTag: string;
+  };
 }
 
 export interface PresenceData {

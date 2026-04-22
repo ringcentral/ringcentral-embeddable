@@ -25,9 +25,11 @@ import {
   RouterPlugin,
   useConnector,
 } from '@ringcentral-integration/next-core';
-import { CollapseLeftMd, CollapseRightMd } from '@ringcentral/spring-icon';
+import { CollapseLeftMd, CollapseRightMd, Hudmd } from '@ringcentral/spring-icon';
 import { IconButton } from '@ringcentral/spring-ui';
 import React from 'react';
+
+import { CallHUDView } from '../CallHUDView';
 
 import i18n from './i18n';
 
@@ -45,6 +47,7 @@ export class DialerPadView extends DialerPadViewBase {
     protected _dialerView: DialerView,
     protected _conversationsView: ConversationsViewSpring,
     protected _root: Root,
+    protected _callHUDView: CallHUDView,
     @optional('DialerPadViewOptions')
     protected _dialerPadViewOptions?: DialerPadViewOptions,
   ) {
@@ -65,6 +68,10 @@ export class DialerPadView extends DialerPadViewBase {
     this._root.setExpanded(!this._root.expanded);
   };
 
+  private toggleCallHUD = () => {
+    this._callHUDView.toggleCallHUD();
+  };
+
   /**
    * Renders an `AppHeaderNav` with the expand/collapse icon button.
    *
@@ -78,9 +85,24 @@ export class DialerPadView extends DialerPadViewBase {
   private ExpandHeader() {
     const { t } = useLocale(i18n);
     const expanded = useConnector(() => this._root.expanded);
+    const hasHUDPermission = useConnector(
+      () => (this._appFeatures as any).hasHUDPermission,
+    );
+    const showCallHUD = useConnector(() => this._callHUDView.showCallHUD);
 
     return (
       <AppHeaderNav title={t('phone')}>
+        {hasHUDPermission && (
+          <IconButton
+            variant="icon"
+            color={showCallHUD ? 'primary' : 'secondary'}
+            size="medium"
+            symbol={Hudmd}
+            data-sign="toggleCallHUD"
+            TooltipProps={{ title: t('callHUD') }}
+            onClick={this.toggleCallHUD}
+          />
+        )}
         <IconButton
           variant="icon"
           color="secondary"
@@ -97,6 +119,11 @@ export class DialerPadView extends DialerPadViewBase {
     );
   }
 
+  @autobind
+  private CallHUDContent() {
+    return this._callHUDView.component();
+  }
+
   @computed
   override get tabs(): SyncTabProps['tabs'] {
     return super.tabs.map((tab) => ({
@@ -105,6 +132,7 @@ export class DialerPadView extends DialerPadViewBase {
         <>
           {tab.component}
           <this.ExpandHeader />
+          <this.CallHUDContent />
         </>
       ),
     }));

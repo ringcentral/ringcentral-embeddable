@@ -84,6 +84,7 @@ import {
   VolumeInspector,
   Webphone,
   CallQueueManagement,
+  CallQueues,
   type CallLoggerOptions,
   type CallActionOptions,
 } from '@ringcentral-integration/micro-phone/src/app/services';
@@ -115,6 +116,7 @@ import {
   DialerView,
 } from '@ringcentral-integration/micro-phone/src/app/views';
 import { DialerPadView as DialerPadViewV2 } from './views/DialerPadView';
+import { CallHUDView } from './views/CallHUDView';
 import {
   CallControlView as MicroPhoneCallControlView,
 } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
@@ -343,8 +345,10 @@ export const getAppConfig = <
         } satisfies RcVideoOptions,
       },
       CallQueueManagement,
+      CallQueues,
       MonitoredExtensions,
       ParkView,
+      CallHUDView,
       {
         provide: 'MessageThreadOptions',
         useValue: {

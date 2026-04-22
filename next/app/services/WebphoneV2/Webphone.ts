@@ -969,6 +969,93 @@ export class Webphone extends WebphoneBase {
   }
 
   @delegate('mainClient')
+  async pickParkLocation(
+    extensionId: string,
+    activeCall: {
+      direction: string;
+      from: string;
+      to: string;
+      fromName?: string;
+      toName?: string;
+      telephonySessionId: string;
+      sipData?: { fromTag: string; toTag: string };
+    },
+    fromNumber: string,
+  ) {
+    return this._pickOtherExtensionCall({
+      extensionId,
+      fromNumber,
+      pickPrefix: 'prk',
+      activeCall,
+      overrideLocal: false,
+    });
+  }
+
+  @delegate('mainClient')
+  async pickGroupCall(
+    extensionId: string,
+    activeCall: {
+      direction: string;
+      from: string;
+      to: string;
+      fromName?: string;
+      toName?: string;
+      telephonySessionId: string;
+      sipData?: { fromTag: string; toTag: string };
+    },
+    fromNumber: string,
+    pickPrefix = 'gcp',
+  ) {
+    return this._pickOtherExtensionCall({
+      extensionId,
+      fromNumber,
+      pickPrefix,
+      activeCall,
+      overrideLocal: true,
+    });
+  }
+
+  private async _pickOtherExtensionCall({
+    extensionId,
+    activeCall,
+    fromNumber,
+    pickPrefix,
+    overrideLocal = false,
+  }: {
+    extensionId: string;
+    activeCall: {
+      direction: string;
+      from: string;
+      to: string;
+      fromName?: string;
+      toName?: string;
+      telephonySessionId: string;
+      sipData?: { fromTag: string; toTag: string };
+    };
+    fromNumber: string;
+    pickPrefix: string;
+    overrideLocal?: boolean;
+  }) {
+    const isInbound = activeCall.direction === callDirections.inbound;
+    const extraHeaders = activeCall.sipData
+      ? [
+          `Replaces: ${activeCall.telephonySessionId};to-tag=${activeCall.sipData.fromTag};from-tag=${activeCall.sipData.toTag};early-only`,
+        ]
+      : [];
+    const inviteOptions: {
+      fromNumber: string;
+      extraHeaders: string[];
+    } = {
+      fromNumber,
+      extraHeaders,
+    };
+    const session = await this._invite(`${pickPrefix}${extensionId}`, {
+      inviteOptions,
+    });
+    return session;
+  }
+
+  @delegate('mainClient')
   async transfer(transferNumber: string, sessionId: string) {
     const session = this.originalSessions[sessionId];
     if (!session) {
