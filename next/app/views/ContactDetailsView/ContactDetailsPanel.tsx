@@ -337,14 +337,13 @@ export function ContactDetailsPanel({
         </div>
         <TabContext
           defaultValue="details"
-                site={detailsContact.site}
           onChange={(_, value) => setActiveTab(value as string)}
         >
           <Tabs
             variant="scrollable"
             className="w-full flex-none mt-2 mb-2 border-b border-neutral-l01"
           >
-            <Tab value="details" label={t('details')} />
+            <Tab value="details" label={t('details')} id="details-tab" />
           </Tabs>
         </TabContext>
         <div className="flex-1 overflow-y-auto w-full px-4 pb-4">
