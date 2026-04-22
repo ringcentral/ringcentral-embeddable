@@ -159,7 +159,7 @@
     "@ringcentral-integration/widgets": "^0.16.0",
     "@ringcentral/juno": "^2.52.0",
     "@ringcentral/juno-icon": "^1.94.0",
-    "@ringcentral/mfe-react": "^0.4.18",
+    "@ringcentral/mfe-react": "^0.4.20",
     "@ringcentral/sdk": "^5.0.6",
     "@ringcentral/spring-icon": "^1.7.0",
     "@ringcentral/spring-ui": "^1.7.0",
