@@ -113,6 +113,7 @@ import { DialerView } from '@ringcentral-integration/micro-phone/src/app/views';
 import {
   QuickAccess,
   UserGuide,
+  type CallQueueManagementViewOptions,
 } from '@ringcentral-integration/micro-setting/src/app/services';
 import type {
   InitiatorOptions,
@@ -494,6 +495,12 @@ export const getAppConfig = <
               console.log('onExpand expand:', expand);
             },
           } satisfies RootOptions),
+      },
+      {
+        provide: 'CallQueueManagementViewOptions',
+        useValue: {
+          enableCallQueueManagement: true,
+        } satisfies CallQueueManagementViewOptions,
       },
       ...modules,
     ],
