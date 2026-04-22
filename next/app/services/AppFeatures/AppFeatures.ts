@@ -212,6 +212,13 @@ export class AppFeatures extends AppFeaturesBase<EmbeddableFeatureConfiguration>
     );
   }
 
+  get hasSMSOptOutPermission() {
+    return (
+      this.config.SMS &&
+      this.appScopes.indexOf('A2PSMS') > -1
+    );
+  }
+
   @computed((that: AppFeatures) => [that._featureConfiguration, that.configState])
   override get config(): EmbeddableFeatureConfiguration {
     return {

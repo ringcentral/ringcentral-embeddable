@@ -1,1 +1,1 @@
-export { AccountContactsV2 } from './AccountContacts';
+export * from './AccountContacts';

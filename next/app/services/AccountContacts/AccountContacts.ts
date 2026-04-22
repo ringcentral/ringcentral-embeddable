@@ -1,6 +1,6 @@
 import type { IContact } from '@ringcentral-integration/commons/interfaces/Contact.model';
 import {
-  AccountContacts,
+  AccountContacts as AccountContactsBase,
   type AccountContactsOptions,
 } from '@ringcentral-integration/micro-contacts/src/app/services';
 import {
@@ -31,7 +31,7 @@ const MAX_BATCH_SIZE = 30;
 @injectable({
   name: 'AccountContacts',
 })
-export class AccountContactsV2 extends AccountContacts {
+export class AccountContacts extends AccountContactsBase {
   private _pendingPresenceMap = new Map<string, Set<string>>();
   private _presenceBatchTimer: ReturnType<typeof setTimeout> | null = null;
   private _presenceFetchedAt = new Map<string, number>();

@@ -101,7 +101,8 @@ import {
   GenericMeeting as GenericMeetingV2,
   RcVideo as RcVideoV2,
 } from './services';
-import { AccountContactsV2 } from './services/AccountContacts';
+import { AccountContacts as AccountContactsV2 } from './services/AccountContacts';
+import { SmsOptOutV2 } from './services/SmsOptOut';
 import {
   MeetingView,
   MeetingInviteView,
@@ -279,7 +280,10 @@ export const getAppConfig = <
       ModalView,
       MessageStore,
       SmsTemplate,
-      SmsOptOut,
+      {
+        provide: SmsOptOut,
+        useClass: SmsOptOutV2,
+      },
       SmsOptOutView,
       MessageThread,
       MessageThreadsView,
