@@ -11,3 +11,4 @@ export * from './RcVideo';
 export * from './AccountContacts';
 export * from './GenericMeeting';
 export * from './SmsOptOut';
+export * from './MonitoredExtensions';

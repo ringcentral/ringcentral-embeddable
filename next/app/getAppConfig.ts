@@ -102,19 +102,25 @@ import {
   RcVideo as RcVideoV2,
 } from './services';
 import { AccountContacts as AccountContactsV2 } from './services/AccountContacts';
-import { SmsOptOutV2 } from './services/SmsOptOut';
+import { SmsOptOut as SmsOptOutV2 } from './services/SmsOptOut';
 import {
   MeetingView,
   MeetingInviteView,
 } from './views/MeetingView';
 import { ContactListView as ContactListViewV2 } from './views/ContactListView/ContactList.view';
 import { ContactDetailsView as ContactDetailsViewV2 } from './views/ContactDetailsView/ContactDetails.view';
-import { DialerView } from '@ringcentral-integration/micro-phone/src/app/views';
+import {
+  CallView as MicroPhoneCallView,
+  DialerView,
+} from '@ringcentral-integration/micro-phone/src/app/views';
+import {
+  CallControlView as MicroPhoneCallControlView,
+} from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
 import {
   QuickAccess,
   UserGuide,
-  type CallQueueManagementViewOptions,
 } from '@ringcentral-integration/micro-setting/src/app/services';
+import type { CallQueueManagementViewOptions } from '@ringcentral-integration/micro-setting/src/app/views';
 import type {
   InitiatorOptions,
   IRouterOptions,
@@ -144,7 +150,11 @@ import {
   WebSocketSubscription,
   RingCentralExtensions as RingCentralExtensionsV2,
   Adapter,
+  MonitoredExtensions,
 } from './services';
+import { ParkView } from './views/CallView/ParkView';
+import { CallControlView as CallControlViewV2 } from './views/CallView/CallControlView/CallControl.view';
+import { CallView as CallViewV2 } from './views/CallView/Call.view';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 
@@ -256,6 +266,14 @@ export const getAppConfig = <
       CallAction,
       CallViewState,
       {
+        provide: MicroPhoneCallControlView,
+        useClass: CallControlViewV2,
+      },
+      {
+        provide: MicroPhoneCallView,
+        useClass: CallViewV2,
+      },
+      {
         provide: CallMonitor,
         useClass: CallMonitorV2,
       },
@@ -319,6 +337,8 @@ export const getAppConfig = <
         } satisfies RcVideoOptions,
       },
       CallQueueManagement,
+      MonitoredExtensions,
+      ParkView,
       {
         provide: 'MessageThreadOptions',
         useValue: {

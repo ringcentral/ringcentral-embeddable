@@ -925,15 +925,46 @@ export class Webphone extends WebphoneBase {
       const result = await session.park();
       this.logger.log('Parked successfully', result);
       if (result['park extension']) {
+        const parkedNumber = `*${result['park extension']}`;
         this._toast.success({
           message: t('parked', {
-            parkedNumber: `*${result['park extension']}`,
+            parkedNumber,
           }),
           ttl: 0,
         });
+        return parkedNumber;
       }
     } catch (e) {
       this.logger.log('park fail', e);
+    }
+  }
+
+  @delegate('mainClient')
+  async parkToLocation(
+    sessionId: string,
+    extension: { id: string; name?: string; extensionNumber?: string },
+  ) {
+    const session = this.originalSessions[sessionId];
+    if (!session) {
+      return;
+    }
+    if (!extension?.id) {
+      return;
+    }
+    try {
+      await session.transfer(`prk${extension.id}`);
+      this.logger.log('Parked to location', extension.id);
+      const parkedNumber =
+        extension.name || extension.extensionNumber || extension.id;
+      this._toast.success({
+        message: t('parked', {
+          parkedNumber,
+        }),
+        ttl: 0,
+      });
+      return parkedNumber;
+    } catch (e) {
+      this.logger.log('parkToLocation fail', e);
     }
   }
 

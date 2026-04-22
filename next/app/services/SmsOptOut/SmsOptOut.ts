@@ -5,7 +5,7 @@ import {
   NumberFormatter,
   type WebSocketSubscription as Subscription,
 } from '@ringcentral-integration/micro-auth/src/app/services';
-import { SmsOptOut } from '@ringcentral-integration/micro-message/src/app/services';
+import { SmsOptOut as SmsOptOutBase } from '@ringcentral-integration/micro-message/src/app/services';
 import { injectable, optional } from '@ringcentral-integration/next-core';
 
 import { AppFeatures } from '@ringcentral-integration/micro-auth/src/app/services/AppFeatures';
@@ -13,7 +13,7 @@ import { AppFeatures } from '@ringcentral-integration/micro-auth/src/app/service
 @injectable({
   name: 'SmsOptOut',
 })
-export class SmsOptOutV2 extends SmsOptOut {
+export class SmsOptOut extends SmsOptOutBase {
   constructor(
     _client: Client,
     _auth: Auth,
