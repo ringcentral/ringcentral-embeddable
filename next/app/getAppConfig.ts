@@ -111,8 +111,10 @@ import { ContactListView as ContactListViewV2 } from './views/ContactListView/Co
 import { ContactDetailsView as ContactDetailsViewV2 } from './views/ContactDetailsView/ContactDetails.view';
 import {
   CallView as MicroPhoneCallView,
+  DialerPadView,
   DialerView,
 } from '@ringcentral-integration/micro-phone/src/app/views';
+import { DialerPadView as DialerPadViewV2 } from './views/DialerPadView';
 import {
   CallControlView as MicroPhoneCallControlView,
 } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
@@ -294,6 +296,10 @@ export const getAppConfig = <
       {
         provide: ContactListView,
         useClass: ContactListViewV2,
+      },
+      {
+        provide: DialerPadView,
+        useClass: DialerPadViewV2,
       },
       DialerView,
       ModalView,
