@@ -188,7 +188,7 @@ function ExtensionCallStatus({
       return (
         <Text
           component="span"
-          className="typography-caption text-neutral-f04 truncate"
+          className="typography-descriptor text-neutral-f04 truncate"
         >
           {presence.presenceStatus}
         </Text>
@@ -200,10 +200,11 @@ function ExtensionCallStatus({
           <Chip
             label={t('available')}
             size="small"
+            className="typography-descriptor"
           />
           <Text
             component="span"
-            className="typography-caption text-neutral-f04 truncate"
+            className="typography-descriptor text-neutral-f04 truncate"
           >
             {t('youCanParkCallHere')}
           </Text>
@@ -225,7 +226,7 @@ function ExtensionCallStatus({
         />
         <Text
           component="span"
-          className="typography-caption text-neutral-f04 truncate"
+          className="typography-descriptor text-neutral-f04 truncate"
         >
           {t('with', { contactName })}
         </Text>
@@ -447,7 +448,7 @@ export function ExtensionItem({
       <ListItem
         data-sign={`extensionItem-${extension.id}`}
         divider
-        size="auto"
+        size="large"
         className={isDisabled ? 'opacity-50 pointer-events-none' : ''}
         hoverActions={
           hoverActions.length > 0 ? (
