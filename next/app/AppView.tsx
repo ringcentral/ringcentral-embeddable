@@ -60,6 +60,7 @@ import {
   useConnector,
 } from '@ringcentral-integration/next-core';
 import type { AppViewOptions } from './AppView.interface';
+import { ExpandedView } from './views/ExpandedView';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 @injectable({
@@ -293,6 +294,7 @@ export class AppView extends RcViewModule {
     private _headerView: HeaderView,
     private _faxSendView: FaxSendView,
     private _headerNavView: HeaderNavViewSpring,
+    private _expandedView: ExpandedView,
     private _genericMeeting?: GenericMeeting,
     @optional()
     private _genericMeetingView?: GenericMeetingView,
@@ -352,6 +354,7 @@ export class AppView extends RcViewModule {
         >
           <this.MainContent />
           <this._callView.IncomingCallList />
+          <this._expandedView.component />
           <this._environmentView.component />
         </div>
       </this._appRootView.component>

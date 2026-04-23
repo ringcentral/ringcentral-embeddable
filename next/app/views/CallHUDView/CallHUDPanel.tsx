@@ -107,11 +107,6 @@ export function CallHUDPanel({
       className="flex flex-col h-full w-full"
       data-sign="callHUDPanel"
     >
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-neutral-l02">
-        <Text className="typography-subheading2">
-          {t('callHUD')}
-        </Text>
-      </div>
       <SearchAndFilter
         searchInput={searchInput}
         onSearchInputChange={onSearchInputChange}

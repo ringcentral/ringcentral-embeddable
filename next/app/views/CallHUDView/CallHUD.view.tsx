@@ -3,7 +3,6 @@ import {
   Auth,
   NumberFormatter,
 } from '@ringcentral-integration/micro-auth/src/app/services';
-import { ExpandedLayoutPopper } from '@ringcentral-integration/micro-core/src/app/components';
 import { ModalView } from '@ringcentral-integration/micro-core/src/app/views';
 import { ComposeText } from '@ringcentral-integration/micro-message/src/app/services';
 import {
@@ -44,6 +43,7 @@ import type {
 import { AddExtensionContent } from './AddExtensionDialog';
 import { CallHUDPanel } from './CallHUDPanel';
 import { t } from './i18n';
+import { ExpandedView } from '../ExpandedView';
 
 @injectable({
   name: 'CallHUDView',
@@ -61,6 +61,7 @@ export class CallHUDView extends RcViewModule {
     private _auth: Auth,
     private _router: RouterPlugin,
     private _modalView: ModalView,
+    private _expandedView: ExpandedView,
     @optional() private _composeText?: ComposeText,
     @optional() private _callQueues?: CallQueues,
   ) {
@@ -194,9 +195,13 @@ export class CallHUDView extends RcViewModule {
   }
 
   toggleCallHUD() {
-    const next = !this.showCallHUD;
-    this.setShowCallHUD(next);
-    this._root.setExpanded(next);
+    if (this.showCallHUD) {
+      this.setShowCallHUD(false);
+      this._expandedView.close();
+    } else {
+      this.setShowCallHUD(true);
+      this._expandedView.open(this._expandedHandle);
+    }
   }
 
   @computed((that: CallHUDView) => [
@@ -490,20 +495,17 @@ export class CallHUDView extends RcViewModule {
     };
   }
 
+  private _expandedHandle = this._expandedView.create({
+    header: () => t('callHUD'),
+    view: () => {
+      const { current: uiFunctions } = useRef(this._getUIFunctions());
+      const uiProps = useConnector(() => this._getUIProps());
+      return <CallHUDPanel {...uiProps} {...uiFunctions} />;
+    },
+    onClose: () => this.setShowCallHUD(false),
+  });
+
   component() {
-    const isExpanded = useConnector(() => this._root.expanded);
-    const showCallHUD = useConnector(() => this.showCallHUD);
-    const { current: uiFunctions } = useRef(this._getUIFunctions());
-    const uiProps = useConnector(() => this._getUIProps());
-
-    if (!showCallHUD) {
-      return null;
-    }
-
-    return (
-      <ExpandedLayoutPopper expanded={isExpanded}>
-        <CallHUDPanel {...uiProps} {...uiFunctions} />
-      </ExpandedLayoutPopper>
-    );
+    return null;
   }
 }

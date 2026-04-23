@@ -117,6 +117,7 @@ import {
 } from '@ringcentral-integration/micro-phone/src/app/views';
 import { DialerPadView as DialerPadViewV2 } from './views/DialerPadView';
 import { CallHUDView } from './views/CallHUDView';
+import { ExpandedView } from './views/ExpandedView';
 import {
   CallControlView as MicroPhoneCallControlView,
 } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
@@ -348,6 +349,7 @@ export const getAppConfig = <
       CallQueues,
       MonitoredExtensions,
       ParkView,
+      ExpandedView,
       CallHUDView,
       {
         provide: 'MessageThreadOptions',

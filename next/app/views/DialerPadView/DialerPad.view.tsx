@@ -119,11 +119,6 @@ export class DialerPadView extends DialerPadViewBase {
     );
   }
 
-  @autobind
-  private CallHUDContent() {
-    return this._callHUDView.component();
-  }
-
   @computed
   override get tabs(): SyncTabProps['tabs'] {
     return super.tabs.map((tab) => ({
@@ -132,7 +127,6 @@ export class DialerPadView extends DialerPadViewBase {
         <>
           {tab.component}
           <this.ExpandHeader />
-          <this.CallHUDContent />
         </>
       ),
     }));
