@@ -6,27 +6,30 @@ import {
   ListItemText,
   TextField,
 } from '@ringcentral/spring-ui';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import type { AvailableExtension } from './CallHUD.view.interface';
 import { t } from './i18n';
 
 export function AddExtensionContent({
   allExtensions,
-  extensionAddFilter,
-  onExtensionAddFilterChange,
   type,
+  onFilterChange,
   onSelectionChange,
 }: {
   allExtensions: AvailableExtension[];
-  extensionAddFilter: string;
-  onExtensionAddFilterChange: (value: string) => void;
   type: string;
+  onFilterChange: (value: string) => void;
   onSelectionChange: (extensions: AvailableExtension[]) => void;
 }) {
+  const [filterInput, setFilterInput] = useState('');
   const [selectedExtensions, setSelectedExtensions] = useState<
     AvailableExtension[]
   >([]);
+
+  useEffect(() => {
+    onFilterChange(filterInput);
+  }, [filterInput]);
 
   const filteredExtensions = allExtensions.filter(
     (ext) => !selectedExtensions.some((sel) => sel.id === ext.id),
@@ -50,8 +53,9 @@ export function AddExtensionContent({
         placeholder={
           type === 'User' ? t('searchContacts') : t('enterNameOrNumber')
         }
-        value={extensionAddFilter}
-        onChange={(e) => onExtensionAddFilterChange(e.target.value)}
+        value={filterInput}
+        onChange={(e) => setFilterInput(e.target.value)}
+        autoFocus
         data-sign="addExtensionSearchInput"
       />
       {selectedExtensions.length > 0 && (

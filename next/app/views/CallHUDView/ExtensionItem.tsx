@@ -54,17 +54,15 @@ function ExtensionAvatar({
 
   if (extension.type === 'User') {
     return (
-      <div className="relative mr-3 flex-shrink-0">
-        <ContactAvatar
-          url={extension.profileImageUrl}
-          contactName={extension.name}
-          size="small"
-        />
-        <StatusIndicator
-          variant={presenceType as any}
-          className="absolute -bottom-0.5 -right-0.5"
-        />
-      </div>
+      <ContactAvatar
+        url={extension.profileImageUrl}
+        contactName={extension.name}
+        showStatusIndicator
+        IndicatorProps={{
+          variant: presenceType as any,
+        }}
+        size="small"
+      />
     );
   }
 
@@ -81,13 +79,11 @@ function ExtensionAvatar({
   }
 
   return (
-    <div className="mr-3 flex-shrink-0">
-      <ContactAvatar
-        contactName={extension.name}
-        isDepartment={extension.type === 'Department'}
-        size="small"
-      />
-    </div>
+    <ContactAvatar
+      contactName={extension.name}
+      isDepartment={extension.type === 'Department'}
+      size="small"
+    />
   );
 }
 

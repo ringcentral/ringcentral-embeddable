@@ -111,9 +111,8 @@ export class CallHUDView extends RcViewModule {
     view: () => (
       <AddExtensionContent
         allExtensions={this.availableExtensions}
-        extensionAddFilter={this.extensionAddFilter}
-        onExtensionAddFilterChange={(value) => this.setExtensionAddFilter(value)}
-        type={this.type}
+        type={this._addModalType}
+        onFilterChange={(value) => this.setExtensionAddFilter(value)}
         onSelectionChange={(exts) => {
           this._selectedExtensions = exts;
         }}
@@ -121,7 +120,9 @@ export class CallHUDView extends RcViewModule {
     ),
     props: () => ({
       header:
-        this.type === 'User' ? t('addExtensions') : t('addParkLocations'),
+        this._addModalType === 'User'
+          ? t('addExtensions')
+          : t('addParkLocations'),
       variant: 'confirm' as const,
       confirmButtonText: t('add'),
       cancelButtonText: t('cancel'),
@@ -142,6 +143,8 @@ export class CallHUDView extends RcViewModule {
     }),
   });
 
+  private _addModalType = 'User';
+
   openRemoveConfirmModal(
     extensionId: string,
     extensionName: string,
@@ -155,14 +158,17 @@ export class CallHUDView extends RcViewModule {
   }
 
   openAddExtensionModal() {
+    this._addModalType = this.type === 'All' ? 'User' : this.type;
     this.setExtensionAddFilter('');
     this._selectedExtensions = [];
     this._modalView.open(this._addExtensionModal);
   }
 
   openAddExtensionModalForType(forType: string) {
-    this.setType(forType);
-    this.openAddExtensionModal();
+    this._addModalType = forType;
+    this.setExtensionAddFilter('');
+    this._selectedExtensions = [];
+    this._modalView.open(this._addExtensionModal);
   }
 
   @action
@@ -298,7 +304,6 @@ export class CallHUDView extends RcViewModule {
     that._companyContacts.data,
     that._auth.accessToken,
     that.extensionAddFilter,
-    that.type,
     that._monitoredExtensions.monitoredExtensions,
     that._callQueues?.grants,
   ])
@@ -312,7 +317,7 @@ export class CallHUDView extends RcViewModule {
       addedMap[item.extension.id] = true;
     }
 
-    if (this.type === 'ParkLocation') {
+    if (this._addModalType === 'ParkLocation') {
       const parkGrants = (this._callQueues?.grants ?? []).filter(
         (g) => (g.extension as any)?.type === 'ParkLocation',
       );

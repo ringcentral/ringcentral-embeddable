@@ -2,5 +2,5 @@ export default {
   phone: 'Phone',
   expand: 'Expand',
   collapse: 'Collapse',
-  callHUD: 'Call HUD',
+  callHUD: 'Heads-up display',
 } as const;
