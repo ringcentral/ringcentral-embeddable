@@ -5,10 +5,12 @@ import {
   state,
   storage,
   computed,
+  track,
 } from '@ringcentral-integration/core';
 // @ts-ignore - Worklet is not a module, imported for webpack
 import voicemailGreetingEndDetectorWorklet from '../../worklets/voicemail-greeting-end-detector.worklet.js'; // DO NOT update for webpack
 import voicemailDropStatus from '../WebphoneV2/voicemailDropStatus';
+import { trackEvents } from '../Analytics/trackEvents';
 
 type VoicemailMessage = {
   id: string;
@@ -64,6 +66,10 @@ export class VoicemailDrop extends RcModuleV2 {
     this._externalVoicemailFetcher = fetcher;
   }
 
+  @track((_that: VoicemailDrop, duration: number) => [
+    trackEvents.updateVoicemailDropSilenceDuration,
+    { duration },
+  ])
   @action
   setNoBeepSilenceDuration(duration: number) {
     this.noBeepSilenceDuration = duration;
@@ -77,6 +83,7 @@ export class VoicemailDrop extends RcModuleV2 {
   @state
   voicemailMessages: VoicemailMessage[] = [];
 
+  @track(trackEvents.saveVoicemailDropMessage)
   @action
   addVoicemailMessage(voicemailMessage) {
     const id = voicemailMessage.id || `${Date.now()}`;
@@ -99,6 +106,7 @@ export class VoicemailDrop extends RcModuleV2 {
     }
   }
 
+  @track(trackEvents.deleteVoicemailDropMessage)
   @action
   deleteVoicemailMessage(voicemailMessage) {
     this.voicemailMessages = this.voicemailMessages.filter((message) => message.id !== voicemailMessage.id);
@@ -184,6 +192,15 @@ export class VoicemailDrop extends RcModuleV2 {
     };
   }
 
+  @track(() => [trackEvents.voicemailDropCompleted])
+  trackVoicemailDropCompleted() {}
+
+  @track((_that: VoicemailDrop, reason: string) => [
+    trackEvents.voicemailDropFailed,
+    { reason },
+  ])
+  trackVoicemailDropFailed(_reason: string) {}
+
   async dropVoicemailMessage({
     webphoneSession,
     audioBuffer,
@@ -199,6 +216,7 @@ export class VoicemailDrop extends RcModuleV2 {
     if (!result) {
       console.error('Voicemail greeting ended detection failed');
       updateStatus(voicemailDropStatus.greetingDetectionFailed);
+      this.trackVoicemailDropFailed('greetingDetectionFailed');
       return;
     }
     updateStatus(voicemailDropStatus.sending);
@@ -328,6 +346,7 @@ export class VoicemailDrop extends RcModuleV2 {
             audioTrack.stop();
             webphoneSession.off('disposed', onCallEnd);
             updateStatus(voicemailDropStatus.finished);
+            this.trackVoicemailDropCompleted();
             endCall();
           };
           await sender.replaceTrack(audioTrack);
@@ -337,11 +356,13 @@ export class VoicemailDrop extends RcModuleV2 {
         console.error('Failed to create audio track from stream');
         updateStatus(voicemailDropStatus.terminated);
         endCall();
+        this.trackVoicemailDropFailed('terminated');
       }
     } catch (e) {
       console.error('Error in send audio data:', e);
       updateStatus(voicemailDropStatus.voicemailDropTerminated);
       endCall();
+      this.trackVoicemailDropFailed('voicemailDropTerminated');
     }
   }
 }
