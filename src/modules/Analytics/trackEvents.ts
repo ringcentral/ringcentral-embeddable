@@ -24,4 +24,11 @@ export const trackEvents = ObjectMap.fromObject({
   holdInCallControl: 'Call Control: Hold/Call control page',
   unholdInCallControl: 'Call Control: Unhold/Call control page',
   updateCallQueuePresence: 'Update call queue presence',
+  openVoicemailDrop: 'Open voicemail drop',
+  dropVoicemailMessage: 'Drop voicemail message',
+  voicemailDropCompleted: 'Voicemail drop completed',
+  voicemailDropFailed: 'Voicemail drop failed',
+  saveVoicemailDropMessage: 'Save voicemail drop message',
+  deleteVoicemailDropMessage: 'Delete voicemail drop message',
+  updateVoicemailDropSilenceDuration: 'Update voicemail drop silence duration',
 } as const);

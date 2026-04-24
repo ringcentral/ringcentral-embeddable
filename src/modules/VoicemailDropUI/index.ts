@@ -1,5 +1,6 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import { RcUIModuleV2 } from '@ringcentral-integration/core';
+import { RcUIModuleV2, track } from '@ringcentral-integration/core';
+import { trackEvents } from '../Analytics/trackEvents';
 
 @Module({
   name: 'VoicemailDropUI',
@@ -33,10 +34,14 @@ export class VoicemailDropUI extends RcUIModuleV2 {
     };
   }
 
+  @track(trackEvents.dropVoicemailMessage)
+  trackDropVoicemailMessage() {}
+
   getUIFunctions() {
     const { webphone, sideDrawerUI, routerInteraction, voicemailDrop } = this._deps;
     return {
       onDrop: async (callSessionId, voicemailMessageId) => {
+        this.trackDropVoicemailMessage();
         const result = await webphone.dropVoicemailMessage(callSessionId, voicemailMessageId);
         if (result) {
           sideDrawerUI.closeWidget('voicemailDrop');

@@ -369,6 +369,7 @@ export class SideDrawerUI extends RcUIModuleV2 {
     });
   }
 
+  @track(() => [trackEvents.openVoicemailDrop])
   openVoicemailDrop(callSessionId, contact) {
     this.openWidget({
       widget: {

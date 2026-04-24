@@ -189,31 +189,35 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       showRipple: true,
     });
   }
-  /* --------------------- Add/Merge --------------------------- */
+  /* --------------------- Merge --------------------------- */
   if (!isOnWaitingTransfer && conferenceCallEquipped) {
     const showMerge =
       layout === callCtrlLayouts.mergeCtrl ||
       (layout === callCtrlLayouts.normalCtrl && hasConferenceCall);
-    buttons.push(
-      showMerge
-        ? {
-            icon: MergeIcon,
-            id: ACTIONS_CTRL_MAP.mergeOrAddCtrl,
-            dataSign: 'merge',
-            title: i18n.getString('mergeToConference', currentLocale),
-            disabled: mergeDisabled || controlBusy || droppingVoicemail,
-            onClick: onMerge,
-            showRipple: !mergeDisabled,
-          }
-        : {
-            icon: CombineIcon,
-            id: ACTIONS_CTRL_MAP.mergeOrAddCtrl,
-            dataSign: 'add',
-            title: i18n.getString('add', currentLocale),
-            disabled: addDisabled || controlBusy || droppingVoicemail,
-            onClick: onAdd,
-          },
-    );
+    if (showMerge) {
+      buttons.push({
+        icon: MergeIcon,
+        id: ACTIONS_CTRL_MAP.mergeOrAddCtrl,
+        dataSign: 'merge',
+        title: i18n.getString('mergeToConference', currentLocale),
+        disabled: mergeDisabled || controlBusy || droppingVoicemail,
+        onClick: onMerge,
+        showRipple: !mergeDisabled,
+      });
+    }
+  }
+  const disableControlButton =
+    isOnHold || layout !== callCtrlLayouts.normalCtrl;
+  /* --------------------- Voicemail Drop --------------------------- */
+  if (showVoicemailDrop) {
+    buttons.push({
+      icon: VoicemailDropIcon,
+      id: ACTIONS_CTRL_MAP.voicemailDropCtrl,
+      dataSign: 'voicemailDrop',
+      title: 'Voicemail drop',
+      onClick: onVoicemailDrop,
+      disabled: disableControlButton || controlBusy || droppingVoicemail,
+    });
   }
   /* --------------------- Record/Stop --------------------------- */
   buttons.push({
@@ -237,6 +241,22 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       recordStatus === recordStatuses.recording ? onStopRecord : onRecord,
     activeColor: 'danger.b02',
   });
+  /* --------------------- Add --------------------------- */
+  if (!isOnWaitingTransfer && conferenceCallEquipped) {
+    const showMerge =
+      layout === callCtrlLayouts.mergeCtrl ||
+      (layout === callCtrlLayouts.normalCtrl && hasConferenceCall);
+    if (!showMerge) {
+      buttons.push({
+        icon: CombineIcon,
+        id: ACTIONS_CTRL_MAP.mergeOrAddCtrl,
+        dataSign: 'add',
+        title: i18n.getString('add', currentLocale),
+        disabled: addDisabled || controlBusy || droppingVoicemail,
+        onClick: onAdd,
+      });
+    }
+  }
   /* --------------------- Transfer --------------------------- */
   const disabledTransfer = layout !== callCtrlLayouts.normalCtrl;
   if (!isOnWaitingTransfer) {
@@ -250,8 +270,6 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
     });
   }
   /* --------------------- Flip --------------------------- */
-  const disableControlButton =
-    isOnHold || layout !== callCtrlLayouts.normalCtrl;
   const disabledFlip = disableFlip || disableControlButton;
   buttons.push({
     icon: FlipIcon,
@@ -270,17 +288,6 @@ const ActiveCallPad: FunctionComponent<ActiveCallPadProps> = ({
       title: i18n.getString('park', currentLocale),
       disabled: disableControlButton || controlBusy || droppingVoicemail,
       onClick: onPark,
-    });
-  }
-  /* --------------------- Voicemail Drop --------------------------- */
-  if (showVoicemailDrop) {
-    buttons.push({
-      icon: VoicemailDropIcon,
-      id: ACTIONS_CTRL_MAP.voicemailDropCtrl,
-      dataSign: 'voicemailDrop',
-      title: 'Voicemail drop (beta)',
-      onClick: onVoicemailDrop,
-      disabled: disableControlButton || controlBusy || droppingVoicemail,
     });
   }
   // filter actions
