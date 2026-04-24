@@ -355,14 +355,14 @@ export class VoicemailDrop extends RcModuleV2 {
       } else {
         console.error('Failed to create audio track from stream');
         updateStatus(voicemailDropStatus.terminated);
-        this.trackVoicemailDropFailed('terminated');
         endCall();
+        this.trackVoicemailDropFailed('terminated');
       }
     } catch (e) {
       console.error('Error in send audio data:', e);
       updateStatus(voicemailDropStatus.voicemailDropTerminated);
-      this.trackVoicemailDropFailed('voicemailDropTerminated');
       endCall();
+      this.trackVoicemailDropFailed('voicemailDropTerminated');
     }
   }
 }
