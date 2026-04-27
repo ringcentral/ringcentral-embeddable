@@ -1,4 +1,4 @@
-import * as uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { isFirefox } from './isFirefox';
 /**
  * If the browser supports web lock api, obtain a web lock indefinitely.
@@ -14,7 +14,7 @@ import { isFirefox } from './isFirefox';
  */
 
 if (!isFirefox()) {
-  window.navigator?.locks?.request?.(uuid.v4(), () => {
+  window.navigator?.locks?.request?.(uuidv4(), () => {
     return new Promise(() => {});
   });
 }
