@@ -1,4 +1,4 @@
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class PopupWindowManager {
   constructor({ prefix, isPopupWindow }) {
@@ -22,7 +22,7 @@ export default class PopupWindowManager {
   }
 
   async checkPopupWindowOpened() {
-    const requestId = uuid.v4();
+    const requestId = uuidv4();
     let promise = new Promise((resolve, reject) => {
       this._requests.set(requestId, {
         resolve,

@@ -1,8 +1,8 @@
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function requestWithPostMessage(path, body, timeout = 3000, target = window.parent, prefix = 'rc-post-message') {
   return new Promise((resolve, reject) => {
-    const id = uuid.v4();
+    const id = uuidv4();
     let responseFunc;
     const catchTimeout = setTimeout(() => {
       window.removeEventListener('message', responseFunc);
