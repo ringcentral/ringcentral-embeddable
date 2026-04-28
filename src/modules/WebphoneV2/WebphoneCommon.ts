@@ -50,12 +50,52 @@ import {
 import { EVENTS } from './events';
 import type { WebphoneSession } from './Webphone.interface';
 import { WebphoneBase } from './WebphoneBase';
+import type InboundMessage from 'ringcentral-web-phone/dist/esm/sip-message/inbound';
 
 type InviteOptions = {
   extraHeaders?: Record<string, string>;
   homeCountryId?: string;
   fromNumber: string;
 };
+
+function getSipHeader(message: InboundMessage, headerName: string) {
+  const headerKey = Object.keys(message.headers).find(
+    (key) => key.toLowerCase() === headerName.toLowerCase(),
+  );
+  return headerKey ? message.headers[headerKey] : undefined;
+}
+
+function safeDecodeSipValue(value?: string) {
+  if (!value) {
+    return value;
+  }
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function parseAssertedIdentity(assertedIdentity?: string) {
+  if (!assertedIdentity) {
+    return {};
+  }
+  const number =
+    assertedIdentity.match(/<?sip:([^@;>]+)(?:@|[;>])/i)?.[1] ??
+    assertedIdentity.match(/<?tel:([^;>]+)/i)?.[1];
+  const quotedName = assertedIdentity.match(/^\s*"((?:\\"|[^"])*)"/)?.[1];
+  const unquotedName =
+    quotedName === undefined
+      ? assertedIdentity.match(/^\s*([^<"]+?)\s*<(?:sip|tel):/i)?.[1]?.trim()
+      : undefined;
+  const name = quotedName?.replace(/\\"/g, '"') ?? unquotedName;
+
+  return {
+    number: safeDecodeSipValue(number),
+    name: safeDecodeSipValue(name),
+  };
+}
+
 /**
  * @constructor
  * @description Web phone module to handle phone interaction with WebRTC.
@@ -397,6 +437,53 @@ export class Webphone extends WebphoneBase {
       }
     }
     session.__rc_extendedControlStatus = extendedControlStatus.stopped;
+  }
+
+  override _onSessionUpdate(message: InboundMessage) {
+    const callId = getSipHeader(message, 'Call-Id');
+    const session = callId ? this.originalSessions[callId] : null;
+    if (!session) {
+      return;
+    }
+    const assertedIdentity = getSipHeader(message, 'P-Asserted-Identity');
+    const { number, name } = parseAssertedIdentity(assertedIdentity);
+    const nextName = name ?? (number ? '' : undefined);
+    let sessionUpdated = false;
+    let remoteNumberUpdated = false;
+
+    if (number && session.__rc_originalRemoteNumber !== number) {
+      const currentRemoteNumber =
+        session.__rc_originalRemoteNumber ?? session.remoteNumber;
+      if (
+        session.direction === 'inbound' &&
+        currentRemoteNumber &&
+        currentRemoteNumber !== number
+      ) {
+        session.__rc_isReceivedTransfer = true;
+      }
+      session.__rc_originalRemoteNumber = number;
+      sessionUpdated = true;
+      remoteNumberUpdated = true;
+    }
+    if (
+      nextName !== undefined &&
+      session.__rc_originalRemoteName !== nextName
+    ) {
+      session.__rc_originalRemoteName = nextName;
+      sessionUpdated = true;
+    }
+
+    if (!sessionUpdated) {
+      return;
+    }
+    this._updateSessions();
+    if (
+      remoteNumberUpdated &&
+      this._deps.contactMatcher &&
+      (!this._deps.tabManager || this._deps.tabManager.active)
+    ) {
+      this._deps.contactMatcher.triggerMatch();
+    }
   }
 
   @track(trackEvents.inboundWebRTCCallConnected)

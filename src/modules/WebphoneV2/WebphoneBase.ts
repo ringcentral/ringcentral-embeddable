@@ -2,10 +2,13 @@ import { EventEmitter } from 'events';
 import type PhoneLinesInfo from 'ringcentral-client/build/definitions/PhoneLinesInfo';
 import RingCentralWebphone from 'ringcentral-web-phone';
 import type { SipInfo } from 'ringcentral-web-phone/dist/esm/types';
+import type InboundMessage from 'ringcentral-web-phone/dist/esm/sip-message/inbound';
 import type InboundCallSession from 'ringcentral-web-phone/dist/esm/call-session/inbound';
 import type OutboundCallSession from 'ringcentral-web-phone/dist/esm/call-session/outbound';
 import type CreateSipRegistrationResponse from '@rc-ex/core/lib/definitions/CreateSipRegistrationResponse';
 import type SipRegistrationDeviceInfo from '@rc-ex/core/lib/definitions/SipRegistrationDeviceInfo';
+import ResponseMessage from 'ringcentral-web-phone/sip-message/outbound/response';
+
 import {
   action,
   computed,
@@ -62,6 +65,10 @@ const registerErrors = [
   webphoneErrors.provisionUpdate,
   webphoneErrors.serverConnecting,
 ];
+
+function isSessionUpdateMessage(message: InboundMessage) {
+  return message.subject.startsWith("UPDATE sip:");
+}
 
 /**
  * @constructor
@@ -574,7 +581,16 @@ export class WebphoneBase extends RcModuleV2<Deps> {
       } else {
         await this._webphone.start();
         this._onWebphoneRegistered(provisionData);
-        this._webphone.sipClient.on('inboundMessage', (inboundMessage) => {
+        const sipClient = this._webphone.sipClient;
+        sipClient.on('inboundMessage', async (inboundMessage) => {
+          if (isSessionUpdateMessage(inboundMessage)) {
+            this._logger.log('Update sip message received');
+            this._onSessionUpdate(inboundMessage);
+            await sipClient.reply(
+              new ResponseMessage(inboundMessage, { responseCode: 200 }),
+            );
+            return;
+          }
           if(inboundMessage.headers.Event !== "check-sync") {
             return;
           }
@@ -668,6 +684,10 @@ export class WebphoneBase extends RcModuleV2<Deps> {
     // override
   }
 
+  _onSessionUpdate(message: InboundMessage) {
+    // override
+  }
+
   _onProvisionUpdateRequired() {
     if (this.webphoneSessions.length > 0) {
       return;
@@ -704,6 +724,11 @@ export class WebphoneBase extends RcModuleV2<Deps> {
         logger: this._logger,
       });
       this._sharedSipClient.on('inboundMessage', (inboundMessage) => {
+        if (isSessionUpdateMessage(inboundMessage)) {
+          this._logger.log('Update sip message received');
+          this._onSessionUpdate(inboundMessage);
+          return;
+        }
         if(inboundMessage.headers.Event !== "check-sync") {
           return;
         }
