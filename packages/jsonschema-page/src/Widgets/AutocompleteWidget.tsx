@@ -34,7 +34,14 @@ export default function AutocompleteWidget<
   const [downshiftValue, setDownshiftValue] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const downshiftUpdated = useRef(false);
-  const { enumOptions = [] } = options;
+  const { enumOptions = [], placeholder: optionsPlaceholder } = options as {
+    enumOptions?: any[];
+    placeholder?: string;
+  };
+  // RJSF's ArrayField.renderCustomWidget does not promote `ui:placeholder`
+  // to the `placeholder` prop; it stays inside `options`. Fall back to it
+  // so that array-type fields with `multiple` still show their placeholder.
+  const resolvedPlaceholder = placeholder ?? optionsPlaceholder;
 
   const dsOptions = useMemo(
     () => (Array.isArray(enumOptions)
@@ -114,7 +121,7 @@ export default function AutocompleteWidget<
       id={id}
       name={id}
       label={labelValue(label, hideLabel || !label, false)}
-      placeholder={placeholder}
+      placeholder={resolvedPlaceholder}
       disabled={disabled || readonly}
       required={required}
       multiple={multiple}
