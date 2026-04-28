@@ -44,25 +44,31 @@ export function normalizeSession(
   if (!session) {
     return session;
   }
-  // const toUserName = session.request?.to?.displayName;
-  // const fromUserName = session.request?.from?.displayName;
-  const fromPeer = session.direction === 'inbound' ? session.remotePeer : session.localPeer;
-  const toPeer = session.direction === 'inbound' ? session.localPeer : session.remotePeer;
   const queueName = session.rcApiCallInfo ? session.rcApiCallInfo.queueName : null;
   const rcHeaders = session.sipMessage?.headers["p-rc-api-ids"];
   const remoteTag = session.remotePeer ? session.remoteTag : null;
   const localTag = session.localPeer ? session.localTag : null;
-  const remoteNumber = session.__rc_originalRemoteNumber || session.remoteNumber;
+  const remoteNumber = session.__rc_originalRemoteNumber ?? session.remoteNumber;
+  const remoteUserName =
+    session.__rc_originalRemoteName ??
+    (session.remotePeer ? extractName(session.remotePeer) : '');
+  const localUserName = session.localPeer ? extractName(session.localPeer) : '';
+  const receivedTransferFromName =
+    session.__rc_isReceivedTransfer && session.remotePeer
+      ? extractName(session.remotePeer)
+      : undefined;
   return {
     id: session.callId, // for backward compatibility
     callId: session.callId,
     direction: callDirections[session.direction],
     callStatus: getCallStatus(session.state),
     to: session.direction === 'inbound' ? session.localNumber : remoteNumber,
-    toUserName: toPeer ? extractName(toPeer) : '',
+    toUserName:
+      session.direction === 'inbound' ? localUserName : remoteUserName,
     from: session.direction === 'inbound' ? remoteNumber : session.localNumber,
     fromNumber: session.__rc_fromNumber,
-    fromUserName: fromPeer ? extractName(fromPeer) : '',
+    fromUserName:
+      session.direction === 'inbound' ? remoteUserName : localUserName,
     fromTag: session.direction === 'inbound' ? remoteTag : localTag,
     toTag: session.direction === 'inbound' ? localTag : remoteTag,
     startTime: session.startTime && new Date(session.startTime).getTime(),
@@ -89,6 +95,11 @@ export function normalizeSession(
     isOnHold: !!session.__rc_localHold && !isDroppingVoicemail(session.__rc_voicemailDropStatus),
     originalLocalNumber: session.__rc_originalLocalNumber,
     originalLocalName: session.__rc_originalLocalName,
+    isReceivedTransfer: !!session.__rc_isReceivedTransfer,
+    receivedTransferFromNumber: session.__rc_isReceivedTransfer
+      ? session.remoteNumber
+      : undefined,
+    receivedTransferFromName,
   };
 }
 
