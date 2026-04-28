@@ -1,4 +1,4 @@
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 
 import TransportBase from '@ringcentral-integration/commons/lib/TransportBase';
@@ -71,7 +71,7 @@ export class MultipleTabsTransport extends TransportBase {
   }
 
   request({ tabId, payload }) {
-    const requestId = uuid.v4();
+    const requestId = uuidv4();
     let toTabId = tabId;
     if (!toTabId) {
       toTabId = this._getMainTabId(); // TODO: use activeTabId
