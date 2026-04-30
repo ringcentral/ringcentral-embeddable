@@ -101,6 +101,17 @@ export function CallHUDPanel({
   };
 
   const isAllView = type === 'All';
+  const groupTypeList = typeList.filter((item) => item.id !== 'All');
+  const nonEmptyGroupTypeList = groupTypeList.filter(
+    (item) => (groupedExtensions[item.id] ?? []).length > 0,
+  );
+  const emptyGroupTypeList = groupTypeList.filter(
+    (item) => (groupedExtensions[item.id] ?? []).length === 0,
+  );
+  const orderedGroupTypeList = [
+    ...nonEmptyGroupTypeList,
+    ...emptyGroupTypeList,
+  ];
 
   return (
     <div
@@ -119,8 +130,7 @@ export function CallHUDPanel({
       />
       <div className="flex-1 overflow-y-auto">
         {isAllView ? (
-          typeList
-            .filter((item) => item.id !== 'All')
+          orderedGroupTypeList
             .map((typeItem) => {
               const groupExtensions =
                 groupedExtensions[typeItem.id] ?? [];
