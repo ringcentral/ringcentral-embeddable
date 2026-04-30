@@ -58,8 +58,40 @@ type CallHUDModalProps = Omit<NonJSXModalItemProps, 'onExited'> & {
   'data-sign'?: string;
 };
 
+type CompanyContactData = {
+  id?: string;
+  type?: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  extensionNumber?: string;
+  profileImage?: {
+    uri?: string;
+  };
+};
+
+type ExtensionGrantData = {
+  name?: string;
+  extension: {
+    id: string;
+    type?: string;
+    name?: string;
+    extensionNumber?: string;
+  };
+};
+
 const expandedCompactModalClasses: SpringModalBodyClasses = {
   root: '!left-auto !right-auto',
+};
+
+const getContactDisplayName = (contact?: CompanyContactData): string => {
+  if (!contact) {
+    return '';
+  }
+  return (
+    contact.name ||
+    `${contact.firstName || ''} ${contact.lastName || ''}`.trim()
+  );
 };
 
 @injectable({
@@ -185,15 +217,31 @@ export class CallHUDView extends RcViewModule {
   }
 
   openAddExtensionModal() {
-    this._addModalType = this.type === 'All' ? 'User' : this.type;
-    this.resetAddExtensionModal();
-    this._modalView.open(this._addExtensionModal);
+    this._openAddExtensionModalForType(
+      this.type === 'All' ? 'User' : this.type,
+    );
   }
 
   openAddExtensionModalForType(forType: string) {
+    this._openAddExtensionModalForType(forType);
+  }
+
+  private _openAddExtensionModalForType(forType: string) {
     this._addModalType = forType;
     this.resetAddExtensionModal();
     this._modalView.open(this._addExtensionModal);
+
+    if (forType === 'ParkLocation') {
+      void this._refetchExtensionGrants();
+    }
+  }
+
+  private async _refetchExtensionGrants() {
+    try {
+      await this._callQueues?.refetchGrants();
+    } catch (error) {
+      this.logger.error('refetch extension grants failed', error);
+    }
   }
 
   @action
@@ -353,30 +401,59 @@ export class CallHUDView extends RcViewModule {
     }
     addedMap[String(this._extensionInfo.id)] = true;
 
+    const contacts = Array.isArray(this._companyContacts.data)
+      ? (this._companyContacts.data as CompanyContactData[])
+      : [];
+
     if (this._addModalType === 'ParkLocation') {
-      const parkGrants = (this._callQueues?.grants ?? []).filter(
+      const contactMap = contacts.reduce<Record<string, CompanyContactData>>(
+        (acc, contact) => {
+          if (contact.id) {
+            acc[contact.id] = contact;
+          }
+          return acc;
+        },
+        {},
+      );
+      const parkGrants = (
+        (this._callQueues?.grants ?? []) as ExtensionGrantData[]
+      ).filter(
         (g) => g.extension.type === 'ParkLocation',
       );
       return parkGrants
-        .filter(
-          (item) =>
+        .filter((item) => {
+          const contact = contactMap[item.extension.id];
+          const name =
+            item.extension.name ||
+            item.name ||
+            getContactDisplayName(contact);
+          return (
             !addedMap[item.extension.id] &&
             (item.extension.extensionNumber?.toLowerCase().includes(search) ||
-              item.extension.name?.toLowerCase().includes(search)),
-        )
+              name.toLowerCase().includes(search))
+          );
+        })
         .slice(0, 10)
-        .map((item) => ({
-          id: item.extension.id,
-          name: item.extension.name,
-          extensionNumber: item.extension.extensionNumber,
-        }));
+        .map((item) => {
+          const contact = contactMap[item.extension.id];
+          const name =
+            item.extension.name ||
+            item.name ||
+            getContactDisplayName(contact) ||
+            item.extension.extensionNumber;
+          return {
+            id: item.extension.id,
+            name,
+            extensionNumber: item.extension.extensionNumber,
+          };
+        });
     }
 
-    const contacts = this._companyContacts.data ?? [];
-    return (contacts as any[])
+    return contacts
       .filter(
         (item) =>
           item.type === 'User' &&
+          !!item.id &&
           !addedMap[item.id] &&
           (item.extensionNumber?.toLowerCase().includes(search) ||
             item.name?.toLowerCase().includes(search) ||
@@ -388,12 +465,9 @@ export class CallHUDView extends RcViewModule {
       )
       .slice(0, 10)
       .map((item) => {
-        let name = item.name as string | undefined;
-        if (!name && (item.firstName || item.lastName)) {
-          name = `${item.firstName || ''} ${item.lastName || ''}`.trim();
-        }
+        const name = getContactDisplayName(item);
         return {
-          id: item.id,
+          id: item.id!,
           name: name || item.extensionNumber,
           extensionNumber: item.extensionNumber,
           profileImageUrl: item.profileImage?.uri

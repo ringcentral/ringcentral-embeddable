@@ -156,6 +156,7 @@ import {
   RingCentralExtensions as RingCentralExtensionsV2,
   Adapter,
   MonitoredExtensions,
+  CallQueues as CallQueuesV2,
 } from './services';
 import { ParkView } from './views/CallView/ParkView';
 import { CallControlView as CallControlViewV2 } from './views/CallView/CallControlView/CallControl.view';
@@ -346,7 +347,10 @@ export const getAppConfig = <
         } satisfies RcVideoOptions,
       },
       CallQueueManagement,
-      CallQueues,
+      {
+        provide: CallQueues,
+        useClass: CallQueuesV2,
+      },
       MonitoredExtensions,
       ParkView,
       ExpandedView,

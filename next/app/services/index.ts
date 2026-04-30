@@ -12,3 +12,4 @@ export * from './AccountContacts';
 export * from './GenericMeeting';
 export * from './SmsOptOut';
 export * from './MonitoredExtensions';
+export * from './CallQueues';
