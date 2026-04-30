@@ -37,7 +37,6 @@ function AddButton({
           data-sign="addExtensionMenu"
           onClick={() => setMenuOpen(true)}
         />
-        {/* @ts-expect-error - spring-ui Menu typing issue with required HTML attributes */}
         <Menu
           open={menuOpen}
           anchorEl={anchorRef.current}

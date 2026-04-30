@@ -1,9 +1,13 @@
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import {
   Auth,
+  ExtensionInfo,
   NumberFormatter,
 } from '@ringcentral-integration/micro-auth/src/app/services';
-import { ModalView } from '@ringcentral-integration/micro-core/src/app/views';
+import {
+  ModalView,
+  type NonJSXModalItemProps,
+} from '@ringcentral-integration/micro-core/src/app/views';
 import { ComposeText } from '@ringcentral-integration/micro-message/src/app/services';
 import {
   Call,
@@ -45,6 +49,19 @@ import { CallHUDPanel } from './CallHUDPanel';
 import { t } from './i18n';
 import { ExpandedView } from '../ExpandedView';
 
+type SpringModalBodyClasses = {
+  root?: string;
+};
+
+type CallHUDModalProps = Omit<NonJSXModalItemProps, 'onExited'> & {
+  classes?: SpringModalBodyClasses;
+  'data-sign'?: string;
+};
+
+const expandedCompactModalClasses: SpringModalBodyClasses = {
+  root: '!left-auto !right-auto',
+};
+
 @injectable({
   name: 'CallHUDView',
 })
@@ -59,6 +76,7 @@ export class CallHUDView extends RcViewModule {
     private _callingSettings: CallingSettings,
     private _companyContacts: CompanyContacts,
     private _auth: Auth,
+    private _extensionInfo: ExtensionInfo,
     private _router: RouterPlugin,
     private _modalView: ModalView,
     private _expandedView: ExpandedView,
@@ -70,6 +88,12 @@ export class CallHUDView extends RcViewModule {
 
   private get _embeddableAppFeatures() {
     return this._appFeatures as EmbeddableAppFeatures;
+  }
+
+  private get _expandedCompactModalClasses():
+    | SpringModalBodyClasses
+    | undefined {
+    return this._root.expanded ? expandedCompactModalClasses : undefined;
   }
 
   @state
@@ -84,15 +108,13 @@ export class CallHUDView extends RcViewModule {
   @state
   extensionAddFilter = '';
 
-  private _selectedExtensions: AvailableExtension[] = [];
-
   @portal
   private _removeConfirmModal = this._modalView.create<{
     extensionId: string;
     extensionName: string;
     isParkLocation: boolean;
   }>({
-    props: (data) => ({
+    props: (data): CallHUDModalProps => ({
       header: t('remove'),
       variant: 'confirm' as const,
       confirmButtonText: t('remove'),
@@ -101,6 +123,7 @@ export class CallHUDView extends RcViewModule {
         ? t('removeParkLocationConfirm', { name: data.extensionName })
         : t('removeExtensionConfirm', { name: data.extensionName }),
       ['data-sign']: 'removeExtensionModal',
+      classes: this._expandedCompactModalClasses,
       onConfirm: async () => {
         await this._monitoredExtensions.removeExtension(data.extensionId);
       },
@@ -109,37 +132,40 @@ export class CallHUDView extends RcViewModule {
 
   @portal
   private _addExtensionModal = this._modalView.create({
-    view: () => (
-      <AddExtensionContent
-        allExtensions={this.availableExtensions}
-        type={this._addModalType}
-        onFilterChange={(value) => this.setExtensionAddFilter(value)}
-        onSelectionChange={(exts) => {
-          this._selectedExtensions = exts;
-        }}
-      />
-    ),
-    props: () => ({
+    view: () => {
+      const { allExtensions, filterInput } = useConnector(
+        () => ({
+          allExtensions: this.availableExtensions,
+          filterInput: this.extensionAddFilter,
+        }),
+      );
+      return (
+        <AddExtensionContent
+          allExtensions={allExtensions}
+          filterInput={filterInput}
+          type={this._addModalType}
+          onFilterChange={(value) => this.setExtensionAddFilter(value)}
+          onAdd={async (exts) => {
+            if (exts.length > 0) {
+              await this._monitoredExtensions.addExtensions(
+                exts.map((ext) => ({ id: ext.id })),
+              );
+            }
+            this.resetAddExtensionModal();
+          }}
+          onCancel={() => this.resetAddExtensionModal()}
+        />
+      );
+    },
+    props: (): CallHUDModalProps => ({
       header:
         this._addModalType === 'User'
           ? t('addExtensions')
           : t('addParkLocations'),
-      variant: 'confirm' as const,
-      confirmButtonText: t('add'),
-      cancelButtonText: t('cancel'),
       ['data-sign']: 'addExtensionModal',
-      onConfirm: async () => {
-        if (this._selectedExtensions.length > 0) {
-          await this._monitoredExtensions.addExtensions(
-            this._selectedExtensions.map((ext) => ({ id: ext.id })),
-          );
-        }
-        this._selectedExtensions = [];
-        this.setExtensionAddFilter('');
-      },
+      classes: this._expandedCompactModalClasses,
       onCancel: () => {
-        this._selectedExtensions = [];
-        this.setExtensionAddFilter('');
+        this.resetAddExtensionModal();
       },
     }),
   });
@@ -160,15 +186,13 @@ export class CallHUDView extends RcViewModule {
 
   openAddExtensionModal() {
     this._addModalType = this.type === 'All' ? 'User' : this.type;
-    this.setExtensionAddFilter('');
-    this._selectedExtensions = [];
+    this.resetAddExtensionModal();
     this._modalView.open(this._addExtensionModal);
   }
 
   openAddExtensionModalForType(forType: string) {
     this._addModalType = forType;
-    this.setExtensionAddFilter('');
-    this._selectedExtensions = [];
+    this.resetAddExtensionModal();
     this._modalView.open(this._addExtensionModal);
   }
 
@@ -192,6 +216,11 @@ export class CallHUDView extends RcViewModule {
   @action
   setExtensionAddFilter(value: string) {
     this.extensionAddFilter = value;
+  }
+
+  @action
+  private resetAddExtensionModal() {
+    this.extensionAddFilter = '';
   }
 
   toggleCallHUD() {
@@ -271,7 +300,7 @@ export class CallHUDView extends RcViewModule {
     const parkLocations = this._monitoredExtensions.parkLocations;
     const hasParkGrants =
       this._callQueues?.grants?.some(
-        (g) => (g.extension as any)?.type === 'ParkLocation',
+        (g) => g.extension.type === 'ParkLocation',
       ) ?? false;
     if (parkLocations.length > 0 || hasParkGrants) {
       const unreadCount = parkLocations.reduce(
@@ -311,6 +340,7 @@ export class CallHUDView extends RcViewModule {
     that.extensionAddFilter,
     that._monitoredExtensions.monitoredExtensions,
     that._callQueues?.grants,
+    that._extensionInfo.id,
   ])
   get availableExtensions(): AvailableExtension[] {
     if (!this.extensionAddFilter?.trim()) {
@@ -321,10 +351,11 @@ export class CallHUDView extends RcViewModule {
     for (const item of this._monitoredExtensions.monitoredExtensions) {
       addedMap[item.extension.id] = true;
     }
+    addedMap[String(this._extensionInfo.id)] = true;
 
     if (this._addModalType === 'ParkLocation') {
       const parkGrants = (this._callQueues?.grants ?? []).filter(
-        (g) => (g.extension as any)?.type === 'ParkLocation',
+        (g) => g.extension.type === 'ParkLocation',
       );
       return parkGrants
         .filter(
@@ -433,7 +464,11 @@ export class CallHUDView extends RcViewModule {
       onClickToDial: (recipient) => {
         if (this._call?.isIdle) {
           void this._router.push('/dialer');
-          this._call.call({ phoneNumber: recipient.phoneNumber });
+          this._call.call({
+            phoneNumber: recipient.phoneNumber,
+            recipient,
+            fromNumber: this._callingSettings.fromNumber,
+          });
         }
       },
       onPark: async (extension) => {

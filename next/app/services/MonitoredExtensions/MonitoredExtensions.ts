@@ -50,6 +50,17 @@ const PRESENCE_SUBSCRIPTION_FILTERS = [
 const DEFAULT_LIMIT_KEY = 'HUD';
 const BATCH_SIZE = 30;
 
+type CompanyContact = {
+  id?: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  status?: string;
+  profileImage?: {
+    uri?: string;
+  };
+};
+
 @injectable({
   name: 'MonitoredExtensions',
 })
@@ -152,7 +163,7 @@ export class MonitoredExtensions extends DataFetcherConsumer<MonitoredExtensionD
     }
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async sync() {
     if (!this.hasPermission) {
       return;
@@ -236,7 +247,7 @@ export class MonitoredExtensions extends DataFetcherConsumer<MonitoredExtensionD
     this.enabled = enabled;
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async toggleEnabled() {
     const newEnabled = !this.enabled;
     this.setEnabled(newEnabled);
@@ -387,9 +398,13 @@ export class MonitoredExtensions extends DataFetcherConsumer<MonitoredExtensionD
       },
       {},
     );
-    const companyContacts = this._companyContacts.data ?? [];
-    const companyContactsMap = companyContacts.reduce<Record<string, any>>(
-      (acc, item: any) => {
+    const companyContacts = Array.isArray(this._companyContacts.data)
+      ? (this._companyContacts.data as CompanyContact[])
+      : [];
+    const companyContactsMap = companyContacts.reduce<
+      Record<string, CompanyContact>
+    >(
+      (acc, item) => {
         if (extensionIdMaps[item.id]) {
           acc[item.id] = item;
         }
