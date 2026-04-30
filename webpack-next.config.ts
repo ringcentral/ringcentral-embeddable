@@ -152,6 +152,10 @@ export const getWebpackConfig = (options: WebpackConfigOptions<AppConfig>) => {
           __dirname,
           './next/app/services/WebphoneV2/AudioHelper.ts',
         ),
+        'ringcentral-web-phone$': path.resolve(
+          __dirname,
+          './node_modules/ringcentral-web-phone/dist/esm/index.js',
+        ),
       },
     },
   });

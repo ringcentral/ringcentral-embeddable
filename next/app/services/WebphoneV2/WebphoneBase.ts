@@ -41,6 +41,8 @@ import { sleep } from '@ringcentral-integration/utils';
 import { EventEmitter } from 'events';
 import RingCentralWebphone from 'ringcentral-web-phone';
 import type { SipInfo } from 'ringcentral-web-phone/types';
+import type InboundMessage from 'ringcentral-web-phone/sip-message/inbound';
+import ResponseMessage from 'ringcentral-web-phone/sip-message/outbound/response';
 import {
   BehaviorSubject,
   combineLatest,
@@ -92,6 +94,10 @@ const AUTO_RETRIES_DELAY = [
 
 const DEFAULT_WEBSOCKET_RECOVERY_TIMEOUT = 16 * 1000;
 const REALTIME_RECOVERY_QUICK_RETRY_LIMIT = 2;
+
+function isSessionUpdateMessage(message: InboundMessage) {
+  return message.subject.startsWith('UPDATE sip:');
+}
 
 type ToastWebphoneError =
   | 'webphoneCountOverLimit'
@@ -767,6 +773,10 @@ export class WebphoneBase extends RcModule {
     // override
   }
 
+  protected async _onSessionUpdate(_message: InboundMessage) {
+    // override
+  }
+
   protected async _canBeActiveTabs() {
     return this._portManager.isActiveTab;
   }
@@ -1263,7 +1273,17 @@ export class WebphoneBase extends RcModule {
     webphone.on('outboundCall', (session) => {
       this._ensureSessionCompatibility(session as WebphoneSession);
     });
-    webphone.sipClient.on('inboundMessage', (inboundMessage) => {
+    webphone.sipClient.on('inboundMessage', async (inboundMessage) => {
+      if (isSessionUpdateMessage(inboundMessage)) {
+        this.logger.log('Update sip message received');
+        await this._onSessionUpdate(inboundMessage);
+        if (!sharedSipClient) {
+          await webphone.sipClient.reply(
+            new ResponseMessage(inboundMessage, { responseCode: 200 }),
+          );
+        }
+        return;
+      }
       if (inboundMessage.headers.Event !== 'check-sync') {
         return;
       }
@@ -2074,6 +2094,10 @@ export class WebphoneBase extends RcModule {
 
   stopRingtone() {
     this._ringtoneHelper?.stop();
+  }
+
+  async switchWebphoneInstance() {
+    // ignore, for backward compatibility
   }
 
   @delegate('mainClient')

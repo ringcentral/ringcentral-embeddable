@@ -41,6 +41,7 @@ import {
 } from '@ringcentral-integration/next-core';
 import { sleep } from '@ringcentral-integration/utils';
 import { find } from 'ramda';
+import type InboundMessage from 'ringcentral-web-phone/sip-message/inbound';
 import {
   filter,
   firstValueFrom,
@@ -90,6 +91,8 @@ import {
   isPickupReason,
   isRing,
   normalizeSession,
+  readAssertedIdentityFromMessage,
+  readCallIdFromHeaders,
   rejectSession,
   replyWithMessage,
   sortByLastActiveTimeDesc,
@@ -589,6 +592,51 @@ export class Webphone extends WebphoneBase {
       }
     }
     session.__rc_extendedControlStatus = extendedControlStatus.stopped;
+  }
+
+  protected override async _onSessionUpdate(message: InboundMessage) {
+    const callId = readCallIdFromHeaders(message.headers);
+    const session = callId ? this.originalSessions[callId] : undefined;
+    if (!session) {
+      return;
+    }
+    const { number, name } = readAssertedIdentityFromMessage(message);
+    const nextName = name ?? (number ? '' : undefined);
+    let sessionUpdated = false;
+    let remoteNumberUpdated = false;
+
+    if (number && session.__rc_originalRemoteNumber !== number) {
+      const currentRemoteNumber =
+        session.__rc_originalRemoteNumber ?? session.remoteNumber;
+      if (
+        session.direction === 'inbound' &&
+        currentRemoteNumber &&
+        currentRemoteNumber !== number
+      ) {
+        session.__rc_isReceivedTransfer = true;
+      }
+      session.__rc_originalRemoteNumber = number;
+      sessionUpdated = true;
+      remoteNumberUpdated = true;
+    }
+    if (
+      nextName !== undefined &&
+      session.__rc_originalRemoteName !== nextName
+    ) {
+      session.__rc_originalRemoteName = nextName;
+      sessionUpdated = true;
+    }
+    if (!sessionUpdated) {
+      return;
+    }
+    await this._updateSessions();
+    if (
+      remoteNumberUpdated &&
+      this._contactMatcher &&
+      this._isAuthoritativeWebphoneClient()
+    ) {
+      this._contactMatcher.triggerMatch();
+    }
   }
 
   @track(trackEvents.inboundWebRTCCallConnected)

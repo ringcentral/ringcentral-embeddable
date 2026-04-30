@@ -206,6 +206,8 @@ export interface WebphoneSession
   __rc_isStartedReply?: boolean;
   __rc_voicemailDropStatus?: string;
   __rc_originalRemoteNumber?: string;
+  __rc_originalRemoteName?: string;
+  __rc_isReceivedTransfer?: boolean;
   __rc_originalLocalNumber?: string;
   __rc_originalLocalName?: string;
   __rc_direction?: string;

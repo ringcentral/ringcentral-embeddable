@@ -442,7 +442,8 @@ export class SipClientInServer
         inboundMessage.subject.startsWith('BYE sip:') ||
         inboundMessage.subject.startsWith('CANCEL sip:') ||
         inboundMessage.subject.startsWith('INFO sip:') ||
-        inboundMessage.subject.startsWith('NOTIFY sip:')
+        inboundMessage.subject.startsWith('NOTIFY sip:') ||
+        inboundMessage.subject.startsWith('UPDATE sip:')
       ) {
         await this.reply(
           new ResponseMessage(inboundMessage, { responseCode: 200 }),
