@@ -313,10 +313,9 @@ export const getBaseWebpackConfig = ({
       {
         loader: 'sass-loader',
         options: {
-          // Use legacy API for compatibility with includePaths
-          api: 'legacy',
+          api: 'modern',
           sassOptions: {
-            includePaths: [
+            loadPaths: [
               themeFolder,
               // Include brand config folders for theme variables
               path.resolve(process.cwd(), 'config/rc'),
@@ -325,7 +324,8 @@ export const getBaseWebpackConfig = ({
               path.resolve(process.cwd(), 'node_modules'),
               path.resolve(process.cwd(), '../../node_modules'),
             ],
-            outputStyle: 'expanded',
+            silenceDeprecations: ['import', 'global-builtin'],
+            style: 'expanded',
           },
         },
       },
@@ -355,10 +355,9 @@ export const getBaseWebpackConfig = ({
       {
         loader: 'sass-loader',
         options: {
-          // Use legacy API for compatibility with includePaths
-          api: 'legacy',
+          api: 'modern',
           sassOptions: {
-            includePaths: [
+            loadPaths: [
               themeFolder,
               // Include brand config folders for theme variables
               path.resolve(process.cwd(), 'config/rc'),
@@ -367,7 +366,8 @@ export const getBaseWebpackConfig = ({
               path.resolve(process.cwd(), 'node_modules'),
               path.resolve(process.cwd(), '../../node_modules'),
             ],
-            outputStyle: 'expanded',
+            silenceDeprecations: ['import', 'global-builtin'],
+            style: 'expanded',
           },
         },
       },
@@ -389,10 +389,9 @@ export const getBaseWebpackConfig = ({
       {
         loader: 'sass-loader',
         options: {
-          // Use legacy API for compatibility with includePaths
-          api: 'legacy',
+          api: 'modern',
           sassOptions: {
-            includePaths: [
+            loadPaths: [
               themeFolder,
               // Include brand config folders for theme variables
               path.resolve(process.cwd(), 'config/rc'),
@@ -401,7 +400,8 @@ export const getBaseWebpackConfig = ({
               path.resolve(process.cwd(), 'node_modules'),
               path.resolve(process.cwd(), '../../node_modules'),
             ],
-            outputStyle: 'expanded',
+            silenceDeprecations: ['import', 'global-builtin'],
+            style: 'expanded',
           },
         },
       },
