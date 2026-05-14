@@ -173,7 +173,7 @@ hide:
     <div class="rc-pillar">
       <div class="rc-pillar-num">02</div>
       <div class="rc-pillar-title">TRULY OPEN SOURCE</div>
-      <p class="rc-pillar-body">From the foundational <a href="https://github.com/ringcentral/ringcentral-web-phone">WebPhone SDK</a> to the Embeddable framework itself — every layer is open source, auditable, and community-driven.</p>
+      <p class="rc-pillar-body">From the foundational <a href="https://ringcentral.github.io/ringcentral-web-phone/">WebPhone SDK</a> to the Embeddable framework itself — every layer is open source, auditable, and community-driven.</p>
       <a href="https://github.com/ringcentral/ringcentral-embeddable" class="rc-pillar-link">View on GitHub →</a>
     </div>
 
@@ -205,7 +205,7 @@ hide:
     <div class="rc-spotlight rc-spotlight-primary">
       <h3 class="rc-spotlight-title">WebPhone SDK</h3>
       <p class="rc-spotlight-body">The communication layer, open and exposed. The RingCentral WebPhone SDK is the open source engine powering Embeddable's audio and signaling stack. Build directly on top of it if Embeddable isn't the right fit — or extend it if it is.</p>
-      <a href="https://github.com/ringcentral/ringcentral-web-phone" class="rc-btn-white">Explore the SDK →</a>
+      <a href="https://ringcentral.github.io/ringcentral-web-phone/" class="rc-btn-white">Explore the SDK →</a>
     </div>
 
     <div class="rc-spotlight rc-spotlight-secondary">
