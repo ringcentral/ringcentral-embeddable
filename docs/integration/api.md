@@ -256,7 +256,7 @@ Minimize:
 RCAdapter.setMinimized(true);
 // RCAdapter.setMinimized(false); // maximize
 ```
-> You can also disable `Minimize` feature by following [here](../config/badge.md#disable-the-widget-minimized).
+> You can also disable `Minimize` feature by following [here](../config/index.md).
 
 Hide:
 

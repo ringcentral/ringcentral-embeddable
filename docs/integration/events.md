@@ -27,7 +27,7 @@ window.addEventListener('message', (e) => {
 
 ## Dialer status event
 
-Before we use the API [to open the dialer](api.md#go-to-dial-and-start-a-call), we need to check dialer status to make sure it is ready. This event fires whenever the status of the dialer changes. 
+Before we use the API [to open the dialer](api.md#open-the-dialer-and-start-a-call), we need to check dialer status to make sure it is ready. This event fires whenever the status of the dialer changes. 
 
 ```js
 window.addEventListener('message', (e) => {
@@ -177,7 +177,7 @@ window.addEventListener('message', (e) => {
 });
 ```
 
-!!! hint "You can [modify a user's presence](api.md#set-presense) via Embeddable's API"
+!!! hint "You can [modify a user's presence](api.md#set-presence) via Embeddable's API"
 
 ## Region settings event
 
