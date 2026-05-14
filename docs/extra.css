@@ -764,8 +764,10 @@
    CTI BUILDER PAGE
    ============================================================ */
 
+.md-main__inner:has(.rc-builder)  { max-width:100% !important; padding:0 !important; margin:0 !important; }
+.md-content:has(.rc-builder)      { max-width:100% !important; }
+.md-content__inner:has(.rc-builder){ padding:0 !important; margin:0 !important; max-width:100% !important; }
 .md-content:has(.rc-builder) .md-content__button { display:none; }
-.md-content__inner:has(.rc-builder) { padding-top: 0 !important; }
 
 .rc-builder {
     font-family: "Inter Tight","Inter",-apple-system,BlinkMacSystemFont,sans-serif;

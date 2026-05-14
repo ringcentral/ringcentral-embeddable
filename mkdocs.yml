@@ -12,6 +12,7 @@ theme:
   name: material
   custom_dir: overrides
   features:
+      - announce.dismiss
       - navigation.path
 #      - navigation.sections
       - navigation.tabs
@@ -103,6 +104,7 @@ nav:
   - 'Events': integration/events.md
   - 'API': integration/api.md
   - 'Authorization': integration/authorization.md
+  - 'Embeddable 2.0': 2.x.md
   - 'Embeddable 3.0 Beta': 3.x.md
   - 'Service features':
     - 'Service registration': integration/index.md
