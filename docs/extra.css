@@ -764,7 +764,7 @@
    CTI BUILDER PAGE
    ============================================================ */
 
-.md-main__inner:has(.rc-builder)  { max-width:100% !important; padding:0 !important; margin:0 !important; }
+.md-main__inner:has(.rc-builder)  { max-width:100% !important; padding:0 !important; margin:0 !important; align-items:flex-start !important; }
 .md-content:has(.rc-builder)      { max-width:100% !important; }
 .md-content__inner:has(.rc-builder){ padding:0 !important; margin:0 !important; max-width:100% !important; }
 .md-content:has(.rc-builder) .md-content__button { display:none; }
@@ -896,7 +896,7 @@
 /* ── Preview pane ─────────────────────────────────────────── */
 .rcb-preview { flex:1; min-width:0; background:#f2f3f5; display:flex; flex-direction:column; gap:14px; padding:20px; }
 
-.rcb-preview-row { display:flex; flex-direction:row; align-items:flex-start; gap:16px; }
+.rcb-preview-row { display:flex; flex-direction:row; align-items:stretch; gap:16px; }
 
 .rcb-widget-wrap {
     background:white; border-radius:12px; border:0.5px solid rgba(0,39,85,0.10);
@@ -917,23 +917,20 @@
 }
 .rcb-code-tab-btn.active { color:#FF7A00; border-bottom-color:#FF7A00; }
 
-.rcb-code-body { padding:12px 14px; position:relative; flex:1; }
+.rcb-code-body { padding:12px 14px; position:relative; flex:1; overflow-y:auto; }
 .rcb-code-pre {
     font-size:11px; line-height:1.65; color:#3a3a5a; white-space:pre-wrap;
     word-break:break-all; margin:0; padding:10px 12px; border-radius:6px;
     background:#f6f7f9; font-family:ui-monospace,"SF Mono","Fira Code",Consolas,monospace;
 }
 .rcb-copy-btn {
-    position:absolute; top:18px; right:20px; font-size:11px; font-weight:600;
+    font-size:11px; font-weight:600;
     padding:4px 10px; background:#FF7A00; color:white; border:none;
     border-radius:4px; cursor:pointer; outline:none; transition:background .15s;
-}
-.rcb-copy-btn:hover { background:#e06900; }
-/* Inline variant — lives in the tabs bar, floats right */
-.rcb-copy-btn-inline {
-    position:static; margin-left:auto; margin-top:5px; margin-bottom:5px; margin-right:8px;
+    margin-left:auto; margin-top:5px; margin-bottom:5px; margin-right:8px;
     align-self:center;
 }
+.rcb-copy-btn:hover { background:#e06900; }
 
 .rcb-refresh-note {
     display:none;
