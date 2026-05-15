@@ -904,6 +904,7 @@
 .rcb-code-box {
     background:white; border-radius:12px; border:0.5px solid rgba(0,39,85,0.10);
     overflow:hidden; flex:1; min-width:0; display:flex; flex-direction:column;
+    height:540px; flex-shrink:0;
 }
 .rcb-code-tabs-bar { display:flex; border-bottom:0.5px solid rgba(0,39,85,0.08); padding:0 12px; flex-shrink:0; }
 .rcb-code-tab-btn {
