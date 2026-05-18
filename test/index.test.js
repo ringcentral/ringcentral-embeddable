@@ -13,7 +13,10 @@ describe('Index page test', () => {
   });
 
   it('should display "RingCentral Embeddable" text on page', async () => {
-    const title = await page.$eval('h1', (el) => el.innerText);
+    const title = await page.$eval(
+      'header.md-header nav .md-header__title .md-ellipsis',
+      (el) => el.innerText,
+    );
     expect(title).toContain('RingCentral Embeddable');
   });
 
