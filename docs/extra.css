@@ -1,7 +1,7 @@
 .md-banner {
     text-align: center;
     font-weight: bold;
-    background-color: rgb(255, 122, 0);
+    background-color: rgb(255, 122, 0)!important;
 }
 .md-banner .upgrade-button {
     display: inline-block;
@@ -9,6 +9,7 @@
     padding: 3px 10px;
     background: white;
     margin-left: 10px;
+    color: rgb(122, 36, 0)!important;
 }
 .md-banner .md-typeset a {
     color: rgb(122, 36, 0);
