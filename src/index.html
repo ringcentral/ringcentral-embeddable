@@ -1603,7 +1603,7 @@
         var rcs = document.createElement("script");
         rcs.src =
           basePath +
-          "/adapter.js?notification=1&disableGlip=false&multipleTabsSupport=1&enablePopup=1&enableRingtoneSettings=1&enableSMSTemplate=1&enableAudioInitPrompt=1&enableLoadMoreCalls=1";
+          "/adapter.js?notification=1&disableGlip=false&multipleTabsSupport=1&enablePopup=1&enableRingtoneSettings=1&enableSMSTemplate=1&enableAudioInitPrompt=1&enableLoadMoreCalls=1&enableSideWidget=1&enableVoicemailDrop=1";
 
         var rcs0 = document.getElementsByTagName("script")[0];
         rcs0.parentNode.insertBefore(rcs, rcs0);
@@ -1644,5 +1644,6 @@
       src="https://embeddable.labs.ringcentral.com/assets/javascripts/badge.js"
       async
     ></script>
+    <script src="https://cdn.labs.ringcentral.com/call-widget-contact-notes/0.1.0/index.js"></script>
   </body>
 </html>
