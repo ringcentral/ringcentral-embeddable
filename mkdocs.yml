@@ -1,6 +1,6 @@
 # Project information
 site_name: RingCentral Embeddable
-site_url: https://ringcentral.github.io/ringcentral-embeddable/docs
+site_url: https://embeddable.labs.ringcentral.com
 
 # Repository
 repo_url: https://github.com/ringcentral/ringcentral-embeddable
@@ -12,6 +12,7 @@ theme:
   name: material
   custom_dir: overrides
   features:
+      - announce.dismiss
       - navigation.path
 #      - navigation.sections
       - navigation.tabs
@@ -24,24 +25,9 @@ theme:
       - content.action.edit
       - content.action.view
       - content.code.annotate
-  palette:
-    - scheme: default
-      primary: custom
-      accent: indigo
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to dark mode
-    - scheme: slate
-      primary: black
-      accent: indigo
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to light mode
-  font:
-    text: Roboto
-    code: Roboto Mono
 
 plugins:
+  - material-ringcentral
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   - badges
@@ -67,9 +53,10 @@ extra_javascript:
 markdown_extensions:
   - attr_list
   - md_in_html
-  - mdx_include
   - admonition
   - tables
+  - pymdownx.snippets:
+      base_path: docs
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
@@ -80,11 +67,13 @@ markdown_extensions:
 copyright: "2024-2025 RingCentral, Inc. All rights reserved."
 
 nav:
-- 'Home': https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/index.html
+- 'Home': index.md
+
+- 'CTI Builder': demo.md
 
 - 'Getting started':
   - 'Registering your application': app-registration.md
-  - 'Develop and graduate your app': app-development.md
+  - 'Develop your app': app-development.md
   - 'Initialization':
      - 'Javascript vs iframes': initialization.md
      - 'Version control': versions.md
@@ -115,6 +104,7 @@ nav:
   - 'Events': integration/events.md
   - 'API': integration/api.md
   - 'Authorization': integration/authorization.md
+  - 'Embeddable 2.0': 2.x.md
   - 'Embeddable 3.0 Beta': 3.x.md
   - 'Service features':
     - 'Service registration': integration/index.md

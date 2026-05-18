@@ -123,7 +123,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 In call logger button, widget needs to know if call is logged. To provide `callLogEntityMatcherPath` when register, widget will send match request to get match result of calls history.
 
-Note: If you have [third party auth](#add-third-party-authorization-button) configured, call log entity matcher only works when `authorized` is `true`.
+Note: If you have [third party auth](third-party-auth.md#add-third-party-authorization-button) configured, call log entity matcher only works when `authorized` is `true`.
 
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({

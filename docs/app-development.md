@@ -1,7 +1,7 @@
 # Develop your application
 
-!!! info "Introducing RingCentral Embeddable 2.0"
-    Consider building your Embeddable application on the [next version of RingCentral Embeddable](2.x.md) to take full advantage of the new features and capabilities it brings. 
+!!! info "Introducing RingCentral Embeddable 3.0"
+    Consider building your Embeddable application on the [next version of RingCentral Embeddable](3.x.md) to take full advantage of the new features and capabilities it brings.
 
 Upon successfully [registering your application](app-registration.md) you will be provided with a unique client ID to identify your application on the network. Your next step will be to develop your application using this unique client ID in the RingCentral environment. 
 
@@ -36,4 +36,3 @@ To develop your application, you will need to update two of RingCentral Embeddab
         src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?clientId=your_app_client_id&appServer=https://platform.ringcentral.com">
 </iframe>
 ```
-

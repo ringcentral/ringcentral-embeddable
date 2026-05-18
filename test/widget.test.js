@@ -134,22 +134,42 @@ conditionalDescribe('widget page test', () => {
 
   it('should goto Compose Text page when click SMS link', async () => {
     await widgetIframe.waitForNavigation();
-    const smsLink = await page.$('a[href="sms:+12345678901"]');
+    await page.evaluate(() => {
+      const link = document.createElement('a');
+      link.id = '__test_sms_link__';
+      link.href = 'sms:+12345678901';
+      link.textContent = 'sms link';
+      document.body.appendChild(link);
+    });
+    const smsLink = await page.$('#__test_sms_link__');
     await smsLink.evaluate(l => l.click());
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     expect(recipientNumber).toEqual('+12345678901');
     await widgetIframe.clickBackButton();
+    await page.evaluate(() => {
+      document.getElementById('__test_sms_link__')?.remove();
+    });
   });
 
   it('should goto Compose Text page when click SMS link with body', async () => {
     await widgetIframe.waitForNavigation();
-    const smsLink = await page.$('a[href="sms:+12345678902?body=test_sms"]');
+    await page.evaluate(() => {
+      const link = document.createElement('a');
+      link.id = '__test_sms_link__';
+      link.href = 'sms:+12345678902?body=test_sms';
+      link.textContent = 'sms link with body';
+      document.body.appendChild(link);
+    });
+    const smsLink = await page.$('#__test_sms_link__');
     await smsLink.evaluate(l => l.click());
     const recipientNumber = await widgetIframe.getSMSRecipientNumber();
     const text = await widgetIframe.getSMSText();
     expect(recipientNumber).toEqual('+12345678902');
     expect(text).toEqual('test_sms');
     await widgetIframe.clickBackButton();
+    await page.evaluate(() => {
+      document.getElementById('__test_sms_link__')?.remove();
+    });
   });
 
   it('should register service successfully', async () => {
