@@ -27,13 +27,13 @@ API_SERVER=https://platform.ringcentral.com
 
 ### Start development server
 
-We assume you have pre-installed node.js >= 16 and yarn.
+We assume you have pre-installed node.js >= 20 and npm.
 
-**We recommended `yarn` instead of `npm`.** We have `yarn.lock` file in source code to lock dependence version. With `yarn`, we can install dependencies with correct version that work well with this project.
+We have a `package-lock.json` file in source code to lock dependency versions. Use `npm ci` for clean, reproducible installs that match the locked versions exactly. `npm install` also works for day-to-day development.
 
 ```bash
-$ yarn       # use yarn to install dependences
-$ yarn start # start a webpack dev server
+$ npm install      # install dependencies from package-lock.json
+$ npm start   # start a webpack dev server
 ```
 
 Open site: 'http://localhost:8080/' on browser
@@ -54,7 +54,7 @@ TEST_HEADLESS=false
 ### Run automated tests
 
 ```
-yarn test
+npm test
 ```
 
 ### Deploy on production
@@ -66,7 +66,7 @@ If you create pull request to this repo and get merged, CI will deploy it to thi
 2. Run command to compile code and build release
 
 ```
-$ HOSTING_URL=your_host_uri yarn build
+$ HOSTING_URL=your_host_uri npm run build
 ```
 
 Please replace `your_host_uri` with your own web host address, such as `https://ringcentral.github.io/ringcentral-embeddable`.
@@ -82,7 +82,7 @@ For browser extension, we can host all files in browser extension local folder i
 To build for browser extension local files:
 
 ```
-yarn build-extension
+npm run build-extension
 ```
 
 After building, we can get compiled files in this project's extension folder. Create a `embeddable` folder in your extension project. Copy all files in extension folder to your extesnion project's `embeddable` folder.
