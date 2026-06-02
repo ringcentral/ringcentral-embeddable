@@ -135,4 +135,9 @@ export class GrantExtensions extends DataFetcherV2Consumer<
   get callQueueSmsRecipients() {
     return this.grantExtensions.filter((item) => item.callQueueSmsRecipient);
   }
+
+  @computed(({ grantExtensions }: GrantExtensions) => [grantExtensions])
+  get smsRecipients() {
+    return this.grantExtensions.filter((item) => item.smsRecipient);
+  }
 }

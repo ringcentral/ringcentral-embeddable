@@ -274,7 +274,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   get hasPermission() {
     return (
       this._deps.appFeatures.hasMessageThreadsPermission &&
-      this._deps.grantExtensions.callQueueSmsRecipients.length > 0
+      this._deps.grantExtensions.smsRecipients.length > 0
     );
   }
 
