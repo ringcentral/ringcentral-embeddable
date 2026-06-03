@@ -32,6 +32,7 @@ export interface GrantExtensionRecord extends GrantExtensionRecordRaw {
   callQueueSmsRecipient: boolean;
   sharedVoicemails: boolean;
   callPickup: boolean;
+  smsRecipient: boolean;
 }
 
 export interface GrantExtensionsResponse {

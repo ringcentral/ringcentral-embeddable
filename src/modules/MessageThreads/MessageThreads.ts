@@ -310,7 +310,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
   get hasPermission() {
     return (
       this._deps.appFeatures.hasMessageThreadsPermission &&
-      this._deps.grantExtensions.callQueueSmsRecipients.length > 0
+      this._deps.grantExtensions.smsRecipients.length > 0
     );
   }
 
@@ -345,10 +345,9 @@ export class MessageThreads extends DataFetcherV2Consumer<
   }
 
   async getSMSRecipients(threadOwner: MessageThread['owner']): Promise<SMSRecipient[]> {
-    const extensionType = threadOwner.extensionType === 'Department' ? 'call-queues' : 'extension';
     const response = await this._deps.client.service
       .platform()
-      .get(`/restapi/v1.0/account/~/${extensionType}/${threadOwner.extensionId}/sms-recipients`);
+      .get(`/restapi/v1.0/account/~/extension/${threadOwner.extensionId}/sms-recipients`);
     const result = await response.json();
     return result.smsRecipients;
   }
