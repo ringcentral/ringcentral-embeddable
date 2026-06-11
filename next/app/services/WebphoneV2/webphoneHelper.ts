@@ -4,10 +4,10 @@ import type {
   PartyData,
 } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
 import camelCase from 'lodash/camelCase';
-import RequestMessage from 'ringcentral-web-phone/sip-message/outbound/request';
-import callControlCommands from 'ringcentral-web-phone/rc-message/call-control-commands';
-import RcMessage from 'ringcentral-web-phone/rc-message/rc-message';
-import type InboundMessage from 'ringcentral-web-phone/sip-message/inbound';
+import RequestMessage from 'ringcentral-web-phone-v2/sip-message/outbound/request';
+import callControlCommands from 'ringcentral-web-phone-v2/rc-message/call-control-commands';
+import RcMessage from 'ringcentral-web-phone-v2/rc-message/rc-message';
+import type InboundMessage from 'ringcentral-web-phone-v2/sip-message/inbound';
 
 import type {
   IncomingRequest,

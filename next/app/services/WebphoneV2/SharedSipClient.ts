@@ -1,10 +1,10 @@
 import type { PortManager } from '@ringcentral-integration/next-core';
-import EventEmitter from 'ringcentral-web-phone/event-emitter';
-import InboundMessage from 'ringcentral-web-phone/sip-message/inbound';
-import OutboundMessage from 'ringcentral-web-phone/sip-message/outbound/index';
-import type RequestMessage from 'ringcentral-web-phone/sip-message/outbound/request';
-import type ResponseMessage from 'ringcentral-web-phone/sip-message/outbound/response';
-import type { SipClient, SipInfo } from 'ringcentral-web-phone/types';
+import EventEmitter from 'ringcentral-web-phone-v2/event-emitter';
+import InboundMessage from 'ringcentral-web-phone-v2/sip-message/inbound';
+import OutboundMessage from 'ringcentral-web-phone-v2/sip-message/outbound/index';
+import type RequestMessage from 'ringcentral-web-phone-v2/sip-message/outbound/request';
+import type ResponseMessage from 'ringcentral-web-phone-v2/sip-message/outbound/response';
+import type { SipClient, SipInfo } from 'ringcentral-web-phone-v2/types';
 
 import type {
   SharedSipClientStartOptions,

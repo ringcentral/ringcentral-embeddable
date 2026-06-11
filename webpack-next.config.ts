@@ -1,6 +1,6 @@
 import path from 'path';
 import type { WebpackConfigOptions } from '@ringcentral-integration/next-builder';
-import { DefinePlugin, type RuleSetRule } from 'webpack';
+import { DefinePlugin, NormalModuleReplacementPlugin, type RuleSetRule } from 'webpack';
 import { getBaseWebpackConfig, merge } from './next/lib/webpack/builder.webpack';
 import type { AppConfig } from './next/config';
 
@@ -148,14 +148,10 @@ export const getWebpackConfig = (options: WebpackConfigOptions<AppConfig>) => {
           __dirname,
           './node_modules/@ringcentral/juno-icon/es6',
         ),
-        'ringcentral-web-phone/lib/audioHelper$': path.resolve(
-          __dirname,
-          './next/app/services/WebphoneV2/AudioHelper.ts',
-        ),
-        'ringcentral-web-phone$': path.resolve(
-          __dirname,
-          './node_modules/ringcentral-web-phone/dist/esm/index.js',
-        ),
+        // Note: the project's own webphone code imports `ringcentral-web-phone-v2`
+        // (npm alias -> ringcentral-web-phone@^2.4.3), while the legacy
+        // `@ringcentral-integration/*` packages keep using the real
+        // `ringcentral-web-phone@0.8.x`. Both resolve natively, so no alias is needed.
       },
     },
   });

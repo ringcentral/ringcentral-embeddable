@@ -1,19 +1,19 @@
 // Run in SharedWorker
 
-import EventEmitter from "ringcentral-web-phone/event-emitter";
-import RcMessage from "ringcentral-web-phone/rc-message/rc-message";
-import InboundMessage from "ringcentral-web-phone/sip-message/inbound";
-import OutboundMessage from "ringcentral-web-phone/sip-message/outbound/index";
-import RequestMessage from "ringcentral-web-phone/sip-message/outbound/request";
-import ResponseMessage from "ringcentral-web-phone/sip-message/outbound/response";
-import type { SipClient, SipClientOptions, SipInfo } from "ringcentral-web-phone/types";
+import EventEmitter from "ringcentral-web-phone-v2/event-emitter";
+import RcMessage from "ringcentral-web-phone-v2/rc-message/rc-message";
+import InboundMessage from "ringcentral-web-phone-v2/sip-message/inbound";
+import OutboundMessage from "ringcentral-web-phone-v2/sip-message/outbound/index";
+import RequestMessage from "ringcentral-web-phone-v2/sip-message/outbound/request";
+import ResponseMessage from "ringcentral-web-phone-v2/sip-message/outbound/response";
+import type { SipClient, SipClientOptions, SipInfo } from "ringcentral-web-phone-v2/types";
 import {
   branch,
   fakeDomain,
   fakeEmail,
   generateAuthorization,
   uuid,
-} from "ringcentral-web-phone/utils";
+} from "ringcentral-web-phone-v2/utils";
 import { Logger } from "./logger";
 
 const maxExpires = 60;

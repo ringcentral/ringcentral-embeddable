@@ -1,7 +1,7 @@
 import type { NormalizedSession } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
-import type InboundCallSession from 'ringcentral-web-phone/call-session/inbound';
-import type OutboundCallSession from 'ringcentral-web-phone/call-session/outbound';
-import type { SipClientOptions, SipInfo, WebPhoneOptions } from 'ringcentral-web-phone/types';
+import type InboundCallSession from 'ringcentral-web-phone-v2/call-session/inbound';
+import type OutboundCallSession from 'ringcentral-web-phone-v2/call-session/outbound';
+import type { SipClientOptions, SipInfo, WebPhoneOptions } from 'ringcentral-web-phone-v2/types';
 
 /**
  * Webphone Options

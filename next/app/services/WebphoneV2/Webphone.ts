@@ -41,7 +41,7 @@ import {
 } from '@ringcentral-integration/next-core';
 import { sleep } from '@ringcentral-integration/utils';
 import { find } from 'ramda';
-import type InboundMessage from 'ringcentral-web-phone/sip-message/inbound';
+import type InboundMessage from 'ringcentral-web-phone-v2/sip-message/inbound';
 import {
   filter,
   firstValueFrom,

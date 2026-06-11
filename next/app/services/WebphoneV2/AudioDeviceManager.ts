@@ -1,4 +1,4 @@
-import type { DeviceManager } from 'ringcentral-web-phone/types';
+import type { DeviceManager } from 'ringcentral-web-phone-v2/types';
 
 import type { AudioSettings } from '@ringcentral-integration/micro-phone/src/app/services/AudioSettings';
 

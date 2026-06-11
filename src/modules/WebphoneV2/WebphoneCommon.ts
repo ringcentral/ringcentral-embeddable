@@ -50,7 +50,7 @@ import {
 import { EVENTS } from './events';
 import type { WebphoneSession } from './Webphone.interface';
 import { WebphoneBase } from './WebphoneBase';
-import type InboundMessage from 'ringcentral-web-phone/dist/esm/sip-message/inbound';
+import type InboundMessage from 'ringcentral-web-phone-v2/sip-message/inbound';
 
 type InviteOptions = {
   extraHeaders?: Record<string, string>;

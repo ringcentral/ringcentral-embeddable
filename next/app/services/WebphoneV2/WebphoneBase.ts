@@ -39,10 +39,10 @@ import {
 } from '@ringcentral-integration/next-core';
 import { sleep } from '@ringcentral-integration/utils';
 import { EventEmitter } from 'events';
-import RingCentralWebphone from 'ringcentral-web-phone';
-import type { SipInfo } from 'ringcentral-web-phone/types';
-import type InboundMessage from 'ringcentral-web-phone/sip-message/inbound';
-import ResponseMessage from 'ringcentral-web-phone/sip-message/outbound/response';
+import RingCentralWebphone from 'ringcentral-web-phone-v2';
+import type { SipInfo } from 'ringcentral-web-phone-v2/types';
+import type InboundMessage from 'ringcentral-web-phone-v2/sip-message/inbound';
+import ResponseMessage from 'ringcentral-web-phone-v2/sip-message/outbound/response';
 import {
   BehaviorSubject,
   combineLatest,

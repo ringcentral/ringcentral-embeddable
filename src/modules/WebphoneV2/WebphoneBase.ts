@@ -1,13 +1,13 @@
 import { EventEmitter } from 'events';
 import type PhoneLinesInfo from 'ringcentral-client/build/definitions/PhoneLinesInfo';
-import RingCentralWebphone from 'ringcentral-web-phone';
-import type { SipInfo } from 'ringcentral-web-phone/dist/esm/types';
-import type InboundMessage from 'ringcentral-web-phone/dist/esm/sip-message/inbound';
-import type InboundCallSession from 'ringcentral-web-phone/dist/esm/call-session/inbound';
-import type OutboundCallSession from 'ringcentral-web-phone/dist/esm/call-session/outbound';
+import RingCentralWebphone from 'ringcentral-web-phone-v2';
+import type { SipInfo } from 'ringcentral-web-phone-v2/types';
+import type InboundMessage from 'ringcentral-web-phone-v2/sip-message/inbound';
+import type InboundCallSession from 'ringcentral-web-phone-v2/call-session/inbound';
+import type OutboundCallSession from 'ringcentral-web-phone-v2/call-session/outbound';
 import type CreateSipRegistrationResponse from '@rc-ex/core/lib/definitions/CreateSipRegistrationResponse';
 import type SipRegistrationDeviceInfo from '@rc-ex/core/lib/definitions/SipRegistrationDeviceInfo';
-import ResponseMessage from 'ringcentral-web-phone/sip-message/outbound/response';
+import ResponseMessage from 'ringcentral-web-phone-v2/sip-message/outbound/response';
 
 import {
   action,
