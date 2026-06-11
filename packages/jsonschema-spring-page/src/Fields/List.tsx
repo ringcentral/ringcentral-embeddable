@@ -64,6 +64,46 @@ const iconMap: Record<string, React.ComponentType> = {
   warning: AlertMd,
 };
 
+type ListAvatarItem = {
+  authorAvatar?: string;
+  authorName?: string;
+  icon?: string;
+  title?: string;
+};
+
+type RowAvatarProps = {
+  item: ListAvatarItem;
+  showIconAsAvatar: boolean;
+};
+
+const imageSourcePattern = /^(https?:|data:|blob:)|^\.{0,2}\/|\.(?:svg|png|jpe?g|gif|webp)(?:[?#].*)?$/i;
+
+function hasImageSource(source: string | undefined): boolean {
+  return !!source && imageSourcePattern.test(source);
+}
+
+function hasAvatar(item: ListAvatarItem): boolean {
+  return !!(item.icon || item.authorAvatar || item.authorName);
+}
+
+function getAvatarSource(item: ListAvatarItem): string | undefined {
+  if (!item.icon) {
+    return item.authorAvatar;
+  }
+  return hasImageSource(item.icon) ? item.icon : undefined;
+}
+
+function getAvatarSymbol(item: ListAvatarItem): React.ComponentType | undefined {
+  if (!item.icon || hasImageSource(item.icon)) {
+    return undefined;
+  }
+  return iconMap[item.icon] || iconMap.info;
+}
+
+function getAvatarAlt(item: ListAvatarItem): string {
+  return item.authorName || item.title || '';
+}
+
 function getInitials(name: string | undefined): string {
   if (!name) {
     return '';
@@ -74,6 +114,26 @@ function getInitials(name: string | undefined): string {
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join('');
+}
+
+function RowAvatar({ item, showIconAsAvatar }: RowAvatarProps) {
+  if (!hasAvatar(item)) {
+    return null;
+  }
+  const avatarSymbol = getAvatarSymbol(item);
+  return (
+    <span className="mr-3 flex shrink-0 items-center">
+      <Avatar
+        size="medium"
+        src={getAvatarSource(item)}
+        alt={getAvatarAlt(item)}
+        symbol={avatarSymbol}
+        variant={showIconAsAvatar ? 'circle' : 'squircle'}
+      >
+        {avatarSymbol ? undefined : getInitials(item.authorName || item.title)}
+      </Avatar>
+    </span>
+  );
 }
 
 function getActionMenuItems(actions: any[], onClickAction: (action: any) => void): ActionMenuItem[] {
@@ -148,23 +208,15 @@ function RowItem({
   return (
     <ListItem
       selected={!readOnly && selected}
-      clickable={!readOnly}
-      hoverable={!readOnly}
-      disabled={disabled}
-      onClick={readOnly ? undefined : onClick}
+      clickable={!readOnly && !disabled}
+      hoverable={!readOnly && !disabled}
+      aria-disabled={disabled || undefined}
+      onClick={readOnly || disabled ? undefined : onClick}
       hoverActions={hoverActions}
       alwaysShowHoverActions={alwaysShowActions}
       divider
     >
-      {item.icon ? (
-        <Avatar
-          size="xsmall"
-          src={item.icon || item.authorAvatar}
-          alt={item.authorName}
-          variant={showIconAsAvatar ? 'circle' : 'squircle'}
-          style={{ marginRight: 12 }}
-        />
-      ) : null}
+      <RowAvatar item={item} showIconAsAvatar={showIconAsAvatar} />
       <ListItemText
         primary={<TextWithMarkdown text={item.title} />}
         secondary={

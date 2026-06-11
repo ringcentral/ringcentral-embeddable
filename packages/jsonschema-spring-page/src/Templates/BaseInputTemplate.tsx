@@ -11,6 +11,36 @@ import {
 } from '@rjsf/utils';
 import React, { ChangeEvent, FocusEvent } from 'react';
 
+type SpringTextFieldType = NonNullable<TextFieldProps['type']>;
+
+const springTextFieldTypes: SpringTextFieldType[] = [
+  'email',
+  'number',
+  'password',
+  'search',
+  'tel',
+  'text',
+  'url',
+];
+
+function getDefaultInputType(
+  schema: RJSFSchema,
+  type: string | undefined,
+): string | undefined {
+  const isNumericSchema = schema.type === 'number' || schema.type === 'integer';
+  if (isNumericSchema && type === 'text') {
+    return undefined;
+  }
+  return type;
+}
+
+function getTextFieldType(type: string | undefined): SpringTextFieldType {
+  if (springTextFieldTypes.includes(type as SpringTextFieldType)) {
+    return type as SpringTextFieldType;
+  }
+  return 'text';
+}
+
 export default function BaseInputTemplate<
   T = any,
   S extends StrictRJSFSchema = RJSFSchema,
@@ -42,9 +72,12 @@ export default function BaseInputTemplate<
     InputLabelProps,
     ...textFieldProps
   } = props;
-  const inputType = type || 'text';
-  const inputProps = getInputProps<T, S, F>(schema, type, options);
-  const { step, min, max, ...rest } = inputProps;
+  const inputProps = getInputProps<T, S, F>(
+    schema,
+    getDefaultInputType(schema, type),
+    options,
+  );
+  const { step, min, max, type: inputType, ...rest } = inputProps;
   const errorMessage = rawErrors.length > 0 ? rawErrors[0] : undefined;
   const handleChange = ({ target: { value: inputValue } }: ChangeEvent<HTMLInputElement>) => {
     onChange(inputValue);
@@ -81,7 +114,7 @@ export default function BaseInputTemplate<
         onBlur={handleBlur}
         onFocus={handleFocus}
         {...(textFieldProps as TextFieldProps)}
-        type={inputType}
+        type={getTextFieldType(inputType)}
         aria-describedby={ariaDescribedByIds<T>(id, !!schema.examples)}
       />
       {Array.isArray(schema.examples) ? (
