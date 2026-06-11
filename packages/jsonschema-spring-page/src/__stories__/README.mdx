@@ -1,0 +1,167 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="README" />
+
+# RingCentral Embeddable - JSONSchemaSpringPage
+
+A powerful React component library that renders dynamic forms based on JSON Schema definitions. Built on top of [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form) and styled with RingCentral Spring UI components.
+
+---
+
+## 🚀 Quick Navigation
+
+Find exactly what you need:
+
+### **📖 New to JSONSchemaSpringPage?**
+➡️ **[Complete Documentation & Tutorial](/docs/jsonschemaspringpage-documentation--docs)**
+- Installation guide, basic usage, and comprehensive examples
+- Learn JSON Schema fundamentals and UI Schema customization
+
+### **🔤 Need Form Inputs?**
+➡️ **[Form Input Widgets](/story/jsonschemaspringpage-form-input-widgets--text-input-widget)**
+- Text fields, numbers, dropdowns, checkboxes, file uploads
+- All the input controls users type/select in
+
+### **📄 Need Content Display?** 
+➡️ **[Display Components](/story/jsonschemaspringpage-display-components--typography-fields)**
+- Typography, alerts, links, static content
+- Components that show information to users
+
+### **🎯 Need User Actions?**
+➡️ **[Interactive Components](/story/jsonschemaspringpage-interactive-components--button-fields)**  
+- Buttons, selection lists, search fields
+- Components users click and interact with
+
+### **📋 Need Complete Examples?**
+➡️ **[Complete Form Examples](/story/jsonschemaspringpage-complete-form-examples--contact-form)**
+- Real-world forms, validation patterns, complex workflows
+- Full implementation examples
+
+---
+
+## 📊 Quick Reference
+
+| **I want to...** | **Go to** | **Example** |
+|-------------------|-----------|-------------|
+| Learn the basics | [Documentation](/docs/jsonschemaspringpage-documentation--docs) | Installation, basic usage |
+| Add a text input | [Text Input Widget](/story/jsonschemaspringpage-form-input-widgets--text-input-widget) | `{ type: 'string', title: 'Name' }` |
+| Add scheduling fields | [Scheduling Input Widgets](/story/jsonschemaspringpage-form-input-widgets--scheduling-input-widgets) | `{ type: 'string', format: 'duration' }` |
+| Add a dropdown | [Select Widget](/story/jsonschemaspringpage-form-input-widgets--select-widget) | `{ enum: ['option1', 'option2'] }` |
+| Add a button | [Button Fields](/story/jsonschemaspringpage-interactive-components--button-fields) | `{ 'ui:field': 'button' }` |
+| Show an alert | [Alert Fields](/story/jsonschemaspringpage-display-components--alert-fields) | `{ 'ui:field': 'alert' }` |
+| Build a contact form | [Contact Form](/story/jsonschemaspringpage-complete-form-examples--contact-form) | Complete working example |
+| Handle file uploads | [File Upload](/story/jsonschemaspringpage-form-input-widgets--file-upload-widget) | `{ type: 'string', format: 'data-url' }` |
+
+---
+
+## ⚡ Quick Start
+
+```tsx
+import '@ringcentral/spring-ui/index.css';
+import { JSONSchemaPage } from '@ringcentral-integration/jsonschema-spring-page';
+import { suiLight, ThemeProvider } from '@ringcentral/spring-theme';
+import { useState } from 'react';
+
+function MyForm() {
+  const [formData, setFormData] = useState({});
+
+  const schema = {
+    title: 'Contact Form',
+    type: 'object',
+    properties: {
+      name: { type: 'string', title: 'Full Name' },
+      email: { type: 'string', format: 'email', title: 'Email' }
+    },
+    required: ['name', 'email']
+  };
+
+  return (
+    <ThemeProvider theme={suiLight}>
+      <JSONSchemaPage
+        schema={schema}
+        formData={formData}
+        onFormDataChange={setFormData}
+        onSubmit={(data) => console.log('Submitted:', data.formData)}
+      />
+    </ThemeProvider>
+  );
+}
+```
+
+---
+
+## 💡 How to Use These Stories
+
+1. **📋 Copy JSON Configuration** - Each story shows the exact `schema`, `uiSchema`, and `formData`
+2. **👁️ Side-by-Side View** - See your JSON config alongside the rendered component 
+3. **🎮 Interactive Examples** - Click, type, and interact to see real behavior
+4. **📊 Live Updates** - Watch form data change in real-time as you interact
+
+## 🎛️ Interactive JSON Controls
+
+**Want to experiment with different configurations?** Every story supports live JSON editing:
+
+1. **Open the Controls panel** at the bottom of Storybook
+2. **Edit the JSON parameters** (schema, uiSchema, formData) directly
+3. **Watch the form update** in real-time as you change the JSON
+4. **Check the Actions panel** to see event logs (form changes, submissions, button clicks)
+
+### Try These Interactive Features:
+
+- **📝 Edit Schema Properties**: Add/remove fields, change types, add validation rules
+- **🎨 Modify UI Schema**: Change widgets, add placeholders, customize appearance  
+- **📊 Update Form Data**: Set initial values, test different data states
+- **👀 Monitor Events**: Watch form interactions in the Actions panel
+- **📋 Copy JSON**: Use the displayed JSON configuration in your own projects
+
+This makes it easy to prototype and test different form configurations without writing code!
+
+---
+
+## 🛠️ Installation
+
+```bash
+npm install @ringcentral-integration/jsonschema-spring-page
+```
+
+**Peer Dependencies:**
+```bash
+npm install @ringcentral/spring-ui @ringcentral/spring-icon @ringcentral/spring-theme react
+```
+
+---
+
+## ✨ Key Features
+
+- **🎨 Beautiful UI** - Styled with RingCentral Spring UI design system
+- **📱 Responsive** - Works on desktop and mobile
+- **🔧 Highly Customizable** - Extensive UI Schema options
+- **✅ Built-in Validation** - JSON Schema validation + custom rules
+- **🎯 Interactive Elements** - Buttons, search, custom fields
+- **📊 Dynamic Forms** - Conditional fields and arrays
+- **♿ Accessible** - WCAG compliant components
+- **⚡ Performance Optimized** - Handles large forms efficiently
+
+---
+
+## 🎯 Common Use Cases
+
+- **Configuration Forms** - App settings and preferences
+- **Data Entry** - Complex data collection
+- **Survey Forms** - Dynamic questionnaires  
+- **Admin Panels** - Management interfaces
+- **User Profiles** - Registration and profiles
+- **Multi-step Wizards** - Complex workflows
+
+---
+
+## 🔗 Useful Links
+
+- **[Complete Documentation](/docs/jsonschemaspringpage-documentation--docs)** - Learn everything
+- **[GitHub Repository](https://github.com/ringcentral/ringcentral-embeddable)** - Source code
+- **[JSON Schema Spec](https://json-schema.org/)** - Official specification
+- **[React JSON Schema Form](https://github.com/rjsf-team/react-jsonschema-form)** - Base library
+
+---
+
+**Ready to build amazing forms?** Start with the [Documentation](/docs/jsonschemaspringpage-documentation--docs) or explore the examples above! 🚀
