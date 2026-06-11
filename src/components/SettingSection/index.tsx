@@ -104,6 +104,7 @@ export function SettingSection({
 }) {
   const [newSection, setNewSection] = useState(section ? JSON.parse(JSON.stringify(section)) : null);
   const [valueChanged, setValueChanged] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!section || !section.items) {
@@ -161,10 +162,16 @@ export function SettingSection({
           })
         }
         <StyledButton
-          onClick={() => {
-            onSave(newSection);
+          onClick={async () => {
+            setIsSaving(true);
+            try {
+              await onSave(newSection);
+            } finally {
+              setIsSaving(false);
+            }
           }}
-          disabled={!valueChanged || !allRequiredFilled(newSection.items)}
+          disabled={isSaving || !valueChanged || !allRequiredFilled(newSection.items)}
+          loading={isSaving}
         />
       </StyledPanel>
     </BackHeaderView>
