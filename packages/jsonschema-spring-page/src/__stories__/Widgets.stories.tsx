@@ -1030,6 +1030,15 @@ export const CheckboxWidget: Story = {
       },
     },
     uiSchema: {
+      agreeToTerms: {
+        'ui:widget': 'booleanCheckbox',
+      },
+      enableNotifications: {
+        'ui:widget': 'booleanCheckbox',
+      },
+      subscribeNewsletter: {
+        'ui:widget': 'booleanCheckbox',
+      },
       features: {
         'ui:widget': 'checkboxes',
         'ui:options': {
@@ -1039,6 +1048,17 @@ export const CheckboxWidget: Story = {
             { value: 'feature3', label: 'Custom Themes' },
             { value: 'feature4', label: 'API Access' },
           ],
+        },
+      },
+      preferences: {
+        darkMode: {
+          'ui:widget': 'booleanCheckbox',
+        },
+        autoSave: {
+          'ui:widget': 'booleanCheckbox',
+        },
+        showTips: {
+          'ui:widget': 'booleanCheckbox',
         },
       },
     },

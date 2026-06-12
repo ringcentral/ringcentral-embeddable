@@ -131,6 +131,44 @@ describe('jsonschema-spring-page BaseInputTemplate', () => {
     expect(html).toContain('value="12.5"');
   });
 
+  it('preserves date input type for date widgets', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(
+        BaseInputTemplate,
+        createBaseInputProps({
+          schema: {
+            format: 'date',
+            type: 'string',
+          },
+          type: 'date',
+          value: '2026-04-15',
+        }),
+      ),
+    );
+    expect(html).toContain('type="date"');
+    expect(html).toContain('value="2026-04-15"');
+    expect(html).not.toContain('type="text"');
+  });
+
+  it('preserves datetime-local input type for datetime widgets', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(
+        BaseInputTemplate,
+        createBaseInputProps({
+          schema: {
+            format: 'date-time',
+            type: 'string',
+          },
+          type: 'datetime-local',
+          value: '2026-04-15T09:30',
+        }),
+      ),
+    );
+    expect(html).toContain('type="datetime-local"');
+    expect(html).toContain('value="2026-04-15T09:30"');
+    expect(html).not.toContain('type="text"');
+  });
+
   it('uses Spring UI TextField helper text for field errors', () => {
     const html = renderToStaticMarkup(
       React.createElement(

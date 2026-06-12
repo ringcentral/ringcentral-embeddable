@@ -12,6 +12,8 @@ import BaseInputTemplate from './BaseInputTemplate';
 import DescriptionField from './DescriptionField';
 import ErrorListTemplate from './ErrorListTemplate';
 import FieldErrorTemplate from './FieldErrorTemplate';
+import FieldHelpTemplate from './FieldHelpTemplate';
+import FieldTemplate from './FieldTemplate';
 import ObjectFieldTemplate from './ObjectFieldTemplate';
 import TitleField from './TitleField';
 
@@ -23,6 +25,8 @@ export const templates = {
   DescriptionFieldTemplate: DescriptionField,
   ErrorListTemplate,
   FieldErrorTemplate,
+  FieldHelpTemplate,
+  FieldTemplate,
   ObjectFieldTemplate,
   TitleFieldTemplate: TitleField,
 } as Partial<TemplatesType<any, RJSFSchema, FormContextType>>;
@@ -40,6 +44,8 @@ export function generateJSONSchemaSpringPageTemplates<
     DescriptionFieldTemplate: DescriptionField,
     ErrorListTemplate,
     FieldErrorTemplate,
+    FieldHelpTemplate,
+    FieldTemplate,
     ObjectFieldTemplate,
     TitleFieldTemplate: TitleField,
   };

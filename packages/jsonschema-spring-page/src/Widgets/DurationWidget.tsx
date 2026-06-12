@@ -8,7 +8,6 @@ import {
   WidgetProps,
 } from '@rjsf/utils';
 import {
-  Block,
   FormLabel,
   Text,
   TextField,
@@ -113,43 +112,50 @@ export default function DurationWidget<
   };
   return (
     <>
-      {labelValue(<FormLabel required={required} htmlFor={`${id}__hours`}>{label || undefined}</FormLabel>, hideLabel)}
-      <Block row style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-        <TextField
-          id={`${id}__hours`}
-          type="number"
-          value={hours}
-          placeholder="0"
-          disabled={isDisabled}
-          required={required}
-          error={rawErrors.length > 0}
-          onChange={({ target: { value: nextHours } }) => emitChange(nextHours, minutes)}
-          onBlur={({ target: { value: nextHours } }) => emitBlur(nextHours, minutes)}
-          onFocus={({ target: { value: nextHours } }) => emitFocus(nextHours, minutes)}
-          inputProps={{ min: 0, step: 1, 'aria-label': hoursLabel }}
-          endAdornment={<Text className="typography-descriptor">{hoursUnitLabel}</Text>}
-          aria-describedby={describedBy}
-          clearBtn={false}
-          style={{ width: 'calc(50% - 6px)' }}
-        />
-        <TextField
-          id={`${id}__minutes`}
-          type="number"
-          value={minutes}
-          placeholder="0"
-          disabled={isDisabled}
-          required={required}
-          clearBtn={false}
-          error={rawErrors.length > 0}
-          onChange={({ target: { value: nextMinutes } }) => emitChange(hours, nextMinutes)}
-          onBlur={({ target: { value: nextMinutes } }) => emitBlur(hours, nextMinutes)}
-          onFocus={({ target: { value: nextMinutes } }) => emitFocus(hours, nextMinutes)}
-          inputProps={{ min: 0, step: minuteStep, 'aria-label': minutesLabel }}
-          endAdornment={<Text className="typography-descriptor">{minutesUnitLabel}</Text>}
-          aria-describedby={describedBy}
-          style={{ width: 'calc(50% - 6px)' }}
-        />
-      </Block>
+      {labelValue(
+        <FormLabel htmlFor={`${id}__hours`} label={label || undefined} />,
+        hideLabel,
+      )}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+        <span style={{ flex: '1 1 140px', minWidth: 0 }}>
+          <TextField
+            id={`${id}__hours`}
+            type="number"
+            value={hours}
+            placeholder="0"
+            fullWidth
+            disabled={isDisabled}
+            required={required}
+            error={rawErrors.length > 0}
+            onChange={({ target: { value: nextHours } }) => emitChange(nextHours, minutes)}
+            onBlur={({ target: { value: nextHours } }) => emitBlur(nextHours, minutes)}
+            onFocus={({ target: { value: nextHours } }) => emitFocus(nextHours, minutes)}
+            inputProps={{ min: 0, step: 1, 'aria-label': hoursLabel }}
+            endAdornment={<Text className="typography-descriptor">{hoursUnitLabel}</Text>}
+            aria-describedby={describedBy}
+            clearBtn={false}
+          />
+        </span>
+        <span style={{ flex: '1 1 140px', minWidth: 0 }}>
+          <TextField
+            id={`${id}__minutes`}
+            type="number"
+            value={minutes}
+            placeholder="0"
+            fullWidth
+            disabled={isDisabled}
+            required={required}
+            clearBtn={false}
+            error={rawErrors.length > 0}
+            onChange={({ target: { value: nextMinutes } }) => emitChange(hours, nextMinutes)}
+            onBlur={({ target: { value: nextMinutes } }) => emitBlur(hours, nextMinutes)}
+            onFocus={({ target: { value: nextMinutes } }) => emitFocus(hours, nextMinutes)}
+            inputProps={{ min: 0, step: minuteStep, 'aria-label': minutesLabel }}
+            endAdornment={<Text className="typography-descriptor">{minutesUnitLabel}</Text>}
+            aria-describedby={describedBy}
+          />
+        </span>
+      </div>
     </>
   );
 }

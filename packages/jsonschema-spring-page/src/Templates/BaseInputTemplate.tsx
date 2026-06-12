@@ -12,14 +12,18 @@ import {
 import React, { ChangeEvent, FocusEvent } from 'react';
 
 type SpringTextFieldType = NonNullable<TextFieldProps['type']>;
+type NativeTextFieldType = SpringTextFieldType | 'date' | 'datetime-local' | 'time';
 
-const springTextFieldTypes: SpringTextFieldType[] = [
+const nativeTextFieldTypes: NativeTextFieldType[] = [
+  'date',
+  'datetime-local',
   'email',
   'number',
   'password',
   'search',
   'tel',
   'text',
+  'time',
   'url',
 ];
 
@@ -34,9 +38,9 @@ function getDefaultInputType(
   return type;
 }
 
-function getTextFieldType(type: string | undefined): SpringTextFieldType {
-  if (springTextFieldTypes.includes(type as SpringTextFieldType)) {
-    return type as SpringTextFieldType;
+function getTextFieldType(type: string | undefined): NativeTextFieldType {
+  if (nativeTextFieldTypes.includes(type as NativeTextFieldType)) {
+    return type as NativeTextFieldType;
   }
   return 'text';
 }
@@ -114,7 +118,7 @@ export default function BaseInputTemplate<
         onBlur={handleBlur}
         onFocus={handleFocus}
         {...(textFieldProps as TextFieldProps)}
-        type={getTextFieldType(inputType)}
+        type={getTextFieldType(inputType) as SpringTextFieldType}
         aria-describedby={ariaDescribedByIds<T>(id, !!schema.examples)}
       />
       {Array.isArray(schema.examples) ? (
