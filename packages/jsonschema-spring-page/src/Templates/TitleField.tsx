@@ -43,7 +43,7 @@ export default function TitleField<
           className={extended ? 'typography-subtitle' : 'typography-mainText'}
           component="div"
           style={{
-            color: isDisabled ? 'var(--neutral-b3, #9e9fa4)' : undefined,
+            color: isDisabled ? 'var(--sui-colors-neutral-b3)' : undefined,
             flex: 1,
           }}
         >

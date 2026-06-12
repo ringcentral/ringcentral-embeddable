@@ -21,6 +21,7 @@ const colorMap: Record<string, ButtonProps['color']> = {
   'success.b03': 'success',
   'success.b04': 'success',
   'action.primary': 'primary',
+  'interactive.f01': 'primary',
   'interactive.b04': 'primary',
   'neutral.f06': 'neutral',
   'neutral.f05': 'neutral',
@@ -50,9 +51,44 @@ const iconButtonColorMap: Record<string, IconButtonProps['color']> = {
   'success.b03': 'success',
   'success.b04': 'success',
   'action.primary': 'primary',
+  'interactive.f01': 'primary',
   'neutral.f06': 'neutral',
   'neutral.f05': 'neutral',
   'neutral.f04': 'neutral',
+};
+
+const textColorMap: Record<string, string> = {
+  'action.primary': 'var(--sui-colors-primary-f)',
+  danger: 'var(--sui-colors-danger)',
+  'danger.b03': 'var(--sui-colors-danger)',
+  'danger.b04': 'var(--sui-colors-danger)',
+  'danger.f01': 'var(--sui-colors-danger)',
+  'danger.f02': 'var(--sui-colors-danger-f)',
+  disabled: 'var(--sui-colors-neutral-b3)',
+  'disabled.f01': 'var(--sui-colors-neutral-b3)',
+  'disabled.f02': 'var(--sui-colors-neutral-b3)',
+  error: 'var(--sui-colors-danger)',
+  info: 'var(--sui-colors-primary-f)',
+  'interactive.f01': 'var(--sui-colors-primary-f)',
+  'interactive.b04': 'var(--sui-colors-primary-f)',
+  neutral: 'var(--sui-colors-neutral-b2)',
+  'neutral.f03': 'var(--sui-colors-neutral-b3)',
+  'neutral.f04': 'var(--sui-colors-neutral-b2)',
+  'neutral.f05': 'var(--sui-colors-neutral-b1)',
+  'neutral.f06': 'var(--sui-colors-neutral-b0)',
+  primary: 'var(--sui-colors-primary-f)',
+  'primary.f01': 'var(--sui-colors-primary-f)',
+  'primary.f02': 'var(--sui-colors-primary-f-high-contrast)',
+  success: 'var(--sui-colors-success)',
+  'success.b03': 'var(--sui-colors-success)',
+  'success.b04': 'var(--sui-colors-success)',
+  'success.f01': 'var(--sui-colors-success)',
+  'success.f02': 'var(--sui-colors-success-f)',
+  warning: 'var(--sui-colors-warning)',
+  'warning.b03': 'var(--sui-colors-warning)',
+  'warning.b04': 'var(--sui-colors-warning)',
+  'warning.f01': 'var(--sui-colors-warning)',
+  'warning.f02': 'var(--sui-colors-warning-f)',
 };
 
 export function getButtonColor(
@@ -191,17 +227,13 @@ export function getTypographyComponent(
   return typographyComponentMap[normalizedVariant] ?? 'p';
 }
 
-export function getDescriptionColor(color: string | undefined): string | undefined {
-  switch (color) {
-    case 'error':
-      return 'var(--danger, #ea1a1a)';
-    case 'success':
-      return 'var(--success, #16a937)';
-    case 'warning':
-      return 'var(--warning, #ff6600)';
-    case 'info':
-      return 'var(--primary-b, #066fac)';
-    default:
-      return color;
+export function getTextColor(color: string | undefined): string | undefined {
+  if (!color) {
+    return undefined;
   }
+  return textColorMap[color] ?? color;
+}
+
+export function getDescriptionColor(color: string | undefined): string | undefined {
+  return getTextColor(color);
 }

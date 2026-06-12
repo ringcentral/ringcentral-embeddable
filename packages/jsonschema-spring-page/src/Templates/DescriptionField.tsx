@@ -28,7 +28,7 @@ export default function DescriptionField<
       className="typography-descriptor"
       component="div"
       style={{
-        color: isDisabled ? 'var(--neutral-b3, #9e9fa4)' : 'var(--neutral-b2, #72757a)',
+        color: isDisabled ? 'var(--sui-colors-neutral-b3)' : 'var(--sui-colors-neutral-b2)',
         ...style,
       }}
     >

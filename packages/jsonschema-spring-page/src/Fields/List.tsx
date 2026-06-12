@@ -39,6 +39,7 @@ import {
   getButtonColor,
   getButtonVariant,
   getDescriptionColor,
+  getTextColor,
 } from '../utils/compat';
 
 const iconMap: Record<string, React.ComponentType> = {
@@ -68,7 +69,31 @@ type ListAvatarItem = {
   authorAvatar?: string;
   authorName?: string;
   icon?: string;
+  meta?: string;
   title?: string;
+};
+
+type ListIconMetaItem = {
+  color?: string;
+  icon?: string;
+  message?: string;
+  size?: 'small' | 'medium' | 'large';
+};
+
+type ListActionItem = {
+  color?: string;
+  disabled?: boolean;
+  icon?: string;
+  id?: string;
+  title: string;
+  type?: string;
+  variant?: string;
+};
+
+type ListRowItem = ListAvatarItem & {
+  description?: string;
+  descriptionColor?: string;
+  iconMeta?: ListIconMetaItem[];
 };
 
 type RowAvatarProps = {
@@ -122,7 +147,7 @@ function RowAvatar({ item, showIconAsAvatar }: RowAvatarProps) {
   }
   const avatarSymbol = getAvatarSymbol(item);
   return (
-    <span className="mr-3 flex shrink-0 items-center">
+    <span className="flex shrink-0 items-center">
       <Avatar
         size="medium"
         src={getAvatarSource(item)}
@@ -136,7 +161,141 @@ function RowAvatar({ item, showIconAsAvatar }: RowAvatarProps) {
   );
 }
 
-function getActionMenuItems(actions: any[], onClickAction: (action: any) => void): ActionMenuItem[] {
+function RowMeta({ item }: { item: ListAvatarItem }) {
+  if (!item.meta && !item.authorName) {
+    return null;
+  }
+  return (
+    <Text className="typography-descriptor" noWrap>
+      {item.authorName || item.meta}
+    </Text>
+  );
+}
+
+function RowIconMeta({ iconMeta }: { iconMeta?: ListIconMetaItem[] }) {
+  if (!Array.isArray(iconMeta) || iconMeta.length === 0) {
+    return null;
+  }
+  return (
+    <span className="flex items-center gap-2">
+      {iconMeta.map((iconMetaItem, index) => (
+        <Tooltip key={`${iconMetaItem.icon}-${index}`} title={iconMetaItem.message}>
+          <Icon
+            symbol={iconMap[iconMetaItem.icon || 'info'] || iconMap.info}
+            size={iconMetaItem.size || 'medium'}
+            style={{ color: getTextColor(iconMetaItem.color) }}
+          />
+        </Tooltip>
+      ))}
+    </span>
+  );
+}
+
+function RowNavigationIcon({ show }: { show: boolean }) {
+  if (!show) {
+    return null;
+  }
+  return (
+    <span className="flex items-center">
+      <Icon symbol={ArrowRightMd} size="medium" />
+    </span>
+  );
+}
+
+function RowActionButton({
+  action,
+  onClickAction,
+}: {
+  action?: ListActionItem;
+  onClickAction: (action: ListActionItem) => void;
+}) {
+  if (!action) {
+    return null;
+  }
+  return (
+    <SpringButton
+      size="small"
+      variant={getButtonVariant(action.variant)}
+      color={getButtonColor(action.color)}
+      disabled={action.disabled}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClickAction(action);
+      }}
+    >
+      {action.title}
+    </SpringButton>
+  );
+}
+
+function RowIconActions({
+  buttonAction,
+  iconActions,
+  onClickAction,
+}: {
+  buttonAction?: ListActionItem;
+  iconActions: ListActionItem[];
+  onClickAction: (action: ListActionItem) => void;
+}) {
+  if (iconActions.length === 0) {
+    return null;
+  }
+  return (
+    <ActionMenu
+      actions={getActionMenuItems(iconActions, onClickAction)}
+      maxActions={buttonAction ? 1 : 3}
+      iconClassName="mr-1"
+      iconShape="squircle"
+      iconVariant="outlined"
+      size="medium"
+      color="neutral"
+    />
+  );
+}
+
+function RowMetaSlot({
+  buttonAction,
+  iconActions,
+  item,
+  onClickAction,
+  showAsNavigation,
+}: {
+  buttonAction?: ListActionItem;
+  iconActions: ListActionItem[];
+  item: ListRowItem;
+  onClickAction: (action: ListActionItem) => void;
+  showAsNavigation: boolean;
+}) {
+  const hasIconMeta = Array.isArray(item.iconMeta) && item.iconMeta.length > 0;
+  if (
+    !hasIconMeta &&
+    !item.meta &&
+    !item.authorName &&
+    !showAsNavigation &&
+    !buttonAction &&
+    iconActions.length === 0
+  ) {
+    return null;
+  }
+  return (
+    <span className="flex shrink-0 items-center gap-2">
+      <RowIconMeta iconMeta={item.iconMeta} />
+      <RowMeta item={item} />
+      <RowNavigationIcon show={showAsNavigation} />
+      <RowActionButton action={buttonAction} onClickAction={onClickAction} />
+      <RowIconActions
+        buttonAction={buttonAction}
+        iconActions={iconActions}
+        onClickAction={onClickAction}
+      />
+    </span>
+  );
+}
+
+function getActionMenuItems(
+  actions: ListActionItem[],
+  onClickAction: (action: ListActionItem) => void,
+): ActionMenuItem[] {
   return actions.map((action) => ({
     color: action.color,
     disabled: action.disabled,
@@ -161,50 +320,32 @@ function RowItem({
   onClickAction,
   readOnly,
   alwaysShowActions,
-}: any) {
-  const buttonAction = actions.find((action: any) => action?.type === 'button');
-  const iconActions = actions.filter((action: any) => action?.type !== 'button');
-  const hoverActions = (
+}: {
+  actions?: ListActionItem[];
+  alwaysShowActions?: boolean;
+  disabled?: boolean;
+  item: ListRowItem;
+  onClick?: () => void;
+  onClickAction: (action: ListActionItem) => void;
+  readOnly?: boolean;
+  selected?: boolean;
+  showAsNavigation: boolean;
+  showIconAsAvatar: boolean;
+}) {
+  const buttonAction = actions.find((action) => action?.type === 'button');
+  const iconActions = actions.filter((action) => action?.type !== 'button');
+  const inlineIconActions = alwaysShowActions ? iconActions : [];
+  const hoverIconActions = alwaysShowActions ? [] : iconActions;
+  const hasHoverActions = hoverIconActions.length > 0;
+  const hoverActions = hasHoverActions ? (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      {item.meta || item.authorName ? (
-        <Text className="typography-descriptor" noWrap>
-          {item.authorName || item.meta}
-        </Text>
-      ) : null}
-      {item.iconMeta?.map((iconMetaItem: any, index: number) => (
-        <Tooltip key={`${iconMetaItem.icon}-${index}`} title={iconMetaItem.message}>
-          <Icon
-            symbol={iconMap[iconMetaItem.icon] || iconMap.info}
-            size={iconMetaItem.size || 'medium'}
-            style={{ color: iconMetaItem.color }}
-          />
-        </Tooltip>
-      ))}
-      {showAsNavigation ? <Icon symbol={ArrowRightMd} size="medium" /> : null}
-      {buttonAction ? (
-        <SpringButton
-          size="small"
-          variant={getButtonVariant(buttonAction.variant)}
-          color={getButtonColor(buttonAction.color)}
-          disabled={buttonAction.disabled}
-          onClick={(event) => {
-            event.stopPropagation();
-            onClickAction(buttonAction);
-          }}
-        >
-          {buttonAction.title}
-        </SpringButton>
-      ) : null}
-      {iconActions.length > 0 ? (
-        <ActionMenu
-          actions={getActionMenuItems(iconActions, onClickAction)}
-          maxActions={buttonAction ? 1 : 3}
-          iconVariant="contained"
-          color="neutral"
-        />
-      ) : null}
+      <RowIconActions
+        buttonAction={buttonAction}
+        iconActions={hoverIconActions}
+        onClickAction={onClickAction}
+      />
     </div>
-  );
+  ) : undefined;
   return (
     <ListItem
       selected={!readOnly && selected}
@@ -213,17 +354,29 @@ function RowItem({
       aria-disabled={disabled || undefined}
       onClick={readOnly || disabled ? undefined : onClick}
       hoverActions={hoverActions}
-      alwaysShowHoverActions={alwaysShowActions}
+      className="group rounded-xl"
+      size="auto"
+      classes={{
+        content: 'bg-inherit !px-3 !py-2',
+      }}
       divider
     >
       <RowAvatar item={item} showIconAsAvatar={showIconAsAvatar} />
       <ListItemText
+        className="min-w-0 flex-1 px-2 py-1"
         primary={<TextWithMarkdown text={item.title} />}
         secondary={
           <span style={{ color: getDescriptionColor(item.descriptionColor) }}>
             <TextWithMarkdown text={item.description} />
           </span>
         }
+      />
+      <RowMetaSlot
+        buttonAction={buttonAction}
+        iconActions={inlineIconActions}
+        item={item}
+        onClickAction={onClickAction}
+        showAsNavigation={showAsNavigation}
       />
     </ListItem>
   );
@@ -244,11 +397,11 @@ function MetricCard({
         bordered
         borderRadius="small"
         background
+        className="box-border flex flex-col items-center justify-center text-center"
         style={{
           cursor: readOnly ? 'default' : 'pointer',
           height,
           minHeight: height ? undefined : 112,
-          textAlign: 'center',
           backgroundColor: item.backgroundColor,
           opacity: disabled ? 0.5 : undefined,
           padding: 12,
@@ -262,7 +415,7 @@ function MetricCard({
           <Text
             className="typography-descriptor"
             component="div"
-            style={{ color: item.trendColor || uiSchema?.['ui:trendColor'] }}
+            style={{ color: getTextColor(item.trendColor || uiSchema?.['ui:trendColor']) }}
           >
             {item.trend}
           </Text>
@@ -405,7 +558,7 @@ export function List({
           showIconAsAvatar={showIconAsAvatar}
           showAsNavigation={showAsNavigation}
           actions={item.actions || []}
-          onClickAction={(action: any) => {
+          onClickAction={(action: ListActionItem) => {
             onFocus(`${action.id}-${item.const}-action`, '$$clicked');
           }}
           alwaysShowActions={alwaysShowActions}

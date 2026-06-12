@@ -11,6 +11,7 @@ jest.mock('@ringcentral/spring-ui', () => {
 });
 
 const {
+  getTextColor,
   getTypographyComponent,
   getTypographyClassName,
 } = require('../src/utils/compat');
@@ -61,6 +62,14 @@ describe('jsonschema-spring-page typography compatibility', () => {
     expect(getTypographyComponent('h4', false)).toBe('h4');
     expect(getTypographyComponent('typography-title', false)).toBe('p');
     expect(getTypographyComponent('h4', true)).toBe('li');
+  });
+
+  it('maps legacy Juno text color tokens to Spring UI CSS tokens', () => {
+    expect(getTextColor('success.f02')).toBe('var(--sui-colors-success-f)');
+    expect(getTextColor('danger.f02')).toBe('var(--sui-colors-danger-f)');
+    expect(getTextColor('warning.f02')).toBe('var(--sui-colors-warning-f)');
+    expect(getTextColor('interactive.f01')).toBe('var(--sui-colors-primary-f)');
+    expect(getTextColor('#123456')).toBe('#123456');
   });
 
   it('renders heading variants through Spring UI Text component overrides', () => {

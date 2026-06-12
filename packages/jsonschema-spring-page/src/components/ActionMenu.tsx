@@ -6,6 +6,7 @@ import {
   MenuItem,
   MenuItemText,
 } from '@ringcentral/spring-ui';
+import type { IconButtonProps } from '@ringcentral/spring-ui';
 import { OverflowVerticalMd } from '@ringcentral/spring-icon';
 import { getIconButtonColor } from '../utils/compat';
 
@@ -22,6 +23,8 @@ export type ActionMenuProps = {
   actions: ActionMenuItem[];
   className?: string;
   color?: string;
+  iconClassName?: string;
+  iconShape?: IconButtonProps['shape'];
   iconVariant?: 'outlined' | 'contained' | 'icon' | 'inverted';
   maxActions?: number;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
@@ -33,6 +36,8 @@ export function ActionMenu({
   actions,
   className,
   color,
+  iconClassName,
+  iconShape,
   iconVariant = 'icon',
   maxActions = 3,
   onClick,
@@ -58,8 +63,10 @@ export function ActionMenu({
           data-sign={action.id}
           disabled={action.disabled}
           label={action.title}
+          shape={iconShape}
           variant={iconVariant}
           color={getIconButtonColor(action.color || color)}
+          className={iconClassName}
         />
       ))}
       {moreActions.length > 0 ? (
@@ -72,9 +79,11 @@ export function ActionMenu({
             onMoreMenuOpen?.(true);
           }}
           size={size}
+          shape={iconShape}
           variant={iconVariant}
           color={getIconButtonColor(color)}
           label="More actions"
+          className={iconClassName}
         />
       ) : null}
       {moreActions.length > 0 ? (
