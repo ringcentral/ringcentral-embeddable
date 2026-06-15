@@ -1,0 +1,1 @@
+{"version":3,"file":"BooleanField.d.ts","sourceRoot":"","sources":["../../../src/Fields/BooleanField.tsx"],"names":[],"mappings":"AAEA,OAAO,EAEL,UAAU,EACV,eAAe,EAIf,UAAU,EACV,gBAAgB,EAEjB,MAAM,aAAa,CAAC;AAErB,MAAM,CAAC,OAAO,UAAU,YAAY,CAClC,CAAC,GAAG,GAAG,EACP,CAAC,SAAS,gBAAgB,GAAG,UAAU,EACvC,CAAC,SAAS,eAAe,GAAG,GAAG,EAC/B,KAAK,EAAE,UAAU,CAAC,CAAC,EAAE,CAAC,EAAE,CAAC,CAAC,eAoG3B"}

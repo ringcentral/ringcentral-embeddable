@@ -1,0 +1,1 @@
+{"version":3,"file":"RangeWidget.d.ts","sourceRoot":"","sources":["../../../src/Widgets/RangeWidget.tsx"],"names":[],"mappings":"AAEA,OAAO,EAEL,eAAe,EAGf,UAAU,EACV,gBAAgB,EAChB,WAAW,EACZ,MAAM,aAAa,CAAC;AA8BrB,MAAM,CAAC,OAAO,UAAU,WAAW,CACjC,CAAC,GAAG,GAAG,EACP,CAAC,SAAS,gBAAgB,GAAG,UAAU,EACvC,CAAC,SAAS,eAAe,GAAG,GAAG,EAC/B,KAAK,EAAE,WAAW,CAAC,CAAC,EAAE,CAAC,EAAE,CAAC,CAAC,eA+D5B"}

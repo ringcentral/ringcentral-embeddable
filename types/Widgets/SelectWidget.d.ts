@@ -1,0 +1,3 @@
+import { FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
+export default function SelectWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any>({ id, name, options, label, hideLabel, required, disabled, readonly, placeholder, value, multiple, autofocus, onChange, onBlur, onFocus, rawErrors, ...textFieldProps }: WidgetProps<T, S, F>): JSX.Element;
+//# sourceMappingURL=SelectWidget.d.ts.map

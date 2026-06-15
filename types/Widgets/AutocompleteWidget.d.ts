@@ -1,0 +1,3 @@
+import { FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
+export default function AutocompleteWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any>({ id, label, hideLabel, placeholder, required, disabled, readonly, value, options, onChange, rawErrors, multiple, }: WidgetProps<T, S, F>): JSX.Element;
+//# sourceMappingURL=AutocompleteWidget.d.ts.map

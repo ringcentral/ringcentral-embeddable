@@ -1,0 +1,47 @@
+{
+  "name": "@ringcentral-integration/jsonschema-spring-page",
+  "version": "0.0.1",
+  "description": "The Spring UI jsonschema page component",
+  "homepage": "https://github.com/ringcentral/ringcentral-embeddable/tree/main/packages/jsonschema-spring-page#readme",
+  "bugs": {
+    "url": "https://github.com/ringcentral/ringcentral-embeddable/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ringcentral/ringcentral-embeddable.git"
+  },
+  "license": "MIT",
+  "author": "Embbnux Ji",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./cjs/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./src": "./src/index.tsx",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "cjs/",
+    "esm/",
+    "types/",
+    "src/",
+    "README.md",
+    "LICENSE*"
+  ],
+  "peerDependencies": {
+    "@ringcentral/spring-icon": "^1.7.0",
+    "@ringcentral/spring-theme": "^1.7.0",
+    "@ringcentral/spring-ui": "^1.7.0",
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@ringcentral-integration/rjsf-spring": "0.0.1",
+    "@rjsf/core": "^5.18.3",
+    "@rjsf/utils": "^5.18.3"
+  }
+}

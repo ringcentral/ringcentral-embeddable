@@ -1,0 +1,1 @@
+{"version":3,"file":"FileWidget.d.ts","sourceRoot":"","sources":["../../../src/Widgets/FileWidget.tsx"],"names":[],"mappings":"AACA,OAAO,EACL,eAAe,EAEf,UAAU,EACV,gBAAgB,EAChB,WAAW,EACZ,MAAM,aAAa,CAAC;AAoErB,MAAM,CAAC,OAAO,UAAU,UAAU,CAChC,CAAC,GAAG,GAAG,EACP,CAAC,SAAS,gBAAgB,GAAG,UAAU,EACvC,CAAC,SAAS,eAAe,GAAG,GAAG,EAC/B,KAAK,EAAE,WAAW,CAAC,CAAC,EAAE,CAAC,EAAE,CAAC,CAAC,eAgH5B"}
