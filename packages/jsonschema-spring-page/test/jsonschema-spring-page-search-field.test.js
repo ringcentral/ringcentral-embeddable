@@ -99,7 +99,7 @@ describe('jsonschema-spring-page Search field', () => {
     });
     expect(html).toContain('data-sign="jsonSchemaSearchInput"');
     expect(html).toContain('data-variant="standard"');
-    expect(html).toContain('data-size="medium"');
+    expect(html).toContain('data-size="large"');
     expect(html).toContain('data-content-class="border-none"');
     expect(html).toContain('value="desk"');
     expect(html).not.toContain('jsonSchemaSearchAndFilter');

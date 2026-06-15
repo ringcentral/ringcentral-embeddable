@@ -10,11 +10,9 @@ import {
 } from '@rjsf/utils';
 
 const descriptionInWidgetNames = new Set([
-  'booleanCheckbox',
   'checkbox',
   'switch',
   'toggle',
-  'BooleanCheckboxWidget',
   'CheckboxWidget',
   'SwitchWidget',
 ]);

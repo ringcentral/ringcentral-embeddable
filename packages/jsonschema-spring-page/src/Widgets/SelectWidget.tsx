@@ -81,7 +81,7 @@ export default function SelectWidget<
       }}
       onBlur={handleBlur}
       onFocus={handleFocus}
-      size="medium"
+      size="large"
       selectMode={isMultiple ? 'multiple' : 'single'}
       {...(textFieldProps as SelectProps)}
       aria-describedby={ariaDescribedByIds<T>(id)}

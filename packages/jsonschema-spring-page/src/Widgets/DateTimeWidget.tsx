@@ -85,6 +85,7 @@ export default function DateTimeWidget<
           value={dateTimeValue}
           placeholder={placeholder}
           variant="outlined"
+          size="large"
           fullWidth
           autoFocus={autofocus}
           required={required}
@@ -107,6 +108,7 @@ export default function DateTimeWidget<
           value={dateTimeValue}
           dateMode
           variant="outlined"
+          size="large"
           fullWidth
           required={required}
           disabled={isDisabled}

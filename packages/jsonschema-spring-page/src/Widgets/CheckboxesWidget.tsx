@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FocusEvent } from 'react';
-import { Block, Checkbox, FormLabel } from '@ringcentral/spring-ui';
+import { Checkbox, FormLabel } from '@ringcentral/spring-ui';
 import {
   ariaDescribedByIds,
   enumOptionsDeselectValue,
@@ -13,6 +13,10 @@ import {
   StrictRJSFSchema,
   WidgetProps,
 } from '@rjsf/utils';
+
+const CHECKBOX_GROUP_LABEL_ROOT_STYLE: React.CSSProperties = {
+  marginBottom: 'var(--sui-spacing-2)',
+};
 
 export default function CheckboxesWidget<
   T = any,
@@ -33,6 +37,10 @@ export default function CheckboxesWidget<
 }: WidgetProps<T, S, F>) {
   const { enumOptions, enumDisabled, inline, emptyValue } = options;
   const checkboxesValues = Array.isArray(value) ? value : [value];
+  const containerClassName = inline
+    ? 'flex flex-wrap gap-x-4 gap-y-2'
+    : 'flex flex-col gap-2';
+  const fieldLabel = labelValue(label, hideLabel, false);
 
   const handleChange =
     (index: number) =>
@@ -53,11 +61,16 @@ export default function CheckboxesWidget<
 
   return (
     <>
-      {labelValue(
-        <FormLabel id={id} label={label || undefined} />,
-        hideLabel,
-      )}
-      <Block id={id} row={!!inline}>
+      {fieldLabel ? (
+        <FormLabel
+          id={id}
+          label={fieldLabel}
+          rootProps={{
+            style: CHECKBOX_GROUP_LABEL_ROOT_STYLE,
+          }}
+        />
+      ) : null}
+      <div id={id} className={containerClassName}>
         {Array.isArray(enumOptions) &&
           enumOptions.map((option, index: number) => {
             const checked = enumOptionsIsSelected<S>(
@@ -89,7 +102,7 @@ export default function CheckboxesWidget<
               </FormLabel>
             );
           })}
-      </Block>
+      </div>
     </>
   );
 }

@@ -11,6 +11,7 @@ jest.mock('@ringcentral/spring-ui', () => {
       inputProps = {},
       InputLabelProps,
       label,
+      size,
       ...props
     }) =>
       ReactForMock.createElement(
@@ -25,6 +26,7 @@ jest.mock('@ringcentral/spring-ui', () => {
           ...inputProps,
           'data-full-width': fullWidth ? 'true' : undefined,
           'data-label-shrink': InputLabelProps?.shrink ? 'true' : undefined,
+          'data-size': size,
         }),
       ),
   };
@@ -189,5 +191,12 @@ describe('jsonschema-spring-page BaseInputTemplate', () => {
     );
     expect(html).not.toContain('data-error="true"');
     expect(html).not.toContain('data-helper-text=');
+  });
+
+  it('uses large Spring UI TextField size by default', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(BaseInputTemplate, createBaseInputProps()),
+    );
+    expect(html).toContain('data-size="large"');
   });
 });

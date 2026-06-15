@@ -66,8 +66,8 @@ jest.mock('@ringcentral-integration/rjsf-spring', () => ({
 }));
 
 const SwitchWidget = require('../src/Widgets/SwitchWidget').default;
-const BooleanCheckboxWidget =
-  require('../src/Widgets/CheckboxWidget').default;
+const CheckboxWidget = require('../src/Widgets/CheckboxWidget').default;
+const BooleanField = require('../src/Fields/BooleanField').default;
 const { widgets } = require('../src/Widgets');
 
 function createWidgetProps(overrides = {}) {
@@ -93,6 +93,38 @@ function createWidgetProps(overrides = {}) {
     },
     uiSchema: {},
     value: false,
+    ...overrides,
+  };
+}
+
+function createBooleanFieldProps(overrides = {}) {
+  return {
+    autofocus: false,
+    disabled: false,
+    formData: false,
+    hideError: false,
+    idSchema: {
+      $id: 'root_notifications',
+    },
+    name: 'notifications',
+    onBlur: jest.fn(),
+    onChange: jest.fn(),
+    onFocus: jest.fn(),
+    rawErrors: [],
+    readonly: false,
+    registry: {
+      formContext: {},
+      translateString: (value) => String(value),
+      widgets,
+    },
+    required: false,
+    schema: {
+      description: 'Allow push notifications',
+      title: 'Push Notifications',
+      type: 'boolean',
+    },
+    title: 'Push Notifications',
+    uiSchema: {},
     ...overrides,
   };
 }
@@ -135,12 +167,18 @@ describe('jsonschema-spring-page SwitchWidget', () => {
   });
 
   it('registers switch and toggle widget aliases', () => {
-    expect(widgets.CheckboxWidget).toBe(SwitchWidget);
     expect(widgets.SwitchWidget).toBe(SwitchWidget);
-    expect(widgets.checkbox).toBe(SwitchWidget);
     expect(widgets.switch).toBe(SwitchWidget);
     expect(widgets.toggle).toBe(SwitchWidget);
-    expect(widgets.BooleanCheckboxWidget).toBe(BooleanCheckboxWidget);
-    expect(widgets.booleanCheckbox).toBe(BooleanCheckboxWidget);
+    expect(widgets.CheckboxWidget).toBe(CheckboxWidget);
+    expect(widgets.checkbox).toBe(CheckboxWidget);
+  });
+
+  it('uses switch as the default boolean field widget', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(BooleanField, createBooleanFieldProps()),
+    );
+    expect(html).toContain('data-component="Switch"');
+    expect(html).toContain('Push Notifications');
   });
 });

@@ -72,6 +72,7 @@ export default function DateWidget<
       value={dateValue}
       placeholder={placeholder}
       variant="outlined"
+      size="large"
       fullWidth
       autoFocus={autofocus}
       required={required}

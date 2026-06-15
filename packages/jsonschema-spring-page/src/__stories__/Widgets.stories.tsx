@@ -1006,6 +1006,16 @@ export const CheckboxWidget: Story = {
           uniqueItems: true,
           description: 'Select which features to enable',
         },
+        notificationChannels: {
+          type: 'array',
+          title: 'Notification Channels',
+          items: {
+            type: 'string',
+            enum: ['email', 'sms', 'push'],
+          },
+          uniqueItems: true,
+          description: 'Inline checkbox group example',
+        },
         preferences: {
           type: 'object',
           title: 'User Preferences',
@@ -1031,13 +1041,13 @@ export const CheckboxWidget: Story = {
     },
     uiSchema: {
       agreeToTerms: {
-        'ui:widget': 'booleanCheckbox',
+        'ui:widget': 'checkbox',
       },
       enableNotifications: {
-        'ui:widget': 'booleanCheckbox',
+        'ui:widget': 'checkbox',
       },
       subscribeNewsletter: {
-        'ui:widget': 'booleanCheckbox',
+        'ui:widget': 'checkbox',
       },
       features: {
         'ui:widget': 'checkboxes',
@@ -1050,21 +1060,33 @@ export const CheckboxWidget: Story = {
           ],
         },
       },
+      notificationChannels: {
+        'ui:widget': 'checkboxes',
+        'ui:inline': true,
+        'ui:options': {
+          enumOptions: [
+            { value: 'email', label: 'Email' },
+            { value: 'sms', label: 'SMS' },
+            { value: 'push', label: 'Push' },
+          ],
+        },
+      },
       preferences: {
         darkMode: {
-          'ui:widget': 'booleanCheckbox',
+          'ui:widget': 'checkbox',
         },
         autoSave: {
-          'ui:widget': 'booleanCheckbox',
+          'ui:widget': 'checkbox',
         },
         showTips: {
-          'ui:widget': 'booleanCheckbox',
+          'ui:widget': 'checkbox',
         },
       },
     },
     formData: {
       enableNotifications: true,
       features: ['feature1', 'feature2'],
+      notificationChannels: ['email', 'push'],
       preferences: {
         darkMode: false,
         autoSave: true,
@@ -1086,6 +1108,7 @@ export const CheckboxWidget: Story = {
               <p>Notifications: {formData.enableNotifications ? '✅' : '❌'}</p>
               <p>Newsletter: {formData.subscribeNewsletter ? '✅' : '❌'}</p>
               <p>Features: {formData.features?.length || 0} selected</p>
+              <p>Channels: {formData.notificationChannels?.length || 0} selected</p>
               <p>Dark Mode: {formData.preferences?.darkMode ? '✅' : '❌'}</p>
             </div>
           </>

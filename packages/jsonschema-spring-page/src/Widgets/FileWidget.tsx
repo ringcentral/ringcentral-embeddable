@@ -7,8 +7,6 @@ import {
   WidgetProps,
 } from '@rjsf/utils';
 import {
-  Block,
-  FormLabel,
   IconButton,
   List,
   ListItem,
@@ -64,6 +62,17 @@ function formatFileSize(bytes: number): string {
   return `${Number.parseFloat((bytes / Math.pow(sizeBase, sizeIndex)).toFixed(2))} ${sizes[sizeIndex]}`;
 }
 
+function getFormFieldLabelClassName(hasError: boolean): string {
+  const classNames = [
+    'sui-form-field-label',
+    'sui-form-field-outlined-label',
+  ];
+  if (hasError) {
+    classNames.push('sui-form-field-error-label');
+  }
+  return classNames.join(' ');
+}
+
 export default function FileWidget<
   T = any,
   S extends StrictRJSFSchema = RJSFSchema,
@@ -81,6 +90,7 @@ export default function FileWidget<
     onChange,
     value,
     schema,
+    rawErrors = [],
   } = props;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -88,6 +98,8 @@ export default function FileWidget<
   const accept = options?.accept || '*/*';
   const maxSize = Number.parseInt(options?.maxSize as string, 10) || 0;
   const files: FileInfoType[] = Array.isArray(value) ? value : value ? [value] : [];
+  const fieldLabel = labelValue(label, hideLabel, false);
+  const hasError = rawErrors.length > 0;
   const handleFileSelect = async (selectedFiles: FileList | null) => {
     if (!selectedFiles || selectedFiles.length === 0) {
       return;
@@ -120,7 +132,15 @@ export default function FileWidget<
   };
   return (
     <>
-      {labelValue(<FormLabel required={required} htmlFor={id}>{label || undefined}</FormLabel>, hideLabel)}
+      {fieldLabel ? (
+        <label
+          className={getFormFieldLabelClassName(hasError)}
+          htmlFor={id}
+        >
+          {fieldLabel}
+          {required ? ' *' : ''}
+        </label>
+      ) : null}
       <input
         ref={fileInputRef}
         id={id}
@@ -131,7 +151,7 @@ export default function FileWidget<
         disabled={disabled}
         style={{ display: 'none' }}
       />
-      <Block row style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <IconButton
           size="medium"
           symbol={AttachMd}
@@ -143,7 +163,7 @@ export default function FileWidget<
         <Text className="typography-mainText">
           {(!multiple && files.length > 0) ? files[0].name : (placeholder || 'No file selected.')}
         </Text>
-      </Block>
+      </div>
       {multiple && files.length > 0 ? (
         <List>
           {files.map((file, index) => (

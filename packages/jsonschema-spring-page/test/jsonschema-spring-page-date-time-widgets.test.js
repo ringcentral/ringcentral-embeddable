@@ -39,6 +39,7 @@ jest.mock('@ringcentral/spring-ui', () => {
       inputProps,
       label,
       required,
+      size,
       value,
       variant,
     }) =>
@@ -53,6 +54,7 @@ jest.mock('@ringcentral/spring-ui', () => {
         'data-id': id,
         'data-label': label,
         'data-required': required ? 'true' : undefined,
+        'data-size': size,
         'data-value': mockFormatDate(value),
         'data-variant': variant,
       }),
@@ -63,13 +65,14 @@ jest.mock('@ringcentral/spring-ui', () => {
       }),
     Text: ({ children }) =>
       ReactForMock.createElement('span', { 'data-component': 'Text' }, children),
-    TextField: ({ endAdornment, fullWidth, id, value }) =>
+    TextField: ({ endAdornment, fullWidth, id, size, value }) =>
       ReactForMock.createElement(
         'div',
         {
           'data-component': 'TextField',
           'data-full-width': fullWidth ? 'true' : undefined,
           'data-id': id,
+          'data-size': size,
           'data-value': value,
         },
         endAdornment,
@@ -84,6 +87,7 @@ jest.mock('@ringcentral/spring-ui', () => {
       inputProps,
       label,
       required,
+      size,
       value,
       variant,
     }) =>
@@ -99,6 +103,7 @@ jest.mock('@ringcentral/spring-ui', () => {
         'data-id': id,
         'data-label': label,
         'data-required': required ? 'true' : undefined,
+        'data-size': size,
         'data-value': mockFormatTime(value),
         'data-variant': variant,
       }),
@@ -167,6 +172,7 @@ describe('jsonschema-spring-page date and time widgets', () => {
     expect(html).toContain('data-label="Meeting Date"');
     expect(html).toContain('data-value="2026-04-15"');
     expect(html).toContain('data-variant="outlined"');
+    expect(html).toContain('data-size="large"');
     expect(html).toContain('data-required="true"');
     expect(html).toContain('data-error="true"');
     expect(html).toContain('data-helper-text="Required"');
@@ -188,6 +194,7 @@ describe('jsonschema-spring-page date and time widgets', () => {
     expect(html).toContain('data-label="Meeting Time"');
     expect(html).toContain('data-value="09:30"');
     expect(html).toContain('data-variant="outlined"');
+    expect(html).toContain('data-size="large"');
     expect(html).toContain('data-full-width="true"');
   });
 
@@ -215,6 +222,7 @@ describe('jsonschema-spring-page date and time widgets', () => {
     expect(html).not.toContain('data-label="Start Time"');
     expect(html).toContain('data-aria-label="Start Time"');
     expect(html).toContain('data-date-mode="true"');
+    expect(html.match(/data-size="large"/g)).toHaveLength(2);
     expect(html).toContain('style="align-items:flex-end;display:flex;flex-wrap:wrap;gap:12px"');
   });
 
@@ -237,6 +245,7 @@ describe('jsonschema-spring-page date and time widgets', () => {
     expect(html).toContain('data-label="Meeting Duration"');
     expect(html).toContain('data-component="TextField"');
     expect(html).toContain('data-full-width="true"');
+    expect(html).toContain('data-size="large"');
     expect(html).toContain('data-id="root_meetingDuration__hours"');
     expect(html).toContain('data-id="root_meetingDuration__minutes"');
     expect(html).toContain('style="flex:1 1 140px;min-width:0"');

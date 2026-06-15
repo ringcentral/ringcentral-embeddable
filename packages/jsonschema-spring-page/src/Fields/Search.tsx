@@ -199,7 +199,7 @@ function SearchInputToggle({
             placeholder={placeholder}
             startAdornment={<Icon symbol={SearchMd} size="small" />}
             variant="standard"
-            size="medium"
+            size="large"
             RootProps={{
               classes: {
                 focusEffect: 'hidden',

@@ -121,6 +121,7 @@ export default function DurationWidget<
           <TextField
             id={`${id}__hours`}
             type="number"
+            size="large"
             value={hours}
             placeholder="0"
             fullWidth
@@ -140,6 +141,7 @@ export default function DurationWidget<
           <TextField
             id={`${id}__minutes`}
             type="number"
+            size="large"
             value={minutes}
             placeholder="0"
             fullWidth

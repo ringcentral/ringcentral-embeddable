@@ -118,6 +118,7 @@ export default function BaseInputTemplate<
         onBlur={handleBlur}
         onFocus={handleFocus}
         {...(textFieldProps as TextFieldProps)}
+        size="large"
         type={getTextFieldType(inputType) as SpringTextFieldType}
         aria-describedby={ariaDescribedByIds<T>(id, !!schema.examples)}
       />

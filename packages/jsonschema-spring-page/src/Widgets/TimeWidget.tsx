@@ -73,6 +73,7 @@ export default function TimeWidget<
       label={labelValue(label, hideLabel || !label, false)}
       value={timeValue}
       variant="outlined"
+      size="large"
       fullWidth
       autoFocus={autofocus}
       required={required}
