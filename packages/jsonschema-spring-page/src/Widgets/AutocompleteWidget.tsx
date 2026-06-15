@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Autocomplete,
   MenuItemText,
-  Option,
+  SuggestionListItem,
+  type AutocompleteRenderOptionState,
+  type SuggestionListItemData,
 } from '@ringcentral/spring-ui';
 import {
   ariaDescribedByIds,
@@ -13,12 +15,17 @@ import {
   WidgetProps,
 } from '@rjsf/utils';
 
-type AutocompleteItem = {
+type AutocompleteItem = SuggestionListItemData & {
   id: string;
   label: string;
   schema?: any;
   value: string;
 };
+
+type AutocompleteRenderOption = AutocompleteItem &
+  React.ComponentProps<typeof SuggestionListItem> & {
+    key?: React.Key;
+  };
 
 export default function AutocompleteWidget<
   T = any,
@@ -115,7 +122,7 @@ export default function AutocompleteWidget<
       inputValue={inputValue}
       fullWidth
       error={rawErrors.length > 0}
-      onInputChange={(_: unknown, nextInputValue: string) => {
+      onInputChange={(nextInputValue: string) => {
         setInputValue(nextInputValue);
         if (!isAutocompleteUpdating.current) {
           if (!multiple) {
@@ -126,7 +133,7 @@ export default function AutocompleteWidget<
         }
         isAutocompleteUpdating.current = false;
       }}
-      onChange={(_: unknown, nextItems: AutocompleteItem[]) => {
+      onChange={(nextItems: AutocompleteItem[]) => {
         isAutocompleteUpdating.current = true;
         const nextValue = Array.isArray(nextItems) ? nextItems : [];
         setAutocompleteValue(nextValue);
@@ -143,17 +150,29 @@ export default function AutocompleteWidget<
         }
         onChange(autocompleteValue.map((item) => item.value));
       }}
-      renderOption={(item: AutocompleteItem, state: any) => (
-        <Option
-          id={item.value}
-          key={`${item.id}-${state.index}`}
-          value={item.value}
-          highlighted={state.highlighted}
-          onClick={state.onClick}
-        >
-          <MenuItemText primary={item.label} info={item.value} />
-        </Option>
-      )}
+      renderOption={(
+        item: AutocompleteItem,
+        state: AutocompleteRenderOptionState,
+      ) => {
+        const {
+          key,
+          id: itemId,
+          label: itemLabel,
+          value: itemValue,
+          schema: _schema,
+          ...itemProps
+        } = item as AutocompleteRenderOption;
+        return (
+          <SuggestionListItem
+            {...itemProps}
+            id={String(itemId ?? itemValue)}
+            key={key ?? `${itemId}-${state.index}`}
+            highlighted={state.highlighted}
+          >
+            <MenuItemText primary={itemLabel} info={itemValue} />
+          </SuggestionListItem>
+        );
+      }}
       aria-describedby={ariaDescribedByIds<T>(id)}
     />
   );
