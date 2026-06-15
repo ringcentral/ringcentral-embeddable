@@ -880,6 +880,7 @@ export function createPhone({
           forceCurrentWebphoneActive,
           webphoneSDKOptions: {
             enablePlanB: enableWebRTCPlanB,
+            enableDefaultModifiers: false, // For G.722 issue
           },
         },
       },
