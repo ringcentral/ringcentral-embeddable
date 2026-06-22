@@ -11,6 +11,11 @@ export class CallingSettings extends CallingSettingsBase {
   constructor(deps) {
     super(deps);
     this._defaultCallWith = deps.callingSettingsOptions.defaultCallWith;
+    this._enableRingoutCallerId = !!deps.callingSettingsOptions.enableRingoutCallerId;
+  }
+
+  get isRingoutCallerIdEnabled() {
+    return this._enableRingoutCallerId;
   }
 
   _getDefaultCallWith() {

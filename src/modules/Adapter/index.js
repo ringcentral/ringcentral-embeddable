@@ -348,7 +348,7 @@ export default class Adapter extends AdapterModuleCore {
           this._newSMS(data.phoneNumber, data.text, data.conversation, data.attachments, data.recipient);
           break;
         case 'rc-adapter-new-call':
-          this._newCall(data.phoneNumber, data.toCall);
+          this._newCall(data.phoneNumber, data.toCall, data.callerId);
           break;
         case 'rc-adapter-auto-populate-conversation':
           this._autoPopulateConversationText(data.text, data.attachments);
@@ -1420,7 +1420,7 @@ export default class Adapter extends AdapterModuleCore {
     }
   }
 
-  _newCall(phoneNumber, toCall = false) {
+  _newCall(phoneNumber, toCall = false, callerId = null) {
     if (!this._auth.loggedIn) {
       return;
     }
@@ -1430,6 +1430,15 @@ export default class Adapter extends AdapterModuleCore {
     const isCall = this._isCallOngoing(phoneNumber);
     if (isCall) {
       return;
+    }
+    if (callerId) {
+      const isAnonymous = callerId === 'anonymous';
+      const isValid = this._callingSettings.fromNumbers.find(p => p.phoneNumber === callerId);
+      if ((isAnonymous || isValid) && callerId !== this._callingSettings.fromNumber) {
+        this._callingSettings.updateFromNumber({
+          phoneNumber: callerId,
+        });
+      }
     }
     this._router.push('/dialer');
     this._dialerUI.setToNumberField(phoneNumber);

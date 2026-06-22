@@ -340,10 +340,13 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-new-call',
   phoneNumber: `phone number`,
   toCall: true,
+  callerId: `caller id phone number`, // optional, supported since 3.0.0
 }, '*');
 ```
 
 This feature can be used for `Click to Dial`. If you set `toCall` to ture, it will start the call immediately.
+
+The optional `callerId` sets the outbound caller ID for the call. It must be a number from the `fromNumbers` list in [calling settings](../config/call-settings.md#calling-settings-updated-event), invalid values are ignored.
 
 If you are using Adapter JS way, just you can just call `RCAdapter.clickToCall('phonenumber')`.
 
