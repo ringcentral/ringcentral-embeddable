@@ -97,6 +97,34 @@ In widget, user can also select `From` number when make a browser call. For deve
 
 After enabled, we can receive `From` number list in [calling settings updated](#calling-settings-updated-event) event when `callWith` is `browser`.
 
+## Enable caller ID for RingOut
+
+<!-- md:version 3.0.0 -->
+
+By default, the `From`/caller ID selector is only available for `Browser` (Webphone) calls. To allow users to select an outbound caller ID for `RingOut` calls as well, enable the `enableRingoutCallerId` flag:
+
+=== "Javascript"
+
+    ```js
+    <script>
+      (function() {
+        var rcs = document.createElement("script");
+        rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/adapter.js?enableRingoutCallerId=1";
+        var rcs0 = document.getElementsByTagName("script")[0];
+        rcs0.parentNode.insertBefore(rcs, rcs0);
+      })();
+    </script>
+    ```
+
+=== "iframe"
+
+    ```html
+    <iframe width="300" height="500" id="rc-widget" allow="microphone" src="https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/app.html?enableRingoutCallerId=1">
+    </iframe>
+    ```
+
+After enabled, the dialer shows the `From` selector in `RingOut` mode, and the selected caller ID (`callingSettings.fromNumber`) is sent as the RingOut `callerId`. The caller ID is distinct from the `My Location` first-leg number. You can also set it programmatically via the `fromNumber` field of [Update Calling settings](#update-calling-settings) or the `callerId` field of the [new call API](../integration/api.md#open-the-dialer-and-start-a-call).
+
 ## Show my location numbers
 
 <!-- md:version 1.8.1 -->

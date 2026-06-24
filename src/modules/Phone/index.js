@@ -24,7 +24,6 @@ import {
   AvailabilityMonitor,
 } from '@ringcentral-integration/commons/modules/AvailabilityMonitor';
 import { Brand } from '@ringcentral-integration/commons/modules/Brand';
-import { Call } from '@ringcentral-integration/commons/modules/Call';
 import { CallerId } from '@ringcentral-integration/commons/modules/CallerId';
 // SMS related modules
 // import { MessageStore } from '@ringcentral-integration/commons/modules/MessageStore';
@@ -76,8 +75,6 @@ import {
 import {
   RegionSettings,
 } from '@ringcentral-integration/commons/modules/RegionSettings';
-// Call related modules
-import { Ringout } from '@ringcentral-integration/commons/modules/Ringout';
 import {
   SleepDetector,
 } from '@ringcentral-integration/commons/modules/SleepDetector';
@@ -156,6 +153,9 @@ import { ContactDetailsUI } from '../ContactDetailsUI';
 import { CallControlUI } from '../CallControlUI';
 import { SimpleCallControlUI } from '../SimpleCallControlUI';
 import { IncomingCallUI } from '../IncomingCallUI';
+// Call related modules
+import { Ringout } from '../Ringout';
+import { Call } from '../Call';
 import { CallMonitor } from '../CallMonitor';
 import { CallHistory } from '../CallHistory';
 import { CallsListUI } from '../CallsListUI';
@@ -767,6 +767,7 @@ export function createPhone({
   externalAuthId,
   defaultCallWith,
   enableFromNumberSetting,
+  enableRingoutCallerId,
   showMyLocationNumbers,
   enableSmsSettingEvent,
   disconnectInactiveWebphone,
@@ -973,6 +974,7 @@ export function createPhone({
           defaultCallWith,
           emergencyCallAvailable: true,
           showCallWithJupiter: true,
+          enableRingoutCallerId,
         },
       },
       {

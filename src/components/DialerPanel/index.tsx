@@ -236,6 +236,7 @@ export interface DialerPanelProps {
   recipientsContactPhoneRenderer?: (...args: any[]) => any;
   autoFocus?: boolean;
   showFromField?: boolean;
+  showRingoutCallerId?: boolean;
   disableFromField?: boolean;
   withTabs?: boolean;
   inConference?: boolean;
@@ -279,6 +280,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
   recipientsContactPhoneRenderer,
   autoFocus = false,
   showFromField = true,
+  showRingoutCallerId = false,
   disableFromField = false,
   children,
   withTabs = false,
@@ -376,7 +378,7 @@ const DialerPanel: FunctionComponent<DialerPanelProps> = ({
             onChange={changeFromNumber}
             formatPhone={formatPhone}
             currentLocale={currentLocale}
-            hidden={!isWebphoneMode}
+            hidden={!isWebphoneMode && !showRingoutCallerId}
             disabled={disableFromField}
           />
         ) : null}

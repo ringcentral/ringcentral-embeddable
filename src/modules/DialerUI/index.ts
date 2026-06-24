@@ -1,6 +1,7 @@
 import { DialerUI as DialerUIBase } from '@ringcentral-integration/widgets/modules/DialerUI';
 import { Module } from '@ringcentral-integration/commons/lib/di';
 import type { DialerUICallParams } from '@ringcentral-integration/widgets/modules/DialerUI';
+import { callingModes } from '@ringcentral-integration/commons/modules/CallingSettings/callingModes';
 import { isDroppingVoicemail } from '../WebphoneV2/webphoneHelper';
 @Module({
   name: 'DialerUI',
@@ -75,6 +76,18 @@ export class DialerUI extends DialerUIBase {
       console.error(error);
       return true;
     }
+  }
+
+  getUIProps() {
+    const props = super.getUIProps();
+    const callingSettings = this._deps.callingSettings as any;
+    const showRingoutCallerId =
+      !!callingSettings.isRingoutCallerIdEnabled &&
+      props.callingMode === callingModes.ringout;
+    return {
+      ...props,
+      showRingoutCallerId,
+    };
   }
 
   getUIFunctions(props) {
