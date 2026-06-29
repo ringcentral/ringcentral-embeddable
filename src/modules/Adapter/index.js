@@ -759,26 +759,38 @@ export default class Adapter extends AdapterModuleCore {
     if (
       this._callWith === this._callingSettings.callWith &&
       this._ringoutMyLocation === this._callingSettings.myLocation &&
-      (!this._enableFromNumberSetting || this._fromNumbers === this._callingSettings.fromNumbers)
+      (
+        !this._enableFromNumberSetting ||
+        (
+          this._fromNumber === this._callingSettings.fromNumber &&
+          this._fromNumbers === this._callingSettings.fromNumbers
+        )
+      )
     ) {
       return;
     }
     this._callWith = this._callingSettings.callWith;
     this._ringoutMyLocation = this._callingSettings.myLocation;
     this._fromNumbers = this._callingSettings.fromNumbers;
+    this._fromNumber = this._callingSettings.fromNumber;
     const callingMode = this._callingSettings.callingMode;
     const message = {
       type: 'rc-calling-settings-notify',
       callWith: this._callWith && this._callWith.replace('callingOptions-', ''),
       callingMode: callingMode && callingMode.replace('callingModes-', ''),
     };
-    if (this._enableFromNumberSetting && this._callWith === callingOptions.browser) {
+    if (
+      this._enableFromNumberSetting && (
+        this._callWith === callingOptions.browser ||
+        this._callWith === callingOptions.ringout
+    )) {
       message.fromNumbers = this._fromNumbers.map(n => ({
         phoneNumber: n.phoneNumber,
         usageType: n.usageType,
         primary: n.primary,
         label: n.label,
       }));
+      message.fromNumber = this._fromNumber;
     }
     if (this._showMyLocationNumbers) {
       message.myLocation = this._callingSettings.myLocation;
