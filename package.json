@@ -18,7 +18,7 @@
     "build-jsonschema-page-docs": "cross-env NODE_ENV=production npm run build-storybook --workspace=@ringcentral-integration/jsonschema-page"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
+    "@babel/core": "^7.29.6",
     "@babel/eslint-parser": "^7.25.9",
     "@babel/plugin-proposal-decorators": "^7.25.9",
     "@babel/plugin-proposal-export-default-from": "^7.25.9",
