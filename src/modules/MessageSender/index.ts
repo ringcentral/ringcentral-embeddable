@@ -195,7 +195,11 @@ export class MessageSender extends MessageSenderBase {
       to.length === 1
     ) {
       const sender = this.senderNumbersList.find((number) => number.phoneNumber === fromNumber);
-      if (sender && sender.extension) {
+      if (sender && (
+        sender.extension ||
+        sender.usageType === 'MainCompanyNumber' ||
+        sender.usageType === 'CompanyNumber'
+      )) {
         isThread = true;
       }
     }
