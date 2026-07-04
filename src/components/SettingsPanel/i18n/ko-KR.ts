@@ -1,5 +1,6 @@
 export default {
   general: '일반',
+  theme: '테마',
   region: "지역",
   calling: "통화 중",
   phone: "전화",
@@ -24,8 +25,13 @@ export default {
   report: "분석 보고서",
   shareIdea: "아이디어 공유",
   reportIssue: "문제 신고",
+  advanced: '고급',
+  aiAssistant: 'AI 어시스턴트(베타)',
+  autoStartAiAssistant: 'AI 어시스턴트 자동 시작(베타)',
+  callQueuePresenceSetting: '통화 큐 상태 관리',
   status: "상태",
-  acceptQueueCalls: "통화 큐 전화 받기"
+  acceptQueueCalls: "통화 큐 전화 받기",
+  appearance: '외관',
 };
 
 // @key: @#@"region"@#@ @source: @#@"Region"@#@

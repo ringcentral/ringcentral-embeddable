@@ -7,14 +7,18 @@ const supportedLocales = [
   'fr-FR',
   'fr-CA',
   'de-DE',
+  'hi-IN',
   'it-IT',
   'es-ES',
   'es-419',
   'ja-JP',
+  'pt-PT',
   'pt-BR',
   'zh-CN',
   'zh-TW',
   'zh-HK',
+  'nl-NL',
+  'ko-KR',
 ];
 module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'style-loader' } = {}) {
   const sassLoaderIncludePaths = ['src', 'node_modules'];
