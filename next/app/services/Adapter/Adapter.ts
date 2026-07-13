@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import type { NormalizedSession } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
 import { debounce } from '@ringcentral-integration/commons/lib/debounce-throttle';
 import { callingModes } from '@ringcentral-integration/micro-phone/src/app/services/CallingSettings/callingModes';
 import { callingOptions } from '@ringcentral-integration/micro-phone/src/app/services/CallingSettings/callingOptions';
@@ -62,7 +63,9 @@ import { getRcmEventTpl, getRcvEventTpl } from '@ringcentral-integration/widgets
 import PopupWindowManager from '../../../lib/PopupWindowManager';
 import messageTypes from '../../../lib/Adapter/messageTypes';
 import { parseUri } from '../../../lib/Adapter/parseUri';
+import { SideWidgetView } from '../../views/SideWidgetView';
 
+import { SmartNotes } from '../SmartNotes';
 import type { Webphone as WebphoneV2 } from '../WebphoneV2';
 
 dayjs.extend(utc);
@@ -320,8 +323,13 @@ export class Adapter extends RcModule {
     @optional() protected _callViewState?: CallViewState,
     @optional() protected _genericMeeting?: GenericMeeting,
     @optional() protected _smsTemplate?: SmsTemplate,
+    @optional() protected _sideWidgetView?: SideWidgetView,
+    @optional() protected _smartNotes?: SmartNotes,
   ) {
     super();
+    if (this._smartNotes) {
+      this._ignoreModuleReadiness(this._smartNotes);
+    }
     this._storage.enable(this);
     this._messageTypes = messageTypes;
     this._setupClientBridge();
@@ -588,6 +596,14 @@ export class Adapter extends RcModule {
           this._notifyPhoneNumberFormatSettings();
         },
       ),
+      watch(
+        this,
+        () => this._watchSmartNotesSettingsValues(),
+        () => {
+          this._notifySmartNotesSettings();
+        },
+        multipleWatchOptions,
+      ),
     ];
 
     this._bindWebphoneEvents();
@@ -612,6 +628,7 @@ export class Adapter extends RcModule {
     this._notifyTheme();
     this._notifyWebphoneStatus();
     this._notifyPhoneNumberFormatSettings();
+    this._notifySmartNotesSettings();
     this._syncWebphoneSessions();
 
     return () => {
@@ -622,17 +639,19 @@ export class Adapter extends RcModule {
   }
 
   private _bindWebphoneEvents() {
-    this._webphoneV2.onCallRing((session: any) => {
+    this._webphoneV2.onCallRing((session: NormalizedSession) => {
       this._postMessage({
         type: 'rc-call-ring-notify',
         call: session,
       });
+      this._sideWidgetView?.onCallRing(session);
     });
-    this._webphoneV2.onCallInit((session: any) => {
+    this._webphoneV2.onCallInit((session: NormalizedSession) => {
       this._postMessage({
         type: 'rc-call-init-notify',
         call: session,
       });
+      this._sideWidgetView?.onCallInit(session);
     });
     this._webphoneV2.onCallStart((session: any) => {
       this._postMessage({
@@ -786,6 +805,9 @@ export class Adapter extends RcModule {
         break;
       case 'rc-adapter-update-auto-log-settings':
         this._onUpdateAutoLogSettings(data);
+        break;
+      case 'rc-adapter-update-ai-assistant-settings':
+        this._onUpdateAiAssistantSettings(data);
         break;
       case 'rc-adapter-set-phone-number-format':
         this._onSetPhoneNumberFormat(data);
@@ -1188,6 +1210,13 @@ export class Adapter extends RcModule {
     ];
   }
 
+  private _watchSmartNotesSettingsValues() {
+    return [
+      this._smartNotes?.showSmartNote,
+      this._smartNotes?.autoStartSmartNote,
+    ];
+  }
+
   private _pushAdapterState() {
     this._postMessage({
       type: this._messageTypes.pushAdapterState,
@@ -1486,6 +1515,17 @@ export class Adapter extends RcModule {
     });
   }
 
+  private _notifySmartNotesSettings() {
+    if (!this._smartNotes) {
+      return;
+    }
+    this._postMessage({
+      type: 'rc-adapter-ai-assistant-settings-notify',
+      showAiAssistantWidget: this._smartNotes.showSmartNote,
+      autoStartAiAssistant: this._smartNotes.autoStartSmartNote,
+    });
+  }
+
   private _syncWebphoneSessions() {
     if (!this._webphone.ready) {
       return;
@@ -1759,6 +1799,33 @@ export class Adapter extends RcModule {
     }
     if (typeof data.message === 'boolean') {
       void this._conversationLogger.setAutoLog(data.message);
+    }
+  }
+
+  private _onUpdateAiAssistantSettings(data: {
+    showAiAssistantWidget?: boolean;
+    showAiAssistantWidgetReadOnly?: boolean;
+    showAiAssistantWidgetReadOnlyReason?: string;
+    autoStartAiAssistant?: boolean;
+    autoStartAiAssistantReadOnly?: boolean;
+    autoStartAiAssistantReadOnlyReason?: string;
+  }): void {
+    if (!this._smartNotes) {
+      return;
+    }
+    if (typeof data.showAiAssistantWidget === 'boolean') {
+      void this._smartNotes.setShowSmartNote(
+        data.showAiAssistantWidget,
+        Boolean(data.showAiAssistantWidgetReadOnly),
+        data.showAiAssistantWidgetReadOnlyReason ?? '',
+      );
+    }
+    if (typeof data.autoStartAiAssistant === 'boolean') {
+      void this._smartNotes.setAutoStartSmartNote(
+        data.autoStartAiAssistant,
+        Boolean(data.autoStartAiAssistantReadOnly),
+        data.autoStartAiAssistantReadOnlyReason ?? '',
+      );
     }
   }
 

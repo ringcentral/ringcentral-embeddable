@@ -3,6 +3,7 @@ import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   action,
   computed,
+  delegate,
   injectable,
   RcModule,
   state,
@@ -82,27 +83,27 @@ export class VoicemailDrop extends RcModule {
   }
 
   @action
-  setNoBeepSilenceDuration(duration: number) {
+  private _setNoBeepSilenceDuration(duration: number): void {
     this.noBeepSilenceDuration = duration;
   }
 
   @action
-  addVoicemailMessage(voicemailMessage: VoicemailMessage) {
+  private _addVoicemailMessage(voicemailMessage: VoicemailMessage): void {
     const id = voicemailMessage.id || `${Date.now()}`;
     const existingRecord = this.voicemailMessages.find(
       (message) => message.id === id,
     );
     if (existingRecord) {
-      if (voicemailMessage.file && existingRecord.file !== voicemailMessage.file) {
-        existingRecord.file = voicemailMessage.file;
-      }
-      if (
-        voicemailMessage.fileName &&
-        existingRecord.fileName !== voicemailMessage.fileName
-      ) {
-        existingRecord.fileName = voicemailMessage.fileName;
-      }
-      existingRecord.label = voicemailMessage.label;
+      this.voicemailMessages = this.voicemailMessages.map((message) =>
+        message.id === id
+          ? {
+              ...message,
+              label: voicemailMessage.label,
+              file: voicemailMessage.file || message.file,
+              fileName: voicemailMessage.fileName || message.fileName,
+            }
+          : message,
+      );
       return;
     }
     this.voicemailMessages = [
@@ -117,23 +118,50 @@ export class VoicemailDrop extends RcModule {
   }
 
   @action
-  deleteVoicemailMessage(voicemailMessage: VoicemailMessage) {
+  private _deleteVoicemailMessage(voicemailMessage: VoicemailMessage): void {
     this.voicemailMessages = this.voicemailMessages.filter(
       (message) => message.id !== voicemailMessage.id,
     );
   }
 
   @action
-  setExternalVoicemailDropFiles(voicemailMessages: VoicemailMessage[]) {
+  private _setExternalVoicemailDropFiles(
+    voicemailMessages: VoicemailMessage[],
+  ): void {
     this.externalVoicemailDropFiles = voicemailMessages;
   }
 
-  async fetchExternalVoicemailDropFiles() {
+  @delegate('server')
+  async setNoBeepSilenceDuration(duration: number): Promise<void> {
+    this._setNoBeepSilenceDuration(duration);
+  }
+
+  @delegate('server')
+  async addVoicemailMessage(voicemailMessage: VoicemailMessage): Promise<void> {
+    this._addVoicemailMessage(voicemailMessage);
+  }
+
+  @delegate('server')
+  async deleteVoicemailMessage(
+    voicemailMessage: VoicemailMessage,
+  ): Promise<void> {
+    this._deleteVoicemailMessage(voicemailMessage);
+  }
+
+  @delegate('server')
+  async setExternalVoicemailDropFiles(
+    voicemailMessages: VoicemailMessage[],
+  ): Promise<void> {
+    this._setExternalVoicemailDropFiles(voicemailMessages);
+  }
+
+  @delegate('mainClient')
+  async fetchExternalVoicemailDropFiles(): Promise<void> {
     if (typeof this._externalVoicemailFetcher !== 'function') {
       return;
     }
     const externalMessages = await this._externalVoicemailFetcher();
-    this.setExternalVoicemailDropFiles(
+    await this.setExternalVoicemailDropFiles(
       externalMessages.filter(
         (voicemailMessage) =>
           isValidAudioUri(voicemailMessage.uri) &&

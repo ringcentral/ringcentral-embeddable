@@ -193,6 +193,9 @@ export class Webphone extends WebphoneBase {
       _subscription,
       _prefix,
     );
+    if (_noiseReduction) {
+      this._ignoreModuleReadiness(_noiseReduction);
+    }
     globalThis.externalClearTimeout = clearTimeout;
     globalThis.externalSetTimeout = setTimeout;
 

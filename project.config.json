@@ -19,6 +19,7 @@
   "assets": [
     { "from": "next/popup.html", "to": "popup.html" },
     { "from": "next/index.html", "to": "index.html" },
+    { "from": "src/plugins.json", "to": "plugins.json" },
     { "from": "next/assets", "to": "assets" }
   ],
   "environment": {

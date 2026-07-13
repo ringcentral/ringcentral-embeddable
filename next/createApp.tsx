@@ -37,10 +37,24 @@ interface UrlParams {
   jwtOwnerId?: string;
   redirectUri?: string;
   fromPopup?: boolean;
+  mainTab?: boolean;
+  enableSideWidget?: boolean;
+  enableVoicemailDrop?: boolean;
+  disableNoiseReduction?: boolean;
+  enableSmartNote?: boolean;
 }
 
 function parseBooleanParam(value: string | undefined): boolean {
   return value === '1' || value === 'true';
+}
+
+function parseOptionalBooleanParam(
+  value: string | undefined,
+): boolean | undefined {
+  if (typeof value === 'undefined') {
+    return undefined;
+  }
+  return parseBooleanParam(value);
 }
 
 type NormalizedRuntimeSdkConfig = {
@@ -101,6 +115,11 @@ function readUrlParams(): UrlParams {
     jwtOwnerId: params.jwtOwnerId || undefined,
     redirectUri: params.redirectUri || undefined,
     fromPopup: parseBooleanParam(params.fromPopup),
+    mainTab: parseOptionalBooleanParam(params.mainTab),
+    enableSideWidget: parseBooleanParam(params.enableSideWidget),
+    enableVoicemailDrop: parseBooleanParam(params.enableVoicemailDrop),
+    disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
+    enableSmartNote: parseBooleanParam(params.enableSmartNote),
   };
 }
 
@@ -111,7 +130,7 @@ export const createApp = async (
   options?: Parameters<typeof createSharedApp>[0]['share'],
   additionalModules: Parameters<typeof createSharedApp>[0]['modules'] = [],
 ) => {
-  const config = process.env.APP_CONFIG as StaticAppConfig;
+  const config = process.env.APP_CONFIG as unknown as StaticAppConfig;
   const { prefix, brandConfig, version } = config;
 
   const urlParams =
@@ -147,6 +166,11 @@ export const createApp = async (
     jwt: urlParams.jwt,
     jwtOwnerId: urlParams.jwtOwnerId,
     fromPopup: urlParams.fromPopup,
+    mainTab: urlParams.mainTab,
+    enableSideWidget: urlParams.enableSideWidget,
+    enableVoicemailDrop: urlParams.enableVoicemailDrop,
+    disableNoiseReduction: urlParams.disableNoiseReduction,
+    enableSmartNote: urlParams.enableSmartNote,
   });
 
   const app = await createSharedApp(appConfig);

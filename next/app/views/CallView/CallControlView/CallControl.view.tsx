@@ -1,8 +1,11 @@
+import callDirections from '@ringcentral-integration/commons/enums/callDirections';
+import type { NormalizedSession } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
 import { AppFeatures } from '@ringcentral-integration/micro-auth/src/app/services';
 import { SyncTabView } from '@ringcentral-integration/micro-core/src/app/views';
 import type { UIFunctions } from '@ringcentral-integration/next-core';
 import {
   delegate,
+  inject,
   injectable,
   optional,
   Root,
@@ -16,6 +19,7 @@ import {
   CallingSettings,
   ForwardingNumber,
   type OnCallActionType,
+  Webphone as MicroPhoneWebphone,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { CallActionRoutePath } from '@ringcentral-integration/micro-phone/src/app/services/CallAction/CallAction.interface';
 import { AudioCardView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/AudioCardViewSpring';
@@ -26,29 +30,18 @@ import type {
   CallControlViewProps,
 } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring/CallControl.view.interface';
 
+import { VoicemailDrop } from '../../../services/VoicemailDrop';
+import type { Webphone } from '../../../services/WebphoneV2';
+import { VoicemailDropView } from '../../VoicemailDropView';
+
+import { addEmbeddableCallActions } from './CallControl.helper';
+import { VoicemailDropCallControlPanel } from './VoicemailDropCallControlPanel';
+
 const PARK_PATH = 'park' as unknown as CallActionRoutePath;
 
-function insertParkAction(
-  actions: ICallAction[],
-  disabled: boolean,
-): ICallAction[] {
-  if (actions.some((action) => action.type === 'park')) {
-    return actions;
-  }
-  const parkAction: ICallAction = {
-    type: 'park',
-    disabled,
-  };
-  const hangUpIndex = actions.findIndex((action) => action.type === 'hangUp');
-  if (hangUpIndex === -1) {
-    return [...actions, parkAction];
-  }
-  return [
-    ...actions.slice(0, hangUpIndex),
-    parkAction,
-    ...actions.slice(hangUpIndex),
-  ];
-}
+type VoicemailDropSession = NormalizedSession & {
+  voicemailDropStatus?: string;
+};
 
 @injectable({
   name: 'CallControlView',
@@ -64,6 +57,9 @@ export class CallControlView extends CallControlViewBase {
     root: Root,
     syncTabView: SyncTabView,
     audioCardView: AudioCardView,
+    voicemailDrop: VoicemailDrop,
+    @inject(MicroPhoneWebphone) webphone: Webphone,
+    voicemailDropView: VoicemailDropView,
     @optional('CallControlViewOptions')
     callControlViewOptions?: CallControlViewOptions,
   ) {
@@ -76,16 +72,27 @@ export class CallControlView extends CallControlViewBase {
       root,
       syncTabView,
       audioCardView,
-      callControlViewOptions,
+      {
+        ...callControlViewOptions,
+        component:
+          callControlViewOptions?.component ??
+          (VoicemailDropCallControlPanel as unknown as CallControlViewOptions['component']),
+      },
     );
     this._parkCallAction = callAction;
     this._parkCallingSettings = callingSettings;
     this._parkActiveCallControl = activeCallControl;
+    this._voicemailDrop = voicemailDrop;
+    this._webphone = webphone;
+    this._voicemailDropView = voicemailDropView;
   }
 
   private readonly _parkCallAction: CallAction;
   private readonly _parkCallingSettings: CallingSettings;
   private readonly _parkActiveCallControl: ActiveCallControl;
+  private readonly _voicemailDrop: VoicemailDrop;
+  private readonly _webphone: Webphone;
+  private readonly _voicemailDropView: VoicemailDropView;
 
   @delegate('server')
   async navigateToPark(telephonySessionId: string): Promise<void> {
@@ -101,16 +108,39 @@ export class CallControlView extends CallControlViewBase {
       }
     ).useCallActions.call(this, props);
     const telephonySessionId = props.call.telephonySessionId!;
-    const { session, isWebphoneMode } = useConnector(() => ({
-      session:
-        this._parkActiveCallControl.getActiveSession(telephonySessionId),
+    const {
+      session,
+      isWebphoneMode,
+      webphoneSession,
+      hasVoicemailDropPermission,
+    } = useConnector(() => ({
+      session: this._parkActiveCallControl.getActiveSession(telephonySessionId),
       isWebphoneMode: this._parkCallingSettings.isWebphoneMode,
+      webphoneSession: this._webphone.sessions.find(
+        (item) => item.partyData?.sessionId === telephonySessionId,
+      ) as VoicemailDropSession | undefined,
+      hasVoicemailDropPermission:
+        this._voicemailDrop.hasVoicemailDropPermission,
     }));
     const isOnHold = session?.isOnHold ?? false;
     const transferring = Boolean(props.call.warmTransferInfo);
     const parkDisabled =
       !isWebphoneMode || transferring || isOnHold || props.actionsDisabled;
-    return insertParkAction(baseActions, parkDisabled);
+    const showVoicemailDrop =
+      hasVoicemailDropPermission &&
+      isWebphoneMode &&
+      webphoneSession?.direction === callDirections.outbound &&
+      !props.call.isConferenceCall;
+    const voicemailDropDisabled = showVoicemailDrop
+      ? transferring ||
+        isOnHold ||
+        props.actionsDisabled ||
+        Boolean(webphoneSession.voicemailDropStatus)
+      : undefined;
+    return addEmbeddableCallActions(baseActions, {
+      parkDisabled,
+      voicemailDropDisabled,
+    });
   }
 
   override getUIFunctions(
@@ -121,6 +151,15 @@ export class CallControlView extends CallControlViewBase {
     const onAction: OnCallActionType = async (actionType, ...args) => {
       if (actionType === 'park') {
         await this.navigateToPark(telephonySessionId);
+        return;
+      }
+      if (actionType === 'voicemail') {
+        const sessionId = this._webphone.sessions.find(
+          (session) => session.partyData?.sessionId === telephonySessionId,
+        )?.id;
+        if (sessionId) {
+          this._voicemailDropView.open(sessionId);
+        }
         return;
       }
       await baseFunctions.onAction(actionType, ...args);

@@ -1,0 +1,18 @@
+module.exports = {
+  AddVoicemailMd: 'AddVoicemailMd',
+  AppsMd: 'AppsMd',
+  ArrowLeftMd: 'ArrowLeftMd',
+  AttachMd: 'AttachMd',
+  EditMd: 'EditMd',
+  OverflowVerticalMd: 'OverflowVerticalMd',
+  PlayMd: 'PlayMd',
+  PlayOutlinedMd: 'PlayOutlinedMd',
+  PushPinFilledMd: 'PushPinFilledMd',
+  PushPinMd: 'PushPinMd',
+  RefreshMd: 'RefreshMd',
+  SendFilledMd: 'SendFilledMd',
+  StopMd: 'StopMd',
+  TrashMd: 'TrashMd',
+  VoicemailMd: 'VoicemailMd',
+  Xmd: 'Xmd',
+};

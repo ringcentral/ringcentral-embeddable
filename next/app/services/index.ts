@@ -1,6 +1,7 @@
 export * from './WebphoneV2';
 export * from './AppFeatures';
 export * from './NoiseReduction';
+export * from './SmartNotes';
 export * from './VoicemailDrop';
 export * from './ActiveCallControl';
 export * from './CallMonitor';
@@ -13,3 +14,5 @@ export * from './GenericMeeting';
 export * from './SmsOptOut';
 export * from './MonitoredExtensions';
 export * from './CallQueues';
+export * from './ThirdParty';
+export * from './TabManager';

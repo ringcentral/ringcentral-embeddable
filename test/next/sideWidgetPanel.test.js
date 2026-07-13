@@ -1,0 +1,151 @@
+import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
+
+import { SideWidgetPanel } from '../../next/app/views/SideWidgetView/SideWidgetPanel';
+import { SideWidgetAppPanel } from '../../next/app/views/SideWidgetView/SideWidgetAppPanel';
+
+jest.mock('../../next/app/views/SideWidgetView/SideWidgetAppPanel', () => ({
+  SideWidgetAppPanel: jest.fn(() => <div>Loaded app panel</div>),
+}));
+
+function createProps(overrides = {}) {
+  return {
+    apps: [],
+    tabs: [{ id: 'side-widget-apps', name: 'Apps' }],
+    currentTabId: 'side-widget-apps',
+    selectedAppId: null,
+    contact: { id: 'contact' },
+    pinAppIds: [],
+    onTabChange: jest.fn(),
+    onSelectApp: jest.fn(),
+    onBack: jest.fn(),
+    onClose: jest.fn(),
+    onCloseAppTab: jest.fn(),
+    onTogglePin: jest.fn(),
+    onLoadApp: jest.fn(async () => null),
+    ...overrides,
+  };
+}
+
+describe('SideWidgetPanel', () => {
+  beforeEach(() => {
+    SideWidgetAppPanel.mockClear();
+  });
+
+  test('shows an empty app state and closes from the header', () => {
+    const props = createProps();
+    render(<SideWidgetPanel {...props} />);
+
+    expect(screen.getByText('Available apps')).toBeInTheDocument();
+    expect(screen.getByText('No available apps')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close apps' }));
+    expect(props.onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('renders available apps with names, fallbacks, and selection handlers', () => {
+    const props = createProps({
+      apps: [
+        { id: 'crm', name: 'CRM', iconUri: 'crm.svg' },
+        { id: 'tasks' },
+      ],
+    });
+    render(<SideWidgetPanel {...props} />);
+
+    expect(screen.getByRole('list', { name: 'Available apps' })).toBeInTheDocument();
+    expect(screen.getByText('CRM')).toBeInTheDocument();
+    expect(screen.getByText('tasks')).toBeInTheDocument();
+    expect(screen.getByLabelText('CRM')).toHaveAttribute('data-src', 'crm.svg');
+    fireEvent.click(screen.getByRole('button', { name: 'Open CRM' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Open tasks' }));
+    expect(props.onSelectApp).toHaveBeenNthCalledWith(1, 'crm');
+    expect(props.onSelectApp).toHaveBeenNthCalledWith(2, 'tasks');
+  });
+
+  test('forwards tab context changes as strings', () => {
+    const props = createProps();
+    render(<SideWidgetPanel {...props} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Change test tab' }));
+    expect(props.onTabChange).toHaveBeenCalledWith('test-tab');
+  });
+
+  test('renders a selected unpinned app inside the apps tab', () => {
+    const app = { id: 'crm', name: 'CRM' };
+    const props = createProps({ apps: [app], selectedAppId: 'crm' });
+    render(<SideWidgetPanel {...props} />);
+
+    expect(screen.getByText('Loaded app panel')).toBeInTheDocument();
+    const appProps = SideWidgetAppPanel.mock.calls[0][0];
+    expect(appProps).toEqual(
+      expect.objectContaining({
+        app,
+        contact: { id: 'contact' },
+        isPinned: false,
+        showBack: true,
+        showCloseButton: false,
+        onLoadApp: props.onLoadApp,
+      }),
+    );
+    appProps.onBack();
+    appProps.onClose();
+    appProps.onTogglePin();
+    expect(props.onBack).toHaveBeenCalledTimes(2);
+    expect(props.onTogglePin).toHaveBeenCalledWith('crm');
+  });
+
+  test('falls back to available apps when the selected id is unknown', () => {
+    const props = createProps({
+      apps: [{ id: 'crm', name: 'CRM' }],
+      selectedAppId: 'missing',
+    });
+    render(<SideWidgetPanel {...props} />);
+    expect(screen.getByText('Available apps')).toBeInTheDocument();
+    expect(SideWidgetAppPanel).not.toHaveBeenCalled();
+  });
+
+  test('renders pinned app tabs and wires tab-specific controls', () => {
+    const app = { id: 'crm', name: 'CRM' };
+    const props = createProps({
+      apps: [app],
+      pinAppIds: ['crm'],
+      tabs: [
+        { id: 'side-widget-apps', name: 'Apps' },
+        { id: 'side-widget-app-crm', appId: 'crm', name: 'CRM' },
+      ],
+      currentTabId: 'side-widget-app-crm',
+    });
+    render(<SideWidgetPanel {...props} />);
+
+    expect(screen.getByRole('button', { name: 'Apps' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'CRM' })).toBeInTheDocument();
+    const appProps = SideWidgetAppPanel.mock.calls[0][0];
+    expect(appProps).toEqual(
+      expect.objectContaining({
+        app,
+        isPinned: true,
+        showBack: false,
+        showCloseButton: true,
+      }),
+    );
+    appProps.onBack();
+    appProps.onClose();
+    appProps.onTogglePin();
+    expect(props.onTabChange).toHaveBeenCalledWith('side-widget-apps');
+    expect(props.onCloseAppTab).toHaveBeenCalledWith('side-widget-app-crm');
+    expect(props.onTogglePin).toHaveBeenCalledWith('crm');
+  });
+
+  test('renders an unavailable state for a removed tab app', () => {
+    const props = createProps({
+      tabs: [
+        { id: 'side-widget-apps', name: 'Apps' },
+        { id: 'side-widget-app-missing', appId: 'missing', name: 'Removed app' },
+      ],
+    });
+    render(<SideWidgetPanel {...props} />);
+
+    expect(screen.getByText('App unavailable')).toBeInTheDocument();
+    expect(screen.getByText('This app is no longer registered.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close app tab' }));
+    expect(props.onCloseAppTab).toHaveBeenCalledWith('side-widget-app-missing');
+  });
+});

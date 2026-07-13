@@ -63,6 +63,7 @@ import type { AppViewOptions } from './AppView.interface';
 import { ExpandedView } from './views/ExpandedView';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
+import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 @injectable({
   name: 'AppView',
 })
@@ -183,6 +184,11 @@ export class AppView extends RcViewModule {
       authentication: true,
     },
     {
+      path: '/settings/voicemailDrop',
+      component: this._voicemailDropSettingsView.component,
+      authentication: true,
+    },
+    {
       path: '/settings/feedback',
       component: this._feedbackView.component,
       authentication: true,
@@ -279,6 +285,7 @@ export class AppView extends RcViewModule {
     private _callingSettingsView: CallingSettingsView,
     private _regionSettingsView: RegionSettingsView,
     private _audioSettingsView: AudioSettingsView,
+    private _voicemailDropSettingsView: VoicemailDropSettingsView,
     private _feedbackView: FeedbackView,
     private _issuesTrackingView: IssuesTrackingView,
     private _callQueueManagementView: CallQueueManagementView,

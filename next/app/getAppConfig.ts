@@ -28,6 +28,7 @@ import {
   Contacts,
   ContactSearch,
   ContactMatcher,
+  ActivityMatcher,
 } from '@ringcentral-integration/micro-contacts/src/app/services';
 import {
   ContactDetailsView,
@@ -43,6 +44,7 @@ import type {
   BrandConfig,
   BrowserLoggerOptions,
   LocaleOptions,
+  LogOptions as LoggerLogOptions,
 } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   Brand,
@@ -94,20 +96,21 @@ import {
   type RcVideoOptions,
 } from '@ringcentral-integration/micro-meeting/src/app/services';
 import type { HeaderNavViewSpringOptions } from '@ringcentral-integration/micro-core/src/app/views';
-import {
-  PersonalMeetingSettingsViewSpring,
-} from '@ringcentral-integration/micro-meeting/src/app/views';
+import { PersonalMeetingSettingsViewSpring } from '@ringcentral-integration/micro-meeting/src/app/views';
+import type { SettingsViewOptions } from '@ringcentral-integration/micro-setting/src/app/views/SettingsView';
+import React from 'react';
 import {
   AppFeatures as AppFeaturesV2,
   GenericMeeting as GenericMeetingV2,
   RcVideo as RcVideoV2,
+  TabManager,
+  type TabManagerOptions,
+  SmartNotes,
+  ThirdParty,
 } from './services';
 import { AccountContacts as AccountContactsV2 } from './services/AccountContacts';
 import { SmsOptOut as SmsOptOutV2 } from './services/SmsOptOut';
-import {
-  MeetingView,
-  MeetingInviteView,
-} from './views/MeetingView';
+import { MeetingView, MeetingInviteView } from './views/MeetingView';
 import { ContactListView as ContactListViewV2 } from './views/ContactListView/ContactList.view';
 import { ContactDetailsView as ContactDetailsViewV2 } from './views/ContactDetailsView/ContactDetails.view';
 import {
@@ -119,8 +122,10 @@ import { DialerPadView as DialerPadViewV2 } from './views/DialerPadView';
 import { CallHUDView } from './views/CallHUDView';
 import { ExpandedView } from './views/ExpandedView';
 import {
-  CallControlView as MicroPhoneCallControlView,
-} from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
+  SideWidgetView,
+  type SideWidgetOptions,
+} from './views/SideWidgetView';
+import { CallControlView as MicroPhoneCallControlView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
 import {
   QuickAccess,
   UserGuide,
@@ -130,6 +135,7 @@ import type {
   InitiatorOptions,
   IRouterOptions,
   ISharedAppOptions,
+  PortManagerOptions,
   RootOptions,
 } from '@ringcentral-integration/next-core';
 import {
@@ -163,10 +169,14 @@ import { CallControlView as CallControlViewV2 } from './views/CallView/CallContr
 import { CallView as CallViewV2 } from './views/CallView/Call.view';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
+import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
+import {
+  VoicemailDropSettingsLink,
+  VoicemailDropSettingsView,
+} from './views/VoicemailDropSettingsView';
+import { VoicemailDropView } from './views/VoicemailDropView';
 
-interface CreateAppEntryOptions<
-  T extends typeof createSharedApp,
-> {
+interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   appVersion: string;
   prefix?: string;
   brandConfig: BaseBrandConfig;
@@ -174,14 +184,22 @@ interface CreateAppEntryOptions<
   modules: Parameters<T>[0]['modules'];
   share: ISharedAppOptions;
   analyticsKey: string;
+  disableLoginPopup?: boolean;
+  redirectUri?: string;
+  jwt?: string;
+  jwtOwnerId?: string;
+  fromPopup?: boolean;
+  mainTab?: boolean;
+  enableSideWidget?: boolean;
+  enableVoicemailDrop?: boolean;
+  disableNoiseReduction?: boolean;
+  enableSmartNote?: boolean;
 }
 
 /**
  * create app entry config
  */
-export const getAppConfig = <
-  T extends typeof createSharedApp,
->({
+export const getAppConfig = <T extends typeof createSharedApp>({
   appVersion,
   prefix,
   brandConfig,
@@ -189,6 +207,12 @@ export const getAppConfig = <
   modules = [],
   share,
   analyticsKey,
+  fromPopup = false,
+  mainTab,
+  enableSideWidget = false,
+  enableVoicemailDrop = false,
+  disableNoiseReduction = false,
+  enableSmartNote = false,
 }: CreateAppEntryOptions<T>) => {
   const { defaultLocale } = brandConfig;
 
@@ -292,6 +316,10 @@ export const getAppConfig = <
       Environment,
       ContactInitiator,
       ContactMatcher,
+      ActivityMatcher,
+      TabManager,
+      SmartNotes,
+      ThirdParty,
       // views
       {
         provide: ContactDetailsView,
@@ -354,6 +382,9 @@ export const getAppConfig = <
       MonitoredExtensions,
       ParkView,
       ExpandedView,
+      SideWidgetView,
+      VoicemailDropView,
+      VoicemailDropSettingsView,
       CallHUDView,
       {
         provide: 'MessageThreadOptions',
@@ -393,6 +424,20 @@ export const getAppConfig = <
       {
         provide: 'Prefix',
         useValue: prefix,
+      },
+      {
+        provide: 'PortManagerOptions',
+        useValue: {
+          disableAutoPickMainTab: true,
+        } satisfies PortManagerOptions,
+      },
+      {
+        provide: 'TabManagerOptions',
+        useValue: {
+          fromPopup,
+          autoMainTab: typeof mainTab === 'undefined',
+          isMainTab: mainTab === true,
+        } satisfies TabManagerOptions,
       },
       {
         provide: 'SdkConfig',
@@ -455,17 +500,28 @@ export const getAppConfig = <
         deps: [AccountContacts, AddressBook],
         useFactory: (
           accountContacts: AccountContacts,
-          addressBook: AddressBook,
+          addressBook: AddressBook
         ) => [accountContacts, addressBook],
       },
       {
         provide: 'CallLoggerOptions',
-        useValue: {
-          logFunction: async () => {
-            // TODO: implement log function
-          },
-          readyCheckFunction: () => true,
-        } satisfies CallLoggerOptions,
+        useFactory: (thirdParty: ThirdParty) =>
+          ({
+            async logFunction<P, S>({
+              item,
+              ...options
+            }: LoggerLogOptions<P, S>) {
+              if (!item) {
+                return;
+              }
+              await thirdParty.logCall({
+                ...(options as Record<string, unknown>),
+                call: item as Parameters<ThirdParty['logCall']>[0]['call'],
+              });
+            },
+            readyCheckFunction: () => thirdParty.callLoggerRegistered,
+          } satisfies CallLoggerOptions),
+        deps: [ThirdParty],
       },
       {
         provide: 'CallActionOptions',
@@ -475,26 +531,64 @@ export const getAppConfig = <
       },
       {
         provide: 'ConversationLoggerOptions',
-        useValue: {
-          async logFunction(e) {
-            console.log('🐞 ~ logFunction e:', e);
-          },
-          readyCheckFunction() {
-            return true;
-          },
-          isLoggedContact(conversation, lastActivity, item) {
-            console.log('🐞 ~ isLoggedContact:', {
-              conversation,
-              lastActivity,
+        useFactory: (thirdParty: ThirdParty) =>
+          ({
+            async logFunction<P, S>({
               item,
-            });
-            return lastActivity && item && lastActivity.id === item.id;
-          },
-          accordWithLogRequirement(conversation) {
-            console.log('🐞 ~ conversation:', conversation);
-            return true;
-          },
-        } satisfies ConversationLoggerOptions,
+              ...options
+            }: LoggerLogOptions<P, S>) {
+              if (!item) {
+                return;
+              }
+              await thirdParty.logConversation({
+                ...(options as Record<string, unknown>),
+                item: item as Parameters<
+                  ThirdParty['logConversation']
+                >[0]['item'],
+              });
+            },
+            readyCheckFunction() {
+              return thirdParty.messageLoggerRegistered;
+            },
+            isLoggedContact(conversation, lastActivity, item) {
+              return lastActivity && item && lastActivity.id === item.id;
+            },
+            accordWithLogRequirement(conversation) {
+              return true;
+            },
+          } satisfies ConversationLoggerOptions),
+        deps: [ThirdParty],
+      },
+      {
+        provide: 'ThirdPartyOptions',
+        useValue: {
+          recordingLink: process.env.RECORDING_LINK,
+        },
+      },
+      {
+        provide: 'SideWidgetOptions',
+        useValue: {
+          enableSideWidget,
+        } satisfies SideWidgetOptions,
+      },
+      {
+        provide: 'FeatureConfiguration',
+        useValue: {
+          NoiseReduction: !disableNoiseReduction,
+          SmartNote: enableSmartNote,
+          VoicemailDrop: enableVoicemailDrop,
+        } satisfies EmbeddableFeatureConfiguration,
+      },
+      {
+        provide: 'SettingsViewOptions',
+        useFactory: (voicemailDrop: VoicemailDrop, router: RouterPlugin) =>
+          ({
+            additional: React.createElement(VoicemailDropSettingsLink, {
+              voicemailDrop,
+              onClick: () => router.push('/settings/voicemailDrop'),
+            }),
+          } satisfies SettingsViewOptions),
+        deps: [VoicemailDrop, RouterPlugin],
       },
       {
         provide: 'SmsConversationsOptions',
@@ -505,16 +599,15 @@ export const getAppConfig = <
       },
       {
         provide: 'IntegrationConfigOptions',
-        useValue:
-          ({
-            key: 'thirdParty',
-            onViewEntity: (entity) => {
-              console.log('🐞 ~ onViewEntity entity:', entity);
-            },
-            onCreateEntity: (entity) => {
-              console.log('🐞 ~ onCreateEntity entity:', entity);
-            },
-          } satisfies IntegrationConfigOptions)
+        useValue: {
+          key: 'thirdParty',
+          onViewEntity: (entity) => {
+            console.log('🐞 ~ onViewEntity entity:', entity);
+          },
+          onCreateEntity: (entity) => {
+            console.log('🐞 ~ onCreateEntity entity:', entity);
+          },
+        } satisfies IntegrationConfigOptions,
       },
       {
         provide: 'HeaderNavViewOptions',
