@@ -34,7 +34,7 @@ export default {
   appearance: '外观',
   voicemailDropSettings: '语音信箱投递设置',
   phoneNumberFormat: '电话号码格式',
-  hud: '浮窗显示 (HUD)',
+  hud: '平视显示器',
   connected: '已连接',
   disconnected: '已断开连接',
   as: '身份：',

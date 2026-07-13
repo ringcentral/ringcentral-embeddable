@@ -34,7 +34,7 @@ export default {
   appearance: '外觀',
   voicemailDropSettings: '語音信箱投遞設定',
   phoneNumberFormat: '電話號碼格式',
-  hud: '抬頭顯示 (HUD)',
+  hud: '抬頭顯示器',
   connected: '已連線',
   disconnected: '已中斷連線',
   as: '身分：',

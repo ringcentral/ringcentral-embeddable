@@ -18,4 +18,8 @@ export default {
   settingsLabel: 'सेटिंग्स',
   glipLabel: 'चैट',
   composeText: 'संदेश लिखें',
+  hudLabel: 'हड',
+  directLabel: 'डायरेक्ट',
+  sharedLabel: 'साझा',
+  callQueueLabel: 'कॉल कतार',
 };

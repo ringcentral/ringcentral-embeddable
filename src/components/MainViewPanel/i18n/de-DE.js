@@ -18,6 +18,10 @@ export default {
   hangoutsTitle: "Hangouts mit Konferenzfunktion starten",
   settingsLabel: "Einstellungen",
   composeText: "Text erstellen",
+  hudLabel: 'Head-up-Display',
+  directLabel: 'Direkt',
+  sharedLabel: 'Geteilt',
+  callQueueLabel: 'Anrufwarteschlange',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

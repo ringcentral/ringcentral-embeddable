@@ -18,6 +18,10 @@ export default {
   settingsLabel: "Configurações",
   glipLabel: "Mensagem",
   composeText: "Criar texto",
+  hudLabel: 'Exibição HUD',
+  directLabel: 'Direto',
+  sharedLabel: 'Compartilhado',
+  callQueueLabel: 'Fila de chamadas',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

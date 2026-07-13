@@ -34,7 +34,7 @@ export default {
   appearance: 'दिखावट',
   voicemailDropSettings: 'वॉइसमेल ड्रॉप सेटिंग्स',
   phoneNumberFormat: 'फ़ोन नंबर फ़ॉर्मैट',
-  hud: 'हेड्स-अप डिस्प्ले (HUD)',
+  hud: 'हड',
   connected: 'कनेक्टेड',
   disconnected: 'डिस्कनेक्टेड',
   as: 'के रूप में',

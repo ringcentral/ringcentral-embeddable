@@ -34,7 +34,7 @@ export default {
   appearance: '表示',
   voicemailDropSettings: 'ボイスメールドロップ設定',
   phoneNumberFormat: '電話番号形式',
-  hud: 'ヘッドアップ表示 (HUD)',
+  hud: 'ヘッドアップ表示',
   connected: '接続済み',
   disconnected: '未接続',
   as: 'として',

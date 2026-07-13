@@ -34,7 +34,7 @@ export default {
   appearance: 'Darstellung',
   voicemailDropSettings: 'Voicemail-Drop-Einstellungen',
   phoneNumberFormat: 'Telefonnummernformat',
-  hud: 'Heads-up-Display (HUD)',
+  hud: 'Head-up-Display',
   connected: 'Verbunden',
   disconnected: 'Getrennt',
   as: 'als',

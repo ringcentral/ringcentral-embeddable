@@ -18,6 +18,10 @@ export default {
   settingsLabel: "Settings",
   glipLabel: 'Chat',
   composeText: "Compose Text",
+  hudLabel: 'HUD',
+  directLabel: 'Direct',
+  sharedLabel: 'Shared',
+  callQueueLabel: 'Call queue',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

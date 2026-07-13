@@ -17,7 +17,11 @@ export default {
   hangoutsTitle: "Iniciar Hangout con Conferencias",
   settingsLabel: "Configuración",
   glipLabel: 'Mensaje',
-  composeText: "Redactar mensaje"
+  composeText: "Redactar mensaje",
+  hudLabel: 'Pantalla HUD',
+  directLabel: 'Directo',
+  sharedLabel: 'Compartido',
+  callQueueLabel: 'Cola de llamadas',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

@@ -18,6 +18,10 @@ export default {
   hangoutsTitle: "以會議啟動 Hangouts",
   settingsLabel: "設定",
   composeText: "撰寫簡訊",
+  hudLabel: '抬頭顯示器',
+  directLabel: '直撥',
+  sharedLabel: '共用',
+  callQueueLabel: '通話佇列',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

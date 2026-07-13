@@ -34,7 +34,7 @@ export default {
   appearance: 'Ulkoasu',
   voicemailDropSettings: 'Vastaajaviestin asetukset',
   phoneNumberFormat: 'Puhelinnumeron muoto',
-  hud: 'Heads-up-näyttö (HUD)',
+  hud: 'HUD-näyttö',
   connected: 'Yhdistetty',
   disconnected: 'Ei yhteyttä',
   as: 'nimellä',

@@ -18,6 +18,10 @@ export default {
   hangoutsTitle: "通过召开会议开始聚会",
   settingsLabel: "设置",
   composeText: "编辑短信",
+  hudLabel: '平视显示器',
+  directLabel: '直拨',
+  sharedLabel: '共享',
+  callQueueLabel: '呼叫队列',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

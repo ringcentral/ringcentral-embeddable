@@ -34,7 +34,7 @@ export default {
   autoStartAiAssistant: 'Auto-start AI Assistant',
   voicemailDropSettings: 'Voicemail drop settings',
   phoneNumberFormat: 'Phone number format',
-  hud: 'Heads-up display (HUD)',
+  hud: 'HUD',
   connected: 'Connected',
   disconnected: 'Disconnected',
   as: 'as',

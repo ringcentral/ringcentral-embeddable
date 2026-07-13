@@ -18,4 +18,8 @@ export default {
   settingsLabel: '설정',
   glipLabel: '채팅',
   composeText: '문자 작성',
+  hudLabel: '헤드업 디스플레이',
+  directLabel: '직접',
+  sharedLabel: '공유',
+  callQueueLabel: '통화 큐',
 };

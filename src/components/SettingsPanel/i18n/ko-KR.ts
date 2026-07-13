@@ -34,7 +34,7 @@ export default {
   appearance: '외관',
   voicemailDropSettings: '음성 사서함 드롭 설정',
   phoneNumberFormat: '전화번호 형식',
-  hud: '헤드업 디스플레이(HUD)',
+  hud: '헤드업 디스플레이',
   connected: '연결됨',
   disconnected: '연결 해제됨',
   as: '계정:',
