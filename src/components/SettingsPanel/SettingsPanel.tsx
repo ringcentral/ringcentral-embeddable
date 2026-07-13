@@ -14,6 +14,7 @@ import {
   ExternalLinkLineItem,
 } from './SettingItem';
 import { AuthSettingsSection } from './AuthSettingsSection';
+import i18n from './i18n';
 
 const Empty = (): null => null;
 
@@ -65,7 +66,13 @@ type SettingItem = {
 }
 
 function getLoggingGroupName(showAutoLog: boolean, showAutoLogSMS: boolean) {
-  return `${showAutoLog ? 'Call' : ''}${showAutoLog && showAutoLogSMS ? ' and ' : ''}${showAutoLogSMS ? 'SMS' : ''} logging`;
+  if (showAutoLog && showAutoLogSMS) {
+    return 'callAndSmsLogging';
+  }
+  if (showAutoLog) {
+    return 'callLogging';
+  }
+  return 'smsLogging';
 }
 
 interface NewSettingsPanelProps extends SettingsPanelProps {
@@ -184,6 +191,7 @@ function ItemRenderer({ item, currentLocale }: {
       <ButtonLineItem
         name={item.name}
         buttonLabel={item.buttonLabel}
+        currentLocale={currentLocale}
         onClick={item.onClick}
         description={item.description}
       />
@@ -271,7 +279,7 @@ function getSettingItemFromThirdPartyItem({
       id: item.id || item.name,
       name: item.name,
       dataSign: item.name,
-      buttonLabel: item.buttonLabel || 'Open',
+      buttonLabel: item.buttonLabel,
       show: true,
       onClick: () => onThirdPartyButtonClick(item.id),
       order,
@@ -467,7 +475,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       id: 'region',
       name: 'region',
       dataSign: 'region',
-      description: 'Select the country code used for local dialing and phone number formatting.',
+      description: i18n.getString('regionDescription', currentLocale),
       show: showRegion,
       onClick: onRegionSettingsLinkClick,
       order: 200,
@@ -481,7 +489,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         id: 'theme',
         type: 'link',
         name: 'theme',
-        description: 'Switch between light and dark themes',
+        description: i18n.getString('themeDescription', currentLocale),
         onClick: onThemeSettingsLinkClick,
         show: showThemeSetting,
         order: 300,
@@ -490,7 +498,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         type: 'link',
         id: 'phoneNumberFormat',
         name: 'phoneNumberFormat',
-        description: 'Select phone number format',
+        description: i18n.getString('phoneNumberFormatDescription', currentLocale),
         onClick: gotoPhoneNumberFormatSettings,
         show: showPhoneNumberFormatSettings,
         order: 400,
@@ -507,7 +515,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         type: 'link',
         id: 'calling',
         name: 'calling',
-        description: 'Your preferred device when making/receiving calls',
+        description: i18n.getString('callingDescription', currentLocale),
         dataSign: 'calling',
         show: showCalling,
         onClick: onCallingSettingsLinkClick,
@@ -516,7 +524,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         type: 'link',
         id: 'text',
         name: 'text',
-        description: 'Your preferred phone number when sending texts',
+        description: i18n.getString('textDescription', currentLocale),
         dataSign: 'text',
         show: showText,
         onClick: onTextSettingsLinkClick,
@@ -526,7 +534,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         id: 'voicemailDropSettings',
         type: 'link',
         name: 'voicemailDropSettings',
-        description: 'Configure voicemail drop messages',
+        description: i18n.getString('voicemailDropDescription', currentLocale),
         dataSign: 'voicemailDropSettings',
         show: showVoicemailDropSettings,
         onClick: gotoVoicemailDropSettings,
@@ -549,7 +557,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         id: 'smartNoteAutoStart',
         type: 'switch',
         name: 'autoStartAiAssistant',
-        description: 'Start AI assistant automatically at call start',
+        description: i18n.getString('autoStartAiAssistantDescription', currentLocale),
         dataSign: 'AIAssistantAutoStart',
         show: showSmartNoteSetting && smartNoteEnabled,
         checked: smartNoteAutoStartEnabled,
@@ -561,7 +569,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
         id: 'hudSettings',
         type: 'switch',
         name: 'hud',
-        description: 'Monitor contacts, view their presence status, and call or text them.',
+        description: i18n.getString('hudDescription', currentLocale),
         dataSign: 'hudSettings',
         show: showHUDSettings,
         checked: hudEnabled,
@@ -592,7 +600,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       id: 'autoLogCalls',
       type: 'switch',
       name: 'autoLogCalls',
-      description: autoLogDescription || 'Automatically log calls when they end in this app',
+      description: autoLogDescription || i18n.getString('autoLogCallsDescription', currentLocale),
       dataSign: 'AutoLogCall',
       show: showAutoLog,
       customTitle: autoLogTitle,
@@ -607,7 +615,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
       id: 'autoLogSMS',
       type: 'switch',
       name: 'autoLogSMS',
-      description: autoLogSMSDescription || 'Automatically log SMS when they are sent or received in this app',
+      description: autoLogSMSDescription || i18n.getString('autoLogSMSDescription', currentLocale),
       dataSign: 'AutoLogSMS',
       customTitle: autoLogSMSTitle,
       show: showAutoLogSMS,
@@ -716,6 +724,7 @@ export const SettingsPanel: FunctionComponent<NewSettingsPanelProps> = ({
             links={thirdPartyAuth.authorizationLinks}
             onAuthorize={onThirdPartyAuthorize}
             onLicenseRefresh={onThirdPartyLicenseRefresh}
+            currentLocale={currentLocale}
           />
         ) : null
       }

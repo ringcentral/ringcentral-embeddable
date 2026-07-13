@@ -337,7 +337,8 @@ export const OptionSettingLineItem: FunctionComponent<OptionSettingLineItemProps
 
 interface ButtonLineItemProps {
   name: string;
-  buttonLabel: string;
+  buttonLabel?: string;
+  currentLocale: string;
   onClick: () => void;
   description?: string;
 }
@@ -345,6 +346,7 @@ interface ButtonLineItemProps {
 export const ButtonLineItem: FunctionComponent<ButtonLineItemProps> = ({
   name,
   buttonLabel,
+  currentLocale,
   onClick,
   description = undefined,
 }) => {
@@ -360,7 +362,7 @@ export const ButtonLineItem: FunctionComponent<ButtonLineItemProps> = ({
           color="action.primary"
           onClick={onClick}
         >
-          {buttonLabel}
+          {buttonLabel || i18n.getString('open', currentLocale)}
         </RcButton>
       </RcListItemSecondaryAction>
     </StyledSettingItem>
@@ -532,7 +534,7 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
             {(ringSenseLicensed || ringCXLicensed || isAdmin) ? (
               <ChipGroup onClick={(e) => e.stopPropagation()}>
                 {ringSenseLicensed ? (
-                  <RcTooltip title="AI Conversation Expert is licensed">
+                  <RcTooltip title={i18n.getString('aiConversationExpertLicensed', currentLocale)}>
                     <HighlightChip
                       label="ACE"
                       color="warning.b03"
@@ -540,7 +542,7 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
                   </RcTooltip>
                 ) : null}
                 {ringCXLicensed ? (
-                  <RcTooltip title="RingCX account">
+                  <RcTooltip title={i18n.getString('ringCxAccount', currentLocale)}>
                     <HighlightChip
                       label="RingCX"
                       color="informative.b01"
@@ -548,9 +550,9 @@ export const LogoutItem: FunctionComponent<LogoutItemProps> = ({
                   </RcTooltip>
                 ) : null}
                 {isAdmin ? (
-                  <RcTooltip title="Admin user">
+                  <RcTooltip title={i18n.getString('adminUser', currentLocale)}>
                     <StyledChip
-                      label="Admin"
+                      label={i18n.getString('admin', currentLocale)}
                     />
                   </RcTooltip>
                 ) : null}
