@@ -216,12 +216,11 @@ export const ContactDetails: FunctionComponent<ContactDetailsProps> = ({
   additionalActions,
   onClickAdditionalAction,
 }) => {
-  const fullName = contact.name || `${contact.firstName} ${contact.lastName}`;
   const [infoTab, setInfoTab] = useState('user-info');
-
   if (!contact) {
     return null;
   }
+  const fullName = contact.name || `${contact.firstName} ${contact.lastName}`;
 
   const notActivated = contact.status === extensionStatusTypes.notActivated;
   const tabs = [{

@@ -369,7 +369,7 @@ export function MessageDetailsPanel({
     onCreateContact,
     createSelectedContact: async () => {
       if (
-        onCreateContact === 'function' &&
+        typeof onCreateContact === 'function' &&
         mountedRef.current &&
         !isCreating
       ) {

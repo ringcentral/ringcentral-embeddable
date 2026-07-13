@@ -223,17 +223,39 @@ function ExtensionCallStatus({ extension, presence, formatPhone, currentLocale }
       ) : undefined
     }
     if (extension.type === 'ParkLocation') {
-      badges.push(<StyledChip label="Available" color="success.f02" variant="outlined" />);
+      badges.push(
+        <StyledChip
+          key="available"
+          label="Available"
+          color="success.f02"
+          variant="outlined"
+        />,
+      );
       description = 'You can park call here';
     }
   } else if (activeCalls.length === 1) {
     const call = activeCalls[0];
     description = getCallDescription(call, formatPhone, isGroupCall);
-    badges.push(<ActiveCallBadge call={call} formatPhone={formatPhone} isGroupCall={isGroupCall} />);
+    badges.push(
+      <ActiveCallBadge
+        key={call.sessionId || call.telephonySessionId || call.startTime}
+        call={call}
+        formatPhone={formatPhone}
+        isGroupCall={isGroupCall}
+      />,
+    );
   } else if (activeCalls.length > 1) {
     description = '';
     activeCalls.forEach((call) => {
-      badges.push(<ActiveCallBadge call={call} formatPhone={formatPhone} detailsInTooltip isGroupCall={isGroupCall} />);
+      badges.push(
+        <ActiveCallBadge
+          key={call.sessionId || call.telephonySessionId || call.startTime}
+          call={call}
+          formatPhone={formatPhone}
+          detailsInTooltip
+          isGroupCall={isGroupCall}
+        />,
+      );
     });
   }
   if (!description && badges.length === 0) {

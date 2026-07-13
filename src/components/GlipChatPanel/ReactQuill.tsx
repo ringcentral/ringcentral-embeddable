@@ -293,6 +293,9 @@ export const ReactQuill: FC<ReactQuillProps> = forwardRef((props, ref) => {
   }, [generation]);
 
   useEffect(() => {
+    if (!('value' in props)) {
+      return;
+    }
     if (!editorRef.current) {
       return;
     }
@@ -309,12 +312,17 @@ export const ReactQuill: FC<ReactQuillProps> = forwardRef((props, ref) => {
 
   // Handle prop changes that require regeneration
   useEffect(() => {
-    const requireRegeneration = dirtyProps.some((prop) => 
-      !isEqual(props[prop], dirtyPropsRef.current[prop])
-    );
-    dirtyPropsRef.current = {
-      modules, formats, bounds, theme, children,
+    const nextDirtyProps = {
+      modules,
+      formats,
+      bounds,
+      theme,
+      children,
     };
+    const requireRegeneration = dirtyProps.some((prop) => 
+      !isEqual(nextDirtyProps[prop], dirtyPropsRef.current[prop])
+    );
+    dirtyPropsRef.current = nextDirtyProps;
 
     if (requireRegeneration) {
       if (editorRef.current) {

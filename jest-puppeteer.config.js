@@ -2,6 +2,7 @@ module.exports = {
   server: {
     command: 'ON_TEST=1 NODE_ENV=development npm start', // use development babel setting
     port: 8080,
+    usedPortAction: 'ignore',
     launchTimeout: 100000
   },
   launch: {

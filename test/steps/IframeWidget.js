@@ -137,7 +137,7 @@ export class IframeWidget {
     if (!noCalls) {
       return null;
     }
-    const noCallsText = await this._widgetIframe.$eval('.CallsListPanel_noCalls', (el) => el.innerText);
+    const noCallsText = await noCalls.evaluate((el) => el.innerText);
     return noCallsText;
   }
 
