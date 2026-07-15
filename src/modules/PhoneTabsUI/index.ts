@@ -82,7 +82,7 @@ export class PhoneTabsUI extends RcUIModuleV2 {
     if (monitoredExtensions.hasPermission) {
       tabs.push({
         value: '/HUD',
-        label: 'HUD',
+        label: i18n.getString('hudLabel', locale.currentLocale),
         unreadCounts: monitoredExtensions.activeExtensionLength,
       });
     }

@@ -18,6 +18,10 @@ export default {
   settingsLabel: "Paramètres",
   glipLabel: 'Message',
   composeText: "Rédiger le texto",
+  hudLabel: 'Affichage tête haute',
+  directLabel: 'Direct',
+  sharedLabel: 'Partagé',
+  callQueueLabel: 'File d’attente d’appels',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

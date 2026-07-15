@@ -105,7 +105,8 @@ export const PresenceSettingSection: FunctionComponent<
     <StyledCallQueueSwitch
       show={isCallQueueMember}
       dataSign="acceptQueueSwitch"
-      name={i18n.getString('acceptQueueCalls', currentLocale)}
+      name="acceptQueueCalls"
+      currentLocale={currentLocale}
       disabled={dndStatusProp === dndStatus.doNotAcceptAnyCalls}
       checked={dndStatusProp === dndStatus.takeAllCalls}
       onChange={onCallQueueChange}
@@ -167,7 +168,7 @@ export const PresenceSettingSection: FunctionComponent<
       >
         <RcListItemText
           primary={i18n.getString('status', currentLocale)}
-          secondary={showSelects ? 'Set visibility and availability' : ''}
+          secondary={showSelects ? i18n.getString('visibilityAndAvailability', currentLocale) : ''}
         />
         <RcListItemSecondaryAction>
           <StyledPresenceIcon size="medium" type={selectedItem?.type} />

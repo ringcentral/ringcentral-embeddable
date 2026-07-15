@@ -13,6 +13,7 @@ import {
 import { Refresh } from '@ringcentral/juno-icon';
 import { TextWithMarkdown } from '@ringcentral-integration/jsonschema-page';
 import { StyledSettingItem } from './SettingItem';
+import i18n from './i18n';
 
 const StyledAuthSettingItem = styled(StyledSettingItem)`
   align-items: flex-start;
@@ -110,6 +111,7 @@ interface AuthorizeSettingsSectionProps {
   licenseStatusColor?: string;
   onLicenseRefresh?: () => void;
   links?: Array<{ label: string; uri: string }>;
+  currentLocale: string;
 }
 
 export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProps> = ({
@@ -119,7 +121,7 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
   unauthorizedTitle,
   serviceInfo = '',
   serviceName,
-  licenseStatus = 'License: expired',
+  licenseStatus,
   licenseStatusColor = 'neutral.f04',
   licenseDescription = '',
   contactSyncing = false,
@@ -129,11 +131,19 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
   showAuthButton,
   onLicenseRefresh,
   links = [],
+  currentLocale,
 }) => {
   let status = authorized ? authorizedTitle : unauthorizedTitle;
   if (authorized && contactSyncing) {
-    status = 'Syncing';
+    status = i18n.getString('syncing', currentLocale);
   }
+  const connectionStatus = authorized
+    ? i18n.getString('connected', currentLocale)
+    : i18n.getString('disconnected', currentLocale);
+  const accountStatus = authorized && authorizedAccount
+    ? ` ${i18n.getString('as', currentLocale)} ${authorizedAccount}`
+    : '';
+  const displayLicenseStatus = licenseStatus ?? i18n.getString('licenseExpired', currentLocale);
   let icon = null;
   if (authorizationLogo) {
     icon = (
@@ -164,7 +174,7 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
         secondary={
           <>
             <RcTypography variant="caption1" color="neutral.f04">
-              { authorized ? 'Connected' : 'Disconnected'} { authorized && authorizedAccount ? `as ${authorizedAccount}` : '' }
+              {connectionStatus}{accountStatus}
             </RcTypography>
             {
               serviceInfo ? (
@@ -176,14 +186,14 @@ export const AuthSettingsSection: FunctionComponent<AuthorizeSettingsSectionProp
               )
             }
             {
-              licenseStatus ? (
+              displayLicenseStatus ? (
                 <RcTypography variant="caption1" color={licenseStatusColor}>
-                  {licenseStatus}
+                  {displayLicenseStatus}
                   <RefreshIcon
                     size="xsmall"
                     symbol={Refresh}
                     variant="plain"
-                    title="Refresh"
+                    title={i18n.getString('refresh', currentLocale)}
                     onClick={onLicenseRefresh}
                   />
                 </RcTypography>

@@ -3,6 +3,7 @@ import { ConversationsUI as BaseConversationsUI } from '@ringcentral-integration
 import messageTypes from '@ringcentral-integration/commons/enums/messageTypes';
 import { computed } from '@ringcentral-integration/core';
 import { getConversationPhoneNumber } from '../../lib/conversationHelper';
+import i18n from '../../components/MainViewPanel/i18n';
 
 @Module({
   name: 'ConversationsUI',
@@ -15,6 +16,7 @@ import { getConversationPhoneNumber } from '../../lib/conversationHelper';
     'PhoneNumberFormat',
     'AppFeatures',
     'MessageThreads',
+    'Locale',
   ],
 })
 export class ConversationsUI extends BaseConversationsUI {
@@ -25,6 +27,7 @@ export class ConversationsUI extends BaseConversationsUI {
     that._deps.messageStore.sharedTextUnreadCounts,
     that._deps.conversations.hasMessageThreadsPermission,
     that._deps.messageThreads.unreadCounts,
+    that._deps.locale.currentLocale,
   ])
   get ownerTabs() {
     if (
@@ -36,21 +39,22 @@ export class ConversationsUI extends BaseConversationsUI {
     ) {
       return [];
     }
+    const { currentLocale } = this._deps.locale;
     const tabs = [{
-      label: 'Direct',
+      label: i18n.getString('directLabel', currentLocale),
       value: 'Personal',
       unreadCounts: this._deps.messageStore.personalTextUnreadCounts,
     }];
     if (this._deps.appFeatures.hasSharedSmsAccess) {
       tabs.push({
-        label: 'Call queue',
+        label: i18n.getString('callQueueLabel', currentLocale),
         value: 'Shared',
         unreadCounts: this._deps.messageStore.sharedTextUnreadCounts,
       });
     }
     if (this._deps.conversations.hasMessageThreadsPermission) {
       tabs.push({
-        label: 'Shared',
+        label: i18n.getString('sharedLabel', currentLocale),
         value: 'Threads',
         unreadCounts: this._deps.messageThreads.unreadCounts,
       });

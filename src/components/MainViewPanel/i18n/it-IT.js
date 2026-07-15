@@ -18,6 +18,10 @@ export default {
   settingsLabel: "Impostazioni",
   glipLabel: "Messaggio",
   composeText: "Componi SMS",
+  hudLabel: 'Display HUD',
+  directLabel: 'Diretto',
+  sharedLabel: 'Condiviso',
+  callQueueLabel: 'Coda chiamate',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

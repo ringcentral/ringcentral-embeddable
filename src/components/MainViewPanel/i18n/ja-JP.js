@@ -18,6 +18,10 @@ export default {
   settingsLabel: "設定",
   glipLabel: 'メッセージ',
   composeText: "テキストを作成",
+  hudLabel: 'ヘッドアップ表示',
+  directLabel: '直通',
+  sharedLabel: '共有',
+  callQueueLabel: '通話キュー',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@

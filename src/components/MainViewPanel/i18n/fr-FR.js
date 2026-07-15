@@ -18,6 +18,10 @@ export default {
   hangoutsTitle: "Commencer une conférence Hangouts",
   settingsLabel: "Paramètres",
   composeText: "Rédiger un SMS",
+  hudLabel: 'Affichage tête haute',
+  directLabel: 'Direct',
+  sharedLabel: 'Partagé',
+  callQueueLabel: 'File d’attente d’appels',
 };
 
 // @key: @#@"dialpadLabel"@#@ @source: @#@"Dial Pad"@#@
