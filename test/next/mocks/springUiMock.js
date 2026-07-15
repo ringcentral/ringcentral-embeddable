@@ -1,5 +1,7 @@
 const React = require('react');
 
+const tabContext = React.createContext(null);
+
 function createContainer(tag = 'div') {
   return function Container({ children, component, ...props }) {
     const Component = component || tag;
@@ -146,14 +148,50 @@ function Tab({ label, value, ...props }) {
 
 function TabContext({ children, onChange, value }) {
   return React.createElement(
-    React.Fragment,
-    null,
+    tabContext.Provider,
+    { value },
     React.createElement('button', {
       type: 'button',
       'aria-label': 'Change test tab',
       onClick: () => onChange?.(null, 'test-tab'),
     }),
     React.createElement('div', { 'data-tab-value': value }, children),
+  );
+}
+
+function TabPanel({ children, keepMounted, ...props }) {
+  const currentValue = React.useContext(tabContext);
+  const selected = currentValue === null || currentValue === props.value;
+  const [everShown, setEverShown] = React.useState(selected);
+  React.useEffect(() => {
+    if (selected) {
+      setEverShown(true);
+    }
+  }, [selected]);
+  if (!selected && (!keepMounted || !everShown)) {
+    return null;
+  }
+  return React.createElement(
+    'div',
+    {
+      'data-keep-mounted': Boolean(keepMounted),
+      hidden: !selected,
+      ...props,
+    },
+    children,
+  );
+}
+
+function Text({ children, component, noWrap, titleWhenOverflow, ...props }) {
+  const Component = component || 'span';
+  return React.createElement(
+    Component,
+    {
+      'data-no-wrap': Boolean(noWrap),
+      'data-title-when-overflow': titleWhenOverflow,
+      ...props,
+    },
+    children,
   );
 }
 
@@ -206,14 +244,15 @@ module.exports = {
   MenuItem,
   MenuItemText,
   PageHeader: createContainer('header'),
+  PageHeaderCenter: createContainer(),
   PageHeaderLeft: createContainer(),
   PageHeaderRight: createContainer(),
   PageHeaderTitle: createContainer('h1'),
   Slider,
   Tab,
   TabContext,
-  TabPanel: createContainer(),
+  TabPanel,
   Tabs: createContainer(),
-  Text: createContainer('span'),
+  Text,
   TextField,
 };

@@ -25,6 +25,13 @@ describe('VoicemailDropPanel', () => {
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
     expect(screen.getByText('pickerInfo')).toBeInTheDocument();
+    expect(screen.getByTestId('voicemailDropHeader')).toHaveAttribute(
+      'variant',
+      'detached',
+    );
+    expect(screen.getByTestId('voicemailDropHeaderCenter')).toContainElement(
+      screen.getByText('voicemailDrop'),
+    );
     fireEvent.click(screen.getByRole('button', { name: 'close' }));
     expect(props.onClose).toHaveBeenCalledTimes(1);
     resolveLoad();

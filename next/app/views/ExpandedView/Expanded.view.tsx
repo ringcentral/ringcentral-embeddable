@@ -25,46 +25,75 @@ export class ExpandedView extends RcViewModule {
     super();
   }
 
-  private _activeHandle: ExpandedContentHandle | null = null;
+  private readonly _contentHandles = new Map<string, ExpandedContentHandle>();
 
   @state
   isOpen = false;
 
+  @state
+  activeContentId: string | null = null;
+
   create(options: ExpandedViewCreatorOptions): ExpandedContentHandle {
-    return new ExpandedContentHandle(options);
+    if (this._contentHandles.has(options.id)) {
+      throw new Error(`Expanded content id is already registered: ${options.id}`);
+    }
+    const handle = new ExpandedContentHandle(options);
+    this._contentHandles.set(options.id, handle);
+    return handle;
   }
 
   @action
-  private _setIsOpen(open: boolean) {
-    this.isOpen = open;
+  private _setActiveContent(contentId: string | null): void {
+    this.activeContentId = contentId;
+    this.isOpen = contentId !== null;
   }
 
   open(handle: ExpandedContentHandle): ExpandedViewOpenResult {
-    this._activeHandle = handle;
-    this._setIsOpen(true);
+    if (this._contentHandles.get(handle.options.id) !== handle) {
+      throw new Error(
+        `Expanded content handle is not registered: ${handle.options.id}`,
+      );
+    }
+    const previousHandle = this.activeContentId
+      ? this._contentHandles.get(this.activeContentId)
+      : undefined;
+    this._setActiveContent(handle.options.id);
+    if (previousHandle && previousHandle !== handle) {
+      previousHandle.options.onDeactivate?.();
+    }
     this._root.setExpanded(true);
     return {
-      close: () => this.close(),
+      close: () => this.close(handle),
     };
   }
 
-  close() {
-    const onClose = this._activeHandle?.options.onClose;
-    this._activeHandle = null;
-    this._setIsOpen(false);
+  close(handle?: ExpandedContentHandle): void {
+    const activeHandle = this.activeContentId
+      ? this._contentHandles.get(this.activeContentId)
+      : undefined;
+    if (handle && handle !== activeHandle) {
+      return;
+    }
+    this._setActiveContent(null);
     this._root.setExpanded(false);
-    onClose?.();
+    activeHandle?.options.onClose?.();
   }
 
   component() {
-    const isExpanded = useConnector(() => this._root.expanded);
-    const isOpen = useConnector(() => this.isOpen);
+    const { activeContentId, isExpanded, isOpen } = useConnector(() => ({
+      activeContentId: this.activeContentId,
+      isExpanded: this._root.expanded,
+      isOpen: this.isOpen,
+    }));
+    const activeHandle = activeContentId
+      ? this._contentHandles.get(activeContentId)
+      : undefined;
 
-    if (!isOpen || !this._activeHandle) {
+    if (!isOpen || !activeHandle) {
       return null;
     }
 
-    const { view, header } = this._activeHandle.options;
+    const { view, header } = activeHandle.options;
     const ContentView =
       typeof view === 'function'
         ? view

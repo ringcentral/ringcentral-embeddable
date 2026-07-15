@@ -20,11 +20,11 @@ export function AudioPreview({
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
+    setPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
     if (!source || typeof Audio === 'undefined') {
       audioRef.current = null;
-      setPlaying(false);
-      setCurrentTime(0);
-      setDuration(0);
       return undefined;
     }
 
@@ -50,15 +50,18 @@ export function AudioPreview({
     audio.addEventListener('ended', finish);
 
     return () => {
-      audio.pause();
+      if (audioRef.current === audio) {
+        audioRef.current = null;
+      }
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('durationchange', updateDuration);
       audio.removeEventListener('pause', stop);
       audio.removeEventListener('ended', finish);
-      if (audioRef.current === audio) {
-        audioRef.current = null;
-      }
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+      audio.remove();
     };
   }, [source]);
 
@@ -73,8 +76,16 @@ export function AudioPreview({
     }
     void audio
       .play()
-      .then(() => setPlaying(true))
-      .catch(() => setPlaying(false));
+      .then(() => {
+        if (audioRef.current === audio) {
+          setPlaying(true);
+        }
+      })
+      .catch(() => {
+        if (audioRef.current === audio) {
+          setPlaying(false);
+        }
+      });
   };
 
   const seek = (value: number): void => {
@@ -103,7 +114,7 @@ export function AudioPreview({
         TooltipProps={{ title: playing ? stopLabel : playLabel }}
         onClick={togglePlayback}
       />
-      <Text component="span" className="typography-descriptor text-neutral-b2">
+      <Text component="span" className="typography-descriptor text-neutral-b2 mr-2">
         {formatDuration(currentTime)}
       </Text>
       <Slider
@@ -115,7 +126,7 @@ export function AudioPreview({
         disabled={!source || !duration}
         onChange={(_, value) => seek(value)}
       />
-      <Text component="span" className="typography-descriptor text-neutral-b2">
+      <Text component="span" className="typography-descriptor text-neutral-b2 ml-2">
         {formatDuration(duration, '00:00')}
       </Text>
     </div>

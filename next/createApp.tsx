@@ -1,6 +1,7 @@
 import { createSharedApp } from '@ringcentral-integration/next-core';
 import { getAppConfig } from './app/getAppConfig';
 import { parseUri } from './lib/Adapter/parseUri';
+import { resolveRuntimeSdkConfig } from './lib/resolveRuntimeSdkConfig';
 
 export interface StaticAppConfig {
   prefix: string;
@@ -31,10 +32,17 @@ interface UrlParams {
   clientId?: string;
   clientSecret?: string;
   appServer?: string;
+  discovery?: boolean;
+  discoverAppServer?: string;
+  usedDeprecatedAppKey?: boolean;
   prefix?: string;
+  authorizationCode?: string;
+  authorizationCodeVerifier?: string;
+  authProxy?: boolean;
   disableLoginPopup?: boolean;
+  externalAuthId?: string;
   jwt?: string;
-  jwtOwnerId?: string;
+  proxyUri?: string;
   redirectUri?: string;
   fromPopup?: boolean;
   mainTab?: boolean;
@@ -42,6 +50,7 @@ interface UrlParams {
   enableVoicemailDrop?: boolean;
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
+  enableAnalytics?: boolean;
 }
 
 function parseBooleanParam(value: string | undefined): boolean {
@@ -57,46 +66,6 @@ function parseOptionalBooleanParam(
   return parseBooleanParam(value);
 }
 
-type NormalizedRuntimeSdkConfig = {
-  clientId?: string;
-  clientSecret?: string;
-  server?: string;
-  discoveryServer?: string;
-  enableDiscovery?: boolean;
-};
-
-function firstDefined<T>(...values: (T | undefined)[]) {
-  return values.find((value) => typeof value !== 'undefined');
-}
-
-function normalizeSdkConfig(
-  config?: RuntimeSdkConfig,
-): NormalizedRuntimeSdkConfig {
-  if (!config) {
-    return {};
-  }
-
-  const clientId = firstDefined(config.clientId, config.appKey, config.apiKey);
-  const clientSecret = firstDefined(
-    config.clientSecret,
-    config.appSecret,
-    config.apiSecret,
-  );
-  const server = firstDefined(config.server, config.apiServer);
-
-  return {
-    ...(clientId && { clientId }),
-    ...(clientSecret && { clientSecret }),
-    ...(server && { server }),
-    ...(config.discoveryServer && {
-      discoveryServer: config.discoveryServer,
-    }),
-    ...(typeof config.enableDiscovery !== 'undefined' && {
-      enableDiscovery: config.enableDiscovery,
-    }),
-  };
-}
-
 function readUrlParams(): UrlParams {
   const href =
     typeof window !== 'undefined'
@@ -109,10 +78,17 @@ function readUrlParams(): UrlParams {
     clientId: params.clientId || params.appKey || undefined,
     clientSecret: params.clientSecret || params.appSecret || undefined,
     appServer: params.appServer || undefined,
+    discovery: Boolean(params.discovery),
+    discoverAppServer: params.discoverAppServer || undefined,
+    usedDeprecatedAppKey: Boolean(!params.clientId && params.appKey),
     prefix: params.prefix || undefined,
-    disableLoginPopup: parseBooleanParam(params.disableLoginPopup),
+    authorizationCode: params.authorizationCode || undefined,
+    authorizationCodeVerifier: params.authorizationCodeVerifier || undefined,
+    authProxy: Boolean(params.authProxy),
+    disableLoginPopup: Boolean(params.disableLoginPopup),
+    externalAuthId: params.externalAuthId || undefined,
     jwt: params.jwt || undefined,
-    jwtOwnerId: params.jwtOwnerId || undefined,
+    proxyUri: params.proxyUri || undefined,
     redirectUri: params.redirectUri || undefined,
     fromPopup: parseBooleanParam(params.fromPopup),
     mainTab: parseOptionalBooleanParam(params.mainTab),
@@ -120,6 +96,7 @@ function readUrlParams(): UrlParams {
     enableVoicemailDrop: parseBooleanParam(params.enableVoicemailDrop),
     disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
     enableSmartNote: parseBooleanParam(params.enableSmartNote),
+    enableAnalytics: Boolean(params.enableAnalytics),
   };
 }
 
@@ -137,13 +114,31 @@ export const createApp = async (
     typeof window !== 'undefined' || typeof self !== 'undefined'
       ? readUrlParams()
       : ({} as UrlParams);
-  const mergedSdkConfig = {
-    ...normalizeSdkConfig(process.env.API_CONFIG as RuntimeSdkConfig),
-    ...(urlParams.clientId && { clientId: urlParams.clientId }),
-    ...(urlParams.clientSecret && { clientSecret: urlParams.clientSecret }),
-    ...(urlParams.appServer && { server: urlParams.appServer }),
-  } as Required<Pick<NormalizedRuntimeSdkConfig, 'clientId' | 'server'>> &
-    NormalizedRuntimeSdkConfig;
+  const mergedSdkConfig = resolveRuntimeSdkConfig(
+    process.env.API_CONFIG as RuntimeSdkConfig,
+    urlParams,
+  ) as Required<Pick<RuntimeSdkConfig, 'clientId' | 'server'>> &
+    RuntimeSdkConfig;
+
+  if (!urlParams.authProxy && urlParams.usedDeprecatedAppKey) {
+    console.warn(
+      'appKey is deprecated, please change to clientId. https://ringcentral.github.io/ringcentral-embeddable/docs/config/client-id/',
+    );
+  }
+  if (!urlParams.authProxy && !mergedSdkConfig.clientId) {
+    console.error(
+      'RingCentral App Client Id is required. https://ringcentral.github.io/ringcentral-embeddable/docs/app-registration/',
+    );
+    const hostname =
+      typeof window !== 'undefined'
+        ? window.location.hostname
+        : typeof self !== 'undefined'
+          ? self.location.hostname
+          : '';
+    if (hostname !== 'localhost') {
+      throw new Error('RingCentral App Client Id is required.');
+    }
+  }
 
   const redirectUri = urlParams.redirectUri || process.env.REDIRECT_URI;
   const analyticsKey = process.env.MIXPANEL_KEY || '';
@@ -161,16 +156,21 @@ export const createApp = async (
       type: 'Base',
     },
     analyticsKey,
+    authorizationCode: urlParams.authorizationCode,
+    authorizationCodeVerifier: urlParams.authorizationCodeVerifier,
+    authProxy: urlParams.authProxy,
     disableLoginPopup: urlParams.disableLoginPopup,
+    externalAuthId: urlParams.externalAuthId,
     redirectUri,
     jwt: urlParams.jwt,
-    jwtOwnerId: urlParams.jwtOwnerId,
+    proxyUri: urlParams.proxyUri,
     fromPopup: urlParams.fromPopup,
     mainTab: urlParams.mainTab,
     enableSideWidget: urlParams.enableSideWidget,
     enableVoicemailDrop: urlParams.enableVoicemailDrop,
     disableNoiseReduction: urlParams.disableNoiseReduction,
     enableSmartNote: urlParams.enableSmartNote,
+    enableAnalytics: urlParams.enableAnalytics,
   });
 
   const app = await createSharedApp(appConfig);

@@ -3,6 +3,7 @@ import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import type { NormalizedSession } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
 import { debounce } from '@ringcentral-integration/commons/lib/debounce-throttle';
+import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumber';
 import { callingModes } from '@ringcentral-integration/micro-phone/src/app/services/CallingSettings/callingModes';
 import { callingOptions } from '@ringcentral-integration/micro-phone/src/app/services/CallingSettings/callingOptions';
 import { format } from '@ringcentral-integration/utils';
@@ -53,7 +54,9 @@ import {
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import { DialerView } from '@ringcentral-integration/micro-phone/src/app/views';
 import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
+import type { CallAction } from '@ringcentral-integration/micro-phone/src/app/services/CallAction';
 import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
+import type { SyncTabView } from '@ringcentral-integration/micro-core/src/app/views';
 import { presenceStatus } from '@ringcentral-integration/commons/enums/presenceStatus.enum';
 import { dndStatus } from '@ringcentral-integration/commons/modules/Presence/dndStatus';
 import callMonitorBarI18n from '@ringcentral-integration/widgets/components/CallMonitorBar/i18n';
@@ -64,9 +67,14 @@ import PopupWindowManager from '../../../lib/PopupWindowManager';
 import messageTypes from '../../../lib/Adapter/messageTypes';
 import { parseUri } from '../../../lib/Adapter/parseUri';
 import { SideWidgetView } from '../../views/SideWidgetView';
+import { resolveLegacyAdapterPath } from './resolveLegacyAdapterPath';
 
 import { SmartNotes } from '../SmartNotes';
-import type { Webphone as WebphoneV2 } from '../WebphoneV2';
+import type { ActiveCallControl as ActiveCallControlV2 } from '../ActiveCallControl';
+import type { EmbeddableCallLogger } from '../CallLogger';
+import type { Webphone as WebphoneV2 } from '../WebphoneV2/Webphone';
+import { t as webphoneT } from '../WebphoneV2/i18n';
+import { recordStatus } from '../WebphoneV2/recordStatus';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -122,6 +130,10 @@ const SUPPORTED_ATTACHMENT_MIME = new Set([
 ]);
 
 const CALLING_SETTINGS_NOTIFY_DEBOUNCE_MS = 1000;
+const DIAL_PAD_TAB_ID = 'dialPadTabs';
+const MEETING_TAB_ID = 'meetingTabs';
+const STOP_RECORD_DISABLED_MESSAGE =
+  'Sorry, stopping recording is not supported for this call. Please contact your account administrator to enable "Allow mute in auto recording".';
 
 function dataURLtoBlob(dataUrl: string) {
   const arr = dataUrl.split(',');
@@ -189,6 +201,18 @@ function isSafeAudioUri(uri?: string) {
     uri.startsWith('https://') ||
     uri.startsWith('data:audio/')
   );
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function hasResponseStatus(error: unknown, status: number): boolean {
+  if (!error || typeof error !== 'object' || !('response' in error)) {
+    return false;
+  }
+  const response = (error as { response?: { status?: number } }).response;
+  return response?.status === status;
 }
 
 function normalizePhoneNumberFormatSetting(
@@ -325,6 +349,8 @@ export class Adapter extends RcModule {
     @optional() protected _smsTemplate?: SmsTemplate,
     @optional() protected _sideWidgetView?: SideWidgetView,
     @optional() protected _smartNotes?: SmartNotes,
+    @optional('CallAction') protected _callAction?: CallAction,
+    @optional('SyncTabView') protected _syncTabView?: SyncTabView,
   ) {
     super();
     if (this._smartNotes) {
@@ -373,6 +399,10 @@ export class Adapter extends RcModule {
       activeWebphoneId?: string | null;
       isWebphoneActiveTab?: boolean;
     };
+  }
+
+  private get _activeCallControlV2(): ActiveCallControlV2 {
+    return this._activeCallControl as ActiveCallControlV2;
   }
 
   @action
@@ -763,7 +793,7 @@ export class Adapter extends RcModule {
         );
         break;
       case 'rc-adapter-new-call':
-        void this._newCall(data.phoneNumber, data.toCall);
+        void this._newCall(data.phoneNumber, data.toCall, data.callerId);
         break;
       case 'rc-adapter-control-call':
         void this._controlCall(data.callAction, data.callId, data.options);
@@ -821,6 +851,9 @@ export class Adapter extends RcModule {
     requestId: string;
     path: string;
     body?: any;
+    alertLevel?: string;
+    alertMessage?: string;
+    ttl?: number;
   }) {
     if (!data.path) {
       return;
@@ -885,7 +918,12 @@ export class Adapter extends RcModule {
         break;
       }
       case '/custom-alert-message': {
-        const response = this._openCustomAlert(data.body);
+        const response = this._openCustomAlert({
+          ...data.body,
+          level: data.alertLevel || data.body?.level,
+          message: data.alertMessage || data.body?.message,
+          ttl: data.ttl || data.body?.ttl,
+        });
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
           response,
@@ -919,11 +957,23 @@ export class Adapter extends RcModule {
         break;
       }
       case '/unlogged-calls': {
+        const callLogger = this._callLogger as
+          | EmbeddableCallLogger
+          | undefined;
+        if (!callLogger) {
+          this._postRCAdapterMessageResponse({
+            responseId: data.requestId,
+            response: { error: 'call logger is unavailable' },
+          });
+          break;
+        }
+        const { calls, hasMore } = await callLogger.getRecentUnloggedCalls({
+          perPage: data.body?.perPage,
+          page: data.body?.page,
+        });
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
-          response: {
-            error: 'unlogged calls are not supported in next adapter yet',
-          },
+          response: { calls, hasMore },
         });
         break;
       }
@@ -937,14 +987,15 @@ export class Adapter extends RcModule {
           });
           break;
         }
-        const call =
-          (this._callLog?.calls || []).find((item: any) => {
-            return (
-              (data.body?.sessionId && item.sessionId === data.body.sessionId) ||
-              (data.body?.telephonySessionId &&
-                item.telephonySessionId === data.body.telephonySessionId)
-            );
-          }) ?? null;
+        const callLogger = this._callLogger as
+          | EmbeddableCallLogger
+          | undefined;
+        const call = callLogger
+          ? await callLogger.getCall(
+              data.body.sessionId,
+              data.body.telephonySessionId,
+            )
+          : null;
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
           response: {
@@ -1025,6 +1076,26 @@ export class Adapter extends RcModule {
 
   private _getEffectiveWidgetPath() {
     const currentPath = this._router.currentPath;
+    if (currentPath === '/dialer') {
+      const activeTab = this._syncTabView?.getActive(DIAL_PAD_TAB_ID);
+      if (activeTab === 'calls') {
+        return '/history';
+      }
+      if (activeTab === 'voicemail') {
+        return '/messages/voicemail';
+      }
+      return '/dialer';
+    }
+    if (currentPath === '/meeting') {
+      const activeTab = this._syncTabView?.getActive(MEETING_TAB_ID);
+      if (activeTab === 'history') {
+        return '/meeting/history';
+      }
+      if (activeTab === 'recordings') {
+        return '/meeting/history/recordings';
+      }
+      return '/meeting/home';
+    }
     if (currentPath !== '/calling') {
       return currentPath;
     }
@@ -1088,6 +1159,8 @@ export class Adapter extends RcModule {
   private _watchRouteValues() {
     return [
       this._router.currentPath,
+      this._syncTabView?.getActive(DIAL_PAD_TAB_ID),
+      this._syncTabView?.getActive(MEETING_TAB_ID),
       this._callViewState?.view,
       this._callMonitor.activeCurrentCalls,
       this._callMonitor.activeRingCalls,
@@ -1577,9 +1650,31 @@ export class Adapter extends RcModule {
     }
   }
 
-  private async _newCall(phoneNumber?: string, toCall = false) {
+  private async _newCall(
+    phoneNumber?: string,
+    toCall = false,
+    callerId?: string,
+  ) {
     if (!this._auth.loggedIn || !phoneNumber || !this._call.isIdle) {
       return;
+    }
+    if (this._isCallOngoing(phoneNumber)) {
+      return;
+    }
+
+    if (callerId) {
+      const isAnonymous = callerId === 'anonymous';
+      const isValid = this._callingSettings.fromNumbers.some(
+        (item: { phoneNumber?: string }) => item.phoneNumber === callerId,
+      );
+      if (
+        (isAnonymous || isValid) &&
+        callerId !== this._callingSettings.fromNumber
+      ) {
+        await this._callingSettings.updateFromNumber({
+          phoneNumber: callerId,
+        });
+      }
     }
 
     await this._router.push('/dialer');
@@ -1594,6 +1689,17 @@ export class Adapter extends RcModule {
     }
   }
 
+  private _isCallOngoing(phoneNumber: string): boolean {
+    const normalizedNumber = normalizeNumber({
+      phoneNumber,
+      countryCode: this._regionSettings.countryCode,
+      areaCode: this._regionSettings.areaCode,
+    });
+    return this._webphone.sessions.some(
+      (session: { to?: string }) => session.to === normalizedNumber,
+    );
+  }
+
   private async _controlCall(
     action?: string,
     id?: string,
@@ -1602,68 +1708,213 @@ export class Adapter extends RcModule {
     const activeSessionId = id || this._webphone.activeSessionId;
     const ringSessionId = id || this._webphone.ringSessionId;
 
-    try {
-      switch (action) {
-        case 'answer':
-          await this._webphone.answer(ringSessionId);
-          break;
-        case 'reject':
-          await this._webphone.reject(ringSessionId);
-          break;
-        case 'hangup':
-          await this._webphone.hangup(activeSessionId);
-          break;
-        case 'hold':
-          await this._webphone.hold(activeSessionId);
-          break;
-        case 'unhold':
-          await this._webphone.unhold(activeSessionId);
-          break;
-        case 'transfer':
-          if (options.transferNumber) {
-            await this._webphone.transfer(options.transferNumber, activeSessionId);
-          }
-          break;
-        case 'toVoicemail':
-          await this._webphone.toVoiceMail(ringSessionId);
-          break;
-        case 'forward':
-          if (options.forwardNumber) {
-            await this._webphone.forward(ringSessionId, options.forwardNumber);
-          }
-          break;
-        case 'startRecord':
-          await this._webphone.startRecord(activeSessionId);
-          break;
-        case 'stopRecord':
-          await this._webphone.stopRecord(activeSessionId);
-          break;
-        case 'mute':
-          await this._webphone.mute(activeSessionId);
-          break;
-        case 'unmute':
-          await this._webphone.unmute(activeSessionId);
-          break;
-        case 'toggleRingingDialog':
-          if (ringSessionId) {
-            await this._webphone.toggleMinimized(ringSessionId);
-          }
-          break;
-        case 'dtmf':
-          if (options.dtmf) {
-            await this._webphone.sendDTMF(options.dtmf, activeSessionId);
-          }
-          break;
-        default:
-          break;
-      }
-    } catch (error: any) {
+    switch (action) {
+      case 'answer':
+        await this._webphone.answer(ringSessionId);
+        break;
+      case 'reject':
+        await this._webphone.reject(ringSessionId);
+        break;
+      case 'hangup':
+        await this._webphone.hangup(activeSessionId);
+        break;
+      case 'hold':
+        await this._webphone.hold(activeSessionId);
+        break;
+      case 'unhold':
+        await this._webphone.unhold(activeSessionId);
+        break;
+      case 'transfer':
+        if (options.transferNumber) {
+          await this._webphone.transfer(options.transferNumber, activeSessionId);
+        }
+        break;
+      case 'toVoicemail':
+        await this._webphone.toVoiceMail(ringSessionId);
+        break;
+      case 'forward':
+        if (options.forwardNumber) {
+          await this._forward(ringSessionId, options.forwardNumber);
+        }
+        break;
+      case 'startRecord':
+        await this._startRecord(activeSessionId);
+        break;
+      case 'stopRecord':
+        await this._stopRecord(activeSessionId);
+        break;
+      case 'mute':
+        await this._webphone.mute(activeSessionId);
+        break;
+      case 'unmute':
+        await this._webphone.unmute(activeSessionId);
+        break;
+      case 'toggleRingingDialog':
+        if (ringSessionId) {
+          await this._webphone.toggleMinimized(ringSessionId);
+        }
+        break;
+      case 'dtmf':
+        if (options.dtmf) {
+          await this._webphone.sendDTMF(options.dtmf, activeSessionId);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  private async _forward(
+    webphoneSessionId: string | null | undefined,
+    forwardNumber: string,
+  ): Promise<void> {
+    const webphoneSession = this._webphone.sessions.find(
+      (session) => session.id === webphoneSessionId,
+    );
+    if (!webphoneSession || !webphoneSessionId) {
+      return;
+    }
+    const telephonySessionId = webphoneSession.partyData?.sessionId;
+    if (!telephonySessionId) {
+      await this._webphone.forward(webphoneSessionId, forwardNumber);
+      return;
+    }
+    await this._activeCallControlV2.forward(
+      forwardNumber,
+      telephonySessionId,
+    );
+  }
+
+  private async _startRecord(
+    requestedSessionId?: string | null,
+  ): Promise<void> {
+    const webphoneSessionId =
+      requestedSessionId || this._webphone.activeSessionId;
+    const webphoneSession = this._webphone.sessions.find(
+      (session) => session.id === webphoneSessionId,
+    );
+    if (!webphoneSession || !webphoneSessionId) {
+      return;
+    }
+    const telephonySessionId = webphoneSession.partyData?.sessionId;
+    const telephonySession =
+      telephonySessionId &&
+      this._activeCallControlV2.hasTelephonySession(telephonySessionId)
+        ? this._activeCallControl.getActiveSession(telephonySessionId)
+        : undefined;
+    const currentRecordStatus =
+      telephonySession?.recordStatus ?? webphoneSession.recordStatus;
+    if (currentRecordStatus !== recordStatus.idle) {
       this._postMessage({
         type: 'rc-control-call-error',
-        error: 'ControlCallError',
-        message: error?.message || 'Failed to control the call',
-        callId: id,
+        error: 'RecordError',
+        message: "Can't record at current status",
+        callId: webphoneSessionId,
       });
+      return;
+    }
+    if (!telephonySession || telephonySession.to === 'conference') {
+      await this._webphone.startRecord(webphoneSessionId);
+      return;
+    }
+    try {
+      await this._webphoneV2.updateRecordStatus(
+        webphoneSessionId,
+        recordStatus.pending,
+      );
+      const succeeded = await this._activeCallControlV2.startRecord(
+        telephonySessionId,
+      );
+      if (succeeded !== true) {
+        await this._webphoneV2.updateRecordStatus(
+          webphoneSessionId,
+          recordStatus.idle,
+        );
+        return;
+      }
+      await this._webphoneV2.updateRecordStatus(
+        webphoneSessionId,
+        recordStatus.recording,
+      );
+    } catch (error: unknown) {
+      this._toast.danger({
+        message: webphoneT('recordError', {
+          errorCode: getErrorMessage(error),
+        }),
+      });
+      await this._webphoneV2.updateRecordStatus(
+        webphoneSessionId,
+        recordStatus.idle,
+      );
+    }
+  }
+
+  private async _stopRecord(
+    requestedSessionId?: string | null,
+  ): Promise<void> {
+    const webphoneSessionId =
+      requestedSessionId || this._webphone.activeSessionId;
+    const webphoneSession = this._webphone.sessions.find(
+      (session) => session.id === webphoneSessionId,
+    );
+    if (!webphoneSession || !webphoneSessionId) {
+      return;
+    }
+    const telephonySessionId = webphoneSession.partyData?.sessionId;
+    const telephonySession =
+      telephonySessionId &&
+      this._activeCallControlV2.hasTelephonySession(telephonySessionId)
+        ? this._activeCallControl.getActiveSession(telephonySessionId)
+        : undefined;
+    const currentRecordStatus =
+      telephonySession?.recordStatus ?? webphoneSession.recordStatus;
+    if (currentRecordStatus !== recordStatus.recording) {
+      this._postMessage({
+        type: 'rc-control-call-error',
+        error: 'RecordError',
+        message: "Can't stop record at current status",
+        callId: webphoneSessionId,
+      });
+      return;
+    }
+    if (!telephonySession || telephonySession.to === 'conference') {
+      await this._webphone.stopRecord(webphoneSessionId);
+      return;
+    }
+    try {
+      await this._webphoneV2.updateRecordStatus(
+        webphoneSessionId,
+        recordStatus.pending,
+      );
+      const succeeded =
+        await this._activeCallControlV2.stopRecordForAdapter(
+          telephonySessionId,
+        );
+      if (!succeeded) {
+        await this._webphoneV2.updateRecordStatus(
+          webphoneSessionId,
+          recordStatus.recording,
+        );
+        return;
+      }
+      await this._webphoneV2.updateRecordStatus(
+        webphoneSessionId,
+        recordStatus.idle,
+      );
+    } catch (error: unknown) {
+      this._toast.danger(
+        hasResponseStatus(error, 403)
+          ? { message: STOP_RECORD_DISABLED_MESSAGE }
+          : {
+              message: webphoneT('recordError', {
+                errorCode: getErrorMessage(error),
+              }),
+            },
+      );
+      await this._webphoneV2.updateRecordStatus(
+        webphoneSessionId,
+        recordStatus.recording,
+      );
     }
   }
 
@@ -1715,29 +1966,54 @@ export class Adapter extends RcModule {
   }
 
   private async _navigateTo(path: string) {
-    if (path === 'goBack') {
-      this._router.goBack();
+    const intent = resolveLegacyAdapterPath(path);
+    switch (intent.kind) {
+      case 'back':
+        this._router.goBack();
+        return;
+      case 'activeCall':
+        if (intent.webphoneSessionId) {
+          await this._navigateToRequestedCall(intent.webphoneSessionId);
+          return;
+        }
+        await this._navigateToCurrentCall();
+        return;
+      case 'activeCallList':
+        await this._navigateToViewCalls();
+        return;
+      case 'dialerTab':
+        await this._router.push('/dialer', {
+          [DIAL_PAD_TAB_ID]: intent.tab,
+        });
+        return;
+      case 'meetingTab':
+        await this._router.push('/meeting', {
+          [MEETING_TAB_ID]: intent.tab,
+        });
+        return;
+      case 'route':
+        if (this._router.currentPath !== intent.path) {
+          await this._router.push(intent.path);
+        }
+        return;
+      case 'unsupported':
+        this.logger.warn('Unsupported legacy adapter navigation', intent);
+        return;
+    }
+  }
+
+  private async _navigateToRequestedCall(
+    webphoneSessionId: string,
+  ): Promise<void> {
+    const webphoneSession = this._webphone.sessions.find(
+      (session) => session.id === webphoneSessionId,
+    );
+    const telephonySessionId = webphoneSession?.partyData?.sessionId;
+    if (!telephonySessionId || !this._callAction) {
       return;
     }
-
-    if (path === '/history' || path === '/calls') {
-      await this._navigateToViewCalls();
-      return;
-    }
-
-    if (path.indexOf('/calls/active') === 0 || path === '/calling') {
-      await this._navigateToCurrentCall();
-      return;
-    }
-
-    if (path === '/composeText') {
-      await this._router.push('/composeText');
-      return;
-    }
-
-    if (path.startsWith('/') && this._router.currentPath !== path) {
-      await this._router.push(path);
-    }
+    await this._router.push('/calling');
+    await this._callAction.navigateToActive(telephonySessionId);
   }
 
   private async _navigateToCurrentCall() {
@@ -1902,13 +2178,13 @@ export class Adapter extends RcModule {
 
 
 
-  _onWindowExpanded(expanded: boolean) {
+  _onWindowExpanded(expanded: boolean): void {
     if (!globalThis.window) return;
     const newSize = {
       width: expanded ? 600 : 300,
       height: 540,
     };
-    this.setSize(newSize);
+    void this.setSize(newSize);
     this._postMessage({
       type: this._messageTypes.syncSize,
       size: newSize,

@@ -17,6 +17,7 @@ import {
   MenuItem,
   MenuItemText,
   PageHeader,
+  PageHeaderCenter,
   PageHeaderLeft,
   PageHeaderRight,
   PageHeaderTitle,
@@ -159,7 +160,12 @@ export function SideWidgetAppPanel({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <PageHeader className="flex-none border-b border-neutral-l02">
+      <PageHeader
+        variant="detached"
+        className="flex-none border-b border-neutral-b4"
+        style={{ paddingRight: 'var(--sui-spacing-24)' }}
+        data-sign="sideWidgetAppHeader"
+      >
         <PageHeaderLeft>
           {showBack ? (
             <IconButton
@@ -173,114 +179,123 @@ export function SideWidgetAppPanel({
             />
           ) : null}
         </PageHeaderLeft>
-        <PageHeaderTitle className="flex min-w-0 items-center justify-center gap-2">
-          <Avatar
-            alt={appName}
-            src={app.iconUri}
-            size="xsmall"
-            variant="squircle"
-          >
-            {appName.slice(0, 1)}
-          </Avatar>
-          <Text
-            component="span"
-            className="typography-subtitleMiniSemiBold min-w-0 truncate text-neutral-b0"
-            title={appName}
-          >
-            {appName}
-          </Text>
-        </PageHeaderTitle>
-        <PageHeaderRight className="gap-1">
-          <IconButton
-            variant="icon"
-            color="secondary"
-            size="small"
-            symbol={RefreshMd}
-            disabled={refreshing}
-            data-sign="sideWidgetRefresh"
-            TooltipProps={{ title: 'Reload app' }}
-            onClick={async () => {
-              setRefreshing(true);
-              await requestPage({
-                app,
-                contact: contact ?? undefined,
-                formData,
-                type: 'refresh',
-              });
-              if (mountedRef.current) {
-                setRefreshing(false);
-              }
-            }}
-          />
-          <IconButton
-            variant="icon"
-            color={isPinned ? 'primary' : 'secondary'}
-            size="small"
-            symbol={isPinned ? PushPinFilledMd : PushPinMd}
-            data-sign="sideWidgetPin"
-            TooltipProps={{
-              title: isPinned
-                ? 'Do not open this app in a tab for outgoing calls'
-                : 'Open this app in a tab for outgoing calls',
-            }}
-            onClick={onTogglePin}
-          />
-          {pageInfo.actions.length > 0 ? (
-            <>
-              <IconButton
-                ref={menuAnchorRef}
-                variant="icon"
-                color="secondary"
-                size="small"
-                symbol={OverflowVerticalMd}
-                data-sign="sideWidgetMore"
-                TooltipProps={{ title: 'More actions' }}
-                onClick={() => setMenuOpen(true)}
-              />
-              <Menu
-                open={menuOpen}
-                anchorEl={menuAnchorRef.current}
-                onClose={() => setMenuOpen(false)}
-              >
-                {showCloseButton ? (
-                  <MenuItem
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onClose();
-                    }}
-                  >
-                    <MenuItemText primary="Close" />
-                  </MenuItem>
-                ) : null}
-                {pageInfo.actions.map((action) => (
-                  <MenuItem
-                    key={action.id}
-                    onClick={() => {
-                      setMenuOpen(false);
-                      void runPageAction(action.id);
-                    }}
-                  >
-                    <MenuItemText
-                      primary={action.label}
-                      classes={{
-                        primaryText: getActionTextClass(action.color),
-                      }}
-                    />
-                  </MenuItem>
-                ))}
-              </Menu>
-            </>
-          ) : showCloseButton ? (
+        <PageHeaderCenter
+          className="min-w-0"
+          data-sign="sideWidgetAppHeaderCenter"
+        >
+          <PageHeaderTitle className="flex min-w-0 items-center justify-center gap-2">
+            <Avatar
+              alt={appName}
+              src={app.iconUri}
+              size="xsmall"
+              variant="squircle"
+            >
+              {appName.slice(0, 1)}
+            </Avatar>
+            <Text
+              component="span"
+              className="typography-subtitleMiniSemiBold min-w-0 truncate text-neutral-b0"
+              title={appName}
+              titleWhenOverflow={500}
+              noWrap
+            >
+              {appName}
+            </Text>
+          </PageHeaderTitle>
+        </PageHeaderCenter>
+        <PageHeaderRight>
+          <div className="flex items-center gap-1">
             <IconButton
               variant="icon"
               color="secondary"
               size="small"
-              symbol={Xmd}
-              data-sign="sideWidgetCloseApp"
-              TooltipProps={{ title: 'Close app tab' }}
-              onClick={onClose}
+              symbol={RefreshMd}
+              disabled={refreshing}
+              data-sign="sideWidgetRefresh"
+              TooltipProps={{ title: 'Reload app' }}
+              onClick={async () => {
+                setRefreshing(true);
+                await requestPage({
+                  app,
+                  contact: contact ?? undefined,
+                  formData,
+                  type: 'refresh',
+                });
+                if (mountedRef.current) {
+                  setRefreshing(false);
+                }
+              }}
             />
-          ) : null}
+            <IconButton
+              variant="icon"
+              color={isPinned ? 'primary' : 'secondary'}
+              size="small"
+              symbol={isPinned ? PushPinFilledMd : PushPinMd}
+              data-sign="sideWidgetPin"
+              TooltipProps={{
+                title: isPinned
+                  ? 'Do not open this app in a tab for outgoing calls'
+                  : 'Open this app in a tab for outgoing calls',
+              }}
+              onClick={onTogglePin}
+            />
+            {pageInfo.actions.length > 0 ? (
+              <>
+                <IconButton
+                  ref={menuAnchorRef}
+                  variant="icon"
+                  color="secondary"
+                  size="small"
+                  symbol={OverflowVerticalMd}
+                  data-sign="sideWidgetMore"
+                  TooltipProps={{ title: 'More actions' }}
+                  onClick={() => setMenuOpen(true)}
+                />
+                <Menu
+                  open={menuOpen}
+                  anchorEl={menuAnchorRef.current}
+                  onClose={() => setMenuOpen(false)}
+                >
+                  {showCloseButton ? (
+                    <MenuItem
+                      onClick={() => {
+                        setMenuOpen(false);
+                        onClose();
+                      }}
+                    >
+                      <MenuItemText primary="Close" />
+                    </MenuItem>
+                  ) : null}
+                  {pageInfo.actions.map((action) => (
+                    <MenuItem
+                      key={action.id}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        void runPageAction(action.id);
+                      }}
+                    >
+                      <MenuItemText
+                        primary={action.label}
+                        classes={{
+                          primaryText: getActionTextClass(action.color),
+                        }}
+                      />
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            ) : showCloseButton ? (
+              <IconButton
+                variant="icon"
+                color="secondary"
+                size="small"
+                symbol={Xmd}
+                data-sign="sideWidgetCloseApp"
+                TooltipProps={{ title: 'Close app tab' }}
+                onClick={onClose}
+              />
+            ) : null}
+          </div>
         </PageHeaderRight>
       </PageHeader>
       <div

@@ -55,7 +55,7 @@ export const VoicemailDropCallControlPanel: FC<CallControlViewPanelProps> = (
   const actionButtons = useMemo(
     () => (
       <div
-        className="flex flex-wrap justify-center gap-4 px-10"
+        className="grid w-full grid-cols-3 gap-4 px-10"
         data-sign="actionButtons"
       >
         {renderActions.map(
@@ -149,7 +149,7 @@ const NormalCallControlPanel: FC<CallControlViewPanelProps> = (props) => {
     ...endCallButtonProps
   } = hungUpActionProps;
 
-  return useCallControlLayout(call, {
+  const layout = useCallControlLayout(call, {
     main: children,
     footer: (
       <CallButton
@@ -166,4 +166,14 @@ const NormalCallControlPanel: FC<CallControlViewPanelProps> = (props) => {
     expanded,
     onExpand,
   });
+
+  return (
+    // the layout's first child is the header line showing the duration or,
+    // for a connecting (preinsert) call, a bare "connecting" text; the
+    // duration span carries typography-descriptorMini itself, so apply the
+    // same typography to the line to keep the connecting text the same size
+    <div className="contents [&>div:first-child]:typography-descriptorMini">
+      {layout}
+    </div>
+  );
 };

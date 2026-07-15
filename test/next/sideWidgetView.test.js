@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import { SideWidgetView } from '../../next/app/views/SideWidgetView/SideWidget.view';
 import { SideWidgetPanel } from '../../next/app/views/SideWidgetView/SideWidgetPanel';
@@ -153,17 +153,22 @@ describe('SideWidgetView', () => {
   });
 
   test('closes app tabs and selects the preceding tab', () => {
-    const { dependencies, view } = createSideWidget();
+    const { dependencies, expandedHandle, view } = createSideWidget();
     view.openAppTab({ id: 'crm', name: 'CRM' }, null);
     view.openAppTab({ id: 'tasks', name: 'Tasks' }, null);
 
-    view.closeAppTab('side-widget-app-tasks');
+    view.closeTab('side-widget-app-tasks');
     expect(view.currentTabId).toBe('side-widget-app-crm');
     expect(view.tabs.map(({ appId }) => appId).filter(Boolean)).toEqual(['crm']);
-    view.closeAppTab('missing');
+    view.closeTab('missing');
     expect(view.tabs).toHaveLength(2);
-    view.closeAppTab('side-widget-apps');
-    expect(dependencies.expandedView.close).toHaveBeenCalled();
+    view.closeTab('side-widget-apps');
+    expect(view.tabs).toEqual([
+      { id: 'side-widget-app-crm', appId: 'crm', name: 'CRM' },
+    ]);
+    expect(dependencies.expandedView.close).not.toHaveBeenCalled();
+    view.closeTab('side-widget-app-crm');
+    expect(dependencies.expandedView.close).toHaveBeenCalledWith(expandedHandle);
   });
 
   test('keeps the current tab when closing a background tab', () => {
@@ -171,8 +176,191 @@ describe('SideWidgetView', () => {
     view.openAppTab({ id: 'crm', name: 'CRM' }, null);
     view.openAppTab({ id: 'tasks', name: 'Tasks' }, null);
     view.selectTab('side-widget-apps');
-    view.closeAppTab('side-widget-app-crm');
+    view.closeTab('side-widget-app-crm');
     expect(view.currentTabId).toBe('side-widget-apps');
+  });
+
+  test('selects the right-hand tab after closing the active tab', () => {
+    const { view } = createSideWidget();
+    view.openAppTab({ id: 'crm', name: 'CRM' }, null);
+    view.openAppTab({ id: 'tasks', name: 'Tasks' }, null);
+    view.selectTab('side-widget-app-crm');
+
+    view.closeTab('side-widget-app-crm');
+
+    expect(view.currentTabId).toBe('side-widget-app-tasks');
+  });
+
+  test('hosts reusable content tabs alongside app tabs', () => {
+    const { dependencies, expandedHandle, getExpandedConfig, view } =
+      createSideWidget();
+    const onClose = jest.fn();
+    const Content = () => <div>Voicemail picker</div>;
+    const handle = view.createContent({
+      id: 'voicemail-drop',
+      name: 'Voicemail drop',
+      onClose,
+      view: Content,
+    });
+
+    view.openContent(handle);
+
+    expect(view.tabs).toEqual([
+      { id: 'side-widget-apps', name: 'Apps' },
+      { id: 'voicemail-drop', name: 'Voicemail drop' },
+    ]);
+    expect(view.currentTabId).toBe('voicemail-drop');
+    expect(dependencies.expandedView.open).toHaveBeenCalledWith(expandedHandle);
+
+    const ExpandedContent = getExpandedConfig().view;
+    render(<ExpandedContent />);
+    const props = SideWidgetPanel.mock.calls.at(-1)[0];
+    render(props.renderContent('voicemail-drop'));
+    expect(screen.getByText('Voicemail picker')).toBeInTheDocument();
+
+    view.closeContent(handle);
+    expect(view.tabs).toEqual([{ id: 'side-widget-apps', name: 'Apps' }]);
+    expect(view.currentTabId).toBe('side-widget-apps');
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(dependencies.expandedView.close).not.toHaveBeenCalled();
+  });
+
+  test('keeps content registration across close and reopen', () => {
+    const { getExpandedConfig, view } = createSideWidget();
+    const onClose = jest.fn();
+    const Content = () => <div>Reusable content</div>;
+    const handle = view.createContent({
+      id: 'reusable-content',
+      name: 'Reusable',
+      onClose,
+      view: Content,
+    });
+
+    view.openContent(handle);
+    view.closeContent(handle);
+    view.openContent(handle);
+
+    expect(view.tabs.filter(({ id }) => id === 'reusable-content')).toHaveLength(1);
+    const ExpandedContent = getExpandedConfig().view;
+    render(<ExpandedContent />);
+    const props = SideWidgetPanel.mock.calls.at(-1)[0];
+    render(props.renderContent('reusable-content'));
+    expect(screen.getByText('Reusable content')).toBeInTheDocument();
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('preserves app tabs while opening and closing custom content', () => {
+    const { dependencies, view } = createSideWidget();
+    view.openAppTab({ id: 'crm', name: 'CRM' }, null);
+    view.openAppTab({ id: 'tasks', name: 'Tasks' }, null);
+    const handle = view.createContent({
+      id: 'voicemail-drop',
+      name: 'Voicemail drop',
+      view: () => null,
+    });
+
+    view.openContent(handle);
+    expect(view.tabs.map(({ id }) => id)).toEqual([
+      'side-widget-apps',
+      'side-widget-app-crm',
+      'side-widget-app-tasks',
+      'voicemail-drop',
+    ]);
+
+    view.closeContent(handle);
+    expect(view.tabs.map(({ id }) => id)).toEqual([
+      'side-widget-apps',
+      'side-widget-app-crm',
+      'side-widget-app-tasks',
+    ]);
+    expect(view.currentTabId).toBe('side-widget-app-tasks');
+    expect(dependencies.expandedView.close).not.toHaveBeenCalled();
+  });
+
+  test('preserves content tabs when call contact state initializes', () => {
+    const { dependencies, view } = createSideWidget();
+    dependencies.thirdParty.pinAppIds = ['crm'];
+    const handle = view.createContent({
+      id: 'voicemail-drop',
+      name: 'Voicemail drop',
+      view: () => null,
+    });
+    view.openContent(handle);
+
+    view.onCallInit({
+      from: '+16505550100',
+      to: '+16505550101',
+      toUserName: 'Callee',
+    });
+
+    expect(view.tabs.map(({ id }) => id)).toEqual([
+      'side-widget-apps',
+      'voicemail-drop',
+      'side-widget-app-crm',
+    ]);
+  });
+
+  test('opens content without an Apps tab when side widgets are disabled', () => {
+    const { dependencies, expandedHandle, getExpandedConfig, view } =
+      createSideWidget({
+        options: { enableSideWidget: false },
+      });
+    const onClose = jest.fn();
+    const handle = view.createContent({
+      id: 'voicemail-drop',
+      name: 'Voicemail drop',
+      onClose,
+      view: () => null,
+    });
+
+    view.openContent(handle);
+    expect(view.tabs).toEqual([
+      { id: 'voicemail-drop', name: 'Voicemail drop' },
+    ]);
+
+    view.closeContent(handle);
+    expect(dependencies.expandedView.close).toHaveBeenCalledTimes(1);
+    expect(dependencies.expandedView.close).toHaveBeenCalledWith(expandedHandle);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    getExpandedConfig().onClose();
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('rejects content ids reserved for app tabs', () => {
+    const { view } = createSideWidget();
+    expect(() =>
+      view.createContent({
+        id: 'side-widget-apps',
+        name: 'Collision',
+        view: () => null,
+      }),
+    ).toThrow('Side widget content id is reserved');
+    expect(() =>
+      view.createContent({
+        id: 'side-widget-app-crm',
+        name: 'Collision',
+        view: () => null,
+      }),
+    ).toThrow('Side widget content id is reserved');
+  });
+
+  test('rejects duplicate content ids without replacing the registered view', () => {
+    const { view } = createSideWidget();
+    const FirstContent = () => null;
+    const firstHandle = view.createContent({
+      id: 'voicemail-drop',
+      name: 'Voicemail drop',
+      view: FirstContent,
+    });
+
+    expect(() =>
+      view.createContent({
+        id: 'voicemail-drop',
+        name: 'Replacement',
+        view: () => null,
+      }),
+    ).toThrow('Side widget content id is already registered');
+    expect(() => view.openContent(firstHandle)).not.toThrow();
   });
 
   test('pins apps into tabs and unpins without reopening', () => {
@@ -240,7 +428,7 @@ describe('SideWidgetView', () => {
     const selectApp = jest.spyOn(view, 'selectApp');
     const showApps = jest.spyOn(view, 'showApps');
     const close = jest.spyOn(view, 'close');
-    const closeAppTab = jest.spyOn(view, 'closeAppTab');
+    const closeTab = jest.spyOn(view, 'closeTab');
     const toggleAppPin = jest.spyOn(view, 'toggleAppPin');
     const ExpandedContent = getExpandedConfig().view;
 
@@ -255,7 +443,7 @@ describe('SideWidgetView', () => {
     props.onSelectApp('crm');
     props.onBack();
     props.onClose();
-    props.onCloseAppTab('side-widget-app-crm');
+    props.onCloseTab('side-widget-app-crm');
     props.onTogglePin('crm');
     await props.onLoadApp({ app: { id: 'crm' } });
 
@@ -263,7 +451,7 @@ describe('SideWidgetView', () => {
     expect(selectApp).toHaveBeenCalledWith('crm');
     expect(showApps).toHaveBeenCalled();
     expect(close).toHaveBeenCalled();
-    expect(closeAppTab).toHaveBeenCalledWith('side-widget-app-crm');
+    expect(closeTab).toHaveBeenCalledWith('side-widget-app-crm');
     expect(toggleAppPin).toHaveBeenCalledWith('crm');
     expect(dependencies.thirdParty.loadAppPage).toHaveBeenCalledWith({
       app: { id: 'crm' },

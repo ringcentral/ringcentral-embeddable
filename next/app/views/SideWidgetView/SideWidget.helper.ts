@@ -12,9 +12,10 @@ import type {
 } from './SideWidget.view.interface';
 
 export const SIDE_WIDGET_APPS_TAB_ID = 'side-widget-apps';
+export const SIDE_WIDGET_APP_TAB_PREFIX = 'side-widget-app-';
 
 export function getSideWidgetAppTabId(appId: string): string {
-  return `side-widget-app-${appId}`;
+  return `${SIDE_WIDGET_APP_TAB_PREFIX}${appId}`;
 }
 
 function isRecord(value: unknown): value is UnknownRecord {

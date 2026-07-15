@@ -11,6 +11,14 @@ export type Route = {
    * should the route match exactly?
    */
   exact?: boolean;
+  /**
+   * render this route as a detail page in the expanded column when available
+   */
+  layout?: 'detail';
+  /**
+   * page that remains in the main column while a detail route is expanded
+   */
+  backgroundComponent?: React.ComponentType;
 };
 
 export interface AppViewOptions {

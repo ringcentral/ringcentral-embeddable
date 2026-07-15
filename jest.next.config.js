@@ -22,7 +22,7 @@ module.exports = {
       '<rootDir>/test/next/mocks/jsonSchemaPageMock.js',
     '^\\./loadLocale$': '<rootDir>/test/next/mocks/loadLocaleMock.js',
     '\\.(css|scss|sass)$': '<rootDir>/test/next/mocks/styleMock.js',
-    '\\.(png|jpg|jpeg|gif|svg|ico|mp3|wav|ogg)(\\?urlLoader)?$':
+    '\\.(png|jpg|jpeg|gif|svg|ico|mp3|wav|ogg)(\\?url(?:Loader)?)?$':
       '<rootDir>/test/next/mocks/fileMock.js',
   },
   modulePathIgnorePatterns: [
@@ -32,7 +32,7 @@ module.exports = {
   testMatch: ['<rootDir>/test/next/**/*.test.[jt]s?(x)'],
   collectCoverageFrom: [
     '<rootDir>/next/app/services/{NoiseReduction,SmartNotes,TabManager,ThirdParty,VoicemailDrop}/**/*.{ts,tsx}',
-    '<rootDir>/next/app/views/{SideWidgetView,VoicemailDropSettingsView,VoicemailDropView}/**/*.{ts,tsx}',
+    '<rootDir>/next/app/views/{ExpandedRouteView,SettingsView,SideWidgetView,VoicemailDropSettingsView,VoicemailDropView}/**/*.{ts,tsx}',
     '<rootDir>/next/app/views/CallView/CallControlView/CallControl.helper.ts',
     '!<rootDir>/next/**/*.interface.ts',
     '!<rootDir>/next/**/index.ts',

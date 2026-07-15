@@ -1,12 +1,13 @@
+import {
+  AppFooterNav,
+  AppHeaderNav,
+} from '@ringcentral-integration/micro-core/src/app/components';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import { ArrowLeftMd, AttachMd } from '@ringcentral/spring-icon';
+import { PageHeader } from '@ringcentral-integration/next-widgets/components';
+import { AttachMd } from '@ringcentral/spring-icon';
 import {
   Alert,
   Button,
-  IconButton,
-  PageHeader,
-  PageHeaderLeft,
-  PageHeaderTitle,
   Text,
   TextField,
 } from '@ringcentral/spring-ui';
@@ -102,23 +103,16 @@ export function VoicemailDropMessageEditor({
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-neutral-base">
-      <PageHeader className="flex-none border-b border-neutral-l02">
-        <PageHeaderLeft>
-          <IconButton
-            variant="icon"
-            color="secondary"
-            size="medium"
-            symbol={ArrowLeftMd}
-            TooltipProps={{ title: t('back') }}
-            onClick={onBack}
-          />
-        </PageHeaderLeft>
-        <PageHeaderTitle>
+    <>
+      <AppHeaderNav override>
+        <PageHeader onBackClick={onBack}>
           {t(message ? 'editMessage' : 'newMessage')}
-        </PageHeaderTitle>
-      </PageHeader>
-      <div className="flex-auto overflow-y-auto p-4">
+        </PageHeader>
+      </AppHeaderNav>
+      <div
+        data-sign="voicemailDropMessageEditorContent"
+        className="flex-auto overflow-y-auto overflow-x-hidden px-4 py-2"
+      >
         {error ? <Alert severity="error">{t(error)}</Alert> : null}
         <TextField
           className={error ? 'mt-3' : undefined}
@@ -189,6 +183,7 @@ export function VoicemailDropMessageEditor({
           {t('save')}
         </Button>
       </div>
-    </div>
+      <AppFooterNav />
+    </>
   );
 }

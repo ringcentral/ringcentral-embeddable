@@ -1,3 +1,5 @@
+import type { ComponentType } from 'react';
+
 import type { ThirdPartyApp, UnknownRecord } from '../../services/ThirdParty';
 
 export interface SideWidgetOptions {
@@ -8,6 +10,17 @@ export interface SideWidgetTab {
   id: string;
   name: string;
   appId?: ThirdPartyApp['id'];
+}
+
+export interface SideWidgetContentOptions {
+  id: string;
+  name: string;
+  view: ComponentType;
+  onClose?: () => void;
+}
+
+export class SideWidgetContentHandle {
+  constructor(public readonly options: SideWidgetContentOptions) {}
 }
 
 export interface SideWidgetPage {

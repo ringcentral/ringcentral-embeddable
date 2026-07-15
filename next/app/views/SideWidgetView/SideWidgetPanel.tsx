@@ -4,6 +4,7 @@ import {
   EmptyState,
   IconButton,
   PageHeader,
+  PageHeaderCenter,
   PageHeaderLeft,
   PageHeaderRight,
   PageHeaderTitle,
@@ -13,7 +14,7 @@ import {
   Tabs,
   Text,
 } from '@ringcentral/spring-ui';
-import React from 'react';
+import React, { type ReactNode } from 'react';
 
 import type {
   LoadAppPageParams,
@@ -36,9 +37,15 @@ function AvailableApps({
 }) {
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <PageHeader className="flex-none border-b border-neutral-l02">
+      <PageHeader
+        variant="detached"
+        className="flex-none border-b border-neutral-b4"
+        data-sign="sideWidgetAvailableAppsHeader"
+      >
         <PageHeaderLeft />
-        <PageHeaderTitle>Available apps</PageHeaderTitle>
+        <PageHeaderCenter data-sign="sideWidgetAvailableAppsHeaderCenter">
+          <PageHeaderTitle>Available apps</PageHeaderTitle>
+        </PageHeaderCenter>
         <PageHeaderRight>
           <IconButton
             variant="icon"
@@ -83,6 +90,8 @@ function AvailableApps({
                     component="span"
                     className="typography-descriptor w-full truncate text-center text-neutral-b0"
                     title={appName}
+                    titleWhenOverflow={500}
+                    noWrap
                   >
                     {appName}
                   </Text>
@@ -107,8 +116,9 @@ export function SideWidgetPanel({
   onSelectApp,
   onBack,
   onClose,
-  onCloseAppTab,
+  onCloseTab,
   onTogglePin,
+  renderContent,
   onLoadApp,
 }: {
   apps: ThirdPartyApp[];
@@ -121,8 +131,9 @@ export function SideWidgetPanel({
   onSelectApp: (appId: string) => void;
   onBack: () => void;
   onClose: () => void;
-  onCloseAppTab: (tabId: string) => void;
+  onCloseTab: (tabId: string) => void;
   onTogglePin: (appId: string) => void;
+  renderContent: (tabId: string) => ReactNode;
   onLoadApp: (params: LoadAppPageParams) => Promise<unknown | null>;
 }) {
   const selectedApp = selectedAppId
@@ -139,7 +150,7 @@ export function SideWidgetPanel({
           <Tabs
             variant="moreMenu"
             size="small"
-            className="flex-none border-b border-neutral-l02"
+            className="flex-none border-b border-neutral-b4 bg-neutral-b5 px-2"
           >
             {tabs.map((tab) => (
               <Tab
@@ -147,6 +158,7 @@ export function SideWidgetPanel({
                 id={`side-widget-tab-${encodeURIComponent(tab.id)}`}
                 value={tab.id}
                 label={tab.name}
+                title={tab.name}
               />
             ))}
           </Tabs>
@@ -170,7 +182,11 @@ export function SideWidgetPanel({
           ) : (
             <AvailableApps
               apps={apps}
-              onClose={onClose}
+              onClose={() =>
+                tabs.length > 1
+                  ? onCloseTab(SIDE_WIDGET_APPS_TAB_ID)
+                  : onClose()
+              }
               onSelectApp={onSelectApp}
             />
           )}
@@ -193,15 +209,20 @@ export function SideWidgetPanel({
                     showBack={false}
                     showCloseButton
                     onBack={() => onTabChange(SIDE_WIDGET_APPS_TAB_ID)}
-                    onClose={() => onCloseAppTab(tab.id)}
+                    onClose={() => onCloseTab(tab.id)}
                     onTogglePin={() => onTogglePin(app.id)}
                     onLoadApp={onLoadApp}
                   />
                 ) : (
                   <div className="flex h-full flex-col overflow-hidden">
-                    <PageHeader className="flex-none border-b border-neutral-l02">
+                    <PageHeader
+                      variant="detached"
+                      className="flex-none border-b border-neutral-b4"
+                    >
                       <PageHeaderLeft />
-                      <PageHeaderTitle>{tab.name}</PageHeaderTitle>
+                      <PageHeaderCenter>
+                        <PageHeaderTitle>{tab.name}</PageHeaderTitle>
+                      </PageHeaderCenter>
                       <PageHeaderRight>
                         <IconButton
                           variant="icon"
@@ -209,7 +230,7 @@ export function SideWidgetPanel({
                           size="small"
                           symbol={Xmd}
                           TooltipProps={{ title: 'Close app tab' }}
-                          onClick={() => onCloseAppTab(tab.id)}
+                          onClick={() => onCloseTab(tab.id)}
                         />
                       </PageHeaderRight>
                     </PageHeader>
@@ -225,6 +246,21 @@ export function SideWidgetPanel({
               </TabPanel>
             );
           })}
+        {tabs
+          .filter(
+            ({ id, appId }) => id !== SIDE_WIDGET_APPS_TAB_ID && !appId,
+          )
+          .map((tab) => (
+            <TabPanel
+              key={tab.id}
+              value={tab.id}
+              keepMounted
+              data-sign={`sideWidgetContent-${tab.id}`}
+              className="min-h-0 flex-auto overflow-hidden p-0"
+            >
+              {renderContent(tab.id)}
+            </TabPanel>
+          ))}
       </div>
     </TabContext>
   );

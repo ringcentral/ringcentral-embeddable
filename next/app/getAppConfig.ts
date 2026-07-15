@@ -3,10 +3,8 @@ import type { SDKConfig } from '@ringcentral-integration/commons/lib/createSdkCo
 import {
   Auth,
   OAuth,
-  AuthOptions,
   AccountInfo,
   Analytics,
-  AnalyticsOptions,
   AppFeatures,
   AvailabilityMonitor,
   type AvailabilityMonitorOptions,
@@ -16,7 +14,6 @@ import {
   ExtensionNumberAreaCode,
   Presence,
   RateLimiter,
-  OAuthOptions,
   RegionSettings,
   RingCentralExtensions,
 } from '@ringcentral-integration/micro-auth/src/app/services';
@@ -88,7 +85,6 @@ import {
   CallQueueManagement,
   CallQueues,
   type CallLoggerOptions,
-  type CallActionOptions,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   GenericMeeting,
@@ -98,9 +94,15 @@ import {
 import type { HeaderNavViewSpringOptions } from '@ringcentral-integration/micro-core/src/app/views';
 import { PersonalMeetingSettingsViewSpring } from '@ringcentral-integration/micro-meeting/src/app/views';
 import type { SettingsViewOptions } from '@ringcentral-integration/micro-setting/src/app/views/SettingsView';
-import React from 'react';
 import {
   AppFeatures as AppFeaturesV2,
+  Authentication,
+  EmbeddableAnalytics,
+  EmbeddableAuth,
+  EmbeddableCallLogger,
+  EmbeddableOAuth,
+  getAnalyticsOptions,
+  getAuthenticationConfig,
   GenericMeeting as GenericMeetingV2,
   RcVideo as RcVideoV2,
   TabManager,
@@ -109,6 +111,7 @@ import {
   ThirdParty,
 } from './services';
 import { AccountContacts as AccountContactsV2 } from './services/AccountContacts';
+import { CallAction as CallActionV2 } from './services/CallAction';
 import { SmsOptOut as SmsOptOutV2 } from './services/SmsOptOut';
 import { MeetingView, MeetingInviteView } from './views/MeetingView';
 import { ContactListView as ContactListViewV2 } from './views/ContactListView/ContactList.view';
@@ -120,6 +123,7 @@ import {
 } from '@ringcentral-integration/micro-phone/src/app/views';
 import { DialerPadView as DialerPadViewV2 } from './views/DialerPadView';
 import { CallHUDView } from './views/CallHUDView';
+import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import {
   SideWidgetView,
@@ -167,14 +171,13 @@ import {
 import { ParkView } from './views/CallView/ParkView';
 import { CallControlView as CallControlViewV2 } from './views/CallView/CallControlView/CallControl.view';
 import { CallView as CallViewV2 } from './views/CallView/Call.view';
+import { EMBEDDABLE_CALL_ACTION_OPTIONS } from './views/CallView/Call.view.options';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
-import {
-  VoicemailDropSettingsLink,
-  VoicemailDropSettingsView,
-} from './views/VoicemailDropSettingsView';
+import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 import { VoicemailDropView } from './views/VoicemailDropView';
+import { createSettingsPanel } from './views/SettingsView/createSettingsPanel';
 
 interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   appVersion: string;
@@ -184,16 +187,21 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   modules: Parameters<T>[0]['modules'];
   share: ISharedAppOptions;
   analyticsKey: string;
+  authorizationCode?: string;
+  authorizationCodeVerifier?: string;
+  authProxy?: boolean;
   disableLoginPopup?: boolean;
+  externalAuthId?: string;
   redirectUri?: string;
   jwt?: string;
-  jwtOwnerId?: string;
+  proxyUri?: string;
   fromPopup?: boolean;
   mainTab?: boolean;
   enableSideWidget?: boolean;
   enableVoicemailDrop?: boolean;
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
+  enableAnalytics?: boolean;
 }
 
 /**
@@ -207,14 +215,36 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   modules = [],
   share,
   analyticsKey,
+  authorizationCode,
+  authorizationCodeVerifier,
+  authProxy = false,
+  disableLoginPopup = false,
+  externalAuthId,
+  redirectUri,
+  jwt,
+  proxyUri,
   fromPopup = false,
   mainTab,
   enableSideWidget = false,
   enableVoicemailDrop = false,
   disableNoiseReduction = false,
   enableSmartNote = false,
+  enableAnalytics = false,
 }: CreateAppEntryOptions<T>) => {
   const { defaultLocale } = brandConfig;
+
+  const authenticationConfig = getAuthenticationConfig({
+    prefix,
+    sdkConfig,
+    authorizationCode,
+    authorizationCodeVerifier,
+    authProxy,
+    disableLoginPopup,
+    externalAuthId,
+    jwt,
+    proxyUri,
+    redirectUri,
+  });
 
   if (process.env.NODE_ENV !== 'production') {
     if (!prefix) {
@@ -228,7 +258,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
     clientSecret: sdkConfig.clientSecret,
     appVersion,
     appName: brandConfig.appName as string,
-    cachePrefix: `sdk-${prefix}`,
+    ...authenticationConfig.sdkOptions,
     clearCacheOnRefreshError: false,
     discoveryServer: sdkConfig.discoveryServer,
     // enableDiscovery: false, // RCV's discovery server is not available for third party clients
@@ -243,9 +273,19 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       ThemePlugin,
       BlockPlugin,
       // services
-      Analytics,
-      Auth,
-      OAuth,
+      {
+        provide: Analytics,
+        useClass: EmbeddableAnalytics,
+      },
+      {
+        provide: Auth,
+        useClass: EmbeddableAuth,
+      },
+      Authentication,
+      {
+        provide: OAuth,
+        useClass: EmbeddableOAuth,
+      },
       CallerId,
       AvailabilityMonitor,
       {
@@ -292,8 +332,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useClass: ActiveCallControlV2,
       },
       CallLog,
-      CallLogger,
-      CallAction,
+      {
+        provide: CallLogger,
+        useClass: EmbeddableCallLogger,
+      },
+      {
+        provide: CallAction,
+        useClass: CallActionV2,
+      },
       CallViewState,
       {
         provide: MicroPhoneCallControlView,
@@ -381,6 +427,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       MonitoredExtensions,
       ParkView,
+      ExpandedRouteView,
       ExpandedView,
       SideWidgetView,
       VoicemailDropView,
@@ -447,14 +494,11 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'AuthOptions',
-        useValue: { usePKCE: true } satisfies AuthOptions,
+        useValue: authenticationConfig.authOptions,
       },
       {
         provide: 'OAuthOptions',
-        useValue: {
-          // use redirect.html directly for we host in sub path of the app
-          redirectUri: './redirect.html',
-        } satisfies OAuthOptions,
+        useValue: authenticationConfig.oAuthOptions,
       },
       {
         provide: 'AvailabilityMonitorOptions',
@@ -489,11 +533,12 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'AnalyticsOptions',
-        useValue: {
+        useValue: getAnalyticsOptions({
           appName: brandConfig.appName as string,
           appVersion,
-          analyticsKey: analyticsKey,
-        } satisfies AnalyticsOptions,
+          analyticsKey,
+          enableAnalytics,
+        }),
       },
       {
         provide: 'ContactSources',
@@ -525,9 +570,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'CallActionOptions',
-        useValue: {
-          expandedAbility: true,
-        },
+        useValue: EMBEDDABLE_CALL_ACTION_OPTIONS,
       },
       {
         provide: 'ConversationLoggerOptions',
@@ -583,9 +626,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: 'SettingsViewOptions',
         useFactory: (voicemailDrop: VoicemailDrop, router: RouterPlugin) =>
           ({
-            additional: React.createElement(VoicemailDropSettingsLink, {
+            component: createSettingsPanel({
               voicemailDrop,
-              onClick: () => router.push('/settings/voicemailDrop'),
+              onVoicemailDropSettingsLinkClick: () =>
+                router.push('/settings/voicemailDrop'),
             }),
           } satisfies SettingsViewOptions),
         deps: [VoicemailDrop, RouterPlugin],
@@ -623,6 +667,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
             onExpand: (expand) => {
               console.log('onExpand expand:', expand);
             },
+            expandedLayoutMainClass:
+              'w-[300px] min-w-[300px] max-w-[300px] flex-none',
           } satisfies RootOptions),
       },
       {

@@ -18,11 +18,13 @@ import {
   CallAction,
   CallingSettings,
   ForwardingNumber,
+  isPreinsertCallByTelephoneSessionId,
   type OnCallActionType,
   Webphone as MicroPhoneWebphone,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { CallActionRoutePath } from '@ringcentral-integration/micro-phone/src/app/services/CallAction/CallAction.interface';
 import { AudioCardView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/AudioCardViewSpring';
+import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import { CallControlView as CallControlViewBase } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
 import type {
   CallControlViewOptions,
@@ -60,6 +62,7 @@ export class CallControlView extends CallControlViewBase {
     voicemailDrop: VoicemailDrop,
     @inject(MicroPhoneWebphone) webphone: Webphone,
     voicemailDropView: VoicemailDropView,
+    callViewState: CallViewState,
     @optional('CallControlViewOptions')
     callControlViewOptions?: CallControlViewOptions,
   ) {
@@ -85,6 +88,7 @@ export class CallControlView extends CallControlViewBase {
     this._voicemailDrop = voicemailDrop;
     this._webphone = webphone;
     this._voicemailDropView = voicemailDropView;
+    this._callViewState = callViewState;
   }
 
   private readonly _parkCallAction: CallAction;
@@ -93,12 +97,24 @@ export class CallControlView extends CallControlViewBase {
   private readonly _voicemailDrop: VoicemailDrop;
   private readonly _webphone: Webphone;
   private readonly _voicemailDropView: VoicemailDropView;
+  private readonly _callViewState: CallViewState;
 
   @delegate('server')
   async navigateToPark(telephonySessionId: string): Promise<void> {
     await this._parkCallAction.updateCallMetaInfo(telephonySessionId, {
       currentPath: PARK_PATH,
     });
+  }
+
+  /**
+   * close the call control page for a connecting (preinsert) call that only
+   * exists as a local webphone session and is not addressable by the
+   * server-side call control actions yet
+   */
+  @delegate('server')
+  async closeConnectingCall(): Promise<void> {
+    this._callViewState._setView('hidden');
+    await (this._parkCallAction as any)['leaveCallingRoute']();
   }
 
   private useCallActions(props: CallControlViewProps): ICallAction[] {
@@ -149,6 +165,22 @@ export class CallControlView extends CallControlViewBase {
     const baseFunctions = super.getUIFunctions(props);
     const telephonySessionId = props.call.telephonySessionId!;
     const onAction: OnCallActionType = async (actionType, ...args) => {
+      if (isPreinsertCallByTelephoneSessionId(telephonySessionId)) {
+        // the call only exists as a local webphone (SIP) session; the base
+        // handler would address it through ActiveCallControl with the fake
+        // preinsert id and throw
+        if (actionType === 'hangUp') {
+          const webphoneSessionId = props.call.webphoneSession?.id;
+          if (webphoneSessionId) {
+            await this._webphone.hangup(webphoneSessionId);
+          }
+          return;
+        }
+        if (actionType === 'back') {
+          await this.closeConnectingCall();
+          return;
+        }
+      }
       if (actionType === 'park') {
         await this.navigateToPark(telephonySessionId);
         return;

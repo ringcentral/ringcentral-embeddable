@@ -6,11 +6,19 @@ import { AudioPreview } from '../../next/app/views/VoicemailDropSettingsView/Aud
 class FakeAudio {
   constructor(source) {
     this.source = source;
+    this.src = source;
     this.currentTime = 0;
     this.duration = 0;
     this.listeners = new Map();
     this.play = jest.fn(async () => {});
     this.pause = jest.fn(() => this.emit('pause'));
+    this.load = jest.fn();
+    this.remove = jest.fn();
+    this.removeAttribute = jest.fn((name) => {
+      if (name === 'src') {
+        this.src = '';
+      }
+    });
     this.addEventListener = jest.fn((name, listener) => {
       this.listeners.set(name, listener);
     });
@@ -96,6 +104,30 @@ describe('AudioPreview', () => {
     unmount();
     expect(audio.pause).toHaveBeenCalled();
     expect(audio.removeEventListener).toHaveBeenCalledTimes(5);
+  });
+
+  test('releases playing audio when the preview unmounts', async () => {
+    const { unmount } = render(
+      <AudioPreview
+        source="audio.wav"
+        name="Greeting"
+        playLabel="Play"
+        stopLabel="Stop"
+      />,
+    );
+    const audio = FakeAudio.instances[0];
+    fireEvent.click(screen.getByRole('button', { name: 'Play' }));
+    await screen.findByRole('button', { name: 'Stop' });
+
+    unmount();
+
+    expect(audio.pause).toHaveBeenCalledTimes(1);
+    expect(audio.removeAttribute).toHaveBeenCalledWith('src');
+    expect(audio.src).toBe('');
+    expect(audio.load).toHaveBeenCalledTimes(1);
+    expect(audio.remove).toHaveBeenCalledTimes(1);
+    expect(audio.removeEventListener).toHaveBeenCalledTimes(5);
+    expect(audio.listeners).toHaveProperty('size', 0);
   });
 
   test('normalizes non-finite duration and handles duration changes', () => {

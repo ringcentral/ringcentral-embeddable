@@ -274,7 +274,7 @@ export class CallHUDView extends RcViewModule {
   toggleCallHUD() {
     if (this.showCallHUD) {
       this.setShowCallHUD(false);
-      this._expandedView.close();
+      this._expandedView.close(this._expandedHandle);
     } else {
       this.setShowCallHUD(true);
       this._expandedView.open(this._expandedHandle);
@@ -605,7 +605,9 @@ export class CallHUDView extends RcViewModule {
   }
 
   private _expandedHandle = this._expandedView.create({
+    id: 'call-hud',
     header: () => t('callHUD'),
+    onDeactivate: () => this.setShowCallHUD(false),
     view: () => {
       const { current: uiFunctions } = useRef(this._getUIFunctions());
       const uiProps = useConnector(() => this._getUIProps());

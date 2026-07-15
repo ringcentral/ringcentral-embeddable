@@ -1,9 +1,31 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import {
+  AppFooterNav,
+  AppHeaderNav,
+} from '@ringcentral-integration/micro-core/src/app/components';
+import { PageHeader } from '@ringcentral-integration/next-widgets/components';
+
 import { VoicemailDropMessageEditor } from '../../next/app/views/VoicemailDropSettingsView/VoicemailDropMessageEditor';
 import { AudioPreview } from '../../next/app/views/VoicemailDropSettingsView/AudioPreview';
 import { VOICEMAIL_DROP_LIMITS } from '../../next/app/views/VoicemailDropSettingsView/VoicemailDropSettings.constants';
+
+jest.mock('@ringcentral-integration/micro-core/src/app/components', () => ({
+  AppFooterNav: jest.fn(() => null),
+  AppHeaderNav: jest.fn(({ children }) => <>{children}</>),
+}));
+
+jest.mock('@ringcentral-integration/next-widgets/components', () => ({
+  PageHeader: jest.fn(({ children, onBackClick }) => (
+    <header>
+      <button type="button" aria-label="back" onClick={onBackClick}>
+        Back
+      </button>
+      {children}
+    </header>
+  )),
+}));
 
 jest.mock('../../next/app/views/VoicemailDropSettingsView/AudioPreview', () => ({
   AudioPreview: jest.fn(() => <div>Audio preview</div>),
@@ -65,6 +87,9 @@ describe('VoicemailDropMessageEditor', () => {
     FakeFileReader.instances = [];
     FakeFileReader.mode = 'success';
     global.FileReader = FakeFileReader;
+    AppFooterNav.mockClear();
+    AppHeaderNav.mockClear();
+    PageHeader.mockClear();
     AudioPreview.mockClear();
   });
 
@@ -78,6 +103,23 @@ describe('VoicemailDropMessageEditor', () => {
     render(<VoicemailDropMessageEditor {...props} />);
 
     expect(screen.getByText('newMessage')).toBeInTheDocument();
+    expect(AppHeaderNav).toHaveBeenCalledWith(
+      expect.objectContaining({ override: true }),
+      {},
+    );
+    expect(PageHeader).toHaveBeenCalledWith(
+      expect.objectContaining({
+        children: 'newMessage',
+        onBackClick: props.onBack,
+      }),
+      {},
+    );
+    expect(AppFooterNav).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('voicemailDropMessageEditorContent')).toHaveClass(
+      'flex-auto',
+      'overflow-y-auto',
+      'overflow-x-hidden',
+    );
     fireEvent.click(screen.getByRole('button', { name: 'save' }));
     expect(screen.getByRole('alert')).toHaveTextContent('nameRequired');
 

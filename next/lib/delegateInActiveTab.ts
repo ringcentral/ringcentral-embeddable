@@ -2,14 +2,41 @@ import {
   applyMethod,
   delegate,
   getRef,
+  nameKey,
   PortManager,
 } from '@ringcentral-integration/next-core';
 
 const ACTIVE_TAB_CHANNEL_PREFIX = 'activeTab:';
 
 function resolveChannelName(module: object): string {
-  const ref = getRef(module as any);
-  return `${ACTIVE_TAB_CHANNEL_PREFIX}${ref.identifier ?? 'unknown'}`;
+  const identifier =
+    getRef(module).identifier ??
+    (module as { readonly [nameKey]?: string })[nameKey];
+
+  if (!identifier?.trim()) {
+    throw new Error(
+      'Unable to register active-tab delegate: the module has no stable identifier. Add an @injectable({ name }) value or provide options.channelName.',
+    );
+  }
+
+  return `${ACTIVE_TAB_CHANNEL_PREFIX}${identifier}`;
+}
+
+function resolveConfiguredChannelName(
+  module: object,
+  channelName?: string,
+): string {
+  if (channelName === undefined) {
+    return resolveChannelName(module);
+  }
+
+  if (!channelName.trim()) {
+    throw new Error(
+      'Unable to register active-tab delegate: options.channelName must not be empty.',
+    );
+  }
+
+  return channelName;
 }
 
 /**
@@ -27,7 +54,10 @@ function setupActiveTabDelegate(
 ): void {
   if (!portManager.shared) return;
 
-  const channelName = options?.channelName ?? resolveChannelName(module);
+  const channelName = resolveConfiguredChannelName(
+    module,
+    options?.channelName,
+  );
 
   portManager.checkMainTabMapping.set(module, () => portManager.isActiveTab);
   portManager.customClientDelegateNameMapping.set(module, channelName);
@@ -72,7 +102,8 @@ function setupActiveTabDelegate(
  * Decorator that delegates method execution to the user's active (visible) tab.
  *
  * Requires `setupActiveTabDelegate(this, portManager)` to be called in the
- * module constructor first.
+ * module constructor first. The module must have an `@injectable({ name })`
+ * value, or the setup call must provide an explicit `channelName`.
  *
  * @example
  * ```ts

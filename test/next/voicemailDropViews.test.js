@@ -1,6 +1,8 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { watch } from '@ringcentral-integration/next-core';
+
 import { VoicemailDropSettingsView } from '../../next/app/views/VoicemailDropSettingsView/VoicemailDropSettings.view';
 import { VoicemailDropSettingsLink } from '../../next/app/views/VoicemailDropSettingsView/VoicemailDropSettingsLink';
 import { VoicemailDropSettingsPanel } from '../../next/app/views/VoicemailDropSettingsView/VoicemailDropSettingsPanel';
@@ -15,8 +17,16 @@ jest.mock('../../next/app/views/VoicemailDropView/VoicemailDropPanel', () => ({
   VoicemailDropPanel: jest.fn(() => null),
 }));
 
-jest.mock('../../next/app/views/ExpandedView', () => ({
-  ExpandedView: class ExpandedView {},
+jest.mock('../../next/app/views/VoicemailDropView/i18n', () => ({
+  __esModule: true,
+  default: {},
+  t: jest.fn((key) =>
+    key === 'voicemailDrop' ? 'Localized voicemail drop' : key,
+  ),
+}));
+
+jest.mock('../../next/app/views/SideWidgetView', () => ({
+  SideWidgetView: class SideWidgetView {},
 }));
 
 jest.mock('@ringcentral-integration/next-widgets/components', () => ({
@@ -86,19 +96,20 @@ describe('VoicemailDropSettingsLink', () => {
 describe('VoicemailDropView', () => {
   beforeEach(() => {
     VoicemailDropPanel.mockClear();
+    watch.mockClear();
   });
 
   function createView(overrides = {}) {
-    let expandedConfig;
+    let contentConfig;
     const handle = { id: 'voicemail' };
     const dependencies = {
-      expandedView: {
-        create: jest.fn((config) => {
-          expandedConfig = config;
+      sideWidgetView: {
+        createContent: jest.fn((config) => {
+          contentConfig = config;
           return handle;
         }),
-        open: jest.fn(),
-        close: jest.fn(),
+        openContent: jest.fn(),
+        closeContent: jest.fn(),
       },
       voicemailDrop: {
         hasVoicemailDropPermission: true,
@@ -113,26 +124,32 @@ describe('VoicemailDropView', () => {
       ...overrides,
     };
     const view = new VoicemailDropView(
-      dependencies.expandedView,
+      dependencies.sideWidgetView,
       dependencies.voicemailDrop,
       dependencies.webphone,
       dependencies.router,
     );
     return {
       dependencies,
-      getExpandedConfig: () => expandedConfig,
+      getContentConfig: () => contentConfig,
       handle,
       view,
     };
   }
 
-  test('opens only with permission and closes the expanded view', () => {
-    const { dependencies, handle, view } = createView();
+  test('opens only with permission and closes its side-widget tab', () => {
+    const { dependencies, getContentConfig, handle, view } = createView();
+    expect(getContentConfig()).toEqual(
+      expect.objectContaining({
+        id: 'voicemail-drop',
+        name: 'Localized voicemail drop',
+      }),
+    );
     view.open('session');
     expect(view.currentSessionId).toBe('session');
-    expect(dependencies.expandedView.open).toHaveBeenCalledWith(handle);
+    expect(dependencies.sideWidgetView.openContent).toHaveBeenCalledWith(handle);
     view.close();
-    expect(dependencies.expandedView.close).toHaveBeenCalled();
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
 
     const disabled = createView({
       voicemailDrop: {
@@ -143,11 +160,11 @@ describe('VoicemailDropView', () => {
     });
     disabled.view.open('session');
     expect(disabled.view.currentSessionId).toBeNull();
-    expect(disabled.dependencies.expandedView.open).not.toHaveBeenCalled();
+    expect(disabled.dependencies.sideWidgetView.openContent).not.toHaveBeenCalled();
   });
 
   test('drops a message and navigates only after success', async () => {
-    const { dependencies, view } = createView();
+    const { dependencies, handle, view } = createView();
     await expect(view._dropMessage('message')).resolves.toBe(false);
     view.open('session');
     await expect(view._dropMessage('message')).resolves.toBe(true);
@@ -155,37 +172,37 @@ describe('VoicemailDropView', () => {
       'session',
       'message',
     );
-    expect(dependencies.expandedView.close).toHaveBeenCalled();
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
     expect(dependencies.router.push).toHaveBeenCalledWith('/dialer');
 
     dependencies.webphone.dropVoicemailMessage.mockResolvedValueOnce(false);
-    dependencies.expandedView.close.mockClear();
+    dependencies.sideWidgetView.closeContent.mockClear();
     dependencies.router.push.mockClear();
     await expect(view._dropMessage('message')).resolves.toBe(false);
-    expect(dependencies.expandedView.close).not.toHaveBeenCalled();
+    expect(dependencies.sideWidgetView.closeContent).not.toHaveBeenCalled();
     expect(dependencies.router.push).not.toHaveBeenCalled();
   });
 
-  test('loads external messages and clears session state on expanded close', async () => {
-    const { dependencies, getExpandedConfig, view } = createView();
+  test('loads external messages and clears session state on tab close', async () => {
+    const { dependencies, getContentConfig, view } = createView();
     view.open('session');
     await view._loadMessages();
     expect(dependencies.voicemailDrop.fetchExternalVoicemailDropFiles).toHaveBeenCalled();
-    getExpandedConfig().onClose();
+    getContentConfig().onClose();
     expect(view.currentSessionId).toBeNull();
   });
 
-  test('renders picker props and stable callbacks in expanded content', async () => {
-    const { dependencies, getExpandedConfig, view } = createView();
+  test('renders picker props and stable callbacks in side-widget content', async () => {
+    const { dependencies, getContentConfig, handle, view } = createView();
     view.open('session');
-    const ExpandedContent = getExpandedConfig().view;
-    render(<ExpandedContent />);
+    const SideWidgetContent = getContentConfig().view;
+    render(<SideWidgetContent />);
     const props = VoicemailDropPanel.mock.calls[0][0];
     expect(props.messages).toEqual([{ id: 'message', label: 'Greeting' }]);
     props.onClose();
     await props.onLoad();
     await props.onDrop('message');
-    expect(dependencies.expandedView.close).toHaveBeenCalled();
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
     expect(dependencies.voicemailDrop.fetchExternalVoicemailDropFiles).toHaveBeenCalled();
     expect(dependencies.webphone.dropVoicemailMessage).toHaveBeenCalledWith(
       'session',
@@ -194,16 +211,33 @@ describe('VoicemailDropView', () => {
     expect(view.component()).toBeNull();
   });
 
-  test('closes automatically when the active session disappears', async () => {
-    const { dependencies, getExpandedConfig, view } = createView({
-      webphone: {
-        sessions: [],
-        dropVoicemailMessage: jest.fn(),
-      },
-    });
+  test('watches the active session even when the picker is not mounted', () => {
+    const { dependencies, handle, view } = createView();
+    view.onInit();
+    const stopWatching = watch.mock.results.at(-1).value;
     view.open('session');
-    const ExpandedContent = getExpandedConfig().view;
-    render(<ExpandedContent />);
-    await waitFor(() => expect(dependencies.expandedView.close).toHaveBeenCalled());
+    dependencies.webphone.sessions = [];
+    const selector = watch.mock.calls.at(-1)[1];
+    const watcher = watch.mock.calls.at(-1)[2];
+
+    watcher(selector());
+
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
+    view.onReset();
+    expect(stopWatching).toHaveBeenCalledTimes(1);
+  });
+
+  test('clears its session and content tab when the module resets', () => {
+    const { dependencies, handle, view } = createView();
+    view.onInit();
+    const stopWatching = watch.mock.results.at(-1).value;
+    view.open('session');
+    dependencies.sideWidgetView.closeContent.mockClear();
+
+    view.onReset();
+
+    expect(stopWatching).toHaveBeenCalledTimes(1);
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
+    expect(view.currentSessionId).toBeNull();
   });
 });

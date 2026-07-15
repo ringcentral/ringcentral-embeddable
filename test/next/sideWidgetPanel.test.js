@@ -20,8 +20,9 @@ function createProps(overrides = {}) {
     onSelectApp: jest.fn(),
     onBack: jest.fn(),
     onClose: jest.fn(),
-    onCloseAppTab: jest.fn(),
+    onCloseTab: jest.fn(),
     onTogglePin: jest.fn(),
+    renderContent: jest.fn(() => null),
     onLoadApp: jest.fn(async () => null),
     ...overrides,
   };
@@ -38,6 +39,13 @@ describe('SideWidgetPanel', () => {
 
     expect(screen.getByText('Available apps')).toBeInTheDocument();
     expect(screen.getByText('No available apps')).toBeInTheDocument();
+    expect(screen.getByTestId('sideWidgetAvailableAppsHeader')).toHaveAttribute(
+      'variant',
+      'detached',
+    );
+    expect(
+      screen.getByTestId('sideWidgetAvailableAppsHeaderCenter'),
+    ).toContainElement(screen.getByText('Available apps'));
     fireEvent.click(screen.getByRole('button', { name: 'Close apps' }));
     expect(props.onClose).toHaveBeenCalledTimes(1);
   });
@@ -130,7 +138,7 @@ describe('SideWidgetPanel', () => {
     appProps.onClose();
     appProps.onTogglePin();
     expect(props.onTabChange).toHaveBeenCalledWith('side-widget-apps');
-    expect(props.onCloseAppTab).toHaveBeenCalledWith('side-widget-app-crm');
+    expect(props.onCloseTab).toHaveBeenCalledWith('side-widget-app-crm');
     expect(props.onTogglePin).toHaveBeenCalledWith('crm');
   });
 
@@ -140,12 +148,55 @@ describe('SideWidgetPanel', () => {
         { id: 'side-widget-apps', name: 'Apps' },
         { id: 'side-widget-app-missing', appId: 'missing', name: 'Removed app' },
       ],
+      currentTabId: 'side-widget-app-missing',
     });
     render(<SideWidgetPanel {...props} />);
 
     expect(screen.getByText('App unavailable')).toBeInTheDocument();
     expect(screen.getByText('This app is no longer registered.')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Close app tab' }));
-    expect(props.onCloseAppTab).toHaveBeenCalledWith('side-widget-app-missing');
+    expect(props.onCloseTab).toHaveBeenCalledWith('side-widget-app-missing');
+  });
+
+  test('renders custom content as another selectable side-widget tab', () => {
+    const props = createProps({
+      tabs: [
+        { id: 'side-widget-apps', name: 'Apps' },
+        { id: 'voicemail-drop', name: 'Voicemail drop' },
+      ],
+      currentTabId: 'voicemail-drop',
+      renderContent: jest.fn((tabId) => (
+        <div data-sign={`content-${tabId}`}>Voicemail picker</div>
+      )),
+    });
+
+    render(<SideWidgetPanel {...props} />);
+
+    expect(screen.getByRole('button', { name: 'Apps' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Voicemail drop' }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('content-voicemail-drop')).toHaveTextContent(
+      'Voicemail picker',
+    );
+    expect(
+      screen.getByTestId('sideWidgetContent-voicemail-drop'),
+    ).toHaveAttribute('data-keep-mounted', 'true');
+    expect(props.renderContent).toHaveBeenCalledWith('voicemail-drop');
+  });
+
+  test('closes only the Apps tab when other side-widget tabs remain', () => {
+    const props = createProps({
+      tabs: [
+        { id: 'side-widget-apps', name: 'Apps' },
+        { id: 'voicemail-drop', name: 'Voicemail drop' },
+      ],
+    });
+
+    render(<SideWidgetPanel {...props} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Close apps' }));
+
+    expect(props.onCloseTab).toHaveBeenCalledWith('side-widget-apps');
+    expect(props.onClose).not.toHaveBeenCalled();
   });
 });

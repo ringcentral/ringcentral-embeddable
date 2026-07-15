@@ -2,8 +2,10 @@ import type { ComponentType, ReactNode } from 'react';
 import type { RcViewModule } from '@ringcentral-integration/next-core';
 
 export interface ExpandedViewCreatorOptions {
+  id: string;
   view: ComponentType | RcViewModule;
   header?: string | ComponentType | (() => ReactNode);
+  onDeactivate?: () => void;
   onClose?: () => void;
 }
 

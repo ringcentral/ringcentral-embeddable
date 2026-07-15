@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useLayoutEffect, useRef } from 'react';
 import {
   ConnectivityView,
   EnvironmentView,
@@ -54,16 +54,29 @@ import {
   injectable,
   optional,
   RcViewModule,
+  Root,
   RouterPlugin,
   Route as RouterRoute,
+  type RouteComponentProps,
   Switch,
   useConnector,
 } from '@ringcentral-integration/next-core';
-import type { AppViewOptions } from './AppView.interface';
+import type { AppViewOptions, Route as AppRoute } from './AppView.interface';
+import { resolveDetailViewTransitionId } from './AppView.helper';
+import { shouldCollapseExpandedLayout } from './ExpandedRouteNavigation.helper';
+import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
+
+type RouteComponent = Exclude<React.ElementType, string>;
+
+type InternalRoute = Omit<AppRoute, 'component' | 'backgroundComponent'> & {
+  component?: RouteComponent;
+  backgroundComponent?: RouteComponent;
+};
+
 @injectable({
   name: 'AppView',
 })
@@ -102,7 +115,7 @@ export class AppView extends RcViewModule {
     return this._meetingView ? <this._meetingView.component {...props} /> : null;
   }
 
-  private routes = [
+  private routes: InternalRoute[] = [
     {
       path: '/welcome',
       component: this._welcomeView.component,
@@ -131,26 +144,36 @@ export class AppView extends RcViewModule {
       path: '/history/:callLogId',
       component: this._callDetailView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._dialerPadView.component,
     },
     {
       path: '/composeText',
       component: this._composeTextView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this.Text,
     },
     {
       path: '/composeFax',
       component: this._faxSendView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this.Fax,
     },
     {
       path: '/conversations/:conversationId',
       component: this._conversationView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this.Text,
     },
     {
       path: '/voicemails/:conversationId',
       component: this._voicemailView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._dialerPadView.component,
     },
     {
       path: '/messages',
@@ -172,56 +195,78 @@ export class AppView extends RcViewModule {
       path: '/settings/calling',
       component: this._callingSettingsView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/region',
       component: this._regionSettingsView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/audio',
       component: this._audioSettingsView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/voicemailDrop',
       component: this._voicemailDropSettingsView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/feedback',
       component: this._feedbackView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/issuesTracking',
       component: this._issuesTrackingView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/callQueueManagement',
       component: this._callQueueManagementView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/theme',
       component: this._themeSwitchView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/autoCallLogSettings/callLogging',
       component: this._callLoggingSettingsView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/autoCallLogSettings/recordMatching',
       component: this._recordMatchingSettingsView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/settings/autoCallLogSettings',
       component: this._autoCallLogICSettingsView.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
     },
     {
       path: '/meeting',
@@ -233,11 +278,15 @@ export class AppView extends RcViewModule {
       path: '/meeting/schedule',
       component: this._genericMeetingView?.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this.MeetingEntry,
     },
     {
       path: '/meeting/personalMeetingSettings',
       component: this._personalMeetingSettingsViewSpring?.component,
       authentication: true,
+      layout: 'detail',
+      backgroundComponent: this.MeetingEntry,
     },
     {
       path: '/contacts',
@@ -249,18 +298,36 @@ export class AppView extends RcViewModule {
       path: '/contacts/:contactType/:contactId',
       component: this._contactDetailsView.component,
       authentication: true,
-    }
+      layout: 'detail',
+      backgroundComponent: this._contactListView.component,
+    },
   ];
 
   private routesMap = this.routes.reduce(
     (acc, curr) => {
       const target = curr.authentication ? acc.authentication : acc.default;
+      const DetailComponent = curr.component;
+      const BackgroundComponent = curr.backgroundComponent;
+      const component =
+        curr.layout === 'detail' && DetailComponent
+          ? (routeProps: RouteComponentProps) => (
+              <this._expandedRouteView.component
+                background={
+                  BackgroundComponent ? (
+                    <BackgroundComponent {...routeProps} />
+                  ) : null
+                }
+                detail={<DetailComponent {...routeProps} />}
+              />
+            )
+          : DetailComponent;
+
       target.push(
         <RouterRoute
           key={curr.path}
           path={curr.path}
           exact={curr.exact}
-          component={curr.component}
+          component={component}
         />,
       );
 
@@ -273,6 +340,7 @@ export class AppView extends RcViewModule {
   );
 
   constructor(
+    private _root: Root,
     private _router: RouterPlugin,
     private _appRootView: SpringAppRootView,
     private _callDetailView: CallDetailView,
@@ -301,6 +369,7 @@ export class AppView extends RcViewModule {
     private _headerView: HeaderView,
     private _faxSendView: FaxSendView,
     private _headerNavView: HeaderNavViewSpring,
+    private _expandedRouteView: ExpandedRouteView,
     private _expandedView: ExpandedView,
     private _genericMeeting?: GenericMeeting,
     @optional()
@@ -343,6 +412,26 @@ export class AppView extends RcViewModule {
   }
 
   component() {
+    const { currentPath, expanded } = useConnector(() => ({
+      currentPath: this._router.currentPath,
+      expanded: this._root.expanded,
+    }));
+    const previousPathRef = useRef(currentPath);
+    useLayoutEffect(() => {
+      const previousPath = previousPathRef.current;
+      previousPathRef.current = currentPath;
+      if (
+        shouldCollapseExpandedLayout({
+          currentPath,
+          expanded,
+          previousPath,
+          routes: this.routes,
+        })
+      ) {
+        void this._root.setExpanded(false);
+      }
+    }, [currentPath, expanded]);
+
     return (
       <this._appRootView.component
         header={
@@ -357,7 +446,10 @@ export class AppView extends RcViewModule {
       >
         <div
           className="flex flex-col h-full flex-auto overflow-hidden bg-neutral-base"
-          id={VIEW_TRANSITION_DETAIL_IDENTIFY}
+          id={resolveDetailViewTransitionId(
+            expanded,
+            VIEW_TRANSITION_DETAIL_IDENTIFY,
+          )}
         >
           <this.MainContent />
           <this._callView.IncomingCallList />

@@ -1843,6 +1843,18 @@ export class Webphone extends WebphoneBase {
     void this._updateSessions();
   }
 
+  /** Marks a Webphone session as forwarded before telephony forwarding. */
+  @delegate('mainClient')
+  async setForwardFlag(sessionId: string): Promise<boolean> {
+    const session = this.originalSessions[sessionId];
+    if (!session) {
+      return false;
+    }
+    session.__rc_isForwarded = true;
+    void this._updateSessions();
+    return true;
+  }
+
   onActiveWebphoneChanged(handler: ActiveWebphoneChangedHandler) {
     this._eventEmitter.on(EVENTS.activeWebphoneChanged, handler);
   }

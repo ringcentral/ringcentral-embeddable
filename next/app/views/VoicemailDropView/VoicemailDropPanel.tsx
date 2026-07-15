@@ -15,6 +15,7 @@ import {
   ListItem,
   ListItemText,
   PageHeader,
+  PageHeaderCenter,
   PageHeaderLeft,
   PageHeaderRight,
   PageHeaderTitle,
@@ -88,9 +89,15 @@ export function VoicemailDropPanel({
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-neutral-base">
-      <PageHeader className="flex-none border-b border-neutral-l02">
+      <PageHeader
+        variant="detached"
+        className="flex-none border-b border-neutral-b4"
+        data-sign="voicemailDropHeader"
+      >
         <PageHeaderLeft />
-        <PageHeaderTitle>{t('voicemailDrop')}</PageHeaderTitle>
+        <PageHeaderCenter data-sign="voicemailDropHeaderCenter">
+          <PageHeaderTitle>{t('voicemailDrop')}</PageHeaderTitle>
+        </PageHeaderCenter>
         <PageHeaderRight>
           <IconButton
             variant="icon"

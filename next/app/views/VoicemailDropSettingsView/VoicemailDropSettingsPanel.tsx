@@ -1,7 +1,11 @@
+import {
+  AppFooterNav,
+  AppHeaderNav,
+} from '@ringcentral-integration/micro-core/src/app/components';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
+import { PageHeader } from '@ringcentral-integration/next-widgets/components';
 import {
   AddVoicemailMd,
-  ArrowLeftMd,
   EditMd,
   TrashMd,
   VoicemailMd,
@@ -19,9 +23,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  PageHeader,
-  PageHeaderLeft,
-  PageHeaderTitle,
   Slider,
   Text,
 } from '@ringcentral/spring-ui';
@@ -161,21 +162,14 @@ export function VoicemailDropSettingsPanel({
     messages.length >= VOICEMAIL_DROP_LIMITS.maxMessages;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-neutral-base">
-      <PageHeader className="flex-none border-b border-neutral-l02">
-        <PageHeaderLeft>
-          <IconButton
-            variant="icon"
-            color="secondary"
-            size="medium"
-            symbol={ArrowLeftMd}
-            TooltipProps={{ title: t('back') }}
-            onClick={onBack}
-          />
-        </PageHeaderLeft>
-        <PageHeaderTitle>{t('settingsTitle')}</PageHeaderTitle>
-      </PageHeader>
-      <div className="flex-auto overflow-y-auto p-4">
+    <>
+      <AppHeaderNav override>
+        <PageHeader onBackClick={onBack}>{t('settingsTitle')}</PageHeader>
+      </AppHeaderNav>
+      <div
+        data-sign="voicemailDropSettingsContent"
+        className="flex-auto overflow-y-auto overflow-x-hidden px-4 py-2"
+      >
         <Alert>{t('settingsInfo')}</Alert>
         {loadFailed ? (
           <Alert severity="error" className="mt-3">
@@ -258,6 +252,7 @@ export function VoicemailDropSettingsPanel({
           </Button>
         </section>
       </div>
+      <AppFooterNav />
       <Dialog
         open={Boolean(deleteTarget)}
         size="small"
@@ -290,6 +285,6 @@ export function VoicemailDropSettingsPanel({
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 }

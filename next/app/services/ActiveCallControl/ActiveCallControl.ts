@@ -1,5 +1,7 @@
 import { callDirection } from '@ringcentral-integration/commons/enums/callDirections';
 import { trackEvents } from '@ringcentral-integration/commons/enums/trackEvents';
+import { validateNumbers } from '@ringcentral-integration/commons/lib/validateNumbers';
+import { webphoneErrors } from '@ringcentral-integration/commons/modules/Webphone/webphoneErrors';
 import type {
   NormalizedSession,
   PartyData,
@@ -8,6 +10,7 @@ import {
   ActiveCallControl as ActiveCallControlBase,
   normalizeToActiveCallControlSession,
 } from '@ringcentral-integration/micro-phone/src/app/services/ActiveCallControl';
+import { t as activeCallControlT } from '@ringcentral-integration/micro-phone/src/app/services/ActiveCallControl/i18n';
 import type {
   ActiveCallControlOptions,
   ActiveCallControlSessionData,
@@ -55,10 +58,28 @@ import type {
   Webphone as WebphoneV2,
 } from '../WebphoneV2';
 
+const STOP_RECORD_DISABLED_MESSAGE =
+  'Sorry, stopping recording is not supported for this call. Please contact your account administrator to enable "Allow mute in auto recording".';
+
+function hasResponseStatus(error: unknown, status: number): boolean {
+  if (typeof error !== 'object' || error === null || !('response' in error)) {
+    return false;
+  }
+  const response = (error as { response?: unknown }).response;
+  return (
+    typeof response === 'object' &&
+    response !== null &&
+    'status' in response &&
+    response.status === status
+  );
+}
+
 @injectable({
   name: 'ActiveCallControl',
 })
 export class ActiveCallControl extends ActiveCallControlBase {
+  private _stopRecordError: unknown | null = null;
+
   constructor(
     _preInsertCall: PreinsertCall,
     _portManager: PortManager,
@@ -119,6 +140,14 @@ export class ActiveCallControl extends ActiveCallControlBase {
 
   private getWebphoneSessionId(telephonySessionId: string) {
     return this.currentDeviceCallsMap[telephonySessionId] ?? null;
+  }
+
+  /** Returns whether RingCentral Call Control supplied this session. */
+  hasTelephonySession(telephonySessionId: string): boolean {
+    return this.data.sessions.some(
+      (session) =>
+        (session.telephonySessionId ?? session.id) === telephonySessionId,
+    );
   }
 
   private getWarmTransferWebphoneSessionId(telephonySessionId: string) {
@@ -318,6 +347,9 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async startRecord(telephonySessionId: string) {
+    if (this.hasTelephonySession(telephonySessionId)) {
+      return super.startRecord(telephonySessionId);
+    }
     const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.startRecord(telephonySessionId);
@@ -336,6 +368,9 @@ export class ActiveCallControl extends ActiveCallControlBase {
   ])
   @delegate('server')
   async stopRecord(telephonySessionId: string) {
+    if (this.hasTelephonySession(telephonySessionId)) {
+      return super.stopRecord(telephonySessionId);
+    }
     const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.stopRecord(telephonySessionId);
@@ -346,6 +381,27 @@ export class ActiveCallControl extends ActiveCallControlBase {
     } finally {
       this.clearCallControlBusyTimestamp();
     }
+  }
+
+  protected override stopRecordErrorHandle = async (
+    error: unknown,
+  ): Promise<void> => {
+    this._stopRecordError = error;
+    this._toast.danger({
+      message: hasResponseStatus(error, 403)
+        ? STOP_RECORD_DISABLED_MESSAGE
+        : activeCallControlT('pauseRecordError'),
+    });
+  };
+
+  /** Stops recording and reports whether the telephony request succeeded. */
+  @delegate('server')
+  async stopRecordForAdapter(telephonySessionId: string): Promise<boolean> {
+    this._stopRecordError = null;
+    await this.stopRecord(telephonySessionId);
+    const succeeded = this._stopRecordError === null;
+    this._stopRecordError = null;
+    return succeeded;
   }
 
   @delegate('server')
@@ -515,9 +571,55 @@ export class ActiveCallControl extends ActiveCallControlBase {
     if (!webphoneSessionId) {
       return super.forward(forwardNumber, telephonySessionId);
     }
+    const webphoneSession = this._webphone.sessions.find(
+      (session) => session.id === webphoneSessionId,
+    );
+    const partyData = webphoneSession?.partyData as
+      | PartyData
+      | null
+      | undefined;
+    if (!partyData) {
+      return this._webphone.forward(webphoneSessionId, forwardNumber);
+    }
+    const [validPhoneNumber] = validateNumbers({
+      allowRegionSettings: Boolean(
+        this._brand.brandConfig.allowRegionSettings,
+      ),
+      areaCode: this._regionSettings.areaCode,
+      countryCode: this._regionSettings.countryCode,
+      phoneNumbers: [forwardNumber],
+    });
+    if (!validPhoneNumber) {
+      return false;
+    }
+    const maximumExtensionLength =
+      this._accountInfo.maxExtensionNumberLength || 6;
+    const requestBody: {
+      extensionNumber?: string;
+      phoneNumber?: string;
+    } = {};
+    if (
+      !validPhoneNumber.includes('+') &&
+      validPhoneNumber.length <= maximumExtensionLength
+    ) {
+      requestBody.extensionNumber = validPhoneNumber;
+    } else {
+      requestBody.phoneNumber = validPhoneNumber;
+    }
+    await this._webphoneV2.setForwardFlag(webphoneSessionId);
     try {
       this.setCallControlBusyTimestamp();
-      await this._webphone.forward(webphoneSessionId, forwardNumber);
+      await this._client.service.platform().post(
+        `/restapi/v1.0/account/~/telephony/sessions/${partyData.sessionId}/parties/${partyData.partyId}/forward`,
+        requestBody,
+      );
+      return true;
+    } catch (error: unknown) {
+      this.logger.error('forward failed', error);
+      this._toast.warning({
+        message: webphoneErrors.forwardError,
+      });
+      return false;
     } finally {
       this.clearCallControlBusyTimestamp();
     }
