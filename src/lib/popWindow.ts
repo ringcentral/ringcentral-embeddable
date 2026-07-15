@@ -1,5 +1,5 @@
 export function popWindow(url: string, id: string, w: number, h: number): WindowProxy | null {
-  if (url.indexOf('javascript') > 0) {
+  if (url.indexOf('javascript') > -1) {
     throw new Error('Invalid window open url');
   }
   // Fixes dual-screen position                         Most browsers      Firefox

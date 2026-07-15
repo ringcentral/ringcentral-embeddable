@@ -57,6 +57,19 @@ TEST_HEADLESS=false
 npm test
 ```
 
+Use the focused test scripts when you only need one layer:
+
+```
+npm run test:unit
+npm run test:integration
+npm run test:e2e
+npm run test:coverage
+```
+
+Unit tests live under `test/unit`, integration tests live under `test/integration`, and browser e2e tests live under `test` or `test/e2e`. `jest-puppeteer` starts the e2e test server on port `8080` when the port is free. If port `8080` is already in use, e2e tests assume that server is the intended compatible app server.
+
+The `test:coverage` script runs unit, integration, and instrumented e2e coverage, then enforces the 80% coverage gate for `src/**/*.{js,jsx,ts,tsx}` source files, excluding generated browser runtime artifacts.
+
 ### Deploy on production
 
 If you create pull request to this repo and get merged, CI will deploy it to this repository's Github Page automatically. But for something that customized, you can deploy it to your own web space, such as your github page.
