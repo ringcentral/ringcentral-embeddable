@@ -47,6 +47,10 @@ jest.mock('@ringcentral-integration/widgets/modules/ConversationsUI', () => ({
   },
 }));
 
+jest.mock('../../src/components/MainViewPanel/i18n', () => ({
+  getString: jest.fn((key) => key),
+}));
+
 jest.mock('@ringcentral-integration/widgets/modules/IncomingCallUI', () => ({
   IncomingCallUI: class BaseIncomingCallUI {
     constructor(deps) {
@@ -214,6 +218,10 @@ function createConversationsDeps(overrides = {}) {
       personalTextUnreadCounts: 2,
       sharedTextUnreadCounts: 3,
       unreadMessage: jest.fn(),
+    },
+    locale: {
+      currentLocale: 'en-US',
+      ready: true,
     },
     messageThreads: {
       assign: jest.fn(async () => {}),
@@ -678,9 +686,9 @@ describe('UI wrapper modules', () => {
     const conversationsUI = new ConversationsUI(deps);
 
     expect(conversationsUI.ownerTabs).toEqual([
-      { label: 'Direct', unreadCounts: 2, value: 'Personal' },
-      { label: 'Call queue', unreadCounts: 3, value: 'Shared' },
-      { label: 'Shared', unreadCounts: 4, value: 'Threads' },
+      { label: 'directLabel', unreadCounts: 2, value: 'Personal' },
+      { label: 'callQueueLabel', unreadCounts: 3, value: 'Shared' },
+      { label: 'sharedLabel', unreadCounts: 4, value: 'Threads' },
     ]);
     expect(conversationsUI.searchFilterList).toEqual([
       'All',

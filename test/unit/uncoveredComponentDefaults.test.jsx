@@ -591,7 +591,7 @@ test('covers settings item variants, read-only guards and default render paths',
   expect(onLogout).toHaveBeenCalled();
   expect(screen.getByText('ACE')).toBeInTheDocument();
   expect(screen.getByText('RingCX')).toBeInTheDocument();
-  expect(screen.getByText('Admin')).toBeInTheDocument();
+  expect(screen.getByText('admin')).toBeInTheDocument();
 
   rerender(
     <section>
@@ -651,9 +651,9 @@ test('covers auth settings authorization, license and link branches', () => {
       unauthorizedTitle="Connect"
     />,
   );
-  expect(screen.getByText('Disconnected')).toBeInTheDocument();
+  expect(screen.getByText('disconnected')).toBeInTheDocument();
   expect(screen.getByText('markdown:License markdown')).toBeInTheDocument();
-  fireEvent.click(screen.getByText('Refresh'));
+  fireEvent.click(screen.getByText('refresh'));
   expect(onLicenseRefresh).toHaveBeenCalled();
   fireEvent.click(screen.getByText('Connect'));
   expect(onAuthorize).toHaveBeenCalled();
@@ -672,8 +672,8 @@ test('covers auth settings authorization, license and link branches', () => {
       showAuthButton
     />,
   );
-  expect(screen.getByText('Connected as ada@example.com')).toBeInTheDocument();
-  fireEvent.click(screen.getByText('Syncing'));
+  expect(screen.getByText('connected as ada@example.com')).toBeInTheDocument();
+  fireEvent.click(screen.getByText('syncing'));
   expect(onAuthorize).toHaveBeenCalledTimes(2);
 });
 
