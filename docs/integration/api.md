@@ -359,7 +359,7 @@ Navigate to path:
 ```js
 document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   type: 'rc-adapter-navigate-to',
-  path: '/messages', // '/meeting', '/dialer', '//history', '/settings'
+  path: '/messages', // '/meeting', '/dialer', '/history', '/settings'
 }, '*');
 ```
 
