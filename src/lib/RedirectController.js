@@ -3,6 +3,7 @@ import url from 'url';
 const origins = [
   'https://ringcentral.github.io',
   'https://apps.ringcentral.com',
+  'https://appconnect.labs.ringcentral.com'
 ];
 
 if (origins.indexOf(window.location.origin) < 0) {
