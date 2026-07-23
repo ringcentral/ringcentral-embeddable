@@ -90,7 +90,7 @@
     "@ringcentral-integration/locale-loader": "^2.2.1",
     "@ringcentral-integration/phone-number": "^1.1.0",
     "@ringcentral-integration/utils": "^0.14.0",
-    "@ringcentral-integration/widgets": "^0.14.0",
+    "@ringcentral-integration/widgets": "^0.16.0",
     "@ringcentral-integration/jsonschema-page": "*",
     "@ringcentral/juno": "^2.45.0",
     "@ringcentral/juno-icon": "^1.84.1",
