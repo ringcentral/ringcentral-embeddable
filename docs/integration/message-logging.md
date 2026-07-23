@@ -286,3 +286,77 @@ window.addEventListener('message', function (e) {
 
 !!! note "JSON Schema reference"
     Learn how to define custom page with JSON schema in the [JSON schema page document](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs).
+
+## Granular per-message SMS logging
+
+By default SMS messages are logged as a daily digest (grouped by `conversationId` and `date`). For manual-logging workflows that need to attribute individual messages to different CRM records (e.g. legal/consulting matters), you can enable granular per-message selection.
+
+When enabled, the SMS conversation view shows a checkbox next to every unlogged message (checked by default) and a logged icon on messages that are already logged. The header `Log` button then logs only the checked messages.
+
+!!! info "Requirements"
+    Granular selection only renders when the user/account uses **manual** SMS logging (auto log disabled). When auto log is enabled, the standard daily-digest behavior is used.
+
+Enable it in your service manifest:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    messageLoggerPath: '/messageLogger',
+    messageLoggerTitle: 'Log to TestService',
+    messageLogEntityMatcherPath: '/messageLogger/match',
+    messageLogOpenPath: '/messageLogger/openLog', // optional; navigate to a logged entry
+    messageLoggerGranularSelectionEnabled: true,  // turn on per-message selection
+  }
+}, '*');
+```
+
+### Log selected messages
+
+When the user clicks `Log`, the widget posts a request to `messageLoggerPath` with `triggerType: 'selectedLog'` and a snapshot of the checked message ids in `body.selectedMessageIds`. Only these messages are included in `body.conversation.messages`.
+
+Respond with a `logId` that identifies the created CRM entry. The widget stores it per selected message so it can render the logged icon and navigate back to the entry.
+
+```js
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request' && data.path === '/messageLogger') {
+    if (data.body.triggerType === 'selectedLog') {
+      var selectedIds = data.body.selectedMessageIds; // e.g. ['123', '456']
+      var conversation = data.body.conversation;      // conversation.messages contains only selected messages
+      // ...create a single CRM entry from the selected messages...
+      document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: { logId: 'crm-log-entry-id' } },
+      }, '*');
+    }
+  }
+});
+```
+
+### Per-message logged state
+
+On conversation load the widget requests logged state for the visible messages by posting `{ conversationId, messageIds }` to `messageLogEntityMatcherPath`. Return, per message id, an object containing the `logId` it was logged into (omit unlogged messages):
+
+```js
+if (data.path === '/messageLogger/match') {
+  // data.body.messageIds: ['123', '456', '789']
+  document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+    type: 'rc-post-message-response',
+    responseId: data.requestId,
+    response: {
+      data: {
+        '123': { logId: 'crm-log-entry-id' }, // logged
+        '456': { logId: 'crm-log-entry-id' },
+        // '789' omitted => unlogged, shows a checkbox
+      }
+    },
+  }, '*');
+}
+```
+
+### Open a logged entry
+
+Clicking the logged icon posts `{ logId, triggerType: 'openLog' }` to `messageLogOpenPath` (falls back to `messageLoggerPath` if not provided). Use it to navigate the user to the CRM record (for example via `rc-adapter-navigate-to`).

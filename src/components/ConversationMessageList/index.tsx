@@ -1,11 +1,21 @@
 import React, { useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
 import { isBlank } from '@ringcentral-integration/commons/lib/isBlank';
-import { RcIcon, RcText, RcTypography, styled, palette2, css } from '@ringcentral/juno';
+import {
+  RcIcon,
+  RcIconButton,
+  RcCheckbox,
+  RcText,
+  RcTypography,
+  styled,
+  palette2,
+  css,
+} from '@ringcentral/juno';
 import {
   DefaultFile as fileSvg,
   Download as downloadSvg,
   Notes,
+  Disposition as loggedSvg,
 } from '@ringcentral/juno-icon';
 
 import i18n from '@ringcentral-integration/widgets/components/ConversationMessageList/i18n';
@@ -85,6 +95,25 @@ const Time = styled.div`
   margin-bottom: 10px;
   color: ${palette2('neutral', 'f02')};
   clear: both;
+`;
+
+const BubbleRow = styled.div<{ inbound?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  clear: both;
+  justify-content: ${(props) => (props.inbound ? 'flex-start' : 'flex-end')};
+`;
+
+const SelectionControl = styled.div`
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .RcCheckbox-root {
+    margin: 0;
+  }
 `;
 
 const Sender = styled.div`
@@ -310,6 +339,11 @@ export const Message = ({
   onAttachmentDownload = undefined,
   onLinkClick,
   messageStatus,
+  selectionEnabled = false,
+  logged = false,
+  checked = false,
+  onToggleSelect = undefined,
+  onClickLog = undefined,
 }: {
   subject: string;
   time?: string;
@@ -321,6 +355,11 @@ export const Message = ({
   onAttachmentDownload?: any;
   onLinkClick: any;
   messageStatus: string;
+  selectionEnabled?: boolean;
+  logged?: boolean;
+  checked?: boolean;
+  onToggleSelect?: () => void;
+  onClickLog?: () => void;
 }) => {
   let subjectNode;
   if (subject && !isBlank(subject)) {
@@ -364,6 +403,51 @@ export const Message = ({
         </File>
       );
     });
+  const inbound = direction === 'Inbound';
+  let control = null;
+  if (logged) {
+    control = (
+      <SelectionControl>
+        <RcIconButton
+          data-sign="messageLoggedIcon"
+          symbol={loggedSvg}
+          size="medium"
+          color="success.f02"
+          title="View log"
+          onClick={() => {
+            if (typeof onClickLog === 'function') {
+              onClickLog();
+            }
+          }}
+        />
+      </SelectionControl>
+    );
+  } else if (selectionEnabled) {
+    control = (
+      <SelectionControl>
+        <RcCheckbox
+          data-sign="messageSelectCheckbox"
+          checked={checked}
+          onChange={() => {
+            if (typeof onToggleSelect === 'function') {
+              onToggleSelect();
+            }
+          }}
+        />
+      </SelectionControl>
+    );
+  }
+  const bubble = (
+    <MessageTextWrapper
+      data-sign={`${direction}Text`}
+      inbound={inbound}
+      big={subject && subject.length > 500}
+    >
+      {subjectNode}
+      {imageAttachments}
+      {otherAttachments}
+    </MessageTextWrapper>
+  );
   return (
     <MessageWrapper data-sign="message">
       {time ? (
@@ -371,19 +455,18 @@ export const Message = ({
           {time}
         </Time>
       ) : null}
-      {sender && direction === 'Inbound' ? (
+      {sender && inbound ? (
         <Sender>{sender}</Sender>
       ) : null}
       <MessageSendStatus direction={direction} status={messageStatus} />
-      <MessageTextWrapper
-        data-sign={`${direction}Text`}
-        inbound={direction === 'Inbound'}
-        big={subject && subject.length > 500}
-      >
-        {subjectNode}
-        {imageAttachments}
-        {otherAttachments}
-      </MessageTextWrapper>
+      {control ? (
+        <BubbleRow inbound={inbound}>
+          {control}
+          {bubble}
+        </BubbleRow>
+      ) : (
+        bubble
+      )}
       <Clear />
     </MessageWrapper>
   );
@@ -422,6 +505,11 @@ export function ConversationMessageList({
   myExtensionId,
   onViewNote,
   statusReason,
+  selectionEnabled = false,
+  selectedMessageIds = undefined,
+  messageLogStateMap = {},
+  onToggleMessage = undefined,
+  onClickMessageLog = undefined,
 }: {
   className: string;
   dateTimeFormatter: any;
@@ -437,6 +525,11 @@ export function ConversationMessageList({
   myExtensionId: string;
   onViewNote: () => void;
   statusReason: string;
+  selectionEnabled?: boolean;
+  selectedMessageIds?: Set<number>;
+  messageLogStateMap?: Record<string, { logId: string }>;
+  onToggleMessage?: (id: number) => void;
+  onClickMessageLog?: (logId: string) => void;
 }) {
   const listRef = useRef(null);
   const scrollHeight = useRef(null);
@@ -519,6 +612,8 @@ export function ConversationMessageList({
         />
       );
     }
+    const loggedState = messageLogStateMap?.[String(message.id)];
+    const isLogged = !!loggedState;
     return (
       <Message
         key={message.id}
@@ -532,6 +627,19 @@ export function ConversationMessageList({
         onAttachmentDownload={onAttachmentDownload}
         onLinkClick={onLinkClick}
         messageStatus={message.messageStatus}
+        selectionEnabled={selectionEnabled}
+        logged={isLogged}
+        checked={!!selectedMessageIds && selectedMessageIds.has(message.id)}
+        onToggleSelect={() => {
+          if (typeof onToggleMessage === 'function') {
+            onToggleMessage(message.id);
+          }
+        }}
+        onClickLog={() => {
+          if (isLogged && typeof onClickMessageLog === 'function') {
+            onClickMessageLog(loggedState.logId);
+          }
+        }}
       />
     );
   });

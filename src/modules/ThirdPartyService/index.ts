@@ -66,6 +66,7 @@ export default class ThirdPartyService extends RcModuleV2 {
   private _callLogEntityMatcherPath?: string;
   private _messageLoggerPath?: string;
   private _messageLogEntityMatcherPath?: string;
+  private _messageLogOpenPath?: string;
   private _feedbackPath?: string;
   private _settingsPath?: string;
   private _authorizationPath?: string;
@@ -171,6 +172,9 @@ export default class ThirdPartyService extends RcModuleV2 {
         }
         if (service.messageLogEntityMatcherPath) {
           this._messageLogEntityMatcherPath = service.messageLogEntityMatcherPath;
+        }
+        if (service.messageLogOpenPath) {
+          this._messageLogOpenPath = service.messageLogOpenPath;
         }
         if (service.feedbackPath) {
           this._registerFeedback(service);
@@ -531,6 +535,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       messageLoggerAutoSettingReadOnlyReason: service.messageLoggerAutoSettingReadOnlyReason,
       messageLoggerAutoSettingReadOnlyValue: service.messageLoggerAutoSettingReadOnlyValue,
       messageLoggerAutoSettingHidden: service.messageLoggerAutoSettingHidden,
+      messageLoggerGranularSelectionEnabled: service.messageLoggerGranularSelectionEnabled,
     });
   }
 
@@ -778,6 +783,85 @@ export default class ThirdPartyService extends RcModuleV2 {
     } catch (e) {
       console.error('Message log match error, please check if message match responds successfully', e);
       return {};
+    }
+  }
+
+  // Granular logging: ask the service for the logged state of individual messages
+  // in a conversation. Extends the messageLogEntityMatcher contract to accept
+  // `{ conversationId, messageIds }` and return `{ [messageId]: { logId } }`.
+  async matchMessagesLogState({ conversationId, messageIds }) {
+    const result: Record<string, { logId: string }> = {};
+    try {
+      if (!this._messageLogEntityMatcherPath || !messageIds || messageIds.length === 0) {
+        return result;
+      }
+      const ids = messageIds.map((id) => String(id));
+      const { data } = await requestWithPostMessage(
+        this._messageLogEntityMatcherPath,
+        { conversationId, messageIds: ids },
+        30000,
+      );
+      if (data && typeof data === 'object') {
+        ids.forEach((messageId) => {
+          const entry = data[messageId];
+          if (entry && entry.logId) {
+            result[messageId] = { logId: entry.logId };
+          }
+        });
+      }
+      if (Object.keys(result).length > 0) {
+        this._setMessageLogState(result);
+      }
+      return result;
+    } catch (e) {
+      console.error('Match message log state error, please check if message match responds successfully', e);
+      return result;
+    }
+  }
+
+  // Granular logging: log a user-selected subset of messages as a single CRM entry.
+  // `selectedMessageIds` is a snapshot taken at click time to avoid bundling
+  // messages that arrive during the log request (race-condition requirement).
+  async logSelectedMessages({ conversation, selectedMessageIds, ...options }) {
+    try {
+      if (!this._messageLoggerPath || !selectedMessageIds || selectedMessageIds.length === 0) {
+        return;
+      }
+      const messageIds = selectedMessageIds.map((id) => String(id));
+      const response = await requestWithPostMessage(
+        this._messageLoggerPath,
+        {
+          conversation,
+          triggerType: 'selectedLog',
+          selectedMessageIds: messageIds,
+          ...options,
+        },
+        15000,
+      );
+      const logId = response?.data?.logId;
+      if (logId) {
+        const map: Record<string, { logId: string }> = {};
+        messageIds.forEach((messageId) => {
+          map[messageId] = { logId };
+        });
+        this._setMessageLogState(map);
+      }
+      return response?.data;
+    } catch (e) {
+      console.error('Log selected messages error, please check if message logger responds successfully', e);
+    }
+  }
+
+  // Granular logging: navigate/open the CRM entry a message was logged into.
+  async openMessageLog({ logId }) {
+    try {
+      const path = this._messageLogOpenPath || this._messageLoggerPath;
+      if (!path || !logId) {
+        return;
+      }
+      await requestWithPostMessage(path, { logId, triggerType: 'openLog' }, 15000);
+    } catch (e) {
+      console.error('Open message log error, please check if message logger responds successfully', e);
     }
   }
 
@@ -1329,6 +1413,23 @@ export default class ThirdPartyService extends RcModuleV2 {
   @state
   messageLoggerAutoSettingHidden = false;
 
+  @globalStorage
+  @state
+  messageLoggerGranularSelectionEnabled = false;
+
+  // In-memory map of individual SMS message id -> logged CRM entry info.
+  // Used to render per-message "logged" icons and to navigate to the CRM entry.
+  @state
+  messageLogStateMap: Record<string, { logId: string }> = {};
+
+  @action
+  _setMessageLogState(map: Record<string, { logId: string }>) {
+    this.messageLogStateMap = {
+      ...this.messageLogStateMap,
+      ...map,
+    };
+  }
+
   _onRegisterMessageLogger({
     messageLoggerTitle,
     messageLoggerAutoSettingLabel,
@@ -1337,6 +1438,7 @@ export default class ThirdPartyService extends RcModuleV2 {
     messageLoggerAutoSettingReadOnlyReason,
     messageLoggerAutoSettingReadOnlyValue,
     messageLoggerAutoSettingHidden,
+    messageLoggerGranularSelectionEnabled,
   }) {
     if (messageLoggerTitle) {
       this.messageLoggerTitle = messageLoggerTitle;
@@ -1353,6 +1455,7 @@ export default class ThirdPartyService extends RcModuleV2 {
       this.messageLoggerAutoSettingReadOnlyValue = messageLoggerAutoSettingReadOnlyValue;
     }
     this.messageLoggerAutoSettingHidden = !!messageLoggerAutoSettingHidden;
+    this.messageLoggerGranularSelectionEnabled = !!messageLoggerGranularSelectionEnabled;
     this.messageLoggerRegistered = true;
   }
 

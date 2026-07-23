@@ -42,10 +42,20 @@ export class ConversationUI extends BaseConversationUI {
     const conversationId = conversations.currentConversationId;
     const typingStartTime = conversationId ? (smsTypingTimeTracker._typingStartTimes?.[conversationId] || null) : null;
     const accumulatedTypingTime = conversationId ? (smsTypingTimeTracker.accumulatedTypingTimes?.[conversationId] || 0) : 0;
+    // Granular per-message SMS logging only applies to standard SMS conversations
+    // (not threads) when the service enables it and manual logging is on.
+    const isThread = props.params.type === 'thread';
+    const granularLoggingEnabled =
+      !!thirdPartyService.messageLoggerGranularSelectionEnabled &&
+      conversationLogger.loggerSourceReady &&
+      !conversationLogger.autoLog &&
+      !isThread;
     return {
       ...baseProps,
       showLogButton: conversationLogger.loggerSourceReady,
       logButtonTitle: conversationLogger.logButtonTitle,
+      granularLoggingEnabled,
+      messageLogStateMap: thirdPartyService.messageLogStateMap,
       additionalToolbarButtons: thirdPartyService.additionalSMSToolbarButtons,
       showTemplate: appFeatures.showSmsTemplate,
       templates: smsTemplates.templates,
@@ -190,6 +200,39 @@ export class ConversationUI extends BaseConversationUI {
           redirect,
           triggerType: 'manual'
         });
+      },
+      // Granular logging: log only the user-selected messages as one CRM entry.
+      onLogSelectedMessages: async ({ conversationId, selectedMessageIds }) => {
+        const conversation = conversations.currentConversation;
+        if (!conversation || !selectedMessageIds || selectedMessageIds.length === 0) {
+          return;
+        }
+        const idSet = new Set(selectedMessageIds.map((id) => String(id)));
+        const selectedMessages = (conversation.messages || []).filter((message) =>
+          idSet.has(String(message.id)),
+        );
+        if (selectedMessages.length === 0) {
+          return;
+        }
+        const item = {
+          conversationId: conversationId || conversation.conversationId,
+          messages: selectedMessages,
+          correspondents: conversation.correspondents,
+          self: conversation.self,
+          type: conversation.type,
+        };
+        return thirdPartyService.logSelectedMessages({
+          conversation: item,
+          selectedMessageIds: Array.from(idSet),
+        });
+      },
+      // Granular logging: navigate to the CRM entry for an already-logged message.
+      onClickMessageLog: (logId) => {
+        return thirdPartyService.openMessageLog({ logId });
+      },
+      // Granular logging: hydrate per-message logged state when a conversation loads.
+      syncMessageLogState: (conversationId, messageIds) => {
+        return thirdPartyService.matchMessagesLogState({ conversationId, messageIds });
       },
       onClickAdditionalToolbarButton: (buttonId) => {
         thirdPartyService.onClickAdditionalButton(buttonId);
