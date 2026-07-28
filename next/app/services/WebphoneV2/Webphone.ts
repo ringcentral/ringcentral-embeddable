@@ -366,11 +366,7 @@ export class Webphone extends WebphoneBase {
     const resolveActiveClientId = () => this.activeWebphoneId;
     this._portManager.onClient((transport: any) => {
       transport.listen(channelName, async (params: any) => {
-        const activeClientId = resolveActiveClientId();
-        const isTarget =
-          activeClientId === this._portManager.clientId ||
-          (!activeClientId && this._portManager.isActiveTab);
-        if (!isTarget) {
+        if (!this._isAuthoritativeWebphoneClient()) {
           return new Promise(() => {
             // not the target tab -- hang so the server picks the next transport
           });
@@ -381,15 +377,12 @@ export class Webphone extends WebphoneBase {
     });
     this._portManager.onServer((transport: any) => {
       transport.listen(channelName, async (params: any) => {
-        if (!this._portManager.isWorkerMode) {
-          const activeClientId = resolveActiveClientId();
-          const isTarget =
-            activeClientId === this._portManager.clientId ||
-            (!activeClientId && this._portManager.isActiveTab);
-          if (isTarget) {
-            const module = getRef(this as any).modules![params.module];
-            return applyMethod(module, params);
-          }
+        if (
+          !this._portManager.isWorkerMode &&
+          this._isAuthoritativeWebphoneClient()
+        ) {
+          const module = getRef(this as any).modules![params.module];
+          return applyMethod(module, params);
         }
         if (
           !this._portManager.activeTabId &&

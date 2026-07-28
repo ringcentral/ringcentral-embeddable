@@ -247,9 +247,9 @@ export class SharedSipClient extends EventEmitter implements SipClient {
     return this.activeTabId;
   }
 
-  public setActive(activeTabId: string | null) {
+  public async setActive(activeTabId: string | null): Promise<void> {
     this.activeTabId = activeTabId;
-    void this.requestServer(SHARED_SIP_CLIENT_REQUESTS.setActiveTabId, {
+    await this.requestServer(SHARED_SIP_CLIENT_REQUESTS.setActiveTabId, {
       activeTabId,
     });
   }

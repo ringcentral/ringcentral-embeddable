@@ -17,6 +17,21 @@ import { recordStatus } from './recordStatus';
 import { sessionStatus } from './sessionStatus';
 import { voicemailDropStatus } from './voicemailDropStatus';
 
+type IsAuthoritativeWebphoneClientOptions = {
+  activeWebphoneId: string | null;
+  clientId: string | null;
+  isActiveTab: boolean;
+  isClient: boolean;
+  isShared: boolean;
+};
+
+type SynchronizeActiveWebphoneClientOptions = {
+  canBecomeActive: () => boolean | Promise<boolean>;
+  clientId: string | null;
+  getActiveWebphoneId: () => Promise<string | null>;
+  setActiveWebphoneId: (clientId: string) => Promise<void>;
+};
+
 let environment: Window & typeof globalThis;
 if (typeof window !== 'undefined') {
   environment = window;
@@ -69,6 +84,42 @@ export function isWebRTCSupport() {
 
 export function isBrowserSupport() {
   return isWebSocketSupport() && isWebRTCSupport();
+}
+
+export function isAuthoritativeWebphoneClient({
+  activeWebphoneId,
+  clientId,
+  isActiveTab,
+  isClient,
+  isShared,
+}: IsAuthoritativeWebphoneClientOptions): boolean {
+  if (!isShared) {
+    return true;
+  }
+  if (!isClient || !clientId) {
+    return false;
+  }
+  return activeWebphoneId === clientId || (!activeWebphoneId && isActiveTab);
+}
+
+export async function synchronizeActiveWebphoneClient({
+  canBecomeActive,
+  clientId,
+  getActiveWebphoneId,
+  setActiveWebphoneId,
+}: SynchronizeActiveWebphoneClientOptions): Promise<boolean> {
+  if (!clientId) {
+    return false;
+  }
+  const activeWebphoneId = await getActiveWebphoneId();
+  if (activeWebphoneId === clientId) {
+    return true;
+  }
+  if (!(await canBecomeActive())) {
+    return false;
+  }
+  await setActiveWebphoneId(clientId);
+  return true;
 }
 
 function getHeaderValue(

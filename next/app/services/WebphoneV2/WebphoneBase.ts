@@ -77,7 +77,11 @@ import {
   SHARED_SIP_CLIENT_EVENTS,
   SHARED_SIP_CLIENT_REQUESTS,
 } from './sharedSipClient.constants';
-import { isBrowserSupport } from './webphoneHelper';
+import {
+  isAuthoritativeWebphoneClient,
+  isBrowserSupport,
+  synchronizeActiveWebphoneClient,
+} from './webphoneHelper';
 
 export const DEFAULT_AUDIO = 'default';
 
@@ -785,36 +789,55 @@ export class WebphoneBase extends RcModule {
     await this._setSharedSipClientActive();
   }
 
-  protected _isAuthoritativeWebphoneClient() {
-    if (!this._portManager.shared) {
-      return true;
-    }
-    return this.isWebphoneActiveTab || (!this.activeWebphoneId && this._portManager.isActiveTab);
+  protected _isAuthoritativeWebphoneClient(): boolean {
+    return isAuthoritativeWebphoneClient({
+      activeWebphoneId: this.activeWebphoneId,
+      clientId: this._portManager.clientId,
+      isActiveTab: this._portManager.isActiveTab,
+      isClient: this._portManager.isClient,
+      isShared: this._portManager.shared,
+    });
   }
 
-  protected get activeWebphoneId() {
-    return this._sharedSipClient?.activeTabId ?? this._sipClientInServer?.activeTabId ?? null;
+  protected get activeWebphoneId(): string | null {
+    return (
+      this._sharedSipClient?.activeTabId ??
+      this._sipClientInServer?.activeTabId ??
+      null
+    );
   }
 
-  protected get isWebphoneActiveTab() {
+  protected get isWebphoneActiveTab(): boolean {
     if (!this._portManager.shared) {
       return !!this._webphone;
     }
-    return this.activeWebphoneId === this._portManager.clientId;
+    const clientId = this._portManager.clientId;
+    return (
+      this._portManager.isClient &&
+      !!clientId &&
+      this.activeWebphoneId === clientId
+    );
   }
 
-  protected async _setSharedSipClientActive() {
-    if (!this._sharedSipClient) {
+  protected async _setSharedSipClientActive(): Promise<void> {
+    const sharedSipClient = this._sharedSipClient;
+    if (!sharedSipClient) {
       return;
     }
-    if (this.isWebphoneActiveTab) {
-      return;
-    }
-    const canBeActiveTabs = await this._canBeActiveTabs();
-    this.logger.log('setSharedSipClientActive', canBeActiveTabs);
-    if (canBeActiveTabs) {
-      this.logger.log('setSharedSipClientActive', this._portManager.clientId);
-      this._sharedSipClient.setActive(this._portManager.clientId ?? null);
+    const clientId = this._portManager.clientId;
+    const isActive = await synchronizeActiveWebphoneClient({
+      clientId,
+      getActiveWebphoneId: () => sharedSipClient.syncActiveTabId(),
+      canBecomeActive: () => this._canBeActiveTabs(),
+      setActiveWebphoneId: (activeClientId: string) =>
+        sharedSipClient.setActive(activeClientId),
+    });
+    this.logger.log('setSharedSipClientActive', {
+      clientId,
+      isActive,
+    });
+    if (isActive) {
+      this.logger.log('setSharedSipClientActive', clientId);
     }
   }
 
@@ -1080,6 +1103,11 @@ export class WebphoneBase extends RcModule {
         if (sharedSipClient.disposed) {
           return;
         }
+        let statusResponse: SharedSipClientStatusResponse | undefined;
+        if (status === 'registered') {
+          statusResponse = await sharedSipClient.getStatus();
+          await this._setSharedSipClientActive();
+        }
         this.logger.log('shared sip client status', status, {
           connectionStatus: this.connectionStatus,
           connectRetryCounts: this.connectRetryCounts,
@@ -1090,8 +1118,7 @@ export class WebphoneBase extends RcModule {
           return;
         }
         if (status === 'registered') {
-          const statusResponse = await sharedSipClient.getStatus();
-          if (statusResponse.device && statusResponse.sipInfo) {
+          if (statusResponse?.device && statusResponse.sipInfo) {
             await this._onWebphoneRegistered({
               device: statusResponse.device,
               sipInfo: [statusResponse.sipInfo],
@@ -2058,7 +2085,9 @@ export class WebphoneBase extends RcModule {
     }
     if (this._sharedSipClient && !force) {
       if (this.isWebphoneActiveTab) {
-        this._sharedSipClient.setActive(null);
+        void this._sharedSipClient.setActive(null).catch((error: unknown) => {
+          this.logger.error('Failed to clear active webphone client', error);
+        });
       }
       this._webphone?.removeAllListeners();
       await this._sharedSipClient.dispose();
