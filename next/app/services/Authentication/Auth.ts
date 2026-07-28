@@ -19,8 +19,9 @@ import {
   optional,
   Root,
   StoragePlugin,
+  delegate,
 } from '@ringcentral-integration/next-core';
-
+import type { LoginOptions } from '@ringcentral-integration/next-core/src/app/services/Auth/Auth.interface';
 import type { EmbeddableAuthOptions } from './Auth.interface';
 
 type AuthProxyClientInfo = {
@@ -97,6 +98,54 @@ class Auth extends AuthBase {
     this.setInitLogin({
       loggedIn: true,
       token,
+    });
+  }
+
+  @delegate('server')
+  async login({
+    username,
+    password,
+    extension,
+    remember,
+    code,
+    redirectUri,
+    accessToken,
+    expiresIn,
+    endpointId,
+    tokenType,
+    scope,
+    tokenUri,
+    discoveryUri,
+  }: // TODO: should use SDK Type if that can be work
+  Partial<LoginOptions>) {
+    this.setLogin();
+    let ownerId: number | undefined;
+    if (accessToken) {
+      await this._client.service.platform().auth().setData({
+        token_type: tokenType,
+        access_token: accessToken,
+        expires_in: expiresIn,
+        refresh_token_expires_in: expiresIn,
+        scope,
+      });
+      const extensionData = await this._client.account().extension().get();
+      ownerId = extensionData.id;
+    }
+
+    return this._client.service.platform().login({
+      username,
+      password,
+      extension,
+      remember,
+      code,
+      redirect_uri: redirectUri,
+      endpoint_id: endpointId,
+      expires_in: expiresIn,
+      access_token: accessToken,
+      token_type: tokenType,
+      owner_id: ownerId,
+      token_uri: tokenUri,
+      discovery_uri: discoveryUri,
     });
   }
 

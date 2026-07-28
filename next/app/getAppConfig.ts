@@ -243,7 +243,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
     externalAuthId,
     jwt,
     proxyUri,
-    redirectUri,
+    redirectUri, // 'http://localhost:8080/redirect.html',
   });
 
   if (process.env.NODE_ENV !== 'production') {
