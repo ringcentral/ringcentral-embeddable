@@ -413,7 +413,7 @@ export const Message = ({
           symbol={loggedSvg}
           size="medium"
           color="success.f02"
-          title="View log"
+          title="Logged"
           onClick={() => {
             if (typeof onClickLog === 'function') {
               onClickLog();
