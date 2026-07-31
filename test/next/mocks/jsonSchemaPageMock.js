@@ -36,6 +36,11 @@ const JSONSchemaPage = jest.fn(
     ),
 );
 
+function TextWithMarkdown({ text }) {
+  return React.createElement(React.Fragment, null, text);
+}
+
 module.exports = {
   JSONSchemaPage,
+  TextWithMarkdown,
 };

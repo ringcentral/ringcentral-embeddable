@@ -25,6 +25,17 @@ function Avatar({ alt, children, src }) {
   );
 }
 
+function Badge({ children, color, type }) {
+  return React.createElement(
+    'span',
+    {
+      'data-badge-color': color,
+      'data-badge-type': type,
+    },
+    children,
+  );
+}
+
 function Button({
   children,
   focusableWhenDisabled,
@@ -79,17 +90,35 @@ function Icon({ symbol, ...props }) {
 }
 
 const IconButton = React.forwardRef(function IconButton(
-  { TooltipProps, symbol, ...props },
+  { iconSize, TooltipProps, symbol, ...props },
   ref,
 ) {
   return React.createElement('button', {
     ref,
     type: 'button',
     'aria-label': TooltipProps?.title,
+    'data-icon-size': iconSize,
     'data-symbol': symbol,
     ...props,
   });
 });
+
+function Link({ children, ...props }) {
+  return React.createElement('a', props, children);
+}
+
+function ListItem({ children, classes, divider, hoverable, size, ...props }) {
+  return React.createElement(
+    'li',
+    {
+      'data-divider': Boolean(divider),
+      'data-hoverable': Boolean(hoverable),
+      'data-size': size,
+      ...props,
+    },
+    children,
+  );
+}
 
 function Menu({ anchorEl, children, open, ...props }) {
   return open || anchorEl
@@ -227,6 +256,7 @@ function TextField({
 module.exports = {
   Alert,
   Avatar,
+  Badge,
   Button,
   CircularProgressIndicator,
   Dialog,
@@ -237,8 +267,9 @@ module.exports = {
   FormLabel: createContainer('label'),
   Icon,
   IconButton,
+  Link,
   List: createContainer('ul'),
-  ListItem: createContainer('li'),
+  ListItem,
   ListItemText,
   Menu,
   MenuItem,

@@ -32,6 +32,7 @@ import { noop } from 'rxjs';
 interface EmbeddableSettingsPanelProps extends SettingsViewPanelProps {
   additionalPhoneItems?: ReactNode;
   hasAdditionalPhoneItems?: boolean;
+  thirdPartyAuthSettings?: ReactNode;
 }
 
 const LoadingIcon: FunctionComponent = () => (
@@ -141,6 +142,7 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   autoLogTextUpdating,
   onRefreshLog,
   isLogRefreshing,
+  thirdPartyAuthSettings,
 }) => {
   const { t } = useLocale(i18n);
   const showPhoneSection = Boolean(
@@ -176,6 +178,11 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
           <RemoveMeetingWarn brandConfig={brandConfig} hasRemoved />
         )}
         <div className="space-y-3" data-sign="phone-section">
+          {thirdPartyAuthSettings ? (
+            <Section data-sign="third-party-auth-settings-group">
+              {thirdPartyAuthSettings}
+            </Section>
+          ) : null}
           {showPhoneSection && (
             <Section label={t('phone')} data-sign="phone-settings-group">
               {showReport && (

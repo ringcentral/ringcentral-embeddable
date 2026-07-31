@@ -47,16 +47,42 @@ jest.mock('@ringcentral-integration/next-widgets/components', () => ({
   SwitchLine: ({ children, ...props }) => <div {...props}>{children}</div>,
 }));
 
-function createPanel({ hasVoicemailDropPermission = false } = {}) {
+function createPanel({
+  hasVoicemailDropPermission = false,
+  thirdParty: thirdPartyOverrides = {},
+} = {}) {
+  const thirdParty = {
+    authorizationLogo: null,
+    authorizationLinks: [],
+    authorizationRegistered: false,
+    authorized: null,
+    authorizedAccount: null,
+    authorizedTitle: '',
+    authorizeService: jest.fn(),
+    contactSyncing: false,
+    displayName: null,
+    licenseDescription: '',
+    licenseStatus: '',
+    licenseStatusColor: '',
+    onClickLicenseRefreshButton: jest.fn(),
+    serviceInfo: null,
+    serviceName: null,
+    showAuthButton: false,
+    showAuthRedDot: false,
+    unauthorizedTitle: '',
+    ...thirdPartyOverrides,
+  };
   const voicemailDrop = { hasVoicemailDropPermission };
   const onVoicemailDropSettingsLinkClick = jest.fn();
   const Panel = createSettingsPanel({
+    thirdParty,
     voicemailDrop,
     onVoicemailDropSettingsLinkClick,
   });
   return {
     onVoicemailDropSettingsLinkClick,
     Panel,
+    thirdParty,
     voicemailDrop,
   };
 }
@@ -76,6 +102,96 @@ const baseProps = {
 };
 
 describe('SettingsPanel', () => {
+  test('renders registered third-party service information and actions first', () => {
+    const { Panel, thirdParty } = createPanel({
+      thirdParty: {
+        authorizationLogo: 'https://example.com/crm.png',
+        authorizationLinks: [
+          { label: 'Support', uri: 'https://example.com/support' },
+          { label: 'Terms', uri: 'https://example.com/terms' },
+        ],
+        authorizationRegistered: true,
+        authorized: true,
+        authorizedAccount: 'user@example.com',
+        authorizedTitle: 'Disconnect',
+        displayName: 'Example CRM',
+        licenseDescription:
+          'Manage the license at [Support](https://example.com).',
+        licenseStatus: 'License active',
+        licenseStatusColor: 'success.f02',
+        serviceInfo: 'CRM contacts and activity synchronization',
+        serviceName: 'example-crm',
+        showAuthButton: true,
+      },
+    });
+    render(<Panel {...baseProps} showAudio />);
+
+    const thirdPartyGroup = screen.getByTestId(
+      'third-party-auth-settings-group',
+    );
+    const phoneGroup = screen.getByTestId('phone-settings-group');
+    expect(
+      thirdPartyGroup.compareDocumentPosition(phoneGroup) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByText('Example CRM')).toBeInTheDocument();
+    expect(screen.getByText('connectedAs')).toBeInTheDocument();
+    expect(
+      screen.getByText('CRM contacts and activity synchronization'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('License active')).toHaveClass('text-success-f');
+    expect(screen.getByRole('img', { name: 'Example CRM' })).toHaveAttribute(
+      'src',
+      'https://example.com/crm.png',
+    );
+    expect(screen.getByRole('link', { name: 'Support' })).toHaveAttribute(
+      'rel',
+      'noopener noreferrer',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Disconnect' }));
+    fireEvent.click(screen.getByTestId('thirdPartyLicenseRefresh'));
+    expect(thirdParty.authorizeService).toHaveBeenCalledTimes(1);
+    expect(thirdParty.onClickLicenseRefreshButton).toHaveBeenCalledTimes(1);
+  });
+
+  test('hides third-party service information without authorization', () => {
+    const { Panel } = createPanel({
+      thirdParty: {
+        serviceInfo: 'Hidden service information',
+        serviceName: 'example-crm',
+      },
+    });
+    render(<Panel {...baseProps} />);
+
+    expect(screen.queryByTestId('third-party-auth-settings-group')).toBeNull();
+    expect(screen.queryByText('Hidden service information')).toBeNull();
+  });
+
+  test('renders the configured unauthorized action with its attention badge', () => {
+    const { Panel } = createPanel({
+      thirdParty: {
+        authorizationRegistered: true,
+        authorized: false,
+        serviceName: 'example-crm',
+        showAuthButton: true,
+        showAuthRedDot: true,
+        unauthorizedTitle: 'Connect CRM',
+      },
+    });
+    render(<Panel {...baseProps} />);
+
+    const connectButton = screen.getByRole('button', { name: 'Connect CRM' });
+    expect(connectButton.parentElement).toHaveAttribute(
+      'data-badge-color',
+      'danger',
+    );
+    expect(connectButton.parentElement).toHaveAttribute(
+      'data-badge-type',
+      'dot',
+    );
+  });
+
   test('renders voicemail drop inside Phone when it is the only phone item', () => {
     const { onVoicemailDropSettingsLinkClick, Panel } = createPanel({
       hasVoicemailDropPermission: true,

@@ -624,15 +624,20 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'SettingsViewOptions',
-        useFactory: (voicemailDrop: VoicemailDrop, router: RouterPlugin) =>
+        useFactory: (
+          voicemailDrop: VoicemailDrop,
+          router: RouterPlugin,
+          thirdParty: ThirdParty,
+        ) =>
           ({
             component: createSettingsPanel({
+              thirdParty,
               voicemailDrop,
               onVoicemailDropSettingsLinkClick: () =>
                 router.push('/settings/voicemailDrop'),
             }),
           } satisfies SettingsViewOptions),
-        deps: [VoicemailDrop, RouterPlugin],
+        deps: [VoicemailDrop, RouterPlugin, ThirdParty],
       },
       {
         provide: 'SmsConversationsOptions',
