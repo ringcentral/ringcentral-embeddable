@@ -9,7 +9,7 @@ import {
   ListItem,
   ListItemText,
 } from '@ringcentral/spring-ui';
-import type { FunctionComponent, ReactNode } from 'react';
+import type { FunctionComponent, ReactElement, ReactNode } from 'react';
 import React from 'react';
 
 import type { ThirdPartyAuthorizationLink } from '../../services/ThirdParty';
@@ -33,6 +33,26 @@ interface ThirdPartyAuthSettingsProps {
   readonly showAuthButton?: boolean;
   readonly showAuthRedDot?: boolean;
   readonly unauthorizedTitle?: string | null;
+}
+
+interface ServiceLogoProps {
+  readonly alt: string;
+  readonly src: string;
+}
+
+function ServiceLogo({ alt, src }: ServiceLogoProps): ReactElement | null {
+  const [hasLoadError, setHasLoadError] = React.useState<boolean>(false);
+  if (hasLoadError) {
+    return null;
+  }
+  return (
+    <img
+      className="max-h-[30px] max-w-[86px] flex-none object-contain"
+      src={src}
+      alt={alt}
+      onError={() => setHasLoadError(true)}
+    />
+  );
 }
 
 function getLicenseStatusClassName(color?: string | null): string {
@@ -113,11 +133,14 @@ export const ThirdPartyAuthSettings: FunctionComponent<
       size="auto"
       divider={false}
       hoverable={false}
-      classes={{ content: 'items-start gap-2' }}
+      classes={{
+        root: '!px-0',
+        content: '!px-0 !pb-0 items-start gap-2',
+      }}
     >
       {authorizationLogo ? (
-        <img
-          className="max-h-[30px] max-w-[86px] flex-none object-contain"
+        <ServiceLogo
+          key={authorizationLogo}
           src={authorizationLogo}
           alt={serviceName}
         />
@@ -125,8 +148,9 @@ export const ThirdPartyAuthSettings: FunctionComponent<
       <ListItemText
         classes={{
           root: 'min-w-0',
-          primaryText: 'whitespace-normal',
-          secondaryText: 'whitespace-normal overflow-visible',
+          primary: 'ml-0',
+          'primary-text': 'whitespace-normal',
+          'secondary-text': 'min-w-0 overflow-hidden whitespace-normal',
         }}
         primary={
           <span className="typography-mainText text-neutral-b0 break-words">
@@ -134,12 +158,18 @@ export const ThirdPartyAuthSettings: FunctionComponent<
           </span>
         }
         secondary={
-          <span className="mt-1 flex min-w-0 flex-col gap-1">
-            <span className="typography-descriptor text-neutral-b2 break-words">
+          <span className="mt-1 flex min-w-0 flex-col gap-1 overflow-hidden">
+            <span
+              className="typography-descriptor text-neutral-b2 block max-w-full truncate"
+              title={connectionDescription}
+            >
               {connectionDescription}
             </span>
             {serviceInfo ? (
-              <span className="typography-descriptor text-neutral-b2 break-words">
+              <span
+                className="typography-descriptor text-neutral-b2 block max-w-full truncate"
+                title={serviceInfo}
+              >
                 {serviceInfo}
               </span>
             ) : null}

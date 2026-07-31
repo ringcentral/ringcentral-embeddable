@@ -134,11 +134,26 @@ describe('SettingsPanel', () => {
       thirdPartyGroup.compareDocumentPosition(phoneGroup) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+    const thirdPartySetting = screen.getByTestId('thirdPartyAuthSetting');
+    expect(thirdPartySetting).toHaveClass('!px-0');
+    expect(thirdPartySetting.firstElementChild).toHaveClass('!px-0', '!pb-0');
     expect(screen.getByText('Example CRM')).toBeInTheDocument();
-    expect(screen.getByText('connectedAs')).toBeInTheDocument();
     expect(
-      screen.getByText('CRM contacts and activity synchronization'),
-    ).toBeInTheDocument();
+      screen.getByText('Example CRM').parentElement?.parentElement,
+    ).toHaveClass('ml-0');
+    expect(screen.getByText('connectedAs')).toHaveClass('truncate');
+    expect(screen.getByText('connectedAs')).toHaveAttribute(
+      'title',
+      'connectedAs',
+    );
+    const serviceInfo = screen.getByText(
+      'CRM contacts and activity synchronization',
+    );
+    expect(serviceInfo).toHaveClass('truncate');
+    expect(serviceInfo).toHaveAttribute(
+      'title',
+      'CRM contacts and activity synchronization',
+    );
     expect(screen.getByText('License active')).toHaveClass('text-success-f');
     expect(screen.getByRole('img', { name: 'Example CRM' })).toHaveAttribute(
       'src',
@@ -166,6 +181,25 @@ describe('SettingsPanel', () => {
 
     expect(screen.queryByTestId('third-party-auth-settings-group')).toBeNull();
     expect(screen.queryByText('Hidden service information')).toBeNull();
+  });
+
+  test('hides the third-party service logo when it fails to load', () => {
+    const { Panel } = createPanel({
+      thirdParty: {
+        authorizationLogo: 'https://example.com/missing-logo.png',
+        authorizationRegistered: true,
+        serviceName: 'Example CRM',
+      },
+    });
+    render(<Panel {...baseProps} />);
+
+    const serviceLogo = screen.getByRole('img', { name: 'Example CRM' });
+    fireEvent.error(serviceLogo);
+
+    expect(
+      screen.queryByRole('img', { name: 'Example CRM' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('Example CRM')).toBeInTheDocument();
   });
 
   test('renders the configured unauthorized action with its attention badge', () => {

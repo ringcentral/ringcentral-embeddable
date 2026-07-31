@@ -111,12 +111,20 @@ function ListItem({ children, classes, divider, hoverable, size, ...props }) {
   return React.createElement(
     'li',
     {
+      className: classes?.root,
       'data-divider': Boolean(divider),
       'data-hoverable': Boolean(hoverable),
       'data-size': size,
       ...props,
     },
-    children,
+    React.createElement(
+      'div',
+      {
+        className: classes?.content,
+        'data-list-item-content': true,
+      },
+      children,
+    ),
   );
 }
 
@@ -138,12 +146,22 @@ function MenuItemText({ primary }) {
   return React.createElement('span', null, primary);
 }
 
-function ListItemText({ primary, secondary }) {
+function ListItemText({ classes = {}, primary, secondary }) {
   return React.createElement(
     'span',
-    null,
-    React.createElement('span', null, primary),
-    secondary ? React.createElement('span', null, secondary) : null,
+    { className: [classes.root, classes.primary].filter(Boolean).join(' ') },
+    React.createElement(
+      'span',
+      { className: classes['primary-text'] },
+      primary,
+    ),
+    secondary
+      ? React.createElement(
+          'span',
+          { className: classes['secondary-text'] },
+          secondary,
+        )
+      : null,
   );
 }
 
