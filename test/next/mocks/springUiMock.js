@@ -9,12 +9,52 @@ function createContainer(tag = 'div') {
   };
 }
 
-function Alert({ children, severity, ...props }) {
+function Alert({
+  action,
+  children,
+  classes,
+  CloseButtonProps,
+  closeText,
+  onClose,
+  severity,
+  ...props
+}) {
   return React.createElement(
     'div',
-    { role: 'alert', 'data-severity': severity, ...props },
+    {
+      className: classes?.root,
+      role: 'alert',
+      'data-severity': severity,
+      ...props,
+    },
     children,
+    action,
+    onClose
+      ? React.createElement(
+          'button',
+          {
+            type: 'button',
+            'aria-label': closeText,
+            onClick: onClose,
+            'data-variant': CloseButtonProps?.variant,
+          },
+          closeText,
+        )
+      : null,
   );
+}
+
+function Announcement({ classes, CloseButtonProps, ...props }) {
+  return React.createElement(Alert, {
+    ...props,
+    classes,
+    CloseButtonProps: {
+      variant: 'inverted',
+      ...CloseButtonProps,
+    },
+    'data-icon-hidden': classes?.icon === 'hidden',
+    'data-spring-component': 'Announcement',
+  });
 }
 
 function Avatar({ alt, children, src }) {
@@ -273,6 +313,7 @@ function TextField({
 
 module.exports = {
   Alert,
+  Announcement,
   Avatar,
   Badge,
   Button,

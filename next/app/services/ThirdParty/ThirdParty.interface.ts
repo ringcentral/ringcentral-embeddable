@@ -68,13 +68,14 @@ export type ThirdPartyAuthorizationLink = {
 export type ThirdPartyBanner = {
   id: string;
   message: string;
-  severity?: 'info' | 'warning' | 'error' | 'success';
+  severity?: 'info' | 'warning' | 'error' | 'success' | 'announcement';
   action?: {
     label: string;
     variant?: 'text' | 'outlined' | 'contained' | 'plain';
     color?: string;
   };
   closable?: boolean;
+  closeButtonLabel?: string;
   hidden?: boolean;
 };
 

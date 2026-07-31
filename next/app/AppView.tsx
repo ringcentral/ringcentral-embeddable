@@ -68,6 +68,7 @@ import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
+import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 
 type RouteComponent = Exclude<React.ElementType, string>;
@@ -371,6 +372,7 @@ export class AppView extends RcViewModule {
     private _headerNavView: HeaderNavViewSpring,
     private _expandedRouteView: ExpandedRouteView,
     private _expandedView: ExpandedView,
+    private _thirdPartyBannerView: ThirdPartyBannerView,
     private _genericMeeting?: GenericMeeting,
     @optional()
     private _genericMeetingView?: GenericMeetingView,
@@ -438,6 +440,7 @@ export class AppView extends RcViewModule {
           <div className="flex-none">
             <AppAnnouncementRender>
               <this._connectivityView.component />
+              <this._thirdPartyBannerView.component />
               {this._appViewOptions?.headers}
               <this._callView.Announcement />
             </AppAnnouncementRender>

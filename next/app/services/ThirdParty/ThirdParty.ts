@@ -2438,6 +2438,7 @@ export class ThirdParty extends RcModule {
       severity: banner.severity || 'info',
       action: banner.action,
       closable: banner.closable || false,
+      closeButtonLabel: banner.closeButtonLabel,
     };
   }
 }

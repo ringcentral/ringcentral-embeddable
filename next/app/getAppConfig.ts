@@ -175,6 +175,7 @@ import { EMBEDDABLE_CALL_ACTION_OPTIONS } from './views/CallView/Call.view.optio
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
+import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 import { VoicemailDropView } from './views/VoicemailDropView';
 import { createSettingsPanel } from './views/SettingsView/createSettingsPanel';
@@ -430,6 +431,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       ExpandedRouteView,
       ExpandedView,
       SideWidgetView,
+      ThirdPartyBannerView,
       VoicemailDropView,
       VoicemailDropSettingsView,
       CallHUDView,

@@ -1196,15 +1196,17 @@ describe('ThirdParty service', () => {
     service._setCustomizedBanner({
       id: 'banner',
       message: 'Updated',
-      severity: 'warning',
+      severity: 'announcement',
       closable: true,
+      closeButtonLabel: 'Dismiss announcement',
     });
     expect(service.customizedBanner).toEqual({
       id: 'banner',
       message: 'Updated',
-      severity: 'warning',
+      severity: 'announcement',
       action: undefined,
       closable: true,
+      closeButtonLabel: 'Dismiss announcement',
     });
     await service.onBannerAction();
     await service.onBannerClose();
