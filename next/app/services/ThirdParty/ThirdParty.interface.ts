@@ -60,6 +60,12 @@ export type ThirdPartyButton = {
   label?: string;
 };
 
+export type ThirdPartyTabAction = {
+  id: string;
+  icon?: string;
+  title?: string;
+};
+
 export type ThirdPartyAuthorizationLink = {
   label: string;
   uri: string;
@@ -83,13 +89,16 @@ export type ThirdPartyPage = {
   id: string;
   title?: string;
   type?: string;
+  schema?: UnknownRecord;
+  formData?: UnknownRecord;
   iconUri?: string;
   activeIconUri?: string;
   darkIconUri?: string;
   priority?: number;
   unreadCount?: number;
   hidden?: boolean;
-  actions?: ThirdPartyButton[];
+  hideBackButton?: boolean;
+  actions?: ThirdPartyTabAction[];
   uiSchema?: {
     submitButtonOptions?: {
       submitText?: string;

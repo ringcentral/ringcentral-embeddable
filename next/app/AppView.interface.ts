@@ -19,6 +19,10 @@ export type Route = {
    * page that remains in the main column while a detail route is expanded
    */
   backgroundComponent?: React.ComponentType;
+  /**
+   * Keep the previously rendered main page while this detail route is expanded.
+   */
+  preserveBackground?: boolean;
 };
 
 export interface AppViewOptions {

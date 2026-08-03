@@ -91,7 +91,10 @@ import {
   RcVideo,
   type RcVideoOptions,
 } from '@ringcentral-integration/micro-meeting/src/app/services';
-import type { HeaderNavViewSpringOptions } from '@ringcentral-integration/micro-core/src/app/views';
+import type {
+  HeaderNavViewSpringOptions,
+  HeaderViewOptions,
+} from '@ringcentral-integration/micro-core/src/app/views';
 import { PersonalMeetingSettingsViewSpring } from '@ringcentral-integration/micro-meeting/src/app/views';
 import type { SettingsViewOptions } from '@ringcentral-integration/micro-setting/src/app/views/SettingsView';
 import {
@@ -176,6 +179,8 @@ import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
+import { CustomizedPageView } from './views/CustomizedPageView';
+import { HeaderPanel } from './views/HeaderView/HeaderPanel';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 import { VoicemailDropView } from './views/VoicemailDropView';
 import { createSettingsPanel } from './views/SettingsView/createSettingsPanel';
@@ -428,6 +433,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       MonitoredExtensions,
       ParkView,
+      CustomizedPageView,
       ExpandedRouteView,
       ExpandedView,
       SideWidgetView,
@@ -665,6 +671,12 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useValue: {
           enableVideoTab: true,
         } satisfies HeaderNavViewSpringOptions,
+      },
+      {
+        provide: 'HeaderViewOptions',
+        useValue: {
+          component: HeaderPanel,
+        } satisfies HeaderViewOptions,
       },
       {
         provide: 'RootOptions',

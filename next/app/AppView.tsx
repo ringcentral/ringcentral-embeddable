@@ -1,4 +1,10 @@
-import React, { ReactNode, useLayoutEffect, useRef } from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import {
   ConnectivityView,
   EnvironmentView,
@@ -60,10 +66,15 @@ import {
   type RouteComponentProps,
   Switch,
   useConnector,
+  useLocation,
 } from '@ringcentral-integration/next-core';
 import type { AppViewOptions, Route as AppRoute } from './AppView.interface';
 import { resolveDetailViewTransitionId } from './AppView.helper';
-import { shouldCollapseExpandedLayout } from './ExpandedRouteNavigation.helper';
+import {
+  resolveExpandedRouteBackgroundPath,
+  shouldCollapseExpandedLayout,
+} from './ExpandedRouteNavigation.helper';
+import { CustomizedPageView } from './views/CustomizedPageView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
@@ -77,6 +88,8 @@ type InternalRoute = Omit<AppRoute, 'component' | 'backgroundComponent'> & {
   component?: RouteComponent;
   backgroundComponent?: RouteComponent;
 };
+
+const ExpandedRouteBackgroundPathContext = createContext<string | null>(null);
 
 @injectable({
   name: 'AppView',
@@ -131,6 +144,20 @@ export class AppView extends RcViewModule {
       exact: true,
     },
     ...(this._appViewOptions?.routes || []),
+    {
+      path: '/customized/:pageId',
+      component: this._customizedPageView.component,
+      authentication: true,
+      exact: true,
+      layout: 'detail',
+      preserveBackground: true,
+    },
+    {
+      path: '/customizedTabs/:pageId',
+      component: this._customizedPageView.component,
+      authentication: true,
+      exact: true,
+    },
     {
       path: '/dialer/:tabId',
       component: this._dialerPadView.component,
@@ -304,6 +331,40 @@ export class AppView extends RcViewModule {
     },
   ];
 
+  private backgroundRoutesMap = this.routes.reduce((routes, route) => {
+    if (route.preserveBackground) {
+      return routes;
+    }
+    const BackgroundComponent =
+      route.layout === 'detail' ? route.backgroundComponent : route.component;
+    if (!BackgroundComponent) {
+      return routes;
+    }
+    routes.push(
+      <RouterRoute
+        key={route.path}
+        path={route.path}
+        exact={route.exact}
+        component={BackgroundComponent}
+      />,
+    );
+    return routes;
+  }, [] as ReactNode[]);
+
+  @autobind
+  private PreservedRouteBackground() {
+    const backgroundPath = useContext(ExpandedRouteBackgroundPathContext);
+    const location = useLocation();
+    if (!backgroundPath) {
+      return null;
+    }
+    return (
+      <Switch location={{ ...location, pathname: backgroundPath }}>
+        {this.backgroundRoutesMap}
+      </Switch>
+    );
+  }
+
   private routesMap = this.routes.reduce(
     (acc, curr) => {
       const target = curr.authentication ? acc.authentication : acc.default;
@@ -314,7 +375,9 @@ export class AppView extends RcViewModule {
           ? (routeProps: RouteComponentProps) => (
               <this._expandedRouteView.component
                 background={
-                  BackgroundComponent ? (
+                  curr.preserveBackground ? (
+                    <this.PreservedRouteBackground />
+                  ) : BackgroundComponent ? (
                     <BackgroundComponent {...routeProps} />
                   ) : null
                 }
@@ -370,6 +433,7 @@ export class AppView extends RcViewModule {
     private _headerView: HeaderView,
     private _faxSendView: FaxSendView,
     private _headerNavView: HeaderNavViewSpring,
+    private _customizedPageView: CustomizedPageView,
     private _expandedRouteView: ExpandedRouteView,
     private _expandedView: ExpandedView,
     private _thirdPartyBannerView: ThirdPartyBannerView,
@@ -419,9 +483,16 @@ export class AppView extends RcViewModule {
       expanded: this._root.expanded,
     }));
     const previousPathRef = useRef(currentPath);
+    const backgroundPathRef = useRef<string | null>(null);
+    const backgroundPath = resolveExpandedRouteBackgroundPath({
+      currentPath,
+      previousBackgroundPath: backgroundPathRef.current,
+      routes: this.routes,
+    });
     useLayoutEffect(() => {
       const previousPath = previousPathRef.current;
       previousPathRef.current = currentPath;
+      backgroundPathRef.current = backgroundPath;
       if (
         shouldCollapseExpandedLayout({
           currentPath,
@@ -432,34 +503,38 @@ export class AppView extends RcViewModule {
       ) {
         void this._root.setExpanded(false);
       }
-    }, [currentPath, expanded]);
+    }, [backgroundPath, currentPath, expanded]);
 
     return (
-      <this._appRootView.component
-        header={
-          <div className="flex-none">
-            <AppAnnouncementRender>
-              <this._connectivityView.component />
-              <this._thirdPartyBannerView.component />
-              {this._appViewOptions?.headers}
-              <this._callView.Announcement />
-            </AppAnnouncementRender>
-          </div>
-        }
+      <ExpandedRouteBackgroundPathContext.Provider
+        value={backgroundPath}
       >
-        <div
-          className="flex flex-col h-full flex-auto overflow-hidden bg-neutral-base"
-          id={resolveDetailViewTransitionId(
-            expanded,
-            VIEW_TRANSITION_DETAIL_IDENTIFY,
-          )}
+        <this._appRootView.component
+          header={
+            <div className="flex-none">
+              <AppAnnouncementRender>
+                <this._connectivityView.component />
+                <this._thirdPartyBannerView.component />
+                {this._appViewOptions?.headers}
+                <this._callView.Announcement />
+              </AppAnnouncementRender>
+            </div>
+          }
         >
-          <this.MainContent />
-          <this._callView.IncomingCallList />
-          <this._expandedView.component />
-          <this._environmentView.component />
-        </div>
-      </this._appRootView.component>
+          <div
+            className="flex flex-col h-full flex-auto overflow-hidden bg-neutral-base"
+            id={resolveDetailViewTransitionId(
+              expanded,
+              VIEW_TRANSITION_DETAIL_IDENTIFY,
+            )}
+          >
+            <this.MainContent />
+            <this._callView.IncomingCallList />
+            <this._expandedView.component />
+            <this._environmentView.component />
+          </div>
+        </this._appRootView.component>
+      </ExpandedRouteBackgroundPathContext.Provider>
     );
   }
 }

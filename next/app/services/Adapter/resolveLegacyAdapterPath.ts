@@ -7,6 +7,8 @@ const DIRECT_ROUTE_PATTERNS: readonly RegExp[] = [
   /^\/contacts$/,
   /^\/contacts\/[^/]+\/[^/]+$/,
   /^\/conversations\/[^/]+$/,
+  /^\/customized\/[^/]+$/,
+  /^\/customizedTabs\/[^/]+$/,
   /^\/fax$/,
   /^\/meeting$/,
   /^\/meeting\/personalMeetingSettings$/,

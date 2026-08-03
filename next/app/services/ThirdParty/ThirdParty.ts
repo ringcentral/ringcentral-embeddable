@@ -70,6 +70,7 @@ import type {
   ThirdPartyRecording,
   ThirdPartyServiceRegistration,
   ThirdPartySetting,
+  ThirdPartyTabAction,
   ThirdPartyWidgetContact,
   UnknownRecord,
 } from './ThirdParty.interface';
@@ -534,7 +535,7 @@ export class ThirdParty extends RcModule {
     unreadCount?: number;
     path: string;
     hidden?: boolean;
-    actions: ThirdPartyButton[];
+    actions: ThirdPartyTabAction[];
   }> {
     return this.customizedPages
       .filter((page) => page.type === 'tab')

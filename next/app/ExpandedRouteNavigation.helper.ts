@@ -2,7 +2,10 @@ import { matchPath } from '@ringcentral-integration/next-core';
 
 import type { Route } from './AppView.interface';
 
-type DetailRoute = Pick<Route, 'exact' | 'layout' | 'path'>;
+type DetailRoute = Pick<
+  Route,
+  'exact' | 'layout' | 'path' | 'preserveBackground'
+>;
 
 interface ShouldCollapseExpandedLayoutOptions {
   currentPath: string;
@@ -11,8 +14,17 @@ interface ShouldCollapseExpandedLayoutOptions {
   routes: readonly DetailRoute[];
 }
 
-function isDetailPath(path: string, routes: readonly DetailRoute[]): boolean {
-  const matchedRoute = routes.find((route) =>
+interface ResolveExpandedRouteBackgroundPathOptions {
+  currentPath: string;
+  previousBackgroundPath: string | null;
+  routes: readonly DetailRoute[];
+}
+
+function findRoute(
+  path: string,
+  routes: readonly DetailRoute[],
+): DetailRoute | undefined {
+  return routes.find((route) =>
     Boolean(
       matchPath(path, {
         exact: route.exact,
@@ -20,7 +32,25 @@ function isDetailPath(path: string, routes: readonly DetailRoute[]): boolean {
       }),
     ),
   );
+}
+
+function isDetailPath(path: string, routes: readonly DetailRoute[]): boolean {
+  const matchedRoute = findRoute(path, routes);
   return matchedRoute?.layout === 'detail';
+}
+
+/**
+ * Resolves the main-column route to retain behind an expanded detail page.
+ */
+export function resolveExpandedRouteBackgroundPath({
+  currentPath,
+  previousBackgroundPath,
+  routes,
+}: ResolveExpandedRouteBackgroundPathOptions): string | null {
+  const matchedRoute = findRoute(currentPath, routes);
+  return matchedRoute?.preserveBackground
+    ? previousBackgroundPath
+    : currentPath;
 }
 
 /**

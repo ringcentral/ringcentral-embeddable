@@ -1,6 +1,15 @@
-import { shouldCollapseExpandedLayout } from '../../next/app/ExpandedRouteNavigation.helper';
+import {
+  resolveExpandedRouteBackgroundPath,
+  shouldCollapseExpandedLayout,
+} from '../../next/app/ExpandedRouteNavigation.helper';
 
 const routes = [
+  {
+    path: '/customized/:pageId',
+    exact: true,
+    layout: 'detail',
+    preserveBackground: true,
+  },
   {
     path: '/settings',
     exact: true,
@@ -96,5 +105,47 @@ describe('shouldCollapseExpandedLayout', () => {
         ],
       }),
     ).toBe(false);
+  });
+});
+
+describe('resolveExpandedRouteBackgroundPath', () => {
+  test('keeps the previous main route for a customized detail page', () => {
+    expect(
+      resolveExpandedRouteBackgroundPath({
+        currentPath: '/customized/crm-details',
+        previousBackgroundPath: '/messages',
+        routes,
+      }),
+    ).toBe('/messages');
+  });
+
+  test('keeps the original main route between customized pages', () => {
+    expect(
+      resolveExpandedRouteBackgroundPath({
+        currentPath: '/customized/second-page',
+        previousBackgroundPath: '/contacts',
+        routes,
+      }),
+    ).toBe('/contacts');
+  });
+
+  test('uses the current route for ordinary pages and detail pages', () => {
+    expect(
+      resolveExpandedRouteBackgroundPath({
+        currentPath: '/settings/region',
+        previousBackgroundPath: '/messages',
+        routes,
+      }),
+    ).toBe('/settings/region');
+  });
+
+  test('does not preserve the background for a customized tab', () => {
+    expect(
+      resolveExpandedRouteBackgroundPath({
+        currentPath: '/customizedTabs/crm-tab',
+        previousBackgroundPath: '/messages',
+        routes,
+      }),
+    ).toBe('/customizedTabs/crm-tab');
   });
 });
