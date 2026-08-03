@@ -19,7 +19,6 @@ import {
   action,
   computed,
   delegate,
-  globalStorage,
   inject,
   injectable,
   optional,
@@ -136,195 +135,147 @@ export class ThirdParty extends RcModule {
   @state
   contactSyncing = false;
 
-  @globalStorage
   @state
   serviceName: string | null = null;
 
-  @globalStorage
   @state
   displayName: string | null = null;
 
-  @globalStorage
   @state
   serviceInfo: string | null = null;
 
-  @globalStorage
   @state
   private _sourceReady = false;
 
-  @globalStorage
   @state
   private _activitiesRegistered = false;
 
-  @globalStorage
   @state
   activityName: string | null = null;
 
-  @globalStorage
   @state
   activitiesLoaded = false;
 
-  @globalStorage
   @state
   activities: unknown[] = [];
 
-  @globalStorage
   @state
   meetingInviteTitle: string | null = null;
 
-  @globalStorage
   @state
   callLoggerRegistered = false;
 
-  @globalStorage
   @state
   callLoggerTitle: string | null = null;
 
-  @globalStorage
   @state
   callLoggerAutoSettingLabel: string | null = null;
 
-  @globalStorage
   @state
   callLoggerAutoSettingDescription = '';
 
-  @globalStorage
   @state
   showLogModal = false;
 
-  @globalStorage
   @state
   callLoggerAutoSettingReadOnly = false;
 
-  @globalStorage
   @state
   callLoggerAutoSettingReadOnlyReason = '';
 
-  @globalStorage
   @state
   callLoggerAutoSettingReadOnlyValue: boolean | null = null;
 
-  @globalStorage
   @state
   callLoggerAutoSettingWarning = '';
 
-  @globalStorage
   @state
   callLoggerAutoLogOnCallSync = false;
 
-  @globalStorage
   @state
   callLoggerHideEditLogButton = false;
 
-  @globalStorage
   @state
   callLoggerAutoLogSettingHidden = false;
 
-  @globalStorage
   @state
   messageLoggerRegistered = false;
 
-  @globalStorage
   @state
   messageLoggerTitle: string | null = null;
 
-  @globalStorage
   @state
   messageLoggerAutoSettingLabel: string | null = null;
 
-  @globalStorage
   @state
   messageLoggerAutoSettingDescription = '';
 
-  @globalStorage
   @state
   messageLoggerAutoSettingReadOnly = false;
 
-  @globalStorage
   @state
   messageLoggerAutoSettingReadOnlyReason = '';
 
-  @globalStorage
   @state
   messageLoggerAutoSettingReadOnlyValue: boolean | null = null;
 
-  @globalStorage
   @state
   messageLoggerAutoSettingHidden = false;
 
-  @globalStorage
   @state
   authorized: boolean | null = null;
 
-  @globalStorage
   @state
   authorizedAccount: string | null = null;
 
-  @globalStorage
   @state
   authorizedTitle = '';
 
-  @globalStorage
   @state
   unauthorizedTitle = '';
 
-  @globalStorage
   @state
   private _showAuthRedDot = false;
 
-  @globalStorage
   @state
   showAuthButton = false;
 
-  @globalStorage
   @state
   licenseStatus = '';
 
-  @globalStorage
   @state
   licenseStatusColor = '';
 
-  @globalStorage
   @state
   licenseDescription = '';
 
-  @globalStorage
   @state
   authorizationLinks: ThirdPartyAuthorizationLink[] = [];
 
-  @globalStorage
   @state
   showFeedback = false;
 
-  @globalStorage
   @state
   settings: ThirdPartySetting[] = [];
 
-  @globalStorage
   @state
   meetingLoggerRegistered = false;
 
-  @globalStorage
   @state
   meetingLoggerTitle: string | null = null;
 
-  @globalStorage
   @state
   additionalButtons: ThirdPartyButton[] = [];
 
-  @globalStorage
   @state
   viewMatchedContactExternal = false;
 
-  @globalStorage
   @state
   customizedPages: ThirdPartyPage[] = [];
 
-  @globalStorage
   @state
   doNotContactRegistered = false;
 
-  @globalStorage
   @state
   apps: ThirdPartyApp[] = [];
 
@@ -332,7 +283,6 @@ export class ThirdParty extends RcModule {
   @state
   pinAppIds: string[] = [];
 
-  @globalStorage
   @state
   customizedBanner: ThirdPartyBanner | null = null;
 
