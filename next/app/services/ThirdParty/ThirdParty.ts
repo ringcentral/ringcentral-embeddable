@@ -130,6 +130,9 @@ export class ThirdParty extends RcModule {
   contacts: ThirdPartyContact[] = [];
 
   @state
+  isContactSourceRegistered = false;
+
+  @state
   contactSyncTimestamp: number | null = null;
 
   @state
@@ -288,6 +291,10 @@ export class ThirdParty extends RcModule {
 
   get sourceName(): string | null {
     return this.serviceName;
+  }
+
+  get rawContacts(): ThirdPartyContact[] {
+    return this.contacts;
   }
 
   get sourceReady(): boolean {
@@ -719,6 +726,7 @@ export class ThirdParty extends RcModule {
     if (this._contactSources.indexOf(this as unknown as ContactSource) === -1) {
       this._contactSources.push(this as unknown as ContactSource);
     }
+    this._setContactSourceRegistered(true);
   }
 
   filterContacts(searchFilter: unknown): ThirdPartyContact[] {
@@ -2060,6 +2068,11 @@ export class ThirdParty extends RcModule {
   @action
   private _setContactSyncing(value: boolean): void {
     this.contactSyncing = value;
+  }
+
+  @action
+  private _setContactSourceRegistered(value: boolean): void {
+    this.isContactSourceRegistered = value;
   }
 
   @action

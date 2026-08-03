@@ -20,6 +20,7 @@ import type {
   ContactDetailsViewProps,
   RouteParams,
 } from '@ringcentral-integration/micro-contacts/src/app/views/ContactDetailsView/ContactDetails.view.interface';
+import { contactReadyStates } from '@ringcentral-integration/micro-contacts/src/app/views/ContactDetailsView/contactReadyStates';
 import { ContactMatcher, Contacts, ContactSearch } from '@ringcentral-integration/micro-contacts/src/app/services';
 import {
   injectable,
@@ -72,6 +73,19 @@ export class ContactDetailsView extends ContactDetailsViewBase {
   @delegate('server')
   async showContactDetails({ id, type, direct = false }: RouteParams) {
     this._router.push(`/contacts/${type}/${id}${direct ? '?direct=true' : ''}`);
+  }
+
+  override getUIProps(props: Partial<ContactDetailsViewProps>) {
+    const uiProps = super.getUIProps(props);
+
+    return {
+      ...uiProps,
+      showSpinner: !(
+        this.currentContactReadyState === contactReadyStates.loaded &&
+        this._locale.ready &&
+        this._appFeatures.ready
+      ),
+    };
   }
 
   override component(props: Partial<ContactDetailsViewProps>) {

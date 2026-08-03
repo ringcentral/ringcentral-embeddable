@@ -258,6 +258,8 @@ describe('ThirdParty service', () => {
     expect(service.customizedBanner).toEqual(expect.objectContaining({ id: 'banner' }));
     expect(dependencies.contacts.addSource).toHaveBeenCalledWith(service);
     expect(dependencies.contactSources).toContain(service);
+    expect(service.isContactSourceRegistered).toBe(true);
+    expect(service.rawContacts).toBe(service.contacts);
     expect(dependencies.genericMeeting.addThirdPartyProvider).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'crm', fetchUpcomingMeetingList: expect.any(Function) }),
     );

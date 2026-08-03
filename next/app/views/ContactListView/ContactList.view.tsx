@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import type {
+  ContactSource,
   IContact,
 } from '@ringcentral-integration/commons/interfaces/Contact.model';
 import {
@@ -39,6 +40,7 @@ import { t as contactSourceT } from '@ringcentral-integration/widgets/components
 import React, { useEffect, useRef } from 'react';
 import type { StateSnapshot } from 'react-virtuoso';
 
+import { ThirdParty } from '../../services/ThirdParty';
 import { ContactListPanel } from './ContactListPanel';
 import i18n from './i18n';
 
@@ -53,12 +55,29 @@ export class ContactListView extends ContactListViewBase {
     protected _locale: Locale,
     protected _extensionInfo: ExtensionInfo,
     protected _contacts: Contacts,
+    protected _thirdParty: ThirdParty,
     protected _syncTabView: SyncTabView,
     @optional() protected _contactDetailsView?: ContactDetailsViewBase,
     @optional('ContactListViewOptions')
     protected _contactListViewOptions?: ContactListViewOptions,
   ) {
     super(_auth, _locale, _extensionInfo, _contacts, _contactDetailsView, _contactListViewOptions);
+  }
+
+  override get contactSources(): ContactSource[] {
+    const contactSources = super.contactSources;
+    if (
+      !this._thirdParty.isContactSourceRegistered ||
+      !this._thirdParty.sourceName ||
+      contactSources.some(
+        (source) => source.sourceName === this._thirdParty.sourceName,
+      )
+    ) {
+      return contactSources;
+    }
+    return contactSources.concat(
+      this._thirdParty as unknown as ContactSource,
+    );
   }
 
   /**
@@ -116,7 +135,7 @@ export class ContactListView extends ContactListViewBase {
     const activeTab = _props.activeTab ?? _props.sourceNames[0];
 
     useEffect(() => {
-      if (activeTab && activeTab !== _props.searchSource) {
+      if (activeTab) {
         uiFunctions.onSearchContact({
           searchSource: activeTab,
           searchString: _props.searchString ?? '',
@@ -156,7 +175,7 @@ export class ContactListView extends ContactListViewBase {
           <this._syncTabView.component
             id={CONTACT_TAB_ID}
             className="[&_.sui-tab]:max-w-none [&_.sui-tab]:flex-grow"
-            variant="scrollable"
+            variant="moreMenu"
             tabs={tabs}
           />
         ) : (

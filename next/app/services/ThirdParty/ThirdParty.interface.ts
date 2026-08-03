@@ -219,8 +219,10 @@ export type SearchContactEntity = {
 
 export type ContactSource = {
   sourceName: string | null;
+  readonly ready: boolean;
   sourceReady: boolean;
   contacts: ThirdPartyContact[];
+  rawContacts: ThirdPartyContact[];
   filterContacts: (searchFilter: unknown) => ThirdPartyContact[];
   findContact: (contactId: string) => ThirdPartyContact | undefined;
   sync: (params?: FetchContactsParams) => Promise<void>;
