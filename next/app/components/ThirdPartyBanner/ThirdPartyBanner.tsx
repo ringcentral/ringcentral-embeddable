@@ -8,7 +8,12 @@ import type { ThirdPartyBanner as ThirdPartyBannerData } from '../../services/Th
 
 import i18n from './i18n';
 
-type SpringAnnouncementSeverity = 'error' | 'info' | 'success' | 'warning';
+type SpringAnnouncementSeverity =
+  | 'error'
+  | 'info'
+  | 'neutral'
+  | 'success'
+  | 'warning';
 type SpringButtonColor =
   | 'danger'
   | 'neutral'
@@ -27,6 +32,9 @@ interface ThirdPartyBannerProps {
 function getAnnouncementSeverity(
   severity?: ThirdPartyBannerData['severity'],
 ): SpringAnnouncementSeverity {
+  if (severity === 'announcement') {
+    return 'info';
+  }
   if (
     severity === 'error' ||
     severity === 'success' ||
@@ -34,7 +42,7 @@ function getAnnouncementSeverity(
   ) {
     return severity;
   }
-  return 'info';
+  return 'neutral';
 }
 
 function getActionVariant(

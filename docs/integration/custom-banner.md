@@ -17,7 +17,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
     banner: {
       id: 'my-banner',
       message: 'CRM connection lost',
-      severity: 'info',  // 'info' | 'warning' | 'error' | 'success' | 'announcement', default: 'info'
+      severity: 'info',  // 'info' | 'announcement' | 'warning' | 'error' | 'success', default: 'info'
       action: {  // optional, show action button
         label: 'Reconnect' // action button label, required,
         variant: 'outlined', // optional, button variant, 'text', 'outlined', 'contained', 'plain', default: 'outlined'
@@ -39,7 +39,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
   banner: {
     id: 'my-banner', // banner id, required
     message: 'CRM connection lost', // banner message, required
-    severity: 'warning', // 'info' | 'warning' | 'error' | 'success', default: 'info'
+    severity: 'warning', // 'info' | 'announcement' | 'warning' | 'error' | 'success', default: 'info'
     action: { // optional, show action button
       label: 'Reconnect' // action button label, required
     },
@@ -56,7 +56,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 |----------|------|----------|---------|-------------|
 | `id` | string | Yes | - | Unique identifier for the banner |
 | `message` | string | Yes | - | The message to display in the banner |
-| `severity` | string | No | `'info'` | Banner type: `'info'`, `'warning'`, `'error'`, or `'success'` |
+| `severity` | string | No | `'info'` | Banner type: `'info'`, `'announcement'`, `'warning'`, `'error'`, or `'success'` |
 | `action` | object | No | - | Action button configuration |
 | `action.label` | string | Yes (if action provided) | - | Label for the action button |
 | `action.variant` | string | No | `'outlined'` | Button variant: `'text'`, `'outlined'`, `'contained'`, or `'plain'` |
@@ -65,7 +65,8 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 ### Severity types
 
-- `info` - Blue banner for informational messages
+- `info` - Neutral gray banner for routine informational messages
+- `announcement` - Blue banner for prominent informational announcements
 - `warning` - Yellow/orange banner for warnings
 - `error` - Red banner for errors
 - `success` - Green banner for success messages
@@ -232,4 +233,3 @@ window.addEventListener('message', function (e) {
 
 !!! note "Single banner"
     Only one customized banner can be displayed at a time. Registering a new banner will replace the existing one.
-

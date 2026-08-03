@@ -66,6 +66,20 @@ describe('ThirdPartyBannerView', () => {
     expect(thirdParty.onBannerClose).toHaveBeenCalledTimes(1);
   });
 
+  test('renders routine informational banners with neutral severity', () => {
+    const { Component } = createView({
+      id: 'information',
+      message: 'CRM synchronization is enabled',
+      severity: 'info',
+    });
+    render(<Component />);
+
+    expect(screen.getByRole('alert')).toHaveAttribute(
+      'data-severity',
+      'neutral',
+    );
+  });
+
   test('uses a custom close label and announcement defaults', () => {
     const { Component } = createView({
       id: 'announcement',
