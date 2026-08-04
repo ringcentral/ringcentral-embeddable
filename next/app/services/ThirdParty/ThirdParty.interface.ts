@@ -215,6 +215,8 @@ export type SearchContactEntity = {
   phoneType: string;
   entityType: string;
   contactId: string;
+  isPrimary: boolean;
+  contact: ThirdPartyContact;
 };
 
 export type ContactSource = {
@@ -257,8 +259,10 @@ export type MatcherApi<TQuery extends string = string> = {
 };
 
 export type ContactMatcherApi = MatcherApi<string> & {
-  manualRefreshNumber?: string;
-  resetManualRefreshNumber?: () => void;
+  manualRefreshNumber: string | null;
+  setManualRefreshNumber: (phoneNumber: string) => void;
+  resetManualRefreshNumber: () => void;
+  removeSearchProvider: (name: string) => void;
 };
 
 export type GenericMeetingWithThirdPartyProvider = GenericMeeting & {
@@ -268,8 +272,8 @@ export type GenericMeetingWithThirdPartyProvider = GenericMeeting & {
   }) => void;
 };
 
-export type CallLogApi = {
-  callerIDMap?: Record<string, string>;
+export type CallHistoryApi = {
+  calls: ThirdPartyCall[];
 };
 
 export type CallMonitorApi = {

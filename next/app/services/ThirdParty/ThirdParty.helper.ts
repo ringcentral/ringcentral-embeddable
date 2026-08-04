@@ -270,9 +270,13 @@ export function searchContactPhoneNumbers(
   const searchText = searchString.toLowerCase();
   const result: SearchContactEntity[] = [];
   contacts.forEach((item) => {
-    const name = item.name || `${item.firstName} ${item.lastName}`;
+    const name =
+      item.name ||
+      [item.firstName, item.lastName].filter(Boolean).join(' ') ||
+      '';
     const nameSearched =
       `${item.firstName} ${item.lastName} ${item.name}`.toLowerCase();
+    let isPrimary = true;
     item.phoneNumbers?.forEach((phoneNumber) => {
       if (
         nameSearched.includes(searchText) ||
@@ -286,7 +290,10 @@ export function searchContactPhoneNumbers(
           phoneType: formatPhoneType(phoneNumber.phoneType),
           entityType,
           contactId: item.id,
+          isPrimary,
+          contact: item,
         });
+        isPrimary = false;
       }
     });
   });

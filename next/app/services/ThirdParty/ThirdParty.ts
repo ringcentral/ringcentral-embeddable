@@ -4,6 +4,7 @@ import {
   ActivityMatcher,
   Contacts,
   ContactMatcher,
+  type ContactMatcherOptions,
   ContactSearch,
 } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
@@ -12,7 +13,7 @@ import {
   MessageStore,
 } from '@ringcentral-integration/micro-message/src/app/services';
 import {
-  CallLog,
+  CallHistory,
   CallMonitor,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
@@ -44,7 +45,7 @@ import {
   searchContactPhoneNumbers,
 } from './ThirdParty.helper';
 import type {
-  CallLogApi,
+  CallHistoryApi,
   CallMonitorApi,
   ContactMatcherApi,
   ContactSearchApi,
@@ -102,9 +103,11 @@ export class ThirdParty extends RcModule {
     protected _contactSources: ContactSource[],
     protected _contactSearch: ContactSearch,
     protected _contactMatcher: ContactMatcher,
+    @inject('ContactMatcherOptions')
+    protected _contactMatcherOptions: ContactMatcherOptions,
     protected _genericMeeting: GenericMeeting,
     protected _messageStore: MessageStore,
-    protected _callLog: CallLog,
+    protected _callHistory: CallHistory,
     protected _callMonitor: CallMonitor,
     protected _voicemailDrop: VoicemailDrop,
     @optional() protected _activityMatcher?: ActivityMatcher,
@@ -526,8 +529,8 @@ export class ThirdParty extends RcModule {
     return this._conversationMatcher as unknown as MatcherApi<string> | null;
   }
 
-  private get _callLogApi(): CallLogApi {
-    return this._callLog as unknown as CallLogApi;
+  private get _callHistoryApi(): CallHistoryApi {
+    return this._callHistory as unknown as CallHistoryApi;
   }
 
   private get _callMonitorApi(): CallMonitorApi {
@@ -785,12 +788,10 @@ export class ThirdParty extends RcModule {
     });
     this._contactMatchSourceAdded = true;
     if (this._contactMatchTtl) {
-      (this._contactMatcher as unknown as { ttl: number }).ttl =
-        this._contactMatchTtl;
+      this._contactMatcherOptions.ttl = this._contactMatchTtl;
     }
     if (this._contactNoMatchTtl) {
-      (this._contactMatcher as unknown as { noMatchTtl: number }).noMatchTtl =
-        this._contactNoMatchTtl;
+      this._contactMatcherOptions.noMatchTtl = this._contactNoMatchTtl;
     }
   }
 
@@ -802,7 +803,7 @@ export class ThirdParty extends RcModule {
     if (!this._contactMatchSourceAdded || !this.sourceName) {
       return;
     }
-    this._contactMatcherApi._searchProviders.delete(this.sourceName);
+    this._contactMatcherApi.removeSearchProvider(this.sourceName);
     this._contactMatchSourceAdded = false;
   }
 
@@ -1168,11 +1169,12 @@ export class ThirdParty extends RcModule {
         phoneNumbers[0] === this._contactMatcherApi.manualRefreshNumber
       ) {
         queryParams.triggerFrom = 'manual';
-        this._contactMatcherApi.resetManualRefreshNumber?.();
+        this._contactMatcherApi.resetManualRefreshNumber();
       }
       const callerIds: Record<string, string> = {};
+      const callerIdMap = this._getCallerIdMap();
       phoneNumbers.forEach((phoneNumber) => {
-        const callId = this._callLogApi.callerIDMap?.[phoneNumber];
+        const callId = callerIdMap[phoneNumber];
         if (callId) {
           callerIds[phoneNumber] = callId;
         }
@@ -1206,6 +1208,21 @@ export class ThirdParty extends RcModule {
       );
       return {};
     }
+  }
+
+  private _getCallerIdMap(): Record<string, string> {
+    const callerIdMap: Record<string, string> = {};
+    this._callHistoryApi.calls.forEach((call) => {
+      const fromNumber = call.from?.phoneNumber || call.from?.extensionNumber;
+      if (fromNumber && call.from?.name && !callerIdMap[fromNumber]) {
+        callerIdMap[fromNumber] = call.from.name;
+      }
+      const toNumber = call.to?.phoneNumber || call.to?.extensionNumber;
+      if (toNumber && call.to?.name && !callerIdMap[toNumber]) {
+        callerIdMap[toNumber] = call.to.name;
+      }
+    });
+    return callerIdMap;
   }
 
   findContact(contactId: string): ThirdPartyContact | undefined {

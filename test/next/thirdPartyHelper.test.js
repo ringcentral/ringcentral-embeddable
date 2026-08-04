@@ -295,11 +295,23 @@ describe('ThirdParty helpers', () => {
         name: 'Ada Lovelace',
         phoneType: 'mobile',
         entityType: 'lead',
+        isPrimary: true,
+        contact: contacts[0],
       }),
-      expect.objectContaining({ id: '1+16505550101', phoneType: 'other' }),
+      expect.objectContaining({
+        id: '1+16505550101',
+        phoneType: 'other',
+        isPrimary: false,
+        contact: contacts[0],
+      }),
     ]);
     expect(searchContactPhoneNumbers(contacts, '0200')).toEqual([
-      expect.objectContaining({ name: 'Grace Hopper', entityType: 'contact' }),
+      expect.objectContaining({
+        name: 'Grace Hopper',
+        entityType: 'contact',
+        isPrimary: true,
+        contact: contacts[1],
+      }),
     ]);
   });
 

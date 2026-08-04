@@ -22,7 +22,7 @@ function createSearchRegistry() {
 function createMatcherRegistry(queries = []) {
   return {
     added: null,
-    manualRefreshNumber: '+16505550100',
+    manualRefreshNumber: null,
     _searchProviders: new Map(),
     addSearchProvider: jest.fn(function addSearchProvider(provider) {
       this.added = provider;
@@ -31,7 +31,15 @@ function createMatcherRegistry(queries = []) {
     _getQueries: jest.fn(() => queries),
     match: jest.fn(),
     triggerMatch: jest.fn(),
-    resetManualRefreshNumber: jest.fn(),
+    setManualRefreshNumber: jest.fn(function setManualRefreshNumber(phoneNumber) {
+      this.manualRefreshNumber = phoneNumber;
+    }),
+    resetManualRefreshNumber: jest.fn(function resetManualRefreshNumber() {
+      this.manualRefreshNumber = null;
+    }),
+    removeSearchProvider: jest.fn(function removeSearchProvider(name) {
+      this._searchProviders.delete(name);
+    }),
   };
 }
 
@@ -48,6 +56,10 @@ function createDependencies(overrides = {}) {
     contactSources: [],
     contactSearch: createSearchRegistry(),
     contactMatcher: createMatcherRegistry(['+16505550100', '+16505550101']),
+    contactMatcherOptions: {
+      ttl: 120 * 60 * 1000,
+      noMatchTtl: 5 * 60 * 1000,
+    },
     genericMeeting: { addThirdPartyProvider: jest.fn() },
     messageStore: {
       voicemailTranscriptionMap: {
@@ -55,7 +67,14 @@ function createDependencies(overrides = {}) {
       },
       fetchVoicemailTranscription: jest.fn(async () => {}),
     },
-    callLog: { callerIDMap: { '+16505550100': 'caller-id' } },
+    callHistory: {
+      calls: [
+        {
+          from: { phoneNumber: '+16505550100', name: 'caller-id' },
+          to: { extensionNumber: '101', name: 'extension-name' },
+        },
+      ],
+    },
     callMonitor: { calls: [{ sessionId: 'session-1' }] },
     voicemailDrop: { setExternalVoicemailFetcher: jest.fn() },
     activityMatcher: createMatcherRegistry(['session-1', 'session-2']),
@@ -87,9 +106,10 @@ function createThirdParty(overrides = {}) {
     dependencies.contactSources,
     dependencies.contactSearch,
     dependencies.contactMatcher,
+    dependencies.contactMatcherOptions,
     dependencies.genericMeeting,
     dependencies.messageStore,
-    dependencies.callLog,
+    dependencies.callHistory,
     dependencies.callMonitor,
     dependencies.voicemailDrop,
     dependencies.activityMatcher,
@@ -417,8 +437,8 @@ describe('ThirdParty service', () => {
     );
     expect(dependencies.activityMatcher.addSearchProvider).toHaveBeenCalled();
     expect(dependencies.conversationMatcher.addSearchProvider).toHaveBeenCalled();
-    expect(dependencies.contactMatcher.ttl).toBe(100);
-    expect(dependencies.contactMatcher.noMatchTtl).toBe(20);
+    expect(dependencies.contactMatcherOptions.ttl).toBe(100);
+    expect(dependencies.contactMatcherOptions.noMatchTtl).toBe(20);
     expect(dependencies.contactMatcher.match).toHaveBeenCalledWith({
       queries: ['+16505550100', '+16505550101'],
       ignoreCache: false,
@@ -461,6 +481,7 @@ describe('ThirdParty service', () => {
     expect(service._callLogEntityMatchSourceAdded).toBe(false);
     expect(service._messageLogEntityMatchSourceAdded).toBe(false);
     expect(dependencies.contactSearch._searchSources.has('crm')).toBe(false);
+    expect(dependencies.contactMatcher.removeSearchProvider).toHaveBeenCalledWith('crm');
     expect(dependencies.contactMatcher._searchProviders.has('crm')).toBe(false);
   });
 
@@ -611,6 +632,7 @@ describe('ThirdParty service', () => {
     requestWithPostMessage.mockResolvedValueOnce({
       data: { '+16505550100': [{ id: 'manual', entityType: 'person' }] },
     });
+    dependencies.contactMatcher.setManualRefreshNumber('+16505550100');
     await service.matchContacts(['+16505550100']);
     expect(dependencies.contactMatcher.resetManualRefreshNumber).toHaveBeenCalled();
     expect(requestWithPostMessage).toHaveBeenLastCalledWith(

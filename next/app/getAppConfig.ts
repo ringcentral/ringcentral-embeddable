@@ -25,13 +25,14 @@ import {
   Contacts,
   ContactSearch,
   ContactMatcher,
+  type ContactMatcherOptions,
   ActivityMatcher,
 } from '@ringcentral-integration/micro-contacts/src/app/services';
 import {
   ContactDetailsView,
   ContactListView,
+  ContactSearchView,
 } from '@ringcentral-integration/micro-contacts/src/app/views';
-import { IntegrationConfigOptions } from '@ringcentral-integration/micro-setting/src/app/services';
 import {
   BlockPlugin,
   SpringThemePlugin,
@@ -115,10 +116,12 @@ import {
 } from './services';
 import { AccountContacts as AccountContactsV2 } from './services/AccountContacts';
 import { CallAction as CallActionV2 } from './services/CallAction';
+import { ContactMatcher as ContactMatcherV2 } from './services/ContactMatcher';
 import { SmsOptOut as SmsOptOutV2 } from './services/SmsOptOut';
 import { MeetingView, MeetingInviteView } from './views/MeetingView';
 import { ContactListView as ContactListViewV2 } from './views/ContactListView/ContactList.view';
 import { ContactDetailsView as ContactDetailsViewV2 } from './views/ContactDetailsView/ContactDetails.view';
+import { ContactSearchView as ContactSearchViewV2 } from './views/ContactSearchView';
 import {
   CallView as MicroPhoneCallView,
   DialerPadView,
@@ -179,11 +182,15 @@ import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
+import { createThirdPartyIntegrationConfig } from './services/ThirdParty/ThirdParty.integrationConfig';
 import { CustomizedPageView } from './views/CustomizedPageView';
 import { HeaderPanel } from './views/HeaderView/HeaderPanel';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 import { VoicemailDropView } from './views/VoicemailDropView';
 import { createSettingsPanel } from './views/SettingsView/createSettingsPanel';
+
+const DEFAULT_CONTACT_MATCH_TTL = 120 * 60 * 1000;
+const DEFAULT_CONTACT_NO_MATCH_TTL = 5 * 60 * 1000;
 
 interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   appVersion: string;
@@ -367,7 +374,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       FaxSender,
       Environment,
       ContactInitiator,
-      ContactMatcher,
+      {
+        provide: ContactMatcher,
+        useClass: ContactMatcherV2,
+      },
       ActivityMatcher,
       TabManager,
       SmartNotes,
@@ -380,6 +390,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: ContactListView,
         useClass: ContactListViewV2,
+      },
+      {
+        provide: ContactSearchView,
+        useClass: ContactSearchViewV2,
       },
       {
         provide: DialerPadView,
@@ -557,6 +571,13 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         ) => [accountContacts, addressBook],
       },
       {
+        provide: 'ContactMatcherOptions',
+        useValue: {
+          ttl: DEFAULT_CONTACT_MATCH_TTL,
+          noMatchTtl: DEFAULT_CONTACT_NO_MATCH_TTL,
+        } satisfies ContactMatcherOptions,
+      },
+      {
         provide: 'CallLoggerOptions',
         useFactory: (thirdParty: ThirdParty) =>
           ({
@@ -656,15 +677,9 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'IntegrationConfigOptions',
-        useValue: {
-          key: 'thirdParty',
-          onViewEntity: (entity) => {
-            console.log('🐞 ~ onViewEntity entity:', entity);
-          },
-          onCreateEntity: (entity) => {
-            console.log('🐞 ~ onCreateEntity entity:', entity);
-          },
-        } satisfies IntegrationConfigOptions,
+        useFactory: (thirdParty: ThirdParty) =>
+          createThirdPartyIntegrationConfig(thirdParty),
+        deps: [ThirdParty],
       },
       {
         provide: 'HeaderNavViewOptions',
