@@ -809,6 +809,10 @@ class Adapter extends AdapterCore {
       readOnlyReason,
     });
   }
+
+  async refreshLoginSession(force) {
+    return this._requestWithPostMessage('/refresh-login-session', { force });
+  }
 }
 
 export default Adapter;
