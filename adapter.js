@@ -57706,6 +57706,11 @@ class Adapter extends AdapterCore/* default */.A {
       readOnlyReason
     });
   }
+  async refreshLoginSession(force) {
+    return this._requestWithPostMessage('/refresh-login-session', {
+      force
+    });
+  }
 }
 /* harmony default export */ var lib_Adapter = (Adapter);
 ;// ./src/adapter.js
