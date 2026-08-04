@@ -280,11 +280,19 @@ describe('lib Adapter', () => {
       sessionId: 'session-id',
       telephonySessionId: 'telephony-session-id',
     })).resolves.toEqual({ ok: true });
+    await expect(adapter.refreshLoginSession(true)).resolves.toEqual({ ok: true });
     await expect(adapter.isWindowPoppedUp({ alert: true })).resolves.toEqual({ ok: true });
 
     expect(requestWithPostMessage).toHaveBeenCalledWith(
       '/schedule-meeting',
       { topic: 'Planning' },
+      5000,
+      adapter._contentFrameEl.contentWindow,
+      'rc-adapter-message',
+    );
+    expect(requestWithPostMessage).toHaveBeenCalledWith(
+      '/refresh-login-session',
+      { force: true },
       5000,
       adapter._contentFrameEl.contentWindow,
       'rc-adapter-message',

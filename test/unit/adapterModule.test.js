@@ -69,6 +69,12 @@ function createAdapter(overrides = {}) {
       isFreshLogin: true,
       logout: jest.fn(),
     },
+    _client: {
+      service: {
+        ensureLoggedIn: jest.fn(async () => {}),
+        get: jest.fn(async () => {}),
+      },
+    },
     _oAuth: {
       openOAuthPage: jest.fn(),
     },
@@ -497,6 +503,46 @@ describe('Adapter module methods', () => {
         response: { error: 'sessionId or telephonySessionId is required' },
       }),
     );
+  });
+
+  it('refreshes the login session and posts the request result', async () => {
+    const adapter = createAdapter();
+
+    await adapter._handleRCAdapterMessageRequest({
+      path: '/refresh-login-session',
+      requestId: 'refresh-session',
+      body: { force: false },
+    });
+    await adapter._handleRCAdapterMessageRequest({
+      path: '/refresh-login-session',
+      requestId: 'force-refresh-session',
+      body: { force: true },
+    });
+
+    expect(adapter._client.service.ensureLoggedIn).toHaveBeenCalledTimes(1);
+    expect(adapter._client.service.get).toHaveBeenCalledWith('/restapi/v1.0/account/~');
+    expect(adapter._postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      responseId: 'refresh-session',
+      response: { result: 'ok' },
+    }));
+    expect(adapter._postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      responseId: 'force-refresh-session',
+      response: { result: 'ok' },
+    }));
+
+    adapter._client.service.ensureLoggedIn.mockRejectedValueOnce(new Error('refresh failed'));
+    await adapter._handleRCAdapterMessageRequest({
+      path: '/refresh-login-session',
+      requestId: 'failed-refresh-session',
+    });
+
+    expect(adapter._postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      responseId: 'failed-refresh-session',
+      response: {
+        result: 'error',
+        message: 'refresh failed',
+      },
+    }));
   });
 
   it('routes incoming adapter messages to command handlers', () => {

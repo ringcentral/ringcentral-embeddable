@@ -44,6 +44,7 @@ import { getCallContact } from '../../lib/callHelper';
     'RouterInteraction',
     'AppFeatures',
     'Presence',
+    'Client',
     'ComposeText',
     'Call',
     'DialerUI',
@@ -87,6 +88,7 @@ export default class Adapter extends AdapterModuleCore {
     auth,
     alert,
     analytics,
+    client,
     oAuth,
     extensionInfo,
     accountInfo,
@@ -154,6 +156,7 @@ export default class Adapter extends AdapterModuleCore {
     this._dialerUI = this:: ensureExist(dialerUI, 'dialerUI');
     this._messageStore = this:: ensureExist(messageStore, 'messageStore');
     this._tabManager = this:: ensureExist(tabManager, 'tabManager');
+    this._client = client;
     this._alert = alert;
     this._callLogger = callLogger;
     this._callLog = callLog;
@@ -538,6 +541,30 @@ export default class Adapter extends AdapterModuleCore {
             call,
           },
         });
+        break;
+      }
+      case '/refresh-login-session': {
+        try {
+          if (!data.body || !data.body.force) {
+            await this._client.service.ensureLoggedIn();
+          } else {
+            await this._client.service.get('/restapi/v1.0/account/~');
+          }
+          this._postRCAdapterMessageResponse({
+            responseId: data.requestId,
+            response: {
+              result: 'ok',
+            },
+          });
+        } catch (e) {
+          this._postRCAdapterMessageResponse({
+            responseId: data.requestId,
+            response: {
+              result: 'error',
+              message: e.message || '',
+            },
+          });
+        }
         break;
       }
       default: {
