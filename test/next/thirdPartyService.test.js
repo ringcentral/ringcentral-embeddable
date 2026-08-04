@@ -642,6 +642,33 @@ describe('ThirdParty service', () => {
     );
   });
 
+  test('filters invalid phone numbers before matching contacts', async () => {
+    const { service } = createThirdParty();
+    registerService(service, { authorized: true });
+
+    await expect(service.matchContacts([undefined])).resolves.toEqual({});
+    expect(requestWithPostMessage).not.toHaveBeenCalled();
+
+    requestWithPostMessage.mockResolvedValueOnce({
+      data: {
+        '+16505550100': [{ id: 'lead', type: 'lead' }],
+      },
+    });
+    await expect(
+      service.matchContacts([undefined, '+16505550100', '']),
+    ).resolves.toEqual({
+      '+16505550100': [{ id: 'lead', type: 'lead', entityType: 'lead' }],
+    });
+    expect(requestWithPostMessage).toHaveBeenCalledWith(
+      '/contact-match',
+      {
+        phoneNumbers: ['+16505550100'],
+        callerIds: { '+16505550100': 'caller-id' },
+      },
+      30000,
+    );
+  });
+
   test('handles contact search and matching response and error fallbacks', async () => {
     const { service } = createThirdParty();
     await expect(service.searchContacts('Ada')).resolves.toEqual([]);

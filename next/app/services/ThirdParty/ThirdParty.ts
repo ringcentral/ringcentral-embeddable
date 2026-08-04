@@ -1156,24 +1156,28 @@ export class ThirdParty extends RcModule {
   ): Promise<Record<string, ThirdPartyContact[]>> {
     try {
       const result: Record<string, ThirdPartyContact[]> = {};
-      if (!this._contactMatchPath) {
+      const validPhoneNumbers = phoneNumbers.filter(
+        (phoneNumber): phoneNumber is string =>
+          typeof phoneNumber === 'string' && phoneNumber.trim().length > 0
+      );
+      if (!this._contactMatchPath || validPhoneNumbers.length === 0) {
         return result;
       }
       const queryParams: {
         phoneNumbers: string[];
         triggerFrom?: string;
         callerIds?: Record<string, string>;
-      } = { phoneNumbers };
+      } = { phoneNumbers: validPhoneNumbers };
       if (
-        phoneNumbers.length === 1 &&
-        phoneNumbers[0] === this._contactMatcherApi.manualRefreshNumber
+        validPhoneNumbers.length === 1 &&
+        validPhoneNumbers[0] === this._contactMatcherApi.manualRefreshNumber
       ) {
         queryParams.triggerFrom = 'manual';
         this._contactMatcherApi.resetManualRefreshNumber();
       }
       const callerIds: Record<string, string> = {};
       const callerIdMap = this._getCallerIdMap();
-      phoneNumbers.forEach((phoneNumber) => {
+      validPhoneNumbers.forEach((phoneNumber) => {
         const callId = callerIdMap[phoneNumber];
         if (callId) {
           callerIds[phoneNumber] = callId;
@@ -1188,7 +1192,7 @@ export class ThirdParty extends RcModule {
       if (!data || Object.keys(data).length === 0) {
         return result;
       }
-      phoneNumbers.forEach((phoneNumber) => {
+      validPhoneNumbers.forEach((phoneNumber) => {
         if (Array.isArray(data[phoneNumber])) {
           result[phoneNumber] = data[phoneNumber].map(
             (contact: ThirdPartyContact) => ({
