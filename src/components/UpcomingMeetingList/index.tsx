@@ -13,6 +13,7 @@ import {
 import { InfoBorder, Copy } from '@ringcentral/juno-icon';
 import { handleCopy } from '@ringcentral-integration/widgets/lib/handleCopy';
 import { ActionMenu } from '../ActionMenu';
+import getMeetingDate from './getMeetingDate';
 import i18n from './i18n';
 
 const Container = styled.div`
@@ -85,8 +86,8 @@ function DateName(props) {
   );
 }
 
-function formatMeetingTime(time, currentLocale) {
-  const date = new Date(time);
+function formatMeetingTime(time, timeZone, currentLocale) {
+  const date = getMeetingDate(time, timeZone);
   return date.toLocaleTimeString(currentLocale, {
     hour: '2-digit', minute: '2-digit', hour12: true,
   });
@@ -96,7 +97,9 @@ function MeetingItem(props) {
   const {
     title,
     startTime,
+    startTimeZone,
     endTime,
+    endTimeZone,
     currentLocale,
     onJoin,
     editEventUrl,
@@ -104,8 +107,8 @@ function MeetingItem(props) {
     location,
   } = props;
   const [hoverOnMoreMenu, setHoverOnMoreMenu] = useState(false);
-  const startDate = formatMeetingTime(startTime, currentLocale)
-  const endDate = formatMeetingTime(endTime, currentLocale)
+  const startDate = formatMeetingTime(startTime, startTimeZone, currentLocale);
+  const endDate = formatMeetingTime(endTime, endTimeZone, currentLocale);
   let meetingId = '';
   let meetingUri = '';
   if (location && location.indexOf('/join/') > -1) {
@@ -183,7 +186,7 @@ function groupMeetings(meetings, currentLocale) {
     {weekday: 'long', month: 'numeric', day: 'numeric'}
   );
   meetings.forEach((meeting) => {
-    const date = new Date(meeting.startTime);
+    const date = getMeetingDate(meeting.startTime, meeting.startTimeZone);
     let dateKey = date.toLocaleDateString(
       currentLocale,
       {weekday: 'long', month: 'numeric', day: 'numeric'}
@@ -219,7 +222,9 @@ function UpcomingMeetingList(props) {
                         key={meeting.id}
                         title={meeting.title}
                         startTime={meeting.startTime}
+                        startTimeZone={meeting.startTimeZone}
                         endTime={meeting.endTime}
+                        endTimeZone={meeting.endTimeZone}
                         currentLocale={currentLocale}
                         editEventUrl={meeting.editEventUrl}
                         onJoin={onJoin}

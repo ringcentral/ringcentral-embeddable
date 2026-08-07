@@ -39,6 +39,7 @@ module.exports = (api) => {
               node: 'current',
             },
           },
+          '@babel/preset-typescript',
         ]
         : ['@babel/preset-env', { useBuiltIns: 'usage', modules: 'auto', corejs: 3 }],
       '@babel/preset-react',
