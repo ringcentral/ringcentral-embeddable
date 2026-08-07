@@ -123,11 +123,17 @@ import { ContactListView as ContactListViewV2 } from './views/ContactListView/Co
 import { ContactDetailsView as ContactDetailsViewV2 } from './views/ContactDetailsView/ContactDetails.view';
 import { ContactSearchView as ContactSearchViewV2 } from './views/ContactSearchView';
 import {
+  CallDetailView as MicroPhoneCallDetailView,
   CallView as MicroPhoneCallView,
+  CallsListViewSpring as MicroPhoneCallsListView,
   DialerPadView,
   DialerView,
 } from '@ringcentral-integration/micro-phone/src/app/views';
 import { DialerPadView as DialerPadViewV2 } from './views/DialerPadView';
+import {
+  CallDetailView as CallDetailViewV2,
+  CallsListView as CallsListViewV2,
+} from './views/CallHistoryView';
 import { CallHUDView } from './views/CallHUDView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
@@ -398,6 +404,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: DialerPadView,
         useClass: DialerPadViewV2,
+      },
+      {
+        provide: MicroPhoneCallsListView,
+        useClass: CallsListViewV2,
+      },
+      {
+        provide: MicroPhoneCallDetailView,
+        useClass: CallDetailViewV2,
       },
       DialerView,
       ModalView,

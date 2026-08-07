@@ -15,6 +15,7 @@ module.exports = {
   PushPinMd: 'PushPinMd',
   RefreshMd: 'RefreshMd',
   SettingsMd: 'SettingsMd',
+  SmartNotesMd: 'SmartNotesMd',
   SendFilledMd: 'SendFilledMd',
   StopMd: 'StopMd',
   TrashMd: 'TrashMd',
