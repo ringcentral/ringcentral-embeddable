@@ -8,7 +8,7 @@ import type {
   SmartNoteContact,
   SmartNoteSession,
 } from '../../services/SmartNotes';
-import { SmartNotes } from '../../services/SmartNotes';
+import type { SmartNotesView } from '../SmartNotesView';
 
 export interface SmartNotesHistoryCall extends HistoryCall {
   hasSmartNote?: boolean;
@@ -124,7 +124,7 @@ export function useHistorySmartNotesAction(
   info: SmartNotesCallInfo,
   label: string
 ): ActionMenuListButtonProps | null {
-  const smartNotes = useContainer<SmartNotes>('SmartNotes');
+  const smartNotesView = useContainer<SmartNotesView>('SmartNotesView');
   const connectivityManager = useContainer<{
     isOfflineMode: boolean;
     isVoipOnlyMode: boolean;
@@ -145,9 +145,9 @@ export function useHistorySmartNotesAction(
         info,
         label,
         onViewSmartNote: (session) => {
-          void smartNotes.viewSmartNote(session);
+          void smartNotesView.open(session);
         },
       }),
-    [call, disabled, info, label, smartNotes]
+    [call, disabled, info, label, smartNotesView]
   );
 }

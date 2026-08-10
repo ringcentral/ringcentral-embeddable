@@ -1,4 +1,5 @@
 import NoCalls from '@ringcentral-integration/next-core/assets/no_calls.svg';
+import { debounce } from '@ringcentral-integration/commons/lib/debounce-throttle';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import type {
   CallsListPanelSpringProps,
@@ -7,13 +8,18 @@ import type {
 import { Filter } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsListPage/Filter';
 import { useEffectOnDocumentFocus } from '@ringcentral-integration/react-hooks';
 import { useVirtuosoScrollPosition } from '@ringcentral-integration/react-hooks';
+import { useContainer } from '@ringcentral-integration/next-core';
 import { VirtualizedList } from '@ringcentral/spring-ui';
 import type { FunctionComponent } from 'react';
-import React from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 
+import { SmartNotes } from '../../services/SmartNotes';
 import type { SmartNotesHistoryCall } from './CallHistorySmartNotesAction';
+import { getVisibleTelephonySessionIds } from './CallHistorySmartNotesQuery';
 import { CallsListItem } from './CallsListItem';
 import i18n from './i18n';
+
+const INITIAL_VISIBLE_CALL_COUNT = 10;
 
 type CallsListProps = {
   calls: SmartNotesHistoryCall[];
@@ -29,10 +35,44 @@ const CallsList: FunctionComponent<CallsListProps> = ({
   searchInput,
   ...rest
 }) => {
+  const smartNotes = useContainer<SmartNotes>('SmartNotes');
+  const callsRef = useRef(calls);
+  callsRef.current = calls;
   const { virtuosoActionsRef, scrollerRef } = useVirtuosoScrollPosition(
     (snapshot) => setLastPosition(viewCallsFilter, snapshot)
   );
   const { t } = useLocale(i18n);
+  const queryVisibleSmartNotes = useMemo(
+    () =>
+      debounce({
+        fn: (startIndex: number, endIndex: number): void => {
+          const telephonySessionIds = getVisibleTelephonySessionIds(
+            callsRef.current,
+            startIndex,
+            endIndex
+          );
+          if (telephonySessionIds.length > 0) {
+            void smartNotes.queryNotedCalls(telephonySessionIds);
+          }
+        },
+        threshold: 300,
+      }),
+    [smartNotes]
+  );
+  useEffect(() => {
+    if (calls.length > 0) {
+      queryVisibleSmartNotes(
+        0,
+        Math.min(calls.length, INITIAL_VISIBLE_CALL_COUNT) - 1
+      );
+    }
+  }, [calls.length, queryVisibleSmartNotes]);
+  useEffect(
+    () => () => {
+      queryVisibleSmartNotes.cancel();
+    },
+    [queryVisibleSmartNotes]
+  );
   if (calls.length === 0) {
     return (
       <div
@@ -57,6 +97,9 @@ const CallsList: FunctionComponent<CallsListProps> = ({
         virtuosoActions={virtuosoActionsRef}
         scrollerRef={scrollerRef}
         restoreStateFrom={lastPosition || undefined}
+        rangeChanged={({ startIndex, endIndex }) =>
+          queryVisibleSmartNotes(startIndex, endIndex)
+        }
       >
         {(index, call) => (
           <CallsListItem

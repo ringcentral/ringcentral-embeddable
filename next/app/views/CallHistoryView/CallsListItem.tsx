@@ -5,7 +5,7 @@ import {
   useHistoryActionButtons,
 } from '@ringcentral-integration/next-widgets/components';
 import { ListItem, ListItemText } from '@ringcentral/spring-ui';
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import {
   type SmartNotesCallInfo,
@@ -14,6 +14,7 @@ import {
   useHistorySmartNotesAction,
 } from './CallHistorySmartNotesAction';
 import i18n from './i18n';
+import { SmartNotesBadge } from './SmartNotesBadge';
 
 export type CallsListItemProps = {
   call: SmartNotesHistoryCall;
@@ -31,10 +32,17 @@ const CallsListItemComponent: React.FC<CallsListItemProps> = ({
   useItemRender,
 }) => {
   const { t } = useLocale(i18n);
-  const { info, actions } = useCallHistoryItemInfo(call, {
-    selectIndex: 0,
-    variant: 'list',
-  });
+  const callWithoutSmartNotesStatus = useMemo(
+    () => (call.hasSmartNote ? { ...call, hasSmartNote: false } : call),
+    [call]
+  );
+  const { info, actions } = useCallHistoryItemInfo(
+    callWithoutSmartNotesStatus,
+    {
+      selectIndex: 0,
+      variant: 'list',
+    }
+  );
   const onAction = useActionsHandler(call, info, 'Call history list');
   const buttons = useHistoryActionButtons(actions, onAction);
   const smartNotesAction = useHistorySmartNotesAction(
@@ -81,7 +89,17 @@ const CallsListItemComponent: React.FC<CallsListItemProps> = ({
             <DisplayName displayControl={{ maybe: true, matchCounts: true }} />
           </div>
         }
-        secondary={Status ? <Status mode="icon" /> : undefined}
+        secondary={
+          Status || call.hasSmartNote ? (
+            <div className="flex items-center gap-1">
+              {Status && <Status mode="icon" />}
+              <SmartNotesBadge
+                label={t('smartNotes')}
+                show={Boolean(call.hasSmartNote)}
+              />
+            </div>
+          ) : undefined
+        }
       />
       <div className="text-right min-h-11 max-w-[30%]">
         <span

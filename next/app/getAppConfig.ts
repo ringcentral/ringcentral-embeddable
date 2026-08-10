@@ -137,6 +137,7 @@ import {
 import { CallHUDView } from './views/CallHUDView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
+import { SmartNotesView } from './views/SmartNotesView';
 import {
   SideWidgetView,
   type SideWidgetOptions,
@@ -464,6 +465,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       CustomizedPageView,
       ExpandedRouteView,
       ExpandedView,
+      SmartNotesView,
       SideWidgetView,
       ThirdPartyBannerView,
       VoicemailDropView,

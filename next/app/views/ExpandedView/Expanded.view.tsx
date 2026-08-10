@@ -13,6 +13,7 @@ import React from 'react';
 
 import type {
   ExpandedViewCreatorOptions,
+  ExpandedViewOpenOptions,
   ExpandedViewOpenResult,
 } from './Expanded.view.interface';
 import { ExpandedContentHandle } from './Expanded.view.interface';
@@ -48,7 +49,10 @@ export class ExpandedView extends RcViewModule {
     this.isOpen = contentId !== null;
   }
 
-  open(handle: ExpandedContentHandle): ExpandedViewOpenResult {
+  open(
+    handle: ExpandedContentHandle,
+    { expand = true }: ExpandedViewOpenOptions = {},
+  ): ExpandedViewOpenResult {
     if (this._contentHandles.get(handle.options.id) !== handle) {
       throw new Error(
         `Expanded content handle is not registered: ${handle.options.id}`,
@@ -61,7 +65,9 @@ export class ExpandedView extends RcViewModule {
     if (previousHandle && previousHandle !== handle) {
       previousHandle.options.onDeactivate?.();
     }
-    this._root.setExpanded(true);
+    if (expand) {
+      this._root.setExpanded(true);
+    }
     return {
       close: () => this.close(handle),
     };
@@ -93,7 +99,7 @@ export class ExpandedView extends RcViewModule {
       return null;
     }
 
-    const { view, header } = activeHandle.options;
+    const { view, header, showOverlayHeader = true } = activeHandle.options;
     const ContentView =
       typeof view === 'function'
         ? view
@@ -115,7 +121,7 @@ export class ExpandedView extends RcViewModule {
     };
 
     const headerContent = resolveHeader();
-    const showHeader = !isExpanded || headerContent;
+    const showHeader = (!isExpanded && showOverlayHeader) || headerContent;
 
     return (
       <ExpandedLayoutPopper expanded={isExpanded}>

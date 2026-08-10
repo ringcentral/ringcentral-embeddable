@@ -109,6 +109,18 @@ describe('createApp authentication boundary', () => {
     );
   });
 
+  test('forwards the Smart Notes URI flag to feature configuration', async () => {
+    window.history.replaceState({}, '', '/app.html?enableSmartNote=1');
+
+    await createApp();
+
+    expect(getAppConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        enableSmartNote: true,
+      })
+    );
+  });
+
   test('keeps a runtime client ID in PKCE mode without inheriting a default secret', async () => {
     process.env.API_CONFIG = {
       appKey: 'default-client',

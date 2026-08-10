@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { ExpandedView } from '../../next/app/views/ExpandedView/Expanded.view';
 
@@ -15,7 +15,12 @@ jest.mock(
 );
 
 jest.mock('@ringcentral-integration/next-widgets/components', () => ({
-  PageHeader: ({ children }) => <header>{children}</header>,
+  PageHeader: ({ children, onBackClick }) => (
+    <header>
+      {onBackClick && <button onClick={onBackClick}>Back</button>}
+      {children}
+    </header>
+  ),
 }));
 
 function createRoot() {
@@ -34,6 +39,58 @@ function createExpandedComponent(view) {
 }
 
 describe('ExpandedView', () => {
+  test('opens as an overlay with a back button without expanding the layout', () => {
+    const root = createRoot();
+    const view = new ExpandedView(root);
+    const handle = view.create({
+      id: 'overlay',
+      view: () => <div>Overlay content</div>,
+    });
+
+    view.open(handle, { expand: false });
+    const Component = createExpandedComponent(view);
+    render(<Component />);
+
+    expect(root.setExpanded).not.toHaveBeenCalled();
+    expect(screen.getByTestId('expandedLayout')).toHaveAttribute(
+      'data-expanded',
+      'false',
+    );
+    expect(screen.getByText('Overlay content')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(view.isOpen).toBe(false);
+  });
+
+  test('preserves an already expanded side panel when expansion is optional', () => {
+    const root = createRoot();
+    root.expanded = true;
+    const view = new ExpandedView(root);
+    const handle = view.create({ id: 'side-panel', view: () => null });
+
+    view.open(handle, { expand: false });
+
+    expect(root.expanded).toBe(true);
+    expect(root.setExpanded).not.toHaveBeenCalled();
+  });
+
+  test('allows embedded content to own the compact overlay header', () => {
+    const root = createRoot();
+    const view = new ExpandedView(root);
+    const handle = view.create({
+      id: 'self-headed-overlay',
+      showOverlayHeader: false,
+      view: () => <div>Self-headed content</div>,
+    });
+
+    view.open(handle, { expand: false });
+    const Component = createExpandedComponent(view);
+    render(<Component />);
+
+    expect(screen.getByText('Self-headed content')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
+    expect(document.querySelector('header')).toBeNull();
+  });
+
   test('switches between registered content while already expanded', () => {
     const root = createRoot();
     const view = new ExpandedView(root);
