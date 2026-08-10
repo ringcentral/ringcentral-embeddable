@@ -1,4 +1,5 @@
 import {
+  isDetailRoutePath,
   resolveExpandedRouteBackgroundPath,
   shouldCollapseExpandedLayout,
 } from '../../next/app/ExpandedRouteNavigation.helper';
@@ -19,6 +20,10 @@ const routes = [
     layout: 'detail',
   },
   {
+    path: '/settings/calling',
+    layout: 'detail',
+  },
+  {
     path: '/settings/audio',
     layout: 'detail',
   },
@@ -31,6 +36,13 @@ const routes = [
     layout: 'detail',
   },
 ];
+
+describe('isDetailRoutePath', () => {
+  test('identifies Calling settings as a detail route', () => {
+    expect(isDetailRoutePath('/settings/calling', routes)).toBe(true);
+    expect(isDetailRoutePath('/settings', routes)).toBe(false);
+  });
+});
 
 describe('shouldCollapseExpandedLayout', () => {
   test('closes expanded when leaving a detail route for its main page', () => {

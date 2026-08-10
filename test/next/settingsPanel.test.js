@@ -44,11 +44,23 @@ jest.mock('@ringcentral-integration/next-widgets/components', () => ({
   ),
   RemoveMeetingWarn: () => null,
   SelectLine: ({ children, ...props }) => <div {...props}>{children}</div>,
-  SwitchLine: ({ children, ...props }) => <div {...props}>{children}</div>,
+  SwitchLine: ({ children, checked, disabled, onChange, ...props }) => (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange?.(!checked)}
+      {...props}
+    >
+      {children}
+    </button>
+  ),
 }));
 
 function createPanel({
   hasVoicemailDropPermission = false,
+  smartNotes: smartNotesOverrides = {},
   thirdParty: thirdPartyOverrides = {},
 } = {}) {
   const thirdParty = {
@@ -72,9 +84,20 @@ function createPanel({
     unauthorizedTitle: '',
     ...thirdPartyOverrides,
   };
+  const smartNotes = {
+    autoStartSmartNote: false,
+    autoStartSmartNoteReadOnly: false,
+    autoStartSmartNoteReadOnlyReason: '',
+    clientInitialized: false,
+    hasPermission: false,
+    showSmartNote: true,
+    toggleAutoStartSmartNote: jest.fn(),
+    ...smartNotesOverrides,
+  };
   const voicemailDrop = { hasVoicemailDropPermission };
   const onVoicemailDropSettingsLinkClick = jest.fn();
   const Panel = createSettingsPanel({
+    smartNotes,
     thirdParty,
     voicemailDrop,
     onVoicemailDropSettingsLinkClick,
@@ -82,6 +105,7 @@ function createPanel({
   return {
     onVoicemailDropSettingsLinkClick,
     Panel,
+    smartNotes,
     thirdParty,
     voicemailDrop,
   };
@@ -280,5 +304,35 @@ describe('SettingsPanel', () => {
 
     expect(screen.getByTestId('phone-settings-group')).toBeInTheDocument();
     expect(screen.getByTestId('voicemailDropSettings')).toBeInTheDocument();
+  });
+
+  test('shows the legacy AI Assistant auto-start setting when ready', () => {
+    const { Panel, smartNotes } = createPanel({
+      smartNotes: {
+        autoStartSmartNote: true,
+        clientInitialized: true,
+        hasPermission: true,
+      },
+    });
+    render(<Panel {...baseProps} />);
+
+    const setting = screen.getByTestId('AIAssistantAutoStart');
+    expect(setting).toHaveAttribute('role', 'switch');
+    expect(setting).toHaveAttribute('aria-checked', 'true');
+    expect(setting).toHaveTextContent('autoStartAiAssistant');
+    fireEvent.click(setting);
+    expect(smartNotes.toggleAutoStartSmartNote).toHaveBeenCalledTimes(1);
+  });
+
+  test('hides the AI Assistant setting until permission and client initialization', () => {
+    const { Panel, smartNotes } = createPanel({
+      smartNotes: { hasPermission: true },
+    });
+    const { rerender } = render(<Panel {...baseProps} />);
+    expect(screen.queryByTestId('AIAssistantAutoStart')).toBeNull();
+
+    smartNotes.clientInitialized = true;
+    rerender(<Panel {...baseProps} />);
+    expect(screen.getByTestId('AIAssistantAutoStart')).toBeInTheDocument();
   });
 });

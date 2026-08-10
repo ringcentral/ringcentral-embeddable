@@ -17,6 +17,7 @@ function createSideWidget(overrides = {}) {
   const expandedHandle = { id: 'side-widget' };
   const dependencies = {
     expandedView: {
+      activeContentId: null,
       create: jest.fn((config) => {
         expandedConfig = config;
         return expandedHandle;
@@ -73,6 +74,13 @@ describe('SideWidgetView', () => {
     expect(view.currentTabId).toBe('side-widget-apps');
     expect(view.selectedAppId).toBeNull();
     expect(dependencies.expandedView.open).toHaveBeenCalledWith(expandedHandle);
+  });
+
+  test('reports whether the shared side-widget content is active', () => {
+    const { dependencies, view } = createSideWidget();
+    expect(view.isOpen).toBe(false);
+    dependencies.expandedView.activeContentId = 'side-widget';
+    expect(view.isOpen).toBe(true);
   });
 
   test('does not open when disabled or when no apps are registered', () => {

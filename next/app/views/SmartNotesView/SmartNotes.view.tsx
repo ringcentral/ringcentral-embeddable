@@ -4,12 +4,14 @@ import {
   injectable,
   RcViewModule,
   useConnector,
+  watch,
 } from '@ringcentral-integration/next-core';
 import React from 'react';
 
 import type { SmartNoteSession } from '../../services/SmartNotes';
 import { SmartNotes } from '../../services/SmartNotes';
 import { ExpandedView } from '../ExpandedView';
+import { SideWidgetView } from '../SideWidgetView';
 import { SmartNotesPanel } from './SmartNotesPanel';
 
 interface SmartNotesAlert {
@@ -17,12 +19,42 @@ interface SmartNotesAlert {
   message: string;
 }
 
+interface SmartNotesConnectedPanelProps {
+  onAlert: (alert: SmartNotesAlert) => void;
+  onClose: () => void;
+  smartNotes: SmartNotes;
+  theme: Theme;
+}
+
+const SmartNotesConnectedPanel = ({
+  onAlert,
+  onClose,
+  smartNotes,
+  theme,
+}: SmartNotesConnectedPanelProps) => {
+  const props = useConnector(() => ({
+    client: smartNotes.smartNoteClient,
+    remoteEntry: smartNotes.smartNoteMFERemoteEntry,
+    sessionId: smartNotes.session?.id ?? null,
+    themeType: theme.themeType,
+  }));
+  return (
+    <SmartNotesPanel
+      {...props}
+      onAlert={onAlert}
+      onClose={onClose}
+      onSave={() => smartNotes.onSmartNoteSave()}
+    />
+  );
+};
+
 @injectable({
   name: 'SmartNotesView',
 })
 export class SmartNotesView extends RcViewModule {
   constructor(
     private readonly _expandedView: ExpandedView,
+    private readonly _sideWidgetView: SideWidgetView,
     private readonly _smartNotes: SmartNotes,
     private readonly _theme: Theme,
     private readonly _toast: Toast
@@ -30,35 +62,72 @@ export class SmartNotesView extends RcViewModule {
     super();
   }
 
+  private _stopWatchingSession: (() => void) | null = null;
+
+  override onInit(): void {
+    this._stopWatchingSession = watch(
+      this,
+      () => this._smartNotes.session,
+      (session) => this._handleSessionChange(session),
+    );
+  }
+
+  override onReset(): void {
+    this._stopWatchingSession?.();
+    this._stopWatchingSession = null;
+    this.close();
+  }
+
+  private readonly _contentView = () => (
+    <SmartNotesConnectedPanel
+      smartNotes={this._smartNotes}
+      theme={this._theme}
+      onAlert={(alert) => this._showAlert(alert)}
+      onClose={() => this.close()}
+    />
+  );
+
+  private readonly _sideWidgetHandle = this._sideWidgetView.createContent({
+    id: 'smart-notes',
+    name: 'AI Assistant',
+    onClose: () => this._handleClose(),
+    view: this._contentView,
+  });
+
   private readonly _expandedHandle = this._expandedView.create({
     id: 'smart-notes',
     showOverlayHeader: false,
     onClose: () => this._handleClose(),
-    view: () => {
-      const props = useConnector(() => ({
-        client: this._smartNotes.smartNoteClient,
-        remoteEntry: this._smartNotes.smartNoteMFERemoteEntry,
-        sessionId: this._smartNotes.session?.id ?? null,
-        themeType: this._theme.themeType,
-      }));
-      return (
-        <SmartNotesPanel
-          {...props}
-          onAlert={(alert) => this._showAlert(alert)}
-          onClose={() => this.close()}
-          onSave={() => this._smartNotes.onSmartNoteSave()}
-        />
-      );
-    },
+    view: this._contentView,
   });
 
   async open(session: SmartNoteSession): Promise<void> {
     await this._smartNotes.viewSmartNote(session);
-    this._expandedView.open(this._expandedHandle, { expand: false });
+    this._showSession(session);
   }
 
   close(): void {
+    this._sideWidgetView.closeContent(this._sideWidgetHandle);
     this._expandedView.close(this._expandedHandle);
+  }
+
+  private _handleSessionChange(session: SmartNoteSession | null): void {
+    if (!session) {
+      this.close();
+      return;
+    }
+    this._showSession(session);
+  }
+
+  private _showSession(session: SmartNoteSession): void {
+    if (
+      session.status !== 'Disconnected' ||
+      this._sideWidgetView.isOpen
+    ) {
+      this._sideWidgetView.openContent(this._sideWidgetHandle);
+      return;
+    }
+    this._expandedView.open(this._expandedHandle, { expand: false });
   }
 
   private _handleClose(): void {

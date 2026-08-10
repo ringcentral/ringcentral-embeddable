@@ -34,7 +34,10 @@ function findRoute(
   );
 }
 
-function isDetailPath(path: string, routes: readonly DetailRoute[]): boolean {
+export function isDetailRoutePath(
+  path: string,
+  routes: readonly DetailRoute[],
+): boolean {
   const matchedRoute = findRoute(path, routes);
   return matchedRoute?.layout === 'detail';
 }
@@ -66,6 +69,7 @@ export function shouldCollapseExpandedLayout({
     return false;
   }
   return (
-    isDetailPath(previousPath, routes) && !isDetailPath(currentPath, routes)
+    isDetailRoutePath(previousPath, routes) &&
+    !isDetailRoutePath(currentPath, routes)
   );
 }

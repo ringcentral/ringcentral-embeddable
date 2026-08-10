@@ -8,13 +8,16 @@ import React from 'react';
 
 import { ThirdPartyAuthSettings } from '../../components/ThirdPartyAuthSettings';
 import type { ThirdParty } from '../../services/ThirdParty';
+import type { SmartNotes } from '../../services/SmartNotes';
 import type { VoicemailDrop } from '../../services/VoicemailDrop';
 import { VoicemailDropSettingsLink } from '../VoicemailDropSettingsView/VoicemailDropSettingsLink';
 
 import { SettingsPanel } from './SettingsPanel';
+import { SmartNotesAutoStartSetting } from './SmartNotesAutoStartSetting';
 
 interface CreateSettingsPanelOptions {
   readonly onVoicemailDropSettingsLinkClick: () => void;
+  readonly smartNotes: SmartNotes;
   readonly thirdParty: ThirdParty;
   readonly voicemailDrop: VoicemailDrop;
 }
@@ -24,6 +27,7 @@ interface CreateSettingsPanelOptions {
  */
 export function createSettingsPanel({
   onVoicemailDropSettingsLinkClick,
+  smartNotes,
   thirdParty,
   voicemailDrop,
 }: CreateSettingsPanelOptions): NonNullable<SettingsViewOptions['component']> {
@@ -33,6 +37,15 @@ export function createSettingsPanel({
     const hasVoicemailDropSettings: boolean = useConnector(
       () => voicemailDrop.hasVoicemailDropPermission,
     );
+    const smartNotesSettings = useConnector(() => ({
+      checked: smartNotes.autoStartSmartNote,
+      disabled: smartNotes.autoStartSmartNoteReadOnly,
+      readOnlyReason: smartNotes.autoStartSmartNoteReadOnlyReason,
+      visible:
+        smartNotes.hasPermission &&
+        smartNotes.clientInitialized &&
+        smartNotes.showSmartNote,
+    }));
     const thirdPartyAuth = useConnector(() => ({
       authorizationLogo: thirdParty.authorizationLogo,
       authorizationLinks: thirdParty.authorizationLinks,
@@ -76,14 +89,26 @@ export function createSettingsPanel({
             />
           ) : null
         }
-        hasAdditionalPhoneItems={hasVoicemailDropSettings}
+        hasAdditionalPhoneItems={
+          hasVoicemailDropSettings || smartNotesSettings.visible
+        }
         additionalPhoneItems={
-          hasVoicemailDropSettings ? (
-            <VoicemailDropSettingsLink
-              voicemailDrop={voicemailDrop}
-              onClick={onVoicemailDropSettingsLinkClick}
-            />
-          ) : null
+          <>
+            {hasVoicemailDropSettings ? (
+              <VoicemailDropSettingsLink
+                voicemailDrop={voicemailDrop}
+                onClick={onVoicemailDropSettingsLinkClick}
+              />
+            ) : null}
+            {smartNotesSettings.visible ? (
+              <SmartNotesAutoStartSetting
+                checked={smartNotesSettings.checked}
+                disabled={smartNotesSettings.disabled}
+                readOnlyReason={smartNotesSettings.readOnlyReason}
+                onChange={() => smartNotes.toggleAutoStartSmartNote()}
+              />
+            ) : null}
+          </>
         }
       />
     );

@@ -71,6 +71,7 @@ import {
 import type { AppViewOptions, Route as AppRoute } from './AppView.interface';
 import { resolveDetailViewTransitionId } from './AppView.helper';
 import {
+  isDetailRoutePath,
   resolveExpandedRouteBackgroundPath,
   shouldCollapseExpandedLayout,
 } from './ExpandedRouteNavigation.helper';
@@ -493,6 +494,12 @@ export class AppView extends RcViewModule {
       const previousPath = previousPathRef.current;
       previousPathRef.current = currentPath;
       backgroundPathRef.current = backgroundPath;
+      if (
+        this._expandedView.isOpen &&
+        isDetailRoutePath(currentPath, this.routes)
+      ) {
+        this._expandedView.close(undefined, { collapseLayout: false });
+      }
       if (
         shouldCollapseExpandedLayout({
           currentPath,

@@ -12,6 +12,7 @@ import type { ComponentType } from 'react';
 import React from 'react';
 
 import type {
+  ExpandedViewCloseOptions,
   ExpandedViewCreatorOptions,
   ExpandedViewOpenOptions,
   ExpandedViewOpenResult,
@@ -73,7 +74,10 @@ export class ExpandedView extends RcViewModule {
     };
   }
 
-  close(handle?: ExpandedContentHandle): void {
+  close(
+    handle?: ExpandedContentHandle,
+    { collapseLayout = true }: ExpandedViewCloseOptions = {},
+  ): void {
     const activeHandle = this.activeContentId
       ? this._contentHandles.get(this.activeContentId)
       : undefined;
@@ -81,7 +85,9 @@ export class ExpandedView extends RcViewModule {
       return;
     }
     this._setActiveContent(null);
-    this._root.setExpanded(false);
+    if (collapseLayout) {
+      this._root.setExpanded(false);
+    }
     activeHandle?.options.onClose?.();
   }
 

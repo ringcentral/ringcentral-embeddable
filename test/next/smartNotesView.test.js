@@ -14,6 +14,10 @@ jest.mock('../../next/app/views/ExpandedView', () => ({
   ExpandedView: class ExpandedView {},
 }));
 
+jest.mock('../../next/app/views/SideWidgetView', () => ({
+  SideWidgetView: class SideWidgetView {},
+}));
+
 jest.mock('../../next/app/services/SmartNotes', () => ({
   SmartNotes: class SmartNotes {},
 }));
@@ -29,10 +33,17 @@ const { useApp } = require('@ringcentral/mfe-react');
 describe('SmartNotesView', () => {
   function createView(session = null) {
     const handle = { id: 'smart-notes-handle' };
+    const sideWidgetHandle = { id: 'smart-notes-side-widget-handle' };
     const expandedView = {
       create: jest.fn(() => handle),
       open: jest.fn(),
       close: jest.fn(),
+    };
+    const sideWidgetView = {
+      isOpen: false,
+      createContent: jest.fn(() => sideWidgetHandle),
+      openContent: jest.fn(),
+      closeContent: jest.fn(),
     };
     const smartNotes = {
       session,
@@ -41,6 +52,7 @@ describe('SmartNotesView', () => {
     };
     const view = new SmartNotesView(
       expandedView,
+      sideWidgetView,
       smartNotes,
       { themeType: 'light' },
       {}
@@ -48,6 +60,8 @@ describe('SmartNotesView', () => {
     return {
       expandedView,
       handle,
+      sideWidgetHandle,
+      sideWidgetView,
       smartNotes,
       view,
     };
@@ -68,6 +82,45 @@ describe('SmartNotesView', () => {
     expect(expandedViewOptions.showOverlayHeader).toBe(false);
     expect(smartNotes.viewSmartNote).toHaveBeenCalledWith(session);
     expect(expandedView.open).toHaveBeenCalledWith(handle, { expand: false });
+  });
+
+  test('opens live call sessions in the side panel automatically', () => {
+    const { sideWidgetHandle, sideWidgetView, view } = createView();
+
+    view._handleSessionChange({
+      id: 'live-session',
+      status: 'Answered',
+      direction: 'Inbound',
+    });
+
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(sideWidgetHandle);
+  });
+
+  test('preserves compact layout for post-call sessions and closes without a session', () => {
+    const { expandedView, handle, view } = createView();
+
+    view._handleSessionChange({
+      id: 'post-call-session',
+      status: 'Disconnected',
+      direction: 'Inbound',
+    });
+    view._handleSessionChange(null);
+
+    expect(expandedView.open).toHaveBeenCalledWith(handle, { expand: false });
+    expect(expandedView.close).toHaveBeenCalledWith(handle);
+  });
+
+  test('opens post-call Smart Notes as a tab when the Apps panel is open', () => {
+    const { sideWidgetHandle, sideWidgetView, view } = createView();
+    sideWidgetView.isOpen = true;
+
+    view._handleSessionChange({
+      id: 'post-call-session',
+      status: 'Disconnected',
+      direction: 'Inbound',
+    });
+
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(sideWidgetHandle);
   });
 
   test('lets the Smart Notes plugin render the single-view header and close button', () => {
@@ -136,7 +189,14 @@ describe('SmartNotesView', () => {
   });
 
   test('closes expanded content and releases a disconnected session', () => {
-    const { expandedView, handle, smartNotes, view } = createView({
+    const {
+      expandedView,
+      handle,
+      sideWidgetHandle,
+      sideWidgetView,
+      smartNotes,
+      view,
+    } = createView({
       id: 'telephony-session',
       status: 'Disconnected',
     });
@@ -146,6 +206,7 @@ describe('SmartNotesView', () => {
     onClose();
 
     expect(expandedView.close).toHaveBeenCalledWith(handle);
+    expect(sideWidgetView.closeContent).toHaveBeenCalledWith(sideWidgetHandle);
     expect(smartNotes.setSession).toHaveBeenCalledWith(null);
   });
 });

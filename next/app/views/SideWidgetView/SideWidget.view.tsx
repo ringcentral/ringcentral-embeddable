@@ -75,6 +75,10 @@ export class SideWidgetView extends RcViewModule {
     return this._sideWidgetOptions?.enableSideWidget ?? false;
   }
 
+  get isOpen(): boolean {
+    return this._expandedView.activeContentId === 'side-widget';
+  }
+
   createContent(options: SideWidgetContentOptions): SideWidgetContentHandle {
     if (
       options.id === SIDE_WIDGET_APPS_TAB_ID ||

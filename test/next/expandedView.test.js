@@ -73,6 +73,26 @@ describe('ExpandedView', () => {
     expect(root.setExpanded).not.toHaveBeenCalled();
   });
 
+  test('releases active content without collapsing the expanded layout', () => {
+    const root = createRoot();
+    root.expanded = true;
+    const view = new ExpandedView(root);
+    const onClose = jest.fn();
+    const handle = view.create({
+      id: 'side-widget',
+      onClose,
+      view: () => null,
+    });
+    view.open(handle, { expand: false });
+
+    view.close(undefined, { collapseLayout: false });
+
+    expect(view.isOpen).toBe(false);
+    expect(root.expanded).toBe(true);
+    expect(root.setExpanded).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   test('allows embedded content to own the compact overlay header', () => {
     const root = createRoot();
     const view = new ExpandedView(root);

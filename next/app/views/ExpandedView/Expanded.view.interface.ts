@@ -21,3 +21,7 @@ export interface ExpandedViewOpenResult {
 export interface ExpandedViewOpenOptions {
   expand?: boolean;
 }
+
+export interface ExpandedViewCloseOptions {
+  collapseLayout?: boolean;
+}
