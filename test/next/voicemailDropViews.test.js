@@ -196,9 +196,10 @@ describe('VoicemailDropView', () => {
     const { dependencies, getContentConfig, handle, view } = createView();
     view.open('session');
     const SideWidgetContent = getContentConfig().view;
-    render(<SideWidgetContent />);
+    render(<SideWidgetContent showCloseButton={false} />);
     const props = VoicemailDropPanel.mock.calls[0][0];
     expect(props.messages).toEqual([{ id: 'message', label: 'Greeting' }]);
+    expect(props.showCloseButton).toBe(false);
     props.onClose();
     await props.onLoad();
     await props.onDrop('message');

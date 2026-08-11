@@ -15,8 +15,16 @@ export interface SideWidgetTab {
 export interface SideWidgetContentOptions {
   id: string;
   name: string;
-  view: ComponentType;
+  view: ComponentType<SideWidgetContentViewProps>;
   onClose?: () => void;
+}
+
+export interface SideWidgetContentViewProps {
+  showCloseButton: boolean;
+}
+
+export interface SideWidgetOpenContentOptions {
+  activate?: boolean;
 }
 
 export class SideWidgetContentHandle {

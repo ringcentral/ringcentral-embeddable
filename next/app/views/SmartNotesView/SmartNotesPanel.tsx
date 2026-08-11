@@ -29,6 +29,7 @@ interface SmartNotesPanelProps {
   onSave: () => Promise<void>;
   remoteEntry: string;
   sessionId: string | null;
+  showCloseButton: boolean;
   themeType: ThemeType;
 }
 
@@ -41,6 +42,7 @@ export const SmartNotesPanel: FunctionComponent<SmartNotesPanelProps> = ({
   onSave,
   remoteEntry,
   sessionId,
+  showCloseButton,
   themeType,
 }) => {
   const [renderedSessionId, setRenderedSessionId] = useState<string | null>(
@@ -85,7 +87,7 @@ export const SmartNotesPanel: FunctionComponent<SmartNotesPanelProps> = ({
       onAlert={onAlert}
       onClose={onClose}
       onSave={onSave}
-      showCloseButton
+      showCloseButton={showCloseButton}
       theme={theme}
       themeType={themeType}
     />

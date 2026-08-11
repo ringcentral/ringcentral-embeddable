@@ -13,7 +13,10 @@ import React, { useRef } from 'react';
 
 import { VoicemailDrop } from '../../services/VoicemailDrop';
 import type { Webphone } from '../../services/WebphoneV2';
-import { SideWidgetView } from '../SideWidgetView';
+import {
+  SideWidgetView,
+  type SideWidgetContentViewProps,
+} from '../SideWidgetView';
 
 import { VoicemailDropPanel } from './VoicemailDropPanel';
 import { t } from './i18n';
@@ -106,7 +109,7 @@ export class VoicemailDropView extends RcViewModule {
     id: 'voicemail-drop',
     name: t('voicemailDrop'),
     onClose: () => this._setCurrentSessionId(null),
-    view: () => {
+    view: ({ showCloseButton }: SideWidgetContentViewProps) => {
       const uiProps = useConnector(() => ({
         messages: this._voicemailDrop.allMessages.slice(),
       }));
@@ -117,7 +120,11 @@ export class VoicemailDropView extends RcViewModule {
       });
 
       return (
-        <VoicemailDropPanel messages={uiProps.messages} {...uiFunctions} />
+        <VoicemailDropPanel
+          messages={uiProps.messages}
+          showCloseButton={showCloseButton}
+          {...uiFunctions}
+        />
       );
     },
   });

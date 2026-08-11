@@ -74,4 +74,12 @@ export class CallAction extends CallActionBase {
     }
     return (CallActionBase.prototype as any)['leaveCallingRoute'].call(this);
   }
+
+  /**
+   * Restores the route behind a post-call side widget without closing its
+   * post-call state.
+   */
+  async leaveCallingRouteForSideWidget(): Promise<void> {
+    return (CallActionBase.prototype as any)['leaveCallingRoute'].call(this);
+  }
 }

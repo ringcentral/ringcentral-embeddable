@@ -28,6 +28,7 @@ import {
 import {
   SideWidgetContentHandle,
   type SideWidgetContentOptions,
+  type SideWidgetOpenContentOptions,
   type SideWidgetOptions,
   type SideWidgetTab,
 } from './SideWidget.view.interface';
@@ -96,12 +97,15 @@ export class SideWidgetView extends RcViewModule {
     return handle;
   }
 
-  openContent(handle: SideWidgetContentHandle): void {
+  openContent(
+    handle: SideWidgetContentHandle,
+    { activate = true }: SideWidgetOpenContentOptions = {},
+  ): void {
     const { id, name } = handle.options;
     if (this._contentHandles.get(id) !== handle) {
       throw new Error(`Side widget content handle is not registered: ${id}`);
     }
-    this._openContentTab({ id, name });
+    this._openContentTab({ id, name }, activate);
     this._expandedView.open(this._expandedHandle);
   }
 
@@ -113,7 +117,7 @@ export class SideWidgetView extends RcViewModule {
   }
 
   @action
-  private _openContentTab(tab: SideWidgetTab): void {
+  private _openContentTab(tab: SideWidgetTab, activate: boolean): void {
     const tabs =
       this.enabled && this._thirdParty.apps.length > 0
         ? this.tabs
@@ -121,8 +125,10 @@ export class SideWidgetView extends RcViewModule {
     this.tabs = tabs.some(({ id }) => id === tab.id)
       ? tabs.map((item) => (item.id === tab.id ? tab : item))
       : tabs.concat(tab);
-    this.currentTabId = tab.id;
-    this.selectedAppId = null;
+    if (activate) {
+      this.currentTabId = tab.id;
+      this.selectedAppId = null;
+    }
   }
 
   @action
@@ -290,9 +296,14 @@ export class SideWidgetView extends RcViewModule {
     this.tabs = [createAppsTab(), ...this.tabs];
   }
 
-  private _renderContent(tabId: string): React.ReactNode {
+  private _renderContent(
+    tabId: string,
+    showCloseButton: boolean,
+  ): React.ReactNode {
     const ContentView = this._contentHandles.get(tabId)?.options.view;
-    return ContentView ? <ContentView /> : null;
+    return ContentView ? (
+      <ContentView showCloseButton={showCloseButton} />
+    ) : null;
   }
 
   private _expandedHandle = this._expandedView.create({
@@ -320,7 +331,8 @@ export class SideWidgetView extends RcViewModule {
         onClose: () => this.close(),
         onCloseTab: (tabId: string) => this.closeTab(tabId),
         onTogglePin: (appId: string) => this.toggleAppPin(appId),
-        renderContent: (tabId: string) => this._renderContent(tabId),
+        renderContent: (tabId: string, showCloseButton: boolean) =>
+          this._renderContent(tabId, showCloseButton),
         onLoadApp: (params: LoadAppPageParams) =>
           this._thirdParty.loadAppPage({
             ...params,

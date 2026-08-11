@@ -9,6 +9,7 @@ function createProps(overrides = {}) {
     onClose: jest.fn(),
     onDrop: jest.fn(async () => true),
     onLoad: jest.fn(async () => {}),
+    showCloseButton: true,
     ...overrides,
   };
 }
@@ -49,6 +50,12 @@ describe('VoicemailDropPanel', () => {
     render(<VoicemailDropPanel {...props} />);
     expect(await screen.findByText('loadFailed')).toBeInTheDocument();
     expect(screen.getByText('noMessages')).toBeInTheDocument();
+  });
+
+  test('hides the page close button when the picker is hosted in tabs', () => {
+    const props = createProps({ showCloseButton: false });
+    render(<VoicemailDropPanel {...props} />);
+    expect(screen.queryByRole('button', { name: 'close' })).toBeNull();
   });
 
   test('renders messages even while external loading is pending', () => {

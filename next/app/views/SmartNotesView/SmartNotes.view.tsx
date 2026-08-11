@@ -11,7 +11,10 @@ import React from 'react';
 import type { SmartNoteSession } from '../../services/SmartNotes';
 import { SmartNotes } from '../../services/SmartNotes';
 import { ExpandedView } from '../ExpandedView';
-import { SideWidgetView } from '../SideWidgetView';
+import {
+  SideWidgetView,
+  type SideWidgetContentViewProps,
+} from '../SideWidgetView';
 import { SmartNotesPanel } from './SmartNotesPanel';
 
 interface SmartNotesAlert {
@@ -22,6 +25,7 @@ interface SmartNotesAlert {
 interface SmartNotesConnectedPanelProps {
   onAlert: (alert: SmartNotesAlert) => void;
   onClose: () => void;
+  showCloseButton: boolean;
   smartNotes: SmartNotes;
   theme: Theme;
 }
@@ -29,6 +33,7 @@ interface SmartNotesConnectedPanelProps {
 const SmartNotesConnectedPanel = ({
   onAlert,
   onClose,
+  showCloseButton,
   smartNotes,
   theme,
 }: SmartNotesConnectedPanelProps) => {
@@ -44,6 +49,7 @@ const SmartNotesConnectedPanel = ({
       onAlert={onAlert}
       onClose={onClose}
       onSave={() => smartNotes.onSmartNoteSave()}
+      showCloseButton={showCloseButton}
     />
   );
 };
@@ -78,12 +84,15 @@ export class SmartNotesView extends RcViewModule {
     this.close();
   }
 
-  private readonly _contentView = () => (
+  private readonly _contentView = ({
+    showCloseButton = true,
+  }: Partial<SideWidgetContentViewProps>) => (
     <SmartNotesConnectedPanel
       smartNotes={this._smartNotes}
       theme={this._theme}
       onAlert={(alert) => this._showAlert(alert)}
       onClose={() => this.close()}
+      showCloseButton={showCloseButton}
     />
   );
 

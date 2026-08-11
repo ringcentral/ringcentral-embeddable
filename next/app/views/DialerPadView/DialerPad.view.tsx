@@ -131,4 +131,17 @@ export class DialerPadView extends DialerPadViewBase {
       ),
     }));
   }
+
+  override component(
+    props: DialerPadViewOptions,
+  ): React.ReactElement<SyncTabProps> | null {
+    const component = super.component(props);
+    if (!React.isValidElement<SyncTabProps>(component)) {
+      return component;
+    }
+    return React.cloneElement(component, {
+      className: undefined,
+      variant: 'moreMenu',
+    });
+  }
 }

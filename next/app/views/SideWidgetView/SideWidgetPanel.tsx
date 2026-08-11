@@ -2,6 +2,7 @@ import { AppsMd, Xmd } from '@ringcentral/spring-icon';
 import {
   Avatar,
   EmptyState,
+  Icon,
   IconButton,
   PageHeader,
   PageHeaderCenter,
@@ -30,10 +31,12 @@ function AvailableApps({
   apps,
   onClose,
   onSelectApp,
+  showCloseButton,
 }: {
   apps: ThirdPartyApp[];
   onClose: () => void;
   onSelectApp: (appId: string) => void;
+  showCloseButton: boolean;
 }) {
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -47,15 +50,17 @@ function AvailableApps({
           <PageHeaderTitle>Available apps</PageHeaderTitle>
         </PageHeaderCenter>
         <PageHeaderRight>
-          <IconButton
-            variant="icon"
-            color="secondary"
-            size="medium"
-            symbol={Xmd}
-            data-sign="sideWidgetClose"
-            TooltipProps={{ title: 'Close apps' }}
-            onClick={onClose}
-          />
+          {showCloseButton ? (
+            <IconButton
+              variant="icon"
+              color="secondary"
+              size="medium"
+              symbol={Xmd}
+              data-sign="sideWidgetClose"
+              TooltipProps={{ title: 'Close apps' }}
+              onClick={onClose}
+            />
+          ) : null}
         </PageHeaderRight>
       </PageHeader>
       {apps.length === 0 ? (
@@ -105,6 +110,46 @@ function AvailableApps({
   );
 }
 
+function SideWidgetTabLabel({
+  isActive,
+  name,
+  onClose,
+  tabId,
+}: {
+  isActive: boolean;
+  name: string;
+  onClose: (event: React.SyntheticEvent) => void;
+  tabId: string;
+}): React.ReactElement {
+  const closeLabel = `Close ${name} tab`;
+  return (
+    <span className="flex min-w-0 items-center gap-1">
+      <span className="min-w-0 truncate">{name}</span>
+      {isActive ? (
+        <span
+          aria-label={closeLabel}
+          className="flex size-5 shrink-0 items-center justify-center rounded-full text-neutral-b2 hover:bg-neutral-b0-t10 hover:text-neutral-b0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobranding"
+          data-sign={`sideWidgetCloseTab-${tabId}`}
+          role="button"
+          tabIndex={0}
+          title={closeLabel}
+          onClick={onClose}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') {
+              return;
+            }
+            event.preventDefault();
+            onClose(event);
+          }}
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          <Icon symbol={Xmd} size="small" />
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 export function SideWidgetPanel({
   apps,
   tabs,
@@ -133,12 +178,13 @@ export function SideWidgetPanel({
   onClose: () => void;
   onCloseTab: (tabId: string) => void;
   onTogglePin: (appId: string) => void;
-  renderContent: (tabId: string) => ReactNode;
+  renderContent: (tabId: string, showCloseButton: boolean) => ReactNode;
   onLoadApp: (params: LoadAppPageParams) => Promise<unknown | null>;
 }) {
   const selectedApp = selectedAppId
     ? apps.find(({ id }) => id === selectedAppId)
     : undefined;
+  const showTabs = tabs.length > 1;
 
   return (
     <TabContext
@@ -146,19 +192,30 @@ export function SideWidgetPanel({
       onChange={(_, value) => onTabChange(String(value))}
     >
       <div className="flex h-full flex-col overflow-hidden bg-neutral-base">
-        {tabs.length > 1 ? (
+        {showTabs ? (
           <Tabs
             variant="moreMenu"
-            size="small"
-            className="flex-none border-b border-neutral-b4 bg-neutral-b5 px-2"
+            className="h-9 flex-none px-1"
+            data-sign="sideWidgetTabs"
           >
             {tabs.map((tab) => (
               <Tab
                 key={tab.id}
                 id={`side-widget-tab-${encodeURIComponent(tab.id)}`}
                 value={tab.id}
-                label={tab.name}
+                label={
+                  <SideWidgetTabLabel
+                    isActive={currentTabId === tab.id}
+                    name={tab.name}
+                    tabId={tab.id}
+                    onClose={(event) => {
+                      event.stopPropagation();
+                      onCloseTab(tab.id);
+                    }}
+                  />
+                }
                 title={tab.name}
+                className="flex h-9 flex-1 items-center p-0 pl-2 pr-2"
               />
             ))}
           </Tabs>
@@ -182,11 +239,8 @@ export function SideWidgetPanel({
           ) : (
             <AvailableApps
               apps={apps}
-              onClose={() =>
-                tabs.length > 1
-                  ? onCloseTab(SIDE_WIDGET_APPS_TAB_ID)
-                  : onClose()
-              }
+              showCloseButton={!showTabs}
+              onClose={onClose}
               onSelectApp={onSelectApp}
             />
           )}
@@ -207,7 +261,7 @@ export function SideWidgetPanel({
                     contact={contact}
                     isPinned={pinAppIds.includes(app.id)}
                     showBack={false}
-                    showCloseButton
+                    showCloseButton={!showTabs}
                     onBack={() => onTabChange(SIDE_WIDGET_APPS_TAB_ID)}
                     onClose={() => onCloseTab(tab.id)}
                     onTogglePin={() => onTogglePin(app.id)}
@@ -224,14 +278,16 @@ export function SideWidgetPanel({
                         <PageHeaderTitle>{tab.name}</PageHeaderTitle>
                       </PageHeaderCenter>
                       <PageHeaderRight>
-                        <IconButton
-                          variant="icon"
-                          color="secondary"
-                          size="small"
-                          symbol={Xmd}
-                          TooltipProps={{ title: 'Close app tab' }}
-                          onClick={() => onCloseTab(tab.id)}
-                        />
+                        {!showTabs ? (
+                          <IconButton
+                            variant="icon"
+                            color="secondary"
+                            size="small"
+                            symbol={Xmd}
+                            TooltipProps={{ title: 'Close app tab' }}
+                            onClick={() => onCloseTab(tab.id)}
+                          />
+                        ) : null}
                       </PageHeaderRight>
                     </PageHeader>
                     <div className="flex flex-auto items-center justify-center">
@@ -247,9 +303,7 @@ export function SideWidgetPanel({
             );
           })}
         {tabs
-          .filter(
-            ({ id, appId }) => id !== SIDE_WIDGET_APPS_TAB_ID && !appId,
-          )
+          .filter(({ id, appId }) => id !== SIDE_WIDGET_APPS_TAB_ID && !appId)
           .map((tab) => (
             <TabPanel
               key={tab.id}
@@ -258,7 +312,7 @@ export function SideWidgetPanel({
               data-sign={`sideWidgetContent-${tab.id}`}
               className="min-h-0 flex-auto overflow-hidden p-0"
             >
-              {renderContent(tab.id)}
+              {renderContent(tab.id, !showTabs)}
             </TabPanel>
           ))}
       </div>

@@ -73,4 +73,12 @@ describe('CallAction leaveCallingRoute guard', () => {
 
     expect(mockBaseLeaveCallingRoute).toHaveBeenCalledTimes(1);
   });
+
+  test('restores the main route while post-call content stays in the side widget', async () => {
+    const callAction = createCallAction(true);
+
+    await callAction.leaveCallingRouteForSideWidget();
+
+    expect(mockBaseLeaveCallingRoute).toHaveBeenCalledTimes(1);
+  });
 });

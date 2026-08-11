@@ -34,11 +34,13 @@ export function VoicemailDropPanel({
   onClose,
   onDrop,
   onLoad,
+  showCloseButton,
 }: {
   messages: VoicemailMessage[];
   onClose: () => void;
   onDrop: (messageId: string) => Promise<boolean>;
   onLoad: () => Promise<void>;
+  showCloseButton: boolean;
 }) {
   const { t } = useLocale(i18n);
   const [droppingMessageId, setDroppingMessageId] = useState<string | null>(
@@ -99,15 +101,17 @@ export function VoicemailDropPanel({
           <PageHeaderTitle>{t('voicemailDrop')}</PageHeaderTitle>
         </PageHeaderCenter>
         <PageHeaderRight>
-          <IconButton
-            variant="icon"
-            color="secondary"
-            size="medium"
-            symbol={Xmd}
-            data-sign="voicemailDropClose"
-            TooltipProps={{ title: t('close') }}
-            onClick={onClose}
-          />
+          {showCloseButton ? (
+            <IconButton
+              variant="icon"
+              color="secondary"
+              size="medium"
+              symbol={Xmd}
+              data-sign="voicemailDropClose"
+              TooltipProps={{ title: t('close') }}
+              onClick={onClose}
+            />
+          ) : null}
         </PageHeaderRight>
       </PageHeader>
       <div className="flex-auto overflow-y-auto p-4">

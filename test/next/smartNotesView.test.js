@@ -136,6 +136,7 @@ describe('SmartNotesView', () => {
         onSave={jest.fn(async () => {})}
         remoteEntry="https://example.com/smart-notes.js"
         sessionId="session-1"
+        showCloseButton
         themeType="light"
       />,
     );
@@ -154,13 +155,13 @@ describe('SmartNotesView', () => {
     const secondClient = { id: 'second-client' };
     const mountedClients = [];
     const unmountedClients = [];
-    const Plugin = ({ client }) => {
+    const Plugin = jest.fn(({ client }) => {
       React.useEffect(() => {
         mountedClients.push(client);
         return () => unmountedClients.push(client);
       }, []);
       return null;
-    };
+    });
     useApp.mockReturnValue(Plugin);
     const props = {
       client: firstClient,
@@ -169,6 +170,7 @@ describe('SmartNotesView', () => {
       onSave: jest.fn(async () => {}),
       remoteEntry: 'https://example.com/smart-notes.js',
       sessionId: 'session-1',
+      showCloseButton: false,
       themeType: 'light',
     };
     const { rerender } = render(<SmartNotesPanel {...props} />);
@@ -185,6 +187,10 @@ describe('SmartNotesView', () => {
     expect(unmountedClients).toEqual([firstClient]);
     act(() => jest.advanceTimersByTime(50));
     expect(mountedClients).toEqual([firstClient, secondClient]);
+    expect(Plugin).toHaveBeenLastCalledWith(
+      expect.objectContaining({ showCloseButton: false }),
+      {},
+    );
     jest.useRealTimers();
   });
 

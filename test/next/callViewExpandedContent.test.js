@@ -27,6 +27,7 @@ jest.mock('@ringcentral-integration/micro-auth/src/app/services', () => ({
 jest.mock('@ringcentral-integration/micro-core/src/app/components', () => ({
   AppFooterNav: () => null,
   AppMainContent: ({ children }) => children ?? null,
+  ToastPositionAdjustor: ({ children }) => children ?? null,
 }));
 
 jest.mock('@ringcentral-integration/micro-core/src/app/views', () => ({
@@ -48,6 +49,10 @@ jest.mock(
   '@ringcentral-integration/micro-phone/src/app/views/CallView',
   () => ({
     CallView: class CallView {
+      CallDetailForm({ variant }) {
+        return <div data-sign={`callDetailForm-${variant}`} />;
+      }
+
       CallLogArea() {
         return <div data-sign="baseCallLogArea" />;
       }
@@ -119,12 +124,48 @@ jest.mock('../../next/app/views/CallView/ParkView', () => ({
   ParkView: class ParkView {},
 }));
 
-function createCallView(currentView) {
-  const dependencies = Array.from({ length: 25 }, () => ({}));
-  dependencies[4] = { view: currentView };
+jest.mock('../../next/app/views/SideWidgetView', () => ({
+  SideWidgetView: class SideWidgetView {},
+}));
+
+function createCallView(currentView, { sideWidgetView } = {}) {
+  const callAction = {
+    fromPostCall: false,
+    leaveCallingRouteForSideWidget: jest.fn(async () => {}),
+  };
+  const postCallView = {
+    component: ({ variant }) =>
+      variant === 'header' ? (
+        <div data-sign="postCallHeader">
+          <button type="button" data-sign="backButton">
+            Back
+          </button>
+        </div>
+      ) : (
+        <div data-sign="postCallInfo" />
+      ),
+    goBack: jest.fn(async () => {
+      callAction.fromPostCall = true;
+    }),
+  };
+  const dependencies = Array.from({ length: 26 }, () => ({}));
+  dependencies[0] = callAction;
+  dependencies[4] = {
+    view: currentView,
+    postCallCallLog: {
+      sessionId: 'call-session',
+      telephonySessionId: 'telephony-session',
+    },
+  };
+  dependencies[12] = postCallView;
+  dependencies[23] = undefined;
+  dependencies[24] = undefined;
+  dependencies[25] = sideWidgetView;
   return {
+    callAction,
     callView: new CallView(...dependencies),
     callViewState: dependencies[4],
+    postCallView,
   };
 }
 
@@ -151,5 +192,80 @@ describe('CallView expanded content ownership', () => {
     expect(EMBEDDABLE_CALL_ACTION_OPTIONS).toEqual({
       expandedAbility: false,
     });
+  });
+
+  test('hosts post-call details in the side widget when it is enabled', async () => {
+    const handle = { id: 'call-details-handle' };
+    const sideWidgetView = {
+      enabled: true,
+      createContent: jest.fn(() => handle),
+      openContent: jest.fn(),
+      closeContent: jest.fn(),
+    };
+    const { callAction, callView, postCallView } = createCallView('postCall', {
+      sideWidgetView,
+    });
+    const contentOptions = sideWidgetView.createContent.mock.calls[0][0];
+
+    callView.syncPostCallSideWidget('postCall');
+
+    expect(contentOptions).toEqual(
+      expect.objectContaining({ id: 'call-details', name: 'Call details' }),
+    );
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(handle, {
+      activate: true,
+    });
+    expect(callAction.leaveCallingRouteForSideWidget).toHaveBeenCalledTimes(1);
+
+    const Content = contentOptions.view;
+    render(<Content showCloseButton={false} />);
+    expect(screen.getByTestId('postCallInfo')).toBeInTheDocument();
+    expect(screen.getByTestId('callDetailForm-postCall')).toBeInTheDocument();
+    expect(screen.getByTestId('postCallHeader').parentElement).toHaveClass(
+      '[&_[data-sign=backButton]]:hidden',
+    );
+
+    contentOptions.onClose();
+    await Promise.resolve();
+    expect(postCallView.goBack).toHaveBeenCalledTimes(1);
+    expect(callAction.fromPostCall).toBe(false);
+
+    callView.syncPostCallSideWidget('hidden');
+    expect(sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
+  });
+
+  test('keeps started Smart Notes selected after a call ends', () => {
+    const handle = { id: 'call-details-handle' };
+    const sideWidgetView = {
+      enabled: true,
+      createContent: jest.fn(() => handle),
+      openContent: jest.fn(),
+      closeContent: jest.fn(),
+    };
+    const { callView } = createCallView('postCall', { sideWidgetView });
+    Object.defineProperty(callView, '_smartNotes', {
+      value: { session: { id: 'smart-notes-session' } },
+    });
+
+    callView.syncPostCallSideWidget('postCall');
+
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(handle, {
+      activate: false,
+    });
+  });
+
+  test('does not duplicate post-call details in the main column', () => {
+    const sideWidgetView = {
+      enabled: true,
+      createContent: jest.fn(() => ({ id: 'call-details-handle' })),
+      openContent: jest.fn(),
+      closeContent: jest.fn(),
+    };
+    const { callView } = createCallView('postCall', { sideWidgetView });
+    const CallLogArea = callView.CallLogArea;
+
+    render(<CallLogArea />);
+
+    expect(screen.queryByTestId('baseCallLogArea')).toBeNull();
   });
 });

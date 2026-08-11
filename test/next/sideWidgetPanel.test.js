@@ -52,14 +52,13 @@ describe('SideWidgetPanel', () => {
 
   test('renders available apps with names, fallbacks, and selection handlers', () => {
     const props = createProps({
-      apps: [
-        { id: 'crm', name: 'CRM', iconUri: 'crm.svg' },
-        { id: 'tasks' },
-      ],
+      apps: [{ id: 'crm', name: 'CRM', iconUri: 'crm.svg' }, { id: 'tasks' }],
     });
     render(<SideWidgetPanel {...props} />);
 
-    expect(screen.getByRole('list', { name: 'Available apps' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('list', { name: 'Available apps' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('CRM')).toBeInTheDocument();
     expect(screen.getByText('tasks')).toBeInTheDocument();
     expect(screen.getByLabelText('CRM')).toHaveAttribute('data-src', 'crm.svg');
@@ -123,15 +122,28 @@ describe('SideWidgetPanel', () => {
     });
     render(<SideWidgetPanel {...props} />);
 
+    expect(screen.getByTestId('sideWidgetTabs')).toHaveClass(
+      'h-9',
+      'flex-none',
+      'px-1',
+    );
     expect(screen.getByRole('button', { name: 'Apps' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'CRM' })).toBeInTheDocument();
+    expect(screen.getByTitle('CRM')).toHaveClass(
+      'flex-1',
+      'h-9',
+      'p-0',
+      'pl-2',
+      'pr-2',
+    );
+    expect(screen.queryByRole('button', { name: 'Close Apps tab' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Close CRM tab' }));
     const appProps = SideWidgetAppPanel.mock.calls[0][0];
     expect(appProps).toEqual(
       expect.objectContaining({
         app,
         isPinned: true,
         showBack: false,
-        showCloseButton: true,
+        showCloseButton: false,
       }),
     );
     appProps.onBack();
@@ -146,15 +158,24 @@ describe('SideWidgetPanel', () => {
     const props = createProps({
       tabs: [
         { id: 'side-widget-apps', name: 'Apps' },
-        { id: 'side-widget-app-missing', appId: 'missing', name: 'Removed app' },
+        {
+          id: 'side-widget-app-missing',
+          appId: 'missing',
+          name: 'Removed app',
+        },
       ],
       currentTabId: 'side-widget-app-missing',
     });
     render(<SideWidgetPanel {...props} />);
 
     expect(screen.getByText('App unavailable')).toBeInTheDocument();
-    expect(screen.getByText('This app is no longer registered.')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Close app tab' }));
+    expect(
+      screen.getByText('This app is no longer registered.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Close app tab' })).toBeNull();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Close Removed app tab' }),
+    );
     expect(props.onCloseTab).toHaveBeenCalledWith('side-widget-app-missing');
   });
 
@@ -173,19 +194,29 @@ describe('SideWidgetPanel', () => {
     render(<SideWidgetPanel {...props} />);
 
     expect(screen.getByRole('button', { name: 'Apps' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Voicemail drop' }),
-    ).toBeInTheDocument();
+    expect(screen.getByTitle('Voicemail drop')).toBeInTheDocument();
     expect(screen.getByTestId('content-voicemail-drop')).toHaveTextContent(
       'Voicemail picker',
     );
     expect(
       screen.getByTestId('sideWidgetContent-voicemail-drop'),
     ).toHaveAttribute('data-keep-mounted', 'true');
-    expect(props.renderContent).toHaveBeenCalledWith('voicemail-drop');
+    expect(props.renderContent).toHaveBeenCalledWith('voicemail-drop', false);
   });
 
-  test('closes only the Apps tab when other side-widget tabs remain', () => {
+  test('lets a single custom content page render its own close button', () => {
+    const props = createProps({
+      tabs: [{ id: 'voicemail-drop', name: 'Voicemail drop' }],
+      currentTabId: 'voicemail-drop',
+    });
+
+    render(<SideWidgetPanel {...props} />);
+
+    expect(screen.queryByTitle('Voicemail drop')).toBeNull();
+    expect(props.renderContent).toHaveBeenCalledWith('voicemail-drop', true);
+  });
+
+  test('closes the active tab and hides the page close button when tabs are shown', () => {
     const props = createProps({
       tabs: [
         { id: 'side-widget-apps', name: 'Apps' },
@@ -194,7 +225,8 @@ describe('SideWidgetPanel', () => {
     });
 
     render(<SideWidgetPanel {...props} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Close apps' }));
+    expect(screen.queryByRole('button', { name: 'Close apps' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Close Apps tab' }));
 
     expect(props.onCloseTab).toHaveBeenCalledWith('side-widget-apps');
     expect(props.onClose).not.toHaveBeenCalled();

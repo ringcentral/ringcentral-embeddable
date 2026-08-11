@@ -7,6 +7,7 @@ import {
 import {
   AppFooterNav,
   AppMainContent,
+  ToastPositionAdjustor,
 } from '@ringcentral-integration/micro-core/src/app/components';
 import { SyncTabView } from '@ringcentral-integration/micro-core/src/app/views';
 import {
@@ -34,26 +35,28 @@ import {
   Webphone,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { CallViewOptions } from '@ringcentral-integration/micro-phone/src/app/views/CallView';
-import {
-  CallView as CallViewBase,
-} from '@ringcentral-integration/micro-phone/src/app/views/CallView';
+import { CallView as CallViewBase } from '@ringcentral-integration/micro-phone/src/app/views/CallView';
 import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import { ActiveCallsView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/ActiveCallsViewSpring';
 import { AddCallView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/AddCallViewSpring';
-import {
-  CallControlView,
-} from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
+import { CallControlView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
 import { ForwardView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/ForwardViewSpring';
 import { IncomingCallView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/IncomingCallViewSpring';
 import { KeypadView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/KeypadViewSpring';
 import { PostCallView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/PostCallViewSpring';
-import {
-  ReplyWithMessageView,
-} from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/ReplyWithMessageViewSpring';
+import { ReplyWithMessageView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/ReplyWithMessageViewSpring';
 import { TransferView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/TransferViewSpring';
-import { CallLogFormView } from '@ringcentral-integration/micro-phone/src/app/views/CallLogFormView';
+import {
+  CallLogFormView,
+  type CallLogFormViewProps,
+} from '@ringcentral-integration/micro-phone/src/app/views/CallLogFormView';
 import { QuickCallActionView } from '@ringcentral-integration/micro-phone/src/app/views/QuickCallActionView';
 
+import {
+  SideWidgetView,
+  type SideWidgetContentHandle,
+  type SideWidgetContentViewProps,
+} from '../SideWidgetView';
 import { ParkView } from './ParkView';
 import { useCallInfoWithPreinsert } from './useCallInfoWithPreinsert';
 
@@ -77,8 +80,13 @@ type CallItemProps = {
 };
 
 type CallViewPrivateComponents = {
+  CallDetailForm: FC<CallLogFormViewProps>;
   CallItem: FC<CallItemProps>;
   CallLogArea: FC;
+};
+
+type SideWidgetCallAction = CallAction & {
+  leaveCallingRouteForSideWidget: () => Promise<void>;
 };
 
 @injectable({
@@ -111,6 +119,7 @@ export class CallView extends CallViewBase {
     router: RouterPlugin,
     @optional() callLogFormView?: CallLogFormView,
     @optional('CallViewOptions') callViewOptions?: CallViewOptions,
+    @optional() sideWidgetView?: SideWidgetView,
   ) {
     super(
       callAction,
@@ -145,6 +154,19 @@ export class CallView extends CallViewBase {
     this._appPreinsertCall = preInsertCall;
     this._appActiveCallsView = activeCallsView;
     this._appAddCallView = addCallView;
+    this._appPostCallView = postCallView;
+    this._appCallLogFormView = callLogFormView;
+    this._appSideWidgetView = sideWidgetView;
+    this._postCallSideWidgetHandle = sideWidgetView?.createContent({
+      id: 'call-details',
+      name: 'Call details',
+      onClose: () => {
+        if (this._appCallViewState.view === 'postCall') {
+          void this.closePostCallSideWidget();
+        }
+      },
+      view: (props) => this.PostCallSideWidgetContent(props),
+    });
     if (portManager.shared) {
       portManager.onServer(() => {
         this.bindPreinsertNavigation();
@@ -161,10 +183,13 @@ export class CallView extends CallViewBase {
     ).CallLogArea.bind(this);
     const PostCallLogArea: FC = () => {
       const view = useConnector(() => callViewState.view);
-      return view === 'postCall' ? <BaseCallLogArea /> : null;
+      return view === 'postCall' && !sideWidgetView?.enabled ? (
+        <BaseCallLogArea />
+      ) : null;
     };
     privateComponents.CallItem = this.renderCallItem.bind(this);
     privateComponents.CallLogArea = PostCallLogArea;
+    this.bindPostCallSideWidget();
   }
 
   private readonly _parkView: ParkView;
@@ -175,6 +200,83 @@ export class CallView extends CallViewBase {
   private readonly _appPreinsertCall: PreinsertCall;
   private readonly _appActiveCallsView: ActiveCallsView;
   private readonly _appAddCallView: AddCallView;
+  private readonly _appPostCallView: PostCallView;
+  private readonly _appCallLogFormView?: CallLogFormView;
+  private readonly _appSideWidgetView?: SideWidgetView;
+  private readonly _postCallSideWidgetHandle?: SideWidgetContentHandle;
+
+  private async closePostCallSideWidget(): Promise<void> {
+    try {
+      await this._appPostCallView.goBack();
+    } finally {
+      this._appCallAction.fromPostCall = false;
+    }
+  }
+
+  private PostCallSideWidgetContent({
+    showCloseButton,
+  }: SideWidgetContentViewProps): React.ReactElement | null {
+    const postCallCallLog = useConnector(
+      () => this._appCallViewState.postCallCallLog,
+    );
+    if (!postCallCallLog) {
+      return null;
+    }
+    const { CallDetailForm } = this as unknown as CallViewPrivateComponents;
+    return (
+      <div
+        className="flex h-full w-full flex-col"
+        data-sign="post-log-panel"
+        data-call-log-id={postCallCallLog.telephonySessionId}
+      >
+        <div
+          className={
+            showCloseButton
+              ? 'flex-none'
+              : 'flex-none [&_[data-sign=backButton]]:hidden'
+          }
+        >
+          <this._appPostCallView.component variant="header" />
+        </div>
+        <div className="flex flex-auto flex-col overflow-x-hidden overflow-y-auto">
+          <this._appPostCallView.component variant="info" />
+          <CallDetailForm variant="postCall" info={postCallCallLog} />
+        </div>
+        {this._appCallLogFormView ? (
+          <ToastPositionAdjustor>
+            <footer>
+              <this._appCallLogFormView.Save />
+            </footer>
+          </ToastPositionAdjustor>
+        ) : null}
+      </div>
+    );
+  }
+
+  private bindPostCallSideWidget(): void {
+    if (!this._appSideWidgetView?.enabled || !this._postCallSideWidgetHandle) {
+      return;
+    }
+    fromWatchValue(this, () => this._appCallViewState.view)
+      .pipe(distinctUntilChanged(), takeUntilAppDestroy)
+      .subscribe((view) => this.syncPostCallSideWidget(view));
+  }
+
+  private syncPostCallSideWidget(view: string): void {
+    if (!this._appSideWidgetView || !this._postCallSideWidgetHandle) {
+      return;
+    }
+    if (view === 'postCall') {
+      this._appSideWidgetView.openContent(this._postCallSideWidgetHandle, {
+        activate: !this._smartNotes?.session,
+      });
+      void (
+        this._appCallAction as SideWidgetCallAction
+      ).leaveCallingRouteForSideWidget();
+      return;
+    }
+    this._appSideWidgetView.closeContent(this._postCallSideWidgetHandle);
+  }
 
   /**
    * the outbound call that only exists as a local webphone (SIP) session,

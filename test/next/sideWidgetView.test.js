@@ -122,7 +122,9 @@ describe('SideWidgetView', () => {
     view.openAppTab({ id: 'fallback-name' }, null);
     expect(view.tabs.at(-1).name).toBe('fallback-name');
 
-    const disabled = createSideWidget({ options: { enableSideWidget: false } }).view;
+    const disabled = createSideWidget({
+      options: { enableSideWidget: false },
+    }).view;
     disabled.openAppTab(crm, { id: 'contact' });
     expect(disabled.tabs).toEqual([{ id: 'side-widget-apps', name: 'Apps' }]);
   });
@@ -167,7 +169,9 @@ describe('SideWidgetView', () => {
 
     view.closeTab('side-widget-app-tasks');
     expect(view.currentTabId).toBe('side-widget-app-crm');
-    expect(view.tabs.map(({ appId }) => appId).filter(Boolean)).toEqual(['crm']);
+    expect(view.tabs.map(({ appId }) => appId).filter(Boolean)).toEqual([
+      'crm',
+    ]);
     view.closeTab('missing');
     expect(view.tabs).toHaveLength(2);
     view.closeTab('side-widget-apps');
@@ -176,7 +180,9 @@ describe('SideWidgetView', () => {
     ]);
     expect(dependencies.expandedView.close).not.toHaveBeenCalled();
     view.closeTab('side-widget-app-crm');
-    expect(dependencies.expandedView.close).toHaveBeenCalledWith(expandedHandle);
+    expect(dependencies.expandedView.close).toHaveBeenCalledWith(
+      expandedHandle,
+    );
   });
 
   test('keeps the current tab when closing a background tab', () => {
@@ -203,7 +209,7 @@ describe('SideWidgetView', () => {
     const { dependencies, expandedHandle, getExpandedConfig, view } =
       createSideWidget();
     const onClose = jest.fn();
-    const Content = () => <div>Voicemail picker</div>;
+    const Content = jest.fn(() => <div>Voicemail picker</div>);
     const handle = view.createContent({
       id: 'voicemail-drop',
       name: 'Voicemail drop',
@@ -223,14 +229,33 @@ describe('SideWidgetView', () => {
     const ExpandedContent = getExpandedConfig().view;
     render(<ExpandedContent />);
     const props = SideWidgetPanel.mock.calls.at(-1)[0];
-    render(props.renderContent('voicemail-drop'));
+    render(props.renderContent('voicemail-drop', false));
     expect(screen.getByText('Voicemail picker')).toBeInTheDocument();
+    expect(Content).toHaveBeenCalledWith({ showCloseButton: false }, {});
 
     view.closeContent(handle);
     expect(view.tabs).toEqual([{ id: 'side-widget-apps', name: 'Apps' }]);
     expect(view.currentTabId).toBe('side-widget-apps');
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(dependencies.expandedView.close).not.toHaveBeenCalled();
+  });
+
+  test('can add content without replacing the active tab', () => {
+    const { dependencies, expandedHandle, view } = createSideWidget();
+    const handle = view.createContent({
+      id: 'call-details',
+      name: 'Call details',
+      view: () => null,
+    });
+
+    view.openContent(handle, { activate: false });
+
+    expect(view.tabs).toContainEqual({
+      id: 'call-details',
+      name: 'Call details',
+    });
+    expect(view.currentTabId).toBe('side-widget-apps');
+    expect(dependencies.expandedView.open).toHaveBeenCalledWith(expandedHandle);
   });
 
   test('keeps content registration across close and reopen', () => {
@@ -248,11 +273,13 @@ describe('SideWidgetView', () => {
     view.closeContent(handle);
     view.openContent(handle);
 
-    expect(view.tabs.filter(({ id }) => id === 'reusable-content')).toHaveLength(1);
+    expect(
+      view.tabs.filter(({ id }) => id === 'reusable-content'),
+    ).toHaveLength(1);
     const ExpandedContent = getExpandedConfig().view;
     render(<ExpandedContent />);
     const props = SideWidgetPanel.mock.calls.at(-1)[0];
-    render(props.renderContent('reusable-content'));
+    render(props.renderContent('reusable-content', true));
     expect(screen.getByText('Reusable content')).toBeInTheDocument();
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -328,7 +355,9 @@ describe('SideWidgetView', () => {
 
     view.closeContent(handle);
     expect(dependencies.expandedView.close).toHaveBeenCalledTimes(1);
-    expect(dependencies.expandedView.close).toHaveBeenCalledWith(expandedHandle);
+    expect(dependencies.expandedView.close).toHaveBeenCalledWith(
+      expandedHandle,
+    );
     expect(onClose).toHaveBeenCalledTimes(1);
     getExpandedConfig().onClose();
     expect(onClose).toHaveBeenCalledTimes(1);
