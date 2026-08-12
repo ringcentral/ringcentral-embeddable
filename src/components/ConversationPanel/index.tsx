@@ -372,11 +372,8 @@ export function ConversationPanel({
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isNotesDialogOpen, setIsNotesDialogOpen] = useState(false);
   // Granular logging: set of currently-checked (unlogged) message ids.
+  // Nothing is selected by default; the user picks messages explicitly.
   const [selectedMessageIds, setSelectedMessageIds] = useState<Set<number>>(new Set());
-  // Tracks message ids we've already applied the default-checked rule to, so we
-  // don't re-check messages the user deliberately unchecked, but do auto-check
-  // newly arrived unlogged messages.
-  const seenMessageIdsRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     mountedRef.current = true;
@@ -434,7 +431,6 @@ export function ConversationPanel({
 
   // Granular logging: reset selection when switching conversations.
   useEffect(() => {
-    seenMessageIdsRef.current = new Set();
     setSelectedMessageIds(new Set());
   }, [conversationId]);
 
@@ -453,31 +449,21 @@ export function ConversationPanel({
     syncMessageLogState(conversationId, ids);
   }, [granularLoggingEnabled, conversationId, messages]);
 
-  // Granular logging: default-check unlogged messages (once per message), and
-  // drop any message that has since become logged.
+  // Granular logging: messages are deselected by default. This effect only
+  // drops a message from the current selection once it has become logged.
   useEffect(() => {
     if (!granularLoggingEnabled) {
       return;
     }
     setSelectedMessageIds((prev) => {
-      const seen = seenMessageIdsRef.current;
+      if (prev.size === 0) {
+        return prev;
+      }
       const next = new Set(prev);
       let changed = false;
-      (messages || []).forEach((message: any) => {
-        if (!isSelectableMessage(message)) {
-          return;
-        }
-        const logged = !!messageLogStateMap?.[String(message.id)];
-        if (logged) {
-          if (next.delete(message.id)) {
-            changed = true;
-          }
-          seen.add(message.id);
-          return;
-        }
-        if (!seen.has(message.id)) {
-          seen.add(message.id);
-          next.add(message.id);
+      prev.forEach((id) => {
+        if (messageLogStateMap?.[String(id)]) {
+          next.delete(id);
           changed = true;
         }
       });
@@ -485,13 +471,19 @@ export function ConversationPanel({
     });
   }, [messages, messageLogStateMap, granularLoggingEnabled]);
 
-  const onToggleMessage = (id: number) => {
+  // Granular logging: set a message to an explicit selected state. Used by the
+  // click/drag-to-select gesture so a click toggles one message and a drag
+  // paints one consistent state across messages.
+  const setMessageSelected = (id: number, isSelected: boolean) => {
     setSelectedMessageIds((prev) => {
+      if (prev.has(id) === isSelected) {
+        return prev;
+      }
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
+      if (isSelected) {
         next.add(id);
+      } else {
+        next.delete(id);
       }
       return next;
     });
@@ -587,7 +579,7 @@ export function ConversationPanel({
         selectionEnabled={granularLoggingEnabled}
         selectedMessageIds={selectedMessageIds}
         messageLogStateMap={messageLogStateMap}
-        onToggleMessage={onToggleMessage}
+        setMessageSelected={setMessageSelected}
         onClickMessageLog={onClickMessageLog}
       />
     );
@@ -604,6 +596,9 @@ export function ConversationPanel({
       conversationMatches.length > 0 ? 'editLog' : 'addLog',
       currentLocale
     );
+    // Granular selection always creates a new CRM entry for the chosen
+    // messages, so it should read "Log", never "Edit Log".
+    const granularLogTitle = messageItemI18n.getString('addLog', currentLocale);
     headerActions.push({
       id: 'log',
       icon: AddTextLog,
@@ -613,7 +608,7 @@ export function ConversationPanel({
         isLoggingState ||
         (granularLoggingEnabled && selectedCount === 0),
       title: granularLoggingEnabled
-        ? `${baseLogTitle} (${selectedCount})`
+        ? `${granularLogTitle} (${selectedCount})`
         : baseLogTitle,
       onClick: () => {
         if (granularLoggingEnabled) {

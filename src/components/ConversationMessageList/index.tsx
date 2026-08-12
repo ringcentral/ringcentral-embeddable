@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
 import { isBlank } from '@ringcentral-integration/commons/lib/isBlank';
 import {
@@ -97,16 +97,26 @@ const Time = styled.div`
   clear: both;
 `;
 
-const BubbleRow = styled.div<{ inbound?: boolean }>`
+const BubbleRow = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
   clear: both;
+  width: 100%;
+`;
+
+// Takes the remaining row width so the bubble keeps its inbound (left) /
+// outbound (right) alignment while the control stays in a fixed right column.
+const BubbleArea = styled.div<{ inbound?: boolean }>`
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
   justify-content: ${(props) => (props.inbound ? 'flex-start' : 'flex-end')};
 `;
 
 const SelectionControl = styled.div`
   flex: 0 0 auto;
+  width: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -342,8 +352,9 @@ export const Message = ({
   selectionEnabled = false,
   logged = false,
   checked = false,
-  onToggleSelect = undefined,
   onClickLog = undefined,
+  onSelectDragStart = undefined,
+  onSelectDragEnter = undefined,
 }: {
   subject: string;
   time?: string;
@@ -358,8 +369,9 @@ export const Message = ({
   selectionEnabled?: boolean;
   logged?: boolean;
   checked?: boolean;
-  onToggleSelect?: () => void;
   onClickLog?: () => void;
+  onSelectDragStart?: () => void;
+  onSelectDragEnter?: () => void;
 }) => {
   let subjectNode;
   if (subject && !isBlank(subject)) {
@@ -404,6 +416,8 @@ export const Message = ({
       );
     });
   const inbound = direction === 'Inbound';
+  // Only unlogged messages are selectable; logged ones show a link-out icon.
+  const selectable = selectionEnabled && !logged;
   let control = null;
   if (logged) {
     control = (
@@ -423,16 +437,15 @@ export const Message = ({
       </SelectionControl>
     );
   } else if (selectionEnabled) {
+    // The checkbox is presentational only; selection is driven entirely by the
+    // row's mouse handlers (see BubbleRow below) so a single click reliably
+    // toggles and a press-drag paints the same state across messages.
     control = (
       <SelectionControl>
         <RcCheckbox
           data-sign="messageSelectCheckbox"
           checked={checked}
-          onChange={() => {
-            if (typeof onToggleSelect === 'function') {
-              onToggleSelect();
-            }
-          }}
+          onChange={() => {}}
         />
       </SelectionControl>
     );
@@ -460,9 +473,33 @@ export const Message = ({
       ) : null}
       <MessageSendStatus direction={direction} status={messageStatus} />
       {control ? (
-        <BubbleRow inbound={inbound}>
+        <BubbleRow
+          // When selectable, the entire row (bubble + checkbox) is the
+          // click/drag surface: mousedown toggles this message and starts a
+          // drag; entering another row while dragging paints the same state.
+          style={selectable ? { cursor: 'pointer', userSelect: 'none' } : undefined}
+          onMouseDown={
+            selectable
+              ? (e) => {
+                  e.preventDefault();
+                  if (typeof onSelectDragStart === 'function') {
+                    onSelectDragStart();
+                  }
+                }
+              : undefined
+          }
+          onMouseEnter={
+            selectable
+              ? () => {
+                  if (typeof onSelectDragEnter === 'function') {
+                    onSelectDragEnter();
+                  }
+                }
+              : undefined
+          }
+        >
+          <BubbleArea inbound={inbound}>{bubble}</BubbleArea>
           {control}
-          {bubble}
         </BubbleRow>
       ) : (
         bubble
@@ -508,7 +545,7 @@ export function ConversationMessageList({
   selectionEnabled = false,
   selectedMessageIds = undefined,
   messageLogStateMap = {},
-  onToggleMessage = undefined,
+  setMessageSelected = undefined,
   onClickMessageLog = undefined,
 }: {
   className: string;
@@ -528,7 +565,7 @@ export function ConversationMessageList({
   selectionEnabled?: boolean;
   selectedMessageIds?: Set<number>;
   messageLogStateMap?: Record<string, { logId: string }>;
-  onToggleMessage?: (id: number) => void;
+  setMessageSelected?: (id: number, selected: boolean) => void;
   onClickMessageLog?: (logId: string) => void;
 }) {
   const listRef = useRef(null);
@@ -536,6 +573,43 @@ export function ConversationMessageList({
   const scrollTop = useRef(null);
   const scrollUp = useRef(null);
   const messageLength = useRef(0);
+  // Tracks an in-progress drag-select gesture. `mode` is decided by the first
+  // message pressed (if it was checked we deselect the rest, otherwise select).
+  const dragSelectRef = useRef<{ active: boolean; select: boolean }>({
+    active: false,
+    select: true,
+  });
+
+  useEffect(() => {
+    const stopDrag = () => {
+      dragSelectRef.current.active = false;
+    };
+    window.addEventListener('mouseup', stopDrag);
+    return () => window.removeEventListener('mouseup', stopDrag);
+  }, []);
+
+  const startDragSelect = useCallback(
+    (id: number, currentlyChecked: boolean) => {
+      const select = !currentlyChecked;
+      dragSelectRef.current = { active: true, select };
+      if (typeof setMessageSelected === 'function') {
+        setMessageSelected(id, select);
+      }
+    },
+    [setMessageSelected],
+  );
+
+  const dragSelectEnter = useCallback(
+    (id: number) => {
+      if (!dragSelectRef.current.active) {
+        return;
+      }
+      if (typeof setMessageSelected === 'function') {
+        setMessageSelected(id, dragSelectRef.current.select);
+      }
+    },
+    [setMessageSelected],
+  );
 
   useEffect(() => {
     if (listRef.current) {
@@ -614,6 +688,7 @@ export function ConversationMessageList({
     }
     const loggedState = messageLogStateMap?.[String(message.id)];
     const isLogged = !!loggedState;
+    const isChecked = !!selectedMessageIds && selectedMessageIds.has(message.id);
     return (
       <Message
         key={message.id}
@@ -629,11 +704,12 @@ export function ConversationMessageList({
         messageStatus={message.messageStatus}
         selectionEnabled={selectionEnabled}
         logged={isLogged}
-        checked={!!selectedMessageIds && selectedMessageIds.has(message.id)}
-        onToggleSelect={() => {
-          if (typeof onToggleMessage === 'function') {
-            onToggleMessage(message.id);
-          }
+        checked={isChecked}
+        onSelectDragStart={() => {
+          startDragSelect(message.id, isChecked);
+        }}
+        onSelectDragEnter={() => {
+          dragSelectEnter(message.id);
         }}
         onClickLog={() => {
           if (isLogged && typeof onClickMessageLog === 'function') {
