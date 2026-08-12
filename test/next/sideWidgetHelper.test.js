@@ -137,4 +137,13 @@ describe('SideWidget helper', () => {
     expect(isSameSideWidgetContact({ id: '1' }, null)).toBe(false);
     expect(isSameSideWidgetContact({ id: '1' }, { id: '2' })).toBe(false);
   });
+
+  test('normalizes formatted phone numbers before matching', () => {
+    expect(
+      isSameSideWidgetContact(
+        { phoneNumber: '+1 (650) 555-0100' },
+        { phoneNumber: '+16505550100' },
+      ),
+    ).toBe(true);
+  });
 });

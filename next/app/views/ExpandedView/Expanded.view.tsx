@@ -37,7 +37,9 @@ export class ExpandedView extends RcViewModule {
 
   create(options: ExpandedViewCreatorOptions): ExpandedContentHandle {
     if (this._contentHandles.has(options.id)) {
-      throw new Error(`Expanded content id is already registered: ${options.id}`);
+      throw new Error(
+        `Expanded content id is already registered: ${options.id}`
+      );
     }
     const handle = new ExpandedContentHandle(options);
     this._contentHandles.set(options.id, handle);
@@ -52,11 +54,11 @@ export class ExpandedView extends RcViewModule {
 
   open(
     handle: ExpandedContentHandle,
-    { expand = true }: ExpandedViewOpenOptions = {},
+    { expand = true }: ExpandedViewOpenOptions = {}
   ): ExpandedViewOpenResult {
     if (this._contentHandles.get(handle.options.id) !== handle) {
       throw new Error(
-        `Expanded content handle is not registered: ${handle.options.id}`,
+        `Expanded content handle is not registered: ${handle.options.id}`
       );
     }
     const previousHandle = this.activeContentId
@@ -76,7 +78,7 @@ export class ExpandedView extends RcViewModule {
 
   close(
     handle?: ExpandedContentHandle,
-    { collapseLayout = true }: ExpandedViewCloseOptions = {},
+    { collapseLayout = true }: ExpandedViewCloseOptions = {}
   ): void {
     const activeHandle = this.activeContentId
       ? this._contentHandles.get(this.activeContentId)
@@ -107,9 +109,7 @@ export class ExpandedView extends RcViewModule {
 
     const { view, header, showOverlayHeader = true } = activeHandle.options;
     const ContentView =
-      typeof view === 'function'
-        ? view
-        : (view as RcViewModule).component;
+      typeof view === 'function' ? view : (view as RcViewModule).component;
 
     const resolveHeader = () => {
       if (!header) return null;

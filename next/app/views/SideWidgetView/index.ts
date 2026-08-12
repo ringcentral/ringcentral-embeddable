@@ -5,4 +5,5 @@ export type {
   SideWidgetContentViewProps,
   SideWidgetOpenContentOptions,
   SideWidgetOptions,
+  SideWidgetTabScope,
 } from './SideWidget.view.interface';

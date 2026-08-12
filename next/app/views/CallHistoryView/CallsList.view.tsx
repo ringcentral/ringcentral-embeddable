@@ -15,6 +15,7 @@ import {
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import { CallsListViewSpring as CallsListViewSpringBase } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring';
 import type {
+  CallsListPanelSpringProps,
   CallsListViewSpringOptions,
   CallsListViewSpringProps,
 } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
@@ -25,6 +26,7 @@ import {
   injectable,
   optional,
   RouterPlugin,
+  type UIFunctions,
 } from '@ringcentral-integration/next-core';
 import React from 'react';
 
@@ -67,6 +69,43 @@ export class CallsListView extends CallsListViewSpringBase {
       callLogTasks,
       callsListViewOptions
     );
+    this._appCallHistory = callHistory;
+    this._appRouter = router;
+  }
+
+  private readonly _appCallHistory: CallHistory;
+
+  private readonly _appRouter: RouterPlugin;
+
+  override getUIFunctions(
+    props: CallsListViewSpringProps,
+  ): UIFunctions<CallsListPanelSpringProps> {
+    const functions = super.getUIFunctions(props);
+    const baseUseActionsHandler = functions.useActionsHandler;
+    const useActionsHandler: CallsListPanelSpringProps['useActionsHandler'] =
+      (call, info, location) => {
+        const baseHandler = baseUseActionsHandler(call, info, location);
+        return async (actionType) => {
+          if (actionType === 'viewDetail') {
+            const telephonySessionId = call.telephonySessionId;
+            const callLog =
+              this._appCallHistory.getHistoryByTelephonySessionId(
+                telephonySessionId,
+              );
+            if (callLog) {
+              await this._appRouter.push(
+                `/history/${telephonySessionId}`,
+              );
+              return;
+            }
+          }
+          await baseHandler(actionType);
+        };
+      };
+    return {
+      ...functions,
+      useActionsHandler,
+    };
   }
 
   override component(props: CallsListViewSpringProps) {

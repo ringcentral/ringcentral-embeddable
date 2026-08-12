@@ -37,10 +37,15 @@ import {
   VoicemailView,
 } from '@ringcentral-integration/micro-message/src/app/views';
 import {
+  Conversations,
+  MessageThread,
+} from '@ringcentral-integration/micro-message/src/app/services';
+import {
   CallDetailView,
   CallView,
   DialerPadView,
 } from '@ringcentral-integration/micro-phone/src/app/views';
+import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import {
   AudioSettingsView,
   AutoCallLogICSettingsView,
@@ -72,16 +77,24 @@ import type { AppViewOptions, Route as AppRoute } from './AppView.interface';
 import { resolveDetailViewTransitionId } from './AppView.helper';
 import {
   isDetailRoutePath,
+  isSideWidgetRoutePath,
   resolveExpandedRouteBackgroundPath,
   shouldCollapseExpandedLayout,
+  shouldRenderExpandedView,
 } from './ExpandedRouteNavigation.helper';
 import { CustomizedPageView } from './views/CustomizedPageView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
+import {
+  getRoutedCallContact,
+  getRoutedConversationContact,
+  RoutedSideWidgetView,
+} from './views/RoutedSideWidgetView';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
+import type { ThirdPartyWidgetContact } from './services/ThirdParty';
 
 type RouteComponent = Exclude<React.ElementType, string>;
 
@@ -105,6 +118,13 @@ export class AppView extends RcViewModule {
   private Fax() {
     return <this._conversationsView.component typeFilter="Fax" />;
   }
+
+  private readonly _settingsSideWidgetConfig = {
+    id: 'settings',
+    name: 'Settings',
+    scope: 'global',
+    backgroundPath: '/settings',
+  } as const;
 
   @autobind
   Footer() {
@@ -175,6 +195,12 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._dialerPadView.component,
+      sideWidget: {
+        id: 'call-details',
+        name: 'Call details',
+        scope: 'contact',
+        backgroundPath: '/dialer',
+      },
     },
     {
       path: '/composeText',
@@ -196,6 +222,12 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this.Text,
+      sideWidget: {
+        id: 'conversation',
+        name: 'Conversation',
+        scope: 'contact',
+        backgroundPath: '/messages',
+      },
     },
     {
       path: '/voicemails/:conversationId',
@@ -226,6 +258,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/region',
@@ -233,6 +266,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/audio',
@@ -240,6 +274,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/voicemailDrop',
@@ -247,6 +282,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/feedback',
@@ -254,6 +290,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/issuesTracking',
@@ -261,6 +298,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/callQueueManagement',
@@ -268,6 +306,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/theme',
@@ -275,6 +314,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/autoCallLogSettings/callLogging',
@@ -282,6 +322,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/autoCallLogSettings/recordMatching',
@@ -289,6 +330,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/autoCallLogSettings',
@@ -296,6 +338,7 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/meeting',
@@ -329,6 +372,12 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._contactListView.component,
+      sideWidget: {
+        id: 'contact-details',
+        name: 'Contact',
+        scope: 'contact',
+        backgroundPath: '/contacts',
+      },
     },
   ];
 
@@ -337,7 +386,9 @@ export class AppView extends RcViewModule {
       return routes;
     }
     const BackgroundComponent =
-      route.layout === 'detail' ? route.backgroundComponent : route.component;
+      route.layout === 'detail' || route.sideWidget
+        ? route.backgroundComponent
+        : route.component;
     if (!BackgroundComponent) {
       return routes;
     }
@@ -366,13 +417,87 @@ export class AppView extends RcViewModule {
     );
   }
 
+  private _getRoutedContact(
+    tabId: string,
+    params: Record<string, string | undefined>,
+  ): ThirdPartyWidgetContact | null | undefined {
+    if (tabId === 'conversation') {
+      const conversationId = params.conversationId;
+      if (!conversationId) {
+        return undefined;
+      }
+      const conversation =
+        this._conversations.formattedConversationsMap.get(conversationId) ??
+        this._messageThread?.getThreadConversation(conversationId);
+      return conversation
+        ? getRoutedConversationContact(conversation)
+        : undefined;
+    }
+    if (tabId === 'call-details') {
+      const call = this._callViewState.callDetailCallLog;
+      return call ? getRoutedCallContact(call) : undefined;
+    }
+    if (tabId === 'contact-details') {
+      return (this._contactDetailsView?.currentContact ?? undefined) as
+        | ThirdPartyWidgetContact
+        | undefined;
+    }
+    return undefined;
+  }
+
+  @autobind
+  private RoutedSideWidgetRoute({
+    route,
+    routeProps,
+  }: {
+    route: InternalRoute;
+    routeProps: RouteComponentProps;
+  }) {
+    const location = useLocation();
+    const expanded = useConnector(() => this._root.expanded);
+    const DetailComponent = route.component;
+    const BackgroundComponent = route.backgroundComponent;
+    const config = route.sideWidget;
+    const params = routeProps.match.params as Record<
+      string,
+      string | undefined
+    >;
+    const contact = useConnector(() =>
+      config ? this._getRoutedContact(config.id, params) : undefined,
+    );
+    if (!config || !DetailComponent) {
+      return null;
+    }
+    return (
+      <>
+        {BackgroundComponent ? <BackgroundComponent {...routeProps} /> : null}
+        <this._routedSideWidgetView.component
+          config={config}
+          contact={contact}
+          detailComponent={DetailComponent}
+          detailProps={routeProps as unknown as Record<string, unknown>}
+          expand={expanded}
+          path={location.pathname}
+          routeExact={route.exact}
+          routePath={route.path}
+        />
+      </>
+    );
+  }
+
   private routesMap = this.routes.reduce(
     (acc, curr) => {
       const target = curr.authentication ? acc.authentication : acc.default;
       const DetailComponent = curr.component;
       const BackgroundComponent = curr.backgroundComponent;
-      const component =
-        curr.layout === 'detail' && DetailComponent
+      const component = curr.sideWidget && DetailComponent
+        ? (routeProps: RouteComponentProps) => (
+            <this.RoutedSideWidgetRoute
+              route={curr}
+              routeProps={routeProps}
+            />
+          )
+        : curr.layout === 'detail' && DetailComponent
           ? (routeProps: RouteComponentProps) => (
               <this._expandedRouteView.component
                 background={
@@ -407,6 +532,8 @@ export class AppView extends RcViewModule {
   constructor(
     private _root: Root,
     private _router: RouterPlugin,
+    private _conversations: Conversations,
+    private _callViewState: CallViewState,
     private _appRootView: SpringAppRootView,
     private _callDetailView: CallDetailView,
     private _connectivityView: ConnectivityView,
@@ -437,7 +564,10 @@ export class AppView extends RcViewModule {
     private _customizedPageView: CustomizedPageView,
     private _expandedRouteView: ExpandedRouteView,
     private _expandedView: ExpandedView,
+    private _routedSideWidgetView: RoutedSideWidgetView,
     private _thirdPartyBannerView: ThirdPartyBannerView,
+    @optional()
+    private _messageThread?: MessageThread,
     private _genericMeeting?: GenericMeeting,
     @optional()
     private _genericMeetingView?: GenericMeetingView,
@@ -451,6 +581,20 @@ export class AppView extends RcViewModule {
     private _appViewOptions?: AppViewOptions,
   ) {
     super();
+    this._routedSideWidgetView.registerRoutes(
+      this.routes.flatMap((route) =>
+        route.sideWidget && route.component
+          ? [
+              {
+                config: route.sideWidget,
+                detailComponent: route.component,
+                routeExact: route.exact,
+                routePath: route.path,
+              },
+            ]
+          : [],
+      ),
+    );
   }
 
   @autobind
@@ -490,10 +634,18 @@ export class AppView extends RcViewModule {
       previousBackgroundPath: backgroundPathRef.current,
       routes: this.routes,
     });
+    const renderExpandedView = shouldRenderExpandedView({
+      currentPath,
+      routes: this.routes,
+    });
     useLayoutEffect(() => {
       const previousPath = previousPathRef.current;
       previousPathRef.current = currentPath;
       backgroundPathRef.current = backgroundPath;
+      this._routedSideWidgetView.syncPath(
+        currentPath,
+        isSideWidgetRoutePath(currentPath, this.routes),
+      );
       if (
         this._expandedView.isOpen &&
         isDetailRoutePath(currentPath, this.routes)
@@ -537,7 +689,7 @@ export class AppView extends RcViewModule {
           >
             <this.MainContent />
             <this._callView.IncomingCallList />
-            <this._expandedView.component />
+            {renderExpandedView ? <this._expandedView.component /> : null}
             <this._environmentView.component />
           </div>
         </this._appRootView.component>

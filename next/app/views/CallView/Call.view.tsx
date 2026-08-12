@@ -55,6 +55,7 @@ import { QuickCallActionView } from '@ringcentral-integration/micro-phone/src/ap
 import {
   SideWidgetView,
   type SideWidgetContentHandle,
+  type SideWidgetContentOptions,
   type SideWidgetContentViewProps,
 } from '../SideWidgetView';
 import { ParkView } from './ParkView';
@@ -157,16 +158,9 @@ export class CallView extends CallViewBase {
     this._appPostCallView = postCallView;
     this._appCallLogFormView = callLogFormView;
     this._appSideWidgetView = sideWidgetView;
-    this._postCallSideWidgetHandle = sideWidgetView?.createContent({
-      id: 'call-details',
-      name: 'Call details',
-      onClose: () => {
-        if (this._appCallViewState.view === 'postCall') {
-          void this.closePostCallSideWidget();
-        }
-      },
-      view: (props) => this.PostCallSideWidgetContent(props),
-    });
+    this._postCallSideWidgetHandle = sideWidgetView?.createContent(
+      this._getPostCallSideWidgetOptions(),
+    );
     if (portManager.shared) {
       portManager.onServer(() => {
         this.bindPreinsertNavigation();
@@ -204,6 +198,26 @@ export class CallView extends CallViewBase {
   private readonly _appCallLogFormView?: CallLogFormView;
   private readonly _appSideWidgetView?: SideWidgetView;
   private readonly _postCallSideWidgetHandle?: SideWidgetContentHandle;
+
+  private readonly _postCallSideWidgetView = (
+    props: SideWidgetContentViewProps,
+  ) => this.PostCallSideWidgetContent(props);
+
+  private readonly _postCallSideWidgetOnClose = (): void => {
+    if (this._appCallViewState.view === 'postCall') {
+      void this.closePostCallSideWidget();
+    }
+  };
+
+  private _getPostCallSideWidgetOptions(): SideWidgetContentOptions {
+    return {
+      id: 'call-details',
+      name: 'Call details',
+      scope: 'contact',
+      onClose: this._postCallSideWidgetOnClose,
+      view: this._postCallSideWidgetView,
+    };
+  }
 
   private async closePostCallSideWidget(): Promise<void> {
     try {
@@ -267,12 +281,22 @@ export class CallView extends CallViewBase {
       return;
     }
     if (view === 'postCall') {
+      this._appSideWidgetView.updateContent(
+        this._postCallSideWidgetHandle,
+        this._getPostCallSideWidgetOptions(),
+      );
       this._appSideWidgetView.openContent(this._postCallSideWidgetHandle, {
         activate: !this._smartNotes?.session,
       });
       void (
         this._appCallAction as SideWidgetCallAction
       ).leaveCallingRouteForSideWidget();
+      return;
+    }
+    if (
+      this._postCallSideWidgetHandle.options.view !==
+      this._postCallSideWidgetView
+    ) {
       return;
     }
     this._appSideWidgetView.closeContent(this._postCallSideWidgetHandle);

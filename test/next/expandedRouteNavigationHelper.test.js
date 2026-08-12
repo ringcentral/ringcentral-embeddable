@@ -1,7 +1,9 @@
 import {
   isDetailRoutePath,
+  isSideWidgetRoutePath,
   resolveExpandedRouteBackgroundPath,
   shouldCollapseExpandedLayout,
+  shouldRenderExpandedView,
 } from '../../next/app/ExpandedRouteNavigation.helper';
 
 const routes = [
@@ -117,6 +119,69 @@ describe('shouldCollapseExpandedLayout', () => {
         ],
       }),
     ).toBe(false);
+  });
+});
+
+describe('isSideWidgetRoutePath', () => {
+  test('recognizes an opted-in routed side-widget page', () => {
+    expect(
+      isSideWidgetRoutePath('/history/call-id', [
+        ...routes,
+        {
+          path: '/history/:callLogId',
+          layout: 'detail',
+          sideWidget: {
+            id: 'call-details',
+            name: 'Call details',
+            scope: 'contact',
+            backgroundPath: '/dialer',
+          },
+        },
+      ]),
+    ).toBe(true);
+  });
+});
+
+describe('shouldRenderExpandedView', () => {
+  test('hides transient side-widget content while a detail route owns the expanded column', () => {
+    expect(
+      shouldRenderExpandedView({
+        currentPath: '/settings/region',
+        routes,
+      }),
+    ).toBe(false);
+  });
+
+  test('renders transient side-widget content on a main route', () => {
+    expect(
+      shouldRenderExpandedView({
+        currentPath: '/messages',
+        routes,
+      }),
+    ).toBe(true);
+  });
+
+  test('renders side-widget content for an opted-in detail route', () => {
+    const sideWidgetRoutes = [
+      ...routes,
+      {
+        path: '/conversations/:conversationId',
+        layout: 'detail',
+        sideWidget: {
+          id: 'conversation',
+          name: 'Conversation',
+          scope: 'contact',
+          backgroundPath: '/messages',
+        },
+      },
+    ];
+
+    expect(
+      shouldRenderExpandedView({
+        currentPath: '/conversations/conversation-id',
+        routes: sideWidgetRoutes,
+      }),
+    ).toBe(true);
   });
 });
 

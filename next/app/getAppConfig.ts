@@ -137,6 +137,7 @@ import {
 import { CallHUDView } from './views/CallHUDView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
+import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
 import {
   SideWidgetView,
@@ -164,6 +165,7 @@ import {
   StoragePlugin,
 } from '@ringcentral-integration/next-core';
 import {
+  ConversationsViewSpring as MicroMessageConversationsView,
   MessageThreadsView,
   SharedConversationView,
   SmsOptOutView,
@@ -184,6 +186,7 @@ import {
 import { ParkView } from './views/CallView/ParkView';
 import { CallControlView as CallControlViewV2 } from './views/CallView/CallControlView/CallControl.view';
 import { CallView as CallViewV2 } from './views/CallView/Call.view';
+import { ConversationsView as ConversationsViewV2 } from './views/ConversationsView';
 import { EMBEDDABLE_CALL_ACTION_OPTIONS } from './views/CallView/Call.view.options';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
@@ -419,6 +422,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       MessageStore,
       SmsTemplate,
       {
+        provide: MicroMessageConversationsView,
+        useClass: ConversationsViewV2,
+      },
+      {
         provide: SmsOptOut,
         useClass: SmsOptOutV2,
       },
@@ -465,6 +472,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       CustomizedPageView,
       ExpandedRouteView,
       ExpandedView,
+      RoutedSideWidgetView,
       SmartNotesView,
       SideWidgetView,
       ThirdPartyBannerView,

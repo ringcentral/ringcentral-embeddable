@@ -1,6 +1,10 @@
 import type { ComponentType } from 'react';
 
-import type { ThirdPartyApp, UnknownRecord } from '../../services/ThirdParty';
+import type {
+  ThirdPartyApp,
+  ThirdPartyWidgetContact,
+  UnknownRecord,
+} from '../../services/ThirdParty';
 
 export interface SideWidgetOptions {
   enableSideWidget?: boolean;
@@ -10,13 +14,19 @@ export interface SideWidgetTab {
   id: string;
   name: string;
   appId?: ThirdPartyApp['id'];
+  scope?: SideWidgetTabScope;
 }
+
+export type SideWidgetTabScope = 'contact' | 'global';
 
 export interface SideWidgetContentOptions {
   id: string;
   name: string;
   view: ComponentType<SideWidgetContentViewProps>;
-  onClose?: () => void;
+  scope?: SideWidgetTabScope;
+  onActivate?: () => void;
+  onDeactivate?: (nextTabId: string | null) => void;
+  onClose?: (nextTabId: string | null) => void;
 }
 
 export interface SideWidgetContentViewProps {
@@ -25,10 +35,12 @@ export interface SideWidgetContentViewProps {
 
 export interface SideWidgetOpenContentOptions {
   activate?: boolean;
+  contact?: ThirdPartyWidgetContact | null;
+  expand?: boolean;
 }
 
 export class SideWidgetContentHandle {
-  constructor(public readonly options: SideWidgetContentOptions) {}
+  constructor(public options: SideWidgetContentOptions) {}
 }
 
 export interface SideWidgetPage {

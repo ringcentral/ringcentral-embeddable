@@ -4,6 +4,12 @@ import { render, screen } from '@testing-library/react';
 import { SideWidgetView } from '../../next/app/views/SideWidgetView/SideWidget.view';
 import { SideWidgetPanel } from '../../next/app/views/SideWidgetView/SideWidgetPanel';
 
+jest.mock('@ringcentral-integration/micro-core/src/app/components', () => ({
+  AppProvider: ({ children }) => children,
+  useAppFooter: () => ({ footer: null }),
+  useAppHeader: () => ({ nav: null }),
+}));
+
 jest.mock('../../next/app/views/SideWidgetView/SideWidgetPanel', () => ({
   SideWidgetPanel: jest.fn(() => null),
 }));
@@ -22,8 +28,12 @@ function createSideWidget(overrides = {}) {
         expandedConfig = config;
         return expandedHandle;
       }),
-      open: jest.fn(),
-      close: jest.fn(),
+      open: jest.fn(function open(handle) {
+        this.activeContentId = handle.id;
+      }),
+      close: jest.fn(function close() {
+        this.activeContentId = null;
+      }),
     },
     thirdParty: {
       apps: [
@@ -77,7 +87,8 @@ describe('SideWidgetView', () => {
   });
 
   test('reports whether the shared side-widget content is active', () => {
-    const { dependencies, view } = createSideWidget();
+    const { dependencies, getExpandedConfig, view } = createSideWidget();
+    expect(getExpandedConfig().showOverlayHeader).toBe(false);
     expect(view.isOpen).toBe(false);
     dependencies.expandedView.activeContentId = 'side-widget';
     expect(view.isOpen).toBe(true);
@@ -107,20 +118,21 @@ describe('SideWidgetView', () => {
   test('creates and updates app tabs while retaining unique ids', () => {
     const { view } = createSideWidget();
     const crm = { id: 'crm', name: 'CRM' };
-    view.tabs = [];
+    const contact = { id: 'contact' };
 
-    view.openAppTab(crm, { id: 'contact' });
+    view.openApps(contact);
+    view.openAppTab(crm, contact);
     expect(view.tabs).toEqual([
-      { id: 'side-widget-apps', name: 'Apps' },
       { id: 'side-widget-app-crm', appId: 'crm', name: 'CRM' },
+      { id: 'side-widget-apps', name: 'Apps' },
     ]);
     expect(view.currentTabId).toBe('side-widget-app-crm');
 
     view.openAppTab({ id: 'crm', name: 'CRM Updated' }, null);
     expect(view.tabs).toHaveLength(2);
-    expect(view.tabs[1].name).toBe('CRM Updated');
+    expect(view.tabs[0].name).toBe('CRM Updated');
     view.openAppTab({ id: 'fallback-name' }, null);
-    expect(view.tabs.at(-1).name).toBe('fallback-name');
+    expect(view.tabs[0].name).toBe('fallback-name');
 
     const disabled = createSideWidget({
       options: { enableSideWidget: false },
@@ -129,8 +141,41 @@ describe('SideWidgetView', () => {
     expect(disabled.tabs).toEqual([{ id: 'side-widget-apps', name: 'Apps' }]);
   });
 
+  test('keeps existing tab positions stable when activating updated content', () => {
+    const { view } = createSideWidget();
+    const callDetails = view.createContent({
+      id: 'call-details',
+      name: 'Call details',
+      view: () => null,
+    });
+    const smartNotes = view.createContent({
+      id: 'smart-notes',
+      name: 'AI Assistant',
+      view: () => null,
+    });
+
+    view.openApps({ id: 'contact' });
+    view.openContent(callDetails);
+    view.openContent(smartNotes);
+    expect(view.tabs.map(({ id }) => id)).toEqual([
+      'smart-notes',
+      'call-details',
+      'side-widget-apps',
+    ]);
+
+    view.openContent(callDetails);
+
+    expect(view.tabs.map(({ id }) => id)).toEqual([
+      'smart-notes',
+      'call-details',
+      'side-widget-apps',
+    ]);
+    expect(view.currentTabId).toBe('call-details');
+  });
+
   test('selects existing tabs and ignores unknown tabs', () => {
     const { view } = createSideWidget();
+    view.openApps({ id: 'contact' });
     view.openAppTab({ id: 'crm', name: 'CRM' }, null);
     view.selectTab('side-widget-apps');
     expect(view.currentTabId).toBe('side-widget-apps');
@@ -164,6 +209,7 @@ describe('SideWidgetView', () => {
 
   test('closes app tabs and selects the preceding tab', () => {
     const { dependencies, expandedHandle, view } = createSideWidget();
+    view.openApps({ id: 'contact' });
     view.openAppTab({ id: 'crm', name: 'CRM' }, null);
     view.openAppTab({ id: 'tasks', name: 'Tasks' }, null);
 
@@ -187,6 +233,7 @@ describe('SideWidgetView', () => {
 
   test('keeps the current tab when closing a background tab', () => {
     const { view } = createSideWidget();
+    view.openApps({ id: 'contact' });
     view.openAppTab({ id: 'crm', name: 'CRM' }, null);
     view.openAppTab({ id: 'tasks', name: 'Tasks' }, null);
     view.selectTab('side-widget-apps');
@@ -196,13 +243,14 @@ describe('SideWidgetView', () => {
 
   test('selects the right-hand tab after closing the active tab', () => {
     const { view } = createSideWidget();
+    view.openApps({ id: 'contact' });
     view.openAppTab({ id: 'crm', name: 'CRM' }, null);
     view.openAppTab({ id: 'tasks', name: 'Tasks' }, null);
     view.selectTab('side-widget-app-crm');
 
     view.closeTab('side-widget-app-crm');
 
-    expect(view.currentTabId).toBe('side-widget-app-tasks');
+    expect(view.currentTabId).toBe('side-widget-apps');
   });
 
   test('hosts reusable content tabs alongside app tabs', () => {
@@ -217,11 +265,12 @@ describe('SideWidgetView', () => {
       view: Content,
     });
 
+    view.openApps({ id: 'contact' });
     view.openContent(handle);
 
     expect(view.tabs).toEqual([
-      { id: 'side-widget-apps', name: 'Apps' },
       { id: 'voicemail-drop', name: 'Voicemail drop' },
+      { id: 'side-widget-apps', name: 'Apps' },
     ]);
     expect(view.currentTabId).toBe('voicemail-drop');
     expect(dependencies.expandedView.open).toHaveBeenCalledWith(expandedHandle);
@@ -240,6 +289,47 @@ describe('SideWidgetView', () => {
     expect(dependencies.expandedView.close).not.toHaveBeenCalled();
   });
 
+  test('opens detail-only content as a folded overlay without adding Apps', () => {
+    const { dependencies, expandedHandle, view } = createSideWidget();
+    const handle = view.createContent({
+      id: 'conversation',
+      name: 'Conversation',
+      view: () => null,
+    });
+
+    view.openContent(handle, {
+      contact: { phoneNumber: '+16505550100' },
+      expand: false,
+    });
+
+    expect(view.tabs).toEqual([
+      { id: 'conversation', name: 'Conversation' },
+    ]);
+    expect(dependencies.expandedView.open).toHaveBeenCalledWith(
+      expandedHandle,
+      { expand: false },
+    );
+  });
+
+  test('preserves Apps when content inherits an identityless call contact', () => {
+    const { view } = createSideWidget();
+    const contact = { name: 'Unknown caller' };
+    const handle = view.createContent({
+      id: 'smart-notes',
+      name: 'AI Assistant',
+      view: () => null,
+    });
+
+    view.openApps(contact);
+    view.openContent(handle);
+
+    expect(view.tabs).toEqual([
+      { id: 'smart-notes', name: 'AI Assistant' },
+      { id: 'side-widget-apps', name: 'Apps' },
+    ]);
+    expect(view.currentContact).toBe(contact);
+  });
+
   test('can add content without replacing the active tab', () => {
     const { dependencies, expandedHandle, view } = createSideWidget();
     const handle = view.createContent({
@@ -248,6 +338,7 @@ describe('SideWidgetView', () => {
       view: () => null,
     });
 
+    view.openApps({ id: 'contact' });
     view.openContent(handle, { activate: false });
 
     expect(view.tabs).toContainEqual({
@@ -286,6 +377,7 @@ describe('SideWidgetView', () => {
 
   test('preserves app tabs while opening and closing custom content', () => {
     const { dependencies, view } = createSideWidget();
+    view.openApps({ id: 'contact' });
     view.openAppTab({ id: 'crm', name: 'CRM' }, null);
     view.openAppTab({ id: 'tasks', name: 'Tasks' }, null);
     const handle = view.createContent({
@@ -296,28 +388,30 @@ describe('SideWidgetView', () => {
 
     view.openContent(handle);
     expect(view.tabs.map(({ id }) => id)).toEqual([
-      'side-widget-apps',
-      'side-widget-app-crm',
-      'side-widget-app-tasks',
       'voicemail-drop',
+      'side-widget-app-tasks',
+      'side-widget-app-crm',
+      'side-widget-apps',
     ]);
 
     view.closeContent(handle);
     expect(view.tabs.map(({ id }) => id)).toEqual([
-      'side-widget-apps',
-      'side-widget-app-crm',
       'side-widget-app-tasks',
+      'side-widget-app-crm',
+      'side-widget-apps',
     ]);
     expect(view.currentTabId).toBe('side-widget-app-tasks');
     expect(dependencies.expandedView.close).not.toHaveBeenCalled();
   });
 
-  test('preserves content tabs when call contact state initializes', () => {
+  test('replaces content tabs when call contact state initializes', () => {
     const { dependencies, view } = createSideWidget();
     dependencies.thirdParty.pinAppIds = ['crm'];
+    const onClose = jest.fn();
     const handle = view.createContent({
       id: 'voicemail-drop',
       name: 'Voicemail drop',
+      onClose,
       view: () => null,
     });
     view.openContent(handle);
@@ -329,10 +423,10 @@ describe('SideWidgetView', () => {
     });
 
     expect(view.tabs.map(({ id }) => id)).toEqual([
-      'side-widget-apps',
-      'voicemail-drop',
       'side-widget-app-crm',
+      'side-widget-apps',
     ]);
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   test('opens content without an Apps tab when side widgets are disabled', () => {
@@ -400,6 +494,31 @@ describe('SideWidgetView', () => {
     expect(() => view.openContent(firstHandle)).not.toThrow();
   });
 
+  test('reuses registered content when ownership changes', () => {
+    const { view } = createSideWidget();
+    const firstView = () => null;
+    const secondView = () => null;
+    const handle = view.createContent({
+      id: 'call-details',
+      name: 'Post-call details',
+      view: firstView,
+    });
+
+    const reusedHandle = view.createOrUpdateContent({
+      id: 'call-details',
+      name: 'Call details',
+      view: secondView,
+    });
+
+    expect(reusedHandle).toBe(handle);
+    expect(handle.options.view).toBe(secondView);
+    view.openContent(handle);
+    expect(view.tabs[0]).toEqual({
+      id: 'call-details',
+      name: 'Call details',
+    });
+  });
+
   test('pins apps into tabs and unpins without reopening', () => {
     const { dependencies, view } = createSideWidget();
     view.currentContact = { id: 'contact' };
@@ -439,22 +558,98 @@ describe('SideWidgetView', () => {
     expect(view.tabs.some(({ appId }) => appId === 'crm')).toBe(true);
   });
 
-  test('resets app state only when the contact changes', () => {
+  test('preserves same-contact pages and atomically replaces different-contact pages', () => {
     const { view } = createSideWidget();
-    view.currentContact = { id: 'contact', phoneNumber: '+1' };
-    view.tabs = [
+    const onCallDetailsClose = jest.fn();
+    const callDetails = view.createContent({
+      id: 'call-details',
+      name: 'Call details',
+      onClose: onCallDetailsClose,
+      view: () => null,
+    });
+    const conversation = view.createContent({
+      id: 'conversation',
+      name: 'Conversation',
+      view: () => null,
+    });
+
+    view.openApps({ id: 'contact', phoneNumber: '+1 (650) 555-0100' });
+    view.openContent(callDetails);
+    view.openContent(conversation, {
+      contact: { phoneNumber: '+16505550100' },
+    });
+
+    expect(view.tabs.map(({ id }) => id)).toEqual([
+      'conversation',
+      'call-details',
+      'side-widget-apps',
+    ]);
+    expect(onCallDetailsClose).not.toHaveBeenCalled();
+
+    view.openContent(conversation, {
+      contact: { id: 'different', phoneNumber: '+16505550101' },
+    });
+
+    expect(view.tabs).toEqual([
+      { id: 'conversation', name: 'Conversation' },
       { id: 'side-widget-apps', name: 'Apps' },
-      { id: 'side-widget-app-crm', appId: 'crm', name: 'CRM' },
-    ];
-    view.selectedAppId = 'crm';
+    ]);
+    expect(onCallDetailsClose).toHaveBeenCalledTimes(1);
+  });
 
-    view._setContact({ id: 'contact', phoneNumber: '+2' });
-    expect(view.tabs).toHaveLength(2);
-    expect(view.selectedAppId).toBe('crm');
+  test('preserves global pages when the contact changes', () => {
+    const { view } = createSideWidget();
+    const settings = view.createContent({
+      id: 'settings',
+      name: 'Settings',
+      scope: 'global',
+      view: () => null,
+    });
+    const conversation = view.createContent({
+      id: 'conversation',
+      name: 'Conversation',
+      view: () => null,
+    });
 
-    view._setContact({ id: 'different', phoneNumber: '+3' });
-    expect(view.tabs).toEqual([{ id: 'side-widget-apps', name: 'Apps' }]);
-    expect(view.selectedAppId).toBeNull();
+    view.openContent(settings, {
+      contact: { id: 'first-contact' },
+    });
+    view.openContent(conversation, {
+      contact: { id: 'second-contact' },
+    });
+
+    expect(view.tabs).toEqual([
+      { id: 'conversation', name: 'Conversation' },
+      { id: 'settings', name: 'Settings', scope: 'global' },
+    ]);
+  });
+
+  test('notifies content when tab activation changes', () => {
+    const { view } = createSideWidget();
+    const firstOnActivate = jest.fn();
+    const firstOnDeactivate = jest.fn();
+    const secondOnActivate = jest.fn();
+    const first = view.createContent({
+      id: 'first',
+      name: 'First',
+      onActivate: firstOnActivate,
+      onDeactivate: firstOnDeactivate,
+      view: () => null,
+    });
+    const second = view.createContent({
+      id: 'second',
+      name: 'Second',
+      onActivate: secondOnActivate,
+      view: () => null,
+    });
+
+    view.openContent(first);
+    view.openContent(second);
+    view.selectTab('first');
+
+    expect(firstOnActivate).toHaveBeenCalledTimes(2);
+    expect(firstOnDeactivate).toHaveBeenCalledWith('second');
+    expect(secondOnActivate).toHaveBeenCalledTimes(1);
   });
 
   test('renders expanded state and wires stable UI callbacks', async () => {

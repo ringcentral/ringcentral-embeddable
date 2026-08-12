@@ -199,6 +199,9 @@ describe('CallView expanded content ownership', () => {
     const sideWidgetView = {
       enabled: true,
       createContent: jest.fn(() => handle),
+      updateContent: jest.fn((contentHandle, options) => {
+        contentHandle.options = options;
+      }),
       openContent: jest.fn(),
       closeContent: jest.fn(),
     };
@@ -239,6 +242,9 @@ describe('CallView expanded content ownership', () => {
     const sideWidgetView = {
       enabled: true,
       createContent: jest.fn(() => handle),
+      updateContent: jest.fn((contentHandle, options) => {
+        contentHandle.options = options;
+      }),
       openContent: jest.fn(),
       closeContent: jest.fn(),
     };
@@ -255,9 +261,13 @@ describe('CallView expanded content ownership', () => {
   });
 
   test('does not duplicate post-call details in the main column', () => {
+    const handle = { id: 'call-details-handle' };
     const sideWidgetView = {
       enabled: true,
-      createContent: jest.fn(() => ({ id: 'call-details-handle' })),
+      createContent: jest.fn(() => handle),
+      updateContent: jest.fn((contentHandle, options) => {
+        contentHandle.options = options;
+      }),
       openContent: jest.fn(),
       closeContent: jest.fn(),
     };

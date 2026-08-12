@@ -122,6 +122,10 @@ jest.mock('../../next/app/views/CallView/ParkView', () => ({
   ParkView: class ParkView {},
 }));
 
+jest.mock('../../next/app/views/SideWidgetView', () => ({
+  SideWidgetView: class SideWidgetView {},
+}));
+
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 function createCallView({

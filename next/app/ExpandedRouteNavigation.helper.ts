@@ -4,7 +4,7 @@ import type { Route } from './AppView.interface';
 
 type DetailRoute = Pick<
   Route,
-  'exact' | 'layout' | 'path' | 'preserveBackground'
+  'exact' | 'layout' | 'path' | 'preserveBackground' | 'sideWidget'
 >;
 
 interface ShouldCollapseExpandedLayoutOptions {
@@ -17,6 +17,11 @@ interface ShouldCollapseExpandedLayoutOptions {
 interface ResolveExpandedRouteBackgroundPathOptions {
   currentPath: string;
   previousBackgroundPath: string | null;
+  routes: readonly DetailRoute[];
+}
+
+interface ShouldRenderExpandedViewOptions {
+  currentPath: string;
   routes: readonly DetailRoute[];
 }
 
@@ -39,7 +44,25 @@ export function isDetailRoutePath(
   routes: readonly DetailRoute[],
 ): boolean {
   const matchedRoute = findRoute(path, routes);
-  return matchedRoute?.layout === 'detail';
+  return matchedRoute?.layout === 'detail' && !matchedRoute.sideWidget;
+}
+
+export function isSideWidgetRoutePath(
+  path: string,
+  routes: readonly DetailRoute[],
+): boolean {
+  return Boolean(findRoute(path, routes)?.sideWidget);
+}
+
+/**
+ * Prevents transient expanded content from competing with a routed detail page
+ * for the shared expanded-column portal.
+ */
+export function shouldRenderExpandedView({
+  currentPath,
+  routes,
+}: ShouldRenderExpandedViewOptions): boolean {
+  return !isDetailRoutePath(currentPath, routes);
 }
 
 /**

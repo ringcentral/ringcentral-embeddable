@@ -204,6 +204,35 @@ describe('SideWidgetPanel', () => {
     expect(props.renderContent).toHaveBeenCalledWith('voicemail-drop', false);
   });
 
+  test('updates the active tab controls when selection changes externally', () => {
+    const props = createProps({
+      tabs: [
+        { id: 'smart-notes', name: 'AI Assistant' },
+        { id: 'call-details', name: 'Call details' },
+      ],
+      currentTabId: 'smart-notes',
+    });
+    const rendered = render(<SideWidgetPanel {...props} />);
+
+    expect(
+      screen.getByRole('button', { name: 'Close AI Assistant tab' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Close Call details tab' }),
+    ).toBeNull();
+
+    rendered.rerender(
+      <SideWidgetPanel {...props} currentTabId="call-details" />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Close AI Assistant tab' }),
+    ).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Close Call details tab' }),
+    ).toBeInTheDocument();
+  });
+
   test('lets a single custom content page render its own close button', () => {
     const props = createProps({
       tabs: [{ id: 'voicemail-drop', name: 'Voicemail drop' }],

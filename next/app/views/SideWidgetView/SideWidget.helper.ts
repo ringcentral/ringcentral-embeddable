@@ -91,23 +91,33 @@ export function isSameSideWidgetContact(
   if (first.id && second.id && first.id === second.id) {
     return true;
   }
-  if (
-    first.phoneNumber &&
-    second.phoneNumber &&
-    first.phoneNumber === second.phoneNumber
-  ) {
+  const firstPhoneNumber = normalizeSideWidgetPhoneNumber(first.phoneNumber);
+  const secondPhoneNumber = normalizeSideWidgetPhoneNumber(second.phoneNumber);
+  if (firstPhoneNumber && firstPhoneNumber === secondPhoneNumber) {
     return true;
   }
   if (
     first.phoneNumbers?.some(
-      ({ phoneNumber }) => phoneNumber === second.phoneNumber,
+      ({ phoneNumber }) =>
+        normalizeSideWidgetPhoneNumber(phoneNumber) === secondPhoneNumber,
     )
   ) {
     return true;
   }
   return Boolean(
     second.phoneNumbers?.some(
-      ({ phoneNumber }) => phoneNumber === first.phoneNumber,
+      ({ phoneNumber }) =>
+        normalizeSideWidgetPhoneNumber(phoneNumber) === firstPhoneNumber,
     ),
   );
+}
+
+export function normalizeSideWidgetPhoneNumber(
+  phoneNumber?: string,
+): string | null {
+  if (!phoneNumber) {
+    return null;
+  }
+  const normalized = phoneNumber.replace(/[^\d*+#]/g, '');
+  return normalized || null;
 }

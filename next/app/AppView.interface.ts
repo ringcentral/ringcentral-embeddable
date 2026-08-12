@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import type { RoutedSideWidgetConfig } from './views/RoutedSideWidgetView';
+
 export type Route = {
   path: string;
   component: React.ComponentType;
@@ -23,6 +25,10 @@ export type Route = {
    * Keep the previously rendered main page while this detail route is expanded.
    */
   preserveBackground?: boolean;
+  /**
+   * Render this route as a reusable SideWidget tab.
+   */
+  sideWidget?: RoutedSideWidgetConfig;
 };
 
 export interface AppViewOptions {

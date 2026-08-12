@@ -1,4 +1,7 @@
-import { Theme, Toast } from '@ringcentral-integration/micro-core/src/app/services';
+import {
+  Theme,
+  Toast,
+} from '@ringcentral-integration/micro-core/src/app/services';
 import type { ToastLevel } from '@ringcentral-integration/micro-core/src/app/services/Toast/Toast.interface';
 import {
   injectable,
@@ -70,11 +73,13 @@ export class SmartNotesView extends RcViewModule {
 
   private _stopWatchingSession: (() => void) | null = null;
 
+  private _presentedSessionId: string | null = null;
+
   override onInit(): void {
     this._stopWatchingSession = watch(
       this,
       () => this._smartNotes.session,
-      (session) => this._handleSessionChange(session),
+      (session) => this._handleSessionChange(session)
     );
   }
 
@@ -111,11 +116,25 @@ export class SmartNotesView extends RcViewModule {
   });
 
   async open(session: SmartNoteSession): Promise<void> {
-    await this._smartNotes.viewSmartNote(session);
-    this._showSession(session);
+    const openInSideWidget =
+      session.status !== 'Disconnected' || this._sideWidgetView.isOpen;
+    this._presentedSessionId = session.id;
+    try {
+      await this._smartNotes.viewSmartNote(session);
+      if (this._presentedSessionId !== session.id) {
+        return;
+      }
+      this._showSession(session, openInSideWidget);
+    } catch (error) {
+      if (this._presentedSessionId === session.id) {
+        this._presentedSessionId = null;
+      }
+      throw error;
+    }
   }
 
   close(): void {
+    this._presentedSessionId = null;
     this._sideWidgetView.closeContent(this._sideWidgetHandle);
     this._expandedView.close(this._expandedHandle);
   }
@@ -125,14 +144,21 @@ export class SmartNotesView extends RcViewModule {
       this.close();
       return;
     }
+    if (this._presentedSessionId === session.id) {
+      return;
+    }
+    this._presentedSessionId = session.id;
     this._showSession(session);
   }
 
-  private _showSession(session: SmartNoteSession): void {
-    if (
-      session.status !== 'Disconnected' ||
-      this._sideWidgetView.isOpen
-    ) {
+  private _showSession(
+    session: SmartNoteSession,
+    openInSideWidget?: boolean
+  ): void {
+    const shouldOpenInSideWidget =
+      openInSideWidget ??
+      (session.status !== 'Disconnected' || this._sideWidgetView.isOpen);
+    if (shouldOpenInSideWidget) {
       this._sideWidgetView.openContent(this._sideWidgetHandle);
       return;
     }
@@ -140,6 +166,7 @@ export class SmartNotesView extends RcViewModule {
   }
 
   private _handleClose(): void {
+    this._presentedSessionId = null;
     if (this._smartNotes.session?.status === 'Disconnected') {
       void this._smartNotes.setSession(null);
     }

@@ -1,4 +1,9 @@
 import type { NormalizedSession } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
+import {
+  AppProvider,
+  useAppFooter,
+  useAppHeader,
+} from '@ringcentral-integration/micro-core/src/app/components';
 import { Theme } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   action,
@@ -8,7 +13,7 @@ import {
   state,
   useConnector,
 } from '@ringcentral-integration/next-core';
-import React, { useRef } from 'react';
+import React, { type ReactNode, useRef } from 'react';
 
 import {
   ThirdParty,
@@ -41,6 +46,37 @@ function createAppsTab(): SideWidgetTab {
   };
 }
 
+function SideWidgetContentPage({
+  children,
+  showCloseButton,
+}: {
+  children: ReactNode;
+  showCloseButton: boolean;
+}): React.ReactElement {
+  const { nav } = useAppHeader({ defaultNav: null });
+  const { footer } = useAppFooter({
+    defaultFooter: null,
+    calculateHeight: false,
+  });
+  return (
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-neutral-base">
+      <header
+        className={
+          showCloseButton
+            ? 'flex-none'
+            : 'flex-none [&_[data-sign=backButton]]:hidden'
+        }
+      >
+        {nav}
+      </header>
+      <div className="flex min-h-0 flex-auto flex-col overflow-hidden">
+        {children}
+      </div>
+      <footer className="flex-none">{footer}</footer>
+    </div>
+  );
+}
+
 @injectable({
   name: 'SideWidgetView',
 })
@@ -50,7 +86,7 @@ export class SideWidgetView extends RcViewModule {
     private _thirdParty: ThirdParty,
     private _theme: Theme,
     @optional('SideWidgetOptions')
-    private _sideWidgetOptions?: SideWidgetOptions,
+    private _sideWidgetOptions?: SideWidgetOptions
   ) {
     super();
   }
@@ -67,10 +103,7 @@ export class SideWidgetView extends RcViewModule {
   @state
   currentContact: ThirdPartyWidgetContact | null = null;
 
-  private readonly _contentHandles = new Map<
-    string,
-    SideWidgetContentHandle
-  >();
+  private readonly _contentHandles = new Map<string, SideWidgetContentHandle>();
 
   get enabled(): boolean {
     return this._sideWidgetOptions?.enableSideWidget ?? false;
@@ -89,7 +122,7 @@ export class SideWidgetView extends RcViewModule {
     }
     if (this._contentHandles.has(options.id)) {
       throw new Error(
-        `Side widget content id is already registered: ${options.id}`,
+        `Side widget content id is already registered: ${options.id}`
       );
     }
     const handle = new SideWidgetContentHandle(options);
@@ -97,16 +130,65 @@ export class SideWidgetView extends RcViewModule {
     return handle;
   }
 
+  createOrUpdateContent(
+    options: SideWidgetContentOptions
+  ): SideWidgetContentHandle {
+    const existingHandle = this._contentHandles.get(options.id);
+    if (existingHandle) {
+      existingHandle.options = options;
+      return existingHandle;
+    }
+    return this.createContent(options);
+  }
+
+  updateContent(
+    handle: SideWidgetContentHandle,
+    options: SideWidgetContentOptions
+  ): void {
+    if (this._contentHandles.get(handle.options.id) !== handle) {
+      throw new Error(
+        `Side widget content handle is not registered: ${handle.options.id}`
+      );
+    }
+    if (options.id !== handle.options.id) {
+      throw new Error('Side widget content id cannot be changed');
+    }
+    handle.options = options;
+  }
+
   openContent(
     handle: SideWidgetContentHandle,
-    { activate = true }: SideWidgetOpenContentOptions = {},
+    {
+      activate = true,
+      contact,
+      expand = true,
+    }: SideWidgetOpenContentOptions = {}
   ): void {
     const { id, name } = handle.options;
     if (this._contentHandles.get(id) !== handle) {
       throw new Error(`Side widget content handle is not registered: ${id}`);
     }
-    this._openContentTab({ id, name }, activate);
-    this._expandedView.open(this._expandedHandle);
+    const tab: SideWidgetTab = {
+      id,
+      name,
+      scope: handle.options.scope === 'global' ? 'global' : undefined,
+    };
+    const nextContact = contact === undefined ? this.currentContact : contact;
+    const preserveTabs =
+      contact === undefined ||
+      isSameSideWidgetContact(this.currentContact, nextContact);
+    const closedTabIds = this._getClosedTabIds(tab.id, preserveTabs);
+    const previousTabId = this.currentTabId;
+    this._openTab(tab, nextContact, activate, preserveTabs);
+    this._notifyClosedTabs(closedTabIds);
+    if (activate) {
+      this._notifyTabActivation(previousTabId, tab.id);
+    }
+    if (expand) {
+      this._expandedView.open(this._expandedHandle);
+    } else {
+      this._expandedView.open(this._expandedHandle, { expand: false });
+    }
   }
 
   closeContent(handle: SideWidgetContentHandle): void {
@@ -117,66 +199,97 @@ export class SideWidgetView extends RcViewModule {
   }
 
   @action
-  private _openContentTab(tab: SideWidgetTab, activate: boolean): void {
-    const tabs =
-      this.enabled && this._thirdParty.apps.length > 0
-        ? this.tabs
-        : this.tabs.filter(({ id }) => id !== SIDE_WIDGET_APPS_TAB_ID);
-    this.tabs = tabs.some(({ id }) => id === tab.id)
-      ? tabs.map((item) => (item.id === tab.id ? tab : item))
-      : tabs.concat(tab);
+  private _openTab(
+    tab: SideWidgetTab,
+    contact: ThirdPartyWidgetContact | null,
+    activate: boolean,
+    preserveTabs: boolean
+  ): void {
+    const previousTabs = this.tabs;
+    const availableTabs = this.enabled
+      ? previousTabs.filter(
+          ({ id }) => id !== SIDE_WIDGET_APPS_TAB_ID || this.isOpen
+        )
+      : previousTabs.filter(({ id }) => id !== SIDE_WIDGET_APPS_TAB_ID);
+    const retainedTabs = preserveTabs
+      ? availableTabs
+      : availableTabs.filter(
+          ({ id, scope }) =>
+            id === SIDE_WIDGET_APPS_TAB_ID || scope === 'global'
+        );
+    const existingTabIndex = retainedTabs.findIndex(({ id }) => id === tab.id);
+    this.tabs =
+      existingTabIndex < 0
+        ? [tab, ...retainedTabs]
+        : retainedTabs.map((item, index) =>
+            index === existingTabIndex ? tab : item
+          );
+    this.currentContact = contact;
+    if (!preserveTabs) {
+      this.selectedAppId = null;
+    }
     if (activate) {
       this.currentTabId = tab.id;
       this.selectedAppId = null;
+    } else if (!this.tabs.some(({ id }) => id === this.currentTabId)) {
+      this.currentTabId = tab.id;
     }
   }
 
-  @action
   openApps(contact: ThirdPartyWidgetContact): void {
     if (!this.enabled || this._thirdParty.apps.length === 0) {
       return;
     }
-    this._setContact(contact);
-    this._ensureAppsTab();
-    this.currentTabId = SIDE_WIDGET_APPS_TAB_ID;
-    this.selectedAppId = null;
+    const tab = createAppsTab();
+    const preserveTabs = isSameSideWidgetContact(this.currentContact, contact);
+    const closedTabIds = this._getClosedTabIds(tab.id, preserveTabs);
+    const previousTabId = this.currentTabId;
+    this._openTab(tab, contact, true, preserveTabs);
+    this._notifyClosedTabs(closedTabIds);
+    this._notifyTabActivation(previousTabId, tab.id);
     this._expandedView.open(this._expandedHandle);
   }
 
-  @action
   openAppTab(
     app: ThirdPartyApp,
-    contact: ThirdPartyWidgetContact | null,
+    contact: ThirdPartyWidgetContact | null
   ): void {
     if (!this.enabled) {
       return;
     }
-    if (contact) {
-      this._setContact(contact);
-    }
-    this._ensureAppsTab();
+    const nextContact = contact ?? this.currentContact;
     const tabId = getSideWidgetAppTabId(app.id);
     const tab: SideWidgetTab = {
       id: tabId,
       appId: app.id,
       name: app.name || app.id,
     };
-    this.tabs = this.tabs.some(({ id }) => id === tabId)
-      ? this.tabs.map((item) => (item.id === tabId ? tab : item))
-      : this.tabs.concat(tab);
-    this.currentTabId = tabId;
-    this.selectedAppId = null;
+    const preserveTabs = isSameSideWidgetContact(
+      this.currentContact,
+      nextContact
+    );
+    const closedTabIds = this._getClosedTabIds(tab.id, preserveTabs);
+    const previousTabId = this.currentTabId;
+    this._openTab(tab, nextContact, true, preserveTabs);
+    this._notifyClosedTabs(closedTabIds);
+    this._notifyTabActivation(previousTabId, tab.id);
+    this._expandedView.open(this._expandedHandle);
   }
 
-  @action
   selectTab(tabId: string): void {
     if (!this.tabs.some(({ id }) => id === tabId)) {
       return;
     }
-    this.currentTabId = tabId;
+    const previousTabId = this.currentTabId;
+    this._selectTab(tabId);
+    this._notifyTabActivation(previousTabId, tabId);
   }
 
   @action
+  private _selectTab(tabId: string): void {
+    this.currentTabId = tabId;
+  }
+
   selectApp(appId: string): void {
     const app = this._thirdParty.apps.find(({ id }) => id === appId);
     if (!app) {
@@ -186,11 +299,22 @@ export class SideWidgetView extends RcViewModule {
       this.openAppTab(app, this.currentContact);
       return;
     }
-    this.selectedAppId = appId;
+    this._selectApp(appId);
   }
 
   @action
+  private _selectApp(appId: string): void {
+    this.selectedAppId = appId;
+  }
+
   showApps(): void {
+    const previousTabId = this.currentTabId;
+    this._showApps();
+    this._notifyTabActivation(previousTabId, SIDE_WIDGET_APPS_TAB_ID);
+  }
+
+  @action
+  private _showApps(): void {
     this.currentTabId = SIDE_WIDGET_APPS_TAB_ID;
     this.selectedAppId = null;
   }
@@ -201,14 +325,19 @@ export class SideWidgetView extends RcViewModule {
       return;
     }
     const contentHandle = this._contentHandles.get(tabId);
+    const wasActive = this.currentTabId === tabId;
     if (this.tabs.length === 1) {
-      this._resetTabs();
-      contentHandle?.options.onClose?.();
+      this._removeTab(tabId, tabIndex);
+      contentHandle?.options.onClose?.(null);
       this.close();
       return;
     }
     this._removeTab(tabId, tabIndex);
-    contentHandle?.options.onClose?.();
+    const nextTabId = this.currentTabId;
+    contentHandle?.options.onClose?.(nextTabId);
+    if (wasActive) {
+      this._contentHandles.get(nextTabId)?.options.onActivate?.();
+    }
   }
 
   @action
@@ -222,6 +351,9 @@ export class SideWidgetView extends RcViewModule {
     }
     if (tabId === SIDE_WIDGET_APPS_TAB_ID) {
       this.selectedAppId = null;
+    }
+    if (nextTabs.length === 0) {
+      this.currentContact = null;
     }
   }
 
@@ -250,10 +382,10 @@ export class SideWidgetView extends RcViewModule {
         }
         return handles;
       },
-      [],
+      []
     );
     this._resetTabs();
-    contentHandles.forEach(({ options }) => options.onClose?.());
+    contentHandles.forEach(({ options }) => options.onClose?.(null));
   }
 
   @action
@@ -261,6 +393,7 @@ export class SideWidgetView extends RcViewModule {
     this.tabs = [createAppsTab()];
     this.currentTabId = SIDE_WIDGET_APPS_TAB_ID;
     this.selectedAppId = null;
+    this.currentContact = null;
   }
 
   onCallRing(session: NormalizedSession): void {
@@ -278,37 +411,55 @@ export class SideWidgetView extends RcViewModule {
     });
   }
 
-  private _setContact(contact: ThirdPartyWidgetContact): void {
-    if (!isSameSideWidgetContact(this.currentContact, contact)) {
-      const contentTabs = this.tabs.filter(
-        ({ id, appId }) => id !== SIDE_WIDGET_APPS_TAB_ID && !appId,
-      );
-      this.tabs = [createAppsTab(), ...contentTabs];
-      this.selectedAppId = null;
-    }
-    this.currentContact = contact;
+  private _notifyClosedTabs(tabIds: string[]): void {
+    tabIds.forEach((tabId) => {
+      this._contentHandles.get(tabId)?.options.onClose?.(this.currentTabId);
+    });
   }
 
-  private _ensureAppsTab(): void {
-    if (this.tabs.some(({ id }) => id === SIDE_WIDGET_APPS_TAB_ID)) {
+  private _notifyTabActivation(previousTabId: string, nextTabId: string): void {
+    if (previousTabId === nextTabId) {
       return;
     }
-    this.tabs = [createAppsTab(), ...this.tabs];
+    this._contentHandles.get(previousTabId)?.options.onDeactivate?.(nextTabId);
+    this._contentHandles.get(nextTabId)?.options.onActivate?.();
+  }
+
+  private _getClosedTabIds(nextTabId: string, preserveTabs: boolean): string[] {
+    if (preserveTabs) {
+      return [];
+    }
+    return this.tabs
+      .filter(
+        ({ id, scope }) =>
+          id !== nextTabId &&
+          id !== SIDE_WIDGET_APPS_TAB_ID &&
+          scope !== 'global'
+      )
+      .map(({ id }) => id);
   }
 
   private _renderContent(
     tabId: string,
-    showCloseButton: boolean,
+    showCloseButton: boolean
   ): React.ReactNode {
+    if (tabId !== this.currentTabId) {
+      return null;
+    }
     const ContentView = this._contentHandles.get(tabId)?.options.view;
     return ContentView ? (
-      <ContentView showCloseButton={showCloseButton} />
+      <AppProvider>
+        <SideWidgetContentPage showCloseButton={showCloseButton}>
+          <ContentView showCloseButton={showCloseButton} />
+        </SideWidgetContentPage>
+      </AppProvider>
     ) : null;
   }
 
   private _expandedHandle = this._expandedView.create({
     id: 'side-widget',
     onClose: () => this._handleExpandedClose(),
+    showOverlayHeader: false,
     view: () => {
       const uiProps = useConnector(() => ({
         apps: this._thirdParty.apps.map((app) => {
