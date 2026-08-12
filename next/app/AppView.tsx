@@ -54,12 +54,12 @@ import {
   FeedbackView,
   IssuesTrackingView,
   RegionSettingsView,
-  SettingsView,
   ThemeSwitchView,
   WelcomeView,
   CallLoggingSettingsView,
   RecordMatchingSettingsView,
 } from '@ringcentral-integration/micro-setting/src/app/views';
+import { SettingsView } from '@ringcentral-integration/micro-setting/src/app/views/SettingsView';
 import {
   autobind,
   injectable,

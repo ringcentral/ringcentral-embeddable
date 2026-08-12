@@ -39,7 +39,7 @@ import {
 import { ConversationsPage } from './ConversationsPage';
 
 @injectable({
-  name: 'ConversationsViewSpring',
+  name: 'ConversationsView',
 })
 export class ConversationsView extends ConversationsViewSpringBase {
   constructor(

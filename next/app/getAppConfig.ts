@@ -97,7 +97,10 @@ import type {
   HeaderViewOptions,
 } from '@ringcentral-integration/micro-core/src/app/views';
 import { PersonalMeetingSettingsViewSpring } from '@ringcentral-integration/micro-meeting/src/app/views';
-import type { SettingsViewOptions } from '@ringcentral-integration/micro-setting/src/app/views/SettingsView';
+import {
+  SettingsView as MicroSettingsView,
+  type SettingsViewOptions,
+} from '@ringcentral-integration/micro-setting/src/app/views/SettingsView';
 import {
   AppFeatures as AppFeaturesV2,
   Authentication,
@@ -199,6 +202,7 @@ import { HeaderPanel } from './views/HeaderView/HeaderPanel';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 import { VoicemailDropView } from './views/VoicemailDropView';
 import { createSettingsPanel } from './views/SettingsView/createSettingsPanel';
+import { SettingsView as SettingsViewV2 } from './views/SettingsView/Settings.view';
 
 const DEFAULT_CONTACT_MATCH_TTL = 120 * 60 * 1000;
 const DEFAULT_CONTACT_NO_MATCH_TTL = 5 * 60 * 1000;
@@ -425,6 +429,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: MicroMessageConversationsView,
         useClass: ConversationsViewV2,
+      },
+      {
+        provide: MicroSettingsView,
+        useClass: SettingsViewV2,
       },
       {
         provide: SmsOptOut,

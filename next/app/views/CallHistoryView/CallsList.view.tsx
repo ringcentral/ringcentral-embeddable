@@ -33,7 +33,7 @@ import React from 'react';
 import { CallsListPage } from './CallsListPage';
 
 @injectable({
-  name: 'CallsListViewSpring',
+  name: 'CallsListView',
 })
 export class CallsListView extends CallsListViewSpringBase {
   constructor(
