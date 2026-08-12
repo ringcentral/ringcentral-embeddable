@@ -3,6 +3,7 @@ import type { LegacyNavigationIntent } from "./LegacyNavigationIntent";
 const DIRECT_ROUTE_PATTERNS: readonly RegExp[] = [
   /^\/$/,
   /^\/composeFax$/,
+  /^\/faxes\/[^/]+$/,
   /^\/composeText$/,
   /^\/contacts$/,
   /^\/contacts\/[^/]+\/[^/]+$/,

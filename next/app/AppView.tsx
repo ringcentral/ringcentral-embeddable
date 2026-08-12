@@ -85,6 +85,7 @@ import {
 import { CustomizedPageView } from './views/CustomizedPageView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
+import { FaxDetailsView } from './views/FaxDetailsView';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import {
@@ -235,6 +236,25 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._dialerPadView.component,
+      sideWidget: {
+        id: 'voicemail-details',
+        name: 'Voicemail',
+        scope: 'contact',
+        backgroundPath: '/dialer',
+      },
+    },
+    {
+      path: '/faxes/:conversationId',
+      component: this._faxDetailsView.component,
+      authentication: true,
+      layout: 'detail',
+      backgroundComponent: this.Fax,
+      sideWidget: {
+        id: 'fax-details',
+        name: 'Fax',
+        scope: 'contact',
+        backgroundPath: '/fax',
+      },
     },
     {
       path: '/messages',
@@ -421,7 +441,11 @@ export class AppView extends RcViewModule {
     tabId: string,
     params: Record<string, string | undefined>,
   ): ThirdPartyWidgetContact | null | undefined {
-    if (tabId === 'conversation') {
+    if (
+      tabId === 'conversation' ||
+      tabId === 'voicemail-details' ||
+      tabId === 'fax-details'
+    ) {
       const conversationId = params.conversationId;
       if (!conversationId) {
         return undefined;
@@ -560,6 +584,7 @@ export class AppView extends RcViewModule {
     private _loginView: LoginView,
     private _headerView: HeaderView,
     private _faxSendView: FaxSendView,
+    private _faxDetailsView: FaxDetailsView,
     private _headerNavView: HeaderNavViewSpring,
     private _customizedPageView: CustomizedPageView,
     private _expandedRouteView: ExpandedRouteView,

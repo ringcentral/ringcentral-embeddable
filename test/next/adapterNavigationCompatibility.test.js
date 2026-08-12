@@ -83,6 +83,17 @@ describe("Adapter navigation compatibility", () => {
     );
   });
 
+  test("accepts next voicemail and fax detail routes", () => {
+    expect(resolveLegacyAdapterPath("/voicemails/voicemail-id")).toEqual({
+      kind: "route",
+      path: "/voicemails/voicemail-id",
+    });
+    expect(resolveLegacyAdapterPath("/faxes/fax-id")).toEqual({
+      kind: "route",
+      path: "/faxes/fax-id",
+    });
+  });
+
   test("opens legacy call history in the DialerPad calls tab", async () => {
     const adapter = createAdapter();
 

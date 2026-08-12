@@ -93,6 +93,10 @@ jest.mock('../../next/app/views/CallHistoryView/CallsListPage', () => ({
   CallsListPage: () => null,
 }));
 
+jest.mock('../../next/app/views/ConversationsView/ConversationsPage', () => ({
+  ConversationsPage: () => null,
+}));
+
 describe('SideWidget list detail navigation', () => {
   test('opens an SMS route directly without the full-page transition', async () => {
     const router = { push: jest.fn(async () => undefined) };
@@ -117,6 +121,65 @@ describe('SideWidget list detail navigation', () => {
     expect(router.push).toHaveBeenCalledWith(
       '/conversations/conversation-id',
     );
+  });
+
+  test('opens voicemail details directly without the full-page transition', async () => {
+    const router = { push: jest.fn(async () => undefined) };
+    const view = Object.create(ConversationsView.prototype);
+    view._router = router;
+
+    const handler = view
+      .getUIFunctions({ typeFilter: 'VoiceMail' })
+      .useActionsHandler(
+        { conversationId: 'voicemail-id' },
+        { isVoicemail: true },
+        'Voicemail list',
+      );
+
+    await handler('viewDetail');
+
+    expect(router.push).toHaveBeenCalledWith(
+      '/voicemails/voicemail-id',
+    );
+  });
+
+  test('opens fax details when the fax list item is clicked', async () => {
+    const router = { push: jest.fn(async () => undefined) };
+    const messageStore = { readMessages: jest.fn() };
+    const view = Object.create(ConversationsView.prototype);
+    view._messageStore = messageStore;
+    view._router = router;
+
+    const handler = view
+      .getUIFunctions({ typeFilter: 'Fax' })
+      .useActionsHandler(
+        { conversationId: 'fax-id' },
+        { isFax: true },
+        'Fax list',
+      );
+
+    await handler('viewDetail');
+
+    expect(messageStore.readMessages).toHaveBeenCalledWith('fax-id');
+    expect(router.push).toHaveBeenCalledWith('/faxes/fax-id');
+  });
+
+  test('keeps the fax View action as a direct attachment preview', async () => {
+    const router = { push: jest.fn(async () => undefined) };
+    const view = Object.create(ConversationsView.prototype);
+    view._router = router;
+
+    const handler = view
+      .getUIFunctions({ typeFilter: 'Fax' })
+      .useActionsHandler(
+        { conversationId: 'fax-id' },
+        { isFax: true },
+        'Fax list',
+      );
+
+    await handler('viewFax');
+
+    expect(router.push).not.toHaveBeenCalled();
   });
 
   test('opens a call-detail route directly without the full-page transition', async () => {

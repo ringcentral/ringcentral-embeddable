@@ -36,6 +36,8 @@ import {
   type UIFunctions,
 } from '@ringcentral-integration/next-core';
 
+import { ConversationsPage } from './ConversationsPage';
+
 @injectable({
   name: 'ConversationsViewSpring',
 })
@@ -85,7 +87,10 @@ export class ConversationsView extends ConversationsViewSpringBase {
       contactMatcher,
       conversationLogger,
       smsOptOut,
-      conversationsViewOptions,
+      {
+        ...conversationsViewOptions,
+        component: ConversationsPage,
+      },
       smsConversationsOptions,
     );
   }
@@ -103,9 +108,21 @@ export class ConversationsView extends ConversationsViewSpringBase {
           location,
         );
         return async (actionType, data) => {
-          if (actionType === 'viewDetail' && info.isTextMessage) {
+          if (
+            (actionType === 'viewDetail' &&
+              (info.isTextMessage || info.isVoicemail || info.isFax))
+          ) {
             const conversationId = conversation.conversationId;
             if (!conversationId) {
+              return;
+            }
+            if (info.isFax) {
+              this._messageStore.readMessages(conversationId);
+              await this._router.push(`/faxes/${conversationId}`);
+              return;
+            }
+            if (info.isVoicemail) {
+              await this._router.push(`/voicemails/${conversationId}`);
               return;
             }
             await this._smsConversationsOptions?.checkDncStatusOfConversation?.(

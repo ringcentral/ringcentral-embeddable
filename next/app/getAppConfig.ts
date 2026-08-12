@@ -137,6 +137,7 @@ import {
 import { CallHUDView } from './views/CallHUDView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
+import { FaxDetailsView } from './views/FaxDetailsView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
 import {
@@ -472,6 +473,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       CustomizedPageView,
       ExpandedRouteView,
       ExpandedView,
+      FaxDetailsView,
       RoutedSideWidgetView,
       SmartNotesView,
       SideWidgetView,
