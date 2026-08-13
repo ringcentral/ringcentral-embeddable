@@ -80,6 +80,7 @@ jest.mock('@ringcentral/juno-icon', () => {
     return <span data-icon={name} />;
   };
   return {
+    Disposition: createIcon('Disposition'),
     DefaultFile: createIcon('DefaultFile'),
     Download: createIcon('Download'),
     Notes: createIcon('Notes'),
@@ -129,7 +130,26 @@ jest.mock('@ringcentral/juno', () => {
   ));
   styled.span = () => createComponent('span', 'styled-span');
   return {
+    RcCheckbox: ({ checked, onChange }) => (
+      <input
+        checked={checked}
+        data-testid="messageSelectCheckbox"
+        readOnly
+        type="checkbox"
+        onClick={() => onChange?.(null, !checked)}
+      />
+    ),
     RcIcon: createComponent('span', 'icon'),
+    RcIconButton: ({ onClick, title, ...props }) => (
+      <button
+        data-testid={props['data-sign'] || 'icon-button'}
+        title={title}
+        type="button"
+        onClick={onClick}
+      >
+        {title}
+      </button>
+    ),
     RcText: createComponent('span', 'text'),
     RcTypography: createComponent('span', 'typography'),
     css: jest.fn(() => ''),
@@ -533,5 +553,52 @@ describe('recipient and conversation component flows', () => {
     expect(screen.getByText('This conversation is unassigned.')).toBeTruthy();
     expect(screen.getByText('Conversation has been assigned to Grace.')).toBeTruthy();
     expect(screen.getByText('Conversation has been deleted.')).toBeTruthy();
+  });
+
+  it('hides selective SMS controls and logged icons when granular logging is disabled', () => {
+    const messages = [{
+      creationTime: Date.UTC(2024, 0, 1, 10, 0, 0),
+      direction: 'Outbound',
+      from: { phoneNumber: '+16505550100' },
+      id: 'message-logged',
+      messageStatus: 'Sent',
+      mmsAttachments: [],
+      subject: 'Logged text',
+    }];
+    const baseProps = {
+      className: 'ConversationMessageList',
+      currentLocale: 'en-US',
+      dateTimeFormatter: jest.fn(() => 'date'),
+      formatPhone: jest.fn((phoneNumber) => phoneNumber),
+      loadPreviousMessages: jest.fn(),
+      messageSubjectRenderer: undefined,
+      messages,
+      myExtensionId: '101',
+      onAttachmentDownload: jest.fn(),
+      onLinkClick: jest.fn(),
+      onViewNote: jest.fn(),
+      statusReason: '',
+      messageLogStateMap: {
+        'message-logged': { logId: 'crm-log-1' },
+      },
+    };
+    const { rerender } = render(
+      <ConversationMessageList
+        {...baseProps}
+        selectionEnabled
+      />,
+    );
+
+    expect(screen.getByTestId('messageLoggedIcon')).toBeTruthy();
+
+    rerender(
+      <ConversationMessageList
+        {...baseProps}
+        selectionEnabled={false}
+      />,
+    );
+
+    expect(screen.queryByTestId('messageLoggedIcon')).toBeNull();
+    expect(screen.queryByTestId('messageSelectCheckbox')).toBeNull();
   });
 });

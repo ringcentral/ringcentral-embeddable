@@ -32,6 +32,8 @@ import { BottomAssignInfo } from './BottomAssignInfo';
 import type { SMSRecipient, MessageThread } from '../../modules/MessageThreads/MessageThreads.interface';
 import type { AliveNote } from '../../modules/MessageThreadEntries/MessageThreadEntries.interface';
 
+const MESSAGE_LOG_STATE_CHECK_TTL = 60 * 1000;
+
 const Root = styled.div`
   position: relative;
   width: 100%;
@@ -374,6 +376,8 @@ export function ConversationPanel({
   // Granular logging: set of currently-checked (unlogged) message ids.
   // Nothing is selected by default; the user picks messages explicitly.
   const [selectedMessageIds, setSelectedMessageIds] = useState<Set<number>>(new Set());
+  const checkedMessageLogIdsRef = useRef<Record<string, Record<string, number>>>({});
+  const inFlightMessageLogIdsRef = useRef<Record<string, Set<string>>>({});
 
   useEffect(() => {
     mountedRef.current = true;
@@ -434,6 +438,17 @@ export function ConversationPanel({
     setSelectedMessageIds(new Set());
   }, [conversationId]);
 
+  // Granular logging: when the feature is disabled by user/admin settings, hide
+  // controls immediately and drop any local selection/check bookkeeping.
+  useEffect(() => {
+    if (granularLoggingEnabled) {
+      return;
+    }
+    setSelectedMessageIds(new Set());
+    checkedMessageLogIdsRef.current = {};
+    inFlightMessageLogIdsRef.current = {};
+  }, [granularLoggingEnabled]);
+
   // Granular logging: hydrate per-message logged state from the service.
   useEffect(() => {
     if (!granularLoggingEnabled || !conversationId) {
@@ -442,12 +457,44 @@ export function ConversationPanel({
     if (typeof syncMessageLogState !== 'function') {
       return;
     }
-    const ids = (messages || []).filter(isSelectableMessage).map((message: any) => message.id);
+    const conversationKey = String(conversationId);
+    const now = Date.now();
+    const checkedIds = checkedMessageLogIdsRef.current[conversationKey] ?? {};
+    const inFlightIds = inFlightMessageLogIdsRef.current[conversationKey] ?? new Set<string>();
+    checkedMessageLogIdsRef.current[conversationKey] = checkedIds;
+    inFlightMessageLogIdsRef.current[conversationKey] = inFlightIds;
+    const ids = (messages || [])
+      .filter(isSelectableMessage)
+      .map((message: any) => message.id)
+      .filter((id: any) => {
+        const messageId = String(id);
+        const lastCheckedAt = checkedIds[messageId] ?? 0;
+        return (
+          !messageLogStateMap?.[messageId] &&
+          !inFlightIds.has(messageId) &&
+          now - lastCheckedAt > MESSAGE_LOG_STATE_CHECK_TTL
+        );
+      });
     if (ids.length === 0) {
       return;
     }
-    syncMessageLogState(conversationId, ids);
-  }, [granularLoggingEnabled, conversationId, messages]);
+    ids.forEach((id: any) => inFlightIds.add(String(id)));
+    Promise.resolve(syncMessageLogState(conversationId, ids))
+      .then(() => {
+        const checked = checkedMessageLogIdsRef.current[conversationKey] ?? {};
+        ids.forEach((id: any) => {
+          checked[String(id)] = Date.now();
+        });
+        checkedMessageLogIdsRef.current[conversationKey] = checked;
+      })
+      .finally(() => {
+        const currentInFlight = inFlightMessageLogIdsRef.current[conversationKey];
+        if (!currentInFlight) {
+          return;
+        }
+        ids.forEach((id: any) => currentInFlight.delete(String(id)));
+      });
+  }, [granularLoggingEnabled, conversationId, messages, messageLogStateMap, syncMessageLogState]);
 
   // Granular logging: messages are deselected by default. This effect only
   // drops a message from the current selection once it has become logged.
@@ -578,7 +625,7 @@ export function ConversationPanel({
         statusReason={conversation.statusReason}
         selectionEnabled={granularLoggingEnabled}
         selectedMessageIds={selectedMessageIds}
-        messageLogStateMap={messageLogStateMap}
+        messageLogStateMap={granularLoggingEnabled ? messageLogStateMap : {}}
         setMessageSelected={setMessageSelected}
         onClickMessageLog={onClickMessageLog}
       />

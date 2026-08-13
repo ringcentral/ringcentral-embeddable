@@ -686,7 +686,7 @@ export function ConversationMessageList({
         />
       );
     }
-    const loggedState = messageLogStateMap?.[String(message.id)];
+    const loggedState = selectionEnabled ? messageLogStateMap?.[String(message.id)] : undefined;
     const isLogged = !!loggedState;
     const isChecked = !!selectedMessageIds && selectedMessageIds.has(message.id);
     return (
