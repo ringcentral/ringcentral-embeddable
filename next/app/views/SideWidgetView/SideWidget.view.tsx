@@ -46,6 +46,15 @@ function createAppsTab(): SideWidgetTab {
   };
 }
 
+function isPromiseLike(value: unknown): value is PromiseLike<void> {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      'then' in value &&
+      typeof value.then === 'function',
+  );
+}
+
 function SideWidgetContentPage({
   children,
   showCloseButton,
@@ -326,17 +335,54 @@ export class SideWidgetView extends RcViewModule {
     }
     const contentHandle = this._contentHandles.get(tabId);
     const wasActive = this.currentTabId === tabId;
+    if (process.env.NODE_ENV !== 'test') {
+      console.info('[SideWidgetDebug] close tab', {
+        tabId,
+        currentTabId: this.currentTabId,
+        tabIds: this.tabs.map(({ id }) => id),
+        wasActive,
+      });
+    }
     if (this.tabs.length === 1) {
       this._removeTab(tabId, tabIndex);
-      contentHandle?.options.onClose?.(null);
-      this.close();
+      const closeResult = contentHandle?.options.onClose?.(null);
+      if (isPromiseLike(closeResult)) {
+        void this._completeLastTabClose(contentHandle, closeResult);
+      } else {
+        const collapseResult = this.close();
+        void this._completeCollapsedTabClose(
+          contentHandle,
+          collapseResult,
+        );
+      }
       return;
     }
     this._removeTab(tabId, tabIndex);
     const nextTabId = this.currentTabId;
-    contentHandle?.options.onClose?.(nextTabId);
-    if (wasActive) {
-      this._contentHandles.get(nextTabId)?.options.onActivate?.();
+    const closeResult = contentHandle?.options.onClose?.(nextTabId);
+    const activateNextTab = () =>
+      wasActive
+        ? this._contentHandles.get(nextTabId)?.options.onActivate?.()
+        : undefined;
+    if (isPromiseLike(closeResult)) {
+      void Promise.resolve(closeResult)
+        .then(activateNextTab)
+        .catch((error: unknown) => {
+          this.logger.error(
+            '[SideWidget] failed to switch routed tab',
+            error,
+          );
+        });
+    } else {
+      const activationResult = activateNextTab();
+      if (isPromiseLike(activationResult)) {
+        void Promise.resolve(activationResult).catch((error: unknown) => {
+          this.logger.error(
+            '[SideWidget] failed to activate routed tab',
+            error,
+          );
+        });
+      }
     }
   }
 
@@ -369,8 +415,35 @@ export class SideWidgetView extends RcViewModule {
     }
   }
 
-  close(): void {
-    this._expandedView.close(this._expandedHandle);
+  private async _completeLastTabClose(
+    contentHandle: SideWidgetContentHandle | undefined,
+    closeResult: void | Promise<void>,
+  ): Promise<void> {
+    try {
+      await closeResult;
+    } catch (error: unknown) {
+      this.logger.error('[SideWidget] failed to close routed tab', error);
+    }
+    await this._completeCollapsedTabClose(contentHandle, this.close());
+  }
+
+  private async _completeCollapsedTabClose(
+    contentHandle: SideWidgetContentHandle | undefined,
+    collapseResult: void | Promise<void>,
+  ): Promise<void> {
+    await collapseResult;
+    try {
+      await contentHandle?.options.onCloseComplete?.();
+    } catch (error: unknown) {
+      this.logger.error(
+        '[SideWidget] failed to complete routed tab close',
+        error,
+      );
+    }
+  }
+
+  close(): Promise<void> {
+    return this._expandedView.close(this._expandedHandle);
   }
 
   private _handleExpandedClose(): void {

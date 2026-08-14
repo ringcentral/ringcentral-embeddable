@@ -170,6 +170,7 @@ import {
 } from '@ringcentral-integration/next-core';
 import {
   ConversationsViewSpring as MicroMessageConversationsView,
+  type ConversationViewSpringOptions,
   MessageThreadsView,
   SharedConversationView,
   SmsOptOutView,
@@ -191,6 +192,7 @@ import { ParkView } from './views/CallView/ParkView';
 import { CallControlView as CallControlViewV2 } from './views/CallView/CallControlView/CallControl.view';
 import { CallView as CallViewV2 } from './views/CallView/Call.view';
 import { ConversationsView as ConversationsViewV2 } from './views/ConversationsView';
+import { createConversationPanel } from './views/ConversationView/createConversationPanel';
 import { EMBEDDABLE_CALL_ACTION_OPTIONS } from './views/CallView/Call.view.options';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
@@ -429,6 +431,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: MicroMessageConversationsView,
         useClass: ConversationsViewV2,
+      },
+      {
+        provide: 'ConversationViewOptions',
+        useFactory: (router: RouterPlugin) =>
+          ({
+            component: createConversationPanel(router),
+          } satisfies ConversationViewSpringOptions),
+        deps: [RouterPlugin],
       },
       {
         provide: MicroSettingsView,

@@ -15,7 +15,7 @@ export class ExpandedContentHandle {
 }
 
 export interface ExpandedViewOpenResult {
-  close: () => void;
+  close: () => Promise<void>;
 }
 
 export interface ExpandedViewOpenOptions {

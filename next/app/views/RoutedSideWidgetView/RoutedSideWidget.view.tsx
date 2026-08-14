@@ -1,10 +1,12 @@
 import {
+  action,
   injectable,
   matchPath,
   RcViewModule,
   Root,
   Route as RouterRoute,
   RouterPlugin,
+  state,
   watch,
 } from '@ringcentral-integration/next-core';
 import React, { useLayoutEffect } from 'react';
@@ -37,6 +39,11 @@ interface RoutedSideWidgetEntry extends RoutedSideWidgetConfig {
   routePath: string;
 }
 
+interface ClosedRoutedSideWidgetEntry {
+  backgroundPath: string;
+  path: string;
+}
+
 @injectable({
   name: 'RoutedSideWidgetView',
 })
@@ -51,6 +58,11 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   private readonly _entries = new Map<string, RoutedSideWidgetEntry>();
 
+  private readonly _closedPaths = new Map<
+    string,
+    ClosedRoutedSideWidgetEntry
+  >();
+
   private readonly _contentViews = new Map<
     string,
     (props: SideWidgetContentViewProps) => React.ReactElement | null
@@ -59,6 +71,20 @@ export class RoutedSideWidgetView extends RcViewModule {
   private _routes: readonly RoutedSideWidgetRouteDefinition[] = [];
 
   private _stopWatchingPath: (() => void) | null = null;
+
+  @state
+  mainPath: string | null = null;
+
+  @action
+  private _setMainPath(path: string | null): void {
+    this.mainPath = path;
+  }
+
+  private _debug(event: string, details: Record<string, unknown>): void {
+    if (process.env.NODE_ENV !== 'test') {
+      console.info(`[SideWidgetDebug] ${event}`, details);
+    }
+  }
 
   override onInit(): void {
     this._syncRegisteredPath(this._router.currentPath);
@@ -107,6 +133,7 @@ export class RoutedSideWidgetView extends RcViewModule {
       scope,
       onActivate: () => this._activateRoute(id),
       onClose: (nextTabId: string | null) => this._closeRoute(id, nextTabId),
+      onCloseComplete: () => this._completeRouteClose(id),
       view: this._getContentView(id),
     };
   }
@@ -121,6 +148,23 @@ export class RoutedSideWidgetView extends RcViewModule {
     routeExact,
     routePath,
   }: RoutedSideWidgetViewProps): void {
+    if (path !== this._router.currentPath) {
+      this._debug('ignore stale routed page registration', {
+        tabId: config.id,
+        path,
+        currentPath: this._router.currentPath,
+      });
+      return;
+    }
+    const closedEntry = this._closedPaths.get(config.id);
+    if (closedEntry?.path === path) {
+      this._debug('ignore reopening routed tab while closing', {
+        tabId: config.id,
+        path,
+        currentPath: this._router.currentPath,
+      });
+      return;
+    }
     const existingEntry = this._entries.get(config.id);
     // Re-mounting the same page (tab activation, layout change, route
     // re-render) must not re-apply its contact context: the side widget closes
@@ -148,22 +192,77 @@ export class RoutedSideWidgetView extends RcViewModule {
   }
 
   syncPath(path: string, isRoutedPath = false): void {
+    // A confirmed router update supersedes any tab navigation that was queued
+    // for the route being left (for example, Conversation's direct back
+    // navigation to /messages).
+    this._requestedPath = path;
     const matchedEntry = Array.from(this._entries.values()).find(
       (entry) => entry.path === path
     );
+    const activeEntry = this._entries.get(this._sideWidgetView.currentTabId);
+    this._debug('sync path', {
+      path,
+      isRoutedPath,
+      mainPath: this.mainPath,
+      currentTabId: this._sideWidgetView.currentTabId,
+      activeEntryPath: activeEntry?.path,
+      matchedEntryId: matchedEntry?.id,
+      expanded: this._root.expanded,
+    });
     if (matchedEntry) {
+      this._debug('matched routed path', {
+        path,
+        tabId: matchedEntry.id,
+      });
       if (this._sideWidgetView.currentTabId !== matchedEntry.id) {
         this._sideWidgetView.selectTab(matchedEntry.id);
       }
       return;
     }
     if (isRoutedPath) {
+      this._debug('wait for routed page registration', { path });
+      return;
+    }
+    if (activeEntry && activeEntry.path !== path) {
+      this._debug('close routed tab after navigation', {
+        path,
+        tabId: activeEntry.id,
+        routedPath: activeEntry.path,
+      });
+      this._sideWidgetView.closeContent(activeEntry.handle);
+    }
+  }
+
+  /**
+   * Changes the main navigation route without discarding the user's active
+   * routed side-widget tab.
+   */
+  navigateMain(path: string): void {
+    this._debug('navigate main requested', {
+      currentPath: this._router.currentPath,
+      targetPath: path,
+      currentTabId: this._sideWidgetView.currentTabId,
+      expanded: this._root.expanded,
+    });
+    if (!path || this._router.currentPath === path) {
+      this._debug('navigate main skipped', {
+        currentPath: this._router.currentPath,
+        targetPath: path,
+      });
       return;
     }
     const activeEntry = this._entries.get(this._sideWidgetView.currentTabId);
-    if (activeEntry && activeEntry.path !== path) {
-      this._sideWidgetView.closeContent(activeEntry.handle);
+    if (activeEntry && this._root.expanded) {
+      this._setMainPath(path);
+      this._debug('navigate main column with routed tab preserved', {
+        mainPath: this.mainPath,
+        currentTabId: this._sideWidgetView.currentTabId,
+        routedPath: activeEntry.path,
+      });
+      return;
     }
+    this._setMainPath(null);
+    void this._router.push(path);
   }
 
   private _syncRegisteredPath(path: string): void {
@@ -199,21 +298,92 @@ export class RoutedSideWidgetView extends RcViewModule {
     return Boolean(tabId && this._entries.has(tabId));
   }
 
-  private _activateRoute(id: string): void {
+  private _requestedPath: string | null = null;
+
+  private _navigationQueue: Promise<void> = Promise.resolve();
+
+  private _navigate(path: string): Promise<void> {
+    this._requestedPath = path;
+    this._debug('routed navigation requested', {
+      currentPath: this._router.currentPath,
+      requestedPath: path,
+    });
+    if (this._router.currentPath === path) {
+      return Promise.resolve();
+    }
+    this._navigationQueue = this._navigationQueue
+      .catch((error: unknown) => {
+        this.logger.error(
+          '[RoutedSideWidget] previous navigation failed',
+          error,
+        );
+      })
+      .then(async () => {
+        if (this._requestedPath !== path) {
+          this._debug('skip stale routed navigation', {
+            stalePath: path,
+            requestedPath: this._requestedPath,
+          });
+          return;
+        }
+        if (this._router.currentPath !== path) {
+          await this._router.push(path);
+        }
+      });
+    return this._navigationQueue;
+  }
+
+  private async _activateRoute(id: string): Promise<void> {
     const entry = this._entries.get(id);
-    if (entry && this._router.currentPath !== entry.path) {
-      void this._router.push(entry.path);
+    if (entry) {
+      await this._navigate(entry.path);
     }
   }
 
-  private _closeRoute(id: string, nextTabId: string | null): void {
+  private async _closeRoute(
+    id: string,
+    nextTabId: string | null,
+  ): Promise<void> {
     const entry = this._entries.get(id);
-    if (!entry || this._router.currentPath !== entry.path) {
+    if (!entry) {
       return;
     }
-    if (!this._isRoutedTab(nextTabId)) {
-      void this._router.push(entry.backgroundPath);
+    const backgroundPath = this.mainPath ?? entry.backgroundPath;
+    this._entries.delete(id);
+    this._closedPaths.set(id, {
+      backgroundPath,
+      path: entry.path,
+    });
+    this._debug('unregister closed routed tab', {
+      tabId: id,
+      path: entry.path,
+      nextTabId,
+      currentPath: this._router.currentPath,
+      requestedPath: this._requestedPath,
+    });
+    if (
+      this._router.currentPath !== entry.path &&
+      this._requestedPath !== entry.path
+    ) {
+      return;
     }
+    if (this._isRoutedTab(nextTabId)) {
+      this._requestedPath = this._entries.get(nextTabId!)?.path ?? null;
+      return;
+    }
+    this._setMainPath(null);
+    await this._navigate(backgroundPath);
+  }
+
+  private async _completeRouteClose(id: string): Promise<void> {
+    const closedEntry = this._closedPaths.get(id);
+    if (!closedEntry) {
+      return;
+    }
+    if (this._router.currentPath !== closedEntry.backgroundPath) {
+      await this._navigate(closedEntry.backgroundPath);
+    }
+    this._closedPaths.clear();
   }
 
   private _renderRoute(
@@ -225,6 +395,13 @@ export class RoutedSideWidgetView extends RcViewModule {
       return null;
     }
     const DetailComponent = entry.component;
+    this._debug('render routed tab', {
+      tabId: id,
+      routedPath: entry.path,
+      currentPath: this._router.currentPath,
+      mainPath: this.mainPath,
+      expanded: this._root.expanded,
+    });
     return (
       <RouterRoute
         path={entry.routePath}

@@ -15,6 +15,7 @@ import {
   optional,
   PortManager,
   RouterPlugin,
+  type UIFunctions,
 } from '@ringcentral-integration/next-core';
 import React from 'react';
 
@@ -47,6 +48,18 @@ export class CallDetailView extends CallDetailViewBase {
       callLogFormView,
       callDetailViewOptions
     );
+    this._appRouter = router;
+  }
+
+  private readonly _appRouter: RouterPlugin;
+
+  override getUIFunctions(
+    props: CallDetailViewProps,
+  ): UIFunctions<CallDetailViewPanelProps> {
+    return {
+      ...super.getUIFunctions(props),
+      goBack: () => this._appRouter.push('/dialer'),
+    };
   }
 
   override component(props: CallDetailViewProps) {

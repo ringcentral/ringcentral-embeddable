@@ -479,6 +479,9 @@ export class AppView extends RcViewModule {
   }) {
     const location = useLocation();
     const expanded = useConnector(() => this._root.expanded);
+    const mainPath = useConnector(
+      () => this._routedSideWidgetView.mainPath,
+    );
     const DetailComponent = route.component;
     const BackgroundComponent = route.backgroundComponent;
     const config = route.sideWidget;
@@ -494,7 +497,13 @@ export class AppView extends RcViewModule {
     }
     return (
       <>
-        {BackgroundComponent ? <BackgroundComponent {...routeProps} /> : null}
+        {mainPath ? (
+          <Switch location={{ ...location, pathname: mainPath }}>
+            {this.backgroundRoutesMap}
+          </Switch>
+        ) : BackgroundComponent ? (
+          <BackgroundComponent {...routeProps} />
+        ) : null}
         <this._routedSideWidgetView.component
           config={config}
           contact={contact}
@@ -665,6 +674,26 @@ export class AppView extends RcViewModule {
     });
     useLayoutEffect(() => {
       const previousPath = previousPathRef.current;
+      const collapseExpandedLayout = shouldCollapseExpandedLayout({
+        currentPath,
+        expanded,
+        previousPath,
+        routes: this.routes,
+      });
+      if (process.env.NODE_ENV !== 'test') {
+        console.info('[SideWidgetDebug] app route effect', {
+          previousPath,
+          currentPath,
+          expanded,
+          isSideWidgetRoute: isSideWidgetRoutePath(
+            currentPath,
+            this.routes,
+          ),
+          isDetailRoute: isDetailRoutePath(currentPath, this.routes),
+          expandedViewOpen: this._expandedView.isOpen,
+          collapseExpandedLayout,
+        });
+      }
       previousPathRef.current = currentPath;
       backgroundPathRef.current = backgroundPath;
       this._routedSideWidgetView.syncPath(
@@ -677,14 +706,7 @@ export class AppView extends RcViewModule {
       ) {
         this._expandedView.close(undefined, { collapseLayout: false });
       }
-      if (
-        shouldCollapseExpandedLayout({
-          currentPath,
-          expanded,
-          previousPath,
-          routes: this.routes,
-        })
-      ) {
+      if (collapseExpandedLayout) {
         void this._root.setExpanded(false);
       }
     }, [backgroundPath, currentPath, expanded]);

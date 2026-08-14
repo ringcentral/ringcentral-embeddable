@@ -9,6 +9,8 @@ import {
   injectable,
   optional,
   RouterPlugin,
+  type UIFunctions,
+  type UIProps,
   useConnector,
 } from '@ringcentral-integration/next-core';
 import {
@@ -33,6 +35,7 @@ import {
   ContactsFilledMd,
 } from '@ringcentral/spring-icon';
 import { ThirdParty } from '../../services/ThirdParty';
+import { RoutedSideWidgetView } from '../RoutedSideWidgetView';
 import { t as localT } from './i18n';
 import { HeaderNavWithOverflow } from './components/HeaderNavWithOverflow';
 
@@ -89,10 +92,41 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
     protected _genericMeeting: GenericMeeting,
     private _thirdParty: ThirdParty,
     private _theme: Theme,
+    private _routedSideWidgetView: RoutedSideWidgetView,
     @optional('HeaderNavViewOptions')
     protected _headerNavViewOptions?: HeaderNavViewSpringOptions,
   ) {
     super(_locale, _router, _headerNavViewOptions);
+  }
+
+  override getUIFunctions(): UIFunctions<HeaderNavPanelProps> {
+    return {
+      onChange: (path: string) => {
+        if (process.env.NODE_ENV !== 'test') {
+          console.info('[SideWidgetDebug] header navigation', {
+            currentPath: this._router.currentPath,
+            targetPath: path,
+          });
+        }
+        this._routedSideWidgetView.navigateMain(path);
+      },
+    };
+  }
+
+  override getUIProps(): UIProps<HeaderNavPanelProps> {
+    const props = super.getUIProps();
+    const mainPath = this._routedSideWidgetView.mainPath;
+    if (!mainPath) {
+      return props;
+    }
+    return {
+      ...props,
+      currentPath: mainPath,
+      tabs: props.tabs.map((tab) => ({
+        ...tab,
+        active: tab.to === mainPath,
+      })),
+    };
   }
 
   @computed

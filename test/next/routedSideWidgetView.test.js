@@ -6,12 +6,14 @@ import { MemoryRouter, Route, Router, useParams } from 'react-router-dom';
 import { RoutedSideWidgetView } from '../../next/app/views/RoutedSideWidgetView/RoutedSideWidget.view';
 
 jest.mock('@ringcentral-integration/next-core', () => ({
+  action: (_target, _key, descriptor) => descriptor,
   injectable: () => (target) => target,
   matchPath: require('react-router').matchPath,
   RcViewModule: class RcViewModule {},
   Root: class Root {},
   Route: require('react-router-dom').Route,
   RouterPlugin: class RouterPlugin {},
+  state: (_target, _key, descriptor) => descriptor,
   watch: jest.fn(() => jest.fn()),
 }));
 
@@ -73,6 +75,7 @@ describe('RoutedSideWidgetView', () => {
       path: '/conversations/first',
       routePath: '/conversations/:conversationId',
     });
+    router.currentPath = '/conversations/second';
     view.open({
       config: conversationConfig,
       contact: { phoneNumber: '+16505550101' },
@@ -89,7 +92,6 @@ describe('RoutedSideWidgetView', () => {
       { contact: { phoneNumber: '+16505550101' } },
     );
 
-    router.currentPath = '/conversations/second';
     const Content = handles.get('conversation').options.view;
     render(
       <MemoryRouter initialEntries={['/conversations/second']}>
@@ -99,7 +101,7 @@ describe('RoutedSideWidgetView', () => {
     expect(screen.getByText('Second conversation')).toBeInTheDocument();
   });
 
-  test('keeps the URL canonical while routed tabs are selected and closed', () => {
+  test('keeps the URL canonical while routed tabs are selected and closed', async () => {
     const { handles, router, view } =
       createRoutedSideWidget('/conversations/first');
     const Detail = () => null;
@@ -111,6 +113,7 @@ describe('RoutedSideWidgetView', () => {
       routePath: '/conversations/:conversationId',
     });
     const conversationHandle = handles.get('conversation');
+    router.currentPath = '/history/call';
     view.open({
       config: {
         id: 'call-details',
@@ -127,15 +130,113 @@ describe('RoutedSideWidgetView', () => {
     expect(conversationHandle.options.onDeactivate).toBeUndefined();
 
     router.currentPath = '/messages';
-    conversationHandle.options.onActivate();
+    await conversationHandle.options.onActivate();
     expect(router.push).toHaveBeenLastCalledWith('/conversations/first');
 
     router.currentPath = '/conversations/first';
-    conversationHandle.options.onClose('call-details');
+    await conversationHandle.options.onClose('call-details');
     expect(router.push).toHaveBeenCalledTimes(1);
 
-    conversationHandle.options.onClose('side-widget-apps');
-    expect(router.push).toHaveBeenLastCalledWith('/messages');
+    const backgroundNavigation = createRoutedSideWidget(
+      '/conversations/first',
+    );
+    backgroundNavigation.view.open({
+      config: conversationConfig,
+      detailComponent: Detail,
+      detailProps: {},
+      path: '/conversations/first',
+      routePath: '/conversations/:conversationId',
+    });
+
+    await backgroundNavigation.handles
+      .get('conversation')
+      .options.onClose('side-widget-apps');
+    expect(backgroundNavigation.router.push).toHaveBeenLastCalledWith(
+      '/messages',
+    );
+  });
+
+  test('discards stale routed-tab navigation when the user switches again', async () => {
+    const { handles, router, view } = createRoutedSideWidget('/messages');
+    const Detail = () => null;
+    router.currentPath = '/conversations/first';
+    view.open({
+      config: conversationConfig,
+      detailComponent: Detail,
+      detailProps: {},
+      path: '/conversations/first',
+      routePath: '/conversations/:conversationId',
+    });
+    router.currentPath = '/history/call';
+    view.open({
+      config: {
+        id: 'call-details',
+        name: 'Call details',
+        scope: 'contact',
+        backgroundPath: '/dialer',
+      },
+      detailComponent: Detail,
+      detailProps: {},
+      path: '/history/call',
+      routePath: '/history/:callLogId',
+    });
+    router.push.mockClear();
+    router.currentPath = '/messages';
+
+    const conversationNavigation = handles
+      .get('conversation')
+      .options.onActivate();
+    const callNavigation = handles.get('call-details').options.onActivate();
+    await Promise.all([conversationNavigation, callNavigation]);
+
+    expect(router.push.mock.calls).toEqual([['/history/call']]);
+    expect(router.currentPath).toBe('/history/call');
+  });
+
+  test('does not recreate a closed routed tab before its route changes', async () => {
+    const { handles, router, sideWidgetView, view } =
+      createRoutedSideWidget('/history/call');
+    const config = {
+      id: 'call-details',
+      name: 'Call details',
+      scope: 'contact',
+      backgroundPath: '/dialer',
+    };
+    view.open({
+      config: conversationConfig,
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/conversations/first',
+      routePath: '/conversations/:conversationId',
+    });
+    const openCallDetails = () =>
+      view.open({
+        config,
+        detailComponent: () => null,
+        detailProps: {},
+        path: '/history/call',
+        routePath: '/history/:callLogId',
+      });
+    openCallDetails();
+    const handle = handles.get('call-details');
+
+    await handle.options.onClose('conversation');
+    sideWidgetView.openContent.mockClear();
+    router.currentPath = '/conversations/first';
+    openCallDetails();
+
+    expect(sideWidgetView.openContent).not.toHaveBeenCalled();
+
+    view.syncPath('/conversations/first', true);
+    openCallDetails();
+
+    expect(sideWidgetView.openContent).not.toHaveBeenCalled();
+
+    await handle.options.onCloseComplete();
+    router.currentPath = '/history/call';
+    openCallDetails();
+
+    expect(sideWidgetView.openContent).toHaveBeenCalledTimes(1);
   });
 
   test('keeps one page instance alive while the page is reopened', () => {
@@ -182,7 +283,7 @@ describe('RoutedSideWidgetView', () => {
   });
 
   test('reopens an already opened page without re-applying its contact', () => {
-    const { handles, sideWidgetView, view } =
+    const { handles, router, sideWidgetView, view } =
       createRoutedSideWidget('/history/call');
     const callDetailsConfig = {
       id: 'call-details',
@@ -215,6 +316,7 @@ describe('RoutedSideWidgetView', () => {
     );
 
     // a different call log is a new context and applies its contact again
+    router.currentPath = '/history/other-call';
     view.open({
       config: callDetailsConfig,
       contact: { phoneNumber: '+16505550101' },
@@ -330,6 +432,71 @@ describe('RoutedSideWidgetView', () => {
     expect(sideWidgetView.closeContent).toHaveBeenCalledWith(
       handles.get('conversation'),
     );
+  });
+
+  test('does not navigate again when route synchronization closes a tab', async () => {
+    const { handles, router, view } = createRoutedSideWidget(
+      '/conversations/first',
+    );
+    view.open({
+      config: conversationConfig,
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/conversations/first',
+      routePath: '/conversations/:conversationId',
+    });
+    const conversationHandle = handles.get('conversation');
+
+    router.currentPath = '/messages';
+    view.syncPath('/messages');
+    router.push.mockClear();
+    await conversationHandle.options.onClose(null);
+
+    expect(router.push).not.toHaveBeenCalled();
+    expect(router.currentPath).toBe('/messages');
+  });
+
+  test('keeps call details open when main navigation changes to Text', async () => {
+    const { handles, router, sideWidgetView, view } =
+      createRoutedSideWidget('/history/call');
+    view.open({
+      config: {
+        id: 'call-details',
+        name: 'Call details',
+        scope: 'contact',
+        backgroundPath: '/dialer',
+      },
+      detailComponent: () => <div>Call details</div>,
+      detailProps: {},
+      path: '/history/call',
+      routePath: '/history/:callLogId',
+    });
+    sideWidgetView.currentTabId = 'call-details';
+    view._root.expanded = true;
+
+    view.navigateMain('/messages');
+
+    expect(view.mainPath).toBe('/messages');
+    expect(router.currentPath).toBe('/history/call');
+    expect(router.push).not.toHaveBeenCalled();
+    expect(sideWidgetView.closeContent).not.toHaveBeenCalled();
+
+    const Content = handles.get('call-details').options.view;
+    render(
+      <MemoryRouter initialEntries={['/history/call']}>
+        <Content showCloseButton={false} />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText('Call details')).toBeInTheDocument();
+
+    router.push.mockClear();
+    await handles.get('call-details').options.onActivate();
+    expect(router.push).not.toHaveBeenCalled();
+    expect(router.currentPath).toBe('/history/call');
+
+    await handles.get('call-details').options.onClose('side-widget-apps');
+    expect(router.push).toHaveBeenCalledWith('/messages');
+    expect(view.mainPath).toBeNull();
   });
 
   test('waits for the route component when navigating within one tab type', () => {

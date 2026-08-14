@@ -35,7 +35,11 @@ const callDetailsConfig = {
   backgroundPath: '/dialer',
 };
 
-function createApp() {
+function createApp({
+  autoOpenRoutedPage = true,
+  collapseGate,
+  navigationGate,
+} = {}) {
   const expandedHandles = new Map();
   const expandedView = {
     activeContentId: null,
@@ -47,8 +51,11 @@ function createApp() {
     open: jest.fn(function open(handle) {
       this.activeContentId = handle.options.id;
     }),
-    close: jest.fn(function close() {
+    close: jest.fn(async function close() {
       this.activeContentId = null;
+      if (collapseGate) {
+        await collapseGate.promise;
+      }
     }),
   };
   const sideWidgetView = new SideWidgetView(
@@ -66,9 +73,12 @@ function createApp() {
     // the app re-mounts the routed page component on every navigation, which
     // re-opens its side widget page
     push: jest.fn(async (path) => {
+      if (navigationGate) {
+        await navigationGate.promise;
+      }
       router.currentPath = path;
       const config = routes[path];
-      if (config) {
+      if (config && autoOpenRoutedPage) {
         openPage(config, path);
       }
     }),
@@ -91,11 +101,18 @@ function createApp() {
           : '/history/:callLogId',
     });
   }
-  return { openPage, router, sideWidgetView };
+  return {
+    expandedView,
+    openPage,
+    routedSideWidgetView,
+    router,
+    sideWidgetView,
+  };
 }
 
-test('keeps sibling tabs while closing tabs navigates between routed pages', () => {
-  const { openPage, router, sideWidgetView } = createApp();
+test('keeps sibling tabs while closing tabs navigates between routed pages', async () => {
+  const { openPage, routedSideWidgetView, router, sideWidgetView } =
+    createApp();
 
   // post call: the call details page and the AI assistant share the widget
   router.currentPath = CALL_DETAILS_PATH;
@@ -124,6 +141,7 @@ test('keeps sibling tabs while closing tabs navigates between routed pages', () 
   // back to its route: that must not drop the conversation tab
   sideWidgetView.selectTab('smart-notes');
   sideWidgetView.closeTab('smart-notes');
+  await new Promise((resolve) => setTimeout(resolve, 0));
   expect(router.currentPath).toBe(CALL_DETAILS_PATH);
   expect(sideWidgetView.tabs.map(({ id }) => id)).toEqual([
     'conversation',
@@ -133,7 +151,97 @@ test('keeps sibling tabs while closing tabs navigates between routed pages', () 
 
   // closing the call details tab falls back to the conversation page
   sideWidgetView.closeTab('call-details');
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  // The outgoing route can render once more after the URL changes but before
+  // AppView synchronizes the new route. It must not recreate the closed tab.
+  openPage(callDetailsConfig, CALL_DETAILS_PATH);
+  routedSideWidgetView.syncPath(CONVERSATION_PATH, true);
+  // The outgoing component can also render after synchronization has released
+  // the close tombstone. Its stale path must still prevent registration.
+  openPage(callDetailsConfig, CALL_DETAILS_PATH);
   expect(router.currentPath).toBe(CONVERSATION_PATH);
   expect(sideWidgetView.tabs.map(({ id }) => id)).toEqual(['conversation']);
   expect(sideWidgetView.currentTabId).toBe('conversation');
+
+  // Conversation's back action changes the route before AppView removes the
+  // final routed tab. A delayed Call Details render must not reopen the widget.
+  router.currentPath = '/messages';
+  routedSideWidgetView.syncPath('/messages');
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  openPage(callDetailsConfig, CALL_DETAILS_PATH);
+  expect(sideWidgetView.tabs).toEqual([]);
+  expect(router.currentPath).toBe('/messages');
+});
+
+test('serializes closing routed tabs while the next route is pending', async () => {
+  let resolveNavigation;
+  const navigationGate = {
+    promise: new Promise((resolve) => {
+      resolveNavigation = resolve;
+    }),
+  };
+  const { expandedView, openPage, router, sideWidgetView } = createApp({
+    autoOpenRoutedPage: false,
+    navigationGate,
+  });
+
+  router.currentPath = CALL_DETAILS_PATH;
+  openPage(callDetailsConfig, CALL_DETAILS_PATH);
+  router.currentPath = CONVERSATION_PATH;
+  openPage(conversationConfig, CONVERSATION_PATH);
+  router.currentPath = CALL_DETAILS_PATH;
+  sideWidgetView.currentTabId = 'call-details';
+
+  sideWidgetView.closeTab('call-details');
+  await Promise.resolve();
+  sideWidgetView.closeTab('conversation');
+
+  expect(expandedView.close).not.toHaveBeenCalled();
+
+  resolveNavigation();
+  await navigationGate.promise;
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  expect(router.currentPath).toBe('/messages');
+  expect(expandedView.close).toHaveBeenCalledTimes(1);
+});
+
+test('restores the background after collapse receives a stale routed path', async () => {
+  let resolveCollapse;
+  const collapseGate = {
+    promise: new Promise((resolve) => {
+      resolveCollapse = resolve;
+    }),
+  };
+  const {
+    openPage,
+    routedSideWidgetView,
+    router,
+    sideWidgetView,
+  } = createApp({ collapseGate });
+
+  router.currentPath = CALL_DETAILS_PATH;
+  openPage(callDetailsConfig, CALL_DETAILS_PATH);
+  router.currentPath = CONVERSATION_PATH;
+  openPage(conversationConfig, CONVERSATION_PATH);
+  sideWidgetView.closeTab('call-details');
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  router.currentPath = '/messages';
+  routedSideWidgetView.syncPath('/messages');
+  await Promise.resolve();
+
+  // Simulate the worker applying the route snapshot that existed before the
+  // expanded-layout collapse completed.
+  router.currentPath = CALL_DETAILS_PATH;
+  routedSideWidgetView.syncPath(CALL_DETAILS_PATH, true);
+  openPage(callDetailsConfig, CALL_DETAILS_PATH);
+  expect(sideWidgetView.tabs).toEqual([]);
+
+  resolveCollapse();
+  await collapseGate.promise;
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  expect(router.currentPath).toBe('/messages');
+  expect(sideWidgetView.tabs).toEqual([]);
 });

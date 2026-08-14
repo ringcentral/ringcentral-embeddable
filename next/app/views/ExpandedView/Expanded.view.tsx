@@ -79,18 +79,19 @@ export class ExpandedView extends RcViewModule {
   close(
     handle?: ExpandedContentHandle,
     { collapseLayout = true }: ExpandedViewCloseOptions = {}
-  ): void {
+  ): Promise<void> {
     const activeHandle = this.activeContentId
       ? this._contentHandles.get(this.activeContentId)
       : undefined;
     if (handle && handle !== activeHandle) {
-      return;
+      return Promise.resolve();
     }
     this._setActiveContent(null);
-    if (collapseLayout) {
-      this._root.setExpanded(false);
-    }
+    const collapsePromise = collapseLayout
+      ? Promise.resolve(this._root.setExpanded(false))
+      : Promise.resolve();
     activeHandle?.options.onClose?.();
+    return collapsePromise;
   }
 
   component() {

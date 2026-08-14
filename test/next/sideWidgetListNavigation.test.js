@@ -1,4 +1,5 @@
 import { CallsListView } from '../../next/app/views/CallHistoryView/CallsList.view';
+import { CallDetailView } from '../../next/app/views/CallHistoryView/CallDetail.view';
 import { ConversationsView } from '../../next/app/views/ConversationsView';
 
 jest.mock('@ringcentral-integration/next-core', () => ({
@@ -43,6 +44,26 @@ jest.mock('@ringcentral-integration/micro-phone/src/app/services', () => ({
   Call: class Call {},
   CallHistory: class CallHistory {},
   CallLogTasks: class CallLogTasks {},
+}));
+
+jest.mock(
+  '@ringcentral-integration/micro-phone/src/app/views/CallDetailView',
+  () => ({
+    CallDetailView: class CallDetailView {
+      getUIFunctions() {
+        return { goBack: jest.fn() };
+      }
+    },
+  }),
+);
+
+jest.mock(
+  '@ringcentral-integration/micro-phone/src/app/views/CallLogFormView',
+  () => ({ CallLogFormView: class CallLogFormView {} }),
+);
+
+jest.mock('@ringcentral-integration/micro-phone/src/app/views/CallView', () => ({
+  CallView: class CallView {},
 }));
 
 jest.mock(
@@ -91,6 +112,10 @@ jest.mock(
 
 jest.mock('../../next/app/views/CallHistoryView/CallsListPage', () => ({
   CallsListPage: () => null,
+}));
+
+jest.mock('../../next/app/views/CallHistoryView/CallDetailPage', () => ({
+  CallDetailPage: () => null,
 }));
 
 jest.mock('../../next/app/views/ConversationsView/ConversationsPage', () => ({
@@ -202,5 +227,15 @@ describe('SideWidget list detail navigation', () => {
     await handler('viewDetail');
 
     expect(router.push).toHaveBeenCalledWith('/history/session-id');
+  });
+
+  test('closes call details directly without a view transition', async () => {
+    const router = { push: jest.fn(async () => undefined) };
+    const view = Object.create(CallDetailView.prototype);
+    view._appRouter = router;
+
+    await view.getUIFunctions({}).goBack();
+
+    expect(router.push).toHaveBeenCalledWith('/dialer');
   });
 });

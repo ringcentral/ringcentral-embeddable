@@ -19,14 +19,18 @@ export interface SideWidgetTab {
 
 export type SideWidgetTabScope = 'contact' | 'global';
 
+type SideWidgetLifecycleResult = void | Promise<void>;
+
 export interface SideWidgetContentOptions {
   id: string;
   name: string;
   view: ComponentType<SideWidgetContentViewProps>;
   scope?: SideWidgetTabScope;
-  onActivate?: () => void;
-  onDeactivate?: (nextTabId: string | null) => void;
-  onClose?: (nextTabId: string | null) => void;
+  onActivate?: () => SideWidgetLifecycleResult;
+  onDeactivate?: (nextTabId: string | null) => SideWidgetLifecycleResult;
+  onClose?: (nextTabId: string | null) => SideWidgetLifecycleResult;
+  /** Runs after the final tab has collapsed the expanded layout. */
+  onCloseComplete?: () => SideWidgetLifecycleResult;
 }
 
 export interface SideWidgetContentViewProps {

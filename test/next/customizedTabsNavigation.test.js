@@ -34,6 +34,10 @@ jest.mock(
   }),
 );
 
+jest.mock('../../next/app/views/RoutedSideWidgetView', () => ({
+  RoutedSideWidgetView: class RoutedSideWidgetView {},
+}));
+
 import { HeaderNavViewSpring } from '../../next/app/views/HeaderNavView';
 
 describe('customized tabs navigation', () => {
@@ -79,12 +83,14 @@ describe('customized tabs navigation', () => {
         },
       ],
     };
+    const routedSideWidgetView = { navigateMain: jest.fn() };
     const view = new HeaderNavViewSpring(
       {},
       router,
       { isRCV: true },
       thirdParty,
       { themeType: 'dark' },
+      routedSideWidgetView,
       { enableVideoTab: true },
     );
     view._appFeatures = {
@@ -95,11 +101,11 @@ describe('customized tabs navigation', () => {
       hasMeetingsPermission: true,
       isContactsEnabled: true,
     };
-    return view;
+    return { routedSideWidgetView, view };
   }
 
   test('merges visible custom tabs by priority with badges and active state', () => {
-    const tabs = createView().tabs;
+    const tabs = createView().view.tabs;
 
     expect(tabs.map(({ to }) => to)).toEqual([
       '/customizedTabs/first-tab',
@@ -133,7 +139,7 @@ describe('customized tabs navigation', () => {
   });
 
   test('uses theme and active image URLs and hides a failed remote icon', () => {
-    const tab = createView().tabs.find(
+    const tab = createView().view.tabs.find(
       ({ to }) => to === '/customizedTabs/dark-tab',
     );
     const InactiveIcon = tab.symbol;
@@ -150,5 +156,15 @@ describe('customized tabs navigation', () => {
 
     fireEvent.error(inactiveImage);
     expect(inactive.container.querySelector('img')).toBeNull();
+  });
+
+  test('keeps routed side-widget content when changing main tabs', () => {
+    const { routedSideWidgetView, view } = createView();
+
+    view.getUIFunctions().onChange('/messages');
+
+    expect(routedSideWidgetView.navigateMain).toHaveBeenCalledWith(
+      '/messages',
+    );
   });
 });
