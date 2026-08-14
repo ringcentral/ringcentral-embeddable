@@ -26,6 +26,10 @@ const StyledListItem = styled(RcListItem)`
   .ContactDropdownList_name {
     color: ${palette2('neutral', 'f06')};
   }
+
+  &.RcListItem-gutters {
+    box-sizing: border-box;
+  }
 `;
 
 type ContactItemProps = {
