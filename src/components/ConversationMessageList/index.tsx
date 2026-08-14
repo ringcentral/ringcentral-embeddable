@@ -1,11 +1,21 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { FunctionComponent } from 'react';
 import { isBlank } from '@ringcentral-integration/commons/lib/isBlank';
-import { RcIcon, RcText, RcTypography, styled, palette2, css } from '@ringcentral/juno';
+import {
+  RcIcon,
+  RcIconButton,
+  RcCheckbox,
+  RcText,
+  RcTypography,
+  styled,
+  palette2,
+  css,
+} from '@ringcentral/juno';
 import {
   DefaultFile as fileSvg,
   Download as downloadSvg,
   Notes,
+  Disposition as loggedSvg,
 } from '@ringcentral/juno-icon';
 
 import i18n from '@ringcentral-integration/widgets/components/ConversationMessageList/i18n';
@@ -85,6 +95,35 @@ const Time = styled.div`
   margin-bottom: 10px;
   color: ${palette2('neutral', 'f02')};
   clear: both;
+`;
+
+const BubbleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  clear: both;
+  width: 100%;
+`;
+
+// Takes the remaining row width so the bubble keeps its inbound (left) /
+// outbound (right) alignment while the control stays in a fixed right column.
+const BubbleArea = styled.div<{ inbound?: boolean }>`
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: ${(props) => (props.inbound ? 'flex-start' : 'flex-end')};
+`;
+
+const SelectionControl = styled.div`
+  flex: 0 0 auto;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .RcCheckbox-root {
+    margin: 0;
+  }
 `;
 
 const Sender = styled.div`
@@ -310,6 +349,12 @@ export const Message = ({
   onAttachmentDownload = undefined,
   onLinkClick,
   messageStatus,
+  selectionEnabled = false,
+  logged = false,
+  checked = false,
+  onClickLog = undefined,
+  onSelectDragStart = undefined,
+  onSelectDragEnter = undefined,
 }: {
   subject: string;
   time?: string;
@@ -321,6 +366,12 @@ export const Message = ({
   onAttachmentDownload?: any;
   onLinkClick: any;
   messageStatus: string;
+  selectionEnabled?: boolean;
+  logged?: boolean;
+  checked?: boolean;
+  onClickLog?: () => void;
+  onSelectDragStart?: () => void;
+  onSelectDragEnter?: () => void;
 }) => {
   let subjectNode;
   if (subject && !isBlank(subject)) {
@@ -364,6 +415,52 @@ export const Message = ({
         </File>
       );
     });
+  const inbound = direction === 'Inbound';
+  // Only unlogged messages are selectable; logged ones show a link-out icon.
+  const selectable = selectionEnabled && !logged;
+  let control = null;
+  if (logged) {
+    control = (
+      <SelectionControl>
+        <RcIconButton
+          data-sign="messageLoggedIcon"
+          symbol={loggedSvg}
+          size="medium"
+          color="success.f02"
+          title="Logged"
+          onClick={() => {
+            if (typeof onClickLog === 'function') {
+              onClickLog();
+            }
+          }}
+        />
+      </SelectionControl>
+    );
+  } else if (selectionEnabled) {
+    // The checkbox is presentational only; selection is driven entirely by the
+    // row's mouse handlers (see BubbleRow below) so a single click reliably
+    // toggles and a press-drag paints the same state across messages.
+    control = (
+      <SelectionControl>
+        <RcCheckbox
+          data-sign="messageSelectCheckbox"
+          checked={checked}
+          onChange={() => {}}
+        />
+      </SelectionControl>
+    );
+  }
+  const bubble = (
+    <MessageTextWrapper
+      data-sign={`${direction}Text`}
+      inbound={inbound}
+      big={subject && subject.length > 500}
+    >
+      {subjectNode}
+      {imageAttachments}
+      {otherAttachments}
+    </MessageTextWrapper>
+  );
   return (
     <MessageWrapper data-sign="message">
       {time ? (
@@ -371,19 +468,42 @@ export const Message = ({
           {time}
         </Time>
       ) : null}
-      {sender && direction === 'Inbound' ? (
+      {sender && inbound ? (
         <Sender>{sender}</Sender>
       ) : null}
       <MessageSendStatus direction={direction} status={messageStatus} />
-      <MessageTextWrapper
-        data-sign={`${direction}Text`}
-        inbound={direction === 'Inbound'}
-        big={subject && subject.length > 500}
-      >
-        {subjectNode}
-        {imageAttachments}
-        {otherAttachments}
-      </MessageTextWrapper>
+      {control ? (
+        <BubbleRow
+          // When selectable, the entire row (bubble + checkbox) is the
+          // click/drag surface: mousedown toggles this message and starts a
+          // drag; entering another row while dragging paints the same state.
+          style={selectable ? { cursor: 'pointer', userSelect: 'none' } : undefined}
+          onMouseDown={
+            selectable
+              ? (e) => {
+                  e.preventDefault();
+                  if (typeof onSelectDragStart === 'function') {
+                    onSelectDragStart();
+                  }
+                }
+              : undefined
+          }
+          onMouseEnter={
+            selectable
+              ? () => {
+                  if (typeof onSelectDragEnter === 'function') {
+                    onSelectDragEnter();
+                  }
+                }
+              : undefined
+          }
+        >
+          <BubbleArea inbound={inbound}>{bubble}</BubbleArea>
+          {control}
+        </BubbleRow>
+      ) : (
+        bubble
+      )}
       <Clear />
     </MessageWrapper>
   );
@@ -422,6 +542,11 @@ export function ConversationMessageList({
   myExtensionId,
   onViewNote,
   statusReason,
+  selectionEnabled = false,
+  selectedMessageIds = undefined,
+  messageLogStateMap = {},
+  setMessageSelected = undefined,
+  onClickMessageLog = undefined,
 }: {
   className: string;
   dateTimeFormatter: any;
@@ -437,12 +562,54 @@ export function ConversationMessageList({
   myExtensionId: string;
   onViewNote: () => void;
   statusReason: string;
+  selectionEnabled?: boolean;
+  selectedMessageIds?: Set<number>;
+  messageLogStateMap?: Record<string, { logId: string }>;
+  setMessageSelected?: (id: number, selected: boolean) => void;
+  onClickMessageLog?: (logId: string) => void;
 }) {
   const listRef = useRef(null);
   const scrollHeight = useRef(null);
   const scrollTop = useRef(null);
   const scrollUp = useRef(null);
   const messageLength = useRef(0);
+  // Tracks an in-progress drag-select gesture. `mode` is decided by the first
+  // message pressed (if it was checked we deselect the rest, otherwise select).
+  const dragSelectRef = useRef<{ active: boolean; select: boolean }>({
+    active: false,
+    select: true,
+  });
+
+  useEffect(() => {
+    const stopDrag = () => {
+      dragSelectRef.current.active = false;
+    };
+    window.addEventListener('mouseup', stopDrag);
+    return () => window.removeEventListener('mouseup', stopDrag);
+  }, []);
+
+  const startDragSelect = useCallback(
+    (id: number, currentlyChecked: boolean) => {
+      const select = !currentlyChecked;
+      dragSelectRef.current = { active: true, select };
+      if (typeof setMessageSelected === 'function') {
+        setMessageSelected(id, select);
+      }
+    },
+    [setMessageSelected],
+  );
+
+  const dragSelectEnter = useCallback(
+    (id: number) => {
+      if (!dragSelectRef.current.active) {
+        return;
+      }
+      if (typeof setMessageSelected === 'function') {
+        setMessageSelected(id, dragSelectRef.current.select);
+      }
+    },
+    [setMessageSelected],
+  );
 
   useEffect(() => {
     if (listRef.current) {
@@ -519,6 +686,9 @@ export function ConversationMessageList({
         />
       );
     }
+    const loggedState = selectionEnabled ? messageLogStateMap?.[String(message.id)] : undefined;
+    const isLogged = !!loggedState;
+    const isChecked = !!selectedMessageIds && selectedMessageIds.has(message.id);
     return (
       <Message
         key={message.id}
@@ -532,6 +702,20 @@ export function ConversationMessageList({
         onAttachmentDownload={onAttachmentDownload}
         onLinkClick={onLinkClick}
         messageStatus={message.messageStatus}
+        selectionEnabled={selectionEnabled}
+        logged={isLogged}
+        checked={isChecked}
+        onSelectDragStart={() => {
+          startDragSelect(message.id, isChecked);
+        }}
+        onSelectDragEnter={() => {
+          dragSelectEnter(message.id);
+        }}
+        onClickLog={() => {
+          if (isLogged && typeof onClickMessageLog === 'function') {
+            onClickMessageLog(loggedState.logId);
+          }
+        }}
       />
     );
   });

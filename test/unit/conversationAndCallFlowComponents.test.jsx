@@ -383,11 +383,17 @@ jest.mock('../../src/components/ConversationMessageList', () => ({
     onAttachmentDownload,
     onLinkClick,
     onViewNote,
+    messageLogStateMap = {},
+    selectedMessageIds,
+    selectionEnabled,
     showSender,
     statusReason,
   }) => (
     <section data-sign="conversation-message-list" data-testid="conversation-message-list">
       <span>{`messages:${messages.length}:${String(showSender)}:${statusReason || 'none'}`}</span>
+      <span data-testid="granular-message-list-state">
+        {`${String(selectionEnabled)}:${Object.keys(messageLogStateMap || {}).length}:${selectedMessageIds?.size ?? 0}`}
+      </span>
       <button type="button" onClick={loadPreviousMessages}>
         load-previous
       </button>
@@ -1017,6 +1023,57 @@ describe('conversation and call flow components', () => {
     fireEvent.click(screen.getByText('reply-from-bottom'));
     expect(props.onAssign).toHaveBeenCalledWith({ extensionId: '101' });
     expect(props.onReplyThread).toHaveBeenCalled();
+  });
+
+  it('hydrates granular SMS log state only for messages not already known as logged', async () => {
+    const syncMessageLogState = jest.fn();
+    const props = createConversationPanelProps({
+      autoLog: false,
+      conversation: createConversation({ type: messageTypes.text }),
+      granularLoggingEnabled: true,
+      messageLogStateMap: {
+        m1: { logId: 'crm-log-1' },
+      },
+      messages: [
+        { id: 'm1', text: 'already logged' },
+        { id: 'm2', text: 'unknown' },
+        { id: 'note-1', recordType: 'AliveNote', text: 'internal note' },
+      ],
+      syncMessageLogState,
+    });
+
+    render(<ConversationPanel {...props} />);
+
+    await waitFor(() => {
+      expect(syncMessageLogState).toHaveBeenCalledWith('conversation-1', ['m2']);
+    });
+  });
+
+  it('clears selective SMS UI state immediately when granular logging is disabled', async () => {
+    const props = createConversationPanelProps({
+      autoLog: false,
+      conversation: createConversation({ type: messageTypes.text }),
+      granularLoggingEnabled: true,
+      messageLogStateMap: {
+        m1: { logId: 'crm-log-1' },
+      },
+      messages: [
+        { id: 'm1', text: 'already logged' },
+        { id: 'm2', text: 'unknown' },
+      ],
+      syncMessageLogState: jest.fn(),
+    });
+    const { rerender } = render(<ConversationPanel {...props} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('granular-message-list-state').textContent).toBe('true:1:0');
+    });
+
+    rerender(<ConversationPanel {...props} granularLoggingEnabled={false} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('granular-message-list-state').textContent).toBe('false:0:0');
+    });
   });
 
   it('renders conversation panel with default optional props', async () => {

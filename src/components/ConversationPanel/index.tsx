@@ -32,6 +32,8 @@ import { BottomAssignInfo } from './BottomAssignInfo';
 import type { SMSRecipient, MessageThread } from '../../modules/MessageThreads/MessageThreads.interface';
 import type { AliveNote } from '../../modules/MessageThreadEntries/MessageThreadEntries.interface';
 
+const MESSAGE_LOG_STATE_CHECK_TTL = 60 * 1000;
+
 const Root = styled.div`
   position: relative;
   width: 100%;
@@ -191,6 +193,12 @@ export type ConversationProps = {
   showTypingDuration?: boolean;
   typingStartTime?: number | null;
   accumulatedTypingTime?: number;
+  // Granular per-message logging
+  granularLoggingEnabled?: boolean;
+  messageLogStateMap?: Record<string, { logId: string }>;
+  onLogSelectedMessages?: (args: { conversationId: string; selectedMessageIds: number[] }) => any;
+  onClickMessageLog?: (logId: string) => any;
+  syncMessageLogState?: (conversationId: string, messageIds: number[]) => any;
 }
 
 function getInitialContactIndex(conversation: Conversation) {
@@ -252,6 +260,19 @@ function getGroupPhoneNumbers(conversation: Conversation = {}) {
 function getFallbackContactName(conversation: Conversation = {}) {
   const { correspondents = [] } = conversation;
   return (correspondents.length === 1 && correspondents[0].name) || undefined;
+}
+
+const NON_MESSAGE_RECORD_TYPES = [
+  'ThreadCreatedHint',
+  'ThreadAssignedHint',
+  'ThreadResolvedHint',
+  'ThreadDeletedHint',
+  'AliveNote',
+];
+
+// Only real SMS bubbles are selectable/loggable (exclude thread system hints and notes).
+function isSelectableMessage(message: any) {
+  return !!message && !NON_MESSAGE_RECORD_TYPES.includes(message.recordType);
 }
 
 export function ConversationPanel({
@@ -334,6 +355,11 @@ export function ConversationPanel({
   showTypingDuration = false,
   typingStartTime = null,
   accumulatedTypingTime = 0,
+  granularLoggingEnabled = false,
+  messageLogStateMap = {},
+  onLogSelectedMessages = undefined,
+  onClickMessageLog = undefined,
+  syncMessageLogState = undefined,
 }: ConversationProps) {
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState(getInitialContactIndex(conversation));
@@ -347,6 +373,11 @@ export function ConversationPanel({
   const dncAlertRef = useRef(null);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isNotesDialogOpen, setIsNotesDialogOpen] = useState(false);
+  // Granular logging: set of currently-checked (unlogged) message ids.
+  // Nothing is selected by default; the user picks messages explicitly.
+  const [selectedMessageIds, setSelectedMessageIds] = useState<Set<number>>(new Set());
+  const checkedMessageLogIdsRef = useRef<Record<string, Record<string, number>>>({});
+  const inFlightMessageLogIdsRef = useRef<Record<string, Set<string>>>({});
 
   useEffect(() => {
     mountedRef.current = true;
@@ -401,6 +432,130 @@ export function ConversationPanel({
       setSelected(getInitialContactIndex(newConversation));
     }
   }, [conversation]);
+
+  // Granular logging: reset selection when switching conversations.
+  useEffect(() => {
+    setSelectedMessageIds(new Set());
+  }, [conversationId]);
+
+  // Granular logging: when the feature is disabled by user/admin settings, hide
+  // controls immediately and drop any local selection/check bookkeeping.
+  useEffect(() => {
+    if (granularLoggingEnabled) {
+      return;
+    }
+    setSelectedMessageIds(new Set());
+    checkedMessageLogIdsRef.current = {};
+    inFlightMessageLogIdsRef.current = {};
+  }, [granularLoggingEnabled]);
+
+  // Granular logging: hydrate per-message logged state from the service.
+  useEffect(() => {
+    if (!granularLoggingEnabled || !conversationId) {
+      return;
+    }
+    if (typeof syncMessageLogState !== 'function') {
+      return;
+    }
+    const conversationKey = String(conversationId);
+    const now = Date.now();
+    const checkedIds = checkedMessageLogIdsRef.current[conversationKey] ?? {};
+    const inFlightIds = inFlightMessageLogIdsRef.current[conversationKey] ?? new Set<string>();
+    checkedMessageLogIdsRef.current[conversationKey] = checkedIds;
+    inFlightMessageLogIdsRef.current[conversationKey] = inFlightIds;
+    const ids = (messages || [])
+      .filter(isSelectableMessage)
+      .map((message: any) => message.id)
+      .filter((id: any) => {
+        const messageId = String(id);
+        const lastCheckedAt = checkedIds[messageId] ?? 0;
+        return (
+          !messageLogStateMap?.[messageId] &&
+          !inFlightIds.has(messageId) &&
+          now - lastCheckedAt > MESSAGE_LOG_STATE_CHECK_TTL
+        );
+      });
+    if (ids.length === 0) {
+      return;
+    }
+    ids.forEach((id: any) => inFlightIds.add(String(id)));
+    Promise.resolve(syncMessageLogState(conversationId, ids))
+      .then(() => {
+        const checked = checkedMessageLogIdsRef.current[conversationKey] ?? {};
+        ids.forEach((id: any) => {
+          checked[String(id)] = Date.now();
+        });
+        checkedMessageLogIdsRef.current[conversationKey] = checked;
+      })
+      .finally(() => {
+        const currentInFlight = inFlightMessageLogIdsRef.current[conversationKey];
+        if (!currentInFlight) {
+          return;
+        }
+        ids.forEach((id: any) => currentInFlight.delete(String(id)));
+      });
+  }, [granularLoggingEnabled, conversationId, messages, messageLogStateMap, syncMessageLogState]);
+
+  // Granular logging: messages are deselected by default. This effect only
+  // drops a message from the current selection once it has become logged.
+  useEffect(() => {
+    if (!granularLoggingEnabled) {
+      return;
+    }
+    setSelectedMessageIds((prev) => {
+      if (prev.size === 0) {
+        return prev;
+      }
+      const next = new Set(prev);
+      let changed = false;
+      prev.forEach((id) => {
+        if (messageLogStateMap?.[String(id)]) {
+          next.delete(id);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [messages, messageLogStateMap, granularLoggingEnabled]);
+
+  // Granular logging: set a message to an explicit selected state. Used by the
+  // click/drag-to-select gesture so a click toggles one message and a drag
+  // paints one consistent state across messages.
+  const setMessageSelected = (id: number, isSelected: boolean) => {
+    setSelectedMessageIds((prev) => {
+      if (prev.has(id) === isSelected) {
+        return prev;
+      }
+      const next = new Set(prev);
+      if (isSelected) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  // Granular logging: log only the checked messages as a single CRM entry.
+  // The selection is snapshotted at click time so messages arriving during the
+  // request are neither bundled nor marked as logged.
+  const logSelectedMessages = async () => {
+    if (isLoggingState || typeof onLogSelectedMessages !== 'function') {
+      return;
+    }
+    const snapshot = Array.from(selectedMessageIds);
+    if (snapshot.length === 0) {
+      return;
+    }
+    setIsLoggingState(true);
+    try {
+      await onLogSelectedMessages({ conversationId, selectedMessageIds: snapshot });
+    } finally {
+      if (mountedRef.current) {
+        setIsLoggingState(false);
+      }
+    }
+  };
 
   const onSend = (text, attachments) => {
     const selectContact = getSelectedContact(selected, conversation);
@@ -468,6 +623,11 @@ export function ConversationPanel({
           setIsNotesDialogOpen(true);
         }}
         statusReason={conversation.statusReason}
+        selectionEnabled={granularLoggingEnabled}
+        selectedMessageIds={selectedMessageIds}
+        messageLogStateMap={granularLoggingEnabled ? messageLogStateMap : {}}
+        setMessageSelected={setMessageSelected}
+        onClickMessageLog={onClickMessageLog}
       />
     );
   }
@@ -478,16 +638,31 @@ export function ConversationPanel({
   const fallbackName = getFallbackContactName(conversation);
   const headerActions = [];
   if (onLogConversation && showLogButton) {
+    const selectedCount = selectedMessageIds.size;
+    const baseLogTitle = logButtonTitle || messageItemI18n.getString(
+      conversationMatches.length > 0 ? 'editLog' : 'addLog',
+      currentLocale
+    );
+    // Granular selection always creates a new CRM entry for the chosen
+    // messages, so it should read "Log", never "Edit Log".
+    const granularLogTitle = messageItemI18n.getString('addLog', currentLocale);
     headerActions.push({
       id: 'log',
       icon: AddTextLog,
-      disabled: disableLinks || isLogging || isLoggingState,
-      title: logButtonTitle || messageItemI18n.getString(
-        conversationMatches.length > 0 ? 'editLog' : 'addLog',
-        currentLocale
-      ),
+      disabled:
+        disableLinks ||
+        isLogging ||
+        isLoggingState ||
+        (granularLoggingEnabled && selectedCount === 0),
+      title: granularLoggingEnabled
+        ? `${granularLogTitle} (${selectedCount})`
+        : baseLogTitle,
       onClick: () => {
-        logConversation();
+        if (granularLoggingEnabled) {
+          logSelectedMessages();
+        } else {
+          logConversation();
+        }
       },
       dataSign: 'logButton',
     });
