@@ -20,6 +20,7 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   public activeTabId: string;
   public clientId: string;
   private _logger: Logger;
+  private pendingRequests = new Map<string, { reject: (reason?: any) => void; cleanup: () => void }>();
 
   public constructor({
     worker,
@@ -89,17 +90,17 @@ export class SharedSipClient extends EventEmitter implements SipClient {
 
   workerRequest(message: any) {
     return new Promise((resolve, reject) => {
+      if (this.disposed || !this.worker) {
+        reject(new Error('SharedSipClient has been disposed'));
+        return;
+      }
+      const port = this.worker.port;
       const requestId = uuid();
-      let timeoutHandle: NodeJS.Timeout;
-      this.worker.port.postMessage({
-        type: 'workerRequest',
-        request: message,
-        requestId,
-      });
-      timeoutHandle = setTimeout(() => {
-        this.worker.port.removeEventListener('message', messageListener);
-        reject(new Error('Timeout'));
-      }, 8000);
+      const cleanup = () => {
+        clearTimeout(timeoutHandle);
+        port.removeEventListener('message', messageListener);
+        this.pendingRequests.delete(requestId);
+      };
       const messageListener = (event) => {
         if (
           !event.data ||
@@ -111,15 +112,24 @@ export class SharedSipClient extends EventEmitter implements SipClient {
         if (this.debug) {
           this._logger.debug('workerResponse', event.data.response);
         }
-        this.worker.port.removeEventListener('message', messageListener);
-        clearTimeout(timeoutHandle);
+        cleanup();
         if (event.data.error) {
           reject(new Error(event.data.error));
           return;
         }
         resolve(event.data.response);
       };
-      this.worker.port.addEventListener('message', messageListener);
+      const timeoutHandle: NodeJS.Timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error('Timeout'));
+      }, 8000);
+      this.pendingRequests.set(requestId, { reject, cleanup });
+      port.addEventListener('message', messageListener);
+      port.postMessage({
+        type: 'workerRequest',
+        request: message,
+        requestId,
+      });
     });
   }
 
@@ -160,6 +170,11 @@ export class SharedSipClient extends EventEmitter implements SipClient {
   public dispose() {
     this._logger.log('Disposing SharedSipClient');
     this.disposed = true;
+    this.pendingRequests.forEach(({ reject, cleanup }) => {
+      cleanup();
+      reject(new Error('SharedSipClient has been disposed'));
+    });
+    this.pendingRequests.clear();
     if (this.worker) {
       this.worker.port.removeEventListener('message', this.messageListener);
       this.worker.port.postMessage({ type: 'destroyPort' });
