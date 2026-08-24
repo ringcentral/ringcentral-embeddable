@@ -381,6 +381,54 @@ describe('SharedSipClient worker', () => {
     });
   });
 
+  it('returns worker error responses when SIP lifecycle requests reject', async () => {
+    const { connect, sipClient } = loadWorker();
+    const port = new TestPort('only');
+    connect({ ports: [port] });
+
+    jest
+      .spyOn(sipClient, 'start')
+      .mockRejectedValueOnce(new Error('start failed'));
+    jest
+      .spyOn(sipClient, 'register')
+      .mockRejectedValueOnce(new Error('register failed'));
+    jest
+      .spyOn(sipClient, 'dispose')
+      .mockRejectedValueOnce(new Error('unregister failed'));
+
+    await port.receive({
+      type: 'workerRequest',
+      requestId: 'start-error',
+      request: { type: 'startSipClient', data: {} },
+    });
+    await port.receive({
+      type: 'workerRequest',
+      requestId: 'register-error',
+      request: { type: 'register', data: 60 },
+    });
+    await port.receive({
+      type: 'workerRequest',
+      requestId: 'unregister-error',
+      request: { type: 'unregister' },
+    });
+
+    expect(port.postMessage).toHaveBeenCalledWith({
+      type: 'workerResponse',
+      requestId: 'start-error',
+      error: 'start failed',
+    });
+    expect(port.postMessage).toHaveBeenCalledWith({
+      type: 'workerResponse',
+      requestId: 'register-error',
+      error: 'register failed',
+    });
+    expect(port.postMessage).toHaveBeenCalledWith({
+      type: 'workerResponse',
+      requestId: 'unregister-error',
+      error: 'unregister failed',
+    });
+  });
+
   it('registers with digest challenge responses and skips unregister when disconnected', async () => {
     const { sipClient } = loadWorker();
     const send = jest.fn();
@@ -552,7 +600,12 @@ describe('SharedSipClient worker', () => {
           clientId: 'client-id',
         },
       },
-    })).rejects.toThrow('No available servers');
+    })).resolves.toBeUndefined();
+    expect(port.postMessage).toHaveBeenCalledWith({
+      type: 'workerResponse',
+      requestId: 'start-without-server',
+      error: 'No available servers',
+    });
 
     const startPromise = port.receive({
       type: 'workerRequest',

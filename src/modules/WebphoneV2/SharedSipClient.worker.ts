@@ -658,111 +658,104 @@ onconnect = (event) => {
       return;
     }
     if (type === 'workerRequest') {
-      if (request.type === 'getSharedState') {
-        port.postMessage({
-          type: 'workerResponse',
-          requestId,
-          response: sharedState,
-        });
-        return;
-      }
-      if (request.type === 'getActiveTabId') {
-        port.postMessage({
-          type: 'workerResponse',
-          requestId,
-          response: activeTabId,
-        });
-        return;
-      }
-      if (request.type === 'getSipClientStatus') {
-        port.postMessage({
-          type: 'workerResponse',
-          requestId,
-          response: {
-            status: sipClient.status,
-            sipInfo: sipClient.sipInfo,
-            device: sipClient.device,
-            instanceId: sipClient.instanceId,
-          },
-        });
-        return;
-      }
-      if (request.type === 'startSipClient') {
-        if (!mainPort) {
-          logger.warn('No main port, set current port as main port');
-          mainPort = port;
-          if (!ports.find((p) => p === port)) {
-            ports.push(port);
-          }
+      try {
+        if (request.type === 'getSharedState') {
+          port.postMessage({
+            type: 'workerResponse',
+            requestId,
+            response: sharedState,
+          });
+          return;
         }
-        logger.log('Received startSipClient request');
-        await sipClient.start(request.data);
-        port.postMessage({
-          type: 'workerResponse',
-          requestId,
-          response: 'OK',
-        });
-        return;
-      }
-      if (request.type === 'request') {
-        try {
+        if (request.type === 'getActiveTabId') {
+          port.postMessage({
+            type: 'workerResponse',
+            requestId,
+            response: activeTabId,
+          });
+          return;
+        }
+        if (request.type === 'getSipClientStatus') {
+          port.postMessage({
+            type: 'workerResponse',
+            requestId,
+            response: {
+              status: sipClient.status,
+              sipInfo: sipClient.sipInfo,
+              device: sipClient.device,
+              instanceId: sipClient.instanceId,
+            },
+          });
+          return;
+        }
+        if (request.type === 'startSipClient') {
+          if (!mainPort) {
+            logger.warn('No main port, set current port as main port');
+            mainPort = port;
+            if (!ports.find((p) => p === port)) {
+              ports.push(port);
+            }
+          }
+          logger.log('Received startSipClient request');
+          await sipClient.start(request.data);
+          port.postMessage({
+            type: 'workerResponse',
+            requestId,
+            response: 'OK',
+          });
+          return;
+        }
+        if (request.type === 'request') {
           const response = await sipClient.request(request.data);
           port.postMessage({
             type: 'workerResponse',
             requestId,
             response: response.toString(),
           });
-        } catch (e) {
-          port.postMessage({
-            type: 'workerResponse',
-            requestId,
-            error: e.message || 'Unknown error',
-          });
+          return;
         }
-        return;
-      }
-      if (request.type === 'reply') {
-        try {
+        if (request.type === 'reply') {
           await sipClient.reply(request.data);
           port.postMessage({
             type: 'workerResponse',
             requestId,
             response: 'OK',
           });
-        } catch (e) {
+          return;
+        }
+        if (request.type === 'register') {
+          logger.log('Received register request');
+          await sipClient.register(request.data);
           port.postMessage({
             type: 'workerResponse',
             requestId,
-            error: e.message || 'Unknown error',
+            response: 'OK',
           });
+          return;
         }
-        return;
-      }
-      if (request.type === 'register') {
-        logger.log('Received register request');
-        await sipClient.register(request.data);
+        if (request.type === 'unregister') {
+          logger.log('Received unregister request');
+          await sipClient.dispose();
+          port.postMessage({
+            type: 'workerResponse',
+            requestId,
+            response: 'OK',
+          });
+          return;
+        }
         port.postMessage({
           type: 'workerResponse',
           requestId,
-          response: 'OK',
+          response: 'NOT_SUPPORTED',
         });
-        return;
-      }
-      if (request.type === 'unregister') {
-        logger.log('Received unregister request');
-        await sipClient.dispose();
+      } catch (e) {
+        logger.error('workerRequest failed', request?.type, e);
         port.postMessage({
           type: 'workerResponse',
           requestId,
-          response: 'OK',
+          error: (e as Error)?.message || 'Unknown error',
         });
-        return;
       }
-      port.postMessage({
-        type: 'workerResponse',
-        requestId,
-        response: 'NOT_SUPPORTED',
-      });
     }
   };
 };
