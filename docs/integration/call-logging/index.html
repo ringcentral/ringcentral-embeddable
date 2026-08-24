@@ -2867,32 +2867,32 @@
 </div>
 <h2 id="add-call-log-buttonicon-in-call-history-tab">Add call log button/icon in call history tab</h2>
 <p>First you need to pass <code>callLoggerPath</code> and <code>callLoggerTitle</code> when you register service.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">callLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/callLogger&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">callLoggerTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Log to TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="c1">// callLoggerAutoSettingLabel: &#39;Auto log calls&#39;, // optional, customized the auto log setting label</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/callLogger'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Log to TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// callLoggerAutoSettingLabel: 'Auto log calls', // optional, customized the auto log setting label</span>
 <span class="w">    </span><span class="c1">// recordingWithToken: 1</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>After registered, you can get a <code>Log to TestService</code> in calls page, and <code>Auto log calls</code> setting in setting page</p>
 <p><img alt="calllogbutton" src="https://user-images.githubusercontent.com/7036536/48827686-d1814a00-eda8-11e8-81e4-2b48b1df2bcc.png" /></p>
 <p>Then add a message event to response call logger button event:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/callLogger&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/callLogger'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// add your codes here to log call to your service</span>
 <span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
 <span class="w">      </span><span class="c1">// response to widget</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">});</span>
@@ -2900,20 +2900,20 @@
 <p>This message event is fired when user clicks <code>Log</code> button. Or if user enables <code>Auto log calls</code> in settings, this event will be also fired when a call is started and updated.</p>
 <p>In this message event, you can get call information in <code>data.body.call</code>. When call is recorded and recording file is generated, you can get <code>recording</code> data in <code>data.body.call</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nx">contentUri</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://media.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004/content&quot;</span>
-<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;6469338004&quot;</span>
-<span class="w">  </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;http://apps.ringcentral.com/integrations/recording/sandbox/?id=Ab7937-59r6EzUA&amp;recordingId=6469338004&quot;</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;OnDemand&quot;</span>
-<span class="w">  </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://platform.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004&quot;</span>
+<span class="w">  </span><span class="nx">contentUri</span><span class="o">:</span><span class="w"> </span><span class="s2">"https://media.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004/content"</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"6469338004"</span>
+<span class="w">  </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="s2">"http://apps.ringcentral.com/integrations/recording/sandbox/?id=Ab7937-59r6EzUA&amp;recordingId=6469338004"</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s2">"OnDemand"</span>
+<span class="w">  </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="s2">"https://platform.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004"</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>The <code>link</code> property in <code>recording</code> is a link to get and play recording file from RingCentral server. The <code>contentUri</code> is a URI which can be used to get <code>recording</code> file  with RingCentral access token. If you pass <code>recordingWithToken</code> when register service, you can get contentUri with <code>access_token</code>. The <code>access_token</code> will be expired in minutes, so need to download immediately when get it.</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nx">contentUri</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://media.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004/content?access_token=ringcentral_access_token&quot;</span>
-<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;6469338004&quot;</span>
-<span class="w">  </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;http://apps.ringcentral.com/integrations/recording/sandbox/?id=Ab7937-59r6EzUA&amp;recordingId=6469338004&quot;</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;OnDemand&quot;</span>
-<span class="w">  </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://platform.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004&quot;</span>
+<span class="w">  </span><span class="nx">contentUri</span><span class="o">:</span><span class="w"> </span><span class="s2">"https://media.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004/content?access_token=ringcentral_access_token"</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"6469338004"</span>
+<span class="w">  </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="s2">"http://apps.ringcentral.com/integrations/recording/sandbox/?id=Ab7937-59r6EzUA&amp;recordingId=6469338004"</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s2">"OnDemand"</span>
+<span class="w">  </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="s2">"https://platform.devtest.ringcentral.com/restapi/v1.0/account/170848004/recording/6469338004"</span>
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="auto-log-calls-setting">Auto log calls setting</h2>
@@ -2922,78 +2922,78 @@
 <p>Add <code>defaultAutoLogCallEnabled</code> into the <code>adapter.js</code> URI:</p>
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?defaultAutoLogCallEnabled=1&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?defaultAutoLogCallEnabled=1"</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"script"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
 <span class="o">&lt;</span><span class="err">/script&gt;</span>
 </code></pre></div>
 <p>Listen to <code>Auto log calls</code> setting changed:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-callLogger-auto-log-notify&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;rc-callLogger-auto-log-notify:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">autoLog</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-callLogger-auto-log-notify'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'rc-callLogger-auto-log-notify:'</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">autoLog</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
 <h2 id="add-call-logger-modal">Add call logger modal</h2>
 <p>For some developers who want to add note when log a call to their platform, we provide a log modal to support it.</p>
 <p>Add <code>showLogModal</code> when register service:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">callLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/callLogger&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">callLoggerTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Log to TestService&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/callLogger'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Log to TestService'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">showLogModal</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p><img alt="image" src="https://user-images.githubusercontent.com/7036536/48827685-d1814a00-eda8-11e8-8160-0fb92cbb88f5.png" /></p>
 <h2 id="add-call-log-entity-matcher">Add call log entity matcher</h2>
 <p>In call logger button, widget needs to know if call is logged. To provide <code>callLogEntityMatcherPath</code> when register, widget will send match request to get match result of calls history.</p>
 <p>Note: If you have <a href="../third-party-auth/#add-third-party-authorization-button">third party auth</a> configured, call log entity matcher only works when <code>authorized</code> is <code>true</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">callLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/callLogger&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">callLoggerTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Log to TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">callLogEntityMatcherPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/callLogger/match&#39;</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/callLogger'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Log to TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLogEntityMatcherPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/callLogger/match'</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>Then add a message event to response call logger matcher event:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/callLogger/match&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/callLogger/match'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// add your codes here to reponse match result</span>
 <span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span><span class="w"> </span><span class="c1">// get call session id list in here</span>
 <span class="w">      </span><span class="c1">// response to widget</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s1">&#39;214705503020&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="c1">// call session id from request</span>
-<span class="w">              </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;88888&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// call log entity id from your platform</span>
-<span class="w">              </span><span class="nx">note</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Note&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Note of this call log entity</span>
+<span class="w">            </span><span class="s1">'214705503020'</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="c1">// call session id from request</span>
+<span class="w">              </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'88888'</span><span class="p">,</span><span class="w"> </span><span class="c1">// call log entity id from your platform</span>
+<span class="w">              </span><span class="nx">note</span><span class="o">:</span><span class="w"> </span><span class="s1">'Note'</span><span class="p">,</span><span class="w"> </span><span class="c1">// Note of this call log entity</span>
 <span class="w">            </span><span class="p">}]</span>
 <span class="w">          </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
 <h3 id="trigger-call-logger-entity-match-manually">Trigger call logger entity match manually</h3>
 <p>The widget will trigger call logger entity match after call logged automatically. But you can still trigger it to match manually</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-trigger-call-logger-match&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-trigger-call-logger-match'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">sessionIds</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="sb">`call_session_id`</span><span class="p">],</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h2 id="get-un-logged-calls">Get un-logged calls</h2>
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">2.1.0</a></span></span></p>

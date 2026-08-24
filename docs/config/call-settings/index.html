@@ -2835,16 +2835,16 @@
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?defaultCallWith=browser&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?defaultCallWith=browser"</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"script"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
 <span class="o">&lt;</span><span class="err">/script&gt;</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?defaultCallWith=browser&quot;</span><span class="p">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">"300"</span> <span class="na">height</span><span class="o">=</span><span class="s">"500"</span> <span class="na">id</span><span class="o">=</span><span class="s">"rc-widget"</span> <span class="na">allow</span><span class="o">=</span><span class="s">"microphone"</span> <span class="na">src</span><span class="o">=</span><span class="s">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?defaultCallWith=browser"</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 </code></pre></div>
 </div>
@@ -2860,18 +2860,18 @@
 <p>They are short names of <code>Browser</code>, <code>RingCentral App</code>, <code>RingCentral Phone</code>, <code>RingOut</code>.</p>
 <h2 id="calling-settings-updated-event">Calling settings updated event</h2>
 <p>Event fired when user changed <code>call with</code> option in calling settings page:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;rc-calling-settings-notify&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">'rc-calling-settings-notify'</span><span class="o">:</span>
 <span class="w">        </span><span class="c1">// get calling setting in here</span>
 <span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
 <span class="w">        </span><span class="c1">// {</span>
-<span class="w">        </span><span class="c1">//   type: &#39;rc-calling-settings-notify&#39;,</span>
-<span class="w">        </span><span class="c1">//   callWith: &#39;ringout&#39;,</span>
+<span class="w">        </span><span class="c1">//   type: 'rc-calling-settings-notify',</span>
+<span class="w">        </span><span class="c1">//   callWith: 'ringout',</span>
 <span class="w">        </span><span class="c1">//   fromNumbers: [], // show after enableFromNumberSetting flag set</span>
-<span class="w">        </span><span class="c1">//   myLocation: &#39;+11111111&#39;, // show after showMyLocationNumbers flag set</span>
+<span class="w">        </span><span class="c1">//   myLocation: '+11111111', // show after showMyLocationNumbers flag set</span>
 <span class="w">        </span><span class="c1">//   myLocationNumbers: [], // show after showMyLocationNumbers flag set</span>
 <span class="w">        </span><span class="c1">// }</span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span>
@@ -2888,16 +2888,16 @@
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableFromNumberSetting=1&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableFromNumberSetting=1"</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"script"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
 <span class="o">&lt;</span><span class="err">/script&gt;</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableFromNumberSetting=1&quot;</span><span class="p">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">"300"</span> <span class="na">height</span><span class="o">=</span><span class="s">"500"</span> <span class="na">id</span><span class="o">=</span><span class="s">"rc-widget"</span> <span class="na">allow</span><span class="o">=</span><span class="s">"microphone"</span> <span class="na">src</span><span class="o">=</span><span class="s">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableFromNumberSetting=1"</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 </code></pre></div>
 </div>
@@ -2912,16 +2912,16 @@
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?showMyLocationNumbers=1&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?showMyLocationNumbers=1"</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"script"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
 <span class="o">&lt;</span><span class="err">/script&gt;</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?showMyLocationNumbers=1&quot;</span><span class="p">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">"300"</span> <span class="na">height</span><span class="o">=</span><span class="s">"500"</span> <span class="na">id</span><span class="o">=</span><span class="s">"rc-widget"</span> <span class="na">allow</span><span class="o">=</span><span class="s">"microphone"</span> <span class="na">src</span><span class="o">=</span><span class="s">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?showMyLocationNumbers=1"</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 </code></pre></div>
 </div>
@@ -2929,19 +2929,19 @@
 </div>
 <p>After enabled, we can receive <code>myLocation</code> and <code>myLocationNumbers</code> in <a href="#calling-settings-updated-event">calling settings updated</a> event.</p>
 <h2 id="update-calling-settings">Update Calling settings</h2>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-calling-settings-update&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callWith</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;softphone&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="c1">// myLocation: &#39;+1111111111&#39;, // required for ringout</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-calling-settings-update'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callWith</span><span class="o">:</span><span class="w"> </span><span class="s1">'softphone'</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// myLocation: '+1111111111', // required for ringout</span>
 <span class="w">  </span><span class="c1">// ringoutPrompt: true, // required for ringout</span>
-<span class="w">  </span><span class="c1">// fromNumber: &#39;+1111111111&#39;, // set from number when callWith is browser</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// fromNumber: '+1111111111', // set from number when callWith is browser</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>For <code>fromNumber</code>, the number should be from <code>fromNumbers</code> list in calling settings event, or <code>anonymous</code> for <code>Blocked</code> from number.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-calling-settings-update&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">fromNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;anonymous&#39;</span><span class="p">,</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-calling-settings-update'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">fromNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">'anonymous'</span><span class="p">,</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 
 

@@ -2944,39 +2944,39 @@
 <p>RingCentral Embeddable allows you to display a customized banner at the top of the widget to show status messages and action buttons. This is useful for displaying alerts, errors, or notifications that require user attention.</p>
 <h2 id="register-a-banner-with-service">Register a banner with service</h2>
 <p>You can register a banner when registering your third-party service:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// required for handling banner action events</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/button-click'</span><span class="p">,</span><span class="w"> </span><span class="c1">// required for handling banner action events</span>
 <span class="w">    </span><span class="nx">banner</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;my-banner&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;CRM connection lost&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;info&#39;</span><span class="p">,</span><span class="w">  </span><span class="c1">// &#39;info&#39; | &#39;warning&#39; | &#39;error&#39; | &#39;success&#39; | &#39;announcement&#39;, default: &#39;info&#39;</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'my-banner'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">'CRM connection lost'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">'info'</span><span class="p">,</span><span class="w">  </span><span class="c1">// 'info' | 'warning' | 'error' | 'success' | 'announcement', default: 'info'</span>
 <span class="w">      </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// optional, show action button</span>
-<span class="w">        </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Reconnect&#39;</span><span class="w"> </span><span class="c1">// action button label, required,</span>
-<span class="w">        </span><span class="nx">variant</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;outlined&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, button variant, &#39;text&#39;, &#39;outlined&#39;, &#39;contained&#39;, &#39;plain&#39;, default: &#39;outlined&#39;</span>
+<span class="w">        </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">'Reconnect'</span><span class="w"> </span><span class="c1">// action button label, required,</span>
+<span class="w">        </span><span class="nx">variant</span><span class="o">:</span><span class="w"> </span><span class="s1">'outlined'</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, button variant, 'text', 'outlined', 'contained', 'plain', default: 'outlined'</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">closable</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, show close button, default: false, only works if no action button is provided</span>
-<span class="w">      </span><span class="nx">closeButtonLabel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Close&#39;</span><span class="w"> </span><span class="c1">// optional, close button label, default: &#39;Close&#39;</span>
+<span class="w">      </span><span class="nx">closeButtonLabel</span><span class="o">:</span><span class="w"> </span><span class="s1">'Close'</span><span class="w"> </span><span class="c1">// optional, close button label, default: 'Close'</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h2 id="update-or-show-a-banner">Update or show a banner</h2>
 <p>To display or update a customized banner:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-customized-banner&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-update-customized-banner'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">banner</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;my-banner&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// banner id, required</span>
-<span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;CRM connection lost&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// banner message, required</span>
-<span class="w">    </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;warning&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// &#39;info&#39; | &#39;warning&#39; | &#39;error&#39; | &#39;success&#39;, default: &#39;info&#39;</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'my-banner'</span><span class="p">,</span><span class="w"> </span><span class="c1">// banner id, required</span>
+<span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">'CRM connection lost'</span><span class="p">,</span><span class="w"> </span><span class="c1">// banner message, required</span>
+<span class="w">    </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">'warning'</span><span class="p">,</span><span class="w"> </span><span class="c1">// 'info' | 'warning' | 'error' | 'success', default: 'info'</span>
 <span class="w">    </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// optional, show action button</span>
-<span class="w">      </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Reconnect&#39;</span><span class="w"> </span><span class="c1">// action button label, required</span>
+<span class="w">      </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">'Reconnect'</span><span class="w"> </span><span class="c1">// action button label, required</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nx">closable</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c1">// optional, show close button, default: false, only works if no action button is provided</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p><img alt="customized banner" src="../../assets/custom-banner.png" /></p>
 <h3 id="banner-options">Banner options</h3>
@@ -3058,60 +3058,60 @@
 </ul>
 <h2 id="update-a-banner">Update a banner</h2>
 <p>To update an existing banner, send the same message with updated properties:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-customized-banner&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-update-customized-banner'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">banner</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;my-banner&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Updated message&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;warning&#39;</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'my-banner'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">'Updated message'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">'warning'</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h2 id="remove-a-banner">Remove a banner</h2>
 <p>To remove the banner, set <code>hidden</code> to <code>true</code> with the banner <code>id</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-customized-banner&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-update-customized-banner'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">banner</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;my-banner&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'my-banner'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">hidden</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h2 id="handle-action-button-click-and-close-events">Handle action button click and close events</h2>
 <p>To handle banner action button clicks and close events, you need to register <code>buttonEventPath</code> when registering your service:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/button-click'</span><span class="p">,</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>Then add an event listener to handle the button events:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/button-click'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="kd">var</span><span class="w"> </span><span class="nx">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">;</span>
 
 <span class="w">      </span><span class="c1">// Check if this is a banner event</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">button</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;customizedBanner&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">button</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'customizedBanner'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">button</span><span class="p">.</span><span class="nx">dismissed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="c1">// User clicked the close button</span>
-<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Banner dismissed:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Banner dismissed:'</span><span class="p">,</span><span class="w"> </span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
 <span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="c1">// User clicked the action button</span>
-<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Banner action clicked:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">button</span><span class="p">.</span><span class="nx">label</span><span class="p">);</span>
+<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Banner action clicked:'</span><span class="p">,</span><span class="w"> </span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">button</span><span class="p">.</span><span class="nx">label</span><span class="p">);</span>
 <span class="w">          </span><span class="c1">// Handle the action (e.g., stop recording)</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">}</span>
 
 <span class="w">      </span><span class="c1">// Send response</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">});</span>
@@ -3120,17 +3120,17 @@
 <p>When the user clicks the action button:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nx">button</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;my-banner&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// banner id</span>
-<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;customizedBanner&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Stop Recording&#39;</span><span class="w"> </span><span class="c1">// action button label</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'my-banner'</span><span class="p">,</span><span class="w"> </span><span class="c1">// banner id</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'customizedBanner'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">'Stop Recording'</span><span class="w"> </span><span class="c1">// action button label</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>When the user clicks the close button:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nx">button</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;my-banner&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// banner id</span>
-<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;customizedBanner&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'my-banner'</span><span class="p">,</span><span class="w"> </span><span class="c1">// banner id</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'customizedBanner'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">dismissed</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -3138,54 +3138,54 @@
 <h2 id="example-recording-error-banner">Example: Recording error banner</h2>
 <p>Here's a complete example showing a recording error banner with a stop action:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Register service with button event path and initial banner</span>
-<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;MyApp&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'MyApp'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/button-click'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">banner</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;recording-error&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Recording failed. Please try again.&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'recording-error'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">'Recording failed. Please try again.'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">'error'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Stop Recording&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">variant</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;contained&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;danger.b04&#39;</span>
+<span class="w">        </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">'Stop Recording'</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">variant</span><span class="o">:</span><span class="w"> </span><span class="s1">'contained'</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">'danger.b04'</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 
 <span class="c1">// Handle button events</span>
-<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/button-click'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="kd">var</span><span class="w"> </span><span class="nx">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">;</span>
 
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">button</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;customizedBanner&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;recording-error&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">button</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'customizedBanner'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'recording-error'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">button</span><span class="p">.</span><span class="nx">dismissed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;User dismissed the recording error banner&#39;</span><span class="p">);</span>
+<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'User dismissed the recording error banner'</span><span class="p">);</span>
 <span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;User clicked Stop Recording&#39;</span><span class="p">);</span>
+<span class="w">          </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'User clicked Stop Recording'</span><span class="p">);</span>
 <span class="w">          </span><span class="c1">// Stop the recording...</span>
 
 <span class="w">          </span><span class="c1">// Remove the banner after handling</span>
-<span class="w">          </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">            </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-customized-banner&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-update-customized-banner'</span><span class="p">,</span>
 <span class="w">            </span><span class="nx">banner</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">              </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;recording-error&#39;</span><span class="p">,</span>
+<span class="w">              </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'recording-error'</span><span class="p">,</span>
 <span class="w">              </span><span class="nx">hidden</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">            </span><span class="p">}</span>
-<span class="w">          </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">          </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">}</span>
 
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">});</span>

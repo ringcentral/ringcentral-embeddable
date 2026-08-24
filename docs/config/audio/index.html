@@ -2863,16 +2863,16 @@
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableAudioInitPrompt=1&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableAudioInitPrompt=1"</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"script"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
 <span class="o">&lt;</span><span class="err">/script&gt;</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableAudioInitPrompt=1&quot;</span><span class="p">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">"300"</span> <span class="na">height</span><span class="o">=</span><span class="s">"500"</span> <span class="na">id</span><span class="o">=</span><span class="s">"rc-widget"</span> <span class="na">allow</span><span class="o">=</span><span class="s">"microphone"</span> <span class="na">src</span><span class="o">=</span><span class="s">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableAudioInitPrompt=1"</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 </code></pre></div>
 </div>
@@ -2891,7 +2891,7 @@
 <p>Microphone access is only permitted over secure connections (HTTPS). If the website is not using HTTPS, the browser will prevent the widget from accessing the microphone.</p>
 <h3 id="permissions-policy">Permissions-Policy</h3>
 <p>For security reasons, some websites may implement a Permissions-Policy header that restricts microphone usage. If such a header is present, the widget will only be able to access the microphone if the policy explicitly permits it. The header should be formatted as follows:</p>
-<div class="highlight"><pre><span></span><code>Permissions-Policy: microphone=(&quot;https://apps.ringcentral.com&quot; &quot;self&quot;)
+<div class="highlight"><pre><span></span><code>Permissions-Policy: microphone=("https://apps.ringcentral.com" "self")
 </code></pre></div>
 
 

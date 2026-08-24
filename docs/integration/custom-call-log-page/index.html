@@ -2680,138 +2680,138 @@
 <p>From <code>v2.0.0</code>, call logger modal is refactored into call log page:</p>
 <p><img alt="image" src="https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/c4f7e129-32b9-4a2d-a296-9c6ad8ddd029" /></p>
 <p>You can customize call log page by adding <code>callLogPageDataPath</code> and <code>callLogPageInputChangedEventPath</code> when register service:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">callLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/callLogger&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">callLoggerTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Log to TestService&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/callLogger'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Log to TestService'</span><span class="p">,</span>
 <span class="w">    </span><span class="c1">// showLogModal: false, // disable showLogModal if you want to use call log page</span>
-<span class="w">    </span><span class="nx">callLogPageInputChangedEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/callLogger/inputChanged&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLogPageInputChangedEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/callLogger/inputChanged'</span><span class="p">,</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>Then add message event listener to show call log page and input changed request:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/callLogger&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/callLogger'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Get trigger type: data.body.triggerType</span>
-<span class="w">      </span><span class="c1">// When user click log button in call item, triggerType is &#39;createLog&#39; or &#39;editLog&#39;</span>
-<span class="w">      </span><span class="c1">// When it is triggered from auto log, triggerType is &#39;presenceUpdate&#39;</span>
-<span class="w">      </span><span class="c1">// When save button clicked, triggerType is &#39;logForm&#39;</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;createLog&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;editLog&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// When user click log button in call item, triggerType is 'createLog' or 'editLog'</span>
+<span class="w">      </span><span class="c1">// When it is triggered from auto log, triggerType is 'presenceUpdate'</span>
+<span class="w">      </span><span class="c1">// When save button clicked, triggerType is 'logForm'</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'createLog'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'editLog'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// customize call log page</span>
-<span class="w">        </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">          </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-call-log-page&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">          </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-update-call-log-page'</span><span class="p">,</span>
 <span class="w">          </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Log to TestService&#39;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Log to TestService'</span><span class="p">,</span>
 <span class="w">            </span><span class="c1">// schema and uiSchema are used to customize call log page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)</span>
 <span class="w">            </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">              </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
-<span class="w">              </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;contact&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;activityTitle&#39;</span><span class="p">],</span>
+<span class="w">              </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'object'</span><span class="p">,</span>
+<span class="w">              </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'contact'</span><span class="p">,</span><span class="w"> </span><span class="s1">'activityTitle'</span><span class="p">],</span>
 <span class="w">              </span><span class="nx">properties</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="s2">&quot;warning&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;No contact found. Enter a name to have a placeholder contact made for you.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">"warning"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"No contact found. Enter a name to have a placeholder contact made for you."</span><span class="p">,</span>
 <span class="w">                </span><span class="p">},</span>
-<span class="w">                </span><span class="s2">&quot;contact&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Contact&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="s2">&quot;oneOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">"contact"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Contact"</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">"oneOf"</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="p">{</span>
-<span class="w">                      </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
-<span class="w">                      </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
-<span class="w">                      </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Candidate - 347&quot;</span><span class="p">,</span>
+<span class="w">                      </span><span class="s2">"const"</span><span class="o">:</span><span class="w"> </span><span class="s2">"xxx"</span><span class="p">,</span>
+<span class="w">                      </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"John Doe"</span><span class="p">,</span>
+<span class="w">                      </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Candidate - 347"</span><span class="p">,</span>
 <span class="w">                    </span><span class="p">},</span>
 <span class="w">                    </span><span class="p">{</span>
-<span class="w">                      </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;newEntity&quot;</span><span class="p">,</span>
-<span class="w">                      </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Create placeholder contact&quot;</span>
+<span class="w">                      </span><span class="s2">"const"</span><span class="o">:</span><span class="w"> </span><span class="s2">"newEntity"</span><span class="p">,</span>
+<span class="w">                      </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Create placeholder contact"</span>
 <span class="w">                    </span><span class="p">}</span>
 <span class="w">                  </span><span class="p">],</span>
 <span class="w">                </span><span class="p">},</span>
-<span class="w">                </span><span class="s2">&quot;contactName&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="p">,</span>
-<span class="w">                  </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Contact name&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">"contactName"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s1">'string'</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Contact name"</span><span class="p">,</span>
 <span class="w">                </span><span class="p">},</span>
-<span class="w">                </span><span class="s2">&quot;contactType&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Contact type&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="s2">&quot;oneOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">"contactType"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Contact type"</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">"oneOf"</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="p">{</span>
-<span class="w">                      </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;candidate&quot;</span><span class="p">,</span>
-<span class="w">                      </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Candidate&quot;</span>
+<span class="w">                      </span><span class="s2">"const"</span><span class="o">:</span><span class="w"> </span><span class="s2">"candidate"</span><span class="p">,</span>
+<span class="w">                      </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Candidate"</span>
 <span class="w">                    </span><span class="p">},</span>
 <span class="w">                    </span><span class="p">{</span>
-<span class="w">                      </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;contact&quot;</span><span class="p">,</span>
-<span class="w">                      </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Contact&quot;</span>
+<span class="w">                      </span><span class="s2">"const"</span><span class="o">:</span><span class="w"> </span><span class="s2">"contact"</span><span class="p">,</span>
+<span class="w">                      </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Contact"</span>
 <span class="w">                    </span><span class="p">}</span>
 <span class="w">                  </span><span class="p">],</span>
 <span class="w">                </span><span class="p">},</span>
-<span class="w">                </span><span class="s2">&quot;activityTitle&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Activity title&quot;</span>
+<span class="w">                </span><span class="s2">"activityTitle"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Activity title"</span>
 <span class="w">                </span><span class="p">},</span>
-<span class="w">                </span><span class="s2">&quot;note&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Note&quot;</span>
+<span class="w">                </span><span class="s2">"note"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Note"</span>
 <span class="w">                </span><span class="p">},</span>
 <span class="w">              </span><span class="p">},</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nx">uiSchema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">              </span><span class="nx">warning</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admonition&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// or typography to show raw text</span>
-<span class="w">                </span><span class="s2">&quot;ui:severity&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// &quot;warning&quot;, &quot;info&quot;, &quot;error&quot;, &quot;success&quot;</span>
+<span class="w">                </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"admonition"</span><span class="p">,</span><span class="w"> </span><span class="c1">// or typography to show raw text</span>
+<span class="w">                </span><span class="s2">"ui:severity"</span><span class="o">:</span><span class="w"> </span><span class="s2">"warning"</span><span class="p">,</span><span class="w"> </span><span class="c1">// "warning", "info", "error", "success"</span>
 <span class="w">              </span><span class="p">},</span>
 <span class="w">              </span><span class="nx">contactName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="s2">&quot;ui:placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Enter name&#39;</span><span class="p">,</span>
-<span class="w">                </span><span class="s2">&quot;ui:widget&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;hidden&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// remove this line to show contactName input</span>
+<span class="w">                </span><span class="s2">"ui:placeholder"</span><span class="o">:</span><span class="w"> </span><span class="s1">'Enter name'</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">"ui:widget"</span><span class="o">:</span><span class="w"> </span><span class="s2">"hidden"</span><span class="p">,</span><span class="w"> </span><span class="c1">// remove this line to show contactName input</span>
 <span class="w">              </span><span class="p">},</span>
 <span class="w">              </span><span class="nx">contactType</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="s2">&quot;ui:placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Select contact type&#39;</span><span class="p">,</span>
-<span class="w">                </span><span class="s2">&quot;ui:widget&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;hidden&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// remove this line to show contactType input</span>
+<span class="w">                </span><span class="s2">"ui:placeholder"</span><span class="o">:</span><span class="w"> </span><span class="s1">'Select contact type'</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">"ui:widget"</span><span class="o">:</span><span class="w"> </span><span class="s2">"hidden"</span><span class="p">,</span><span class="w"> </span><span class="c1">// remove this line to show contactType input</span>
 <span class="w">              </span><span class="p">},</span>
 <span class="w">              </span><span class="nx">note</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="s2">&quot;ui:placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Enter note&#39;</span><span class="p">,</span>
-<span class="w">                </span><span class="s2">&quot;ui:widget&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;textarea&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// show note input as textarea</span>
+<span class="w">                </span><span class="s2">"ui:placeholder"</span><span class="o">:</span><span class="w"> </span><span class="s1">'Enter note'</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">"ui:widget"</span><span class="o">:</span><span class="w"> </span><span class="s2">"textarea"</span><span class="p">,</span><span class="w"> </span><span class="c1">// show note input as textarea</span>
 <span class="w">              </span><span class="p">},</span>
 <span class="w">              </span><span class="nx">submitButtonOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">submitText</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Save&#39;</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">submitText</span><span class="o">:</span><span class="w"> </span><span class="s1">'Save'</span><span class="p">,</span>
 <span class="w">              </span><span class="p">},</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nx">formData</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">              </span><span class="nx">contact</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;xxx&#39;</span><span class="p">,</span>
-<span class="w">              </span><span class="nx">contactName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
-<span class="w">              </span><span class="nx">contactType</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
-<span class="w">              </span><span class="nx">activityTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Outbound call to ...&#39;</span><span class="p">,</span>
-<span class="w">              </span><span class="nx">note</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">              </span><span class="nx">contact</span><span class="o">:</span><span class="w"> </span><span class="s1">'xxx'</span><span class="p">,</span>
+<span class="w">              </span><span class="nx">contactName</span><span class="o">:</span><span class="w"> </span><span class="s1">''</span><span class="p">,</span>
+<span class="w">              </span><span class="nx">contactType</span><span class="o">:</span><span class="w"> </span><span class="s1">''</span><span class="p">,</span>
+<span class="w">              </span><span class="nx">activityTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Outbound call to ...'</span><span class="p">,</span>
+<span class="w">              </span><span class="nx">note</span><span class="o">:</span><span class="w"> </span><span class="s1">''</span><span class="p">,</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">          </span><span class="p">},</span>
-<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">        </span><span class="c1">// navigate to call log page</span>
-<span class="w">        </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">          </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-navigate-to&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">          </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-navigate-to'</span><span class="p">,</span>
 <span class="w">          </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="sb">`/log/call/</span><span class="si">${</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">call</span><span class="p">.</span><span class="nx">sessionId</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span>
-<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">      </span><span class="p">}</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;logForm&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;presenceUpdate&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'logForm'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'presenceUpdate'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// Save call log to your platform</span>
 <span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">);</span><span class="w"> </span><span class="c1">// data.body.call, data.body.formData</span>
 <span class="w">      </span><span class="p">}</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">          </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">          </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">          </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">          </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">          </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">      </span><span class="k">return</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/callLogger/inputChanged&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/callLogger/inputChanged'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span><span class="w"> </span><span class="c1">// get input changed data in here: data.body.formData</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">      </span><span class="c1">// you can update call log page data here to make the form dynamic</span>
 <span class="w">      </span><span class="k">return</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>

@@ -2792,32 +2792,32 @@
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableSmsSettingEvent=1&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableSmsSettingEvent=1"</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"script"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
 <span class="o">&lt;</span><span class="err">/script&gt;</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;500&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;rc-widget&quot;</span> <span class="na">allow</span><span class="o">=</span><span class="s">&quot;microphone&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableSmsSettingEvent=1&quot;</span><span class="p">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">width</span><span class="o">=</span><span class="s">"300"</span> <span class="na">height</span><span class="o">=</span><span class="s">"500"</span> <span class="na">id</span><span class="o">=</span><span class="s">"rc-widget"</span> <span class="na">allow</span><span class="o">=</span><span class="s">"microphone"</span> <span class="na">src</span><span class="o">=</span><span class="s">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?enableSmsSettingEvent=1"</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 </code></pre></div>
 </div>
 </div>
 </div>
 <p>To receive events:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;rc-sms-settings-notify&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">'rc-sms-settings-notify'</span><span class="o">:</span>
 <span class="w">        </span><span class="c1">// get sms setting in here</span>
 <span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
 <span class="w">        </span><span class="c1">// {</span>
-<span class="w">        </span><span class="c1">//   type: &#39;rc-sms-settings-notify&#39;,</span>
-<span class="w">        </span><span class="c1">//   senderNumber: &#39;+11111111111&#39;, // sms sender number that user selected</span>
+<span class="w">        </span><span class="c1">//   type: 'rc-sms-settings-notify',</span>
+<span class="w">        </span><span class="c1">//   senderNumber: '+11111111111', // sms sender number that user selected</span>
 <span class="w">        </span><span class="c1">//   senderNumbers: [], // available number list for SMS sender</span>
 <span class="w">        </span><span class="c1">// }</span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span>
@@ -2828,10 +2828,10 @@
 <span class="p">});</span>
 </code></pre></div>
 <h3 id="update-sms-settings">Update SMS settings</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-sms-settings-update&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">senderNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;+11111111111&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// the number must be one of sender numbers in setting notify event</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-sms-settings-update'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">senderNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">'+11111111111'</span><span class="p">,</span><span class="w"> </span><span class="c1">// the number must be one of sender numbers in setting notify event</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">The sender number setting will only work for new SMS conversation. If user send SMS in a existing conversation, the widget will use previous sender number in the conversation. To go to SMS page by API, please follow <a href="../../integration/api/#go-to-sms-page-with-prefilled-text">here</a>.</p>

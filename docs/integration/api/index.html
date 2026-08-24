@@ -3479,147 +3479,147 @@
 <p><span class="badge badge-normal"><span class=sep> [</span><span class=title><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M32.5 96v149.5c0 17 6.7 33.3 18.7 45.3l192 192c25 25 65.5 25 90.5 0l149.5-149.5c25-25 25-65.5 0-90.5l-192-192C279.2 38.7 263 32 246 32H96.5c-35.3 0-64 28.7-64 64m112 16a32 32 0 1 1 0 64 32 32 0 1 1 0-64"/></svg></span></span><span class=sep> : </span><span class=value>1.x</span><span class=sep>] </span></span></p>
 <p>Following APIs need to work with <a href="../events/#web-phone-call-event">Web phone call event</a> to get <code>callId</code>.</p>
 <h3 id="answer-a-ringing-call">Answer a ringing call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;answer&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'answer'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="c1">// callId comes from web phone call event</span>
 
 <span class="c1">// answer the current ringing call, call id default is current ringing call id.</span>
-<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;answer&#39;</span><span class="p">,</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'answer'</span><span class="p">,</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="reject-a-ringing-call">Reject a ringing call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;reject&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'reject'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="to-voicemail-a-ringing-call">To voicemail a ringing call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;toVoicemail&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'toVoicemail'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="forward-a-ringing-call">Forward a ringing call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;forward&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'forward'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">forwardNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;forward_number&#39;</span>
+<span class="w">    </span><span class="nx">forwardNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">'forward_number'</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="hangup-a-call">Hangup a call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;hangup&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'hangup'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 
 <span class="c1">// hangup current active call</span>
-<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;hangup&#39;</span><span class="p">,</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'hangup'</span><span class="p">,</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="hold-a-call">Hold a call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;hold&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'hold'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="unhold-a-call">Unhold a call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;unhold&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'unhold'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="transfer-a-call">Transfer a call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;transfer&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'transfer'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">transferNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;transfer_number&#39;</span>
+<span class="w">    </span><span class="nx">transferNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">'transfer_number'</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="record-a-call">Record a call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;startRecord&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'startRecord'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">This will only work after the <a href="../events/#web-phone-call-event">call has already started</a> (Inbound call accepted/Oubound call connected)</p>
 </div>
 <h3 id="stop-record-a-call">Stop record a call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;stopRecord&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'stopRecord'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="mute-a-call">Mute a call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;mute&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'mute'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="unmute-a-call">Unmute a call</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;unmute&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'unmute'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="send-dtmf">Send DTMF</h3>
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">2.3.0</a></span></span></p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;dtmf&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'dtmf'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">callId</span><span class="o">:</span><span class="w"> </span><span class="sb">`call id`</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, current call id by default</span>
 <span class="w">  </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">dtmf</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;101&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// DTMF value</span>
+<span class="w">    </span><span class="nx">dtmf</span><span class="o">:</span><span class="w"> </span><span class="s1">'101'</span><span class="p">,</span><span class="w"> </span><span class="c1">// DTMF value</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="closeopen-current-ringing-page">Close/open current ringing page</h3>
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">2.2.1</a></span></span></p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-control-call&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;toggleRingingDialog&#39;</span><span class="p">,</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-control-call'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">callAction</span><span class="o">:</span><span class="w"> </span><span class="s1">'toggleRingingDialog'</span><span class="p">,</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h2 id="embeddable-widget">Embeddable widget</h2>
 <h3 id="show-custom-alert-message">Show custom alert message</h3>
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">1.8.6</a></span></span></p>
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">requestId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">().</span><span class="nx">toString</span><span class="p">();</span>
-<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-message-request&#39;</span><span class="p">,</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-message-request'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">requestId</span><span class="o">:</span><span class="w"> </span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/custom-alert-message&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">alertMessage</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Test info message&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">alertLevel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;info&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">'/custom-alert-message'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">alertMessage</span><span class="o">:</span><span class="w"> </span><span class="s1">'Test info message'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">alertLevel</span><span class="o">:</span><span class="w"> </span><span class="s1">'info'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="mf">5000</span><span class="w"> </span><span class="c1">//5000ms =&gt; 5s</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>Note: <code>alertLevel</code> can be <code>info</code>, <code>warning</code> or <code>danger</code>.</p>
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">alertId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">RCAdapter</span><span class="p">.</span><span class="nx">alertMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Test info message&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;info&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">'Test info message'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">'info'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="mf">5000</span><span class="w"> </span><span class="c1">//5000ms =&gt; 5s, 0 for infinite</span>
 <span class="p">});</span>
 <span class="c1">// Dismiss the alert message</span>
@@ -3630,34 +3630,34 @@
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">2.1.0</a></span></span></p>
 <p>Alert with details
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">alertId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">RCAdapter</span><span class="p">.</span><span class="nx">alertMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Can not log phone call&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">'Can not log phone call'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;danger&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">'danger'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">details</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Description&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Description'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;text&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;This is a longer more descriptive explanation of the problem that can expand over multiple lines.&#39;</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'1'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'text'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">'This is a longer more descriptive explanation of the problem that can expand over multiple lines.'</span>
 <span class="w">    </span><span class="p">}],</span>
 <span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Error from CRM&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Error from CRM'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;text&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;OAU-1973 Contact not found&#39;</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'1'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'text'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">'OAU-1973 Contact not found'</span>
 <span class="w">    </span><span class="p">}],</span>
 <span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Actions&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Actions'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;link&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Need help? Ask out community.&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">href</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://community.ringcentral.com&#39;</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'1'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'link'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">'Need help? Ask out community.'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">href</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://community.ringcentral.com'</span>
 <span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;link&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// when not href set, it will send a event with [button event](./sms-toolbar-button.md)</span>
-<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Resolve logging conflict&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'2'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'link'</span><span class="p">,</span><span class="w"> </span><span class="c1">// when not href set, it will send a event with [button event](./sms-toolbar-button.md)</span>
+<span class="w">      </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s1">'Resolve logging conflict'</span><span class="p">,</span>
 <span class="w">    </span><span class="p">}]</span>
 <span class="w">  </span><span class="p">}]</span>
 <span class="p">})</span>
@@ -3684,15 +3684,15 @@
 </code></pre></div>
 <h2 id="login-and-authorization">Login and authorization</h2>
 <h3 id="log-out-user">Log out user</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-logout&#39;</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-logout'</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="trigger-login-button-click">Trigger Login button click</h3>
 <p>App will open login popup window after getting this command. Follow <a href="../events/#login-popup-event">here</a> to disable popup window, and receive oauth uri.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-login&#39;</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-login'</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">This command only works when user is not logged in</p>
@@ -3700,70 +3700,70 @@
 <h2 id="navigation">Navigation</h2>
 <h3 id="open-the-dialer-and-start-a-call">Open the dialer and start a call</h3>
 <p>Find the widget iframe and use <code>postMessage</code> to send command and data:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-new-call&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-new-call'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">phoneNumber</span><span class="o">:</span><span class="w"> </span><span class="sb">`phone number`</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">toCall</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>This feature can be used for <code>Click to Dial</code>. If you set <code>toCall</code> to ture, it will start the call immediately.</p>
 <p>If you are using Adapter JS way, just you can just call <code>RCAdapter.clickToCall('phonenumber')</code>.</p>
 <p><a href="../click-to-dial/">Here</a> is tutorial to use <a href="https://github.com/ringcentral/ringcentral-c2d">RingCentral C2D</a> library to quick implement <code>Click to Dial</code> feature.</p>
 <h3 id="navigate-to-arbitrary-path">Navigate to arbitrary path</h3>
 <p>Navigate to path:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-navigate-to&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/messages&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// &#39;/meeting&#39;, &#39;/dialer&#39;, &#39;//history&#39;, &#39;/settings&#39;</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-navigate-to'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">'/messages'</span><span class="p">,</span><span class="w"> </span><span class="c1">// '/meeting', '/dialer', '//history', '/settings'</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>Navigate back to previous path:</p>
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-navigate-to&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;goBack&#39;</span><span class="p">,</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-navigate-to'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">'goBack'</span><span class="p">,</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="go-to-the-sms-tab">Go to the SMS tab</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-new-sms&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-new-sms'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">phoneNumber</span><span class="o">:</span><span class="w"> </span><span class="sb">`phone number`</span><span class="p">,</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="go-to-sms-conversation-for-specific-phone-number">Go to SMS conversation for specific phone number</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-new-sms&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-new-sms'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">phoneNumber</span><span class="o">:</span><span class="w"> </span><span class="sb">`phone number`</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">conversation</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// will go to conversation page if conversation existed</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="go-to-sms-page-with-prefilled-text">Go to SMS page with prefilled text</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-new-sms&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-new-sms'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">phoneNumber</span><span class="o">:</span><span class="w"> </span><span class="sb">`phone number`</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="sb">`your text`</span>
 <span class="w">  </span><span class="p">}]</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>If you are using Adapter JS way, just you can just call <code>RCAdapter.clickToSMS('phonenumber', 'text')</code>.</p>
 <h3 id="auto-populate-sms-conversation-text">Auto-populate SMS conversation text</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-auto-populate-conversation&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-auto-populate-conversation'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="sb">`your text`</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">This only works when user is already on the SMS conversation detail page. It will add the specified text into user's conversation input.</p>
 </div>
 <h3 id="go-to-sms-page-with-prefilled-imageattachment">Go to SMS page with prefilled image/attachment</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-new-sms&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-new-sms'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">phoneNumber</span><span class="o">:</span><span class="w"> </span><span class="sb">`phone number`</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">attachments</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;test.txt&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;data:text/plain;base64,SGVsbG8sIFdvcmxkIQ%3D%3D&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// base64 encoded data URI</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'test.txt'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="s1">'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ%3D%3D'</span><span class="p">,</span><span class="w"> </span><span class="c1">// base64 encoded data URI</span>
 <span class="w">    </span><span class="p">}],</span><span class="w"> </span><span class="c1">// optional for sending MMS message with attachments</span>
 <span class="w">  </span><span class="p">}]</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">This only works when user is already on the SMS conversation detail page. It will add the specified text into user's conversation input.</p>
@@ -3774,38 +3774,38 @@
 </div>
 <div class="highlight"><pre><span></span><code><span class="c1">// meeting info</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">meetingBody</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">topic</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Embbnux Ji&#39;s Meeting&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">meetingType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Scheduled&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">topic</span><span class="o">:</span><span class="w"> </span><span class="s2">"Embbnux Ji's Meeting"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">meetingType</span><span class="o">:</span><span class="w"> </span><span class="s2">"Scheduled"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">schedule</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">startTime</span><span class="o">:</span><span class="w"> </span><span class="mf">1583312400368</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">durationInMinutes</span><span class="o">:</span><span class="w"> </span><span class="mf">60</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">timeZone</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"1"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nx">allowJoinBeforeHost</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">startHostVideo</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">startParticipantsVideo</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">audioOptions</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;Phone&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;ComputerAudio&quot;</span>
+<span class="w">    </span><span class="s2">"Phone"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"ComputerAudio"</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">};</span>
 
 <span class="c1">// send a request to schedule meeting</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">requestId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">().</span><span class="nx">toString</span><span class="p">();</span>
-<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-message-request&#39;</span><span class="p">,</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-message-request'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">requestId</span><span class="o">:</span><span class="w"> </span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/schedule-meeting&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">'/schedule-meeting'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="nx">meetingBody</span><span class="p">,</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 
 <span class="c1">// listen response</span>
-<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-adapter-message-response&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-adapter-message-response'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">responseId</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">requestId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">response</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
@@ -3814,27 +3814,27 @@
 </code></pre></div>
 <h2 id="set-presence">Set presence</h2>
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">1.8.2</a></span></span></p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-set-presence&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">userStatus</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Available&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Offline, Busy, Available</span>
-<span class="w">  </span><span class="nx">dndStatus</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TakeAllCalls&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// TakeAllCalls, DoNotAcceptAnyCalls, DoNotAcceptDepartmentCalls, TakeDepartmentCallsOnly</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-set-presence'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">userStatus</span><span class="o">:</span><span class="w"> </span><span class="s1">'Available'</span><span class="p">,</span><span class="w"> </span><span class="c1">// Offline, Busy, Available</span>
+<span class="w">  </span><span class="nx">dndStatus</span><span class="o">:</span><span class="w"> </span><span class="s1">'TakeAllCalls'</span><span class="p">,</span><span class="w"> </span><span class="c1">// TakeAllCalls, DoNotAcceptAnyCalls, DoNotAcceptDepartmentCalls, TakeDepartmentCallsOnly</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>To get current presence status please refer this <a href="../events/#presence-sync-event">event</a>.</p>
 <h2 id="update-ringtone-settings">Update ringtone settings</h2>
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="../../2.x/" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="../../2.x/">2.0.0</a></span></span></p>
 <p>Set ringtone audio</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-ringtone&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;CoolRingTone&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Ringtone name</span>
-<span class="w">  </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://xxx.wav&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Ringtone URI, support http/https and base64 data URI</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-update-ringtone'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'CoolRingTone'</span><span class="p">,</span><span class="w"> </span><span class="c1">// Ringtone name</span>
+<span class="w">  </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://xxx.wav'</span><span class="p">,</span><span class="w"> </span><span class="c1">// Ringtone URI, support http/https and base64 data URI</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>Set ringtone volume</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-update-ringtone&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-update-ringtone'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">volume</span><span class="o">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="c1">// 0 - 1.0</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>If you are using Adapter JS way, just you can just call <code>RCAdapter.updateRingtone({ name, uri, volume })</code>.</p>
 

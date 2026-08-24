@@ -2766,97 +2766,97 @@
 <p>RingCentral Embeddable is a powerful tool that allows you to customize the user experience for your users. You can create customized pages or tabs to display your own content in the widget.</p>
 <h2 id="register-a-page">Register a page</h2>
 <p>Register a customized page:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-customized-page&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-customized-page'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;page1&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// page id, required</span>
-<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Customized page 1&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;page&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'page1'</span><span class="p">,</span><span class="w"> </span><span class="c1">// page id, required</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Customized page 1'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'page'</span><span class="p">,</span>
 <span class="w">    </span><span class="c1">// schema and uiSchema are used to customize page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)</span>
 <span class="w">    </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;contactType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;defaultContactName&#39;</span><span class="p">],</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'object'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'contactType'</span><span class="p">,</span><span class="w"> </span><span class="s1">'defaultContactName'</span><span class="p">],</span>
 <span class="w">      </span><span class="nx">properties</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;warning&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Please authorize the CRM to use this feature.&quot;</span>
+<span class="w">        </span><span class="s2">"warning"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Please authorize the CRM to use this feature."</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;someMessage&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;This is a description message&quot;</span>
+<span class="w">        </span><span class="s2">"someMessage"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"This is a description message"</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;someLink&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;This is a link message&quot;</span>
+<span class="w">        </span><span class="s2">"someLink"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"This is a link message"</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;openSettingsButton&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Open CRM settings&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"openSettingsButton"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Open CRM settings"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;contactType&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Default link type&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;oneOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">"contactType"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Default link type"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"oneOf"</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
-<span class="w">              </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;candidate&quot;</span><span class="p">,</span>
-<span class="w">              </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Candidate&quot;</span>
+<span class="w">              </span><span class="s2">"const"</span><span class="o">:</span><span class="w"> </span><span class="s2">"candidate"</span><span class="p">,</span>
+<span class="w">              </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Candidate"</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="p">{</span>
-<span class="w">              </span><span class="s2">&quot;const&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;contact&quot;</span><span class="p">,</span>
-<span class="w">              </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Contact&quot;</span>
+<span class="w">              </span><span class="s2">"const"</span><span class="o">:</span><span class="w"> </span><span class="s2">"contact"</span><span class="p">,</span>
+<span class="w">              </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Contact"</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">          </span><span class="p">],</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;defaultContactName&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Default contact name&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"defaultContactName"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Default contact name"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;defaultNote&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Default note&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"defaultNote"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Default note"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nx">uiSchema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">submitButtonOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// optional if you don&#39;t want to show submit button</span>
-<span class="w">        </span><span class="nx">submitText</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Save&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">submitButtonOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// optional if you don't want to show submit button</span>
+<span class="w">        </span><span class="nx">submitText</span><span class="o">:</span><span class="w"> </span><span class="s1">'Save'</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">warning</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admonition&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;ui:severity&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// &quot;warning&quot;, &quot;info&quot;, &quot;error&quot;, &quot;success&quot;</span>
+<span class="w">        </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"admonition"</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"ui:severity"</span><span class="o">:</span><span class="w"> </span><span class="s2">"warning"</span><span class="p">,</span><span class="w">  </span><span class="c1">// "warning", "info", "error", "success"</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">someMessage</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;typography&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;ui:variant&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;body1&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// &quot;caption1&quot;, &quot;caption2&quot;, &quot;body1&quot;, &quot;body2&quot;, &quot;subheading2&quot;, &quot;subheading1&quot;, &quot;title2&quot;, &quot;title1&quot;</span>
-<span class="w">        </span><span class="c1">// &quot;ui:bulletedList&quot;: true, // show text as list item // supported from v2.0.1</span>
+<span class="w">        </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"typography"</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"ui:variant"</span><span class="o">:</span><span class="w"> </span><span class="s2">"body1"</span><span class="p">,</span><span class="w"> </span><span class="c1">// "caption1", "caption2", "body1", "body2", "subheading2", "subheading1", "title2", "title1"</span>
+<span class="w">        </span><span class="c1">// "ui:bulletedList": true, // show text as list item // supported from v2.0.1</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">someLink</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;link&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// supported from v2.0.1</span>
-<span class="w">        </span><span class="s2">&quot;ui:variant&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;body1&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;ui:color&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;avatar.brass&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;ui:underline&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;ui:href&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"link"</span><span class="p">,</span><span class="w"> </span><span class="c1">// supported from v2.0.1</span>
+<span class="w">        </span><span class="s2">"ui:variant"</span><span class="o">:</span><span class="w"> </span><span class="s2">"body1"</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"ui:color"</span><span class="o">:</span><span class="w"> </span><span class="s2">"avatar.brass"</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"ui:underline"</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"ui:href"</span><span class="o">:</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/"</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">openSettingsButton</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;button&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;ui:variant&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;contained&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// &quot;text&quot;, &quot;outlined&quot;, &quot;contained&quot;, &quot;plain&quot;</span>
-<span class="w">        </span><span class="s2">&quot;ui:fullWidth&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">        </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"button"</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"ui:variant"</span><span class="o">:</span><span class="w"> </span><span class="s2">"contained"</span><span class="p">,</span><span class="w"> </span><span class="c1">// "text", "outlined", "contained", "plain"</span>
+<span class="w">        </span><span class="s2">"ui:fullWidth"</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">defaultContactName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;ui:placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Enter default contact name&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"ui:placeholder"</span><span class="o">:</span><span class="w"> </span><span class="s1">'Enter default contact name'</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">defaultNote</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;ui:placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Enter default note&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;ui:widget&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;textarea&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// show note input as textarea</span>
+<span class="w">        </span><span class="s2">"ui:placeholder"</span><span class="o">:</span><span class="w"> </span><span class="s1">'Enter default note'</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"ui:widget"</span><span class="o">:</span><span class="w"> </span><span class="s2">"textarea"</span><span class="p">,</span><span class="w"> </span><span class="c1">// show note input as textarea</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nx">formData</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">contactType</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;candidate&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">defaultContactName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;John Doe&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">defaultNote</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">contactType</span><span class="o">:</span><span class="w"> </span><span class="s1">'candidate'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">defaultContactName</span><span class="o">:</span><span class="w"> </span><span class="s1">'John Doe'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">defaultNote</span><span class="o">:</span><span class="w"> </span><span class="s1">''</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">JSON Schema reference</p>
@@ -2864,54 +2864,54 @@
 </div>
 <p>To update the page, you can re-register the page with new data and same page id.</p>
 <p>Navigate to the page:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-navigate-to&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/customized/page1&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// page id</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-navigate-to'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">'/customized/page1'</span><span class="p">,</span><span class="w"> </span><span class="c1">// page id</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p><img alt="customized page" src="https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/2a20feaf-1336-4559-a488-ed327dd49ddc" /></p>
 <h2 id="handle-button-clicked-and-input-changed-event">Handle button clicked and input changed event</h2>
 <p>Pass <code>buttonEventPath</code> and <code>customizedPageInputChangedEventPath</code> when you register service:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">customizedPageInputChangedEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/customizedPage/inputChanged&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">customizedPageInputChangedEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/customizedPage/inputChanged'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/button-click'</span><span class="p">,</span>
 <span class="w">  </span><span class="p">}</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>Add event listener to get button clicked and input changed event:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/customizedPage/inputChanged&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/customizedPage/inputChanged'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span><span class="w"> </span><span class="c1">// get input changed data in here: data.body.input</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">      </span><span class="c1">// you can re-register page data here to update the page</span>
 <span class="w">      </span><span class="k">return</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/button-click&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;page1&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/button-click'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'page1'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// on submit button click</span>
 <span class="w">        </span><span class="c1">// button id is the page id</span>
-<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Save button clicked&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Save button clicked'</span><span class="p">);</span>
 <span class="w">        </span><span class="c1">// ...</span>
 <span class="w">      </span><span class="p">}</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;openSettingsButton&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'openSettingsButton'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// click on the button registered in schema, button id is the button key</span>
-<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Open settings button clicked&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Open settings button clicked'</span><span class="p">);</span>
 <span class="w">        </span><span class="c1">// ...</span>
 <span class="w">      </span><span class="p">}</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">});</span>

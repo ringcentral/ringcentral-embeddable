@@ -3123,9 +3123,9 @@
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableSideWidget=1&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/adapter.js?enableSideWidget=1"</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"script"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
 <span class="o">&lt;</span><span class="err">/script&gt;</span>
@@ -3136,17 +3136,17 @@
 <p>The <code>enableSideWidget=1</code> parameter is required to activate call widget functionality</p>
 <h3 id="register-a-call-widget">Register a call widget</h3>
 <p>Once enabled, register your custom call widget:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-widget-app&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-widget-app'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">app</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;support-cases&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Support cases&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">iconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://example.com/icon.png&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">pagePath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">inputChangedPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases/inputChanged&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases/button-click&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'support-cases'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'Support cases'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">iconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://example.com/icon.png'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">pagePath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">inputChangedPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases/inputChanged'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">buttonEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases/button-click'</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">)</span>
 </code></pre></div>
 <ol>
 <li>Unique identifier for your widget</li>
@@ -3172,36 +3172,36 @@
 <h3 id="basic-page-response">Basic page response</h3>
 <p>Add an event listener to handle page data requests:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">responseMessage</span><span class="p">(</span><span class="nx">request</span><span class="p">,</span><span class="w"> </span><span class="nx">response</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">response</span><span class="p">,</span>
-<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="kd">function</span><span class="w"> </span><span class="nx">getCasesPageJSON</span><span class="p">(</span><span class="nx">cases</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;json-schema&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'json-schema'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'object'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">        </span><span class="nx">properties</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;All open cases&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"All open cases"</span><span class="p">,</span>
 <span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1 item, Updated at 06/13/2025&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"1 item, Updated at 06/13/2025"</span><span class="p">,</span>
 <span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="s2">&quot;caseSearch&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Search cases&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"caseSearch"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Search cases"</span><span class="p">,</span>
 <span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="s2">&quot;caseList&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;oneOf&quot;</span><span class="o">:</span><span class="w"> </span><span class="nx">cases</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">item</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<span class="w">          </span><span class="s2">"caseList"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">"oneOf"</span><span class="o">:</span><span class="w"> </span><span class="nx">cases</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">item</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
 <span class="w">              </span><span class="kd">const</span><span class="o">:</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">link</span><span class="p">,</span>
 <span class="w">              </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">CaseNumber</span><span class="p">,</span>
 <span class="w">              </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">Subject</span><span class="p">,</span>
@@ -3209,67 +3209,67 @@
 <span class="w">              </span><span class="nx">meta</span><span class="o">:</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">Status</span><span class="p">,</span>
 <span class="w">            </span><span class="p">})),</span>
 <span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="s2">&quot;accountId&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Account ID&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"accountId"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Account ID"</span><span class="p">,</span>
 <span class="w">          </span><span class="p">},</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">uiSchema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;typography&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:variant&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;body2&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"typography"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:variant"</span><span class="o">:</span><span class="w"> </span><span class="s2">"body2"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;typography&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:variant&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;caption1&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:style&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">marginTop</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;-20px&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">          </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"typography"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:variant"</span><span class="o">:</span><span class="w"> </span><span class="s2">"caption1"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:style"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">marginTop</span><span class="o">:</span><span class="w"> </span><span class="s1">'-20px'</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nx">caseSearch</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;search&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:placeholder&quot;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Search this list&#39;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:label&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:style&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">marginTop</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;-10px&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">          </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"search"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:placeholder"</span><span class="o">:</span><span class="w"> </span><span class="s1">'Search this list'</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:label"</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:style"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">marginTop</span><span class="o">:</span><span class="w"> </span><span class="s1">'-10px'</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nx">caseList</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:showSelected&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:label&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"list"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:showSelected"</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:label"</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nx">accountId</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;ui:widget&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;hidden&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:widget"</span><span class="o">:</span><span class="w"> </span><span class="s2">"hidden"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">formData</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">caseSearch</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">accountId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;hidden_account_id&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">caseSearch</span><span class="o">:</span><span class="w"> </span><span class="s1">''</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">accountId</span><span class="o">:</span><span class="w"> </span><span class="s1">'hidden_account_id'</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nx">actions</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Home&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'home'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">'Home'</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;unauthorize&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Unauthorize CRM&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;danger.b04&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'unauthorize'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">'Unauthorize CRM'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">'danger.b04'</span><span class="p">,</span>
 <span class="w">    </span><span class="p">}],</span>
 <span class="w">  </span><span class="p">};</span>
 <span class="p">}</span>
 
-<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">contact</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">contact</span><span class="p">;</span><span class="w"> </span><span class="c1">// get contact { phoneNumber } from call</span>
 <span class="w">      </span><span class="c1">// TODO: get cases from your CRM with contact info</span>
 <span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">cases</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">        </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://case_link&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">CaseNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;666666&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">Subject</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Customer want to buy a car&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://case_link'</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">CaseNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">'666666'</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">Subject</span><span class="o">:</span><span class="w"> </span><span class="s1">'Customer want to buy a car'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">Contact</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Customer Name&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'Customer Name'</span><span class="p">,</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nx">Status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;New&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">Status</span><span class="o">:</span><span class="w"> </span><span class="s1">'New'</span><span class="p">,</span>
 <span class="w">      </span><span class="p">}];</span>
 <span class="w">      </span><span class="nx">responseMessage</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">getCasesPageJSON</span><span class="p">(</span><span class="nx">cases</span><span class="p">),</span>
@@ -3300,9 +3300,9 @@
 <span class="w">    </span><span class="nx">clearTimeout</span><span class="p">(</span><span class="nx">timeout</span><span class="p">);</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">preRequest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">supportCasesSearchDebounce</span><span class="p">.</span><span class="nx">request</span><span class="p">;</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">preRequest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="c1">// respond &#39;ok&#39; to avoid re-render the page</span>
+<span class="w">      </span><span class="c1">// respond 'ok' to avoid re-render the page</span>
 <span class="w">      </span><span class="nx">responseMessage</span><span class="p">(</span><span class="nx">preRequest</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="p">,</span>
 <span class="w">      </span><span class="p">});</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
@@ -3314,13 +3314,13 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">accountId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">formData</span><span class="p">.</span><span class="nx">accountId</span><span class="p">;</span>
 <span class="w">    </span><span class="c1">// TODO: get cases from your CRM</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">cases</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">      </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://case_link&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">CaseNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;666666&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">Subject</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Customer want to buy a car&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">link</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://case_link'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">CaseNumber</span><span class="o">:</span><span class="w"> </span><span class="s1">'666666'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">Subject</span><span class="o">:</span><span class="w"> </span><span class="s1">'Customer want to buy a car'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">Contact</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Customer Name&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'Customer Name'</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nx">Status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;New&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">Status</span><span class="o">:</span><span class="w"> </span><span class="s1">'New'</span><span class="p">,</span>
 <span class="w">    </span><span class="p">}];</span>
 <span class="w">    </span><span class="nx">responseMessage</span><span class="p">(</span><span class="nx">request</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">getCasesPageJSON</span><span class="p">(</span><span class="nx">cases</span><span class="p">),</span>
@@ -3328,14 +3328,14 @@
 <span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="mf">800</span><span class="p">);</span>
 <span class="p">}</span>
 
-<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Handle main page request</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases/inputChanged&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">changedKeys</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;caseSearch&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases/inputChanged'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">changedKeys</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'caseSearch'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">debounceSupportCasesSearch</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
@@ -3347,18 +3347,18 @@
 </ol>
 <h3 id="item-selection-handling">Item selection handling</h3>
 <p>Handle user interactions with list items:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// ...</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases/inputChanged&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases/inputChanged'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// ...</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">changedKeys</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;caseList&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">changedKeys</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'caseList'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">caseLink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">formData</span><span class="p">.</span><span class="nx">caseList</span><span class="p">;</span>
 <span class="w">        </span><span class="c1">// Open case detail page in new tab</span>
-<span class="w">        </span><span class="nb">window</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="nx">caseLink</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_blank&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nb">window</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="nx">caseLink</span><span class="p">,</span><span class="w"> </span><span class="s1">'_blank'</span><span class="p">);</span>
 <span class="w">        </span><span class="nx">responseMessage</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="p">,</span>
 <span class="w">        </span><span class="p">});</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
@@ -3374,22 +3374,22 @@
 <span class="kd">function</span><span class="w"> </span><span class="nx">getAuthorizationPageJSON</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;json-schema&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'json-schema'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'object'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">        </span><span class="nx">properties</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;crmAuthButton&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Authorize CRM&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"crmAuthButton"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">"title"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Authorize CRM"</span><span class="p">,</span>
 <span class="w">          </span><span class="p">},</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">uiSchema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;crmAuthButton&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;button&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:variant&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;contained&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// &quot;text&quot;, &quot;outlined&quot;, &quot;contained&quot;, &quot;plain&quot;</span>
-<span class="w">          </span><span class="s2">&quot;ui:fullWidth&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">        </span><span class="s2">"crmAuthButton"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"button"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:variant"</span><span class="o">:</span><span class="w"> </span><span class="s2">"contained"</span><span class="p">,</span><span class="w"> </span><span class="c1">// "text", "outlined", "contained", "plain"</span>
+<span class="w">          </span><span class="s2">"ui:fullWidth"</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">formData</span><span class="o">:</span><span class="w"> </span><span class="p">{},</span>
@@ -3400,21 +3400,21 @@
 <span class="kd">function</span><span class="w"> </span><span class="nx">getRefreshAuthorizationJson</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;json-schema&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'json-schema'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'object'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">        </span><span class="nx">properties</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;someMessage&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Refresh the app after authorization&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"someMessage"</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">"type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">"description"</span><span class="o">:</span><span class="w"> </span><span class="s2">"Refresh the app after authorization"</span><span class="p">,</span>
 <span class="w">          </span><span class="p">},</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">uiSchema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">someMessage</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="s2">&quot;ui:field&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admonition&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;ui:severity&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:field"</span><span class="o">:</span><span class="w"> </span><span class="s2">"admonition"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"ui:severity"</span><span class="o">:</span><span class="w"> </span><span class="s2">"info"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">formData</span><span class="o">:</span><span class="w"> </span><span class="p">{},</span>
@@ -3423,10 +3423,10 @@
 <span class="p">}</span>
 </code></pre></div>
 <h3 id="authorization-handling">Authorization handling</h3>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">crmAuthorized</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// Show authorization page</span>
 <span class="w">        </span><span class="nx">responseMessage</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
@@ -3436,10 +3436,10 @@
 <span class="w">      </span><span class="p">}</span>
 <span class="w">      </span><span class="c1">// Show main content when authorized</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases/button-click&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;crmAuthButton&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases/button-click'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'crmAuthButton'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// Open authorization page in new tab</span>
-<span class="w">        </span><span class="nb">window</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s1">&#39;https://crm-authorization-page&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_blank&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nb">window</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s1">'https://crm-authorization-page'</span><span class="p">,</span><span class="w"> </span><span class="s1">'_blank'</span><span class="p">);</span>
 <span class="w">        </span><span class="nx">responseMessage</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">getRefreshAuthorizationJson</span><span class="p">(),</span>
 <span class="w">        </span><span class="p">});</span>
@@ -3455,17 +3455,17 @@
 <h2 id="action-buttons">Action buttons</h2>
 <p>Actions are buttons that appear in the call widget's more actions menu:</p>
 <p><img alt="action-buttons" src="../../assets/call-widget-action-buttons.png" /></p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/sidebarApps/support-cases/button-click&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/sidebarApps/support-cases/button-click'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'home'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// Navigate to home page</span>
 <span class="w">        </span><span class="nx">responseMessage</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">getCasesPageJSON</span><span class="p">(</span><span class="nx">cases</span><span class="p">),</span>
 <span class="w">        </span><span class="p">});</span>
 <span class="w">      </span><span class="p">}</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;unauthorize&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'unauthorize'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// Revoke authorization</span>
 <span class="w">        </span><span class="nx">crmAuthorized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
 <span class="w">        </span><span class="nx">responseMessage</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>

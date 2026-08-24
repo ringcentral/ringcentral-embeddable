@@ -2680,37 +2680,37 @@
 <p class="admonition-title">This only works on RingCentral Video meeting service.</p>
 </div>
 <p>First you need to pass <code>meetingUpcomingPath</code> when you register meeting invite service.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-adapter-register-third-party-service&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TestService&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// service name</span>
-<span class="w">    </span><span class="nx">meetingInvitePath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/meeting/invite&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">meetingInviteTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Invite with TestService&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">meetingUpcomingPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/meetingUpcomingList</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span><span class="w"> </span><span class="c1">// service name</span>
+<span class="w">    </span><span class="nx">meetingInvitePath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/meeting/invite'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">meetingInviteTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Invite with TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">meetingUpcomingPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/meetingUpcomingList</span>
 <span class="s1">  }</span>
-<span class="s1">}, &#39;</span><span class="o">*</span><span class="err">&#39;</span><span class="p">);</span>
+<span class="s1">}, '</span><span class="o">*</span><span class="err">'</span><span class="p">);</span>
 </code></pre></div>
 <p>Then add a message event to response upcoming meeting  request:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;rc-post-message-request&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;/meetingUpcomingList&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/meetingUpcomingList'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// add your codes here to query upcoming meeting from your service</span>
 <span class="w">      </span><span class="c1">// response to widget</span>
-<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">&quot;#rc-widget-adapter-frame&quot;</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rc-post-message-response&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">            </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;123456&#39;</span><span class="p">,</span>
-<span class="w">            </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Test Meeting in TestService&#39;</span><span class="p">,</span>
-<span class="w">            </span><span class="nx">editEventUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://your_meeting_uri&#39;</span><span class="p">,</span>
-<span class="w">            </span><span class="nx">startTime</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2020-03-22T01:00:00Z&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nx">endTime</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2020-03-22T02:00:00Z&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nx">meetingIds</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;433214948&#39;</span><span class="p">],</span>
+<span class="w">            </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'123456'</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Test Meeting in TestService'</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">editEventUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://your_meeting_uri'</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">startTime</span><span class="o">:</span><span class="w"> </span><span class="s2">"2020-03-22T01:00:00Z"</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">endTime</span><span class="o">:</span><span class="w"> </span><span class="s2">"2020-03-22T02:00:00Z"</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">meetingIds</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'433214948'</span><span class="p">],</span>
 <span class="w">          </span><span class="p">}],</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">});</span>
