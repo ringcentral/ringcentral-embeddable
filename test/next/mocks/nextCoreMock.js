@@ -56,6 +56,7 @@ module.exports = {
   action: directDecorator,
   computed: methodDecorator,
   delegate: methodDecorator,
+  dynamic: methodDecorator,
   getRef: jest.fn((module) => ({
     identifier: module?.identifier,
     modules: module?.modules,
@@ -68,6 +69,8 @@ module.exports = {
   optional: () => () => {},
   state: directDecorator,
   storage: directDecorator,
+  // A pass-through rxjs operator; app teardown is not modelled in tests.
+  takeUntilAppDestroy: (source) => source,
   useConnector,
   useContainer: jest.fn(),
   userStorage: directDecorator,

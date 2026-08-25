@@ -186,6 +186,10 @@ function MenuItemText({ primary }) {
   return React.createElement('span', null, primary);
 }
 
+function Tag({ children, ...props }) {
+  return React.createElement('span', { 'data-tag': true, ...props }, children);
+}
+
 function ListItemText({ classes = {}, primary, secondary }) {
   return React.createElement(
     'span',
@@ -333,6 +337,7 @@ module.exports = {
   Menu,
   MenuItem,
   MenuItemText,
+  MenuList: createContainer('ul'),
   PageHeader: createContainer('header'),
   PageHeaderCenter: createContainer(),
   PageHeaderLeft: createContainer(),
@@ -343,6 +348,7 @@ module.exports = {
   TabContext,
   TabPanel,
   Tabs: createContainer(),
+  Tag,
   Text,
   TextField,
 };

@@ -36,6 +36,8 @@ import {
   type UIFunctions,
 } from '@ringcentral-integration/next-core';
 
+import { useConversationDisplayNameWithMatches } from '../../components/MatchedContactsTag';
+
 import { ConversationsPage } from './ConversationsPage';
 
 @injectable({
@@ -93,6 +95,21 @@ export class ConversationsView extends ConversationsViewSpringBase {
       },
       smsConversationsOptions,
     );
+
+    // `useConversationItemInfo` is an instance field on the base class, not a
+    // prototype method, so it is wrapped here rather than overridden. Doing it
+    // on the instance covers every consumer: the text, fax and voicemail lists
+    // reach it through `getUIFunctions`, and `VoicemailView` and
+    // `FaxDetailsView` call it directly off this view.
+    const baseUseConversationItemInfo = this.useConversationItemInfo;
+    this.useConversationItemInfo = (conversation, options) => {
+      const result = baseUseConversationItemInfo(conversation, options);
+      const DisplayName = useConversationDisplayNameWithMatches(
+        result.info.DisplayName,
+        conversation,
+      );
+      return { ...result, info: { ...result.info, DisplayName } };
+    };
   }
 
   override getUIFunctions(

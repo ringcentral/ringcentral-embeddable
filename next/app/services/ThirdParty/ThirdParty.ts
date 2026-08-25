@@ -296,6 +296,36 @@ export class ThirdParty extends RcModule {
     return this.serviceName;
   }
 
+  /**
+   * The entity types the registered service has actually returned as contact
+   * matches.
+   *
+   * A third-party service picks its own type names, so unlike a single-CRM app
+   * we cannot hard-code the viewable types — they are derived from the matches
+   * we have seen.
+   */
+  @computed((that: ThirdParty) => [
+    that.sourceName,
+    that._contactMatcherApi.dataMapping,
+  ])
+  get matchedContactEntityTypes(): string[] {
+    const sourceName = this.sourceName;
+    if (!sourceName) {
+      return [];
+    }
+    const types = new Set<string>();
+    Object.values(this._contactMatcherApi.dataMapping ?? {}).forEach(
+      (matches) => {
+        matches?.forEach((match) => {
+          if (match?.resourceType === sourceName && match.type) {
+            types.add(match.type);
+          }
+        });
+      }
+    );
+    return [...types];
+  }
+
   get rawContacts(): ThirdPartyContact[] {
     return this.contacts;
   }
@@ -1198,6 +1228,11 @@ export class ThirdParty extends RcModule {
             (contact: ThirdPartyContact) => ({
               ...contact,
               entityType: contact.entityType || contact.type,
+              // The framework identifies a CRM match by `resourceType` — it is
+              // how `getContactDisplayInfo` picks the default among several
+              // matches and how action buttons decide view vs create. Providers
+              // are expected to stamp it themselves.
+              resourceType: this.sourceName ?? undefined,
             })
           );
         } else {

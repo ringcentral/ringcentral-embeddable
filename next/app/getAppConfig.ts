@@ -61,6 +61,7 @@ import {
   ConversationLogger,
   type ConversationLoggerOptions,
   ConversationMatcher,
+  Conversations,
   MessageThread,
   type MessageThreadOptions,
   SmsConversationsOptions,
@@ -187,6 +188,9 @@ import {
   Adapter,
   MonitoredExtensions,
   CallQueues as CallQueuesV2,
+  CallViewState as CallViewStateV2,
+  MatchedContactSelection,
+  createContactRendererOptions,
 } from './services';
 import { ParkView } from './views/CallView/ParkView';
 import { CallControlView as CallControlViewV2 } from './views/CallView/CallControlView/CallControl.view';
@@ -370,7 +374,11 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: CallAction,
         useClass: CallActionV2,
       },
-      CallViewState,
+      {
+        provide: CallViewState,
+        useClass: CallViewStateV2,
+      },
+      MatchedContactSelection,
       {
         provide: MicroPhoneCallControlView,
         useClass: CallControlViewV2,
@@ -726,6 +734,20 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useFactory: (thirdParty: ThirdParty) =>
           createThirdPartyIntegrationConfig(thirdParty),
         deps: [ThirdParty],
+      },
+      {
+        provide: 'ContactRendererOptions',
+        useFactory: (
+          matchedContactSelection: MatchedContactSelection,
+          thirdParty: ThirdParty,
+          conversations: Conversations,
+        ) =>
+          createContactRendererOptions(
+            matchedContactSelection,
+            thirdParty,
+            conversations,
+          ),
+        deps: [MatchedContactSelection, ThirdParty, Conversations],
       },
       {
         provide: 'HeaderNavViewOptions',

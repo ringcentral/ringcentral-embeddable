@@ -16,6 +16,8 @@ module.exports = {
       '<rootDir>/test/next/mocks/microServicesMock.js',
     '^@ringcentral-integration/micro-core/src/app/hooks$':
       '<rootDir>/test/next/mocks/microHooksMock.js',
+    '^@ringcentral-integration/micro-phone/src/app/components/ReferenceWidgetSpring$':
+      '<rootDir>/test/next/mocks/referenceWidgetSpringMock.js',
     '^@ringcentral/spring-ui$': '<rootDir>/test/next/mocks/springUiMock.js',
     '^@ringcentral/spring-icon$': '<rootDir>/test/next/mocks/springIconMock.js',
     '^@ringcentral-integration/jsonschema-spring-page$':
@@ -31,7 +33,8 @@ module.exports = {
   ],
   testMatch: ['<rootDir>/test/next/**/*.test.[jt]s?(x)'],
   collectCoverageFrom: [
-    '<rootDir>/next/app/services/{NoiseReduction,SmartNotes,TabManager,ThirdParty,VoicemailDrop}/**/*.{ts,tsx}',
+    '<rootDir>/next/app/services/{CallViewState,MatchedContactSelection,NoiseReduction,SmartNotes,TabManager,ThirdParty,VoicemailDrop}/**/*.{ts,tsx}',
+    '<rootDir>/next/app/components/MatchedContactsTag/**/*.{ts,tsx}',
     '<rootDir>/next/app/views/{ExpandedRouteView,SettingsView,SideWidgetView,VoicemailDropSettingsView,VoicemailDropView}/**/*.{ts,tsx}',
     '<rootDir>/next/app/views/CallView/CallControlView/CallControl.helper.ts',
     '!<rootDir>/next/**/*.interface.ts',

@@ -1,13 +1,51 @@
 import type { IntegrationConfigOptions } from '@ringcentral-integration/micro-setting/src/app/services';
 
 import type { ThirdParty } from './ThirdParty';
+import type { ThirdPartyContact } from './ThirdParty.interface';
 
 const DEFAULT_INTEGRATION_KEY = 'thirdParty';
 
+/**
+ * The framework's own default, restated because it is not exported.
+ *
+ * Kept in the list so RC directory rows behave exactly as before: dropping
+ * these would flip their action button from `viewEntity` to `addEntity`.
+ */
+const RC_DIRECTORY_ENTITY_TYPES = ['company', 'personal'];
+
+type IntegrationConfigThirdParty = Pick<
+  ThirdParty,
+  | 'displayName'
+  | 'sourceName'
+  | 'viewMatchedContactExternal'
+  | 'matchedContactEntityTypes'
+  | 'onViewMatchedContactExternal'
+>;
+
 /** Creates integration configuration backed by the registered service state. */
 export function createThirdPartyIntegrationConfig(
-  thirdParty: Pick<ThirdParty, 'displayName' | 'sourceName'>
+  thirdParty: IntegrationConfigThirdParty
 ): IntegrationConfigOptions {
+  /**
+   * Hands a record back to the registered service via its
+   * `viewMatchedContactPath`.
+   *
+   * Only the service's own records are forwarded: an RC directory match has no
+   * counterpart on the other side of the postMessage bridge.
+   */
+  const viewMatchedContact = (entity: unknown) => {
+    const contact = entity as ThirdPartyContact | undefined;
+    if (
+      !contact?.id ||
+      !thirdParty.viewMatchedContactExternal ||
+      !thirdParty.sourceName ||
+      contact.resourceType !== thirdParty.sourceName
+    ) {
+      return;
+    }
+    return thirdParty.onViewMatchedContactExternal(contact);
+  };
+
   return {
     get key(): string {
       return thirdParty.sourceName ?? DEFAULT_INTEGRATION_KEY;
@@ -15,9 +53,32 @@ export function createThirdPartyIntegrationConfig(
     get name(): string | undefined {
       return thirdParty.displayName ?? thirdParty.sourceName ?? undefined;
     },
-    onViewEntity: (entity) => {
-      console.log('🐞 ~ onViewEntity entity:', entity);
+    /**
+     * The service's own matched types have to be listed here or nothing
+     * downstream can reach `onViewEntity`: both the clickable name in
+     * `ContactDisplayRender` and the `viewEntity` action button are gated on
+     * the displayed contact's type appearing in this list.
+     */
+    get viewableEntityTypes(): string[] {
+      if (!thirdParty.viewMatchedContactExternal) {
+        return RC_DIRECTORY_ENTITY_TYPES;
+      }
+      return [
+        ...RC_DIRECTORY_ENTITY_TYPES,
+        ...thirdParty.matchedContactEntityTypes,
+      ];
     },
+    onViewEntity: (entity, metadata) => {
+      // A "Maybe" display is a guess among several matches. Deep-linking it
+      // would send the app to a record the user never chose, so leave
+      // disambiguation to the match picker shown next to the name.
+      if (metadata?.isMaybeMatch) {
+        return;
+      }
+      return viewMatchedContact(entity);
+    },
+    // Enables the per-row "view record" button inside the match picker.
+    viewExternalEntity: (entity) => viewMatchedContact(entity),
     onCreateEntity: (entity) => {
       console.log('🐞 ~ onCreateEntity entity:', entity);
     },

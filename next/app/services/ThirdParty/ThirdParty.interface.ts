@@ -42,6 +42,8 @@ export type ThirdPartyContact = {
   phoneNumbers?: ThirdPartyPhoneNumber[];
   deleted?: boolean;
   entityType?: string;
+  /** Set to the registered service name so the framework treats it as a CRM match. */
+  resourceType?: string;
   [key: string]: unknown;
 };
 
@@ -259,6 +261,7 @@ export type MatcherApi<TQuery extends string = string> = {
 };
 
 export type ContactMatcherApi = MatcherApi<string> & {
+  dataMapping: Record<string, ThirdPartyContact[]>;
   manualRefreshNumber: string | null;
   setManualRefreshNumber: (phoneNumber: string) => void;
   resetManualRefreshNumber: () => void;

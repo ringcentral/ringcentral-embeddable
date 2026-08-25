@@ -617,7 +617,9 @@ describe('ThirdParty service', () => {
     await expect(
       service.matchContacts(['+16505550100', '+16505550101']),
     ).resolves.toEqual({
-      '+16505550100': [{ id: 'lead', type: 'lead', entityType: 'lead' }],
+      '+16505550100': [
+        { id: 'lead', type: 'lead', entityType: 'lead', resourceType: 'crm' },
+      ],
       '+16505550101': [],
     });
     expect(requestWithPostMessage).toHaveBeenLastCalledWith(
@@ -657,7 +659,9 @@ describe('ThirdParty service', () => {
     await expect(
       service.matchContacts([undefined, '+16505550100', '']),
     ).resolves.toEqual({
-      '+16505550100': [{ id: 'lead', type: 'lead', entityType: 'lead' }],
+      '+16505550100': [
+        { id: 'lead', type: 'lead', entityType: 'lead', resourceType: 'crm' },
+      ],
     });
     expect(requestWithPostMessage).toHaveBeenCalledWith(
       '/contact-match',

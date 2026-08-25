@@ -3,6 +3,8 @@ import { CallDetailView } from '../../next/app/views/CallHistoryView/CallDetail.
 import { ConversationsView } from '../../next/app/views/ConversationsView';
 
 jest.mock('@ringcentral-integration/next-core', () => ({
+  // Build on the shared mock so newly imported decorators keep resolving.
+  ...jest.requireActual('./mocks/nextCoreMock'),
   injectable: () => (target) => target,
   optional: () => () => undefined,
   PortManager: class PortManager {},

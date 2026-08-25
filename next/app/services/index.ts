@@ -7,6 +7,8 @@ export * from './ActiveCallControl';
 export * from './CallAction';
 export * from './CallMonitor';
 export * from './ContactMatcher';
+export * from './MatchedContactSelection';
+export * from './CallViewState';
 export * from './WebSocketSubscription';
 export * from './RingCentralExtensions';
 export * from './Adapter';
