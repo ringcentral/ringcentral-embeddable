@@ -53,6 +53,7 @@ function createDependencies(overrides = {}) {
     auth: { loggedIn: true, ownerId: 'owner-id' },
     appFeatures: { hasSmartNotePermission: true },
     webphone: {
+      sessions: [],
       onCallStart: jest.fn((handler) => {
         handlers.callStart = handler;
       }),
@@ -457,6 +458,93 @@ describe('SmartNotes service', () => {
     expect(smartNotes.session).toBeNull();
     await expect(smartNotes.setSession(null)).resolves.toBeUndefined();
     expect(smartNotes.smartNoteClient).toBeNull();
+  });
+
+  test('starts, resumes, and leaves running notes alone on request', async () => {
+    const { dependencies, smartNotes } = createSmartNotes();
+    smartNotes._smartNoteClientConstructor = FakeSmartNoteClient;
+    dependencies.webphone.sessions = [createWebphoneSession()];
+
+    const session = await smartNotes.startOrResumeNotes('session-1');
+
+    expect(session).toEqual(
+      expect.objectContaining({
+        id: 'session-1',
+        status: 'Answered',
+        phoneNumber: '+16505550123',
+        contact: expect.objectContaining({ id: 'contact-1' }),
+      }),
+    );
+    const [client] = FakeSmartNoteClient.instances;
+    expect(client.start).toHaveBeenCalledTimes(1);
+
+    client.transcriptionStatus = 'paused';
+    await smartNotes.startOrResumeNotes('session-1');
+    expect(client.resume).toHaveBeenCalledTimes(1);
+    expect(client.start).toHaveBeenCalledTimes(1);
+
+    client.transcriptionStatus = 'recording';
+    await smartNotes.startOrResumeNotes('session-1');
+    expect(client.resume).toHaveBeenCalledTimes(1);
+    expect(client.start).toHaveBeenCalledTimes(1);
+  });
+
+  test('cancels a pending auto start before starting the notes manually', async () => {
+    const { dependencies, smartNotes } = createSmartNotes();
+    smartNotes._smartNoteClientConstructor = FakeSmartNoteClient;
+    dependencies.webphone.sessions = [createWebphoneSession()];
+    await smartNotes.setAutoStartSmartNote(true);
+
+    await smartNotes.startOrResumeNotes('session-1');
+
+    const [client] = FakeSmartNoteClient.instances;
+    expect(client.start).toHaveBeenCalledTimes(1);
+    expect(smartNotes._autoStartTimeout).toBeNull();
+    jest.advanceTimersByTime(5000);
+    await flushPromises();
+    expect(client.start).toHaveBeenCalledTimes(1);
+  });
+
+  test('reports a failed manual start and keeps presenting the session', async () => {
+    const { dependencies, smartNotes } = createSmartNotes();
+    smartNotes._smartNoteClientConstructor = FakeSmartNoteClient;
+    dependencies.webphone.sessions = [createWebphoneSession()];
+
+    FakeSmartNoteClient.instances = [];
+    const session = await smartNotes.startOrResumeNotes('session-1');
+    // the client is created by the first call, make it fail on the next start
+    const [client] = FakeSmartNoteClient.instances;
+    client.start.mockRejectedValueOnce(new Error('CC-500'));
+    client.transcriptionStatus = 'stopped';
+
+    await expect(smartNotes.startOrResumeNotes('session-1')).resolves.toEqual(
+      session,
+    );
+    expect(dependencies.toast.warning).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'The AI assistant could not be started. Try again.',
+      }),
+    );
+    expect(smartNotes.logger.error).toHaveBeenCalled();
+  });
+
+  test('refuses to start the notes without a session or permission', async () => {
+    const { dependencies, smartNotes } = createSmartNotes();
+    smartNotes._smartNoteClientConstructor = FakeSmartNoteClient;
+
+    await expect(smartNotes.startOrResumeNotes('missing')).resolves.toBeNull();
+    expect(FakeSmartNoteClient.instances).toHaveLength(0);
+
+    // an ongoing call on another device has no local webphone session
+    smartNotes._setSessionState(createSession({ id: 'other-device' }));
+    await expect(
+      smartNotes.startOrResumeNotes('other-device'),
+    ).resolves.toEqual(expect.objectContaining({ id: 'other-device' }));
+
+    dependencies.appFeatures.hasSmartNotePermission = false;
+    await expect(
+      smartNotes.startOrResumeNotes('other-device'),
+    ).resolves.toBeNull();
   });
 
   test('skips auto start for ineligible sessions and cleans idle background clients', async () => {

@@ -14,11 +14,17 @@ import {
 } from '@ringcentral/spring-ui';
 import React, { type FC, useMemo } from 'react';
 
-import i18n from '../../VoicemailDropView/i18n';
+import voicemailDropI18n from '../../VoicemailDropView/i18n';
+
+import { splitCallActions } from './CallControl.helper';
+import {
+  CallControlMoreButton,
+  type CallControlMoreAction,
+} from './CallControlMoreButton';
 
 function useEmbeddableCallActionButtons(props: CallControlViewPanelProps) {
   const { actions, call, onAction } = props;
-  const { t } = useLocale(i18n);
+  const { t } = useLocale(voicemailDropI18n);
   const callActions = useCallActionButtons(actions, onAction, {
     isConferenceCall: Boolean(call.isConferenceCall),
   });
@@ -50,7 +56,11 @@ export const VoicemailDropCallControlPanel: FC<CallControlViewPanelProps> = (
     AudioCardComponent: AudioCard,
   } = props;
   const callActions = useEmbeddableCallActionButtons(props);
-  const renderActions = useMemo(() => callActions.slice(0, -1), [callActions]);
+  // the last action is the end call button, it is rendered in the footer
+  const { visible: renderActions, overflow: overflowActions } = useMemo(
+    () => splitCallActions(callActions.slice(0, -1)),
+    [callActions],
+  );
 
   const actionButtons = useMemo(
     () => (
@@ -98,31 +108,44 @@ export const VoicemailDropCallControlPanel: FC<CallControlViewPanelProps> = (
           ),
         )}
         {process.env.NODE_ENV === 'test' ? (
-          <span data-sign="actionTypes">
-            {renderActions.map((button) => button.actionType).join(',')}
-          </span>
+          <>
+            <span data-sign="actionTypes">
+              {renderActions.map((button) => button.actionType).join(',')}
+            </span>
+            <span data-sign="overflowActionTypes">
+              {overflowActions.map((button) => button.actionType).join(',')}
+            </span>
+          </>
         ) : null}
       </div>
     ),
-    [AudioCard, flipNumbers, onAction, renderActions],
+    [AudioCard, flipNumbers, onAction, overflowActions, renderActions],
   );
 
-  const Component = transferringCalls
-    ? TransferringCall
-    : NormalCallControlPanel;
+  if (transferringCalls) {
+    return <TransferringCall {...props}>{actionButtons}</TransferringCall>;
+  }
 
-  return <Component {...props}>{actionButtons}</Component>;
+  return (
+    <NormalCallControlPanel {...props} overflowActions={overflowActions}>
+      {actionButtons}
+    </NormalCallControlPanel>
+  );
 };
 
-const NormalCallControlPanel: FC<CallControlViewPanelProps> = (props) => {
+const NormalCallControlPanel: FC<
+  CallControlViewPanelProps & { overflowActions: CallControlMoreAction[] }
+> = (props) => {
   const {
     call,
     expanded,
+    flipNumbers,
     onAction,
     onExpand,
     aiNoteTipType,
     viewAiNote,
     onCloseAiNoteTip,
+    overflowActions,
     children,
   } = props;
   const callActions = useEmbeddableCallActionButtons(props);
@@ -152,13 +175,25 @@ const NormalCallControlPanel: FC<CallControlViewPanelProps> = (props) => {
   const layout = useCallControlLayout(call, {
     main: children,
     footer: (
-      <CallButton
-        {...endCallButtonProps}
-        variant="end"
-        TooltipProps={{ title: endCallButtonProps.tooltip }}
-        size="medium"
-        data-sign="hangUp"
-      />
+      <>
+        <CallButton
+          {...endCallButtonProps}
+          variant="end"
+          TooltipProps={{ title: endCallButtonProps.tooltip }}
+          size="medium"
+          data-sign="hangUp"
+        />
+        {overflowActions.length > 0 ? (
+          // absolutely positioned so the end call button stays centered
+          <div className="absolute right-10 top-1/2 -translate-y-1/2">
+            <CallControlMoreButton
+              actions={overflowActions}
+              flipNumbers={flipNumbers}
+              onAction={onAction}
+            />
+          </div>
+        ) : null}
+      </>
     ),
     onBack: () => onAction('back'),
     onConferenceClick: () => onAction('viewConferenceList'),

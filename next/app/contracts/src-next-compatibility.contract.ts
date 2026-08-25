@@ -633,7 +633,7 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
       risk: 'high',
       verification: ['test/next/adapterNavigationCompatibility.test.js'],
       nextAction:
-        'Migrate HUD, conference, flip, park, simplify, transfer, ringtone, call-queue, and typed-history aliases, then verify browser deep links.',
+        'Migrate HUD, conference, park, simplify, transfer, ringtone, call-queue, and typed-history aliases, then verify browser deep links. The flip action is served by the call control flip menu, only its route alias is missing.',
     },
     {
       id: 'routes.missing-product-and-third-party',

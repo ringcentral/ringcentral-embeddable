@@ -261,15 +261,24 @@ export class SmartNotes extends RcModule {
       return;
     }
     const session = webphoneSession as WebphoneSmartNoteSession;
+    const smartNoteSession = createSmartNoteSession(
+      session,
+      this._getMatchedContact(session),
+    );
+    if (smartNoteSession) {
+      await this.setSession(smartNoteSession);
+    }
+  }
+
+  private _getMatchedContact(
+    session: WebphoneSmartNoteSession,
+  ): SmartNoteContact | undefined {
     const phoneNumber =
       session.direction === callDirections.outbound ? session.to : session.from;
     const matches = this._contactMatcher.dataMapping[phoneNumber ?? ''] as
       | SmartNoteContact[]
       | undefined;
-    const smartNoteSession = createSmartNoteSession(session, matches?.[0]);
-    if (smartNoteSession) {
-      await this.setSession(smartNoteSession);
-    }
+    return matches?.[0];
   }
 
   @delegate('mainClient')
@@ -534,6 +543,63 @@ export class SmartNotes extends RcModule {
     this._autoStartSession(session, smartNoteClient);
   }
 
+  /**
+   * starts the ai notes of a call, or resumes them when they were paused; used
+   * by the in-call smart notes button, the base call action handler talks to an
+   * ai notes client module that this app does not provide
+   *
+   * @returns the session the notes belong to, so the caller can present it
+   */
+  @delegate('mainClient')
+  async startOrResumeNotes(
+    telephonySessionId: string,
+  ): Promise<SmartNoteSession | null> {
+    if (!this.hasPermission || !this.showSmartNote) {
+      return null;
+    }
+    const session = this._getNotesSession(telephonySessionId);
+    if (!session) {
+      return null;
+    }
+    await this.setSession(session);
+    const smartNoteClient = this._smartNoteClientMap.get(session.id);
+    if (!smartNoteClient) {
+      return null;
+    }
+    try {
+      if (smartNoteClient.transcriptionStatus === 'paused') {
+        await smartNoteClient.resume();
+      } else if (
+        smartNoteClient.transcriptionStatus === 'idle' ||
+        smartNoteClient.transcriptionStatus === 'stopped'
+      ) {
+        // a pending auto start would start the same notes a second time
+        this._clearAutoStartTimeout();
+        await smartNoteClient.start();
+      }
+    } catch (error) {
+      this.logger.error('Failed to start SmartNotes', error);
+      await this._showManualStartFailed();
+    }
+    return session;
+  }
+
+  private _getNotesSession(
+    telephonySessionId: string,
+  ): SmartNoteSession | null {
+    const webphoneSession = this._webphone.sessions.find(
+      (item) => item.partyData?.sessionId === telephonySessionId,
+    ) as WebphoneSmartNoteSession | undefined;
+    if (webphoneSession) {
+      return createSmartNoteSession(
+        webphoneSession,
+        this._getMatchedContact(webphoneSession),
+      );
+    }
+    // calls on another device have no local webphone session
+    return this.session?.id === telephonySessionId ? this.session : null;
+  }
+
   private _createSmartNoteClient(
     session: SmartNoteSession,
   ): SmartNoteClientInstance {
@@ -634,6 +700,14 @@ export class SmartNotes extends RcModule {
       clearTimeout(this._autoStartTimeout);
       this._autoStartTimeout = null;
     }
+  }
+
+  @delegate('server')
+  private async _showManualStartFailed(): Promise<void> {
+    this._toast.warning({
+      message: 'The AI assistant could not be started. Try again.',
+      ttl: 10000,
+    });
   }
 
   @delegate('server')

@@ -66,25 +66,39 @@ jest.mock('@ringcentral/spring-ui', () => ({
   CallButton: ({ TooltipProps: _tooltipProps, ...props }) => (
     <button type="button" {...props} />
   ),
+  Icon: () => null,
+  IconButton: ({ TooltipProps: _tooltipProps, symbol: _symbol, ...props }) => (
+    <button type="button" {...props} />
+  ),
+  Menu: ({ children }) => children,
+  MenuItem: ({ children, ...props }) => <div {...props}>{children}</div>,
   MenuItemText: ({ children }) => children,
   MenuList: ({ children }) => children,
   Option: ({ children }) => children,
+  SubMenu: ({ children, itemContent, ...props }) => (
+    <div {...props}>
+      {itemContent}
+      {children}
+    </div>
+  ),
 }));
 
-function createProps() {
+function createProps(actions) {
   return {
-    actions: [
-      { type: 'mute' },
-      { type: 'keypad' },
-      { type: 'audio' },
-      { type: 'add' },
-      { type: 'hold' },
-      { type: 'transfer' },
-      { type: 'record' },
-      { type: 'park' },
-      { type: 'voicemail' },
-      { type: 'hangUp' },
-    ],
+    actions:
+      actions ??
+      [
+        { type: 'mute' },
+        { type: 'keypad' },
+        { type: 'audio' },
+        { type: 'add' },
+        { type: 'hold' },
+        { type: 'transfer' },
+        { type: 'record' },
+        { type: 'voicemail' },
+        { type: 'park' },
+        { type: 'hangUp' },
+      ],
     AudioCardComponent: null,
     call: { telephonySessionId: 'telephony-session' },
     expanded: false,
@@ -93,6 +107,12 @@ function createProps() {
     onExpand: jest.fn(),
     transferringCalls: null,
   };
+}
+
+function renderedActionTypes(container) {
+  return within(container)
+    .getAllByTestId(/^rendered-/)
+    .map((element) => element.dataset.sign.replace('rendered-', ''));
 }
 
 describe('VoicemailDropCallControlPanel', () => {
@@ -108,10 +128,57 @@ describe('VoicemailDropCallControlPanel', () => {
       'px-10',
     );
     expect(actionButtons).not.toHaveClass('flex', 'flex-wrap');
-    const renderedActions = within(actionButtons)
-      .getAllByTestId(/^rendered-/)
-      .map((element) => element.dataset.sign.replace('rendered-', ''));
-    expect(renderedActions.slice(-3)).toEqual(['record', 'park', 'voicemail']);
+    expect(renderedActionTypes(actionButtons).slice(-3)).toEqual([
+      'record',
+      'voicemail',
+      'park',
+    ]);
+  });
+
+  test('keeps at most nine action buttons and moves the rest into the more menu', () => {
+    render(
+      <VoicemailDropCallControlPanel
+        {...createProps([
+          { type: 'mute' },
+          { type: 'keypad' },
+          { type: 'audio' },
+          { type: 'add' },
+          { type: 'hold' },
+          { type: 'transfer' },
+          { type: 'record' },
+          { type: 'aiNotes' },
+          { type: 'voicemail' },
+          { type: 'park' },
+          { type: 'flip' },
+          { type: 'hangUp' },
+        ])}
+      />,
+    );
+
+    const actionButtons = screen.getByTestId('actionButtons');
+    expect(renderedActionTypes(actionButtons)).toEqual([
+      'mute',
+      'keypad',
+      'audio',
+      'add',
+      'hold',
+      'transfer',
+      'record',
+      'aiNotes',
+      'voicemail',
+    ]);
+    expect(screen.getByTestId('overflowActionTypes')).toHaveTextContent(
+      'park,flip',
+    );
+    expect(screen.getByTestId('more')).toBeInTheDocument();
+    expect(screen.getAllByTestId('park')).toHaveLength(1);
+  });
+
+  test('does not render the more button when every action fits', () => {
+    render(<VoicemailDropCallControlPanel {...createProps()} />);
+
+    expect(screen.getByTestId('overflowActionTypes')).toBeEmptyDOMElement();
+    expect(screen.queryByTestId('more')).not.toBeInTheDocument();
   });
 
   test('keeps the voicemail drop button presentation', () => {

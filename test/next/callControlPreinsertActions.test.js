@@ -58,6 +58,14 @@ jest.mock('../../next/app/views/VoicemailDropView', () => ({
   VoicemailDropView: class VoicemailDropView {},
 }));
 
+jest.mock('../../next/app/services/SmartNotes', () => ({
+  SmartNotes: class SmartNotes {},
+}));
+
+jest.mock('../../next/app/views/SmartNotesView', () => ({
+  SmartNotesView: class SmartNotesView {},
+}));
+
 jest.mock(
   '../../next/app/views/CallView/CallControlView/VoicemailDropCallControlPanel',
   () => ({ VoicemailDropCallControlPanel: () => null }),
@@ -78,6 +86,12 @@ function createCallControlView() {
       this.view = value;
     }),
   };
+  const smartNotes = {
+    startOrResumeNotes: jest.fn(async () => ({ id: 'telephony-session' })),
+  };
+  const smartNotesView = {
+    open: jest.fn(async () => {}),
+  };
   const view = new CallControlView(
     callAction,
     {}, // callingSettings
@@ -91,9 +105,11 @@ function createCallControlView() {
     webphone,
     {}, // voicemailDropView
     callViewState,
+    smartNotes,
+    smartNotesView,
   );
 
-  return { view, callAction, webphone, callViewState };
+  return { view, callAction, webphone, callViewState, smartNotes, smartNotesView };
 }
 
 describe('CallControlView preinsert call actions', () => {
@@ -159,5 +175,38 @@ describe('CallControlView preinsert call actions', () => {
       'real-session-1',
       { currentPath: 'park' },
     );
+  });
+
+  test('starts the ai notes and presents the ai assistant on the notes action', async () => {
+    const { view, smartNotes, smartNotesView } = createCallControlView();
+    const { onAction } = view.getUIFunctions({
+      call: { telephonySessionId: 'real-session-1' },
+    });
+
+    await onAction('aiNotes');
+
+    expect(smartNotes.startOrResumeNotes).toHaveBeenCalledWith(
+      'real-session-1',
+    );
+    expect(smartNotesView.open).toHaveBeenCalledWith({
+      id: 'telephony-session',
+    });
+    expect(mockBaseOnAction).not.toHaveBeenCalled();
+  });
+
+  test('does not present the ai assistant when the notes cannot start', async () => {
+    const { view, smartNotes, smartNotesView } = createCallControlView();
+    smartNotes.startOrResumeNotes.mockResolvedValueOnce(null);
+    const { onAction } = view.getUIFunctions({
+      call: { telephonySessionId: 'real-session-1' },
+    });
+
+    await onAction('stopNotes');
+
+    expect(smartNotes.startOrResumeNotes).toHaveBeenCalledWith(
+      'real-session-1',
+    );
+    expect(smartNotesView.open).not.toHaveBeenCalled();
+    expect(mockBaseOnAction).not.toHaveBeenCalled();
   });
 });

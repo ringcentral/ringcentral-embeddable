@@ -32,8 +32,10 @@ import type {
   CallControlViewProps,
 } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring/CallControl.view.interface';
 
+import { SmartNotes } from '../../../services/SmartNotes';
 import { VoicemailDrop } from '../../../services/VoicemailDrop';
 import type { Webphone } from '../../../services/WebphoneV2';
+import { SmartNotesView } from '../../SmartNotesView';
 import { VoicemailDropView } from '../../VoicemailDropView';
 
 import { addEmbeddableCallActions } from './CallControl.helper';
@@ -63,6 +65,8 @@ export class CallControlView extends CallControlViewBase {
     @inject(MicroPhoneWebphone) webphone: Webphone,
     voicemailDropView: VoicemailDropView,
     callViewState: CallViewState,
+    smartNotes: SmartNotes,
+    smartNotesView: SmartNotesView,
     @optional('CallControlViewOptions')
     callControlViewOptions?: CallControlViewOptions,
   ) {
@@ -85,19 +89,25 @@ export class CallControlView extends CallControlViewBase {
     this._parkCallAction = callAction;
     this._parkCallingSettings = callingSettings;
     this._parkActiveCallControl = activeCallControl;
+    this._flipForwardingNumber = forwardingNumber;
     this._voicemailDrop = voicemailDrop;
     this._webphone = webphone;
     this._voicemailDropView = voicemailDropView;
     this._callViewState = callViewState;
+    this._smartNotes = smartNotes;
+    this._smartNotesView = smartNotesView;
   }
 
   private readonly _parkCallAction: CallAction;
   private readonly _parkCallingSettings: CallingSettings;
   private readonly _parkActiveCallControl: ActiveCallControl;
+  private readonly _flipForwardingNumber: ForwardingNumber;
   private readonly _voicemailDrop: VoicemailDrop;
   private readonly _webphone: Webphone;
   private readonly _voicemailDropView: VoicemailDropView;
   private readonly _callViewState: CallViewState;
+  private readonly _smartNotes: SmartNotes;
+  private readonly _smartNotesView: SmartNotesView;
 
   @delegate('server')
   async navigateToPark(telephonySessionId: string): Promise<void> {
@@ -129,6 +139,7 @@ export class CallControlView extends CallControlViewBase {
       isWebphoneMode,
       webphoneSession,
       hasVoicemailDropPermission,
+      flipNumbers,
     } = useConnector(() => ({
       session: this._parkActiveCallControl.getActiveSession(telephonySessionId),
       isWebphoneMode: this._parkCallingSettings.isWebphoneMode,
@@ -137,6 +148,7 @@ export class CallControlView extends CallControlViewBase {
       ) as VoicemailDropSession | undefined,
       hasVoicemailDropPermission:
         this._voicemailDrop.hasVoicemailDropPermission,
+      flipNumbers: this._flipForwardingNumber.flipNumbers,
     }));
     const isOnHold = session?.isOnHold ?? false;
     const transferring = Boolean(props.call.warmTransferInfo);
@@ -153,9 +165,20 @@ export class CallControlView extends CallControlViewBase {
         props.actionsDisabled ||
         Boolean(webphoneSession.voicemailDropStatus)
       : undefined;
+    // without a flip number the call cannot be flipped anywhere, so the button
+    // is not rendered at all instead of being permanently disabled
+    const flipDisabled =
+      flipNumbers.length > 0
+        ? !isWebphoneMode ||
+          transferring ||
+          Boolean(props.call.isConferenceCall) ||
+          isOnHold ||
+          props.actionsDisabled
+        : undefined;
     return addEmbeddableCallActions(baseActions, {
       parkDisabled,
       voicemailDropDisabled,
+      flipDisabled,
     });
   }
 
@@ -183,6 +206,16 @@ export class CallControlView extends CallControlViewBase {
       }
       if (actionType === 'park') {
         await this.navigateToPark(telephonySessionId);
+        return;
+      }
+      if (actionType === 'aiNotes' || actionType === 'stopNotes') {
+        // the base handler talks to an ai-notes client module that this app
+        // does not have, the notes are driven by the SmartNotes service here
+        const session =
+          await this._smartNotes.startOrResumeNotes(telephonySessionId);
+        if (session) {
+          await this._smartNotesView.open(session);
+        }
         return;
       }
       if (actionType === 'voicemail') {

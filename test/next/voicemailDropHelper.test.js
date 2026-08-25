@@ -37,7 +37,7 @@ describe('Voicemail drop helpers', () => {
     ).toBe('fileTooLarge');
   });
 
-  test('inserts park and voicemail drop before hang up', () => {
+  test('inserts voicemail drop and park before hang up', () => {
     expect(
       addEmbeddableCallActions(
         [
@@ -48,8 +48,8 @@ describe('Voicemail drop helpers', () => {
       ),
     ).toEqual([
       { type: 'mute', disabled: false },
-      { type: 'park', disabled: true },
       { type: 'voicemail', disabled: false },
+      { type: 'park', disabled: true },
       { type: 'hangUp', disabled: false },
     ]);
   });
