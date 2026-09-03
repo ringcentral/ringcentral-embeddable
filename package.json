@@ -73,7 +73,7 @@
     "vm-browserify": "1.1.2",
     "webpack": "^5.104.1",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.2.6"
+    "webpack-dev-server": "^6.0.0"
   },
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
@@ -108,7 +108,7 @@
     "moment": "^2.29.4",
     "normalize.css": "^8.0.1",
     "prop-types": "^15.5.8",
-    "qs": "^6.14.2",
+    "qs": "^6.16.0",
     "quill": "^2.0.3",
     "quill-mention": "^6.0.2",
     "raven-js": "^3.27.0",
