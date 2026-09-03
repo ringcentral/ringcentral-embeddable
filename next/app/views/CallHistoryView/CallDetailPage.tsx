@@ -2,27 +2,32 @@ import {
   AppFooterNav,
   AppHeaderNav,
   CopyIconButtonSpring,
-} from '@ringcentral-integration/micro-core/src/app/components';
-import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import type { CallDetailViewPanelProps } from '@ringcentral-integration/micro-phone/src/app/views/CallDetailView/CallDetail.view.interface';
+} from "@ringcentral-integration/micro-core/src/app/components";
+import { useLocale } from "@ringcentral-integration/micro-core/src/app/hooks";
+import type { CallDetailViewPanelProps } from "@ringcentral-integration/micro-phone/src/app/views/CallDetailView/CallDetail.view.interface";
 import {
   ActionMenuList,
   PageHeaderBackButton,
   useHistoryActionButtons,
-} from '@ringcentral-integration/next-widgets/components';
-import { Block, BlockHeader } from '@ringcentral/spring-ui';
-import type { FunctionComponent } from 'react';
-import React from 'react';
+} from "@ringcentral-integration/next-widgets/components";
+import { Block, BlockHeader } from "@ringcentral/spring-ui";
+import type { FunctionComponent } from "react";
+import React from "react";
 
 import {
   type SmartNotesCallInfo,
   type SmartNotesHistoryCall,
   insertHistorySmartNotesAction,
   useHistorySmartNotesAction,
-} from './CallHistorySmartNotesAction';
-import i18n from './i18n';
+} from "./CallHistorySmartNotesAction";
+import i18n from "./i18n";
 
-export const CallDetailPage: FunctionComponent<CallDetailViewPanelProps> = (
+type CallDetailPageProps = CallDetailViewPanelProps & {
+  hideCallerIdInfo?: boolean;
+  scrollCallInfoWithContent?: boolean;
+};
+
+export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
   props
 ) => {
   const {
@@ -30,24 +35,26 @@ export const CallDetailPage: FunctionComponent<CallDetailViewPanelProps> = (
     currentCallLog,
     footer,
     goBack,
+    hideCallerIdInfo = false,
+    scrollCallInfoWithContent = false,
     useCallHistoryItemInfo,
     useActionsHandler,
   } = props;
   const { t } = useLocale(i18n);
   const { info, actions } = useCallHistoryItemInfo(currentCallLog, {
     selectIndex: 0,
-    variant: 'detail',
+    variant: "detail",
   });
   const onAction = useActionsHandler(
     currentCallLog,
     info,
-    'Call history detail page'
+    "Call history detail page"
   );
   const buttons = useHistoryActionButtons(actions, onAction);
   const smartNotesAction = useHistorySmartNotesAction(
     currentCallLog as SmartNotesHistoryCall,
     info as unknown as SmartNotesCallInfo,
-    t('viewSmartNotes')
+    t("viewSmartNotes")
   );
   const actionButtons = insertHistorySmartNotesAction(
     buttons,
@@ -65,7 +72,43 @@ export const CallDetailPage: FunctionComponent<CallDetailViewPanelProps> = (
     callQueueName,
     isConferenceCall,
   } = info;
-  const meLabel = callQueueName ? '' : `(${t('me')})`;
+  const meLabel = callQueueName ? "" : `(${t("me")})`;
+  const callDetailInfo = (
+    <div className="px-4 py-2" data-sign="callDetailInfo">
+      {!hideCallerIdInfo && (
+        <Block className="mb-2" data-sign="callerIdInfo">
+          <BlockHeader>
+            <span className="typography-descriptorMini">{myCallerIdTitle}</span>
+            <div className="text-neutral-b2 typography-mainText">
+              {myCallerId} {meLabel}
+            </div>
+          </BlockHeader>
+        </Block>
+      )}
+      <Block className="mb-2">
+        <BlockHeader data-sign="time-and-status">
+          <p className="typography-descriptorMini">{startTime}</p>
+          {Status && (
+            <div className="typography-mainText">
+              <Status />
+            </div>
+          )}
+        </BlockHeader>
+      </Block>
+    </div>
+  );
+  const detailContent = (
+    <div
+      data-sign="log-notes-transcript-section"
+      className={
+        scrollCallInfoWithContent
+          ? "flex flex-col"
+          : "flex-1 min-h-0 flex flex-col"
+      }
+    >
+      {children}
+    </div>
+  );
   return (
     <div data-sign="CallDetailPage" className="flex flex-col h-full">
       <AppHeaderNav override resetImmediately>
@@ -108,38 +151,26 @@ export const CallDetailPage: FunctionComponent<CallDetailViewPanelProps> = (
               buttons={actionButtons}
               displayCount={2}
               variant="plain"
-              propsMap={{ all: { variant: 'contained' } }}
-              moreButtonProps={{ variant: 'contained' }}
+              propsMap={{ all: { variant: "contained" } }}
+              moreButtonProps={{ variant: "contained" }}
             />
           </div>
         </div>
       </AppHeaderNav>
-      <div className="px-4 py-2" data-sign="callDetailInfo">
-        <Block className="mb-2">
-          <BlockHeader>
-            <span className="typography-descriptorMini">{myCallerIdTitle}</span>
-            <div className="text-neutral-b2 typography-mainText">
-              {myCallerId} {meLabel}
-            </div>
-          </BlockHeader>
-        </Block>
-        <Block className="mb-2">
-          <BlockHeader data-sign="time-and-status">
-            <p className="typography-descriptorMini">{startTime}</p>
-            {Status && (
-              <div className="typography-mainText">
-                <Status />
-              </div>
-            )}
-          </BlockHeader>
-        </Block>
-      </div>
-      <div
-        data-sign="log-notes-transcript-section"
-        className="flex-1 flex flex-col"
-      >
-        {children}
-      </div>
+      {scrollCallInfoWithContent ? (
+        <div
+          className="flex-1 min-h-0 overflow-y-auto"
+          data-sign="callDetailScrollableContent"
+        >
+          {callDetailInfo}
+          {detailContent}
+        </div>
+      ) : (
+        <>
+          {callDetailInfo}
+          {detailContent}
+        </>
+      )}
       <AppFooterNav>{footer}</AppFooterNav>
     </div>
   );

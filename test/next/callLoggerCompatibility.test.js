@@ -94,6 +94,15 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
     return { logger, activityMatcher, smartNotes, thirdParty };
   }
 
+  test("does not block logger readiness on optional Smart Notes", () => {
+    const { logger, smartNotes } = createLogger({
+      calls: [],
+      hasPermission: false,
+    });
+
+    expect(logger.ignoredModules).toContain(smartNotes);
+  });
+
   test("filters, paginates, and enriches recent unlogged calls", async () => {
     const eligible = createCall();
     const statusOnly = createCall({

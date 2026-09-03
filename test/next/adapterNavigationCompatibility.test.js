@@ -222,6 +222,7 @@ describe("Adapter navigation compatibility", () => {
   test.each([
     "/customized/page-id",
     "/customizedTabs/tab-id",
+    "/log/call/session-id",
   ])("routes registered customized content at %s", async (path) => {
     const adapter = createAdapter();
 
@@ -234,7 +235,6 @@ describe("Adapter navigation compatibility", () => {
     "/HUD",
     "/glip",
     "/glip/groups/group-id",
-    "/log/call/session-id",
     "/settings/thirdParty/general",
   ])("does not push unsupported legacy path %s", async (path) => {
     const adapter = createAdapter();

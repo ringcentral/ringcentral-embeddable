@@ -6,7 +6,7 @@ import { CustomizedPageView } from '../../next/app/views/CustomizedPageView';
 jest.mock(
   '@ringcentral-integration/micro-core/src/app/components/AppContext/AppFooter',
   () => ({
-    AppFooterNav: () => null,
+    AppFooterNav: ({ children }) => children,
   }),
 );
 

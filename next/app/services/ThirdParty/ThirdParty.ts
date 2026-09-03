@@ -117,6 +117,25 @@ export class ThirdParty extends RcModule {
     protected _thirdPartyOptions?: ThirdPartyOptions
   ) {
     super();
+    // Keep the host message bridge independent from feature modules, matching
+    // the legacy ThirdPartyService readiness contract. These services are used
+    // on demand after registration and must not delay ThirdParty initialization.
+    this._ignoreModuleReadiness(this._storage);
+    this._ignoreModuleReadiness(this._auth);
+    this._ignoreModuleReadiness(this._contacts);
+    this._ignoreModuleReadiness(this._contactSearch);
+    this._ignoreModuleReadiness(this._contactMatcher);
+    this._ignoreModuleReadiness(this._genericMeeting);
+    this._ignoreModuleReadiness(this._messageStore);
+    this._ignoreModuleReadiness(this._callHistory);
+    this._ignoreModuleReadiness(this._callMonitor);
+    this._ignoreModuleReadiness(this._voicemailDrop);
+    if (this._activityMatcher) {
+      this._ignoreModuleReadiness(this._activityMatcher);
+    }
+    if (this._conversationMatcher) {
+      this._ignoreModuleReadiness(this._conversationMatcher);
+    }
     if (this._smartNotes) {
       this._ignoreModuleReadiness(this._smartNotes);
     }

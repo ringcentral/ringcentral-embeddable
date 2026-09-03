@@ -1,4 +1,5 @@
 import type { HistoryCall } from "@ringcentral-integration/micro-phone/src/app/services/CallHistory";
+import type { Entity } from "@ringcentral-integration/commons/interfaces/Entity.interface";
 import type { CallLoggerOptions } from "@ringcentral-integration/micro-phone/src/app/services/CallLogger/CallLogger.interface";
 import {
   ActivityMatcher,
@@ -35,8 +36,25 @@ type UnloggedCallsQuery = {
   page?: number;
 };
 
-type CompatibleCall = Omit<HistoryCall, "recording"> & {
+export type CompatibleActivityMatch = {
+  contact?: string | { id?: string };
+  contactId?: string;
+  note?: string;
+  status?: string;
+  type?: string;
+  [key: string]: unknown;
+};
+
+export type CompatibleCall = Omit<
+  HistoryCall,
+  "activityMatches" | "recording"
+> & {
+  activityMatches?: CompatibleActivityMatch[];
   aiNote?: string | null;
+  callSelectionInfo?: {
+    displayedSelection: Entity;
+    selections: Entity[];
+  };
   transcript?: string | null;
   recording?:
     | (ThirdPartyRecording & {
@@ -76,6 +94,7 @@ class CallLogger extends CallLoggerBase {
       activityMatcher,
       contactMatcher
     );
+    this._ignoreModuleReadiness(this._smartNotes);
   }
 
   /**
@@ -126,7 +145,9 @@ class CallLogger extends CallLoggerBase {
       return false;
     }
     const activityMatches =
-      this._activityMatcher?.dataMapping[call.sessionId ?? ""] ?? [];
+      (this._activityMatcher?.dataMapping[call.sessionId ?? ""] as unknown as
+        | CompatibleActivityMatch[]
+        | undefined) ?? [];
     const hasLoggedActivity = activityMatches.some(
       (match: { type?: string }) => match.type !== "status"
     );
@@ -168,7 +189,9 @@ class CallLogger extends CallLoggerBase {
       ...(includeActivityMatches
         ? {
             activityMatches:
-              this._activityMatcher?.dataMapping[call.sessionId ?? ""] ?? [],
+              (this._activityMatcher?.dataMapping[
+                call.sessionId ?? ""
+              ] as unknown as CompatibleActivityMatch[] | undefined) ?? [],
           }
         : {}),
       aiNote,

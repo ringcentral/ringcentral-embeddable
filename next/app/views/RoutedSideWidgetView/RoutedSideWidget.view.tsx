@@ -81,9 +81,9 @@ export class RoutedSideWidgetView extends RcViewModule {
   }
 
   private _debug(event: string, details: Record<string, unknown>): void {
-    if (process.env.NODE_ENV !== 'test') {
-      console.info(`[SideWidgetDebug] ${event}`, details);
-    }
+    // if (process.env.NODE_ENV !== 'test') {
+    //   console.info(`[SideWidgetDebug] ${event}`, details);
+    // }
   }
 
   override onInit(): void {

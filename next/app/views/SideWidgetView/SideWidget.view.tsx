@@ -335,14 +335,6 @@ export class SideWidgetView extends RcViewModule {
     }
     const contentHandle = this._contentHandles.get(tabId);
     const wasActive = this.currentTabId === tabId;
-    if (process.env.NODE_ENV !== 'test') {
-      console.info('[SideWidgetDebug] close tab', {
-        tabId,
-        currentTabId: this.currentTabId,
-        tabIds: this.tabs.map(({ id }) => id),
-        wasActive,
-      });
-    }
     if (this.tabs.length === 1) {
       this._removeTab(tabId, tabIndex);
       const closeResult = contentHandle?.options.onClose?.(null);

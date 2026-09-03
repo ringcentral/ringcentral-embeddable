@@ -123,6 +123,7 @@ import { CallAction as CallActionV2 } from './services/CallAction';
 import { ContactMatcher as ContactMatcherV2 } from './services/ContactMatcher';
 import { SmsOptOut as SmsOptOutV2 } from './services/SmsOptOut';
 import { MeetingView, MeetingInviteView } from './views/MeetingView';
+import { LogCallView } from './views/LogCallView';
 import { ContactListView as ContactListViewV2 } from './views/ContactListView/ContactList.view';
 import { ContactDetailsView as ContactDetailsViewV2 } from './views/ContactDetailsView/ContactDetails.view';
 import { ContactSearchView as ContactSearchViewV2 } from './views/ContactSearchView';
@@ -474,6 +475,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       PersonalMeetingSettingsViewSpring,
       MeetingView,
       MeetingInviteView,
+      LogCallView,
       {
         provide: 'MeetingOptions',
         useValue: {

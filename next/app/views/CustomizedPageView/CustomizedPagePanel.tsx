@@ -152,19 +152,6 @@ export function CustomizedPagePanel({
         <AppHeaderNav override>
           <PageHeader
             onBackClick={page.hideBackButton ? undefined : onBack}
-            endAdornment={
-              showSubmitButton ? (
-                <Button
-                  variant="outlined"
-                  size="small"
-                  disabled={!allRequiredFieldsAreFilled(formData, schema)}
-                  data-sign="customizedPageSave"
-                  onClick={() => onSubmit(page.id, formData)}
-                >
-                  {saveButtonLabel}
-                </Button>
-              ) : null
-            }
           >
             {title}
           </PageHeader>
@@ -196,7 +183,25 @@ export function CustomizedPagePanel({
           onSubmit={() => onSubmit(page.id, formData)}
         />
       </div>
-      {!isTab ? <AppFooterNav /> : null}
+      {!isTab ? (
+        <AppFooterNav>
+          {showSubmitButton ? (
+            <div
+              className="p-3 border-t border-neutral-b4/50 mt-auto flex-none"
+              data-sign="customizedPageSaveFooter"
+            >
+              <Button
+                fullWidth
+                disabled={!allRequiredFieldsAreFilled(formData, schema)}
+                data-sign="customizedPageSave"
+                onClick={() => onSubmit(page.id, formData)}
+              >
+                {saveButtonLabel}
+              </Button>
+            </div>
+          ) : null}
+        </AppFooterNav>
+      ) : null}
     </div>
   );
 }

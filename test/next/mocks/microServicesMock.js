@@ -96,6 +96,11 @@ class CallLogger {
     this._callLoggerOptions = callLoggerOptions;
     this._activityMatcher = activityMatcher;
     this._contactMatcher = contactMatcher;
+    this.ignoredModules = [];
+  }
+
+  _ignoreModuleReadiness(module) {
+    this.ignoredModules.push(module);
   }
 }
 

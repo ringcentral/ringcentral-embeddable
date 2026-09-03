@@ -1,27 +1,26 @@
-import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import type { CallsListPanelSpringProps } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
+import { useLocale } from "@ringcentral-integration/micro-core/src/app/hooks";
+import type { CallsListPanelSpringProps } from "@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface";
 import {
   ActionMenuList,
   useHistoryActionButtons,
-} from '@ringcentral-integration/next-widgets/components';
-import { ListItem, ListItemText } from '@ringcentral/spring-ui';
-import React, { memo, useMemo } from 'react';
+} from "@ringcentral-integration/next-widgets/components";
+import { ListItem, ListItemText } from "@ringcentral/spring-ui";
+import React, { memo } from "react";
 
 import {
   type SmartNotesCallInfo,
   type SmartNotesHistoryCall,
   insertHistorySmartNotesAction,
   useHistorySmartNotesAction,
-} from './CallHistorySmartNotesAction';
-import i18n from './i18n';
-import { SmartNotesBadge } from './SmartNotesBadge';
+} from "./CallHistorySmartNotesAction";
+import i18n from "./i18n";
 
 export type CallsListItemProps = {
   call: SmartNotesHistoryCall;
   index: number;
 } & Omit<
   CallsListPanelSpringProps,
-  'calls' | 'lastPosition' | 'setLastPosition' | 'viewCallsFilterSelections'
+  "calls" | "lastPosition" | "setLastPosition" | "viewCallsFilterSelections"
 >;
 
 const CallsListItemComponent: React.FC<CallsListItemProps> = ({
@@ -32,23 +31,16 @@ const CallsListItemComponent: React.FC<CallsListItemProps> = ({
   useItemRender,
 }) => {
   const { t } = useLocale(i18n);
-  const callWithoutSmartNotesStatus = useMemo(
-    () => (call.hasSmartNote ? { ...call, hasSmartNote: false } : call),
-    [call]
-  );
-  const { info, actions } = useCallHistoryItemInfo(
-    callWithoutSmartNotesStatus,
-    {
-      selectIndex: 0,
-      variant: 'list',
-    }
-  );
-  const onAction = useActionsHandler(call, info, 'Call history list');
+  const { info, actions } = useCallHistoryItemInfo(call, {
+    selectIndex: 0,
+    variant: "list",
+  });
+  const onAction = useActionsHandler(call, info, "Call history list");
   const buttons = useHistoryActionButtons(actions, onAction);
   const smartNotesAction = useHistorySmartNotesAction(
     call,
     info as unknown as SmartNotesCallInfo,
-    t('viewSmartNotes')
+    t("viewSmartNotes")
   );
   const actionButtons = insertHistorySmartNotesAction(
     buttons,
@@ -72,8 +64,8 @@ const CallsListItemComponent: React.FC<CallsListItemProps> = ({
       key={call.id}
       size="auto"
       className="group"
-      classes={{ content: 'bg-inherit !px-3 !py-2' }}
-      onClick={() => onAction('viewDetail')}
+      classes={{ content: "bg-inherit !px-3 !py-2" }}
+      onClick={() => onAction("viewDetail")}
       data-sign="callsListItem"
     >
       <Avatar />
@@ -81,7 +73,7 @@ const CallsListItemComponent: React.FC<CallsListItemProps> = ({
         classes={{
           primaryPrimaryText:
             ringingElsewhere && !answeredByDelegate
-              ? 'text-success-f'
+              ? "text-success-f"
               : undefined,
         }}
         primary={
@@ -89,21 +81,11 @@ const CallsListItemComponent: React.FC<CallsListItemProps> = ({
             <DisplayName displayControl={{ maybe: true, matchCounts: true }} />
           </div>
         }
-        secondary={
-          Status || call.hasSmartNote ? (
-            <div className="flex items-center gap-1">
-              {Status && <Status mode="icon" />}
-              <SmartNotesBadge
-                label={t('smartNotes')}
-                show={Boolean(call.hasSmartNote)}
-              />
-            </div>
-          ) : undefined
-        }
+        secondary={Status ? <Status mode="icon" /> : undefined}
       />
       <div className="text-right min-h-11 max-w-[30%]">
         <span
-          className="typography-descriptor text-neutral-b2"
+          className="typography-descriptor text-neutral-b2 inline-block max-w-full truncate"
           data-sign="callStartTime"
         >
           {startTime}

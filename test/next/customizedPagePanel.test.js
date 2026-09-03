@@ -11,7 +11,9 @@ import { CustomizedPagePanel } from '../../next/app/views/CustomizedPageView/Cus
 jest.mock(
   '@ringcentral-integration/micro-core/src/app/components/AppContext/AppFooter',
   () => ({
-    AppFooterNav: jest.fn(() => <div data-sign="appFooterNav" />),
+    AppFooterNav: jest.fn(({ children }) => (
+      <div data-sign="appFooterNav">{children}</div>
+    )),
   }),
 );
 
@@ -89,8 +91,16 @@ describe('CustomizedPagePanel', () => {
 
     expect(screen.getByText('CRM details')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Store' })).toHaveAttribute(
-      'variant',
-      'outlined',
+      'data-full-width',
+      'true',
+    );
+    expect(screen.getByTestId('customizedPageSaveFooter')).toContainElement(
+      screen.getByRole('button', { name: 'Store' }),
+    );
+    expect(screen.getByTestId('customizedPageSaveFooter')).toHaveClass(
+      'border-t',
+      'border-neutral-b4/50',
+      'p-3',
     );
     expect(AppHeaderNav).toHaveBeenCalledWith(
       expect.objectContaining({ override: true }),
@@ -147,6 +157,17 @@ describe('CustomizedPagePanel', () => {
     expect(screen.getByRole('button', { name: 'Store' })).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: 'Change form' }));
     expect(screen.getByRole('button', { name: 'Store' })).toBeEnabled();
+  });
+
+  test('does not render the fixed save action when the page has no submit configuration', () => {
+    const props = createProps({
+      page: createPage({ uiSchema: {} }),
+    });
+    render(<CustomizedPagePanel {...props} />);
+
+    expect(screen.queryByTestId('customizedPageSave')).toBeNull();
+    expect(screen.queryByTestId('customizedPageSaveFooter')).toBeNull();
+    expect(AppFooterNav).toHaveBeenCalledTimes(1);
   });
 
   test('renders tab submit and supported header actions', () => {

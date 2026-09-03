@@ -45,7 +45,12 @@ jest.mock('@ringcentral-integration/micro-message/src/app/services', () => ({
 jest.mock('@ringcentral-integration/micro-phone/src/app/services', () => ({
   Call: class Call {},
   CallHistory: class CallHistory {},
+  CallLogger: class CallLogger {},
   CallLogTasks: class CallLogTasks {},
+}));
+
+jest.mock('../../next/app/services/ThirdParty', () => ({
+  ThirdParty: class ThirdParty {},
 }));
 
 jest.mock(
@@ -125,6 +130,16 @@ jest.mock('../../next/app/views/ConversationsView/ConversationsPage', () => ({
 }));
 
 describe('SideWidget list detail navigation', () => {
+  test('shows CRM log status only when a call logger is registered', () => {
+    const view = Object.create(CallsListView.prototype);
+    view._thirdParty = { callLoggerRegistered: false };
+
+    expect(view.displayCRMLog).toBe(false);
+
+    view._thirdParty.callLoggerRegistered = true;
+    expect(view.displayCRMLog).toBe(true);
+  });
+
   test('opens an SMS route directly without the full-page transition', async () => {
     const router = { push: jest.fn(async () => undefined) };
     const checkDncStatusOfConversation = jest.fn(async () => undefined);

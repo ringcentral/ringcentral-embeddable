@@ -102,12 +102,6 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
   override getUIFunctions(): UIFunctions<HeaderNavPanelProps> {
     return {
       onChange: (path: string) => {
-        if (process.env.NODE_ENV !== 'test') {
-          console.info('[SideWidgetDebug] header navigation', {
-            currentPath: this._router.currentPath,
-            targetPath: path,
-          });
-        }
         this._routedSideWidgetView.navigateMain(path);
       },
     };

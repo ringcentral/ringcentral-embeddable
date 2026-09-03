@@ -87,6 +87,7 @@ import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
+import { LogCallView } from './views/LogCallView';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import {
   getRoutedCallContact,
@@ -202,6 +203,13 @@ export class AppView extends RcViewModule {
         scope: 'contact',
         backgroundPath: '/dialer',
       },
+    },
+    {
+      path: '/log/call/:callSessionId',
+      component: this._logCallView.component,
+      authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._dialerPadView.component,
     },
     {
       path: '/composeText',
@@ -595,6 +603,7 @@ export class AppView extends RcViewModule {
     private _faxSendView: FaxSendView,
     private _faxDetailsView: FaxDetailsView,
     private _headerNavView: HeaderNavViewSpring,
+    private _logCallView: LogCallView,
     private _customizedPageView: CustomizedPageView,
     private _expandedRouteView: ExpandedRouteView,
     private _expandedView: ExpandedView,
@@ -680,20 +689,6 @@ export class AppView extends RcViewModule {
         previousPath,
         routes: this.routes,
       });
-      if (process.env.NODE_ENV !== 'test') {
-        console.info('[SideWidgetDebug] app route effect', {
-          previousPath,
-          currentPath,
-          expanded,
-          isSideWidgetRoute: isSideWidgetRoutePath(
-            currentPath,
-            this.routes,
-          ),
-          isDetailRoute: isDetailRoutePath(currentPath, this.routes),
-          expandedViewOpen: this._expandedView.isOpen,
-          collapseExpandedLayout,
-        });
-      }
       previousPathRef.current = currentPath;
       backgroundPathRef.current = backgroundPath;
       this._routedSideWidgetView.syncPath(

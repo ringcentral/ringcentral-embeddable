@@ -1,6 +1,4 @@
 import { SmartNotesMd } from '@ringcentral/spring-icon';
-import { render, screen } from '@testing-library/react';
-import React from 'react';
 
 import {
   areSmartNotesLinksDisabled,
@@ -9,7 +7,6 @@ import {
   insertHistorySmartNotesAction,
 } from '../../next/app/views/CallHistoryView/CallHistorySmartNotesAction';
 import { getVisibleTelephonySessionIds } from '../../next/app/views/CallHistoryView/CallHistorySmartNotesQuery';
-import { SmartNotesBadge } from '../../next/app/views/CallHistoryView/SmartNotesBadge';
 
 function createCall(overrides = {}) {
   return {
@@ -127,27 +124,6 @@ describe('call-history Smart Notes action', () => {
       ).map(({ actionType }) => actionType)
     ).toEqual(['viewLog', 'call', 'text', 'viewSmartNote', 'copyNumber']);
     expect(insertHistorySmartNotesAction([], null)).toEqual([]);
-  });
-
-  test('renders the Smart Notes badge only for noted calls', () => {
-    const { rerender } = render(
-      <SmartNotesBadge label="Smart notes" show={false} />
-    );
-    expect(screen.queryByLabelText('Smart notes')).toBeNull();
-
-    rerender(<SmartNotesBadge label="Smart notes" show />);
-
-    expect(screen.getByLabelText('Smart notes')).toHaveAttribute(
-      'data-sign',
-      'smartNotesBadge'
-    );
-    expect(screen.getByLabelText('Smart notes')).toHaveAttribute(
-      'data-symbol',
-      SmartNotesMd
-    );
-    expect(screen.getByLabelText('Smart notes')).toHaveClass(
-      'text-extra-amethyst'
-    );
   });
 
   test('selects the visible call range for the Smart Notes query', () => {

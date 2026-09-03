@@ -211,6 +211,22 @@ describe('ThirdParty service', () => {
     const { dependencies, service } = createThirdParty();
 
     expect(dependencies.storage.enable).toHaveBeenCalledWith(service);
+    expect(service.ignoredModules).toEqual([
+      dependencies.storage,
+      dependencies.auth,
+      dependencies.contacts,
+      dependencies.contactSearch,
+      dependencies.contactMatcher,
+      dependencies.genericMeeting,
+      dependencies.messageStore,
+      dependencies.callHistory,
+      dependencies.callMonitor,
+      dependencies.voicemailDrop,
+      dependencies.activityMatcher,
+      dependencies.conversationMatcher,
+      dependencies.smartNotes,
+    ]);
+    expect(service.ignoredModules).not.toContain(dependencies.portManager);
     expect(dependencies.portManager.onClient).toHaveBeenCalledWith(expect.any(Function));
     expect(dependencies.portManager.onServer).toHaveBeenCalledWith(expect.any(Function));
     expect(dependencies.voicemailDrop.setExternalVoicemailFetcher).not.toHaveBeenCalled();

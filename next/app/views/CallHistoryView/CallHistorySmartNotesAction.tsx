@@ -10,9 +10,10 @@ import type {
 } from '../../services/SmartNotes';
 import type { SmartNotesView } from '../SmartNotesView';
 
-export interface SmartNotesHistoryCall extends HistoryCall {
+export type SmartNotesHistoryCall = HistoryCall & {
   hasSmartNote?: boolean;
-}
+  id?: string;
+};
 
 export interface SmartNotesCallInfo {
   renderInfo: {

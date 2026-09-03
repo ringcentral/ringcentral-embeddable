@@ -17,6 +17,7 @@ class RcModule {
   constructor() {
     this.status = 'pending';
     this.logger = { error: jest.fn(), warn: jest.fn() };
+    this.ignoredModules = [];
   }
 
   get ready() {
@@ -31,7 +32,9 @@ class RcModule {
     return false;
   }
 
-  _ignoreModuleReadiness() {}
+  _ignoreModuleReadiness(module) {
+    this.ignoredModules.push(module);
+  }
 }
 
 class RcViewModule extends RcModule {}

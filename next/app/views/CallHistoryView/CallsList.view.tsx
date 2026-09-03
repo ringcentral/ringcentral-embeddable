@@ -3,6 +3,7 @@ import {
   ConnectivityManager,
   RateLimiter,
 } from '@ringcentral-integration/micro-auth/src/app/services';
+import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   ComposeText,
@@ -11,6 +12,7 @@ import {
 import {
   Call,
   CallHistory,
+  CallLogger,
   CallLogTasks,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import { CallsListViewSpring as CallsListViewSpringBase } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring';
@@ -23,17 +25,27 @@ import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/view
 import { DialerView } from '@ringcentral-integration/micro-phone/src/app/views/DialerView';
 import { IntegrationConfig } from '@ringcentral-integration/micro-setting/src/app/services';
 import {
+  computed,
   injectable,
   optional,
   RouterPlugin,
   type UIFunctions,
+  useConnector,
 } from '@ringcentral-integration/next-core';
 import React from 'react';
 
 import { useCallDisplayNameWithMatches } from '../../components/MatchedContactsTag';
 import { MatchedContactSelection } from '../../services/MatchedContactSelection';
+import { ThirdParty } from '../../services/ThirdParty';
 
+import {
+  addCallHistoryLogStatus,
+  createCallHistoryLogAction,
+  insertCallHistoryLogAction,
+  logCallFromHistory,
+} from './CallHistoryLogAction';
 import { CallsListPage } from './CallsListPage';
+import i18n from './i18n';
 
 @injectable({
   name: 'CallsListView',
@@ -50,9 +62,11 @@ export class CallsListView extends CallsListViewSpringBase {
     appFeatures: AppFeatures,
     toast: Toast,
     integrationConfig: IntegrationConfig,
+    matchedContactSelection: MatchedContactSelection,
+    callLogger: CallLogger,
+    thirdParty: ThirdParty,
     @optional() dialerView?: DialerView,
     @optional() composeText?: ComposeText,
-    matchedContactSelection: MatchedContactSelection,
     @optional() callLogTasks?: CallLogTasks,
     @optional('CallsListViewOptions')
     callsListViewOptions?: CallsListViewSpringOptions
@@ -76,6 +90,8 @@ export class CallsListView extends CallsListViewSpringBase {
     this._appCallHistory = callHistory;
     this._appRouter = router;
     this._matchedContactSelection = matchedContactSelection;
+    this._appCallLogger = callLogger;
+    this._thirdParty = thirdParty;
 
     // `useCallHistoryItemInfo` is an instance field on the base class, and the
     // framework pages read `DisplayName` off its result. Wrapping it here adds
@@ -83,13 +99,31 @@ export class CallsListView extends CallsListViewSpringBase {
     // screen and the dialer's recent calls in one place.
     const baseUseCallHistoryItemInfo = this.useCallHistoryItemInfo;
     this.useCallHistoryItemInfo = (call, options) => {
-      const result = baseUseCallHistoryItemInfo(call, options);
+      const callWithLogStatus = addCallHistoryLogStatus(call);
+      const result = baseUseCallHistoryItemInfo(callWithLogStatus, options);
+      const { t } = useLocale(i18n);
+      const logState = useConnector(() => ({
+        hideEditLogButton: this._thirdParty.callLoggerHideEditLogButton,
+        isLogging: Boolean(this._appCallLogger.loggingMap[call.sessionId]),
+        logButtonTitle: this._thirdParty.callLoggerTitle,
+        ready: this._appCallLogger.ready,
+      }));
       const DisplayName = useCallDisplayNameWithMatches(
         result.info.DisplayName,
         call.sessionId,
         result.info.renderInfo?.metadata?.matches,
       );
-      return { ...result, info: { ...result.info, DisplayName } };
+      const logAction = createCallHistoryLogAction({
+        call,
+        editLogLabel: t('editLog'),
+        logCallLabel: t('logCall'),
+        ...logState,
+      });
+      return {
+        ...result,
+        actions: insertCallHistoryLogAction(result.actions, logAction),
+        info: { ...result.info, DisplayName },
+      };
     };
 
     // `useActionsHandler` is an instance field on the base class, and
@@ -98,11 +132,15 @@ export class CallsListView extends CallsListViewSpringBase {
     const baseUseActionsHandler = this.useActionsHandler;
     this.useActionsHandler = (call, info, location) => {
       const baseHandler = baseUseActionsHandler(call, info, location);
-      return async (actionType, data) => {
+      return async (actionType) => {
         if (actionType === 'call') {
           this._handOffSelectionToOutboundCall(call, info);
         }
-        return baseHandler(actionType, data);
+        if (actionType === 'viewLog' || actionType === 'createLog') {
+          await this._logCall(call, info);
+          return;
+        }
+        return baseHandler(actionType);
       };
     };
   }
@@ -111,7 +149,33 @@ export class CallsListView extends CallsListViewSpringBase {
 
   private readonly _appRouter: RouterPlugin;
 
+  private readonly _appCallLogger: CallLogger;
+
+  private readonly _thirdParty: ThirdParty;
+
   private readonly _matchedContactSelection: MatchedContactSelection;
+
+  override get displayCRMLog(): boolean {
+    return this._thirdParty.callLoggerRegistered;
+  }
+
+  @computed
+  override get latestCalls() {
+    return super.latestCalls.map(addCallHistoryLogStatus);
+  }
+
+  private async _logCall(
+    call: Parameters<CallsListView['useActionsHandler']>[0],
+    info: Parameters<CallsListView['useActionsHandler']>[1],
+  ): Promise<void> {
+    await logCallFromHistory({
+      call,
+      callLogger: this._appCallLogger,
+      info,
+      router: this._appRouter,
+      thirdParty: this._thirdParty,
+    });
+  }
 
   /**
    * Passes the contact chosen on this record to the call about to be placed.
@@ -171,7 +235,7 @@ export class CallsListView extends CallsListViewSpringBase {
 
   override component(props: CallsListViewSpringProps) {
     const component = super.component(props);
-    if (!React.isValidElement(component)) {
+    if (!React.isValidElement<CallsListPanelSpringProps>(component)) {
       return component;
     }
     return <CallsListPage {...component.props} />;
