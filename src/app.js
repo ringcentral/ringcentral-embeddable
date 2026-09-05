@@ -12,7 +12,6 @@ import url from 'url';
 import App from './containers/App';
 import parseUri from './lib/parseUri';
 import { createPhone } from './modules/Phone';
-import { setupGlobalErrorHandlers } from './lib/setupGlobalErrorHandlers';
 
 const defaultPrefix = process.env.PREFIX;
 const defaultApiConfig = process.env.API_CONFIG;
@@ -213,8 +212,6 @@ const store = createStore(phone.reducer);
 phone.setStore(store);
 
 window.phone = phone;
-
-setupGlobalErrorHandlers({ getAlert: () => phone.alert });
 
 ReactDOM.render(
   <App

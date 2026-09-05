@@ -415,7 +415,9 @@ describe('WebphoneV2 transport, voicemail drop, and noise reduction', () => {
     });
 
     webphone._enableProxify();
-    expect(webphone.proxifyTransport).toBe(webphone.multipleTabsTransport);
+    expect(Object.getPrototypeOf(webphone.proxifyTransport)).toBe(
+      webphone.multipleTabsTransport,
+    );
     webphone._disableProxify();
     expect(webphone.proxifyTransport).toBeNull();
 
@@ -480,7 +482,9 @@ describe('WebphoneV2 transport, voicemail drop, and noise reduction', () => {
       activeId: 'tab-1',
       currentActive: false,
     });
-    expect(webphone.proxifyTransport).toBe(webphone.multipleTabsTransport);
+    expect(Object.getPrototypeOf(webphone.proxifyTransport)).toBe(
+      webphone.multipleTabsTransport,
+    );
     webphone._sharedSipClient.active = true;
     await webphone._setActive();
     expect(webphone.proxifyTransport).toBeNull();

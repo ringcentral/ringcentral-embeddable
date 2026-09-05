@@ -72,7 +72,7 @@ export class Webphone extends WebphoneCommon {
   }
 
   _enableProxify() {
-    this._transport = this._multipleTabsTransport;
+    this._transport = this._wrapProxifyTransport(this._multipleTabsTransport);
   }
 
   _disableProxify() {
