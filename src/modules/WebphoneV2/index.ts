@@ -43,6 +43,10 @@ export class Webphone extends WebphoneCommon {
       this._multipleTabsTransport.events.broadcast,
       this._onMultipleTabsChannelBroadcast
     );
+    this._multipleTabsTransport.on(
+      this._multipleTabsTransport.events.error,
+      (error) => this._onMultipleTabsChannelError(error)
+    );
     Array.from(ObjectMap.keys(EVENTS)).forEach((event) => {
       if (event === EVENTS.activeWebphoneChanged) {
         return;
@@ -72,7 +76,7 @@ export class Webphone extends WebphoneCommon {
   }
 
   _enableProxify() {
-    this._transport = this._wrapProxifyTransport(this._multipleTabsTransport);
+    this._transport = this._multipleTabsTransport;
   }
 
   _disableProxify() {

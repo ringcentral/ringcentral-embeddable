@@ -263,18 +263,11 @@ describe('WebphoneBase module methods', () => {
     jest.restoreAllMocks();
   });
 
-  it('surfaces a danger alert when a proxied request hits the channel timeout', async () => {
+  it('surfaces a danger alert when a proxied request hits the channel timeout', () => {
     const phone = createBase();
-    const transport = {
-      request: jest.fn(async () => {
-        throw new Error('test-webphone-channel-v2-timeout');
-      }),
-    };
 
-    const wrapped = phone._wrapProxifyTransport(transport);
-    await expect(wrapped.request({ payload: {} })).rejects.toThrow(
-      'test-webphone-channel-v2-timeout',
-    );
+    phone._onMultipleTabsChannelError(new Error('test-webphone-channel-v2-timeout'));
+
     expect(phone._deps.alert.danger).toHaveBeenCalledWith({
       message: webphoneErrors.connectFailed,
       allowDuplicates: false,
@@ -282,34 +275,13 @@ describe('WebphoneBase module methods', () => {
     });
   });
 
-  it('logs but does not alert for non-timeout proxied request failures', async () => {
+  it('logs but does not alert for non-timeout proxied request failures', () => {
     const phone = createBase();
-    const transport = {
-      request: jest.fn(async () => {
-        throw new Error('some other failure');
-      }),
-    };
 
-    const wrapped = phone._wrapProxifyTransport(transport);
-    await expect(wrapped.request({ payload: {} })).rejects.toThrow(
-      'some other failure',
-    );
+    phone._onMultipleTabsChannelError(new Error('some other failure'));
+
     expect(phone._deps.alert.danger).not.toHaveBeenCalled();
     expect(phone._logger.error).toHaveBeenCalled();
-  });
-
-  it('passes through successful proxied requests and delegates other transport members', async () => {
-    const phone = createBase();
-    const transport = {
-      broadcast: jest.fn(),
-      request: jest.fn(async () => 'ok'),
-    };
-
-    const wrapped = phone._wrapProxifyTransport(transport);
-    await expect(wrapped.request({ payload: {} })).resolves.toBe('ok');
-    expect(phone._deps.alert.danger).not.toHaveBeenCalled();
-    // non-overridden members still resolve through the prototype chain
-    expect(wrapped.broadcast).toBe(transport.broadcast);
   });
 
   it('updates connection state, audio storage, and derived availability flags', async () => {

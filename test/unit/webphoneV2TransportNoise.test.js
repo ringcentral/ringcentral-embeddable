@@ -187,8 +187,10 @@ describe('WebphoneV2 transport, voicemail drop, and noise reduction', () => {
     });
     const requestHandler = jest.fn();
     const broadcastHandler = jest.fn();
+    const errorHandler = jest.fn();
     transport.on(transport.events.request, requestHandler);
     transport.on(transport.events.broadcast, broadcastHandler);
+    transport.on(transport.events.error, errorHandler);
 
     transport._channel.emitMessage({
       data: {
@@ -249,6 +251,15 @@ describe('WebphoneV2 transport, voicemail drop, and noise reduction', () => {
     });
     jest.advanceTimersByTime(21);
     await expect(timeoutPromise).rejects.toThrow(transport.events.timeout);
+
+    // every failed request emits an error event so listeners can surface it
+    expect(errorHandler).toHaveBeenCalledTimes(2);
+    expect(errorHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'remote failed' }),
+    );
+    expect(errorHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ message: transport.events.timeout }),
+    );
 
     transport._channel.emitMessage({
       data: {
@@ -415,9 +426,7 @@ describe('WebphoneV2 transport, voicemail drop, and noise reduction', () => {
     });
 
     webphone._enableProxify();
-    expect(Object.getPrototypeOf(webphone.proxifyTransport)).toBe(
-      webphone.multipleTabsTransport,
-    );
+    expect(webphone.proxifyTransport).toBe(webphone.multipleTabsTransport);
     webphone._disableProxify();
     expect(webphone.proxifyTransport).toBeNull();
 
@@ -482,9 +491,7 @@ describe('WebphoneV2 transport, voicemail drop, and noise reduction', () => {
       activeId: 'tab-1',
       currentActive: false,
     });
-    expect(Object.getPrototypeOf(webphone.proxifyTransport)).toBe(
-      webphone.multipleTabsTransport,
-    );
+    expect(webphone.proxifyTransport).toBe(webphone.multipleTabsTransport);
     webphone._sharedSipClient.active = true;
     await webphone._setActive();
     expect(webphone.proxifyTransport).toBeNull();

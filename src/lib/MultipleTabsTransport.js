@@ -14,7 +14,7 @@ export class MultipleTabsTransport extends TransportBase {
     this._requests = new Map();
     this._events = {
       ...ObjectMap.prefixKeys(
-        ['request', 'response', 'push', 'timeout', 'broadcast'],
+        ['request', 'response', 'push', 'timeout', 'broadcast', 'error'],
         `${prefix ? `${prefix}-` : ''}${name}`,
       ),
     };
@@ -103,6 +103,7 @@ export class MultipleTabsTransport extends TransportBase {
       .catch((error) => {
         if (timeout !== undefined && timeout !== null) clearTimeout(timeout);
         this._requests.delete(requestId);
+        this.emit(this._events.error, error);
         return Promise.reject(error);
       });
     return promise;

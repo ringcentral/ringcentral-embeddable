@@ -1123,24 +1123,12 @@ export class WebphoneBase extends RcModuleV2<Deps> {
   }
 
   /**
-   * Wrap the cross-tab proxify transport so a request that never gets a reply
-   * (the active tab is gone or unresponsive) surfaces to the user instead of
-   * only reaching the console and leaving the action silently dead (#1215).
+   * Handle a failure emitted by the cross-tab (multiple tabs) transport. A
+   * request that never gets a reply (the active tab is gone or unresponsive)
+   * would otherwise only reach the console and leave the action silently dead
+   * (#1215).
    */
-  _wrapProxifyTransport(transport: any) {
-    if (!transport) {
-      return transport;
-    }
-    const wrapped = Object.create(transport);
-    wrapped.request = (options: any) =>
-      transport.request(options).catch((error: any) => {
-        this._onProxifyRequestError(error);
-        throw error;
-      });
-    return wrapped;
-  }
-
-  _onProxifyRequestError(error: any) {
+  _onMultipleTabsChannelError(error: any) {
     const message = (error && error.message) || '';
     // Only the channel timeout is silent here; other proxied failures already
     // surface their own operation-specific alerts, so we just log those.
