@@ -39,7 +39,12 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
     };
   }
 
-  function createLogger({ calls, dataMapping = {}, hasPermission = true }) {
+  function createLogger({
+    calls,
+    dataMapping = {},
+    hasPermission = true,
+    thirdParty: thirdPartyOverrides = {},
+  }) {
     const storage = { enable: jest.fn() };
     const callHistory = { calls };
     const callMonitor = {};
@@ -48,10 +53,18 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
       readyCheckFunction: jest.fn(() => true),
     };
     const thirdParty = {
+      callLoggerAutoLogOnCallSync: false,
+      callLoggerAutoSettingReadOnly: false,
+      callLoggerAutoSettingReadOnlyReason: "",
+      callLoggerAutoSettingReadOnlyValue: null,
+      callLoggerHideEditLogButton: false,
+      callLoggerTitle: null,
       getRecordingLink: jest.fn(() => "https://host.example.com/recording"),
       getRecordingContentUri: jest.fn(
         () => "https://platform.example.com/content"
       ),
+      showLogModal: false,
+      ...thirdPartyOverrides,
     };
     const smartNotes = {
       hasPermission,
@@ -91,6 +104,10 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
       smartNotes,
       activityMatcher
     );
+    logger.autoLog = callLoggerOptions.autoLog ?? true;
+    logger._setAutoLog = jest.fn((autoLog) => {
+      logger.autoLog = autoLog;
+    });
     return { logger, activityMatcher, smartNotes, thirdParty };
   }
 
@@ -188,5 +205,30 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
     const { logger } = createLogger({ calls: [] });
 
     await expect(logger.getCall("missing", "missing")).resolves.toBeNull();
+  });
+
+  test("applies and exposes the third-party auto-log policy", () => {
+    const { logger } = createLogger({
+      calls: [],
+      thirdParty: {
+        callLoggerAutoLogOnCallSync: true,
+        callLoggerAutoSettingReadOnly: true,
+        callLoggerAutoSettingReadOnlyReason: "Managed by an administrator",
+        callLoggerAutoSettingReadOnlyValue: false,
+        callLoggerHideEditLogButton: true,
+        callLoggerTitle: "Log to CRM",
+        showLogModal: true,
+      },
+    });
+
+    logger.onInit();
+
+    expect(logger.autoLog).toBe(false);
+    expect(logger.autoLogReadOnly).toBe(true);
+    expect(logger.autoLogReadOnlyReason).toBe("Managed by an administrator");
+    expect(logger.autoLogOnCallSync).toBe(true);
+    expect(logger.hideEditLogButton).toBe(true);
+    expect(logger.logButtonTitle).toBe("Log to CRM");
+    expect(logger.showLogModal).toBe(true);
   });
 });

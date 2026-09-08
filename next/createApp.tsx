@@ -51,6 +51,7 @@ interface UrlParams {
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
+  defaultAutoLogCallEnabled?: boolean;
   defaultAutoLogMessageEnabled?: boolean;
   enableTypingTimeTracking?: boolean;
 }
@@ -99,6 +100,9 @@ function readUrlParams(): UrlParams {
     disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
     enableSmartNote: parseBooleanParam(params.enableSmartNote),
     enableAnalytics: Boolean(params.enableAnalytics),
+    defaultAutoLogCallEnabled: parseBooleanParam(
+      params.defaultAutoLogCallEnabled,
+    ),
     defaultAutoLogMessageEnabled: parseBooleanParam(
       params.defaultAutoLogMessageEnabled,
     ),
@@ -179,6 +183,7 @@ export const createApp = async (
     disableNoiseReduction: urlParams.disableNoiseReduction,
     enableSmartNote: urlParams.enableSmartNote,
     enableAnalytics: urlParams.enableAnalytics,
+    defaultAutoLogCallEnabled: urlParams.defaultAutoLogCallEnabled,
     defaultAutoLogMessageEnabled: urlParams.defaultAutoLogMessageEnabled,
     enableTypingTimeTracking: urlParams.enableTypingTimeTracking,
   });

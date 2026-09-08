@@ -14,6 +14,7 @@ import {
   Theme,
 } from '@ringcentral-integration/micro-core/src/app/services';
 import { ConversationLogger } from '@ringcentral-integration/micro-message/src/app/services';
+import { CallLogger } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   CallQueueManagementView,
   CPRClientView,
@@ -48,8 +49,11 @@ const AUTO_CALL_LOG_SETTINGS_PATH = '/settings/autoCallLogSettings';
 const CALL_QUEUE_MANAGEMENT_PATH = '/settings/callQueueManagement';
 
 type EmbeddableSettingsViewPanelProps = SettingsViewPanelProps & {
+  autoLogDescription?: string;
+  autoLogReadOnlyReason?: string;
   autoLogSMSDescription?: string;
   autoLogSMSReadOnlyReason?: string;
+  autoLogWarning?: string;
 };
 
 /**
@@ -75,6 +79,7 @@ export class SettingsView extends SettingsViewBase {
     presence: Presence,
     cPRClientView: CPRClientView,
     callQueueManagementView: CallQueueManagementView,
+    private readonly _callLogger: CallLogger,
     private readonly _conversationLogger: ConversationLogger,
     private readonly _thirdParty: ThirdParty,
     @optional('Version') version?: string,
@@ -110,6 +115,16 @@ export class SettingsView extends SettingsViewBase {
   ): UIProps<EmbeddableSettingsViewPanelProps> {
     return {
       ...super.getUIProps(props),
+      showAutoLog:
+        this._callLogger.ready &&
+        !this._thirdParty.callLoggerAutoLogSettingHidden,
+      autoLogEnabled: this._callLogger.autoLog,
+      autoLogTitle: this._thirdParty.callLoggerAutoSettingLabel || undefined,
+      autoLogDescription: this._thirdParty.callLoggerAutoSettingDescription,
+      autoLogReadOnlyReason:
+        this._thirdParty.callLoggerAutoSettingReadOnlyReason,
+      autoLogWarning: this._thirdParty.callLoggerAutoSettingWarning,
+      disableAutoLogEnabled: this._thirdParty.callLoggerAutoSettingReadOnly,
       showAutoLogSMS:
         this._thirdParty.messageLoggerRegistered &&
         !this._thirdParty.messageLoggerAutoSettingHidden,
@@ -135,6 +150,9 @@ export class SettingsView extends SettingsViewBase {
 
     return {
       ...functions,
+      onAutoLogChange: async (checked: boolean) => {
+        await this._callLogger.setAutoLog(checked);
+      },
       onAutoLogSMSChange: async (checked: boolean) => {
         await this._conversationLogger.setAutoLog(checked);
       },

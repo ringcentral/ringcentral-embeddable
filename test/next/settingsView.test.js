@@ -103,13 +103,24 @@ describe('SettingsView', () => {
     expect(view.getUIFunctions({}).onCallQueueManagementClick).toBeUndefined();
   });
 
-  test('exposes the registered message logger settings', async () => {
+  test('exposes the registered call and message logger settings', async () => {
     const { view } = createView();
+    view._callLogger = {
+      autoLog: false,
+      ready: true,
+      setAutoLog: jest.fn(async () => {}),
+    };
     view._conversationLogger = {
       autoLog: true,
       setAutoLog: jest.fn(async () => {}),
     };
     view._thirdParty = {
+      callLoggerAutoLogSettingHidden: false,
+      callLoggerAutoSettingDescription: 'Log every call',
+      callLoggerAutoSettingLabel: 'CRM call logging',
+      callLoggerAutoSettingReadOnly: true,
+      callLoggerAutoSettingReadOnlyReason: 'Managed call policy',
+      callLoggerAutoSettingWarning: 'Calls include recordings',
       messageLoggerAutoSettingDescription: 'Log every message',
       messageLoggerAutoSettingHidden: false,
       messageLoggerAutoSettingLabel: 'CRM message logging',
@@ -119,15 +130,40 @@ describe('SettingsView', () => {
     };
 
     expect(view.getUIProps({})).toMatchObject({
+      autoLogDescription: 'Log every call',
+      autoLogEnabled: false,
+      autoLogReadOnlyReason: 'Managed call policy',
+      autoLogTitle: 'CRM call logging',
+      autoLogWarning: 'Calls include recordings',
       autoLogSMSEnabled: true,
       autoLogSMSDescription: 'Log every message',
       autoLogSMSReadOnlyReason: 'Managed by an administrator',
       autoLogSMSTitle: 'CRM message logging',
+      disableAutoLogEnabled: true,
       disableAutoLogSMSEnabled: true,
+      showAutoLog: true,
       showAutoLogSMS: true,
     });
 
+    await view.getUIFunctions({}).onAutoLogChange(true);
     await view.getUIFunctions({}).onAutoLogSMSChange(false);
+    expect(view._callLogger.setAutoLog).toHaveBeenCalledWith(true);
     expect(view._conversationLogger.setAutoLog).toHaveBeenCalledWith(false);
+  });
+
+  test('hides logger settings that are not registered or configured as visible', () => {
+    const { view } = createView();
+    view._callLogger = { autoLog: true, ready: false };
+    view._conversationLogger = { autoLog: true };
+    view._thirdParty = {
+      callLoggerAutoLogSettingHidden: false,
+      messageLoggerAutoSettingHidden: true,
+      messageLoggerRegistered: true,
+    };
+
+    expect(view.getUIProps({})).toMatchObject({
+      showAutoLog: false,
+      showAutoLogSMS: false,
+    });
   });
 });

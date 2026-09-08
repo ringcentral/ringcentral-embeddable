@@ -31,10 +31,36 @@ import { noop } from 'rxjs';
 
 interface EmbeddableSettingsPanelProps extends SettingsViewPanelProps {
   additionalPhoneItems?: ReactNode;
+  autoLogDescription?: string;
+  autoLogReadOnlyReason?: string;
   autoLogSMSDescription?: string;
   autoLogSMSReadOnlyReason?: string;
+  autoLogWarning?: string;
   hasAdditionalPhoneItems?: boolean;
   thirdPartyAuthSettings?: ReactNode;
+}
+
+function hasRenderableContent(node: ReactNode): boolean {
+  if (
+    node === null ||
+    typeof node === 'undefined' ||
+    typeof node === 'boolean'
+  ) {
+    return false;
+  }
+  if (typeof node === 'string') {
+    return node.length > 0;
+  }
+  if (Array.isArray(node)) {
+    return node.some(hasRenderableContent);
+  }
+  if (
+    React.isValidElement<{ children?: ReactNode }>(node) &&
+    node.type === React.Fragment
+  ) {
+    return hasRenderableContent(node.props.children);
+  }
+  return true;
 }
 
 const LoadingIcon: FunctionComponent = () => (
@@ -51,10 +77,13 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   autoLogEnabled = false,
   autoLogNotesEnabled = false,
   autoLogSMSEnabled = false,
+  autoLogDescription,
+  autoLogReadOnlyReason,
   autoLogSMSDescription,
   autoLogSMSReadOnlyReason,
   autoLogSMSTitle,
   autoLogTitle,
+  autoLogWarning,
   children,
   className,
   crmService,
@@ -164,7 +193,7 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
       showAutoLogSMS ||
       showLogSMSContent ||
       showLogExtCall ||
-      additionalLogItems,
+      hasRenderableContent(additionalLogItems),
   );
   const showAnalyticsSection = Boolean(additionalAnalytics);
   return (
@@ -255,6 +284,7 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
           {showLogSection && (
             <Section
               label={t('log')}
+              data-sign="log-settings-group"
               headerEndAdornment={
                 onRefreshLog && (
                   <IconButton
@@ -285,7 +315,30 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
                   checked={autoLogEnabled}
                   onChange={onAutoLogChange}
                 >
-                  {autoLogTitle || t('autoLogCalls')}
+                  <span className="truncate">
+                    {autoLogTitle || t('autoLogCalls')}
+                  </span>
+                  {(autoLogReadOnlyReason ||
+                    autoLogWarning ||
+                    autoLogDescription) && (
+                    <Tooltip
+                      color="neutral"
+                      placement="bottom"
+                      title={
+                        autoLogReadOnlyReason ||
+                        autoLogWarning ||
+                        autoLogDescription
+                      }
+                    >
+                      <IconButton
+                        size="medium"
+                        symbol={InfoMd}
+                        color="neutral"
+                        variant="icon"
+                        data-sign="AutoLogCall-info"
+                      />
+                    </Tooltip>
+                  )}
                 </SwitchLine>
               )}
               {showAutoLogNotes && (

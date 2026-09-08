@@ -97,6 +97,41 @@ class CallLogger extends CallLoggerBase {
     this._ignoreModuleReadiness(this._smartNotes);
   }
 
+  get logButtonTitle(): string | null {
+    return this._thirdParty.callLoggerTitle;
+  }
+
+  get showLogModal(): boolean {
+    return this._thirdParty.showLogModal;
+  }
+
+  get autoLogReadOnly(): boolean {
+    return this._thirdParty.callLoggerAutoSettingReadOnly;
+  }
+
+  get autoLogReadOnlyReason(): string {
+    return this._thirdParty.callLoggerAutoSettingReadOnlyReason;
+  }
+
+  get autoLogOnCallSync(): boolean {
+    return this._thirdParty.callLoggerAutoLogOnCallSync;
+  }
+
+  get hideEditLogButton(): boolean {
+    return this._thirdParty.callLoggerHideEditLogButton;
+  }
+
+  override onInit(): void {
+    const readOnlyValue = this._thirdParty.callLoggerAutoSettingReadOnlyValue;
+    if (
+      this.autoLogReadOnly &&
+      typeof readOnlyValue === "boolean" &&
+      readOnlyValue !== this.autoLog
+    ) {
+      this._setAutoLog(readOnlyValue);
+    }
+  }
+
   /**
    * Returns recent calls that have not yet been logged to a third-party
    * activity, preserving the legacy pagination and enrichment contract.

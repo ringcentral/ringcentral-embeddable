@@ -236,11 +236,13 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
       id: 'runtime.logging-defaults',
       surface: 'runtime-option',
       legacyNames: ['defaultAutoLogCallEnabled'],
-      status: 'unsupported',
+      status: 'verified',
       risk: 'high',
-      verification: [],
-      nextAction:
-        'Map defaults to logger options and verify first-login and persisted behavior.',
+      verification: [
+        'test/next/callLoggerCompatibility.test.js',
+        'test/next/callLoggerOptions.test.js',
+        'test/next/createAppAuthentication.test.js',
+      ],
     },
     {
       id: 'runtime.message-logging-default',

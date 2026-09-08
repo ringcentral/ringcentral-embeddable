@@ -296,6 +296,36 @@ describe('SettingsPanel', () => {
     expect(screen.getByTestId('AutoLogSMS-info')).toBeInTheDocument();
   });
 
+  test('renders the call logging setting and its third-party policy', () => {
+    const { Panel } = createPanel();
+    render(
+      <Panel
+        {...baseProps}
+        autoLogDescription="Log every call"
+        autoLogEnabled
+        autoLogReadOnlyReason="Managed by an administrator"
+        autoLogTitle="CRM call logging"
+        disableAutoLogEnabled
+        showAutoLog
+      />,
+    );
+
+    const setting = screen.getByTestId('AutoLogCall');
+    expect(setting).toHaveTextContent('CRM call logging');
+    expect(setting).toHaveAttribute('aria-checked', 'true');
+    expect(setting).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByTestId('AutoLogCall-info')).toBeInTheDocument();
+    expect(screen.getByTestId('log-settings-group')).toBeInTheDocument();
+  });
+
+  test('hides the Log group when its additional-items fragment is empty', () => {
+    const { Panel } = createPanel();
+    render(<Panel {...baseProps} additionalLogItems={<></>} />);
+
+    expect(screen.queryByTestId('log-settings-group')).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'log' })).toBeNull();
+  });
+
   test.each([
     ['matched entities', { showMatchesToggle: true }, 'showMatchedEntities'],
     [

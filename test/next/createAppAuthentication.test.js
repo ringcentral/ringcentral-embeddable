@@ -121,17 +121,18 @@ describe('createApp authentication boundary', () => {
     );
   });
 
-  test('forwards message logger defaults and typing-time tracking', async () => {
+  test('forwards logger defaults and typing-time tracking', async () => {
     window.history.replaceState(
       {},
       '',
-      '/app.html?defaultAutoLogMessageEnabled=1&enableTypingTimeTracking=true'
+      '/app.html?defaultAutoLogCallEnabled=1&defaultAutoLogMessageEnabled=1&enableTypingTimeTracking=true'
     );
 
     await createApp();
 
     expect(getAppConfig).toHaveBeenCalledWith(
       expect.objectContaining({
+        defaultAutoLogCallEnabled: true,
         defaultAutoLogMessageEnabled: true,
         enableTypingTimeTracking: true,
       })

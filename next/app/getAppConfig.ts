@@ -42,7 +42,6 @@ import type {
   BrandConfig,
   BrowserLoggerOptions,
   LocaleOptions,
-  LogOptions as LoggerLogOptions,
 } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   Brand,
@@ -86,7 +85,6 @@ import {
   Webphone,
   CallQueueManagement,
   CallQueues,
-  type CallLoggerOptions,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   GenericMeeting,
@@ -118,6 +116,7 @@ import {
   SmartNotes,
   ThirdParty,
 } from './services';
+import { createCallLoggerOptions } from './services/CallLogger/createCallLoggerOptions';
 import { AccountContacts as AccountContactsV2 } from './services/AccountContacts';
 import { CallAction as CallActionV2 } from './services/CallAction';
 import { ContactMatcher as ContactMatcherV2 } from './services/ContactMatcher';
@@ -243,6 +242,7 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
+  defaultAutoLogCallEnabled?: boolean;
   defaultAutoLogMessageEnabled?: boolean;
   enableTypingTimeTracking?: boolean;
 }
@@ -273,6 +273,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   disableNoiseReduction = false,
   enableSmartNote = false,
   enableAnalytics = false,
+  defaultAutoLogCallEnabled = false,
   defaultAutoLogMessageEnabled = false,
   enableTypingTimeTracking = false,
 }: CreateAppEntryOptions<T>) => {
@@ -652,21 +653,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: 'CallLoggerOptions',
         useFactory: (thirdParty: ThirdParty) =>
-          ({
-            async logFunction<P, S>({
-              item,
-              ...options
-            }: LoggerLogOptions<P, S>) {
-              if (!item) {
-                return;
-              }
-              await thirdParty.logCall({
-                ...(options as Record<string, unknown>),
-                call: item as Parameters<ThirdParty['logCall']>[0]['call'],
-              });
-            },
-            readyCheckFunction: () => thirdParty.callLoggerRegistered,
-          } satisfies CallLoggerOptions),
+          createCallLoggerOptions({
+            autoLog: defaultAutoLogCallEnabled,
+            thirdParty,
+          }),
         deps: [ThirdParty],
       },
       {
