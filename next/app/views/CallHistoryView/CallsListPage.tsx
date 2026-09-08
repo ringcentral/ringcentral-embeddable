@@ -14,6 +14,7 @@ import type { FunctionComponent } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 
 import { SmartNotes } from '../../services/SmartNotes';
+import type { ThirdPartyButton } from '../../services/ThirdParty/ThirdParty.interface';
 import { getVisibleTelephonySessionIds } from './CallHistorySmartNotesQuery';
 import { CallsListItem } from './CallsListItem';
 import type { SmartNotesHistoryCall } from './SmartNotesHistoryCall';
@@ -22,8 +23,15 @@ import i18n from './i18n';
 const INITIAL_VISIBLE_CALL_COUNT = 10;
 
 type CallsListProps = {
+  additionalCallActions: ThirdPartyButton[];
   calls: SmartNotesHistoryCall[];
   className?: string;
+  onAdditionalCallAction: (
+    buttonId: string,
+    resource: unknown,
+  ) => Promise<void> | void;
+  onRefreshContact: (phoneNumber: string) => Promise<void> | void;
+  refreshContactDisabled: boolean;
 } & Omit<CallsListPanelSpringProps, 'calls' | 'viewCallsFilterSelections'>;
 
 const CallsList: FunctionComponent<CallsListProps> = ({
@@ -39,7 +47,7 @@ const CallsList: FunctionComponent<CallsListProps> = ({
   const callsRef = useRef(calls);
   callsRef.current = calls;
   const { virtuosoActionsRef, scrollerRef } = useVirtuosoScrollPosition(
-    (snapshot) => setLastPosition(viewCallsFilter, snapshot)
+    (snapshot) => setLastPosition(viewCallsFilter, snapshot),
   );
   const { t } = useLocale(i18n);
   const queryVisibleSmartNotes = useMemo(
@@ -49,7 +57,7 @@ const CallsList: FunctionComponent<CallsListProps> = ({
           const telephonySessionIds = getVisibleTelephonySessionIds(
             callsRef.current,
             startIndex,
-            endIndex
+            endIndex,
           );
           if (telephonySessionIds.length > 0) {
             void smartNotes.queryNotedCalls(telephonySessionIds);
@@ -57,13 +65,13 @@ const CallsList: FunctionComponent<CallsListProps> = ({
         },
         threshold: 300,
       }),
-    [smartNotes]
+    [smartNotes],
   );
   useEffect(() => {
     if (calls.length > 0) {
       queryVisibleSmartNotes(
         0,
-        Math.min(calls.length, INITIAL_VISIBLE_CALL_COUNT) - 1
+        Math.min(calls.length, INITIAL_VISIBLE_CALL_COUNT) - 1,
       );
     }
   }, [calls.length, queryVisibleSmartNotes]);
@@ -71,7 +79,7 @@ const CallsList: FunctionComponent<CallsListProps> = ({
     () => () => {
       queryVisibleSmartNotes.cancel();
     },
-    [queryVisibleSmartNotes]
+    [queryVisibleSmartNotes],
   );
   if (calls.length === 0) {
     return (
@@ -114,7 +122,16 @@ const CallsList: FunctionComponent<CallsListProps> = ({
   );
 };
 
-export const CallsListPage: FunctionComponent<CallsListPanelSpringProps> = ({
+type CallsListPageProps = CallsListPanelSpringProps &
+  Pick<
+    CallsListProps,
+    | 'additionalCallActions'
+    | 'onAdditionalCallAction'
+    | 'onRefreshContact'
+    | 'refreshContactDisabled'
+  >;
+
+export const CallsListPage: FunctionComponent<CallsListPageProps> = ({
   calls,
   searchInput,
   onSearchInputChange,

@@ -1,15 +1,21 @@
+import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import type { FormattedConversation } from '@ringcentral-integration/micro-message/src/app/services';
 import type { ConversationsPanelSpringProps } from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/Conversations.view.interface';
-import { useConversationActionButtons } from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/useConversationActionButtons';
 import { useThreadInfoDisplay } from '@ringcentral-integration/micro-message/src/app/views/MessageThreadsView/useThreadInfoDisplay';
 import { ListItem, ListItemText } from '@ringcentral/spring-ui';
 import clsx from 'clsx';
 import React, { memo } from 'react';
 
+import { createRefreshContactActionButton } from '../../components/RefreshContactActionButton';
+
+import i18n from './i18n';
+import { useConversationActionButtons } from './useConversationActionButtons';
+
 interface ConversationsListItemProps
   extends Pick<
     ConversationsPanelSpringProps,
     | 'createNewEntityTooltip'
+    | 'disableLinks'
     | 'showLogPopover'
     | 'typeFilter'
     | 'useActionsHandler'
@@ -18,21 +24,33 @@ interface ConversationsListItemProps
   > {
   conversation: FormattedConversation;
   index: number;
+  onRefreshContact?: (phoneNumber: string) => Promise<void> | void;
 }
 
-const FaxConversationsListItem: React.FC<ConversationsListItemProps> = ({
+const ConversationsListItemComponent: React.FC<ConversationsListItemProps> = ({
   conversation,
   createNewEntityTooltip,
+  disableLinks,
   index,
+  onRefreshContact,
   showLogPopover,
   typeFilter,
   useActionsHandler,
   useConversationItemInfo,
   useItemRender,
 }) => {
+  const { t } = useLocale(i18n);
   const { actions, extensionId, info, threadInfo } =
     useConversationItemInfo(conversation);
-  const onAction = useActionsHandler(conversation, info, 'Fax list');
+  const onAction = useActionsHandler(
+    conversation,
+    info,
+    typeFilter === 'Text'
+      ? 'Text list'
+      : typeFilter === 'Fax'
+      ? 'Fax list'
+      : 'Voicemail list',
+  );
   useItemRender?.(conversation, index);
   const {
     Avatar,
@@ -41,6 +59,7 @@ const FaxConversationsListItem: React.FC<ConversationsListItemProps> = ({
     creationTime,
     displayDescription,
     displayType,
+    isFax,
     logged,
     unreadCounts,
   } = info;
@@ -49,18 +68,28 @@ const FaxConversationsListItem: React.FC<ConversationsListItemProps> = ({
     info: threadInfo,
     onAction,
   });
+  const phoneNumber =
+    info.signalSourceInfo?.phoneNumber ||
+    info.signalSourceInfo?.extensionNumber;
+  const refreshContactButton = createRefreshContactActionButton({
+    disabled: disableLinks,
+    label: t('refreshContact'),
+    onRefreshContact,
+    phoneNumber,
+  });
   const buttons = useConversationActionButtons({
     actions,
     conversation,
     createNewEntityTooltip,
     onAction,
+    refreshContactButton,
     showLogPopover,
   });
 
   return (
     <ListItem
       className="group"
-      clickable
+      clickable={!isFax}
       classes={{ content: 'bg-inherit !px-3 !py-2' }}
       data-sign="conversationItem"
       onClick={() => onAction('viewDetail')}
@@ -77,9 +106,7 @@ const FaxConversationsListItem: React.FC<ConversationsListItemProps> = ({
             data-display-type={displayType}
             data-sign="currentName"
           >
-            <DisplayName
-              displayControl={{ matchCounts: true, maybe: true }}
-            />
+            <DisplayName displayControl={{ matchCounts: true, maybe: true }} />
           </div>
         }
         secondary={
@@ -111,4 +138,4 @@ const FaxConversationsListItem: React.FC<ConversationsListItemProps> = ({
   );
 };
 
-export const ConversationsListItem = memo(FaxConversationsListItem);
+export const ConversationsListItem = memo(ConversationsListItemComponent);

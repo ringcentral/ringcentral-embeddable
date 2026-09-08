@@ -6,4 +6,6 @@ export default {
   recording: "Recording",
   editLog: "Edit log",
   logCall: "Log call",
+  refreshContact: "Refresh contact",
+  viewLogDetails: "View log details",
 } as const;

@@ -3,6 +3,7 @@ import {
   ConnectivityManager,
   RateLimiter,
 } from '@ringcentral-integration/micro-auth/src/app/services';
+import { ContactMatcher as ContactMatcherBase } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import {
@@ -26,6 +27,7 @@ import { DialerView } from '@ringcentral-integration/micro-phone/src/app/views/D
 import { IntegrationConfig } from '@ringcentral-integration/micro-setting/src/app/services';
 import {
   computed,
+  inject,
   injectable,
   optional,
   RouterPlugin,
@@ -35,13 +37,17 @@ import {
 import React from 'react';
 
 import { useCallDisplayNameWithMatches } from '../../components/MatchedContactsTag';
+import {
+  type ContactMatcher,
+  refreshContactMatch,
+} from '../../services/ContactMatcher';
 import { MatchedContactSelection } from '../../services/MatchedContactSelection';
 import { ThirdParty } from '../../services/ThirdParty';
 
 import {
   addCallHistoryLogStatus,
-  createCallHistoryLogAction,
-  insertCallHistoryLogAction,
+  createCallHistoryLogActions,
+  insertCallHistoryLogActions,
   logCallFromHistory,
 } from './CallHistoryLogAction';
 import { CallsListPage } from './CallsListPage';
@@ -62,6 +68,7 @@ export class CallsListView extends CallsListViewSpringBase {
     appFeatures: AppFeatures,
     toast: Toast,
     integrationConfig: IntegrationConfig,
+    @inject(ContactMatcherBase) contactMatcher: ContactMatcher,
     matchedContactSelection: MatchedContactSelection,
     callLogger: CallLogger,
     thirdParty: ThirdParty,
@@ -69,7 +76,7 @@ export class CallsListView extends CallsListViewSpringBase {
     @optional() composeText?: ComposeText,
     @optional() callLogTasks?: CallLogTasks,
     @optional('CallsListViewOptions')
-    callsListViewOptions?: CallsListViewSpringOptions
+    callsListViewOptions?: CallsListViewSpringOptions,
   ) {
     super(
       callViewState,
@@ -85,9 +92,12 @@ export class CallsListView extends CallsListViewSpringBase {
       dialerView,
       composeText,
       callLogTasks,
-      callsListViewOptions
+      callsListViewOptions,
     );
     this._appCallHistory = callHistory;
+    this._appConnectivityManager = connectivityManager;
+    this._appContactMatcher = contactMatcher;
+    this._appRateLimiter = rateLimiter;
     this._appRouter = router;
     this._matchedContactSelection = matchedContactSelection;
     this._appCallLogger = callLogger;
@@ -113,15 +123,16 @@ export class CallsListView extends CallsListViewSpringBase {
         call.sessionId,
         result.info.renderInfo?.metadata?.matches,
       );
-      const logAction = createCallHistoryLogAction({
+      const logActions = createCallHistoryLogActions({
         call,
         editLogLabel: t('editLog'),
         logCallLabel: t('logCall'),
+        viewLogLabel: t('viewLogDetails'),
         ...logState,
       });
       return {
         ...result,
-        actions: insertCallHistoryLogAction(result.actions, logAction),
+        actions: insertCallHistoryLogActions(result.actions, logActions),
         info: { ...result.info, DisplayName },
       };
     };
@@ -137,7 +148,7 @@ export class CallsListView extends CallsListViewSpringBase {
           this._handOffSelectionToOutboundCall(call, info);
         }
         if (actionType === 'viewLog' || actionType === 'createLog') {
-          await this._logCall(call, info);
+          await this._logCall(actionType, call, info);
           return;
         }
         return baseHandler(actionType);
@@ -147,9 +158,15 @@ export class CallsListView extends CallsListViewSpringBase {
 
   private readonly _appCallHistory: CallHistory;
 
+  private readonly _appConnectivityManager: ConnectivityManager;
+
+  private readonly _appContactMatcher: ContactMatcher;
+
   private readonly _appRouter: RouterPlugin;
 
   private readonly _appCallLogger: CallLogger;
+
+  private readonly _appRateLimiter: RateLimiter;
 
   private readonly _thirdParty: ThirdParty;
 
@@ -165,10 +182,12 @@ export class CallsListView extends CallsListViewSpringBase {
   }
 
   private async _logCall(
+    actionType: 'createLog' | 'viewLog',
     call: Parameters<CallsListView['useActionsHandler']>[0],
     info: Parameters<CallsListView['useActionsHandler']>[1],
   ): Promise<void> {
     await logCallFromHistory({
+      actionType,
       call,
       callLogger: this._appCallLogger,
       info,
@@ -176,6 +195,19 @@ export class CallsListView extends CallsListViewSpringBase {
       thirdParty: this._thirdParty,
     });
   }
+
+  private readonly _refreshContact = async (
+    phoneNumber: string,
+  ): Promise<void> => {
+    await refreshContactMatch(this._appContactMatcher, phoneNumber);
+  };
+
+  private readonly _onAdditionalCallAction = async (
+    buttonId: string,
+    resource: unknown,
+  ): Promise<void> => {
+    await this._thirdParty.onClickAdditionalButton(buttonId, resource);
+  };
 
   /**
    * Passes the contact chosen on this record to the call about to be placed.
@@ -186,7 +218,7 @@ export class CallsListView extends CallsListViewSpringBase {
    */
   private _handOffSelectionToOutboundCall(
     call: { sessionId?: string },
-    info: { renderInfo?: { dialToPhoneNumber?: string } }
+    info: { renderInfo?: { dialToPhoneNumber?: string } },
   ) {
     const sessionId = call.sessionId;
     const phoneNumber = info.renderInfo?.dialToPhoneNumber;
@@ -207,26 +239,27 @@ export class CallsListView extends CallsListViewSpringBase {
   ): UIFunctions<CallsListPanelSpringProps> {
     const functions = super.getUIFunctions(props);
     const baseUseActionsHandler = functions.useActionsHandler;
-    const useActionsHandler: CallsListPanelSpringProps['useActionsHandler'] =
-      (call, info, location) => {
-        const baseHandler = baseUseActionsHandler(call, info, location);
-        return async (actionType) => {
-          if (actionType === 'viewDetail') {
-            const telephonySessionId = call.telephonySessionId;
-            const callLog =
-              this._appCallHistory.getHistoryByTelephonySessionId(
-                telephonySessionId,
-              );
-            if (callLog) {
-              await this._appRouter.push(
-                `/history/${telephonySessionId}`,
-              );
-              return;
-            }
+    const useActionsHandler: CallsListPanelSpringProps['useActionsHandler'] = (
+      call,
+      info,
+      location,
+    ) => {
+      const baseHandler = baseUseActionsHandler(call, info, location);
+      return async (actionType) => {
+        if (actionType === 'viewDetail') {
+          const telephonySessionId = call.telephonySessionId;
+          const callLog =
+            this._appCallHistory.getHistoryByTelephonySessionId(
+              telephonySessionId,
+            );
+          if (callLog) {
+            await this._appRouter.push(`/history/${telephonySessionId}`);
+            return;
           }
-          await baseHandler(actionType);
-        };
+        }
+        await baseHandler(actionType);
       };
+    };
     return {
       ...functions,
       useActionsHandler,
@@ -234,10 +267,25 @@ export class CallsListView extends CallsListViewSpringBase {
   }
 
   override component(props: CallsListViewSpringProps) {
+    const actionState = useConnector(() => ({
+      additionalCallActions: this._thirdParty.additionalCallActions,
+      refreshContactDisabled:
+        this._appConnectivityManager.isOfflineMode ||
+        this._appConnectivityManager.isVoipOnlyMode ||
+        this._appRateLimiter.restricted,
+    }));
     const component = super.component(props);
     if (!React.isValidElement<CallsListPanelSpringProps>(component)) {
       return component;
     }
-    return <CallsListPage {...component.props} />;
+    return (
+      <CallsListPage
+        {...component.props}
+        additionalCallActions={actionState.additionalCallActions}
+        onAdditionalCallAction={this._onAdditionalCallAction}
+        onRefreshContact={this._refreshContact}
+        refreshContactDisabled={actionState.refreshContactDisabled}
+      />
+    );
   }
 }

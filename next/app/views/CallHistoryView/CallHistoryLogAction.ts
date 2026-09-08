@@ -25,7 +25,7 @@ export function addCallHistoryLogStatus<T extends CallWithActivityMatches>(
   };
 }
 
-interface CreateCallHistoryLogActionOptions {
+interface CreateCallHistoryLogActionsOptions {
   call: CallWithActivityMatches;
   editLogLabel: string;
   hideEditLogButton: boolean;
@@ -33,14 +33,13 @@ interface CreateCallHistoryLogActionOptions {
   logCallLabel: string;
   logButtonTitle?: string | null;
   ready: boolean;
+  viewLogLabel: string;
 }
 
-export type CallHistoryLogActionHiddenReason =
-  | "callLoggerNotReady"
-  | "editLogHidden"
-  | "faxCall";
+export type CallHistoryLogActionHiddenReason = "callLoggerNotReady" | "faxCall";
 
 interface LogCallFromHistoryOptions {
+  actionType: "createLog" | "viewLog";
   call: HistoryCall;
   callLogger: Pick<CallLogger, "logCall">;
   info: {
@@ -75,7 +74,7 @@ function hasPendingCallActivity(call: CallWithActivityMatches): boolean {
   );
 }
 
-export function createCallHistoryLogAction({
+export function createCallHistoryLogActions({
   call,
   editLogLabel,
   hideEditLogButton,
@@ -83,31 +82,41 @@ export function createCallHistoryLogAction({
   logCallLabel,
   logButtonTitle,
   ready,
-}: CreateCallHistoryLogActionOptions): HistoryAction | null {
+  viewLogLabel,
+}: CreateCallHistoryLogActionsOptions): HistoryAction[] {
   const isLogged = hasLoggedCallActivity(call);
   if (
     getCallHistoryLogActionHiddenReason({
       call,
-      hideEditLogButton,
       ready,
     })
   ) {
-    return null;
+    return [];
   }
-  return {
-    type: "viewLog",
-    label: isLogged ? editLogLabel : logButtonTitle || logCallLabel,
-    disabled: isLogging || hasPendingCallActivity(call),
-  };
+  const actions: HistoryAction[] = [];
+  if (!isLogged || !hideEditLogButton) {
+    actions.push({
+      type: "createLog",
+      label: isLogged ? editLogLabel : logButtonTitle || logCallLabel,
+      disabled: isLogging || hasPendingCallActivity(call),
+    });
+  }
+  if (isLogged) {
+    actions.push({
+      type: "viewLog",
+      label: viewLogLabel,
+      disabled: isLogging,
+    });
+  }
+  return actions;
 }
 
 export function getCallHistoryLogActionHiddenReason({
   call,
-  hideEditLogButton,
   ready,
 }: Pick<
-  CreateCallHistoryLogActionOptions,
-  "call" | "hideEditLogButton" | "ready"
+  CreateCallHistoryLogActionsOptions,
+  "call" | "ready"
 >): CallHistoryLogActionHiddenReason | null {
   if (!ready) {
     return "callLoggerNotReady";
@@ -115,30 +124,36 @@ export function getCallHistoryLogActionHiddenReason({
   if (call.type === "Fax") {
     return "faxCall";
   }
-  if (hasLoggedCallActivity(call) && hideEditLogButton) {
-    return "editLogHidden";
-  }
   return null;
 }
 
-export function insertCallHistoryLogAction(
+export function insertCallHistoryLogActions(
   actions: HistoryAction[],
-  logAction: HistoryAction | null
+  logActions: HistoryAction[]
 ): HistoryAction[] {
   const actionsWithoutLog = actions.filter(
     ({ type }) => type !== "viewLog" && type !== "createLog"
   );
-  return logAction ? [logAction, ...actionsWithoutLog] : actionsWithoutLog;
+  const createOrEditAction = logActions.find(
+    ({ type }) => type === "createLog"
+  );
+  const viewAction = logActions.find(({ type }) => type === "viewLog");
+  return [
+    ...(createOrEditAction ? [createOrEditAction] : []),
+    ...actionsWithoutLog,
+    ...(viewAction ? [viewAction] : []),
+  ];
 }
 
 export async function logCallFromHistory({
+  actionType,
   call,
   callLogger,
   info,
   router,
   thirdParty,
 }: LogCallFromHistoryOptions): Promise<void> {
-  if (thirdParty.showLogModal) {
+  if (thirdParty.showLogModal && actionType !== "viewLog") {
     await router.push(`/log/call/${call.sessionId}`);
     return;
   }
@@ -146,6 +161,11 @@ export async function logCallFromHistory({
     call,
     contact: info.renderInfo.matchedContact,
     redirect: true,
-    triggerType: hasLoggedCallActivity(call) ? "editLog" : "createLog",
+    triggerType:
+      actionType === "viewLog"
+        ? "viewLog"
+        : hasLoggedCallActivity(call)
+        ? "editLog"
+        : "createLog",
   });
 }

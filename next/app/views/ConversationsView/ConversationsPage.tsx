@@ -10,15 +10,21 @@ import React, { forwardRef } from 'react';
 
 import { ConversationsListItem } from './ConversationsListItem';
 
+type ConversationsPageProps = ConversationsPanelSpringProps & {
+  onRefreshContact?: (phoneNumber: string) => Promise<void> | void;
+};
+
 export const ConversationsPage = forwardRef<
   HTMLDivElement,
-  ConversationsPanelSpringProps
+  ConversationsPageProps
 >((props, ref) => {
   const {
     conversations,
     createNewEntityTooltip,
+    disableLinks,
     lastPosition,
     onSearchInputChange,
+    onRefreshContact,
     readStatusFilter,
     searchInput,
     setLastPosition,
@@ -35,18 +41,21 @@ export const ConversationsPage = forwardRef<
       setLastPosition(`${typeFilter}-${readStatusFilter}`, snapshot),
   );
 
-  if (typeFilter !== messageTypes.fax || conversations.length === 0) {
+  if (conversations.length === 0) {
     return <BaseConversationsPage ref={ref} {...props} />;
   }
 
   return (
     <div className="flex h-full flex-col" data-sign="ConversationsPage">
-      <div
-        className="flex h-full flex-auto flex-col overflow-hidden"
-        ref={ref}
-      >
+      <div className="flex h-full flex-auto flex-col overflow-hidden" ref={ref}>
         <Filter
-          inputPlaceholder={t('searchFax')}
+          inputPlaceholder={
+            typeFilter === messageTypes.fax
+              ? t('searchFax')
+              : typeFilter === messageTypes.text
+              ? t('searchText')
+              : t('searchAll')
+          }
           onSearchInputChange={onSearchInputChange}
           readStatusFilter={readStatusFilter}
           searchInput={searchInput}
@@ -67,8 +76,10 @@ export const ConversationsPage = forwardRef<
             <ConversationsListItem
               conversation={conversation}
               createNewEntityTooltip={createNewEntityTooltip}
+              disableLinks={disableLinks}
               index={index}
               key={conversation.conversationId}
+              onRefreshContact={onRefreshContact}
               showLogPopover={showLogPopover}
               typeFilter={typeFilter}
               useActionsHandler={useActionsHandler}

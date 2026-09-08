@@ -5,7 +5,7 @@ import {
   RateLimiter,
   RegionSettings,
 } from '@ringcentral-integration/micro-auth/src/app/services';
-import { ContactMatcher } from '@ringcentral-integration/micro-contacts/src/app/services';
+import { ContactMatcher as ContactMatcherBase } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import {
   Locale,
@@ -40,6 +40,10 @@ import {
 } from '@ringcentral-integration/next-core';
 
 import { useConversationDisplayNameWithMatches } from '../../components/MatchedContactsTag';
+import {
+  type ContactMatcher,
+  refreshContactMatch,
+} from '../../services/ContactMatcher';
 import { ThirdParty } from '../../services/ThirdParty';
 
 import {
@@ -49,6 +53,10 @@ import {
 } from './ConversationLogAction';
 import { ConversationsPage } from './ConversationsPage';
 import i18n from './i18n';
+
+type ConversationsUIFunctions = UIFunctions<ConversationsPanelSpringProps> & {
+  onRefreshContact?: (phoneNumber: string) => Promise<void>;
+};
 
 @injectable({
   name: 'ConversationsView',
@@ -73,7 +81,7 @@ export class ConversationsView extends ConversationsViewSpringBase {
     smsConversations: SmsConversations,
     @inject(ConversationLogger) conversationLogger: ConversationLogger,
     @inject(ThirdParty) thirdParty: ThirdParty,
-    @optional() contactMatcher?: ContactMatcher,
+    @optional(ContactMatcherBase) contactMatcher?: ContactMatcher,
     @optional() smsOptOut?: SmsOptOut,
     @optional('ConversationsViewOptions')
     conversationsViewOptions?: ConversationsViewSpringOptions,
@@ -106,6 +114,7 @@ export class ConversationsView extends ConversationsViewSpringBase {
       },
       smsConversationsOptions,
     );
+    this._appContactMatcher = contactMatcher;
 
     // `useConversationItemInfo` is an instance field on the base class, not a
     // prototype method, so it is wrapped here rather than overridden. Doing it
@@ -136,8 +145,7 @@ export class ConversationsView extends ConversationsViewSpringBase {
           conversationLogId && conversationLogger.loggingMap[conversationLogId],
         ),
         logButtonTitle: thirdParty.messageLoggerTitle,
-        ready:
-          conversationLogger.ready && thirdParty.messageLoggerRegistered,
+        ready: conversationLogger.ready && thirdParty.messageLoggerRegistered,
       }));
       const DisplayName = useConversationDisplayNameWithMatches(
         result.info.DisplayName,
@@ -176,9 +184,20 @@ export class ConversationsView extends ConversationsViewSpringBase {
     };
   }
 
+  private readonly _appContactMatcher?: ContactMatcher;
+
+  private readonly _refreshContact = async (
+    phoneNumber: string,
+  ): Promise<void> => {
+    if (!this._appContactMatcher) {
+      return;
+    }
+    await refreshContactMatch(this._appContactMatcher, phoneNumber);
+  };
+
   override getUIFunctions(
     props: ConversationsViewSpringProps,
-  ): UIFunctions<ConversationsPanelSpringProps> {
+  ): ConversationsUIFunctions {
     const functions = super.getUIFunctions(props);
     const baseUseActionsHandler = functions.useActionsHandler;
     const useActionsHandler: ConversationsPanelSpringProps['useActionsHandler'] =
@@ -213,6 +232,9 @@ export class ConversationsView extends ConversationsViewSpringBase {
       };
     return {
       ...functions,
+      onRefreshContact: this._appContactMatcher
+        ? this._refreshContact
+        : undefined,
       useActionsHandler,
     };
   }

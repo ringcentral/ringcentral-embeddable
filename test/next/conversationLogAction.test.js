@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useConversationActionButtons } from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/useConversationActionButtons';
 import React from 'react';
+
+import { useConversationActionButtons } from '../../next/app/views/ConversationsView/useConversationActionButtons';
 
 jest.mock('@ringcentral-integration/next-widgets/components', () => {
   const React = require('react');
@@ -28,7 +29,7 @@ jest.mock('@ringcentral-integration/next-widgets/components', () => {
 });
 
 jest.mock(
-  '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/useConversationActionButtons/ConversationLogPopover',
+  '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/useConversationActionButtons',
   () => ({ ConversationLogPopover: () => null }),
 );
 
@@ -135,6 +136,7 @@ describe('conversation log action', () => {
         actions: [action],
         conversation,
         onAction,
+        refreshContactButton: null,
         showLogPopover: false,
       });
 
@@ -142,5 +144,31 @@ describe('conversation log action', () => {
     fireEvent.click(screen.getByText('createLog'));
 
     await waitFor(() => expect(onAction).toHaveBeenCalledWith('createLog'));
+  });
+
+  test('places the refresh action before delete in a conversation item', () => {
+    const onRefresh = jest.fn();
+    const conversation = createConversation();
+    const Host = () =>
+      useConversationActionButtons({
+        actions: [{ type: 'call' }, { type: 'delete' }],
+        conversation,
+        onAction: jest.fn(async () => {}),
+        refreshContactButton: {
+          actionType: 'refreshContact',
+          label: 'Refresh contact',
+          onClick: onRefresh,
+        },
+        showLogPopover: false,
+      });
+
+    render(<Host />);
+
+    expect(
+      screen.getAllByRole('button').map((button) => button.textContent),
+    ).toEqual(['call', 'refreshContact', 'delete']);
+
+    fireEvent.click(screen.getByText('refreshContact'));
+    expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 });

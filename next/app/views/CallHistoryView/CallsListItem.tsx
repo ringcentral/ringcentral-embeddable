@@ -1,34 +1,68 @@
+import { useLocale } from "@ringcentral-integration/micro-core/src/app/hooks";
 import type { CallsListPanelSpringProps } from "@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface";
-import {
-  ActionMenuList,
-  useHistoryActionButtons,
-} from "@ringcentral-integration/next-widgets/components";
+import { ActionMenuList } from "@ringcentral-integration/next-widgets/components";
 import { ListItem, ListItemText } from "@ringcentral/spring-ui";
 import React, { memo } from "react";
 
+import {
+  createRefreshContactActionButton,
+  insertRefreshContactActionButton,
+} from "../../components/RefreshContactActionButton";
+import type { ThirdPartyButton } from "../../services/ThirdParty/ThirdParty.interface";
 import type { SmartNotesHistoryCall } from "./SmartNotesHistoryCall";
+import i18n from "./i18n";
+import { useCallHistoryActionButtons } from "./useCallHistoryActionButtons";
 
 export type CallsListItemProps = {
+  additionalCallActions: ThirdPartyButton[];
   call: SmartNotesHistoryCall;
   index: number;
+  onAdditionalCallAction: (
+    buttonId: string,
+    resource: unknown
+  ) => Promise<void> | void;
+  onRefreshContact: (phoneNumber: string) => Promise<void> | void;
+  refreshContactDisabled: boolean;
 } & Omit<
   CallsListPanelSpringProps,
   "calls" | "lastPosition" | "setLastPosition" | "viewCallsFilterSelections"
 >;
 
 const CallsListItemComponent: React.FC<CallsListItemProps> = ({
+  additionalCallActions,
   call,
   index,
+  onAdditionalCallAction,
+  onRefreshContact,
+  refreshContactDisabled,
   useCallHistoryItemInfo,
   useActionsHandler,
   useItemRender,
 }) => {
+  const { t } = useLocale(i18n);
   const { info, actions } = useCallHistoryItemInfo(call, {
     selectIndex: 0,
     variant: "list",
   });
   const onAction = useActionsHandler(call, info, "Call history list");
-  const actionButtons = useHistoryActionButtons(actions, onAction);
+  const historyActionButtons = useCallHistoryActionButtons({
+    actions,
+    additionalActions: additionalCallActions,
+    call,
+    onAction,
+    onAdditionalAction: onAdditionalCallAction,
+  });
+  const refreshContactButton = createRefreshContactActionButton({
+    disabled: refreshContactDisabled,
+    label: t("refreshContact"),
+    onRefreshContact,
+    phoneNumber: info.renderInfo.dialToPhoneNumber,
+  });
+  const actionButtons = insertRefreshContactActionButton(
+    historyActionButtons,
+    refreshContactButton,
+    "viewLog"
+  );
 
   useItemRender?.(call, index);
 

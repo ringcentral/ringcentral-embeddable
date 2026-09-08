@@ -1,138 +1,166 @@
 import {
   addCallHistoryLogStatus,
-  createCallHistoryLogAction,
+  createCallHistoryLogActions,
   getCallHistoryLogActionHiddenReason,
   hasLoggedCallActivity,
-  insertCallHistoryLogAction,
+  insertCallHistoryLogActions,
   logCallFromHistory,
-} from "../../next/app/views/CallHistoryView/CallHistoryLogAction";
+} from '../../next/app/views/CallHistoryView/CallHistoryLogAction';
 
 function createOptions(overrides = {}) {
   return {
-    call: { activityMatches: [], type: "Voice" },
-    editLogLabel: "Edit log",
+    call: { activityMatches: [], type: 'Voice' },
+    editLogLabel: 'Edit log',
     hideEditLogButton: false,
     isLogging: false,
-    logButtonTitle: "Save to CRM",
-    logCallLabel: "Log call",
+    logButtonTitle: 'Save to CRM',
+    logCallLabel: 'Log call',
     ready: true,
+    viewLogLabel: 'View log details',
     ...overrides,
   };
 }
 
-describe("call-history log action", () => {
-  test("derives the shared logged status from non-status activities", () => {
+describe('call-history log actions', () => {
+  test('derives logged status from non-status activities', () => {
     expect(
       addCallHistoryLogStatus({
-        activityMatches: [{ type: "status" }],
-        type: "Voice",
-      }).isLogged
+        activityMatches: [{ type: 'status' }],
+        type: 'Voice',
+      }).isLogged,
     ).toBe(false);
     expect(
       addCallHistoryLogStatus({
-        activityMatches: [{ type: "callLog" }],
-        type: "Voice",
-      }).isLogged
+        activityMatches: [{ type: 'callLog' }],
+        type: 'Voice',
+      }).isLogged,
     ).toBe(true);
   });
 
-  test("uses the registered title for an unlogged call", () => {
-    expect(createCallHistoryLogAction(createOptions())).toEqual({
-      disabled: false,
-      label: "Save to CRM",
-      type: "viewLog",
-    });
+  test('creates a primary log action for an unlogged call', () => {
+    expect(createCallHistoryLogActions(createOptions())).toEqual([
+      {
+        disabled: false,
+        label: 'Save to CRM',
+        type: 'createLog',
+      },
+    ]);
   });
 
-  test("uses the edit label for a logged call", () => {
+  test('creates separate edit and view actions for a logged call', () => {
     const call = {
-      activityMatches: [{ id: "activity", type: "callLog" }],
-      type: "Voice",
+      activityMatches: [{ id: 'activity', type: 'callLog' }],
+      type: 'Voice',
     };
+
     expect(hasLoggedCallActivity(call)).toBe(true);
-    expect(createCallHistoryLogAction(createOptions({ call }))).toEqual({
-      disabled: false,
-      label: "Edit log",
-      type: "viewLog",
-    });
+    expect(createCallHistoryLogActions(createOptions({ call }))).toEqual([
+      {
+        disabled: false,
+        label: 'Edit log',
+        type: 'createLog',
+      },
+      {
+        disabled: false,
+        label: 'View log details',
+        type: 'viewLog',
+      },
+    ]);
+  });
+
+  test('keeps view log available when edit is hidden', () => {
+    expect(
+      createCallHistoryLogActions(
+        createOptions({
+          call: {
+            activityMatches: [{ type: 'callLog' }],
+            type: 'Voice',
+          },
+          hideEditLogButton: true,
+        }),
+      ),
+    ).toEqual([
+      {
+        disabled: false,
+        label: 'View log details',
+        type: 'viewLog',
+      },
+    ]);
   });
 
   test.each([
-    [{ ready: false }, null],
-    [{ call: { activityMatches: [], type: "Fax" } }, null],
-    [
-      {
-        call: {
-          activityMatches: [{ type: "callLog" }],
-          type: "Voice",
-        },
-        hideEditLogButton: true,
-      },
-      null,
-    ],
-  ])("hides unavailable actions", (overrides, expected) => {
-    expect(createCallHistoryLogAction(createOptions(overrides))).toBe(expected);
-  });
-
-  test.each([
-    [{ ready: false }, "callLoggerNotReady"],
-    [{ call: { activityMatches: [], type: "Fax" } }, "faxCall"],
-    [
-      {
-        call: { activityMatches: [{ type: "callLog" }], type: "Voice" },
-        hideEditLogButton: true,
-      },
-      "editLogHidden",
-    ],
+    [{ ready: false }, 'callLoggerNotReady'],
+    [{ call: { activityMatches: [], type: 'Fax' } }, 'faxCall'],
     [{}, null],
-  ])("reports the action visibility reason", (overrides, expected) => {
+  ])('reports the action visibility reason', (overrides, expected) => {
     const options = createOptions(overrides);
     expect(
       getCallHistoryLogActionHiddenReason({
         call: options.call,
-        hideEditLogButton: options.hideEditLogButton,
         ready: options.ready,
-      })
+      }),
     ).toBe(expected);
   });
 
-  test("disables the action while logging or matching is pending", () => {
+  test('hides actions when the logger is unavailable or the item is a fax', () => {
     expect(
-      createCallHistoryLogAction(createOptions({ isLogging: true }))
-    ).toEqual(expect.objectContaining({ disabled: true }));
+      createCallHistoryLogActions(createOptions({ ready: false })),
+    ).toEqual([]);
     expect(
-      createCallHistoryLogAction(
-        createOptions({
-          call: {
-            activityMatches: [{ status: "pending", type: "status" }],
-            type: "Voice",
-          },
-        })
-      )
-    ).toEqual(expect.objectContaining({ disabled: true }));
+      createCallHistoryLogActions(
+        createOptions({ call: { activityMatches: [], type: 'Fax' } }),
+      ),
+    ).toEqual([]);
   });
 
-  test("places the integration log action first without duplicates", () => {
+  test('applies logging and pending state to the correct actions', () => {
+    const call = {
+      activityMatches: [
+        { type: 'callLog' },
+        { status: 'pending', type: 'status' },
+      ],
+      type: 'Voice',
+    };
+
+    expect(createCallHistoryLogActions(createOptions({ call }))).toEqual([
+      expect.objectContaining({ disabled: true, type: 'createLog' }),
+      expect.objectContaining({ disabled: false, type: 'viewLog' }),
+    ]);
     expect(
-      insertCallHistoryLogAction(
-        [{ type: "call" }, { type: "createLog" }, { type: "copyNumber" }],
-        { label: "Log call", type: "viewLog" }
-      )
+      createCallHistoryLogActions(createOptions({ call, isLogging: true })),
     ).toEqual([
-      { label: "Log call", type: "viewLog" },
-      { type: "call" },
-      { type: "copyNumber" },
+      expect.objectContaining({ disabled: true, type: 'createLog' }),
+      expect.objectContaining({ disabled: true, type: 'viewLog' }),
     ]);
   });
 
-  test("opens the registered log form when modal logging is enabled", async () => {
+  test('places create or edit first and view log last without duplicates', () => {
+    expect(
+      insertCallHistoryLogActions(
+        [{ type: 'call' }, { type: 'viewLog' }, { type: 'copyNumber' }],
+        [
+          { label: 'Edit log', type: 'createLog' },
+          { label: 'View log details', type: 'viewLog' },
+        ],
+      ),
+    ).toEqual([
+      { label: 'Edit log', type: 'createLog' },
+      { type: 'call' },
+      { type: 'copyNumber' },
+      { label: 'View log details', type: 'viewLog' },
+    ]);
+  });
+
+  test('opens the registered log form for create and edit actions', async () => {
     const callLogger = { logCall: jest.fn() };
     const router = { push: jest.fn(async () => {}) };
+
     await logCallFromHistory({
+      actionType: 'createLog',
       call: {
         activityMatches: [],
-        sessionId: "session-id",
-        type: "Voice",
+        sessionId: 'session-id',
+        type: 'Voice',
       },
       callLogger,
       info: { renderInfo: {} },
@@ -140,37 +168,42 @@ describe("call-history log action", () => {
       thirdParty: { showLogModal: true },
     });
 
-    expect(router.push).toHaveBeenCalledWith("/log/call/session-id");
+    expect(router.push).toHaveBeenCalledWith('/log/call/session-id');
     expect(callLogger.logCall).not.toHaveBeenCalled();
   });
 
   test.each([
-    [[], "createLog"],
-    [[{ type: "callLog" }], "editLog"],
+    ['createLog', [], 'createLog'],
+    ['createLog', [{ type: 'callLog' }], 'editLog'],
+    ['viewLog', [{ type: 'callLog' }], 'viewLog'],
   ])(
-    "submits directly with the correct trigger",
-    async (activityMatches, triggerType) => {
+    'submits %s with the correct trigger',
+    async (actionType, activityMatches, triggerType) => {
       const call = {
         activityMatches,
-        sessionId: "session-id",
-        type: "Voice",
+        sessionId: 'session-id',
+        type: 'Voice',
       };
-      const contact = { id: "contact-id" };
+      const contact = { id: 'contact-id' };
       const callLogger = { logCall: jest.fn(async () => {}) };
+      const router = { push: jest.fn() };
+
       await logCallFromHistory({
+        actionType,
         call,
         callLogger,
         info: { renderInfo: { matchedContact: contact } },
-        router: { push: jest.fn() },
-        thirdParty: { showLogModal: false },
+        router,
+        thirdParty: { showLogModal: actionType === 'viewLog' },
       });
 
+      expect(router.push).not.toHaveBeenCalled();
       expect(callLogger.logCall).toHaveBeenCalledWith({
         call,
         contact,
         redirect: true,
         triggerType,
       });
-    }
+    },
   );
 });

@@ -326,6 +326,10 @@ function Tooltip({ children, title }) {
   return React.createElement("span", { title }, children);
 }
 
+function useEventCallback(callback) {
+  return callback;
+}
+
 module.exports = {
   Alert,
   Announcement,
@@ -366,4 +370,5 @@ module.exports = {
   Text,
   TextField,
   Tooltip,
+  useEventCallback,
 };

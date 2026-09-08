@@ -29,6 +29,7 @@ describe("CallsListItem status information", () => {
         Status,
         answeredByDelegate: false,
         logged: <span data-sign="loggedCall">Logged</span>,
+        renderInfo: {},
         ringingElsewhere: false,
         startTime: "Today",
       },
@@ -36,8 +37,12 @@ describe("CallsListItem status information", () => {
 
     render(
       <CallsListItem
+        additionalCallActions={[]}
         call={call}
         index={0}
+        onAdditionalCallAction={jest.fn()}
+        onRefreshContact={jest.fn()}
+        refreshContactDisabled={false}
         useActionsHandler={() => jest.fn()}
         useCallHistoryItemInfo={useCallHistoryItemInfo}
       />
@@ -54,8 +59,6 @@ describe("CallsListItem status information", () => {
       "truncate"
     );
     expect(screen.getByTestId("loggedCall")).toHaveTextContent("Logged");
-    expect(screen.getByTestId("actions")).toHaveTextContent(
-      "call"
-    );
+    expect(screen.getByTestId("actions")).toHaveTextContent("call");
   });
 });
