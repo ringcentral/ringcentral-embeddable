@@ -12,6 +12,7 @@ jest.mock('@ringcentral-integration/next-core', () => ({
 }));
 
 jest.mock('@ringcentral-integration/micro-auth/src/app/services', () => ({
+  Auth: class Auth {},
   AppFeatures: class AppFeatures {},
   ConnectivityManager: class ConnectivityManager {},
   ConnectivityMonitor: class ConnectivityMonitor {},
@@ -57,9 +58,17 @@ jest.mock(
   '@ringcentral-integration/micro-phone/src/app/views/CallDetailView',
   () => ({
     CallDetailView: class CallDetailView {
-      component() {
+      component(props) {
         const ReactModule = require('react');
-        return ReactModule.createElement('div', { currentCallLog: {} });
+        const uiProps = this.getUIProps(props);
+        return ReactModule.createElement('div', {
+          ...uiProps,
+          currentCallLog: uiProps.currentCallLog || {},
+        });
+      }
+
+      getUIProps(props) {
+        return { currentCallLog: props.currentCallLog };
       }
 
       getUIFunctions() {
@@ -263,9 +272,28 @@ describe('SideWidget list detail navigation', () => {
 
   test('scrolls call metadata together with history details', () => {
     const view = Object.create(CallDetailView.prototype);
+    view._auth = { accessToken: 'token' };
 
     const component = view.component({});
 
     expect(component.props.scrollCallInfoWithContent).toBe(true);
+  });
+
+  test('adds the current access token to the call recording URI', () => {
+    const view = Object.create(CallDetailView.prototype);
+    view._auth = { accessToken: 'current token' };
+
+    const component = view.component({
+      currentCallLog: {
+        recording: {
+          contentUri:
+            'https://media.example.com/recording.wav?contentDisposition=Inline&access_token=expired',
+        },
+      },
+    });
+
+    expect(component.props.recordingUri).toBe(
+      'https://media.example.com/recording.wav?contentDisposition=Inline&access_token=current+token',
+    );
   });
 });

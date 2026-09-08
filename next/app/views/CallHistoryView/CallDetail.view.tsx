@@ -1,3 +1,4 @@
+import { Auth } from '@ringcentral-integration/micro-auth/src/app/services';
 import { SyncTabView } from '@ringcentral-integration/micro-core/src/app/views';
 import { CallLogTasks } from '@ringcentral-integration/micro-phone/src/app/services';
 import { CallDetailView as CallDetailViewBase } from '@ringcentral-integration/micro-phone/src/app/views/CallDetailView';
@@ -16,10 +17,30 @@ import {
   PortManager,
   RouterPlugin,
   type UIFunctions,
+  type UIProps,
 } from '@ringcentral-integration/next-core';
 import React from 'react';
+import type { SetOptional } from 'type-fest';
 
 import { CallDetailPage } from './CallDetailPage';
+
+type CallDetailUIProps = UIProps<
+  SetOptional<CallDetailViewPanelProps, 'currentCallLog'>
+> & {
+  recordingUri?: string;
+};
+
+function getRecordingUri(
+  contentUri: string | undefined,
+  accessToken: string | undefined,
+): string | undefined {
+  if (!contentUri || !accessToken) {
+    return contentUri;
+  }
+  const url = new URL(contentUri);
+  url.searchParams.set('access_token', accessToken);
+  return url.toString();
+}
 
 @injectable({
   name: 'CallDetailView',
@@ -32,6 +53,7 @@ export class CallDetailView extends CallDetailViewBase {
     callsListView: CallsListViewSpring,
     callView: CallView,
     router: RouterPlugin,
+    private readonly _auth: Auth,
     @optional() callLogTasks?: CallLogTasks,
     @optional() callLogFormView?: CallLogFormView,
     @optional('CallDetailViewOptions')
@@ -52,6 +74,17 @@ export class CallDetailView extends CallDetailViewBase {
   }
 
   private readonly _appRouter: RouterPlugin;
+
+  override getUIProps(props: CallDetailViewProps): CallDetailUIProps {
+    const uiProps = super.getUIProps(props);
+    return {
+      ...uiProps,
+      recordingUri: getRecordingUri(
+        uiProps.currentCallLog?.recording?.contentUri,
+        this._auth.accessToken,
+      ),
+    };
+  }
 
   override getUIFunctions(
     props: CallDetailViewProps,

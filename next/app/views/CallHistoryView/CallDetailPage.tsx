@@ -8,6 +8,10 @@ import {
   CopyIconButtonSpring,
 } from "@ringcentral-integration/micro-core/src/app/components";
 import { useLocale } from "@ringcentral-integration/micro-core/src/app/hooks";
+import {
+  VoicemailPlayer,
+  type VoicemailAudioStatus,
+} from "@ringcentral-integration/micro-message/src/app/components";
 import type { CallDetailViewPanelProps } from "@ringcentral-integration/micro-phone/src/app/views/CallDetailView/CallDetail.view.interface";
 import callInfoI18n from "@ringcentral-integration/widgets/components/LogBasicInfoV2/i18n";
 import {
@@ -23,7 +27,7 @@ import {
 } from "@ringcentral/spring-icon";
 import { Block, BlockHeader, Divider, Icon } from "@ringcentral/spring-ui";
 import type { FunctionComponent } from "react";
-import React from "react";
+import React, { useState } from "react";
 
 import { CallerIdInfoButton } from "../../components/CallerIdInfoButton";
 import i18n from "./i18n";
@@ -31,8 +35,21 @@ import i18n from "./i18n";
 type CallDetailPageProps = CallDetailViewPanelProps & {
   headerTitle?: React.ReactNode;
   hideCallerIdInfo?: boolean;
+  recordingUri?: string;
   scrollCallInfoWithContent?: boolean;
   showLogCallInfo?: boolean;
+};
+
+const CallRecordingPlayer: FunctionComponent<{ uri: string }> = ({ uri }) => {
+  const [audioStatus, setAudioStatus] = useState<VoicemailAudioStatus>();
+  return (
+    <VoicemailPlayer
+      audioStatus={audioStatus}
+      data-sign="recordingPlayer"
+      updateAudioStatus={setAudioStatus}
+      uri={uri}
+    />
+  );
 };
 
 export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
@@ -45,6 +62,7 @@ export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
     goBack,
     headerTitle,
     hideCallerIdInfo = false,
+    recordingUri,
     scrollCallInfoWithContent = false,
     showLogCallInfo = false,
     useCallHistoryItemInfo,
@@ -167,6 +185,16 @@ export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
               </div>
             )}
           </BlockHeader>
+          {recordingUri && (
+            <div
+              aria-label={t("recording")}
+              className="w-full min-w-0"
+              data-sign="recordingPlayerContainer"
+              role="group"
+            >
+              <CallRecordingPlayer key={recordingUri} uri={recordingUri} />
+            </div>
+          )}
         </Block>
       )}
     </div>

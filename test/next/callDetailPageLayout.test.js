@@ -4,6 +4,12 @@ import React from "react";
 import { CallDetailPage } from "../../next/app/views/CallHistoryView/CallDetailPage";
 import callHistoryLabels from "../../next/app/views/CallHistoryView/i18n/en-US";
 
+jest.mock("@ringcentral-integration/micro-message/src/app/components", () => ({
+  VoicemailPlayer: ({ uri }) => (
+    <div data-sign="recordingPlayer" data-uri={uri} />
+  ),
+}));
+
 jest.mock("@ringcentral-integration/micro-core/src/app/components", () => ({
   AppFooterNav: ({ children }) => <footer>{children}</footer>,
   AppHeaderNav: ({ children }) => <header>{children}</header>,
@@ -174,5 +180,28 @@ describe("CallDetailPage layout", () => {
     expect(screen.getByTestId("callCallerIdInfo")).toHaveAccessibleName(
       "callerId:Outbound Caller ID"
     );
+  });
+
+  test("shows the recording player only when a recording URI is available", () => {
+    const { rerender } = render(
+      <CallDetailPage
+        {...sharedProps}
+        recordingUri="https://media.example.com/recording.wav?access_token=token"
+      >
+        Form content
+      </CallDetailPage>
+    );
+
+    const playerContainer = screen.getByTestId("recordingPlayerContainer");
+    expect(playerContainer).toHaveAccessibleName("recording");
+    expect(playerContainer).toHaveClass("w-full", "min-w-0");
+    expect(screen.getByTestId("recordingPlayer")).toHaveAttribute(
+      "data-uri",
+      "https://media.example.com/recording.wav?access_token=token"
+    );
+
+    rerender(<CallDetailPage {...sharedProps}>Form content</CallDetailPage>);
+
+    expect(screen.queryByTestId("recordingPlayerContainer")).toBeNull();
   });
 });
