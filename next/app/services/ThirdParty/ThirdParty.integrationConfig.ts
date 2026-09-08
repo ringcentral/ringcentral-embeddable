@@ -1,3 +1,4 @@
+import type { RouteParams } from '@ringcentral-integration/micro-contacts/src/app/views';
 import type { IntegrationConfigOptions } from '@ringcentral-integration/micro-setting/src/app/services';
 
 import type { ThirdParty } from './ThirdParty';
@@ -22,9 +23,12 @@ type IntegrationConfigThirdParty = Pick<
   | 'onViewMatchedContactExternal'
 >;
 
+type ViewRingCentralContact = (contact: RouteParams) => Promise<void> | void;
+
 /** Creates integration configuration backed by the registered service state. */
 export function createThirdPartyIntegrationConfig(
-  thirdParty: IntegrationConfigThirdParty
+  thirdParty: IntegrationConfigThirdParty,
+  viewRingCentralContact?: ViewRingCentralContact,
 ): IntegrationConfigOptions {
   /**
    * Hands a record back to the registered service via its
@@ -33,7 +37,7 @@ export function createThirdPartyIntegrationConfig(
    * Only the service's own records are forwarded: an RC directory match has no
    * counterpart on the other side of the postMessage bridge.
    */
-  const viewMatchedContact = (entity: unknown) => {
+  const viewMatchedContact = (entity: unknown): Promise<void> | void => {
     const contact = entity as ThirdPartyContact | undefined;
     if (
       !contact?.id ||
@@ -44,6 +48,25 @@ export function createThirdPartyIntegrationConfig(
       return;
     }
     return thirdParty.onViewMatchedContactExternal(contact);
+  };
+
+  const viewEntity = (entity: unknown): Promise<void> | void => {
+    const contact = entity as ThirdPartyContact | undefined;
+    if (!contact?.id) {
+      return;
+    }
+    if (
+      contact.type &&
+      RC_DIRECTORY_ENTITY_TYPES.includes(contact.type) &&
+      !contact.resourceType
+    ) {
+      return viewRingCentralContact?.({
+        id: contact.id,
+        type: contact.type,
+        direct: true,
+      });
+    }
+    return viewMatchedContact(contact);
   };
 
   return {
@@ -75,10 +98,10 @@ export function createThirdPartyIntegrationConfig(
       if (metadata?.isMaybeMatch) {
         return;
       }
-      return viewMatchedContact(entity);
+      return viewEntity(entity);
     },
     // Enables the per-row "view record" button inside the match picker.
-    viewExternalEntity: (entity) => viewMatchedContact(entity),
+    viewExternalEntity: (entity) => viewEntity(entity),
     onCreateEntity: (entity) => {
       console.log('🐞 ~ onCreateEntity entity:', entity);
     },

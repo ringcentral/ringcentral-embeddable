@@ -42,6 +42,7 @@ interface RoutedSideWidgetEntry extends RoutedSideWidgetConfig {
 interface ClosedRoutedSideWidgetEntry {
   backgroundPath: string;
   path: string;
+  shouldNavigateToBackground: boolean;
 }
 
 @injectable({
@@ -349,10 +350,14 @@ export class RoutedSideWidgetView extends RcViewModule {
       return;
     }
     const backgroundPath = this.mainPath ?? entry.backgroundPath;
+    const shouldNavigateToBackground =
+      this._router.currentPath === entry.path ||
+      this._requestedPath === entry.path;
     this._entries.delete(id);
     this._closedPaths.set(id, {
       backgroundPath,
       path: entry.path,
+      shouldNavigateToBackground,
     });
     this._debug('unregister closed routed tab', {
       tabId: id,
@@ -361,10 +366,7 @@ export class RoutedSideWidgetView extends RcViewModule {
       currentPath: this._router.currentPath,
       requestedPath: this._requestedPath,
     });
-    if (
-      this._router.currentPath !== entry.path &&
-      this._requestedPath !== entry.path
-    ) {
+    if (!shouldNavigateToBackground) {
       return;
     }
     if (this._isRoutedTab(nextTabId)) {
@@ -380,7 +382,10 @@ export class RoutedSideWidgetView extends RcViewModule {
     if (!closedEntry) {
       return;
     }
-    if (this._router.currentPath !== closedEntry.backgroundPath) {
+    if (
+      closedEntry.shouldNavigateToBackground &&
+      this._router.currentPath !== closedEntry.backgroundPath
+    ) {
       await this._navigate(closedEntry.backgroundPath);
     }
     this._closedPaths.clear();

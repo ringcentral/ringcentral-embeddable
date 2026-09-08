@@ -39,9 +39,14 @@ describe('third-party integration configuration', () => {
         onViewMatchedContactExternal: jest.fn(),
         ...overrides,
       };
+      const viewRingCentralContact = jest.fn();
       return {
-        config: createThirdPartyIntegrationConfig(thirdParty),
+        config: createThirdPartyIntegrationConfig(
+          thirdParty,
+          viewRingCentralContact,
+        ),
         thirdParty,
+        viewRingCentralContact,
       };
     };
 
@@ -75,21 +80,41 @@ describe('third-party integration configuration', () => {
     });
 
     test('does not forward a "Maybe" guess the user never chose', () => {
-      const { config, thirdParty } = createConfig();
+      const { config, thirdParty, viewRingCentralContact } = createConfig();
 
       config.onViewEntity(CRM_MATCH, { isMaybeMatch: true });
+      config.onViewEntity(
+        { id: 'rc-1', type: 'personal' },
+        { isMaybeMatch: true },
+      );
 
       expect(thirdParty.onViewMatchedContactExternal).not.toHaveBeenCalled();
+      expect(viewRingCentralContact).not.toHaveBeenCalled();
     });
 
-    test('does not forward records that are not the service’s own', () => {
-      const { config, thirdParty } = createConfig();
+    test.each(['personal', 'company'])(
+      'opens a %s directory record in contact details',
+      (type) => {
+        const { config, thirdParty, viewRingCentralContact } = createConfig();
 
-      // RC directory match: no counterpart across the postMessage bridge.
-      config.onViewEntity({ id: 'rc-1', type: 'company' });
+        config.onViewEntity({ id: `rc-${type}`, type });
+
+        expect(viewRingCentralContact).toHaveBeenCalledWith({
+          id: `rc-${type}`,
+          type,
+          direct: true,
+        });
+        expect(thirdParty.onViewMatchedContactExternal).not.toHaveBeenCalled();
+      },
+    );
+
+    test('does not forward records owned by another provider', () => {
+      const { config, thirdParty, viewRingCentralContact } = createConfig();
+
       // Another provider's match.
       config.onViewEntity({ id: 'x-1', resourceType: 'other-crm' });
 
+      expect(viewRingCentralContact).not.toHaveBeenCalled();
       expect(thirdParty.onViewMatchedContactExternal).not.toHaveBeenCalled();
     });
 
@@ -122,5 +147,20 @@ describe('third-party integration configuration', () => {
         entity,
       );
     });
+
+    test.each(['personal', 'company'])(
+      'opens a %s match-picker row in contact details',
+      (type) => {
+        const { config, viewRingCentralContact } = createConfig();
+
+        config.viewExternalEntity({ id: `rc-${type}`, type });
+
+        expect(viewRingCentralContact).toHaveBeenCalledWith({
+          id: `rc-${type}`,
+          type,
+          direct: true,
+        });
+      },
+    );
   });
 });

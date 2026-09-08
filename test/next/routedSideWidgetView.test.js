@@ -456,6 +456,34 @@ describe('RoutedSideWidgetView', () => {
     expect(router.currentPath).toBe('/messages');
   });
 
+  test('does not replace an external destination after close completion', async () => {
+    const { handles, router, view } = createRoutedSideWidget(
+      '/contacts/company/contact-1',
+    );
+    view.open({
+      config: {
+        id: 'contact-details',
+        name: 'Contact',
+        scope: 'contact',
+        backgroundPath: '/contacts',
+      },
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/contacts/company/contact-1',
+      routePath: '/contacts/:contactType/:contactId',
+    });
+    const contactDetailsHandle = handles.get('contact-details');
+
+    router.currentPath = '/history/call-1';
+    view.syncPath('/history/call-1');
+    router.push.mockClear();
+    await contactDetailsHandle.options.onClose(null);
+    await contactDetailsHandle.options.onCloseComplete();
+
+    expect(router.push).not.toHaveBeenCalled();
+    expect(router.currentPath).toBe('/history/call-1');
+  });
+
   test('keeps call details open when main navigation changes to Text', async () => {
     const { handles, router, sideWidgetView, view } =
       createRoutedSideWidget('/history/call');

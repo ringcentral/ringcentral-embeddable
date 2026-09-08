@@ -162,6 +162,7 @@ import type {
 import {
   createMemoryHistory,
   createSharedApp,
+  ModuleRef,
   render,
   RouterOptions,
   RouterPlugin,
@@ -727,9 +728,20 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'IntegrationConfigOptions',
-        useFactory: (thirdParty: ThirdParty) =>
-          createThirdPartyIntegrationConfig(thirdParty),
-        deps: [ThirdParty],
+        useFactory: (thirdParty: ThirdParty, moduleRef: ModuleRef) =>
+          createThirdPartyIntegrationConfig(
+            thirdParty,
+            (contact) => {
+              const contactDetailsView = moduleRef.get(
+                ContactDetailsView,
+              ) as ContactDetailsViewV2;
+              return contactDetailsView.showContactDetails({
+                ...contact,
+                returnPath: moduleRef.get(RouterPlugin).currentPath,
+              });
+            },
+          ),
+        deps: [ThirdParty, ModuleRef],
       },
       {
         provide: 'ContactRendererOptions',

@@ -23,18 +23,27 @@ import type {
 import { contactReadyStates } from '@ringcentral-integration/micro-contacts/src/app/views/ContactDetailsView/contactReadyStates';
 import { ContactMatcher, Contacts, ContactSearch } from '@ringcentral-integration/micro-contacts/src/app/services';
 import {
+  action,
+  delegate,
   injectable,
   optional,
   RouterPlugin,
+  state,
   useConnector,
-  delegate,
 } from '@ringcentral-integration/next-core';
 import { ContactDetailsPanel } from './ContactDetailsPanel';
+
+interface ContactDetailsRouteParams extends RouteParams {
+  returnPath?: string;
+}
 
 @injectable({
   name: 'ContactDetailsView',
 })
 export class ContactDetailsView extends ContactDetailsViewBase {
+  @state
+  private _returnPath: string | null = null;
+
   constructor(
     protected _modalView: ModalView,
     protected _contactMatcher: ContactMatcher,
@@ -71,8 +80,34 @@ export class ContactDetailsView extends ContactDetailsViewBase {
   }
 
   @delegate('server')
-  async showContactDetails({ id, type, direct = false }: RouteParams) {
-    this._router.push(`/contacts/${type}/${id}${direct ? '?direct=true' : ''}`);
+  async showContactDetails({
+    id,
+    type,
+    direct = false,
+    returnPath,
+  }: ContactDetailsRouteParams): Promise<void> {
+    this._setReturnPath(
+      direct ? (returnPath ?? this._router.currentPath) : null,
+    );
+    await this._router.push(
+      `/contacts/${type}/${id}${direct ? '?direct=true' : ''}`,
+    );
+  }
+
+  @action
+  private _setReturnPath(returnPath: string | null): void {
+    this._returnPath = returnPath;
+  }
+
+  @delegate('server')
+  private async _navigateBack(): Promise<void> {
+    const returnPath = this._returnPath;
+    this._setReturnPath(null);
+    if (returnPath) {
+      await this._router.replace(returnPath);
+      return;
+    }
+    await this._router.goBack();
   }
 
   override getUIProps(props: Partial<ContactDetailsViewProps>) {
@@ -85,6 +120,16 @@ export class ContactDetailsView extends ContactDetailsViewBase {
         this._locale.ready &&
         this._appFeatures.ready
       ),
+    };
+  }
+
+  override getUIFunctions(props: Partial<ContactDetailsViewProps>) {
+    const uiFunctions = super.getUIFunctions(props);
+    return {
+      ...uiFunctions,
+      onBackClick: () => {
+        void this._navigateBack();
+      },
     };
   }
 

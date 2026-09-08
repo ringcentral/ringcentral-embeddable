@@ -12,13 +12,14 @@ jest.mock('@ringcentral-integration/micro-contacts/src/app/views', () => ({
       _modalView,
       _contactMatcher,
       locale,
-      _router,
+      router,
       contactSearch,
       _contacts,
       _extensionInfo,
       appFeatures,
     ) {
       this._locale = locale;
+      this._router = router;
       this._contactSearch = contactSearch;
       this._appFeatures = appFeatures;
       this.currentContact = null;
@@ -29,6 +30,12 @@ jest.mock('@ringcentral-integration/micro-contacts/src/app/views', () => ({
       return {
         contact: this.currentContact,
         showSpinner: true,
+      };
+    }
+
+    getUIFunctions() {
+      return {
+        onBackClick: () => this._router.goBack(),
       };
     }
   },
@@ -49,12 +56,13 @@ function createView({
   localeReady = true,
   contactSearchReady = false,
   appFeaturesReady = true,
+  router = {},
 } = {}) {
   return new ContactDetailsView(
     {},
     {},
     { ready: localeReady },
-    {},
+    router,
     { ready: contactSearchReady },
     {},
     {},
@@ -86,5 +94,52 @@ describe('ContactDetailsView loading state', () => {
     view.currentContactReadyState = contactReadyStates.loading;
 
     expect(view.getUIProps({}).showSpinner).toBe(true);
+  });
+});
+
+describe('ContactDetailsView navigation', () => {
+  function createRouter(currentPath = '/history/call-1') {
+    return {
+      currentPath,
+      goBack: jest.fn(),
+      push: jest.fn().mockResolvedValue(undefined),
+      replace: jest.fn().mockResolvedValue(undefined),
+    };
+  }
+
+  test.each(['/history/call-1', '/conversations/conversation-1'])(
+    'returns a direct contact view to its originating route: %s',
+    async (returnPath) => {
+      const router = createRouter(returnPath);
+      const view = createView({ router });
+
+      await view.showContactDetails({
+        id: 'company-contact-1',
+        type: 'company',
+        direct: true,
+        returnPath,
+      });
+      view.getUIFunctions({}).onBackClick();
+
+      expect(router.push).toHaveBeenCalledWith(
+        '/contacts/company/company-contact-1?direct=true',
+      );
+      expect(router.replace).toHaveBeenCalledWith(returnPath);
+      expect(router.goBack).not.toHaveBeenCalled();
+    },
+  );
+
+  test('uses normal history when contact details came from the contact list', async () => {
+    const router = createRouter('/contacts');
+    const view = createView({ router });
+
+    await view.showContactDetails({
+      id: 'personal-contact-1',
+      type: 'personal',
+    });
+    view.getUIFunctions({}).onBackClick();
+
+    expect(router.goBack).toHaveBeenCalledTimes(1);
+    expect(router.replace).not.toHaveBeenCalled();
   });
 });
