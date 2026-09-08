@@ -70,6 +70,7 @@ import { SideWidgetView } from '../../views/SideWidgetView';
 import { resolveLegacyAdapterPath } from './resolveLegacyAdapterPath';
 
 import { SmartNotes } from '../SmartNotes';
+import { SmsTypingTimeTracker } from '../SmsTypingTimeTracker';
 import type { ActiveCallControl as ActiveCallControlV2 } from '../ActiveCallControl';
 import type { EmbeddableCallLogger } from '../CallLogger';
 import type { Webphone as WebphoneV2 } from '../WebphoneV2/Webphone';
@@ -351,6 +352,8 @@ export class Adapter extends RcModule {
     @optional() protected _smartNotes?: SmartNotes,
     @optional('CallAction') protected _callAction?: CallAction,
     @optional('SyncTabView') protected _syncTabView?: SyncTabView,
+    @optional()
+    protected _smsTypingTimeTracker?: SmsTypingTimeTracker,
   ) {
     super();
     if (this._smartNotes) {
@@ -835,6 +838,9 @@ export class Adapter extends RcModule {
         break;
       case 'rc-adapter-update-auto-log-settings':
         this._onUpdateAutoLogSettings(data);
+        break;
+      case 'rc-adapter-update-sms-typing-time-tracking':
+        this._onUpdateSmsTypingTimeTracking(data);
         break;
       case 'rc-adapter-update-ai-assistant-settings':
         this._onUpdateAiAssistantSettings(data);
@@ -2075,6 +2081,12 @@ export class Adapter extends RcModule {
     }
     if (typeof data.message === 'boolean') {
       void this._conversationLogger.setAutoLog(data.message);
+    }
+  }
+
+  private _onUpdateSmsTypingTimeTracking(data: { enabled?: boolean }): void {
+    if (typeof data.enabled === 'boolean') {
+      void this._smsTypingTimeTracker?.setEnabled(data.enabled);
     }
   }
 

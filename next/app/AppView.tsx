@@ -88,6 +88,7 @@ import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
 import { HeaderNavViewSpring } from './views/HeaderNavView';
 import { LogCallView } from './views/LogCallView';
+import { LogMessageView } from './views/LogMessageView';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import {
   getRoutedCallContact,
@@ -210,6 +211,13 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._dialerPadView.component,
+    },
+    {
+      path: '/log/messages/:conversationId',
+      component: this._logMessageView.component,
+      authentication: true,
+      layout: 'detail',
+      preserveBackground: true,
     },
     {
       path: '/composeText',
@@ -604,6 +612,7 @@ export class AppView extends RcViewModule {
     private _faxDetailsView: FaxDetailsView,
     private _headerNavView: HeaderNavViewSpring,
     private _logCallView: LogCallView,
+    private _logMessageView: LogMessageView,
     private _customizedPageView: CustomizedPageView,
     private _expandedRouteView: ExpandedRouteView,
     private _expandedView: ExpandedView,

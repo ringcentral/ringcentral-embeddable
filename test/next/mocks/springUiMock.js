@@ -1,8 +1,8 @@
-const React = require('react');
+const React = require("react");
 
 const tabContext = React.createContext(null);
 
-function createContainer(tag = 'div') {
+function createContainer(tag = "div") {
   return function Container({ children, component, ...props }) {
     const Component = component || tag;
     return React.createElement(Component, props, children);
@@ -20,27 +20,27 @@ function Alert({
   ...props
 }) {
   return React.createElement(
-    'div',
+    "div",
     {
       className: classes?.root,
-      role: 'alert',
-      'data-severity': severity,
+      role: "alert",
+      "data-severity": severity,
       ...props,
     },
     children,
     action,
     onClose
       ? React.createElement(
-          'button',
+          "button",
           {
-            type: 'button',
-            'aria-label': closeText,
+            type: "button",
+            "aria-label": closeText,
             onClick: onClose,
-            'data-variant': CloseButtonProps?.variant,
+            "data-variant": CloseButtonProps?.variant,
           },
-          closeText,
+          closeText
         )
-      : null,
+      : null
   );
 }
 
@@ -49,32 +49,35 @@ function Announcement({ classes, CloseButtonProps, ...props }) {
     ...props,
     classes,
     CloseButtonProps: {
-      variant: 'inverted',
+      variant: "inverted",
       ...CloseButtonProps,
     },
-    'data-icon-hidden': classes?.icon === 'hidden',
-    'data-spring-component': 'Announcement',
+    "data-icon-hidden": classes?.icon === "hidden",
+    "data-spring-component": "Announcement",
   });
 }
 
 function Avatar({ alt, children, src }) {
   return React.createElement(
-    'span',
-    { 'aria-label': alt, 'data-src': src || '' },
-    children,
+    "span",
+    { "aria-label": alt, "data-src": src || "" },
+    children
   );
 }
 
 function Badge({ children, color, type }) {
   return React.createElement(
-    'span',
+    "span",
     {
-      'data-badge-color': color,
-      'data-badge-type': type,
+      "data-badge-color": color,
+      "data-badge-type": type,
     },
-    children,
+    children
   );
 }
+
+const Block = createContainer("section");
+const BlockHeader = createContainer();
 
 function Button({
   children,
@@ -87,24 +90,24 @@ function Button({
   ...props
 }) {
   return React.createElement(
-    'button',
+    "button",
     {
-      type: 'button',
-      'data-focusable-when-disabled': Boolean(focusableWhenDisabled),
-      'data-full-width': Boolean(fullWidth),
-      'data-loading': Boolean(loading),
-      'data-start-icon': startIcon,
-      'data-symbol': symbol,
+      type: "button",
+      "data-focusable-when-disabled": Boolean(focusableWhenDisabled),
+      "data-full-width": Boolean(fullWidth),
+      "data-loading": Boolean(loading),
+      "data-start-icon": startIcon,
+      "data-symbol": symbol,
       title: TooltipProps?.title,
       ...props,
     },
-    children,
+    children
   );
 }
 
 function CircularProgressIndicator({ progressBarProps, ...props }) {
-  return React.createElement('div', {
-    role: 'progressbar',
+  return React.createElement("div", {
+    role: "progressbar",
     ...progressBarProps,
     ...props,
   });
@@ -112,100 +115,104 @@ function CircularProgressIndicator({ progressBarProps, ...props }) {
 
 function Dialog({ children, open, ...props }) {
   return open
-    ? React.createElement('div', { role: 'dialog', ...props }, children)
+    ? React.createElement("div", { role: "dialog", ...props }, children)
     : null;
+}
+
+function Divider(props) {
+  return React.createElement("hr", props);
 }
 
 function EmptyState({ description, title }) {
   return React.createElement(
-    'div',
+    "div",
     null,
-    React.createElement('span', null, title),
-    description ? React.createElement('span', null, description) : null,
+    React.createElement("span", null, title),
+    description ? React.createElement("span", null, description) : null
   );
 }
 
 function Icon({ symbol, ...props }) {
-  return React.createElement('span', { 'data-symbol': symbol, ...props });
+  return React.createElement("span", { "data-symbol": symbol, ...props });
 }
 
 const IconButton = React.forwardRef(function IconButton(
   { iconSize, TooltipProps, symbol, ...props },
-  ref,
+  ref
 ) {
-  return React.createElement('button', {
+  return React.createElement("button", {
     ref,
-    type: 'button',
-    'aria-label': TooltipProps?.title,
-    'data-icon-size': iconSize,
-    'data-symbol': symbol,
+    type: "button",
+    "aria-label": TooltipProps?.title,
+    "data-icon-size": iconSize,
+    "data-symbol": symbol,
     ...props,
   });
 });
 
 function Link({ children, ...props }) {
-  return React.createElement('a', props, children);
+  return React.createElement("a", props, children);
 }
 
 function ListItem({ children, classes, divider, hoverable, size, ...props }) {
   return React.createElement(
-    'li',
+    "li",
     {
       className: classes?.root,
-      'data-divider': Boolean(divider),
-      'data-hoverable': Boolean(hoverable),
-      'data-size': size,
+      "data-divider": Boolean(divider),
+      "data-hoverable": Boolean(hoverable),
+      "data-size": size,
       ...props,
     },
     React.createElement(
-      'div',
+      "div",
       {
         className: classes?.content,
-        'data-list-item-content': true,
+        "data-list-item-content": true,
       },
-      children,
-    ),
+      children
+    )
   );
 }
 
 function Menu({ anchorEl, children, open, ...props }) {
   return open || anchorEl
-    ? React.createElement('div', { role: 'menu', ...props }, children)
+    ? React.createElement("div", { role: "menu", ...props }, children)
     : null;
 }
 
 function MenuItem({ children, ...props }) {
   return React.createElement(
-    'button',
-    { type: 'button', role: 'menuitem', ...props },
-    children,
+    "button",
+    { type: "button", role: "menuitem", ...props },
+    children
   );
 }
 
 function MenuItemText({ primary }) {
-  return React.createElement('span', null, primary);
+  return React.createElement("span", null, primary);
 }
 
 function Tag({ children, ...props }) {
-  return React.createElement('span', { 'data-tag': true, ...props }, children);
+  return React.createElement("span", { "data-tag": true, ...props }, children);
 }
 
 function ListItemText({ classes = {}, primary, secondary }) {
   return React.createElement(
-    'span',
-    { className: [classes.root, classes.primary].filter(Boolean).join(' ') },
+    "span",
+    { className: [classes.root, classes.primary].filter(Boolean).join(" ") },
     React.createElement(
-      'span',
-      { className: classes['primary-text'] },
-      primary,
+      "span",
+      { className: classes["primary-text"] },
+      primary
     ),
     secondary
       ? React.createElement(
-          'span',
-          { className: classes['secondary-text'] },
-          secondary,
+          "span",
+          { className: classes["secondary-text"] },
+          secondary
         )
-      : null,
+      : null
   );
 }
 
@@ -219,8 +226,8 @@ function Slider({
   valueLabelFormat,
   ...props
 }) {
-  return React.createElement('input', {
-    type: 'range',
+  return React.createElement("input", {
+    type: "range",
     value,
     onChange: (event) => onChange?.(event, Number(event.target.value)),
     onMouseUp: (event) =>
@@ -231,9 +238,9 @@ function Slider({
 
 function Tab({ label, value, ...props }) {
   return React.createElement(
-    'button',
-    { type: 'button', 'data-value': value, ...props },
-    label,
+    "button",
+    { type: "button", "data-value": value, ...props },
+    label
   );
 }
 
@@ -241,12 +248,12 @@ function TabContext({ children, onChange, value }) {
   return React.createElement(
     tabContext.Provider,
     { value },
-    React.createElement('button', {
-      type: 'button',
-      'aria-label': 'Change test tab',
-      onClick: () => onChange?.(null, 'test-tab'),
+    React.createElement("button", {
+      type: "button",
+      "aria-label": "Change test tab",
+      onClick: () => onChange?.(null, "test-tab"),
     }),
-    React.createElement('div', { 'data-tab-value': value }, children),
+    React.createElement("div", { "data-tab-value": value }, children)
   );
 }
 
@@ -263,26 +270,26 @@ function TabPanel({ children, keepMounted, ...props }) {
     return null;
   }
   return React.createElement(
-    'div',
+    "div",
     {
-      'data-keep-mounted': Boolean(keepMounted),
+      "data-keep-mounted": Boolean(keepMounted),
       hidden: !selected,
       ...props,
     },
-    children,
+    children
   );
 }
 
 function Text({ children, component, noWrap, titleWhenOverflow, ...props }) {
-  const Component = component || 'span';
+  const Component = component || "span";
   return React.createElement(
     Component,
     {
-      'data-no-wrap': Boolean(noWrap),
-      'data-title-when-overflow': titleWhenOverflow,
+      "data-no-wrap": Boolean(noWrap),
+      "data-title-when-overflow": titleWhenOverflow,
       ...props,
     },
-    children,
+    children
   );
 }
 
@@ -299,20 +306,24 @@ function TextField({
   ...props
 }) {
   return React.createElement(
-    'label',
+    "label",
     { className },
     label,
-    React.createElement('input', {
-      value: value ?? '',
+    React.createElement("input", {
+      value: value ?? "",
       onChange,
-      'aria-invalid': Boolean(error),
-      'data-clear-button': Boolean(clearBtn),
-      'data-full-width': Boolean(fullWidth),
+      "aria-invalid": Boolean(error),
+      "data-clear-button": Boolean(clearBtn),
+      "data-full-width": Boolean(fullWidth),
       ...inputProps,
       ...props,
     }),
-    helperText ? React.createElement('span', null, helperText) : null,
+    helperText ? React.createElement("span", null, helperText) : null
   );
+}
+
+function Tooltip({ children, title }) {
+  return React.createElement("span", { title }, children);
 }
 
 module.exports = {
@@ -320,29 +331,32 @@ module.exports = {
   Announcement,
   Avatar,
   Badge,
+  Block,
+  BlockHeader,
   Button,
   CircularProgressIndicator,
   Dialog,
   DialogActions: createContainer(),
   DialogContent: createContainer(),
-  DialogTitle: createContainer('h2'),
+  DialogTitle: createContainer("h2"),
+  Divider,
   EmptyState,
-  FormLabel: createContainer('label'),
+  FormLabel: createContainer("label"),
   Icon,
   IconButton,
   Link,
-  List: createContainer('ul'),
+  List: createContainer("ul"),
   ListItem,
   ListItemText,
   Menu,
   MenuItem,
   MenuItemText,
-  MenuList: createContainer('ul'),
-  PageHeader: createContainer('header'),
+  MenuList: createContainer("ul"),
+  PageHeader: createContainer("header"),
   PageHeaderCenter: createContainer(),
   PageHeaderLeft: createContainer(),
   PageHeaderRight: createContainer(),
-  PageHeaderTitle: createContainer('h1'),
+  PageHeaderTitle: createContainer("h1"),
   Slider,
   Tab,
   TabContext,
@@ -351,4 +365,5 @@ module.exports = {
   Tag,
   Text,
   TextField,
+  Tooltip,
 };

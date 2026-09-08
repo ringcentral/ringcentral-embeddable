@@ -12,6 +12,9 @@ export default function requestWithPostMessage(
   target: Window | null = window.parent,
   prefix = 'rc-post-message',
 ) {
+  if (!path) {
+    throw new Error('Path is required');
+  }
   return new Promise<any>((resolve, reject) => {
     if (!target) {
       reject(new Error('Target window is not available'));
@@ -24,7 +27,7 @@ export default function requestWithPostMessage(
       if (responseFunc) {
         window.removeEventListener('message', responseFunc);
       }
-      reject(new Error('Time out'));
+      reject(new Error(`Time out: ${path}`));
     }, timeout);
 
     responseFunc = (event: MessageEvent) => {

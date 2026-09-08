@@ -121,6 +121,23 @@ describe('createApp authentication boundary', () => {
     );
   });
 
+  test('forwards message logger defaults and typing-time tracking', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/app.html?defaultAutoLogMessageEnabled=1&enableTypingTimeTracking=true'
+    );
+
+    await createApp();
+
+    expect(getAppConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        defaultAutoLogMessageEnabled: true,
+        enableTypingTimeTracking: true,
+      })
+    );
+  });
+
   test('keeps a runtime client ID in PKCE mode without inheriting a default secret', async () => {
     process.env.API_CONFIG = {
       appKey: 'default-client',

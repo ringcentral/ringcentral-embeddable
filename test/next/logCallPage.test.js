@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 
 import { LogCallPage } from "../../next/app/views/LogCallView/LogCallPage";
+import logCallLabels from "../../next/app/views/LogCallView/i18n/en-US";
 
 jest.mock("../../next/app/views/CallHistoryView/CallDetailPage", () => ({
   CallDetailPage: ({
@@ -10,26 +11,41 @@ jest.mock("../../next/app/views/CallHistoryView/CallDetailPage", () => ({
     currentCallLog,
     footer,
     goBack,
+    headerTitle,
     hideCallerIdInfo,
     scrollCallInfoWithContent,
+    showLogCallInfo,
+    useActionsHandler,
     useCallHistoryItemInfo,
   }) => {
-    const { actions } = useCallHistoryItemInfo(currentCallLog, {
+    const { actions, info } = useCallHistoryItemInfo(currentCallLog, {
       selectIndex: 0,
       variant: "detail",
     });
+    const onAction = useActionsHandler(
+      currentCallLog,
+      info,
+      "Call history detail page"
+    );
     return (
       <div
         data-hide-caller-id-info={Boolean(hideCallerIdInfo)}
+        data-show-log-call-info={Boolean(showLogCallInfo)}
         data-scroll-call-info={Boolean(scrollCallInfoWithContent)}
         data-sign="callDetailPage"
       >
         <button type="button" onClick={goBack}>
           Back
         </button>
+        <span data-sign="headerTitle">{headerTitle}</span>
         <span data-sign="headerActions">
-          {actions.map(({ type }) => type).join(",")}
+          {actions.map(({ label, type }) => `${type}:${label ?? ""}`).join(",")}
         </span>
+        {actions.map(({ label, type }) => (
+          <button key={type} type="button" onClick={() => onAction(type)}>
+            {label ?? type}
+          </button>
+        ))}
         {children}
         <footer>{footer}</footer>
       </div>
@@ -66,10 +82,16 @@ function createProps(overrides = {}) {
     onButtonClick: jest.fn(),
     onFormDataChange: jest.fn(),
     onSubmit: jest.fn(),
+    onViewLog: jest.fn(async () => undefined),
     saving: false,
-    useActionsHandler: jest.fn(),
+    useActionsHandler: jest.fn(() => jest.fn(async () => undefined)),
     useCallHistoryItemInfo: jest.fn(() => ({
-      actions: [{ type: "viewLog" }, { type: "call" }],
+      actions: [
+        { label: "Log call", type: "viewLog" },
+        { type: "call" },
+        { type: "text" },
+        { type: "viewEntity" },
+      ],
       info: {},
     })),
     ...overrides,
@@ -87,6 +109,10 @@ describe("LogCallPage", () => {
 
     expect(screen.getByTestId("callDetailPage")).toBeInTheDocument();
     expect(screen.getByTestId("callDetailPage")).toHaveAttribute(
+      "data-show-log-call-info",
+      "true"
+    );
+    expect(screen.getByTestId("callDetailPage")).toHaveAttribute(
       "data-hide-caller-id-info",
       "true"
     );
@@ -94,11 +120,15 @@ describe("LogCallPage", () => {
       "data-scroll-call-info",
       "true"
     );
-    expect(screen.getByTestId("headerActions")).toHaveTextContent("call");
+    expect(screen.getByTestId("headerActions")).not.toHaveTextContent(
+      "viewEntity"
+    );
+    expect(screen.getByTestId("headerActions")).not.toHaveTextContent("call");
+    expect(screen.getByTestId("headerActions")).not.toHaveTextContent("text");
     expect(screen.getByTestId("headerActions")).not.toHaveTextContent(
       "viewLog"
     );
-    expect(screen.getByTestId("logCallFormTitle")).toHaveTextContent(
+    expect(screen.getByTestId("headerTitle")).toHaveTextContent(
       "Salesforce call log"
     );
     expect(screen.getByTestId("logCallSaveFooter")).toContainElement(
@@ -132,6 +162,23 @@ describe("LogCallPage", () => {
     });
     expect(props.onSubmit).toHaveBeenCalledWith({ name: "Updated" });
     expect(props.onBack).toHaveBeenCalledTimes(1);
+  });
+
+  test("shows the correctly labelled view-log action for an existing call log", () => {
+    const props = createProps({
+      call: {
+        ...createCall(),
+        activityMatches: [{ id: "activity-id", type: "callLog" }],
+      },
+    });
+    render(<LogCallPage {...props} />);
+
+    expect(screen.getByTestId("headerActions")).toHaveTextContent(
+      "viewLog:viewLogDetails"
+    );
+    expect(logCallLabels.viewLogDetails).toBe("View log details");
+    fireEvent.click(screen.getByRole("button", { name: "viewLogDetails" }));
+    expect(props.onViewLog).toHaveBeenCalledTimes(1);
   });
 
   test("disables and loads the footer button while saving", () => {

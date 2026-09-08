@@ -10,9 +10,10 @@ jest.mock('@ringcentral-integration/micro-core/src/app/components', () => ({
 jest.mock(
   '@ringcentral-integration/micro-setting/src/app/components/Section',
   () => ({
-    Section: ({ children, label, ...props }) => (
+    Section: ({ children, headerEndAdornment, label, ...props }) => (
       <section aria-label={label} {...props}>
         {label ? <h2>{label}</h2> : null}
+        {headerEndAdornment}
         {children}
       </section>
     ),
@@ -45,16 +46,15 @@ jest.mock('@ringcentral-integration/next-widgets/components', () => ({
   RemoveMeetingWarn: () => null,
   SelectLine: ({ children, ...props }) => <div {...props}>{children}</div>,
   SwitchLine: ({ children, checked, disabled, onChange, ...props }) => (
-    <button
-      type="button"
+    <div
       role="switch"
       aria-checked={checked}
-      disabled={disabled}
+      aria-disabled={disabled}
       onClick={() => onChange?.(!checked)}
       {...props}
     >
       {children}
-    </button>
+    </div>
   ),
 }));
 
@@ -274,6 +274,26 @@ describe('SettingsPanel', () => {
     render(<Panel {...baseProps} />);
 
     expect(screen.queryByTestId('phone-settings-group')).toBeNull();
+  });
+
+  test('renders the message logging setting and its managed reason', () => {
+    const { Panel } = createPanel();
+    render(
+      <Panel
+        {...baseProps}
+        autoLogSMSEnabled
+        autoLogSMSReadOnlyReason="Managed by an administrator"
+        autoLogSMSTitle="CRM message logging"
+        disableAutoLogSMSEnabled
+        showAutoLogSMS
+      />,
+    );
+
+    const setting = screen.getByTestId('AutoLogSMS');
+    expect(setting).toHaveTextContent('CRM message logging');
+    expect(setting).toHaveAttribute('aria-checked', 'true');
+    expect(setting).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByTestId('AutoLogSMS-info')).toBeInTheDocument();
   });
 
   test.each([

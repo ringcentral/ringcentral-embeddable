@@ -15,6 +15,7 @@ const DIRECT_ROUTE_PATTERNS: readonly RegExp[] = [
   /^\/meeting\/personalMeetingSettings$/,
   /^\/meeting\/schedule$/,
   /^\/log\/call\/[^/]+$/,
+  /^\/log\/messages\/[^/]+$/,
   /^\/messages$/,
   /^\/settings$/,
   /^\/settings\/(?:audio|autoCallLogSettings(?:\/(?:callLogging|recordMatching))?|calling|callQueueManagement|feedback|issuesTracking|region|theme|voicemailDrop)$/,

@@ -31,6 +31,8 @@ import { noop } from 'rxjs';
 
 interface EmbeddableSettingsPanelProps extends SettingsViewPanelProps {
   additionalPhoneItems?: ReactNode;
+  autoLogSMSDescription?: string;
+  autoLogSMSReadOnlyReason?: string;
   hasAdditionalPhoneItems?: boolean;
   thirdPartyAuthSettings?: ReactNode;
 }
@@ -49,6 +51,8 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   autoLogEnabled = false,
   autoLogNotesEnabled = false,
   autoLogSMSEnabled = false,
+  autoLogSMSDescription,
+  autoLogSMSReadOnlyReason,
   autoLogSMSTitle,
   autoLogTitle,
   children,
@@ -302,7 +306,24 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
                   onChange={onAutoLogSMSChange}
                   loading={autoLogTextUpdating}
                 >
-                  {autoLogSMSTitle || t('autoLogSMS')}
+                  <span className="truncate">
+                    {autoLogSMSTitle || t('autoLogSMS')}
+                  </span>
+                  {(autoLogSMSReadOnlyReason || autoLogSMSDescription) && (
+                    <Tooltip
+                      color="neutral"
+                      placement="bottom"
+                      title={autoLogSMSReadOnlyReason || autoLogSMSDescription}
+                    >
+                      <IconButton
+                        size="medium"
+                        symbol={InfoMd}
+                        color="neutral"
+                        variant="icon"
+                        data-sign="AutoLogSMS-info"
+                      />
+                    </Tooltip>
+                  )}
                 </SwitchLine>
               )}
               {showLogSMSContent && (

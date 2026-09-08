@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useContainer } from '@ringcentral-integration/next-core';
 import React from 'react';
 
@@ -24,10 +24,11 @@ jest.mock(
           // The base declares this as an instance field, not a prototype
           // method, which is why the subclass wraps it in its constructor.
           this.useConversationItemInfo = (conversation, options) => ({
-            actions: [],
+            actions: [{ type: 'call' }],
             pageType: options?.pageType,
             info: {
               isVoicemail: true,
+              matchedContact: { id: 'crm-1' },
               DisplayName: ({ displayControl }) =>
                 React.createElement(
                   'span',
@@ -36,6 +37,7 @@ jest.mock(
                 ),
             },
           });
+          this.useActionsHandler = () => jest.fn(async () => {});
         }
       },
     };
@@ -52,6 +54,23 @@ const VOICEMAIL = {
   correspondents: [{ phoneNumber: '+16505550100' }],
   correspondentMatchesList: [MATCHES],
 };
+
+function createView({
+  conversationLogger = {
+    loggingMap: {},
+    logConversation: jest.fn(),
+    ready: true,
+  },
+  thirdParty = {
+    messageLoggerRegistered: false,
+    messageLoggerTitle: null,
+  },
+} = {}) {
+  const dependencies = Array(22).fill(undefined);
+  dependencies[16] = conversationLogger;
+  dependencies[17] = thirdParty;
+  return new ConversationsView(...dependencies);
+}
 
 describe('ConversationsView matched-contact decoration', () => {
   let selection;
@@ -71,7 +90,7 @@ describe('ConversationsView matched-contact decoration', () => {
     // One wrap on this instance field reaches the text, fax and voicemail
     // lists (via getUIFunctions) plus the voicemail and fax detail pages,
     // which call this method directly off the view.
-    const view = new ConversationsView();
+    const view = createView();
     const Host = () => {
       const { info } = view.useConversationItemInfo(VOICEMAIL, {
         pageType: 'voicemail',
@@ -92,7 +111,7 @@ describe('ConversationsView matched-contact decoration', () => {
   });
 
   test('preserves the base result and forwards its arguments', () => {
-    const view = new ConversationsView();
+    const view = createView();
     const Host = () => {
       const result = view.useConversationItemInfo(VOICEMAIL, {
         pageType: 'voicemail',
@@ -103,5 +122,50 @@ describe('ConversationsView matched-contact decoration', () => {
     render(<Host />);
 
     expect(screen.getByText('voicemail:true')).toBeInTheDocument();
+  });
+
+  test('adds the registered logger action and sends the manual request', async () => {
+    const conversationLogger = {
+      loggingMap: {},
+      logConversation: jest.fn(async () => {}),
+      ready: true,
+    };
+    const thirdParty = {
+      messageLoggerRegistered: true,
+      messageLoggerTitle: 'Log to CRM',
+    };
+    const view = createView({ conversationLogger, thirdParty });
+    const conversation = {
+      ...VOICEMAIL,
+      conversationLogId: 'conversation-log-id',
+      conversationMatches: [],
+    };
+    const Host = () => {
+      const result = view.useConversationItemInfo(conversation, {
+        pageType: 'voicemail',
+      });
+      const onAction = view.useActionsHandler(
+        conversation,
+        result.info,
+        'Voicemail detail page',
+      );
+      return (
+        <button type="button" onClick={() => onAction('viewLog')}>
+          {result.actions[0].label}
+        </button>
+      );
+    };
+
+    render(<Host />);
+    fireEvent.click(screen.getByRole('button', { name: 'Log to CRM' }));
+
+    await waitFor(() =>
+      expect(conversationLogger.logConversation).toHaveBeenCalledWith({
+        conversationId: 'conversation-1',
+        correspondentEntity: { id: 'crm-1' },
+        redirect: true,
+        triggerType: 'manual',
+      }),
+    );
   });
 });

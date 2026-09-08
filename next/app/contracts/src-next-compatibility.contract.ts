@@ -212,7 +212,6 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
       legacyNames: [
         'disableInactiveTabCallEvent',
         'enableSmsSettingEvent',
-        'enableTypingTimeTracking',
       ],
       status: 'unsupported',
       risk: 'high',
@@ -221,17 +220,39 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
         'Restore event filtering and SMS host-integration options with postMessage tests.',
     },
     {
+      id: 'runtime.sms-typing-time-tracking',
+      surface: 'runtime-option',
+      legacyNames: ['enableTypingTimeTracking'],
+      status: 'verified',
+      risk: 'high',
+      verification: [
+        'test/next/createAppAuthentication.test.js',
+        'test/next/smsTypingTimeTracker.test.js',
+        'test/next/adapterNavigationCompatibility.test.js',
+        'test/next/conversationPanelNavigation.test.js',
+      ],
+    },
+    {
       id: 'runtime.logging-defaults',
       surface: 'runtime-option',
-      legacyNames: [
-        'defaultAutoLogCallEnabled',
-        'defaultAutoLogMessageEnabled',
-      ],
+      legacyNames: ['defaultAutoLogCallEnabled'],
       status: 'unsupported',
       risk: 'high',
       verification: [],
       nextAction:
         'Map defaults to logger options and verify first-login and persisted behavior.',
+    },
+    {
+      id: 'runtime.message-logging-default',
+      surface: 'runtime-option',
+      legacyNames: ['defaultAutoLogMessageEnabled'],
+      status: 'verified',
+      risk: 'high',
+      verification: [
+        'test/next/createAppAuthentication.test.js',
+        'test/next/conversationLoggerCompatibility.test.js',
+        'test/next/conversationLoggerOptions.test.js',
+      ],
     },
     {
       id: 'runtime.external-analytics',
@@ -636,6 +657,18 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
         'Migrate HUD, conference, park, simplify, transfer, ringtone, call-queue, and typed-history aliases, then verify browser deep links. The flip action is served by the call control flip menu, only its route alias is missing.',
     },
     {
+      id: 'routes.message-log-page',
+      surface: 'route',
+      legacyNames: ['/log/messages/:conversationId'],
+      status: 'verified',
+      risk: 'high',
+      verification: [
+        'test/next/adapterNavigationCompatibility.test.js',
+        'test/next/logMessagePage.test.js',
+        'test/next/logMessageView.test.js',
+      ],
+    },
+    {
       id: 'routes.missing-product-and-third-party',
       surface: 'route',
       legacyNames: [
@@ -644,7 +677,6 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
         '/glip',
         '/glip/groups/:groupId',
         '/log/call/:callSessionId',
-        '/log/messages/:conversationId',
         '/settings/phoneNumberFormat',
         '/settings/text',
         '/settings/thirdParty/:sectionId',

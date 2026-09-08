@@ -83,6 +83,22 @@ describe("Adapter navigation compatibility", () => {
     );
   });
 
+  test("updates SMS typing-time tracking through the host boundary", async () => {
+    const adapter = createAdapterInstance();
+    adapter._smsTypingTimeTracker = {
+      setEnabled: jest.fn(async () => {}),
+    };
+
+    adapter._onWindowMessage({
+      data: {
+        type: "rc-adapter-update-sms-typing-time-tracking",
+        enabled: true,
+      },
+    });
+
+    expect(adapter._smsTypingTimeTracker.setEnabled).toHaveBeenCalledWith(true);
+  });
+
   test("accepts next voicemail and fax detail routes", () => {
     expect(resolveLegacyAdapterPath("/voicemails/voicemail-id")).toEqual({
       kind: "route",
@@ -223,6 +239,7 @@ describe("Adapter navigation compatibility", () => {
     "/customized/page-id",
     "/customizedTabs/tab-id",
     "/log/call/session-id",
+    "/log/messages/conversation-id",
   ])("routes registered customized content at %s", async (path) => {
     const adapter = createAdapter();
 

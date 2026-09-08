@@ -14,7 +14,15 @@ import type { ThirdPartyPage, UnknownRecord } from "../../services/ThirdParty";
 import { CallDetailPage } from "../CallHistoryView/CallDetailPage";
 
 import i18n from "./i18n";
-import { resolveLogCallPage } from "./LogCallPage.helper";
+import { getLoggedActivity, resolveLogCallPage } from "./LogCallPage.helper";
+
+const HIDDEN_LOG_CALL_HEADER_ACTIONS = new Set([
+  "call",
+  "createLog",
+  "text",
+  "viewEntity",
+  "viewLog",
+]);
 
 interface LogCallPageProps {
   call: CompatibleCall | null;
@@ -25,6 +33,7 @@ interface LogCallPageProps {
   onButtonClick: (buttonId: string, formData: UnknownRecord) => void;
   onFormDataChange: (formData: UnknownRecord, changedKeys: string[]) => void;
   onSubmit: (formData: UnknownRecord) => void;
+  onViewLog: () => Promise<void>;
   saving: boolean;
   useActionsHandler: CallDetailViewPanelProps["useActionsHandler"];
   useCallHistoryItemInfo: CallDetailViewPanelProps["useCallHistoryItemInfo"];
@@ -82,6 +91,7 @@ export function LogCallPage({
   onButtonClick,
   onFormDataChange,
   onSubmit,
+  onViewLog,
   saving,
   useActionsHandler,
   useCallHistoryItemInfo,
@@ -134,19 +144,38 @@ export function LogCallPage({
   const useLogCallItemInfo: CallDetailViewPanelProps["useCallHistoryItemInfo"] =
     (historyCall, options) => {
       const result = useCallHistoryItemInfo(historyCall, options);
+      const viewLogAction = getLoggedActivity(call)
+        ? [{ label: t("viewLogDetails"), type: "viewLog" as const }]
+        : [];
       return {
         ...result,
-        actions: result.actions.filter(
-          ({ type }) => type !== "viewLog" && type !== "createLog"
-        ),
+        actions: [
+          ...viewLogAction,
+          ...result.actions.filter(
+            ({ type }) => !HIDDEN_LOG_CALL_HEADER_ACTIONS.has(type)
+          ),
+        ],
+      };
+    };
+  const useLogCallActionsHandler: CallDetailViewPanelProps["useActionsHandler"] =
+    (historyCall, info, location) => {
+      const onAction = useActionsHandler(historyCall, info, location);
+      return async (actionType) => {
+        if (actionType === "viewLog") {
+          await onViewLog();
+          return;
+        }
+        await onAction(actionType);
       };
     };
 
   return (
     <CallDetailPage
       currentCallLog={call as HistoryCall}
+      headerTitle={page.title}
       hideCallerIdInfo
       scrollCallInfoWithContent
+      showLogCallInfo
       footer={
         <div
           className="p-3 border-t border-neutral-b4/50 mt-auto flex-none"
@@ -164,18 +193,10 @@ export function LogCallPage({
         </div>
       }
       goBack={onBack}
-      useActionsHandler={useActionsHandler}
+      useActionsHandler={useLogCallActionsHandler}
       useCallHistoryItemInfo={useLogCallItemInfo}
     >
       <div className="px-4 pb-4 pt-2">
-        {page.title ? (
-          <h2
-            className="mb-3 truncate typography-subtitle text-neutral-b0"
-            data-sign="logCallFormTitle"
-          >
-            {page.title}
-          </h2>
-        ) : null}
         <JSONSchemaPage
           schema={schema}
           uiSchema={uiSchema}

@@ -51,6 +51,8 @@ interface UrlParams {
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
+  defaultAutoLogMessageEnabled?: boolean;
+  enableTypingTimeTracking?: boolean;
 }
 
 function parseBooleanParam(value: string | undefined): boolean {
@@ -97,6 +99,12 @@ function readUrlParams(): UrlParams {
     disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
     enableSmartNote: parseBooleanParam(params.enableSmartNote),
     enableAnalytics: Boolean(params.enableAnalytics),
+    defaultAutoLogMessageEnabled: parseBooleanParam(
+      params.defaultAutoLogMessageEnabled,
+    ),
+    enableTypingTimeTracking: parseBooleanParam(
+      params.enableTypingTimeTracking,
+    ),
   };
 }
 
@@ -171,6 +179,8 @@ export const createApp = async (
     disableNoiseReduction: urlParams.disableNoiseReduction,
     enableSmartNote: urlParams.enableSmartNote,
     enableAnalytics: urlParams.enableAnalytics,
+    defaultAutoLogMessageEnabled: urlParams.defaultAutoLogMessageEnabled,
+    enableTypingTimeTracking: urlParams.enableTypingTimeTracking,
   });
 
   const app = await createSharedApp(appConfig);

@@ -105,6 +105,14 @@ export class LogCallView extends RcViewModule {
     return { ...callWithoutSelection, ...extraLogData };
   }
 
+  private async viewLog(call: CompatibleCall): Promise<void> {
+    await this._callLogger.logCall({
+      call,
+      redirect: true,
+      triggerType: "viewLog",
+    });
+  }
+
   component({
     match,
   }: RouteComponentProps<{ callSessionId: string }>): React.ReactElement {
@@ -160,6 +168,13 @@ export class LogCallView extends RcViewModule {
         } finally {
           this.setSaving(false);
         }
+      },
+      onViewLog: async () => {
+        const currentCall = callRef.current;
+        if (!currentCall) {
+          return;
+        }
+        await this.viewLog(currentCall);
       },
     });
     return (

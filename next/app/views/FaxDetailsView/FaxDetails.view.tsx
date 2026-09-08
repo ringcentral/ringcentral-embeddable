@@ -56,7 +56,7 @@ export class FaxDetailsView extends RcViewModule {
     return {
       info,
       actions: actions.filter(({ type }) =>
-        ['viewFax', 'downloadFax', 'delete'].includes(type),
+        ['viewLog', 'viewFax', 'downloadFax', 'delete'].includes(type),
       ),
     };
   };

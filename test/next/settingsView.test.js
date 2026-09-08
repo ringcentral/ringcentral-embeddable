@@ -9,6 +9,10 @@ jest.mock(
   '@ringcentral-integration/micro-setting/src/app/views/SettingsView',
   () => ({
     SettingsView: class SettingsView {
+      getUIProps() {
+        return { base: true };
+      }
+
       getUIFunctions() {
         return {
           onCallQueueManagementClick: this._callQueueEnabled
@@ -97,5 +101,33 @@ describe('SettingsView', () => {
     const { view } = createView({ callQueueEnabled: false });
 
     expect(view.getUIFunctions({}).onCallQueueManagementClick).toBeUndefined();
+  });
+
+  test('exposes the registered message logger settings', async () => {
+    const { view } = createView();
+    view._conversationLogger = {
+      autoLog: true,
+      setAutoLog: jest.fn(async () => {}),
+    };
+    view._thirdParty = {
+      messageLoggerAutoSettingDescription: 'Log every message',
+      messageLoggerAutoSettingHidden: false,
+      messageLoggerAutoSettingLabel: 'CRM message logging',
+      messageLoggerAutoSettingReadOnly: true,
+      messageLoggerAutoSettingReadOnlyReason: 'Managed by an administrator',
+      messageLoggerRegistered: true,
+    };
+
+    expect(view.getUIProps({})).toMatchObject({
+      autoLogSMSEnabled: true,
+      autoLogSMSDescription: 'Log every message',
+      autoLogSMSReadOnlyReason: 'Managed by an administrator',
+      autoLogSMSTitle: 'CRM message logging',
+      disableAutoLogSMSEnabled: true,
+      showAutoLogSMS: true,
+    });
+
+    await view.getUIFunctions({}).onAutoLogSMSChange(false);
+    expect(view._conversationLogger.setAutoLog).toHaveBeenCalledWith(false);
   });
 });

@@ -6,6 +6,7 @@ import {
   RegionSettings,
 } from '@ringcentral-integration/micro-auth/src/app/services';
 import { ContactMatcher } from '@ringcentral-integration/micro-contacts/src/app/services';
+import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import {
   Locale,
   Toast,
@@ -29,16 +30,25 @@ import type {
 } from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/Conversations.view.interface';
 import { IntegrationConfig } from '@ringcentral-integration/micro-setting/src/app/services';
 import {
+  inject,
   injectable,
   optional,
   PortManager,
   RouterPlugin,
   type UIFunctions,
+  useConnector,
 } from '@ringcentral-integration/next-core';
 
 import { useConversationDisplayNameWithMatches } from '../../components/MatchedContactsTag';
+import { ThirdParty } from '../../services/ThirdParty';
 
+import {
+  createConversationLogAction,
+  insertConversationLogAction,
+  logConversationManually,
+} from './ConversationLogAction';
 import { ConversationsPage } from './ConversationsPage';
+import i18n from './i18n';
 
 @injectable({
   name: 'ConversationsView',
@@ -61,8 +71,9 @@ export class ConversationsView extends ConversationsViewSpringBase {
     voicemailAudio: VoicemailAudio,
     integrationConfig: IntegrationConfig,
     smsConversations: SmsConversations,
+    @inject(ConversationLogger) conversationLogger: ConversationLogger,
+    @inject(ThirdParty) thirdParty: ThirdParty,
     @optional() contactMatcher?: ContactMatcher,
-    @optional() conversationLogger?: ConversationLogger,
     @optional() smsOptOut?: SmsOptOut,
     @optional('ConversationsViewOptions')
     conversationsViewOptions?: ConversationsViewSpringOptions,
@@ -103,12 +114,65 @@ export class ConversationsView extends ConversationsViewSpringBase {
     // `FaxDetailsView` call it directly off this view.
     const baseUseConversationItemInfo = this.useConversationItemInfo;
     this.useConversationItemInfo = (conversation, options) => {
-      const result = baseUseConversationItemInfo(conversation, options);
+      const conversationLogId =
+        conversation.conversationLogId === 'unknown'
+          ? conversation.conversationId
+          : conversation.conversationLogId;
+      const conversationWithLogState = {
+        ...conversation,
+        conversationLogId,
+        conversationMatches: conversationLogId
+          ? conversationLogger.dataMapping?.[conversationLogId] ??
+            conversation.conversationMatches
+          : conversation.conversationMatches,
+      };
+      const result = baseUseConversationItemInfo(
+        conversationWithLogState,
+        options,
+      );
+      const { t } = useLocale(i18n);
+      const logState = useConnector(() => ({
+        isLogging: Boolean(
+          conversationLogId && conversationLogger.loggingMap[conversationLogId],
+        ),
+        logButtonTitle: thirdParty.messageLoggerTitle,
+        ready:
+          conversationLogger.ready && thirdParty.messageLoggerRegistered,
+      }));
       const DisplayName = useConversationDisplayNameWithMatches(
         result.info.DisplayName,
-        conversation,
+        conversationWithLogState,
       );
-      return { ...result, info: { ...result.info, DisplayName } };
+      const logAction = createConversationLogAction({
+        conversation: conversationWithLogState,
+        editLogLabel: t('editLog'),
+        logMessageLabel: t('logMessages'),
+        ...logState,
+      });
+      return {
+        ...result,
+        actions: insertConversationLogAction(result.actions, logAction),
+        info: { ...result.info, DisplayName },
+      };
+    };
+
+    const baseUseActionsHandler = this.useActionsHandler;
+    this.useActionsHandler = (conversation, info, location) => {
+      const baseHandler = baseUseActionsHandler(conversation, info, location);
+      return async (actionType, data) => {
+        if (
+          (actionType === 'createLog' || actionType === 'viewLog') &&
+          thirdParty.messageLoggerRegistered
+        ) {
+          await logConversationManually({
+            conversation,
+            conversationLogger,
+            correspondentEntity: info.matchedContact,
+          });
+          return;
+        }
+        await baseHandler(actionType, data);
+      };
     };
   }
 
@@ -119,15 +183,11 @@ export class ConversationsView extends ConversationsViewSpringBase {
     const baseUseActionsHandler = functions.useActionsHandler;
     const useActionsHandler: ConversationsPanelSpringProps['useActionsHandler'] =
       (conversation, info, location) => {
-        const baseHandler = baseUseActionsHandler(
-          conversation,
-          info,
-          location,
-        );
+        const baseHandler = baseUseActionsHandler(conversation, info, location);
         return async (actionType, data) => {
           if (
-            (actionType === 'viewDetail' &&
-              (info.isTextMessage || info.isVoicemail || info.isFax))
+            actionType === 'viewDetail' &&
+            (info.isTextMessage || info.isVoicemail || info.isFax)
           ) {
             const conversationId = conversation.conversationId;
             if (!conversationId) {

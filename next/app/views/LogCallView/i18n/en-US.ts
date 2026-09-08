@@ -6,4 +6,5 @@ export default {
   logCall: "Log call",
   note: "Note",
   save: "Save",
+  viewLogDetails: "View log details",
 } as const;

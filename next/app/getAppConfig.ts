@@ -46,6 +46,7 @@ import type {
 } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   Brand,
+  DateTimeFormat,
   Locale,
   SleepDetector,
   Theme,
@@ -58,8 +59,7 @@ import {
 import {
   ComposeText,
   FaxSender,
-  ConversationLogger,
-  type ConversationLoggerOptions,
+  ConversationLogger as MicroMessageConversationLogger,
   ConversationMatcher,
   Conversations,
   MessageThread,
@@ -124,6 +124,7 @@ import { ContactMatcher as ContactMatcherV2 } from './services/ContactMatcher';
 import { SmsOptOut as SmsOptOutV2 } from './services/SmsOptOut';
 import { MeetingView, MeetingInviteView } from './views/MeetingView';
 import { LogCallView } from './views/LogCallView';
+import { LogMessageView } from './views/LogMessageView';
 import { ContactListView as ContactListViewV2 } from './views/ContactListView/ContactList.view';
 import { ContactDetailsView as ContactDetailsViewV2 } from './views/ContactDetailsView/ContactDetails.view';
 import { ContactSearchView as ContactSearchViewV2 } from './views/ContactSearchView';
@@ -145,10 +146,7 @@ import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
-import {
-  SideWidgetView,
-  type SideWidgetOptions,
-} from './views/SideWidgetView';
+import { SideWidgetView, type SideWidgetOptions } from './views/SideWidgetView';
 import { CallControlView as MicroPhoneCallControlView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
 import {
   QuickAccess,
@@ -210,6 +208,14 @@ import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 import { VoicemailDropView } from './views/VoicemailDropView';
 import { createSettingsPanel } from './views/SettingsView/createSettingsPanel';
 import { SettingsView as SettingsViewV2 } from './views/SettingsView/Settings.view';
+import {
+  ConversationLogger as EmbeddableConversationLogger,
+  createConversationLoggerOptions,
+} from './services/ConversationLogger';
+import {
+  SmsTypingTimeTracker,
+  type SmsTypingTimeTrackerOptions,
+} from './services/SmsTypingTimeTracker';
 
 const DEFAULT_CONTACT_MATCH_TTL = 120 * 60 * 1000;
 const DEFAULT_CONTACT_NO_MATCH_TTL = 5 * 60 * 1000;
@@ -237,6 +243,8 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
+  defaultAutoLogMessageEnabled?: boolean;
+  enableTypingTimeTracking?: boolean;
 }
 
 /**
@@ -265,6 +273,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   disableNoiseReduction = false,
   enableSmartNote = false,
   enableAnalytics = false,
+  defaultAutoLogMessageEnabled = false,
+  enableTypingTimeTracking = false,
 }: CreateAppEntryOptions<T>) => {
   const { defaultLocale } = brandConfig;
 
@@ -436,6 +446,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       DialerView,
       ModalView,
       MessageStore,
+      SmsTypingTimeTracker,
       SmsTemplate,
       {
         provide: MicroMessageConversationsView,
@@ -443,11 +454,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'ConversationViewOptions',
-        useFactory: (router: RouterPlugin) =>
+        useFactory: (
+          router: RouterPlugin,
+          smsTypingTimeTracker: SmsTypingTimeTracker,
+        ) =>
           ({
-            component: createConversationPanel(router),
+            component: createConversationPanel(router, smsTypingTimeTracker),
           } satisfies ConversationViewSpringOptions),
-        deps: [RouterPlugin],
+        deps: [RouterPlugin, SmsTypingTimeTracker],
       },
       {
         provide: MicroSettingsView,
@@ -461,7 +475,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       MessageThread,
       MessageThreadsView,
       SharedConversationView,
-      ConversationLogger,
+      {
+        provide: MicroMessageConversationLogger,
+        useClass: EmbeddableConversationLogger,
+      },
       ConversationMatcher,
       {
         provide: GenericMeeting,
@@ -476,6 +493,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       MeetingView,
       MeetingInviteView,
       LogCallView,
+      LogMessageView,
       {
         provide: 'MeetingOptions',
         useValue: {
@@ -657,33 +675,19 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'ConversationLoggerOptions',
-        useFactory: (thirdParty: ThirdParty) =>
-          ({
-            async logFunction<P, S>({
-              item,
-              ...options
-            }: LoggerLogOptions<P, S>) {
-              if (!item) {
-                return;
-              }
-              await thirdParty.logConversation({
-                ...(options as Record<string, unknown>),
-                item: item as Parameters<
-                  ThirdParty['logConversation']
-                >[0]['item'],
-              });
-            },
-            readyCheckFunction() {
-              return thirdParty.messageLoggerRegistered;
-            },
-            isLoggedContact(conversation, lastActivity, item) {
-              return lastActivity && item && lastActivity.id === item.id;
-            },
-            accordWithLogRequirement(conversation) {
-              return true;
-            },
-          } satisfies ConversationLoggerOptions),
-        deps: [ThirdParty],
+        useFactory: (thirdParty: ThirdParty, dateTimeFormat: DateTimeFormat) =>
+          createConversationLoggerOptions({
+            autoLog: defaultAutoLogMessageEnabled,
+            dateTimeFormat,
+            thirdParty,
+          }),
+        deps: [ThirdParty, DateTimeFormat],
+      },
+      {
+        provide: 'SmsTypingTimeTrackerOptions',
+        useValue: {
+          enableTypingTimeTracking,
+        } satisfies SmsTypingTimeTrackerOptions,
       },
       {
         provide: 'ThirdPartyOptions',
