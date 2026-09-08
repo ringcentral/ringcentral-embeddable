@@ -26,12 +26,6 @@ import type { FunctionComponent } from "react";
 import React from "react";
 
 import { CallerIdInfoButton } from "../../components/CallerIdInfoButton";
-import {
-  type SmartNotesCallInfo,
-  type SmartNotesHistoryCall,
-  insertHistorySmartNotesAction,
-  useHistorySmartNotesAction,
-} from "./CallHistorySmartNotesAction";
 import i18n from "./i18n";
 
 type CallDetailPageProps = CallDetailViewPanelProps & {
@@ -66,16 +60,7 @@ export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
     info,
     "Call history detail page"
   );
-  const buttons = useHistoryActionButtons(actions, onAction);
-  const smartNotesAction = useHistorySmartNotesAction(
-    currentCallLog as SmartNotesHistoryCall,
-    info as unknown as SmartNotesCallInfo,
-    t("viewSmartNotes")
-  );
-  const actionButtons = insertHistorySmartNotesAction(
-    buttons,
-    smartNotesAction
-  );
+  const actionButtons = useHistoryActionButtons(actions, onAction);
   const {
     DisplayName,
     displayPhoneNumber,

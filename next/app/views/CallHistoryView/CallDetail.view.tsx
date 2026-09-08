@@ -67,6 +67,8 @@ export class CallDetailView extends CallDetailViewBase {
     if (!React.isValidElement<CallDetailViewPanelProps>(component)) {
       return component;
     }
-    return <CallDetailPage {...component.props} />;
+    return (
+      <CallDetailPage {...component.props} scrollCallInfoWithContent />
+    );
   }
 }

@@ -7,7 +7,6 @@ import {
 import {
   AppFooterNav,
   AppMainContent,
-  ToastPositionAdjustor,
 } from '@ringcentral-integration/micro-core/src/app/components';
 import { SyncTabView } from '@ringcentral-integration/micro-core/src/app/views';
 import {
@@ -52,12 +51,9 @@ import {
 } from '@ringcentral-integration/micro-phone/src/app/views/CallLogFormView';
 import { QuickCallActionView } from '@ringcentral-integration/micro-phone/src/app/views/QuickCallActionView';
 
-import {
-  SideWidgetView,
-  type SideWidgetContentHandle,
-  type SideWidgetContentOptions,
-  type SideWidgetContentViewProps,
-} from '../SideWidgetView';
+import { SideWidgetView } from '../SideWidgetView';
+import type { SmartNotesHistoryCall } from '../CallHistoryView/SmartNotesHistoryCall';
+import type { SmartNotesView } from '../SmartNotesView';
 import { ParkView } from './ParkView';
 import { useCallInfoWithPreinsert } from './useCallInfoWithPreinsert';
 
@@ -155,12 +151,7 @@ export class CallView extends CallViewBase {
     this._appPreinsertCall = preInsertCall;
     this._appActiveCallsView = activeCallsView;
     this._appAddCallView = addCallView;
-    this._appPostCallView = postCallView;
     this._appCallLogFormView = callLogFormView;
-    this._appSideWidgetView = sideWidgetView;
-    this._postCallSideWidgetHandle = sideWidgetView?.createContent(
-      this._getPostCallSideWidgetOptions(),
-    );
     if (portManager.shared) {
       portManager.onServer(() => {
         this.bindPreinsertNavigation();
@@ -169,6 +160,12 @@ export class CallView extends CallViewBase {
       this.bindPreinsertNavigation();
     }
     const privateComponents = this as unknown as CallViewPrivateComponents;
+    this._baseCallDetailForm = (
+      CallViewBase.prototype as unknown as Pick<
+        CallViewPrivateComponents,
+        'CallDetailForm'
+      >
+    ).CallDetailForm.bind(this);
     const BaseCallLogArea = (
       CallViewBase.prototype as unknown as Pick<
         CallViewPrivateComponents,
@@ -182,8 +179,9 @@ export class CallView extends CallViewBase {
       ) : null;
     };
     privateComponents.CallItem = this.renderCallItem.bind(this);
+    privateComponents.CallDetailForm = this.renderCallDetailForm.bind(this);
     privateComponents.CallLogArea = PostCallLogArea;
-    this.bindPostCallSideWidget();
+    this.bindPostCallNavigation(sideWidgetView);
   }
 
   private readonly _parkView: ParkView;
@@ -194,112 +192,56 @@ export class CallView extends CallViewBase {
   private readonly _appPreinsertCall: PreinsertCall;
   private readonly _appActiveCallsView: ActiveCallsView;
   private readonly _appAddCallView: AddCallView;
-  private readonly _appPostCallView: PostCallView;
   private readonly _appCallLogFormView?: CallLogFormView;
-  private readonly _appSideWidgetView?: SideWidgetView;
-  private readonly _postCallSideWidgetHandle?: SideWidgetContentHandle;
+  private readonly _baseCallDetailForm: FC<CallLogFormViewProps>;
 
-  private readonly _postCallSideWidgetView = (
-    props: SideWidgetContentViewProps,
-  ) => this.PostCallSideWidgetContent(props);
-
-  private readonly _postCallSideWidgetOnClose = (): void => {
-    if (this._appCallViewState.view === 'postCall') {
-      void this.closePostCallSideWidget();
+  @autobind
+  private renderCallDetailForm(
+    props: CallLogFormViewProps,
+  ): React.ReactElement | null {
+    if (props.variant !== 'history') {
+      return <this._baseCallDetailForm {...props} />;
     }
-  };
-
-  private _getPostCallSideWidgetOptions(): SideWidgetContentOptions {
-    return {
-      id: 'call-details',
-      name: 'Call details',
-      scope: 'contact',
-      onClose: this._postCallSideWidgetOnClose,
-      view: this._postCallSideWidgetView,
-    };
-  }
-
-  private async closePostCallSideWidget(): Promise<void> {
-    try {
-      await this._appPostCallView.goBack();
-    } finally {
-      this._appCallAction.fromPostCall = false;
-    }
-  }
-
-  private PostCallSideWidgetContent({
-    showCloseButton,
-  }: SideWidgetContentViewProps): React.ReactElement | null {
-    const postCallCallLog = useConnector(
-      () => this._appCallViewState.postCallCallLog,
-    );
-    if (!postCallCallLog) {
-      return null;
-    }
-    const { CallDetailForm } = this as unknown as CallViewPrivateComponents;
+    const call = props.info as SmartNotesHistoryCall | undefined;
+    const hasSmartNotes = Boolean(call?.hasSmartNote);
+    const smartNotesView = this._smartNotesView as SmartNotesView | undefined;
     return (
       <div
-        className="flex h-full w-full flex-col"
-        data-sign="post-log-panel"
-        data-call-log-id={postCallCallLog.telephonySessionId}
+        className="flex flex-col"
+        data-sign="history-call-details-content"
       >
-        <div
-          className={
-            showCloseButton
-              ? 'flex-none'
-              : 'flex-none [&_[data-sign=backButton]]:hidden'
-          }
-        >
-          <this._appPostCallView.component variant="header" />
-        </div>
-        <div className="flex flex-auto flex-col overflow-x-hidden overflow-y-auto">
-          <this._appPostCallView.component variant="info" />
-          <CallDetailForm variant="postCall" info={postCallCallLog} />
-        </div>
         {this._appCallLogFormView ? (
-          <ToastPositionAdjustor>
-            <footer>
-              <this._appCallLogFormView.Save />
-            </footer>
-          </ToastPositionAdjustor>
+          <div className="flex-none" data-sign="history-call-log-form">
+            <this._appCallLogFormView.component {...props} />
+          </div>
+        ) : null}
+        {hasSmartNotes && smartNotesView ? (
+          <smartNotesView.component
+            {...props}
+            embedded
+            mode="post-call"
+            data-sign="embedded-smart-notes"
+          />
         ) : null}
       </div>
     );
   }
 
-  private bindPostCallSideWidget(): void {
-    if (!this._appSideWidgetView?.enabled || !this._postCallSideWidgetHandle) {
+  private bindPostCallNavigation(sideWidgetView?: SideWidgetView): void {
+    if (!sideWidgetView?.enabled) {
       return;
     }
     fromWatchValue(this, () => this._appCallViewState.view)
       .pipe(distinctUntilChanged(), takeUntilAppDestroy)
-      .subscribe((view) => this.syncPostCallSideWidget(view));
+      .subscribe((view) => this.handlePostCallViewChange(view));
   }
 
-  private syncPostCallSideWidget(view: string): void {
-    if (!this._appSideWidgetView || !this._postCallSideWidgetHandle) {
-      return;
-    }
+  private handlePostCallViewChange(view: string): void {
     if (view === 'postCall') {
-      this._appSideWidgetView.updateContent(
-        this._postCallSideWidgetHandle,
-        this._getPostCallSideWidgetOptions(),
-      );
-      this._appSideWidgetView.openContent(this._postCallSideWidgetHandle, {
-        activate: !this._smartNotes?.session,
-      });
       void (
         this._appCallAction as SideWidgetCallAction
       ).leaveCallingRouteForSideWidget();
-      return;
     }
-    if (
-      this._postCallSideWidgetHandle.options.view !==
-      this._postCallSideWidgetView
-    ) {
-      return;
-    }
-    this._appSideWidgetView.closeContent(this._postCallSideWidgetHandle);
   }
 
   /**

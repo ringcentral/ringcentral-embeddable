@@ -38,6 +38,7 @@ import type {
   SmartNoteQueryResult,
   SmartNoteSession,
   SmartNotesPluginConfig,
+  SmartNotesPresentation,
   SmartNotesRemoteModule,
   SmartNoteTextRecord,
   SmartNoteTranscript,
@@ -86,6 +87,9 @@ export class SmartNotes extends RcModule {
 
   @state
   session: SmartNoteSession | null = null;
+
+  @state
+  presentation: SmartNotesPresentation = 'independent';
 
   get showSmartNote(): boolean {
     return true;
@@ -353,6 +357,7 @@ export class SmartNotes extends RcModule {
   @action
   private _clearStates(): void {
     this.session = null;
+    this.presentation = 'independent';
     this.clientInitialized = false;
     this.recentNotedCalls = [];
     this.callsQueryResults = [];
@@ -361,8 +366,12 @@ export class SmartNotes extends RcModule {
   }
 
   @action
-  private _setSessionState(session: SmartNoteSession | null): void {
+  private _setSessionState(
+    session: SmartNoteSession | null,
+    presentation: SmartNotesPresentation = 'independent',
+  ): void {
     this.session = session;
+    this.presentation = presentation;
   }
 
   @action
@@ -513,12 +522,16 @@ export class SmartNotes extends RcModule {
   @delegate('server')
   private async _setSessionStateOnServer(
     session: SmartNoteSession | null,
+    presentation: SmartNotesPresentation,
   ): Promise<void> {
-    this._setSessionState(session);
+    this._setSessionState(session, presentation);
   }
 
   @delegate('mainClient')
-  async setSession(session: SmartNoteSession | null): Promise<void> {
+  async setSession(
+    session: SmartNoteSession | null,
+    presentation: SmartNotesPresentation = 'independent',
+  ): Promise<void> {
     if (!session) {
       await this._closeCurrentSession();
       return;
@@ -530,7 +543,7 @@ export class SmartNotes extends RcModule {
     const currentClient = this._smartNoteClientMap.get(session.id);
     if (this.session?.id === session.id && currentClient) {
       await currentClient.updateTelephonySessionStatus(session.status);
-      await this._setSessionStateOnServer(session);
+      await this._setSessionStateOnServer(session, presentation);
       this._clearOtherIdleClients(session.id);
       return;
     }
@@ -538,7 +551,7 @@ export class SmartNotes extends RcModule {
       currentClient ?? this._createSmartNoteClient(session);
     this._smartNoteClientMap.set(session.id, smartNoteClient);
     await this._pauseCurrentClient();
-    await this._setSessionStateOnServer(session);
+    await this._setSessionStateOnServer(session, presentation);
     this._clearOtherIdleClients(session.id);
     this._autoStartSession(session, smartNoteClient);
   }
@@ -633,7 +646,7 @@ export class SmartNotes extends RcModule {
       smartNoteClient.removeAllListeners();
       this._smartNoteClientMap.delete(this.session.id);
     }
-    await this._setSessionStateOnServer(null);
+    await this._setSessionStateOnServer(null, 'independent');
   }
 
   private async _pauseCurrentClient(): Promise<void> {
@@ -737,7 +750,7 @@ export class SmartNotes extends RcModule {
     const smartNoteClient = this._smartNoteClientMap.get(session.id);
     if (!smartNoteClient) {
       if (this.session?.id === session.id) {
-        await this._setSessionStateOnServer(null);
+        await this._setSessionStateOnServer(null, 'independent');
       }
       return;
     }
@@ -754,10 +767,13 @@ export class SmartNotes extends RcModule {
       if (smartNoteClient.transcriptionStatus === 'idle') {
         smartNoteClient.removeAllListeners();
         this._smartNoteClientMap.delete(session.id);
-        await this._setSessionStateOnServer(null);
+        await this._setSessionStateOnServer(null, 'independent');
       } else {
         await smartNoteClient.updateTelephonySessionStatus('Disconnected');
-        await this._setSessionStateOnServer({ ...this.session, ...session });
+        await this._setSessionStateOnServer(
+          { ...this.session, ...session },
+          this.presentation,
+        );
       }
       return;
     }
@@ -928,8 +944,11 @@ export class SmartNotes extends RcModule {
 
   @track(() => [SMART_NOTES_CONFIG.trackEvents.view])
   @delegate('mainClient')
-  async viewSmartNote(session: SmartNoteSession): Promise<void> {
-    await this.setSession(session);
+  async viewSmartNote(
+    session: SmartNoteSession,
+    presentation: SmartNotesPresentation = 'independent',
+  ): Promise<void> {
+    await this.setSession(session, presentation);
   }
 
   @track(() => [SMART_NOTES_CONFIG.trackEvents.start])

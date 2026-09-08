@@ -14,6 +14,8 @@ export interface SmartNoteSession {
   startTime?: string;
 }
 
+export type SmartNotesPresentation = 'embedded' | 'independent';
+
 export interface WebphoneSmartNoteSession {
   partyData?: {
     sessionId?: string;

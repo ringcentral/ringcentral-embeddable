@@ -13,19 +13,8 @@ jest.mock("@ringcentral-integration/next-widgets/components", () => ({
     actions.map(({ type }) => ({ actionType: type })),
 }));
 
-jest.mock(
-  "../../next/app/views/CallHistoryView/CallHistorySmartNotesAction",
-  () => ({
-    insertHistorySmartNotesAction: (buttons, smartNotesAction) => [
-      ...buttons,
-      smartNotesAction,
-    ],
-    useHistorySmartNotesAction: () => ({ actionType: "viewSmartNote" }),
-  })
-);
-
 describe("CallsListItem status information", () => {
-  test("uses shared status and logged info while retaining Smart Notes action", () => {
+  test("uses shared status and logged info with the base actions", () => {
     const call = {
       hasSmartNote: true,
       id: "call-id",
@@ -66,7 +55,7 @@ describe("CallsListItem status information", () => {
     );
     expect(screen.getByTestId("loggedCall")).toHaveTextContent("Logged");
     expect(screen.getByTestId("actions")).toHaveTextContent(
-      "call,viewSmartNote"
+      "call"
     );
   });
 });

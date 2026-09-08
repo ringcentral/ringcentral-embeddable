@@ -51,14 +51,6 @@ jest.mock(
   })
 );
 
-jest.mock(
-  "../../next/app/views/CallHistoryView/CallHistorySmartNotesAction",
-  () => ({
-    insertHistorySmartNotesAction: (buttons) => buttons,
-    useHistorySmartNotesAction: () => null,
-  })
-);
-
 function useCallHistoryItemInfo() {
   return {
     actions: [],

@@ -434,6 +434,7 @@ describe('SmartNotes service', () => {
 
     await smartNotes.setSession(firstSession);
     expect(smartNotes.smartNoteClient).toBe(FakeSmartNoteClient.instances[0]);
+    expect(smartNotes.presentation).toBe('independent');
     jest.advanceTimersByTime(2000);
     await flushPromises();
     expect(FakeSmartNoteClient.instances[0].start).toHaveBeenCalledTimes(1);
@@ -456,6 +457,7 @@ describe('SmartNotes service', () => {
     expect(FakeSmartNoteClient.instances[1].stop).toHaveBeenCalledTimes(1);
     expect(FakeSmartNoteClient.instances[1].removeAllListeners).toHaveBeenCalled();
     expect(smartNotes.session).toBeNull();
+    expect(smartNotes.presentation).toBe('independent');
     await expect(smartNotes.setSession(null)).resolves.toBeUndefined();
     expect(smartNotes.smartNoteClient).toBeNull();
   });
@@ -786,8 +788,9 @@ describe('SmartNotes service', () => {
     removeOther();
 
     const viewSession = createSession({ id: 'view-session' });
-    await smartNotes.viewSmartNote(viewSession);
+    await smartNotes.viewSmartNote(viewSession, 'embedded');
     expect(smartNotes.session.id).toBe('view-session');
+    expect(smartNotes.presentation).toBe('embedded');
   });
 
   test('stops all clients and clears runtime and state on reset', async () => {
@@ -805,6 +808,7 @@ describe('SmartNotes service', () => {
     expect(client.stop).toHaveBeenCalled();
     expect(client.removeAllListeners).toHaveBeenCalled();
     expect(smartNotes.session).toBeNull();
+    expect(smartNotes.presentation).toBe('independent');
     expect(smartNotes.clientInitialized).toBe(false);
     expect(smartNotes.recentNotedCalls).toEqual([]);
     expect(smartNotes.callsQueryResults).toEqual([]);

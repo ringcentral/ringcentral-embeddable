@@ -1,4 +1,3 @@
-import { useLocale } from "@ringcentral-integration/micro-core/src/app/hooks";
 import type { CallsListPanelSpringProps } from "@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface";
 import {
   ActionMenuList,
@@ -7,13 +6,7 @@ import {
 import { ListItem, ListItemText } from "@ringcentral/spring-ui";
 import React, { memo } from "react";
 
-import {
-  type SmartNotesCallInfo,
-  type SmartNotesHistoryCall,
-  insertHistorySmartNotesAction,
-  useHistorySmartNotesAction,
-} from "./CallHistorySmartNotesAction";
-import i18n from "./i18n";
+import type { SmartNotesHistoryCall } from "./SmartNotesHistoryCall";
 
 export type CallsListItemProps = {
   call: SmartNotesHistoryCall;
@@ -30,22 +23,12 @@ const CallsListItemComponent: React.FC<CallsListItemProps> = ({
   useActionsHandler,
   useItemRender,
 }) => {
-  const { t } = useLocale(i18n);
   const { info, actions } = useCallHistoryItemInfo(call, {
     selectIndex: 0,
     variant: "list",
   });
   const onAction = useActionsHandler(call, info, "Call history list");
-  const buttons = useHistoryActionButtons(actions, onAction);
-  const smartNotesAction = useHistorySmartNotesAction(
-    call,
-    info as unknown as SmartNotesCallInfo,
-    t("viewSmartNotes")
-  );
-  const actionButtons = insertHistorySmartNotesAction(
-    buttons,
-    smartNotesAction
-  );
+  const actionButtons = useHistoryActionButtons(actions, onAction);
 
   useItemRender?.(call, index);
 

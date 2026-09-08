@@ -14,9 +14,9 @@ import type { FunctionComponent } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 
 import { SmartNotes } from '../../services/SmartNotes';
-import type { SmartNotesHistoryCall } from './CallHistorySmartNotesAction';
 import { getVisibleTelephonySessionIds } from './CallHistorySmartNotesQuery';
 import { CallsListItem } from './CallsListItem';
+import type { SmartNotesHistoryCall } from './SmartNotesHistoryCall';
 import i18n from './i18n';
 
 const INITIAL_VISIBLE_CALL_COUNT = 10;

@@ -57,6 +57,11 @@ jest.mock(
   '@ringcentral-integration/micro-phone/src/app/views/CallDetailView',
   () => ({
     CallDetailView: class CallDetailView {
+      component() {
+        const ReactModule = require('react');
+        return ReactModule.createElement('div', { currentCallLog: {} });
+      }
+
       getUIFunctions() {
         return { goBack: jest.fn() };
       }
@@ -254,5 +259,13 @@ describe('SideWidget list detail navigation', () => {
     await view.getUIFunctions({}).goBack();
 
     expect(router.push).toHaveBeenCalledWith('/dialer');
+  });
+
+  test('scrolls call metadata together with history details', () => {
+    const view = Object.create(CallDetailView.prototype);
+
+    const component = view.component({});
+
+    expect(component.props.scrollCallInfoWithContent).toBe(true);
   });
 });

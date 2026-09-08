@@ -14,9 +14,14 @@ interface SmartNotesAlert {
 
 interface SmartNotesPluginProps {
   client: SmartNoteClientInstance;
+  hideContactCard?: boolean;
+  hidePostCallHeader?: boolean;
+  hidePostCallTabs?: boolean;
   onAlert: (alert: SmartNotesAlert) => void;
   onClose: () => void;
   onSave: () => Promise<void>;
+  postCallScrollMode?: 'page' | 'panel';
+  postCallTab?: 'notes' | 'transcript';
   showCloseButton: boolean;
   theme: ReturnType<typeof useTheme>;
   themeType: ThemeType;
@@ -24,6 +29,7 @@ interface SmartNotesPluginProps {
 
 interface SmartNotesPanelProps {
   client: SmartNoteClientInstance | null;
+  embedded?: boolean;
   onAlert: (alert: SmartNotesAlert) => void;
   onClose: () => void;
   onSave: () => Promise<void>;
@@ -37,6 +43,7 @@ const SESSION_SWITCH_DELAY = 50;
 
 export const SmartNotesPanel: FunctionComponent<SmartNotesPanelProps> = ({
   client,
+  embedded = false,
   onAlert,
   onClose,
   onSave,
@@ -53,12 +60,11 @@ export const SmartNotesPanel: FunctionComponent<SmartNotesPanelProps> = ({
   const SmartNotesPlugin = useApp({
     name: 'SmartNotes',
     loader: () =>
-      dynamicLoad(
-        '@ringcentral/smart-note-widget/src/bootstrap',
-        remoteEntry
-      ),
+      dynamicLoad('@ringcentral/smart-note-widget/src/bootstrap', remoteEntry),
     attrs: {
-      className: 'h-full w-full [&>div]:h-full [&>div]:w-full',
+      className: embedded
+        ? 'h-auto w-full [&>div]:h-auto [&>div]:w-full'
+        : 'h-full w-full [&>div]:h-full [&>div]:w-full',
     },
   }) as ComponentType<SmartNotesPluginProps>;
 
@@ -80,14 +86,24 @@ export const SmartNotesPanel: FunctionComponent<SmartNotesPanelProps> = ({
   if (!client || !remoteEntry || !renderedSessionId) {
     return null;
   }
+  const renderKey = [
+    renderedSessionId,
+    embedded ? 'embedded' : 'independent',
+    showCloseButton ? 'with-close' : 'without-close',
+  ].join(':');
   return (
     <SmartNotesPlugin
-      key={renderedSessionId}
+      key={renderKey}
       client={client}
+      hideContactCard={embedded}
+      hidePostCallHeader={embedded}
+      hidePostCallTabs={false}
       onAlert={onAlert}
       onClose={onClose}
       onSave={onSave}
-      showCloseButton={showCloseButton}
+      postCallScrollMode={embedded ? 'page' : 'panel'}
+      postCallTab="notes"
+      showCloseButton={embedded ? false : showCloseButton}
       theme={theme}
       themeType={themeType}
     />

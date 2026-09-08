@@ -128,7 +128,10 @@ jest.mock('../../next/app/views/SideWidgetView', () => ({
   SideWidgetView: class SideWidgetView {},
 }));
 
-function createCallView(currentView, { sideWidgetView } = {}) {
+function createCallView(
+  currentView,
+  { callLogFormView, sideWidgetView, smartNotes, smartNotesView } = {},
+) {
   const callAction = {
     fromPostCall: false,
     leaveCallingRouteForSideWidget: jest.fn(async () => {}),
@@ -157,15 +160,26 @@ function createCallView(currentView, { sideWidgetView } = {}) {
       telephonySessionId: 'telephony-session',
     },
   };
+  dependencies[2] = { setActive: jest.fn() };
   dependencies[12] = postCallView;
-  dependencies[23] = undefined;
+  dependencies[23] = callLogFormView;
   dependencies[24] = undefined;
   dependencies[25] = sideWidgetView;
+  const callView = new CallView(...dependencies);
+  if (smartNotes) {
+    Object.defineProperty(callView, '_smartNotes', { value: smartNotes });
+  }
+  if (smartNotesView) {
+    Object.defineProperty(callView, '_smartNotesView', {
+      value: smartNotesView,
+    });
+  }
   return {
     callAction,
-    callView: new CallView(...dependencies),
+    callView,
     callViewState: dependencies[4],
     postCallView,
+    syncTabView: dependencies[2],
   };
 }
 
@@ -194,70 +208,95 @@ describe('CallView expanded content ownership', () => {
     });
   });
 
-  test('hosts post-call details in the side widget when it is enabled', async () => {
-    const handle = { id: 'call-details-handle' };
+  test('leaves the calling route without opening Call Details', () => {
     const sideWidgetView = {
       enabled: true,
-      createContent: jest.fn(() => handle),
-      updateContent: jest.fn((contentHandle, options) => {
-        contentHandle.options = options;
-      }),
+      createContent: jest.fn(),
+      updateContent: jest.fn(),
       openContent: jest.fn(),
       closeContent: jest.fn(),
     };
-    const { callAction, callView, postCallView } = createCallView('postCall', {
+    const { callAction, callView } = createCallView('postCall', {
       sideWidgetView,
     });
-    const contentOptions = sideWidgetView.createContent.mock.calls[0][0];
 
-    callView.syncPostCallSideWidget('postCall');
+    callView.handlePostCallViewChange('postCall');
 
-    expect(contentOptions).toEqual(
-      expect.objectContaining({ id: 'call-details', name: 'Call details' }),
-    );
-    expect(sideWidgetView.openContent).toHaveBeenCalledWith(handle, {
-      activate: true,
-    });
     expect(callAction.leaveCallingRouteForSideWidget).toHaveBeenCalledTimes(1);
+    expect(sideWidgetView.createContent).not.toHaveBeenCalled();
+    expect(sideWidgetView.updateContent).not.toHaveBeenCalled();
+    expect(sideWidgetView.openContent).not.toHaveBeenCalled();
 
-    const Content = contentOptions.view;
-    render(<Content showCloseButton={false} />);
-    expect(screen.getByTestId('postCallInfo')).toBeInTheDocument();
-    expect(screen.getByTestId('callDetailForm-postCall')).toBeInTheDocument();
-    expect(screen.getByTestId('postCallHeader').parentElement).toHaveClass(
-      '[&_[data-sign=backButton]]:hidden',
-    );
-
-    contentOptions.onClose();
-    await Promise.resolve();
-    expect(postCallView.goBack).toHaveBeenCalledTimes(1);
-    expect(callAction.fromPostCall).toBe(false);
-
-    callView.syncPostCallSideWidget('hidden');
-    expect(sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
+    callView.handlePostCallViewChange('hidden');
+    expect(callAction.leaveCallingRouteForSideWidget).toHaveBeenCalledTimes(1);
   });
 
-  test('keeps started Smart Notes selected after a call ends', () => {
-    const handle = { id: 'call-details-handle' };
-    const sideWidgetView = {
-      enabled: true,
-      createContent: jest.fn(() => handle),
-      updateContent: jest.fn((contentHandle, options) => {
-        contentHandle.options = options;
-      }),
-      openContent: jest.fn(),
-      closeContent: jest.fn(),
+  test('embeds call-history Smart Notes without outer tabs', () => {
+    const callLogFormView = {
+      component: ({ variant }) => (
+        <div data-sign="directCallLog" data-variant={variant} />
+      ),
     };
-    const { callView } = createCallView('postCall', { sideWidgetView });
-    Object.defineProperty(callView, '_smartNotes', {
-      value: { session: { id: 'smart-notes-session' } },
+    const smartNotesView = {
+      component: ({ embedded, mode }) => (
+        <div
+          data-sign="embeddedSmartNotes"
+          data-embedded={String(embedded)}
+          data-mode={mode}
+        />
+      ),
+    };
+    const { callView } = createCallView('hidden', {
+      callLogFormView,
+      smartNotesView,
     });
+    const CallDetailForm = callView.CallDetailForm;
 
-    callView.syncPostCallSideWidget('postCall');
+    render(
+      <CallDetailForm
+        variant="history"
+        info={{ hasSmartNote: true, telephonySessionId: 'telephony-session' }}
+      />,
+    );
 
-    expect(sideWidgetView.openContent).toHaveBeenCalledWith(handle, {
-      activate: false,
-    });
+    expect(screen.getByTestId('history-call-details-content')).toHaveClass(
+      'flex',
+      'flex-col',
+    );
+    expect(screen.getByTestId('history-call-details-content')).not.toHaveClass(
+      'overflow-y-auto',
+    );
+    expect(screen.getByTestId('history-call-log-form')).toHaveClass(
+      'flex-none',
+    );
+    expect(screen.getByTestId('directCallLog')).toHaveAttribute(
+      'data-variant',
+      'history',
+    );
+    expect(screen.getByTestId('embeddedSmartNotes')).toHaveAttribute(
+      'data-embedded',
+      'true',
+    );
+    expect(screen.getByTestId('embeddedSmartNotes')).toHaveAttribute(
+      'data-mode',
+      'post-call',
+    );
+    expect(screen.queryByTestId('callDetailForm-postCall')).toBeNull();
+  });
+
+  test('preserves the independent post-call Smart Notes form', () => {
+    const { callView } = createCallView('postCall');
+    const CallDetailForm = callView.CallDetailForm;
+
+    render(
+      <CallDetailForm
+        variant="postCall"
+        info={{ hasSmartNote: true, telephonySessionId: 'telephony-session' }}
+      />,
+    );
+
+    expect(screen.getByTestId('callDetailForm-postCall')).toBeInTheDocument();
+    expect(screen.queryByTestId('embeddedSmartNotes')).toBeNull();
   });
 
   test('does not duplicate post-call details in the main column', () => {
