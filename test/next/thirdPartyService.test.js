@@ -583,6 +583,23 @@ describe('ThirdParty service', () => {
     expect(service.contactSyncTimestamp).toBe(200);
   });
 
+  test('uses the delegated contacts path without main-client registration', async () => {
+    const { service } = createThirdParty();
+    requestWithPostMessage.mockResolvedValueOnce({ data: null, syncTimestamp: 2 });
+
+    await expect(
+      service._fetchContacts({ contactsPath: '/contacts' }),
+    ).resolves.toEqual({
+      contacts: [],
+      syncTimestamp: 2,
+    });
+    expect(requestWithPostMessage).toHaveBeenCalledWith(
+      '/contacts',
+      { page: 1, syncTimestamp: null, type: undefined },
+      60000,
+    );
+  });
+
   test('guards contact fetching, joins concurrent fetches, and handles failures', async () => {
     const { service } = createThirdParty();
     await service.fetchContacts();
@@ -610,12 +627,6 @@ describe('ThirdParty service', () => {
     expect(service.contactSyncing).toBe(false);
     expect(service._fetchContactsPromise).toBeNull();
     expect(console.error).toHaveBeenCalledWith(expect.any(Error));
-
-    requestWithPostMessage.mockResolvedValueOnce({ data: null, syncTimestamp: 2 });
-    await expect(service._fetchContacts()).resolves.toEqual({
-      contacts: [],
-      syncTimestamp: 2,
-    });
   });
 
   test('searches and matches contacts with caller and manual-refresh metadata', async () => {

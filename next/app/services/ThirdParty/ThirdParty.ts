@@ -82,6 +82,10 @@ const LOG_TIMEOUT = 15000;
 const MEETING_LOG_TIMEOUT = 6000;
 const DEFAULT_RECORDING_LINK = '';
 
+type FetchContactsRequestParams = FetchContactsParams & {
+  contactsPath: string;
+};
+
 @injectable({
   name: 'ThirdParty',
 })
@@ -1118,11 +1122,12 @@ export class ThirdParty extends RcModule {
 
   @delegate('mainClient')
   private async _fetchContacts({
+    contactsPath,
     page = 1,
     type,
-  }: FetchContactsParams = {}): Promise<FetchContactsResult> {
+  }: FetchContactsRequestParams): Promise<FetchContactsResult> {
     const { data, nextPage, syncTimestamp } = await requestWithPostMessage(
-      this._contactsPath!,
+      contactsPath,
       {
         page,
         syncTimestamp: this.contactSyncTimestamp,
@@ -1137,7 +1142,11 @@ export class ThirdParty extends RcModule {
     if (!nextPage) {
       return { contacts, syncTimestamp };
     }
-    const nextPageData = await this._fetchContacts({ page: nextPage, type });
+    const nextPageData = await this._fetchContacts({
+      contactsPath,
+      page: nextPage,
+      type,
+    });
     return {
       contacts: contacts.concat(nextPageData.contacts),
       syncTimestamp,
@@ -1147,7 +1156,8 @@ export class ThirdParty extends RcModule {
   @delegate('server')
   async fetchContacts(params: FetchContactsParams = {}): Promise<void> {
     try {
-      if (!this._contactsPath) {
+      const contactsPath = this._contactsPath;
+      if (!contactsPath) {
         return;
       }
       if (this.authorizationRegistered && !this.authorized) {
@@ -1158,7 +1168,10 @@ export class ThirdParty extends RcModule {
         return;
       }
       this._setContactSyncing(true);
-      this._fetchContactsPromise = this._fetchContacts(params);
+      this._fetchContactsPromise = this._fetchContacts({
+        ...params,
+        contactsPath,
+      });
       const { contacts, syncTimestamp } = await this._fetchContactsPromise;
       if (this.contactSyncTimestamp && syncTimestamp) {
         this._syncContactsSuccess({ contacts, syncTimestamp });
