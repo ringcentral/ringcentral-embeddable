@@ -43,6 +43,10 @@ export class Webphone extends WebphoneCommon {
       this._multipleTabsTransport.events.broadcast,
       this._onMultipleTabsChannelBroadcast
     );
+    this._multipleTabsTransport.on(
+      this._multipleTabsTransport.events.error,
+      (error) => this._onMultipleTabsChannelError(error)
+    );
     Array.from(ObjectMap.keys(EVENTS)).forEach((event) => {
       if (event === EVENTS.activeWebphoneChanged) {
         return;

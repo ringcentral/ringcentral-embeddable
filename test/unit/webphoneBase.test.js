@@ -263,6 +263,27 @@ describe('WebphoneBase module methods', () => {
     jest.restoreAllMocks();
   });
 
+  it('surfaces a danger alert when a proxied request hits the channel timeout', () => {
+    const phone = createBase();
+
+    phone._onMultipleTabsChannelError(new Error('test-webphone-channel-v2-timeout'));
+
+    expect(phone._deps.alert.danger).toHaveBeenCalledWith({
+      message: webphoneErrors.connectFailed,
+      allowDuplicates: false,
+      ttl: 0,
+    });
+  });
+
+  it('logs but does not alert for non-timeout proxied request failures', () => {
+    const phone = createBase();
+
+    phone._onMultipleTabsChannelError(new Error('some other failure'));
+
+    expect(phone._deps.alert.danger).not.toHaveBeenCalled();
+    expect(phone._logger.error).toHaveBeenCalled();
+  });
+
   it('updates connection state, audio storage, and derived availability flags', async () => {
     const phone = createBase();
 

@@ -289,4 +289,50 @@ describe('SharedSipClient', () => {
     expect(port.close).toHaveBeenCalled();
     expect(client.worker).toBeNull();
   });
+
+  it('rejects in-flight requests when disposed without throwing', async () => {
+    const { client, port } = createClient();
+
+    const pendingPromise = client.workerRequest({ type: 'getSharedState' });
+    const assertion = expect(pendingPromise).rejects.toThrow(
+      'SharedSipClient has been disposed',
+    );
+
+    expect(() => client.dispose()).not.toThrow();
+    await assertion;
+
+    // The pending request's listener must be torn down so the closed port is
+    // no longer referenced.
+    expect(port.removeEventListener).toHaveBeenCalledWith(
+      'message',
+      expect.any(Function),
+    );
+  });
+
+  it('does not leave the timeout callback dereferencing a nulled worker', async () => {
+    jest.useFakeTimers();
+    try {
+      const { client } = createClient();
+      const pendingPromise = client.workerRequest({ type: 'getSharedState' });
+      const assertion = expect(pendingPromise).rejects.toThrow(
+        'SharedSipClient has been disposed',
+      );
+      client.dispose();
+      await assertion;
+
+      // Advancing past the 8s timeout must not throw a TypeError now that the
+      // request was already settled and cleaned up on dispose.
+      expect(() => jest.advanceTimersByTime(9000)).not.toThrow();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('rejects new requests made after disposal', async () => {
+    const { client } = createClient();
+    client.dispose();
+    await expect(client.workerRequest({ type: 'getSharedState' })).rejects.toThrow(
+      'SharedSipClient has been disposed',
+    );
+  });
 });
