@@ -18,7 +18,7 @@ const DIRECT_ROUTE_PATTERNS: readonly RegExp[] = [
   /^\/log\/messages\/[^/]+$/,
   /^\/messages$/,
   /^\/settings$/,
-  /^\/settings\/(?:audio|autoCallLogSettings(?:\/(?:callLogging|recordMatching))?|calling|callQueueManagement|feedback|issuesTracking|region|theme|voicemailDrop)$/,
+  /^\/settings\/(?:applicationLogs|audio|autoCallLogSettings(?:\/(?:callLogging|recordMatching))?|calling|callQueueManagement|region|theme|voicemailDrop)$/,
   /^\/voicemails\/[^/]+$/,
   /^\/welcome$/,
 ];

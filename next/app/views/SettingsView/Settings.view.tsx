@@ -42,13 +42,13 @@ import { ThirdParty } from '../../services/ThirdParty';
 const REGION_SETTINGS_PATH = '/settings/region';
 const CALLING_SETTINGS_PATH = '/settings/calling';
 const AUDIO_SETTINGS_PATH = '/settings/audio';
-const FEEDBACK_SETTINGS_PATH = '/settings/feedback';
-const ISSUE_TRACKING_SETTINGS_PATH = '/settings/issuesTracking';
+const APPLICATION_LOGS_SETTINGS_PATH = '/settings/applicationLogs';
 const THEME_SETTINGS_PATH = '/settings/theme';
 const AUTO_CALL_LOG_SETTINGS_PATH = '/settings/autoCallLogSettings';
 const CALL_QUEUE_MANAGEMENT_PATH = '/settings/callQueueManagement';
 
 type EmbeddableSettingsViewPanelProps = SettingsViewPanelProps & {
+  onApplicationLogsLinkClick?: () => void;
   autoLogDescription?: string;
   autoLogReadOnlyReason?: string;
   autoLogSMSDescription?: string;
@@ -137,12 +137,13 @@ export class SettingsView extends SettingsViewBase {
         this._thirdParty.messageLoggerAutoSettingReadOnlyReason,
       disableAutoLogSMSEnabled:
         this._thirdParty.messageLoggerAutoSettingReadOnly,
+      showFeedback: this._thirdParty.showFeedback,
     };
   }
 
   override getUIFunctions(
     props: SettingsViewProps,
-  ): UIFunctions<SettingsViewPanelProps> {
+  ): UIFunctions<EmbeddableSettingsViewPanelProps> {
     const functions = super.getUIFunctions(props);
     const navigateTo = (path: string): void => {
       void this._router.push(path);
@@ -165,14 +166,11 @@ export class SettingsView extends SettingsViewBase {
       onAudioSettingsLinkClick: () =>
         navigateTo(props.audioSettingsUrl ?? AUDIO_SETTINGS_PATH),
       onFeedbackSettingsLinkClick: () => {
-        if (this._settingsViewOptions?.onFeedBackSettingsLink) {
-          this._settingsViewOptions.onFeedBackSettingsLink();
-        } else {
-          navigateTo(props.feedbackSettingsUrl ?? FEEDBACK_SETTINGS_PATH);
-        }
+        void this._thirdParty.onShowFeedback();
         this.trackOnFeedbackClick();
       },
-      onTrackingClick: () => navigateTo(ISSUE_TRACKING_SETTINGS_PATH),
+      onApplicationLogsLinkClick: () =>
+        navigateTo(APPLICATION_LOGS_SETTINGS_PATH),
       onThemeSwitchClick: () => navigateTo(THEME_SETTINGS_PATH),
       onCallQueueManagementClick: functions.onCallQueueManagementClick
         ? () => navigateTo(CALL_QUEUE_MANAGEMENT_PATH)

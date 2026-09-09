@@ -16,6 +16,7 @@ import { SettingsPanel } from './SettingsPanel';
 import { SmartNotesAutoStartSetting } from './SmartNotesAutoStartSetting';
 
 interface CreateSettingsPanelOptions {
+  readonly onThirdPartySectionClick: (sectionId: string) => void;
   readonly onVoicemailDropSettingsLinkClick: () => void;
   readonly smartNotes: SmartNotes;
   readonly thirdParty: ThirdParty;
@@ -26,6 +27,7 @@ interface CreateSettingsPanelOptions {
  * Creates the app settings panel with permission-aware Phone settings.
  */
 export function createSettingsPanel({
+  onThirdPartySectionClick,
   onVoicemailDropSettingsLinkClick,
   smartNotes,
   thirdParty,
@@ -63,9 +65,18 @@ export function createSettingsPanel({
       showAuthRedDot: thirdParty.showAuthRedDot,
       unauthorizedTitle: thirdParty.unauthorizedTitle,
     }));
+    const thirdPartySettings = useConnector(() => thirdParty.settings);
     return (
       <SettingsPanel
         {...props}
+        thirdPartySettings={thirdPartySettings}
+        onThirdPartyButtonClick={(buttonId) => {
+          void thirdParty.onClickSettingButton(buttonId);
+        }}
+        onThirdPartySectionClick={onThirdPartySectionClick}
+        onThirdPartySettingChange={(setting, value) => {
+          void thirdParty.onUpdateSetting({ ...setting, value });
+        }}
         thirdPartyAuthSettings={
           thirdPartyAuth.authorizationRegistered &&
           thirdPartyAuth.serviceName ? (

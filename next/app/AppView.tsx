@@ -51,8 +51,6 @@ import {
   AutoCallLogICSettingsView,
   CallingSettingsView,
   CallQueueManagementView,
-  FeedbackView,
-  IssuesTrackingView,
   RegionSettingsView,
   ThemeSwitchView,
   WelcomeView,
@@ -83,6 +81,7 @@ import {
   shouldRenderExpandedView,
 } from './ExpandedRouteNavigation.helper';
 import { CustomizedPageView } from './views/CustomizedPageView';
+import { ApplicationLogsView } from './views/ApplicationLogsView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
@@ -96,6 +95,9 @@ import {
   RoutedSideWidgetView,
 } from './views/RoutedSideWidgetView';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
+import {
+  ThirdPartySettingSectionView,
+} from './views/ThirdPartySettingSectionView';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 import type { ThirdPartyWidgetContact } from './services/ThirdParty';
 
@@ -313,6 +315,14 @@ export class AppView extends RcViewModule {
       sideWidget: this._settingsSideWidgetConfig,
     },
     {
+      path: '/settings/thirdParty/:sectionId',
+      component: this._thirdPartySettingSectionView.component,
+      authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
+    },
+    {
       path: '/settings/voicemailDrop',
       component: this._voicemailDropSettingsView.component,
       authentication: true,
@@ -321,16 +331,8 @@ export class AppView extends RcViewModule {
       sideWidget: this._settingsSideWidgetConfig,
     },
     {
-      path: '/settings/feedback',
-      component: this._feedbackView.component,
-      authentication: true,
-      layout: 'detail',
-      backgroundComponent: this._settingsView.component,
-      sideWidget: this._settingsSideWidgetConfig,
-    },
-    {
-      path: '/settings/issuesTracking',
-      component: this._issuesTrackingView.component,
+      path: '/settings/applicationLogs',
+      component: this._applicationLogsView.component,
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
@@ -594,9 +596,9 @@ export class AppView extends RcViewModule {
     private _callingSettingsView: CallingSettingsView,
     private _regionSettingsView: RegionSettingsView,
     private _audioSettingsView: AudioSettingsView,
+    private _thirdPartySettingSectionView: ThirdPartySettingSectionView,
     private _voicemailDropSettingsView: VoicemailDropSettingsView,
-    private _feedbackView: FeedbackView,
-    private _issuesTrackingView: IssuesTrackingView,
+    private _applicationLogsView: ApplicationLogsView,
     private _callQueueManagementView: CallQueueManagementView,
     private _autoCallLogICSettingsView: AutoCallLogICSettingsView,
     private _callLoggingSettingsView: CallLoggingSettingsView,

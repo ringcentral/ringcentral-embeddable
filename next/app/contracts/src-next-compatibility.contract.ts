@@ -671,6 +671,16 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
       ],
     },
     {
+      id: 'routes.third-party-settings',
+      surface: 'route',
+      legacyNames: ['/settings/thirdParty/:sectionId'],
+      status: 'implemented',
+      risk: 'high',
+      verification: [],
+      nextAction:
+        'Confirm Spring settings-page and section behavior, then add browser deep-link coverage.',
+    },
+    {
       id: 'routes.missing-product-and-third-party',
       surface: 'route',
       legacyNames: [
@@ -681,7 +691,6 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
         '/log/call/:callSessionId',
         '/settings/phoneNumberFormat',
         '/settings/text',
-        '/settings/thirdParty/:sectionId',
       ],
       status: 'unsupported',
       risk: 'high',

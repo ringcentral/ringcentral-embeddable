@@ -203,8 +203,12 @@ import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { createThirdPartyIntegrationConfig } from './services/ThirdParty/ThirdParty.integrationConfig';
 import { CustomizedPageView } from './views/CustomizedPageView';
+import { ApplicationLogsView } from './views/ApplicationLogsView';
 import { HeaderPanel } from './views/HeaderView/HeaderPanel';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
+import {
+  ThirdPartySettingSectionView,
+} from './views/ThirdPartySettingSectionView';
 import { VoicemailDropView } from './views/VoicemailDropView';
 import { createSettingsPanel } from './views/SettingsView/createSettingsPanel';
 import { SettingsView as SettingsViewV2 } from './views/SettingsView/Settings.view';
@@ -518,6 +522,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       MonitoredExtensions,
       ParkView,
+      ApplicationLogsView,
       CustomizedPageView,
       ExpandedRouteView,
       ExpandedView,
@@ -526,6 +531,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       SmartNotesView,
       SideWidgetView,
       ThirdPartyBannerView,
+      ThirdPartySettingSectionView,
       VoicemailDropView,
       VoicemailDropSettingsView,
       CallHUDView,
@@ -713,6 +719,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
               thirdParty,
               smartNotes,
               voicemailDrop,
+              onThirdPartySectionClick: (sectionId) =>
+                router.push(`/settings/thirdParty/${sectionId}`),
               onVoicemailDropSettingsLinkClick: () =>
                 router.push('/settings/voicemailDrop'),
             }),

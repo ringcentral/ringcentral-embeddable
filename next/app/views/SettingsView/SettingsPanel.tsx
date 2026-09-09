@@ -29,6 +29,31 @@ import type { FunctionComponent, ReactNode } from 'react';
 import React from 'react';
 import { noop } from 'rxjs';
 
+import { ThirdPartySettings } from '../../components/ThirdPartySettings/ThirdPartySettings';
+import type { ThirdPartySetting } from '../../services/ThirdParty';
+
+import appI18n from './i18n';
+import { SettingsGroup } from './SettingsGroup';
+
+const EMBEDDED_THIRD_PARTY_GROUP_IDS = [
+  'advancedFeatures',
+  'appearance',
+  'general',
+  'logging',
+  'phone',
+  'support',
+] as const;
+
+const LEGACY_GROUP_ORDER = {
+  general: 100,
+  phone: 150,
+  audio: 200,
+  presence: 400,
+  logging: 500,
+  analytics: 600,
+  advanced: 11000,
+} as const;
+
 interface EmbeddableSettingsPanelProps extends SettingsViewPanelProps {
   additionalPhoneItems?: ReactNode;
   autoLogDescription?: string;
@@ -37,7 +62,15 @@ interface EmbeddableSettingsPanelProps extends SettingsViewPanelProps {
   autoLogSMSReadOnlyReason?: string;
   autoLogWarning?: string;
   hasAdditionalPhoneItems?: boolean;
+  onApplicationLogsLinkClick?: () => void;
   thirdPartyAuthSettings?: ReactNode;
+  thirdPartySettings?: readonly ThirdPartySetting[];
+  onThirdPartyButtonClick?: (buttonId: string) => void;
+  onThirdPartySectionClick?: (sectionId: string) => void;
+  onThirdPartySettingChange?: (
+    setting: ThirdPartySetting,
+    value: unknown,
+  ) => void;
 }
 
 function hasRenderableContent(node: ReactNode): boolean {
@@ -61,6 +94,39 @@ function hasRenderableContent(node: ReactNode): boolean {
     return hasRenderableContent(node.props.children);
   }
   return true;
+}
+
+function hasThirdPartyGroupSettings(
+  settings: readonly ThirdPartySetting[],
+  groupId: string,
+): boolean {
+  return settings.some(
+    (setting) =>
+      setting.groupId === groupId ||
+      (setting.type === 'group' &&
+        setting.id === groupId &&
+        Boolean(setting.items?.length)),
+  );
+}
+
+function getThirdPartyGroupLabel({
+  settings,
+  groupId,
+  defaultName,
+  fallbackLabel,
+}: {
+  settings: readonly ThirdPartySetting[];
+  groupId: string;
+  defaultName: string;
+  fallbackLabel: string;
+}): string {
+  const group = settings.find(
+    (setting) => setting.type === 'group' && setting.id === groupId,
+  );
+  if (!group?.name || group.name === defaultName) {
+    return fallbackLabel;
+  }
+  return group.name;
 }
 
 const LoadingIcon: FunctionComponent = () => (
@@ -117,8 +183,8 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   onCallingSettingsLinkClick,
   onClickToDialChange,
   onFeedbackSettingsLinkClick,
+  onApplicationLogsLinkClick = noop,
   showThemeSwitch = false,
-  onTrackingClick,
   onThemeSwitchClick,
   onLogoutButtonClick,
   onLogSMSContentChange = noop,
@@ -142,8 +208,7 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   showCalling = false,
   showClickToDial = false,
   showSelectToDial = false,
-  showFeedback = true,
-  showTrackingIssue = false,
+  showFeedback = false,
   showLogSMSContent = false,
   showPresenceSettings = true,
   showQuickAccess = false,
@@ -176,16 +241,81 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   onRefreshLog,
   isLogRefreshing,
   thirdPartyAuthSettings,
+  thirdPartySettings = [],
+  onThirdPartyButtonClick = noop,
+  onThirdPartySectionClick = noop,
+  onThirdPartySettingChange = noop,
 }) => {
   const { t } = useLocale(i18n);
+  const { t: appT } = useLocale(appI18n);
+  const hasThirdPartyPhoneSettings = hasThirdPartyGroupSettings(
+    thirdPartySettings,
+    'phone',
+  );
+  const hasThirdPartyLogSettings = hasThirdPartyGroupSettings(
+    thirdPartySettings,
+    'logging',
+  );
+  const hasThirdPartyAppearanceSettings = hasThirdPartyGroupSettings(
+    thirdPartySettings,
+    'appearance',
+  );
+  const hasThirdPartyAdvancedSettings = hasThirdPartyGroupSettings(
+    thirdPartySettings,
+    'advancedFeatures',
+  );
+  const phoneGroupLabel = getThirdPartyGroupLabel({
+    settings: thirdPartySettings,
+    groupId: 'phone',
+    defaultName: 'phone',
+    fallbackLabel: t('phone'),
+  });
+  const logGroupLabel = getThirdPartyGroupLabel({
+    settings: thirdPartySettings,
+    groupId: 'logging',
+    defaultName: 'logging',
+    fallbackLabel: t('log'),
+  });
+  const generalGroupLabel = getThirdPartyGroupLabel({
+    settings: thirdPartySettings,
+    groupId: 'general',
+    defaultName: 'general',
+    fallbackLabel: t('general'),
+  });
+  const appearanceGroupLabel = getThirdPartyGroupLabel({
+    settings: thirdPartySettings,
+    groupId: 'appearance',
+    defaultName: 'appearance',
+    fallbackLabel: appT('appearance'),
+  });
+  const advancedGroupLabel = getThirdPartyGroupLabel({
+    settings: thirdPartySettings,
+    groupId: 'advancedFeatures',
+    defaultName: 'advanced',
+    fallbackLabel: appT('advanced'),
+  });
+  const supportGroupLabel = getThirdPartyGroupLabel({
+    settings: thirdPartySettings,
+    groupId: 'support',
+    defaultName: 'support',
+    fallbackLabel: appT('support'),
+  });
+  const standaloneThirdPartySettingsProps = {
+    excludedGroupIds: EMBEDDED_THIRD_PARTY_GROUP_IDS,
+    onButtonClick: onThirdPartyButtonClick,
+    onSectionClick: onThirdPartySectionClick,
+    onSettingChange: onThirdPartySettingChange,
+    settings: thirdPartySettings,
+    showGroupLabels: true,
+  } as const;
   const showPhoneSection = Boolean(
-    showAudio ||
-      showCalling ||
-      showRegion ||
-      showReport ||
+    showCalling ||
+      showClickToDial ||
+      showSelectToDial ||
       showMatchesToggle ||
       showPopUpForInboundCall ||
-      hasAdditionalPhoneItems,
+      hasAdditionalPhoneItems ||
+      hasThirdPartyPhoneSettings,
   );
   const showLogSection = Boolean(
     showAutoLog ||
@@ -193,9 +323,10 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
       showAutoLogSMS ||
       showLogSMSContent ||
       showLogExtCall ||
-      hasRenderableContent(additionalLogItems),
+      hasRenderableContent(additionalLogItems) ||
+      hasThirdPartyLogSettings,
   );
-  const showAnalyticsSection = Boolean(additionalAnalytics);
+  const showAnalyticsSection = Boolean(showReport || additionalAnalytics);
   return (
     <>
       <AppHeaderNav title={t('settings')}>
@@ -216,13 +347,67 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
               {thirdPartyAuthSettings}
             </Section>
           ) : null}
+          <ThirdPartySettings
+            {...standaloneThirdPartySettingsProps}
+            maximumOrder={LEGACY_GROUP_ORDER.general}
+          />
+          <Section label={generalGroupLabel} data-sign="general-settings-group">
+            {showRegion ? (
+              <LinkLine
+                data-sign="region"
+                onClick={onRegionSettingsLinkClick}
+              >
+                {t('region')}
+              </LinkLine>
+            ) : null}
+            {showThemeSwitch || hasThirdPartyAppearanceSettings ? (
+              <SettingsGroup
+                dataSign="appearance-settings-group"
+                label={appearanceGroupLabel}
+              >
+                {showThemeSwitch ? (
+                  <LinkLine data-sign="theme" onClick={onThemeSwitchClick}>
+                    {t('theme')}
+                  </LinkLine>
+                ) : null}
+                <ThirdPartySettings
+                  groupId="appearance"
+                  settings={thirdPartySettings}
+                  onButtonClick={onThirdPartyButtonClick}
+                  onSectionClick={onThirdPartySectionClick}
+                  onSettingChange={onThirdPartySettingChange}
+                />
+              </SettingsGroup>
+            ) : null}
+            {children}
+            {showOpenEntityFrom && (
+              <SelectLine
+                value={openEntityFrom}
+                options={openEntityFromOptions}
+                data-sign="openEntityFrom"
+                onChange={(value: string) =>
+                  onOpenEntityFromChange(value as OpenEntityFromType)
+                }
+              >
+                {t('openEntityFrom')}
+              </SelectLine>
+            )}
+            {additional}
+            <ThirdPartySettings
+              groupId="general"
+              settings={thirdPartySettings}
+              onButtonClick={onThirdPartyButtonClick}
+              onSectionClick={onThirdPartySectionClick}
+              onSettingChange={onThirdPartySettingChange}
+            />
+          </Section>
+          <ThirdPartySettings
+            {...standaloneThirdPartySettingsProps}
+            minimumOrder={LEGACY_GROUP_ORDER.general}
+            maximumOrder={LEGACY_GROUP_ORDER.phone}
+          />
           {showPhoneSection && (
-            <Section label={t('phone')} data-sign="phone-settings-group">
-              {showReport && (
-                <LinkLine data-sign="report" onClick={onReportLinkClick}>
-                  {t('report')}
-                </LinkLine>
-              )}
+            <Section label={phoneGroupLabel} data-sign="phone-settings-group">
               {showCalling && (
                 <LinkLine
                   data-sign="calling"
@@ -231,19 +416,22 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
                   {t('calling')}
                 </LinkLine>
               )}
-              {showAudio && (
-                <LinkLine data-sign="audio" onClick={onAudioSettingsLinkClick}>
-                  {t('audio')}
-                </LinkLine>
-              )}
-              {showRegion && (
-                <LinkLine
-                  data-sign="region"
-                  onClick={onRegionSettingsLinkClick}
-                >
-                  {t('region')}
-                </LinkLine>
-              )}
+              <ClickToDial
+                showClickToDial={showClickToDial}
+                outboundSMS={outboundSMS}
+                clickToCallPermission={clickToCallPermission}
+                clickToDialEnabled={clickToDialEnabled}
+                onClickToDialChange={onClickToDialChange}
+                clickToDialTitle={clickToDialTitle}
+              />
+              <SelectToDial
+                showSelectToDial={showSelectToDial}
+                smsPermission={outboundSMS}
+                callPermission={clickToCallPermission}
+                selectToDialEnabled={selectToDialEnabled}
+                onSelectToDialChange={onSelectToDialChange}
+                selectToDialTitle={selectToDialTitle}
+              />
               {showMatchesToggle && (
                 <SwitchLine
                   data-sign="showMatchedEntities"
@@ -279,11 +467,59 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
                 </SwitchLine>
               )}
               {hasAdditionalPhoneItems ? additionalPhoneItems : null}
+              {hasThirdPartyPhoneSettings ? (
+                <ThirdPartySettings
+                  groupId="phone"
+                  settings={thirdPartySettings}
+                  onButtonClick={onThirdPartyButtonClick}
+                  onSectionClick={onThirdPartySectionClick}
+                  onSettingChange={onThirdPartySettingChange}
+                />
+              ) : null}
             </Section>
           )}
+          <ThirdPartySettings
+            {...standaloneThirdPartySettingsProps}
+            minimumOrder={LEGACY_GROUP_ORDER.phone}
+            maximumOrder={LEGACY_GROUP_ORDER.audio}
+          />
+          {showAudio ? (
+            <Section data-sign="audio-settings-group">
+              <LinkLine data-sign="audio" onClick={onAudioSettingsLinkClick}>
+                {t('audio')}
+              </LinkLine>
+            </Section>
+          ) : null}
+          <ThirdPartySettings
+            {...standaloneThirdPartySettingsProps}
+            minimumOrder={LEGACY_GROUP_ORDER.audio}
+            maximumOrder={LEGACY_GROUP_ORDER.presence}
+          />
+          {showPresenceSettings && dndStatus && userStatus ? (
+            <Section data-sign="presence-settings-group">
+              <PresenceSetting
+                dndStatus={dndStatus}
+                presenceStatus={userStatus}
+                isCallQueueMember={isCallQueueMember}
+                setAvailable={setAvailable}
+                setBusy={setBusy}
+                setDoNotDisturb={setDoNotDisturb}
+                setInvisible={setInvisible}
+                toggleAcceptCallQueueCalls={toggleAcceptCallQueueCalls}
+                showPresenceSettings={openPresenceSettings}
+                enableAcceptQueueCallsControl={enableAcceptQueueCallsControl}
+                onCallQueueManagementClick={onCallQueueManagementClick}
+              />
+            </Section>
+          ) : null}
+          <ThirdPartySettings
+            {...standaloneThirdPartySettingsProps}
+            minimumOrder={LEGACY_GROUP_ORDER.presence}
+            maximumOrder={LEGACY_GROUP_ORDER.logging}
+          />
           {showLogSection && (
             <Section
-              label={t('log')}
+              label={logGroupLabel}
               data-sign="log-settings-group"
               headerEndAdornment={
                 onRefreshLog && (
@@ -308,6 +544,15 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
               }
             >
               {additionalLogItems}
+              {hasThirdPartyLogSettings ? (
+                <ThirdPartySettings
+                  groupId="logging"
+                  settings={thirdPartySettings}
+                  onButtonClick={onThirdPartyButtonClick}
+                  onSectionClick={onThirdPartySectionClick}
+                  onSettingChange={onThirdPartySettingChange}
+                />
+              ) : null}
               {showAutoLog && (
                 <SwitchLine
                   data-sign="AutoLogCall"
@@ -399,67 +644,58 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
               )}
             </Section>
           )}
+          <ThirdPartySettings
+            {...standaloneThirdPartySettingsProps}
+            minimumOrder={LEGACY_GROUP_ORDER.logging}
+            maximumOrder={LEGACY_GROUP_ORDER.analytics}
+          />
           {showAnalyticsSection && (
             <Section label={t('analytics')} tag={crmService}>
+              {showReport ? (
+                <LinkLine data-sign="report" onClick={onReportLinkClick}>
+                  {t('report')}
+                </LinkLine>
+              ) : null}
               {additionalAnalytics}
             </Section>
           )}
-          <Section label={t('general')} data-sign="general-settings-group">
-            {showPresenceSettings && dndStatus && userStatus && (
-              <PresenceSetting
-                dndStatus={dndStatus}
-                presenceStatus={userStatus}
-                isCallQueueMember={isCallQueueMember}
-                setAvailable={setAvailable}
-                setBusy={setBusy}
-                setDoNotDisturb={setDoNotDisturb}
-                setInvisible={setInvisible}
-                toggleAcceptCallQueueCalls={toggleAcceptCallQueueCalls}
-                showPresenceSettings={openPresenceSettings}
-                enableAcceptQueueCallsControl={enableAcceptQueueCallsControl}
-                onCallQueueManagementClick={onCallQueueManagementClick}
+          <ThirdPartySettings
+            {...standaloneThirdPartySettingsProps}
+            minimumOrder={LEGACY_GROUP_ORDER.analytics}
+            maximumOrder={LEGACY_GROUP_ORDER.advanced}
+          />
+          {hasThirdPartyAdvancedSettings ? (
+            <Section
+              label={advancedGroupLabel}
+              data-sign="advanced-settings-group"
+            >
+              <ThirdPartySettings
+                groupId="advancedFeatures"
+                settings={thirdPartySettings}
+                onButtonClick={onThirdPartyButtonClick}
+                onSectionClick={onThirdPartySectionClick}
+                onSettingChange={onThirdPartySettingChange}
               />
-            )}
-            {children}
-            {showOpenEntityFrom && (
-              <SelectLine
-                value={openEntityFrom}
-                options={openEntityFromOptions}
-                data-sign="openEntityFrom"
-                onChange={(value: string) =>
-                  onOpenEntityFromChange(value as OpenEntityFromType)
-                }
-              >
-                {t('openEntityFrom')}
-              </SelectLine>
-            )}
-            <ClickToDial
-              showClickToDial={showClickToDial}
-              outboundSMS={outboundSMS}
-              clickToCallPermission={clickToCallPermission}
-              clickToDialEnabled={clickToDialEnabled}
-              onClickToDialChange={onClickToDialChange}
-              clickToDialTitle={clickToDialTitle}
+            </Section>
+          ) : null}
+          <ThirdPartySettings
+            {...standaloneThirdPartySettingsProps}
+            minimumOrder={LEGACY_GROUP_ORDER.advanced}
+          />
+          <Section label={supportGroupLabel} data-sign="support-settings-group">
+            <LinkLine
+              data-sign="applicationLogs"
+              onClick={onApplicationLogsLinkClick}
+            >
+              {appT('troubleshootingLogs')}
+            </LinkLine>
+            <ThirdPartySettings
+              groupId="support"
+              settings={thirdPartySettings}
+              onButtonClick={onThirdPartyButtonClick}
+              onSectionClick={onThirdPartySectionClick}
+              onSettingChange={onThirdPartySettingChange}
             />
-            <SelectToDial
-              showSelectToDial={showSelectToDial}
-              smsPermission={outboundSMS}
-              callPermission={clickToCallPermission}
-              selectToDialEnabled={selectToDialEnabled}
-              onSelectToDialChange={onSelectToDialChange}
-              selectToDialTitle={selectToDialTitle}
-            />
-            {additional}
-            {showThemeSwitch && (
-              <LinkLine data-sign="theme" onClick={onThemeSwitchClick}>
-                {t('theme')}
-              </LinkLine>
-            )}
-            {showTrackingIssue && (
-              <LinkLine data-sign="ContactSupport" onClick={onTrackingClick}>
-                {t('contactSupport')}
-              </LinkLine>
-            )}
             {showFeedback && (
               <LinkLine
                 data-sign="Feedback"
@@ -501,8 +737,6 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
                 {t('version')}
               </Line>
             )}
-          </Section>
-          <Section>
             <Line>
               <Eula
                 data-sign="eula"

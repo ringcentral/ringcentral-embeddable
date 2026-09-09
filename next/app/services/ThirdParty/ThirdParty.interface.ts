@@ -11,6 +11,13 @@ export type UnknownRecord = Record<string, unknown>;
 export type ThirdPartySettingOption = {
   id?: string | number;
   name?: string;
+  description?: string;
+  disabled?: boolean;
+};
+
+export type ThirdPartySettingCondition = {
+  operator?: string;
+  value?: unknown;
 };
 
 export type ThirdPartySetting = {
@@ -19,12 +26,27 @@ export type ThirdPartySetting = {
   type?: string;
   value?: unknown;
   order?: number;
+  groupId?: string;
   options?: ThirdPartySettingOption[];
   multiple?: boolean;
+  checkbox?: boolean;
   buttonLabel?: string;
   buttonType?: string;
   uri?: string;
   items?: ThirdPartySetting[];
+  readOnly?: boolean;
+  readOnlyReason?: string;
+  description?: string;
+  warning?: string;
+  required?: boolean;
+  placeholder?: string;
+  helper?: string;
+  maxItems?: number;
+  severity?: string;
+  variant?: string;
+  color?: string;
+  disabled?: boolean;
+  showWhen?: Record<string, ThirdPartySettingCondition>;
   [key: string]: unknown;
 };
 
