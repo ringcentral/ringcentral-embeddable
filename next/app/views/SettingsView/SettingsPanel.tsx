@@ -109,6 +109,21 @@ function hasThirdPartyGroupSettings(
   );
 }
 
+function getThirdPartyGroupSettingCount(
+  settings: readonly ThirdPartySetting[],
+  groupId: string,
+): number {
+  return settings.reduce((count, setting) => {
+    if (setting.groupId === groupId) {
+      return count + 1;
+    }
+    if (setting.type === 'group' && setting.id === groupId) {
+      return count + (setting.items?.length ?? 0);
+    }
+    return count;
+  }, 0);
+}
+
 function getThirdPartyGroupLabel({
   settings,
   groupId,
@@ -256,10 +271,14 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
     thirdPartySettings,
     'logging',
   );
-  const hasThirdPartyAppearanceSettings = hasThirdPartyGroupSettings(
+  const thirdPartyAppearanceSettingCount = getThirdPartyGroupSettingCount(
     thirdPartySettings,
     'appearance',
   );
+  const hasThirdPartyAppearanceSettings =
+    thirdPartyAppearanceSettingCount > 0;
+  const appearanceSettingCount =
+    thirdPartyAppearanceSettingCount + (showThemeSwitch ? 1 : 0);
   const hasThirdPartyAdvancedSettings = hasThirdPartyGroupSettings(
     thirdPartySettings,
     'advancedFeatures',
@@ -363,6 +382,7 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
             {showThemeSwitch || hasThirdPartyAppearanceSettings ? (
               <SettingsGroup
                 dataSign="appearance-settings-group"
+                itemCount={appearanceSettingCount}
                 label={appearanceGroupLabel}
               >
                 {showThemeSwitch ? (

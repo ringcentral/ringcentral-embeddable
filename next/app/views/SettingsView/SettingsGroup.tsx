@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 interface SettingsGroupProps {
   readonly children: ReactNode;
   readonly dataSign: string;
+  readonly itemCount: number;
   readonly label: string;
 }
 
@@ -14,9 +15,13 @@ interface SettingsGroupProps {
 export const SettingsGroup: FunctionComponent<SettingsGroupProps> = ({
   children,
   dataSign,
+  itemCount,
   label,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  if (itemCount === 1) {
+    return <>{children}</>;
+  }
   return (
     <>
       <Line

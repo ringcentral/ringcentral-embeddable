@@ -110,6 +110,19 @@ describe("Adapter navigation compatibility", () => {
     });
   });
 
+  test("accepts application logs and rejects unsupported support routes", () => {
+    expect(resolveLegacyAdapterPath("/settings/applicationLogs")).toEqual({
+      kind: "route",
+      path: "/settings/applicationLogs",
+    });
+    expect(resolveLegacyAdapterPath("/settings/feedback").kind).toBe(
+      "unsupported"
+    );
+    expect(resolveLegacyAdapterPath("/settings/issuesTracking").kind).toBe(
+      "unsupported"
+    );
+  });
+
   test("opens legacy call history in the DialerPad calls tab", async () => {
     const adapter = createAdapter();
 

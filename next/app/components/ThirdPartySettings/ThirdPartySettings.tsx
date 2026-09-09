@@ -366,6 +366,16 @@ const ThirdPartySettingRenderer: FunctionComponent<
     if (childSettings.length === 0) {
       return null;
     }
+    if (childSettings.length === 1 && !setting.description) {
+      return (
+        <ThirdPartySettingRenderer
+          setting={childSettings[0]}
+          onButtonClick={onButtonClick}
+          onSectionClick={onSectionClick}
+          onSettingChange={onSettingChange}
+        />
+      );
+    }
     return (
       <>
         <Line

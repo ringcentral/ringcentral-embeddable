@@ -27,7 +27,9 @@ jest.mock(
 
 jest.mock(
   '@ringcentral-integration/micro-setting/src/app/views/SettingsView/SettingsPanel/PresenceSetting',
-  () => ({ PresenceSetting: () => null }),
+  () => ({
+    PresenceSetting: () => <div data-sign="presenceSetting" />,
+  }),
 );
 
 jest.mock(
@@ -37,7 +39,12 @@ jest.mock(
 
 jest.mock('@ringcentral-integration/next-widgets/components', () => ({
   Eula: ({ label }) => <span>{label}</span>,
-  Line: ({ children, ...props }) => <div {...props}>{children}</div>,
+  Line: ({ children, endAdornment, icon, ...props }) => (
+    <div {...props}>
+      {children}
+      {endAdornment || icon}
+    </div>
+  ),
   LinkLine: ({ children, ...props }) => (
     <button type="button" {...props}>
       {children}
@@ -77,8 +84,11 @@ function createPanel({
     licenseStatus: '',
     licenseStatusColor: '',
     onClickLicenseRefreshButton: jest.fn(),
+    onClickSettingButton: jest.fn(),
+    onUpdateSetting: jest.fn(),
     serviceInfo: null,
     serviceName: null,
+    settings: [],
     showAuthButton: false,
     showAuthRedDot: false,
     unauthorizedTitle: '',
@@ -96,7 +106,9 @@ function createPanel({
   };
   const voicemailDrop = { hasVoicemailDropPermission };
   const onVoicemailDropSettingsLinkClick = jest.fn();
+  const onThirdPartySectionClick = jest.fn();
   const Panel = createSettingsPanel({
+    onThirdPartySectionClick,
     smartNotes,
     thirdParty,
     voicemailDrop,
@@ -148,7 +160,7 @@ describe('SettingsPanel', () => {
         showAuthButton: true,
       },
     });
-    render(<Panel {...baseProps} showAudio />);
+    render(<Panel {...baseProps} showCalling />);
 
     const thirdPartyGroup = screen.getByTestId(
       'third-party-auth-settings-group',
@@ -384,5 +396,199 @@ describe('SettingsPanel', () => {
     smartNotes.clientInitialized = true;
     rerender(<Panel {...baseProps} />);
     expect(screen.getByTestId('AIAssistantAutoStart')).toBeInTheDocument();
+  });
+
+  test('keeps troubleshooting logs in Support and hides unregistered feedback', () => {
+    const { Panel } = createPanel();
+    const onApplicationLogsLinkClick = jest.fn();
+    const { rerender } = render(
+      <Panel
+        {...baseProps}
+        onApplicationLogsLinkClick={onApplicationLogsLinkClick}
+      />,
+    );
+
+    const supportGroup = screen.getByTestId('support-settings-group');
+    const logsLink = within(supportGroup).getByTestId('applicationLogs');
+    expect(within(supportGroup).queryByTestId('Feedback')).toBeNull();
+    fireEvent.click(logsLink);
+    expect(onApplicationLogsLinkClick).toHaveBeenCalledTimes(1);
+
+    rerender(<Panel {...baseProps} showFeedback />);
+    expect(
+      within(screen.getByTestId('support-settings-group')).getByTestId(
+        'Feedback',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  test('matches legacy native grouping and flattens one-item Appearance', () => {
+    const { Panel } = createPanel();
+    render(
+      <Panel
+        {...baseProps}
+        dndStatus="TakeAllCalls"
+        showAudio
+        showPresenceSettings
+        showRegion
+        showThemeSwitch
+        userStatus="Available"
+      />,
+    );
+
+    const generalGroup = screen.getByTestId('general-settings-group');
+    expect(within(generalGroup).getByTestId('region')).toBeInTheDocument();
+    expect(within(generalGroup).getByTestId('theme')).toBeInTheDocument();
+    expect(screen.queryByTestId('appearance-settings-group')).toBeNull();
+    expect(within(generalGroup).queryByTestId('presenceSetting')).toBeNull();
+    expect(within(generalGroup).queryByTestId('audio')).toBeNull();
+    expect(
+      within(screen.getByTestId('presence-settings-group')).getByTestId(
+        'presenceSetting',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('audio-settings-group')).getByTestId('audio'),
+    ).toBeInTheDocument();
+  });
+
+  test('keeps Appearance when it contains multiple items', () => {
+    const { Panel } = createPanel({
+      thirdParty: {
+        settings: [
+          {
+            id: 'appearance',
+            type: 'group',
+            name: 'appearance',
+            items: [
+              {
+                id: 'compactMode',
+                type: 'boolean',
+                name: 'Compact mode',
+                value: false,
+              },
+            ],
+          },
+        ],
+      },
+    });
+    render(<Panel {...baseProps} showThemeSwitch />);
+
+    expect(screen.queryByTestId('theme')).toBeNull();
+    fireEvent.click(screen.getByTestId('appearance-settings-group'));
+    expect(screen.getByTestId('theme')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('thirdPartySettings-compactMode'),
+    ).toBeInTheDocument();
+  });
+
+  test('flattens a one-item customized nested group', () => {
+    const { Panel } = createPanel({
+      thirdParty: {
+        settings: [
+          {
+            id: 'custom',
+            type: 'group',
+            name: 'Custom',
+            items: [
+              {
+                id: 'nested',
+                type: 'group',
+                name: 'Nested',
+                items: [
+                  {
+                    id: 'nestedAction',
+                    type: 'button',
+                    name: 'Nested action',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+    render(<Panel {...baseProps} />);
+
+    expect(screen.getByTestId('custom')).toBeInTheDocument();
+    expect(screen.queryByTestId('nested')).toBeNull();
+    expect(screen.getByTestId('nestedAction')).toBeInTheDocument();
+  });
+
+  test('preserves a one-item customized nested group with a description', () => {
+    const { Panel } = createPanel({
+      thirdParty: {
+        settings: [
+          {
+            id: 'custom',
+            type: 'group',
+            name: 'Custom',
+            items: [
+              {
+                description: 'Important context',
+                id: 'nested',
+                type: 'group',
+                name: 'Nested',
+                items: [
+                  {
+                    id: 'nestedAction',
+                    type: 'button',
+                    name: 'Nested action',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+    render(<Panel {...baseProps} />);
+
+    expect(screen.queryByTestId('nestedAction')).toBeNull();
+    fireEvent.click(screen.getByTestId('nested'));
+    expect(screen.getByTestId('nestedAction')).toBeInTheDocument();
+  });
+
+  test('orders custom groups around legacy anchors and keeps Support last', () => {
+    const group = (id, order) => ({
+      id,
+      name: id,
+      order,
+      type: 'group',
+      items: [
+        {
+          id: `${id}-action`,
+          name: `${id} action`,
+          type: 'button',
+        },
+      ],
+    });
+    const { Panel } = createPanel({
+      thirdParty: {
+        settings: [
+          group('early', 120),
+          group('default'),
+          group('advancedFeatures', 11000),
+          group('late', 12000),
+        ],
+      },
+    });
+    render(<Panel {...baseProps} showCalling />);
+
+    const orderedGroups = [
+      screen.getByTestId('general-settings-group'),
+      screen.getByTestId('early'),
+      screen.getByTestId('phone-settings-group'),
+      screen.getByTestId('default'),
+      screen.getByTestId('advanced-settings-group'),
+      screen.getByTestId('late'),
+      screen.getByTestId('support-settings-group'),
+    ];
+    orderedGroups.slice(0, -1).forEach((groupElement, index) => {
+      expect(
+        groupElement.compareDocumentPosition(orderedGroups[index + 1]) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
   });
 });

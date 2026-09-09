@@ -32,14 +32,16 @@ jest.mock('@ringcentral-integration/micro-setting/src/app/services', () => ({
 }));
 
 describe('SettingsView', () => {
-  function createView({ feedbackHandler, callQueueEnabled = true } = {}) {
+  function createView({ callQueueEnabled = true } = {}) {
     const router = { push: jest.fn().mockResolvedValue(undefined) };
     const view = Object.create(SettingsView.prototype);
     view._callQueueEnabled = callQueueEnabled;
     view._router = router;
-    view._settingsViewOptions = feedbackHandler
-      ? { onFeedBackSettingsLink: feedbackHandler }
-      : undefined;
+    view._settingsViewOptions = undefined;
+    view._thirdParty = {
+      onShowFeedback: jest.fn().mockResolvedValue(undefined),
+      showFeedback: false,
+    };
     view.trackOnFeedbackClick = jest.fn();
     return { router, view };
   }
@@ -49,8 +51,7 @@ describe('SettingsView', () => {
     ['onCallingSettingsLinkClick', '/settings/calling'],
     ['onAutoCallLogSettingLinkClick', '/settings/autoCallLogSettings'],
     ['onAudioSettingsLinkClick', '/settings/audio'],
-    ['onFeedbackSettingsLinkClick', '/settings/feedback'],
-    ['onTrackingClick', '/settings/issuesTracking'],
+    ['onApplicationLogsLinkClick', '/settings/applicationLogs'],
     ['onThemeSwitchClick', '/settings/theme'],
     ['onCallQueueManagementClick', '/settings/callQueueManagement'],
   ])('navigates %s directly to the routed detail page', (handler, path) => {
@@ -67,32 +68,28 @@ describe('SettingsView', () => {
       audioSettingsUrl: '/custom/audio',
       autoCallLogSettingsUrl: '/custom/auto-log',
       callingSettingsUrl: '/custom/calling',
-      feedbackSettingsUrl: '/custom/feedback',
       regionSettingsUrl: '/custom/region',
     });
 
     functions.onAudioSettingsLinkClick();
     functions.onAutoCallLogSettingLinkClick();
     functions.onCallingSettingsLinkClick();
-    functions.onFeedbackSettingsLinkClick();
     functions.onRegionSettingsLinkClick();
 
     expect(router.push.mock.calls).toEqual([
       ['/custom/audio'],
       ['/custom/auto-log'],
       ['/custom/calling'],
-      ['/custom/feedback'],
       ['/custom/region'],
     ]);
   });
 
-  test('preserves a configured feedback handler without routing', () => {
-    const feedbackHandler = jest.fn();
-    const { router, view } = createView({ feedbackHandler });
+  test('sends feedback through the registered third-party path without routing', () => {
+    const { router, view } = createView();
 
     view.getUIFunctions({}).onFeedbackSettingsLinkClick();
 
-    expect(feedbackHandler).toHaveBeenCalledTimes(1);
+    expect(view._thirdParty.onShowFeedback).toHaveBeenCalledTimes(1);
     expect(view.trackOnFeedbackClick).toHaveBeenCalledTimes(1);
     expect(router.push).not.toHaveBeenCalled();
   });
@@ -127,6 +124,7 @@ describe('SettingsView', () => {
       messageLoggerAutoSettingReadOnly: true,
       messageLoggerAutoSettingReadOnlyReason: 'Managed by an administrator',
       messageLoggerRegistered: true,
+      showFeedback: true,
     };
 
     expect(view.getUIProps({})).toMatchObject({
@@ -143,6 +141,7 @@ describe('SettingsView', () => {
       disableAutoLogSMSEnabled: true,
       showAutoLog: true,
       showAutoLogSMS: true,
+      showFeedback: true,
     });
 
     await view.getUIFunctions({}).onAutoLogChange(true);
