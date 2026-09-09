@@ -50,6 +50,8 @@ import type {
   ContactMatcherApi,
   ContactSearchApi,
   ContactSource,
+  DoNotContactRequest,
+  DoNotContactResponse,
   FetchContactsParams,
   FetchContactsResult,
   GenericMeetingWithThirdPartyProvider,
@@ -1965,7 +1967,9 @@ export class ThirdParty extends RcModule {
   }
 
   @delegate('mainClient')
-  async checkDoNotContact(contact: ThirdPartyContact): Promise<boolean> {
+  async checkDoNotContact(
+    contact: DoNotContactRequest
+  ): Promise<DoNotContactResponse | false> {
     if (!this._doNotContactPath) {
       return false;
     }
@@ -1973,7 +1977,13 @@ export class ThirdParty extends RcModule {
       this._doNotContactPath,
       contact
     );
-    return Boolean(data);
+    if (typeof data === 'boolean') {
+      return data ? { result: true } : false;
+    }
+    if (!data || typeof data !== 'object') {
+      return false;
+    }
+    return data as DoNotContactResponse;
   }
 
   private _registerVoicemailDropFiles(): void {

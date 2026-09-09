@@ -77,6 +77,30 @@ export type ThirdPartyWidgetContact = {
   [key: string]: unknown;
 };
 
+export type DoNotContactRecipient = {
+  phoneNumber: string;
+  contactId?: string;
+  name?: string;
+  contactType?: string;
+  entityType?: string;
+  phoneType?: string;
+};
+
+export type DoNotContactRequest =
+  | (DoNotContactRecipient & {
+      actionType: 'call';
+    })
+  | {
+      actionType: 'sms';
+      recipients: DoNotContactRecipient[];
+    };
+
+export type DoNotContactResponse = {
+  result: boolean;
+  message?: string;
+  mode?: string;
+};
+
 export type ThirdPartyButton = {
   id: string;
   type: string;

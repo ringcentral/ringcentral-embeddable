@@ -1244,13 +1244,26 @@ describe('ThirdParty service', () => {
 
   test('checks do-not-contact and external matched contacts', async () => {
     const { service } = createThirdParty();
-    await expect(service.checkDoNotContact({ id: 'one' })).resolves.toBe(false);
+    await expect(
+      service.checkDoNotContact({ actionType: 'call', phoneNumber: '+16505550100' }),
+    ).resolves.toBe(false);
     await service.onViewMatchedContactExternal({ id: 'one' });
     expect(requestWithPostMessage).not.toHaveBeenCalled();
 
     registerService(service);
-    requestWithPostMessage.mockResolvedValueOnce({ data: true });
-    await expect(service.checkDoNotContact({ id: 'one' })).resolves.toBe(true);
+    const doNotContactResponse = {
+      result: true,
+      mode: 'restrict',
+      message: 'Calling is restricted',
+    };
+    requestWithPostMessage.mockResolvedValueOnce({ data: doNotContactResponse });
+    await expect(
+      service.checkDoNotContact({ actionType: 'call', phoneNumber: '+16505550100' }),
+    ).resolves.toEqual(doNotContactResponse);
+    expect(requestWithPostMessage).toHaveBeenCalledWith('/do-not-contact', {
+      actionType: 'call',
+      phoneNumber: '+16505550100',
+    });
     await service.onViewMatchedContactExternal({ id: 'one' });
     expect(requestWithPostMessage).toHaveBeenCalledWith('/view-contact', { id: 'one' });
     requestWithPostMessage.mockRejectedValueOnce(new Error('view failed'));

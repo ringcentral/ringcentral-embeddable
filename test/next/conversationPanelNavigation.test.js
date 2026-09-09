@@ -6,13 +6,16 @@ import { createConversationPanel } from '../../next/app/views/ConversationView/c
 jest.mock(
   '@ringcentral-integration/micro-message/src/app/views/ConversationViewSpring/ConversationPanel',
   () => ({
-    ConversationPanel: ({ goBack, updateMessageText }) => (
+    ConversationPanel: ({ goBack, replyToReceivers, updateMessageText }) => (
       <div>
         <button type="button" onClick={goBack}>
           Back
         </button>
         <button type="button" onClick={() => updateMessageText?.('Hello')}>
           Type
+        </button>
+        <button type="button" onClick={() => replyToReceivers?.('Reply', [])}>
+          Send
         </button>
       </div>
     ),
@@ -60,5 +63,57 @@ describe('routed conversation panel navigation', () => {
     expect(smsTypingTimeTracker.pauseTyping).toHaveBeenCalledWith(
       'conversation-id',
     );
+  });
+
+  test('checks Do Not SMS before replying to a conversation', async () => {
+    const router = { push: jest.fn() };
+    const doNotContact = {
+      verifySmsRecipients: jest.fn(async () => false),
+    };
+    const replyToReceivers = jest.fn();
+    const ConversationPanel = createConversationPanel(
+      router,
+      undefined,
+      doNotContact,
+    );
+    render(
+      <ConversationPanel
+        conversation={{
+          correspondents: [{ phoneNumber: '+16505550100' }],
+        }}
+        replyToReceivers={replyToReceivers}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+
+    expect(doNotContact.verifySmsRecipients).toHaveBeenCalledWith([
+      { phoneNumber: '+16505550100' },
+    ]);
+    expect(replyToReceivers).not.toHaveBeenCalled();
+  });
+
+  test('replies after the Do Not SMS check allows sending', async () => {
+    const router = { push: jest.fn() };
+    const doNotContact = {
+      verifySmsRecipients: jest.fn(async () => true),
+    };
+    const replyToReceivers = jest.fn(async () => {});
+    const ConversationPanel = createConversationPanel(
+      router,
+      undefined,
+      doNotContact,
+    );
+    render(
+      <ConversationPanel
+        conversation={{ correspondents: [] }}
+        replyToReceivers={replyToReceivers}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+    await Promise.resolve();
+
+    expect(replyToReceivers).toHaveBeenCalledWith('Reply', []);
   });
 });

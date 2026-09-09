@@ -8,6 +8,7 @@ import type { FunctionComponent } from 'react';
 import React, { useEffect, useRef } from 'react';
 
 import type { SmsTypingTimeTracker } from '../../services/SmsTypingTimeTracker';
+import type { DoNotContact } from '../../services/DoNotContact';
 
 /**
  * Creates a conversation panel whose routed-side-widget back action bypasses
@@ -16,6 +17,7 @@ import type { SmsTypingTimeTracker } from '../../services/SmsTypingTimeTracker';
 export function createConversationPanel(
   router: RouterPlugin,
   smsTypingTimeTracker?: SmsTypingTimeTracker,
+  doNotContact?: DoNotContact,
 ): NonNullable<ConversationViewSpringOptions['component']> {
   const RoutedConversationPanel: FunctionComponent<
     ConversationViewSpringPanelProps
@@ -39,6 +41,17 @@ export function createConversationPanel(
     return (
       <ConversationPanel
         {...props}
+        replyToReceivers={async (text, attachments) => {
+          const recipients = (props.conversation?.correspondents || []).map(
+            (correspondent) => ({ phoneNumber: correspondent.phoneNumber }),
+          );
+          const canSend = doNotContact
+            ? await doNotContact.verifySmsRecipients(recipients)
+            : true;
+          if (canSend) {
+            await props.replyToReceivers(text, attachments);
+          }
+        }}
         updateMessageText={(text) => {
           if (conversationId && smsTypingTimeTracker) {
             if (text) {

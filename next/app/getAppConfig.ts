@@ -56,7 +56,7 @@ import {
   ModalViewOptions,
 } from '@ringcentral-integration/micro-core/src/app/views';
 import {
-  ComposeText,
+  ComposeText as MicroMessageComposeText,
   FaxSender,
   ConversationLogger as MicroMessageConversationLogger,
   ConversationMatcher,
@@ -132,9 +132,10 @@ import {
   CallView as MicroPhoneCallView,
   CallsListViewSpring as MicroPhoneCallsListView,
   DialerPadView,
-  DialerView,
+  DialerView as MicroPhoneDialerView,
 } from '@ringcentral-integration/micro-phone/src/app/views';
 import { DialerPadView as DialerPadViewV2 } from './views/DialerPadView';
+import { DialerView as DialerViewV2 } from './views/DialerView';
 import {
   CallDetailView as CallDetailViewV2,
   CallsListView as CallsListViewV2,
@@ -191,6 +192,8 @@ import {
   MatchedContactSelection,
   createContactRendererOptions,
 } from './services';
+import { ComposeText as ComposeTextV2 } from './services/ComposeText';
+import { DoNotContact } from './services/DoNotContact';
 import { ParkView } from './views/CallView/ParkView';
 import { CallControlView as CallControlViewV2 } from './views/CallView/CallControlView/CallControl.view';
 import { CallView as CallViewV2 } from './views/CallView/Call.view';
@@ -412,7 +415,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: AppFeatures,
         useClass: AppFeaturesV2,
       },
-      ComposeText,
+      {
+        provide: MicroMessageComposeText,
+        useClass: ComposeTextV2,
+      },
       FaxSender,
       Environment,
       ContactInitiator,
@@ -424,6 +430,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       TabManager,
       SmartNotes,
       ThirdParty,
+      DoNotContact,
       // views
       {
         provide: ContactDetailsView,
@@ -449,7 +456,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: MicroPhoneCallDetailView,
         useClass: CallDetailViewV2,
       },
-      DialerView,
+      {
+        provide: MicroPhoneDialerView,
+        useClass: DialerViewV2,
+      },
       ModalView,
       MessageStore,
       SmsTypingTimeTracker,
@@ -463,11 +473,16 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useFactory: (
           router: RouterPlugin,
           smsTypingTimeTracker: SmsTypingTimeTracker,
+          doNotContact: DoNotContact,
         ) =>
           ({
-            component: createConversationPanel(router, smsTypingTimeTracker),
+            component: createConversationPanel(
+              router,
+              smsTypingTimeTracker,
+              doNotContact,
+            ),
           } satisfies ConversationViewSpringOptions),
-        deps: [RouterPlugin, SmsTypingTimeTracker],
+        deps: [RouterPlugin, SmsTypingTimeTracker, DoNotContact],
       },
       {
         provide: MicroSettingsView,

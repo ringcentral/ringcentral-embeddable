@@ -70,6 +70,7 @@ module.exports = {
   matchPath,
   nameKey,
   optional: () => () => {},
+  portal: directDecorator,
   state: directDecorator,
   storage: directDecorator,
   // A pass-through rxjs operator; app teardown is not modelled in tests.
