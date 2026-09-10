@@ -36,6 +36,9 @@ export async function devServer() {
       devMiddleware: {
         publicPath: '/',
       },
+      headers: {
+        'Cross-Origin-Resource-Policy': 'cross-origin',
+      },
       port: projectConfig.devServerPort,
       static: path.resolve(__dirname, 'next'),
     },
