@@ -53,7 +53,12 @@ interface UrlParams {
   enableAnalytics?: boolean;
   defaultAutoLogCallEnabled?: boolean;
   defaultAutoLogMessageEnabled?: boolean;
+  disableInactiveTabCallEvent?: boolean;
+  enableFromNumberSetting?: boolean;
+  enableRingoutCallerId?: boolean;
+  enableSmsSettingEvent?: boolean;
   enableTypingTimeTracking?: boolean;
+  showMyLocationNumbers?: boolean;
 }
 
 function parseBooleanParam(value: string | undefined): boolean {
@@ -106,9 +111,16 @@ function readUrlParams(): UrlParams {
     defaultAutoLogMessageEnabled: parseBooleanParam(
       params.defaultAutoLogMessageEnabled,
     ),
+    disableInactiveTabCallEvent: parseBooleanParam(
+      params.disableInactiveTabCallEvent,
+    ),
+    enableFromNumberSetting: parseBooleanParam(params.enableFromNumberSetting),
+    enableRingoutCallerId: parseBooleanParam(params.enableRingoutCallerId),
+    enableSmsSettingEvent: parseBooleanParam(params.enableSmsSettingEvent),
     enableTypingTimeTracking: parseBooleanParam(
       params.enableTypingTimeTracking,
     ),
+    showMyLocationNumbers: parseBooleanParam(params.showMyLocationNumbers),
   };
 }
 
@@ -185,7 +197,12 @@ export const createApp = async (
     enableAnalytics: urlParams.enableAnalytics,
     defaultAutoLogCallEnabled: urlParams.defaultAutoLogCallEnabled,
     defaultAutoLogMessageEnabled: urlParams.defaultAutoLogMessageEnabled,
+    disableInactiveTabCallEvent: urlParams.disableInactiveTabCallEvent,
+    enableFromNumberSetting: urlParams.enableFromNumberSetting,
+    enableRingoutCallerId: urlParams.enableRingoutCallerId,
+    enableSmsSettingEvent: urlParams.enableSmsSettingEvent,
     enableTypingTimeTracking: urlParams.enableTypingTimeTracking,
+    showMyLocationNumbers: urlParams.showMyLocationNumbers,
   });
 
   const app = await createSharedApp(appConfig);

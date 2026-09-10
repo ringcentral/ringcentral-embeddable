@@ -3,6 +3,8 @@ import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import type { NormalizedSession } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
 import { debounce } from '@ringcentral-integration/commons/lib/debounce-throttle';
+import type { Message } from '@ringcentral-integration/commons/interfaces/MessageStore.model';
+import { messageIsTextMessage } from '@ringcentral-integration/commons/lib/messageHelper';
 import normalizeNumber from '@ringcentral-integration/commons/lib/normalizeNumber';
 import { callingModes } from '@ringcentral-integration/micro-phone/src/app/services/CallingSettings/callingModes';
 import { callingOptions } from '@ringcentral-integration/micro-phone/src/app/services/CallingSettings/callingOptions';
@@ -25,11 +27,13 @@ import {
   AccountInfo,
   AppFeatures,
   Auth,
+  Client,
   ExtensionInfo,
   OAuth,
   Presence,
   RegionSettings,
 } from '@ringcentral-integration/micro-auth/src/app/services';
+import { ContactMatcher } from '@ringcentral-integration/micro-contacts/src/app/services';
 import {
   Brand,
   Locale,
@@ -39,11 +43,14 @@ import {
 import {
   ComposeText,
   ConversationLogger,
+  Conversations,
+  MessageThread,
   MessageStore,
   SmsTemplate,
 } from '@ringcentral-integration/micro-message/src/app/services';
 import {
   ActiveCallControl,
+  AudioSettings,
   Call,
   CallLog,
   CallLogger,
@@ -66,11 +73,20 @@ import { getRcmEventTpl, getRcvEventTpl } from '@ringcentral-integration/widgets
 import PopupWindowManager from '../../../lib/PopupWindowManager';
 import messageTypes from '../../../lib/Adapter/messageTypes';
 import { parseUri } from '../../../lib/Adapter/parseUri';
+import { isDuplicated } from '../../../lib/isDuplicated';
 import { SideWidgetView } from '../../views/SideWidgetView';
+import type { AdapterOptions } from './AdapterOptions';
 import { resolveLegacyAdapterPath } from './resolveLegacyAdapterPath';
 
 import { SmartNotes } from '../SmartNotes';
+import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
+import type { MatchedContactSelection } from '../MatchedContactSelection';
+import type {
+  MonitoredExtensions,
+  PresenceActiveCall,
+} from '../MonitoredExtensions';
 import { SmsTypingTimeTracker } from '../SmsTypingTimeTracker';
+import type { TabManager } from '../TabManager';
 import type { ActiveCallControl as ActiveCallControlV2 } from '../ActiveCallControl';
 import type { EmbeddableCallLogger } from '../CallLogger';
 import type { Webphone as WebphoneV2 } from '../WebphoneV2/Webphone';
@@ -110,6 +126,19 @@ type ControlCallOptions = {
   dtmf?: string;
   forwardNumber?: string;
   transferNumber?: string;
+};
+
+type LegacyPresenceData = {
+  dndStatus?: string;
+  presenceType?: string;
+  userStatus?: string;
+};
+
+type LegacyPresence = Presence & {
+  _update(data: {
+    dndStatus?: string;
+    userStatus?: string;
+  }): Promise<void>;
 };
 
 const SUPPORTED_ATTACHMENT_MIME = new Set([
@@ -158,7 +187,7 @@ function getValidAttachments(attachments: AttachmentPayload[] = []) {
   return attachments.reduce<
     {
       name: string;
-      file: Blob;
+      file: File;
       size: number;
     }[]
   >((result, attachment) => {
@@ -177,10 +206,11 @@ function getValidAttachments(attachments: AttachmentPayload[] = []) {
       return result;
     }
 
+    const file = new File([blob], attachment.name, { type: blob.type });
     result.push({
       name: attachment.name,
-      file: blob,
-      size: blob.size,
+      file,
+      size: file.size,
     });
     return result;
   }, []);
@@ -308,6 +338,14 @@ export class Adapter extends RcModule {
   private _popupWindowManager: PopupWindowManager | null = null;
   private _lastActiveCalls = new Map<string, string>();
   private _lastMuteStates = new Map<string, boolean>();
+  private _lastMessageThreadSignatures = new Map<string, string>();
+  private _lastMessageThreadEntitySignatures = new Map<string, string>();
+  private _isMessageThreadSnapshotReady = false;
+  private _isMessageThreadEntitySnapshotReady = false;
+  private _lastTelephonySessionSequence = 0;
+  private _bridgeBindingTimer: ReturnType<typeof setTimeout> | null = null;
+  private _isClientBridgeBound = false;
+  private _unbindClientBridge: (() => void) | null = null;
   private _debouncedNotifyCallingSettings = debounce({
     fn: () => {
       this._notifyCallingSettings();
@@ -354,6 +392,17 @@ export class Adapter extends RcModule {
     @optional('SyncTabView') protected _syncTabView?: SyncTabView,
     @optional()
     protected _smsTypingTimeTracker?: SmsTypingTimeTracker,
+    @optional() protected _client?: Client,
+    @optional() protected _audioSettings?: AudioSettings,
+    @optional('TabManager') protected _tabManager?: TabManager,
+    @optional() protected _contactMatcher?: ContactMatcher,
+    @optional('MatchedContactSelection')
+    protected _matchedContactSelection?: MatchedContactSelection,
+    @optional() protected _conversations?: Conversations,
+    @optional() protected _messageThread?: MessageThread,
+    @optional('MonitoredExtensions')
+    protected _monitoredExtensions?: MonitoredExtensions,
+    @optional('AdapterOptions') protected _adapterOptions?: AdapterOptions,
   ) {
     super();
     if (this._smartNotes) {
@@ -408,6 +457,10 @@ export class Adapter extends RcModule {
     return this._activeCallControl as ActiveCallControlV2;
   }
 
+  private get _appFeaturesV2(): EmbeddableAppFeatures {
+    return this._appFeatures as EmbeddableAppFeatures;
+  }
+
   @action
   private _setClosed(closed: boolean) {
     this.closed = closed;
@@ -448,16 +501,36 @@ export class Adapter extends RcModule {
 
   private _setupClientBridge() {
     if (this._portManager.shared) {
-      this._portManager.onClient(() => this._bindClient());
+      this._portManager.onClient(() => this._scheduleClientBridgeBinding());
       return;
     }
-    this._bindClient();
+    this._scheduleClientBridgeBinding();
+  }
+
+  private _scheduleClientBridgeBinding(): () => void {
+    if (!this._bridgeBindingTimer && !this._isClientBridgeBound) {
+      this._bridgeBindingTimer = setTimeout(() => {
+        this._bridgeBindingTimer = null;
+        this._unbindClientBridge = this._bindClient();
+      }, 0);
+    }
+    return () => this._teardownClientBridge();
+  }
+
+  private _teardownClientBridge(): void {
+    if (this._bridgeBindingTimer) {
+      clearTimeout(this._bridgeBindingTimer);
+      this._bridgeBindingTimer = null;
+    }
+    this._unbindClientBridge?.();
+    this._unbindClientBridge = null;
   }
 
   private _bindClient() {
-    if (!globalThis.window) {
+    if (!globalThis.window || this._isClientBridgeBound) {
       return () => {};
     }
+    this._isClientBridgeBound = true;
 
     const isPopupWindow =
       Boolean((window as any).__ON_RC_POPUP_WINDOW) ||
@@ -468,6 +541,9 @@ export class Adapter extends RcModule {
     });
 
     window.addEventListener('message', this._onWindowMessage);
+    this._captureMessageThreadSnapshots();
+    this._lastTelephonySessionSequence =
+      this._activeCallControlV2.telephonySessionUpdate?.sequence ?? 0;
 
     const multipleWatchOptions = { multiple: true } as const;
     const unwatchFns = [
@@ -637,6 +713,25 @@ export class Adapter extends RcModule {
         },
         multipleWatchOptions,
       ),
+      watch(
+        this,
+        () => [
+          this._messageThread?.data.threads,
+          this._messageThread?.data.messages,
+        ],
+        () => {
+          this._notifyMessageThreadUpdates();
+        },
+        multipleWatchOptions,
+      ),
+      watch(
+        this,
+        () =>
+          this._activeCallControlV2.telephonySessionUpdate?.sequence ?? 0,
+        () => {
+          this._notifyTelephonySessionUpdate();
+        },
+      ),
     ];
 
     this._bindWebphoneEvents();
@@ -665,6 +760,7 @@ export class Adapter extends RcModule {
     this._syncWebphoneSessions();
 
     return () => {
+      this._isClientBridgeBound = false;
       this._debouncedNotifyCallingSettings.cancel();
       window.removeEventListener('message', this._onWindowMessage);
       unwatchFns.forEach((fn) => fn?.());
@@ -675,28 +771,28 @@ export class Adapter extends RcModule {
     this._webphoneV2.onCallRing((session: NormalizedSession) => {
       this._postMessage({
         type: 'rc-call-ring-notify',
-        call: session,
+        call: this._withContactMatch(session),
       });
       this._sideWidgetView?.onCallRing(session);
     });
     this._webphoneV2.onCallInit((session: NormalizedSession) => {
       this._postMessage({
         type: 'rc-call-init-notify',
-        call: session,
+        call: this._withContactMatch(session),
       });
       this._sideWidgetView?.onCallInit(session);
     });
     this._webphoneV2.onCallStart((session: any) => {
       this._postMessage({
         type: 'rc-call-start-notify',
-        call: session,
+        call: this._withContactMatch(session),
       });
     });
     this._webphoneV2.onCallEnd((session: any) => {
       this._postMessage({
         type: 'rc-call-end-notify',
         call: {
-          ...session,
+          ...this._withContactMatch(session),
           endTime: Date.now(),
         },
       });
@@ -704,13 +800,13 @@ export class Adapter extends RcModule {
     this._webphoneV2.onCallHold((session: any) => {
       this._postMessage({
         type: 'rc-call-hold-notify',
-        call: session,
+        call: this._withContactMatch(session),
       });
     });
     this._webphoneV2.onCallResume((session: any) => {
       this._postMessage({
         type: 'rc-call-resume-notify',
-        call: session,
+        call: this._withContactMatch(session),
       });
     });
     this._webphoneV2.onActiveWebphoneChanged((payload: any) => {
@@ -722,7 +818,7 @@ export class Adapter extends RcModule {
     this._webphoneV2.onCallVoicemailDropped((session: any) => {
       this._postMessage({
         type: 'rc-call-drop-voicemail-notify',
-        call: session,
+        call: this._withContactMatch(session),
       });
     });
 
@@ -735,17 +831,145 @@ export class Adapter extends RcModule {
 
   private _bindMessageEvents() {
     this._messageStore?.newInboundMessage$.subscribe((message) => {
+      if (
+        isDuplicated(
+          `${this._prefix ?? 'rc-widget'}-deduplicate-inbound-message-event`,
+          String(message.id),
+        )
+      ) {
+        return;
+      }
       this._postMessage({
         type: 'rc-inbound-message-notify',
         message,
       });
     });
     this._messageStore?.onMessageUpdated((message) => {
+      if (
+        isDuplicated(
+          `${this._prefix ?? 'rc-widget'}-deduplicate-message-updated-event`,
+          `${message.id}-${message.lastModifiedTime}`,
+          30,
+        )
+      ) {
+        return;
+      }
       this._postMessage({
         type: 'rc-message-updated-notify',
         message,
       });
     });
+  }
+
+  private _withContactMatch(
+    session: NormalizedSession,
+  ): NormalizedSession & { contactMatch?: unknown } {
+    if (session.contactMatch) {
+      return session;
+    }
+    const phoneNumber =
+      session.direction === 'Outbound' ? session.to : session.from;
+    const contactMatch = phoneNumber
+      ? this._contactMatcher?.dataMapping[phoneNumber]?.[0]
+      : undefined;
+    return contactMatch ? { ...session, contactMatch } : session;
+  }
+
+  private _captureMessageThreadSnapshots(): void {
+    this._lastMessageThreadSignatures = this._getMessageThreadSignatures();
+    this._lastMessageThreadEntitySignatures =
+      this._getMessageThreadEntitySignatures();
+    this._isMessageThreadSnapshotReady = Boolean(this._messageThread?.token);
+    this._isMessageThreadEntitySnapshotReady = Boolean(
+      this._messageThread?.entriesToken,
+    );
+  }
+
+  private _getMessageThreadSignatures(): Map<string, string> {
+    const signatures = new Map<string, string>();
+    Object.entries(this._messageThread?.data.threads ?? {}).forEach(
+      ([threadId, thread]) => {
+        if (thread.threadInfo) {
+          signatures.set(threadId, JSON.stringify(thread.threadInfo));
+        }
+      },
+    );
+    return signatures;
+  }
+
+  private _getMessageThreadEntitySignatures(): Map<string, string> {
+    return new Map(
+      Object.entries(this._messageThread?.data.messages ?? {}).map(
+        ([entityId, entity]) => [entityId, JSON.stringify(entity)],
+      ),
+    );
+  }
+
+  private _notifyMessageThreadUpdates(): void {
+    const threads = this._messageThread?.data.threads ?? {};
+    const threadSignatures = this._getMessageThreadSignatures();
+    if (!this._messageThread?.token) {
+      this._isMessageThreadSnapshotReady = false;
+    } else if (this._isMessageThreadSnapshotReady) {
+      threadSignatures.forEach((signature, threadId) => {
+        if (this._lastMessageThreadSignatures.get(threadId) === signature) {
+          return;
+        }
+        const thread = threads[threadId]?.threadInfo;
+        if (thread) {
+          this._postMessage({ type: 'rc-message-thread-notify', thread });
+        }
+      });
+    } else {
+      this._isMessageThreadSnapshotReady = true;
+    }
+    this._lastMessageThreadSignatures = threadSignatures;
+    const entities = this._messageThread?.data.messages ?? {};
+    const entitySignatures = this._getMessageThreadEntitySignatures();
+    if (!this._messageThread?.entriesToken) {
+      this._isMessageThreadEntitySnapshotReady = false;
+    } else if (this._isMessageThreadEntitySnapshotReady) {
+      entitySignatures.forEach((signature, entityId) => {
+        if (
+          this._lastMessageThreadEntitySignatures.get(entityId) === signature
+        ) {
+          return;
+        }
+        const entity = entities[entityId];
+        if (entity) {
+          this._postMessage({
+            type: 'rc-message-thread-entity-notify',
+            entity,
+          });
+        }
+      });
+    } else {
+      this._isMessageThreadEntitySnapshotReady = true;
+    }
+    this._lastMessageThreadEntitySignatures = entitySignatures;
+  }
+
+  private _notifyTelephonySessionUpdate(): void {
+    const update = this._activeCallControlV2.telephonySessionUpdate;
+    if (!update || update.sequence === this._lastTelephonySessionSequence) {
+      return;
+    }
+    this._lastTelephonySessionSequence = update.sequence;
+    if (!update.session || this._shouldSuppressCallEvent()) {
+      return;
+    }
+    this._postMessage({
+      type: 'rc-telephony-session-notify',
+      telephonySession: update.session,
+    });
+  }
+
+  private _shouldSuppressCallEvent(): boolean {
+    return Boolean(
+      this._adapterOptions?.disableInactiveTabCallEvent &&
+        this._tabManager?.ready &&
+        !this._tabManager.active,
+    );
   }
 
   private _onWindowMessage = (event: MessageEvent) => {
@@ -783,6 +1007,9 @@ export class Adapter extends RcModule {
       case this._messageTypes.navigateToViewCalls:
         void this._navigateToViewCalls();
         break;
+      case this._messageTypes.popOut:
+        this._showClientWindow();
+        break;
       case 'rc-adapter-set-environment':
         (window as any).toggleEnv?.();
         break;
@@ -798,8 +1025,14 @@ export class Adapter extends RcModule {
       case 'rc-adapter-new-call':
         void this._newCall(data.phoneNumber, data.toCall, data.callerId);
         break;
+      case 'rc-adapter-auto-populate-conversation':
+        void this._autoPopulateConversation(data.text, data.attachments);
+        break;
       case 'rc-adapter-control-call':
         void this._controlCall(data.callAction, data.callId, data.options);
+        break;
+      case 'rc-adapter-pick-call':
+        void this._pickCall(data.extensionId, data.telephonySessionId);
         break;
       case 'rc-adapter-logout':
         if (this._auth.loggedIn) {
@@ -826,9 +1059,7 @@ export class Adapter extends RcModule {
         }
         break;
       case 'rc-adapter-set-presence':
-        if (data.presenceType) {
-          void this._presence.setPresence(data.presenceType);
-        }
+        void this._setPresence(data);
         break;
       case 'rc-adapter-webphone-sessions-sync':
         this._syncWebphoneSessions();
@@ -839,11 +1070,20 @@ export class Adapter extends RcModule {
       case 'rc-adapter-update-auto-log-settings':
         this._onUpdateAutoLogSettings(data);
         break;
+      case 'rc-adapter-update-features-flags':
+        void this._onUpdateFeatureConfig(data);
+        break;
       case 'rc-adapter-update-sms-typing-time-tracking':
         this._onUpdateSmsTypingTimeTracking(data);
         break;
       case 'rc-adapter-update-ai-assistant-settings':
         this._onUpdateAiAssistantSettings(data);
+        break;
+      case 'rc-adapter-set-side-drawer-extended':
+        void this._root.setExpanded(Boolean(data.extended));
+        break;
+      case 'rc-adapter-set-call-contact-matches-select':
+        void this._setCallContactMatched(data);
         break;
       case 'rc-adapter-set-phone-number-format':
         this._onSetPhoneNumberFormat(data);
@@ -1007,6 +1247,16 @@ export class Adapter extends RcModule {
           response: {
             call,
           },
+        });
+        break;
+      }
+      case '/refresh-login-session': {
+        const response = await this._refreshLoginSession(
+          Boolean(data.body?.force),
+        );
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response,
         });
         break;
       }
@@ -1403,6 +1653,9 @@ export class Adapter extends RcModule {
             glip: this._appFeatures.hasGlipPermission,
             smartNote: this._appFeatures.hasSmartNotePermission,
             call: this._appFeatures.isCallingEnabled,
+            ringSenseInsights:
+              this._appFeaturesV2.hasRingSenseInsightsPermission,
+            ringCX: this._appFeaturesV2.hasRingCXPermission,
           }
         : {},
       isFreshLogin: this._auth.isFreshLogin,
@@ -1430,24 +1683,44 @@ export class Adapter extends RcModule {
       return;
     }
 
-    this._postMessage({
+    const message: Record<string, unknown> = {
       type: 'rc-calling-settings-notify',
       callWith: stripEnumPrefix(this._callingSettings.callWith),
       callingMode: stripEnumPrefix(this._callingSettings.callingMode),
-      fromNumber: this._callingSettings.fromNumber,
-      fromNumbers: this._callingSettings.fromNumbers.map((item: any) => ({
-        phoneNumber: item.phoneNumber,
-        usageType: item.usageType,
-        primary: item.primary,
-        label: item.label,
-      })),
-      myLocation: this._callingSettings.fromNumbers,
-      myLocationNumbers: this._callingSettings.availableNumbersWithLabel,
-    });
+    };
+    if (
+      this._adapterOptions?.enableFromNumberSetting &&
+      (this._callingSettings.callWith === callingOptions.browser ||
+        this._callingSettings.callWith === callingOptions.ringout)
+    ) {
+      message.fromNumber = this._callingSettings.fromNumber;
+      message.fromNumbers = this._callingSettings.fromNumbers.map(
+        (item: {
+          label?: string;
+          phoneNumber?: string;
+          primary?: boolean;
+          usageType?: string;
+        }) => ({
+          phoneNumber: item.phoneNumber,
+          usageType: item.usageType,
+          primary: item.primary,
+          label: item.label,
+        }),
+      );
+    }
+    if (this._adapterOptions?.showMyLocationNumbers) {
+      message.myLocation = this._callingSettings.myLocation;
+      message.myLocationNumbers =
+        this._callingSettings.availableNumbersWithLabel;
+    }
+    this._postMessage(message);
   }
 
   private _notifySmsSettings() {
-    if (!this._composeText.ready) {
+    if (
+      !this._adapterOptions?.enableSmsSettingEvent ||
+      !this._composeText.ready
+    ) {
       return;
     }
 
@@ -1540,6 +1813,15 @@ export class Adapter extends RcModule {
   }
 
   private _notifyPresenceActiveCalls() {
+    if (this._shouldSuppressCallEvent()) {
+      this._lastActiveCalls = new Map(
+        (this._presence.activeCalls || []).map((call) => [
+          `${call.sessionId}${call.direction}`,
+          `${call.telephonyStatus ?? ''}|${call.terminationType ?? ''}`,
+        ]),
+      );
+      return;
+    }
     const nextMap = new Map<string, string>();
     (this._presence.activeCalls || []).forEach((call: any) => {
       const key = `${call.sessionId}${call.direction}`;
@@ -1549,15 +1831,20 @@ export class Adapter extends RcModule {
         return;
       }
 
+      const activeCall = { ...call };
+      Reflect.deleteProperty(activeCall, 'id');
+      Reflect.deleteProperty(activeCall, 'sipData');
       this._postMessage({
         type: 'rc-active-call-notify',
-        call,
+        call: activeCall,
       });
 
       if (this._callingSettings.callingMode === callingModes.ringout) {
+        const ringoutCall = { ...call };
+        Reflect.deleteProperty(ringoutCall, 'id');
         this._postMessage({
           type: 'rc-ringout-call-notify',
-          call,
+          call: ringoutCall,
         });
       }
     });
@@ -1575,7 +1862,7 @@ export class Adapter extends RcModule {
       this._postMessage({
         type: 'rc-call-mute-notify',
         call: {
-          ...session,
+          ...this._withContactMatch(session),
           isOnMute: currentMuted,
         },
       });
@@ -1612,19 +1899,123 @@ export class Adapter extends RcModule {
     this._postMessage({
       type: 'rc-webphone-sessions-sync',
       calls: this._webphone.sessions.map((session: any) => ({
-        ...session,
+        ...this._withContactMatch(session),
       })),
     });
+  }
+
+  private _showClientWindow(): void {
+    this._setClosed(false);
+    this._setMinimized(false);
+    globalThis.window?.focus();
+  }
+
+  private async _setPresence(data: LegacyPresenceData): Promise<void> {
+    if (data.userStatus || data.dndStatus) {
+      const validUserStatus =
+        !data.userStatus ||
+        Object.values(presenceStatus).includes(data.userStatus as never);
+      const validDndStatus =
+        !data.dndStatus ||
+        Object.values(dndStatus).includes(data.dndStatus as never);
+      if (!validUserStatus || !validDndStatus || !this._presence.ready) {
+        return;
+      }
+      await (this._presence as LegacyPresence)._update({
+        userStatus: data.userStatus ?? this._presence.userStatus,
+        dndStatus: data.dndStatus ?? this._presence.dndStatus,
+      });
+      return;
+    }
+    if (data.presenceType) {
+      await this._presence.setPresence(data.presenceType as never);
+    }
+  }
+
+  private async _autoPopulateConversation(
+    text?: string,
+    attachments: AttachmentPayload[] = [],
+  ): Promise<void> {
+    if (!this._conversations?.currentConversationId) {
+      return;
+    }
+    if (typeof text === 'string') {
+      await this._conversations.updateMessageText(text);
+    }
+    const validAttachments = getValidAttachments(attachments);
+    if (validAttachments.length > 0) {
+      await this._conversations.addAttachments(validAttachments);
+    }
+  }
+
+  private _findConversation(phoneNumber: string): Message | undefined {
+    if (!this._conversations) {
+      return undefined;
+    }
+    const normalizedNumber = normalizeNumber({
+      phoneNumber,
+      countryCode: this._regionSettings.countryCode,
+      areaCode: this._regionSettings.areaCode,
+    });
+    return this._conversations.allConversations.find((conversation) => {
+      if (
+        !conversation.to ||
+        conversation.to.length > 1 ||
+        !messageIsTextMessage(conversation)
+      ) {
+        return false;
+      }
+      if (conversation.direction === 'Inbound') {
+        return (
+          conversation.from?.phoneNumber === normalizedNumber ||
+          conversation.from?.extensionNumber === normalizedNumber
+        );
+      }
+      return conversation.to.some(
+        (recipient) =>
+          recipient.phoneNumber === normalizedNumber ||
+          recipient.extensionNumber === normalizedNumber,
+      );
+    });
+  }
+
+  private async _openExistingConversation(
+    phoneNumber: string,
+    text?: string,
+    attachments: AttachmentPayload[] = [],
+  ): Promise<boolean> {
+    const conversation = this._findConversation(phoneNumber);
+    if (!conversation?.conversationId || !this._conversations) {
+      return false;
+    }
+    await this._router.push(`/conversations/${conversation.conversationId}`);
+    await this._conversations.loadConversation(conversation.conversationId);
+    if (typeof text === 'string' && text.length > 0) {
+      await this._conversations.updateMessageText(text);
+    }
+    const validAttachments = getValidAttachments(attachments);
+    if (validAttachments.length > 0) {
+      await this._conversations.addAttachments(validAttachments);
+    }
+    return true;
   }
 
   private async _newSMS(
     phoneNumber?: string,
     text?: string,
-    _conversation?: boolean,
+    conversation?: boolean,
     attachments: AttachmentPayload[] = [],
     recipient?: { name?: string; phoneNumber?: string },
   ) {
     if (!this._auth.loggedIn) {
+      return;
+    }
+
+    if (
+      conversation &&
+      phoneNumber &&
+      (await this._openExistingConversation(phoneNumber, text, attachments))
+    ) {
       return;
     }
 
@@ -1768,6 +2159,94 @@ export class Adapter extends RcModule {
       default:
         break;
     }
+  }
+
+  private async _pickCall(
+    extensionId?: string,
+    telephonySessionId?: string,
+  ): Promise<void> {
+    if (!extensionId || !telephonySessionId) {
+      this._notifyPickCallError(
+        'extensionId and telephonySessionId are required',
+      );
+      return;
+    }
+    if (this._callingSettings.callingMode !== callingModes.webphone) {
+      this._notifyPickCallError(
+        'Pick call is only supported in webphone mode',
+      );
+      return;
+    }
+    const monitoredExtension =
+      this._monitoredExtensions?.monitoredExtensions.find(
+        ({ extension }) => String(extension.id) === String(extensionId),
+      );
+    const activeCall = monitoredExtension?.presence?.activeCalls?.find(
+      (call) => call.telephonySessionId === telephonySessionId,
+    );
+    if (!activeCall) {
+      this._notifyPickCallError('Call not found in monitored extensions');
+      return;
+    }
+    const extensionType = monitoredExtension?.extension.type;
+    if (!extensionType) {
+      this._notifyPickCallError('Extension not found in monitored extensions');
+      return;
+    }
+    try {
+      await this._executePickCall(
+        extensionType,
+        extensionId,
+        activeCall,
+      );
+    } catch (error: unknown) {
+      this._notifyPickCallError(getErrorMessage(error) || 'Failed to pick call');
+    }
+  }
+
+  private async _executePickCall(
+    extensionType: string,
+    extensionId: string,
+    activeCall: PresenceActiveCall,
+  ): Promise<void> {
+    const fromNumber = this._callingSettings.fromNumber ?? '';
+    if (extensionType === 'ParkLocation') {
+      await this._webphoneV2.pickParkLocation(
+        extensionId,
+        activeCall,
+        fromNumber,
+      );
+      return;
+    }
+    if (extensionType === 'GroupCallPickup') {
+      await this._webphoneV2.pickGroupCall(
+        extensionId,
+        activeCall,
+        fromNumber,
+        'gcp',
+      );
+      return;
+    }
+    if (extensionType === 'Department') {
+      await this._webphoneV2.pickGroupCall(
+        extensionId,
+        activeCall,
+        fromNumber,
+        'qpk',
+      );
+      return;
+    }
+    this._notifyPickCallError(
+      `Unsupported extension type for pick: ${extensionType}`,
+    );
+  }
+
+  private _notifyPickCallError(message: string): void {
+    this._postMessage({
+      type: 'rc-control-call-error',
+      error: 'PickError',
+      message,
+    });
   }
 
   private async _forward(
@@ -2053,7 +2532,15 @@ export class Adapter extends RcModule {
   private async _updateRingtone(data: {
     name?: string;
     uri?: string;
+    volume?: number;
   }) {
+    if (
+      typeof data.volume === 'number' &&
+      data.volume >= 0 &&
+      data.volume <= 1
+    ) {
+      await this._audioSettings?.setData({ ringtoneVolume: data.volume });
+    }
     if (!data.name || !data.uri || !isSafeAudioUri(data.uri)) {
       return;
     }
@@ -2081,6 +2568,80 @@ export class Adapter extends RcModule {
     }
     if (typeof data.message === 'boolean') {
       void this._conversationLogger.setAutoLog(data.message);
+    }
+  }
+
+  @delegate('server')
+  private async _onUpdateFeatureConfig(data: {
+    chat?: boolean;
+    contacts?: boolean;
+    fax?: boolean;
+    meetings?: boolean;
+    recordings?: boolean;
+    text?: boolean;
+    voicemail?: boolean;
+  }): Promise<void> {
+    const config: Record<string, boolean> = {};
+    if (typeof data.chat === 'boolean') config.Glip = data.chat;
+    if (typeof data.text === 'boolean') {
+      config.Pages = data.text;
+      config.SMS = data.text;
+    }
+    if (typeof data.fax === 'boolean') config.Fax = data.fax;
+    if (typeof data.voicemail === 'boolean') config.Voicemail = data.voicemail;
+    if (typeof data.meetings === 'boolean') config.Meetings = data.meetings;
+    if (typeof data.contacts === 'boolean') config.Contacts = data.contacts;
+    if (typeof data.recordings === 'boolean') {
+      config.CallRecording = data.recordings;
+    }
+    if (Object.keys(config).length === 0) {
+      return;
+    }
+    this._appFeaturesV2.setConfigState({
+      ...this._appFeaturesV2.configState,
+      ...config,
+    });
+  }
+
+  private async _setCallContactMatched(data: {
+    contactId?: string;
+    telephonySessionId?: string;
+  }): Promise<void> {
+    if (!data.telephonySessionId || !data.contactId) {
+      return;
+    }
+    const webphoneSession = this._webphone.sessions.find(
+      (session: NormalizedSession) =>
+        session.partyData?.sessionId === data.telephonySessionId,
+    );
+    if (!webphoneSession) {
+      return;
+    }
+    const phoneNumber =
+      webphoneSession.direction === 'Inbound'
+        ? webphoneSession.from
+        : webphoneSession.to;
+    const contactMatch = phoneNumber
+      ? this._contactMatcher?.dataMapping[phoneNumber]?.find(
+          (match: { id?: string }) => match.id === data.contactId,
+        )
+      : undefined;
+    if (!contactMatch) {
+      return;
+    }
+    await this._webphoneV2.updateSessionMatchedContact(
+      webphoneSession.id,
+      contactMatch,
+    );
+    const call = this._callMonitor.allCalls.find(
+      (item) => item.telephonySessionId === data.telephonySessionId,
+    );
+    if (call?.sessionId) {
+      await this._matchedContactSelection?.select({
+        scope: 'call',
+        key: call.sessionId,
+        entityId: data.contactId,
+      });
     }
   }
 
@@ -2114,6 +2675,27 @@ export class Adapter extends RcModule {
         Boolean(data.autoStartAiAssistantReadOnly),
         data.autoStartAiAssistantReadOnlyReason ?? '',
       );
+    }
+  }
+
+  @delegate('server')
+  private async _refreshLoginSession(
+    force: boolean,
+  ): Promise<{ result: 'ok' | 'error'; message?: string }> {
+    try {
+      if (!this._client) {
+        throw new Error('client service is unavailable');
+      }
+      if (force) {
+        await this._client.service
+          .platform()
+          .get('/restapi/v1.0/account/~');
+      } else {
+        await this._client.service.ensureLoggedIn();
+      }
+      return { result: 'ok' };
+    } catch (error: unknown) {
+      return { result: 'error', message: getErrorMessage(error) };
     }
   }
 

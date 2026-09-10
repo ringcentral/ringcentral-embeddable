@@ -177,4 +177,16 @@ describe('src-to-next compatibility contract', () => {
       legacyRoutes.filter((name) => !contractRoutes.includes(name))
     ).toEqual([]);
   });
+
+  test('registers direct dependencies consumed by Adapter', () => {
+    const appConfig = readFile('next/app/getAppConfig.ts');
+
+    expect(appConfig).toMatch(
+      /type AvailabilityMonitorOptions,\s+Client,\s+ConnectivityMonitor/
+    );
+    expect(appConfig).toMatch(
+      /useClass: EmbeddableAnalytics,\s+},\s+Client,\s+{\s+provide: Auth/
+    );
+    expect(appConfig).toMatch(/ModalView,\s+MessageStore,\s+Conversations,/);
+  });
 });

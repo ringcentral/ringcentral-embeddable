@@ -1,6 +1,7 @@
 const mockBaseForward = jest.fn(async () => true);
 const mockBaseStartRecord = jest.fn(async () => true);
 const mockBaseStopRecord = jest.fn(async () => true);
+const { EventEmitter } = require("events");
 
 jest.mock(
   "@ringcentral-integration/micro-phone/src/app/services/ActiveCallControl",
@@ -45,6 +46,29 @@ describe("ActiveCallControl compatibility routing", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  test("publishes raw telephony session updates through final disconnect", () => {
+    const control = createControl();
+    const session = new EventEmitter();
+    session.data = { id: "telephony-session", status: "Answered" };
+    session.party = { status: { code: "Answered" } };
+    control._onTelephonySessionCreated(session);
+
+    expect(control.telephonySessionUpdate).toEqual({
+      sequence: 1,
+      session: { id: "telephony-session", status: "Answered" },
+    });
+    session.data.status = "Disconnected";
+    session.party.status = { code: "Disconnected", reason: "HangUp" };
+    session.emit("status");
+    expect(control.telephonySessionUpdate).toEqual({
+      sequence: 2,
+      session: { id: "telephony-session", status: "Disconnected" },
+    });
+    expect(session.listenerCount("status")).toBe(0);
+    expect(session.listenerCount("muted")).toBe(0);
+    expect(session.listenerCount("recordings")).toBe(0);
   });
 
   test("identifies only sessions supplied by RingCentral Call Control", () => {

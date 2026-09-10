@@ -119,4 +119,17 @@ describe('adapter authentication boundary', () => {
       })
     );
   });
+
+  test('preserves the ringout caller ID option in the iframe URL', () => {
+    const script = document.createElement('script');
+    script.src =
+      'https://widget.example.com/adapter.js?enableRingoutCallerId=1';
+    document.head.appendChild(script);
+
+    require('../../next/adapter');
+    window.RCAdapterInit();
+
+    const iframeUrl = new URL(window.RCAdapter.contentFrameEl.src);
+    expect(iframeUrl.searchParams.get('enableRingoutCallerId')).toBe('1');
+  });
 });

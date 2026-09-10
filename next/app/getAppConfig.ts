@@ -8,6 +8,7 @@ import {
   AppFeatures,
   AvailabilityMonitor,
   type AvailabilityMonitorOptions,
+  Client,
   ConnectivityMonitor,
   Environment,
   ExtensionInfo,
@@ -117,6 +118,7 @@ import {
   ThirdParty,
 } from './services';
 import { createCallLoggerOptions } from './services/CallLogger/createCallLoggerOptions';
+import type { AdapterOptions } from './services/Adapter/AdapterOptions';
 import { AccountContacts as AccountContactsV2 } from './services/AccountContacts';
 import { CallAction as CallActionV2 } from './services/CallAction';
 import { ContactMatcher as ContactMatcherV2 } from './services/ContactMatcher';
@@ -252,7 +254,12 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   enableAnalytics?: boolean;
   defaultAutoLogCallEnabled?: boolean;
   defaultAutoLogMessageEnabled?: boolean;
+  disableInactiveTabCallEvent?: boolean;
+  enableFromNumberSetting?: boolean;
+  enableRingoutCallerId?: boolean;
+  enableSmsSettingEvent?: boolean;
   enableTypingTimeTracking?: boolean;
+  showMyLocationNumbers?: boolean;
 }
 
 /**
@@ -283,7 +290,12 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   enableAnalytics = false,
   defaultAutoLogCallEnabled = false,
   defaultAutoLogMessageEnabled = false,
+  disableInactiveTabCallEvent = false,
+  enableFromNumberSetting = false,
+  enableRingoutCallerId = false,
+  enableSmsSettingEvent = false,
   enableTypingTimeTracking = false,
+  showMyLocationNumbers = false,
 }: CreateAppEntryOptions<T>) => {
   const { defaultLocale } = brandConfig;
 
@@ -331,6 +343,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: Analytics,
         useClass: EmbeddableAnalytics,
       },
+      Client,
       {
         provide: Auth,
         useClass: EmbeddableAuth,
@@ -462,6 +475,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       ModalView,
       MessageStore,
+      Conversations,
       SmsTypingTimeTracker,
       SmsTemplate,
       {
@@ -700,6 +714,16 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useValue: {
           enableTypingTimeTracking,
         } satisfies SmsTypingTimeTrackerOptions,
+      },
+      {
+        provide: 'AdapterOptions',
+        useValue: {
+          disableInactiveTabCallEvent,
+          enableFromNumberSetting,
+          enableRingoutCallerId,
+          enableSmsSettingEvent,
+          showMyLocationNumbers,
+        } satisfies AdapterOptions,
       },
       {
         provide: 'ThirdPartyOptions',

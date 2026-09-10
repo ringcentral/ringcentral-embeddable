@@ -200,11 +200,14 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
         'multipleTabsSupport',
         'showMyLocationNumbers',
       ],
-      status: 'unsupported',
+      status: 'partial',
       risk: 'high',
-      verification: [],
+      verification: [
+        'test/next/createAppAuthentication.test.js',
+        'test/next/dialerViewAdapterOptions.test.js',
+      ],
       nextAction:
-        'Define next service options for calling and multi-tab behavior and add scenario tests.',
+        'Define next service options for defaultCallWith, disconnectInactiveWebphone, enableWebRTCPlanB, and multipleTabsSupport.',
     },
     {
       id: 'runtime.host-integration-behavior',
@@ -213,11 +216,12 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
         'disableInactiveTabCallEvent',
         'enableSmsSettingEvent',
       ],
-      status: 'unsupported',
+      status: 'verified',
       risk: 'high',
-      verification: [],
-      nextAction:
-        'Restore event filtering and SMS host-integration options with postMessage tests.',
+      verification: [
+        'test/next/adapterApiEventParity.test.js',
+        'test/next/createAppAuthentication.test.js',
+      ],
     },
     {
       id: 'runtime.sms-typing-time-tracking',
@@ -331,9 +335,9 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
       ],
       status: 'partial',
       risk: 'high',
-      verification: [],
+      verification: ['test/next/adapterApiEventParity.test.js'],
       nextAction:
-        'Restore legacy calling, SMS, conversation, presence, ringtone-volume, and formatter payload semantics.',
+        'Add payload fixtures for calling and SMS setting updates and phone formatter behavior.',
     },
     {
       id: 'adapter.host-shell-notifications',
@@ -470,11 +474,9 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
         'rc-adapter-update-features-flags',
         'rc-adapter-update-sms-typing-time-tracking',
       ],
-      status: 'unsupported',
+      status: 'verified',
       risk: 'high',
-      verification: [],
-      nextAction:
-        'Implement each documented command or record a reviewed removal decision.',
+      verification: ['test/next/adapterApiEventParity.test.js'],
     },
     {
       id: 'events.present-but-unverified',
@@ -512,9 +514,9 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
       ],
       status: 'partial',
       risk: 'high',
-      verification: [],
+      verification: ['test/next/adapterApiEventParity.test.js'],
       nextAction:
-        'Restore payload shapes, contact matching, duplicate suppression, and inactive-tab delivery before adding event fixtures.',
+        'Add payload fixtures for the remaining host notification families and verify browser delivery.',
     },
     {
       id: 'events.login-popup',
@@ -544,21 +546,17 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
         'rc-message-thread-entity-notify',
         'rc-message-thread-notify',
       ],
-      status: 'unsupported',
+      status: 'verified',
       risk: 'critical',
-      verification: [],
-      nextAction:
-        'Expose typed raw incremental thread-info and entry-record streams from MessageThread before restoring the exact host payloads.',
+      verification: ['test/next/adapterApiEventParity.test.js'],
     },
     {
       id: 'events.telephony-session-updates',
       surface: 'adapter-event',
       legacyNames: ['rc-telephony-session-notify'],
-      status: 'unsupported',
+      status: 'verified',
       risk: 'critical',
-      verification: [],
-      nextAction:
-        'Expose a processed RingCentralCallControl session-data stream, including final disconnected states, before wiring the Adapter event and inactive-tab gate.',
+      verification: ['test/next/adapterApiEventParity.test.js'],
     },
     {
       id: 'requests.present-handlers',
@@ -608,6 +606,14 @@ export const srcNextCompatibilityContract: SrcNextCompatibilityContract = {
         'test/next/callLoggerDependencyInjection.test.js',
         'test/next/callLoggerCompatibility.test.js',
       ],
+    },
+    {
+      id: 'requests.refresh-login-session',
+      surface: 'adapter-request',
+      legacyNames: ['/refresh-login-session'],
+      status: 'verified',
+      risk: 'critical',
+      verification: ['test/next/adapterApiEventParity.test.js'],
     },
     {
       id: 'routes.exact',

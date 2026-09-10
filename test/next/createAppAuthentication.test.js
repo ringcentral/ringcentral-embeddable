@@ -139,6 +139,26 @@ describe('createApp authentication boundary', () => {
     );
   });
 
+  test('forwards legacy Adapter event and caller ID options', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/app.html?disableInactiveTabCallEvent=1&enableFromNumberSetting=true&enableRingoutCallerId=1&enableSmsSettingEvent=1&showMyLocationNumbers=true'
+    );
+
+    await createApp();
+
+    expect(getAppConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        disableInactiveTabCallEvent: true,
+        enableFromNumberSetting: true,
+        enableRingoutCallerId: true,
+        enableSmsSettingEvent: true,
+        showMyLocationNumbers: true,
+      })
+    );
+  });
+
   test('keeps a runtime client ID in PKCE mode without inheriting a default secret', async () => {
     process.env.API_CONFIG = {
       appKey: 'default-client',

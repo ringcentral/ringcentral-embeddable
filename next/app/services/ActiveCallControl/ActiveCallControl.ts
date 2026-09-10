@@ -16,6 +16,7 @@ import type {
   ActiveCallControlSessionData,
 } from '@ringcentral-integration/micro-phone/src/app/services/ActiveCallControl/ActiveCallControl.interface';
 import {
+  action,
   computed,
   delegate,
   injectable,
@@ -23,6 +24,7 @@ import {
   optional,
   PortManager,
   RouterPlugin,
+  state,
 } from '@ringcentral-integration/next-core';
 import type { WebSocketSubscription as Subscription } from '@ringcentral-integration/micro-auth/src/app/services';
 import {
@@ -50,7 +52,11 @@ import {
   ModalView,
 } from '@ringcentral-integration/micro-core/src/app/views';
 import { CallingSettings, PreinsertCall, Webphone } from '@ringcentral-integration/micro-phone/src/app/services';
-import { PartyStatusCode, type ReplyWithTextParams } from 'ringcentral-call-control/lib/Session';
+import {
+  PartyStatusCode,
+  type ReplyWithTextParams,
+  type Session as TelephonySession,
+} from 'ringcentral-call-control/lib/Session';
 
 import { recordStatus } from '../WebphoneV2/recordStatus';
 import { sessionStatus } from '../WebphoneV2/sessionStatus';
@@ -79,6 +85,27 @@ function hasResponseStatus(error: unknown, status: number): boolean {
 })
 export class ActiveCallControl extends ActiveCallControlBase {
   private _stopRecordError: unknown | null = null;
+  private _rawCallControl?: {
+    on(eventName: 'new', listener: (session: TelephonySession) => void): void;
+    removeListener(
+      eventName: 'new',
+      listener: (session: TelephonySession) => void,
+    ): void;
+    sessions: TelephonySession[];
+  };
+  private readonly _telephonySessionListeners = new Map<
+    TelephonySession,
+    () => void
+  >();
+
+  @state
+  telephonySessionUpdate: {
+    sequence: number;
+    session: Record<string, unknown> | null;
+  } = {
+    sequence: 0,
+    session: null,
+  };
 
   constructor(
     _preInsertCall: PreinsertCall,
@@ -136,6 +163,93 @@ export class ActiveCallControl extends ActiveCallControlBase {
 
   private get _webphoneV2(): WebphoneV2 {
     return this._webphone as unknown as WebphoneV2;
+  }
+
+  override async onInit(): Promise<void> {
+    await super.onInit();
+    this._bindTelephonySessionUpdates();
+  }
+
+  override onReset(): void {
+    this._unbindTelephonySessionUpdates();
+    super.onReset();
+  }
+
+  @action
+  private _setTelephonySessionUpdate(
+    session: Record<string, unknown>,
+  ): void {
+    this.telephonySessionUpdate = {
+      sequence: this.telephonySessionUpdate.sequence + 1,
+      session,
+    };
+  }
+
+  private _bindTelephonySessionUpdates(): void {
+    const callControl = (
+      this as unknown as {
+        _rcCallControl?: ActiveCallControl['_rawCallControl'];
+      }
+    )._rcCallControl;
+    if (!callControl || this._rawCallControl === callControl) {
+      return;
+    }
+    this._unbindTelephonySessionUpdates();
+    this._rawCallControl = callControl;
+    callControl.on('new', this._onTelephonySessionCreated);
+    callControl.sessions.forEach(this._onTelephonySessionCreated);
+  }
+
+  private _unbindTelephonySessionUpdates(): void {
+    this._rawCallControl?.removeListener(
+      'new',
+      this._onTelephonySessionCreated,
+    );
+    this._rawCallControl = undefined;
+    this._telephonySessionListeners.forEach((listener, session) => {
+      this._removeTelephonySessionListener(session, listener);
+    });
+    this._telephonySessionListeners.clear();
+  }
+
+  private _onTelephonySessionCreated = (session: TelephonySession): void => {
+    const previousListener = this._telephonySessionListeners.get(session);
+    if (previousListener) {
+      this._removeTelephonySessionListener(session, previousListener);
+    }
+    const updateListener = (): void => {
+      this._publishTelephonySessionUpdate(session);
+      const status = session.party?.status;
+      if (
+        status?.code === PartyStatusCode.disconnected &&
+        status.reason !== 'Pickup' &&
+        status.reason !== 'CallSwitch'
+      ) {
+        this._removeTelephonySessionListener(session, updateListener);
+        this._telephonySessionListeners.delete(session);
+      }
+    };
+    this._telephonySessionListeners.set(session, updateListener);
+    session.on('status', updateListener);
+    session.on('muted', updateListener);
+    session.on('recordings', updateListener);
+    this._publishTelephonySessionUpdate(session);
+  };
+
+  private _removeTelephonySessionListener(
+    session: TelephonySession,
+    listener: () => void,
+  ): void {
+    session.removeListener('status', listener);
+    session.removeListener('muted', listener);
+    session.removeListener('recordings', listener);
+  }
+
+  private _publishTelephonySessionUpdate(session: TelephonySession): void {
+    const sessionData = JSON.parse(
+      JSON.stringify(session.data ?? {}),
+    ) as Record<string, unknown>;
+    this._setTelephonySessionUpdate(sessionData);
   }
 
   private getWebphoneSessionId(telephonySessionId: string) {

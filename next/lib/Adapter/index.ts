@@ -40,6 +40,11 @@ const OTHER_DEVICE_CALLS = 3;
 const ROTATE_LENGTH = 4;
 const ROTATE_INTERVAL = 5000;
 
+type RefreshLoginSessionResponse = {
+  result: 'ok' | 'error';
+  message?: string;
+};
+
 function checkValidImageUri(uri: string): boolean {
   return (
     !!uri &&
@@ -1739,6 +1744,10 @@ class Adapter {
       readOnly,
       readOnlyReason,
     });
+  }
+
+  refreshLoginSession(force?: boolean): Promise<RefreshLoginSessionResponse> {
+    return this._requestWithPostMessage('/refresh-login-session', { force });
   }
 
   get container(): any {

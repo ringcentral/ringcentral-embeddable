@@ -11,6 +11,7 @@ import {
   AudioSettings,
   Call,
   CallingSettings,
+  callingModes,
   Webphone,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
@@ -18,9 +19,19 @@ import {
   type DialerViewCallParams,
   type DialerViewOptions,
 } from '@ringcentral-integration/micro-phone/src/app/views';
-import { injectable, optional, PortManager } from '@ringcentral-integration/next-core';
+import type {
+  DialerViewPanelProps,
+  DialerViewProps,
+} from '@ringcentral-integration/micro-phone/src/app/views/DialerView/Dialer.view.interface';
+import {
+  injectable,
+  optional,
+  PortManager,
+  type UIProps,
+} from '@ringcentral-integration/next-core';
 
 import { DoNotContact } from '../../services/DoNotContact';
+import type { AdapterOptions } from '../../services/Adapter/AdapterOptions';
 
 /** Adds third-party Do Not Call verification to the Spring dialer. */
 @injectable({
@@ -44,6 +55,8 @@ export class DialerView extends BaseDialerView {
     @optional() protected override _contactSearch?: ContactSearch,
     @optional('DialerViewOptions')
     protected override _dialerViewOptions?: DialerViewOptions,
+    @optional('AdapterOptions')
+    private _adapterOptions?: AdapterOptions,
   ) {
     super(
       _callingSettings,
@@ -65,4 +78,18 @@ export class DialerView extends BaseDialerView {
 
   protected override callVerify = (options: DialerViewCallParams): Promise<boolean> =>
     this._doNotContact.verifyCall(options);
+
+  override getUIProps(
+    props: DialerViewProps,
+  ): UIProps<DialerViewPanelProps> {
+    const uiProps = super.getUIProps(props);
+    const showRingoutCallerId = Boolean(
+      this._adapterOptions?.enableRingoutCallerId &&
+        uiProps.callingMode === callingModes.ringout,
+    );
+    return {
+      ...uiProps,
+      isWebphoneMode: uiProps.isWebphoneMode || showRingoutCallerId,
+    };
+  }
 }
