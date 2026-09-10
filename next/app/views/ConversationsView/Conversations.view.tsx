@@ -28,6 +28,7 @@ import type {
   ConversationsViewSpringOptions,
   ConversationsViewSpringProps,
 } from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/Conversations.view.interface';
+import { LogInfo } from '@ringcentral-integration/micro-phone/src/app/hooks/useContactRenderInfo/components';
 import { IntegrationConfig } from '@ringcentral-integration/micro-setting/src/app/services';
 import {
   inject,
@@ -37,17 +38,26 @@ import {
   RouterPlugin,
   type UIFunctions,
   useConnector,
+  useContainer,
 } from '@ringcentral-integration/next-core';
+import React from 'react';
 
+import { LogStatusMessage } from '../../components/LogStatusMessage';
 import { useConversationDisplayNameWithMatches } from '../../components/MatchedContactsTag';
 import {
   type ContactMatcher,
   refreshContactMatch,
 } from '../../services/ContactMatcher';
+import {
+  getConversationMatches,
+  getLoggedContact,
+  type MatchedContactSelection,
+} from '../../services/MatchedContactSelection';
 import { ThirdParty } from '../../services/ThirdParty';
 
 import {
   createConversationLogAction,
+  hasLoggedConversation,
   insertConversationLogAction,
   logConversationManually,
 } from './ConversationLogAction';
@@ -135,8 +145,34 @@ export class ConversationsView extends ConversationsViewSpringBase {
             conversation.conversationMatches
           : conversation.conversationMatches,
       };
+      const matchedContactSelection = useContainer<MatchedContactSelection>(
+        'MatchedContactSelection',
+      );
+      const selectedEntityId = useConnector(() =>
+        conversation.conversationId
+          ? matchedContactSelection.getSelectedEntityId(
+              'conversation',
+              conversation.conversationId,
+            )
+          : undefined,
+      );
+      const contactMatches = getConversationMatches(conversationWithLogState);
+      const loggedContact = getLoggedContact(
+        conversationWithLogState.conversationMatches,
+        contactMatches,
+      );
+      const selectedContact = contactMatches?.find(
+        ({ id }) => id === selectedEntityId,
+      );
+      const effectiveContact = loggedContact ?? selectedContact;
+      const conversationWithContactSelection = effectiveContact
+        ? {
+            ...conversationWithLogState,
+            lastMatchedCorrespondentEntity: effectiveContact,
+          }
+        : conversationWithLogState;
       const result = baseUseConversationItemInfo(
-        conversationWithLogState,
+        conversationWithContactSelection,
         options,
       );
       const { t } = useLocale(i18n);
@@ -145,14 +181,28 @@ export class ConversationsView extends ConversationsViewSpringBase {
           conversationLogId && conversationLogger.loggingMap[conversationLogId],
         ),
         logButtonTitle: thirdParty.messageLoggerTitle,
+        registered: thirdParty.messageLoggerRegistered,
         ready: conversationLogger.ready && thirdParty.messageLoggerRegistered,
       }));
       const DisplayName = useConversationDisplayNameWithMatches(
         result.info.DisplayName,
         conversationWithLogState,
       );
+      const displayDescription =
+        options?.pageType === 'list' ? (
+          <>
+            {result.info.displayDescription}
+            <LogStatusMessage
+              className="block w-full"
+              matches={conversationWithContactSelection.conversationMatches}
+              multiline
+            />
+          </>
+        ) : (
+          result.info.displayDescription
+        );
       const logAction = createConversationLogAction({
-        conversation: conversationWithLogState,
+        conversation: conversationWithContactSelection,
         editLogLabel: t('editLog'),
         logMessageLabel: t('logMessages'),
         ...logState,
@@ -160,7 +210,16 @@ export class ConversationsView extends ConversationsViewSpringBase {
       return {
         ...result,
         actions: insertConversationLogAction(result.actions, logAction),
-        info: { ...result.info, DisplayName },
+        info: {
+          ...result.info,
+          DisplayName,
+          displayDescription,
+          logged: logState.registered ? (
+            <LogInfo
+              logged={hasLoggedConversation(conversationWithContactSelection)}
+            />
+          ) : null,
+        },
       };
     };
 

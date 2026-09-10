@@ -196,6 +196,23 @@ describe('useCallDisplayNameWithMatches', () => {
 
     expect(selection.getSelectedEntityId('call', 'session-1')).toBe('crm-2');
   });
+
+  test('hides the picker when a logged activity identifies the contact', () => {
+    const Host = () => {
+      const DisplayName = useCallDisplayNameWithMatches(
+        () => <span>name</span>,
+        'session-1',
+        MATCHES,
+        [{ contact: { id: 'crm-2' }, type: 'activity' }],
+      );
+      return <DisplayName displayControl={{ maybe: true }} />;
+    };
+
+    const { container } = render(<Host />);
+
+    expect(container.querySelector('[data-sign="matchCounts"]')).toBeNull();
+    expect(screen.queryByRole('button')).toBeNull();
+  });
 });
 
 describe('useConversationDisplayNameWithMatches', () => {
@@ -230,6 +247,46 @@ describe('useConversationDisplayNameWithMatches', () => {
     expect(
       selection.getSelectedEntityId('conversation', 'conversation-1'),
     ).toBe('crm-2');
+  });
+
+  test('hides the picker when a conversation log identifies the contact', () => {
+    const loggedConversation = {
+      ...conversation,
+      conversationMatches: [
+        { contactId: 'crm-2', id: 'activity-1', type: 'activity' },
+      ],
+    };
+    const Host = () => {
+      const DisplayName = useConversationDisplayNameWithMatches(
+        BaseDisplayName,
+        loggedConversation,
+      );
+      return <DisplayName displayControl={{ maybe: true }} />;
+    };
+
+    const { container } = render(<Host />);
+
+    expect(container.querySelector('[data-sign="matchCounts"]')).toBeNull();
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  test('hides the picker for a contact resolved from an earlier log', () => {
+    const loggedConversation = {
+      ...conversation,
+      lastMatchedCorrespondentEntity: MATCHES[2],
+    };
+    const Host = () => {
+      const DisplayName = useConversationDisplayNameWithMatches(
+        BaseDisplayName,
+        loggedConversation,
+      );
+      return <DisplayName displayControl={{ maybe: true }} />;
+    };
+
+    const { container } = render(<Host />);
+
+    expect(container.querySelector('[data-sign="matchCounts"]')).toBeNull();
+    expect(screen.queryByRole('button')).toBeNull();
   });
 
   test('keeps a stable component identity so an open menu survives re-renders', () => {

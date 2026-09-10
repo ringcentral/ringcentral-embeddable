@@ -4,6 +4,7 @@ import { ActionMenuList } from "@ringcentral-integration/next-widgets/components
 import { ListItem, ListItemText } from "@ringcentral/spring-ui";
 import React, { memo } from "react";
 
+import { LogStatusMessage } from "../../components/LogStatusMessage";
 import {
   createRefreshContactActionButton,
   insertRefreshContactActionButton,
@@ -98,7 +99,16 @@ const CallsListItemComponent: React.FC<CallsListItemProps> = ({
             <DisplayName displayControl={{ maybe: true, matchCounts: true }} />
           </div>
         }
-        secondary={Status ? <Status mode="icon" /> : undefined}
+        secondary={
+          <div className="flex min-w-0 flex-col items-start gap-0.5">
+            {Status ? <Status mode="icon" /> : null}
+            <LogStatusMessage
+              className="block w-full"
+              matches={call.activityMatches}
+              multiline
+            />
+          </div>
+        }
       />
       <div className="text-right min-h-11 max-w-[30%]">
         <span

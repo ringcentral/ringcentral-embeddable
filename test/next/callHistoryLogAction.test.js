@@ -1,4 +1,5 @@
 import {
+  addCallHistoryLoggedContact,
   addCallHistoryLogStatus,
   createCallHistoryLogActions,
   getCallHistoryLogActionHiddenReason,
@@ -22,6 +23,26 @@ function createOptions(overrides = {}) {
 }
 
 describe('call-history log actions', () => {
+  test.each([
+    ['Inbound', 'fromMatches'],
+    ['Outbound', 'toMatches'],
+  ])('uses the logged contact for an %s call', (direction, matchesKey) => {
+    const loggedContact = { id: 'contact-2', name: 'Grace' };
+    const call = {
+      activityMatches: [{ contactId: 'contact-2', type: 'activity' }],
+      direction,
+      fromMatches: [],
+      toMatches: [],
+      type: 'Voice',
+      [matchesKey]: [{ id: 'contact-1', name: 'Ada' }, loggedContact],
+    };
+
+    expect(addCallHistoryLoggedContact(call).callSelectionInfo).toEqual({
+      displayedSelection: loggedContact,
+      selections: [loggedContact],
+    });
+  });
+
   test('derives logged status from non-status activities', () => {
     expect(
       addCallHistoryLogStatus({

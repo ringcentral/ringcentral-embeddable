@@ -1,13 +1,15 @@
 import type { Entity } from '@ringcentral-integration/commons/interfaces/Entity.interface';
-import type {
-  ConversationLogger,
-  FilteredConversation,
-} from '@ringcentral-integration/micro-message/src/app/services';
+import type { ConversationLogger } from '@ringcentral-integration/micro-message/src/app/services';
 import type { HistoryAction } from '@ringcentral-integration/next-widgets/components/ActionMenuList/useHistoryActionButtons';
 
-type ConversationWithLogState = FilteredConversation & {
+type ConversationWithLogState = {
   conversationId?: string;
-  conversationMatches?: Array<{ id?: string }>;
+  conversationMatches?: Array<{
+    id?: string;
+    name?: string;
+    type?: string;
+    url?: string;
+  }>;
 };
 
 interface CreateConversationLogActionOptions {
@@ -28,7 +30,9 @@ interface LogConversationManuallyOptions {
 export function hasLoggedConversation(
   conversation: ConversationWithLogState,
 ): boolean {
-  return Boolean(conversation.conversationMatches?.length);
+  return Boolean(
+    conversation.conversationMatches?.some(({ type }) => type !== 'status'),
+  );
 }
 
 export function createConversationLogAction({

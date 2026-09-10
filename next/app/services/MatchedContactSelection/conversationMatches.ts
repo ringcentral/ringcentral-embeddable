@@ -6,11 +6,13 @@ export interface ConversationMatchOption {
 
 export interface ConversationWithMatches {
   conversationId?: string;
+  conversationMatches?: unknown[];
   correspondents?: unknown[];
   /** Per-correspondent matches, populated for list items. */
   correspondentMatchesList?: ConversationMatchOption[][];
   /** Flattened matches; the only one `currentConversation` populates. */
   correspondentMatches?: ConversationMatchOption[];
+  lastMatchedCorrespondentEntity?: ConversationMatchOption | null;
 }
 
 /**

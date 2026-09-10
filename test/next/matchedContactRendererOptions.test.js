@@ -48,6 +48,37 @@ describe('contact renderer options', () => {
       ).toBe(CRM_MATCH);
     });
 
+    test('prefers the contact referenced by a logged conversation', async () => {
+      const conversation = {
+        ...CONVERSATION,
+        conversationMatches: [
+          { contact: { id: 'crm-1' }, id: 'activity-1', type: 'activity' },
+        ],
+      };
+      const { options, selection } = createOptions('crm', conversation);
+      await selection.select({
+        scope: 'conversation',
+        key: 'conversation-1',
+        entityId: 'rc-1',
+      });
+
+      expect(
+        options.getDisplayedSelectedEntity([], 'conversation-1'),
+      ).toBe(CRM_MATCH);
+    });
+
+    test('falls back to the logger-derived legacy selection', () => {
+      const conversation = {
+        ...CONVERSATION,
+        lastMatchedCorrespondentEntity: CRM_MATCH,
+      };
+      const { options } = createOptions('crm', conversation);
+
+      expect(
+        options.getDisplayedSelectedEntity([], 'conversation-1'),
+      ).toBe(CRM_MATCH);
+    });
+
     test('ignores the framework-supplied matches argument', async () => {
       // The framework passes the conversation's CRM *log* records here, which
       // are empty without a message logger — resolving against them meant a

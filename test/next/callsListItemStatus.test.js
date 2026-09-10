@@ -16,6 +16,9 @@ jest.mock("@ringcentral-integration/next-widgets/components", () => ({
 describe("CallsListItem status information", () => {
   test("uses shared status and logged info with the base actions", () => {
     const call = {
+      activityMatches: [
+        { message: "Waiting for CRM", status: "pending", type: "status" },
+      ],
       hasSmartNote: true,
       id: "call-id",
       sessionId: "session-id",
@@ -59,6 +62,16 @@ describe("CallsListItem status information", () => {
       "truncate"
     );
     expect(screen.getByTestId("loggedCall")).toHaveTextContent("Logged");
+    expect(screen.getByTestId("logStatusMessage")).toHaveTextContent(
+      "Waiting for CRM"
+    );
+    expect(screen.getByTestId("logStatusMessage")).toHaveClass(
+      "block",
+      "break-words",
+      "text-warning-f",
+      "whitespace-normal",
+      "w-full"
+    );
     expect(screen.getByTestId("actions")).toHaveTextContent("call");
   });
 });

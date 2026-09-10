@@ -1,7 +1,10 @@
 import clsx from 'clsx';
 import React, { useRef, type FunctionComponent } from 'react';
 
-import { getConversationMatches } from '../../services/MatchedContactSelection';
+import {
+  getConversationMatches,
+  getLoggedContact,
+} from '../../services/MatchedContactSelection';
 
 import type { ConversationMatchedContactsTagProps } from './ConversationMatchedContactsTag';
 import {
@@ -78,11 +81,16 @@ export function getConversationTagProps(
   conversation: ConversationMatchedContactsTagProps['conversation']
 ): MatchedContactsTagProps {
   const matches = getConversationMatches(conversation);
+  const loggedContact =
+    getLoggedContact(conversation.conversationMatches, matches) ??
+    matches?.find(
+      ({ id }) => id === conversation.lastMatchedCorrespondentEntity?.id,
+    );
   return {
     scope: 'conversation',
     recordKey: conversation.conversationId,
-    matches,
-    selectable: Boolean(matches),
+    matches: loggedContact ? [loggedContact] : matches,
+    selectable: Boolean(matches) && !loggedContact,
   };
 }
 
@@ -99,11 +107,14 @@ export function useConversationDisplayNameWithMatches(
 export function useCallDisplayNameWithMatches(
   BaseDisplayName: DisplayNameComponent,
   sessionId: string | null | undefined,
-  matches: MatchedContactOption[] | undefined
+  matches: MatchedContactOption[] | undefined,
+  logMatches?: readonly unknown[],
 ): DisplayNameComponent {
+  const loggedContact = getLoggedContact(logMatches, matches);
   return useDisplayNameWithMatches(BaseDisplayName, {
     scope: 'call',
     recordKey: sessionId,
-    matches,
+    matches: loggedContact ? [loggedContact] : matches,
+    selectable: !loggedContact,
   });
 }

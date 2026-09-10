@@ -7,6 +7,7 @@ import {
   getConversationMatches,
   type ConversationWithMatches,
 } from './conversationMatches';
+import { getLoggedContact } from './getLoggedContact';
 import type { MatchedContactSelection } from './MatchedContactSelection';
 
 interface ConversationsLookup {
@@ -42,12 +43,27 @@ export function createContactRendererOptions(
       const conversation =
         conversations.formattedConversationsMap.get(conversationId) ??
         conversations.currentConversation;
-      // Returning undefined keeps the framework's `Maybe: <guess>` rendering.
-      return matchedContactSelection.resolveSelection(
+      const contactMatches = getConversationMatches(conversation);
+      const loggedContact = getLoggedContact(
+        conversation?.conversationMatches,
+        contactMatches,
+      );
+      if (loggedContact) {
+        return loggedContact as Entity;
+      }
+      const selectedContact = matchedContactSelection.resolveSelection(
         'conversation',
         conversationId,
-        getConversationMatches(conversation)
-      )?.displayedSelection as Entity | undefined;
+        contactMatches,
+      )?.displayedSelection;
+      if (selectedContact) {
+        return selectedContact as Entity;
+      }
+      const lastMatchedContactId =
+        conversation?.lastMatchedCorrespondentEntity?.id;
+      return contactMatches?.find(({ id }) => id === lastMatchedContactId) as
+        | Entity
+        | undefined;
     },
     getDefaultCrmMatch: (matches) => {
       if (!matches?.length) {

@@ -35,6 +35,7 @@ jest.mock(
 
 import {
   createConversationLogAction,
+  hasLoggedConversation,
   insertConversationLogAction,
   logConversationManually,
 } from '../../next/app/views/ConversationsView/ConversationLogAction';
@@ -49,6 +50,23 @@ function createConversation(overrides = {}) {
 }
 
 describe('conversation log action', () => {
+  test('derives logged status from non-status matches', () => {
+    expect(
+      hasLoggedConversation(
+        createConversation({
+          conversationMatches: [{ status: 'pending', type: 'status' }],
+        }),
+      ),
+    ).toBe(false);
+    expect(
+      hasLoggedConversation(
+        createConversation({
+          conversationMatches: [{ id: 'activity-id', type: 'messageLog' }],
+        }),
+      ),
+    ).toBe(true);
+  });
+
   test('uses the registered title and current logging state', () => {
     expect(
       createConversationLogAction({

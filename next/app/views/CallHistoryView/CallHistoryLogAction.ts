@@ -5,6 +5,7 @@ import type {
 import type { RouterPlugin } from "@ringcentral-integration/next-core";
 import type { HistoryAction } from "@ringcentral-integration/next-widgets/components/ActionMenuList/useHistoryActionButtons";
 
+import { getLoggedContact } from "../../services/MatchedContactSelection";
 import type { ThirdParty } from "../../services/ThirdParty";
 
 type ActivityMatch = {
@@ -16,12 +17,43 @@ type CallWithActivityMatches = Pick<HistoryCall, "type"> & {
   activityMatches?: Array<ActivityMatch | string>;
 };
 
+type CallContactMatch = HistoryCall["fromMatches"][number];
+
+type CallWithContactMatches = CallWithActivityMatches & {
+  direction?: string;
+  fromMatches?: CallContactMatch[];
+  toMatches?: CallContactMatch[];
+};
+
 export function addCallHistoryLogStatus<T extends CallWithActivityMatches>(
   call: T
 ): T & { isLogged: boolean } {
   return {
     ...call,
     isLogged: hasLoggedCallActivity(call),
+  };
+}
+
+export function addCallHistoryLoggedContact<T extends CallWithContactMatches>(
+  call: T
+): T & {
+  callSelectionInfo?: {
+    displayedSelection: CallContactMatch;
+    selections: CallContactMatch[];
+  };
+} {
+  const contactMatches =
+    call.direction === "Inbound" ? call.fromMatches : call.toMatches;
+  const loggedContact = getLoggedContact(call.activityMatches, contactMatches);
+  if (!loggedContact) {
+    return call;
+  }
+  return {
+    ...call,
+    callSelectionInfo: {
+      displayedSelection: loggedContact,
+      selections: [loggedContact],
+    },
   };
 }
 

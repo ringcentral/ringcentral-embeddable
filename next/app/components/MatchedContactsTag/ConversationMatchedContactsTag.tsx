@@ -10,8 +10,11 @@ export interface ConversationMatchedContactsTagProps {
   /** Typed structurally — only these three fields are needed. */
   conversation: {
     conversationId?: string;
+    conversationMatches?: unknown[];
     correspondents?: unknown[];
     correspondentMatchesList?: MatchedContactOption[][];
+    correspondentMatches?: MatchedContactOption[];
+    lastMatchedCorrespondentEntity?: MatchedContactOption | null;
   };
 }
 

@@ -45,6 +45,7 @@ import { MatchedContactSelection } from '../../services/MatchedContactSelection'
 import { ThirdParty } from '../../services/ThirdParty';
 
 import {
+  addCallHistoryLoggedContact,
   addCallHistoryLogStatus,
   createCallHistoryLogActions,
   insertCallHistoryLogActions,
@@ -110,7 +111,12 @@ export class CallsListView extends CallsListViewSpringBase {
     const baseUseCallHistoryItemInfo = this.useCallHistoryItemInfo;
     this.useCallHistoryItemInfo = (call, options) => {
       const callWithLogStatus = addCallHistoryLogStatus(call);
-      const result = baseUseCallHistoryItemInfo(callWithLogStatus, options);
+      const callWithContactSelection =
+        addCallHistoryLoggedContact(callWithLogStatus);
+      const result = baseUseCallHistoryItemInfo(
+        callWithContactSelection,
+        options,
+      );
       const { t } = useLocale(i18n);
       const logState = useConnector(() => ({
         hideEditLogButton: this._thirdParty.callLoggerHideEditLogButton,
@@ -122,6 +128,7 @@ export class CallsListView extends CallsListViewSpringBase {
         result.info.DisplayName,
         call.sessionId,
         result.info.renderInfo?.metadata?.matches,
+        call.activityMatches,
       );
       const logActions = createCallHistoryLogActions({
         call,
