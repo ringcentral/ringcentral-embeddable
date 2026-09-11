@@ -53,12 +53,16 @@ type CompatibleThreadConversation = {
   correspondents?: Correspondent[];
 };
 
+type TabManagerLike = {
+  active: boolean;
+};
+
 function addConversationLoggerStorageMigration(
   storagePlugin: StoragePlugin,
 ): StoragePlugin {
   const migratingStoragePlugin = Object.create(storagePlugin) as StoragePlugin;
   migratingStoragePlugin.enable = ((target: object) =>
-    storagePlugin.enable(target, {
+    storagePlugin.enable(target as object & { _autoLog: boolean }, {
       migrations: [['_autoLog', 'ConversationLogger-_autoLog']],
     })) as StoragePlugin['enable'];
   return migratingStoragePlugin;
@@ -85,7 +89,7 @@ export class ConversationLogger extends ConversationLoggerBase {
     private readonly _moduleRef: ModuleRef,
     private readonly _smsTypingTimeTracker: SmsTypingTimeTracker,
     private readonly _thirdParty: ThirdParty,
-    @optional('TabManager') tabManager?: object,
+    @optional('TabManager') private readonly _tabManager?: TabManagerLike,
   ) {
     super(
       auth,
@@ -98,7 +102,6 @@ export class ConversationLogger extends ConversationLoggerBase {
       appFeatures,
       router,
       conversationLoggerOptions,
-      tabManager,
     );
     if (conversationLoggerOptions.autoLog) {
       this._autoLog = true;

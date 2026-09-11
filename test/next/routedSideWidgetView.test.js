@@ -8,7 +8,7 @@ import { RoutedSideWidgetView } from '../../next/app/views/RoutedSideWidgetView/
 jest.mock('@ringcentral-integration/next-core', () => ({
   action: (_target, _key, descriptor) => descriptor,
   injectable: () => (target) => target,
-  matchPath: require('react-router').matchPath,
+  matchPath: require('react-router-dom').matchPath,
   RcViewModule: class RcViewModule {},
   Root: class Root {},
   Route: require('react-router-dom').Route,

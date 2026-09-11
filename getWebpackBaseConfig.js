@@ -34,6 +34,11 @@ module.exports = function getBaseConfig({ themeFolder = null, styleLoader = 'sty
     },
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+      alias: {
+        // The legacy application uses React Router 3 route configuration,
+        // while the next application and Reactant require React Router 5.
+        'react-router$': require.resolve('react-router-v3'),
+      },
       fallback: {
         crypto: require.resolve('crypto-browserify'),
         stream: require.resolve('stream-browserify'),

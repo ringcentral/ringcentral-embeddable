@@ -11,11 +11,15 @@ import {
   Locale,
   Toast,
 } from '@ringcentral-integration/micro-core/src/app/services';
-import { ModalView } from '@ringcentral-integration/micro-core/src/app/views';
+import {
+  ModalView,
+  SyncTabView,
+} from '@ringcentral-integration/micro-core/src/app/views';
 import {
   ComposeText,
   ConversationLogger,
   Conversations,
+  MessageThread,
   MessageStore,
   SmsConversations,
   SmsOptOut,
@@ -23,6 +27,7 @@ import {
 } from '@ringcentral-integration/micro-message/src/app/services';
 import type { SmsConversationsOptions } from '@ringcentral-integration/micro-message/src/app/services/Sms/SmsConversations.interface';
 import { ConversationsViewSpring as ConversationsViewSpringBase } from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring';
+import { ConversationsTabsView } from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/ConversationsTabs.view';
 import type {
   ConversationsPanelSpringProps,
   ConversationsViewSpringOptions,
@@ -89,9 +94,12 @@ export class ConversationsView extends ConversationsViewSpringBase {
     voicemailAudio: VoicemailAudio,
     integrationConfig: IntegrationConfig,
     smsConversations: SmsConversations,
+    conversationsTabsView: ConversationsTabsView,
+    syncTabView: SyncTabView,
     @inject(ConversationLogger) conversationLogger: ConversationLogger,
     @inject(ThirdParty) thirdParty: ThirdParty,
     @optional(ContactMatcherBase) contactMatcher?: ContactMatcher,
+    @optional() messageThread?: MessageThread,
     @optional() smsOptOut?: SmsOptOut,
     @optional('ConversationsViewOptions')
     conversationsViewOptions?: ConversationsViewSpringOptions,
@@ -115,8 +123,11 @@ export class ConversationsView extends ConversationsViewSpringBase {
       voicemailAudio,
       integrationConfig,
       smsConversations,
+      conversationsTabsView,
+      syncTabView,
       contactMatcher,
       conversationLogger,
+      messageThread,
       smsOptOut,
       {
         ...conversationsViewOptions,
@@ -132,10 +143,13 @@ export class ConversationsView extends ConversationsViewSpringBase {
     // reach it through `getUIFunctions`, and `VoicemailView` and
     // `FaxDetailsView` call it directly off this view.
     const baseUseConversationItemInfo = this.useConversationItemInfo;
-    this.useConversationItemInfo = (conversation, options) => {
+    this.useConversationItemInfo = (conversation, options = {}) => {
+      const compatibleConversation = conversation as typeof conversation & {
+        conversationId?: string;
+      };
       const conversationLogId =
         conversation.conversationLogId === 'unknown'
-          ? conversation.conversationId
+          ? compatibleConversation.conversationId
           : conversation.conversationLogId;
       const conversationWithLogState = {
         ...conversation,
@@ -149,10 +163,10 @@ export class ConversationsView extends ConversationsViewSpringBase {
         'MatchedContactSelection',
       );
       const selectedEntityId = useConnector(() =>
-        conversation.conversationId
+        compatibleConversation.conversationId
           ? matchedContactSelection.getSelectedEntityId(
               'conversation',
-              conversation.conversationId,
+              compatibleConversation.conversationId,
             )
           : undefined,
       );
@@ -267,7 +281,11 @@ export class ConversationsView extends ConversationsViewSpringBase {
             actionType === 'viewDetail' &&
             (info.isTextMessage || info.isVoicemail || info.isFax)
           ) {
-            const conversationId = conversation.conversationId;
+            const conversationId = (
+              conversation as typeof conversation & {
+                conversationId?: string;
+              }
+            ).conversationId;
             if (!conversationId) {
               return;
             }

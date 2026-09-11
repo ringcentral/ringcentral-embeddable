@@ -8,6 +8,7 @@ jest.mock('@ringcentral-integration/widgets/modules/CallsListUI', () => ({
   CallsListUI: class BaseCallsListUI {
     constructor(deps) {
       this._deps = deps;
+      this._modulePath = 'root';
     }
 
     getUIProps() {

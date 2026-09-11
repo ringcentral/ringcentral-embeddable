@@ -29,6 +29,14 @@ import { ParkPage } from './ParkPage';
 
 const CONTROLS_PATH: CallMetaInfo['currentPath'] = 'controls';
 
+type ParkableWebphone = Omit<Webphone, 'park'> & {
+  park(sessionId: string): Promise<string | undefined>;
+  parkToLocation(
+    sessionId: string,
+    extension: { id: string; name?: string; extensionNumber?: string },
+  ): Promise<string | undefined>;
+};
+
 @injectable({
   name: 'ParkView',
 })
@@ -93,8 +101,9 @@ export class ParkView extends RcViewModule {
             ? session.from
             : session.to;
         let destination: string | undefined;
+        const parkableWebphone = this._webphone as ParkableWebphone;
         if (!locationId) {
-          destination = await this._webphone.park(sessionId);
+          destination = await parkableWebphone.park(sessionId);
         } else {
           const parkLocation = this._monitoredExtensions.parkLocations.find(
             (item) => item.id === locationId,
@@ -102,7 +111,7 @@ export class ParkView extends RcViewModule {
           if (!parkLocation) {
             return null;
           }
-          destination = await this._webphone.parkToLocation(
+          destination = await parkableWebphone.parkToLocation(
             sessionId,
             parkLocation.extension,
           );

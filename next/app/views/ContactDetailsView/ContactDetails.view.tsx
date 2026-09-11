@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useParams } from 'react-router';
 /* eslint-disable react-hooks/rules-of-hooks */
 import {
   AccountInfo,
@@ -30,6 +29,7 @@ import {
   RouterPlugin,
   state,
   useConnector,
+  useParams,
 } from '@ringcentral-integration/next-core';
 import { ContactDetailsPanel } from './ContactDetailsPanel';
 

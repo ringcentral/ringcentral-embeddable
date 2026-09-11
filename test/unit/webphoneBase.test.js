@@ -4,11 +4,11 @@ const { connectionStatus } = require('@ringcentral-integration/commons/modules/W
 const { webphoneErrors } = require('@ringcentral-integration/commons/modules/Webphone/webphoneErrors');
 const { setStagedState } = require('@ringcentral-integration/core/lib/usm-redux/utils');
 
-jest.mock('ringcentral-web-phone', () => (
+jest.mock('ringcentral-web-phone-v2', () => (
   require('../mocks/RingCentralWebphoneV2Mock').default
 ));
 
-jest.mock('ringcentral-web-phone/sip-message/outbound/response', () => (
+jest.mock('ringcentral-web-phone-v2/sip-message/outbound/response', () => (
   class TestResponseMessage {
     constructor(message, { responseCode }) {
       this.message = message;

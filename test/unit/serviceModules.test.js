@@ -6,6 +6,7 @@ jest.mock('@ringcentral-integration/commons/modules/DataFetcherV2', () => ({
   DataFetcherV2Consumer: class MockDataFetcherV2Consumer {
     constructor({ deps }) {
       this._deps = deps;
+      this._modulePath = 'root';
       this.data = null;
     }
   },
@@ -153,6 +154,7 @@ jest.mock('@ringcentral-integration/commons/modules/CallHistory', () => ({
   CallHistory: class BaseCallHistory {
     constructor(deps) {
       this._deps = deps;
+      this._modulePath = 'root';
       this.endedCalls = [];
       this.normalizedCalls = [];
       this.findMatches = jest.fn((mapping, call) => ({

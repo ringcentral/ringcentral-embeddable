@@ -339,9 +339,10 @@ jest.mock('../../src/components/ConversationItem/ConversationIcon', () => ({
   ),
 }));
 
-jest.mock('@ringcentral-integration/widgets/react-hooks/usePromise', () => (
-  () => (promise) => promise
-));
+jest.mock('react-use', () => ({
+  ...jest.requireActual('react-use'),
+  usePromise: () => (promise) => promise,
+}));
 
 jest.mock('@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber', () => ({
   checkShouldHidePhoneNumber: jest.fn(() => false),

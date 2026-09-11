@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 
-import TransportBase from '@ringcentral-integration/commons/lib/TransportBase';
+import { TransportBase } from '@ringcentral-integration/commons/lib/TransportBase';
 
 import './BroadcastChannel.polyfill';
 

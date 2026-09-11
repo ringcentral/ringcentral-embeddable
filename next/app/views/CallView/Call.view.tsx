@@ -1,4 +1,3 @@
-import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import type { Call } from '@ringcentral-integration/commons/interfaces/Call.interface';
 import {
   RateLimiter,
@@ -11,7 +10,6 @@ import {
 import { SyncTabView } from '@ringcentral-integration/micro-core/src/app/views';
 import {
   autobind,
-  computed,
   fromWatchValue,
   injectable,
   optional,
@@ -22,7 +20,7 @@ import {
   useConnector,
 } from '@ringcentral-integration/next-core';
 import React, { FC, useMemo } from 'react';
-import { concatMap, distinctUntilChanged, pairwise } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs';
 
 import {
   ActiveCallControl,
@@ -31,6 +29,7 @@ import {
   CallMonitor,
   isRingingCall,
   PreinsertCall,
+  useLatestExistCall,
   Webphone,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { CallViewOptions } from '@ringcentral-integration/micro-phone/src/app/views/CallView';
@@ -55,11 +54,8 @@ import { SideWidgetView } from '../SideWidgetView';
 import type { SmartNotesHistoryCall } from '../CallHistoryView/SmartNotesHistoryCall';
 import type { SmartNotesView } from '../SmartNotesView';
 import { ParkView } from './ParkView';
-import { useCallInfoWithPreinsert } from './useCallInfoWithPreinsert';
 
-const CALLING_ROUTE_PATH = '/calling';
-
-const FullWrapper: FC = ({ children }) => (
+const FullWrapper: FC<{ children?: React.ReactNode }> = ({ children }) => (
   <>
     <div
       tabIndex={0}
@@ -144,21 +140,11 @@ export class CallView extends CallViewBase {
       callViewOptions,
     );
     this._parkView = parkView;
-    this._appRouter = router;
     this._appCallAction = callAction;
     this._appCallViewState = callViewState;
-    this._appCallMonitor = callMonitor;
-    this._appPreinsertCall = preInsertCall;
     this._appActiveCallsView = activeCallsView;
     this._appAddCallView = addCallView;
     this._appCallLogFormView = callLogFormView;
-    if (portManager.shared) {
-      portManager.onServer(() => {
-        this.bindPreinsertNavigation();
-      });
-    } else {
-      this.bindPreinsertNavigation();
-    }
     const privateComponents = this as unknown as CallViewPrivateComponents;
     this._baseCallDetailForm = (
       CallViewBase.prototype as unknown as Pick<
@@ -185,11 +171,8 @@ export class CallView extends CallViewBase {
   }
 
   private readonly _parkView: ParkView;
-  private readonly _appRouter: RouterPlugin;
   private readonly _appCallAction: CallAction;
   private readonly _appCallViewState: CallViewState;
-  private readonly _appCallMonitor: CallMonitor;
-  private readonly _appPreinsertCall: PreinsertCall;
   private readonly _appActiveCallsView: ActiveCallsView;
   private readonly _appAddCallView: AddCallView;
   private readonly _appCallLogFormView?: CallLogFormView;
@@ -244,71 +227,18 @@ export class CallView extends CallViewBase {
     }
   }
 
-  /**
-   * the outbound call that only exists as a local webphone (SIP) session,
-   * before the server telephony session event arrives
-   */
-  @computed
-  private get connectingPreinsertInfo() {
-    return this._appCallAction.preInsertCallInfoList.find(
-      ({ call, meta }) =>
-        call.direction === callDirections.outbound &&
-        meta?.open &&
-        !this._appPreinsertCall.isBringInPartyPreinsertStatus(
-          call.telephonySessionId!,
-        ),
-    );
-  }
-
-  /**
-   * navigate to the call control page as soon as the outbound SIP session is
-   * created, instead of waiting for the server telephony session event (a
-   * WebSocket round trip that can take seconds, during which the base
-   * fullScreenCallActionOpened$ keeps the user stuck on the dial page)
-   */
-  private bindPreinsertNavigation() {
-    fromWatchValue(
-      this,
-      () => this.connectingPreinsertInfo?.call.sessionId ?? null,
-    )
-      .pipe(
-        distinctUntilChanged(),
-        pairwise(),
-        concatMap(async ([previousId, currentId]) => {
-          if (currentId) {
-            if (this._appCallViewState.view === 'hidden') {
-              this._appCallViewState._setView('activeCall');
-            }
-            if (this._appRouter.currentPath !== CALLING_ROUTE_PATH) {
-              await this._appRouter.push(CALLING_ROUTE_PATH);
-            }
-            return;
-          }
-          if (
-            previousId &&
-            this._appRouter.currentPath === CALLING_ROUTE_PATH &&
-            !this._appCallAction.displayCallAllInfo &&
-            this._appCallMonitor.allCalls.length === 0 &&
-            this._appCallViewState.view !== 'postCall'
-          ) {
-            // the call ended before the server session arrived (rejected,
-            // cancelled or failed): the base navigation never engaged, so
-            // navigate back ourselves
-            this._appCallViewState._setView('hidden');
-            await (this._appCallAction as any)['leaveCallingRoute']();
-          }
-        }),
-        takeUntilAppDestroy,
-      )
-      .subscribe();
-  }
-
   override component() {
     const view = useConnector(() => this._appCallViewState.view);
-    const activeRenderCallInfo = useCallInfoWithPreinsert(
-      this._appCallAction,
-      () => this.connectingPreinsertInfo,
-    );
+    const activeCallInfo = useConnector(() => this._appCallAction.activeCallInfo);
+    const latestActiveCall = useLatestExistCall(activeCallInfo);
+    const activeRenderCallInfo = useMemo(() => {
+      if (!activeCallInfo) {
+        return undefined;
+      }
+      return activeCallInfo.call
+        ? activeCallInfo
+        : { ...activeCallInfo, call: latestActiveCall };
+    }, [activeCallInfo, latestActiveCall]);
     const { CallItem, CallLogArea } =
       this as unknown as CallViewPrivateComponents;
 

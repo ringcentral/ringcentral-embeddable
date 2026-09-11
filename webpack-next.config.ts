@@ -137,6 +137,12 @@ export const getWebpackConfig = (options: WebpackConfigOptions<AppConfig>) => {
       alias: {
         // Brand logo path alias for dynamic brand theming
         'brand-logo-path': projectConfig.themePath,
+        // next-widgets' release transform references Juno's internal
+        // RcUseTheme name even though Juno exports it as useTheme.
+        '@ringcentral/juno/es6/foundation/styled-components.js$': path.resolve(
+          __dirname,
+          './next/shims/juno-styled-components.ts',
+        ),
         // Fix @ringcentral/juno path resolution issue
         // The package exports maps ./* to ./es6/*, so es6/ prefix in imports causes double path
         '@ringcentral/juno/es6': path.resolve(

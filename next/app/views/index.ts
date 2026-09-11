@@ -5,6 +5,7 @@ export * from './DialerPadView';
 export * from './HeaderNavView';
 export * from './LogMessageView';
 export * from './MeetingView';
+export * from './SyncTabView';
 export * from './VoicemailDropSettingsView';
 export * from './ThirdPartySettingSectionView';
 export * from './VoicemailDropView';

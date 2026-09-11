@@ -2,6 +2,7 @@ import type { SDKConfig } from '@ringcentral-integration/commons/lib/createSdkCo
 import {
   Analytics,
   Auth as AuthBase,
+  type LoginOptions,
   type AuthLogoutOptions,
   Client,
   Environment,
@@ -21,7 +22,6 @@ import {
   StoragePlugin,
   delegate,
 } from '@ringcentral-integration/next-core';
-import type { LoginOptions } from '@ringcentral-integration/next-core/src/app/services/Auth/Auth.interface';
 import type { EmbeddableAuthOptions } from './Auth.interface';
 
 type AuthProxyClientInfo = {
@@ -85,7 +85,7 @@ class Auth extends AuthBase {
     }
 
     const platform = this._client.service.platform();
-    let token = (await platform.auth().data()) as TokenInfo;
+    let token = (await platform.auth().data()) as TokenInfo & AuthProxyClientInfo;
     if (!token.owner_id) {
       const response = await platform.get('/restapi/v1.0/client-info');
       const clientInfo = (await response.json()) as AuthProxyClientInfo;

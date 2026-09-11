@@ -1036,7 +1036,7 @@ export class Adapter extends RcModule {
         break;
       case 'rc-adapter-logout':
         if (this._auth.loggedIn) {
-          void this._auth.logout();
+          void this._auth.logout({ reason: 'Manually sign out' });
         }
         break;
       case 'rc-adapter-login':
@@ -1395,7 +1395,7 @@ export class Adapter extends RcModule {
       this._presence.telephonyStatus,
       this._presence.userStatus,
       this._presence.dndStatus,
-      this._presence.presenceOption,
+      this._getPresenceOption(),
     ];
   }
 
@@ -1565,8 +1565,21 @@ export class Adapter extends RcModule {
       telephonyStatus: (this._auth.loggedIn && this._presence.telephonyStatus) || null,
       userStatus: (this._auth.loggedIn && this._presence.userStatus) || null,
       dndStatus: (this._auth.loggedIn && this._presence.dndStatus) || null,
-      presenceOption: (this._auth.loggedIn && this._presence.presenceOption) || null,
+      presenceOption: (this._auth.loggedIn && this._getPresenceOption()) || null,
     });
+  }
+
+  private _getPresenceOption(): string {
+    if (this._presence.dndStatus === dndStatus.doNotAcceptAnyCalls) {
+      return dndStatus.doNotAcceptAnyCalls;
+    }
+    if (this._presence.userStatus === presenceStatus.busy) {
+      return presenceStatus.busy;
+    }
+    if (this._presence.userStatus === presenceStatus.offline) {
+      return presenceStatus.offline;
+    }
+    return presenceStatus.available;
   }
 
   private _pushLocale() {

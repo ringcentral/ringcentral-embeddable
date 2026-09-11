@@ -9,6 +9,7 @@ import { SmsOptOut as SmsOptOutBase } from '@ringcentral-integration/micro-messa
 import { injectable, optional } from '@ringcentral-integration/next-core';
 
 import { AppFeatures } from '@ringcentral-integration/micro-auth/src/app/services/AppFeatures';
+import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
 
 @injectable({
   name: 'SmsOptOut',
@@ -27,6 +28,6 @@ export class SmsOptOut extends SmsOptOutBase {
     // The base _source lambda resolves `this.permissionCheckFunction()` dynamically,
     // so an own-property on the instance takes precedence over the prototype method.
     (this as any).permissionCheckFunction = () =>
-      this._appFeatures.hasSMSOptOutPermission;
+      (this._appFeatures as EmbeddableAppFeatures).hasSMSOptOutPermission;
   }
 }

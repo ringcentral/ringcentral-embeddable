@@ -35,6 +35,11 @@ module.exports = function compatBabelConfig(api, options) {
 
   return {
     ...config,
-    plugins: (config.plugins || []).map(normalizePlugin),
+    plugins: [
+      ...(config.plugins || []).map(normalizePlugin),
+      ...(process.env.NODE_ENV === 'test'
+        ? ['babel-plugin-transform-import-meta']
+        : []),
+    ],
   };
 };

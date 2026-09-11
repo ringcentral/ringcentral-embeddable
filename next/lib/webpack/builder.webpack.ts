@@ -7,7 +7,13 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import template from 'lodash/template';
 import path from 'path';
 import * as nodeUrl from 'url';
-import { AssetInfo, type Chunk, DefinePlugin, ProvidePlugin } from 'webpack';
+import {
+  AssetInfo,
+  type Chunk,
+  DefinePlugin,
+  NormalModuleReplacementPlugin,
+  ProvidePlugin,
+} from 'webpack';
 import { merge } from 'webpack-merge';
 
 import { getFilenameMap as getFileUrlMap } from '@ringcentral-integration/next-builder/src/getFilenameMap';
@@ -25,6 +31,23 @@ const DEFAULT_CHUNK_FILENAME = '[name].js';
  * default vendor chunk name
  */
 const VENDOR_KEY = 'vendor';
+const reactantPackageAlias = {
+  './node_modules/tslib/tslib.es6.js$': require.resolve('tslib/tslib.es6.js'),
+  '../node_modules/tslib/tslib.es6.js$': require.resolve('tslib/tslib.es6.js'),
+  './node_modules/redux-persist/es/integration/react.js$': require.resolve(
+    'redux-persist/es/integration/react',
+  ),
+};
+const reactantPreservedModuleReplacementPlugins = [
+  new NormalModuleReplacementPlugin(
+    /(?:^|\/)node_modules\/tslib\/tslib\.es6\.js$/,
+    require.resolve('tslib/tslib.es6.js'),
+  ),
+  new NormalModuleReplacementPlugin(
+    /(?:^|\/)node_modules\/redux-persist\/es\/integration\/react\.js$/,
+    require.resolve('redux-persist/es/integration/react'),
+  ),
+];
 
 export interface WebpackConfigOptions<T extends BaseAppConfig> {
   projectConfig: ProjectConfig<T>;
@@ -180,6 +203,11 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
 
   const developmentConfig = merge(baseConfig, {
     entry: { ...projectConfig.mainEntries },
+    resolve: {
+      // Reactant 0.150.0 preserved-module ESM references package-internal
+      // relative paths that webpack cannot resolve from consumers.
+      alias: reactantPackageAlias,
+    },
     output: {
       path: path.join(
         projectConfig.buildPath,
@@ -194,6 +222,7 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
       new ProvidePlugin({
         React: 'react',
       }),
+      ...reactantPreservedModuleReplacementPlugins,
       ...(projectConfig.assetsEntries?.length
         ? [
             new CopyWebpackPlugin({

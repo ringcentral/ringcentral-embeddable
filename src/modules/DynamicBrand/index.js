@@ -1,7 +1,5 @@
 import { Module } from '@ringcentral-integration/commons/lib/di';
-import {
-  processAssets,
-} from '@ringcentral-integration/commons/modules/Brand/helpers';
+import { processAssets } from '@ringcentral-integration/commons/modules/Brand/processAssets';
 import {
   action,
   globalStorage,

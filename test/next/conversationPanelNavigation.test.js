@@ -27,7 +27,11 @@ describe('routed conversation panel navigation', () => {
     const router = { push: jest.fn() };
     const ConversationPanel = createConversationPanel(router);
 
-    render(<ConversationPanel />);
+    render(
+      <ConversationPanel
+        conversation={{ conversationId: 'conversation-id' }}
+      />,
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
 
     expect(router.push).toHaveBeenCalledWith('/messages');

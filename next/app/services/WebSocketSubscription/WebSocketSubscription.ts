@@ -7,9 +7,18 @@ import {
 } from '@ringcentral-integration/micro-auth/src/app/services';
 import { webSocketReadyStates } from '@ringcentral-integration/micro-auth/src/app/services/RingCentralExtensions/webSocketReadyStates';
 
+type WebSocketSubscriptionInternals = {
+  _clearTokens(): void;
+  _debouncedUpdateSubscription: { cancel(): void };
+  _removeSubscription(): Promise<void>;
+  _revokeSubscription(): Promise<void>;
+  _updateSubscription(): Promise<void>;
+};
+
 @injectable({
   name: 'WebSocketSubscription',
 })
+// @ts-expect-error The recovery hook intentionally overrides a private upstream method.
 export class WebSocketSubscription extends WebSocketSubscriptionBase {
   constructor(
     protected _client: Client,
@@ -22,6 +31,7 @@ export class WebSocketSubscription extends WebSocketSubscriptionBase {
   }
 
   override async _bindEvents() {
+    const internals = this as unknown as WebSocketSubscriptionInternals;
     watch(
       this,
       () => this._ringCentralExtensions.webSocketReadyState,
@@ -29,21 +39,21 @@ export class WebSocketSubscription extends WebSocketSubscriptionBase {
         if (!this.ready || !wsState) {
           return;
         }
-        this._debouncedUpdateSubscription.cancel();
+        internals._debouncedUpdateSubscription.cancel();
         if (wsState === webSocketReadyStates.ready) {
           if (
             this._ringCentralExtensions.webSocketExtension?.connectionDetails?.recoveryState === 'Failed'
           ) {
             // TODO: bugfixes in widgets lib: when websocket is failed to recover, make it as new channel
             this.logger.warn('WebSocket failed to recover, making it as new channel');
-            this._clearTokens();
+            internals._clearTokens();
           }
-          await this._updateSubscription();
+          await internals._updateSubscription();
         } else if (wsState === webSocketReadyStates.closing) {
           // when websocket is going to close, revoke subscription beforehand
-          await this._revokeSubscription();
+          await internals._revokeSubscription();
         } else {
-          await this._removeSubscription();
+          await internals._removeSubscription();
         }
       },
     );

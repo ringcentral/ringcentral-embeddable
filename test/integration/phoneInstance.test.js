@@ -208,7 +208,7 @@ describe('createPhone integration', () => {
     delete global.HTMLElement;
   });
 
-  it('creates the real phone instance and wires the redux store', () => {
+  it('creates the real phone instance and wires the redux store', async () => {
     const phone = createTestPhone();
     const store = createQuietStore(phone.reducer);
     phone.setStore(store);
@@ -230,14 +230,14 @@ describe('createPhone integration', () => {
     expect(store.getState()).toEqual(expect.any(Object));
   });
 
-  it('migrates stale non-PKCE SDK tokens when creating a PKCE phone', () => {
+  it('migrates stale non-PKCE SDK tokens when creating a PKCE phone', async () => {
     localStorage.setItem('sdk-testplatform', JSON.stringify({
       access_token: 'old-token',
       refresh_token: 'old-refresh',
     }));
 
     const { createPhone } = require('../../src/modules/Phone');
-    createPhone({
+    const phone = createPhone({
       prefix: 'test',
       apiConfig: {
         clientId: 'test-client-id',
@@ -263,6 +263,7 @@ describe('createPhone integration', () => {
       isMainTab: true,
       autoMainTab: false,
     });
+    phone.setStore(createQuietStore(phone.reducer));
 
     expect(localStorage.getItem('sdk-testplatform')).toBeNull();
     expect(localStorage.getItem('test-pkce-enabled')).toBe('1');

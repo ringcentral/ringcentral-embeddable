@@ -28,7 +28,7 @@ class WebphoneV2SessionMock extends EventEmitter {
     };
     this.audioElement = {
       volume: 1,
-      setSinkId: jest.fn(),
+      setSinkId: jest.fn(async () => {}),
       srcObject: null,
     };
     this.rtcPeerConnection = {

@@ -6,7 +6,7 @@ import { isInbound, isMissed } from '@ringcentral-integration/commons/lib/callLo
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import { parseNumber } from '@ringcentral-integration/commons/lib/parseNumber';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
-import usePromise from '@ringcentral-integration/widgets/react-hooks/usePromise';
+import { usePromise } from 'react-use';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
 import styles from '@ringcentral-integration/widgets/components/CallItem/styles.scss';
 import { ActionMenu } from '../ActionMenu';

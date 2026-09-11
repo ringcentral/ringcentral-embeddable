@@ -221,8 +221,8 @@ function init({
     newAdapterUI: !!newAdapterUI,
     zIndex: zIndex ? Number.parseInt(zIndex, 10) : 999,
     fromPopup: !!fromPopup,
-    disableMinimize,
-    enablePopup,
+    disableMinimize: !!disableMinimize,
+    enablePopup: !!enablePopup,
     popupPageUri,
     defaultDirection,
   });

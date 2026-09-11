@@ -55,6 +55,7 @@ import {
 import {
   ModalView,
   ModalViewOptions,
+  SyncTabView as MicroCoreSyncTabView,
 } from '@ringcentral-integration/micro-core/src/app/views';
 import {
   ComposeText as MicroMessageComposeText,
@@ -86,6 +87,7 @@ import {
   Webphone,
   CallQueueManagement,
   CallQueues,
+  Grant,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   GenericMeeting,
@@ -149,6 +151,7 @@ import { FaxDetailsView } from './views/FaxDetailsView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
 import { SideWidgetView, type SideWidgetOptions } from './views/SideWidgetView';
+import { SyncTabView as SyncTabViewV2 } from './views/SyncTabView';
 import { CallControlView as MicroPhoneCallControlView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
 import {
   QuickAccess,
@@ -446,6 +449,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       DoNotContact,
       // views
       {
+        provide: MicroCoreSyncTabView,
+        useClass: SyncTabViewV2,
+      },
+      {
         provide: ContactDetailsView,
         useClass: ContactDetailsViewV2,
       },
@@ -549,6 +556,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: CallQueues,
         useClass: CallQueuesV2,
       },
+      Grant,
       MonitoredExtensions,
       ParkView,
       ApplicationLogsView,

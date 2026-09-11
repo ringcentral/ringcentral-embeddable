@@ -351,6 +351,7 @@ export class RoutedSideWidgetView extends RcViewModule {
     }
     const backgroundPath = this.mainPath ?? entry.backgroundPath;
     const shouldNavigateToBackground =
+      this._router.currentPath === backgroundPath ||
       this._router.currentPath === entry.path ||
       this._requestedPath === entry.path;
     this._entries.delete(id);

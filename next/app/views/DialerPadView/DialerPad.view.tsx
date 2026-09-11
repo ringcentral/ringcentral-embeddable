@@ -134,14 +134,21 @@ export class DialerPadView extends DialerPadViewBase {
 
   override component(
     props: DialerPadViewOptions,
-  ): React.ReactElement<SyncTabProps> | null {
+  ): React.ReactElement | null {
     const component = super.component(props);
     if (!React.isValidElement<SyncTabProps>(component)) {
       return component;
     }
-    return React.cloneElement(component, {
-      className: undefined,
-      variant: 'moreMenu',
-    });
+    return (
+      <div
+        className="flex h-full min-h-0 flex-col overflow-hidden"
+        data-sign="dialerPadView"
+      >
+        {React.cloneElement(component, {
+          className: undefined,
+          variant: 'moreMenu',
+        })}
+      </div>
+    );
   }
 }

@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { configure } from '@testing-library/react';
 import { TextDecoder, TextEncoder } from 'util';
 
-jest.mock('ringcentral-web-phone', () => require('../mocks/RingCentralWebphoneV2Mock'));
+jest.mock('ringcentral-web-phone-v2', () => require('../mocks/RingCentralWebphoneV2Mock'));
 
 configure({ testIdAttribute: 'data-sign' });
 
@@ -37,6 +37,10 @@ class TestBroadcastChannel {
 }
 
 if (typeof window !== 'undefined') {
+  Object.defineProperty(window.HTMLMediaElement.prototype, 'setSinkId', {
+    configurable: true,
+    value: jest.fn(async () => {}),
+  });
   window.HTMLMediaElement.prototype.pause = () => {};
   window.HTMLMediaElement.prototype.play = async () => {};
   window.HTMLMediaElement.prototype.load = async () => {};

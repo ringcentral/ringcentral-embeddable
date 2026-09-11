@@ -10,7 +10,14 @@ const injectSpy = jest
 
 jest.mock(
   '@ringcentral-integration/micro-core/src/app/views',
-  () => ({ ModalView: class ModalView {} }),
+  () => ({
+    ModalView: class ModalView {},
+    SyncTabView: class SyncTabView {},
+  }),
+);
+jest.mock(
+  '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/ConversationsTabs.view',
+  () => ({ ConversationsTabsView: class ConversationsTabsView {} }),
 );
 jest.mock('../../next/app/views/ConversationsView/ConversationsPage', () => ({
   ConversationsPage: () => null,

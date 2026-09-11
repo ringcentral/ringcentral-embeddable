@@ -212,7 +212,6 @@ describe('ThirdParty service', () => {
 
     expect(dependencies.storage.enable).toHaveBeenCalledWith(service);
     expect(service.ignoredModules).toEqual([
-      dependencies.storage,
       dependencies.auth,
       dependencies.contacts,
       dependencies.contactSearch,

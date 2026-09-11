@@ -84,6 +84,11 @@ const LOG_TIMEOUT = 15000;
 const MEETING_LOG_TIMEOUT = 6000;
 const DEFAULT_RECORDING_LINK = '';
 
+type MutableContactMatcherOptions = ContactMatcherOptions & {
+  noMatchTtl?: number;
+  ttl?: number;
+};
+
 type FetchContactsRequestParams = FetchContactsParams & {
   contactsPath: string;
 };
@@ -110,7 +115,7 @@ export class ThirdParty extends RcModule {
     protected _contactSearch: ContactSearch,
     protected _contactMatcher: ContactMatcher,
     @inject('ContactMatcherOptions')
-    protected _contactMatcherOptions: ContactMatcherOptions,
+    protected _contactMatcherOptions: MutableContactMatcherOptions,
     protected _genericMeeting: GenericMeeting,
     protected _messageStore: MessageStore,
     protected _callHistory: CallHistory,
@@ -126,7 +131,6 @@ export class ThirdParty extends RcModule {
     // Keep the host message bridge independent from feature modules, matching
     // the legacy ThirdPartyService readiness contract. These services are used
     // on demand after registration and must not delay ThirdParty initialization.
-    this._ignoreModuleReadiness(this._storage);
     this._ignoreModuleReadiness(this._auth);
     this._ignoreModuleReadiness(this._contacts);
     this._ignoreModuleReadiness(this._contactSearch);

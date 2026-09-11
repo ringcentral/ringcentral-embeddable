@@ -9,6 +9,7 @@ jest.mock('@ringcentral-integration/commons/modules/ComposeText', () => ({
   ComposeText: class BaseComposeText {
     constructor(deps) {
       this._deps = deps;
+      this._modulePath = 'root';
       this.senderNumber = '+16505550100';
       this.toNumbers = [];
       this.typingToNumber = '';
@@ -40,6 +41,7 @@ jest.mock('@ringcentral-integration/commons/modules/DataFetcherV2', () => ({
   DataFetcherV2Consumer: class MockDataFetcherV2Consumer {
     constructor({ deps }) {
       this._deps = deps;
+      this._modulePath = 'root';
       this.data = [];
     }
   },

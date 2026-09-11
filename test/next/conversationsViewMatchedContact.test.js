@@ -7,7 +7,13 @@ import { ConversationsView } from '../../next/app/views/ConversationsView';
 
 jest.mock('@ringcentral-integration/micro-core/src/app/views', () => ({
   ModalView: class ModalView {},
+  SyncTabView: class SyncTabView {},
 }));
+
+jest.mock(
+  '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/ConversationsTabs.view',
+  () => ({ ConversationsTabsView: class ConversationsTabsView {} }),
+);
 
 // Not under test here, and its framework page imports pull in untransformed ESM.
 jest.mock('../../next/app/views/ConversationsView/ConversationsPage', () => ({
@@ -76,9 +82,9 @@ function createView({
     messageLoggerTitle: null,
   },
 } = {}) {
-  const dependencies = Array(22).fill(undefined);
-  dependencies[16] = conversationLogger;
-  dependencies[17] = thirdParty;
+  const dependencies = Array(25).fill(undefined);
+  dependencies[18] = conversationLogger;
+  dependencies[19] = thirdParty;
   return new ConversationsView(...dependencies);
 }
 

@@ -11,44 +11,15 @@ jest.mock('@ringcentral-integration/next-core', () => ({
   RouterPlugin: class RouterPlugin {},
 }));
 
-jest.mock('@ringcentral-integration/micro-auth/src/app/services', () => ({
-  Auth: class Auth {},
-  AppFeatures: class AppFeatures {},
-  ConnectivityManager: class ConnectivityManager {},
-  ConnectivityMonitor: class ConnectivityMonitor {},
-  RateLimiter: class RateLimiter {},
-  RegionSettings: class RegionSettings {},
-}));
-
-jest.mock('@ringcentral-integration/micro-contacts/src/app/services', () => ({
-  ContactMatcher: class ContactMatcher {},
-}));
-
-jest.mock('@ringcentral-integration/micro-core/src/app/services', () => ({
-  Locale: class Locale {},
-  Toast: class Toast {},
-}));
-
 jest.mock('@ringcentral-integration/micro-core/src/app/views', () => ({
   ModalView: class ModalView {},
+  SyncTabView: class SyncTabView {},
 }));
 
-jest.mock('@ringcentral-integration/micro-message/src/app/services', () => ({
-  ComposeText: class ComposeText {},
-  ConversationLogger: class ConversationLogger {},
-  Conversations: class Conversations {},
-  MessageStore: class MessageStore {},
-  SmsConversations: class SmsConversations {},
-  SmsOptOut: class SmsOptOut {},
-  VoicemailAudio: class VoicemailAudio {},
-}));
-
-jest.mock('@ringcentral-integration/micro-phone/src/app/services', () => ({
-  Call: class Call {},
-  CallHistory: class CallHistory {},
-  CallLogger: class CallLogger {},
-  CallLogTasks: class CallLogTasks {},
-}));
+jest.mock(
+  '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/ConversationsTabs.view',
+  () => ({ ConversationsTabsView: class ConversationsTabsView {} }),
+);
 
 jest.mock('../../next/app/services/ThirdParty', () => ({
   ThirdParty: class ThirdParty {},

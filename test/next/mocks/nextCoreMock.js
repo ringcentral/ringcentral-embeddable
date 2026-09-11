@@ -46,7 +46,7 @@ const useConnector = jest.fn((module, selector) => {
   return typeof module === 'function' ? module() : module;
 });
 const watch = jest.fn(() => jest.fn());
-const { matchPath } = jest.requireActual('react-router');
+const { matchPath } = jest.requireActual('react-router-dom');
 
 module.exports = {
   PortManager: class PortManager {},

@@ -104,6 +104,7 @@ function setupPhoneModuleMocks() {
   mockNamedModule('@ringcentral-integration/commons/modules/ExtensionDevice', ['ExtensionDevice']);
   mockNamedModule('@ringcentral-integration/commons/modules/ExtensionFeatures', ['ExtensionFeatures']);
   mockNamedModule('@ringcentral-integration/commons/modules/ExtensionInfo', ['ExtensionInfo']);
+  mockNamedModule('@ringcentral-integration/commons/modules/ExtensionNumberAreaCode', ['ExtensionNumberAreaCode']);
   mockNamedModule('@ringcentral-integration/commons/modules/ExtensionPhoneNumber', ['ExtensionPhoneNumber']);
   mockNamedModule('@ringcentral-integration/commons/modules/Feedback', ['Feedback']);
   mockNamedModule('@ringcentral-integration/commons/modules/ForwardingNumber', ['ForwardingNumber']);

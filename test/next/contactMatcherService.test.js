@@ -1,6 +1,7 @@
 jest.mock('@ringcentral-integration/micro-contacts/src/app/services', () => ({
   ContactMatcher: class ContactMatcher {
-    constructor(contactMatcherOptions, storage) {
+    constructor(numberFormatter, contactMatcherOptions, storage) {
+      this.numberFormatter = numberFormatter;
       this.contactMatcherOptions = contactMatcherOptions;
       this.storage = storage;
       this._searchProviders = new Map();
@@ -30,8 +31,10 @@ describe('ContactMatcher service', () => {
   test('preserves matcher options and manual refresh state', () => {
     const options = { ttl: 100, noMatchTtl: 20 };
     const storage = { enable: jest.fn() };
-    const matcher = new ContactMatcher(options, storage);
+    const numberFormatter = { normalizeNumber: jest.fn() };
+    const matcher = new ContactMatcher(numberFormatter, options, storage);
 
+    expect(matcher.numberFormatter).toBe(numberFormatter);
     expect(matcher.contactMatcherOptions).toBe(options);
     expect(matcher.storage).toBe(storage);
     expect(matcher.manualRefreshNumber).toBeNull();

@@ -6,7 +6,7 @@ const { sessionStatus } = require('@ringcentral-integration/commons/modules/Webp
 
 jest.mock('../../src/modules/WebphoneV2/audio/incoming.mp3', () => 'incoming.mp3');
 jest.mock('../../src/modules/WebphoneV2/audio/outgoing.mp3', () => 'outgoing.mp3');
-jest.mock('ringcentral-web-phone', () => jest.fn());
+jest.mock('ringcentral-web-phone-v2', () => jest.fn());
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'request-1'),
 }));

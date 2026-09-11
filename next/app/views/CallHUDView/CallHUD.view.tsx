@@ -12,7 +12,7 @@ import { ComposeText } from '@ringcentral-integration/micro-message/src/app/serv
 import {
   Call,
   CallingSettings,
-  CallQueues,
+  Grant,
   Webphone,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
@@ -113,7 +113,7 @@ export class CallHUDView extends RcViewModule {
     private _modalView: ModalView,
     private _expandedView: ExpandedView,
     @optional() private _composeText?: ComposeText,
-    @optional() private _callQueues?: CallQueues,
+    @optional() private _grant?: Grant,
   ) {
     super();
   }
@@ -238,7 +238,7 @@ export class CallHUDView extends RcViewModule {
 
   private async _refetchExtensionGrants() {
     try {
-      await this._callQueues?.refetchGrants();
+      await this._grant?.refetchGrants();
     } catch (error) {
       this.logger.error('refetch extension grants failed', error);
     }
@@ -337,7 +337,7 @@ export class CallHUDView extends RcViewModule {
 
   @computed((that: CallHUDView) => [
     that._monitoredExtensions.monitoredExtensions,
-    that._callQueues?.grants,
+    that._grant?.grants,
   ])
   get typeList(): TypeListItem[] {
     const list: TypeListItem[] = [
@@ -347,7 +347,7 @@ export class CallHUDView extends RcViewModule {
 
     const parkLocations = this._monitoredExtensions.parkLocations;
     const hasParkGrants =
-      this._callQueues?.grants?.some(
+      this._grant?.grants?.some(
         (g) => g.extension.type === 'ParkLocation',
       ) ?? false;
     if (parkLocations.length > 0 || hasParkGrants) {
@@ -387,7 +387,7 @@ export class CallHUDView extends RcViewModule {
     that._auth.accessToken,
     that.extensionAddFilter,
     that._monitoredExtensions.monitoredExtensions,
-    that._callQueues?.grants,
+    that._grant?.grants,
     that._extensionInfo.id,
   ])
   get availableExtensions(): AvailableExtension[] {
@@ -416,7 +416,7 @@ export class CallHUDView extends RcViewModule {
         {},
       );
       const parkGrants = (
-        (this._callQueues?.grants ?? []) as ExtensionGrantData[]
+        (this._grant?.grants ?? []) as ExtensionGrantData[]
       ).filter(
         (g) => g.extension.type === 'ParkLocation',
       );

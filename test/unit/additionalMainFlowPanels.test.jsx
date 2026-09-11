@@ -9,6 +9,7 @@ jest.mock('@ringcentral-integration/commons/utils', () => ({
 
 const mockIsSafari = jest.fn(() => false);
 jest.mock('@ringcentral-integration/utils', () => ({
+  ...jest.requireActual('@ringcentral-integration/utils'),
   isSafari: () => mockIsSafari(),
 }));
 

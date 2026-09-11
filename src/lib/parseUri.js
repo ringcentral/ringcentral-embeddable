@@ -7,7 +7,7 @@ export default function parseCallbackUri(callbackUri) {
   if (query.error) {
     const error = new Error(query.error);
     for (const key in query) {
-      if (query::Object.prototype.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(query, key)) {
         error[key] = query[key];
       }
     }

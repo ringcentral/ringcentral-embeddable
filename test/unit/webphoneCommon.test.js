@@ -14,7 +14,7 @@ const { Webphone } = require('../../src/modules/WebphoneV2/WebphoneCommon');
 const { normalizeSession } = require('../../src/modules/WebphoneV2/webphoneHelper');
 const { EVENTS } = require('../../src/modules/WebphoneV2/events');
 
-jest.mock('ringcentral-web-phone', () => jest.fn());
+jest.mock('ringcentral-web-phone-v2', () => jest.fn());
 
 jest.mock('@ringcentral-integration/utils', () => ({
   ...jest.requireActual('@ringcentral-integration/utils'),

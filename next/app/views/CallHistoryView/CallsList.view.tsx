@@ -109,7 +109,7 @@ export class CallsListView extends CallsListViewSpringBase {
     // the match picker to the history list, the call detail page, the post-call
     // screen and the dialer's recent calls in one place.
     const baseUseCallHistoryItemInfo = this.useCallHistoryItemInfo;
-    this.useCallHistoryItemInfo = (call, options) => {
+    this.useCallHistoryItemInfo = (call, options = {}) => {
       const callWithLogStatus = addCallHistoryLogStatus(call);
       const callWithContactSelection =
         addCallHistoryLoggedContact(callWithLogStatus);

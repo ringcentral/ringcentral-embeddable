@@ -14,12 +14,14 @@ module.exports = {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!@ringcentral-integration/mock/)',
+    '/node_modules/(?!(@ringcentral-integration/mock|@ringcentral/spring-(ui|icon|base|theme))\/)',
   ],
   modulePathIgnorePatterns: [
     '<rootDir>/packages/jsonschema-page/npm-package',
+    '<rootDir>/packages/jsonschema-spring-page/npm-package',
   ],
   moduleNameMapper: {
+    '^react-router$': 'react-router-v3',
     '^@ringcentral-integration/commons/modules/SleepDetector$': '<rootDir>/test/mocks/SleepDetectorMock.js',
     '^\\./loadLocale$': '<rootDir>/test/mocks/loadLocaleMock.js',
     '^quill$': '<rootDir>/test/mocks/quillMock.js',

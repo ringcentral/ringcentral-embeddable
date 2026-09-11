@@ -146,16 +146,16 @@ export default class Adapter extends AdapterModuleCore {
       webphone,
     });
     this._messageTypes = messageTypes;
-    this._auth = this:: ensureExist(auth, 'auth');
-    this._presence = this:: ensureExist(presence, 'presence');
-    this._composeText = this:: ensureExist(composeText, 'composeText');
-    this._webphone = this:: ensureExist(webphone, 'webphone');
-    this._regionSettings = this:: ensureExist(regionSettings, 'regionSettings');
-    this._callingSettings = this:: ensureExist(callingSettings, 'callingSettings');
-    this._call = this:: ensureExist(call, 'call');
-    this._dialerUI = this:: ensureExist(dialerUI, 'dialerUI');
-    this._messageStore = this:: ensureExist(messageStore, 'messageStore');
-    this._tabManager = this:: ensureExist(tabManager, 'tabManager');
+    this._auth = ensureExist.call(this, auth, 'auth');
+    this._presence = ensureExist.call(this, presence, 'presence');
+    this._composeText = ensureExist.call(this, composeText, 'composeText');
+    this._webphone = ensureExist.call(this, webphone, 'webphone');
+    this._regionSettings = ensureExist.call(this, regionSettings, 'regionSettings');
+    this._callingSettings = ensureExist.call(this, callingSettings, 'callingSettings');
+    this._call = ensureExist.call(this, call, 'call');
+    this._dialerUI = ensureExist.call(this, dialerUI, 'dialerUI');
+    this._messageStore = ensureExist.call(this, messageStore, 'messageStore');
+    this._tabManager = ensureExist.call(this, tabManager, 'tabManager');
     this._client = client;
     this._alert = alert;
     this._callLogger = callLogger;

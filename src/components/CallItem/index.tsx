@@ -23,7 +23,7 @@ import {
   ExtensionLineBorder,
 } from '@ringcentral/juno-icon';
 import { checkShouldHidePhoneNumber } from '@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber';
-import usePromise from '@ringcentral-integration/widgets/react-hooks/usePromise';
+import { usePromise } from 'react-use';
 import ContactDisplay from '@ringcentral-integration/widgets/components/ContactDisplay';
 import DurationCounter from '@ringcentral-integration/widgets/components/DurationCounter';
 

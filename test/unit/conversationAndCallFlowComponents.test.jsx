@@ -27,9 +27,10 @@ jest.mock('@ringcentral-integration/widgets/lib/checkShouldHidePhoneNumber', () 
   checkShouldHidePhoneNumber: jest.fn((phoneNumber) => phoneNumber === 'hidden'),
 }));
 
-jest.mock('@ringcentral-integration/widgets/react-hooks/usePromise', () => (
-  jest.fn(() => (promise) => promise)
-));
+jest.mock('react-use', () => ({
+  ...jest.requireActual('react-use'),
+  usePromise: jest.fn(() => (promise) => promise),
+}));
 
 jest.mock('@ringcentral-integration/widgets/components/ContactDisplay', () => {
   const React = require('react');

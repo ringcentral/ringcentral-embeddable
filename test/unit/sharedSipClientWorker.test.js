@@ -106,9 +106,9 @@ function installWebSocket() {
 }
 
 function installWorkerDependencies() {
-  jest.doMock('ringcentral-web-phone/event-emitter', () => EventEmitter);
+  jest.doMock('ringcentral-web-phone-v2/event-emitter', () => EventEmitter);
   jest.doMock(
-    'ringcentral-web-phone/rc-message/rc-message',
+    'ringcentral-web-phone-v2/rc-message/rc-message',
     () => ({
       fromXml: jest.fn(async () => ({
         body: {},
@@ -117,23 +117,23 @@ function installWorkerDependencies() {
     }),
   );
   jest.doMock(
-    'ringcentral-web-phone/sip-message/inbound',
+    'ringcentral-web-phone-v2/sip-message/inbound',
     () => TestInboundMessage,
   );
   jest.doMock(
-    'ringcentral-web-phone/sip-message/outbound/index',
+    'ringcentral-web-phone-v2/sip-message/outbound/index',
     () => TestOutboundMessage,
   );
   jest.doMock(
-    'ringcentral-web-phone/sip-message/outbound/request',
+    'ringcentral-web-phone-v2/sip-message/outbound/request',
     () => TestRequestMessage,
   );
   jest.doMock(
-    'ringcentral-web-phone/sip-message/outbound/response',
+    'ringcentral-web-phone-v2/sip-message/outbound/response',
     () => TestResponseMessage,
   );
   jest.doMock(
-    'ringcentral-web-phone/utils',
+    'ringcentral-web-phone-v2/utils',
     () => ({
       branch: () => 'branch-id',
       fakeDomain: 'fake.example.com',
@@ -536,7 +536,7 @@ describe('SharedSipClient worker', () => {
     expect(sipClient.status).toBe('registered');
     clearTimeout(sipClient.timeoutHandle);
 
-    const RcMessage = require('ringcentral-web-phone/rc-message/rc-message');
+    const RcMessage = require('ringcentral-web-phone-v2/rc-message/rc-message');
     port.postMessage.mockClear();
     RcMessage.fromXml.mockResolvedValueOnce({
       body: { Cln: 'another-auth-id' },

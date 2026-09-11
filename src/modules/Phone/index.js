@@ -55,6 +55,9 @@ import {
 import {
   ExtensionPhoneNumber,
 } from '@ringcentral-integration/commons/modules/ExtensionPhoneNumber';
+import {
+  ExtensionNumberAreaCode,
+} from '@ringcentral-integration/commons/modules/ExtensionNumberAreaCode';
 import { Feedback } from '@ringcentral-integration/commons/modules/Feedback';
 import {
   ForwardingNumber,
@@ -268,6 +271,7 @@ import { ParkUI } from '../ParkUI';
     { provide: 'ExtensionFeatures', useClass: ExtensionFeatures },
     { provide: 'DialingPlan', useClass: DialingPlan },
     { provide: 'ExtensionPhoneNumber', useClass: ExtensionPhoneNumber },
+    { provide: 'ExtensionNumberAreaCode', useClass: ExtensionNumberAreaCode },
     { provide: 'ForwardingNumber', useClass: ForwardingNumber },
     { provide: 'ContactMatcher', useClass: ContactMatcher },
     { provide: 'Subscription', useClass: Subscription },

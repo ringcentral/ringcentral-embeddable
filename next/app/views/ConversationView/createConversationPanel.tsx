@@ -22,9 +22,10 @@ export function createConversationPanel(
   const RoutedConversationPanel: FunctionComponent<
     ConversationViewSpringPanelProps
   > = (props) => {
+    const conversation = props.conversation;
     const latestMessageText = useRef(props.messageText);
     latestMessageText.current = props.messageText;
-    const conversationId = props.conversation?.conversationId;
+    const conversationId = conversation?.conversationId;
     useEffect(
       () => () => {
         if (!conversationId || !smsTypingTimeTracker) {
@@ -38,9 +39,13 @@ export function createConversationPanel(
       },
       [conversationId],
     );
+    if (!conversation) {
+      return null;
+    }
     return (
       <ConversationPanel
         {...props}
+        conversation={conversation}
         replyToReceivers={async (text, attachments) => {
           const recipients = (props.conversation?.correspondents || []).map(
             (correspondent) => ({ phoneNumber: correspondent.phoneNumber }),
@@ -68,5 +73,7 @@ export function createConversationPanel(
       />
     );
   };
-  return RoutedConversationPanel;
+  return RoutedConversationPanel as unknown as NonNullable<
+    ConversationViewSpringOptions['component']
+  >;
 }

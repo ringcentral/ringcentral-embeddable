@@ -66,24 +66,24 @@ class TestPort {
 
 function installSharedSipClientDependencies() {
   let requestSequence = 0;
-  jest.doMock('ringcentral-web-phone/event-emitter', () => EventEmitter);
+  jest.doMock('ringcentral-web-phone-v2/event-emitter', () => EventEmitter);
   jest.doMock(
-    'ringcentral-web-phone/sip-message/inbound',
+    'ringcentral-web-phone-v2/sip-message/inbound',
     () => TestInboundMessage,
   );
   jest.doMock(
-    'ringcentral-web-phone/sip-message/outbound/index',
+    'ringcentral-web-phone-v2/sip-message/outbound/index',
     () => TestOutboundMessage,
   );
   jest.doMock(
-    'ringcentral-web-phone/sip-message/outbound/request',
+    'ringcentral-web-phone-v2/sip-message/outbound/request',
     () => TestOutboundMessage,
   );
   jest.doMock(
-    'ringcentral-web-phone/sip-message/outbound/response',
+    'ringcentral-web-phone-v2/sip-message/outbound/response',
     () => TestOutboundMessage,
   );
-  jest.doMock('ringcentral-web-phone/utils', () => ({
+  jest.doMock('ringcentral-web-phone-v2/utils', () => ({
     uuid: () => {
       requestSequence += 1;
       return `request-${requestSequence}`;

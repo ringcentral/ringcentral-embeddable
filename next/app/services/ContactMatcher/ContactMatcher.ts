@@ -1,4 +1,5 @@
 import type { Entity } from '@ringcentral-integration/commons/interfaces/Entity.interface';
+import { NumberFormatter } from '@ringcentral-integration/micro-auth/src/app/services';
 import {
   ContactMatcher as ContactMatcherBase,
   type ContactMatcherOptions,
@@ -20,11 +21,12 @@ import {
 })
 export class ContactMatcher<T = Entity> extends ContactMatcherBase<T> {
   constructor(
+    numberFormatter: NumberFormatter,
     @optional('ContactMatcherOptions')
     contactMatcherOptions?: ContactMatcherOptions,
     @optional() storage?: StoragePlugin
   ) {
-    super(contactMatcherOptions, storage);
+    super(numberFormatter, contactMatcherOptions, storage);
   }
 
   @state

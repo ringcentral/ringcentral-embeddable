@@ -68,11 +68,13 @@ jest.mock('../../next/app/views/CallHUDView', () => ({
 import { DialerPadView } from '../../next/app/views/DialerPadView/DialerPad.view';
 
 describe('DialerPadView', () => {
-  test('uses native moreMenu sizing for the Phone sub-tabs', () => {
+  test('uses compact tabs in a non-scrolling Phone page container', () => {
     const view = new DialerPadView({}, {}, {}, {}, {}, {}, {}, {}, {}, {});
     const component = view.component({});
+    const tabComponent = React.Children.only(component.props.children);
 
-    expect(component.props.variant).toBe('moreMenu');
-    expect(component.props.className).toBeUndefined();
+    expect(component.props.className).toContain('overflow-hidden');
+    expect(tabComponent.props.variant).toBe('moreMenu');
+    expect(tabComponent.props.className).toBeUndefined();
   });
 });

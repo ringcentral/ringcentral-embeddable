@@ -15,6 +15,19 @@ interface FetchHistoryMeetingsParams {
   type?: string;
 }
 
+interface EmbeddableRcVideo {
+  readonly historyMeetings: unknown[];
+  readonly upcomingMeetings: unknown[];
+  addThirdPartyProvider(args: {
+    name: string;
+    fetchUpcomingMeetingList: () => Promise<unknown[]>;
+  }): void;
+  cleanHistoryMeetings(): Promise<void>;
+  fetchHistoryMeetings(params: FetchHistoryMeetingsParams): Promise<unknown>;
+  fetchUpcomingMeetings(): Promise<void>;
+  removeThirdPartyProvider(args: { name: string }): void;
+}
+
 @injectable({
   name: 'GenericMeeting',
 })
@@ -38,16 +51,20 @@ export class GenericMeeting extends GenericMeetingBase {
     );
   }
 
+  private get _embeddableRcVideo(): EmbeddableRcVideo {
+    return this._rcVideo as unknown as EmbeddableRcVideo;
+  }
+
   get historyMeetings(): unknown[] {
     if (this.isRCV) {
-      return (this._rcVideo as unknown as RcVideo).historyMeetings ?? [];
+      return this._embeddableRcVideo.historyMeetings ?? [];
     }
     return [];
   }
 
   get upcomingMeetings(): unknown[] {
     if (this.isRCV) {
-      return (this._rcVideo as unknown as RcVideo).upcomingMeetings ?? [];
+      return this._embeddableRcVideo.upcomingMeetings ?? [];
     }
     return [];
   }
@@ -55,34 +72,34 @@ export class GenericMeeting extends GenericMeetingBase {
   @delegate('server')
   async fetchHistoryMeetings(params: FetchHistoryMeetingsParams = {}): Promise<unknown> {
     if (this.isRCV) {
-      return (this._rcVideo as unknown as RcVideo).fetchHistoryMeetings(params);
+      return this._embeddableRcVideo.fetchHistoryMeetings(params);
     }
     return null;
   }
 
   @delegate('server')
-  async cleanHistoryMeetings(): void {
+  async cleanHistoryMeetings(): Promise<void> {
     if (this.isRCV) {
-      (this._rcVideo as unknown as RcVideo).cleanHistoryMeetings();
+      await this._embeddableRcVideo.cleanHistoryMeetings();
     }
   }
 
   @delegate('server')
   async fetchUpcomingMeetings(): Promise<void> {
     if (this.isRCV) {
-      return (this._rcVideo as unknown as RcVideo).fetchUpcomingMeetings();
+      return this._embeddableRcVideo.fetchUpcomingMeetings();
     }
   }
 
   addThirdPartyProvider(args: { name: string; fetchUpcomingMeetingList: () => Promise<unknown[]> }): void {
     if (this.isRCV) {
-      (this._rcVideo as unknown as RcVideo).addThirdPartyProvider(args);
+      this._embeddableRcVideo.addThirdPartyProvider(args);
     }
   }
 
   removeThirdPartyProvider(args: { name: string }): void {
     if (this.isRCV) {
-      (this._rcVideo as unknown as RcVideo).removeThirdPartyProvider(args);
+      this._embeddableRcVideo.removeThirdPartyProvider(args);
     }
   }
 }

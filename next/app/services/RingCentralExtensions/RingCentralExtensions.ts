@@ -13,6 +13,16 @@ import {
 } from '@ringcentral-integration/next-core';
 import { SleepDetector } from '@ringcentral-integration/micro-core/src/app/services';
 
+type RingCentralExtensionsInternals = {
+  _exposeConnectionEvents(): void;
+  _installWebSocketExtension(): Promise<void>;
+  _webSocketExtension: {
+    rc?: unknown;
+    recover(): Promise<void>;
+    wsTokenExpiresAt: number;
+  };
+};
+
 @injectable({
   name: 'RingCentralExtensions',
 })
@@ -38,22 +48,27 @@ export class RingCentralExtensions extends RingCentralExtensionsBase {
       return;
     }
     // detect if not yet installed
-    if (!this._webSocketExtension.rc) {
+    const internals = this as unknown as RingCentralExtensionsInternals;
+    if (!internals._webSocketExtension.rc) {
       // install and establish connection
-      await this._installWebSocketExtension();
+      await internals._installWebSocketExtension();
     } else {
       // recover directly
       try {
-        await this._webSocketExtension.recover();
+        await internals._webSocketExtension.recover();
       } catch (error) {
-        if (error.wsgError) {
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'wsgError' in error
+        ) {
           this.logger.warn('WebSocket connection error, resetting ws token');
           // TODO: fix in widget lib, reset ws token, and try again
-          this._webSocketExtension.wsTokenExpiresAt = 0;
-          await this._webSocketExtension.recover();
+          internals._webSocketExtension.wsTokenExpiresAt = 0;
+          await internals._webSocketExtension.recover();
         }
       }
     }
-    this._exposeConnectionEvents();
+    internals._exposeConnectionEvents();
   }
 }
