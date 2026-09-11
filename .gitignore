@@ -14,11 +14,14 @@ coverage
 .env
 .env.test
 extension
-next/noise-reduction
 src/noise-reduction
+src/**/i18n/rc-XX.ts
+!src/app/services/WebphoneV2/i18n/rc-XX.ts
+legacy/noise-reduction
 site
 src/plugins.json
 .vscode
+.auto-dev/run/
 
 *storybook.log
 storybook-static

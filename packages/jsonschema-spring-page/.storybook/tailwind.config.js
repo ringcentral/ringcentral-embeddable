@@ -1,5 +1,5 @@
 const path = require('path');
-const baseConfig = require('../../../next/tailwind.base.config');
+const baseConfig = require('../../../src/tailwind.base.config');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {

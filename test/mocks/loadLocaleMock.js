@@ -1,3 +1,1 @@
-module.exports = function loadLocale() {
-  return {};
-};
+module.exports = async () => ({});

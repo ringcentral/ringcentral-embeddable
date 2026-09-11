@@ -16,7 +16,7 @@
 }
 
 .root.dock {
-  top: initial!important;
+  top: initial !important;
   border-radius: 0 !important;
   width: 300px;
   border-top-right-radius: 0;
@@ -40,7 +40,7 @@
 
 .root .header {
   border-bottom: 1px solid #e8e9ed;
-  min-width: 165px;;
+  min-width: 165px;
 }
 
 .dark .header {
@@ -55,9 +55,11 @@
   .presence {
     opacity: 1 !important;
   }
+
   .iconContainer {
     opacity: 0 !important;
   }
+
   .logo {
     opacity: 1 !important;
   }
@@ -70,14 +72,6 @@
 .close {
   display: none;
 }
-
-// .root .toggle {
-//   right: 10px;
-// }
-
-// .root.minimized .toggle {
-//   right: 10px;
-// }
 
 .root.dock.minimized .toggle {
   right: -10px;
@@ -123,6 +117,7 @@
       opacity: 1;
       transition: .2s;
       display: flex;
+
       .icon {
         width: 22px;
         height: 22px;
@@ -140,7 +135,6 @@
   display: none;
 }
 
-
 .viewCallsBtn {
   &.visible {
     margin-left: 20px;
@@ -155,7 +149,8 @@
   }
 }
 
-.ringingCalls, .onHoldCalls {
+.ringingCalls,
+.onHoldCalls {
   &.visible {
     margin-left: -80px;
   }
@@ -174,7 +169,7 @@
   display: none;
 }
 
-.showPopup .popup{
+.showPopup .popup {
   display: block;
 }
 

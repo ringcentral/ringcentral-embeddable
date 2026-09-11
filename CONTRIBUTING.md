@@ -46,9 +46,6 @@ You need to create `.env.test` file based on `.env.test.default`. The client id 
 API_KEY=your_ringcentral_test_app_client_id
 API_SECRET=your_ringcentral_test_app_client_secret
 API_SERVER=ringcentral sever url, eg: https://platform.devtest.ringcentral.com
-TEST_JWT_TOKEN=JWT_TOKEN_for_test_account_and_test_app_client_id
-TEST_HOST_URI=http://localhost:8080
-TEST_HEADLESS=false
 ```
 
 ### Run automated tests
@@ -57,18 +54,16 @@ TEST_HEADLESS=false
 npm test
 ```
 
-Use the focused test scripts when you only need one layer:
+Run a focused test file when you only need one behavior:
 
 ```
-npm run test:unit
-npm run test:integration
-npm run test:e2e
+npm test -- --runInBand test/<name>.test.js
 npm run test:coverage
 ```
 
-Unit tests live under `test/unit`, integration tests live under `test/integration`, and browser e2e tests live under `test` or `test/e2e`. `jest-puppeteer` starts the e2e test server on port `8080` when the port is free. If port `8080` is already in use, e2e tests assume that server is the intended compatible app server.
+Active tests live under `test/`. The files under `legacy-test/` are frozen reference material and are not part of any supported test command.
 
-The `test:coverage` script runs unit, integration, and instrumented e2e coverage, then enforces the 80% coverage gate for `src/**/*.{js,jsx,ts,tsx}` source files, excluding generated browser runtime artifacts.
+The `test:coverage` script enforces the active application's 80% coverage gate.
 
 ### Deploy on production
 
@@ -86,18 +81,18 @@ Please replace `your_host_uri` with your own web host address, such as `https://
 
 And set redirect uri `${your_host_uri}/redirect.html` in your app setting on RingCentral Developer website.
 
-3. Upload all files in release folder to your web space. And visit it in browser.
+3. Upload all files in `build/rc` to your web space, then visit it in a browser.
 
-### Build for browser extension
+### Build for a Chrome extension
 
-For browser extension, we can host all files in browser extension local folder instead CDN.
-
-To build for browser extension local files:
+Run the extension build from the active application:
 
 ```
 npm run build-extension
 ```
 
-After building, we can get compiled files in this project's extension folder. Create a `embeddable` folder in your extension project. Copy all files in extension folder to your extesnion project's `embeddable` folder.
+The ignored `src/noise-reduction/` directory must contain the Krisp SDK scripts and `models/model_8.kw` and `models/model_16.kw` before building. The command fails before compilation when any required noise-reduction asset is missing.
 
-Then you can load this widget with `${your_extension_uri}/embeddable/adapter.js` or `${your_extension_uri}/embeddable/app.html`.
+The command creates a local application bundle in `extension/`. It keeps `app.html`, JavaScript chunks, workers, assets, worklets, plugins, and noise-reduction resources on the extension origin. The Chrome extension manifest must expose the embedded files through `web_accessible_resources`.
+
+This build preserves the legacy local-extension behavior. A Manifest V3 release also requires the consuming extension to enforce an MV3-compatible content security policy; verify the generated `app.html` and worker bootstrap against that policy before publishing.

@@ -1,17 +1,13 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
   plugins: ['lodash'],
-  ignorePatterns: ['node_modules', 'release', 'html-report'],
-
-  globals: {
-    page: true,
-    browser: true,
-    jestPuppeteer: true,
-    _HOST_URI__: true,
-    __JWT_TOKEN__: true,
-    __THIRD_PARTY_URI__: true,
-    __TEST_SMS_RECEIVER_NUMBER__: true,
-  },
+  ignorePatterns: [
+    'node_modules',
+    'legacy',
+    'legacy-test',
+    'release',
+    'html-report',
+  ],
 
   overrides: [
     // js ts files

@@ -1,8 +1,13 @@
-export function popWindow(url: string, id: string, w: number, h: number): WindowProxy | null {
-  if (url.indexOf('javascript') > -1) {
+export function popWindow(
+  url: string,
+  id: string,
+  width: number,
+  height: number,
+): Window | null {
+  if (url.includes('javascript')) {
     throw new Error('Invalid window open url');
   }
-  // Fixes dual-screen position                         Most browsers      Firefox
+
   const dualScreenLeft =
     window.screenLeft !== undefined
       ? window.screenLeft
@@ -12,24 +17,24 @@ export function popWindow(url: string, id: string, w: number, h: number): Window
       ? window.screenTop
       : (window.screen as any).top;
 
-  const width = window.screen.width || window.outerWidth;
-  const height = window.screen.height || window.innerHeight;
-  const left = width / 2 - w / 2 + dualScreenLeft;
-  const top = height / 2 - h / 2 + dualScreenTop;
+  const screenWidth = window.screen.width || window.outerWidth;
+  const screenHeight = window.screen.height || window.innerHeight;
+  const left = screenWidth / 2 - width / 2 + dualScreenLeft;
+  const top = screenHeight / 2 - height / 2 + dualScreenTop;
 
-  const newWindow = window.open(
+  const popupWindow = window.open(
     url,
     id,
-    `scrollbars=yes, width=${w}, height=${h}, top=${top}, left=${left}`,
+    `scrollbars=yes,width=${width},height=${height},top=${top},left=${left}`,
   );
 
-  // Puts focus on the newWindow
   try {
-    newWindow?.focus();
-  } catch (error) {
-    /* ignore error */
+    popupWindow?.focus();
+  } catch {
+    //
   }
-  return newWindow;
+
+  return popupWindow;
 }
 
 export default popWindow;

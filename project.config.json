@@ -1,26 +1,26 @@
 {
   "distPath": "dist",
   "buildPath": "build",
-  "themePath": "./next",
+  "themePath": "./src",
   "pages": [
     {
-      "index": "next/app.html",
-      "main": "next/app.ts"
+      "index": "src/app.html",
+      "main": "src/app.ts"
     },
     {
-      "main": "next/adapter.ts",
+      "main": "src/adapter.ts",
       "filename": "adapter.js"
     },
     {
-      "index": "next/redirect.html",
-      "main": "next/redirect.ts"
+      "index": "src/redirect.html",
+      "main": "src/redirect.ts"
     }
   ],
   "assets": [
-    { "from": "next/popup.html", "to": "popup.html" },
-    { "from": "next/index.html", "to": "index.html" },
+    { "from": "src/popup.html", "to": "popup.html" },
+    { "from": "src/index.html", "to": "index.html" },
     { "from": "src/plugins.json", "to": "plugins.json" },
-    { "from": "next/assets", "to": "assets" }
+    { "from": "src/assets", "to": "assets" }
   ],
   "environment": {
     "local": {
@@ -36,7 +36,7 @@
       "mode": "production"
     }
   },
-  "appConfigPath": "next/config/index.ts",
+  "appConfigPath": "src/config/index.ts",
   "devServerPort": 8080,
   "themeSystem": "spring-ui"
 }
