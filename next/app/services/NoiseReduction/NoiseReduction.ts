@@ -16,6 +16,7 @@ import {
 
 import { Denoiser } from './Denoiser';
 import { isSameOrigin } from './NoiseReduction.helper';
+import { t } from './i18n';
 import type {
   KrispNoiseFilterNode,
   KrispSdk,
@@ -67,6 +68,10 @@ export class NoiseReduction extends RcModule {
     return this._embeddableAppFeatures.showNoiseReductionSetting;
   }
 
+  get showNoiseReductionSetting(): boolean {
+    return this.isFeatureEnabled;
+  }
+
   override _shouldInit(): boolean {
     return Boolean(
       super._shouldInit() && this._auth.loggedIn && this.isFeatureEnabled,
@@ -102,7 +107,7 @@ export class NoiseReduction extends RcModule {
 
   private _showNotSupportedAlert(): void {
     this._toast.warning({
-      message: 'showNoiseReductionNotSupported',
+      message: t('noiseReductionNotSupported'),
       ttl: 0,
     });
   }

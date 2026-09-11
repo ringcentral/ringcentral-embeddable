@@ -1,5 +1,12 @@
 import { NoiseReduction } from '../../next/app/services/NoiseReduction/NoiseReduction';
 
+jest.mock('../../next/app/services/NoiseReduction/i18n', () => ({
+  t: (key) =>
+    key === 'noiseReductionNotSupported'
+      ? "Noise reduction isn't available in your current environment."
+      : key,
+}));
+
 function createFilterNode() {
   return {
     isReady: true,
@@ -131,6 +138,7 @@ describe('NoiseReduction service', () => {
 
     expect(dependencies.storage.enable).toHaveBeenCalledWith(service);
     expect(service.isFeatureEnabled).toBe(true);
+    expect(service.showNoiseReductionSetting).toBe(true);
     expect(service._shouldInit()).toBe(true);
     expect(service._shouldReset()).toBe(false);
 
@@ -145,6 +153,7 @@ describe('NoiseReduction service', () => {
     expect(service._shouldReset()).toBe(true);
     dependencies.auth.loggedIn = true;
     dependencies.appFeatures.showNoiseReductionSetting = false;
+    expect(service.showNoiseReductionSetting).toBe(false);
     expect(service._shouldReset()).toBe(true);
   });
 
@@ -184,7 +193,7 @@ describe('NoiseReduction service', () => {
     await service.setEnabled(true);
     expect(service.enabled).toBe(false);
     expect(dependencies.toast.warning).toHaveBeenCalledWith({
-      message: 'showNoiseReductionNotSupported',
+      message: "Noise reduction isn't available in your current environment.",
       ttl: 0,
     });
 
