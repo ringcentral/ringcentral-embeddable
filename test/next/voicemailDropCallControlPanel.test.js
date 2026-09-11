@@ -181,6 +181,24 @@ describe('VoicemailDropCallControlPanel', () => {
     expect(screen.queryByTestId('more')).not.toBeInTheDocument();
   });
 
+  test('renders flip in more even when all call actions fit in the grid', () => {
+    render(
+      <VoicemailDropCallControlPanel
+        {...createProps([
+          { type: 'mute' },
+          { type: 'flip', disabled: true },
+          { type: 'hangUp' },
+        ])}
+      />,
+    );
+
+    expect(screen.getByTestId('actionTypes')).toHaveTextContent('mute');
+    expect(screen.getByTestId('overflowActionTypes')).toHaveTextContent(
+      'flip',
+    );
+    expect(screen.getByTestId('more')).toBeInTheDocument();
+  });
+
   test('keeps the voicemail drop button presentation', () => {
     render(<VoicemailDropCallControlPanel {...createProps()} />);
 

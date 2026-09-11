@@ -135,11 +135,13 @@ import {
   CallDetailView as MicroPhoneCallDetailView,
   CallView as MicroPhoneCallView,
   CallsListViewSpring as MicroPhoneCallsListView,
+  ConnectingView as MicroPhoneConnectingView,
   DialerPadView,
   DialerView as MicroPhoneDialerView,
 } from '@ringcentral-integration/micro-phone/src/app/views';
 import { DialerPadView as DialerPadViewV2 } from './views/DialerPadView';
 import { DialerView as DialerViewV2 } from './views/DialerView';
+import { ConnectingView as ConnectingViewV2 } from './views/ConnectingView';
 import {
   CallDetailView as CallDetailViewV2,
   CallsListView as CallsListViewV2,
@@ -418,6 +420,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: MicroPhoneCallControlView,
         useClass: CallControlViewV2,
+      },
+      {
+        provide: MicroPhoneConnectingView,
+        useClass: ConnectingViewV2,
       },
       {
         provide: MicroPhoneCallView,

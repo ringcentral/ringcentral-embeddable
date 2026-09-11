@@ -25,8 +25,6 @@ jest.mock('@ringcentral-integration/micro-phone/src/app/services', () => ({
   CallingSettings: class CallingSettings {},
   ForwardingNumber: class ForwardingNumber {},
   Webphone: class Webphone {},
-  isPreinsertCallByTelephoneSessionId: (id) =>
-    id?.startsWith('pre_insert_id'),
 }));
 
 jest.mock(
@@ -38,6 +36,10 @@ jest.mock(
   '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring',
   () => ({
     CallControlView: class CallControlViewBase {
+      useCallActions() {
+        return [{ type: 'hangUp' }];
+      }
+
       getUIFunctions() {
         return { onAction: mockBaseOnAction };
       }
@@ -76,15 +78,13 @@ function createCallControlView() {
     updateCallMetaInfo: jest.fn(async () => {}),
     leaveCallingRoute: jest.fn(async () => {}),
   };
+  const activeCallControl = {
+    getActiveSession: jest.fn(() => ({ isOnHold: false })),
+  };
+  const forwardingNumber = { flipNumbers: [] };
   const webphone = {
     sessions: [],
     hangup: jest.fn(async () => {}),
-  };
-  const callViewState = {
-    view: 'activeCall',
-    _setView: jest.fn(function setView(value) {
-      this.view = value;
-    }),
   };
   const smartNotes = {
     startOrResumeNotes: jest.fn(async () => ({ id: 'telephony-session' })),
@@ -94,58 +94,37 @@ function createCallControlView() {
   };
   const view = new CallControlView(
     callAction,
-    {}, // callingSettings
-    {}, // activeCallControl
-    {}, // forwardingNumber
+    { isWebphoneMode: true },
+    activeCallControl,
+    forwardingNumber,
     {}, // appFeatures
     {}, // root
     {}, // syncTabView
     {}, // audioCardView
-    {}, // voicemailDrop
+    { hasVoicemailDropPermission: false },
     webphone,
     {}, // voicemailDropView
-    callViewState,
     smartNotes,
     smartNotesView,
   );
 
-  return { view, callAction, webphone, callViewState, smartNotes, smartNotesView };
+  return { view, callAction, webphone, smartNotes, smartNotesView };
 }
 
-describe('CallControlView preinsert call actions', () => {
+describe('CallControlView actions', () => {
   beforeEach(() => {
     mockBaseOnAction.mockClear();
   });
 
-  test('hangs up a connecting preinsert call through the webphone session', async () => {
-    const { view, webphone } = createCallControlView();
-    const { onAction } = view.getUIFunctions({
-      call: {
-        telephonySessionId: 'pre_insert_id_sip-1',
-        webphoneSession: { id: 'wp-1' },
-      },
+  test('keeps flip in the action list when no forwarding number is available', () => {
+    const { view } = createCallControlView();
+
+    const actions = view.useCallActions({
+      call: { telephonySessionId: 'real-session-1' },
+      actionsDisabled: false,
     });
 
-    await onAction('hangUp');
-
-    expect(webphone.hangup).toHaveBeenCalledWith('wp-1');
-    expect(mockBaseOnAction).not.toHaveBeenCalled();
-  });
-
-  test('closes the calling page on back for a connecting preinsert call', async () => {
-    const { view, callAction, callViewState } = createCallControlView();
-    const { onAction } = view.getUIFunctions({
-      call: {
-        telephonySessionId: 'pre_insert_id_sip-1',
-        webphoneSession: { id: 'wp-1' },
-      },
-    });
-
-    await onAction('back');
-
-    expect(callViewState._setView).toHaveBeenCalledWith('hidden');
-    expect(callAction.leaveCallingRoute).toHaveBeenCalled();
-    expect(mockBaseOnAction).not.toHaveBeenCalled();
+    expect(actions).toContainEqual({ type: 'flip', disabled: true });
   });
 
   test('keeps the base handling for calls with a real telephony session', async () => {

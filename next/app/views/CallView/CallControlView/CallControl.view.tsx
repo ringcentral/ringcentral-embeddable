@@ -18,13 +18,11 @@ import {
   CallAction,
   CallingSettings,
   ForwardingNumber,
-  isPreinsertCallByTelephoneSessionId,
   type OnCallActionType,
   Webphone as MicroPhoneWebphone,
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { CallActionRoutePath } from '@ringcentral-integration/micro-phone/src/app/services/CallAction/CallAction.interface';
 import { AudioCardView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/AudioCardViewSpring';
-import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import { CallControlView as CallControlViewBase } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
 import type {
   CallControlViewOptions,
@@ -50,7 +48,6 @@ type VoicemailDropSession = NormalizedSession & {
 @injectable({
   name: 'CallControlView',
 })
-// @ts-expect-error override private base method useCallActions to inject the park action
 export class CallControlView extends CallControlViewBase {
   constructor(
     callAction: CallAction,
@@ -64,7 +61,6 @@ export class CallControlView extends CallControlViewBase {
     voicemailDrop: VoicemailDrop,
     @inject(MicroPhoneWebphone) webphone: Webphone,
     voicemailDropView: VoicemailDropView,
-    callViewState: CallViewState,
     smartNotes: SmartNotes,
     smartNotesView: SmartNotesView,
     @optional('CallControlViewOptions')
@@ -93,7 +89,6 @@ export class CallControlView extends CallControlViewBase {
     this._voicemailDrop = voicemailDrop;
     this._webphone = webphone;
     this._voicemailDropView = voicemailDropView;
-    this._callViewState = callViewState;
     this._smartNotes = smartNotes;
     this._smartNotesView = smartNotesView;
   }
@@ -105,7 +100,6 @@ export class CallControlView extends CallControlViewBase {
   private readonly _voicemailDrop: VoicemailDrop;
   private readonly _webphone: Webphone;
   private readonly _voicemailDropView: VoicemailDropView;
-  private readonly _callViewState: CallViewState;
   private readonly _smartNotes: SmartNotes;
   private readonly _smartNotesView: SmartNotesView;
 
@@ -116,18 +110,7 @@ export class CallControlView extends CallControlViewBase {
     });
   }
 
-  /**
-   * close the call control page for a connecting (preinsert) call that only
-   * exists as a local webphone session and is not addressable by the
-   * server-side call control actions yet
-   */
-  @delegate('server')
-  async closeConnectingCall(): Promise<void> {
-    this._callViewState._setView('hidden');
-    await (this._parkCallAction as any)['leaveCallingRoute']();
-  }
-
-  private useCallActions(props: CallControlViewProps): ICallAction[] {
+  override useCallActions(props: CallControlViewProps): ICallAction[] {
     const baseActions = (
       CallControlViewBase.prototype as unknown as {
         useCallActions: (p: CallControlViewProps) => ICallAction[];
@@ -165,16 +148,13 @@ export class CallControlView extends CallControlViewBase {
         props.actionsDisabled ||
         Boolean(webphoneSession.voicemailDropStatus)
       : undefined;
-    // without a flip number the call cannot be flipped anywhere, so the button
-    // is not rendered at all instead of being permanently disabled
     const flipDisabled =
-      flipNumbers.length > 0
-        ? !isWebphoneMode ||
-          transferring ||
-          Boolean(props.call.isConferenceCall) ||
-          isOnHold ||
-          props.actionsDisabled
-        : undefined;
+      flipNumbers.length === 0 ||
+      !isWebphoneMode ||
+      transferring ||
+      Boolean(props.call.isConferenceCall) ||
+      isOnHold ||
+      props.actionsDisabled;
     return addEmbeddableCallActions(baseActions, {
       parkDisabled,
       voicemailDropDisabled,
@@ -188,22 +168,6 @@ export class CallControlView extends CallControlViewBase {
     const baseFunctions = super.getUIFunctions(props);
     const telephonySessionId = props.call.telephonySessionId!;
     const onAction: OnCallActionType = async (actionType, ...args) => {
-      if (isPreinsertCallByTelephoneSessionId(telephonySessionId)) {
-        // the call only exists as a local webphone (SIP) session; the base
-        // handler would address it through ActiveCallControl with the fake
-        // preinsert id and throw
-        if (actionType === 'hangUp') {
-          const webphoneSessionId = props.call.webphoneSession?.id;
-          if (webphoneSessionId) {
-            await this._webphone.hangup(webphoneSessionId);
-          }
-          return;
-        }
-        if (actionType === 'back') {
-          await this.closeConnectingCall();
-          return;
-        }
-      }
       if (actionType === 'park') {
         await this.navigateToPark(telephonySessionId);
         return;

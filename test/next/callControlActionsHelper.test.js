@@ -51,6 +51,15 @@ describe('addEmbeddableCallActions', () => {
     expect(actions.find((action) => action.type === 'park').disabled).toBe(true);
   });
 
+  test('keeps a disabled flip action available for overflow', () => {
+    const actions = addEmbeddableCallActions(baseActions, {
+      parkDisabled: false,
+      flipDisabled: true,
+    });
+
+    expect(actions.at(-2)).toEqual({ type: 'flip', disabled: true });
+  });
+
   test('keeps the existing actions untouched', () => {
     const actions = addEmbeddableCallActions(
       [...baseActions.slice(0, -1), { type: 'park' }, { type: 'hangUp' }],
@@ -82,6 +91,15 @@ describe('splitCallActions', () => {
       visible: actions,
       overflow: [],
     });
+  });
+
+  test('always moves flip into the overflow menu', () => {
+    const { visible, overflow } = splitCallActions(
+      createActions(['mute', 'flip']),
+    );
+
+    expect(visible.map((action) => action.actionType)).toEqual(['mute']);
+    expect(overflow.map((action) => action.actionType)).toEqual(['flip']);
   });
 
   test('moves the trailing actions into the overflow', () => {

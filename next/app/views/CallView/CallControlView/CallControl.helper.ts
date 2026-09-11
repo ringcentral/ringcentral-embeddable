@@ -12,6 +12,12 @@ export const MAX_VISIBLE_CALL_ACTIONS = 9;
  */
 const PINNED_CALL_ACTION_TYPES = ['audio'];
 
+/**
+ * flip opens a second-level destination list and should use the consistent
+ * menu presentation regardless of how many other call actions are enabled
+ */
+const ALWAYS_OVERFLOW_CALL_ACTION_TYPES = ['flip'];
+
 function insertBeforeHangUp(
   actions: ICallAction[],
   action: ICallAction,
@@ -73,25 +79,42 @@ export function splitCallActions<T extends { actionType: string }>(
   actions: T[],
   maxVisible: number = MAX_VISIBLE_CALL_ACTIONS,
 ): { visible: T[]; overflow: T[] } {
-  if (actions.length <= maxVisible) {
+  const alwaysOverflowCount = actions.filter((action) =>
+    ALWAYS_OVERFLOW_CALL_ACTION_TYPES.includes(action.actionType),
+  ).length;
+  const additionalOverflowCount = Math.max(
+    actions.length - maxVisible - alwaysOverflowCount,
+    0,
+  );
+  if (alwaysOverflowCount === 0 && additionalOverflowCount === 0) {
     return { visible: actions, overflow: [] };
   }
   const visible: T[] = [];
   const overflow: T[] = [];
-  const overflowCount = actions.length - maxVisible;
+  let additionalOverflowMoved = 0;
   // fill the overflow from the tail, keeping the pinned actions visible
   for (let index = actions.length - 1; index >= 0; index -= 1) {
     const action = actions[index]!;
+    const alwaysOverflows = ALWAYS_OVERFLOW_CALL_ACTION_TYPES.includes(
+      action.actionType,
+    );
     if (
-      overflow.length < overflowCount &&
+      (alwaysOverflows ||
+        additionalOverflowMoved < additionalOverflowCount) &&
       !PINNED_CALL_ACTION_TYPES.includes(action.actionType)
     ) {
       overflow.unshift(action);
+      if (!alwaysOverflows) {
+        additionalOverflowMoved += 1;
+      }
     } else {
       visible.unshift(action);
     }
   }
-  if (process.env.NODE_ENV !== 'production' && overflow.length < overflowCount) {
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    additionalOverflowMoved < additionalOverflowCount
+  ) {
     throw new Error(
       'The call control actions cannot fit into the grid: too many pinned actions',
     );
