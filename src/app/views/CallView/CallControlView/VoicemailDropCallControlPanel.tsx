@@ -5,7 +5,6 @@ import type { CallControlViewPanelProps } from '@ringcentral-integration/micro-p
 import { AiNoteTip } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring/CallControlPanel/AiNoteTip';
 import { CallCtrlButton } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring/CallControlPanel/CallCtrlButton';
 import { TransferringCall } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring/CallControlPanel/TransferringCall';
-import { useCallControlLayout } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring/CallControlPanel/useCallControlLayout';
 import {
   CallButton,
   MenuItemText,
@@ -21,6 +20,7 @@ import {
   CallControlMoreButton,
   type CallControlMoreAction,
 } from './CallControlMoreButton';
+import { useCallControlLayout } from './useCallControlLayout';
 
 function useEmbeddableCallActionButtons(props: CallControlViewPanelProps) {
   const { actions, call, onAction } = props;
