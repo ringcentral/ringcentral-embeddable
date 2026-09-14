@@ -13,6 +13,7 @@ import { getWebpackConfig } from './webpack.config';
 
 const SOURCE_PATH = path.resolve(__dirname, 'src');
 const EXTENSION_BUILD_PATH = path.resolve(__dirname, 'extension');
+const EXTENSION_BUILD_ID = 'extension';
 const NOISE_REDUCTION_PATH = path.resolve(SOURCE_PATH, 'noise-reduction');
 const REQUIRED_NOISE_REDUCTION_FILES = [
   'krispsdk.es5.js',
@@ -40,13 +41,19 @@ const getConfiguredProject = (): ProjectConfig<AppConfig> => {
   return projectConfig;
 };
 
+interface BuildOptions {
+  buildId?: string;
+  outputPath?: string;
+}
+
 const runBuild = async (
   projectConfig: ProjectConfig<AppConfig>,
-  outputPath?: string,
+  { buildId, outputPath }: BuildOptions = {},
 ): Promise<void> => {
   const webpackConfig = getWebpackConfig({
     projectConfig,
     templateParameters: {},
+    buildId,
     outputPath,
   });
   await new Promise<void>((resolve, reject) => {
@@ -117,5 +124,8 @@ export async function buildExtension(): Promise<void> {
       to: 'noise-reduction',
     },
   ];
-  await runBuild(projectConfig, EXTENSION_BUILD_PATH);
+  await runBuild(projectConfig, {
+    buildId: EXTENSION_BUILD_ID,
+    outputPath: EXTENSION_BUILD_PATH,
+  });
 }

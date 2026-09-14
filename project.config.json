@@ -5,7 +5,8 @@
   "pages": [
     {
       "index": "src/app.html",
-      "main": "src/app.ts"
+      "main": "src/app.ts",
+      "filename": "app.js"
     },
     {
       "main": "src/adapter.ts",
@@ -13,9 +14,13 @@
     },
     {
       "index": "src/redirect.html",
-      "main": "src/redirect.ts"
+      "main": "src/redirect.ts",
+      "filename": "redirect.js"
     }
   ],
+  "chunkFilenames": {
+    "worker": "worker.[buildid].js"
+  },
   "assets": [
     { "from": "src/popup.html", "to": "popup.html" },
     { "from": "src/index.html", "to": "index.html" },

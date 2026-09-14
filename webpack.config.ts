@@ -5,6 +5,7 @@ import { getBaseWebpackConfig, merge } from './src/lib/webpack/builder.webpack';
 import type { AppConfig } from './src/config';
 
 interface AppWebpackConfigOptions extends WebpackConfigOptions<AppConfig> {
+  buildId?: string;
   outputPath?: string;
 }
 

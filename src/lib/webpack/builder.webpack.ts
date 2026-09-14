@@ -8,7 +8,6 @@ import template from 'lodash/template';
 import path from 'path';
 import * as nodeUrl from 'url';
 import {
-  AssetInfo,
   type Chunk,
   DefinePlugin,
   NormalModuleReplacementPlugin,
@@ -16,7 +15,6 @@ import {
 } from 'webpack';
 import { merge } from 'webpack-merge';
 
-import { getFilenameMap as getFileUrlMap } from '@ringcentral-integration/next-builder/src/getFilenameMap';
 import { getPrimaryColor } from '@ringcentral-integration/next-builder/src/getPrimaryColor';
 import type { ProjectConfig } from '@ringcentral-integration/next-builder/src/getProjectConfig';
 import { getLoadWorkerTemplate } from '@ringcentral-integration/next-builder/src/scriptsLoadFail/getLoadWorkerTemplate';
@@ -27,10 +25,35 @@ import { getBaseWebpackConfig as getWebpackConfig } from './widgets.webpack';
 
 const DEFAULT_FILENAME = '[name].js';
 const DEFAULT_CHUNK_FILENAME = '[name].js';
+const args = getArgs();
+
+/**
+ * Returns the immutable directory name used by one production build.
+ * A pipeline can supply `--build-hash`; local builds use a sortable UTC value.
+ */
+const getBuildId = (): string => {
+  if (args.buildHash) {
+    return String(args.buildHash);
+  }
+  return new Date()
+    .toISOString()
+    .replace(/[-:.]/g, '')
+    .replace('T', '-')
+    .replace('Z', '');
+};
+
+const DEFAULT_BUILD_ID = getBuildId();
+const applyBuildId = (filename: string, buildId: string): string =>
+  filename.replace(/\[buildid\]/g, buildId);
+const getHashedFilename = (buildId: string): string =>
+  `${buildId}/${DEFAULT_FILENAME}`;
+const getHashedChunkFilename = (buildId: string): string =>
+  `${buildId}/${DEFAULT_CHUNK_FILENAME}`;
 /**
  * default vendor chunk name
  */
 const VENDOR_KEY = 'vendor';
+const WORKER_KEY = 'worker';
 const reactantPackageAlias = {
   './node_modules/tslib/tslib.es6.js$': require.resolve('tslib/tslib.es6.js'),
   '../node_modules/tslib/tslib.es6.js$': require.resolve('tslib/tslib.es6.js'),
@@ -61,6 +84,7 @@ export interface WebpackConfigOptions<T extends BaseAppConfig> {
    */
   outputAlwaysUseProdFileName?: boolean;
   publicPath?: string;
+  buildId?: string;
   /**
    * block pendo remote js code, so 'pendo.js' will not be loaded. False by default
    */
@@ -73,13 +97,13 @@ export interface WebpackConfigOptions<T extends BaseAppConfig> {
 
 export const getFinalFilePathMap = <T extends BaseAppConfig>(
   projectConfig: ProjectConfig<T>,
+  buildId = DEFAULT_BUILD_ID,
 ) => {
+  const hashedFilename = getHashedFilename(buildId);
   const filenameMap = projectConfig.projectConfig.pages.reduce(
     (acc, { main, index, filename }) => {
       const chunkName = path.parse(main).name;
-      acc[chunkName] =
-        filename ??
-        DEFAULT_FILENAME;
+      acc[chunkName] = filename ?? hashedFilename;
 
       return acc;
     },
@@ -89,8 +113,6 @@ export const getFinalFilePathMap = <T extends BaseAppConfig>(
   return filenameMap;
 };
 
-const args = getArgs();
-
 export const getBaseWebpackConfig = <T extends BaseAppConfig>({
   projectConfig,
   devServer,
@@ -98,6 +120,7 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
   templateParameters,
   outputAlwaysUseProdFileName,
   publicPath,
+  buildId = DEFAULT_BUILD_ID,
   blockSegmentSourceCode = false,
   blockPendoSourceCode = false,
 }: WebpackConfigOptions<T>) => {
@@ -196,8 +219,20 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
     env: args.buildEnv,
   });
 
-  const chunkInfoMap = new Map<string, AssetInfo>();
   const isProd = projectConfig.mode === 'production';
+  const hashedFilename = getHashedFilename(buildId);
+  const hashedChunkFilename = getHashedChunkFilename(buildId);
+  const getWorkerFilename = (): string => {
+    if (!(isProd || outputAlwaysUseProdFileName)) {
+      return 'worker.js';
+    }
+    const configured = projectConfig.projectConfig.chunkFilenames;
+    const template =
+      (typeof configured === 'string'
+        ? configured
+        : configured?.[WORKER_KEY]) ?? hashedChunkFilename;
+    return applyBuildId(template, buildId).replace('[name]', WORKER_KEY);
+  };
   // In MFE mode, exported files are typically split separately.
   const outputUsePropsMode = isProd || outputAlwaysUseProdFileName;
 
@@ -238,6 +273,7 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
       new DefinePlugin({
         // TODO: processDefaultDarkAndHighContactTheme
         'process.env.THEME_SYSTEM': JSON.stringify(themeSystem),
+        'process.env.WORKER_URL': JSON.stringify(getWorkerFilename()),
         'process.env.BLOCK_PENDO_SOURCE_CODE':
           JSON.stringify(blockPendoSourceCode),
         'process.env.BLOCK_SEGMENT_SOURCE_CODE': JSON.stringify(
@@ -255,7 +291,18 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
             chunks: [mainChunk],
             ...params,
             templateParameters: (compilation, assets, assetTags, options) => {
-              const fileUrlMap = getFileUrlMap(compilation, chunkInfoMap);
+              const fileUrlMap = new Map<string, string>();
+              compilation.chunks.forEach((chunk) => {
+                if (!chunk.name) {
+                  return;
+                }
+                const file = Array.from(chunk.files).find((name) =>
+                  name.endsWith('.js'),
+                );
+                if (file) {
+                  fileUrlMap.set(chunk.name, file);
+                }
+              });
               const compilationHash = compilation.hash ?? '';
               const workerVersionQuery = compilationHash
                 ? `?_v=${compilationHash}`
@@ -362,7 +409,7 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
   });
 
   if (outputUsePropsMode) {
-    const filenameMap = getFinalFilePathMap(projectConfig);
+    const filenameMap = getFinalFilePathMap(projectConfig, buildId);
     const chunkFilenames = projectConfig.projectConfig.chunkFilenames;
     // MFE with module federation should not use splitChunks
     // issue: https://github.com/module-federation/module-federation-examples/issues/692
@@ -376,30 +423,30 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
       throw new Error('MFE with module federation should not use splitChunks');
     }
     if (enabledAutoSplitChunks) {
-      // find all pure entry files
-      const pureEntryFiles = projectConfig.projectConfig.pages
-        .filter((x) => !x.index)
+      const rootPinnedEntries = projectConfig.projectConfig.pages
+        .filter((page) => !page.index || page.filename)
         .map((x) => path.basename(x.main).split('.')[0]);
 
-      const chunks = (chunk: Chunk) => {
-        const notBePureEntryFile = Boolean(
-          chunk.name && !pureEntryFiles.includes(chunk.name),
+      const chunks = (chunk: Chunk): boolean => {
+        const isRootPinned = Boolean(
+          chunk.name && rootPinnedEntries.includes(chunk.name),
         );
-        // only non pure entry files should be split
-        return notBePureEntryFile;
+        return Boolean(chunk.name) && !isRootPinned;
       };
 
       const isString = typeof chunkFilenames === 'string';
       const vendorFilename =
         (isString ? chunkFilenames : chunkFilenames?.[VENDOR_KEY]) ||
         DEFAULT_CHUNK_FILENAME;
+      const getSplitChunkFilename = (prefix = ''): string =>
+        `${buildId}/${prefix}${vendorFilename}`;
 
       // always optimize vendor and commons chunk to separate file into small size
       // otherwise, the main chunk will be too large to host on CDN
       developmentConfig.optimization = {
         splitChunks: {
           chunks,
-          filename: vendorFilename, // Ensure hash is included
+          filename: getSplitChunkFilename(),
           minSize: 1_000_000, // 1MB
           maxSize: 9_000_000,
           /**
@@ -413,13 +460,13 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
             vendor: {
               // import file path containing node_modules
               test: /[\\/]node_modules[\\/]/,
-              filename: `modules-${vendorFilename}`, // Ensure hash is included
+              filename: getSplitChunkFilename('modules-'),
               reuseExistingChunk: true,
             },
             commons: {
               // import file path containing ringcentral-js-widgets
               test: /[\\/]ringcentral-js-widgets[\\/]/,
-              filename: `commons-${vendorFilename}`, // Ensure hash is included
+              filename: getSplitChunkFilename('commons-'),
               reuseExistingChunk: true,
             },
           },
@@ -429,6 +476,7 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
 
     return merge(developmentConfig, {
       output: {
+        publicPath: publicPath ?? '',
         filename: (pathData) => {
           const chunkName = pathData?.chunk?.name;
 
@@ -436,21 +484,24 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
             return filenameMap[chunkName];
           }
 
-          return DEFAULT_FILENAME;
+          return hashedFilename;
         },
-        chunkFilename: (pathData, assetInfo) => {
+        chunkFilename: (pathData) => {
           const isString = typeof chunkFilenames === 'string';
 
-          if (isString) return chunkFilenames;
-
-          const chunkName = pathData.chunk?.name;
-          if (!chunkName) return DEFAULT_CHUNK_FILENAME;
-
-          if (assetInfo) {
-            chunkInfoMap.set(chunkName, assetInfo);
+          if (isString) {
+            return applyBuildId(chunkFilenames, buildId);
           }
 
-          return chunkFilenames?.[chunkName] || DEFAULT_CHUNK_FILENAME;
+          const chunkName = pathData.chunk?.name;
+          if (!chunkName) {
+            return hashedChunkFilename;
+          }
+
+          const configured = chunkFilenames?.[chunkName];
+          return configured
+            ? applyBuildId(configured, buildId)
+            : hashedChunkFilename;
         },
       },
     });

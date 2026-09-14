@@ -1,33 +1,52 @@
-import './main.global.scss';
-import { createApp } from './createApp';
+/**
+ * Shared worker bootstrap owned by the stable app entry.
+ *
+ * The worker filename contains the build id, so a cached app entry always
+ * starts and reports the worker from its own build. `next-core` compares that
+ * URI across tabs and reloads clients that are attached to an older worker.
+ */
+const DISABLE_SHARED_WORKER_KEY = 'disableRcSharedWorker';
 
-// Just for worker can be build https://webpack.js.org/guides/web-workers/
-export const createWorker = () => {
+const loadWorker = (): void => {
+  if (localStorage.getItem(DISABLE_SHARED_WORKER_KEY)) {
+    return;
+  }
+  if (!window.SharedWorker) {
+    return;
+  }
+  if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+    return;
+  }
+  const workerFilename = process.env.WORKER_URL;
+  if (!workerFilename) {
+    return;
+  }
+  const params = new URLSearchParams(window.location.search);
+  ['_t', 'fromAdapter', 'fromPopup'].forEach((key) => params.delete(key));
+  const search = params.toString();
+  const workerUrl = search ? `${workerFilename}?${search}` : workerFilename;
+  const name = `worker#${btoa('{}')}`;
+  const worker = new SharedWorker(workerUrl, { name });
+  window.__rc_shared_worker__ = {
+    url: `${workerUrl}?${name}`,
+    worker,
+  };
+  worker.addEventListener('error', (event) => {
+    // eslint-disable-next-line no-console
+    console.error('load __rc_shared_worker__ worker fail', event);
+    window.workerScriptsFail?.renderLoadFail?.();
+  });
+};
+
+/** Makes webpack emit the shared-worker chunk without starting it directly. */
+export const createWorker = (): void => {
   new SharedWorker(
-    // @ts-ignore
+    // @ts-ignore Webpack recognizes this URL form and emits the worker chunk.
     /* webpackChunkName: "worker" */ new URL('./worker.ts', import.meta.url),
   );
 };
-const worker = global.__rc_shared_worker__?.worker;
 
-async function runApp() {
-  const app = await createApp(
-    {
-      name: 'rc-embeddable',
-      port: 'client',
-      type: 'SharedWorker',
-      worker,
-    },
-    [],
-  );
+loadWorker();
 
-  if (typeof document !== 'undefined') {
-    const container = document.getElementById('app');
-    if (container) {
-      app.bootstrap(container);
-    }
-  }
-  return app;
-}
-
-runApp();
+// Keep the root entry small and bind all runtime chunks to its build directory.
+import(/* webpackChunkName: "main" */ './appMain');
