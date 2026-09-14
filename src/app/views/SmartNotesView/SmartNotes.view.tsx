@@ -125,6 +125,7 @@ export class SmartNotesView extends RcViewModule {
     id: 'smart-notes',
     name: 'AI Assistant',
     onClose: () => this._handleClose(),
+    showAppsTab: true,
     view: this._contentView,
   });
 

@@ -26,6 +26,8 @@ export interface SideWidgetContentOptions {
   name: string;
   view: ComponentType<SideWidgetContentViewProps>;
   scope?: SideWidgetTabScope;
+  /** Shows available third-party apps as a sibling tab. */
+  showAppsTab?: boolean;
   onActivate?: () => SideWidgetLifecycleResult;
   onDeactivate?: (nextTabId: string | null) => SideWidgetLifecycleResult;
   onClose?: (nextTabId: string | null) => SideWidgetLifecycleResult;

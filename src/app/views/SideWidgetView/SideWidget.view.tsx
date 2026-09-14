@@ -188,7 +188,13 @@ export class SideWidgetView extends RcViewModule {
       isSameSideWidgetContact(this.currentContact, nextContact);
     const closedTabIds = this._getClosedTabIds(tab.id, preserveTabs);
     const previousTabId = this.currentTabId;
-    this._openTab(tab, nextContact, activate, preserveTabs);
+    this._openTab(
+      tab,
+      nextContact,
+      activate,
+      preserveTabs,
+      handle.options.showAppsTab,
+    );
     this._notifyClosedTabs(closedTabIds);
     if (activate) {
       this._notifyTabActivation(previousTabId, tab.id);
@@ -212,12 +218,22 @@ export class SideWidgetView extends RcViewModule {
     tab: SideWidgetTab,
     contact: ThirdPartyWidgetContact | null,
     activate: boolean,
-    preserveTabs: boolean
+    preserveTabs: boolean,
+    showAppsTab = false
   ): void {
-    const previousTabs = this.tabs;
+    const shouldShowAppsTab =
+      showAppsTab && this.enabled && this._thirdParty.apps.length > 0;
+    const previousTabs =
+      shouldShowAppsTab &&
+      !this.tabs.some(({ id }) => id === SIDE_WIDGET_APPS_TAB_ID)
+        ? [...this.tabs, createAppsTab()]
+        : this.tabs;
     const availableTabs = this.enabled
       ? previousTabs.filter(
-          ({ id }) => id !== SIDE_WIDGET_APPS_TAB_ID || this.isOpen
+          ({ id }) =>
+            id !== SIDE_WIDGET_APPS_TAB_ID ||
+            this.isOpen ||
+            shouldShowAppsTab,
         )
       : previousTabs.filter(({ id }) => id !== SIDE_WIDGET_APPS_TAB_ID);
     const retainedTabs = preserveTabs
