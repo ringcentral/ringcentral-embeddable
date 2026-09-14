@@ -74,8 +74,8 @@ test('opens Smart Notes alongside an existing call-details tab', async () => {
     path: '/history/telephony-session',
     routePath: '/history/:callLogId',
   });
-  let finishOpeningSmartNotes: (() => void) | undefined;
-  const openingSmartNotes = new Promise<void>((resolve) => {
+  let finishOpeningSmartNotes;
+  const openingSmartNotes = new Promise((resolve) => {
     finishOpeningSmartNotes = resolve;
   });
   const smartNotes = {

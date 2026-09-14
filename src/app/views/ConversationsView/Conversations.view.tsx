@@ -1,3 +1,4 @@
+import { messageTypes } from '@ringcentral-integration/commons/enums/messageTypes';
 import {
   AppFeatures,
   ConnectivityManager,
@@ -42,6 +43,7 @@ import {
   PortManager,
   RouterPlugin,
   type UIFunctions,
+  type UIProps,
   useConnector,
   useContainer,
 } from '@ringcentral-integration/next-core';
@@ -49,6 +51,7 @@ import React from 'react';
 
 import { LogStatusMessage } from '../../components/LogStatusMessage';
 import { useConversationDisplayNameWithMatches } from '../../components/MatchedContactsTag';
+import type { AppFeatures as EmbeddableAppFeatures } from '../../services/AppFeatures';
 import {
   type ContactMatcher,
   refreshContactMatch,
@@ -259,6 +262,10 @@ export class ConversationsView extends ConversationsViewSpringBase {
 
   private readonly _appContactMatcher?: ContactMatcher;
 
+  private get _embeddableAppFeatures(): EmbeddableAppFeatures {
+    return this._appFeatures as EmbeddableAppFeatures;
+  }
+
   private readonly _refreshContact = async (
     phoneNumber: string,
   ): Promise<void> => {
@@ -313,6 +320,19 @@ export class ConversationsView extends ConversationsViewSpringBase {
         ? this._refreshContact
         : undefined,
       useActionsHandler,
+    };
+  }
+
+  override getUIProps(
+    props: ConversationsViewSpringProps,
+  ): UIProps<ConversationsPanelSpringProps> {
+    const uiProps = super.getUIProps(props);
+    return {
+      ...uiProps,
+      showNewButton:
+        props.typeFilter === messageTypes.fax
+          ? uiProps.showNewButton && this._embeddableAppFeatures.hasFaxesScope
+          : uiProps.showNewButton,
     };
   }
 }

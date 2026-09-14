@@ -54,6 +54,10 @@ export class AppFeatures extends AppFeaturesBase<EmbeddableFeatureConfiguration>
     return this.appScopes.indexOf('VideoInternal') > -1;
   }
 
+  get hasFaxesScope() {
+    return this.appScopes.indexOf('Faxes') > -1;
+  }
+
   override get hasGlipPermission() {
     return (
       super.hasGlipPermission &&
