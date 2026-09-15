@@ -10,7 +10,7 @@ import { useEffectOnDocumentFocus } from '@ringcentral-integration/react-hooks';
 import { useVirtuosoScrollPosition } from '@ringcentral-integration/react-hooks';
 import { useContainer } from '@ringcentral-integration/next-core';
 import { VirtualizedList } from '@ringcentral/spring-ui';
-import type { FunctionComponent } from 'react';
+import type { FunctionComponent, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 
 import { SmartNotes } from '../../services/SmartNotes';
@@ -97,7 +97,7 @@ const CallsList: FunctionComponent<CallsListProps> = ({
     );
   }
   return (
-    <div data-sign="callsList" className="h-full">
+    <div data-sign="callsList" className="min-h-0 flex-auto">
       <VirtualizedList
         key={viewCallsFilter}
         className={className}
@@ -129,7 +129,10 @@ type CallsListPageProps = CallsListPanelSpringProps &
     | 'onAdditionalCallAction'
     | 'onRefreshContact'
     | 'refreshContactDisabled'
-  >;
+  > & {
+    activeCallsContent: ReactNode;
+    hasActiveCalls: boolean;
+  };
 
 export const CallsListPage: FunctionComponent<CallsListPageProps> = ({
   calls,
@@ -139,14 +142,18 @@ export const CallsListPage: FunctionComponent<CallsListPageProps> = ({
   setViewCallsFilter,
   viewCallsFilterSelections,
   onFocus,
+  activeCallsContent,
+  hasActiveCalls,
   ...rest
 }) => {
+  const { t } = useLocale(i18n);
   useEffectOnDocumentFocus(() => {
     onFocus?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <>
+    <div className="flex h-full min-h-0 flex-col">
+      {activeCallsContent}
       <Filter
         className="flex-none"
         searchInput={searchInput}
@@ -155,13 +162,20 @@ export const CallsListPage: FunctionComponent<CallsListPageProps> = ({
         setViewCallsFilter={setViewCallsFilter}
         viewCallsFilterSelections={viewCallsFilterSelections}
       />
-      <CallsList
-        searchInput={searchInput}
-        className="flex-auto overflow-y-auto overflow-x-hidden"
-        viewCallsFilter={viewCallsFilter as ViewCallsFilterType}
-        calls={calls}
-        {...rest}
-      />
-    </>
+      {hasActiveCalls && calls.length > 0 ? (
+        <div className="flex-none px-4 py-2 typography-subtitleMiniSemiBold text-neutral-b2">
+          {t('historyCalls')}
+        </div>
+      ) : null}
+      {calls.length > 0 || !hasActiveCalls ? (
+        <CallsList
+          searchInput={searchInput}
+          className="flex-auto overflow-y-auto overflow-x-hidden"
+          viewCallsFilter={viewCallsFilter as ViewCallsFilterType}
+          calls={calls}
+          {...rest}
+        />
+      ) : null}
+    </div>
   );
 };

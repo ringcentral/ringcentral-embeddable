@@ -135,6 +135,9 @@ export class CallControlView extends CallControlViewBase {
     }));
     const isOnHold = session?.isOnHold ?? false;
     const transferring = Boolean(props.call.warmTransferInfo);
+    const isOtherDeviceCall = Boolean(
+      !props.call.webphoneSession && props.call.id,
+    );
     const parkDisabled =
       !isWebphoneMode || transferring || isOnHold || props.actionsDisabled;
     const showVoicemailDrop =
@@ -159,6 +162,11 @@ export class CallControlView extends CallControlViewBase {
       parkDisabled,
       voicemailDropDisabled,
       flipDisabled,
+      isOtherDeviceCall,
+      switchDisabled:
+        isOtherDeviceCall && isWebphoneMode
+          ? Boolean(props.actionsDisabled)
+          : undefined,
     });
   }
 

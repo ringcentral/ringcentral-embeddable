@@ -79,6 +79,38 @@ describe('addEmbeddableCallActions', () => {
 
     expect(actions.map((action) => action.type)).toEqual(['mute', 'park']);
   });
+
+  test('keeps telephony controls and removes local-only other-device actions', () => {
+    const actions = addEmbeddableCallActions(
+      [
+        { type: 'unmute' },
+        { type: 'keypad' },
+        { type: 'audio' },
+        { type: 'add' },
+        { type: 'unHold' },
+        { type: 'transfer' },
+        { type: 'stopRecord' },
+        { type: 'aiNotes' },
+        { type: 'hangUp' },
+      ],
+      {
+        parkDisabled: false,
+        voicemailDropDisabled: false,
+        flipDisabled: false,
+        isOtherDeviceCall: true,
+        switchDisabled: false,
+      },
+    );
+
+    expect(actions.map((action) => action.type)).toEqual([
+      'unmute',
+      'unHold',
+      'transfer',
+      'stopRecord',
+      'switch',
+      'hangUp',
+    ]);
+  });
 });
 
 describe('splitCallActions', () => {

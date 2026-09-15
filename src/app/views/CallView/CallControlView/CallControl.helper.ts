@@ -18,6 +18,18 @@ const PINNED_CALL_ACTION_TYPES = ['audio'];
  */
 const ALWAYS_OVERFLOW_CALL_ACTION_TYPES = ['flip'];
 
+const OTHER_DEVICE_CALL_ACTION_TYPES = new Set([
+  'mute',
+  'unmute',
+  'hold',
+  'unHold',
+  'merge',
+  'transfer',
+  'record',
+  'stopRecord',
+  'hangUp',
+]);
+
 function insertBeforeHangUp(
   actions: ICallAction[],
   action: ICallAction,
@@ -39,12 +51,17 @@ export function addEmbeddableCallActions(
     parkDisabled: boolean;
     voicemailDropDisabled?: boolean;
     flipDisabled?: boolean;
+    isOtherDeviceCall?: boolean;
+    switchDisabled?: boolean;
   },
 ): ICallAction[] {
-  let result = actions;
+  let result = options.isOtherDeviceCall
+    ? actions.filter((action) => OTHER_DEVICE_CALL_ACTION_TYPES.has(action.type))
+    : actions;
   // each insertion goes right before hangUp, so the call order below is also
-  // the rendered order: voicemail drop, park, flip
+  // the rendered order: voicemail drop, park, flip, switch
   if (
+    !options.isOtherDeviceCall &&
     typeof options.voicemailDropDisabled === 'boolean' &&
     !result.some((action) => action.type === 'voicemail')
   ) {
@@ -53,19 +70,32 @@ export function addEmbeddableCallActions(
       disabled: options.voicemailDropDisabled,
     });
   }
-  if (!result.some((action) => action.type === 'park')) {
+  if (
+    !options.isOtherDeviceCall &&
+    !result.some((action) => action.type === 'park')
+  ) {
     result = insertBeforeHangUp(result, {
       type: 'park',
       disabled: options.parkDisabled,
     });
   }
   if (
+    !options.isOtherDeviceCall &&
     typeof options.flipDisabled === 'boolean' &&
     !result.some((action) => action.type === 'flip')
   ) {
     result = insertBeforeHangUp(result, {
       type: 'flip',
       disabled: options.flipDisabled,
+    });
+  }
+  if (
+    typeof options.switchDisabled === 'boolean' &&
+    !result.some((action) => action.type === 'switch')
+  ) {
+    result = insertBeforeHangUp(result, {
+      type: 'switch',
+      disabled: options.switchDisabled,
     });
   }
   return result;

@@ -54,6 +54,11 @@ import {
 import { CallsListPage } from './CallsListPage';
 import i18n from './i18n';
 
+type HistoryActiveCallsView = {
+  component: React.ComponentType;
+  hasCalls: boolean;
+};
+
 @injectable({
   name: 'CallsListView',
 })
@@ -73,6 +78,8 @@ export class CallsListView extends CallsListViewSpringBase {
     matchedContactSelection: MatchedContactSelection,
     callLogger: CallLogger,
     thirdParty: ThirdParty,
+    @inject('HistoryActiveCallsView')
+    historyActiveCallsView: HistoryActiveCallsView,
     @optional() dialerView?: DialerView,
     @optional() composeText?: ComposeText,
     @optional() callLogTasks?: CallLogTasks,
@@ -103,6 +110,7 @@ export class CallsListView extends CallsListViewSpringBase {
     this._matchedContactSelection = matchedContactSelection;
     this._appCallLogger = callLogger;
     this._thirdParty = thirdParty;
+    this._historyActiveCallsView = historyActiveCallsView;
 
     // `useCallHistoryItemInfo` is an instance field on the base class, and the
     // framework pages read `DisplayName` off its result. Wrapping it here adds
@@ -176,6 +184,8 @@ export class CallsListView extends CallsListViewSpringBase {
   private readonly _appRateLimiter: RateLimiter;
 
   private readonly _thirdParty: ThirdParty;
+
+  private readonly _historyActiveCallsView: HistoryActiveCallsView;
 
   private readonly _matchedContactSelection: MatchedContactSelection;
 
@@ -275,6 +285,7 @@ export class CallsListView extends CallsListViewSpringBase {
 
   override component(props: CallsListViewSpringProps) {
     const actionState = useConnector(() => ({
+      hasActiveCalls: this._historyActiveCallsView.hasCalls,
       additionalCallActions: this._thirdParty.additionalCallActions,
       refreshContactDisabled:
         this._appConnectivityManager.isOfflineMode ||
@@ -288,7 +299,9 @@ export class CallsListView extends CallsListViewSpringBase {
     return (
       <CallsListPage
         {...component.props}
+        activeCallsContent={<this._historyActiveCallsView.component />}
         additionalCallActions={actionState.additionalCallActions}
+        hasActiveCalls={actionState.hasActiveCalls}
         onAdditionalCallAction={this._onAdditionalCallAction}
         onRefreshContact={this._refreshContact}
         refreshContactDisabled={actionState.refreshContactDisabled}

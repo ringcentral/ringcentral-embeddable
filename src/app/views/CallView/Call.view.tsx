@@ -7,7 +7,10 @@ import {
   AppFooterNav,
   AppMainContent,
 } from '@ringcentral-integration/micro-core/src/app/components';
-import { SyncTabView } from '@ringcentral-integration/micro-core/src/app/views';
+import {
+  SyncTabId,
+  SyncTabView,
+} from '@ringcentral-integration/micro-core/src/app/views';
 import {
   autobind,
   fromWatchValue,
@@ -85,6 +88,7 @@ type SideWidgetCallAction = CallAction & {
 @injectable({
   name: 'CallView',
 })
+// @ts-expect-error override private base method processNewCall
 export class CallView extends CallViewBase {
   constructor(
     callAction: CallAction,
@@ -145,6 +149,8 @@ export class CallView extends CallViewBase {
     this._appActiveCallsView = activeCallsView;
     this._appAddCallView = addCallView;
     this._appCallLogFormView = callLogFormView;
+    this._appRouter = router;
+    this._appSyncTabView = syncTabView;
     const privateComponents = this as unknown as CallViewPrivateComponents;
     this._baseCallDetailForm = (
       CallViewBase.prototype as unknown as Pick<
@@ -177,6 +183,17 @@ export class CallView extends CallViewBase {
   private readonly _appAddCallView: AddCallView;
   private readonly _appCallLogFormView?: CallLogFormView;
   private readonly _baseCallDetailForm: FC<CallLogFormViewProps>;
+  private readonly _appRouter: RouterPlugin;
+  private readonly _appSyncTabView: SyncTabView;
+
+  override get showQuickCallAction(): boolean {
+    const currentPath = this._appRouter.currentPath;
+    const isCallsTab =
+      currentPath === '/dialer/calls' ||
+      (currentPath === '/dialer' &&
+        this._appSyncTabView.getActive(SyncTabId.DIALPAD) === 'calls');
+    return !isCallsTab && super.showQuickCallAction;
+  }
 
   @autobind
   private renderCallDetailForm(
@@ -225,6 +242,18 @@ export class CallView extends CallViewBase {
         this._appCallAction as SideWidgetCallAction
       ).leaveCallingRouteForSideWidget();
     }
+  }
+
+  /** Keeps calls on another device closed until the user selects them. */
+  private processNewCall(call: Call): void {
+    const isOtherDeviceCall = Boolean(!call.webphoneSession && call.id);
+    if (isOtherDeviceCall) {
+      this._appCallAction._updateCallMetaInfo(call.telephonySessionId!, {
+        currentPath: isRingingCall(call) ? 'incoming' : 'controls',
+      });
+      return;
+    }
+    (CallViewBase.prototype as any)['processNewCall'].call(this, call);
   }
 
   override component() {

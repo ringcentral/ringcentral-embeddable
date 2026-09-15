@@ -1,4 +1,5 @@
 export default {
+  activeCalls: "Active calls",
   callerId: "Caller ID: {name}",
   noCalls: "No calls",
   noSearchResults: "No search results",
@@ -6,6 +7,7 @@ export default {
   recording: "Recording",
   editLog: "Edit log",
   logCall: "Log call",
+  historyCalls: "History calls",
   refreshContact: "Refresh contact",
   viewLogDetails: "View log details",
 } as const;

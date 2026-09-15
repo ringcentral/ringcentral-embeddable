@@ -146,6 +146,7 @@ import {
   CallDetailView as CallDetailViewV2,
   CallsListView as CallsListViewV2,
 } from './views/CallHistoryView';
+import { HistoryActiveCallsView } from './views/CallHistoryView/HistoryActiveCalls.view';
 import { CallHUDView } from './views/CallHUDView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
@@ -578,6 +579,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       VoicemailDropView,
       VoicemailDropSettingsView,
       CallHUDView,
+      {
+        provide: 'HistoryActiveCallsView',
+        useClass: HistoryActiveCallsView,
+      },
       {
         provide: 'MessageThreadOptions',
         useValue: {
