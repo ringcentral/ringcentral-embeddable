@@ -98,6 +98,46 @@ describe("ActiveCallControl compatibility routing", () => {
     ).toBe(false);
   });
 
+  test("reloads a presence call after its local Webphone session ends", async () => {
+    const fetchData = jest.fn(async () => {});
+    const control = {
+      data: { sessions: [] },
+      _presence: {
+        calls: [{ telephonySessionId: "telephony-session" }],
+      },
+      _webphone: { sessions: [] },
+      fetchData,
+    };
+
+    await ActiveCallControl.prototype._recoverMissingPresenceCalls.call(
+      control
+    );
+
+    expect(fetchData).toHaveBeenCalledTimes(1);
+  });
+
+  test("does not reload a presence call represented by Webphone", async () => {
+    const fetchData = jest.fn(async () => {});
+    const control = {
+      data: { sessions: [] },
+      _presence: {
+        calls: [{ telephonySessionId: "telephony-session" }],
+      },
+      _webphone: {
+        sessions: [
+          { partyData: { sessionId: "telephony-session" } },
+        ],
+      },
+      fetchData,
+    };
+
+    await ActiveCallControl.prototype._recoverMissingPresenceCalls.call(
+      control
+    );
+
+    expect(fetchData).not.toHaveBeenCalled();
+  });
+
   test.each([
     ["startRecord", mockBaseStartRecord],
     ["stopRecord", mockBaseStopRecord],

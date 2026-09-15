@@ -139,45 +139,6 @@ export type TPickupInboundCall = {
   telephonySessionId: string;
 };
 
-export interface IncomingRequest {
-  body: string;
-  callId: string;
-  cseq: number;
-  data: string;
-  from: {
-    parameters: Record<string, unknown>;
-    type: number;
-    uri: unknown;
-    _displayName: string;
-  };
-  fromTag: string;
-  headers: Record<string, Array<unknown>>;
-  method: string;
-  ruri: {
-    parameters: Record<string, unknown>;
-    type: number;
-    headers: Record<string, unknown>;
-    raw: Record<string, unknown>;
-    normal: Record<string, unknown>;
-  };
-  to: {
-    parameters: Record<string, unknown>;
-    type: number;
-    uri: unknown;
-    _displayName: string;
-  };
-  toTag: string;
-  type: number;
-  via: {
-    protocol: string;
-    transport: string;
-    host_type: string;
-    host: string;
-    port: number;
-  };
-  viaBranch: string;
-}
-
 export interface WebphoneSession
   extends InboundCallSession,
     OutboundCallSession {

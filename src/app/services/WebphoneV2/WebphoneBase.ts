@@ -40,7 +40,8 @@ import {
 import { sleep } from '@ringcentral-integration/utils';
 import { EventEmitter } from 'events';
 import RingCentralWebphone from 'ringcentral-web-phone-v2';
-import type { SipInfo } from 'ringcentral-web-phone-v2/types';
+import { DefaultSipClient } from 'ringcentral-web-phone-v2/sip-client';
+import type { SipClient, SipInfo } from 'ringcentral-web-phone-v2/types';
 import type InboundMessage from 'ringcentral-web-phone-v2/sip-message/inbound';
 import ResponseMessage from 'ringcentral-web-phone-v2/sip-message/outbound/response';
 import {
@@ -80,6 +81,7 @@ import {
 import {
   isAuthoritativeWebphoneClient,
   isBrowserSupport,
+  readCallIdFromHeaders,
   synchronizeActiveWebphoneClient,
 } from './webphoneHelper';
 
@@ -101,6 +103,14 @@ const REALTIME_RECOVERY_QUICK_RETRY_LIMIT = 2;
 
 function isSessionUpdateMessage(message: InboundMessage) {
   return message.subject.startsWith('UPDATE sip:');
+}
+
+const CALL_TERMINATION_METHODS = [' BYE', ' CANCEL'];
+const MAX_TRACKED_CALL_TERMINATIONS = 10;
+
+function isCallTerminationMessage(message: InboundMessage) {
+  const cSeq = message.headers?.CSeq;
+  return CALL_TERMINATION_METHODS.some((method) => cSeq?.endsWith(method));
 }
 
 type ToastWebphoneError =
@@ -144,6 +154,7 @@ export class WebphoneBase extends RcModule {
   protected _sharedSipClient?: SharedSipClient | null = null;
   protected _sipClientInServer?: SipClientInServer | null = null;
   protected _ensureLocalWebphonePromise?: Promise<void> | null = null;
+  private readonly _callTerminationMessages = new Map<string, InboundMessage>();
 
   @dynamic('BrowserLogger')
   protected _browserLogger?: BrowserLogger;
@@ -724,8 +735,38 @@ export class WebphoneBase extends RcModule {
     } catch (e) {
       console.error(e);
     }
+    this._callTerminationMessages.clear();
     this._sharedSipClient = null;
     this.rcWebphoneInstance$.next(undefined);
+  }
+
+  private _trackCallTerminationMessage = (message: InboundMessage) => {
+    if (!isCallTerminationMessage(message)) {
+      return;
+    }
+    const callId = readCallIdFromHeaders(message.headers);
+    if (!callId) {
+      return;
+    }
+    if (this._callTerminationMessages.size >= MAX_TRACKED_CALL_TERMINATIONS) {
+      const [oldestCallId] = this._callTerminationMessages.keys();
+      this._callTerminationMessages.delete(oldestCallId);
+    }
+    this._callTerminationMessages.set(callId, message);
+  };
+
+  /**
+   * Returns the SIP request that ended a call session and forgets it. The web
+   * phone SDK disposes a call session without handing over the request, so it
+   * has to be captured before the SDK reacts to it.
+   */
+  protected takeCallTerminationMessage(callId?: string | null) {
+    if (!callId) {
+      return undefined;
+    }
+    const message = this._callTerminationMessages.get(callId);
+    this._callTerminationMessages.delete(callId);
+    return message;
   }
 
   protected _ensureSessionCompatibility(session: WebphoneSession) {
@@ -1282,13 +1323,22 @@ export class WebphoneBase extends RcModule {
       );
     }
     const sharedSipClient = this._ensureSharedSipClient();
-    const webphone = new RingCentralWebphone({
+    const webphoneOptions = {
       sipInfo: provisionData.sipInfo?.[0] as SipInfo,
       instanceId: this._sipInstanceId,
       debug: (this._webphoneOptions.webphoneLogLevel ?? 0) > 1,
       deviceManager: this._audioDeviceManager ?? undefined,
       ...(this._webphoneOptions.webphoneSDKOptions ?? {}),
-      sipClient: sharedSipClient ?? undefined,
+    };
+    // own the sip client, so the terminating request is tracked before the SDK
+    // handles it and disposes the matching call session
+    const sipClient: SipClient =
+      sharedSipClient ?? new DefaultSipClient(webphoneOptions);
+    sipClient.off('inboundMessage', this._trackCallTerminationMessage);
+    sipClient.on('inboundMessage', this._trackCallTerminationMessage);
+    const webphone = new RingCentralWebphone({
+      ...webphoneOptions,
+      sipClient,
     });
     this.rcWebphoneInstance$.next(webphone);
     this.loadAudio();

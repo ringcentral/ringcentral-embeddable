@@ -9,13 +9,12 @@ import callControlCommands from 'ringcentral-web-phone-v2/rc-message/call-contro
 import RcMessage from 'ringcentral-web-phone-v2/rc-message/rc-message';
 import type InboundMessage from 'ringcentral-web-phone-v2/sip-message/inbound';
 
-import type {
-  IncomingRequest,
-  WebphoneSession,
-} from './Webphone.interface';
+import type { WebphoneSession } from './Webphone.interface';
 import { recordStatus } from './recordStatus';
 import { sessionStatus } from './sessionStatus';
 import { voicemailDropStatus } from './voicemailDropStatus';
+
+const PICKUP_REASONS = ['pickup', 'callswitch'] as const;
 
 type IsAuthoritativeWebphoneClientOptions = {
   activeWebphoneId: string | null;
@@ -333,8 +332,16 @@ export function sortByLastActiveTimeDesc(
   return r.startTime - l.startTime;
 }
 
-export function isPickupReason(e: IncomingRequest | undefined): boolean {
-  return Boolean(e?.data?.includes?.('p-rc-reason: Pickup'));
+/**
+ * Tells whether a call session ended because the call was taken over by
+ * another device, either through call pickup or through a call switch.
+ */
+export function isPickupReason(message?: InboundMessage): boolean {
+  const reason = getHeaderValue(message?.headers, 'P-rc-reason')?.toLowerCase();
+  if (!reason) {
+    return false;
+  }
+  return PICKUP_REASONS.some((pickupReason) => reason.includes(pickupReason));
 }
 
 export function getWebphoneSessionStartTime(session: NormalizedSession) {

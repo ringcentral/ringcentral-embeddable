@@ -68,7 +68,6 @@ import type {
   CallRingHandler,
   CallStartHandler,
   CallVoicemailDroppedHandler,
-  IncomingRequest,
   OffEventHandler,
   SessionReplyOptions,
   SwitchCallActiveCallParams,
@@ -119,7 +118,7 @@ export class Webphone extends WebphoneBase {
   readonly invite$ = new Subject<WebphoneSession>();
 
   private readonly _end$ = new Subject<
-    [WebphoneSession, IncomingRequest | undefined]
+    [WebphoneSession, InboundMessage | undefined]
   >();
   /**
    * # this event only work in main tab
@@ -546,7 +545,10 @@ export class Webphone extends WebphoneBase {
     });
     session.on('disposed', async () => {
       this.logger.log('Terminated');
-      this._end$.next([session, undefined]);
+      this._end$.next([
+        session,
+        this.takeCallTerminationMessage(session.callId),
+      ]);
       session.__rc_callStatus = sessionStatus.finished;
       this.stopRingtone();
       await this._onCallEnd(session);

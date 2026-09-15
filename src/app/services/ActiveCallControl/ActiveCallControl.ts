@@ -25,6 +25,7 @@ import {
   PortManager,
   RouterPlugin,
   state,
+  watch,
 } from '@ringcentral-integration/next-core';
 import type { WebSocketSubscription as Subscription } from '@ringcentral-integration/micro-auth/src/app/services';
 import {
@@ -67,6 +68,33 @@ import type {
 const STOP_RECORD_DISABLED_MESSAGE =
   'Sorry, stopping recording is not supported for this call. Please contact your account administrator to enable "Allow mute in auto recording".';
 
+const CALL_SWITCH_REASON = 'CallSwitch';
+
+const CONNECTED_PARTY_STATUS_CODES = [
+  PartyStatusCode.answered,
+  PartyStatusCode.hold,
+];
+
+type PartyWithStatusReason = {
+  id?: string;
+  status?: {
+    code?: PartyStatusCode;
+    reason?: string;
+  };
+};
+
+/** Tells whether one of the session parties was dropped by a call switch. */
+function hasSwitchedAwayParty(
+  session: ActiveCallControlSessionData,
+): boolean {
+  const otherParties: PartyWithStatusReason[] = session.otherParties ?? [];
+  return otherParties.some(
+    (party) =>
+      party.status?.code === PartyStatusCode.disconnected &&
+      party.status?.reason === CALL_SWITCH_REASON,
+  );
+}
+
 function hasResponseStatus(error: unknown, status: number): boolean {
   if (typeof error !== 'object' || error === null || !('response' in error)) {
     return false;
@@ -97,6 +125,9 @@ export class ActiveCallControl extends ActiveCallControlBase {
     TelephonySession,
     () => void
   >();
+  private readonly _preinsertCall: PreinsertCall;
+  private _stopWatchingMissingPresenceCalls?: () => void;
+  private _stopWatchingSwitchedCalls?: () => void;
 
   @state
   telephonySessionUpdate: {
@@ -159,6 +190,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
       _activeCallControlOptions,
       _router,
     );
+    this._preinsertCall = _preInsertCall;
   }
 
   private get _webphoneV2(): WebphoneV2 {
@@ -168,11 +200,131 @@ export class ActiveCallControl extends ActiveCallControlBase {
   override async onInit(): Promise<void> {
     await super.onInit();
     this._bindTelephonySessionUpdates();
+    this._bindMissingPresenceCallRecovery();
+    this._bindSwitchedCallRecovery();
   }
 
   override onReset(): void {
+    this._stopWatchingMissingPresenceCalls?.();
+    this._stopWatchingMissingPresenceCalls = undefined;
+    this._stopWatchingSwitchedCalls?.();
+    this._stopWatchingSwitchedCalls = undefined;
     this._unbindTelephonySessionUpdates();
     super.onReset();
+  }
+
+  /**
+   * A call switched to another device hangs up the local web phone leg, which
+   * marks the telephony session as ended for the preinsert call state and hides
+   * it from the call list. The call is still running elsewhere, so the flag is
+   * cleared to keep the call visible and controllable.
+   */
+  private _bindSwitchedCallRecovery(): void {
+    this._stopWatchingSwitchedCalls?.();
+    this._stopWatchingSwitchedCalls = watch(
+      this,
+      () => this.sessions,
+      () => this._restoreCallsSwitchedToOtherDevice(),
+    );
+    this._restoreCallsSwitchedToOtherDevice();
+  }
+
+  private _restoreCallsSwitchedToOtherDevice(): void {
+    if (this._portManager.shared && !this._portManager.isServer) {
+      return;
+    }
+    this.sessions.forEach((session) => {
+      const telephonySessionId = session.telephonySessionId ?? session.id;
+      if (
+        this._preinsertCall.preinsertStatusMap[telephonySessionId] !== 'end' ||
+        !this._isCallRunningOnOtherDevice(session)
+      ) {
+        return;
+      }
+      this.logger.log('restore call switched to other device', {
+        telephonySessionId,
+      });
+      void this._preinsertCall.removePreinsert(telephonySessionId);
+    });
+  }
+
+  private _isCallRunningOnOtherDevice(
+    session: ActiveCallControlSessionData,
+  ): boolean {
+    const party = session.party as PartyWithStatusReason | undefined;
+    if (!CONNECTED_PARTY_STATUS_CODES.includes(party?.status?.code)) {
+      return false;
+    }
+    if (this.getWebphoneSessionId(session.telephonySessionId)) {
+      return false;
+    }
+    if (hasSwitchedAwayParty(session)) {
+      return true;
+    }
+    const endedLocalPartyId = this._getEndedLocalPartyId(
+      session.telephonySessionId,
+    );
+    return Boolean(endedLocalPartyId && party?.id !== endedLocalPartyId);
+  }
+
+  private _getEndedLocalPartyId(
+    telephonySessionId: string,
+  ): string | undefined {
+    const endedSession = this._webphone.lastEndedSessions.find(
+      (session) =>
+        (session.partyData as PartyData | null | undefined)?.sessionId ===
+        telephonySessionId,
+    );
+    return (endedSession?.partyData as PartyData | null | undefined)?.partyId;
+  }
+
+  private _bindMissingPresenceCallRecovery(): void {
+    this._stopWatchingMissingPresenceCalls?.();
+    this._stopWatchingMissingPresenceCalls = watch(
+      this,
+      () => this._missingPresenceCallSignature,
+      () => void this._recoverMissingPresenceCalls(),
+    );
+    void this._recoverMissingPresenceCalls();
+  }
+
+  private get _missingPresenceCallSignature(): string {
+    const presenceIds = this._presence.calls
+      .map((call) => call.telephonySessionId)
+      .filter(Boolean)
+      .sort();
+    const telephonyIds = this.data.sessions
+      .map((session) => session.telephonySessionId ?? session.id)
+      .filter(Boolean)
+      .sort();
+    const webphoneIds = this._webphone.sessions
+      .map((session) => session.partyData?.sessionId)
+      .filter(Boolean)
+      .sort();
+    return `${presenceIds.join(',')}|${telephonyIds.join(',')}|${webphoneIds.join(',')}`;
+  }
+
+  private async _recoverMissingPresenceCalls(): Promise<void> {
+    const representedTelephonyIds = new Set([
+      ...this.data.sessions.map(
+        (session) => session.telephonySessionId ?? session.id,
+      ),
+      ...this._webphone.sessions.map(
+        (session) => session.partyData?.sessionId,
+      ),
+    ]);
+    const hasMissingCall = this._presence.calls.some(
+      (call) =>
+        call.telephonySessionId &&
+        !representedTelephonyIds.has(call.telephonySessionId),
+    );
+    if (hasMissingCall) {
+      try {
+        await this.fetchData();
+      } catch (error) {
+        this.logger.warn('Failed to recover a missing presence call', error);
+      }
+    }
   }
 
   @action
