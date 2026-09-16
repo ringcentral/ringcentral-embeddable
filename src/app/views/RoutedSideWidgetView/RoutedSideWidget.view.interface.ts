@@ -21,6 +21,16 @@ export interface RoutedSideWidgetViewProps {
   routePath: string;
 }
 
+/**
+ * Resolves the contact a routed page belongs to from app state alone. The
+ * shared worker runs these modules without React, so route registration must
+ * be able to resolve the contact itself instead of waiting for a render.
+ */
+export type RoutedSideWidgetContactResolver = (
+  tabId: string,
+  params: Record<string, string | undefined>,
+) => ThirdPartyWidgetContact | null | undefined;
+
 export interface RoutedSideWidgetRouteDefinition {
   config: RoutedSideWidgetConfig;
   detailComponent: ComponentType<Record<string, unknown>>;

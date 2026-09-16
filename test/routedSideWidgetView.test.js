@@ -331,6 +331,25 @@ describe('RoutedSideWidgetView', () => {
     );
   });
 
+  test('registers the current routed path on init', () => {
+    const { handles, sideWidgetView, view } =
+      createRoutedSideWidget('/conversations/first');
+    view.registerRoutes([
+      {
+        config: conversationConfig,
+        detailComponent: () => null,
+        routePath: '/conversations/:conversationId',
+      },
+    ]);
+
+    view.onInit();
+
+    expect(sideWidgetView.openContent).toHaveBeenLastCalledWith(
+      handles.get('conversation'),
+      { expand: false },
+    );
+  });
+
   test('applies a contact that resolves after the page was pre-opened', () => {
     const { handles, sideWidgetView, view } =
       createRoutedSideWidget('/conversations/first');

@@ -796,6 +796,7 @@ export class Adapter extends RcModule {
           endTime: Date.now(),
         },
       });
+      this._sideWidgetView?.onCallEnd(session);
     });
     this._webphoneV2.onCallHold((session: any) => {
       this._postMessage({

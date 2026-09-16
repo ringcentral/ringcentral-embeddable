@@ -17,9 +17,15 @@ import {
   type SideWidgetContentOptions,
   type SideWidgetContentViewProps,
 } from '../SideWidgetView';
+import {
+  describeContact,
+  describeTabs,
+  sideWidgetDebug,
+} from '../SideWidgetView/SideWidget.debug';
 
 import type {
   RoutedSideWidgetConfig,
+  RoutedSideWidgetContactResolver,
   RoutedSideWidgetRouteDefinition,
   RoutedSideWidgetViewProps,
 } from './RoutedSideWidget.view.interface';
@@ -71,6 +77,8 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   private _routes: readonly RoutedSideWidgetRouteDefinition[] = [];
 
+  private _resolveContact?: RoutedSideWidgetContactResolver;
+
   private _stopWatchingPath: (() => void) | null = null;
 
   @state
@@ -82,9 +90,7 @@ export class RoutedSideWidgetView extends RcViewModule {
   }
 
   private _debug(event: string, details: Record<string, unknown>): void {
-    // if (process.env.NODE_ENV !== 'test') {
-    //   console.info(`[SideWidgetDebug] ${event}`, details);
-    // }
+    sideWidgetDebug(`routed:${event}`, details);
   }
 
   override onInit(): void {
@@ -101,8 +107,12 @@ export class RoutedSideWidgetView extends RcViewModule {
     this._stopWatchingPath = null;
   }
 
-  registerRoutes(routes: readonly RoutedSideWidgetRouteDefinition[]): void {
+  registerRoutes(
+    routes: readonly RoutedSideWidgetRouteDefinition[],
+    resolveContact?: RoutedSideWidgetContactResolver,
+  ): void {
     this._routes = routes;
+    this._resolveContact = resolveContact;
   }
 
   /**
@@ -173,6 +183,18 @@ export class RoutedSideWidgetView extends RcViewModule {
     const contactApplied =
       existingEntry?.path === path && existingEntry.contactApplied;
     const applyContact = contact !== undefined && !contactApplied;
+    this._debug('open page', {
+      tabId: config.id,
+      scope: config.scope,
+      path,
+      contact: describeContact(contact),
+      existingEntryPath: existingEntry?.path,
+      existingContactApplied: existingEntry?.contactApplied,
+      contactApplied,
+      applyContact,
+      tabsBefore: describeTabs(this._sideWidgetView.tabs),
+      widgetContact: describeContact(this._sideWidgetView.currentContact),
+    });
     const handle = this._sideWidgetView.createOrUpdateContent(
       this._createContentOptions(config)
     );
@@ -189,6 +211,20 @@ export class RoutedSideWidgetView extends RcViewModule {
     this._sideWidgetView.openContent(handle, {
       ...(applyContact ? { contact } : {}),
       ...(expand ? {} : { expand: false }),
+    });
+    // A page is now open at the router's own path, so the widget has settled
+    // and no pending close can still be undone by a stale render of the route
+    // it closed. Keeping those tombstones would ignore the user navigating back
+    // to that page for the rest of the session, leaving the panel blank.
+    this._closedPaths.clear();
+    this._debug('open page done', {
+      tabId: config.id,
+      tabsAfter: describeTabs(this._sideWidgetView.tabs),
+      currentTabId: this._sideWidgetView.currentTabId,
+      widgetContact: describeContact(this._sideWidgetView.currentContact),
+      entries: Array.from(this._entries.values()).map(
+        ({ id, path: entryPath }) => `${id}@${entryPath}`,
+      ),
     });
   }
 
@@ -267,14 +303,18 @@ export class RoutedSideWidgetView extends RcViewModule {
   }
 
   private _syncRegisteredPath(path: string): void {
-    const route = this._routes.find(({ routeExact, routePath }) =>
-      Boolean(
-        matchPath(path, {
-          exact: routeExact,
-          path: routePath,
-        })
-      )
-    );
+    let params: Record<string, string | undefined> = {};
+    const route = this._routes.find(({ routeExact, routePath }) => {
+      const match = matchPath<Record<string, string | undefined>>(path, {
+        exact: routeExact,
+        path: routePath,
+      });
+      if (!match) {
+        return false;
+      }
+      params = match.params;
+      return true;
+    });
     if (!route) {
       this.syncPath(path);
       return;
@@ -284,8 +324,14 @@ export class RoutedSideWidgetView extends RcViewModule {
       this.syncPath(path, true);
       return;
     }
+    // Resolved from app state rather than from a render, so the shared worker
+    // registers the page with the same contact the client sees. Without it the
+    // worker keeps the previous contact's tab, and its state replaces the
+    // client's on the next full sync.
+    const contact = this._resolveContact?.(route.config.id, params);
     this.open({
       config: route.config,
+      ...(contact === undefined ? {} : { contact }),
       detailComponent: route.detailComponent,
       detailProps: {},
       expand: this._root.expanded,
@@ -336,6 +382,12 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   private async _activateRoute(id: string): Promise<void> {
     const entry = this._entries.get(id);
+    this._debug('activate routed tab', {
+      tabId: id,
+      hasEntry: Boolean(entry),
+      entryPath: entry?.path,
+      currentPath: this._router.currentPath,
+    });
     if (entry) {
       await this._navigate(entry.path);
     }
@@ -398,6 +450,11 @@ export class RoutedSideWidgetView extends RcViewModule {
   ): React.ReactElement | null {
     const entry = this._entries.get(id);
     if (!entry) {
+      this._debug('render routed tab without a page', {
+        tabId: id,
+        currentPath: this._router.currentPath,
+        entries: Array.from(this._entries.keys()),
+      });
       return null;
     }
     const DetailComponent = entry.component;
@@ -412,11 +469,17 @@ export class RoutedSideWidgetView extends RcViewModule {
       <RouterRoute
         path={entry.routePath}
         exact={entry.routeExact}
-        render={({ location }) =>
-          location.pathname === entry.path ? (
-            <DetailComponent {...entry.props} />
-          ) : null
-        }
+        render={({ location }) => {
+          const matched = location.pathname === entry.path;
+          this._debug('render routed tab content', {
+            tabId: id,
+            entryPath: entry.path,
+            locationPath: location.pathname,
+            matched,
+            propKeys: Object.keys(entry.props),
+          });
+          return matched ? <DetailComponent {...entry.props} /> : null;
+        }}
       />
     );
   }

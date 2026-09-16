@@ -23,6 +23,7 @@ import {
 } from '../../services/ThirdParty';
 import { ExpandedView } from '../ExpandedView';
 
+import { describeContact, sideWidgetDebug } from './SideWidget.debug';
 import {
   getSideWidgetAppTabId,
   getSideWidgetContact,
@@ -114,6 +115,10 @@ export class SideWidgetView extends RcViewModule {
 
   private readonly _contentHandles = new Map<string, SideWidgetContentHandle>();
 
+  private readonly _liveCallIds = new Set<string>();
+
+  private _appsOpenedForCall = false;
+
   get enabled(): boolean {
     return this._sideWidgetOptions?.enableSideWidget ?? false;
   }
@@ -187,6 +192,17 @@ export class SideWidgetView extends RcViewModule {
       contact === undefined ||
       isSameSideWidgetContact(this.currentContact, nextContact);
     const closedTabIds = this._getClosedTabIds(tab.id, preserveTabs);
+    sideWidgetDebug('widget:openContent', {
+      tabId: id,
+      scope: handle.options.scope,
+      showAppsTab: handle.options.showAppsTab,
+      contactArg: describeContact(contact),
+      currentContact: describeContact(this.currentContact),
+      nextContact: describeContact(nextContact),
+      preserveTabs,
+      closedTabIds,
+      tabsBefore: this.tabs.map(({ id: tabId }) => tabId),
+    });
     const previousTabId = this.currentTabId;
     this._openTab(
       tab,
@@ -232,16 +248,26 @@ export class SideWidgetView extends RcViewModule {
       ? previousTabs.filter(
           ({ id }) =>
             id !== SIDE_WIDGET_APPS_TAB_ID ||
-            this.isOpen ||
+            this._appsOpenedForCall ||
             shouldShowAppsTab,
         )
       : previousTabs.filter(({ id }) => id !== SIDE_WIDGET_APPS_TAB_ID);
     const retainedTabs = preserveTabs
       ? availableTabs
-      : availableTabs.filter(
-          ({ id, scope }) =>
-            id === SIDE_WIDGET_APPS_TAB_ID || scope === 'global'
-        );
+      : availableTabs.filter(({ scope }) => scope === 'global');
+    sideWidgetDebug('widget:openTab', {
+      tabId: tab.id,
+      activate,
+      preserveTabs,
+      showAppsTab,
+      shouldShowAppsTab,
+      appsOpenedForCall: this._appsOpenedForCall,
+      liveCallIds: Array.from(this._liveCallIds),
+      tabsBefore: this.tabs.map(({ id }) => id),
+      availableTabs: availableTabs.map(({ id }) => id),
+      retainedTabs: retainedTabs.map(({ id }) => id),
+      contact: describeContact(contact),
+    });
     const existingTabIndex = retainedTabs.findIndex(({ id }) => id === tab.id);
     this.tabs =
       existingTabIndex < 0
@@ -262,9 +288,16 @@ export class SideWidgetView extends RcViewModule {
   }
 
   openApps(contact: ThirdPartyWidgetContact): void {
+    sideWidgetDebug('widget:openApps', {
+      enabled: this.enabled,
+      appCount: this._thirdParty.apps.length,
+      contact: describeContact(contact),
+      liveCallIds: Array.from(this._liveCallIds),
+    });
     if (!this.enabled || this._thirdParty.apps.length === 0) {
       return;
     }
+    this._appsOpenedForCall = true;
     const tab = createAppsTab();
     const preserveTabs = isSameSideWidgetContact(this.currentContact, contact);
     const closedTabIds = this._getClosedTabIds(tab.id, preserveTabs);
@@ -302,6 +335,12 @@ export class SideWidgetView extends RcViewModule {
   }
 
   selectTab(tabId: string): void {
+    sideWidgetDebug('widget:selectTab', {
+      tabId,
+      known: this.tabs.some(({ id }) => id === tabId),
+      currentTabId: this.currentTabId,
+      tabs: this.tabs.map(({ id }) => id),
+    });
     if (!this.tabs.some(({ id }) => id === tabId)) {
       return;
     }
@@ -478,10 +517,12 @@ export class SideWidgetView extends RcViewModule {
   }
 
   onCallRing(session: NormalizedSession): void {
+    this._liveCallIds.add(session.id);
     this.openApps(getSideWidgetContact(session, 'from'));
   }
 
   onCallInit(session: NormalizedSession): void {
+    this._liveCallIds.add(session.id);
     const contact = getSideWidgetContact(session, 'to');
     this.openApps(contact);
     this._thirdParty.pinAppIds.forEach((appId) => {
@@ -492,7 +533,25 @@ export class SideWidgetView extends RcViewModule {
     });
   }
 
+  onCallEnd(session: NormalizedSession): void {
+    this._liveCallIds.delete(session.id);
+    if (this._liveCallIds.size === 0) {
+      this._appsOpenedForCall = false;
+    }
+    sideWidgetDebug('widget:onCallEnd', {
+      sessionId: session.id,
+      liveCallIds: Array.from(this._liveCallIds),
+      appsOpenedForCall: this._appsOpenedForCall,
+    });
+  }
+
   private _notifyClosedTabs(tabIds: string[]): void {
+    if (tabIds.length > 0) {
+      sideWidgetDebug('widget:notifyClosedTabs', {
+        tabIds,
+        currentTabId: this.currentTabId,
+      });
+    }
     tabIds.forEach((tabId) => {
       this._contentHandles.get(tabId)?.options.onClose?.(this.currentTabId);
     });
@@ -570,6 +629,12 @@ export class SideWidgetView extends RcViewModule {
             ...params,
             theme: this._theme.themeType,
           }),
+      });
+      sideWidgetDebug('widget:renderPanel', {
+        tabs: uiProps.tabs.map(({ id }) => id),
+        currentTabId: uiProps.currentTabId,
+        selectedAppId: uiProps.selectedAppId,
+        currentContact: describeContact(uiProps.currentContact),
       });
       return (
         <SideWidgetPanel

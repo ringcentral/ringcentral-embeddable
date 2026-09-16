@@ -38,6 +38,7 @@ const callDetailsConfig = {
 function createApp({
   autoOpenRoutedPage = true,
   collapseGate,
+  contactByPath,
   navigationGate,
 } = {}) {
   const expandedHandles = new Map();
@@ -89,9 +90,10 @@ function createApp({
     { expanded: true },
   );
   function openPage(config, path) {
+    const contact = contactByPath ? contactByPath[path] : CALL_CONTACT;
     routedSideWidgetView.open({
       config,
-      contact: CALL_CONTACT,
+      ...(contact === undefined ? {} : { contact }),
       detailComponent: () => null,
       detailProps: {},
       path,
@@ -171,6 +173,47 @@ test('keeps sibling tabs while closing tabs navigates between routed pages', asy
   openPage(callDetailsConfig, CALL_DETAILS_PATH);
   expect(sideWidgetView.tabs).toEqual([]);
   expect(router.currentPath).toBe('/messages');
+});
+
+test('closes the call details tab when a different contact page opens', async () => {
+  const { openPage, router, sideWidgetView } = createApp({
+    contactByPath: {
+      [CALL_DETAILS_PATH]: CALL_CONTACT,
+      [CONVERSATION_PATH]: { phoneNumber: '+16505550999' },
+    },
+  });
+
+  router.currentPath = CALL_DETAILS_PATH;
+  openPage(callDetailsConfig, CALL_DETAILS_PATH);
+  expect(sideWidgetView.tabs.map(({ id }) => id)).toEqual(['call-details']);
+
+  router.currentPath = CONVERSATION_PATH;
+  openPage(conversationConfig, CONVERSATION_PATH);
+
+  expect(sideWidgetView.tabs.map(({ id }) => id)).toEqual(['conversation']);
+});
+
+test('reopens a call details page that an earlier contact change closed', async () => {
+  const { openPage, router, sideWidgetView } = createApp({
+    contactByPath: {
+      [CALL_DETAILS_PATH]: CALL_CONTACT,
+      [CONVERSATION_PATH]: { phoneNumber: '+16505550999' },
+    },
+  });
+
+  router.currentPath = CALL_DETAILS_PATH;
+  openPage(callDetailsConfig, CALL_DETAILS_PATH);
+  router.currentPath = CONVERSATION_PATH;
+  openPage(conversationConfig, CONVERSATION_PATH);
+  expect(sideWidgetView.tabs.map(({ id }) => id)).toEqual(['conversation']);
+
+  // Going back to the call details page must register it again: the close it
+  // went through must not keep blocking its own route.
+  router.currentPath = CALL_DETAILS_PATH;
+  openPage(callDetailsConfig, CALL_DETAILS_PATH);
+
+  expect(sideWidgetView.tabs.map(({ id }) => id)).toEqual(['call-details']);
+  expect(sideWidgetView.currentTabId).toBe('call-details');
 });
 
 test('serializes closing routed tabs while the next route is pending', async () => {

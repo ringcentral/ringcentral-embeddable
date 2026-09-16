@@ -429,6 +429,49 @@ describe('SideWidgetView', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  test('drops the Apps tab when content opens after the call ended', () => {
+    const { view } = createSideWidget();
+    const session = {
+      id: 'session-1',
+      from: '+16505550100',
+      to: '+16505550101',
+      toUserName: 'Callee',
+    };
+    const handle = view.createContent({
+      id: 'call-details',
+      name: 'Call details',
+      view: () => null,
+    });
+
+    view.onCallInit(session);
+    view.onCallEnd(session);
+    view.openContent(handle, { contact: { phoneNumber: '+16505550102' } });
+
+    expect(view.tabs.map(({ id }) => id)).toEqual(['call-details']);
+    expect(view.currentTabId).toBe('call-details');
+  });
+
+  test('keeps the Apps tab for content opened while another call is live', () => {
+    const { view } = createSideWidget();
+    const first = { id: 'session-1', from: '+16505550100', to: '+16505550101' };
+    const second = { id: 'session-2', from: '+16505550103', to: '+16505550101' };
+    const handle = view.createContent({
+      id: 'call-details',
+      name: 'Call details',
+      view: () => null,
+    });
+
+    view.onCallInit(first);
+    view.onCallRing(second);
+    view.onCallEnd(first);
+    view.openContent(handle, { contact: { phoneNumber: '+16505550103' } });
+
+    expect(view.tabs.map(({ id }) => id)).toEqual([
+      'call-details',
+      'side-widget-apps',
+    ]);
+  });
+
   test('opens content without an Apps tab when side widgets are disabled', () => {
     const { dependencies, expandedHandle, getExpandedConfig, view } =
       createSideWidget({
@@ -590,11 +633,29 @@ describe('SideWidgetView', () => {
       contact: { id: 'different', phoneNumber: '+16505550101' },
     });
 
-    expect(view.tabs).toEqual([
-      { id: 'conversation', name: 'Conversation' },
-      { id: 'side-widget-apps', name: 'Apps' },
-    ]);
+    expect(view.tabs.map(({ id }) => id)).toEqual(['conversation']);
     expect(onCallDetailsClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('removes Apps and app tabs when the contact changes during a call', () => {
+    const { view } = createSideWidget();
+    const conversation = view.createContent({
+      id: 'conversation',
+      name: 'Conversation',
+      view: () => null,
+    });
+
+    view.onCallInit({
+      id: 'session-1',
+      from: '+16505550100',
+      to: '+16505550101',
+    });
+    view.openAppTab({ id: 'crm', name: 'CRM' }, view.currentContact);
+    view.openContent(conversation, {
+      contact: { phoneNumber: '+16505550102' },
+    });
+
+    expect(view.tabs.map(({ id }) => id)).toEqual(['conversation']);
   });
 
   test('preserves global pages when the contact changes', () => {
