@@ -104,7 +104,10 @@ export function normalizeLogMessageFormData(value: unknown): UnknownRecord {
   return value as UnknownRecord;
 }
 
-function valuesAreEqual(first: unknown, second: unknown): boolean {
+export function logMessageValuesAreEqual(
+  first: unknown,
+  second: unknown,
+): boolean {
   if (
     first &&
     second &&
@@ -121,7 +124,7 @@ export function getChangedLogMessageKeys(
   nextFormData: UnknownRecord,
 ): string[] {
   return Object.keys(nextFormData).filter(
-    (key) => !valuesAreEqual(currentFormData[key], nextFormData[key]),
+    (key) => !logMessageValuesAreEqual(currentFormData[key], nextFormData[key]),
   );
 }
 

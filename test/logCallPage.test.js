@@ -164,6 +164,51 @@ describe("LogCallPage", () => {
     expect(props.onBack).toHaveBeenCalledTimes(1);
   });
 
+  test("keeps the rendered form data paired with the page the host registered", () => {
+    const props = createProps({ customizedPage: undefined });
+    const { rerender } = render(<LogCallPage {...props} />);
+
+    // The form reports the defaults it computed for the fallback page.
+    fireEvent.click(screen.getByRole("button", { name: "Change form" }));
+
+    const hostPage = {
+      id: "$LOG-CALL",
+      title: "Salesforce call log",
+      schema: {
+        type: "object",
+        properties: {
+          note: { title: "Note", type: "string" },
+          triggerType: { title: "", type: "string" },
+        },
+      },
+      uiSchema: { triggerType: { "ui:widget": "hidden" } },
+      formData: { note: "", triggerType: "createLog" },
+    };
+    rerender(<LogCallPage {...props} customizedPage={hostPage} />);
+
+    for (const [{ formData, schema }] of JSONSchemaPage.mock.calls) {
+      if (schema === hostPage.schema) {
+        expect(formData).toEqual(hostPage.formData);
+      }
+    }
+    fireEvent.click(screen.getByTestId("save-button"));
+    expect(props.onSubmit).toHaveBeenCalledWith(hostPage.formData);
+  });
+
+  test("does not report an unchanged form back to the host", () => {
+    const props = createProps({
+      customizedPage: {
+        ...createProps().customizedPage,
+        formData: { name: "Updated" },
+      },
+    });
+    render(<LogCallPage {...props} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Change form" }));
+
+    expect(props.onFormDataChange).not.toHaveBeenCalled();
+  });
+
   test("shows the correctly labelled view-log action for an existing call log", () => {
     const props = createProps({
       call: {

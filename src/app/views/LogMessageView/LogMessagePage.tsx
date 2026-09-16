@@ -13,7 +13,7 @@ import {
 } from "@ringcentral-integration/next-widgets/components";
 import { FaxMd, Smsmd, VoicemailMd } from "@ringcentral/spring-icon";
 import { Button, Divider, EmptyState, Icon } from "@ringcentral/spring-ui";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { CallerIdInfoButton } from "../../components/CallerIdInfoButton";
 import type { ThirdPartyPage, UnknownRecord } from "../../services/ThirdParty";
@@ -23,6 +23,7 @@ import {
   areRequiredLogMessageFieldsFilled,
   getChangedLogMessageKeys,
   type LoggableConversation,
+  logMessageValuesAreEqual,
   normalizeLogMessageFormData,
   resolveLogMessagePage,
 } from "./LogMessagePage.helper";
@@ -47,7 +48,7 @@ interface LogMessageContentProps
   formData: UnknownRecord;
   page: ThirdPartyPage;
   saveLabel: string;
-  setFormData: React.Dispatch<React.SetStateAction<UnknownRecord>>;
+  setFormData: (formData: UnknownRecord) => void;
 }
 
 function LogMessageContent({
@@ -200,6 +201,9 @@ function LogMessageContent({
             hiddenSubmitButton
             onFormDataChange={(value: unknown) => {
               const nextFormData = normalizeLogMessageFormData(value);
+              if (logMessageValuesAreEqual(formData, nextFormData)) {
+                return;
+              }
               const changedKeys = getChangedLogMessageKeys(
                 formData,
                 nextFormData
@@ -259,12 +263,23 @@ export function LogMessagePage({
         : null,
     [conversation, customizedPage, t]
   );
-  const [formData, setFormData] = useState<UnknownRecord>(() =>
-    normalizeLogMessageFormData(page?.formData)
+  const pageFormData = useMemo(
+    () => normalizeLogMessageFormData(page?.formData),
+    [page?.formData]
   );
-  useEffect(() => {
-    setFormData(normalizeLogMessageFormData(page?.formData));
-  }, [page?.formData, page?.id]);
+  const [editedFormData, setEditedFormData] = useState<{
+    base: UnknownRecord;
+    data: UnknownRecord;
+  } | null>(null);
+  // The host can register its page after this route starts rendering, so the
+  // form data has to be derived from the page in the same render as the schema.
+  // Otherwise the form reports the defaults it computes for the new schema as a
+  // user change, and the host overwrites its own form data with it.
+  const formData =
+    editedFormData &&
+    logMessageValuesAreEqual(editedFormData.base, pageFormData)
+      ? editedFormData.data
+      : pageFormData;
 
   if (!conversation || !page) {
     return (
@@ -286,7 +301,9 @@ export function LogMessagePage({
       page={page}
       saveLabel={t("save")}
       saving={saving}
-      setFormData={setFormData}
+      setFormData={(nextFormData) =>
+        setEditedFormData({ base: pageFormData, data: nextFormData })
+      }
       useConversationItemInfo={useConversationItemInfo}
     />
   );

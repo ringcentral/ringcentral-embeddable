@@ -7,7 +7,7 @@ import {
   CircularProgressIndicator,
   EmptyState,
 } from "@ringcentral/spring-ui";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import type { CompatibleCall } from "../../services/CallLogger";
 import type { ThirdPartyPage, UnknownRecord } from "../../services/ThirdParty";
@@ -116,12 +116,22 @@ export function LogCallPage({
         : null,
     [call, customizedPage, logButtonTitle, t]
   );
-  const [formData, setFormData] = useState<UnknownRecord>(() =>
-    normalizeFormData(page?.formData)
+  const pageFormData = useMemo(
+    () => normalizeFormData(page?.formData),
+    [page?.formData]
   );
-  useEffect(() => {
-    setFormData(normalizeFormData(page?.formData));
-  }, [page?.formData, page?.id]);
+  const [editedFormData, setEditedFormData] = useState<{
+    base: UnknownRecord;
+    data: UnknownRecord;
+  } | null>(null);
+  // The host can register its page after this route starts rendering, so the
+  // form data has to be derived from the page in the same render as the schema.
+  // Otherwise the form reports the defaults it computes for the new schema as a
+  // user change, and the host overwrites its own form data with it.
+  const formData =
+    editedFormData && valuesAreEqual(editedFormData.base, pageFormData)
+      ? editedFormData.data
+      : pageFormData;
 
   if (loading) {
     return (
@@ -204,8 +214,11 @@ export function LogCallPage({
           hiddenSubmitButton
           onFormDataChange={(value: unknown) => {
             const nextFormData = normalizeFormData(value);
+            if (valuesAreEqual(formData, nextFormData)) {
+              return;
+            }
             const changedKeys = getChangedKeys(formData, nextFormData);
-            setFormData(nextFormData);
+            setEditedFormData({ base: pageFormData, data: nextFormData });
             onFormDataChange(nextFormData, changedKeys);
           }}
           onButtonClick={(buttonId) => onButtonClick(buttonId, formData)}

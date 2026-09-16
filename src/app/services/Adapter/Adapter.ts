@@ -66,6 +66,7 @@ import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/s
 import type { SyncTabView } from '@ringcentral-integration/micro-core/src/app/views';
 import { presenceStatus } from '@ringcentral-integration/commons/enums/presenceStatus.enum';
 import { dndStatus } from '@ringcentral-integration/commons/modules/Presence/dndStatus';
+import { connectionStatus } from '@ringcentral-integration/commons/modules/Webphone/connectionStatus';
 import callMonitorBarI18n from '@ringcentral-integration/widgets/components/CallMonitorBar/i18n';
 import getPresenceStatusNameI18n from '@ringcentral-integration/widgets/lib/getPresenceStatusName/i18n';
 import { getRcmEventTpl, getRcvEventTpl } from '@ringcentral-integration/widgets/lib/MeetingCalendarHelper';
@@ -700,10 +701,11 @@ export class Adapter extends RcModule {
       ),
       watch(
         this,
-        () => this.phoneNumberFormatSetting,
+        () => this._watchPhoneNumberFormatSettingsValues(),
         () => {
           this._notifyPhoneNumberFormatSettings();
         },
+        multipleWatchOptions,
       ),
       watch(
         this,
@@ -1547,6 +1549,13 @@ export class Adapter extends RcModule {
     ];
   }
 
+  private _watchPhoneNumberFormatSettingsValues() {
+    return [
+      this.phoneNumberFormatSetting.formatType,
+      this.phoneNumberFormatSetting.template,
+    ];
+  }
+
   private _pushAdapterState() {
     this._postMessage({
       type: this._messageTypes.pushAdapterState,
@@ -1812,8 +1821,12 @@ export class Adapter extends RcModule {
   private _notifyWebphoneStatus() {
     this._postMessage({
       type: 'rc-webphone-connection-status-notify',
-      connectionStatus: this._webphone.connectionStatus,
-      deviceId: this._webphone.device?.id,
+      // Hosts match against the documented `connectionStatus-*` values, while
+      // the webphone module keeps the status unprefixed internally.
+      connectionStatus:
+        connectionStatus[this._webphone.connectionStatus] ??
+        this._webphone.connectionStatus,
+      deviceId: this._webphone.device?.id ?? null,
     });
   }
 

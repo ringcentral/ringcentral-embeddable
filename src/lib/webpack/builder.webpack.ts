@@ -9,9 +9,12 @@ import path from 'path';
 import * as nodeUrl from 'url';
 import {
   type Chunk,
+  Compilation,
+  type Compiler,
   DefinePlugin,
   NormalModuleReplacementPlugin,
   ProvidePlugin,
+  sources,
 } from 'webpack';
 import { merge } from 'webpack-merge';
 
@@ -54,6 +57,29 @@ const getHashedChunkFilename = (buildId: string): string =>
  */
 const VENDOR_KEY = 'vendor';
 const WORKER_KEY = 'worker';
+/**
+ * Extension pages run under the MV3 `script-src 'self'` policy, which blocks
+ * inline scripts, so the theme bootstrap ships as its own file there.
+ */
+const THEME_INJECT_FILENAME = 'themeInject.js';
+
+/** Emits a standalone script so it can be referenced instead of inlined. */
+const createEmitScriptPlugin = (filename: string, content: string) => ({
+  apply: (compiler: Compiler) => {
+    compiler.hooks.thisCompilation.tap('EmitScriptPlugin', (compilation) => {
+      compilation.hooks.processAssets.tap(
+        {
+          name: 'EmitScriptPlugin',
+          stage: Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+        },
+        () => {
+          compilation.emitAsset(filename, new sources.RawSource(content));
+        },
+      );
+    });
+  },
+});
+
 const reactantPackageAlias = {
   './node_modules/tslib/tslib.es6.js$': require.resolve('tslib/tslib.es6.js'),
   '../node_modules/tslib/tslib.es6.js$': require.resolve('tslib/tslib.es6.js'),
@@ -177,6 +203,12 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
     primaryColor: getPrimaryColor(appConfig.brandConfig).foreground,
   });
 
+  const themeInjectScript = isExtension
+    ? getThemeInjectTemplate(appConfig.brandConfig.code as any, {
+        renderAs: 'rawScript',
+      })
+    : null;
+
   const preferredDevtool = (() => {
     if (isExtension)
       return (
@@ -257,6 +289,9 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
       new ProvidePlugin({
         React: 'react',
       }),
+      ...(themeInjectScript
+        ? [createEmitScriptPlugin(THEME_INJECT_FILENAME, themeInjectScript)]
+        : []),
       ...reactantPreservedModuleReplacementPlugins,
       ...(projectConfig.assetsEntries?.length
         ? [
@@ -375,9 +410,9 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
                 loadingSpring,
                 getChunkUrl,
                 workerScript,
-                themeInject: getThemeInjectTemplate(
-                  appConfig.brandConfig.code as any,
-                ),
+                themeInject: themeInjectScript
+                  ? `<script src="${THEME_INJECT_FILENAME}"></script>`
+                  : getThemeInjectTemplate(appConfig.brandConfig.code as any),
                 /**
                  * support custom entry for we can test preview env in production env
                  */

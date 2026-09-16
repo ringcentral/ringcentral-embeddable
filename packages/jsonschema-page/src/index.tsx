@@ -12,6 +12,11 @@ const theme: ThemeProps = { widgets, templates };
 const Form = withTheme(theme);
 const validator = new Validator();
 
+// A `const` inside `oneOf` describes a selectable option, not a preset value.
+// Letting it become a default makes the form report a change as soon as it
+// mounts, so pages that navigate on selection would jump to their first option.
+const defaultFormStateBehavior = { constAsDefaults: 'never' } as const;
+
 export { TextWithMarkdown, ActionMenu };
 export const JSONSchemaPage = ({
   schema,
@@ -47,6 +52,7 @@ export const JSONSchemaPage = ({
         onFormDataChange(e.formData);
       }}
       uiSchema={formUISchema}
+      experimental_defaultFormStateBehavior={defaultFormStateBehavior}
       fields={fields}
       onFocus={(name, value) => {
         if (value === '$$clicked') {
