@@ -15,6 +15,28 @@
   background-color: #282A32;
 }
 
+// The popup window hosts the adapter alone, so it always fills the whole page,
+// overriding the floating and dock layouts.
+.root.fromPopup {
+  top: 0 !important;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100%;
+  border-radius: 0 !important;
+  box-shadow: none;
+  transform: none !important;
+}
+
+.fromPopup .header {
+  cursor: default;
+}
+
+.fromPopup .buttons {
+  display: none;
+}
+
 .root.dock {
   top: initial !important;
   border-radius: 0 !important;

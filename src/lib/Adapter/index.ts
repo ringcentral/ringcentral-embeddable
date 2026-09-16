@@ -1077,6 +1077,7 @@ class Adapter {
           this._minimized &&
           !(this._userStatus || this._dndStatus) &&
           this._styles.noPresence,
+        this._fromPopup && this._styles.fromPopup,
         this._enablePopup && this._styles.showPopup,
         this._disableMinimize && this._styles.hideToggleButton,
         this._showFeedbackAtHead && this._styles.showFeedback,

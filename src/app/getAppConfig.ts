@@ -863,8 +863,11 @@ export const getAppConfig = <T extends typeof createSharedApp>({
             onExpand: (expand) => {
               console.log('onExpand expand:', expand);
             },
-            expandedLayoutMainClass:
-              'w-[300px] min-w-[300px] max-w-[300px] flex-none',
+            // The popup window is resizable, so the main column grows with it
+            // instead of keeping the fixed widget width.
+            expandedLayoutMainClass: fromPopup
+              ? 'min-w-[300px] flex-auto'
+              : 'w-[300px] min-w-[300px] max-w-[300px] flex-none',
           } satisfies RootOptions),
       },
       {
