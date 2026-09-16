@@ -75,10 +75,11 @@ export function useCallControlLayout(
   );
   const connecting = isPreinsertCall(call);
   const conferenceParticipantsCount = call.conferenceParticipants?.length;
+  // The name is not a link here: the call control page has no room for a
+  // contact detail view, and clicking through mid-call takes the user off the
+  // active call, so the name stays plain text.
   const displayName = (
-    <DisplayName
-      displayControl={{ maybe: true, viewable: true, matchCounts: true }}
-    />
+    <DisplayName displayControl={{ maybe: true, matchCounts: true }} />
   );
   return (
     <CallControlLayout

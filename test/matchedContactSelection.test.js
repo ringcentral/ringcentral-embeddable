@@ -86,7 +86,7 @@ describe('MatchedContactSelection service', () => {
 
       // Formatting differs between what the record showed and what the call
       // reports, so the comparison is on digits.
-      await selection.adoptPendingOutbound('session-new', '+16505550100');
+      await selection.adoptPendingOutbound('session-new', ['+16505550100']);
 
       expect(selection.getSelectedEntityId('call', 'session-new')).toBe(
         'crm-1',
@@ -100,7 +100,7 @@ describe('MatchedContactSelection service', () => {
         entityId: 'crm-1',
         phoneNumber: '+16505550100',
       });
-      await selection.adoptPendingOutbound('session-new', '+16505550100');
+      await selection.adoptPendingOutbound('session-new', ['+16505550100']);
 
       // Contact matching for the new number has not landed yet.
       expect(
@@ -120,11 +120,31 @@ describe('MatchedContactSelection service', () => {
       });
 
       // Too short for a suffix match to be safe.
-      await selection.adoptPendingOutbound('session-new', '4102');
+      await selection.adoptPendingOutbound('session-new', ['4102']);
 
       expect(
         selection.getSelectedEntityId('call', 'session-new'),
       ).toBeUndefined();
+    });
+
+    test('claims the pick from the extension a record dialled', async () => {
+      const { selection } = createSelection();
+      await selection.setPendingOutbound({
+        entityId: 'crm-1',
+        // The record showed an extension, so that is what it dialled.
+        phoneNumber: '4102',
+      });
+
+      // The telephony session reports both numbers for the callee, and the
+      // phone number comes first — matching only that would drop the pick.
+      await selection.adoptPendingOutbound('session-new', [
+        '+16505550100',
+        '4102',
+      ]);
+
+      expect(selection.getSelectedEntityId('call', 'session-new')).toBe(
+        'crm-1',
+      );
     });
 
     test('drops the pick when a different number is dialled', async () => {
@@ -134,7 +154,10 @@ describe('MatchedContactSelection service', () => {
         phoneNumber: '+16505550100',
       });
 
-      await selection.adoptPendingOutbound('session-new', '+16505550999');
+      await selection.adoptPendingOutbound('session-new', [
+        '+16505550999',
+        '4999',
+      ]);
 
       expect(
         selection.getSelectedEntityId('call', 'session-new'),
@@ -142,10 +165,27 @@ describe('MatchedContactSelection service', () => {
       expect(selection.pendingOutbound).toBeNull();
     });
 
+    test('ignores callee numbers the new call does not report', async () => {
+      const { selection } = createSelection();
+      await selection.setPendingOutbound({
+        entityId: 'crm-1',
+        phoneNumber: '+16505550100',
+      });
+
+      await selection.adoptPendingOutbound('session-new', [
+        undefined,
+        '+16505550100',
+      ]);
+
+      expect(selection.getSelectedEntityId('call', 'session-new')).toBe(
+        'crm-1',
+      );
+    });
+
     test('is a no-op with nothing pending', async () => {
       const { selection } = createSelection();
 
-      await selection.adoptPendingOutbound('session-new', '+16505550100');
+      await selection.adoptPendingOutbound('session-new', ['+16505550100']);
 
       expect(selection.selectionList).toEqual([]);
     });

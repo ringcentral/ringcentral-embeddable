@@ -99,15 +99,28 @@ export class MatchedContactSelection extends RcModule {
    * Only the entity id is recorded, so this is safe to call before contact
    * matching for the new number has resolved — the name appears as soon as the
    * matches arrive.
+   *
+   * Every number the new call reports for its callee is offered, and a match on
+   * any of them claims the pick: a record dials whichever of phone number and
+   * extension it displayed, while the telephony session reports both, so
+   * insisting on one of them would drop the pick for internal calls.
    */
   @delegate('server')
-  async adoptPendingOutbound(sessionId: string, phoneNumber?: string) {
+  async adoptPendingOutbound(
+    sessionId: string,
+    phoneNumbers: (string | undefined | null)[]
+  ) {
     const pending = this.pendingOutbound;
     if (!pending) {
       return;
     }
     this._setPendingOutbound(null);
-    if (!sessionId || !isSameNumber(pending.phoneNumber, phoneNumber)) {
+    const sameCall =
+      Boolean(sessionId) &&
+      phoneNumbers.some((phoneNumber) =>
+        isSameNumber(pending.phoneNumber, phoneNumber ?? undefined)
+      );
+    if (!sameCall) {
       return;
     }
     this._select({ scope: 'call', key: sessionId, entityId: pending.entityId });

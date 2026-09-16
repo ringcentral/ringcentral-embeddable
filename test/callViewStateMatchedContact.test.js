@@ -224,6 +224,25 @@ describe('CallViewState matched-contact selection', () => {
       expect(selection.pendingOutbound).not.toBeNull();
     });
 
+    test('claims the pick when the record dialled the callee extension', async () => {
+      const { selection, newCalls } = createCallViewState();
+      await selection.setPendingOutbound({
+        entityId: 'crm-2',
+        phoneNumber: '4102',
+      });
+
+      // The telephony session reports both numbers for an internal call.
+      newCalls.next({
+        ...OUTBOUND_CALL,
+        to: { phoneNumber: '+16505550100', extensionNumber: '4102' },
+      });
+      await Promise.resolve();
+
+      expect(selection.getSelectedEntityId('call', 'session-new')).toBe(
+        'crm-2',
+      );
+    });
+
     test('subscribes to new calls once', () => {
       const { callMonitor } = createCallViewState();
 

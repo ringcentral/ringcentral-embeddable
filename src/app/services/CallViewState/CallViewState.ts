@@ -94,7 +94,7 @@ export class CallViewState extends CallViewStateBase {
           }
           void this._matchedContactSelection.adoptPendingOutbound(
             call.sessionId!,
-            call.to?.phoneNumber ?? call.to?.extensionNumber,
+            [call.to?.phoneNumber, call.to?.extensionNumber],
           );
         }),
         takeUntilAppDestroy

@@ -227,14 +227,22 @@ export class CallsListView extends CallsListViewSpringBase {
   };
 
   /**
-   * Passes the contact chosen on this record to the call about to be placed.
+   * Passes the contact this record resolved to on to the call about to be
+   * placed.
    *
    * Without it the new call is a new session with no pick of its own, so the
    * display would drop back to guessing `Maybe: <name>` for a contact the user
    * had already resolved.
+   *
+   * A record resolves to a contact two ways, and both have to be handed off:
+   * the user picked one from the match list, or the call was logged against one
+   * — `addCallHistoryLoggedContact` renders that as the record's selection just
+   * the same, and from the row it is indistinguishable from a pick. The
+   * `Maybe: <name>` guess is deliberately not handed off: it is not a resolved
+   * contact, and passing it on would present a guess as a certainty.
    */
   private _handOffSelectionToOutboundCall(
-    call: { sessionId?: string },
+    call: Parameters<CallsListView['useActionsHandler']>[0],
     info: { renderInfo?: { dialToPhoneNumber?: string } },
   ) {
     const sessionId = call.sessionId;
@@ -242,10 +250,10 @@ export class CallsListView extends CallsListViewSpringBase {
     if (!sessionId || !phoneNumber) {
       return;
     }
-    const entityId = this._matchedContactSelection.getSelectedEntityId(
-      'call',
-      sessionId,
-    );
+    const entityId =
+      this._matchedContactSelection.getSelectedEntityId('call', sessionId) ??
+      addCallHistoryLoggedContact(call).callSelectionInfo?.displayedSelection
+        ?.id;
     void this._matchedContactSelection.setPendingOutbound(
       entityId ? { entityId, phoneNumber } : null,
     );
