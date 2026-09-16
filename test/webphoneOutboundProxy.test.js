@@ -16,6 +16,7 @@ function create() {
       onClient: jest.fn(),
       onServer: jest.fn(),
     },
+    { success: jest.fn(), danger: jest.fn(), warning: jest.fn() },
     undefined,
     undefined,
     undefined,

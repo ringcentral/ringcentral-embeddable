@@ -14,6 +14,7 @@ beforeEach(() => {
 
 function create({ shared = true, isServer = false } = {}) {
   const clientInteraction = { ensureCurrentClient: jest.fn(async () => {}) };
+  const toast = { success: jest.fn(), danger: jest.fn(), warning: jest.fn() };
   const webphone = new Webphone(
     { addBeforeLogoutHandler: jest.fn() },
     {},
@@ -28,6 +29,7 @@ function create({ shared = true, isServer = false } = {}) {
       onClient: jest.fn(),
       onServer: jest.fn(),
     },
+    toast,
     clientInteraction,
     undefined,
     undefined,
@@ -38,7 +40,7 @@ function create({ shared = true, isServer = false } = {}) {
     warn: jest.fn(),
     error: jest.fn(),
   };
-  return { webphone, clientInteraction };
+  return { webphone, clientInteraction, toast };
 }
 
 it('routes a command through the server endpoint instead of running locally', async () => {

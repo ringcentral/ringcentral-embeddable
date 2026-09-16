@@ -1797,19 +1797,34 @@ export class WebphoneV2 extends RcModule {
     }
   }
 
-  async park(sessionId: string) {
+  /**
+   * DIVERGENCE from micro/next: the park extension is returned instead of
+   * discarded. This app shows the park location to the user (park view result
+   * page and the `parked` toast), so the destination has to travel back out.
+   */
+  async park(sessionId: string): Promise<string | undefined> {
     const record = this._requireSession(sessionId);
-    await this._runDestructiveCommand(record, 'park', async () => {
+    return this._runDestructiveCommand(record, 'park', async () => {
       const result = await this._withDeadline(
         record.session.park(),
         `park ${sessionId}`,
       );
       if (result.code !== 0) throw commandError(result);
       this._finalizeSession(record);
+      const parkExtension = result['park extension'];
+      return parkExtension ? `*${parkExtension}` : undefined;
     });
   }
 
-  async parkToLocation({ sessionId, location }: WebphoneParkToLocationParams) {
+  /**
+   * DIVERGENCE from micro/next: the return type admits `undefined` so the
+   * app-level subclass can report "no destination" (see `Webphone`) instead of
+   * letting a failed park surface as an unhandled rejection in the park view.
+   */
+  async parkToLocation({
+    sessionId,
+    location,
+  }: WebphoneParkToLocationParams): Promise<string | undefined> {
     const validSessionId = requireNonEmptyValue(sessionId, 'sessionId');
     const locationId = requireNonEmptyValue(location?.id, 'location.id');
     let record: WebphoneV2SessionRecord;
@@ -2069,14 +2084,11 @@ export class WebphoneV2 extends RcModule {
       activeCall.telephonySessionId,
       'activeCall.telephonySessionId',
     );
-    const fromTag = requireNonEmptyValue(
-      activeCall.sipData?.fromTag,
-      'activeCall.sipData.fromTag',
-    );
-    const toTag = requireNonEmptyValue(
-      activeCall.sipData?.toTag,
-      'activeCall.sipData.toTag',
-    );
+    // DIVERGENCE from micro/next: `sipData` is optional here. Presence data
+    // for a monitored extension does not always carry it, and the previous
+    // service picked the call without a `Replaces` header in that case.
+    const fromTag = activeCall.sipData?.fromTag;
+    const toTag = activeCall.sipData?.toTag;
     const localParty =
       activeCall.direction === 'Inbound' ? activeCall.to : activeCall.from;
     const remoteParty =
@@ -2089,10 +2101,13 @@ export class WebphoneV2 extends RcModule {
       remoteParty?.phoneNumber,
       'activeCall remote phoneNumber',
     );
-    const headers = {
-      Replaces: `${telephonySessionId};to-tag=${fromTag};from-tag=${toTag};early-only`,
-      'RC-call-type': 'replace',
-    };
+    const headers: Record<string, string> =
+      fromTag && toTag
+        ? {
+            Replaces: `${telephonySessionId};to-tag=${fromTag};from-tag=${toTag};early-only`,
+            'RC-call-type': 'replace',
+          }
+        : {};
     let record: WebphoneV2SessionRecord;
     try {
       record = await this._createOutboundSession(

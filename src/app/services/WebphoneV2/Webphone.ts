@@ -3,6 +3,7 @@ import {
   Auth,
   Client,
 } from '@ringcentral-integration/micro-auth/src/app/services';
+import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import { AudioSettings } from '@ringcentral-integration/micro-phone/src/app/services/AudioSettings';
 import {
   action,
@@ -22,8 +23,14 @@ import { invokeRoleForValue } from '../../../lib/roleCompat';
 import { WebphoneMedia, webphoneMediaOwnerRole } from '../WebphoneMedia';
 import type {
   WebphoneCallEvent,
+  WebphoneMonitoredPickupCall,
+  WebphoneMonitoredPickupParams,
   WebphoneNormalizedSession,
+  WebphoneParkLocationTarget,
+  WebphoneParkToLocationParams,
 } from './WebphoneApi.interface';
+import { t } from './i18n';
+import type { RecordStatus } from './recordStatus';
 import { voicemailDropStatus } from './voicemailDropStatus';
 import { WebphoneV2, type WebphoneV2Options } from './WebphoneV2';
 
@@ -75,6 +82,10 @@ const COMMAND_METHODS = [
   // App-specific: validates against the server's session records before
   // delegating the media work to the owner tab.
   'dropVoicemailMessage',
+  // App-specific: both write into the server's session records, so a call from
+  // a tab has to be forwarded or it silently finds nothing to update.
+  'updateRecordStatus',
+  'setForwardFlag',
 ] as const;
 
 /** Commands that begin call media, so the acting tab should own it. */
@@ -103,6 +114,52 @@ const ERROR_HANDLER_INDEXES: Readonly<Record<string, number>> = {
 };
 
 /**
+ * Monitored call as this app's callers already have it.
+ *
+ * `Adapter._executePickCall` and `CallHUDView` both hand over a raw
+ * `PresenceActiveCall`, whose parties are flat strings and whose `sipData` is
+ * optional. The runtime wants nested party objects.
+ */
+export interface WebphoneLegacyPickupCall {
+  direction: string;
+  from: string;
+  fromName?: string;
+  to: string;
+  toName?: string;
+  telephonySessionId: string;
+  sipData?: { fromTag: string; toTag: string };
+}
+
+const toMonitoredPickupCall = (
+  activeCall: WebphoneLegacyPickupCall,
+): WebphoneMonitoredPickupCall => ({
+  telephonySessionId: activeCall.telephonySessionId,
+  direction: activeCall.direction === 'Outbound' ? 'Outbound' : 'Inbound',
+  from: { phoneNumber: activeCall.from, name: activeCall.fromName },
+  to: { phoneNumber: activeCall.to, name: activeCall.toName },
+  sipData: activeCall.sipData,
+});
+
+/** Accepts either the runtime's params object or the app's positional args. */
+const toPickupParams = (
+  extensionIdOrParams: string | WebphoneMonitoredPickupParams,
+  activeCall?: WebphoneLegacyPickupCall,
+  fromNumber?: string,
+): WebphoneMonitoredPickupParams => {
+  if (typeof extensionIdOrParams !== 'string') {
+    return extensionIdOrParams;
+  }
+  if (!activeCall) {
+    throw new Error('Invalid activeCall');
+  }
+  return {
+    extensionId: extensionIdOrParams,
+    activeCall: toMonitoredPickupCall(activeCall),
+    fromNumber: fromNumber ?? '',
+  };
+};
+
+/**
  * This app's webphone: the ported upstream `WebphoneV2` runtime plus the APIs
  * this project's consumers need and upstream does not provide.
  *
@@ -127,6 +184,7 @@ export class Webphone extends WebphoneV2 {
     protected override _webphoneMedia: WebphoneMedia,
     protected override _audioSettings: AudioSettings,
     protected override _portManager: PortManager,
+    protected _toast: Toast,
     @optional()
     protected _clientInteraction?: ClientInteraction,
     @optional()
@@ -277,6 +335,121 @@ export class Webphone extends WebphoneV2 {
     record.normalized = { ...record.normalized, isForwarded: true };
     this._publishLiveState();
     return true;
+  }
+
+  /**
+   * Reflects a telephony-driven recording change on the webphone session.
+   *
+   * `Adapter` records through call control rather than the webphone when a
+   * telephony session exists, and drives the session's record status itself so
+   * the call-control UI stays in step. The runtime only tracks the status for
+   * its own `startRecord`/`stopRecord`, so this setter is app-specific.
+   */
+  async updateRecordStatus(sessionId: string, status: RecordStatus) {
+    const record = this._sessionRecords.get(sessionId);
+    if (!record) {
+      return;
+    }
+    record.normalized = { ...record.normalized, recordStatus: status };
+    this._publishLiveState();
+  }
+
+  /**
+   * Park and monitored-extension pickup, in the shapes this app calls them.
+   *
+   * The ported runtime takes a single params object for each of these, while
+   * `ParkView`, `CallHUDView` and `Adapter` all pass positional arguments —
+   * and every one of those call sites casts the webphone to `any`, so nothing
+   * type-checked the mismatch. A positional call therefore landed a string
+   * where the object was expected and the command threw on validation, which
+   * is why park-to-location and pickup stopped working. Both shapes are
+   * accepted here; the object form is the runtime's and stays available.
+   */
+  override async park(sessionId: string): Promise<string | undefined> {
+    try {
+      const parkedNumber = await super.park(sessionId);
+      this._notifyParked(parkedNumber);
+      return parkedNumber;
+    } catch (error) {
+      // The previous service swallowed this so the park view falls back to its
+      // "no destination" branch rather than rejecting into an onClick handler.
+      this.logger.warn('park fail', { error });
+      return undefined;
+    }
+  }
+
+  override async parkToLocation(
+    sessionIdOrParams: string | WebphoneParkToLocationParams,
+    location?: WebphoneParkLocationTarget,
+  ): Promise<string | undefined> {
+    const params =
+      typeof sessionIdOrParams === 'string'
+        ? { sessionId: sessionIdOrParams, location: location! }
+        : sessionIdOrParams;
+    if (!params.location?.id) {
+      return undefined;
+    }
+    try {
+      const parkedNumber = await super.parkToLocation(params);
+      this._notifyParked(parkedNumber);
+      return parkedNumber;
+    } catch (error) {
+      this.logger.warn('parkToLocation fail', { error });
+      return undefined;
+    }
+  }
+
+  override async pickParkLocation(
+    extensionIdOrParams: string | WebphoneMonitoredPickupParams,
+    activeCall?: WebphoneLegacyPickupCall,
+    fromNumber?: string,
+  ) {
+    return super.pickParkLocation(
+      toPickupParams(extensionIdOrParams, activeCall, fromNumber),
+    );
+  }
+
+  override async pickGroupCall(
+    extensionIdOrParams: string | WebphoneMonitoredPickupParams,
+    activeCall?: WebphoneLegacyPickupCall,
+    fromNumber?: string,
+    pickPrefix: 'gcp' | 'qpk' = 'gcp',
+  ) {
+    const params = toPickupParams(extensionIdOrParams, activeCall, fromNumber);
+    // The previous service took the invite prefix as an argument; the runtime
+    // splits it into two commands. `Adapter` still passes 'qpk' for Department
+    // extensions, so that keeps routing to the call-queue pickup.
+    return pickPrefix === 'qpk'
+      ? super.pickCallQueueCall(params)
+      : super.pickGroupCall(params);
+  }
+
+  override async pickCallQueueCall(
+    extensionIdOrParams: string | WebphoneMonitoredPickupParams,
+    activeCall?: WebphoneLegacyPickupCall,
+    fromNumber?: string,
+  ) {
+    return super.pickCallQueueCall(
+      toPickupParams(extensionIdOrParams, activeCall, fromNumber),
+    );
+  }
+
+  /**
+   * Tells the user where the call was parked.
+   *
+   * `CallHUDView.onPark` ignores the return value entirely, so without this
+   * toast parking from the HUD gives no feedback at all. `Toast` mutations are
+   * `@delegate('server')` over replicated state, so raising it from the
+   * SharedWorker still shows it in every tab.
+   */
+  private _notifyParked(parkedNumber?: string) {
+    if (!parkedNumber) {
+      return;
+    }
+    this._toast.success({
+      message: t('parked', { parkedNumber }),
+      ttl: 0,
+    });
   }
 
   @action

@@ -127,7 +127,12 @@ export interface WebphoneMonitoredPickupCall {
   readonly direction: WebphoneCallDirection;
   readonly from: { readonly phoneNumber: string; readonly name?: string };
   readonly to: { readonly phoneNumber: string; readonly name?: string };
-  readonly sipData: { readonly fromTag: string; readonly toTag: string };
+  /**
+   * DIVERGENCE from micro/next: optional here. Presence data for a monitored
+   * extension does not always include it, and the call is still pickable
+   * without the `Replaces` header.
+   */
+  readonly sipData?: { readonly fromTag: string; readonly toTag: string };
 }
 
 export interface WebphoneMonitoredPickupParams {
