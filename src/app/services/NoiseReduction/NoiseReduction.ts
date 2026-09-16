@@ -114,13 +114,32 @@ export class NoiseReduction extends RcModule {
 
   @delegate('server')
   async setEnabled(enabled: boolean): Promise<void> {
-    const applied = await this._applyEnabledInMainClient(enabled);
-    if (enabled && !applied) {
+    if (!enabled) {
+      // Must reach every port: the denoiser is attached wherever the call media
+      // lives, which is not necessarily the main tab.
+      await this._disableEverywhere();
+      this._setEnabled(false);
+      return;
+    }
+    const applied = await this._applyEnabledInMainClient(true);
+    if (!applied) {
       this._setEnabled(false);
       this._showNotSupportedAlert();
       return;
     }
-    this._setEnabled(enabled);
+    this._setEnabled(true);
+  }
+
+  /**
+   * Detaches the denoiser on every port.
+   *
+   * `denoiser()` initialises Krisp lazily on whichever port owns the call
+   * media, so enabling needs no broadcast — but disabling does, or a filter
+   * stays attached to a live call in a non-main tab.
+   */
+  @delegate('all')
+  protected async _disableEverywhere(): Promise<void> {
+    this._disableKrisp();
   }
 
   @delegate('mainClient')

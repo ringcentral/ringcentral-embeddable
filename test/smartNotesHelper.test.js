@@ -3,6 +3,7 @@ import {
   createSmartNoteSession,
   mergeSmartNoteRecords,
   normalizeSmartNoteHtml,
+  smartNoteHtmlToText,
 } from '../src/app/services/SmartNotes/SmartNotes.helper';
 
 describe('SmartNotes helpers', () => {
@@ -105,5 +106,70 @@ describe('SmartNotes helpers', () => {
     expect(normalizeSmartNoteHtml('<ol><li>One</li></ol>\n')).toBe(
       '<ol>\n<li>One</li>\n</ol>\n',
     );
+  });
+
+  const HTML = '<p>Hello <strong>World</strong></p><ul><li>One</li><li>Two</li></ul>';
+
+  describe('with DOMParser (browser tab)', () => {
+    it('extracts text from normalized note html', () => {
+      const text = smartNoteHtmlToText(normalizeSmartNoteHtml(HTML));
+      expect(text).toContain('Hello **World**');
+      expect(text).toContain('One');
+      expect(text).toContain('Two');
+    });
+
+    it('returns an empty string for empty input', () => {
+      expect(smartNoteHtmlToText('')).toBe('');
+    });
+  });
+
+  describe('without DOMParser (SharedWorker)', () => {
+    let originalDOMParser;
+
+    beforeEach(() => {
+      originalDOMParser = globalThis.DOMParser;
+      // The worker has no DOM, so the fallback path must produce the same text.
+      Reflect.deleteProperty(globalThis, 'DOMParser');
+    });
+
+    afterEach(() => {
+      globalThis.DOMParser = originalDOMParser;
+    });
+
+    it('produces the same visible text as the DOM path', () => {
+      const normalized = normalizeSmartNoteHtml(HTML);
+      globalThis.DOMParser = originalDOMParser;
+      const domText = smartNoteHtmlToText(normalized);
+      Reflect.deleteProperty(globalThis, 'DOMParser');
+      const workerText = smartNoteHtmlToText(normalized);
+
+      const collapse = (value) => value.replace(/\s+/g, ' ').trim();
+      expect(collapse(workerText)).toBe(collapse(domText));
+    });
+
+    it('strips tags and keeps list items on separate lines', () => {
+      const text = smartNoteHtmlToText('<p>A</p><ul><li>B</li><li>C</li></ul>');
+      expect(text).toContain('A');
+      expect(text).toContain('B');
+      expect(text).toContain('C');
+      expect(text).not.toContain('<');
+    });
+
+    it('converts <br> to newlines', () => {
+      expect(smartNoteHtmlToText('a<br>b<br />c')).toBe('a\nb\nc');
+    });
+
+    it('decodes named and numeric entities', () => {
+      expect(smartNoteHtmlToText('&amp;&lt;&gt;&quot;&nbsp;x')).toBe('&<>" x');
+      expect(smartNoteHtmlToText('&#65;&#x42;')).toBe('AB');
+    });
+
+    it('leaves unknown entities untouched', () => {
+      expect(smartNoteHtmlToText('&notarealentity;')).toBe('&notarealentity;');
+    });
+
+    it('returns an empty string for empty input', () => {
+      expect(smartNoteHtmlToText('')).toBe('');
+    });
   });
 });

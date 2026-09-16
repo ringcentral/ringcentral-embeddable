@@ -134,7 +134,7 @@
     "redux": "^4.2.0",
     "ringcentral-client": "^1.0.0-beta.2",
     "ringcentral-web-phone": "^0.8.14",
-    "ringcentral-web-phone-v2": "npm:ringcentral-web-phone@^2.4.3",
+    "ringcentral-web-phone-v2": "npm:ringcentral-web-phone@^2.5.3",
     "rxjs": "^7.8.0",
     "styled-components": "^5.3.3",
     "url": "^0.11.0"

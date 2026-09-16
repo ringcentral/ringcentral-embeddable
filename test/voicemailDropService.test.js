@@ -62,6 +62,14 @@ function createAudioContext() {
       stream: { getAudioTracks: jest.fn(() => [audioTrack]) },
     })),
     createBufferSource: jest.fn(() => source),
+    // Chrome only feeds a remote track into Web Audio while it is attached to a
+    // media element, so the detector primes it through a muted element plus a
+    // zero gain node.
+    createGain: jest.fn(() => ({
+      gain: { value: 1 },
+      connect: jest.fn(),
+      disconnect: jest.fn(),
+    })),
   };
   context.audioTrack = audioTrack;
   context.source = source;
@@ -284,6 +292,42 @@ describe('VoicemailDrop service', () => {
         endCall: jest.fn(),
       }),
     ).resolves.toBe(false);
+  });
+
+  test('primes the remote track so detection hears the real greeting', async () => {
+    // Without this, Chrome delivers silence into Web Audio and the detector
+    // fires after exactly `noBeepSilenceDuration`, cutting into the greeting —
+    // the callee then loses the start of the recorded message.
+    const { service } = createVoicemailDrop();
+    const context = createAudioContext();
+    const gainNode = {
+      gain: { value: 1 },
+      connect: jest.fn(),
+      disconnect: jest.fn(),
+    };
+    context.createGain.mockReturnValue(gainNode);
+    global.MediaStream = jest.fn((tracks) => ({ tracks }));
+    global.AudioWorkletNode = jest.fn(() => ({
+      port: {},
+      connect: jest.fn(),
+      disconnect: jest.fn(),
+    }));
+    const session = createSession();
+
+    const pending = service._waitVoicemailGreetingEnd({
+      webphoneSession: session,
+      audioContext: context,
+      endCall: jest.fn(async () => {}),
+    });
+
+    expect(context.createGain).toHaveBeenCalled();
+    // Silent: the local user must not hear the greeting twice.
+    expect(gainNode.gain.value).toBe(0);
+    expect(gainNode.connect).toHaveBeenCalledWith(context.destination);
+
+    session.emit('disposed');
+    await pending;
+    expect(gainNode.disconnect).toHaveBeenCalled();
   });
 
   test('detects greeting completion and disconnects processing nodes', async () => {

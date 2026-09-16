@@ -6,3 +6,5 @@ export const recordStatus = ObjectMap.prefixKeys(
 );
 
 export default recordStatus;
+
+export type RecordStatus = (typeof recordStatus)[keyof typeof recordStatus];

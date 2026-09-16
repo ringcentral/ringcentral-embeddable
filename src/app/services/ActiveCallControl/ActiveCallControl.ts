@@ -1,3 +1,4 @@
+import { filter, take } from 'rxjs';
 import { callDirection } from '@ringcentral-integration/commons/enums/callDirections';
 import { trackEvents } from '@ringcentral-integration/commons/enums/trackEvents';
 import { validateNumbers } from '@ringcentral-integration/commons/lib/validateNumbers';
@@ -108,9 +109,12 @@ function hasResponseStatus(error: unknown, status: number): boolean {
   );
 }
 
+const CONFERENCE_ACCEPT_TIMEOUT = 5 * 1000;
+
 @injectable({
   name: 'ActiveCallControl',
 })
+
 export class ActiveCallControl extends ActiveCallControlBase {
   private _stopRecordError: unknown | null = null;
   private _rawCallControl?: {
@@ -722,6 +726,77 @@ export class ActiveCallControl extends ActiveCallControlBase {
     }
   }
 
+  /**
+   * Waits for a conference leg to be answered using the runtime's own events.
+   *
+   * The base implementation listens for v1 SDK events on a raw session
+   * (`accepted`, `cancel`, `rejected`, `terminated`). SDK 2.5 emits none of
+   * those — only `answered`, `ringing`, `failed`, `disposed`, `mediaStreamSet` —
+   * so the base version would wait forever.
+   */
+  override async _waitForWebphoneSessionAccepted(webphoneSessionId: string) {
+    const exists = this._webphone.sessions.some(
+      (session) => session.id === webphoneSessionId,
+    );
+    if (!exists) {
+      throw new Error('conferencing session not found');
+    }
+
+    return new Promise<string>((resolve, reject) => {
+      let settled = false;
+      const settle = (error?: Error) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeoutId);
+        unsubscribeStart();
+        unsubscribeEnd();
+        if (error) reject(error);
+        else resolve(webphoneSessionId);
+      };
+
+      // The runtime returns an unsubscribe function; the inherited Webphone
+      // type still declares these as returning void.
+      const registerEvent = this._webphone as unknown as {
+        onCallStart: (h: (s: { id: string }) => void) => () => void;
+        onCallEnd: (h: (s: { id: string }) => void) => () => void;
+      };
+      const unsubscribeStart = registerEvent.onCallStart((session) => {
+        if (session.id === webphoneSessionId) settle();
+      });
+      const unsubscribeEnd = registerEvent.onCallEnd((session) => {
+        if (session.id === webphoneSessionId) {
+          settle(new Error('conferencing failed'));
+        }
+      });
+      const timeoutId = setTimeout(
+        () => settle(new Error('conferencing timeout')),
+        CONFERENCE_ACCEPT_TIMEOUT,
+      );
+    });
+  }
+
+  /**
+   * Decides whether to unhold from replicated session state.
+   *
+   * The base implementation reads `_webphone.originalSessions[id].localHold`,
+   * but the webphone runtime now lives in the SharedWorker and exposes only
+   * normalized, serializable sessions — so `originalSessions` is undefined and
+   * the base check silently returns false, leaving the call held forever.
+   */
+  protected override async _unholdWithWebphone(webphoneSessionId: string) {
+    const session = this._webphone.sessions.find(
+      (item) => item.id === webphoneSessionId,
+    );
+    if (!session?.isOnHold) {
+      return false;
+    }
+    await this._webphone.unhold(
+      webphoneSessionId,
+      (this as any).unholdErrorHandle,
+    );
+    return true;
+  }
+
   @track((that: ActiveCallControl) => [
     (that as any)._getTrackEventName(trackEvents.unhold),
   ])
@@ -974,3 +1049,51 @@ export class ActiveCallControl extends ActiveCallControlBase {
     }
   }
 }
+
+/**
+ * Replaces the base `_initWebphoneSessionEvents`, which reads
+ * `_webphone.originalSessions[id]` and listens for the v1 `progress` event.
+ * Neither exists now the runtime lives in the SharedWorker and speaks SDK 2.5,
+ * so party data is taken from the replicated session stream instead.
+ *
+ * Assigned on the prototype because the base member is `private`, which
+ * TypeScript will not let a subclass redeclare.
+ */
+Object.defineProperty(
+  ActiveCallControl.prototype,
+  '_initWebphoneSessionEvents',
+  {
+    configurable: true,
+    writable: true,
+    value: async function watchWebphoneSessionPartyData(
+      this: ActiveCallControl,
+      webphoneSessionId: string,
+      transferSessionId?: string,
+    ) {
+      const webphone = (this as any)._webphone;
+      webphone.sessions$
+        .pipe(
+          filter((sessions: any[]) =>
+            sessions.some(
+              (session) =>
+                session.id === webphoneSessionId &&
+                Boolean(session.partyData?.sessionId),
+            ),
+          ),
+          take(1),
+        )
+        .subscribe((sessions: any[]) => {
+          const session = sessions.find(
+            (item) => item.id === webphoneSessionId,
+          );
+          const telephonySessionId = session?.partyData?.sessionId;
+          if (telephonySessionId) {
+            void (this as any)._onWebphoneSessionProgress(
+              telephonySessionId,
+              transferSessionId,
+            );
+          }
+        });
+    },
+  },
+);

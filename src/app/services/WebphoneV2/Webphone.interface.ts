@@ -38,37 +38,6 @@ export interface WebphoneOptions {
   webSocketRecoveryTimeout?: number;
 }
 
-export type SharedSipRegistrationStatus =
-  | 'init'
-  | 'registering'
-  | 'registered'
-  | 'unregistering'
-  | 'unregistered'
-  | 'registrationError';
-
-export type SharedSipTransportStatus =
-  | 'connecting'
-  | 'connected'
-  | 'disconnecting'
-  | 'reconnecting'
-  | 'disconnected'
-  | 'error';
-
-export interface SharedSipClientStartOptions extends SipClientOptions {
-  clientId: string;
-  device: { id: string };
-  force?: boolean;
-}
-
-export interface SharedSipClientStatusResponse {
-  activeTabId: string | null;
-  device?: { id: string };
-  instanceId?: string;
-  sharedState: Record<string, any>;
-  sipInfo?: SipInfo;
-  status: SharedSipRegistrationStatus;
-  transportStatus: SharedSipTransportStatus;
-}
 
 export interface SwitchCallActiveCallParams {
   id: string;

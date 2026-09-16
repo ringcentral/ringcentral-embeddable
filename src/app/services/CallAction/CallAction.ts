@@ -20,6 +20,8 @@ import { ConferenceCallAction } from '@ringcentral-integration/micro-phone/src/a
 import { SwitchCallConfirm } from '@ringcentral-integration/micro-phone/src/app/services/CallAction/SwitchCallConfirm';
 import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 
+import { isDroppingVoicemail } from '../WebphoneV2/webphoneHelper';
+
 @injectable({
   name: 'CallAction',
 })
@@ -81,5 +83,32 @@ export class CallAction extends CallActionBase {
    */
   async leaveCallingRouteForSideWidget(): Promise<void> {
     return (CallActionBase.prototype as any)['leaveCallingRoute'].call(this);
+  }
+
+  /**
+   * Whether the "back to call" announcement banner should appear.
+   *
+   * A call playing a pre-recorded voicemail is excluded: it needs no attention
+   * and announcing it just gets in the way of placing the next call. The call
+   * still appears in the active-call list with its drop status.
+   *
+   * Mirrors the base formula (`CallAction.hasHiddenCalls`) with the dropping
+   * calls subtracted; `hasHiddenCalls` feeds only `Call.view`'s
+   * `showQuickCallAction`, so nothing else is affected.
+   */
+  override get hasHiddenCalls() {
+    const droppingCount = this.allCallInfoList.filter(({ call }) =>
+      isDroppingVoicemail(
+        (call as { webphoneSession?: { voicemailDropStatus?: string } })
+          ?.webphoneSession?.voicemailDropStatus,
+      ),
+    ).length;
+    const displayCount =
+      this.allCallInfoList.length -
+      droppingCount -
+      (this.existRingingOpenCallMetaInfo?.meta?.minimized ? 1 : 0) -
+      (this.announcementInfo?.meta?.open ? 1 : 0);
+
+    return displayCount >= 1;
   }
 }

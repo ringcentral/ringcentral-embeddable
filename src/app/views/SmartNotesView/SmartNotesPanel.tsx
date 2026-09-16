@@ -41,7 +41,7 @@ interface SmartNotesPanelProps {
 
 const SESSION_SWITCH_DELAY = 50;
 
-export const SmartNotesPanel: FunctionComponent<SmartNotesPanelProps> = ({
+const SmartNotesPanelContent: FunctionComponent<SmartNotesPanelProps> = ({
   client,
   embedded = false,
   onAlert,
@@ -83,7 +83,7 @@ export const SmartNotesPanel: FunctionComponent<SmartNotesPanelProps> = ({
     return () => clearTimeout(timeout);
   }, [sessionId]);
 
-  if (!client || !remoteEntry || !renderedSessionId) {
+  if (!renderedSessionId) {
     return null;
   }
   const renderKey = [
@@ -108,4 +108,23 @@ export const SmartNotesPanel: FunctionComponent<SmartNotesPanelProps> = ({
       themeType={themeType}
     />
   );
+};
+
+/**
+ * Defers mounting the panel until the smart-notes remote is known.
+ *
+ * `useApp` runs its loader once on mount with an empty dependency list and never
+ * retries, so mounting before `remoteEntry` is resolved fails the import
+ * permanently for that instance. The remote entry is per-tab state fetched from
+ * `plugins.json`, while call state arrives from the shared worker — so a tab
+ * opened during an active call renders the call UI first and would otherwise
+ * mount this panel too early.
+ */
+export const SmartNotesPanel: FunctionComponent<SmartNotesPanelProps> = (
+  props,
+) => {
+  if (!props.client || !props.remoteEntry) {
+    return null;
+  }
+  return <SmartNotesPanelContent {...props} />;
 };

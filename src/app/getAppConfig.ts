@@ -187,6 +187,9 @@ import {
 import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import {
   Webphone as WebphoneV2,
+  ClientInteraction,
+  WebphoneMedia,
+  WebphoneAlerting,
   NoiseReduction,
   VoicemailDrop,
   ActiveCallControl as ActiveCallControlV2,
@@ -366,10 +369,19 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useClass: RingCentralExtensionsV2,
       },
       Adapter,
+      // Tracks the tab the user last interacted with, so the SharedWorker-hosted
+      // webphone can target call media and ringtone at a real, focused tab.
+      ClientInteraction,
+      // Owns WebRTC, the microphone and the call audio element in one browser
+      // tab, so the WebPhone instance itself can live in the SharedWorker.
+      WebphoneMedia,
       {
         provide: Webphone,
         useClass: WebphoneV2,
       },
+      // Routes the incoming ringtone to a tab that has had a user gesture, so
+      // the autoplay policy cannot silence it.
+      WebphoneAlerting,
       NoiseReduction,
       VoicemailDrop,
       CallingSettings,
@@ -604,6 +616,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
             appVersion,
           } satisfies WebphoneOptions),
         deps: ['BrandConfig', 'SdkConfig'],
+      },
+      {
+        // `end` hangs up calls whose media owner disappeared. `recover` would
+        // re-INVITE from a surviving tab instead, but it relies on
+        // CallSession.reInvite, which is unverified here — switch once the
+        // owner-loss path has been exercised in a browser.
+        provide: 'WebphoneV2Options',
+        useValue: { mediaOwnerLossPolicy: 'end' },
       },
       { provide: 'Subscription', useClass: WebSocketSubscription },
       {

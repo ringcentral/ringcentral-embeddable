@@ -1,4 +1,7 @@
 export * from './WebphoneV2';
+export * from './ClientInteraction';
+export * from './WebphoneMedia';
+export * from './WebphoneAlerting';
 export * from './AppFeatures';
 export * from './NoiseReduction';
 export * from './SmartNotes';

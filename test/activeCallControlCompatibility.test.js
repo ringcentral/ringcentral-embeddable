@@ -48,6 +48,107 @@ describe("ActiveCallControl compatibility routing", () => {
     jest.clearAllMocks();
   });
 
+  describe("unhold with the SharedWorker webphone", () => {
+    function createWithSessions(sessions, unhold = jest.fn(async () => {})) {
+      const control = createControl();
+      control._webphone = { sessions, unhold };
+      return { control, unhold };
+    }
+
+    test("unholds a held session using replicated state", async () => {
+      // The base class reads `originalSessions[id].localHold`, which no longer
+      // exists now the runtime lives in the worker; without this override the
+      // call stays held forever with no error.
+      const { control, unhold } = createWithSessions([
+        { id: "wp-1", isOnHold: true },
+      ]);
+      // Supplied by the real base class; the mock here does not define it.
+      const errorHandler = jest.fn();
+      control.unholdErrorHandle = errorHandler;
+
+      await expect(control._unholdWithWebphone("wp-1")).resolves.toBe(true);
+      expect(unhold).toHaveBeenCalledWith("wp-1", errorHandler);
+    });
+
+    test("does nothing when the session is not held", async () => {
+      const { control, unhold } = createWithSessions([
+        { id: "wp-1", isOnHold: false },
+      ]);
+
+      await expect(control._unholdWithWebphone("wp-1")).resolves.toBe(false);
+      expect(unhold).not.toHaveBeenCalled();
+    });
+
+    test("does nothing for an unknown session id", async () => {
+      const { control, unhold } = createWithSessions([
+        { id: "other", isOnHold: true },
+      ]);
+
+      await expect(control._unholdWithWebphone("wp-1")).resolves.toBe(false);
+      expect(unhold).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("conference leg acceptance", () => {
+    function createForConference(sessions) {
+      const control = createControl();
+      const handlers = {};
+      control._webphone = {
+        sessions,
+        onCallStart: jest.fn((handler) => {
+          handlers.start = handler;
+          return () => delete handlers.start;
+        }),
+        onCallEnd: jest.fn((handler) => {
+          handlers.end = handler;
+          return () => delete handlers.end;
+        }),
+      };
+      return { control, handlers };
+    }
+
+    test("throws when the session is not present", async () => {
+      const { control } = createForConference([]);
+      await expect(
+        control._waitForWebphoneSessionAccepted("wp-1")
+      ).rejects.toThrow("conferencing session not found");
+    });
+
+    test("resolves when the leg is answered", async () => {
+      const { control, handlers } = createForConference([{ id: "wp-1" }]);
+      const pending = control._waitForWebphoneSessionAccepted("wp-1");
+      handlers.start({ id: "wp-1" });
+      await expect(pending).resolves.toBe("wp-1");
+    });
+
+    test("ignores events for other sessions", async () => {
+      jest.useFakeTimers();
+      const { control, handlers } = createForConference([{ id: "wp-1" }]);
+      const pending = control._waitForWebphoneSessionAccepted("wp-1");
+      handlers.start({ id: "other" });
+      handlers.end({ id: "other" });
+      jest.advanceTimersByTime(5000);
+      await expect(pending).rejects.toThrow("conferencing timeout");
+      jest.useRealTimers();
+    });
+
+    test("rejects when the leg ends first", async () => {
+      const { control, handlers } = createForConference([{ id: "wp-1" }]);
+      const pending = control._waitForWebphoneSessionAccepted("wp-1");
+      handlers.end({ id: "wp-1" });
+      await expect(pending).rejects.toThrow("conferencing failed");
+    });
+
+    test("rejects on timeout", async () => {
+      jest.useFakeTimers();
+      const { control } = createForConference([{ id: "wp-1" }]);
+      const pending = control._waitForWebphoneSessionAccepted("wp-1");
+      jest.advanceTimersByTime(5000);
+      await expect(pending).rejects.toThrow("conferencing timeout");
+      jest.useRealTimers();
+    });
+  });
+
   test("publishes raw telephony session updates through final disconnect", () => {
     const control = createControl();
     const session = new EventEmitter();

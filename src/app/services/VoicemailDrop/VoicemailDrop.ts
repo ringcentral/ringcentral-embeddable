@@ -13,7 +13,7 @@ import {
 
 import voicemailGreetingEndDetectorWorklet from './voicemail-greeting-end-detector.worklet.js';
 
-import type { WebphoneSession } from '../WebphoneV2/Webphone.interface';
+import type { VoicemailDropMediaHandle } from './VoicemailDrop.interface';
 import { voicemailDropStatus } from '../WebphoneV2/voicemailDropStatus';
 import type { VoicemailMessage } from './VoicemailDrop.interface';
 
@@ -193,7 +193,7 @@ export class VoicemailDrop extends RcModule {
   }
 
   async prepareVoicemailDrop(
-    webphoneSession: WebphoneSession,
+    webphoneSession: VoicemailDropMediaHandle,
     messageId: string,
   ) {
     let message = this.allMessages.find((item) => item.id === messageId);
@@ -230,7 +230,7 @@ export class VoicemailDrop extends RcModule {
         res.arrayBuffer(),
       );
       audioBuffer = await audioContext.decodeAudioData(audioData);
-    } catch {
+    } catch (error) {
       throw new Error(
         'Failed to load audio data, please check or re-upload the audio message',
       );
@@ -248,7 +248,7 @@ export class VoicemailDrop extends RcModule {
     endCall,
     updateStatus,
   }: {
-    webphoneSession: WebphoneSession;
+    webphoneSession: VoicemailDropMediaHandle;
     audioBuffer: AudioBuffer;
     audioContext: AudioContext;
     endCall: () => Promise<unknown>;
@@ -278,7 +278,7 @@ export class VoicemailDrop extends RcModule {
     audioContext,
     endCall,
   }: {
-    webphoneSession: WebphoneSession;
+    webphoneSession: VoicemailDropMediaHandle;
     audioContext: AudioContext;
     endCall: () => Promise<unknown>;
   }) {
@@ -290,6 +290,8 @@ export class VoicemailDrop extends RcModule {
       return false;
     }
     const outputTrack = receiver.track!;
+    // The receiver track has to still be live here: `stopSessionAudio` only
+    // disables the outbound senders, never the inbound track the detector reads.
     const mediaStream = new MediaStream([outputTrack]);
     const mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
     const processorNode = new AudioWorkletNode(
@@ -301,11 +303,32 @@ export class VoicemailDrop extends RcModule {
         },
       },
     );
+    // Chrome only delivers samples from a *remote* track into Web Audio while
+    // that track is also attached to a media element. `stopSessionAudio()`
+    // detaches the call's audio element, so without re-attaching here the
+    // detector reads constant silence and fires after exactly
+    // `noBeepSilenceDuration`, cutting into the greeting — and the callee's
+    // recording then loses the start of the message.
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = 0;
+    mediaStreamSource.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    const primingAudio = new Audio();
+    primingAudio.muted = true;
+    primingAudio.srcObject = mediaStream;
+    // jsdom returns undefined from play(); browsers return a promise.
+    void Promise.resolve(primingAudio.play?.()).catch((error: unknown) => {
+      console.error('Failed to prime the remote audio track:', error);
+    });
+
     const startAt = Date.now();
     const disconnect = () => {
       processorNode.port.onmessage = null;
       mediaStreamSource.disconnect();
       processorNode.disconnect();
+      gainNode.disconnect();
+      primingAudio.pause();
+      primingAudio.srcObject = null;
     };
     return new Promise<boolean>((resolve) => {
       const onFailed = async () => {
@@ -339,7 +362,7 @@ export class VoicemailDrop extends RcModule {
     endCall,
     updateStatus,
   }: {
-    webphoneSession: WebphoneSession;
+    webphoneSession: VoicemailDropMediaHandle;
     audioContext: AudioContext;
     audioBuffer: AudioBuffer;
     endCall: () => Promise<unknown>;
@@ -373,6 +396,9 @@ export class VoicemailDrop extends RcModule {
       audioTrack.stop();
       try {
         await sender.replaceTrack(originalTrack);
+        // The track was disabled rather than stopped, so it has to be
+        // re-enabled for the microphone to work again.
+        webphoneSession.restoreSessionAudio?.();
       } catch (error) {
         console.error(error);
       }

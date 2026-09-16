@@ -39,18 +39,35 @@ function resolveConfiguredChannelName(
   return channelName;
 }
 
+interface ActiveTabDelegateOptions {
+  channelName?: string;
+  /**
+   * Whether the calling port is the delegation target. Defaults to "the tab the
+   * user last interacted with".
+   */
+  isTargetClient?: () => boolean;
+  /**
+   * Client id to route to, evaluated on the server. Defaults to the active tab,
+   * falling back to the main client.
+   */
+  resolveTargetClientId?: () => string | null | undefined;
+}
+
 /**
- * Registers the active-tab delegation wiring for a module. Must be called once
- * in the module constructor when shared-tab mode is in use.
+ * Registers per-module delegation wiring. Must be called once in the module
+ * constructor when shared-tab mode is in use.
  *
  * After calling this, any method decorated with `@delegateInActiveTab` on the
  * same module instance will be routed to whichever tab the user last interacted
  * with (`portManager.activeTabId`), falling back to `mainClientId`.
+ *
+ * Pass `isTargetClient`/`resolveTargetClientId` to route to a different port
+ * instead — for example the tab that owns the webphone.
  */
 function setupActiveTabDelegate(
   module: object,
   portManager: PortManager,
-  options?: { channelName?: string },
+  options?: ActiveTabDelegateOptions,
 ): void {
   if (!portManager.shared) return;
 
@@ -58,13 +75,18 @@ function setupActiveTabDelegate(
     module,
     options?.channelName,
   );
+  const isTargetClient =
+    options?.isTargetClient ?? (() => portManager.isActiveTab);
+  const resolveTargetClientId =
+    options?.resolveTargetClientId ??
+    (() => portManager.activeTabId ?? portManager.mainClientId);
 
-  portManager.checkMainTabMapping.set(module, () => portManager.isActiveTab);
+  portManager.checkMainTabMapping.set(module, isTargetClient);
   portManager.customClientDelegateNameMapping.set(module, channelName);
 
   portManager.onClient((transport: any) => {
     transport.listen(channelName, async (params: any) => {
-      if (!portManager.isActiveTab) {
+      if (!isTargetClient()) {
         return new Promise(() => {
           // not the target tab -- hang so the server picks the next transport
         });
@@ -76,15 +98,14 @@ function setupActiveTabDelegate(
 
   portManager.onServer((transport: any) => {
     transport.listen(channelName, async (params: any) => {
-      if (!portManager.isWorkerMode && portManager.isActiveTab) {
+      if (!portManager.isWorkerMode && isTargetClient()) {
         const targetModule = getRef(module as any).modules![params.module];
         return applyMethod(targetModule, params);
       }
-      if (!portManager.activeTabId && !portManager.mainClientId) {
+      if (!resolveTargetClientId() && !portManager.mainClientId) {
         await portManager.promiseMainTabClient;
       }
-      const targetClientId =
-        portManager.activeTabId ?? portManager.mainClientId;
+      const targetClientId = resolveTargetClientId();
       if (!targetClientId) {
         return new Promise(() => {
           // no active client available
@@ -121,3 +142,4 @@ function setupActiveTabDelegate(
 const delegateInActiveTab = delegate('mainClient');
 
 export { delegateInActiveTab, setupActiveTabDelegate };
+export type { ActiveTabDelegateOptions };

@@ -53,6 +53,11 @@ export function addEmbeddableCallActions(
     flipDisabled?: boolean;
     isOtherDeviceCall?: boolean;
     switchDisabled?: boolean;
+    /**
+     * While a pre-recorded voicemail plays, every in-call action except ending
+     * the call is disabled — the same set legacy's ActiveCallPad greyed out.
+     */
+    droppingVoicemail?: boolean;
   },
 ): ICallAction[] {
   let result = options.isOtherDeviceCall
@@ -97,6 +102,11 @@ export function addEmbeddableCallActions(
       type: 'switch',
       disabled: options.switchDisabled,
     });
+  }
+  if (options.droppingVoicemail) {
+    result = result.map((action) =>
+      action.type === 'hangUp' ? action : { ...action, disabled: true },
+    );
   }
   return result;
 }

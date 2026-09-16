@@ -13,6 +13,43 @@ const baseActions = [
   { type: 'hangUp' },
 ];
 
+describe('addEmbeddableCallActions while dropping voicemail', () => {
+  const dropping = () =>
+    addEmbeddableCallActions(baseActions, {
+      parkDisabled: false,
+      voicemailDropDisabled: false,
+      flipDisabled: false,
+      droppingVoicemail: true,
+    });
+
+  test('disables every action except ending the call', () => {
+    // Matches legacy's ActiveCallPad, which greyed out mute, keypad, hold,
+    // transfer, merge, add, flip, park and voicemail drop while dropping.
+    const actions = dropping();
+    const enabled = actions
+      .filter((action) => !action.disabled)
+      .map((action) => action.type);
+
+    expect(enabled).toEqual(['hangUp']);
+    expect(actions.length).toBeGreaterThan(1);
+  });
+
+  test('keeps the hangUp action untouched', () => {
+    const hangUp = dropping().find((action) => action.type === 'hangUp');
+    expect(hangUp).toEqual({ type: 'hangUp' });
+  });
+
+  test('leaves actions enabled when not dropping', () => {
+    const actions = addEmbeddableCallActions(baseActions, {
+      parkDisabled: false,
+      voicemailDropDisabled: false,
+      flipDisabled: false,
+      droppingVoicemail: false,
+    });
+    expect(actions.find((action) => action.type === 'mute')?.disabled).toBeUndefined();
+  });
+});
+
 describe('addEmbeddableCallActions', () => {
   test('renders the voicemail drop before park and flip, in front of the end action', () => {
     const actions = addEmbeddableCallActions(baseActions, {

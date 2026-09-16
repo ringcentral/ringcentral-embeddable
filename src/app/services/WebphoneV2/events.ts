@@ -18,4 +18,5 @@ export const EVENTS = ObjectMap.fromKeys([
   'callVoicemailDropped',
 ]);
 
-export type WebphoneCallEvent = ObjectMapKey<typeof EVENTS>;
+/** Event *names* emitted by the webphone; the payload type lives in WebphoneApi.interface. */
+export type WebphoneCallEventName = ObjectMapKey<typeof EVENTS>;

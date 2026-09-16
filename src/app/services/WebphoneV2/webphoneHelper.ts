@@ -85,41 +85,7 @@ export function isBrowserSupport() {
   return isWebSocketSupport() && isWebRTCSupport();
 }
 
-export function isAuthoritativeWebphoneClient({
-  activeWebphoneId,
-  clientId,
-  isActiveTab,
-  isClient,
-  isShared,
-}: IsAuthoritativeWebphoneClientOptions): boolean {
-  if (!isShared) {
-    return true;
-  }
-  if (!isClient || !clientId) {
-    return false;
-  }
-  return activeWebphoneId === clientId || (!activeWebphoneId && isActiveTab);
-}
 
-export async function synchronizeActiveWebphoneClient({
-  canBecomeActive,
-  clientId,
-  getActiveWebphoneId,
-  setActiveWebphoneId,
-}: SynchronizeActiveWebphoneClientOptions): Promise<boolean> {
-  if (!clientId) {
-    return false;
-  }
-  const activeWebphoneId = await getActiveWebphoneId();
-  if (activeWebphoneId === clientId) {
-    return true;
-  }
-  if (!(await canBecomeActive())) {
-    return false;
-  }
-  await setActiveWebphoneId(clientId);
-  return true;
-}
 
 function getHeaderValue(
   headers: Record<string, string> | undefined,

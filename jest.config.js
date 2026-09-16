@@ -10,6 +10,10 @@ module.exports = {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   moduleNameMapper: {
+    // AudioSettings pulls in Juno's ESM tree, which jest does not transform.
+    // Heavy micro-* packages are stubbed rather than transformed here.
+    '^@ringcentral-integration/micro-phone/src/app/services/AudioSettings$':
+      '<rootDir>/test/mocks/audioSettingsMock.js',
     '^@ringcentral-integration/next-core$':
       '<rootDir>/test/mocks/nextCoreMock.js',
     '^@ringcentral-integration/micro-(auth|contacts|core|meeting|message|phone)/src/app/services$':

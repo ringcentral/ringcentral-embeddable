@@ -24,6 +24,7 @@ import { useCallDisplayNameWithMatches } from '../../components/MatchedContactsT
 import type { MatchedContactSelection } from '../../services/MatchedContactSelection';
 import { getLoggedContact } from '../../services/MatchedContactSelection/getLoggedContact';
 
+import { VOICEMAIL_DROP_STATUS_MAP } from '../../services/WebphoneV2/voicemailDropStatus';
 import i18n from './i18n';
 
 type ActiveCallItemProps = {
@@ -71,6 +72,15 @@ const ActiveCallItem: FunctionComponent<ActiveCallItemProps> = ({
     call.isConferenceCall ? undefined : matches,
     call.activityMatches,
   );
+  // A call playing a pre-recorded voicemail has no meaningful duration, so the
+  // list item reports the drop progress instead — the same substitution the
+  // call-control page makes.
+  const voicemailDropStatus = (
+    call as { webphoneSession?: { voicemailDropStatus?: string } }
+  ).webphoneSession?.voicemailDropStatus;
+  const voicemailDropStatusText = voicemailDropStatus
+    ? VOICEMAIL_DROP_STATUS_MAP[voicemailDropStatus]
+    : undefined;
   return (
     <ListItem
       className="group"
@@ -93,7 +103,18 @@ const ActiveCallItem: FunctionComponent<ActiveCallItemProps> = ({
             {OnOtherDevice ? <OnOtherDevice mode="icon" /> : null}
           </div>
         }
-        secondary={<CallStatus>({duration})</CallStatus>}
+        secondary={
+          voicemailDropStatusText ? (
+            // Rendered without `CallStatus`, which prefixes its own label and
+            // would read "On hold Dropping message". The drop status replaces
+            // the whole line, as legacy's ActiveCallPanel did.
+            <div className="text-warning-high-contrast">
+              {voicemailDropStatusText}
+            </div>
+          ) : (
+            <CallStatus>({duration})</CallStatus>
+          )
+        }
       />
       <ActionMenuList
         buttons={buttons}
@@ -127,14 +148,16 @@ export class HistoryActiveCallsView extends RcViewModule {
 
   private useActiveCallItemActions = (call: Call): ICallAction[] => {
     const listActions = this._activeCallsView.useActiveCallItemActions(call);
-    const isOtherDeviceCall = Boolean(!call.webphoneSession && call.id);
-    if (!isOtherDeviceCall) {
-      return listActions;
-    }
-    return this._callControlView.useCallActions({
+    // Both hooks must run on every render: `call.webphoneSession` appears and
+    // disappears over a call's lifetime, and branching before the second hook
+    // changes the hook count between renders, which corrupts React's hook
+    // order. Pick the result instead of skipping the call.
+    const callControlActions = this._callControlView.useCallActions({
       call,
       actionsDisabled: Boolean(listActions[0]?.disabled),
     });
+    const isOtherDeviceCall = Boolean(!call.webphoneSession && call.id);
+    return isOtherDeviceCall ? callControlActions : listActions;
   };
 
   override component(): React.ReactElement | null {

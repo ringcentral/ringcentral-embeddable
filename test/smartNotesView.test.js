@@ -147,6 +147,68 @@ describe('SmartNotesView', () => {
     expect(sideWidgetView.openContent).toHaveBeenCalledWith(sideWidgetHandle);
   });
 
+  test.each([
+    ['the remote entry is not resolved yet', { remoteEntry: '' }],
+    ['the notes client is not available', { client: null }],
+  ])('does not attempt the MFE import while %s', (_label, overrides) => {
+    // A tab opened during an active call renders the call UI from replicated
+    // worker state before it has fetched plugins.json. `useApp` loads its remote
+    // once on mount and never retries, so mounting early would permanently fail
+    // the import for that instance.
+    useApp.mockClear();
+    useApp.mockReturnValue(jest.fn(() => null));
+
+    const { container } = render(
+      <SmartNotesPanel
+        client={{}}
+        onAlert={jest.fn()}
+        onClose={jest.fn()}
+        onSave={jest.fn(async () => {})}
+        remoteEntry="https://example.com/smart-notes.js"
+        sessionId="session-1"
+        showCloseButton
+        themeType="light"
+        {...overrides}
+      />,
+    );
+
+    expect(useApp).not.toHaveBeenCalled();
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  test('mounts the plugin once the remote entry arrives', () => {
+    jest.useFakeTimers();
+    const plugin = jest.fn(() => null);
+    useApp.mockClear();
+    useApp.mockReturnValue(plugin);
+
+    const props = {
+      client: {},
+      onAlert: jest.fn(),
+      onClose: jest.fn(),
+      onSave: jest.fn(async () => {}),
+      sessionId: 'session-1',
+      showCloseButton: true,
+      themeType: 'light',
+    };
+    const { rerender } = render(<SmartNotesPanel {...props} remoteEntry="" />);
+    expect(useApp).not.toHaveBeenCalled();
+
+    rerender(
+      <SmartNotesPanel
+        {...props}
+        remoteEntry="https://example.com/smart-notes.js"
+      />,
+    );
+    act(() => jest.advanceTimersByTime(50));
+
+    // `useApp` is a hook, so it runs on every render of the mounted panel; the
+    // invariant is that it ran at all only after the entry became available.
+    expect(useApp).toHaveBeenCalled();
+    expect(plugin).toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+
   test('lets the Smart Notes plugin render the single-view header and close button', () => {
     jest.useFakeTimers();
     const plugin = jest.fn(() => null);

@@ -199,7 +199,38 @@ describe('NoiseReduction service', () => {
 
     await service.setEnabled(false);
     expect(service.enabled).toBe(false);
-    expect(applyEnabled).toHaveBeenLastCalledWith(false);
+    // Disabling no longer goes through the main-tab hop; see the broadcast test.
+    expect(applyEnabled).toHaveBeenLastCalledWith(true);
+  });
+
+  test('broadcasts disable to every port, not just the main tab', async () => {
+    // The denoiser is attached wherever the call media lives, which may be a
+    // tab other than the main one; a mainClient-only disable would leave the
+    // filter on a live call.
+    const { service } = createNoiseReduction();
+    const applyEnabled = jest.spyOn(service, '_applyEnabledInMainClient');
+    const disableEverywhere = jest
+      .spyOn(service, '_disableEverywhere')
+      .mockResolvedValue(undefined);
+
+    await service.setEnabled(false);
+
+    expect(disableEverywhere).toHaveBeenCalledTimes(1);
+    expect(applyEnabled).not.toHaveBeenCalled();
+    expect(service.enabled).toBe(false);
+  });
+
+  test('detaches every active denoiser when disabling', async () => {
+    const { service } = createNoiseReduction();
+    const denoiser = { disconnect: jest.fn() };
+    const filterNode = createFilterNode();
+    service._denoiserMap.set('session', denoiser);
+    service._filterNode = filterNode;
+
+    await service._disableEverywhere();
+
+    expect(denoiser.disconnect).toHaveBeenCalled();
+    expect(filterNode.disable).toHaveBeenCalled();
   });
 
   test('disables active resources without reinitializing', async () => {

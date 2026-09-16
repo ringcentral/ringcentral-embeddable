@@ -46,14 +46,48 @@ class FakeSmartNoteClient extends EventEmitter {
 
 FakeSmartNoteClient.reset();
 
+const jsonResponse = (data) => ({ json: async () => data });
+
+/** Platform stub for the server-side smart-notes REST calls. */
+function createPlatform() {
+  return {
+    get: jest.fn(async (url) =>
+      url.startsWith('/ai/rio/v1/transcripts/')
+        ? jsonResponse({ transcripts: [] })
+        : jsonResponse({ status: 'Completed', data: '' }),
+    ),
+    post: jest.fn(async () => jsonResponse({ records: [] })),
+  };
+}
+
 function createDependencies(overrides = {}) {
   const handlers = {};
+  const platform = createPlatform();
+  const defaultPortManager = {
+    shared: false,
+    isServer: true,
+    isClient: false,
+    isWorkerMode: false,
+    isActiveTab: true,
+    activeTabId: null,
+    mainClientId: null,
+    clientId: 'client-1',
+    promiseMainTabClient: Promise.resolve(),
+    checkMainTabMapping: new Map(),
+    customClientDelegateNameMapping: new Map(),
+    onClient: jest.fn(),
+    onServer: jest.fn(),
+    onMainTab: jest.fn(() => jest.fn()),
+  };
   const dependencies = {
-    client: { service: { name: 'sdk' } },
+    platform,
+    client: { service: { platform: () => platform } },
     auth: { loggedIn: true, ownerId: 'owner-id' },
     appFeatures: { hasSmartNotePermission: true },
     webphone: {
       sessions: [],
+      isWebphoneOwner: true,
+      webphoneOwnerClientId: null,
       onCallStart: jest.fn((handler) => {
         handlers.callStart = handler;
       }),
@@ -74,14 +108,11 @@ function createDependencies(overrides = {}) {
     storage: { enable: jest.fn() },
     toast: { warning: jest.fn() },
     tabManager: { interacting: true },
-    portManager: {
-      shared: false,
-      isServer: true,
-      onClient: jest.fn(),
-      onMainTab: jest.fn(() => jest.fn()),
-    },
     handlers,
     ...overrides,
+    // Merged, not replaced: the delegate wiring needs these maps present even
+    // when a test overrides port behaviour.
+    portManager: { ...defaultPortManager, ...(overrides.portManager ?? {}) },
   };
   return dependencies;
 }
@@ -202,7 +233,8 @@ describe('SmartNotes service', () => {
     });
 
     expect(dependencies.webphone.onCallStart).not.toHaveBeenCalled();
-    expect(dependencies.portManager.onClient).toHaveBeenCalledTimes(1);
+    // Two registrations: the runtime wiring plus the notes-owner delegate.
+    expect(dependencies.portManager.onClient).toHaveBeenCalledTimes(2);
     await smartNotes.onInit();
     expect(global.fetch).not.toHaveBeenCalled();
 
@@ -654,25 +686,24 @@ describe('SmartNotes service', () => {
   });
 
   test('queries noted calls once and merges recent-call knowledge', async () => {
-    const { smartNotes } = createSmartNotes();
-    smartNotes._smartNoteClientConstructor = FakeSmartNoteClient;
+    const { dependencies, smartNotes } = createSmartNotes();
     await smartNotes.addCallsQueryResults([{ id: 'known', noted: false }]);
     await smartNotes.addRecentNotedCall('recent');
-    FakeSmartNoteClient.querySmartNotes.mockResolvedValueOnce({
-      records: [{ telephonySessionId: 'remote' }],
-    });
+    dependencies.platform.post.mockResolvedValueOnce(
+      jsonResponse({ records: [{ telephonySessionId: 'remote' }] }),
+    );
 
     await smartNotes.queryNotedCalls(['known', 'recent', 'remote', 'plain']);
 
-    expect(FakeSmartNoteClient.querySmartNotes).toHaveBeenCalledWith(
-      expect.anything(),
-      ['recent', 'remote', 'plain'],
+    expect(dependencies.platform.post).toHaveBeenCalledWith(
+      '/ai/rio/v1/call-summary/note-brief/query',
+      { telephonySessionIds: ['recent', 'remote', 'plain'] },
     );
     expect(smartNotes.aiNotedCallMapping).toEqual({ recent: true, remote: true });
     await smartNotes.queryNotedCalls(['known', 'recent', 'remote', 'plain']);
-    expect(FakeSmartNoteClient.querySmartNotes).toHaveBeenCalledTimes(1);
+    expect(dependencies.platform.post).toHaveBeenCalledTimes(1);
 
-    FakeSmartNoteClient.querySmartNotes.mockRejectedValueOnce(new Error('query failed'));
+    dependencies.platform.post.mockRejectedValueOnce(new Error('query failed'));
     await smartNotes.queryNotedCalls(['error']);
     expect(smartNotes.logger.error).toHaveBeenCalledWith(
       'Failed to query SmartNotes calls',
@@ -680,43 +711,58 @@ describe('SmartNotes service', () => {
     );
   });
 
-  test('guards queries when initialization or permission is unavailable', async () => {
+  test('still queries without permission guarding it out', async () => {
     const noPermission = createSmartNotes({
       appFeatures: { hasSmartNotePermission: false },
-    }).smartNotes;
-    await noPermission.queryNotedCalls(['one']);
-    expect(global.fetch).not.toHaveBeenCalled();
+    });
+    await noPermission.smartNotes.queryNotedCalls(['one']);
+    expect(noPermission.dependencies.platform.post).not.toHaveBeenCalled();
+  });
 
-    const unavailable = createSmartNotes().smartNotes;
-    global.fetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
-    await unavailable.queryNotedCalls(['one']);
-    expect(FakeSmartNoteClient.querySmartNotes).not.toHaveBeenCalled();
+  test('queries noted calls without loading the smart-notes MFE', async () => {
+    // The query is a plain REST call, so it must work on the server, where the
+    // MFE cannot be loaded at all.
+    const { dependencies, smartNotes } = createSmartNotes();
+    dependencies.platform.post.mockResolvedValueOnce(
+      jsonResponse({ records: [{ telephonySessionId: 'one' }] }),
+    );
+
+    await smartNotes.queryNotedCalls(['one']);
+
+    expect(dependencies.platform.post).toHaveBeenCalledTimes(1);
+    expect(dynamicLoad).not.toHaveBeenCalled();
+    expect(smartNotes._smartNoteClientConstructor).toBeNull();
+    expect(smartNotes.aiNotedCallMapping).toEqual({ one: true });
   });
 
   test('fetches, normalizes, caches, and retries note text', async () => {
-    const { smartNotes } = createSmartNotes();
-    smartNotes._smartNoteClientConstructor = FakeSmartNoteClient;
+    const { dependencies, smartNotes } = createSmartNotes();
     await smartNotes.addCallsQueryResults([{ id: 'noted', noted: true }]);
-    FakeSmartNoteClient.getNotes
-      .mockResolvedValueOnce({ status: 'InProgress', data: '' })
-      .mockResolvedValueOnce({
-        status: 'Completed',
-        data: '<p>Hello <strong>World</strong></p><ul><li>One</li></ul>',
-      });
+    dependencies.platform.get
+      .mockResolvedValueOnce(jsonResponse({ status: 'InProgress', data: '' }))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          status: 'Completed',
+          data: '<p>Hello <strong>World</strong></p><ul><li>One</li></ul>',
+        }),
+      );
 
     const text = await smartNotes.fetchSmartNoteText('noted');
 
     expect(sleep).toHaveBeenCalled();
+    expect(dependencies.platform.get).toHaveBeenCalledWith(
+      '/ai/rio/v1/call-summary/notes',
+      { telephonySessionId: 'noted' },
+    );
     expect(text).toContain('Hello **World**');
     expect(text).toContain('One');
     expect(smartNotes.smartNoteTextMapping.noted).toBe(text);
     await expect(smartNotes.fetchSmartNoteText('noted')).resolves.toBe(text);
-    expect(FakeSmartNoteClient.getNotes).toHaveBeenCalledTimes(2);
+    expect(dependencies.platform.get).toHaveBeenCalledTimes(2);
   });
 
   test('handles note text guard and failure branches', async () => {
     const { dependencies, smartNotes } = createSmartNotes();
-    smartNotes._smartNoteClientConstructor = FakeSmartNoteClient;
 
     await expect(smartNotes.fetchSmartNoteText('')).resolves.toBeNull();
     dependencies.appFeatures.hasSmartNotePermission = false;
@@ -725,7 +771,7 @@ describe('SmartNotes service', () => {
     await expect(smartNotes.fetchSmartNoteText('not-noted')).resolves.toBeNull();
 
     await smartNotes.addCallsQueryResults([{ id: 'error', noted: true }]);
-    FakeSmartNoteClient.getNotes.mockRejectedValueOnce(new Error('note failed'));
+    dependencies.platform.get.mockRejectedValueOnce(new Error('note failed'));
     await expect(smartNotes.fetchSmartNoteText('error')).resolves.toBeNull();
     expect(smartNotes.logger.error).toHaveBeenCalledWith(
       'Failed to fetch SmartNotes text',
@@ -733,23 +779,29 @@ describe('SmartNotes service', () => {
     );
 
     await smartNotes.addCallsQueryResults([{ id: 'retry-limit', noted: true }]);
-    FakeSmartNoteClient.getNotes.mockResolvedValue({ status: 'InProgress' });
+    dependencies.platform.get.mockClear();
+    dependencies.platform.get.mockResolvedValue(
+      jsonResponse({ status: 'InProgress' }),
+    );
     await expect(smartNotes.fetchSmartNoteText('retry-limit')).resolves.toBe('');
-    expect(FakeSmartNoteClient.getNotes).toHaveBeenCalledTimes(5);
+    // One initial fetch plus `noteFetchRetryCount` (3) retries.
+    expect(dependencies.platform.get).toHaveBeenCalledTimes(4);
   });
 
   test('fetches and caches transcripts and handles unavailable records', async () => {
     const { dependencies, smartNotes } = createSmartNotes();
-    smartNotes._smartNoteClientConstructor = FakeSmartNoteClient;
     await smartNotes.addCallsQueryResults([{ id: 'noted', noted: true }]);
-    FakeSmartNoteClient.getTranscripts.mockResolvedValueOnce({
-      transcripts: [{ text: 'Hello' }],
-    });
+    dependencies.platform.get.mockResolvedValueOnce(
+      jsonResponse({ transcripts: [{ text: 'Hello' }] }),
+    );
 
     const transcript = await smartNotes.fetchTranscript('noted');
     expect(transcript).toEqual({ transcripts: [{ text: 'Hello' }] });
+    expect(dependencies.platform.get).toHaveBeenCalledWith(
+      '/ai/rio/v1/transcripts/noted',
+    );
     await expect(smartNotes.fetchTranscript('noted')).resolves.toBe(transcript);
-    expect(FakeSmartNoteClient.getTranscripts).toHaveBeenCalledTimes(1);
+    expect(dependencies.platform.get).toHaveBeenCalledTimes(1);
 
     await expect(smartNotes.fetchTranscript('')).resolves.toBeNull();
     dependencies.appFeatures.hasSmartNotePermission = false;
@@ -758,7 +810,9 @@ describe('SmartNotes service', () => {
     await expect(smartNotes.fetchTranscript('not-noted')).resolves.toBeNull();
 
     await smartNotes.addCallsQueryResults([{ id: 'error', noted: true }]);
-    FakeSmartNoteClient.getTranscripts.mockRejectedValueOnce(new Error('transcript failed'));
+    dependencies.platform.get.mockRejectedValueOnce(
+      new Error('transcript failed'),
+    );
     await expect(smartNotes.fetchTranscript('error')).resolves.toBeNull();
     expect(smartNotes.logger.error).toHaveBeenCalledWith(
       'Failed to fetch SmartNotes transcript',

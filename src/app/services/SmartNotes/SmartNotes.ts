@@ -30,6 +30,7 @@ import {
   createSmartNoteSession,
   mergeSmartNoteRecords,
   normalizeSmartNoteHtml,
+  smartNoteHtmlToText,
 } from './SmartNotes.helper';
 import type {
   SmartNoteClientConstructor,
@@ -46,6 +47,7 @@ import type {
   WebphoneSmartNoteSession,
 } from './SmartNotes.interface';
 
+import { setupActiveTabDelegate } from '../../../lib/delegateInActiveTab';
 import { TabManager } from '../TabManager';
 import type { Webphone } from '../WebphoneV2';
 
@@ -82,7 +84,81 @@ export class SmartNotes extends RcModule {
   ) {
     super();
     this._storage.enable(this);
+    // Notes render next to the call, so the widget is owned by the tab that owns
+    // the webphone rather than the app's main tab. This repoints every
+    // `@delegate('mainClient')` method on this module at that tab.
+    setupActiveTabDelegate(this, this._portManager, {
+      channelName: 'smartNotesWebphoneClient',
+      isTargetClient: () => this._isNotesOwner,
+      resolveTargetClientId: () =>
+        this._webphone.webphoneOwnerClientId ??
+        this._portManager.activeTabId ??
+        this._portManager.mainClientId,
+    });
     this._setupRuntime();
+  }
+
+  /**
+   * Whether this port should own the notes widget.
+   *
+   * Follows webphone ownership, falling back to the visible tab while no tab
+   * has claimed the webphone yet, so notes still work for calls on another
+   * device.
+   */
+  private get _isNotesOwner(): boolean {
+    if (!this._portManager.shared) return true;
+    if (!this._portManager.isClient) return false;
+    if (this._webphone.isWebphoneOwner) return true;
+    return (
+      !this._webphone.webphoneOwnerClientId && this._portManager.isActiveTab
+    );
+  }
+
+  /** Server-side smart-notes REST calls, which need no MFE and no DOM. */
+  private get _notesPlatform() {
+    return (
+      this._client.service as unknown as {
+        platform: () => {
+          get: (
+            url: string,
+            query?: Record<string, unknown>,
+          ) => Promise<{ json: () => Promise<any> }>;
+          post: (
+            url: string,
+            body?: Record<string, unknown>,
+          ) => Promise<{ json: () => Promise<any> }>;
+        };
+      }
+    ).platform();
+  }
+
+  private async _apiQuerySmartNotes(
+    telephonySessionIds: string[],
+  ): Promise<{ records: Array<{ telephonySessionId: string }> }> {
+    const response = await this._notesPlatform.post(
+      '/ai/rio/v1/call-summary/note-brief/query',
+      { telephonySessionIds },
+    );
+    return response.json();
+  }
+
+  private async _apiGetNotes(
+    telephonySessionId: string,
+  ): Promise<{ status: string; data?: string }> {
+    const response = await this._notesPlatform.get(
+      '/ai/rio/v1/call-summary/notes',
+      { telephonySessionId },
+    );
+    return response.json();
+  }
+
+  private async _apiGetTranscripts(
+    telephonySessionId: string,
+  ): Promise<SmartNoteTranscript> {
+    const response = await this._notesPlatform.get(
+      `/ai/rio/v1/transcripts/${telephonySessionId}`,
+    );
+    return response.json();
   }
 
   @state
@@ -796,13 +872,10 @@ export class SmartNotes extends RcModule {
     const unqueriedIds = telephonySessionIds.filter(
       (id) => typeof existingMapping[id] === 'undefined',
     );
-    if (unqueriedIds.length === 0 || !this._smartNoteClientConstructor) {
+    if (unqueriedIds.length === 0) {
       return existingMapping;
     }
-    const queryResult = await this._smartNoteClientConstructor.querySmartNotes(
-      this._client.service,
-      unqueriedIds,
-    );
+    const queryResult = await this._apiQuerySmartNotes(unqueriedIds);
     const recentNotedCalls = new Set(this.recentNotedCalls);
     const queriedCalls = unqueriedIds.map((id) => ({
       id,
@@ -818,9 +891,11 @@ export class SmartNotes extends RcModule {
     return existingMapping;
   }
 
-  @delegate('mainClient')
+  // Runs in the SharedWorker: this is a plain REST query, so it needs neither
+  // the smart-notes MFE nor a DOM, and it works in every tab.
+  @delegate('server')
   async queryNotedCalls(telephonySessionIds: string[]): Promise<void> {
-    if (!(await this._ensureClientInitialized()) || !this.hasPermission) {
+    if (!this.hasPermission) {
       return;
     }
     try {
@@ -834,10 +909,7 @@ export class SmartNotes extends RcModule {
     telephonySessionId: string,
     retryCount = 0,
   ): Promise<{ status: string; data?: string }> {
-    const result = await this._smartNoteClientConstructor!.getNotes(
-      this._client.service,
-      telephonySessionId,
-    );
+    const result = await this._apiGetNotes(telephonySessionId);
     if (
       result.status !== 'InProgress' ||
       retryCount >= SMART_NOTES_CONFIG.noteFetchRetryCount
@@ -848,7 +920,7 @@ export class SmartNotes extends RcModule {
     return this._fetchNotesUntilFinished(telephonySessionId, retryCount + 1);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async fetchSmartNoteText(telephonySessionId: string): Promise<string | null> {
     if (!telephonySessionId || !this.hasPermission) {
       return null;
@@ -856,12 +928,6 @@ export class SmartNotes extends RcModule {
     const cachedText = this.smartNoteTextMapping[telephonySessionId];
     if (cachedText) {
       return cachedText;
-    }
-    if (
-      !(await this._ensureClientInitialized()) ||
-      !this._smartNoteClientConstructor
-    ) {
-      return null;
     }
     try {
       const notedMapping = await this._queryNotedCallMapping([
@@ -871,9 +937,7 @@ export class SmartNotes extends RcModule {
         return null;
       }
       const note = await this._fetchNotesUntilFinished(telephonySessionId);
-      const html = normalizeSmartNoteHtml(note.data ?? '');
-      const document = new DOMParser().parseFromString(html, 'text/html');
-      const text = document.body.textContent ?? '';
+      const text = smartNoteHtmlToText(normalizeSmartNoteHtml(note.data ?? ''));
       await this.addSmartNoteTextStore(telephonySessionId, text);
       return text;
     } catch (error) {
@@ -882,7 +946,7 @@ export class SmartNotes extends RcModule {
     }
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async fetchTranscript(
     telephonySessionId: string,
   ): Promise<SmartNoteTranscript | null> {
@@ -893,12 +957,6 @@ export class SmartNotes extends RcModule {
     if (cachedTranscript) {
       return cachedTranscript;
     }
-    if (
-      !(await this._ensureClientInitialized()) ||
-      !this._smartNoteClientConstructor
-    ) {
-      return null;
-    }
     try {
       const notedMapping = await this._queryNotedCallMapping([
         telephonySessionId,
@@ -906,10 +964,7 @@ export class SmartNotes extends RcModule {
       if (!notedMapping[telephonySessionId]) {
         return null;
       }
-      const transcript = await this._smartNoteClientConstructor.getTranscripts(
-        this._client.service,
-        telephonySessionId,
-      );
+      const transcript = await this._apiGetTranscripts(telephonySessionId);
       await this.addTranscriptStore(telephonySessionId, transcript);
       return transcript;
     } catch (error) {

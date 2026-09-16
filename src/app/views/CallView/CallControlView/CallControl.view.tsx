@@ -1,3 +1,4 @@
+import { isDroppingVoicemail } from '../../../services/WebphoneV2/webphoneHelper';
 import callDirections from '@ringcentral-integration/commons/enums/callDirections';
 import type { NormalizedSession } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
 import { AppFeatures } from '@ringcentral-integration/micro-auth/src/app/services';
@@ -158,7 +159,11 @@ export class CallControlView extends CallControlViewBase {
       Boolean(props.call.isConferenceCall) ||
       isOnHold ||
       props.actionsDisabled;
+    const droppingVoicemail = isDroppingVoicemail(
+      webphoneSession?.voicemailDropStatus,
+    );
     return addEmbeddableCallActions(baseActions, {
+      droppingVoicemail,
       parkDisabled,
       voicemailDropDisabled,
       flipDisabled,

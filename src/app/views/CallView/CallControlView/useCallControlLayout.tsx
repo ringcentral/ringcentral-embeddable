@@ -1,3 +1,4 @@
+import { VOICEMAIL_DROP_STATUS_MAP } from '../../../services/WebphoneV2/voicemailDropStatus';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { ExpandLogButton } from '@ringcentral-integration/micro-phone/src/app/components';
 import { useContactRenderInfoFromCall } from '@ringcentral-integration/micro-phone/src/app/hooks';
@@ -55,6 +56,15 @@ export function useCallControlLayout(
     hideBlockedFromInfo: true,
   });
   const { t } = useLocale(i18n, contactRenderI18n);
+  // While a pre-recorded voicemail is playing there is no meaningful call
+  // duration, so the timer is replaced by the drop status — matching the
+  // legacy ActiveCallPanel, which swapped its DurationCounter the same way.
+  const voicemailDropStatus = (
+    call as { webphoneSession?: { voicemailDropStatus?: string } }
+  ).webphoneSession?.voicemailDropStatus;
+  const voicemailDropStatusText = voicemailDropStatus
+    ? VOICEMAIL_DROP_STATUS_MAP[voicemailDropStatus]
+    : undefined;
   const isInbound = direction === 'Inbound';
   const matches = isInbound ? call.fromMatches : call.toMatches;
   const DisplayName = useCallDisplayNameWithMatches(
@@ -144,7 +154,9 @@ export function useCallControlLayout(
       header={header}
       isConferenceCall={call.isConferenceCall}
       main={main}
-      status={connecting ? t('connecting') : duration}
+      status={
+        voicemailDropStatusText ?? (connecting ? t('connecting') : duration)
+      }
       statusEnd={
         onExpand && typeof expanded === 'boolean' ? (
           <ExpandLogButton expanded={expanded} onExpand={onExpand} />

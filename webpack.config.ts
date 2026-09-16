@@ -175,7 +175,7 @@ export const getWebpackConfig = (
           './node_modules/@ringcentral/juno-icon/es6',
         ),
         // Note: the project's own webphone code imports `ringcentral-web-phone-v2`
-        // (npm alias -> ringcentral-web-phone@^2.4.3), while the legacy
+        // (npm alias -> ringcentral-web-phone@^2.5.3), while the legacy
         // `@ringcentral-integration/*` packages keep using the real
         // `ringcentral-web-phone@0.8.x`. Both resolve natively, so no alias is needed.
       },
