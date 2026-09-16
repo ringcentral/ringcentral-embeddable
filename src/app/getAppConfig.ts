@@ -41,6 +41,7 @@ import {
 } from '@ringcentral-integration/micro-core/src/app/plugins';
 import type {
   BrandConfig,
+  BrandConfigOptions,
   BrowserLoggerOptions,
   LocaleOptions,
 } from '@ringcentral-integration/micro-core/src/app/services';
@@ -119,6 +120,7 @@ import {
   SmartNotes,
   ThirdParty,
 } from './services';
+import { getAssetBaseUrl } from '../lib/getAssetBaseUrl';
 import { createCallLoggerOptions } from './services/CallLogger/createCallLoggerOptions';
 import type { AdapterOptions } from './services/Adapter/AdapterOptions';
 import { AccountContacts as AccountContactsV2 } from './services/AccountContacts';
@@ -679,6 +681,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: 'BrandConfig',
         useValue: { ...brandConfig },
+      },
+      {
+        // Brand assets are declared as root relative paths, so they must be
+        // resolved against the folder hosting the app instead of the origin.
+        provide: 'BrandConfigOptions',
+        useValue: {
+          assetOrigin: getAssetBaseUrl(),
+        } satisfies BrandConfigOptions,
       },
       {
         provide: 'BrowserLoggerOptions',
