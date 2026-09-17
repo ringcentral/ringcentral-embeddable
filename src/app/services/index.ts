@@ -1,4 +1,5 @@
 export * from './WebphoneV2';
+export * from './AudioInit';
 export * from './ClientInteraction';
 export * from './WebphoneMedia';
 export * from './WebphoneAlerting';
@@ -14,6 +15,7 @@ export * from './MatchedContactSelection';
 export * from './CallViewState';
 export * from './WebSocketSubscription';
 export * from './RingCentralExtensions';
+export * from './RingCX';
 export * from './Adapter';
 export * from './RcVideo';
 export * from './AccountContacts';

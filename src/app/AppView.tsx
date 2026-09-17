@@ -6,7 +6,6 @@ import React, {
   useRef,
 } from 'react';
 import {
-  ConnectivityView,
   EnvironmentView,
   LoginView,
 } from '@ringcentral-integration/micro-auth/src/app/views';
@@ -83,6 +82,10 @@ import {
 } from './ExpandedRouteNavigation.helper';
 import { CustomizedPageView } from './views/CustomizedPageView';
 import { ApplicationLogsView } from './views/ApplicationLogsView';
+import { CxAgentSettingsView } from './views/CxAgentSettingsView';
+import { CxAgentTabView } from './views/CxAgentTabView';
+import { AudioInitView } from './views/AudioInitView';
+import { ConnectivityView } from './views/ConnectivityView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
@@ -195,6 +198,11 @@ export class AppView extends RcViewModule {
       authentication: true,
     },
     {
+      path: '/agent',
+      component: this._cxAgentTabView.component,
+      authentication: true,
+    },
+    {
       path: '/dialer',
       component: this._dialerPadView.component,
       authentication: true,
@@ -298,6 +306,14 @@ export class AppView extends RcViewModule {
     {
       path: '/settings/calling',
       component: this._callingSettingsView.component,
+      authentication: true,
+      layout: 'detail',
+      backgroundComponent: this._settingsView.component,
+      sideWidget: this._settingsSideWidgetConfig,
+    },
+    {
+      path: '/settings/agent',
+      component: this._cxAgentSettingsView.component,
       authentication: true,
       layout: 'detail',
       backgroundComponent: this._settingsView.component,
@@ -641,6 +657,8 @@ export class AppView extends RcViewModule {
     private _conversationView: ConversationViewSpring,
     private _voicemailView: VoicemailView,
     private _settingsView: SettingsView,
+    private _cxAgentTabView: CxAgentTabView,
+    private _cxAgentSettingsView: CxAgentSettingsView,
     private _dialerPadView: DialerPadView,
     private _callingSettingsView: CallingSettingsView,
     private _regionSettingsView: RegionSettingsView,
@@ -669,6 +687,7 @@ export class AppView extends RcViewModule {
     private _expandedView: ExpandedView,
     private _routedSideWidgetView: RoutedSideWidgetView,
     private _thirdPartyBannerView: ThirdPartyBannerView,
+    private _audioInitView: AudioInitView,
     @optional()
     private _messageThread?: MessageThread,
     private _genericMeeting?: GenericMeeting,
@@ -779,6 +798,7 @@ export class AppView extends RcViewModule {
               <AppAnnouncementRender>
                 <this._connectivityView.component />
                 <this._thirdPartyBannerView.component />
+                <this._audioInitView.component />
                 {this._appViewOptions?.headers}
                 <this._callView.Announcement />
               </AppAnnouncementRender>

@@ -1,0 +1,20 @@
+/* eslint-disable */
+export default {
+  voiceConnection: '음성 연결',
+  inboundQueues: '인바운드 대기열',
+  skillProfile: '기술 프로필',
+  dialGroup: '다이얼 그룹',
+  autoAnswer: '전화 자동 응답',
+  startSession: '세션 시작',
+  selectQueues: '대기열 선택',
+  selectSkillProfile: '기술 프로필 선택',
+  continue: '계속',
+  switchAccount: '계정 전환',
+  extensionNumber: '귀하의 전화번호',
+  enterYourPhoneNumber: '전화번호를 입력하세요',
+  takingCalls: '지속적인 음성 연결',
+  agent: '에이전트',
+  supervisor: '감독자',
+  none: '없음',
+  multiple: '다중 할당',
+} as const;

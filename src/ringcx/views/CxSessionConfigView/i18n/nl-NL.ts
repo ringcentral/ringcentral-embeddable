@@ -1,0 +1,20 @@
+/* eslint-disable */
+export default {
+  voiceConnection: 'Spraakverbinding',
+  inboundQueues: 'Inkomende wachtrijen',
+  skillProfile: 'Vaardigheidsprofiel',
+  dialGroup: 'Kiesgroep',
+  autoAnswer: 'Oproepen automatisch beantwoorden',
+  startSession: 'Sessie starten',
+  selectQueues: 'Selecteer Wachtrijen',
+  selectSkillProfile: 'Selecteer Vaardigheidsprofiel',
+  continue: 'Doorgaan',
+  switchAccount: 'Van account wisselen',
+  extensionNumber: 'Uw telefoonnummer',
+  enterYourPhoneNumber: 'Voer uw telefoonnummer in',
+  takingCalls: 'Permanente spraakverbinding',
+  agent: 'Agent',
+  supervisor: 'Supervisor',
+  none: 'Geen',
+  multiple: 'Meerdere opdrachten',
+} as const;

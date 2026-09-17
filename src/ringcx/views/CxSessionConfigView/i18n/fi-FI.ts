@@ -1,0 +1,20 @@
+/* eslint-disable */
+export default {
+  voiceConnection: 'Ääniyhteys',
+  inboundQueues: 'Saapuvien puhelujen jonot',
+  skillProfile: 'Taitoprofiili',
+  dialGroup: 'Soita ryhmä',
+  autoAnswer: 'Vastaa puheluihin automaattisesti',
+  startSession: 'Aloita istunto',
+  selectQueues: 'Valitse Jonot',
+  selectSkillProfile: 'Valitse osaamisprofiili',
+  continue: 'Jatka',
+  switchAccount: 'Vaihda tiliä',
+  extensionNumber: 'Puhelinnumerosi',
+  enterYourPhoneNumber: 'Anna puhelinnumerosi',
+  takingCalls: 'Pysyvä ääniyhteys',
+  agent: 'Agentti',
+  supervisor: 'Valvoja',
+  none: 'Ei mitään',
+  multiple: 'Useita tehtäviä',
+} as const;

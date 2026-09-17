@@ -1,0 +1,20 @@
+/* eslint-disable */
+export default {
+  voiceConnection: 'Verbindung für Sprachanrufe',
+  inboundQueues: 'Eingehende Warteschlangen',
+  skillProfile: 'Fähigkeitsprofil',
+  dialGroup: 'Wählgruppe',
+  autoAnswer: 'Anrufe automatisch beantworten',
+  startSession: 'Sitzung starten',
+  selectQueues: 'Wählen Sie Warteschlangen aus',
+  selectSkillProfile: 'Wählen Sie das Fähigkeitsprofil aus',
+  continue: 'Fortfahren',
+  switchAccount: 'Konto wechseln',
+  extensionNumber: 'Ihre Telefonnummer',
+  enterYourPhoneNumber: 'Geben Sie Ihre Telefonnummer ein',
+  takingCalls: 'Dauerhafte Sprachverbindung',
+  agent: 'Agent',
+  supervisor: 'Supervisor',
+  none: 'Keine',
+  multiple: 'Mehrere Zuweisungen',
+} as const;

@@ -76,6 +76,8 @@
     "legacy-test",
     "release",
     "extension",
-    "site"
+    "site",
+    "build",
+    "src/assets/ringcx"
   ]
 }

@@ -7,18 +7,22 @@ import type { FunctionComponent, ReactElement } from 'react';
 import React from 'react';
 
 import { ThirdPartyAuthSettings } from '../../components/ThirdPartyAuthSettings';
+import type { RingCX } from '../../services/RingCX';
 import type { ThirdParty } from '../../services/ThirdParty';
 import type { SmartNotes } from '../../services/SmartNotes';
 import type { VoicemailDrop } from '../../services/VoicemailDrop';
 import { VoicemailDropSettingsLink } from '../VoicemailDropSettingsView/VoicemailDropSettingsLink';
 
 import { SettingsPanel } from './SettingsPanel';
+import { CxAgentSettingsSection } from './CxAgentSettingsSection';
 import { SmartNotesAutoStartSetting } from './SmartNotesAutoStartSetting';
 
 interface CreateSettingsPanelOptions {
+  readonly onAgentSessionInfoClick: () => void;
   readonly onThirdPartySectionClick: (sectionId: string) => void;
   readonly onVoicemailDropSettingsLinkClick: () => void;
   readonly smartNotes: SmartNotes;
+  readonly ringCX?: RingCX;
   readonly thirdParty: ThirdParty;
   readonly voicemailDrop: VoicemailDrop;
 }
@@ -27,9 +31,11 @@ interface CreateSettingsPanelOptions {
  * Creates the app settings panel with permission-aware Phone settings.
  */
 export function createSettingsPanel({
+  onAgentSessionInfoClick,
   onThirdPartySectionClick,
   onVoicemailDropSettingsLinkClick,
   smartNotes,
+  ringCX,
   thirdParty,
   voicemailDrop,
 }: CreateSettingsPanelOptions): NonNullable<SettingsViewOptions['component']> {
@@ -38,6 +44,9 @@ export function createSettingsPanel({
   ): ReactElement => {
     const hasVoicemailDropSettings: boolean = useConnector(
       () => voicemailDrop.hasVoicemailDropPermission,
+    );
+    const isRingCXEnabled: boolean = useConnector(
+      () => ringCX?.enabled ?? false,
     );
     const smartNotesSettings = useConnector(() => ({
       checked: smartNotes.autoStartSmartNote,
@@ -69,6 +78,14 @@ export function createSettingsPanel({
     return (
       <SettingsPanel
         {...props}
+        agentSettings={
+          isRingCXEnabled && ringCX ? (
+            <CxAgentSettingsSection
+              ringCX={ringCX}
+              onSessionInfoClick={onAgentSessionInfoClick}
+            />
+          ) : null
+        }
         thirdPartySettings={thirdPartySettings}
         onThirdPartyButtonClick={(buttonId) => {
           void thirdParty.onClickSettingButton(buttonId);

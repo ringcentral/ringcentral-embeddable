@@ -7,6 +7,8 @@ module.exports = {
     'legacy-test',
     'release',
     'html-report',
+    // Vendored RingCX Agent SDK bundle, copied as an asset
+    'src/assets/ringcx',
   ],
 
   overrides: [

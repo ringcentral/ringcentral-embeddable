@@ -1,0 +1,18 @@
+/* eslint-disable */
+export default {
+  updateSession: 'Update session',
+  voiceConnection: 'Voice connection',
+  skillProfile: 'Skill profile',
+  inboundQueues: 'Inbound queues',
+  dialGroup: 'Dial group',
+  autoAnswer: 'Auto answer',
+  update: 'Update',
+  cancel: 'Cancel',
+  noneSelected: 'None selected',
+  all: 'All',
+  selected: 'selected',
+  saveEditionModalTitle: 'Confirm Update',
+  saveEditionModalContent: 'Your changes have not been saved.',
+  save: 'Save',
+} as const;
+

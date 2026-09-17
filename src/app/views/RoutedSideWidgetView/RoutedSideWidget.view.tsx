@@ -260,6 +260,17 @@ export class RoutedSideWidgetView extends RcViewModule {
       this._debug('wait for routed page registration', { path });
       return;
     }
+    // The main column only renders `mainPath` while a routed page owns the
+    // router. Once the router itself points at a main route, that preserved
+    // path is stale and would keep the navigation highlighting the tab the
+    // user left.
+    if (this.mainPath) {
+      this._debug('clear stale main path', {
+        path,
+        mainPath: this.mainPath,
+      });
+      this._setMainPath(null);
+    }
     if (activeEntry && activeEntry.path !== path) {
       this._debug('close routed tab after navigation', {
         path,

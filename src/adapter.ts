@@ -149,6 +149,10 @@ function init({
     enableSideWidget,
     enableVoicemailDrop,
     enableTypingTimeTracking,
+    enableRingCX,
+    evServer,
+    enableAgentScript,
+    hideCallNote,
   } = options;
 
   const appUri = `${appUrl}?${obj2uri({
@@ -210,6 +214,10 @@ function init({
     enableVoicemailDrop,
     mainTab,
     enableTypingTimeTracking,
+    enableRingCX,
+    evServer,
+    enableAgentScript,
+    hideCallNote,
     _t: Date.now(),
   })}`;
 

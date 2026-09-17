@@ -56,6 +56,7 @@ const LEGACY_GROUP_ORDER = {
 
 interface EmbeddableSettingsPanelProps extends SettingsViewPanelProps {
   additionalPhoneItems?: ReactNode;
+  agentSettings?: ReactNode;
   autoLogDescription?: string;
   autoLogReadOnlyReason?: string;
   autoLogSMSDescription?: string;
@@ -154,6 +155,7 @@ const LoadingIcon: FunctionComponent = () => (
 export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   additional,
   additionalPhoneItems,
+  agentSettings,
   hasAdditionalPhoneItems = false,
   autoLogEnabled = false,
   autoLogNotesEnabled = false,
@@ -549,6 +551,11 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
             minimumOrder={LEGACY_GROUP_ORDER.presence}
             maximumOrder={LEGACY_GROUP_ORDER.logging}
           />
+          {hasRenderableContent(agentSettings) ? (
+            <Section label={appT('agent')} data-sign="agent-settings-group">
+              {agentSettings}
+            </Section>
+          ) : null}
           {showLogSection && (
             <Section
               label={logGroupLabel}

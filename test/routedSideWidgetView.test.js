@@ -546,6 +546,32 @@ describe('RoutedSideWidgetView', () => {
     expect(view.mainPath).toBeNull();
   });
 
+  test('drops the preserved main path when the router leaves the routed page', () => {
+    const { router, sideWidgetView, view } =
+      createRoutedSideWidget('/history/call');
+    view.open({
+      config: {
+        id: 'call-details',
+        name: 'Call details',
+        scope: 'contact',
+        backgroundPath: '/dialer',
+      },
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/history/call',
+      routePath: '/history/:callLogId',
+    });
+    sideWidgetView.currentTabId = 'call-details';
+    view._root.expanded = true;
+    view.navigateMain('/messages');
+    expect(view.mainPath).toBe('/messages');
+
+    router.currentPath = '/contacts';
+    view.syncPath('/contacts');
+
+    expect(view.mainPath).toBeNull();
+  });
+
   test('waits for the route component when navigating within one tab type', () => {
     const { handles, sideWidgetView, view } =
       createRoutedSideWidget('/conversations/first');

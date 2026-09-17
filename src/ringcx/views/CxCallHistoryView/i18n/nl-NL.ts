@@ -1,0 +1,22 @@
+/* eslint-disable */
+export default {
+  callHistory: 'Oproepgeschiedenis',
+  noCallHistory: 'Geen oproepgeschiedenis',
+  inbound: 'Inkomend',
+  outbound: 'Uitgaand',
+  callsFilterAll: 'Alle oproepen',
+  callsFilterOutgoing: 'Uitgaand',
+  callsFilterIncoming: 'Inkomend',
+  noCalls: 'Nog geen oproepen',
+  noSearchResults: 'Geen zoekresultaten',
+  updateCallLog: 'Oproeplog bijwerken',
+  createCallLog: 'Oproepgeschiedenis maken',
+  dial: 'Oproep',
+  yesterday: 'Gisteren',
+  unknown: 'Onbekend',
+  logged: 'Geregistreerd',
+  manual: 'Handleiding',
+  loadingMore: 'Meer oproepen laden',
+  loadFailed: 'Kan niet meer oproepen laden',
+  retry: 'Opnieuw proberen',
+} as const;
