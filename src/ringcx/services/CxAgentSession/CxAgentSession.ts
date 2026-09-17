@@ -374,10 +374,14 @@ class CxAgentSession extends RcModule {
     return this.cxAuth.agentPermissions?.defaultAutoAnswerOn || false;
   }
 
-  get notInboundQueueSelected(): boolean {
+  /**
+   * A session needs at least one inbound queue or one dial group, so an
+   * outbound-only agent can start a session without any inbound queue.
+   */
+  get notInboundQueueOrDialGroupSelected(): boolean {
     return (
-      !this.cxAuth.agentPermissions?.allowInbound ||
-      (this.formGroup.selectedInboundQueueIds || []).length === 0
+      this._isInboundQueueMissing(this.formGroup) &&
+      this._isDialGroupMissing(this.formGroup)
     );
   }
 
@@ -692,14 +696,34 @@ class CxAgentSession extends RcModule {
     });
   }
 
+  private _isInboundQueueMissing(formGroup: FormGroup): boolean {
+    return (
+      !this.cxAuth.agentPermissions?.allowInbound ||
+      (formGroup.selectedInboundQueueIds || []).length === 0
+    );
+  }
+
+  private _isDialGroupMissing(formGroup: FormGroup): boolean {
+    return (
+      !this.cxAuth.agentPermissions?.allowOutbound || !formGroup.dialGroupId
+    );
+  }
+
   private _checkFieldsResult(formGroup: FormGroup): CxConfigureAgentOptions {
     const { selectedInboundQueueIds = [], selectedSkillProfileId } = formGroup;
-    if (this.notInboundQueueSelected) {
+    if (
+      this._isInboundQueueMissing(formGroup) &&
+      this._isDialGroupMissing(formGroup)
+    ) {
       this.toast.danger({
-        message: t(messageTypes.NOT_INBOUND_QUEUE_SELECTED),
+        message: t(
+          this.cxAuth.agentPermissions?.allowOutbound
+            ? messageTypes.NOT_INBOUND_QUEUE_OR_DIAL_GROUP_SELECTED
+            : messageTypes.NOT_INBOUND_QUEUE_SELECTED,
+        ),
         ttl: 0,
       });
-      throw new Error(`'queueIds' is an empty array.`);
+      throw new Error(`'queueIds' and 'dialGroupId' are both empty.`);
     }
     const dialDest = this._getDialDest(formGroup);
     return {
