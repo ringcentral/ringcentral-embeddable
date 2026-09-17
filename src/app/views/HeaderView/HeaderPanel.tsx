@@ -8,7 +8,7 @@ export function HeaderPanel(
 ): JSX.Element {
   return (
     <div
-      className="contents [&>div>header>div]:gap-3"
+      className="contents [&>div>header>div]:gap-0 [&>div>header>div>div]:flex-shrink-0 [&>div>header>div>i]:hidden [&>div>header>div>nav]:flex-1 [&>div>header>div>nav]:min-w-0 [&>div>header>div>nav]:justify-end [&>div>header>div>nav]:gap-1"
       data-sign="embeddableHeaderPanel"
     >
       <BaseHeaderPanel {...props} />

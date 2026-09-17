@@ -12,7 +12,7 @@ import type { ComponentProps } from 'react';
 import { CaretDownMd, CaretUpMd } from '@ringcentral/spring-icon';
 import clsx from 'clsx';
 import type { FunctionComponent, MouseEvent } from 'react';
-import React, { useState, useCallback, useRef } from 'react';
+import React, { memo, useState, useCallback, useRef } from 'react';
 
 import type {
   WorkingStateSelectProps,
@@ -20,6 +20,17 @@ import type {
 } from './WorkingStateSelect.interface';
 
 type StatusVariant = ComponentProps<typeof StatusIndicator>['variant'];
+
+const AGENT_STATE_MENU_LIST_CLASS = 'max-h-[280px] overflow-y-auto';
+
+interface AgentStateMenuProps {
+  readonly anchorEl: HTMLElement | null;
+  readonly open: boolean;
+  readonly agentStates: AgentStateOption[];
+  readonly currentStateIndex: number;
+  readonly onClose: () => void;
+  readonly onSelectState: (state: AgentStateOption) => void;
+}
 
 /**
  * Map agent state color string to StatusIndicator variant
@@ -40,6 +51,50 @@ const mapColorToStatusVariant = (color?: string): StatusVariant => {
       return 'unavailable';
   }
 };
+
+const AgentStateMenu: FunctionComponent<AgentStateMenuProps> = memo(
+  ({
+    anchorEl,
+    open,
+    agentStates,
+    currentStateIndex,
+    onClose,
+    onSelectState,
+  }) => {
+    return (
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={onClose}
+        placement="bottom-start"
+        autoFocus={false}
+      >
+        <MenuList className={AGENT_STATE_MENU_LIST_CLASS} nowrap>
+          {agentStates.map((state, index) => {
+            const isSelected = currentStateIndex === index;
+            const itemStatusVariant = mapColorToStatusVariant(state.color);
+            const displayText =
+              state.title || state.agentAuxState || state.agentState;
+            return (
+              <MenuItem
+                key={`${state.agentState}-${state.agentAuxState}-${index}`}
+                onClick={() => onSelectState(state)}
+                selected={isSelected}
+                autoFocus={false}
+                data-sign="workingStateItem"
+              >
+                <div className="flex items-center gap-2 w-full min-w-0">
+                  <StatusIndicator variant={itemStatusVariant} size="medium" />
+                  <MenuItemText primary={displayText} />
+                </div>
+              </MenuItem>
+            );
+          })}
+        </MenuList>
+      </Menu>
+    );
+  },
+);
 
 /**
  * WorkingStateSelect - Agent state dropdown with timer
@@ -62,7 +117,6 @@ export const WorkingStateSelect: FunctionComponent<WorkingStateSelectProps> = ({
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const isMenuOpen = Boolean(anchorEl);
-
   const handleClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       if (!disabled) {
@@ -71,11 +125,9 @@ export const WorkingStateSelect: FunctionComponent<WorkingStateSelectProps> = ({
     },
     [disabled],
   );
-
   const handleClose = useCallback(() => {
     setAnchorEl(null);
   }, []);
-
   const handleSelectState = useCallback(
     (state: AgentStateOption) => {
       handleClose();
@@ -83,11 +135,12 @@ export const WorkingStateSelect: FunctionComponent<WorkingStateSelectProps> = ({
     },
     [handleClose, onChangeState],
   );
-
   const statusVariant = mapColorToStatusVariant(stateColor);
-
   return (
-    <div className={clsx('flex min-w-0 [&>*]:min-w-0', className)} data-sign={dataSign}>
+    <div
+      className={clsx('flex min-w-0 max-w-full [&>*]:min-w-0', className)}
+      data-sign={dataSign}
+    >
       <Tooltip title={stateText} triggerWhenDisabled={disabled}>
         <button
           ref={buttonRef}
@@ -95,18 +148,16 @@ export const WorkingStateSelect: FunctionComponent<WorkingStateSelectProps> = ({
           onClick={handleClick}
           disabled={disabled}
           className={clsx(
-            'flex items-center gap-1.5 w-full px-1.5 py-1 rounded border transition-colors',
+            'flex items-center gap-1.5 min-w-0 overflow-hidden px-1.5 py-1 rounded bg-transparent transition-colors',
             'hover:bg-neutral-b5 focus:outline-none',
-            isOverTime
-              ? 'border-danger'
-              : 'border-transparent',
+            isOverTime ? 'border border-danger' : 'border-0',
             disabled && 'opacity-50 cursor-not-allowed',
             !disabled && 'cursor-pointer',
           )}
           data-sign="workingStateButton"
         >
           <StatusIndicator variant={statusVariant} size="medium" />
-          <Text className="typography-descriptorMini text-neutral-b1 truncate text-left flex-1 min-w-0">
+          <Text className="typography-descriptorMini text-neutral-b1 truncate text-left max-w-24 min-w-0">
             {stateText}
           </Text>
           <span
@@ -125,35 +176,14 @@ export const WorkingStateSelect: FunctionComponent<WorkingStateSelectProps> = ({
           />
         </button>
       </Tooltip>
-      <Menu
+      <AgentStateMenu
         anchorEl={anchorEl}
         open={isMenuOpen}
+        agentStates={agentStates}
+        currentStateIndex={currentStateIndex}
         onClose={handleClose}
-        placement="bottom-start"
-      >
-        <MenuList>
-          {agentStates.map((state, index) => {
-            const isSelected = currentStateIndex === index;
-            const itemStatusVariant = mapColorToStatusVariant(state.color);
-            const displayText =
-              state.title || state.agentAuxState || state.agentState;
-
-            return (
-              <MenuItem
-                key={`${state.agentState}-${state.agentAuxState}-${index}`}
-                onClick={() => handleSelectState(state)}
-                selected={isSelected}
-                data-sign="workingStateItem"
-              >
-                <div className="flex items-center gap-2 w-full">
-                  <StatusIndicator variant={itemStatusVariant} size="medium" />
-                  <MenuItemText primary={displayText} />
-                </div>
-              </MenuItem>
-            );
-          })}
-        </MenuList>
-      </Menu>
+        onSelectState={handleSelectState}
+      />
     </div>
   );
 };

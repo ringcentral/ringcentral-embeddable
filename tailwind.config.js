@@ -7,6 +7,7 @@ module.exports = {
     './src/app.html',
     './src/*.{tsx,ts}',
     './src/app/**/*.{tsx,ts}',
+    './src/ringcx/**/*.{tsx,ts}',
     './packages/jsonschema-spring-page/src/**/*.{mdx,tsx,ts}',
     './packages/jsonschema-spring-page/.storybook/**/*.{css,js,ts,tsx}',
     './node_modules/@ringcentral-integration/**/*.{js,ts,jsx,tsx}',

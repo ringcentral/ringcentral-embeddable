@@ -24,7 +24,9 @@ import type { AudioInitViewProps } from './AudioInitView.interface';
 interface CxSoftphoneAudioState {
   readonly isIntegratedSoftphone: boolean;
   readonly sipState: 'idle' | 'registered' | 'registering';
+  readonly sipRegistering: boolean;
   readonly sipUnstableConnection: boolean;
+  readonly attemptingSoftphoneReconnect: boolean;
 }
 
 @injectable({
@@ -44,6 +46,21 @@ export class AudioInitView extends RcViewModule {
     super();
   }
 
+  /**
+   * ConnectivityView already occupies the announcement slot while the
+   * integrated softphone is connecting or recovering.
+   */
+  private isSoftphoneConnectivityVisible(): boolean {
+    if (this._cxSoftphone?.isIntegratedSoftphone !== true) {
+      return false;
+    }
+    return (
+      this._cxSoftphone.sipRegistering ||
+      this._cxSoftphone.sipUnstableConnection ||
+      this._cxSoftphone.attemptingSoftphoneReconnect
+    );
+  }
+
   getUIProps(): UIProps<AudioInitViewProps> {
     const appFeatures = this._appFeatures as EmbeddableAppFeatures;
     const needsPhoneAudio =
@@ -58,6 +75,7 @@ export class AudioInitView extends RcViewModule {
     return {
       show:
         appFeatures.showAudioInitPrompt &&
+        !this.isSoftphoneConnectivityVisible() &&
         (needsPhoneAudio || needsRingCXAudio),
     };
   }

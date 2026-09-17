@@ -1,10 +1,10 @@
 export default {
   agentTab: 'Agent',
-  agentTitle: 'RingCX agent',
+  agentTitle: 'Ready to start working as an agent?',
   agentSessionDescription:
-    'Start an agent session to take and make RingCX calls.',
+    'To start handling customer interactions, click Start working.',
   loadingAgentSession: 'Starting agent session…',
   startSession: 'Start session',
   retryAgentSession: 'Try again',
-  startAgentSession: 'Start agent session',
+  startAgentSession: 'Start working',
 } as const;
