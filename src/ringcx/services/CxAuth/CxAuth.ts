@@ -320,32 +320,6 @@ class CxAuth extends RcModule {
       this.logger.info('AfterLoggedInHandler~~');
       this.clearAgentId();
     });
-    this.auth.addBeforeLogoutHandler(async () => {
-      this.logger.info('BeforeLogoutHandler~~');
-      try {
-        this._setLoginStatus(CxLoginStatus.UNAUTHING);
-        const agentId = this.agentId;
-        this._emitLogoutBefore();
-        const logoutAgentResponse = await this.logoutAgent(agentId);
-        if (!logoutAgentResponse.message || logoutAgentResponse.message !== 'OK') {
-          this.logger.info('logoutAgent failed');
-        }
-        this.setAgent(null);
-        await this.clearAgentId();
-      } catch (error) {
-        this.logger.error('logout error~~', error);
-      }
-      try {
-        await this.cxClient.clearEvSession();
-        await this.cxClient.closeSocket();
-        // await this.cxClient.resetUIModel();
-      } catch (error) {
-        this.logger.error('closeSocket error~~', error);
-      }
-      this._setSetupNavigationRequested(false);
-      this._setLoginStatus(CxLoginStatus.NO_AUTH);
-      this._setFreshAgentLogin();
-    });
     this.cxSubscription.subscribe(CxCallbackTypes.LOGOUT, async () => {
       this.toast.info({
         message: t(messageTypes.FORCE_LOGOUT),
@@ -409,15 +383,31 @@ class CxAuth extends RcModule {
     );
   }
 
+  /**
+   * A failing agent logout must not leave the socket and the stored session
+   * behind, so each stage reports its own error and the state still lands on
+   * `NO_AUTH`.
+   */
   private _logout = async (): Promise<void> => {
     this._setSetupNavigationRequested(false);
     this._setLoginStatus(CxLoginStatus.UNAUTHING);
     this._emitLogoutBefore();
-    await this.logoutAgent(this.agentId);
-    this.setAgent(null);
-    await this.clearAgentId();
-    await this.cxClient.clearEvSession();
-    await this.cxClient.closeSocket();
+    try {
+      const logoutAgentResponse = await this.logoutAgent(this.agentId);
+      if (logoutAgentResponse.message !== 'OK') {
+        this.logger.info('logoutAgent failed~~', logoutAgentResponse.message);
+      }
+      this.setAgent(null);
+      await this.clearAgentId();
+    } catch (error) {
+      this.logger.error('logout error~~', error);
+    }
+    try {
+      await this.cxClient.clearEvSession();
+      await this.cxClient.closeSocket();
+    } catch (error) {
+      this.logger.error('closeSocket error~~', error);
+    }
     this._setLoginStatus(CxLoginStatus.NO_AUTH);
   };
 
@@ -450,6 +440,17 @@ class CxAuth extends RcModule {
       return;
     }
     await this.block.next(this._logout);
+  }
+
+  /**
+   * Tear the session down because the RC user is signing out. Unlike
+   * {@link logout}, the next agent login must start from a fresh setup.
+   */
+  @delegate('server')
+  async logoutForUserSignOut(): Promise<void> {
+    this.logger.info('logoutForUserSignOut~~');
+    await this._logout();
+    this._setFreshAgentLogin();
   }
 
   @delegate('server')

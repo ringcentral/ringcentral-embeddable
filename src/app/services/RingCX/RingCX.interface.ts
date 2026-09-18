@@ -18,6 +18,7 @@ export interface CxAuthModule {
   readonly isOnlyOneAgent: boolean;
   readonly loginStatus: CxLoginStatus;
   logout(): Promise<void>;
+  logoutForUserSignOut(): Promise<void>;
   startAgentLogin(options?: StartAgentSessionOptions): Promise<void>;
 }
 

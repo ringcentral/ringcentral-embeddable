@@ -113,6 +113,11 @@ export class RingCX extends RcModule {
   ) {
     super();
     this._storage.enable(this);
+    // Registered here, and not from a lifecycle hook, so the handler exists on
+    // every port before the RingCX chunk is loaded.
+    this._auth.addBeforeLogoutHandler(async () => {
+      await this.disconnectAgentSessionForSignOut();
+    });
   }
 
   get enabled(): boolean {
@@ -164,9 +169,13 @@ export class RingCX extends RcModule {
       this,
       () => this._auth.loggedIn,
       (isLoggedIn: boolean) => {
-        if (!isLoggedIn) {
-          this._resetSession();
+        if (isLoggedIn || !this._isRuntimeOwner()) {
+          return;
         }
+        // Safety net for a logout that never runs the before-logout handlers,
+        // a failed token refresh for example. The teardown is idempotent, so
+        // it is harmless right after the handler.
+        void this.disconnectAgentSessionForSignOut();
       },
     );
     if (this.loadRequested) {
@@ -230,6 +239,26 @@ export class RingCX extends RcModule {
   async endAgentSession(): Promise<void> {
     try {
       await this.cxAuth?.logout();
+    } finally {
+      this._resetSession();
+    }
+  }
+
+  /**
+   * Disconnect the agent session because the RC user is signing out. The
+   * session goes down even while a call or a disposition is in progress, and a
+   * failure here never holds the RC logout back.
+   */
+  @delegate('server')
+  async disconnectAgentSessionForSignOut(): Promise<void> {
+    if (!this.enabled || !this.loaded || !this.cxAuth || this.stage === 'idle') {
+      this._resetSession();
+      return;
+    }
+    try {
+      await this.cxAuth.logoutForUserSignOut();
+    } catch (error) {
+      this.logger.error('RingCX sign-out teardown failed', error);
     } finally {
       this._resetSession();
     }
