@@ -128,16 +128,24 @@ class CxAgentSession extends RcModule {
       this._resetAllState();
     });
     this.onConfigSuccess(async () => {
+      const hasCall = this.cxPresence.calls.length > 0;
       // Set dialout status to idle if no calls
-      if (this.cxPresence.calls.length === 0) {
+      if (!hasCall) {
         await this.cxPresence.setDialoutStatus(dialoutStatuses.idle);
       }
       if (this.isAgentUpdating) {
         this.isAgentUpdating = false;
-      } else {
-        this.logger.info('!!!!to Dialer');
-        this._navigateWithinAgent(cxPath.home('dialer'));
+        return;
       }
+      // A configuration can also succeed while a call is up, for a reconnect
+      // for example, and the call pages own the route for as long as the call
+      // lasts.
+      if (hasCall) {
+        this.logger.info('skip dialer navigation during a call');
+        return;
+      }
+      this.logger.info('!!!!to Dialer');
+      this._navigateWithinAgent(cxPath.home('dialer'));
     });
     if (this._isLogin) {
       await this.initAgentSession();

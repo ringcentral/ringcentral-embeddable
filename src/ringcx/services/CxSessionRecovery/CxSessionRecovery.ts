@@ -174,7 +174,7 @@ class CxSessionRecovery extends RcModule {
   }
 
   private get _dispositionPathPrefix(): string {
-    return this.options?.dispositionPathPrefix ?? '/activityCallLog';
+    return this.options?.dispositionPathPrefix ?? '/agent/calls';
   }
 
   private _initReconnectListener(): void {

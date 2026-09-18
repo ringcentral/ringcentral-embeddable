@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: 'Search agents...',
+  noAgents: 'No agents available',
+  available: 'Available',
+  unavailable: 'Unavailable',
+  searchContacts: 'Search contacts...',
+  noContacts: 'No contacts available',
+  enterNumber: 'Enter number or name',
+  searchingDirectory: 'Searching...',
+  corporateDirectory: 'Corporate directory',
+  extension: 'Ext. {extensionNumber}',
+  selectQueueGroup: 'Queue group',
+  selectQueue: 'Queue',
+  noGroups: 'No queue groups available',
+  noQueues: 'No queues available',
+  selectAGroup: 'Select a group',
+  selectAQueue: 'Select a queue',
+  stayOnCall: 'Stay on call',
+  cancel: 'Cancel',
+  transfer: 'Transfer',
+  transferToTip: 'Transfer to: {destination}',
+} as const;

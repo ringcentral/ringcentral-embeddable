@@ -16,6 +16,7 @@ import { CxCallHistory } from '../../services/CxCallHistory';
 import { canDialHistoryCall } from '../../services/CxCallHistory/can-dial-history-call';
 import { CallHistoryDetailPanel } from '../../components/CallHistoryDetailPanel';
 import { callDirection } from '../../enums';
+import { cxPath } from '../../routes';
 import { t as translate } from './i18n';
 
 import type {
@@ -81,7 +82,7 @@ class CxCallHistoryDetailView extends RcViewModule {
     if (!callId) {
       return;
     }
-    this._router.push(`/history/${callId}/callLog/${method}`);
+    this._router.push(cxPath.historyCallLog(callId, method));
   }
 
   /**

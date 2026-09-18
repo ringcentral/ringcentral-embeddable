@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: 'Agentes de investigação...',
+  noAgents: 'Sem agente disponível',
+  available: 'Disponível',
+  unavailable: 'Indisponível',
+  searchContacts: 'Pesquisar contactos...',
+  noContacts: 'Não foram encontrados registos.',
+  enterNumber: 'Introduza o número ou o nome',
+  searchingDirectory: 'A pesquisar...',
+  corporateDirectory: 'Diretório empresarial',
+  extension: 'Ext. {extensionNumber}',
+  selectQueueGroup: 'Grupo de filas',
+  selectQueue: 'Fila',
+  noGroups: 'Nenhum grupo de filas disponível',
+  noQueues: 'Sem fila disponível',
+  selectAGroup: 'Selecione um grupo',
+  selectAQueue: 'Selecione uma fila',
+  stayOnCall: 'Manter-se na chamada',
+  cancel: 'cancelar',
+  transfer: 'Transferir',
+  transferToTip: 'Transferir para: {destination}',
+} as const;

@@ -10,10 +10,14 @@ import {
 } from '@ringcentral-integration/next-core';
 
 import { CxAgentView } from './views/CxAgentView';
+import { CxActiveCallView } from './views/CxActiveCallView';
+import { CxActiveCallListView } from './views/CxActiveCallListView';
 import { CxCallHistoryDetailView } from './views/CxCallHistoryDetailView';
 import { CxChooseAccountView } from './views/CxChooseAccountView';
+import { CxDispositionView } from './views/CxDispositionView';
 import { CxSessionConfigView } from './views/CxSessionConfigView';
 import { CxSessionUpdateView } from './views/CxSessionUpdateView';
+import { CxTransferView } from './views/CxTransferView';
 import { CxAgentSession } from './services/CxAgentSession';
 import { CxAuth } from './services/CxAuth';
 import { cxPath } from './routes';
@@ -30,6 +34,10 @@ export class CxAppView extends RcViewModule {
     private readonly _sessionUpdateView: CxSessionUpdateView,
     private readonly _agentView: CxAgentView,
     private readonly _callHistoryDetailView: CxCallHistoryDetailView,
+    private readonly _activeCallView: CxActiveCallView,
+    private readonly _dispositionView: CxDispositionView,
+    private readonly _transferView: CxTransferView,
+    private readonly _activeCallListView: CxActiveCallListView,
   ) {
     super();
   }
@@ -82,6 +90,41 @@ export class CxAppView extends RcViewModule {
           <Route
             path="/agent/home/:tabId?"
             component={this._agentView.component}
+          />
+        )}
+        {hasSession && (
+          <Route
+            path="/agent/calls/:id/disposition"
+            exact
+            component={this._dispositionView.component}
+          />
+        )}
+        {hasSession && (
+          <Route
+            path="/agent/calls/:id/transfer"
+            exact
+            component={this._transferView.component}
+          />
+        )}
+        {hasSession && (
+          <Route
+            path="/agent/calls/:id/participants"
+            exact
+            component={this._activeCallListView.component}
+          />
+        )}
+        {hasSession && (
+          <Route
+            path="/agent/calls/:id"
+            exact
+            component={this._activeCallView.component}
+          />
+        )}
+        {hasSession && (
+          <Route
+            path="/agent/history/:id/log/:method"
+            exact
+            component={this._dispositionView.component}
           />
         )}
         {hasSession && (

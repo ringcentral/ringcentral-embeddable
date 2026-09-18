@@ -7,6 +7,7 @@ export default {
   autoStartAiAssistantDescription:
     'Start AI Assistant automatically at call start',
   endAgentSession: 'End agent session',
+  manualDialSettings: 'Manual dial settings',
   sessionInfo: 'Session info',
   startAgentSession: 'Start agent session',
   support: 'Support',

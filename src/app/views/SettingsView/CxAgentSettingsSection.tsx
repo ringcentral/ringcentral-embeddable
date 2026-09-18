@@ -11,22 +11,26 @@ import type { RingCX } from '../../services/RingCX';
 import i18n from './i18n';
 
 export interface CxAgentSettingsSectionProps {
+  readonly onManualDialClick: () => void;
   readonly onSessionInfoClick: () => void;
   readonly ringCX: RingCX;
 }
 
 export function CxAgentSettingsSection({
+  onManualDialClick,
   onSessionInfoClick,
   ringCX,
 }: CxAgentSettingsSectionProps): React.ReactElement | null {
   const { t } = useLocale(i18n);
-  const { enabled, hasDynamicSessionModules, stage } = useConnector(() => ({
-    enabled: ringCX.enabled,
-    hasDynamicSessionModules: Boolean(
-      ringCX.loaded && ringCX.cxAuth && ringCX.cxAgentSession,
-    ),
-    stage: ringCX.stage,
-  }));
+  const { canEndAgentSession, enabled, hasDynamicSessionModules, stage } =
+    useConnector(() => ({
+      canEndAgentSession: ringCX.canEndAgentSession,
+      enabled: ringCX.enabled,
+      hasDynamicSessionModules: Boolean(
+        ringCX.loaded && ringCX.cxAuth && ringCX.cxAgentSession,
+      ),
+      stage: ringCX.stage,
+    }));
   if (!enabled) {
     return null;
   }
@@ -50,6 +54,9 @@ export function CxAgentSettingsSection({
       <LinkLine data-sign="sessionInfo" onClick={onSessionInfoClick}>
         {t('sessionInfo')}
       </LinkLine>
+      <LinkLine data-sign="manualDialSettings" onClick={onManualDialClick}>
+        {t('manualDialSettings')}
+      </LinkLine>
       <Line
         data-sign="endAgentSession"
         endAdornment={
@@ -57,6 +64,7 @@ export function CxAgentSettingsSection({
             color="danger"
             size="small"
             variant="text"
+            disabled={!canEndAgentSession}
             onClick={() => {
               void ringCX.endAgentSession();
             }}

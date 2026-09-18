@@ -19,6 +19,7 @@ import { SmartNotesAutoStartSetting } from './SmartNotesAutoStartSetting';
 
 interface CreateSettingsPanelOptions {
   readonly onAgentSessionInfoClick: () => void;
+  readonly onManualDialSettingsClick: () => void;
   readonly onThirdPartySectionClick: (sectionId: string) => void;
   readonly onVoicemailDropSettingsLinkClick: () => void;
   readonly smartNotes: SmartNotes;
@@ -32,6 +33,7 @@ interface CreateSettingsPanelOptions {
  */
 export function createSettingsPanel({
   onAgentSessionInfoClick,
+  onManualDialSettingsClick,
   onThirdPartySectionClick,
   onVoicemailDropSettingsLinkClick,
   smartNotes,
@@ -82,6 +84,7 @@ export function createSettingsPanel({
           isRingCXEnabled && ringCX ? (
             <CxAgentSettingsSection
               ringCX={ringCX}
+              onManualDialClick={onManualDialSettingsClick}
               onSessionInfoClick={onAgentSessionInfoClick}
             />
           ) : null

@@ -4,6 +4,7 @@ export default {
   callButton: 'Call',
   callNumberTip: 'Call number: {destination}',
   hangupButton: 'Hang up',
+  rcCallInProgressTip: 'Finish the RingEX call first',
   callInProgressTip: 'Call in progress',
   pendingDispositionTip: 'Please complete the call disposition',
   requestACall: 'Request a call:',

@@ -5,6 +5,7 @@ export default {
   callButton: 'Soita',
   callNumberTip: 'Puhelunumero: {destination}',
   hangupButton: 'Lopeta puhelu',
+  rcCallInProgressTip: 'Finish the RingEX call first',
   callInProgressTip: 'Puhelu käynnissä',
   pendingDispositionTip: 'Suorita puhelun käsittely loppuun',
   requestACall: 'Pyydä soittoa:',

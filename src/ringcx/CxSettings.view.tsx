@@ -8,6 +8,7 @@ import {
   Switch,
 } from '@ringcentral-integration/next-core';
 
+import { CxManualDialSettingsView } from './views/CxManualDialSettingsView';
 import { CxSessionInfoView } from './views/CxSessionInfoView';
 import { cxPath } from './routes';
 
@@ -15,13 +16,21 @@ import { cxPath } from './routes';
   name: 'CxSettingsView',
 })
 export class CxSettingsView extends RcViewModule {
-  constructor(private readonly _sessionInfoView: CxSessionInfoView) {
+  constructor(
+    private readonly _sessionInfoView: CxSessionInfoView,
+    private readonly _manualDialSettingsView: CxManualDialSettingsView,
+  ) {
     super();
   }
 
   component(): React.ReactElement {
     return (
       <Switch>
+        <Route
+          path={cxPath.manualDial()}
+          exact
+          component={this._manualDialSettingsView.component}
+        />
         <Route
           path={cxPath.settings()}
           exact

@@ -127,11 +127,19 @@ class CxAgentView extends RcViewModule {
     });
 
     useEffect(() => {
-      if (tabs.some((tab) => tab.id === routeTabId)) {
-        this._syncTabView.replaceActive(AGENT_TAB_ID, routeTabId);
-        // Reset router to base path to avoid triggering replace again
-        this._router.replace(cxPath.home());
+      if (!routeTabId || !tabs.some((tab) => tab.id === routeTabId)) {
+        return;
       }
+      setRouteTabId(null);
+      // This view can still be mounted on a location the router has already
+      // left, a call page for example, and a tab asked for by a path that is
+      // no longer current must not pull the agent back to it.
+      if (this._router.currentPath !== cxPath.home(routeTabId)) {
+        return;
+      }
+      // `replaceActive` writes the tab into the location state itself, which
+      // is what syncs it to the other ports.
+      this._syncTabView.replaceActive(AGENT_TAB_ID, routeTabId);
     }, [routeTabId, tabs]);
     return (
       <>

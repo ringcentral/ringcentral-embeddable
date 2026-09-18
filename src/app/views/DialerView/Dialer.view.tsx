@@ -31,6 +31,7 @@ import {
 } from '@ringcentral-integration/next-core';
 
 import { DoNotContact } from '../../services/DoNotContact';
+import { RingCX } from '../../services/RingCX';
 import type { AdapterOptions } from '../../services/Adapter/AdapterOptions';
 
 /** Adds third-party Do Not Call verification to the Spring dialer. */
@@ -50,6 +51,7 @@ export class DialerView extends BaseDialerView {
     protected override _accountInfo: AccountInfo,
     protected override _portManager: PortManager,
     private _doNotContact: DoNotContact,
+    @optional() private _ringCX?: RingCX,
     @optional() protected override _webphone?: Webphone,
     @optional() protected override _audioSettings?: AudioSettings,
     @optional() protected override _contactSearch?: ContactSearch,
@@ -78,6 +80,10 @@ export class DialerView extends BaseDialerView {
 
   protected override callVerify = (options: DialerViewCallParams): Promise<boolean> =>
     this._doNotContact.verifyCall(options);
+
+  override get isCallButtonDisabled() {
+    return super.isCallButtonDisabled || Boolean(this._ringCX?.hasActiveCall);
+  }
 
   override getUIProps(
     props: DialerViewProps,

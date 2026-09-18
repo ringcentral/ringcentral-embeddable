@@ -5,6 +5,7 @@ export default {
   callButton: '전화',
   callNumberTip: '전화번호: {destination}',
   hangupButton: '전화 끊기',
+  rcCallInProgressTip: 'Finish the RingEX call first',
   callInProgressTip: '통화 진행 중',
   pendingDispositionTip: '통화 처리를 완료해 주세요.',
   requestACall: '전화 요청:',

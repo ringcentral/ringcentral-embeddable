@@ -1,0 +1,25 @@
+/* eslint-disable */
+export default {
+  noActiveCall: 'No active call',
+  pendingDisposition: 'Pending Disposition',
+  callLog: 'Call log',
+  createCallLog: 'Create call log',
+  updateCallLog: 'Update call log',
+  disposition: 'Disposition',
+  pleaseSelect: 'Please select',
+  summary: 'Summary',
+  summaryEdited: 'Summary (edited)',
+  summaryPlaceholder: 'Summary will be generated here...',
+  summaryLoading: 'Generating call summary...',
+  notes: 'Notes',
+  enterNotes: 'Enter notes...',
+  dispositionError: 'Please choose a disposition before submitting.',
+  notesRequired: 'Notes are required for this disposition.',
+  submit: 'Submit',
+  callDispositionSuccess: 'Call disposition saved successfully.',
+  callDispositionFailed: 'Failed to save call disposition.',
+  callLogNotFound: 'Call log not found',
+  showSideWidget: 'Show {widgets}',
+  hideSideWidget: 'Hide {widgets}',
+} as const;
+

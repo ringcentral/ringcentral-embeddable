@@ -80,6 +80,8 @@ import type { AdapterOptions } from './AdapterOptions';
 import { resolveLegacyAdapterPath } from './resolveLegacyAdapterPath';
 
 import { SmartNotes } from '../SmartNotes';
+import { RingCX } from '../RingCX';
+import { t as ringCXT } from '../RingCX/i18n';
 import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
 import type { MatchedContactSelection } from '../MatchedContactSelection';
 import type {
@@ -404,6 +406,7 @@ export class Adapter extends RcModule {
     @optional('MonitoredExtensions')
     protected _monitoredExtensions?: MonitoredExtensions,
     @optional('AdapterOptions') protected _adapterOptions?: AdapterOptions,
+    @optional() protected _ringCX?: RingCX,
   ) {
     super();
     if (this._smartNotes) {
@@ -1931,6 +1934,14 @@ export class Adapter extends RcModule {
     });
   }
 
+  /**
+   * Open the host widget if it is closed or minimized.
+   * RingCX uses this when a CX call is answered.
+   */
+  showClientWindow(): void {
+    this._showClientWindow();
+  }
+
   private _showClientWindow(): void {
     this._setClosed(false);
     this._setMinimized(false);
@@ -2080,6 +2091,12 @@ export class Adapter extends RcModule {
     callerId?: string,
   ) {
     if (!this._auth.loggedIn || !phoneNumber || !this._call.isIdle) {
+      return;
+    }
+    if (this._ringCX?.hasActiveCall) {
+      this._toast.danger({
+        message: ringCXT('finishRingCXCallFirst'),
+      });
       return;
     }
     if (this._isCallOngoing(phoneNumber)) {

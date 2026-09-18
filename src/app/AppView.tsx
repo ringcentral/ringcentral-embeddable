@@ -84,6 +84,7 @@ import { CustomizedPageView } from './views/CustomizedPageView';
 import { ApplicationLogsView } from './views/ApplicationLogsView';
 import { CxAgentSettingsView } from './views/CxAgentSettingsView';
 import { CxAgentTabView } from './views/CxAgentTabView';
+import { RingCX } from './services/RingCX';
 import { AudioInitView } from './views/AudioInitView';
 import { ConnectivityView } from './views/ConnectivityView';
 import { ExpandedRouteView } from './views/ExpandedRouteView';
@@ -659,6 +660,7 @@ export class AppView extends RcViewModule {
     private _settingsView: SettingsView,
     private _cxAgentTabView: CxAgentTabView,
     private _cxAgentSettingsView: CxAgentSettingsView,
+    private _ringCX: RingCX,
     private _dialerPadView: DialerPadView,
     private _callingSettingsView: CallingSettingsView,
     private _regionSettingsView: RegionSettingsView,
@@ -748,10 +750,12 @@ export class AppView extends RcViewModule {
   }
 
   component() {
-    const { currentPath, expanded } = useConnector(() => ({
+    const { currentPath, expanded, ringCXLoaded } = useConnector(() => ({
       currentPath: this._router.currentPath,
       expanded: this._root.expanded,
+      ringCXLoaded: this._ringCX.loaded,
     }));
+    const CxAnnouncements = this._ringCX.announcementsView?.component;
     const previousPathRef = useRef(currentPath);
     const backgroundPathRef = useRef<string | null>(null);
     const backgroundPath = resolveExpandedRouteBackgroundPath({
@@ -801,6 +805,7 @@ export class AppView extends RcViewModule {
                 <this._audioInitView.component />
                 {this._appViewOptions?.headers}
                 <this._callView.Announcement />
+                {ringCXLoaded && CxAnnouncements ? <CxAnnouncements /> : null}
               </AppAnnouncementRender>
             </div>
           }

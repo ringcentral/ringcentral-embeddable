@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: 'エージェントを検索...',
+  noAgents: '対応可能なエージェントがいません',
+  available: '連絡可能',
+  unavailable: '連絡不可',
+  searchContacts: '連絡先を検索...',
+  noContacts: '記録が見つかりません。',
+  enterNumber: '番号または名前を入力してください',
+  searchingDirectory: '検索中…',
+  corporateDirectory: '企業ディレクトリ',
+  extension: '内線。 {extensionNumber}',
+  selectQueueGroup: 'キューグループ',
+  selectQueue: 'キュー',
+  noGroups: '使用可能なキュー グループがありません',
+  noQueues: '使用可能なキューがありません',
+  selectAGroup: 'グループを選択してください',
+  selectAQueue: 'キューを選択してください',
+  stayOnCall: '電話をお待ちください',
+  cancel: 'キャンセル',
+  transfer: '転送',
+  transferToTip: '転送先: {destination}',
+} as const;

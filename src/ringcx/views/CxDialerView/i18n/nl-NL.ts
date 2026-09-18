@@ -5,6 +5,7 @@ export default {
   callButton: 'Oproep',
   callNumberTip: 'Telefoonnummer: {destination}',
   hangupButton: 'Ophangen',
+  rcCallInProgressTip: 'Finish the RingEX call first',
   callInProgressTip: 'Oproep bezig',
   pendingDispositionTip: 'Vul de oproepprocedure in',
   requestACall: 'Een oproep aanvragen:',

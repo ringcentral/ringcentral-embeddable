@@ -68,6 +68,15 @@ export class RingCX extends RcModule {
   @dynamic('CxSettingsView')
   readonly settingsView?: CxViewModule;
 
+  @dynamic('CxAnnouncementsView')
+  readonly announcementsView?: CxViewModule;
+
+  @dynamic('CxPresence')
+  readonly cxPresence?: { readonly isOnCall: boolean };
+
+  @dynamic('CxWorkingState')
+  readonly cxWorkingState?: { readonly isPendingDisposition: boolean };
+
   @state
   stage: CxStage = 'idle';
 
@@ -108,6 +117,25 @@ export class RingCX extends RcModule {
 
   get enabled(): boolean {
     return (this._appFeatures as EmbeddableAppFeatures).isRingCXEnabled;
+  }
+
+  /**
+   * A CX module exists as soon as the chunk starts wiring itself up, but its
+   * state only reaches the store once the load finishes, so host callers must
+   * wait for `loaded` before reading through to one.
+   */
+  get hasActiveCall(): boolean {
+    if (!this.loaded) {
+      return false;
+    }
+    return this.cxPresence?.isOnCall ?? false;
+  }
+
+  get canEndAgentSession(): boolean {
+    if (!this.loaded) {
+      return true;
+    }
+    return !this.hasActiveCall && !this.cxWorkingState?.isPendingDisposition;
   }
 
   override onInitOnce(): void {

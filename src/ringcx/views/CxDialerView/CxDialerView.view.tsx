@@ -1,5 +1,6 @@
 import {
   action,
+  inject,
   injectable,
   optional,
   RcViewModule,
@@ -27,12 +28,14 @@ import {
 import { BackspaceMd, EnterMd } from '@ringcentral/spring-icon';
 import React, { useRef } from 'react';
 
+import type { CxHostIntegration } from '../../../app/services/RingCX/RingCX.interface';
 import { CxCall } from '../../services/CxCall';
 import { CxAuth } from '../../services/CxAuth';
 import { CxSettings } from '../../services/CxSettings';
 import { CxClient } from '../../services/CxClient';
 import { CxCallMonitor } from '../../services/CxCallMonitor';
 import { CxWorkingState } from '../../services/CxWorkingState';
+import { cxPath } from '../../routes';
 import {
   CxDirectorySearch,
   directorySearchScopes,
@@ -69,6 +72,8 @@ class CxDialerView extends RcViewModule {
     private router: RouterPlugin,
     private storagePlugin: StoragePlugin,
     private portManager: PortManager,
+    @inject('CxHostIntegration')
+    private readonly _host: CxHostIntegration,
     @optional('CxDialerViewOptions') private dialerViewOptions?: CxDialerViewOptions,
   ) {
     super();
@@ -296,7 +301,7 @@ class CxDialerView extends RcViewModule {
    * Navigate to manual dial settings page
    */
   goToManualDialSettings(): void {
-    // Manual dial settings are introduced with the phase-2 call UI.
+    this.router.push(cxPath.manualDial());
   }
 
   /**
@@ -309,6 +314,7 @@ class CxDialerView extends RcViewModule {
       isIdle: this.isIdle,
       isOnCall: this.cxCallMonitor.isOnCall,
       isPendingDisposition: this.cxWorkingState.isPendingDisposition,
+      isHostCallActive: !this._host.isCallIdle,
       directoryRecords: this.directoryRecords,
       isSearchingDirectory: this.isSearchingDirectory,
       isToNumberPhoneNumber: this.isToNumberPhoneNumber,
@@ -357,6 +363,7 @@ class CxDialerView extends RcViewModule {
       isIdle,
       isOnCall,
       isPendingDisposition,
+      isHostCallActive,
       directoryRecords,
       isSearchingDirectory,
       isToNumberPhoneNumber,
@@ -369,7 +376,7 @@ class CxDialerView extends RcViewModule {
       return null;
     }
 
-    if (isPendingDisposition || !isIdle || isOnCall) {
+    if (isPendingDisposition || !isIdle || isOnCall || isHostCallActive) {
       return (
         <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-neutral-base p-4">
           <div className="flex-1 flex flex-col justify-center items-center">
@@ -379,6 +386,13 @@ class CxDialerView extends RcViewModule {
                 data-sign="callBusyTip"
               >
                 {t('pendingDispositionTip')}
+              </p>
+            ) : isHostCallActive ? (
+              <p
+                className="typography-descriptor text-neutral-b2 text-center"
+                data-sign="callBusyTip"
+              >
+                {t('rcCallInProgressTip')}
               </p>
             ) : (
               <>
@@ -583,9 +597,17 @@ class CxDialerView extends RcViewModule {
     t: (key: I18nKey) => string,
     uiFunctions: UIFunctions<CxDialerViewUIFunctions>,
   ) {
-    void t;
-    void uiFunctions;
-    return null;
+    return (
+      <div className="text-center py-0.5 flex-shrink-0">
+        <Link
+          onClick={uiFunctions.onGoToSettings}
+          data-sign="manualDialSettings"
+          className="typography-descriptor"
+        >
+          {t('manualDialSettings')}
+        </Link>
+      </div>
+    );
   }
 }
 

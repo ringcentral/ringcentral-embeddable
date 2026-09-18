@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: 'Agenten zoeken...',
+  noAgents: 'Geen agenten beschikbaar',
+  available: 'Beschikbaar',
+  unavailable: 'Niet beschikbaar',
+  searchContacts: 'Contacten zoeken...',
+  noContacts: 'Geen opnamen gevonden.',
+  enterNumber: 'Voer nummer of naam in',
+  searchingDirectory: 'Zoeken...',
+  corporateDirectory: 'Corporate directory',
+  extension: 'Toestel {extensionNumber}',
+  selectQueueGroup: 'Wachtrijgroep',
+  selectQueue: 'Wachtrij',
+  noGroups: 'Geen wachtrijgroepen beschikbaar',
+  noQueues: 'Geen wachtrijen beschikbaar',
+  selectAGroup: 'Selecteer een groep',
+  selectAQueue: 'Selecteer een wachtrij',
+  stayOnCall: 'Aan de lijn blijven',
+  cancel: 'Annuleren',
+  transfer: 'Doorverbinden',
+  transferToTip: 'Transfer naar: {destination}',
+} as const;

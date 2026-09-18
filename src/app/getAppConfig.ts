@@ -224,6 +224,7 @@ import { EMBEDDABLE_CALL_ACTION_OPTIONS } from './views/CallView/Call.view.optio
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
+import type { CxHostIntegration } from './services/RingCX/RingCX.interface';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { createThirdPartyIntegrationConfig } from './services/ThirdParty/ThirdParty.integrationConfig';
 import { CustomizedPageView } from './views/CustomizedPageView';
@@ -880,6 +881,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
               ringCX,
               voicemailDrop,
               onAgentSessionInfoClick: () => router.push('/settings/agent'),
+              onManualDialSettingsClick: () =>
+                router.push('/settings/agent/manualDial'),
               onThirdPartySectionClick: (sectionId) =>
                 router.push(`/settings/thirdParty/${sectionId}`),
               onVoicemailDropSettingsLinkClick: () =>
@@ -895,6 +898,18 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           evServer,
           hideCallNote,
         },
+      },
+      // The RingCX chunk reaches the host through this token, so it does not
+      // have to import the host classes into its own bundle.
+      {
+        provide: 'CxHostIntegration',
+        useFactory: (adapter: Adapter, call: Call): CxHostIntegration => ({
+          get isCallIdle() {
+            return call.isIdle;
+          },
+          showClientWindow: () => adapter.showClientWindow(),
+        }),
+        deps: [Adapter, Call],
       },
       {
         provide: 'SmsConversationsOptions',

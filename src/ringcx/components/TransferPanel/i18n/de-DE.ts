@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: 'Suchagenten...',
+  noAgents: 'Keine Agenten verfügbar',
+  available: 'Verfügbar',
+  unavailable: 'Nicht verfügbar',
+  searchContacts: 'Kontakte suchen...',
+  noContacts: 'Keine Datensätze gefunden.',
+  enterNumber: 'Nummer oder Namen eingeben',
+  searchingDirectory: 'Suchen …',
+  corporateDirectory: 'Unternehmensverzeichnis',
+  extension: 'Ext. {extensionNumber}',
+  selectQueueGroup: 'Warteschlangengruppe',
+  selectQueue: 'Warteschlange',
+  noGroups: 'Keine Warteschlangengruppen verfügbar',
+  noQueues: 'Keine Warteschlangen verfügbar',
+  selectAGroup: 'Wählen Sie eine Gruppe aus',
+  selectAQueue: 'Wählen Sie eine Warteschlange aus',
+  stayOnCall: 'Im Anruf bleiben',
+  cancel: 'Abbrechen',
+  transfer: 'Weiterleiten',
+  transferToTip: 'Weiterleitung an: {destination}',
+} as const;

@@ -38,6 +38,18 @@ export interface RingCXOptions {
   readonly hideCallNote?: boolean;
 }
 
+/**
+ * The host modules the RingCX chunk needs, wrapped in a plain object.
+ * A host module cannot be bound under a second DI token, because the store
+ * registers one module state per token, so the chunk gets this instead.
+ */
+export interface CxHostIntegration {
+  /** Whether the host RingEX call module has no call in progress. */
+  readonly isCallIdle: boolean;
+  /** Open the host widget if it is closed or minimized. */
+  showClientWindow(): void;
+}
+
 export interface CxRuntimeOptions {
   readonly agentAssistantPageUrl: string;
   readonly authHost: string;

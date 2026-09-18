@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: '검색 에이전트...',
+  noAgents: '상담원 없음',
+  available: '사용 가능',
+  unavailable: '통화 불가능',
+  searchContacts: '연락처 검색...',
+  noContacts: '레코드를 찾을 수 없습니다.',
+  enterNumber: '번호 또는 이름을 입력하세요.',
+  searchingDirectory: '검색 중…',
+  corporateDirectory: '회사 디렉터리',
+  extension: '내선 {extensionNumber}',
+  selectQueueGroup: '대기열 그룹',
+  selectQueue: '대기열',
+  noGroups: '사용 가능한 대기열 그룹이 없습니다.',
+  noQueues: '사용 가능한 대기열이 없습니다.',
+  selectAGroup: '그룹 선택',
+  selectAQueue: '대기열 선택',
+  stayOnCall: '통화 상태 유지',
+  cancel: '취소',
+  transfer: '전달',
+  transferToTip: '전송 대상: {destination}',
+} as const;

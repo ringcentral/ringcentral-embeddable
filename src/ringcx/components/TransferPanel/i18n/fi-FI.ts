@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: 'Hae agentteja...',
+  noAgents: 'Edustajia ei ole saatavilla',
+  available: 'Käytettävissä',
+  unavailable: 'Ei käytettävissä',
+  searchContacts: 'Hae yhteystietoja...',
+  noContacts: 'Tallenteita ei löytynyt.',
+  enterNumber: 'Syötä numero tai nimi',
+  searchingDirectory: 'Haetaan…',
+  corporateDirectory: 'Yrityshakemisto',
+  extension: 'Alanumero {extensionNumber}',
+  selectQueueGroup: 'Jonoryhmä',
+  selectQueue: 'Jono',
+  noGroups: 'Jonoryhmiä ei ole saatavilla',
+  noQueues: 'Jonoja ei ole käytettävissä',
+  selectAGroup: 'Valitse ryhmä',
+  selectAQueue: 'Valitse jono',
+  stayOnCall: 'Pysy paikalla',
+  cancel: 'Peruuta',
+  transfer: 'Siirrä',
+  transferToTip: 'Siirto: {destination}',
+} as const;

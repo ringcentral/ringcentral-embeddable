@@ -5,6 +5,7 @@ export default {
   callButton: 'Chiamata',
   callNumberTip: 'Chiama il numero: {destination}',
   hangupButton: 'Riaggancia',
+  rcCallInProgressTip: 'Finish the RingEX call first',
   callInProgressTip: 'Chiamata in corso',
   pendingDispositionTip: 'Compila la disposizione della chiamata',
   requestACall: 'Richiedi una chiamata:',

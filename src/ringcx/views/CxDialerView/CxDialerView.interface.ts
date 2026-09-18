@@ -32,6 +32,7 @@ export interface CxDialerViewUIProps {
   isIdle: boolean;
   isOnCall: boolean;
   isPendingDisposition: boolean;
+  isHostCallActive: boolean;
   directoryRecords: DirectoryRecord[];
   isSearchingDirectory: boolean;
   isToNumberPhoneNumber: boolean;
