@@ -7,6 +7,7 @@ export default {
   [loginTypes.integrated]: 'Integroitu ohjelmistopuhelin',
   [dropDownOptions.None]: 'Ei mitään',
   [messageTypes.NOT_INBOUND_QUEUE_SELECTED]: 'Valitse vähintään yksi saapuva jono.',
+  [messageTypes.NOT_INBOUND_QUEUE_OR_DIAL_GROUP_SELECTED]: 'Valitse vähintään yksi saapuva jono tai valintaryhmä.',
   [messageTypes.EMPTY_PHONE_NUMBER]: 'Puhelinnumero vaaditaan.',
   [messageTypes.INVALID_PHONE_NUMBER]: 'Virheellinen puhelinnumero.',
   [messageTypes.AGENT_CONFIG_ERROR]: 'Agentin määritys epäonnistui.',

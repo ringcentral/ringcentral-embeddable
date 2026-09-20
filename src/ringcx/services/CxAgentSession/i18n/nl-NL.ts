@@ -7,6 +7,7 @@ export default {
   [loginTypes.integrated]: 'Geïntegreerde softphone',
   [dropDownOptions.None]: 'Geen',
   [messageTypes.NOT_INBOUND_QUEUE_SELECTED]: 'Selecteer minimaal één inkomende wachtrij.',
+  [messageTypes.NOT_INBOUND_QUEUE_OR_DIAL_GROUP_SELECTED]: 'Selecteer minimaal één inkomende wachtrij of een kiesgroep.',
   [messageTypes.EMPTY_PHONE_NUMBER]: 'Telefoonnummer is vereist.',
   [messageTypes.INVALID_PHONE_NUMBER]: 'Ongeldig telefoonnummer.',
   [messageTypes.AGENT_CONFIG_ERROR]: 'Agentconfiguratie mislukt.',

@@ -7,6 +7,7 @@ export default {
   [loginTypes.integrated]: 'Téléphone logiciel intégré',
   [dropDownOptions.None]: 'Aucun',
   [messageTypes.NOT_INBOUND_QUEUE_SELECTED]: 'Veuillez sélectionner au moins une file d\'attente entrante.',
+  [messageTypes.NOT_INBOUND_QUEUE_OR_DIAL_GROUP_SELECTED]: 'Veuillez sélectionner au moins une file d\'attente entrante ou un groupe de numérotation.',
   [messageTypes.EMPTY_PHONE_NUMBER]: 'Le numéro de téléphone est requis.',
   [messageTypes.INVALID_PHONE_NUMBER]: 'Numéro de téléphone non valide.',
   [messageTypes.AGENT_CONFIG_ERROR]: 'La configuration de l\'agent a échoué.',

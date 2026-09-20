@@ -7,6 +7,7 @@ export default {
   [loginTypes.integrated]: '整合軟體電話',
   [dropDownOptions.None]: '無',
   [messageTypes.NOT_INBOUND_QUEUE_SELECTED]: '請至少選擇一個入站佇列。',
+  [messageTypes.NOT_INBOUND_QUEUE_OR_DIAL_GROUP_SELECTED]: '請至少選擇一個入站佇列或一個撥號組。',
   [messageTypes.EMPTY_PHONE_NUMBER]: '需提供電話號碼。',
   [messageTypes.INVALID_PHONE_NUMBER]: '無效的電話號碼。',
   [messageTypes.AGENT_CONFIG_ERROR]: '代理配置失敗。',

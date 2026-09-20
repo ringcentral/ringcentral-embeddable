@@ -50,6 +50,8 @@ import { DispositionForm } from '../../components/DispositionForm';
 import { getCallInfos } from '../../utils/getCallInfos';
 import { shouldShowCallLogSummary } from '../../utils/shouldShowCallLogSummary';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
+import { hasNewCallTakenOver } from '../../utils/hasNewCallTakenOver';
+import { resolveLiveActivityCallId } from '../../utils/resolveLiveActivityCallId';
 import type {
   CxDispositionViewProps,
   CxDispositionViewUIProps,
@@ -507,15 +509,47 @@ class CxDispositionView extends RcViewModule {
       return;
     }
     const isEnded = this.callStatus === 'callEnd' || !this.hasCurrentCall;
-    if (isEnded) {
-      this.cxCall.setDialoutStatus(dialoutStatuses.idle);
-      this._setViewCallId('');
-      this.router.replace(this.dialerPath);
-      this._reset();
-      this.cxCall.setActivityCallId('');
-    } else {
+    if (!isEnded) {
       this.router.goBack();
       this._reset();
+      return;
+    }
+    this.leaveEndedDisposition();
+  }
+
+  /**
+   * Leave a finished disposition without dropping a live call that answered
+   * while this page was still on the stack.
+   */
+  private leaveEndedDisposition(): void {
+    const submittedCallId: string = this.callId;
+    const takenOver: boolean = hasNewCallTakenOver({
+      submittedCallId,
+      activityCallId: this.cxCall.activityCallId,
+      callIds: this.cxCallMonitor.callIds,
+    });
+    this._setViewCallId('');
+    this.router.replace(this.dialerPath);
+    this._reset();
+    if (takenOver) {
+      this.restoreTakenOverCall(submittedCallId);
+      return;
+    }
+    this.cxCall.setDialoutStatus(dialoutStatuses.idle);
+    this.cxCall.setActivityCallId('');
+  }
+
+  /**
+   * Point the banner at the call that replaced the one just dispositioned.
+   */
+  private restoreTakenOverCall(submittedCallId: string): void {
+    const liveCallId: string = resolveLiveActivityCallId({
+      activityCallId: this.cxCall.activityCallId,
+      callIds: this.cxCallMonitor.callIds,
+      excludeCallId: submittedCallId,
+    });
+    if (liveCallId && liveCallId !== this.cxCall.activityCallId) {
+      this.cxCall.setActivityCallId(liveCallId);
     }
   }
 
@@ -792,6 +826,19 @@ class CxDispositionView extends RcViewModule {
       this.toast.success({ message: translate('callDispositionSuccess') });
       await this.cxWorkingState.setIsPendingDisposition(false);
       setTimeout(() => {
+        const takenOver = hasNewCallTakenOver({
+          submittedCallId: callId,
+          activityCallId: this.cxCall.activityCallId,
+          callIds: this.cxCallMonitor.callIds,
+        });
+        if (takenOver) {
+          // Only the form state belongs to the submitted call; the route and
+          // the call pointer now belong to the call that was answered while
+          // this submit was in flight.
+          this._setViewCallId('');
+          this._reset();
+          return;
+        }
         if (shouldGoToDialerAfterSubmit) {
           this.cxCall.setDialoutStatus(dialoutStatuses.idle);
           this._setViewCallId('');

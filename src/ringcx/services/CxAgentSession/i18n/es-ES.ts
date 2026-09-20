@@ -7,6 +7,7 @@ export default {
   [loginTypes.integrated]: 'Softphone integrado',
   [dropDownOptions.None]: 'Ninguno',
   [messageTypes.NOT_INBOUND_QUEUE_SELECTED]: 'Seleccione al menos una cola entrante.',
+  [messageTypes.NOT_INBOUND_QUEUE_OR_DIAL_GROUP_SELECTED]: 'Seleccione al menos una cola entrante o un grupo de marcado.',
   [messageTypes.EMPTY_PHONE_NUMBER]: 'Se requiere el número de teléfono.',
   [messageTypes.INVALID_PHONE_NUMBER]: 'Número de teléfono no válido.',
   [messageTypes.AGENT_CONFIG_ERROR]: 'Error en la configuración del agente.',

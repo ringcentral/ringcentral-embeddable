@@ -17,7 +17,11 @@ import { dialoutStatuses, messageTypes } from '../../enums';
 import { t } from './i18n';
 import { callErrors } from '../../enums/callErrors';
 import { CxCallbackTypes } from '../CxClient/enums';
-import type { CxOffhookInitResponse, CxBaseCall } from '../CxClient/interfaces';
+import type {
+  CxOffhookInitResponse,
+  CxBaseCall,
+  CxEndedCall,
+} from '../CxClient/interfaces';
 import { CxClient } from '../CxClient';
 import { CxAuth } from '../CxAuth';
 import { CxSettings } from '../CxSettings';
@@ -36,6 +40,7 @@ import type {
   ManualOutdialParams,
   RingTimeLimit,
 } from './CxCall.interface';
+import { hasRemainingLiveCall } from '../../utils/hasRemainingLiveCall';
 
 const DEFAULT_OUTBOUND_SETTING: DialoutFormGroup = {
   dialoutCallerId: '-1',
@@ -307,8 +312,21 @@ class CxCall extends RcModule {
         this.checkQueueId();
       },
     );
-    // Subscribe to call ended events
-    this.cxSubscription.subscribe(CxCallbackTypes.END_CALL, () => {
+    // Subscribe to call ended events. Idle is only restored when this
+    // notification ends the last live session -- a queued call can already
+    // be in `callIds`, or can land there before this handler runs.
+    this.cxSubscription.subscribe(CxCallbackTypes.END_CALL, (data: CxEndedCall) => {
+      if (
+        hasRemainingLiveCall({
+          endedCall: {
+            uii: data?.uii ?? '',
+            sessionId: data?.sessionId ?? '',
+          },
+          callIds: this.cxPresence.callIds,
+        })
+      ) {
+        return;
+      }
       this.setDialoutStatus(dialoutStatuses.idle);
     });
     // Subscribe to TCPA safe lead state

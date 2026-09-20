@@ -7,6 +7,7 @@ export default {
   [loginTypes.integrated]: '集成软件电话',
   [dropDownOptions.None]: '无',
   [messageTypes.NOT_INBOUND_QUEUE_SELECTED]: '请至少选择一个入站队列。',
+  [messageTypes.NOT_INBOUND_QUEUE_OR_DIAL_GROUP_SELECTED]: '请至少选择一个入站队列或一个拨号群组。',
   [messageTypes.EMPTY_PHONE_NUMBER]: '需要提供电话号码。',
   [messageTypes.INVALID_PHONE_NUMBER]: '电话号码无效。',
   [messageTypes.AGENT_CONFIG_ERROR]: '代理配置失败。',

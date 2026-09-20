@@ -7,6 +7,7 @@ export default {
   [loginTypes.integrated]: 'Softphone integrato',
   [dropDownOptions.None]: 'Nessuno',
   [messageTypes.NOT_INBOUND_QUEUE_SELECTED]: 'Seleziona almeno una coda in entrata.',
+  [messageTypes.NOT_INBOUND_QUEUE_OR_DIAL_GROUP_SELECTED]: 'Seleziona almeno una coda in entrata o un gruppo chiamata.',
   [messageTypes.EMPTY_PHONE_NUMBER]: 'Il numero di telefono è obbligatorio.',
   [messageTypes.INVALID_PHONE_NUMBER]: 'Numero di telefono non valido.',
   [messageTypes.AGENT_CONFIG_ERROR]: 'Configurazione dell\'agente non riuscita.',

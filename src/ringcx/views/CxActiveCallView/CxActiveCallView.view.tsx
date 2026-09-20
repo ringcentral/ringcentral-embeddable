@@ -51,6 +51,8 @@ import { CxRequeueCall } from '../../services/CxRequeueCall';
 import { CxAuth } from '../../services/CxAuth';
 import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
+import { isOnLiveCallPage } from '../../utils/isOnLiveCallPage';
+import { resolveLiveActivityCallId } from '../../utils/resolveLiveActivityCallId';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
 import { getCallAni, getCallDnis } from '../../lib/getCxCallNumbers';
 import type { CxCallData } from '../../services/CxCallDataSource/CxCallDataSource.interface';
@@ -542,6 +544,12 @@ class CxActiveCallView extends RcViewModule {
   async goBack() {
     this.cxCall.setDialoutStatus(dialoutStatuses.idle);
     this._setViewCallId('');
+    const liveCallId: string = this.liveActivityCallId;
+    if (liveCallId) {
+      this.router.replace(cxPath.home('dialer'));
+      this.reset();
+      return;
+    }
     this.router.goBack();
     this.reset();
   }
@@ -552,17 +560,29 @@ class CxActiveCallView extends RcViewModule {
   }
 
   goToActiveCall = () => {
-    if (this.callId) {
-      this.router.push(cxPath.call(this.callId));
+    const liveCallId: string = this.liveActivityCallId;
+    if (!liveCallId) {
+      return;
     }
+    if (this.cxCall.activityCallId !== liveCallId) {
+      void this.setCallId(liveCallId);
+    }
+    this.router.push(cxPath.call(liveCallId));
   };
 
+  @computed((that: CxActiveCallView) => [
+    that.cxCall.activityCallId,
+    that.cxCallMonitor.callIds,
+  ])
+  get liveActivityCallId(): string {
+    return resolveLiveActivityCallId({
+      activityCallId: this.cxCall.activityCallId,
+      callIds: this.cxCallMonitor.callIds,
+    });
+  }
+
   get isOnActiveCallPage(): boolean {
-    const path = this.router.currentPath;
-    if (!path) return false;
-    return (
-      path.startsWith('/agent/calls/') || path.startsWith('/agent/history/')
-    );
+    return isOnLiveCallPage(this.router.currentPath, this.liveActivityCallId);
   }
 
   /**
@@ -731,16 +751,19 @@ class CxActiveCallView extends RcViewModule {
     const { t } = useLocale(i18n);
     const { hasActiveCall, isOnCallPage, contactName, phoneNumber } =
       useConnector(() => {
-        const call = this.cxCall.currentCall;
-        const hasCall = !!call && !call.endedCall;
-        const isInbound = call?.callType === 'INBOUND';
+        const liveCallId: string = this.liveActivityCallId;
+        const call = liveCallId
+          ? this.cxPresence.callsMapping[liveCallId]
+          : null;
+        const hasCall: boolean = !!call && !call.endedCall;
+        const isInbound: boolean = call?.callType === 'INBOUND';
         const name = this.getContactName(call);
         const phone = call
           ? (isInbound ? getCallAni(call) : getCallDnis(call))
           : '';
         return {
           hasActiveCall: hasCall,
-          isOnCallPage: this.isOnActiveCallPage,
+          isOnCallPage: isOnLiveCallPage(this.router.currentPath, liveCallId),
           contactName: name,
           phoneNumber: formatPhoneNumber({ phoneNumber: phone }),
         };

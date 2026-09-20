@@ -24,6 +24,7 @@ import { CxSubscription } from './services/CxSubscription';
 import { CxWorkingState } from './services/CxWorkingState';
 import type { DispositionStepOptions } from './utils/shouldShowDispositionSubmitStep';
 import { shouldShowDispositionSubmitStep } from './utils/shouldShowDispositionSubmitStep';
+import { shouldReplaceActivityCallRoute } from './utils/shouldReplaceActivityCallRoute';
 import { cxPath, isCxAgentPath } from './routes';
 
 /**
@@ -134,8 +135,17 @@ export class CxRouteCoordinator extends RcModule {
     }
     this._appliedNavigationToken = request.token;
     this.logger.info('applyNavigationRequest~~', request.path);
+    // Replace vs push is decided here, on the client that owns the visible
+    // history. The server that records the request has no UI path, so a
+    // queued answer while the agent is still on a previous call's activity
+    // subtree must inspect this port's currentPath.
+    const navigationMode: 'push' | 'replace' =
+      request.mode === 'push' &&
+      shouldReplaceActivityCallRoute(this._router.currentPath)
+        ? 'replace'
+        : request.mode;
     if (this._router.currentPath !== request.path) {
-      if (request.mode === 'push') {
+      if (navigationMode === 'push') {
         void this._router.push(request.path);
       } else {
         void this._router.replace(request.path);

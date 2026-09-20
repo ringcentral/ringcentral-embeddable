@@ -7,6 +7,7 @@ export default {
   [loginTypes.integrated]: '통합 소프트폰',
   [dropDownOptions.None]: '없음',
   [messageTypes.NOT_INBOUND_QUEUE_SELECTED]: '인바운드 대기열을 하나 이상 선택하십시오.',
+  [messageTypes.NOT_INBOUND_QUEUE_OR_DIAL_GROUP_SELECTED]: '인바운드 대기열 또는 다이얼 그룹을 하나 이상 선택하십시오.',
   [messageTypes.EMPTY_PHONE_NUMBER]: '전화번호가 필요합니다.',
   [messageTypes.INVALID_PHONE_NUMBER]: '잘못된 전화번호입니다.',
   [messageTypes.AGENT_CONFIG_ERROR]: '에이전트 구성에 실패했습니다.',
