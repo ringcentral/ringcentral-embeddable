@@ -144,7 +144,7 @@ class CxActiveCallControl extends RcModule {
    */
   @delegate('server')
   async onKeypadClick(value: string): Promise<void> {
-    this.cxClient.sipSendDTMF(value);
+    await this.cxIntegratedSoftphone.sipSendDTMF(value);
   }
 
   /**

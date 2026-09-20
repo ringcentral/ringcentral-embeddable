@@ -47,7 +47,6 @@ const WAIT_EV_SERVER_ROLLBACK_DELAY = 2000;
 
 const ACCEPTABLE_LOGIN_TYPES = [
   loginTypes.integrated,
-  loginTypes.RC_PHONE,
   loginTypes.external,
 ];
 
@@ -769,10 +768,8 @@ class CxAgentSession extends RcModule {
         return extensionNumber;
       }
       case loginTypes.integrated:
-        return 'integrated';
-      case loginTypes.RC_PHONE:
       default:
-        return 'RC_PHONE';
+        return 'integrated';
     }
   }
 

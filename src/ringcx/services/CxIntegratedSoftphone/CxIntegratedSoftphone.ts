@@ -2,6 +2,7 @@ import {
   action,
   getRef,
   injectable,
+  inject,
   optional,
   RcModule,
   state,
@@ -17,12 +18,7 @@ import { CxSoftphoneEvents } from '../../enums';
 import { dialoutStatuses } from '../../enums/dialoutStatus';
 import { sleep } from '../../lib/utils';
 import { CxCallbackTypes } from '../CxClient/enums';
-import type {
-  CxSipDialDestChangedData,
-  CxSipRingingData,
-  CxSipSuspectRegistrationData,
-  CxSipSwitchRegistrarData,
-} from '../CxClient/interfaces/CxClientCallMapping.interface';
+import type { CxSipRingingData } from '../CxClient/interfaces/CxClientCallMapping.interface';
 import type { CxOffhookInitResponse } from '../CxClient/interfaces/CxSdkResponse.interface';
 import { CxClient } from '../CxClient';
 import { CxAuth } from '../CxAuth';
@@ -31,12 +27,13 @@ import { CxAgentSession } from '../CxAgentSession';
 import { CxPresence } from '../CxPresence';
 import type { CxCall } from '../CxCall/CxCall';
 import { TabManager } from '../../../app/services/TabManager';
+import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
+import type { Webphone } from '../../../app/services/WebphoneV2';
 import type {
   CxIntegratedSoftphoneOptions,
   SipState,
 } from './CxIntegratedSoftphone.interface';
 import { audios } from './audios';
-import { planOffhookRecovery } from '../../utils/planOffhookRecovery';
 
 const SECOND = 1000;
 const RECONNECT_DEBOUNCE_TIME = SECOND * 5;
@@ -56,31 +53,6 @@ class CxIntegratedSoftphone extends RcModule {
   private _sipConnected = false;
   private _isCloseWhenCallConnected = false;
 
-  /**
-   * State of the current SIP recovery, used to decide whether a superseded
-   * user agent's clean close wiped the live registration.
-   *
-   * `path` is how the session came back: `quick-reinit` means the SDK
-   * re-registered on the same registration info straight from its
-   * `_unregistered` handler (the vulnerable path); `registrar-switch` means it
-   * went through `resetSoftphoneSession` with fresh registration info.
-   */
-  private _recoveryTrace: {
-    unstableAt: number | null;
-    switchRegistrarAt: number | null;
-    registeredAt: number | null;
-    suspectCloseAt: number | null;
-    repairedAt: number | null;
-    path: 'none' | 'quick-reinit' | 'registrar-switch';
-  } = {
-    unstableAt: null,
-    switchRegistrarAt: null,
-    registeredAt: null,
-    suspectCloseAt: null,
-    repairedAt: null,
-    path: 'none',
-  };
-
   constructor(
     private cxClient: CxClient,
     private auth: Auth,
@@ -91,6 +63,7 @@ class CxIntegratedSoftphone extends RcModule {
     private storagePlugin: StoragePlugin,
     private portManager: PortManager,
     private tabManager: TabManager,
+    @inject(MicroPhoneWebphone) private webphone: Webphone,
     @optional('CxIntegratedSoftphoneOptions')
     private evIntegratedSoftphoneOptions?: CxIntegratedSoftphoneOptions,
   ) {
@@ -99,16 +72,6 @@ class CxIntegratedSoftphone extends RcModule {
     if (this.portManager?.shared) {
       this.portManager.onServer(() => {
         this.initialize();
-        this.portManager.onMainTabChange(async () => {
-          // We only run sip instance on main tab,
-          // so when main tab is changed, we need to reset the sip state.
-          // So it can reconnect at new main tab
-          this.logger.info('onMainTabChange~~');
-          if (this.tabManager.popupIsBecomingMain) return;
-          this._sipConnected = false;
-          this._resetSip();
-          this._eventEmitter.emit(CxSoftphoneEvents.RESET);
-        });
       });
       this.portManager.onClient(() => {
         this._initAudio();
@@ -276,22 +239,31 @@ class CxIntegratedSoftphone extends RcModule {
     if (!this.portManager.isServer) {
       return;
     }
-    if (!this._sipConnected) {
+    if (!this._sipConnected && !this.webphone.engageAgentEptEnabled) {
       return;
     }
     this.logger.info('resetAllState~~');
     this._sipConnected = false;
     await this.resetSip();
-    await this.cxClient.sipTerminate();
+    try {
+      await this.webphone.setEngageAgentEptEnabled(false);
+    } catch (error) {
+      this.logger.warn('disable Engage EPT headers failed', error);
+    }
     this._eventEmitter.emit(CxSoftphoneEvents.RESET);
   }
 
   get isMainTab(): boolean {
-    return this.portManager?.isMainTab || false;
+    if (this.tabManager.fromPopup) {
+      return true;
+    }
+    return Boolean(this.portManager?.isMainTab);
   }
 
   initialize() {
     this._bindingIntegratedSoftphone();
+    this._bindWebphoneState();
+    this._bindAgentSessionReconcile();
     this._initOffhookFlagSync();
     this.cxAuth.beforeAgentLogout(async () => {
       this.logger.info('beforeAgentLogout~~');
@@ -306,9 +278,12 @@ class CxIntegratedSoftphone extends RcModule {
         this._emitRegistrationFailed();
       }
     });
-    this.cxAgentSession.onConfigSuccess(async() => {
+    this.cxAgentSession.onConfigSuccess(async () => {
       this.logger.info('onConfigSuccess~~');
-      this.logger.info('isIntegratedSoftphone~~', this.cxAgentSession.isIntegratedSoftphone);
+      this.logger.info(
+        'isIntegratedSoftphone~~',
+        this.cxAgentSession.isIntegratedSoftphone,
+      );
       if (this.cxAgentSession.isIntegratedSoftphone) {
         this.logger.info('sipConnected~~', this._sipConnected);
         if (this._sipConnected) {
@@ -319,6 +294,47 @@ class CxIntegratedSoftphone extends RcModule {
         await this._resetAllState();
       }
     });
+  }
+
+  override async onInitSuccess() {
+    if (!this.portManager.isServer) {
+      return;
+    }
+    await this._reconcileEngageAgentEpt();
+  }
+
+  /**
+   * The EPT roles outlive a reload now that they are persisted, so a session
+   * that is not restored as an integrated one has to drop them again.
+   * Registering with the Engage role without a live agent session would let
+   * the SIP edge place a hidden offhook leg this app can no longer control.
+   */
+  private async _reconcileEngageAgentEpt(): Promise<void> {
+    const keepsRoles =
+      this.cxAgentSession.configured && this.isIntegratedSoftphone;
+    if (keepsRoles || !this.webphone.engageAgentEptEnabled) {
+      return;
+    }
+    this.logger.info('reconcileEngageAgentEpt~~ dropping stale EPT roles');
+    await this.webphone.setEngageAgentEptEnabled(false);
+  }
+
+  private _bindAgentSessionReconcile(): void {
+    watch(
+      this,
+      () =>
+        [
+          this.cxAgentSession.configured,
+          this.cxAgentSession.isIntegratedSoftphone,
+        ] as const,
+      async () => {
+        if (!this.portManager.isServer) {
+          return;
+        }
+        await this._reconcileEngageAgentEpt();
+      },
+      { multiple: true },
+    );
   }
 
   override async onReset() {
@@ -366,194 +382,116 @@ class CxIntegratedSoftphone extends RcModule {
 
   /**
    * A failed offhook is the first hard evidence that the SIP session is gone,
-   * because nothing watches the transport itself. Rotating the registrar is
-   * the SDK's own repair for that, so it is driven from here.
+   * because nothing watches the transport itself. Reconnecting the webphone
+   * re-registers the endpoint with the EPT roles, so it is driven from here.
    */
   private async _switchRegistrarAfterOffhookFailure(): Promise<void> {
     if (!this.portManager.isServer || !this.isIntegratedSoftphone) {
       return;
     }
-    this.logger.info('OFFHOOK_INIT failed~~ switching registrar');
+    this.logger.info('OFFHOOK_INIT failed~~ reconnecting Webphone with EPT');
     try {
-      await this.cxClient.switchSoftphoneRegistrar(
-        this.cxPresence.isManualOffhook,
-      );
+      await this.webphone.reconnectWithCurrentHeaders();
     } catch (error) {
-      this.logger.error('switchSoftphoneRegistrar failed', error);
+      this.logger.error('Webphone EPT reconnect failed', error);
     }
   }
 
-  /**
-   * Repair a registration a superseded user agent may have wiped.
-   *
-   * A `quick-reinit` recovery re-registers on the same registration info from
-   * the SDK's `_unregistered` handler and never refetches it, so it is the
-   * only path whose fresh binding a late wildcard un-REGISTER from the old
-   * user agent can remove. When that happens the softphone reports
-   * "registered" but the platform can no longer route to it, and the agent
-   * only discovers it when the next offhook fails with an INTERCEPT.
-   *
-   * Rotating the registrar is the proven repair: it tears the suspect session
-   * down and re-registers against fresh registration info, exactly what the
-   * offhook-failure handler already does, so drive it here as soon as the
-   * clean close is seen rather than waiting for the agent to hit the error.
-   *
-   * The clean close and the replacement registration race, and either can
-   * reach the server first, so this is driven from both the suspect close and
-   * `SIP_REGISTERED` and acts only once both facts hold for the cycle.
-   *
-   * Guards:
-   * - only the `quick-reinit` path is vulnerable; a registrar switch already
-   *   refetched its registration info.
-   * - skip while the agent has a live audio leg, so a call in progress is not
-   *   torn down; the failure this prevents only bites the next idle offhook.
-   * - repair at most once per recovery cycle.
-   */
-  private async _maybeRepairSuspectRegistration(): Promise<void> {
-    if (!this.portManager.isServer || !this.isIntegratedSoftphone) {
-      return;
-    }
-    const trace = this._recoveryTrace;
-    const shouldRepair =
-      trace.path === 'quick-reinit' &&
-      trace.registeredAt !== null &&
-      trace.suspectCloseAt !== null &&
-      trace.repairedAt === null &&
-      !this.cxPresence.isOffhook;
-    if (!shouldRepair) {
-      return;
-    }
-    this._recoveryTrace.repairedAt = Date.now();
-    this.logger.info('suspect registration~~ rotating registrar');
-    try {
-      await this.cxClient.switchSoftphoneRegistrar(
-        this.cxPresence.isManualOffhook,
-      );
-    } catch (error) {
-      this.logger.error('suspect registration repair failed', error);
-    }
-  }
-
-  /**
-   * Rebuild the SIP session at the agent's request.
-   *
-   * `autoStartOH` is always set so the audio leg comes back with the session
-   * rather than leaving the agent registered but silent.
-   */
   @delegate('server')
   async retrySoftphoneSession(): Promise<void> {
     this.logger.info('retrySoftphoneSession~~');
     await this.setSoftphoneReconnectState({ attempting: true, manual: false });
-    await this.cxClient.resetSoftphoneSession({
-      maintainOH: this.cxPresence.isManualOffhook,
-      autoStartOH: true,
-    });
-  }
-
-  /**
-   * Rebuild the agent's standing audio leg after the SDK rotated registrars,
-   * mirroring EAG's `dialDestChanged` handling. Mid-call audio is not
-   * recovered — EAG does not attempt it either; a call whose leg died ends in
-   * pending disposition and the agent completes it from there.
-   */
-  private async _recoverOffhookOnReconnect(
-    data?: CxSipDialDestChangedData,
-  ): Promise<void> {
-    const plan = planOffhookRecovery({
-      isServer: this.portManager.isServer,
-      isIntegratedSoftphone: this.isIntegratedSoftphone,
-      isOffhook: this.cxPresence.isOffhook,
-      flags: data,
-    });
-    this.logger.info('SIP_DIAL_DEST_CHANGED~~ plan', plan.reason);
-    if (!plan.shouldRestoreOffhook) {
-      return;
-    }
     try {
-      await this.cxClient.offhookInit();
-      if (plan.shouldMaintainOffhook) {
-        await this.cxPresence.setIsManualOffhook(true);
-      }
+      await this.webphone.reconnectWithCurrentHeaders();
+      await this.setSoftphoneReconnectState({
+        attempting: false,
+        manual: false,
+      });
     } catch (error) {
-      this.logger.error('offhook restore after reconnect failed', error);
+      this.logger.error('retrySoftphoneSession failed', error);
+      await this.setSoftphoneReconnectState({
+        attempting: false,
+        manual: true,
+      });
     }
   }
 
-  /**
-   * Subscribe to all SIP events from CxSubscription
-   */
-  private _bindingIntegratedSoftphone() {
-    this.logger.info('_bindingIntegratedSoftphone~~');
-    this.cxSubscription.subscribe(CxCallbackTypes.SIP_REGISTERED, () => {
-      this.logger.info('SIP_REGISTERED~~');
-      const { unstableAt, switchRegistrarAt } = this._recoveryTrace;
-      if (unstableAt !== null) {
-        this._recoveryTrace.path =
-          switchRegistrarAt !== null && switchRegistrarAt >= unstableAt
-            ? 'registrar-switch'
-            : 'quick-reinit';
-      }
-      this._recoveryTrace.registeredAt = Date.now();
-      // A suspect close can arrive just before this registration completes, so
-      // re-check the repair condition now that the path is classified.
-      void this._maybeRepairSuspectRegistration();
-      this._sipConnected = true;
-      this._isCloseWhenCallConnected = false;
-      this.setSipRegisterSuccess(true);
-      this.setSipRegistering(false);
-      this.setSipUnstableConnection(false);
-      this.setSoftphoneReconnectState({ attempting: false, manual: false });
-      this._emitRegistered();
-    });
-    this.cxSubscription.subscribe(CxCallbackTypes.SIP_UNREGISTERED, () => {
-      this.logger.info('SIP_UNREGISTERED~~');
-      this._sipConnected = false;
-      this.setSipRegisterSuccess(false);
-    });
-    this.cxSubscription.subscribe(
-      CxCallbackTypes.SIP_REGISTRATION_FAILED,
-      async() => {
-        this.logger.info('SIP_REGISTRATION_FAILED~~');
-        await this.setSipRegistering(false);
-        await this._resetAllState();
-        // The SDK fires this when its reset/rotation budget is exhausted.
-        // `_resetAllState` returns early when SIP never connected in this
-        // cycle, so a reconnect attempt that dies here must be resolved to
-        // the manual retry or the spinner never ends.
-        if (this.attemptingSoftphoneReconnect || this.manualSoftphoneReconnect) {
+  private _bindWebphoneState() {
+    watch(
+      this,
+      () =>
+        [
+          this.webphone.connected,
+          this.webphone.engageAgentEptEnabled,
+          this.webphone.connectionStatus,
+          this.webphone.cxOffhookConnected,
+          this.webphone.cxOffhookMuted,
+        ] as const,
+      async (
+        [connected, eptEnabled, status, offhookConnected, offhookMuted],
+        previous,
+      ) => {
+        this.logger.info('[cxdbg] webphoneState~~', {
+          connected,
+          eptEnabled,
+          status,
+          offhookConnected,
+          offhookMuted,
+          previous,
+          isServer: this.portManager.isServer,
+        });
+        if (!this.portManager.isServer) {
+          return;
+        }
+        if (eptEnabled && connected) {
+          this._sipConnected = true;
+          await this.setSipRegisterSuccess(true);
+          await this.setSipRegistering(false);
+          await this.setSipUnstableConnection(false);
           await this.setSoftphoneReconnectState({
             attempting: false,
-            manual: true,
+            manual: false,
           });
+          this._emitRegistered();
+        } else if (eptEnabled && status === 'reconnecting') {
+          await this.setSipUnstableConnection(true);
+        } else if (
+          eptEnabled &&
+          (status === 'connectFailed' || status === 'connectError')
+        ) {
+          this._sipConnected = false;
+          await this.setSipRegisterSuccess(false);
+          await this.setSipRegistering(false);
+          this._emitRegistrationFailed();
+        } else if (!eptEnabled || status === 'disconnected') {
+          if (this.sipRegisterSuccess) {
+            this.cxSubscription.emit(CxCallbackTypes.SIP_UNREGISTERED, null);
+          }
+          this._sipConnected = false;
+          await this.setSipRegisterSuccess(false);
         }
+        const wasOffhook = previous?.[3];
+        if (offhookConnected && !wasOffhook) {
+          await this.cxPresence.setOffhook(true);
+          await this.resetController();
+        }
+        if (!offhookConnected && wasOffhook) {
+          await this.cxPresence.setOffhook(false);
+          await this.cxPresence.removeBeforeunload();
+          await this.cxPresence.setDialoutStatus(dialoutStatuses.idle);
+          await this.cxSubscription.emit(CxCallbackTypes.SIP_ENDED, null);
+        }
+        if (offhookConnected) {
+          this.cxPresence.bindBeforeunload();
+        }
+        await this.setMuteActive(offhookMuted);
       },
+      { multiple: true },
     );
-    this.cxSubscription.subscribe(CxCallbackTypes.SIP_UNSTABLE_CONNECTION, () => {
-      this.logger.info('SIP_UNSTABLE_CONNECTION~~');
-      this._recoveryTrace = {
-        unstableAt: Date.now(),
-        switchRegistrarAt: null,
-        registeredAt: null,
-        suspectCloseAt: null,
-        repairedAt: null,
-        path: 'none',
-      };
-      this.setSipUnstableConnection(true);
-    });
-    this.cxSubscription.subscribe(
-      CxCallbackTypes.SIP_SWITCH_REGISTRAR,
-      async (data?: CxSipSwitchRegistrarData) => {
-        this.logger.info('SIP_SWITCH_REGISTRAR~~', data);
-        this._recoveryTrace.switchRegistrarAt = Date.now();
-        // 'RESET' means the SDK is rebuilding the session, 'UPDATE' means it
-        // declined to and only refreshed its flags, which leaves the agent
-        // stuck until they ask for a retry.
-        await this.setSoftphoneReconnectState({
-          attempting: data?.status === 'RESET',
-          manual: data?.status === 'UPDATE',
-        });
-      },
-    );
+  }
+
+  private _bindingIntegratedSoftphone() {
+    this.logger.info('_bindingIntegratedSoftphone~~');
     this.cxSubscription.subscribe(
       CxCallbackTypes.OFFHOOK_INIT,
       async (data?: Partial<CxOffhookInitResponse>) => {
@@ -564,11 +502,6 @@ class CxIntegratedSoftphone extends RcModule {
           return;
         }
         if (this._isStaleOffhookRefusal(data)) {
-          // IQ still holds a previous audio leg whose BYE was lost with the
-          // old network. The SIP side is healthy, so rotating the registrar
-          // cannot help; the server itself asks for a disconnect first, and
-          // terminating the orphaned leg lets the agent's next offhook
-          // attempt succeed.
           if (!this.cxPresence.isOffhook) {
             this.logger.info(
               'OFFHOOK_INIT refused~~ terminating stale server-side leg',
@@ -580,57 +513,6 @@ class CxIntegratedSoftphone extends RcModule {
         await this._switchRegistrarAfterOffhookFailure();
       },
     );
-    this.cxSubscription.subscribe(
-      CxCallbackTypes.SIP_DIAL_DEST_CHANGED,
-      async (data?: CxSipDialDestChangedData) => {
-        this.logger.info('SIP_DIAL_DEST_CHANGED~~', data);
-        await this._recoverOffhookOnReconnect(data);
-      },
-    );
-    this.cxSubscription.subscribe(
-      CxCallbackTypes.SIP_SUSPECT_REGISTRATION,
-      async (data?: CxSipSuspectRegistrationData) => {
-        this.logger.info('SIP_SUSPECT_REGISTRATION~~', data);
-        if (this._recoveryTrace.unstableAt === null) {
-          // No recovery is in flight, so this is an ordinary teardown.
-          return;
-        }
-        this._recoveryTrace.suspectCloseAt = Date.now();
-        await this._maybeRepairSuspectRegistration();
-      },
-    );
-    this.cxSubscription.subscribe(
-      CxCallbackTypes.SIP_RINGING,
-      (ringingCall?: CxSipRingingData) => {
-        this.logger.info('SIP_RINGING~~');
-        this.cxPresence.bindBeforeunload();
-        if (this.shouldAutoAnswer) {
-          this.sipAnswer();
-          return;
-        }
-        this._eventEmitter.emit(CxCallbackTypes.SIP_RINGING, ringingCall);
-      },
-    );
-    this.cxSubscription.subscribe(CxCallbackTypes.SIP_CONNECTED, async () => {
-      this.logger.info('SIP_CONNECTED~~');
-      await this.cxPresence.setOffhook(true);
-      await this._resetSdkMuteState();
-      await this.resetController();
-    });
-    this.cxSubscription.subscribe(CxCallbackTypes.SIP_ENDED, async () => {
-      this.logger.info('SIP_ENDED~~');
-      await this.cxPresence.setOffhook(false);
-      await this.cxPresence.removeBeforeunload();
-      await this.cxPresence.setDialoutStatus(dialoutStatuses.idle);
-    });
-    this.cxSubscription.subscribe(CxCallbackTypes.SIP_MUTE, () => {
-      this.logger.info('SIP_MUTE~~');
-      this.setMuteActive(true);
-    });
-    this.cxSubscription.subscribe(CxCallbackTypes.SIP_UNMUTE, () => {
-      this.logger.info('SIP_UNMUTE~~');
-      this.setMuteActive(false);
-    });
   }
 
   /**
@@ -660,20 +542,13 @@ class CxIntegratedSoftphone extends RcModule {
         throw new Error('Audio permission denied');
       }
     }
-    await this.cxClient.sipInit();
   }
 
   /**
    * Register SIP
    */
   async sipRegister(): Promise<void> {
-    await this.setSipRegistering(true);
-    try {
-      await this.cxClient.sipRegister();
-    } catch (error) {
-      await this.setSipRegistering(false);
-      throw error;
-    }
+    await this.connectWebRTC();
   }
 
   /**
@@ -681,7 +556,11 @@ class CxIntegratedSoftphone extends RcModule {
    */
   @delegate('mainClient')
   async sipAnswer(): Promise<void> {
-    await this.cxClient.sipAnswer();
+    const sessionId = this.webphone.cxOffhookSessionId;
+    if (!sessionId) {
+      return;
+    }
+    await this.webphone.answer(sessionId);
   }
 
   /**
@@ -689,7 +568,11 @@ class CxIntegratedSoftphone extends RcModule {
    */
   @delegate('mainClient')
   async sipHangUp(): Promise<void> {
-    await this.cxClient.sipHangUp();
+    const sessionId = this.webphone.cxOffhookSessionId;
+    if (!sessionId) {
+      return;
+    }
+    await this.webphone.hangup(sessionId);
   }
 
   /**
@@ -698,7 +581,10 @@ class CxIntegratedSoftphone extends RcModule {
   @delegate('mainClient')
   async sipReject(): Promise<void> {
     this.cxPresence.showOffHookInitError = false;
-    await this.cxClient.sipReject();
+    const sessionId = this.webphone.cxOffhookSessionId;
+    if (sessionId) {
+      await this.webphone.reject(sessionId);
+    }
     this._eventEmitter.emit(CxSoftphoneEvents.CALL_REJECTED);
     this.cxPresence.removeBeforeunload();
   }
@@ -708,7 +594,7 @@ class CxIntegratedSoftphone extends RcModule {
    */
   @delegate('mainClient')
   async sipTerminate(): Promise<void> {
-    await this.cxClient.sipTerminate();
+    await this.webphone.setEngageAgentEptEnabled(false);
     await this.setSipRegisterSuccess(false);
   }
 
@@ -717,35 +603,27 @@ class CxIntegratedSoftphone extends RcModule {
    */
   @delegate('mainClient')
   async sipSendDTMF(dtmf: string): Promise<void> {
-    await this.cxClient.sipSendDTMF(dtmf);
+    const sessionId = this.webphone.cxOffhookSessionId;
+    if (!sessionId) {
+      return;
+    }
+    await this.webphone.sendDTMF(dtmf, sessionId);
   }
 
   /**
-   * Mute or unmute the current SIP call.
-   *
-   * `muteActive` is deliberately not updated here: the agent library fires
-   * SIP_MUTE / SIP_UNMUTE for whatever it actually did, and those handlers own
-   * the state. Setting it optimistically would let the button show "muted"
-   * while the microphone is still live.
+   * Mute or unmute the hidden offhook Webphone session.
    */
   @delegate('mainClient')
   async sipToggleMute(state: boolean): Promise<void> {
-    await this.cxClient.sipToggleMute(state);
-  }
-
-  /**
-   * The agent library keeps its own `softphoneSettings.muteActive` flag and
-   * only clears it on sipTerminate, so a call ended while muted leaves it set.
-   * Its toggle unmutes whenever that flag is true, which would silently invert
-   * the first mute of the next call. A fresh WebRTC session is never muted, so
-   * force the flag back in sync when a call connects.
-   */
-  private async _resetSdkMuteState(): Promise<void> {
-    try {
-      await this.cxClient.sipToggleMute(false);
-    } catch (error) {
-      this.logger.warn('reset sdk mute state failed', error);
+    const sessionId = this.webphone.cxOffhookSessionId;
+    if (!sessionId) {
+      return;
     }
+    if (state) {
+      await this.webphone.mute(sessionId);
+      return;
+    }
+    await this.webphone.unmute(sessionId);
   }
 
   private _initAudio() {
@@ -873,7 +751,6 @@ class CxIntegratedSoftphone extends RcModule {
     try {
       this.logger.info('setSipRegistering true~~');
       await this.setSipRegistering(true);
-      // Reconnect debounce: delay when reconnecting or force login
       if (
         this.cxAgentSession.isReconnected ||
         this.cxAgentSession.isForceLogin
@@ -884,19 +761,18 @@ class CxIntegratedSoftphone extends RcModule {
           : RECONNECT_DEBOUNCE_TIME;
         await sleep(debounceTime);
       }
-      // `sip/sipRegistrationInfo` is authenticated with the Engage token,
-      // which has no refresh token and expires on its own schedule. The socket
-      // reconnect only renews the separate WebSocket token, so after an outage
-      // long enough to outlive the Engage token this registration would fail
-      // with a 401. Re-exchange it first, as every other Engage HTTP call does.
-      const authorized = await this.cxAuth.refreshEvToken();
-      if (!authorized) {
-        throw new Error('Engage token is expired, cannot register softphone');
+      await this.webphone.setEngageAgentEptEnabled(true);
+      // Enabling the roles no longer forces a connection of its own, so the
+      // session still has to make sure one exists. Both calls are no-ops when
+      // the webphone already registered with the roles after a reload.
+      await this.webphone.connect();
+      if (this.webphone.connected) {
+        this._sipConnected = true;
+        await this.setSipRegisterSuccess(true);
+        await this.setSipRegistering(false);
+        this._emitRegistered();
+        return;
       }
-      this.logger.info('sipInitAndRegister~~');
-      await this.cxClient.sipInitAndRegister({
-        agentId: this.cxAuth.getAgentId(),
-      });
       await this.onceRegistered();
       await this.setSipRegistering(false);
     } catch (error) {

@@ -91,12 +91,26 @@ export class CxRouteCoordinator extends RcModule {
   @state
   navigationRequest: CxNavigationRequest | null = null;
 
+  /**
+   * Token this port already routed to. The request stays in shared state after
+   * it is honoured, so a full state resync hands every port the same object
+   * again with a new reference; without this the agent would be sent back to
+   * a page the policy asked for long ago.
+   */
+  private _appliedNavigationToken = 0;
+
   @action
   private _requestNavigation(
     path: string,
     mode: 'push' | 'replace',
     showWindow = false,
   ): void {
+    this.logger.info('[cxdbg] requestNavigation~~', {
+      path,
+      mode,
+      currentPath: this._router.currentPath,
+      caller: new Error('nav').stack?.split('\n').slice(2, 7).join(' <- '),
+    });
     this.navigationRequest = {
       path,
       mode,
@@ -106,9 +120,19 @@ export class CxRouteCoordinator extends RcModule {
   }
 
   private _applyNavigationRequest(request: CxNavigationRequest | null): void {
+    this.logger.info('[cxdbg] applyNavigationRequest~~', {
+      request,
+      rendersApp: this._rendersApp,
+      appliedToken: this._appliedNavigationToken,
+      currentPath: this._router.currentPath,
+    });
     if (!request || !this._rendersApp) {
       return;
     }
+    if (request.token === this._appliedNavigationToken) {
+      return;
+    }
+    this._appliedNavigationToken = request.token;
     this.logger.info('applyNavigationRequest~~', request.path);
     if (this._router.currentPath !== request.path) {
       if (request.mode === 'push') {
@@ -182,6 +206,11 @@ export class CxRouteCoordinator extends RcModule {
         this.logger.warn('onCallEnded~~ without session', {
           hasCurrentCall: !!currentCall,
         });
+        this.logger.info('[cxdbg] onCallEnded without session~~', {
+          hasCurrentCall: !!currentCall,
+          endedCall: !!currentCall?.endedCall,
+          currentPath: this._router.currentPath,
+        });
         if (!currentCall || currentCall.endedCall) {
           this._requestNavigation(cxPath.home('dialer'), 'replace');
         }
@@ -195,6 +224,15 @@ export class CxRouteCoordinator extends RcModule {
         this._dispositionViewOptions,
       );
       this.logger.info('onCallEnded~~', id, { isDisposed, showDispositionStep });
+      this.logger.info('[cxdbg] onCallEnded~~', {
+        id,
+        uii: call.uii,
+        callType: call.callType,
+        isDisposed,
+        showDispositionStep,
+        hasEndedCall: !!call.endedCall,
+        currentPath: this._router.currentPath,
+      });
       if (isDisposed || !showDispositionStep) {
         await this._cxWorkingState.setIsPendingDisposition(false);
         this._requestNavigation(cxPath.home('dialer'), 'replace');

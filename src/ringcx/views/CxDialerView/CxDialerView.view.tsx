@@ -33,6 +33,7 @@ import { CxCall } from '../../services/CxCall';
 import { CxAuth } from '../../services/CxAuth';
 import { CxSettings } from '../../services/CxSettings';
 import { CxClient } from '../../services/CxClient';
+import { CxActiveCallControl } from '../../services/CxActiveCallControl';
 import { CxCallMonitor } from '../../services/CxCallMonitor';
 import { CxWorkingState } from '../../services/CxWorkingState';
 import { cxPath } from '../../routes';
@@ -66,6 +67,7 @@ class CxDialerView extends RcViewModule {
     private cxAuth: CxAuth,
     private cxSettings: CxSettings,
     private cxClient: CxClient,
+    private cxActiveCallControl: CxActiveCallControl,
     private cxCallMonitor: CxCallMonitor,
     private cxWorkingState: CxWorkingState,
     private cxDirectorySearch: CxDirectorySearch,
@@ -287,10 +289,20 @@ class CxDialerView extends RcViewModule {
   }
 
   /**
-   * Cancel the current outbound call
+   * End whatever is keeping the dialer busy.
+   *
+   * The button also shows while a call is up, which the agent reaches by
+   * coming back here from the call page. A connected call has to be hung up
+   * through call control; cancelling the outdial only reaches a destination
+   * that has not answered yet.
    */
   @delegate('server')
   async hangup(): Promise<void> {
+    const sessionId = this.cxCall.currentCall?.session?.sessionId;
+    if (sessionId) {
+      await this.cxActiveCallControl.hangUp(sessionId);
+      return;
+    }
     await this.cxCall.outdialCancel();
     if (!this.cxSettings.isManualOffhook) {
       await this.cxClient.offhookTerm();

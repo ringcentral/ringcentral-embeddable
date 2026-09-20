@@ -66,3 +66,16 @@ export interface CxClientManualOutdialParams {
   queueId: string;
   countryId: string;
 }
+
+/**
+ * Entry of the Agent SDK's `softphoneSettings.sipInfo`. The SDK builds the
+ * IntelliQueue dial destination from it and otherwise fetches it from
+ * `api/v1/sip/sipRegistrationInfo`.
+ */
+export interface CxSoftphoneSipInfo {
+  transport: string;
+  username: string;
+  /** Read instead of `username` while the SDK runs with `isI18nEnabled`. */
+  username_e164: string;
+  domain: string;
+}

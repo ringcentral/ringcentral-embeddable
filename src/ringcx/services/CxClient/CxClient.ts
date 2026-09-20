@@ -51,6 +51,9 @@ import type {
   RawEvAuthenticateAgentWithRcAccessTokenRes,
   RecordResponse,
 } from './interfaces';
+import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
+import type { Webphone } from '../../../app/services/WebphoneV2';
+import { buildSoftphoneSipInfo } from './buildSoftphoneSipInfo';
 import type {
   CxAgentIdentity,
   CxClientServiceOptions,
@@ -148,6 +151,7 @@ class CxClient extends RcModule {
   constructor(
     protected _portManager: PortManager,
     @inject('CxClientOptions') protected evClientOptions: CxClientServiceOptions,
+    @inject(MicroPhoneWebphone) protected _webphone: Webphone,
   ) {
     super();
     this._options = this.evClientOptions.options;
@@ -614,6 +618,9 @@ class CxClient extends RcModule {
     isForce = false,
     loginType,
   }: CxConfigureAgentOptions): Promise<CxMessageRes> {
+    if (dialDest === 'integrated') {
+      this._seedSoftphoneSipInfo();
+    }
     return new Promise<CxMessageRes>((resolve) => {
       this.logger.info('configureAgent~~')
       this._sdk.loginAgent(
@@ -640,6 +647,27 @@ class CxClient extends RcModule {
         },
       );
     });
+  }
+
+  /**
+   * An integrated login blocks on `api/v1/sip/sipRegistrationInfo` whenever
+   * `softphoneSettings.sipInfo` is empty, because the SDK needs a username to
+   * form the `<username>@RC_SOFTPHONE` dial destination it sends to
+   * IntelliQueue. The host webphone already provisioned that same extension
+   * identity, so seeding it here removes the request.
+   */
+  private _seedSoftphoneSipInfo(): void {
+    const model = this._sdk?._getUIModel?.().getInstance();
+    if (!model || model.softphoneSettings.sipInfo.length > 0) {
+      return;
+    }
+    const sipInfo = buildSoftphoneSipInfo(this._webphone.sipInfo);
+    if (!sipInfo) {
+      this.logger.warn('seedSoftphoneSipInfo skipped~~ no provisioned username');
+      return;
+    }
+    this.logger.info('seedSoftphoneSipInfo~~', sipInfo[0].username);
+    model.softphoneSettings.sipInfo = sipInfo;
   }
 
   @delegate('mainClient')

@@ -27,6 +27,9 @@ import type {
   CxDispositionStateMapping,
 } from './CxCallDisposition.interface';
 
+/** How long streamed summary phases are collected before being applied. */
+const SUMMARY_FLUSH_INTERVAL = 200;
+
 /**
  * CxCallDisposition module - Call disposition management
  * Handles call disposition selection and submission
@@ -65,6 +68,13 @@ class CxCallDisposition extends RcModule {
 
   @state
   callSummaryMapping: CxCallSummaryStateMapping = {};
+
+  private _pendingSummaryPhases = new Map<
+    string,
+    CxDispositionSummaryPhaseResponse[]
+  >();
+
+  private _summaryFlushTimer?: ReturnType<typeof setTimeout>;
 
   @action
   setDisposition(id: string, data: CxCallDispositionData) {
@@ -117,22 +127,34 @@ class CxCallDisposition extends RcModule {
   }
 
   @action
-  upsertSummaryPhase(callId: string, phase: CxDispositionSummaryPhaseResponse) {
+  upsertSummaryPhases(
+    callId: string,
+    phases: readonly CxDispositionSummaryPhaseResponse[],
+  ) {
     const currentSummaryState = this.callSummaryMapping[callId];
-    const sequence = Number(phase.sequenceNo);
-    if (Number.isNaN(sequence)) {
-      this.logger.warn('Invalid summary sequence number', phase.sequenceNo);
+    if (!currentSummaryState) {
       return;
     }
-    if (!currentSummaryState || String(currentSummaryState.segmentId) !== String(phase.segmentId)) {
+    let hasAcceptedPhase = false;
+    phases.forEach((phase) => {
+      const sequence = Number(phase.sequenceNo);
+      if (Number.isNaN(sequence)) {
+        this.logger.warn('Invalid summary sequence number', phase.sequenceNo);
+        return;
+      }
+      if (String(currentSummaryState.segmentId) !== String(phase.segmentId)) {
+        return;
+      }
+      currentSummaryState.orderedPhases[sequence] = phase.summary ?? '';
+      currentSummaryState.isFinal = currentSummaryState.isFinal || phase.final;
+      hasAcceptedPhase = true;
+    });
+    if (!hasAcceptedPhase) {
       return;
     }
-    currentSummaryState.orderedPhases[sequence] = phase.summary ?? '';
     const aggregatedSummary = this.buildSummaryBySequence(currentSummaryState.orderedPhases);
     currentSummaryState.summary = aggregatedSummary;
-    const isFinal = currentSummaryState.isFinal || phase.final;
-    currentSummaryState.isFinal = isFinal;
-    currentSummaryState.isLoading = !isFinal;
+    currentSummaryState.isLoading = !currentSummaryState.isFinal;
     if (!currentSummaryState.isEditedAfterFinal) {
       this.setSummary(callId, aggregatedSummary, false);
     }
@@ -170,6 +192,44 @@ class CxCallDisposition extends RcModule {
     // This would typically be connected to CxCallMonitor events
   }
 
+  /**
+   * A summary streams in as one phase per fragment, so applying each one as
+   * its own state update floods every port with patches for text the agent
+   * reads once. Phases are collected instead and written in batches, and the
+   * final phase is written straight away so the summary never looks unfinished.
+   */
+  private _bufferSummaryPhase(
+    callId: string,
+    phase: CxDispositionSummaryPhaseResponse,
+  ): void {
+    const pending = this._pendingSummaryPhases.get(callId) ?? [];
+    pending.push(phase);
+    this._pendingSummaryPhases.set(callId, pending);
+    if (phase.final) {
+      this._flushSummaryPhases();
+      return;
+    }
+    if (this._summaryFlushTimer) {
+      return;
+    }
+    this._summaryFlushTimer = setTimeout(
+      () => this._flushSummaryPhases(),
+      SUMMARY_FLUSH_INTERVAL,
+    );
+  }
+
+  private _flushSummaryPhases(): void {
+    if (this._summaryFlushTimer) {
+      clearTimeout(this._summaryFlushTimer);
+      this._summaryFlushTimer = undefined;
+    }
+    const batches = [...this._pendingSummaryPhases.entries()];
+    this._pendingSummaryPhases.clear();
+    batches.forEach(([callId, phases]) => {
+      this.upsertSummaryPhases(callId, phases);
+    });
+  }
+
   private initialize() {
     this.cxSubscription.subscribe(
       CxCallbackTypes.SUMMARY,
@@ -181,7 +241,7 @@ class CxCallDisposition extends RcModule {
         if (!callId) {
           return;
         }
-        this.upsertSummaryPhase(callId, phase);
+        this._bufferSummaryPhase(callId, phase);
       },
     );
     this.cxSubscription.subscribe(

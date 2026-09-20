@@ -8,6 +8,7 @@ export * from './NoiseReduction';
 export * from './SmartNotes';
 export * from './VoicemailDrop';
 export * from './ActiveCallControl';
+export * from './Call';
 export * from './CallAction';
 export * from './CallMonitor';
 export * from './ContactMatcher';

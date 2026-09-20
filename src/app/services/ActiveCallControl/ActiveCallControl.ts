@@ -63,9 +63,11 @@ import {
 
 import { recordStatus } from '../WebphoneV2/recordStatus';
 import { sessionStatus } from '../WebphoneV2/sessionStatus';
-import type {
-  Webphone as WebphoneV2,
-} from '../WebphoneV2';
+import type { Webphone as WebphoneV2 } from '../WebphoneV2';
+
+type WebphoneWithCxOffhook = {
+  readonly cxOffhookTelephonySessionIds: readonly string[];
+};
 
 const STOP_RECORD_DISABLED_MESSAGE =
   'Sorry, stopping recording is not supported for this call. Please contact your account administrator to enable "Allow mute in auto recording".';
@@ -574,9 +576,24 @@ export class ActiveCallControl extends ActiveCallControlBase {
     );
   }
 
-  @computed((that: ActiveCallControl) => [that.data.sessions, that._webphone.sessions])
+  @computed(
+    (that: ActiveCallControl) => [
+      that.data.sessions,
+      that._webphone.sessions,
+      (that._webphone as unknown as WebphoneWithCxOffhook)
+        .cxOffhookTelephonySessionIds,
+    ],
+  )
   get sessions(): ActiveCallControlSessionData[] {
-    return [...this.data.sessions, ...this._getFallbackSessions()];
+    const hiddenTelephonyIds = new Set(
+      (this._webphone as unknown as WebphoneWithCxOffhook)
+        .cxOffhookTelephonySessionIds,
+    );
+    const telephonySessions = this.data.sessions.filter((session) => {
+      const telephonySessionId = session.telephonySessionId ?? session.id;
+      return !hiddenTelephonyIds.has(telephonySessionId);
+    });
+    return [...telephonySessions, ...this._getFallbackSessions()];
   }
 
   @computed((that: ActiveCallControl) => [that._presence.calls, that.sessions])

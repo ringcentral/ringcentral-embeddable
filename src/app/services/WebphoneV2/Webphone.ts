@@ -79,6 +79,8 @@ const COMMAND_METHODS = [
   'setIncomingAudioIntoStorage',
   'loadClientAudio',
   'setRingtone',
+  'setEngageAgentEptEnabled',
+  'reconnectWithCurrentHeaders',
   // App-specific: validates against the server's session records before
   // delegating the media work to the owner tab.
   'dropVoicemailMessage',
