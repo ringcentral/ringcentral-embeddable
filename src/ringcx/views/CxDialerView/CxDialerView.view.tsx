@@ -28,7 +28,10 @@ import {
 import { BackspaceMd, EnterMd } from '@ringcentral/spring-icon';
 import React, { useRef } from 'react';
 
-import type { CxHostIntegration } from '../../../app/services/RingCX/RingCX.interface';
+import type {
+  CxExBridgeDirectory,
+  CxHostIntegration,
+} from '../../../app/services/RingCX/RingCX.interface';
 import { CxCall } from '../../services/CxCall';
 import { CxAuth } from '../../services/CxAuth';
 import { CxSettings } from '../../services/CxSettings';
@@ -266,8 +269,11 @@ class CxDialerView extends RcViewModule {
     const destination = record
       ? this.cxDirectorySearch.buildRecordDestination(this._searchScope, record)
       : null;
-    if (destination) {
-      await this.cxCall.dialout(destination, { skipParse: true });
+    if (destination && record) {
+      await this.cxCall.dialout(destination, {
+        skipParse: true,
+        directory: this._createExBridgeDirectory(record),
+      });
       return;
     }
     await this.cxCall.dialout(this.toNumber);
@@ -285,7 +291,20 @@ class CxDialerView extends RcViewModule {
     if (!destination) {
       return;
     }
-    await this.cxCall.dialout(destination, { skipParse: true });
+    await this.cxCall.dialout(destination, {
+      skipParse: true,
+      directory: this._createExBridgeDirectory(record),
+    });
+  }
+
+  private _createExBridgeDirectory(record: DirectoryRecord): CxExBridgeDirectory {
+    return {
+      extensionId: record.id,
+      name: formatDirectoryRecordName(record),
+      mainNumber:
+        record.account?.mainNumber?.phoneNumber ||
+        this.cxDirectorySearch.getMainNumber(this._searchScope),
+    };
   }
 
   /**

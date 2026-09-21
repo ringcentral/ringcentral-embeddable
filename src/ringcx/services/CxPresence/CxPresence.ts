@@ -379,13 +379,6 @@ class CxPresence extends RcModule {
       .subscribe(
         CxCallbackTypes.OFFHOOK_TERM,
         async (data: CxOffhookTermResponse) => {
-          this.logger.info('[cxdbg] OFFHOOK_TERM~~', {
-            data,
-            callIds: this.callIds,
-            otherCallIds: this.otherCallIds,
-            oldCalls: this._oldCalls.length,
-            isManualOffhook: this.isManualOffhook,
-          });
           // Fix: also handle 'Offhook terminated' message on logout
           if (data.status === 'OK' || data.message === 'Offhook terminated') {
             await this.setOffhookTerm();
@@ -400,15 +393,6 @@ class CxPresence extends RcModule {
       )
       .subscribe(CxCallbackTypes.ADD_SESSION, async (data: CxAddSessionNotification) => {
         this.logger.info('ADD_SESSION~~', data.status);
-        this.logger.info('[cxdbg] ADD_SESSION~~', {
-          id: this.cxClient.encodeUii(data),
-          uii: data.uii,
-          sessionId: data.sessionId,
-          sessionType: (data as unknown as { sessionType?: string }).sessionType,
-          agentId: data.agentId,
-          callIds: this.callIds,
-          oldCalls: this._oldCalls.length,
-        });
         if (data.status === 'OK') {
           await this.addNewSession(data);
           // Emit RINGING on evPresenceEvents for the public event API
@@ -421,12 +405,6 @@ class CxPresence extends RcModule {
         }
       })
       .subscribe(CxCallbackTypes.DROP_SESSION, async (data: any) => {
-        this.logger.info('[cxdbg] DROP_SESSION~~', {
-          data,
-          callIds: this.callIds,
-          otherCallIds: this.otherCallIds,
-          oldCalls: this._oldCalls.length,
-        });
         if (data.status === 'OK') {
           await this.dropSession(data);
         } else {
@@ -445,11 +423,6 @@ class CxPresence extends RcModule {
         }
       })
       .subscribe(CxCallbackTypes.NEW_CALL, async (data: CxBaseCall) => {
-        this.logger.info('[cxdbg] NEW_CALL~~', {
-          uii: data.uii,
-          callType: data.callType,
-          callIds: this.callIds,
-        });
         await this.addNewCall(data);
       })
       .subscribe(CxCallbackTypes.END_CALL, async (data: CxEndedCall) => {
@@ -462,16 +435,6 @@ class CxPresence extends RcModule {
         })
           .map((sessionId) => ({ ...data, sessionId }))
           .filter((call) => !!this.callsMapping[this.cxClient.encodeUii(call)]);
-        this.logger.info('[cxdbg] END_CALL~~', {
-          data,
-          callIdsBefore: this.callIds,
-          callLogsIds: this.callLogsIds,
-          oldCalls: this._oldCalls.map((call) =>
-            call?.session ? this.cxClient.encodeUii(call.session) : '(no session)',
-          ),
-          resolved: endedCalls.map((call) => this.cxClient.encodeUii(call)),
-          endedCallIds: [...this._endedCallIds],
-        });
         if (!endedCalls.length) return;
         if (!this.isManualOffhook) {
           this.cxClient.offhookTerm();
@@ -564,35 +527,14 @@ class CxPresence extends RcModule {
    */
   private async _checkCallStateChange(endedCall?: CxBaseCall): Promise<void> {
     const currentCalls = this.calls;
-    this.logger.info('[cxdbg] checkCallStateChange~~', {
-      current: currentCalls.map((call) =>
-        call?.session ? this.cxClient.encodeUii(call.session) : '(no session)',
-      ),
-      old: this._oldCalls.map((call) =>
-        call?.session ? this.cxClient.encodeUii(call.session) : '(no session)',
-      ),
-      endedCallArg: endedCall?.session
-        ? this.cxClient.encodeUii(endedCall.session)
-        : '(none)',
-      isOffhook: this.isOffhook,
-      isManualOffhook: this.isManualOffhook,
-    });
     if (currentCalls.length > this._oldCalls.length) {
       const currentCall = currentCalls[0];
       const mainCall = this.getMainCall(currentCall.uii);
       if (currentCall && mainCall) {
         this._oldCalls = currentCalls;
         this.setDialoutStatus(dialoutStatuses.callConnected);
-        this.logger.info('[cxdbg] emit ANSWERED~~', {
-          id: currentCall.session
-            ? this.cxClient.encodeUii(currentCall.session)
-            : '(no session)',
-        });
         this.evPresenceEvents.emit(callStatus.ANSWERED, currentCall);
       } else {
-        this.logger.info('[cxdbg] no main call, clearing calls~~', {
-          uii: currentCall?.uii,
-        });
         await this.clearCalls();
       }
     } else if (currentCalls.length < this._oldCalls.length) {
@@ -608,11 +550,6 @@ class CxPresence extends RcModule {
       if (endedCallId) {
         this._endedCallIds.add(endedCallId);
       }
-      this.logger.info('[cxdbg] emit ENDED~~', {
-        endedCallId,
-        hasSession: !!call?.session,
-        fromArg: !!endedCall,
-      });
       this.evPresenceEvents.emit(callStatus.ENDED, call);
     }
   }

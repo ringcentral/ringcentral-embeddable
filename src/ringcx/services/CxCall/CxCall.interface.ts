@@ -1,3 +1,5 @@
+import type { CxExBridgeDirectory } from '../../../app/services/RingCX/RingCX.interface';
+
 /**
  * CxCall options for configuration
  */
@@ -15,6 +17,11 @@ export interface DialoutFormGroup {
   dialoutRingTime: number;
 }
 
+export interface CxDialoutOptions {
+  skipParse?: boolean;
+  directory?: CxExBridgeDirectory;
+}
+
 /**
  * Manual outdial parameters
  */
@@ -24,6 +31,7 @@ export interface ManualOutdialParams {
   countryId?: string;
   queueId?: string | null;
   ringTime?: number;
+  directory?: CxExBridgeDirectory;
 }
 
 /**

@@ -99,10 +99,6 @@ import {
   getRoutedConversationContact,
   RoutedSideWidgetView,
 } from './views/RoutedSideWidgetView';
-import {
-  describeContact,
-  sideWidgetDebug,
-} from './views/SideWidgetView/SideWidget.debug';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import {
   ThirdPartySettingSectionView,
@@ -489,19 +485,6 @@ export class AppView extends RcViewModule {
     );
   }
 
-  private _getRoutedContact(
-    tabId: string,
-    params: Record<string, string | undefined>,
-  ): ThirdPartyWidgetContact | null | undefined {
-    const contact = this._resolveRoutedContact(tabId, params);
-    sideWidgetDebug('appView:routedContact', {
-      tabId,
-      params,
-      contact: describeContact(contact),
-    });
-    return contact;
-  }
-
   private _resolveRoutedContact(
     tabId: string,
     params: Record<string, string | undefined>,
@@ -521,28 +504,12 @@ export class AppView extends RcViewModule {
         ? undefined
         : this._messageThread?.getThreadConversation(conversationId);
       const conversation = mapped ?? threaded;
-      sideWidgetDebug('appView:conversationLookup', {
-        tabId,
-        conversationId,
-        foundIn: mapped ? 'conversationsMap' : threaded ? 'messageThread' : 'none',
-        hasMessageThread: Boolean(this._messageThread),
-        conversationsMapSize:
-          this._conversations.formattedConversationsMap.size,
-        correspondents: (
-          conversation as { correspondents?: { phoneNumber?: string }[] }
-        )?.correspondents?.map(({ phoneNumber }) => phoneNumber),
-      });
       return conversation
         ? getRoutedConversationContact(conversation)
         : undefined;
     }
     if (tabId === 'call-details') {
       const call = this._callViewState.callDetailCallLog;
-      sideWidgetDebug('appView:callDetailLookup', {
-        tabId,
-        callLogId: params.callLogId,
-        hasCallLog: Boolean(call),
-      });
       return call ? getRoutedCallContact(call) : undefined;
     }
     if (tabId === 'contact-details') {
@@ -574,7 +541,7 @@ export class AppView extends RcViewModule {
       string | undefined
     >;
     const contact = useConnector(() =>
-      config ? this._getRoutedContact(config.id, params) : undefined,
+      config ? this._resolveRoutedContact(config.id, params) : undefined,
     );
     if (!config || !DetailComponent) {
       return null;
@@ -720,7 +687,7 @@ export class AppView extends RcViewModule {
             ]
           : [],
       ),
-      (tabId, params) => this._getRoutedContact(tabId, params),
+      (tabId, params) => this._resolveRoutedContact(tabId, params),
     );
   }
 

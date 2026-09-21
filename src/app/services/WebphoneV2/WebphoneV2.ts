@@ -49,6 +49,8 @@ import {
 import { summarizeSipMessage } from './WebphoneSipLogger';
 import {
   applyEngageAgentEptRegisterHeaders,
+  CX_OFFHOOK_INVITE_HEADERS,
+  ENGAGE_AGENT_EPT_REGISTER_HEADER_NAMES,
   isCxOffhookInvite,
   isRegisterSipMessage,
   listSipHeaderNames,
@@ -791,22 +793,6 @@ export class WebphoneV2 extends RcModule {
       (candidate) => candidate.isCxOffhook && !candidate.finalized,
     );
     const telephonySessionId = record?.normalized.partyData?.sessionId;
-    if (
-      (record?.normalized.id ?? null) !== this.cxOffhookSessionId ||
-      (record?.session.state === 'answered') !== this.cxOffhookConnected
-    ) {
-      this.logger.info('[cxdbg] webphone cx offhook state~~', {
-        sessionId: record?.normalized.id ?? null,
-        state: record?.session.state ?? '(none)',
-        telephonySessionId,
-        records: [...this._sessionRecords.values()].map((candidate) => ({
-          id: candidate.normalized.id,
-          isCxOffhook: !!candidate.isCxOffhook,
-          finalized: candidate.finalized,
-          state: candidate.session.state,
-        })),
-      });
-    }
     this._setCxOffhookState({
       sessionId: record?.normalized.id ?? null,
       connected: record?.session.state === 'answered',
@@ -820,9 +806,6 @@ export class WebphoneV2 extends RcModule {
   }
 
   private async _answerCxOffhookSession(record: WebphoneV2SessionRecord) {
-    this.logger.info('[cxdbg] webphone answering cx offhook~~', {
-      sessionId: record.normalized.id,
-    });
     try {
       await this.ensureMediaOwner();
       const session = record.session as InboundWebPhoneSession;
@@ -872,14 +855,6 @@ export class WebphoneV2 extends RcModule {
     await this._connectPromise?.catch(() => undefined);
     const matchesRegistration =
       !this.connected || this._registeredEngageAgentEpt === enabled;
-    this.logger.info('[cxdbg] setEngageAgentEptEnabled~~', {
-      enabled,
-      connected: this.connected,
-      registeredWithEpt: this._registeredEngageAgentEpt,
-      willReconnect: !matchesRegistration,
-      sessions: this.sessions.length,
-      caller: new Error('ept').stack?.split('\n').slice(2, 7).join(' <- '),
-    });
     if (matchesRegistration) {
       return;
     }
@@ -975,6 +950,9 @@ export class WebphoneV2 extends RcModule {
       this.logger.info('Webphone V2 inbound INVITE classified', {
         isCxOffhook,
         headerNames: listSipHeaderNames(inviteMessage),
+        hasCallControlApiIds: Boolean(
+          getHeader(inviteMessage, CX_OFFHOOK_INVITE_HEADERS.callControlApiIds),
+        ),
       });
     }
     const record: WebphoneV2SessionRecord = {
@@ -1583,6 +1561,15 @@ export class WebphoneV2 extends RcModule {
           applyEngageAgentEptRegisterHeaders(message, endpointId);
         }
         this._registeredEngageAgentEpt = !!endpointId;
+        if (this.engageAgentEptEnabled || endpointId) {
+          this.logger.info('Webphone V2 REGISTER EPT headers', {
+            engageAgentEptEnabled: this.engageAgentEptEnabled,
+            applied: Boolean(endpointId),
+            headerNames: endpointId
+              ? [...ENGAGE_AGENT_EPT_REGISTER_HEADER_NAMES]
+              : [],
+          });
+        }
       }
       if (!waitForReply) return originalSend(message, false);
       const callId = getHeader(message, 'Call-ID');
@@ -2812,10 +2799,6 @@ export class WebphoneV2 extends RcModule {
 
     let cache = this._getCachedProvision();
     let usedCache = !!cache;
-    this.logger.info('[cxdbg] webphone connect provision~~', {
-      usedCache,
-      engageAgentEptEnabled: this.engageAgentEptEnabled,
-    });
     if (!cache) {
       cache = await this._provision(epoch);
       usedCache = false;

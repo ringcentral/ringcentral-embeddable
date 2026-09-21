@@ -630,11 +630,6 @@ class CxDispositionView extends RcViewModule {
   @delegate('server')
   async goToPendingDisposition() {
     const callId = this.cxWorkingState.pendingDispositionCallId || this.cxCall.activityCallId;
-    this.logger.info('[cxdbg] goToPendingDisposition~~', {
-      callId,
-      currentPath: this.router.currentPath,
-      caller: new Error('nav').stack?.split('\n').slice(2, 7).join(' <- '),
-    });
     if (!callId) {
       this.logger.warn('goToPendingDisposition~~ without a call id');
       return;

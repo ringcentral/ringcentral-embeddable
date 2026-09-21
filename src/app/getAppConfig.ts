@@ -907,13 +907,22 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       // have to import the host classes into its own bundle.
       {
         provide: 'CxHostIntegration',
-        useFactory: (adapter: Adapter, call: Call): CxHostIntegration => ({
+        useFactory: (adapter: Adapter, call: Call, ringCX: RingCX): CxHostIntegration => ({
           get isCallIdle() {
             return call.isIdle;
           },
           showClientWindow: () => adapter.showClientWindow(),
+          registerExBridgeDestination: (destination, directory) => {
+            ringCX.registerExBridgeDestination(destination, directory);
+          },
+          clearExBridgeDestination: (destination: string) => {
+            ringCX.clearExBridgeDestination(destination);
+          },
+          dismissExCallUiForCxCall: () => {
+            adapter.dismissExCallUiForCxCall();
+          },
         }),
-        deps: [Adapter, Call],
+        deps: [Adapter, Call, RingCX],
       },
       {
         provide: 'SmsConversationsOptions',

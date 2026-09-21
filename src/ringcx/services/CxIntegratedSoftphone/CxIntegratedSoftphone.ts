@@ -431,15 +431,6 @@ class CxIntegratedSoftphone extends RcModule {
         [connected, eptEnabled, status, offhookConnected, offhookMuted],
         previous,
       ) => {
-        this.logger.info('[cxdbg] webphoneState~~', {
-          connected,
-          eptEnabled,
-          status,
-          offhookConnected,
-          offhookMuted,
-          previous,
-          isServer: this.portManager.isServer,
-        });
         if (!this.portManager.isServer) {
           return;
         }

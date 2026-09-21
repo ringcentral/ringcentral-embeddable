@@ -106,12 +106,6 @@ export class CxRouteCoordinator extends RcModule {
     mode: 'push' | 'replace',
     showWindow = false,
   ): void {
-    this.logger.info('[cxdbg] requestNavigation~~', {
-      path,
-      mode,
-      currentPath: this._router.currentPath,
-      caller: new Error('nav').stack?.split('\n').slice(2, 7).join(' <- '),
-    });
     this.navigationRequest = {
       path,
       mode,
@@ -121,12 +115,6 @@ export class CxRouteCoordinator extends RcModule {
   }
 
   private _applyNavigationRequest(request: CxNavigationRequest | null): void {
-    this.logger.info('[cxdbg] applyNavigationRequest~~', {
-      request,
-      rendersApp: this._rendersApp,
-      appliedToken: this._appliedNavigationToken,
-      currentPath: this._router.currentPath,
-    });
     if (!request || !this._rendersApp) {
       return;
     }
@@ -201,6 +189,7 @@ export class CxRouteCoordinator extends RcModule {
       }
       const id = this._cxClient.encodeUii(call.session);
       this.logger.info('onCallAnswered~~', id);
+      this._host.dismissExCallUiForCxCall();
       this._cxCall.setActivityCallId(id);
       this._requestNavigation(cxPath.call(id), 'push', true);
       await this._cxDialerView.setToNumber('');
@@ -216,11 +205,6 @@ export class CxRouteCoordinator extends RcModule {
         this.logger.warn('onCallEnded~~ without session', {
           hasCurrentCall: !!currentCall,
         });
-        this.logger.info('[cxdbg] onCallEnded without session~~', {
-          hasCurrentCall: !!currentCall,
-          endedCall: !!currentCall?.endedCall,
-          currentPath: this._router.currentPath,
-        });
         if (!currentCall || currentCall.endedCall) {
           this._requestNavigation(cxPath.home('dialer'), 'replace');
         }
@@ -234,15 +218,6 @@ export class CxRouteCoordinator extends RcModule {
         this._dispositionViewOptions,
       );
       this.logger.info('onCallEnded~~', id, { isDisposed, showDispositionStep });
-      this.logger.info('[cxdbg] onCallEnded~~', {
-        id,
-        uii: call.uii,
-        callType: call.callType,
-        isDisposed,
-        showDispositionStep,
-        hasEndedCall: !!call.endedCall,
-        currentPath: this._router.currentPath,
-      });
       if (isDisposed || !showDispositionStep) {
         await this._cxWorkingState.setIsPendingDisposition(false);
         this._requestNavigation(cxPath.home('dialer'), 'replace');

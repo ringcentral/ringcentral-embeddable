@@ -260,10 +260,6 @@ class CxSessionRecovery extends RcModule {
   }
 
   private _goToDisposition(callId: string): void {
-    this.logger.info('[cxdbg] recovery goToDisposition~~', {
-      callId,
-      currentPath: this.router.currentPath,
-    });
     if (!callId) {
       return;
     }

@@ -9,6 +9,7 @@ import {
 } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   action,
+  computed,
   delegate,
   dynamic,
   inject,
@@ -24,9 +25,10 @@ import {
   watch,
 } from '@ringcentral-integration/next-core';
 
+import type { CxExBridgeHint } from '../ActiveCallControl/is-cx-rc-ext-ex-bridge-call';
+import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
 import { loadRingCXChunk } from '../load-ringcx-chunk';
 import { keepRouterPathOnLoad } from './keep-router-path-on-load';
-import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
 import { t } from './i18n';
 import type {
   CxAgentSessionModule,
@@ -35,10 +37,26 @@ import type {
   CxRuntimeOptions,
   CxViewModule,
   StartAgentSessionOptions,
+  CxExBridgeDirectory,
 } from './RingCX.interface';
 import type { CxStage } from './cxStage';
 
 const RINGCX_CLIENT_APP_TYPE = 'RCX_Embeddable';
+const CX_DIALOUT_DIALING = 'dialing';
+const CX_EX_BRIDGE_PENDING_TIMEOUT_MS = 2 * 60 * 1000;
+
+type CxLiveCallDestination = {
+  readonly dialDest?: string;
+  readonly dnis?: string;
+  readonly dnisE164?: string;
+};
+
+type PendingExBridgeDestination = {
+  destination: string;
+  extensionId: string;
+  name: string;
+  mainNumber: string;
+};
 
 function deriveRingCXAuthHost(server: string): string {
   try {
@@ -48,6 +66,21 @@ function deriveRingCXAuthHost(server: string): string {
   } catch {
     return server;
   }
+}
+
+const RC_EXT_SUFFIX = '@RC_EXT';
+
+function readCxRcExtMainNumber(destination: string): string {
+  const trimmed = destination.trim();
+  if (!trimmed.toUpperCase().endsWith(RC_EXT_SUFFIX)) {
+    return '';
+  }
+  const withoutSuffix = trimmed.slice(0, -RC_EXT_SUFFIX.length);
+  const separatorIndex = withoutSuffix.lastIndexOf('*');
+  if (separatorIndex <= 0) {
+    return '';
+  }
+  return withoutSuffix.slice(0, separatorIndex);
 }
 
 @injectable({
@@ -72,7 +105,11 @@ export class RingCX extends RcModule {
   readonly announcementsView?: CxViewModule;
 
   @dynamic('CxPresence')
-  readonly cxPresence?: { readonly isOnCall: boolean };
+  readonly cxPresence?: {
+    readonly isOnCall: boolean;
+    readonly dialoutStatus?: string;
+    readonly calls?: ReadonlyArray<CxLiveCallDestination>;
+  };
 
   @dynamic('CxWorkingState')
   readonly cxWorkingState?: { readonly isPendingDisposition: boolean };
@@ -97,6 +134,18 @@ export class RingCX extends RcModule {
   @storage
   @state
   sessionWanted = false;
+
+  /**
+   * Corporate-directory members registered at CX dialout, before IQ NEW-CALL.
+   * Used by {@link exBridgeHints} to hide the RingEX ghost session.
+   */
+  @state
+  pendingExBridgeDestinations: PendingExBridgeDestination[] = [];
+
+  private _exBridgeDestinationTimeouts = new Map<
+    string,
+    ReturnType<typeof setTimeout>
+  >();
 
   constructor(
     private readonly _appFeatures: AppFeatures,
@@ -143,6 +192,56 @@ export class RingCX extends RcModule {
     return !this.hasActiveCall && !this.cxWorkingState?.isPendingDisposition;
   }
 
+  /**
+   * Directory id/name for a live or just-dialed CX internal call, used to hide
+   * the ghost EX session from Phone UI.
+   */
+  @computed((that: RingCX) => [that.pendingExBridgeDestinations])
+  get exBridgeHints(): readonly CxExBridgeHint[] {
+    const hints: CxExBridgeHint[] = [];
+    const seen = new Set<string>();
+    this.pendingExBridgeDestinations.forEach((pending) => {
+      const key = `${pending.extensionId}|${pending.name}|${pending.mainNumber}`;
+      if (seen.has(key)) {
+        return;
+      }
+      seen.add(key);
+      hints.push({
+        extensionId: pending.extensionId,
+        name: pending.name,
+        mainNumber: pending.mainNumber,
+      });
+    });
+    return hints;
+  }
+
+  /**
+   * Remember the directory member a CX outbound is targeting so RingEX can
+   * hide the ghost session that may arrive before IQ NEW-CALL.
+   */
+  registerExBridgeDestination(
+    destination: string,
+    directory: CxExBridgeDirectory,
+  ): void {
+    if (!directory.extensionId && !directory.name) {
+      return;
+    }
+    this._addPendingExBridgeDestination({
+      destination,
+      extensionId: directory.extensionId.trim(),
+      name: directory.name.trim(),
+      mainNumber:
+        directory.mainNumber.trim() || readCxRcExtMainNumber(destination),
+    });
+    this._scheduleExBridgeDestinationTimeout(destination);
+  }
+
+  /** Drop a previously registered CX `@RC_EXT` destination. */
+  clearExBridgeDestination(destination: string): void {
+    this._clearExBridgeDestinationTimeout(destination);
+    this._removePendingExBridgeDestination(destination);
+  }
+
   override onInitOnce(): void {
     watch(
       this,
@@ -176,6 +275,15 @@ export class RingCX extends RcModule {
         // a failed token refresh for example. The teardown is idempotent, so
         // it is harmless right after the handler.
         void this.disconnectAgentSessionForSignOut();
+      },
+    );
+    watch(
+      this,
+      () => (this.cxPresence?.calls?.length ?? 0) > 0,
+      (isOnCall: boolean, wasOnCall: boolean) => {
+        if (wasOnCall && !isOnCall) {
+          this._clearAllPendingExBridgeDestinations();
+        }
       },
     );
     if (this.loadRequested) {
@@ -301,6 +409,83 @@ export class RingCX extends RcModule {
     this.stage = 'idle';
     this.sessionWanted = false;
     this.lastError = null;
+    this._exBridgeDestinationTimeouts.forEach((timeoutId) => {
+      clearTimeout(timeoutId);
+    });
+    this._exBridgeDestinationTimeouts.clear();
+    this.pendingExBridgeDestinations.splice(
+      0,
+      this.pendingExBridgeDestinations.length,
+    );
+  }
+
+  @action
+  private _addPendingExBridgeDestination(
+    pending: PendingExBridgeDestination,
+  ): void {
+    if (
+      this.pendingExBridgeDestinations.some(
+        (item) => item.destination === pending.destination,
+      )
+    ) {
+      return;
+    }
+    this.pendingExBridgeDestinations.push(pending);
+  }
+
+  @action
+  private _removePendingExBridgeDestination(destination: string): void {
+    const destinationIndex = this.pendingExBridgeDestinations.findIndex(
+      (item) => item.destination === destination,
+    );
+    if (destinationIndex < 0) {
+      return;
+    }
+    this.pendingExBridgeDestinations.splice(destinationIndex, 1);
+  }
+
+  @action
+  private _clearPendingExBridgeDestinationState(): void {
+    this.pendingExBridgeDestinations.splice(
+      0,
+      this.pendingExBridgeDestinations.length,
+    );
+  }
+
+  private _clearAllPendingExBridgeDestinations(): void {
+    this._exBridgeDestinationTimeouts.forEach((timeoutId) => {
+      clearTimeout(timeoutId);
+    });
+    this._exBridgeDestinationTimeouts.clear();
+    this._clearPendingExBridgeDestinationState();
+  }
+
+  private _scheduleExBridgeDestinationTimeout(destination: string): void {
+    this._clearExBridgeDestinationTimeout(destination);
+    const timeoutId = setTimeout(() => {
+      this._expireExBridgeDestination(destination);
+    }, CX_EX_BRIDGE_PENDING_TIMEOUT_MS);
+    this._exBridgeDestinationTimeouts.set(destination, timeoutId);
+  }
+
+  private _clearExBridgeDestinationTimeout(destination: string): void {
+    const timeoutId = this._exBridgeDestinationTimeouts.get(destination);
+    if (!timeoutId) {
+      return;
+    }
+    clearTimeout(timeoutId);
+    this._exBridgeDestinationTimeouts.delete(destination);
+  }
+
+  private _expireExBridgeDestination(destination: string): void {
+    this._exBridgeDestinationTimeouts.delete(destination);
+    if (
+      this.hasActiveCall ||
+      this.cxPresence?.dialoutStatus === CX_DIALOUT_DIALING
+    ) {
+      return;
+    }
+    this.clearExBridgeDestination(destination);
   }
 
   /**

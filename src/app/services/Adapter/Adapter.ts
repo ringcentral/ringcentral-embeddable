@@ -80,6 +80,7 @@ import type { AdapterOptions } from './AdapterOptions';
 import { resolveLegacyAdapterPath } from './resolveLegacyAdapterPath';
 
 import { SmartNotes } from '../SmartNotes';
+import { isCxRcExtExBridgeCall } from '../ActiveCallControl/is-cx-rc-ext-ex-bridge-call';
 import { RingCX } from '../RingCX';
 import { t as ringCXT } from '../RingCX/i18n';
 import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
@@ -163,6 +164,7 @@ const SUPPORTED_ATTACHMENT_MIME = new Set([
 ]);
 
 const CALLING_SETTINGS_NOTIFY_DEBOUNCE_MS = 1000;
+const CX_AGENT_PATH = '/agent';
 const DIAL_PAD_TAB_ID = 'dialPadTabs';
 const MEETING_TAB_ID = 'meetingTabs';
 const STOP_RECORD_DISABLED_MESSAGE =
@@ -247,6 +249,10 @@ function hasResponseStatus(error: unknown, status: number): boolean {
   }
   const response = (error as { response?: { status?: number } }).response;
   return response?.status === status;
+}
+
+function isCxAgentRoute(path: string | undefined): boolean {
+  return path === CX_AGENT_PATH || !!path?.startsWith(`${CX_AGENT_PATH}/`);
 }
 
 function normalizePhoneNumberFormatSetting(
@@ -415,6 +421,13 @@ export class Adapter extends RcModule {
     this._storage.enable(this);
     this._messageTypes = messageTypes;
     this._setupClientBridge();
+    watch(
+      this,
+      () => this._router.currentPath,
+      (currentPath: string, previousPath: string | undefined) => {
+        this._dismissExCallUiOnEnterAgent(currentPath, previousPath);
+      },
+    );
   }
 
   @globalStorage
@@ -778,14 +791,18 @@ export class Adapter extends RcModule {
         type: 'rc-call-ring-notify',
         call: this._withContactMatch(session),
       });
-      this._sideWidgetView?.onCallRing(session);
+      if (!this._isCxOffhookWebphoneSession(session)) {
+        this._sideWidgetView?.onCallRing(session);
+      }
     });
     this._webphoneV2.onCallInit((session: NormalizedSession) => {
       this._postMessage({
         type: 'rc-call-init-notify',
         call: this._withContactMatch(session),
       });
-      this._sideWidgetView?.onCallInit(session);
+      if (!this._isCxOffhookWebphoneSession(session)) {
+        this._sideWidgetView?.onCallInit(session);
+      }
     });
     this._webphoneV2.onCallStart((session: any) => {
       this._postMessage({
@@ -1860,6 +1877,9 @@ export class Adapter extends RcModule {
       if (this._lastActiveCalls.get(key) === signature) {
         return;
       }
+      if (this._isCxRcExtExBridgePresenceCall(call)) {
+        return;
+      }
 
       const activeCall = { ...call };
       Reflect.deleteProperty(activeCall, 'id');
@@ -1879,6 +1899,78 @@ export class Adapter extends RcModule {
       }
     });
     this._lastActiveCalls = nextMap;
+  }
+
+  /**
+   * Close leftover RingEX Available Apps / post-call UI so a CX session does
+   * not keep showing it after the user already left the EX call.
+   */
+  dismissExCallUiForCxCall(): void {
+    void this._sideWidgetView?.close();
+    this._dismissExPostCallView();
+  }
+
+  private _dismissExPostCallView(): void {
+    if (this._callViewState?.view !== 'postCall') {
+      return;
+    }
+    this._callViewState._setPostCallView(null);
+    this._callViewState._setView('hidden');
+  }
+
+  private _dismissExCallUiOnEnterAgent(
+    currentPath: string,
+    previousPath: string | undefined,
+  ): void {
+    if (!this._ringCX?.enabled) {
+      return;
+    }
+    if (!isCxAgentRoute(currentPath) || isCxAgentRoute(previousPath)) {
+      return;
+    }
+    this.dismissExCallUiForCxCall();
+  }
+
+  private _isCxOffhookWebphoneSession(session: NormalizedSession): boolean {
+    const telephonySessionId = session.partyData?.sessionId;
+    return (
+      session.id === this._webphoneV2.cxOffhookSessionId ||
+      Boolean(
+        telephonySessionId &&
+          this._webphoneV2.cxOffhookTelephonySessionIds.includes(
+            telephonySessionId,
+          ),
+      )
+    );
+  }
+
+  private _isCxRcExtExBridgePresenceCall(call: {
+    direction?: string;
+    from?: string | {
+      phoneNumber?: string;
+      extensionNumber?: string;
+      extensionId?: string | number;
+      name?: string;
+    };
+    to?: string | {
+      phoneNumber?: string;
+      extensionNumber?: string;
+      extensionId?: string | number;
+      name?: string;
+    };
+    toName?: string;
+    telephonySessionId?: string;
+  }): boolean {
+    if (
+      call.telephonySessionId &&
+      this._activeCallControlV2.cxExBridgeHiddenTelephonySessionIds?.includes(
+        call.telephonySessionId,
+      )
+    ) {
+      return true;
+    }
+    const hints = this._ringCX?.exBridgeHints ?? [];
+    return isCxRcExtExBridgeCall({ call, hints });
   }
 
   private _notifyMuteChanges() {

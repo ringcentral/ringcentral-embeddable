@@ -40,6 +40,16 @@ export interface RingCXOptions {
 }
 
 /**
+ * Directory member a CX outbound is targeting. RingEX telephony sessions
+ * expose this as `to.extensionId`; presence active calls expose `toName`.
+ */
+export interface CxExBridgeDirectory {
+  readonly extensionId: string;
+  readonly name: string;
+  readonly mainNumber: string;
+}
+
+/**
  * The host modules the RingCX chunk needs, wrapped in a plain object.
  * A host module cannot be bound under a second DI token, because the store
  * registers one module state per token, so the chunk gets this instead.
@@ -49,6 +59,21 @@ export interface CxHostIntegration {
   readonly isCallIdle: boolean;
   /** Open the host widget if it is closed or minimized. */
   showClientWindow(): void;
+  /**
+   * Remember the directory member a CX outbound is targeting so RingEX can
+   * hide the ghost session that may arrive before IQ NEW-CALL.
+   */
+  registerExBridgeDestination(
+    destination: string,
+    directory: CxExBridgeDirectory,
+  ): void;
+  /** Drop a previously registered CX directory destination. */
+  clearExBridgeDestination(destination: string): void;
+  /**
+   * Close leftover RingEX post-call UI (Available Apps, post-call view)
+   * so a CX call does not inherit it.
+   */
+  dismissExCallUiForCxCall(): void;
 }
 
 export interface CxRuntimeOptions {

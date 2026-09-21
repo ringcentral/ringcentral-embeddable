@@ -17,11 +17,6 @@ import {
   type SideWidgetContentOptions,
   type SideWidgetContentViewProps,
 } from '../SideWidgetView';
-import {
-  describeContact,
-  describeTabs,
-  sideWidgetDebug,
-} from '../SideWidgetView/SideWidget.debug';
 
 import type {
   RoutedSideWidgetConfig,
@@ -87,10 +82,6 @@ export class RoutedSideWidgetView extends RcViewModule {
   @action
   private _setMainPath(path: string | null): void {
     this.mainPath = path;
-  }
-
-  private _debug(event: string, details: Record<string, unknown>): void {
-    sideWidgetDebug(`routed:${event}`, details);
   }
 
   override onInit(): void {
@@ -160,20 +151,10 @@ export class RoutedSideWidgetView extends RcViewModule {
     routePath,
   }: RoutedSideWidgetViewProps): void {
     if (path !== this._router.currentPath) {
-      this._debug('ignore stale routed page registration', {
-        tabId: config.id,
-        path,
-        currentPath: this._router.currentPath,
-      });
       return;
     }
     const closedEntry = this._closedPaths.get(config.id);
     if (closedEntry?.path === path) {
-      this._debug('ignore reopening routed tab while closing', {
-        tabId: config.id,
-        path,
-        currentPath: this._router.currentPath,
-      });
       return;
     }
     const existingEntry = this._entries.get(config.id);
@@ -183,18 +164,6 @@ export class RoutedSideWidgetView extends RcViewModule {
     const contactApplied =
       existingEntry?.path === path && existingEntry.contactApplied;
     const applyContact = contact !== undefined && !contactApplied;
-    this._debug('open page', {
-      tabId: config.id,
-      scope: config.scope,
-      path,
-      contact: describeContact(contact),
-      existingEntryPath: existingEntry?.path,
-      existingContactApplied: existingEntry?.contactApplied,
-      contactApplied,
-      applyContact,
-      tabsBefore: describeTabs(this._sideWidgetView.tabs),
-      widgetContact: describeContact(this._sideWidgetView.currentContact),
-    });
     const handle = this._sideWidgetView.createOrUpdateContent(
       this._createContentOptions(config)
     );
@@ -217,15 +186,6 @@ export class RoutedSideWidgetView extends RcViewModule {
     // it closed. Keeping those tombstones would ignore the user navigating back
     // to that page for the rest of the session, leaving the panel blank.
     this._closedPaths.clear();
-    this._debug('open page done', {
-      tabId: config.id,
-      tabsAfter: describeTabs(this._sideWidgetView.tabs),
-      currentTabId: this._sideWidgetView.currentTabId,
-      widgetContact: describeContact(this._sideWidgetView.currentContact),
-      entries: Array.from(this._entries.values()).map(
-        ({ id, path: entryPath }) => `${id}@${entryPath}`,
-      ),
-    });
   }
 
   syncPath(path: string, isRoutedPath = false): void {
@@ -237,27 +197,13 @@ export class RoutedSideWidgetView extends RcViewModule {
       (entry) => entry.path === path
     );
     const activeEntry = this._entries.get(this._sideWidgetView.currentTabId);
-    this._debug('sync path', {
-      path,
-      isRoutedPath,
-      mainPath: this.mainPath,
-      currentTabId: this._sideWidgetView.currentTabId,
-      activeEntryPath: activeEntry?.path,
-      matchedEntryId: matchedEntry?.id,
-      expanded: this._root.expanded,
-    });
     if (matchedEntry) {
-      this._debug('matched routed path', {
-        path,
-        tabId: matchedEntry.id,
-      });
       if (this._sideWidgetView.currentTabId !== matchedEntry.id) {
         this._sideWidgetView.selectTab(matchedEntry.id);
       }
       return;
     }
     if (isRoutedPath) {
-      this._debug('wait for routed page registration', { path });
       return;
     }
     // The main column only renders `mainPath` while a routed page owns the
@@ -265,18 +211,9 @@ export class RoutedSideWidgetView extends RcViewModule {
     // path is stale and would keep the navigation highlighting the tab the
     // user left.
     if (this.mainPath) {
-      this._debug('clear stale main path', {
-        path,
-        mainPath: this.mainPath,
-      });
       this._setMainPath(null);
     }
     if (activeEntry && activeEntry.path !== path) {
-      this._debug('close routed tab after navigation', {
-        path,
-        tabId: activeEntry.id,
-        routedPath: activeEntry.path,
-      });
       this._sideWidgetView.closeContent(activeEntry.handle);
     }
   }
@@ -286,27 +223,12 @@ export class RoutedSideWidgetView extends RcViewModule {
    * routed side-widget tab.
    */
   navigateMain(path: string): void {
-    this._debug('navigate main requested', {
-      currentPath: this._router.currentPath,
-      targetPath: path,
-      currentTabId: this._sideWidgetView.currentTabId,
-      expanded: this._root.expanded,
-    });
     if (!path || this._router.currentPath === path) {
-      this._debug('navigate main skipped', {
-        currentPath: this._router.currentPath,
-        targetPath: path,
-      });
       return;
     }
     const activeEntry = this._entries.get(this._sideWidgetView.currentTabId);
     if (activeEntry && this._root.expanded) {
       this._setMainPath(path);
-      this._debug('navigate main column with routed tab preserved', {
-        mainPath: this.mainPath,
-        currentTabId: this._sideWidgetView.currentTabId,
-        routedPath: activeEntry.path,
-      });
       return;
     }
     this._setMainPath(null);
@@ -362,10 +284,6 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   private _navigate(path: string): Promise<void> {
     this._requestedPath = path;
-    this._debug('routed navigation requested', {
-      currentPath: this._router.currentPath,
-      requestedPath: path,
-    });
     if (this._router.currentPath === path) {
       return Promise.resolve();
     }
@@ -378,10 +296,6 @@ export class RoutedSideWidgetView extends RcViewModule {
       })
       .then(async () => {
         if (this._requestedPath !== path) {
-          this._debug('skip stale routed navigation', {
-            stalePath: path,
-            requestedPath: this._requestedPath,
-          });
           return;
         }
         if (this._router.currentPath !== path) {
@@ -393,12 +307,6 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   private async _activateRoute(id: string): Promise<void> {
     const entry = this._entries.get(id);
-    this._debug('activate routed tab', {
-      tabId: id,
-      hasEntry: Boolean(entry),
-      entryPath: entry?.path,
-      currentPath: this._router.currentPath,
-    });
     if (entry) {
       await this._navigate(entry.path);
     }
@@ -422,13 +330,6 @@ export class RoutedSideWidgetView extends RcViewModule {
       backgroundPath,
       path: entry.path,
       shouldNavigateToBackground,
-    });
-    this._debug('unregister closed routed tab', {
-      tabId: id,
-      path: entry.path,
-      nextTabId,
-      currentPath: this._router.currentPath,
-      requestedPath: this._requestedPath,
     });
     if (!shouldNavigateToBackground) {
       return;
@@ -461,34 +362,15 @@ export class RoutedSideWidgetView extends RcViewModule {
   ): React.ReactElement | null {
     const entry = this._entries.get(id);
     if (!entry) {
-      this._debug('render routed tab without a page', {
-        tabId: id,
-        currentPath: this._router.currentPath,
-        entries: Array.from(this._entries.keys()),
-      });
       return null;
     }
     const DetailComponent = entry.component;
-    this._debug('render routed tab', {
-      tabId: id,
-      routedPath: entry.path,
-      currentPath: this._router.currentPath,
-      mainPath: this.mainPath,
-      expanded: this._root.expanded,
-    });
     return (
       <RouterRoute
         path={entry.routePath}
         exact={entry.routeExact}
         render={({ location }) => {
           const matched = location.pathname === entry.path;
-          this._debug('render routed tab content', {
-            tabId: id,
-            entryPath: entry.path,
-            locationPath: location.pathname,
-            matched,
-            propKeys: Object.keys(entry.props),
-          });
           return matched ? <DetailComponent {...entry.props} /> : null;
         }}
       />

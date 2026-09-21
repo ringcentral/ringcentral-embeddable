@@ -13,6 +13,7 @@ import {
 } from '@ringcentral-integration/next-core';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 
+import type { CxHostIntegration } from '../../../app/services/RingCX/RingCX.interface';
 import { dialoutStatuses, messageTypes } from '../../enums';
 import { t } from './i18n';
 import { callErrors } from '../../enums/callErrors';
@@ -36,6 +37,7 @@ import { track } from '../Analytics/track';
 import { trackEvents } from '../../lib/trackEvents';
 import type {
   CxCallOptions,
+  CxDialoutOptions,
   DialoutFormGroup,
   ManualOutdialParams,
   RingTimeLimit,
@@ -74,6 +76,8 @@ class CxCall extends RcModule {
     protected toast: Toast,
     protected storagePlugin: StoragePlugin,
     protected portManager: PortManager,
+    @optional('CxHostIntegration')
+    private readonly _host?: CxHostIntegration,
     @optional('CxCallOptions') protected evCallOptions?: CxCallOptions,
   ) {
     super();
@@ -416,7 +420,7 @@ class CxCall extends RcModule {
   @delegate('server')
   async dialout(
     phoneNumber: string,
-    options?: { skipParse?: boolean },
+    options?: CxDialoutOptions,
   ): Promise<void> {
     this.logger.info('dialout~~', phoneNumber);
     this.cxPresence.setCurrentCallUii('');
@@ -439,13 +443,19 @@ class CxCall extends RcModule {
         ? phoneNumber
         : this._checkAndParseNumber(phoneNumber);
       this.logger.info('destination~~', destination);
-      await this._manualOutdial({
-        destination,
-        callerId: this.callerId,
-        countryId: this.countryId,
-        queueId: this.queueId,
-        ringTime: this.ringTime,
-      });
+      try {
+        await this._manualOutdial({
+          destination,
+          callerId: this.callerId,
+          countryId: this.countryId,
+          queueId: this.queueId,
+          ringTime: this.ringTime,
+          directory: options?.directory,
+        });
+      } catch (error) {
+        this._host?.clearExBridgeDestination(destination);
+        throw error;
+      }
     } catch (error) {
       this.setPhoneIdle();
     }
@@ -536,10 +546,15 @@ class CxCall extends RcModule {
     ringTime = DEFAULT_OUTBOUND_SETTING.dialoutRingTime,
     queueId = '',
     countryId = 'USA',
+    directory,
   }: ManualOutdialParams): Promise<void> {
     let offhookInitResult: CxOffhookInitResponse | undefined;
     if (this.dialoutStatus !== dialoutStatuses.dialing) {
       this.setPhoneDialing();
+    }
+    this._host?.dismissExCallUiForCxCall();
+    if (directory) {
+      this._host?.registerExBridgeDestination(destination, directory);
     }
     try {
       this.logger.info('manualOutdial~~ isOffhook', this.cxSettings.isOffhook);

@@ -1,6 +1,24 @@
 import { getHeader } from './WebphoneV2Session';
 
 export const ENGAGE_AGENT_EPT_ROLE = 'rc-engage-agent-ept';
+export const ENGAGE_AGENT_EPT_REGISTER_HEADER_NAMES = [
+  'P-RC-Supported-Ept-Roles',
+  'P-rc-endpoint-id',
+] as const;
+
+/**
+ * Header names confirmed on a live ringcentral-web-phone-v2 offhook INVITE.
+ * SIP comparison is case-insensitive; the wire names are lowercase `p-rc-*`.
+ */
+export const CX_OFFHOOK_INVITE_HEADERS = {
+  agentMode: 'p-rc-rcx-agent-mode',
+  requiredEptRoles: 'p-rc-required-ept-roles',
+  callSource: 'p-rc-call-source',
+  destination: 'p-rc-destination',
+  sessionId: 'p-rc-session-id',
+  callControlApiIds: 'p-rc-api-ids',
+} as const;
+
 const OFFHOOK_AGENT_MODE = 'offhook';
 const PARTNER_CONTACT_CENTER_SOURCE = 'partner-contact-center';
 const EV_AGENT_DESTINATION = 'ev-agent';
@@ -23,11 +41,14 @@ export const applyEngageAgentEptRegisterHeaders = (
   message: unknown,
   endpointId: string,
 ): void => {
-  const headers = (message as { headers?: Record<string, string> }).headers;
-  if (!headers || !endpointId) {
+  if (!message || !endpointId) {
     return;
   }
-  Object.assign(headers, getEngageAgentEptRegisterHeaders(endpointId));
+  const sipMessage = message as { headers?: Record<string, string> };
+  if (!sipMessage.headers) {
+    sipMessage.headers = {};
+  }
+  Object.assign(sipMessage.headers, getEngageAgentEptRegisterHeaders(endpointId));
 };
 
 const includesIgnoreCase = (
@@ -39,19 +60,22 @@ export const isCxOffhookInvite = (message: unknown): boolean => {
   if (!message) {
     return false;
   }
-  const agentMode = getHeader(message, 'p-rc-rcx-agent-mode');
+  const agentMode = getHeader(message, CX_OFFHOOK_INVITE_HEADERS.agentMode);
   if (includesIgnoreCase(agentMode, OFFHOOK_AGENT_MODE)) {
     return true;
   }
-  const requiredRoles = getHeader(message, 'p-rc-required-ept-roles');
+  const requiredRoles = getHeader(
+    message,
+    CX_OFFHOOK_INVITE_HEADERS.requiredEptRoles,
+  );
   if (includesIgnoreCase(requiredRoles, ENGAGE_AGENT_EPT_ROLE)) {
     return true;
   }
-  const destination = getHeader(message, 'P-Rc-Destination');
+  const destination = getHeader(message, CX_OFFHOOK_INVITE_HEADERS.destination);
   if (destination?.toLowerCase() === EV_AGENT_DESTINATION) {
     return true;
   }
-  const callSource = getHeader(message, 'p-rc-call-source');
+  const callSource = getHeader(message, CX_OFFHOOK_INVITE_HEADERS.callSource);
   return (
     includesIgnoreCase(callSource, PARTNER_CONTACT_CENTER_SOURCE) &&
     includesIgnoreCase(requiredRoles, ENGAGE_AGENT_EPT_ROLE)

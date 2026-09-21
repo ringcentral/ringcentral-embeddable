@@ -12,6 +12,25 @@ jest.mock('@ringcentral-integration/micro-core/src/app/services', () => ({
   Locale: class Locale {},
   Toast: class Toast {},
 }));
+jest.mock('@ringcentral-integration/micro-core/src/app/components', () => ({
+  AppHeaderNav: () => null,
+}));
+jest.mock('@ringcentral-integration/micro-core/src/app/hooks', () => ({
+  useLocale: () => ({ t: (key) => key }),
+}));
+jest.mock('@ringcentral-integration/micro-phone/src/app/views/DialerView/i18n', () => ({
+  __esModule: true,
+  default: {},
+}));
+jest.mock('../src/app/services/RingCX/i18n', () => ({
+  t: (key) => key,
+}));
+jest.mock('../src/app/services/RingCX', () => ({
+  RingCX: class RingCX {},
+}));
+jest.mock('../src/app/views/DialerView/DialerPage', () => ({
+  DialerPage: () => null,
+}));
 jest.mock('@ringcentral-integration/micro-phone/src/app/services', () => ({
   AudioSettings: class AudioSettings {},
   Call: class Call {},
@@ -30,6 +49,8 @@ jest.mock('@ringcentral-integration/next-core', () => ({
   PortManager: class PortManager {},
   injectable: () => (target) => target,
   optional: () => () => {},
+  useConnector: (fn) => fn(),
+  dynamic: () => () => {},
 }));
 jest.mock('../src/app/services/DoNotContact', () => ({
   DoNotContact: class DoNotContact {},
