@@ -24,6 +24,7 @@ class FakeSmartNoteClient extends EventEmitter {
     this.resume = jest.fn(async () => {});
     this.start = jest.fn(async () => {});
     this.stop = jest.fn(async () => {});
+    this.dispose = jest.fn(async () => {});
     this.updateTelephonySessionStatus = jest.fn(async () => {});
     this.removeAllListeners = jest.fn(() => {
       EventEmitter.prototype.removeAllListeners.call(this);
@@ -33,6 +34,7 @@ class FakeSmartNoteClient extends EventEmitter {
 
   static reset() {
     FakeSmartNoteClient.instances = [];
+    FakeSmartNoteClient.resetCopilotSdk = jest.fn(async () => {});
     FakeSmartNoteClient.querySmartNotes = jest.fn(async () => ({ records: [] }));
     FakeSmartNoteClient.getNotes = jest.fn(async () => ({
       status: 'Completed',
