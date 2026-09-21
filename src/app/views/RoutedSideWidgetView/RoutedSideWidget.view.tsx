@@ -370,7 +370,13 @@ export class RoutedSideWidgetView extends RcViewModule {
         path={entry.routePath}
         exact={entry.routeExact}
         render={({ location }) => {
-          const matched = location.pathname === entry.path;
+          // Prefix routes such as /settings/agent keep this tab for nested
+          // pages (session edit, manual dial). Requiring the exact last-opened
+          // path would unmount the widget between those pages.
+          const matched = matchPath(location.pathname, {
+            exact: entry.routeExact,
+            path: entry.routePath,
+          });
           return matched ? <DetailComponent {...entry.props} /> : null;
         }}
       />

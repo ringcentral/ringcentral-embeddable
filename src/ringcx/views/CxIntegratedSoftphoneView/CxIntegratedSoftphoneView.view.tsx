@@ -185,7 +185,6 @@ class CxIntegratedSoftphoneView extends RcViewModule {
     // On ringing: show modal if auto-answer is not handling it
     this.cxIntegratedSoftphone.onRinging(async (ringingCall?: CxSipRingingData) => {
       this.logger.info('SIP_RINGING~~');
-      const displayName = ringingCall?.data;
       // TODO: only work when in main tab
       const currentCall = (await this.cxClient.getCurrentCall()) as
         | CxBaseCall
@@ -196,6 +195,12 @@ class CxIntegratedSoftphoneView extends RcViewModule {
         dialoutStatus !== 'dialing' &&
         !(isManualOffhook && isOffhooking) &&
         currentCall?.callType === 'INBOUND';
+      // The offhook INVITE carries no display name, so the call the agent is
+      // being offered is the only place the other party can come from.
+      const displayName =
+        ringingCall?.data ||
+        (isInbound ? currentCall?.ani : currentCall?.dnis) ||
+        '';
       this.showRingingModal({ displayName, queueName, isInbound });
     });
     // On SIP ended: close ringing modal if still open
@@ -212,7 +217,10 @@ class CxIntegratedSoftphoneView extends RcViewModule {
   }
 
   /**
-   * Show the ringing confirmation modal with ringtone
+   * Show the ringing confirmation modal.
+   *
+   * The ringtone belongs to `WebphoneAlerting`, so it follows the user's audio
+   * settings and plays on a tab that is allowed to start audio.
    */
   @delegate('mainClient')
   async showRingingModal(payload: RingingPayload): Promise<void> {
@@ -220,12 +228,16 @@ class CxIntegratedSoftphoneView extends RcViewModule {
     if (this._ringingInstance) {
       return;
     }
-    await this.cxIntegratedSoftphone.playRingtone();
     const instance = this.modalView.open(this.ringingModal, payload);
     this._ringingInstance = instance;
     instance.closed.then((answer) => {
-      this.cxIntegratedSoftphone.stopRingtone();
+      // `closeRingingModal` clears the reference before closing, so a leg that
+      // ended on its own must not be reported back as an agent rejection.
+      const isAgentChoice = this._ringingInstance === instance;
       this._ringingInstance = null;
+      if (!isAgentChoice) {
+        return;
+      }
       if (answer) {
         this.cxIntegratedSoftphone.sipAnswer();
       } else {
@@ -240,9 +252,8 @@ class CxIntegratedSoftphoneView extends RcViewModule {
   @delegate('mainClient')
   async closeRingingModal(): Promise<void> {
     if (this._ringingInstance) {
-      this.cxIntegratedSoftphone.stopRingtone();
-      this.modalView.close(this.ringingModal);
       this._ringingInstance = null;
+      this.modalView.close(this.ringingModal);
     }
   }
 

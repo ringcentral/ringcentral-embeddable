@@ -27,13 +27,13 @@ import { CxAgentSession } from '../CxAgentSession';
 import { CxPresence } from '../CxPresence';
 import type { CxCall } from '../CxCall/CxCall';
 import { TabManager } from '../../../app/services/TabManager';
+import { WebphoneAlerting } from '../../../app/services/WebphoneAlerting';
 import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { Webphone } from '../../../app/services/WebphoneV2';
 import type {
   CxIntegratedSoftphoneOptions,
   SipState,
 } from './CxIntegratedSoftphone.interface';
-import { audios } from './audios';
 
 const SECOND = 1000;
 const RECONNECT_DEBOUNCE_TIME = SECOND * 5;
@@ -49,7 +49,6 @@ const SIP_MAX_CONNECTING_TIME = SECOND * 30;
 })
 class CxIntegratedSoftphone extends RcModule {
   private _eventEmitter = new EventEmitter();
-  private _audio: HTMLAudioElement | null = null;
   private _sipConnected = false;
   private _isCloseWhenCallConnected = false;
 
@@ -63,6 +62,7 @@ class CxIntegratedSoftphone extends RcModule {
     private storagePlugin: StoragePlugin,
     private portManager: PortManager,
     private tabManager: TabManager,
+    private webphoneAlerting: WebphoneAlerting,
     @inject(MicroPhoneWebphone) private webphone: Webphone,
     @optional('CxIntegratedSoftphoneOptions')
     private evIntegratedSoftphoneOptions?: CxIntegratedSoftphoneOptions,
@@ -73,12 +73,8 @@ class CxIntegratedSoftphone extends RcModule {
       this.portManager.onServer(() => {
         this.initialize();
       });
-      this.portManager.onClient(() => {
-        this._initAudio();
-      });
     } else {
       this.initialize();
-      this._initAudio();
     }
   }
 
@@ -417,6 +413,7 @@ class CxIntegratedSoftphone extends RcModule {
   }
 
   private _bindWebphoneState() {
+    this._bindOffhookRinging();
     watch(
       this,
       () =>
@@ -467,9 +464,6 @@ class CxIntegratedSoftphone extends RcModule {
           await this.resetController();
         }
         if (!offhookConnected && wasOffhook) {
-          await this.cxPresence.setOffhook(false);
-          await this.cxPresence.removeBeforeunload();
-          await this.cxPresence.setDialoutStatus(dialoutStatuses.idle);
           await this.cxSubscription.emit(CxCallbackTypes.SIP_ENDED, null);
         }
         if (offhookConnected) {
@@ -481,8 +475,48 @@ class CxIntegratedSoftphone extends RcModule {
     );
   }
 
+  /**
+   * Follow CX Embeddable's SIP_RINGING policy: answer immediately when the
+   * session requires it, otherwise alert the agent and present the invitation.
+   */
+  private _bindOffhookRinging(): void {
+    watch(
+      this,
+      () => this.webphone.cxOffhookRinging,
+      async (ringing) => {
+        if (!this.portManager.isServer) {
+          return;
+        }
+        if (ringing) {
+          this.cxPresence.bindBeforeunload();
+          if (this.shouldAutoAnswer) {
+            await this.sipAnswer();
+            return;
+          }
+          await this.webphoneAlerting.setRingCxSoftphoneRinging(true);
+          this._eventEmitter.emit(CxCallbackTypes.SIP_RINGING);
+          return;
+        }
+        await this.webphoneAlerting.setRingCxSoftphoneRinging(false);
+        // A ring that never connected still has to take the invitation down,
+        // because the offhook leg never reaches the state that ends a call.
+        if (!this.webphone.cxOffhookConnected) {
+          await this.cxSubscription.emit(CxCallbackTypes.SIP_ENDED, null);
+        }
+      },
+    );
+  }
+
   private _bindingIntegratedSoftphone() {
     this.logger.info('_bindingIntegratedSoftphone~~');
+    // Every way the offhook leg can end funnels through here, so a ring the
+    // agent rejected leaves the agent as idle as a call that really connected.
+    this.cxSubscription.subscribe(CxCallbackTypes.SIP_ENDED, async () => {
+      this.logger.info('SIP_ENDED~~');
+      await this.cxPresence.setOffhook(false);
+      await this.cxPresence.removeBeforeunload();
+      await this.cxPresence.setDialoutStatus(dialoutStatuses.idle);
+    });
     this.cxSubscription.subscribe(
       CxCallbackTypes.OFFHOOK_INIT,
       async (data?: Partial<CxOffhookInitResponse>) => {
@@ -547,6 +581,7 @@ class CxIntegratedSoftphone extends RcModule {
    */
   @delegate('mainClient')
   async sipAnswer(): Promise<void> {
+    await this.webphoneAlerting.setRingCxSoftphoneRinging(false);
     const sessionId = this.webphone.cxOffhookSessionId;
     if (!sessionId) {
       return;
@@ -567,14 +602,23 @@ class CxIntegratedSoftphone extends RcModule {
   }
 
   /**
-   * Reject SIP call
+   * Reject SIP call.
+   *
+   * The alert is silenced up front rather than waiting for the offhook leg to
+   * disappear, because the SIP teardown is a round trip the agent should not
+   * have to listen through.
    */
   @delegate('mainClient')
   async sipReject(): Promise<void> {
     this.cxPresence.showOffHookInitError = false;
+    await this.webphoneAlerting.setRingCxSoftphoneRinging(false);
     const sessionId = this.webphone.cxOffhookSessionId;
     if (sessionId) {
-      await this.webphone.reject(sessionId);
+      try {
+        await this.webphone.reject(sessionId);
+      } catch (error) {
+        this.logger.warn('CX offhook reject failed', error);
+      }
     }
     this._eventEmitter.emit(CxSoftphoneEvents.CALL_REJECTED);
     this.cxPresence.removeBeforeunload();
@@ -615,45 +659,6 @@ class CxIntegratedSoftphone extends RcModule {
       return;
     }
     await this.webphone.unmute(sessionId);
-  }
-
-  private _initAudio() {
-    if (typeof document !== 'undefined' && document.createElement) {
-      this._audio = document.createElement('audio');
-    }
-  }
-
-  private _playAudioLoop(type: keyof typeof audios) {
-    if (!this._audio) return;
-    this._audio.loop = true;
-    this._playAudio(type);
-  }
-
-  private _playAudio(type: keyof typeof audios) {
-    if (!this._audio) return;
-    this._audio.currentTime = 0;
-    this._audio.src = audios[type];
-    this._audio.play();
-  }
-
-  private _stopAudio() {
-    if (!this._audio) return;
-    this._audio.loop = false;
-    this._audio.pause();
-  }
-
-  /**
-   * Play ringtone audio in loop
-   */
-  async playRingtone(): Promise<void> {
-    this._playAudioLoop('ringtone');
-  }
-
-  /**
-   * Stop ringtone audio
-   */
-  stopRingtone() {
-    this._stopAudio();
   }
 
   private _emitRegistered() {

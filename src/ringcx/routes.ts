@@ -22,7 +22,7 @@ export const cxPath = {
   agent: (): string => AGENT_PREFIX,
   chooseAccount: (): string => `${AGENT_PREFIX}/chooseAccount`,
   sessionConfig: (): string => `${AGENT_PREFIX}/sessionConfig`,
-  sessionUpdate: (): string => `${AGENT_PREFIX}/sessionUpdate`,
+  sessionUpdate: (): string => `${AGENT_SETTINGS_PREFIX}/sessionUpdate`,
   home: (tabId = 'dialer'): string => `${AGENT_PREFIX}/home/${tabId}`,
   historyDetail: (id: string): string => `${AGENT_PREFIX}/history/${id}`,
   historyCallLog: (id: string, method: string): string =>

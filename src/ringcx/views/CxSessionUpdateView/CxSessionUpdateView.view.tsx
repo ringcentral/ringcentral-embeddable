@@ -92,7 +92,7 @@ class CxSessionUpdateView extends RcViewModule {
 
   async updateSession() {
     if (!this._cxAgentSession.isSessionChanged) {
-      this._router.goBack();
+      this._returnToSessionInfo();
       return;
     }
     await this._cxAgentSession.updateAgent(this.voiceConnectionChanged);
@@ -103,7 +103,15 @@ class CxSessionUpdateView extends RcViewModule {
   cancelWithoutSave() {
     this._cxAgentSession.resetFormGroup();
     this._options?.onCancel?.();
-    this._router.goBack();
+    this._returnToSessionInfo();
+  }
+
+  /**
+   * Session info opened this page in the same settings side widget, so the
+   * return path stays on that widget instead of crossing into the agent tab.
+   */
+  private _returnToSessionInfo(): void {
+    this._router.push(cxPath.settings());
   }
 
   component(_props?: CxSessionUpdateViewProps) {

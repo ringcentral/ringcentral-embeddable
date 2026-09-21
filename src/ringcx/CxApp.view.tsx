@@ -16,7 +16,6 @@ import { CxCallHistoryDetailView } from './views/CxCallHistoryDetailView';
 import { CxChooseAccountView } from './views/CxChooseAccountView';
 import { CxDispositionView } from './views/CxDispositionView';
 import { CxSessionConfigView } from './views/CxSessionConfigView';
-import { CxSessionUpdateView } from './views/CxSessionUpdateView';
 import { CxTransferView } from './views/CxTransferView';
 import { CxAgentSession } from './services/CxAgentSession';
 import { CxAuth } from './services/CxAuth';
@@ -31,7 +30,6 @@ export class CxAppView extends RcViewModule {
     private readonly _cxAgentSession: CxAgentSession,
     private readonly _chooseAccountView: CxChooseAccountView,
     private readonly _sessionConfigView: CxSessionConfigView,
-    private readonly _sessionUpdateView: CxSessionUpdateView,
     private readonly _agentView: CxAgentView,
     private readonly _callHistoryDetailView: CxCallHistoryDetailView,
     private readonly _activeCallView: CxActiveCallView,
@@ -77,13 +75,6 @@ export class CxAppView extends RcViewModule {
             path={cxPath.sessionConfig()}
             exact
             component={this._sessionConfigView.component}
-          />
-        )}
-        {hasSession && (
-          <Route
-            path={cxPath.sessionUpdate()}
-            exact
-            component={this._sessionUpdateView.component}
           />
         )}
         {hasSession && (

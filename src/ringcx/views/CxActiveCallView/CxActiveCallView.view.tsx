@@ -950,29 +950,41 @@ class CxActiveCallView extends RcViewModule {
     const isCountdownActive =
       callControlPermissions.allowPauseRecord &&
       recordPauseCount != null &&
-      !isRecording &&
+      isRecording === false &&
       !!timeStamp &&
       countdownSeconds >= 0;
 
     useEffect(() => {
-      if (!timeStamp || isRecording || !callControlPermissions.allowPauseRecord || recordPauseCount == null) {
+      if (
+        !timeStamp ||
+        isRecording !== false ||
+        !callControlPermissions.allowPauseRecord ||
+        recordPauseCount == null
+      ) {
         setCountdownSeconds(0);
         return;
       }
+      let intervalId: ReturnType<typeof setInterval> | undefined;
       const updateTimer = () => {
         const time = Math.ceil(
           recordPauseCount + (timeStamp - Date.now()) / 1000,
         );
         if (time < 0) {
-          clearInterval(intervalId);
+          if (intervalId !== undefined) {
+            clearInterval(intervalId);
+          }
           setTimeout(() => uiFunctions.onResumeRecord(), 1000);
           return;
         }
         setCountdownSeconds(time);
       };
       updateTimer();
-      const intervalId = setInterval(updateTimer, 1000);
-      return () => clearInterval(intervalId);
+      intervalId = setInterval(updateTimer, 1000);
+      return () => {
+        if (intervalId !== undefined) {
+          clearInterval(intervalId);
+        }
+      };
     }, [timeStamp, recordPauseCount, isRecording, callControlPermissions.allowPauseRecord, uiFunctions]);
 
     if (!currentCall) {

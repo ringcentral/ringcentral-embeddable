@@ -18,6 +18,7 @@ import {
 } from '@ringcentral-integration/next-core';
 import { EventEmitter } from 'events';
 import WebPhone from 'ringcentral-web-phone-v2';
+import ResponseMessage from 'ringcentral-web-phone-v2/sip-message/outbound/response';
 import { Observable, Subject, Subscription } from 'rxjs';
 
 import { AudioSettings } from '@ringcentral-integration/micro-phone/src/app/services/AudioSettings';
@@ -117,6 +118,8 @@ const SOCKET_RECOVERY_DELAYS = [1_000, 2_000, 5_000, 10_000, 30_000] as const;
 const PROXY_ROTATION_ATTEMPTS = 2;
 const DEFAULT_AUDIO_FILE = 'default';
 const SETUP_TERMINAL_STATES = new Set(['init', 'failed', 'disposed']);
+/** Matches the response SIP.js sends for a rejected invitation. */
+const CX_OFFHOOK_DECLINE_RESPONSE_CODE = 480;
 const SDK_SESSION_EVENTS = [
   'ringing',
   'answered',
@@ -371,6 +374,9 @@ export class WebphoneV2 extends RcModule {
 
   @state
   cxOffhookConnected = false;
+
+  @state
+  cxOffhookRinging = false;
 
   @state
   cxOffhookMuted = false;
@@ -774,16 +780,19 @@ export class WebphoneV2 extends RcModule {
   private _setCxOffhookState({
     sessionId,
     connected,
+    ringing,
     muted,
     telephonySessionIds,
   }: {
     sessionId: string | null;
     connected: boolean;
+    ringing: boolean;
     muted: boolean;
     telephonySessionIds: string[];
   }) {
     this.cxOffhookSessionId = sessionId;
     this.cxOffhookConnected = connected;
+    this.cxOffhookRinging = ringing;
     this.cxOffhookMuted = muted;
     this.cxOffhookTelephonySessionIds = telephonySessionIds;
   }
@@ -796,6 +805,7 @@ export class WebphoneV2 extends RcModule {
     this._setCxOffhookState({
       sessionId: record?.normalized.id ?? null,
       connected: record?.session.state === 'answered',
+      ringing: record?.normalized.callStatus === sessionStatus.connecting,
       muted: record?.normalized.isOnMute ?? false,
       telephonySessionIds: telephonySessionId ? [telephonySessionId] : [],
     });
@@ -805,20 +815,32 @@ export class WebphoneV2 extends RcModule {
     return Boolean(this._getSession(sessionId)?.isCxOffhook);
   }
 
-  private async _answerCxOffhookSession(record: WebphoneV2SessionRecord) {
-    try {
-      await this.ensureMediaOwner();
-      const session = record.session as InboundWebPhoneSession;
-      await this._withDeadline(
-        Promise.resolve().then(() => session.answer()),
-        `answer cx offhook ${record.normalized.id}`,
-      );
-    } catch (error) {
-      this.logger.error(
-        'Webphone V2 CX offhook auto-answer failed',
-        getErrorLogContext(error),
-      );
+  /**
+   * Turns down a RingCX offhook INVITE with a plain SIP final response.
+   *
+   * `InboundCallSession.decline()` speaks RingCentral call control: it sends
+   * an `x-rc/agent` MESSAGE and then waits for the CANCEL the server sends
+   * back. The offhook INVITE carries no `P-rc` header, so the SDK drops that
+   * MESSAGE without putting anything on the wire and the wait never resolves,
+   * which leaves the leg ringing. Answering the INVITE transaction is the only
+   * way to refuse it, and the SDK only reaps a session on BYE or CANCEL, so
+   * this one has to be retired here.
+   */
+  private async _declineCxOffhookSession(record: WebphoneV2SessionRecord) {
+    const { session } = record;
+    await session.webPhone.sipClient.reply(
+      new ResponseMessage(session.sipMessage, {
+        responseCode: CX_OFFHOOK_DECLINE_RESPONSE_CODE,
+      }),
+    );
+    const { callSessions } = session.webPhone;
+    const index = callSessions.findIndex(
+      (candidate) => candidate.callId === session.callId,
+    );
+    if (index !== -1) {
+      callSessions.splice(index, 1);
     }
+    session.dispose();
   }
 
   private async _hangupCxOffhookSessions() {
@@ -982,7 +1004,8 @@ export class WebphoneV2 extends RcModule {
     }
     this._publishLiveState();
     if (isCxOffhook) {
-      void this._answerCxOffhookSession(record);
+      // RingCX decides whether to answer or present the invitation when this
+      // ringing state reaches CxIntegratedSoftphone.
       return record;
     }
     this._publishCallEvent(initialEvent, record.normalized);
@@ -1862,6 +1885,12 @@ export class WebphoneV2 extends RcModule {
   async reject(sessionId: string) {
     const record = this._requireSession(sessionId);
     if (record.normalized.direction !== 'Inbound') return;
+    if (record.isCxOffhook) {
+      await this._runDestructiveCommand(record, 'reject', () =>
+        this._declineCxOffhookSession(record),
+      );
+      return;
+    }
     // V2 SDK owns inbound decline signaling for normal and queue calls.
     await this._runDestructiveCommand(record, 'reject', async () => {
       await this._withDeadline(

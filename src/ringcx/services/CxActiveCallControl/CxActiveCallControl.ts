@@ -73,6 +73,7 @@ class CxActiveCallControl extends RcModule {
   @action
   setIsRecording(isRecording: boolean) {
     this.isRecording = isRecording;
+    this.timeStamp = null;
   }
 
   @action

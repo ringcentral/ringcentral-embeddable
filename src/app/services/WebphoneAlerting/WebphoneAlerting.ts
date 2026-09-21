@@ -29,6 +29,8 @@ type RingtoneAudio = HTMLAudioElement & {
   setSinkId?: (sinkId: string) => Promise<void>;
 };
 
+type IncomingAlertSource = 'ringcxSoftphone' | 'webphone';
+
 /**
  * Plays the incoming-call ringtone on a browser tab.
  *
@@ -55,6 +57,8 @@ export class WebphoneAlerting extends RcModule {
   private _operation = Promise.resolve();
 
   private _alertEpoch?: string;
+
+  private _incomingAlertSources = new Set<IncomingAlertSource>();
 
   private _ringtoneTargetClientId?: string;
 
@@ -131,6 +135,7 @@ export class WebphoneAlerting extends RcModule {
     this._connectedClientsSubscription = undefined;
     const epoch = this._alertEpoch;
     this._alertEpoch = undefined;
+    this._incomingAlertSources.clear();
     this._ringtoneTargetClientId = undefined;
     this._recoveryEpoch = undefined;
     this._fallbackEpoch = undefined;
@@ -275,6 +280,31 @@ export class WebphoneAlerting extends RcModule {
 
   private _handleRinging(sessions: readonly Webphone['sessions'][number][]) {
     const hasRinging = sessions.some((session) => isRing(session));
+    this._setIncomingAlert('webphone', hasRinging);
+  }
+
+  /**
+   * Starts or stops incoming-call alerting for a ringing RingCX offhook leg.
+   *
+   * Delegated to the server because alerting state only exists there — the
+   * instances on client ports return early in `onInit` — and the agent answers
+   * or rejects from a tab.
+   */
+  @delegate('server')
+  async setRingCxSoftphoneRinging(isRinging: boolean): Promise<void> {
+    this._setIncomingAlert('ringcxSoftphone', isRinging);
+  }
+
+  private _setIncomingAlert(
+    source: IncomingAlertSource,
+    isRinging: boolean,
+  ): void {
+    if (isRinging) {
+      this._incomingAlertSources.add(source);
+    } else {
+      this._incomingAlertSources.delete(source);
+    }
+    const hasRinging = this._incomingAlertSources.size > 0;
     if (hasRinging && !this._alertEpoch) {
       const epoch = createEpoch();
       this._alertEpoch = epoch;
