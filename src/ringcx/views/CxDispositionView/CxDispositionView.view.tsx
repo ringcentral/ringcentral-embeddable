@@ -39,7 +39,7 @@ import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
 import { getClockByTimestamp } from '../../lib/getClockByTimestamp';
-import { formatCxCallForConnected, formatCxCallFromHistory } from '../../lib/formatCxCall';
+import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
 import { getCallAni, getCallDnis } from '../../lib/getCxCallNumbers';
 import type {
   CxCallDispositionData,
@@ -118,8 +118,8 @@ class CxDispositionView extends RcViewModule {
     private dispositionViewOptions?: CxDispositionViewOptions,
     @optional('CxAgentScript')
     private cxAgentScript?: { saveScriptResult(call: unknown): Promise<void> },
-    @optional('ThirdParty')
-    private thirdParty?: { logCall(payload: unknown): Promise<void> },
+    @optional('RingCXAdapterBridge')
+    private ringCXAdapterBridge?: RingCXAdapterBridge,
   ) {
     super();
     this.storagePlugin.enable(this);
@@ -686,99 +686,47 @@ class CxDispositionView extends RcViewModule {
     );
   }
 
-  @computed((that: CxDispositionView) => [that.currentCall])
-  get callLogData() {
-    const call = this.currentCall;
-    if (!call) return null;
-    return formatCxCallForConnected(call as any);
-  }
-
   /**
-   * Save a history row that only exists server-side.
-   *
-   * Updates the RingCX activity when one was loaded; always emits
-   * `rc-ev-logCall` with the same `{ call, task, sessionId }` shape local
-   * dispositions use so CRM logging still works when activities are
-   * unavailable. Top-level `sessionId` is the history `segmentId`.
+   * Update the RingCX activity for a history row. CRM logging is a separate
+   * host action and is not posted from this page.
    */
   private async doUpdateHistoryActivity() {
     const activityId = this.historyActivity?.id;
     if (
-      activityId &&
-      this.cxAuth.agentPermissions?.allowContactManagement
+      !activityId ||
+      !this.cxAuth.agentPermissions?.allowContactManagement
     ) {
-      const authorized = await this.cxAuth.refreshEvToken();
-      if (authorized) {
-        await this.cxClient.updateActivity(activityId, {
-          // The disposition itself is not editable here: the pick list only
-          // exists on the live call payload, which a server-only row has no
-          // access to.
-          dispositionName: this.historyDispositionName,
-          agentSummary: this.historyActivityDraft.agentSummary,
-          agentNotes: this.historyActivityDraft.agentNotes,
-        });
-      }
-    } else if (!activityId) {
-      this.logger.info(
-        'no activity to update; saving call log via third party only',
-      );
+      return;
     }
-    await this.logServerOnlyHistoryCall();
+    const authorized = await this.cxAuth.refreshEvToken();
+    if (!authorized) {
+      return;
+    }
+    await this.cxClient.updateActivity(activityId, {
+      dispositionName: this.historyDispositionName,
+      agentSummary: this.historyActivityDraft.agentSummary,
+      agentNotes: this.historyActivityDraft.agentNotes,
+    });
   }
 
   /**
-   * Emit `rc-ev-logCall` for a history row this browser never handled.
+   * Dispose first. Logging runs afterwards and cannot put the agent back into
+   * Pending Disposition.
    */
-  private async logServerOnlyHistoryCall(): Promise<void> {
-    const historyCall = this.historyCall;
-    const call = historyCall
-      ? formatCxCallFromHistory(historyCall, this.cxAuth.agentId)
-      : null;
-    if (!call || !historyCall?.uii || !historyCall.segmentId) {
-      return;
-    }
-    try {
-      await this.thirdParty?.logCall({
-        call,
-        task: {
-          dispositionId: this.historyDispositionName || null,
-          notes: this.historyActivityDraft.agentNotes,
-          summary: this.historyActivityDraft.agentSummary,
-        },
-        // Prefer the local call id when present so CRM match keys align with
-        // active-call logging; fall back to segmentId for server-only rows.
-        sessionId: historyCall.localCallId || historyCall.segmentId,
-      });
-    } catch (e) {
-      this.logger.error('thirdParty logCall error~~', e);
-    }
-  }
-
-  private async doDisposeCall() {
-    if (this.isServerOnlyHistoryCall) {
+  private async doDisposeCall(): Promise<boolean> {
+    if (this.isServerOnlyHistoryCall || this.isHistoryMode) {
       await this.doUpdateHistoryActivity();
-      return;
+      return false;
     }
     const call = this.currentCall;
     const disposition = this.cxCallDisposition.getDisposition(this.callId);
-    try {
-      if (this.callLogData) {
-        await this.thirdParty?.logCall({
-          call: this.callLogData,
-          task: disposition,
-          sessionId: this.callId,
-        });
-      }
-    } catch (e) {
-      this.logger.error('thirdParty logCall error~~', e);
-    }
     const dialogId = call?.session.dialogId;
     const dispositionId = disposition?.dispositionId;
+    const dispositionItem = this.dispositionPickList.find(
+      (item) => item.dispositionId === dispositionId,
+    );
     await this.cxCallDisposition.disposeCall(this.callId);
     if (dialogId && this.summary && dispositionId) {
-      const dispositionItem = this.dispositionPickList.find(
-        p => p.dispositionId === dispositionId
-      );
       const authorized = await this.cxAuth.refreshEvToken();
       if (authorized) {
         await this.cxClient.updateActivityDisposition({
@@ -794,6 +742,16 @@ class CxDispositionView extends RcViewModule {
     if (call?.scriptId) {
       await this.cxAgentScript?.saveScriptResult(call);
     }
+    return this.ringCXAdapterBridge?.logAfterDisposition?.({
+      call,
+      callId: this.callId,
+      note: disposition?.notes,
+      extra: {
+        dispositionId,
+        dispositionName: dispositionItem?.label,
+        notes: disposition?.notes,
+      },
+    }) ?? false;
   }
 
   @delegate('server')
@@ -813,7 +771,7 @@ class CxDispositionView extends RcViewModule {
     const shouldGoToDialerAfterSubmit = this.callStatus === 'callEnd' || !this.hasCurrentCall;
     try {
       this.setSaveStatus(SaveStatus.SAVING);
-      await this.doDisposeCall();
+      const openedLogPage = await this.doDisposeCall();
       if (!this.isHistoryMode) {
         void this.cxCallHistory.refresh();
       }
@@ -832,6 +790,14 @@ class CxDispositionView extends RcViewModule {
           // this submit was in flight.
           this._setViewCallId('');
           this._reset();
+          return;
+        }
+        if (openedLogPage) {
+          this.cxCall.setDialoutStatus(dialoutStatuses.idle);
+          this._setViewCallId('');
+          this.router.replace(`/log/call/${callId}?source=ringcx`);
+          this._reset();
+          this.cxCall.setActivityCallId('');
           return;
         }
         if (shouldGoToDialerAfterSubmit) {

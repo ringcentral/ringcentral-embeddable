@@ -68,6 +68,12 @@ interface CxCallHistoryDetailViewUIFunctions {
   onCopyNumber: (phoneNumber: string) => void;
   onCopyCallId: (callId: string) => void;
   onOpenCallLog: () => void;
+  hostLogActions?: Array<{
+    type: string;
+    label?: string;
+    disabled?: boolean;
+  }>;
+  onHostLogAction?: (actionType: string) => void;
 }
 
 export type {

@@ -19,6 +19,10 @@ import type {
   CompatibleCall,
   EmbeddableCallLogger,
 } from "../../services/CallLogger";
+import {
+  callLogSourceRegistry,
+  RINGCX_CALL_LOG_SOURCE,
+} from "../../services/CallLogger/CallLogSourceRegistry";
 import { ThirdParty } from "../../services/ThirdParty";
 import type { ThirdPartyCall, UnknownRecord } from "../../services/ThirdParty";
 
@@ -62,16 +66,32 @@ export class LogCallView extends RcViewModule {
     this.saving = saving;
   }
 
-  private async loadCall(sessionId: string): Promise<void> {
+  private async loadCall(sessionId: string, source?: string): Promise<void> {
     this.setLoading(true);
     this.setCurrentCall(null);
     try {
-      const call = await this._callLogger.getCall(sessionId, sessionId);
-      if (!call) {
-        this.setCurrentCall(null);
-        return;
+      const decodedId = decodeURIComponent(sessionId);
+      console.log('[LogCallView] loadCall starting:', { sessionId, decodedId, source });
+      let call: CompatibleCall | null = null;
+      if (source) {
+        call = await callLogSourceRegistry.getCall(source, decodedId);
+        if (!call && decodedId !== sessionId) {
+          call = await callLogSourceRegistry.getCall(source, sessionId);
+        }
       }
+      if (!call) {
+        call = await this._callLogger.getCall(decodedId, decodedId);
+        if (!call && decodedId !== sessionId) {
+          call = await this._callLogger.getCall(sessionId, sessionId);
+        }
+      }
+      if (!call && !source) {
+        call = await callLogSourceRegistry.getCall(RINGCX_CALL_LOG_SOURCE, decodedId);
+      }
+      console.log('[LogCallView] loadCall resolved:', { sessionId, source, found: Boolean(call), call });
       this.setCurrentCall(call);
+    } catch (err) {
+      console.error('[LogCallView] loadCall error:', err);
     } finally {
       this.setLoading(false);
     }
@@ -114,9 +134,15 @@ export class LogCallView extends RcViewModule {
   }
 
   component({
+    location,
     match,
   }: RouteComponentProps<{ callSessionId: string }>): React.ReactElement {
     const sessionId = match.params.callSessionId;
+    const rawSource = new URLSearchParams(location?.search || "").get("source");
+    const source =
+      rawSource && rawSource !== "undefined" && rawSource !== "null"
+        ? rawSource
+        : undefined;
     const { call, customizedPage, loading, logButtonTitle, saving } =
       useConnector(() => ({
         call: this.getCurrentCallWithExtraLogData(),
@@ -126,8 +152,8 @@ export class LogCallView extends RcViewModule {
         saving: this.saving,
       }));
     useEffect(() => {
-      void this.loadCall(sessionId);
-    }, [sessionId]);
+      void this.loadCall(sessionId, source);
+    }, [sessionId, source]);
     const callRef = useRef(call);
     callRef.current = call;
     const { current: handlers } = useRef({

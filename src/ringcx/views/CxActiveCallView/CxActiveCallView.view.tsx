@@ -87,6 +87,10 @@ export interface CxActiveCallViewOptions {
 class CxActiveCallView extends RcViewModule {
   pickUpDirectly = true;
 
+  private _storeReady = false;
+
+  private _keypadInitialized = false;
+
   constructor(
     private cxPresence: CxPresence,
     private cxCall: CxCall,
@@ -109,20 +113,30 @@ class CxActiveCallView extends RcViewModule {
     this.storagePlugin.enable(this);
     if (this.portManager?.shared) {
       this.portManager.onServer(() => {
-        this._initializeWhenStoreReady();
+        this._initializeKeypadIfReady();
       });
-    } else {
-      this._initializeWhenStoreReady();
     }
   }
 
   /**
-   * Port callbacks can run synchronously while the module is still being
-   * constructed, so the actions in {@link initialize} have to wait until
-   * Reactant has attached the store.
+   * Shared-port callbacks can run during construction, before this module has
+   * a store slice. Keypad actions wait until `onInit`.
    */
-  private _initializeWhenStoreReady(): void {
-    void Promise.resolve().then(() => this.initialize());
+  override onInit(): void {
+    this._storeReady = true;
+    this._initializeKeypadIfReady();
+  }
+
+  private _initializeKeypadIfReady(): void {
+    if (
+      !this._storeReady ||
+      this._keypadInitialized ||
+      (this.portManager?.shared && !this.portManager.isServer)
+    ) {
+      return;
+    }
+    this._keypadInitialized = true;
+    this.initialize();
   }
 
   @storage

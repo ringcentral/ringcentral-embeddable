@@ -2,6 +2,7 @@ import type { ModuleOptions } from 'reactant';
 
 import type { CxRuntimeOptions } from '../app/services/RingCX/RingCX.interface';
 import { CxRouteCoordinator } from './CxRouteCoordinator';
+import { RingCXAdapterBridge } from './services/RingCXAdapterBridge';
 import { CxAnnouncementsView } from './CxAnnouncements.view';
 import { CxAppView } from './CxApp.view';
 import { CxSettingsView } from './CxSettings.view';
@@ -123,6 +124,11 @@ export function getRingCXModules(
     CxDispositionView,
     CxTransferView,
     CxManualDialSettingsView,
+    // Registered against the string token, not the bare class: every consumer
+    // injects it as `@optional('RingCXAdapterBridge')`, and a bare class
+    // binding is not reachable by that name. A missing binding resolves to
+    // `undefined` and every bridge call becomes a silent no-op.
+    { provide: 'RingCXAdapterBridge', useClass: RingCXAdapterBridge },
     CxRouteCoordinator,
     CxAnnouncementsView,
     CxAppView,

@@ -33,6 +33,7 @@ import { t } from './i18n';
 import type {
   CxAgentSessionModule,
   CxAuthModule,
+  CxLoginStatus,
   RingCXOptions,
   CxRuntimeOptions,
   CxViewModule,
@@ -182,7 +183,17 @@ export class RingCX extends RcModule {
     if (!this.loaded) {
       return false;
     }
-    return this.cxPresence?.isOnCall ?? false;
+    const isOnCall = this.cxPresence?.isOnCall ?? false;
+    // TODO: temporary debug log for the keypad dial button diagnosis.
+    this.logger.log('RingCX.hasActiveCall', {
+      isOnCall,
+      loaded: this.loaded,
+      stage: this.stage,
+      hasCxPresence: Boolean(this.cxPresence),
+      liveCallCount: this.cxPresence?.calls?.length ?? 0,
+      dialoutStatus: this.cxPresence?.dialoutStatus,
+    });
+    return isOnCall;
   }
 
   get canEndAgentSession(): boolean {
@@ -254,13 +265,7 @@ export class RingCX extends RcModule {
     );
     watch(
       this,
-      () =>
-        [
-          this.cxAuth?.loginStatus,
-          this.cxAuth?.isOnlyOneAgent,
-          this.cxAgentSession?.configured,
-          this.cxAgentSession?.configSuccess,
-        ] as const,
+      () => this._sessionStageInputs(),
       () => this._synchronizeStage(),
       { multiple: true },
     );
@@ -279,7 +284,7 @@ export class RingCX extends RcModule {
     );
     watch(
       this,
-      () => (this.cxPresence?.calls?.length ?? 0) > 0,
+      () => this._hasLivePresenceCalls(),
       (isOnCall: boolean, wasOnCall: boolean) => {
         if (wasOnCall && !isOnCall) {
           this._clearAllPendingExBridgeDestinations();
@@ -481,7 +486,7 @@ export class RingCX extends RcModule {
     this._exBridgeDestinationTimeouts.delete(destination);
     if (
       this.hasActiveCall ||
-      this.cxPresence?.dialoutStatus === CX_DIALOUT_DIALING
+      (this.loaded && this.cxPresence?.dialoutStatus === CX_DIALOUT_DIALING)
     ) {
       return;
     }
@@ -537,14 +542,46 @@ export class RingCX extends RcModule {
     );
   }
 
+  /**
+   * Dynamic CX modules are attached before their reducers exist. Reading
+   * their state in that window throws, so the first row stays inert until
+   * `loaded`. `watch({ multiple: true })` also requires this array on the
+   * first read, which happens in `onInitOnce` before the chunk is loaded.
+   */
+  private _sessionStageInputs(): readonly [
+    boolean,
+    CxLoginStatus | null,
+    boolean,
+    boolean,
+    boolean,
+  ] {
+    if (!this.loaded || !this.cxAuth || !this.cxAgentSession) {
+      return [false, null, false, false, false];
+    }
+    return [
+      true,
+      this.cxAuth.loginStatus,
+      this.cxAuth.isOnlyOneAgent,
+      this.cxAgentSession.configured,
+      this.cxAgentSession.configSuccess,
+    ];
+  }
+
+  private _hasLivePresenceCalls(): boolean {
+    if (!this.loaded) {
+      return false;
+    }
+    return (this.cxPresence?.calls?.length ?? 0) > 0;
+  }
+
   private _synchronizeStage(): void {
-    const loginStatus = this.cxAuth?.loginStatus;
     if (!this.loaded || !this.cxAuth || !this.cxAgentSession) {
       if (this.loadRequested) {
         this._setStage('loading');
       }
       return;
     }
+    const loginStatus = this.cxAuth.loginStatus;
     if (loginStatus === 'authFailure') {
       this._setStage('error');
       return;

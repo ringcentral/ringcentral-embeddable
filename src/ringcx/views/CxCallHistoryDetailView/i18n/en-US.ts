@@ -36,6 +36,7 @@ export default {
   callIdCopied: 'Call ID copied',
   createCallLog: 'Create call log',
   updateCallLog: 'Update call log',
+  editCallOutcome: 'Edit call outcome',
   // Duration units for "Outgoing call (28 sec)"
   hour: '{count} hr',
   hour_plural: '{count} hr',

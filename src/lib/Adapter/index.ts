@@ -1544,12 +1544,50 @@ class Adapter {
     });
   }
 
-  clickToCall(phoneNumber: string, toCall: boolean = false): void {
+  clickToCall(
+    phoneNumber: string,
+    toCallOrOptions:
+      | boolean
+      | {
+          toCall?: boolean;
+          callWith?: 'ringcx' | 'ringcentral';
+          callerId?: string;
+        } = false,
+  ): void {
+    const options =
+      typeof toCallOrOptions === 'object'
+        ? toCallOrOptions
+        : { toCall: toCallOrOptions };
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-call',
       phoneNumber,
-      toCall,
+      toCall: options.toCall ?? false,
+      callWith: options.callWith,
+      callerId: options.callerId,
+    });
+  }
+
+  startRingCXAgentSession(): void {
+    this._postMessage({ type: 'rc-adapter-ringcx-start-agent-session' });
+  }
+
+  endRingCXAgentSession(): void {
+    this._postMessage({ type: 'rc-adapter-ringcx-end-agent-session' });
+  }
+
+  setRingCXAgentState(state: string): void {
+    this._postMessage({
+      type: 'rc-adapter-ringcx-set-agent-state',
+      state,
+    });
+  }
+
+  dialRingCXLead(lead: unknown, destination: string): void {
+    this._postMessage({
+      type: 'rc-adapter-ringcx-dial-lead',
+      lead,
+      destination,
     });
   }
 
@@ -1559,6 +1597,7 @@ class Adapter {
       callAction: action,
       callId: id,
       options,
+      source: options.source,
     });
   }
 

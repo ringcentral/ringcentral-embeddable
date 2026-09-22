@@ -16,6 +16,8 @@ import { CxWorkingState } from '../../services/CxWorkingState';
 import { CxAgentSession } from '../../services/CxAgentSession';
 import { CxAuth } from '../../services/CxAuth';
 import { CxClient } from '../../services/CxClient';
+import { ThirdParty } from '../../../app/services/ThirdParty';
+import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
 import { LeadItem } from '../../components/LeadItem';
 import type { PhoneNumberData, ManualPassParams } from '../../components/LeadItem';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber';
@@ -48,6 +50,9 @@ class CxLeadsView extends RcViewModule {
     private cxAgentSession: CxAgentSession,
     private cxAuth: CxAuth,
     private cxClient: CxClient,
+    private _thirdParty: ThirdParty,
+    @optional('RingCXAdapterBridge')
+    private _bridge?: RingCXAdapterBridge,
     @optional('CxLeadsViewOptions')
     private leadsViewOptions?: CxLeadsViewOptions,
   ) {
@@ -75,7 +80,7 @@ class CxLeadsView extends RcViewModule {
   };
 
   viewLead = async (lead: Lead) => {
-    void lead;
+    await this._bridge?.viewLead?.(lead);
   };
 
   component() {
@@ -100,7 +105,7 @@ class CxLeadsView extends RcViewModule {
       agentState: this.cxWorkingState.agentState?.agentState || '',
       allowManualPass: this.cxAuth.agentConfig?.agentPermissions?.allowManualPass ?? false,
       defaultTimezone: (this.cxAuth.authenticateResponse as any)?.regionalSettings?.timezoneName || 'America/New_York',
-      showViewLead: false,
+      showViewLead: this._thirdParty.leadViewerRegistered,
     }));
 
     const agentBusy = AGENT_BUSY_STATES.includes(agentState);

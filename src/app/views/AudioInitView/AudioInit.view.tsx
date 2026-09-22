@@ -17,6 +17,7 @@ import React, { useRef } from 'react';
 
 import { AudioInit } from '../../services/AudioInit';
 import type { AppFeatures as EmbeddableAppFeatures } from '../../services/AppFeatures';
+import { RingCX } from '../../services/RingCX';
 import { TabManager } from '../../services/TabManager';
 import { AudioInitPanel } from './AudioInitPanel';
 import type { AudioInitViewProps } from './AudioInitView.interface';
@@ -42,6 +43,7 @@ export class AudioInitView extends RcViewModule {
     private readonly _auth: Auth,
     private readonly _callingSettings: CallingSettings,
     private readonly _tabManager: TabManager,
+    private readonly _ringCX: RingCX,
   ) {
     super();
   }
@@ -51,7 +53,10 @@ export class AudioInitView extends RcViewModule {
    * integrated softphone is connecting or recovering.
    */
   private isSoftphoneConnectivityVisible(): boolean {
-    if (this._cxSoftphone?.isIntegratedSoftphone !== true) {
+    if (
+      !this._ringCX.loaded ||
+      this._cxSoftphone?.isIntegratedSoftphone !== true
+    ) {
       return false;
     }
     return (
@@ -69,6 +74,7 @@ export class AudioInitView extends RcViewModule {
         this._callingSettings.callingMode === callingModes.webphone);
     const needsRingCXAudio =
       this._auth.loggedIn &&
+      this._ringCX.loaded &&
       this._cxSoftphone?.isIntegratedSoftphone === true &&
       this._cxSoftphone.sipState === 'registered' &&
       !this._cxSoftphone.sipUnstableConnection;

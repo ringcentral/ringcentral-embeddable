@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react';
 import {
   action,
   computed,
+  inject,
   injectable,
   optional,
   RcViewModule,
@@ -27,6 +28,14 @@ import dayjs from 'dayjs';
 import { CxCallHistory } from '../../services/CxCallHistory';
 import { CxAuth } from '../../services/CxAuth';
 import { CxCall } from '../../services/CxCall';
+import {
+  HostCallLogger,
+  type CallLogger,
+} from '../../../app/services/CallLogger';
+import { ThirdParty } from '../../../app/services/ThirdParty';
+import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
+import { createCallHistoryLogActions } from '../../../app/views/CallHistoryView/CallHistoryLogAction';
+import hostCallHistoryI18n from '../../../app/views/CallHistoryView/i18n';
 import { callDirection } from '../../enums';
 import { CallHistoryList } from '../../components/CallHistoryList';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
@@ -56,6 +65,10 @@ class CxCallHistoryView extends RcViewModule {
     private cxAuth: CxAuth,
     private cxCall: CxCall,
     private _router: RouterPlugin,
+    @inject(HostCallLogger) private _callLogger: CallLogger,
+    private _thirdParty: ThirdParty,
+    @optional('RingCXAdapterBridge')
+    private _bridge?: RingCXAdapterBridge,
     @optional('CxCallHistoryViewOptions')
     private callHistoryViewOptions?: CxCallHistoryViewOptions,
   ) {
@@ -232,20 +245,20 @@ class CxCallHistoryView extends RcViewModule {
   }
 
   /**
-   * Navigate to activity call page for creating/updating call log
-   */
-  goToCallLogPage(callId: string, method: 'create' | 'update') {
-    this._router.push(cxPath.historyCallLog(callId, method));
-  }
-
-  /**
    * Hook that provides call history item info for rendering
    */
   useCallHistoryItemInfo = (
     call: FormattedCall,
     _options: { selectIndex: number; variant: 'list' | 'detail' },
   ) => {
-    const { t } = useLocale(i18n);
+    const { t, currentLocale } = useLocale(i18n);
+    const logId = call.localCallId || call.id;
+    const logState = useConnector(() => ({
+      hideEditLogButton: this._thirdParty.callLoggerHideEditLogButton,
+      isLogging: Boolean(this._callLogger.loggingMap?.[logId]),
+      logButtonTitle: this._thirdParty.callLoggerTitle,
+      ready: this._callLogger.ready,
+    }));
     const isOutbound = call.direction === callDirection.outbound;
     const displayName = isOutbound ? call.toName : call.fromName;
     const phoneNumber = isOutbound
@@ -338,20 +351,40 @@ class CxCallHistoryView extends RcViewModule {
     const isDialDisabled = !this.cxCall.isIdle;
     const actions: HistoryAction[] = useMemo(() => {
       const nextActions: HistoryAction[] = [];
-      // Keep dial inside ActionMenuList's hover tray so it is not covered by
-      // the absolutely positioned create/update-log button.
       if (canDial) {
         nextActions.push({
           type: 'call',
           disabled: isDialDisabled,
         });
       }
-      nextActions.push({
-        type: call.isDisposed ? 'viewLog' : 'createLog',
-        label: call.isDisposed ? t('updateCallLog') : t('createCallLog'),
+      const logCall = {
+        activityMatches: call.activityMatches,
+        type: 'Voice',
+      };
+      const logActions = createCallHistoryLogActions({
+        call: logCall as Parameters<typeof createCallHistoryLogActions>[0]['call'],
+        editLogLabel: hostCallHistoryI18n.getString('editLog', currentLocale),
+        hideEditLogButton: logState.hideEditLogButton,
+        isLogging: logState.isLogging,
+        logButtonTitle: logState.logButtonTitle,
+        logCallLabel: hostCallHistoryI18n.getString('logCall', currentLocale),
+        ready: logState.ready,
+        viewLogLabel: hostCallHistoryI18n.getString(
+          'viewLogDetails',
+          currentLocale,
+        ),
       });
-      return nextActions;
-    }, [call.isDisposed, canDial, isDialDisabled, t]);
+      return [...nextActions, ...logActions];
+    }, [
+      call,
+      canDial,
+      currentLocale,
+      isDialDisabled,
+      logState.hideEditLogButton,
+      logState.isLogging,
+      logState.logButtonTitle,
+      logState.ready,
+    ]);
     const info = {
       Avatar,
       DisplayName,
@@ -394,10 +427,8 @@ class CxCallHistoryView extends RcViewModule {
           }
           break;
         case 'createLog':
-          this.goToCallLogPage(call.id, 'create');
-          break;
         case 'viewLog':
-          this.goToCallLogPage(call.id, 'update');
+          void this._bridge?.logFromHistory?.(call, actionType);
           break;
         case 'viewDetail':
           this.goToCallDetail(call.id);

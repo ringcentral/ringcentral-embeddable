@@ -128,6 +128,8 @@ export const CallHistoryDetailPanel: FunctionComponent<
   onCopyNumber,
   onCopyCallId,
   onOpenCallLog,
+  hostLogActions,
+  onHostLogAction,
 }) => {
   const { t } = useLocale(i18n);
 
@@ -320,13 +322,26 @@ export const CallHistoryDetailPanel: FunctionComponent<
               color="neutral"
               onClick={onOpenCallLog}
               data-sign="historyDetailCallLogButton"
-              aria-label={
-                isDisposed ? t('updateCallLog') : t('createCallLog')
-              }
+              aria-label={t('editCallOutcome')}
               TooltipProps={{
-                title: isDisposed ? t('updateCallLog') : t('createCallLog'),
+                title: t('editCallOutcome'),
               }}
             />
+            {(hostLogActions || []).map((action) => (
+              <IconButton
+                key={action.type}
+                symbol={action.type === 'viewLog' ? ArrowRightUpMd : DispositionMd}
+                size="small"
+                shape="circular"
+                variant="outlined"
+                color="neutral"
+                disabled={action.disabled}
+                onClick={() => onHostLogAction?.(action.type)}
+                data-sign={`historyDetail-${action.type}`}
+                aria-label={action.label || action.type}
+                TooltipProps={{ title: action.label || action.type }}
+              />
+            ))}
             {callMeta.callId ? (
               <IconButton
                 symbol={CopyMd}

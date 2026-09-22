@@ -36,6 +36,7 @@ export default {
   copyCallId: 'Oproep-ID kopiëren',
   callIdCopied: 'Oproep-ID gekopieerd',
   createCallLog: 'Oproepgeschiedenis maken',
+  editCallOutcome: 'Edit call outcome',
   updateCallLog: 'Oproeplog bijwerken',
   hour: '{count} u',
   hour_plural: '{count} u',

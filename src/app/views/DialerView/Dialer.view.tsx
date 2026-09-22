@@ -89,7 +89,24 @@ export class DialerView extends BaseDialerView {
     this._doNotContact.verifyCall(options);
 
   override get isCallButtonDisabled() {
-    return super.isCallButtonDisabled || Boolean(this._ringCX?.hasActiveCall);
+    const baseDisabled = super.isCallButtonDisabled;
+    const ringCXHasActiveCall = Boolean(this._ringCX?.hasActiveCall);
+    const disabled = baseDisabled || ringCXHasActiveCall;
+    // TODO: temporary debug log for the keypad dial button diagnosis.
+    this.logger.log('DialerView.isCallButtonDisabled', {
+      disabled,
+      baseDisabled,
+      ringCXHasActiveCall,
+      connecting: this._connectingView?.isConnecting,
+      callIdle: this._call.isIdle,
+      isOfflineMode: this._connectivityManager.isOfflineMode,
+      isWebphoneUnavailableMode:
+        this._connectivityManager.isWebphoneUnavailableMode,
+      isWebphoneInitializing:
+        this._connectivityManager.isWebphoneInitializing,
+      rateLimiterRestricted: this._rateLimiter.restricted,
+    });
+    return disabled;
   }
 
   override getUIProps(

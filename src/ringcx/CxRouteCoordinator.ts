@@ -220,8 +220,19 @@ export class CxRouteCoordinator extends RcModule {
       this.logger.info('onCallEnded~~', id, { isDisposed, showDispositionStep });
       if (isDisposed || !showDispositionStep) {
         await this._cxWorkingState.setIsPendingDisposition(false);
-        this._requestNavigation(cxPath.home('dialer'), 'replace');
         this._bridge?.onEndCall(call);
+        const openedLogPage = showDispositionStep
+          ? false
+          : await this._bridge?.logEndedCall?.(call);
+        if (openedLogPage) {
+          this._requestNavigation(
+            `/log/call/${id}?source=ringcx`,
+            'push',
+            true,
+          );
+        } else {
+          this._requestNavigation(cxPath.home('dialer'), 'replace');
+        }
         return;
       }
       // A `replace` also collapses a sub page of the call that just ended, a

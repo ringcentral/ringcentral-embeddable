@@ -1,6 +1,15 @@
 /**
  * CxLeads options for configuration
  */
+export type CxLeadEventAction = 'loaded' | 'passed' | 'dialed';
+
+export interface CxLeadEvent {
+  action: CxLeadEventAction;
+  leads?: Lead[];
+  lead?: Lead;
+  destination?: string;
+}
+
 export interface CxLeadsOptions {
   // Optional configuration options
 }

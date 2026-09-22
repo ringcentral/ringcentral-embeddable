@@ -201,6 +201,9 @@ export class ThirdParty extends RcModule {
   callLoggerRegistered = false;
 
   @state
+  leadViewerRegistered = false;
+
+  @state
   callLoggerTitle: string | null = null;
 
   @state
@@ -475,6 +478,10 @@ export class ThirdParty extends RcModule {
     return this._serviceRegistration?.callLoggerPath;
   }
 
+  private get _leadViewerPath(): string | undefined {
+    return this._serviceRegistration?.leadViewerPath;
+  }
+
   private get _callLogEntityMatcherPath(): string | undefined {
     return this._serviceRegistration?.callLogEntityMatcherPath;
   }
@@ -720,6 +727,9 @@ export class ThirdParty extends RcModule {
     }
     if (service.callLoggerPath) {
       this._registerCallLogger(service);
+    }
+    if (service.leadViewerPath) {
+      this._registerLeadViewer();
     }
     if (service.messageLoggerPath) {
       this._registerMessageLogger(service);
@@ -1493,6 +1503,25 @@ export class ThirdParty extends RcModule {
     return contentUri;
   }
 
+  /**
+   * Ask the host page to open a preview lead. No-op when `leadViewerPath`
+   * is not registered.
+   */
+  @delegate('mainClient')
+  async viewLead({
+    lead,
+    agentId,
+  }: {
+    lead: unknown;
+    agentId?: string;
+  }): Promise<void> {
+    const leadViewerPath = this._leadViewerPath;
+    if (!leadViewerPath) {
+      return;
+    }
+    await requestWithPostMessage(leadViewerPath, { lead, agentId });
+  }
+
   @delegate('server')
   async logCall({
     call,
@@ -2230,6 +2259,11 @@ export class ThirdParty extends RcModule {
     meetingInviteTitle?: string;
   }): void {
     this.meetingInviteTitle = meetingInviteTitle || null;
+  }
+
+  @action
+  private _registerLeadViewer(): void {
+    this.leadViewerRegistered = true;
   }
 
   @action

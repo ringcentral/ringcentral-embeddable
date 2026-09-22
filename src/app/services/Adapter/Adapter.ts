@@ -21,6 +21,7 @@ import {
   StoragePlugin,
   watch,
   delegate,
+  dynamic,
   Root,
 } from '@ringcentral-integration/next-core';
 import {
@@ -73,6 +74,13 @@ import { getRcmEventTpl, getRcvEventTpl } from '@ringcentral-integration/widgets
 
 import PopupWindowManager from '../../../lib/PopupWindowManager';
 import messageTypes from '../../../lib/Adapter/messageTypes';
+import {
+  ringCXCommandTypes,
+  ringCXEventTypes,
+  ringCXRequestPaths,
+} from '../../../lib/Adapter/ringCXMessageTypes';
+import { callLogSourceRegistry } from '../CallLogger/CallLogSourceRegistry';
+import type { RingCXCommandBridge } from './RingCXCommandBridge';
 import { parseUri } from '../../../lib/Adapter/parseUri';
 import { isDuplicated } from '../../../lib/isDuplicated';
 import { SideWidgetView } from '../../views/SideWidgetView';
@@ -362,6 +370,9 @@ export class Adapter extends RcModule {
     threshold: CALLING_SETTINGS_NOTIFY_DEBOUNCE_MS,
   });
   private _customAlertGroup = 'rc-adapter-custom-alert';
+
+  @dynamic('RingCXAdapterBridge')
+  private readonly _ringCXBridge?: RingCXCommandBridge;
 
   constructor(
     protected _root: Root,
@@ -1046,13 +1057,33 @@ export class Adapter extends RcModule {
         );
         break;
       case 'rc-adapter-new-call':
+        if (data.callWith === 'ringcx') {
+          void this._newRingCXCall(data.phoneNumber, data.callerId);
+          break;
+        }
         void this._newCall(data.phoneNumber, data.toCall, data.callerId);
         break;
       case 'rc-adapter-auto-populate-conversation':
         void this._autoPopulateConversation(data.text, data.attachments);
         break;
       case 'rc-adapter-control-call':
+        if (data.source === 'ringcx' || data.options?.source === 'ringcx') {
+          void this._controlRingCXCall(data.callAction, data.callId);
+          break;
+        }
         void this._controlCall(data.callAction, data.callId, data.options);
+        break;
+      case ringCXCommandTypes.startAgentSession:
+        void this._startRingCXAgentSession();
+        break;
+      case ringCXCommandTypes.endAgentSession:
+        void this._endRingCXAgentSession();
+        break;
+      case ringCXCommandTypes.setAgentState:
+        void this._setRingCXAgentState(data.state);
+        break;
+      case ringCXCommandTypes.dialLead:
+        void this._dialRingCXLead(data.lead, data.destination);
         break;
       case 'rc-adapter-pick-call':
         void this._pickCall(data.extensionId, data.telephonySessionId);
@@ -1259,17 +1290,46 @@ export class Adapter extends RcModule {
         const callLogger = this._callLogger as
           | EmbeddableCallLogger
           | undefined;
-        const call = callLogger
+        const sessionId = data.body.sessionId as string | undefined;
+        const hostCall = callLogger
           ? await callLogger.getCall(
-              data.body.sessionId,
+              sessionId,
               data.body.telephonySessionId,
             )
           : null;
+        const source = (data.body.source as string | undefined) || 'ringcx';
+        const call =
+          hostCall ||
+          (sessionId
+            ? await callLogSourceRegistry.getCall(source, sessionId)
+            : null);
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
           response: {
             call,
           },
+        });
+        break;
+      }
+      case ringCXRequestPaths.agentSession: {
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: this._ringCXSessionSnapshot(),
+        });
+        break;
+      }
+      case ringCXRequestPaths.dispositions: {
+        if (!this._ringCXBridge || this._ringCX?.stage !== 'ready') {
+          this._answerRingCXNotReady();
+          this._postRCAdapterMessageResponse({
+            responseId: data.requestId,
+            response: { error: 'ringcx agent session is not ready' },
+          });
+          break;
+        }
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: this._ringCXBridge.getDispositions(data.body?.callId),
         });
         break;
       }
@@ -2923,5 +2983,152 @@ export class Adapter extends RcModule {
       type: 'rc-adapter-side-drawer-open-notify',
       open: expanded,
     });
+  }
+
+  notifyRingCXCall(
+    event: 'ring' | 'start' | 'end' | 'disposed',
+    call: object,
+  ): void {
+    if (this._shouldSuppressCallEvent()) {
+      return;
+    }
+    const type = {
+      ring: ringCXEventTypes.callRingNotify,
+      start: ringCXEventTypes.callStartNotify,
+      end: ringCXEventTypes.callEndNotify,
+      disposed: ringCXEventTypes.callDisposedNotify,
+    }[event];
+    this._postMessage({ type, call });
+  }
+
+  notifyRingCXAgentSession(snapshot: object): void {
+    if (this._shouldSuppressCallEvent()) {
+      return;
+    }
+    this._postMessage({
+      type: ringCXEventTypes.agentSessionNotify,
+      ...snapshot,
+    });
+  }
+
+  notifyRingCXAgentState(payload: {
+    state: string;
+    pendingDisposition: boolean;
+  }): void {
+    if (this._shouldSuppressCallEvent()) {
+      return;
+    }
+    this._postMessage({
+      type: ringCXEventTypes.agentStateNotify,
+      ...payload,
+    });
+  }
+
+  notifyRingCXSoftphoneStatus(status: string): void {
+    if (this._shouldSuppressCallEvent()) {
+      return;
+    }
+    this._postMessage({
+      type: ringCXEventTypes.softphoneStatusNotify,
+      status,
+    });
+  }
+
+  notifyRingCXLead(payload: object): void {
+    if (this._shouldSuppressCallEvent()) {
+      return;
+    }
+    this._postMessage({
+      type: ringCXEventTypes.leadNotify,
+      ...payload,
+    });
+  }
+
+  private _ringCXSessionSnapshot(): object {
+    if (this._ringCXBridge) {
+      return this._ringCXBridge.getAgentSessionSnapshot();
+    }
+    return { status: this._ringCX?.stage ?? 'idle' };
+  }
+
+  private _answerRingCXNotReady(): void {
+    this._toast.warning({ message: ringCXT('agentSessionNotReady') });
+    this.notifyRingCXAgentSession(this._ringCXSessionSnapshot());
+  }
+
+  private async _requireRingCXReady(): Promise<RingCXCommandBridge | null> {
+    if (!this._ringCX?.enabled) {
+      this._answerRingCXNotReady();
+      return null;
+    }
+    if (!this._ringCXBridge || this._ringCX.stage !== 'ready') {
+      this._answerRingCXNotReady();
+      return null;
+    }
+    return this._ringCXBridge;
+  }
+
+  private async _newRingCXCall(
+    phoneNumber?: string,
+    callerId?: string,
+  ): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    if (!bridge || !phoneNumber) {
+      return;
+    }
+    await bridge.dialout(phoneNumber, callerId);
+  }
+
+  private async _controlRingCXCall(
+    action?: string,
+    callId?: string,
+  ): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    if (!bridge || !action) {
+      return;
+    }
+    await bridge.controlCall(action, callId);
+  }
+
+  private async _startRingCXAgentSession(): Promise<void> {
+    if (!this._ringCX?.enabled) {
+      this._answerRingCXNotReady();
+      return;
+    }
+    await this._ringCX.startAgentSession();
+    this.notifyRingCXAgentSession(this._ringCXSessionSnapshot());
+  }
+
+  private async _endRingCXAgentSession(): Promise<void> {
+    if (!this._ringCX?.enabled) {
+      this._answerRingCXNotReady();
+      return;
+    }
+    if (!this._ringCX.canEndAgentSession) {
+      this._toast.warning({ message: ringCXT('agentSessionEndBlocked') });
+      this.notifyRingCXAgentSession(this._ringCXSessionSnapshot());
+      return;
+    }
+    await this._ringCX.endAgentSession();
+    this.notifyRingCXAgentSession(this._ringCXSessionSnapshot());
+  }
+
+  private async _setRingCXAgentState(state?: string): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    if (!bridge || !state) {
+      return;
+    }
+    await bridge.setAgentState(state);
+  }
+
+  private async _dialRingCXLead(
+    lead?: unknown,
+    destination?: string,
+  ): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    if (!bridge || !lead) {
+      return;
+    }
+    await bridge.dialLead(lead, destination);
   }
 }

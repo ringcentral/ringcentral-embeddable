@@ -16,7 +16,7 @@ import { CxClient } from '../CxClient';
 import { CxPresence } from '../CxPresence';
 import { CxCallDataSource } from '../CxCallDataSource';
 import { makeCallsUniqueIdentifies } from '../../lib/callUniqueIdentifies';
-import { contactMatchIdentifyEncode } from '../../lib/contactMatchIdentify';
+import { getCallAni } from '../../lib/getCxCallNumbers';
 import type {
   CxCallMonitorOptions,
   CxCallData,
@@ -62,15 +62,10 @@ class CxCallMonitor extends RcModule {
   /**
    * Force match contact for a call
    */
-  async getMatcher({ ani, callType }: CxCallData): Promise<void> {
-    if (this.contactMatcher) {
-      const contactMatchIdentify = contactMatchIdentifyEncode({
-        phoneNumber: ani,
-        callType,
-      });
-      await this.contactMatcher.forceMatchNumber({
-        phoneNumber: contactMatchIdentify,
-      });
+  async getMatcher(call: CxCallData): Promise<void> {
+    const phoneNumber = getCallAni(call);
+    if (this.contactMatcher && phoneNumber) {
+      await this.contactMatcher.forceMatchNumber({ phoneNumber });
     }
   }
 
@@ -157,10 +152,7 @@ class CxCallMonitor extends RcModule {
 
     return Object.entries(callsDataMapping).reduce<Record<string, CxCallData>>(
       (mapping, [key, call]) => {
-        const contactMatchIdentify = contactMatchIdentifyEncode({
-          phoneNumber: call.ani,
-          callType: call.callType,
-        });
+        const contactMatchIdentify = getCallAni(call);
 
         const id = call.session ? this.getCallId(call.session) : null;
         const recordingUrl = call.session?.recordingUrl;

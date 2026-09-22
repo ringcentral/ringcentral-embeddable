@@ -18,7 +18,7 @@ import {
 } from '@ringcentral-integration/next-core';
 
 import { callDirection } from '../../enums';
-import { contactMatchIdentifyEncode } from '../../lib/contactMatchIdentify';
+import { ringCXLogId } from '../../lib/formatRingCXCall';
 import { directTransferNotificationTypes } from '../../enums/directTransferNotificationTypes';
 import { CxCallbackTypes } from '../CxClient/enums/callbackTypes';
 import type { HistoryItemResponse } from '../CxClient/interfaces';
@@ -127,7 +127,7 @@ class CxCallHistory extends RcModule {
   }
 
   /**
-   * Contact matches keyed by `contactMatchIdentifyEncode` query.
+   * Contact matches keyed by plain phone number.
    */
   @computed((that: CxCallHistory) => [that.contactMatcher?.dataMapping])
   get contactMatches(): Record<string, ContactMatch[]> {
@@ -205,29 +205,23 @@ class CxCallHistory extends RcModule {
     if (!phoneNumber) {
       return undefined;
     }
-    return contactMatchIdentifyEncode({
-      phoneNumber,
-      callType:
-        call.direction === callDirection.outbound ? 'OUTBOUND' : 'INBOUND',
-    });
+    return phoneNumber;
   }
 
   /**
-   * ActivityMatcher keys for a history row.
+   * ActivityMatcher key for a history row.
    *
-   * Prefers the local `${uii}$${sessionId}` when this browser handled the call
-   * (same key active-call logging uses), and always includes `segmentId` for
-   * server-only rows.
+   * One id per call leg: the live `uii$sessionId` when this browser handled
+   * the call, otherwise the history row id. That is the id `logCall` sends.
    */
   getCallActivityMatchQueries(call: FormattedCall): string[] {
-    const queries: string[] = [];
-    if (call.localCallId) {
-      queries.push(call.localCallId);
-    }
-    if (call.segmentId) {
-      queries.push(call.segmentId);
-    }
-    return queries;
+    const id = ringCXLogId({
+      id: call.id,
+      localCallId: call.localCallId,
+      uii: call.uii,
+      sessionId: call.sessionId,
+    });
+    return id ? [id] : [];
   }
 
   private _getActivityMatchesForCall(call: {

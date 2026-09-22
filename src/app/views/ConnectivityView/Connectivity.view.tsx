@@ -14,6 +14,7 @@ import {
 import { useObservableState } from 'observable-hooks';
 import React, { useRef } from 'react';
 
+import { RingCX } from '../../services/RingCX';
 import { ConnectivityPanel } from './ConnectivityPanel';
 import type { ConnectivityViewProps } from './ConnectivityView.interface';
 import { resolveConnectivity } from './resolve-connectivity';
@@ -61,6 +62,7 @@ export class ConnectivityView extends BaseConnectivityView {
   constructor(
     protected _connectivityManager: ConnectivityManager,
     private readonly _auth: Auth,
+    private readonly _ringCX: RingCX,
     @optional('ConnectivityViewOptions')
     protected _connectivityViewOptions?: ConnectivityViewOptions,
   ) {
@@ -69,6 +71,23 @@ export class ConnectivityView extends BaseConnectivityView {
 
   override getUIProps(): UIProps<ConnectivityViewProps> {
     const baseProps = super.getUIProps();
+    if (!this._ringCX.loaded) {
+      return resolveConnectivity({
+        baseMode: baseProps.mode,
+        baseLoading: baseProps.loading,
+        baseRetry: baseProps.retry,
+        isLoggedIn: this._auth.loggedIn,
+        isAgentSessionActive: false,
+        isReauthing: false,
+        isReconnecting: false,
+        isSocketDisconnected: false,
+        isIntegratedSoftphone: false,
+        sipUnstableConnection: false,
+        sipRegistering: false,
+        attemptingSoftphoneReconnect: false,
+        manualSoftphoneReconnect: false,
+      });
+    }
     const appStatus = this._cxClient?.appStatus;
     return {
       ...resolveConnectivity({

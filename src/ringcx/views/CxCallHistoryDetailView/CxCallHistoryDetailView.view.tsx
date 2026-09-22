@@ -1,5 +1,6 @@
 import type { UIFunctions, UIProps } from '@ringcentral-integration/next-core';
 import {
+  inject,
   injectable,
   optional,
   RcViewModule,
@@ -7,13 +8,22 @@ import {
   useConnector,
   useParams,
 } from '@ringcentral-integration/next-core';
-import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
+import { Locale, Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import React, { useEffect, useRef } from 'react';
 
 import { CxAuth } from '../../services/CxAuth';
 import { CxCall } from '../../services/CxCall';
 import { CxCallHistory } from '../../services/CxCallHistory';
+import {
+  HostCallLogger,
+  type CallLogger,
+} from '../../../app/services/CallLogger';
+import { ThirdParty } from '../../../app/services/ThirdParty';
+import { createCallHistoryLogActions } from '../../../app/views/CallHistoryView/CallHistoryLogAction';
+import hostCallHistoryI18n from '../../../app/views/CallHistoryView/i18n';
+import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
 import { canDialHistoryCall } from '../../services/CxCallHistory/can-dial-history-call';
+import type { FormattedCall } from '../../services/CxCallHistory/CxCallHistory.interface';
 import { CallHistoryDetailPanel } from '../../components/CallHistoryDetailPanel';
 import { callDirection } from '../../enums';
 import { cxPath } from '../../routes';
@@ -67,6 +77,11 @@ class CxCallHistoryDetailView extends RcViewModule {
     private _cxCall: CxCall,
     private _router: RouterPlugin,
     private _toast: Toast,
+    private _locale: Locale,
+    @inject(HostCallLogger) private _callLogger: CallLogger,
+    private _thirdParty: ThirdParty,
+    @optional('RingCXAdapterBridge')
+    private _bridge?: RingCXAdapterBridge,
     @optional('CxCallHistoryDetailViewOptions')
     private _options?: CxCallHistoryDetailViewOptions,
   ) {
@@ -168,7 +183,29 @@ class CxCallHistoryDetailView extends RcViewModule {
       canDial: !!this._cxAuth.agentPermissions?.allowHistoricalDialing,
       isDialDisabled: !this._cxCall.isIdle,
       isDisposed: !!callDetail?.isDisposed,
+      hostLogActions: this._hostLogActions(callDetail),
     };
+  }
+
+  private _hostLogActions(callDetail?: FormattedCall) {
+    if (!callDetail) {
+      return [];
+    }
+    const logId = callDetail.localCallId || callDetail.id;
+    const logCall = {
+      activityMatches: callDetail.activityMatches,
+      type: 'Voice',
+    };
+    return createCallHistoryLogActions({
+      call: logCall as Parameters<typeof createCallHistoryLogActions>[0]['call'],
+      editLogLabel: hostCallHistoryI18n.getString('editLog', this._locale.currentLocale),
+      hideEditLogButton: this._thirdParty.callLoggerHideEditLogButton,
+      isLogging: Boolean(this._callLogger.loggingMap?.[logId]),
+      logButtonTitle: this._thirdParty.callLoggerTitle,
+      logCallLabel: hostCallHistoryI18n.getString('logCall', this._locale.currentLocale),
+      ready: this._callLogger.ready,
+      viewLogLabel: hostCallHistoryI18n.getString('viewLogDetails', this._locale.currentLocale),
+    });
   }
 
   /**
@@ -189,6 +226,13 @@ class CxCallHistoryDetailView extends RcViewModule {
       onOpenCallLog: () => {
         const callDetail = this._cxCallHistory.getCallById(this._params.id);
         this.goToCallLogPage(callDetail?.isDisposed ? 'update' : 'create');
+      },
+      onHostLogAction: (actionType: string) => {
+        const callDetail = this._cxCallHistory.getCallById(this._params.id);
+        if (!callDetail) {
+          return;
+        }
+        void this._bridge?.logFromHistory?.(callDetail, actionType);
       },
     };
   }

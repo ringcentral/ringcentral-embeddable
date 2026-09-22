@@ -18,7 +18,12 @@ import { CxClient } from '../CxClient';
 import { CxAuth } from '../CxAuth';
 import { CxSubscription } from '../CxSubscription';
 import { CxCall } from '../CxCall';
-import type { CxLeadsOptions, Lead, ManualPassParams } from './CxLeads.interface';
+import type {
+  CxLeadEvent,
+  CxLeadsOptions,
+  Lead,
+  ManualPassParams,
+} from './CxLeads.interface';
 import { track } from '../Analytics/track';
 import { trackEvents } from '../../lib/trackEvents';
 
@@ -90,6 +95,8 @@ function isE164(phoneNumber: string): boolean {
   name: 'CxLeads',
 })
 class CxLeads extends RcModule {
+  private readonly _leadListeners = new Set<(event: CxLeadEvent) => void>();
+
   constructor(
     private cxClient: CxClient,
     private cxAuth: CxAuth,
@@ -190,6 +197,21 @@ class CxLeads extends RcModule {
     });
   }
 
+
+  /**
+   * Notifies the adapter bridge when leads are loaded, dialed, or passed.
+   */
+  onLeadEvent(listener: (event: CxLeadEvent) => void): () => void {
+    this._leadListeners.add(listener);
+    return () => {
+      this._leadListeners.delete(listener);
+    };
+  }
+
+  private _emitLeadEvent(event: CxLeadEvent): void {
+    this._leadListeners.forEach((listener) => listener(event));
+  }
+
   private _bindSubscription() {
     this.cxSubscription.subscribe(CxCallbackTypes.PREVIEW_LEAD_STATE, (data: any) => {
       this.setLeadStatesMapping(data.requestId, data.leadState);
@@ -231,6 +253,7 @@ class CxLeads extends RcModule {
         externId: lead.externId,
       });
       this.updateLead(lead.leadId, { completed: true });
+      this._emitLeadEvent({ action: 'passed', lead });
     } catch (error) {
       this.toast.danger({
         message: t('leadPassFailed'),
@@ -261,6 +284,10 @@ class CxLeads extends RcModule {
         throw new Error('No result returned');
       }
       this.setLeads(result.leads as Lead[]);
+      this._emitLeadEvent({
+        action: 'loaded',
+        leads: result.leads as Lead[],
+      });
       success = true;
     } catch (error) {
       this.logger.error('fetchLeads error~~', error);
@@ -280,6 +307,7 @@ class CxLeads extends RcModule {
     const dialedList = lead.dialedList || [];
     const newDialedList = [...dialedList, destination];
     this.updateLead(lead.leadId, { dialedList: newDialedList });
+    this._emitLeadEvent({ action: 'dialed', lead, destination });
     await this.cxCall.previewDial(lead.requestId, destination, destinationE164 || '');
   }
 }

@@ -36,6 +36,7 @@ export default {
   copyCallId: 'Copier l’ID d’appel',
   callIdCopied: 'ID d\'appel copié',
   createCallLog: 'Créer le journal des appels',
+  editCallOutcome: 'Edit call outcome',
   updateCallLog: 'Mettre à jour le journal des appels',
   hour: '{count} h',
   hour_plural: '{count} h',

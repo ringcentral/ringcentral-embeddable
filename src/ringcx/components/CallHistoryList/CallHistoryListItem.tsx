@@ -3,10 +3,7 @@ import {
   useHistoryActionButtons,
 } from '@ringcentral-integration/next-widgets/components';
 import type { CallsListPanelSpringProps } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
-import {
-  ListItem,
-  ListItemText,
-} from '@ringcentral/spring-ui';
+import { ListItem, ListItemText } from '@ringcentral/spring-ui';
 import React, { memo } from 'react';
 
 interface CallHistoryListItemProps {
@@ -39,7 +36,7 @@ const CallHistoryListItemComponent: React.FC<CallHistoryListItemProps> = ({
     answeredByDelegate,
     ringingElsewhere,
   } = info;
-  const buttons = useHistoryActionButtons(actions, onAction);
+  const actionButtons = useHistoryActionButtons(actions, onAction);
   return (
     <ListItem
       key={call.id}
@@ -80,7 +77,10 @@ const CallHistoryListItemComponent: React.FC<CallHistoryListItemProps> = ({
         </span>
         {logged}
       </div>
-      <ActionMenuList buttons={buttons} />
+      <ActionMenuList
+        buttons={actionButtons}
+        displayCount={actionButtons.length}
+      />
     </ListItem>
   );
 };
