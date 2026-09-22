@@ -48,6 +48,7 @@ import {
 import {
   Brand,
   Locale,
+  SleepDetector,
   Toast,
 } from '@ringcentral-integration/micro-core/src/app/services';
 import {
@@ -168,6 +169,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
     @optional('ActiveCallControlOptions')
     _activeCallControlOptions?: ActiveCallControlOptions,
     @optional() _router?: RouterPlugin,
+    @optional() _sleepDetector?: SleepDetector,
   ) {
     super(
       _preInsertCall,
@@ -193,6 +195,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
       _availabilityMonitor,
       _activeCallControlOptions,
       _router,
+      _sleepDetector,
     );
     this._preinsertCall = _preInsertCall;
   }

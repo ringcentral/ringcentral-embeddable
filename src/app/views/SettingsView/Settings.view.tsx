@@ -6,6 +6,7 @@ import {
   ExtensionInfo,
   Presence,
   RegionSettings,
+  trackEvent,
   UserInfo,
 } from '@ringcentral-integration/micro-auth/src/app/services';
 import {
@@ -46,6 +47,7 @@ const APPLICATION_LOGS_SETTINGS_PATH = '/settings/applicationLogs';
 const THEME_SETTINGS_PATH = '/settings/theme';
 const AUTO_CALL_LOG_SETTINGS_PATH = '/settings/autoCallLogSettings';
 const CALL_QUEUE_MANAGEMENT_PATH = '/settings/callQueueManagement';
+const CONSENT_MANAGEMENT_PATH = '/settings/consentManagement';
 
 type EmbeddableSettingsViewPanelProps = SettingsViewPanelProps & {
   onApplicationLogsLinkClick?: () => void;
@@ -175,6 +177,10 @@ export class SettingsView extends SettingsViewBase {
       onCallQueueManagementClick: functions.onCallQueueManagementClick
         ? () => navigateTo(CALL_QUEUE_MANAGEMENT_PATH)
         : undefined,
+      onConsentManagementClick: () => {
+        trackEvent('Int_SMS_consentManagement', {});
+        navigateTo(CONSENT_MANAGEMENT_PATH);
+      },
     };
   }
 }

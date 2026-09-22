@@ -221,6 +221,7 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   showAutoLogNotes = false,
   showAutoLogSMS = false,
   showCalling = false,
+  showConsentManagement = false,
   showClickToDial = false,
   showSelectToDial = false,
   showFeedback = false,
@@ -252,6 +253,7 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   enableAcceptQueueCallsControl = true,
   customRenderInfo,
   onCallQueueManagementClick,
+  onConsentManagementClick,
   autoLogTextUpdating,
   onRefreshLog,
   isLogRefreshing,
@@ -507,6 +509,16 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
             <Section data-sign="audio-settings-group">
               <LinkLine data-sign="audio" onClick={onAudioSettingsLinkClick}>
                 {t('audio')}
+              </LinkLine>
+            </Section>
+          ) : null}
+          {showConsentManagement ? (
+            <Section label={t('text')}>
+              <LinkLine
+                data-sign="consentManagement"
+                onClick={onConsentManagementClick}
+              >
+                {t('consentManagement')}
               </LinkLine>
             </Section>
           ) : null}

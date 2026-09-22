@@ -30,11 +30,14 @@ import {
 import type { ToNumberMatched } from '@ringcentral-integration/micro-phone/src/app/services/Call';
 import type { CallMonitorOptions } from '@ringcentral-integration/micro-phone/src/app/services/CallMonitor/CallMonitor.interface';
 import { callEvents } from '@ringcentral-integration/micro-phone/src/app/services/CallMonitor/callEvents';
+import { checkIsCallAnswered } from '@ringcentral-integration/micro-phone/src/app/services/CallMonitor/helpers';
 
 @injectable({
   name: 'CallMonitor',
 })
 export class CallMonitor extends CallMonitorBase {
+  private _answeredSessionIds = new Set<string>();
+
   constructor(
     _accountInfo: AccountInfo,
     _storage: StoragePlugin,
@@ -112,6 +115,15 @@ export class CallMonitor extends CallMonitorBase {
         }
       }
 
+      if (
+        call.sessionId &&
+        !this._answeredSessionIds.has(call.sessionId) &&
+        checkIsCallAnswered(call.telephonySession)
+      ) {
+        this._answeredSessionIds.add(call.sessionId);
+        eventEmitter.emit(callEvents.callAnswered, call);
+      }
+
       entities.forEach((entity) => {
         const index = entities.indexOf(entity);
         const toEntity =
@@ -129,6 +141,9 @@ export class CallMonitor extends CallMonitorBase {
 
     if (oldCalls.length > 0) {
       oldCalls.forEach((call) => {
+        if (call.sessionId) {
+          this._answeredSessionIds.delete(call.sessionId);
+        }
         eventEmitter.emit(callEvents.callEnded, call);
       });
 

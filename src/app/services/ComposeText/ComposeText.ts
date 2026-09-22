@@ -9,6 +9,7 @@ import {
   ComposeText as BaseComposeText,
   type ComposeTextOptions,
   MessageSender,
+  SmsConsent,
   SmsOptOut,
   type ToNumber,
 } from '@ringcentral-integration/micro-message/src/app/services';
@@ -40,6 +41,7 @@ export class ComposeText extends BaseComposeText {
     @optional('ComposeTextOptions')
     protected override _composeTextOptions?: ComposeTextOptions,
     @optional() protected override _router?: RouterPlugin,
+    @optional() protected override _smsConsent?: SmsConsent,
   ) {
     super(
       _toast,
@@ -53,6 +55,7 @@ export class ComposeText extends BaseComposeText {
       _contactSearch,
       _composeTextOptions,
       _router,
+      _smsConsent,
     );
   }
 

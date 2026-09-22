@@ -466,7 +466,7 @@ export const getBaseWebpackConfig = <T extends BaseAppConfig>({
         const isRootPinned = Boolean(
           chunk.name && rootPinnedEntries.includes(chunk.name),
         );
-        return Boolean(chunk.name) && !isRootPinned;
+        return !isRootPinned;
       };
 
       const isString = typeof chunkFilenames === 'string';

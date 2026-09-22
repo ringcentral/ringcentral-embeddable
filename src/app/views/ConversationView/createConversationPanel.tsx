@@ -1,3 +1,9 @@
+import type { ConnectivityMonitor, RateLimiter } from '@ringcentral-integration/micro-auth/src/app/services';
+import type {
+  Conversations,
+  MessageThread,
+  QueueConversations,
+} from '@ringcentral-integration/micro-message/src/app/services';
 import type {
   ConversationViewSpringOptions,
   ConversationViewSpringPanelProps,
@@ -5,10 +11,18 @@ import type {
 import { ConversationPanel } from '@ringcentral-integration/micro-message/src/app/views/ConversationViewSpring/ConversationPanel';
 import type { RouterPlugin } from '@ringcentral-integration/next-core';
 import type { FunctionComponent } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import type { SmsTypingTimeTracker } from '../../services/SmsTypingTimeTracker';
 import type { DoNotContact } from '../../services/DoNotContact';
+
+type ConversationPanelServices = {
+  conversations: Conversations;
+  messageThread: MessageThread;
+  queueConversations: QueueConversations;
+  connectivityMonitor: ConnectivityMonitor;
+  rateLimiter: RateLimiter;
+};
 
 /**
  * Creates a conversation panel whose routed-side-widget back action bypasses
@@ -16,16 +30,49 @@ import type { DoNotContact } from '../../services/DoNotContact';
  */
 export function createConversationPanel(
   router: RouterPlugin,
-  smsTypingTimeTracker?: SmsTypingTimeTracker,
-  doNotContact?: DoNotContact,
+  smsTypingTimeTracker: SmsTypingTimeTracker | undefined,
+  doNotContact: DoNotContact | undefined,
+  services: ConversationPanelServices,
 ): NonNullable<ConversationViewSpringOptions['component']> {
   const RoutedConversationPanel: FunctionComponent<
     ConversationViewSpringPanelProps
   > = (props) => {
     const conversation = props.conversation;
-    const latestMessageText = useRef(props.messageText);
-    latestMessageText.current = props.messageText;
     const conversationId = conversation?.conversationId;
+    const [draft, setDraft] = useState(props.messageText ?? '');
+    const loadedConversationIds = useRef(new Set<string>());
+    const latestMessageText = useRef(props.messageText);
+    latestMessageText.current = draft;
+
+    useEffect(() => {
+      setDraft(props.messageText ?? '');
+    }, [props.messageText]);
+
+    const ensureServerConversation = async (id: string): Promise<void> => {
+      if (loadedConversationIds.current.has(id)) {
+        return;
+      }
+      if (services.messageThread.isThreadId(id)) {
+        loadedConversationIds.current.add(id);
+        return;
+      }
+      if (services.queueConversations.formattedConversationsMap.has(id)) {
+        await services.queueConversations.loadConversation(id);
+      } else {
+        await services.conversations.loadConversation(id);
+      }
+      loadedConversationIds.current.add(id);
+    };
+
+    useEffect(() => {
+      if (!conversationId) {
+        return;
+      }
+      void ensureServerConversation(conversationId).catch(() => undefined);
+      // Load once per conversation; the helper identity is intentionally omitted.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [conversationId]);
+
     useEffect(
       () => () => {
         if (!conversationId || !smsTypingTimeTracker) {
@@ -39,13 +86,24 @@ export function createConversationPanel(
       },
       [conversationId],
     );
+
     if (!conversation) {
       return null;
     }
+
+    const hasDraft =
+      draft.length > 0 || (props.attachments?.length ?? 0) > 0;
+    const sendButtonDisabled =
+      Boolean(props.sending) ||
+      !services.connectivityMonitor.connectivity ||
+      services.rateLimiter.restricted ||
+      !hasDraft;
+
     return (
       <ConversationPanel
         {...props}
         conversation={conversation}
+        sendButtonDisabled={sendButtonDisabled}
         replyToReceivers={async (text, attachments) => {
           const recipients = (props.conversation?.correspondents || []).map(
             (correspondent) => ({ phoneNumber: correspondent.phoneNumber }),
@@ -57,15 +115,20 @@ export function createConversationPanel(
             await props.replyToReceivers(text, attachments);
           }
         }}
-        updateMessageText={(text) => {
-          if (conversationId && smsTypingTimeTracker) {
-            if (text) {
-              void smsTypingTimeTracker.startTyping(conversationId);
-            } else {
-              void smsTypingTimeTracker.clearTyping(conversationId);
+        updateMessageText={async (text) => {
+          setDraft(text);
+          if (conversationId) {
+            await ensureServerConversation(conversationId);
+            const resolvedId = props.conversation?.conversationId;
+            if (
+              resolvedId &&
+              resolvedId !== conversationId &&
+              services.messageThread.isThreadId(resolvedId)
+            ) {
+              await services.messageThread.setInputValue(resolvedId, text);
             }
           }
-          props.updateMessageText?.(text);
+          await props.updateMessageText?.(text);
         }}
         goBack={() => {
           void router.push('/messages');

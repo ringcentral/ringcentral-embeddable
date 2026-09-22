@@ -34,6 +34,7 @@ import {
   ConversationsViewSpring,
   ConversationViewSpring,
   FaxSendView,
+  SmsConsentManagementView,
   VoicemailView,
 } from '@ringcentral-integration/micro-message/src/app/views';
 import {
@@ -318,6 +319,18 @@ export class AppView extends RcViewModule {
       backgroundComponent: this._settingsView.component,
       sideWidget: this._settingsSideWidgetConfig,
     },
+    ...(this._smsConsentManagementView
+      ? [
+          {
+            path: '/settings/consentManagement',
+            component: this._smsConsentManagementView.component,
+            authentication: true,
+            layout: 'detail' as const,
+            backgroundComponent: this._settingsView.component,
+            sideWidget: this._settingsSideWidgetConfig,
+          },
+        ]
+      : []),
     {
       path: '/settings/thirdParty/:sectionId',
       component: this._thirdPartySettingSectionView.component,
@@ -663,6 +676,8 @@ export class AppView extends RcViewModule {
     private _genericMeetingView?: GenericMeetingView,
     @optional()
     private _personalMeetingSettingsViewSpring?: PersonalMeetingSettingsViewSpring,
+    @optional()
+    private _smsConsentManagementView?: SmsConsentManagementView,
     @optional()
     private _meetingView?: MeetingView,
     private _contactListView?: ContactListView,
