@@ -415,6 +415,24 @@ export class ActiveCallControl extends ActiveCallControlBase {
     return this.currentDeviceCallsMap[telephonySessionId] ?? null;
   }
 
+  private getWebphonePartyData(telephonySessionId: string): PartyData | null {
+    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
+    if (!webphoneSessionId) {
+      return null;
+    }
+    const webphoneSession = this._webphone.sessions.find(
+      (session) => session.id === webphoneSessionId,
+    );
+    const partyData = webphoneSession?.partyData as
+      | PartyData
+      | null
+      | undefined;
+    if (!partyData?.sessionId || !partyData.partyId) {
+      return null;
+    }
+    return partyData;
+  }
+
   /** Returns whether RingCentral Call Control supplied this session. */
   hasTelephonySession(telephonySessionId: string): boolean {
     return this.data.sessions.some(
@@ -877,15 +895,34 @@ export class ActiveCallControl extends ActiveCallControlBase {
     }
   }
 
+  /**
+   * Transfers an answered call to the selected extension voicemail.
+   *
+   * Uses the Call Control transfer API. WebPhone `toVoiceMail()` only rejects
+   * a ringing inbound call and ignores the selected voicemail.
+   */
   @delegate('server')
   async toVoicemail(voicemailId: string, telephonySessionId: string) {
-    const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
-    if (!webphoneSessionId) {
+    const partyData = this.getWebphonePartyData(telephonySessionId);
+    if (!partyData) {
       return super.toVoicemail(voicemailId, telephonySessionId);
     }
     try {
       this.setCallControlBusyTimestamp();
-      await this._webphoneV2.toVoiceMail(webphoneSessionId);
+      await this._client.service.platform().post(
+        `/restapi/v1.0/account/~/telephony/sessions/${partyData.sessionId}/parties/${partyData.partyId}/transfer`,
+        { voicemail: voicemailId },
+      );
+      this._toast.success({
+        message: activeCallControlT('transferCompleted'),
+      });
+      return true;
+    } catch (error: unknown) {
+      this.logger.error('toVoicemail failed', error);
+      this._toast.warning({
+        message: activeCallControlT('toVoiceMailError'),
+      });
+      return false;
     } finally {
       this.clearCallControlBusyTimestamp();
     }

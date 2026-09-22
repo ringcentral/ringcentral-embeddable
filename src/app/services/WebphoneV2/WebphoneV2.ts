@@ -1996,12 +1996,23 @@ export class WebphoneV2 extends RcModule {
 
   async toVoiceMail(sessionId: string) {
     const record = this._requireSession(sessionId);
+    const session = record.session as InboundWebPhoneSession;
+    if (typeof session.toVoicemail !== 'function') {
+      throw new Error(
+        `Webphone session ${sessionId} cannot be sent to voicemail`,
+      );
+    }
     await this._runDestructiveCommand(record, 'toVoiceMail', async () => {
       this._updateSession(record, { isToVoicemail: true });
-      await this._withDeadline(
-        (record.session as InboundWebPhoneSession).toVoicemail(),
-        `voicemail ${sessionId}`,
-      );
+      try {
+        await this._withDeadline(
+          session.toVoicemail(),
+          `voicemail ${sessionId}`,
+        );
+      } catch (error) {
+        this._updateSession(record, { isToVoicemail: false });
+        throw error;
+      }
     });
   }
 
