@@ -36,7 +36,6 @@ export default {
   copyCallId: 'Kopioi puhelutunnus',
   callIdCopied: 'Puhelutunnus kopioitu',
   createCallLog: 'Luo puheluloki',
-  editCallOutcome: 'Edit call outcome',
   updateCallLog: 'Päivitä puheluloki',
   hour: '{count} h',
   hour_plural: '{count} h',

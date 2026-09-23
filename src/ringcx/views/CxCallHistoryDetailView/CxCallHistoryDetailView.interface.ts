@@ -55,8 +55,6 @@ interface CxCallHistoryDetailViewUIProps {
   canDial: boolean;
   /** Historical dialing is unavailable while another call is in progress. */
   isDialDisabled: boolean;
-  /** Whether a disposition has already been recorded for this row. */
-  isDisposed: boolean;
 }
 
 /**
@@ -67,7 +65,6 @@ interface CxCallHistoryDetailViewUIFunctions {
   onDial: (phoneNumber: string) => void;
   onCopyNumber: (phoneNumber: string) => void;
   onCopyCallId: (callId: string) => void;
-  onOpenCallLog: () => void;
   hostLogActions?: Array<{
     type: string;
     label?: string;

@@ -71,7 +71,6 @@ export class LogCallView extends RcViewModule {
     this.setCurrentCall(null);
     try {
       const decodedId = decodeURIComponent(sessionId);
-      console.log('[LogCallView] loadCall starting:', { sessionId, decodedId, source });
       let call: CompatibleCall | null = null;
       if (source) {
         call = await callLogSourceRegistry.getCall(source, decodedId);
@@ -88,10 +87,9 @@ export class LogCallView extends RcViewModule {
       if (!call && !source) {
         call = await callLogSourceRegistry.getCall(RINGCX_CALL_LOG_SOURCE, decodedId);
       }
-      console.log('[LogCallView] loadCall resolved:', { sessionId, source, found: Boolean(call), call });
       this.setCurrentCall(call);
-    } catch (err) {
-      console.error('[LogCallView] loadCall error:', err);
+    } catch (error) {
+      this.logger.error('LogCall load failed', error);
     } finally {
       this.setLoading(false);
     }

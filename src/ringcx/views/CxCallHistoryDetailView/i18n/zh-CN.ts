@@ -36,7 +36,6 @@ export default {
   copyCallId: '复制通话ID',
   callIdCopied: '呼叫 ID 已复制',
   createCallLog: '创建通话记录',
-  editCallOutcome: 'Edit call outcome',
   updateCallLog: '更新通话记录',
   hour: '{count} 小时',
   hour_plural: '{count} 小时',

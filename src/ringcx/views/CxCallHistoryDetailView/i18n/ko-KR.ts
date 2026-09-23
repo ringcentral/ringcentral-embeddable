@@ -36,7 +36,6 @@ export default {
   copyCallId: '통화 ID 복사',
   callIdCopied: '통화 ID 복사됨',
   createCallLog: '통화 기록 만들기',
-  editCallOutcome: 'Edit call outcome',
   updateCallLog: '통화 기록 업데이트',
   hour: '{count}시간',
   hour_plural: '{count}시간',

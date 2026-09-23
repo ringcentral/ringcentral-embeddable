@@ -9,6 +9,7 @@ import {
   CallMd,
   CopyMd,
   DispositionMd,
+  EditMd,
 } from '@ringcentral/spring-icon';
 import {
   Block,
@@ -122,16 +123,17 @@ export const CallHistoryDetailPanel: FunctionComponent<
   dialableNumber,
   canDial,
   isDialDisabled,
-  isDisposed,
   onBack,
   onDial,
   onCopyNumber,
   onCopyCallId,
-  onOpenCallLog,
   hostLogActions,
   onHostLogAction,
 }) => {
   const { t } = useLocale(i18n);
+  const hasViewLogAction = Boolean(
+    hostLogActions?.some((action) => action.type === 'viewLog'),
+  );
 
   const contactName = useMemo(() => {
     if (!callDetail) return '';
@@ -314,23 +316,16 @@ export const CallHistoryDetailPanel: FunctionComponent<
                 TooltipProps={{ title: t('dial') }}
               />
             ) : null}
-            <IconButton
-              symbol={isDisposed ? ArrowRightUpMd : DispositionMd}
-              size="small"
-              shape="circular"
-              variant="outlined"
-              color="neutral"
-              onClick={onOpenCallLog}
-              data-sign="historyDetailCallLogButton"
-              aria-label={t('editCallOutcome')}
-              TooltipProps={{
-                title: t('editCallOutcome'),
-              }}
-            />
             {(hostLogActions || []).map((action) => (
               <IconButton
                 key={action.type}
-                symbol={action.type === 'viewLog' ? ArrowRightUpMd : DispositionMd}
+                symbol={
+                  action.type === 'viewLog'
+                    ? ArrowRightUpMd
+                    : hasViewLogAction
+                    ? EditMd
+                    : DispositionMd
+                }
                 size="small"
                 shape="circular"
                 variant="outlined"

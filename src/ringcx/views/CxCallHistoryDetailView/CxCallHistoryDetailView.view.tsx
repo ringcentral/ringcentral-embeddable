@@ -26,7 +26,6 @@ import { canDialHistoryCall } from '../../services/CxCallHistory/can-dial-histor
 import type { FormattedCall } from '../../services/CxCallHistory/CxCallHistory.interface';
 import { CallHistoryDetailPanel } from '../../components/CallHistoryDetailPanel';
 import { callDirection } from '../../enums';
-import { cxPath } from '../../routes';
 import { t as translate } from './i18n';
 
 import type {
@@ -90,14 +89,6 @@ class CxCallHistoryDetailView extends RcViewModule {
 
   goBack() {
     this._router.goBack();
-  }
-
-  goToCallLogPage(method: 'create' | 'update') {
-    const callId = this._params.id;
-    if (!callId) {
-      return;
-    }
-    this._router.push(cxPath.historyCallLog(callId, method));
   }
 
   /**
@@ -182,7 +173,6 @@ class CxCallHistoryDetailView extends RcViewModule {
       dialableNumber: callDetail?.dialableNumber,
       canDial: !!this._cxAuth.agentPermissions?.allowHistoricalDialing,
       isDialDisabled: !this._cxCall.isIdle,
-      isDisposed: !!callDetail?.isDisposed,
       hostLogActions: this._hostLogActions(callDetail),
     };
   }
@@ -222,10 +212,6 @@ class CxCallHistoryDetailView extends RcViewModule {
       },
       onCopyCallId: (callId: string) => {
         this.copyCallId(callId);
-      },
-      onOpenCallLog: () => {
-        const callDetail = this._cxCallHistory.getCallById(this._params.id);
-        this.goToCallLogPage(callDetail?.isDisposed ? 'update' : 'create');
       },
       onHostLogAction: (actionType: string) => {
         const callDetail = this._cxCallHistory.getCallById(this._params.id);

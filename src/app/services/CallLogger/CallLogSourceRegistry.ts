@@ -15,12 +15,10 @@ class CallLogSourceRegistry {
   private readonly sources = new Map<string, CallLogSource>();
 
   register(source: CallLogSource): void {
-    console.log('[CallLogSourceRegistry] register:', source.source);
     this.sources.set(source.source, source);
   }
 
   unregister(sourceName: string): void {
-    console.log('[CallLogSourceRegistry] unregister:', sourceName);
     this.sources.delete(sourceName);
   }
 
@@ -32,20 +30,11 @@ class CallLogSourceRegistry {
     sourceName: string | undefined,
     id: string,
   ): Promise<CompatibleCall | null> {
-    console.log('[CallLogSourceRegistry] getCall query:', {
-      sourceName,
-      id,
-      registeredSources: Array.from(this.sources.keys()),
-    });
     if (!sourceName || !id) {
       return null;
     }
     const source = this.sources.get(sourceName);
     if (!source) {
-      console.warn('[CallLogSourceRegistry] source not registered:', {
-        sourceName,
-        registeredSources: Array.from(this.sources.keys()),
-      });
       return null;
     }
     return source.getCallForLog(id);

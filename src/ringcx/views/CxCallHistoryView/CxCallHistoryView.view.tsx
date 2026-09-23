@@ -16,11 +16,8 @@ import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import type { ViewCallsFilterType } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
 import { ContactAvatar } from '@ringcentral-integration/micro-contacts/src/app/components/ContactAvatar';
 import type { HistoryAction } from '@ringcentral-integration/next-widgets/components/ActionMenuList/useHistoryActionButtons';
-import {
-  IncomingCallMd,
-  OutgoingCallMd,
-  CheckBoldMd,
-} from '@ringcentral/spring-icon';
+import { LogInfo } from '@ringcentral-integration/micro-phone/src/app/hooks/useContactRenderInfo/components';
+import { IncomingCallMd, OutgoingCallMd } from '@ringcentral/spring-icon';
 import { Icon, Tooltip } from '@ringcentral/spring-ui';
 import type { StateSnapshot } from 'react-virtuoso';
 import dayjs from 'dayjs';
@@ -34,7 +31,10 @@ import {
 } from '../../../app/services/CallLogger';
 import { ThirdParty } from '../../../app/services/ThirdParty';
 import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
-import { createCallHistoryLogActions } from '../../../app/views/CallHistoryView/CallHistoryLogAction';
+import {
+  createCallHistoryLogActions,
+  hasLoggedCallActivity,
+} from '../../../app/views/CallHistoryView/CallHistoryLogAction';
 import hostCallHistoryI18n from '../../../app/views/CallHistoryView/i18n';
 import { callDirection } from '../../enums';
 import { CallHistoryList } from '../../components/CallHistoryList';
@@ -271,7 +271,9 @@ class CxCallHistoryView extends RcViewModule {
       isLogging: Boolean(this._callLogger.loggingMap?.[logId]),
       logButtonTitle: this._thirdParty.callLoggerTitle,
       ready: this._callLogger.ready,
+      showLogInfo: this._thirdParty.callLoggerRegistered,
     }));
+    const isLogged = hasLoggedCallActivity(call);
     const isOutbound = call.direction === callDirection.outbound;
     const displayName = isOutbound ? call.toName : call.fromName;
     const phoneNumber = isOutbound
@@ -350,14 +352,7 @@ class CxCallHistoryView extends RcViewModule {
         );
       };
     }, [isOutbound, t, isRealName, formattedNumber]);
-    const logged = useMemo(() => {
-      if (!call.isDisposed) return null;
-      return (
-        <span className="text-success ml-1 inline-flex" title={t('logged')}>
-          <CheckBoldMd />
-        </span>
-      );
-    }, [call.isDisposed, t]);
+    const logged = logState.showLogInfo ? <LogInfo logged={isLogged} /> : null;
     const canDial =
       !!this.cxAuth.agentPermissions?.allowHistoricalDialing &&
       !!call.dialableNumber;
@@ -413,7 +408,7 @@ class CxCallHistoryView extends RcViewModule {
         metadata: { showMaybe: false },
       },
       formattedPhoneNumber: formattedNumber,
-      showViewLogIcon: call.isDisposed,
+      showViewLogIcon: logState.showLogInfo && isLogged,
       isConferenceCall: false,
       getActionInfo: () => ({
         phoneNumber,

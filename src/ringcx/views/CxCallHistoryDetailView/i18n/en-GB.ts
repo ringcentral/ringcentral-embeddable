@@ -36,7 +36,6 @@ export default {
   copyCallId: 'Copy Call ID',
   callIdCopied: 'Call ID copied',
   createCallLog: 'Create call log',
-  editCallOutcome: 'Edit call outcome',
   updateCallLog: 'Update call log',
   hour: '{count} hr',
   hour_plural: '{count} hr',

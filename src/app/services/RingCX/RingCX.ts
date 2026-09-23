@@ -183,17 +183,7 @@ export class RingCX extends RcModule {
     if (!this.loaded) {
       return false;
     }
-    const isOnCall = this.cxPresence?.isOnCall ?? false;
-    // TODO: temporary debug log for the keypad dial button diagnosis.
-    this.logger.log('RingCX.hasActiveCall', {
-      isOnCall,
-      loaded: this.loaded,
-      stage: this.stage,
-      hasCxPresence: Boolean(this.cxPresence),
-      liveCallCount: this.cxPresence?.calls?.length ?? 0,
-      dialoutStatus: this.cxPresence?.dialoutStatus,
-    });
-    return isOnCall;
+    return this.cxPresence?.isOnCall ?? false;
   }
 
   get canEndAgentSession(): boolean {

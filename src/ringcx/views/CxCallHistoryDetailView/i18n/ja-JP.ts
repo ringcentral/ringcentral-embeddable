@@ -36,7 +36,6 @@ export default {
   copyCallId: 'コール ID のコピー',
   callIdCopied: 'コール ID がコピーされました',
   createCallLog: '通話ログの作成',
-  editCallOutcome: 'Edit call outcome',
   updateCallLog: '通話記録を更新する',
   hour: '{count} 時間',
   hour_plural: '{count} 時間',

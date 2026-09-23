@@ -17,6 +17,7 @@ import {
   PortManager,
 } from '@ringcentral-integration/next-core';
 
+import { hasLoggedCallActivity } from '../../../app/views/CallHistoryView/CallHistoryLogAction';
 import { callDirection } from '../../enums';
 import { ringCXLogId } from '../../lib/formatRingCXCall';
 import { directTransferNotificationTypes } from '../../enums/directTransferNotificationTypes';
@@ -224,10 +225,9 @@ class CxCallHistory extends RcModule {
     return id ? [id] : [];
   }
 
-  private _getActivityMatchesForCall(call: {
-    localCallId?: string;
-    segmentId?: string;
-  }): ActivityMatch[] {
+  private _getActivityMatchesForCall(
+    call: Pick<FormattedCall, 'id' | 'localCallId' | 'uii' | 'sessionId'>,
+  ): ActivityMatch[] {
     for (const query of this.getCallActivityMatchQueries(
       call as FormattedCall,
     )) {
@@ -410,8 +410,10 @@ class CxCallHistory extends RcModule {
         ? this.cxPresence.getCallIdBySegmentId(call.segmentId)
         : undefined;
       const activityMatches = this._getActivityMatchesForCall({
+        id: call.id,
         localCallId,
-        segmentId: call.segmentId,
+        uii: call.uii,
+        sessionId: call.sessionId,
       });
       // A disposition submitted moments ago is not on the server page yet, so
       // trust the local record / CRM activity match to keep the logged tick.
@@ -430,7 +432,7 @@ class CxCallHistory extends RcModule {
         localCallId,
         activityMatches,
         isDisposed,
-        isLogged: isDisposed,
+        isLogged: hasLoggedCallActivity({ activityMatches }),
         fromMatches: contactMatches,
         toMatches: contactMatches,
         fromName:

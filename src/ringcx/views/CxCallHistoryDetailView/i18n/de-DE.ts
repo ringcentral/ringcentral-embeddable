@@ -36,7 +36,6 @@ export default {
   copyCallId: 'Anruf-ID kopieren',
   callIdCopied: 'Anruf-ID kopiert',
   createCallLog: 'Anrufliste anlegen',
-  editCallOutcome: 'Edit call outcome',
   updateCallLog: 'Anrufprotokoll aktualisieren',
   hour: '{count} Stunde',
   hour_plural: '{count} Stunde',

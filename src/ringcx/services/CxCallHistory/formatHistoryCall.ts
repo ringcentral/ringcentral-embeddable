@@ -238,7 +238,7 @@ export function formatHistoryCall(
     activityMatches: EMPTY_ACTIVITY_MATCHES,
     startTime: parseTimestamp(agentSegment?.segmentStart),
     isDisposed,
-    isLogged: isDisposed,
+    isLogged: false,
     result: dialog?.dialDisposition ?? undefined,
     telephonySessionId: dialog?.uii,
     sessionId: agentSegment?.segmentId ?? undefined,

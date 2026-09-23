@@ -141,11 +141,6 @@ export function LogCallPage({
     );
   }
   if (!call || !page) {
-    console.warn('[LogCallPage] Showing callNotFound empty state:', {
-      hasCall: Boolean(call),
-      hasPage: Boolean(page),
-      call,
-    });
     return (
       <div className="flex h-full items-center justify-center">
         <EmptyState title={t("callNotFound")} />

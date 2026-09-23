@@ -1,10 +1,10 @@
-import {
-  ActionMenuList,
-  useHistoryActionButtons,
-} from '@ringcentral-integration/next-widgets/components';
+import { ActionMenuList } from '@ringcentral-integration/next-widgets/components';
 import type { CallsListPanelSpringProps } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
 import { ListItem, ListItemText } from '@ringcentral/spring-ui';
 import React, { memo } from 'react';
+
+import { LogStatusMessage } from '../../../app/components/LogStatusMessage';
+import { useCallHistoryActionButtons } from '../../../app/views/CallHistoryView/useCallHistoryActionButtons';
 
 interface CallHistoryListItemProps {
   call: CallsListPanelSpringProps['calls'][0];
@@ -13,6 +13,10 @@ interface CallHistoryListItemProps {
   useActionsHandler: CallsListPanelSpringProps['useActionsHandler'];
   useItemRender?: CallsListPanelSpringProps['useItemRender'];
 }
+
+const EMPTY_ADDITIONAL_ACTIONS: [] = [];
+
+const noop = (): void => undefined;
 
 const CallHistoryListItemComponent: React.FC<CallHistoryListItemProps> = ({
   call,
@@ -36,7 +40,13 @@ const CallHistoryListItemComponent: React.FC<CallHistoryListItemProps> = ({
     answeredByDelegate,
     ringingElsewhere,
   } = info;
-  const actionButtons = useHistoryActionButtons(actions, onAction);
+  const actionButtons = useCallHistoryActionButtons({
+    actions,
+    additionalActions: EMPTY_ADDITIONAL_ACTIONS,
+    call,
+    onAction,
+    onAdditionalAction: noop,
+  });
   return (
     <ListItem
       key={call.id}
@@ -66,11 +76,20 @@ const CallHistoryListItemComponent: React.FC<CallHistoryListItemProps> = ({
             />
           </div>
         }
-        secondary={Status ? <Status mode="icon" /> : undefined}
+        secondary={
+          <div className="flex min-w-0 flex-col items-start gap-0.5">
+            {Status ? <Status mode="icon" /> : null}
+            <LogStatusMessage
+              className="block w-full"
+              matches={call.activityMatches}
+              multiline
+            />
+          </div>
+        }
       />
       <div className="text-right min-h-11 max-w-[30%]">
         <span
-          className="typography-descriptor text-neutral-b2"
+          className="typography-descriptor text-neutral-b2 inline-block max-w-full truncate"
           data-sign="callStartTime"
         >
           {startTime}

@@ -26,6 +26,7 @@ import {
 import { RingCX } from '../../../app/services/RingCX';
 import { t } from '../../../app/services/RingCX/i18n';
 import { ThirdParty } from '../../../app/services/ThirdParty';
+import { hasLoggedCallActivity } from '../../../app/views/CallHistoryView/CallHistoryLogAction';
 import type { RingCXAdapterBridge as RingCXAdapterBridgeContract } from '../../interfaces/RingCXAdapterBridge.interface';
 import {
   formatRingCXCall,
@@ -304,11 +305,7 @@ export class RingCXAdapterBridge
       await this.openLogPage(compatible.sessionId || id);
       return;
     }
-    const logged = Boolean(
-      call.activityMatches?.some(
-        (activity) => activity.type && activity.type !== 'status',
-      ),
-    );
+    const logged = hasLoggedCallActivity(call);
     await this.logCall({
       call: compatible,
       note: compatible.ringcx?.notes,
@@ -319,20 +316,15 @@ export class RingCXAdapterBridge
   }
 
   async getCallForLog(id: string): Promise<CompatibleCall | null> {
-    console.log('[RingCXAdapterBridge] getCallForLog:', id);
     const raw = this._findRawCall(id);
     if (!raw) {
-      console.warn('[RingCXAdapterBridge] getCallForLog: _findRawCall returned undefined for', id);
       return null;
     }
     const formatted = this._format(raw);
     if (!formatted) {
-      console.warn('[RingCXAdapterBridge] getCallForLog: _format returned null for', raw);
       return null;
     }
-    const pageCall = this._toPageCall(formatted, id);
-    console.log('[RingCXAdapterBridge] getCallForLog resolved:', { id, pageCall });
-    return pageCall;
+    return this._toPageCall(formatted, id);
   }
 
   async viewLead(lead: Lead | unknown): Promise<void> {
@@ -494,12 +486,10 @@ export class RingCXAdapterBridge
   }
 
   private _findRawCall(id: string): FormatRingCXCallInput | undefined {
-    console.log('[RingCXAdapterBridge] _findRawCall looking for id:', id);
     const mapped = this._cxCallMonitor.callsMapping[id] as unknown as
       | FormatRingCXCallInput
       | undefined;
     if (mapped) {
-      console.log('[RingCXAdapterBridge] _findRawCall found in callsMapping:', id);
       return {
         ...mapped,
         id: mapped.session
@@ -524,12 +514,10 @@ export class RingCXAdapterBridge
             call.sessionId === historySegmentId)),
     );
     if (history) {
-      console.log('[RingCXAdapterBridge] _findRawCall found in history:', { id, historyId: history.id });
       return historyCallInput(history);
     }
     if (isRingCXHistoryId(id)) {
       const { segmentId, uii } = parseHistoryCallId(id);
-      console.log('[RingCXAdapterBridge] _findRawCall constructed from history id:', { id, segmentId, uii });
       return {
         id,
         segmentId,
@@ -541,7 +529,6 @@ export class RingCXAdapterBridge
     }
     if (!isRingCXHistoryId(id) && id.includes('$')) {
       const [uii, sessionId] = id.split('$');
-      console.log('[RingCXAdapterBridge] _findRawCall constructed from live id:', { id, uii, sessionId });
       return {
         id,
         uii,
@@ -550,7 +537,6 @@ export class RingCXAdapterBridge
         agentId: this._cxAuth.agentId,
       };
     }
-    console.warn('[RingCXAdapterBridge] _findRawCall could not resolve id:', id);
     return undefined;
   }
 
