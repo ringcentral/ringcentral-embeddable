@@ -4,6 +4,7 @@ import type { ViewCallsFilterType } from '@ringcentral-integration/micro-phone/s
 import type { ContactDisplayRenderProps } from '@ringcentral-integration/micro-phone/src/app/hooks/useContactRenderInfo/components';
 import type { ContactDisplayInfo } from '@ringcentral-integration/micro-phone/src/app/hooks/useContactRenderInfo/utils';
 import type { HistoryAction } from '@ringcentral-integration/next-widgets/components/ActionMenuList/useHistoryActionButtons';
+import type { ThirdPartyButton } from '../../../app/services/ThirdParty/ThirdParty.interface';
 import type { FormattedCall } from '../../services/CxCallHistory/CxCallHistory.interface';
 
 /**
@@ -36,6 +37,9 @@ interface CxCallHistoryViewUIProps {
    */
   canDial: boolean;
   isDialDisabled: boolean;
+  /** `callAction` buttons the host registered. */
+  additionalCallActions: ThirdPartyButton[];
+  refreshContactDisabled: boolean;
 }
 
 /**
@@ -48,6 +52,11 @@ interface CxCallHistoryViewUIFunctions {
   onFocus: () => void;
   onLoadMore: () => void;
   onRetry: () => void;
+  onAdditionalCallAction: (
+    buttonId: string,
+    call: FormattedCall,
+  ) => Promise<void>;
+  onRefreshContact: (call: FormattedCall) => Promise<void>;
   useCallHistoryItemInfo: (
     call: FormattedCall,
     options: { selectIndex: number; variant: 'list' | 'detail' },

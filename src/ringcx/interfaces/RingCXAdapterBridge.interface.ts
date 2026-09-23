@@ -31,6 +31,10 @@ export interface RingCXAdapterBridge {
     };
   }): Promise<boolean>;
   logFromHistory?(call: FormattedCall, actionType: string): Promise<void>;
+  /**
+   * Sends a click on a host-registered `callAction` button for a history row.
+   */
+  onClickCallAction?(buttonId: string, call: FormattedCall): Promise<void>;
   viewLead?(lead: unknown): Promise<void>;
   readonly leadViewerRegistered?: boolean;
   readonly shouldOpenLogPage?: boolean;

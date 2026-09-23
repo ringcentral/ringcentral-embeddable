@@ -385,6 +385,22 @@ export class RingCXAdapterBridge
     });
   }
 
+  /**
+   * The host receives the row in the same shape as the RingCX call events, so
+   * a `callAction` handler reads `call.source` and `call.ringcx` as it does
+   * for `rc-call-end-notify`.
+   */
+  async onClickCallAction(
+    buttonId: string,
+    call: FormattedCall,
+  ): Promise<void> {
+    const formatted = this._format(historyCallInput(call));
+    if (!formatted) {
+      return;
+    }
+    await this._thirdParty.onClickAdditionalButton(buttonId, formatted.call);
+  }
+
   async getCallForLog(id: string): Promise<CompatibleCall | null> {
     const raw = this._findRawCall(id);
     if (!raw) {

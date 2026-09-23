@@ -1,20 +1,28 @@
+import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { ActionMenuList } from '@ringcentral-integration/next-widgets/components';
 import type { CallsListPanelSpringProps } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
 import { ListItem, ListItemText } from '@ringcentral/spring-ui';
 import React, { memo } from 'react';
 
 import { LogStatusMessage } from '../../../app/components/LogStatusMessage';
+import {
+  createRefreshContactActionButton,
+  insertRefreshContactActionButton,
+} from '../../../app/components/RefreshContactActionButton';
+import type { ThirdPartyButton } from '../../../app/services/ThirdParty/ThirdParty.interface';
+import hostCallHistoryI18n from '../../../app/views/CallHistoryView/i18n';
 import { useCallHistoryActionButtons } from '../../../app/views/CallHistoryView/useCallHistoryActionButtons';
+import type { CallHistoryListRowActionProps } from './CallHistoryList.interface';
 
-interface CallHistoryListItemProps {
+type CallHistoryListItemProps = {
   call: CallsListPanelSpringProps['calls'][0];
   index: number;
   useCallHistoryItemInfo: CallsListPanelSpringProps['useCallHistoryItemInfo'];
   useActionsHandler: CallsListPanelSpringProps['useActionsHandler'];
   useItemRender?: CallsListPanelSpringProps['useItemRender'];
-}
+} & CallHistoryListRowActionProps;
 
-const EMPTY_ADDITIONAL_ACTIONS: [] = [];
+const EMPTY_ADDITIONAL_ACTIONS: ThirdPartyButton[] = [];
 
 const noop = (): void => undefined;
 
@@ -24,7 +32,12 @@ const CallHistoryListItemComponent: React.FC<CallHistoryListItemProps> = ({
   useCallHistoryItemInfo,
   useActionsHandler,
   useItemRender,
+  additionalCallActions = EMPTY_ADDITIONAL_ACTIONS,
+  onAdditionalCallAction = noop,
+  onRefreshContact,
+  refreshContactDisabled,
 }) => {
+  const { t } = useLocale(hostCallHistoryI18n);
   const { info, actions } = useCallHistoryItemInfo(call, {
     selectIndex: 0,
     variant: 'list',
@@ -40,13 +53,26 @@ const CallHistoryListItemComponent: React.FC<CallHistoryListItemProps> = ({
     answeredByDelegate,
     ringingElsewhere,
   } = info;
-  const actionButtons = useCallHistoryActionButtons({
+  const historyActionButtons = useCallHistoryActionButtons({
     actions,
-    additionalActions: EMPTY_ADDITIONAL_ACTIONS,
+    additionalActions: additionalCallActions,
     call,
     onAction,
-    onAdditionalAction: noop,
+    onAdditionalAction: onAdditionalCallAction,
   });
+  // The button shows only when the row has a number, as on RingEX rows; the
+  // view resolves the number the contact matcher is keyed by from the call.
+  const refreshContactButton = createRefreshContactActionButton({
+    disabled: refreshContactDisabled,
+    label: t('refreshContact'),
+    onRefreshContact: onRefreshContact ? () => onRefreshContact(call) : undefined,
+    phoneNumber: info.renderInfo.dialToPhoneNumber,
+  });
+  const actionButtons = insertRefreshContactActionButton(
+    historyActionButtons,
+    refreshContactButton,
+    'viewLog',
+  );
   return (
     <ListItem
       key={call.id}
@@ -96,10 +122,7 @@ const CallHistoryListItemComponent: React.FC<CallHistoryListItemProps> = ({
         </span>
         {logged}
       </div>
-      <ActionMenuList
-        buttons={actionButtons}
-        displayCount={actionButtons.length}
-      />
+      <ActionMenuList buttons={actionButtons} />
     </ListItem>
   );
 };

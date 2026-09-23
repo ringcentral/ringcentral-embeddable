@@ -12,6 +12,11 @@ import {
   watch,
 } from '@ringcentral-integration/next-core';
 import type { UIFunctions, UIProps } from '@ringcentral-integration/next-core';
+import {
+  ConnectivityManager,
+  RateLimiter,
+} from '@ringcentral-integration/micro-auth/src/app/services';
+import { ContactMatcher as ContactMatcherBase } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import type { ViewCallsFilterType } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
 import type { HistoryAction } from '@ringcentral-integration/next-widgets/components/ActionMenuList/useHistoryActionButtons';
@@ -28,6 +33,10 @@ import {
   HostCallLogger,
   type CallLogger,
 } from '../../../app/services/CallLogger';
+import {
+  type ContactMatcher,
+  refreshContactMatch,
+} from '../../../app/services/ContactMatcher';
 import { ThirdParty } from '../../../app/services/ThirdParty';
 import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
 import {
@@ -67,6 +76,9 @@ class CxCallHistoryView extends RcViewModule {
     private _router: RouterPlugin,
     @inject(HostCallLogger) private _callLogger: CallLogger,
     private _thirdParty: ThirdParty,
+    private _connectivityManager: ConnectivityManager,
+    private _rateLimiter: RateLimiter,
+    @optional(ContactMatcherBase) private _contactMatcher?: ContactMatcher,
     @optional('RingCXAdapterBridge')
     private _bridge?: RingCXAdapterBridge,
     @optional('CxCallHistoryViewOptions')
@@ -235,6 +247,18 @@ class CxCallHistoryView extends RcViewModule {
     await this.cxCall.dialout(phoneNumber, {
       skipParse: phoneNumber.endsWith('@RC_EXT'),
     });
+  }
+
+  /**
+   * Re-match the row's contact with the host, as the RingEX history rows do.
+   * Uses the number the matcher is keyed by, not the formatted display number.
+   */
+  async refreshContact(call: FormattedCall): Promise<void> {
+    const phoneNumber = this.cxCallHistory.getCallContactMatchIdentify(call);
+    if (!phoneNumber || !this._contactMatcher) {
+      return;
+    }
+    await refreshContactMatch(this._contactMatcher, phoneNumber);
   }
 
   /**
@@ -424,6 +448,11 @@ class CxCallHistoryView extends RcViewModule {
       error: this.cxCallHistory.error,
       canDial: !!this.cxAuth.agentPermissions?.allowHistoricalDialing,
       isDialDisabled: !this.cxCall.isIdle,
+      additionalCallActions: this._thirdParty.additionalCallActions,
+      refreshContactDisabled:
+        this._connectivityManager.isOfflineMode ||
+        this._connectivityManager.isVoipOnlyMode ||
+        this._rateLimiter.restricted,
       viewCallsFilter: this.viewCallsFilter,
       lastPosition: this.lastPositions[index],
       viewCallsFilterSelections: [
@@ -455,6 +484,12 @@ class CxCallHistoryView extends RcViewModule {
       onRetry: () => {
         void this.cxCallHistory.retry();
       },
+      onAdditionalCallAction: async (buttonId: string, call: FormattedCall) => {
+        await this._bridge?.onClickCallAction?.(buttonId, call);
+      },
+      onRefreshContact: async (call: FormattedCall) => {
+        await this.refreshContact(call);
+      },
       useCallHistoryItemInfo: this.useCallHistoryItemInfo as any,
       useActionsHandler: this.useActionsHandler as any,
     };
@@ -474,6 +509,8 @@ class CxCallHistoryView extends RcViewModule {
       isLoadingMore,
       hasMore,
       error,
+      additionalCallActions,
+      refreshContactDisabled,
     } = useConnector(() => this.getUIProps(t));
 
     return (
@@ -496,6 +533,14 @@ class CxCallHistoryView extends RcViewModule {
           error={error}
           onLoadMore={uiFunctions.onLoadMore}
           onRetry={uiFunctions.onRetry}
+          additionalCallActions={additionalCallActions}
+          onAdditionalCallAction={uiFunctions.onAdditionalCallAction as any}
+          onRefreshContact={
+            this._contactMatcher
+              ? (uiFunctions.onRefreshContact as any)
+              : undefined
+          }
+          refreshContactDisabled={refreshContactDisabled}
         />
       </div>
     );
