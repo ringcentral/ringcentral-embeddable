@@ -207,6 +207,10 @@ class CxIntegratedSoftphoneView extends RcViewModule {
     this.cxSubscription.subscribe(CxCallbackTypes.SIP_ENDED, () => {
       this.closeRingingModal();
     });
+    // A host page command can answer the leg without going through the modal.
+    this.cxIntegratedSoftphone.onRingingEnded(() => {
+      this.closeRingingModal();
+    });
     // On registration failed: show failed modal
     this.cxSubscription.subscribe(
       CxCallbackTypes.SIP_REGISTRATION_FAILED,

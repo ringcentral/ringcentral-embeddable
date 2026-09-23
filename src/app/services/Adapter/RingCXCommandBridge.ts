@@ -32,9 +32,17 @@ export interface RingCXDispositionOption {
   requireNotes?: boolean;
 }
 
+export interface RingCXCallControlOptions {
+  dtmf?: string;
+}
+
 export interface RingCXCommandBridge {
   dialout(phoneNumber: string, callerId?: string): Promise<void>;
-  controlCall(action: string, callId?: string): Promise<void>;
+  controlCall(
+    action: string,
+    callId?: string,
+    options?: RingCXCallControlOptions,
+  ): Promise<void>;
   setAgentState(state: string): Promise<void>;
   dialLead(lead: unknown, destination?: string): Promise<void>;
   getAgentSessionSnapshot(): RingCXAgentSessionSnapshot;

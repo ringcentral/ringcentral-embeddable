@@ -471,13 +471,14 @@ class CxCall extends RcModule {
 
   /**
    * Preview dial - used for preview campaign dialing
+   * @returns whether the dial request was sent
    */
   @delegate('server')
   async previewDial(
     requestId: string,
     leadPhone: string,
     leadPhoneE164: string,
-  ): Promise<void> {
+  ): Promise<boolean> {
     this.logger.info('previewDial~~', requestId, leadPhone, leadPhoneE164);
     this.cxPresence.setCurrentCallUii('');
     // Handle integrated softphone
@@ -490,14 +491,15 @@ class CxCall extends RcModule {
           await this.cxIntegratedSoftphone.onceRegistered();
         }
       } catch (error) {
-        return;
+        return false;
       }
     }
     try {
-      await this._previewDial(requestId, leadPhone, leadPhoneE164);
+      return await this._previewDial(requestId, leadPhone, leadPhoneE164);
     } catch (error) {
       this.logger.error('previewDial error', error);
       this.setPhoneIdle();
+      return false;
     }
   }
 
@@ -508,9 +510,9 @@ class CxCall extends RcModule {
     requestId: string,
     leadPhone: string,
     leadPhoneE164: string,
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (this.dialoutStatus === dialoutStatuses.dialing) {
-      return;
+      return false;
     }
     this.setPhoneDialing();
     let offhookInitResult: CxOffhookInitResponse | undefined;
@@ -526,6 +528,7 @@ class CxCall extends RcModule {
         (offhookInitResult && offhookInitResult.status === 'OK')
       ) {
         this.cxClient.previewDial(requestId, leadPhone, leadPhoneE164);
+        return true;
       } else {
         throw new Error("'offhookInit' exception error");
       }

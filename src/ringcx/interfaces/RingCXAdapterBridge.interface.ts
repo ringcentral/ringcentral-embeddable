@@ -9,7 +9,6 @@ export interface RingCXAdapterBridge {
   onRingCall(call: unknown): void;
   onNewCall(call: unknown): void;
   onEndCall(call: unknown): void;
-  onSoftphoneStatus(status: string): void;
   onDisposed?(
     call: unknown,
     extra?: {

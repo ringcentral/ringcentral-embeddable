@@ -13,6 +13,8 @@ import {
 import type { RoleState } from '@ringcentral-integration/next-core';
 import { Subscription } from 'rxjs';
 
+import { runOnAllPorts } from '../../../lib/runOnAllPorts';
+
 import { lastInteractedClientRole } from '../ClientInteraction';
 import type { Webphone } from '../WebphoneV2';
 import defaultIncomingAudio from '../WebphoneV2/audio/incoming.mp3';
@@ -227,15 +229,19 @@ export class WebphoneAlerting extends RcModule {
   }
 
   async stopRingtone(epoch: string) {
-    if (this._portManager.shared) {
-      await this._stopRingtoneOnAll(epoch);
-      return;
-    }
-    this._stopLocalRingtone(epoch);
+    await runOnAllPorts(
+      this._portManager,
+      this as WebphoneAlerting,
+      'stopRingtoneOnPort',
+      [epoch],
+    );
   }
 
-  @delegate('all')
-  protected async _stopRingtoneOnAll(epoch: string) {
+  /**
+   * Stops the ringtone this port plays for `epoch`. Public only so `fork()`
+   * can reach it; use `stopRingtone`.
+   */
+  stopRingtoneOnPort(epoch: string): void {
     this._stopLocalRingtone(epoch);
   }
 
@@ -422,15 +428,19 @@ export class WebphoneAlerting extends RcModule {
   }
 
   async closeNotification(epoch: string) {
-    if (this._portManager.shared) {
-      await this._closeNotificationOnAll(epoch);
-      return;
-    }
-    this._closeLocalNotification(epoch);
+    await runOnAllPorts(
+      this._portManager,
+      this as WebphoneAlerting,
+      'closeNotificationOnPort',
+      [epoch],
+    );
   }
 
-  @delegate('all')
-  protected async _closeNotificationOnAll(epoch: string) {
+  /**
+   * Closes the notification this port shows for `epoch`. Public only so
+   * `fork()` can reach it; use `closeNotification`.
+   */
+  closeNotificationOnPort(epoch: string): void {
     this._closeLocalNotification(epoch);
   }
 

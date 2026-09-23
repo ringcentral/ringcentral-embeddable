@@ -498,6 +498,7 @@ class CxIntegratedSoftphone extends RcModule {
           return;
         }
         await this.webphoneAlerting.setRingCxSoftphoneRinging(false);
+        this._eventEmitter.emit(CxSoftphoneEvents.RINGING_ENDED);
         // A ring that never connected still has to take the invitation down,
         // because the offhook leg never reaches the state that ends a call.
         if (!this.webphone.cxOffhookConnected) {
@@ -682,6 +683,15 @@ class CxIntegratedSoftphone extends RcModule {
    */
   onRinging(callback: (call?: CxSipRingingData) => void): this {
     this._eventEmitter.on(CxCallbackTypes.SIP_RINGING, callback);
+    return this;
+  }
+
+  /**
+   * Register callback for the offhook leg leaving the ringing state, whether it
+   * was answered, rejected, or ended, from this app or from the host page.
+   */
+  onRingingEnded(callback: () => void): this {
+    this._eventEmitter.on(CxSoftphoneEvents.RINGING_ENDED, callback);
     return this;
   }
 

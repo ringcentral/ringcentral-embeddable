@@ -8,6 +8,7 @@ export const CxSoftphoneEvents = ObjectMap.prefixKeys(
     'CALL_TERMINATED',
     'CALL_ANSWERED',
     'CALL_REJECTED',
+    'RINGING_ENDED',
     'AUDIO_STREAM_REJECTED',
     'RESET',
     'UPDATE_OFFHOOK_FLAGS',

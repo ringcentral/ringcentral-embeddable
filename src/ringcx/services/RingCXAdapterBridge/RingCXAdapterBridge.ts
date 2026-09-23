@@ -7,13 +7,17 @@ import {
   inject,
   injectable,
   optional,
+  PortManager,
   RcModule,
   RouterPlugin,
   watch,
 } from '@ringcentral-integration/next-core';
 
 import { Adapter } from '../../../app/services/Adapter/Adapter';
-import type { RingCXCommandBridge } from '../../../app/services/Adapter/RingCXCommandBridge';
+import type {
+  RingCXCallControlOptions,
+  RingCXCommandBridge,
+} from '../../../app/services/Adapter/RingCXCommandBridge';
 import {
   HostCallLogger,
   type CallLogger,
@@ -51,7 +55,7 @@ import { CxCallMonitor } from '../CxCallMonitor';
 import { CxClient } from '../CxClient';
 import { CxIntegratedSoftphone } from '../CxIntegratedSoftphone';
 import { CxLeads } from '../CxLeads';
-import type { Lead } from '../CxLeads';
+import type { CxLeadEvent, Lead } from '../CxLeads';
 import { CxPresence } from '../CxPresence';
 import { CxWorkingState } from '../CxWorkingState';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
@@ -71,6 +75,7 @@ interface DisposedExtra {
 }
 
 const HISTORY_LOG_SOURCE = 'ringcx';
+const MAIN_SESSION_ID = '1';
 
 /**
  * Translates the RingCX call lifecycle into the host Adapter / ThirdParty
@@ -83,13 +88,21 @@ export class RingCXAdapterBridge
   extends RcModule
   implements RingCXAdapterBridgeContract, RingCXCommandBridge
 {
-  private _unregisterLeadEvents?: () => void;
+  private _unbindHostNotifications?: () => void;
+
+  /**
+   * Calls (by decoded uii) that already posted ring or start. RingCX adds a
+   * session per leg, and each one reports ringing, so this keeps
+   * `rc-call-ring-notify` to one per call and never after it started.
+   */
+  private readonly _announcedRingUiis = new Set<string>();
 
   constructor(
     private readonly _adapter: Adapter,
     private readonly _thirdParty: ThirdParty,
     @inject(HostCallLogger) private readonly _callLogger: CallLogger,
     private readonly _router: RouterPlugin,
+    private readonly _portManager: PortManager,
     private readonly _toast: Toast,
     private readonly _ringCX: RingCX,
     private readonly _cxAuth: CxAuth,
@@ -111,6 +124,14 @@ export class RingCXAdapterBridge
   ) {
     super();
     this._registerCallLogSource();
+    // Bound from the constructor, as the other RingCX modules do, rather than
+    // from a lifecycle hook: this module waits on many dependencies before it
+    // turns ready, and the host must not miss state changes in the meantime.
+    if (this._portManager.shared) {
+      this._portManager.onServer(() => this._bindHostNotifications());
+    } else {
+      this._bindHostNotifications();
+    }
   }
 
   private _registerCallLogSource(): void {
@@ -124,37 +145,76 @@ export class RingCXAdapterBridge
     this._registerCallLogSource();
   }
 
-  override onInitOnce(): void {
-    watch(
+  /**
+   * Watches the RingCX state the host is told about. Runs on the server port
+   * only, like the RingCX call watchers, so each change is posted once; the
+   * Adapter relays it to the client ports. Returns the teardown `onServer`
+   * runs when this port stops being the server.
+   */
+  private _bindHostNotifications(): () => void {
+    this._unbindHostNotifications?.();
+    const unwatchSession = watch(
       this,
-      () => this._ringCX.stage,
+      () => this._agentSessionInputs(),
       () => {
         this._adapter.notifyRingCXAgentSession(this.getAgentSessionSnapshot());
       },
+      { multiple: true },
     );
-    watch(
+    const unwatchState = watch(
       this,
       () =>
         [
-          this._cxWorkingState.workingState.agentState,
+          this._ringCX.stage === 'ready',
+          this._cxWorkingState.agentState.agentState,
+          this._cxWorkingState.workingState.agentAuxState,
           this._cxWorkingState.isPendingDisposition,
         ] as const,
-      ([state, pendingDisposition]) => {
+      ([ready, state, auxState, pendingDisposition]) => {
+        if (!ready) {
+          return;
+        }
         this._adapter.notifyRingCXAgentState({
           state,
+          auxState,
           pendingDisposition,
         });
       },
+      { multiple: true },
     );
-    this._unregisterLeadEvents = this._cxLeads.onLeadEvent((event) => {
-      this._adapter.notifyRingCXLead(event);
+    const unregisterLeadEvents = this._cxLeads.onLeadEvent((event) => {
+      this._adapter.notifyRingCXLead(formatRingCXLeadEvent(event));
     });
     this._adapter.notifyRingCXAgentSession(this.getAgentSessionSnapshot());
+    this._unbindHostNotifications = () => {
+      unwatchSession();
+      unwatchState();
+      unregisterLeadEvents();
+      this._unbindHostNotifications = undefined;
+    };
+    return this._unbindHostNotifications;
+  }
+
+  /**
+   * Values in the agent session snapshot. A change to any of them is a new
+   * `rc-ringcx-agent-session-notify`, including a session update that keeps
+   * the stage at `ready`.
+   */
+  private _agentSessionInputs(): readonly unknown[] {
+    return [
+      this._ringCX.stage,
+      this._cxAuth.agentId,
+      this._cxAuth.authenticateResponse,
+      this._cxAgentSession.loginType,
+      this._cxAgentSession.dialGroupId,
+      this._cxAgentSession.selectedSkillProfileId,
+      this._cxAgentSession.selectedInboundQueueIds,
+      this._cxAgentSession.autoAnswer,
+    ];
   }
 
   override async onReset(): Promise<void> {
-    this._unregisterLeadEvents?.();
-    this._unregisterLeadEvents = undefined;
+    this._announcedRingUiis.clear();
     callLogSourceRegistry.unregister(RINGCX_CALL_LOG_SOURCE);
   }
 
@@ -163,6 +223,11 @@ export class RingCXAdapterBridge
     if (!formatted) {
       return;
     }
+    const uii = formatted.call.ringcx.uii;
+    if (!uii || this._announcedRingUiis.has(uii)) {
+      return;
+    }
+    this._announcedRingUiis.add(uii);
     this._adapter.notifyRingCXCall('ring', formatted.call);
   }
 
@@ -170,6 +235,9 @@ export class RingCXAdapterBridge
     const formatted = this._format(call);
     if (!formatted) {
       return;
+    }
+    if (formatted.call.ringcx.uii) {
+      this._announcedRingUiis.add(formatted.call.ringcx.uii);
     }
     this._adapter.notifyRingCXCall('start', formatted.call);
   }
@@ -179,11 +247,8 @@ export class RingCXAdapterBridge
     if (!formatted) {
       return;
     }
+    this._announcedRingUiis.delete(formatted.call.ringcx.uii);
     this._adapter.notifyRingCXCall('end', formatted.call);
-  }
-
-  onSoftphoneStatus(status: string): void {
-    this._adapter.notifyRingCXSoftphoneStatus(status);
   }
 
   onDisposed(call: unknown, extra?: DisposedExtra): void {
@@ -342,42 +407,93 @@ export class RingCXAdapterBridge
     await this._cxCall.dialout(phoneNumber);
   }
 
-  async controlCall(action: string, callId?: string): Promise<void> {
-    const sessionId = sessionIdFromCallId(callId);
+  /**
+   * Runs a host `rc-adapter-control-call` action on the current RingCX call.
+   * `callId` selects the leg only for `hangup`; the other actions apply to the
+   * current call, as the Agent tab controls do.
+   */
+  async controlCall(
+    action: string,
+    callId?: string,
+    options: RingCXCallControlOptions = {},
+  ): Promise<void> {
     switch (action) {
       case 'answer':
         await this._cxIntegratedSoftphone.sipAnswer();
-        break;
+        return;
       case 'reject':
-        await this._cxActiveCallControl.reject();
-        if (sessionId) {
-          await this._cxActiveCallControl.hangUp(sessionId);
-        }
-        break;
+        await this._cxIntegratedSoftphone.sipReject();
+        return;
       case 'hangup':
-        await this._cxActiveCallControl.hangUp(sessionId || '1');
-        break;
+        if (!this._requireCallPermission(this._currentMainCall?.allowHangup)) {
+          return;
+        }
+        await this._cxActiveCallControl.hangUp(
+          sessionIdFromCallId(callId) || MAIN_SESSION_ID,
+        );
+        return;
       case 'hold':
-        await this._cxActiveCallControl.hold();
-        break;
       case 'unhold':
-        await this._cxActiveCallControl.unhold();
-        break;
+        if (!this._requireCallPermission(this._currentMainCall?.allowHold)) {
+          return;
+        }
+        await (action === 'hold'
+          ? this._cxActiveCallControl.hold()
+          : this._cxActiveCallControl.unhold());
+        return;
       case 'mute':
-        await this._cxActiveCallControl.mute();
-        break;
       case 'unmute':
-        await this._cxActiveCallControl.unmute();
-        break;
+        if (!this._requireCallPermission(this._isIntegratedSoftphone)) {
+          return;
+        }
+        await (action === 'mute'
+          ? this._cxActiveCallControl.mute()
+          : this._cxActiveCallControl.unmute());
+        return;
       case 'record':
-        await this._cxActiveCallControl.record();
-        break;
+      case 'startRecord':
       case 'stopRecord':
-        await this._cxActiveCallControl.stopRecord();
-        break;
+        if (
+          !this._requireCallPermission(
+            this._currentMainCall?.agentRecording?.agentRecording === true,
+          )
+        ) {
+          return;
+        }
+        await (action === 'stopRecord'
+          ? this._cxActiveCallControl.stopRecord()
+          : this._cxActiveCallControl.record());
+        return;
+      case 'dtmf':
+        if (
+          !options.dtmf ||
+          !this._requireCallPermission(this._isIntegratedSoftphone)
+        ) {
+          return;
+        }
+        await this._cxActiveCallControl.onKeypadClick(options.dtmf);
+        return;
       default:
         this.logger.warn('Unsupported RingCX call action', action);
+        this._toast.warning({ message: t('callControlUnsupported') });
     }
+  }
+
+  private get _currentMainCall() {
+    const call = this._cxCall.currentCall;
+    return call ? this._cxActiveCallControl.getMainCall(call.uii) : undefined;
+  }
+
+  private get _isIntegratedSoftphone(): boolean {
+    return this._cxAgentSession.isIntegratedSoftphone;
+  }
+
+  private _requireCallPermission(allowed: boolean | undefined): boolean {
+    if (allowed === false) {
+      this._toast.warning({ message: t('callControlNotAllowed') });
+      return false;
+    }
+    return true;
   }
 
   async setAgentState(state: string): Promise<void> {
@@ -616,5 +732,30 @@ function historyCallInput(call: FormattedCall): FormatRingCXCallInput {
     contactMatches: outbound ? call.toMatches : call.fromMatches,
     ani: outbound ? call.to.phoneNumber : call.from.phoneNumber,
     dnis: outbound ? call.from.phoneNumber : call.to.phoneNumber,
+  };
+}
+
+/**
+ * Host-facing lead: the documented fields, plus the raw RingCX lead in `raw`
+ * for hosts that read fields not listed in the contract.
+ */
+function formatRingCXLead(lead: Lead) {
+  return {
+    leadId: lead.leadId,
+    externId: lead.externId,
+    campaignId: lead.campaignId,
+    firstName: lead.firstName,
+    lastName: lead.lastName,
+    destination: lead.destination,
+    raw: lead,
+  };
+}
+
+function formatRingCXLeadEvent(event: CxLeadEvent) {
+  return {
+    action: event.action,
+    leads: event.leads?.map(formatRingCXLead),
+    lead: event.lead ? formatRingCXLead(event.lead) : undefined,
+    destination: event.destination,
   };
 }

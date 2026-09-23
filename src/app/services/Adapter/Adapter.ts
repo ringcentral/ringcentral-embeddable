@@ -80,6 +80,7 @@ import {
   ringCXRequestPaths,
 } from '../../../lib/Adapter/ringCXMessageTypes';
 import { callLogSourceRegistry } from '../CallLogger/CallLogSourceRegistry';
+import { runOnAllPorts } from '../../../lib/runOnAllPorts';
 import type { RingCXCommandBridge } from './RingCXCommandBridge';
 import { parseUri } from '../../../lib/Adapter/parseUri';
 import { isDuplicated } from '../../../lib/isDuplicated';
@@ -605,7 +606,6 @@ export class Adapter extends RcModule {
           this._pushLocale();
           this._pushCalls();
           this._pushRingState();
-          this._pushRouteState();
         },
         multipleWatchOptions,
       ),
@@ -1068,7 +1068,11 @@ export class Adapter extends RcModule {
         break;
       case 'rc-adapter-control-call':
         if (data.source === 'ringcx' || data.options?.source === 'ringcx') {
-          void this._controlRingCXCall(data.callAction, data.callId);
+          void this._controlRingCXCall(
+            data.callAction,
+            data.callId,
+            data.options,
+          );
           break;
         }
         void this._controlCall(data.callAction, data.callId, data.options);
@@ -1482,29 +1486,32 @@ export class Adapter extends RcModule {
     ];
   }
 
+  /**
+   * Call bar inputs, compared by value. The call lists are recomputed with a
+   * new reference on every presence, telephony session, or webphone update,
+   * including RingCX offhook legs that are filtered out of them, so comparing
+   * the arrays themselves re-posts identical call bar messages.
+   */
   private _watchCallBarValues() {
     return [
       this._locale.currentLocale,
-      this._callMonitor.activeRingCalls,
-      this._callMonitor.activeOnHoldCalls,
-      this._callMonitor.otherDeviceCalls,
-      this._callMonitor.activeCurrentCalls,
+      this._callMonitor.activeRingCalls.length,
+      this._callMonitor.activeOnHoldCalls.length,
+      this._callMonitor.otherDeviceCalls.length,
+      this._callMonitor.activeCurrentCalls[0]?.startTime || 0,
       this._callingSettings.callingMode,
       this._webphone.ringSessionId,
       this._presence.telephonyStatus,
     ];
   }
 
+  /**
+   * The route the host sees, not the inputs it is derived from. A call start
+   * or end changes the router path, the call view, and the call lists a few
+   * milliseconds apart, and each of those alone would re-post the same route.
+   */
   private _watchRouteValues() {
-    return [
-      this._router.currentPath,
-      this._syncTabView?.getActive(DIAL_PAD_TAB_ID),
-      this._syncTabView?.getActive(MEETING_TAB_ID),
-      this._callViewState?.view,
-      this._callMonitor.activeCurrentCalls,
-      this._callMonitor.activeRingCalls,
-      this._callMonitor.activeOnHoldCalls,
-    ];
+    return [this._getEffectiveWidgetPath()];
   }
 
   private _watchLoginStatusValues() {
@@ -1608,10 +1615,15 @@ export class Adapter extends RcModule {
     return this._theme.themeType || '';
   }
 
+  /**
+   * Compared by value: `device` is replaced on every SIP (re)registration,
+   * including the reconnect that adds or drops the RingCX Engage roles, even
+   * when the device id is unchanged.
+   */
   private _watchWebphoneStatusValues() {
     return [
       this._webphone.connectionStatus,
-      this._webphone.device,
+      this._webphone.device?.id ?? null,
     ];
   }
 
@@ -2993,27 +3005,25 @@ export class Adapter extends RcModule {
     });
   }
 
+  /**
+   * RingCX host events originate on the shared server port, which may be a
+   * worker with no host window, so they are relayed to the client ports.
+   */
   notifyRingCXCall(
     event: 'ring' | 'start' | 'end' | 'disposed',
     call: object,
   ): void {
-    if (this._shouldSuppressCallEvent()) {
-      return;
-    }
     const type = {
       ring: ringCXEventTypes.callRingNotify,
       start: ringCXEventTypes.callStartNotify,
       end: ringCXEventTypes.callEndNotify,
       disposed: ringCXEventTypes.callDisposedNotify,
     }[event];
-    this._postMessage({ type, call });
+    this._postRingCXEvent({ type, call });
   }
 
   notifyRingCXAgentSession(snapshot: object): void {
-    if (this._shouldSuppressCallEvent()) {
-      return;
-    }
-    this._postMessage({
+    this._postRingCXEvent({
       type: ringCXEventTypes.agentSessionNotify,
       ...snapshot,
     });
@@ -3021,35 +3031,47 @@ export class Adapter extends RcModule {
 
   notifyRingCXAgentState(payload: {
     state: string;
+    auxState?: string;
     pendingDisposition: boolean;
   }): void {
-    if (this._shouldSuppressCallEvent()) {
-      return;
-    }
-    this._postMessage({
+    this._postRingCXEvent({
       type: ringCXEventTypes.agentStateNotify,
       ...payload,
     });
   }
 
-  notifyRingCXSoftphoneStatus(status: string): void {
-    if (this._shouldSuppressCallEvent()) {
-      return;
-    }
-    this._postMessage({
-      type: ringCXEventTypes.softphoneStatusNotify,
-      status,
-    });
-  }
-
   notifyRingCXLead(payload: object): void {
-    if (this._shouldSuppressCallEvent()) {
-      return;
-    }
-    this._postMessage({
+    this._postRingCXEvent({
       type: ringCXEventTypes.leadNotify,
       ...payload,
     });
+  }
+
+  /**
+   * Posts a server-originated RingCX event to the host page of every tab.
+   * See `runOnAllPorts` for why this is not `@delegate('all' | 'clients')`.
+   */
+  private _postRingCXEvent(message: Record<string, unknown>): void {
+    void runOnAllPorts(
+      this._portManager,
+      this as Adapter,
+      'postRingCXEventOnPort',
+      [message],
+    ).catch((error: unknown) => {
+      this.logger.warn('RingCX event relay failed', { error });
+    });
+  }
+
+  /**
+   * Posts one RingCX event from this port. Public only so `fork()` can run it
+   * on the client ports; use the `notifyRingCX*` methods instead. Inactive
+   * tabs stay silent when inactive-tab call events are disabled.
+   */
+  postRingCXEventOnPort(message: Record<string, unknown>): void {
+    if (this._shouldSuppressCallEvent()) {
+      return;
+    }
+    this._postMessage(message);
   }
 
   private _ringCXSessionSnapshot(): object {
@@ -3061,7 +3083,21 @@ export class Adapter extends RcModule {
 
   private _answerRingCXNotReady(): void {
     this._toast.warning({ message: ringCXT('agentSessionNotReady') });
-    this.notifyRingCXAgentSession(this._ringCXSessionSnapshot());
+    this._answerRingCXAgentSession();
+  }
+
+  /**
+   * Answers a host command from the tab that received it. Session changes
+   * that follow are broadcast separately by the RingCX bridge.
+   */
+  private _answerRingCXAgentSession(): void {
+    if (this._shouldSuppressCallEvent()) {
+      return;
+    }
+    this._postMessage({
+      type: ringCXEventTypes.agentSessionNotify,
+      ...this._ringCXSessionSnapshot(),
+    });
   }
 
   private async _requireRingCXReady(): Promise<RingCXCommandBridge | null> {
@@ -3090,12 +3126,18 @@ export class Adapter extends RcModule {
   private async _controlRingCXCall(
     action?: string,
     callId?: string,
+    options: ControlCallOptions = {},
   ): Promise<void> {
     const bridge = await this._requireRingCXReady();
     if (!bridge || !action) {
       return;
     }
-    await bridge.controlCall(action, callId);
+    try {
+      await bridge.controlCall(action, callId, options);
+    } catch (error) {
+      this.logger.warn('RingCX call control failed', { action, error });
+      this._toast.danger({ message: ringCXT('callControlFailed') });
+    }
   }
 
   private async _startRingCXAgentSession(): Promise<void> {
@@ -3104,7 +3146,6 @@ export class Adapter extends RcModule {
       return;
     }
     await this._ringCX.startAgentSession();
-    this.notifyRingCXAgentSession(this._ringCXSessionSnapshot());
   }
 
   private async _endRingCXAgentSession(): Promise<void> {
@@ -3114,11 +3155,10 @@ export class Adapter extends RcModule {
     }
     if (!this._ringCX.canEndAgentSession) {
       this._toast.warning({ message: ringCXT('agentSessionEndBlocked') });
-      this.notifyRingCXAgentSession(this._ringCXSessionSnapshot());
+      this._answerRingCXAgentSession();
       return;
     }
     await this._ringCX.endAgentSession();
-    this.notifyRingCXAgentSession(this._ringCXSessionSnapshot());
   }
 
   private async _setRingCXAgentState(state?: string): Promise<void> {

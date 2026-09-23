@@ -17,10 +17,7 @@ import { CxCall } from './services/CxCall';
 import { CxCallDisposition } from './services/CxCallDisposition';
 import { CxCallMonitor } from './services/CxCallMonitor';
 import { CxClient } from './services/CxClient';
-import { CxCallbackTypes } from './services/CxClient/enums';
 import { CxDialerView } from './views/CxDialerView';
-import { CxIntegratedSoftphone } from './services/CxIntegratedSoftphone';
-import { CxSubscription } from './services/CxSubscription';
 import { CxWorkingState } from './services/CxWorkingState';
 import type { DispositionStepOptions } from './utils/shouldShowDispositionSubmitStep';
 import { shouldShowDispositionSubmitStep } from './utils/shouldShowDispositionSubmitStep';
@@ -54,8 +51,6 @@ export class CxRouteCoordinator extends RcModule {
     private readonly _cxCallDisposition: CxCallDisposition,
     private readonly _cxWorkingState: CxWorkingState,
     private readonly _cxDialerView: CxDialerView,
-    private readonly _cxIntegratedSoftphone: CxIntegratedSoftphone,
-    private readonly _cxSubscription: CxSubscription,
     @inject('CxHostIntegration')
     private readonly _host: CxHostIntegration,
     @optional('RingCXAdapterBridge')
@@ -75,11 +70,9 @@ export class CxRouteCoordinator extends RcModule {
     if (this._portManager?.shared) {
       this._portManager.onServer(() => {
         this._watchCallStatus();
-        this._watchSipEvents();
       });
     } else {
       this._watchCallStatus();
-      this._watchSipEvents();
     }
   }
 
@@ -241,26 +234,5 @@ export class CxRouteCoordinator extends RcModule {
       this._requestNavigation(cxPath.disposition(id), 'replace');
       this._bridge?.onEndCall(call);
     });
-  }
-
-  private _watchSipEvents(): void {
-    this._cxIntegratedSoftphone.onRegistered(() => {
-      this._bridge?.onSoftphoneStatus('registered');
-    });
-    this._cxSubscription.subscribe(CxCallbackTypes.SIP_UNREGISTERED, () => {
-      this._bridge?.onSoftphoneStatus('unregistered');
-    });
-    this._cxSubscription.subscribe(
-      CxCallbackTypes.SIP_UNSTABLE_CONNECTION,
-      () => {
-        this._bridge?.onSoftphoneStatus('unstable');
-      },
-    );
-    this._cxSubscription.subscribe(
-      CxCallbackTypes.SIP_REGISTRATION_FAILED,
-      () => {
-        this._bridge?.onSoftphoneStatus('failed');
-      },
-    );
   }
 }

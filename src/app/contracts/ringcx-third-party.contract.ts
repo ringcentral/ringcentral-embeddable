@@ -24,7 +24,6 @@ export const ringCXThirdPartyContract = {
     'rc-ringcx-call-disposed-notify',
     'rc-ringcx-agent-session-notify',
     'rc-ringcx-agent-state-notify',
-    'rc-ringcx-softphone-status-notify',
     'rc-ringcx-lead-notify',
   ],
   commands: [
@@ -49,7 +48,9 @@ export const ringCXThirdPartyContract = {
     'mute',
     'unmute',
     'record',
+    'startRecord',
     'stopRecord',
+    'dtmf',
     'answer',
     'reject',
   ],

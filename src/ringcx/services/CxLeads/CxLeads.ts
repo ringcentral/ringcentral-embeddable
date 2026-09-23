@@ -307,8 +307,14 @@ class CxLeads extends RcModule {
     const dialedList = lead.dialedList || [];
     const newDialedList = [...dialedList, destination];
     this.updateLead(lead.leadId, { dialedList: newDialedList });
-    this._emitLeadEvent({ action: 'dialed', lead, destination });
-    await this.cxCall.previewDial(lead.requestId, destination, destinationE164 || '');
+    const dialed = await this.cxCall.previewDial(
+      lead.requestId,
+      destination,
+      destinationE164 || '',
+    );
+    if (dialed) {
+      this._emitLeadEvent({ action: 'dialed', lead, destination });
+    }
   }
 }
 

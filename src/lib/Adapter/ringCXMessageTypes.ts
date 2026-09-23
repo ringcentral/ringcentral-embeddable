@@ -12,7 +12,6 @@ export const ringCXEventTypes = {
   callDisposedNotify: 'rc-ringcx-call-disposed-notify',
   agentSessionNotify: 'rc-ringcx-agent-session-notify',
   agentStateNotify: 'rc-ringcx-agent-state-notify',
-  softphoneStatusNotify: 'rc-ringcx-softphone-status-notify',
   leadNotify: 'rc-ringcx-lead-notify',
 } as const;
 
