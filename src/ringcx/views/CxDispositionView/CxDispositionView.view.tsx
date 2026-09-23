@@ -829,6 +829,7 @@ class CxDispositionView extends RcViewModule {
         dispositionId,
         dispositionName: dispositionItem?.label,
         notes: disposition?.notes,
+        summary: this.summary || undefined,
       },
     }) ?? false;
   }
@@ -1097,7 +1098,7 @@ class CxDispositionView extends RcViewModule {
     const showCallEnded = callStatus === 'callEnd';
     const pageTitle = isHistoryMode
       ? (params.method === 'create' ? t('createCallLog') : t('updateCallLog'))
-      : t('callLog');
+      : t('disposition');
     const isHistoryActivityPending =
       isHistoryMode &&
       !!params.id &&

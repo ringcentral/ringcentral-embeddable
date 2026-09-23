@@ -2,7 +2,6 @@
 export default {
   noActiveCall: 'Nenhuma chamada ativa',
   pendingDisposition: 'Disposição pendente',
-  callLog: 'Registro de chamadas',
   createCallLog: 'Criar registro de chamadas',
   updateCallLog: 'Atualizar registro de chamadas',
   disposition: 'Disposição',

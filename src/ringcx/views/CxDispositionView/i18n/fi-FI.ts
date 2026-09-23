@@ -2,7 +2,6 @@
 export default {
   noActiveCall: 'Ei aktiivista puhelua',
   pendingDisposition: 'Odottaa poistamista',
-  callLog: 'Puheluloki',
   createCallLog: 'Luo puheluloki',
   updateCallLog: 'Päivitä puheluloki',
   disposition: 'Sijoitus',

@@ -2,7 +2,6 @@
 export default {
   noActiveCall: '활성 통화 없음',
   pendingDisposition: '처분 보류 중',
-  callLog: '통화 기록',
   createCallLog: '통화 기록 만들기',
   updateCallLog: '통화 기록 업데이트',
   disposition: '처분',

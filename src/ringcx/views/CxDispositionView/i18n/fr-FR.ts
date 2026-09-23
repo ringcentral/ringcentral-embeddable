@@ -2,7 +2,6 @@
 export default {
   noActiveCall: 'Aucun appel actif',
   pendingDisposition: 'Code de fin d’appel en attente',
-  callLog: 'Journal des appels',
   createCallLog: 'Créer le journal des appels',
   updateCallLog: 'Mettre à jour le journal des appels',
   disposition: 'Code de fin d’appel',

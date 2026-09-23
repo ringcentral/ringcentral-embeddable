@@ -2,7 +2,6 @@
 export default {
   noActiveCall: 'Aucun appel actif',
   pendingDisposition: 'Disposition en attente',
-  callLog: 'Journal des appels',
   createCallLog: 'Créer le journal des appels',
   updateCallLog: 'Mettre à jour le journal des appels',
   disposition: 'Disposition',

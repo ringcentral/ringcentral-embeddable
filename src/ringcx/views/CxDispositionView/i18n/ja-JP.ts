@@ -2,7 +2,6 @@
 export default {
   noActiveCall: 'アクティブな通話はありません',
   pendingDisposition: '保留中の処分',
-  callLog: '通話履歴',
   createCallLog: '通話ログの作成',
   updateCallLog: '通話記録を更新する',
   disposition: '処分',

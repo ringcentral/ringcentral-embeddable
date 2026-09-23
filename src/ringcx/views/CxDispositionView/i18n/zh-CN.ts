@@ -2,7 +2,6 @@
 export default {
   noActiveCall: '无活动呼叫',
   pendingDisposition: '待处理处置',
-  callLog: '通话记录',
   createCallLog: '创建通话记录',
   updateCallLog: '更新通话记录',
   disposition: '处置',

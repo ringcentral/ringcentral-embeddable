@@ -64,6 +64,7 @@ import type { DispositionStepOptions } from '../../utils/shouldShowDispositionSu
 interface LogCallInput {
   call: unknown;
   note?: string;
+  summary?: string;
   triggerType: string;
   redirect?: boolean;
 }
@@ -72,6 +73,7 @@ interface DisposedExtra {
   dispositionId?: string | null;
   dispositionName?: string;
   notes?: string;
+  summary?: string;
 }
 
 const HISTORY_LOG_SOURCE = 'ringcx';
@@ -312,6 +314,7 @@ export class RingCXAdapterBridge
     await this.logCall({
       call: input.call,
       note: input.note,
+      summary: input.extra?.summary,
       triggerType: 'callDisposition',
       redirect: false,
     });
@@ -333,10 +336,11 @@ export class RingCXAdapterBridge
   async logCall({
     call,
     note,
+    summary,
     triggerType,
     redirect = false,
   }: LogCallInput): Promise<void> {
-    const formatted = this._format(call, { notes: note });
+    const formatted = this._format(call, { notes: note, summary });
     if (!formatted) {
       return;
     }
@@ -348,6 +352,7 @@ export class RingCXAdapterBridge
         call: this._toLoggerCall(formatted),
         contact: undefined,
         note,
+        aiNote: formatted.call.aiNote,
         redirect,
         triggerType,
       });
@@ -576,6 +581,7 @@ export class RingCXAdapterBridge
       ...input,
       contactMatches,
       notes: extra?.notes || saved?.notes || input.notes,
+      summary: extra?.summary || saved?.summary || input.summary,
       disposition:
         extra?.dispositionId || extra?.dispositionName
           ? {

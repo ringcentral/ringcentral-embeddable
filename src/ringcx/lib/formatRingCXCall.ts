@@ -48,6 +48,11 @@ export interface RingCXNormalizedCall {
   toName?: string;
   fromName?: string;
   contactMatches?: Array<{ id?: string; name?: string; type?: string }>;
+  /**
+   * Call summary from the disposition form, AI generated or agent edited.
+   * Same field as the RingEX AI note so hosts read one field for both.
+   */
+  aiNote?: string;
   source: 'ringcx';
   ringcx: RingCXCallInfo;
 }
@@ -90,6 +95,7 @@ export interface FormatRingCXCallInput {
   termReason?: string;
   disposition?: string | { id?: string; name?: string };
   notes?: string;
+  summary?: string;
   contactMatches?: Array<{ id?: string; name?: string; type?: string }>;
   from?: { phoneNumber?: string; name?: string };
   to?: { phoneNumber?: string; name?: string };
@@ -313,6 +319,7 @@ export function formatRingCXCall(
     fromName,
     toName,
     contactMatches: input.contactMatches,
+    aiNote: input.summary || undefined,
     source: 'ringcx',
     ringcx: {
       uii: uii.split(ENCODE_SYMBOL)[0] || uii,

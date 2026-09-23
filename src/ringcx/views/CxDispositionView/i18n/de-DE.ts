@@ -2,7 +2,6 @@
 export default {
   noActiveCall: 'Kein aktiver Anruf',
   pendingDisposition: 'Ausstehende Disposition',
-  callLog: 'Anrufliste',
   createCallLog: 'Anrufliste anlegen',
   updateCallLog: 'Anrufprotokoll aktualisieren',
   disposition: 'Disposition',

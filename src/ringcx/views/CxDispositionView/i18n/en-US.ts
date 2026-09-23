@@ -3,7 +3,6 @@ export default {
   pendingDisposition: 'Pending Disposition',
 
   // Page titles
-  callLog: 'Call log',
   createCallLog: 'Create call log',
   updateCallLog: 'Update call log',
   disposition: 'Disposition',

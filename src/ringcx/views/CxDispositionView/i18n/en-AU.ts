@@ -2,7 +2,6 @@
 export default {
   noActiveCall: 'No active call',
   pendingDisposition: 'Pending Disposition',
-  callLog: 'Call log',
   createCallLog: 'Create call log',
   updateCallLog: 'Update call log',
   disposition: 'Disposition',

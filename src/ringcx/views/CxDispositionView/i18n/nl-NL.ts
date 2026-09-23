@@ -2,7 +2,6 @@
 export default {
   noActiveCall: 'Geen actief gesprek',
   pendingDisposition: 'In afwachting van afhandeling',
-  callLog: 'Oproepgeschiedenis',
   createCallLog: 'Oproepgeschiedenis maken',
   updateCallLog: 'Oproeplog bijwerken',
   disposition: 'Dispositie',

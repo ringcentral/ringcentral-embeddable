@@ -15,6 +15,7 @@ export interface RingCXAdapterBridge {
       dispositionId?: string | null;
       dispositionName?: string;
       notes?: string;
+      summary?: string;
     },
   ): void;
   logEndedCall?(call: unknown): Promise<boolean>;
@@ -26,6 +27,7 @@ export interface RingCXAdapterBridge {
       dispositionId?: string | null;
       dispositionName?: string;
       notes?: string;
+      summary?: string;
     };
   }): Promise<boolean>;
   logFromHistory?(call: FormattedCall, actionType: string): Promise<void>;
