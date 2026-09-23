@@ -233,6 +233,26 @@ export class RoutedSideWidgetView extends RcViewModule {
     if (isRoutedPath) {
       return;
     }
+    const parkedMainPath = this.mainPath;
+    if (
+      activeEntry &&
+      parkedMainPath &&
+      parkedMainPath !== path &&
+      this._isBackgroundPath(activeEntry, path)
+    ) {
+      // A routed page returning to its own background, a submitted
+      // disposition for example, would otherwise pull the main column off the
+      // page the user switched to while the drawer was open. The tab closes
+      // while that page is still parked, so it does not route to its own
+      // background.
+      this._sideWidgetView.closeContent(activeEntry.handle, {
+        collapseWhenLast: !!activeEntry.collapseWhenLeft,
+      });
+      this._setMainPath(null);
+      this._requestedPath = parkedMainPath;
+      void this._router.replace(parkedMainPath);
+      return;
+    }
     // The main column only renders `mainPath` while a routed page owns the
     // router. Once the router itself points at a main route, that preserved
     // path is stale and would keep the navigation highlighting the tab the
@@ -243,9 +263,14 @@ export class RoutedSideWidgetView extends RcViewModule {
     if (activeEntry && activeEntry.path !== path) {
       // The user opened the drawer on purpose earlier, so losing the routed
       // page it was showing is not a request to fold it. Only the stale tab is
-      // closed; the Apps tab is not opened in its place either.
+      // closed; the Apps tab is not opened in its place either. A page the app
+      // opened on its own folds the drawer when it returns to its background,
+      // but not when it hands over to a detail page such as the log page,
+      // which renders in the drawer's column.
       this._sideWidgetView.closeContent(activeEntry.handle, {
-        collapseWhenLast: false,
+        collapseWhenLast:
+          !!activeEntry.collapseWhenLeft &&
+          this._isBackgroundPath(activeEntry, path),
       });
     }
   }
@@ -308,6 +333,25 @@ export class RoutedSideWidgetView extends RcViewModule {
     });
   }
 
+  private _getBackgroundPath(entry: RoutedSideWidgetEntry): string {
+    if (!entry.resolveBackgroundPath) {
+      return entry.backgroundPath;
+    }
+    const match = matchPath<Record<string, string | undefined>>(entry.path, {
+      exact: entry.routeExact,
+      path: entry.routePath,
+    });
+    return match
+      ? entry.resolveBackgroundPath(match.params)
+      : entry.backgroundPath;
+  }
+
+  private _isBackgroundPath(entry: RoutedSideWidgetEntry, path: string): boolean {
+    return (
+      path === entry.backgroundPath || path === this._getBackgroundPath(entry)
+    );
+  }
+
   private _isRoutedTab(tabId: string | null): boolean {
     return Boolean(tabId && this._entries.has(tabId));
   }
@@ -354,7 +398,7 @@ export class RoutedSideWidgetView extends RcViewModule {
     if (!entry) {
       return;
     }
-    const backgroundPath = this.mainPath ?? entry.backgroundPath;
+    const backgroundPath = this.mainPath ?? this._getBackgroundPath(entry);
     const shouldNavigateToBackground =
       this._router.currentPath === backgroundPath ||
       this._router.currentPath === entry.path ||

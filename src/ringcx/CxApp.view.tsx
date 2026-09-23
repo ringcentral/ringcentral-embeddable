@@ -12,9 +12,7 @@ import {
 import { CxAgentView } from './views/CxAgentView';
 import { CxActiveCallView } from './views/CxActiveCallView';
 import { CxActiveCallListView } from './views/CxActiveCallListView';
-import { CxCallHistoryDetailView } from './views/CxCallHistoryDetailView';
 import { CxChooseAccountView } from './views/CxChooseAccountView';
-import { CxDispositionView } from './views/CxDispositionView';
 import { CxSessionConfigView } from './views/CxSessionConfigView';
 import { CxTransferView } from './views/CxTransferView';
 import { CxAgentSession } from './services/CxAgentSession';
@@ -31,9 +29,7 @@ export class CxAppView extends RcViewModule {
     private readonly _chooseAccountView: CxChooseAccountView,
     private readonly _sessionConfigView: CxSessionConfigView,
     private readonly _agentView: CxAgentView,
-    private readonly _callHistoryDetailView: CxCallHistoryDetailView,
     private readonly _activeCallView: CxActiveCallView,
-    private readonly _dispositionView: CxDispositionView,
     private readonly _transferView: CxTransferView,
     private readonly _activeCallListView: CxActiveCallListView,
   ) {
@@ -85,13 +81,6 @@ export class CxAppView extends RcViewModule {
         )}
         {hasSession && (
           <Route
-            path="/agent/calls/:id/disposition"
-            exact
-            component={this._dispositionView.component}
-          />
-        )}
-        {hasSession && (
-          <Route
             path="/agent/calls/:id/transfer"
             exact
             component={this._transferView.component}
@@ -109,20 +98,6 @@ export class CxAppView extends RcViewModule {
             path="/agent/calls/:id"
             exact
             component={this._activeCallView.component}
-          />
-        )}
-        {hasSession && (
-          <Route
-            path="/agent/history/:id/log/:method"
-            exact
-            component={this._dispositionView.component}
-          />
-        )}
-        {hasSession && (
-          <Route
-            path="/agent/history/:id"
-            exact
-            component={this._callHistoryDetailView.component}
           />
         )}
         <Redirect to={fallback} />

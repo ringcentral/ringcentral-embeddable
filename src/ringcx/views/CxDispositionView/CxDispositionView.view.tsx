@@ -13,6 +13,7 @@ import {
   useConnector,
   useParams,
   PortManager,
+  watch,
   delegate,
   type UIProps,
   type UIFunctions,
@@ -92,6 +93,17 @@ interface DispositionItem {
 }
 
 /**
+ * What the page does once a submitted disposition has been shown as saved.
+ */
+interface SubmitNavigationContext {
+  readonly callId: string;
+  readonly viewCallId: string;
+  readonly path: string;
+  readonly openedLogPage: boolean;
+  readonly shouldGoToDialer: boolean;
+}
+
+/**
  * CxDispositionView module - Disposition form and call log submission
  */
 @injectable({
@@ -123,7 +135,30 @@ class CxDispositionView extends RcViewModule {
   ) {
     super();
     this.storagePlugin.enable(this);
+    watch(
+      this,
+      () => this.router.currentPath,
+      (path) => {
+        const pending = this._submitNavigation;
+        if (!pending || path === pending.context.path) {
+          return;
+        }
+        this._cancelSubmitNavigation();
+        this._finishSubmit(pending.context, false);
+      },
+    );
   }
+
+  /**
+   * The delayed hand-over after a successful submit. It belongs to the
+   * disposition page it was started on, so it is cancelled as soon as the
+   * agent leaves that page, for example to the call log page opened by the
+   * call logger.
+   */
+  private _submitNavigation?: {
+    readonly context: SubmitNavigationContext;
+    readonly timer: ReturnType<typeof setTimeout>;
+  };
 
   /**
    * Deliberately not persisted: this is the outcome of one submit, not
@@ -627,9 +662,51 @@ class CxDispositionView extends RcViewModule {
     }
   }
 
+  private get pendingDispositionCallId(): string {
+    return this.cxWorkingState.pendingDispositionCallId || this.cxCall.activityCallId;
+  }
+
+  /**
+   * Whether the agent is already looking at the pending disposition, where
+   * the banner leading to it has nothing left to offer.
+   */
+  private get isOnPendingDispositionPage(): boolean {
+    const callId = this.pendingDispositionCallId;
+    return !!callId && this.router.currentPath === cxPath.disposition(callId);
+  }
+
+  /**
+   * A disposition that was submitted for a call that is over. Its route can
+   * only be reached again through history, for example Back from the call log
+   * page, where the form would ask for a disposition that is already saved.
+   */
+  isFinishedDisposition(callId: string): boolean {
+    return (
+      !!callId &&
+      this.cxCallDisposition.isDisposed(callId) &&
+      !this.cxCallMonitor.callIds.includes(callId)
+    );
+  }
+
+  @delegate('server')
+  async leaveFinishedDisposition(callId: string) {
+    if (
+      this._submitNavigation ||
+      !this.isFinishedDisposition(callId) ||
+      this.router.currentPath !== cxPath.disposition(callId)
+    ) {
+      return;
+    }
+    if (this.viewCallId === callId) {
+      this._setViewCallId('');
+    }
+    this._reset();
+    this.router.replace(this.dialerPath);
+  }
+
   @delegate('server')
   async goToPendingDisposition() {
-    const callId = this.cxWorkingState.pendingDispositionCallId || this.cxCall.activityCallId;
+    const callId = this.pendingDispositionCallId;
     if (!callId) {
       this.logger.warn('goToPendingDisposition~~ without a call id');
       return;
@@ -650,10 +727,12 @@ class CxDispositionView extends RcViewModule {
   @autobind
   Announcement() {
     const { t } = useLocale(i18n);
-    const { isPendingDisposition, time } = useConnector(() => ({
-      isPendingDisposition: this.cxWorkingState.isPendingDisposition,
-      time: this.cxWorkingState.time,
-    }));
+    const { isOnPendingDispositionPage, isPendingDisposition, time } =
+      useConnector(() => ({
+        isOnPendingDispositionPage: this.isOnPendingDispositionPage,
+        isPendingDisposition: this.cxWorkingState.isPendingDisposition,
+        time: this.cxWorkingState.time,
+      }));
     const [intervalTime, setIntervalTime] = useState(() => Date.now() - time);
     useEffect(() => {
       if (!isPendingDisposition) return;
@@ -664,7 +743,7 @@ class CxDispositionView extends RcViewModule {
       const timerId = setInterval(updateTimer, 1000);
       return () => clearInterval(timerId);
     }, [isPendingDisposition, time]);
-    if (!isPendingDisposition) {
+    if (!isPendingDisposition || isOnPendingDispositionPage) {
       return null;
     }
     const timerText = getClockByTimestamp(intervalTime);
@@ -769,6 +848,8 @@ class CxDispositionView extends RcViewModule {
       return;
     }
     const shouldGoToDialerAfterSubmit = this.callStatus === 'callEnd' || !this.hasCurrentCall;
+    const submittedPath = this.router.currentPath;
+    const viewCallId = this.viewCallId;
     try {
       this.setSaveStatus(SaveStatus.SAVING);
       const openedLogPage = await this.doDisposeCall();
@@ -778,38 +859,13 @@ class CxDispositionView extends RcViewModule {
       this.setSaveStatus(SaveStatus.SAVED);
       this.toast.success({ message: translate('callDispositionSuccess') });
       await this.cxWorkingState.setIsPendingDisposition(false);
-      setTimeout(() => {
-        const takenOver = hasNewCallTakenOver({
-          submittedCallId: callId,
-          activityCallId: this.cxCall.activityCallId,
-          callIds: this.cxCallMonitor.callIds,
-        });
-        if (takenOver) {
-          // Only the form state belongs to the submitted call; the route and
-          // the call pointer now belong to the call that was answered while
-          // this submit was in flight.
-          this._setViewCallId('');
-          this._reset();
-          return;
-        }
-        if (openedLogPage) {
-          this.cxCall.setDialoutStatus(dialoutStatuses.idle);
-          this._setViewCallId('');
-          this.router.replace(`/log/call/${callId}?source=ringcx`);
-          this._reset();
-          this.cxCall.setActivityCallId('');
-          return;
-        }
-        if (shouldGoToDialerAfterSubmit) {
-          this.cxCall.setDialoutStatus(dialoutStatuses.idle);
-          this._setViewCallId('');
-          this.router.replace(this.dialerPath);
-          this._reset();
-          this.cxCall.setActivityCallId('');
-          return;
-        }
-        this.goBack();
-      }, 1000);
+      this._scheduleSubmitNavigation({
+        callId,
+        viewCallId,
+        path: submittedPath,
+        openedLogPage,
+        shouldGoToDialer: shouldGoToDialerAfterSubmit,
+      });
     } catch (e) {
       console.error(e);
       this.setSaveStatus(SaveStatus.SUBMIT);
@@ -819,6 +875,75 @@ class CxDispositionView extends RcViewModule {
       });
     }
   };
+
+  private _scheduleSubmitNavigation(context: SubmitNavigationContext): void {
+    this._cancelSubmitNavigation();
+    if (this.router.currentPath !== context.path) {
+      this._finishSubmit(context, false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      this._submitNavigation = undefined;
+      this._finishSubmit(context, this.router.currentPath === context.path);
+    }, 1000);
+    this._submitNavigation = { context, timer };
+  }
+
+  private _cancelSubmitNavigation(): void {
+    if (!this._submitNavigation) {
+      return;
+    }
+    clearTimeout(this._submitNavigation.timer);
+    this._submitNavigation = undefined;
+  }
+
+  /**
+   * Clean up after a submit. Routing only happens while the agent is still on
+   * the submitted disposition page; otherwise the page they moved to is kept.
+   */
+  private _finishSubmit(
+    context: SubmitNavigationContext,
+    canNavigate: boolean,
+  ): void {
+    const takenOver = hasNewCallTakenOver({
+      submittedCallId: context.callId,
+      activityCallId: this.cxCall.activityCallId,
+      callIds: this.cxCallMonitor.callIds,
+    });
+    const isCallFinished = context.openedLogPage || context.shouldGoToDialer;
+    if (!canNavigate) {
+      if (!takenOver && isCallFinished) {
+        this.cxCall.setDialoutStatus(dialoutStatuses.idle);
+        this.cxCall.setActivityCallId('');
+      }
+      if (this.viewCallId === context.viewCallId) {
+        this._setViewCallId('');
+        this._reset();
+      }
+      return;
+    }
+    if (takenOver) {
+      // Only the form state belongs to the submitted call; the route and
+      // the call pointer now belong to the call that was answered while
+      // this submit was in flight.
+      this._setViewCallId('');
+      this._reset();
+      return;
+    }
+    if (isCallFinished) {
+      this.cxCall.setDialoutStatus(dialoutStatuses.idle);
+      this._setViewCallId('');
+      this.router.replace(
+        context.openedLogPage
+          ? `/log/call/${context.callId}?source=ringcx`
+          : this.dialerPath,
+      );
+      this._reset();
+      this.cxCall.setActivityCallId('');
+      return;
+    }
+    this.goBack();
+  }
 
   get summary() {
     return this.cxCallDisposition.getDisposition(this.callId)?.summary || '';
@@ -918,10 +1043,26 @@ class CxDispositionView extends RcViewModule {
     // route needs its own way back to a widget hidden on the call screen.
     const sideWidgetToggle = undefined;
 
+    // Decided once per call id: the call becomes disposed and over while the
+    // agent watches the submit succeed, which must not blank the page.
+    const arrivalRef = useRef<{ id?: string; finished: boolean }>();
+    if (!arrivalRef.current || arrivalRef.current.id !== params.id) {
+      arrivalRef.current = {
+        id: params.id,
+        finished: !!params.id && this.isFinishedDisposition(params.id),
+      };
+    }
+    const isFinishedOnArrival = arrivalRef.current.finished;
+
     useEffect(() => {
-      if (params.id) {
-        uiFunctions.setViewCallId(params.id);
+      if (!params.id) {
+        return;
       }
+      if (isFinishedOnArrival) {
+        void this.leaveFinishedDisposition(params.id);
+        return;
+      }
+      uiFunctions.setViewCallId(params.id);
     }, [params.id]);
 
     useEffect(() => {
@@ -948,6 +1089,10 @@ class CxDispositionView extends RcViewModule {
       }
       void this.requestConversationSummary(callId, callStatus);
     }, [params.id, callStatus, showSummary, segmentId, isHistoryMode]);
+
+    if (isFinishedOnArrival) {
+      return null;
+    }
 
     const showCallEnded = callStatus === 'callEnd';
     const pageTitle = isHistoryMode

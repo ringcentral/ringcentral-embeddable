@@ -9,6 +9,7 @@ import {
   RcViewModule,
   RouterPlugin,
   useConnector,
+  useParams,
 } from '@ringcentral-integration/next-core';
 import React, { type ComponentType } from 'react';
 
@@ -20,9 +21,15 @@ import i18n from './i18n';
 
 const AGENT_PATH = '/agent';
 const AGENT_HISTORY_TAB = 'history';
+const AGENT_DIALER_TAB = 'dialer';
+const AGENT_DIALER_PATH = `${AGENT_PATH}/home/${AGENT_DIALER_TAB}`;
 
 type CxAgentHomeView = {
   readonly component: ComponentType<{ initialTab?: string }>;
+};
+
+type CxLiveCalls = {
+  readonly callIds: readonly string[];
 };
 
 @injectable({
@@ -37,6 +44,15 @@ export class CxAgentTabView extends RcViewModule {
 
   @dynamic('CxCallHistoryDetailView')
   private readonly _cxCallHistoryDetailView?: CxViewModule;
+
+  @dynamic('CxDispositionView')
+  private readonly _cxDispositionView?: CxViewModule;
+
+  @dynamic('CxActiveCallView')
+  private readonly _cxActiveCallView?: CxViewModule;
+
+  @dynamic('CxCallMonitor')
+  private readonly _cxCallMonitor?: CxLiveCalls;
 
   constructor(
     private readonly _ringCX: RingCX,
@@ -61,6 +77,63 @@ export class CxAgentTabView extends RcViewModule {
    */
   @autobind
   HistoryBackground(): React.ReactElement | null {
+    return <this.AgentHomeBackground initialTab={AGENT_HISTORY_TAB} />;
+  }
+
+  /**
+   * Where a CX disposition opened in the side widget returns to: the call's
+   * control page while the call is still up, otherwise the agent dialer.
+   */
+  resolveDispositionBackgroundPath(callId?: string): string {
+    return callId && this._isLiveCall(callId)
+      ? `${AGENT_PATH}/calls/${callId}`
+      : AGENT_DIALER_PATH;
+  }
+
+  /**
+   * Main column behind a CX disposition opened in the side widget. A call
+   * that is still up keeps its control page there, so the agent can work the
+   * call while filling in the form; an ended call leaves the agent dialer,
+   * which is where the agent lands after submitting.
+   */
+  @autobind
+  DispositionBackground(): React.ReactElement | null {
+    const { id } = useParams<{ id?: string }>();
+    const isLiveCall = useConnector(() => !!id && this._isLiveCall(id));
+    const CxActiveCall = this._cxActiveCallView?.component;
+    if (isLiveCall && CxActiveCall) {
+      return <CxActiveCall />;
+    }
+    return <this.AgentHomeBackground initialTab={AGENT_DIALER_TAB} />;
+  }
+
+  /**
+   * CX disposition rendered as a routed side-widget page.
+   */
+  @autobind
+  DispositionDetail(): React.ReactElement | null {
+    const loaded = useConnector(() => this._ringCX.loaded);
+    const CxDisposition = this._cxDispositionView?.component;
+    if (!loaded || !CxDisposition) {
+      return null;
+    }
+    return <CxDisposition />;
+  }
+
+  private _isLiveCall(callId: string): boolean {
+    return (
+      this._ringCX.loaded &&
+      this._ringCX.stage === 'ready' &&
+      !!this._cxCallMonitor?.callIds.includes(callId)
+    );
+  }
+
+  @autobind
+  private AgentHomeBackground({
+    initialTab,
+  }: {
+    initialTab: string;
+  }): React.ReactElement | null {
     const ready = useConnector(
       () => this._ringCX.loaded && this._ringCX.stage === 'ready',
     );
@@ -68,7 +141,7 @@ export class CxAgentTabView extends RcViewModule {
     if (!ready || !CxAgentHome) {
       return <this.component />;
     }
-    return <CxAgentHome initialTab={AGENT_HISTORY_TAB} />;
+    return <CxAgentHome initialTab={initialTab} />;
   }
 
   /**

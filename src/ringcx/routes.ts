@@ -25,8 +25,6 @@ export const cxPath = {
   sessionUpdate: (): string => `${AGENT_SETTINGS_PREFIX}/sessionUpdate`,
   home: (tabId = 'dialer'): string => `${AGENT_PREFIX}/home/${tabId}`,
   historyDetail: (id: string): string => `${AGENT_PREFIX}/history/${id}`,
-  historyCallLog: (id: string, method: string): string =>
-    `${AGENT_PREFIX}/history/${id}/log/${method}`,
   call: (id: string): string => `${AGENT_PREFIX}/calls/${id}`,
   disposition: (id: string): string => `${AGENT_PREFIX}/calls/${id}/disposition`,
   transfer: (id: string): string => `${AGENT_PREFIX}/calls/${id}/transfer`,

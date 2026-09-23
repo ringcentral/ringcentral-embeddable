@@ -209,6 +209,25 @@ export class AppView extends RcViewModule {
       },
     },
     {
+      path: '/agent/calls/:id/disposition',
+      component: this._cxAgentTabView.DispositionDetail,
+      authentication: true,
+      exact: true,
+      layout: 'detail',
+      backgroundComponent: this._cxAgentTabView.DispositionBackground,
+      sideWidget: {
+        id: 'cx-disposition',
+        name: 'Disposition',
+        // A pending disposition must survive a contact change in the drawer,
+        // for example the Apps tab opening for another call.
+        scope: 'global',
+        backgroundPath: '/agent/home/dialer',
+        resolveBackgroundPath: (params) =>
+          this._cxAgentTabView.resolveDispositionBackgroundPath(params.id),
+        collapseWhenLeft: true,
+      },
+    },
+    {
       path: '/agent',
       component: this._cxAgentTabView.component,
       authentication: true,

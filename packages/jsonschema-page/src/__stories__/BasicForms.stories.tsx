@@ -525,6 +525,7 @@ export const CustomValidation: Story = {
                   console.log('Button clicked:', name, value);
                   args.onButtonClick?.(name, value);
                 }}
+                hiddenSubmitButton={false}
               />
             </div>
           </RcThemeProvider>
