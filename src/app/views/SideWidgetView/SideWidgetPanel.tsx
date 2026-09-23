@@ -185,6 +185,10 @@ export function SideWidgetPanel({
     ? apps.find(({ id }) => id === selectedAppId)
     : undefined;
   const showTabs = tabs.length > 1;
+  // The Apps tab only exists when it was opened for a call or by the user. It
+  // must not appear as a fallback: a drawer that stays open after its last
+  // routed tab closed shows nothing rather than opening Apps on its own.
+  const showAppsTab = tabs.some(({ id }) => id === SIDE_WIDGET_APPS_TAB_ID);
 
   return (
     <TabContext
@@ -220,31 +224,33 @@ export function SideWidgetPanel({
             ))}
           </Tabs>
         ) : null}
-        <TabPanel
-          value={SIDE_WIDGET_APPS_TAB_ID}
-          className="min-h-0 flex-auto overflow-hidden p-0"
-        >
-          {selectedApp ? (
-            <SideWidgetAppPanel
-              app={selectedApp}
-              contact={contact}
-              isPinned={pinAppIds.includes(selectedApp.id)}
-              showBack
-              showCloseButton={false}
-              onBack={onBack}
-              onClose={onBack}
-              onTogglePin={() => onTogglePin(selectedApp.id)}
-              onLoadApp={onLoadApp}
-            />
-          ) : (
-            <AvailableApps
-              apps={apps}
-              showCloseButton={!showTabs}
-              onClose={onClose}
-              onSelectApp={onSelectApp}
-            />
-          )}
-        </TabPanel>
+        {showAppsTab ? (
+          <TabPanel
+            value={SIDE_WIDGET_APPS_TAB_ID}
+            className="min-h-0 flex-auto overflow-hidden p-0"
+          >
+            {selectedApp ? (
+              <SideWidgetAppPanel
+                app={selectedApp}
+                contact={contact}
+                isPinned={pinAppIds.includes(selectedApp.id)}
+                showBack
+                showCloseButton={false}
+                onBack={onBack}
+                onClose={onBack}
+                onTogglePin={() => onTogglePin(selectedApp.id)}
+                onLoadApp={onLoadApp}
+              />
+            ) : (
+              <AvailableApps
+                apps={apps}
+                showCloseButton={!showTabs}
+                onClose={onClose}
+                onSelectApp={onSelectApp}
+              />
+            )}
+          </TabPanel>
+        ) : null}
         {tabs
           .filter((tab) => tab.appId)
           .map((tab) => {

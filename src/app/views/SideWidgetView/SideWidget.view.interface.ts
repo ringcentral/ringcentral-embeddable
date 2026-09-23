@@ -45,6 +45,21 @@ export interface SideWidgetOpenContentOptions {
   expand?: boolean;
 }
 
+export interface SideWidgetCloseTabOptions {
+  /**
+   * Whether collapsing the drawer is allowed when the closed tab was the last
+   * one.
+   *
+   * A route-driven close keeps the drawer open, because the user opened it on
+   * purpose and leaving a routed page is not a request to fold it. Closing the
+   * drawer is not replaced with the Apps tab either: that tab only opens with a
+   * new call.
+   *
+   * @default true
+   */
+  collapseWhenLast?: boolean;
+}
+
 export class SideWidgetContentHandle {
   constructor(public options: SideWidgetContentOptions) {}
 }

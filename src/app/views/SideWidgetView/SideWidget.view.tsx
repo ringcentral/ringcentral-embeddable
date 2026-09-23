@@ -10,8 +10,10 @@ import {
   injectable,
   optional,
   RcViewModule,
+  Root,
   state,
   useConnector,
+  watch,
 } from '@ringcentral-integration/next-core';
 import React, { type ReactNode, useRef } from 'react';
 
@@ -32,6 +34,7 @@ import {
 } from './SideWidget.helper';
 import {
   SideWidgetContentHandle,
+  type SideWidgetCloseTabOptions,
   type SideWidgetContentOptions,
   type SideWidgetOpenContentOptions,
   type SideWidgetOptions,
@@ -95,7 +98,8 @@ export class SideWidgetView extends RcViewModule {
     private _thirdParty: ThirdParty,
     private _theme: Theme,
     @optional('SideWidgetOptions')
-    private _sideWidgetOptions?: SideWidgetOptions
+    private _sideWidgetOptions?: SideWidgetOptions,
+    private _root?: Root
   ) {
     super();
   }
@@ -210,11 +214,14 @@ export class SideWidgetView extends RcViewModule {
     }
   }
 
-  closeContent(handle: SideWidgetContentHandle): void {
+  closeContent(
+    handle: SideWidgetContentHandle,
+    options?: SideWidgetCloseTabOptions
+  ): void {
     if (this._contentHandles.get(handle.options.id) !== handle) {
       return;
     }
-    this.closeTab(handle.options.id);
+    this.closeTab(handle.options.id, options);
   }
 
   @action
@@ -346,7 +353,10 @@ export class SideWidgetView extends RcViewModule {
     this.selectedAppId = null;
   }
 
-  closeTab(tabId: string): void {
+  closeTab(
+    tabId: string,
+    { collapseWhenLast = true }: SideWidgetCloseTabOptions = {}
+  ): void {
     const tabIndex = this.tabs.findIndex(({ id }) => id === tabId);
     if (tabIndex < 0) {
       return;
@@ -356,6 +366,13 @@ export class SideWidgetView extends RcViewModule {
     if (this.tabs.length === 1) {
       this._removeTab(tabId, tabIndex);
       const closeResult = contentHandle?.options.onClose?.(null);
+      if (!collapseWhenLast) {
+        // A route-driven close must not fold the drawer, and it must not open
+        // the Apps tab in its place either: that tab only opens with a new
+        // call.
+        void this._awaitTabClose(contentHandle, closeResult);
+        return;
+      }
       if (isPromiseLike(closeResult)) {
         void this._completeLastTabClose(contentHandle, closeResult);
       } else {
@@ -422,6 +439,29 @@ export class SideWidgetView extends RcViewModule {
     this._thirdParty.toggleAppPin(appId);
     if (!wasPinned) {
       this.openAppTab(app, this.currentContact);
+    }
+  }
+
+  /**
+   * Resolves a routed tab close when the drawer stays open, so the page can
+   * finish its own cleanup without being collapsed away.
+   */
+  private async _awaitTabClose(
+    contentHandle: SideWidgetContentHandle | undefined,
+    closeResult: void | Promise<void>,
+  ): Promise<void> {
+    try {
+      await closeResult;
+    } catch (error: unknown) {
+      this.logger.error('[SideWidget] failed to close routed tab', error);
+    }
+    try {
+      await contentHandle?.options.onCloseComplete?.();
+    } catch (error: unknown) {
+      this.logger.error(
+        '[SideWidget] failed to complete routed tab close',
+        error,
+      );
     }
   }
 
@@ -595,6 +635,30 @@ export class SideWidgetView extends RcViewModule {
       );
     },
   });
+
+  private _stopWatchingLayout: (() => void) | null = null;
+
+  override onInit(): void {
+    this._stopWatchingLayout = watch(
+      this,
+      () => [Boolean(this._root?.expanded), this.tabs.length] as const,
+      ([expanded, tabCount]) => {
+        if (!this._root || expanded || tabCount > 0) {
+          return;
+        }
+        // Folded, the drawer renders as an overlay over the main column. With
+        // no tabs that overlay is an opaque blank page that hides the app, so
+        // an empty drawer closes instead of staying open.
+        void this.close();
+      },
+      { multiple: true }
+    );
+  }
+
+  override onReset(): void {
+    this._stopWatchingLayout?.();
+    this._stopWatchingLayout = null;
+  }
 
   component() {
     return null;

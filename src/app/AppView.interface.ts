@@ -29,6 +29,14 @@ export type Route = {
    * Render this route as a reusable SideWidget tab.
    */
   sideWidget?: RoutedSideWidgetConfig;
+  /**
+   * The page renders its own nested router and reads the real location.
+   *
+   * Switching to it cannot park the current routed page behind a synthetic
+   * path, so navigation always uses the real router. The RingCX agent tab is
+   * the current example.
+   */
+  ownsRouter?: boolean;
 };
 
 export interface AppViewOptions {

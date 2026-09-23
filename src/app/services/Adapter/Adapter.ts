@@ -1978,6 +1978,14 @@ export class Adapter extends RcModule {
     this._callViewState._setView('hidden');
   }
 
+  /**
+   * Entering the Agent tab is a navigation, not a CX call transition. The side
+   * widget is shared by both tabs, so it must keep the content the user opened
+   * on the Phone tab. Only the leftover RingEX post-call view is dismissed
+   * here; the side widget is still cleared by
+   * {@link dismissExCallUiForCxCall} when a CX call actually starts or is
+   * answered.
+   */
   private _dismissExCallUiOnEnterAgent(
     currentPath: string,
     previousPath: string | undefined,
@@ -1988,7 +1996,7 @@ export class Adapter extends RcModule {
     if (!isCxAgentRoute(currentPath) || isCxAgentRoute(previousPath)) {
       return;
     }
-    this.dismissExCallUiForCxCall();
+    this._dismissExPostCallView();
   }
 
   private _isCxOffhookWebphoneSession(session: NormalizedSession): boolean {

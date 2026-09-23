@@ -79,6 +79,18 @@ export class RoutedSideWidgetView extends RcViewModule {
   @state
   mainPath: string | null = null;
 
+  /**
+   * Main paths whose page renders its own nested router instead of being
+   * driven by `mainPath` alone.
+   *
+   * Such a page (`/agent`, the RingCX shell) reads the real location, so it
+   * cannot be shown behind a parked route: its nested `<Switch>` would match
+   * nothing and its fallback `<Redirect>` would replace the real route,
+   * destroying the entry the user came from. Navigation to those paths always
+   * uses the real router.
+   */
+  private _routerOwningPaths: readonly string[] = [];
+
   @action
   private _setMainPath(path: string | null): void {
     this.mainPath = path;
@@ -104,6 +116,21 @@ export class RoutedSideWidgetView extends RcViewModule {
   ): void {
     this._routes = routes;
     this._resolveContact = resolveContact;
+  }
+
+  /**
+   * Declares main paths that own the router themselves. Switching to one of
+   * them cannot keep a routed side-widget page visible, so the navigation uses
+   * the real router and the routed tab closes instead.
+   */
+  setRouterOwningPaths(paths: readonly string[]): void {
+    this._routerOwningPaths = paths;
+  }
+
+  private _ownsRouter(path: string): boolean {
+    return this._routerOwningPaths.some(
+      (owning) => path === owning || path.startsWith(`${owning}/`),
+    );
   }
 
   /**
@@ -214,7 +241,12 @@ export class RoutedSideWidgetView extends RcViewModule {
       this._setMainPath(null);
     }
     if (activeEntry && activeEntry.path !== path) {
-      this._sideWidgetView.closeContent(activeEntry.handle);
+      // The user opened the drawer on purpose earlier, so losing the routed
+      // page it was showing is not a request to fold it. Only the stale tab is
+      // closed; the Apps tab is not opened in its place either.
+      this._sideWidgetView.closeContent(activeEntry.handle, {
+        collapseWhenLast: false,
+      });
     }
   }
 
@@ -227,7 +259,9 @@ export class RoutedSideWidgetView extends RcViewModule {
       return;
     }
     const activeEntry = this._entries.get(this._sideWidgetView.currentTabId);
-    if (activeEntry && this._root.expanded) {
+    // A route that owns the router must see the real location, so it cannot be
+    // parked behind the routed page the way a host-rendered tab can.
+    if (activeEntry && this._root.expanded && !this._ownsRouter(path)) {
       this._setMainPath(path);
       return;
     }

@@ -195,9 +195,24 @@ export class AppView extends RcViewModule {
       authentication: true,
     },
     {
+      path: '/agent/history/:id',
+      component: this._cxAgentTabView.HistoryDetail,
+      authentication: true,
+      exact: true,
+      layout: 'detail',
+      backgroundComponent: this._cxAgentTabView.HistoryBackground,
+      sideWidget: {
+        id: 'call-details',
+        name: 'Call details',
+        scope: 'contact',
+        backgroundPath: '/agent/home/history',
+      },
+    },
+    {
       path: '/agent',
       component: this._cxAgentTabView.component,
       authentication: true,
+      ownsRouter: true,
     },
     {
       path: '/dialer',
@@ -222,7 +237,7 @@ export class AppView extends RcViewModule {
       component: this._logCallView.component,
       authentication: true,
       layout: 'detail',
-      backgroundComponent: this._dialerPadView.component,
+      preserveBackground: true,
     },
     {
       path: '/log/messages/:conversationId',
@@ -509,6 +524,9 @@ export class AppView extends RcViewModule {
         : undefined;
     }
     if (tabId === 'call-details') {
+      if (!params.callLogId) {
+        return undefined;
+      }
       const call = this._callViewState.callDetailCallLog;
       return call ? getRoutedCallContact(call) : undefined;
     }
@@ -688,6 +706,9 @@ export class AppView extends RcViewModule {
           : [],
       ),
       (tabId, params) => this._resolveRoutedContact(tabId, params),
+    );
+    this._routedSideWidgetView.setRouterOwningPaths(
+      this.routes.filter((route) => route.ownsRouter).map((route) => route.path),
     );
   }
 

@@ -241,7 +241,20 @@ class CxCallHistoryView extends RcViewModule {
    * Navigate to call history detail page
    */
   goToCallDetail(callId: string) {
+    this._pinHistoryRoute();
     this._router.push(cxPath.historyDetail(callId));
+  }
+
+  /**
+   * The History tab is only kept in the location state, so a page pushed from
+   * the list must first put the tab in the path. Otherwise Back returns to the
+   * agent home on its default tab.
+   */
+  private _pinHistoryRoute(): void {
+    const historyPath = cxPath.home('history');
+    if (this._router.currentPath !== historyPath) {
+      this._router.replace(historyPath);
+    }
   }
 
   /**
@@ -428,6 +441,7 @@ class CxCallHistoryView extends RcViewModule {
           break;
         case 'createLog':
         case 'viewLog':
+          this._pinHistoryRoute();
           void this._bridge?.logFromHistory?.(call, actionType);
           break;
         case 'viewDetail':

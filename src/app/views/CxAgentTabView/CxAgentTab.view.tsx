@@ -3,13 +3,14 @@ import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { BlockPlugin } from '@ringcentral-integration/micro-core/src/app/plugins';
 import { Locale } from '@ringcentral-integration/micro-core/src/app/services';
 import {
+  autobind,
   dynamic,
   injectable,
   RcViewModule,
   RouterPlugin,
   useConnector,
 } from '@ringcentral-integration/next-core';
-import React from 'react';
+import React, { type ComponentType } from 'react';
 
 import { RingCX } from '../../services/RingCX';
 import type { CxViewModule } from '../../services/RingCX/RingCX.interface';
@@ -18,6 +19,11 @@ import { CxAgentTabPanel } from './CxAgentTabPanel';
 import i18n from './i18n';
 
 const AGENT_PATH = '/agent';
+const AGENT_HISTORY_TAB = 'history';
+
+type CxAgentHomeView = {
+  readonly component: ComponentType<{ initialTab?: string }>;
+};
 
 @injectable({
   name: 'CxAgentTabView',
@@ -25,6 +31,12 @@ const AGENT_PATH = '/agent';
 export class CxAgentTabView extends RcViewModule {
   @dynamic('CxAppView')
   private readonly _cxAppView?: CxViewModule;
+
+  @dynamic('CxAgentView')
+  private readonly _cxAgentView?: CxAgentHomeView;
+
+  @dynamic('CxCallHistoryDetailView')
+  private readonly _cxCallHistoryDetailView?: CxViewModule;
 
   constructor(
     private readonly _ringCX: RingCX,
@@ -41,6 +53,35 @@ export class CxAgentTabView extends RcViewModule {
   cancelAgentSetup(): void {
     void this._ringCX.endAgentSession();
     this._router.push(AGENT_PATH);
+  }
+
+  /**
+   * Main column behind a CX history detail opened in the side widget: the
+   * agent home on its History tab.
+   */
+  @autobind
+  HistoryBackground(): React.ReactElement | null {
+    const ready = useConnector(
+      () => this._ringCX.loaded && this._ringCX.stage === 'ready',
+    );
+    const CxAgentHome = this._cxAgentView?.component;
+    if (!ready || !CxAgentHome) {
+      return <this.component />;
+    }
+    return <CxAgentHome initialTab={AGENT_HISTORY_TAB} />;
+  }
+
+  /**
+   * CX history detail rendered as a routed side-widget page.
+   */
+  @autobind
+  HistoryDetail(): React.ReactElement | null {
+    const loaded = useConnector(() => this._ringCX.loaded);
+    const CxHistoryDetail = this._cxCallHistoryDetailView?.component;
+    if (!loaded || !CxHistoryDetail) {
+      return null;
+    }
+    return <CxHistoryDetail />;
   }
 
   component(): React.ReactElement {
