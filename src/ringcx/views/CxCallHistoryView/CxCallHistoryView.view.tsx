@@ -14,11 +14,10 @@ import {
 import type { UIFunctions, UIProps } from '@ringcentral-integration/next-core';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import type { ViewCallsFilterType } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
-import { ContactAvatar } from '@ringcentral-integration/micro-contacts/src/app/components/ContactAvatar';
 import type { HistoryAction } from '@ringcentral-integration/next-widgets/components/ActionMenuList/useHistoryActionButtons';
 import { LogInfo } from '@ringcentral-integration/micro-phone/src/app/hooks/useContactRenderInfo/components';
 import { IncomingCallMd, OutgoingCallMd } from '@ringcentral/spring-icon';
-import { Icon, Tooltip } from '@ringcentral/spring-ui';
+import { Icon } from '@ringcentral/spring-ui';
 import type { StateSnapshot } from 'react-virtuoso';
 import dayjs from 'dayjs';
 
@@ -38,6 +37,7 @@ import {
 import hostCallHistoryI18n from '../../../app/views/CallHistoryView/i18n';
 import { callDirection } from '../../enums';
 import { CallHistoryList } from '../../components/CallHistoryList';
+import { useCxContactRenderInfo } from '../../hooks/useCxContactRenderInfo';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
 import { canDialHistoryCall } from '../../services/CxCallHistory/can-dial-history-call';
 import type { FormattedCall } from '../../services/CxCallHistory/CxCallHistory.interface';
@@ -279,13 +279,14 @@ class CxCallHistoryView extends RcViewModule {
     const phoneNumber = isOutbound
       ? call.to?.phoneNumber
       : call.from?.phoneNumber;
-    const contactMatch = isOutbound ? call.toMatches?.[0] : call.fromMatches?.[0];
-    const contactMatchName = contactMatch?.name;
-    const contactMatchAvatarUrl = contactMatch?.profileImageUrl;
-    const resolvedName = contactMatchName || displayName;
-    const isRealName = !!resolvedName && resolvedName !== phoneNumber;
+    const matches = isOutbound ? call.toMatches : call.fromMatches;
     const formattedNumber = formatPhoneNumber({ phoneNumber: phoneNumber || '' });
-    const primaryText = resolvedName || formattedNumber || t('unknown');
+    const { renderInfo, Avatar, DisplayName } = useCxContactRenderInfo({
+      phoneNumber,
+      matches,
+      serverName: displayName !== phoneNumber ? displayName : undefined,
+    });
+    const resolvedName = renderInfo.matchedContact?.name || displayName;
     const startTime = useMemo(() => {
       if (!call.startTime) return '';
       const now = dayjs();
@@ -298,40 +299,6 @@ class CxCallHistoryView extends RcViewModule {
       }
       return callTime.format('MM/DD/YYYY');
     }, [call.startTime, t]);
-    const avatarName = isRealName ? resolvedName : undefined;
-    const Avatar = useMemo(
-      () =>
-        function CallAvatar({ size = 'medium' }: { size?: 'small' | 'medium' | 'large' }) {
-          return (
-            <ContactAvatar
-              size={size}
-              contactName={avatarName}
-              phoneNumber={phoneNumber}
-              url={contactMatchAvatarUrl}
-            />
-          );
-        },
-      [avatarName, phoneNumber, contactMatchAvatarUrl],
-    );
-    const DisplayName = useMemo(
-      () =>
-        function CallDisplayName() {
-          const content = (
-            <span className="typography-subtitle block w-full truncate">
-              {primaryText}
-            </span>
-          );
-          if (isRealName && phoneNumber) {
-            return (
-              <Tooltip title={formattedNumber}>
-                {content}
-              </Tooltip>
-            );
-          }
-          return content;
-        },
-      [primaryText, isRealName, phoneNumber, formattedNumber],
-    );
     const Status = useMemo(() => {
       const directionIcon = isOutbound ? OutgoingCallMd : IncomingCallMd;
       return function CallStatus({ mode }: { mode: 'icon' | 'text' }) {
@@ -351,7 +318,7 @@ class CxCallHistoryView extends RcViewModule {
           </span>
         );
       };
-    }, [isOutbound, t, isRealName, formattedNumber]);
+    }, [isOutbound, t]);
     const logged = logState.showLogInfo ? <LogInfo logged={isLogged} /> : null;
     const canDial =
       !!this.cxAuth.agentPermissions?.allowHistoricalDialing &&
@@ -401,12 +368,7 @@ class CxCallHistoryView extends RcViewModule {
       logged,
       answeredByDelegate: false,
       ringingElsewhere: false,
-      renderInfo: {
-        dialToPhoneNumber: phoneNumber,
-        matchedContact: null,
-        type: 'phoneNumber',
-        metadata: { showMaybe: false },
-      },
+      renderInfo,
       formattedPhoneNumber: formattedNumber,
       showViewLogIcon: logState.showLogInfo && isLogged,
       isConferenceCall: false,

@@ -23,7 +23,6 @@ import { AppFooterNav, AppHeaderNav, AppAnnouncement } from '@ringcentral-integr
 import { PageHeader } from '@ringcentral-integration/next-widgets/components';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import { Chip, Icon, Textarea, CallButton, Tooltip } from '@ringcentral/spring-ui';
-import { ContactAvatar } from '@ringcentral-integration/micro-contacts/src/app/components';
 import {
   ActiveCallMd,
   CaretRightMd,
@@ -63,7 +62,9 @@ import type { CallControlAction } from '../../components/CallControlGrid';
 import { IvrAlertPanel } from '../../components/IvrAlertPanel';
 import { DialpadPanel } from '../../components/DialpadPanel';
 import { EndCallDialog } from '../../components/EndCallDialog';
+import { useCxContactRenderInfo } from '../../hooks/useCxContactRenderInfo';
 import type {
+  BasicCallInfo,
   CxActiveCallViewProps,
   CxActiveCallViewUIProps,
   CxActiveCallViewUIFunctions,
@@ -348,30 +349,16 @@ class CxActiveCallView extends RcViewModule {
   }
 
   @computed((that: CxActiveCallView) => [that.currentCall])
-  get basicInfo() {
+  get basicInfo(): BasicCallInfo | null {
     const call = this.currentCall as any;
     if (!call) return null;
     const isInbound = call.callType === 'INBOUND';
-    const contactMatches: any[] = call.contactMatches || [];
-    const contactMatch = contactMatches[0];
-    const name = contactMatch?.name;
-    const ani = getCallAni(call);
-    const dnis = getCallDnis(call);
-    const fromNumber = isInbound ? ani : dnis;
-    const toNumber = isInbound ? dnis : ani;
-    const fromMatchName = name || fromNumber;
-    const toMatchName = name || toNumber;
-    const phoneNumber = isInbound ? fromNumber : toNumber;
-    const formattedNumber = formatPhoneNumber({ phoneNumber: phoneNumber || '' });
+    const phoneNumber = isInbound ? getCallAni(call) : getCallDnis(call);
     return {
-      subject: isInbound ? fromMatchName : toMatchName,
-      contactName: name,
       phoneNumber: phoneNumber || undefined,
-      avatarUrl: contactMatch?.profileImageUrl,
-      followInfos: [
-        formattedNumber,
-        ...(call.queue?.name ? [call.queue.name] : []),
-      ],
+      formattedPhoneNumber: formatPhoneNumber({ phoneNumber: phoneNumber || '' }),
+      contactMatches: call.contactMatches || [],
+      queueName: call.queue?.name,
     };
   }
 
@@ -853,6 +840,23 @@ class CxActiveCallView extends RcViewModule {
       notes,
     } = uiProps;
 
+    const {
+      renderInfo: contactRenderInfo,
+      Avatar: ContactAvatar,
+      DisplayName: ContactDisplayName,
+    } = useCxContactRenderInfo({
+      phoneNumber: basicInfo?.phoneNumber,
+      matches: basicInfo?.contactMatches,
+    });
+    // Like the RingEX call control, the number is shown once: in the subject
+    // line when nothing matched, otherwise below the contact name.
+    const followInfos = [
+      contactRenderInfo.type === 'phoneNumber'
+        ? undefined
+        : basicInfo?.formattedPhoneNumber,
+      basicInfo?.queueName,
+    ].filter((info): info is string => !!info);
+
     // Naming what is behind the toggle is the only cue the agent gets that a
     // script or an assistant is waiting, since a narrow frame no longer opens
     // one on its own.
@@ -1082,21 +1086,21 @@ class CxActiveCallView extends RcViewModule {
           data-sign="callInformation"
           className="w-full py-2 pl-2 pr-4 flex items-center"
         >
-          <ContactAvatar
-            size="large"
-            contactName={basicInfo?.contactName}
-            phoneNumber={basicInfo?.phoneNumber}
-            url={basicInfo?.avatarUrl}
-          />
+          <ContactAvatar size="large" />
           <div className="flex-auto ml-2 min-w-0">
             <h3
-              className="typography-title text-neutral-b0 truncate"
+              className="typography-title text-neutral-b0 truncate w-full flex flex-col"
               data-sign="contactName"
             >
-              {basicInfo?.subject}
+              <ContactDisplayName
+                displayControl={{
+                  maybe: true,
+                  viewable: true,
+                  matchCounts: true,
+                }}
+              />
             </h3>
-            {/* The number is already in the subject line, and a conference has
-                no single one to name below it. */}
+            {/* A conference has no single number to name below the subject. */}
             {isMultipleCalls ? (
               <p
                 className="typography-descriptorMini text-neutral-b2 truncate"
@@ -1105,7 +1109,7 @@ class CxActiveCallView extends RcViewModule {
                 {t('conferenceCall')}
               </p>
             ) : (
-              basicInfo?.followInfos?.filter(Boolean).map((info, idx) => (
+              followInfos.map((info, idx) => (
                 <p
                   key={idx}
                   className="typography-descriptorMini text-neutral-b2 truncate"

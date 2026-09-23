@@ -1,6 +1,8 @@
 import type { ComponentType, ReactNode } from 'react';
 import type { StateSnapshot } from 'react-virtuoso';
 import type { ViewCallsFilterType } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
+import type { ContactDisplayRenderProps } from '@ringcentral-integration/micro-phone/src/app/hooks/useContactRenderInfo/components';
+import type { ContactDisplayInfo } from '@ringcentral-integration/micro-phone/src/app/hooks/useContactRenderInfo/utils';
 import type { HistoryAction } from '@ringcentral-integration/next-widgets/components/ActionMenuList/useHistoryActionButtons';
 import type { FormattedCall } from '../../services/CxCallHistory/CxCallHistory.interface';
 
@@ -62,18 +64,13 @@ interface CxCallHistoryViewUIFunctions {
  */
 interface CallHistoryItemInfo {
   Avatar: ComponentType<{ size?: 'small' | 'medium' | 'large' }>;
-  DisplayName: ComponentType;
+  DisplayName: ComponentType<Pick<ContactDisplayRenderProps, 'displayControl'>>;
   Status: ComponentType<{ mode: 'icon' | 'text' }>;
   startTime: string;
   logged: ReactNode;
   answeredByDelegate: boolean;
   ringingElsewhere: boolean;
-  renderInfo: {
-    dialToPhoneNumber: string | undefined;
-    matchedContact: null;
-    type: string;
-    metadata: { showMaybe: boolean };
-  };
+  renderInfo: ContactDisplayInfo;
   formattedPhoneNumber: string | undefined;
   showViewLogIcon: boolean;
   isConferenceCall: boolean;

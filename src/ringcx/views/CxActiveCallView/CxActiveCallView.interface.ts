@@ -8,11 +8,12 @@ export interface CxSideWidgetItem {
  * Basic call info with follow-up info
  */
 export interface BasicCallInfo {
-  subject: string;
-  contactName?: string;
+  /** Customer-side number, unformatted. */
   phoneNumber?: string;
-  avatarUrl?: string;
-  followInfos: string[];
+  formattedPhoneNumber: string;
+  /** Contact matches for `phoneNumber`, from the shared ContactMatcher. */
+  contactMatches: unknown[];
+  queueName?: string;
 }
 
 /**
