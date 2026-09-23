@@ -51,6 +51,8 @@ export class CxAppView extends RcViewModule {
     // are gated on the session the app holds right now, so a stale path cannot
     // keep a dead session on screen.
     const hasSession = hasAgent && configSuccess;
+    // Entering the Agent tab lands on the home without a tab in the path, so
+    // the sub tab the agent last selected is kept.
     const fallback =
       loginStatus === 'authSuccess'
         ? configSuccess

@@ -23,7 +23,12 @@ export const cxPath = {
   chooseAccount: (): string => `${AGENT_PREFIX}/chooseAccount`,
   sessionConfig: (): string => `${AGENT_PREFIX}/sessionConfig`,
   sessionUpdate: (): string => `${AGENT_SETTINGS_PREFIX}/sessionUpdate`,
-  home: (tabId = 'dialer'): string => `${AGENT_PREFIX}/home/${tabId}`,
+  /**
+   * A tab in the path is an explicit request that switches the agent home to
+   * it. Without one, the home keeps the sub tab the agent last selected.
+   */
+  home: (tabId?: string): string =>
+    tabId ? `${AGENT_PREFIX}/home/${tabId}` : `${AGENT_PREFIX}/home`,
   historyDetail: (id: string): string => `${AGENT_PREFIX}/history/${id}`,
   call: (id: string): string => `${AGENT_PREFIX}/calls/${id}`,
   disposition: (id: string): string => `${AGENT_PREFIX}/calls/${id}/disposition`,

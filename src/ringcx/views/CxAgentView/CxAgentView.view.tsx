@@ -110,11 +110,13 @@ class CxAgentView extends RcViewModule {
     const isMainClient = useIsMainClient();
     const [routeTabId, setRouteTabId] = useState<string | null>(null);
 
-    const { tabs } = useConnector(() => {
+    const { tabs, activeTab, currentPath } = useConnector(() => {
       const uiProps = this.getUIProps(props ?? {});
       return {
         ...props,
         ...uiProps,
+        activeTab: this._syncTabView.getActive(AGENT_TAB_ID),
+        currentPath: this._router.currentPath,
       };
     });
 
@@ -141,6 +143,29 @@ class CxAgentView extends RcViewModule {
       // is what syncs it to the other ports.
       this._syncTabView.replaceActive(AGENT_TAB_ID, routeTabId);
     }, [routeTabId, tabs]);
+
+    useEffect(() => {
+      // A session reconfiguration can drop a tab the agent last selected,
+      // Leads for example when the dial group leaves preview mode. The kept
+      // selection falls back to the default then, so the tab coming back later
+      // does not pull the agent to it.
+      if (
+        !isMainClient ||
+        activeTab == null ||
+        tabs.some((tab) => tab.id === activeTab)
+      ) {
+        return;
+      }
+      // Only the agent home owns the location state that holds the tab.
+      const homePath = cxPath.home();
+      if (
+        currentPath !== homePath &&
+        !currentPath?.startsWith(`${homePath}/`)
+      ) {
+        return;
+      }
+      void this._syncTabView.replaceActive(AGENT_TAB_ID, this.defaultTab);
+    }, [activeTab, currentPath, isMainClient, tabs]);
     return (
       <>
         <AppHeaderNav
