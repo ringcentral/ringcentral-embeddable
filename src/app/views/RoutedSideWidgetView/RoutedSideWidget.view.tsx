@@ -386,10 +386,12 @@ export class RoutedSideWidgetView extends RcViewModule {
       // fold it. Only the stale tab is closed and the drawer shows its blank
       // view; the Apps tab is not opened in its place either. A page the app
       // opened on its own folds the drawer when it returns to its background.
+      // A folded drawer is an overlay over the page, so it closes when empty.
       this._sideWidgetView.closeContent(activeEntry.handle, {
         collapseWhenLast:
-          !!activeEntry.collapseWhenLeft &&
-          this._isBackgroundPath(activeEntry, path),
+          !this._root.expanded ||
+          (!!activeEntry.collapseWhenLeft &&
+            this._isBackgroundPath(activeEntry, path)),
       });
     }
   }
@@ -425,8 +427,13 @@ export class RoutedSideWidgetView extends RcViewModule {
   ): void {
     const parkedMainPath = this.mainPath;
     const returnedToBackground = this._isBackgroundPath(entry, path);
+    // A folded drawer is an overlay over the page the router returned to,
+    // such as the call history a saved log goes back to, so it closes when
+    // empty instead of covering that page with the blank view.
     this._sideWidgetView.closeContent(entry.handle, {
-      collapseWhenLast: !!entry.collapseWhenLeft && returnedToBackground,
+      collapseWhenLast:
+        !this._root.expanded ||
+        (!!entry.collapseWhenLeft && returnedToBackground),
     });
     if (isRoutedPath) {
       // Another routed page took over, such as the conversation a sent text
@@ -603,6 +610,10 @@ export class RoutedSideWidgetView extends RcViewModule {
       routeExact: route.routeExact,
       routePath: route.routePath,
     });
+    // The shared worker has no app view to report the route, so this watcher
+    // is its only sync. Without it, the worker would not see the router leave
+    // this page later, and its state would keep a tab the client closed.
+    this.syncPath(path, true);
   }
 
   private _getBackgroundPath(entry: RoutedSideWidgetEntry): string {
