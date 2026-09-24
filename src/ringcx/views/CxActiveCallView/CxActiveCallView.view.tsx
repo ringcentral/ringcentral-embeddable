@@ -53,7 +53,7 @@ import { cxPath } from '../../routes';
 import { isOnLiveCallPage } from '../../utils/isOnLiveCallPage';
 import { resolveLiveActivityCallId } from '../../utils/resolveLiveActivityCallId';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
-import { getCallAni, getCallDnis } from '../../lib/getCxCallNumbers';
+import { getCallAni } from '../../lib/getCxCallNumbers';
 import type { CxCallData } from '../../services/CxCallDataSource/CxCallDataSource.interface';
 import type { CxCallDispositionData } from '../../services/CxCallDisposition/CxCallDisposition.interface';
 
@@ -352,8 +352,9 @@ class CxActiveCallView extends RcViewModule {
   get basicInfo(): BasicCallInfo | null {
     const call = this.currentCall as any;
     if (!call) return null;
-    const isInbound = call.callType === 'INBOUND';
-    const phoneNumber = isInbound ? getCallAni(call) : getCallDnis(call);
+    // RingCX reports the customer as `ani` in both directions; `dnis` is the
+    // agent's caller ID on an outbound call.
+    const phoneNumber = getCallAni(call);
     return {
       phoneNumber: phoneNumber || undefined,
       formattedPhoneNumber: formatPhoneNumber({ phoneNumber: phoneNumber || '' }),
@@ -757,11 +758,8 @@ class CxActiveCallView extends RcViewModule {
           ? this.cxPresence.callsMapping[liveCallId]
           : null;
         const hasCall: boolean = !!call && !call.endedCall;
-        const isInbound: boolean = call?.callType === 'INBOUND';
         const name = this.getContactName(call);
-        const phone = call
-          ? (isInbound ? getCallAni(call) : getCallDnis(call))
-          : '';
+        const phone = getCallAni(call);
         return {
           hasActiveCall: hasCall,
           isOnCallPage: isOnLiveCallPage(this.router.currentPath, liveCallId),
