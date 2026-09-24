@@ -37,6 +37,7 @@ import {
   VoicemailView,
 } from '@ringcentral-integration/micro-message/src/app/views';
 import {
+  ComposeText,
   Conversations,
   MessageThread,
 } from '@ringcentral-integration/micro-message/src/app/services';
@@ -60,6 +61,7 @@ import {
 import { SettingsView } from '@ringcentral-integration/micro-setting/src/app/views/SettingsView';
 import {
   autobind,
+  inject,
   injectable,
   optional,
   RcViewModule,
@@ -104,6 +106,7 @@ import {
   ThirdPartySettingSectionView,
 } from './views/ThirdPartySettingSectionView';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
+import type { ComposeText as EmbeddableComposeText } from './services/ComposeText';
 import type { ThirdPartyWidgetContact } from './services/ThirdParty';
 
 type RouteComponent = Exclude<React.ElementType, string>;
@@ -134,6 +137,8 @@ export class AppView extends RcViewModule {
     name: 'Settings',
     scope: 'global',
     backgroundPath: '/settings',
+    // Nested settings pages go back up one level.
+    keepBackNavigation: true,
   } as const;
 
   @autobind
@@ -202,7 +207,9 @@ export class AppView extends RcViewModule {
       layout: 'detail',
       backgroundComponent: this._cxAgentTabView.HistoryBackground,
       sideWidget: {
-        id: 'call-details',
+        // Its own tab: a RingCX history row is a different page from a
+        // RingEX call log, even though both are shown as call details.
+        id: 'cx-call-details',
         name: 'Call details',
         scope: 'contact',
         backgroundPath: '/agent/home/history',
@@ -225,6 +232,8 @@ export class AppView extends RcViewModule {
         resolveBackgroundPath: (params) =>
           this._cxAgentTabView.resolveDispositionBackgroundPath(params.id),
         collapseWhenLeft: true,
+        // Submitting hands over to its background or to the log page.
+        closeWhenLeft: true,
       },
     },
     {
@@ -257,6 +266,14 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       preserveBackground: true,
+      sideWidget: {
+        id: 'log-call',
+        name: 'Log call',
+        scope: 'contact',
+        backgroundPath: '/dialer',
+        preserveBackground: true,
+        closeWhenLeft: true,
+      },
     },
     {
       path: '/log/messages/:conversationId',
@@ -264,6 +281,14 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       preserveBackground: true,
+      sideWidget: {
+        id: 'log-messages',
+        name: 'Log messages',
+        scope: 'contact',
+        backgroundPath: '/messages',
+        preserveBackground: true,
+        closeWhenLeft: true,
+      },
     },
     {
       path: '/composeText',
@@ -271,6 +296,15 @@ export class AppView extends RcViewModule {
       authentication: true,
       layout: 'detail',
       backgroundComponent: this.Text,
+      sideWidget: {
+        id: 'compose-text',
+        name: 'Compose text',
+        scope: 'contact',
+        backgroundPath: '/messages',
+        closeWhenLeft: true,
+        // Click-to-SMS may add the recipient right after opening the page.
+        deferBlankContact: true,
+      },
     },
     {
       path: '/composeFax',
@@ -526,7 +560,8 @@ export class AppView extends RcViewModule {
     if (
       tabId === 'conversation' ||
       tabId === 'voicemail-details' ||
-      tabId === 'fax-details'
+      tabId === 'fax-details' ||
+      tabId === 'log-messages'
     ) {
       const conversationId = params.conversationId;
       if (!conversationId) {
@@ -548,6 +583,32 @@ export class AppView extends RcViewModule {
       }
       const call = this._callViewState.callDetailCallLog;
       return call ? getRoutedCallContact(call) : undefined;
+    }
+    if (tabId === 'log-call') {
+      if (!params.callSessionId) {
+        return undefined;
+      }
+      // Loaded asynchronously; the contact is applied once the call arrives.
+      const call = this._logCallView.getLoadedCall(params.callSessionId);
+      // `CompatibleCall` omits keys from a call type with an index signature,
+      // which drops its named party fields from the type, not from the value.
+      return call
+        ? getRoutedCallContact(
+            call as Parameters<typeof getRoutedCallContact>[0],
+          )
+        : undefined;
+    }
+    if (tabId === 'compose-text') {
+      // A click-to-SMS belongs to its recipient. A message without one has no
+      // contact and clears the other contact tabs.
+      const recipient = this._composeText.requestedRecipient;
+      return recipient
+        ? {
+            ...(recipient.id ? { id: recipient.id } : {}),
+            name: recipient.name,
+            phoneNumber: recipient.phoneNumber,
+          }
+        : null;
     }
     if (tabId === 'contact-details') {
       return (this._contactDetailsView?.currentContact ?? undefined) as
@@ -591,6 +652,8 @@ export class AppView extends RcViewModule {
           </Switch>
         ) : BackgroundComponent ? (
           <BackgroundComponent {...routeProps} />
+        ) : route.preserveBackground ? (
+          <this.PreservedRouteBackground />
         ) : null}
         <this._routedSideWidgetView.component
           config={config}
@@ -694,6 +757,7 @@ export class AppView extends RcViewModule {
     private _routedSideWidgetView: RoutedSideWidgetView,
     private _thirdPartyBannerView: ThirdPartyBannerView,
     private _audioInitView: AudioInitView,
+    @inject(ComposeText) private _composeText: EmbeddableComposeText,
     @optional()
     private _messageThread?: MessageThread,
     private _genericMeeting?: GenericMeeting,
@@ -726,8 +790,12 @@ export class AppView extends RcViewModule {
       ),
       (tabId, params) => this._resolveRoutedContact(tabId, params),
     );
+    // Pages outside the signed-in shell, such as the call page, cannot be
+    // rendered in the main column behind a routed page either.
     this._routedSideWidgetView.setRouterOwningPaths(
-      this.routes.filter((route) => route.ownsRouter).map((route) => route.path),
+      this.routes
+        .filter((route) => route.ownsRouter || !route.authentication)
+        .map((route) => route.path),
     );
   }
 

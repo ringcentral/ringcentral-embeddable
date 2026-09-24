@@ -6,6 +6,10 @@ import {
 } from '@ringcentral-integration/micro-core/src/app/components';
 import { Theme } from '@ringcentral-integration/micro-core/src/app/services';
 import {
+  SyncTabId,
+  SyncTabView,
+} from '@ringcentral-integration/micro-core/src/app/views/SyncTabView';
+import {
   action,
   injectable,
   optional,
@@ -25,6 +29,10 @@ import {
 } from '../../services/ThirdParty';
 import { ExpandedView } from '../ExpandedView';
 
+import {
+  getSideWidgetBlankInfo,
+  type SideWidgetBlankInfo,
+} from './getSideWidgetBlankInfo';
 import {
   getSideWidgetAppTabId,
   getSideWidgetContact,
@@ -60,9 +68,11 @@ function isPromiseLike(value: unknown): value is PromiseLike<void> {
 
 function SideWidgetContentPage({
   children,
+  onBack,
   showCloseButton,
 }: {
   children: ReactNode;
+  onBack?: () => void;
   showCloseButton: boolean;
 }): React.ReactElement {
   const { nav } = useAppHeader({ defaultNav: null });
@@ -70,8 +80,24 @@ function SideWidgetContentPage({
     defaultFooter: null,
     calculateHeight: false,
   });
+  const handleClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (
+      !onBack ||
+      !(event.target as Element).closest?.('[data-sign="backButton"]')
+    ) {
+      return;
+    }
+    // The page's back would navigate the router back through history, which
+    // can reopen a tab the user already closed.
+    event.preventDefault();
+    event.stopPropagation();
+    onBack();
+  };
   return (
-    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-neutral-base">
+    <div
+      className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-neutral-base"
+      onClickCapture={handleClickCapture}
+    >
       <header
         className={
           showCloseButton
@@ -99,13 +125,15 @@ export class SideWidgetView extends RcViewModule {
     private _theme: Theme,
     @optional('SideWidgetOptions')
     private _sideWidgetOptions?: SideWidgetOptions,
-    private _root?: Root
+    private _root?: Root,
+    @optional()
+    private _syncTabView?: SyncTabView,
   ) {
     super();
   }
 
   @state
-  tabs: SideWidgetTab[] = [createAppsTab()];
+  tabs: SideWidgetTab[] = [];
 
   @state
   currentTabId = SIDE_WIDGET_APPS_TAB_ID;
@@ -118,9 +146,7 @@ export class SideWidgetView extends RcViewModule {
 
   private readonly _contentHandles = new Map<string, SideWidgetContentHandle>();
 
-  private readonly _liveCallIds = new Set<string>();
-
-  private _appsOpenedForCall = false;
+  private _resolveMainPath: (() => string | null) | null = null;
 
   get enabled(): boolean {
     return this._sideWidgetOptions?.enableSideWidget ?? false;
@@ -128,6 +154,14 @@ export class SideWidgetView extends RcViewModule {
 
   get isOpen(): boolean {
     return this._expandedView.activeContentId === 'side-widget';
+  }
+
+  /**
+   * Provides the route shown in the main column, so the blank drawer can
+   * describe what selecting an item on the left will open.
+   */
+  setMainPathResolver(resolver: () => string | null): void {
+    this._resolveMainPath = resolver;
   }
 
   createContent(options: SideWidgetContentOptions): SideWidgetContentHandle {
@@ -234,22 +268,19 @@ export class SideWidgetView extends RcViewModule {
   ): void {
     const shouldShowAppsTab =
       showAppsTab && this.enabled && this._thirdParty.apps.length > 0;
-    const previousTabs =
-      shouldShowAppsTab &&
-      !this.tabs.some(({ id }) => id === SIDE_WIDGET_APPS_TAB_ID)
-        ? [...this.tabs, createAppsTab()]
-        : this.tabs;
     const availableTabs = this.enabled
-      ? previousTabs.filter(
-          ({ id }) =>
-            id !== SIDE_WIDGET_APPS_TAB_ID ||
-            this._appsOpenedForCall ||
-            shouldShowAppsTab,
-        )
-      : previousTabs.filter(({ id }) => id !== SIDE_WIDGET_APPS_TAB_ID);
-    const retainedTabs = preserveTabs
+      ? this.tabs
+      : this.tabs.filter(({ id }) => id !== SIDE_WIDGET_APPS_TAB_ID);
+    // Like any other tab, the Apps tab stays for the same contact and is
+    // cleared with the other contact tabs when the contact changes.
+    const contactTabs = preserveTabs
       ? availableTabs
       : availableTabs.filter(({ scope }) => scope === 'global');
+    const retainedTabs =
+      shouldShowAppsTab &&
+      !contactTabs.some(({ id }) => id === SIDE_WIDGET_APPS_TAB_ID)
+        ? [...contactTabs, createAppsTab()]
+        : contactTabs;
     const existingTabIndex = retainedTabs.findIndex(({ id }) => id === tab.id);
     this.tabs =
       existingTabIndex < 0
@@ -273,7 +304,6 @@ export class SideWidgetView extends RcViewModule {
     if (!this.enabled || this._thirdParty.apps.length === 0) {
       return;
     }
-    this._appsOpenedForCall = true;
     const tab = createAppsTab();
     const preserveTabs = isSameSideWidgetContact(this.currentContact, contact);
     const closedTabIds = this._getClosedTabIds(tab.id, preserveTabs);
@@ -369,7 +399,7 @@ export class SideWidgetView extends RcViewModule {
       if (!collapseWhenLast) {
         // A route-driven close must not fold the drawer, and it must not open
         // the Apps tab in its place either: that tab only opens with a new
-        // call.
+        // call. The drawer shows its blank view instead.
         void this._awaitTabClose(contentHandle, closeResult);
         return;
       }
@@ -513,34 +543,38 @@ export class SideWidgetView extends RcViewModule {
 
   @action
   private _resetTabs(): void {
-    this.tabs = [createAppsTab()];
+    this.tabs = [];
     this.currentTabId = SIDE_WIDGET_APPS_TAB_ID;
     this.selectedAppId = null;
     this.currentContact = null;
   }
 
   onCallRing(session: NormalizedSession): void {
-    this._liveCallIds.add(session.id);
-    this.openApps(getSideWidgetContact(session, 'from'));
+    this.openCallApps(getSideWidgetContact(session, 'from'));
   }
 
   onCallInit(session: NormalizedSession): void {
-    this._liveCallIds.add(session.id);
-    const contact = getSideWidgetContact(session, 'to');
+    this.openCallApps(getSideWidgetContact(session, 'to'), true);
+  }
+
+  /**
+   * Shows the available apps for a new call. Outgoing calls also open every
+   * pinned app in its own tab.
+   */
+  openCallApps(
+    contact: ThirdPartyWidgetContact,
+    openPinnedApps = false,
+  ): void {
     this.openApps(contact);
+    if (!openPinnedApps) {
+      return;
+    }
     this._thirdParty.pinAppIds.forEach((appId) => {
       const app = this._thirdParty.apps.find(({ id }) => id === appId);
       if (app) {
         this.openAppTab(app, contact);
       }
     });
-  }
-
-  onCallEnd(session: NormalizedSession): void {
-    this._liveCallIds.delete(session.id);
-    if (this._liveCallIds.size === 0) {
-      this._appsOpenedForCall = false;
-    }
   }
 
   private _notifyClosedTabs(tabIds: string[]): void {
@@ -578,14 +612,25 @@ export class SideWidgetView extends RcViewModule {
     if (tabId !== this.currentTabId) {
       return null;
     }
-    const ContentView = this._contentHandles.get(tabId)?.options.view;
+    const options = this._contentHandles.get(tabId)?.options;
+    const ContentView = options?.view;
     return ContentView ? (
       <AppProvider>
-        <SideWidgetContentPage showCloseButton={showCloseButton}>
+        <SideWidgetContentPage
+          showCloseButton={showCloseButton}
+          onBack={options.onBack}
+        >
           <ContentView showCloseButton={showCloseButton} />
         </SideWidgetContentPage>
       </AppProvider>
     ) : null;
+  }
+
+  private _getBlankInfo(): SideWidgetBlankInfo {
+    return getSideWidgetBlankInfo(
+      this._resolveMainPath?.() ?? null,
+      this._syncTabView?.getActive(SyncTabId.DIALPAD) ?? null,
+    );
   }
 
   private _expandedHandle = this._expandedView.create({
@@ -606,6 +651,7 @@ export class SideWidgetView extends RcViewModule {
         selectedAppId: this.selectedAppId,
         currentContact: this.currentContact,
         pinAppIds: this._thirdParty.pinAppIds.slice(),
+        ...this._getBlankInfo(),
       }));
       const { current: uiFunctions } = useRef({
         onTabChange: (tabId: string) => this.selectTab(tabId),
@@ -630,6 +676,10 @@ export class SideWidgetView extends RcViewModule {
           selectedAppId={uiProps.selectedAppId}
           contact={uiProps.currentContact}
           pinAppIds={uiProps.pinAppIds}
+          blankInfo={{
+            titleKey: uiProps.titleKey,
+            descriptionKey: uiProps.descriptionKey,
+          }}
           {...uiFunctions}
         />
       );
@@ -638,7 +688,22 @@ export class SideWidgetView extends RcViewModule {
 
   private _stopWatchingLayout: (() => void) | null = null;
 
+  private _stopWatchingExpand: (() => void) | null = null;
+
   override onInit(): void {
+    this._stopWatchingExpand = watch(
+      this,
+      () => Boolean(this._root?.expanded),
+      (expanded) => {
+        if (!expanded || this._expandedView.activeContentId !== null) {
+          return;
+        }
+        // Expanding with nothing to show (the expand button or the host) opens
+        // the blank drawer, so the new column explains itself and can be
+        // closed instead of staying an empty area.
+        this._expandedView.open(this._expandedHandle, { expand: false });
+      },
+    );
     this._stopWatchingLayout = watch(
       this,
       () => [Boolean(this._root?.expanded), this.tabs.length] as const,
@@ -658,6 +723,8 @@ export class SideWidgetView extends RcViewModule {
   override onReset(): void {
     this._stopWatchingLayout?.();
     this._stopWatchingLayout = null;
+    this._stopWatchingExpand?.();
+    this._stopWatchingExpand = null;
   }
 
   component() {

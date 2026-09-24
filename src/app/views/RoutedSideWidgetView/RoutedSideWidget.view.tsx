@@ -25,6 +25,13 @@ import type {
   RoutedSideWidgetViewProps,
 } from './RoutedSideWidget.view.interface';
 
+/**
+ * How long a `deferBlankContact` page waits for its contact before it is
+ * treated as having none. Long enough for a click-to-SMS to request its
+ * recipient after navigating, short enough to go unnoticed.
+ */
+const BLANK_CONTACT_SETTLE_MS = 200;
+
 interface RoutedSideWidgetEntry extends RoutedSideWidgetConfig {
   component: RoutedSideWidgetViewProps['detailComponent'];
   /**
@@ -33,7 +40,14 @@ interface RoutedSideWidgetEntry extends RoutedSideWidgetConfig {
    * a contact change closes the sibling contact-scoped tabs.
    */
   contactApplied: boolean;
+  /**
+   * The contact applied was `null`. A `deferBlankContact` page still takes a
+   * real contact that arrives afterwards.
+   */
+  blankContactApplied: boolean;
   handle: SideWidgetContentHandle;
+  /** The main page a `preserveBackground` page was opened from. */
+  openedBackgroundPath?: string;
   path: string;
   props: Record<string, unknown>;
   routeExact?: boolean;
@@ -76,6 +90,17 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   private _stopWatchingPath: (() => void) | null = null;
 
+  /** The last path handed to {@link syncPath}, to handle each change once. */
+  private _syncedPath: string | null = null;
+
+  /** The main-column page the user was last on. */
+  private _lastMainPath: string | null = null;
+
+  private readonly _blankContactTimers = new Map<
+    string,
+    ReturnType<typeof setTimeout>
+  >();
+
   @state
   mainPath: string | null = null;
 
@@ -92,11 +117,21 @@ export class RoutedSideWidgetView extends RcViewModule {
   private _routerOwningPaths: readonly string[] = [];
 
   @action
-  private _setMainPath(path: string | null): void {
+  private _updateMainPath(path: string | null): void {
     this.mainPath = path;
   }
 
+  private _setMainPath(path: string | null): void {
+    if (path) {
+      this._lastMainPath = path;
+    }
+    this._updateMainPath(path);
+  }
+
   override onInit(): void {
+    this._sideWidgetView.setMainPathResolver(
+      () => this.mainPath ?? this._router.currentPath,
+    );
     this._syncRegisteredPath(this._router.currentPath);
     this._stopWatchingPath = watch(
       this,
@@ -108,6 +143,8 @@ export class RoutedSideWidgetView extends RcViewModule {
   override onReset(): void {
     this._stopWatchingPath?.();
     this._stopWatchingPath = null;
+    this._blankContactTimers.forEach((timer) => clearTimeout(timer));
+    this._blankContactTimers.clear();
   }
 
   registerRoutes(
@@ -163,8 +200,23 @@ export class RoutedSideWidgetView extends RcViewModule {
       onActivate: () => this._activateRoute(id),
       onClose: (nextTabId: string | null) => this._closeRoute(id, nextTabId),
       onCloseComplete: () => this._completeRouteClose(id),
+      ...(config.keepBackNavigation
+        ? {}
+        : { onBack: () => this._closeFromBack(id) }),
       view: this._getContentView(id),
     };
+  }
+
+  /**
+   * The back button of a routed tab closes the tab, the same as its close
+   * button: the last tab folds the drawer, and the main column keeps the page
+   * the user is on.
+   */
+  private _closeFromBack(id: string): void {
+    const entry = this._entries.get(id);
+    if (entry) {
+      this._sideWidgetView.closeContent(entry.handle);
+    }
   }
 
   open({
@@ -185,20 +237,41 @@ export class RoutedSideWidgetView extends RcViewModule {
       return;
     }
     const existingEntry = this._entries.get(config.id);
+    const isSamePage = existingEntry?.path === path;
     // Re-mounting the same page (tab activation, layout change, route
     // re-render) must not re-apply its contact context: the side widget closes
     // the other contact-scoped tabs whenever the contact changes.
-    const contactApplied =
-      existingEntry?.path === path && existingEntry.contactApplied;
-    const applyContact = contact !== undefined && !contactApplied;
+    const contactApplied = isSamePage && existingEntry.contactApplied;
+    const blankContactApplied =
+      isSamePage && existingEntry.blankContactApplied;
+    // A page that may get its contact just after opening does not act on a
+    // missing one yet; the settled contact is applied later instead.
+    const deferBlankContact =
+      !!config.deferBlankContact && contact === null && !contactApplied;
+    const upgradeBlankContact =
+      !!config.deferBlankContact &&
+      blankContactApplied &&
+      contact !== null &&
+      contact !== undefined;
+    const applyContact =
+      contact !== undefined &&
+      !deferBlankContact &&
+      (!contactApplied || upgradeBlankContact);
+    if (!isSamePage) {
+      this._parkOpenerMainPath(config, path, routePath, routeExact);
+    }
     const handle = this._sideWidgetView.createOrUpdateContent(
       this._createContentOptions(config)
     );
     this._entries.set(config.id, {
       ...config,
+      blankContactApplied: applyContact ? contact === null : blankContactApplied,
       component: detailComponent,
       contactApplied: contactApplied || applyContact,
       handle,
+      openedBackgroundPath: isSamePage
+        ? existingEntry.openedBackgroundPath
+        : this._resolveOpenedBackgroundPath(config),
       path,
       props: detailProps,
       routeExact,
@@ -208,6 +281,9 @@ export class RoutedSideWidgetView extends RcViewModule {
       ...(applyContact ? { contact } : {}),
       ...(expand ? {} : { expand: false }),
     });
+    if (deferBlankContact) {
+      this._scheduleBlankContact(config.id, path);
+    }
     // A page is now open at the router's own path, so the widget has settled
     // and no pending close can still be undone by a stale render of the route
     // it closed. Keeping those tombstones would ignore the user navigating back
@@ -216,6 +292,13 @@ export class RoutedSideWidgetView extends RcViewModule {
   }
 
   syncPath(path: string, isRoutedPath = false): void {
+    // Both the router watcher and the app view report each route change.
+    if (path === this._syncedPath) {
+      return;
+    }
+    const previousPath = this._syncedPath;
+    this._syncedPath = path;
+    const isTabActivation = this._requestedPath === path;
     // A confirmed router update supersedes any tab navigation that was queued
     // for the route being left (for example, Conversation's direct back
     // navigation to /messages).
@@ -223,6 +306,27 @@ export class RoutedSideWidgetView extends RcViewModule {
     const matchedEntry = Array.from(this._entries.values()).find(
       (entry) => entry.path === path
     );
+    const leftEntry =
+      previousPath && !isTabActivation
+        ? Array.from(this._entries.values()).find(
+            (entry) => entry.path === previousPath,
+          )
+        : undefined;
+    if (
+      leftEntry?.closeWhenLeft &&
+      this._isFinishingLeftEntry(leftEntry, path, isRoutedPath || !!matchedEntry)
+    ) {
+      // Select the page that took over first, so closing the form does not
+      // activate some other tab and navigate away from it.
+      if (
+        matchedEntry &&
+        this._sideWidgetView.currentTabId !== matchedEntry.id
+      ) {
+        this._sideWidgetView.selectTab(matchedEntry.id);
+      }
+      this._closeLeftEntry(leftEntry, path, isRoutedPath || !!matchedEntry);
+      return;
+    }
     const activeEntry = this._entries.get(this._sideWidgetView.currentTabId);
     if (matchedEntry) {
       if (this._sideWidgetView.currentTabId !== matchedEntry.id) {
@@ -231,6 +335,20 @@ export class RoutedSideWidgetView extends RcViewModule {
       return;
     }
     if (isRoutedPath) {
+      return;
+    }
+    if (
+      activeEntry &&
+      this._root.expanded &&
+      !this._isBackgroundPath(activeEntry, path) &&
+      !this._ownsRouter(path)
+    ) {
+      // The left page changed some other way than the navigation bar (a host
+      // navigation, a link in the page). Like `navigateMain`, the docked
+      // drawer keeps its page and the new page is shown in the main column.
+      this._setMainPath(path);
+      this._requestedPath = activeEntry.path;
+      void this._router.replace(activeEntry.path);
       return;
     }
     const parkedMainPath = this.mainPath;
@@ -260,19 +378,173 @@ export class RoutedSideWidgetView extends RcViewModule {
     if (this.mainPath) {
       this._setMainPath(null);
     }
+    this._lastMainPath = path;
     if (activeEntry && activeEntry.path !== path) {
-      // The user opened the drawer on purpose earlier, so losing the routed
-      // page it was showing is not a request to fold it. Only the stale tab is
-      // closed; the Apps tab is not opened in its place either. A page the app
-      // opened on its own folds the drawer when it returns to its background,
-      // but not when it hands over to a detail page such as the log page,
-      // which renders in the drawer's column.
+      // The page returned to its own background, the drawer was folded, or
+      // the new page owns the router. The user opened the drawer on purpose
+      // earlier, so losing the routed page it was showing is not a request to
+      // fold it. Only the stale tab is closed and the drawer shows its blank
+      // view; the Apps tab is not opened in its place either. A page the app
+      // opened on its own folds the drawer when it returns to its background.
       this._sideWidgetView.closeContent(activeEntry.handle, {
         collapseWhenLast:
           !!activeEntry.collapseWhenLeft &&
           this._isBackgroundPath(activeEntry, path),
       });
     }
+  }
+
+  /**
+   * Whether leaving a `closeWhenLeft` page finishes it: a hand-over to another
+   * routed page, a return to its background (its back, save or send), a route
+   * that owns the router, or any navigation while the drawer is an overlay. A
+   * docked page survives the user switching to an unrelated main page.
+   */
+  private _isFinishingLeftEntry(
+    entry: RoutedSideWidgetEntry,
+    path: string,
+    isRoutedPath: boolean,
+  ): boolean {
+    return (
+      isRoutedPath ||
+      !this._root.expanded ||
+      this._isBackgroundPath(entry, path) ||
+      this._ownsRouter(path)
+    );
+  }
+
+  /**
+   * Closes a form page the router just left. Its back, save or send navigated
+   * away on purpose, so the tab is done, but the page the router went to must
+   * still be the one the user sees.
+   */
+  private _closeLeftEntry(
+    entry: RoutedSideWidgetEntry,
+    path: string,
+    isRoutedPath: boolean,
+  ): void {
+    const parkedMainPath = this.mainPath;
+    const returnedToBackground = this._isBackgroundPath(entry, path);
+    this._sideWidgetView.closeContent(entry.handle, {
+      collapseWhenLast: !!entry.collapseWhenLeft && returnedToBackground,
+    });
+    if (isRoutedPath) {
+      // Another routed page took over, such as the conversation a sent text
+      // opens. It is already the active tab.
+      return;
+    }
+    // Returning to its own background while the user had switched the main
+    // column elsewhere keeps the page the user switched to.
+    const mainPath =
+      parkedMainPath && returnedToBackground ? parkedMainPath : path;
+    if (
+      this._root.expanded &&
+      this._isRoutedTab(this._sideWidgetView.currentTabId) &&
+      !this._ownsRouter(mainPath)
+    ) {
+      // The next routed tab takes the router back, so the main page is parked
+      // to stay visible in the main column.
+      this._setMainPath(mainPath);
+      return;
+    }
+    this._setMainPath(null);
+    this._lastMainPath = mainPath;
+    if (mainPath !== path) {
+      this._requestedPath = mainPath;
+      void this._router.replace(mainPath);
+    }
+  }
+
+  private _scheduleBlankContact(id: string, path: string): void {
+    if (this._blankContactTimers.has(id)) {
+      return;
+    }
+    this._blankContactTimers.set(
+      id,
+      setTimeout(() => {
+        this._blankContactTimers.delete(id);
+        this._applySettledContact(id, path);
+      }, BLANK_CONTACT_SETTLE_MS),
+    );
+  }
+
+  /**
+   * Applies the contact of a `deferBlankContact` page once its opening has
+   * settled: the contact that arrived meanwhile, or none, which clears the
+   * other contact tabs.
+   */
+  private _applySettledContact(id: string, path: string): void {
+    const entry = this._entries.get(id);
+    if (
+      !entry ||
+      entry.path !== path ||
+      entry.contactApplied ||
+      this._router.currentPath !== path
+    ) {
+      return;
+    }
+    const match = matchPath<Record<string, string | undefined>>(path, {
+      exact: entry.routeExact,
+      path: entry.routePath,
+    });
+    const contact = this._resolveContact?.(id, match?.params ?? {});
+    if (contact === undefined) {
+      return;
+    }
+    this._entries.set(id, {
+      ...entry,
+      blankContactApplied: contact === null,
+      contactApplied: true,
+    });
+    this._sideWidgetView.openContent(entry.handle, {
+      activate: false,
+      contact,
+      expand: false,
+    });
+  }
+
+  /**
+   * Keeps the main page the user opened a routed page from, such as the call
+   * history a contact record was opened from. Otherwise the main column would
+   * switch to the route's own background (the contact list), while opening a
+   * side widget page must not change the page on the left.
+   */
+  private _parkOpenerMainPath(
+    config: RoutedSideWidgetConfig,
+    path: string,
+    routePath: string,
+    routeExact?: boolean,
+  ): void {
+    const openerPath = this._lastMainPath;
+    if (
+      this.mainPath ||
+      !openerPath ||
+      config.preserveBackground ||
+      this._ownsRouter(openerPath)
+    ) {
+      return;
+    }
+    const params =
+      matchPath<Record<string, string | undefined>>(path, {
+        exact: routeExact,
+        path: routePath,
+      })?.params ?? {};
+    const backgroundPath = config.resolveBackgroundPath
+      ? config.resolveBackgroundPath(params)
+      : config.backgroundPath;
+    if (openerPath === config.backgroundPath || openerPath === backgroundPath) {
+      return;
+    }
+    this._setMainPath(openerPath);
+  }
+
+  private _resolveOpenedBackgroundPath(
+    config: RoutedSideWidgetConfig,
+  ): string | undefined {
+    if (!config.preserveBackground) {
+      return undefined;
+    }
+    return this.mainPath ?? this._lastMainPath ?? config.backgroundPath;
   }
 
   /**
@@ -334,6 +606,9 @@ export class RoutedSideWidgetView extends RcViewModule {
   }
 
   private _getBackgroundPath(entry: RoutedSideWidgetEntry): string {
+    if (entry.openedBackgroundPath) {
+      return entry.openedBackgroundPath;
+    }
     if (!entry.resolveBackgroundPath) {
       return entry.backgroundPath;
     }
@@ -447,15 +722,20 @@ export class RoutedSideWidgetView extends RcViewModule {
       <RouterRoute
         path={entry.routePath}
         exact={entry.routeExact}
-        render={({ location }) => {
+        render={(routeProps) => {
           // Prefix routes such as /settings/agent keep this tab for nested
           // pages (session edit, manual dial). Requiring the exact last-opened
           // path would unmount the widget between those pages.
-          const matched = matchPath(location.pathname, {
+          const matched = matchPath(routeProps.location.pathname, {
             exact: entry.routeExact,
             path: entry.routePath,
           });
-          return matched ? <DetailComponent {...entry.props} /> : null;
+          // The live route props win over the ones captured when the page was
+          // registered, which are empty when the router opened it before the
+          // route rendered. Pages such as the log page read `match` directly.
+          return matched ? (
+            <DetailComponent {...entry.props} {...routeProps} />
+          ) : null;
         }}
       />
     );

@@ -31,6 +31,11 @@ export interface SideWidgetContentOptions {
   onActivate?: () => SideWidgetLifecycleResult;
   onDeactivate?: (nextTabId: string | null) => SideWidgetLifecycleResult;
   onClose?: (nextTabId: string | null) => SideWidgetLifecycleResult;
+  /**
+   * Replaces the page's own back button. A docked widget page has nothing to
+   * go back to, so its back button closes it instead, like the legacy widgets.
+   */
+  onBack?: () => void;
   /** Runs after the final tab has collapsed the expanded layout. */
   onCloseComplete?: () => SideWidgetLifecycleResult;
 }

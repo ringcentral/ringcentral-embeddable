@@ -22,6 +22,30 @@ export interface RoutedSideWidgetConfig {
    * blank column nobody opened.
    */
   collapseWhenLeft?: boolean;
+  /**
+   * Close the tab once the router leaves its page for anything other than a
+   * tab switch. For form pages such as logging a call or composing a text:
+   * saving, sending or going back finishes them, like the legacy widgets that
+   * closed themselves after a save.
+   */
+  closeWhenLeft?: boolean;
+  /**
+   * The page has no fixed background: it returns to the main page the user
+   * opened it from, and `backgroundPath` is only the fallback.
+   */
+  preserveBackground?: boolean;
+  /**
+   * The page's contact can arrive just after it opens, like a click-to-SMS
+   * that adds its recipient after navigating. A missing (`null`) contact is
+   * applied only once the opening has settled, and a contact that arrives
+   * later still replaces it.
+   */
+  deferBlankContact?: boolean;
+  /**
+   * Keep the page's own back navigation instead of closing the tab, for tabs
+   * with nested pages such as Settings, where back goes up one level.
+   */
+  keepBackNavigation?: boolean;
 }
 
 export interface RoutedSideWidgetViewProps {

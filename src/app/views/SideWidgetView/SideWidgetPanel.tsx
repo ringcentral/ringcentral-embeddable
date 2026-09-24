@@ -23,9 +23,11 @@ import type {
   ThirdPartyWidgetContact,
 } from '../../services/ThirdParty';
 
+import type { SideWidgetBlankInfo } from './getSideWidgetBlankInfo';
 import { SIDE_WIDGET_APPS_TAB_ID } from './SideWidget.helper';
 import type { SideWidgetTab } from './SideWidget.view.interface';
 import { SideWidgetAppPanel } from './SideWidgetAppPanel';
+import { SideWidgetBlankView } from './SideWidgetBlankView';
 
 function AvailableApps({
   apps,
@@ -157,6 +159,7 @@ export function SideWidgetPanel({
   selectedAppId,
   contact,
   pinAppIds,
+  blankInfo,
   onTabChange,
   onSelectApp,
   onBack,
@@ -172,6 +175,7 @@ export function SideWidgetPanel({
   selectedAppId: string | null;
   contact: ThirdPartyWidgetContact | null;
   pinAppIds: string[];
+  blankInfo: SideWidgetBlankInfo;
   onTabChange: (tabId: string) => void;
   onSelectApp: (appId: string) => void;
   onBack: () => void;
@@ -187,8 +191,16 @@ export function SideWidgetPanel({
   const showTabs = tabs.length > 1;
   // The Apps tab only exists when it was opened for a call or by the user. It
   // must not appear as a fallback: a drawer that stays open after its last
-  // routed tab closed shows nothing rather than opening Apps on its own.
+  // routed tab closed shows the blank view rather than opening Apps on its own.
   const showAppsTab = tabs.some(({ id }) => id === SIDE_WIDGET_APPS_TAB_ID);
+
+  if (tabs.length === 0) {
+    return (
+      <div className="flex h-full flex-col overflow-hidden bg-neutral-base">
+        <SideWidgetBlankView info={blankInfo} onClose={onClose} />
+      </div>
+    );
+  }
 
   return (
     <TabContext

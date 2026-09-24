@@ -45,6 +45,10 @@ export class LogCallView extends RcViewModule {
   @state
   private currentCall: CompatibleCall | null = null;
 
+  /** The route id `currentCall` was loaded for. */
+  @state
+  private currentCallRouteId: string | null = null;
+
   @state
   private loading = false;
 
@@ -52,8 +56,22 @@ export class LogCallView extends RcViewModule {
   private saving = false;
 
   @action
-  private setCurrentCall(call: CompatibleCall | null): void {
+  private setCurrentCall(
+    call: CompatibleCall | null,
+    routeId: string | null = null
+  ): void {
     this.currentCall = call;
+    this.currentCallRouteId = call ? routeId : null;
+  }
+
+  /**
+   * The call loaded for a log page route, or null while it is loading or
+   * when the page shows another call.
+   *
+   * @param routeId - The `callSessionId` route param of the log page.
+   */
+  getLoadedCall(routeId: string): CompatibleCall | null {
+    return this.currentCallRouteId === routeId ? this.currentCall : null;
   }
 
   @action
@@ -87,7 +105,7 @@ export class LogCallView extends RcViewModule {
       if (!call && !source) {
         call = await callLogSourceRegistry.getCall(RINGCX_CALL_LOG_SOURCE, decodedId);
       }
-      this.setCurrentCall(call);
+      this.setCurrentCall(call, sessionId);
     } catch (error) {
       this.logger.error('LogCall load failed', error);
     } finally {

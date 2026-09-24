@@ -102,6 +102,21 @@ export class CallViewState extends CallViewStateBase {
       .subscribe();
   }
 
+  /**
+   * Only the RingEX call history route `/history/:id`. The base pattern is
+   * not anchored, so it also matched the RingCX history route
+   * `/agent/history/:id`: a CX call details page looked like an EX one for an
+   * unknown call, and the EX call details guard then replaced the route with
+   * `/dialer`, closing the call details side widget tab.
+   */
+  override inCallDetailRouteTelephonySessionId(): string | null {
+    // The base keeps the router private; it is set before any computed read,
+    // unlike a field of this subclass.
+    const currentPath = this['_router']?.currentPath;
+    const match = currentPath?.match(/^\/history\/(.+)/);
+    return match ? match[1] : null;
+  }
+
   override getExtraLogData(sessionId: string, telephonySessionId: string) {
     const extraLogData = super.getExtraLogData(sessionId, telephonySessionId);
     const callSelectionInfo = this._getCallSelectionInfo(sessionId);

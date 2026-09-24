@@ -84,7 +84,11 @@ import { runOnAllPorts } from '../../../lib/runOnAllPorts';
 import type { RingCXCommandBridge } from './RingCXCommandBridge';
 import { parseUri } from '../../../lib/Adapter/parseUri';
 import { isDuplicated } from '../../../lib/isDuplicated';
-import { SideWidgetView } from '../../views/SideWidgetView';
+import {
+  getSideWidgetCallContact,
+  SideWidgetView,
+  type SideWidgetCallInfo,
+} from '../../views/SideWidgetView';
 import type { AdapterOptions } from './AdapterOptions';
 import { resolveLegacyAdapterPath } from './resolveLegacyAdapterPath';
 
@@ -829,7 +833,6 @@ export class Adapter extends RcModule {
           endTime: Date.now(),
         },
       });
-      this._sideWidgetView?.onCallEnd(session);
     });
     this._webphoneV2.onCallHold((session: any) => {
       this._postMessage({
@@ -1976,9 +1979,14 @@ export class Adapter extends RcModule {
   /**
    * Close leftover RingEX Available Apps / post-call UI so a CX session does
    * not keep showing it after the user already left the EX call.
+   *
+   * Only the overlay drawer is cleared. A docked drawer is never closed on its
+   * own, the same as the legacy side drawer; the CX call opens its apps in it.
    */
   dismissExCallUiForCxCall(): void {
-    void this._sideWidgetView?.close();
+    if (!this._root.expanded) {
+      void this._sideWidgetView?.close();
+    }
     this._dismissExPostCallView();
   }
 
@@ -2230,21 +2238,24 @@ export class Adapter extends RcModule {
     }
 
     await this._composeText.clean();
+    // Request the recipient before navigating, so the compose side widget tab
+    // opens for that contact. Validating the number finishes afterwards.
+    const adding = recipient?.phoneNumber
+      ? this._composeText.addToNumber({
+          phoneNumber: recipient.phoneNumber,
+          name: recipient.name || recipient.phoneNumber,
+        })
+      : phoneNumber
+        ? this._composeText.addToNumber({
+            phoneNumber,
+            name: phoneNumber,
+          })
+        : undefined;
     await this._router.push('/composeText');
 
-    if (recipient?.phoneNumber) {
-      await this._composeText.addToNumber({
-        phoneNumber: recipient.phoneNumber,
-        name: recipient.name || recipient.phoneNumber,
-      });
-    } else if (phoneNumber) {
-      const added = await this._composeText.addToNumber({
-        phoneNumber,
-        name: phoneNumber,
-      });
-      if (!added) {
-        await this._composeText.updateTypingToNumber(phoneNumber);
-      }
+    const added = adding ? await adding : false;
+    if (!added && !recipient?.phoneNumber && phoneNumber) {
+      await this._composeText.updateTypingToNumber(phoneNumber);
     }
 
     if (typeof text === 'string' && text.length > 0) {
@@ -3020,6 +3031,25 @@ export class Adapter extends RcModule {
       disposed: ringCXEventTypes.callDisposedNotify,
     }[event];
     this._postRingCXEvent({ type, call });
+    this._openSideWidgetAppsForRingCXCall(event, call as SideWidgetCallInfo);
+  }
+
+  /**
+   * Shows the registered widget apps for a new CX call, like a RingEX call:
+   * an incoming call when it rings, an outgoing call (with its pinned apps)
+   * when it starts.
+   */
+  private _openSideWidgetAppsForRingCXCall(
+    event: 'ring' | 'start' | 'end' | 'disposed',
+    call: SideWidgetCallInfo,
+  ): void {
+    const outbound = call.direction === 'Outbound';
+    if ((event === 'ring' && !outbound) || (event === 'start' && outbound)) {
+      this._sideWidgetView?.openCallApps(
+        getSideWidgetCallContact(call),
+        outbound,
+      );
+    }
   }
 
   notifyRingCXAgentSession(snapshot: object): void {

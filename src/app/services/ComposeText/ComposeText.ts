@@ -63,4 +63,42 @@ export class ComposeText extends BaseComposeText {
     toNumbers: ToNumber[];
     typingToNumber: string;
   }): Promise<boolean> => this._doNotContact.verifySms(options);
+
+  /**
+   * Recipients requested for the current message, recorded as soon as they
+   * are requested. Adding a recipient validates its number first, so a
+   * click-to-SMS opens the compose page before the recipient is in
+   * `toNumbers`.
+   */
+  private _requestedRecipients: ToNumber[] = [];
+
+  /**
+   * The first recipient of the message being composed, including one still
+   * being validated, or null for a message without a recipient.
+   */
+  get requestedRecipient(): ToNumber | null {
+    return this.toNumbers[0] ?? this._requestedRecipients[0] ?? null;
+  }
+
+  override async addToNumber(number: ToNumber): Promise<boolean> {
+    this._requestRecipients([number]);
+    return super.addToNumber(number);
+  }
+
+  override async addToNumbers(numbers: ToNumber[]): Promise<boolean> {
+    this._requestRecipients(numbers ?? []);
+    return super.addToNumbers(numbers);
+  }
+
+  override async clean(): Promise<void> {
+    this._requestedRecipients = [];
+    return super.clean();
+  }
+
+  private _requestRecipients(numbers: ToNumber[]): void {
+    this._requestedRecipients = [
+      ...this._requestedRecipients,
+      ...numbers.filter(({ phoneNumber }) => Boolean(phoneNumber?.trim())),
+    ];
+  }
 }
