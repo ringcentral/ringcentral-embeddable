@@ -21,6 +21,7 @@ export const ringCXThirdPartyContract = {
     'rc-call-ring-notify',
     'rc-call-start-notify',
     'rc-call-end-notify',
+    'rc-active-call-notify',
     'rc-ringcx-call-disposed-notify',
     'rc-ringcx-agent-session-notify',
     'rc-ringcx-agent-state-notify',

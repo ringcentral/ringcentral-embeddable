@@ -158,6 +158,24 @@ type LegacyPresence = Presence & {
   }): Promise<void>;
 };
 
+type RingCXTelephonyStatus = 'Ringing' | 'CallConnected' | 'NoCall';
+
+type RingCXActiveCallInput = {
+  id?: string;
+  startTime?: string;
+};
+
+/** RingEX presence `telephonyStatus` for each RingCX call lifecycle event. */
+const RINGCX_TELEPHONY_STATUS: Record<
+  'ring' | 'start' | 'end' | 'disposed',
+  RingCXTelephonyStatus | undefined
+> = {
+  ring: 'Ringing',
+  start: 'CallConnected',
+  end: 'NoCall',
+  disposed: undefined,
+};
+
 const SUPPORTED_ATTACHMENT_MIME = new Set([
   'image/jpeg',
   'image/png',
@@ -359,6 +377,8 @@ export class Adapter extends RcModule {
   private _messageTypes: Record<string, string>;
   private _popupWindowManager: PopupWindowManager | null = null;
   private _lastActiveCalls = new Map<string, string>();
+  /** Last `telephonyStatus` posted per RingCX call id, to skip repeated legs. */
+  private _lastRingCXActiveCalls = new Map<string, RingCXTelephonyStatus>();
   private _lastMuteStates = new Map<string, boolean>();
   private _lastMessageThreadSignatures = new Map<string, string>();
   private _lastMessageThreadEntitySignatures = new Map<string, string>();
@@ -3031,7 +3051,49 @@ export class Adapter extends RcModule {
       disposed: ringCXEventTypes.callDisposedNotify,
     }[event];
     this._postRingCXEvent({ type, call });
+    this._notifyRingCXActiveCall(event, call as RingCXActiveCallInput);
     this._openSideWidgetAppsForRingCXCall(event, call as SideWidgetCallInfo);
+  }
+
+  /**
+   * Posts `rc-active-call-notify` for a RingCX call in the RingEX presence
+   * active-call shape, so a host's call pop works for both. The RingCX EX
+   * bridge leg is filtered out of presence, so the host sees one call.
+   */
+  private _notifyRingCXActiveCall(
+    event: 'ring' | 'start' | 'end' | 'disposed',
+    call: RingCXActiveCallInput,
+  ): void {
+    const telephonyStatus = RINGCX_TELEPHONY_STATUS[event];
+    if (!telephonyStatus || !call.id) {
+      return;
+    }
+    const lastStatus = this._lastRingCXActiveCalls.get(call.id);
+    if (
+      lastStatus === telephonyStatus ||
+      (lastStatus === 'CallConnected' && telephonyStatus === 'Ringing')
+    ) {
+      return;
+    }
+    if (telephonyStatus === 'NoCall') {
+      // Each leg reports its own end, so only the first end of a call that
+      // was announced as active is posted.
+      if (!this._lastRingCXActiveCalls.delete(call.id)) {
+        return;
+      }
+    } else {
+      this._lastRingCXActiveCalls.set(call.id, telephonyStatus);
+    }
+    const startTime = Date.parse(call.startTime ?? '');
+    this._postRingCXEvent({
+      type: 'rc-active-call-notify',
+      call: {
+        ...call,
+        telephonyStatus,
+        startTime: Number.isNaN(startTime) ? Date.now() : startTime,
+        ...(telephonyStatus === 'NoCall' ? { terminationType: 'final' } : {}),
+      },
+    });
   }
 
   /**

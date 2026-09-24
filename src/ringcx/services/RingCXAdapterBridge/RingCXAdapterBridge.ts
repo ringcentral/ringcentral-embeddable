@@ -242,8 +242,20 @@ export class RingCXAdapterBridge
     if (!formatted) {
       return;
     }
-    if (formatted.call.ringcx.uii) {
-      this._announcedRingUiis.add(formatted.call.ringcx.uii);
+    const uii = formatted.call.ringcx.uii;
+    // An auto-answered inbound call (or one that reached an agent already
+    // offhook) is answered by the same ADD_SESSION that reports it ringing,
+    // and the answer can be handled first. Announce the ring before the start,
+    // as a RingEX call answered automatically still rings first.
+    if (
+      uii &&
+      !this._announcedRingUiis.has(uii) &&
+      formatted.call.ringcx.callType === 'INBOUND'
+    ) {
+      this._adapter.notifyRingCXCall('ring', formatted.call);
+    }
+    if (uii) {
+      this._announcedRingUiis.add(uii);
     }
     this._adapter.notifyRingCXCall('start', formatted.call);
   }
