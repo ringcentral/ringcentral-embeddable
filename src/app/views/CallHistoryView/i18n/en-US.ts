@@ -10,4 +10,5 @@ export default {
   historyCalls: "History calls",
   refreshContact: "Refresh contact",
   viewLogDetails: "View log details",
+  viewContactDetails: "View contact details",
 } as const;

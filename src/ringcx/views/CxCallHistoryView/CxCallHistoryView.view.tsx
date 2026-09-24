@@ -21,6 +21,7 @@ import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import type { ViewCallsFilterType } from '@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring/CallsList.view.interface';
 import type { HistoryAction } from '@ringcentral-integration/next-widgets/components/ActionMenuList/useHistoryActionButtons';
 import { LogInfo } from '@ringcentral-integration/micro-phone/src/app/hooks/useContactRenderInfo/components';
+import { IntegrationConfig } from '@ringcentral-integration/micro-setting/src/app/services';
 import { IncomingCallMd, OutgoingCallMd } from '@ringcentral/spring-icon';
 import { Icon } from '@ringcentral/spring-ui';
 import type { StateSnapshot } from 'react-virtuoso';
@@ -79,6 +80,7 @@ class CxCallHistoryView extends RcViewModule {
     private _thirdParty: ThirdParty,
     private _connectivityManager: ConnectivityManager,
     private _rateLimiter: RateLimiter,
+    private _integrationConfig: IntegrationConfig,
     @optional(ContactMatcherBase) private _contactMatcher?: ContactMatcher,
     @optional('RingCXAdapterBridge')
     private _bridge?: RingCXAdapterBridge,
@@ -349,12 +351,31 @@ class CxCallHistoryView extends RcViewModule {
       !!this.cxAuth.agentPermissions?.allowHistoricalDialing &&
       !!call.dialableNumber;
     const isDialDisabled = !this.cxCall.isIdle;
+    const { dialToPhoneNumber, matchedContact } = renderInfo;
     const actions: HistoryAction[] = useMemo(() => {
       const nextActions: HistoryAction[] = [];
       if (canDial) {
         nextActions.push({
           type: 'call',
           disabled: isDialDisabled,
+        });
+      }
+      // Same contact-view action as RingEX rows; `getActionButtons` applies
+      // the viewable-type and `onViewEntity` gating.
+      const viewEntityAction = this._integrationConfig
+        .getActionButtons({
+          dialToPhoneNumber,
+          matchedContact,
+          disabled: false,
+        })
+        .find(({ type }) => type === 'viewEntity');
+      if (viewEntityAction) {
+        nextActions.push({
+          ...viewEntityAction,
+          label: hostCallHistoryI18n.getString(
+            'viewContactDetails',
+            currentLocale,
+          ),
         });
       }
       const logCall = {
@@ -379,11 +400,13 @@ class CxCallHistoryView extends RcViewModule {
       call,
       canDial,
       currentLocale,
+      dialToPhoneNumber,
       isDialDisabled,
       logState.hideEditLogButton,
       logState.isLogging,
       logState.logButtonTitle,
       logState.ready,
+      matchedContact,
     ]);
     const info = {
       Avatar,
@@ -432,6 +455,12 @@ class CxCallHistoryView extends RcViewModule {
           break;
         case 'viewDetail':
           this.goToCallDetail(call.id);
+          break;
+        case 'viewEntity':
+          void this._integrationConfig.onViewEntity?.(
+            info.renderInfo.matchedContact,
+            { isMaybeMatch: !!info.renderInfo.metadata?.showMaybe },
+          );
           break;
         default:
           this.logger.warn(`Unknown action type: ${actionType}`);

@@ -75,11 +75,13 @@ export function useCallControlLayout(
   );
   const connecting = isPreinsertCall(call);
   const conferenceParticipantsCount = call.conferenceParticipants?.length;
-  // The name is not a link here: the call control page has no room for a
-  // contact detail view, and clicking through mid-call takes the user off the
-  // active call, so the name stays plain text.
+  // The name links to the matched contact's details, matching the CX active
+  // call page. `ContactDisplayRender` only renders the link when the contact's
+  // type is viewable and `onViewEntity` is configured.
   const displayName = (
-    <DisplayName displayControl={{ maybe: true, matchCounts: true }} />
+    <DisplayName
+      displayControl={{ maybe: true, viewable: true, matchCounts: true }}
+    />
   );
   return (
     <CallControlLayout
