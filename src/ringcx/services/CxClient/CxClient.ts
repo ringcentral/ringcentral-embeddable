@@ -54,6 +54,7 @@ import type {
 import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { Webphone } from '../../../app/services/WebphoneV2';
 import { buildSoftphoneSipInfo } from './buildSoftphoneSipInfo';
+import { getAssetBaseUrl } from '../../../lib/getAssetBaseUrl';
 import type {
   CxAgentIdentity,
   CxClientServiceOptions,
@@ -417,9 +418,12 @@ class CxClient extends RcModule {
     window.evAuthHost = this._options.authHost;
     if (window.AgentSDK) return;
     if (this._sdkLoadPromise) return this._sdkLoadPromise;
+    // Resolve against the app folder rather than the origin so the SDK
+    // still loads when the build is deployed under a sub path.
+    const sdkUrl = `${getAssetBaseUrl()}${AGENT_SDK_PATH}`;
     this._sdkLoadPromise = new Promise<void>((resolve, reject) => {
       const existing = document.querySelector<HTMLScriptElement>(
-        `script[src="${AGENT_SDK_PATH}"]`,
+        `script[src="${sdkUrl}"]`,
       );
       const script = existing ?? document.createElement('script');
       const onLoad = () => {
@@ -437,7 +441,7 @@ class CxClient extends RcModule {
       );
       if (!existing) {
         script.async = true;
-        script.src = AGENT_SDK_PATH;
+        script.src = sdkUrl;
         document.head.appendChild(script);
       }
     });
