@@ -671,7 +671,11 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   private async _activateRoute(id: string): Promise<void> {
     const entry = this._entries.get(id);
-    if (entry) {
+    // A page the router opened itself, such as the log page a submitted
+    // disposition hands over to, is activated while the router is already on
+    // it. That is not a tab switch: requesting its path would make `syncPath`
+    // take the navigation for one and keep the page the router just left.
+    if (entry && this._router.currentPath !== entry.path) {
       await this._navigate(entry.path);
     }
   }

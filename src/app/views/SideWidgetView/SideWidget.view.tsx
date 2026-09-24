@@ -11,8 +11,10 @@ import {
 } from '@ringcentral-integration/micro-core/src/app/views/SyncTabView';
 import {
   action,
+  delegate,
   injectable,
   optional,
+  PortManager,
   RcViewModule,
   Root,
   state,
@@ -128,6 +130,8 @@ export class SideWidgetView extends RcViewModule {
     private _root?: Root,
     @optional()
     private _syncTabView?: SyncTabView,
+    @optional()
+    private _portManager?: PortManager,
   ) {
     super();
   }
@@ -147,6 +151,9 @@ export class SideWidgetView extends RcViewModule {
   private readonly _contentHandles = new Map<string, SideWidgetContentHandle>();
 
   private _resolveMainPath: (() => string | null) | null = null;
+
+  /** The page closes of the tabs the last drawer close removed. */
+  private _pendingTabsClose: Promise<unknown> = Promise.resolve();
 
   get enabled(): boolean {
     return this._sideWidgetOptions?.enableSideWidget ?? false;
@@ -255,7 +262,7 @@ export class SideWidgetView extends RcViewModule {
     if (this._contentHandles.get(handle.options.id) !== handle) {
       return;
     }
-    this.closeTab(handle.options.id, options);
+    void this.closeTab(handle.options.id, options);
   }
 
   @action
@@ -340,13 +347,17 @@ export class SideWidgetView extends RcViewModule {
     this._expandedView.open(this._expandedHandle);
   }
 
-  selectTab(tabId: string): void {
+  /**
+   * Selects a tab. Resolves once the selected page has finished activating,
+   * such as a routed page navigating to its path.
+   */
+  selectTab(tabId: string): Promise<void> {
     if (!this.tabs.some(({ id }) => id === tabId)) {
-      return;
+      return Promise.resolve();
     }
     const previousTabId = this.currentTabId;
     this._selectTab(tabId);
-    this._notifyTabActivation(previousTabId, tabId);
+    return Promise.resolve(this._notifyTabActivation(previousTabId, tabId));
   }
 
   @action
@@ -383,13 +394,17 @@ export class SideWidgetView extends RcViewModule {
     this.selectedAppId = null;
   }
 
+  /**
+   * Closes a tab. Resolves once the closed page, and the page activated in its
+   * place, have finished their navigation.
+   */
   closeTab(
     tabId: string,
     { collapseWhenLast = true }: SideWidgetCloseTabOptions = {}
-  ): void {
+  ): Promise<void> {
     const tabIndex = this.tabs.findIndex(({ id }) => id === tabId);
     if (tabIndex < 0) {
-      return;
+      return Promise.resolve();
     }
     const contentHandle = this._contentHandles.get(tabId);
     const wasActive = this.currentTabId === tabId;
@@ -400,19 +415,13 @@ export class SideWidgetView extends RcViewModule {
         // A route-driven close must not fold the drawer, and it must not open
         // the Apps tab in its place either: that tab only opens with a new
         // call. The drawer shows its blank view instead.
-        void this._awaitTabClose(contentHandle, closeResult);
-        return;
+        return this._awaitTabClose(contentHandle, closeResult);
       }
       if (isPromiseLike(closeResult)) {
-        void this._completeLastTabClose(contentHandle, closeResult);
-      } else {
-        const collapseResult = this.close();
-        void this._completeCollapsedTabClose(
-          contentHandle,
-          collapseResult,
-        );
+        return this._completeLastTabClose(contentHandle, closeResult);
       }
-      return;
+      const collapseResult = this.close();
+      return this._completeCollapsedTabClose(contentHandle, collapseResult);
     }
     this._removeTab(tabId, tabIndex);
     const nextTabId = this.currentTabId;
@@ -422,7 +431,7 @@ export class SideWidgetView extends RcViewModule {
         ? this._contentHandles.get(nextTabId)?.options.onActivate?.()
         : undefined;
     if (isPromiseLike(closeResult)) {
-      void Promise.resolve(closeResult)
+      return Promise.resolve(closeResult)
         .then(activateNextTab)
         .catch((error: unknown) => {
           this.logger.error(
@@ -430,17 +439,17 @@ export class SideWidgetView extends RcViewModule {
             error,
           );
         });
-    } else {
-      const activationResult = activateNextTab();
-      if (isPromiseLike(activationResult)) {
-        void Promise.resolve(activationResult).catch((error: unknown) => {
-          this.logger.error(
-            '[SideWidget] failed to activate routed tab',
-            error,
-          );
-        });
-      }
     }
+    const activationResult = activateNextTab();
+    if (isPromiseLike(activationResult)) {
+      return Promise.resolve(activationResult).catch((error: unknown) => {
+        this.logger.error(
+          '[SideWidget] failed to activate routed tab',
+          error,
+        );
+      });
+    }
+    return Promise.resolve();
   }
 
   @action
@@ -526,6 +535,117 @@ export class SideWidgetView extends RcViewModule {
     return this._expandedView.close(this._expandedHandle);
   }
 
+  /**
+   * Applies a panel action on the server port as well. Call events open tabs
+   * on the server port, such as the Apps tab of a RingCX call, while the panel
+   * runs on a client. A tab change made only on the client is lost: the server
+   * keeps its own tabs, and its next tab update, such as the disposition
+   * opening when the call ends, hands them back to the client.
+   *
+   * The client's pages navigate first, so the server finds the router already
+   * where they went and does not route there a second time.
+   */
+  private async _syncPanelActionToServer(
+    clientAction: Promise<unknown>,
+    serverAction: () => Promise<void>,
+  ): Promise<void> {
+    try {
+      await clientAction;
+    } catch (error: unknown) {
+      this.logger.error('[SideWidget] failed to apply panel action', error);
+    }
+    if (!this._portManager?.isClient) {
+      return;
+    }
+    try {
+      await serverAction();
+    } catch (error: unknown) {
+      this.logger.error(
+        '[SideWidget] failed to apply panel action on the server',
+        error,
+      );
+    }
+  }
+
+  private _closeFromPanel(): Promise<void> {
+    const collapseResult = this.close();
+    return this._syncPanelActionToServer(
+      Promise.resolve(collapseResult).then(() => this._pendingTabsClose),
+      () => this._closeOnServer(),
+    );
+  }
+
+  private _closeTabFromPanel(tabId: string): Promise<void> {
+    return this._syncPanelActionToServer(this.closeTab(tabId), () =>
+      this._closeTabOnServer(tabId),
+    );
+  }
+
+  private _selectTabFromPanel(tabId: string): Promise<void> {
+    return this._syncPanelActionToServer(this.selectTab(tabId), () =>
+      this._selectTabOnServer(tabId),
+    );
+  }
+
+  private _selectAppFromPanel(appId: string): Promise<void> {
+    this.selectApp(appId);
+    return this._syncPanelActionToServer(Promise.resolve(), () =>
+      this._selectAppOnServer(appId),
+    );
+  }
+
+  private _showAppsFromPanel(): Promise<void> {
+    this.showApps();
+    return this._syncPanelActionToServer(Promise.resolve(), () =>
+      this._showAppsOnServer(),
+    );
+  }
+
+  private _toggleAppPinFromPanel(appId: string): Promise<void> {
+    this.toggleAppPin(appId);
+    // The resulting state is sent rather than the toggle, which would undo
+    // the pin on a port that already has it.
+    const pinned = this._thirdParty.pinAppIds.includes(appId);
+    return this._syncPanelActionToServer(Promise.resolve(), () =>
+      this._setAppPinnedOnServer(appId, pinned),
+    );
+  }
+
+  @delegate('server')
+  private async _closeOnServer(): Promise<void> {
+    await this.close();
+  }
+
+  @delegate('server')
+  private async _closeTabOnServer(tabId: string): Promise<void> {
+    await this.closeTab(tabId);
+  }
+
+  @delegate('server')
+  private async _selectTabOnServer(tabId: string): Promise<void> {
+    await this.selectTab(tabId);
+  }
+
+  @delegate('server')
+  private async _selectAppOnServer(appId: string): Promise<void> {
+    this.selectApp(appId);
+  }
+
+  @delegate('server')
+  private async _showAppsOnServer(): Promise<void> {
+    this.showApps();
+  }
+
+  @delegate('server')
+  private async _setAppPinnedOnServer(
+    appId: string,
+    pinned: boolean,
+  ): Promise<void> {
+    if (this._thirdParty.pinAppIds.includes(appId) !== pinned) {
+      this.toggleAppPin(appId);
+    }
+  }
+
   private _handleExpandedClose(): void {
     const contentHandles = this.tabs.reduce<SideWidgetContentHandle[]>(
       (handles, { id }) => {
@@ -538,7 +658,9 @@ export class SideWidgetView extends RcViewModule {
       []
     );
     this._resetTabs();
-    contentHandles.forEach(({ options }) => options.onClose?.(null));
+    this._pendingTabsClose = Promise.all(
+      contentHandles.map(({ options }) => options.onClose?.(null)),
+    );
   }
 
   @action
@@ -583,12 +705,15 @@ export class SideWidgetView extends RcViewModule {
     });
   }
 
-  private _notifyTabActivation(previousTabId: string, nextTabId: string): void {
+  private _notifyTabActivation(
+    previousTabId: string,
+    nextTabId: string,
+  ): void | Promise<void> {
     if (previousTabId === nextTabId) {
       return;
     }
     this._contentHandles.get(previousTabId)?.options.onDeactivate?.(nextTabId);
-    this._contentHandles.get(nextTabId)?.options.onActivate?.();
+    return this._contentHandles.get(nextTabId)?.options.onActivate?.();
   }
 
   private _getClosedTabIds(nextTabId: string, preserveTabs: boolean): string[] {
@@ -654,12 +779,13 @@ export class SideWidgetView extends RcViewModule {
         ...this._getBlankInfo(),
       }));
       const { current: uiFunctions } = useRef({
-        onTabChange: (tabId: string) => this.selectTab(tabId),
-        onSelectApp: (appId: string) => this.selectApp(appId),
-        onBack: () => this.showApps(),
-        onClose: () => this.close(),
-        onCloseTab: (tabId: string) => this.closeTab(tabId),
-        onTogglePin: (appId: string) => this.toggleAppPin(appId),
+        // Panel actions also reach the server port, which keeps the tabs.
+        onTabChange: (tabId: string) => this._selectTabFromPanel(tabId),
+        onSelectApp: (appId: string) => this._selectAppFromPanel(appId),
+        onBack: () => this._showAppsFromPanel(),
+        onClose: () => this._closeFromPanel(),
+        onCloseTab: (tabId: string) => this._closeTabFromPanel(tabId),
+        onTogglePin: (appId: string) => this._toggleAppPinFromPanel(appId),
         renderContent: (tabId: string, showCloseButton: boolean) =>
           this._renderContent(tabId, showCloseButton),
         onLoadApp: (params: LoadAppPageParams) =>
