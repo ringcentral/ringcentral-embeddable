@@ -1551,7 +1551,9 @@ export class ThirdParty extends RcModule {
         }
       }
       const callItem: ThirdPartyCall = { ...call };
-      if (call.recording) {
+      // RingCX recording URLs are sent as is: the RingEX recording page and
+      // access token do not apply to them.
+      if (call.recording && call.source !== 'ringcx') {
         callItem.recording = {
           ...call.recording,
           link: this.getRecordingLink(call.recording),

@@ -106,6 +106,7 @@ class CxCallHistory extends RcModule {
     @optional() private activityMatcher?: ActivityMatcher,
   ) {
     super();
+    this._registerMatcherQuerySources();
     if (this.portManager?.shared) {
       this.portManager.onServer(() => {
         this.initialize();
@@ -113,6 +114,41 @@ class CxCallHistory extends RcModule {
     } else {
       this.initialize();
     }
+  }
+
+  /**
+   * Registers the loaded history rows with the matchers, as the RingEX call
+   * history does, so host-triggered refreshes (`triggerMatch`,
+   * `rc-adapter-trigger-call-logger-match`, `rc-adapter-trigger-contact-match`)
+   * cover them and not only live calls.
+   */
+  private _registerMatcherQuerySources(): void {
+    this.contactMatcher?.addQuerySource({
+      getQueriesFn: () => this.contactMatchQueries,
+      readyCheckFn: () => this.ready,
+    });
+    this.activityMatcher?.addQuerySource({
+      getQueriesFn: () => this.activityMatchQueries,
+      readyCheckFn: () => this.ready,
+    });
+  }
+
+  /** Unique ContactMatcher queries (phone numbers) of the loaded rows. */
+  @computed((that: CxCallHistory) => [that.items])
+  get contactMatchQueries(): string[] {
+    const queries = this.items
+      .map((item) => getHistoryContactMatchIdentify(item))
+      .filter((query): query is string => !!query);
+    return Array.from(new Set(queries));
+  }
+
+  /** Unique ActivityMatcher queries (call uiis) of the loaded rows. */
+  @computed((that: CxCallHistory) => [that.items])
+  get activityMatchQueries(): string[] {
+    const queries = this.items
+      .map((item) => ringCXLogId({ uii: item.dialog?.uii }))
+      .filter((query) => !!query);
+    return Array.from(new Set(queries));
   }
 
   /** Host has registered a contact match provider. */
@@ -139,7 +175,7 @@ class CxCallHistory extends RcModule {
   }
 
   /**
-   * Call-log matches keyed by session / segment id.
+   * Call-log matches keyed by call uii.
    */
   @computed((that: CxCallHistory) => [that.activityMatcher?.dataMapping])
   get activityMatches(): Record<string, ActivityMatch[]> {
@@ -210,18 +246,11 @@ class CxCallHistory extends RcModule {
   }
 
   /**
-   * ActivityMatcher key for a history row.
-   *
-   * One id per call leg: the live `uii$sessionId` when this browser handled
-   * the call, otherwise the history row id. That is the id `logCall` sends.
+   * ActivityMatcher key for a history row: the call uii, which is the id
+   * `logCall` sends for both live calls and history rows.
    */
   getCallActivityMatchQueries(call: FormattedCall): string[] {
-    const id = ringCXLogId({
-      id: call.id,
-      localCallId: call.localCallId,
-      uii: call.uii,
-      sessionId: call.sessionId,
-    });
+    const id = ringCXLogId({ id: call.id, uii: call.uii });
     return id ? [id] : [];
   }
 

@@ -26,6 +26,7 @@ import { canDialHistoryCall } from '../../services/CxCallHistory/can-dial-histor
 import type { FormattedCall } from '../../services/CxCallHistory/CxCallHistory.interface';
 import { CallHistoryDetailPanel } from '../../components/CallHistoryDetailPanel';
 import { callDirection } from '../../enums';
+import { ringCXLogId } from '../../lib/formatRingCXCall';
 import { t as translate } from './i18n';
 
 import type {
@@ -181,7 +182,7 @@ class CxCallHistoryDetailView extends RcViewModule {
     if (!callDetail) {
       return [];
     }
-    const logId = callDetail.localCallId || callDetail.id;
+    const logId = ringCXLogId(callDetail);
     const logCall = {
       activityMatches: callDetail.activityMatches,
       type: 'Voice',
@@ -218,7 +219,12 @@ class CxCallHistoryDetailView extends RcViewModule {
         if (!callDetail) {
           return;
         }
-        void this._bridge?.logFromHistory?.(callDetail, actionType);
+        // The contact the detail header shows.
+        const matches =
+          callDetail.direction === callDirection.outbound
+            ? callDetail.toMatches
+            : callDetail.fromMatches;
+        void this._bridge?.logFromHistory?.(callDetail, actionType, matches?.[0]);
       },
     };
   }
@@ -236,6 +242,7 @@ class CxCallHistoryDetailView extends RcViewModule {
     useEffect(() => {
       if (uiProps.callDetail) {
         this._cxCallHistory.matchCalls([uiProps.callDetail]);
+        this._cxCallHistory.matchCallLogs([uiProps.callDetail]);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uiProps.callDetail?.id]);

@@ -16,6 +16,7 @@ import { CxClient } from '../CxClient';
 import { CxPresence } from '../CxPresence';
 import { CxCallDataSource } from '../CxCallDataSource';
 import { makeCallsUniqueIdentifies } from '../../lib/callUniqueIdentifies';
+import { ringCXLogId } from '../../lib/formatRingCXCall';
 import { getCallAni } from '../../lib/getCxCallNumbers';
 import type {
   CxCallMonitorOptions,
@@ -54,7 +55,7 @@ class CxCallMonitor extends RcModule {
       readyCheckFn: () => this.cxPresence.ready,
     });
     this.activityMatcher?.addQuerySource({
-      getQueriesFn: () => this.callIds,
+      getQueriesFn: () => this.callLogIds,
       readyCheckFn: () => this.cxPresence.ready,
     });
   }
@@ -102,6 +103,14 @@ class CxCallMonitor extends RcModule {
    */
   get callIds(): string[] {
     return this.cxPresence.callIds || [];
+  }
+
+  /**
+   * Call-log ids (uiis) of the current agent calls, for activity matching
+   */
+  @computed((that: CxCallMonitor) => [that.callIds])
+  get callLogIds(): string[] {
+    return Array.from(new Set(this.callIds.map((id) => ringCXLogId({ id }))));
   }
 
   /**
@@ -154,7 +163,9 @@ class CxCallMonitor extends RcModule {
       (mapping, [key, call]) => {
         const contactMatchIdentify = getCallAni(call);
 
-        const id = call.session ? this.getCallId(call.session) : null;
+        const logId = call.session
+          ? ringCXLogId({ uii: call.session.uii })
+          : null;
         const recordingUrl = call.session?.recordingUrl;
         const { agentFirstName, agentLastName } = call.baggage || {};
 
@@ -171,7 +182,7 @@ class CxCallMonitor extends RcModule {
             agentName,
             contactMatches: contactMatches[contactMatchIdentify] || [],
             activityMatches:
-              id && activityMatches[id] ? activityMatches[id] : [],
+              logId && activityMatches[logId] ? activityMatches[logId] : [],
           } as CxCallData,
         };
       },

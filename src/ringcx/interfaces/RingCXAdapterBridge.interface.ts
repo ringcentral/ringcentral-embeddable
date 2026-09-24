@@ -30,7 +30,15 @@ export interface RingCXAdapterBridge {
       summary?: string;
     };
   }): Promise<boolean>;
-  logFromHistory?(call: FormattedCall, actionType: string): Promise<void>;
+  /**
+   * Logs a history row. `contact` is the contact the row shows, as the RingEX
+   * history passes it; without it the only contact match is used, if any.
+   */
+  logFromHistory?(
+    call: FormattedCall,
+    actionType: string,
+    contact?: unknown,
+  ): Promise<void>;
   /**
    * Sends a click on a host-registered `callAction` button for a history row.
    */

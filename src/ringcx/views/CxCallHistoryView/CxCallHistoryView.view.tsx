@@ -48,6 +48,7 @@ import { callDirection } from '../../enums';
 import { CallHistoryList } from '../../components/CallHistoryList';
 import { useCxContactRenderInfo } from '../../hooks/useCxContactRenderInfo';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
+import { ringCXLogId } from '../../lib/formatRingCXCall';
 import { canDialHistoryCall } from '../../services/CxCallHistory/can-dial-history-call';
 import type { FormattedCall } from '../../services/CxCallHistory/CxCallHistory.interface';
 import { cxPath } from '../../routes';
@@ -289,7 +290,7 @@ class CxCallHistoryView extends RcViewModule {
     _options: { selectIndex: number; variant: 'list' | 'detail' },
   ) => {
     const { t, currentLocale } = useLocale(i18n);
-    const logId = call.localCallId || call.id;
+    const logId = ringCXLogId(call);
     const logState = useConnector(() => ({
       hideEditLogButton: this._thirdParty.callLoggerHideEditLogButton,
       isLogging: Boolean(this._callLogger.loggingMap?.[logId]),
@@ -410,7 +411,7 @@ class CxCallHistoryView extends RcViewModule {
    */
   useActionsHandler = (
     call: FormattedCall,
-    _info: ReturnType<typeof this.useCallHistoryItemInfo>['info'],
+    info: ReturnType<typeof this.useCallHistoryItemInfo>['info'],
     _location: string,
   ) => {
     return async (actionType: string) => {
@@ -423,7 +424,11 @@ class CxCallHistoryView extends RcViewModule {
         case 'createLog':
         case 'viewLog':
           this._pinHistoryRoute();
-          void this._bridge?.logFromHistory?.(call, actionType);
+          void this._bridge?.logFromHistory?.(
+            call,
+            actionType,
+            info.renderInfo.matchedContact,
+          );
           break;
         case 'viewDetail':
           this.goToCallDetail(call.id);

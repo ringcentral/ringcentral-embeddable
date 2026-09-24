@@ -33,7 +33,8 @@ export interface RingCXCallInfo {
 }
 
 /**
- * Host-facing CX call. `id` and `sessionId` are the same stable log key.
+ * Host-facing CX call. `id` and `sessionId` are both the call uii, the stable
+ * log key shared by live calls and history rows.
  */
 export interface RingCXNormalizedCall {
   id: string;
@@ -117,32 +118,28 @@ export function isRingCXHistoryId(id: string): boolean {
   return id.includes(HISTORY_ID_SEPARATOR);
 }
 
-/** Live call id used by Agent routes and call-log matching: `uii$sessionId`. */
+/** Live call id used by Agent routes and disposition state: `uii$sessionId`. */
 export function ringCXLiveCallId(uii: string, sessionId: string): string {
   const decoded = uii.split(ENCODE_SYMBOL)[0];
   return `${decoded}${ENCODE_SYMBOL}${sessionId}`;
 }
 
 /**
- * One id per CX call leg. Live legs use the encoded uii. Server-only history
- * rows use `<segmentId>$$<uii>`.
+ * Call-log id for a CX call: the decoded uii. Live calls (`uii$sessionId`)
+ * and server history rows (`<segmentId>$$<uii>`) resolve to the same id.
  */
-export function ringCXLogId(input: {
-  id?: string;
-  localCallId?: string;
-  uii?: string;
-  sessionId?: string;
-}): string {
-  if (input.localCallId) {
-    return input.localCallId;
+export function ringCXLogId(input: { id?: string; uii?: string }): string {
+  if (input.uii) {
+    return input.uii.split(ENCODE_SYMBOL)[0];
   }
-  if (input.id && isRingCXHistoryId(input.id)) {
-    return input.id;
+  if (!input.id) {
+    return '';
   }
-  if (input.uii && input.sessionId) {
-    return ringCXLiveCallId(input.uii, input.sessionId);
+  if (isRingCXHistoryId(input.id)) {
+    const index = input.id.indexOf(HISTORY_ID_SEPARATOR);
+    return input.id.slice(index + HISTORY_ID_SEPARATOR.length);
   }
-  return input.id || input.uii || '';
+  return input.id.split(ENCODE_SYMBOL)[0];
 }
 
 /** Remote party phone number. Matching keys are plain numbers, not call type. */
@@ -247,14 +244,8 @@ function mapDisposition(
 export function formatRingCXCall(
   input: FormatRingCXCallInput,
 ): FormatRingCXCallResult | null {
-  const sessionId = input.session?.sessionId || input.sessionId;
   const uii = input.uii || '';
-  const id = ringCXLogId({
-    id: input.id,
-    localCallId: input.localCallId,
-    uii,
-    sessionId,
-  });
+  const id = ringCXLogId({ id: input.id, uii });
   if (!id) {
     return null;
   }

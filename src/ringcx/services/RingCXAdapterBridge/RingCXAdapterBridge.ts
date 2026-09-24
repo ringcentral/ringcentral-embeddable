@@ -61,8 +61,12 @@ import { CxWorkingState } from '../CxWorkingState';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
 import type { DispositionStepOptions } from '../../utils/shouldShowDispositionSubmitStep';
 
+type CallLogContact = Parameters<CallLogger['logCall']>[0]['contact'];
+
 interface LogCallInput {
   call: unknown;
+  /** Contact to log against. Defaults to the only contact match, if any. */
+  contact?: CallLogContact;
   note?: string;
   summary?: string;
   triggerType: string;
@@ -335,6 +339,7 @@ export class RingCXAdapterBridge
 
   async logCall({
     call,
+    contact,
     note,
     summary,
     triggerType,
@@ -347,10 +352,11 @@ export class RingCXAdapterBridge
     if (note) {
       formatted.call.ringcx.notes = note;
     }
+    const loggerCall = this._toLoggerCall(formatted);
     try {
       await this._callLogger.logCall({
-        call: this._toLoggerCall(formatted),
-        contact: undefined,
+        call: loggerCall,
+        contact: contact ?? singleContactMatch(loggerCall),
         note,
         aiNote: formatted.call.aiNote,
         redirect,
@@ -365,6 +371,7 @@ export class RingCXAdapterBridge
   async logFromHistory(
     call: FormattedCall,
     actionType: string,
+    contact?: CallLogContact,
   ): Promise<void> {
     const id = call.localCallId || call.id;
     const compatible = await this.getCallForLog(id);
@@ -378,6 +385,7 @@ export class RingCXAdapterBridge
     const logged = hasLoggedCallActivity(call);
     await this.logCall({
       call: compatible,
+      contact,
       note: compatible.ringcx?.notes,
       redirect: true,
       triggerType:
@@ -410,7 +418,7 @@ export class RingCXAdapterBridge
     if (!formatted) {
       return null;
     }
-    return this._toPageCall(formatted, id);
+    return this._toPageCall(formatted);
   }
 
   async viewLead(lead: Lead | unknown): Promise<void> {
@@ -577,21 +585,15 @@ export class RingCXAdapterBridge
       return null;
     }
     const input = call as FormatRingCXCallInput;
-    const sessionId = input.session?.sessionId || input.sessionId;
-    const id = ringCXLogId({
-      id: input.id,
-      localCallId: input.localCallId,
-      uii: input.uii,
-      sessionId,
-    });
+    const localCallId = localCallIdOf(input);
     const phone = ringCXContactPhone(input);
     const contactMatches =
       input.contactMatches ||
       (phone
         ? (this._contactMatcher?.dataMapping?.[phone] as FormatRingCXCallInput['contactMatches'])
         : undefined);
-    const saved = id
-      ? this._cxCallDisposition.getDisposition(id)
+    const saved = localCallId
+      ? this._cxCallDisposition.getDisposition(localCallId)
       : undefined;
     return formatRingCXCall({
       ...input,
@@ -623,8 +625,13 @@ export class RingCXAdapterBridge
     return { id, name: group?.groupName || id };
   }
 
+  /**
+   * Resolves a live `uii$sessionId`, a history row id or a plain uii (the
+   * call-log id) to the raw call.
+   */
   private _findRawCall(id: string): FormatRingCXCallInput | undefined {
-    const mapped = this._cxCallMonitor.callsMapping[id] as unknown as
+    const mapped = (this._cxCallMonitor.callsMapping[id] ??
+      this._findAgentCallByUii(id)) as unknown as
       | FormatRingCXCallInput
       | undefined;
     if (mapped) {
@@ -644,6 +651,7 @@ export class RingCXAdapterBridge
     const history = this._cxCallHistory.formattedCalls.find(
       (call) =>
         call.id === id ||
+        call.uii === id ||
         call.localCallId === id ||
         call.sessionId === id ||
         call.segmentId === id ||
@@ -678,16 +686,28 @@ export class RingCXAdapterBridge
     return undefined;
   }
 
+  /** The agent's own leg of a live or ended call, newest first. */
+  private _findAgentCallByUii(uii: string) {
+    if (uii.includes('$')) {
+      return undefined;
+    }
+    const callId = [
+      ...this._cxPresence.callIds,
+      ...this._cxPresence.callLogsIds,
+    ].find((item) => ringCXLogId({ id: item }) === uii);
+    return callId ? this._cxCallMonitor.callsMapping[callId] : undefined;
+  }
+
   private _toLoggerCall(
     formatted: { call: RingCXNormalizedCall; startTimeMs?: number },
   ): CompatibleCall {
-    return this._toPageCall(formatted, formatted.call.id);
+    return this._toPageCall(formatted);
   }
 
   private _toPageCall(
     formatted: { call: RingCXNormalizedCall; startTimeMs?: number },
-    id: string,
   ): CompatibleCall {
+    const id = formatted.call.id;
     const phone =
       formatted.call.direction === 'Outbound'
         ? formatted.call.to.phoneNumber
@@ -716,6 +736,33 @@ export class RingCXAdapterBridge
         : null,
     } as unknown as CompatibleCall;
   }
+}
+
+/**
+ * The remote party's contact when it has exactly one match, as the RingEX
+ * auto log picks it. Several matches are left for the host to resolve.
+ */
+function singleContactMatch(call: CompatibleCall): CallLogContact {
+  const matches =
+    call.direction === 'Outbound' ? call.toMatches : call.fromMatches;
+  return matches?.length === 1 ? (matches[0] as CallLogContact) : undefined;
+}
+
+/**
+ * The local `uii$sessionId` of a call this browser handled; disposition state
+ * is keyed by it. Undefined for server-only history rows.
+ */
+function localCallIdOf(input: FormatRingCXCallInput): string | undefined {
+  if (input.localCallId) {
+    return input.localCallId;
+  }
+  if (input.id && isRingCXHistoryId(input.id)) {
+    return undefined;
+  }
+  const sessionId = input.session?.sessionId || input.sessionId;
+  return input.uii && sessionId
+    ? ringCXLiveCallId(input.uii, sessionId)
+    : undefined;
 }
 
 function sessionIdFromCallId(callId?: string): string {
