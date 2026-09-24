@@ -32,9 +32,11 @@ import { CxCallMonitor } from '../../services/CxCallMonitor';
 import { CxCallDisposition } from '../../services/CxCallDisposition';
 import { CxWorkingState } from '../../services/CxWorkingState';
 import { CxActiveCallControl } from '../../services/CxActiveCallControl';
+import { CxAgentScript } from '../../services/CxAgentScript';
 import { CxClient } from '../../services/CxClient';
 import type { ActivityLog } from '../../services/CxClient/interfaces';
 import { CxCallHistory } from '../../services/CxCallHistory';
+import { RingCXSideWidgets } from '../../services/RingCXSideWidgets';
 import { parseHistoryCallId } from '../../services/CxCallHistory/formatHistoryCall';
 import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
@@ -48,6 +50,7 @@ import type {
 
 import { CallInfoHeader } from '../../components/CallInfoHeader';
 import { DispositionForm } from '../../components/DispositionForm';
+import { SideWidgetToggleButton } from '../../components/SideWidgetToggleButton';
 import { getCallInfos } from '../../utils/getCallInfos';
 import { shouldShowCallLogSummary } from '../../utils/shouldShowCallLogSummary';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
@@ -128,8 +131,10 @@ class CxDispositionView extends RcViewModule {
     private portManager: PortManager,
     @optional('CxDispositionViewOptions')
     private dispositionViewOptions?: CxDispositionViewOptions,
-    @optional('CxAgentScript')
-    private cxAgentScript?: { saveScriptResult(call: unknown): Promise<void> },
+    @optional()
+    private cxAgentScript?: CxAgentScript,
+    @optional()
+    private ringCXSideWidgets?: RingCXSideWidgets,
     @optional('RingCXAdapterBridge')
     private ringCXAdapterBridge?: RingCXAdapterBridge,
   ) {
@@ -981,8 +986,10 @@ class CxDispositionView extends RcViewModule {
       isSummaryFinal: summaryState?.isFinal || false,
       isSummaryLoading: summaryState?.isLoading || false,
       isSummaryEdited: summaryState?.isEditedAfterFinal || false,
-      sideWidgets: [],
-      sideWidgetVisible: false,
+      sideWidgets: (this.ringCXSideWidgets?.availableWidgetNames ?? []).map(
+        (name) => ({ name }),
+      ),
+      sideWidgetVisible: this.ringCXSideWidgets?.visible ?? false,
     };
   }
 
@@ -998,7 +1005,9 @@ class CxDispositionView extends RcViewModule {
       onUpdateCallLog: (field, value) => this.onUpdateCallLog(field, value),
       onUpdateSummary: (value) => this.onUpdateSummary(value),
       disposeCall: () => this.disposeCall(),
-      onToggleSideWidget: () => undefined,
+      onToggleSideWidget: async () => {
+        await this.ringCXSideWidgets?.toggle();
+      },
     };
   }
 
@@ -1038,11 +1047,21 @@ class CxDispositionView extends RcViewModule {
       historyActivityDraft,
       historyDispositionName,
       hasHistoryCall,
+      sideWidgets,
+      sideWidgetVisible,
     } = uiProps;
 
     // The agent script stays available until the disposition is saved, so this
     // route needs its own way back to a widget hidden on the call screen.
-    const sideWidgetToggle = undefined;
+    const sideWidgetToggle = sideWidgets.length ? (
+      <SideWidgetToggleButton
+        visible={sideWidgetVisible}
+        onToggle={() => void uiFunctions.onToggleSideWidget()}
+        label={t(sideWidgetVisible ? 'hideSideWidget' : 'showSideWidget', {
+          widgets: sideWidgets.map((widget) => widget.name).join(', '),
+        })}
+      />
+    ) : undefined;
 
     // Decided once per call id: the call becomes disposed and over while the
     // agent watches the submit succeed, which must not blank the page.

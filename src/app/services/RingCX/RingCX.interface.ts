@@ -77,7 +77,13 @@ export interface CxHostIntegration {
 }
 
 export interface CxRuntimeOptions {
+  /**
+   * Client id of the Agent Assistant app. Its interop code is minted for this
+   * id, not for the host app's own client id.
+   */
+  readonly agentAssistantClientId: string;
   readonly agentAssistantPageUrl: string;
+  readonly agentScriptPageUrl: string;
   readonly authHost: string;
   readonly clientAppType: string;
   readonly clientAppVersion: string;

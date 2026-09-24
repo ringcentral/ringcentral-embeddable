@@ -8,6 +8,7 @@ export type {
   SideWidgetContentOptions,
   SideWidgetCloseTabOptions,
   SideWidgetContentViewProps,
+  SideWidgetOpenAppsOptions,
   SideWidgetOpenContentOptions,
   SideWidgetOptions,
   SideWidgetTabScope,

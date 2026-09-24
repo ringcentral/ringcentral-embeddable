@@ -4,7 +4,8 @@ import type { DispositionItem, DispositionData, DispositionValidation, Dispositi
 import type { SaveStatus } from './CxDispositionView.view';
 
 export interface CxSideWidgetItem {
-  readonly nameKey: string;
+  /** Localized widget name, shown in the toggle tooltip. */
+  readonly name: string;
 }
 
 /**

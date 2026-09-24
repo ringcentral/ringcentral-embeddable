@@ -48,10 +48,13 @@ import { CxAgentSession } from '../../services/CxAgentSession';
 import { CxTransferCall } from '../../services/CxTransferCall';
 import { CxRequeueCall } from '../../services/CxRequeueCall';
 import { CxAuth } from '../../services/CxAuth';
+import { RingCXSideWidgets } from '../../services/RingCXSideWidgets';
 import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
 import { isOnLiveCallPage } from '../../utils/isOnLiveCallPage';
 import { resolveLiveActivityCallId } from '../../utils/resolveLiveActivityCallId';
+import type { DispositionStepOptions } from '../../utils/shouldShowDispositionSubmitStep';
+import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
 import { getCallAni } from '../../lib/getCxCallNumbers';
 import type { CxCallData } from '../../services/CxCallDataSource/CxCallDataSource.interface';
@@ -62,6 +65,7 @@ import type { CallControlAction } from '../../components/CallControlGrid';
 import { IvrAlertPanel } from '../../components/IvrAlertPanel';
 import { DialpadPanel } from '../../components/DialpadPanel';
 import { EndCallDialog } from '../../components/EndCallDialog';
+import { SideWidgetToggleButton } from '../../components/SideWidgetToggleButton';
 import { useCxContactRenderInfo } from '../../hooks/useCxContactRenderInfo';
 import type {
   BasicCallInfo,
@@ -109,6 +113,10 @@ class CxActiveCallView extends RcViewModule {
     private portManager: PortManager,
     @optional('CxActiveCallViewOptions')
     private activeCallViewOptions?: CxActiveCallViewOptions,
+    @optional()
+    private ringCXSideWidgets?: RingCXSideWidgets,
+    @optional('CxDispositionViewOptions')
+    private dispositionViewOptions?: DispositionStepOptions,
   ) {
     super();
     this.storagePlugin.enable(this);
@@ -556,6 +564,40 @@ class CxActiveCallView extends RcViewModule {
     this.reset();
   }
 
+  /**
+   * A call that is over and has nothing left to disposition. Its control page
+   * can only be reached again through history, for example Back from the call
+   * log page opened after the disposition that was pushed on top of it.
+   */
+  isFinishedCall(callId: string): boolean {
+    if (!callId || this.cxCallMonitor.callIds.includes(callId)) {
+      return false;
+    }
+    if (this.cxCallDisposition.isDisposed(callId)) {
+      return true;
+    }
+    const call = this.cxPresence.callsMapping[callId];
+    return (
+      !!call?.endedCall &&
+      !shouldShowDispositionSubmitStep(call, this.dispositionViewOptions)
+    );
+  }
+
+  @delegate('server')
+  async leaveFinishedCall(callId: string) {
+    if (
+      !this.isFinishedCall(callId) ||
+      this.router.currentPath !== cxPath.call(callId)
+    ) {
+      return;
+    }
+    if (this.viewCallId === callId) {
+      this._setViewCallId('');
+    }
+    this.reset();
+    this.router.replace(cxPath.home('dialer'));
+  }
+
   @delegate('server')
   async setCallId(id: string) {
     this.cxCall.setActivityCallId(id);
@@ -713,8 +755,10 @@ class CxActiveCallView extends RcViewModule {
       isDefaultRecord: this.isDefaultRecord,
       isInbound: this.isInbound,
       notes: dispositionData?.notes || '',
-      sideWidgets: [],
-      sideWidgetVisible: false,
+      sideWidgets: (this.ringCXSideWidgets?.availableWidgetNames ?? []).map(
+        (name) => ({ name }),
+      ),
+      sideWidgetVisible: this.ringCXSideWidgets?.visible ?? false,
     };
   }
 
@@ -741,7 +785,9 @@ class CxActiveCallView extends RcViewModule {
       handleKeypadChange: (value) => this.handleKeypadChange(value),
       handleKeypadKeyPress: (digit) => this.handleKeypadKeyPress(digit),
       onUpdateNotes: (value) => this.onUpdateNotes(value),
-      onToggleSideWidget: () => undefined,
+      onToggleSideWidget: async () => {
+        await this.ringCXSideWidgets?.toggle();
+      },
     };
   }
 
@@ -836,6 +882,8 @@ class CxActiveCallView extends RcViewModule {
       isDefaultRecord,
       isInbound,
       notes,
+      sideWidgets,
+      sideWidgetVisible,
     } = uiProps;
 
     const {
@@ -858,9 +906,32 @@ class CxActiveCallView extends RcViewModule {
     // Naming what is behind the toggle is the only cue the agent gets that a
     // script or an assistant is waiting, since a narrow frame no longer opens
     // one on its own.
-    const sideWidgetToggle = undefined;
+    const sideWidgetToggle = sideWidgets.length ? (
+      <SideWidgetToggleButton
+        visible={sideWidgetVisible}
+        onToggle={() => void uiFunctions.onToggleSideWidget()}
+        label={t(sideWidgetVisible ? 'hideSideWidget' : 'showSideWidget', {
+          widgets: sideWidgets.map((widget) => widget.name).join(', '),
+        })}
+      />
+    ) : undefined;
+
+    // Decided once per call id: the call ends while the agent is on this page,
+    // which must keep rendering until the call policy moves them on.
+    const arrivalRef = useRef<{ id?: string; finished: boolean }>();
+    if (!arrivalRef.current || arrivalRef.current.id !== params.id) {
+      arrivalRef.current = {
+        id: params.id,
+        finished: !!params.id && this.isFinishedCall(params.id),
+      };
+    }
+    const isFinishedOnArrival = arrivalRef.current.finished;
 
     useEffect(() => {
+      if (params.id && isFinishedOnArrival) {
+        void this.leaveFinishedCall(params.id);
+        return;
+      }
       if (params.id) {
         uiFunctions.setViewCallId(params.id);
         if (params.id !== activityCallId) {
@@ -1002,6 +1073,10 @@ class CxActiveCallView extends RcViewModule {
         }
       };
     }, [timeStamp, recordPauseCount, isRecording, callControlPermissions.allowPauseRecord, uiFunctions]);
+
+    if (isFinishedOnArrival) {
+      return null;
+    }
 
     if (!currentCall) {
       return (

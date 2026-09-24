@@ -1,7 +1,8 @@
 import type { IvrAlertData } from '../../components/IvrAlertPanel';
 
 export interface CxSideWidgetItem {
-  readonly nameKey: string;
+  /** Localized widget name, shown in the toggle tooltip. */
+  readonly name: string;
 }
 
 /**

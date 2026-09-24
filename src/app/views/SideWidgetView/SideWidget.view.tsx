@@ -46,6 +46,7 @@ import {
   SideWidgetContentHandle,
   type SideWidgetCloseTabOptions,
   type SideWidgetContentOptions,
+  type SideWidgetOpenAppsOptions,
   type SideWidgetOpenContentOptions,
   type SideWidgetOptions,
   type SideWidgetTab,
@@ -289,9 +290,15 @@ export class SideWidgetView extends RcViewModule {
         ? [...contactTabs, createAppsTab()]
         : contactTabs;
     const existingTabIndex = retainedTabs.findIndex(({ id }) => id === tab.id);
+    // New content goes in front; the Apps tab always joins at the end, so a
+    // call's Apps tab lines up behind content the call already opened.
+    const insertedTabs =
+      tab.id === SIDE_WIDGET_APPS_TAB_ID
+        ? [...retainedTabs, tab]
+        : [tab, ...retainedTabs];
     this.tabs =
       existingTabIndex < 0
-        ? [tab, ...retainedTabs]
+        ? insertedTabs
         : retainedTabs.map((item, index) =>
             index === existingTabIndex ? tab : item
           );
@@ -307,7 +314,10 @@ export class SideWidgetView extends RcViewModule {
     }
   }
 
-  openApps(contact: ThirdPartyWidgetContact): void {
+  openApps(
+    contact: ThirdPartyWidgetContact,
+    { activate = true }: SideWidgetOpenAppsOptions = {},
+  ): void {
     if (!this.enabled || this._thirdParty.apps.length === 0) {
       return;
     }
@@ -315,15 +325,16 @@ export class SideWidgetView extends RcViewModule {
     const preserveTabs = isSameSideWidgetContact(this.currentContact, contact);
     const closedTabIds = this._getClosedTabIds(tab.id, preserveTabs);
     const previousTabId = this.currentTabId;
-    this._openTab(tab, contact, true, preserveTabs);
+    this._openTab(tab, contact, activate, preserveTabs);
     this._notifyClosedTabs(closedTabIds);
-    this._notifyTabActivation(previousTabId, tab.id);
+    this._notifyTabActivation(previousTabId, this.currentTabId);
     this._expandedView.open(this._expandedHandle);
   }
 
   openAppTab(
     app: ThirdPartyApp,
-    contact: ThirdPartyWidgetContact | null
+    contact: ThirdPartyWidgetContact | null,
+    { activate = true }: SideWidgetOpenAppsOptions = {},
   ): void {
     if (!this.enabled) {
       return;
@@ -341,9 +352,9 @@ export class SideWidgetView extends RcViewModule {
     );
     const closedTabIds = this._getClosedTabIds(tab.id, preserveTabs);
     const previousTabId = this.currentTabId;
-    this._openTab(tab, nextContact, true, preserveTabs);
+    this._openTab(tab, nextContact, activate, preserveTabs);
     this._notifyClosedTabs(closedTabIds);
-    this._notifyTabActivation(previousTabId, tab.id);
+    this._notifyTabActivation(previousTabId, this.currentTabId);
     this._expandedView.open(this._expandedHandle);
   }
 
@@ -682,19 +693,25 @@ export class SideWidgetView extends RcViewModule {
   /**
    * Shows the available apps for a new call. Outgoing calls also open every
    * pinned app in its own tab.
+   *
+   * The apps open behind an open `keepActiveOnCallApps` tab, such as the
+   * RingCX Agent script, which the call itself has just opened.
    */
   openCallApps(
     contact: ThirdPartyWidgetContact,
     openPinnedApps = false,
   ): void {
-    this.openApps(contact);
+    const activate = !this.tabs.some(
+      ({ id }) => this._contentHandles.get(id)?.options.keepActiveOnCallApps,
+    );
+    this.openApps(contact, { activate });
     if (!openPinnedApps) {
       return;
     }
     this._thirdParty.pinAppIds.forEach((appId) => {
       const app = this._thirdParty.apps.find(({ id }) => id === appId);
       if (app) {
-        this.openAppTab(app, contact);
+        this.openAppTab(app, contact, { activate });
       }
     });
   }
@@ -734,10 +751,10 @@ export class SideWidgetView extends RcViewModule {
     tabId: string,
     showCloseButton: boolean
   ): React.ReactNode {
-    if (tabId !== this.currentTabId) {
+    const options = this._contentHandles.get(tabId)?.options;
+    if (tabId !== this.currentTabId && !options?.keepMounted) {
       return null;
     }
-    const options = this._contentHandles.get(tabId)?.options;
     const ContentView = options?.view;
     return ContentView ? (
       <AppProvider>

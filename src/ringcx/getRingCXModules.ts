@@ -6,6 +6,8 @@ import { RingCXAdapterBridge } from './services/RingCXAdapterBridge';
 import { CxAnnouncementsView } from './CxAnnouncements.view';
 import { CxAppView } from './CxApp.view';
 import { CxSettingsView } from './CxSettings.view';
+import { CxAgentAssistant } from './services/CxAgentAssistant';
+import { CxAgentScript } from './services/CxAgentScript';
 import { CxAgentSession } from './services/CxAgentSession';
 import { CxAuth } from './services/CxAuth';
 import { CxActiveCallControl } from './services/CxActiveCallControl';
@@ -25,6 +27,7 @@ import { CxSessionRecovery } from './services/CxSessionRecovery';
 import { CxSettings } from './services/CxSettings';
 import { CxSubscription } from './services/CxSubscription';
 import { CxWorkingState } from './services/CxWorkingState';
+import { RingCXSideWidgets } from './services/RingCXSideWidgets';
 import { CxAgentView } from './views/CxAgentView';
 import { CxActiveCallListView } from './views/CxActiveCallListView';
 import { CxActiveCallView } from './views/CxActiveCallView';
@@ -87,6 +90,20 @@ export function getRingCXModules(
       provide: 'CxSessionConfigViewOptions',
       useValue: { showReChooseAccount: true },
     },
+    {
+      provide: 'CxAgentScriptOptions',
+      useValue: {
+        enabled: options.enableAgentScript,
+        pageUrl: options.agentScriptPageUrl,
+      },
+    },
+    {
+      provide: 'CxAgentAssistantOptions',
+      useValue: {
+        clientId: options.agentAssistantClientId,
+        pageUrl: options.agentAssistantPageUrl,
+      },
+    },
     CxClient,
     CxSubscription,
     CxAuth,
@@ -106,6 +123,9 @@ export function getRingCXModules(
     CxLeads,
     CxCallHistory,
     CxSessionRecovery,
+    CxAgentScript,
+    CxAgentAssistant,
+    RingCXSideWidgets,
     CxMultiLoginView,
     CxChooseAccountView,
     CxSessionConfigView,

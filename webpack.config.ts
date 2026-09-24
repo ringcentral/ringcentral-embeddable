@@ -17,6 +17,8 @@ const DEFAULT_NOISE_REDUCTION_SDK_URL =
   'https://apps.ringcentral.com/integration/ringcentral-embeddable/noise-reduction/1.0.13.1';
 const DEFAULT_AGENT_ASSISTANT_PAGE_URL =
   'https://cdn.labs.ringcentral.com/ringcx-embeddable/ai-assistant/0.0.1/index.html';
+const DEFAULT_AGENT_SCRIPT_PAGE_URL =
+  'https://cdn.labs.ringcentral.com/ringcx-embeddable/agent-script/0.0.2/index.html';
 const RINGCX_AGENT_SDK_ASSET = /[\\/]assets[\\/]ringcx[\\/]agentLibrary\.js$/;
 
 const readEnv = (...names: string[]) => {
@@ -190,6 +192,12 @@ export const getWebpackConfig = (
         'process.env.AGENT_ASSISTANT_PAGE_URL': toDefineValue(
           readEnv('AGENT_ASSISTANT_PAGE_URL') ||
             DEFAULT_AGENT_ASSISTANT_PAGE_URL,
+        ),
+        'process.env.AGENT_ASSISTANT_CLIENT_ID': toDefineValue(
+          readEnv('AGENT_ASSISTANT_CLIENT_ID'),
+        ),
+        'process.env.AGENT_SCRIPT_PAGE_URL': toDefineValue(
+          readEnv('AGENT_SCRIPT_PAGE_URL') || DEFAULT_AGENT_SCRIPT_PAGE_URL,
         ),
       }),
     ],

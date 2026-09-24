@@ -28,6 +28,18 @@ export interface SideWidgetContentOptions {
   scope?: SideWidgetTabScope;
   /** Shows available third-party apps as a sibling tab. */
   showAppsTab?: boolean;
+  /**
+   * Keeps this tab in front while it is open and a new call opens its apps:
+   * the Apps tab and the pinned app tabs open behind it instead of taking
+   * focus.
+   */
+  keepActiveOnCallApps?: boolean;
+  /**
+   * Keeps the view rendered while another tab is active, so its state, such as
+   * a loaded iframe, survives tab switches. Routed pages leave it off, because
+   * they render from the current route and only the active one may.
+   */
+  keepMounted?: boolean;
   onActivate?: () => SideWidgetLifecycleResult;
   onDeactivate?: (nextTabId: string | null) => SideWidgetLifecycleResult;
   onClose?: (nextTabId: string | null) => SideWidgetLifecycleResult;
@@ -48,6 +60,11 @@ export interface SideWidgetOpenContentOptions {
   activate?: boolean;
   contact?: ThirdPartyWidgetContact | null;
   expand?: boolean;
+}
+
+export interface SideWidgetOpenAppsOptions {
+  /** @default true */
+  activate?: boolean;
 }
 
 export interface SideWidgetCloseTabOptions {

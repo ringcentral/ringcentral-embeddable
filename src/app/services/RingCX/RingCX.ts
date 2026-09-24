@@ -507,7 +507,9 @@ export class RingCX extends RcModule {
 
   private _buildRuntimeOptions(): CxRuntimeOptions {
     return {
+      agentAssistantClientId: process.env.AGENT_ASSISTANT_CLIENT_ID ?? '',
       agentAssistantPageUrl: process.env.AGENT_ASSISTANT_PAGE_URL ?? '',
+      agentScriptPageUrl: process.env.AGENT_SCRIPT_PAGE_URL ?? '',
       authHost: this._resolveAuthHost(),
       clientAppType: RINGCX_CLIENT_APP_TYPE,
       clientAppVersion: this._version ?? '',
