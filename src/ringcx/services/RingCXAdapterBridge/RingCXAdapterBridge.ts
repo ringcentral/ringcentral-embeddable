@@ -286,7 +286,7 @@ export class RingCXAdapterBridge
       call: formatted.call,
       note: formatted.call.ringcx.notes,
       triggerType: 'callDisposition',
-      redirect: false,
+      redirect: true,
     });
     return false;
   }
@@ -316,7 +316,7 @@ export class RingCXAdapterBridge
       note: input.note,
       summary: input.extra?.summary,
       triggerType: 'callDisposition',
-      redirect: false,
+      redirect: true,
     });
     return false;
   }
