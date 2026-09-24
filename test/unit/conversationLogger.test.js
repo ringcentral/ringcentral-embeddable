@@ -153,6 +153,10 @@ function createDeps(overrides = {}) {
           ? 1500
           : undefined
       )),
+      typingTimeMap: {
+        'message-1': 1500,
+        'thread-message-1': 1500,
+      },
     },
     tabManager: {
       active: true,
@@ -344,6 +348,27 @@ describe('ConversationLogger', () => {
     });
     expect(logger._log).toHaveBeenCalledWith({
       item: conversation,
+      triggerType: 'manual',
+    });
+
+    await logger.log({
+      conversation: {
+        ...conversation,
+        messages: [
+          { id: 'message-1' },
+          { id: 'message-2' },
+        ],
+      },
+      triggerType: 'manual',
+    });
+    expect(logger._log).toHaveBeenLastCalledWith({
+      item: {
+        ...conversation,
+        messages: [
+          { id: 'message-1', typingDurationMs: 1500 },
+          { id: 'message-2' },
+        ],
+      },
       triggerType: 'manual',
     });
 

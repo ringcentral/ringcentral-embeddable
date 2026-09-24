@@ -225,7 +225,13 @@ export class ConversationLogger extends ConversationLoggerBase {
         `${this.constructor.name}.log: options.conversation is undefined.`,
       );
     }
-    await this._log({ item: conversation, ...options });
+    const messages = conversation.messages?.map((message) =>
+      this._withTypingDuration(message),
+    );
+    const conversationWithTypingDuration = messages
+      ? { ...conversation, messages }
+      : conversation;
+    await this._log({ item: conversationWithTypingDuration, ...options });
   }
 
   @computed((that: ConversationLogger) => [
@@ -233,6 +239,7 @@ export class ConversationLogger extends ConversationLoggerBase {
     that._deps.extensionInfo.extensionNumber,
     that._deps.conversationMatcher.dataMapping,
     that._deps.messageThreads.threads,
+    that._deps.smsTypingTimeTracker.typingTimeMap,
   ])
   get conversationLogMap() {
     const { conversationStore } = this._deps.messageStore;
@@ -274,15 +281,9 @@ export class ConversationLogger extends ConversationLoggerBase {
             ...getNumbersFromMessage({ extensionNumber, message }),
           };
         }
-        const typingTime = this._deps.smsTypingTimeTracker.getTypingTime(message.id);
-        let messageWithTypingTime = message;
-        if (typeof typingTime === 'number') {
-          messageWithTypingTime = {
-            ...message,
-            typingDurationMs: typingTime,
-          };
-        }
-        mapping[conversationId][date].messages.push(messageWithTypingTime);
+        mapping[conversationId][date].messages.push(
+          this._withTypingDuration(message),
+        );
       });
     this._deps.messageThreads.threads.forEach((thread) => {
       const conversationId = thread.id;
@@ -319,14 +320,7 @@ export class ConversationLogger extends ConversationLoggerBase {
             label: thread.label,
           };
         }
-        const typingTime = this._deps.smsTypingTimeTracker.getTypingTime(message.id);
-        let messageWithTypingTime = message;
-        if (typeof typingTime === 'number') {
-          messageWithTypingTime = {
-            ...message,
-            typingDurationMs: typingTime,
-          };
-        }
+        const messageWithTypingTime = this._withTypingDuration(message);
         mapping[conversationId][date].entities.push(messageWithTypingTime);
         if (message.recordType === 'AliveMessage') {
           mapping[conversationId][date].messages.push(messageWithTypingTime);
@@ -334,6 +328,14 @@ export class ConversationLogger extends ConversationLoggerBase {
       });
     });
     return mapping;
+  }
+
+  _withTypingDuration(message) {
+    const typingDurationMs =
+      this._deps.smsTypingTimeTracker.getTypingTime(message.id);
+    return typeof typingDurationMs === 'number'
+      ? { ...message, typingDurationMs }
+      : message;
   }
 
   getMessageThreadLogId(thread) {
