@@ -18,6 +18,4 @@ export default {
   callDispositionSuccess: 'Puhelun järjestely tallennettu onnistuneesti.',
   callDispositionFailed: 'Puhelun järjestelyn tallentaminen epäonnistui.',
   callLogNotFound: 'Puhelulokia ei löydy',
-  showSideWidget: 'Näytä {widgets}',
-  hideSideWidget: 'Piilota {widgets}',
 } as const;

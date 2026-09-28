@@ -1,5 +1,6 @@
 export default {
   callHUD: 'HUD',
+  close: 'Close HUD',
   search: 'Search',
   All: 'All',
   User: 'User',

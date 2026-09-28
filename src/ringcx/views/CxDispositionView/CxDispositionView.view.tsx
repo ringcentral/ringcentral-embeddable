@@ -36,7 +36,6 @@ import { CxAgentScript } from '../../services/CxAgentScript';
 import { CxClient } from '../../services/CxClient';
 import type { ActivityLog } from '../../services/CxClient/interfaces';
 import { CxCallHistory } from '../../services/CxCallHistory';
-import { RingCXSideWidgets } from '../../services/RingCXSideWidgets';
 import { parseHistoryCallId } from '../../services/CxCallHistory/formatHistoryCall';
 import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
@@ -50,12 +49,12 @@ import type {
 
 import { CallInfoHeader } from '../../components/CallInfoHeader';
 import { DispositionForm } from '../../components/DispositionForm';
-import { SideWidgetToggleButton } from '../../components/SideWidgetToggleButton';
 import { getCallInfos } from '../../utils/getCallInfos';
 import { shouldShowCallLogSummary } from '../../utils/shouldShowCallLogSummary';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
 import { hasNewCallTakenOver } from '../../utils/hasNewCallTakenOver';
 import { resolveLiveActivityCallId } from '../../utils/resolveLiveActivityCallId';
+import { useSideWidgetTabsShown } from '../../../app/views/SideWidgetView';
 import type {
   CxDispositionViewProps,
   CxDispositionViewUIProps,
@@ -133,8 +132,6 @@ class CxDispositionView extends RcViewModule {
     private dispositionViewOptions?: CxDispositionViewOptions,
     @optional()
     private cxAgentScript?: CxAgentScript,
-    @optional()
-    private ringCXSideWidgets?: RingCXSideWidgets,
     @optional('RingCXAdapterBridge')
     private ringCXAdapterBridge?: RingCXAdapterBridge,
   ) {
@@ -986,10 +983,6 @@ class CxDispositionView extends RcViewModule {
       isSummaryFinal: summaryState?.isFinal || false,
       isSummaryLoading: summaryState?.isLoading || false,
       isSummaryEdited: summaryState?.isEditedAfterFinal || false,
-      sideWidgets: (this.ringCXSideWidgets?.availableWidgetNames ?? []).map(
-        (name) => ({ name }),
-      ),
-      sideWidgetVisible: this.ringCXSideWidgets?.visible ?? false,
     };
   }
 
@@ -1005,18 +998,14 @@ class CxDispositionView extends RcViewModule {
       onUpdateCallLog: (field, value) => this.onUpdateCallLog(field, value),
       onUpdateSummary: (value) => this.onUpdateSummary(value),
       disposeCall: () => this.disposeCall(),
-      onToggleSideWidget: async () => {
-        await this.ringCXSideWidgets?.toggle();
-      },
     };
   }
 
   component(_props?: CxDispositionViewProps) {
     const params = useParams<{ id?: string; method?: string }>();
-    // Merged so the toggle tooltip can name the widgets without a second copy
-    // of their labels living here.
     const { t } = useLocale(i18n);
     const { current: uiFunctions } = useRef(this.getUIFunctions());
+    const tabsShown = useSideWidgetTabsShown();
 
     const uiProps = useConnector(() => this.getUIProps());
 
@@ -1047,21 +1036,7 @@ class CxDispositionView extends RcViewModule {
       historyActivityDraft,
       historyDispositionName,
       hasHistoryCall,
-      sideWidgets,
-      sideWidgetVisible,
     } = uiProps;
-
-    // The agent script stays available until the disposition is saved, so this
-    // route needs its own way back to a widget hidden on the call screen.
-    const sideWidgetToggle = sideWidgets.length ? (
-      <SideWidgetToggleButton
-        visible={sideWidgetVisible}
-        onToggle={() => void uiFunctions.onToggleSideWidget()}
-        label={t(sideWidgetVisible ? 'hideSideWidget' : 'showSideWidget', {
-          widgets: sideWidgets.map((widget) => widget.name).join(', '),
-        })}
-      />
-    ) : undefined;
 
     // Decided once per call id: the call becomes disposed and over while the
     // agent watches the submit succeed, which must not blank the page.
@@ -1118,6 +1093,12 @@ class CxDispositionView extends RcViewModule {
     const pageTitle = isHistoryMode
       ? (params.method === 'create' ? t('createCallLog') : t('updateCallLog'))
       : t('disposition');
+    // The side widget tab already names the page and hides the back button.
+    const header = tabsShown ? null : (
+      <AppHeaderNav override resetImmediately>
+        <PageHeader onBackClick={uiFunctions.onBack}>{pageTitle}</PageHeader>
+      </AppHeaderNav>
+    );
     const isHistoryActivityPending =
       isHistoryMode &&
       !!params.id &&
@@ -1128,14 +1109,7 @@ class CxDispositionView extends RcViewModule {
     if (!currentCall && (isServerOnlyHistoryCall || isHistoryActivityPending)) {
       return (
         <div className="flex flex-col h-full bg-neutral-base overflow-hidden">
-          <AppHeaderNav override resetImmediately>
-            <PageHeader
-              onBackClick={uiFunctions.onBack}
-              endAdornment={sideWidgetToggle}
-            >
-              {pageTitle}
-            </PageHeader>
-          </AppHeaderNav>
+          {header}
           {isHistoryActivityPending ? (
             <div
               className="flex-1 flex items-center justify-center"
@@ -1228,14 +1202,7 @@ class CxDispositionView extends RcViewModule {
     if (!currentCall) {
       return (
         <div className="flex flex-col h-full bg-neutral-base">
-          <AppHeaderNav override resetImmediately>
-            <PageHeader
-              onBackClick={uiFunctions.onBack}
-              endAdornment={sideWidgetToggle}
-            >
-              {pageTitle}
-            </PageHeader>
-          </AppHeaderNav>
+          {header}
           <div className="flex-1 flex items-center justify-center text-neutral-b2">
             <p className="typography-mainText">{t('noActiveCall')}</p>
           </div>
@@ -1246,14 +1213,7 @@ class CxDispositionView extends RcViewModule {
 
     return (
       <div className="flex flex-col h-full bg-neutral-base overflow-hidden">
-        <AppHeaderNav override resetImmediately>
-          <PageHeader
-            onBackClick={uiFunctions.onBack}
-            endAdornment={sideWidgetToggle}
-          >
-            {pageTitle}
-          </PageHeader>
-        </AppHeaderNav>
+        {header}
 
         <CallInfoHeader
           subject={basicInfo?.subject}

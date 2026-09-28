@@ -1,4 +1,5 @@
 export { SideWidgetView } from './SideWidget.view';
+export { useSideWidgetTabsShown } from './useSideWidgetTabsShown';
 export {
   getSideWidgetCallContact,
   type SideWidgetCallInfo,

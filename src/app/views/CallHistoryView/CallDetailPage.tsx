@@ -30,6 +30,7 @@ import type { FunctionComponent } from "react";
 import React, { useState } from "react";
 
 import { CallerIdInfoButton } from "../../components/CallerIdInfoButton";
+import { useSideWidgetTabsShown } from "../SideWidgetView/useSideWidgetTabsShown";
 import i18n from "./i18n";
 
 type CallDetailPageProps = CallDetailViewPanelProps & {
@@ -79,6 +80,10 @@ export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
     "Call history detail page"
   );
   const actionButtons = useHistoryActionButtons(actions, onAction);
+  // With tabs the tab names the page, so a title header with no actions
+  // would only repeat it.
+  const hideHeader =
+    useSideWidgetTabsShown() && !!headerTitle && actionButtons.length === 0;
   const {
     DisplayName,
     displayPhoneNumber,
@@ -213,75 +218,77 @@ export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
   );
   return (
     <div data-sign="CallDetailPage" className="flex flex-col h-full">
-      <AppHeaderNav override resetImmediately>
-        {headerTitle ? (
-          <PageHeader
-            onBackClick={goBack}
-            endAdornment={
-              <ActionMenuList
-                buttons={actionButtons}
-                displayCount={2}
-                variant="plain"
-                propsMap={{ all: { variant: "contained" } }}
-                moreButtonProps={{ variant: "contained" }}
-              />
-            }
-          >
-            <span className="truncate" data-sign="detailPageTitle">
-              {headerTitle}
-            </span>
-          </PageHeader>
-        ) : (
-          <div className="h-[72px] flex items-center px-2 gap-1 pt-2">
-            <PageHeaderBackButton
-              onClick={goBack}
-              className="flex-none"
-              size="medium"
-            />
-            <div
-              className="flex gap-2 items-center flex-auto overflow-hidden"
-              data-sign="contactDetail"
+      {hideHeader ? null : (
+        <AppHeaderNav override resetImmediately>
+          {headerTitle ? (
+            <PageHeader
+              onBackClick={goBack}
+              endAdornment={
+                <ActionMenuList
+                  buttons={actionButtons}
+                  displayCount={2}
+                  variant="plain"
+                  propsMap={{ all: { variant: "contained" } }}
+                  moreButtonProps={{ variant: "contained" }}
+                />
+              }
             >
-              <Avatar size="large" />
-              <div className="ml-1 flex flex-col flex-auto overflow-hidden">
-                <h2
-                  className="text-neutral-b0 truncate typography-subtitle flex items-center gap-1"
-                  data-sign="displayName"
-                >
-                  <DisplayName
-                    displayControl={{ maybe: true, matchCounts: true }}
-                  />
-                </h2>
-                {!isConferenceCall && (
-                  <div
-                    className="flex gap-1 items-center"
-                    data-sign="displayNumber"
+              <span className="truncate" data-sign="detailPageTitle">
+                {headerTitle}
+              </span>
+            </PageHeader>
+          ) : (
+            <div className="h-[72px] flex items-center px-2 gap-1 pt-2">
+              <PageHeaderBackButton
+                onClick={goBack}
+                className="flex-none"
+                size="medium"
+              />
+              <div
+                className="flex gap-2 items-center flex-auto overflow-hidden"
+                data-sign="contactDetail"
+              >
+                <Avatar size="large" />
+                <div className="ml-1 flex flex-col flex-auto overflow-hidden">
+                  <h2
+                    className="text-neutral-b0 truncate typography-subtitle flex items-center gap-1"
+                    data-sign="displayName"
                   >
-                    <p
-                      className="typography-descriptor text-neutral-b2 truncate"
-                      title={displayPhoneNumber}
+                    <DisplayName
+                      displayControl={{ maybe: true, matchCounts: true }}
+                    />
+                  </h2>
+                  {!isConferenceCall && (
+                    <div
+                      className="flex gap-1 items-center"
+                      data-sign="displayNumber"
                     >
-                      {displayPhoneNumber}
-                    </p>
-                    {formattedPhoneNumber && (
-                      <CopyIconButtonSpring text={formattedPhoneNumber} />
-                    )}
-                  </div>
-                )}
+                      <p
+                        className="typography-descriptor text-neutral-b2 truncate"
+                        title={displayPhoneNumber}
+                      >
+                        {displayPhoneNumber}
+                      </p>
+                      {formattedPhoneNumber && (
+                        <CopyIconButtonSpring text={formattedPhoneNumber} />
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex gap-1 items-center flex-none">
+                <ActionMenuList
+                  buttons={actionButtons}
+                  displayCount={2}
+                  variant="plain"
+                  propsMap={{ all: { variant: "contained" } }}
+                  moreButtonProps={{ variant: "contained" }}
+                />
               </div>
             </div>
-            <div className="flex gap-1 items-center flex-none">
-              <ActionMenuList
-                buttons={actionButtons}
-                displayCount={2}
-                variant="plain"
-                propsMap={{ all: { variant: "contained" } }}
-                moreButtonProps={{ variant: "contained" }}
-              />
-            </div>
-          </div>
-        )}
-      </AppHeaderNav>
+          )}
+        </AppHeaderNav>
+      )}
       {scrollCallInfoWithContent ? (
         <div
           className="flex-1 min-h-0 overflow-y-auto"

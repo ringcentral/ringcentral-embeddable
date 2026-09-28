@@ -200,7 +200,7 @@ export class CallControlView extends CallControlViewBase {
           (session) => session.partyData?.sessionId === telephonySessionId,
         )?.id;
         if (sessionId) {
-          this._voicemailDropView.open(sessionId);
+          await this._voicemailDropView.open(sessionId);
         }
         return;
       }

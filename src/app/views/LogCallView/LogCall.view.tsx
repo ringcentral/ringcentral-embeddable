@@ -5,6 +5,7 @@ import { CallsListViewSpring } from "@ringcentral-integration/micro-phone/src/ap
 import { CallViewState } from "@ringcentral-integration/micro-phone/src/app/views/CallView/services";
 import {
   action,
+  delegate,
   inject,
   injectable,
   RcViewModule,
@@ -65,6 +66,20 @@ export class LogCallView extends RcViewModule {
   }
 
   /**
+   * Stores the call on the server port. The page loads it on the client that
+   * renders it, but the shared worker needs it too: the side widget resolves
+   * the log page's contact from it there, and without it would keep the
+   * previous contact's tabs and hand them back on its next tab update.
+   */
+  @delegate('server')
+  private async _storeCurrentCall(
+    call: CompatibleCall | null,
+    routeId: string | null = null,
+  ): Promise<void> {
+    this.setCurrentCall(call, routeId);
+  }
+
+  /**
    * The call loaded for a log page route, or null while it is loading or
    * when the page shows another call.
    *
@@ -86,7 +101,7 @@ export class LogCallView extends RcViewModule {
 
   private async loadCall(sessionId: string, source?: string): Promise<void> {
     this.setLoading(true);
-    this.setCurrentCall(null);
+    await this._storeCurrentCall(null);
     try {
       const decodedId = decodeURIComponent(sessionId);
       let call: CompatibleCall | null = null;
@@ -105,7 +120,7 @@ export class LogCallView extends RcViewModule {
       if (!call && !source) {
         call = await callLogSourceRegistry.getCall(RINGCX_CALL_LOG_SOURCE, decodedId);
       }
-      this.setCurrentCall(call, sessionId);
+      await this._storeCurrentCall(call, sessionId);
     } catch (error) {
       this.logger.error('LogCall load failed', error);
     } finally {

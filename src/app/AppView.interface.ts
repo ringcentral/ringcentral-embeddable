@@ -14,15 +14,11 @@ export type Route = {
    */
   exact?: boolean;
   /**
-   * render this route as a detail page in the expanded column when available
-   */
-  layout?: 'detail';
-  /**
-   * page that remains in the main column while a detail route is expanded
+   * Page that remains in the main column while this side widget page is open.
    */
   backgroundComponent?: React.ComponentType;
   /**
-   * Keep the previously rendered main page while this detail route is expanded.
+   * Keep the previously rendered main page while this side widget page is open.
    */
   preserveBackground?: boolean;
   /**

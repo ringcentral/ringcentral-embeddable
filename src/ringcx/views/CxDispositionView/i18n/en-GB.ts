@@ -18,7 +18,5 @@ export default {
   callDispositionSuccess: 'Call disposition saved successfully.',
   callDispositionFailed: 'Failed to save call disposition.',
   callLogNotFound: 'Call log not found',
-  showSideWidget: 'Show {widgets}',
-  hideSideWidget: 'Hide {widgets}',
 } as const;
 

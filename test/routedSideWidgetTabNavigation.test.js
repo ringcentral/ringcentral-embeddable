@@ -288,3 +288,167 @@ test('restores the background after collapse receives a stale routed path', asyn
   expect(router.currentPath).toBe('/messages');
   expect(sideWidgetView.tabs).toEqual([]);
 });
+
+test('returns to the page switched to while docked when a later tab closes', async () => {
+  const root = { expanded: true };
+  const expandedView = {
+    activeContentId: null,
+    create: (options) => ({ options }),
+    open(handle) {
+      this.activeContentId = handle.options.id;
+    },
+    async close() {
+      this.activeContentId = null;
+      root.expanded = false;
+    },
+  };
+  const sideWidgetView = new SideWidgetView(
+    expandedView,
+    { apps: [], pinAppIds: [], toggleAppPin: jest.fn(), loadAppPage: jest.fn() },
+    { themeType: 'light' },
+    { enableSideWidget: true },
+    root,
+  );
+  const contactDetailsConfig = {
+    id: 'contact-details',
+    name: 'Contact',
+    scope: 'contact',
+    backgroundPath: '/contacts',
+  };
+  const pages = {
+    [CALL_DETAILS_PATH]: [callDetailsConfig, '/history/:callLogId', CALL_CONTACT],
+    '/contacts/company/contact-2': [
+      contactDetailsConfig,
+      '/contacts/:contactType/:contactId',
+      { id: 'contact-2', phoneNumber: '+16505550199' },
+    ],
+  };
+  let routedSideWidgetView;
+  const router = {
+    currentPath: '/history',
+    push: jest.fn(async (path) => router.go(path)),
+    replace: jest.fn(async (path) => router.go(path)),
+    go(path) {
+      router.currentPath = path;
+      const page = pages[path];
+      if (page) {
+        routedSideWidgetView.open({
+          config: page[0],
+          contact: page[2],
+          detailComponent: () => null,
+          detailProps: {},
+          path,
+          routePath: page[1],
+        });
+      }
+      routedSideWidgetView.syncPath(path, !!page);
+    },
+  };
+  routedSideWidgetView = new RoutedSideWidgetView(sideWidgetView, router, root);
+  routedSideWidgetView.syncPath('/history');
+
+  // Call details open docked; the user switches the main column to Contacts
+  // and opens another contact, which replaces the call's contact tab.
+  await router.push(CALL_DETAILS_PATH);
+  await routedSideWidgetView.navigateMain('/contacts');
+  await router.push('/contacts/company/contact-2');
+  expect(sideWidgetView.tabs.map(({ id }) => id)).toEqual(['contact-details']);
+
+  // Back closes the contact's tab and keeps the contact list on the left; the
+  // docked drawer stays open on its blank view.
+  sideWidgetView._contentHandles.get('contact-details').options.onBack();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  expect(router.currentPath).toBe('/contacts');
+  expect(routedSideWidgetView.mainPath).toBeNull();
+  expect(sideWidgetView.tabs).toEqual([]);
+  expect(root.expanded).toBe(true);
+  expect(sideWidgetView.isOpen).toBe(true);
+});
+
+test('does not bring back the call details when a later contact loads after it opened', async () => {
+  const root = { expanded: true };
+  const expandedView = {
+    activeContentId: null,
+    create: (options) => ({ options }),
+    open(handle) {
+      this.activeContentId = handle.options.id;
+    },
+    async close() {
+      this.activeContentId = null;
+      root.expanded = false;
+    },
+  };
+  const sideWidgetView = new SideWidgetView(
+    expandedView,
+    { apps: [], pinAppIds: [], toggleAppPin: jest.fn(), loadAppPage: jest.fn() },
+    { themeType: 'light' },
+    { enableSideWidget: true },
+    root,
+  );
+  const contactPath = '/contacts/company/contact-2';
+  const contactDetailsConfig = {
+    id: 'contact-details',
+    name: 'Contact',
+    scope: 'contact',
+    backgroundPath: '/contacts',
+  };
+  // As on the shared worker: the contact loads only after its page mounted.
+  let loadedContact;
+  const pages = {
+    [CALL_DETAILS_PATH]: [callDetailsConfig, '/history/:callLogId', () => CALL_CONTACT],
+    [contactPath]: [
+      contactDetailsConfig,
+      '/contacts/:contactType/:contactId',
+      () => loadedContact,
+    ],
+  };
+  let routedSideWidgetView;
+  const router = {
+    currentPath: '/history',
+    push: jest.fn(async (path) => router.go(path)),
+    replace: jest.fn(async (path) => router.go(path)),
+    go(path) {
+      router.currentPath = path;
+      const page = pages[path];
+      if (page) {
+        const contact = page[2]();
+        routedSideWidgetView.open({
+          config: page[0],
+          ...(contact === undefined ? {} : { contact }),
+          detailComponent: () => null,
+          detailProps: {},
+          path,
+          routePath: page[1],
+        });
+      }
+      routedSideWidgetView.syncPath(path, !!page);
+    },
+  };
+  routedSideWidgetView = new RoutedSideWidgetView(sideWidgetView, router, root);
+  routedSideWidgetView.registerRoutes([], (tabId) =>
+    tabId === 'contact-details' ? loadedContact : CALL_CONTACT,
+  );
+  routedSideWidgetView.syncPath('/history');
+
+  await router.push(CALL_DETAILS_PATH);
+  await routedSideWidgetView.navigateMain('/contacts');
+  await router.push(contactPath);
+  // Opened before its contact is known, the page keeps the call's tab.
+  expect(sideWidgetView.tabs.map(({ id }) => id)).toEqual([
+    'contact-details',
+    'call-details',
+  ]);
+
+  // The contact loads; the contact watcher applies it, closing the call's tab.
+  loadedContact = { id: 'contact-2', phoneNumber: '+16505550199' };
+  routedSideWidgetView._applyResolvedContact();
+  expect(sideWidgetView.tabs.map(({ id }) => id)).toEqual(['contact-details']);
+
+  sideWidgetView._contentHandles.get('contact-details').options.onBack();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  expect(router.currentPath).toBe('/contacts');
+  expect(sideWidgetView.tabs).toEqual([]);
+  expect(sideWidgetView.isOpen).toBe(true);
+});

@@ -195,6 +195,10 @@ const SUPPORTED_ATTACHMENT_MIME = new Set([
 ]);
 
 const CALLING_SETTINGS_NOTIFY_DEBOUNCE_MS = 1000;
+/** Must match the main column width in `RootOptions.expandedLayoutMainClass`. */
+const FOLDED_APP_WIDTH = 300;
+const EXPANDED_APP_WIDTH = 600;
+const APP_HEIGHT = 540;
 const CX_AGENT_PATH = '/agent';
 const DIAL_PAD_TAB_ID = 'dialPadTabs';
 const MEETING_TAB_ID = 'meetingTabs';
@@ -457,6 +461,11 @@ export class Adapter extends RcModule {
     this._storage.enable(this);
     this._messageTypes = messageTypes;
     this._setupClientBridge();
+    if (this._portManager.shared) {
+      this._portManager.onServer(() => this._bindSideWidgetCallEvents());
+    } else {
+      this._bindSideWidgetCallEvents();
+    }
     watch(
       this,
       () => this._router.currentPath,
@@ -477,8 +486,8 @@ export class Adapter extends RcModule {
   @globalStorage
   @state
   size: AdapterSize = {
-    width: 300,
-    height: 540,
+    width: FOLDED_APP_WIDTH,
+    height: APP_HEIGHT,
   };
 
   @globalStorage
@@ -605,6 +614,18 @@ export class Adapter extends RcModule {
         () => this._root.expanded,
         () => {
           this._onWindowExpanded(this._root.expanded);
+        }
+      ),
+      watch(
+        this,
+        () => this._sideWidgetView?.minExpandedWidth,
+        () => {
+          // Closing the last tab also folds the drawer; resizing here first
+          // would flash the default expanded width before it folds.
+          if (!this._root.expanded || !this._sideWidgetView?.tabs.length) {
+            return;
+          }
+          this._syncAppSize(true);
         }
       ),
       watch(
@@ -820,24 +841,44 @@ export class Adapter extends RcModule {
     };
   }
 
+  /**
+   * Opens a new call's apps in the side widget on the port that owns its tabs.
+   * The client bridge also hears the call, through mirrored events, but tabs
+   * opened only there would be replaced by the server's next tab update.
+   */
+  private _bindSideWidgetCallEvents(): () => void {
+    const stopRing = this._webphoneV2.onCallRing(
+      (session: NormalizedSession) => {
+        if (!this._isCxOffhookWebphoneSession(session)) {
+          this._sideWidgetView?.onCallRing(session);
+        }
+      },
+    );
+    const stopInit = this._webphoneV2.onCallInit(
+      (session: NormalizedSession) => {
+        if (!this._isCxOffhookWebphoneSession(session)) {
+          this._sideWidgetView?.onCallInit(session);
+        }
+      },
+    );
+    return () => {
+      stopRing();
+      stopInit();
+    };
+  }
+
   private _bindWebphoneEvents() {
     this._webphoneV2.onCallRing((session: NormalizedSession) => {
       this._postMessage({
         type: 'rc-call-ring-notify',
         call: this._withContactMatch(session),
       });
-      if (!this._isCxOffhookWebphoneSession(session)) {
-        this._sideWidgetView?.onCallRing(session);
-      }
     });
     this._webphoneV2.onCallInit((session: NormalizedSession) => {
       this._postMessage({
         type: 'rc-call-init-notify',
         call: this._withContactMatch(session),
       });
-      if (!this._isCxOffhookWebphoneSession(session)) {
-        this._sideWidgetView?.onCallInit(session);
-      }
     });
     this._webphoneV2.onCallStart((session: any) => {
       this._postMessage({
@@ -3017,19 +3058,28 @@ export class Adapter extends RcModule {
     });
   }
 
+  private _getAppWidth(expanded: boolean): number {
+    if (!expanded) return FOLDED_APP_WIDTH;
+    const minExpandedWidth = this._sideWidgetView?.minExpandedWidth ?? 0;
+    return Math.max(EXPANDED_APP_WIDTH, FOLDED_APP_WIDTH + minExpandedWidth);
+  }
 
-
-  _onWindowExpanded(expanded: boolean): void {
+  private _syncAppSize(expanded: boolean): void {
     if (!globalThis.window) return;
     const newSize = {
-      width: expanded ? 600 : 300,
-      height: 540,
+      width: this._getAppWidth(expanded),
+      height: APP_HEIGHT,
     };
     void this.setSize(newSize);
     this._postMessage({
       type: this._messageTypes.syncSize,
       size: newSize,
     });
+  }
+
+  _onWindowExpanded(expanded: boolean): void {
+    if (!globalThis.window) return;
+    this._syncAppSize(expanded);
     this._postMessage({
       type: 'rc-adapter-side-drawer-open-notify',
       open: expanded,

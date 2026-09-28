@@ -3,11 +3,6 @@ import type { CallInfoItem } from '../../components/CallInfoHeader';
 import type { DispositionItem, DispositionData, DispositionValidation, DispositionRequired } from '../../components/DispositionForm';
 import type { SaveStatus } from './CxDispositionView.view';
 
-export interface CxSideWidgetItem {
-  /** Localized widget name, shown in the toggle tooltip. */
-  readonly name: string;
-}
-
 /**
  * Basic call info with follow-up info
  */
@@ -67,9 +62,6 @@ export interface CxDispositionViewUIProps {
   isSummaryFinal: boolean;
   isSummaryLoading: boolean;
   isSummaryEdited: boolean;
-  /** Side widgets registered for this call, shown or hidden. */
-  sideWidgets: CxSideWidgetItem[];
-  sideWidgetVisible: boolean;
 }
 
 /**
@@ -86,5 +78,4 @@ export interface CxDispositionViewUIFunctions {
   onUpdateCallLog: (field: string, value: string) => void;
   onUpdateSummary: (value: string) => void;
   disposeCall: () => Promise<void>;
-  onToggleSideWidget: () => Promise<void>;
 }

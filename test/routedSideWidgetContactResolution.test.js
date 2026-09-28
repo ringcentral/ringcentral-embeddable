@@ -1,5 +1,6 @@
 jest.mock('@ringcentral-integration/next-core', () => ({
   action: (_target, _key, descriptor) => descriptor,
+  delegate: () => (_target, _key, descriptor) => descriptor,
   injectable: () => (target) => target,
   matchPath: require('react-router-dom').matchPath,
   RcViewModule: class RcViewModule {},
@@ -42,8 +43,13 @@ function createRoutedSideWidget(resolveContact) {
     openContent: jest.fn(),
     selectTab: jest.fn(),
     closeContent: jest.fn(),
+    setMainPathResolver: jest.fn(),
   };
-  const router = { currentPath: CALL_DETAILS_PATH, push: jest.fn() };
+  const router = {
+    currentPath: CALL_DETAILS_PATH,
+    push: jest.fn(),
+    replace: jest.fn(),
+  };
   const view = new RoutedSideWidgetView(sideWidgetView, router, {
     expanded: true,
   });

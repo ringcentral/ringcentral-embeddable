@@ -18,6 +18,4 @@ export default {
   callDispositionSuccess: 'Disposição da chamada salva com sucesso.',
   callDispositionFailed: 'Falha ao salvar a disposição da chamada.',
   callLogNotFound: 'Registro de chamadas não encontrado',
-  showSideWidget: 'Mostrar {widgets}',
-  hideSideWidget: 'Ocultar {widgets}',
 } as const;

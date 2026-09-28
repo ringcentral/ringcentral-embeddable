@@ -1,8 +1,11 @@
 import { render, screen, within } from "@testing-library/react";
 import React from "react";
 
+import { useHistoryActionButtons } from "@ringcentral-integration/next-widgets/components";
+
 import { CallDetailPage } from "../src/app/views/CallHistoryView/CallDetailPage";
 import callHistoryLabels from "../src/app/views/CallHistoryView/i18n/en-US";
+import { SideWidgetTabsShownContext } from "../src/app/views/SideWidgetView/SideWidgetTabsShownContext";
 
 jest.mock("@ringcentral-integration/micro-message/src/app/components", () => ({
   VoicemailPlayer: ({ uri }) => (
@@ -35,7 +38,7 @@ jest.mock("@ringcentral-integration/next-widgets/components", () => ({
     </div>
   ),
   PageHeaderBackButton: () => null,
-  useHistoryActionButtons: () => [],
+  useHistoryActionButtons: jest.fn(() => []),
 }));
 
 jest.mock("@ringcentral/spring-ui", () => ({
@@ -88,6 +91,35 @@ const sharedProps = {
 };
 
 describe("CallDetailPage layout", () => {
+  test("drops a title-only header while the side widget tab bar names the page", () => {
+    render(
+      <SideWidgetTabsShownContext.Provider value>
+        <CallDetailPage {...sharedProps} headerTitle="Log to TestService">
+          Form content
+        </CallDetailPage>
+      </SideWidgetTabsShownContext.Provider>
+    );
+
+    expect(screen.queryByTestId("detailPageTitle")).toBeNull();
+    expect(screen.getByText("Form content")).toBeInTheDocument();
+  });
+
+  test("keeps a titled header with actions under the side widget tab bar", () => {
+    useHistoryActionButtons.mockReturnValue([{ id: "call" }]);
+    render(
+      <SideWidgetTabsShownContext.Provider value>
+        <CallDetailPage {...sharedProps} headerTitle="Log to TestService">
+          Form content
+        </CallDetailPage>
+      </SideWidgetTabsShownContext.Provider>
+    );
+    useHistoryActionButtons.mockReturnValue([]);
+
+    expect(screen.getByTestId("detailPageTitle")).toHaveTextContent(
+      "Log to TestService"
+    );
+  });
+
   test("can hide caller ID and scroll time/status with page content", () => {
     const { rerender } = render(
       <CallDetailPage {...sharedProps}>Form content</CallDetailPage>

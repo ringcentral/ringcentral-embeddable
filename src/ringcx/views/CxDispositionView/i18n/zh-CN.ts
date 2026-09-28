@@ -18,6 +18,4 @@ export default {
   callDispositionSuccess: '呼叫处置已成功保存。',
   callDispositionFailed: '无法保存呼叫配置。',
   callLogNotFound: '未找到通话记录',
-  showSideWidget: '显示{widgets}',
-  hideSideWidget: '隐藏{widgets}',
 } as const;

@@ -154,7 +154,6 @@ import {
 } from './views/CallHistoryView';
 import { HistoryActiveCallsView } from './views/CallHistoryView/HistoryActiveCalls.view';
 import { CallHUDView } from './views/CallHUDView';
-import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
@@ -651,7 +650,6 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       ParkView,
       ApplicationLogsView,
       CustomizedPageView,
-      ExpandedRouteView,
       ExpandedView,
       FaxDetailsView,
       RoutedSideWidgetView,

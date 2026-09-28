@@ -15,6 +15,7 @@ export interface SideWidgetTab {
   name: string;
   appId?: ThirdPartyApp['id'];
   scope?: SideWidgetTabScope;
+  minExpandedWidth?: number;
 }
 
 export type SideWidgetTabScope = 'contact' | 'global';
@@ -23,7 +24,13 @@ type SideWidgetLifecycleResult = void | Promise<void>;
 
 export interface SideWidgetContentOptions {
   id: string;
+  /** Tab name copied into the tab state when it opens. */
   name: string;
+  /**
+   * Tab name resolved each time the tab renders, so a localized name follows
+   * the current locale. `name` is shown when it is absent.
+   */
+  getName?: () => string;
   view: ComponentType<SideWidgetContentViewProps>;
   scope?: SideWidgetTabScope;
   /** Shows available third-party apps as a sibling tab. */
@@ -40,6 +47,12 @@ export interface SideWidgetContentOptions {
    * they render from the current route and only the active one may.
    */
   keepMounted?: boolean;
+  /**
+   * Width in px the expanded column needs while this tab is open, for content
+   * built for a wider panel than the default one. The app frame grows to fit
+   * it and shrinks back once no open tab needs it.
+   */
+  minExpandedWidth?: number;
   onActivate?: () => SideWidgetLifecycleResult;
   onDeactivate?: (nextTabId: string | null) => SideWidgetLifecycleResult;
   onClose?: (nextTabId: string | null) => SideWidgetLifecycleResult;
@@ -69,15 +82,17 @@ export interface SideWidgetOpenAppsOptions {
 
 export interface SideWidgetCloseTabOptions {
   /**
-   * Whether collapsing the drawer is allowed when the closed tab was the last
-   * one.
+   * Whether the drawer folds when the closed tab was the last one.
    *
-   * A route-driven close keeps the drawer open, because the user opened it on
-   * purpose and leaving a routed page is not a request to fold it. Closing the
-   * drawer is not replaced with the Apps tab either: that tab only opens with a
-   * new call.
+   * By default it folds only while it is an overlay over the folded app, which
+   * would otherwise cover the page with a blank view. A docked drawer stays
+   * open on its blank view: the user closing a page, or going back from it, is
+   * not a request to fold the layout. Pass `true` for tabs the app opened and
+   * closes on its own, such as a call's RingCX widgets, so their drawer does
+   * not stay as a blank column nobody opened. The Apps tab does not replace a
+   * closed last tab either: it only opens with a new call.
    *
-   * @default true
+   * @default !Root.expanded
    */
   collapseWhenLast?: boolean;
 }

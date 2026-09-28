@@ -3,7 +3,6 @@ import {
   PlayOutlinedMd,
   SendFilledMd,
   VoicemailMd,
-  Xmd,
 } from '@ringcentral/spring-icon';
 import {
   Alert,
@@ -14,16 +13,12 @@ import {
   List,
   ListItem,
   ListItemText,
-  PageHeader,
-  PageHeaderCenter,
-  PageHeaderLeft,
-  PageHeaderRight,
-  PageHeaderTitle,
   Text,
 } from '@ringcentral/spring-ui';
 import React, { useEffect, useRef, useState } from 'react';
 
 import type { VoicemailMessage } from '../../services/VoicemailDrop/VoicemailDrop.interface';
+import { SideWidgetPageHeader } from '../SideWidgetView/SideWidgetPageHeader';
 
 import i18n from './i18n';
 
@@ -91,29 +86,13 @@ export function VoicemailDropPanel({
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-neutral-base">
-      <PageHeader
-        variant="detached"
-        className="flex-none border-b border-neutral-b4"
+      <SideWidgetPageHeader
+        title={t('voicemailDrop')}
+        onClose={showCloseButton ? onClose : undefined}
+        closeLabel={t('close')}
         data-sign="voicemailDropHeader"
-      >
-        <PageHeaderLeft />
-        <PageHeaderCenter data-sign="voicemailDropHeaderCenter">
-          <PageHeaderTitle>{t('voicemailDrop')}</PageHeaderTitle>
-        </PageHeaderCenter>
-        <PageHeaderRight>
-          {showCloseButton ? (
-            <IconButton
-              variant="icon"
-              color="secondary"
-              size="medium"
-              symbol={Xmd}
-              data-sign="voicemailDropClose"
-              TooltipProps={{ title: t('close') }}
-              onClick={onClose}
-            />
-          ) : null}
-        </PageHeaderRight>
-      </PageHeader>
+        closeDataSign="voicemailDropClose"
+      />
       <div className="flex-auto overflow-y-auto p-4">
         <Alert>{t('pickerInfo')}</Alert>
         {error ? (

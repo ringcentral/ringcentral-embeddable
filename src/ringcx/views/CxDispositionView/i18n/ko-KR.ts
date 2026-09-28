@@ -18,6 +18,4 @@ export default {
   callDispositionSuccess: '통화 처리가 성공적으로 저장되었습니다.',
   callDispositionFailed: '통화 처리를 저장하지 못했습니다.',
   callLogNotFound: '통화 기록을 찾을 수 없습니다.',
-  showSideWidget: '{widgets} 표시',
-  hideSideWidget: '{widgets} 숨기기',
 } as const;

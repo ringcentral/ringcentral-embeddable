@@ -10,6 +10,7 @@ import React, { useRef } from 'react';
 
 import {
   SideWidgetView,
+  type SideWidgetCloseTabOptions,
   type SideWidgetContentHandle,
 } from '../../../app/views/SideWidgetView';
 import { AgentAssistantPanel } from '../../components/AgentAssistantPanel';
@@ -24,6 +25,18 @@ import { CxPresence } from '../CxPresence';
 
 export const RINGCX_AGENT_SCRIPT_WIDGET_ID = 'ringcx-agent-script';
 export const RINGCX_AGENT_ASSISTANT_WIDGET_ID = 'ringcx-agent-assistant';
+
+/**
+ * Panel width both widgets were built for in the standalone RingCX app; the
+ * Agent Script renderer lays out its GridStack desktop geometry for it.
+ */
+export const RINGCX_SIDE_WIDGET_WIDTH = 360;
+
+/**
+ * The call, not the agent, closes the widgets, so a drawer they leave empty
+ * folds instead of staying as a blank column.
+ */
+const APP_CLOSE: SideWidgetCloseTabOptions = { collapseWhenLast: true };
 
 /**
  * Shows the RingCX Agent Script and Agent Assistant in the host side widget.
@@ -130,9 +143,11 @@ export class RingCXSideWidgets extends RcModule {
     this._sideWidgetView.createOrUpdateContent({
       id: RINGCX_AGENT_SCRIPT_WIDGET_ID,
       name: tScript('agentScript'),
+      getName: () => tScript('agentScript'),
       scope: 'global',
       keepActiveOnCallApps: true,
       keepMounted: true,
+      minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
       view: this._AgentScriptContent,
     });
 
@@ -140,9 +155,11 @@ export class RingCXSideWidgets extends RcModule {
     this._sideWidgetView.createOrUpdateContent({
       id: RINGCX_AGENT_ASSISTANT_WIDGET_ID,
       name: tAssistant('agentAssistant'),
+      getName: () => tAssistant('agentAssistant'),
       scope: 'global',
       keepActiveOnCallApps: true,
       keepMounted: true,
+      minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
       view: this._AgentAssistantContent,
     });
 
@@ -199,7 +216,7 @@ export class RingCXSideWidgets extends RcModule {
   override onReset(): void {
     this._stopWatchers.forEach((stop) => stop());
     this._stopWatchers = [];
-    this._closeWidgets();
+    this._closeWidgets(APP_CLOSE);
   }
 
   /** Show the available widgets, or put them away when one is on screen. */
@@ -222,7 +239,7 @@ export class RingCXSideWidgets extends RcModule {
     if (visible) {
       this._openWidget(this._agentScriptHandle, true);
     } else {
-      this._sideWidgetView.closeContent(this._agentScriptHandle);
+      this._sideWidgetView.closeContent(this._agentScriptHandle, APP_CLOSE);
     }
   }
 
@@ -232,7 +249,7 @@ export class RingCXSideWidgets extends RcModule {
       // assistant joins it as a background tab.
       this._openWidget(this._agentAssistantHandle, !this.hasScript);
     } else {
-      this._sideWidgetView.closeContent(this._agentAssistantHandle);
+      this._sideWidgetView.closeContent(this._agentAssistantHandle, APP_CLOSE);
     }
   }
 
@@ -240,18 +257,11 @@ export class RingCXSideWidgets extends RcModule {
     handle: SideWidgetContentHandle,
     activate: boolean,
   ): void {
-    // Tab names are copied into the tab when it opens, so the current locale
-    // is applied here rather than when the chunk loaded.
-    const name =
-      handle === this._agentScriptHandle
-        ? tScript('agentScript')
-        : tAssistant('agentAssistant');
-    this._sideWidgetView.updateContent(handle, { ...handle.options, name });
     this._sideWidgetView.openContent(handle, { activate, expand: true });
   }
 
-  private _closeWidgets(): void {
-    this._sideWidgetView.closeContent(this._agentScriptHandle);
-    this._sideWidgetView.closeContent(this._agentAssistantHandle);
+  private _closeWidgets(options?: SideWidgetCloseTabOptions): void {
+    this._sideWidgetView.closeContent(this._agentScriptHandle, options);
+    this._sideWidgetView.closeContent(this._agentAssistantHandle, options);
   }
 }

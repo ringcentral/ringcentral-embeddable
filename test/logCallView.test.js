@@ -58,6 +58,25 @@ describe("LogCallView", () => {
     expect(view.loading).toBe(false);
   });
 
+  test("stores the loaded call on the server port for the side widget contact", async () => {
+    const call = { sessionId: "session-id", telephonySessionId: "t-1" };
+    const view = new LogCallView(
+      { getCall: jest.fn(async () => call) },
+      {},
+      {},
+      {},
+      { getExtraLogData: jest.fn(() => ({})) },
+    );
+    const storeCurrentCall = jest.spyOn(view, "_storeCurrentCall");
+
+    await view.loadCall("session-id");
+
+    expect(storeCurrentCall).toHaveBeenNthCalledWith(1, null);
+    expect(storeCurrentCall).toHaveBeenLastCalledWith(call, "session-id");
+    expect(view.getLoadedCall("session-id")).toEqual(call);
+    expect(view.getLoadedCall("other-session")).toBeNull();
+  });
+
   test("uses the header match selection when the form has no contact field", () => {
     const selectedContact = { id: "contact-2", name: "Grace Hopper" };
     const view = new LogCallView({}, {}, {}, {}, {});

@@ -151,7 +151,7 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
   override getUIFunctions(): UIFunctions<HeaderNavPanelProps> {
     return {
       onChange: (path: string) => {
-        this._routedSideWidgetView.navigateMain(path);
+        void this._routedSideWidgetView.navigateMain(path);
       },
     };
   }

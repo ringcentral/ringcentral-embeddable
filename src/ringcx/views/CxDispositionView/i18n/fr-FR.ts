@@ -18,6 +18,4 @@ export default {
   callDispositionSuccess: 'Disposition de l\'appel enregistrée avec succès.',
   callDispositionFailed: 'Échec de l\'enregistrement de la disposition des appels.',
   callLogNotFound: 'Journal des appels introuvable',
-  showSideWidget: 'Afficher les {widgets}',
-  hideSideWidget: 'Masquer les {widgets}',
 } as const;

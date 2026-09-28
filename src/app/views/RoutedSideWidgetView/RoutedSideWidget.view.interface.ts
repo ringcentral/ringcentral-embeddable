@@ -5,7 +5,11 @@ import type { SideWidgetTabScope } from '../SideWidgetView';
 
 export interface RoutedSideWidgetConfig {
   id: string;
-  name: string;
+  /**
+   * Tab name. A function is resolved from the page's route params each time
+   * the tab renders, so it can follow the locale or a host page's own title.
+   */
+  name: string | ((params: Record<string, string | undefined>) => string);
   scope: SideWidgetTabScope;
   backgroundPath: string;
   /**

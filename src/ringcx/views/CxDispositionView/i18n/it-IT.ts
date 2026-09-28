@@ -18,6 +18,4 @@ export default {
   callDispositionSuccess: 'Disposizione chiamata salvata correttamente.',
   callDispositionFailed: 'Impossibile salvare la disposizione della chiamata.',
   callLogNotFound: 'Registro chiamate non trovato',
-  showSideWidget: 'Mostra {widgets}',
-  hideSideWidget: 'Nascondi {widgets}',
 } as const;

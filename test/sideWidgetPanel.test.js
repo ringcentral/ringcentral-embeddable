@@ -8,6 +8,18 @@ jest.mock('../src/app/views/SideWidgetView/SideWidgetAppPanel', () => ({
   SideWidgetAppPanel: jest.fn(() => <div>Loaded app panel</div>),
 }));
 
+jest.mock('../src/app/views/SideWidgetView/i18n', () => {
+  const enUS = jest.requireActual(
+    '../src/app/views/SideWidgetView/i18n/en-US',
+  ).default;
+  return {
+    __esModule: true,
+    default: {},
+    t: (key, options = {}) =>
+      (enUS[key] ?? key).replace(/\{(\w+)\}/g, (_, name) => options[name]),
+  };
+});
+
 function createProps(overrides = {}) {
   return {
     apps: [],
@@ -33,7 +45,7 @@ describe('SideWidgetPanel', () => {
     SideWidgetAppPanel.mockClear();
   });
 
-  test('shows an empty app state and closes from the header', () => {
+  test('shows an empty app state and closes only the Apps tab from the header', () => {
     const props = createProps();
     render(<SideWidgetPanel {...props} />);
 
@@ -47,7 +59,9 @@ describe('SideWidgetPanel', () => {
       screen.getByTestId('sideWidgetAvailableAppsHeaderCenter'),
     ).toContainElement(screen.getByText('Available apps'));
     fireEvent.click(screen.getByRole('button', { name: 'Close apps' }));
-    expect(props.onClose).toHaveBeenCalledTimes(1);
+    // Closing the only tab leaves a docked drawer open on its blank view.
+    expect(props.onCloseTab).toHaveBeenCalledWith('side-widget-apps');
+    expect(props.onClose).not.toHaveBeenCalled();
   });
 
   test('renders available apps with names, fallbacks, and selection handlers', () => {

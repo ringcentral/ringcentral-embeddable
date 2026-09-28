@@ -18,6 +18,4 @@ export default {
   callDispositionSuccess: 'コールの処理が正常に保存されました。',
   callDispositionFailed: '通話処理を保存できませんでした。',
   callLogNotFound: '通話ログが見つかりません',
-  showSideWidget: '{widgets} を表示',
-  hideSideWidget: '{widgets} を非表示にする',
 } as const;

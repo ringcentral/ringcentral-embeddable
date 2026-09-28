@@ -1,16 +1,10 @@
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import { AppsMd, Xmd } from '@ringcentral/spring-icon';
-import {
-  EmptyState,
-  IconButton,
-  PageHeader,
-  PageHeaderCenter,
-  PageHeaderLeft,
-  PageHeaderRight,
-} from '@ringcentral/spring-ui';
+import { AppsMd } from '@ringcentral/spring-icon';
+import { EmptyState } from '@ringcentral/spring-ui';
 import React from 'react';
 
 import type { SideWidgetBlankInfo } from './getSideWidgetBlankInfo';
+import { SideWidgetPageHeader } from './SideWidgetPageHeader';
 import i18n from './i18n';
 
 /**
@@ -30,21 +24,12 @@ export function SideWidgetBlankView({
       className="flex h-full flex-col overflow-hidden"
       data-sign="sideWidgetBlank"
     >
-      <PageHeader variant="detached" className="flex-none">
-        <PageHeaderLeft />
-        <PageHeaderCenter />
-        <PageHeaderRight>
-          <IconButton
-            variant="icon"
-            color="secondary"
-            size="medium"
-            symbol={Xmd}
-            data-sign="sideWidgetBlankClose"
-            TooltipProps={{ title: t('close') }}
-            onClick={onClose}
-          />
-        </PageHeaderRight>
-      </PageHeader>
+      <SideWidgetPageHeader
+        onClose={onClose}
+        closeLabel={t('close')}
+        closeDataSign="sideWidgetBlankClose"
+        bordered={false}
+      />
       <div className="flex flex-auto items-center justify-center px-4">
         <EmptyState
           icon={AppsMd}

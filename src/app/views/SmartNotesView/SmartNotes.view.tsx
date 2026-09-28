@@ -6,7 +6,9 @@ import type { ToastLevel } from '@ringcentral-integration/micro-core/src/app/ser
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import type { HistoryCall } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
+  delegate,
   injectable,
+  PortManager,
   RcViewModule,
   useConnector,
   watch,
@@ -16,14 +18,17 @@ import React, { useEffect, useMemo } from 'react';
 
 import type { SmartNoteSession } from '../../services/SmartNotes';
 import { SmartNotes } from '../../services/SmartNotes';
-import { ExpandedView } from '../ExpandedView';
 import {
   SideWidgetView,
+  type SideWidgetCloseTabOptions,
   type SideWidgetContentViewProps,
 } from '../SideWidgetView';
 import { SmartNotesPanel } from './SmartNotesPanel';
 import { createEmbeddedHistorySmartNoteSession } from './create-embedded-history-smart-note-session';
-import i18n from './i18n';
+import i18n, { t } from './i18n';
+
+/** The session, not the user, closes the tab. */
+const SESSION_CLOSE: SideWidgetCloseTabOptions = { collapseWhenLast: true };
 
 interface SmartNotesAlert {
   level: ToastLevel;
@@ -80,20 +85,26 @@ interface SmartNotesViewProps {
 })
 export class SmartNotesView extends RcViewModule {
   constructor(
-    private readonly _expandedView: ExpandedView,
     private readonly _sideWidgetView: SideWidgetView,
     private readonly _smartNotes: SmartNotes,
     private readonly _theme: Theme,
     private readonly _toast: Toast,
+    private readonly _portManager: PortManager,
   ) {
     super();
   }
 
   private _stopWatchingSession: (() => void) | null = null;
 
+  /**
+   * The session this port presents. On the server it keeps the session watcher
+   * from presenting a session twice; on the client it drops a stale `open()`.
+   */
   private _presentedSessionId: string | null = null;
 
   override onInit(): void {
+    // The tab is server state, so only the server follows the session.
+    if (this._portManager.shared && !this._portManager.isServer) return;
     this._stopWatchingSession = watch(
       this,
       () =>
@@ -106,12 +117,12 @@ export class SmartNotesView extends RcViewModule {
   override onReset(): void {
     this._stopWatchingSession?.();
     this._stopWatchingSession = null;
-    this.close();
+    this.close(SESSION_CLOSE);
   }
 
   private readonly _contentView = ({
-    showCloseButton = true,
-  }: Partial<SideWidgetContentViewProps>) => (
+    showCloseButton,
+  }: SideWidgetContentViewProps) => (
     <SmartNotesConnectedPanel
       smartNotes={this._smartNotes}
       theme={this._theme}
@@ -123,29 +134,31 @@ export class SmartNotesView extends RcViewModule {
 
   private readonly _sideWidgetHandle = this._sideWidgetView.createContent({
     id: 'smart-notes',
-    name: 'AI Assistant',
+    name: t('aiAssistant'),
+    getName: () => t('aiAssistant'),
     onClose: () => this._handleClose(),
     showAppsTab: true,
     view: this._contentView,
   });
 
-  private readonly _expandedHandle = this._expandedView.create({
-    id: 'smart-notes',
-    showOverlayHeader: false,
-    onClose: () => this._handleClose(),
-    view: this._contentView,
-  });
-
+  /**
+   * Presents a session the user chose. The tab is shown on the server port,
+   * which owns the side widget tabs; shown only on this client, the server's
+   * next tab update would replace it.
+   */
   async open(session: SmartNoteSession): Promise<void> {
     const openInSideWidget =
       session.status !== 'Disconnected' || this._sideWidgetView.isOpen;
     this._presentedSessionId = session.id;
     try {
+      // Claimed first, so the server's watcher does not present the session
+      // on its own once loading it sets it.
+      await this._presentOnServer(session.id);
       await this._smartNotes.viewSmartNote(session);
       if (this._presentedSessionId !== session.id) {
         return;
       }
-      this._showSession(session, openInSideWidget);
+      await this._showSessionOnServer(session, openInSideWidget);
     } catch (error) {
       if (this._presentedSessionId === session.id) {
         this._presentedSessionId = null;
@@ -154,24 +167,45 @@ export class SmartNotesView extends RcViewModule {
     }
   }
 
-  close(): void {
+  /**
+   * Closes the tab. The user closing it keeps a docked drawer open on its blank
+   * view; the session ending, which the user did not ask for, folds a drawer
+   * it leaves empty (`collapseWhenLast`).
+   */
+  close({ collapseWhenLast }: SideWidgetCloseTabOptions = {}): void {
     this._presentedSessionId = null;
-    this._closeStandaloneContent();
+    void this._closeOnServer(collapseWhenLast);
   }
 
-  private _closeStandaloneContent(): void {
-    this._sideWidgetView.closeContent(this._sideWidgetHandle);
-    this._expandedView.close(this._expandedHandle);
+  @delegate('server')
+  private async _presentOnServer(sessionId: string): Promise<void> {
+    this._presentedSessionId = sessionId;
+  }
+
+  @delegate('server')
+  private async _showSessionOnServer(
+    session: SmartNoteSession,
+    openInSideWidget: boolean,
+  ): Promise<void> {
+    this._presentedSessionId = session.id;
+    this._showSession(session, openInSideWidget);
+  }
+
+  @delegate('server')
+  private async _closeOnServer(collapseWhenLast?: boolean): Promise<void> {
+    this._presentedSessionId = null;
+    this._sideWidgetView.closeContent(this._sideWidgetHandle, {
+      collapseWhenLast,
+    });
   }
 
   private _handleSessionChange(session: SmartNoteSession | null): void {
     if (!session) {
-      this.close();
+      this.close(SESSION_CLOSE);
       return;
     }
     if (this._smartNotes.presentation === 'embedded') {
-      this._presentedSessionId = null;
-      this._closeStandaloneContent();
+      this.close(SESSION_CLOSE);
       return;
     }
     if (this._presentedSessionId === session.id) {
@@ -185,14 +219,19 @@ export class SmartNotesView extends RcViewModule {
     session: SmartNoteSession,
     openInSideWidget?: boolean,
   ): void {
-    const shouldOpenInSideWidget =
+    const docked =
       openInSideWidget ??
       (session.status !== 'Disconnected' || this._sideWidgetView.isOpen);
-    if (shouldOpenInSideWidget) {
-      this._sideWidgetView.openContent(this._sideWidgetHandle);
-      return;
-    }
-    this._expandedView.open(this._expandedHandle, { expand: false });
+    // A past session opens without widening the app or bringing the call's
+    // Apps tab along; while folded, the drawer shows it as an overlay.
+    this._sideWidgetView.updateContent(this._sideWidgetHandle, {
+      ...this._sideWidgetHandle.options,
+      showAppsTab: docked,
+    });
+    this._sideWidgetView.openContent(
+      this._sideWidgetHandle,
+      docked ? {} : { expand: false },
+    );
   }
 
   private _handleClose(): void {

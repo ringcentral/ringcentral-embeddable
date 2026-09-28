@@ -121,6 +121,7 @@ describe('VoicemailDropView', () => {
         dropVoicemailMessage: jest.fn(async () => true),
       },
       router: { push: jest.fn() },
+      portManager: { shared: false, isServer: false },
       ...overrides,
     };
     const view = new VoicemailDropView(
@@ -128,6 +129,7 @@ describe('VoicemailDropView', () => {
       dependencies.voicemailDrop,
       dependencies.webphone,
       dependencies.router,
+      dependencies.portManager,
     );
     return {
       dependencies,
@@ -137,7 +139,7 @@ describe('VoicemailDropView', () => {
     };
   }
 
-  test('opens only with permission and closes its side-widget tab', () => {
+  test('opens only with permission and closes its side-widget tab', async () => {
     const { dependencies, getContentConfig, handle, view } = createView();
     expect(getContentConfig()).toEqual(
       expect.objectContaining({
@@ -145,11 +147,12 @@ describe('VoicemailDropView', () => {
         name: 'Localized voicemail drop',
       }),
     );
-    view.open('session');
+    expect(getContentConfig().getName()).toBe('Localized voicemail drop');
+    await view.open('session');
     expect(view.currentSessionId).toBe('session');
     expect(dependencies.sideWidgetView.openContent).toHaveBeenCalledWith(handle);
-    view.close();
-    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
+    await view.close();
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle, undefined);
 
     const disabled = createView({
       voicemailDrop: {
@@ -158,7 +161,7 @@ describe('VoicemailDropView', () => {
         fetchExternalVoicemailDropFiles: jest.fn(),
       },
     });
-    disabled.view.open('session');
+    await disabled.view.open('session');
     expect(disabled.view.currentSessionId).toBeNull();
     expect(disabled.dependencies.sideWidgetView.openContent).not.toHaveBeenCalled();
   });
@@ -172,7 +175,7 @@ describe('VoicemailDropView', () => {
       'session',
       'message',
     );
-    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle, undefined);
     expect(dependencies.router.push).toHaveBeenCalledWith('/dialer');
 
     dependencies.webphone.dropVoicemailMessage.mockResolvedValueOnce(false);
@@ -203,7 +206,7 @@ describe('VoicemailDropView', () => {
     props.onClose();
     await props.onLoad();
     await props.onDrop('message');
-    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle, undefined);
     expect(dependencies.voicemailDrop.fetchExternalVoicemailDropFiles).toHaveBeenCalled();
     expect(dependencies.webphone.dropVoicemailMessage).toHaveBeenCalledWith(
       'session',
@@ -223,9 +226,31 @@ describe('VoicemailDropView', () => {
 
     watcher(selector());
 
-    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle, {
+      collapseWhenLast: true,
+    });
     view.onReset();
     expect(stopWatching).toHaveBeenCalledTimes(1);
+  });
+
+  test('leaves the call watcher to the server port, which owns the tab', () => {
+    const { view } = createView({
+      portManager: { shared: true, isServer: false },
+    });
+
+    view.onInit();
+
+    expect(watch).not.toHaveBeenCalled();
+  });
+
+  test('watches the call on the server port', () => {
+    const { view } = createView({
+      portManager: { shared: true, isServer: true },
+    });
+
+    view.onInit();
+
+    expect(watch).toHaveBeenCalledTimes(1);
   });
 
   test('clears its session and content tab when the module resets', () => {
@@ -238,7 +263,9 @@ describe('VoicemailDropView', () => {
     view.onReset();
 
     expect(stopWatching).toHaveBeenCalledTimes(1);
-    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle);
+    expect(dependencies.sideWidgetView.closeContent).toHaveBeenCalledWith(handle, {
+      collapseWhenLast: true,
+    });
     expect(view.currentSessionId).toBeNull();
   });
 });

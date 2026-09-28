@@ -18,6 +18,4 @@ export default {
   callDispositionSuccess: 'Oproepafhandeling succesvol opgeslagen.',
   callDispositionFailed: 'Kan oproepafhandeling niet opslaan.',
   callLogNotFound: 'Oproeplog niet gevonden',
-  showSideWidget: 'Toon {widgets}',
-  hideSideWidget: 'Verberg {widgets}',
 } as const;
