@@ -404,4 +404,26 @@ describe('ThirdPartyService registration message handling', () => {
     expect(deps.activityMatcher._searchProviders.has('crm')).toBe(false);
     expect(deps.conversationMatcher._searchProviders.has('crm')).toBe(false);
   });
+
+  it('sends message identity without contact metadata when opening a log', async () => {
+    const service = createService();
+    service._messageLogOpenPath = '/message-log/open';
+
+    await service.openMessageLog({
+      logId: 'log-1',
+      messageId: 'message-1',
+      conversationId: 'conversation-1',
+    });
+
+    expect(requestWithPostMessage).toHaveBeenCalledWith(
+      '/message-log/open',
+      {
+        logId: 'log-1',
+        messageId: 'message-1',
+        conversationId: 'conversation-1',
+        triggerType: 'openLog',
+      },
+      15000,
+    );
+  });
 });

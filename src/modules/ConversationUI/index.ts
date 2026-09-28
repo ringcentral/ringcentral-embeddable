@@ -233,8 +233,12 @@ export class ConversationUI extends BaseConversationUI {
         });
       },
       // Granular logging: navigate to the CRM entry for an already-logged message.
-      onClickMessageLog: (logId) => {
-        return thirdPartyService.openMessageLog({ logId });
+      onClickMessageLog: ({ logId, messageId, conversationId }) => {
+        return thirdPartyService.openMessageLog({
+          logId,
+          messageId,
+          conversationId,
+        });
       },
       // Granular logging: hydrate per-message logged state when a conversation loads.
       syncMessageLogState: (conversationId, messageIds) => {

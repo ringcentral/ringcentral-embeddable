@@ -147,6 +147,7 @@ function createDeps(overrides = {}) {
       doNotContactRegistered: true,
       logSelectedMessages: jest.fn(async () => ({})),
       onClickAdditionalButton: jest.fn(),
+      openMessageLog: jest.fn(async () => {}),
     },
     ...overrides,
   };
@@ -384,6 +385,17 @@ describe('ConversationUI', () => {
         type: 'SMS',
       },
       selectedMessageIds: ['message-1', 'message-2'],
+    });
+
+    await funcs.onClickMessageLog({
+      logId: 'log-1',
+      messageId: 'message-1',
+      conversationId: 'conversation-1',
+    });
+    expect(deps.thirdPartyService.openMessageLog).toHaveBeenCalledWith({
+      logId: 'log-1',
+      messageId: 'message-1',
+      conversationId: 'conversation-1',
     });
   });
 
