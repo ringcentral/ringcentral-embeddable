@@ -149,6 +149,7 @@ export function CallHUDPanel({
                 <Accordion
                   key={typeItem.id}
                   defaultExpanded
+                  classes={{ root: '!min-w-0' }}
                   header={
                     <AccordionHeader
                       expandIcon
