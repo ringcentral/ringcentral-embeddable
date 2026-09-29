@@ -954,13 +954,21 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           matchedContactSelection: MatchedContactSelection,
           thirdParty: ThirdParty,
           conversations: Conversations,
+          queueConversations: QueueConversations,
+          messageThread: MessageThread,
         ) =>
-          createContactRendererOptions(
-            matchedContactSelection,
-            thirdParty,
+          createContactRendererOptions(matchedContactSelection, thirdParty, {
             conversations,
-          ),
-        deps: [MatchedContactSelection, ThirdParty, Conversations],
+            queueConversations,
+            messageThread,
+          }),
+        deps: [
+          MatchedContactSelection,
+          ThirdParty,
+          Conversations,
+          QueueConversations,
+          MessageThread,
+        ],
       },
       {
         provide: 'HeaderNavViewOptions',

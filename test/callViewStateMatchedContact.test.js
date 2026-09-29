@@ -19,6 +19,7 @@ jest.mock(
   }),
 );
 
+import { fromWatchValue } from '@ringcentral-integration/next-core';
 import { Subject } from 'rxjs';
 
 import { CallViewState } from '../src/app/services/CallViewState';
@@ -52,8 +53,13 @@ const createCallViewState = ({ calls = [INBOUND_CALL], activeCall } = {}) => {
     },
   };
   const newCalls = new Subject();
+  // Stands in for the `allCalls` watcher that carries a pick over.
+  const allCalls = new Subject();
+  fromWatchValue.mockImplementation(() => allCalls);
   const callMonitor = {
-    getCallBySessionId: jest.fn(() => activeCall),
+    getCallBySessionId: jest.fn((sessionId) =>
+      activeCall?.sessionId === sessionId ? activeCall : undefined,
+    ),
     addListener: jest.fn(() => newCalls),
   };
   const callViewState = new CallViewState(
@@ -63,7 +69,7 @@ const createCallViewState = ({ calls = [INBOUND_CALL], activeCall } = {}) => {
     callHistory,
     selection,
   );
-  return { callViewState, selection, newCalls, callMonitor };
+  return { callViewState, selection, newCalls, allCalls, callMonitor };
 };
 
 describe('CallViewState matched-contact selection', () => {
@@ -78,6 +84,7 @@ describe('CallViewState matched-contact selection', () => {
       getCallBySessionId: jest.fn(),
       addListener: jest.fn(() => new Subject()),
     };
+    fromWatchValue.mockImplementation(() => new Subject());
     const callHistory = { callsInfo: { map: {} } };
     const selection = new MatchedContactSelection({ enable: jest.fn() });
     const callLogTasks = { callSelectionMap: {} };
@@ -241,6 +248,77 @@ describe('CallViewState matched-contact selection', () => {
       expect(selection.getSelectedEntityId('call', 'session-new')).toBe(
         'crm-2',
       );
+    });
+
+    test('moves the pick onto the real session id once the server reports it', async () => {
+      const { selection, newCalls, allCalls } = createCallViewState();
+      await selection.setPendingOutbound({
+        entityId: 'crm-2',
+        phoneNumber: '+16505550100',
+      });
+
+      // The local webphone reports the call first, with the telephony session
+      // id standing in for the session id.
+      newCalls.next({
+        ...OUTBOUND_CALL,
+        sessionId: 's-telephony',
+        telephonySessionId: 's-telephony',
+      });
+      await Promise.resolve();
+      // The server session then replaces it, without another `NewCall`.
+      allCalls.next([
+        { sessionId: 'session-real', telephonySessionId: 's-telephony' },
+      ]);
+      await Promise.resolve();
+
+      expect(selection.selectionList).toEqual([
+        { scope: 'call', key: 'session-real', entityId: 'crm-2' },
+      ]);
+    });
+
+    test('resolves a stand-in pick by the telephony session id meanwhile', () => {
+      const { callViewState, selection } = createCallViewState({
+        calls: [],
+        activeCall: { ...OUTBOUND_CALL, telephonySessionId: 's-telephony' },
+      });
+      selection.select({ scope: 'call', key: 's-telephony', entityId: 'crm-2' });
+
+      expect(
+        callViewState.getExtraLogData('session-new', 's-telephony')
+          .callSelectionInfo,
+      ).toEqual({ displayedSelection: TO_MATCHES[1], selections: TO_MATCHES });
+    });
+
+    test('lends the pending pick to the live call before it claims it', async () => {
+      const { callViewState, selection } = createCallViewState({
+        calls: [],
+        activeCall: OUTBOUND_CALL,
+      });
+      await selection.setPendingOutbound({
+        entityId: 'crm-2',
+        phoneNumber: '+16505550100',
+      });
+
+      // The call can reach a client tab a moment before the pick it claims.
+      expect(
+        callViewState.getExtraLogData('session-new', 'telephony-new')
+          .callSelectionInfo,
+      ).toEqual({ displayedSelection: TO_MATCHES[1], selections: TO_MATCHES });
+    });
+
+    test('does not lend the pending pick to a history record', async () => {
+      const { callViewState, selection } = createCallViewState({
+        calls: [{ ...OUTBOUND_CALL, sessionId: 'session-old' }],
+      });
+      await selection.setPendingOutbound({
+        entityId: 'crm-2',
+        phoneNumber: '+16505550100',
+      });
+
+      // An older call to the same number never claimed the pick.
+      expect(
+        callViewState.getExtraLogData('session-old', 'telephony-old'),
+      ).not.toHaveProperty('callSelectionInfo');
     });
 
     test('subscribes to new calls once', () => {

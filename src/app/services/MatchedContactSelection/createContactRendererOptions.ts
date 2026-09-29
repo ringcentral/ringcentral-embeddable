@@ -15,6 +15,35 @@ interface ConversationsLookup {
   currentConversation?: ConversationWithMatches;
 }
 
+interface MessageThreadsLookup {
+  getThreadConversation(threadId: string): ConversationWithMatches | undefined;
+}
+
+/**
+ * Every store a rendered conversation can come from. A shared SMS thread lives
+ * in `MessageThread`, keyed by its thread id, and a call queue conversation in
+ * `QueueConversations` — neither is in the personal `Conversations` store.
+ */
+interface ConversationSources {
+  conversations: ConversationsLookup;
+  queueConversations?: ConversationsLookup;
+  messageThread?: MessageThreadsLookup;
+}
+
+function findConversation(
+  { conversations, queueConversations, messageThread }: ConversationSources,
+  conversationId: string
+): ConversationWithMatches | undefined {
+  return (
+    conversations.formattedConversationsMap.get(conversationId) ??
+    queueConversations?.formattedConversationsMap.get(conversationId) ??
+    messageThread?.getThreadConversation(conversationId) ??
+    // A conversation opened from the server may not be in the list yet.
+    [conversations.currentConversation, queueConversations?.currentConversation]
+      .find((current) => current?.conversationId === conversationId)
+  );
+}
+
 /**
  * The framework's extension point for rendering a number that matched several
  * contacts.
@@ -30,7 +59,7 @@ interface ConversationsLookup {
 export function createContactRendererOptions(
   matchedContactSelection: MatchedContactSelection,
   thirdParty: ThirdParty,
-  conversations: ConversationsLookup
+  sources: ConversationSources
 ): ContactRendererOptions {
   return {
     getDisplayedSelectedEntity: (_matches, conversationId) => {
@@ -40,9 +69,7 @@ export function createContactRendererOptions(
       // The `matches` argument is deliberately ignored: the framework passes
       // the conversation's CRM log records, not the contact matches the pick
       // was made from, and those are empty without a message logger.
-      const conversation =
-        conversations.formattedConversationsMap.get(conversationId) ??
-        conversations.currentConversation;
+      const conversation = findConversation(sources, conversationId);
       const contactMatches = getConversationMatches(conversation);
       const loggedContact = getLoggedContact(
         conversation?.conversationMatches,

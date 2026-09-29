@@ -14,8 +14,9 @@ describe('MatchedContactSelection persistence wiring', () => {
   test('runs every persisted mutation on the server instance', () => {
     // Storage is owned by the server. An @action dispatched straight from a
     // client tab mutates only that tab's copy, so the pick is lost on reload.
-    // select, clear, setPendingOutbound, adoptPendingOutbound.
-    expect(delegateSpy).toHaveBeenCalledTimes(4);
+    // select, clear, setPendingOutbound, adoptPendingOutbound,
+    // carryOverCallSelection.
+    expect(delegateSpy).toHaveBeenCalledTimes(5);
     expect(delegateSpy.mock.calls.every(([scope]) => scope === 'server')).toBe(
       true,
     );

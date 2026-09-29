@@ -189,6 +189,221 @@ describe('MatchedContactSelection service', () => {
 
       expect(selection.selectionList).toEqual([]);
     });
+
+    test('matches a national number with a trunk prefix', async () => {
+      const { selection } = createSelection();
+      await selection.setPendingOutbound({
+        entityId: 'crm-1',
+        // A conversation dials the number as displayed, in national form.
+        phoneNumber: '020 7946 0958',
+      });
+
+      await selection.adoptPendingOutbound('session-new', ['+442079460958']);
+
+      expect(selection.getSelectedEntityId('call', 'session-new')).toBe(
+        'crm-1',
+      );
+    });
+
+    test('records the pick before clearing the pending one', async () => {
+      const { selection } = createSelection();
+      await selection.setPendingOutbound({
+        entityId: 'crm-1',
+        phoneNumber: '+16505550100',
+      });
+      // Each action reaches client tabs as its own update, so the reverse
+      // order leaves a moment with neither and renders `Maybe:`.
+      const states = [];
+      const select = selection._select.bind(selection);
+      const setPending = selection._setPendingOutbound.bind(selection);
+      selection._select = (options) => {
+        select(options);
+        states.push(['select', selection.pendingOutbound]);
+      };
+      selection._setPendingOutbound = (pending) => {
+        setPending(pending);
+        states.push([
+          'clearPending',
+          selection.getSelectedEntityId('call', 'session-new'),
+        ]);
+      };
+
+      await selection.adoptPendingOutbound('session-new', ['+16505550100']);
+
+      expect(states).toEqual([
+        ['select', { entityId: 'crm-1', phoneNumber: '+16505550100' }],
+        ['clearPending', 'crm-1'],
+      ]);
+    });
+  });
+
+  describe('product scope', () => {
+    test('keeps a RingCX pick away from a RingEX call', async () => {
+      const { selection } = createSelection();
+      const pending = {
+        entityId: 'crm-1',
+        phoneNumber: '+16505550100',
+        scope: 'cxCall',
+      };
+      await selection.setPendingOutbound(pending);
+
+      // A RingEX call to the same number, e.g. through the RC-extension bridge.
+      await selection.adoptPendingOutbound('session-new', ['+16505550100']);
+
+      expect(
+        selection.getSelectedEntityId('call', 'session-new'),
+      ).toBeUndefined();
+      // Still pending, so the RingCX call it was set for can claim it.
+      expect(selection.pendingOutbound).toEqual(pending);
+      expect(
+        selection.resolvePendingOutboundSelection(['+16505550100'], MATCHES),
+      ).toBeUndefined();
+    });
+
+    test('lets the RingCX call claim a RingCX pick under its uii', async () => {
+      const { selection } = createSelection();
+      await selection.setPendingOutbound({
+        entityId: 'crm-1',
+        phoneNumber: '+16505550100',
+        scope: 'cxCall',
+      });
+
+      expect(
+        selection.resolvePendingOutboundSelection(
+          ['+16505550100'],
+          MATCHES,
+          'cxCall',
+        ),
+      ).toEqual({ displayedSelection: MATCHES[1], selections: MATCHES });
+
+      await selection.adoptPendingOutbound(
+        'uii-new',
+        ['+16505550100'],
+        'cxCall',
+      );
+
+      expect(selection.getSelectedEntityId('cxCall', 'uii-new')).toBe('crm-1');
+      expect(selection.getSelectedEntityId('call', 'uii-new')).toBeUndefined();
+      expect(selection.pendingOutbound).toBeNull();
+    });
+
+    test('keeps a RingEX pick away from a RingCX call', async () => {
+      const { selection } = createSelection();
+      await selection.setPendingOutbound({
+        entityId: 'crm-1',
+        phoneNumber: '+16505550100',
+      });
+
+      await selection.adoptPendingOutbound(
+        'uii-new',
+        ['+16505550100'],
+        'cxCall',
+      );
+
+      expect(
+        selection.getSelectedEntityId('cxCall', 'uii-new'),
+      ).toBeUndefined();
+      expect(selection.pendingOutbound).not.toBeNull();
+    });
+  });
+
+  describe('resolvePendingOutboundSelection', () => {
+    test('resolves the pending pick for a call to the dialled number', async () => {
+      const { selection } = createSelection();
+      await selection.setPendingOutbound({
+        entityId: 'crm-1',
+        phoneNumber: '(650) 555-0100',
+      });
+
+      expect(
+        selection.resolvePendingOutboundSelection(
+          ['+16505550100', undefined],
+          MATCHES,
+        ),
+      ).toEqual({ displayedSelection: MATCHES[1], selections: MATCHES });
+    });
+
+    test('does not apply the pending pick to another number', async () => {
+      const { selection } = createSelection();
+      await selection.setPendingOutbound({
+        entityId: 'crm-1',
+        phoneNumber: '+16505550100',
+      });
+
+      expect(
+        selection.resolvePendingOutboundSelection(['+16505550999'], MATCHES),
+      ).toBeUndefined();
+    });
+
+    test('falls back without a pending pick or a live match for it', async () => {
+      const { selection } = createSelection();
+
+      expect(
+        selection.resolvePendingOutboundSelection(['+16505550100'], MATCHES),
+      ).toBeUndefined();
+
+      await selection.setPendingOutbound({
+        entityId: 'gone',
+        phoneNumber: '+16505550100',
+      });
+
+      expect(
+        selection.resolvePendingOutboundSelection(['+16505550100'], MATCHES),
+      ).toBeUndefined();
+      expect(
+        selection.resolvePendingOutboundSelection(['+16505550100'], []),
+      ).toBeUndefined();
+    });
+  });
+
+  describe('carryOverCallSelection', () => {
+    test('moves a stand-in pick onto the real session id', async () => {
+      const { selection } = createSelection();
+      // Adopted while the webphone reported the telephony session id as the
+      // session id.
+      selection.select({ scope: 'call', key: 's-telephony', entityId: 'crm-1' });
+
+      await selection.carryOverCallSelection('s-telephony', 'session-real');
+
+      expect(selection.selectionList).toEqual([
+        { scope: 'call', key: 'session-real', entityId: 'crm-1' },
+      ]);
+    });
+
+    test('keeps a pick the real session already has', async () => {
+      const { selection } = createSelection();
+      selection.select({ scope: 'call', key: 's-telephony', entityId: 'crm-1' });
+      selection.select({
+        scope: 'call',
+        key: 'session-real',
+        entityId: 'crm-2',
+      });
+
+      await selection.carryOverCallSelection('s-telephony', 'session-real');
+
+      expect(selection.selectionList).toEqual([
+        { scope: 'call', key: 'session-real', entityId: 'crm-2' },
+      ]);
+    });
+
+    test('leaves picks alone when there is nothing to move', async () => {
+      const { selection } = createSelection();
+      selection.select({ scope: 'call', key: 'session-1', entityId: 'crm-1' });
+      selection.select({
+        scope: 'conversation',
+        key: 's-telephony',
+        entityId: 'crm-2',
+      });
+      const before = selection.selectionList;
+
+      // Still the stand-in: the session id is the telephony session id.
+      await selection.carryOverCallSelection('session-1', 'session-1');
+      // No call pick under the telephony session id.
+      await selection.carryOverCallSelection('s-telephony', 'session-real');
+      await selection.carryOverCallSelection('', 'session-real');
+
+      expect(selection.selectionList).toBe(before);
+    });
   });
 
   describe('resolveSelection', () => {

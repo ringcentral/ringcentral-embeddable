@@ -38,6 +38,7 @@ import {
   type ContactMatcher,
   refreshContactMatch,
 } from '../../../app/services/ContactMatcher';
+import { MatchedContactSelection } from '../../../app/services/MatchedContactSelection';
 import { ThirdParty } from '../../../app/services/ThirdParty';
 import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
 import {
@@ -47,9 +48,10 @@ import {
 import hostCallHistoryI18n from '../../../app/views/CallHistoryView/i18n';
 import { callDirection } from '../../enums';
 import { CallHistoryList } from '../../components/CallHistoryList';
-import { useCxContactRenderInfo } from '../../hooks/useCxContactRenderInfo';
+import { useCxCallContactRenderInfo } from '../../hooks/useCxCallContactRenderInfo';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
 import { ringCXLogId } from '../../lib/formatRingCXCall';
+import { getCxCallResolvedContact } from '../../lib/getCxCallResolvedContact';
 import { canDialHistoryCall } from '../../services/CxCallHistory/can-dial-history-call';
 import type { FormattedCall } from '../../services/CxCallHistory/CxCallHistory.interface';
 import { cxPath } from '../../routes';
@@ -81,6 +83,7 @@ class CxCallHistoryView extends RcViewModule {
     private _connectivityManager: ConnectivityManager,
     private _rateLimiter: RateLimiter,
     private _integrationConfig: IntegrationConfig,
+    private _matchedContactSelection: MatchedContactSelection,
     @optional(ContactMatcherBase) private _contactMatcher?: ContactMatcher,
     @optional('RingCXAdapterBridge')
     private _bridge?: RingCXAdapterBridge,
@@ -236,7 +239,10 @@ class CxCallHistoryView extends RcViewModule {
     this._revealNextBatch();
   }
 
-  async dialHistoryCall(phoneNumber: string): Promise<void> {
+  async dialHistoryCall(
+    phoneNumber: string,
+    call?: FormattedCall,
+  ): Promise<void> {
     if (
       !canDialHistoryCall({
         phoneNumber,
@@ -247,6 +253,24 @@ class CxCallHistoryView extends RcViewModule {
     ) {
       return;
     }
+    // Hands the row's contact on to the call about to be placed, so it does
+    // not fall back to guessing `Maybe: <name>`; anything else clears a stale
+    // pending pick.
+    const contact = call
+      ? getCxCallResolvedContact(this._matchedContactSelection, {
+          uii: ringCXLogId(call),
+          matches:
+            call.direction === callDirection.outbound
+              ? call.toMatches
+              : call.fromMatches,
+          activityMatches: call.activityMatches,
+        })
+      : undefined;
+    await this._matchedContactSelection.setPendingOutbound(
+      contact
+        ? { entityId: contact.id, phoneNumber, scope: 'cxCall' }
+        : null,
+    );
     await this.cxCall.dialout(phoneNumber, {
       skipParse: phoneNumber.endsWith('@RC_EXT'),
     });
@@ -308,9 +332,11 @@ class CxCallHistoryView extends RcViewModule {
       : call.from?.phoneNumber;
     const matches = isOutbound ? call.toMatches : call.fromMatches;
     const formattedNumber = formatPhoneNumber({ phoneNumber: phoneNumber || '' });
-    const { renderInfo, Avatar, DisplayName } = useCxContactRenderInfo({
+    const { renderInfo, Avatar, DisplayName } = useCxCallContactRenderInfo({
+      uii: ringCXLogId(call),
       phoneNumber,
       matches,
+      activityMatches: call.activityMatches,
       serverName: displayName !== phoneNumber ? displayName : undefined,
     });
     const resolvedName = renderInfo.matchedContact?.name || displayName;
@@ -441,7 +467,7 @@ class CxCallHistoryView extends RcViewModule {
       switch (actionType) {
         case 'call':
           if (call.dialableNumber) {
-            void this.dialHistoryCall(call.dialableNumber);
+            void this.dialHistoryCall(call.dialableNumber, call);
           }
           break;
         case 'createLog':

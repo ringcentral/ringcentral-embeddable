@@ -43,6 +43,8 @@ import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber
 import { getClockByTimestamp } from '../../lib/getClockByTimestamp';
 import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
 import { getCallAni, getCallDnis } from '../../lib/getCxCallNumbers';
+import { getCxCallResolvedContact } from '../../lib/getCxCallResolvedContact';
+import { getCxCallSelectionKey } from '../../lib/getCxCallSelectionKey';
 import type {
   CxCallDispositionData,
 } from '../../services/CxCallDisposition/CxCallDisposition.interface';
@@ -54,6 +56,7 @@ import { shouldShowCallLogSummary } from '../../utils/shouldShowCallLogSummary';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
 import { hasNewCallTakenOver } from '../../utils/hasNewCallTakenOver';
 import { resolveLiveActivityCallId } from '../../utils/resolveLiveActivityCallId';
+import { MatchedContactSelection } from '../../../app/services/MatchedContactSelection';
 import { useSideWidgetTabsShown } from '../../../app/views/SideWidgetView';
 import type {
   CxDispositionViewProps,
@@ -128,6 +131,7 @@ class CxDispositionView extends RcViewModule {
     private toast: Toast,
     private storagePlugin: StoragePlugin,
     private portManager: PortManager,
+    private matchedContactSelection: MatchedContactSelection,
     @optional('CxDispositionViewOptions')
     private dispositionViewOptions?: CxDispositionViewOptions,
     @optional()
@@ -467,13 +471,24 @@ class CxDispositionView extends RcViewModule {
     );
   }
 
-  @computed((that: CxDispositionView) => [that.currentCall])
+  @computed((that: CxDispositionView) => [
+    that.currentCall,
+    that.matchedContactSelection.selectionList,
+  ])
   get basicInfo() {
     const call = this.currentCall as any;
     if (!call) return null;
     const isInbound = call.callType === 'INBOUND';
     const contactMatches: any[] = call.contactMatches || [];
-    const name = contactMatches[0]?.name;
+    // The contact the call control page resolved to — the logged contact,
+    // else the agent's pick — so the name does not change on the way here.
+    const name = (
+      getCxCallResolvedContact(this.matchedContactSelection, {
+        uii: getCxCallSelectionKey(call),
+        matches: contactMatches,
+        activityMatches: call.activityMatches,
+      }) ?? contactMatches[0]
+    )?.name;
     const ani = getCallAni(call);
     const dnis = getCallDnis(call);
     const fromNumber = isInbound ? ani : dnis;

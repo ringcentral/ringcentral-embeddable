@@ -76,6 +76,79 @@ type ConversationsUIFunctions = UIFunctions<ConversationsPanelSpringProps> & {
   onRefreshContact?: (phoneNumber: string) => Promise<void>;
 };
 
+type ItemConversation = Parameters<
+  ConversationsViewSpringBase['useConversationItemInfo']
+>[0];
+
+type ActionsHandlerArgs = Parameters<
+  ConversationsViewSpringBase['useActionsHandler']
+>;
+
+/**
+ * Normalises the log id and overlays the logger's live matches, so a
+ * conversation reads the same logged state wherever it is resolved.
+ */
+function withConversationLogState<T extends ItemConversation>(
+  conversation: T,
+  conversationLogger: ConversationLogger,
+) {
+  const compatibleConversation = conversation as T & {
+    conversationId?: string;
+  };
+  const conversationLogId =
+    conversation.conversationLogId === 'unknown'
+      ? compatibleConversation.conversationId
+      : conversation.conversationLogId;
+  return {
+    ...compatibleConversation,
+    conversationLogId,
+    conversationMatches: conversationLogId
+      ? conversationLogger.dataMapping?.[conversationLogId] ??
+        conversation.conversationMatches
+      : conversation.conversationMatches,
+  };
+}
+
+/**
+ * Passes the contact this conversation resolved to on to the call about to be
+ * placed from it, so the call control page does not fall back to guessing
+ * `Maybe: <name>`.
+ *
+ * It resolves the same way the row does: the contact the conversation was
+ * logged against wins over the user's pick. The guess itself is never handed
+ * off, and anything else clears a stale pending pick.
+ */
+function handOffSelectionToOutboundCall(
+  matchedContactSelection: MatchedContactSelection,
+  conversationLogger: ConversationLogger,
+  [conversation, info]: ActionsHandlerArgs,
+) {
+  const conversationWithLogState = withConversationLogState(
+    conversation,
+    conversationLogger,
+  );
+  const { conversationId, correspondents } = conversationWithLogState;
+  // The raw number, as `dialToPhoneNumber` picks it: the formatted one the
+  // dialer is handed may be in national form, which the new call's E.164
+  // number cannot be matched against.
+  const correspondent =
+    correspondents?.length === 1 ? correspondents[0] : undefined;
+  const phoneNumber =
+    correspondent?.extensionNumber ?? correspondent?.phoneNumber;
+  if (!conversationId || !phoneNumber || !info.getActionInfo()) {
+    return;
+  }
+  const entityId =
+    getLoggedContact(
+      conversationWithLogState.conversationMatches,
+      getConversationMatches(conversationWithLogState),
+    )?.id ??
+    matchedContactSelection.getSelectedEntityId('conversation', conversationId);
+  void matchedContactSelection.setPendingOutbound(
+    entityId ? { entityId, phoneNumber } : null,
+  );
+}
+
 @injectable({
   name: 'ConversationsView',
 })
@@ -147,29 +220,19 @@ export class ConversationsView extends ConversationsViewSpringBase {
     // `FaxDetailsView` call it directly off this view.
     const baseUseConversationItemInfo = this.useConversationItemInfo;
     this.useConversationItemInfo = (conversation, options = {}) => {
-      const compatibleConversation = conversation as typeof conversation & {
-        conversationId?: string;
-      };
-      const conversationLogId =
-        conversation.conversationLogId === 'unknown'
-          ? compatibleConversation.conversationId
-          : conversation.conversationLogId;
-      const conversationWithLogState = {
-        ...conversation,
-        conversationLogId,
-        conversationMatches: conversationLogId
-          ? conversationLogger.dataMapping?.[conversationLogId] ??
-            conversation.conversationMatches
-          : conversation.conversationMatches,
-      };
+      const conversationWithLogState = withConversationLogState(
+        conversation,
+        conversationLogger,
+      );
+      const { conversationId, conversationLogId } = conversationWithLogState;
       const matchedContactSelection = useContainer<MatchedContactSelection>(
         'MatchedContactSelection',
       );
       const selectedEntityId = useConnector(() =>
-        compatibleConversation.conversationId
+        conversationId
           ? matchedContactSelection.getSelectedEntityId(
               'conversation',
-              compatibleConversation.conversationId,
+              conversationId,
             )
           : undefined,
       );
@@ -240,10 +303,23 @@ export class ConversationsView extends ConversationsViewSpringBase {
       };
     };
 
+    // `useActionsHandler` is an instance field too, and the voicemail and fax
+    // detail pages and the SMS thread reuse this very field, so wrapping it
+    // here covers every conversation surface's dial action.
     const baseUseActionsHandler = this.useActionsHandler;
     this.useActionsHandler = (conversation, info, location) => {
       const baseHandler = baseUseActionsHandler(conversation, info, location);
+      const matchedContactSelection = useContainer<MatchedContactSelection>(
+        'MatchedContactSelection',
+      );
       return async (actionType, data) => {
+        if (actionType === 'call') {
+          handOffSelectionToOutboundCall(
+            matchedContactSelection,
+            conversationLogger,
+            [conversation, info, location],
+          );
+        }
         if (
           (actionType === 'createLog' || actionType === 'viewLog') &&
           thirdParty.messageLoggerRegistered

@@ -247,6 +247,104 @@ describe('ConversationsView matched-contact decoration', () => {
     );
   });
 
+  describe('dial hand-off', () => {
+    // What the dialer is handed: the number as displayed.
+    const INFO = {
+      getActionInfo: () => ({ phoneNumber: '(650) 555-0100' }),
+    };
+
+    const dial = async (view, conversation = VOICEMAIL) => {
+      const onAction = view.useActionsHandler(
+        conversation,
+        INFO,
+        'Voicemail detail page',
+      );
+      await onAction('call');
+    };
+
+    test('hands the pick to the call placed from the conversation', async () => {
+      const view = createView();
+      selection.select({
+        scope: 'conversation',
+        key: 'conversation-1',
+        entityId: 'crm-1',
+      });
+
+      await dial(view);
+
+      // The raw number, not the display form: the new call reports E.164,
+      // which a national display form may not match.
+      expect(selection.pendingOutbound).toEqual({
+        entityId: 'crm-1',
+        phoneNumber: '+16505550100',
+      });
+    });
+
+    test('dials the extension a correspondent reports', async () => {
+      const view = createView();
+      selection.select({
+        scope: 'conversation',
+        key: 'conversation-1',
+        entityId: 'crm-1',
+      });
+
+      await dial(view, {
+        ...VOICEMAIL,
+        correspondents: [
+          { phoneNumber: '+16505550100', extensionNumber: '102' },
+        ],
+      });
+
+      expect(selection.pendingOutbound).toEqual({
+        entityId: 'crm-1',
+        phoneNumber: '102',
+      });
+    });
+
+    test('hands off the logged contact ahead of the pick', async () => {
+      const conversationLogger = {
+        dataMapping: {
+          'conversation-log-id': [
+            { contactId: 'rc-1', id: 'activity-id', type: 'activity' },
+          ],
+        },
+        loggingMap: {},
+        logConversation: jest.fn(),
+        ready: true,
+      };
+      const view = createView({ conversationLogger });
+      selection.select({
+        scope: 'conversation',
+        key: 'conversation-1',
+        entityId: 'crm-1',
+      });
+
+      await dial(view, {
+        ...VOICEMAIL,
+        conversationLogId: 'conversation-log-id',
+        conversationMatches: [],
+      });
+
+      expect(selection.pendingOutbound).toEqual({
+        entityId: 'rc-1',
+        phoneNumber: '+16505550100',
+      });
+    });
+
+    test('clears a stale pending pick when nothing was resolved', async () => {
+      const view = createView();
+      await selection.setPendingOutbound({
+        entityId: 'crm-1',
+        phoneNumber: '+16505550999',
+      });
+
+      // The `Maybe:` guess is never handed off.
+      await dial(view);
+
+      expect(selection.pendingOutbound).toBeNull();
+    });
+  });
+
   test('shows the logged status from conversation matcher results', () => {
     const conversationLogger = {
       dataMapping: {

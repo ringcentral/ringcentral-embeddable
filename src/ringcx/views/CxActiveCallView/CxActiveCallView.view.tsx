@@ -66,7 +66,8 @@ import { IvrAlertPanel } from '../../components/IvrAlertPanel';
 import { DialpadPanel } from '../../components/DialpadPanel';
 import { EndCallDialog } from '../../components/EndCallDialog';
 import { SideWidgetToggleButton } from '../../components/SideWidgetToggleButton';
-import { useCxContactRenderInfo } from '../../hooks/useCxContactRenderInfo';
+import { useCxCallContactRenderInfo } from '../../hooks/useCxCallContactRenderInfo';
+import { getCxCallSelectionKey } from '../../lib/getCxCallSelectionKey';
 import type {
   BasicCallInfo,
   CxActiveCallViewProps,
@@ -890,9 +891,12 @@ class CxActiveCallView extends RcViewModule {
       renderInfo: contactRenderInfo,
       Avatar: ContactAvatar,
       DisplayName: ContactDisplayName,
-    } = useCxContactRenderInfo({
+    } = useCxCallContactRenderInfo({
+      uii: getCxCallSelectionKey(currentCall),
       phoneNumber: basicInfo?.phoneNumber,
       matches: basicInfo?.contactMatches,
+      activityMatches: currentCall?.activityMatches,
+      live: true,
     });
     // Like the RingEX call control, the number is shown once: in the subject
     // line when nothing matched, otherwise below the contact name.

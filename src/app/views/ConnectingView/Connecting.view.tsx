@@ -16,6 +16,7 @@ import {
   Call,
   CallAction,
   CALLING_ROUTE_PATH,
+  CallMonitor,
   CallingSettings,
   type OnCallActionType,
   PreinsertCall,
@@ -27,9 +28,10 @@ import {
 } from '@ringcentral-integration/micro-phone/src/app/views/ConnectingView/Connecting.view';
 import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import { CallControlView as CallControlViewBase } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
-import React, { type FC, type ReactElement, useCallback } from 'react';
+import React, { type FC, type ReactElement, useCallback, useMemo } from 'react';
 import { filter, tap } from 'rxjs';
 
+import { MatchedContactSelection } from '../../services/MatchedContactSelection';
 import type { Webphone } from '../../services/WebphoneV2';
 import type { CallControlView } from '../CallView/CallControlView/CallControl.view';
 import { VoicemailDropCallControlPanel } from '../CallView/CallControlView/VoicemailDropCallControlPanel';
@@ -39,6 +41,8 @@ type ConnectingViewInternals = {
   call: CallData;
   preinsertConnectingWebphoneSessionId: string;
 };
+
+type CallSelectionInfo = NonNullable<CallData['callSelectionInfo']>;
 
 @injectable({
   name: 'ConnectingView',
@@ -55,6 +59,8 @@ export class ConnectingView extends ConnectingViewBase {
     router: RouterPlugin,
     @inject('Subscription') subscription: Subscription,
     @inject(MicroPhoneWebphone) webphone: Webphone,
+    matchedContactSelection: MatchedContactSelection,
+    callMonitor: CallMonitor,
     @optional() contactMatcher?: ContactMatcher,
   ) {
     super(
@@ -75,6 +81,8 @@ export class ConnectingView extends ConnectingViewBase {
     this._connectingPortManager = portManager;
     this._connectingRouter = router;
     this._connectingWebphone = webphone;
+    this._matchedContactSelection = matchedContactSelection;
+    this._connectingCallMonitor = callMonitor;
     const internals = this as unknown as ConnectingViewInternals;
     internals.Connecting = this.renderConnecting.bind(this);
   }
@@ -85,6 +93,8 @@ export class ConnectingView extends ConnectingViewBase {
   private readonly _connectingPortManager: PortManager;
   private readonly _connectingRouter: RouterPlugin;
   private readonly _connectingWebphone: Webphone;
+  private readonly _matchedContactSelection: MatchedContactSelection;
+  private readonly _connectingCallMonitor: CallMonitor;
 
   override onInitOnce(): void {
     super.onInitOnce();
@@ -161,11 +171,62 @@ export class ConnectingView extends ConnectingViewBase {
     }
   }
 
+  /**
+   * The contact the dialled record resolved to, for the stand-in call shown
+   * while connecting.
+   *
+   * The stand-in has a fake session id, so it carries no pick of its own and
+   * would render `Maybe: <name>`. Until the real call arrives the pick waits as
+   * the pending outbound selection. Once the call claims it, it is read off
+   * that call, found by the telephony session id its webphone session reports:
+   * this screen can stay up a few updates longer, and the call reaches the
+   * call monitor before it becomes the active call.
+   */
+  private getConnectingCallSelectionInfo(
+    call: CallData,
+  ): CallSelectionInfo | undefined {
+    const { preinsertConnectingWebphoneSessionId } =
+      this as unknown as ConnectingViewInternals;
+    const telephonySessionId = preinsertConnectingWebphoneSessionId
+      ? this._connectingWebphone.sessions.find(
+          (session) => session.id === preinsertConnectingWebphoneSessionId,
+        )?.partyData?.sessionId
+      : undefined;
+    const realCall = telephonySessionId
+      ? this._connectingCallMonitor.callsInfo.telephonySessionIdCallMap[
+          telephonySessionId
+        ]
+      : undefined;
+    const claimedSelection = realCall?.sessionId
+      ? this._connectingCallViewState.getExtraLogData(
+          realCall.sessionId,
+          telephonySessionId!,
+        )?.callSelectionInfo
+      : undefined;
+    return (
+      (claimedSelection as CallSelectionInfo | undefined) ??
+      this._matchedContactSelection.resolvePendingOutboundSelection(
+        [call.to?.phoneNumber, call.to?.extensionNumber],
+        call.toMatches,
+      )
+    );
+  }
+
   private renderConnecting(
     props: PreinsertConnectingOverlayViewProps,
   ): ReactElement {
-    const call = useConnector(
+    const connectingCall = useConnector(
       () => (this as unknown as ConnectingViewInternals).call,
+    );
+    const callSelectionInfo = useConnector(() =>
+      this.getConnectingCallSelectionInfo(connectingCall),
+    );
+    const call = useMemo(
+      () =>
+        callSelectionInfo
+          ? { ...connectingCall, callSelectionInfo }
+          : connectingCall,
+      [connectingCall, callSelectionInfo],
     );
     const actions = this._connectingCallControlView.useCallActions({
       call,

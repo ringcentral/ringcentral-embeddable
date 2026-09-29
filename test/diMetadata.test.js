@@ -44,10 +44,18 @@ const typeOnlyImports = (source) => {
 /** Constructor parameters of each `@injectable` class that declares one. */
 const injectableConstructorParams = (source) => {
   if (!/@injectable\s*\(/.test(source)) return [];
-  const match = /\n  constructor\(\s*([\s\S]*?)\n  \)\s*\{/.exec(source);
-  if (!match) return [];
+  const start = source.indexOf('\n  constructor(');
+  if (start === -1) return [];
+  // Read up to the matching `)`: a one-line constructor has no `\n  ) {` of
+  // its own, and a lazy match would run on into the next method signature.
+  const open = start + '\n  constructor('.length;
+  let close = open;
+  for (let depth = 1; close < source.length && depth > 0; close += 1) {
+    if (source[close] === '(') depth += 1;
+    if (source[close] === ')') depth -= 1;
+  }
   // Split on commas that are not inside <>, (), {} or [].
-  const raw = match[1];
+  const raw = source.slice(open, close - 1);
   const params = [];
   let depth = 0;
   let current = '';

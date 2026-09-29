@@ -1,8 +1,11 @@
 import {
   computed,
+  fromWatchValue,
   injectable,
   optional,
+  PortManager,
   RcModule,
+  takeUntilAppDestroy,
 } from '@ringcentral-integration/next-core';
 import {
   ContactMatcher,
@@ -10,7 +13,9 @@ import {
 import {
   ActivityMatcher,
 } from '@ringcentral-integration/micro-contacts/src/app/services/ActivityMatcher';
+import { pairwise, startWith, tap } from 'rxjs';
 
+import { MatchedContactSelection } from '../../../app/services/MatchedContactSelection';
 import type { CxAddSessionNotification, CxBaseCall } from '../CxClient/interfaces';
 import { CxClient } from '../CxClient';
 import { CxPresence } from '../CxPresence';
@@ -18,6 +23,7 @@ import { CxCallDataSource } from '../CxCallDataSource';
 import { makeCallsUniqueIdentifies } from '../../lib/callUniqueIdentifies';
 import { ringCXLogId } from '../../lib/formatRingCXCall';
 import { getCallAni } from '../../lib/getCxCallNumbers';
+import { getCxCallSelectionKey } from '../../lib/getCxCallSelectionKey';
 import type {
   CxCallMonitorOptions,
   CxCallData,
@@ -38,12 +44,53 @@ class CxCallMonitor extends RcModule {
     private cxClient: CxClient,
     private cxPresence: CxPresence,
     private cxCallDataSource: CxCallDataSource,
+    private portManager: PortManager,
+    private matchedContactSelection: MatchedContactSelection,
     @optional() private contactMatcher?: ContactMatcher,
     @optional() private activityMatcher?: ActivityMatcher,
     @optional('CxCallMonitorOptions') private evCallMonitorOptions?: CxCallMonitorOptions,
   ) {
     super();
     this._registerMatcherQuerySources();
+    if (this.portManager.shared) {
+      this.portManager.onServer(() => this._bindOutboundSelectionHandoff());
+    } else {
+      this._bindOutboundSelectionHandoff();
+    }
+  }
+
+  /**
+   * Carries a pick made on a history record onto the call placed from it, so
+   * dialling a record keeps the contact the user chose there instead of
+   * guessing `Maybe: <name>` on the new call.
+   *
+   * The pick is claimed as the call appears, keyed by its interaction id, which
+   * its history rows share once it ends.
+   */
+  private _bindOutboundSelectionHandoff(): void {
+    fromWatchValue(this, () => this.callIds)
+      .pipe(
+        startWith([] as string[]),
+        pairwise(),
+        tap(([previousIds, callIds]) => {
+          callIds
+            .filter((id) => !previousIds.includes(id))
+            .forEach((id) => {
+              const call = this.callsDataMapping[id];
+              const key = getCxCallSelectionKey(call);
+              if (!key || call.callType !== 'OUTBOUND') {
+                return;
+              }
+              void this.matchedContactSelection.adoptPendingOutbound(
+                key,
+                [getCallAni(call), call.ani],
+                'cxCall',
+              );
+            });
+        }),
+        takeUntilAppDestroy,
+      )
+      .subscribe();
   }
 
   /**

@@ -2,6 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Subject } from 'rxjs';
 
+const MOCK_TO_MATCHES = [
+  { id: 'rc-1', name: 'Ada Byron', type: 'company' },
+  { id: 'crm-1', name: 'Ada Lovelace', type: 'contact' },
+];
+
 const mockPanel = jest.fn(({ actions }) => (
   <div data-sign="sharedCallControlPanel">
     {actions.map(({ type }) => type).join(',')}
@@ -35,6 +40,7 @@ jest.mock('@ringcentral-integration/micro-phone/src/app/services', () => ({
   Call: class Call {},
   CallAction: class CallAction {},
   CALLING_ROUTE_PATH: '/calling',
+  CallMonitor: class CallMonitor {},
   CallingSettings: class CallingSettings {},
   PreinsertCall: class PreinsertCall {},
   Webphone: class Webphone {},
@@ -51,6 +57,7 @@ jest.mock(
           sessionId: 'pre_insert_id_1',
           telephonySessionId: 'pre_insert_id_1',
           to: { phoneNumber: '+16505550101' },
+          toMatches: MOCK_TO_MATCHES,
         };
         this.connecting = true;
         this.preinsertConnectingWebphoneSessionId = 'webphone-session-1';
@@ -92,6 +99,10 @@ jest.mock(
   () => ({ CallControlView: class CallControlView {} }),
 );
 
+jest.mock('../src/app/services/MatchedContactSelection', () => ({
+  MatchedContactSelection: class MatchedContactSelection {},
+}));
+
 jest.mock('../src/app/services/WebphoneV2', () => ({
   Webphone: class Webphone {},
 }));
@@ -128,10 +139,15 @@ function createConnectingView({ shared = false } = {}) {
   const webphone = {
     end$: new Subject(),
     onCallStart: jest.fn(),
+    sessions: [],
   };
   const callAction = {};
-  const callViewState = {};
+  const callViewState = { getExtraLogData: jest.fn() };
   const router = {};
+  const matchedContactSelection = {
+    resolvePendingOutboundSelection: jest.fn(),
+  };
+  const callMonitor = { callsInfo: { telephonySessionIdCallMap: {} } };
   const view = new ConnectingView(
     callControlView,
     {},
@@ -143,11 +159,15 @@ function createConnectingView({ shared = false } = {}) {
     router,
     {},
     webphone,
+    matchedContactSelection,
+    callMonitor,
   );
   return {
     callAction,
     callControlView,
+    callMonitor,
     callViewState,
+    matchedContactSelection,
     portManager,
     router,
     view,
@@ -273,5 +293,64 @@ describe('ConnectingView', () => {
     await Promise.resolve();
 
     expect(view.isConnecting).toBe(false);
+  });
+  describe('matched-contact pick', () => {
+    const SELECTION_INFO = {
+      displayedSelection: MOCK_TO_MATCHES[1],
+      selections: MOCK_TO_MATCHES,
+    };
+
+    const renderedCall = () => mockPanel.mock.calls.at(-1)[0].call;
+
+    test('shows the pending pick on the stand-in call', () => {
+      const { matchedContactSelection, view } = createConnectingView();
+      matchedContactSelection.resolvePendingOutboundSelection.mockReturnValue(
+        SELECTION_INFO,
+      );
+      const Component = view.component.bind(view);
+
+      render(<Component />);
+
+      expect(
+        matchedContactSelection.resolvePendingOutboundSelection,
+      ).toHaveBeenCalledWith(['+16505550101', undefined], MOCK_TO_MATCHES);
+      expect(renderedCall()).toMatchObject({
+        sessionId: 'pre_insert_id_1',
+        callSelectionInfo: SELECTION_INFO,
+      });
+    });
+
+    test('reads the claimed pick off the real call once it arrives', () => {
+      const { callMonitor, callViewState, view, webphone } =
+        createConnectingView();
+      // The pending pick is gone: the new call has claimed it.
+      webphone.sessions = [
+        { id: 'webphone-session-1', partyData: { sessionId: 's-telephony' } },
+      ];
+      callMonitor.callsInfo.telephonySessionIdCallMap['s-telephony'] = {
+        sessionId: 'session-real',
+      };
+      callViewState.getExtraLogData.mockReturnValue({
+        callSelectionInfo: SELECTION_INFO,
+      });
+      const Component = view.component.bind(view);
+
+      render(<Component />);
+
+      expect(callViewState.getExtraLogData).toHaveBeenCalledWith(
+        'session-real',
+        's-telephony',
+      );
+      expect(renderedCall().callSelectionInfo).toBe(SELECTION_INFO);
+    });
+
+    test('leaves the stand-in call to the framework guess without a pick', () => {
+      const { view } = createConnectingView();
+      const Component = view.component.bind(view);
+
+      render(<Component />);
+
+      expect(renderedCall()).not.toHaveProperty('callSelectionInfo');
+    });
   });
 });

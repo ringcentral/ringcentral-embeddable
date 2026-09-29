@@ -26,6 +26,14 @@ export interface UseCxContactRenderInfoOptions {
    * @default 'phoneNumber'
    */
   phoneNumberDisplayMode?: 'unknown' | 'phoneNumber';
+  /**
+   * The contact the call resolved to, from `useCxCallContactSelection`. Shown
+   * instead of the `Maybe: <name>` guess.
+   */
+  selection?: {
+    displayedSelection: unknown;
+    selections: readonly unknown[];
+  };
 }
 
 export interface CxContactRenderInfo {
@@ -47,6 +55,7 @@ export const useCxContactRenderInfo = ({
   matches,
   serverName,
   phoneNumberDisplayMode = 'phoneNumber',
+  selection,
 }: UseCxContactRenderInfoOptions): CxContactRenderInfo => {
   const contactRendererOptions = useContainer<ContactRendererOptions, true>(
     'ContactRendererOptions',
@@ -59,6 +68,8 @@ export const useCxContactRenderInfo = ({
         matches: (matches ?? []) as Entity[],
         phoneNumber,
         phoneNumberDisplayMode,
+        displaySelection: selection?.displayedSelection as Entity | undefined,
+        selections: selection?.selections as Entity[] | undefined,
         getDefaultCrmMatch: contactRendererOptions?.getDefaultCrmMatch as
           | ((items: Entity[]) => Entity | undefined)
           | undefined,
@@ -68,6 +79,8 @@ export const useCxContactRenderInfo = ({
       matches,
       phoneNumber,
       phoneNumberDisplayMode,
+      selection?.displayedSelection,
+      selection?.selections,
       contactRendererOptions?.getDefaultCrmMatch,
     ],
   );

@@ -17,20 +17,34 @@ const CONVERSATION = {
   correspondentMatchesList: [[RC_MATCH, CRM_MATCH]],
 };
 
-const createOptions = (sourceName = 'crm', conversation = CONVERSATION) => {
+const createStore = (conversation) => ({
+  formattedConversationsMap: new Map(
+    conversation ? [[conversation.conversationId, conversation]] : [],
+  ),
+  currentConversation: undefined,
+});
+
+const createOptions = (
+  sourceName = 'crm',
+  conversation = CONVERSATION,
+  { queueConversation = null, threadConversation = null } = {},
+) => {
   const selection = new MatchedContactSelection({ enable: jest.fn() });
-  const conversations = {
-    formattedConversationsMap: new Map(
-      conversation ? [[conversation.conversationId, conversation]] : [],
+  const conversations = createStore(conversation);
+  const queueConversations = createStore(queueConversation);
+  const messageThread = {
+    getThreadConversation: jest.fn((threadId) =>
+      threadConversation?.conversationId === threadId
+        ? threadConversation
+        : undefined,
     ),
-    currentConversation: undefined,
   };
   const options = createContactRendererOptions(
     selection,
     { sourceName },
-    conversations,
+    { conversations, queueConversations, messageThread },
   );
-  return { options, selection, conversations };
+  return { options, selection, conversations, queueConversations };
 };
 
 describe('contact renderer options', () => {
@@ -118,6 +132,65 @@ describe('contact renderer options', () => {
       expect(options.getDisplayedSelectedEntity([], 'conversation-1')).toBe(
         CRM_MATCH,
       );
+    });
+
+    test('resolves a pick on a call queue conversation', async () => {
+      const queueConversation = {
+        ...CONVERSATION,
+        conversationId: 'queue-conversation-1',
+      };
+      const { options, selection } = createOptions('crm', null, {
+        queueConversation,
+      });
+      await selection.select({
+        scope: 'conversation',
+        key: 'queue-conversation-1',
+        entityId: 'crm-1',
+      });
+
+      expect(
+        options.getDisplayedSelectedEntity([], 'queue-conversation-1'),
+      ).toBe(CRM_MATCH);
+    });
+
+    test('resolves a pick on a shared SMS thread', async () => {
+      // Shared threads live in `MessageThread`, keyed by the thread id.
+      const threadConversation = {
+        ...CONVERSATION,
+        conversationId: 'thread-1',
+      };
+      const { options, selection } = createOptions('crm', null, {
+        threadConversation,
+      });
+      await selection.select({
+        scope: 'conversation',
+        key: 'thread-1',
+        entityId: 'crm-1',
+      });
+
+      expect(options.getDisplayedSelectedEntity([], 'thread-1')).toBe(
+        CRM_MATCH,
+      );
+    });
+
+    test('does not borrow the open conversation for another id', async () => {
+      const { options, selection, conversations } = createOptions('crm', null);
+      conversations.currentConversation = {
+        ...CONVERSATION,
+        correspondentMatchesList: undefined,
+        correspondentMatches: [RC_MATCH, CRM_MATCH],
+      };
+      await selection.select({
+        scope: 'conversation',
+        key: 'thread-1',
+        entityId: 'crm-1',
+      });
+
+      // `thread-1` is in no store, so the open `conversation-1` must not
+      // stand in for it.
+      expect(
+        options.getDisplayedSelectedEntity([], 'thread-1'),
+      ).toBeUndefined();
     });
 
     test('returns undefined without a conversation id, keeping the guess', async () => {

@@ -21,7 +21,9 @@ import React, { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { ContactAvatar } from '@ringcentral-integration/micro-contacts/src/app/components/ContactAvatar';
 
+import { useCxCallContactRenderInfo } from '../../hooks/useCxCallContactRenderInfo';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
+import { ringCXLogId } from '../../lib/formatRingCXCall';
 import type { CallHistoryDetailPanelProps } from './CallHistoryDetailPanel.interface';
 import i18n from '../../views/CxCallHistoryDetailView/i18n';
 
@@ -135,29 +137,28 @@ export const CallHistoryDetailPanel: FunctionComponent<
     hostLogActions?.some((action) => action.type === 'viewLog'),
   );
 
-  const contactName = useMemo(() => {
-    if (!callDetail) return '';
-    const matchName = isInbound
-      ? callDetail.fromMatches?.[0]?.name
-      : callDetail.toMatches?.[0]?.name;
-    if (matchName) {
-      return matchName;
-    }
-    return isInbound ? callDetail.fromName : callDetail.toName;
-  }, [callDetail, isInbound]);
-
-  const contactAvatarUrl = useMemo(() => {
-    if (!callDetail) return undefined;
-    return isInbound
-      ? callDetail.fromMatches?.[0]?.profileImageUrl
-      : callDetail.toMatches?.[0]?.profileImageUrl;
-  }, [callDetail, isInbound]);
-
   const phoneNumber = useMemo(() => {
     if (!callDetail) return '';
     const party = isInbound ? callDetail.from : callDetail.to;
     return party?.phoneNumber || '';
   }, [callDetail, isInbound]);
+
+  const serverName = isInbound ? callDetail?.fromName : callDetail?.toName;
+  // The same resolution as the history row: the logged contact, else the
+  // user's pick, else the `Maybe: <name>` guess, with the match picker.
+  const { renderInfo, DisplayName } = useCxCallContactRenderInfo({
+    uii: callDetail ? ringCXLogId(callDetail) : undefined,
+    phoneNumber,
+    matches: isInbound ? callDetail?.fromMatches : callDetail?.toMatches,
+    activityMatches: callDetail?.activityMatches,
+    serverName: serverName !== phoneNumber ? serverName : undefined,
+    phoneNumberDisplayMode: 'unknown',
+  });
+  const matchedContact = renderInfo.matchedContact as
+    | { name?: string; profileImageUrl?: string }
+    | undefined;
+  const contactName = matchedContact?.name || serverName || '';
+  const contactAvatarUrl = matchedContact?.profileImageUrl;
 
   const isRealName = !!contactName && contactName !== phoneNumber;
   const displayName = isRealName ? contactName : t('unknown');
@@ -273,7 +274,9 @@ export const CallHistoryDetailPanel: FunctionComponent<
             data-sign="matchName"
             title={displayName}
           >
-            {displayName}
+            <DisplayName
+              displayControl={{ maybe: true, matchCounts: true, align: 'center' }}
+            />
           </div>
           {phoneNumber ? (
             <div className="flex items-center gap-1 max-w-full">

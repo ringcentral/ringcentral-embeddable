@@ -8,6 +8,7 @@ import {
 } from '@ringcentral-integration/micro-phone/src/app/services';
 import { CallViewState as CallViewStateBase } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import {
+  fromWatchValue,
   injectable,
   optional,
   PortManager,
@@ -100,6 +101,24 @@ export class CallViewState extends CallViewStateBase {
         takeUntilAppDestroy
       )
       .subscribe();
+
+    // `NewCall` fires for the stand-in session the local webphone reports
+    // first, whose session id is the telephony session id. When the server
+    // session replaces it no second `NewCall` fires, so the pick is carried
+    // over by the telephony session id both share.
+    fromWatchValue(this, () => this._matchLookupCallMonitor?.allCalls)
+      .pipe(
+        tap((calls) => {
+          calls?.forEach(({ sessionId, telephonySessionId }) => {
+            void this._matchedContactSelection?.carryOverCallSelection(
+              telephonySessionId!,
+              sessionId!,
+            );
+          });
+        }),
+        takeUntilAppDestroy
+      )
+      .subscribe();
   }
 
   /**
@@ -119,16 +138,33 @@ export class CallViewState extends CallViewStateBase {
 
   override getExtraLogData(sessionId: string, telephonySessionId: string) {
     const extraLogData = super.getExtraLogData(sessionId, telephonySessionId);
-    const callSelectionInfo = this._getCallSelectionInfo(sessionId);
+    const callSelectionInfo = this._getCallSelectionInfo(
+      sessionId,
+      telephonySessionId,
+    );
     if (!callSelectionInfo) {
       return extraLogData;
     }
     return { ...extraLogData, callSelectionInfo };
   }
 
-  private _getCallSelectionInfo(sessionId: string) {
+  /**
+   * Falls back to the telephony session id, the key a pick adopted on the
+   * stand-in session carries until `carryOverCallSelection` moves it, so the
+   * pick shows without waiting for that round trip.
+   */
+  private _getCallSelectionInfo(sessionId: string, telephonySessionId?: string) {
     const selection = this._matchedContactSelection;
-    if (!selection?.getSelectedEntityId('call', sessionId)) {
+    if (!selection) {
+      return undefined;
+    }
+    const key = selection.getSelectedEntityId('call', sessionId)
+      ? sessionId
+      : telephonySessionId &&
+          selection.getSelectedEntityId('call', telephonySessionId)
+        ? telephonySessionId
+        : undefined;
+    if (!key && !selection.pendingOutbound) {
       return undefined;
     }
     const call = this._findCall(sessionId);
@@ -137,7 +173,21 @@ export class CallViewState extends CallViewStateBase {
     }
     // The same side the display resolves its name from.
     const matches = isInbound(call) ? call.fromMatches : call.toMatches;
-    return selection.resolveSelection('call', sessionId, matches);
+    if (key) {
+      return selection.resolveSelection('call', key, matches);
+    }
+    // A call can reach a client tab a moment before the pick it claims does,
+    // so until then the pending pick stands in for it. Only a live call may
+    // borrow it: older history records to the same number never claimed it.
+    const isLiveCall = Boolean(
+      this._matchLookupCallMonitor?.getCallBySessionId(sessionId),
+    );
+    return isInbound(call) || !isLiveCall
+      ? undefined
+      : selection.resolvePendingOutboundSelection(
+          [call.to?.phoneNumber, call.to?.extensionNumber],
+          matches,
+        );
   }
 
   private _findCall(sessionId: string): CallWithMatches | undefined {

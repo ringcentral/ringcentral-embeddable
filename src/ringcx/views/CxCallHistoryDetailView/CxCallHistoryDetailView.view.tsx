@@ -18,6 +18,7 @@ import {
   HostCallLogger,
   type CallLogger,
 } from '../../../app/services/CallLogger';
+import { MatchedContactSelection } from '../../../app/services/MatchedContactSelection';
 import { ThirdParty } from '../../../app/services/ThirdParty';
 import { createCallHistoryLogActions } from '../../../app/views/CallHistoryView/CallHistoryLogAction';
 import hostCallHistoryI18n from '../../../app/views/CallHistoryView/i18n';
@@ -27,6 +28,7 @@ import type { FormattedCall } from '../../services/CxCallHistory/CxCallHistory.i
 import { CallHistoryDetailPanel } from '../../components/CallHistoryDetailPanel';
 import { callDirection } from '../../enums';
 import { ringCXLogId } from '../../lib/formatRingCXCall';
+import { getCxCallResolvedContact } from '../../lib/getCxCallResolvedContact';
 import { t as translate } from './i18n';
 
 import type {
@@ -80,6 +82,7 @@ class CxCallHistoryDetailView extends RcViewModule {
     private _locale: Locale,
     @inject(HostCallLogger) private _callLogger: CallLogger,
     private _thirdParty: ThirdParty,
+    private _matchedContactSelection: MatchedContactSelection,
     @optional('RingCXAdapterBridge')
     private _bridge?: RingCXAdapterBridge,
     @optional('CxCallHistoryDetailViewOptions')
@@ -107,6 +110,18 @@ class CxCallHistoryDetailView extends RcViewModule {
     ) {
       return;
     }
+    // Hands the record's contact on to the call about to be placed, so it
+    // does not fall back to guessing `Maybe: <name>`; anything else clears a
+    // stale pending pick.
+    const callDetail = this._cxCallHistory.getCallById(this._params.id);
+    const contact = callDetail
+      ? this._getResolvedContact(callDetail)
+      : undefined;
+    await this._matchedContactSelection.setPendingOutbound(
+      contact
+        ? { entityId: contact.id, phoneNumber, scope: 'cxCall' }
+        : null,
+    );
     await this._cxCall.dialout(phoneNumber, {
       skipParse: phoneNumber.endsWith('@RC_EXT'),
     });
@@ -178,6 +193,21 @@ class CxCallHistoryDetailView extends RcViewModule {
     };
   }
 
+  /** The logged contact, else the user's pick; never the `Maybe:` guess. */
+  private _getResolvedContact(callDetail: FormattedCall) {
+    return getCxCallResolvedContact(this._matchedContactSelection, {
+      uii: ringCXLogId(callDetail),
+      matches: this._getContactMatches(callDetail),
+      activityMatches: callDetail.activityMatches,
+    });
+  }
+
+  private _getContactMatches(callDetail: FormattedCall) {
+    return callDetail.direction === callDirection.outbound
+      ? callDetail.toMatches
+      : callDetail.fromMatches;
+  }
+
   private _hostLogActions(callDetail?: FormattedCall) {
     if (!callDetail) {
       return [];
@@ -219,12 +249,12 @@ class CxCallHistoryDetailView extends RcViewModule {
         if (!callDetail) {
           return;
         }
-        // The contact the detail header shows.
-        const matches =
-          callDetail.direction === callDirection.outbound
-            ? callDetail.toMatches
-            : callDetail.fromMatches;
-        void this._bridge?.logFromHistory?.(callDetail, actionType, matches?.[0]);
+        // The contact the detail header resolves to, else the first match as
+        // before a pick existed.
+        const contact =
+          this._getResolvedContact(callDetail) ??
+          this._getContactMatches(callDetail)?.[0];
+        void this._bridge?.logFromHistory?.(callDetail, actionType, contact);
       },
     };
   }
