@@ -79,7 +79,7 @@ describe('third-party integration configuration', () => {
       );
     });
 
-    test('does not forward a "Maybe" guess the user never chose', () => {
+    test('opens the contact a "Maybe" match shows', () => {
       const { config, thirdParty, viewRingCentralContact } = createConfig();
 
       config.onViewEntity(CRM_MATCH, { isMaybeMatch: true });
@@ -88,8 +88,14 @@ describe('third-party integration configuration', () => {
         { isMaybeMatch: true },
       );
 
-      expect(thirdParty.onViewMatchedContactExternal).not.toHaveBeenCalled();
-      expect(viewRingCentralContact).not.toHaveBeenCalled();
+      expect(thirdParty.onViewMatchedContactExternal).toHaveBeenCalledWith(
+        CRM_MATCH,
+      );
+      expect(viewRingCentralContact).toHaveBeenCalledWith({
+        id: 'rc-1',
+        type: 'personal',
+        direct: true,
+      });
     });
 
     test.each(['personal', 'company'])(

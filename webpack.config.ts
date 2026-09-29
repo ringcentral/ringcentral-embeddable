@@ -15,6 +15,11 @@ const DEFAULT_RECORDING_LINK =
   'https://ringcentral.github.io/ringcentral-media-reader/';
 const DEFAULT_NOISE_REDUCTION_SDK_URL =
   'https://apps.ringcentral.com/integration/ringcentral-embeddable/noise-reduction/1.0.13.1';
+const DEFAULT_AGENT_ASSISTANT_PAGE_URL =
+  'https://cdn.labs.ringcentral.com/ringcx-embeddable/ai-assistant/0.0.1/index.html';
+const DEFAULT_AGENT_SCRIPT_PAGE_URL =
+  'https://cdn.labs.ringcentral.com/ringcx-embeddable/agent-script/0.0.2/index.html';
+const RINGCX_AGENT_SDK_ASSET = /[\\/]assets[\\/]ringcx[\\/]agentLibrary\.js$/;
 
 const readEnv = (...names: string[]) => {
   for (const name of names) {
@@ -63,6 +68,35 @@ const getNoiseReductionSdkUrl = (
   );
 };
 
+/**
+ * Points the vendored RingCX Agent SDK at `window.evAuthHost` instead of the
+ * page origin while it is copied. The host serves the widget from its own
+ * origin, and `CxClient.ensureSdkLoaded()` sets `window.evAuthHost` before it
+ * injects the script. Same rewrite as the RingCX repo webpack config.
+ */
+const applyRingCXAgentSdkRewrite = (options: AppWebpackConfigOptions): void => {
+  const assetsEntry = options.projectConfig.assetsEntries?.find(
+    ({ to }) => to === 'assets',
+  );
+  if (!assetsEntry) {
+    return;
+  }
+  Object.assign(assetsEntry, {
+    // The SDK ships minified, so the copy skips the minimizer pass.
+    info: ({ absoluteFilename }: { absoluteFilename: string }) =>
+      RINGCX_AGENT_SDK_ASSET.test(absoluteFilename) ? { minimized: true } : {},
+    transform: {
+      cache: true,
+      transformer: (content: Buffer, absoluteFilename: string) =>
+        RINGCX_AGENT_SDK_ASSET.test(absoluteFilename)
+          ? content
+              .toString('utf8')
+              .replace(/window\.location\.origin/g, 'window.evAuthHost')
+          : content,
+    },
+  });
+};
+
 const getCustomRules = (): RuleSetRule[] => [
   // Fix scss syntax error in widgets: `and(max-width` → `and (max-width`
   {
@@ -88,6 +122,7 @@ const getCustomRules = (): RuleSetRule[] => [
 export const getWebpackConfig = (
   options: AppWebpackConfigOptions,
 ): Configuration => {
+  applyRingCXAgentSdkRewrite(options);
   const baseWebpackConfig = getBaseWebpackConfig(options);
   const { projectConfig } = options;
   const { appConfig } = projectConfig;
@@ -150,6 +185,19 @@ export const getWebpackConfig = (
         ),
         'process.env.NOISE_REDUCTION_SDK_URL': toDefineValue(
           getNoiseReductionSdkUrl(options),
+        ),
+        'process.env.RINGCX_AUTH_HOST': toDefineValue(
+          readEnv('RINGCX_AUTH_HOST'),
+        ),
+        'process.env.AGENT_ASSISTANT_PAGE_URL': toDefineValue(
+          readEnv('AGENT_ASSISTANT_PAGE_URL') ||
+            DEFAULT_AGENT_ASSISTANT_PAGE_URL,
+        ),
+        'process.env.AGENT_ASSISTANT_CLIENT_ID': toDefineValue(
+          readEnv('AGENT_ASSISTANT_CLIENT_ID'),
+        ),
+        'process.env.AGENT_SCRIPT_PAGE_URL': toDefineValue(
+          readEnv('AGENT_SCRIPT_PAGE_URL') || DEFAULT_AGENT_SCRIPT_PAGE_URL,
         ),
       }),
     ],

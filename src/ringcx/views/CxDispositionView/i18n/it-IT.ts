@@ -1,0 +1,21 @@
+/* eslint-disable */
+export default {
+  noActiveCall: 'Nessuna chiamata attiva',
+  pendingDisposition: 'Disposizione in sospeso',
+  createCallLog: 'Crea registro chiamate',
+  updateCallLog: 'Aggiorna registro chiamate',
+  disposition: 'Disposizione',
+  pleaseSelect: 'Seleziona',
+  summary: 'Riepilogo',
+  summaryEdited: 'Riepilogo (modificato)',
+  summaryPlaceholder: 'Il riepilogo verrà generato qui...',
+  summaryLoading: 'Generazione riepilogo chiamate...',
+  notes: 'Note',
+  enterNotes: 'Inserisci note...',
+  dispositionError: 'Scegli una disposizione prima di inviare.',
+  notesRequired: 'Per questa disposizione sono necessarie note.',
+  submit: 'Invia',
+  callDispositionSuccess: 'Disposizione chiamata salvata correttamente.',
+  callDispositionFailed: 'Impossibile salvare la disposizione della chiamata.',
+  callLogNotFound: 'Registro chiamate non trovato',
+} as const;

@@ -13,6 +13,9 @@ export interface CallHUDPanelProps {
   disableClickToDial: boolean;
   canPark: boolean;
   canEdit: boolean;
+  /** Shown when HUD is the only side widget tab, so no tab bar names it. */
+  showCloseButton: boolean;
+  onClose: () => void;
   onSearchInputChange: (value: string) => void;
   onTypeChange: (type: string) => void;
   formatPhone: (phoneNumber: string) => string;

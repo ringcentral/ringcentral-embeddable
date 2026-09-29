@@ -1,0 +1,22 @@
+/* eslint-disable */
+export default {
+  callHistory: '통화 기록',
+  noCallHistory: '통화 기록 없음',
+  inbound: '수신',
+  outbound: '발신',
+  callsFilterAll: '모든 통화',
+  callsFilterOutgoing: '발신',
+  callsFilterIncoming: '수신',
+  noCalls: '아직 통화가 없음',
+  noSearchResults: '검색 결과 없음',
+  updateCallLog: '통화 기록 업데이트',
+  createCallLog: '통화 기록 만들기',
+  dial: '전화',
+  yesterday: '내일',
+  unknown: '알 수 없음',
+  logged: '기록됨',
+  manual: '매뉴얼',
+  loadingMore: '더 많은 통화 로드 중',
+  loadFailed: '통화를 더 로드할 수 없습니다.',
+  retry: '재시도',
+} as const;

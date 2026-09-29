@@ -1,0 +1,22 @@
+/* eslint-disable */
+export default {
+  callHistory: 'Anrufliste',
+  noCallHistory: 'Kein Anrufverlauf',
+  inbound: 'Eingehend',
+  outbound: 'Ausgehend',
+  callsFilterAll: 'Alle Anrufe',
+  callsFilterOutgoing: 'Ausgehend',
+  callsFilterIncoming: 'Eingehend',
+  noCalls: 'Noch keine Anrufe',
+  noSearchResults: 'Keine Suchergebnisse',
+  updateCallLog: 'Anrufprotokoll aktualisieren',
+  createCallLog: 'Anrufliste anlegen',
+  dial: 'Anruf',
+  yesterday: 'Gestern',
+  unknown: 'Unbekannt',
+  logged: 'Protokolliert',
+  manual: 'Handbuch',
+  loadingMore: 'Weitere Anrufe werden geladen',
+  loadFailed: 'Es konnten keine weiteren Anrufe geladen werden',
+  retry: 'Erneut versuchen',
+} as const;

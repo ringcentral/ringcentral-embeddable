@@ -1,0 +1,22 @@
+/* eslint-disable */
+export default {
+  callHistory: 'Cronologia chiamate',
+  noCallHistory: 'Nessuna cronologia chiamate',
+  inbound: 'In entrata',
+  outbound: 'In uscita',
+  callsFilterAll: 'Tutte',
+  callsFilterOutgoing: 'In uscita',
+  callsFilterIncoming: 'In entrata',
+  noCalls: 'Ancora nessuna chiamata',
+  noSearchResults: 'La ricerca non ha prodotto risultati',
+  updateCallLog: 'Aggiorna registro chiamate',
+  createCallLog: 'Crea registro chiamate',
+  dial: 'Chiamata',
+  yesterday: 'Ieri',
+  unknown: 'Sconosciuto',
+  logged: 'Connesso',
+  manual: 'Manuale',
+  loadingMore: 'Caricamento di altre chiamate',
+  loadFailed: 'Impossibile caricare altre chiamate',
+  retry: 'Riprova',
+} as const;

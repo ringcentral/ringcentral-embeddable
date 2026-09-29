@@ -1,0 +1,20 @@
+/* eslint-disable */
+export default {
+  voiceConnection: '音声接続',
+  inboundQueues: '着信キュー',
+  skillProfile: 'スキルプロフィール',
+  dialGroup: 'ダイヤル グループ',
+  autoAnswer: '電話に自動応答',
+  startSession: 'セッションの開始',
+  selectQueues: 'キューの選択',
+  selectSkillProfile: 'スキル プロファイルの選択',
+  continue: '続行',
+  switchAccount: 'アカウントを切り替える',
+  extensionNumber: 'あなたの電話番号',
+  enterYourPhoneNumber: '電話番号を入力してください',
+  takingCalls: '永続的な音声接続',
+  agent: 'エージェント',
+  supervisor: 'スーパーバイザー',
+  none: 'なし',
+  multiple: '複数の割り当て',
+} as const;

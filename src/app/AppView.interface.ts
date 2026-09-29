@@ -14,21 +14,25 @@ export type Route = {
    */
   exact?: boolean;
   /**
-   * render this route as a detail page in the expanded column when available
-   */
-  layout?: 'detail';
-  /**
-   * page that remains in the main column while a detail route is expanded
+   * Page that remains in the main column while this side widget page is open.
    */
   backgroundComponent?: React.ComponentType;
   /**
-   * Keep the previously rendered main page while this detail route is expanded.
+   * Keep the previously rendered main page while this side widget page is open.
    */
   preserveBackground?: boolean;
   /**
    * Render this route as a reusable SideWidget tab.
    */
   sideWidget?: RoutedSideWidgetConfig;
+  /**
+   * The page renders its own nested router and reads the real location.
+   *
+   * Switching to it cannot park the current routed page behind a synthetic
+   * path, so navigation always uses the real router. The RingCX agent tab is
+   * the current example.
+   */
+  ownsRouter?: boolean;
 };
 
 export interface AppViewOptions {

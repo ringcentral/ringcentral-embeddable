@@ -1044,11 +1044,15 @@ class Adapter {
       this._contentFrameContainerEl.style.height = 'calc(100% - 36px)';
       this._contentFrameEl.style.width = '100%';
       this._contentFrameEl.style.height = '100%';
-      if (window.opener) {
+      // The user sizes the popup window, and the app lays out to its width,
+      // so the window only grows to fit the app, such as when expanding, and
+      // is never narrowed back to it. The requested width is the inner width,
+      // so the window frame is added on top.
+      if (window.opener && this._appWidth > window.innerWidth) {
         window.opener.postMessage(
           {
             type: 'rc-adapter-set-popup-window-size',
-            width: this._appWidth,
+            width: this._appWidth + (window.outerWidth - window.innerWidth),
             height: this._appHeight,
           },
           '*',
@@ -1544,12 +1548,50 @@ class Adapter {
     });
   }
 
-  clickToCall(phoneNumber: string, toCall: boolean = false): void {
+  clickToCall(
+    phoneNumber: string,
+    toCallOrOptions:
+      | boolean
+      | {
+          toCall?: boolean;
+          callWith?: 'ringcx' | 'ringcentral';
+          callerId?: string;
+        } = false,
+  ): void {
+    const options =
+      typeof toCallOrOptions === 'object'
+        ? toCallOrOptions
+        : { toCall: toCallOrOptions };
     this.setMinimized(false);
     this._postMessage({
       type: 'rc-adapter-new-call',
       phoneNumber,
-      toCall,
+      toCall: options.toCall ?? false,
+      callWith: options.callWith,
+      callerId: options.callerId,
+    });
+  }
+
+  startRingCXAgentSession(): void {
+    this._postMessage({ type: 'rc-adapter-ringcx-start-agent-session' });
+  }
+
+  endRingCXAgentSession(): void {
+    this._postMessage({ type: 'rc-adapter-ringcx-end-agent-session' });
+  }
+
+  setRingCXAgentState(state: string): void {
+    this._postMessage({
+      type: 'rc-adapter-ringcx-set-agent-state',
+      state,
+    });
+  }
+
+  dialRingCXLead(lead: unknown, destination: string): void {
+    this._postMessage({
+      type: 'rc-adapter-ringcx-dial-lead',
+      lead,
+      destination,
     });
   }
 
@@ -1559,6 +1601,7 @@ class Adapter {
       callAction: action,
       callId: id,
       options,
+      source: options.source,
     });
   }
 

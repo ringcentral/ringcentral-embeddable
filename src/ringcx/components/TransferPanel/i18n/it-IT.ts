@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: 'Cerca agenti...',
+  noAgents: 'Nessun agente disponibile',
+  available: 'Disponibile',
+  unavailable: 'Non disponibile',
+  searchContacts: 'Cerca contatti...',
+  noContacts: 'Nessun record trovato.',
+  enterNumber: 'Immettere il numero o il nome',
+  searchingDirectory: 'Ricerca in corso...',
+  corporateDirectory: 'Rubrica aziendale',
+  extension: 'est. {extensionNumber}',
+  selectQueueGroup: 'Gruppo di code',
+  selectQueue: 'Coda',
+  noGroups: 'Nessun gruppo di code disponibile',
+  noQueues: 'Nessuna coda disponibile',
+  selectAGroup: 'Seleziona un gruppo',
+  selectAQueue: 'Seleziona una coda',
+  stayOnCall: 'Rimani nella chiamata',
+  cancel: 'Annulla',
+  transfer: 'Trasferisci',
+  transferToTip: 'Trasferimento a: {destination}',
+} as const;

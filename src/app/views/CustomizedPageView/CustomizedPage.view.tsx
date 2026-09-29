@@ -23,6 +23,11 @@ export class CustomizedPageView extends RcViewModule {
     super();
   }
 
+  /** The title the host registered for a customized page. */
+  getPageTitle(pageId: string): string | undefined {
+    return this._thirdParty.getCustomizedPage(pageId)?.title || undefined;
+  }
+
   component({
     match,
   }: RouteComponentProps<{ pageId: string }>): React.ReactElement | null {

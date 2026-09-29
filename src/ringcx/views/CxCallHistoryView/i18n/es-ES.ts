@@ -1,0 +1,22 @@
+/* eslint-disable */
+export default {
+  callHistory: 'Historial de llamadas',
+  noCallHistory: 'No hay historial de llamadas',
+  inbound: 'Llamadas entrantes',
+  outbound: 'Llamadas salientes',
+  callsFilterAll: 'Todas llam.',
+  callsFilterOutgoing: 'Saliente',
+  callsFilterIncoming: 'Entrante',
+  noCalls: 'Aún no hay llamadas',
+  noSearchResults: 'Sin resultados de búsqueda',
+  updateCallLog: 'Actualizar registro de llamadas',
+  createCallLog: 'Crear registro de llamadas',
+  dial: 'Llamar',
+  yesterday: 'Ayer',
+  unknown: 'Desconocido',
+  logged: 'Registrada',
+  manual: 'Manual',
+  loadingMore: 'Cargando más llamadas',
+  loadFailed: 'No se pudieron cargar más llamadas',
+  retry: 'Reintentar',
+} as const;

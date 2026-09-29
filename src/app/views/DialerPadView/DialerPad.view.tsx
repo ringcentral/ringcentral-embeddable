@@ -30,6 +30,8 @@ import { IconButton } from '@ringcentral/spring-ui';
 import React from 'react';
 
 import { CallHUDView } from '../CallHUDView';
+import { ExpandedView } from '../ExpandedView';
+import { SideWidgetView } from '../SideWidgetView';
 
 import i18n from './i18n';
 
@@ -48,6 +50,8 @@ export class DialerPadView extends DialerPadViewBase {
     protected _conversationsView: ConversationsViewSpring,
     protected _root: Root,
     protected _callHUDView: CallHUDView,
+    protected _sideWidgetView: SideWidgetView,
+    protected _expandedView: ExpandedView,
     @optional('DialerPadViewOptions')
     protected _dialerPadViewOptions?: DialerPadViewOptions,
   ) {
@@ -69,7 +73,7 @@ export class DialerPadView extends DialerPadViewBase {
   };
 
   private toggleCallHUD = () => {
-    this._callHUDView.toggleCallHUD();
+    void this._callHUDView.toggleCallHUD();
   };
 
   /**
@@ -89,6 +93,10 @@ export class DialerPadView extends DialerPadViewBase {
       () => (this._appFeatures as any).hasHUDPermission,
     );
     const showCallHUD = useConnector(() => this._callHUDView.showCallHUD);
+    // A popup window too narrow for the expanded column keeps it folded.
+    const fitsExpandedLayout = useConnector(
+      () => this._expandedView.fitsExpandedLayout,
+    );
 
     return (
       <AppHeaderNav title={t('phone')}>
@@ -103,18 +111,21 @@ export class DialerPadView extends DialerPadViewBase {
             onClick={this.toggleCallHUD}
           />
         )}
-        <IconButton
-          variant="icon"
-          color="secondary"
-          size="medium"
-          symbol={expanded ? CollapseLeftMd : CollapseRightMd}
-          data-sign="toggleExpanded"
-          data-expanded={expanded ? 'unfolded' : 'folded'}
-          TooltipProps={{
-            title: expanded ? t('collapse') : t('expand'),
-          }}
-          onClick={this.toggleExpanded}
-        />
+        {/* Like the legacy side drawer toggle, only shown with `enableSideWidget`. */}
+        {this._sideWidgetView.enabled && fitsExpandedLayout && (
+          <IconButton
+            variant="icon"
+            color="secondary"
+            size="medium"
+            symbol={expanded ? CollapseLeftMd : CollapseRightMd}
+            data-sign="toggleExpanded"
+            data-expanded={expanded ? 'unfolded' : 'folded'}
+            TooltipProps={{
+              title: expanded ? t('collapse') : t('expand'),
+            }}
+            onClick={this.toggleExpanded}
+          />
+        )}
       </AppHeaderNav>
     );
   }

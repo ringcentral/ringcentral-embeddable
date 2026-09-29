@@ -8,6 +8,7 @@ export interface EmbeddableFeatureConfiguration
   CallRecording?: boolean;
   LoadMoreCalls?: boolean;
   NoiseReduction?: boolean;
+  RingCX?: boolean;
   RingtoneSettings?: boolean;
   SharedMessages?: boolean;
   SignUpButton?: boolean;

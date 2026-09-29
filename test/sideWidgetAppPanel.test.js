@@ -10,6 +10,18 @@ import { JSONSchemaPage } from '@ringcentral-integration/jsonschema-spring-page'
 
 import { SideWidgetAppPanel } from '../src/app/views/SideWidgetView/SideWidgetAppPanel';
 
+jest.mock('../src/app/views/SideWidgetView/i18n', () => {
+  const enUS = jest.requireActual(
+    '../src/app/views/SideWidgetView/i18n/en-US',
+  ).default;
+  return {
+    __esModule: true,
+    default: {},
+    t: (key, options = {}) =>
+      (enUS[key] ?? key).replace(/\{(\w+)\}/g, (_, name) => options[name]),
+  };
+});
+
 function createPageResponse(overrides = {}) {
   return {
     page: {

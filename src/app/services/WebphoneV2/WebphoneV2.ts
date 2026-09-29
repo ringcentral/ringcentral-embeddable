@@ -18,6 +18,7 @@ import {
 } from '@ringcentral-integration/next-core';
 import { EventEmitter } from 'events';
 import WebPhone from 'ringcentral-web-phone-v2';
+import ResponseMessage from 'ringcentral-web-phone-v2/sip-message/outbound/response';
 import { Observable, Subject, Subscription } from 'rxjs';
 
 import { AudioSettings } from '@ringcentral-integration/micro-phone/src/app/services/AudioSettings';
@@ -47,6 +48,14 @@ import {
 } from '../WebphoneMedia';
 
 import { summarizeSipMessage } from './WebphoneSipLogger';
+import {
+  applyEngageAgentEptRegisterHeaders,
+  CX_OFFHOOK_INVITE_HEADERS,
+  ENGAGE_AGENT_EPT_REGISTER_HEADER_NAMES,
+  isCxOffhookInvite,
+  isRegisterSipMessage,
+  listSipHeaderNames,
+} from './cxOffhookSip';
 import {
   getHeader,
   getTransferIdentity,
@@ -109,6 +118,8 @@ const SOCKET_RECOVERY_DELAYS = [1_000, 2_000, 5_000, 10_000, 30_000] as const;
 const PROXY_ROTATION_ATTEMPTS = 2;
 const DEFAULT_AUDIO_FILE = 'default';
 const SETUP_TERMINAL_STATES = new Set(['init', 'failed', 'disposed']);
+/** Matches the response SIP.js sends for a rejected invitation. */
+const CX_OFFHOOK_DECLINE_RESPONSE_CODE = 480;
 const SDK_SESSION_EVENTS = [
   'ringing',
   'answered',
@@ -349,7 +360,37 @@ export class WebphoneV2 extends RcModule {
   @state
   ringSessionId: string | null = null;
 
+  /**
+   * Persisted so the first connect after a reload already registers with the
+   * roles the restored agent session needs, instead of registering without
+   * them and being torn down again by session auto config.
+   */
+  @storage
+  @state
+  engageAgentEptEnabled = false;
+
+  @state
+  cxOffhookSessionId: string | null = null;
+
+  @state
+  cxOffhookConnected = false;
+
+  @state
+  cxOffhookRinging = false;
+
+  @state
+  cxOffhookMuted = false;
+
+  @state
+  cxOffhookTelephonySessionIds: string[] = [];
+
   private _webPhone: WebPhone | null = null;
+
+  /**
+   * Whether the last REGISTER sent on the current connection carried the
+   * Engage EPT roles. Only meaningful while {@link connected} is true.
+   */
+  private _registeredEngageAgentEpt = false;
 
   private _connectPromise?: Promise<void>;
 
@@ -730,9 +771,144 @@ export class WebphoneV2 extends RcModule {
     this.ringSessionId = ringSessionId;
   }
 
+  @action
+  private _setEngageAgentEptEnabled(enabled: boolean) {
+    this.engageAgentEptEnabled = enabled;
+  }
+
+  @action
+  private _setCxOffhookState({
+    sessionId,
+    connected,
+    ringing,
+    muted,
+    telephonySessionIds,
+  }: {
+    sessionId: string | null;
+    connected: boolean;
+    ringing: boolean;
+    muted: boolean;
+    telephonySessionIds: string[];
+  }) {
+    this.cxOffhookSessionId = sessionId;
+    this.cxOffhookConnected = connected;
+    this.cxOffhookRinging = ringing;
+    this.cxOffhookMuted = muted;
+    this.cxOffhookTelephonySessionIds = telephonySessionIds;
+  }
+
+  private _syncCxOffhookState() {
+    const record = [...this._sessionRecords.values()].find(
+      (candidate) => candidate.isCxOffhook && !candidate.finalized,
+    );
+    const telephonySessionId = record?.normalized.partyData?.sessionId;
+    this._setCxOffhookState({
+      sessionId: record?.normalized.id ?? null,
+      connected: record?.session.state === 'answered',
+      ringing: record?.normalized.callStatus === sessionStatus.connecting,
+      muted: record?.normalized.isOnMute ?? false,
+      telephonySessionIds: telephonySessionId ? [telephonySessionId] : [],
+    });
+  }
+
+  private _isCxOffhookSession(sessionId: string) {
+    return Boolean(this._getSession(sessionId)?.isCxOffhook);
+  }
+
+  /**
+   * Turns down a RingCX offhook INVITE with a plain SIP final response.
+   *
+   * `InboundCallSession.decline()` speaks RingCentral call control: it sends
+   * an `x-rc/agent` MESSAGE and then waits for the CANCEL the server sends
+   * back. The offhook INVITE carries no `P-rc` header, so the SDK drops that
+   * MESSAGE without putting anything on the wire and the wait never resolves,
+   * which leaves the leg ringing. Answering the INVITE transaction is the only
+   * way to refuse it, and the SDK only reaps a session on BYE or CANCEL, so
+   * this one has to be retired here.
+   */
+  private async _declineCxOffhookSession(record: WebphoneV2SessionRecord) {
+    const { session } = record;
+    await session.webPhone.sipClient.reply(
+      new ResponseMessage(session.sipMessage, {
+        responseCode: CX_OFFHOOK_DECLINE_RESPONSE_CODE,
+      }),
+    );
+    const { callSessions } = session.webPhone;
+    const index = callSessions.findIndex(
+      (candidate) => candidate.callId === session.callId,
+    );
+    if (index !== -1) {
+      callSessions.splice(index, 1);
+    }
+    session.dispose();
+  }
+
+  private async _hangupCxOffhookSessions() {
+    for (const record of [...this._sessionRecords.values()]) {
+      if (!record.isCxOffhook || record.finalized) {
+        continue;
+      }
+      try {
+        await record.session.hangup();
+      } catch (error) {
+        this.logger.warn(
+          'Webphone V2 CX offhook hangup failed',
+          getErrorLogContext(error),
+        );
+      }
+    }
+  }
+
+  /**
+   * Brings the live registration in line with the requested EPT roles.
+   *
+   * A reconnect only happens when there is a registration advertising the
+   * wrong roles. When nothing is registered yet the flag alone is enough,
+   * because whichever path connects next reads it while building the
+   * REGISTER; that is the reload case, where the flag is restored from
+   * storage before the host webphone connects.
+   */
+  async setEngageAgentEptEnabled(enabled: boolean) {
+    this._setEngageAgentEptEnabled(enabled);
+    if (!enabled) {
+      await this._hangupCxOffhookSessions();
+    }
+    // A connect started before this call may still be choosing its headers.
+    await this._connectPromise?.catch(() => undefined);
+    const matchesRegistration =
+      !this.connected || this._registeredEngageAgentEpt === enabled;
+    if (matchesRegistration) {
+      return;
+    }
+    await this.reconnectWithCurrentHeaders();
+  }
+
+  /**
+   * Rebuilds the SIP UA so the next REGISTER advertises the current EPT roles.
+   *
+   * The registrar decides which roles an endpoint supports when it registers,
+   * so toggling CX offhook needs a fresh connection rather than a refresh
+   * REGISTER on the live UA. The cached provision is dropped first so the new
+   * registration is built from a fresh `client-info/sip-provision` device
+   * rather than replayed from the previous one.
+   */
+  async reconnectWithCurrentHeaders() {
+    if (!this._auth.loggedIn) {
+      return;
+    }
+    if (this.sessions.length > 0) {
+      this.logger.warn('Webphone V2 reconnecting while RingEX sessions are live', {
+        sessionCount: this.sessions.length,
+      });
+    }
+    await this.disconnect();
+    this._clearProvisionCache();
+    await this.connect();
+  }
+
   protected _publishLiveState() {
     const sessions = [...this._sessionRecords.values()]
-      .filter((record) => !record.finalized)
+      .filter((record) => !record.finalized && !record.isCxOffhook)
       .map((record) => record.normalized)
       .sort((left, right) => right.lastActiveTime - left.lastActiveTime);
     const selected = selectSessionIds(sessions);
@@ -741,12 +917,16 @@ export class WebphoneV2 extends RcModule {
       selected.activeSessionId,
       selected.ringSessionId,
     );
+    this._syncCxOffhookState();
   }
 
   private _publishCallEvent(
     type: WebphoneCallEvent['type'],
     session: WebphoneNormalizedSession,
   ) {
+    if (this._isCxOffhookSession(session.id)) {
+      return;
+    }
     const event: WebphoneCallEvent = {
       type,
       session,
@@ -783,11 +963,26 @@ export class WebphoneV2 extends RcModule {
       this._publishLiveState();
       return existing;
     }
+    const inviteMessage = (
+      session as WebPhoneSession & { sipMessage?: unknown }
+    ).sipMessage;
+    const isCxOffhook =
+      session.direction === 'inbound' && isCxOffhookInvite(inviteMessage);
+    if (session.direction === 'inbound') {
+      this.logger.info('Webphone V2 inbound INVITE classified', {
+        isCxOffhook,
+        headerNames: listSipHeaderNames(inviteMessage),
+        hasCallControlApiIds: Boolean(
+          getHeader(inviteMessage, CX_OFFHOOK_INVITE_HEADERS.callControlApiIds),
+        ),
+      });
+    }
     const record: WebphoneV2SessionRecord = {
       session,
       normalized: normalizeSession({ session }),
       revision: 0,
       finalized: false,
+      isCxOffhook,
       ...metadata,
     };
     record.normalized = normalizeSession({
@@ -799,6 +994,7 @@ export class WebphoneV2 extends RcModule {
     this.logger.debug('Webphone V2 session bound', {
       direction: session.direction,
       initialEvent,
+      isCxOffhook,
       sessionCount: this._sessionRecords.size,
     });
     for (const eventName of SDK_SESSION_EVENTS) {
@@ -807,6 +1003,11 @@ export class WebphoneV2 extends RcModule {
       });
     }
     this._publishLiveState();
+    if (isCxOffhook) {
+      // RingCX decides whether to answer or present the invitation when this
+      // ringing state reaches CxIntegratedSoftphone.
+      return record;
+    }
     this._publishCallEvent(initialEvent, record.normalized);
     if (initialEvent === 'callInit')
       this._inviteSubject.next(record.normalized);
@@ -866,6 +1067,10 @@ export class WebphoneV2 extends RcModule {
     record: WebphoneV2SessionRecord,
     eventName: string,
   ) {
+    if (record.isCxOffhook) {
+      this._publishLiveState();
+      return;
+    }
     if (eventName === 'ringing') {
       this._publishCallEvent('callProgress', record.normalized);
       if (record.cancelRequested) {
@@ -1061,7 +1266,9 @@ export class WebphoneV2 extends RcModule {
       this._releaseSession(record);
     }
     this._publishLiveState();
-    this._publishCallEvent('callEnd', terminalSession);
+    if (!record.isCxOffhook) {
+      this._publishCallEvent('callEnd', terminalSession);
+    }
   }
 
   private _finalizeSessions(webPhone?: WebPhone) {
@@ -1369,6 +1576,24 @@ export class WebphoneV2 extends RcModule {
     const originalSend = send.bind(sipClient);
 
     sipClient.send = (message, waitForReply = false) => {
+      if (isRegisterSipMessage(message)) {
+        const endpointId = this.engageAgentEptEnabled
+          ? this._auth.endpointId
+          : undefined;
+        if (endpointId) {
+          applyEngageAgentEptRegisterHeaders(message, endpointId);
+        }
+        this._registeredEngageAgentEpt = !!endpointId;
+        if (this.engageAgentEptEnabled || endpointId) {
+          this.logger.info('Webphone V2 REGISTER EPT headers', {
+            engageAgentEptEnabled: this.engageAgentEptEnabled,
+            applied: Boolean(endpointId),
+            headerNames: endpointId
+              ? [...ENGAGE_AGENT_EPT_REGISTER_HEADER_NAMES]
+              : [],
+          });
+        }
+      }
       if (!waitForReply) return originalSend(message, false);
       const callId = getHeader(message, 'Call-ID');
       const cseq = getHeader(message, 'CSeq')?.trim().split(/\s+/)[0];
@@ -1448,6 +1673,7 @@ export class WebphoneV2 extends RcModule {
         // "prevent the call be held when user start another call" — while still
         // reporting `isOnHold: false` to the UI.
         isDroppingVoicemail(record.normalized.voicemailDropStatus) ||
+        record.isCxOffhook ||
         record.normalized.callStatus === sessionStatus.connecting ||
         record.normalized.callStatus === sessionStatus.setup
       ) {
@@ -1659,6 +1885,12 @@ export class WebphoneV2 extends RcModule {
   async reject(sessionId: string) {
     const record = this._requireSession(sessionId);
     if (record.normalized.direction !== 'Inbound') return;
+    if (record.isCxOffhook) {
+      await this._runDestructiveCommand(record, 'reject', () =>
+        this._declineCxOffhookSession(record),
+      );
+      return;
+    }
     // V2 SDK owns inbound decline signaling for normal and queue calls.
     await this._runDestructiveCommand(record, 'reject', async () => {
       await this._withDeadline(

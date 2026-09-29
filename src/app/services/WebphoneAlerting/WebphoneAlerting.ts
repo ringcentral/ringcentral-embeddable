@@ -13,6 +13,8 @@ import {
 import type { RoleState } from '@ringcentral-integration/next-core';
 import { Subscription } from 'rxjs';
 
+import { runOnAllPorts } from '../../../lib/runOnAllPorts';
+
 import { lastInteractedClientRole } from '../ClientInteraction';
 import type { Webphone } from '../WebphoneV2';
 import defaultIncomingAudio from '../WebphoneV2/audio/incoming.mp3';
@@ -28,6 +30,8 @@ const getErrorLogContext = (error: unknown) => ({
 type RingtoneAudio = HTMLAudioElement & {
   setSinkId?: (sinkId: string) => Promise<void>;
 };
+
+type IncomingAlertSource = 'ringcxSoftphone' | 'webphone';
 
 /**
  * Plays the incoming-call ringtone on a browser tab.
@@ -55,6 +59,8 @@ export class WebphoneAlerting extends RcModule {
   private _operation = Promise.resolve();
 
   private _alertEpoch?: string;
+
+  private _incomingAlertSources = new Set<IncomingAlertSource>();
 
   private _ringtoneTargetClientId?: string;
 
@@ -131,6 +137,7 @@ export class WebphoneAlerting extends RcModule {
     this._connectedClientsSubscription = undefined;
     const epoch = this._alertEpoch;
     this._alertEpoch = undefined;
+    this._incomingAlertSources.clear();
     this._ringtoneTargetClientId = undefined;
     this._recoveryEpoch = undefined;
     this._fallbackEpoch = undefined;
@@ -222,15 +229,19 @@ export class WebphoneAlerting extends RcModule {
   }
 
   async stopRingtone(epoch: string) {
-    if (this._portManager.shared) {
-      await this._stopRingtoneOnAll(epoch);
-      return;
-    }
-    this._stopLocalRingtone(epoch);
+    await runOnAllPorts(
+      this._portManager,
+      this as WebphoneAlerting,
+      'stopRingtoneOnPort',
+      [epoch],
+    );
   }
 
-  @delegate('all')
-  protected async _stopRingtoneOnAll(epoch: string) {
+  /**
+   * Stops the ringtone this port plays for `epoch`. Public only so `fork()`
+   * can reach it; use `stopRingtone`.
+   */
+  stopRingtoneOnPort(epoch: string): void {
     this._stopLocalRingtone(epoch);
   }
 
@@ -275,6 +286,31 @@ export class WebphoneAlerting extends RcModule {
 
   private _handleRinging(sessions: readonly Webphone['sessions'][number][]) {
     const hasRinging = sessions.some((session) => isRing(session));
+    this._setIncomingAlert('webphone', hasRinging);
+  }
+
+  /**
+   * Starts or stops incoming-call alerting for a ringing RingCX offhook leg.
+   *
+   * Delegated to the server because alerting state only exists there — the
+   * instances on client ports return early in `onInit` — and the agent answers
+   * or rejects from a tab.
+   */
+  @delegate('server')
+  async setRingCxSoftphoneRinging(isRinging: boolean): Promise<void> {
+    this._setIncomingAlert('ringcxSoftphone', isRinging);
+  }
+
+  private _setIncomingAlert(
+    source: IncomingAlertSource,
+    isRinging: boolean,
+  ): void {
+    if (isRinging) {
+      this._incomingAlertSources.add(source);
+    } else {
+      this._incomingAlertSources.delete(source);
+    }
+    const hasRinging = this._incomingAlertSources.size > 0;
     if (hasRinging && !this._alertEpoch) {
       const epoch = createEpoch();
       this._alertEpoch = epoch;
@@ -392,15 +428,19 @@ export class WebphoneAlerting extends RcModule {
   }
 
   async closeNotification(epoch: string) {
-    if (this._portManager.shared) {
-      await this._closeNotificationOnAll(epoch);
-      return;
-    }
-    this._closeLocalNotification(epoch);
+    await runOnAllPorts(
+      this._portManager,
+      this as WebphoneAlerting,
+      'closeNotificationOnPort',
+      [epoch],
+    );
   }
 
-  @delegate('all')
-  protected async _closeNotificationOnAll(epoch: string) {
+  /**
+   * Closes the notification this port shows for `epoch`. Public only so
+   * `fork()` can reach it; use `closeNotification`.
+   */
+  closeNotificationOnPort(epoch: string): void {
     this._closeLocalNotification(epoch);
   }
 

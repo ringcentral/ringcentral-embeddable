@@ -17,6 +17,8 @@ import {
 } from '@ringcentral-integration/next-core';
 import { filter, map, Observable, Subscription } from 'rxjs';
 
+import { runOnAllPorts } from '../../../lib/runOnAllPorts';
+
 import { ClientInteraction } from '../ClientInteraction';
 import { VoicemailDrop } from '../VoicemailDrop';
 import { invokeRoleForValue } from '../../../lib/roleCompat';
@@ -79,6 +81,8 @@ const COMMAND_METHODS = [
   'setIncomingAudioIntoStorage',
   'loadClientAudio',
   'setRingtone',
+  'setEngageAgentEptEnabled',
+  'reconnectWithCurrentHeaders',
   // App-specific: validates against the server's session records before
   // delegating the media work to the owner tab.
   'dropVoicemailMessage',
@@ -234,18 +238,33 @@ export class Webphone extends WebphoneV2 {
       .getRoleStateStreams(webphoneMediaOwnerRole.role)
       .roleState$.subscribe(() => {
         if (this._portManager.shared && !this._portManager.isServer) return;
-        void this._emitActiveWebphoneChangedOnAll({
-          activeId: this.webphoneOwnerClientId,
-          currentActive: this.isWebphoneOwner,
-        }).catch(() => undefined);
+        void runOnAllPorts(
+          this._portManager,
+          this as Webphone,
+          'emitActiveWebphoneChangedOnPort',
+          [
+            {
+              activeId: this.webphoneOwnerClientId,
+              currentActive: this.isWebphoneOwner,
+            },
+          ],
+        ).catch(() => undefined);
       });
     // The runtime emits call events in-process, and it only runs on the
     // authoritative port — so without mirroring, nothing in a tab ever fires:
     // Adapter's postMessage relay, SmartNotes' onCall* hooks and the connecting
     // view all go silent. Upstream gets this from WebphoneFacade.
-    if (!this._portManager.shared || this._portManager.isServer) {
+    if (this._portManager.shared && this._portManager.isServer) {
       this._mirrorSubscription = this._callEventsSubject.subscribe((event) => {
-        void this._mirrorCallEvent(event).catch((error) => {
+        void runOnAllPorts(
+          this._portManager,
+          this as Webphone,
+          'mirrorCallEvent',
+          [event],
+          {
+            includeServer: false,
+          },
+        ).catch((error) => {
           this.logger.warn('Webphone call event mirror failed', { error });
         });
       });
@@ -263,13 +282,12 @@ export class Webphone extends WebphoneV2 {
   }
 
   /**
-   * Re-emits a server call event on every other port.
-   *
-   * `@delegate('all')` also runs on the server, which already emitted locally,
-   * so that case returns early rather than double-firing handlers.
+   * Re-emits a server call event on a client port. The server already emitted
+   * it locally, so it only reaches clients (see `runOnAllPorts`), and the
+   * guard keeps a server port from double-firing handlers. Public only so
+   * `fork()` can reach it.
    */
-  @delegate('all')
-  protected async _mirrorCallEvent(event: WebphoneCallEvent) {
+  async mirrorCallEvent(event: WebphoneCallEvent) {
     if (!this._portManager.shared || this._portManager.isServer) return;
     this._callEventsSubject.next(event);
     if (event.type === 'callRing') {
@@ -476,10 +494,8 @@ export class Webphone extends WebphoneV2 {
     return () => this._eventEmitter.off('activeWebphoneChanged', handler);
   }
 
-  @delegate('all')
-  protected async _emitVoicemailDroppedOnAll(
-    session: WebphoneNormalizedSession | null,
-  ) {
+  /** Emits a voicemail drop on this port. Public only so `fork()` can reach it. */
+  async emitVoicemailDroppedOnPort(session: WebphoneNormalizedSession | null) {
     this._eventEmitter.emit(
       'callVoicemailDropped',
       session,
@@ -487,8 +503,8 @@ export class Webphone extends WebphoneV2 {
     );
   }
 
-  @delegate('all')
-  protected async _emitActiveWebphoneChangedOnAll(payload: {
+  /** Emits an owner change on this port. Public only so `fork()` can reach it. */
+  async emitActiveWebphoneChangedOnPort(payload: {
     activeId: string | null;
     currentActive: boolean;
   }) {
@@ -501,7 +517,12 @@ export class Webphone extends WebphoneV2 {
     this._applyVoicemailDropStatus(callId, status);
     this._publishLiveState();
     const session = this._sessionRecords.get(callId)?.normalized ?? null;
-    await this._emitVoicemailDroppedOnAll(session);
+    await runOnAllPorts(
+      this._portManager,
+      this as Webphone,
+      'emitVoicemailDroppedOnPort',
+      [session],
+    );
   }
 
   /**

@@ -71,7 +71,8 @@ export function createDefaultLogCallPage(
     title: labels.note,
     type: "string",
   };
-  formData.note = getLoggedActivity(call)?.note || call.aiNote || "";
+  formData.note =
+    getLoggedActivity(call)?.note || call.ringcx?.notes || call.aiNote || "";
   uiSchema.note = {
     "ui:placeholder": labels.addCallLogNote,
     "ui:widget": "textarea",

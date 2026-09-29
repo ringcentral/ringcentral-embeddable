@@ -2,33 +2,21 @@ import { matchPath } from '@ringcentral-integration/next-core';
 
 import type { Route } from './AppView.interface';
 
-type DetailRoute = Pick<
+type SideWidgetRoute = Pick<
   Route,
-  'exact' | 'layout' | 'path' | 'preserveBackground' | 'sideWidget'
+  'exact' | 'path' | 'preserveBackground' | 'sideWidget'
 >;
-
-interface ShouldCollapseExpandedLayoutOptions {
-  currentPath: string;
-  expanded: boolean;
-  previousPath: string;
-  routes: readonly DetailRoute[];
-}
 
 interface ResolveExpandedRouteBackgroundPathOptions {
   currentPath: string;
   previousBackgroundPath: string | null;
-  routes: readonly DetailRoute[];
-}
-
-interface ShouldRenderExpandedViewOptions {
-  currentPath: string;
-  routes: readonly DetailRoute[];
+  routes: readonly SideWidgetRoute[];
 }
 
 function findRoute(
   path: string,
-  routes: readonly DetailRoute[],
-): DetailRoute | undefined {
+  routes: readonly SideWidgetRoute[],
+): SideWidgetRoute | undefined {
   return routes.find((route) =>
     Boolean(
       matchPath(path, {
@@ -39,34 +27,16 @@ function findRoute(
   );
 }
 
-export function isDetailRoutePath(
-  path: string,
-  routes: readonly DetailRoute[],
-): boolean {
-  const matchedRoute = findRoute(path, routes);
-  return matchedRoute?.layout === 'detail' && !matchedRoute.sideWidget;
-}
-
 export function isSideWidgetRoutePath(
   path: string,
-  routes: readonly DetailRoute[],
+  routes: readonly SideWidgetRoute[],
 ): boolean {
   return Boolean(findRoute(path, routes)?.sideWidget);
 }
 
 /**
- * Prevents transient expanded content from competing with a routed detail page
- * for the shared expanded-column portal.
- */
-export function shouldRenderExpandedView({
-  currentPath,
-  routes,
-}: ShouldRenderExpandedViewOptions): boolean {
-  return !isDetailRoutePath(currentPath, routes);
-}
-
-/**
- * Resolves the main-column route to retain behind an expanded detail page.
+ * Resolves the main-column route to retain behind a side widget page that
+ * preserves the page it was opened from.
  */
 export function resolveExpandedRouteBackgroundPath({
   currentPath,
@@ -77,22 +47,4 @@ export function resolveExpandedRouteBackgroundPath({
   return matchedRoute?.preserveBackground
     ? previousBackgroundPath
     : currentPath;
-}
-
-/**
- * Determines whether leaving a detail route should close the expanded layout.
- */
-export function shouldCollapseExpandedLayout({
-  currentPath,
-  expanded,
-  previousPath,
-  routes,
-}: ShouldCollapseExpandedLayoutOptions): boolean {
-  if (!expanded || currentPath === previousPath) {
-    return false;
-  }
-  return (
-    isDetailRoutePath(previousPath, routes) &&
-    !isDetailRoutePath(currentPath, routes)
-  );
 }

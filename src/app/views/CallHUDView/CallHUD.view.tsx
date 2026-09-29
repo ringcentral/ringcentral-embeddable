@@ -21,6 +21,7 @@ import {
 import {
   action,
   computed,
+  delegate,
   injectable,
   optional,
   portal,
@@ -47,7 +48,12 @@ import type {
 import { AddExtensionContent } from './AddExtensionDialog';
 import { CallHUDPanel } from './CallHUDPanel';
 import { t } from './i18n';
-import { ExpandedView } from '../ExpandedView';
+import {
+  SideWidgetView,
+  type SideWidgetContentViewProps,
+} from '../SideWidgetView';
+
+const CALL_HUD_SIDE_WIDGET_ID = 'call-hud';
 
 type SpringModalBodyClasses = {
   root?: string;
@@ -111,7 +117,7 @@ export class CallHUDView extends RcViewModule {
     private _extensionInfo: ExtensionInfo,
     private _router: RouterPlugin,
     private _modalView: ModalView,
-    private _expandedView: ExpandedView,
+    private _sideWidgetView: SideWidgetView,
     @optional() private _composeText?: ComposeText,
     @optional() private _grant?: Grant,
   ) {
@@ -128,8 +134,13 @@ export class CallHUDView extends RcViewModule {
     return this._root.expanded ? expandedCompactModalClasses : undefined;
   }
 
-  @state
-  showCallHUD = false;
+  /** Whether the HUD tab is on screen in the side widget. */
+  get showCallHUD(): boolean {
+    return (
+      this._sideWidgetView.isOpen &&
+      this._sideWidgetView.tabs.some(({ id }) => id === CALL_HUD_SIDE_WIDGET_ID)
+    );
+  }
 
   @state
   type = 'All';
@@ -245,11 +256,6 @@ export class CallHUDView extends RcViewModule {
   }
 
   @action
-  setShowCallHUD(show: boolean) {
-    this.showCallHUD = show;
-  }
-
-  @action
   setType(type: string) {
     this.type = type;
     this.searchInput = '';
@@ -271,14 +277,22 @@ export class CallHUDView extends RcViewModule {
     this.extensionAddFilter = '';
   }
 
-  toggleCallHUD() {
+  /**
+   * Runs on the server port, which owns the side widget tabs; a tab change
+   * made only on a client is replaced by the server's next tab update.
+   */
+  @delegate('server')
+  async toggleCallHUD(): Promise<void> {
     if (this.showCallHUD) {
-      this.setShowCallHUD(false);
-      this._expandedView.close(this._expandedHandle);
-    } else {
-      this.setShowCallHUD(true);
-      this._expandedView.open(this._expandedHandle);
+      this._sideWidgetView.closeContent(this._sideWidgetHandle);
+      return;
     }
+    this._sideWidgetView.openContent(this._sideWidgetHandle);
+  }
+
+  @delegate('server')
+  async closeCallHUD(): Promise<void> {
+    this._sideWidgetView.closeContent(this._sideWidgetHandle);
   }
 
   @computed((that: CallHUDView) => [
@@ -495,6 +509,8 @@ export class CallHUDView extends RcViewModule {
     | 'onAddExtension'
     | 'onAddExtensionForType'
     | 'onRemoveExtension'
+    | 'onClose'
+    | 'showCloseButton'
   > {
     const activeSession = this._webphone.activeSession;
     const hasActiveSession = !!(
@@ -529,8 +545,10 @@ export class CallHUDView extends RcViewModule {
     | 'onAddExtension'
     | 'onAddExtensionForType'
     | 'onRemoveExtension'
+    | 'onClose'
   > {
     return {
+      onClose: () => void this.closeCallHUD(),
       onTypeChange: (type: string) => this.setType(type),
       onSearchInputChange: (value: string) => this.setSearchInput(value),
       formatPhone: (phoneNumber: string) =>
@@ -604,16 +622,30 @@ export class CallHUDView extends RcViewModule {
     };
   }
 
-  private _expandedHandle = this._expandedView.create({
-    id: 'call-hud',
-    header: () => t('callHUD'),
-    onDeactivate: () => this.setShowCallHUD(false),
-    view: () => {
-      const { current: uiFunctions } = useRef(this._getUIFunctions());
-      const uiProps = useConnector(() => this._getUIProps());
-      return <CallHUDPanel {...uiProps} {...uiFunctions} />;
-    },
-    onClose: () => this.setShowCallHUD(false),
+  private readonly _SideWidgetContent = ({
+    showCloseButton,
+  }: SideWidgetContentViewProps) => {
+    const { current: uiFunctions } = useRef(this._getUIFunctions());
+    const uiProps = useConnector(() => this._getUIProps());
+    return (
+      <CallHUDPanel
+        {...uiProps}
+        {...uiFunctions}
+        showCloseButton={showCloseButton}
+      />
+    );
+  };
+
+  /**
+   * A `global` tab, so opening a contact's page next to it, such as a call's
+   * details, joins it as another tab instead of replacing it.
+   */
+  private readonly _sideWidgetHandle = this._sideWidgetView.createContent({
+    id: CALL_HUD_SIDE_WIDGET_ID,
+    name: t('callHUD'),
+    getName: () => t('callHUD'),
+    scope: 'global',
+    view: this._SideWidgetContent,
   });
 
   component() {

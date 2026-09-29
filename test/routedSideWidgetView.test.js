@@ -7,6 +7,7 @@ import { RoutedSideWidgetView } from '../src/app/views/RoutedSideWidgetView/Rout
 
 jest.mock('@ringcentral-integration/next-core', () => ({
   action: (_target, _key, descriptor) => descriptor,
+  delegate: () => (_target, _key, descriptor) => descriptor,
   injectable: () => (target) => target,
   matchPath: require('react-router-dom').matchPath,
   RcViewModule: class RcViewModule {},
@@ -25,6 +26,7 @@ function createRoutedSideWidget(currentPath = '/messages') {
   const handles = new Map();
   const sideWidgetView = {
     currentTabId: 'side-widget-apps',
+    tabs: [],
     createOrUpdateContent: jest.fn((options) => {
       const handle = handles.get(options.id) ?? { options };
       handle.options = options;
@@ -32,16 +34,25 @@ function createRoutedSideWidget(currentPath = '/messages') {
       return handle;
     }),
     openContent: jest.fn((handle) => {
-      sideWidgetView.currentTabId = handle.options.id;
+      const { id } = handle.options;
+      if (!sideWidgetView.tabs.some((tab) => tab.id === id)) {
+        sideWidgetView.tabs = [{ id }, ...sideWidgetView.tabs];
+      }
+      sideWidgetView.currentTabId = id;
     }),
     selectTab: jest.fn((tabId) => {
       sideWidgetView.currentTabId = tabId;
     }),
     closeContent: jest.fn(),
+    closeTabFromPanel: jest.fn(async () => {}),
+    setMainPathResolver: jest.fn(),
   };
   const router = {
     currentPath,
     push: jest.fn(async (path) => {
+      router.currentPath = path;
+    }),
+    replace: jest.fn(async (path) => {
       router.currentPath = path;
     }),
   };
@@ -448,8 +459,10 @@ describe('RoutedSideWidgetView', () => {
     sideWidgetView.currentTabId = 'conversation';
     router.currentPath = '/messages';
     view.syncPath('/messages');
+    // Folded, the drawer is an overlay over the page, so it closes when empty.
     expect(sideWidgetView.closeContent).toHaveBeenCalledWith(
       handles.get('conversation'),
+      { collapseWhenLast: true },
     );
   });
 
@@ -544,6 +557,246 @@ describe('RoutedSideWidgetView', () => {
     await handles.get('call-details').options.onClose('side-widget-apps');
     expect(router.push).toHaveBeenCalledWith('/messages');
     expect(view.mainPath).toBeNull();
+  });
+
+  function openDockedCallDetails() {
+    const routed = createRoutedSideWidget('/history/call');
+    routed.view.open({
+      config: {
+        id: 'call-details',
+        name: 'Call details',
+        scope: 'contact',
+        backgroundPath: '/dialer',
+      },
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/history/call',
+      routePath: '/history/:callLogId',
+    });
+    routed.sideWidgetView.currentTabId = 'call-details';
+    routed.view._root.expanded = true;
+    routed.view.navigateMain('/messages');
+    expect(routed.view.mainPath).toBe('/messages');
+    return routed;
+  }
+
+  test('keeps a docked tab and parks the page the router moved to', () => {
+    const { router, sideWidgetView, view } = openDockedCallDetails();
+
+    router.currentPath = '/contacts';
+    view.syncPath('/contacts');
+
+    expect(view.mainPath).toBe('/contacts');
+    expect(router.replace).toHaveBeenCalledWith('/history/call');
+    expect(sideWidgetView.closeContent).not.toHaveBeenCalled();
+  });
+
+  test('drops the preserved main path when the router leaves a folded routed page', () => {
+    const { handles, router, sideWidgetView, view } = openDockedCallDetails();
+    view._root.expanded = false;
+
+    router.currentPath = '/contacts';
+    view.syncPath('/contacts');
+
+    expect(view.mainPath).toBeNull();
+    expect(sideWidgetView.closeContent).toHaveBeenCalledWith(
+      handles.get('call-details'),
+      { collapseWhenLast: true },
+    );
+  });
+
+  test('resolves a tab name from its route params on each render', () => {
+    const { handles, view } = createRoutedSideWidget('/customized/crm-page');
+    const titles = { 'crm-page': 'CRM page' };
+    view.open({
+      config: {
+        id: 'customized-page',
+        name: (params) => titles[params.pageId] ?? 'Page',
+        scope: 'global',
+        backgroundPath: '/dialer',
+      },
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/customized/crm-page',
+      routePath: '/customized/:pageId',
+    });
+    const { options } = handles.get('customized-page');
+
+    expect(options.name).toBe('CRM page');
+    titles['crm-page'] = 'Renamed CRM page';
+    expect(options.getName()).toBe('Renamed CRM page');
+  });
+
+  test('closes a routed tab from its back button through the panel path', () => {
+    const { handles, sideWidgetView, view } =
+      createRoutedSideWidget('/conversations/first');
+    view.open({
+      config: conversationConfig,
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/conversations/first',
+      routePath: '/conversations/:conversationId',
+    });
+
+    handles.get('conversation').options.onBack();
+
+    expect(sideWidgetView.closeTabFromPanel).toHaveBeenCalledWith(
+      'conversation',
+    );
+    expect(sideWidgetView.closeContent).not.toHaveBeenCalled();
+  });
+
+  test('keeps the page back navigation for tabs with nested pages', () => {
+    const { handles, view } = createRoutedSideWidget('/settings/calling');
+    view.open({
+      config: {
+        id: 'settings',
+        name: 'Settings',
+        scope: 'global',
+        backgroundPath: '/settings',
+        keepBackNavigation: true,
+      },
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/settings/calling',
+      routePath: '/settings/calling',
+    });
+
+    expect(handles.get('settings').options.onBack).toBeUndefined();
+  });
+
+  test('applies a contact that loads after the router opened the page', () => {
+    const contactConfig = {
+      id: 'contact-details',
+      name: 'Contact',
+      scope: 'contact',
+      backgroundPath: '/contacts',
+    };
+    let loadedContact;
+    const { handles, router, sideWidgetView, view } =
+      createRoutedSideWidget('/history/call');
+    view.registerRoutes(
+      [
+        {
+          config: contactConfig,
+          detailComponent: () => null,
+          routePath: '/contacts/:contactType/:contactId',
+        },
+      ],
+      () => loadedContact,
+    );
+    view.onInit();
+    const { watch } = require('@ringcentral-integration/next-core');
+    const [, contactSelector, applyContact] = watch.mock.calls.at(-2);
+    const pathWatcher = watch.mock.calls.at(-1)[2];
+
+    // The router opens the page before the contact loads, as on the shared
+    // worker, which renders no route to apply it later.
+    router.currentPath = '/contacts/company/contact-2';
+    pathWatcher(router.currentPath);
+    expect(sideWidgetView.openContent).toHaveBeenLastCalledWith(
+      handles.get('contact-details'),
+      { expand: false },
+    );
+    expect(contactSelector()).toBeNull();
+
+    loadedContact = { id: 'contact-2', phoneNumber: '+16505550199' };
+    expect(contactSelector()).toBe(
+      'contact-details:/contacts/company/contact-2:contact-2|+16505550199|',
+    );
+    applyContact();
+
+    expect(sideWidgetView.openContent).toHaveBeenLastCalledWith(
+      handles.get('contact-details'),
+      { activate: false, contact: loadedContact, expand: false },
+    );
+    // Applied once: the page does not re-apply it on later changes.
+    expect(contactSelector()).toBeNull();
+  });
+
+  test('switches the back behavior per page within one tab', () => {
+    const { handles, router, sideWidgetView, view } =
+      createRoutedSideWidget('/settings/theme');
+    const settings = {
+      id: 'settings',
+      name: 'Settings',
+      scope: 'global',
+      backgroundPath: '/settings',
+      keepBackNavigation: true,
+    };
+    const openSettingsPage = (path, config) => {
+      router.currentPath = path;
+      view.open({
+        config,
+        detailComponent: () => null,
+        detailProps: {},
+        path,
+        routePath: path,
+      });
+    };
+
+    // A page whose own back goes to a fixed page keeps it.
+    openSettingsPage('/settings/theme', settings);
+    expect(handles.get('settings').options.onBack).toBeUndefined();
+
+    // A page whose own back goes through history closes the tab instead.
+    openSettingsPage('/settings/region', {
+      ...settings,
+      keepBackNavigation: false,
+    });
+    handles.get('settings').options.onBack();
+
+    expect(handles.size).toBe(1);
+    expect(sideWidgetView.closeTabFromPanel).toHaveBeenCalledWith('settings');
+  });
+
+  test('reopens a closed page when the router navigates to it again', async () => {
+    const contactConfig = {
+      id: 'contact-details',
+      name: 'Contact',
+      scope: 'contact',
+      backgroundPath: '/contacts',
+    };
+    const { handles, router, sideWidgetView, view } =
+      createRoutedSideWidget('/history/call');
+    view.registerRoutes([
+      {
+        config: contactConfig,
+        detailComponent: () => null,
+        routePath: '/contacts/:contactType/:contactId',
+      },
+    ]);
+    view.onInit();
+    const { watch } = require('@ringcentral-integration/next-core');
+    const pathWatcher = watch.mock.calls.at(-1)[2];
+
+    router.currentPath = '/contacts/company/contact-1';
+    pathWatcher(router.currentPath);
+    // Closed from the panel: the page leaves a record against stale renders.
+    await handles.get('contact-details').options.onClose('side-widget-apps');
+    sideWidgetView.openContent.mockClear();
+
+    // A stale render of the closed page does not bring it back.
+    view.open({
+      config: contactConfig,
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/contacts/company/contact-1',
+      routePath: '/contacts/:contactType/:contactId',
+    });
+    expect(sideWidgetView.openContent).not.toHaveBeenCalled();
+
+    // The user views the same contact again; nothing renders on the server,
+    // so the router's arrival alone must reopen it.
+    router.currentPath = '/history/call';
+    pathWatcher(router.currentPath);
+    router.currentPath = '/contacts/company/contact-1';
+    pathWatcher(router.currentPath);
+
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(
+      handles.get('contact-details'),
+      { expand: false },
+    );
   });
 
   test('waits for the route component when navigating within one tab type', () => {

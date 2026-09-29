@@ -145,9 +145,17 @@ export class CallsListView extends CallsListViewSpringBase {
         viewLogLabel: t('viewLogDetails'),
         ...logState,
       });
+      const actions = insertCallHistoryLogActions(
+        result.actions,
+        logActions,
+      ).map((action) =>
+        action.type === 'viewEntity'
+          ? { ...action, label: t('viewContactDetails') }
+          : action,
+      );
       return {
         ...result,
-        actions: insertCallHistoryLogActions(result.actions, logActions),
+        actions,
         info: { ...result.info, DisplayName },
       };
     };

@@ -6,6 +6,7 @@ import {
   Auth,
   Client,
   track,
+  type WebSocketSubscription as Subscription,
 } from '@ringcentral-integration/micro-auth/src/app/services';
 import { ContactMatcher } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
@@ -16,14 +17,17 @@ import {
   delegate,
   inject,
   injectable,
+  optional,
   PortManager,
   RcModule,
   state,
   storage,
   StoragePlugin,
+  watch,
 } from '@ringcentral-integration/next-core';
 import { dynamicLoad } from '@ringcentral/mfe-react';
 
+import { createHostTelephonySessionSubscription } from './create-host-telephony-session-subscription';
 import { SMART_NOTES_CONFIG } from './SmartNotes.constants';
 import {
   createSmartNoteCallMetadata,
@@ -70,6 +74,9 @@ export class SmartNotes extends RcModule {
   private _webphoneHooksAdded = false;
   private _autoStartTimeout: ReturnType<typeof setTimeout> | null = null;
   private _onSmartNoteUpdate?: SmartNoteUpdateHandler;
+  private _stopWatchingSubscription: (() => void) | null = null;
+  private readonly _telephonySessionSubscription =
+    createHostTelephonySessionSubscription();
 
   constructor(
     private readonly _client: Client,
@@ -81,6 +88,7 @@ export class SmartNotes extends RcModule {
     private readonly _toast: Toast,
     private readonly _tabManager: TabManager,
     private readonly _portManager: PortManager,
+    @optional('Subscription') private readonly _subscription?: Subscription,
   ) {
     super();
     this._storage.enable(this);
@@ -299,6 +307,7 @@ export class SmartNotes extends RcModule {
       return () => {};
     }
     this._bindWebphoneHooks();
+    this._bindTelephonySessionWatch();
     const removeMainTabListener = this._portManager.onMainTab(() => {
       if (this._auth.loggedIn && this.hasPermission) {
         void this._initializeInMainClient();
@@ -307,7 +316,28 @@ export class SmartNotes extends RcModule {
     return () => {
       removeMainTabListener();
       this._clearAutoStartTimeout();
+      this._unbindTelephonySessionWatch();
     };
+  }
+
+  private _bindTelephonySessionWatch(): void {
+    if (this._stopWatchingSubscription || !this._subscription) {
+      return;
+    }
+    this._telephonySessionSubscription.handleMessage(this._subscription.message);
+    this._stopWatchingSubscription = watch(
+      this,
+      () => this._subscription?.message,
+      (message) => {
+        this._telephonySessionSubscription.handleMessage(message);
+      },
+    );
+  }
+
+  private _unbindTelephonySessionWatch(): void {
+    this._stopWatchingSubscription?.();
+    this._stopWatchingSubscription = null;
+    this._telephonySessionSubscription.dispose();
   }
 
   private _bindWebphoneHooks(): void {
@@ -420,10 +450,15 @@ export class SmartNotes extends RcModule {
     await Promise.allSettled(
       clients.map(async (client) => {
         await client.stop();
+        await client.dispose?.();
       }),
     );
     clients.forEach((client) => client.removeAllListeners());
     this._smartNoteClientMap.clear();
+    this._telephonySessionSubscription.dispose();
+    if (this._smartNoteClientConstructor?.resetCopilotSdk) {
+      await this._smartNoteClientConstructor.resetCopilotSdk();
+    }
     this._smartNoteClientConstructor = null;
     this._smartNoteMfeRemoteEntry = '';
     this._smartNoteIframeUri = '';
@@ -703,6 +738,8 @@ export class SmartNotes extends RcModule {
         : { phoneNumber: session.phoneNumber },
       smartNoteIframeUri: this._smartNoteIframeUri,
       callMetaData: createSmartNoteCallMetadata(session),
+      telephonySessionsSubscriptionManager:
+        this._telephonySessionSubscription.manager,
     });
     smartNoteClient.on('statusUpdate', (status) => {
       if (status === 'ready') {

@@ -5,6 +5,7 @@ import { CallsListViewSpring } from "@ringcentral-integration/micro-phone/src/ap
 import { CallViewState } from "@ringcentral-integration/micro-phone/src/app/views/CallView/services";
 import {
   action,
+  delegate,
   inject,
   injectable,
   RcViewModule,
@@ -19,6 +20,10 @@ import type {
   CompatibleCall,
   EmbeddableCallLogger,
 } from "../../services/CallLogger";
+import {
+  callLogSourceRegistry,
+  RINGCX_CALL_LOG_SOURCE,
+} from "../../services/CallLogger/CallLogSourceRegistry";
 import { ThirdParty } from "../../services/ThirdParty";
 import type { ThirdPartyCall, UnknownRecord } from "../../services/ThirdParty";
 
@@ -41,6 +46,10 @@ export class LogCallView extends RcViewModule {
   @state
   private currentCall: CompatibleCall | null = null;
 
+  /** The route id `currentCall` was loaded for. */
+  @state
+  private currentCallRouteId: string | null = null;
+
   @state
   private loading = false;
 
@@ -48,8 +57,36 @@ export class LogCallView extends RcViewModule {
   private saving = false;
 
   @action
-  private setCurrentCall(call: CompatibleCall | null): void {
+  private setCurrentCall(
+    call: CompatibleCall | null,
+    routeId: string | null = null
+  ): void {
     this.currentCall = call;
+    this.currentCallRouteId = call ? routeId : null;
+  }
+
+  /**
+   * Stores the call on the server port. The page loads it on the client that
+   * renders it, but the shared worker needs it too: the side widget resolves
+   * the log page's contact from it there, and without it would keep the
+   * previous contact's tabs and hand them back on its next tab update.
+   */
+  @delegate('server')
+  private async _storeCurrentCall(
+    call: CompatibleCall | null,
+    routeId: string | null = null,
+  ): Promise<void> {
+    this.setCurrentCall(call, routeId);
+  }
+
+  /**
+   * The call loaded for a log page route, or null while it is loading or
+   * when the page shows another call.
+   *
+   * @param routeId - The `callSessionId` route param of the log page.
+   */
+  getLoadedCall(routeId: string): CompatibleCall | null {
+    return this.currentCallRouteId === routeId ? this.currentCall : null;
   }
 
   @action
@@ -62,16 +99,30 @@ export class LogCallView extends RcViewModule {
     this.saving = saving;
   }
 
-  private async loadCall(sessionId: string): Promise<void> {
+  private async loadCall(sessionId: string, source?: string): Promise<void> {
     this.setLoading(true);
-    this.setCurrentCall(null);
+    await this._storeCurrentCall(null);
     try {
-      const call = await this._callLogger.getCall(sessionId, sessionId);
-      if (!call) {
-        this.setCurrentCall(null);
-        return;
+      const decodedId = decodeURIComponent(sessionId);
+      let call: CompatibleCall | null = null;
+      if (source) {
+        call = await callLogSourceRegistry.getCall(source, decodedId);
+        if (!call && decodedId !== sessionId) {
+          call = await callLogSourceRegistry.getCall(source, sessionId);
+        }
       }
-      this.setCurrentCall(call);
+      if (!call) {
+        call = await this._callLogger.getCall(decodedId, decodedId);
+        if (!call && decodedId !== sessionId) {
+          call = await this._callLogger.getCall(sessionId, sessionId);
+        }
+      }
+      if (!call && !source) {
+        call = await callLogSourceRegistry.getCall(RINGCX_CALL_LOG_SOURCE, decodedId);
+      }
+      await this._storeCurrentCall(call, sessionId);
+    } catch (error) {
+      this.logger.error('LogCall load failed', error);
     } finally {
       this.setLoading(false);
     }
@@ -114,9 +165,15 @@ export class LogCallView extends RcViewModule {
   }
 
   component({
+    location,
     match,
   }: RouteComponentProps<{ callSessionId: string }>): React.ReactElement {
     const sessionId = match.params.callSessionId;
+    const rawSource = new URLSearchParams(location?.search || "").get("source");
+    const source =
+      rawSource && rawSource !== "undefined" && rawSource !== "null"
+        ? rawSource
+        : undefined;
     const { call, customizedPage, loading, logButtonTitle, saving } =
       useConnector(() => ({
         call: this.getCurrentCallWithExtraLogData(),
@@ -126,8 +183,8 @@ export class LogCallView extends RcViewModule {
         saving: this.saving,
       }));
     useEffect(() => {
-      void this.loadCall(sessionId);
-    }, [sessionId]);
+      void this.loadCall(sessionId, source);
+    }, [sessionId, source]);
     const callRef = useRef(call);
     callRef.current = call;
     const { current: handlers } = useRef({

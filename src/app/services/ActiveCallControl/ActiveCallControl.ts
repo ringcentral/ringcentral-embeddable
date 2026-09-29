@@ -63,9 +63,13 @@ import {
 
 import { recordStatus } from '../WebphoneV2/recordStatus';
 import { sessionStatus } from '../WebphoneV2/sessionStatus';
-import type {
-  Webphone as WebphoneV2,
-} from '../WebphoneV2';
+import type { Webphone as WebphoneV2 } from '../WebphoneV2';
+import { RingCX } from '../RingCX';
+import { isCxRcExtExBridgeCall } from './is-cx-rc-ext-ex-bridge-call';
+
+type WebphoneWithCxOffhook = {
+  readonly cxOffhookTelephonySessionIds: readonly string[];
+};
 
 const STOP_RECORD_DISABLED_MESSAGE =
   'Sorry, stopping recording is not supported for this call. Please contact your account administrator to enable "Allow mute in auto recording".';
@@ -133,6 +137,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
   private readonly _preinsertCall: PreinsertCall;
   private _stopWatchingMissingPresenceCalls?: () => void;
   private _stopWatchingSwitchedCalls?: () => void;
+  private _stopWatchingCxExBridgeFilter?: () => void;
 
   @state
   telephonySessionUpdate: {
@@ -142,6 +147,14 @@ export class ActiveCallControl extends ActiveCallControlBase {
     sequence: 0,
     session: null,
   };
+
+  /**
+   * Telephony session ids that matched a CX directory ghost while hints were
+   * live. Kept after CX hangup until the EX session itself disappears, so the
+   * ghost cannot flash in Phone UI in that gap.
+   */
+  @state
+  cxExBridgeHiddenTelephonySessionIds: string[] = [];
 
   constructor(
     _preInsertCall: PreinsertCall,
@@ -170,6 +183,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
     _activeCallControlOptions?: ActiveCallControlOptions,
     @optional() _router?: RouterPlugin,
     @optional() _sleepDetector?: SleepDetector,
+    @optional() private _ringCX?: RingCX,
   ) {
     super(
       _preInsertCall,
@@ -209,6 +223,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
     this._bindTelephonySessionUpdates();
     this._bindMissingPresenceCallRecovery();
     this._bindSwitchedCallRecovery();
+    this._bindCxExBridgeHiddenSessionSync();
   }
 
   override onReset(): void {
@@ -216,6 +231,9 @@ export class ActiveCallControl extends ActiveCallControlBase {
     this._stopWatchingMissingPresenceCalls = undefined;
     this._stopWatchingSwitchedCalls?.();
     this._stopWatchingSwitchedCalls = undefined;
+    this._stopWatchingCxExBridgeFilter?.();
+    this._stopWatchingCxExBridgeFilter = undefined;
+    this._clearCxExBridgeHiddenTelephonySessionIds();
     this._unbindTelephonySessionUpdates();
     super.onReset();
   }
@@ -323,7 +341,8 @@ export class ActiveCallControl extends ActiveCallControlBase {
     const hasMissingCall = this._presence.calls.some(
       (call) =>
         call.telephonySessionId &&
-        !representedTelephonyIds.has(call.telephonySessionId),
+        !representedTelephonyIds.has(call.telephonySessionId) &&
+        !this._isCxRcExtExBridgePresenceCall(call),
     );
     if (hasMissingCall) {
       try {
@@ -574,9 +593,160 @@ export class ActiveCallControl extends ActiveCallControlBase {
     );
   }
 
-  @computed((that: ActiveCallControl) => [that.data.sessions, that._webphone.sessions])
+  @computed(
+    (that: ActiveCallControl) => [
+      that.data.sessions,
+      that._webphone.sessions,
+      (that._webphone as unknown as WebphoneWithCxOffhook)
+        .cxOffhookTelephonySessionIds,
+      that._ringCX?.exBridgeHints,
+      that._presence.calls,
+      that.cxExBridgeHiddenTelephonySessionIds,
+    ],
+  )
   get sessions(): ActiveCallControlSessionData[] {
-    return [...this.data.sessions, ...this._getFallbackSessions()];
+    const hiddenTelephonyIds = new Set([
+      ...((this._webphone as unknown as WebphoneWithCxOffhook)
+        .cxOffhookTelephonySessionIds ?? []),
+      ...this._listCxRcExtBridgeTelephonySessionIds(),
+    ]);
+    const telephonySessions = this.data.sessions.filter((session) => {
+      const telephonySessionId = session.telephonySessionId ?? session.id;
+      return !hiddenTelephonyIds.has(telephonySessionId);
+    });
+    const fallbackSessions = this._getFallbackSessions().filter((session) => {
+      const telephonySessionId = session.telephonySessionId ?? session.id;
+      return !hiddenTelephonyIds.has(telephonySessionId);
+    });
+    return [...telephonySessions, ...fallbackSessions];
+  }
+
+  private _listCxRcExtBridgeTelephonySessionIds(): string[] {
+    const existingIds = this._listExistingExTelephonySessionIds();
+    const matchingIds = this._listMatchingCxExBridgeTelephonySessionIds();
+    const rememberedIds = this.cxExBridgeHiddenTelephonySessionIds.filter(
+      (telephonySessionId) => existingIds.has(telephonySessionId),
+    );
+    return [...new Set([...matchingIds, ...rememberedIds])];
+  }
+
+  private _listMatchingCxExBridgeTelephonySessionIds(): string[] {
+    const hints = this._ringCX?.exBridgeHints ?? [];
+    if (hints.length === 0) {
+      return [];
+    }
+    const sessionIds = this.data.sessions
+      .filter((session) => isCxRcExtExBridgeCall({ call: session, hints }))
+      .map((session) => session.telephonySessionId ?? session.id);
+    const presenceIds = this._presence.calls
+      .filter((call) => isCxRcExtExBridgeCall({ call, hints }))
+      .map((call) => call.telephonySessionId)
+      .filter((telephonySessionId): telephonySessionId is string =>
+        Boolean(telephonySessionId),
+      );
+    return [...sessionIds, ...presenceIds];
+  }
+
+  private _listExistingExTelephonySessionIds(): Set<string> {
+    const ids = [
+      ...this.data.sessions.map(
+        (session) => session.telephonySessionId ?? session.id,
+      ),
+      ...this._presence.calls.map((call) => call.telephonySessionId),
+    ].filter((telephonySessionId): telephonySessionId is string =>
+      Boolean(telephonySessionId),
+    );
+    return new Set(ids);
+  }
+
+  @action
+  private _rememberCxExBridgeTelephonySessionIds(
+    telephonySessionIds: string[],
+  ): void {
+    telephonySessionIds.forEach((telephonySessionId) => {
+      if (
+        this.cxExBridgeHiddenTelephonySessionIds.includes(telephonySessionId)
+      ) {
+        return;
+      }
+      this.cxExBridgeHiddenTelephonySessionIds.push(telephonySessionId);
+    });
+  }
+
+  @action
+  private _forgetEndedCxExBridgeTelephonySessionIds(
+    existingIds: string[],
+  ): void {
+    const existing = new Set(existingIds);
+    for (
+      let index = this.cxExBridgeHiddenTelephonySessionIds.length - 1;
+      index >= 0;
+      index -= 1
+    ) {
+      if (existing.has(this.cxExBridgeHiddenTelephonySessionIds[index])) {
+        continue;
+      }
+      this.cxExBridgeHiddenTelephonySessionIds.splice(index, 1);
+    }
+  }
+
+  @action
+  private _clearCxExBridgeHiddenTelephonySessionIds(): void {
+    this.cxExBridgeHiddenTelephonySessionIds.splice(
+      0,
+      this.cxExBridgeHiddenTelephonySessionIds.length,
+    );
+  }
+
+  private _isCxRcExtExBridgePresenceCall(call: {
+    direction?: string;
+    from?: string | {
+      phoneNumber?: string;
+      extensionNumber?: string;
+      extensionId?: string | number;
+      name?: string;
+    };
+    to?: string | {
+      phoneNumber?: string;
+      extensionNumber?: string;
+      extensionId?: string | number;
+      name?: string;
+    };
+    toName?: string;
+    telephonySessionId?: string;
+  }): boolean {
+    if (
+      call.telephonySessionId &&
+      this.cxExBridgeHiddenTelephonySessionIds.includes(call.telephonySessionId)
+    ) {
+      return true;
+    }
+    const hints = this._ringCX?.exBridgeHints ?? [];
+    return isCxRcExtExBridgeCall({ call, hints });
+  }
+
+  private _bindCxExBridgeHiddenSessionSync(): void {
+    this._stopWatchingCxExBridgeFilter?.();
+    this._stopWatchingCxExBridgeFilter = watch(
+      this,
+      () =>
+        [
+          this._ringCX?.exBridgeHints,
+          this.data.sessions,
+          this._presence.calls,
+        ] as const,
+      () => this._syncCxExBridgeHiddenTelephonySessionIds(),
+      { multiple: true },
+    );
+  }
+
+  private _syncCxExBridgeHiddenTelephonySessionIds(): void {
+    this._rememberCxExBridgeTelephonySessionIds(
+      this._listMatchingCxExBridgeTelephonySessionIds(),
+    );
+    this._forgetEndedCxExBridgeTelephonySessionIds([
+      ...this._listExistingExTelephonySessionIds(),
+    ]);
   }
 
   @computed((that: ActiveCallControl) => [that._presence.calls, that.sessions])

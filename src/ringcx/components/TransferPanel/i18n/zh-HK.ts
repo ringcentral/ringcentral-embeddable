@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: '搜尋代理...',
+  noAgents: '沒有可用的代理',
+  available: '有空',
+  unavailable: '無法接聽通話',
+  searchContacts: '搜尋聯絡人...',
+  noContacts: '找不到記錄。',
+  enterNumber: '輸入號碼或姓名',
+  searchingDirectory: '正在搜尋...',
+  corporateDirectory: '公司目錄',
+  extension: '分機。 {extensionNumber}',
+  selectQueueGroup: '佇列組',
+  selectQueue: '佇列',
+  noGroups: '沒有可用的佇列組',
+  noQueues: '沒有可用佇列',
+  selectAGroup: '選擇一個群組',
+  selectAQueue: '選擇一個佇列',
+  stayOnCall: '隨時待命',
+  cancel: '取消',
+  transfer: '轉接',
+  transferToTip: '轉移至：{destination}',
+} as const;

@@ -1,17 +1,27 @@
 import {
-  isDetailRoutePath,
   isSideWidgetRoutePath,
   resolveExpandedRouteBackgroundPath,
-  shouldCollapseExpandedLayout,
-  shouldRenderExpandedView,
 } from '../src/app/ExpandedRouteNavigation.helper';
+
+const settingsSideWidget = {
+  id: 'settings',
+  name: 'Settings',
+  scope: 'global',
+  backgroundPath: '/settings',
+};
 
 const routes = [
   {
     path: '/customized/:pageId',
     exact: true,
-    layout: 'detail',
     preserveBackground: true,
+    sideWidget: {
+      id: 'customized-page',
+      name: 'Page',
+      scope: 'global',
+      backgroundPath: '/dialer',
+      preserveBackground: true,
+    },
   },
   {
     path: '/settings',
@@ -19,108 +29,9 @@ const routes = [
   },
   {
     path: '/settings/region',
-    layout: 'detail',
-  },
-  {
-    path: '/settings/calling',
-    layout: 'detail',
-  },
-  {
-    path: '/settings/audio',
-    layout: 'detail',
-  },
-  {
-    path: '/settings/autoCallLogSettings',
-    layout: 'detail',
-  },
-  {
-    path: '/settings/autoCallLogSettings/callLogging',
-    layout: 'detail',
+    sideWidget: settingsSideWidget,
   },
 ];
-
-describe('isDetailRoutePath', () => {
-  test('identifies Calling settings as a detail route', () => {
-    expect(isDetailRoutePath('/settings/calling', routes)).toBe(true);
-    expect(isDetailRoutePath('/settings', routes)).toBe(false);
-  });
-});
-
-describe('shouldCollapseExpandedLayout', () => {
-  test('closes expanded when leaving a detail route for its main page', () => {
-    expect(
-      shouldCollapseExpandedLayout({
-        currentPath: '/settings',
-        expanded: true,
-        previousPath: '/settings/region',
-        routes,
-      }),
-    ).toBe(true);
-  });
-
-  test('keeps expanded when navigating between detail routes', () => {
-    expect(
-      shouldCollapseExpandedLayout({
-        currentPath: '/settings/audio',
-        expanded: true,
-        previousPath: '/settings/region',
-        routes,
-      }),
-    ).toBe(false);
-  });
-
-  test('keeps expanded when returning to a parent detail route', () => {
-    expect(
-      shouldCollapseExpandedLayout({
-        currentPath: '/settings/autoCallLogSettings',
-        expanded: true,
-        previousPath: '/settings/autoCallLogSettings/callLogging',
-        routes,
-      }),
-    ).toBe(false);
-  });
-
-  test('does not change an already folded layout', () => {
-    expect(
-      shouldCollapseExpandedLayout({
-        currentPath: '/settings',
-        expanded: false,
-        previousPath: '/settings/region',
-        routes,
-      }),
-    ).toBe(false);
-  });
-
-  test('does not collapse when opening a detail route', () => {
-    expect(
-      shouldCollapseExpandedLayout({
-        currentPath: '/settings/region',
-        expanded: true,
-        previousPath: '/settings',
-        routes,
-      }),
-    ).toBe(false);
-  });
-
-  test('uses the first matching route like Router Switch', () => {
-    expect(
-      shouldCollapseExpandedLayout({
-        currentPath: '/settings',
-        expanded: true,
-        previousPath: '/settings/audio',
-        routes: [
-          {
-            path: '/settings',
-          },
-          {
-            path: '/settings/audio',
-            layout: 'detail',
-          },
-        ],
-      }),
-    ).toBe(false);
-  });
-});
 
 describe('isSideWidgetRoutePath', () => {
   test('recognizes an opted-in routed side-widget page', () => {
@@ -129,7 +40,6 @@ describe('isSideWidgetRoutePath', () => {
         ...routes,
         {
           path: '/history/:callLogId',
-          layout: 'detail',
           sideWidget: {
             id: 'call-details',
             name: 'Call details',
@@ -140,53 +50,23 @@ describe('isSideWidgetRoutePath', () => {
       ]),
     ).toBe(true);
   });
-});
 
-describe('shouldRenderExpandedView', () => {
-  test('hides transient side-widget content while a detail route owns the expanded column', () => {
+  test('does not treat a main page as a side-widget page', () => {
+    expect(isSideWidgetRoutePath('/settings', routes)).toBe(false);
+  });
+
+  test('uses the first matching route like Router Switch', () => {
     expect(
-      shouldRenderExpandedView({
-        currentPath: '/settings/region',
-        routes,
-      }),
+      isSideWidgetRoutePath('/settings/region', [
+        { path: '/settings' },
+        ...routes,
+      ]),
     ).toBe(false);
-  });
-
-  test('renders transient side-widget content on a main route', () => {
-    expect(
-      shouldRenderExpandedView({
-        currentPath: '/messages',
-        routes,
-      }),
-    ).toBe(true);
-  });
-
-  test('renders side-widget content for an opted-in detail route', () => {
-    const sideWidgetRoutes = [
-      ...routes,
-      {
-        path: '/conversations/:conversationId',
-        layout: 'detail',
-        sideWidget: {
-          id: 'conversation',
-          name: 'Conversation',
-          scope: 'contact',
-          backgroundPath: '/messages',
-        },
-      },
-    ];
-
-    expect(
-      shouldRenderExpandedView({
-        currentPath: '/conversations/conversation-id',
-        routes: sideWidgetRoutes,
-      }),
-    ).toBe(true);
   });
 });
 
 describe('resolveExpandedRouteBackgroundPath', () => {
-  test('keeps the previous main route for a customized detail page', () => {
+  test('keeps the previous main route for a customized page', () => {
     expect(
       resolveExpandedRouteBackgroundPath({
         currentPath: '/customized/crm-details',
@@ -206,7 +86,7 @@ describe('resolveExpandedRouteBackgroundPath', () => {
     ).toBe('/contacts');
   });
 
-  test('uses the current route for ordinary pages and detail pages', () => {
+  test('uses the current route for pages that do not preserve it', () => {
     expect(
       resolveExpandedRouteBackgroundPath({
         currentPath: '/settings/region',

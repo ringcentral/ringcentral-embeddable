@@ -51,6 +51,13 @@ export type CompatibleCall = Omit<
 > & {
   activityMatches?: CompatibleActivityMatch[];
   aiNote?: string | null;
+  source?: "ringcentral" | "ringcx";
+  ringcx?: {
+    notes?: string;
+    recordingUrl?: string;
+    disposition?: { id?: string; name?: string };
+    [key: string]: unknown;
+  };
   callSelectionInfo?: {
     displayedSelection: Entity;
     selections: Entity[];
@@ -247,3 +254,12 @@ class CallLogger extends CallLoggerBase {
 }
 
 export { CallLogger, CallLogger as EmbeddableCallLogger };
+
+/**
+ * Dependency-injection token for the host call logger.
+ *
+ * App config binds the micro-phone `CallLogger` class to this local class.
+ * Inject `HostCallLogger`, not `CallLogger`, or a second module named
+ * `CallLogger` is created when the RingCX chunk loads.
+ */
+export { CallLogger as HostCallLogger } from "@ringcentral-integration/micro-phone/src/app/services";

@@ -183,10 +183,12 @@ export async function logCallFromHistory({
   callLogger,
   info,
   router,
+  source,
   thirdParty,
-}: LogCallFromHistoryOptions): Promise<void> {
+}: LogCallFromHistoryOptions & { source?: string }): Promise<void> {
   if (thirdParty.showLogModal && actionType !== "viewLog") {
-    await router.push(`/log/call/${call.sessionId}`);
+    const query = source ? `?source=${encodeURIComponent(source)}` : "";
+    await router.push(`/log/call/${call.sessionId}${query}`);
     return;
   }
   await callLogger.logCall({

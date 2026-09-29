@@ -24,7 +24,7 @@ describe("Adapter navigation compatibility", () => {
     return new Adapter(
       {},
       { enable: jest.fn() },
-      { shared: true, onClient: jest.fn() },
+      { shared: true, onClient: jest.fn(), onServer: jest.fn() },
       {},
       {},
       {},

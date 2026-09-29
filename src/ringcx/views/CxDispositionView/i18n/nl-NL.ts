@@ -1,0 +1,21 @@
+/* eslint-disable */
+export default {
+  noActiveCall: 'Geen actief gesprek',
+  pendingDisposition: 'In afwachting van afhandeling',
+  createCallLog: 'Oproepgeschiedenis maken',
+  updateCallLog: 'Oproeplog bijwerken',
+  disposition: 'Dispositie',
+  pleaseSelect: 'Maak een keuze',
+  summary: 'Samenvatting',
+  summaryEdited: 'Samenvatting (bewerkt)',
+  summaryPlaceholder: 'Samenvatting wordt hier gegenereerd...',
+  summaryLoading: 'Oproepoverzicht genereren...',
+  notes: 'Aantekeningen',
+  enterNotes: 'Voer notities in...',
+  dispositionError: 'Kies een dispositie voordat u deze indient.',
+  notesRequired: 'Voor deze beschikking zijn opmerkingen vereist.',
+  submit: 'Verzenden',
+  callDispositionSuccess: 'Oproepafhandeling succesvol opgeslagen.',
+  callDispositionFailed: 'Kan oproepafhandeling niet opslaan.',
+  callLogNotFound: 'Oproeplog niet gevonden',
+} as const;

@@ -84,11 +84,11 @@ test('opens Smart Notes alongside an existing call-details tab', async () => {
     setSession: jest.fn(async () => undefined),
   };
   const smartNotesView = new SmartNotesView(
-    expandedView,
     sideWidgetView,
     smartNotes,
     { themeType: 'light' },
     {},
+    { shared: false, isServer: false },
   );
 
   const openResult = smartNotesView.open({

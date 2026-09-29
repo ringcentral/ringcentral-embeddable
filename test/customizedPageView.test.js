@@ -96,4 +96,16 @@ describe('CustomizedPageView', () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  test('provides the host page title for its side widget tab', () => {
+    const pages = { crm: { id: 'crm', title: 'CRM record' }, blank: { id: 'blank', title: '' } };
+    const view = new CustomizedPageView(
+      { getCustomizedPage: jest.fn((id) => pages[id]) },
+      {},
+    );
+
+    expect(view.getPageTitle('crm')).toBe('CRM record');
+    expect(view.getPageTitle('blank')).toBeUndefined();
+    expect(view.getPageTitle('missing')).toBeUndefined();
+  });
 });

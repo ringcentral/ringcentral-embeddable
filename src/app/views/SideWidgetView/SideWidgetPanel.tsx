@@ -3,12 +3,6 @@ import {
   Avatar,
   EmptyState,
   Icon,
-  IconButton,
-  PageHeader,
-  PageHeaderCenter,
-  PageHeaderLeft,
-  PageHeaderRight,
-  PageHeaderTitle,
   Tab,
   TabContext,
   TabPanel,
@@ -23,9 +17,13 @@ import type {
   ThirdPartyWidgetContact,
 } from '../../services/ThirdParty';
 
+import type { SideWidgetBlankInfo } from './getSideWidgetBlankInfo';
 import { SIDE_WIDGET_APPS_TAB_ID } from './SideWidget.helper';
 import type { SideWidgetTab } from './SideWidget.view.interface';
 import { SideWidgetAppPanel } from './SideWidgetAppPanel';
+import { SideWidgetBlankView } from './SideWidgetBlankView';
+import { SideWidgetPageHeader } from './SideWidgetPageHeader';
+import { t } from './i18n';
 
 function AvailableApps({
   apps,
@@ -40,37 +38,21 @@ function AvailableApps({
 }) {
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <PageHeader
-        variant="detached"
-        className="flex-none border-b border-neutral-b4"
+      <SideWidgetPageHeader
+        title={t('availableApps')}
+        onClose={showCloseButton ? onClose : undefined}
+        closeLabel={t('closeApps')}
         data-sign="sideWidgetAvailableAppsHeader"
-      >
-        <PageHeaderLeft />
-        <PageHeaderCenter data-sign="sideWidgetAvailableAppsHeaderCenter">
-          <PageHeaderTitle>Available apps</PageHeaderTitle>
-        </PageHeaderCenter>
-        <PageHeaderRight>
-          {showCloseButton ? (
-            <IconButton
-              variant="icon"
-              color="secondary"
-              size="medium"
-              symbol={Xmd}
-              data-sign="sideWidgetClose"
-              TooltipProps={{ title: 'Close apps' }}
-              onClick={onClose}
-            />
-          ) : null}
-        </PageHeaderRight>
-      </PageHeader>
+        closeDataSign="sideWidgetClose"
+      />
       {apps.length === 0 ? (
         <div className="flex flex-auto items-center justify-center">
-          <EmptyState icon={AppsMd} title="No available apps" />
+          <EmptyState icon={AppsMd} title={t('noAvailableApps')} />
         </div>
       ) : (
         <ul
           className="grid flex-auto grid-cols-3 content-start gap-3 overflow-y-auto p-4"
-          aria-label="Available apps"
+          aria-label={t('availableApps')}
         >
           {apps.map((app) => {
             const appName = app.name || app.id;
@@ -79,7 +61,7 @@ function AvailableApps({
                 <button
                   type="button"
                   className="flex h-20 w-full min-w-0 flex-col items-center justify-center gap-2 rounded-sm border-0 bg-transparent p-2 text-neutral-b0 hover:bg-neutral-b5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobranding"
-                  aria-label={`Open ${appName}`}
+                  aria-label={t('openApp', { name: appName })}
                   data-sign={`sideWidgetApp-${app.id}`}
                   onClick={() => onSelectApp(app.id)}
                 >
@@ -121,7 +103,7 @@ function SideWidgetTabLabel({
   onClose: (event: React.SyntheticEvent) => void;
   tabId: string;
 }): React.ReactElement {
-  const closeLabel = `Close ${name} tab`;
+  const closeLabel = t('closeTab', { name });
   return (
     <span className="flex min-w-0 items-center gap-1">
       <span className="min-w-0 truncate">{name}</span>
@@ -157,6 +139,7 @@ export function SideWidgetPanel({
   selectedAppId,
   contact,
   pinAppIds,
+  blankInfo,
   onTabChange,
   onSelectApp,
   onBack,
@@ -172,6 +155,7 @@ export function SideWidgetPanel({
   selectedAppId: string | null;
   contact: ThirdPartyWidgetContact | null;
   pinAppIds: string[];
+  blankInfo: SideWidgetBlankInfo;
   onTabChange: (tabId: string) => void;
   onSelectApp: (appId: string) => void;
   onBack: () => void;
@@ -185,6 +169,18 @@ export function SideWidgetPanel({
     ? apps.find(({ id }) => id === selectedAppId)
     : undefined;
   const showTabs = tabs.length > 1;
+  // The Apps tab only exists when it was opened for a call or by the user. It
+  // must not appear as a fallback: a drawer that stays open after its last
+  // routed tab closed shows the blank view rather than opening Apps on its own.
+  const showAppsTab = tabs.some(({ id }) => id === SIDE_WIDGET_APPS_TAB_ID);
+
+  if (tabs.length === 0) {
+    return (
+      <div className="flex h-full flex-col overflow-hidden bg-neutral-base">
+        <SideWidgetBlankView info={blankInfo} onClose={onClose} />
+      </div>
+    );
+  }
 
   return (
     <TabContext
@@ -220,31 +216,33 @@ export function SideWidgetPanel({
             ))}
           </Tabs>
         ) : null}
-        <TabPanel
-          value={SIDE_WIDGET_APPS_TAB_ID}
-          className="min-h-0 flex-auto overflow-hidden p-0"
-        >
-          {selectedApp ? (
-            <SideWidgetAppPanel
-              app={selectedApp}
-              contact={contact}
-              isPinned={pinAppIds.includes(selectedApp.id)}
-              showBack
-              showCloseButton={false}
-              onBack={onBack}
-              onClose={onBack}
-              onTogglePin={() => onTogglePin(selectedApp.id)}
-              onLoadApp={onLoadApp}
-            />
-          ) : (
-            <AvailableApps
-              apps={apps}
-              showCloseButton={!showTabs}
-              onClose={onClose}
-              onSelectApp={onSelectApp}
-            />
-          )}
-        </TabPanel>
+        {showAppsTab ? (
+          <TabPanel
+            value={SIDE_WIDGET_APPS_TAB_ID}
+            className="min-h-0 flex-auto overflow-hidden p-0"
+          >
+            {selectedApp ? (
+              <SideWidgetAppPanel
+                app={selectedApp}
+                contact={contact}
+                isPinned={pinAppIds.includes(selectedApp.id)}
+                showBack
+                showCloseButton={false}
+                onBack={onBack}
+                onClose={onBack}
+                onTogglePin={() => onTogglePin(selectedApp.id)}
+                onLoadApp={onLoadApp}
+              />
+            ) : (
+              <AvailableApps
+                apps={apps}
+                showCloseButton={!showTabs}
+                onClose={() => onCloseTab(SIDE_WIDGET_APPS_TAB_ID)}
+                onSelectApp={onSelectApp}
+              />
+            )}
+          </TabPanel>
+        ) : null}
         {tabs
           .filter((tab) => tab.appId)
           .map((tab) => {
@@ -269,32 +267,16 @@ export function SideWidgetPanel({
                   />
                 ) : (
                   <div className="flex h-full flex-col overflow-hidden">
-                    <PageHeader
-                      variant="detached"
-                      className="flex-none border-b border-neutral-b4"
-                    >
-                      <PageHeaderLeft />
-                      <PageHeaderCenter>
-                        <PageHeaderTitle>{tab.name}</PageHeaderTitle>
-                      </PageHeaderCenter>
-                      <PageHeaderRight>
-                        {!showTabs ? (
-                          <IconButton
-                            variant="icon"
-                            color="secondary"
-                            size="small"
-                            symbol={Xmd}
-                            TooltipProps={{ title: 'Close app tab' }}
-                            onClick={() => onCloseTab(tab.id)}
-                          />
-                        ) : null}
-                      </PageHeaderRight>
-                    </PageHeader>
+                    <SideWidgetPageHeader
+                      title={tab.name}
+                      onClose={showTabs ? undefined : () => onCloseTab(tab.id)}
+                      closeLabel={t('closeAppTab')}
+                    />
                     <div className="flex flex-auto items-center justify-center">
                       <EmptyState
                         icon={AppsMd}
-                        title="App unavailable"
-                        description="This app is no longer registered."
+                        title={t('appUnavailable')}
+                        description={t('appNotRegistered')}
                       />
                     </div>
                   </div>

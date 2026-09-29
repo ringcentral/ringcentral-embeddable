@@ -1,0 +1,15 @@
+export default {
+  callDetails: 'Call details',
+  composeFax: 'Compose fax',
+  composeText: 'Compose text',
+  contact: 'Contact',
+  conversation: 'Conversation',
+  disposition: 'Disposition',
+  fax: 'Fax',
+  logCall: 'Log call',
+  logMessages: 'Log messages',
+  meeting: 'Meeting',
+  page: 'Page',
+  settings: 'Settings',
+  voicemail: 'Voicemail',
+} as const;

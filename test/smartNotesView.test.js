@@ -12,10 +12,6 @@ jest.mock('@ringcentral/juno/foundation', () => ({
   useTheme: jest.fn(() => ({})),
 }));
 
-jest.mock('../src/app/views/ExpandedView', () => ({
-  ExpandedView: class ExpandedView {},
-}));
-
 jest.mock('../src/app/views/SideWidgetView', () => ({
   SideWidgetView: class SideWidgetView {},
 }));
@@ -31,19 +27,23 @@ const {
   SmartNotesPanel,
 } = require('../src/app/views/SmartNotesView/SmartNotesPanel');
 const { useApp } = require('@ringcentral/mfe-react');
+const { watch } = require('@ringcentral-integration/next-core');
 
 describe('SmartNotesView', () => {
-  function createView(session = null) {
-    const handle = { id: 'smart-notes-handle' };
-    const sideWidgetHandle = { id: 'smart-notes-side-widget-handle' };
-    const expandedView = {
-      create: jest.fn(() => handle),
-      open: jest.fn(),
-      close: jest.fn(),
-    };
+  function createView(
+    session = null,
+    portManager = { shared: false, isServer: false },
+  ) {
+    const handle = { id: 'smart-notes-side-widget-handle' };
     const sideWidgetView = {
       isOpen: false,
-      createContent: jest.fn(() => sideWidgetHandle),
+      createContent: jest.fn((options) => {
+        handle.options = options;
+        return handle;
+      }),
+      updateContent: jest.fn((contentHandle, options) => {
+        contentHandle.options = options;
+      }),
       openContent: jest.fn(),
       closeContent: jest.fn(),
     };
@@ -59,25 +59,31 @@ describe('SmartNotesView', () => {
       setSession: jest.fn(async () => {}),
     };
     const view = new SmartNotesView(
-      expandedView,
       sideWidgetView,
       smartNotes,
       { themeType: 'light' },
       {},
+      portManager,
     );
     return {
-      expandedView,
       handle,
-      sideWidgetHandle,
       sideWidgetView,
       smartNotes,
       view,
     };
   }
 
-  test('opens Smart Notes without forcing the side panel to expand', async () => {
-    const { expandedView, handle, smartNotes, view } = createView();
-    const [expandedViewOptions] = expandedView.create.mock.calls[0];
+  test('registers a localized AI Assistant side widget tab', () => {
+    const { handle } = createView();
+
+    expect(handle.options).toEqual(
+      expect.objectContaining({ id: 'smart-notes', showAppsTab: true }),
+    );
+    expect(handle.options.getName()).toBe(handle.options.name);
+  });
+
+  test('opens a past session as a tab without expanding the layout', async () => {
+    const { handle, sideWidgetView, smartNotes, view } = createView();
     const session = {
       id: 'telephony-session',
       status: 'Disconnected',
@@ -86,14 +92,15 @@ describe('SmartNotesView', () => {
 
     await view.open(session);
 
-    expect(expandedViewOptions.header).toBeUndefined();
-    expect(expandedViewOptions.showOverlayHeader).toBe(false);
     expect(smartNotes.viewSmartNote).toHaveBeenCalledWith(session);
-    expect(expandedView.open).toHaveBeenCalledWith(handle, { expand: false });
+    expect(handle.options.showAppsTab).toBe(false);
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(handle, {
+      expand: false,
+    });
   });
 
   test('opens live call sessions in the side panel automatically', () => {
-    const { sideWidgetHandle, sideWidgetView, view } = createView();
+    const { handle, sideWidgetView, view } = createView();
 
     view._handleSessionChange({
       id: 'live-session',
@@ -101,11 +108,12 @@ describe('SmartNotesView', () => {
       direction: 'Inbound',
     });
 
-    expect(sideWidgetView.openContent).toHaveBeenCalledWith(sideWidgetHandle);
+    expect(handle.options.showAppsTab).toBe(true);
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(handle, {});
   });
 
-  test('preserves the independent widget for post-call sessions', () => {
-    const { expandedView, handle, view } = createView();
+  test('opens a post-call session as a tab and closes it with the session', () => {
+    const { handle, sideWidgetView, view } = createView();
 
     view._handleSessionChange({
       id: 'post-call-session',
@@ -114,12 +122,16 @@ describe('SmartNotesView', () => {
     });
     view._handleSessionChange(null);
 
-    expect(expandedView.open).toHaveBeenCalledWith(handle, { expand: false });
-    expect(expandedView.close).toHaveBeenCalledWith(handle);
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(handle, {
+      expand: false,
+    });
+    expect(sideWidgetView.closeContent).toHaveBeenCalledWith(handle, {
+      collapseWhenLast: true,
+    });
   });
 
   test('does not open standalone content for an embedded history session', async () => {
-    const { expandedView, sideWidgetView, smartNotes, view } = createView();
+    const { sideWidgetView, smartNotes, view } = createView();
     const session = {
       id: 'history-session',
       status: 'Disconnected',
@@ -130,12 +142,11 @@ describe('SmartNotesView', () => {
     view._handleSessionChange(session);
 
     expect(smartNotes.viewSmartNote).toHaveBeenCalledWith(session, 'embedded');
-    expect(expandedView.open).not.toHaveBeenCalled();
     expect(sideWidgetView.openContent).not.toHaveBeenCalled();
   });
 
   test('can still open post-call Smart Notes explicitly from history', async () => {
-    const { sideWidgetHandle, sideWidgetView, view } = createView();
+    const { handle, sideWidgetView, view } = createView();
     sideWidgetView.isOpen = true;
 
     await view.open({
@@ -144,7 +155,52 @@ describe('SmartNotesView', () => {
       direction: 'Inbound',
     });
 
-    expect(sideWidgetView.openContent).toHaveBeenCalledWith(sideWidgetHandle);
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(handle, {});
+  });
+
+  test('claims a session before loading it, so the watcher does not show it twice', async () => {
+    const { sideWidgetView, smartNotes, view } = createView();
+    const session = {
+      id: 'live-session',
+      status: 'Answered',
+      direction: 'Inbound',
+    };
+    // Loading sets the session, which reaches the watcher on the server.
+    smartNotes.viewSmartNote.mockImplementationOnce(async () => {
+      view._handleSessionChange(session);
+    });
+
+    await view.open(session);
+
+    expect(sideWidgetView.openContent).toHaveBeenCalledTimes(1);
+  });
+
+  test('drops a stale open when another session was opened meanwhile', async () => {
+    const { sideWidgetView, smartNotes, view } = createView();
+    let finishFirst;
+    smartNotes.viewSmartNote.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finishFirst = resolve;
+        }),
+    );
+
+    const first = view.open({ id: 'first', status: 'Answered' });
+    await Promise.resolve();
+    await view.open({ id: 'second', status: 'Answered' });
+    finishFirst();
+    await first;
+
+    expect(sideWidgetView.openContent).toHaveBeenCalledTimes(1);
+  });
+
+  test('follows the session only on the server port, which owns the tab', () => {
+    watch.mockClear();
+    createView(null, { shared: true, isServer: false }).view.onInit();
+    expect(watch).not.toHaveBeenCalled();
+
+    createView(null, { shared: true, isServer: true }).view.onInit();
+    expect(watch).toHaveBeenCalledTimes(1);
   });
 
   test.each([
@@ -357,25 +413,17 @@ describe('SmartNotesView', () => {
     jest.useRealTimers();
   });
 
-  test('closes expanded content and releases a disconnected session', () => {
-    const {
-      expandedView,
-      handle,
-      sideWidgetHandle,
-      sideWidgetView,
-      smartNotes,
-      view,
-    } = createView({
+  test('closes its tab and releases a disconnected session', async () => {
+    const { handle, sideWidgetView, smartNotes, view } = createView({
       id: 'telephony-session',
       status: 'Disconnected',
     });
-    const [{ onClose }] = expandedView.create.mock.calls[0];
 
     view.close();
-    onClose();
+    await Promise.resolve();
+    handle.options.onClose(null);
 
-    expect(expandedView.close).toHaveBeenCalledWith(handle);
-    expect(sideWidgetView.closeContent).toHaveBeenCalledWith(sideWidgetHandle);
+    expect(sideWidgetView.closeContent).toHaveBeenCalledWith(handle, {});
     expect(smartNotes.setSession).toHaveBeenCalledWith(null);
   });
 });

@@ -18,6 +18,17 @@ jest.mock('../src/app/views/ExpandedView', () => ({
   ExpandedView: class ExpandedView {},
 }));
 
+jest.mock('../src/app/views/SideWidgetView/i18n', () => {
+  const enUS = jest.requireActual(
+    '../src/app/views/SideWidgetView/i18n/en-US',
+  ).default;
+  return {
+    __esModule: true,
+    default: {},
+    t: (key) => enUS[key] ?? key,
+  };
+});
+
 function createSideWidget(overrides = {}) {
   let expandedConfig;
   const expandedHandle = { id: 'side-widget' };
@@ -60,6 +71,7 @@ function createSideWidget(overrides = {}) {
     dependencies.thirdParty,
     dependencies.theme,
     dependencies.options,
+    dependencies.root,
   );
   return {
     dependencies,
@@ -134,11 +146,12 @@ describe('SideWidgetView', () => {
     view.openAppTab({ id: 'fallback-name' }, null);
     expect(view.tabs[0].name).toBe('fallback-name');
 
+    // Without `enableSideWidget`, calls open no third-party app tabs.
     const disabled = createSideWidget({
       options: { enableSideWidget: false },
     }).view;
     disabled.openAppTab(crm, { id: 'contact' });
-    expect(disabled.tabs).toEqual([{ id: 'side-widget-apps', name: 'Apps' }]);
+    expect(disabled.tabs).toEqual([]);
   });
 
   test('keeps existing tab positions stable when activating updated content', () => {
@@ -429,49 +442,6 @@ describe('SideWidgetView', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test('drops the Apps tab when content opens after the call ended', () => {
-    const { view } = createSideWidget();
-    const session = {
-      id: 'session-1',
-      from: '+16505550100',
-      to: '+16505550101',
-      toUserName: 'Callee',
-    };
-    const handle = view.createContent({
-      id: 'call-details',
-      name: 'Call details',
-      view: () => null,
-    });
-
-    view.onCallInit(session);
-    view.onCallEnd(session);
-    view.openContent(handle, { contact: { phoneNumber: '+16505550102' } });
-
-    expect(view.tabs.map(({ id }) => id)).toEqual(['call-details']);
-    expect(view.currentTabId).toBe('call-details');
-  });
-
-  test('keeps the Apps tab for content opened while another call is live', () => {
-    const { view } = createSideWidget();
-    const first = { id: 'session-1', from: '+16505550100', to: '+16505550101' };
-    const second = { id: 'session-2', from: '+16505550103', to: '+16505550101' };
-    const handle = view.createContent({
-      id: 'call-details',
-      name: 'Call details',
-      view: () => null,
-    });
-
-    view.onCallInit(first);
-    view.onCallRing(second);
-    view.onCallEnd(first);
-    view.openContent(handle, { contact: { phoneNumber: '+16505550103' } });
-
-    expect(view.tabs.map(({ id }) => id)).toEqual([
-      'call-details',
-      'side-widget-apps',
-    ]);
-  });
-
   test('opens content without an Apps tab when side widgets are disabled', () => {
     const { dependencies, expandedHandle, getExpandedConfig, view } =
       createSideWidget({
@@ -751,5 +721,181 @@ describe('SideWidgetView', () => {
       theme: 'dark',
     });
     expect(view.component()).toBeNull();
+  });
+
+  test('widens the expanded column for the widest open tab, active or not', () => {
+    const { view } = createSideWidget();
+    const script = view.createContent({
+      id: 'agent-script',
+      name: 'Agent script',
+      scope: 'global',
+      minExpandedWidth: 360,
+      view: () => null,
+    });
+    const notes = view.createContent({
+      id: 'smart-notes',
+      name: 'AI Assistant',
+      view: () => null,
+    });
+
+    expect(view.minExpandedWidth).toBeNull();
+    view.openContent(notes);
+    expect(view.minExpandedWidth).toBeNull();
+    view.openContent(script);
+    expect(view.tabs[0]).toEqual({
+      id: 'agent-script',
+      name: 'Agent script',
+      scope: 'global',
+      minExpandedWidth: 360,
+    });
+
+    // Switching tabs keeps the width, so the frame does not resize.
+    view.selectTab('smart-notes');
+    expect(view.minExpandedWidth).toBe(360);
+
+    view.closeContent(script);
+    expect(view.minExpandedWidth).toBeNull();
+  });
+
+  test('reports no width while other content owns the expanded column', () => {
+    const { dependencies, view } = createSideWidget();
+    const script = view.createContent({
+      id: 'agent-script',
+      name: 'Agent script',
+      minExpandedWidth: 360,
+      view: () => null,
+    });
+
+    view.openContent(script);
+    dependencies.expandedView.activeContentId = 'other-content';
+
+    expect(view.minExpandedWidth).toBeNull();
+  });
+
+  test('resolves tab names on each render, so open tabs follow the locale', () => {
+    const { getExpandedConfig, view } = createSideWidget();
+    let hudName = 'HUD';
+    const hud = view.createContent({
+      id: 'call-hud',
+      name: 'HUD',
+      getName: () => hudName,
+      scope: 'global',
+      view: () => null,
+    });
+    view.openApps({ id: 'contact' });
+    view.openContent(hud);
+    const ExpandedContent = getExpandedConfig().view;
+
+    const { rerender } = render(<ExpandedContent />);
+    expect(SideWidgetPanel.mock.calls.at(-1)[0].tabs).toEqual([
+      { id: 'call-hud', name: 'HUD', scope: 'global' },
+      { id: 'side-widget-apps', name: 'Apps' },
+    ]);
+
+    hudName = 'Localized HUD';
+    rerender(<ExpandedContent />);
+
+    expect(SideWidgetPanel.mock.calls.at(-1)[0].tabs[0].name).toBe(
+      'Localized HUD',
+    );
+    // The stored tab keeps the name it opened with.
+    expect(view.tabs[0].name).toBe('HUD');
+  });
+
+  test('applies a panel close on the server port only', async () => {
+    const { view } = createSideWidget();
+    // Stands in for the delegation: the server applies it, clients follow.
+    const closeOnServer = jest
+      .spyOn(view, '_closeTabOnServer')
+      .mockResolvedValue(undefined);
+    const callDetails = view.createContent({
+      id: 'call-details',
+      name: 'Call details',
+      view: () => null,
+    });
+    const contactDetails = view.createContent({
+      id: 'contact-details',
+      name: 'Contact',
+      view: () => null,
+    });
+    view.openContent(callDetails);
+    view.openContent(contactDetails);
+
+    await view.closeTabFromPanel('contact-details');
+
+    // Not applied here first, which would run the tab's close hooks twice.
+    expect(view.tabs.map(({ id }) => id)).toEqual([
+      'contact-details',
+      'call-details',
+    ]);
+    expect(closeOnServer).toHaveBeenCalledWith('contact-details');
+  });
+
+  describe('closing the last tab', () => {
+    function openOnlyTab(expanded) {
+      const created = createSideWidget({ root: { expanded } });
+      const onCloseComplete = jest.fn();
+      const handle = created.view.createContent({
+        id: 'contact-details',
+        name: 'Contact',
+        onCloseComplete,
+        view: () => null,
+      });
+      created.view.openContent(handle);
+      return { ...created, handle, onCloseComplete };
+    }
+
+    test('keeps a docked drawer open on its blank view', async () => {
+      const { dependencies, onCloseComplete, view } = openOnlyTab(true);
+
+      await view.closeTab('contact-details');
+
+      expect(view.tabs).toEqual([]);
+      expect(dependencies.expandedView.close).not.toHaveBeenCalled();
+      expect(view.isOpen).toBe(true);
+      expect(onCloseComplete).toHaveBeenCalledTimes(1);
+    });
+
+    test('closes an overlay drawer, which would cover the page', async () => {
+      const { dependencies, expandedHandle, view } = openOnlyTab(false);
+
+      await view.closeTab('contact-details');
+
+      expect(dependencies.expandedView.close).toHaveBeenCalledWith(
+        expandedHandle,
+      );
+    });
+
+    test('folds a docked drawer for a tab the app closes on its own', async () => {
+      const { dependencies, expandedHandle, handle, view } = openOnlyTab(true);
+
+      view.closeContent(handle, { collapseWhenLast: true });
+      await Promise.resolve();
+
+      expect(dependencies.expandedView.close).toHaveBeenCalledWith(
+        expandedHandle,
+      );
+    });
+  });
+
+  test('clears every tab, global ones too, when the session resets', () => {
+    const { dependencies, expandedHandle, view } = createSideWidget();
+    const hud = view.createContent({
+      id: 'call-hud',
+      name: 'HUD',
+      scope: 'global',
+      view: () => null,
+    });
+    view.openApps({ id: 'contact' });
+    view.openContent(hud);
+
+    view.onReset();
+
+    expect(dependencies.expandedView.close).toHaveBeenCalledWith(
+      expandedHandle,
+    );
+    expect(view.tabs).toEqual([]);
+    expect(view.currentContact).toBeNull();
+    expect(view.currentTabId).toBe('side-widget-apps');
   });
 });

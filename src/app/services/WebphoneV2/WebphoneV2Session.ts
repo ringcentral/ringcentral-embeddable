@@ -29,19 +29,47 @@ export type WebphoneV2SessionRecord = {
   destructiveCommand?: Promise<unknown>;
   receivedTransferFromNumber?: string;
   receivedTransferFromName?: string;
+  isCxOffhook?: boolean;
+};
+
+const stringifyHeaderValue = (value: unknown): string | undefined => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    const parts = value
+      .map((item) => stringifyHeaderValue(item))
+      .filter((item): item is string => Boolean(item));
+    return parts.length > 0 ? parts.join(',') : undefined;
+  }
+  if (value && typeof value === 'object' && 'raw' in value) {
+    const raw = (value as { raw?: unknown }).raw;
+    return typeof raw === 'string' ? raw : undefined;
+  }
+  return undefined;
 };
 
 export const getHeader = (
   message: unknown,
   name: string,
 ): string | undefined => {
+  if (
+    message &&
+    typeof (message as { getHeader?: unknown }).getHeader === 'function'
+  ) {
+    return stringifyHeaderValue(
+      (message as { getHeader: (headerName: string) => unknown }).getHeader(
+        name,
+      ),
+    );
+  }
   const headers = (message as { headers?: Record<string, unknown> })?.headers;
   if (!headers) return undefined;
   const key = Object.keys(headers).find(
     (header) => header.toLowerCase() === name.toLowerCase(),
   );
   const value = key ? headers[key] : undefined;
-  return typeof value === 'string' ? value : undefined;
+  return stringifyHeaderValue(value);
 };
 
 export const getPeerName = (peer: string | undefined): string => {

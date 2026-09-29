@@ -14,6 +14,8 @@ import {
   StoragePlugin,
 } from '@ringcentral-integration/next-core';
 
+import { runOnAllPorts } from '../../../lib/runOnAllPorts';
+
 import { Denoiser } from './Denoiser';
 import { isSameOrigin } from './NoiseReduction.helper';
 import { t } from './i18n';
@@ -117,7 +119,12 @@ export class NoiseReduction extends RcModule {
     if (!enabled) {
       // Must reach every port: the denoiser is attached wherever the call media
       // lives, which is not necessarily the main tab.
-      await this._disableEverywhere();
+      await runOnAllPorts(
+        this._portManager,
+        this as NoiseReduction,
+        'disableOnPort',
+        [],
+      );
       this._setEnabled(false);
       return;
     }
@@ -131,14 +138,13 @@ export class NoiseReduction extends RcModule {
   }
 
   /**
-   * Detaches the denoiser on every port.
-   *
-   * `denoiser()` initialises Krisp lazily on whichever port owns the call
-   * media, so enabling needs no broadcast — but disabling does, or a filter
-   * stays attached to a live call in a non-main tab.
+   * Detaches the denoiser on this port. `setEnabled(false)` runs it on every
+   * port: `denoiser()` initialises Krisp lazily on whichever port owns the
+   * call media, so enabling needs no broadcast, but disabling does, or a
+   * filter stays attached to a live call in a non-main tab. Public only so
+   * `fork()` can reach it.
    */
-  @delegate('all')
-  protected async _disableEverywhere(): Promise<void> {
+  disableOnPort(): void {
     this._disableKrisp();
   }
 

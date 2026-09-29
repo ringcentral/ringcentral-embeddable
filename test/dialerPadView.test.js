@@ -1,4 +1,5 @@
 import React from 'react';
+import { render, screen } from '@testing-library/react';
 
 jest.mock('@ringcentral-integration/next-core', () => {
   const directDecorator = (_target, _key, descriptor) => descriptor;
@@ -61,15 +62,59 @@ jest.mock(
   },
 );
 
+jest.mock('@ringcentral-integration/micro-core/src/app/hooks', () => ({
+  useLocale: () => ({ t: (key) => key }),
+}));
+
 jest.mock('../src/app/views/CallHUDView', () => ({
   CallHUDView: class CallHUDView {},
 }));
 
+jest.mock('../src/app/views/SideWidgetView', () => ({
+  SideWidgetView: class SideWidgetView {},
+}));
+
 import { DialerPadView } from '../src/app/views/DialerPadView/DialerPad.view';
 
+function createView({ enableSideWidget = true } = {}) {
+  return new DialerPadView(
+    {},
+    { hasHUDPermission: false },
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    { expanded: false, setExpanded: jest.fn() },
+    { showCallHUD: false },
+    { enabled: enableSideWidget },
+  );
+}
+
+function renderExpandHeader(view) {
+  const ExpandHeader = () => view.ExpandHeader();
+  render(<ExpandHeader />);
+}
+
 describe('DialerPadView', () => {
+  test('shows the side widget toggle when the side widget is enabled', () => {
+    renderExpandHeader(createView({ enableSideWidget: true }));
+
+    expect(
+      document.querySelector('[data-sign="toggleExpanded"]'),
+    ).toBeInTheDocument();
+  });
+
+  test('hides the side widget toggle without enableSideWidget, like legacy', () => {
+    renderExpandHeader(createView({ enableSideWidget: false }));
+
+    expect(document.querySelector('[data-sign="toggleExpanded"]')).toBeNull();
+    expect(screen.queryByText('collapse')).toBeNull();
+  });
+
   test('uses compact tabs in a non-scrolling Phone page container', () => {
-    const view = new DialerPadView({}, {}, {}, {}, {}, {}, {}, {}, {}, {});
+    const view = createView();
     const component = view.component({});
     const tabComponent = React.Children.only(component.props.children);
 

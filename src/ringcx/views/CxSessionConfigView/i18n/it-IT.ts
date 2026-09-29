@@ -1,0 +1,20 @@
+/* eslint-disable */
+export default {
+  voiceConnection: 'Connessione Voice',
+  inboundQueues: 'Code in entrata',
+  skillProfile: 'Profilo competenza',
+  dialGroup: 'Gruppo chiamata',
+  autoAnswer: 'Chiamate con risposta automatica',
+  startSession: 'Avvia sessione',
+  selectQueues: 'Seleziona Code',
+  selectSkillProfile: 'Seleziona Profilo abilità',
+  continue: 'Continua',
+  switchAccount: 'Cambia account',
+  extensionNumber: 'Il tuo numero di telefono',
+  enterYourPhoneNumber: 'Inserisci il tuo numero di telefono',
+  takingCalls: 'Connessione vocale persistente',
+  agent: 'Agente',
+  supervisor: 'Supervisore',
+  none: 'Nessuno',
+  multiple: 'Assegnazioni multiple',
+} as const;

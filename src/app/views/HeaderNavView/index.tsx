@@ -33,7 +33,9 @@ import {
   AppsMd,
   ContactsMd,
   ContactsFilledMd,
+  HeadphonesFilledMd,
 } from '@ringcentral/spring-icon';
+import type { AppFeatures as EmbeddableAppFeatures } from '../../services/AppFeatures';
 import { ThirdParty } from '../../services/ThirdParty';
 import { RoutedSideWidgetView } from '../RoutedSideWidgetView';
 import { t as localT } from './i18n';
@@ -43,6 +45,53 @@ type PrioritizedTab = {
   priority: number;
   tab: NavButtonProps;
 };
+
+const AGENT_TAB_PATH = '/agent';
+
+function isAgentPath(path?: string): boolean {
+  return path === AGENT_TAB_PATH || !!path?.startsWith(`${AGENT_TAB_PATH}/`);
+}
+
+function isTextPath(path?: string): boolean {
+  return (
+    path === '/messages' ||
+    path === '/composeText' ||
+    !!path?.includes('/conversations/')
+  );
+}
+
+function isSettingsPath(path?: string): boolean {
+  return !!path?.startsWith('/settings');
+}
+
+/**
+ * The tabs carry an `active` flag from the modules that declare them, but those
+ * are memoized getters that can hand back a value computed for an earlier
+ * route. The bar owns the whole active state here instead, so one path always
+ * lights exactly one tab.
+ */
+function isTabActive(to: string, path?: string): boolean {
+  if (isAgentPath(path)) {
+    // Agent sub routes such as `/agent/home/dialer` also contain the fragments
+    // the other tabs match on.
+    return to === AGENT_TAB_PATH;
+  }
+  switch (to) {
+    case '/dialer':
+      return !!path?.includes('/dialer');
+    case '/messages':
+      return isTextPath(path);
+    case '/contacts':
+      return !!path?.includes('/contacts');
+    case '/meeting':
+    case '/meeting/schedule':
+      return !!path?.includes('/meeting');
+    case '/settings':
+      return isSettingsPath(path);
+    default:
+      return path === to;
+  }
+}
 
 const remoteTabIconCache = new Map<
   string,
@@ -102,7 +151,7 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
   override getUIFunctions(): UIFunctions<HeaderNavPanelProps> {
     return {
       onChange: (path: string) => {
-        this._routedSideWidgetView.navigateMain(path);
+        void this._routedSideWidgetView.navigateMain(path);
       },
     };
   }
@@ -110,15 +159,19 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
   override getUIProps(): UIProps<HeaderNavPanelProps> {
     const props = super.getUIProps();
     const mainPath = this._routedSideWidgetView.mainPath;
-    if (!mainPath) {
-      return props;
-    }
+    // While a routed page owns the router, the main column renders `mainPath`,
+    // so that is the route the bar represents. A main path that belongs to no
+    // tab would leave the whole bar inactive, so it is ignored.
+    const activePath =
+      mainPath && props.tabs.some(({ to }) => to === mainPath)
+        ? mainPath
+        : props.currentPath;
     return {
       ...props,
-      currentPath: mainPath,
+      currentPath: activePath,
       tabs: props.tabs.map((tab) => ({
         ...tab,
-        active: tab.to === mainPath,
+        active: isTabActive(tab.to, activePath),
       })),
     };
   }
@@ -128,7 +181,6 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
     return {
       ...defaultTabMap.video,
       title: t('video'),
-      active: this._router.currentPath?.includes('/meeting'),
       to: this._genericMeeting.isRCV ? '/meeting' : '/meeting/schedule',
       dataSign: 'videoTab',
     };
@@ -138,7 +190,6 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
   get contactsTab(): NavButtonProps {
     return {
       title: localT('contacts'),
-      active: this._router.currentPath?.includes('/contacts'),
       to: '/contacts',
       dataSign: 'contactsTab',
       symbol: ContactsMd,
@@ -147,8 +198,22 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
   }
 
   @computed
+  get agentTab(): NavButtonProps {
+    return {
+      title: localT('agentTab'),
+      to: AGENT_TAB_PATH,
+      dataSign: 'agentTab',
+      symbol: HeadphonesFilledMd,
+      activeSymbol: HeadphonesFilledMd,
+    };
+  }
+
+  @computed
   get tabs(): NavButtonProps[] {
     const appFeatures = this._appFeatures;
+    const embeddableAppFeatures = appFeatures as
+      | EmbeddableAppFeatures
+      | undefined;
     const showDialPad =
       appFeatures &&
       (appFeatures.isCallingEnabled || appFeatures.hasReadExtensionCallLog);
@@ -160,6 +225,8 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
     const tabs: PrioritizedTab[] = [];
 
     showDialPad && tabs.push({ priority: 10, tab: this.dialTab });
+    embeddableAppFeatures?.showAgentTab &&
+      tabs.push({ priority: 15, tab: this.agentTab });
     showText && tabs.push({ priority: 20, tab: this.textTab });
     showContacts && tabs.push({ priority: 30, tab: this.contactsTab });
     this._thirdParty.customizedTabs.forEach((customizedTab) => {

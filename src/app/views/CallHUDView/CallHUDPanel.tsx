@@ -1,4 +1,3 @@
-import { Hudmd } from '@ringcentral/spring-icon';
 import {
   Accordion,
   AccordionHeader,
@@ -7,6 +6,7 @@ import {
 } from '@ringcentral/spring-ui';
 import React from 'react';
 
+import { SideWidgetPageHeader } from '../SideWidgetView/SideWidgetPageHeader';
 import type { CallHUDPanelProps } from './CallHUD.view.interface';
 import { ExtensionItem } from './ExtensionItem';
 import { SearchAndFilter } from './SearchAndFilter';
@@ -85,6 +85,8 @@ export function CallHUDPanel({
   onAddExtensionForType,
   onRemoveExtension,
   canEdit,
+  showCloseButton,
+  onClose,
 }: CallHUDPanelProps) {
   const extensionListProps = {
     formatPhone,
@@ -115,9 +117,18 @@ export function CallHUDPanel({
 
   return (
     <div
-      className="flex flex-col h-full w-full"
+      className="flex flex-col h-full w-full overflow-hidden"
       data-sign="callHUDPanel"
     >
+      {showCloseButton ? (
+        <SideWidgetPageHeader
+          title={t('callHUD')}
+          onClose={onClose}
+          closeLabel={t('close')}
+          data-sign="callHUDHeader"
+          closeDataSign="callHUDClose"
+        />
+      ) : null}
       <SearchAndFilter
         searchInput={searchInput}
         onSearchInputChange={onSearchInputChange}
@@ -138,6 +149,7 @@ export function CallHUDPanel({
                 <Accordion
                   key={typeItem.id}
                   defaultExpanded
+                  classes={{ root: '!min-w-0' }}
                   header={
                     <AccordionHeader
                       expandIcon

@@ -202,6 +202,7 @@ export type ThirdPartyServiceRegistration = {
   callLoggerHideEditLogButton?: boolean;
   recordingWithToken?: boolean;
   callLogEntityMatcherPath?: string;
+  leadViewerPath?: string;
   callLogPageInputChangedEventPath?: string;
   messageLoggerPath?: string;
   messageLoggerTitle?: string;

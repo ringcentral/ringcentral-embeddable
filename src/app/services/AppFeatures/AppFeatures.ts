@@ -216,6 +216,14 @@ export class AppFeatures extends AppFeaturesBase<EmbeddableFeatureConfiguration>
     );
   }
 
+  get isRingCXEnabled(): boolean {
+    return Boolean(this.config.RingCX && this.hasRingCXPermission);
+  }
+
+  get showAgentTab(): boolean {
+    return this.isRingCXEnabled && this._auth.loggedIn;
+  }
+
   get hasSMSOptOutPermission() {
     return (
       this.config.SMS &&

@@ -1,0 +1,21 @@
+/* eslint-disable */
+export default {
+  noActiveCall: 'Aucun appel actif',
+  pendingDisposition: 'Code de fin d’appel en attente',
+  createCallLog: 'Créer le journal des appels',
+  updateCallLog: 'Mettre à jour le journal des appels',
+  disposition: 'Code de fin d’appel',
+  pleaseSelect: 'Veuillez sélectionner',
+  summary: 'Résumé',
+  summaryEdited: 'Résumé (édité)',
+  summaryPlaceholder: 'Le résumé sera généré ici...',
+  summaryLoading: 'Génération du résumé de l\'appel...',
+  notes: 'Remarques',
+  enterNotes: 'Saisir des notes...',
+  dispositionError: 'Veuillez choisir une disposition avant de soumettre.',
+  notesRequired: 'Des notes sont requises pour cette disposition.',
+  submit: 'Envoyer',
+  callDispositionSuccess: 'Disposition de l\'appel enregistrée avec succès.',
+  callDispositionFailed: 'Échec de l\'enregistrement de la disposition des appels.',
+  callLogNotFound: 'Journal des appels introuvable',
+} as const;

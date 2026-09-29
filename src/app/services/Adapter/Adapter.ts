@@ -21,6 +21,7 @@ import {
   StoragePlugin,
   watch,
   delegate,
+  dynamic,
   Root,
 } from '@ringcentral-integration/next-core';
 import {
@@ -73,13 +74,29 @@ import { getRcmEventTpl, getRcvEventTpl } from '@ringcentral-integration/widgets
 
 import PopupWindowManager from '../../../lib/PopupWindowManager';
 import messageTypes from '../../../lib/Adapter/messageTypes';
+import { FOLDED_APP_WIDTH, getExpandedAppWidth } from './appWidth';
+import {
+  ringCXCommandTypes,
+  ringCXEventTypes,
+  ringCXRequestPaths,
+} from '../../../lib/Adapter/ringCXMessageTypes';
+import { callLogSourceRegistry } from '../CallLogger/CallLogSourceRegistry';
+import { runOnAllPorts } from '../../../lib/runOnAllPorts';
+import type { RingCXCommandBridge } from './RingCXCommandBridge';
 import { parseUri } from '../../../lib/Adapter/parseUri';
 import { isDuplicated } from '../../../lib/isDuplicated';
-import { SideWidgetView } from '../../views/SideWidgetView';
+import {
+  getSideWidgetCallContact,
+  SideWidgetView,
+  type SideWidgetCallInfo,
+} from '../../views/SideWidgetView';
 import type { AdapterOptions } from './AdapterOptions';
 import { resolveLegacyAdapterPath } from './resolveLegacyAdapterPath';
 
 import { SmartNotes } from '../SmartNotes';
+import { isCxRcExtExBridgeCall } from '../ActiveCallControl/is-cx-rc-ext-ex-bridge-call';
+import { RingCX } from '../RingCX';
+import { t as ringCXT } from '../RingCX/i18n';
 import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
 import type { MatchedContactSelection } from '../MatchedContactSelection';
 import type {
@@ -142,6 +159,24 @@ type LegacyPresence = Presence & {
   }): Promise<void>;
 };
 
+type RingCXTelephonyStatus = 'Ringing' | 'CallConnected' | 'NoCall';
+
+type RingCXActiveCallInput = {
+  id?: string;
+  startTime?: string;
+};
+
+/** RingEX presence `telephonyStatus` for each RingCX call lifecycle event. */
+const RINGCX_TELEPHONY_STATUS: Record<
+  'ring' | 'start' | 'end' | 'disposed',
+  RingCXTelephonyStatus | undefined
+> = {
+  ring: 'Ringing',
+  start: 'CallConnected',
+  end: 'NoCall',
+  disposed: undefined,
+};
+
 const SUPPORTED_ATTACHMENT_MIME = new Set([
   'image/jpeg',
   'image/png',
@@ -161,6 +196,8 @@ const SUPPORTED_ATTACHMENT_MIME = new Set([
 ]);
 
 const CALLING_SETTINGS_NOTIFY_DEBOUNCE_MS = 1000;
+const APP_HEIGHT = 540;
+const CX_AGENT_PATH = '/agent';
 const DIAL_PAD_TAB_ID = 'dialPadTabs';
 const MEETING_TAB_ID = 'meetingTabs';
 const STOP_RECORD_DISABLED_MESSAGE =
@@ -245,6 +282,10 @@ function hasResponseStatus(error: unknown, status: number): boolean {
   }
   const response = (error as { response?: { status?: number } }).response;
   return response?.status === status;
+}
+
+function isCxAgentRoute(path: string | undefined): boolean {
+  return path === CX_AGENT_PATH || !!path?.startsWith(`${CX_AGENT_PATH}/`);
 }
 
 function normalizePhoneNumberFormatSetting(
@@ -338,6 +379,8 @@ export class Adapter extends RcModule {
   private _messageTypes: Record<string, string>;
   private _popupWindowManager: PopupWindowManager | null = null;
   private _lastActiveCalls = new Map<string, string>();
+  /** Last `telephonyStatus` posted per RingCX call id, to skip repeated legs. */
+  private _lastRingCXActiveCalls = new Map<string, RingCXTelephonyStatus>();
   private _lastMuteStates = new Map<string, boolean>();
   private _lastMessageThreadSignatures = new Map<string, string>();
   private _lastMessageThreadEntitySignatures = new Map<string, string>();
@@ -354,6 +397,9 @@ export class Adapter extends RcModule {
     threshold: CALLING_SETTINGS_NOTIFY_DEBOUNCE_MS,
   });
   private _customAlertGroup = 'rc-adapter-custom-alert';
+
+  @dynamic('RingCXAdapterBridge')
+  private readonly _ringCXBridge?: RingCXCommandBridge;
 
   constructor(
     protected _root: Root,
@@ -404,6 +450,7 @@ export class Adapter extends RcModule {
     @optional('MonitoredExtensions')
     protected _monitoredExtensions?: MonitoredExtensions,
     @optional('AdapterOptions') protected _adapterOptions?: AdapterOptions,
+    @optional() protected _ringCX?: RingCX,
   ) {
     super();
     if (this._smartNotes) {
@@ -412,6 +459,18 @@ export class Adapter extends RcModule {
     this._storage.enable(this);
     this._messageTypes = messageTypes;
     this._setupClientBridge();
+    if (this._portManager.shared) {
+      this._portManager.onServer(() => this._bindSideWidgetCallEvents());
+    } else {
+      this._bindSideWidgetCallEvents();
+    }
+    watch(
+      this,
+      () => this._router.currentPath,
+      (currentPath: string, previousPath: string | undefined) => {
+        this._dismissExCallUiOnEnterAgent(currentPath, previousPath);
+      },
+    );
   }
 
   @globalStorage
@@ -425,8 +484,8 @@ export class Adapter extends RcModule {
   @globalStorage
   @state
   size: AdapterSize = {
-    width: 300,
-    height: 540,
+    width: FOLDED_APP_WIDTH,
+    height: APP_HEIGHT,
   };
 
   @globalStorage
@@ -557,6 +616,18 @@ export class Adapter extends RcModule {
       ),
       watch(
         this,
+        () => this._sideWidgetView?.minExpandedWidth,
+        () => {
+          // Closing the last tab also folds the drawer; resizing here first
+          // would flash the default expanded width before it folds.
+          if (!this._root.expanded || !this._sideWidgetView?.tabs.length) {
+            return;
+          }
+          this._syncAppSize(true);
+        }
+      ),
+      watch(
+        this,
         () => this._watchAdapterStateValues(),
         () => {
           this._pushAdapterState();
@@ -578,7 +649,6 @@ export class Adapter extends RcModule {
           this._pushLocale();
           this._pushCalls();
           this._pushRingState();
-          this._pushRouteState();
         },
         multipleWatchOptions,
       ),
@@ -769,20 +839,44 @@ export class Adapter extends RcModule {
     };
   }
 
+  /**
+   * Opens a new call's apps in the side widget on the port that owns its tabs.
+   * The client bridge also hears the call, through mirrored events, but tabs
+   * opened only there would be replaced by the server's next tab update.
+   */
+  private _bindSideWidgetCallEvents(): () => void {
+    const stopRing = this._webphoneV2.onCallRing(
+      (session: NormalizedSession) => {
+        if (!this._isCxOffhookWebphoneSession(session)) {
+          this._sideWidgetView?.onCallRing(session);
+        }
+      },
+    );
+    const stopInit = this._webphoneV2.onCallInit(
+      (session: NormalizedSession) => {
+        if (!this._isCxOffhookWebphoneSession(session)) {
+          this._sideWidgetView?.onCallInit(session);
+        }
+      },
+    );
+    return () => {
+      stopRing();
+      stopInit();
+    };
+  }
+
   private _bindWebphoneEvents() {
     this._webphoneV2.onCallRing((session: NormalizedSession) => {
       this._postMessage({
         type: 'rc-call-ring-notify',
         call: this._withContactMatch(session),
       });
-      this._sideWidgetView?.onCallRing(session);
     });
     this._webphoneV2.onCallInit((session: NormalizedSession) => {
       this._postMessage({
         type: 'rc-call-init-notify',
         call: this._withContactMatch(session),
       });
-      this._sideWidgetView?.onCallInit(session);
     });
     this._webphoneV2.onCallStart((session: any) => {
       this._postMessage({
@@ -798,7 +892,6 @@ export class Adapter extends RcModule {
           endTime: Date.now(),
         },
       });
-      this._sideWidgetView?.onCallEnd(session);
     });
     this._webphoneV2.onCallHold((session: any) => {
       this._postMessage({
@@ -1026,13 +1119,37 @@ export class Adapter extends RcModule {
         );
         break;
       case 'rc-adapter-new-call':
+        if (data.callWith === 'ringcx') {
+          void this._newRingCXCall(data.phoneNumber, data.callerId);
+          break;
+        }
         void this._newCall(data.phoneNumber, data.toCall, data.callerId);
         break;
       case 'rc-adapter-auto-populate-conversation':
         void this._autoPopulateConversation(data.text, data.attachments);
         break;
       case 'rc-adapter-control-call':
+        if (data.source === 'ringcx' || data.options?.source === 'ringcx') {
+          void this._controlRingCXCall(
+            data.callAction,
+            data.callId,
+            data.options,
+          );
+          break;
+        }
         void this._controlCall(data.callAction, data.callId, data.options);
+        break;
+      case ringCXCommandTypes.startAgentSession:
+        void this._startRingCXAgentSession();
+        break;
+      case ringCXCommandTypes.endAgentSession:
+        void this._endRingCXAgentSession();
+        break;
+      case ringCXCommandTypes.setAgentState:
+        void this._setRingCXAgentState(data.state);
+        break;
+      case ringCXCommandTypes.dialLead:
+        void this._dialRingCXLead(data.lead, data.destination);
         break;
       case 'rc-adapter-pick-call':
         void this._pickCall(data.extensionId, data.telephonySessionId);
@@ -1239,17 +1356,46 @@ export class Adapter extends RcModule {
         const callLogger = this._callLogger as
           | EmbeddableCallLogger
           | undefined;
-        const call = callLogger
+        const sessionId = data.body.sessionId as string | undefined;
+        const hostCall = callLogger
           ? await callLogger.getCall(
-              data.body.sessionId,
+              sessionId,
               data.body.telephonySessionId,
             )
           : null;
+        const source = (data.body.source as string | undefined) || 'ringcx';
+        const call =
+          hostCall ||
+          (sessionId
+            ? await callLogSourceRegistry.getCall(source, sessionId)
+            : null);
         this._postRCAdapterMessageResponse({
           responseId: data.requestId,
           response: {
             call,
           },
+        });
+        break;
+      }
+      case ringCXRequestPaths.agentSession: {
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: this._ringCXSessionSnapshot(),
+        });
+        break;
+      }
+      case ringCXRequestPaths.dispositions: {
+        if (!this._ringCXBridge || this._ringCX?.stage !== 'ready') {
+          this._answerRingCXNotReady();
+          this._postRCAdapterMessageResponse({
+            responseId: data.requestId,
+            response: { error: 'ringcx agent session is not ready' },
+          });
+          break;
+        }
+        this._postRCAdapterMessageResponse({
+          responseId: data.requestId,
+          response: this._ringCXBridge.getDispositions(data.body?.callId),
         });
         break;
       }
@@ -1402,29 +1548,32 @@ export class Adapter extends RcModule {
     ];
   }
 
+  /**
+   * Call bar inputs, compared by value. The call lists are recomputed with a
+   * new reference on every presence, telephony session, or webphone update,
+   * including RingCX offhook legs that are filtered out of them, so comparing
+   * the arrays themselves re-posts identical call bar messages.
+   */
   private _watchCallBarValues() {
     return [
       this._locale.currentLocale,
-      this._callMonitor.activeRingCalls,
-      this._callMonitor.activeOnHoldCalls,
-      this._callMonitor.otherDeviceCalls,
-      this._callMonitor.activeCurrentCalls,
+      this._callMonitor.activeRingCalls.length,
+      this._callMonitor.activeOnHoldCalls.length,
+      this._callMonitor.otherDeviceCalls.length,
+      this._callMonitor.activeCurrentCalls[0]?.startTime || 0,
       this._callingSettings.callingMode,
       this._webphone.ringSessionId,
       this._presence.telephonyStatus,
     ];
   }
 
+  /**
+   * The route the host sees, not the inputs it is derived from. A call start
+   * or end changes the router path, the call view, and the call lists a few
+   * milliseconds apart, and each of those alone would re-post the same route.
+   */
   private _watchRouteValues() {
-    return [
-      this._router.currentPath,
-      this._syncTabView?.getActive(DIAL_PAD_TAB_ID),
-      this._syncTabView?.getActive(MEETING_TAB_ID),
-      this._callViewState?.view,
-      this._callMonitor.activeCurrentCalls,
-      this._callMonitor.activeRingCalls,
-      this._callMonitor.activeOnHoldCalls,
-    ];
+    return [this._getEffectiveWidgetPath()];
   }
 
   private _watchLoginStatusValues() {
@@ -1528,10 +1677,15 @@ export class Adapter extends RcModule {
     return this._theme.themeType || '';
   }
 
+  /**
+   * Compared by value: `device` is replaced on every SIP (re)registration,
+   * including the reconnect that adds or drops the RingCX Engage roles, even
+   * when the device id is unchanged.
+   */
   private _watchWebphoneStatusValues() {
     return [
       this._webphone.connectionStatus,
-      this._webphone.device,
+      this._webphone.device?.id ?? null,
     ];
   }
 
@@ -1559,7 +1713,14 @@ export class Adapter extends RcModule {
   private _pushAdapterState() {
     this._postMessage({
       type: this._messageTypes.pushAdapterState,
-      size: this.size,
+      // The width follows the layout, not the stored size: the size is
+      // persisted but `Root.expanded` is not, so after a reload that restarts
+      // the app folded, the stored expanded width would widen the frame
+      // around a folded layout.
+      size: {
+        width: this._getAppWidth(this._root.expanded),
+        height: this.size.height,
+      },
       minimized: this.minimized,
       closed: this.closed,
       position: this.position,
@@ -1857,6 +2018,9 @@ export class Adapter extends RcModule {
       if (this._lastActiveCalls.get(key) === signature) {
         return;
       }
+      if (this._isCxRcExtExBridgePresenceCall(call)) {
+        return;
+      }
 
       const activeCall = { ...call };
       Reflect.deleteProperty(activeCall, 'id');
@@ -1876,6 +2040,91 @@ export class Adapter extends RcModule {
       }
     });
     this._lastActiveCalls = nextMap;
+  }
+
+  /**
+   * Close leftover RingEX Available Apps / post-call UI so a CX session does
+   * not keep showing it after the user already left the EX call.
+   *
+   * Only the overlay drawer is cleared. A docked drawer is never closed on its
+   * own, the same as the legacy side drawer; the CX call opens its apps in it.
+   */
+  dismissExCallUiForCxCall(): void {
+    if (!this._root.expanded) {
+      void this._sideWidgetView?.close();
+    }
+    this._dismissExPostCallView();
+  }
+
+  private _dismissExPostCallView(): void {
+    if (this._callViewState?.view !== 'postCall') {
+      return;
+    }
+    this._callViewState._setPostCallView(null);
+    this._callViewState._setView('hidden');
+  }
+
+  /**
+   * Entering the Agent tab is a navigation, not a CX call transition. The side
+   * widget is shared by both tabs, so it must keep the content the user opened
+   * on the Phone tab. Only the leftover RingEX post-call view is dismissed
+   * here; the side widget is still cleared by
+   * {@link dismissExCallUiForCxCall} when a CX call actually starts or is
+   * answered.
+   */
+  private _dismissExCallUiOnEnterAgent(
+    currentPath: string,
+    previousPath: string | undefined,
+  ): void {
+    if (!this._ringCX?.enabled) {
+      return;
+    }
+    if (!isCxAgentRoute(currentPath) || isCxAgentRoute(previousPath)) {
+      return;
+    }
+    this._dismissExPostCallView();
+  }
+
+  private _isCxOffhookWebphoneSession(session: NormalizedSession): boolean {
+    const telephonySessionId = session.partyData?.sessionId;
+    return (
+      session.id === this._webphoneV2.cxOffhookSessionId ||
+      Boolean(
+        telephonySessionId &&
+          this._webphoneV2.cxOffhookTelephonySessionIds.includes(
+            telephonySessionId,
+          ),
+      )
+    );
+  }
+
+  private _isCxRcExtExBridgePresenceCall(call: {
+    direction?: string;
+    from?: string | {
+      phoneNumber?: string;
+      extensionNumber?: string;
+      extensionId?: string | number;
+      name?: string;
+    };
+    to?: string | {
+      phoneNumber?: string;
+      extensionNumber?: string;
+      extensionId?: string | number;
+      name?: string;
+    };
+    toName?: string;
+    telephonySessionId?: string;
+  }): boolean {
+    if (
+      call.telephonySessionId &&
+      this._activeCallControlV2.cxExBridgeHiddenTelephonySessionIds?.includes(
+        call.telephonySessionId,
+      )
+    ) {
+      return true;
+    }
+    const hints = this._ringCX?.exBridgeHints ?? [];
+    return isCxRcExtExBridgeCall({ call, hints });
   }
 
   private _notifyMuteChanges() {
@@ -1929,6 +2178,14 @@ export class Adapter extends RcModule {
         ...this._withContactMatch(session),
       })),
     });
+  }
+
+  /**
+   * Open the host widget if it is closed or minimized.
+   * RingCX uses this when a CX call is answered.
+   */
+  showClientWindow(): void {
+    this._showClientWindow();
   }
 
   private _showClientWindow(): void {
@@ -2047,21 +2304,24 @@ export class Adapter extends RcModule {
     }
 
     await this._composeText.clean();
+    // Request the recipient before navigating, so the compose side widget tab
+    // opens for that contact. Validating the number finishes afterwards.
+    const adding = recipient?.phoneNumber
+      ? this._composeText.addToNumber({
+          phoneNumber: recipient.phoneNumber,
+          name: recipient.name || recipient.phoneNumber,
+        })
+      : phoneNumber
+        ? this._composeText.addToNumber({
+            phoneNumber,
+            name: phoneNumber,
+          })
+        : undefined;
     await this._router.push('/composeText');
 
-    if (recipient?.phoneNumber) {
-      await this._composeText.addToNumber({
-        phoneNumber: recipient.phoneNumber,
-        name: recipient.name || recipient.phoneNumber,
-      });
-    } else if (phoneNumber) {
-      const added = await this._composeText.addToNumber({
-        phoneNumber,
-        name: phoneNumber,
-      });
-      if (!added) {
-        await this._composeText.updateTypingToNumber(phoneNumber);
-      }
+    const added = adding ? await adding : false;
+    if (!added && !recipient?.phoneNumber && phoneNumber) {
+      await this._composeText.updateTypingToNumber(phoneNumber);
     }
 
     if (typeof text === 'string' && text.length > 0) {
@@ -2080,6 +2340,12 @@ export class Adapter extends RcModule {
     callerId?: string,
   ) {
     if (!this._auth.loggedIn || !phoneNumber || !this._call.isIdle) {
+      return;
+    }
+    if (this._ringCX?.hasActiveCall) {
+      this._toast.danger({
+        message: ringCXT('finishRingCXCallFirst'),
+      });
       return;
     }
     if (this._isCallOngoing(phoneNumber)) {
@@ -2797,22 +3063,278 @@ export class Adapter extends RcModule {
     });
   }
 
+  private _getAppWidth(expanded: boolean): number {
+    if (!expanded) return FOLDED_APP_WIDTH;
+    return getExpandedAppWidth(this._sideWidgetView?.minExpandedWidth);
+  }
 
-
-  _onWindowExpanded(expanded: boolean): void {
+  private _syncAppSize(expanded: boolean): void {
     if (!globalThis.window) return;
     const newSize = {
-      width: expanded ? 600 : 300,
-      height: 540,
+      width: this._getAppWidth(expanded),
+      height: APP_HEIGHT,
     };
     void this.setSize(newSize);
     this._postMessage({
       type: this._messageTypes.syncSize,
       size: newSize,
     });
+  }
+
+  /**
+   * Asks the popup window's host to widen the window to fit `width`. The host
+   * only ever grows the window, so this never narrows one the user widened.
+   */
+  requestPopupWindowWidth(width: number): void {
+    if (!globalThis.window) return;
+    this._postMessage({
+      type: this._messageTypes.syncSize,
+      size: { width, height: APP_HEIGHT },
+    });
+  }
+
+  _onWindowExpanded(expanded: boolean): void {
+    if (!globalThis.window) return;
+    this._syncAppSize(expanded);
     this._postMessage({
       type: 'rc-adapter-side-drawer-open-notify',
       open: expanded,
     });
+  }
+
+  /**
+   * RingCX host events originate on the shared server port, which may be a
+   * worker with no host window, so they are relayed to the client ports.
+   */
+  notifyRingCXCall(
+    event: 'ring' | 'start' | 'end' | 'disposed',
+    call: object,
+  ): void {
+    const type = {
+      ring: ringCXEventTypes.callRingNotify,
+      start: ringCXEventTypes.callStartNotify,
+      end: ringCXEventTypes.callEndNotify,
+      disposed: ringCXEventTypes.callDisposedNotify,
+    }[event];
+    this._postRingCXEvent({ type, call });
+    this._notifyRingCXActiveCall(event, call as RingCXActiveCallInput);
+    this._openSideWidgetAppsForRingCXCall(event, call as SideWidgetCallInfo);
+  }
+
+  /**
+   * Posts `rc-active-call-notify` for a RingCX call in the RingEX presence
+   * active-call shape, so a host's call pop works for both. The RingCX EX
+   * bridge leg is filtered out of presence, so the host sees one call.
+   */
+  private _notifyRingCXActiveCall(
+    event: 'ring' | 'start' | 'end' | 'disposed',
+    call: RingCXActiveCallInput,
+  ): void {
+    const telephonyStatus = RINGCX_TELEPHONY_STATUS[event];
+    if (!telephonyStatus || !call.id) {
+      return;
+    }
+    const lastStatus = this._lastRingCXActiveCalls.get(call.id);
+    if (
+      lastStatus === telephonyStatus ||
+      (lastStatus === 'CallConnected' && telephonyStatus === 'Ringing')
+    ) {
+      return;
+    }
+    if (telephonyStatus === 'NoCall') {
+      // Each leg reports its own end, so only the first end of a call that
+      // was announced as active is posted.
+      if (!this._lastRingCXActiveCalls.delete(call.id)) {
+        return;
+      }
+    } else {
+      this._lastRingCXActiveCalls.set(call.id, telephonyStatus);
+    }
+    const startTime = Date.parse(call.startTime ?? '');
+    this._postRingCXEvent({
+      type: 'rc-active-call-notify',
+      call: {
+        ...call,
+        telephonyStatus,
+        startTime: Number.isNaN(startTime) ? Date.now() : startTime,
+        ...(telephonyStatus === 'NoCall' ? { terminationType: 'final' } : {}),
+      },
+    });
+  }
+
+  /**
+   * Shows the registered widget apps for a new CX call, like a RingEX call:
+   * an incoming call when it rings, an outgoing call (with its pinned apps)
+   * when it starts.
+   */
+  private _openSideWidgetAppsForRingCXCall(
+    event: 'ring' | 'start' | 'end' | 'disposed',
+    call: SideWidgetCallInfo,
+  ): void {
+    const outbound = call.direction === 'Outbound';
+    if ((event === 'ring' && !outbound) || (event === 'start' && outbound)) {
+      this._sideWidgetView?.openCallApps(
+        getSideWidgetCallContact(call),
+        outbound,
+      );
+    }
+  }
+
+  notifyRingCXAgentSession(snapshot: object): void {
+    this._postRingCXEvent({
+      type: ringCXEventTypes.agentSessionNotify,
+      ...snapshot,
+    });
+  }
+
+  notifyRingCXAgentState(payload: {
+    state: string;
+    auxState?: string;
+    pendingDisposition: boolean;
+  }): void {
+    this._postRingCXEvent({
+      type: ringCXEventTypes.agentStateNotify,
+      ...payload,
+    });
+  }
+
+  notifyRingCXLead(payload: object): void {
+    this._postRingCXEvent({
+      type: ringCXEventTypes.leadNotify,
+      ...payload,
+    });
+  }
+
+  /**
+   * Posts a server-originated RingCX event to the host page of every tab.
+   * See `runOnAllPorts` for why this is not `@delegate('all' | 'clients')`.
+   */
+  private _postRingCXEvent(message: Record<string, unknown>): void {
+    void runOnAllPorts(
+      this._portManager,
+      this as Adapter,
+      'postRingCXEventOnPort',
+      [message],
+    ).catch((error: unknown) => {
+      this.logger.warn('RingCX event relay failed', { error });
+    });
+  }
+
+  /**
+   * Posts one RingCX event from this port. Public only so `fork()` can run it
+   * on the client ports; use the `notifyRingCX*` methods instead. Inactive
+   * tabs stay silent when inactive-tab call events are disabled.
+   */
+  postRingCXEventOnPort(message: Record<string, unknown>): void {
+    if (this._shouldSuppressCallEvent()) {
+      return;
+    }
+    this._postMessage(message);
+  }
+
+  private _ringCXSessionSnapshot(): object {
+    if (this._ringCXBridge) {
+      return this._ringCXBridge.getAgentSessionSnapshot();
+    }
+    return { status: this._ringCX?.stage ?? 'idle' };
+  }
+
+  private _answerRingCXNotReady(): void {
+    this._toast.warning({ message: ringCXT('agentSessionNotReady') });
+    this._answerRingCXAgentSession();
+  }
+
+  /**
+   * Answers a host command from the tab that received it. Session changes
+   * that follow are broadcast separately by the RingCX bridge.
+   */
+  private _answerRingCXAgentSession(): void {
+    if (this._shouldSuppressCallEvent()) {
+      return;
+    }
+    this._postMessage({
+      type: ringCXEventTypes.agentSessionNotify,
+      ...this._ringCXSessionSnapshot(),
+    });
+  }
+
+  private async _requireRingCXReady(): Promise<RingCXCommandBridge | null> {
+    if (!this._ringCX?.enabled) {
+      this._answerRingCXNotReady();
+      return null;
+    }
+    if (!this._ringCXBridge || this._ringCX.stage !== 'ready') {
+      this._answerRingCXNotReady();
+      return null;
+    }
+    return this._ringCXBridge;
+  }
+
+  private async _newRingCXCall(
+    phoneNumber?: string,
+    callerId?: string,
+  ): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    if (!bridge || !phoneNumber) {
+      return;
+    }
+    await bridge.dialout(phoneNumber, callerId);
+  }
+
+  private async _controlRingCXCall(
+    action?: string,
+    callId?: string,
+    options: ControlCallOptions = {},
+  ): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    if (!bridge || !action) {
+      return;
+    }
+    try {
+      await bridge.controlCall(action, callId, options);
+    } catch (error) {
+      this.logger.warn('RingCX call control failed', { action, error });
+      this._toast.danger({ message: ringCXT('callControlFailed') });
+    }
+  }
+
+  private async _startRingCXAgentSession(): Promise<void> {
+    if (!this._ringCX?.enabled) {
+      this._answerRingCXNotReady();
+      return;
+    }
+    await this._ringCX.startAgentSession();
+  }
+
+  private async _endRingCXAgentSession(): Promise<void> {
+    if (!this._ringCX?.enabled) {
+      this._answerRingCXNotReady();
+      return;
+    }
+    if (!this._ringCX.canEndAgentSession) {
+      this._toast.warning({ message: ringCXT('agentSessionEndBlocked') });
+      this._answerRingCXAgentSession();
+      return;
+    }
+    await this._ringCX.endAgentSession();
+  }
+
+  private async _setRingCXAgentState(state?: string): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    if (!bridge || !state) {
+      return;
+    }
+    await bridge.setAgentState(state);
+  }
+
+  private async _dialRingCXLead(
+    lead?: unknown,
+    destination?: string,
+  ): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    if (!bridge || !lead) {
+      return;
+    }
+    await bridge.dialLead(lead, destination);
   }
 }

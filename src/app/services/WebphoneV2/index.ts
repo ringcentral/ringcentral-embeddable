@@ -9,3 +9,4 @@ export * from './WebphoneApi.interface';
 export * from './WebphoneV2Session';
 export * from './WebphoneV2';
 export * from './Webphone';
+export * from './cxOffhookSip';

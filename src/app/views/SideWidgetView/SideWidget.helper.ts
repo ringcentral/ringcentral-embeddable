@@ -81,6 +81,37 @@ export function getSideWidgetContact(
   } as ThirdPartyWidgetContact;
 }
 
+interface SideWidgetCallParty {
+  extensionNumber?: string;
+  name?: string;
+  phoneNumber?: string;
+}
+
+/** A host-facing call, such as a RingCX call notification. */
+export interface SideWidgetCallInfo {
+  contactMatches?: Array<{ id?: string; name?: string }>;
+  direction?: string;
+  from?: SideWidgetCallParty;
+  to?: SideWidgetCallParty;
+}
+
+/**
+ * Builds the side widget contact of a host-facing call from its remote party
+ * and, when it is unambiguous, its matched contact.
+ */
+export function getSideWidgetCallContact(
+  call: SideWidgetCallInfo,
+): ThirdPartyWidgetContact {
+  const party = call.direction === 'Outbound' ? call.to : call.from;
+  const match =
+    call.contactMatches?.length === 1 ? call.contactMatches[0] : undefined;
+  return {
+    phoneNumber: party?.phoneNumber ?? party?.extensionNumber,
+    name: party?.name,
+    ...match,
+  };
+}
+
 export function isSameSideWidgetContact(
   first?: ThirdPartyWidgetContact | null,
   second?: ThirdPartyWidgetContact | null,

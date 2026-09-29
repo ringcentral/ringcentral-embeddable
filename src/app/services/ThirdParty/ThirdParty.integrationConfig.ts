@@ -91,15 +91,9 @@ export function createThirdPartyIntegrationConfig(
         ...thirdParty.matchedContactEntityTypes,
       ];
     },
-    onViewEntity: (entity, metadata) => {
-      // A "Maybe" display is a guess among several matches. Deep-linking it
-      // would send the app to a record the user never chose, so leave
-      // disambiguation to the match picker shown next to the name.
-      if (metadata?.isMaybeMatch) {
-        return;
-      }
-      return viewEntity(entity);
-    },
+    // A "Maybe" match opens the contact its label names, the same one
+    // clicking the name opens; the match picker next to it still switches.
+    onViewEntity: (entity) => viewEntity(entity),
     // Enables the per-row "view record" button inside the match picker.
     viewExternalEntity: (entity) => viewEntity(entity),
     onCreateEntity: (entity) => {

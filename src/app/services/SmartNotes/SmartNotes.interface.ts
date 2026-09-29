@@ -71,6 +71,27 @@ export interface SmartNoteTranscriptRecord {
   transcript: SmartNoteTranscript;
 }
 
+export interface TelephonySessionsPayload {
+  readonly telephonySessionId: string;
+  readonly parties?: ReadonlyArray<unknown>;
+}
+
+export type TelephonySessionsListener = (
+  payload: TelephonySessionsPayload,
+) => void;
+
+/**
+ * Host-owned telephony-session events from the SharedWorker WSG.
+ *
+ * Used when the plugin authenticates with the host OAuth access token, so it
+ * must not open a second RingCentral websocket.
+ */
+export interface TelephonySessionSubscriptionManager {
+  subscribeTelephonySessions(listener: TelephonySessionsListener): void;
+  unsubscribeTelephonySessions(listener: TelephonySessionsListener): void;
+  dispose(): void;
+}
+
 export interface SmartNoteClientInstance {
   readonly transcriptionStatus: string;
   readonly transcriptions: unknown[];
@@ -81,6 +102,7 @@ export interface SmartNoteClientInstance {
   updateTelephonySessionStatus(status: string): Promise<void> | void;
   on(event: 'statusUpdate', handler: (status: string) => void): void;
   removeAllListeners(): void;
+  dispose?(): Promise<void> | void;
 }
 
 export interface SmartNoteClientConstructor {
@@ -92,7 +114,9 @@ export interface SmartNoteClientConstructor {
     contact: SmartNoteContact;
     smartNoteIframeUri: string;
     callMetaData: SmartNoteCallMetadata;
+    telephonySessionsSubscriptionManager?: TelephonySessionSubscriptionManager;
   }): SmartNoteClientInstance;
+  resetCopilotSdk?(): Promise<void>;
   querySmartNotes(
     sdk: unknown,
     telephonySessionIds: string[],

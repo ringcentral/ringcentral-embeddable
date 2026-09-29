@@ -1,0 +1,22 @@
+/* eslint-disable */
+export default {
+  callHistory: 'Puheluhistoria',
+  noCallHistory: 'Ei puheluhistoriaa',
+  inbound: 'Saapuva',
+  outbound: 'Lähtevät',
+  callsFilterAll: 'Kaikki puhelut',
+  callsFilterOutgoing: 'Lähtevä',
+  callsFilterIncoming: 'Saapuva',
+  noCalls: 'Ei vielä puheluita',
+  noSearchResults: 'Ei hakutuloksia',
+  updateCallLog: 'Päivitä puheluloki',
+  createCallLog: 'Luo puheluloki',
+  dial: 'Soita',
+  yesterday: 'Eilen',
+  unknown: 'Tuntematon',
+  logged: 'Kirjattu lokiin',
+  manual: 'Manuaalinen',
+  loadingMore: 'Ladataan lisää puheluita',
+  loadFailed: 'Ei voitu ladata lisää puheluita',
+  retry: 'Yritä uudelleen',
+} as const;

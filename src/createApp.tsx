@@ -47,6 +47,11 @@ interface UrlParams {
   fromPopup?: boolean;
   mainTab?: boolean;
   enableSideWidget?: boolean;
+  enableRingCX?: boolean;
+  evServer?: string;
+  enableAgentScript?: boolean;
+  enableAudioInitPrompt?: boolean;
+  hideCallNote?: boolean;
   enableVoicemailDrop?: boolean;
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
@@ -101,6 +106,11 @@ function readUrlParams(): UrlParams {
     fromPopup: parseBooleanParam(params.fromPopup),
     mainTab: parseOptionalBooleanParam(params.mainTab),
     enableSideWidget: parseBooleanParam(params.enableSideWidget),
+    enableRingCX: parseBooleanParam(params.enableRingCX),
+    evServer: params.evServer || undefined,
+    enableAgentScript: parseBooleanParam(params.enableAgentScript),
+    enableAudioInitPrompt: parseBooleanParam(params.enableAudioInitPrompt),
+    hideCallNote: parseBooleanParam(params.hideCallNote),
     enableVoicemailDrop: parseBooleanParam(params.enableVoicemailDrop),
     disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
     enableSmartNote: parseBooleanParam(params.enableSmartNote),
@@ -191,6 +201,11 @@ export const createApp = async (
     fromPopup: urlParams.fromPopup,
     mainTab: urlParams.mainTab,
     enableSideWidget: urlParams.enableSideWidget,
+    enableRingCX: urlParams.enableRingCX,
+    evServer: urlParams.evServer,
+    enableAgentScript: urlParams.enableAgentScript,
+    enableAudioInitPrompt: urlParams.enableAudioInitPrompt,
+    hideCallNote: urlParams.hideCallNote,
     enableVoicemailDrop: urlParams.enableVoicemailDrop,
     disableNoiseReduction: urlParams.disableNoiseReduction,
     enableSmartNote: urlParams.enableSmartNote,

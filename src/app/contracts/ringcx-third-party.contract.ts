@@ -1,0 +1,67 @@
+/**
+ * Machine registry for the RingCX third-party contract.
+ * A completeness test should grep the active sources for every value here.
+ */
+export const ringCXThirdPartyContract = {
+  source: 'ringcx',
+  registrationOptions: [
+    'contactMatchPath',
+    'contactMatchTtl',
+    'contactNoMatchTtl',
+    'viewMatchedContactPath',
+    'callLoggerPath',
+    'callLoggerTitle',
+    'showLogModal',
+    'callLogEntityMatcherPath',
+    'activitiesPath',
+    'activityPath',
+    'leadViewerPath',
+  ],
+  events: [
+    'rc-call-ring-notify',
+    'rc-call-start-notify',
+    'rc-call-end-notify',
+    'rc-active-call-notify',
+    'rc-ringcx-call-disposed-notify',
+    'rc-ringcx-agent-session-notify',
+    'rc-ringcx-agent-state-notify',
+    'rc-ringcx-lead-notify',
+  ],
+  commands: [
+    'rc-adapter-new-call',
+    'rc-adapter-control-call',
+    'rc-adapter-ringcx-start-agent-session',
+    'rc-adapter-ringcx-end-agent-session',
+    'rc-adapter-ringcx-set-agent-state',
+    'rc-adapter-ringcx-dial-lead',
+    'rc-adapter-navigate-to',
+    'rc-adapter-logout',
+  ],
+  requestPaths: [
+    '/ringcx/agent-session',
+    '/ringcx/dispositions',
+    '/get-call-log',
+  ],
+  callActions: [
+    'hangup',
+    'hold',
+    'unhold',
+    'mute',
+    'unmute',
+    'record',
+    'startRecord',
+    'stopRecord',
+    'dtmf',
+    'answer',
+    'reject',
+  ],
+  triggerTypes: [
+    'callDisposition',
+    'logForm',
+    'createLog',
+    'editLog',
+    'viewLog',
+    'auto',
+  ],
+  logPageQuery: 'source=ringcx',
+} as const;

@@ -1,0 +1,23 @@
+/* eslint-disable */
+export default {
+  searchAgents: 'Rechercher des agents...',
+  noAgents: 'Aucun agent disponible',
+  available: 'Disponible',
+  unavailable: 'Non disponible',
+  searchContacts: 'Rechercher des contacts...',
+  noContacts: 'Aucun enregistrement trouvé.',
+  enterNumber: 'Entrez le numéro ou le nom',
+  searchingDirectory: 'Recherche…',
+  corporateDirectory: 'Annuaire d’entreprise',
+  extension: 'Poste {extensionNumber}',
+  selectQueueGroup: 'Groupe de file d\'attente',
+  selectQueue: 'Parcours client',
+  noGroups: 'Aucun groupe de files d\'attente disponible',
+  noQueues: 'Aucune file d\'attente disponible',
+  selectAGroup: 'Sélectionnez un groupe',
+  selectAQueue: 'Sélectionnez une file d\'attente',
+  stayOnCall: 'Rester en ligne',
+  cancel: 'Annuler',
+  transfer: 'Transférer',
+  transferToTip: 'Transfert vers : {destination}',
+} as const;

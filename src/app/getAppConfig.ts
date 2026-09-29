@@ -39,6 +39,7 @@ import {
   SpringThemePlugin,
   ThemePlugin,
 } from '@ringcentral-integration/micro-core/src/app/plugins';
+import type { BeforeunloadOptions } from '@ringcentral-integration/micro-core/src/app/services/Beforeunload/Beforeunload.interface';
 import type {
   BrandConfig,
   BrandConfigOptions,
@@ -47,6 +48,7 @@ import type {
 } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   Brand,
+  Beforeunload,
   DateTimeFormat,
   Locale,
   SleepDetector,
@@ -119,6 +121,7 @@ import {
   RcVideo as RcVideoV2,
   TabManager,
   type TabManagerOptions,
+  PopupLayoutFit,
   SmartNotes,
   ThirdParty,
 } from './services';
@@ -152,7 +155,6 @@ import {
 } from './views/CallHistoryView';
 import { HistoryActiveCallsView } from './views/CallHistoryView/HistoryActiveCalls.view';
 import { CallHUDView } from './views/CallHUDView';
-import { ExpandedRouteView } from './views/ExpandedRouteView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
@@ -196,12 +198,15 @@ import {
   ClientInteraction,
   WebphoneMedia,
   WebphoneAlerting,
+  AudioInit,
   NoiseReduction,
   VoicemailDrop,
   ActiveCallControl as ActiveCallControlV2,
+  Call as CallV2,
   CallMonitor as CallMonitorV2,
   WebSocketSubscription,
   RingCentralExtensions as RingCentralExtensionsV2,
+  RingCX,
   Adapter,
   MonitoredExtensions,
   CallQueues as CallQueuesV2,
@@ -220,6 +225,7 @@ import { EMBEDDABLE_CALL_ACTION_OPTIONS } from './views/CallView/Call.view.optio
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
+import type { CxHostIntegration } from './services/RingCX/RingCX.interface';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { createThirdPartyIntegrationConfig } from './services/ThirdParty/ThirdParty.integrationConfig';
 import { CustomizedPageView } from './views/CustomizedPageView';
@@ -232,6 +238,10 @@ import {
 import { VoicemailDropView } from './views/VoicemailDropView';
 import { createSettingsPanel } from './views/SettingsView/createSettingsPanel';
 import { SettingsView as SettingsViewV2 } from './views/SettingsView/Settings.view';
+import { CxAgentSettingsView } from './views/CxAgentSettingsView';
+import { CxAgentTabView } from './views/CxAgentTabView';
+import { AudioInitView } from './views/AudioInitView';
+import { ConnectivityView } from './views/ConnectivityView';
 import {
   ConversationLogger as EmbeddableConversationLogger,
   createConversationLoggerOptions,
@@ -243,6 +253,14 @@ import {
 
 const DEFAULT_CONTACT_MATCH_TTL = 120 * 60 * 1000;
 const DEFAULT_CONTACT_NO_MATCH_TTL = 5 * 60 * 1000;
+
+/**
+ * `Beforeunload` reads the bare `window` global when no origin window is
+ * provided, which throws on the shared worker port. The worker global carries
+ * the same `addEventListener` surface the module uses.
+ */
+const getBeforeunloadWindow = (): Window =>
+  typeof window === 'undefined' ? (globalThis as unknown as Window) : window;
 
 interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   appVersion: string;
@@ -275,6 +293,11 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   enableSmsSettingEvent?: boolean;
   enableTypingTimeTracking?: boolean;
   showMyLocationNumbers?: boolean;
+  enableRingCX?: boolean;
+  evServer?: string;
+  enableAgentScript?: boolean;
+  enableAudioInitPrompt?: boolean;
+  hideCallNote?: boolean;
 }
 
 /**
@@ -311,6 +334,11 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   enableSmsSettingEvent = false,
   enableTypingTimeTracking = false,
   showMyLocationNumbers = false,
+  enableRingCX = false,
+  evServer,
+  enableAgentScript = false,
+  enableAudioInitPrompt = false,
+  hideCallNote = false,
 }: CreateAppEntryOptions<T>) => {
   const { defaultLocale } = brandConfig;
 
@@ -388,6 +416,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       // Routes the incoming ringtone to a tab that has had a user gesture, so
       // the autoplay policy cannot silence it.
       WebphoneAlerting,
+      AudioInit,
       NoiseReduction,
       VoicemailDrop,
       CallingSettings,
@@ -410,8 +439,18 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       Locale,
       Theme,
       Toast,
+      Beforeunload,
+      {
+        provide: 'BeforeunloadOptions',
+        useValue: {
+          originWindow: getBeforeunloadWindow(),
+        } satisfies BeforeunloadOptions,
+      },
       Softphone,
-      Call,
+      {
+        provide: Call,
+        useClass: CallV2,
+      },
       SleepDetector,
       AudioSettings,
       RingtoneConfiguration,
@@ -469,8 +508,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       ActivityMatcher,
       TabManager,
+      PopupLayoutFit,
       SmartNotes,
       ThirdParty,
+      RingCX,
       DoNotContact,
       // views
       {
@@ -611,7 +652,6 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       ParkView,
       ApplicationLogsView,
       CustomizedPageView,
-      ExpandedRouteView,
       ExpandedView,
       FaxDetailsView,
       RoutedSideWidgetView,
@@ -619,6 +659,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       SideWidgetView,
       ThirdPartyBannerView,
       ThirdPartySettingSectionView,
+      AudioInitView,
+      ConnectivityView,
+      CxAgentTabView,
+      CxAgentSettingsView,
       VoicemailDropView,
       VoicemailDropSettingsView,
       CallHUDView,
@@ -819,6 +863,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: 'FeatureConfiguration',
         useValue: {
           NoiseReduction: !disableNoiseReduction,
+          AudioInitPrompt: enableAudioInitPrompt,
+          RingCX: enableRingCX,
           SmartNote: enableSmartNote,
           VoicemailDrop: enableVoicemailDrop,
         } satisfies EmbeddableFeatureConfiguration,
@@ -827,6 +873,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: 'SettingsViewOptions',
         useFactory: (
           voicemailDrop: VoicemailDrop,
+          ringCX: RingCX,
           router: RouterPlugin,
           thirdParty: ThirdParty,
           smartNotes: SmartNotes,
@@ -835,14 +882,47 @@ export const getAppConfig = <T extends typeof createSharedApp>({
             component: createSettingsPanel({
               thirdParty,
               smartNotes,
+              ringCX,
               voicemailDrop,
+              onAgentSessionInfoClick: () => router.push('/settings/agent'),
+              onManualDialSettingsClick: () =>
+                router.push('/settings/agent/manualDial'),
               onThirdPartySectionClick: (sectionId) =>
                 router.push(`/settings/thirdParty/${sectionId}`),
               onVoicemailDropSettingsLinkClick: () =>
                 router.push('/settings/voicemailDrop'),
             }),
           } satisfies SettingsViewOptions),
-        deps: [VoicemailDrop, RouterPlugin, ThirdParty, SmartNotes],
+        deps: [VoicemailDrop, RingCX, RouterPlugin, ThirdParty, SmartNotes],
+      },
+      {
+        provide: 'RingCXOptions',
+        useValue: {
+          enableAgentScript,
+          evServer,
+          hideCallNote,
+        },
+      },
+      // The RingCX chunk reaches the host through this token, so it does not
+      // have to import the host classes into its own bundle.
+      {
+        provide: 'CxHostIntegration',
+        useFactory: (adapter: Adapter, call: Call, ringCX: RingCX): CxHostIntegration => ({
+          get isCallIdle() {
+            return call.isIdle;
+          },
+          showClientWindow: () => adapter.showClientWindow(),
+          registerExBridgeDestination: (destination, directory) => {
+            ringCX.registerExBridgeDestination(destination, directory);
+          },
+          clearExBridgeDestination: (destination: string) => {
+            ringCX.clearExBridgeDestination(destination);
+          },
+          dismissExCallUiForCxCall: () => {
+            adapter.dismissExCallUiForCxCall();
+          },
+        }),
+        deps: [Adapter, Call, RingCX],
       },
       {
         provide: 'SmsConversationsOptions',
@@ -902,10 +982,13 @@ export const getAppConfig = <T extends typeof createSharedApp>({
             onExpand: (expand) => {
               console.log('onExpand expand:', expand);
             },
-            // The popup window is resizable, so the main column grows with it
-            // instead of keeping the fixed widget width.
+            // The popup window is resizable. Folded, the main column fills
+            // it; expanded, the main column keeps a phone-like width and the
+            // side widget takes the rest, rather than splitting the window in
+            // half. The column is still followed by the expanded content in
+            // `SpringAppRootView` while `Root.expanded` is on.
             expandedLayoutMainClass: fromPopup
-              ? 'min-w-[300px] flex-auto'
+              ? 'min-w-[300px] flex-auto [&:has(~[data-sign=expandedContent])]:flex-none [&:has(~[data-sign=expandedContent])]:w-[clamp(300px,32%,400px)]'
               : 'w-[300px] min-w-[300px] max-w-[300px] flex-none',
           } satisfies RootOptions),
       },

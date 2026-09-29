@@ -448,7 +448,7 @@ export function ExtensionItem({
       <ListItem
         data-sign={`extensionItem-${extension.id}`}
         divider
-        size="large"
+        size="small"
         className={isDisabled ? 'opacity-50 pointer-events-none' : ''}
         hoverActions={
           hoverActions.length > 0 ? (

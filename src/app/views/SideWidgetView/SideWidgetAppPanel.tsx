@@ -33,6 +33,7 @@ import type {
 } from '../../services/ThirdParty';
 
 import { getSideWidgetPageInfo } from './SideWidget.helper';
+import { t } from './i18n';
 import type { SideWidgetPageInfo } from './SideWidget.view.interface';
 
 const EMPTY_PAGE_INFO: SideWidgetPageInfo = {
@@ -174,7 +175,7 @@ export function SideWidgetAppPanel({
               size="medium"
               symbol={ArrowLeftMd}
               data-sign="sideWidgetBack"
-              TooltipProps={{ title: 'Back to available apps' }}
+              TooltipProps={{ title: t('backToApps') }}
               onClick={onBack}
             />
           ) : null}
@@ -212,7 +213,7 @@ export function SideWidgetAppPanel({
               symbol={RefreshMd}
               disabled={refreshing}
               data-sign="sideWidgetRefresh"
-              TooltipProps={{ title: 'Reload app' }}
+              TooltipProps={{ title: t('reloadApp') }}
               onClick={async () => {
                 setRefreshing(true);
                 await requestPage({
@@ -234,8 +235,8 @@ export function SideWidgetAppPanel({
               data-sign="sideWidgetPin"
               TooltipProps={{
                 title: isPinned
-                  ? 'Do not open this app in a tab for outgoing calls'
-                  : 'Open this app in a tab for outgoing calls',
+                  ? t('unpinApp')
+                  : t('pinApp'),
               }}
               onClick={onTogglePin}
             />
@@ -248,7 +249,7 @@ export function SideWidgetAppPanel({
                   size="small"
                   symbol={OverflowVerticalMd}
                   data-sign="sideWidgetMore"
-                  TooltipProps={{ title: 'More actions' }}
+                  TooltipProps={{ title: t('moreActions') }}
                   onClick={() => setMenuOpen(true)}
                 />
                 <Menu
@@ -263,7 +264,7 @@ export function SideWidgetAppPanel({
                         onClose();
                       }}
                     >
-                      <MenuItemText primary="Close" />
+                      <MenuItemText primary={t('close')} />
                     </MenuItem>
                   ) : null}
                   {pageInfo.actions.map((action) => (
@@ -291,7 +292,7 @@ export function SideWidgetAppPanel({
                 size="small"
                 symbol={Xmd}
                 data-sign="sideWidgetCloseApp"
-                TooltipProps={{ title: 'Close app tab' }}
+                TooltipProps={{ title: t('closeAppTab') }}
                 onClick={onClose}
               />
             ) : null}
@@ -313,21 +314,21 @@ export function SideWidgetAppPanel({
           >
             <CircularProgressIndicator
               size="medium"
-              progressBarProps={{ 'aria-label': 'Loading app' }}
+              progressBarProps={{ 'aria-label': t('loadingApp') }}
             />
             <Text
               component="span"
               className="typography-mainText text-neutral-b2"
             >
-              Loading...
+              {t('loading')}
             </Text>
           </div>
         ) : loadFailed || !page ? (
           <div className="flex h-full items-center justify-center">
             <EmptyState
               icon={AppsMd}
-              title="Unable to load app"
-              description="The app did not return a supported page."
+              title={t('loadAppFailed')}
+              description={t('unsupportedAppPage')}
             />
           </div>
         ) : (

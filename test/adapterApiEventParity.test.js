@@ -25,7 +25,7 @@ function createAdapterInstance() {
   return new Adapter(
     {},
     { enable: jest.fn() },
-    { shared: true, onClient: jest.fn() },
+    { shared: true, onClient: jest.fn(), onServer: jest.fn() },
     {},
     {},
     {},
@@ -60,7 +60,7 @@ describe('Adapter API and event parity', () => {
     const adapter = new Adapter(
       {},
       { enable: jest.fn() },
-      { shared: true, onClient },
+      { shared: true, onClient, onServer: jest.fn() },
       {},
       {},
       {},
@@ -93,6 +93,82 @@ describe('Adapter API and event parity', () => {
     jest.runAllTimers();
     expect(bindClient).toHaveBeenCalledTimes(1);
     jest.useRealTimers();
+  });
+
+  test('opens call apps in the side widget on the server port only', () => {
+    const onServer = jest.fn();
+    new Adapter(
+      {},
+      { enable: jest.fn() },
+      { shared: true, onClient: jest.fn(), onServer },
+      {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+      {}, {},
+    );
+    expect(onServer).toHaveBeenCalledTimes(1);
+  });
+
+  test('opens call apps for RingEX calls but not for CX off-hook sessions', () => {
+    const handlers = {};
+    const webphone = {
+      cxOffhookSessionId: 'cx-offhook',
+      cxOffhookTelephonySessionIds: [],
+      onCallRing: jest.fn((handler) => {
+        handlers.ring = handler;
+        return jest.fn();
+      }),
+      onCallInit: jest.fn((handler) => {
+        handlers.init = handler;
+        return jest.fn();
+      }),
+    };
+    const sideWidgetView = { onCallRing: jest.fn(), onCallInit: jest.fn() };
+    const adapter = createAdapter({
+      _webphone: webphone,
+      _sideWidgetView: sideWidgetView,
+    });
+
+    const unbind = Adapter.prototype._bindSideWidgetCallEvents.call(adapter);
+    handlers.ring({ id: 'incoming' });
+    handlers.init({ id: 'outgoing' });
+    handlers.ring({ id: 'cx-offhook' });
+
+    expect(sideWidgetView.onCallRing).toHaveBeenCalledTimes(1);
+    expect(sideWidgetView.onCallRing).toHaveBeenCalledWith({ id: 'incoming' });
+    expect(sideWidgetView.onCallInit).toHaveBeenCalledWith({ id: 'outgoing' });
+    expect(typeof unbind).toBe('function');
+  });
+
+  test('leaves side widget tabs out of the client call relay', () => {
+    const handlers = {};
+    const webphone = new Proxy(
+      {},
+      {
+        get: (_target, key) =>
+          typeof key === 'string' && key.startsWith('on')
+            ? (handler) => {
+                handlers[key] = handler;
+                return jest.fn();
+              }
+            : undefined,
+      },
+    );
+    const sideWidgetView = { onCallRing: jest.fn(), onCallInit: jest.fn() };
+    const adapter = createAdapter({
+      _webphone: webphone,
+      _sideWidgetView: sideWidgetView,
+      _postMessage: jest.fn(),
+      _withContactMatch: (session) => session,
+    });
+
+    Adapter.prototype._bindWebphoneEvents.call(adapter);
+    handlers.onCallRing({ id: 'incoming' });
+    handlers.onCallInit({ id: 'outgoing' });
+
+    expect(adapter._postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'rc-call-ring-notify' }),
+    );
+    expect(sideWidgetView.onCallRing).not.toHaveBeenCalled();
+    expect(sideWidgetView.onCallInit).not.toHaveBeenCalled();
   });
 
   test('exposes refreshLoginSession through the Adapter client', async () => {
