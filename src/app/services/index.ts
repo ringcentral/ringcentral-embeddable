@@ -26,6 +26,7 @@ export * from './MonitoredExtensions';
 export * from './CallQueues';
 export * from './ThirdParty';
 export * from './TabManager';
+export * from './PopupLayoutFit';
 export * from './Authentication';
 export * from './Analytics';
 export * from './CallLogger';

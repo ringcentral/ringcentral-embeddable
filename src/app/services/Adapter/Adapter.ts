@@ -74,6 +74,7 @@ import { getRcmEventTpl, getRcvEventTpl } from '@ringcentral-integration/widgets
 
 import PopupWindowManager from '../../../lib/PopupWindowManager';
 import messageTypes from '../../../lib/Adapter/messageTypes';
+import { FOLDED_APP_WIDTH, getExpandedAppWidth } from './appWidth';
 import {
   ringCXCommandTypes,
   ringCXEventTypes,
@@ -195,9 +196,6 @@ const SUPPORTED_ATTACHMENT_MIME = new Set([
 ]);
 
 const CALLING_SETTINGS_NOTIFY_DEBOUNCE_MS = 1000;
-/** Must match the main column width in `RootOptions.expandedLayoutMainClass`. */
-const FOLDED_APP_WIDTH = 300;
-const EXPANDED_APP_WIDTH = 600;
 const APP_HEIGHT = 540;
 const CX_AGENT_PATH = '/agent';
 const DIAL_PAD_TAB_ID = 'dialPadTabs';
@@ -1715,7 +1713,14 @@ export class Adapter extends RcModule {
   private _pushAdapterState() {
     this._postMessage({
       type: this._messageTypes.pushAdapterState,
-      size: this.size,
+      // The width follows the layout, not the stored size: the size is
+      // persisted but `Root.expanded` is not, so after a reload that restarts
+      // the app folded, the stored expanded width would widen the frame
+      // around a folded layout.
+      size: {
+        width: this._getAppWidth(this._root.expanded),
+        height: this.size.height,
+      },
       minimized: this.minimized,
       closed: this.closed,
       position: this.position,
@@ -3060,8 +3065,7 @@ export class Adapter extends RcModule {
 
   private _getAppWidth(expanded: boolean): number {
     if (!expanded) return FOLDED_APP_WIDTH;
-    const minExpandedWidth = this._sideWidgetView?.minExpandedWidth ?? 0;
-    return Math.max(EXPANDED_APP_WIDTH, FOLDED_APP_WIDTH + minExpandedWidth);
+    return getExpandedAppWidth(this._sideWidgetView?.minExpandedWidth);
   }
 
   private _syncAppSize(expanded: boolean): void {
@@ -3074,6 +3078,18 @@ export class Adapter extends RcModule {
     this._postMessage({
       type: this._messageTypes.syncSize,
       size: newSize,
+    });
+  }
+
+  /**
+   * Asks the popup window's host to widen the window to fit `width`. The host
+   * only ever grows the window, so this never narrows one the user widened.
+   */
+  requestPopupWindowWidth(width: number): void {
+    if (!globalThis.window) return;
+    this._postMessage({
+      type: this._messageTypes.syncSize,
+      size: { width, height: APP_HEIGHT },
     });
   }
 

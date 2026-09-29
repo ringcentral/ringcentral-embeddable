@@ -1044,11 +1044,15 @@ class Adapter {
       this._contentFrameContainerEl.style.height = 'calc(100% - 36px)';
       this._contentFrameEl.style.width = '100%';
       this._contentFrameEl.style.height = '100%';
-      if (window.opener) {
+      // The user sizes the popup window, and the app lays out to its width,
+      // so the window only grows to fit the app, such as when expanding, and
+      // is never narrowed back to it. The requested width is the inner width,
+      // so the window frame is added on top.
+      if (window.opener && this._appWidth > window.innerWidth) {
         window.opener.postMessage(
           {
             type: 'rc-adapter-set-popup-window-size',
-            width: this._appWidth,
+            width: this._appWidth + (window.outerWidth - window.innerWidth),
             height: this._appHeight,
           },
           '*',

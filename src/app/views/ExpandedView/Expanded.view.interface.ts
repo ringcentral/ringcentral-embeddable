@@ -25,3 +25,11 @@ export interface ExpandedViewOpenOptions {
 export interface ExpandedViewCloseOptions {
   collapseLayout?: boolean;
 }
+
+export interface ExpandedViewFitOptions {
+  /**
+   * The report comes from a window that has just opened, rather than one the
+   * user resized, so content docked before it opened grows it to fit.
+   */
+  windowOpened?: boolean;
+}

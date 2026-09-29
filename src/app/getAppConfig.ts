@@ -121,6 +121,7 @@ import {
   RcVideo as RcVideoV2,
   TabManager,
   type TabManagerOptions,
+  PopupLayoutFit,
   SmartNotes,
   ThirdParty,
 } from './services';
@@ -507,6 +508,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       ActivityMatcher,
       TabManager,
+      PopupLayoutFit,
       SmartNotes,
       ThirdParty,
       RingCX,
@@ -980,10 +982,13 @@ export const getAppConfig = <T extends typeof createSharedApp>({
             onExpand: (expand) => {
               console.log('onExpand expand:', expand);
             },
-            // The popup window is resizable, so the main column grows with it
-            // instead of keeping the fixed widget width.
+            // The popup window is resizable. Folded, the main column fills
+            // it; expanded, the main column keeps a phone-like width and the
+            // side widget takes the rest, rather than splitting the window in
+            // half. The column is still followed by the expanded content in
+            // `SpringAppRootView` while `Root.expanded` is on.
             expandedLayoutMainClass: fromPopup
-              ? 'min-w-[300px] flex-auto'
+              ? 'min-w-[300px] flex-auto [&:has(~[data-sign=expandedContent])]:flex-none [&:has(~[data-sign=expandedContent])]:w-[clamp(300px,32%,400px)]'
               : 'w-[300px] min-w-[300px] max-w-[300px] flex-none',
           } satisfies RootOptions),
       },
