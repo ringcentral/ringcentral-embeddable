@@ -43,6 +43,15 @@ jest.mock('@ringcentral-integration/micro-phone/src/app/views', () => ({
     getUIProps() {
       return this.baseUIProps;
     }
+
+    async call(params) {
+      this.events.push(['call', params]);
+    }
+
+    async onCallButtonClick(options) {
+      this.events.push(['onCallButtonClick', options]);
+      return true;
+    }
   },
 }));
 jest.mock('@ringcentral-integration/next-core', () => ({
@@ -54,6 +63,9 @@ jest.mock('@ringcentral-integration/next-core', () => ({
 }));
 jest.mock('../src/app/services/DoNotContact', () => ({
   DoNotContact: class DoNotContact {},
+}));
+jest.mock('../src/app/services/MatchedContactSelection', () => ({
+  MatchedContactSelection: class MatchedContactSelection {},
 }));
 
 const { DialerView } = require('../src/app/views/DialerView/Dialer.view');
@@ -71,5 +83,77 @@ describe('DialerView Adapter options', () => {
     expect(view.getUIProps({}).isWebphoneMode).toBe(true);
     view._adapterOptions.enableRingoutCallerId = false;
     expect(view.getUIProps({}).isWebphoneMode).toBe(false);
+  });
+
+  describe('matched-contact hand-off', () => {
+    const createView = (recipient = null) => {
+      const events = [];
+      const view = Object.assign(Object.create(DialerView.prototype), {
+        events,
+        recipient,
+        _matchedContactSelection: {
+          setPendingOutbound: jest.fn(async (pending) => {
+            events.push(['setPendingOutbound', pending]);
+          }),
+        },
+      });
+      return { events, view };
+    };
+
+    const CONTACT = {
+      id: 'contact-1',
+      name: 'Ada Lovelace',
+      phoneNumber: '+16505550100',
+      type: 'personal',
+    };
+
+    test('hands a contact picked in the search on to the new call', async () => {
+      const { events, view } = createView();
+
+      await view.call({ recipient: CONTACT });
+
+      // Before the call, so the connecting page already has the pick.
+      expect(events).toEqual([
+        [
+          'setPendingOutbound',
+          { entityId: 'contact-1', phoneNumber: '+16505550100' },
+        ],
+        ['call', { recipient: CONTACT }],
+      ]);
+    });
+
+    test.each([
+      ['a typed number', { phoneNumber: '6505550100', freeSolo: true }],
+      // Call history and conversations build a recipient without an id and
+      // hand their own pick off first, which must survive.
+      ['a record recipient', { phoneNumber: '+16505550100', name: 'Ada' }],
+    ])('leaves the pending pick alone for %s', async (_label, recipient) => {
+      const { events, view } = createView();
+
+      await view.call({ recipient });
+
+      expect(events).toEqual([['call', { recipient }]]);
+    });
+
+    test('clears a stale pending pick when the keypad dials a typed number', async () => {
+      const { events, view } = createView(null);
+
+      await expect(view.onCallButtonClick({ fromNumber: '+1' })).resolves.toBe(
+        true,
+      );
+
+      expect(events).toEqual([
+        ['setPendingOutbound', null],
+        ['onCallButtonClick', { fromNumber: '+1' }],
+      ]);
+    });
+
+    test('keeps the keypad pick for the call to hand off', async () => {
+      const { events, view } = createView(CONTACT);
+
+      await view.onCallButtonClick({});
+
+      expect(events).toEqual([['onCallButtonClick', {}]]);
+    });
   });
 });

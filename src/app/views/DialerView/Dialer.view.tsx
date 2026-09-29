@@ -36,12 +36,16 @@ import {
 import React, { useRef } from 'react';
 
 import { DoNotContact } from '../../services/DoNotContact';
+import { MatchedContactSelection } from '../../services/MatchedContactSelection';
 import { RingCX } from '../../services/RingCX';
 import { t as ringCXT } from '../../services/RingCX/i18n';
 import type { AdapterOptions } from '../../services/Adapter/AdapterOptions';
 import { DialerPage } from './DialerPage';
 
-/** Adds third-party Do Not Call verification and the RingCX call guard to the Spring dialer. */
+/**
+ * Adds third-party Do Not Call verification, the RingCX call guard and the
+ * matched-contact hand-off to the Spring dialer.
+ */
 @injectable({
   name: 'DialerView',
 })
@@ -58,6 +62,7 @@ export class DialerView extends BaseDialerView {
     protected override _accountInfo: AccountInfo,
     protected override _portManager: PortManager,
     private _doNotContact: DoNotContact,
+    private _matchedContactSelection: MatchedContactSelection,
     @optional() private _ringCX?: RingCX,
     @optional() protected override _webphone?: Webphone,
     @optional() protected override _audioSettings?: AudioSettings,
@@ -87,6 +92,39 @@ export class DialerView extends BaseDialerView {
 
   protected override callVerify = (options: DialerViewCallParams): Promise<boolean> =>
     this._doNotContact.verifyCall(options);
+
+  /**
+   * Passes a contact the user chose to call on to the call about to be placed,
+   * so its number matching several contacts does not bring back a
+   * `Maybe: <name>` guess on the call control page.
+   *
+   * Only a real contact carries an entity id — a number typed into the field
+   * does not, nor do the recipients call history and conversation records
+   * build, which hand their own pick off before calling.
+   */
+  override async call(params: DialerViewCallParams) {
+    const { recipient } = params;
+    if (recipient?.id && recipient.phoneNumber && !recipient.freeSolo) {
+      await this._matchedContactSelection.setPendingOutbound({
+        entityId: recipient.id,
+        phoneNumber: recipient.phoneNumber,
+      });
+    }
+    return super.call(params);
+  }
+
+  /**
+   * The keypad dials whatever the field holds, so a number typed there must
+   * not inherit a pick left pending by an earlier dial that never went out.
+   */
+  override async onCallButtonClick(
+    ...args: Parameters<BaseDialerView['onCallButtonClick']>
+  ) {
+    if (!this.recipient?.id) {
+      await this._matchedContactSelection.setPendingOutbound(null);
+    }
+    return super.onCallButtonClick(...args);
+  }
 
   override get isCallButtonDisabled() {
     const baseDisabled = super.isCallButtonDisabled;
