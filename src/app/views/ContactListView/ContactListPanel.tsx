@@ -91,7 +91,7 @@ export function ContactListPanel({
         </div>
       </div>
       <div className="flex-1 overflow-hidden relative">
-        {showSpinner ? (
+        {showSpinner || (isSearching && contacts.length === 0) ? (
           <div className="flex items-center justify-center h-full">
             <CircularProgressIndicator size="large" color="primary" />
           </div>

@@ -135,7 +135,10 @@ export class ContactListView extends ContactListViewBase {
     const activeTab = _props.activeTab ?? _props.sourceNames[0];
 
     useEffect(() => {
-      if (activeTab) {
+      // The list is filtered on init and whenever a source updates, so opening
+      // the page only filters for another source tab. Filtering clears the
+      // list first, which would flash the empty state on every visit.
+      if (activeTab && activeTab !== this.sourceFilter) {
         uiFunctions.onSearchContact({
           searchSource: activeTab,
           searchString: _props.searchString ?? '',

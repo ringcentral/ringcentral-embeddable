@@ -21,17 +21,35 @@ import type {
 } from '@ringcentral-integration/micro-contacts/src/app/views/ContactDetailsView/ContactDetails.view.interface';
 import { contactReadyStates } from '@ringcentral-integration/micro-contacts/src/app/views/ContactDetailsView/contactReadyStates';
 import { ContactMatcher, Contacts, ContactSearch } from '@ringcentral-integration/micro-contacts/src/app/services';
+import { CALLING_ROUTE_PATH } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   action,
+  autobind,
   delegate,
   injectable,
   optional,
+  Route as RouterRoute,
   RouterPlugin,
   state,
+  Switch,
   useConnector,
+  useLocation,
   useParams,
 } from '@ringcentral-integration/next-core';
+
+import { t } from '../../i18n';
+import {
+  type SideWidgetContentHandle,
+  SideWidgetView,
+} from '../SideWidgetView';
 import { ContactDetailsPanel } from './ContactDetailsPanel';
+
+const CONTACT_DETAILS_ROUTE_PATH = '/contacts/:contactType/:contactId';
+
+interface CallPageContact {
+  id: string;
+  type: string;
+}
 
 interface ContactDetailsRouteParams extends RouteParams {
   returnPath?: string;
@@ -43,6 +61,12 @@ interface ContactDetailsRouteParams extends RouteParams {
 export class ContactDetailsView extends ContactDetailsViewBase {
   @state
   private _returnPath: string | null = null;
+
+  /** The contact shown in the tab opened from the call page. */
+  @state
+  private _callPageContact: CallPageContact | null = null;
+
+  private readonly _callPageContactHandle: SideWidgetContentHandle | null;
 
   constructor(
     protected _modalView: ModalView,
@@ -60,6 +84,7 @@ export class ContactDetailsView extends ContactDetailsViewBase {
     protected _integrationConfig: IntegrationConfig,
     @optional('ContactDetailsViewOptions')
     protected _contactDetailsViewOptions?: ContactDetailsViewOptions,
+    @optional() protected _sideWidgetView?: SideWidgetView,
   ) {
     super(
       _modalView,
@@ -77,6 +102,16 @@ export class ContactDetailsView extends ContactDetailsViewBase {
       _integrationConfig,
       _contactDetailsViewOptions,
     );
+    this._callPageContactHandle =
+      this._sideWidgetView?.createContent({
+        id: 'call-page-contact-details',
+        name: t('contact'),
+        getName: () => t('contact'),
+        scope: 'contact',
+        onBack: () => this._closeCallPageContact(),
+        onClose: () => this._setCallPageContact(null),
+        view: this.CallPageContactDetails,
+      }) ?? null;
   }
 
   @delegate('server')
@@ -86,6 +121,17 @@ export class ContactDetailsView extends ContactDetailsViewBase {
     direct = false,
     returnPath,
   }: ContactDetailsRouteParams): Promise<void> {
+    if (
+      this._callPageContactHandle &&
+      this._router.currentPath === CALLING_ROUTE_PATH
+    ) {
+      // Leaving the call page closes the call on it, so the contact opens in
+      // the side widget while the call page stays in the main column.
+      this._setCallPageContact({ id, type });
+      this._sideWidgetView!.openContent(this._callPageContactHandle);
+      return;
+    }
+    this._closeCallPageContact();
     this._setReturnPath(
       direct ? (returnPath ?? this._router.currentPath) : null,
     );
@@ -97,6 +143,46 @@ export class ContactDetailsView extends ContactDetailsViewBase {
   @action
   private _setReturnPath(returnPath: string | null): void {
     this._returnPath = returnPath;
+  }
+
+  @action
+  private _setCallPageContact(contact: CallPageContact | null): void {
+    this._callPageContact = contact;
+  }
+
+  /** The routed contact page replaces the call page's tab for a contact. */
+  private _closeCallPageContact(): void {
+    if (this._callPageContactHandle && this._callPageContact) {
+      void this._sideWidgetView!.closeTabFromPanel(
+        this._callPageContactHandle.options.id,
+      );
+    }
+  }
+
+  /**
+   * Renders the details for the call page's contact at its contact route,
+   * which the router is not on, so the page reads its params as usual.
+   */
+  @autobind
+  private CallPageContactDetails(): React.ReactElement | null {
+    const location = useLocation();
+    const contact = useConnector(() => this._callPageContact);
+    if (!contact) {
+      return null;
+    }
+    return (
+      <Switch
+        location={{
+          ...location,
+          pathname: `/contacts/${contact.type}/${contact.id}`,
+        }}
+      >
+        <RouterRoute
+          path={CONTACT_DETAILS_ROUTE_PATH}
+          component={this.component}
+        />
+      </Switch>
+    );
   }
 
   @delegate('server')

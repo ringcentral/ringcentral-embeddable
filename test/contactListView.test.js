@@ -115,7 +115,7 @@ describe('ContactListView third-party source sharing', () => {
     ).toHaveLength(1);
   });
 
-  test('filters the active All tab on first render and uses moreMenu tabs', () => {
+  test('keeps the already filtered tab on first render and uses moreMenu tabs', () => {
     const companySource = createContactSource('company');
     const { syncTabComponent, view } = createView({
       activeTab: 'all',
@@ -131,13 +131,50 @@ describe('ContactListView third-party source sharing', () => {
 
     render(<Component />);
 
-    expect(onSearchContact).toHaveBeenCalledWith({
-      searchSource: 'all',
-      searchString: '',
-    });
+    expect(onSearchContact).not.toHaveBeenCalled();
     expect(syncTabComponent).toHaveBeenCalledWith(
       expect.objectContaining({ variant: 'moreMenu' }),
       expect.anything(),
     );
+  });
+
+  test('does not filter again when the page remounts on the same tab', () => {
+    const { view } = createView({ activeTab: 'all' });
+    const onSearchContact = jest.fn();
+    view.getUIFunctions = jest.fn(() => ({
+      onItemSelect: jest.fn(),
+      onSearchContact,
+      setLastPosition: jest.fn(),
+    }));
+    const Component = view.component.bind(view);
+
+    const { unmount } = render(<Component />);
+    unmount();
+    render(<Component />);
+
+    expect(onSearchContact).not.toHaveBeenCalled();
+  });
+
+  test('filters on first render when the active tab is another source', () => {
+    const companySource = createContactSource('company');
+    const { view } = createView({
+      activeTab: 'company',
+      registeredSources: [companySource],
+    });
+    view.searchFilter = 'ann';
+    const onSearchContact = jest.fn();
+    view.getUIFunctions = jest.fn(() => ({
+      onItemSelect: jest.fn(),
+      onSearchContact,
+      setLastPosition: jest.fn(),
+    }));
+    const Component = view.component.bind(view);
+
+    render(<Component />);
+
+    expect(onSearchContact).toHaveBeenCalledWith({
+      searchSource: 'company',
+      searchString: 'ann',
+    });
   });
 });

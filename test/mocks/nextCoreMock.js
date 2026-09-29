@@ -144,6 +144,7 @@ module.exports = {
   applyMethod: jest.fn(),
   createSharedApp: jest.fn(async (config) => config),
   action: directDecorator,
+  autobind: directDecorator,
   computed: methodDecorator,
   delegate: methodDecorator,
   dynamic: methodDecorator,

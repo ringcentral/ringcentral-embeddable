@@ -805,27 +805,30 @@ export class AppView extends RcViewModule {
     );
   }
 
+  /**
+   * A stable component, so a route change does not remount the whole signed-in
+   * shell and the page in it, such as the contact list behind a contact.
+   */
+  @autobind
+  private SignedInShell() {
+    return (
+      <>
+        <this._headerView.component standAlone ContactAvatar={ContactAvatar}>
+          <main className="flex flex-col flex-auto overflow-y-auto h-full overflow-x-hidden">
+            <Switch>{this.routesMap.authentication}</Switch>
+          </main>
+        </this._headerView.component>
+        <this.Footer />
+      </>
+    );
+  }
+
   @autobind
   private MainContent() {
     return (
       <Switch>
         {this.routesMap.default}
-        <RouterRoute
-          path="/"
-          component={() => (
-            <>
-              <this._headerView.component
-                standAlone
-                ContactAvatar={ContactAvatar}
-              >
-                <main className="flex flex-col flex-auto overflow-y-auto h-full overflow-x-hidden">
-                  <Switch>{this.routesMap.authentication}</Switch>
-                </main>
-              </this._headerView.component>
-              <this.Footer />
-            </>
-          )}
-        />
+        <RouterRoute path="/" component={this.SignedInShell} />
       </Switch>
     );
   }
