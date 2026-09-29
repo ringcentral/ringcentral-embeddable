@@ -280,14 +280,16 @@ describe('ConnectingView', () => {
     expect(view.isConnecting).toBe(false);
   });
 
-  test('listens for webphone teardown in the active client when shared', async () => {
+  test('listens for webphone teardown in the worker when shared', async () => {
     const { portManager, view, webphone } = createConnectingView({
       shared: true,
     });
     view.onInitOnce();
 
-    expect(portManager.onClient).toHaveBeenCalledTimes(1);
-    portManager.onClient.mock.calls[0][0]();
+    // lifecycle hooks never run on a client port, so nothing binds there
+    expect(portManager.onClient).not.toHaveBeenCalled();
+    expect(portManager.onServer).toHaveBeenCalledTimes(1);
+    portManager.onServer.mock.calls[0][0]();
     expect(webphone.onCallStart).toHaveBeenCalledTimes(1);
     webphone.end$.next({ id: 'webphone-session-1' });
     await Promise.resolve();

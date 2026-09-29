@@ -92,6 +92,15 @@ export class CallControlView extends CallControlViewBase {
     this._voicemailDropView = voicemailDropView;
     this._smartNotes = smartNotes;
     this._smartNotesView = smartNotesView;
+    // SmartNotes stays pending without the smart notes permission. The call
+    // controls only read it while rendering, so waiting on it would keep this
+    // view, and the connecting view that depends on it, from initializing.
+    // `RcViewModule` inherits this from `RcModule` at runtime only.
+    const readiness = this as unknown as {
+      _ignoreModuleReadiness(dep: object): void;
+    };
+    readiness._ignoreModuleReadiness(smartNotes);
+    readiness._ignoreModuleReadiness(smartNotesView);
   }
 
   private readonly _parkCallAction: CallAction;

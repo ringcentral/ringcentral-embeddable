@@ -36,6 +36,12 @@ jest.mock(
   '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring',
   () => ({
     CallControlView: class CallControlViewBase {
+      ignoredReadinessModules = [];
+
+      _ignoreModuleReadiness(dep) {
+        this.ignoredReadinessModules.push(dep);
+      }
+
       useCallActions() {
         return [{ type: 'hangUp' }];
       }
@@ -114,6 +120,12 @@ function createCallControlView() {
 describe('CallControlView actions', () => {
   beforeEach(() => {
     mockBaseOnAction.mockClear();
+  });
+
+  test('does not wait for smart notes to be ready', () => {
+    const { view, smartNotes, smartNotesView } = createCallControlView();
+
+    expect(view.ignoredReadinessModules).toEqual([smartNotes, smartNotesView]);
   });
 
   test('keeps flip in the action list when no forwarding number is available', () => {

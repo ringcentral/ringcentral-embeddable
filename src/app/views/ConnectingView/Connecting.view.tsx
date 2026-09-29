@@ -99,10 +99,11 @@ export class ConnectingView extends ConnectingViewBase {
   override onInitOnce(): void {
     super.onInitOnce();
     if (this._connectingPortManager.shared) {
+      // Lifecycle hooks never run on a client port, so an `onClient` binding
+      // registered here never fires. The webphone runtime publishes its call
+      // events on the server, which also owns the connecting state.
       this._connectingPortManager.onServer(() => {
         this.bindConnectingCallReady();
-      });
-      this._connectingPortManager.onClient(() => {
         this.bindConnectingCallLifecycle();
       });
       return;

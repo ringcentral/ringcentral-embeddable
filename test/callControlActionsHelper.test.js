@@ -162,12 +162,44 @@ describe('splitCallActions', () => {
     });
   });
 
-  test('always moves flip into the overflow menu', () => {
-    const { visible, overflow } = splitCallActions(
-      createActions(['mute', 'flip']),
-    );
+  test('keeps all nine actions visible, flip included', () => {
+    const types = [
+      'mute',
+      'keypad',
+      'audio',
+      'add',
+      'hold',
+      'transfer',
+      'record',
+      'park',
+      'flip',
+    ];
+    const actions = createActions(types);
 
-    expect(visible.map((action) => action.actionType)).toEqual(['mute']);
+    expect(splitCallActions(actions)).toEqual({
+      visible: actions,
+      overflow: [],
+    });
+  });
+
+  test('moves only the actions beyond nine into the overflow', () => {
+    const types = [
+      'mute',
+      'keypad',
+      'audio',
+      'add',
+      'hold',
+      'transfer',
+      'record',
+      'voicemail',
+      'park',
+      'flip',
+    ];
+    const { visible, overflow } = splitCallActions(createActions(types));
+
+    expect(visible.map((action) => action.actionType)).toEqual(
+      types.slice(0, 9),
+    );
     expect(overflow.map((action) => action.actionType)).toEqual(['flip']);
   });
 

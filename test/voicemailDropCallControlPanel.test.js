@@ -181,22 +181,31 @@ describe('VoicemailDropCallControlPanel', () => {
     expect(screen.queryByTestId('more')).not.toBeInTheDocument();
   });
 
-  test('renders flip in more even when all call actions fit in the grid', () => {
+  test('renders flip in the grid when all nine call actions fit', () => {
     render(
       <VoicemailDropCallControlPanel
         {...createProps([
           { type: 'mute' },
+          { type: 'keypad' },
+          { type: 'audio' },
+          { type: 'add' },
+          { type: 'hold' },
+          { type: 'transfer' },
+          { type: 'record' },
+          { type: 'park' },
           { type: 'flip', disabled: true },
           { type: 'hangUp' },
         ])}
       />,
     );
 
-    expect(screen.getByTestId('actionTypes')).toHaveTextContent('mute');
-    expect(screen.getByTestId('overflowActionTypes')).toHaveTextContent(
+    const actionButtons = screen.getByTestId('actionButtons');
+    expect(renderedActionTypes(actionButtons).slice(-2)).toEqual([
+      'park',
       'flip',
-    );
-    expect(screen.getByTestId('more')).toBeInTheDocument();
+    ]);
+    expect(screen.getByTestId('overflowActionTypes')).toBeEmptyDOMElement();
+    expect(screen.queryByTestId('more')).not.toBeInTheDocument();
   });
 
   test('keeps the voicemail drop button presentation', () => {
