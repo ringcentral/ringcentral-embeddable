@@ -156,7 +156,7 @@ describe("call event mirroring", () => {
     const handler = jest.fn();
     webphone.onCallStart(handler);
 
-    await webphone._mirrorCallEvent(event);
+    await webphone.mirrorCallEvent(event);
 
     // Without this, Adapter's postMessage relay and SmartNotes' hooks — both
     // running in a tab — never fire, because the runtime emits in the worker.
@@ -168,7 +168,7 @@ describe("call event mirroring", () => {
     const handler = jest.fn();
     webphone.onCallStart(handler);
 
-    await webphone._mirrorCallEvent(event);
+    await webphone.mirrorCallEvent(event);
 
     expect(handler).not.toHaveBeenCalled();
   });
@@ -178,7 +178,7 @@ describe("call event mirroring", () => {
     const handler = jest.fn();
     webphone.onCallRing(handler);
 
-    await webphone._mirrorCallEvent({
+    await webphone.mirrorCallEvent({
       type: "callRing",
       session: { id: "wp-1" },
       activeSession: null,
@@ -193,7 +193,7 @@ describe("call event mirroring", () => {
     const ended = [];
     webphone.end$.subscribe((session) => ended.push(session.id));
 
-    await webphone._mirrorCallEvent({ ...event, type: "callEnd" });
+    await webphone.mirrorCallEvent({ ...event, type: "callEnd" });
 
     expect(ended).toEqual(["wp-1"]);
   });

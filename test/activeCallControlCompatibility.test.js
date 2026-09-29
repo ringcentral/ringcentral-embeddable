@@ -207,6 +207,7 @@ describe("ActiveCallControl compatibility routing", () => {
         calls: [{ telephonySessionId: "telephony-session" }],
       },
       _webphone: { sessions: [] },
+      _isCxRcExtExBridgePresenceCall: jest.fn(() => false),
       fetchData,
     };
 

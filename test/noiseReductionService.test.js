@@ -209,13 +209,13 @@ describe('NoiseReduction service', () => {
     // filter on a live call.
     const { service } = createNoiseReduction();
     const applyEnabled = jest.spyOn(service, '_applyEnabledInMainClient');
-    const disableEverywhere = jest
-      .spyOn(service, '_disableEverywhere')
-      .mockResolvedValue(undefined);
+    const disableOnPort = jest
+      .spyOn(service, 'disableOnPort')
+      .mockImplementation(() => undefined);
 
     await service.setEnabled(false);
 
-    expect(disableEverywhere).toHaveBeenCalledTimes(1);
+    expect(disableOnPort).toHaveBeenCalledTimes(1);
     expect(applyEnabled).not.toHaveBeenCalled();
     expect(service.enabled).toBe(false);
   });
@@ -227,7 +227,7 @@ describe('NoiseReduction service', () => {
     service._denoiserMap.set('session', denoiser);
     service._filterNode = filterNode;
 
-    await service._disableEverywhere();
+    service.disableOnPort();
 
     expect(denoiser.disconnect).toHaveBeenCalled();
     expect(filterNode.disable).toHaveBeenCalled();

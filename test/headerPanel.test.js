@@ -39,7 +39,7 @@ describe('HeaderPanel', () => {
 
     expect(screen.getByTestId('embeddableHeaderPanel')).toHaveClass(
       'contents',
-      '[&>div>header>div]:gap-3',
+      '[&>div>header>div]:gap-0',
     );
     expect(BaseHeaderPanel).toHaveBeenCalledWith(
       expect.objectContaining(props),

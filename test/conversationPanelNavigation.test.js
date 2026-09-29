@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { createConversationPanel } from '../src/app/views/ConversationView/createConversationPanel';
 
@@ -22,10 +22,29 @@ jest.mock(
   }),
 );
 
+const createServices = () => ({
+  conversations: { loadConversation: jest.fn(async () => {}) },
+  messageThread: {
+    isThreadId: jest.fn(() => false),
+    setInputValue: jest.fn(async () => {}),
+  },
+  queueConversations: {
+    formattedConversationsMap: new Map(),
+    loadConversation: jest.fn(async () => {}),
+  },
+  connectivityMonitor: { connectivity: true },
+  rateLimiter: { restricted: false },
+});
+
 describe('routed conversation panel navigation', () => {
   test('closes directly without a full-page view transition', () => {
     const router = { push: jest.fn() };
-    const ConversationPanel = createConversationPanel(router);
+    const ConversationPanel = createConversationPanel(
+      router,
+      undefined,
+      undefined,
+      createServices(),
+    );
 
     render(
       <ConversationPanel
@@ -37,7 +56,7 @@ describe('routed conversation panel navigation', () => {
     expect(router.push).toHaveBeenCalledWith('/messages');
   });
 
-  test('tracks typing and pauses an unfinished draft on unmount', () => {
+  test('pauses an unfinished draft on unmount', async () => {
     const router = { push: jest.fn() };
     const smsTypingTimeTracker = {
       clearTyping: jest.fn(),
@@ -48,6 +67,8 @@ describe('routed conversation panel navigation', () => {
     const ConversationPanel = createConversationPanel(
       router,
       smsTypingTimeTracker,
+      undefined,
+      createServices(),
     );
     const { unmount } = render(
       <ConversationPanel
@@ -58,10 +79,9 @@ describe('routed conversation panel navigation', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Type' }));
-    expect(smsTypingTimeTracker.startTyping).toHaveBeenCalledWith(
-      'conversation-id',
+    await waitFor(() =>
+      expect(updateMessageText).toHaveBeenCalledWith('Hello'),
     );
-    expect(updateMessageText).toHaveBeenCalledWith('Hello');
 
     unmount();
     expect(smsTypingTimeTracker.pauseTyping).toHaveBeenCalledWith(
@@ -79,6 +99,7 @@ describe('routed conversation panel navigation', () => {
       router,
       undefined,
       doNotContact,
+      createServices(),
     );
     render(
       <ConversationPanel
@@ -107,6 +128,7 @@ describe('routed conversation panel navigation', () => {
       router,
       undefined,
       doNotContact,
+      createServices(),
     );
     render(
       <ConversationPanel

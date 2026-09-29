@@ -5,9 +5,11 @@ jest.mock('@ringcentral-integration/next-core', () => {
   const directDecorator = (_target, _key, descriptor) => descriptor;
 
   return {
+    ...jest.requireActual('../test/mocks/nextCoreMock'),
     Root: class Root {},
     RouterPlugin: class RouterPlugin {},
     autobind: directDecorator,
+    delegate: () => directDecorator,
     computed: (...args) =>
       args.length === 3 ? directDecorator(...args) : directDecorator,
     injectable: () => (target) => target,
@@ -15,6 +17,10 @@ jest.mock('@ringcentral-integration/next-core', () => {
     useConnector: (selector) => selector(),
   };
 });
+
+jest.mock('@ringcentral-integration/next-widgets/components', () => ({
+  PageHeader: () => null,
+}));
 
 jest.mock('@ringcentral-integration/micro-core/src/app/components', () => ({
   AppHeaderNav: ({ children }) => children,
@@ -76,7 +82,7 @@ jest.mock('../src/app/views/SideWidgetView', () => ({
 
 import { DialerPadView } from '../src/app/views/DialerPadView/DialerPad.view';
 
-function createView({ enableSideWidget = true } = {}) {
+function createView({ enableSideWidget = true, fitsExpandedLayout = true } = {}) {
   return new DialerPadView(
     {},
     { hasHUDPermission: false },
@@ -89,6 +95,7 @@ function createView({ enableSideWidget = true } = {}) {
     { expanded: false, setExpanded: jest.fn() },
     { showCallHUD: false },
     { enabled: enableSideWidget },
+    { fitsExpandedLayout },
   );
 }
 
@@ -111,6 +118,12 @@ describe('DialerPadView', () => {
 
     expect(document.querySelector('[data-sign="toggleExpanded"]')).toBeNull();
     expect(screen.queryByText('collapse')).toBeNull();
+  });
+
+  test('hides the side widget toggle when the window is too narrow to expand', () => {
+    renderExpandHeader(createView({ fitsExpandedLayout: false }));
+
+    expect(document.querySelector('[data-sign="toggleExpanded"]')).toBeNull();
   });
 
   test('uses compact tabs in a non-scrolling Phone page container', () => {

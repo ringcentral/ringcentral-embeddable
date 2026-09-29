@@ -51,7 +51,7 @@ jest.mock(
 );
 
 jest.mock(
-  '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring/CallControlPanel/useCallControlLayout',
+  '../src/app/views/CallView/CallControlView/useCallControlLayout',
   () => ({
     useCallControlLayout: (_call, { footer, main }) => (
       <>
