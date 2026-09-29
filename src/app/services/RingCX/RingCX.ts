@@ -168,6 +168,33 @@ export class RingCX extends RcModule {
     this._auth.addBeforeLogoutHandler(async () => {
       await this.disconnectAgentSessionForSignOut();
     });
+    if (this._portManager.shared) {
+      this._portManager.onClient(() => this._followServerLoadOnClient());
+    }
+  }
+
+  /**
+   * Lifecycle hooks never run on shared worker client ports, and the server
+   * only pushes the chunk to the main client, so a tab opened after the
+   * session started would never register the CX modules and views. Each
+   * client follows the server's synced `loadRequested` instead.
+   *
+   * @returns Disposer run when this port switches to server.
+   */
+  private _followServerLoadOnClient(): () => void {
+    const unwatch = watch(
+      this,
+      () => this.loadRequested,
+      (isLoadRequested: boolean) => {
+        if (isLoadRequested) {
+          void this.ensureLoaded();
+        }
+      },
+    );
+    if (this.loadRequested) {
+      void this.ensureLoaded();
+    }
+    return unwatch;
   }
 
   get enabled(): boolean {
@@ -502,6 +529,13 @@ export class RingCX extends RcModule {
     keepRouterPathOnLoad(this._router);
     await load(this, chunk.getRingCXModules(this._buildRuntimeOptions()));
     this._markLoaded();
+    if (!this._isRuntimeOwner()) {
+      // The CX modules just got their reducers here, while the server may
+      // have run the session for a while; pull its state instead of deriving
+      // a stage from the empty initial one.
+      await this._portManager.portDetector.syncFullState({ forceSync: true });
+      return;
+    }
     this._synchronizeStage();
   }
 

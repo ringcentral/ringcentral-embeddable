@@ -9,6 +9,9 @@ type AnalyticsConfigInput = {
 
 /**
  * Builds the analytics DI options from the public runtime configuration.
+ *
+ * The upstream analytics only loads Mixpanel and sends events when
+ * `enableMixpanel` is set, so it follows whether a Mixpanel key was built in.
  */
 export function getAnalyticsOptions({
   appName,
@@ -20,6 +23,7 @@ export function getAnalyticsOptions({
     appName,
     appVersion,
     analyticsKey,
+    enableMixpanel: !!analyticsKey,
     enableExternalAnalytics: enableAnalytics,
   };
 }

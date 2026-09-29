@@ -12,7 +12,7 @@ import type {
   CxClientCallMapping,
 } from '../CxClient/interfaces';
 import { CxClient } from '../CxClient';
-import { registerOnMainTab } from '../../utils/register-on-main-tab';
+import { registerOnServer } from '../../utils/register-on-server';
 
 function formatSipRequest(data: any) {
   return {
@@ -43,6 +43,9 @@ const SIP_REQUEST_EVENTS: readonly CxClientCallBackValueType[] = [
 /**
  * CxSubscription module - Event subscription system
  * Wraps CxClient callbacks with EventEmitter for easier subscription management
+ *
+ * The SDK callbacks and the subscribers both live on the server port, so SDK
+ * events are emitted where the services handling them run.
  */
 @injectable({
   name: 'CxSubscription',
@@ -58,7 +61,7 @@ class CxSubscription extends RcModule {
     protected portManager: PortManager,
   ) {
     super();
-    registerOnMainTab(this.portManager, () => {
+    registerOnServer(this.portManager, () => {
       this.initialize();
     });
   }
@@ -81,7 +84,8 @@ class CxSubscription extends RcModule {
   private _bindEventToClient(event: CxClientCallBackValueType) {
     this._subscribedEvents.add(event);
     if (this._boundEvents.has(event)) return;
-    if (this.portManager.isMainTab && this.clientReady) {
+    // `clientReady` is only ever set on the server, where the SDK lives.
+    if (this.clientReady) {
       this.cxClient.on(event, (...args: any[]) => {
         if (SIP_REQUEST_EVENTS.includes(event)) {
           const data = args[0]?.data;
@@ -99,7 +103,7 @@ class CxSubscription extends RcModule {
     }
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   private async _bindEventsToClient(events: string[]) {
     for (const event of events) {
       this._bindEventToClient(event as CxClientCallBackValueType);
@@ -108,7 +112,7 @@ class CxSubscription extends RcModule {
 
   /**
    * Emit an event with a value
-   * We transfer the event from main client to server. Other services should handle the event in server.
+   * Other services should handle the event in server.
    */
   @delegate('server')
   async emit<T extends CxClientCallBackValueType, K extends CxClientCallMapping[T]>(

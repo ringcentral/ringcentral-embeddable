@@ -69,12 +69,11 @@ const getNoiseReductionSdkUrl = (
 };
 
 /**
- * Points the vendored RingCX Agent SDK at `window.evAuthHost` instead of the
- * page origin while it is copied. The host serves the widget from its own
- * origin, and `CxClient.ensureSdkLoaded()` sets `window.evAuthHost` before it
- * injects the script. Same rewrite as the RingCX repo webpack config.
+ * The vendored RingCX Agent SDK ships minified, so its copy skips the
+ * minimizer pass. The bundle reads the `evAuthHost` global itself (on the page
+ * or in the shared worker), so it is copied unchanged.
  */
-const applyRingCXAgentSdkRewrite = (options: AppWebpackConfigOptions): void => {
+const markRingCXAgentSdkMinified = (options: AppWebpackConfigOptions): void => {
   const assetsEntry = options.projectConfig.assetsEntries?.find(
     ({ to }) => to === 'assets',
   );
@@ -82,18 +81,8 @@ const applyRingCXAgentSdkRewrite = (options: AppWebpackConfigOptions): void => {
     return;
   }
   Object.assign(assetsEntry, {
-    // The SDK ships minified, so the copy skips the minimizer pass.
     info: ({ absoluteFilename }: { absoluteFilename: string }) =>
       RINGCX_AGENT_SDK_ASSET.test(absoluteFilename) ? { minimized: true } : {},
-    transform: {
-      cache: true,
-      transformer: (content: Buffer, absoluteFilename: string) =>
-        RINGCX_AGENT_SDK_ASSET.test(absoluteFilename)
-          ? content
-              .toString('utf8')
-              .replace(/window\.location\.origin/g, 'window.evAuthHost')
-          : content,
-    },
   });
 };
 
@@ -122,7 +111,7 @@ const getCustomRules = (): RuleSetRule[] => [
 export const getWebpackConfig = (
   options: AppWebpackConfigOptions,
 ): Configuration => {
-  applyRingCXAgentSdkRewrite(options);
+  markRingCXAgentSdkMinified(options);
   const baseWebpackConfig = getBaseWebpackConfig(options);
   const { projectConfig } = options;
   const { appConfig } = projectConfig;
