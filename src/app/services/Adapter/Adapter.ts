@@ -387,6 +387,8 @@ export class Adapter extends RcModule {
   private _isMessageThreadSnapshotReady = false;
   private _isMessageThreadEntitySnapshotReady = false;
   private _lastTelephonySessionSequence = 0;
+  /** The last `open` posted with `rc-adapter-side-drawer-open-notify`. */
+  private _lastSideDrawerOpen: boolean | null = null;
   private _bridgeBindingTimer: ReturnType<typeof setTimeout> | null = null;
   private _isClientBridgeBound = false;
   private _unbindClientBridge: (() => void) | null = null;
@@ -628,6 +630,13 @@ export class Adapter extends RcModule {
       ),
       watch(
         this,
+        () => Boolean(this._sideWidgetView?.isOpen),
+        (isOpen) => {
+          this._onSideWidgetOpenChanged(isOpen);
+        }
+      ),
+      watch(
+        this,
         () => this._watchAdapterStateValues(),
         () => {
           this._pushAdapterState();
@@ -810,6 +819,7 @@ export class Adapter extends RcModule {
     this._bindMessageEvents();
 
     this._pushAdapterState();
+    this._lastSideDrawerOpen = null;
     this._onWindowExpanded(this._root.expanded);
     this._pushPresence();
     this._pushLocale();
@@ -3091,14 +3101,34 @@ export class Adapter extends RcModule {
       type: this._messageTypes.syncSize,
       size: { width, height: APP_HEIGHT },
     });
+    // A window the app cannot resize, such as a Chrome extension's popup
+    // window, only grows when its host handles the drawer opening, as in
+    // legacy, so the host is told before the layout docks.
+    this._notifySideDrawerOpen(true);
   }
 
   _onWindowExpanded(expanded: boolean): void {
     if (!globalThis.window) return;
     this._syncAppSize(expanded);
+    this._notifySideDrawerOpen(expanded);
+  }
+
+  /**
+   * Closing the drawer while the host has yet to grow the window for it
+   * leaves the layout folded, so the host is told it closed.
+   */
+  private _onSideWidgetOpenChanged(isOpen: boolean): void {
+    if (!isOpen && !this._root.expanded) {
+      this._notifySideDrawerOpen(false);
+    }
+  }
+
+  private _notifySideDrawerOpen(open: boolean): void {
+    if (this._lastSideDrawerOpen === open) return;
+    this._lastSideDrawerOpen = open;
     this._postMessage({
       type: 'rc-adapter-side-drawer-open-notify',
-      open: expanded,
+      open,
     });
   }
 

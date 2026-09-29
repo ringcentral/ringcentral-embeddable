@@ -7,6 +7,7 @@ import { dndStatus } from '@ringcentral-integration/commons/modules/Presence';
 import { ObjectMap } from '@ringcentral-integration/core/lib/ObjectMap';
 import { isSafari } from '@ringcentral-integration/utils';
 
+import { MIN_EXPANDED_WINDOW_WIDTH } from '../../app/services/Adapter/appWidth';
 import popWindow from '../popWindow';
 import { parseUri } from './parseUri';
 import messageTypes from './messageTypes';
@@ -96,6 +97,8 @@ class Adapter {
   _translateY: number = 0;
   _appWidth: number = 300;
   _appHeight: number = 500;
+  /** The app width the popup window was last laid out for. */
+  _popupAppWidth: number | null = null;
   _dragStartPosition: any = null;
   _closed: boolean = true;
   _minimized: boolean = true;
@@ -1045,10 +1048,21 @@ class Adapter {
       this._contentFrameEl.style.width = '100%';
       this._contentFrameEl.style.height = '100%';
       // The user sizes the popup window, and the app lays out to its width,
-      // so the window only grows to fit the app, such as when expanding, and
-      // is never narrowed back to it. The requested width is the inner width,
-      // so the window frame is added on top.
-      if (window.opener && this._appWidth > window.innerWidth) {
+      // so the window grows when the app widens, such as when expanding, and
+      // narrows back when the app folds. A window the user narrowed while
+      // expanded is not grown back, and one narrowed until the app folded is
+      // left as is. The requested width is the inner width, so the window
+      // frame is added on top.
+      const previousAppWidth = this._popupAppWidth;
+      this._popupAppWidth = this._appWidth;
+      const grows =
+        (previousAppWidth === null || this._appWidth > previousAppWidth) &&
+        this._appWidth > window.innerWidth;
+      const folds =
+        previousAppWidth !== null &&
+        this._appWidth < previousAppWidth &&
+        window.innerWidth >= MIN_EXPANDED_WINDOW_WIDTH;
+      if (window.opener && (grows || folds)) {
         window.opener.postMessage(
           {
             type: 'rc-adapter-set-popup-window-size',

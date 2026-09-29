@@ -1,13 +1,11 @@
 import {
   fromWatch,
-  fromWatchValue,
   injectable,
   optional,
   PortManager,
   RcModule,
 } from '@ringcentral-integration/next-core';
 import {
-  combineLatest,
   distinctUntilChanged,
   fromEvent,
   map,
@@ -18,7 +16,10 @@ import {
 import { ExpandedView } from '../../views/ExpandedView';
 import { SideWidgetView } from '../../views/SideWidgetView';
 import { Adapter } from '../Adapter';
-import { getExpandedAppWidth } from '../Adapter/appWidth';
+import {
+  getExpandedAppWidth,
+  MIN_EXPANDED_WINDOW_WIDTH,
+} from '../Adapter/appWidth';
 import { TabManager } from '../TabManager';
 
 /**
@@ -28,7 +29,10 @@ import { TabManager } from '../TabManager';
  * but the user sizes the popup window. Squeezing the main column and the side
  * widget into a narrow popup leaves both unusable, so the popup reports
  * whether its width fits, and `ExpandedView` shows the side widget as an
- * overlay over the main column until the window is wide enough again.
+ * overlay over the main column until the window is wide enough again. Tabs
+ * that want a wider panel, such as RingCX's, only set the width the window
+ * grows to, so a window the user narrows keeps both columns down to
+ * `MIN_EXPANDED_WINDOW_WIDTH`.
  *
  * Asking to expand while the window is too narrow, such as opening a call's
  * details, grows the window to fit; narrowing it by hand folds the layout
@@ -85,15 +89,11 @@ export class PopupLayoutFit extends RcModule {
     ) {
       return;
     }
-    const windowWidth$ = fromEvent(window, 'resize').pipe(
-      startWith(null),
-      map(() => window.innerWidth),
-    );
-    const requiredWidth$ = fromWatchValue(this, () => this._requiredWidth);
     this._subscriptions = [
-      combineLatest([windowWidth$, requiredWidth$])
+      fromEvent(window, 'resize')
         .pipe(
-          map(([windowWidth, requiredWidth]) => windowWidth >= requiredWidth),
+          startWith(null),
+          map(() => window.innerWidth >= MIN_EXPANDED_WINDOW_WIDTH),
           distinctUntilChanged(),
         )
         .subscribe((fits) => {

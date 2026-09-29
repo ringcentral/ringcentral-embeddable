@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 jest.mock('@ringcentral-integration/next-core', () => {
   const directDecorator = (_target, _key, descriptor) => descriptor;
@@ -82,8 +82,13 @@ jest.mock('../src/app/views/SideWidgetView', () => ({
 
 import { DialerPadView } from '../src/app/views/DialerPadView/DialerPad.view';
 
-function createView({ enableSideWidget = true, fitsExpandedLayout = true } = {}) {
-  return new DialerPadView(
+function createView({ enableSideWidget = true, expanded = false } = {}) {
+  const root = { expanded, setExpanded: jest.fn().mockResolvedValue(undefined) };
+  const sideWidgetView = {
+    enabled: enableSideWidget,
+    expand: jest.fn().mockResolvedValue(undefined),
+  };
+  const view = new DialerPadView(
     {},
     { hasHUDPermission: false },
     {},
@@ -92,11 +97,11 @@ function createView({ enableSideWidget = true, fitsExpandedLayout = true } = {})
     {},
     {},
     {},
-    { expanded: false, setExpanded: jest.fn() },
+    root,
     { showCallHUD: false },
-    { enabled: enableSideWidget },
-    { fitsExpandedLayout },
+    sideWidgetView,
   );
+  return { view, root, sideWidgetView };
 }
 
 function renderExpandHeader(view) {
@@ -106,7 +111,7 @@ function renderExpandHeader(view) {
 
 describe('DialerPadView', () => {
   test('shows the side widget toggle when the side widget is enabled', () => {
-    renderExpandHeader(createView({ enableSideWidget: true }));
+    renderExpandHeader(createView({ enableSideWidget: true }).view);
 
     expect(
       document.querySelector('[data-sign="toggleExpanded"]'),
@@ -114,20 +119,34 @@ describe('DialerPadView', () => {
   });
 
   test('hides the side widget toggle without enableSideWidget, like legacy', () => {
-    renderExpandHeader(createView({ enableSideWidget: false }));
+    renderExpandHeader(createView({ enableSideWidget: false }).view);
 
     expect(document.querySelector('[data-sign="toggleExpanded"]')).toBeNull();
     expect(screen.queryByText('collapse')).toBeNull();
   });
 
-  test('hides the side widget toggle when the window is too narrow to expand', () => {
-    renderExpandHeader(createView({ fitsExpandedLayout: false }));
+  test('expands through the side widget, so a narrow popup grows to fit', () => {
+    const { view, root, sideWidgetView } = createView({ expanded: false });
+    renderExpandHeader(view);
 
-    expect(document.querySelector('[data-sign="toggleExpanded"]')).toBeNull();
+    fireEvent.click(document.querySelector('[data-sign="toggleExpanded"]'));
+
+    expect(sideWidgetView.expand).toHaveBeenCalledTimes(1);
+    expect(root.setExpanded).not.toHaveBeenCalled();
+  });
+
+  test('collapses the expanded layout', () => {
+    const { view, root, sideWidgetView } = createView({ expanded: true });
+    renderExpandHeader(view);
+
+    fireEvent.click(document.querySelector('[data-sign="toggleExpanded"]'));
+
+    expect(root.setExpanded).toHaveBeenCalledWith(false);
+    expect(sideWidgetView.expand).not.toHaveBeenCalled();
   });
 
   test('uses compact tabs in a non-scrolling Phone page container', () => {
-    const view = createView();
+    const { view } = createView();
     const component = view.component({});
     const tabComponent = React.Children.only(component.props.children);
 

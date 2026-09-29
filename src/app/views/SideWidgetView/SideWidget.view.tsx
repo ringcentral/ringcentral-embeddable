@@ -498,6 +498,20 @@ export class SideWidgetView extends RcViewModule {
   }
 
   /**
+   * Expands the layout, opening the blank drawer when nothing is docked yet.
+   * Going through `ExpandedView` lets a popup window too narrow for the
+   * expanded column grow to fit, then dock the drawer.
+   */
+  @delegate('server')
+  async expand(): Promise<void> {
+    if (this._expandedView.activeContentId === null) {
+      this._expandedView.open(this._expandedHandle);
+      return;
+    }
+    await this._expandedView.expand();
+  }
+
+  /**
    * Applies a panel action on the server port, which owns the tabs; clients
    * follow the synced state. Applied only on a client, the server's next tab
    * update would hand the old tabs back, and applied on both ports, the tabs'

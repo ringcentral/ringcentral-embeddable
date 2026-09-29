@@ -45,6 +45,7 @@ function createSideWidget(overrides = {}) {
       close: jest.fn(function close() {
         this.activeContentId = null;
       }),
+      expand: jest.fn().mockResolvedValue(undefined),
     },
     thirdParty: {
       apps: [
@@ -104,6 +105,27 @@ describe('SideWidgetView', () => {
     expect(view.isOpen).toBe(false);
     dependencies.expandedView.activeContentId = 'side-widget';
     expect(view.isOpen).toBe(true);
+  });
+
+  test('opens the blank drawer to expand with nothing docked', async () => {
+    const { dependencies, expandedHandle, view } = createSideWidget();
+
+    await view.expand();
+
+    // Opened with its default expand, so a narrow popup window grows to fit
+    // and the drawer docks once it does.
+    expect(dependencies.expandedView.open).toHaveBeenCalledWith(expandedHandle);
+    expect(dependencies.expandedView.expand).not.toHaveBeenCalled();
+  });
+
+  test('expands the docked content without reopening it', async () => {
+    const { dependencies, view } = createSideWidget();
+    dependencies.expandedView.activeContentId = 'side-widget';
+
+    await view.expand();
+
+    expect(dependencies.expandedView.expand).toHaveBeenCalledTimes(1);
+    expect(dependencies.expandedView.open).not.toHaveBeenCalled();
   });
 
   test('does not open when disabled or when no apps are registered', () => {
