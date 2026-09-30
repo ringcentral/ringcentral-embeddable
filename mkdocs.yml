@@ -112,6 +112,7 @@ nav:
     - 'Authentication': integration/third-party-auth.md
     - 'Contact activities': integration/contact-activities.md
     - 'Log calls': integration/call-logging.md
+    - 'RingCX': integration/ringcx.md
     - 'Log meetings': integration/log-video-meeting.md
     - 'Log messages': integration/message-logging.md
     - 'Track SMS typing time (new)': integration/sms-typing-time.md
