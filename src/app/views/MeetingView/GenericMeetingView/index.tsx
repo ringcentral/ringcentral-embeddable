@@ -11,11 +11,13 @@ import type {
   GenericMeetingPanelSpringFunctions,
   GenericMeetingViewSpringOptions,
 } from '@ringcentral-integration/micro-meeting/src/app/views/GenericMeetingViewSpring';
+import { track } from '@ringcentral-integration/micro-auth/src/app/services';
 import { Brand, Locale } from '@ringcentral-integration/micro-core/src/app/services';
 import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services/GenericMeeting';
 import type { RcVMeetingModel } from '@ringcentral-integration/commons/interfaces/Rcv.model';
 import { GenericMeetingPanelSpring } from './components/GenericMeetingPanelSpring';
 import { formatMeetingInfo } from '../../../../lib/formatMeetingInfo';
+import { embeddableTrackEvents } from '../../../services/Analytics/embeddableTrackEvents';
 import { MeetingInviteView } from '../MeetingInviteView';
 
 @injectable({
@@ -42,6 +44,10 @@ export class GenericMeetingView extends GenericMeetingViewSpring {
           const result = await this._genericMeeting.schedule(
             this.meeting as RcVMeetingModel,
           );
+          if (!result) {
+            return;
+          }
+          this._trackMeetingScheduled();
           const formattedMeetingInfo = formatMeetingInfo(
             result, this._brand, this._locale.currentLocale, this._genericMeeting.isRCV
           );
@@ -55,6 +61,9 @@ export class GenericMeetingView extends GenericMeetingViewSpring {
       },
     };
   }
+
+  @track(embeddableTrackEvents.meetingScheduled)
+  private _trackMeetingScheduled(): void {}
 
   component(props: any) {
     const navigationState = props.location!.search!;

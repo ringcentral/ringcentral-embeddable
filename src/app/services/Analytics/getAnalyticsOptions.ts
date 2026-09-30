@@ -5,25 +5,30 @@ type AnalyticsConfigInput = {
   appVersion: string;
   analyticsKey: string;
   enableAnalytics: boolean;
+  userAgent?: string;
+  clientId?: string;
 };
 
 /**
  * Builds the analytics DI options from the public runtime configuration.
  *
- * The upstream analytics only loads Mixpanel and sends events when
- * `enableMixpanel` is set, so it follows whether a Mixpanel key was built in.
+ * Mixpanel is sent by the Embeddable analytics transport whenever a Mixpanel
+ * key was built in; `enableAnalytics` only controls the host-visible event.
  */
 export function getAnalyticsOptions({
   appName,
   appVersion,
   analyticsKey,
   enableAnalytics,
+  userAgent,
+  clientId,
 }: AnalyticsConfigInput): EmbeddableAnalyticsOptions {
   return {
     appName,
     appVersion,
     analyticsKey,
-    enableMixpanel: !!analyticsKey,
     enableExternalAnalytics: enableAnalytics,
+    externalAppName: userAgent ? userAgent.split("/")[0] : undefined,
+    externalClientId: clientId,
   };
 }

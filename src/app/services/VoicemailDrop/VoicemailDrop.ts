@@ -1,4 +1,7 @@
-import { AppFeatures } from '@ringcentral-integration/micro-auth/src/app/services';
+import {
+  AppFeatures,
+  track,
+} from '@ringcentral-integration/micro-auth/src/app/services';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   action,
@@ -17,6 +20,7 @@ import type { VoicemailDropMediaHandle } from './VoicemailDrop.interface';
 import { voicemailDropStatus } from '../WebphoneV2/voicemailDropStatus';
 import type { VoicemailMessage } from './VoicemailDrop.interface';
 
+import { embeddableTrackEvents } from '../Analytics/embeddableTrackEvents';
 import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
 
 
@@ -132,16 +136,22 @@ export class VoicemailDrop extends RcModule {
   }
 
   @delegate('server')
+  @track((_that: VoicemailDrop, duration: number) => [
+    embeddableTrackEvents.updateVoicemailDropSilenceDuration,
+    { duration },
+  ])
   async setNoBeepSilenceDuration(duration: number): Promise<void> {
     this._setNoBeepSilenceDuration(duration);
   }
 
   @delegate('server')
+  @track(embeddableTrackEvents.saveVoicemailDropMessage)
   async addVoicemailMessage(voicemailMessage: VoicemailMessage): Promise<void> {
     this._addVoicemailMessage(voicemailMessage);
   }
 
   @delegate('server')
+  @track(embeddableTrackEvents.deleteVoicemailDropMessage)
   async deleteVoicemailMessage(
     voicemailMessage: VoicemailMessage,
   ): Promise<void> {
@@ -261,17 +271,32 @@ export class VoicemailDrop extends RcModule {
     });
     if (!result) {
       updateStatus(voicemailDropStatus.greetingDetectionFailed);
+      this._trackVoicemailDropFailed('greetingDetectionFailed');
       return;
     }
     updateStatus(voicemailDropStatus.sending);
-    await this._sendAudioData({
-      webphoneSession,
-      audioContext,
-      audioBuffer,
-      endCall,
-      updateStatus,
-    });
+    try {
+      await this._sendAudioData({
+        webphoneSession,
+        audioContext,
+        audioBuffer,
+        endCall,
+        updateStatus,
+      });
+    } catch (error) {
+      this._trackVoicemailDropFailed('voicemailDropTerminated');
+      throw error;
+    }
   }
+
+  @track(embeddableTrackEvents.voicemailDropCompleted)
+  private _trackVoicemailDropCompleted(): void {}
+
+  @track((_that: VoicemailDrop, reason: string) => [
+    embeddableTrackEvents.voicemailDropFailed,
+    { reason },
+  ])
+  private _trackVoicemailDropFailed(_reason: string): void {}
 
   async _waitVoicemailGreetingEnd({
     webphoneSession,
@@ -373,7 +398,7 @@ export class VoicemailDrop extends RcModule {
       .getSenders()
       .find((senderItem: RTCRtpSender) => senderItem.track?.kind === 'audio');
     if (!sender) {
-      updateStatus(voicemailDropStatus.failed);
+      updateStatus(voicemailDropStatus.terminated);
       return;
     }
     const destination = audioContext.createMediaStreamDestination();
@@ -383,7 +408,8 @@ export class VoicemailDrop extends RcModule {
     const [audioTrack] = destination.stream.getAudioTracks();
     const originalTrack = sender.track;
     if (!audioTrack || !originalTrack) {
-      updateStatus(voicemailDropStatus.failed);
+      updateStatus(voicemailDropStatus.terminated);
+      this._trackVoicemailDropFailed('terminated');
       return;
     }
     await sender.replaceTrack(audioTrack);
@@ -412,6 +438,7 @@ export class VoicemailDrop extends RcModule {
     webphoneSession.once('disposed', onDisposed);
     source.onended = async () => {
       await cleanup(voicemailDropStatus.finished);
+      this._trackVoicemailDropCompleted();
       await endCall();
     };
   }

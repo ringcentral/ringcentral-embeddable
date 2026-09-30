@@ -1,4 +1,7 @@
-import { AppFeatures } from '@ringcentral-integration/micro-auth/src/app/services';
+import {
+  AppFeatures,
+  track,
+} from '@ringcentral-integration/micro-auth/src/app/services';
 import { AppHeaderNav } from '@ringcentral-integration/micro-core/src/app/components';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import {
@@ -29,6 +32,7 @@ import { CollapseLeftMd, CollapseRightMd, Hudmd } from '@ringcentral/spring-icon
 import { IconButton } from '@ringcentral/spring-ui';
 import React from 'react';
 
+import { embeddableTrackEvents } from '../../services/Analytics/embeddableTrackEvents';
 import { CallHUDView } from '../CallHUDView';
 import { SideWidgetView } from '../SideWidgetView';
 
@@ -68,11 +72,20 @@ export class DialerPadView extends DialerPadViewBase {
 
   private toggleExpanded = () => {
     if (this._root.expanded) {
+      this._trackSideDrawerToggle(false);
       void this._root.setExpanded(false);
       return;
     }
+    this._trackSideDrawerToggle(true);
     void this._sideWidgetView.expand();
   };
+
+  @track((_that: DialerPadView, extended: boolean) => [
+    extended
+      ? embeddableTrackEvents.openSideDrawer
+      : embeddableTrackEvents.closeSideDrawer,
+  ])
+  private _trackSideDrawerToggle(_extended: boolean): void {}
 
   private toggleCallHUD = () => {
     void this._callHUDView.toggleCallHUD();

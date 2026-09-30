@@ -56,6 +56,7 @@ interface UrlParams {
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
+  userAgent?: string;
   defaultAutoLogCallEnabled?: boolean;
   defaultAutoLogMessageEnabled?: boolean;
   disableInactiveTabCallEvent?: boolean;
@@ -115,6 +116,7 @@ function readUrlParams(): UrlParams {
     disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
     enableSmartNote: parseBooleanParam(params.enableSmartNote),
     enableAnalytics: Boolean(params.enableAnalytics),
+    userAgent: params.userAgent || undefined,
     defaultAutoLogCallEnabled: parseBooleanParam(
       params.defaultAutoLogCallEnabled,
     ),
@@ -210,6 +212,7 @@ export const createApp = async (
     disableNoiseReduction: urlParams.disableNoiseReduction,
     enableSmartNote: urlParams.enableSmartNote,
     enableAnalytics: urlParams.enableAnalytics,
+    userAgent: urlParams.userAgent,
     defaultAutoLogCallEnabled: urlParams.defaultAutoLogCallEnabled,
     defaultAutoLogMessageEnabled: urlParams.defaultAutoLogMessageEnabled,
     disableInactiveTabCallEvent: urlParams.disableInactiveTabCallEvent,

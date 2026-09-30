@@ -104,6 +104,7 @@ import type {
   HeaderViewOptions,
 } from '@ringcentral-integration/micro-core/src/app/views';
 import { PersonalMeetingSettingsViewSpring } from '@ringcentral-integration/micro-meeting/src/app/views';
+import { AudioSettingsView } from '@ringcentral-integration/micro-setting/src/app/views';
 import {
   SettingsView as MicroSettingsView,
   type SettingsViewOptions,
@@ -113,6 +114,7 @@ import {
   Authentication,
   EmbeddableAnalytics,
   EmbeddableAuth,
+  EmbeddableTrackProps,
   EmbeddableCallLogger,
   EmbeddableOAuth,
   getAnalyticsOptions,
@@ -147,6 +149,7 @@ import {
   DialerView as MicroPhoneDialerView,
 } from '@ringcentral-integration/micro-phone/src/app/views';
 import { DialerPadView as DialerPadViewV2 } from './views/DialerPadView';
+import { AudioSettingsView as AudioSettingsViewV2 } from './views/AudioSettingsView';
 import { DialerView as DialerViewV2 } from './views/DialerView';
 import { ConnectingView as ConnectingViewV2 } from './views/ConnectingView';
 import {
@@ -209,6 +212,7 @@ import {
   RingCX,
   Adapter,
   MonitoredExtensions,
+  CallQueueManagement as CallQueueManagementV2,
   CallQueues as CallQueuesV2,
   CallViewState as CallViewStateV2,
   MatchedContactSelection,
@@ -285,6 +289,7 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
+  userAgent?: string;
   defaultAutoLogCallEnabled?: boolean;
   defaultAutoLogMessageEnabled?: boolean;
   disableInactiveTabCallEvent?: boolean;
@@ -326,6 +331,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   disableNoiseReduction = false,
   enableSmartNote = false,
   enableAnalytics = false,
+  userAgent,
   defaultAutoLogCallEnabled = false,
   defaultAutoLogMessageEnabled = false,
   disableInactiveTabCallEvent = false,
@@ -386,6 +392,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: Analytics,
         useClass: EmbeddableAnalytics,
       },
+      EmbeddableTrackProps,
       Client,
       {
         provide: Auth,
@@ -535,6 +542,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useClass: DialerPadViewV2,
       },
       {
+        provide: AudioSettingsView,
+        useClass: AudioSettingsViewV2,
+      },
+      {
         provide: MicroPhoneCallsListView,
         useClass: CallsListViewV2,
       },
@@ -642,7 +653,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           enableV2Api: true,
         } satisfies RcVideoOptions,
       },
-      CallQueueManagement,
+      {
+        provide: CallQueueManagement,
+        useClass: CallQueueManagementV2,
+      },
       {
         provide: CallQueues,
         useClass: CallQueuesV2,
@@ -791,6 +805,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           appVersion,
           analyticsKey,
           enableAnalytics,
+          userAgent,
+          clientId: sdkConfig.clientId,
         }),
       },
       {
