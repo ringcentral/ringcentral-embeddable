@@ -425,6 +425,11 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
               onSettingChange={onThirdPartySettingChange}
             />
           </Section>
+          {hasRenderableContent(agentSettings) ? (
+            <Section label={appT('agent')} data-sign="agent-settings-group">
+              {agentSettings}
+            </Section>
+          ) : null}
           <ThirdPartySettings
             {...standaloneThirdPartySettingsProps}
             minimumOrder={LEGACY_GROUP_ORDER.general}
@@ -502,6 +507,23 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
               ) : null}
             </Section>
           )}
+          {showPresenceSettings && dndStatus && userStatus ? (
+            <Section data-sign="presence-settings-group">
+              <PresenceSetting
+                dndStatus={dndStatus}
+                presenceStatus={userStatus}
+                isCallQueueMember={isCallQueueMember}
+                setAvailable={setAvailable}
+                setBusy={setBusy}
+                setDoNotDisturb={setDoNotDisturb}
+                setInvisible={setInvisible}
+                toggleAcceptCallQueueCalls={toggleAcceptCallQueueCalls}
+                showPresenceSettings={openPresenceSettings}
+                enableAcceptQueueCallsControl={enableAcceptQueueCallsControl}
+                onCallQueueManagementClick={onCallQueueManagementClick}
+              />
+            </Section>
+          ) : null}
           <ThirdPartySettings
             {...standaloneThirdPartySettingsProps}
             minimumOrder={LEGACY_GROUP_ORDER.phone}
@@ -529,33 +551,11 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
             minimumOrder={LEGACY_GROUP_ORDER.audio}
             maximumOrder={LEGACY_GROUP_ORDER.presence}
           />
-          {showPresenceSettings && dndStatus && userStatus ? (
-            <Section data-sign="presence-settings-group">
-              <PresenceSetting
-                dndStatus={dndStatus}
-                presenceStatus={userStatus}
-                isCallQueueMember={isCallQueueMember}
-                setAvailable={setAvailable}
-                setBusy={setBusy}
-                setDoNotDisturb={setDoNotDisturb}
-                setInvisible={setInvisible}
-                toggleAcceptCallQueueCalls={toggleAcceptCallQueueCalls}
-                showPresenceSettings={openPresenceSettings}
-                enableAcceptQueueCallsControl={enableAcceptQueueCallsControl}
-                onCallQueueManagementClick={onCallQueueManagementClick}
-              />
-            </Section>
-          ) : null}
           <ThirdPartySettings
             {...standaloneThirdPartySettingsProps}
             minimumOrder={LEGACY_GROUP_ORDER.presence}
             maximumOrder={LEGACY_GROUP_ORDER.logging}
           />
-          {hasRenderableContent(agentSettings) ? (
-            <Section label={appT('agent')} data-sign="agent-settings-group">
-              {agentSettings}
-            </Section>
-          ) : null}
           {showLogSection && (
             <Section
               label={logGroupLabel}
