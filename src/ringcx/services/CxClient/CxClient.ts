@@ -13,7 +13,6 @@ import { EventEmitter } from 'events';
 import { AGENT_TYPES, messageTypes } from '../../enums';
 import { CxTypeError } from '../../lib/CxTypeError';
 import { _encodeSymbol } from '../../lib/constant';
-import { registerOnMainTab } from '../../utils/register-on-main-tab';
 import { evStatus, CxCallbackTypes } from './enums';
 import type {
   ActivityDispositionInfo,
@@ -54,7 +53,7 @@ import type {
 import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { Webphone } from '../../../app/services/WebphoneV2';
 import { buildSoftphoneSipInfo } from './buildSoftphoneSipInfo';
-import { getAssetBaseUrl } from '../../../lib/getAssetBaseUrl';
+import { loadAgentSdk } from './loadAgentSdk';
 import type {
   CxAgentIdentity,
   CxClientServiceOptions,
@@ -65,15 +64,6 @@ import type {
 } from './CxClient.interface';
 import type { ReconnectSnapshot as CxReconnectSnapshot } from '../../utils/reconcileReconnectState';
 import type { StoredEvSession } from '../../utils/canRejoinEvSession';
-
-const AGENT_SDK_PATH = '/assets/ringcx/agentLibrary.js';
-
-declare global {
-  interface Window {
-    AgentSDK: any;
-    evAuthHost?: string;
-  }
-}
 
 type ListenerType =
   (typeof CxCallbackTypes)['OPEN_SOCKET' | 'CLOSE_SOCKET' | 'LOGIN'];
@@ -109,6 +99,12 @@ const SDK_STORAGE_PREFIX = 'agentSDK:';
  */
 const SESSION_SAVED_AT_KEY = '__evSessionSavedAt__';
 
+/** Feature flag service domains `@ringcx/shared` reads from SDK storage. */
+const FFS_DOMAIN_DEFAULTS: Readonly<Record<string, string>> = {
+  FFS_DOMAIN_INITIAL: 'https://ffs.ringcentral.com',
+  FFS_DOMAIN_EXTERNAL: 'https://ffs.ringcentral.com',
+};
+
 type Listener<
   T extends keyof CxClientCallMapping,
   U extends CxClientCallMapping = CxClientCallMapping,
@@ -117,6 +113,10 @@ type Listener<
 /**
  * CxClient module - SDK wrapper for Engage Voice Agent Library
  * Handles WebSocket connections, SIP, and call operations
+ *
+ * The SDK lives on the server port: the shared worker in worker mode, so one
+ * agent socket serves every tab and survives main tab changes, and the server
+ * tab otherwise. Every method that touches the SDK is delegated there.
  */
 @injectable({
   name: 'CxClient',
@@ -144,7 +144,6 @@ class CxClient extends RcModule {
    * signal that its queued teardown reached the server late.
    */
   private _latestSipUaId: string | null = null;
-  private _sdkLoadPromise: Promise<void> | null = null;
 
   @state
   appStatus: string = evStatus.START;
@@ -190,27 +189,32 @@ class CxClient extends RcModule {
       closeResponse();
       this._eventEmitter.emit(CxCallbackTypes.CLOSE_SOCKET);
     };
-    // Used for toggle auth host about Engage Voice backend.
+    // Used for toggle auth host about Engage Voice backend. The shared worker
+    // has no page storage, so in worker mode use the `evServer` option.
     if (typeof window !== 'undefined' && window.localStorage) {
       const authHost = window.localStorage.getItem('__authHost__');
       if (authHost) {
         this._options.authHost = authHost;
       }
     }
-    registerOnMainTab(this._portManager, () => {
-      this._initialize();
-    });
   }
 
-  _initialize() {
-    const ffsDomain = localStorage.getItem('FFS_DOMAIN_INITIAL');
-    if (!ffsDomain) {
-      localStorage.setItem('FFS_DOMAIN_INITIAL', 'https://ffs.ringcentral.com');
+  /**
+   * The storage the SDK and `@ringcx/shared` persist into: the page
+   * localStorage on a tab, an in-memory storage in the shared worker.
+   */
+  private get _sdkStorage(): Storage | null {
+    return globalThis.AgentSDK?.shared?.localStorage ?? null;
+  }
+
+  private _applyFfsDomainDefaults(): void {
+    const storage = this._sdkStorage;
+    if (!storage) {
+      return;
     }
-    const ffsExternal = localStorage.getItem('FFS_DOMAIN_EXTERNAL');
-    if (!ffsExternal) {
-      localStorage.setItem('FFS_DOMAIN_EXTERNAL', 'https://ffs.ringcentral.com');
-    }
+    Object.entries(FFS_DOMAIN_DEFAULTS)
+      .filter(([key]) => !storage.getItem(key))
+      .forEach(([key, value]) => storage.setItem(key, value));
   }
 
   addListener<T extends ListenerType>(type: T, listener: Listener<T>) {
@@ -228,7 +232,7 @@ class CxClient extends RcModule {
     this._eventEmitter.removeListener(type, listener);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async loadCurrentCall(): Promise<CxBaseCall | void> {
     return new Promise<CxBaseCall | void>((resolve) => {
       this._sdk.loadCurrentCall(resolve);
@@ -258,7 +262,7 @@ class CxClient extends RcModule {
    * The server's authoritative view of the agent, captured from the most
    * recent reconnect login response.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async getReconnectSnapshot(): Promise<CxReconnectSnapshot> {
     const model = this._uiModel;
     const connectionSettings = model?.connectionSettings ?? {};
@@ -280,7 +284,7 @@ class CxClient extends RcModule {
    * connection out. The socket watchdog samples this snapshot to detect that
    * zombie state and force the reconnect early.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async getSocketDiagnostics(): Promise<CxSocketDiagnostics> {
     const model = this._uiModel;
     const lastAlive = model?.lastAlive ?? null;
@@ -297,10 +301,7 @@ class CxClient extends RcModule {
   }
 
   private _rememberSessionTimestamp(): void {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      return;
-    }
-    window.localStorage.setItem(SESSION_SAVED_AT_KEY, String(Date.now()));
+    this._sdkStorage?.setItem(SESSION_SAVED_AT_KEY, String(Date.now()));
   }
 
   /**
@@ -309,13 +310,14 @@ class CxClient extends RcModule {
    * server-side session is still fresh enough for a socket-level rejoin to be
    * worth attempting.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async getStoredSession(): Promise<StoredEvSession | null> {
-    if (typeof window === 'undefined' || !window.localStorage) {
+    const storage = this._sdkStorage;
+    if (!storage) {
       return null;
     }
     const read = (key: string): string => {
-      const raw = window.localStorage.getItem(`${SDK_STORAGE_PREFIX}${key}`);
+      const raw = storage.getItem(`${SDK_STORAGE_PREFIX}${key}`);
       if (!raw) return '';
       try {
         return String(JSON.parse(raw));
@@ -328,9 +330,7 @@ class CxClient extends RcModule {
     if (!hashCode || !agentId) {
       return null;
     }
-    const savedAt = Number(
-      window.localStorage.getItem(SESSION_SAVED_AT_KEY) ?? 0,
-    );
+    const savedAt = Number(storage.getItem(SESSION_SAVED_AT_KEY) ?? 0);
     return { agentId, hashCode, savedAt };
   }
 
@@ -348,7 +348,7 @@ class CxClient extends RcModule {
    *
    * Returns false when a fresh login is the only option.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async prepareSessionRejoin(hashCode: string): Promise<boolean> {
     const model = this._uiModel;
     if (!model || !hashCode) {
@@ -371,7 +371,7 @@ class CxClient extends RcModule {
    * agent the server has parked in pending disposition with no call the client
    * can dispose.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async forceClearPendingDisposition(sessionId = 1): Promise<void> {
     this.logger.warn('forceClearPendingDisposition~~', { sessionId });
     await this._sdk.hangup(sessionId, true);
@@ -381,7 +381,7 @@ class CxClient extends RcModule {
     return this._sdk.getCurrentCall();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async getCurrentCall(): Promise<CxBaseCall | void> {
     return this._sdk.getCurrentCall();
   }
@@ -410,45 +410,12 @@ class CxClient extends RcModule {
     }
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async ensureSdkLoaded(): Promise<void> {
-    if (typeof window === 'undefined') {
-      throw new Error('The RingCX Agent SDK requires a browser client');
-    }
-    window.evAuthHost = this._options.authHost;
-    if (window.AgentSDK) return;
-    if (this._sdkLoadPromise) return this._sdkLoadPromise;
-    // Resolve against the app folder rather than the origin so the SDK
-    // still loads when the build is deployed under a sub path.
-    const sdkUrl = `${getAssetBaseUrl()}${AGENT_SDK_PATH}`;
-    this._sdkLoadPromise = new Promise<void>((resolve, reject) => {
-      const existing = document.querySelector<HTMLScriptElement>(
-        `script[src="${sdkUrl}"]`,
-      );
-      const script = existing ?? document.createElement('script');
-      const onLoad = () => {
-        if (window.AgentSDK) {
-          resolve();
-        } else {
-          reject(new Error('RingCX Agent SDK did not expose AgentSDK'));
-        }
-      };
-      script.addEventListener('load', onLoad, { once: true });
-      script.addEventListener(
-        'error',
-        () => reject(new Error('Unable to load the RingCX Agent SDK')),
-        { once: true },
-      );
-      if (!existing) {
-        script.async = true;
-        script.src = sdkUrl;
-        document.head.appendChild(script);
-      }
-    });
-    return this._sdkLoadPromise;
+    await loadAgentSdk(this._options.authHost);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async initSDK(): Promise<void> {
     await this.ensureSdkLoaded();
     if (this._sdk) {
@@ -456,8 +423,9 @@ class CxClient extends RcModule {
       return;
     }
     this.logger.info('Init AgentSDK~~');
+    this._applyFfsDomainDefaults();
     const options = { ...this._options };
-    this._sdk = new window.AgentSDK({
+    this._sdk = new globalThis.AgentSDK({
       callbacks: {
         ...this._callbacks,
         [CxCallbackTypes.CLOSE_SOCKET]: this._onClose,
@@ -476,7 +444,7 @@ class CxClient extends RcModule {
       },
       ...options,
     });
-    window.AgentSDK.shared.HttpService.setApiBase(options.authHost);
+    globalThis.AgentSDK.shared.HttpService.setApiBase(options.authHost);
     this._watchSoftphoneTransports();
   }
 
@@ -593,7 +561,7 @@ class CxClient extends RcModule {
     return this._sdk.getRefreshedToken();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async authenticateAgentWithEngageAccessToken(
     engageAccessToken: string,
   ): Promise<CxAuthenticateAgentWithEngageAccessTokenRes> {
@@ -611,7 +579,7 @@ class CxClient extends RcModule {
     );
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async configureAgent({
     dialDest,
     queueIds,
@@ -674,7 +642,7 @@ class CxClient extends RcModule {
     model.softphoneSettings.sipInfo = sipInfo;
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async dispositionManualPass({
     dispId,
     notes,
@@ -698,7 +666,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async dispositionCall({
     uii,
     dispId = '',
@@ -725,7 +693,7 @@ class CxClient extends RcModule {
     );
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   authenticateAgent(
     rcAccessToken: string,
     tokenType: CxTokenType,
@@ -753,14 +721,12 @@ class CxClient extends RcModule {
           //     It is refreshed in sdk by hashcode
           // Call authenticateAgentWithEngageAccessToken to pass engage token to AGENT SDK for WebSocket connection
           const engageAccessTokenResponse = await this.authenticateAgentWithEngageAccessToken(res.accessToken);
-          if (typeof window !== 'undefined' && window.localStorage) {
-            window.AgentSDK.shared.Session.storeAccessTokenResult({
-              response: JSON.stringify(engageAccessTokenResponse),
-            });
-            window.AgentSDK.shared.Session.storeRCAccessTokenResult({
-              response: JSON.stringify(engageAccessTokenResponse),
-            });
-          }
+          globalThis.AgentSDK.shared.Session.storeAccessTokenResult({
+            response: JSON.stringify(engageAccessTokenResponse),
+          });
+          globalThis.AgentSDK.shared.Session.storeRCAccessTokenResult({
+            response: JSON.stringify(engageAccessTokenResponse),
+          });
           // Apply locale from regional settings if available
           const locale = (res as any).regionalSettings?.language;
           if (locale) {
@@ -782,10 +748,9 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   openSocket(agentId: string): Promise<CxOpenSocketResult> {
-    const hasSupportWebSocket =
-      typeof window !== 'undefined' && 'WebSocket' in window;
+    const hasSupportWebSocket = typeof globalThis.WebSocket === 'function';
     if (!hasSupportWebSocket) {
       throw new CxTypeError({
         type: messageTypes.INVALID_BROWSER,
@@ -799,7 +764,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async getAgentConfig(): Promise<CxAgentConfig | null> {
     return new Promise<CxAgentConfig | null>((resolve) => {
       const timeoutId = setTimeout(() => resolve(null), 10000);
@@ -810,7 +775,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async getAndHandleAuthenticateResponse(
     rcAccessToken: string,
     tokenType: CxTokenType,
@@ -872,7 +837,7 @@ class CxClient extends RcModule {
   /**
    * when manual close socket, that closeSocket will auto reconnected by agent SDK
    */
-  @delegate('mainClient')
+  @delegate('server')
   async closeSocket() {
     if (!this.ifSocketExist) {
       return;
@@ -897,7 +862,7 @@ class CxClient extends RcModule {
    * directly; the orphaned browser socket is detached first so its eventual
    * timeout cannot double-drive the SDK.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async abandonSocket(): Promise<void> {
     const socket = this._sdk?.socket;
     if (!socket) {
@@ -917,12 +882,12 @@ class CxClient extends RcModule {
     onclose?.call(socket);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async hangup({ sessionId, resetPendingDisp = false }: CxClientHangUpParams) {
     return this._sdk.hangup(sessionId, resetPendingDisp);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async logoutAgent(agentId: string): Promise<CxLogoutAgentResponse> {
     const uiModel = this._sdk._getUIModel().getInstance();
     if (!uiModel.agentSettings.isLoggedIn) {
@@ -950,7 +915,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async manualOutdial({
     destination,
     callerId,
@@ -967,29 +932,29 @@ class CxClient extends RcModule {
     );
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async manualOutdialCancel(uii: string) {
     await this._sdk.manualOutdialCancel(uii);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async offhookInit() {
     // we using CxCallbackTypes.OFFHOOK_INIT to catch data, do not pass callback,
     // that will make the message not come back
     await this._sdk.offhookInit();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async offhookTerm() {
     await this._sdk.offhookTerm();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async hold(holdState: boolean) {
     await this._sdk.hold(holdState);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async pauseRecord(isRecord: boolean): Promise<PauseRecord> {
     return new Promise<PauseRecord>((resolve, reject) => {
       return this._sdk.pauseRecord(
@@ -1012,7 +977,7 @@ class CxClient extends RcModule {
   /**
    * toggle call recording on/off base on true|false boolean
    */
-  @delegate('mainClient')
+  @delegate('server')
   async record(state: boolean): Promise<RecordResponse> {
     return new Promise<RecordResponse>((resolve, reject) => {
       return this._sdk.record(state, (response: RecordResponse) => {
@@ -1025,12 +990,12 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async holdSession({ state, sessionId }: CxClientHoldSessionParams) {
     await this._sdk.holdSession(state, sessionId);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async coldTransferCall({
     dialDest,
     callerId = '',
@@ -1052,7 +1017,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async warmTransferCall({
     dialDest,
     callerId = '',
@@ -1074,7 +1039,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async coldTransferIntlCall({
     dialDest,
     callerId = '',
@@ -1098,7 +1063,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async warmTransferIntlCall({
     dialDest,
     callerId = '',
@@ -1122,12 +1087,12 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async cancelWarmTransferCall(dialDest: string) {
     await this._sdk.warmXferCancel(dialDest);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async requeueCall({
     queueId,
     skillId = '',
@@ -1149,7 +1114,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async fetchDirectAgentList(): Promise<CxDirectAgentListResponse> {
     return new Promise<CxDirectAgentListResponse>((resolve) => {
       this._sdk.directAgentXferList((data: CxDirectAgentListResponse) => {
@@ -1188,32 +1153,32 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async rejectDirectAgentTransferCall(uii: string) {
     await this._sdk.rejectDirectAgentXfer(this.decodeUii(uii));
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async coldDirectAgentTransfer(targetAgentId: string) {
     await this._sdk.coldDirectAgentXfer(targetAgentId);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async warmDirectAgentTransfer(targetAgentId: string) {
     await this._sdk.warmDirectAgentXfer(targetAgentId);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async sendVoicemailDirectAgentTransfer(targetAgentId: string) {
     await this._sdk.voicemailDirectAgentXfer(targetAgentId);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async cancelDirectAgentTransfer(targetAgentId: string) {
     await this._sdk.cancelDirectAgentXfer(targetAgentId);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async setAgentState(agentState: string, agentAuxState: string) {
     return this._sdk.setAgentState(agentState, agentAuxState);
   }
@@ -1236,7 +1201,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async multiLoginRequest(): Promise<{
     success: boolean;
     error?: string;
@@ -1253,17 +1218,17 @@ class CxClient extends RcModule {
   /**
    * WebRTC related methods
    */
-  @delegate('mainClient')
+  @delegate('server')
   async sipInit() {
     await this._sdk.sipInit();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async sipAnswer() {
     await this._sdk.sipAnswer();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async sipRegister() {
     await this._sdk.sipRegister();
   }
@@ -1272,7 +1237,7 @@ class CxClient extends RcModule {
    * Re-register the softphone without tearing the session down, used when the
    * network changed underneath an established registration.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async sipForceRegister() {
     await this._sdk.sipForceRegister();
   }
@@ -1284,7 +1249,7 @@ class CxClient extends RcModule {
    * without this the SDK reports `autoStartOH: false` after every registrar
    * rotation and the agent's audio leg is never rebuilt.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async setOffhookFlags({
     maintainOH,
     autoStartOH,
@@ -1328,7 +1293,7 @@ class CxClient extends RcModule {
    * updates the offhook flags or tears the session down and rebuilds it, and
    * reports which it chose on `SIP_SWITCH_REGISTRAR`.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async switchSoftphoneRegistrar(maintainOH: boolean): Promise<void> {
     this._syncSoftphoneAuthToken();
     await this._sdk.switchSoftphoneRegistrar(maintainOH);
@@ -1340,7 +1305,7 @@ class CxClient extends RcModule {
    * SIP.js is configured with `maxReconnectionAttempts: 0`, so once its
    * transport closes it stays closed; this is the only way back.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async resetSoftphoneSession({
     maintainOH,
     autoStartOH,
@@ -1358,27 +1323,27 @@ class CxClient extends RcModule {
     await this._sdk.resetSoftphoneSession({ maintainOH, autoStartOH });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async sipTerminate() {
     await this._sdk.sipTerminate();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async sipHangUp() {
     await this._sdk.sipHangUp();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async sipReject() {
     await this._sdk.sipReject();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async sipSendDTMF(dtmf: string) {
     await this._sdk.sipSendDTMF(dtmf);
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async sipToggleMute(state: boolean) {
     await this._sdk.sipToggleMute(state);
   }
@@ -1386,7 +1351,7 @@ class CxClient extends RcModule {
   /**
    * AgentScript related methods
    */
-  @delegate('mainClient')
+  @delegate('server')
   getScript(scriptId: string, version: string): Promise<CxScriptResponse> {
     return new Promise<CxScriptResponse>((resolve, reject) => {
       this._sdk.getScript(scriptId, version, (res: CxScriptResponse) => {
@@ -1399,7 +1364,7 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async saveScriptResult(
     uii: string,
     scriptId: string,
@@ -1412,7 +1377,7 @@ class CxClient extends RcModule {
   /**
    * GET - /voice/api/v1/agent/:accountId/knowledgeBaseGroups
    */
-  @delegate('mainClient')
+  @delegate('server')
   async getKnowledgeBaseGroups(
     knowledgeBaseGroupIds: number[],
   ): Promise<any | null> {
@@ -1445,7 +1410,7 @@ class CxClient extends RcModule {
   /**
    * Initialize SIP and register
    */
-  @delegate('mainClient')
+  @delegate('server')
   sipInitAndRegister({
     agentId,
   }: {
@@ -1469,7 +1434,7 @@ class CxClient extends RcModule {
   /**
    * Get preview dial leads
    */
-  @delegate('mainClient')
+  @delegate('server')
   async getPreviewDial(): Promise<any> {
     return new Promise((resolve) => {
       this._sdk.previewFetch([], (res: any) => {
@@ -1481,7 +1446,7 @@ class CxClient extends RcModule {
   /**
    * Dial a preview lead
    */
-  @delegate('mainClient')
+  @delegate('server')
   async previewDial(requestId: string, leadPhone: string, leadPhoneE164: string) {
     await this._sdk.previewDial(requestId, leadPhone, leadPhoneE164);
   }
@@ -1489,7 +1454,7 @@ class CxClient extends RcModule {
   /**
    * Manual pass disposition
    */
-  @delegate('mainClient')
+  @delegate('server')
   async manualPass({
     dispId,
     notes,
@@ -1521,7 +1486,7 @@ class CxClient extends RcModule {
   /**
    * Get campaign dispositions
    */
-  @delegate('mainClient')
+  @delegate('server')
   async getCampaignDispositions(campaignId: string): Promise<any> {
     return new Promise((resolve) => {
       this._sdk.getCampaignDispositions(campaignId, (res: any) => {
@@ -1530,13 +1495,13 @@ class CxClient extends RcModule {
     });
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async requestCallSummary(uii: string, sessionId: string, segmentId: string) {
     this._sdk.requestCallSummary(uii, sessionId, segmentId);
   }
 
   getFullUserDetails() {
-    const userDetails = localStorage.getItem('engage-auth:fullUserDetails');
+    const userDetails = this._sdkStorage?.getItem('engage-auth:fullUserDetails');
     if (!userDetails) {
       return;
     }
@@ -1546,10 +1511,10 @@ class CxClient extends RcModule {
 
   /**
    * Identity bits that only exist on the SDK instance / its local storage, so
-   * they can only be read on the main client. Fetched in one round trip because
+   * they can only be read on the server. Fetched in one round trip because
    * consumers (Agent Assistant) need all of them together.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async getAgentIdentity(): Promise<CxAgentIdentity> {
     const authenticateRequest = this._sdk.getAuthenticateRequest() || {};
     const fullUserDetails = this.getFullUserDetails() || {};
@@ -1565,9 +1530,9 @@ class CxClient extends RcModule {
     };
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async refreshEvToken() {
-    const Session = window.AgentSDK.shared.Session;
+    const Session = globalThis.AgentSDK.shared.Session;
     let authenticateRequest = this._sdk.getAuthenticateRequest();
     const engageAccessToken = authenticateRequest.engageAccessToken;
     const sessionToken = Session.getAccessToken();
@@ -1581,15 +1546,15 @@ class CxClient extends RcModule {
     return true;
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async getEvTokenExpiredTime(): Promise<number> {
-    const Session = window.AgentSDK.shared.Session;
+    const Session = globalThis.AgentSDK.shared.Session;
     return Session.getClaims();
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async clearEvSession() {
-    const Session = window.AgentSDK.shared.Session;
+    const Session = globalThis.AgentSDK.shared.Session;
     Session.clearSession();
     this.resetUIModel();
   }
@@ -1664,8 +1629,8 @@ class CxClient extends RcModule {
 
   /**
    * Shared plumbing for the contact-management activity API: resolves the
-   * account scope and the auth header, both of which only exist on the main
-   * client.
+   * account scope and the auth header, both of which only exist on the
+   * server.
    *
    * Returns `undefined` when there is no RC account scope to query against.
    * Callers should also gate on `allowContactManagement` before invoking.
@@ -1720,7 +1685,7 @@ class CxClient extends RcModule {
     return activities?.records ?? [];
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async getActivityByDialogId(dialogId: string): Promise<ActivityLog | null> {
     if (!dialogId) return null;
     try {
@@ -1740,7 +1705,7 @@ class CxClient extends RcModule {
    * A 404 still resolves to `null`. Other HTTP failures throw so the call-log
    * page can hide summary instead of treating the error as an empty activity.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async getActivityBySegmentId(segmentId: string): Promise<ActivityLog | null> {
     if (!segmentId) return null;
     try {
@@ -1752,7 +1717,7 @@ class CxClient extends RcModule {
     }
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async updateActivity(
     activityId: string,
     params: ActivityDispositionInfo,
@@ -1776,7 +1741,7 @@ class CxClient extends RcModule {
     }
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async updateActivityDisposition({
     dialogId,
     params,
@@ -1801,7 +1766,7 @@ class CxClient extends RcModule {
    * `agentSegment.segmentStart`; it is sent empty for the first page, matching
    * the web agent (an empty value is what the server is known to accept).
    */
-  @delegate('mainClient')
+  @delegate('server')
   async getAgentHistory({
     agentId,
     size = 500,
@@ -1839,7 +1804,7 @@ class CxClient extends RcModule {
     }
   }
 
-  @delegate('mainClient')
+  @delegate('server')
   async searchDirectory(searchString: string) {
     const fullUserDetails = this.getFullUserDetails();
     const rcAccountId = fullUserDetails.rcAccountId;

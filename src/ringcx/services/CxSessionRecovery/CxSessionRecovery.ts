@@ -18,7 +18,7 @@ import {
   reconnectActions,
 } from '../../utils/reconcileReconnectState';
 import type { ReconnectPlan } from '../../utils/reconcileReconnectState';
-import { registerOnMainTab } from '../../utils/register-on-main-tab';
+import { registerOnServer } from '../../utils/register-on-server';
 import { shouldRecycleEvSocket } from '../../utils/shouldRecycleEvSocket';
 import type { CxSessionRecoveryOptions } from './CxSessionRecovery.interface';
 
@@ -82,9 +82,9 @@ class CxSessionRecovery extends RcModule {
     protected options?: CxSessionRecoveryOptions,
   ) {
     super();
-    // The SDK, and therefore the login callback, only lives on the main
-    // tab, while the session state this module corrects lives on the server.
-    registerOnMainTab(this.portManager, () => {
+    // The SDK, its login callback and the session state this module corrects
+    // all live on the server port.
+    registerOnServer(this.portManager, () => {
       this._initReconnectListener();
       this._initSocketWatchdog();
     });
@@ -101,20 +101,22 @@ class CxSessionRecovery extends RcModule {
    * which starts the SDK's own 5s reconnect loop immediately. The browser's
    * `online` event triggers an extra check so a network switch is caught as
    * soon as the new network is up rather than on the next sampling tick.
+   * Pages and the shared worker both fire `online` / `offline` on their
+   * global object.
    */
   private _initSocketWatchdog(): void {
     setInterval(() => {
       void this._checkSocketHealth();
     }, SOCKET_WATCHDOG_INTERVAL_MS);
-    if (typeof window !== 'undefined' && window.addEventListener) {
-      window.addEventListener('offline', () => {
+    if (typeof globalThis.addEventListener === 'function') {
+      globalThis.addEventListener('offline', () => {
         // Witness the drop: any echo timestamp older than this predates it,
         // which lets the check condemn the socket seconds after connectivity
         // returns instead of waiting out the raw staleness threshold.
         this._networkDropAt = Date.now();
         this._clearOnlineRechecks();
       });
-      window.addEventListener('online', () => {
+      globalThis.addEventListener('online', () => {
         this._networkOnlineAt = Date.now();
         void this._checkSocketHealth();
         // The echo grace has not elapsed the instant connectivity returns,

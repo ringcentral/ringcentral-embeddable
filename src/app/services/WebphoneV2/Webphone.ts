@@ -2,6 +2,7 @@ import type { NormalizedSession } from '@ringcentral-integration/commons/interfa
 import {
   Auth,
   Client,
+  track,
 } from '@ringcentral-integration/micro-auth/src/app/services';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import { AudioSettings } from '@ringcentral-integration/micro-phone/src/app/services/AudioSettings';
@@ -19,6 +20,7 @@ import { filter, map, Observable, Subscription } from 'rxjs';
 
 import { runOnAllPorts } from '../../../lib/runOnAllPorts';
 
+import { embeddableTrackEvents } from '../Analytics/embeddableTrackEvents';
 import { ClientInteraction } from '../ClientInteraction';
 import { VoicemailDrop } from '../VoicemailDrop';
 import { invokeRoleForValue } from '../../../lib/roleCompat';
@@ -31,6 +33,7 @@ import type {
   WebphoneParkLocationTarget,
   WebphoneParkToLocationParams,
 } from './WebphoneApi.interface';
+import { getCallEndedTrackProps } from './getCallEndedTrackProps';
 import { t } from './i18n';
 import type { RecordStatus } from './recordStatus';
 import { voicemailDropStatus } from './voicemailDropStatus';
@@ -232,6 +235,7 @@ export class Webphone extends WebphoneV2 {
     await super.onInit();
     this._endedSubscription = this.end$.subscribe((session) => {
       void this._recordEndedSession(session);
+      this._trackCallEnded(session);
     });
     // Report ownership moves so the host page can follow which tab is live.
     this._ownerSubscription = this._portManager
@@ -301,6 +305,16 @@ export class Webphone extends WebphoneV2 {
       ...(event.type === 'callEnd' ? [event.ringSession] : []),
     );
   }
+
+  /**
+   * `onInit` only runs on the authoritative port, so each ended call is
+   * tracked once, like the legacy active-tab tracking.
+   */
+  @track((_that: Webphone, session: WebphoneNormalizedSession) => [
+    embeddableTrackEvents.webRTCCallEnded,
+    getCallEndedTrackProps(session),
+  ])
+  private _trackCallEnded(_session: WebphoneNormalizedSession): void {}
 
   @action
   protected _setLastEndedSessions(sessions: NormalizedSession[]) {

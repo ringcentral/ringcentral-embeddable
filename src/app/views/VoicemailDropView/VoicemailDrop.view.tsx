@@ -1,3 +1,4 @@
+import { track } from '@ringcentral-integration/micro-auth/src/app/services';
 import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   action,
@@ -13,6 +14,7 @@ import {
 } from '@ringcentral-integration/next-core';
 import React, { useRef } from 'react';
 
+import { embeddableTrackEvents } from '../../services/Analytics/embeddableTrackEvents';
 import { VoicemailDrop } from '../../services/VoicemailDrop';
 import type { Webphone } from '../../services/WebphoneV2';
 import {
@@ -87,6 +89,7 @@ export class VoicemailDropView extends RcViewModule {
    * tab update, such as AI Assistant's, and never close when the call ends.
    */
   @delegate('server')
+  @track(embeddableTrackEvents.openVoicemailDrop)
   async open(sessionId: string): Promise<void> {
     if (!this._voicemailDrop.hasVoicemailDropPermission) {
       return;
@@ -100,6 +103,7 @@ export class VoicemailDropView extends RcViewModule {
     this._sideWidgetView.closeContent(this._sideWidgetHandle, options);
   }
 
+  @track(embeddableTrackEvents.dropVoicemailMessage)
   private async _dropMessage(messageId: string): Promise<boolean> {
     const sessionId = this.currentSessionId;
     if (!sessionId) {

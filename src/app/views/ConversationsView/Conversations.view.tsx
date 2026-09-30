@@ -5,6 +5,7 @@ import {
   ConnectivityMonitor,
   RateLimiter,
   RegionSettings,
+  track,
 } from '@ringcentral-integration/micro-auth/src/app/services';
 import { ContactMatcher as ContactMatcherBase } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
@@ -51,6 +52,7 @@ import React from 'react';
 
 import { LogStatusMessage } from '../../components/LogStatusMessage';
 import { useConversationDisplayNameWithMatches } from '../../components/MatchedContactsTag';
+import { embeddableTrackEvents } from '../../services/Analytics/embeddableTrackEvents';
 import type { AppFeatures as EmbeddableAppFeatures } from '../../services/AppFeatures';
 import {
   type ContactMatcher,
@@ -351,6 +353,9 @@ export class ConversationsView extends ConversationsViewSpringBase {
     await refreshContactMatch(this._appContactMatcher, phoneNumber);
   };
 
+  @track(embeddableTrackEvents.viewMessageDetails)
+  private _trackViewMessageDetails(): void {}
+
   override getUIFunctions(
     props: ConversationsViewSpringProps,
   ): ConversationsUIFunctions {
@@ -373,11 +378,13 @@ export class ConversationsView extends ConversationsViewSpringBase {
               return;
             }
             if (info.isFax) {
+              this._trackViewMessageDetails();
               this._messageStore.readMessages(conversationId);
               await this._router.push(`/faxes/${conversationId}`);
               return;
             }
             if (info.isVoicemail) {
+              this._trackViewMessageDetails();
               await this._router.push(`/voicemails/${conversationId}`);
               return;
             }

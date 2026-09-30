@@ -30,12 +30,17 @@ import {
   IconButtonLabel,
   TextField,
 } from '@ringcentral/spring-ui';
-import { ExtensionInfo, AccountInfo } from '@ringcentral-integration/micro-auth/src/app/services';
+import {
+  ExtensionInfo,
+  AccountInfo,
+  track,
+} from '@ringcentral-integration/micro-auth/src/app/services';
 import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
 import {
   delegateInActiveTab,
   setupActiveTabDelegate,
 } from '../../../../lib/delegateInActiveTab';
+import { embeddableTrackEvents } from '../../../services/Analytics/embeddableTrackEvents';
 import {
   UpcomingMeetingList,
   type UpcomingMeeting,
@@ -118,6 +123,8 @@ export class MeetingHomeView extends RcViewModule {
 
     if (!targetMeetingId) return;
 
+    this._trackJoinMeeting();
+
     if (targetMeetingId.startsWith('https://')) {
       window.open(targetMeetingId);
       return;
@@ -125,6 +132,12 @@ export class MeetingHomeView extends RcViewModule {
 
     window.open(`https://v.ringcentral.com/join/${targetMeetingId}`);
   }
+
+  @track(embeddableTrackEvents.joinMeeting)
+  private _trackJoinMeeting(): void {}
+
+  @track(embeddableTrackEvents.createInstantMeeting)
+  private _trackCreateInstantMeeting(): void {}
 
   @portal
   private joinMeetingModal = this._modalView.create<JoinMeetingPayload>({
@@ -172,6 +185,9 @@ export class MeetingHomeView extends RcViewModule {
     return {
       onStart: async (): Promise<void> => {
         this._setIsStarting(true);
+        if (this._genericMeeting.isRCV) {
+          this._trackCreateInstantMeeting();
+        }
         try {
           const result = (await this._genericMeeting.startMeeting({
             accountId: this._accountInfo.id,

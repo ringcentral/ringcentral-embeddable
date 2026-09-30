@@ -2,6 +2,7 @@ import {
   AppFeatures,
   ConnectivityManager,
   RateLimiter,
+  track,
 } from '@ringcentral-integration/micro-auth/src/app/services';
 import { ContactMatcher as ContactMatcherBase } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
@@ -41,6 +42,7 @@ import {
   type ContactMatcher,
   refreshContactMatch,
 } from '../../services/ContactMatcher';
+import { embeddableTrackEvents } from '../../services/Analytics/embeddableTrackEvents';
 import { MatchedContactSelection } from '../../services/MatchedContactSelection';
 import { ThirdParty } from '../../services/ThirdParty';
 
@@ -267,6 +269,9 @@ export class CallsListView extends CallsListViewSpringBase {
     );
   }
 
+  @track(embeddableTrackEvents.viewRecording)
+  private _trackViewRecording(): void {}
+
   override getUIFunctions(
     props: CallsListViewSpringProps,
   ): UIFunctions<CallsListPanelSpringProps> {
@@ -286,6 +291,7 @@ export class CallsListView extends CallsListViewSpringBase {
               telephonySessionId,
             );
           if (callLog) {
+            this._trackViewRecording();
             await this._appRouter.push(`/history/${telephonySessionId}`);
             return;
           }

@@ -13,7 +13,6 @@ import {
   storage,
   StoragePlugin,
   PortManager,
-  watch,
   delegate,
 } from '@ringcentral-integration/next-core';
 import { EventEmitter } from 'events';
@@ -25,8 +24,6 @@ import { CxTypeError } from '../../lib/CxTypeError';
 import { sortByName } from '../../lib/sortByName';
 import { CxClient } from '../CxClient';
 import { CxSubscription } from '../CxSubscription';
-import { Analytics } from '../Analytics';
-import { TabManager } from '../../../app/services/TabManager';
 
 import type {
   AuthenticateWithTokenParams,
@@ -65,38 +62,17 @@ class CxAuth extends RcModule {
     private block: BlockPlugin,
     private storage: StoragePlugin,
     private portManager: PortManager,
-    private analytics: Analytics,
-    private tabManager: TabManager,
   ) {
     super();
     this.storage.enable(this);
     if (this.portManager?.shared) {
+      // The Agent SDK lives on the server port, so its socket and login
+      // survive main tab changes and need no re-authentication then.
       this.portManager.onServer(() => {
         this.initialize();
-        this.portManager.onMainTabChange(async () => {
-          this.logger.info('onMainTabChange~~');
-          if (this.tabManager.popupIsBecomingMain) {
-            this.logger.info('onMainTabChange~~, popupIsBecomingMain, return');
-            return;
-          }
-          if (!this.auth.loggedIn || this.loginStatus !== CxLoginStatus.AUTH_SUCCESS) {
-            return;
-          }
-          if (this._connectOrReauthenticatePromise) {
-            await this._connectOrReauthenticatePromise;
-            this._connectOrReauthenticatePromise = null;
-          }
-          this._connectOrReauthenticatePromise = this._connectOrReauthenticate();
-          await this._connectOrReauthenticatePromise;
-          this._connectOrReauthenticatePromise = null;
-        });
-      });
-      this.portManager.onClient(() => {
-        this.initializeClient();
       });
     } else {
       this.initialize();
-      this.initializeClient();
     }
   }
 
@@ -371,18 +347,6 @@ class CxAuth extends RcModule {
     });
   }
 
-  initializeClient() {
-    watch(
-      this,
-      () => this.isEvLogged,
-      () => {
-        if (this.isEvLogged) {
-          this.identifyAnalyticsUser();
-        }
-      },
-    );
-  }
-
   /**
    * A failing agent logout must not leave the socket and the stored session
    * behind, so each stage reports its own error and the state still lands on
@@ -413,25 +377,6 @@ class CxAuth extends RcModule {
 
   onceLogout(cb: () => any) {
     return this.cxSubscription.once(CxCallbackTypes.LOGOUT, cb);
-  }
-
-  async identifyAnalyticsUser() {
-    try {
-      this.logger.info('identifyAnalyticsUser~~');
-      const userDetails = this.cxClient.getFullUserDetails();
-      if (!userDetails) {
-        this.logger.info('identifyAnalyticsUser~~, no user details');
-        return;
-      }
-      const userId = `${userDetails.rcUserId}`;
-      const accountId = userDetails.rcAccountId;
-      await this.analytics.track('RingCX Agent Identified', {
-        accountId,
-        userId,
-      });
-    } catch (e) {
-      this.logger.error('Error identifying user', e);
-    }
   }
 
   @delegate('server')
