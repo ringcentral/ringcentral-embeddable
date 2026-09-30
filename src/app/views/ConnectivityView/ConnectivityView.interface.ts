@@ -6,7 +6,8 @@ export type ConnectivityMode =
   | 'socketReconnecting'
   | 'sipUnstableConnection'
   | 'sipReconnectFailed'
-  | 'sipConnecting';
+  | 'sipConnecting'
+  | 'webphoneInstanceIntercepted';
 
 export interface ConnectivityViewProps {
   readonly className?: string;

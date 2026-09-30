@@ -15,6 +15,7 @@ import { useObservableState } from 'observable-hooks';
 import React, { useRef } from 'react';
 
 import { RingCX } from '../../services/RingCX';
+import { WEBPHONE_INSTANCE_INTERCEPTED_ERROR } from '../../services/WebphoneV2/WebphoneV2';
 import { ConnectivityPanel } from './ConnectivityPanel';
 import type { ConnectivityViewProps } from './ConnectivityView.interface';
 import { resolveConnectivity } from './resolve-connectivity';
@@ -39,6 +40,12 @@ interface CxSoftphoneConnectivity {
   resetSip(): Promise<void>;
 }
 
+interface WebphoneConnectivity {
+  readonly connectFailed: boolean;
+  readonly errorCode: string | null;
+  connect(): Promise<void>;
+}
+
 const CX_CONNECTING_STATUS = 'RECONNECTING';
 const CX_DISCONNECTED_STATUSES = new Set(['CLOSED', 'CONNECT_FAILURE']);
 
@@ -50,6 +57,9 @@ const CX_DISCONNECTED_STATUSES = new Set(['CLOSED', 'CONNECT_FAILURE']);
   name: 'ConnectivityView',
 })
 export class ConnectivityView extends BaseConnectivityView {
+  @dynamic('Webphone')
+  private readonly _webphone?: WebphoneConnectivity;
+
   @dynamic('CxClient')
   private readonly _cxClient?: CxClientConnectivity;
 
@@ -69,6 +79,13 @@ export class ConnectivityView extends BaseConnectivityView {
     super(_connectivityManager, _connectivityViewOptions);
   }
 
+  private get _isWebphoneInstanceIntercepted(): boolean {
+    return (
+      !!this._webphone?.connectFailed &&
+      this._webphone.errorCode === WEBPHONE_INSTANCE_INTERCEPTED_ERROR
+    );
+  }
+
   override getUIProps(): UIProps<ConnectivityViewProps> {
     const baseProps = super.getUIProps();
     if (!this._ringCX.loaded) {
@@ -77,6 +94,7 @@ export class ConnectivityView extends BaseConnectivityView {
         baseLoading: baseProps.loading,
         baseRetry: baseProps.retry,
         isLoggedIn: this._auth.loggedIn,
+        isWebphoneInstanceIntercepted: this._isWebphoneInstanceIntercepted,
         isAgentSessionActive: false,
         isReauthing: false,
         isReconnecting: false,
@@ -95,6 +113,7 @@ export class ConnectivityView extends BaseConnectivityView {
         baseLoading: baseProps.loading,
         baseRetry: baseProps.retry,
         isLoggedIn: this._auth.loggedIn,
+        isWebphoneInstanceIntercepted: this._isWebphoneInstanceIntercepted,
         isAgentSessionActive:
           (this._cxAuth?.isEvLogged ?? false) ||
           (this._cxAuth?.isReauthing ?? false),
@@ -122,6 +141,11 @@ export class ConnectivityView extends BaseConnectivityView {
     return {
       onClick: async (): Promise<void> => {
         const { mode } = this.getUIProps();
+        if (mode === 'webphoneInstanceIntercepted') {
+          // Each attempt provisions again under a new SIP instance id.
+          await this._webphone?.connect();
+          return;
+        }
         if (mode === 'sipReconnectFailed') {
           await this._cxIntegratedSoftphone?.retrySoftphoneSession();
           return;

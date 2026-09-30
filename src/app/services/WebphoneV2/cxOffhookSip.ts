@@ -1,9 +1,15 @@
 import { getHeader } from './WebphoneV2Session';
 
 export const ENGAGE_AGENT_EPT_ROLE = 'rc-engage-agent-ept';
+/**
+ * Identifies this app instance to the SIP edge. Every REGISTER carries it, not
+ * only Engage ones, so the edge can tell this browser apart from another
+ * instance of the same extension.
+ */
+export const ENDPOINT_ID_REGISTER_HEADER_NAME = 'P-rc-endpoint-id';
 export const ENGAGE_AGENT_EPT_REGISTER_HEADER_NAMES = [
   'P-RC-Supported-Ept-Roles',
-  'P-rc-endpoint-id',
+  ENDPOINT_ID_REGISTER_HEADER_NAME,
 ] as const;
 
 /**
@@ -27,7 +33,7 @@ export const getEngageAgentEptRegisterHeaders = (
   endpointId: string,
 ): Record<string, string> => ({
   'P-RC-Supported-Ept-Roles': ENGAGE_AGENT_EPT_ROLE,
-  'P-rc-endpoint-id': endpointId,
+  [ENDPOINT_ID_REGISTER_HEADER_NAME]: endpointId,
 });
 
 export const isRegisterSipMessage = (message: unknown): boolean => {
@@ -37,6 +43,29 @@ export const isRegisterSipMessage = (message: unknown): boolean => {
   );
 };
 
+const assignRegisterHeaders = (
+  message: unknown,
+  headers: Record<string, string>,
+): void => {
+  const sipMessage = message as { headers?: Record<string, string> };
+  if (!sipMessage.headers) {
+    sipMessage.headers = {};
+  }
+  Object.assign(sipMessage.headers, headers);
+};
+
+export const applyEndpointIdRegisterHeader = (
+  message: unknown,
+  endpointId: string,
+): void => {
+  if (!message || !endpointId) {
+    return;
+  }
+  assignRegisterHeaders(message, {
+    [ENDPOINT_ID_REGISTER_HEADER_NAME]: endpointId,
+  });
+};
+
 export const applyEngageAgentEptRegisterHeaders = (
   message: unknown,
   endpointId: string,
@@ -44,11 +73,7 @@ export const applyEngageAgentEptRegisterHeaders = (
   if (!message || !endpointId) {
     return;
   }
-  const sipMessage = message as { headers?: Record<string, string> };
-  if (!sipMessage.headers) {
-    sipMessage.headers = {};
-  }
-  Object.assign(sipMessage.headers, getEngageAgentEptRegisterHeaders(endpointId));
+  assignRegisterHeaders(message, getEngageAgentEptRegisterHeaders(endpointId));
 };
 
 const includesIgnoreCase = (

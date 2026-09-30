@@ -49,6 +49,7 @@ import {
 
 import { summarizeSipMessage } from './WebphoneSipLogger';
 import {
+  applyEndpointIdRegisterHeader,
   applyEngageAgentEptRegisterHeaders,
   CX_OFFHOOK_INVITE_HEADERS,
   ENGAGE_AGENT_EPT_REGISTER_HEADER_NAMES,
@@ -294,6 +295,27 @@ export const getSipStatusCode = (error: unknown): number | null => {
   return match ? Number(match[1]) : null;
 };
 
+/**
+ * A random UUID for `+sip.instance`, which is sent as `urn:uuid:<id>`.
+ */
+export const createSipInstanceId = (): string =>
+  globalThis.crypto?.randomUUID?.() ??
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+    const random = Math.floor(Math.random() * 16);
+    return (char === 'x' ? random : (random % 4) + 8).toString(16);
+  });
+
+/**
+ * The edge's refusal of a REGISTER because another registration took over
+ * this phone, e.g. the same agent signing in somewhere else.
+ */
+export const isSipInstanceInterception = (error: unknown): boolean => {
+  const message = error instanceof Error ? error.message : String(error);
+  return getSipStatusCode(error) === 403 && /intercepted/i.test(message);
+};
+
+export const WEBPHONE_INSTANCE_INTERCEPTED_ERROR = 'webphoneInstanceIntercepted';
+
 export const isSipAuthorizationRejection = (error: unknown): boolean => {
   const statusCode = getSipStatusCode(error);
   return statusCode === 401 || statusCode === 403;
@@ -341,6 +363,21 @@ export class WebphoneV2 extends RcModule {
   @storage
   @state
   sipInfoEndpointId: string | null = null;
+
+  /**
+   * The `+sip.instance` this browser registers with.
+   *
+   * The SDK falls back to `sipInfo.authorizationId`, which every client
+   * provisioned with the same device shares. Whichever of them registers last
+   * takes that instance over, and the edge then refuses any fresh REGISTER
+   * from the others with `403 instance id is intercepted by another
+   * registration`, leaving their phone down until reload. Persisted because
+   * RFC 5626 expects an instance id to survive restarts, so a reload replaces
+   * its own binding instead of adding a contact.
+   */
+  @storage
+  @state
+  sipInstanceId: string | null = null;
 
   @storage
   @state
@@ -1580,18 +1617,19 @@ export class WebphoneV2 extends RcModule {
 
     sipClient.send = (message, waitForReply = false) => {
       if (isRegisterSipMessage(message)) {
-        const endpointId = this.engageAgentEptEnabled
-          ? this._auth.endpointId
-          : undefined;
-        if (endpointId) {
+        const endpointId = this._auth.endpointId;
+        const withEpt = this.engageAgentEptEnabled && !!endpointId;
+        if (withEpt) {
           applyEngageAgentEptRegisterHeaders(message, endpointId);
+        } else if (endpointId) {
+          applyEndpointIdRegisterHeader(message, endpointId);
         }
-        this._registeredEngageAgentEpt = !!endpointId;
-        if (this.engageAgentEptEnabled || endpointId) {
+        this._registeredEngageAgentEpt = withEpt;
+        if (this.engageAgentEptEnabled) {
           this.logger.info('Webphone V2 REGISTER EPT headers', {
             engageAgentEptEnabled: this.engageAgentEptEnabled,
-            applied: Boolean(endpointId),
-            headerNames: endpointId
+            applied: withEpt,
+            headerNames: withEpt
               ? [...ENGAGE_AGENT_EPT_REGISTER_HEADER_NAMES]
               : [],
           });
@@ -2494,7 +2532,13 @@ export class WebphoneV2 extends RcModule {
     this.connectionStatus = connectionStatus;
     if (connectionStatus === 'connected') this.connectRetryCounts = 0;
     this.statusCode = getSipStatusCode(error);
-    this.errorCode = error ? 'webphoneRegistrationFailed' : null;
+    if (!error) {
+      this.errorCode = null;
+    } else {
+      this.errorCode = isSipInstanceInterception(error)
+        ? WEBPHONE_INSTANCE_INTERCEPTED_ERROR
+        : 'webphoneRegistrationFailed';
+    }
     if (previousStatus !== connectionStatus) {
       const context = {
         from: previousStatus,
@@ -2535,6 +2579,18 @@ export class WebphoneV2 extends RcModule {
     this.sipInfo = null;
     this.provisionedDevice = null;
     this.sipInfoEndpointId = null;
+  }
+
+  @action
+  protected _setSipInstanceId(instanceId: string | null) {
+    this.sipInstanceId = instanceId;
+  }
+
+  protected _getSipInstanceId(): string {
+    if (!this.sipInstanceId) {
+      this._setSipInstanceId(createSipInstanceId());
+    }
+    return this.sipInstanceId!;
   }
 
   protected _getCachedProvision(): WebphoneV2ProvisionCache | null {
@@ -2583,6 +2639,7 @@ export class WebphoneV2 extends RcModule {
   protected _createWebPhone(sipInfo: SipInfo) {
     const options: WebPhoneOptions = {
       sipInfo,
+      instanceId: this._getSipInstanceId(),
       autoAnswer: false,
     };
     const webRtcSessionFactory =
@@ -2855,7 +2912,15 @@ export class WebphoneV2 extends RcModule {
       throw error;
     }
     this._clearProvisionCache();
-    if (!usedCache) {
+    // A 403 is also how the edge refuses an instance id that another
+    // registration has taken over, so a fresh one earns one more attempt even
+    // when the provision itself was already fresh.
+    const rotatedInstanceId = getSipStatusCode(error) === 403;
+    if (rotatedInstanceId) {
+      this.logger.warn('Webphone V2 rotating SIP instance id after 403');
+      this._setSipInstanceId(createSipInstanceId());
+    }
+    if (!usedCache && !rotatedInstanceId) {
       this._setConnectionState('connectFailed', error);
       throw error;
     }

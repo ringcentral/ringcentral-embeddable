@@ -13,4 +13,6 @@ export default {
     'Integrated softphone disconnected. Attempting to reconnect...',
   sipReconnectFailed: 'Integrated softphone disconnected. Please retry.',
   sipConnecting: 'Integrated softphone connecting...',
+  webphoneInstanceIntercepted:
+    'Your phone is signed in somewhere else. Sign out of the other instance and retry, or sign in again.',
 } as const;

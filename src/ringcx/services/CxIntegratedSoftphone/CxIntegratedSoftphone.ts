@@ -53,6 +53,11 @@ class CxIntegratedSoftphone extends RcModule {
   private _eventEmitter = new EventEmitter();
   private _sipConnected = false;
   private _isCloseWhenCallConnected = false;
+  /**
+   * Bumped on every reset, so a `connectWebRTC` still waiting out its
+   * reconnect debounce can tell that the agent session it started for is gone.
+   */
+  private _sessionGeneration = 0;
 
   constructor(
     private cxClient: CxClient,
@@ -233,6 +238,9 @@ class CxIntegratedSoftphone extends RcModule {
   }
 
   private async _resetAllState() {
+    // Before the early returns: a logout that lands while `connectWebRTC` is
+    // still debouncing has nothing to tear down yet, but must still stop it.
+    this._sessionGeneration += 1;
     if (!this.portManager.isServer) {
       return;
     }
@@ -759,6 +767,7 @@ class CxIntegratedSoftphone extends RcModule {
    */
   async connectWebRTC(): Promise<void> {
     this.logger.info('connectWebRTC~~');
+    const generation = this._sessionGeneration;
     await this.askAudioPermission();
     if (this.sipRegistering) {
       throw new Error('SIP is already registering');
@@ -775,6 +784,13 @@ class CxIntegratedSoftphone extends RcModule {
           ? RECONNECT_DEBOUNCE_TIME_WHEN_CONNECTED
           : RECONNECT_DEBOUNCE_TIME;
         await sleep(debounceTime);
+      }
+      // Registering the EPT roles for a session that has already ended would
+      // leave a stale Engage registration behind this app's back.
+      if (generation !== this._sessionGeneration) {
+        this.logger.info('connectWebRTC~~ agent session reset, skip EPT');
+        await this.setSipRegistering(false);
+        return;
       }
       await this.webphone.setEngageAgentEptEnabled(true);
       // Enabling the roles no longer forces a connection of its own, so the

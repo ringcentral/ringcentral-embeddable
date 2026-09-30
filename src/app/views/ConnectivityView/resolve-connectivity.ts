@@ -8,6 +8,8 @@ interface ConnectivityInputs {
   readonly baseLoading: boolean;
   readonly baseRetry: boolean;
   readonly isLoggedIn: boolean;
+  /** Another registration took this phone over and a fresh one was refused. */
+  readonly isWebphoneInstanceIntercepted: boolean;
   readonly isAgentSessionActive: boolean;
   readonly isReauthing: boolean;
   readonly isReconnecting: boolean;
@@ -40,6 +42,14 @@ export function resolveConnectivity(
   }
   if (!inputs.isLoggedIn) {
     return { mode: null, severity: 'error', loading: false, retry: false };
+  }
+  if (inputs.isWebphoneInstanceIntercepted) {
+    return {
+      mode: 'webphoneInstanceIntercepted',
+      severity: 'error',
+      loading: false,
+      retry: true,
+    };
   }
   if (!inputs.isAgentSessionActive) {
     return { mode: null, severity: 'error', loading: false, retry: false };
