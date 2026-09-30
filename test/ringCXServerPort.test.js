@@ -247,6 +247,48 @@ describe('RingCX load on client tabs', () => {
     expect(watch).not.toHaveBeenCalled();
   });
 
+  function watchHydrated(ringCX) {
+    const values = [];
+    ringCX.hydratedOnThisPort$.subscribe((value) => values.push(value));
+    return values;
+  }
+
+  test('reports a client tab hydrated only once it holds the server state', async () => {
+    const portManager = createPortManager();
+    let finishSync;
+    portManager.portDetector.syncFullState.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finishSync = resolve;
+        }),
+    );
+    const ringCX = createRingCX(portManager);
+    const hydrated = watchHydrated(ringCX);
+
+    const loading = ringCX.ensureLoaded();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    // The chunk is in and `loaded` is set, but the CX state is still empty.
+    expect(load).toHaveBeenCalledTimes(1);
+    expect(ringCX.loaded).toBe(true);
+    expect(hydrated).toEqual([false]);
+
+    finishSync();
+    await loading;
+    expect(hydrated).toEqual([false, true]);
+  });
+
+  test('reports the server hydrated after deriving the stage', async () => {
+    const portManager = createPortManager({ isServer: true });
+    const ringCX = createRingCX(portManager);
+    withReadySession(ringCX);
+    const hydrated = watchHydrated(ringCX);
+
+    await ringCX.ensureLoaded();
+
+    expect(ringCX.stage).toBe('ready');
+    expect(hydrated).toEqual([false, true]);
+  });
+
   test('derives the session stage on the server after loading', async () => {
     const portManager = createPortManager({ isServer: true });
     const ringCX = createRingCX(portManager);

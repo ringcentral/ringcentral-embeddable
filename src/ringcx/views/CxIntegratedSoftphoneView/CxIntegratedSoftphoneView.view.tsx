@@ -9,12 +9,15 @@ import {
   RcViewModule,
   PortManager,
   delegate,
+  delegateRole,
+  RoleUnavailableError,
 } from '@ringcentral-integration/next-core';
 import type { PortalInstance } from '@ringcentral-integration/next-core';
 import { Button } from '@ringcentral/spring-ui';
 import { format } from '@ringcentral-integration/utils';
 import React from 'react';
 
+import { lastInteractedClientRole } from '../../../app/services/ClientInteraction';
 import { CxCallbackTypes } from '../../services/CxClient/enums';
 import { CxIntegratedSoftphone } from '../../services/CxIntegratedSoftphone';
 import { CxSubscription } from '../../services/CxSubscription';
@@ -185,7 +188,6 @@ class CxIntegratedSoftphoneView extends RcViewModule {
     // On ringing: show modal if auto-answer is not handling it
     this.cxIntegratedSoftphone.onRinging(async (ringingCall?: CxSipRingingData) => {
       this.logger.info('SIP_RINGING~~');
-      // TODO: only work when in main tab
       const currentCall = (await this.cxClient.getCurrentCall()) as
         | CxBaseCall
         | undefined;
@@ -223,10 +225,14 @@ class CxIntegratedSoftphoneView extends RcViewModule {
   /**
    * Show the ringing confirmation modal.
    *
+   * Opened on the port that handles SIP events, the server in shared mode.
+   * Modal state is synced, so every tab shows the modal, and the agent's choice
+   * resolves back here: `sipAnswer` then runs on the server, where it leaves
+   * call media with the tab the agent clicked in.
+   *
    * The ringtone belongs to `WebphoneAlerting`, so it follows the user's audio
    * settings and plays on a tab that is allowed to start audio.
    */
-  @delegate('mainClient')
   async showRingingModal(payload: RingingPayload): Promise<void> {
     // Prevent duplicate modals
     if (this._ringingInstance) {
@@ -253,7 +259,6 @@ class CxIntegratedSoftphoneView extends RcViewModule {
   /**
    * Close the ringing modal if open (e.g. when SIP_ENDED fires)
    */
-  @delegate('mainClient')
   async closeRingingModal(): Promise<void> {
     if (this._ringingInstance) {
       this._ringingInstance = null;
@@ -262,12 +267,42 @@ class CxIntegratedSoftphoneView extends RcViewModule {
   }
 
   /**
-   * Show the registration failed alert modal, reloads app on confirm
+   * Show the registration failed alert modal, reloads the agent's tab on
+   * confirm
    */
-  @delegate('mainClient')
   async showRegistrationFailedModal(): Promise<void> {
     const result = this.modalView.open(this.registrationFailedModal);
     await result.closed;
+    await this._reloadAgentTab();
+  }
+
+  /**
+   * Reloads the tab the agent last interacted with, which is the one where
+   * they confirmed the alert, falling back to the main client while no tab
+   * holds that role.
+   */
+  private async _reloadAgentTab(): Promise<void> {
+    if (!this.portManager?.shared) {
+      window.location.reload();
+      return;
+    }
+    try {
+      await this._reloadLastInteractedClient();
+    } catch (error) {
+      if (!(error instanceof RoleUnavailableError)) {
+        throw error;
+      }
+      await this._reloadMainClient();
+    }
+  }
+
+  @delegateRole(lastInteractedClientRole)
+  protected async _reloadLastInteractedClient(): Promise<void> {
+    window.location.reload();
+  }
+
+  @delegate('mainClient')
+  protected async _reloadMainClient(): Promise<void> {
     window.location.reload();
   }
 

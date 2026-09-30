@@ -11,6 +11,7 @@ import {
   useConnector,
   useParams,
 } from '@ringcentral-integration/next-core';
+import { useObservableState } from 'observable-hooks';
 import React, { type ComponentType } from 'react';
 
 import { RingCX } from '../../services/RingCX';
@@ -100,8 +101,9 @@ export class CxAgentTabView extends RcViewModule {
   DispositionBackground(): React.ReactElement | null {
     const { id } = useParams<{ id?: string }>();
     const isLiveCall = useConnector(() => !!id && this._isLiveCall(id));
+    const hydrated = this._useHydrated();
     const CxActiveCall = this._cxActiveCallView?.component;
-    if (isLiveCall && CxActiveCall) {
+    if (isLiveCall && hydrated && CxActiveCall) {
       return <CxActiveCall />;
     }
     return <this.AgentHomeBackground initialTab={AGENT_DIALER_TAB} />;
@@ -113,11 +115,20 @@ export class CxAgentTabView extends RcViewModule {
   @autobind
   DispositionDetail(): React.ReactElement | null {
     const loaded = useConnector(() => this._ringCX.loaded);
+    const hydrated = this._useHydrated();
     const CxDisposition = this._cxDispositionView?.component;
-    if (!loaded || !CxDisposition) {
+    if (!loaded || !hydrated || !CxDisposition) {
       return null;
     }
     return <CxDisposition />;
+  }
+
+  /**
+   * Whether this tab holds the CX modules' current state, see
+   * `RingCX.hydratedOnThisPort$`.
+   */
+  private _useHydrated(): boolean {
+    return useObservableState(this._ringCX.hydratedOnThisPort$, false);
   }
 
   private _isLiveCall(callId: string): boolean {
@@ -137,8 +148,9 @@ export class CxAgentTabView extends RcViewModule {
     const ready = useConnector(
       () => this._ringCX.loaded && this._ringCX.stage === 'ready',
     );
+    const hydrated = this._useHydrated();
     const CxAgentHome = this._cxAgentView?.component;
-    if (!ready || !CxAgentHome) {
+    if (!ready || !hydrated || !CxAgentHome) {
       return <this.component />;
     }
     return <CxAgentHome initialTab={initialTab} />;
@@ -150,8 +162,9 @@ export class CxAgentTabView extends RcViewModule {
   @autobind
   HistoryDetail(): React.ReactElement | null {
     const loaded = useConnector(() => this._ringCX.loaded);
+    const hydrated = this._useHydrated();
     const CxHistoryDetail = this._cxCallHistoryDetailView?.component;
-    if (!loaded || !CxHistoryDetail) {
+    if (!loaded || !hydrated || !CxHistoryDetail) {
       return null;
     }
     return <CxHistoryDetail />;
@@ -168,18 +181,23 @@ export class CxAgentTabView extends RcViewModule {
         loaded: this._ringCX.loaded,
         stage: this._ringCX.stage,
       }));
+    const hydrated = this._useHydrated();
     const CxApp = this._cxAppView?.component;
     void currentLocale;
     void currentPath;
-    if (
+    const inSession =
       loaded &&
-      CxApp &&
       stage !== 'idle' &&
       stage !== 'loading' &&
       stage !== 'authenticating' &&
-      stage !== 'error'
-    ) {
+      stage !== 'error';
+    if (inSession && hydrated && CxApp) {
       return <CxApp />;
+    }
+    if (inSession) {
+      // This tab is still pulling the running session's state; offering to
+      // start a session it already has would be wrong.
+      return null;
     }
     if (stage === 'loading' || stage === 'authenticating') {
       return (

@@ -11,6 +11,8 @@ import {
   watch,
   PortManager,
   delegate,
+  delegateRole,
+  RoleUnavailableError,
 } from '@ringcentral-integration/next-core';
 import { EventEmitter } from 'events';
 import { Auth } from '@ringcentral-integration/micro-auth/src/app/services';
@@ -26,7 +28,7 @@ import { CxSubscription } from '../CxSubscription';
 import { CxAgentSession } from '../CxAgentSession';
 import { CxPresence } from '../CxPresence';
 import type { CxCall } from '../CxCall/CxCall';
-import { TabManager } from '../../../app/services/TabManager';
+import { lastInteractedClientRole } from '../../../app/services/ClientInteraction';
 import { WebphoneAlerting } from '../../../app/services/WebphoneAlerting';
 import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { Webphone } from '../../../app/services/WebphoneV2';
@@ -61,7 +63,6 @@ class CxIntegratedSoftphone extends RcModule {
     private cxPresence: CxPresence,
     private storagePlugin: StoragePlugin,
     private portManager: PortManager,
-    private tabManager: TabManager,
     private webphoneAlerting: WebphoneAlerting,
     @inject(MicroPhoneWebphone) private webphone: Webphone,
     @optional('CxIntegratedSoftphoneOptions')
@@ -249,13 +250,6 @@ class CxIntegratedSoftphone extends RcModule {
     this._eventEmitter.emit(CxSoftphoneEvents.RESET);
   }
 
-  get isMainTab(): boolean {
-    if (this.tabManager.fromPopup) {
-      return true;
-    }
-    return Boolean(this.portManager?.isMainTab);
-  }
-
   initialize() {
     this._bindingIntegratedSoftphone();
     this._bindWebphoneState();
@@ -376,23 +370,6 @@ class CxIntegratedSoftphone extends RcModule {
     return /already off-?hook/i.test(`${data.detail ?? ''} ${data.message ?? ''}`);
   }
 
-  /**
-   * A failed offhook is the first hard evidence that the SIP session is gone,
-   * because nothing watches the transport itself. Reconnecting the webphone
-   * re-registers the endpoint with the EPT roles, so it is driven from here.
-   */
-  private async _switchRegistrarAfterOffhookFailure(): Promise<void> {
-    if (!this.portManager.isServer || !this.isIntegratedSoftphone) {
-      return;
-    }
-    this.logger.info('OFFHOOK_INIT failed~~ reconnecting Webphone with EPT');
-    try {
-      await this.webphone.reconnectWithCurrentHeaders();
-    } catch (error) {
-      this.logger.error('Webphone EPT reconnect failed', error);
-    }
-  }
-
   @delegate('server')
   async retrySoftphoneSession(): Promise<void> {
     this.logger.info('retrySoftphoneSession~~');
@@ -466,9 +443,6 @@ class CxIntegratedSoftphone extends RcModule {
         if (!offhookConnected && wasOffhook) {
           await this.cxSubscription.emit(CxCallbackTypes.SIP_ENDED, null);
         }
-        if (offhookConnected) {
-          this.cxPresence.bindBeforeunload();
-        }
         await this.setMuteActive(offhookMuted);
       },
       { multiple: true },
@@ -488,7 +462,6 @@ class CxIntegratedSoftphone extends RcModule {
           return;
         }
         if (ringing) {
-          this.cxPresence.bindBeforeunload();
           if (this.shouldAutoAnswer) {
             await this.sipAnswer();
             return;
@@ -515,7 +488,6 @@ class CxIntegratedSoftphone extends RcModule {
     this.cxSubscription.subscribe(CxCallbackTypes.SIP_ENDED, async () => {
       this.logger.info('SIP_ENDED~~');
       await this.cxPresence.setOffhook(false);
-      await this.cxPresence.removeBeforeunload();
       await this.cxPresence.setDialoutStatus(dialoutStatuses.idle);
     });
     this.cxSubscription.subscribe(
@@ -534,19 +506,49 @@ class CxIntegratedSoftphone extends RcModule {
             );
             await this.cxClient.offhookTerm();
           }
-          return;
         }
-        await this._switchRegistrarAfterOffhookFailure();
+        // Any other refusal, including the agent rejecting the offhook leg, is
+        // reported by CxPresence. WebphoneV2 keeps its own registration alive,
+        // so a failed offhook is no reason to reconnect it.
       },
     );
   }
 
   /**
    * Request audio permission
+   *
+   * Runs in the tab the agent last interacted with, which is where the ringtone
+   * plays and call media goes, so a first-time browser prompt shows up in front
+   * of the agent instead of in a background main tab.
    */
+  async requestAudioPermission(): Promise<boolean> {
+    if (!this.portManager.shared) {
+      return this._requestAudioPermissionLocally();
+    }
+    try {
+      return await this._requestAudioPermissionOnLastInteractedClient();
+    } catch (error) {
+      if (!(error instanceof RoleUnavailableError)) {
+        throw error;
+      }
+      return this._requestAudioPermissionOnMainClient();
+    }
+  }
+
+  @delegateRole(lastInteractedClientRole)
+  protected async _requestAudioPermissionOnLastInteractedClient(): Promise<boolean> {
+    return this._requestAudioPermissionLocally();
+  }
 
   @delegate('mainClient')
-  async requestAudioPermission(): Promise<boolean> {
+  protected async _requestAudioPermissionOnMainClient(): Promise<boolean> {
+    return this._requestAudioPermissionLocally();
+  }
+
+  /**
+   * Ask for microphone access in this tab and record the result.
+   */
+  private async _requestAudioPermissionLocally(): Promise<boolean> {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((track) => track.stop());
@@ -579,8 +581,12 @@ class CxIntegratedSoftphone extends RcModule {
 
   /**
    * Answer SIP call
+   *
+   * Runs on the calling port instead of the main client: `webphone.answer`
+   * claims call media for the tab it runs in. Auto-answer on the server leaves
+   * media with the tab the agent last interacted with; a tab's Answer button
+   * claims it for that tab.
    */
-  @delegate('mainClient')
   async sipAnswer(): Promise<void> {
     await this.webphoneAlerting.setRingCxSoftphoneRinging(false);
     const sessionId = this.webphone.cxOffhookSessionId;
@@ -592,8 +598,12 @@ class CxIntegratedSoftphone extends RcModule {
 
   /**
    * Hangup SIP call
+   *
+   * This and the other offhook controls below run on the server, next to the
+   * WebPhone and the server-side CX modules whose state they change. None of
+   * them starts media, so unlike `sipAnswer` the calling tab does not matter.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async sipHangUp(): Promise<void> {
     const sessionId = this.webphone.cxOffhookSessionId;
     if (!sessionId) {
@@ -609,7 +619,7 @@ class CxIntegratedSoftphone extends RcModule {
    * disappear, because the SIP teardown is a round trip the agent should not
    * have to listen through.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async sipReject(): Promise<void> {
     this.cxPresence.showOffHookInitError = false;
     await this.webphoneAlerting.setRingCxSoftphoneRinging(false);
@@ -622,13 +632,12 @@ class CxIntegratedSoftphone extends RcModule {
       }
     }
     this._eventEmitter.emit(CxSoftphoneEvents.CALL_REJECTED);
-    this.cxPresence.removeBeforeunload();
   }
 
   /**
    * Terminate SIP
    */
-  @delegate('mainClient')
+  @delegate('server')
   async sipTerminate(): Promise<void> {
     await this.webphone.setEngageAgentEptEnabled(false);
     await this.setSipRegisterSuccess(false);
@@ -637,7 +646,7 @@ class CxIntegratedSoftphone extends RcModule {
   /**
    * Send DTMF
    */
-  @delegate('mainClient')
+  @delegate('server')
   async sipSendDTMF(dtmf: string): Promise<void> {
     const sessionId = this.webphone.cxOffhookSessionId;
     if (!sessionId) {
@@ -649,7 +658,7 @@ class CxIntegratedSoftphone extends RcModule {
   /**
    * Mute or unmute the hidden offhook Webphone session.
    */
-  @delegate('mainClient')
+  @delegate('server')
   async sipToggleMute(state: boolean): Promise<void> {
     const sessionId = this.webphone.cxOffhookSessionId;
     if (!sessionId) {

@@ -511,7 +511,10 @@ export class WebphoneV2 extends RcModule {
   }
 
   private _handleBeforeUnload = (event: BeforeUnloadEvent) => {
-    const sessionCount = this.sessions.length;
+    // `sessions` leaves out the hidden RingCX offhook leg, but closing the tab
+    // that carries its media drops the agent's audio all the same.
+    const sessionCount =
+      this.sessions.length + (this.cxOffhookSessionId ? 1 : 0);
     const isLocalMediaOwner = this._webphoneMedia.isLocalMediaOwner;
     const isAuthoritativeBrowser =
       !this._portManager.shared ||

@@ -13,7 +13,6 @@ import {
   ModuleRef,
 } from '@ringcentral-integration/next-core';
 import { EventEmitter } from 'events';
-import { Beforeunload } from '@ringcentral-integration/micro-core/src/app/services';
 import type { DialoutStatusesType } from '../../enums';
 import { callStatus, dialoutStatuses, messageTypes } from '../../enums';
 import { t } from './i18n';
@@ -46,12 +45,6 @@ import { resolveEndedCallSessions } from '../../utils/resolveEndedCallSessions';
   name: 'CxPresence',
 })
 class CxPresence extends RcModule {
-  beforeunloadHandler = () => {
-    if (this.portManager.isMainTab) {
-      return false;
-    }
-    return true;
-  };
   evPresenceEvents = new EventEmitter();
   showOffHookInitError = true;
   private _oldCalls: CxBaseCall[] = [];
@@ -71,7 +64,6 @@ class CxPresence extends RcModule {
     private cxSubscription: CxSubscription,
     private cxCallDataSource: CxCallDataSource,
     private toast: Toast,
-    private beforeunload: Beforeunload,
     private storagePlugin: StoragePlugin,
     private portManager: PortManager,
     private moduleRef: ModuleRef,
@@ -217,7 +209,6 @@ class CxPresence extends RcModule {
   @action
   _setOffhook(status: boolean) {
     this.isOffhook = status;
-    this._checkBeforeunload();
   }
 
   @delegate('server')
@@ -358,7 +349,6 @@ class CxPresence extends RcModule {
           this.evPresenceEvents.emit(CxCallbackTypes.OFFHOOK_INIT, data);
           if (data.status === 'OK') {
             await this.setOffhookInit();
-            this._checkBeforeunload();
           } else {
             if (this.showOffHookInitError) {
               this.toast.danger({
@@ -366,7 +356,6 @@ class CxPresence extends RcModule {
               });
             }
             await this.setOffhookTerm();
-            this._checkBeforeunload();
             this.showOffHookInitError = true;
           }
         },
@@ -382,7 +371,6 @@ class CxPresence extends RcModule {
           // Fix: also handle 'Offhook terminated' message on logout
           if (data.status === 'OK' || data.message === 'Offhook terminated') {
             await this.setOffhookTerm();
-            this._checkBeforeunload();
           } else {
             this.toast.danger({
               message: t(messageTypes.OFFHOOK_TERM_ERROR),
@@ -445,19 +433,6 @@ class CxPresence extends RcModule {
           await this._checkCallStateChange(this.callsMapping[id]);
         }
       });
-  }
-
-  // --- Beforeunload ---
-
-  private _checkBeforeunload() {
-    if (!this.portManager.isMainTab) {
-      return;
-    }
-    if (this.isOffhook) {
-      this.beforeunload.add(this.beforeunloadHandler);
-    } else {
-      this.beforeunload.remove(this.beforeunloadHandler);
-    }
   }
 
   // --- Utility methods ---
@@ -552,20 +527,6 @@ class CxPresence extends RcModule {
       }
       this.evPresenceEvents.emit(callStatus.ENDED, call);
     }
-  }
-
-  /**
-   * Bind beforeunload handler
-   */
-  bindBeforeunload(): void {
-    this.beforeunload.add(this.beforeunloadHandler);
-  }
-
-  /**
-   * Remove beforeunload handler
-   */
-  removeBeforeunload(): void {
-    this.beforeunload.remove(this.beforeunloadHandler);
   }
 }
 

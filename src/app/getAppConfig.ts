@@ -163,6 +163,7 @@ import { FaxDetailsView } from './views/FaxDetailsView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
 import { SideWidgetView, type SideWidgetOptions } from './views/SideWidgetView';
+import { ModalView as ModalViewV2 } from './views/ModalView';
 import { SyncTabView as SyncTabViewV2 } from './views/SyncTabView';
 import { CallControlView as MicroPhoneCallControlView } from '@ringcentral-integration/micro-phone/src/app/views/CallView/routes/CallControlViewSpring';
 import {
@@ -557,7 +558,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: MicroPhoneDialerView,
         useClass: DialerViewV2,
       },
-      ModalView,
+      {
+        provide: ModalView,
+        useClass: ModalViewV2,
+      },
       MessageStore,
       Conversations,
       QueueConversations,
@@ -707,12 +711,11 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         deps: ['BrandConfig', 'SdkConfig'],
       },
       {
-        // `end` hangs up calls whose media owner disappeared. `recover` would
-        // re-INVITE from a surviving tab instead, but it relies on
-        // CallSession.reInvite, which is unverified here — switch once the
-        // owner-loss path has been exercised in a browser.
+        // When the tab carrying call media closes, `recover` moves the media to
+        // a surviving tab and re-INVITEs every live call from there, the RingCX
+        // offhook leg included. `end` would hang those calls up instead.
         provide: 'WebphoneV2Options',
-        useValue: { mediaOwnerLossPolicy: 'end' },
+        useValue: { mediaOwnerLossPolicy: 'recover' },
       },
       { provide: 'Subscription', useClass: WebSocketSubscription },
       {

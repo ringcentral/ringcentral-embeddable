@@ -25,6 +25,8 @@ import {
   watch,
 } from '@ringcentral-integration/next-core';
 
+import { BehaviorSubject, type Observable } from 'rxjs';
+
 import type { CxExBridgeHint } from '../ActiveCallControl/is-cx-rc-ext-ex-bridge-call';
 import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
 import { loadRingCXChunk } from '../load-ringcx-chunk';
@@ -89,6 +91,20 @@ function readCxRcExtMainNumber(destination: string): string {
 })
 export class RingCX extends RcModule {
   private _loadPromise: Promise<void> | null = null;
+
+  private readonly _hydratedOnThisPort$ = new BehaviorSubject<boolean>(false);
+
+  /**
+   * Emits `true` once this port has loaded the CX chunk and holds the CX
+   * modules' current state.
+   *
+   * `loaded` and `stage` are synced from the server, so a tab opened
+   * mid-session sees them before its own chunk and state arrive. CX views gate
+   * on this instead, so a CX page never renders against the modules' empty
+   * initial state and redirects away from the route it was opened on.
+   */
+  readonly hydratedOnThisPort$: Observable<boolean> =
+    this._hydratedOnThisPort$.asObservable();
 
   @dynamic('CxAuth')
   readonly cxAuth?: CxAuthModule;
@@ -534,9 +550,11 @@ export class RingCX extends RcModule {
       // have run the session for a while; pull its state instead of deriving
       // a stage from the empty initial one.
       await this._portManager.portDetector.syncFullState({ forceSync: true });
+      this._hydratedOnThisPort$.next(true);
       return;
     }
     this._synchronizeStage();
+    this._hydratedOnThisPort$.next(true);
   }
 
   private _buildRuntimeOptions(): CxRuntimeOptions {
