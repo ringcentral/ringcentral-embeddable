@@ -402,8 +402,9 @@ describe('VoicemailDrop service', () => {
     expect(processor.disconnect).toHaveBeenCalled();
   });
 
-  test('fails sending when no sender or replacement tracks are available', async () => {
+  test('terminates sending when no sender or replacement tracks are available', async () => {
     const { service } = createVoicemailDrop();
+    const trackFailed = jest.spyOn(service, '_trackVoicemailDropFailed');
     const updateStatus = jest.fn();
     const baseArgs = {
       audioBuffer: {},
@@ -416,7 +417,8 @@ describe('VoicemailDrop service', () => {
       webphoneSession: createSession({ sender: false }),
       audioContext: createAudioContext(),
     });
-    expect(updateStatus).toHaveBeenCalledWith(voicemailDropStatus.failed);
+    expect(updateStatus).toHaveBeenCalledWith(voicemailDropStatus.terminated);
+    expect(trackFailed).toHaveBeenCalledWith('terminated');
 
     const noAudioTrackContext = createAudioContext();
     noAudioTrackContext.createMediaStreamDestination.mockReturnValue({
@@ -436,6 +438,13 @@ describe('VoicemailDrop service', () => {
       audioContext: createAudioContext(),
     });
     expect(updateStatus).toHaveBeenCalledTimes(3);
+    expect(updateStatus).not.toHaveBeenCalledWith(voicemailDropStatus.failed);
+    expect(trackFailed).toHaveBeenCalledTimes(3);
+    expect(trackFailed.mock.calls).toEqual([
+      ['terminated'],
+      ['terminated'],
+      ['terminated'],
+    ]);
   });
 
   test('sends audio, restores the microphone, finishes, and ends the call', async () => {

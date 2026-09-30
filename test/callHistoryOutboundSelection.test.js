@@ -37,31 +37,46 @@ jest.mock(
   }),
 );
 
-jest.mock('@ringcentral-integration/micro-phone/src/app/services', () => ({
-  Call: class Call {},
-  CallHistory: class CallHistory {},
-  CallLogger: class CallLogger {},
-  CallLogTasks: class CallLogTasks {},
-}));
+// jest.config.js maps the micro-auth/contacts/core/message/phone services to
+// one mock module, so each of their `jest.mock` calls replaces the same module
+// and only the last factory would count. They share one factory instead,
+// declared as a function so it is hoisted above the imports like the mocks.
+function mockMicroServices() {
+  return {
+    AppFeatures: class AppFeatures {},
+    Call: class Call {},
+    CallHistory: class CallHistory {},
+    CallLogger: class CallLogger {},
+    CallLogTasks: class CallLogTasks {},
+    ComposeText: class ComposeText {},
+    ConnectivityManager: class ConnectivityManager {},
+    ContactMatcher: class ContactMatcher {},
+    MessageStore: class MessageStore {},
+    RateLimiter: class RateLimiter {},
+    Toast: class Toast {},
+    track: () => (_target, _key, descriptor) => descriptor,
+  };
+}
 
-jest.mock('@ringcentral-integration/micro-auth/src/app/services', () => ({
-  AppFeatures: class AppFeatures {},
-  ConnectivityManager: class ConnectivityManager {},
-  RateLimiter: class RateLimiter {},
-}));
+jest.mock('@ringcentral-integration/micro-phone/src/app/services', () =>
+  mockMicroServices(),
+);
 
-jest.mock('@ringcentral-integration/micro-contacts/src/app/services', () => ({
-  ContactMatcher: class ContactMatcher {},
-}));
+jest.mock('@ringcentral-integration/micro-auth/src/app/services', () =>
+  mockMicroServices(),
+);
 
-jest.mock('@ringcentral-integration/micro-core/src/app/services', () => ({
-  Toast: class Toast {},
-}));
+jest.mock('@ringcentral-integration/micro-contacts/src/app/services', () =>
+  mockMicroServices(),
+);
 
-jest.mock('@ringcentral-integration/micro-message/src/app/services', () => ({
-  ComposeText: class ComposeText {},
-  MessageStore: class MessageStore {},
-}));
+jest.mock('@ringcentral-integration/micro-core/src/app/services', () =>
+  mockMicroServices(),
+);
+
+jest.mock('@ringcentral-integration/micro-message/src/app/services', () =>
+  mockMicroServices(),
+);
 
 jest.mock('@ringcentral-integration/micro-setting/src/app/services', () => ({
   IntegrationConfig: class IntegrationConfig {},

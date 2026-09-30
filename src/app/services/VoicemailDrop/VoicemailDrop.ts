@@ -399,6 +399,7 @@ export class VoicemailDrop extends RcModule {
       .find((senderItem: RTCRtpSender) => senderItem.track?.kind === 'audio');
     if (!sender) {
       updateStatus(voicemailDropStatus.terminated);
+      this._trackVoicemailDropFailed('terminated');
       return;
     }
     const destination = audioContext.createMediaStreamDestination();

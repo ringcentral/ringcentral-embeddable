@@ -1,3 +1,8 @@
+jest.mock("@ringcentral-integration/next-core", () => ({
+  ...jest.requireActual("./mocks/nextCoreMock"),
+  fromWatchValue: (_owner, selector) => require("rxjs").of(selector()),
+}));
+
 const {
   Analytics: AnalyticsBase,
 } = require("@ringcentral-integration/micro-auth/src/app/services");
@@ -106,10 +111,10 @@ describe("external analytics compatibility", () => {
       jest.restoreAllMocks();
     });
 
-    function createAnalytics(enableExternalAnalytics) {
+    function createAnalytics(enableExternalAnalytics, currentPath) {
       return new EmbeddableAnalytics(
         {},
-        {},
+        { currentPath },
         {},
         {},
         {
@@ -166,15 +171,56 @@ describe("external analytics compatibility", () => {
       expect(baseTrack).not.toHaveBeenCalled();
     });
 
-    test("does not expose next-only route tracking events to the host", async () => {
-      const analytics = createAnalytics(true);
+    test.each(["Navigation: Click/Calls", "Navigation: Linger/Calls"])(
+      "drops the upstream %s route event from both transports",
+      async (event) => {
+        const analytics = createAnalytics(true);
 
-      await analytics.track("Navigation: Click/Calls", { router: "/calls" });
+        await analytics.track(event, { router: "/calls" });
+
+        expect(postMessage).not.toHaveBeenCalled();
+        expect(baseTrack).not.toHaveBeenCalled();
+      }
+    );
+
+    test("tracks the legacy page view of the current route without posting it", () => {
+      createAnalytics(true, "/history/recordings");
+
+      expect(baseTrack).toHaveBeenCalledWith("Viewed page", {
+        pageName: "Recordings",
+        currentURL: "/history/recordings",
+      });
+      expect(postMessage).not.toHaveBeenCalled();
+    });
+
+    test("does not track a page view for an untracked route", () => {
+      createAnalytics(true, "/agent/home");
+
+      expect(baseTrack).not.toHaveBeenCalled();
+    });
+
+    test.each([
+      ["/dialer", "/dialer"],
+      ["/calls/active/123", "/calls/active"],
+      ["/contacts/abc-123", "/contacts/details"],
+      ["/settings/audio", "/settings/audio"],
+      ["/messages/voicemail", "/messages/voicemail"],
+    ])("resolves %s to the legacy %s page", (currentPath, router) => {
+      const analytics = createAnalytics(false);
+
+      expect(analytics.getTrackTarget(currentPath)).toEqual(
+        expect.objectContaining({ router })
+      );
+    });
+
+    test("does not post legacy page views delegated to the main client", async () => {
+      const analytics = createAnalytics(true);
+      const pageView = { pageName: "Dialer", currentURL: "/dialer" };
+
+      await analytics.trackOnMainTab("Viewed page", pageView);
 
       expect(postMessage).not.toHaveBeenCalled();
-      expect(baseTrack).toHaveBeenCalledWith("Navigation: Click/Calls", {
-        router: "/calls",
-      });
+      expect(baseTrackOnMainTab).toHaveBeenCalledWith("Viewed page", pageView);
     });
 
     test("posts once when delegated tracking reaches the main client", async () => {
