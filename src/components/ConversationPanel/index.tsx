@@ -197,7 +197,11 @@ export type ConversationProps = {
   granularLoggingEnabled?: boolean;
   messageLogStateMap?: Record<string, { logId: string }>;
   onLogSelectedMessages?: (args: { conversationId: string; selectedMessageIds: number[] }) => any;
-  onClickMessageLog?: (logId: string) => any;
+  onClickMessageLog?: (args: {
+    logId: string;
+    messageId: string | number;
+    conversationId: string;
+  }) => any;
   syncMessageLogState?: (conversationId: string, messageIds: number[]) => any;
 }
 
@@ -627,7 +631,15 @@ export function ConversationPanel({
         selectedMessageIds={selectedMessageIds}
         messageLogStateMap={granularLoggingEnabled ? messageLogStateMap : {}}
         setMessageSelected={setMessageSelected}
-        onClickMessageLog={onClickMessageLog}
+        onClickMessageLog={
+          typeof onClickMessageLog === 'function'
+            ? ({ logId, messageId }) => onClickMessageLog({
+              logId,
+              messageId,
+              conversationId,
+            })
+            : undefined
+        }
       />
     );
   }

@@ -134,6 +134,9 @@ function createDeps(overrides = {}) {
       },
       clearTyping: jest.fn(),
       enabled: true,
+      getTypingTime: jest.fn((messageId) => (
+        messageId === 'message-1' ? 1500 : undefined
+      )),
       pauseTyping: jest.fn(),
       startTyping: jest.fn(),
       stopTyping: jest.fn(),
@@ -142,7 +145,9 @@ function createDeps(overrides = {}) {
       additionalSMSToolbarButtons: [{ id: 'crm' }],
       checkDoNotContact: jest.fn(async () => ({ result: false })),
       doNotContactRegistered: true,
+      logSelectedMessages: jest.fn(async () => ({})),
       onClickAdditionalButton: jest.fn(),
+      openMessageLog: jest.fn(async () => {}),
     },
     ...overrides,
   };
@@ -340,6 +345,58 @@ describe('ConversationUI', () => {
 
     funcs.goBack();
     expect(deps.routerInteraction.push).toHaveBeenCalledWith('/messages');
+  });
+
+  it('includes typing durations when logging selected messages', async () => {
+    const deps = createDeps();
+    deps.conversations.currentConversation = {
+      conversationId: 'conversation-1',
+      correspondents: [{ phoneNumber: '+16505550123' }],
+      messages: [
+        { id: 'message-1', subject: 'typed message' },
+        { id: 'message-2', subject: 'untracked message' },
+        { id: 'message-3', subject: 'not selected' },
+      ],
+      self: { phoneNumber: '+16505550100' },
+      type: 'SMS',
+    };
+    const funcs = createModule(deps).getUIFunctions({
+      params: { type: 'conversation' },
+    });
+
+    await funcs.onLogSelectedMessages({
+      conversationId: 'conversation-1',
+      selectedMessageIds: ['message-1', 'message-2'],
+    });
+
+    expect(deps.thirdPartyService.logSelectedMessages).toHaveBeenCalledWith({
+      conversation: {
+        conversationId: 'conversation-1',
+        correspondents: [{ phoneNumber: '+16505550123' }],
+        messages: [
+          {
+            id: 'message-1',
+            subject: 'typed message',
+            typingDurationMs: 1500,
+          },
+          { id: 'message-2', subject: 'untracked message' },
+        ],
+        self: { phoneNumber: '+16505550100' },
+        type: 'SMS',
+      },
+      selectedMessageIds: ['message-1', 'message-2'],
+    });
+
+    await funcs.onClickMessageLog({
+      logId: 'log-1',
+      messageId: 'message-1',
+      conversationId: 'conversation-1',
+    });
+    expect(deps.thirdPartyService.openMessageLog).toHaveBeenCalledWith({
+      logId: 'log-1',
+      messageId: 'message-1',
+      conversationId: 'conversation-1',
+    });
   });
 
   it('handles thread reply mode, read mode, and resolved thread compose fallback', async () => {

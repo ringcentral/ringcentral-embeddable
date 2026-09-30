@@ -853,13 +853,18 @@ export default class ThirdPartyService extends RcModuleV2 {
   }
 
   // Granular logging: navigate/open the CRM entry a message was logged into.
-  async openMessageLog({ logId }) {
+  async openMessageLog({ logId, messageId, conversationId }) {
     try {
       const path = this._messageLogOpenPath || this._messageLoggerPath;
       if (!path || !logId) {
         return;
       }
-      await requestWithPostMessage(path, { logId, triggerType: 'openLog' }, 15000);
+      await requestWithPostMessage(path, {
+        logId,
+        messageId,
+        conversationId,
+        triggerType: 'openLog',
+      }, 15000);
     } catch (e) {
       console.error('Open message log error, please check if message logger responds successfully', e);
     }

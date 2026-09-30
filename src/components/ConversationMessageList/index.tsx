@@ -566,7 +566,7 @@ export function ConversationMessageList({
   selectedMessageIds?: Set<number>;
   messageLogStateMap?: Record<string, { logId: string }>;
   setMessageSelected?: (id: number, selected: boolean) => void;
-  onClickMessageLog?: (logId: string) => void;
+  onClickMessageLog?: (args: { logId: string; messageId: string | number }) => void;
 }) {
   const listRef = useRef(null);
   const scrollHeight = useRef(null);
@@ -713,7 +713,10 @@ export function ConversationMessageList({
         }}
         onClickLog={() => {
           if (isLogged && typeof onClickMessageLog === 'function') {
-            onClickMessageLog(loggedState.logId);
+            onClickMessageLog({
+              logId: loggedState.logId,
+              messageId: message.id,
+            });
           }
         }}
       />

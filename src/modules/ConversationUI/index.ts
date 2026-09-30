@@ -208,9 +208,15 @@ export class ConversationUI extends BaseConversationUI {
           return;
         }
         const idSet = new Set(selectedMessageIds.map((id) => String(id)));
-        const selectedMessages = (conversation.messages || []).filter((message) =>
-          idSet.has(String(message.id)),
-        );
+        const selectedMessages = (conversation.messages || [])
+          .filter((message) => idSet.has(String(message.id)))
+          .map((message) => {
+            const typingDurationMs =
+              smsTypingTimeTracker.getTypingTime(message.id);
+            return typeof typingDurationMs === 'number'
+              ? { ...message, typingDurationMs }
+              : message;
+          });
         if (selectedMessages.length === 0) {
           return;
         }
@@ -227,8 +233,12 @@ export class ConversationUI extends BaseConversationUI {
         });
       },
       // Granular logging: navigate to the CRM entry for an already-logged message.
-      onClickMessageLog: (logId) => {
-        return thirdPartyService.openMessageLog({ logId });
+      onClickMessageLog: ({ logId, messageId, conversationId }) => {
+        return thirdPartyService.openMessageLog({
+          logId,
+          messageId,
+          conversationId,
+        });
       },
       // Granular logging: hydrate per-message logged state when a conversation loads.
       syncMessageLogState: (conversationId, messageIds) => {
