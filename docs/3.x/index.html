@@ -1519,7 +1519,7 @@
   <span class="md-ellipsis">
     
   
-    Embeddable 3.0 Beta
+    Embeddable 3.0
   
 
     
@@ -1537,7 +1537,7 @@
   <span class="md-ellipsis">
     
   
-    Embeddable 3.0 Beta
+    Embeddable 3.0
   
 
     
@@ -3108,7 +3108,7 @@ This improvement enables:</p>
 </ul>
 <h2 id="getting-started-with-30">Getting started with 3.0</h2>
 <h3 id="quick-setup">Quick setup</h3>
-<p>Update your application to use the 3.x build:</p>
+<p>Update your application to use the 3.0.0 build:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Javascript</label><label for="__tabbed_1_2">iframe</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -3116,7 +3116,7 @@ This improvement enables:</p>
 <div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/adapter.js?clientId=YOUR_RINGCENTRAL_CLIENT_ID&amp;enableSideWidget=1"</span><span class="p">;</span><span class="w"> </span><span class="c1">// (1)!</span>
+<span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/3.0.0/adapter.js?clientId=YOUR_RINGCENTRAL_CLIENT_ID&amp;enableSideWidget=1"</span><span class="p">;</span><span class="w"> </span><span class="c1">// (1)!</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"script"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
@@ -3132,7 +3132,7 @@ This improvement enables:</p>
   <span class="na">width</span><span class="o">=</span><span class="s">"300"</span> 
   <span class="na">height</span><span class="o">=</span><span class="s">"500"</span> 
   <span class="na">allow</span><span class="o">=</span><span class="s">"microphone"</span> 
-  <span class="na">src</span><span class="o">=</span><span class="s">"https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/app.html?clientId=YOUR_RINGCENTRAL_CLIENT_ID&amp;enableSideWidget=1"</span><span class="p">&gt;</span>
+  <span class="na">src</span><span class="o">=</span><span class="s">"https://apps.ringcentral.com/integration/ringcentral-embeddable/3.0.0/app.html?clientId=YOUR_RINGCENTRAL_CLIENT_ID&amp;enableSideWidget=1"</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
 </code></pre></div>
 </div>
@@ -3140,7 +3140,7 @@ This improvement enables:</p>
 </div>
 <h3 id="required-configuration">Required configuration</h3>
 <p>Add the following redirect URI to your RingCentral application settings in the <a href="https://developers.ringcentral.com/">Developer Console</a>:</p>
-<div class="highlight"><pre><span></span><code>https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/redirect.html
+<div class="highlight"><pre><span></span><code>https://apps.ringcentral.com/integration/ringcentral-embeddable/3.0.0/redirect.html
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
@@ -3150,9 +3150,9 @@ This improvement enables:</p>
 <h3 id="seamless-upgrade">Seamless upgrade</h3>
 <p>Migrating from 2.x to 3.0 is straightforward:</p>
 <ol>
-<li><strong>Update the URL</strong> - Change <code>latest</code> or <code>2.x</code> to <code>3.x</code> in your script src</li>
+<li><strong>Update the URL</strong> - Change <code>latest</code> or <code>2.x</code> to <code>3.0.0</code> in your script src</li>
 <li><strong>Add enableSideWidget</strong> - Include <code>enableSideWidget=1</code> to access new features</li>
-<li><strong>Update redirect URI</strong> - Add the 3.x redirect URI to your app settings</li>
+<li><strong>Update redirect URI</strong> - Add the 3.0.0 redirect URI to your app settings</li>
 <li><strong>Test thoroughly</strong> - Verify all existing functionality works as expected</li>
 </ol>
 <h2 id="next-steps">Next steps</h2>
