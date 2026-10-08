@@ -72,7 +72,7 @@ jobs:
           CLEAN: true
   extension-build:
     needs: test
-    if: ${{ github.ref == 'refs/heads/3.x' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -98,6 +98,6 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: 3.x-extension-build
+          BRANCH: extension-build
           FOLDER: extension
           CLEAN: true
