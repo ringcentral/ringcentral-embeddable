@@ -2679,20 +2679,26 @@
 <span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">displayName</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestServiceDisplayName'</span><span class="p">,</span><span class="w"> </span><span class="c1">// Optional, supported from 2.0.1</span>
+<span class="w">    </span><span class="nx">displayName</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span><span class="w"> </span><span class="c1">// Optional, supported from 2.0.1</span>
 <span class="w">    </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="s1">'Some description about this service'</span><span class="p">,</span><span class="w"> </span><span class="c1">// Optional, supported from 2.0.0</span>
 <span class="w">    </span><span class="nx">authorizationPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/authorize'</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">authorizedTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Unauthorize'</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">unauthorizedTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Authorize'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">authorizedTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Logout'</span><span class="p">,</span><span class="w"> </span><span class="c1">// authorized button title in authorization section.</span>
+<span class="w">    </span><span class="nx">unauthorizedTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Connect'</span><span class="p">,</span><span class="w"> </span><span class="c1">// unauthorized button title in authorization section.</span>
 <span class="w">    </span><span class="nx">authorized</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">authorizedAccount</span><span class="o">:</span><span class="w"> </span><span class="s1">'test@email.com'</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, authorized account email or id</span>
 <span class="w">    </span><span class="nx">authorizationLogo</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://your_brand_picture/logo.png'</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, show your brand logo in authorization section, recommended: height 30px, width &lt; 85px.</span>
 <span class="w">    </span><span class="c1">// showAuthRedDot: true, // optional, this will show red dot at settings page when need to auth</span>
+<span class="w">    </span><span class="c1">// licenseStatus: 'License: expired', // optional, supported from 3.0.0. To show license status in authorization section.</span>
+<span class="w">    </span><span class="c1">// licenseDescription: 'Please purchase license at [here](https://www.ringcentral.com/). To use this feature, you need to purchase a license.',</span>
+<span class="w">    </span><span class="nx">authorizationLinks</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">'Support'</span><span class="p">,</span><span class="w"> </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://www.ringcentral.com/contact'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">'Terms of use'</span><span class="p">,</span><span class="w"> </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://www.ringcentral.com/terms'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span><span class="w"> </span><span class="c1">// optional, supported from 3.0.0. To add more links to authorization section.</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
 </code></pre></div>
 <p>After registered, you can get a <code>TestService authorization button</code> in setting page:</p>
-<p><img alt="authorization image" src="https://user-images.githubusercontent.com/7036536/55848678-55817600-5b80-11e9-8eb3-a784a56997a8.jpeg" /></p>
+<p><img alt="authorization image" src="../../assets/authorization-section.png" /></p>
 <p>Add a message event to response authorization button event:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>

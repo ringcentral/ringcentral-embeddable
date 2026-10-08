@@ -2183,6 +2183,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#register-tab-header-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Register tab header actions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#show-list-in-customized-tab" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2674,6 +2685,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#register-tab-header-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Register tab header actions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#show-list-in-customized-tab" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2797,11 +2819,12 @@
 <span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'CRM'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'tab'</span><span class="p">,</span><span class="w"> </span><span class="c1">// tab type</span>
 <span class="w">    </span><span class="nx">iconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://xxx/icon.png'</span><span class="p">,</span><span class="w"> </span><span class="c1">// icon for tab, 24x24, recommended color: #16181D</span>
-<span class="w">    </span><span class="nx">activeIconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://xxx/icon-active.png'</span><span class="p">,</span><span class="w"> </span><span class="c1">// icon for tab in active status, 24x24, recommended color: ##2559E4</span>
+<span class="w">    </span><span class="nx">activeIconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://xxx/icon-active.png'</span><span class="p">,</span><span class="w"> </span><span class="c1">// icon for tab in active status, 24x24, recommended color: #2559E4</span>
 <span class="w">    </span><span class="nx">darkIconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://xxx/icon-dark.png'</span><span class="p">,</span><span class="w"> </span><span class="c1">// Supported from v2.2.1, icon for tab in dark mode, 24x24, recommended color: #ffffff</span>
 <span class="w">    </span><span class="nx">hidden</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, default false, whether to hide the tab icon from navigation bar</span>
 <span class="w">    </span><span class="nx">unreadCount</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional, unread count, 0-99</span>
-<span class="w">    </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="mf">31</span><span class="p">,</span><span class="w"> </span><span class="c1">// tab priority, 0-100, 0 is the highest priority, Phone tab: 10, Text: 20, Fax: 30, Glip: 40, Contacts: 50, Video: 60, Settings: 70</span>
+<span class="w">    </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="mf">31</span><span class="p">,</span><span class="w"> </span><span class="c1">// tab priority, 0-100, 0 is the highest priority, Phone: 10, Text: 20, Contacts: 30, Glip: 40, Video: 50, Fax: 60, Settings: 70</span>
+<span class="w">    </span><span class="nx">actions</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="c1">// optional, header actions, see "Register tab header actions" section below</span>
 <span class="w">    </span><span class="c1">// schema and uiSchema are used to customize page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)</span>
 <span class="w">    </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'object'</span><span class="p">,</span>
@@ -2913,13 +2936,16 @@
 <span class="w">      </span><span class="k">return</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/button-click'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'page1'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'customizedTabAction'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// tab header action clicked, supported from v3.x</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Tab action clicked:'</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Tab id:'</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">tabId</span><span class="p">);</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'page1'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// on submit button click</span>
 <span class="w">        </span><span class="c1">// button id is the page id</span>
 <span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Save button clicked'</span><span class="p">);</span>
 <span class="w">        </span><span class="c1">// ...</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'openSettingsButton'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'openSettingsButton'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// click on the button registered in schema, button id is the button key</span>
 <span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Open settings button clicked'</span><span class="p">);</span>
 <span class="w">        </span><span class="c1">// ...</span>
@@ -2934,6 +2960,79 @@
 <span class="p">});</span>
 </code></pre></div>
 <p>When the user clicks the button, you will receive a message with the path <code>/button-click</code>. When the user changes the input, you will receive a message with the path <code>/customizedPage/inputChanged</code>.</p>
+<h2 id="register-tab-header-actions">Register tab header actions</h2>
+<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">3.0.0</a></span></span></p>
+<p>You can register actions that are displayed as icon buttons in the tab's header (top-right area). Currently supported icon types are <code>settings</code>, <code>new</code>, <code>refresh</code>, <code>download</code>, and <code>edit</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-customized-page'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'tabID'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'CRM'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'tab'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">iconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://xxx/icon.png'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">activeIconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://xxx/icon-active.png'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="mf">31</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">actions</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'refreshData'</span><span class="p">,</span><span class="w"> </span><span class="nx">icon</span><span class="o">:</span><span class="w"> </span><span class="s1">'refresh'</span><span class="p">,</span><span class="w"> </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Refresh'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'openSettings'</span><span class="p">,</span><span class="w"> </span><span class="nx">icon</span><span class="o">:</span><span class="w"> </span><span class="s1">'settings'</span><span class="p">,</span><span class="w"> </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Settings'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'createNew'</span><span class="p">,</span><span class="w"> </span><span class="nx">icon</span><span class="o">:</span><span class="w"> </span><span class="s1">'new'</span><span class="p">,</span><span class="w"> </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'New Item'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'download'</span><span class="p">,</span><span class="w"> </span><span class="nx">icon</span><span class="o">:</span><span class="w"> </span><span class="s1">'download'</span><span class="p">,</span><span class="w"> </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Download'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">'edit'</span><span class="p">,</span><span class="w"> </span><span class="nx">icon</span><span class="o">:</span><span class="w"> </span><span class="s1">'edit'</span><span class="p">,</span><span class="w"> </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">'Edit'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">uiSchema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">formData</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>actions[].id</code></td>
+<td>string</td>
+<td>Action id, required. Used to identify the action in click events</td>
+</tr>
+<tr>
+<td><code>actions[].icon</code></td>
+<td>string</td>
+<td>Icon type, required. Supported values: <code>settings</code>, <code>new</code>, <code>refresh</code>, <code>download</code>, <code>edit</code></td>
+</tr>
+<tr>
+<td><code>actions[].title</code></td>
+<td>string</td>
+<td>Tooltip text for the action button</td>
+</tr>
+</tbody>
+</table>
+<p>When a user clicks a tab header action, you will receive a message at <code>buttonEventPath</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/button-click'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'customizedTabAction'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Tab action clicked:'</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span><span class="w"> </span><span class="c1">// action id, e.g. 'refreshData'</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Tab id:'</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">button</span><span class="p">.</span><span class="nx">tabId</span><span class="p">);</span><span class="w"> </span><span class="c1">// tab id, e.g. 'tabID'</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Prerequisite</p>
+<p>Make sure you have registered <code>buttonEventPath</code> in your service registration. See <a href="#handle-button-clicked-and-input-changed-event">Handle button clicked and input changed event</a> below.</p>
+</div>
 <h2 id="show-list-in-customized-tab">Show list in customized tab</h2>
 <p><img alt="customized list" src="https://github.com/ringcentral/ringcentral-embeddable/assets/7036536/865e73e2-776b-4baf-87ed-fb52d965c84a" /></p>
 <p>You can show a list in the customized page:</p>
@@ -2946,7 +3045,7 @@
 <span class="w">    </span><span class="nx">iconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://xxx/icon.png'</span><span class="p">,</span><span class="w"> </span><span class="c1">// icon for tab, 24x24</span>
 <span class="w">    </span><span class="nx">activeIconUri</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://xxx/icon-active.png'</span><span class="p">,</span><span class="w"> </span><span class="c1">// icon for tab in active status, 24x24</span>
 <span class="w">    </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="mf">31</span><span class="p">,</span>
-<span class="w">    </span><span class="c1">// schema and uiSchema are used to customize page, api is the same as [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form)</span>
+<span class="w">    </span><span class="c1">// schema and uiSchema are used to customize page, api is the same as [jsonschema-page](https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs)</span>
 <span class="w">    </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'object'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>

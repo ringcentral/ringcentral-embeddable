@@ -1859,6 +1859,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#granular-per-message-sms-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Granular per-message SMS logging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Granular per-message SMS logging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#log-selected-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log selected messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-message-logged-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-message logged state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#open-a-logged-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open a logged entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2706,6 +2756,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#granular-per-message-sms-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Granular per-message SMS logging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Granular per-message SMS logging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#log-selected-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log selected messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-message-logged-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-message logged state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#open-a-logged-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open a logged entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3056,6 +3156,64 @@
 <p class="admonition-title">JSON Schema reference</p>
 <p>Learn how to define custom page with JSON schema in the <a href="https://ringcentral.github.io/ringcentral-embeddable/jsonschema-page/?path=/docs/readme--docs">JSON schema page document</a>.</p>
 </div>
+<h2 id="granular-per-message-sms-logging">Granular per-message SMS logging</h2>
+<p>By default SMS messages are logged as a daily digest (grouped by <code>conversationId</code> and <code>date</code>). For manual-logging workflows that need to attribute individual messages to different CRM records (e.g. legal/consulting matters), you can enable granular per-message selection.</p>
+<p>When enabled, the SMS conversation view shows a checkbox next to every unlogged message (checked by default) and a logged icon on messages that are already logged. The header <code>Log</code> button then logs only the checked messages.</p>
+<div class="admonition info">
+<p class="admonition-title">Requirements</p>
+<p>Granular selection only renders when the user/account uses <strong>manual</strong> SMS logging (auto log disabled). When auto log is enabled, the standard daily-digest behavior is used.</p>
+</div>
+<p>Enable it in your service manifest:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">messageLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/messageLogger'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">messageLoggerTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">'Log to TestService'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">messageLogEntityMatcherPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/messageLogger/match'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">messageLogOpenPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/messageLogger/openLog'</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional; navigate to a logged entry</span>
+<span class="w">    </span><span class="nx">messageLoggerGranularSelectionEnabled</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">  </span><span class="c1">// turn on per-message selection</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="log-selected-messages">Log selected messages</h3>
+<p>When the user clicks <code>Log</code>, the widget posts a request to <code>messageLoggerPath</code> with <code>triggerType: 'selectedLog'</code> and a snapshot of the checked message ids in <code>body.selectedMessageIds</code>. Only these messages are included in <code>body.conversation.messages</code>.</p>
+<p>Respond with a <code>logId</code> that identifies the created CRM entry. The widget stores it per selected message so it can render the logged icon and navigate back to the entry.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/messageLogger'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'selectedLog'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kd">var</span><span class="w"> </span><span class="nx">selectedIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">selectedMessageIds</span><span class="p">;</span><span class="w"> </span><span class="c1">// e.g. ['123', '456']</span>
+<span class="w">      </span><span class="kd">var</span><span class="w"> </span><span class="nx">conversation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">conversation</span><span class="p">;</span><span class="w">      </span><span class="c1">// conversation.messages contains only selected messages</span>
+<span class="w">      </span><span class="c1">// ...create a single CRM entry from the selected messages...</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">logId</span><span class="o">:</span><span class="w"> </span><span class="s1">'crm-log-entry-id'</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<h3 id="per-message-logged-state">Per-message logged state</h3>
+<p>On conversation load the widget requests logged state for the visible messages by posting <code>{ conversationId, messageIds }</code> to <code>messageLogEntityMatcherPath</code>. Return, per message id, an object containing the <code>logId</code> it was logged into (omit unlogged messages):</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'/messageLogger/match'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// data.body.messageIds: ['123', '456', '789']</span>
+<span class="w">  </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s1">'123'</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">logId</span><span class="o">:</span><span class="w"> </span><span class="s1">'crm-log-entry-id'</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// logged</span>
+<span class="w">        </span><span class="s1">'456'</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">logId</span><span class="o">:</span><span class="w"> </span><span class="s1">'crm-log-entry-id'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="c1">// '789' omitted =&gt; unlogged, shows a checkbox</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="open-a-logged-entry">Open a logged entry</h3>
+<p>Clicking the logged icon posts <code>{ logId, triggerType: 'openLog' }</code> to <code>messageLogOpenPath</code> (falls back to <code>messageLoggerPath</code> if not provided). Use it to navigate the user to the CRM record (for example via <code>rc-adapter-navigate-to</code>).</p>
 
 
 
