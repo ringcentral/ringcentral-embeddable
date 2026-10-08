@@ -14,7 +14,7 @@
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".Adapter_centerStyle, .Adapter_button, .Adapter_presence, .Adapter_logo {\n  top: 50%;\n  position: absolute;\n}\n\n.Adapter_root {\n  -moz-user-select: none;\n       user-select: none;\n  user-drag: none;\n  box-sizing: border-box;\n  padding: 0;\n  border-radius: 3px;\n  position: fixed;\n  display: block;\n  visibility: visible;\n  bottom: 0;\n  background-color: #fff;\n  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.1s 0s ease-in-out;\n  z-index: 99999;\n  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);\n  overflow: hidden;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_dragging {\n  transition: opacity 0.1s 0s linear;\n}\n\n.Adapter_root.Adapter_closed {\n  visibility: hidden;\n  opacity: 0;\n}\n\n.Adapter_root.Adapter_loading {\n  display: none;\n}\n\n.Adapter_header {\n  -moz-user-select: none;\n       user-select: none;\n  user-drag: none;\n  position: relative;\n  height: 36px;\n  line-height: 36px;\n  min-width: 134px;\n  text-align: center;\n  cursor: move;\n  z-index: 11;\n  overflow: hidden;\n  font-family: Helvetica;\n  font-weight: normal;\n  border-bottom: 1px solid #e8e9ed;\n  box-sizing: border-box;\n}\n\n.Adapter_minimized.Adapter_header {\n  border-bottom: none;\n  cursor: ew-resize;\n}\n\n.Adapter_logo {\n  -moz-user-select: none;\n       user-select: none;\n  user-drag: none;\n  left: 50%;\n  height: 18px;\n  width: 84px;\n  margin-top: -7px;\n  margin-left: -46px;\n  display: none;\n}\n\n.Adapter_logo.Adapter_visible {\n  display: inline-block;\n}\n\n.Adapter_presence {\n  left: 20px;\n  height: 14px;\n  width: 14px;\n  border-radius: 8px;\n  margin-top: -7px;\n  display: none;\n  cursor: pointer;\n}\n\n.Adapter_dropdownPresence {\n  display: none;\n  position: absolute;\n  width: 100%;\n  height: 100vh;\n}\n\n.Adapter_showDropdown {\n  display: block;\n}\n\n.Adapter_presenceItem {\n  padding: 10px 15px;\n  display: block;\n  cursor: pointer;\n  text-decoration: none;\n  text-align: left;\n}\n.Adapter_presenceItem:hover {\n  background-color: #f5f5f5;\n}\n\n.Adapter_selected {\n  color: #066fac;\n}\n\n.Adapter_line {\n  position: relative;\n  width: 160px;\n  min-width: 134px;\n  left: 5px;\n  padding: 0;\n  min-height: 30px;\n  box-sizing: border-box;\n  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);\n  background-color: #ffffff;\n  border-style: solid;\n  border-width: 0;\n  border-top-width: 1px;\n  border-bottom-width: 0px;\n  border-color: #eeeeee;\n  border-radius: 4px;\n  font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  color: #2f2f2f;\n}\n.Adapter_line .Adapter_horizontal {\n  display: inline-flex;\n}\n.Adapter_line .Adapter_clickable {\n  cursor: pointer;\n}\n.Adapter_line .Adapter_noborder {\n  border: none;\n}\n\n.Adapter_minimized .Adapter_presence {\n  left: 10px;\n}\n\n.Adapter_Offline {\n  display: block;\n  background: #cdcdcd;\n}\n\n.Adapter_Busy {\n  display: block;\n  background: #f95b5c;\n}\n\n.Adapter_Available {\n  display: block;\n  background-color: #32ae31;\n}\n\n.Adapter_presenceBar {\n  display: none;\n  position: absolute;\n  width: 8px;\n  height: 2px;\n  border-radius: 1.5px;\n  background-color: #ffffff;\n  transform-origin: 50% 50%;\n  transform: translate(3px, 6px);\n}\n\n.Adapter_DoNotAcceptAnyCalls {\n  display: block;\n  background: #f95b5c;\n}\n.Adapter_DoNotAcceptAnyCalls .Adapter_presenceBar {\n  display: block;\n}\n\n.Adapter_statusIcon {\n  display: inline-block;\n  position: relative;\n  margin-right: 5px;\n  top: 2px;\n  left: 0;\n  margin-top: 0;\n}\n\n.Adapter_button {\n  box-sizing: border-box;\n  height: 20px;\n  width: 20px;\n  margin-top: -10px;\n  border-radius: 3px;\n  cursor: pointer;\n  border-style: solid;\n  border-width: 1px;\n  border-color: transparent;\n}\n\n.Adapter_toggle {\n  right: 44px;\n}\n\n.Adapter_minimized .Adapter_toggle {\n  right: -18px;\n}\n\n.Adapter_minimizeIcon {\n  position: absolute;\n  box-sizing: border-box;\n  left: 3px;\n  bottom: 7px;\n  width: 12px;\n  height: 2px;\n  border: 1px solid #888888;\n}\n\n.Adapter_minimized .Adapter_minimizeIcon {\n  height: 12px;\n  bottom: 3px;\n}\n\n.Adapter_minimizeIconBar {\n  width: 100%;\n  height: 1px;\n  background-color: #888888;\n}\n\n.Adapter_close {\n  right: 16px;\n}\n\n.Adapter_minimized .Adapter_close {\n  display: none;\n}\n\n.Adapter_closeIcon {\n  position: relative;\n  overflow: hidden;\n  margin: 2px;\n  width: 14px;\n  height: 14px;\n}\n.Adapter_closeIcon :first-child,\n.Adapter_closeIcon :last-child {\n  position: absolute;\n  height: 2px;\n  width: 100%;\n  top: 6px;\n  left: 0;\n  background: #888888;\n  border-radius: 1px;\n}\n.Adapter_closeIcon :first-child {\n  transform: rotate(45deg);\n}\n.Adapter_closeIcon :last-child {\n  transform: rotate(-45deg);\n}\n\n.Adapter_contentFrame {\n  display: block;\n  border: none;\n  width: 0;\n  height: 0;\n}\n\n.Adapter_frameContainer {\n  overflow: hidden;\n  transition: width 0.1s 0s ease-in-out, height 0.1s 0s ease-in-out;\n}\n\n@keyframes Adapter_glow {\n  0% {\n    box-shadow: inset 0 0 7px -10px #2559E4;\n  }\n  40%, 50% {\n    box-shadow: inset 0 0 7px 0px #2559E4;\n  }\n  100% {\n    box-shadow: inset 0 0 7px -10px #2559E4;\n  }\n}\n.Adapter_minimized.Adapter_ringing {\n  animation-name: Adapter_glow;\n  animation-duration: 2s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: infinite;\n}\n\n@keyframes Adapter_moveIn {\n  0% {\n    display: none;\n    top: -50%;\n  }\n  100% {\n    display: inline-block;\n    top: 50%;\n  }\n}\n@keyframes Adapter_moveOut {\n  0% {\n    display: inline-block;\n    top: 50%;\n  }\n  100% {\n    top: 150%;\n    display: none;\n  }\n}\n.Adapter_moveIn {\n  animation-name: Adapter_moveIn;\n  animation-duration: 1s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n}\n\n.Adapter_moveOut {\n  animation-name: Adapter_moveOut;\n  animation-duration: 1s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n}\n\n.Adapter_duration.Adapter_visible,\n.Adapter_ringingCalls.Adapter_visible,\n.Adapter_onHoldCalls.Adapter_visible,\n.Adapter_otherDeviceCalls.Adapter_visible {\n  top: 50%;\n}\n\n.Adapter_duration {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  height: 16px;\n  line-height: 16px;\n  margin-top: -8px;\n  color: #666666;\n  font-size: 12px;\n  white-space: nowrap;\n  width: 33px;\n  margin-left: -60px;\n  cursor: pointer;\n}\n\n.Adapter_duration.Adapter_center {\n  margin-left: -16px;\n}\n\n.Adapter_ringingCalls,\n.Adapter_onHoldCalls,\n.Adapter_otherDeviceCalls {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  height: 16px;\n  line-height: 16px;\n  margin-top: -8px;\n  color: #666666;\n  font-size: 12px;\n  white-space: nowrap;\n  width: 100px;\n  margin-left: -100px;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  text-align: center;\n}\n\n.Adapter_ringingCalls.Adapter_center,\n.Adapter_onHoldCalls.Adapter_center,\n.Adapter_otherDeviceCalls.Adapter_center {\n  margin-left: -50px;\n}\n\n.Adapter_currentCallBtn {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  padding: 0 5px;\n  height: 18px;\n  line-height: 18px;\n  border-radius: 10.5px;\n  font-size: 11px;\n  margin-top: -10px;\n  margin-left: -13px;\n  overflow: hidden;\n  white-space: nowrap;\n  min-width: 66px;\n  max-width: 110px;\n  cursor: pointer;\n  border: solid 1px #5fb95c;\n  color: #5fb95c;\n}\n\n.Adapter_currentCallBtn.Adapter_visible {\n  display: inline-block;\n  margin-top: -10px;\n  top: 50%;\n}\n\n.Adapter_currentCallBtn:hover {\n  color: #5fb95c;\n}\n\n.Adapter_currentCallBtn.Adapter_left {\n  margin-left: -80px;\n}\n\n.Adapter_viewCallsBtn {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  padding: 0 5px;\n  height: 18px;\n  line-height: 18px;\n  border-radius: 10.5px;\n  font-size: 11px;\n  margin-top: -10px;\n  margin-left: -13px;\n  overflow: hidden;\n  white-space: nowrap;\n  min-width: 66px;\n  max-width: 110px;\n  cursor: pointer;\n  border: solid 1px #ff8800;\n  color: #ff8800;\n  margin-left: 0;\n}\n\n.Adapter_viewCallsBtn:hover {\n  color: #ff8800;\n}\n\n.Adapter_viewCallsBtn.Adapter_visible {\n  display: inline-block;\n  margin-top: -10px;\n  top: 50%;\n}\n\n.Adapter_hack {\n  background: url(\"https://{{rc-styles}}\");\n}\n\n.Adapter_root {\n  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.2s 0s ease-in-out, width 0.2s ease-in-out;\n  background-color: #fff;\n  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);\n}\n\n.Adapter_dark.Adapter_root {\n  background-color: #282A32;\n}\n\n.Adapter_root.Adapter_dock {\n  top: auto !important;\n  top: initial !important;\n  border-radius: 0 !important;\n  width: 300px;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized {\n  width: 60px;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized.Adapter_noPresence {\n  width: 35px;\n}\n\n.Adapter_root .Adapter_logo {\n  width: 92px;\n  height: 14px;\n  margin-top: -7px;\n  margin-left: -46px;\n}\n\n.Adapter_root .Adapter_header {\n  border-bottom: 1px solid #e8e9ed;\n  min-width: 165px;\n}\n\n.Adapter_dark .Adapter_header {\n  border-bottom: 1px solid #30323A;\n}\n\n.Adapter_root .Adapter_button {\n  margin-top: -10px;\n}\n\n.Adapter_iconTrans .Adapter_presence {\n  opacity: 1 !important;\n}\n.Adapter_iconTrans .Adapter_iconContainer {\n  opacity: 0 !important;\n}\n.Adapter_iconTrans .Adapter_logo {\n  opacity: 1 !important;\n}\n\n.Adapter_iconContainer {\n  display: none;\n}\n\n.Adapter_close {\n  display: none;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized .Adapter_toggle {\n  right: -10px;\n}\n\n.Adapter_dock.Adapter_minimized.Adapter_expandable {\n  width: 140px !important;\n}\n\n.Adapter_dock .Adapter_minimized.Adapter_header {\n  line-height: normal;\n  line-height: initial;\n  cursor: pointer;\n}\n.Adapter_dock .Adapter_minimized .Adapter_presence {\n  width: 12px;\n  height: 12px;\n  margin-top: -6px;\n  z-index: 2;\n  transition: 0.2s;\n}\n.Adapter_dock .Adapter_minimized .Adapter_presenceBar {\n  transform: translate(2px, 5px);\n}\n.Adapter_dock .Adapter_minimized .Adapter_logo {\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.Adapter_dock .Adapter_minimized .Adapter_iconContainer {\n  z-index: 2147483648;\n  top: 7px;\n  position: absolute;\n  left: 30px;\n  height: 22px;\n  width: 22px;\n  display: block;\n  cursor: pointer;\n  opacity: 1;\n  transition: 0.2s;\n  display: flex;\n}\n.Adapter_dock .Adapter_minimized .Adapter_iconContainer .Adapter_icon {\n  width: 22px;\n  height: 22px;\n  display: inline-block;\n}\n.Adapter_dock .Adapter_minimized .Adapter_noPresence {\n  left: 7px !important;\n}\n\n.Adapter_iconContainer.Adapter_hidden {\n  display: none;\n}\n\n.Adapter_viewCallsBtn.Adapter_visible {\n  margin-left: 20px;\n}\n.Adapter_viewCallsBtn.Adapter_moveIn {\n  margin-left: 20px;\n}\n.Adapter_viewCallsBtn.Adapter_moveOut {\n  margin-left: 20px;\n}\n\n.Adapter_ringingCalls.Adapter_visible, .Adapter_onHoldCalls.Adapter_visible {\n  margin-left: -80px;\n}\n.Adapter_ringingCalls.Adapter_moveIn, .Adapter_onHoldCalls.Adapter_moveIn {\n  margin-left: -80px;\n}\n.Adapter_ringingCalls.Adapter_moveOut, .Adapter_onHoldCalls.Adapter_moveOut {\n  margin-left: -80px;\n}\n\n.Adapter_popup {\n  right: 33px;\n  display: none;\n}\n\n.Adapter_showPopup .Adapter_popup {\n  display: block;\n}\n\n.Adapter_minimized .Adapter_popup {\n  display: none;\n}\n\n.Adapter_popupIcon img {\n  position: absolute;\n  top: 4px;\n  left: 1px;\n  width: 14px;\n}\n\n.Adapter_hideToggleButton .Adapter_toggle {\n  display: none;\n}\n.Adapter_hideToggleButton .Adapter_popup {\n  right: 10px;\n}\n\n.Adapter_feedback {\n  width: 22px;\n  height: 22px;\n  display: none;\n}\n\n.Adapter_feedbackIcon {\n  width: 22px;\n  height: 22px;\n}\n\n.Adapter_showFeedback .Adapter_feedback {\n  display: block;\n}\n\n.Adapter_minimized .Adapter_feedback {\n  display: none;\n}\n\n.Adapter_buttons {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  height: 100%;\n}\n\n.Adapter_root .Adapter_button {\n  margin-left: 3px;\n  position: relative;\n  top: auto;\n  left: auto;\n  right: auto;\n  margin-top: 0;\n}\n\n.Adapter_dark .Adapter_line {\n  background-color: #282A32;\n  border-color: #30323A;\n  color: #ffffff;\n}\n\n.Adapter_dark .Adapter_presenceItem:hover {\n  background-color: #30323A;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".Adapter_centerStyle, .Adapter_button, .Adapter_presence, .Adapter_logo {\n  top: 50%;\n  position: absolute;\n}\n\n.Adapter_root {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  user-drag: none;\n  box-sizing: border-box;\n  padding: 0;\n  border-radius: 3px;\n  position: fixed;\n  display: block;\n  visibility: visible;\n  bottom: 0;\n  background-color: #fff;\n  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.1s 0s ease-in-out;\n  z-index: 99999;\n  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);\n  overflow: hidden;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_left {\n  left: 0;\n}\n\n.Adapter_root.Adapter_right {\n  right: 0;\n}\n\n.Adapter_root.Adapter_dragging {\n  transition: opacity 0.1s 0s linear;\n}\n\n.Adapter_root.Adapter_closed {\n  visibility: hidden;\n  opacity: 0;\n}\n\n.Adapter_root.Adapter_loading {\n  display: none;\n}\n\n.Adapter_header {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  user-drag: none;\n  position: relative;\n  height: 36px;\n  line-height: 36px;\n  min-width: 134px;\n  text-align: center;\n  cursor: move;\n  z-index: 11;\n  overflow: hidden;\n  font-family: Helvetica;\n  font-weight: normal;\n  border-bottom: 1px solid #e8e9ed;\n  box-sizing: border-box;\n}\n\n.Adapter_minimized.Adapter_header {\n  border-bottom: none;\n  cursor: ew-resize;\n}\n\n.Adapter_logo {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  user-drag: none;\n  left: 50%;\n  height: 18px;\n  width: 84px;\n  margin-top: -7px;\n  margin-left: -46px;\n  display: none;\n}\n\n.Adapter_logo.Adapter_visible {\n  display: inline-block;\n}\n\n.Adapter_presence {\n  left: 20px;\n  height: 14px;\n  width: 14px;\n  border-radius: 8px;\n  margin-top: -7px;\n  display: none;\n  cursor: pointer;\n}\n\n.Adapter_dropdownPresence {\n  display: none;\n  position: absolute;\n  width: 100%;\n  height: 100vh;\n}\n\n.Adapter_showDropdown {\n  display: block;\n}\n\n.Adapter_presenceItem {\n  padding: 10px 15px;\n  display: block;\n  cursor: pointer;\n  -webkit-text-decoration: none;\n  text-decoration: none;\n  text-align: left;\n}\n.Adapter_presenceItem:hover {\n  background-color: #f5f5f5;\n}\n\n.Adapter_selected {\n  color: #066fac;\n}\n\n.Adapter_line {\n  position: relative;\n  width: 160px;\n  min-width: 134px;\n  left: 5px;\n  padding: 0;\n  min-height: 30px;\n  box-sizing: border-box;\n  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);\n  background-color: #ffffff;\n  border-style: solid;\n  border-width: 0;\n  border-top-width: 1px;\n  border-bottom-width: 0px;\n  border-color: #eeeeee;\n  border-radius: 4px;\n  font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  color: #2f2f2f;\n}\n.Adapter_line .Adapter_horizontal {\n  display: inline-flex;\n}\n.Adapter_line .Adapter_clickable {\n  cursor: pointer;\n}\n.Adapter_line .Adapter_noborder {\n  border: none;\n}\n\n.Adapter_minimized .Adapter_presence {\n  left: 10px;\n}\n\n.Adapter_Offline {\n  display: block;\n  background: #cdcdcd;\n}\n\n.Adapter_Busy {\n  display: block;\n  background: #f95b5c;\n}\n\n.Adapter_Available {\n  display: block;\n  background-color: #32ae31;\n}\n\n.Adapter_presenceBar {\n  display: none;\n  position: absolute;\n  width: 8px;\n  height: 2px;\n  border-radius: 1.5px;\n  background-color: #ffffff;\n  transform-origin: 50% 50%;\n  transform: translate(3px, 6px);\n}\n\n.Adapter_DoNotAcceptAnyCalls {\n  display: block;\n  background: #f95b5c;\n}\n.Adapter_DoNotAcceptAnyCalls .Adapter_presenceBar {\n  display: block;\n}\n\n.Adapter_statusIcon {\n  display: inline-block;\n  position: relative;\n  margin-right: 5px;\n  top: 2px;\n  left: 0;\n  margin-top: 0;\n}\n\n.Adapter_button {\n  box-sizing: border-box;\n  height: 20px;\n  width: 20px;\n  margin-top: -10px;\n  border-radius: 3px;\n  cursor: pointer;\n  border-style: solid;\n  border-width: 1px;\n  border-color: transparent;\n}\n\n.Adapter_toggle {\n  right: 44px;\n}\n\n.Adapter_minimized .Adapter_toggle {\n  right: -18px;\n}\n\n.Adapter_minimizeIcon {\n  position: absolute;\n  box-sizing: border-box;\n  left: 3px;\n  bottom: 7px;\n  width: 12px;\n  height: 2px;\n  border: 1px solid #888888;\n}\n\n.Adapter_minimized .Adapter_minimizeIcon {\n  height: 12px;\n  bottom: 3px;\n}\n\n.Adapter_minimizeIconBar {\n  width: 100%;\n  height: 1px;\n  background-color: #888888;\n}\n\n.Adapter_close {\n  right: 16px;\n}\n\n.Adapter_minimized .Adapter_close {\n  display: none;\n}\n\n.Adapter_closeIcon {\n  position: relative;\n  overflow: hidden;\n  margin: 2px;\n  width: 14px;\n  height: 14px;\n}\n.Adapter_closeIcon :first-child,\n.Adapter_closeIcon :last-child {\n  position: absolute;\n  height: 2px;\n  width: 100%;\n  top: 6px;\n  left: 0;\n  background: #888888;\n  border-radius: 1px;\n}\n.Adapter_closeIcon :first-child {\n  transform: rotate(45deg);\n}\n.Adapter_closeIcon :last-child {\n  transform: rotate(-45deg);\n}\n\n.Adapter_contentFrame {\n  display: block;\n  border: none;\n  width: 0;\n  height: 0;\n}\n\n.Adapter_frameContainer {\n  overflow: hidden;\n  transition: width 0.1s 0s ease-in-out, height 0.1s 0s ease-in-out;\n}\n\n@keyframes Adapter_glow {\n  0% {\n    box-shadow: inset 0 0 7px -10px #2559E4;\n  }\n  40%, 50% {\n    box-shadow: inset 0 0 7px 0px #2559E4;\n  }\n  100% {\n    box-shadow: inset 0 0 7px -10px #2559E4;\n  }\n}\n.Adapter_minimized.Adapter_ringing {\n  animation-name: Adapter_glow;\n  animation-duration: 2s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: infinite;\n}\n\n@keyframes Adapter_moveIn {\n  0% {\n    display: none;\n    top: -50%;\n  }\n  100% {\n    display: inline-block;\n    top: 50%;\n  }\n}\n@keyframes Adapter_moveOut {\n  0% {\n    display: inline-block;\n    top: 50%;\n  }\n  100% {\n    top: 150%;\n    display: none;\n  }\n}\n.Adapter_moveIn {\n  animation-name: Adapter_moveIn;\n  animation-duration: 1s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n}\n\n.Adapter_moveOut {\n  animation-name: Adapter_moveOut;\n  animation-duration: 1s;\n  animation-timing-function: ease-in-out;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n}\n\n.Adapter_duration.Adapter_visible,\n.Adapter_ringingCalls.Adapter_visible,\n.Adapter_onHoldCalls.Adapter_visible,\n.Adapter_otherDeviceCalls.Adapter_visible {\n  top: 50%;\n}\n\n.Adapter_duration {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  height: 16px;\n  line-height: 16px;\n  margin-top: -8px;\n  color: #666666;\n  font-size: 12px;\n  white-space: nowrap;\n  width: 33px;\n  margin-left: -60px;\n  cursor: pointer;\n}\n\n.Adapter_duration.Adapter_center {\n  margin-left: -16px;\n}\n\n.Adapter_ringingCalls,\n.Adapter_onHoldCalls,\n.Adapter_otherDeviceCalls {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  height: 16px;\n  line-height: 16px;\n  margin-top: -8px;\n  color: #666666;\n  font-size: 12px;\n  white-space: nowrap;\n  width: 100px;\n  margin-left: -100px;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  text-align: center;\n}\n\n.Adapter_ringingCalls.Adapter_center,\n.Adapter_onHoldCalls.Adapter_center,\n.Adapter_otherDeviceCalls.Adapter_center {\n  margin-left: -50px;\n}\n\n.Adapter_currentCallBtn {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  padding: 0 5px;\n  height: 18px;\n  line-height: 18px;\n  border-radius: 10.5px;\n  font-size: 11px;\n  margin-top: -10px;\n  margin-left: -13px;\n  overflow: hidden;\n  white-space: nowrap;\n  min-width: 66px;\n  max-width: 110px;\n  cursor: pointer;\n  border: solid 1px #5fb95c;\n  color: #5fb95c;\n}\n\n.Adapter_currentCallBtn.Adapter_visible {\n  display: inline-block;\n  margin-top: -10px;\n  top: 50%;\n}\n\n.Adapter_currentCallBtn:hover {\n  color: #5fb95c;\n}\n\n.Adapter_currentCallBtn.Adapter_left {\n  margin-left: -80px;\n}\n\n.Adapter_viewCallsBtn {\n  position: absolute;\n  top: -50%;\n  left: 50%;\n  padding: 0 5px;\n  height: 18px;\n  line-height: 18px;\n  border-radius: 10.5px;\n  font-size: 11px;\n  margin-top: -10px;\n  margin-left: -13px;\n  overflow: hidden;\n  white-space: nowrap;\n  min-width: 66px;\n  max-width: 110px;\n  cursor: pointer;\n  border: solid 1px #ff8800;\n  color: #ff8800;\n  margin-left: 0;\n}\n\n.Adapter_viewCallsBtn:hover {\n  color: #ff8800;\n}\n\n.Adapter_viewCallsBtn.Adapter_visible {\n  display: inline-block;\n  margin-top: -10px;\n  top: 50%;\n}\n\n.Adapter_hack {\n  background: url(\"https://{{rc-styles}}\");\n}\n\n.Adapter_root {\n  transition: visibility 0.2s 0s linear, opacity 0.2s 0s linear, transform 0.2s 0s ease-in-out, width 0.2s ease-in-out;\n  background-color: #fff;\n  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.18);\n}\n\n.Adapter_dark.Adapter_root {\n  background-color: #282A32;\n}\n\n.Adapter_root.Adapter_dock {\n  top: auto !important;\n  top: initial !important;\n  border-radius: 0 !important;\n  width: 300px;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized {\n  width: 60px;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized.Adapter_noPresence {\n  width: 35px;\n}\n\n.Adapter_root .Adapter_logo {\n  width: 92px;\n  height: 14px;\n  margin-top: -7px;\n  margin-left: -46px;\n}\n\n.Adapter_root .Adapter_header {\n  border-bottom: 1px solid #e8e9ed;\n  min-width: 165px;\n}\n\n.Adapter_dark .Adapter_header {\n  border-bottom: 1px solid #30323A;\n}\n\n.Adapter_root .Adapter_button {\n  margin-top: -10px;\n}\n\n.Adapter_iconTrans .Adapter_presence {\n  opacity: 1 !important;\n}\n.Adapter_iconTrans .Adapter_iconContainer {\n  opacity: 0 !important;\n}\n.Adapter_iconTrans .Adapter_logo {\n  opacity: 1 !important;\n}\n\n.Adapter_iconContainer {\n  display: none;\n}\n\n.Adapter_close {\n  display: none;\n}\n\n.Adapter_root.Adapter_dock.Adapter_minimized .Adapter_toggle {\n  right: -10px;\n}\n\n.Adapter_dock.Adapter_minimized.Adapter_expandable {\n  width: 140px !important;\n}\n\n.Adapter_dock .Adapter_minimized.Adapter_header {\n  line-height: normal;\n  line-height: initial;\n  cursor: pointer;\n}\n.Adapter_dock .Adapter_minimized .Adapter_presence {\n  width: 12px;\n  height: 12px;\n  margin-top: -6px;\n  z-index: 2;\n  transition: 0.2s;\n}\n.Adapter_dock .Adapter_minimized .Adapter_presenceBar {\n  transform: translate(2px, 5px);\n}\n.Adapter_dock .Adapter_minimized .Adapter_logo {\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.Adapter_dock .Adapter_minimized .Adapter_iconContainer {\n  z-index: 2147483648;\n  top: 7px;\n  position: absolute;\n  left: 30px;\n  height: 22px;\n  width: 22px;\n  display: block;\n  cursor: pointer;\n  opacity: 1;\n  transition: 0.2s;\n  display: flex;\n}\n.Adapter_dock .Adapter_minimized .Adapter_iconContainer .Adapter_icon {\n  width: 22px;\n  height: 22px;\n  display: inline-block;\n}\n.Adapter_dock .Adapter_minimized .Adapter_noPresence {\n  left: 7px !important;\n}\n\n.Adapter_iconContainer.Adapter_hidden {\n  display: none;\n}\n\n.Adapter_viewCallsBtn.Adapter_visible {\n  margin-left: 20px;\n}\n.Adapter_viewCallsBtn.Adapter_moveIn {\n  margin-left: 20px;\n}\n.Adapter_viewCallsBtn.Adapter_moveOut {\n  margin-left: 20px;\n}\n\n.Adapter_ringingCalls.Adapter_visible, .Adapter_onHoldCalls.Adapter_visible {\n  margin-left: -80px;\n}\n.Adapter_ringingCalls.Adapter_moveIn, .Adapter_onHoldCalls.Adapter_moveIn {\n  margin-left: -80px;\n}\n.Adapter_ringingCalls.Adapter_moveOut, .Adapter_onHoldCalls.Adapter_moveOut {\n  margin-left: -80px;\n}\n\n.Adapter_popup {\n  right: 33px;\n  display: none;\n}\n\n.Adapter_showPopup .Adapter_popup {\n  display: block;\n}\n\n.Adapter_minimized .Adapter_popup {\n  display: none;\n}\n\n.Adapter_popupIcon img {\n  position: absolute;\n  top: 4px;\n  left: 1px;\n  width: 14px;\n}\n\n.Adapter_hideToggleButton .Adapter_toggle {\n  display: none;\n}\n.Adapter_hideToggleButton .Adapter_popup {\n  right: 10px;\n}\n\n.Adapter_feedback {\n  width: 22px;\n  height: 22px;\n  display: none;\n}\n\n.Adapter_feedbackIcon {\n  width: 22px;\n  height: 22px;\n}\n\n.Adapter_showFeedback .Adapter_feedback {\n  display: block;\n}\n\n.Adapter_minimized .Adapter_feedback {\n  display: none;\n}\n\n.Adapter_buttons {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  height: 100%;\n}\n\n.Adapter_root .Adapter_button {\n  margin-left: 3px;\n  position: relative;\n  top: auto;\n  left: auto;\n  right: auto;\n  margin-top: 0;\n}\n\n.Adapter_dark .Adapter_line {\n  background-color: #282A32;\n  border-color: #30323A;\n  color: #ffffff;\n}\n\n.Adapter_dark .Adapter_presenceItem:hover {\n  background-color: #30323A;\n}", ""]);
 // Exports
 ___CSS_LOADER_EXPORT___.locals = {
 	"centerStyle": "Adapter_centerStyle",
@@ -24720,13 +24720,16 @@ function quote(s) {
     return $replace.call(String(s), /"/g, '&quot;');
 }
 
-function isArray(obj) { return toStr(obj) === '[object Array]' && (!toStringTag || !(typeof obj === 'object' && toStringTag in obj)); }
-function isDate(obj) { return toStr(obj) === '[object Date]' && (!toStringTag || !(typeof obj === 'object' && toStringTag in obj)); }
-function isRegExp(obj) { return toStr(obj) === '[object RegExp]' && (!toStringTag || !(typeof obj === 'object' && toStringTag in obj)); }
-function isError(obj) { return toStr(obj) === '[object Error]' && (!toStringTag || !(typeof obj === 'object' && toStringTag in obj)); }
-function isString(obj) { return toStr(obj) === '[object String]' && (!toStringTag || !(typeof obj === 'object' && toStringTag in obj)); }
-function isNumber(obj) { return toStr(obj) === '[object Number]' && (!toStringTag || !(typeof obj === 'object' && toStringTag in obj)); }
-function isBoolean(obj) { return toStr(obj) === '[object Boolean]' && (!toStringTag || !(typeof obj === 'object' && toStringTag in obj)); }
+function canTrustToString(obj) {
+    return !toStringTag || !(typeof obj === 'object' && (toStringTag in obj || typeof obj[toStringTag] !== 'undefined'));
+}
+function isArray(obj) { return toStr(obj) === '[object Array]' && canTrustToString(obj); }
+function isDate(obj) { return toStr(obj) === '[object Date]' && canTrustToString(obj); }
+function isRegExp(obj) { return toStr(obj) === '[object RegExp]' && canTrustToString(obj); }
+function isError(obj) { return toStr(obj) === '[object Error]' && canTrustToString(obj); }
+function isString(obj) { return toStr(obj) === '[object String]' && canTrustToString(obj); }
+function isNumber(obj) { return toStr(obj) === '[object Number]' && canTrustToString(obj); }
+function isBoolean(obj) { return toStr(obj) === '[object Boolean]' && canTrustToString(obj); }
 
 // Symbol and BigInt do have Symbol.toStringTag by spec, so that can't be used to eliminate false positives
 function isSymbol(obj) {
@@ -25789,6 +25792,17 @@ var interpretNumericEntities = function (str) {
 
 var parseArrayValue = function (val, options, currentArrayLength) {
     if (val && typeof val === 'string' && options.comma && val.indexOf(',') > -1) {
+        if (options.throwOnLimitExceeded) {
+            var commaCount = 0;
+            var commaIndex = val.indexOf(',');
+            while (commaIndex > -1) {
+                commaCount += 1;
+                if (commaCount >= options.arrayLimit) {
+                    throw new RangeError('Array limit exceeded. Only ' + options.arrayLimit + ' element' + (options.arrayLimit === 1 ? '' : 's') + ' allowed in an array.');
+                }
+                commaIndex = val.indexOf(',', commaIndex + 1);
+            }
+        }
         return val.split(',');
     }
 
@@ -25883,10 +25897,7 @@ var parseValues = function parseQueryStringValues(str, options) {
         }
 
         if (options.comma && isArray(val) && val.length > options.arrayLimit) {
-            if (options.throwOnLimitExceeded) {
-                throw new RangeError('Array limit exceeded. Only ' + options.arrayLimit + ' element' + (options.arrayLimit === 1 ? '' : 's') + ' allowed in an array.');
-            }
-            val = utils.combine([], val, options.arrayLimit, options.plainObjects);
+            val = utils.combine([], val, options.arrayLimit, options.plainObjects, options.throwOnLimitExceeded);
         }
 
         if (key !== null) {
@@ -25896,7 +25907,8 @@ var parseValues = function parseQueryStringValues(str, options) {
                     obj[key],
                     val,
                     options.arrayLimit,
-                    options.plainObjects
+                    options.plainObjects,
+                    options.throwOnLimitExceeded
                 );
             } else if (!existing || options.duplicates === 'last') {
                 obj[key] = val;
@@ -25931,7 +25943,8 @@ var parseObject = function (chain, val, options, valuesParsed) {
                         [],
                         leaf,
                         options.arrayLimit,
-                        options.plainObjects
+                        options.plainObjects,
+                        options.throwOnLimitExceeded
                     );
             }
         } else {
@@ -26198,6 +26211,7 @@ var defaults = {
     charsetSentinel: false,
     commaRoundTrip: false,
     delimiter: '&',
+    depth: Infinity,
     encode: true,
     encodeDotInKeys: false,
     encoder: utils.encode,
@@ -26242,9 +26256,15 @@ var stringify = function stringify(
     formatter,
     encodeValuesOnly,
     charset,
-    sideChannel
+    sideChannel,
+    depth,
+    currentDepth
 ) {
     var obj = object;
+
+    if (currentDepth > depth) {
+        throw new RangeError('Input depth exceeded depth option of ' + depth);
+    }
 
     var tmpSc = sideChannel;
     var step = 0;
@@ -26265,9 +26285,9 @@ var stringify = function stringify(
         }
     }
 
-    if (typeof filter === 'function') {
-        obj = filter(prefix, obj);
-    } else if (obj instanceof Date) {
+    obj = typeof filter === 'function' ? filter(prefix, obj) : obj;
+
+    if (obj instanceof Date) {
         obj = serializeDate(obj);
     } else if (generateArrayPrefix === 'comma' && isArray(obj)) {
         obj = utils.maybeMap(obj, function (value) {
@@ -26320,7 +26340,7 @@ var stringify = function stringify(
 
     var adjustedPrefix = commaRoundTrip && isArray(obj) && obj.length === 1 ? encodedPrefix + '[]' : encodedPrefix;
 
-    if (allowEmptyArrays && isArray(obj) && obj.length === 0) {
+    if (allowEmptyArrays && isArray(obj) && obj.length === 0 && Object.keys(obj).length === 0) {
         return adjustedPrefix + '[]';
     }
 
@@ -26360,7 +26380,9 @@ var stringify = function stringify(
             formatter,
             encodeValuesOnly,
             charset,
-            valueSideChannel
+            valueSideChannel,
+            depth,
+            currentDepth + 1
         ));
     }
 
@@ -26427,6 +26449,7 @@ var normalizeStringifyOptions = function normalizeStringifyOptions(opts) {
         charsetSentinel: typeof opts.charsetSentinel === 'boolean' ? opts.charsetSentinel : defaults.charsetSentinel,
         commaRoundTrip: !!opts.commaRoundTrip,
         delimiter: typeof opts.delimiter === 'undefined' ? defaults.delimiter : opts.delimiter,
+        depth: typeof opts.depth === 'number' ? opts.depth : defaults.depth,
         encode: typeof opts.encode === 'boolean' ? opts.encode : defaults.encode,
         encodeDotInKeys: typeof opts.encodeDotInKeys === 'boolean' ? opts.encodeDotInKeys : defaults.encodeDotInKeys,
         encoder: typeof opts.encoder === 'function' ? opts.encoder : defaults.encoder,
@@ -26486,9 +26509,12 @@ module.exports = function (object, opts) {
         if (options.skipNulls && value === null) {
             continue;
         }
+
+        var encodedKey = options.encodeDotInKeys ? String(key).replace(/\./g, '%2E') : String(key);
+
         pushToArray(keys, stringify(
             value,
-            key,
+            encodedKey,
             generateArrayPrefix,
             commaRoundTrip,
             options.allowEmptyArrays,
@@ -26504,7 +26530,9 @@ module.exports = function (object, opts) {
             options.formatter,
             options.encodeValuesOnly,
             options.charset,
-            sideChannel
+            sideChannel,
+            options.depth,
+            0
         ));
     }
 
@@ -26535,6 +26563,7 @@ module.exports = function (object, opts) {
 
 var formats = __webpack_require__(6528);
 var getSideChannel = __webpack_require__(65457);
+var defineProperty = __webpack_require__(37126);
 
 var has = Object.prototype.hasOwnProperty;
 var isArray = Array.isArray;
@@ -26599,6 +26628,19 @@ var arrayToObject = function arrayToObject(source, options) {
     return obj;
 };
 
+var setProperty = function setProperty(obj, key, value) {
+    if (key === '__proto__' && defineProperty) {
+        defineProperty(obj, key, {
+            configurable: true,
+            enumerable: true,
+            value: value,
+            writable: true
+        });
+    } else {
+        obj[key] = value;
+    }
+};
+
 var merge = function merge(target, source, options) {
     /* eslint no-param-reassign: 0 */
     if (!source) {
@@ -26608,7 +26650,10 @@ var merge = function merge(target, source, options) {
     if (typeof source !== 'object' && typeof source !== 'function') {
         if (isArray(target)) {
             var nextIndex = target.length;
-            if (options && typeof options.arrayLimit === 'number' && nextIndex > options.arrayLimit) {
+            if (options && typeof options.arrayLimit === 'number' && nextIndex >= options.arrayLimit) {
+                if (options.throwOnLimitExceeded) {
+                    throw new RangeError('Array limit exceeded. Only ' + options.arrayLimit + ' element' + (options.arrayLimit === 1 ? '' : 's') + ' allowed in an array.');
+                }
                 return markOverflow(arrayToObject(target.concat(source), options), nextIndex);
             }
             target[nextIndex] = source;
@@ -26648,6 +26693,9 @@ var merge = function merge(target, source, options) {
         }
         var combined = [target].concat(source);
         if (options && typeof options.arrayLimit === 'number' && combined.length > options.arrayLimit) {
+            if (options.throwOnLimitExceeded) {
+                throw new RangeError('Array limit exceeded. Only ' + options.arrayLimit + ' element' + (options.arrayLimit === 1 ? '' : 's') + ' allowed in an array.');
+            }
             return markOverflow(arrayToObject(combined, options), combined.length - 1);
         }
         return combined;
@@ -26671,6 +26719,12 @@ var merge = function merge(target, source, options) {
                 target[i] = item;
             }
         });
+        if (options && typeof options.arrayLimit === 'number' && target.length > options.arrayLimit) {
+            if (options.throwOnLimitExceeded) {
+                throw new RangeError('Array limit exceeded. Only ' + options.arrayLimit + ' element' + (options.arrayLimit === 1 ? '' : 's') + ' allowed in an array.');
+            }
+            return markOverflow(arrayToObject(target, options), target.length - 1);
+        }
         return target;
     }
 
@@ -26678,9 +26732,9 @@ var merge = function merge(target, source, options) {
         var value = source[key];
 
         if (has.call(acc, key)) {
-            acc[key] = merge(acc[key], value, options);
+            setProperty(acc, key, merge(acc[key], value, options));
         } else {
-            acc[key] = value;
+            setProperty(acc, key, value);
         }
 
         if (isOverflow(source) && !isOverflow(acc)) {
@@ -26699,7 +26753,7 @@ var merge = function merge(target, source, options) {
 
 var assign = function assignSingleSource(target, source) {
     return Object.keys(source).reduce(function (acc, key) {
-        acc[key] = source[key];
+        setProperty(acc, key, source[key]);
         return acc;
     }, target);
 };
@@ -26745,6 +26799,13 @@ var encode = function encode(str, defaultEncoder, charset, kind, format) {
     var out = '';
     for (var j = 0; j < string.length; j += limit) {
         var segment = string.length >= limit ? string.slice(j, j + limit) : string;
+        if (j + limit < string.length) {
+            var last = segment.charCodeAt(segment.length - 1);
+            if (last >= 0xD800 && last <= 0xDBFF) {
+                segment = segment.slice(0, -1);
+                j -= 1;
+            }
+        }
         var arr = [];
 
         for (var i = 0; i < segment.length; ++i) {
@@ -26798,7 +26859,7 @@ var encode = function encode(str, defaultEncoder, charset, kind, format) {
 
 var compact = function compact(value) {
     var queue = [{ obj: { o: value }, prop: 'o' }];
-    var refs = [];
+    var refs = getSideChannel();
 
     for (var i = 0; i < queue.length; ++i) {
         var item = queue[i];
@@ -26808,9 +26869,9 @@ var compact = function compact(value) {
         for (var j = 0; j < keys.length; ++j) {
             var key = keys[j];
             var val = obj[key];
-            if (typeof val === 'object' && val !== null && refs.indexOf(val) === -1) {
+            if (typeof val === 'object' && val !== null && !refs.has(val)) {
                 queue[queue.length] = { obj: obj, prop: key };
-                refs[refs.length] = val;
+                refs.set(val, true);
             }
         }
     }
@@ -26829,20 +26890,33 @@ var isBuffer = function isBuffer(obj) {
         return false;
     }
 
-    return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
+    return !!(obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj));
 };
 
-var combine = function combine(a, b, arrayLimit, plainObjects) {
+var combine = function combine(a, b, arrayLimit, plainObjects, throwOnLimitExceeded) {
     // If 'a' is already an overflow object, add to it
     if (isOverflow(a)) {
-        var newIndex = getMaxIndex(a) + 1;
-        a[newIndex] = b;
+        if (throwOnLimitExceeded) {
+            throw new RangeError('Array limit exceeded. Only ' + arrayLimit + ' element' + (arrayLimit === 1 ? '' : 's') + ' allowed in an array.');
+        }
+        // spread `b` one level, matching the `[].concat(a, b)` used below, so a
+        // collection appended to an already-overflowed object is flattened
+        // rather than nested under a single index
+        var bValues = isArray(b) ? b : [b];
+        var newIndex = getMaxIndex(a);
+        for (var i = 0; i < bValues.length; ++i) {
+            newIndex += 1;
+            a[newIndex] = bValues[i];
+        }
         setMaxIndex(a, newIndex);
         return a;
     }
 
     var result = [].concat(a, b);
     if (result.length > arrayLimit) {
+        if (throwOnLimitExceeded) {
+            throw new RangeError('Array limit exceeded. Only ' + arrayLimit + ' element' + (arrayLimit === 1 ? '' : 's') + ' allowed in an array.');
+        }
         return markOverflow(arrayToObject(result, { plainObjects: plainObjects }), result.length - 1);
     }
     return result;
@@ -45598,9 +45672,8 @@ module.exports = function getSideChannelList() {
 			}
 		},
 		'delete': function (key) {
-			var root = $o && $o.next;
 			var deletedNode = listDelete($o, key);
-			if (deletedNode && root && root === deletedNode) {
+			if (deletedNode && $o && !$o.next) {
 				$o = void undefined;
 			}
 			return !!deletedNode;
@@ -45622,7 +45695,6 @@ module.exports = function getSideChannelList() {
 			listSet(/** @type {NonNullable<typeof $o>} */ ($o), key, value);
 		}
 	};
-	// @ts-expect-error TODO: figure out why this is erroring
 	return channel;
 };
 
@@ -45821,7 +45893,10 @@ module.exports = function getSideChannel() {
 	var channel = {
 		assert: function (key) {
 			if (!channel.has(key)) {
-				throw new $TypeError('Side channel does not contain ' + inspect(key));
+				var keyDesc = key && Object(key) === key
+					? 'the given object key'
+					: inspect(key);
+				throw new $TypeError('Side channel does not contain ' + keyDesc);
 			}
 		},
 		'delete': function (key) {
@@ -45841,7 +45916,7 @@ module.exports = function getSideChannel() {
 			$channelData.set(key, value);
 		}
 	};
-	// @ts-expect-error TODO: figure out why this is erroring
+
 	return channel;
 };
 
