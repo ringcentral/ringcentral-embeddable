@@ -32,7 +32,7 @@ hide:
         </label>
         <select class="rcb-select" id="rcb-version" onchange="rcbScheduleUpdate()">
           <option value="latest" selected>Latest (recommended)</option>
-          <option value="3.x">3.x (beta)</option>
+          <option value="3.x">3.x</option>
           <option value="2.x">2.x</option>
           <option value="1.x">1.x (deprecated)</option>
         </select>
