@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 
 import { configure } from '@testing-library/react';
+import { clearImmediate, setImmediate } from 'timers';
 import { TextDecoder, TextEncoder } from 'util';
 
 jest.mock('ringcentral-web-phone', () => require('../mocks/RingCentralWebphoneV2Mock'));
@@ -57,6 +58,8 @@ if (typeof Element !== 'undefined') {
   Element.prototype.scrollIntoView = () => {};
 }
 
+global.setImmediate = setImmediate;
+global.clearImmediate = clearImmediate;
 global.TextDecoder = TextDecoder;
 global.TextEncoder = TextEncoder;
 global.AudioWorkletProcessor = class AudioWorkletProcessor {};
