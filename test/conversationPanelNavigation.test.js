@@ -34,6 +34,14 @@ const createServices = () => ({
   },
   connectivityMonitor: { connectivity: true },
   rateLimiter: { restricted: false },
+  thirdParty: {
+    messageLoggerGranularSelectionEnabled: false,
+    messageLoggerRegistered: false,
+    messageLogStateMap: {},
+    messageLoggerTitle: null,
+    messageLogEntityMatcherRegistered: false,
+  },
+  conversationLogger: { autoLog: false },
 });
 
 describe('routed conversation panel navigation', () => {
