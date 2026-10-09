@@ -188,6 +188,7 @@ import {
   StoragePlugin,
 } from '@ringcentral-integration/next-core';
 import {
+  type ComposeTextViewSpringOptions,
   ConversationsViewSpring as MicroMessageConversationsView,
   type ConversationViewSpringOptions,
   MessageThreadsView,
@@ -220,12 +221,14 @@ import {
   createContactRendererOptions,
 } from './services';
 import { ComposeText as ComposeTextV2 } from './services/ComposeText';
+import { Conversations as ConversationsV2 } from './services/Conversations';
 import { DoNotContact } from './services/DoNotContact';
 import { ParkView } from './views/CallView/ParkView';
 import { CallControlView as CallControlViewV2 } from './views/CallView/CallControlView/CallControl.view';
 import { CallView as CallViewV2 } from './views/CallView/Call.view';
 import { ConversationsView as ConversationsViewV2 } from './views/ConversationsView';
 import { createConversationPanel } from './views/ConversationView/createConversationPanel';
+import { createComposeTextPanel } from './views/ComposeTextView/createComposeTextPanel';
 import { EMBEDDABLE_CALL_ACTION_OPTIONS } from './views/CallView/Call.view.options';
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
@@ -563,7 +566,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useClass: ModalViewV2,
       },
       MessageStore,
-      Conversations,
+      {
+        provide: Conversations,
+        useClass: ConversationsV2,
+      },
       QueueConversations,
       SmsTypingTimeTracker,
       SmsTemplate,
@@ -582,6 +588,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           queueConversations: QueueConversations,
           connectivityMonitor: ConnectivityMonitor,
           rateLimiter: RateLimiter,
+          thirdParty: ThirdParty,
+          conversationLogger: EmbeddableConversationLogger,
         ) =>
           ({
             component: createConversationPanel(
@@ -594,6 +602,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
                 queueConversations,
                 connectivityMonitor,
                 rateLimiter,
+                thirdParty,
+                conversationLogger,
               },
             ),
           } satisfies ConversationViewSpringOptions),
@@ -606,7 +616,17 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           QueueConversations,
           ConnectivityMonitor,
           RateLimiter,
+          ThirdParty,
+          MicroMessageConversationLogger,
         ],
+      },
+      {
+        provide: 'ComposeTextViewSpringOptions',
+        useFactory: (smsTypingTimeTracker: SmsTypingTimeTracker) =>
+          ({
+            component: createComposeTextPanel(smsTypingTimeTracker),
+          } satisfies Partial<ComposeTextViewSpringOptions>),
+        deps: [SmsTypingTimeTracker],
       },
       {
         provide: MicroSettingsView,

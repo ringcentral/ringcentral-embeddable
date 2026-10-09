@@ -212,8 +212,10 @@ export type ThirdPartyServiceRegistration = {
   messageLoggerAutoSettingReadOnlyReason?: string;
   messageLoggerAutoSettingReadOnlyValue?: boolean;
   messageLoggerAutoSettingHidden?: boolean;
+  messageLoggerGranularSelectionEnabled?: boolean;
   attachmentWithToken?: boolean;
   messageLogEntityMatcherPath?: string;
+  messageLogOpenPath?: string;
   messagesLogPageInputChangedEventPath?: string;
   feedbackPath?: string;
   settingsPath?: string;
@@ -386,6 +388,10 @@ export type ThirdPartyMessage = {
   id?: string;
   attachments?: ThirdPartyMessageAttachment[];
   [key: string]: unknown;
+};
+
+export type ThirdPartyMessageLogState = {
+  logId: string;
 };
 
 export type ThirdPartyConversation = {

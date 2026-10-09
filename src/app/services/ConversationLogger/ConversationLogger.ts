@@ -20,6 +20,7 @@ import type {
 } from '@ringcentral-integration/micro-message/src/app/services/ConversationLogger/ConversationLogger.interface';
 import {
   computed,
+  delegate,
   inject,
   injectable,
   ModuleRef,
@@ -350,6 +351,46 @@ export class ConversationLogger extends ConversationLoggerBase {
     triggerType?: string;
   } & T): Promise<void> {
     await super.logConversation({ ...options, triggerType });
+  }
+
+  /**
+   * Logs only the selected messages of a conversation, for services that
+   * enable granular per-message selection.
+   */
+  @delegate('server')
+  async logSelectedMessages({
+    conversationId,
+    messages,
+    correspondents,
+    correspondentEntity,
+  }: {
+    conversationId: string;
+    messages: Message[];
+    correspondents?: Correspondent[];
+    correspondentEntity?: Entity | null;
+  }): Promise<void> {
+    if (messages.length === 0) {
+      return;
+    }
+    const [logItem] = Object.values(this.conversationLogMap[conversationId] ?? {});
+    const selectedMessages = [...messages]
+      .sort(
+        (a, b) =>
+          new Date(a.creationTime ?? 0).getTime() -
+          new Date(b.creationTime ?? 0).getTime(),
+      )
+      .map((message) => this._addTypingDuration(message));
+    await this._thirdParty.logSelectedMessages({
+      conversation: {
+        conversationId,
+        type: logItem?.type ?? selectedMessages[0].type,
+        self: logItem?.self,
+        correspondents: logItem?.correspondents ?? correspondents,
+        messages: selectedMessages,
+      },
+      selectedMessageIds: selectedMessages.map(({ id }) => String(id)),
+      correspondentEntity: correspondentEntity ?? undefined,
+    });
   }
 
   private _scheduleThreadLogProcessing(): void {

@@ -6,6 +6,7 @@ import {
 } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import {
+  type Attachment,
   ComposeText as BaseComposeText,
   type ComposeTextOptions,
   MessageSender,
@@ -21,8 +22,15 @@ import {
 } from '@ringcentral-integration/next-core';
 
 import { DoNotContact } from '../DoNotContact';
+import {
+  COMPOSE_TYPING_CONTEXT,
+  SmsTypingTimeTracker,
+} from '../SmsTypingTimeTracker';
 
-/** Adds third-party Do Not SMS verification to message composition. */
+/**
+ * Adds third-party Do Not SMS verification and SMS typing time tracking to
+ * message composition.
+ */
 @injectable({
   name: 'ComposeText',
 })
@@ -42,6 +50,8 @@ export class ComposeText extends BaseComposeText {
     protected override _composeTextOptions?: ComposeTextOptions,
     @optional() protected override _router?: RouterPlugin,
     @optional() protected override _smsConsent?: SmsConsent,
+    @optional()
+    private readonly _smsTypingTimeTracker?: SmsTypingTimeTracker,
   ) {
     super(
       _toast,
@@ -90,8 +100,40 @@ export class ComposeText extends BaseComposeText {
     return super.addToNumbers(numbers);
   }
 
+  override async updateMessageText(text: string): Promise<void> {
+    await super.updateMessageText(text);
+    if (text) {
+      await this._smsTypingTimeTracker?.startTyping(COMPOSE_TYPING_CONTEXT);
+      return;
+    }
+    // An emptied draft discards the typing session, as on the legacy page.
+    await this._smsTypingTimeTracker?.clearTyping(COMPOSE_TYPING_CONTEXT);
+  }
+
+  override async send(
+    text: string,
+    attachments: Attachment[] = [],
+  ): ReturnType<BaseComposeText['send']> {
+    // Stop counting while sending, so a blocked or failed send stays paused.
+    await this._smsTypingTimeTracker?.pauseTyping(COMPOSE_TYPING_CONTEXT);
+    const responses = await super.send(text, attachments);
+    const messageIds = (responses ?? [])
+      .map((response) => response?.id)
+      .filter((id) => id !== undefined && id !== null)
+      .map(String);
+    if (messageIds.length > 0) {
+      // A group text gets the same typing time on every sent message.
+      await this._smsTypingTimeTracker?.stopTypingForMessages(
+        COMPOSE_TYPING_CONTEXT,
+        messageIds,
+      );
+    }
+    return responses;
+  }
+
   override async clean(): Promise<void> {
     this._requestedRecipients = [];
+    await this._smsTypingTimeTracker?.clearTyping(COMPOSE_TYPING_CONTEXT);
     return super.clean();
   }
 

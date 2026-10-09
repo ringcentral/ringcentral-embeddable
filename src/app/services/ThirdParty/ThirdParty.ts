@@ -67,6 +67,7 @@ import type {
   ThirdPartyConversation,
   ThirdPartyMessage,
   ThirdPartyMessageData,
+  ThirdPartyMessageLogState,
   ThirdPartyOptions,
   ThirdPartyPage,
   ThirdPartyRecording,
@@ -259,6 +260,20 @@ export class ThirdParty extends RcModule {
 
   @state
   messageLoggerAutoSettingHidden = false;
+
+  /**
+   * Whether the service lets users pick the SMS messages to log one by one
+   * instead of logging the daily conversation digest.
+   */
+  @state
+  messageLoggerGranularSelectionEnabled = false;
+
+  /**
+   * Log entry of each logged message, keyed by message id. Kept in memory and
+   * rebuilt from the message log entity matcher when a conversation opens.
+   */
+  @state
+  messageLogStateMap: Record<string, ThirdPartyMessageLogState> = {};
 
   @state
   authorized: boolean | null = null;
@@ -492,6 +507,14 @@ export class ThirdParty extends RcModule {
 
   private get _messageLogEntityMatcherPath(): string | undefined {
     return this._serviceRegistration?.messageLogEntityMatcherPath;
+  }
+
+  private get _messageLogOpenPath(): string | undefined {
+    return this._serviceRegistration?.messageLogOpenPath;
+  }
+
+  get messageLogEntityMatcherRegistered(): boolean {
+    return Boolean(this._messageLogEntityMatcherPath);
   }
 
   private get _feedbackPath(): string | undefined {
@@ -1067,6 +1090,8 @@ export class ThirdParty extends RcModule {
       messageLoggerAutoSettingReadOnlyValue:
         service.messageLoggerAutoSettingReadOnlyValue,
       messageLoggerAutoSettingHidden: service.messageLoggerAutoSettingHidden,
+      messageLoggerGranularSelectionEnabled:
+        service.messageLoggerGranularSelectionEnabled,
     });
   }
 
@@ -1398,6 +1423,150 @@ export class ThirdParty extends RcModule {
         error
       );
       return {};
+    }
+  }
+
+  /**
+   * Loads which CRM log entry each message of a conversation was logged into,
+   * for granular per-message logging.
+   */
+  @delegate('server')
+  async matchMessagesLogState({
+    conversationId,
+    messageIds,
+  }: {
+    conversationId: string;
+    messageIds: string[];
+  }): Promise<void> {
+    if (!this._messageLogEntityMatcherPath || messageIds.length === 0) {
+      return;
+    }
+    const data = await this._requestMessageLogState(
+      this._messageLogEntityMatcherPath,
+      // Shares the path with conversation log matching, so send an empty
+      // `conversationLogIds` for services that only handle that request.
+      { conversationId, messageIds, conversationLogIds: [] }
+    );
+    const stateMap: Record<string, ThirdPartyMessageLogState> = {};
+    messageIds.forEach((messageId) => {
+      const logId = data?.[messageId]?.logId;
+      if (logId) {
+        stateMap[messageId] = { logId: String(logId) };
+      }
+    });
+    if (Object.keys(stateMap).length > 0) {
+      this._setMessageLogState(stateMap);
+    }
+  }
+
+  @delegate('mainClient')
+  private async _requestMessageLogState(
+    path: string,
+    data: {
+      conversationId: string;
+      messageIds: string[];
+      conversationLogIds: string[];
+    }
+  ): Promise<Record<string, { logId?: string | number } | undefined> | null> {
+    try {
+      const response = await requestWithPostMessage(path, data, MATCH_TIMEOUT);
+      return response?.data ?? null;
+    } catch (error) {
+      console.error(
+        'Message log state match error, please check if message match responds successfully',
+        error
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Logs only the messages the user selected in a conversation, then marks
+   * them logged into the CRM log entry the service responds with.
+   */
+  @delegate('server')
+  async logSelectedMessages({
+    conversation,
+    selectedMessageIds,
+    correspondentEntity,
+  }: {
+    conversation: ThirdPartyConversation;
+    selectedMessageIds: string[];
+    correspondentEntity?: unknown;
+  }): Promise<void> {
+    const messageLoggerPath = this._messageLoggerPath;
+    if (!messageLoggerPath || selectedMessageIds.length === 0) {
+      return;
+    }
+    const logId = await this._sendSelectedMessagesLog(messageLoggerPath, {
+      conversation,
+      triggerType: 'selectedLog',
+      selectedMessageIds,
+      correspondentEntity,
+    });
+    if (!logId) {
+      return;
+    }
+    this._setMessageLogState(
+      Object.fromEntries(
+        selectedMessageIds.map((messageId) => [
+          messageId,
+          { logId: String(logId) },
+        ])
+      )
+    );
+  }
+
+  @delegate('mainClient')
+  private async _sendSelectedMessagesLog(
+    path: string,
+    data: {
+      conversation: ThirdPartyConversation;
+      triggerType: 'selectedLog';
+      selectedMessageIds: string[];
+      correspondentEntity?: unknown;
+    }
+  ): Promise<string | number | null> {
+    try {
+      const response = await requestWithPostMessage(path, data, LOG_TIMEOUT);
+      return response?.data?.logId ?? null;
+    } catch (error) {
+      console.error(
+        'Log selected messages error, please check if message logger responds successfully',
+        error
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Asks the service to open the CRM log entry a message was logged into.
+   */
+  @delegate('mainClient')
+  async openMessageLog({
+    logId,
+    messageId,
+    conversationId,
+  }: {
+    logId: string;
+    messageId: string;
+    conversationId: string;
+  }): Promise<void> {
+    const path = this._messageLogOpenPath ?? this._messageLoggerPath;
+    if (!path) {
+      return;
+    }
+    try {
+      await requestWithPostMessage(
+        path,
+        { logId, messageId, conversationId, triggerType: 'openLog' },
+        LOG_TIMEOUT
+      );
+    } catch (error) {
+      console.error(
+        'Open message log error, please check if message logger responds successfully',
+        error
+      );
     }
   }
 
@@ -2332,6 +2501,7 @@ export class ThirdParty extends RcModule {
     messageLoggerAutoSettingReadOnlyReason,
     messageLoggerAutoSettingReadOnlyValue,
     messageLoggerAutoSettingHidden,
+    messageLoggerGranularSelectionEnabled,
   }: {
     messageLoggerTitle?: string;
     messageLoggerAutoSettingLabel?: string;
@@ -2340,6 +2510,7 @@ export class ThirdParty extends RcModule {
     messageLoggerAutoSettingReadOnlyReason?: string;
     messageLoggerAutoSettingReadOnlyValue?: boolean;
     messageLoggerAutoSettingHidden?: boolean;
+    messageLoggerGranularSelectionEnabled?: boolean;
   }): void {
     if (messageLoggerTitle) {
       this.messageLoggerTitle = messageLoggerTitle;
@@ -2366,7 +2537,19 @@ export class ThirdParty extends RcModule {
     this.messageLoggerAutoSettingHidden = Boolean(
       messageLoggerAutoSettingHidden
     );
+    this.messageLoggerGranularSelectionEnabled = Boolean(
+      messageLoggerGranularSelectionEnabled
+    );
     this.messageLoggerRegistered = true;
+  }
+
+  @action
+  private _setMessageLogState(
+    stateMap: Record<string, ThirdPartyMessageLogState>
+  ): void {
+    Object.entries(stateMap).forEach(([messageId, logState]) => {
+      this.messageLogStateMap[messageId] = logState;
+    });
   }
 
   @action

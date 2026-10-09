@@ -22,7 +22,12 @@ import type { SmsTypingTimeTrackerOptions } from './SmsTypingTimeTracker.interfa
   name: 'SmsTypingTimeTracker',
 })
 export class SmsTypingTimeTracker extends RcModule {
-  private readonly _typingStartTimes: Record<string, number> = {};
+  /**
+   * Start time of the running typing session per context. Not persisted: a
+   * start time from before a reload no longer reflects typing activity.
+   */
+  @state
+  typingStartTimes: Record<string, number> = {};
 
   @storage
   @state
@@ -66,9 +71,22 @@ export class SmsTypingTimeTracker extends RcModule {
   }
 
   override onReset(): void {
-    Object.keys(this._typingStartTimes).forEach((contextKey) => {
-      delete this._typingStartTimes[contextKey];
-    });
+    this._clearStartTimes();
+  }
+
+  @action
+  private _setStartTime(contextKey: string, time: number): void {
+    this.typingStartTimes[contextKey] = time;
+  }
+
+  @action
+  private _clearStartTime(contextKey: string): void {
+    delete this.typingStartTimes[contextKey];
+  }
+
+  @action
+  private _clearStartTimes(): void {
+    this.typingStartTimes = {};
   }
 
   @action
@@ -87,8 +105,10 @@ export class SmsTypingTimeTracker extends RcModule {
   }
 
   @action
-  private _saveTypingTime(messageId: string, time: number): void {
-    this.typingTimeMap[messageId] = time;
+  private _saveTypingTime(messageIds: string[], time: number): void {
+    messageIds.forEach((messageId) => {
+      this.typingTimeMap[messageId] = time;
+    });
   }
 
   @delegate('server')
@@ -98,10 +118,10 @@ export class SmsTypingTimeTracker extends RcModule {
 
   @delegate('server')
   async startTyping(contextKey: string): Promise<void> {
-    if (!this.enabled || this._typingStartTimes[contextKey]) {
+    if (!this.enabled || this.typingStartTimes[contextKey]) {
       return;
     }
-    this._typingStartTimes[contextKey] = Date.now();
+    this._setStartTime(contextKey, Date.now());
   }
 
   @delegate('server')
@@ -109,7 +129,7 @@ export class SmsTypingTimeTracker extends RcModule {
     if (!this.enabled) {
       return;
     }
-    const startTime = this._typingStartTimes[contextKey];
+    const startTime = this.typingStartTimes[contextKey];
     if (!startTime) {
       return;
     }
@@ -118,18 +138,41 @@ export class SmsTypingTimeTracker extends RcModule {
       contextKey,
       accumulatedTime + Date.now() - startTime,
     );
-    delete this._typingStartTimes[contextKey];
+    this._clearStartTime(contextKey);
   }
 
   @delegate('server')
   async stopTyping(contextKey: string, messageId: string): Promise<void> {
-    this._completeTyping(contextKey, messageId);
+    this._completeTyping(contextKey, [messageId]);
+  }
+
+  /**
+   * Saves one typing duration against every message sent from a context,
+   * such as a group text sent from the compose page.
+   */
+  @delegate('server')
+  async stopTypingForMessages(
+    contextKey: string,
+    messageIds: string[],
+  ): Promise<void> {
+    this._completeTyping(contextKey, messageIds);
   }
 
   @delegate('server')
   async clearTyping(contextKey: string): Promise<void> {
-    delete this._typingStartTimes[contextKey];
-    this._clearAccumulatedTime(contextKey);
+    if (this.typingStartTimes[contextKey]) {
+      this._clearStartTime(contextKey);
+    }
+    if (contextKey in this.accumulatedTypingTimes) {
+      this._clearAccumulatedTime(contextKey);
+    }
+  }
+
+  hasTyping(contextKey: string): boolean {
+    return Boolean(
+      this.typingStartTimes[contextKey] ||
+        this.accumulatedTypingTimes[contextKey],
+    );
   }
 
   getTypingTime(messageId: string | number): number | undefined {
@@ -144,22 +187,24 @@ export class SmsTypingTimeTracker extends RcModule {
     ) {
       return;
     }
-    this._completeTyping(message.conversationId, String(message.id));
+    this._completeTyping(message.conversationId, [String(message.id)]);
   }
 
-  private _completeTyping(contextKey: string, messageId: string): void {
-    if (!this.enabled) {
+  private _completeTyping(contextKey: string, messageIds: string[]): void {
+    if (!this.enabled || !this.hasTyping(contextKey)) {
       return;
     }
-    const startTime = this._typingStartTimes[contextKey];
+    const startTime = this.typingStartTimes[contextKey];
     const accumulatedTime = this.accumulatedTypingTimes[contextKey] ?? 0;
     const totalTime = startTime
       ? accumulatedTime + Date.now() - startTime
       : accumulatedTime;
-    if (totalTime > 0) {
-      this._saveTypingTime(messageId, totalTime);
+    if (totalTime > 0 && messageIds.length > 0) {
+      this._saveTypingTime(messageIds, totalTime);
     }
-    delete this._typingStartTimes[contextKey];
+    if (startTime) {
+      this._clearStartTime(contextKey);
+    }
     this._clearAccumulatedTime(contextKey);
   }
 }

@@ -291,7 +291,7 @@ window.addEventListener('message', function (e) {
 
 By default SMS messages are logged as a daily digest (grouped by `conversationId` and `date`). For manual-logging workflows that need to attribute individual messages to different CRM records (e.g. legal/consulting matters), you can enable granular per-message selection.
 
-When enabled, the SMS conversation view shows a checkbox next to every unlogged message (checked by default) and a logged icon on messages that are already logged. The header `Log` button then logs only the checked messages.
+When enabled, the SMS conversation view shows a checkbox next to every unlogged message (unchecked by default) and a logged icon on messages that are already logged. The header `Log` button then logs only the checked messages.
 
 !!! info "Requirements"
     Granular selection only renders when the user/account uses **manual** SMS logging (auto log disabled). When auto log is enabled, the standard daily-digest behavior is used.
@@ -314,7 +314,7 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 
 ### Log selected messages
 
-When the user clicks `Log`, the widget posts a request to `messageLoggerPath` with `triggerType: 'selectedLog'` and a snapshot of the checked message ids in `body.selectedMessageIds`. Only these messages are included in `body.conversation.messages`.
+When the user clicks `Log`, the widget posts a request to `messageLoggerPath` with `triggerType: 'selectedLog'` and a snapshot of the checked message ids in `body.selectedMessageIds`. Only these messages are included in `body.conversation.messages`. The matched contact of the conversation, if any, is sent in `body.correspondentEntity`.
 
 Respond with a `logId` that identifies the created CRM entry. The widget stores it per selected message so it can render the logged icon and navigate back to the entry.
 
@@ -338,7 +338,7 @@ window.addEventListener('message', function (e) {
 
 ### Per-message logged state
 
-On conversation load the widget requests logged state for the visible messages by posting `{ conversationId, messageIds }` to `messageLogEntityMatcherPath`. Return, per message id, an object containing the `logId` it was logged into (omit unlogged messages):
+On conversation load the widget requests logged state for the visible messages by posting `{ conversationId, messageIds, conversationLogIds: [] }` to `messageLogEntityMatcherPath`. It shares the path with conversation log matching; `conversationLogIds` is always empty here, so a handler that only reads `conversationLogIds` keeps working. Check `messageIds` to tell the two requests apart. Return, per message id, an object containing the `logId` it was logged into (omit unlogged messages):
 
 ```js
 if (data.path === '/messageLogger/match') {

@@ -87,4 +87,6 @@ The tracker measures the time from when the user starts typing to when the messa
 - **Stop**: When the message is successfully sent, the total typing duration is saved
 - **Clear**: If the compose field is cleared without sending, the timer is reset
 
+While tracking is enabled, the message input shows the current typing duration, ticking while the user types and frozen while the timer is paused.
+
 This approach ensures accurate tracking even when users switch between conversations or temporarily leave the messaging interface.

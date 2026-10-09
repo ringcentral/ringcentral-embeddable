@@ -15,8 +15,13 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import type { SmsTypingTimeTracker } from '../../services/SmsTypingTimeTracker';
 import type { DoNotContact } from '../../services/DoNotContact';
+import { TypingDuration } from './TypingDuration';
+import {
+  type MessageLogSelectionServices,
+  useMessageLogSelection,
+} from './useMessageLogSelection';
 
-type ConversationPanelServices = {
+type ConversationPanelServices = MessageLogSelectionServices & {
   conversations: Conversations;
   messageThread: MessageThread;
   queueConversations: QueueConversations;
@@ -87,6 +92,8 @@ export function createConversationPanel(
       [conversationId],
     );
 
+    const messageLogSelection = useMessageLogSelection(services, props);
+
     if (!conversation) {
       return null;
     }
@@ -104,10 +111,29 @@ export function createConversationPanel(
         {...props}
         conversation={conversation}
         sendButtonDisabled={sendButtonDisabled}
+        {...messageLogSelection}
+        endAdornment={
+          smsTypingTimeTracker && conversationId ? (
+            <>
+              {props.endAdornment}
+              <TypingDuration
+                tracker={smsTypingTimeTracker}
+                contextKey={conversationId}
+              />
+            </>
+          ) : (
+            props.endAdornment
+          )
+        }
         replyToReceivers={async (text, attachments) => {
           const recipients = (props.conversation?.correspondents || []).map(
             (correspondent) => ({ phoneNumber: correspondent.phoneNumber }),
           );
+          if (conversationId) {
+            // Stop counting while sending; the sent message completes the
+            // typing session, and a blocked or failed send leaves it paused.
+            await smsTypingTimeTracker?.pauseTyping(conversationId);
+          }
           const canSend = doNotContact
             ? await doNotContact.verifySmsRecipients(recipients)
             : true;
@@ -117,6 +143,9 @@ export function createConversationPanel(
         }}
         updateMessageText={async (text) => {
           setDraft(text);
+          if (conversationId && text) {
+            void smsTypingTimeTracker?.startTyping(conversationId);
+          }
           if (conversationId) {
             await ensureServerConversation(conversationId);
             const resolvedId = props.conversation?.conversationId;
