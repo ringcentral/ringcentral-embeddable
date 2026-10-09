@@ -5,14 +5,29 @@ import { ConversationsPage as BaseConversationsPage } from '@ringcentral-integra
 import { Filter } from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/ConversationsPage/Filter';
 import i18n from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/ConversationsPage/i18n';
 import { useVirtuosoScrollPosition } from '@ringcentral-integration/react-hooks';
-import { VirtualizedList } from '@ringcentral/spring-ui';
-import React, { forwardRef } from 'react';
+import {
+  CircularProgressIndicator,
+  VirtualizedList,
+} from '@ringcentral/spring-ui';
+import React, { forwardRef, useEffect, useState } from 'react';
 
 import { ConversationsListItem } from './ConversationsListItem';
 
 type ConversationsPageProps = ConversationsPanelSpringProps & {
   onRefreshContact?: (phoneNumber: string) => Promise<void> | void;
 };
+
+/**
+ * Shown below the list while older conversations are loading.
+ */
+const LoadingOlderFooter = () => (
+  <div
+    className="flex justify-center py-2"
+    data-sign="loadingOlderConversations"
+  >
+    <CircularProgressIndicator size="xsmall" />
+  </div>
+);
 
 export const ConversationsPage = forwardRef<
   HTMLDivElement,
@@ -23,6 +38,8 @@ export const ConversationsPage = forwardRef<
     createNewEntityTooltip,
     disableLinks,
     lastPosition,
+    loadingNextPage,
+    onEndReached,
     onSearchInputChange,
     onRefreshContact,
     readStatusFilter,
@@ -40,8 +57,28 @@ export const ConversationsPage = forwardRef<
     (snapshot) =>
       setLastPosition(`${typeFilter}-${readStatusFilter}`, snapshot),
   );
+  const isEmpty = conversations.length === 0;
+  const [atBottom, setAtBottom] = useState(false);
+  const endVisible = isEmpty || atBottom;
 
-  if (conversations.length === 0) {
+  // Keep loading older conversations while the end of the list is visible,
+  // so a short or empty tab fills itself. A one-shot `endReached` would be
+  // lost if it fired while a previous page was still loading.
+  useEffect(() => {
+    if (endVisible && !loadingNextPage) {
+      onEndReached?.();
+    }
+    // Re-check when the list or loading state changes, not on handler identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    endVisible,
+    loadingNextPage,
+    conversations.length,
+    typeFilter,
+    readStatusFilter,
+  ]);
+
+  if (isEmpty) {
     return <BaseConversationsPage ref={ref} {...props} />;
   }
 
@@ -65,6 +102,10 @@ export const ConversationsPage = forwardRef<
         />
         <VirtualizedList
           className="flex-auto overflow-auto"
+          components={{
+            Footer: loadingNextPage ? LoadingOlderFooter : undefined,
+          }}
+          atBottomStateChange={setAtBottom}
           data={conversations}
           data-sign="conversationList"
           key={`${typeFilter}-${readStatusFilter}`}

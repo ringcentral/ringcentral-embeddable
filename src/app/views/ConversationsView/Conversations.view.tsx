@@ -54,6 +54,7 @@ import { LogStatusMessage } from '../../components/LogStatusMessage';
 import { useConversationDisplayNameWithMatches } from '../../components/MatchedContactsTag';
 import { embeddableTrackEvents } from '../../services/Analytics/embeddableTrackEvents';
 import type { AppFeatures as EmbeddableAppFeatures } from '../../services/AppFeatures';
+import type { Conversations as AppConversations } from '../../services/Conversations';
 import {
   type ContactMatcher,
   refreshContactMatch,
@@ -344,6 +345,10 @@ export class ConversationsView extends ConversationsViewSpringBase {
     return this._appFeatures as EmbeddableAppFeatures;
   }
 
+  private get _appConversations(): AppConversations {
+    return this._conversations as AppConversations;
+  }
+
   private readonly _refreshContact = async (
     phoneNumber: string,
   ): Promise<void> => {
@@ -402,6 +407,9 @@ export class ConversationsView extends ConversationsViewSpringBase {
       onRefreshContact: this._appContactMatcher
         ? this._refreshContact
         : undefined,
+      onEndReached: () => {
+        void this._appConversations.fetchOlderConversations(props.typeFilter);
+      },
       useActionsHandler,
     };
   }
@@ -412,6 +420,9 @@ export class ConversationsView extends ConversationsViewSpringBase {
     const uiProps = super.getUIProps(props);
     return {
       ...uiProps,
+      loadingNextPage: Boolean(
+        this._appConversations.olderConversationsLoading[props.typeFilter],
+      ),
       showNewButton:
         props.typeFilter === messageTypes.fax
           ? uiProps.showNewButton && this._embeddableAppFeatures.hasFaxesScope

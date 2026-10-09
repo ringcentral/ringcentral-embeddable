@@ -67,6 +67,7 @@ import {
   ConversationLogger as MicroMessageConversationLogger,
   ConversationMatcher,
   Conversations,
+  type ConversationsOptions,
   QueueConversations,
   MessageThread,
   type MessageThreadOptions,
@@ -74,6 +75,7 @@ import {
   SmsConversationsOptions,
   SmsOptOut,
   MessageStore,
+  type MessageStoreOptions,
   SmsTemplate,
 } from '@ringcentral-integration/micro-message/src/app/services';
 import type { WebphoneOptions } from '@ringcentral-integration/micro-phone/src/app/services';
@@ -588,8 +590,22 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       MessageStore,
       {
+        // Sync the same 90 days of messages as the legacy app; the default 7
+        // days can leave a tab with only a few conversations to start from.
+        provide: 'MessageStoreOptions',
+        useValue: {
+          daySpan: 90,
+        } satisfies MessageStoreOptions,
+      },
+      {
         provide: Conversations,
         useClass: ConversationsV2,
+      },
+      {
+        provide: 'ConversationsOptions',
+        useValue: {
+          enableLoadOldMessages: true,
+        } satisfies ConversationsOptions,
       },
       QueueConversations,
       SmsTypingTimeTracker,
@@ -604,7 +620,9 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           router: RouterPlugin,
           smsTypingTimeTracker: SmsTypingTimeTracker,
           doNotContact: DoNotContact,
-          conversations: Conversations,
+          // Resolved through the `Conversations` token below, which this app
+          // binds to its own subclass.
+          conversations: ConversationsV2,
           messageThread: MessageThread,
           queueConversations: QueueConversations,
           connectivityMonitor: ConnectivityMonitor,
