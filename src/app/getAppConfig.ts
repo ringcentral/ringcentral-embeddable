@@ -260,6 +260,10 @@ import {
   SmsTypingTimeTracker,
   type SmsTypingTimeTrackerOptions,
 } from './services/SmsTypingTimeTracker';
+import {
+  DynamicBrand,
+  type DynamicBrandOptions,
+} from './services/DynamicBrand';
 
 const DEFAULT_CONTACT_MATCH_TTL = 120 * 60 * 1000;
 const DEFAULT_CONTACT_NO_MATCH_TTL = 5 * 60 * 1000;
@@ -276,6 +280,7 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   appVersion: string;
   prefix?: string;
   brandConfig: BaseBrandConfig;
+  brandConfigs?: DynamicBrandOptions['brandConfigs'];
   sdkConfig: SDKConfig;
   modules: Parameters<T>[0]['modules'];
   share: ISharedAppOptions;
@@ -319,6 +324,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   appVersion,
   prefix,
   brandConfig,
+  brandConfigs,
   sdkConfig,
   modules = [],
   share,
@@ -524,6 +530,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       ActivityMatcher,
       TabManager,
       PopupLayoutFit,
+      DynamicBrand,
       SmartNotes,
       ThirdParty,
       RingCX,
@@ -813,6 +820,12 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useValue: {
           assetOrigin: getAssetBaseUrl(),
         } satisfies BrandConfigOptions,
+      },
+      {
+        provide: 'DynamicBrandOptions',
+        useValue: {
+          brandConfigs,
+        } satisfies DynamicBrandOptions,
       },
       {
         provide: 'BrowserLoggerOptions',

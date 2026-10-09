@@ -1680,6 +1680,8 @@ export class Adapter extends RcModule {
     return [
       this._brand.brandConfig?.assets?.logo,
       this._brand.brandConfig?.assets?.icon,
+      this._brand.brandConfig?.styleVariable?.['header-logo-width'],
+      this._brand.brandConfig?.styleVariable?.['header-logo-height'],
     ];
   }
 
@@ -1979,6 +1981,9 @@ export class Adapter extends RcModule {
       type: 'rc-brand-assets-notify',
       logoUri: this._brand.brandConfig?.assets?.logo,
       iconUri: this._brand.brandConfig?.assets?.icon,
+      logoWidth: this._brand.brandConfig?.styleVariable?.['header-logo-width'],
+      logoHeight:
+        this._brand.brandConfig?.styleVariable?.['header-logo-height'],
     });
   }
 

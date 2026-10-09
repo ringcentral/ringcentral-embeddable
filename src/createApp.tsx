@@ -1,3 +1,4 @@
+import type { BrandConfig } from '@ringcentral-integration/micro-core/src/app/services';
 import { createSharedApp } from '@ringcentral-integration/next-core';
 import { getAppConfig } from './app/getAppConfig';
 import { parseUri } from './lib/Adapter/parseUri';
@@ -29,6 +30,7 @@ export interface RuntimeSdkConfig {
 }
 
 interface UrlParams {
+  brand?: string;
   clientId?: string;
   clientSecret?: string;
   appServer?: string;
@@ -90,6 +92,7 @@ function readUrlParams(): UrlParams {
         : '';
   const params = parseUri(href);
   return {
+    brand: params.brand || undefined,
     clientId: params.clientId || params.appKey || undefined,
     clientSecret: params.clientSecret || params.appSecret || undefined,
     appServer: params.appServer || undefined,
@@ -138,6 +141,25 @@ function readUrlParams(): UrlParams {
   };
 }
 
+// Read once: DefinePlugin inlines the whole map at every reference.
+const bundledBrandConfigs = process.env.BRAND_CONFIGS as unknown as
+  | Record<string, BrandConfig>
+  | undefined;
+
+/**
+ * Pick the brand config requested by the `brand` URL parameter,
+ * falling back to the build's default brand when it is missing or unknown.
+ */
+function resolveBrandConfig(
+  defaultBrandConfig: StaticAppConfig['brandConfig'],
+  brand?: string,
+): StaticAppConfig['brandConfig'] {
+  const brandConfig = brand
+    ? (bundledBrandConfigs?.[brand] as StaticAppConfig['brandConfig'])
+    : undefined;
+  return brandConfig || defaultBrandConfig;
+}
+
 /**
  * Create the Engage Voice Embeddable application
  */
@@ -146,12 +168,13 @@ export const createApp = async (
   additionalModules: Parameters<typeof createSharedApp>[0]['modules'] = [],
 ) => {
   const config = process.env.APP_CONFIG as unknown as StaticAppConfig;
-  const { prefix, brandConfig, version } = config;
+  const { prefix, version } = config;
 
   const urlParams =
     typeof window !== 'undefined' || typeof self !== 'undefined'
       ? readUrlParams()
       : ({} as UrlParams);
+  const brandConfig = resolveBrandConfig(config.brandConfig, urlParams.brand);
   const mergedSdkConfig = resolveRuntimeSdkConfig(
     process.env.API_CONFIG as RuntimeSdkConfig,
     urlParams,
@@ -187,6 +210,7 @@ export const createApp = async (
     appVersion,
     prefix: urlParams.prefix || prefix,
     brandConfig,
+    brandConfigs: bundledBrandConfigs,
     sdkConfig: mergedSdkConfig,
     modules: additionalModules,
     share: options ?? {

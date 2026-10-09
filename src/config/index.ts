@@ -10,3 +10,4 @@ export interface AppConfig extends BaseAppConfig {
 export const appConfig = rc;
 
 export { BrandConfig };
+export { brandConfigs } from './brandConfigs';

@@ -2,7 +2,7 @@ import path from 'path';
 import type { WebpackConfigOptions } from '@ringcentral-integration/next-builder';
 import { DefinePlugin, type Configuration, type RuleSetRule } from 'webpack';
 import { getBaseWebpackConfig, merge } from './src/lib/webpack/builder.webpack';
-import type { AppConfig } from './src/config';
+import { brandConfigs, type AppConfig } from './src/config';
 
 interface AppWebpackConfigOptions extends WebpackConfigOptions<AppConfig> {
   buildId?: string;
@@ -157,6 +157,7 @@ export const getWebpackConfig = (
         'process.env.PREFIX': toDefineValue(appConfig.prefix || ''),
         'process.env.BRAND': toDefineValue(brandCode || ''),
         'process.env.BRAND_CONFIGS': toDefineValue({
+          ...brandConfigs,
           [brandCode]: appConfig.brandConfig,
         }),
         'process.env.REDIRECT_URI': toDefineValue(readEnv('REDIRECT_URI')),

@@ -40,6 +40,8 @@ const OTHER_DEVICE_CALLS = 3;
 
 const ROTATE_LENGTH = 4;
 const ROTATE_INTERVAL = 5000;
+// Only plain pixel sizes from the app are applied to the header logo.
+const LOGO_SIZE_PATTERN = /^\d+(\.\d+)?px$/;
 
 type RefreshLoginSessionResponse = {
   result: 'ok' | 'error';
@@ -386,6 +388,7 @@ class Adapter {
           if (data.logoUri) {
             this._setLogoUrl(data.logoUri);
           }
+          this._setLogoSize(data.logoWidth, data.logoHeight);
           if (data.iconUri) {
             this._setIconUrl(data.iconUri);
           }
@@ -764,6 +767,22 @@ class Adapter {
         this._logoUrl && this._logoUrl !== '' && this._styles.visible,
       ),
     );
+  }
+
+  /**
+   * Apply the brand's header logo box, keeping the logo centered.
+   * Falls back to the stylesheet size when the brand doesn't define one.
+   */
+  _setLogoSize(width?: string, height?: string): void {
+    const isValidSize = (size?: string): size is string =>
+      typeof size === 'string' && LOGO_SIZE_PATTERN.test(size);
+    if (!isValidSize(width) || !isValidSize(height)) {
+      return;
+    }
+    this._logoEl.style.width = width;
+    this._logoEl.style.height = height;
+    this._logoEl.style.marginLeft = `calc(${width} / -2)`;
+    this._logoEl.style.marginTop = `calc(${height} / -2)`;
   }
 
   _setAppUrl(appUrl: string): void {
