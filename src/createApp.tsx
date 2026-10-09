@@ -47,6 +47,7 @@ interface UrlParams {
   fromPopup?: boolean;
   mainTab?: boolean;
   enableSideWidget?: boolean;
+  showSignUpButton?: boolean;
   enableRingCX?: boolean;
   evServer?: string;
   enableAgentScript?: boolean;
@@ -107,6 +108,7 @@ function readUrlParams(): UrlParams {
     fromPopup: parseBooleanParam(params.fromPopup),
     mainTab: parseOptionalBooleanParam(params.mainTab),
     enableSideWidget: parseBooleanParam(params.enableSideWidget),
+    showSignUpButton: parseBooleanParam(params.showSignUpButton),
     enableRingCX: parseBooleanParam(params.enableRingCX),
     evServer: params.evServer || undefined,
     enableAgentScript: parseBooleanParam(params.enableAgentScript),
@@ -203,6 +205,7 @@ export const createApp = async (
     fromPopup: urlParams.fromPopup,
     mainTab: urlParams.mainTab,
     enableSideWidget: urlParams.enableSideWidget,
+    showSignUpButton: urlParams.showSignUpButton,
     enableRingCX: urlParams.enableRingCX,
     evServer: urlParams.evServer,
     enableAgentScript: urlParams.enableAgentScript,

@@ -1,5 +1,6 @@
 import type { BrandConfig as BaseBrandConfig } from '@ringcentral-integration/commons/modules/Brand';
 import type { SDKConfig } from '@ringcentral-integration/commons/lib/createSdkConfig';
+import type { LoginViewOptions } from '@ringcentral-integration/micro-auth/src/app/views/LoginView';
 import {
   Auth,
   OAuth,
@@ -250,6 +251,7 @@ import { CxAgentSettingsView } from './views/CxAgentSettingsView';
 import { CxAgentTabView } from './views/CxAgentTabView';
 import { AudioInitView } from './views/AudioInitView';
 import { ConnectivityView } from './views/ConnectivityView';
+import { LoginPanel } from './views/LoginView/LoginPanel';
 import {
   ConversationLogger as EmbeddableConversationLogger,
   createConversationLoggerOptions,
@@ -289,6 +291,7 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   fromPopup?: boolean;
   mainTab?: boolean;
   enableSideWidget?: boolean;
+  showSignUpButton?: boolean;
   enableVoicemailDrop?: boolean;
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
@@ -331,6 +334,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   fromPopup = false,
   mainTab,
   enableSideWidget = false,
+  showSignUpButton = false,
   enableVoicemailDrop = false,
   disableNoiseReduction = false,
   enableSmartNote = false,
@@ -525,6 +529,16 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       RingCX,
       DoNotContact,
       // views
+      {
+        provide: 'LoginViewOptions',
+        useFactory: (appFeatures: AppFeaturesV2): LoginViewOptions => ({
+          component: LoginPanel,
+          get showSignUp(): boolean {
+            return appFeatures.showSignUpButton;
+          },
+        }),
+        deps: [AppFeatures],
+      },
       {
         provide: MicroCoreSyncTabView,
         useClass: SyncTabViewV2,
@@ -901,6 +915,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: 'FeatureConfiguration',
         useValue: {
+          SignUpButton: showSignUpButton,
           NoiseReduction: !disableNoiseReduction,
           AudioInitPrompt: enableAudioInitPrompt,
           RingCX: enableRingCX,

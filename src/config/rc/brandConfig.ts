@@ -81,7 +81,7 @@ export const brandConfig: BrandConfig = {
   enableEDP: true,
   showFeedback: false,
   privacyNotice: 'https://www.ringcentral.com/legal/privacy-policy.html',
-  // signupUrl: 'https://www.ringcentral.com/office/plansandpricing.html',
+  signupUrl: 'https://www.ringcentral.com/office/plansandpricing.html',
   eulaLink: 'https://www.ringcentral.com/legal/eulatos.html',
   subBrands: [],
   styleVariable: {
