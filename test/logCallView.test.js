@@ -93,17 +93,25 @@ describe("LogCallView", () => {
     expect(view.getSelectedContact(call, {})).toBe(selectedContact);
   });
 
-  test("opens an existing log without reopening the customized log form", async () => {
-    const call = { sessionId: "session-id", type: "Voice" };
+  test("opens an existing log with the form contact, like the history item", async () => {
+    const formContact = { id: "contact-1", name: "Ada Lovelace" };
+    const call = {
+      direction: "Inbound",
+      fromMatches: [formContact, { id: "contact-2", name: "Grace Hopper" }],
+      sessionId: "session-id",
+      toMatches: [],
+      type: "Voice",
+    };
     const callLogger = {
       logCall: jest.fn(async () => undefined),
     };
     const view = new LogCallView(callLogger, {}, {}, {}, {});
 
-    await view.viewLog(call);
+    await view.viewLog(call, { contactId: "contact-1" });
 
     expect(callLogger.logCall).toHaveBeenCalledWith({
       call,
+      contact: formContact,
       redirect: true,
       triggerType: "viewLog",
     });

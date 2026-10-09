@@ -102,6 +102,8 @@ class CallLogger {
   _ignoreModuleReadiness(module) {
     this.ignoredModules.push(module);
   }
+
+  onInitOnce() {}
 }
 
 module.exports = {

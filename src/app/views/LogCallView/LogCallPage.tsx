@@ -33,7 +33,7 @@ interface LogCallPageProps {
   onButtonClick: (buttonId: string, formData: UnknownRecord) => void;
   onFormDataChange: (formData: UnknownRecord, changedKeys: string[]) => void;
   onSubmit: (formData: UnknownRecord) => void;
-  onViewLog: () => Promise<void>;
+  onViewLog: (formData: UnknownRecord) => Promise<void>;
   saving: boolean;
   useActionsHandler: CallDetailViewPanelProps["useActionsHandler"];
   useCallHistoryItemInfo: CallDetailViewPanelProps["useCallHistoryItemInfo"];
@@ -172,7 +172,7 @@ export function LogCallPage({
       const onAction = useActionsHandler(historyCall, info, location);
       return async (actionType) => {
         if (actionType === "viewLog") {
-          await onViewLog();
+          await onViewLog(formData);
           return;
         }
         await onAction(actionType);

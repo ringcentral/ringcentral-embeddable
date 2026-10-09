@@ -18,7 +18,6 @@ import {
   ActionMenuList,
   PageHeader,
   PageHeaderBackButton,
-  useHistoryActionButtons,
 } from "@ringcentral-integration/next-widgets/components";
 import {
   IncomingCallMd,
@@ -32,6 +31,7 @@ import React, { useState } from "react";
 import { CallerIdInfoButton } from "../../components/CallerIdInfoButton";
 import { useSideWidgetTabsShown } from "../SideWidgetView/useSideWidgetTabsShown";
 import i18n from "./i18n";
+import { useCallHistoryActionButtons } from "./useCallHistoryActionButtons";
 
 type CallDetailPageProps = CallDetailViewPanelProps & {
   headerTitle?: React.ReactNode;
@@ -79,7 +79,15 @@ export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
     info,
     "Call history detail page"
   );
-  const actionButtons = useHistoryActionButtons(actions, onAction);
+  // The upstream hook always labels `createLog` as "Create log"; this one
+  // keeps the "Edit log" / host logger title label, as in the history list.
+  const actionButtons = useCallHistoryActionButtons({
+    actions,
+    additionalActions: [],
+    call: currentCallLog,
+    onAction,
+    onAdditionalAction: () => undefined,
+  });
   // With tabs the tab names the page, so a title header with no actions
   // would only repeat it.
   const hideHeader =

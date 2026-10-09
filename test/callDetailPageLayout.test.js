@@ -1,8 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import React from "react";
 
-import { useHistoryActionButtons } from "@ringcentral-integration/next-widgets/components";
-
 import { CallDetailPage } from "../src/app/views/CallHistoryView/CallDetailPage";
 import callHistoryLabels from "../src/app/views/CallHistoryView/i18n/en-US";
 import { SideWidgetTabsShownContext } from "../src/app/views/SideWidgetView/SideWidgetTabsShownContext";
@@ -27,7 +25,15 @@ jest.mock("@ringcentral-integration/micro-core/src/app/hooks", () => ({
 }));
 
 jest.mock("@ringcentral-integration/next-widgets/components", () => ({
-  ActionMenuList: () => null,
+  ActionMenuList: ({ buttons }) => (
+    <div data-sign="actionMenuList">
+      {buttons.map(({ actionType, label }) => (
+        <button data-sign={actionType} key={actionType} type="button">
+          {label}
+        </button>
+      ))}
+    </div>
+  ),
   PageHeader: ({ children, endAdornment, onBackClick }) => (
     <div>
       <button type="button" onClick={onBackClick}>
@@ -38,7 +44,6 @@ jest.mock("@ringcentral-integration/next-widgets/components", () => ({
     </div>
   ),
   PageHeaderBackButton: () => null,
-  useHistoryActionButtons: jest.fn(() => []),
 }));
 
 jest.mock("@ringcentral/spring-ui", () => ({
@@ -48,6 +53,7 @@ jest.mock("@ringcentral/spring-ui", () => ({
   Icon: (props) => <span {...props}>Call icon</span>,
   IconButton: (props) => <button type="button" {...props} />,
   Tooltip: ({ children, title }) => <span title={title}>{children}</span>,
+  useEventCallback: (callback) => callback,
 }));
 
 jest.mock(
@@ -60,9 +66,9 @@ jest.mock(
   })
 );
 
-function useCallHistoryItemInfo() {
-  return {
-    actions: [],
+function createUseCallHistoryItemInfo(actions = []) {
+  return () => ({
+    actions,
     info: {
       Avatar: () => <span>Avatar</span>,
       DisplayName: () => <span>Ada</span>,
@@ -76,7 +82,7 @@ function useCallHistoryItemInfo() {
       myCallerIdTitle: "From",
       startTime: "10:00 AM",
     },
-  };
+  });
 }
 
 const sharedProps = {
@@ -87,7 +93,7 @@ const sharedProps = {
   },
   goBack: jest.fn(),
   useActionsHandler: jest.fn(() => jest.fn()),
-  useCallHistoryItemInfo,
+  useCallHistoryItemInfo: createUseCallHistoryItemInfo(),
 };
 
 describe("CallDetailPage layout", () => {
@@ -105,19 +111,47 @@ describe("CallDetailPage layout", () => {
   });
 
   test("keeps a titled header with actions under the side widget tab bar", () => {
-    useHistoryActionButtons.mockReturnValue([{ id: "call" }]);
     render(
       <SideWidgetTabsShownContext.Provider value>
-        <CallDetailPage {...sharedProps} headerTitle="Log to TestService">
+        <CallDetailPage
+          {...sharedProps}
+          headerTitle="Log to TestService"
+          useCallHistoryItemInfo={createUseCallHistoryItemInfo([
+            { type: "call" },
+          ])}
+        >
           Form content
         </CallDetailPage>
       </SideWidgetTabsShownContext.Provider>
     );
-    useHistoryActionButtons.mockReturnValue([]);
 
     expect(screen.getByTestId("detailPageTitle")).toHaveTextContent(
       "Log to TestService"
     );
+  });
+
+  test("keeps the log action label for a logged call", () => {
+    render(
+      <CallDetailPage
+        {...sharedProps}
+        useCallHistoryItemInfo={createUseCallHistoryItemInfo([
+          { type: "createLog", label: "Edit log" },
+          { type: "call" },
+          { type: "viewLog", label: "View log details" },
+        ])}
+      >
+        Form content
+      </CallDetailPage>
+    );
+
+    const buttons = within(screen.getByTestId("actionMenuList")).getAllByRole(
+      "button"
+    );
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      "Edit log",
+      "call",
+      "View log details",
+    ]);
   });
 
   test("can hide caller ID and scroll time/status with page content", () => {

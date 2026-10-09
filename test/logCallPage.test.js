@@ -224,6 +224,7 @@ describe("LogCallPage", () => {
     expect(logCallLabels.viewLogDetails).toBe("View log details");
     fireEvent.click(screen.getByRole("button", { name: "viewLogDetails" }));
     expect(props.onViewLog).toHaveBeenCalledTimes(1);
+    expect(props.onViewLog).toHaveBeenCalledWith({ name: "Ada" });
   });
 
   test("disables and loads the footer button while saving", () => {

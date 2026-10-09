@@ -156,9 +156,15 @@ export class LogCallView extends RcViewModule {
     return { ...callWithoutSelection, ...extraLogData };
   }
 
-  private async viewLog(call: CompatibleCall): Promise<void> {
+  private async viewLog(
+    call: CompatibleCall,
+    formData: UnknownRecord
+  ): Promise<void> {
     await this._callLogger.logCall({
       call,
+      // Same contact as Save, so the host gets fromEntity/toEntity like the
+      // history item's "View log details".
+      contact: this.getSelectedContact(call, formData),
       redirect: true,
       triggerType: "viewLog",
     });
@@ -226,12 +232,12 @@ export class LogCallView extends RcViewModule {
           this.setSaving(false);
         }
       },
-      onViewLog: async () => {
+      onViewLog: async (formData: UnknownRecord) => {
         const currentCall = callRef.current;
         if (!currentCall) {
           return;
         }
-        await this.viewLog(currentCall);
+        await this.viewLog(currentCall, formData);
       },
     });
     return (

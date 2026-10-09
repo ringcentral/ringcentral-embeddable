@@ -1,3 +1,4 @@
+import { callLoggerTriggerTypes } from "@ringcentral-integration/commons/enums/callLoggerTriggerTypes";
 import type { HistoryCall } from "@ringcentral-integration/micro-phone/src/app/services/CallHistory";
 import type { Entity } from "@ringcentral-integration/commons/interfaces/Entity.interface";
 import type { CallLoggerOptions } from "@ringcentral-integration/micro-phone/src/app/services/CallLogger/CallLogger.interface";
@@ -7,6 +8,7 @@ import {
 } from "@ringcentral-integration/micro-contacts/src/app/services";
 import {
   CallHistory,
+  CallLog,
   CallLogger as CallLoggerBase,
   CallMonitor,
 } from "@ringcentral-integration/micro-phone/src/app/services";
@@ -16,6 +18,7 @@ import {
   injectable,
   optional,
   StoragePlugin,
+  watch,
 } from "@ringcentral-integration/next-core";
 
 import { SmartNotes } from "../SmartNotes";
@@ -30,6 +33,7 @@ const RECENT_CALL_GRACE_PERIOD = 20_000;
 const DEFAULT_PAGE_SIZE = 100;
 const DEFAULT_PAGE = 1;
 const MAXIMUM_SMART_NOTE_CALLS = 10;
+const MAXIMUM_RECORDING_WATCH_CALLS = 20;
 
 type UnloggedCallsQuery = {
   perPage?: number;
@@ -88,6 +92,7 @@ class CallLogger extends CallLoggerBase {
     callHistory: CallHistory,
     callMonitor: CallMonitor,
     @inject("CallLoggerOptions") callLoggerOptions: CallLoggerOptions,
+    @inject(CallLog) private readonly _callLog: CallLog,
     @inject(ThirdParty) private readonly _thirdParty: ThirdParty,
     @inject(SmartNotes) private readonly _smartNotes: SmartNotes,
     @optional() activityMatcher?: ActivityMatcher,
@@ -102,7 +107,24 @@ class CallLogger extends CallLoggerBase {
       contactMatcher
     );
     this._ignoreModuleReadiness(this._smartNotes);
+    this._smartNotes.onSmartNoteUpdate(this.onCallNoteUpdated);
   }
+
+  /**
+   * Re-logs a call when its smart note changes, so the host gets the new
+   * AI note and transcript.
+   */
+  onCallNoteUpdated = (telephonySessionId: string): void => {
+    if (!this.ready) {
+      return;
+    }
+    const call = this._callHistory.calls.find(
+      (item) => item.telephonySessionId === telephonySessionId
+    );
+    if (call) {
+      this._onCallUpdated(call, callLoggerTriggerTypes.callLogSync);
+    }
+  };
 
   get logButtonTitle(): string | null {
     return this._thirdParty.callLoggerTitle;
@@ -126,6 +148,15 @@ class CallLogger extends CallLoggerBase {
 
   get hideEditLogButton(): boolean {
     return this._thirdParty.callLoggerHideEditLogButton;
+  }
+
+  override onInitOnce(): void {
+    super.onInitOnce();
+    watch(
+      this,
+      () => this._callLog.calls,
+      (newCalls, oldCalls) => this._onCallLogsChanged(newCalls, oldCalls)
+    );
   }
 
   override onInit(): void {
@@ -180,6 +211,41 @@ class CallLogger extends CallLoggerBase {
     }
     await this._querySmartNotes([call]);
     return this._enrichCall(call, true);
+  }
+
+  /**
+   * Re-logs a call when its recording shows up in a later call log sync, so
+   * the host receives the recording data the first log lacked.
+   */
+  private _onCallLogsChanged(
+    newCalls: CallLog["calls"],
+    oldCalls: CallLog["calls"] | undefined
+  ): void {
+    if (!this.ready || !oldCalls) {
+      return;
+    }
+    const oldCallsMap = new Map<string, (typeof oldCalls)[number]>();
+    oldCalls.slice(0, MAXIMUM_RECORDING_WATCH_CALLS).forEach((call) => {
+      if (call.telephonySessionId) {
+        oldCallsMap.set(call.telephonySessionId, call);
+      }
+    });
+    newCalls.slice(0, MAXIMUM_RECORDING_WATCH_CALLS).forEach((newCall) => {
+      if (!newCall.recording || !newCall.telephonySessionId) {
+        return;
+      }
+      const oldCall = oldCallsMap.get(newCall.telephonySessionId);
+      // New call logs are handled by the callHistory.endedCalls watcher.
+      if (!oldCall || oldCall.recording) {
+        return;
+      }
+      const call = this._callHistory.calls.find(
+        (item) => item.telephonySessionId === newCall.telephonySessionId
+      );
+      if (call) {
+        this._onCallUpdated(call, callLoggerTriggerTypes.callLogSync);
+      }
+    });
   }
 
   private _isUnloggedCall(call: HistoryCall): boolean {

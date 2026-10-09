@@ -1,3 +1,4 @@
+const { watch } = require("@ringcentral-integration/next-core");
 const {
   EmbeddableCallLogger,
 } = require("../src/app/services/CallLogger/CallLogger");
@@ -48,6 +49,7 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
     const storage = { enable: jest.fn() };
     const callHistory = { calls };
     const callMonitor = {};
+    const callLog = { calls: [] };
     const callLoggerOptions = {
       logFunction: jest.fn(),
       readyCheckFunction: jest.fn(() => true),
@@ -68,6 +70,7 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
     };
     const smartNotes = {
       hasPermission,
+      onSmartNoteUpdate: jest.fn(),
       queryNotedCalls: jest.fn(async () => {}),
       fetchSmartNoteText: jest.fn(async () => "AI note"),
       fetchTranscript: jest.fn(async () => ({
@@ -100,15 +103,18 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
       callHistory,
       callMonitor,
       callLoggerOptions,
+      callLog,
       thirdParty,
       smartNotes,
       activityMatcher
     );
+    logger.ready = true;
+    logger._onCallUpdated = jest.fn();
     logger.autoLog = callLoggerOptions.autoLog ?? true;
     logger._setAutoLog = jest.fn((autoLog) => {
       logger.autoLog = autoLog;
     });
-    return { logger, activityMatcher, smartNotes, thirdParty };
+    return { logger, activityMatcher, callLog, smartNotes, thirdParty };
   }
 
   test("does not block logger readiness on optional Smart Notes", () => {
@@ -230,5 +236,118 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
     expect(logger.hideEditLogButton).toBe(true);
     expect(logger.logButtonTitle).toBe("Log to CRM");
     expect(logger.showLogModal).toBe(true);
+  });
+
+  describe("re-logs calls like legacy", () => {
+    function getCallLogWatcher(logger, callLog) {
+      watch.mockClear();
+      logger.onInitOnce();
+      const [[module, selector, callback]] = watch.mock.calls;
+      expect(module).toBe(logger);
+      expect(selector()).toBe(callLog.calls);
+      return callback;
+    }
+
+    test("re-logs a call when the smart note is updated", () => {
+      const call = createCall();
+      const { logger, smartNotes } = createLogger({ calls: [call] });
+
+      expect(smartNotes.onSmartNoteUpdate).toHaveBeenCalledWith(
+        logger.onCallNoteUpdated
+      );
+      logger.onCallNoteUpdated("telephony-session-id");
+
+      expect(logger._onCallUpdated).toHaveBeenCalledWith(call, "callLogSync");
+    });
+
+    test("ignores smart note updates before ready or for unknown calls", () => {
+      const { logger } = createLogger({ calls: [createCall()] });
+
+      logger.onCallNoteUpdated("missing-telephony-session-id");
+      logger.ready = false;
+      logger.onCallNoteUpdated("telephony-session-id");
+
+      expect(logger._onCallUpdated).not.toHaveBeenCalled();
+    });
+
+    test("re-logs an existing call when its recording arrives", () => {
+      const call = createCall();
+      const { logger, callLog } = createLogger({ calls: [call] });
+      const onCallLogsChanged = getCallLogWatcher(logger, callLog);
+
+      onCallLogsChanged(
+        [{ telephonySessionId: "telephony-session-id", recording: {} }],
+        [{ telephonySessionId: "telephony-session-id" }]
+      );
+
+      expect(logger._onCallUpdated).toHaveBeenCalledTimes(1);
+      expect(logger._onCallUpdated).toHaveBeenCalledWith(call, "callLogSync");
+    });
+
+    test("skips new call logs, known recordings, and calls outside history", () => {
+      const { logger, callLog } = createLogger({ calls: [createCall()] });
+      const onCallLogsChanged = getCallLogWatcher(logger, callLog);
+
+      // A new call log is logged by the ended-call watcher instead.
+      onCallLogsChanged(
+        [{ telephonySessionId: "telephony-session-id", recording: {} }],
+        []
+      );
+      // The recording was already sent.
+      onCallLogsChanged(
+        [{ telephonySessionId: "telephony-session-id", recording: {} }],
+        [{ telephonySessionId: "telephony-session-id", recording: {} }]
+      );
+      // Still no recording.
+      onCallLogsChanged(
+        [{ telephonySessionId: "telephony-session-id" }],
+        [{ telephonySessionId: "telephony-session-id" }]
+      );
+      // Not in call history.
+      onCallLogsChanged(
+        [{ telephonySessionId: "other-telephony-session-id", recording: {} }],
+        [{ telephonySessionId: "other-telephony-session-id" }]
+      );
+
+      expect(logger._onCallUpdated).not.toHaveBeenCalled();
+    });
+
+    test("only checks the 20 most recent call logs", () => {
+      const calls = Array.from({ length: 21 }, (_, index) =>
+        createCall({ telephonySessionId: `telephony-${index}` })
+      );
+      const { logger, callLog } = createLogger({ calls });
+      const onCallLogsChanged = getCallLogWatcher(logger, callLog);
+      const oldCalls = calls.map(({ telephonySessionId }) => ({
+        telephonySessionId,
+      }));
+
+      onCallLogsChanged(
+        oldCalls.map((call) => ({ ...call, recording: {} })),
+        oldCalls
+      );
+
+      expect(logger._onCallUpdated).toHaveBeenCalledTimes(20);
+      expect(logger._onCallUpdated).not.toHaveBeenCalledWith(
+        calls[20],
+        "callLogSync"
+      );
+    });
+
+    test("ignores call log changes before ready or on first sync", () => {
+      const { logger, callLog } = createLogger({ calls: [createCall()] });
+      const onCallLogsChanged = getCallLogWatcher(logger, callLog);
+      const newCalls = [
+        { telephonySessionId: "telephony-session-id", recording: {} },
+      ];
+
+      onCallLogsChanged(newCalls, undefined);
+      logger.ready = false;
+      onCallLogsChanged(newCalls, [
+        { telephonySessionId: "telephony-session-id" },
+      ]);
+
+      expect(logger._onCallUpdated).not.toHaveBeenCalled();
+    });
   });
 });

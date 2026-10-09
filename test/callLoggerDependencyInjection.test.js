@@ -1,4 +1,7 @@
 const nextCore = require("@ringcentral-integration/next-core");
+const {
+  CallLog,
+} = require("@ringcentral-integration/micro-phone/src/app/services");
 const { SmartNotes } = require("../src/app/services/SmartNotes");
 const { ThirdParty } = require("../src/app/services/ThirdParty");
 
@@ -18,5 +21,9 @@ describe("EmbeddableCallLogger dependency injection", () => {
     expect(injectSpy).toHaveBeenCalledWith(SmartNotes);
     expect(injectSpy).not.toHaveBeenCalledWith("ThirdParty");
     expect(injectSpy).not.toHaveBeenCalledWith("SmartNotes");
+  });
+
+  test("uses the micro-phone CallLog token so the app binding is shared", () => {
+    expect(injectSpy).toHaveBeenCalledWith(CallLog);
   });
 });
