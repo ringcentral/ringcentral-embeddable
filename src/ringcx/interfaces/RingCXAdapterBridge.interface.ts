@@ -31,6 +31,11 @@ export interface RingCXAdapterBridge {
     };
   }): Promise<boolean>;
   /**
+   * Whether a call disposed while it was still up opens the host log page
+   * when it ends.
+   */
+  shouldOpenLogPageAfterDisposition?(): boolean;
+  /**
    * Logs a history row. `contact` is the contact the row shows, as the RingEX
    * history passes it; without it the only contact match is used, if any.
    */

@@ -104,6 +104,7 @@ interface SubmitNavigationContext {
   readonly callId: string;
   readonly viewCallId: string;
   readonly path: string;
+  /** The host logs the call on its log page once the call is over. */
   readonly openedLogPage: boolean;
   readonly shouldGoToDialer: boolean;
 }
@@ -928,7 +929,14 @@ class CxDispositionView extends RcViewModule {
       activityCallId: this.cxCall.activityCallId,
       callIds: this.cxCallMonitor.callIds,
     });
-    const isCallFinished = context.openedLogPage || context.shouldGoToDialer;
+    // The log page only opens for a call that is over. A call still up when
+    // its disposition was submitted keeps being worked on, and its log page
+    // opens when it ends, see `CxRouteCoordinator`. The call can also end
+    // while the submit is in flight.
+    const isCallFinished =
+      context.shouldGoToDialer ||
+      (context.openedLogPage &&
+        !this.cxCallMonitor.callIds.includes(context.callId));
     if (!canNavigate) {
       if (!takenOver && isCallFinished) {
         this.cxCall.setDialoutStatus(dialoutStatuses.idle);

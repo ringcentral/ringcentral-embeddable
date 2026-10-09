@@ -1719,6 +1719,16 @@ export class ThirdParty extends RcModule {
           options.transcript = getTranscriptText(transcript, call);
         }
       }
+      // Smart Notes only knows RingEX calls. A RingCX call carries the AI
+      // summary from its disposition, which the log page does not pass on.
+      if (
+        !options.aiNote &&
+        call.source === 'ringcx' &&
+        typeof call.aiNote === 'string' &&
+        call.aiNote
+      ) {
+        options.aiNote = call.aiNote;
+      }
       const callItem: ThirdPartyCall = { ...call };
       // RingCX recording URLs are sent as is: the RingEX recording page and
       // access token do not apply to them.

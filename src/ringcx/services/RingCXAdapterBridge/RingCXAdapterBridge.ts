@@ -309,7 +309,8 @@ export class RingCXAdapterBridge
 
   /**
    * Disposition has already succeeded. A log failure must not undo that.
-   * Returns true when the host log page was opened.
+   * Returns true when the call is to be logged on the host log page, which
+   * the caller opens once the call is over.
    */
   async logAfterDisposition(input: {
     call: unknown;
@@ -335,6 +336,14 @@ export class RingCXAdapterBridge
       redirect: true,
     });
     return false;
+  }
+
+  /**
+   * Whether a call disposed while it was still up opens the host log page
+   * when it ends, as `logAfterDisposition` answered for it.
+   */
+  shouldOpenLogPageAfterDisposition(): boolean {
+    return this._callLogger.ready && this.shouldOpenLogPage;
   }
 
   get shouldOpenLogPage(): boolean {

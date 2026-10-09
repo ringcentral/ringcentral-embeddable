@@ -862,6 +862,60 @@ describe('ThirdParty service', () => {
     });
   });
 
+  test('logs a RingCX call with the AI note it carries', async () => {
+    const { dependencies, service } = createThirdParty();
+    registerService(service, { authorized: true });
+    const call = {
+      sessionId: 'uii-1',
+      source: 'ringcx',
+      aiNote: 'CX summary',
+      from: { phoneNumber: '+1' },
+      to: { phoneNumber: '+2' },
+    };
+
+    await service.logCall({ call, note: 'Manual', triggerType: 'logForm' });
+
+    expect(dependencies.smartNotes.fetchSmartNoteText).not.toHaveBeenCalled();
+    expect(requestWithPostMessage).toHaveBeenLastCalledWith(
+      '/call-log',
+      expect.objectContaining({
+        note: 'Manual',
+        aiNote: 'CX summary',
+        triggerType: 'logForm',
+      }),
+      15000,
+    );
+
+    await service.logCall({ call, aiNote: 'Given note' });
+
+    expect(requestWithPostMessage).toHaveBeenLastCalledWith(
+      '/call-log',
+      expect.objectContaining({ aiNote: 'Given note' }),
+      15000,
+    );
+  });
+
+  test('does not take the AI note off a RingEX call', async () => {
+    const { dependencies, service } = createThirdParty();
+    registerService(service, { authorized: true });
+    dependencies.smartNotes.hasPermission = false;
+
+    await service.logCall({
+      call: {
+        sessionId: 'session-1',
+        aiNote: 'Stale note',
+        from: {},
+        to: {},
+      },
+    });
+
+    expect(requestWithPostMessage).toHaveBeenLastCalledWith(
+      '/call-log',
+      expect.not.objectContaining({ aiNote: expect.anything() }),
+      15000,
+    );
+  });
+
   test('covers call logging guards, recording links, and failures', async () => {
     const withoutRecordingLink = createThirdParty({ thirdPartyOptions: {} }).service;
     expect(withoutRecordingLink.getRecordingLink()).toBeNull();
