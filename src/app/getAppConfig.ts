@@ -223,6 +223,7 @@ import {
   MatchedContactSelection,
   createContactRendererOptions,
 } from './services';
+import { CallLog as CallLogV2 } from './services/CallLog';
 import { ComposeText as ComposeTextV2 } from './services/ComposeText';
 import { Conversations as ConversationsV2 } from './services/Conversations';
 import { DoNotContact } from './services/DoNotContact';
@@ -316,6 +317,7 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   evServer?: string;
   enableAgentScript?: boolean;
   enableAudioInitPrompt?: boolean;
+  enableLoadMoreCalls?: boolean;
   hideCallNote?: boolean;
 }
 
@@ -360,6 +362,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   evServer,
   enableAgentScript = false,
   enableAudioInitPrompt = false,
+  enableLoadMoreCalls = false,
   hideCallNote = false,
 }: CreateAppEntryOptions<T>) => {
   const { defaultLocale } = brandConfig;
@@ -484,7 +487,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: ActiveCallControl,
         useClass: ActiveCallControlV2,
       },
-      CallLog,
+      {
+        provide: CallLog,
+        useClass: CallLogV2,
+      },
       {
         provide: CallLogger,
         useClass: EmbeddableCallLogger,
@@ -949,6 +955,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           SignUpButton: showSignUpButton,
           NoiseReduction: !disableNoiseReduction,
           AudioInitPrompt: enableAudioInitPrompt,
+          LoadMoreCalls: enableLoadMoreCalls,
           RingCX: enableRingCX,
           SmartNote: enableSmartNote,
           VoicemailDrop: enableVoicemailDrop,

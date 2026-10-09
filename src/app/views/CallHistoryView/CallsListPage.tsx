@@ -9,7 +9,11 @@ import { Filter } from '@ringcentral-integration/micro-phone/src/app/views/Calls
 import { useEffectOnDocumentFocus } from '@ringcentral-integration/react-hooks';
 import { useVirtuosoScrollPosition } from '@ringcentral-integration/react-hooks';
 import { useContainer } from '@ringcentral-integration/next-core';
-import { VirtualizedList } from '@ringcentral/spring-ui';
+import {
+  Button,
+  CircularProgressIndicator,
+  VirtualizedList,
+} from '@ringcentral/spring-ui';
 import type { FunctionComponent, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 
@@ -19,17 +23,49 @@ import { getVisibleTelephonySessionIds } from './CallHistorySmartNotesQuery';
 import { CallsListItem } from './CallsListItem';
 import type { SmartNotesHistoryCall } from './SmartNotesHistoryCall';
 import i18n from './i18n';
+import { useOlderCallsPaging } from './useOlderCallsPaging';
 
 const INITIAL_VISIBLE_CALL_COUNT = 10;
+
+/**
+ * Shown below the list while older calls are loading.
+ */
+const LoadingOlderFooter = () => (
+  <div className="flex justify-center py-2" data-sign="loadingOlderCalls">
+    <CircularProgressIndicator size="xsmall" />
+  </div>
+);
+
+type LoadMoreCallsProps = {
+  label: string;
+  onClick: () => void;
+};
+
+/**
+ * Loads one page of older calls, once the list stops loading them on its own.
+ */
+const LoadMoreCalls: FunctionComponent<LoadMoreCallsProps> = ({
+  label,
+  onClick,
+}) => (
+  <div className="flex justify-center py-2" data-sign="loadMoreCalls">
+    <Button size="small" variant="text" onClick={onClick}>
+      {label}
+    </Button>
+  </div>
+);
 
 type CallsListProps = {
   additionalCallActions: ThirdPartyButton[];
   calls: SmartNotesHistoryCall[];
   className?: string;
+  hasMoreOlderCalls?: boolean;
+  loadingOlderCalls?: boolean;
   onAdditionalCallAction: (
     buttonId: string,
     resource: unknown,
   ) => Promise<void> | void;
+  onEndReached?: () => void;
   onRefreshContact: (phoneNumber: string) => Promise<void> | void;
   refreshContactDisabled: boolean;
 } & Omit<CallsListPanelSpringProps, 'calls' | 'viewCallsFilterSelections'>;
@@ -41,15 +77,35 @@ const CallsList: FunctionComponent<CallsListProps> = ({
   setLastPosition,
   viewCallsFilter,
   searchInput,
+  hasMoreOlderCalls = false,
+  loadingOlderCalls = false,
+  onEndReached,
   ...rest
 }) => {
   const smartNotes = useContainer<SmartNotes>('SmartNotes');
+  const { loadMore, setAtBottom, showLoadMore } = useOlderCallsPaging({
+    callCount: calls.length,
+    filter: viewCallsFilter,
+    hasMore: hasMoreOlderCalls,
+    loading: loadingOlderCalls,
+    onEndReached,
+  });
   const callsRef = useRef(calls);
   callsRef.current = calls;
   const { virtuosoActionsRef, scrollerRef } = useVirtuosoScrollPosition(
     (snapshot) => setLastPosition(viewCallsFilter, snapshot),
   );
   const { t } = useLocale(i18n);
+  const loadMoreLabel = t('loadMore');
+  const Footer = useMemo(() => {
+    if (loadingOlderCalls) {
+      return LoadingOlderFooter;
+    }
+    if (!showLoadMore) {
+      return undefined;
+    }
+    return () => <LoadMoreCalls label={loadMoreLabel} onClick={loadMore} />;
+  }, [loadingOlderCalls, showLoadMore, loadMoreLabel, loadMore]);
   const queryVisibleSmartNotes = useMemo(
     () =>
       debounce({
@@ -81,6 +137,16 @@ const CallsList: FunctionComponent<CallsListProps> = ({
     },
     [queryVisibleSmartNotes],
   );
+  if (calls.length === 0 && loadingOlderCalls) {
+    return (
+      <div
+        data-sign="loadingOlderCalls"
+        className="flex-auto flex justify-center items-center"
+      >
+        <CircularProgressIndicator size="small" />
+      </div>
+    );
+  }
   if (calls.length === 0) {
     return (
       <div
@@ -92,6 +158,9 @@ const CallsList: FunctionComponent<CallsListProps> = ({
           <div className="text-center typography-mainText text-neutral-b2 mt-4">
             {searchInput ? t('noSearchResults') : t('noCalls')}
           </div>
+          {showLoadMore ? (
+            <LoadMoreCalls label={loadMoreLabel} onClick={loadMore} />
+          ) : null}
         </div>
       </div>
     );
@@ -101,6 +170,8 @@ const CallsList: FunctionComponent<CallsListProps> = ({
       <VirtualizedList
         key={viewCallsFilter}
         className={className}
+        components={{ Footer }}
+        atBottomStateChange={setAtBottom}
         data={calls}
         virtuosoActions={virtuosoActionsRef}
         scrollerRef={scrollerRef}
@@ -126,7 +197,10 @@ type CallsListPageProps = CallsListPanelSpringProps &
   Pick<
     CallsListProps,
     | 'additionalCallActions'
+    | 'hasMoreOlderCalls'
+    | 'loadingOlderCalls'
     | 'onAdditionalCallAction'
+    | 'onEndReached'
     | 'onRefreshContact'
     | 'refreshContactDisabled'
   > & {

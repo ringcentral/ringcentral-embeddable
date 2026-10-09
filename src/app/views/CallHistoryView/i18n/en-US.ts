@@ -8,6 +8,7 @@ export default {
   editLog: "Edit log",
   logCall: "Log call",
   historyCalls: "History calls",
+  loadMore: "Load more",
   refreshContact: "Refresh contact",
   viewLogDetails: "View log details",
   viewContactDetails: "View contact details",

@@ -54,6 +54,7 @@ interface UrlParams {
   evServer?: string;
   enableAgentScript?: boolean;
   enableAudioInitPrompt?: boolean;
+  enableLoadMoreCalls?: boolean;
   hideCallNote?: boolean;
   enableVoicemailDrop?: boolean;
   disableNoiseReduction?: boolean;
@@ -116,6 +117,7 @@ function readUrlParams(): UrlParams {
     evServer: params.evServer || undefined,
     enableAgentScript: parseBooleanParam(params.enableAgentScript),
     enableAudioInitPrompt: parseBooleanParam(params.enableAudioInitPrompt),
+    enableLoadMoreCalls: parseBooleanParam(params.enableLoadMoreCalls),
     hideCallNote: parseBooleanParam(params.hideCallNote),
     enableVoicemailDrop: parseBooleanParam(params.enableVoicemailDrop),
     disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
@@ -234,6 +236,7 @@ export const createApp = async (
     evServer: urlParams.evServer,
     enableAgentScript: urlParams.enableAgentScript,
     enableAudioInitPrompt: urlParams.enableAudioInitPrompt,
+    enableLoadMoreCalls: urlParams.enableLoadMoreCalls,
     hideCallNote: urlParams.hideCallNote,
     enableVoicemailDrop: urlParams.enableVoicemailDrop,
     disableNoiseReduction: urlParams.disableNoiseReduction,

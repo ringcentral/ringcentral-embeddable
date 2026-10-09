@@ -14,6 +14,7 @@ import {
 import {
   Call,
   CallHistory,
+  CallLog,
   CallLogger,
   CallLogTasks,
 } from '@ringcentral-integration/micro-phone/src/app/services';
@@ -33,7 +34,9 @@ import {
   optional,
   RouterPlugin,
   type UIFunctions,
+  type UIProps,
   useConnector,
+  watch,
 } from '@ringcentral-integration/next-core';
 import React from 'react';
 
@@ -43,6 +46,7 @@ import {
   refreshContactMatch,
 } from '../../services/ContactMatcher';
 import { embeddableTrackEvents } from '../../services/Analytics/embeddableTrackEvents';
+import type { CallLog as AppCallLog } from '../../services/CallLog';
 import { MatchedContactSelection } from '../../services/MatchedContactSelection';
 import { ThirdParty } from '../../services/ThirdParty';
 
@@ -54,11 +58,18 @@ import {
   logCallFromHistory,
 } from './CallHistoryLogAction';
 import { CallsListPage } from './CallsListPage';
+import { getOlderCallsScope } from './getOlderCallsScope';
 import i18n from './i18n';
 
 type HistoryActiveCallsView = {
   component: React.ComponentType;
   hasCalls: boolean;
+};
+
+type AppCallsListPanelProps = CallsListPanelSpringProps & {
+  hasMoreOlderCalls?: boolean;
+  loadingOlderCalls?: boolean;
+  onEndReached?: () => void;
 };
 
 @injectable({
@@ -82,6 +93,7 @@ export class CallsListView extends CallsListViewSpringBase {
     thirdParty: ThirdParty,
     @inject('HistoryActiveCallsView')
     historyActiveCallsView: HistoryActiveCallsView,
+    callLog: CallLog,
     @optional() dialerView?: DialerView,
     @optional() composeText?: ComposeText,
     @optional() callLogTasks?: CallLogTasks,
@@ -113,6 +125,7 @@ export class CallsListView extends CallsListViewSpringBase {
     this._appCallLogger = callLogger;
     this._thirdParty = thirdParty;
     this._historyActiveCallsView = historyActiveCallsView;
+    this._appCallLog = callLog as AppCallLog;
 
     // `useCallHistoryItemInfo` is an instance field on the base class, and the
     // framework pages read `DisplayName` off its result. Wrapping it here adds
@@ -189,6 +202,8 @@ export class CallsListView extends CallsListViewSpringBase {
 
   private readonly _appRouter: RouterPlugin;
 
+  private readonly _appCallLog: AppCallLog;
+
   private readonly _appCallLogger: CallLogger;
 
   private readonly _appRateLimiter: RateLimiter;
@@ -198,6 +213,19 @@ export class CallsListView extends CallsListViewSpringBase {
   private readonly _historyActiveCallsView: HistoryActiveCallsView;
 
   private readonly _matchedContactSelection: MatchedContactSelection;
+
+  override onInitOnce(): void {
+    super.onInitOnce();
+    // Runs where the call log pages, so the loaded older calls switch with the
+    // filter even before the list asks for more.
+    watch(
+      this,
+      () => this.viewCallsFilter,
+      (filter) => {
+        void this._appCallLog.setOlderCallsScope(getOlderCallsScope(filter));
+      },
+    );
+  }
 
   override get displayCRMLog(): boolean {
     return this._thirdParty.callLoggerRegistered;
@@ -272,9 +300,30 @@ export class CallsListView extends CallsListViewSpringBase {
   @track(embeddableTrackEvents.viewRecording)
   private _trackViewRecording(): void {}
 
+  private readonly _fetchOlderCalls = (): void => {
+    // Search filters the loaded calls only, like the legacy app.
+    if (this._appCallHistory.searchInput) {
+      return;
+    }
+    void this._appCallLog.fetchOlderCalls(
+      getOlderCallsScope(this.viewCallsFilter),
+    );
+  };
+
+  override getUIProps(
+    props: CallsListViewSpringProps,
+  ): UIProps<AppCallsListPanelProps> {
+    return {
+      ...super.getUIProps(props),
+      hasMoreOlderCalls:
+        this._appCallLog.canLoadOlderCalls && !this._appCallHistory.searchInput,
+      loadingOlderCalls: this._appCallLog.loadingOlderCalls,
+    };
+  }
+
   override getUIFunctions(
     props: CallsListViewSpringProps,
-  ): UIFunctions<CallsListPanelSpringProps> {
+  ): UIFunctions<AppCallsListPanelProps> {
     const functions = super.getUIFunctions(props);
     const baseUseActionsHandler = functions.useActionsHandler;
     const useActionsHandler: CallsListPanelSpringProps['useActionsHandler'] = (
@@ -301,6 +350,7 @@ export class CallsListView extends CallsListViewSpringBase {
     };
     return {
       ...functions,
+      onEndReached: this._fetchOlderCalls,
       useActionsHandler,
     };
   }
@@ -315,7 +365,7 @@ export class CallsListView extends CallsListViewSpringBase {
         this._appRateLimiter.restricted,
     }));
     const component = super.component(props);
-    if (!React.isValidElement<CallsListPanelSpringProps>(component)) {
+    if (!React.isValidElement<AppCallsListPanelProps>(component)) {
       return component;
     }
     return (
