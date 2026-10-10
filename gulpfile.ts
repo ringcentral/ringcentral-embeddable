@@ -12,6 +12,10 @@ import type { AppConfig } from './src/config';
 import { getWebpackConfig } from './webpack.config';
 
 const SOURCE_PATH = path.resolve(__dirname, 'src');
+const RELEASE_PATH = path.resolve(
+  __dirname,
+  process.env.RELEASE_DIR || 'release',
+);
 const EXTENSION_BUILD_PATH = path.resolve(__dirname, 'extension');
 const EXTENSION_BUILD_ID = 'extension';
 const NOISE_REDUCTION_PATH = path.resolve(SOURCE_PATH, 'noise-reduction');
@@ -110,7 +114,7 @@ export async function devServer(): Promise<void> {
 }
 
 export async function build(): Promise<void> {
-  await runBuild(getConfiguredProject());
+  await runBuild(getConfiguredProject(), { outputPath: RELEASE_PATH });
 }
 
 export async function buildExtension(): Promise<void> {

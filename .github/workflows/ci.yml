@@ -57,17 +57,17 @@ jobs:
           MIXPANEL_KEY: ${{ secrets.MIXPANEL_KEY }}
           ANALYTICS_SECRET_KEY: ${{ secrets.ANALYTICS_SECRET_KEY }}
       - run: npm run build-jsonschema-page-docs
-      - run: mv packages/jsonschema-page/storybook-static build/rc/jsonschema-page
+      - run: mv packages/jsonschema-page/storybook-static release/jsonschema-page
       - run: pip install mkdocs
       - run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - run: mkdocs build
-      - run: mv site build/rc/docs
+      - run: mv site release/docs
       - name: Github Pages
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: build/rc
+          FOLDER: release
           CLEAN: true
   extension-build:
     needs: test

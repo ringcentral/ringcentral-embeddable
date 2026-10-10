@@ -81,7 +81,7 @@ Please replace `your_host_uri` with your own web host address, such as `https://
 
 And set redirect uri `${your_host_uri}/redirect.html` in your app setting on RingCentral Developer website.
 
-3. Upload all files in `build/rc` to your web space, then visit it in a browser.
+3. Upload all files in `release` to your web space, then visit it in a browser.
 
 ### Build for a Chrome extension
 

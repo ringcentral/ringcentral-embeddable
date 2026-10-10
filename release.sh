@@ -2,7 +2,7 @@
 
 npm run build
 
-cd build/rc
+cd release
 git checkout gh-pages
 git add --all .
 git commit -m "released at $(date)"
