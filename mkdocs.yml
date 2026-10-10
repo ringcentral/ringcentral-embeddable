@@ -106,13 +106,14 @@ nav:
   - 'Authorization': integration/authorization.md
   - 'Embeddable 2.0': 2.x.md
   - 'Embeddable 3.0 Beta': 3.x.md
+  - 'Embeddable 3.1 Alpha (new)': 3.1.x.md
   - 'Service features':
     - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md
     - 'Authentication': integration/third-party-auth.md
     - 'Contact activities': integration/contact-activities.md
     - 'Log calls': integration/call-logging.md
-    - 'RingCX': integration/ringcx.md
+    - 'RingCX (new)': integration/ringcx.md
     - 'Log meetings': integration/log-video-meeting.md
     - 'Log messages': integration/message-logging.md
     - 'Track SMS typing time (new)': integration/sms-typing-time.md
