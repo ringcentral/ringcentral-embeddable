@@ -418,6 +418,10 @@ export class SmartNotes extends RcModule {
   private async _loadSmartNoteClient(): Promise<boolean> {
     try {
       const response = await fetch('./plugins.json');
+      // plugins.json is optional; without it Smart Notes stays disabled.
+      if (response.status === 404) {
+        return false;
+      }
       if (!response.ok) {
         throw new Error(
           `Failed to load SmartNotes plugins: ${response.status}`,

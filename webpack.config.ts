@@ -86,6 +86,21 @@ const markRingCXAgentSdkMinified = (options: AppWebpackConfigOptions): void => {
   });
 };
 
+/**
+ * `plugins.json` (Smart Notes MFE endpoints) is environment specific and not
+ * committed, so builds without it must still succeed. SmartNotes treats a
+ * missing file as "no plugins".
+ */
+const markPluginsConfigOptional = (options: AppWebpackConfigOptions): void => {
+  const assetsEntry = options.projectConfig.assetsEntries?.find(
+    ({ to }) => to === 'plugins.json',
+  );
+  if (!assetsEntry) {
+    return;
+  }
+  Object.assign(assetsEntry, { noErrorOnMissing: true });
+};
+
 const getCustomRules = (): RuleSetRule[] => [
   // Fix scss syntax error in widgets: `and(max-width` → `and (max-width`
   {
@@ -112,6 +127,7 @@ export const getWebpackConfig = (
   options: AppWebpackConfigOptions,
 ): Configuration => {
   markRingCXAgentSdkMinified(options);
+  markPluginsConfigOptional(options);
   const baseWebpackConfig = getBaseWebpackConfig(options);
   const { projectConfig } = options;
   const { appConfig } = projectConfig;
