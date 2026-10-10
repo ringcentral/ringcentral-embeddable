@@ -47,6 +47,7 @@ Before you begin development, you will first need to register your application v
     * `VoIP Calling`
     * `WebSocketSubscription`
     * `Edit Extensions` (2.x SMS templates feature)
+    * `Faxes` (3.1.x fax sending feature)
     * `TeamMessaging` (optional)
     * `Video` (optional for Meeting feature)
 
