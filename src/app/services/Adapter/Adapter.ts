@@ -1156,7 +1156,7 @@ export class Adapter extends RcModule {
         void this._endRingCXAgentSession();
         break;
       case ringCXCommandTypes.setAgentState:
-        void this._setRingCXAgentState(data.state);
+        void this._setRingCXAgentState(data.state, data.auxState);
         break;
       case ringCXCommandTypes.dialLead:
         void this._dialRingCXLead(data.lead, data.destination);
@@ -3371,12 +3371,15 @@ export class Adapter extends RcModule {
     await this._ringCX.endAgentSession();
   }
 
-  private async _setRingCXAgentState(state?: string): Promise<void> {
+  private async _setRingCXAgentState(
+    state?: string,
+    auxState?: string,
+  ): Promise<void> {
     const bridge = await this._requireRingCXReady();
     if (!bridge || !state) {
       return;
     }
-    await bridge.setAgentState(state);
+    await bridge.setAgentState(state, auxState);
   }
 
   private async _dialRingCXLead(

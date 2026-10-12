@@ -127,6 +127,11 @@ class CxIntegratedSoftphone extends RcModule {
     return this.cxAgentSession.isIntegratedSoftphone;
   }
 
+  /** Whether a call is ringing on the offhook line, waiting for answer. */
+  get isRinging(): boolean {
+    return this.webphone.cxOffhookRinging;
+  }
+
   /**
    * Determine whether an incoming SIP call should be answered automatically.
    * Reads CxCall from the module map rather than injecting it, because CxCall

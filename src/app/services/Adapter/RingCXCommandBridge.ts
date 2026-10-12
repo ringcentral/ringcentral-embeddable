@@ -45,7 +45,7 @@ export interface RingCXCommandBridge {
     callId?: string,
     options?: RingCXCallControlOptions,
   ): Promise<void>;
-  setAgentState(state: string): Promise<void>;
+  setAgentState(state: string, auxState?: string): Promise<void>;
   dialLead(lead: unknown, destination?: string): Promise<void>;
   /** Same as Start dialing on the Leads tab */
   startProgressiveDial(): Promise<void>;

@@ -481,10 +481,13 @@ export class RingCXAdapterBridge
   ): Promise<void> {
     switch (action) {
       case 'answer':
-        await this._cxIntegratedSoftphone.sipAnswer();
-        return;
       case 'reject':
-        await this._cxIntegratedSoftphone.sipReject();
+        if (!this._requireCallPermission(this._isSoftphoneRinging)) {
+          return;
+        }
+        await (action === 'answer'
+          ? this._cxIntegratedSoftphone.sipAnswer()
+          : this._cxIntegratedSoftphone.sipReject());
         return;
       case 'hangup':
         if (!this._requireCallPermission(this._currentMainCall?.allowHangup)) {
@@ -528,12 +531,13 @@ export class RingCXAdapterBridge
         return;
       case 'dtmf':
         if (
-          !options.dtmf ||
-          !this._requireCallPermission(this._isIntegratedSoftphone)
+          !this._requireCallPermission(
+            Boolean(options.dtmf) && this._isIntegratedSoftphone,
+          )
         ) {
           return;
         }
-        await this._cxActiveCallControl.onKeypadClick(options.dtmf);
+        await this._cxActiveCallControl.onKeypadClick(options.dtmf!);
         return;
       default:
         this.logger.warn('Unsupported RingCX call action', action);
@@ -550,6 +554,10 @@ export class RingCXAdapterBridge
     return this._cxAgentSession.isIntegratedSoftphone;
   }
 
+  private get _isSoftphoneRinging(): boolean {
+    return this._isIntegratedSoftphone && this._cxIntegratedSoftphone.isRinging;
+  }
+
   private _requireCallPermission(allowed: boolean | undefined): boolean {
     if (allowed === false) {
       this._toast.warning({ message: t('callControlNotAllowed') });
@@ -558,11 +566,20 @@ export class RingCXAdapterBridge
     return true;
   }
 
-  async setAgentState(state: string): Promise<void> {
-    this._cxWorkingState.changeWorkingState({
-      agentState: state,
-      agentAuxState: '',
-    });
+  async setAgentState(state: string, auxState?: string): Promise<void> {
+    const agentState = this._cxWorkingState.findAvailableAgentState(
+      state,
+      auxState,
+    );
+    if (!agentState) {
+      this.logger.warn('RingCX agent state is not available', {
+        state,
+        auxState,
+      });
+      this._toast.warning({ message: t('agentStateUnavailable') });
+      return;
+    }
+    this._cxWorkingState.changeWorkingState(agentState);
   }
 
   async dialLead(lead: unknown, destination?: string): Promise<void> {

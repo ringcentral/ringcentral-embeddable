@@ -78,12 +78,12 @@ Event `startTime` is an ISO-8601 string. The call-log request uses the host call
 | `rc-adapter-control-call` | `{ callAction, callId, source: 'ringcx', options? }` | `answer`, `reject`, `hangup`, `hold`, `unhold`, `mute`, `unmute`, `record` or `startRecord`, `stopRecord`, and `dtmf` with `options.dtmf`. |
 | `rc-adapter-ringcx-start-agent-session` | `{}` | Starts the Agent tab session. |
 | `rc-adapter-ringcx-end-agent-session` | `{}` | Ends the session. Refused while a call or pending disposition is active. |
-| `rc-adapter-ringcx-set-agent-state` | `{ state }` | Sets the working state and clears any aux state. |
+| `rc-adapter-ringcx-set-agent-state` | `{ state, auxState? }` | Sets the agent state, such as `AVAILABLE` or `ON-BREAK`. `auxState` picks one of the agent's aux states for it, as `rc-ringcx-agent-state-notify` reports them; without it, the first aux state listed for `state` is used. A state the agent cannot choose is refused with a message. |
 | `rc-adapter-ringcx-dial-lead` | `{ lead, destination }` | Dials a preview lead. `lead` can be the lead from `rc-ringcx-lead-notify`, its `raw` lead, or `{ leadId, campaignId }`; with only `leadId`, the lead must be in the agent's current lead list. `destination` must be one of the lead's numbers, in its national or E.164 form; another number is not dialed. |
 | `rc-adapter-ringcx-start-progressive-dial` | `{}` | Same as **Start dialing** on the Leads tab. Needs a progressive dial group (`permissions.progressiveEnabled`). When the agent is not available, the widget opens on the Leads tab and asks the agent to go available. |
 | `rc-adapter-ringcx-stop-progressive-dial` | `{}` | Same as **Stop dialing** on the Leads tab. |
 
-`rc-adapter-control-call` actions apply to the current RingCX call, as the Agent tab controls do. `hold`, `unhold`, `hangup`, and recording actions follow the call permissions. `answer`, `reject`, `mute`, `unmute`, and `dtmf` need the integrated softphone; `answer` and `reject` do nothing when no call is ringing there. A refused or failed action shows a message in the widget.
+`rc-adapter-control-call` actions apply to the current RingCX call, as the Agent tab controls do. `hold`, `unhold`, `hangup`, and recording actions follow the call permissions. `answer`, `reject`, `mute`, `unmute`, and `dtmf` need the integrated softphone; `answer` and `reject` also need a call ringing there, and `dtmf` needs `options.dtmf`. A refused or failed action shows a message in the widget.
 
 While a RingCX call is active, `rc-adapter-new-call` without `callWith: 'ringcx'` is refused and the widget asks the agent to finish the RingCX call first.
 

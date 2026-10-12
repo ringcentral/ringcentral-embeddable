@@ -93,6 +93,28 @@ class CxWorkingState extends RcModule {
   @state
   pendingDispositionCallId = '';
 
+  /**
+   * Find a state the agent can choose. Without an aux state, the first entry
+   * for the state is used, as listed in the agent settings. The default label
+   * that `workingState` shows for an empty aux state also matches that entry.
+   */
+  findAvailableAgentState(
+    agentState: string,
+    agentAuxState?: string,
+  ): AgentState | undefined {
+    const availableAgentStates =
+      this.cxAuth.agentConfig?.agentSettings?.availableAgentStates ?? [];
+    const defaultAuxState =
+      defaultAgentStateTexts[agentState as DefaultAgentStateTexts];
+    return availableAgentStates.find(
+      (item) =>
+        item.agentState === agentState &&
+        (agentAuxState === undefined ||
+          item.agentAuxState === agentAuxState ||
+          (!item.agentAuxState && agentAuxState === defaultAuxState)),
+    );
+  }
+
   @action
   setAgentState(agentState: AgentState): void {
     this.agentState = agentState;
