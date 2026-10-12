@@ -159,6 +159,31 @@ describe("Adapter navigation compatibility", () => {
     });
   });
 
+  test("does not open compose fax when fax sending is unavailable", async () => {
+    const adapter = createAdapter({
+      _appFeaturesV2: { canSendFax: false },
+    });
+
+    await Adapter.prototype._navigateTo.call(adapter, "/composeFax");
+
+    expect(adapter._router.push).not.toHaveBeenCalled();
+    expect(adapter.logger.warn).toHaveBeenCalledWith(
+      "Fax sending is not available",
+      expect.objectContaining({ kind: "route", path: "/composeFax" })
+    );
+  });
+
+  test("opens compose fax when fax sending is available", async () => {
+    const adapter = createAdapter({
+      _appFeaturesV2: { canSendFax: true },
+    });
+
+    await Adapter.prototype._navigateTo.call(adapter, "/composeFax");
+
+    expect(adapter._router.push).toHaveBeenCalledWith("/composeFax");
+    expect(adapter.logger.warn).not.toHaveBeenCalled();
+  });
+
   test("does not route unsupported history types to call detail", async () => {
     const adapter = createAdapter();
 

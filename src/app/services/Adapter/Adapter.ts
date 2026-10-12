@@ -2791,6 +2791,10 @@ export class Adapter extends RcModule {
         });
         return;
       case 'route':
+        if (intent.path === '/composeFax' && !this._appFeaturesV2.canSendFax) {
+          this.logger.warn('Fax sending is not available', intent);
+          return;
+        }
         if (this._router.currentPath !== intent.path) {
           await this._router.push(intent.path);
         }
