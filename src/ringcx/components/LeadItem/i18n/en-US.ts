@@ -3,4 +3,5 @@ export default {
   viewLead: 'View lead',
   manualPass: 'Manual pass',
   unknown: 'Unknown',
+  next: 'Next',
 } as const;

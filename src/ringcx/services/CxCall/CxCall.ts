@@ -12,6 +12,7 @@ import {
   delegate,
 } from '@ringcentral-integration/next-core';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
+import { firstValueFrom, from, timeout } from 'rxjs';
 
 import type { CxHostIntegration } from '../../../app/services/RingCX/RingCX.interface';
 import { dialoutStatuses, messageTypes } from '../../enums';
@@ -44,6 +45,18 @@ import type {
 } from './CxCall.interface';
 import { hasRemainingLiveCall } from '../../utils/hasRemainingLiveCall';
 
+/**
+ * PREVIEW-LEAD-STATE values of a dial that is still going or connected.
+ * Any other state means the lead was not reached, as Agent One treats it.
+ */
+const PREVIEW_DIAL_PROGRESS_STATES = ['ANSWER', 'EXPIRED', 'DIALING', 'RINGING'];
+
+/**
+ * Wait for the OFFHOOK-INIT answer when the line is connected on its own,
+ * so a lost answer cannot leave the caller waiting forever.
+ */
+const OFFHOOK_INIT_TIMEOUT_MS = 30 * 1000;
+
 const DEFAULT_OUTBOUND_SETTING: DialoutFormGroup = {
   dialoutCallerId: '-1',
   dialoutQueueId: '-1',
@@ -63,6 +76,8 @@ class CxCall extends RcModule {
     min: 20,
     max: 120,
   };
+
+  private readonly _manualDialoutListeners = new Set<() => void>();
 
   constructor(
     protected cxClient: CxClient,
@@ -103,6 +118,19 @@ class CxCall extends RcModule {
   @action
   setActivityCallId(id: string) {
     this.activityCallId = id;
+  }
+
+  /**
+   * Whether the latest outbound call was dialed from a lead, by preview or
+   * progressive dial. The agent goes back to the Leads tab after such a call,
+   * as Agent One does.
+   */
+  @state
+  isLeadCall = false;
+
+  @action
+  private _setIsLeadCall(isLeadCall: boolean) {
+    this.isLeadCall = isLeadCall;
   }
 
   @storage
@@ -164,6 +192,17 @@ class CxCall extends RcModule {
 
   get isInbound(): boolean {
     return this.currentCall?.callType === 'INBOUND';
+  }
+
+  /**
+   * Agent home tab to go back to once the call worked on is over: Leads for a
+   * call dialed from a lead while the Leads tab is still there, otherwise the
+   * Dialer.
+   */
+  get homeTabAfterCall(): 'leads' | 'dialer' {
+    return this.isLeadCall && this.cxAgentSession.currentDialMode === 'PREVIEW'
+      ? 'leads'
+      : 'dialer';
   }
 
   get callerIds() {
@@ -350,10 +389,111 @@ class CxCall extends RcModule {
         }
       },
     );
+    // A preview lead that is not reached never becomes a call, so no
+    // END-CALL brings the dialer back to idle.
+    this.cxSubscription.subscribe(
+      CxCallbackTypes.PREVIEW_LEAD_STATE,
+      (data?: { leadState?: string }) => {
+        const leadState = data?.leadState ?? '';
+        if (
+          !leadState ||
+          PREVIEW_DIAL_PROGRESS_STATES.includes(leadState) ||
+          this.cxPresence.calls.length > 0
+        ) {
+          return;
+        }
+        if (!this.cxSettings.isManualOffhook) {
+          this.cxClient.offhookTerm();
+        }
+        this.setPhoneIdle();
+      },
+    );
     // Subscribe to offhook term
     this.cxSubscription.subscribe(CxCallbackTypes.OFFHOOK_TERM, () => {
       this.setPhoneIdle();
     });
+    this.cxSubscription.subscribe(
+      CxCallbackTypes.NEW_CALL,
+      (call?: CxBaseCall) => {
+        if (call?.callType === 'INBOUND') {
+          this._setIsLeadCall(false);
+        }
+      },
+    );
+  }
+
+  /**
+   * Notifies when the agent places a manual outbound call: from the dialer,
+   * click-to-call, or a host page command.
+   */
+  onManualDialout(listener: () => void): () => void {
+    this._manualDialoutListeners.add(listener);
+    return () => {
+      this._manualDialoutListeners.delete(listener);
+    };
+  }
+
+  /**
+   * Connects the agent's offhook line and keeps it open across calls, as the
+   * offhook button does.
+   * @returns whether the line is connected
+   */
+  @delegate('server')
+  async connectPersistentOffhook(): Promise<boolean> {
+    if (!(await this._prepareIntegratedSoftphone())) {
+      return false;
+    }
+    await this.cxPresence.setIsManualOffhook(true);
+    if (this.cxSettings.isOffhook) {
+      return true;
+    }
+    await this.cxPresence.setOffhooking(true);
+    try {
+      const offhookInitResult = this._getOffhookInitResult();
+      this.cxClient.offhookInit();
+      await firstValueFrom(
+        from(offhookInitResult).pipe(timeout(OFFHOOK_INIT_TIMEOUT_MS)),
+      );
+      return true;
+    } catch (error) {
+      this.logger.warn('connectPersistentOffhook failed~~', error);
+      await this.cxPresence.setOffhooking(false);
+      await this.cxPresence.setIsManualOffhook(false);
+      return false;
+    }
+  }
+
+  /**
+   * Stops keeping the offhook line open. The line ends now when no call is
+   * live, otherwise when the live call ends.
+   */
+  @delegate('server')
+  async releasePersistentOffhook(): Promise<void> {
+    await this.cxPresence.setIsManualOffhook(false);
+    if (this.cxSettings.isOffhook && this.cxPresence.calls.length === 0) {
+      this.cxClient.offhookTerm();
+    }
+  }
+
+  /**
+   * Registers the integrated softphone before a call, when the session uses it.
+   * @returns false when the softphone cannot be used
+   */
+  private async _prepareIntegratedSoftphone(): Promise<boolean> {
+    if (!this.cxAgentSession.isIntegratedSoftphone) {
+      return true;
+    }
+    try {
+      if (this.cxIntegratedSoftphone.sipRegisterSuccess) {
+        await this.cxIntegratedSoftphone.askAudioPermission(false);
+      } else {
+        await this.cxAgentSession.configureAgent();
+        await this.cxIntegratedSoftphone.onceRegistered();
+      }
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   async checkQueueId() {
@@ -423,19 +563,11 @@ class CxCall extends RcModule {
     options?: CxDialoutOptions,
   ): Promise<void> {
     this.logger.info('dialout~~', phoneNumber);
+    this._setIsLeadCall(false);
+    this._manualDialoutListeners.forEach((listener) => listener());
     this.cxPresence.setCurrentCallUii('');
-    // Handle integrated softphone
-    if (this.cxAgentSession.isIntegratedSoftphone) {
-      try {
-        if (this.cxIntegratedSoftphone.sipRegisterSuccess) {
-          await this.cxIntegratedSoftphone.askAudioPermission(false);
-        } else {
-          await this.cxAgentSession.configureAgent();
-          await this.cxIntegratedSoftphone.onceRegistered();
-        }
-      } catch (error) {
-        return;
-      }
+    if (!(await this._prepareIntegratedSoftphone())) {
+      return;
     }
     await this.checkQueueId();
     try {
@@ -480,19 +612,10 @@ class CxCall extends RcModule {
     leadPhoneE164: string,
   ): Promise<boolean> {
     this.logger.info('previewDial~~', requestId, leadPhone, leadPhoneE164);
+    this._setIsLeadCall(true);
     this.cxPresence.setCurrentCallUii('');
-    // Handle integrated softphone
-    if (this.cxAgentSession.isIntegratedSoftphone) {
-      try {
-        if (this.cxIntegratedSoftphone.sipRegisterSuccess) {
-          await this.cxIntegratedSoftphone.askAudioPermission(false);
-        } else {
-          await this.cxAgentSession.configureAgent();
-          await this.cxIntegratedSoftphone.onceRegistered();
-        }
-      } catch (error) {
-        return false;
-      }
+    if (!(await this._prepareIntegratedSoftphone())) {
+      return false;
     }
     try {
       return await this._previewDial(requestId, leadPhone, leadPhoneE164);

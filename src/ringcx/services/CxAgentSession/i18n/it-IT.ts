@@ -14,4 +14,5 @@ export default {
   [messageTypes.UPDATE_AGENT_ERROR]: 'Impossibile aggiornare le impostazioni dell\'agente.',
   [messageTypes.UPDATE_AGENT_SUCCESS]: 'Impostazioni dell\'agente aggiornate correttamente.',
   [messageTypes.EXISTING_LOGIN_ENGAGED]: 'Il login è attualmente in uso. Per favore riprova più tardi.',
+  dialGroupUpdated: 'Il tuo gruppo chiamata è stato aggiornato al gruppo chiamata: {dialGroupName}',
 } as const;

@@ -40,6 +40,7 @@ export const LeadItem: FunctionComponent<LeadItemProps> = ({
   disabled = false,
   fromSearch = false,
   onDial,
+  isNext = false,
   onViewLead,
   onPass,
   showViewLeadButton = false,
@@ -148,7 +149,16 @@ export const LeadItem: FunctionComponent<LeadItemProps> = ({
           }
           secondary={
             <div className="flex flex-col gap-0.5 items-start">
-              {phoneNumbers.map((phone) => (
+              {!onDial && phoneNumbers.map((phone) => (
+                <span
+                  key={phone.destination}
+                  className="typography-descriptor text-neutral-b2 truncate"
+                  data-sign="phoneNumber"
+                >
+                  {phone.formatted}
+                </span>
+              ))}
+              {onDial && phoneNumbers.map((phone) => (
                 <Button
                   key={phone.destination}
                   variant="text"
@@ -166,7 +176,15 @@ export const LeadItem: FunctionComponent<LeadItemProps> = ({
             </div>
           }
         />
-        <div className="text-right min-h-11 max-w-[30%]">
+        <div className="flex flex-col items-end text-right min-h-11 max-w-[30%]">
+          {isNext && (
+            <span
+              className="typography-descriptorMiniSemiBold text-primary-f"
+              data-sign="nextLead"
+            >
+              {t('next')}
+            </span>
+          )}
           <span
             className="typography-descriptor text-neutral-b2"
             data-sign="leadState"

@@ -17,6 +17,7 @@ import { CxCall } from './services/CxCall';
 import { CxCallDisposition } from './services/CxCallDisposition';
 import { CxCallMonitor } from './services/CxCallMonitor';
 import { CxClient } from './services/CxClient';
+import { CxProgressiveDial } from './services/CxProgressiveDial';
 import { CxDialerView } from './views/CxDialerView';
 import { CxWorkingState } from './services/CxWorkingState';
 import type { DispositionStepOptions } from './utils/shouldShowDispositionSubmitStep';
@@ -62,6 +63,10 @@ export class CxRouteCoordinator extends RcModule {
     private readonly _bridge?: RingCXAdapterBridge,
     @optional('CxDispositionViewOptions')
     private readonly _dispositionViewOptions?: DispositionStepOptions,
+    // Always registered with the RingCX modules; optional only so the call
+    // policy keeps working without the progressive dialer.
+    @optional()
+    private readonly _cxProgressiveDial?: CxProgressiveDial,
   ) {
     super();
     this._cxAuth.onAuthSuccess(() => {
@@ -154,6 +159,24 @@ export class CxRouteCoordinator extends RcModule {
     }
   }
 
+  /**
+   * Opens the widget on the Leads tab, for a progressive dialer prompt the
+   * agent has to answer.
+   */
+  showLeadsPage(): void {
+    this._requestNavigation(cxPath.home('leads'), 'replace', {
+      showWindow: true,
+    });
+  }
+
+  /**
+   * Agent home tab to return to after a call: Leads after a preview or
+   * progressive call, where the agent picks or waits for the next lead.
+   */
+  private get _homeTab(): string {
+    return this._cxCall.homeTabAfterCall;
+  }
+
   private get _rendersApp(): boolean {
     return !this._portManager?.shared || this._portManager.isClient;
   }
@@ -182,6 +205,7 @@ export class CxRouteCoordinator extends RcModule {
   }
 
   private _watchCallStatus(): void {
+    this._cxProgressiveDial?.onAttentionRequired(() => this.showLeadsPage());
     this._cxCallMonitor.onCallRinging(async () => {
       const call = await this._cxClient.getCurrentCall();
       if (!call) {
@@ -216,7 +240,7 @@ export class CxRouteCoordinator extends RcModule {
           hasCurrentCall: !!currentCall,
         });
         if (!currentCall || currentCall.endedCall) {
-          this._requestNavigation(cxPath.home('dialer'), 'replace');
+          this._requestNavigation(cxPath.home(this._homeTab), 'replace');
         }
         this._bridge?.onEndCall(call);
         return;
@@ -244,7 +268,7 @@ export class CxRouteCoordinator extends RcModule {
             { showWindow: true },
           );
         } else {
-          this._requestNavigation(cxPath.home('dialer'), 'replace', {
+          this._requestNavigation(cxPath.home(this._homeTab), 'replace', {
             keepLogPage: true,
           });
         }

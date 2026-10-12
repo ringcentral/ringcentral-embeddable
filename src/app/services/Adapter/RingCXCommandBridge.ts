@@ -23,6 +23,8 @@ export interface RingCXAgentSessionSnapshot {
   session?: RingCXSessionSnapshot;
   permissions?: {
     allowLoginUpdates?: boolean;
+    /** Whether the session dial group is a progressive one */
+    progressiveEnabled?: boolean;
   };
 }
 
@@ -45,6 +47,10 @@ export interface RingCXCommandBridge {
   ): Promise<void>;
   setAgentState(state: string): Promise<void>;
   dialLead(lead: unknown, destination?: string): Promise<void>;
+  /** Same as Start dialing on the Leads tab */
+  startProgressiveDial(): Promise<void>;
+  /** Same as Stop dialing on the Leads tab */
+  stopProgressiveDial(): Promise<void>;
   getAgentSessionSnapshot(): RingCXAgentSessionSnapshot;
   getDispositions(callId?: string): {
     callId?: string;

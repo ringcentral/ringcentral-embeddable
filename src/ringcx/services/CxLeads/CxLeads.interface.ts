@@ -15,6 +15,18 @@ export interface CxLeadsOptions {
 }
 
 /**
+ * PREVIEW-LEAD-STATE notification, sent as a fetched lead is dialed
+ */
+export interface CxPreviewLeadState {
+  requestId: string;
+  leadState: string;
+  /** Number the server dialed for the lead */
+  number?: string;
+  callType?: string;
+  suppressEntireLead?: boolean;
+}
+
+/**
  * Lead data
  */
 export interface Lead {

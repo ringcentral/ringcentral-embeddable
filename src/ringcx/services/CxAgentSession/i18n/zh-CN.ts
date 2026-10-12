@@ -14,4 +14,5 @@ export default {
   [messageTypes.UPDATE_AGENT_ERROR]: '无法更新代理设置。',
   [messageTypes.UPDATE_AGENT_SUCCESS]: '代理设置已成功更新。',
   [messageTypes.EXISTING_LOGIN_ENGAGED]: '登录名当前正在使用中。请稍后重试。',
+  dialGroupUpdated: '您的拨号群组已更新为：{dialGroupName}',
 } as const;

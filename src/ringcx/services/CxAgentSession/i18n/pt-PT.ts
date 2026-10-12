@@ -14,4 +14,5 @@ export default {
   [messageTypes.UPDATE_AGENT_ERROR]: 'Falha ao atualizar as definições do agente.',
   [messageTypes.UPDATE_AGENT_SUCCESS]: 'Configurações do agente atualizadas com sucesso.',
   [messageTypes.EXISTING_LOGIN_ENGAGED]: 'O login está atualmente em utilização. Por favor, tente mais tarde.',
+  dialGroupUpdated: 'O seu grupo de marcação foi atualizado para o grupo de marcação: {dialGroupName}',
 } as const;

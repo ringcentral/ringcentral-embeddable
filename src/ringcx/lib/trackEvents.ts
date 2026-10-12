@@ -28,6 +28,10 @@ export const trackEvents = {
   fetchLeads: 'Fetch leads',
   callLead: 'Call lead',
   manualPassLead: 'Manual pass lead',
+
+  // CxProgressiveDial, Progressive dialer
+  startProgressiveDialer: 'Start progressive dialer',
+  stopProgressiveDialer: 'Stop progressive dialer',
 } as const;
 
 export type TrackEvents = (typeof trackEvents)[keyof typeof trackEvents];

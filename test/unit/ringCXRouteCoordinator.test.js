@@ -18,6 +18,10 @@ jest.mock('../../src/ringcx/services/CxClient', () => ({
   CxClient: class CxClient {},
 }));
 
+jest.mock('../../src/ringcx/services/CxProgressiveDial', () => ({
+  CxProgressiveDial: class CxProgressiveDial {},
+}));
+
 jest.mock('../../src/ringcx/services/CxWorkingState', () => ({
   CxWorkingState: class CxWorkingState {},
 }));
@@ -37,6 +41,8 @@ function createCoordinator({
   currentPath = `/agent/calls/${CALL_ID}`,
   bridge = {},
   dispositionOptions,
+  homeTabAfterCall = 'dialer',
+  progressiveDial,
 } = {}) {
   const callbacks = {};
   const router = {
@@ -50,6 +56,7 @@ function createCoordinator({
       cxCall.activityCallId = id;
     }),
     setDialoutStatus: jest.fn(),
+    homeTabAfterCall,
   };
   const cxCallMonitor = {
     onCallRinging: jest.fn((callback) => {
@@ -85,6 +92,7 @@ function createCoordinator({
     host,
     ringCXBridge,
     dispositionOptions,
+    progressiveDial,
   );
   return {
     callbacks,
@@ -212,5 +220,52 @@ describe('CxRouteCoordinator', () => {
 
       expect(router.replace).toHaveBeenCalledWith('/agent/home/dialer');
     });
+  });
+
+  describe('after a preview or progressive call', () => {
+    test.each([
+      ['is disposed', { isDisposed: true }, { session: SESSION }],
+      [
+        'has no disposition step',
+        { dispositionOptions: { hideCallNote: true } },
+        { session: SESSION, callType: 'OUTBOUND' },
+      ],
+      ['ends without a session', {}, {}],
+    ])('goes back to the Leads tab when the call %s', async (_name, options, call) => {
+      const { callbacks, coordinator } = createCoordinator({
+        ...options,
+        activityCallId: '',
+        homeTabAfterCall: 'leads',
+      });
+
+      await callbacks.ended(call);
+
+      expect(coordinator.navigationRequest).toEqual(
+        expect.objectContaining({
+          path: '/agent/home/leads',
+          mode: 'replace',
+        }),
+      );
+    });
+  });
+
+  test('brings the widget up on the Leads tab when the progressive dialer needs the agent', () => {
+    let attentionRequired;
+    const progressiveDial = {
+      onAttentionRequired: jest.fn((listener) => {
+        attentionRequired = listener;
+      }),
+    };
+    const { coordinator } = createCoordinator({ progressiveDial });
+
+    attentionRequired();
+
+    expect(coordinator.navigationRequest).toEqual(
+      expect.objectContaining({
+        path: '/agent/home/leads',
+        mode: 'replace',
+        showWindow: true,
+      }),
+    );
   });
 });

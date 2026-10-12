@@ -21,6 +21,8 @@ import type { CxSettingsOptions, OffhookState } from './CxSettings.interface';
   name: 'CxSettings',
 })
 class CxSettings extends RcModule {
+  private readonly _agentOffhookEndListeners = new Set<() => void>();
+
   constructor(
     private cxClient: CxClient,
     private cxAgentSession: CxAgentSession,
@@ -42,6 +44,17 @@ class CxSettings extends RcModule {
     this.cxAgentSession.onTriggerConfig(() => {
       this.cxPresence.setOffhookTerm();
     });
+  }
+
+  /**
+   * Notifies when the agent disconnects the offhook line with the offhook
+   * button, as opposed to the server ending it.
+   */
+  onAgentOffhookEnd(listener: () => void): () => void {
+    this._agentOffhookEndListeners.add(listener);
+    return () => {
+      this._agentOffhookEndListeners.delete(listener);
+    };
   }
 
   get loginType() {
@@ -79,6 +92,7 @@ class CxSettings extends RcModule {
   async offHook(): Promise<void> {
     await this.cxPresence.setOffhooking(true);
     if (this.isOffhook) {
+      this._agentOffhookEndListeners.forEach((listener) => listener());
       await this.cxPresence.setIsManualOffhook(false);
       await this.cxClient.offhookTerm();
     } else {

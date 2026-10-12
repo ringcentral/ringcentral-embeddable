@@ -596,7 +596,7 @@ class CxActiveCallView extends RcViewModule {
       this._setViewCallId('');
     }
     this.reset();
-    this.router.replace(cxPath.home('dialer'));
+    this.router.replace(cxPath.home(this.cxCall.homeTabAfterCall));
   }
 
   @delegate('server')

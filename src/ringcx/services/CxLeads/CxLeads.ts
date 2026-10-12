@@ -21,6 +21,7 @@ import { CxCall } from '../CxCall';
 import type {
   CxLeadEvent,
   CxLeadsOptions,
+  CxPreviewLeadState,
   Lead,
   ManualPassParams,
 } from './CxLeads.interface';
@@ -72,6 +73,11 @@ export const DISABLE_MANUAL_PASS_STATES = [
 ];
 
 export const PHONE_DELIMETER = '|';
+
+/**
+ * State of a lead that was fetched and not dialed yet
+ */
+export const PENDING_LEAD_STATE = 'PENDING';
 
 function allNumbersDialed(lead: Lead): boolean {
   const dialedList = lead.dialedList || [];
@@ -181,7 +187,7 @@ class CxLeads extends RcModule {
       if (lead.completed) {
         return false;
       }
-      const leadState = this.leadStatesMapping[lead.requestId] || lead.leadState;
+      const leadState = this.getLeadState(lead);
       let availableLeadState = AVAILABLE_LEAD_STATES.includes(leadState as string);
       let allDialed = false;
       if (
@@ -197,6 +203,25 @@ class CxLeads extends RcModule {
     });
   }
 
+  /**
+   * First fetched lead the progressive dialer has not dialed or passed yet,
+   * in the order the server returned them.
+   */
+  @computed((that: CxLeads) => [that.leads, that.leadStatesMapping])
+  get nextPendingLead(): Lead | undefined {
+    return this.leads.find(
+      (lead) =>
+        !lead.completed && this.getLeadState(lead) === PENDING_LEAD_STATE,
+    );
+  }
+
+  /**
+   * Latest state of a lead: the PREVIEW-LEAD-STATE notification for its
+   * request when one arrived, the fetched state otherwise.
+   */
+  getLeadState(lead: Lead): string {
+    return this.leadStatesMapping[lead.requestId] || lead.leadState;
+  }
 
   /**
    * Notifies the adapter bridge when leads are loaded, dialed, or passed.
@@ -213,9 +238,26 @@ class CxLeads extends RcModule {
   }
 
   private _bindSubscription() {
-    this.cxSubscription.subscribe(CxCallbackTypes.PREVIEW_LEAD_STATE, (data: any) => {
-      this.setLeadStatesMapping(data.requestId, data.leadState);
-    });
+    this.cxSubscription.subscribe(
+      CxCallbackTypes.PREVIEW_LEAD_STATE,
+      (data: CxPreviewLeadState) => {
+        this.setLeadStatesMapping(data.requestId, data.leadState);
+        this._addDialedNumber(data);
+      },
+    );
+  }
+
+  /**
+   * A lead dialed without a destination, as the progressive dialer does, has
+   * its number picked by the server; the notification reports which one.
+   */
+  private _addDialedNumber({ requestId, number }: CxPreviewLeadState): void {
+    const lead = this.leads.find((item) => item.requestId === requestId);
+    const dialedList = lead?.dialedList || [];
+    if (!lead || !number || dialedList.includes(number)) {
+      return;
+    }
+    this.updateLead(lead.leadId, { dialedList: [...dialedList, number] });
   }
 
   private _requiredToCall(): boolean {
@@ -225,7 +267,7 @@ class CxLeads extends RcModule {
     return this.filteredLeads.some((lead) => {
       return (
         !lead.completed &&
-        lead.leadState.toUpperCase() === 'PENDING'
+        this.getLeadState(lead).toUpperCase() === PENDING_LEAD_STATE
       );
     });
   }
@@ -295,26 +337,36 @@ class CxLeads extends RcModule {
     } finally {
       this.setLoading(false);
     }
+    return success;
   }
 
   /**
    * Dial a lead
+   * @param destination number to dial; empty lets the server pick the lead's
+   * number, as the progressive dialer does.
+   * @returns whether the dial request was sent
    */
   @track(trackEvents.callLead)
   @delegate('server')
-  async dialLead(lead: Lead, destination: string): Promise<void> {
+  async dialLead(lead: Lead, destination = ''): Promise<boolean> {
     const destinationE164 = isE164(destination) ? destination : undefined;
-    const dialedList = lead.dialedList || [];
-    const newDialedList = [...dialedList, destination];
-    this.updateLead(lead.leadId, { dialedList: newDialedList });
+    if (destination) {
+      const dialedList = lead.dialedList || [];
+      this.updateLead(lead.leadId, { dialedList: [...dialedList, destination] });
+    }
     const dialed = await this.cxCall.previewDial(
       lead.requestId,
       destination,
       destinationE164 || '',
     );
     if (dialed) {
-      this._emitLeadEvent({ action: 'dialed', lead, destination });
+      this._emitLeadEvent({
+        action: 'dialed',
+        lead,
+        destination: destination || undefined,
+      });
     }
+    return dialed;
   }
 }
 

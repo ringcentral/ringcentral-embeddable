@@ -14,4 +14,5 @@ export default {
   [messageTypes.UPDATE_AGENT_ERROR]: 'Kan agentinstellingen niet bijwerken.',
   [messageTypes.UPDATE_AGENT_SUCCESS]: 'Agentinstellingen zijn succesvol bijgewerkt.',
   [messageTypes.EXISTING_LOGIN_ENGAGED]: 'Inloggen is momenteel in gebruik. Probeer het later opnieuw.',
+  dialGroupUpdated: 'Uw kiesgroep is bijgewerkt naar kiesgroep: {dialGroupName}',
 } as const;
