@@ -57,6 +57,23 @@ const PREVIEW_DIAL_PROGRESS_STATES = ['ANSWER', 'EXPIRED', 'DIALING', 'RINGING']
  */
 const OFFHOOK_INIT_TIMEOUT_MS = 30 * 1000;
 
+/**
+ * Wait for the server's first answer to a preview dial request. Without one,
+ * no event brings the dialer back to idle.
+ */
+const PREVIEW_DIAL_RESPONSE_TIMEOUT_MS = 30 * 1000;
+
+/**
+ * Events that answer a preview dial request. Once one arrives, the existing
+ * handlers own the dialer state.
+ */
+const PREVIEW_DIAL_RESPONSE_EVENTS = [
+  CxCallbackTypes.PREVIEW_LEAD_STATE,
+  CxCallbackTypes.NEW_CALL,
+  CxCallbackTypes.END_CALL,
+  CxCallbackTypes.OFFHOOK_TERM,
+] as const;
+
 const DEFAULT_OUTBOUND_SETTING: DialoutFormGroup = {
   dialoutCallerId: '-1',
   dialoutQueueId: '-1',
@@ -643,13 +660,16 @@ class CxCall extends RcModule {
       if (!this.cxSettings.isOffhook) {
         const getOffhookInitResult = this._getOffhookInitResult();
         this.cxClient.offhookInit();
-        offhookInitResult = await getOffhookInitResult;
+        offhookInitResult = await firstValueFrom(
+          from(getOffhookInitResult).pipe(timeout(OFFHOOK_INIT_TIMEOUT_MS)),
+        );
         this.logger.info('offhookInitResult~~', offhookInitResult);
       }
       if (
         this.cxSettings.isOffhook ||
         (offhookInitResult && offhookInitResult.status === 'OK')
       ) {
+        this._watchPreviewDialResponse();
         this.cxClient.previewDial(requestId, leadPhone, leadPhoneE164);
         return true;
       } else {
@@ -711,6 +731,48 @@ class CxCall extends RcModule {
       }
       throw e;
     }
+  }
+
+  private _stopPreviewDialResponseWatch?: () => void;
+
+  /**
+   * Resets the dialer when the server never answers a preview dial request,
+   * so the agent is not left offhook with dialing disabled.
+   */
+  private _watchPreviewDialResponse(): void {
+    this._stopPreviewDialResponseWatch?.();
+    const onResponse = () => this._stopPreviewDialResponseWatch?.();
+    const timer = setTimeout(() => {
+      this._stopPreviewDialResponseWatch?.();
+      this._resetUnansweredPreviewDial();
+    }, PREVIEW_DIAL_RESPONSE_TIMEOUT_MS);
+    PREVIEW_DIAL_RESPONSE_EVENTS.forEach((event) => {
+      this.cxSubscription.subscribe(event, onResponse);
+    });
+    this._stopPreviewDialResponseWatch = () => {
+      clearTimeout(timer);
+      PREVIEW_DIAL_RESPONSE_EVENTS.forEach((event) => {
+        this.cxSubscription.off(event, onResponse);
+      });
+      this._stopPreviewDialResponseWatch = undefined;
+    };
+  }
+
+  private _resetUnansweredPreviewDial(): void {
+    if (
+      this.dialoutStatus !== dialoutStatuses.dialing ||
+      this.cxPresence.calls.length > 0
+    ) {
+      return;
+    }
+    this.logger.warn('previewDial got no answer, resetting the dialer');
+    if (!this.cxSettings.isManualOffhook) {
+      this.cxClient.offhookTerm();
+    }
+    this.setPhoneIdle();
+    this.toast.danger({
+      message: t(messageTypes.PREVIEW_DIAL_NO_ANSWER),
+    });
   }
 
   /**

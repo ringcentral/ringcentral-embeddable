@@ -27,6 +27,7 @@ export const messageTypes = ObjectMap.fromKeys([
   'UPDATE_AGENT_SUCCESS',
   'NO_SUPPORT_COUNTRY',
   'FAILED_TO_CALL',
+  'PREVIEW_DIAL_NO_ANSWER',
   'INVALID_NUMBER',
   'COPY_UII_SUCCESS',
   // login fail reason
