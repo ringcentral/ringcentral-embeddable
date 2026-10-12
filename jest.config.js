@@ -35,7 +35,7 @@ module.exports = {
     '<rootDir>/packages/jsonschema-page/npm-package',
     '<rootDir>/packages/jsonschema-spring-page/npm-package',
   ],
-  testMatch: ['<rootDir>/test/**/*.test.[jt]s?(x)'],
+  testMatch: ['<rootDir>/test/{unit,integration}/**/*.test.[jt]s?(x)'],
   collectCoverageFrom: [
     '<rootDir>/src/app/services/{CallViewState,MatchedContactSelection,NoiseReduction,SmartNotes,TabManager,ThirdParty,VoicemailDrop}/**/*.{ts,tsx}',
     '<rootDir>/src/app/components/MatchedContactsTag/**/*.{ts,tsx}',
