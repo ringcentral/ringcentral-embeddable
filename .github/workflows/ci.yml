@@ -20,6 +20,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm test
+      - run: npm run test:e2e
         env:
           TEST_HEADLESS: true
           TEST_HOST_URI: http://localhost:8080
