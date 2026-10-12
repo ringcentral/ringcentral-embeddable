@@ -69,6 +69,12 @@ interface UrlParams {
   enableSmsSettingEvent?: boolean;
   enableTypingTimeTracking?: boolean;
   showMyLocationNumbers?: boolean;
+  disableCall?: boolean;
+  disableCallHistory?: boolean;
+  disableContacts?: boolean;
+  disableMeeting?: boolean;
+  disableMessages?: boolean;
+  disableReadText?: boolean;
 }
 
 function parseBooleanParam(value: string | undefined): boolean {
@@ -82,6 +88,14 @@ function parseOptionalBooleanParam(
     return undefined;
   }
   return parseBooleanParam(value);
+}
+
+/**
+ * The 3.x app turned a feature off whenever its `disable*` parameter was
+ * present, whatever the value, so `disableCall=0` still disables calling.
+ */
+function isParamPresent(value: string | undefined): boolean {
+  return typeof value !== 'undefined';
 }
 
 function readUrlParams(): UrlParams {
@@ -140,6 +154,12 @@ function readUrlParams(): UrlParams {
       params.enableTypingTimeTracking,
     ),
     showMyLocationNumbers: parseBooleanParam(params.showMyLocationNumbers),
+    disableCall: isParamPresent(params.disableCall),
+    disableCallHistory: isParamPresent(params.disableCallHistory),
+    disableContacts: isParamPresent(params.disableContacts),
+    disableMeeting: isParamPresent(params.disableMeeting),
+    disableMessages: isParamPresent(params.disableMessages),
+    disableReadText: isParamPresent(params.disableReadText),
   };
 }
 
@@ -251,6 +271,12 @@ export const createApp = async (
     enableSmsSettingEvent: urlParams.enableSmsSettingEvent,
     enableTypingTimeTracking: urlParams.enableTypingTimeTracking,
     showMyLocationNumbers: urlParams.showMyLocationNumbers,
+    disableCall: urlParams.disableCall,
+    disableCallHistory: urlParams.disableCallHistory,
+    disableContacts: urlParams.disableContacts,
+    disableMeeting: urlParams.disableMeeting,
+    disableMessages: urlParams.disableMessages,
+    disableReadText: urlParams.disableReadText,
   });
 
   const app = await createSharedApp(appConfig);

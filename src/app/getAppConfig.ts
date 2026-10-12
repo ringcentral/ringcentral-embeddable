@@ -237,6 +237,10 @@ import { EMBEDDABLE_CALL_ACTION_OPTIONS } from './views/CallView/Call.view.optio
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
+import {
+  type DisabledFeatureParams,
+  getDisabledFeatureConfiguration,
+} from './services/AppFeatures/getDisabledFeatureConfiguration';
 import type { CxHostIntegration } from './services/RingCX/RingCX.interface';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { createThirdPartyIntegrationConfig } from './services/ThirdParty/ThirdParty.integrationConfig';
@@ -279,7 +283,8 @@ const DEFAULT_CONTACT_NO_MATCH_TTL = 5 * 60 * 1000;
 const getBeforeunloadWindow = (): Window =>
   typeof window === 'undefined' ? (globalThis as unknown as Window) : window;
 
-interface CreateAppEntryOptions<T extends typeof createSharedApp> {
+interface CreateAppEntryOptions<T extends typeof createSharedApp>
+  extends DisabledFeatureParams {
   appVersion: string;
   prefix?: string;
   brandConfig: BaseBrandConfig;
@@ -364,6 +369,12 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   enableAudioInitPrompt = false,
   enableLoadMoreCalls = false,
   hideCallNote = false,
+  disableCall = false,
+  disableCallHistory = false,
+  disableContacts = false,
+  disableMeeting = false,
+  disableMessages = false,
+  disableReadText = false,
 }: CreateAppEntryOptions<T>) => {
   const { defaultLocale } = brandConfig;
 
@@ -952,6 +963,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: 'FeatureConfiguration',
         useValue: {
+          ...getDisabledFeatureConfiguration({
+            disableCall,
+            disableCallHistory,
+            disableContacts,
+            disableMeeting,
+            disableMessages,
+            disableReadText,
+          }),
           SignUpButton: showSignUpButton,
           NoiseReduction: !disableNoiseReduction,
           AudioInitPrompt: enableAudioInitPrompt,
