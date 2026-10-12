@@ -14,4 +14,5 @@ export default {
   [messageTypes.UPDATE_AGENT_ERROR]: 'Die Agent-Einstellungen konnten nicht aktualisiert werden.',
   [messageTypes.UPDATE_AGENT_SUCCESS]: 'Agent-Einstellungen erfolgreich aktualisiert.',
   [messageTypes.EXISTING_LOGIN_ENGAGED]: 'Login wird derzeit verwendet. Bitte versuchen Sie es später noch einmal.',
+  dialGroupUpdated: 'Ihre Wählgruppe wurde auf die folgende Wählgruppe aktualisiert: {dialGroupName}',
 } as const;

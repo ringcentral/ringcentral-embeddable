@@ -23,6 +23,7 @@ import { CxDirectorySearch } from './services/CxDirectorySearch';
 import { CxIntegratedSoftphone } from './services/CxIntegratedSoftphone';
 import { CxLeads } from './services/CxLeads';
 import { CxPresence } from './services/CxPresence';
+import { CxProgressiveDial } from './services/CxProgressiveDial';
 import { CxSessionRecovery } from './services/CxSessionRecovery';
 import { CxSettings } from './services/CxSettings';
 import { CxSubscription } from './services/CxSubscription';
@@ -41,6 +42,7 @@ import { CxLeadsView } from './views/CxLeadsView';
 import { CxManualDialSettingsView } from './views/CxManualDialSettingsView';
 import { CxMultiLoginView } from './views/CxMultiLoginView';
 import { CxOffhookButtonView } from './views/CxOffhookButtonView';
+import { CxProgressiveDialConfirmView } from './views/CxProgressiveDialConfirmView';
 import { CxSessionConfigView } from './views/CxSessionConfigView';
 import { CxSessionInfoView } from './views/CxSessionInfoView';
 import { CxSessionUpdateView } from './views/CxSessionUpdateView';
@@ -121,6 +123,8 @@ export function getRingCXModules(
     CxCall,
     CxDirectorySearch,
     CxLeads,
+    CxProgressiveDialConfirmView,
+    CxProgressiveDial,
     CxCallHistory,
     CxSessionRecovery,
     CxAgentScript,

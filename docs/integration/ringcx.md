@@ -61,7 +61,8 @@ RingCX-only events:
 | `rc-ringcx-call-disposed-notify` | `{ type, call }` after the agent submits a disposition. `call.ringcx.disposition` and `call.ringcx.notes` are set, plus `call.aiNote` when the disposition form has a call summary. Calls without a disposition step do not send it. |
 | `rc-ringcx-agent-session-notify` | `{ type, status, agent?, session?, permissions? }`. `status` is `idle`, `loading`, `authenticating`, `chooseAccount`, `sessionConfig`, `ready`, or `error`. Sent when the status, agent, or session configuration changes. |
 | `rc-ringcx-agent-state-notify` | `{ type, state, auxState, pendingDisposition }` while the session is `ready`. `state` is the RingCX agent state, such as `AVAILABLE`, `ENGAGED`, or `ON-BREAK`. |
-| `rc-ringcx-lead-notify` | `{ type, action, leads?, lead?, destination? }`. `action` is `loaded`, `passed`, or `dialed`; `dialed` is sent once the dial request is sent. Each lead is `{ leadId, externId, campaignId, firstName, lastName, destination, raw }`, where `raw` is the original RingCX lead. |
+| `rc-ringcx-lead-notify` | `{ type, action, leads?, lead?, destination? }`. `action` is `loaded`, `passed`, or `dialed`; `dialed` is sent once the dial request is sent. Each lead is `{ leadId, externId, campaignId, firstName, lastName, destination, raw }`, where `raw` is the original RingCX lead. A lead dialed by the progressive dialer has no `destination`: the server picks the number. |
+| `rc-ringcx-progressive-dial-notify` | `{ type, running, phase, nextDialAt, lead?, reason }`. Sent when the progressive dialer starts, stops, or moves to another step, and when a start is refused; not every countdown second. `phase` is `idle`, `connecting`, `fetching`, `countdown`, `dialing`, `waiting`, or `noLeads`. `nextDialAt` is the epoch milliseconds of the next dial (`countdown`) or lead fetch (`noLeads`). `lead` is the lead the countdown dials, in the `rc-ringcx-lead-notify` shape. `reason` is set when the dialer stopped or did not start: `stopped`, `notProgressive`, `busy`, `notAvailable`, `offhookFailed`, `offhookEnded`, `manualOutdial`, `inboundCall`, `agentState`, `dialGroupChanged`, `dialFailed`, or `logout`. |
 
 The integrated softphone runs on the RingEX WebPhone, so its status is `rc-webphone-connection-status-notify`.
 
@@ -79,6 +80,8 @@ Event `startTime` is an ISO-8601 string. The call-log request uses the host call
 | `rc-adapter-ringcx-end-agent-session` | `{}` | Ends the session. Refused while a call or pending disposition is active. |
 | `rc-adapter-ringcx-set-agent-state` | `{ state }` | Sets the working state and clears any aux state. |
 | `rc-adapter-ringcx-dial-lead` | `{ lead, destination }` | Dials a preview lead. Pass the `raw` lead from `rc-ringcx-lead-notify` as `lead`. |
+| `rc-adapter-ringcx-start-progressive-dial` | `{}` | Same as **Start dialing** on the Leads tab. Needs a progressive dial group (`permissions.progressiveEnabled`). When the agent is not available, the widget opens on the Leads tab and asks the agent to go available. |
+| `rc-adapter-ringcx-stop-progressive-dial` | `{}` | Same as **Stop dialing** on the Leads tab. |
 
 `rc-adapter-control-call` actions apply to the current RingCX call, as the Agent tab controls do. `hold`, `unhold`, `hangup`, and recording actions follow the call permissions. `answer`, `reject`, `mute`, `unmute`, and `dtmf` need the integrated softphone; `answer` and `reject` do nothing when no call is ringing there. A refused or failed action shows a message in the widget.
 
@@ -86,7 +89,7 @@ While a RingCX call is active, `rc-adapter-new-call` without `callWith: 'ringcx'
 
 Commands that need a ready session are not ignored when the session is not ready. The widget shows a message and posts `rc-ringcx-agent-session-notify` with the current status.
 
-`RCAdapter` helpers: `clickToCall(number, { callWith: 'ringcx', callerId })`, `startRingCXAgentSession()`, `endRingCXAgentSession()`, `setRingCXAgentState(state)`, `dialRingCXLead(lead, destination)`, and `controlCall(action, id, { source: 'ringcx' })`.
+`RCAdapter` helpers: `clickToCall(number, { callWith: 'ringcx', callerId })`, `startRingCXAgentSession()`, `endRingCXAgentSession()`, `setRingCXAgentState(state)`, `dialRingCXLead(lead, destination)`, `startRingCXProgressiveDial()`, `stopRingCXProgressiveDial()`, and `controlCall(action, id, { source: 'ringcx' })`.
 
 ### Message requests
 
@@ -142,7 +145,19 @@ RingCX history stays in the Agent tab. `/unlogged-calls` does not include RingCX
 
 ## Leads
 
+After a call dialed from a lead, preview or progressive, the widget goes back to the Leads tab once the call and its disposition are done.
+
 Register `leadViewerPath` to show **View lead** on a preview lead. The request body is `{ lead, agentId }`, where `lead` is the original RingCX lead (the same object as `raw` in `rc-ringcx-lead-notify`). The button is hidden when the path is not registered.
+
+### Progressive dialing
+
+A progressive dial group is a **Preview** dial group with **Enable progressive mode** checked. With one in the session, `rc-ringcx-agent-session-notify` has `permissions.progressiveEnabled: true`, and the Leads tab shows **Start dialing** instead of **Get leads**.
+
+- **Start dialing** asks the agent to go available when needed and connects the agent's line. The line stays connected while the dialer runs.
+- The widget then fetches leads and dials them one by one. Before each dial it waits the dial group's **Progressive call delay**, at most 120 seconds. It moves to the next lead once the call and its disposition are done. When no leads come back, it fetches again every 5 seconds.
+- Agents cannot pick the lead or its number; **View lead** and **Manual pass** stay available.
+- **Stop dialing** stops the dialer and disconnects the line once no call is live. A manual call, an inbound call, choosing a state other than Available, a dial group change, or logging out also stops it.
+- If RingCX leaves the agent in another state after a call, such as Working, the widget asks the agent to go available. **Go available** resumes dialing; **Dismiss** stops it.
 
 ## Contact matching
 

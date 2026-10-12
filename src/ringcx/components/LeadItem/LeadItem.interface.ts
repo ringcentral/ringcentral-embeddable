@@ -52,8 +52,13 @@ export interface LeadItemProps {
   disabled?: boolean;
   /** Whether the lead comes from a search result */
   fromSearch?: boolean;
-  /** Callback when dial button is clicked */
+  /**
+   * Callback when dial button is clicked. Without it the numbers are shown as
+   * text, as the progressive dialer picks the lead to dial.
+   */
   onDial?: (destination: string) => void;
+  /** Whether the progressive dialer dials this lead next */
+  isNext?: boolean;
   /** Callback when view lead button is clicked */
   onViewLead?: (lead: Lead) => void;
   /** Callback when manual pass is submitted */

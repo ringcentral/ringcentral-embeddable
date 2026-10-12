@@ -1628,6 +1628,18 @@ class Adapter {
     });
   }
 
+  startRingCXProgressiveDial(): void {
+    this._postMessage({
+      type: 'rc-adapter-ringcx-start-progressive-dial',
+    });
+  }
+
+  stopRingCXProgressiveDial(): void {
+    this._postMessage({
+      type: 'rc-adapter-ringcx-stop-progressive-dial',
+    });
+  }
+
   controlCall(action: string, id: string, options: any = {}): void {
     this._postMessage({
       type: 'rc-adapter-control-call',

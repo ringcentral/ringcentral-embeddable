@@ -57,6 +57,8 @@ import { CxIntegratedSoftphone } from '../CxIntegratedSoftphone';
 import { CxLeads } from '../CxLeads';
 import type { CxLeadEvent, Lead } from '../CxLeads';
 import { CxPresence } from '../CxPresence';
+import { CxProgressiveDial } from '../CxProgressiveDial';
+import type { ProgressiveDialStatus } from '../CxProgressiveDial';
 import { CxWorkingState } from '../CxWorkingState';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
 import type { DispositionStepOptions } from '../../utils/shouldShowDispositionSubmitStep';
@@ -121,6 +123,7 @@ export class RingCXAdapterBridge
     private readonly _cxPresence: CxPresence,
     private readonly _cxWorkingState: CxWorkingState,
     private readonly _cxLeads: CxLeads,
+    private readonly _cxProgressiveDial: CxProgressiveDial,
     private readonly _cxActiveCallControl: CxActiveCallControl,
     private readonly _cxIntegratedSoftphone: CxIntegratedSoftphone,
     @optional() private readonly _contactMatcher?: ContactMatcher,
@@ -191,11 +194,19 @@ export class RingCXAdapterBridge
     const unregisterLeadEvents = this._cxLeads.onLeadEvent((event) => {
       this._adapter.notifyRingCXLead(formatRingCXLeadEvent(event));
     });
+    const unregisterProgressiveDial = this._cxProgressiveDial.onStatusChange(
+      (status) => {
+        this._adapter.notifyRingCXProgressiveDial(
+          this._formatProgressiveDialStatus(status),
+        );
+      },
+    );
     this._adapter.notifyRingCXAgentSession(this.getAgentSessionSnapshot());
     this._unbindHostNotifications = () => {
       unwatchSession();
       unwatchState();
       unregisterLeadEvents();
+      unregisterProgressiveDial();
       this._unbindHostNotifications = undefined;
     };
     return this._unbindHostNotifications;
@@ -213,6 +224,7 @@ export class RingCXAdapterBridge
       this._cxAuth.authenticateResponse,
       this._cxAgentSession.loginType,
       this._cxAgentSession.dialGroupId,
+      this._cxAgentSession.isProgressiveDialMode,
       this._cxAgentSession.selectedSkillProfileId,
       this._cxAgentSession.selectedInboundQueueIds,
       this._cxAgentSession.autoAnswer,
@@ -560,6 +572,31 @@ export class RingCXAdapterBridge
     await this._cxLeads.dialLead(lead as Lead, destination);
   }
 
+  async startProgressiveDial(): Promise<void> {
+    await this._cxProgressiveDial.start({ source: 'thirdParty' });
+  }
+
+  async stopProgressiveDial(): Promise<void> {
+    await this._cxProgressiveDial.stop({ source: 'thirdParty' });
+  }
+
+  /**
+   * Host-facing progressive dialer status, with the lead the countdown dials
+   * in the `rc-ringcx-lead-notify` shape.
+   */
+  private _formatProgressiveDialStatus({
+    nextLeadRequestId,
+    ...status
+  }: ProgressiveDialStatus) {
+    const lead = nextLeadRequestId
+      ? this._cxLeads.leads.find((item) => item.requestId === nextLeadRequestId)
+      : undefined;
+    return {
+      ...status,
+      lead: lead ? formatRingCXLead(lead) : undefined,
+    };
+  }
+
   getAgentSessionSnapshot() {
     const agents = this._cxAuth.authenticateResponse?.agents || [];
     const agent = agents.find((item) => item.agentId === this._cxAuth.agentId);
@@ -584,6 +621,7 @@ export class RingCXAdapterBridge
       },
       permissions: {
         allowLoginUpdates: agent?.allowLoginUpdates,
+        progressiveEnabled: this._cxAgentSession.isProgressiveDialMode,
       },
     };
   }

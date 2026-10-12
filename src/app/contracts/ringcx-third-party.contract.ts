@@ -26,6 +26,7 @@ export const ringCXThirdPartyContract = {
     'rc-ringcx-agent-session-notify',
     'rc-ringcx-agent-state-notify',
     'rc-ringcx-lead-notify',
+    'rc-ringcx-progressive-dial-notify',
   ],
   commands: [
     'rc-adapter-new-call',
@@ -34,6 +35,8 @@ export const ringCXThirdPartyContract = {
     'rc-adapter-ringcx-end-agent-session',
     'rc-adapter-ringcx-set-agent-state',
     'rc-adapter-ringcx-dial-lead',
+    'rc-adapter-ringcx-start-progressive-dial',
+    'rc-adapter-ringcx-stop-progressive-dial',
     'rc-adapter-navigate-to',
     'rc-adapter-logout',
   ],

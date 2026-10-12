@@ -116,7 +116,13 @@ interface SubmitNavigationContext {
   name: 'CxDispositionView',
 })
 class CxDispositionView extends RcViewModule {
-  private readonly dialerPath = cxPath.home('dialer');
+  /**
+   * Agent home to go back to after the disposition: Leads for a call dialed
+   * from a lead, otherwise the Dialer.
+   */
+  private get homePath(): string {
+    return cxPath.home(this.cxCall.homeTabAfterCall);
+  }
 
   constructor(
     private cxPresence: CxPresence,
@@ -582,7 +588,7 @@ class CxDispositionView extends RcViewModule {
       callIds: this.cxCallMonitor.callIds,
     });
     this._setViewCallId('');
-    this.router.replace(this.dialerPath);
+    this.router.replace(this.homePath);
     this._reset();
     if (takenOver) {
       this.restoreTakenOverCall(submittedCallId);
@@ -719,7 +725,7 @@ class CxDispositionView extends RcViewModule {
       this._setViewCallId('');
     }
     this._reset();
-    this.router.replace(this.dialerPath);
+    this.router.replace(this.homePath);
   }
 
   @delegate('server')
@@ -732,7 +738,7 @@ class CxDispositionView extends RcViewModule {
     const call = this.cxPresence.callsMapping[callId];
     if (!call || !shouldShowDispositionSubmitStep(call, this.dispositionViewOptions)) {
       await this.cxWorkingState.setIsPendingDisposition(false);
-      this.router.replace(this.dialerPath);
+      this.router.replace(this.homePath);
       return;
     }
     this.router.push(cxPath.disposition(callId));
@@ -962,7 +968,7 @@ class CxDispositionView extends RcViewModule {
       this.router.replace(
         context.openedLogPage
           ? `/log/call/${context.callId}?source=ringcx`
-          : this.dialerPath,
+          : this.homePath,
       );
       this._reset();
       this.cxCall.setActivityCallId('');

@@ -81,7 +81,10 @@ const {
 const CALL_ID = 'uii-1$session-1';
 const DISPOSITION_PATH = `/agent/calls/${CALL_ID}/disposition`;
 
-function createView({ liveCallIds = [CALL_ID] } = {}) {
+function createView({
+  liveCallIds = [CALL_ID],
+  homeTabAfterCall = 'dialer',
+} = {}) {
   const router = {
     currentPath: DISPOSITION_PATH,
     goBack: jest.fn(),
@@ -93,6 +96,7 @@ function createView({ liveCallIds = [CALL_ID] } = {}) {
       cxCall.activityCallId = id;
     }),
     setDialoutStatus: jest.fn(),
+    homeTabAfterCall,
   };
   const cxCallMonitor = { callIds: liveCallIds };
   const view = new CxDispositionView(
@@ -183,5 +187,18 @@ describe('CxDispositionView submit hand-over', () => {
 
     expect(view.goBack).toHaveBeenCalled();
     expect(router.replace).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['a manual or inbound call', 'dialer'],
+    ['a preview or progressive call', 'leads'],
+  ])('goes back to the agent home tab after %s', (_name, homeTabAfterCall) => {
+    const { router, view } = createView({ liveCallIds: [], homeTabAfterCall });
+
+    view._finishSubmit(submitContext({ shouldGoToDialer: true }), true);
+
+    expect(router.replace).toHaveBeenCalledWith(
+      `/agent/home/${homeTabAfterCall}`,
+    );
   });
 });

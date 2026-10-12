@@ -14,5 +14,6 @@ export default {
   [messageTypes.UPDATE_AGENT_ERROR]: 'Failed to update agent settings.',
   [messageTypes.UPDATE_AGENT_SUCCESS]: 'Agent settings updated successfully.',
   [messageTypes.EXISTING_LOGIN_ENGAGED]: 'Login is currently in use. Please try again later.',
+  dialGroupUpdated: 'Your dial group has been updated to dial group: {dialGroupName}',
 } as const;
 

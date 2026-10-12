@@ -13,6 +13,7 @@ export const ringCXEventTypes = {
   agentSessionNotify: 'rc-ringcx-agent-session-notify',
   agentStateNotify: 'rc-ringcx-agent-state-notify',
   leadNotify: 'rc-ringcx-lead-notify',
+  progressiveDialNotify: 'rc-ringcx-progressive-dial-notify',
 } as const;
 
 export const ringCXCommandTypes = {
@@ -22,6 +23,8 @@ export const ringCXCommandTypes = {
   endAgentSession: 'rc-adapter-ringcx-end-agent-session',
   setAgentState: 'rc-adapter-ringcx-set-agent-state',
   dialLead: 'rc-adapter-ringcx-dial-lead',
+  startProgressiveDial: 'rc-adapter-ringcx-start-progressive-dial',
+  stopProgressiveDial: 'rc-adapter-ringcx-stop-progressive-dial',
 } as const;
 
 export const ringCXRequestPaths = {

@@ -14,4 +14,5 @@ export default {
   [messageTypes.UPDATE_AGENT_ERROR]: 'Échec de la mise à jour des paramètres de l\'agent.',
   [messageTypes.UPDATE_AGENT_SUCCESS]: 'Paramètres de l\'agent mis à jour avec succès.',
   [messageTypes.EXISTING_LOGIN_ENGAGED]: 'La connexion est actuellement utilisée. Veuillez réessayer plus tard.',
+  dialGroupUpdated: 'Votre groupe de numérotation a été mis à jour : {dialGroupName}',
 } as const;

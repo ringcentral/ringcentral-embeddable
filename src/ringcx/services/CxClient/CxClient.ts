@@ -9,6 +9,7 @@ import {
   delegate,
 } from '@ringcentral-integration/next-core';
 import { EventEmitter } from 'events';
+import { firstValueFrom, from, timeout } from 'rxjs';
 
 import { AGENT_TYPES, messageTypes } from '../../enums';
 import { CxTypeError } from '../../lib/CxTypeError';
@@ -90,6 +91,12 @@ export interface CxSocketDiagnostics {
  */
 const MAX_RECONNECTION_ATTEMPTS = 72;
 
+/**
+ * Wait for a preview lead fetch answer, as Agent One does. Without it a lost
+ * answer leaves the fetch, and the progressive dialer, waiting forever.
+ */
+const PREVIEW_FETCH_TIMEOUT_MS = 30 * 1000;
+
 /** Local storage namespace the Agent SDK persists its session token under. */
 const SDK_STORAGE_PREFIX = 'agentSDK:';
 
@@ -135,6 +142,10 @@ class CxClient extends RcModule {
   private _options: CxAgentOptions;
 
   private _eventEmitter = new EventEmitter();
+
+  private readonly _agentStateRequestListeners = new Set<
+    (agentState: string) => void
+  >();
 
   private _callbacks: Record<string, Function> = {};
 
@@ -1178,8 +1189,21 @@ class CxClient extends RcModule {
     await this._sdk.cancelDirectAgentXfer(targetAgentId);
   }
 
+  /**
+   * Notifies on the server port when the app asks for an agent state, from
+   * the state menu or a host command for example. Changes the server makes on
+   * its own, such as the state after a call, do not go through here.
+   */
+  onAgentStateRequest(listener: (agentState: string) => void): () => void {
+    this._agentStateRequestListeners.add(listener);
+    return () => {
+      this._agentStateRequestListeners.delete(listener);
+    };
+  }
+
   @delegate('server')
   async setAgentState(agentState: string, agentAuxState: string) {
+    this._agentStateRequestListeners.forEach((listener) => listener(agentState));
     return this._sdk.setAgentState(agentState, agentAuxState);
   }
 
@@ -1433,14 +1457,18 @@ class CxClient extends RcModule {
 
   /**
    * Get preview dial leads
+   * @throws when the server does not answer within 30 seconds
    */
   @delegate('server')
   async getPreviewDial(): Promise<any> {
-    return new Promise((resolve) => {
+    const response = new Promise((resolve) => {
       this._sdk.previewFetch([], (res: any) => {
         resolve(res);
       });
     });
+    return firstValueFrom(
+      from(response).pipe(timeout(PREVIEW_FETCH_TIMEOUT_MS)),
+    );
   }
 
   /**

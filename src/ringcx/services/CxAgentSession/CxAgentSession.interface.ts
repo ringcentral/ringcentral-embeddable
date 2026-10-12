@@ -49,4 +49,8 @@ export interface DialGroup {
   groupName: string;
   dialMode: string;
   groupDesc?: string;
+  /** A `PREVIEW` group with "Enable progressive mode" checked. */
+  progressiveEnabled: boolean;
+  /** Seconds to wait before each automatic dial in progressive mode. */
+  progressiveCallDelay: number;
 }

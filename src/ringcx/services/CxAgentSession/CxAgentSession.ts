@@ -16,6 +16,7 @@ import { sleep } from '@ringcentral-integration/commons/utils';
 import { EventEmitter } from 'events';
 import { equals } from 'ramda';
 import { parseNumber } from '../../lib/parseNumber';
+import { parseProgressiveCallDelay } from '../../utils/parseProgressiveCallDelay';
 import type { LoginTypes } from '../../enums';
 import {
   agentSessionEvents,
@@ -26,9 +27,10 @@ import {
 } from '../../enums';
 import type { CxAgentConfig } from '../CxClient/interfaces';
 import { CxClient } from '../CxClient';
-import { evStatus } from '../CxClient/enums';
+import { CxCallbackTypes, evStatus } from '../CxClient/enums';
 import { CxAuth } from '../CxAuth';
 import { CxPresence } from '../CxPresence';
+import { CxSubscription } from '../CxSubscription';
 import { CxMultiLoginView } from '../../views/CxMultiLoginView';
 import type {
   FormGroup,
@@ -87,6 +89,7 @@ class CxAgentSession extends RcModule {
     private portManager: PortManager,
     private multiLoginView: CxMultiLoginView,
     private router: RouterPlugin,
+    private cxSubscription: CxSubscription,
   ) {
     super();
     this.storagePlugin.enable(this);
@@ -121,6 +124,15 @@ class CxAgentSession extends RcModule {
     this.cxAuth.beforeAgentLogout(() => {
       this._resetAllState();
     });
+    // An admin moved the agent to another dial group. As in Agent One, the
+    // agent is only told: the session keeps the dial group settings it has
+    // until the next session update or login.
+    this.cxSubscription.subscribe(
+      CxCallbackTypes.DIAL_GROUP_CHANGE,
+      (data?: { dialGroupName?: string }) => {
+        this._showDialGroupChangedAlert(data?.dialGroupName ?? '');
+      },
+    );
     this.onConfigSuccess(async () => {
       const hasCall = this.cxPresence.calls.length > 0;
       // Set dialout status to idle if no calls
@@ -248,6 +260,8 @@ class CxAgentSession extends RcModule {
       groupId: '',
       groupName: 'None',
       dialMode: '',
+      progressiveEnabled: false,
+      progressiveCallDelay: 0,
     };
     if (
       !agentConfig ||
@@ -267,17 +281,47 @@ class CxAgentSession extends RcModule {
           groupName: group.dialGroupName,
           groupDesc: group.dialGroupDesc,
           dialMode: group.dialMode,
+          progressiveEnabled: group.progressiveEnabled === true,
+          progressiveCallDelay: parseProgressiveCallDelay(
+            group.progressiveCallDelay,
+          ),
         })),
     );
   }
 
+  /**
+   * Dial group of the configured session, if any
+   */
   @computed((that: CxAgentSession) => [that.dialGroupId, that.dialGroups])
-  get currentDialMode(): string {
+  get currentDialGroup(): DialGroup | undefined {
     if (!this.dialGroupId) {
-      return '';
+      return undefined;
     }
-    const group = this.dialGroups.find((g) => g.groupId === this.dialGroupId);
-    return group?.dialMode || '';
+    return this.dialGroups.find((g) => g.groupId === this.dialGroupId);
+  }
+
+  @computed((that: CxAgentSession) => [that.currentDialGroup])
+  get currentDialMode(): string {
+    return this.currentDialGroup?.dialMode || '';
+  }
+
+  /**
+   * RingCX has no `PROGRESSIVE` dial mode: a progressive group is a `PREVIEW`
+   * group with progressive mode enabled.
+   */
+  @computed((that: CxAgentSession) => [that.currentDialGroup])
+  get isProgressiveDialMode(): boolean {
+    const group = this.currentDialGroup;
+    return group?.dialMode === 'PREVIEW' && group.progressiveEnabled;
+  }
+
+  /**
+   * Wait before each automatic dial of the progressive dialer
+   */
+  get progressiveCallDelayMs(): number {
+    return parseProgressiveCallDelay(
+      this.currentDialGroup?.progressiveCallDelay,
+    ) * 1000;
   }
 
   @computed((that: CxAgentSession) => [that.cxAuth.agentConfig])
@@ -683,6 +727,12 @@ class CxAgentSession extends RcModule {
   private _showUpdateSuccessAlert(): void {
     this.toast.success({
       message: t(messageTypes.UPDATE_AGENT_SUCCESS),
+    });
+  }
+
+  private _showDialGroupChangedAlert(dialGroupName: string): void {
+    this.toast.info({
+      message: t('dialGroupUpdated', { dialGroupName }),
     });
   }
 

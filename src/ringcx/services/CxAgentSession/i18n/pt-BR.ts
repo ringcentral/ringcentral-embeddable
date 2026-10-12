@@ -14,4 +14,5 @@ export default {
   [messageTypes.UPDATE_AGENT_ERROR]: 'Falha ao atualizar as configurações do agente.',
   [messageTypes.UPDATE_AGENT_SUCCESS]: 'Configurações do agente atualizadas com sucesso.',
   [messageTypes.EXISTING_LOGIN_ENGAGED]: 'O login está em uso no momento. Por favor, tente novamente mais tarde.',
+  dialGroupUpdated: 'Seu grupo de discagem foi atualizado para o grupo de discagem: {dialGroupName}',
 } as const;

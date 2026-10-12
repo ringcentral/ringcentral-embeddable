@@ -1161,6 +1161,12 @@ export class Adapter extends RcModule {
       case ringCXCommandTypes.dialLead:
         void this._dialRingCXLead(data.lead, data.destination);
         break;
+      case ringCXCommandTypes.startProgressiveDial:
+        void this._startRingCXProgressiveDial();
+        break;
+      case ringCXCommandTypes.stopProgressiveDial:
+        void this._stopRingCXProgressiveDial();
+        break;
       case 'rc-adapter-pick-call':
         void this._pickCall(data.extensionId, data.telephonySessionId);
         break;
@@ -3240,6 +3246,13 @@ export class Adapter extends RcModule {
     });
   }
 
+  notifyRingCXProgressiveDial(payload: object): void {
+    this._postRingCXEvent({
+      type: ringCXEventTypes.progressiveDialNotify,
+      ...payload,
+    });
+  }
+
   /**
    * Posts a server-originated RingCX event to the host page of every tab.
    * See `runOnAllPorts` for why this is not `@delegate('all' | 'clients')`.
@@ -3371,5 +3384,15 @@ export class Adapter extends RcModule {
       return;
     }
     await bridge.dialLead(lead, destination);
+  }
+
+  private async _startRingCXProgressiveDial(): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    await bridge?.startProgressiveDial();
+  }
+
+  private async _stopRingCXProgressiveDial(): Promise<void> {
+    const bridge = await this._requireRingCXReady();
+    await bridge?.stopProgressiveDial();
   }
 }
