@@ -79,7 +79,7 @@ Event `startTime` is an ISO-8601 string. The call-log request uses the host call
 | `rc-adapter-ringcx-start-agent-session` | `{}` | Starts the Agent tab session. |
 | `rc-adapter-ringcx-end-agent-session` | `{}` | Ends the session. Refused while a call or pending disposition is active. |
 | `rc-adapter-ringcx-set-agent-state` | `{ state }` | Sets the working state and clears any aux state. |
-| `rc-adapter-ringcx-dial-lead` | `{ lead, destination }` | Dials a preview lead. Pass the `raw` lead from `rc-ringcx-lead-notify` as `lead`. |
+| `rc-adapter-ringcx-dial-lead` | `{ lead, destination }` | Dials a preview lead. `lead` can be the lead from `rc-ringcx-lead-notify`, its `raw` lead, or `{ leadId, campaignId }`; with only `leadId`, the lead must be in the agent's current lead list. `destination` must be one of the lead's numbers, in its national or E.164 form; another number is not dialed. |
 | `rc-adapter-ringcx-start-progressive-dial` | `{}` | Same as **Start dialing** on the Leads tab. Needs a progressive dial group (`permissions.progressiveEnabled`). When the agent is not available, the widget opens on the Leads tab and asks the agent to go available. |
 | `rc-adapter-ringcx-stop-progressive-dial` | `{}` | Same as **Stop dialing** on the Leads tab. |
 
