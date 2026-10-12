@@ -75,6 +75,7 @@ interface UrlParams {
   disableMeeting?: boolean;
   disableMessages?: boolean;
   disableReadText?: boolean;
+  hasStylesUri?: boolean;
 }
 
 function parseBooleanParam(value: string | undefined): boolean {
@@ -88,14 +89,6 @@ function parseOptionalBooleanParam(
     return undefined;
   }
   return parseBooleanParam(value);
-}
-
-/**
- * The 3.x app turned a feature off whenever its `disable*` parameter was
- * present, whatever the value, so `disableCall=0` still disables calling.
- */
-function isParamPresent(value: string | undefined): boolean {
-  return typeof value !== 'undefined';
 }
 
 function readUrlParams(): UrlParams {
@@ -154,12 +147,13 @@ function readUrlParams(): UrlParams {
       params.enableTypingTimeTracking,
     ),
     showMyLocationNumbers: parseBooleanParam(params.showMyLocationNumbers),
-    disableCall: isParamPresent(params.disableCall),
-    disableCallHistory: isParamPresent(params.disableCallHistory),
-    disableContacts: isParamPresent(params.disableContacts),
-    disableMeeting: isParamPresent(params.disableMeeting),
-    disableMessages: isParamPresent(params.disableMessages),
-    disableReadText: isParamPresent(params.disableReadText),
+    disableCall: parseBooleanParam(params.disableCall),
+    disableCallHistory: parseBooleanParam(params.disableCallHistory),
+    disableContacts: parseBooleanParam(params.disableContacts),
+    disableMeeting: parseBooleanParam(params.disableMeeting),
+    disableMessages: parseBooleanParam(params.disableMessages),
+    disableReadText: parseBooleanParam(params.disableReadText),
+    hasStylesUri: Boolean(params.stylesUri),
   };
 }
 
@@ -206,6 +200,11 @@ export const createApp = async (
   if (!urlParams.authProxy && urlParams.usedDeprecatedAppKey) {
     console.warn(
       'appKey is deprecated, please change to clientId. https://ringcentral.github.io/ringcentral-embeddable/docs/config/client-id/',
+    );
+  }
+  if (urlParams.hasStylesUri) {
+    console.warn(
+      'stylesUri is not supported since 3.1. https://ringcentral.github.io/ringcentral-embeddable/docs/config/styles/',
     );
   }
   if (!urlParams.authProxy && !mergedSdkConfig.clientId) {

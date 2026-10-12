@@ -49,14 +49,14 @@ describe('createApp disable* URL parameters', () => {
     );
   });
 
-  test('treats a present parameter as disabled whatever its value, like 3.x', async () => {
+  test('disables a feature only for 1 or true, like other boolean parameters', async () => {
     const query = new URLSearchParams({
       disableCall: '0',
       disableCallHistory: 'false',
       disableContacts: '1',
       disableMeeting: 'true',
-      disableMessages: '1',
-      disableReadText: '1',
+      disableMessages: 'yes',
+      disableReadText: '',
     });
     window.history.replaceState({}, '', `/app.html?${query.toString()}`);
 
@@ -64,12 +64,12 @@ describe('createApp disable* URL parameters', () => {
 
     expect(getAppConfig).toHaveBeenCalledWith(
       expect.objectContaining({
-        disableCall: true,
-        disableCallHistory: true,
+        disableCall: false,
+        disableCallHistory: false,
         disableContacts: true,
         disableMeeting: true,
-        disableMessages: true,
-        disableReadText: true,
+        disableMessages: false,
+        disableReadText: false,
       }),
     );
   });
@@ -84,6 +84,63 @@ describe('createApp disable* URL parameters', () => {
         disableCall: false,
         disableContacts: true,
       }),
+    );
+  });
+});
+
+describe('createApp stylesUri', () => {
+  const originalEnv = process.env;
+  let warn;
+
+  beforeEach(() => {
+    process.env = {
+      ...originalEnv,
+      APP_CONFIG: {
+        prefix: 'default-prefix',
+        brandConfig: {
+          appName: 'Embeddable',
+          defaultLocale: 'en-US',
+          code: 'rc',
+        },
+      },
+      API_CONFIG: {
+        clientId: 'default-client-id',
+        server: 'https://platform.example.com',
+      },
+      MIXPANEL_KEY: '',
+    };
+    warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warn.mockRestore();
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  test('warns that stylesUri is no longer supported', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/app.html?stylesUri=https%3A%2F%2Fhost.example.com%2Fwidget.css',
+    );
+
+    await createApp();
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('stylesUri is not supported since 3.1'),
+    );
+  });
+
+  test('does not warn without stylesUri', async () => {
+    window.history.replaceState({}, '', '/app.html');
+
+    await createApp();
+
+    expect(warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('stylesUri'),
     );
   });
 });

@@ -34,7 +34,7 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `prefix` | *null* | See [Customize prefix](prefix.md). |
 | `redirectUri` | *null* | See [Customize redirectUri](redirect-uri.md). |
 | `showSignUpButton` | False |  |
-| `stylesUri` | *null* | See [Customize look and feel through CSS](styles.md). |
+| `stylesUri` | *null* | 2.x and 3.x only, not supported since 3.1. See [Customize look and feel through CSS](styles.md). |
 | `userAgent` | *null* | See [Customize X-User-Agent](user-agent.md). |
 | `enableAudioInitPrompt` | *null* | See [Audio](./audio.md). |
 | `enableLoadMoreCalls` | *null* | Support to load old call history (more than 7 days). Supported from v2.1.0 |

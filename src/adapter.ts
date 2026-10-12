@@ -155,6 +155,12 @@ function init({
     hideCallNote,
   } = options;
 
+  if (stylesUri) {
+    console.warn(
+      'stylesUri is not supported since 3.1. https://ringcentral.github.io/ringcentral-embeddable/docs/config/styles/',
+    );
+  }
+
   const appUri = `${appUrl}?${obj2uri({
     appKey,
     clientId,
@@ -167,7 +173,6 @@ function init({
     appVersion,
     redirectUri,
     proxyUri,
-    stylesUri,
     disableCall,
     disableMessages,
     disableReadText,
