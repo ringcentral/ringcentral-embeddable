@@ -58,6 +58,7 @@ interface UrlParams {
   enableVoicemailDrop?: boolean;
   enableSMSTemplate?: boolean;
   enableSharedMessages?: boolean;
+  defaultCallWith?: string;
   /** Shown as the version on the settings page instead of the build's. */
   appVersion?: string;
   disableNoiseReduction?: boolean;
@@ -131,6 +132,7 @@ function readUrlParams(): UrlParams {
     enableVoicemailDrop: parseBooleanParam(params.enableVoicemailDrop),
     enableSMSTemplate: parseBooleanParam(params.enableSMSTemplate),
     enableSharedMessages: parseBooleanParam(params.enableSharedMessages),
+    defaultCallWith: params.defaultCallWith || undefined,
     appVersion: params.appVersion || undefined,
     disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
     enableSmartNote: parseBooleanParam(params.enableSmartNote),
@@ -264,6 +266,7 @@ export const createApp = async (
     enableVoicemailDrop: urlParams.enableVoicemailDrop,
     enableSMSTemplate: urlParams.enableSMSTemplate,
     enableSharedMessages: urlParams.enableSharedMessages,
+    defaultCallWith: urlParams.defaultCallWith,
     displayAppVersion: urlParams.appVersion,
     disableNoiseReduction: urlParams.disableNoiseReduction,
     enableSmartNote: urlParams.enableSmartNote,

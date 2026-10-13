@@ -151,6 +151,16 @@ describe('createApp feature and version URL parameters', () => {
     );
   });
 
+  test('passes defaultCallWith through for the calling settings', async () => {
+    window.history.replaceState({}, '', '/app.html?defaultCallWith=ringout');
+
+    await createApp();
+
+    expect(getAppConfig).toHaveBeenCalledWith(
+      expect.objectContaining({ defaultCallWith: 'ringout' }),
+    );
+  });
+
   test('leaves the features off for other values', async () => {
     window.history.replaceState(
       {},

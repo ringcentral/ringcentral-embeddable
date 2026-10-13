@@ -167,6 +167,10 @@ import { VoicemailPage } from './views/VoicemailView';
 import { SmsTemplateView as SmsTemplateViewV2 } from './views/SmsTemplateView';
 import { NumberFormatter as NumberFormatterV2 } from './services/NumberFormatter';
 import { PhoneNumberFormat } from './services/PhoneNumberFormat';
+import {
+  CallingSettings as CallingSettingsV2,
+  type CallingSettingsOptions as EmbeddableCallingSettingsOptions,
+} from './services/CallingSettings';
 import { PhoneNumberFormatSettingView } from './views/PhoneNumberFormatSettingView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
@@ -317,6 +321,8 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp>
   enableVoicemailDrop?: boolean;
   enableSMSTemplate?: boolean;
   enableSharedMessages?: boolean;
+  /** `browser`, `jupiter`, `softphone`, or `ringout` for a first login. */
+  defaultCallWith?: string;
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
@@ -364,6 +370,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   enableVoicemailDrop = false,
   enableSMSTemplate = false,
   enableSharedMessages = false,
+  defaultCallWith,
   disableNoiseReduction = false,
   enableSmartNote = false,
   enableAnalytics = false,
@@ -468,7 +475,16 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       AudioInit,
       NoiseReduction,
       VoicemailDrop,
-      CallingSettings,
+      {
+        provide: CallingSettings,
+        useClass: CallingSettingsV2,
+      },
+      {
+        provide: 'CallingSettingsOptions',
+        useValue: {
+          defaultCallWith,
+        } satisfies EmbeddableCallingSettingsOptions,
+      },
       RegionSettings,
       Presence,
       QuickAccess,
