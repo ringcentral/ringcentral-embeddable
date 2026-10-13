@@ -104,9 +104,9 @@ nav:
   - 'Events': integration/events.md
   - 'API': integration/api.md
   - 'Authorization': integration/authorization.md
-  - 'Embeddable 2.0': 2.x.md
-  - 'Embeddable 3.0': 3.x.md
-  - 'Embeddable 3.1 Alpha (new)': 3.1.x.md
+  - 'Current versions': 
+    - 'Embeddable 3.0 (stable)': 3.x.md
+    - 'Embeddable 3.1 (beta)': 3.1.x.md
   - 'Service features':
     - 'Service registration': integration/index.md
     - 'Address book integration': integration/address-book.md

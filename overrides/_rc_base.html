@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{#
+  Resolve the active project key injected by plugin.py.
+  Falls back to empty string if the key was never set (e.g. local dev
+  without a site_url or a labs_project config entry).
+#}
+{% set _active = config.extra.get("_labs_active_project", "") if config.extra else "" %}
+
+{# ------------------------------------------------------------------ #}
+{# Announce banner — project-aware                                     #}
+{#                                                                     #}
+{# Sites that need a custom banner should create main.html in their   #}
+{# custom_dir that extends "_rc_base.html" and overrides this block:  #}
+{#                                                                     #}
+{#   {% extends "_rc_base.html" %}                                     #}
+{#   {% block announce %}                                              #}
+{#     Your message — <a href="...">link text</a>                     #}
+{#   {% endblock %}                                                    #}
+{#                                                                     #}
+{# Alternatively, set extra.rc_announce in mkdocs.yml for plain-text  #}
+{# or simple HTML banners that don't need full template control.      #}
+{# ------------------------------------------------------------------ #}
+{% block announce -%}
+  {%- set _custom = config.extra.get("rc_announce", none) if config.extra else none -%}
+  {%- if _custom is not none -%}
+    {{- _custom | safe -}}
+  {%- elif _active == "app-connect" -%}
+    App Connect 2.0 BETA is here with more features and support for more CRMs!
+    <a href="{{ config.site_url }}2.0/" class="upgrade-button">Try it out</a>
+  {%- elif _active == "design-system" -%}
+    The RingCentral Design System is now in public beta — share feedback on
+    <a href="https://github.com/ringcentral/mkdocs-material-ringcentral/discussions" target="_blank" rel="noopener" class="upgrade-button">GitHub Discussions</a>
+  {%- endif -%}
+{%- endblock %}
+
+{# ------------------------------------------------------------------ #}
+{# Footer                                                              #}
+{# ------------------------------------------------------------------ #}
+{% block footer %}
+
+{#
+  Labs project registry.
+  Each entry:
+    key   — matches what plugin.py injects as _labs_active_project
+    name  — display name in the footer card
+    desc  — one-line description
+    href  — canonical public URL (used when this is NOT the active site)
+    badge — optional badge text ("New") or none/empty for no badge
+#}
+{% set _projects = [
+  {
+    "key":   "app-connect",
+    "name":  "App Connect",
+    "desc":  "CRM integration for RingEX",
+    "href":  "https://appconnect.labs.ringcentral.com/",
+    "badge": ""
+  },
+  {
+    "key":   "rc-embeddable",
+    "name":  "RC Embeddable",
+    "desc":  "Embeddable RingCentral phone widget",
+    "href":  "https://ringcentral.github.io/ringcentral-embeddable/",
+    "badge": ""
+  }
+] %}
+
+<footer class="rc-labs-footer">
+  <div class="rc-labs-footer__inner">
+
+    <!-- Left: wordmark + tagline -->
+    <div class="rc-labs-footer__brand">
+      <div class="rc-labs-footer__wordmark">
+        <span class="rc-labs-footer__rc">RingCentral</span>
+        <span class="rc-labs-footer__dot"> · </span>
+        <span class="rc-labs-footer__labs">LABS</span>
+      </div>
+      <p class="rc-labs-footer__tagline">
+        A dedicated team working directly with customers to explore the future of
+        business communications. We build tools at the edge of what&rsquo;s possible.
+      </p>
+    </div>
+
+    <!-- Right: Labs project cards -->
+    <div class="rc-labs-footer__right">
+      <p class="rc-labs-footer__label">Projects from RingCentral Labs</p>
+      <div class="rc-labs-footer__projects">
+
+        {% for proj in _projects %}
+          {% if _active and _active == proj.key %}
+            {# Active site — non-linked "You are here" card #}
+            <div class="rc-labs-footer__proj rc-labs-footer__proj--active">
+              <span class="rc-labs-footer__badge rc-labs-footer__badge--here">You are here</span>
+              <div class="rc-labs-footer__proj-name">{{ proj.name }}</div>
+              <div class="rc-labs-footer__proj-desc">{{ proj.desc }}</div>
+            </div>
+          {% else %}
+            {# Every other project — linked card #}
+            <a href="{{ proj.href }}" class="rc-labs-footer__proj" target="_blank" rel="noopener">
+              {% if proj.badge %}
+                <span class="rc-labs-footer__badge rc-labs-footer__badge--new">{{ proj.badge }}</span>
+              {% endif %}
+              <div class="rc-labs-footer__proj-name">{{ proj.name }}</div>
+              <div class="rc-labs-footer__proj-desc">{{ proj.desc }}</div>
+            </a>
+          {% endif %}
+        {% endfor %}
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="rc-labs-footer__bar">
+    <span class="rc-labs-footer__copy">&copy; 2023&ndash;2026 RingCentral, Inc. All rights reserved.</span>
+    <nav class="rc-labs-footer__nav">
+      <a href="https://support.ringcentral.com" target="_blank" rel="noopener">Support</a>
+      <a href="https://www.ringcentral.com/legal/privacy-notice.html" target="_blank" rel="noopener">Privacy</a>
+      <a href="{{ config.site_url }}releases/">Release notes</a>
+      <a href="https://github.com/ringcentral/rc-unified-crm-extension" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+{% endblock %}

@@ -2,8 +2,8 @@
 
 <!-- md:version 3.1.0 -->
 
-!!! info "Alpha"
-    RingCX support is part of the [Embeddable 3.1.x alpha](../3.1.x.md). 
+!!! info "Beta"
+    RingCX support is part of the [Embeddable 3.1.x beta](../3.1.x.md). 
 
 RingCX calls use the same `registerThirdPartyService` and `rc-*` protocol as RingEX calls. Read `call.source`. You do not need a second protocol.
 
