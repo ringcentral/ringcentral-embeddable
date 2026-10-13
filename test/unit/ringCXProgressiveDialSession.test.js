@@ -45,13 +45,24 @@ import { parseProgressiveCallDelay } from '../../src/ringcx/utils/parseProgressi
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+// Like the real EventEmitter-backed subscription, an event can have several
+// listeners; `listeners[type](data)` emits the event to all of them.
 function createSubscription() {
+  const handlers = {};
   const listeners = {};
   return {
     listeners,
     subscribe: jest.fn(function subscribe(type, listener) {
-      listeners[type] = listener;
+      if (!handlers[type]) {
+        handlers[type] = new Set();
+        listeners[type] = (data) =>
+          [...handlers[type]].forEach((handler) => handler(data));
+      }
+      handlers[type].add(listener);
       return this;
+    }),
+    off: jest.fn((type, listener) => {
+      handlers[type]?.delete(listener);
     }),
   };
 }
@@ -319,6 +330,7 @@ describe('CxCall progressive support', () => {
       isIntegratedSoftphone: false,
       currentDialMode: dialMode,
     };
+    const toast = { danger: jest.fn(), info: jest.fn() };
     const call = new CxCall(
       cxClient,
       { isEvLogged: true },
@@ -328,7 +340,7 @@ describe('CxCall progressive support', () => {
       {},
       cxSubscription,
       { isPendingDisposition: false },
-      { danger: jest.fn(), info: jest.fn() },
+      toast,
       { enable: jest.fn() },
       { shared: false },
     );
@@ -338,7 +350,9 @@ describe('CxCall progressive support', () => {
       cxSettings,
       cxPresence,
       cxAgentSession,
+      cxSubscription,
       evPresenceEvents,
+      toast,
       newCall: (data) => cxSubscription.listeners[CxCallbackTypes.NEW_CALL](data),
     };
   }
@@ -435,6 +449,100 @@ describe('CxCall progressive support', () => {
     call._prepareIntegratedSoftphone = jest.fn(async () => false);
     await call.dialout('6505550100');
     expect(call.homeTabAfterCall).toBe('dialer');
+  });
+
+  describe('a preview dial the server does not answer', () => {
+    const NO_ANSWER_TIMEOUT_MS = 30 * 1000;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    test('ends offhook and resets the dialer', async () => {
+      const { call, cxClient, cxPresence, toast } = createCall({
+        isOffhook: true,
+      });
+
+      await expect(call.previewDial('request-1', '6505550100', '')).resolves.toBe(
+        true,
+      );
+      expect(cxPresence.dialoutStatus).toBe('dialing');
+
+      await jest.advanceTimersByTimeAsync(NO_ANSWER_TIMEOUT_MS - 1);
+      expect(cxPresence.dialoutStatus).toBe('dialing');
+      await jest.advanceTimersByTimeAsync(1);
+
+      expect(cxPresence.dialoutStatus).toBe('idle');
+      expect(cxClient.offhookTerm).toHaveBeenCalledTimes(1);
+      expect(toast.danger).toHaveBeenCalledWith({
+        message: 'PREVIEW_DIAL_NO_ANSWER',
+      });
+    });
+
+    test('keeps a manual offhook line', async () => {
+      const { call, cxClient, cxPresence, cxSettings } = createCall({
+        isOffhook: true,
+      });
+      cxSettings.isManualOffhook = true;
+
+      await call.previewDial('request-1', '6505550100', '');
+      await jest.advanceTimersByTimeAsync(NO_ANSWER_TIMEOUT_MS);
+
+      expect(cxPresence.dialoutStatus).toBe('idle');
+      expect(cxClient.offhookTerm).not.toHaveBeenCalled();
+    });
+
+    test.each([
+      [CxCallbackTypes.PREVIEW_LEAD_STATE, { leadState: 'RINGING' }],
+      [CxCallbackTypes.NEW_CALL, { callType: 'OUTBOUND' }],
+    ])('leaves the dialer alone once %s answers', async (type, data) => {
+      const { call, cxClient, cxPresence, cxSubscription, toast } = createCall({
+        isOffhook: true,
+      });
+
+      await call.previewDial('request-1', '+16505550100', '+16505550100');
+      cxSubscription.listeners[type](data);
+      await jest.advanceTimersByTimeAsync(NO_ANSWER_TIMEOUT_MS);
+
+      expect(cxPresence.dialoutStatus).toBe('dialing');
+      expect(cxClient.offhookTerm).not.toHaveBeenCalled();
+      expect(toast.danger).not.toHaveBeenCalled();
+      expect(cxSubscription.off).toHaveBeenCalledWith(
+        CxCallbackTypes.PREVIEW_LEAD_STATE,
+        expect.any(Function),
+      );
+    });
+
+    test('a new dial restarts the wait', async () => {
+      const { call, cxClient, cxPresence } = createCall({ isOffhook: true });
+
+      await call.previewDial('request-1', '', '');
+      await jest.advanceTimersByTimeAsync(NO_ANSWER_TIMEOUT_MS / 2);
+      cxPresence.dialoutStatus = 'idle';
+      await call.previewDial('request-2', '', '');
+      await jest.advanceTimersByTimeAsync(NO_ANSWER_TIMEOUT_MS / 2);
+
+      expect(cxClient.offhookTerm).not.toHaveBeenCalled();
+      await jest.advanceTimersByTimeAsync(NO_ANSWER_TIMEOUT_MS / 2);
+      expect(cxClient.offhookTerm).toHaveBeenCalledTimes(1);
+    });
+
+    test('gives up when the offhook line never connects', async () => {
+      const { call, cxClient, cxPresence } = createCall();
+
+      const dialing = call.previewDial('request-1', '6505550100', '');
+      await jest.advanceTimersByTimeAsync(NO_ANSWER_TIMEOUT_MS);
+
+      await expect(dialing).resolves.toBe(false);
+      expect(cxClient.offhookInit).toHaveBeenCalledTimes(1);
+      expect(cxClient.previewDial).not.toHaveBeenCalled();
+      expect(cxClient.offhookTerm).toHaveBeenCalledTimes(1);
+      expect(cxPresence.dialoutStatus).toBe('idle');
+    });
   });
 
   test('tells listeners about a manual outbound call', async () => {

@@ -553,6 +553,11 @@ export class ThirdParty extends RcModule {
     return this._serviceRegistration?.vcardHandlerPath;
   }
 
+  /** Whether the host handles vCard attachment downloads. */
+  get vcardHandlerRegistered(): boolean {
+    return Boolean(this._vcardHandlerPath);
+  }
+
   private get _callLogPageInputChangedEventPath(): string | undefined {
     return this._serviceRegistration?.callLogPageInputChangedEventPath;
   }
@@ -1579,13 +1584,17 @@ export class ThirdParty extends RcModule {
       this._onLoadActivities();
       const activities = await this._fetchActivities(contact);
       this._onLoadActivitiesSuccess({
-        activities,
+        activities: Array.isArray(activities) ? activities : [],
       });
     } catch (error) {
       console.error(error);
     }
   }
 
+  /**
+   * Errors thrown on the main client do not reach the server caller, which
+   * would then never mark the activities loaded, so a failure returns none.
+   */
   @delegate('mainClient')
   private async _fetchActivities(
     contact: ThirdPartyContact
@@ -1593,10 +1602,15 @@ export class ThirdParty extends RcModule {
     if (!this._activitiesPath) {
       return [];
     }
-    const response = await requestWithPostMessage(this._activitiesPath, {
-      contact,
-    });
-    return Array.isArray(response.data) ? response.data : [];
+    try {
+      const response = await requestWithPostMessage(this._activitiesPath, {
+        contact,
+      });
+      return Array.isArray(response?.data) ? response.data : [];
+    } catch (error) {
+      console.error('Fetch activities error', error);
+      return [];
+    }
   }
 
   @delegate('mainClient')
@@ -1691,12 +1705,19 @@ export class ThirdParty extends RcModule {
     await requestWithPostMessage(leadViewerPath, { lead, agentId });
   }
 
+  /**
+   * Sends a call to the host `callLoggerPath`. Host errors and timeouts are
+   * only logged, unless `throwOnFailure` asks to rethrow them so the caller
+   * can tell the user. `throwOnFailure` is not sent to the host.
+   */
   @delegate('server')
   async logCall({
     call,
+    throwOnFailure = false,
     ...options
   }: {
     call: ThirdPartyCall;
+    throwOnFailure?: boolean;
     [key: string]: unknown;
   }): Promise<void> {
     try {
@@ -1739,7 +1760,13 @@ export class ThirdParty extends RcModule {
           contentUri: this.getRecordingContentUri(call.recording),
         };
       }
-      await this._sendCallLog(callLoggerPath, { call: callItem, ...options });
+      const sent = await this._sendCallLog(callLoggerPath, {
+        call: callItem,
+        ...options,
+      });
+      if (sent !== true) {
+        throw new Error(`Call logger did not respond: ${callLoggerPath}`);
+      }
       if (this._callLogEntityMatchSourceAdded && call.sessionId) {
         this._activityMatcherApi?.match({
           queries: [call.sessionId],
@@ -1751,9 +1778,17 @@ export class ThirdParty extends RcModule {
         'Log call error, please check if call logger responds successfully',
         error
       );
+      if (throwOnFailure) {
+        throw error;
+      }
     }
   }
 
+  /**
+   * Resolves `true` once the host responds. An error thrown on the main
+   * client does not reach the caller on the server, so a failure is
+   * returned instead.
+   */
   @delegate('mainClient')
   private async _sendCallLog(
     path: string,
@@ -1761,8 +1796,14 @@ export class ThirdParty extends RcModule {
       call: ThirdPartyCall;
       [key: string]: unknown;
     }
-  ): Promise<void> {
-    await requestWithPostMessage(path, data, LOG_TIMEOUT);
+  ): Promise<boolean> {
+    try {
+      await requestWithPostMessage(path, data, LOG_TIMEOUT);
+      return true;
+    } catch (error) {
+      console.error('Call logger request failed', error);
+      return false;
+    }
   }
 
   private _triggerCallLoggerMatch(sessionIds?: string[]): void {
@@ -1936,24 +1977,21 @@ export class ThirdParty extends RcModule {
     await requestWithPostMessage(path, data);
   }
 
-  async onClickVCard(
-    vcardUri: string,
-    event: Pick<MouseEvent, 'currentTarget' | 'preventDefault'>
-  ): Promise<void> {
+  /**
+   * Sends a vCard attachment the user chose to download to the host's
+   * `vcardHandlerPath`.
+   */
+  @delegate('mainClient')
+  async openVCard(vcardUri: string): Promise<void> {
     const vcardHandlerPath = this._vcardHandlerPath;
     if (!vcardHandlerPath) {
       return;
     }
-    const currentTarget = event.currentTarget as HTMLAnchorElement | null;
-    if (currentTarget?.download && currentTarget.download.includes('.vcard')) {
-      event.preventDefault();
-      await this._openVCard(vcardHandlerPath, vcardUri);
+    try {
+      await requestWithPostMessage(vcardHandlerPath, { vcardUri });
+    } catch (error) {
+      console.error(error);
     }
-  }
-
-  @delegate('mainClient')
-  private async _openVCard(path: string, vcardUri: string): Promise<void> {
-    await requestWithPostMessage(path, { vcardUri });
   }
 
   @delegate('mainClient')

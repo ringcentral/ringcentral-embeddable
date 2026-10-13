@@ -22,12 +22,19 @@ import {
 import React from 'react';
 import type { SetOptional } from 'type-fest';
 
+import { ThirdParty } from '../../services/ThirdParty';
+import type { ThirdPartyButton } from '../../services/ThirdParty/ThirdParty.interface';
 import { CallDetailPage } from './CallDetailPage';
 
 type CallDetailUIProps = UIProps<
   SetOptional<CallDetailViewPanelProps, 'currentCallLog'>
 > & {
+  additionalCallActions: ThirdPartyButton[];
   recordingUri?: string;
+};
+
+type CallDetailUIFunctions = UIFunctions<CallDetailViewPanelProps> & {
+  onAdditionalCallAction: (buttonId: string, resource: unknown) => Promise<void>;
 };
 
 function getRecordingUri(
@@ -54,6 +61,7 @@ export class CallDetailView extends CallDetailViewBase {
     callView: CallView,
     router: RouterPlugin,
     private readonly _auth: Auth,
+    private readonly _thirdParty: ThirdParty,
     @optional() callLogTasks?: CallLogTasks,
     @optional() callLogFormView?: CallLogFormView,
     @optional('CallDetailViewOptions')
@@ -79,6 +87,7 @@ export class CallDetailView extends CallDetailViewBase {
     const uiProps = super.getUIProps(props);
     return {
       ...uiProps,
+      additionalCallActions: this._thirdParty.additionalCallActions,
       recordingUri: getRecordingUri(
         uiProps.currentCallLog?.recording?.contentUri,
         this._auth.accessToken,
@@ -88,10 +97,13 @@ export class CallDetailView extends CallDetailViewBase {
 
   override getUIFunctions(
     props: CallDetailViewProps,
-  ): UIFunctions<CallDetailViewPanelProps> {
+  ): CallDetailUIFunctions {
     return {
       ...super.getUIFunctions(props),
       goBack: () => this._appRouter.push('/dialer'),
+      onAdditionalCallAction: async (buttonId, resource) => {
+        await this._thirdParty.onClickAdditionalButton(buttonId, resource);
+      },
     };
   }
 

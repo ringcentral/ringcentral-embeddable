@@ -952,6 +952,65 @@ describe('ThirdParty service', () => {
     await expect(service.logCall({ call })).resolves.toBeUndefined();
   });
 
+  test('rethrows a call logger failure only when the caller asks', async () => {
+    const { service } = createThirdParty();
+    registerService(service);
+    const call = { sessionId: 'one', from: {}, to: {} };
+
+    requestWithPostMessage.mockRejectedValueOnce(new Error('Time out: /callLogger'));
+    await expect(service.logCall({ call })).resolves.toBeUndefined();
+
+    requestWithPostMessage.mockRejectedValueOnce(new Error('Time out: /callLogger'));
+    await expect(
+      service.logCall({ call, throwOnFailure: true }),
+    ).rejects.toThrow('Call logger did not respond');
+
+    requestWithPostMessage.mockResolvedValueOnce({ data: 'ok' });
+    await expect(
+      service.logCall({ call, throwOnFailure: true, note: 'Saved' }),
+    ).resolves.toBeUndefined();
+    const [, body] = requestWithPostMessage.mock.calls.at(-1);
+    expect(body).toEqual(expect.objectContaining({ note: 'Saved' }));
+    expect(body).not.toHaveProperty('throwOnFailure');
+  });
+
+  test('returns the call logger outcome instead of throwing across ports', async () => {
+    const { service } = createThirdParty();
+    const call = { sessionId: 'one', from: {}, to: {} };
+
+    requestWithPostMessage.mockResolvedValueOnce({ data: 'ok' });
+    await expect(service._sendCallLog('/callLogger', { call })).resolves.toBe(
+      true,
+    );
+    requestWithPostMessage.mockRejectedValueOnce(new Error('Time out: /callLogger'));
+    await expect(service._sendCallLog('/callLogger', { call })).resolves.toBe(
+      false,
+    );
+  });
+
+  test('marks activities loaded with none when the host fails', async () => {
+    const { service } = createThirdParty();
+    registerService(service, {
+      activitiesPath: '/activities',
+      activityPath: '/activity',
+    });
+    const contact = { id: 'contact-1' };
+
+    requestWithPostMessage.mockRejectedValueOnce(new Error('Time out: /activities'));
+    await service.fetchActivities(contact);
+    expect(service.activitiesLoaded).toBe(true);
+    expect(service.activities).toEqual([]);
+
+    requestWithPostMessage.mockResolvedValueOnce({
+      data: [{ id: '1', subject: 'Follow-up call' }],
+    });
+    await service.fetchActivities(contact);
+    expect(service.activities).toEqual([{ id: '1', subject: 'Follow-up call' }]);
+    expect(requestWithPostMessage).toHaveBeenLastCalledWith('/activities', {
+      contact,
+    });
+  });
+
   test('logs voicemail and fax attachments with transcript and access tokens', async () => {
     const { dependencies, service } = createThirdParty();
     registerService(service, { authorized: true });
@@ -1051,29 +1110,35 @@ describe('ThirdParty service', () => {
     });
   });
 
-  test('opens downloaded vcards and ignores other anchors', async () => {
+  test('sends vcards to the registered handler', async () => {
     const { service } = createThirdParty();
+    expect(service.vcardHandlerRegistered).toBe(false);
+    await service.openVCard('https://example.com/contact.vcard');
+    expect(requestWithPostMessage).not.toHaveBeenCalled();
+
     registerService(service);
-    const preventDefault = jest.fn();
-    await service.onClickVCard('https://example.com/contact.vcard', {
-      currentTarget: { download: 'contact.vcard' },
-      preventDefault,
-    });
-    expect(preventDefault).toHaveBeenCalled();
+    expect(service.vcardHandlerRegistered).toBe(true);
+    await service.openVCard('https://example.com/contact.vcard');
     expect(requestWithPostMessage).toHaveBeenCalledWith('/vcard', {
       vcardUri: 'https://example.com/contact.vcard',
     });
+  });
 
-    requestWithPostMessage.mockClear();
-    await service.onClickVCard('https://example.com/contact.txt', {
-      currentTarget: { download: 'contact.txt' },
-      preventDefault,
-    });
-    await service.onClickVCard('https://example.com/contact.vcard', {
-      currentTarget: null,
-      preventDefault,
-    });
-    expect(requestWithPostMessage).not.toHaveBeenCalled();
+  test('logs a vcard handler that does not respond', async () => {
+    const { service } = createThirdParty();
+    registerService(service);
+    const error = new Error('timeout');
+    requestWithPostMessage.mockRejectedValueOnce(error);
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+
+    await expect(
+      service.openVCard('https://example.com/contact.vcard'),
+    ).resolves.toBeUndefined();
+
+    expect(consoleError).toHaveBeenCalledWith(error);
+    consoleError.mockRestore();
   });
 
   test('handles missing simple-action registrations and request errors', async () => {

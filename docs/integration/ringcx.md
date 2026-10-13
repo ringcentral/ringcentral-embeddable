@@ -2,8 +2,8 @@
 
 <!-- md:version 3.1.0 -->
 
-!!! info "Alpha"
-    RingCX support is part of the [Embeddable 3.1.x alpha](../3.1.x.md). APIs on this page can still change before the stable release.
+!!! info "Beta"
+    RingCX support is part of the [Embeddable 3.1.x beta](../3.1.x.md). 
 
 RingCX calls use the same `registerThirdPartyService` and `rc-*` protocol as RingEX calls. Read `call.source`. You do not need a second protocol.
 
@@ -78,12 +78,12 @@ Event `startTime` is an ISO-8601 string. The call-log request uses the host call
 | `rc-adapter-control-call` | `{ callAction, callId, source: 'ringcx', options? }` | `answer`, `reject`, `hangup`, `hold`, `unhold`, `mute`, `unmute`, `record` or `startRecord`, `stopRecord`, and `dtmf` with `options.dtmf`. |
 | `rc-adapter-ringcx-start-agent-session` | `{}` | Starts the Agent tab session. |
 | `rc-adapter-ringcx-end-agent-session` | `{}` | Ends the session. Refused while a call or pending disposition is active. |
-| `rc-adapter-ringcx-set-agent-state` | `{ state }` | Sets the working state and clears any aux state. |
-| `rc-adapter-ringcx-dial-lead` | `{ lead, destination }` | Dials a preview lead. Pass the `raw` lead from `rc-ringcx-lead-notify` as `lead`. |
+| `rc-adapter-ringcx-set-agent-state` | `{ state, auxState? }` | Sets the agent state, such as `AVAILABLE` or `ON-BREAK`. `auxState` picks one of the agent's aux states for it, as `rc-ringcx-agent-state-notify` reports them; without it, the first aux state listed for `state` is used. A state the agent cannot choose is refused with a message. |
+| `rc-adapter-ringcx-dial-lead` | `{ lead, destination }` | Dials a preview lead. `lead` can be the lead from `rc-ringcx-lead-notify`, its `raw` lead, or `{ leadId, campaignId }`; with only `leadId`, the lead must be in the agent's current lead list. `destination` must be one of the lead's numbers, in its national or E.164 form; another number is not dialed. |
 | `rc-adapter-ringcx-start-progressive-dial` | `{}` | Same as **Start dialing** on the Leads tab. Needs a progressive dial group (`permissions.progressiveEnabled`). When the agent is not available, the widget opens on the Leads tab and asks the agent to go available. |
 | `rc-adapter-ringcx-stop-progressive-dial` | `{}` | Same as **Stop dialing** on the Leads tab. |
 
-`rc-adapter-control-call` actions apply to the current RingCX call, as the Agent tab controls do. `hold`, `unhold`, `hangup`, and recording actions follow the call permissions. `answer`, `reject`, `mute`, `unmute`, and `dtmf` need the integrated softphone; `answer` and `reject` do nothing when no call is ringing there. A refused or failed action shows a message in the widget.
+`rc-adapter-control-call` actions apply to the current RingCX call, as the Agent tab controls do. `hold`, `unhold`, `hangup`, and recording actions follow the call permissions. `answer`, `reject`, `mute`, `unmute`, and `dtmf` need the integrated softphone; `answer` and `reject` also need a call ringing there, and `dtmf` needs `options.dtmf`. A refused or failed action shows a message in the widget.
 
 While a RingCX call is active, `rc-adapter-new-call` without `callWith: 'ringcx'` is refused and the widget asks the agent to finish the RingCX call first.
 
@@ -133,7 +133,7 @@ When `showLogModal` is true and `callLoggerPath` is registered, the host log pag
 
 The log page closes itself once your `callLoggerPath` responds to a `logForm` save, the same as for RingEX calls. To close it or the disposition page from your side, use `rc-adapter-navigate-to` with `path: 'goBack'` or a target path. Going back never reopens a disposition that was already submitted for an ended call; the agent lands on the dialer instead.
 
-A failing `callLoggerPath` does not leave the agent in Pending Disposition. The call stays dispositioned and the log can be retried from history.
+A failing `callLoggerPath` does not leave the agent in Pending Disposition. The call stays dispositioned and the log can be retried from history. When the widget logs the call itself (after a disposition, at call end, or from a history action), a `callLoggerPath` that does not respond within 15 seconds shows a message in the widget.
 
 The disposition is not a field of the log form. It arrives as `call.ringcx.disposition`. The disposition note arrives twice: `call.ringcx.notes`, and the prefilled `note` on the default log page. A schema without a `note` field still receives it on `call.ringcx.notes`. The call summary from the disposition form, AI generated or agent edited, arrives as `aiNote` on both the request and `call.aiNote`, the same field RingEX calls use for the AI note. It is absent when summaries are off for the session.
 
@@ -175,7 +175,7 @@ A progressive dial group is a **Preview** dial group with **Enable progressive m
 | `rc-ev-dialLead` | `rc-adapter-ringcx-dial-lead` |
 | `rc-ev-loadLeads`, `rc-ev-manualPassLead`, `rc-ev-callLead` | `rc-ringcx-lead-notify` with `action` `loaded`, `passed`, or `dialed` |
 | `rc-ev-logout` | `rc-adapter-ringcx-end-agent-session` |
-| `rc-ev-setEnvironment` | `evServer` parameter |
+| `rc-ev-setEnvironment` | `appServer` parameter; RingCX follows the RingCentral environment |
 | `rc-ev-register` | `rc-adapter-register-third-party-service` |
 | `rc-ev-matchContacts` | `contactMatchPath` |
 | `rc-ev-matchCallLogs` | `callLogEntityMatcherPath` |

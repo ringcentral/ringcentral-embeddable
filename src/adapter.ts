@@ -69,6 +69,26 @@ function obj2uri(obj?: Record<string, unknown>) {
   return urlParams.join('&');
 }
 
+const DOCS_URL = 'https://ringcentral.github.io/ringcentral-embeddable/docs';
+
+/**
+ * Documented 3.x parameters that 3.1 no longer reads, with why.
+ */
+const UNSUPPORTED_PARAM_WARNINGS: Record<string, string> = {
+  stylesUri: `stylesUri is not supported since 3.1. ${DOCS_URL}/config/styles/`,
+  multipleTabsSupport: `multipleTabsSupport is not needed since 3.1: tabs always share one connection. ${DOCS_URL}/config/multiple-tabs/`,
+  disconnectInactiveWebphone: `disconnectInactiveWebphone is not needed since 3.1: tabs always share one connection. ${DOCS_URL}/config/multiple-tabs/`,
+  enableRingtoneSettings: 'enableRingtoneSettings is not needed since 3.1: ringtone settings are always available.',
+};
+
+function warnUnsupportedParams(options: Record<string, string>): void {
+  Object.keys(UNSUPPORTED_PARAM_WARNINGS).forEach((name) => {
+    if (options[name]) {
+      console.warn(UNSUPPORTED_PARAM_WARNINGS[name]);
+    }
+  });
+}
+
 let paramsUri = currentScript?.src || '';
 const fromPopup = window.__ON_RC_POPUP_WINDOW;
 if (fromPopup) {
@@ -94,8 +114,6 @@ function init({
     appServer,
     appVersion,
     redirectUri,
-    proxyUri,
-    stylesUri,
     notification,
     disableCall,
     disableMessages,
@@ -111,10 +129,6 @@ function init({
     userAgent,
     newAdapterUI,
     enableAnalytics,
-    enableErrorReport,
-    errorReportToken,
-    errorReportSampleRate,
-    errorReportProjectId,
     authorizationCode,
     authorizationCodeVerifier,
     jwt,
@@ -124,17 +138,13 @@ function init({
     enableRingoutCallerId,
     showMyLocationNumbers,
     enableSmsSettingEvent,
-    disconnectInactiveWebphone,
-    multipleTabsSupport,
     disableInactiveTabCallEvent,
     disableLoginPopup,
-    enableWebRTCPlanB,
     zIndex,
     discovery,
     discoverAppServer,
     enablePopup,
     popupPageUri,
-    enableRingtoneSettings,
     disableNoiseReduction,
     showSignUpButton,
     defaultDirection,
@@ -155,6 +165,8 @@ function init({
     hideCallNote,
   } = options;
 
+  warnUnsupportedParams(options);
+
   const appUri = `${appUrl}?${obj2uri({
     appKey,
     clientId,
@@ -166,8 +178,6 @@ function init({
     discoverAppServer,
     appVersion,
     redirectUri,
-    proxyUri,
-    stylesUri,
     disableCall,
     disableMessages,
     disableReadText,
@@ -180,10 +190,6 @@ function init({
     prefix,
     userAgent,
     enableAnalytics,
-    enableErrorReport,
-    errorReportToken,
-    errorReportSampleRate,
-    errorReportProjectId,
     authorizationCode,
     authorizationCodeVerifier,
     jwt,
@@ -193,14 +199,10 @@ function init({
     enableRingoutCallerId,
     showMyLocationNumbers,
     enableSmsSettingEvent,
-    disconnectInactiveWebphone,
-    multipleTabsSupport,
     disableInactiveTabCallEvent,
     disableLoginPopup,
-    enableWebRTCPlanB,
     fromAdapter: 1,
     fromPopup,
-    enableRingtoneSettings,
     disableNoiseReduction,
     showSignUpButton,
     defaultAutoLogCallEnabled,

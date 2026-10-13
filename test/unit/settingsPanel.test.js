@@ -66,6 +66,7 @@ jest.mock('@ringcentral-integration/next-widgets/components', () => ({
 }));
 
 function createPanel({
+  hasSendSMSPermission = false,
   hasVoicemailDropPermission = false,
   smartNotes: smartNotesOverrides = {},
   thirdParty: thirdPartyOverrides = {},
@@ -107,7 +108,12 @@ function createPanel({
   const voicemailDrop = { hasVoicemailDropPermission };
   const onVoicemailDropSettingsLinkClick = jest.fn();
   const onThirdPartySectionClick = jest.fn();
+  const onPhoneNumberFormatSettingsClick = jest.fn();
+  const onTextSettingsClick = jest.fn();
   const Panel = createSettingsPanel({
+    appFeatures: { hasSendSMSPermission },
+    onPhoneNumberFormatSettingsClick,
+    onTextSettingsClick,
     onThirdPartySectionClick,
     smartNotes,
     thirdParty,
@@ -115,6 +121,8 @@ function createPanel({
     onVoicemailDropSettingsLinkClick,
   });
   return {
+    onPhoneNumberFormatSettingsClick,
+    onTextSettingsClick,
     onVoicemailDropSettingsLinkClick,
     Panel,
     smartNotes,
@@ -422,7 +430,7 @@ describe('SettingsPanel', () => {
     ).toBeInTheDocument();
   });
 
-  test('matches legacy native grouping and flattens one-item Appearance', () => {
+  test('matches legacy native grouping', () => {
     const { Panel } = createPanel();
     render(
       <Panel
@@ -438,8 +446,9 @@ describe('SettingsPanel', () => {
 
     const generalGroup = screen.getByTestId('general-settings-group');
     expect(within(generalGroup).getByTestId('region')).toBeInTheDocument();
-    expect(within(generalGroup).getByTestId('theme')).toBeInTheDocument();
-    expect(screen.queryByTestId('appearance-settings-group')).toBeNull();
+    expect(
+      within(generalGroup).getByTestId('appearance-settings-group'),
+    ).toBeInTheDocument();
     expect(within(generalGroup).queryByTestId('presenceSetting')).toBeNull();
     expect(within(generalGroup).queryByTestId('audio')).toBeNull();
     expect(
@@ -450,6 +459,70 @@ describe('SettingsPanel', () => {
     expect(
       within(screen.getByTestId('audio-settings-group')).getByTestId('audio'),
     ).toBeInTheDocument();
+  });
+
+  test('lists the phone number format after the theme in Appearance, as in 3.x', () => {
+    const { Panel, onPhoneNumberFormatSettingsClick } = createPanel();
+    render(<Panel {...baseProps} showThemeSwitch />);
+
+    expect(screen.queryByTestId('phoneNumberFormat')).toBeNull();
+    fireEvent.click(screen.getByTestId('appearance-settings-group'));
+    const theme = screen.getByTestId('theme');
+    const phoneNumberFormat = screen.getByTestId('phoneNumberFormat');
+    expect(
+      theme.compareDocumentPosition(phoneNumberFormat) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    fireEvent.click(phoneNumberFormat);
+    expect(onPhoneNumberFormatSettingsClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the phone number format as a plain line when it is the only Appearance item', () => {
+    const { Panel } = createPanel();
+    render(<Panel {...baseProps} />);
+
+    expect(screen.queryByTestId('appearance-settings-group')).toBeNull();
+    expect(
+      within(screen.getByTestId('general-settings-group')).getByTestId(
+        'phoneNumberFormat',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  test('lists the default SMS sender first in Text when the user can send texts', () => {
+    const { Panel, onTextSettingsClick } = createPanel({
+      hasSendSMSPermission: true,
+    });
+    render(<Panel {...baseProps} showConsentManagement />);
+
+    const textGroup = screen.getByTestId('text-settings-group');
+    const links = within(textGroup).getAllByRole('button');
+    expect(links.map((link) => link.getAttribute('data-sign'))).toEqual([
+      'text',
+      'consentManagement',
+    ]);
+    fireEvent.click(within(textGroup).getByTestId('text'));
+    expect(onTextSettingsClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the Text group for the default SMS sender alone', () => {
+    const { Panel } = createPanel({ hasSendSMSPermission: true });
+    render(<Panel {...baseProps} />);
+
+    expect(
+      within(screen.getByTestId('text-settings-group')).getByTestId('text'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('consentManagement')).toBeNull();
+  });
+
+  test('hides the default SMS sender without SMS sending', () => {
+    const { Panel } = createPanel();
+    render(<Panel {...baseProps} showConsentManagement />);
+
+    expect(
+      within(screen.getByTestId('text-settings-group')).queryByTestId('text'),
+    ).toBeNull();
+    expect(screen.getByTestId('consentManagement')).toBeInTheDocument();
   });
 
   test('keeps Appearance when it contains multiple items', () => {
@@ -477,6 +550,7 @@ describe('SettingsPanel', () => {
     expect(screen.queryByTestId('theme')).toBeNull();
     fireEvent.click(screen.getByTestId('appearance-settings-group'));
     expect(screen.getByTestId('theme')).toBeInTheDocument();
+    expect(screen.getByTestId('phoneNumberFormat')).toBeInTheDocument();
     expect(
       screen.getByTestId('thirdPartySettings-compactMode'),
     ).toBeInTheDocument();

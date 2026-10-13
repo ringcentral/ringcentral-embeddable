@@ -154,7 +154,15 @@ function Link({ children, ...props }) {
   return React.createElement("a", props, children);
 }
 
-function ListItem({ children, classes, divider, hoverable, size, ...props }) {
+function ListItem({
+  children,
+  classes,
+  divider,
+  hoverable,
+  hoverActions,
+  size,
+  ...props
+}) {
   return React.createElement(
     "li",
     {
@@ -171,7 +179,14 @@ function ListItem({ children, classes, divider, hoverable, size, ...props }) {
         "data-list-item-content": true,
       },
       children
-    )
+    ),
+    hoverActions
+      ? React.createElement(
+          "div",
+          { "data-list-item-hover-actions": true },
+          hoverActions
+        )
+      : null
   );
 }
 

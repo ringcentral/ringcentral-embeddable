@@ -14,6 +14,7 @@ import {
   Environment,
   ExtensionInfo,
   ExtensionNumberAreaCode,
+  NumberFormatter,
   Presence,
   RateLimiter,
   RegionSettings,
@@ -70,7 +71,6 @@ import {
   type ConversationsOptions,
   QueueConversations,
   MessageThread,
-  type MessageThreadOptions,
   SmsConsent,
   SmsConversationsOptions,
   SmsOptOut,
@@ -163,6 +163,16 @@ import { HistoryActiveCallsView } from './views/CallHistoryView/HistoryActiveCal
 import { CallHUDView } from './views/CallHUDView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
+import { VoicemailPage } from './views/VoicemailView';
+import { SmsTemplateView as SmsTemplateViewV2 } from './views/SmsTemplateView';
+import { NumberFormatter as NumberFormatterV2 } from './services/NumberFormatter';
+import { PhoneNumberFormat } from './services/PhoneNumberFormat';
+import {
+  CallingSettings as CallingSettingsV2,
+  type CallingSettingsOptions as EmbeddableCallingSettingsOptions,
+} from './services/CallingSettings';
+import { PhoneNumberFormatSettingView } from './views/PhoneNumberFormatSettingView';
+import { TextSettingView } from './views/TextSettingView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
 import { SideWidgetView, type SideWidgetOptions } from './views/SideWidgetView';
@@ -200,6 +210,8 @@ import {
   SmsConsentManagementView,
   SmsOptOutView,
 } from '@ringcentral-integration/micro-message/src/app/views';
+import { SmsTemplateView } from '@ringcentral-integration/micro-message/src/app/views/SmsTemplateView';
+import type { VoicemailViewOptions } from '@ringcentral-integration/micro-message/src/app/views/VoicemailView/Voicemail.view.interface';
 import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import {
   Webphone as WebphoneV2,
@@ -237,6 +249,11 @@ import { EMBEDDABLE_CALL_ACTION_OPTIONS } from './views/CallView/Call.view.optio
 import { GenericMeetingView } from './views/MeetingView/GenericMeetingView';
 import { AppView } from './AppView';
 import type { EmbeddableFeatureConfiguration } from './services/AppFeatures';
+import {
+  type DisabledFeatureParams,
+  getDisabledFeatureConfiguration,
+} from './services/AppFeatures/getDisabledFeatureConfiguration';
+import { createMessageThreadOptions } from './services/AppFeatures/createMessageThreadOptions';
 import type { CxHostIntegration } from './services/RingCX/RingCX.interface';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { createThirdPartyIntegrationConfig } from './services/ThirdParty/ThirdParty.integrationConfig';
@@ -279,8 +296,11 @@ const DEFAULT_CONTACT_NO_MATCH_TTL = 5 * 60 * 1000;
 const getBeforeunloadWindow = (): Window =>
   typeof window === 'undefined' ? (globalThis as unknown as Window) : window;
 
-interface CreateAppEntryOptions<T extends typeof createSharedApp> {
+interface CreateAppEntryOptions<T extends typeof createSharedApp>
+  extends DisabledFeatureParams {
   appVersion: string;
+  /** Shown as the version on the settings page instead of `appVersion`. */
+  displayAppVersion?: string;
   prefix?: string;
   brandConfig: BaseBrandConfig;
   brandConfigs?: DynamicBrandOptions['brandConfigs'];
@@ -295,12 +315,15 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
   externalAuthId?: string;
   redirectUri?: string;
   jwt?: string;
-  proxyUri?: string;
   fromPopup?: boolean;
   mainTab?: boolean;
   enableSideWidget?: boolean;
   showSignUpButton?: boolean;
   enableVoicemailDrop?: boolean;
+  enableSMSTemplate?: boolean;
+  enableSharedMessages?: boolean;
+  /** `browser`, `jupiter`, `softphone`, or `ringout` for a first login. */
+  defaultCallWith?: string;
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
@@ -326,6 +349,7 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp> {
  */
 export const getAppConfig = <T extends typeof createSharedApp>({
   appVersion,
+  displayAppVersion,
   prefix,
   brandConfig,
   brandConfigs,
@@ -340,12 +364,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   externalAuthId,
   redirectUri,
   jwt,
-  proxyUri,
   fromPopup = false,
   mainTab,
   enableSideWidget = false,
   showSignUpButton = false,
   enableVoicemailDrop = false,
+  enableSMSTemplate = false,
+  enableSharedMessages = false,
+  defaultCallWith,
   disableNoiseReduction = false,
   enableSmartNote = false,
   enableAnalytics = false,
@@ -364,6 +390,12 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   enableAudioInitPrompt = false,
   enableLoadMoreCalls = false,
   hideCallNote = false,
+  disableCall = false,
+  disableCallHistory = false,
+  disableContacts = false,
+  disableMeeting = false,
+  disableMessages = false,
+  disableReadText = false,
 }: CreateAppEntryOptions<T>) => {
   const { defaultLocale } = brandConfig;
 
@@ -376,7 +408,6 @@ export const getAppConfig = <T extends typeof createSharedApp>({
     disableLoginPopup,
     externalAuthId,
     jwt,
-    proxyUri,
     redirectUri, // 'http://localhost:8080/redirect.html',
   });
 
@@ -445,7 +476,16 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       AudioInit,
       NoiseReduction,
       VoicemailDrop,
-      CallingSettings,
+      {
+        provide: CallingSettings,
+        useClass: CallingSettingsV2,
+      },
+      {
+        provide: 'CallingSettingsOptions',
+        useValue: {
+          defaultCallWith,
+        } satisfies EmbeddableCallingSettingsOptions,
+      },
       RegionSettings,
       Presence,
       QuickAccess,
@@ -524,6 +564,13 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: AppFeatures,
         useClass: AppFeaturesV2,
       },
+      PhoneNumberFormat,
+      {
+        provide: NumberFormatter,
+        useClass: NumberFormatterV2,
+      },
+      PhoneNumberFormatSettingView,
+      TextSettingView,
       {
         provide: MicroMessageComposeText,
         useClass: ComposeTextV2,
@@ -682,6 +729,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useClass: SmsOptOutV2,
       },
       SmsOptOutView,
+      {
+        provide: SmsTemplateView,
+        useClass: SmsTemplateViewV2,
+      },
       SmsConsent,
       SmsConsentDialogView,
       SmsConsentManagementView,
@@ -754,15 +805,25 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useClass: HistoryActiveCallsView,
       },
       {
-        provide: 'MessageThreadOptions',
+        provide: 'VoicemailViewOptions',
         useValue: {
-          enable: true,
-        } satisfies MessageThreadOptions,
+          component: VoicemailPage,
+        } satisfies VoicemailViewOptions,
+      },
+      {
+        provide: 'MessageThreadOptions',
+        useFactory: (appFeatures: AppFeaturesV2) =>
+          createMessageThreadOptions(appFeatures),
+        deps: [AppFeatures],
       },
       // options
       {
         provide: 'Version',
         useValue: appVersion,
+      },
+      {
+        provide: 'DisplayVersion',
+        useValue: displayAppVersion || appVersion,
       },
       {
         provide: 'WebphoneOptions',
@@ -952,6 +1013,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: 'FeatureConfiguration',
         useValue: {
+          ...getDisabledFeatureConfiguration({
+            disableCall,
+            disableCallHistory,
+            disableContacts,
+            disableMeeting,
+            disableMessages,
+            disableReadText,
+          }),
           SignUpButton: showSignUpButton,
           NoiseReduction: !disableNoiseReduction,
           AudioInitPrompt: enableAudioInitPrompt,
@@ -959,6 +1028,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           RingCX: enableRingCX,
           SmartNote: enableSmartNote,
           VoicemailDrop: enableVoicemailDrop,
+          SMSTemplate: enableSMSTemplate,
+          SharedMessages: enableSharedMessages,
         } satisfies EmbeddableFeatureConfiguration,
       },
       {
@@ -969,9 +1040,11 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           router: RouterPlugin,
           thirdParty: ThirdParty,
           smartNotes: SmartNotes,
+          appFeatures: AppFeatures,
         ) =>
           ({
             component: createSettingsPanel({
+              appFeatures,
               thirdParty,
               smartNotes,
               ringCX,
@@ -983,9 +1056,19 @@ export const getAppConfig = <T extends typeof createSharedApp>({
                 router.push(`/settings/thirdParty/${sectionId}`),
               onVoicemailDropSettingsLinkClick: () =>
                 router.push('/settings/voicemailDrop'),
+              onPhoneNumberFormatSettingsClick: () =>
+                router.push('/settings/phoneNumberFormat'),
+              onTextSettingsClick: () => router.push('/settings/text'),
             }),
           } satisfies SettingsViewOptions),
-        deps: [VoicemailDrop, RingCX, RouterPlugin, ThirdParty, SmartNotes],
+        deps: [
+          VoicemailDrop,
+          RingCX,
+          RouterPlugin,
+          ThirdParty,
+          SmartNotes,
+          AppFeatures,
+        ],
       },
       {
         provide: 'RingCXOptions',

@@ -67,7 +67,6 @@ describe('createApp authentication boundary', () => {
         disableLoginPopup: true,
         externalAuthId: 'external/user',
         jwt: 'jwt.token',
-        proxyUri: 'https://host.example.com/proxy?source=widget',
         redirectUri: 'https://host.example.com/redirect?source=widget',
         sdkConfig: expect.objectContaining({
           clientId: 'runtime-client-id',
@@ -75,6 +74,8 @@ describe('createApp authentication boundary', () => {
         }),
       })
     );
+    // 3.1 OAuth has no proxy frame, so `proxyUri` is dropped.
+    expect(getAppConfig.mock.calls[0][0]).not.toHaveProperty('proxyUri');
   });
 
   test('uses the configured redirect URI when the URL does not override it', async () => {
@@ -90,7 +91,6 @@ describe('createApp authentication boundary', () => {
         disableLoginPopup: false,
         externalAuthId: undefined,
         jwt: undefined,
-        proxyUri: undefined,
         redirectUri: 'https://default.example.com/redirect',
         enableAnalytics: false,
       })

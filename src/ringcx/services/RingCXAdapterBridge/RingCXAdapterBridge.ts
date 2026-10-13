@@ -4,6 +4,7 @@ import {
 } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import {
+  delegate,
   inject,
   injectable,
   optional,
@@ -54,7 +55,7 @@ import type { FormattedCall } from '../CxCallHistory/CxCallHistory.interface';
 import { CxCallMonitor } from '../CxCallMonitor';
 import { CxClient } from '../CxClient';
 import { CxIntegratedSoftphone } from '../CxIntegratedSoftphone';
-import { CxLeads } from '../CxLeads';
+import { CxLeads, PHONE_DELIMETER } from '../CxLeads';
 import type { CxLeadEvent, Lead } from '../CxLeads';
 import { CxPresence } from '../CxPresence';
 import { CxProgressiveDial } from '../CxProgressiveDial';
@@ -370,6 +371,11 @@ export class RingCXAdapterBridge
     await this._router.push(`/log/call/${callId}?source=${HISTORY_LOG_SOURCE}`);
   }
 
+  /**
+   * Runs on the server with the call logger, so a host failure thrown there
+   * reaches the catch below; errors do not cross ports.
+   */
+  @delegate('server')
   async logCall({
     call,
     contact,
@@ -394,6 +400,7 @@ export class RingCXAdapterBridge
         aiNote: formatted.call.aiNote,
         redirect,
         triggerType,
+        throwOnFailure: true,
       });
     } catch (error) {
       this.logger.error('RingCX call log failed', error);
@@ -481,10 +488,13 @@ export class RingCXAdapterBridge
   ): Promise<void> {
     switch (action) {
       case 'answer':
-        await this._cxIntegratedSoftphone.sipAnswer();
-        return;
       case 'reject':
-        await this._cxIntegratedSoftphone.sipReject();
+        if (!this._requireCallPermission(this._isSoftphoneRinging)) {
+          return;
+        }
+        await (action === 'answer'
+          ? this._cxIntegratedSoftphone.sipAnswer()
+          : this._cxIntegratedSoftphone.sipReject());
         return;
       case 'hangup':
         if (!this._requireCallPermission(this._currentMainCall?.allowHangup)) {
@@ -528,12 +538,13 @@ export class RingCXAdapterBridge
         return;
       case 'dtmf':
         if (
-          !options.dtmf ||
-          !this._requireCallPermission(this._isIntegratedSoftphone)
+          !this._requireCallPermission(
+            Boolean(options.dtmf) && this._isIntegratedSoftphone,
+          )
         ) {
           return;
         }
-        await this._cxActiveCallControl.onKeypadClick(options.dtmf);
+        await this._cxActiveCallControl.onKeypadClick(options.dtmf!);
         return;
       default:
         this.logger.warn('Unsupported RingCX call action', action);
@@ -550,6 +561,10 @@ export class RingCXAdapterBridge
     return this._cxAgentSession.isIntegratedSoftphone;
   }
 
+  private get _isSoftphoneRinging(): boolean {
+    return this._isIntegratedSoftphone && this._cxIntegratedSoftphone.isRinging;
+  }
+
   private _requireCallPermission(allowed: boolean | undefined): boolean {
     if (allowed === false) {
       this._toast.warning({ message: t('callControlNotAllowed') });
@@ -558,18 +573,63 @@ export class RingCXAdapterBridge
     return true;
   }
 
-  async setAgentState(state: string): Promise<void> {
-    this._cxWorkingState.changeWorkingState({
-      agentState: state,
-      agentAuxState: '',
-    });
+  async setAgentState(state: string, auxState?: string): Promise<void> {
+    const agentState = this._cxWorkingState.findAvailableAgentState(
+      state,
+      auxState,
+    );
+    if (!agentState) {
+      this.logger.warn('RingCX agent state is not available', {
+        state,
+        auxState,
+      });
+      this._toast.warning({ message: t('agentStateUnavailable') });
+      return;
+    }
+    this._cxWorkingState.changeWorkingState(agentState);
   }
 
   async dialLead(lead: unknown, destination?: string): Promise<void> {
     if (!destination) {
       return;
     }
-    await this._cxLeads.dialLead(lead as Lead, destination);
+    const resolvedLead = this._resolveHostLead(lead);
+    if (!resolvedLead) {
+      this.logger.warn('RingCX lead to dial was not found', lead);
+      return;
+    }
+    const dialNumber = findLeadDialNumber(resolvedLead, destination);
+    if (!dialNumber) {
+      this.logger.warn('RingCX lead has no such destination', destination);
+      return;
+    }
+    await this._cxLeads.dialLead(resolvedLead, dialNumber);
+  }
+
+  /**
+   * Hosts may pass back the lead from `rc-ringcx-lead-notify`, its `raw`
+   * lead, or only its `leadId`. The stored lead is preferred, since it carries
+   * the `requestId` the dial request needs and the current dialed list.
+   */
+  private _resolveHostLead(lead: unknown): Lead | undefined {
+    const candidate = readHostLead(lead);
+    if (!candidate) {
+      return undefined;
+    }
+    const { leadId, requestId, campaignId } = candidate;
+    const storedLead =
+      (requestId &&
+        this._cxLeads.leads.find((item) => item.requestId === requestId)) ||
+      (leadId &&
+        this._cxLeads.leads.find(
+          (item) =>
+            item.leadId === leadId &&
+            (!campaignId || item.campaignId === campaignId),
+        ));
+    if (storedLead) {
+      return storedLead;
+    }
+    return requestId ? (candidate as Lead) : undefined;
   }
 
   async startProgressiveDial(): Promise<void> {
@@ -861,6 +921,58 @@ function historyCallInput(call: FormattedCall): FormatRingCXCallInput {
     ani: outbound ? call.to.phoneNumber : call.from.phoneNumber,
     dnis: outbound ? call.from.phoneNumber : call.to.phoneNumber,
   };
+}
+
+/**
+ * Fewest digits two numbers must share at their end to match, so a national
+ * number and its E.164 form match without matching short fragments.
+ */
+const MIN_MATCHED_NUMBER_DIGITS = 7;
+
+/**
+ * The numbers the leads list dials for a lead: the E.164 numbers when the
+ * lead has them, as `CxLeadsView` does.
+ */
+function getLeadDialNumbers(lead: Lead): string[] {
+  const destination = lead.destinationE164 || lead.destination;
+  if (Array.isArray(destination)) {
+    return destination;
+  }
+  return destination ? destination.split(PHONE_DELIMETER) : [];
+}
+
+/**
+ * Whether two phone numbers are the same, with or without a country code.
+ */
+function isSamePhoneNumber(first: string, second: string): boolean {
+  const firstDigits = first.replace(/\D/g, '');
+  const secondDigits = second.replace(/\D/g, '');
+  const [shorter, longer] =
+    firstDigits.length <= secondDigits.length
+      ? [firstDigits, secondDigits]
+      : [secondDigits, firstDigits];
+  return shorter.length >= MIN_MATCHED_NUMBER_DIGITS && longer.endsWith(shorter);
+}
+
+/**
+ * Map a host destination, such as the national `destination` of
+ * `rc-ringcx-lead-notify`, to the number the leads list would dial.
+ */
+function findLeadDialNumber(lead: Lead, destination: string): string | undefined {
+  return getLeadDialNumbers(lead).find((dialNumber) =>
+    isSamePhoneNumber(dialNumber, destination),
+  );
+}
+
+/**
+ * Unwrap a host lead: the formatted lead carries the RingCX lead in `raw`.
+ */
+function readHostLead(lead: unknown): Partial<Lead> | undefined {
+  if (!lead || typeof lead !== 'object') {
+    return undefined;
+  }
+  const { raw } = lead as { raw?: unknown };
+  return (raw && typeof raw === 'object' ? raw : lead) as Partial<Lead>;
 }
 
 /**

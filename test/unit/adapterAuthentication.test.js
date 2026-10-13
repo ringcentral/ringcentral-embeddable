@@ -77,11 +77,11 @@ describe('adapter authentication boundary', () => {
         disableLoginPopup: 'false',
         externalAuthId: 'external/user',
         jwt: 'jwt.token',
-        proxyUri: 'https://host.example.com/proxy?source=adapter',
         redirectUri: 'https://host.example.com/redirect?source=adapter',
         fromAdapter: '1',
       })
     );
+    expect(iframeUrl.searchParams.has('proxyUri')).toBe(false);
   });
 
   test('uses explicit initialization options without changing auth values', () => {

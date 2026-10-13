@@ -44,7 +44,6 @@ interface UrlParams {
   disableLoginPopup?: boolean;
   externalAuthId?: string;
   jwt?: string;
-  proxyUri?: string;
   redirectUri?: string;
   fromPopup?: boolean;
   mainTab?: boolean;
@@ -57,6 +56,11 @@ interface UrlParams {
   enableLoadMoreCalls?: boolean;
   hideCallNote?: boolean;
   enableVoicemailDrop?: boolean;
+  enableSMSTemplate?: boolean;
+  enableSharedMessages?: boolean;
+  defaultCallWith?: string;
+  /** Shown as the version on the settings page instead of the build's. */
+  appVersion?: string;
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
@@ -69,6 +73,13 @@ interface UrlParams {
   enableSmsSettingEvent?: boolean;
   enableTypingTimeTracking?: boolean;
   showMyLocationNumbers?: boolean;
+  disableCall?: boolean;
+  disableCallHistory?: boolean;
+  disableContacts?: boolean;
+  disableMeeting?: boolean;
+  disableMessages?: boolean;
+  disableReadText?: boolean;
+  hasStylesUri?: boolean;
 }
 
 function parseBooleanParam(value: string | undefined): boolean {
@@ -107,7 +118,6 @@ function readUrlParams(): UrlParams {
     disableLoginPopup: Boolean(params.disableLoginPopup),
     externalAuthId: params.externalAuthId || undefined,
     jwt: params.jwt || undefined,
-    proxyUri: params.proxyUri || undefined,
     redirectUri: params.redirectUri || undefined,
     fromPopup: parseBooleanParam(params.fromPopup),
     mainTab: parseOptionalBooleanParam(params.mainTab),
@@ -120,6 +130,10 @@ function readUrlParams(): UrlParams {
     enableLoadMoreCalls: parseBooleanParam(params.enableLoadMoreCalls),
     hideCallNote: parseBooleanParam(params.hideCallNote),
     enableVoicemailDrop: parseBooleanParam(params.enableVoicemailDrop),
+    enableSMSTemplate: parseBooleanParam(params.enableSMSTemplate),
+    enableSharedMessages: parseBooleanParam(params.enableSharedMessages),
+    defaultCallWith: params.defaultCallWith || undefined,
+    appVersion: params.appVersion || undefined,
     disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
     enableSmartNote: parseBooleanParam(params.enableSmartNote),
     enableAnalytics: Boolean(params.enableAnalytics),
@@ -140,6 +154,13 @@ function readUrlParams(): UrlParams {
       params.enableTypingTimeTracking,
     ),
     showMyLocationNumbers: parseBooleanParam(params.showMyLocationNumbers),
+    disableCall: parseBooleanParam(params.disableCall),
+    disableCallHistory: parseBooleanParam(params.disableCallHistory),
+    disableContacts: parseBooleanParam(params.disableContacts),
+    disableMeeting: parseBooleanParam(params.disableMeeting),
+    disableMessages: parseBooleanParam(params.disableMessages),
+    disableReadText: parseBooleanParam(params.disableReadText),
+    hasStylesUri: Boolean(params.stylesUri),
   };
 }
 
@@ -188,6 +209,11 @@ export const createApp = async (
       'appKey is deprecated, please change to clientId. https://ringcentral.github.io/ringcentral-embeddable/docs/config/client-id/',
     );
   }
+  if (urlParams.hasStylesUri) {
+    console.warn(
+      'stylesUri is not supported since 3.1. https://ringcentral.github.io/ringcentral-embeddable/docs/config/styles/',
+    );
+  }
   if (!urlParams.authProxy && !mergedSdkConfig.clientId) {
     console.error(
       'RingCentral App Client Id is required. https://ringcentral.github.io/ringcentral-embeddable/docs/app-registration/',
@@ -227,7 +253,6 @@ export const createApp = async (
     externalAuthId: urlParams.externalAuthId,
     redirectUri,
     jwt: urlParams.jwt,
-    proxyUri: urlParams.proxyUri,
     fromPopup: urlParams.fromPopup,
     mainTab: urlParams.mainTab,
     enableSideWidget: urlParams.enableSideWidget,
@@ -239,6 +264,10 @@ export const createApp = async (
     enableLoadMoreCalls: urlParams.enableLoadMoreCalls,
     hideCallNote: urlParams.hideCallNote,
     enableVoicemailDrop: urlParams.enableVoicemailDrop,
+    enableSMSTemplate: urlParams.enableSMSTemplate,
+    enableSharedMessages: urlParams.enableSharedMessages,
+    defaultCallWith: urlParams.defaultCallWith,
+    displayAppVersion: urlParams.appVersion,
     disableNoiseReduction: urlParams.disableNoiseReduction,
     enableSmartNote: urlParams.enableSmartNote,
     enableAnalytics: urlParams.enableAnalytics,
@@ -251,6 +280,12 @@ export const createApp = async (
     enableSmsSettingEvent: urlParams.enableSmsSettingEvent,
     enableTypingTimeTracking: urlParams.enableTypingTimeTracking,
     showMyLocationNumbers: urlParams.showMyLocationNumbers,
+    disableCall: urlParams.disableCall,
+    disableCallHistory: urlParams.disableCallHistory,
+    disableContacts: urlParams.disableContacts,
+    disableMeeting: urlParams.disableMeeting,
+    disableMessages: urlParams.disableMessages,
+    disableReadText: urlParams.disableReadText,
   });
 
   const app = await createSharedApp(appConfig);

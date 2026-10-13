@@ -1613,10 +1613,11 @@ class Adapter {
     this._postMessage({ type: 'rc-adapter-ringcx-end-agent-session' });
   }
 
-  setRingCXAgentState(state: string): void {
+  setRingCXAgentState(state: string, auxState?: string): void {
     this._postMessage({
       type: 'rc-adapter-ringcx-set-agent-state',
       state,
+      auxState,
     });
   }
 

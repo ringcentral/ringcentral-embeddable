@@ -9,6 +9,7 @@ import React, { memo } from 'react';
 import { createRefreshContactActionButton } from '../../components/RefreshContactActionButton';
 
 import i18n from './i18n';
+import { useAdditionalMessageButtons } from './useAdditionalMessageButtons';
 import { useConversationActionButtons } from './useConversationActionButtons';
 
 interface ConversationsListItemProps
@@ -77,8 +78,13 @@ const ConversationsListItemComponent: React.FC<ConversationsListItemProps> = ({
     onRefreshContact,
     phoneNumber,
   });
+  const additionalButtons = useAdditionalMessageButtons(
+    conversation,
+    disableLinks,
+  );
   const buttons = useConversationActionButtons({
     actions,
+    additionalButtons,
     conversation,
     createNewEntityTooltip,
     onAction,

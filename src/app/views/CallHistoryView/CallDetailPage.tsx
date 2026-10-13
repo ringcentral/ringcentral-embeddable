@@ -29,13 +29,22 @@ import type { FunctionComponent } from "react";
 import React, { useState } from "react";
 
 import { CallerIdInfoButton } from "../../components/CallerIdInfoButton";
+import type { ThirdPartyButton } from "../../services/ThirdParty/ThirdParty.interface";
 import { useSideWidgetTabsShown } from "../SideWidgetView/useSideWidgetTabsShown";
 import i18n from "./i18n";
 import { useCallHistoryActionButtons } from "./useCallHistoryActionButtons";
 
+const EMPTY_ADDITIONAL_ACTIONS: ThirdPartyButton[] = [];
+
 type CallDetailPageProps = CallDetailViewPanelProps & {
+  /** `callAction` buttons from the third-party service. */
+  additionalCallActions?: ThirdPartyButton[];
   headerTitle?: React.ReactNode;
   hideCallerIdInfo?: boolean;
+  onAdditionalCallAction?: (
+    buttonId: string,
+    resource: unknown
+  ) => Promise<void> | void;
   recordingUri?: string;
   scrollCallInfoWithContent?: boolean;
   showLogCallInfo?: boolean;
@@ -57,12 +66,14 @@ export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
   props
 ) => {
   const {
+    additionalCallActions = EMPTY_ADDITIONAL_ACTIONS,
     children,
     currentCallLog,
     footer,
     goBack,
     headerTitle,
     hideCallerIdInfo = false,
+    onAdditionalCallAction,
     recordingUri,
     scrollCallInfoWithContent = false,
     showLogCallInfo = false,
@@ -83,10 +94,10 @@ export const CallDetailPage: FunctionComponent<CallDetailPageProps> = (
   // keeps the "Edit log" / host logger title label, as in the history list.
   const actionButtons = useCallHistoryActionButtons({
     actions,
-    additionalActions: [],
+    additionalActions: onAdditionalCallAction ? additionalCallActions : [],
     call: currentCallLog,
     onAction,
-    onAdditionalAction: () => undefined,
+    onAdditionalAction: onAdditionalCallAction ?? (() => undefined),
   });
   // With tabs the tab names the page, so a title header with no actions
   // would only repeat it.

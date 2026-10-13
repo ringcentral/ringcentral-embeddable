@@ -425,7 +425,7 @@ export class ConversationsView extends ConversationsViewSpringBase {
       ),
       showNewButton:
         props.typeFilter === messageTypes.fax
-          ? uiProps.showNewButton && this._embeddableAppFeatures.hasFaxesScope
+          ? this._embeddableAppFeatures.canSendFax
           : uiProps.showNewButton,
     };
   }

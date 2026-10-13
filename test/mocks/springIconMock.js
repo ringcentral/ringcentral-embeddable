@@ -7,6 +7,8 @@ module.exports = {
   CalendarMd: "CalendarMd",
   CallListMd: "CallListMd",
   CallMd: "CallMd",
+  CirclePlayMd: "CirclePlayMd",
+  ClockMd: "ClockMd",
   ContactsFilledMd: "ContactsFilledMd",
   ContactsMd: "ContactsMd",
   DispositionMd: "DispositionMd",

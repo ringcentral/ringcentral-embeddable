@@ -3,6 +3,7 @@ import { ComposeTextPanel } from '@ringcentral-integration/micro-message/src/app
 import type { ComponentProps, FunctionComponent } from 'react';
 import React, { useEffect, useRef } from 'react';
 
+import { SmsToolbarButtons } from '../../components/SmsToolbarButtons';
 import {
   COMPOSE_TYPING_CONTEXT,
   type SmsTypingTimeTracker,
@@ -41,6 +42,12 @@ export function createComposeTextPanel(
     return (
       <ComposeTextPanel
         {...props}
+        toolbar={
+          <>
+            {props.toolbar}
+            <SmsToolbarButtons />
+          </>
+        }
         endAdornment={
           smsTypingTimeTracker ? (
             <>

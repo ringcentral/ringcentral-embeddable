@@ -6,6 +6,7 @@ import type { ChangeEvent } from 'react';
 import {
   action,
   injectable,
+  optional,
   RcViewModule,
   RouterPlugin,
   state,
@@ -24,6 +25,8 @@ import {
 } from '@ringcentral/spring-ui';
 
 import { GenericMeeting } from '@ringcentral-integration/micro-meeting/src/app/services';
+
+import { ThirdParty } from '../../../services/ThirdParty';
 import { MeetingItem, type MeetingHistoryItem } from './components/MeetingItem';
 import i18n from './i18n';
 
@@ -38,9 +41,13 @@ interface MeetingHistoryPanelProps {
   fetching: boolean;
   pageToken: string | null;
   searchText: string;
+  /** Set when the third-party service registered a meeting logger. */
+  showLog: boolean;
+  logTitle: string | null;
   onFetchHistory: (type: string, pageToken?: string) => Promise<void>;
   onUpdateSearchText: (text: string, type: string) => void;
   onMeetingClick: (meetingId: string) => void;
+  onLogMeeting: (meeting: MeetingHistoryItem) => Promise<void>;
   formatDateTime: (startTime: string, currentLocale: string) => string;
 }
 
@@ -80,6 +87,7 @@ export class MeetingHistoryView extends RcViewModule {
     private _genericMeeting: GenericMeeting,
     private _router: RouterPlugin,
     private _locale: Locale,
+    @optional() private _thirdParty?: ThirdParty,
   ) {
     super();
   }
@@ -124,6 +132,8 @@ export class MeetingHistoryView extends RcViewModule {
       fetching: this.fetching,
       pageToken: this.pageToken,
       searchText: this.searchText,
+      showLog: Boolean(this._thirdParty?.meetingLoggerRegistered),
+      logTitle: this._thirdParty?.meetingLoggerTitle ?? null,
     };
   }
 
@@ -158,6 +168,9 @@ export class MeetingHistoryView extends RcViewModule {
           `https://v.ringcentral.com/welcome/meetings/recordings/recording/${meetingId}`,
         );
       },
+      onLogMeeting: async (meeting: MeetingHistoryItem): Promise<void> => {
+        await this._thirdParty?.logMeeting({ ...meeting });
+      },
       formatDateTime: (startTime: string, currentLocale: string): string => {
         try {
           return new Date(startTime).toLocaleString(currentLocale, {
@@ -178,8 +191,16 @@ export class MeetingHistoryView extends RcViewModule {
     const type = props?.type ?? 'meetings';
     const { current: uiFunctions } = useRef(this.getUIFunctions());
 
-    const { isReady, meetings, currentLocale, fetching, pageToken, searchText } =
-      useConnector(() => this.getUIProps());
+    const {
+      isReady,
+      meetings,
+      currentLocale,
+      fetching,
+      pageToken,
+      searchText,
+      showLog,
+      logTitle,
+    } = useConnector(() => this.getUIProps());
 
     const scrollRef = React.useRef<HTMLDivElement>(null);
 
@@ -249,6 +270,8 @@ export class MeetingHistoryView extends RcViewModule {
                   type={type}
                   divider={meetings.length > 1 && meeting.id !== meetings[meetings.length - 1]?.id}
                   onClick={uiFunctions.onMeetingClick}
+                  onLog={showLog ? uiFunctions.onLogMeeting : undefined}
+                  logTitle={logTitle || t('log')}
                   formatDateTime={(t) => uiFunctions.formatDateTime(t, currentLocale)}
                   t={t}
                 />

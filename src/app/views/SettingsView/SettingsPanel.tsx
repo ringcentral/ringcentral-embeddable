@@ -56,6 +56,13 @@ const LEGACY_GROUP_ORDER = {
 
 interface EmbeddableSettingsPanelProps extends SettingsViewPanelProps {
   additionalPhoneItems?: ReactNode;
+  /** App-owned Appearance items, shown after the theme. */
+  appearanceItems?: ReactNode;
+  /** How many lines `appearanceItems` renders. */
+  appearanceItemCount?: number;
+  /** App-owned Text items, shown before consent management. */
+  textItems?: ReactNode;
+  hasTextItems?: boolean;
   agentSettings?: ReactNode;
   autoLogDescription?: string;
   autoLogReadOnlyReason?: string;
@@ -155,6 +162,10 @@ const LoadingIcon: FunctionComponent = () => (
 export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   additional,
   additionalPhoneItems,
+  appearanceItems,
+  appearanceItemCount = 0,
+  textItems,
+  hasTextItems = false,
   agentSettings,
   hasAdditionalPhoneItems = false,
   autoLogEnabled = false,
@@ -279,10 +290,10 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
     thirdPartySettings,
     'appearance',
   );
-  const hasThirdPartyAppearanceSettings =
-    thirdPartyAppearanceSettingCount > 0;
   const appearanceSettingCount =
-    thirdPartyAppearanceSettingCount + (showThemeSwitch ? 1 : 0);
+    thirdPartyAppearanceSettingCount +
+    appearanceItemCount +
+    (showThemeSwitch ? 1 : 0);
   const hasThirdPartyAdvancedSettings = hasThirdPartyGroupSettings(
     thirdPartySettings,
     'advancedFeatures',
@@ -383,7 +394,7 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
                 {t('region')}
               </LinkLine>
             ) : null}
-            {showThemeSwitch || hasThirdPartyAppearanceSettings ? (
+            {appearanceSettingCount > 0 ? (
               <SettingsGroup
                 dataSign="appearance-settings-group"
                 itemCount={appearanceSettingCount}
@@ -394,6 +405,7 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
                     {t('theme')}
                   </LinkLine>
                 ) : null}
+                {appearanceItemCount > 0 ? appearanceItems : null}
                 <ThirdPartySettings
                   groupId="appearance"
                   settings={thirdPartySettings}
@@ -536,14 +548,17 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
               </LinkLine>
             </Section>
           ) : null}
-          {showConsentManagement ? (
-            <Section label={t('text')}>
-              <LinkLine
-                data-sign="consentManagement"
-                onClick={onConsentManagementClick}
-              >
-                {t('consentManagement')}
-              </LinkLine>
+          {showConsentManagement || hasTextItems ? (
+            <Section label={t('text')} data-sign="text-settings-group">
+              {hasTextItems ? textItems : null}
+              {showConsentManagement ? (
+                <LinkLine
+                  data-sign="consentManagement"
+                  onClick={onConsentManagementClick}
+                >
+                  {t('consentManagement')}
+                </LinkLine>
+              ) : null}
             </Section>
           ) : null}
           <ThirdPartySettings

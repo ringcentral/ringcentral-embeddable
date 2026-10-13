@@ -30,6 +30,7 @@ import {
   Auth,
   Client,
   ExtensionInfo,
+  NumberFormatter,
   OAuth,
   Presence,
   RegionSettings,
@@ -95,6 +96,10 @@ import { resolveLegacyAdapterPath } from './resolveLegacyAdapterPath';
 
 import { SmartNotes } from '../SmartNotes';
 import { isCxRcExtExBridgeCall } from '../ActiveCallControl/is-cx-rc-ext-ex-bridge-call';
+import {
+  PhoneNumberFormat,
+  type PhoneNumberFormatInput,
+} from '../PhoneNumberFormat';
 import { RingCX } from '../RingCX';
 import { t as ringCXT } from '../RingCX/i18n';
 import type { AppFeatures as EmbeddableAppFeatures } from '../AppFeatures';
@@ -124,15 +129,6 @@ type AdapterPosition = {
   translateY: number;
   minTranslateX: number;
   minTranslateY: number;
-};
-
-type PhoneNumberFormatType = 'national' | 'international' | 'custom';
-
-type PhoneNumberFormatSetting = {
-  formatType: PhoneNumberFormatType;
-  template: string;
-  readOnly: boolean;
-  readOnlyReason: string;
 };
 
 type AttachmentPayload = {
@@ -288,36 +284,6 @@ function isCxAgentRoute(path: string | undefined): boolean {
   return path === CX_AGENT_PATH || !!path?.startsWith(`${CX_AGENT_PATH}/`);
 }
 
-function normalizePhoneNumberFormatSetting(
-  data: Partial<PhoneNumberFormatSetting>,
-): PhoneNumberFormatSetting | null {
-  const formatType = data.formatType;
-  if (
-    formatType !== 'national' &&
-    formatType !== 'international' &&
-    formatType !== 'custom'
-  ) {
-    return null;
-  }
-
-  const template =
-    formatType === 'custom' && typeof data.template === 'string'
-      ? data.template
-      : '';
-
-  if (formatType === 'custom' && !template.trim()) {
-    return null;
-  }
-
-  return {
-    formatType,
-    template,
-    readOnly: Boolean(data.readOnly),
-    readOnlyReason:
-      typeof data.readOnlyReason === 'string' ? data.readOnlyReason : '',
-  };
-}
-
 function formatMeetingForm(meetingInfo: Record<string, any>, isRCV?: boolean) {
   if (!isRCV) {
     return meetingInfo;
@@ -453,6 +419,8 @@ export class Adapter extends RcModule {
     protected _monitoredExtensions?: MonitoredExtensions,
     @optional('AdapterOptions') protected _adapterOptions?: AdapterOptions,
     @optional() protected _ringCX?: RingCX,
+    @optional() protected _phoneNumberFormat?: PhoneNumberFormat,
+    @optional() protected _numberFormatter?: NumberFormatter,
   ) {
     super();
     if (this._smartNotes) {
@@ -497,15 +465,6 @@ export class Adapter extends RcModule {
     translateY: 0,
     minTranslateX: 0,
     minTranslateY: 0,
-  };
-
-  @globalStorage
-  @state
-  phoneNumberFormatSetting: PhoneNumberFormatSetting = {
-    formatType: 'national',
-    template: '',
-    readOnly: false,
-    readOnlyReason: '',
   };
 
   private get _webphoneV2() {
@@ -554,11 +513,6 @@ export class Adapter extends RcModule {
       minTranslateX: position.minTranslateX ?? this.position.minTranslateX,
       minTranslateY: position.minTranslateY ?? this.position.minTranslateY,
     };
-  }
-
-  @action
-  private _setPhoneNumberFormatSetting(setting: PhoneNumberFormatSetting) {
-    this.phoneNumberFormatSetting = setting;
   }
 
   private _setupClientBridge() {
@@ -1156,7 +1110,7 @@ export class Adapter extends RcModule {
         void this._endRingCXAgentSession();
         break;
       case ringCXCommandTypes.setAgentState:
-        void this._setRingCXAgentState(data.state);
+        void this._setRingCXAgentState(data.state, data.auxState);
         break;
       case ringCXCommandTypes.dialLead:
         void this._dialRingCXLead(data.lead, data.destination);
@@ -1723,8 +1677,8 @@ export class Adapter extends RcModule {
 
   private _watchPhoneNumberFormatSettingsValues() {
     return [
-      this.phoneNumberFormatSetting.formatType,
-      this.phoneNumberFormatSetting.template,
+      this._phoneNumberFormat?.setting.formatType,
+      this._phoneNumberFormat?.setting.template,
     ];
   }
 
@@ -2168,13 +2122,14 @@ export class Adapter extends RcModule {
   }
 
   private _notifyPhoneNumberFormatSettings() {
+    if (!this._phoneNumberFormat) {
+      return;
+    }
+    const { formatType, template } = this._phoneNumberFormat.setting;
     this._postMessage({
       type: 'rc-adapter-phone-number-format-settings-notify',
-      formatType: this.phoneNumberFormatSetting.formatType,
-      template:
-        this.phoneNumberFormatSetting.formatType === 'custom'
-          ? this.phoneNumberFormatSetting.template
-          : '',
+      formatType,
+      template: formatType === 'custom' ? template : '',
     });
   }
 
@@ -2305,6 +2260,15 @@ export class Adapter extends RcModule {
     return true;
   }
 
+  /**
+   * The recipient's number as shown, so a custom phone number format that
+   * hides digits does not reveal them, as in 3.x.
+   */
+  private _getRecipientName(phoneNumber: string): string {
+    const formatted = this._numberFormatter?.formatNumber(phoneNumber);
+    return formatted?.includes('x') ? formatted : phoneNumber;
+  }
+
   private async _newSMS(
     phoneNumber?: string,
     text?: string,
@@ -2330,12 +2294,12 @@ export class Adapter extends RcModule {
     const adding = recipient?.phoneNumber
       ? this._composeText.addToNumber({
           phoneNumber: recipient.phoneNumber,
-          name: recipient.name || recipient.phoneNumber,
+          name: recipient.name || this._getRecipientName(recipient.phoneNumber),
         })
       : phoneNumber
         ? this._composeText.addToNumber({
             phoneNumber,
-            name: phoneNumber,
+            name: this._getRecipientName(phoneNumber),
           })
         : undefined;
     await this._router.push('/composeText');
@@ -2791,6 +2755,10 @@ export class Adapter extends RcModule {
         });
         return;
       case 'route':
+        if (intent.path === '/composeFax' && !this._appFeaturesV2.canSendFax) {
+          this.logger.warn('Fax sending is not available', intent);
+          return;
+        }
         if (this._router.currentPath !== intent.path) {
           await this._router.push(intent.path);
         }
@@ -2911,10 +2879,8 @@ export class Adapter extends RcModule {
     if (Object.keys(config).length === 0) {
       return;
     }
-    this._appFeaturesV2.setConfigState({
-      ...this._appFeaturesV2.configState,
-      ...config,
-    });
+    // As in 3.x, each update replaces the earlier ones.
+    this._appFeaturesV2.setConfigState(config);
   }
 
   private async _setCallContactMatched(data: {
@@ -3013,12 +2979,13 @@ export class Adapter extends RcModule {
     }
   }
 
-  private _onSetPhoneNumberFormat(data: Partial<PhoneNumberFormatSetting>) {
-    const setting = normalizePhoneNumberFormatSetting(data);
-    if (!setting) {
-      return;
-    }
-    this._setPhoneNumberFormatSetting(setting);
+  private _onSetPhoneNumberFormat(data: PhoneNumberFormatInput) {
+    void this._phoneNumberFormat?.updateSetting({
+      formatType: data.formatType,
+      template: data.template,
+      readOnly: data.readOnly,
+      readOnlyReason: data.readOnlyReason,
+    });
   }
 
   private _openCustomAlert(body: {
@@ -3367,12 +3334,15 @@ export class Adapter extends RcModule {
     await this._ringCX.endAgentSession();
   }
 
-  private async _setRingCXAgentState(state?: string): Promise<void> {
+  private async _setRingCXAgentState(
+    state?: string,
+    auxState?: string,
+  ): Promise<void> {
     const bridge = await this._requireRingCXReady();
     if (!bridge || !state) {
       return;
     }
-    await bridge.setAgentState(state);
+    await bridge.setAgentState(state, auxState);
   }
 
   private async _dialRingCXLead(

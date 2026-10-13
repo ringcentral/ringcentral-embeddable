@@ -145,6 +145,39 @@ describe('RingCX progressive dial commands', () => {
   });
 });
 
+describe('rc-adapter-ringcx-set-agent-state', () => {
+  test('passes the state and aux state to the RingCX bridge', async () => {
+    const { adapter, bridge } = createReadyAdapter();
+    bridge.setAgentState = jest.fn(async () => undefined);
+
+    adapter._onWindowMessage({
+      data: {
+        type: 'rc-adapter-ringcx-set-agent-state',
+        state: 'ON-BREAK',
+        auxState: 'Coffee',
+      },
+    });
+    await settle();
+
+    expect(bridge.setAgentState).toHaveBeenCalledWith('ON-BREAK', 'Coffee');
+  });
+
+  test('the RCAdapter helper posts the aux state', () => {
+    const postMessage = jest.fn();
+    const client = Object.assign(Object.create(AdapterClient.prototype), {
+      _postMessage: postMessage,
+    });
+
+    client.setRingCXAgentState('ON-BREAK', 'Coffee');
+
+    expect(postMessage).toHaveBeenCalledWith({
+      type: 'rc-adapter-ringcx-set-agent-state',
+      state: 'ON-BREAK',
+      auxState: 'Coffee',
+    });
+  });
+});
+
 describe('rc-ringcx-progressive-dial-notify', () => {
   test('posts the dialer status to the host page', async () => {
     const postMessage = jest.fn();

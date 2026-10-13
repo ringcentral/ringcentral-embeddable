@@ -58,6 +58,11 @@ export class AppFeatures extends AppFeaturesBase<EmbeddableFeatureConfiguration>
     return this.appScopes.indexOf('Faxes') > -1;
   }
 
+  /** Sending a fax needs the `FaxSending` feature and the app's `Faxes` scope. */
+  get canSendFax(): boolean {
+    return this.hasSendFaxPermission && this.hasFaxesScope;
+  }
+
   override get hasGlipPermission() {
     return (
       super.hasGlipPermission &&

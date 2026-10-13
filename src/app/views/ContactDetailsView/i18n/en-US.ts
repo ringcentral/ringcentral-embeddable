@@ -11,4 +11,7 @@ export default {
   notActivated: 'Not Activated',
   call: 'Call',
   text: 'Text',
+  more: 'More',
+  loadingActivities: 'Loading activities',
+  noActivities: 'No activities',
 } as const;

@@ -41,7 +41,7 @@ jest.mock(
 function createView(conversations) {
   const dependencies = Array(25).fill(undefined);
   dependencies[2] = conversations;
-  dependencies[4] = { hasFaxesScope: true };
+  dependencies[4] = { canSendFax: true };
   dependencies[18] = { loggingMap: {}, ready: true };
   dependencies[19] = { messageLoggerRegistered: false };
   return new ConversationsView(...dependencies);

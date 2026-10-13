@@ -10,5 +10,4 @@ export interface EmbeddableOAuthOptions extends OAuthOptions {
   disableLoginPopup?: boolean;
   externalAuthId?: string;
   jwt?: string;
-  proxyUri?: string;
 }

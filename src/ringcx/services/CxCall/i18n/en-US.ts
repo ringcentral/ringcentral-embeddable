@@ -7,6 +7,8 @@ export default {
     'Outbound calls for the country are not yet supported.',
   [messageTypes.FAILED_TO_CALL]:
     'The line is busy or has a pending disposition.',
+  [messageTypes.PREVIEW_DIAL_NO_ANSWER]:
+    "The lead couldn't be dialed. Try again.",
   [messageTypes.INTERCEPT]:
     'The dial result for your manual outbound call was INTERCEPT.',
   [messageTypes.COPY_UII_SUCCESS]: 'Call ID copied',

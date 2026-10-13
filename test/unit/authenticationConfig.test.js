@@ -16,7 +16,6 @@ describe('authentication configuration', () => {
       authorizationCodeVerifier: 'code-verifier',
       externalAuthId: 'external-user',
       jwt: 'jwt-token',
-      proxyUri: 'https://host.example.com/proxy',
       redirectUri: 'https://host.example.com/redirect',
     });
 
@@ -38,7 +37,6 @@ describe('authentication configuration', () => {
       disableLoginPopup: true,
       externalAuthId: 'external-user',
       jwt: 'jwt-token',
-      proxyUri: 'https://host.example.com/proxy',
     });
   });
 
