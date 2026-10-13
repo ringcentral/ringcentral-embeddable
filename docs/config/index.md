@@ -21,14 +21,14 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `disableMeeting` | False | Disable meeting feature. |
 | `disableGlip` | True | Before we start to use Glip API, need to add `Glip` or `Team Messaging` permission to your app in RingCentral Developer website. Also, for testing with a sandbox user, user needs to first login to https://app.devtest.ringcentral.com |
 | `disableMinimize` | False | By default, we provide Minimize button at app header to minimize the widget. |
-| `disconnectInactiveWebphone` | False | See [Working with multiple tabs](multiple-tabs.md). |
+| `disconnectInactiveWebphone` | False | 2.x and 3.x only, not needed since 3.1. See [Working with multiple tabs](multiple-tabs.md). |
 | `enableAnalytics` | False | See [Custom analytics](../integration/analytics.md). |
 | `enableNoiseReductionSetting` | False | See [Noise reduction](noise-reduction.md). |
 | `enablePopup` | False | See [Customize pop-up window](popup-window.md). |
-| `enableRingtoneSettings` | False | For when call is ringing, app will play default ringtone. But we also support to customize ringtone. By enabled, user can get ringtone settings at settings page. Supported after v1.6.3 |
+| `enableRingtoneSettings` | False | 2.x and 3.x only. For when call is ringing, app will play default ringtone. But we also support to customize ringtone. By enabled, user can get ringtone settings at settings page. Supported after v1.6.3. Since 3.1, ringtone settings are always in audio settings. |
 | `enableSMSTemplate` | False | See [SMS templates](sms-template.md). |
 | `jwt` | None | See [Alternative auth methods](../integration/authorization.md). |
-| `multipleTabsSupport` | False | See [Working with multiple tabs](multiple-tabs.md). |
+| `multipleTabsSupport` | False | 2.x and 3.x only, not needed since 3.1. See [Working with multiple tabs](multiple-tabs.md). |
 | `newAdapterUI` | False | See [Embeddable Badge](badge.md). |
 | `popupPageUri` | *null* | See [Customize pop-up window](popup-window.md). |
 | `prefix` | *null* | See [Customize prefix](prefix.md). |
@@ -38,7 +38,7 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `userAgent` | *null* | See [Customize X-User-Agent](user-agent.md). |
 | `enableAudioInitPrompt` | *null* | See [Audio](./audio.md). |
 | `enableLoadMoreCalls` | *null* | Support to load old call history (more than 7 days). Supported from v2.1.0 |
-| `enableSharedMessages` | *null* | Support to receive call queue SMS. Supported from v2.3.0 |
+| `enableSharedMessages` | *null* | Support to receive call queue SMS. Supported from v2.3.0. Since 3.1, it shows the **Shared** tab in messages. |
 | `enableSideWidget` | *null* | See [Call widgets](../integration/call-widget.md). Supported from v3.0.0 |
 | `enableVoicemailDrop` | *null* | See [Voicemail drop](voicemail-drop.md). Supported from v3.0.0 |
 </div>

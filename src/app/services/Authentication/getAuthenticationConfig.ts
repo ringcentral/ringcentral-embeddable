@@ -21,7 +21,6 @@ export function getAuthenticationConfig({
   disableLoginPopup,
   externalAuthId,
   jwt,
-  proxyUri,
   redirectUri,
 }: {
   prefix?: string;
@@ -32,7 +31,6 @@ export function getAuthenticationConfig({
   disableLoginPopup: boolean;
   externalAuthId?: string;
   jwt?: string;
-  proxyUri?: string;
   redirectUri?: string;
 }): AuthenticationConfig {
   const resolvedRedirectUri = redirectUri ?? './redirect.html';
@@ -61,7 +59,6 @@ export function getAuthenticationConfig({
       disableLoginPopup,
       externalAuthId,
       jwt,
-      proxyUri,
     },
   };
 }

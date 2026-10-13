@@ -84,7 +84,8 @@ export class SettingsView extends SettingsViewBase {
     private readonly _callLogger: CallLogger,
     private readonly _conversationLogger: ConversationLogger,
     private readonly _thirdParty: ThirdParty,
-    @optional('Version') version?: string,
+    // The `appVersion` URL param, else the build version.
+    @optional('DisplayVersion') version?: string,
     @optional() quickAccess?: QuickAccess,
     @optional() userGuide?: UserGuide,
     @optional('SettingsViewOptions')

@@ -88,6 +88,87 @@ describe('createApp disable* URL parameters', () => {
   });
 });
 
+describe('createApp feature and version URL parameters', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = {
+      ...originalEnv,
+      APP_CONFIG: {
+        prefix: 'default-prefix',
+        brandConfig: {
+          appName: 'Embeddable',
+          defaultLocale: 'en-US',
+          code: 'rc',
+        },
+        version: { appVersion: '3.1.0' },
+      },
+      API_CONFIG: {
+        clientId: 'default-client-id',
+        server: 'https://platform.example.com',
+      },
+      MIXPANEL_KEY: '',
+    };
+    delete process.env.APP_VERSION;
+    getAppConfig.mockClear();
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  test('keeps SMS templates and shared messages off by default', async () => {
+    window.history.replaceState({}, '', '/app.html');
+
+    await createApp();
+
+    expect(getAppConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appVersion: '3.1.0',
+        displayAppVersion: undefined,
+        enableSMSTemplate: false,
+        enableSharedMessages: false,
+      }),
+    );
+  });
+
+  test('turns the features on for 1 or true and shows the host app version', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/app.html?enableSMSTemplate=1&enableSharedMessages=true&appVersion=9.9.9',
+    );
+
+    await createApp();
+
+    expect(getAppConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appVersion: '3.1.0',
+        displayAppVersion: '9.9.9',
+        enableSMSTemplate: true,
+        enableSharedMessages: true,
+      }),
+    );
+  });
+
+  test('leaves the features off for other values', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/app.html?enableSMSTemplate=0&enableSharedMessages=false',
+    );
+
+    await createApp();
+
+    expect(getAppConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        enableSMSTemplate: false,
+        enableSharedMessages: false,
+      }),
+    );
+  });
+});
+
 describe('createApp stylesUri', () => {
   const originalEnv = process.env;
   let warn;

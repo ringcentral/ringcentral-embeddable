@@ -44,7 +44,6 @@ interface UrlParams {
   disableLoginPopup?: boolean;
   externalAuthId?: string;
   jwt?: string;
-  proxyUri?: string;
   redirectUri?: string;
   fromPopup?: boolean;
   mainTab?: boolean;
@@ -57,6 +56,10 @@ interface UrlParams {
   enableLoadMoreCalls?: boolean;
   hideCallNote?: boolean;
   enableVoicemailDrop?: boolean;
+  enableSMSTemplate?: boolean;
+  enableSharedMessages?: boolean;
+  /** Shown as the version on the settings page instead of the build's. */
+  appVersion?: string;
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
@@ -114,7 +117,6 @@ function readUrlParams(): UrlParams {
     disableLoginPopup: Boolean(params.disableLoginPopup),
     externalAuthId: params.externalAuthId || undefined,
     jwt: params.jwt || undefined,
-    proxyUri: params.proxyUri || undefined,
     redirectUri: params.redirectUri || undefined,
     fromPopup: parseBooleanParam(params.fromPopup),
     mainTab: parseOptionalBooleanParam(params.mainTab),
@@ -127,6 +129,9 @@ function readUrlParams(): UrlParams {
     enableLoadMoreCalls: parseBooleanParam(params.enableLoadMoreCalls),
     hideCallNote: parseBooleanParam(params.hideCallNote),
     enableVoicemailDrop: parseBooleanParam(params.enableVoicemailDrop),
+    enableSMSTemplate: parseBooleanParam(params.enableSMSTemplate),
+    enableSharedMessages: parseBooleanParam(params.enableSharedMessages),
+    appVersion: params.appVersion || undefined,
     disableNoiseReduction: parseBooleanParam(params.disableNoiseReduction),
     enableSmartNote: parseBooleanParam(params.enableSmartNote),
     enableAnalytics: Boolean(params.enableAnalytics),
@@ -246,7 +251,6 @@ export const createApp = async (
     externalAuthId: urlParams.externalAuthId,
     redirectUri,
     jwt: urlParams.jwt,
-    proxyUri: urlParams.proxyUri,
     fromPopup: urlParams.fromPopup,
     mainTab: urlParams.mainTab,
     enableSideWidget: urlParams.enableSideWidget,
@@ -258,6 +262,9 @@ export const createApp = async (
     enableLoadMoreCalls: urlParams.enableLoadMoreCalls,
     hideCallNote: urlParams.hideCallNote,
     enableVoicemailDrop: urlParams.enableVoicemailDrop,
+    enableSMSTemplate: urlParams.enableSMSTemplate,
+    enableSharedMessages: urlParams.enableSharedMessages,
+    displayAppVersion: urlParams.appVersion,
     disableNoiseReduction: urlParams.disableNoiseReduction,
     enableSmartNote: urlParams.enableSmartNote,
     enableAnalytics: urlParams.enableAnalytics,

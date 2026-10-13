@@ -70,7 +70,6 @@ import {
   type ConversationsOptions,
   QueueConversations,
   MessageThread,
-  type MessageThreadOptions,
   SmsConsent,
   SmsConversationsOptions,
   SmsOptOut,
@@ -164,6 +163,7 @@ import { CallHUDView } from './views/CallHUDView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
 import { VoicemailPage } from './views/VoicemailView';
+import { SmsTemplateView as SmsTemplateViewV2 } from './views/SmsTemplateView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
 import { SideWidgetView, type SideWidgetOptions } from './views/SideWidgetView';
@@ -201,6 +201,7 @@ import {
   SmsConsentManagementView,
   SmsOptOutView,
 } from '@ringcentral-integration/micro-message/src/app/views';
+import { SmsTemplateView } from '@ringcentral-integration/micro-message/src/app/views/SmsTemplateView';
 import type { VoicemailViewOptions } from '@ringcentral-integration/micro-message/src/app/views/VoicemailView/Voicemail.view.interface';
 import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import {
@@ -243,6 +244,7 @@ import {
   type DisabledFeatureParams,
   getDisabledFeatureConfiguration,
 } from './services/AppFeatures/getDisabledFeatureConfiguration';
+import { createMessageThreadOptions } from './services/AppFeatures/createMessageThreadOptions';
 import type { CxHostIntegration } from './services/RingCX/RingCX.interface';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { createThirdPartyIntegrationConfig } from './services/ThirdParty/ThirdParty.integrationConfig';
@@ -288,6 +290,8 @@ const getBeforeunloadWindow = (): Window =>
 interface CreateAppEntryOptions<T extends typeof createSharedApp>
   extends DisabledFeatureParams {
   appVersion: string;
+  /** Shown as the version on the settings page instead of `appVersion`. */
+  displayAppVersion?: string;
   prefix?: string;
   brandConfig: BaseBrandConfig;
   brandConfigs?: DynamicBrandOptions['brandConfigs'];
@@ -302,12 +306,13 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp>
   externalAuthId?: string;
   redirectUri?: string;
   jwt?: string;
-  proxyUri?: string;
   fromPopup?: boolean;
   mainTab?: boolean;
   enableSideWidget?: boolean;
   showSignUpButton?: boolean;
   enableVoicemailDrop?: boolean;
+  enableSMSTemplate?: boolean;
+  enableSharedMessages?: boolean;
   disableNoiseReduction?: boolean;
   enableSmartNote?: boolean;
   enableAnalytics?: boolean;
@@ -333,6 +338,7 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp>
  */
 export const getAppConfig = <T extends typeof createSharedApp>({
   appVersion,
+  displayAppVersion,
   prefix,
   brandConfig,
   brandConfigs,
@@ -347,12 +353,13 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   externalAuthId,
   redirectUri,
   jwt,
-  proxyUri,
   fromPopup = false,
   mainTab,
   enableSideWidget = false,
   showSignUpButton = false,
   enableVoicemailDrop = false,
+  enableSMSTemplate = false,
+  enableSharedMessages = false,
   disableNoiseReduction = false,
   enableSmartNote = false,
   enableAnalytics = false,
@@ -389,7 +396,6 @@ export const getAppConfig = <T extends typeof createSharedApp>({
     disableLoginPopup,
     externalAuthId,
     jwt,
-    proxyUri,
     redirectUri, // 'http://localhost:8080/redirect.html',
   });
 
@@ -695,6 +701,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useClass: SmsOptOutV2,
       },
       SmsOptOutView,
+      {
+        provide: SmsTemplateView,
+        useClass: SmsTemplateViewV2,
+      },
       SmsConsent,
       SmsConsentDialogView,
       SmsConsentManagementView,
@@ -774,14 +784,18 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'MessageThreadOptions',
-        useValue: {
-          enable: true,
-        } satisfies MessageThreadOptions,
+        useFactory: (appFeatures: AppFeaturesV2) =>
+          createMessageThreadOptions(appFeatures),
+        deps: [AppFeatures],
       },
       // options
       {
         provide: 'Version',
         useValue: appVersion,
+      },
+      {
+        provide: 'DisplayVersion',
+        useValue: displayAppVersion || appVersion,
       },
       {
         provide: 'WebphoneOptions',
@@ -986,6 +1000,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           RingCX: enableRingCX,
           SmartNote: enableSmartNote,
           VoicemailDrop: enableVoicemailDrop,
+          SMSTemplate: enableSMSTemplate,
+          SharedMessages: enableSharedMessages,
         } satisfies EmbeddableFeatureConfiguration,
       },
       {

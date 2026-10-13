@@ -1,5 +1,8 @@
 # Multiple Tabs
 
+!!! info "Since 3.1, tabs share one web phone connection"
+    From 3.1, widgets in all tabs share one instance and one web phone connection, so the 5-connection limit no longer applies. Calls play in one tab and can be controlled from any tab. Safari is the exception: each tab runs its own widget instance. `multipleTabsSupport` and `disconnectInactiveWebphone` are for 2.x and 3.x only and are ignored since 3.1.
+
 For the Embeddable widget, it supports to run in multiple tabs, and will share the same storage and login status. But widgets in different tabs are still different instances. 
 
 When calling mode is set into [Browser](call-settings.md), widgets will create web phone connection in every widget instance. In our server-side, we have limitation of 5 phone connection. So when user selects `Browser` to make call, we only support to open tabs that no more than 5.

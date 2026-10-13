@@ -8,7 +8,7 @@ const mockStyles = new Proxy(
 
 jest.mock('../../src/lib/Adapter/styles.scss', () => mockStyles);
 
-describe('adapter stylesUri', () => {
+describe('adapter unsupported parameters', () => {
   const originalEnv = process.env;
   let warn;
 
@@ -60,6 +60,48 @@ describe('adapter stylesUri', () => {
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining('stylesUri is not supported since 3.1'),
     );
+  });
+
+  test.each([
+    ['multipleTabsSupport', 'tabs always share one connection'],
+    ['disconnectInactiveWebphone', 'tabs always share one connection'],
+    ['enableRingtoneSettings', 'ringtone settings are always available'],
+  ])('does not pass %s to the app and warns the host', (name, reason) => {
+    const iframeUrl = loadAdapter(`clientId=client-id&${name}=1`);
+
+    expect(iframeUrl.searchParams.has(name)).toBe(false);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining(`${name} is not needed since 3.1: ${reason}`),
+    );
+  });
+
+  test('drops undocumented parameters that 3.1 does not read without a warning', () => {
+    const names = [
+      'enableWebRTCPlanB',
+      'enableErrorReport',
+      'errorReportToken',
+      'errorReportSampleRate',
+      'errorReportProjectId',
+      'proxyUri',
+    ];
+    const iframeUrl = loadAdapter(
+      ['clientId=client-id', ...names.map((name) => `${name}=1`)].join('&'),
+    );
+
+    names.forEach((name) => {
+      expect(iframeUrl.searchParams.has(name)).toBe(false);
+    });
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  test('passes appVersion, enableSMSTemplate, and enableSharedMessages to the app', () => {
+    const iframeUrl = loadAdapter(
+      'clientId=client-id&appVersion=9.9.9&enableSMSTemplate=1&enableSharedMessages=true',
+    );
+
+    expect(iframeUrl.searchParams.get('appVersion')).toBe('9.9.9');
+    expect(iframeUrl.searchParams.get('enableSMSTemplate')).toBe('1');
+    expect(iframeUrl.searchParams.get('enableSharedMessages')).toBe('true');
   });
 
   test('does not warn without stylesUri', () => {
