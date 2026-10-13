@@ -16,6 +16,7 @@ import { Block, BlockHeader } from '@ringcentral/spring-ui';
 import clsx from 'clsx';
 import React, { type FunctionComponent } from 'react';
 
+import { MESSAGE_DETAIL_ACTION_DISPLAY_COUNT } from '../ConversationsView/MESSAGE_DETAIL_ACTION_DISPLAY_COUNT';
 import { useAdditionalMessageButtons } from '../ConversationsView/useAdditionalMessageButtons';
 
 /**
@@ -90,7 +91,11 @@ export const VoicemailPage: FunctionComponent<VoicemailPagePanelProps> = ({
           )}
         </div>
         <div className="flex gap-6">
-          <ActionMenuList buttons={buttons} variant="plain" />
+          <ActionMenuList
+            buttons={buttons}
+            displayCount={MESSAGE_DETAIL_ACTION_DISPLAY_COUNT}
+            variant="plain"
+          />
         </div>
       </div>
       <div className="px-3 py-2" data-sign="toNumber">

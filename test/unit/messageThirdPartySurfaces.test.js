@@ -22,8 +22,8 @@ jest.mock('../../src/app/components/SmsToolbarButtons', () => ({
 }));
 
 jest.mock('@ringcentral-integration/next-widgets/components', () => ({
-  ActionMenuList: ({ buttons }) => (
-    <div data-sign="actionMenuList">
+  ActionMenuList: ({ buttons, displayCount }) => (
+    <div data-display-count={displayCount} data-sign="actionMenuList">
       {buttons.map(({ actionType, label }) => (
         <button data-sign={actionType} key={actionType} type="button">
           {label}
@@ -148,6 +148,11 @@ describe('third-party message actions', () => {
 
     expect(getButtonLabels()).toEqual(['call', 'Message action']);
     expect(useAdditionalMessageButtons).toHaveBeenCalledWith(fax);
+    // Four buttons and More fit the default width; the rest go in its menu.
+    expect(screen.getByTestId('actionMenuList')).toHaveAttribute(
+      'data-display-count',
+      '5',
+    );
   });
 
   test('follow the built-in buttons on voicemail details', () => {
@@ -167,6 +172,10 @@ describe('third-party message actions', () => {
 
     expect(getButtonLabels()).toEqual(['call', 'Message action']);
     expect(useAdditionalMessageButtons).toHaveBeenCalledWith(voicemail);
+    expect(screen.getByTestId('actionMenuList')).toHaveAttribute(
+      'data-display-count',
+      '5',
+    );
   });
 });
 

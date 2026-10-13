@@ -14,6 +14,7 @@ import {
 import { Block, BlockHeader } from '@ringcentral/spring-ui';
 import React, { type FunctionComponent } from 'react';
 
+import { MESSAGE_DETAIL_ACTION_DISPLAY_COUNT } from '../ConversationsView/MESSAGE_DETAIL_ACTION_DISPLAY_COUNT';
 import { useAdditionalMessageButtons } from '../ConversationsView/useAdditionalMessageButtons';
 import type { FaxDetailsPanelProps } from './FaxDetails.view.interface';
 
@@ -73,7 +74,11 @@ export const FaxDetailsPanel: FunctionComponent<FaxDetailsPanelProps> = ({
           ) : null}
         </div>
         <div className="flex flex-nowrap gap-6">
-          <ActionMenuList buttons={buttons} variant="plain" />
+          <ActionMenuList
+            buttons={buttons}
+            displayCount={MESSAGE_DETAIL_ACTION_DISPLAY_COUNT}
+            variant="plain"
+          />
         </div>
       </div>
       <div className="px-3 py-2">
