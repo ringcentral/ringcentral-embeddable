@@ -104,6 +104,7 @@ import {
 } from './views/ThirdPartySettingSectionView';
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 import { PhoneNumberFormatSettingView } from './views/PhoneNumberFormatSettingView';
+import { TextSettingView } from './views/TextSettingView';
 import type { ComposeText as EmbeddableComposeText } from './services/ComposeText';
 import type { ThirdPartyWidgetContact } from './services/ThirdParty';
 
@@ -452,6 +453,13 @@ export class AppView extends RcViewModule {
       sideWidget: this._historyBackSettingsSideWidgetConfig,
     },
     {
+      path: '/settings/text',
+      component: this._textSettingView.component,
+      authentication: true,
+      backgroundComponent: this._settingsView.component,
+      sideWidget: this._historyBackSettingsSideWidgetConfig,
+    },
+    {
       path: '/settings/phoneNumberFormat',
       component: this._phoneNumberFormatSettingView.component,
       authentication: true,
@@ -750,6 +758,7 @@ export class AppView extends RcViewModule {
     private _thirdPartySettingSectionView: ThirdPartySettingSectionView,
     private _voicemailDropSettingsView: VoicemailDropSettingsView,
     private _phoneNumberFormatSettingView: PhoneNumberFormatSettingView,
+    private _textSettingView: TextSettingView,
     private _applicationLogsView: ApplicationLogsView,
     private _callQueueManagementView: CallQueueManagementView,
     private _autoCallLogICSettingsView: AutoCallLogICSettingsView,

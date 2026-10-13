@@ -60,6 +60,9 @@ interface EmbeddableSettingsPanelProps extends SettingsViewPanelProps {
   appearanceItems?: ReactNode;
   /** How many lines `appearanceItems` renders. */
   appearanceItemCount?: number;
+  /** App-owned Text items, shown before consent management. */
+  textItems?: ReactNode;
+  hasTextItems?: boolean;
   agentSettings?: ReactNode;
   autoLogDescription?: string;
   autoLogReadOnlyReason?: string;
@@ -161,6 +164,8 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   additionalPhoneItems,
   appearanceItems,
   appearanceItemCount = 0,
+  textItems,
+  hasTextItems = false,
   agentSettings,
   hasAdditionalPhoneItems = false,
   autoLogEnabled = false,
@@ -543,14 +548,17 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
               </LinkLine>
             </Section>
           ) : null}
-          {showConsentManagement ? (
-            <Section label={t('text')}>
-              <LinkLine
-                data-sign="consentManagement"
-                onClick={onConsentManagementClick}
-              >
-                {t('consentManagement')}
-              </LinkLine>
+          {showConsentManagement || hasTextItems ? (
+            <Section label={t('text')} data-sign="text-settings-group">
+              {hasTextItems ? textItems : null}
+              {showConsentManagement ? (
+                <LinkLine
+                  data-sign="consentManagement"
+                  onClick={onConsentManagementClick}
+                >
+                  {t('consentManagement')}
+                </LinkLine>
+              ) : null}
             </Section>
           ) : null}
           <ThirdPartySettings

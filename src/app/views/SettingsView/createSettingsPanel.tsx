@@ -7,11 +7,13 @@ import type { FunctionComponent, ReactElement } from 'react';
 import React from 'react';
 
 import { ThirdPartyAuthSettings } from '../../components/ThirdPartyAuthSettings';
+import type { AppFeatures } from '@ringcentral-integration/micro-auth/src/app/services';
 import type { RingCX } from '../../services/RingCX';
 import type { ThirdParty } from '../../services/ThirdParty';
 import type { SmartNotes } from '../../services/SmartNotes';
 import type { VoicemailDrop } from '../../services/VoicemailDrop';
 import { PhoneNumberFormatSettingsLink } from '../PhoneNumberFormatSettingView/PhoneNumberFormatSettingsLink';
+import { TextSettingsLink } from '../TextSettingView/TextSettingsLink';
 import { VoicemailDropSettingsLink } from '../VoicemailDropSettingsView/VoicemailDropSettingsLink';
 
 import { SettingsPanel } from './SettingsPanel';
@@ -22,6 +24,9 @@ interface CreateSettingsPanelOptions {
   readonly onAgentSessionInfoClick: () => void;
   readonly onManualDialSettingsClick: () => void;
   readonly onPhoneNumberFormatSettingsClick: () => void;
+  readonly onTextSettingsClick: () => void;
+  /** Shows the default SMS sender link when the user can send texts. */
+  readonly appFeatures: Pick<AppFeatures, 'hasSendSMSPermission'>;
   readonly onThirdPartySectionClick: (sectionId: string) => void;
   readonly onVoicemailDropSettingsLinkClick: () => void;
   readonly smartNotes: SmartNotes;
@@ -37,6 +42,8 @@ export function createSettingsPanel({
   onAgentSessionInfoClick,
   onManualDialSettingsClick,
   onPhoneNumberFormatSettingsClick,
+  onTextSettingsClick,
+  appFeatures,
   onThirdPartySectionClick,
   onVoicemailDropSettingsLinkClick,
   smartNotes,
@@ -49,6 +56,9 @@ export function createSettingsPanel({
   ): ReactElement => {
     const hasVoicemailDropSettings: boolean = useConnector(
       () => voicemailDrop.hasVoicemailDropPermission,
+    );
+    const canSendSMS: boolean = useConnector(
+      () => appFeatures.hasSendSMSPermission,
     );
     const isRingCXEnabled: boolean = useConnector(
       () => ringCX?.enabled ?? false,
@@ -84,6 +94,8 @@ export function createSettingsPanel({
       <SettingsPanel
         {...props}
         // 3.x listed the phone number format after the theme.
+        hasTextItems={canSendSMS}
+        textItems={<TextSettingsLink onClick={onTextSettingsClick} />}
         appearanceItemCount={1}
         appearanceItems={
           <PhoneNumberFormatSettingsLink

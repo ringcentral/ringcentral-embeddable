@@ -172,6 +172,7 @@ import {
   type CallingSettingsOptions as EmbeddableCallingSettingsOptions,
 } from './services/CallingSettings';
 import { PhoneNumberFormatSettingView } from './views/PhoneNumberFormatSettingView';
+import { TextSettingView } from './views/TextSettingView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
 import { SideWidgetView, type SideWidgetOptions } from './views/SideWidgetView';
@@ -569,6 +570,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useClass: NumberFormatterV2,
       },
       PhoneNumberFormatSettingView,
+      TextSettingView,
       {
         provide: MicroMessageComposeText,
         useClass: ComposeTextV2,
@@ -1038,9 +1040,11 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           router: RouterPlugin,
           thirdParty: ThirdParty,
           smartNotes: SmartNotes,
+          appFeatures: AppFeatures,
         ) =>
           ({
             component: createSettingsPanel({
+              appFeatures,
               thirdParty,
               smartNotes,
               ringCX,
@@ -1054,9 +1058,17 @@ export const getAppConfig = <T extends typeof createSharedApp>({
                 router.push('/settings/voicemailDrop'),
               onPhoneNumberFormatSettingsClick: () =>
                 router.push('/settings/phoneNumberFormat'),
+              onTextSettingsClick: () => router.push('/settings/text'),
             }),
           } satisfies SettingsViewOptions),
-        deps: [VoicemailDrop, RingCX, RouterPlugin, ThirdParty, SmartNotes],
+        deps: [
+          VoicemailDrop,
+          RingCX,
+          RouterPlugin,
+          ThirdParty,
+          SmartNotes,
+          AppFeatures,
+        ],
       },
       {
         provide: 'RingCXOptions',

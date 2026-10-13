@@ -110,10 +110,18 @@ describe("Adapter navigation compatibility", () => {
     });
   });
 
-  test("accepts application logs and rejects unsupported support routes", () => {
+  test("accepts migrated settings pages and rejects unsupported support routes", () => {
     expect(resolveLegacyAdapterPath("/settings/applicationLogs")).toEqual({
       kind: "route",
       path: "/settings/applicationLogs",
+    });
+    expect(resolveLegacyAdapterPath("/settings/text")).toEqual({
+      kind: "route",
+      path: "/settings/text",
+    });
+    expect(resolveLegacyAdapterPath("/settings/phoneNumberFormat")).toEqual({
+      kind: "route",
+      path: "/settings/phoneNumberFormat",
     });
     expect(resolveLegacyAdapterPath("/settings/feedback").kind).toBe(
       "unsupported"

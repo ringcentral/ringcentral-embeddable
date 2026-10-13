@@ -66,6 +66,7 @@ jest.mock('@ringcentral-integration/next-widgets/components', () => ({
 }));
 
 function createPanel({
+  hasSendSMSPermission = false,
   hasVoicemailDropPermission = false,
   smartNotes: smartNotesOverrides = {},
   thirdParty: thirdPartyOverrides = {},
@@ -108,8 +109,11 @@ function createPanel({
   const onVoicemailDropSettingsLinkClick = jest.fn();
   const onThirdPartySectionClick = jest.fn();
   const onPhoneNumberFormatSettingsClick = jest.fn();
+  const onTextSettingsClick = jest.fn();
   const Panel = createSettingsPanel({
+    appFeatures: { hasSendSMSPermission },
     onPhoneNumberFormatSettingsClick,
+    onTextSettingsClick,
     onThirdPartySectionClick,
     smartNotes,
     thirdParty,
@@ -118,6 +122,7 @@ function createPanel({
   });
   return {
     onPhoneNumberFormatSettingsClick,
+    onTextSettingsClick,
     onVoicemailDropSettingsLinkClick,
     Panel,
     smartNotes,
@@ -482,6 +487,42 @@ describe('SettingsPanel', () => {
         'phoneNumberFormat',
       ),
     ).toBeInTheDocument();
+  });
+
+  test('lists the default SMS sender first in Text when the user can send texts', () => {
+    const { Panel, onTextSettingsClick } = createPanel({
+      hasSendSMSPermission: true,
+    });
+    render(<Panel {...baseProps} showConsentManagement />);
+
+    const textGroup = screen.getByTestId('text-settings-group');
+    const links = within(textGroup).getAllByRole('button');
+    expect(links.map((link) => link.getAttribute('data-sign'))).toEqual([
+      'text',
+      'consentManagement',
+    ]);
+    fireEvent.click(within(textGroup).getByTestId('text'));
+    expect(onTextSettingsClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the Text group for the default SMS sender alone', () => {
+    const { Panel } = createPanel({ hasSendSMSPermission: true });
+    render(<Panel {...baseProps} />);
+
+    expect(
+      within(screen.getByTestId('text-settings-group')).getByTestId('text'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('consentManagement')).toBeNull();
+  });
+
+  test('hides the default SMS sender without SMS sending', () => {
+    const { Panel } = createPanel();
+    render(<Panel {...baseProps} showConsentManagement />);
+
+    expect(
+      within(screen.getByTestId('text-settings-group')).queryByTestId('text'),
+    ).toBeNull();
+    expect(screen.getByTestId('consentManagement')).toBeInTheDocument();
   });
 
   test('keeps Appearance when it contains multiple items', () => {
