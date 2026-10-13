@@ -38,7 +38,7 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `userAgent` | *null* | See [Customize X-User-Agent](user-agent.md). |
 | `enableAudioInitPrompt` | *null* | See [Audio](./audio.md). |
 | `enableLoadMoreCalls` | *null* | Support to load old call history (more than 7 days). Supported from v2.1.0 |
-| `enableSharedMessages` | *null* | Support to receive call queue SMS. Supported from v2.3.0. Since 3.1, it shows the **Shared** tab in messages. |
+| `enableSharedMessages` | *null* | Support to receive call queue SMS. Supported from v2.3.0. Since 3.1, it shows the **Call queue** tab in messages. The **Shared** tab (message threads) shows without this parameter when the account supports it. |
 | `enableSideWidget` | *null* | See [Call widgets](../integration/call-widget.md). Supported from v3.0.0 |
 | `enableVoicemailDrop` | *null* | See [Voicemail drop](voicemail-drop.md). Supported from v3.0.0 |
 </div>

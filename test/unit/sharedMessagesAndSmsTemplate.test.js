@@ -1,4 +1,4 @@
-import { createMessageThreadOptions } from '../../src/app/services/AppFeatures/createMessageThreadOptions';
+import { createQueueConversationsOptions } from '../../src/app/services/AppFeatures/createQueueConversationsOptions';
 import { SmsTemplateView } from '../../src/app/views/SmsTemplateView';
 
 jest.mock('@ringcentral-integration/micro-core/src/app/views', () => ({
@@ -16,15 +16,15 @@ jest.mock(
   }),
 );
 
-describe('createMessageThreadOptions', () => {
-  test('enables message threads from the SharedMessages flag on each read', () => {
-    const appFeatures = { config: { SharedMessages: false } };
-    const options = createMessageThreadOptions(appFeatures);
+describe('createQueueConversationsOptions', () => {
+  test('enables call queue SMS from the call queue SMS recipient permission on each read', () => {
+    const appFeatures = { hasCallQueueSmsRecipientPermission: false };
+    const options = createQueueConversationsOptions(appFeatures);
 
     expect(options.enable).toBe(false);
-    appFeatures.config = { SharedMessages: true };
+    appFeatures.hasCallQueueSmsRecipientPermission = true;
     expect(options.enable).toBe(true);
-    appFeatures.config = {};
+    appFeatures.hasCallQueueSmsRecipientPermission = undefined;
     expect(options.enable).toBe(false);
   });
 });
