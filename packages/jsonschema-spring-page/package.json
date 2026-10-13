@@ -26,6 +26,7 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.26.0",
+    "@fontsource/inter": "^5.3.0",
     "@storybook/addon-docs": "^9.0.12",
     "@storybook/addon-onboarding": "^9.0.12",
     "@storybook/addon-webpack5-compiler-swc": "^3.0.0",

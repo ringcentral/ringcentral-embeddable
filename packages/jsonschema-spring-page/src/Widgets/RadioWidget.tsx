@@ -61,6 +61,10 @@ function getHexColorValue(color: unknown): RadioColorValue | undefined {
   };
 }
 
+function isRowItemDirection(itemDirection: unknown): boolean {
+  return itemDirection === 'row' || itemDirection === 'row-reverse';
+}
+
 function getRadioOptionColorStyle<S extends StrictRJSFSchema>(
   option: EnumOptionsType<S>,
 ): RadioColorStyle | undefined {
@@ -119,6 +123,8 @@ export default function RadioWidget<
         <Tabs
           variant="standard"
           size="medium"
+          classes={{ tabList: '!min-w-0' }}
+          style={{ margin: '0 -16px' }}
         >
           {Array.isArray(enumOptions) &&
             enumOptions.map((option, index) => {
@@ -126,6 +132,7 @@ export default function RadioWidget<
               return (
                 <Tab
                   key={index}
+                  className="!min-w-0"
                   id={`${id}__tab-${index}`}
                   label={option.label}
                   value={String(index)}
@@ -152,7 +159,7 @@ export default function RadioWidget<
         id={id}
         name={id}
         value={selectedIndex}
-        row={!!options.inline}
+        row={!!options.inline || isRowItemDirection(uiSchema['ui:itemDirection'])}
         onChange={(event: ChangeEvent<HTMLInputElement>) => handleChange(event.target.value)}
         onBlur={handleBlur}
         onFocus={handleFocus}
