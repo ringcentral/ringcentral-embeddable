@@ -39,9 +39,17 @@ import {
 
 import { t } from '../../i18n';
 import {
+  ThirdParty,
+  type ThirdPartyContact,
+} from '../../services/ThirdParty';
+import {
   type SideWidgetContentHandle,
   SideWidgetView,
 } from '../SideWidgetView';
+import type {
+  ContactActivity,
+  ContactThirdPartyProps,
+} from './ContactDetails.interface';
 import { ContactDetailsPanel } from './ContactDetailsPanel';
 
 const CONTACT_DETAILS_ROUTE_PATH = '/contacts/:contactType/:contactId';
@@ -85,6 +93,7 @@ export class ContactDetailsView extends ContactDetailsViewBase {
     @optional('ContactDetailsViewOptions')
     protected _contactDetailsViewOptions?: ContactDetailsViewOptions,
     @optional() protected _sideWidgetView?: SideWidgetView,
+    @optional() private _thirdParty?: ThirdParty,
   ) {
     super(
       _modalView,
@@ -196,11 +205,45 @@ export class ContactDetailsView extends ContactDetailsViewBase {
     await this._router.goBack();
   }
 
+  /** The service's contact actions and activities for the contact page. */
+  private get _thirdPartyUIProps(): Pick<
+    ContactThirdPartyProps,
+    | 'additionalActions'
+    | 'showActivities'
+    | 'activitiesTabName'
+    | 'activities'
+    | 'activitiesLoaded'
+  > {
+    const thirdParty = this._thirdParty;
+    return {
+      additionalActions: thirdParty?.additionalContactActions ?? [],
+      showActivities: Boolean(thirdParty?.activitiesRegistered),
+      activitiesTabName:
+        thirdParty?.activityName || thirdParty?.serviceName || '',
+      activities: (thirdParty?.activities ?? []) as ContactActivity[],
+      activitiesLoaded: thirdParty?.activitiesLoaded ?? true,
+    };
+  }
+
+  private _formatActivityTime(time: number): string {
+    try {
+      return new Date(time).toLocaleString(this._locale.currentLocale, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return new Date(time).toLocaleString();
+    }
+  }
+
   override getUIProps(props: Partial<ContactDetailsViewProps>) {
     const uiProps = super.getUIProps(props);
 
     return {
       ...uiProps,
+      ...this._thirdPartyUIProps,
       showSpinner: !(
         this.currentContactReadyState === contactReadyStates.loaded &&
         this._locale.ready &&
@@ -216,6 +259,23 @@ export class ContactDetailsView extends ContactDetailsViewBase {
       onBackClick: () => {
         void this._navigateBack();
       },
+      onClickAdditionalAction: (
+        buttonId: string,
+        resource: Record<string, unknown>,
+      ) => {
+        void this._thirdParty?.onClickAdditionalButton(buttonId, resource);
+      },
+      loadActivities: () => {
+        if (this.currentContact) {
+          void this._thirdParty?.fetchActivities(
+            this.currentContact as unknown as ThirdPartyContact,
+          );
+        }
+      },
+      openActivity: (activity: ContactActivity) => {
+        void this._thirdParty?.openActivity(activity);
+      },
+      formatActivityTime: (time: number) => this._formatActivityTime(time),
     };
   }
 
@@ -248,6 +308,15 @@ export class ContactDetailsView extends ContactDetailsViewBase {
         onBackClick={uiFunctions.onBackClick}
         onClickToDial={uiFunctions.onClickToDial}
         onClickToSMS={uiFunctions.onClickToSMS}
+        additionalActions={_props.additionalActions}
+        onClickAdditionalAction={uiFunctions.onClickAdditionalAction}
+        showActivities={_props.showActivities}
+        activitiesTabName={_props.activitiesTabName}
+        activities={_props.activities}
+        activitiesLoaded={_props.activitiesLoaded}
+        loadActivities={uiFunctions.loadActivities}
+        openActivity={uiFunctions.openActivity}
+        formatActivityTime={uiFunctions.formatActivityTime}
       />
     );
   }

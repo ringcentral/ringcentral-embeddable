@@ -1579,13 +1579,17 @@ export class ThirdParty extends RcModule {
       this._onLoadActivities();
       const activities = await this._fetchActivities(contact);
       this._onLoadActivitiesSuccess({
-        activities,
+        activities: Array.isArray(activities) ? activities : [],
       });
     } catch (error) {
       console.error(error);
     }
   }
 
+  /**
+   * Errors thrown on the main client do not reach the server caller, which
+   * would then never mark the activities loaded, so a failure returns none.
+   */
   @delegate('mainClient')
   private async _fetchActivities(
     contact: ThirdPartyContact
@@ -1593,10 +1597,15 @@ export class ThirdParty extends RcModule {
     if (!this._activitiesPath) {
       return [];
     }
-    const response = await requestWithPostMessage(this._activitiesPath, {
-      contact,
-    });
-    return Array.isArray(response.data) ? response.data : [];
+    try {
+      const response = await requestWithPostMessage(this._activitiesPath, {
+        contact,
+      });
+      return Array.isArray(response?.data) ? response.data : [];
+    } catch (error) {
+      console.error('Fetch activities error', error);
+      return [];
+    }
   }
 
   @delegate('mainClient')

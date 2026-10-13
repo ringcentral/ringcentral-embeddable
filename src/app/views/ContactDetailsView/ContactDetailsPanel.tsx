@@ -12,17 +12,22 @@ import { CallMd, Smsmd } from '@ringcentral/spring-icon';
 import {
   Block,
   BlockHeader,
-  Icon,
-  IconButton,
   Tab,
   TabContext,
   Tabs,
 } from '@ringcentral/spring-ui';
 import React, { useState } from 'react';
 
+import { ContactActivities } from './ContactActivities';
+import type {
+  ContactThirdPartyProps,
+  PhoneAction,
+} from './ContactDetails.interface';
+import { PhoneActionButtons } from './PhoneActionButtons';
+import { toAdditionalPhoneActions } from './toAdditionalPhoneActions';
 import i18n from './i18n';
 
-interface ContactDetailsPanelProps {
+interface ContactDetailsPanelProps extends ContactThirdPartyProps {
   currentLocale: string;
   contact: ContactModel | null;
   showSpinner: boolean;
@@ -88,6 +93,8 @@ function PhoneSection({
   canTextButtonShow,
   onClickToDial,
   onClickToSMS,
+  additionalActions,
+  onClickAdditionalAction,
 }: {
   contact: ContactModel;
   currentLocale: string;
@@ -99,6 +106,8 @@ function PhoneSection({
   canTextButtonShow: (phoneType: string) => boolean;
   onClickToDial: (contact: ContactModel, phoneNumber: string) => void;
   onClickToSMS: (contact: ContactModel, phoneNumber: string) => void;
+  additionalActions: ContactThirdPartyProps['additionalActions'];
+  onClickAdditionalAction: ContactThirdPartyProps['onClickAdditionalAction'];
 }) {
   if (!contact.phoneNumbers || contact.phoneNumbers.length === 0) {
     return null;
@@ -119,38 +128,40 @@ function PhoneSection({
             ? formattedNumber
             : phoneNumber!;
 
-        let endSlot: React.ReactNode;
-
-        if (canCallButtonShow(phoneType!) || canTextButtonShow(phoneType!)) {
-          endSlot = (
-            <div className="flex items-center gap-1 flex-none">
-              {canCallButtonShow(phoneType!) && (
-                <IconButton
-                  variant="icon"
-                  size="small"
-                  color="secondary"
-                  disabled={isCallButtonDisabled}
-                  onClick={() => onClickToDial(contact, usedPhoneNumber)}
-                  TooltipProps={{ title: `Call ${displayedPhoneNumber}` }}
-                >
-                  <Icon symbol={CallMd} size="small" />
-                </IconButton>
-              )}
-              {canTextButtonShow(phoneType!) && (
-                <IconButton
-                  variant="icon"
-                  size="small"
-                  color="secondary"
-                  disabled={disableLinks}
-                  onClick={() => onClickToSMS(contact, usedPhoneNumber)}
-                  TooltipProps={{ title: `Text ${displayedPhoneNumber}` }}
-                >
-                  <Icon symbol={Smsmd} size="small" />
-                </IconButton>
-              )}
-            </div>
-          );
+        const actions: PhoneAction[] = [];
+        if (canCallButtonShow(phoneType!)) {
+          actions.push({
+            id: 'call',
+            title: `Call ${displayedPhoneNumber}`,
+            symbol: CallMd,
+            disabled: isCallButtonDisabled,
+            onClick: () => onClickToDial(contact, usedPhoneNumber),
+          });
         }
+        if (canTextButtonShow(phoneType!)) {
+          actions.push({
+            id: 'text',
+            title: `Text ${displayedPhoneNumber}`,
+            symbol: Smsmd,
+            disabled: disableLinks,
+            onClick: () => onClickToSMS(contact, usedPhoneNumber),
+          });
+        }
+        actions.push(
+          ...toAdditionalPhoneActions({
+            actions: additionalActions,
+            disabled: disableLinks,
+            onClick: (buttonId) =>
+              onClickAdditionalAction(buttonId, {
+                ...contact,
+                phoneNumber: usedPhoneNumber,
+                phoneType,
+              }),
+          }),
+        );
+        const endSlot = actions.length > 0 ? (
+          <PhoneActionButtons actions={actions} moreTitle={t('more')} />
+        ) : undefined;
 
         return (
           <SectionItem
@@ -287,6 +298,15 @@ export function ContactDetailsPanel({
   onClickToDial,
   onClickToSMS,
   onClickMailTo,
+  additionalActions,
+  onClickAdditionalAction,
+  showActivities,
+  activitiesTabName,
+  activities,
+  activitiesLoaded,
+  loadActivities,
+  openActivity,
+  formatActivityTime,
 }: ContactDetailsPanelProps) {
   const { t } = useLocale(i18n);
   const [activeTab, setActiveTab] = useState('details');
@@ -344,6 +364,14 @@ export function ContactDetailsPanel({
             className="w-full flex-none mt-2 mb-2 border-b border-neutral-l01"
           >
             <Tab value="details" label={t('details')} id="details-tab" />
+            {showActivities && (
+              <Tab
+                value="activities"
+                label={activitiesTabName}
+                id="activities-tab"
+                data-sign="activitiesTab"
+              />
+            )}
           </Tabs>
         </TabContext>
         <div className="flex-1 overflow-y-auto w-full px-4 pb-4">
@@ -364,6 +392,8 @@ export function ContactDetailsPanel({
                 canTextButtonShow={canTextButtonShow}
                 onClickToDial={onClickToDial}
                 onClickToSMS={onClickToSMS}
+                additionalActions={additionalActions}
+                onClickAdditionalAction={onClickAdditionalAction}
               />
               <EmailSection
                 emails={contact.emails}
@@ -375,6 +405,15 @@ export function ContactDetailsPanel({
                 department={detailsContact.department}
               />
             </>
+          )}
+          {showActivities && activeTab === 'activities' && (
+            <ContactActivities
+              activities={activities}
+              loaded={activitiesLoaded}
+              loadActivities={loadActivities}
+              openActivity={openActivity}
+              formatTime={formatActivityTime}
+            />
           )}
         </div>
       </div>

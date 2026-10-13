@@ -988,6 +988,29 @@ describe('ThirdParty service', () => {
     );
   });
 
+  test('marks activities loaded with none when the host fails', async () => {
+    const { service } = createThirdParty();
+    registerService(service, {
+      activitiesPath: '/activities',
+      activityPath: '/activity',
+    });
+    const contact = { id: 'contact-1' };
+
+    requestWithPostMessage.mockRejectedValueOnce(new Error('Time out: /activities'));
+    await service.fetchActivities(contact);
+    expect(service.activitiesLoaded).toBe(true);
+    expect(service.activities).toEqual([]);
+
+    requestWithPostMessage.mockResolvedValueOnce({
+      data: [{ id: '1', subject: 'Follow-up call' }],
+    });
+    await service.fetchActivities(contact);
+    expect(service.activities).toEqual([{ id: '1', subject: 'Follow-up call' }]);
+    expect(requestWithPostMessage).toHaveBeenLastCalledWith('/activities', {
+      contact,
+    });
+  });
+
   test('logs voicemail and fax attachments with transcript and access tokens', async () => {
     const { dependencies, service } = createThirdParty();
     registerService(service, { authorized: true });
