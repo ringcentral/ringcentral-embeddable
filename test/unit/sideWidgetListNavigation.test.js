@@ -241,9 +241,33 @@ describe('SideWidget list detail navigation', () => {
     expect(router.push).toHaveBeenCalledWith('/dialer');
   });
 
+  test('passes the third-party call actions to the call details page', async () => {
+    const additionalCallActions = [
+      { id: 'callBtn', label: 'Call action', type: 'callAction' },
+    ];
+    const thirdParty = {
+      additionalCallActions,
+      onClickAdditionalButton: jest.fn(async () => undefined),
+    };
+    const view = Object.create(CallDetailView.prototype);
+    view._auth = { accessToken: 'token' };
+    view._thirdParty = thirdParty;
+    const call = { id: 'call-id' };
+
+    const component = view.component({});
+    await view.getUIFunctions({}).onAdditionalCallAction('callBtn', call);
+
+    expect(component.props.additionalCallActions).toBe(additionalCallActions);
+    expect(thirdParty.onClickAdditionalButton).toHaveBeenCalledWith(
+      'callBtn',
+      call,
+    );
+  });
+
   test('scrolls call metadata together with history details', () => {
     const view = Object.create(CallDetailView.prototype);
     view._auth = { accessToken: 'token' };
+    view._thirdParty = { additionalCallActions: [] };
 
     const component = view.component({});
 
@@ -253,6 +277,7 @@ describe('SideWidget list detail navigation', () => {
   test('adds the current access token to the call recording URI', () => {
     const view = Object.create(CallDetailView.prototype);
     view._auth = { accessToken: 'current token' };
+    view._thirdParty = { additionalCallActions: [] };
 
     const component = view.component({
       currentCallLog: {

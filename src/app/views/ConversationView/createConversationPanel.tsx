@@ -19,6 +19,7 @@ import { CircularProgressIndicator } from '@ringcentral/spring-ui';
 import type { FunctionComponent } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
+import { SmsToolbarButtons } from '../../components/SmsToolbarButtons';
 import type { Conversations } from '../../services/Conversations';
 import type { SmsTypingTimeTracker } from '../../services/SmsTypingTimeTracker';
 import type { DoNotContact } from '../../services/DoNotContact';
@@ -244,6 +245,12 @@ export function createConversationPanel(
           conversation={conversation}
           sendButtonDisabled={sendButtonDisabled}
           {...messageLogSelection}
+          toolbar={
+            <>
+              {props.toolbar}
+              <SmsToolbarButtons />
+            </>
+          }
           endAdornment={
             smsTypingTimeTracker && conversationId ? (
               <>

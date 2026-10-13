@@ -14,11 +14,14 @@ import { insertRefreshContactActionButton } from '../../components/RefreshContac
 
 interface UseConversationActionButtonsWithRefreshProps
   extends UseConversationActionButtonsProps {
+  /** Appended after the built-in buttons, such as third-party actions. */
+  additionalButtons?: ActionMenuListButtonProps[];
   refreshContactButton: ActionMenuListButtonProps | null;
 }
 
 export function useConversationActionButtons({
   actions,
+  additionalButtons = [],
   conversation,
   createNewEntityTooltip,
   displayCount,
@@ -57,11 +60,14 @@ export function useConversationActionButtons({
       void onAction(actionType);
     },
   );
-  const buttons = insertRefreshContactActionButton(
-    historyButtons,
-    refreshContactButton,
-    'delete',
-  );
+  const buttons = [
+    ...insertRefreshContactActionButton(
+      historyButtons,
+      refreshContactButton,
+      'delete',
+    ),
+    ...additionalButtons,
+  ];
 
   const viewCRMLogMenu = useMemo(() => {
     if (loggedEntities?.length <= 1) {

@@ -14,6 +14,7 @@ import {
 import { Block, BlockHeader } from '@ringcentral/spring-ui';
 import React, { type FunctionComponent } from 'react';
 
+import { useAdditionalMessageButtons } from '../ConversationsView/useAdditionalMessageButtons';
 import type { FaxDetailsPanelProps } from './FaxDetails.view.interface';
 
 export const FaxDetailsPanel: FunctionComponent<FaxDetailsPanelProps> = ({
@@ -24,7 +25,9 @@ export const FaxDetailsPanel: FunctionComponent<FaxDetailsPanelProps> = ({
 }) => {
   const { actions, info } = useConversationItemInfo(fax);
   const onAction = useActionsHandler(fax, info, 'Fax detail page');
-  const buttons = useHistoryActionButtons(actions, onAction);
+  const historyButtons = useHistoryActionButtons(actions, onAction);
+  const additionalButtons = useAdditionalMessageButtons(fax);
+  const buttons = [...historyButtons, ...additionalButtons];
   const {
     Avatar,
     DisplayName,

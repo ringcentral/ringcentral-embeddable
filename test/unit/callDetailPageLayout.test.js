@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import React from "react";
 
 import { CallDetailPage } from "../../src/app/views/CallHistoryView/CallDetailPage";
@@ -27,8 +27,13 @@ jest.mock("@ringcentral-integration/micro-core/src/app/hooks", () => ({
 jest.mock("@ringcentral-integration/next-widgets/components", () => ({
   ActionMenuList: ({ buttons }) => (
     <div data-sign="actionMenuList">
-      {buttons.map(({ actionType, label }) => (
-        <button data-sign={actionType} key={actionType} type="button">
+      {buttons.map(({ actionType, label, onClick }) => (
+        <button
+          data-sign={actionType}
+          key={actionType}
+          onClick={onClick}
+          type="button"
+        >
           {label}
         </button>
       ))}
@@ -152,6 +157,55 @@ describe("CallDetailPage layout", () => {
       "call",
       "View log details",
     ]);
+  });
+
+  test("appends third-party call actions that send the call", () => {
+    const onAdditionalCallAction = jest.fn();
+    render(
+      <CallDetailPage
+        {...sharedProps}
+        additionalCallActions={[
+          { id: "callBtn", label: "Call action", type: "callAction" },
+        ]}
+        onAdditionalCallAction={onAdditionalCallAction}
+        useCallHistoryItemInfo={createUseCallHistoryItemInfo([
+          { type: "call" },
+        ])}
+      >
+        Form content
+      </CallDetailPage>
+    );
+
+    const buttons = within(screen.getByTestId("actionMenuList")).getAllByRole(
+      "button"
+    );
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      "call",
+      "Call action",
+    ]);
+    fireEvent.click(buttons[1]);
+    expect(onAdditionalCallAction).toHaveBeenCalledWith(
+      "callBtn",
+      sharedProps.currentCallLog
+    );
+  });
+
+  test("leaves third-party call actions out without a click handler", () => {
+    render(
+      <CallDetailPage
+        {...sharedProps}
+        additionalCallActions={[
+          { id: "callBtn", label: "Call action", type: "callAction" },
+        ]}
+        useCallHistoryItemInfo={createUseCallHistoryItemInfo([
+          { type: "call" },
+        ])}
+      >
+        Form content
+      </CallDetailPage>
+    );
+
+    expect(screen.queryByText("Call action")).toBeNull();
   });
 
   test("can hide caller ID and scroll time/status with page content", () => {

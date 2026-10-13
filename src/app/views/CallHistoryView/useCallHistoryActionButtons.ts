@@ -5,49 +5,13 @@ import {
   useHistoryActionButtons,
 } from '@ringcentral-integration/next-widgets/components/ActionMenuList/useHistoryActionButtons';
 import {
-  AppsMd,
   ArrowRightUpMd,
-  CalendarMd,
-  CallListMd,
-  CallMd,
-  ContactsMd,
   DispositionMd,
-  DownloadMd,
   EditMd,
-  InviteMd,
-  MarkReadMd,
-  MarkUnreadMd,
-  PlusMd,
-  RefreshMd,
-  SettingsMd,
-  SmartNotesMd,
-  Smsmd,
-  ViewMd,
 } from '@ringcentral/spring-icon';
 
+import { createThirdPartyActionButton } from '../../components/ThirdPartyActionButton';
 import type { ThirdPartyButton } from '../../services/ThirdParty/ThirdParty.interface';
-
-type ActionSymbol = NonNullable<ActionMenuListButtonProps['symbol']>;
-
-const CUSTOM_CALL_ACTION_ICONS: Record<string, ActionSymbol> = {
-  addMember: InviteMd,
-  aiNotes: SmartNotesMd,
-  apps: AppsMd,
-  calendar: CalendarMd,
-  clock: CallListMd,
-  download: DownloadMd,
-  edit: EditMd,
-  newAction: PlusMd,
-  people: ContactsMd,
-  phone: CallMd,
-  read: MarkReadMd,
-  refresh: RefreshMd,
-  settings: SettingsMd,
-  sms: Smsmd,
-  unread: MarkUnreadMd,
-  view: ViewMd,
-  viewLog: ArrowRightUpMd,
-};
 
 interface UseCallHistoryActionButtonsOptions {
   actions: HistoryAction[];
@@ -86,26 +50,6 @@ function createLogButton(
   };
 }
 
-function createAdditionalActionButton(
-  action: ThirdPartyButton,
-  call: unknown,
-  onAdditionalAction: UseCallHistoryActionButtonsOptions['onAdditionalAction'],
-): ActionMenuListButtonProps {
-  return {
-    actionType: action.id,
-    color: 'secondary',
-    label: action.label || action.id,
-    onClick: (event) => {
-      void onAdditionalAction(action.id, call);
-      event.stopPropagation();
-    },
-    shape: 'squircle',
-    size: 'medium',
-    symbol: CUSTOM_CALL_ACTION_ICONS[action.icon || ''] || AppsMd,
-    variant: 'outlined',
-  };
-}
-
 export function useCallHistoryActionButtons({
   actions,
   additionalActions,
@@ -126,7 +70,11 @@ export function useCallHistoryActionButtons({
     ...standardButtons,
     ...(viewLogAction ? [createLogButton(viewLogAction, onAction)] : []),
     ...additionalActions.map((action) =>
-      createAdditionalActionButton(action, call, onAdditionalAction),
+      createThirdPartyActionButton({
+        action,
+        onClick: onAdditionalAction,
+        resource: call,
+      }),
     ),
   ];
 }

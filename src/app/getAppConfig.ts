@@ -163,6 +163,7 @@ import { HistoryActiveCallsView } from './views/CallHistoryView/HistoryActiveCal
 import { CallHUDView } from './views/CallHUDView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
+import { VoicemailPage } from './views/VoicemailView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
 import { SideWidgetView, type SideWidgetOptions } from './views/SideWidgetView';
@@ -200,6 +201,7 @@ import {
   SmsConsentManagementView,
   SmsOptOutView,
 } from '@ringcentral-integration/micro-message/src/app/views';
+import type { VoicemailViewOptions } from '@ringcentral-integration/micro-message/src/app/views/VoicemailView/Voicemail.view.interface';
 import { CallViewState } from '@ringcentral-integration/micro-phone/src/app/views/CallView/services';
 import {
   Webphone as WebphoneV2,
@@ -763,6 +765,12 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: 'HistoryActiveCallsView',
         useClass: HistoryActiveCallsView,
+      },
+      {
+        provide: 'VoicemailViewOptions',
+        useValue: {
+          component: VoicemailPage,
+        } satisfies VoicemailViewOptions,
       },
       {
         provide: 'MessageThreadOptions',
