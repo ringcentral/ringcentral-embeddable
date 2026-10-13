@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { createComposeTextPanel } from '../../src/app/views/ComposeTextView/createComposeTextPanel';
 import { createConversationPanel } from '../../src/app/views/ConversationView/createConversationPanel';
@@ -73,8 +73,20 @@ jest.mock(
 jest.mock(
   '@ringcentral-integration/micro-message/src/app/views/ConversationViewSpring/ConversationPanel',
   () => ({
-    ConversationPanel: ({ toolbar }) => (
-      <div data-sign="conversationToolbar">{toolbar}</div>
+    ConversationPanel: ({ messages = [], toolbar }) => (
+      <div>
+        <div data-sign="conversationToolbar">{toolbar}</div>
+        {messages.flatMap(({ mmsAttachments = [] }) =>
+          mmsAttachments.map((attachment) => (
+            <div key={attachment.id}>
+              <div data-sign="file-full-name">{attachment.fileName}</div>
+              <button data-sign="download" type="button">
+                Download
+              </button>
+            </div>
+          )),
+        )}
+      </div>
     ),
   }),
 );
@@ -158,6 +170,65 @@ describe('third-party message actions', () => {
   });
 });
 
+function createConversationServices(thirdParty = {}) {
+  return {
+    conversations: { loadConversation: jest.fn(async () => {}) },
+    messageThread: {
+      isThreadId: jest.fn(() => false),
+      setInputValue: jest.fn(async () => {}),
+    },
+    queueConversations: {
+      formattedConversationsMap: new Map(),
+      loadConversation: jest.fn(async () => {}),
+    },
+    connectivityMonitor: { connectivity: true },
+    rateLimiter: { restricted: false },
+    thirdParty: {
+      messageLoggerGranularSelectionEnabled: false,
+      messageLoggerRegistered: false,
+      messageLogStateMap: {},
+      messageLoggerTitle: null,
+      messageLogEntityMatcherRegistered: false,
+      ...thirdParty,
+    },
+    conversationLogger: { autoLog: false },
+  };
+}
+
+describe('third-party vCard handler', () => {
+  test('receives a vcard downloaded from a conversation', () => {
+    const openVCard = jest.fn(async () => undefined);
+    const ConversationPanel = createConversationPanel(
+      { push: jest.fn() },
+      undefined,
+      undefined,
+      createConversationServices({ openVCard, vcardHandlerRegistered: true }),
+    );
+
+    render(
+      <ConversationPanel
+        conversation={{ conversationId: 'conversation-id' }}
+        messages={[
+          {
+            id: 'message-id',
+            mmsAttachments: [
+              {
+                contentType: 'text/vcard',
+                fileName: 'Ada.vcf',
+                id: 'vcard',
+                uri: 'https://media.example.com/vcard',
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Download' }));
+
+    expect(openVCard).toHaveBeenCalledWith('https://media.example.com/vcard');
+  });
+});
+
 describe('third-party SMS toolbar buttons', () => {
   test('follow the upstream toolbar in compose text', () => {
     const ComposeTextPanel = createComposeTextPanel(undefined);
@@ -174,27 +245,7 @@ describe('third-party SMS toolbar buttons', () => {
       { push: jest.fn() },
       undefined,
       undefined,
-      {
-        conversations: { loadConversation: jest.fn(async () => {}) },
-        messageThread: {
-          isThreadId: jest.fn(() => false),
-          setInputValue: jest.fn(async () => {}),
-        },
-        queueConversations: {
-          formattedConversationsMap: new Map(),
-          loadConversation: jest.fn(async () => {}),
-        },
-        connectivityMonitor: { connectivity: true },
-        rateLimiter: { restricted: false },
-        thirdParty: {
-          messageLoggerGranularSelectionEnabled: false,
-          messageLoggerRegistered: false,
-          messageLogStateMap: {},
-          messageLoggerTitle: null,
-          messageLogEntityMatcherRegistered: false,
-        },
-        conversationLogger: { autoLog: false },
-      },
+      createConversationServices(),
     );
 
     render(

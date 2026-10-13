@@ -553,6 +553,11 @@ export class ThirdParty extends RcModule {
     return this._serviceRegistration?.vcardHandlerPath;
   }
 
+  /** Whether the host handles vCard attachment downloads. */
+  get vcardHandlerRegistered(): boolean {
+    return Boolean(this._vcardHandlerPath);
+  }
+
   private get _callLogPageInputChangedEventPath(): string | undefined {
     return this._serviceRegistration?.callLogPageInputChangedEventPath;
   }
@@ -1972,24 +1977,21 @@ export class ThirdParty extends RcModule {
     await requestWithPostMessage(path, data);
   }
 
-  async onClickVCard(
-    vcardUri: string,
-    event: Pick<MouseEvent, 'currentTarget' | 'preventDefault'>
-  ): Promise<void> {
+  /**
+   * Sends a vCard attachment the user chose to download to the host's
+   * `vcardHandlerPath`.
+   */
+  @delegate('mainClient')
+  async openVCard(vcardUri: string): Promise<void> {
     const vcardHandlerPath = this._vcardHandlerPath;
     if (!vcardHandlerPath) {
       return;
     }
-    const currentTarget = event.currentTarget as HTMLAnchorElement | null;
-    if (currentTarget?.download && currentTarget.download.includes('.vcard')) {
-      event.preventDefault();
-      await this._openVCard(vcardHandlerPath, vcardUri);
+    try {
+      await requestWithPostMessage(vcardHandlerPath, { vcardUri });
+    } catch (error) {
+      console.error(error);
     }
-  }
-
-  @delegate('mainClient')
-  private async _openVCard(path: string, vcardUri: string): Promise<void> {
-    await requestWithPostMessage(path, { vcardUri });
   }
 
   @delegate('mainClient')

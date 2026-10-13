@@ -23,6 +23,7 @@ import { SmsToolbarButtons } from '../../components/SmsToolbarButtons';
 import type { Conversations } from '../../services/Conversations';
 import type { SmsTypingTimeTracker } from '../../services/SmsTypingTimeTracker';
 import type { DoNotContact } from '../../services/DoNotContact';
+import { handleVCardDownloadClick } from './handleVCardDownloadClick';
 import { TypingDuration } from './TypingDuration';
 import {
   type MessageLogSelectionServices,
@@ -230,7 +231,13 @@ export function createConversationPanel(
       !hasDraft;
 
     return (
-      <div className="relative h-full" ref={panelContainerRef}>
+      <div
+        className="relative h-full"
+        ref={panelContainerRef}
+        onClickCapture={(event) =>
+          handleVCardDownloadClick(event, messages, services.thirdParty)
+        }
+      >
         {canLoadOlderMessages && loadingOldMessages ? (
           <div
             className="absolute left-1/2 top-2 z-10 -translate-x-1/2"

@@ -1110,29 +1110,35 @@ describe('ThirdParty service', () => {
     });
   });
 
-  test('opens downloaded vcards and ignores other anchors', async () => {
+  test('sends vcards to the registered handler', async () => {
     const { service } = createThirdParty();
+    expect(service.vcardHandlerRegistered).toBe(false);
+    await service.openVCard('https://example.com/contact.vcard');
+    expect(requestWithPostMessage).not.toHaveBeenCalled();
+
     registerService(service);
-    const preventDefault = jest.fn();
-    await service.onClickVCard('https://example.com/contact.vcard', {
-      currentTarget: { download: 'contact.vcard' },
-      preventDefault,
-    });
-    expect(preventDefault).toHaveBeenCalled();
+    expect(service.vcardHandlerRegistered).toBe(true);
+    await service.openVCard('https://example.com/contact.vcard');
     expect(requestWithPostMessage).toHaveBeenCalledWith('/vcard', {
       vcardUri: 'https://example.com/contact.vcard',
     });
+  });
 
-    requestWithPostMessage.mockClear();
-    await service.onClickVCard('https://example.com/contact.txt', {
-      currentTarget: { download: 'contact.txt' },
-      preventDefault,
-    });
-    await service.onClickVCard('https://example.com/contact.vcard', {
-      currentTarget: null,
-      preventDefault,
-    });
-    expect(requestWithPostMessage).not.toHaveBeenCalled();
+  test('logs a vcard handler that does not respond', async () => {
+    const { service } = createThirdParty();
+    registerService(service);
+    const error = new Error('timeout');
+    requestWithPostMessage.mockRejectedValueOnce(error);
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+
+    await expect(
+      service.openVCard('https://example.com/contact.vcard'),
+    ).resolves.toBeUndefined();
+
+    expect(consoleError).toHaveBeenCalledWith(error);
+    consoleError.mockRestore();
   });
 
   test('handles missing simple-action registrations and request errors', async () => {
