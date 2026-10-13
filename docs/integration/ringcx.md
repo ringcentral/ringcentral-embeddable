@@ -175,7 +175,7 @@ A progressive dial group is a **Preview** dial group with **Enable progressive m
 | `rc-ev-dialLead` | `rc-adapter-ringcx-dial-lead` |
 | `rc-ev-loadLeads`, `rc-ev-manualPassLead`, `rc-ev-callLead` | `rc-ringcx-lead-notify` with `action` `loaded`, `passed`, or `dialed` |
 | `rc-ev-logout` | `rc-adapter-ringcx-end-agent-session` |
-| `rc-ev-setEnvironment` | `evServer` parameter |
+| `rc-ev-setEnvironment` | `appServer` parameter; RingCX follows the RingCentral environment |
 | `rc-ev-register` | `rc-adapter-register-third-party-service` |
 | `rc-ev-matchContacts` | `contactMatchPath` |
 | `rc-ev-matchCallLogs` | `callLogEntityMatcherPath` |
