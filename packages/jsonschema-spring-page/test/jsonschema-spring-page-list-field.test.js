@@ -80,7 +80,8 @@ jest.mock('@ringcentral/spring-ui', () => {
       ),
     Link: ({ children, href }) =>
       ReactForMock.createElement('a', { href }, children),
-    List: ({ children }) => ReactForMock.createElement('div', { role: 'list' }, children),
+    List: ({ children, style }) =>
+      ReactForMock.createElement('div', { role: 'list', style }, children),
     ListItem: ({
       alwaysShowHoverActions,
       children,
@@ -183,6 +184,18 @@ describe('jsonschema-spring-page List field', () => {
     expect(html).toContain('data-list-item-class="group rounded-xl"');
     expect(html).toContain('data-content-class="bg-inherit !px-3 !py-2"');
     expect(html).toContain('data-list-item-text-class="min-w-0 flex-1 px-2 py-1"');
+  });
+
+  it('stretches the Spring UI list across the page horizontal padding', () => {
+    const html = renderList({
+      items: [
+        {
+          const: 'first',
+          title: 'First',
+        },
+      ],
+    });
+    expect(html).toContain('<div role="list" style="margin:0 -16px;width:auto">');
   });
 
   it('renders Spring icon keys through Spring UI Avatar symbol', () => {

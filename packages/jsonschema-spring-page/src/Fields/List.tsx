@@ -542,7 +542,7 @@ export function List({
     );
   }
   return (
-    <SpringList style={{ margin: '0 -16px' }}>
+    <SpringList style={{ margin: '0 -16px', width: 'auto' }}>
       {items.map((item: any) => (
         <RowItem
           key={item.const}

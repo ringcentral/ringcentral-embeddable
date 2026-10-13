@@ -38,10 +38,11 @@ jest.mock('@ringcentral/spring-ui', () => {
         },
         children,
       ),
-    Tab: ({ disabled, id, label, value }) =>
+    Tab: ({ className, disabled, id, label, value }) =>
       ReactForMock.createElement(
         'button',
         {
+          className,
           'data-component': 'Tab',
           'data-disabled': disabled ? 'true' : 'false',
           'data-value': value,
@@ -60,15 +61,17 @@ jest.mock('@ringcentral/spring-ui', () => {
         },
         children,
       )),
-    Tabs: ({ children, onChange, size, value, variant }) =>
+    Tabs: ({ children, classes, onChange, size, style, value, variant }) =>
       ReactForMock.createElement(
         'div',
         {
           'data-component': 'Tabs',
           'data-has-on-change': typeof onChange === 'function' ? 'true' : 'false',
           'data-size': size,
+          'data-tab-list-class': classes?.tabList,
           'data-value': value,
           'data-variant': variant,
+          style,
         },
         children,
       ),
@@ -163,6 +166,24 @@ describe('jsonschema-spring-page RadioWidget', () => {
     expect(props.onChange).toHaveBeenCalledWith('tab2');
   });
 
+  it('renders full-bleed tabs that can shrink below the Spring UI tab min width', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(
+        RadioWidget,
+        createWidgetProps({
+          id: 'root_tab',
+          uiSchema: {
+            'ui:tab': true,
+          },
+        }),
+      ),
+    );
+
+    expect(html).toContain('style="margin:0 -16px"');
+    expect(html).toContain('data-tab-list-class="!min-w-0"');
+    expect(html.match(/<button class="!min-w-0" data-component="Tab"/g)).toHaveLength(3);
+  });
+
   it('renders regular radio groups with Spring UI FormLabel label prop and label gap', () => {
     const html = renderToStaticMarkup(
       React.createElement(
@@ -194,6 +215,40 @@ describe('jsonschema-spring-page RadioWidget', () => {
     expect(html).toContain('data-value="1"');
     expect(html).toContain('Low Priority');
     expect(html).toContain('Medium Priority');
+  });
+
+  it.each(['row', 'row-reverse'])(
+    'uses Spring UI row radio group for ui:itemDirection %s without ui:inline',
+    (itemDirection) => {
+      const html = renderToStaticMarkup(
+        React.createElement(
+          RadioWidget,
+          createWidgetProps({
+            uiSchema: {
+              'ui:itemDirection': itemDirection,
+              'ui:valueLabel': false,
+            },
+          }),
+        ),
+      );
+
+      expect(html).toContain('data-row="true"');
+    },
+  );
+
+  it('keeps Spring UI column radio group for non-row ui:itemDirection', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(
+        RadioWidget,
+        createWidgetProps({
+          uiSchema: {
+            'ui:itemDirection': 'column',
+          },
+        }),
+      ),
+    );
+
+    expect(html).toContain('data-row="false"');
   });
 
   it('uses oneOf schema color for Spring UI Radio checked dot variables', () => {
