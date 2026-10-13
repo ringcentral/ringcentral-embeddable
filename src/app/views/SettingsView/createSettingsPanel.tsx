@@ -83,6 +83,13 @@ export function createSettingsPanel({
     return (
       <SettingsPanel
         {...props}
+        // 3.x listed the phone number format after the theme.
+        appearanceItemCount={1}
+        appearanceItems={
+          <PhoneNumberFormatSettingsLink
+            onClick={onPhoneNumberFormatSettingsClick}
+          />
+        }
         agentSettings={
           isRingCXEnabled && ringCX ? (
             <CxAgentSettingsSection
@@ -144,14 +151,7 @@ export function createSettingsPanel({
             ) : null}
           </>
         }
-      >
-        {/* The general group renders children after the appearance
-            settings, where 3.x listed the phone number format. */}
-        {props.children}
-        <PhoneNumberFormatSettingsLink
-          onClick={onPhoneNumberFormatSettingsClick}
-        />
-      </SettingsPanel>
+      />
     );
   };
   return EmbeddableSettingsPanel;

@@ -107,7 +107,9 @@ function createPanel({
   const voicemailDrop = { hasVoicemailDropPermission };
   const onVoicemailDropSettingsLinkClick = jest.fn();
   const onThirdPartySectionClick = jest.fn();
+  const onPhoneNumberFormatSettingsClick = jest.fn();
   const Panel = createSettingsPanel({
+    onPhoneNumberFormatSettingsClick,
     onThirdPartySectionClick,
     smartNotes,
     thirdParty,
@@ -115,6 +117,7 @@ function createPanel({
     onVoicemailDropSettingsLinkClick,
   });
   return {
+    onPhoneNumberFormatSettingsClick,
     onVoicemailDropSettingsLinkClick,
     Panel,
     smartNotes,
@@ -422,7 +425,7 @@ describe('SettingsPanel', () => {
     ).toBeInTheDocument();
   });
 
-  test('matches legacy native grouping and flattens one-item Appearance', () => {
+  test('matches legacy native grouping', () => {
     const { Panel } = createPanel();
     render(
       <Panel
@@ -438,8 +441,9 @@ describe('SettingsPanel', () => {
 
     const generalGroup = screen.getByTestId('general-settings-group');
     expect(within(generalGroup).getByTestId('region')).toBeInTheDocument();
-    expect(within(generalGroup).getByTestId('theme')).toBeInTheDocument();
-    expect(screen.queryByTestId('appearance-settings-group')).toBeNull();
+    expect(
+      within(generalGroup).getByTestId('appearance-settings-group'),
+    ).toBeInTheDocument();
     expect(within(generalGroup).queryByTestId('presenceSetting')).toBeNull();
     expect(within(generalGroup).queryByTestId('audio')).toBeNull();
     expect(
@@ -449,6 +453,34 @@ describe('SettingsPanel', () => {
     ).toBeInTheDocument();
     expect(
       within(screen.getByTestId('audio-settings-group')).getByTestId('audio'),
+    ).toBeInTheDocument();
+  });
+
+  test('lists the phone number format after the theme in Appearance, as in 3.x', () => {
+    const { Panel, onPhoneNumberFormatSettingsClick } = createPanel();
+    render(<Panel {...baseProps} showThemeSwitch />);
+
+    expect(screen.queryByTestId('phoneNumberFormat')).toBeNull();
+    fireEvent.click(screen.getByTestId('appearance-settings-group'));
+    const theme = screen.getByTestId('theme');
+    const phoneNumberFormat = screen.getByTestId('phoneNumberFormat');
+    expect(
+      theme.compareDocumentPosition(phoneNumberFormat) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    fireEvent.click(phoneNumberFormat);
+    expect(onPhoneNumberFormatSettingsClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the phone number format as a plain line when it is the only Appearance item', () => {
+    const { Panel } = createPanel();
+    render(<Panel {...baseProps} />);
+
+    expect(screen.queryByTestId('appearance-settings-group')).toBeNull();
+    expect(
+      within(screen.getByTestId('general-settings-group')).getByTestId(
+        'phoneNumberFormat',
+      ),
     ).toBeInTheDocument();
   });
 
@@ -477,6 +509,7 @@ describe('SettingsPanel', () => {
     expect(screen.queryByTestId('theme')).toBeNull();
     fireEvent.click(screen.getByTestId('appearance-settings-group'));
     expect(screen.getByTestId('theme')).toBeInTheDocument();
+    expect(screen.getByTestId('phoneNumberFormat')).toBeInTheDocument();
     expect(
       screen.getByTestId('thirdPartySettings-compactMode'),
     ).toBeInTheDocument();
