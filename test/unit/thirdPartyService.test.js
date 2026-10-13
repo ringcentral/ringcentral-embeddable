@@ -952,6 +952,42 @@ describe('ThirdParty service', () => {
     await expect(service.logCall({ call })).resolves.toBeUndefined();
   });
 
+  test('rethrows a call logger failure only when the caller asks', async () => {
+    const { service } = createThirdParty();
+    registerService(service);
+    const call = { sessionId: 'one', from: {}, to: {} };
+
+    requestWithPostMessage.mockRejectedValueOnce(new Error('Time out: /callLogger'));
+    await expect(service.logCall({ call })).resolves.toBeUndefined();
+
+    requestWithPostMessage.mockRejectedValueOnce(new Error('Time out: /callLogger'));
+    await expect(
+      service.logCall({ call, throwOnFailure: true }),
+    ).rejects.toThrow('Call logger did not respond');
+
+    requestWithPostMessage.mockResolvedValueOnce({ data: 'ok' });
+    await expect(
+      service.logCall({ call, throwOnFailure: true, note: 'Saved' }),
+    ).resolves.toBeUndefined();
+    const [, body] = requestWithPostMessage.mock.calls.at(-1);
+    expect(body).toEqual(expect.objectContaining({ note: 'Saved' }));
+    expect(body).not.toHaveProperty('throwOnFailure');
+  });
+
+  test('returns the call logger outcome instead of throwing across ports', async () => {
+    const { service } = createThirdParty();
+    const call = { sessionId: 'one', from: {}, to: {} };
+
+    requestWithPostMessage.mockResolvedValueOnce({ data: 'ok' });
+    await expect(service._sendCallLog('/callLogger', { call })).resolves.toBe(
+      true,
+    );
+    requestWithPostMessage.mockRejectedValueOnce(new Error('Time out: /callLogger'));
+    await expect(service._sendCallLog('/callLogger', { call })).resolves.toBe(
+      false,
+    );
+  });
+
   test('logs voicemail and fax attachments with transcript and access tokens', async () => {
     const { dependencies, service } = createThirdParty();
     registerService(service, { authorized: true });

@@ -4,6 +4,7 @@ import {
 } from '@ringcentral-integration/micro-contacts/src/app/services';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import {
+  delegate,
   inject,
   injectable,
   optional,
@@ -370,6 +371,11 @@ export class RingCXAdapterBridge
     await this._router.push(`/log/call/${callId}?source=${HISTORY_LOG_SOURCE}`);
   }
 
+  /**
+   * Runs on the server with the call logger, so a host failure thrown there
+   * reaches the catch below; errors do not cross ports.
+   */
+  @delegate('server')
   async logCall({
     call,
     contact,
@@ -394,6 +400,7 @@ export class RingCXAdapterBridge
         aiNote: formatted.call.aiNote,
         redirect,
         triggerType,
+        throwOnFailure: true,
       });
     } catch (error) {
       this.logger.error('RingCX call log failed', error);

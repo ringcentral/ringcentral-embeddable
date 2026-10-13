@@ -1691,12 +1691,19 @@ export class ThirdParty extends RcModule {
     await requestWithPostMessage(leadViewerPath, { lead, agentId });
   }
 
+  /**
+   * Sends a call to the host `callLoggerPath`. Host errors and timeouts are
+   * only logged, unless `throwOnFailure` asks to rethrow them so the caller
+   * can tell the user. `throwOnFailure` is not sent to the host.
+   */
   @delegate('server')
   async logCall({
     call,
+    throwOnFailure = false,
     ...options
   }: {
     call: ThirdPartyCall;
+    throwOnFailure?: boolean;
     [key: string]: unknown;
   }): Promise<void> {
     try {
@@ -1739,7 +1746,13 @@ export class ThirdParty extends RcModule {
           contentUri: this.getRecordingContentUri(call.recording),
         };
       }
-      await this._sendCallLog(callLoggerPath, { call: callItem, ...options });
+      const sent = await this._sendCallLog(callLoggerPath, {
+        call: callItem,
+        ...options,
+      });
+      if (sent !== true) {
+        throw new Error(`Call logger did not respond: ${callLoggerPath}`);
+      }
       if (this._callLogEntityMatchSourceAdded && call.sessionId) {
         this._activityMatcherApi?.match({
           queries: [call.sessionId],
@@ -1751,9 +1764,17 @@ export class ThirdParty extends RcModule {
         'Log call error, please check if call logger responds successfully',
         error
       );
+      if (throwOnFailure) {
+        throw error;
+      }
     }
   }
 
+  /**
+   * Resolves `true` once the host responds. An error thrown on the main
+   * client does not reach the caller on the server, so a failure is
+   * returned instead.
+   */
   @delegate('mainClient')
   private async _sendCallLog(
     path: string,
@@ -1761,8 +1782,14 @@ export class ThirdParty extends RcModule {
       call: ThirdPartyCall;
       [key: string]: unknown;
     }
-  ): Promise<void> {
-    await requestWithPostMessage(path, data, LOG_TIMEOUT);
+  ): Promise<boolean> {
+    try {
+      await requestWithPostMessage(path, data, LOG_TIMEOUT);
+      return true;
+    } catch (error) {
+      console.error('Call logger request failed', error);
+      return false;
+    }
   }
 
   private _triggerCallLoggerMatch(sessionIds?: string[]): void {

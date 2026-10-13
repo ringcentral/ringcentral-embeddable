@@ -133,7 +133,7 @@ When `showLogModal` is true and `callLoggerPath` is registered, the host log pag
 
 The log page closes itself once your `callLoggerPath` responds to a `logForm` save, the same as for RingEX calls. To close it or the disposition page from your side, use `rc-adapter-navigate-to` with `path: 'goBack'` or a target path. Going back never reopens a disposition that was already submitted for an ended call; the agent lands on the dialer instead.
 
-A failing `callLoggerPath` does not leave the agent in Pending Disposition. The call stays dispositioned and the log can be retried from history.
+A failing `callLoggerPath` does not leave the agent in Pending Disposition. The call stays dispositioned and the log can be retried from history. When the widget logs the call itself (after a disposition, at call end, or from a history action), a `callLoggerPath` that does not respond within 15 seconds shows a message in the widget.
 
 The disposition is not a field of the log form. It arrives as `call.ringcx.disposition`. The disposition note arrives twice: `call.ringcx.notes`, and the prefilled `note` on the default log page. A schema without a `note` field still receives it on `call.ringcx.notes`. The call summary from the disposition form, AI generated or agent edited, arrives as `aiNote` on both the request and `call.aiNote`, the same field RingEX calls use for the AI note. It is absent when summaries are off for the session.
 

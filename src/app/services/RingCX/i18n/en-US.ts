@@ -11,5 +11,5 @@ export default {
   callControlUnsupported: 'This call action is not supported for RingCX calls.',
   agentStateUnavailable: "This agent state isn't available.",
   callLogFailed:
-    'The call was saved, but logging it to your service failed. You can retry from history.',
+    "The call couldn't be logged to your service. You can try again from call history.",
 } as const;
