@@ -36,6 +36,7 @@ jest.mock('@ringcentral-integration/micro-contacts/src/app/views', () => ({
     getUIFunctions() {
       return {
         onBackClick: () => this._router.goBack(),
+        formatNumber: (phoneNumber) => `contact:${phoneNumber}`,
       };
     }
   },
@@ -70,6 +71,8 @@ function createView({
   router = {},
   sideWidgetView,
   thirdParty,
+  phoneNumberFormat,
+  numberFormatter,
 } = {}) {
   return new ContactDetailsView(
     {},
@@ -88,6 +91,8 @@ function createView({
     undefined,
     sideWidgetView,
     thirdParty,
+    phoneNumberFormat,
+    numberFormatter,
   );
 }
 
@@ -344,6 +349,53 @@ describe('ContactDetailsView third-party service', () => {
     expect(thirdParty.openActivity).toHaveBeenCalledWith({ id: '1' });
     expect(functions.formatActivityTime(1760000000000)).toEqual(
       expect.any(String),
+    );
+  });
+});
+
+describe('ContactDetailsView phone number format', () => {
+  const numberFormatter = {
+    formatNumber: jest.fn((phoneNumber) => `formatter:${phoneNumber}`),
+  };
+
+  test('keeps the contact formatting for the default national format', () => {
+    const view = createView({
+      phoneNumberFormat: { setting: { formatType: 'national' } },
+      numberFormatter,
+    });
+
+    expect(view.getUIFunctions({}).formatNumber('+16505550100')).toBe(
+      'contact:+16505550100',
+    );
+  });
+
+  test.each(['international', 'e164', 'custom'])(
+    'formats contact numbers with the %s format',
+    (formatType) => {
+      const view = createView({
+        phoneNumberFormat: { setting: { formatType } },
+        numberFormatter,
+      });
+
+      expect(view.getUIFunctions({}).formatNumber('+16505550100')).toBe(
+        'formatter:+16505550100',
+      );
+    },
+  );
+
+  test('re-renders the numbers when the format changes', () => {
+    const setting = { formatType: 'e164' };
+    const view = createView({
+      phoneNumberFormat: { setting },
+      numberFormatter,
+    });
+
+    expect(view.getUIProps({}).phoneNumberFormatSetting).toBe(setting);
+  });
+
+  test('keeps the contact formatting without the format setting', () => {
+    expect(createView().getUIFunctions({}).formatNumber('+16505550100')).toBe(
+      'contact:+16505550100',
     );
   });
 });

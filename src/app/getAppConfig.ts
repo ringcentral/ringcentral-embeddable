@@ -14,6 +14,7 @@ import {
   Environment,
   ExtensionInfo,
   ExtensionNumberAreaCode,
+  NumberFormatter,
   Presence,
   RateLimiter,
   RegionSettings,
@@ -164,6 +165,9 @@ import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
 import { VoicemailPage } from './views/VoicemailView';
 import { SmsTemplateView as SmsTemplateViewV2 } from './views/SmsTemplateView';
+import { NumberFormatter as NumberFormatterV2 } from './services/NumberFormatter';
+import { PhoneNumberFormat } from './services/PhoneNumberFormat';
+import { PhoneNumberFormatSettingView } from './views/PhoneNumberFormatSettingView';
 import { RoutedSideWidgetView } from './views/RoutedSideWidgetView';
 import { SmartNotesView } from './views/SmartNotesView';
 import { SideWidgetView, type SideWidgetOptions } from './views/SideWidgetView';
@@ -543,6 +547,12 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         provide: AppFeatures,
         useClass: AppFeaturesV2,
       },
+      PhoneNumberFormat,
+      {
+        provide: NumberFormatter,
+        useClass: NumberFormatterV2,
+      },
+      PhoneNumberFormatSettingView,
       {
         provide: MicroMessageComposeText,
         useClass: ComposeTextV2,
@@ -1026,6 +1036,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
                 router.push(`/settings/thirdParty/${sectionId}`),
               onVoicemailDropSettingsLinkClick: () =>
                 router.push('/settings/voicemailDrop'),
+              onPhoneNumberFormatSettingsClick: () =>
+                router.push('/settings/phoneNumberFormat'),
             }),
           } satisfies SettingsViewOptions),
         deps: [VoicemailDrop, RingCX, RouterPlugin, ThirdParty, SmartNotes],

@@ -29,5 +29,15 @@ export class SmsOptOut extends SmsOptOutBase {
     // so an own-property on the instance takes precedence over the prototype method.
     (this as any).permissionCheckFunction = () =>
       (this._appFeatures as EmbeddableAppFeatures).hasSMSOptOutPermission;
+    // The base keys opt-outs by formatted numbers. A custom phone number
+    // format can hide digits, so two numbers could share a key; key by the
+    // normalized numbers instead, the same way.
+    (this as any).getOptOutKey = ({ from, to }: { from: string; to: string }) => {
+      const [a, b] = [
+        _numberFormatter.normalizeNumber(from) || from,
+        _numberFormatter.normalizeNumber(to) || to,
+      ].sort();
+      return `${a}__${b}`;
+    };
   }
 }

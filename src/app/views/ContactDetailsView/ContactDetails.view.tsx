@@ -5,6 +5,7 @@ import {
   AppFeatures,
   ConnectivityManager,
   ExtensionInfo,
+  NumberFormatter,
   RateLimiter,
   RegionSettings,
 } from '@ringcentral-integration/micro-auth/src/app/services';
@@ -42,6 +43,7 @@ import {
   ThirdParty,
   type ThirdPartyContact,
 } from '../../services/ThirdParty';
+import { PhoneNumberFormat } from '../../services/PhoneNumberFormat';
 import {
   type SideWidgetContentHandle,
   SideWidgetView,
@@ -94,6 +96,8 @@ export class ContactDetailsView extends ContactDetailsViewBase {
     protected _contactDetailsViewOptions?: ContactDetailsViewOptions,
     @optional() protected _sideWidgetView?: SideWidgetView,
     @optional() private _thirdParty?: ThirdParty,
+    @optional() private _phoneNumberFormat?: PhoneNumberFormat,
+    @optional() private _numberFormatter?: NumberFormatter,
   ) {
     super(
       _modalView,
@@ -244,6 +248,8 @@ export class ContactDetailsView extends ContactDetailsViewBase {
     return {
       ...uiProps,
       ...this._thirdPartyUIProps,
+      // Re-renders the numbers when the phone number format changes.
+      phoneNumberFormatSetting: this._phoneNumberFormat?.setting,
       showSpinner: !(
         this.currentContactReadyState === contactReadyStates.loaded &&
         this._locale.ready &&
@@ -256,6 +262,14 @@ export class ContactDetailsView extends ContactDetailsViewBase {
     const uiFunctions = super.getUIFunctions(props);
     return {
       ...uiFunctions,
+      // As in 3.x, contact numbers follow the phone number format. The
+      // default national format keeps the upstream contact formatting.
+      formatNumber: (phoneNumber: string): string =>
+        this._numberFormatter &&
+        this._phoneNumberFormat &&
+        this._phoneNumberFormat.setting.formatType !== 'national'
+          ? this._numberFormatter.formatNumber(phoneNumber)
+          : uiFunctions.formatNumber(phoneNumber),
       onBackClick: () => {
         void this._navigateBack();
       },

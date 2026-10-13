@@ -11,6 +11,7 @@ import type { RingCX } from '../../services/RingCX';
 import type { ThirdParty } from '../../services/ThirdParty';
 import type { SmartNotes } from '../../services/SmartNotes';
 import type { VoicemailDrop } from '../../services/VoicemailDrop';
+import { PhoneNumberFormatSettingsLink } from '../PhoneNumberFormatSettingView/PhoneNumberFormatSettingsLink';
 import { VoicemailDropSettingsLink } from '../VoicemailDropSettingsView/VoicemailDropSettingsLink';
 
 import { SettingsPanel } from './SettingsPanel';
@@ -20,6 +21,7 @@ import { SmartNotesAutoStartSetting } from './SmartNotesAutoStartSetting';
 interface CreateSettingsPanelOptions {
   readonly onAgentSessionInfoClick: () => void;
   readonly onManualDialSettingsClick: () => void;
+  readonly onPhoneNumberFormatSettingsClick: () => void;
   readonly onThirdPartySectionClick: (sectionId: string) => void;
   readonly onVoicemailDropSettingsLinkClick: () => void;
   readonly smartNotes: SmartNotes;
@@ -34,6 +36,7 @@ interface CreateSettingsPanelOptions {
 export function createSettingsPanel({
   onAgentSessionInfoClick,
   onManualDialSettingsClick,
+  onPhoneNumberFormatSettingsClick,
   onThirdPartySectionClick,
   onVoicemailDropSettingsLinkClick,
   smartNotes,
@@ -141,7 +144,14 @@ export function createSettingsPanel({
             ) : null}
           </>
         }
-      />
+      >
+        {/* The general group renders children after the appearance
+            settings, where 3.x listed the phone number format. */}
+        {props.children}
+        <PhoneNumberFormatSettingsLink
+          onClick={onPhoneNumberFormatSettingsClick}
+        />
+      </SettingsPanel>
     );
   };
   return EmbeddableSettingsPanel;
