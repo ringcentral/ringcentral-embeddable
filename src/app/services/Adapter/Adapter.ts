@@ -2879,10 +2879,8 @@ export class Adapter extends RcModule {
     if (Object.keys(config).length === 0) {
       return;
     }
-    this._appFeaturesV2.setConfigState({
-      ...this._appFeaturesV2.configState,
-      ...config,
-    });
+    // As in 3.x, each update replaces the earlier ones.
+    this._appFeaturesV2.setConfigState(config);
   }
 
   private async _setCallContactMatched(data: {
