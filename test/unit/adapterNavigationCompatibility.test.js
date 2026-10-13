@@ -73,10 +73,10 @@ describe("Adapter navigation compatibility", () => {
       kind: "dialerTab",
       tab: "calls",
     });
+    // Recordings play in call details, opened from call history.
     expect(resolveLegacyAdapterPath("/history/recordings")).toEqual({
-      kind: "unsupported",
-      path: "/history/recordings",
-      reason: 'Legacy call-history type "recordings" is not migrated',
+      kind: "dialerTab",
+      tab: "calls",
     });
     expect(resolveLegacyAdapterPath("/history/call-log-id").kind).toBe(
       "unsupported"
@@ -195,16 +195,38 @@ describe("Adapter navigation compatibility", () => {
   test("does not route unsupported history types to call detail", async () => {
     const adapter = createAdapter();
 
-    await Adapter.prototype._navigateTo.call(adapter, "/history/recordings");
+    await Adapter.prototype._navigateTo.call(adapter, "/history/missed");
 
     expect(adapter._router.push).not.toHaveBeenCalled();
     expect(adapter.logger.warn).toHaveBeenCalledWith(
       "Unsupported legacy adapter navigation",
       expect.objectContaining({
         kind: "unsupported",
-        path: "/history/recordings",
+        path: "/history/missed",
       })
     );
+  });
+
+  test("opens the call history tab for the removed recordings tab", async () => {
+    const adapter = createAdapter();
+
+    await Adapter.prototype._navigateTo.call(adapter, "/history/recordings");
+
+    expect(adapter._router.push).toHaveBeenCalledWith("/dialer", {
+      dialPadTabs: "calls",
+    });
+  });
+
+  test("opens audio settings for the removed ringtone settings page", async () => {
+    expect(resolveLegacyAdapterPath("/settings/ringtone")).toEqual({
+      kind: "route",
+      path: "/settings/audio",
+    });
+    const adapter = createAdapter();
+
+    await Adapter.prototype._navigateTo.call(adapter, "/settings/ringtone");
+
+    expect(adapter._router.push).toHaveBeenCalledWith("/settings/audio");
   });
 
   test("selects the explicitly requested active call", async () => {

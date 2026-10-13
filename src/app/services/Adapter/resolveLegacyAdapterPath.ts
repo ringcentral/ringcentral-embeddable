@@ -35,7 +35,9 @@ export function resolveLegacyAdapterPath(path: string): LegacyNavigationIntent {
   const historyMatch = path.match(/^\/history(?:\/([^/]+))?$/);
   if (historyMatch) {
     const historyType = historyMatch[1] ?? "all";
-    if (historyType === "all") {
+    // 3.1 has no recordings tab; recordings play in call details, which open
+    // from call history.
+    if (historyType === "all" || historyType === "recordings") {
       return { kind: "dialerTab", tab: "calls" };
     }
     return {
@@ -43,6 +45,10 @@ export function resolveLegacyAdapterPath(path: string): LegacyNavigationIntent {
       path,
       reason: `Legacy call-history type "${historyType}" is not migrated`,
     };
+  }
+  // Ringtone selection moved into audio settings.
+  if (path === "/settings/ringtone") {
+    return { kind: "route", path: "/settings/audio" };
   }
   const activeCallMatch = path.match(/^\/calls\/active(?:\/([^/]+))?$/);
   if (activeCallMatch) {
