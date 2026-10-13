@@ -19,7 +19,7 @@ Listed below are all supported parameters that can be [configured](setting-param
 | `disableCallHistory` | False | Disable call history. |
 | `disableContacts` | False | Disable contacts feature. |
 | `disableMeeting` | False | Disable meeting feature. |
-| `disableGlip` | True | Before we start to use Glip API, need to add `Glip` or `Team Messaging` permission to your app in RingCentral Developer website. Also, for testing with a sandbox user, user needs to first login to https://app.devtest.ringcentral.com |
+| `disableGlip` | True | 2.x and 3.x only; team messaging is not available in 3.1. Before we start to use Glip API, need to add `Glip` or `Team Messaging` permission to your app in RingCentral Developer website. Also, for testing with a sandbox user, user needs to first login to https://app.devtest.ringcentral.com |
 | `disableMinimize` | False | By default, we provide Minimize button at app header to minimize the widget. |
 | `disconnectInactiveWebphone` | False | 2.x and 3.x only, not needed since 3.1. See [Working with multiple tabs](multiple-tabs.md). |
 | `enableAnalytics` | False | See [Custom analytics](../integration/analytics.md). |
