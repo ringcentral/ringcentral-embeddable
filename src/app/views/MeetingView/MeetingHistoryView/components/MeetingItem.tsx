@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatDuration } from '@ringcentral-integration/commons/lib/formatDuration';
-import { CirclePlayMd } from '@ringcentral/spring-icon';
+import { CirclePlayMd, DispositionMd } from '@ringcentral/spring-icon';
 import {
   IconButton,
   ListItem,
@@ -39,6 +39,9 @@ interface MeetingItemProps {
   readonly divider?: boolean;
   readonly type?: string;
   readonly onClick: (meetingId: string) => void;
+  /** Sends the meeting to the third-party meeting logger. */
+  readonly onLog?: (meeting: MeetingHistoryItem) => void;
+  readonly logTitle?: string;
   readonly formatDateTime: (startTime: string) => string;
   readonly t: (key: 'play') => string;
 }
@@ -58,34 +61,59 @@ function getDurationLabel(meeting: MeetingHistoryItem, type?: string): string {
 
 function renderHoverActions({
   hasRecording,
-  meetingId,
+  logTitle,
+  meeting,
   onClick,
+  onLog,
   t,
 }: {
   readonly hasRecording: boolean;
-  readonly meetingId: string;
+  readonly logTitle?: string;
+  readonly meeting: MeetingHistoryItem;
   readonly onClick: (meetingId: string) => void;
+  readonly onLog?: (meeting: MeetingHistoryItem) => void;
   readonly t: (key: 'play') => string;
 }): React.ReactNode {
-  if (!hasRecording) {
+  if (!hasRecording && !onLog) {
     return undefined;
   }
 
   return (
-    <Tooltip title={t('play')}>
-      <IconButton
-        symbol={CirclePlayMd}
-        label={t('play')}
-        title={t('play')}
-        size="medium"
-        variant="contained"
-        color="secondary"
-        onClick={() => {
-          onClick(meetingId);
-        }}
-        className="mr-1"
-      />
-    </Tooltip>
+    <>
+      {hasRecording ? (
+        <Tooltip title={t('play')}>
+          <IconButton
+            symbol={CirclePlayMd}
+            label={t('play')}
+            title={t('play')}
+            size="medium"
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              onClick(meeting.id);
+            }}
+            className="mr-1"
+          />
+        </Tooltip>
+      ) : null}
+      {onLog ? (
+        <Tooltip title={logTitle}>
+          <IconButton
+            symbol={DispositionMd}
+            label={logTitle}
+            title={logTitle}
+            size="medium"
+            variant="contained"
+            color="secondary"
+            data-sign="logMeeting"
+            onClick={() => {
+              onLog(meeting);
+            }}
+            className="mr-1"
+          />
+        </Tooltip>
+      ) : null}
+    </>
   );
 }
 
@@ -94,6 +122,8 @@ export function MeetingItem({
   divider = false,
   type,
   onClick,
+  onLog,
+  logTitle,
   formatDateTime,
   t,
 }: MeetingItemProps): React.ReactElement {
@@ -106,11 +136,13 @@ export function MeetingItem({
   return (
     <ListItem
       divider={divider}
-      hoverable={hasRecording}
+      hoverable={hasRecording || Boolean(onLog)}
       hoverActions={renderHoverActions({
         hasRecording,
-        meetingId: meeting.id,
+        logTitle,
+        meeting,
         onClick,
+        onLog,
         t,
       })}
       className="group rounded-xl"
