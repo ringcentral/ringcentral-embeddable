@@ -71,6 +71,7 @@ import {
   type ConversationsOptions,
   QueueConversations,
   MessageThread,
+  type MessageThreadOptions,
   SmsConsent,
   SmsConversationsOptions,
   SmsOptOut,
@@ -253,7 +254,7 @@ import {
   type DisabledFeatureParams,
   getDisabledFeatureConfiguration,
 } from './services/AppFeatures/getDisabledFeatureConfiguration';
-import { createMessageThreadOptions } from './services/AppFeatures/createMessageThreadOptions';
+import { createQueueConversationsOptions } from './services/AppFeatures/createQueueConversationsOptions';
 import type { CxHostIntegration } from './services/RingCX/RingCX.interface';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { createThirdPartyIntegrationConfig } from './services/ThirdParty/ThirdParty.integrationConfig';
@@ -810,10 +811,16 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           component: VoicemailPage,
         } satisfies VoicemailViewOptions,
       },
+      // 3.x showed message threads (the Shared tab) whenever the account has
+      // the MessageThreads feature; `MessageThread.hasPermission` checks that.
       {
         provide: 'MessageThreadOptions',
+        useValue: { enable: true } satisfies MessageThreadOptions,
+      },
+      {
+        provide: 'QueueConversationsOptions',
         useFactory: (appFeatures: AppFeaturesV2) =>
-          createMessageThreadOptions(appFeatures),
+          createQueueConversationsOptions(appFeatures),
         deps: [AppFeatures],
       },
       // options
