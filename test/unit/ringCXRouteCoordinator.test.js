@@ -43,6 +43,7 @@ function createCoordinator({
   dispositionOptions,
   homeTabAfterCall = 'dialer',
   progressiveDial,
+  cxAuth = {},
 } = {}) {
   const callbacks = {};
   const router = {
@@ -82,7 +83,12 @@ function createCoordinator({
   const coordinator = new CxRouteCoordinator(
     router,
     { shared: false },
-    { onAuthSuccess: jest.fn() },
+    {
+      onAuthSuccess: jest.fn((callback) => {
+        callbacks.authSuccess = callback;
+      }),
+      ...cxAuth,
+    },
     { encodeUii: (session) => `${session.uii}$${session.sessionId}` },
     cxCall,
     cxCallMonitor,
@@ -106,6 +112,37 @@ function createCoordinator({
 }
 
 describe('CxRouteCoordinator', () => {
+  describe('when a user with several agent accounts authenticates', () => {
+    test('asks the app ports to open the account picker', async () => {
+      const cxAuth = {
+        isOnlyOneAgent: false,
+        agentId: '',
+        setupNavigationRequested: true,
+        completeSetupNavigation: jest.fn(),
+      };
+      const { callbacks, coordinator, router } = createCoordinator({
+        currentPath: '/agent',
+        cxAuth,
+      });
+
+      await callbacks.authSuccess();
+
+      expect(cxAuth.completeSetupNavigation).toHaveBeenCalledTimes(1);
+      // Authentication runs on the server port, whose router renders nothing.
+      expect(router.push).not.toHaveBeenCalled();
+      expect(coordinator.navigationRequest).toEqual(
+        expect.objectContaining({
+          path: '/agent/chooseAccount',
+          mode: 'push',
+        }),
+      );
+
+      coordinator._applyNavigationRequest(coordinator.navigationRequest);
+
+      expect(router.push).toHaveBeenCalledWith('/agent/chooseAccount');
+    });
+  });
+
   describe('when a call disposed while it was up ends', () => {
     test('opens the deferred log page and finishes the call', async () => {
       const { callbacks, coordinator, cxCall, ringCXBridge } =

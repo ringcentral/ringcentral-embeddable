@@ -16,6 +16,8 @@ export interface StartAgentSessionOptions {
 export interface CxAuthModule {
   readonly agentId?: string;
   readonly isOnlyOneAgent: boolean;
+  /** Authenticated with several agent accounts and none picked yet. */
+  readonly isAgentSelectionPending: boolean;
   readonly loginStatus: CxLoginStatus;
   logout(): Promise<void>;
   logoutForUserSignOut(): Promise<void>;

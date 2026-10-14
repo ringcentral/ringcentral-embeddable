@@ -172,9 +172,19 @@ class CxAuth extends RcModule {
     this._clearAgentId();
   }
 
+  /**
+   * Leaves the selected agent account before it is configured, so the user
+   * can pick another one from the accounts this authentication returned.
+   */
   @delegate('server')
-  async setNotAuth(): Promise<void> {
-    this.loginStatus = CxLoginStatus.NO_AUTH;
+  async reselectAgent(): Promise<void> {
+    await this.cxClient.closeSocket();
+    // The SDK fills its model from the first agent's login phase 1 only and
+    // answers later ones with that cached data, so the next account would get
+    // the previous account's queues and dial groups.
+    this.cxClient.resetUIModel();
+    this._clearAgentId();
+    this._setLoginStatus(CxLoginStatus.AUTHING);
   }
 
   get isFreshLogin(): boolean {
@@ -193,6 +203,19 @@ class CxAuth extends RcModule {
 
   get isOnlyOneAgent(): boolean {
     return this.agent?.authenticateResponse?.agents?.length === 1;
+  }
+
+  /**
+   * RingCX authenticated a user with more than one agent account. The login
+   * stays `AUTHING` until the user picks one and its socket opens, so the
+   * account picker has to be offered from this state.
+   */
+  get isAgentSelectionPending(): boolean {
+    return (
+      this.loginStatus === CxLoginStatus.AUTHING &&
+      !this.agentId &&
+      (this.authenticateResponse?.agents?.length ?? 0) > 1
+    );
   }
 
   get agentConfig() {
@@ -346,6 +369,10 @@ class CxAuth extends RcModule {
         // persisted activity call id and the server's PENDING_DISP push.
         await this.loginAgent();
       } else {
+        // Without a selected agent nothing stored belongs to this login, and
+        // an earlier account list would open the picker before this
+        // authentication answers.
+        this.setAgent(null);
         await this.authenticateWithToken();
       }
     });
