@@ -1106,7 +1106,15 @@ export class ActiveCallControl extends ActiveCallControlBase {
     }
     try {
       this.setCallControlBusyTimestamp();
-      await this._webphone.reject(webphoneSessionId);
+      const webphoneSession = this._webphone.sessions.find(
+        (session) => session.id === webphoneSessionId,
+      );
+      // A queue call cannot go to the user's voicemail, so it is ignored instead.
+      if (webphoneSession?.callQueueName) {
+        await this._webphone.reject(webphoneSessionId);
+        return;
+      }
+      await this._webphone.toVoiceMail(webphoneSessionId);
     } finally {
       this.clearCallControlBusyTimestamp();
     }
