@@ -9,6 +9,8 @@ import type {
 } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
 import {
   ActiveCallControl as ActiveCallControlBase,
+  checkIfConferenceCall as isConferenceTelephonySession,
+  isConnectedCall,
   normalizeToActiveCallControlSession,
 } from '@ringcentral-integration/micro-phone/src/app/services/ActiveCallControl';
 import { t as activeCallControlT } from '@ringcentral-integration/micro-phone/src/app/services/ActiveCallControl/i18n';
@@ -65,6 +67,7 @@ import { recordStatus } from '../WebphoneV2/recordStatus';
 import { sessionStatus } from '../WebphoneV2/sessionStatus';
 import type { Webphone as WebphoneV2 } from '../WebphoneV2';
 import { RingCX } from '../RingCX';
+import { findConferenceParticipants } from './find-conference-participants';
 import { isCxRcExtExBridgeCall } from './is-cx-rc-ext-ex-bridge-call';
 
 type WebphoneWithCxOffhook = {
@@ -865,12 +868,93 @@ export class ActiveCallControl extends ActiveCallControlBase {
     return succeeded;
   }
 
+  /**
+   * Rebuilds the active sessions with the local conference participant finder.
+   *
+   * Same as the base implementation, except that conference participants are
+   * found by `findConferenceParticipants` from this folder, which also reads
+   * the conference id from `peerId.sessionId`.
+   */
+  @delegate('server')
+  override async updateActiveSessions(): Promise<void> {
+    const base = this as unknown as {
+      _rcCallControl: { sessions: TelephonySession[] } | null;
+      _mergingConferenceSessionIds: Set<string>;
+      _updateActiveSessions(sessions: ActiveCallControlSessionData[]): void;
+    };
+    const sessions = base._rcCallControl?.sessions ?? [];
+    const callControlSessions = sessions
+      .filter((session) => isConnectedCall(session))
+      .map((session) =>
+        normalizeToActiveCallControlSession(
+          session,
+          findConferenceParticipants(
+            session,
+            sessions,
+            this._extensionInfo.info,
+            (_, partyId) =>
+              this._preinsertCall.checkParticipantStillExist(session, partyId),
+          ),
+          this._numberValidate.getPartyExtensionNumber,
+        ),
+      )
+      .filter((session) =>
+        this.skipConferenceCall ? !session.isConferenceCall : true,
+      )
+      .filter(
+        (session) => !base._mergingConferenceSessionIds.has(session.id),
+      );
+    base._updateActiveSessions(
+      JSON.parse(JSON.stringify(callControlSessions)),
+    );
+  }
+
+  /**
+   * Reads the conference flag from the raw telephony session.
+   *
+   * The base method is tracked as a hang up, so it is not called here. Web
+   * phone sessions are covered too: the host's conference leg is always one.
+   */
   @delegate('server')
   async checkIfConferenceCall(telephonySessionId: string) {
-    if (this.getWebphoneSessionId(telephonySessionId)) {
-      return false;
+    const session = this._findRawTelephonySession(telephonySessionId);
+    return Boolean(session && isConferenceTelephonySession(session));
+  }
+
+  private _findRawTelephonySession(
+    telephonySessionId: string,
+  ): TelephonySession | undefined {
+    const callControl = (
+      this as unknown as {
+        _rcCallControl: { sessions: TelephonySession[] } | null;
+      }
+    )._rcCallControl;
+    return callControl?.sessions.find(
+      (session) => session.id === telephonySessionId,
+    );
+  }
+
+  /**
+   * Removes the host from a conference while keeping it alive for the other
+   * participants. The server then ends the host's own call leg.
+   */
+  private async _leaveConferenceAsHost(
+    telephonySessionId: string,
+  ): Promise<void> {
+    try {
+      this.setCallControlBusyTimestamp();
+      const session = this._findRawTelephonySession(telephonySessionId);
+      if (!session) {
+        throw new Error('conference session not found');
+      }
+      await session.removeParty(session.party.id, {
+        keepConferenceAlive: true,
+      });
+    } catch (error) {
+      await this._hangUpErrorHandle(error);
+    } finally {
+      this.clearCallControlBusyTimestamp();
     }
-    return super.checkIfConferenceCall(telephonySessionId);
   }
 
   @track((that: ActiveCallControl) => [
@@ -890,6 +974,12 @@ export class ActiveCallControl extends ActiveCallControlBase {
     const webphoneSessionId = this.getWebphoneSessionId(telephonySessionId);
     if (!webphoneSessionId) {
       return super.endCall(telephonySessionId, hangupOnlyHost);
+    }
+    if (
+      hangupOnlyHost &&
+      (await this.checkIfConferenceCall(telephonySessionId))
+    ) {
+      return this._leaveConferenceAsHost(telephonySessionId);
     }
     try {
       this.setCallControlBusyTimestamp();

@@ -20,6 +20,11 @@ jest.mock(
       }
     },
     normalizeToActiveCallControlSession: jest.fn((session) => session),
+    CONFERENCE_ORIGIN_TYPE: "Conference",
+    checkIfConferenceCall: (session) =>
+      session?.origin?.type === "Conference",
+    isConnectedCall: (session) =>
+      !["Gone", "Disconnected"].includes(session.party?.status?.code),
   })
 );
 jest.mock("@ringcentral-integration/micro-core/src/app/views", () => ({
@@ -36,6 +41,9 @@ jest.mock(
 );
 
 const {
+  normalizeToActiveCallControlSession,
+} = require("@ringcentral-integration/micro-phone/src/app/services/ActiveCallControl");
+const {
   ActiveCallControl,
 } = require("../../src/app/services/ActiveCallControl/ActiveCallControl");
 
@@ -46,6 +54,136 @@ describe("ActiveCallControl compatibility routing", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("conference host", () => {
+    const CONFERENCE_ID = "s-conference";
+    const HOST_PARTY_ID = "p-host";
+
+    function createConferenceSession() {
+      return {
+        id: CONFERENCE_ID,
+        data: { sessionId: "0" },
+        origin: { type: "Conference" },
+        party: {
+          id: HOST_PARTY_ID,
+          direction: "Outbound",
+          conferenceRole: "Host",
+          status: { code: "Answered" },
+        },
+        removeParty: jest.fn(async () => {}),
+      };
+    }
+
+    function createMergedLeg(id, partyId) {
+      return {
+        id,
+        data: { sessionId: `${id}-session` },
+        origin: { type: "Call" },
+        party: {
+          id: `${id}-1`,
+          direction: "Outbound",
+          to: { phoneNumber: "+16579991394" },
+          status: {
+            code: "Gone",
+            reason: "Conference",
+            peerId: { partyId, sessionId: CONFERENCE_ID },
+          },
+        },
+      };
+    }
+
+    function createHostControl(sessions) {
+      const control = createControl();
+      control._rcCallControl = { sessions };
+      control.currentDeviceCallsMap = { [CONFERENCE_ID]: "wp-conference" };
+      control.setCallControlBusyTimestamp = jest.fn();
+      control.clearCallControlBusyTimestamp = jest.fn();
+      control._hangupWithWebphone = jest.fn(async () => {});
+      control._hangUpErrorHandle = jest.fn(async () => {});
+      return control;
+    }
+
+    test("detects a conference that the host joined with the web phone", async () => {
+      const conference = createConferenceSession();
+      const control = createHostControl([conference]);
+
+      await expect(control.checkIfConferenceCall(CONFERENCE_ID)).resolves.toBe(
+        true
+      );
+    });
+
+    test("does not treat a normal or unknown call as a conference", async () => {
+      const call = { ...createConferenceSession(), id: "s-call" };
+      call.origin = { type: "Call" };
+      const control = createHostControl([call]);
+
+      await expect(control.checkIfConferenceCall("s-call")).resolves.toBe(
+        false
+      );
+      await expect(control.checkIfConferenceCall("s-missing")).resolves.toBe(
+        false
+      );
+    });
+
+    test("leaves the conference without ending it for the others", async () => {
+      const conference = createConferenceSession();
+      const control = createHostControl([conference]);
+
+      await control.endCall(CONFERENCE_ID, true);
+
+      expect(conference.removeParty).toHaveBeenCalledWith(HOST_PARTY_ID, {
+        keepConferenceAlive: true,
+      });
+      expect(control._hangupWithWebphone).not.toHaveBeenCalled();
+      expect(control.clearCallControlBusyTimestamp).toHaveBeenCalled();
+    });
+
+    test("ends the conference for everyone through the web phone", async () => {
+      const conference = createConferenceSession();
+      const control = createHostControl([conference]);
+
+      await control.endCall(CONFERENCE_ID, false);
+
+      expect(conference.removeParty).not.toHaveBeenCalled();
+      expect(control._hangupWithWebphone).toHaveBeenCalledWith("wp-conference");
+    });
+
+    test("reports a failure to leave the conference", async () => {
+      const conference = createConferenceSession();
+      const error = new Error("remove party failed");
+      conference.removeParty.mockRejectedValueOnce(error);
+      const control = createHostControl([conference]);
+
+      await control.endCall(CONFERENCE_ID, true);
+
+      expect(control._hangUpErrorHandle).toHaveBeenCalledWith(error);
+      expect(control.clearCallControlBusyTimestamp).toHaveBeenCalled();
+    });
+
+    test("builds conference participants from legs that reference it by sessionId", async () => {
+      const conference = createConferenceSession();
+      const leg = createMergedLeg("s-leg", "p-participant");
+      const merging = { ...createConferenceSession(), id: "s-merging" };
+      const control = createHostControl([conference, leg, merging]);
+      control._extensionInfo = { info: undefined };
+      control._numberValidate = { getPartyExtensionNumber: jest.fn() };
+      control._preinsertCall = { checkParticipantStillExist: () => true };
+      control.skipConferenceCall = false;
+      control._mergingConferenceSessionIds = new Set(["s-merging"]);
+      control._updateActiveSessions = jest.fn();
+
+      await control.updateActiveSessions();
+
+      const [conferenceCall] = normalizeToActiveCallControlSession.mock.calls;
+      expect(conferenceCall[0]).toBe(conference);
+      expect(conferenceCall[1].map((item) => item.telephonySessionId)).toEqual(
+        [CONFERENCE_ID, "s-leg"]
+      );
+      expect(control._updateActiveSessions).toHaveBeenCalledWith([
+        expect.objectContaining({ id: CONFERENCE_ID }),
+      ]);
+    });
   });
 
   describe("unhold with the SharedWorker webphone", () => {
