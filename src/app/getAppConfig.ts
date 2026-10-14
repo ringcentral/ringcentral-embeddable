@@ -80,6 +80,7 @@ import {
   SmsTemplate,
 } from '@ringcentral-integration/micro-message/src/app/services';
 import type { WebphoneOptions } from '@ringcentral-integration/micro-phone/src/app/services';
+import type { ActiveCallControlOptions } from '@ringcentral-integration/micro-phone/src/app/services/ActiveCallControl/ActiveCallControl.interface';
 import {
   ActiveCallControl,
   AudioSettings,
@@ -527,6 +528,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: ActiveCallControl,
         useClass: ActiveCallControlV2,
+      },
+      {
+        // Ending a conference asks the host whether to leave or end it for
+        // everyone.
+        provide: 'ActiveCallControlOptions',
+        useValue: {
+          getEnableLeaveConferenceAsHost: () => true,
+        } satisfies ActiveCallControlOptions,
       },
       {
         provide: CallLog,
