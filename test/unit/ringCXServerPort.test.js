@@ -157,6 +157,7 @@ describe('CxAuth', () => {
     new CxAuth(
       {},
       auth,
+      {},
       cxSubscription,
       {},
       {},

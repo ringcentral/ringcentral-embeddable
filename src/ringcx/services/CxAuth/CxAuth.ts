@@ -1,4 +1,7 @@
-import { Auth } from '@ringcentral-integration/micro-auth/src/app/services';
+import {
+  Auth,
+  Client,
+} from '@ringcentral-integration/micro-auth/src/app/services';
 import { Locale, Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import { BlockPlugin } from '@ringcentral-integration/micro-core/src/app/plugins';
 
@@ -56,6 +59,7 @@ class CxAuth extends RcModule {
   constructor(
     private cxClient: CxClient,
     private auth: Auth,
+    private client: Client,
     private cxSubscription: CxSubscription,
     private locale: Locale,
     private toast: Toast,
@@ -473,10 +477,11 @@ class CxAuth extends RcModule {
     this.logger.info('authenticateWithToken', shouldEmitAuthSuccess);
     try {
       await this.auth.ensureValidAccessToken();
+      const rcAccessToken = await this._getRcAccessToken();
       await this.cxClient.initSDK();
       const authenticateResponse =
         await this.cxClient.getAndHandleAuthenticateResponse(
-          this.auth.accessToken,
+          rcAccessToken,
           'Bearer',
         );
       if ('error' in authenticateResponse) {
@@ -516,6 +521,21 @@ class CxAuth extends RcModule {
       this._setLoginStatus(CxLoginStatus.AUTH_FAILURE);
       await this._logout();
     }
+  }
+
+  /**
+   * Read the RC access token from the platform rather than `auth.accessToken`.
+   * A refresh triggered by `ensureValidAccessToken` saves the new token on the
+   * platform first and only copies it into the Auth state from an async
+   * `refreshSuccess` listener, so that state can still hold the expired token
+   * when the exchange for an Engage token runs.
+   */
+  private async _getRcAccessToken(): Promise<string> {
+    const { access_token: accessToken } = await this.client.service
+      .platform()
+      .auth()
+      .data();
+    return accessToken || this.auth.accessToken;
   }
 
   @delegate('server')

@@ -430,7 +430,7 @@ describe('Adapter API and event parity', () => {
     expect(postMessage).toHaveBeenCalledTimes(1);
   });
 
-  test('restores feature flag updates without clearing previous overrides', async () => {
+  test('replaces previous feature flag overrides on each update, as 3.x did', async () => {
     const setConfigState = jest.fn();
     const adapter = createAdapter({
       _appFeatures: {
@@ -442,7 +442,6 @@ describe('Adapter API and event parity', () => {
     await adapter._onUpdateFeatureConfig({ text: false, contacts: true });
 
     expect(setConfigState).toHaveBeenCalledWith({
-      NoiseReduction: true,
       Pages: false,
       SMS: false,
       Contacts: true,
