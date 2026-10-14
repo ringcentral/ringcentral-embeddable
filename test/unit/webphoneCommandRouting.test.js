@@ -78,6 +78,27 @@ it.each([
   expect(handler).not.toHaveBeenCalled();
 });
 
+it('strips the replyWithMessage error handler after the reply options', async () => {
+  // micro-phone's ActiveCallControl passes a callback as the third argument;
+  // forwarding it throws DataCloneError on the SharedWorker port.
+  const { webphone } = create();
+  const spy = jest
+    .spyOn(webphone, '_executeRuntimeCommand')
+    .mockResolvedValue(true);
+  const replyOptions = { replyType: 0, replyText: 'On my way' };
+  const handler = jest.fn();
+
+  await expect(
+    webphone.replyWithMessage('session-1', replyOptions, handler),
+  ).resolves.toBe(true);
+
+  expect(spy).toHaveBeenCalledWith('replyWithMessage', [
+    'session-1',
+    replyOptions,
+  ]);
+  expect(handler).not.toHaveBeenCalled();
+});
+
 it('invokes the stripped error handler locally when the command fails', async () => {
   const { webphone } = create();
   const failure = new Error('session gone');

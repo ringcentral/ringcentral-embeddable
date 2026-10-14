@@ -118,6 +118,7 @@ const ERROR_HANDLER_INDEXES: Readonly<Record<string, number>> = {
   unhold: 1,
   stopRecord: 1,
   hangup: 1,
+  replyWithMessage: 2,
 };
 
 /**
