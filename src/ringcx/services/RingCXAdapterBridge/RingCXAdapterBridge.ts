@@ -719,18 +719,42 @@ export class RingCXAdapterBridge
       contactMatches,
       notes: extra?.notes || saved?.notes || input.notes,
       summary: extra?.summary || saved?.summary || input.summary,
-      disposition:
-        extra?.dispositionId || extra?.dispositionName
-          ? {
-              id: extra.dispositionId || extra.dispositionName || '',
-              name: extra.dispositionName || extra.dispositionId || '',
-            }
-          : input.disposition,
+      disposition: this._resolveDisposition(input, localCallId, extra),
       dialGroup: input.dialGroup || this._dialGroup(),
       skillProfileId:
         input.skillProfileId || this._cxAgentSession.selectedSkillProfileId,
       agentId: input.agentId || this._cxAuth.agentId,
     });
+  }
+
+  /**
+   * The submitted disposition with its label. Local disposition state keeps
+   * only the id, so the label is looked up in the call's disposition list.
+   */
+  private _resolveDisposition(
+    input: FormatRingCXCallInput,
+    localCallId: string | undefined,
+    extra?: DisposedExtra,
+  ): FormatRingCXCallInput['disposition'] {
+    const submittedId =
+      extra?.dispositionId ||
+      (localCallId && this._cxCallDisposition.isDisposed(localCallId)
+        ? this._cxCallDisposition.getDisposition(localCallId)?.dispositionId
+        : undefined);
+    const submittedName =
+      extra?.dispositionName ||
+      (submittedId
+        ? input.outdialDispositions?.dispositions?.find(
+            (item) => item.dispositionId === submittedId,
+          )?.disposition
+        : undefined);
+    if (!submittedId && !submittedName) {
+      return input.disposition;
+    }
+    return {
+      id: submittedId || submittedName || '',
+      name: submittedName || submittedId || '',
+    };
   }
 
   private _dialGroup(): { id: string; name: string } | undefined {
