@@ -37,13 +37,19 @@ export class CxAppView extends RcViewModule {
   }
 
   component(): React.ReactElement {
-    const { agentId, configSuccess, isOnlyOneAgent, loginStatus } =
-      useConnector(() => ({
-        agentId: this._cxAuth.agentId,
-        configSuccess: this._cxAgentSession.configSuccess,
-        isOnlyOneAgent: this._cxAuth.isOnlyOneAgent,
-        loginStatus: this._cxAuth.loginStatus,
-      }));
+    const {
+      agentId,
+      configSuccess,
+      isAgentSelectionPending,
+      isOnlyOneAgent,
+      loginStatus,
+    } = useConnector(() => ({
+      agentId: this._cxAuth.agentId,
+      configSuccess: this._cxAgentSession.configSuccess,
+      isAgentSelectionPending: this._cxAuth.isAgentSelectionPending,
+      isOnlyOneAgent: this._cxAuth.isOnlyOneAgent,
+      loginStatus: this._cxAuth.loginStatus,
+    }));
     const hasAgent = isOnlyOneAgent || !!agentId;
     // The session can end while the user is looking at an agent page, for
     // example when another device takes the login over, and a stored
@@ -60,7 +66,9 @@ export class CxAppView extends RcViewModule {
           : hasAgent
             ? cxPath.sessionConfig()
             : cxPath.chooseAccount()
-        : cxPath.agent();
+        : isAgentSelectionPending
+          ? cxPath.chooseAccount()
+          : cxPath.agent();
     return (
       <Switch>
         <Route

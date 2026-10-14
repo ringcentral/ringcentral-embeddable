@@ -24,7 +24,6 @@ import { loginTypes } from '../../enums';
 import { RingCX } from '../../../app/services/RingCX';
 import { CxAgentSession } from '../../services/CxAgentSession';
 import { CxAuth } from '../../services/CxAuth';
-import { CxClient } from '../../services/CxClient';
 import type { CxAgent } from '../../services/CxClient/interfaces';
 import type {
   CxSessionConfigViewOptions,
@@ -48,7 +47,6 @@ class CxSessionConfigView extends RcViewModule {
   constructor(
     private _cxAgentSession: CxAgentSession,
     private _cxAuth: CxAuth,
-    private _cxClient: CxClient,
     private _locale: Locale,
     private _router: RouterPlugin,
     private _ringCX: RingCX,
@@ -150,14 +148,8 @@ class CxSessionConfigView extends RcViewModule {
     this._cxAgentSession.setFormGroup({ dialGroupId: groupId });
   }
 
-  @delegate('server')
   async onAccountReChoose() {
-    // Close existing socket connection
-    await this._cxClient.closeSocket();
-    // Clear auth state
-    await this._cxAuth.clearAgentId();
-    await this._cxAuth.setNotAuth();
-    // Navigate to choose account
+    await this._cxAuth.reselectAgent();
     this._router.push(cxPath.chooseAccount());
   }
 

@@ -200,7 +200,8 @@ export class CxRouteCoordinator extends RcModule {
       this._cxAuth.setupNavigationRequested
     ) {
       this._cxAuth.completeSetupNavigation();
-      this._router.push(cxPath.chooseAccount());
+      // Authentication runs on the server port, which renders no app.
+      this._requestNavigation(cxPath.chooseAccount(), 'push');
     }
   }
 

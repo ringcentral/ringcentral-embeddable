@@ -598,14 +598,16 @@ export class RingCX extends RcModule {
     boolean,
     boolean,
     boolean,
+    boolean,
   ] {
     if (!this.loaded || !this.cxAuth || !this.cxAgentSession) {
-      return [false, null, false, false, false];
+      return [false, null, false, false, false, false];
     }
     return [
       true,
       this.cxAuth.loginStatus,
       this.cxAuth.isOnlyOneAgent,
+      this.cxAuth.isAgentSelectionPending,
       this.cxAgentSession.configured,
       this.cxAgentSession.configSuccess,
     ];
@@ -628,6 +630,13 @@ export class RingCX extends RcModule {
     const loginStatus = this.cxAuth.loginStatus;
     if (loginStatus === 'authFailure') {
       this._setStage('error');
+      return;
+    }
+    // The login of a user with several agent accounts waits for the pick
+    // before it can succeed.
+    if (this.cxAuth.isAgentSelectionPending) {
+      this._setStage('chooseAccount');
+      this._setSessionWanted(false);
       return;
     }
     if (loginStatus === 'authing' || loginStatus === 'reauthing') {
