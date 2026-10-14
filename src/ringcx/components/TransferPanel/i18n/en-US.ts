@@ -15,8 +15,8 @@ export default {
   noQueues: 'No queues available',
   selectAGroup: 'Select a group',
   selectAQueue: 'Select a queue',
-  stayOnCall: 'Stay on call',
-  cancel: 'Cancel',
+  askFirst: 'Ask first',
   transfer: 'Transfer',
+  toVoicemail: 'To voicemail',
   transferToTip: 'Transfer to: {destination}',
 } as const;

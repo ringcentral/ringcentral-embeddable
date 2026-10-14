@@ -16,8 +16,6 @@ export default {
   noQueues: '沒有可用佇列',
   selectAGroup: '選擇一個群組',
   selectAQueue: '選擇一個佇列',
-  stayOnCall: '隨時待命',
-  cancel: '取消',
   transfer: '轉接',
   transferToTip: '轉移至：{destination}',
 } as const;

@@ -16,8 +16,8 @@ export default {
   noQueues: 'Sem fila disponível',
   selectAGroup: 'Selecione um grupo',
   selectAQueue: 'Selecione uma fila',
-  stayOnCall: 'Manter-se na chamada',
-  cancel: 'cancelar',
+  askFirst: 'Perguntar antes',
   transfer: 'Transferir',
+  toVoicemail: 'Para o correio de voz',
   transferToTip: 'Transferir para: {destination}',
 } as const;

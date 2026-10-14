@@ -9,6 +9,5 @@ export interface CxRequeueCallOptions {
 export interface CxRequeueCallStatus {
   selectedQueueGroupId?: string;
   selectedGateId?: string;
-  stayOnCall?: boolean;
   requeuing?: boolean;
 }

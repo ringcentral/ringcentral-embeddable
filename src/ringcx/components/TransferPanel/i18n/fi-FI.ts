@@ -16,8 +16,6 @@ export default {
   noQueues: 'Jonoja ei ole käytettävissä',
   selectAGroup: 'Valitse ryhmä',
   selectAQueue: 'Valitse jono',
-  stayOnCall: 'Pysy paikalla',
-  cancel: 'Peruuta',
   transfer: 'Siirrä',
   transferToTip: 'Siirto: {destination}',
 } as const;

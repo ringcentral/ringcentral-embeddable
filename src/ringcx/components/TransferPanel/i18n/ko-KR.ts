@@ -16,8 +16,6 @@ export default {
   noQueues: '사용 가능한 대기열이 없습니다.',
   selectAGroup: '그룹 선택',
   selectAQueue: '대기열 선택',
-  stayOnCall: '통화 상태 유지',
-  cancel: '취소',
   transfer: '전달',
   transferToTip: '전송 대상: {destination}',
 } as const;

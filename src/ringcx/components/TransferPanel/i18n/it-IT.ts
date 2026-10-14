@@ -16,8 +16,8 @@ export default {
   noQueues: 'Nessuna coda disponibile',
   selectAGroup: 'Seleziona un gruppo',
   selectAQueue: 'Seleziona una coda',
-  stayOnCall: 'Rimani nella chiamata',
-  cancel: 'Annulla',
+  askFirst: 'Chiedi prima',
   transfer: 'Trasferisci',
+  toVoicemail: 'Alla segreteria telefonica',
   transferToTip: 'Trasferimento a: {destination}',
 } as const;

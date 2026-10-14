@@ -1,4 +1,5 @@
 import type React from 'react';
+import type { IconButtonSize } from '@ringcentral/spring-ui';
 
 /**
  * Supported call control action types.
@@ -44,6 +45,16 @@ export interface CallControlAction {
 export interface CallControlGridProps {
   /** Ordered list of action buttons to render in the grid */
   actions: CallControlAction[];
+  /** Icon button size, CallCtrlButton's own `xxlarge` by default */
+  buttonSize?: IconButtonSize;
+  /** Number of grid columns, 3 by default */
+  columns?: 2 | 3;
+  /**
+   * Cap each label at this many lines, cutting the rest off with an ellipsis,
+   * so a long or translated label cannot make its row grow without limit.
+   * Labels wrap freely when unset.
+   */
+  maxLabelLines?: 1 | 2;
   /** Custom class name */
   className?: string;
   /** Data sign for testing */

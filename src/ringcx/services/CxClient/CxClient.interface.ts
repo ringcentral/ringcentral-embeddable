@@ -79,3 +79,12 @@ export interface CxSoftphoneSipInfo {
   username_e164: string;
   domain: string;
 }
+
+/**
+ * Outcome of `/api/v1/extension-permissions/check-voicemail`. `status` is the
+ * HTTP status, or 0 when the request could not be made.
+ */
+export interface CxCheckVoicemailResult {
+  status: number;
+  voiceMailEnabled: boolean;
+}

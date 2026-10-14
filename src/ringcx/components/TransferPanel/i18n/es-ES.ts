@@ -16,8 +16,8 @@ export default {
   noQueues: 'No hay colas disponibles',
   selectAGroup: 'Seleccione un grupo',
   selectAQueue: 'Seleccionar una cola',
-  stayOnCall: 'Permanecer en la llamada',
-  cancel: 'Cancelar',
+  askFirst: 'Preguntar primero',
   transfer: 'Transferir',
+  toVoicemail: 'Al buzón de voz',
   transferToTip: 'Transferencia a: {destination}',
 } as const;

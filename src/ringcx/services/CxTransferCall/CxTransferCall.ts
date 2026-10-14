@@ -2,6 +2,7 @@ import { Locale, Toast } from '@ringcentral-integration/micro-core/src/app/servi
 import {
   action,
   computed,
+  delegate,
   injectable,
   optional,
   RcModule,
@@ -38,6 +39,7 @@ import { CxWorkingState } from '../CxWorkingState';
 import { CxSubscription } from '../CxSubscription';
 import { CxAgentSession } from '../CxAgentSession';
 import type {
+  CxTransferMode,
   CxTransferCallOptions,
   CxTransferPhoneBookItem,
   CxDirectAgentListItem,
@@ -65,6 +67,7 @@ const NON_PHONE_DEST_COUNTRY_ID = 'USA';
 class CxTransferCall extends RcModule {
   private _eventEmitter = new EventEmitter();
   private _transferDest: string | null = null;
+  private _voicemailChecks = new Map<string, Promise<boolean | null>>();
 
   constructor(
     private cxClient: CxClient,
@@ -131,9 +134,12 @@ class CxTransferCall extends RcModule {
   @state
   transferRecipientCountryId = 'USA';
 
-  @storage
+  /**
+   * Result of the voicemail permission check per RC extension id. Missing
+   * means not checked yet (or in flight), which keeps To voicemail disabled.
+   */
   @state
-  stayOnCall = true;
+  voicemailEnabledByExtension: Record<string, boolean> = {};
 
   get transferring(): boolean {
     return this.transferStatus === transferStatuses.loading;
@@ -217,14 +223,17 @@ class CxTransferCall extends RcModule {
     this.transferRecipientNumber = '';
     this.transferRecipientSkipParse = false;
     this.transferRecipientCountryId = 'USA';
-    this.stayOnCall = true;
     this.isTransferCancelable = false;
     this._transferDest = null;
+    // Forget every voicemail check, so the next transfer asks the server again
+    // rather than trusting a permission that may have changed since
+    this._voicemailChecks.clear();
+    this.voicemailEnabledByExtension = {};
   }
 
   @action
-  changeStayOnCall(value: boolean) {
-    this.stayOnCall = !value;
+  private _setVoicemailEnabled(extensionId: string, enabled: boolean) {
+    this.voicemailEnabledByExtension[extensionId] = enabled;
   }
 
   @action
@@ -429,20 +438,111 @@ class CxTransferCall extends RcModule {
   }
 
   /**
-   * Route a transfer call as warm or cold based on stayOnCall setting.
+   * Whether the current destination can take a voicemail transfer: only a
+   * corporate directory pick is a RingEX extension with a mailbox, a typed
+   * number, phone book entry or agent is not.
    */
-  async transferCall({ dialDest, countryId }: TransferCallParams): Promise<void> {
-    if (this.stayOnCall) {
-      await this.warmTransferCall({ dialDest, countryId });
-    } else {
-      await this.coldTransferCall({ dialDest, countryId });
+  get isVoicemailDestination(): boolean {
+    return (
+      this.transferType === transferTypes.manualEntry &&
+      this.transferRecipientSkipParse &&
+      !!this.transferRecipientNumber
+    );
+  }
+
+  /**
+   * Route a destination transfer by mode.
+   */
+  async transferCall(
+    { dialDest, countryId }: TransferCallParams,
+    mode: CxTransferMode,
+  ): Promise<void> {
+    switch (mode) {
+      case directTransferTypes.WARM:
+        await this.warmTransferCall({ dialDest, countryId });
+        break;
+      case directTransferTypes.COLD:
+        await this.coldTransferCall({ dialDest, countryId });
+        break;
+      case directTransferTypes.VOICEMAIL:
+        await this.voicemailTransferCall(dialDest);
+        break;
+      default:
+        throw new CxTypeError({
+          type: transferErrors.TYPE_ERROR,
+          data: `Abnormal Transfer: mode -> ${mode}`,
+        });
     }
   }
 
   /**
-   * Perform an internal (direct agent) transfer, warm or cold based on stayOnCall.
+   * Ask the server whether a directory user's extension takes voicemail and
+   * cache the answer, the same check Agent One makes before enabling its
+   * voicemail transfer. Concurrent checks for one extension share a request.
    */
-  async internalTransferCall(): Promise<void> {
+  @delegate('server')
+  async checkVoicemail(extensionId: string): Promise<boolean> {
+    if (!extensionId) return false;
+    if (extensionId in this.voicemailEnabledByExtension) {
+      return this.voicemailEnabledByExtension[extensionId];
+    }
+    const pending = this._voicemailChecks.get(extensionId);
+    if (pending) return pending;
+    const check = this._requestVoicemailEnabled(extensionId);
+    this._voicemailChecks.set(extensionId, check);
+    try {
+      const enabled = await check;
+      // A failed check is not cached, so picking the user again retries it. A
+      // reset while the request was in flight drops the result with it.
+      if (enabled !== null && this._voicemailChecks.get(extensionId) === check) {
+        this._setVoicemailEnabled(extensionId, enabled);
+      }
+      return !!enabled;
+    } finally {
+      if (this._voicemailChecks.get(extensionId) === check) {
+        this._voicemailChecks.delete(extensionId);
+      }
+    }
+  }
+
+  /**
+   * An expired Engage token answers 401: refresh it and try once more.
+   *
+   * @returns null when the server gave no answer, as opposed to a `false` it
+   * did give
+   */
+  private async _requestVoicemailEnabled(
+    extensionId: string,
+  ): Promise<boolean | null> {
+    let result = await this.cxClient.checkVoicemail(extensionId);
+    if (result.status === 401) {
+      const authorized = await this.cxAuth.refreshEvToken();
+      if (!authorized) return null;
+      result = await this.cxClient.checkVoicemail(extensionId);
+    }
+    return result.status >= 200 && result.status < 300
+      ? result.voiceMailEnabled
+      : null;
+  }
+
+  /**
+   * Send the call to the voicemail of a corporate directory user. Agent One
+   * sends this as a cold transfer with transfer_type VOICEMAIL.
+   */
+  async voicemailTransferCall(dialDest: string): Promise<void> {
+    if (!this.isVoicemailDestination) {
+      throw new CxTypeError({
+        type: transferErrors.SEND_VOICEMAIL_ERROR,
+        data: `Abnormal Transfer: voicemail to non directory destination -> ${dialDest}`,
+      });
+    }
+    await this.cxClient.voicemailTransferCall(dialDest);
+  }
+
+  /**
+   * Perform an internal (direct agent) transfer, warm or cold.
+   */
+  async internalTransferCall(mode: CxTransferMode): Promise<void> {
     if (!this.transferAgentId) {
       throw new CxTypeError({
         type: transferErrors.AGENT_ID_ERROR,
@@ -455,25 +555,33 @@ class CxTransferCall extends RcModule {
       console.warn('fetch agent list error');
       console.error(e);
     }
-    if (this.stayOnCall) {
-      await this._holdBeforeWarmTransfer();
-      await this.cxClient.warmDirectAgentTransfer(this.transferAgentId);
-    } else {
-      await this.cxClient.coldDirectAgentTransfer(this.transferAgentId);
+    switch (mode) {
+      case directTransferTypes.WARM:
+        await this._holdBeforeWarmTransfer();
+        await this.cxClient.warmDirectAgentTransfer(this.transferAgentId);
+        break;
+      case directTransferTypes.COLD:
+        await this.cxClient.coldDirectAgentTransfer(this.transferAgentId);
+        break;
+      default:
+        throw new CxTypeError({
+          type: transferErrors.TYPE_ERROR,
+          data: `Abnormal Transfer: internal transfer mode -> ${mode}`,
+        });
     }
   }
 
   /**
    * Orchestrate the full transfer flow: parse number, set status, dispatch by type.
    */
-  async transfer(): Promise<void> {
+  async transfer(mode: CxTransferMode): Promise<void> {
     try {
       const parsed = this.parseNumber();
       this._eventEmitter.emit(transferEvents.START);
       this.setTransferStatus(transferStatuses.loading);
       switch (this.transferType) {
         case transferTypes.internal:
-          await this.internalTransferCall();
+          await this.internalTransferCall(mode);
           break;
         case transferTypes.phoneBook:
         case transferTypes.manualEntry:
@@ -483,7 +591,7 @@ class CxTransferCall extends RcModule {
               data: `Abnormal Transfer: failed to parse number for type ${this.transferType}`,
             });
           }
-          await this.transferCall(parsed);
+          await this.transferCall(parsed, mode);
           break;
         default:
           throw new CxTypeError({

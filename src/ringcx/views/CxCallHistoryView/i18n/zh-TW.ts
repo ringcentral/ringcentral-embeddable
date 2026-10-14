@@ -15,7 +15,7 @@ export default {
   yesterday: '昨天',
   unknown: '未知',
   logged: '已記錄',
-  manual: '手冊',
+  manual: '手動',
   loadingMore: '載入更多調用',
   loadFailed: '無法載入更多調用',
   retry: '重試',
