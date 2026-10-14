@@ -530,4 +530,66 @@ describe("ActiveCallControl compatibility routing", () => {
       );
     }
   );
+
+  describe("ringing call actions with the web phone", () => {
+    function createRingingControl(webphoneSession = {}) {
+      return {
+        getWebphoneSessionId: jest.fn(() => "webphone-session"),
+        getSession: jest.fn(() => ({ party: { id: "party-id" } })),
+        setCallControlBusyTimestamp: jest.fn(),
+        clearCallControlBusyTimestamp: jest.fn(),
+        onCallIgnoreFunc: jest.fn(),
+        _webphone: {
+          sessions: [{ id: "webphone-session", ...webphoneSession }],
+          reject: jest.fn(async () => {}),
+          toVoiceMail: jest.fn(async () => {}),
+        },
+      };
+    }
+
+    test("sends a normal call to voicemail", async () => {
+      const control = createRingingControl();
+
+      await ActiveCallControl.prototype.reject.call(
+        control,
+        "telephony-session"
+      );
+
+      expect(control._webphone.toVoiceMail).toHaveBeenCalledWith(
+        "webphone-session"
+      );
+      expect(control._webphone.reject).not.toHaveBeenCalled();
+      expect(control.clearCallControlBusyTimestamp).toHaveBeenCalled();
+    });
+
+    test("ignores a queue call instead of sending it to voicemail", async () => {
+      const control = createRingingControl({ callQueueName: "Sales - " });
+
+      await ActiveCallControl.prototype.reject.call(
+        control,
+        "telephony-session"
+      );
+
+      expect(control._webphone.reject).toHaveBeenCalledWith(
+        "webphone-session"
+      );
+      expect(control._webphone.toVoiceMail).not.toHaveBeenCalled();
+      expect(control.clearCallControlBusyTimestamp).toHaveBeenCalled();
+    });
+
+    test("ignores a call on this device through the web phone", async () => {
+      const control = createRingingControl();
+
+      await ActiveCallControl.prototype.ignore.call(
+        control,
+        "telephony-session"
+      );
+
+      expect(control._webphone.reject).toHaveBeenCalledWith(
+        "webphone-session"
+      );
+      expect(control._webphone.toVoiceMail).not.toHaveBeenCalled();
+      expect(control.onCallIgnoreFunc).toHaveBeenCalledWith("party-id");
+    });
+  });
 });

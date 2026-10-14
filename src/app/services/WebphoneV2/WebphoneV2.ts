@@ -120,7 +120,7 @@ const PROXY_ROTATION_ATTEMPTS = 2;
 const DEFAULT_AUDIO_FILE = 'default';
 const SETUP_TERMINAL_STATES = new Set(['init', 'failed', 'disposed']);
 /** Matches the response SIP.js sends for a rejected invitation. */
-const CX_OFFHOOK_DECLINE_RESPONSE_CODE = 480;
+const LOCAL_DECLINE_RESPONSE_CODE = 480;
 const SDK_SESSION_EVENTS = [
   'ringing',
   'answered',
@@ -856,21 +856,26 @@ export class WebphoneV2 extends RcModule {
   }
 
   /**
-   * Turns down a RingCX offhook INVITE with a plain SIP final response.
+   * Turns down an inbound INVITE on this device only, with a plain SIP final
+   * response.
    *
-   * `InboundCallSession.decline()` speaks RingCentral call control: it sends
-   * an `x-rc/agent` MESSAGE and then waits for the CANCEL the server sends
-   * back. The offhook INVITE carries no `P-rc` header, so the SDK drops that
-   * MESSAGE without putting anything on the wire and the wait never resolves,
-   * which leaves the leg ringing. Answering the INVITE transaction is the only
-   * way to refuse it, and the SDK only reaps a session on BYE or CANCEL, so
-   * this one has to be retired here.
+   * The call keeps ringing on the user's other devices, which is what "Ignore"
+   * means. `InboundCallSession.decline()` cannot be used for that: it sends the
+   * call-control reject command, which ends the call for every device and
+   * routes it to voicemail.
+   *
+   * It is also the only way to refuse a RingCX offhook INVITE: that INVITE
+   * carries no `P-rc` header, so the SDK drops the call-control MESSAGE without
+   * putting anything on the wire and the wait for CANCEL never resolves.
+   *
+   * The SDK only reaps a session on BYE or CANCEL, so this one has to be
+   * retired here.
    */
-  private async _declineCxOffhookSession(record: WebphoneV2SessionRecord) {
+  private async _declineLocally(record: WebphoneV2SessionRecord) {
     const { session } = record;
     await session.webPhone.sipClient.reply(
       new ResponseMessage(session.sipMessage, {
-        responseCode: CX_OFFHOOK_DECLINE_RESPONSE_CODE,
+        responseCode: LOCAL_DECLINE_RESPONSE_CODE,
       }),
     );
     const { callSessions } = session.webPhone;
@@ -1928,19 +1933,24 @@ export class WebphoneV2 extends RcModule {
     if (record.normalized.direction !== 'Inbound') return;
     if (record.isCxOffhook) {
       await this._runDestructiveCommand(record, 'reject', () =>
-        this._declineCxOffhookSession(record),
+        this._declineLocally(record),
       );
       return;
     }
-    // V2 SDK owns inbound decline signaling for normal and queue calls.
-    await this._runDestructiveCommand(record, 'reject', async () => {
-      await this._withDeadline(
-        (record.session as InboundWebPhoneSession).decline(),
-        `decline ${sessionId}`,
+    // A queue call has to be ignored through call control, otherwise the queue
+    // keeps offering it to this device.
+    if (record.normalized.callQueueName) {
+      await this._runDestructiveCommand(record, 'reject', () =>
+        this._withDeadline(
+          (record.session as InboundWebPhoneSession).decline(),
+          `decline ${sessionId}`,
+        ),
       );
-      if (!record.normalized.callQueueName) {
-        this._ignoreSubject.next(sessionId);
-      }
+      return;
+    }
+    await this._runDestructiveCommand(record, 'reject', async () => {
+      await this._declineLocally(record);
+      this._ignoreSubject.next(sessionId);
     });
   }
 
