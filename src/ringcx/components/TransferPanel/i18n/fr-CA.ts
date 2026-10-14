@@ -16,8 +16,8 @@ export default {
   noQueues: 'Aucune file d\'attente disponible',
   selectAGroup: 'Sélectionnez un groupe',
   selectAQueue: 'Sélectionnez une file d\'attente',
-  stayOnCall: 'Rester en ligne',
-  cancel: 'Annuler',
+  askFirst: 'Demander dʼabord',
   transfer: 'Transfert',
+  toVoicemail: 'Vers la messagerie vocale',
   transferToTip: 'Transfert vers : {destination}',
 } as const;

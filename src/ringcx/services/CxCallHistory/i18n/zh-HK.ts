@@ -1,4 +1,4 @@
 /* eslint-disable */
 export default {
-  manual: '手冊',
+  manual: '手動',
 } as const;

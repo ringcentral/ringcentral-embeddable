@@ -54,10 +54,6 @@ class CxRequeueCall extends RcModule {
 
   @storage
   @state
-  stayOnCall = false;
-
-  @storage
-  @state
   requeuing = false;
 
   /**
@@ -90,7 +86,6 @@ class CxRequeueCall extends RcModule {
   setStatus({
     selectedQueueGroupId,
     selectedGateId,
-    stayOnCall,
     requeuing,
   }: CxRequeueCallStatus) {
     if (selectedQueueGroupId !== undefined) {
@@ -99,18 +94,18 @@ class CxRequeueCall extends RcModule {
     if (selectedGateId !== undefined) {
       this.selectedGateId = selectedGateId;
     }
-    if (stayOnCall !== undefined) {
-      this.stayOnCall = stayOnCall;
-    }
     if (requeuing !== undefined) {
       this.requeuing = requeuing;
     }
   }
 
   /**
-   * Requeue the current call to a different queue
+   * Requeue the current call to a different queue.
+   *
+   * @param maintain keep the agent on the call (Ask first), holding the
+   * customer while the queue finds an agent
    */
-  async requeueCall(): Promise<void> {
+  async requeueCall({ maintain = false }: { maintain?: boolean } = {}): Promise<void> {
     try {
       this.setStatus({ requeuing: true });
       this.toast.info({
@@ -118,7 +113,7 @@ class CxRequeueCall extends RcModule {
       });
 
       const result = await this.cxClient.requeueCall({
-        maintain: this.stayOnCall,
+        maintain,
         queueId: this.selectedGateId,
       });
 
@@ -126,7 +121,7 @@ class CxRequeueCall extends RcModule {
         throw new Error('Requeue failed');
       }
 
-      if (this.stayOnCall) {
+      if (maintain) {
         await this.activeCallControl.hold();
       }
 

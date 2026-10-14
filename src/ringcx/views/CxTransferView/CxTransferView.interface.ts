@@ -1,5 +1,9 @@
 import type { CxTransferType } from '../../enums';
-import type { CxDirectAgentListItem, CxTransferPhoneBookItem } from '../../services/CxTransferCall/CxTransferCall.interface';
+import type {
+  CxDirectAgentListItem,
+  CxTransferMode,
+  CxTransferPhoneBookItem,
+} from '../../services/CxTransferCall/CxTransferCall.interface';
 import type { CxAvailableRequeueQueue } from '../../services/CxClient';
 import type { DirectoryRecord } from '../../services/CxDirectorySearch';
 
@@ -32,9 +36,9 @@ interface TransferTab {
  */
 interface CxTransferViewUIProps {
   transferType: CxTransferType;
-  isStayOnCall: boolean;
   isTransferring: boolean;
   isDisabled: boolean;
+  isVoicemailDisabled: boolean;
   allTabs: TransferTab[];
   defaultTab: CxTransferType | null;
   agentList: CxDirectAgentListItem[];
@@ -58,7 +62,6 @@ interface CxTransferViewUIProps {
  */
 interface CxTransferViewUIFunctions {
   onTabChange: (type: CxTransferType) => void;
-  onStayOnCallChange: () => void;
   onSelectAgent: (agentId: string) => void;
   onSelectPhoneBookContact: (index: number) => void;
   onManualEntryChange: (value: string) => void;
@@ -68,8 +71,7 @@ interface CxTransferViewUIFunctions {
   onSelectDirectoryRecord: (record: DirectoryRecord) => void;
   onQueueGroupChange: (groupId: string) => void;
   onGateChange: (gateId: string) => void;
-  onTransfer: () => Promise<void>;
-  onCancel: () => void;
+  onTransfer: (mode: CxTransferMode) => Promise<void>;
   onBack: () => void;
   fetchAgentList: () => void;
 }

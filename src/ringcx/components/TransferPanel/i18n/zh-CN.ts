@@ -16,8 +16,8 @@ export default {
   noQueues: '没有可用队列',
   selectAGroup: '选择一个组',
   selectAQueue: '选择一个队列',
-  stayOnCall: '保持通话',
-  cancel: '取消',
+  askFirst: '先征询对方',
   transfer: '转接',
+  toVoicemail: '转至语音信箱',
   transferToTip: '转移至：{destination}',
 } as const;

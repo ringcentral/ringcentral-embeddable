@@ -57,6 +57,7 @@ import { buildSoftphoneSipInfo } from './buildSoftphoneSipInfo';
 import { loadAgentSdk } from './loadAgentSdk';
 import type {
   CxAgentIdentity,
+  CxCheckVoicemailResult,
   CxClientServiceOptions,
   CxClientTransferParams,
   CxClientHangUpParams,
@@ -1098,6 +1099,29 @@ class CxClient extends RcModule {
     });
   }
 
+  /**
+   * Cold transfer straight to the voicemail of a RingEX extension, sent as a
+   * cold transfer with `transfer_type` VOICEMAIL. `dialDest` has to be a
+   * directory destination (`<mainNumber>*<ext>@RC_EXT`).
+   */
+  @delegate('server')
+  async voicemailTransferCall(
+    dialDest: string,
+  ): Promise<CxColdTransferCallResponse> {
+    return new Promise<CxColdTransferCallResponse>((resolve, reject) => {
+      this._sdk.sendToVoicemailForRingEXNumber(
+        dialDest,
+        (data: CxColdTransferCallResponse) => {
+          if (data.status === 'OK') {
+            resolve(data);
+          } else {
+            reject(data);
+          }
+        },
+      );
+    });
+  }
+
   @delegate('server')
   async cancelWarmTransferCall(dialDest: string) {
     await this._sdk.warmXferCancel(dialDest);
@@ -1829,6 +1853,46 @@ class CxClient extends RcModule {
     } catch (error) {
       this.logger.error('getAgentHistory fail', error);
       throw error;
+    }
+  }
+
+  /**
+   * GET - /api/v1/extension-permissions/check-voicemail
+   *
+   * Whether a RingEX extension of the agent's RC account takes voicemail. The
+   * HTTP status is returned rather than thrown, since an error thrown from a
+   * delegated call does not reach the caller on another port, and the caller
+   * needs to tell a 401 apart to refresh the token and retry.
+   */
+  @delegate('server')
+  async checkVoicemail(extensionId: string): Promise<CxCheckVoicemailResult> {
+    const rcAccountId = this.getFullUserDetails()?.rcAccountId;
+    if (!rcAccountId || !extensionId) {
+      return { status: 0, voiceMailEnabled: false };
+    }
+    const authenticateRequest = this._sdk.getAuthenticateRequest();
+    const searchParams = new URLSearchParams({
+      targetExtensionId: extensionId,
+      targetAccountId: String(rcAccountId),
+    });
+    try {
+      const response = await fetch(
+        `${this._options.authHost}/api/v1/extension-permissions/check-voicemail?${searchParams.toString()}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authenticateRequest.engageAccessToken}`,
+          },
+        },
+      );
+      if (!response.ok) {
+        return { status: response.status, voiceMailEnabled: false };
+      }
+      const data: { voiceMailEnabled?: boolean } = await response.json();
+      return { status: response.status, voiceMailEnabled: !!data?.voiceMailEnabled };
+    } catch (error) {
+      this.logger.error('checkVoicemail fail', error);
+      return { status: 0, voiceMailEnabled: false };
     }
   }
 

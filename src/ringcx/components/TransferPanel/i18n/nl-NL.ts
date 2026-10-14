@@ -16,8 +16,8 @@ export default {
   noQueues: 'Geen wachtrijen beschikbaar',
   selectAGroup: 'Selecteer een groep',
   selectAQueue: 'Selecteer een wachtrij',
-  stayOnCall: 'Aan de lijn blijven',
-  cancel: 'Annuleren',
+  askFirst: 'Eerst overleggen',
   transfer: 'Doorverbinden',
+  toVoicemail: 'Naar voicemail',
   transferToTip: 'Transfer naar: {destination}',
 } as const;

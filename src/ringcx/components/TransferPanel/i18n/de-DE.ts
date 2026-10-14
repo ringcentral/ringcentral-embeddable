@@ -16,8 +16,8 @@ export default {
   noQueues: 'Keine Warteschlangen verfügbar',
   selectAGroup: 'Wählen Sie eine Gruppe aus',
   selectAQueue: 'Wählen Sie eine Warteschlange aus',
-  stayOnCall: 'Im Anruf bleiben',
-  cancel: 'Abbrechen',
+  askFirst: 'Zuerst fragen',
   transfer: 'Weiterleiten',
+  toVoicemail: 'An Voicemail',
   transferToTip: 'Weiterleitung an: {destination}',
 } as const;

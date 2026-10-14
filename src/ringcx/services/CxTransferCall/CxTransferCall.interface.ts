@@ -1,4 +1,10 @@
-import type { CxTransferType, TransferStatus } from '../../enums';
+import type { DirectTransferTypes } from '../../enums';
+
+/**
+ * How a transfer is carried out: WARM asks the destination first, COLD hands
+ * the call over, VOICEMAIL sends it to a directory user's voicemail.
+ */
+export type CxTransferMode = Exclude<DirectTransferTypes, 'CANCEL'>;
 
 /**
  * CxTransferCall options for configuration

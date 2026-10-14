@@ -16,8 +16,6 @@ export default {
   noQueues: '使用可能なキューがありません',
   selectAGroup: 'グループを選択してください',
   selectAQueue: 'キューを選択してください',
-  stayOnCall: '電話をお待ちください',
-  cancel: 'キャンセル',
   transfer: '転送',
   transferToTip: '転送先: {destination}',
 } as const;

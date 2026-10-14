@@ -6,18 +6,29 @@ import React, {
   useState,
   type FunctionComponent,
 } from 'react';
-import { TabContext, Tabs, Tab, TabPanel, Switch, Button } from '@ringcentral/spring-ui';
+import { TabContext, Tabs, Tab, TabPanel } from '@ringcentral/spring-ui';
+import {
+  AskFirstFilledMd,
+  TransferCallMd,
+  VoicemailFilledMd,
+} from '@ringcentral/spring-icon';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 
 import type { CxTransferType } from '../../enums';
-import { transferTypes } from '../../enums';
-import type { CxDirectAgentListItem, CxTransferPhoneBookItem } from '../../services/CxTransferCall/CxTransferCall.interface';
+import { directTransferTypes, transferTypes } from '../../enums';
+import type {
+  CxDirectAgentListItem,
+  CxTransferMode,
+  CxTransferPhoneBookItem,
+} from '../../services/CxTransferCall/CxTransferCall.interface';
 import type { CxAvailableRequeueQueue } from '../../services/CxClient';
 import type { DirectoryRecord } from '../../services/CxDirectorySearch';
 import { InternalTransferTab } from './InternalTransferTab';
 import { PhoneBookTransferTab } from './PhoneBookTransferTab';
 import { ManualEntryTransferTab } from './ManualEntryTransferTab';
 import { QueueTransferTab } from './QueueTransferTab';
+import { CallControlGrid } from '../CallControlGrid';
+import type { CallControlAction } from '../CallControlGrid';
 import i18n from './i18n';
 
 interface TransferTab {
@@ -29,9 +40,9 @@ interface TransferTab {
 interface TransferPanelProps {
   allTabs: TransferTab[];
   defaultTab: CxTransferType | null;
-  isStayOnCall: boolean;
   isTransferring: boolean;
   isDisabled: boolean;
+  isVoicemailDisabled: boolean;
   agentList: CxDirectAgentListItem[];
   phoneBook: CxTransferPhoneBookItem[];
   selectedAgentId: string | null;
@@ -47,7 +58,6 @@ interface TransferPanelProps {
   selectedQueueGroupId: string;
   selectedGateId: string;
   onTabChange: (type: CxTransferType) => void;
-  onStayOnCallChange: () => void;
   onSelectAgent: (agentId: string) => void;
   onSelectPhoneBookContact: (index: number | null) => void;
   onManualEntryChange: (value: string) => void;
@@ -57,8 +67,7 @@ interface TransferPanelProps {
   onSelectDirectoryRecord: (record: DirectoryRecord) => void;
   onQueueGroupChange: (groupId: string) => void;
   onGateChange: (gateId: string) => void;
-  onTransfer: () => Promise<void>;
-  onCancel: () => void;
+  onTransfer: (mode: CxTransferMode) => Promise<void>;
   fetchAgentList: () => void;
 }
 
@@ -68,9 +77,9 @@ interface TransferPanelProps {
 export const TransferPanel: FunctionComponent<TransferPanelProps> = ({
   allTabs,
   defaultTab,
-  isStayOnCall,
   isTransferring,
   isDisabled,
+  isVoicemailDisabled,
   agentList,
   phoneBook,
   selectedAgentId,
@@ -86,7 +95,6 @@ export const TransferPanel: FunctionComponent<TransferPanelProps> = ({
   selectedQueueGroupId,
   selectedGateId,
   onTabChange,
-  onStayOnCallChange,
   onSelectAgent,
   onSelectPhoneBookContact,
   onManualEntryChange,
@@ -97,7 +105,6 @@ export const TransferPanel: FunctionComponent<TransferPanelProps> = ({
   onQueueGroupChange,
   onGateChange,
   onTransfer,
-  onCancel,
   fetchAgentList,
 }) => {
   const { t } = useLocale(i18n);
@@ -143,6 +150,55 @@ export const TransferPanel: FunctionComponent<TransferPanelProps> = ({
     [onTabChange, availableTabValues],
   );
 
+  // Only the manual tab reaches the corporate directory, the one destination
+  // that can take a voicemail transfer
+  const showVoicemail = activeTab === transferTypes.manualEntry;
+
+  const actions = useMemo<CallControlAction[]>(() => {
+    // Names the destination on the manual tab, where a typed extension
+    // otherwise gives no sign of who is behind the digits. Empty on the other
+    // tabs, which spell their destination out themselves.
+    const tooltip = transferDestinationLabel
+      ? t('transferToTip', { destination: transferDestinationLabel })
+      : undefined;
+    const transferActions: CallControlAction[] = [
+      {
+        actionType: 'askFirstTransfer',
+        symbol: AskFirstFilledMd,
+        label: t('askFirst'),
+        disabled: isDisabled || isTransferring,
+        tooltip,
+        onClick: () => onTransfer(directTransferTypes.WARM),
+      },
+      {
+        actionType: 'executeTransfer',
+        symbol: TransferCallMd,
+        label: t('transfer'),
+        disabled: isDisabled || isTransferring,
+        tooltip,
+        onClick: () => onTransfer(directTransferTypes.COLD),
+      },
+    ];
+    if (showVoicemail) {
+      transferActions.push({
+        actionType: 'voicemailTransfer',
+        symbol: VoicemailFilledMd,
+        label: t('toVoicemail'),
+        disabled: isVoicemailDisabled || isTransferring,
+        onClick: () => onTransfer(directTransferTypes.VOICEMAIL),
+      });
+    }
+    return transferActions;
+  }, [
+    t,
+    showVoicemail,
+    transferDestinationLabel,
+    isDisabled,
+    isVoicemailDisabled,
+    isTransferring,
+    onTransfer,
+  ]);
+
   return (
     <div className="flex flex-col flex-1 bg-neutral-base overflow-hidden">
       <TabContext value={activeTab} onChange={handleTabChange}>
@@ -163,7 +219,9 @@ export const TransferPanel: FunctionComponent<TransferPanelProps> = ({
             number field and scrolls only the keypad below it, which needs the
             panel itself to be the height-bounded box. Each TabPanel therefore
             owns its own scrolling. Inactive panels still render their root div,
-            but MUI marks them `hidden` (display:none) so they take no space. */}
+            marked `hidden`. Preflight's `[hidden]` rule loses to a display
+            utility such as `flex`, so a panel that sets one has to re-hide
+            itself, or it keeps its flex-1 share of the height while inactive. */}
         <div className="flex-1 min-h-0 px-4 pt-4 pb-2 flex flex-col overflow-hidden">
           <TabPanel
             value={transferTypes.internal}
@@ -200,7 +258,7 @@ export const TransferPanel: FunctionComponent<TransferPanelProps> = ({
           </TabPanel>
           <TabPanel
             value={transferTypes.manualEntry}
-            className="flex-1 min-h-0 flex flex-col"
+            className="flex-1 min-h-0 flex flex-col [&[hidden]]:hidden"
           >
             <ManualEntryTransferTab
               isActive={activeTab === transferTypes.manualEntry}
@@ -246,50 +304,18 @@ export const TransferPanel: FunctionComponent<TransferPanelProps> = ({
           </TabPanel>
         </div>
       </TabContext>
-      <div className="flex-shrink-0 px-4 pb-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Switch
-            data-sign="stayOnCall"
-            checked={isStayOnCall}
-            onChange={onStayOnCallChange}
-          />
-          <span className="typography-mainText">{t('stayOnCall')}</span>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            data-sign="cancelTransfer"
-            variant="outlined"
-            color="neutral"
-            fullWidth
-            onClick={onCancel}
-          >
-            {t('cancel')}
-          </Button>
-          <Button
-            data-sign="executeTransfer"
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={isDisabled}
-            loading={isTransferring}
-            onClick={onTransfer}
-            // Names the destination on the manual tab, where a typed extension
-            // otherwise gives no sign of who is behind the digits. Empty on the
-            // other tabs, which spell their destination out themselves.
-            TooltipProps={
-              transferDestinationLabel
-                ? {
-                    title: t('transferToTip', {
-                      destination: transferDestinationLabel,
-                    }),
-                  }
-                : undefined
-            }
-          >
-            {t('transfer')}
-          </Button>
-        </div>
-      </div>
+      <CallControlGrid
+        className="flex-shrink-0 px-4 pt-2 pb-4 gap-x-2"
+        data-sign="transferActions"
+        columns={showVoicemail ? 3 : 2}
+        // Smaller than the call page's buttons: the manual tab's keypad has
+        // to fit above them without scrolling
+        buttonSize="large"
+        // Translated labels run long ("Vers la messagerie vocale"): two
+        // lines fit them, the smaller buttons leave room for that
+        maxLabelLines={2}
+        actions={actions}
+      />
     </div>
   );
 };
