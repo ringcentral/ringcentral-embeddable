@@ -33,7 +33,6 @@ Optional parameters:
 | Parameter | Default | Description |
 | --- | --- | --- |
 | `enableAgentScript` | off | Show RingCX agent scripts in the side panel during calls. We recommend using it with `enableSideWidget=1`. |
-| `hideCallNote` | off | Hide the note field on the disposition form. With it on, the disposition step is skipped for calls that leave nothing for the agent to fill in. |
 
 ## Supporting RingCX in 3 steps
 
@@ -118,13 +117,13 @@ window.addEventListener('message', (e) => {
 
 Disposition and call logging are separate.
 
-- Disposition stays in the Agent tab. It is submitted to RingCX before any CRM log.
+- Disposition is submitted to RingCX before any CRM log.
 - Call logging uses `callLoggerPath` and the host log page at `/log/call/<id>?source=ringcx`.
 
 When `showLogModal` is false:
 
-- Submitting a disposition logs the call right away with `triggerType: 'callDisposition'` and `redirect: true`. The widget does not open another page. Your `callLoggerPath` handler decides from its own auto-log setting whether to open the CRM record.
-- A call without a disposition step (only possible with `hideCallNote`) is logged the same way when it ends, but only if auto log is on in the widget settings.
+- When auto log is on, submitting a disposition logs the call right away with `triggerType: 'callDisposition'` and `redirect: true`. The widget does not open another page. Your `callLoggerPath` handler decides from its own auto-log setting whether to open the CRM record.
+- A call without a disposition step is logged the same way when it ends, but only if auto log is on in the widget settings.
 
 When `showLogModal` is true and `callLoggerPath` is registered, the host log page opens once the call has ended, and your `$LOG-CALL` schema renders there. If the agent dispositions while the call is still connected, the page opens when the call ends.
 
