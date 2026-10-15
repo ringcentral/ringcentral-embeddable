@@ -189,11 +189,18 @@ class CxDirectorySearch extends RcModule {
   }
 
   /**
-   * Drop any pending or in-flight search for `scope`, keeping current results
+   * Drop any pending or in-flight search for `scope`, keeping current results.
+   *
+   * The searching flag is lowered here because nothing else will: once the
+   * in-flight request is stale, `_perform` no longer touches the scope, and a
+   * flag left raised keeps the transfer panel's buttons disabled for good.
    */
   @delegate('server')
   async cancel(scope: DirectorySearchScope): Promise<void> {
     this._invalidate(scope);
+    if (this.isSearching(scope)) {
+      this._setScope(scope, { isSearching: false });
+    }
   }
 
   /**
