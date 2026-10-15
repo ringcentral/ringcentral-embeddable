@@ -34,13 +34,17 @@ const { CxRouteCoordinator } = require('../../src/ringcx/CxRouteCoordinator');
 
 const CALL_ID = 'uii-1$session-1';
 const SESSION = { uii: 'uii-1', sessionId: 'session-1' };
+const DISPOSITIONS = { dispositions: [{ dispositionId: 'disp-1' }] };
+const CALL_WITH_DISPOSITIONS = {
+  session: SESSION,
+  outdialDispositions: DISPOSITIONS,
+};
 
 function createCoordinator({
   isDisposed = false,
   activityCallId = CALL_ID,
   currentPath = `/agent/calls/${CALL_ID}`,
   bridge = {},
-  dispositionOptions,
   homeTabAfterCall = 'dialer',
   progressiveDial,
   cxAuth = {},
@@ -76,7 +80,7 @@ function createCoordinator({
   const host = { showClientWindow: jest.fn() };
   const ringCXBridge = {
     onEndCall: jest.fn(),
-    logEndedCall: jest.fn(async () => false),
+    logEndedCall: jest.fn(() => false),
     shouldOpenLogPageAfterDisposition: jest.fn(() => false),
     ...bridge,
   };
@@ -97,7 +101,6 @@ function createCoordinator({
     {},
     host,
     ringCXBridge,
-    dispositionOptions,
     progressiveDial,
   );
   return {
@@ -153,7 +156,7 @@ describe('CxRouteCoordinator', () => {
           },
         });
 
-      await callbacks.ended({ session: SESSION });
+      await callbacks.ended(CALL_WITH_DISPOSITIONS);
 
       expect(ringCXBridge.logEndedCall).not.toHaveBeenCalled();
       expect(coordinator.navigationRequest).toEqual(
@@ -172,7 +175,7 @@ describe('CxRouteCoordinator', () => {
         isDisposed: true,
       });
 
-      await callbacks.ended({ session: SESSION });
+      await callbacks.ended(CALL_WITH_DISPOSITIONS);
 
       expect(coordinator.navigationRequest).toEqual(
         expect.objectContaining({
@@ -190,7 +193,7 @@ describe('CxRouteCoordinator', () => {
         activityCallId: 'uii-2$session-2',
       });
 
-      await callbacks.ended({ session: SESSION });
+      await callbacks.ended(CALL_WITH_DISPOSITIONS);
 
       expect(cxCall.setActivityCallId).not.toHaveBeenCalled();
       expect(cxCall.setDialoutStatus).not.toHaveBeenCalled();
@@ -198,15 +201,18 @@ describe('CxRouteCoordinator', () => {
     });
   });
 
-  test('finishes a call without a disposition step when it ends', async () => {
-    const { callbacks, coordinator, cxCall, ringCXBridge } = createCoordinator({
-      // An outbound call has no disposition step once call notes are hidden.
-      dispositionOptions: { hideCallNote: true },
-    });
+  test.each([
+    ['has no dispositions', { session: SESSION }],
+    [
+      'has dispositions turned off for its queue',
+      { ...CALL_WITH_DISPOSITIONS, surveyPopType: 'SUPPRESS' },
+    ],
+  ])('finishes a call that %s when it ends', async (_name, call) => {
+    const { callbacks, coordinator, cxCall, ringCXBridge } = createCoordinator();
 
-    await callbacks.ended({ session: SESSION, callType: 'OUTBOUND' });
+    await callbacks.ended(call);
 
-    expect(ringCXBridge.logEndedCall).toHaveBeenCalled();
+    expect(ringCXBridge.logEndedCall).toHaveBeenCalledWith(call);
     expect(ringCXBridge.shouldOpenLogPageAfterDisposition).not.toHaveBeenCalled();
     expect(coordinator.navigationRequest).toEqual(
       expect.objectContaining({
@@ -217,10 +223,28 @@ describe('CxRouteCoordinator', () => {
     expect(cxCall.activityCallId).toBe('');
   });
 
-  test('sends an ended call that still needs a disposition to its form', async () => {
-    const { callbacks, coordinator, cxCall } = createCoordinator();
+  test('opens the host log page for a call without a disposition step when the bridge asks', async () => {
+    const { callbacks, coordinator } = createCoordinator({
+      bridge: { logEndedCall: jest.fn(() => true) },
+    });
 
     await callbacks.ended({ session: SESSION });
+
+    expect(coordinator.navigationRequest).toEqual(
+      expect.objectContaining({
+        path: `/log/call/${CALL_ID}?source=ringcx`,
+        mode: 'push',
+        showWindow: true,
+      }),
+    );
+  });
+
+  test.each(['INBOUND', 'OUTBOUND'])('sends an ended %s call with dispositions to its form', async (callType) => {
+    const { callbacks, coordinator, cxCall, ringCXBridge } = createCoordinator();
+
+    await callbacks.ended({ ...CALL_WITH_DISPOSITIONS, callType });
+
+    expect(ringCXBridge.logEndedCall).not.toHaveBeenCalled();
 
     expect(coordinator.navigationRequest).toEqual(
       expect.objectContaining({
@@ -240,7 +264,7 @@ describe('CxRouteCoordinator', () => {
         currentPath: `/log/call/${CALL_ID}?source=ringcx`,
       });
 
-      await callbacks.ended({ session: SESSION });
+      await callbacks.ended(CALL_WITH_DISPOSITIONS);
       coordinator._applyNavigationRequest(coordinator.navigationRequest);
 
       expect(router.replace).not.toHaveBeenCalled();
@@ -252,7 +276,7 @@ describe('CxRouteCoordinator', () => {
         isDisposed: true,
       });
 
-      await callbacks.ended({ session: SESSION });
+      await callbacks.ended(CALL_WITH_DISPOSITIONS);
       coordinator._applyNavigationRequest(coordinator.navigationRequest);
 
       expect(router.replace).toHaveBeenCalledWith('/agent/home/dialer');
@@ -261,12 +285,8 @@ describe('CxRouteCoordinator', () => {
 
   describe('after a preview or progressive call', () => {
     test.each([
-      ['is disposed', { isDisposed: true }, { session: SESSION }],
-      [
-        'has no disposition step',
-        { dispositionOptions: { hideCallNote: true } },
-        { session: SESSION, callType: 'OUTBOUND' },
-      ],
+      ['is disposed', { isDisposed: true }, CALL_WITH_DISPOSITIONS],
+      ['has no disposition step', {}, { session: SESSION }],
       ['ends without a session', {}, {}],
     ])('goes back to the Leads tab when the call %s', async (_name, options, call) => {
       const { callbacks, coordinator } = createCoordinator({

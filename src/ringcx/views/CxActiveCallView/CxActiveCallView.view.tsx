@@ -53,7 +53,6 @@ import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
 import { isOnLiveCallPage } from '../../utils/isOnLiveCallPage';
 import { resolveLiveActivityCallId } from '../../utils/resolveLiveActivityCallId';
-import type { DispositionStepOptions } from '../../utils/shouldShowDispositionSubmitStep';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
 import { getCallAni } from '../../lib/getCxCallNumbers';
@@ -116,8 +115,6 @@ class CxActiveCallView extends RcViewModule {
     private activeCallViewOptions?: CxActiveCallViewOptions,
     @optional()
     private ringCXSideWidgets?: RingCXSideWidgets,
-    @optional('CxDispositionViewOptions')
-    private dispositionViewOptions?: DispositionStepOptions,
   ) {
     super();
     this.storagePlugin.enable(this);
@@ -580,7 +577,7 @@ class CxActiveCallView extends RcViewModule {
     const call = this.cxPresence.callsMapping[callId];
     return (
       !!call?.endedCall &&
-      !shouldShowDispositionSubmitStep(call, this.dispositionViewOptions)
+      !shouldShowDispositionSubmitStep(call)
     );
   }
 
@@ -647,6 +644,7 @@ class CxActiveCallView extends RcViewModule {
     isDefaultRecord,
     isInComingCall,
     isCallDisposed,
+    showDisposition,
     callControlPermissions,
     isIntegratedSoftphone,
     allowTransfer,
@@ -663,6 +661,7 @@ class CxActiveCallView extends RcViewModule {
     isDefaultRecord: boolean;
     isInComingCall: boolean;
     isCallDisposed: boolean;
+    showDisposition: boolean;
     callControlPermissions: CxActiveCallViewUIProps['callControlPermissions'];
     isIntegratedSoftphone: boolean;
     allowTransfer: boolean;
@@ -717,14 +716,18 @@ class CxActiveCallView extends RcViewModule {
         indicator: isAutoIndicator,
         tooltip: isAutoIndicator ? 'Recording' : undefined,
       },
-      {
+    ];
+    // A call without dispositions has nothing to pick; its notes still go
+    // to the call log when it ends.
+    if (showDisposition) {
+      actions.push({
         actionType: 'disposition',
         symbol: DispositionMd,
         label: t('disposition'),
         onClick: uiFunctions.onDisposition,
         disabled: isInComingCall || isCallDisposed,
-      },
-    ];
+      });
+    }
     return actions;
   }
 
@@ -752,6 +755,7 @@ class CxActiveCallView extends RcViewModule {
       endCallOptions: this.endCallOptions,
       isInComingCall: this.isInComingCall,
       isCallDisposed,
+      showDisposition: shouldShowDispositionSubmitStep(call),
       allowTransfer: this.allowTransfer,
       isDefaultRecord: this.isDefaultRecord,
       isInbound: this.isInbound,
@@ -879,6 +883,7 @@ class CxActiveCallView extends RcViewModule {
       endCallOptions,
       isInComingCall,
       isCallDisposed,
+      showDisposition,
       allowTransfer,
       isDefaultRecord,
       isInbound,
@@ -1109,6 +1114,7 @@ class CxActiveCallView extends RcViewModule {
       isDefaultRecord,
       isInComingCall,
       isCallDisposed,
+      showDisposition,
       callControlPermissions,
       isIntegratedSoftphone,
       allowTransfer,

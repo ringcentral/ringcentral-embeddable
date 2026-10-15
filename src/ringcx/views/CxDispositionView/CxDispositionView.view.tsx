@@ -472,10 +472,7 @@ class CxDispositionView extends RcViewModule {
    * Whether to show the submit/disposition step
    */
   get showSubmitStep(): boolean {
-    return shouldShowDispositionSubmitStep(
-      this.currentCall,
-      this.dispositionViewOptions,
-    );
+    return shouldShowDispositionSubmitStep(this.currentCall);
   }
 
   @computed((that: CxDispositionView) => [
@@ -736,7 +733,7 @@ class CxDispositionView extends RcViewModule {
       return;
     }
     const call = this.cxPresence.callsMapping[callId];
-    if (!call || !shouldShowDispositionSubmitStep(call, this.dispositionViewOptions)) {
+    if (!call || !shouldShowDispositionSubmitStep(call)) {
       await this.cxWorkingState.setIsPendingDisposition(false);
       this.router.replace(this.homePath);
       return;

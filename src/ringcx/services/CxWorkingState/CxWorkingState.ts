@@ -3,7 +3,6 @@ import {
   action,
   computed,
   injectable,
-  optional,
   RcModule,
   state,
   storage,
@@ -28,7 +27,6 @@ import { CxPresence } from '../CxPresence';
 import { CxAgentSession } from '../CxAgentSession';
 import { CxCallDisposition } from '../CxCallDisposition';
 import type {
-  CxWorkingStateOptions,
   AgentState,
   WorkingState,
 } from './CxWorkingState.interface';
@@ -63,8 +61,6 @@ class CxWorkingState extends RcModule {
     private toast: Toast,
     private storagePlugin: StoragePlugin,
     private portManager: PortManager,
-    @optional('CxWorkingStateOptions')
-    private evWorkingStateOptions?: CxWorkingStateOptions,
   ) {
     super();
     this.storagePlugin.enable(this);
@@ -238,7 +234,7 @@ class CxWorkingState extends RcModule {
         this.setIsPendingDisposition(false);
         return;
       }
-      if (!shouldShowDispositionSubmitStep(call, this.evWorkingStateOptions)) {
+      if (!shouldShowDispositionSubmitStep(call)) {
         this.logger.info('onCallEnded~~ no disposition step required, skip pending disposition');
         this.setIsPendingDisposition(false);
         return;

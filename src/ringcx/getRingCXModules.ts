@@ -73,10 +73,6 @@ export function getRingCXModules(
       },
     },
     {
-      provide: 'CxWorkingStateOptions',
-      useValue: { hideCallNote: options.hideCallNote },
-    },
-    {
       provide: 'CxActiveCallViewOptions',
       useValue: { hideCallNote: options.hideCallNote },
     },
