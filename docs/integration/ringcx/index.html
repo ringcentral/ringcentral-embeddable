@@ -3056,11 +3056,6 @@
 <td>off</td>
 <td>Show RingCX agent scripts in the side panel during calls. We recommend using it with <code>enableSideWidget=1</code>.</td>
 </tr>
-<tr>
-<td><code>hideCallNote</code></td>
-<td>off</td>
-<td>Hide the note field on the disposition form. With it on, the disposition step is skipped for calls that leave nothing for the agent to fill in.</td>
-</tr>
 </tbody>
 </table>
 <h2 id="supporting-ringcx-in-3-steps">Supporting RingCX in 3 steps</h2>
@@ -3219,13 +3214,13 @@
 <h2 id="call-logging">Call logging</h2>
 <p>Disposition and call logging are separate.</p>
 <ul>
-<li>Disposition stays in the Agent tab. It is submitted to RingCX before any CRM log.</li>
+<li>Disposition is submitted to RingCX before any CRM log.</li>
 <li>Call logging uses <code>callLoggerPath</code> and the host log page at <code>/log/call/&lt;id&gt;?source=ringcx</code>.</li>
 </ul>
 <p>When <code>showLogModal</code> is false:</p>
 <ul>
-<li>Submitting a disposition logs the call right away with <code>triggerType: 'callDisposition'</code> and <code>redirect: true</code>. The widget does not open another page. Your <code>callLoggerPath</code> handler decides from its own auto-log setting whether to open the CRM record.</li>
-<li>A call without a disposition step (only possible with <code>hideCallNote</code>) is logged the same way when it ends, but only if auto log is on in the widget settings.</li>
+<li>When auto log is on, submitting a disposition logs the call right away with <code>triggerType: 'callDisposition'</code> and <code>redirect: true</code>. The widget does not open another page. Your <code>callLoggerPath</code> handler decides from its own auto-log setting whether to open the CRM record.</li>
+<li>A call without a disposition step is logged the same way when it ends, but only if auto log is on in the widget settings.</li>
 </ul>
 <p>When <code>showLogModal</code> is true and <code>callLoggerPath</code> is registered, the host log page opens once the call has ended, and your <code>$LOG-CALL</code> schema renders there. If the agent dispositions while the call is still connected, the page opens when the call ends.</p>
 <p>The log page closes itself once your <code>callLoggerPath</code> responds to a <code>logForm</code> save, the same as for RingEX calls. To close it or the disposition page from your side, use <code>rc-adapter-navigate-to</code> with <code>path: 'goBack'</code> or a target path. Going back never reopens a disposition that was already submitted for an ended call; the agent lands on the dialer instead.</p>
