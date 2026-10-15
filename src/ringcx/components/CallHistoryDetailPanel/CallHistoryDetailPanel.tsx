@@ -1,3 +1,4 @@
+import { useFormattedPhoneNumber } from '@ringcentral-integration/micro-auth/src/app/components';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { PageHeader } from '@ringcentral-integration/next-widgets/components';
 import {
@@ -162,6 +163,7 @@ export const CallHistoryDetailPanel: FunctionComponent<
 
   const isRealName = !!contactName && contactName !== phoneNumber;
   const displayName = isRealName ? contactName : t('unknown');
+  const formattedPhoneNumber = useFormattedPhoneNumber(phoneNumber);
 
   const formattedDnis = useMemo(() => {
     if (!callMeta.dnis) return '';
@@ -283,9 +285,9 @@ export const CallHistoryDetailPanel: FunctionComponent<
               <span
                 className="typography-mainText text-neutral-b1 truncate"
                 data-sign="followInfo"
-                title={phoneNumber}
+                title={formattedPhoneNumber}
               >
-                {phoneNumber}
+                {formattedPhoneNumber}
               </span>
               <IconButton
                 symbol={CopyMd}
