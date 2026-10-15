@@ -1,30 +1,23 @@
+/** `surveyPopType` of a queue or campaign whose disposition is turned off. */
+const SUPPRESSED_SURVEY_POP_TYPE = 'SUPPRESS';
+
 export interface DispositionStepCall {
-  callType?: string | null;
+  surveyPopType?: string | null;
   outdialDispositions?: {
     dispositions?: unknown[] | null;
   } | null;
 }
 
-export interface DispositionStepOptions {
-  hideCallNote?: boolean;
-}
-
 /**
- * The submit step is only needed when the current configuration leaves
- * at least one actionable disposition input for the agent.
+ * The submit step is only needed when the call has dispositions for the agent
+ * to pick from, as in Agent One. A call without any is logged when it ends.
  */
 export function shouldShowDispositionSubmitStep(
   call?: DispositionStepCall | null,
-  options?: DispositionStepOptions,
 ): boolean {
-  if (!options?.hideCallNote) {
-    return true;
-  }
-
-  const dispositions = call?.outdialDispositions?.dispositions;
-  if (!Array.isArray(dispositions) || dispositions.length === 0) {
+  if (call?.surveyPopType === SUPPRESSED_SURVEY_POP_TYPE) {
     return false;
   }
-
-  return call?.callType === 'INBOUND';
+  const dispositions = call?.outdialDispositions?.dispositions;
+  return Array.isArray(dispositions) && dispositions.length > 0;
 }

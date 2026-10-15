@@ -20,7 +20,6 @@ import { CxClient } from './services/CxClient';
 import { CxProgressiveDial } from './services/CxProgressiveDial';
 import { CxDialerView } from './views/CxDialerView';
 import { CxWorkingState } from './services/CxWorkingState';
-import type { DispositionStepOptions } from './utils/shouldShowDispositionSubmitStep';
 import { shouldShowDispositionSubmitStep } from './utils/shouldShowDispositionSubmitStep';
 import { shouldReplaceActivityCallRoute } from './utils/shouldReplaceActivityCallRoute';
 import { dialoutStatuses } from './enums';
@@ -61,8 +60,6 @@ export class CxRouteCoordinator extends RcModule {
     private readonly _host: CxHostIntegration,
     @optional('RingCXAdapterBridge')
     private readonly _bridge?: RingCXAdapterBridge,
-    @optional('CxDispositionViewOptions')
-    private readonly _dispositionViewOptions?: DispositionStepOptions,
     // Always registered with the RingCX modules; optional only so the call
     // policy keeps working without the progressive dialer.
     @optional()
@@ -248,10 +245,7 @@ export class CxRouteCoordinator extends RcModule {
       }
       const id = this._cxClient.encodeUii(call.session);
       const isDisposed = this._cxCallDisposition.isDisposed(id);
-      const showDispositionStep = shouldShowDispositionSubmitStep(
-        call,
-        this._dispositionViewOptions,
-      );
+      const showDispositionStep = shouldShowDispositionSubmitStep(call);
       this.logger.info('onCallEnded~~', id, { isDisposed, showDispositionStep });
       if (isDisposed || !showDispositionStep) {
         await this._cxWorkingState.setIsPendingDisposition(false);
@@ -260,7 +254,7 @@ export class CxRouteCoordinator extends RcModule {
         // when the call is over.
         const openedLogPage = showDispositionStep
           ? (this._bridge?.shouldOpenLogPageAfterDisposition?.() ?? false)
-          : await this._bridge?.logEndedCall?.(call);
+          : (this._bridge?.logEndedCall?.(call) ?? false);
         this._finishActivityCall(id);
         if (openedLogPage) {
           this._requestNavigation(

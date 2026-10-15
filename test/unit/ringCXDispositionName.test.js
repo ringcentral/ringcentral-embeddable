@@ -84,7 +84,11 @@ function createBridge({ saved, disposed = false } = {}) {
     },
     _cxAgentSession: { dialGroupId: undefined, selectedSkillProfileId: undefined },
     _cxAuth: { agentId: 'agent-1' },
-    _callLogger: { ready: true, logCall: jest.fn(async () => undefined) },
+    _callLogger: {
+      ready: true,
+      autoLog: true,
+      logCall: jest.fn(async () => undefined),
+    },
     _thirdParty: { callLoggerRegistered: true, showLogModal: false },
     _adapter: { notifyRingCXCall: jest.fn() },
     _toast: { danger: jest.fn() },

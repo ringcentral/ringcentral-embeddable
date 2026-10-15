@@ -18,7 +18,12 @@ export interface RingCXAdapterBridge {
       summary?: string;
     },
   ): void;
-  logEndedCall?(call: unknown): Promise<boolean>;
+  /**
+   * Logs a call that ended without a disposition step. Returns whether the
+   * host log page is to be opened instead; an automatic log runs in the
+   * background so the agent is not held on the ended call meanwhile.
+   */
+  logEndedCall?(call: unknown): boolean;
   logAfterDisposition?(input: {
     call: unknown;
     note?: string;

@@ -1,11 +1,4 @@
 /**
- * CxWorkingState options for configuration
- */
-export interface CxWorkingStateOptions {
-  hideCallNote?: boolean;
-}
-
-/**
  * Agent state interface
  */
 export interface AgentState {

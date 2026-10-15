@@ -62,7 +62,7 @@ import { CxProgressiveDial } from '../CxProgressiveDial';
 import type { ProgressiveDialStatus } from '../CxProgressiveDial';
 import { CxWorkingState } from '../CxWorkingState';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
-import type { DispositionStepOptions } from '../../utils/shouldShowDispositionSubmitStep';
+import type { DispositionStepCall } from '../../utils/shouldShowDispositionSubmitStep';
 
 type CallLogContact = Parameters<CallLogger['logCall']>[0]['contact'];
 
@@ -129,8 +129,6 @@ export class RingCXAdapterBridge
     private readonly _cxIntegratedSoftphone: CxIntegratedSoftphone,
     @optional() private readonly _contactMatcher?: ContactMatcher,
     @optional() private readonly _activityMatcher?: ActivityMatcher,
-    @optional('CxDispositionViewOptions')
-    private readonly _dispositionOptions?: DispositionStepOptions,
   ) {
     super();
     this._registerCallLogSource();
@@ -293,12 +291,14 @@ export class RingCXAdapterBridge
   /**
    * Log a call that ended without a disposition step.
    * Returns true when the caller should open the host log page.
+   *
+   * With auto log on, the host is sent the `callDisposition` log a submitted
+   * disposition would have sent. The request is not awaited: the host answers
+   * only once its logging is done, which can take until the request times
+   * out, and the agent must not be held on the ended call until then.
    */
-  async logEndedCall(call: unknown): Promise<boolean> {
-    if (shouldShowDispositionSubmitStep(
-      call as { callType?: string; outdialDispositions?: { dispositions?: unknown[] } },
-      this._dispositionOptions,
-    )) {
+  logEndedCall(call: unknown): boolean {
+    if (shouldShowDispositionSubmitStep(call as DispositionStepCall)) {
       return false;
     }
     const formatted = this._format(call);
@@ -311,8 +311,10 @@ export class RingCXAdapterBridge
     if (!this._callLogger.autoLog) {
       return false;
     }
-    await this.logCall({
-      call: formatted.call,
+    // `logCall` formats the raw call itself; a formatted one does not
+    // format again, as its times are no longer RingCX timestamps.
+    void this.logCall({
+      call,
       note: formatted.call.ringcx.notes,
       triggerType: 'callDisposition',
       redirect: true,
@@ -324,6 +326,10 @@ export class RingCXAdapterBridge
    * Disposition has already succeeded. A log failure must not undo that.
    * Returns true when the call is to be logged on the host log page, which
    * the caller opens once the call is over.
+   *
+   * As for a call that ends without a disposition step, the host is sent the
+   * call log only with auto log on. The `disposed` event above still reaches
+   * it either way.
    */
   async logAfterDisposition(input: {
     call: unknown;
@@ -340,6 +346,9 @@ export class RingCXAdapterBridge
     }
     if (this.shouldOpenLogPage) {
       return true;
+    }
+    if (!this._callLogger.autoLog) {
+      return false;
     }
     await this.logCall({
       call: input.call,

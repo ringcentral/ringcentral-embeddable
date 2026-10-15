@@ -76,6 +76,8 @@ export interface CxActiveCallViewUIProps {
   endCallOptions: EndCallOptionData[];
   isInComingCall: boolean;
   isCallDisposed: boolean;
+  /** Whether the call has dispositions for the agent to pick from. */
+  showDisposition: boolean;
   allowTransfer: boolean;
   isDefaultRecord: boolean;
   isInbound: boolean;
