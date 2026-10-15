@@ -193,7 +193,7 @@ export function formatHistoryCall(
   // Guarded because `formatPhoneNumber` renders a localized "unknown" for an
   // empty input, which would read as a contact name here.
   const rawPhoneNumber = sessionInformation?.phoneNumber || '';
-  const contactNumber = rawPhoneNumber
+  const formattedPhoneNumber = rawPhoneNumber
     ? formatPhoneNumber({
         phoneNumber: rawPhoneNumber,
         countryCode,
@@ -201,10 +201,14 @@ export function formatHistoryCall(
       }) || rawPhoneNumber
     : '';
 
-  const contactName = getHistoryDisplayName(item, contactNumber);
+  // Parties keep the raw E.164 numbers, like RingEX call records: the shared
+  // contact renderer formats them with the account region, and a national
+  // string such as `(657) 999-1394` loses its country code there, so a non-US
+  // region would read it as one of its own numbers.
+  const contactName = getHistoryDisplayName(item, formattedPhoneNumber);
   const contact = {
-    name: contactName || contactNumber,
-    phoneNumber: contactNumber,
+    name: contactName || rawPhoneNumber,
+    phoneNumber: rawPhoneNumber,
   };
 
   // The endpoint carries no agent-side number; the list always renders the
@@ -212,10 +216,7 @@ export function formatHistoryCall(
   const dnis = dialog?.channelConfiguration?.dnis || '';
   const agent = {
     name: '',
-    phoneNumber: dnis
-      ? formatPhoneNumber({ phoneNumber: dnis, countryCode, currentLocale }) ||
-        dnis
-      : '',
+    phoneNumber: dnis,
   };
 
   const from = isOutbound ? agent : contact;
