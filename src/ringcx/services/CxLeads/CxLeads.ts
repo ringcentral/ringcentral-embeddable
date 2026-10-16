@@ -22,6 +22,7 @@ import type {
   CxLeadEvent,
   CxLeadsOptions,
   CxPreviewLeadState,
+  DispositionItem,
   Lead,
   ManualPassParams,
 } from './CxLeads.interface';
@@ -73,6 +74,11 @@ export const DISABLE_MANUAL_PASS_STATES = [
 ];
 
 export const PHONE_DELIMETER = '|';
+
+/**
+ * Agent states in which leads cannot be dialed or passed
+ */
+export const AGENT_BUSY_STATES = ['TRANSITION', 'ENGAGED', 'RNA-STATE'];
 
 /**
  * State of a lead that was fetched and not dialed yet
@@ -301,6 +307,21 @@ class CxLeads extends RcModule {
         message: t('leadPassFailed'),
       });
     }
+  }
+
+  /**
+   * Dispositions a campaign's leads can be manually passed with
+   */
+  async fetchManualPassDispositions(
+    campaignId: string,
+  ): Promise<DispositionItem[]> {
+    const list = await this.cxClient.getCampaignDispositions(campaignId);
+    return (list ?? []).map(
+      (item: { dispositionId: string; disposition: string }) => ({
+        value: item.dispositionId,
+        label: item.disposition,
+      }),
+    );
   }
 
   /**
