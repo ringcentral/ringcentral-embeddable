@@ -88,3 +88,11 @@ export interface CxCheckVoicemailResult {
   status: number;
   voiceMailEnabled: boolean;
 }
+
+/**
+ * Where to load a lead field's recording from, and the CX token to send.
+ */
+export interface CxRecordingAccess {
+  url: string;
+  authorization: string;
+}

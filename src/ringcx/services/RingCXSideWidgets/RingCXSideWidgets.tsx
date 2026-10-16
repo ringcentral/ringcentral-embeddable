@@ -12,19 +12,30 @@ import {
   SideWidgetView,
   type SideWidgetCloseTabOptions,
   type SideWidgetContentHandle,
+  type SideWidgetContentViewProps,
 } from '../../../app/views/SideWidgetView';
 import { AgentAssistantPanel } from '../../components/AgentAssistantPanel';
 import { t as tAssistant } from '../../components/AgentAssistantPanel/i18n';
 import { AgentScriptPanel } from '../../components/AgentScriptPanel';
 import { t as tScript } from '../../components/AgentScriptPanel/i18n';
+import { t as tLead } from '../../components/LeadInfoPanel/i18n';
 import { CxAgentAssistant } from '../CxAgentAssistant';
 import { CxAgentScript } from '../CxAgentScript';
 import { CxCall } from '../CxCall';
 import type { CxBaseCall } from '../CxClient/interfaces';
+import { CxLeadInfo } from '../CxLeadInfo';
+import type { CxLeadInfoTarget } from '../CxLeadInfo';
+import { CxLeadInfoView } from '../../views/CxLeadInfoView';
 import { CxPresence } from '../CxPresence';
 
 export const RINGCX_AGENT_SCRIPT_WIDGET_ID = 'ringcx-agent-script';
 export const RINGCX_AGENT_ASSISTANT_WIDGET_ID = 'ringcx-agent-assistant';
+export const RINGCX_LEAD_INFO_WIDGET_ID = 'ringcx-lead-info';
+
+type RingCXWidgetId =
+  | typeof RINGCX_AGENT_SCRIPT_WIDGET_ID
+  | typeof RINGCX_LEAD_INFO_WIDGET_ID
+  | typeof RINGCX_AGENT_ASSISTANT_WIDGET_ID;
 
 /**
  * Panel width both widgets were built for in the standalone RingCX app; the
@@ -39,7 +50,8 @@ export const RINGCX_SIDE_WIDGET_WIDTH = 360;
 const APP_CLOSE: SideWidgetCloseTabOptions = { collapseWhenLast: true };
 
 /**
- * Shows the RingCX Agent Script and Agent Assistant in the host side widget.
+ * Shows the RingCX Agent Script, Lead and Agent Assistant in the host side
+ * widget.
  *
  * Each widget is a pure function of its service's availability for the call
  * being worked on: it opens when that turns on and closes when it turns off,
@@ -55,6 +67,11 @@ const APP_CLOSE: SideWidgetCloseTabOptions = { collapseWhenLast: true };
  * Both are kept mounted while another tab is active: each hosts an iframe that
  * would otherwise reload, losing the script progress or re-running the
  * assistant's single-use auth handshake, on every tab switch.
+ *
+ * The Lead tab opens with each answered call that has a lead, and the agent
+ * can also open it from the Leads tab or the call screen's toggle;
+ * `CxLeadInfo` decides what it shows. It is the active tab only when the
+ * call has no script, as the script comes first.
  */
 @injectable({
   name: 'RingCXSideWidgets',
@@ -66,9 +83,14 @@ export class RingCXSideWidgets extends RcModule {
     private readonly _cxAgentAssistant: CxAgentAssistant,
     private readonly _cxCall: CxCall,
     private readonly _cxPresence: CxPresence,
+    private readonly _cxLeadInfo: CxLeadInfo,
+    private readonly _cxLeadInfoView: CxLeadInfoView,
     private readonly _portManager: PortManager,
   ) {
     super();
+    // `onInit` binds the widgets' auto-open; the Lead tab's view only renders
+    // there, so its many dependencies must not hold that back.
+    this._ignoreModuleReadiness(this._cxLeadInfoView);
   }
 
   private _stopWatchers: Array<() => void> = [];
@@ -139,6 +161,22 @@ export class RingCXSideWidgets extends RcModule {
     );
   };
 
+  private readonly _onCloseLeadInfo = () => {
+    void this.closeLeadInfo();
+  };
+
+  private readonly _LeadInfoContent = ({
+    showCloseButton,
+  }: SideWidgetContentViewProps) => {
+    const LeadInfoView = this._cxLeadInfoView.component;
+    return (
+      <LeadInfoView
+        showCloseButton={showCloseButton}
+        onClose={this._onCloseLeadInfo}
+      />
+    );
+  };
+
   private readonly _agentScriptHandle =
     this._sideWidgetView.createOrUpdateContent({
       id: RINGCX_AGENT_SCRIPT_WIDGET_ID,
@@ -163,6 +201,20 @@ export class RingCXSideWidgets extends RcModule {
       view: this._AgentAssistantContent,
     });
 
+  private readonly _leadInfoHandle = this._sideWidgetView.createOrUpdateContent(
+    {
+      id: RINGCX_LEAD_INFO_WIDGET_ID,
+      name: tLead('lead'),
+      getName: () => tLead('lead'),
+      scope: 'global',
+      keepActiveOnCallApps: true,
+      minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
+      view: this._LeadInfoContent,
+      // Runs on the port that owns the tabs, however the tab was closed.
+      onClose: () => this._cxLeadInfo.setTarget(null),
+    },
+  );
+
   get hasScript(): boolean {
     return this._cxAgentScript.hasVisibleScript;
   }
@@ -171,24 +223,39 @@ export class RingCXSideWidgets extends RcModule {
     return this._cxAgentAssistant.hasVisibleAssistant;
   }
 
-  /** Names of the widgets available for the call being worked on. */
-  get availableWidgetNames(): string[] {
-    return [
-      ...(this.hasScript ? [tScript('agentScript')] : []),
-      ...(this.hasAssistant ? [tAssistant('agentAssistant')] : []),
-    ];
+  /** Whether the call being worked on has a lead the Lead tab can show. */
+  get hasLeadInfo(): boolean {
+    return this._cxLeadInfo.canViewCallLead(this._cxCall.activityCallId);
   }
 
-  /** Whether one of the RingCX widgets is on screen. */
+  /** Names of the widgets available for the call being worked on. */
+  get availableWidgetNames(): string[] {
+    return this._availableWidgetIds.map((id) => this._getWidgetName(id));
+  }
+
+  /**
+   * Whether every widget available for the call is on screen, so the call
+   * screen's toggle puts them away rather than bringing the missing ones in.
+   */
   get visible(): boolean {
+    const ids = this._availableWidgetIds;
     return (
       this._sideWidgetView.isOpen &&
-      this._sideWidgetView.tabs.some(
-        ({ id }) =>
-          id === RINGCX_AGENT_SCRIPT_WIDGET_ID ||
-          id === RINGCX_AGENT_ASSISTANT_WIDGET_ID,
-      )
+      ids.length > 0 &&
+      ids.every((id) => this._isWidgetOpen(id))
     );
+  }
+
+  /**
+   * Widgets the call being worked on has, in tab order: the script first, as
+   * in the standalone RingCX app, then the lead, then the assistant.
+   */
+  private get _availableWidgetIds(): RingCXWidgetId[] {
+    return [
+      ...(this.hasScript ? [RINGCX_AGENT_SCRIPT_WIDGET_ID] : []),
+      ...(this.hasLeadInfo ? [RINGCX_LEAD_INFO_WIDGET_ID] : []),
+      ...(this.hasAssistant ? [RINGCX_AGENT_ASSISTANT_WIDGET_ID] : []),
+    ] as RingCXWidgetId[];
   }
 
   /**
@@ -197,8 +264,12 @@ export class RingCXSideWidgets extends RcModule {
    */
   override onInit(): void {
     if (this._portManager.shared && !this._portManager.isServer) return;
-    this._syncScript(this.hasScript);
+    // Opened in reverse, as new tabs go first: Script, Lead, Assistant.
     this._syncAssistant(this.hasAssistant);
+    this._openCallLeadInfo(
+      this.hasLeadInfo ? this._cxCall.activityCallId : '',
+    );
+    this._syncScript(this.hasScript);
     this._stopWatchers = [
       watch(
         this,
@@ -210,6 +281,21 @@ export class RingCXSideWidgets extends RcModule {
         () => this.hasAssistant,
         (visible) => this._syncAssistant(visible),
       ),
+      watch(
+        this,
+        () => this._cxCall.activityCallId,
+        (callId) => this._cxLeadInfo.followActivityCall(callId),
+      ),
+      watch(
+        this,
+        () => (this.hasLeadInfo ? this._cxCall.activityCallId : ''),
+        (callId) => this._openCallLeadInfo(callId),
+      ),
+      watch(
+        this,
+        () => !!this._cxLeadInfo.info,
+        (resolved) => this._syncLeadInfo(resolved),
+      ),
     ];
   }
 
@@ -219,20 +305,34 @@ export class RingCXSideWidgets extends RcModule {
     this._closeWidgets(APP_CLOSE);
   }
 
-  /** Show the available widgets, or put them away when one is on screen. */
+  /**
+   * Put the available widgets away when all are on screen; otherwise bring in
+   * the missing ones, the first of them active.
+   */
   @delegate('server')
   async toggle(): Promise<void> {
     if (this.visible) {
       this._closeWidgets();
       return;
     }
-    // Opened in reverse so the script ends up as the first, active tab.
-    if (this.hasAssistant) {
-      this._openWidget(this._agentAssistantHandle, !this.hasScript);
-    }
-    if (this.hasScript) {
-      this._openWidget(this._agentScriptHandle, true);
-    }
+    const missingIds = this._availableWidgetIds.filter(
+      (id) => !this._isWidgetOpen(id),
+    );
+    // Opened in reverse so the tabs keep their order and the first missing
+    // one ends up active.
+    missingIds
+      .reverse()
+      .forEach((id, index, ids) =>
+        this._openWidgetById(id, index === ids.length - 1),
+      );
+  }
+
+  /**
+   * Opens the Lead tab on a preview lead or a call's lead, active.
+   */
+  @delegate('server')
+  async viewLeadInfo(target: CxLeadInfoTarget): Promise<void> {
+    this._openLeadInfo(target, true);
   }
 
   private _syncScript(visible: boolean): void {
@@ -247,10 +347,89 @@ export class RingCXSideWidgets extends RcModule {
     if (visible) {
       // The script comes first, as it did in the standalone RingCX app; the
       // assistant joins it as a background tab.
-      this._openWidget(this._agentAssistantHandle, !this.hasScript);
+      this._openWidget(
+        this._agentAssistantHandle,
+        !this.hasScript && !this.hasLeadInfo,
+      );
     } else {
       this._sideWidgetView.closeContent(this._agentAssistantHandle, APP_CLOSE);
     }
+  }
+
+  /**
+   * Closes the Lead tab from its own header, when no tab bar shows it.
+   */
+  @delegate('server')
+  async closeLeadInfo(): Promise<void> {
+    this._sideWidgetView.closeContent(this._leadInfoHandle);
+  }
+
+  /**
+   * Opens the Lead tab on each newly answered call with a lead, behind the
+   * script when the call has one.
+   */
+  private _openCallLeadInfo(callId: string): void {
+    if (callId) {
+      this._openLeadInfo({ type: 'call', callId }, !this.hasScript);
+    }
+  }
+
+  /**
+   * The Lead tab closes once its lead is gone.
+   */
+  private _syncLeadInfo(resolved: boolean): void {
+    if (!resolved) {
+      this._sideWidgetView.closeContent(this._leadInfoHandle, APP_CLOSE);
+    }
+  }
+
+  private _openLeadInfo(target: CxLeadInfoTarget, activate: boolean): void {
+    this._cxLeadInfo.setTarget(target);
+    if (!this._cxLeadInfo.info) {
+      this._cxLeadInfo.setTarget(null);
+      return;
+    }
+    this._openWidget(this._leadInfoHandle, activate);
+  }
+
+  private _openWidgetById(id: RingCXWidgetId, activate: boolean): void {
+    if (id === RINGCX_LEAD_INFO_WIDGET_ID) {
+      this._openLeadInfo(
+        { type: 'call', callId: this._cxCall.activityCallId },
+        activate,
+      );
+      return;
+    }
+    this._openWidget(
+      id === RINGCX_AGENT_SCRIPT_WIDGET_ID
+        ? this._agentScriptHandle
+        : this._agentAssistantHandle,
+      activate,
+    );
+  }
+
+  /**
+   * The Lead tab counts as open only while it shows the call's own lead.
+   */
+  private _isWidgetOpen(id: RingCXWidgetId): boolean {
+    const isTabOpen = this._sideWidgetView.tabs.some((tab) => tab.id === id);
+    if (!isTabOpen || id !== RINGCX_LEAD_INFO_WIDGET_ID) {
+      return isTabOpen;
+    }
+    const target = this._cxLeadInfo.target;
+    return (
+      target?.type === 'call' && target.callId === this._cxCall.activityCallId
+    );
+  }
+
+  private _getWidgetName(id: RingCXWidgetId): string {
+    if (id === RINGCX_AGENT_SCRIPT_WIDGET_ID) {
+      return tScript('agentScript');
+    }
+    if (id === RINGCX_LEAD_INFO_WIDGET_ID) {
+      return tLead('lead');
+    }
+    return tAssistant('agentAssistant');
   }
 
   private _openWidget(
@@ -262,6 +441,7 @@ export class RingCXSideWidgets extends RcModule {
 
   private _closeWidgets(options?: SideWidgetCloseTabOptions): void {
     this._sideWidgetView.closeContent(this._agentScriptHandle, options);
+    this._sideWidgetView.closeContent(this._leadInfoHandle, options);
     this._sideWidgetView.closeContent(this._agentAssistantHandle, options);
   }
 }

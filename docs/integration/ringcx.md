@@ -39,7 +39,7 @@ Optional parameters:
 
 1. Read `call.source`. `'ringcx'` means a RingCX call. Absence, or `'ringcentral'`, means a RingEX call. RingCX-only fields are under `call.ringcx`.
 2. Accept `triggerType: 'callDisposition'` in your `callLoggerPath` handler. That value means the widget logged the call automatically, with no log form shown. See [Call logging](#call-logging).
-3. Optionally add `leadViewerPath` if agents should open a preview lead in your app.
+3. Optionally add `leadViewerPath` if agents should open a lead in your app from the **Lead** tab.
 
 Existing `callLoggerPath`, `contactMatchPath`, and `callLogEntityMatcherPath` registrations apply to RingCX calls with no other change.
 
@@ -147,7 +147,16 @@ RingCX history stays in the Agent tab. `/unlogged-calls` does not include RingCX
 
 After a call dialed from a lead, preview or progressive, the widget goes back to the Leads tab once the call and its disposition are done.
 
-Register `leadViewerPath` to show **View lead** on a preview lead. The request body is `{ lead, agentId }`, where `lead` is the original RingCX lead (the same object as `raw` in `rc-ringcx-lead-notify`). The button is hidden when the path is not registered.
+### Lead tab
+
+The side panel has a **Lead** tab that shows a lead's name, numbers, and details: source, lead state, passes, contact fields, IDs, aux data with the campaign's labels, and extra data. A field that holds a RingCX recording URL plays as audio.
+
+- It opens with each answered call that has a lead ID, together with the agent script and agent assistant. The script stays the active tab; the Lead tab is active only when the call has no script. Calls without a lead ID have no Lead tab.
+- **View lead** on the Leads tab opens the Lead tab for that lead. There, clicking a number dials it, and **Manual pass** passes the lead, under the same rules as the Leads tab. Numbers are not clickable in progressive dial mode.
+- The call screen's side panel button lists the Lead tab with the other side panel tabs, and brings back any that are closed.
+- A call's Lead tab closes once the call and its disposition are done. A lead opened from the Leads tab switches to its call once that call is answered, and closes when the lead is passed or no longer fetched.
+
+Register `leadViewerPath` to show **View lead** in the Lead tab header. The request body is `{ lead, agentId }`. For a lead from the Leads tab, `lead` is the original RingCX lead (the same object as `raw` in `rc-ringcx-lead-notify`). For a call's lead, it is the lead data from the call, merged with the matching Leads tab lead when there is one. The button is hidden when the path is not registered.
 
 ### Progressive dialing
 
@@ -155,7 +164,7 @@ A progressive dial group is a **Preview** dial group with **Enable progressive m
 
 - **Start dialing** asks the agent to go available when needed and connects the agent's line. The line stays connected while the dialer runs.
 - The widget then fetches leads and dials them one by one. Before each dial it waits the dial group's **Progressive call delay**, at most 120 seconds. It moves to the next lead once the call and its disposition are done. When no leads come back, it fetches again every 5 seconds.
-- Agents cannot pick the lead or its number; **View lead** and **Manual pass** stay available.
+- Agents cannot pick the lead or its number, so the Lead tab's numbers are not clickable; **View lead** and **Manual pass** stay available.
 - **Stop dialing** stops the dialer and disconnects the line once no call is live. A manual call, an inbound call, choosing a state other than Available, a dial group change, or logging out also stops it.
 - If RingCX leaves the agent in another state after a call, such as Working, the widget asks the agent to go available. **Go available** resumes dialing; **Dismiss** stops it.
 

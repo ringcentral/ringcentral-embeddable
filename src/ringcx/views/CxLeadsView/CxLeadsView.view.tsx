@@ -9,7 +9,13 @@ import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { List, EmptyState, Button } from '@ringcentral/spring-ui';
 import { OutgoingCallMd, MissedCallMd } from '@ringcentral/spring-icon';
 
-import { CxLeads, ALLOW_DIAL_STATES, DISABLE_MANUAL_PASS_STATES, PHONE_DELIMETER } from '../../services/CxLeads';
+import {
+  AGENT_BUSY_STATES,
+  ALLOW_DIAL_STATES,
+  CxLeads,
+  DISABLE_MANUAL_PASS_STATES,
+  PHONE_DELIMETER,
+} from '../../services/CxLeads';
 import type { Lead, DispositionItem } from '../../services/CxLeads';
 import { CxProgressiveDial } from '../../services/CxProgressiveDial';
 import type {
@@ -20,19 +26,12 @@ import { CxCall } from '../../services/CxCall';
 import { CxWorkingState } from '../../services/CxWorkingState';
 import { CxAgentSession } from '../../services/CxAgentSession';
 import { CxAuth } from '../../services/CxAuth';
-import { CxClient } from '../../services/CxClient';
-import { ThirdParty } from '../../../app/services/ThirdParty';
-import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
+import { RingCXSideWidgets } from '../../services/RingCXSideWidgets';
 import { LeadItem } from '../../components/LeadItem';
 import { ProgressiveDialFooter } from '../../components/ProgressiveDialFooter';
 import type { PhoneNumberData, ManualPassParams } from '../../components/LeadItem';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber';
 import i18n from './i18n';
-
-/**
- * Agent states that indicate the agent is busy
- */
-const AGENT_BUSY_STATES = ['TRANSITION', 'ENGAGED', 'RNA-STATE'];
 
 /**
  * Agent states in which the progressive dialer cannot be started
@@ -109,12 +108,10 @@ class CxLeadsView extends RcViewModule {
     private cxWorkingState: CxWorkingState,
     private cxAgentSession: CxAgentSession,
     private cxAuth: CxAuth,
-    private cxClient: CxClient,
-    private _thirdParty: ThirdParty,
-    @optional('RingCXAdapterBridge')
-    private _bridge?: RingCXAdapterBridge,
     @optional('CxLeadsViewOptions')
     private leadsViewOptions?: CxLeadsViewOptions,
+    @optional()
+    private _ringCXSideWidgets?: RingCXSideWidgets,
   ) {
     super();
   }
@@ -139,16 +136,18 @@ class CxLeadsView extends RcViewModule {
     await this.cxLeads.manualPassLead(params);
   };
 
-  fetchDispositionList = async (campaignId: string): Promise<DispositionItem[]> => {
-    const list = await this.cxClient.getCampaignDispositions(campaignId);
-    return list.map((item: any) => ({
-      value: item.dispositionId,
-      label: item.disposition,
-    }));
-  };
+  fetchDispositionList = (campaignId: string): Promise<DispositionItem[]> =>
+    this.cxLeads.fetchManualPassDispositions(campaignId);
 
+  /**
+   * Opens the lead in the Lead side widget tab, which links on to the host
+   * lead viewer.
+   */
   viewLead = async (lead: Lead) => {
-    await this._bridge?.viewLead?.(lead);
+    await this._ringCXSideWidgets?.viewLeadInfo({
+      type: 'lead',
+      requestId: lead.requestId,
+    });
   };
 
   component() {
@@ -163,7 +162,6 @@ class CxLeadsView extends RcViewModule {
       agentState,
       allowManualPass,
       defaultTimezone,
-      showViewLead,
       isProgressiveDialMode,
       progressiveRunning,
       progressivePhase,
@@ -179,7 +177,6 @@ class CxLeadsView extends RcViewModule {
       agentState: this.cxWorkingState.agentState?.agentState || '',
       allowManualPass: this.cxAuth.agentConfig?.agentPermissions?.allowManualPass ?? false,
       defaultTimezone: (this.cxAuth.authenticateResponse as any)?.regionalSettings?.timezoneName || 'America/New_York',
-      showViewLead: this._thirdParty.leadViewerRegistered,
       isProgressiveDialMode: this.cxAgentSession.isProgressiveDialMode,
       progressiveRunning: this.cxProgressiveDial.running,
       progressivePhase: this.cxProgressiveDial.phase,
@@ -253,7 +250,7 @@ class CxLeadsView extends RcViewModule {
                     disableManualPass={disableManualPass}
                     fetchDispositionList={this.fetchDispositionList}
                     defaultTimezone={defaultTimezone}
-                    showViewLeadButton={showViewLead}
+                    showViewLeadButton
                     onViewLead={this.viewLead}
                   />
                 );

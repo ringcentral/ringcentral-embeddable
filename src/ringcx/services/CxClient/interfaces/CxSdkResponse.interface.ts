@@ -120,7 +120,41 @@ export interface CxTransferPhoneBookItem {
 export interface CxLead {
   leadPhone: string;
   showLeadInfo: string;
-  extraData: {};
+  /** The lead's `extra_data` fields, flattened to `{ key: text }`. */
+  extraData: Record<string, string>;
+  /**
+   * The agent library spreads the whole `ui_notification.lead` collection, so
+   * the lead id and other lead fields can also arrive here.
+   */
+  leadId?: string;
+}
+
+/**
+ * Lead fields NEW-CALL's baggage carries when the call has a lead: preview,
+ * progressive and predictive calls, and inbound calls whose baggage names one.
+ * Booleans come from the `@show_lead_passes`/`@show_list_name` attributes.
+ */
+export interface CxBaggageLead {
+  leadId?: string;
+  externId?: string;
+  firstName?: string;
+  midName?: string;
+  lastName?: string;
+  leadPasses?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  auxData1?: string;
+  auxData2?: string;
+  auxData3?: string;
+  auxData4?: string;
+  auxData5?: string;
+  /** Campaign aux labels, as `{ aux_1_label: 'Label' }`. */
+  customLabels?: Record<string, string>;
+  showLeadPasses?: boolean;
+  showListName?: boolean;
 }
 
 export interface CxScriptResponse {
@@ -133,7 +167,7 @@ export interface CxScriptResponse {
   json: string; // format as: CxScriptResponseJSON
 }
 
-export interface CxBaggage {
+export interface CxBaggage extends CxBaggageLead {
   ani: string;
   dnis: string;
   uii: string;

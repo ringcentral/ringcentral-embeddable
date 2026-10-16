@@ -63,6 +63,7 @@ import type {
   CxClientHangUpParams,
   CxClientHoldSessionParams,
   CxClientManualOutdialParams,
+  CxRecordingAccess,
 } from './CxClient.interface';
 import type { ReconnectSnapshot as CxReconnectSnapshot } from '../../utils/reconcileReconnectState';
 import type { StoredEvSession } from '../../utils/canRejoinEvSession';
@@ -1894,6 +1895,32 @@ class CxClient extends RcModule {
       this.logger.error('checkVoicemail fail', error);
       return { status: 0, voiceMailEnabled: false };
     }
+  }
+
+  /**
+   * Where a lead field's VRU recording plays from: Agent One's
+   * `recording-access` proxy on the CX host
+   * (`apps/eag/src/app/phone/phone.detail.js` `_formatRecordingUrl`). A value
+   * that already is a proxy path only gets the host.
+   *
+   * The token is returned for the caller to send, so the audio can be fetched
+   * on the port that plays it.
+   */
+  @delegate('server')
+  async getRecordingAccess(fileUrl: string): Promise<CxRecordingAccess> {
+    const { engageAccessToken } = this._sdk.getAuthenticateRequest();
+    const authorization = `Bearer ${engageAccessToken}`;
+    if (fileUrl.startsWith('/')) {
+      return { url: `${this._options.authHost}${fileUrl}`, authorization };
+    }
+    const rcAccountId = this.getFullUserDetails()?.rcAccountId || '~';
+    const { accountId, guid } = this._sdk.getAgentSettings();
+    const path = `/cx/interactions/assets/delegate/v1/accounts/${rcAccountId}/sub-accounts/${accountId}/agent/recording-access`;
+    const query = `fileUrl=${encodeURIComponent(fileUrl)}&guid=${guid}`;
+    return {
+      url: `${this._options.authHost}${path}?${query}`,
+      authorization,
+    };
   }
 
   @delegate('server')

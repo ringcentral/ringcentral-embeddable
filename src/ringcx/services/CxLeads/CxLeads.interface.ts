@@ -61,6 +61,15 @@ export interface Lead {
   listDesc?: string;
   showListName?: boolean;
   showLeadPasses?: boolean;
+  address1?: string;
+  address2?: string;
+  auxData1?: string;
+  auxData2?: string;
+  auxData3?: string;
+  auxData4?: string;
+  auxData5?: string;
+  /** The lead's `extra_data` fields, flattened to `{ key: text }`. */
+  extraData?: Record<string, string>;
   [key: string]: any;
 }
 

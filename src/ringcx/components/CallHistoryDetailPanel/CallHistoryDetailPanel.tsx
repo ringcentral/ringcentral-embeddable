@@ -13,16 +13,16 @@ import {
   EditMd,
 } from '@ringcentral/spring-icon';
 import {
-  Block,
   CircularProgressIndicator,
   IconButton,
 } from '@ringcentral/spring-ui';
-import type { FunctionComponent, ReactNode } from 'react';
+import type { FunctionComponent } from 'react';
 import React, { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { ContactAvatar } from '@ringcentral-integration/micro-contacts/src/app/components/ContactAvatar';
 
 import { useCxCallContactRenderInfo } from '../../hooks/useCxCallContactRenderInfo';
+import { DetailCard, DetailField } from '../DetailCard';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
 import { ringCXLogId } from '../../lib/formatRingCXCall';
 import type { CallHistoryDetailPanelProps } from './CallHistoryDetailPanel.interface';
@@ -66,48 +66,6 @@ function formatDurationParts(
   }
   return `(${parts.join(' ')})`;
 }
-
-interface DetailFieldProps {
-  label: string;
-  value?: string;
-  'data-sign'?: string;
-}
-
-const DetailField: FunctionComponent<DetailFieldProps> = ({
-  label,
-  value,
-  'data-sign': dataSign,
-}) => {
-  if (!value) {
-    return null;
-  }
-  return (
-    <div className="min-w-0" data-sign={dataSign}>
-      <div className="typography-descriptorMini text-neutral-b2">{label}</div>
-      <div className="typography-mainText text-neutral-b1 truncate" title={value}>
-        {value}
-      </div>
-    </div>
-  );
-};
-
-interface DetailCardProps {
-  children: ReactNode;
-  'data-sign'?: string;
-}
-
-const DetailCard: FunctionComponent<DetailCardProps> = ({
-  children,
-  'data-sign': dataSign,
-}) => (
-  <Block
-    className="mb-2"
-    borderRadius="medium"
-    data-sign={dataSign}
-  >
-    {children}
-  </Block>
-);
 
 /**
  * CallHistoryDetailPanel - Read-only presentational component for call history detail
