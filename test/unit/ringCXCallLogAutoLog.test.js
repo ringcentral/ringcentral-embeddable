@@ -181,11 +181,14 @@ describe('RingCXAdapterBridge logAfterDisposition', () => {
     await expect(bridge.logAfterDisposition(input)).resolves.toBe(false);
 
     expect(_callLogger.logCall).toHaveBeenCalledWith(
-      expect.objectContaining({ triggerType: 'callDisposition' }),
+      expect.objectContaining({
+        triggerType: 'callDisposition',
+        redirect: true,
+      }),
     );
   });
 
-  test('only notifies the disposition with auto log off', async () => {
+  test('logs the disposed call with auto log off', async () => {
     const { bridge, _adapter, _callLogger } = createBridge({ autoLog: false });
 
     await expect(bridge.logAfterDisposition(input)).resolves.toBe(false);
@@ -194,7 +197,13 @@ describe('RingCXAdapterBridge logAfterDisposition', () => {
       'disposed',
       expect.anything(),
     );
-    expect(_callLogger.logCall).not.toHaveBeenCalled();
+    expect(_callLogger.logCall).toHaveBeenCalledWith(
+      expect.objectContaining({
+        triggerType: 'callDisposition',
+        redirect: true,
+        note: 'Note',
+      }),
+    );
   });
 
   test('asks for the host log page whatever the auto log setting', async () => {

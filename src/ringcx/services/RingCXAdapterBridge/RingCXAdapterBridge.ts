@@ -327,9 +327,9 @@ export class RingCXAdapterBridge
    * Returns true when the call is to be logged on the host log page, which
    * the caller opens once the call is over.
    *
-   * As for a call that ends without a disposition step, the host is sent the
-   * call log only with auto log on. The `disposed` event above still reaches
-   * it either way.
+   * A submitted disposition always sends the host the `callDisposition` log,
+   * whatever the auto log setting, unlike a call that ends without a
+   * disposition step.
    */
   async logAfterDisposition(input: {
     call: unknown;
@@ -346,9 +346,6 @@ export class RingCXAdapterBridge
     }
     if (this.shouldOpenLogPage) {
       return true;
-    }
-    if (!this._callLogger.autoLog) {
-      return false;
     }
     await this.logCall({
       call: input.call,
